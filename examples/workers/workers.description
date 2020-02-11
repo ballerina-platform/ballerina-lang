@@ -1,4 +1,4 @@
-// Workers in Ballerina allow developers to delegate their tasks to independently running executions.
+// Workers in Ballerina allow developers to delegate their tasks to parallel running executions.
 // Worker execution starts immediately after invoking the relevant function, remote function, or resource that encloses the worker(s).
 // Workers can be declared within functions, remote functions, or resources.
 // Worker execution starts immediately after executing the statements declared before the first worker declaration in the relevant function,
