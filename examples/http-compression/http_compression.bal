@@ -50,7 +50,7 @@ service alwaysCompress on listenerEndpoint {
     resource function getString(http:Caller caller, http:Request req) {
         var result = caller->respond("Type : This is a string");
         if (result is error) {
-            log:printError("Error sending response", err = result);
+            log:printError("Error sending response", result);
         }
     }
 }
