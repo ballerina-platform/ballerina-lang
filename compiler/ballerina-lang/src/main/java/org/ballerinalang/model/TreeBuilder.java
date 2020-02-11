@@ -136,7 +136,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
 import org.wso2.ballerinalang.compiler.tree.BLangErrorVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangExprFunctionBody;
-import org.wso2.ballerinalang.compiler.tree.BLangExternFunctionBody;
+import org.wso2.ballerinalang.compiler.tree.BLangExternalFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
@@ -321,7 +321,7 @@ public class TreeBuilder {
     }
 
     public static FunctionBodyNode createExternFunctionBodyNode() {
-        return new BLangExternFunctionBody();
+        return new BLangExternalFunctionBody();
     }
 
     public static BlockStatementNode createBlockNode() {

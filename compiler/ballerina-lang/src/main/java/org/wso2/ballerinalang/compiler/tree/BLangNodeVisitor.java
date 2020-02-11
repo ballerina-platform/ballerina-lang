@@ -184,7 +184,7 @@ public abstract class BLangNodeVisitor {
         throw new AssertionError();
     }
 
-    public void visit(BLangExternFunctionBody externFuncBody) {
+    public void visit(BLangExternalFunctionBody externFuncBody) {
         throw new AssertionError();
     }
 
