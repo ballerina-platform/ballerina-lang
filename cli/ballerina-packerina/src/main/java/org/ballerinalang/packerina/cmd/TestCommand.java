@@ -32,6 +32,7 @@ import org.ballerinalang.packerina.task.CreateJarTask;
 import org.ballerinalang.packerina.task.CreateTargetDirTask;
 import org.ballerinalang.packerina.task.RunTestsTask;
 import org.ballerinalang.tool.BLauncherCmd;
+import org.ballerinalang.tool.LauncherUtils;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
@@ -39,6 +40,7 @@ import org.wso2.ballerinalang.compiler.util.ProjectDirs;
 import org.wso2.ballerinalang.util.RepoUtils;
 import picocli.CommandLine;
 
+import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -183,11 +185,49 @@ public class TestCommand implements BLauncherCmd {
             }
         } else if (this.argList.get(0).endsWith(BLangConstants.BLANG_SRC_FILE_SUFFIX)) {
             // when a single bal file is provided.
-            CommandUtil.printError(this.errStream,
-                    "test command is only supported inside a Ballerina project",
-                    null,
-                    false);
-            CommandUtil.exitError(this.exitWhenFinish);
+            // Check if path given is an absolute path. Update root accordingly
+            sourcePath = (Paths.get(this.argList.get(0)).isAbsolute()) ?
+                    Paths.get(this.argList.get(0)) : sourceRootPath.resolve(this.argList.get(0));
+            sourceRootPath = sourcePath.getParent();
+
+            // Check if the command is executed from a ballerina project
+            // If function cannot find project root, then its likely not a ballerina project
+            if (ProjectDirs.findProjectRoot(this.sourceRootPath) != null) {
+                CommandUtil.printError(this.errStream,
+                        "you are trying to test a single file within a ballerina project." +
+                                " To run tests within a project, the module name must be specified.",
+                        "ballerina test <module-name>",
+                        false);
+                Runtime.getRuntime().exit(1);
+                return;
+            }
+
+            // Check if the given file exists
+            if (Files.notExists(sourcePath)) {
+                CommandUtil.printError(this.errStream,
+                        "'" + sourcePath + "' Ballerina file does not exist",
+                        null,
+                        false);
+                Runtime.getRuntime().exit(1);
+                return;
+            }
+
+            // Check if the given file is a regular file and not a symlink
+            if (!Files.isRegularFile(sourcePath)) {
+                CommandUtil.printError(this.errStream,
+                        "'" + sourcePath + "' is not a Ballerina file. check if it is a symlink or shortcut.",
+                        null,
+                        false);
+                Runtime.getRuntime().exit(1);
+                return;
+            }
+
+            // Create a temp directory for the target path
+            try {
+                targetPath = Files.createTempDirectory("ballerina-test-" + System.nanoTime());
+            } catch (IOException e) {
+                throw LauncherUtils.createLauncherException("error occured when creating executable.");
+            }
         } else if (Files.exists(
                 this.sourceRootPath.resolve(ProjectDirConstants.SOURCE_DIR_NAME).resolve(this.argList.get(0))) &&
                 Files.isDirectory(
