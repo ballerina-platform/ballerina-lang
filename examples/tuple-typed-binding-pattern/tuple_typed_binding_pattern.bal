@@ -29,7 +29,7 @@ public function main() {
                     d1, " ", d2, " ", d3, " ", d4, " ", d5, " ", d6);
 
     // Tuple variable definitions can also take union types.
-    [string|int|float, [string|float, int]][g1, [g2, g3]] =
+    [string|int|float, [string|float, int]] [g1, [g2, g3]] =
                                                     ["Ballerina", [3.4, 456]];
     io:println("Tuple variable : ", g1, " ", g2, " ", g3);
 }
