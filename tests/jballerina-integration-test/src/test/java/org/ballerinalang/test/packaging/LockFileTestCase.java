@@ -45,6 +45,7 @@ import java.util.stream.Stream;
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.awaitility.Awaitility.given;
+import static org.ballerinalang.test.packaging.ModulePushTestCase.REPO_TO_CENTRAL_SUCCESS_MSG;
 import static org.ballerinalang.test.packaging.PackerinaTestUtils.deleteFiles;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_COMPILED_PKG_BINARY_EXT;
 
@@ -52,6 +53,7 @@ import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_COM
  * Test case for locking dependencies with Ballerina.lock file.
  */
 public class LockFileTestCase extends BaseTest {
+    private static final String REPO_TO_CENTRAL_SUCCESS_MSG_WITH_VERSION = ":1.0.0" + REPO_TO_CENTRAL_SUCCESS_MSG;
     private Path tempHomeDirectory;
     private Path tempProjectsDirectory;
     private String orgName = "bcintegrationtest";
@@ -134,14 +136,14 @@ public class LockFileTestCase extends BaseTest {
         
         
         // Push built modules
-        String module1PushMsg = orgName + "/" + module1Name + ":1.0.0 [project repo -> central]";
-        String module2PushMsg = orgName + "/" + module2Name + ":1.0.0 [project repo -> central]";
-        LogLeecher module1PushLeecher = new LogLeecher(module1PushMsg);
-        LogLeecher module2PushLeecher = new LogLeecher(module2PushMsg);
+        String module1PushMsg = orgName + "/" + module1Name + REPO_TO_CENTRAL_SUCCESS_MSG_WITH_VERSION;
+        String module2PushMsg = orgName + "/" + module2Name + REPO_TO_CENTRAL_SUCCESS_MSG_WITH_VERSION;
+        LogLeecher module1PushLeecher = new LogLeecher(module1PushMsg, LogLeecher.LeecherType.INFO);
+        LogLeecher module2PushLeecher = new LogLeecher(module2PushMsg, LogLeecher.LeecherType.INFO);
         balClient.runMain("push", new String[]{"-a"}, envVariables, new String[]{},
                 new LogLeecher[]{module1PushLeecher, module2PushLeecher}, testProj1Path.toString());
-        module1PushLeecher.waitForText(5000);
-        module2PushLeecher.waitForText(5000);
+        module1PushLeecher.waitForText(15000);
+        module2PushLeecher.waitForText(15000);
     }
     
     /**
@@ -153,7 +155,7 @@ public class LockFileTestCase extends BaseTest {
      * @throws BallerinaTestException When running commands.
      */
     @Test(description = "Test building and running TestProject2", dependsOnMethods = "testBuildAndPushTestProject1")
-    public void testBuildTestProject2() throws IOException, BallerinaTestException {
+    public void testBuildTestProject2() throws IOException, BallerinaTestException, InterruptedException {
         // Replace module names in source file
         Path fooSayBal = testProj2Path.resolve("src").resolve("foo").resolve("foo_say.bal");
         Stream<String> lines = Files.lines(fooSayBal);
@@ -166,23 +168,14 @@ public class LockFileTestCase extends BaseTest {
                 .collect(Collectors.toList());
         Files.write(fooSayBal, replaced);
         lines.close();
-        
+
+        // Timeout to fix unable to read balo file, corrupted balo file error
+        SECONDS.sleep(60);
         // Build module
-        String fooBaloFileName = "foo-"
-                                 + ProgramFileConstants.IMPLEMENTATION_VERSION + "-"
-                                 + ProgramFileConstants.ANY_PLATFORM + "-"
-                                 + "9.9.9"
-                                 + BLANG_COMPILED_PKG_BINARY_EXT;
-        String fooBaloFile = "target" + File.separator + "balo" + File.separator + fooBaloFileName;
-        LogLeecher fooBuildLeecher = new LogLeecher(fooBaloFile);
-    
-        given().with().pollInterval(Duration.TEN_SECONDS).and()
-                .with().pollDelay(Duration.FIVE_SECONDS)
-                .await().atMost(120, SECONDS).until(() -> {
-            balClient.runMain("build", new String[]{"-a"}, envVariables, new String[]{}, new
-                    LogLeecher[]{fooBuildLeecher}, testProj2Path.toString());
-            return Files.exists(testProj2Path.resolve(fooBaloFile));
-        });
+        LogLeecher fooBuildLeecher = new LogLeecher("target/bin/foo.jar", LogLeecher.LeecherType.INFO);
+        balClient.runMain("build", new String[]{"-a"}, envVariables, new String[]{}, new
+                LogLeecher[]{fooBuildLeecher}, testProj2Path.toString());
+        fooBuildLeecher.waitForText(10000);
         
         // Run and see output
         String msg = "Hello john!";
@@ -240,14 +233,14 @@ public class LockFileTestCase extends BaseTest {
     
     
         // Push built modules
-        String module1PushMsg = orgName + "/" + module1Name + ":1.2.0 [project repo -> central]";
-        String module2PushMsg = orgName + "/" + module2Name + ":1.2.0 [project repo -> central]";
+        String module1PushMsg = orgName + "/" + module1Name + ":1.2.0" + REPO_TO_CENTRAL_SUCCESS_MSG;
+        String module2PushMsg = orgName + "/" + module2Name + ":1.2.0" + REPO_TO_CENTRAL_SUCCESS_MSG;
         LogLeecher module1PushLeecher = new LogLeecher(module1PushMsg);
         LogLeecher module2PushLeecher = new LogLeecher(module2PushMsg);
         balClient.runMain("push", new String[]{"-a"}, envVariables, new String[]{},
                 new LogLeecher[]{module1PushLeecher, module2PushLeecher}, testProj1Path.toString());
-        module1PushLeecher.waitForText(5000);
-        module2PushLeecher.waitForText(5000);
+        module1PushLeecher.waitForText(10000);
+        module2PushLeecher.waitForText(10000);
     }
     
     /**
@@ -337,10 +330,13 @@ public class LockFileTestCase extends BaseTest {
      */
     @Test(description = "Test rebuilding and running TestProject2 without lock file.",
           dependsOnMethods = "testRebuildTestProj2WithLockRemovedAndOffline")
-    public void testRebuildTestProj2WithLockRemoved() throws BallerinaTestException, IOException {
+    public void testRebuildTestProj2WithLockRemoved() throws BallerinaTestException, IOException, InterruptedException {
         // Delete Ballerina.lock
         Path lockFilePath = testProj2Path.resolve("Ballerina.lock");
         Files.delete(lockFilePath);
+
+        // Timeout to fix unable to read balo file, corrupted balo file error
+        SECONDS.sleep(30);
         
         // Build module
         String fooBaloFileName = "foo-"

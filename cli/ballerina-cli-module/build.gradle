@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  *
  */
- 
+
 apply from: "$rootDir/gradle/javaProject.gradle"
 
 configurations {
@@ -31,21 +31,14 @@ dependencies {
     bir project(path: ':ballerina-io',  configuration: 'bir')
     bir project(path: ':testerina:testerina-core',  configuration: 'bir')
 
-    testCompile project(':ballerina-io')
-
-    implementation project(':ballerina-lang')
-    implementation project(':ballerina-config')
-    implementation project(':ballerina-logging')
-    implementation project(':ballerina-backend-jvm')
     implementation project(':ballerina-runtime')
-    implementation project(':ballerina-tool')
-    implementation project(':testerina:testerina-core')
     implementation project(':toml-parser')
-    implementation project(':docerina')
-    implementation project(':ballerina-cli-module')
     implementation 'com.moandjiezana.toml:toml4j'
     implementation 'info.picocli:picocli'
     implementation 'org.apache.commons:commons-compress:1.18'
+    implementation 'me.tongfei:progressbar:0.7.4'
+    implementation 'org.jline:jline:3.11.0'
+    implementation 'javax.ws.rs:javax.ws.rs-api'
 
     testCompile 'org.testng:testng'
     testCompile 'com.moandjiezana.toml:toml4j'
@@ -96,4 +89,5 @@ test {
     }
 }
 
-description = 'Ballerina - Packerina'
+description = 'Ballerina - CLI Module'
+
