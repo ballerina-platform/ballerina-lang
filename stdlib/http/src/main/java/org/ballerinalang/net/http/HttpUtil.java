@@ -811,10 +811,11 @@ public class HttpUtil {
     }
 
     private static void setHeadersToTransportMessage(HttpCarbonMessage outboundMsg, ObjectValue messageObj) {
+        boolean request = isRequest(messageObj);
         ObjectValue entityObj = (ObjectValue) messageObj
-                .get(isRequest(messageObj) ? REQUEST_ENTITY_FIELD : RESPONSE_ENTITY_FIELD);
+                .get(request ? REQUEST_ENTITY_FIELD : RESPONSE_ENTITY_FIELD);
         HttpHeaders transportHeaders = outboundMsg.getHeaders();
-        if (isRequest(messageObj) || isResponse(messageObj)) {
+        if (request || isResponse(messageObj)) {
             addRemovedPropertiesBackToHeadersMap(messageObj, transportHeaders);
             // Since now the InRequest & OutRequest are merged to a single Request and InResponse & OutResponse
             // are merged to a single Response, without returning need to populate all headers from the struct
@@ -832,11 +833,12 @@ public class HttpUtil {
             //both refer the same header map for future operations
             entityObj.addNativeData(ENTITY_HEADERS, outboundMsg.getHeaders());
         }
-
-        HttpHeaders transportTrailingHeaders = outboundMsg.getTrailerHeaders();
-        HttpHeaders trailingHeaders = (HttpHeaders) entityObj.getNativeData(ENTITY_TRAILER_HEADERS);
-        if (trailingHeaders != null && trailingHeaders != transportTrailingHeaders) {
-            transportTrailingHeaders.add(trailingHeaders);
+        if (!request) {
+            HttpHeaders transportTrailingHeaders = outboundMsg.getTrailerHeaders();
+            HttpHeaders trailingHeaders = (HttpHeaders) entityObj.getNativeData(ENTITY_TRAILER_HEADERS);
+            if (trailingHeaders != null && trailingHeaders != transportTrailingHeaders) {
+                transportTrailingHeaders.add(trailingHeaders);
+            }
         }
     }
 

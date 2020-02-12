@@ -22,7 +22,7 @@ http:Response response = getResponse();
 @http:ServiceConfig {
     basePath: "hello"
 }
-service sameResponse on new http:Listener(9256) {
+service sameResponse on new http:Listener(9258) {
     @http:ResourceConfig {
         path: "/"
     }
