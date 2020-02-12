@@ -87,8 +87,8 @@ public class BuildCommandTest extends CommandTest {
         String buildLog = readOutput(true);
         Assert.assertEquals(buildLog.replaceAll("\r", ""),
                 "ballerina: invalid Ballerina source path. It should either be a name of a module " +
-                                      "in a Ballerina project or a file with a '.bal' extension. Use the -a or " +
-                                      "--all flag to build or compile all modules.\n" +
+                                      "in a Ballerina project or a file with a '.bal' extension. Use -a or " +
+                                      "--all to build or compile all modules.\n" +
                                       "\n" +
                                       "USAGE:\n" +
                                       "    ballerina build {<ballerina-file> | <module-name> | -a | --all}\n" +
@@ -269,7 +269,7 @@ public class BuildCommandTest extends CommandTest {
         String buildLog = readOutput(true);
         Assert.assertEquals(buildLog.replaceAll("\r", ""),
                                       "ballerina: 'build' command requires a module name or a Ballerina file to " +
-                                      "build/compile. use '-a' or '--all' flag to build/compile all the modules of " +
+                                      "build/compile. use '-a' or '--all' to build/compile all the modules of " +
                                       "the project.\n" +
                                       "\n" +
                                       "USAGE:\n" +
@@ -342,8 +342,8 @@ public class BuildCommandTest extends CommandTest {
         String buildLog = readOutput(true);
         Assert.assertEquals(buildLog.replaceAll("\r", ""),
                 "ballerina: invalid Ballerina source path. It should either be a name of a module " +
-                                      "in a Ballerina project or a file with a '.bal' extension. Use the -a or --all " +
-                                      "flag to build or compile all modules.\n" +
+                                      "in a Ballerina project or a file with a '.bal' extension. Use -a or --all " +
+                                      "to build or compile all modules.\n" +
                                       "\n" +
                                       "USAGE:\n" +
                                       "    ballerina build {<ballerina-file> | <module-name> | -a | --all}\n" +
