@@ -269,7 +269,7 @@ public class BuildCommandTest extends CommandTest {
         String buildLog = readOutput(true);
         Assert.assertEquals(buildLog.replaceAll("\r", ""),
                                       "ballerina: 'build' command requires a module name or a Ballerina file to " +
-                                      "build/compile. use '-a' or '--all' to build/compile all the modules of " +
+                                      "build/compile. Use '-a' or '--all' to build/compile all the modules of " +
                                       "the project.\n" +
                                       "\n" +
                                       "USAGE:\n" +
