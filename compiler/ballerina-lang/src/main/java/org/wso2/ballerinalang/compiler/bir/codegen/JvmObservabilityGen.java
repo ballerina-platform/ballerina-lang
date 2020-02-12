@@ -27,7 +27,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_VALUE;
 
 /**
- * BIR observability model to JMV byte code generation class.
+ * BIR observability model to JVM byte code generation class.
  *
  * @since 1.2.0
  */
