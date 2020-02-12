@@ -25,6 +25,9 @@ import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRFunction;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRPackage;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRVariableDcl;
 import org.wso2.ballerinalang.compiler.bir.model.BIROperand;
+import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator;
+import org.wso2.ballerinalang.compiler.bir.model.BIRVisitor;
+import org.wso2.ballerinalang.compiler.bir.model.InstructionKind;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
@@ -276,17 +279,28 @@ public class ExternalMethodGen {
         String jMethodVMSigBString = null;
     }
 
-    public static class JavaMethodCall {
+    public static class JavaMethodCall extends BIRTerminator {
         DiagnosticPos pos;
         @Nilable
+        public
         List<BIRVarRef> args;
-        BIRTerminatorKind kind;
+        InstructionKind kind;
         @Nilable
+        public
         BIRVarRef lhsOp;
-        String jClassName;
-        String jMethodVMSig;
-        String jMethodVMSigBString;
-        String name;
+        public String jClassName;
+        public String jMethodVMSig;
+        public String jMethodVMSigBString;
+        public String name;
         BIRBasicBlock thenBB;
+
+        public JavaMethodCall(DiagnosticPos pos, InstructionKind kind) {
+            super(pos, kind);
+        }
+
+        @Override
+        public void accept(BIRVisitor visitor) {
+
+        }
     }
 }

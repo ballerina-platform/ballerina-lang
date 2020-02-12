@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  WSO2 Inc. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
@@ -23,11 +23,10 @@ import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
+import org.wso2.ballerinalang.compiler.bir.model.BIRInstruction;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRFunction;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRPackage;
-import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator;
-import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
@@ -38,7 +37,6 @@ import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 
-import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -130,7 +128,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.interop.ExternalMethod
 import static org.wso2.ballerinalang.compiler.bir.codegen.interop.ExternalMethodGen.lookupBIRFunctionWrapper;
 
 /**
- * jBallerina value generation class.
+ * BIR values to JVM byte code generation class.
  *
  * @since 1.2.0
  */
@@ -263,8 +261,7 @@ class JvmValueGen {
         BRecordType currentRecordType = null;
 
         private void createLambdas(ClassWriter cw) {
-            for (Map.Entry<String, AbstractMap.SimpleEntry<BIRTerminator.AsyncCall, BIRNonTerminator.FPLoad>> entry :
-                    JvmPackageGen.lambdas.entrySet()) {
+            for (Map.Entry<String, BIRInstruction> entry : JvmPackageGen.lambdas.entrySet()) {
                generateLambdaMethod(entry.getValue(), cw, entry.getKey());
             }
 
