@@ -4,7 +4,7 @@ public function main() {
 
     // Tuple variables can be destructured with new values when used as a tuple variable
     // reference based binding pattern.
-    [string, [int, boolean]][a1, [a2, a3]] = ["Hello", [123, true]];
+    [string, [int, boolean]] [a1, [a2, a3]] = ["Hello", [123, true]];
     [a1, [a2, a3]] = ["Ballerina", [453, false]];
     io:println("Tuple variable : ", a1, " ", a2, " ", a3);
 
