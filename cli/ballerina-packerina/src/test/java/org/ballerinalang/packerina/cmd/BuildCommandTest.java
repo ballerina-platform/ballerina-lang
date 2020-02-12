@@ -523,8 +523,8 @@ public class BuildCommandTest extends CommandTest {
         Assert.assertTrue(Files.exists(myModuleJar));
         JarFile jar = new JarFile(myModuleJar.toFile());
         // check resources
-        Assert.assertNotNull(jar.getJarEntry("resources/testOrg/mymodule/0.1.0/resource.txt"));
-        Assert.assertNotNull(jar.getJarEntry("resources/testOrg/mymodule/0.1.0/myresource/insideDirectory.txt"));
+        Assert.assertNotNull(jar.getJarEntry("resources/testOrg/mymodule/resource.txt"));
+        Assert.assertNotNull(jar.getJarEntry("resources/testOrg/mymodule/myresource/insideDirectory.txt"));
     }
     
     @Test(dependsOnMethods = {"testBuildOutput"})
