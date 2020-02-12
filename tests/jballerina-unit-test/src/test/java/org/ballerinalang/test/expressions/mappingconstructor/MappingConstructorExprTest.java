@@ -102,7 +102,8 @@ public class MappingConstructorExprTest {
                 { "testMappingConstuctorWithAnyACET" },
                 { "testMappingConstuctorWithAnydataACET" },
                 { "testMappingConstuctorWithJsonACET" },
-                { "testMappingConstrExprWithNoACET" }
+                { "testMappingConstrExprWithNoACET" },
+                { "testMappingConstrExprWithNoACET2" }
         };
     }
 

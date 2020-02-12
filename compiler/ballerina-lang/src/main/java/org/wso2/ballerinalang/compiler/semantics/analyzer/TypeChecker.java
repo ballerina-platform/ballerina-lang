@@ -143,6 +143,7 @@ import org.wso2.ballerinalang.util.Flags;
 import org.wso2.ballerinalang.util.Lists;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -4809,36 +4810,39 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     private BType getRepresentativeBroadType(List<BLangExpression> exprs) {
-        LinkedHashSet<BType> narrowTypes = new LinkedHashSet<>();
-        LinkedHashSet<BType> broadTypesSet = new LinkedHashSet<>();
-        BType[] inferredTypes = checkExprList(exprs, env);
-        for (BType type : inferredTypes) {
+        ArrayList<BType> inferredTypeList = new ArrayList<>(Arrays.asList(checkExprList(exprs, env)));
+
+        for (int i = 0; i < inferredTypeList.size(); i++) {
+            BType type = inferredTypeList.get(i);
             if (type.tag == TypeTags.SEMANTIC_ERROR) {
                 return type;
             }
 
-            if (narrowTypes.stream().noneMatch(nType -> types.isSameType(type, nType))) {
-                narrowTypes.add(type);
-            }
-        }
-        BType broadType;
-        for (BType t1 : narrowTypes) {
-            broadType = t1;
-            for (BType t2 : narrowTypes) {
-                if (types.isAssignable(t2, t1)) {
-                    broadType = t1;
-                } else if (types.isAssignable(t1, t2)) {
-                    broadType = t2;
+            for (int j = i + 1; j < inferredTypeList.size(); j++) {
+                BType otherType = inferredTypeList.get(j);
+
+                if (otherType.tag == TypeTags.SEMANTIC_ERROR) {
+                    return otherType;
+                }
+
+                if (types.isAssignable(type, otherType)) {
+                    inferredTypeList.remove(i);
+                    i -= 1;
+                    break;
+                }
+
+                if (types.isAssignable(otherType, type)) {
+                    inferredTypeList.remove(j);
+                    j -= 1;
                 }
             }
-            broadTypesSet.add(broadType);
         }
 
-        if (broadTypesSet.size() == 1) {
-            return broadTypesSet.iterator().next();
+        if (inferredTypeList.size() == 1) {
+            return inferredTypeList.get(0);
         }
 
-        return BUnionType.create(null, broadTypesSet);
+        return BUnionType.create(null, inferredTypeList.toArray(new BType[0]));
     }
 
     private BRecordType defineInferredRecordType(BLangRecordLiteral recordLiteral) {

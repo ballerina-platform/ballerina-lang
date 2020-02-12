@@ -222,6 +222,28 @@ function testMappingConstrExprWithNoACET() {
     panic getFailureError(expectedTypedescString, typedescString);
 }
 
+function testMappingConstrExprWithNoACET2() {
+    string expectedTypedescString = "typedesc map<json|xml>";
+
+    json j = 2;
+
+    var v2 = {
+        a: 1,
+        b: j,
+        c: 23.10,
+        d: xml `foo`,
+        e: "str"
+    };
+
+    typedesc<any> ta = typeof v2;
+    string typedescString = ta.toString();
+
+    if typedescString == expectedTypedescString {
+        return;
+    }
+    panic getFailureError(expectedTypedescString, typedescString);
+}
+
 type Bar object {
     public function __init(any arg) {
 
