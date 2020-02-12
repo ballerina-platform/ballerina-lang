@@ -44,7 +44,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNoType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BSemanticErrorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BServiceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
@@ -111,17 +110,14 @@ public class SymbolTable {
     public final BType arrayType = new BArrayType(noType);
     public final BType tupleType = new BTupleType(Lists.of(noType));
     public final BType recordType = new BRecordType(null);
-    public final BType intArrayType = new BArrayType(intType);
     public final BType stringArrayType = new BArrayType(stringType);
     public final BType jsonArrayType = new BArrayType(jsonType);
     public final BType anydataArrayType = new BArrayType(anydataType);
-    public final BType anydataMapArrayType = new BArrayType(mapAnydataType);
     public final BType anyServiceType = new BServiceType(null);
     public final BType handleType = new BHandleType(TypeTags.HANDLE, null);
     public final BType typeDesc;
 
-    public final BTypeSymbol semanticErrSymbol;
-    public final BType semanticError;
+    public final BType semanticError = new BType(TypeTags.SEMANTIC_ERROR, null);
 
     public BErrorType errorType;
     public BRecordType detailType;
@@ -200,13 +196,6 @@ public class SymbolTable {
         initializeType(nilType, TypeKind.NIL.typeName());
         initializeType(anyServiceType, TypeKind.SERVICE.typeName());
         initializeType(handleType, TypeKind.HANDLE.typeName());
-
-
-        // Initialize semantic error type;
-        this.semanticError = new BSemanticErrorType(null);
-        this.semanticErrSymbol = new BTypeSymbol(SymTag.SEMANTIC_ERROR, Flags.PUBLIC, Names.INVALID,
-                rootPkgSymbol.pkgID, semanticError, rootPkgSymbol);
-        defineType(semanticError, semanticErrSymbol);
 
         this.typeDesc = new BTypedescType(this.anyType, null);
         initializeType(typeDesc, TypeKind.TYPEDESC.typeName());
