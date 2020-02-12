@@ -150,7 +150,7 @@ public class BallerinaFileBuilder {
                     if (MethodDescriptor.MethodType.UNARY.equals(method.getMethodType())) {
                         isUnaryContains = true;
                     }
-                    if (method.containsEmptyType() && !(stubFileObject.messageExists(EMPTY_DATA_TYPE))) {
+                    if (method.containsEmptyType() && !(stubFileObject.isMessageExists(EMPTY_DATA_TYPE))) {
                         Message message = Message.newBuilder(EmptyMessage.newBuilder().getDescriptor().toProto())
                                 .build();
                         messageList.add(message);

@@ -36,11 +36,12 @@ public abstract class AbstractStub {
         }
         return 1;
     });
+
     public void addMessage(Message message) {
         messageList.add(message);
     }
 
-    public boolean messageExists(String messageName) {
+    public boolean isMessageExists(String messageName) {
         if (messageName == null) {
             return false;
         }
