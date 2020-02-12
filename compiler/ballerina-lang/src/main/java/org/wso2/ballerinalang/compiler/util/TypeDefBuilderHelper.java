@@ -148,7 +148,7 @@ public class TypeDefBuilderHelper {
         return initFunction;
     }
 
-    public static void createTypeDefinition(BType type, BTypeSymbol symbol, BLangType typeNode, SymbolEnv env) {
+    public static void addTypeDefinition(BType type, BTypeSymbol symbol, BLangType typeNode, SymbolEnv env) {
         BLangTypeDefinition typeDefinition = (BLangTypeDefinition) TreeBuilder.createTypeDefinition();
         env.enclPkg.addTypeDefinition(typeDefinition);
         typeDefinition.typeNode = typeNode;

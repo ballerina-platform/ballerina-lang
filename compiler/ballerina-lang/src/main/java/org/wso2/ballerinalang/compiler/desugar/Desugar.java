@@ -2025,11 +2025,11 @@ public class Desugar extends BLangNodeVisitor {
                 createVarRefAssignmentStmts((BLangRecordVarRef) expression, parentBlockStmt, tupleVarSymbol,
                         arrayAccessExpr);
 
-                TypeDefBuilderHelper.createTypeDefinition(recordVarRef.type, recordVarRef.type.tsymbol,
-                                                          TypeDefBuilderHelper.createRecordTypeNode(
+                TypeDefBuilderHelper.addTypeDefinition(recordVarRef.type, recordVarRef.type.tsymbol,
+                                                       TypeDefBuilderHelper.createRecordTypeNode(
                                                                   (BRecordType) recordVarRef.type,
                                                                   env.enclPkg.packageID, symTable, recordVarRef.pos),
-                                                          env);
+                                                       env);
 
                 continue;
             }
@@ -5270,7 +5270,7 @@ public class Desugar extends BLangNodeVisitor {
             recordTypeNode.initFunction =
                     rewrite(TypeDefBuilderHelper.createInitFunctionForRecordType(recordTypeNode, env, names, symTable),
                             env);
-            TypeDefBuilderHelper.createTypeDefinition(recordVarType, recordSymbol, recordTypeNode, env);
+            TypeDefBuilderHelper.addTypeDefinition(recordVarType, recordSymbol, recordTypeNode, env);
 
             return recordVarType;
         }
@@ -5290,14 +5290,14 @@ public class Desugar extends BLangNodeVisitor {
                 detailType = createDetailType(errorVariable.detail, errorVariable.restDetail, errorCount++);
 
                 BLangRecordTypeNode recordTypeNode = createRecordTypeNode(errorVariable, (BRecordType) detailType);
-                TypeDefBuilderHelper.createTypeDefinition(detailType, detailType.tsymbol, recordTypeNode, env);
+                TypeDefBuilderHelper.addTypeDefinition(detailType, detailType.tsymbol, recordTypeNode, env);
             }
             BErrorType errorType = new BErrorType(errorTypeSymbol,
                     ((BErrorType) errorVariable.type).reasonType,
                     detailType);
             errorTypeSymbol.type = errorType;
 
-            TypeDefBuilderHelper.createTypeDefinition(errorType, errorTypeSymbol, createErrorTypeNode(errorType), env);
+            TypeDefBuilderHelper.addTypeDefinition(errorType, errorTypeSymbol, createErrorTypeNode(errorType), env);
             return errorType;
         }
 

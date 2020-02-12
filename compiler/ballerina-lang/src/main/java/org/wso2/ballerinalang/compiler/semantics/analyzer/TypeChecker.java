@@ -4914,7 +4914,7 @@ public class TypeChecker extends BLangNodeVisitor {
                                                                                        recordLiteral.pos);
         recordTypeNode.initFunction = TypeDefBuilderHelper.createInitFunctionForRecordType(recordTypeNode, env, names,
                                                                                            symTable);
-        TypeDefBuilderHelper.createTypeDefinition(recordType, recordSymbol, recordTypeNode, env);
+        TypeDefBuilderHelper.addTypeDefinition(recordType, recordSymbol, recordTypeNode, env);
 
         return recordType;
     }

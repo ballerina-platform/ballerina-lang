@@ -18,7 +18,6 @@
 
 package org.ballerinalang.test.query;
 
-import org.ballerinalang.test.util.BAssertUtil;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
