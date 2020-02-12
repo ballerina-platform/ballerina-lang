@@ -57,7 +57,7 @@ public class RunTestsTask implements Task {
         }
     }
 
-    public RunTestsTask(){
+    public RunTestsTask() {
 
     }
 

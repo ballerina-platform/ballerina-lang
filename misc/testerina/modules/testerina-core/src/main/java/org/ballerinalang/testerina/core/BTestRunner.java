@@ -126,7 +126,7 @@ public class BTestRunner {
     }
 
     /**
-     * Executes a given set of ballerina program files when running tests in unit tests.
+     * Executes a given set of Ballerina program files when running tests in the unit tests.
      *
      * @param sourceRoot          source root
      * @param sourceFilePaths     List of @{@link Path} of ballerina files
@@ -146,7 +146,7 @@ public class BTestRunner {
     }
 
     /**
-     * Executes a given set of ballerina program files when running tests using the build/test command.
+     * Executes a given set of Ballerina program files when running tests using the build/test command.
      *
      * @param packageList map containing bLangPackage nodes along with their compiled program files
      */
@@ -179,7 +179,7 @@ public class BTestRunner {
      * @param packageList map containing bLangPackage nodes along with their compiled program files
      */
     public void listGroups(Map<BLangPackage, TestarinaClassLoader> packageList) {
-        //Build the test suites
+        //Builds the test suites.
         buildSuites(packageList);
         List<String> groupList = getGroupList();
         if (groupList.size() == 0) {
@@ -191,10 +191,10 @@ public class BTestRunner {
     }
 
     /**
-     * Lists the groups available in tests. This method is used for unit testing.
+     * Lists the groups available in the tests. This method is used for unit testing.
      *
      * @param sourceRoot source root of the project
-     * @param sourceFilePaths module or program file paths
+     * @param sourceFilePaths file paths of the module or program 
      * @param enableExpFeatures Flag indicating to enable the experimental feature
      */
     public void listGroups(String sourceRoot, Path[] sourceFilePaths, boolean enableExpFeatures) {
@@ -948,4 +948,3 @@ public class BTestRunner {
     }
 
 }
-
