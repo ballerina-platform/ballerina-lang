@@ -518,16 +518,57 @@ public class CommandUtil {
     }
 
     private static Position offsetInvocation(String diagnosedContent, Position position) {
+//        Need to capture the correct function invocation position in chain & nested invocations
+//        eg. General Invocations: lorry.get_color()
+//            Chain invocations: lorry.get_color().print(10),
+//            Package Prefixes: http:lorry.get_color()
+//            Action invocations: http:lorry->action()
+//            Nested invocations: crypto:hashMd5(str.toBytes())
+//            Field accesses: http:lorry.get_color
+//            String Params: lorry.get_color("test.invoke(\"")
+        String content = diagnosedContent;
+        int pendingLParenthesis = 0;
+        boolean loop = true;
+        boolean insideString = false;
+        int count = 0;
+        int pointer = content.length();
+        while (loop) {
+            pointer--;
+            if (content.length() == 2) {
+                break;
+            }
+            // Check for stop-conditions
+            char tailChar = content.charAt(pointer);
+            char tailPrevChar = content.charAt(pointer - 1);
+            if (tailChar == '"' && tailPrevChar != '\\') {
+                insideString = !insideString;
+            }
+            if (!insideString) {
+                if (pendingLParenthesis <= 0) {
+                    if (tailChar == '.' || tailChar == ':') {
+                        // Break on field-access or package-prefix
+                        count++;
+                        break;
+                    } else if ((tailPrevChar == '-' && tailChar == '>')) {
+                        // Break on arrow-function invocations
+                        count += 2;
+                        break;
+                    }
+                }
+                // Remove chars Right-to-Left
+                if (tailChar == '(') {
+                    pendingLParenthesis--;
+                } else if (tailChar == ')') {
+                    pendingLParenthesis++;
+                }
+            }
+            content = content.substring(0, pointer);
+            count++;
+        }
+
         // Diagnosed message only contains the erroneous part of the line
         // Thus we offset into last
-        int leftParenthesisIndex = diagnosedContent.indexOf("(");
-        diagnosedContent = (leftParenthesisIndex == -1) ? diagnosedContent
-                : diagnosedContent.substring(0, leftParenthesisIndex);
-        String quotesRemoved = diagnosedContent
-                .replaceAll(".*:", "") // package invocation
-                .replaceAll(".*->", "") // action invocation
-                .replaceAll(".*\\.", ""); // object access invocation
-        int bal = diagnosedContent.length() - quotesRemoved.length();
+        int bal = diagnosedContent.length() - count;
         if (bal > 0) {
             position.setCharacter(position.getCharacter() + bal + 1);
         }
