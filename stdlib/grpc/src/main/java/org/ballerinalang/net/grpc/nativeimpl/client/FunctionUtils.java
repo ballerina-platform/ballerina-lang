@@ -248,11 +248,12 @@ public class FunctionUtils extends AbstractExecute {
                 requestMsg.setHeaders(headers);
             }
             BlockingStub blockingStub = (BlockingStub) connectionStub;
+            DataContext dataContext = null;
             try {
                 MethodDescriptor.MethodType methodType = getMethodType(methodDescriptor);
                 if (methodType.equals(MethodDescriptor.MethodType.UNARY)) {
 
-                    DataContext dataContext = new DataContext(Scheduler.getStrand(),
+                    dataContext = new DataContext(Scheduler.getStrand(),
                             new NonBlockingCallback(Scheduler.getStrand()));
                     blockingStub.executeUnary(requestMsg, methodDescriptors.get(methodName), dataContext);
                 } else {
@@ -260,6 +261,9 @@ public class FunctionUtils extends AbstractExecute {
                             methodType.name() + " not supported");
                 }
             } catch (Exception e) {
+                if (dataContext != null) {
+                    dataContext.getCallback().notifyFailure(MessageUtils.getConnectorError(e));
+                }
                 return notifyErrorReply(INTERNAL, "gRPC Client Connector Error :" + e.getMessage());
             }
         } else {

@@ -19,6 +19,7 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.handler.codec.http.DefaultHttpContent;
 import io.netty.handler.codec.http.DefaultLastHttpContent;
+import org.ballerinalang.net.grpc.exception.StatusRuntimeException;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 import java.io.ByteArrayInputStream;
@@ -90,6 +91,8 @@ public class MessageFramer {
             } else {
                 written = writeUncompressed(message, messageLength);
             }
+        } catch (StatusRuntimeException e) {
+            throw e;
         } catch (IOException | RuntimeException e) {
             throw Status.Code.INTERNAL.toStatus()
                     .withDescription("Failed to frame message")

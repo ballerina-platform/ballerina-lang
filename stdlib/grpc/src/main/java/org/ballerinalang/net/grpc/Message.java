@@ -32,6 +32,7 @@ import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
+import org.ballerinalang.jvm.values.api.BMap;
 import org.ballerinalang.jvm.values.api.BValueCreator;
 import org.ballerinalang.jvm.values.utils.StringUtils;
 
@@ -60,6 +61,12 @@ public class Message {
         this.messageName = messageName;
         this.bMessage = bMessage;
         this.descriptor = MessageRegistry.getInstance().getMessageDescriptor(messageName);
+    }
+
+    public Message(Descriptors.Descriptor descriptor, Object bMessage) {
+        this.descriptor = descriptor;
+        this.bMessage = bMessage;
+        this.messageName = descriptor.getName();
     }
 
     private Message(String messageName) {
@@ -114,9 +121,9 @@ public class Message {
             }
         }
 
-        MapValue<String, Object> bMapValue = null;
+        BMap<String, Object> bMapValue = null;
         if (bType.getTag() == TypeTags.RECORD_TYPE_TAG) {
-            bMapValue = new MapValueImpl<>(bType);
+            bMapValue = BValueCreator.createRecordValue(bType.getPackage(), bType.getName());
             bMessage = bMapValue;
         }
 
@@ -440,7 +447,7 @@ public class Message {
         }
     }
 
-    private void updateBMapValue(BType bType, MapValue<String, Object> bMapValue,
+    private void updateBMapValue(BType bType, BMap<String, Object> bMapValue,
                                  Descriptors.FieldDescriptor fieldDescriptor, Object bValue) {
         MapValue<String, Object> bMsg = getOneOfBValue(bType, fieldDescriptor, bValue);
         bMapValue.put(fieldDescriptor.getContainingOneof().getName(), bMsg);
@@ -472,6 +479,13 @@ public class Message {
             return;
         }
         Descriptors.Descriptor messageDescriptor = getDescriptor();
+        if (messageDescriptor == null) {
+            throw Status.Code.INTERNAL.toStatus()
+                    .withDescription("Error while processing the message, Couldn't find message descriptor for " +
+                            "message name: " + messageName)
+                    .asRuntimeException();
+        }
+
         MapValue<String, Object> bMapValue = null;
         if (bMessage instanceof MapValue) {
             bMapValue = (MapValue) bMessage;
@@ -687,15 +701,14 @@ public class Message {
                         if (bValue instanceof ArrayValue) {
                             ArrayValue valueArray = (ArrayValue) bValue;
                             for (int i = 0; i < valueArray.size(); i++) {
-                                Message message = new Message(fieldDescriptor.getMessageType().getName(),
+                                Message message = new Message(fieldDescriptor.getMessageType(),
                                         valueArray.getRefValue(i));
                                 output.writeTag(fieldDescriptor.getNumber(), WireFormat.WIRETYPE_LENGTH_DELIMITED);
                                 output.writeUInt32NoTag(message.getSerializedSize());
                                 message.writeTo(output);
                             }
                         } else {
-                            Message message = new Message(fieldDescriptor.getMessageType().getName(),
-                                    bValue);
+                            Message message = new Message(fieldDescriptor.getMessageType(), bValue);
                             output.writeTag(fieldDescriptor.getNumber(), WireFormat.WIRETYPE_LENGTH_DELIMITED);
                             output.writeUInt32NoTag(message.getSerializedSize());
                             message.writeTo(output);
@@ -703,7 +716,7 @@ public class Message {
                     } else if (isOneofField(bMapValue, fieldDescriptor)) {
                         Object bValue = getOneofFieldMap(bMapValue, fieldDescriptor);
                         if (hasOneofFieldValue(fieldDescriptor.getName(), bValue)) {
-                            Message message = new Message(fieldDescriptor.getMessageType().getName(),
+                            Message message = new Message(fieldDescriptor.getMessageType(),
                                     ((MapValue) bValue).get(fieldDescriptor.getName()));
                             output.writeTag(fieldDescriptor.getNumber(), WireFormat.WIRETYPE_LENGTH_DELIMITED);
                             output.writeUInt32NoTag(message.getSerializedSize());
@@ -777,7 +790,8 @@ public class Message {
         Descriptors.Descriptor messageDescriptor = getDescriptor();
         if (messageDescriptor == null) {
             throw Status.Code.INTERNAL.toStatus()
-                    .withDescription("Error while processing the message, Couldn't find message descriptor.")
+                    .withDescription("Error while processing the message, Couldn't find message descriptor for " +
+                            "message name: " + messageName)
                     .asRuntimeException();
         }
         MapValue<String, Object> bMapValue = null;
@@ -1020,18 +1034,18 @@ public class Message {
                             ArrayValue valueArray = (ArrayValue) bValue;
                             for (int i = 0; i < valueArray.size(); i++) {
                                 MapValue<String, Object> value = (MapValue) valueArray.getRefValue(i);
-                                Message message = new Message(fieldDescriptor.getMessageType().getName(), value);
+                                Message message = new Message(fieldDescriptor.getMessageType(), value);
                                 size += computeMessageSize(fieldDescriptor, message);
                             }
                         } else {
-                            Message message = new Message(fieldDescriptor.getMessageType().getName(),
+                            Message message = new Message(fieldDescriptor.getMessageType(),
                                     bValue);
                             size += computeMessageSize(fieldDescriptor, message);
                         }
                     } else if (isOneofField(bMapValue, fieldDescriptor)) {
                         Object bValue = getOneofFieldMap(bMapValue, fieldDescriptor);
                         if (hasOneofFieldValue(fieldDescriptor.getName(), bValue)) {
-                            Message message = new Message(fieldDescriptor.getMessageType().getName(),
+                            Message message = new Message(fieldDescriptor.getMessageType(),
                                     ((MapValue) bValue).get(fieldDescriptor.getName()));
                             size += computeMessageSize(fieldDescriptor, message);
                         }
@@ -1116,7 +1130,7 @@ public class Message {
                                 final CodedInputStream in) throws IOException {
         int length = in.readRawVarint32();
         final int oldLimit = in.pushLimit(length);
-        Message result = new MessageParser(fieldDescriptor.getMessageType().getName(), bType).parseFrom(in);
+        Message result = new MessageParser(fieldDescriptor.getMessageType(), bType).parseFrom(in);
         in.popLimit(oldLimit);
         return result;
     }
