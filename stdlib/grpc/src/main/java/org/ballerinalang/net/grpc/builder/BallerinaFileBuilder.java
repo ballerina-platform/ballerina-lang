@@ -54,6 +54,7 @@ import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
@@ -85,18 +86,18 @@ public class BallerinaFileBuilder {
     private byte[] rootDescriptor;
     private Set<byte[]> dependentDescriptors;
     private String balOutPath;
-    
+
     public BallerinaFileBuilder(byte[] rootDescriptor, Set<byte[]> dependentDescriptors) {
         setRootDescriptor(rootDescriptor);
         this.dependentDescriptors = dependentDescriptors;
     }
-    
+
     public BallerinaFileBuilder(byte[] rootDescriptor, Set<byte[]> dependentDescriptors, String balOutPath) {
         setRootDescriptor(rootDescriptor);
         this.dependentDescriptors = dependentDescriptors;
         this.balOutPath = balOutPath;
     }
-    
+
     public void build(String mode) throws CodeBuilderException {
         // compute root descriptor source code.
         computeSourceContent(rootDescriptor, mode);
@@ -114,26 +115,13 @@ public class BallerinaFileBuilder {
             if (fileDescriptorSet.getPackage().contains(GOOGLE_STANDARD_LIB)) {
                 return;
             }
-
             List<DescriptorProtos.ServiceDescriptorProto> serviceDescriptotList = fileDescriptorSet.getServiceList();
             List<DescriptorProtos.DescriptorProto> messageTypeList = fileDescriptorSet.getMessageTypeList();
             List<DescriptorProtos.EnumDescriptorProto> enumDescriptorProtos = fileDescriptorSet.getEnumTypeList();
+            List<Message> messageList = new ArrayList<>();
             String filename = new File(fileDescriptorSet.getName()).getName().replace(PROTO_FILE_EXTENSION, "");
             String filePackage = fileDescriptorSet.getPackage();
             StubFile stubFileObject = new StubFile(filename);
-
-            if (descriptor == rootDescriptor) {
-                // Add root descriptor.
-                Descriptor rootDesc = Descriptor.newBuilder(descriptor).build();
-                stubFileObject.setRootDescriptor(rootDesc.getData());
-                stubFileObject.addDescriptor(rootDesc);
-
-                // Add dependent descriptors.
-                for (byte[] descriptorData : dependentDescriptors) {
-                    Descriptor dependentDescriptor = Descriptor.newBuilder(descriptorData).build();
-                    stubFileObject.addDescriptor(dependentDescriptor);
-                }
-            }
 
             // write definition objects to ballerina files.
             if (this.balOutPath == null) {
@@ -165,7 +153,7 @@ public class BallerinaFileBuilder {
                     if (method.containsEmptyType() && !(stubFileObject.messageExists(EMPTY_DATA_TYPE))) {
                         Message message = Message.newBuilder(EmptyMessage.newBuilder().getDescriptor().toProto())
                                 .build();
-                        stubFileObject.addMessage(message);
+                        messageList.add(message);
                     }
                 }
                 if (isUnaryContains) {
@@ -174,32 +162,78 @@ public class BallerinaFileBuilder {
                 }
                 serviceStubBuilder.setType(ServiceStub.StubType.NONBLOCKING);
                 stubFileObject.addServiceStub(serviceStubBuilder.build());
-                if (GRPC_CLIENT.equals(mode)) {
-                    String clientFilePath = generateOutputFile(this.balOutPath, serviceDescriptor.getName() +
-                            SAMPLE_FILE_PREFIX);
-                    writeOutputFile(new ClientFile(serviceDescriptor.getName(), isUnaryContains), DEFAULT_SAMPLE_DIR,
-                            SAMPLE_CLIENT_TEMPLATE_NAME, clientFilePath);
-                }
+
                 if (GRPC_SERVICE.equals(mode)) {
+                    ServiceFile serviceFile = sampleServiceBuilder.build();
+                    serviceFile.setMessageList(messageList);
+                    if (descriptor == rootDescriptor) {
+                        // Add root descriptor.
+                        Descriptor rootDesc = Descriptor.newBuilder(descriptor).build();
+                        serviceFile.setRootDescriptor(rootDesc.getData());
+                        serviceFile.addDescriptor(rootDesc);
+
+                        // Add dependent descriptors.
+                        for (byte[] descriptorData : dependentDescriptors) {
+                            Descriptor dependentDescriptor = Descriptor.newBuilder(descriptorData).build();
+                            serviceFile.addDescriptor(dependentDescriptor);
+                        }
+                    }
+
+                    // read message types.
+                    for (DescriptorProtos.DescriptorProto descriptorProto : messageTypeList) {
+                        Message message = Message.newBuilder(descriptorProto).build();
+                        serviceFile.addMessage(message);
+                    }
+
+                    // read enum types.
+                    for (DescriptorProtos.EnumDescriptorProto descriptorProto : enumDescriptorProtos) {
+                        EnumMessage enumMessage = EnumMessage.newBuilder(descriptorProto).build();
+                        serviceFile.addEnumMessage(enumMessage);
+                    }
+
                     String servicePath = generateOutputFile(this.balOutPath, serviceDescriptor.getName() +
                             SAMPLE_SERVICE_FILE_PREFIX);
-                    writeOutputFile(sampleServiceBuilder.build(), DEFAULT_SAMPLE_DIR, SAMPLE_SERVICE_TEMPLATE_NAME,
+                    writeOutputFile(serviceFile, DEFAULT_SAMPLE_DIR, SAMPLE_SERVICE_TEMPLATE_NAME,
                             servicePath);
+                } else {
+                    stubFileObject.setMessageList(messageList);
+                    if (descriptor == rootDescriptor) {
+                        // Add root descriptor.
+                        Descriptor rootDesc = Descriptor.newBuilder(descriptor).build();
+                        stubFileObject.setRootDescriptor(rootDesc.getData());
+                        stubFileObject.addDescriptor(rootDesc);
+
+                        // Add dependent descriptors.
+                        for (byte[] descriptorData : dependentDescriptors) {
+                            Descriptor dependentDescriptor = Descriptor.newBuilder(descriptorData).build();
+                            stubFileObject.addDescriptor(dependentDescriptor);
+                        }
+                    }
+
+                    // read message types.
+                    for (DescriptorProtos.DescriptorProto descriptorProto : messageTypeList) {
+                        Message message = Message.newBuilder(descriptorProto).build();
+                        stubFileObject.addMessage(message);
+                    }
+                    // read enum types.
+                    for (DescriptorProtos.EnumDescriptorProto descriptorProto : enumDescriptorProtos) {
+                        EnumMessage enumMessage = EnumMessage.newBuilder(descriptorProto).build();
+                        stubFileObject.addEnumMessage(enumMessage);
+                    }
+                    String stubFilePath = generateOutputFile(this.balOutPath, filename + STUB_FILE_PREFIX);
+                    writeOutputFile(stubFileObject, DEFAULT_SKELETON_DIR, SKELETON_TEMPLATE_NAME, stubFilePath);
+
+                    if (GRPC_CLIENT.equals(mode)) {
+                        String clientFilePath = generateOutputFile(
+                                this.balOutPath,
+                                serviceDescriptor.getName() + SAMPLE_FILE_PREFIX
+                        );
+                        writeOutputFile(new ClientFile(serviceDescriptor.getName(), isUnaryContains),
+                                DEFAULT_SAMPLE_DIR,
+                                SAMPLE_CLIENT_TEMPLATE_NAME, clientFilePath);
+                    }
                 }
             }
-            // read message types.
-            for (DescriptorProtos.DescriptorProto descriptorProto : messageTypeList) {
-                Message message = Message.newBuilder(descriptorProto).build();
-                stubFileObject.addMessage(message);
-            }
-            // read enum types.
-            for (DescriptorProtos.EnumDescriptorProto descriptorProto : enumDescriptorProtos) {
-                EnumMessage enumMessage = EnumMessage.newBuilder(descriptorProto).build();
-                stubFileObject.addEnumMessage(enumMessage);
-            }
-
-            String stubFilePath = generateOutputFile(this.balOutPath, filename + STUB_FILE_PREFIX);
-            writeOutputFile(stubFileObject, DEFAULT_SKELETON_DIR, SKELETON_TEMPLATE_NAME, stubFilePath);
         } catch (GrpcServerException e) {
             throw new CodeBuilderException("Message descriptor error. " + e.getMessage());
         } catch (IOException e) {
@@ -332,7 +366,7 @@ public class BallerinaFileBuilder {
             throw new CodeBuilderException("IO error while compiling the template file. " + e.getMessage(), e);
         }
     }
-    
+
     private void setRootDescriptor(byte[] rootDescriptor) {
         this.rootDescriptor = new byte[rootDescriptor.length];
         this.rootDescriptor = Arrays.copyOf(rootDescriptor, rootDescriptor.length);
