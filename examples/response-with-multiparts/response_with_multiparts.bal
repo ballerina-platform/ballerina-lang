@@ -4,10 +4,10 @@ import ballerina/log;
 import ballerina/mime;
 
 // Creates an endpoint for the client.
-http:Client clientEP = new("http://localhost:9092");
+http:Client clientEP = new ("http://localhost:9092");
 
 // Creates a listener for the service.
-listener http:Listener multipartEP = new(9090);
+listener http:Listener multipartEP = new (9090);
 
 @http:ServiceConfig {
     basePath: "/multiparts"
@@ -24,7 +24,7 @@ service multipartResponseEncoder on new http:Listener(9092) {
 
         // Creates a child part with the JSON content.
         mime:Entity childPart1 = new;
-        childPart1.setJson({ "name": "wso2" });
+        childPart1.setJson({"name": "wso2"});
         // Creates another child part with a file.
         mime:Entity childPart2 = new;
         // This file path is relative to where the Ballerina is running.
@@ -164,11 +164,11 @@ function copy(io:ReadableByteChannel src, io:WritableByteChannel dst)
                 returns error? {
     while (true) {
         //Operation attempts to read a maximum of 1000 bytes.
-        byte[] | io:Error result = src.read(1000);
+        byte[]|io:Error result = src.read(1000);
         if (result is io:EofError) {
             break;
         } else if (result is error) {
-            return <@untained> result;
+            return <@untained>result;
         } else {
             //Writes the given content into the channel.
             int i = 0;

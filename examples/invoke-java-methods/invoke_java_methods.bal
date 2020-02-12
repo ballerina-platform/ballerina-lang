@@ -1,5 +1,5 @@
-import ballerinax/java;
 import ballerina/io;
+import ballerinax/java;
 
 // Let's create a Ballerina function to call the static method `randomUUID` in `java.util.UUID` class.
 // Here the `name` field is optional if the Ballerina function name is equal to the Java counterpart.
