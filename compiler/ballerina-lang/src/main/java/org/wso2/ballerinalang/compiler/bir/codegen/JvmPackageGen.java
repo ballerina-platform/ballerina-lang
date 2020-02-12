@@ -289,7 +289,7 @@ class JvmPackageGen {
         typeOwnerClass = getModuleLevelClassName(orgName, moduleName, MODULE_INIT_CLASS_NAME);
         Map<String, JavaClass> jvmClassMap = generateClassNameMappings(module, pkgName, typeOwnerClass,
                 interopValidator);
-        if (!isEntry || DiagnosticLogger.getErrorCount() > 0) {
+        if (!isEntry || dlogger.getErrorCount() > 0) {
             return;
         }
 
