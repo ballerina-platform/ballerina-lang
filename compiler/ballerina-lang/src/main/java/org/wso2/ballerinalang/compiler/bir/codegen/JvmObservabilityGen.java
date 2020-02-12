@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  WSO2 Inc. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
@@ -26,12 +26,12 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBSERVE_U
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_VALUE;
 
-
-//import ballerina/io;
-//import ballerina/jvm;
-//import ballerina/stringutils;
-
-public class JvmObservabilityGen {
+/**
+ * BIR observability model to JVM byte code generation class.
+ *
+ * @since 1.2.0
+ */
+class JvmObservabilityGen {
     static void emitStopObservationInvocation(MethodVisitor mv, int strandIndex) {
         mv.visitVarInsn(ALOAD, strandIndex);
         mv.visitMethodInsn(INVOKESTATIC, OBSERVE_UTILS, "stopObservation",
@@ -54,7 +54,7 @@ public class JvmObservabilityGen {
                 String.format("(L%s;L%s;L%s;)V", STRAND, STRING_VALUE, STRING_VALUE), false);
     }
 
-    static String cleanUpServiceName(String serviceName) {
+    private static String cleanUpServiceName(String serviceName) {
         String finalString = serviceName;
         if (serviceName.contains("$$service$")) {
             finalString = serviceName.replace("$$service$", "_");
@@ -63,7 +63,7 @@ public class JvmObservabilityGen {
     }
 
     static String getFullQualifiedRemoteFunctionName(String moduleOrg, String moduleName, String funcName) {
-        if moduleName.equals("") {
+        if (moduleName.equals("")) {
             return funcName;
         }
         return moduleOrg + "/" + moduleName + "/" + funcName;
