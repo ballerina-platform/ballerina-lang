@@ -62,8 +62,9 @@ service alwaysCompress on listenerEndpoint {
 // When compression is specified as `COMPRESSION_AUTO`, only the user specified `Accept-Encoding` header is sent.
 // If the behaviour is set as `COMPRESSION_NEVER`, the client makes sure not to send the `Accept-Encoding` header.
 http:Client clientEndpoint = new ("http://localhost:9090", {
-    compression: http:COMPRESSION_ALWAYS
-});
+        compression: http:COMPRESSION_ALWAYS
+    }
+);
 
 service passthrough on new http:Listener(9092) {
     @http:ResourceConfig {

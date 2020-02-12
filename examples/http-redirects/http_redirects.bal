@@ -3,8 +3,9 @@ import ballerina/log;
 
 // Creates an HTTP client to interact with a remote endpoint.
 http:Client clientEndpoint = new ("http://localhost:9092", {
-    followRedirects: {enabled: true, maxCount: 5}
-});
+        followRedirects: {enabled: true, maxCount: 5}
+    }
+);
 
 service hello on new http:Listener(9090) {
 

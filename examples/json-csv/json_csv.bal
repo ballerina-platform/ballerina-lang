@@ -33,24 +33,24 @@ public function main() {
     json sample = {
         "employees": {
             "employee": [
-            {
-                "id": "1",
-                "firstName": "Tom",
-                "lastName": "Cruise",
-                "photo": "https://ballerina-team/profile/3737.jpg"
-            },
-            {
-                "id": "2",
-                "firstName": "Maria",
-                "lastName": "Sharapova",
-                "photo": "https://ballerina-team/profile/5676.jpg"
-            },
-            {
-                "id": "3",
-                "firstName": "James",
-                "lastName": "Bond",
-                "photo": "https://ballerina-team/profile/6776.jpg"
-            }
+                {
+                    "id": "1",
+                    "firstName": "Tom",
+                    "lastName": "Cruise",
+                    "photo": "https://ballerina-team/profile/3737.jpg"
+                },
+                {
+                    "id": "2",
+                    "firstName": "Maria",
+                    "lastName": "Sharapova",
+                    "photo": "https://ballerina-team/profile/5676.jpg"
+                },
+                {
+                    "id": "3",
+                    "firstName": "James",
+                    "lastName": "Bond",
+                    "photo": "https://ballerina-team/profile/6776.jpg"
+                }
             ]
         }
     };
