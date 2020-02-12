@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.stdlib.config;
 
+import org.ballerinalang.config.ConfigProcessor;
 import org.ballerinalang.config.ConfigRegistry;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BFloat;
@@ -439,6 +440,42 @@ public class ConfigTest {
         Assert.assertTrue(returnValues[0] instanceof BMap);
         Assert.assertEquals((returnValues[0]).stringValue(), "{\"a\":1, \"b\":2}");
         Assert.assertEquals((returnValues[1]).stringValue(), "{\"a\":3, \"b\":4}");
+    }
+
+    @Test(description = "Test retrieving a config value of type multidimensional array")
+    public void testGetAsArray4() throws IOException {
+        BValue[] inputArg = {new BString("array.multidimensional")};
+        registry.initRegistry(new HashMap<>(), null, ballerinaConfPath);
+        BValue[] returnValues = BRunUtil.invoke(compileResult, "testGetAsArray", inputArg);
+        Assert.assertTrue(returnValues[0] instanceof BValueArray);
+        Assert.assertEquals((returnValues[0]).stringValue(), "[1, 2]");
+        Assert.assertEquals((returnValues[1]).stringValue(), "[\"a\", \"b\", \"c\"]");
+    }
+
+    @Test(description = "Test retrieving a config value of type array of tables")
+    public void testGetAsArray5() throws IOException {
+        BValue[] inputArg = {new BString("products")};
+        registry.initRegistry(new HashMap<>(), null, ballerinaConfPath);
+        BValue[] returnValues = BRunUtil.invoke(compileResult, "testGetAsArray", inputArg);
+        Assert.assertTrue(returnValues[0] instanceof BMap);
+        Assert.assertEquals((returnValues[0]).stringValue(), "{\"name\":\"Hammer\", \"sku\":738594937}");
+        Assert.assertEquals((returnValues[1]).stringValue(), "{}");
+        Assert.assertEquals((returnValues[2]).stringValue(),
+                            "{\"color\":\"gray\", \"name\":\"Nail\", \"sku\":284758393}");
+    }
+
+    @Test(expectedExceptions = IllegalStateException.class,
+          expectedExceptionsMessageRegExp = ".*negative becomes a heterogeneous array on line 2")
+    public void testGetAsArrayNegative() throws IOException {
+        String negativeConf = Paths.get(resourceRoot, "datafiles", "array_negative.conf").toString();
+        ConfigProcessor.processConfiguration(null, negativeConf, null);
+    }
+
+    @Test(expectedExceptions = IllegalStateException.class,
+          expectedExceptionsMessageRegExp = "Duplicate table definition on line 7:.*")
+    public void testGetAsArrayNegative2() throws IOException {
+        String negativeConf = Paths.get(resourceRoot, "datafiles", "array_negative2.conf").toString();
+        ConfigProcessor.processConfiguration(null, negativeConf, null);
     }
 
     private Map<String, String> getRuntimeProperties() {
