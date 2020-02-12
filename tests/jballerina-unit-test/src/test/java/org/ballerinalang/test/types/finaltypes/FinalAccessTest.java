@@ -58,9 +58,9 @@ public class FinalAccessTest {
         BAssertUtil.validateError(compileResultNegative, 9, "cannot assign a value to final 'name'", 58, 5);
         BAssertUtil.validateError(compileResultNegative, 10, "cannot assign a value to final 'name'", 63, 5);
         BAssertUtil.validateError(compileResultNegative, 11, "cannot assign a value to final 'name'", 68, 5);
-        BAssertUtil.validateError(compileResultNegative, 12, "invalid assignment: 'listener' variable 'ml' is final",
+        BAssertUtil.validateError(compileResultNegative, 12, "invalid assignment: 'listener' declaration is final",
                                   78, 5);
-        BAssertUtil.validateError(compileResultNegative, 13, "invalid assignment: 'service' variable 's' is final",
+        BAssertUtil.validateError(compileResultNegative, 13, "invalid assignment: 'service' declaration is final",
                                   84, 5);
     }
 

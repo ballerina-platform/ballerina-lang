@@ -131,7 +131,7 @@ public class InvalidSyntaxParserTest {
     @Test
     public void testListenerDeclarationWithDefinedDifferentType() {
         CompileResult result = BCompileUtil.compile("test-src/parser/listener_declaration_type_reuse_negative.bal");
-        BAssertUtil.validateError(result, 0, "invalid assignment: 'listener' variable 'x' is final", 22, 5);
+        BAssertUtil.validateError(result, 0, "invalid assignment: 'listener' declaration is final", 22, 5);
         BAssertUtil.validateError(result, 1, "incompatible types: expected 'ballerina/http:MockListener', found " +
                 "'int'", 22, 9);
         BAssertUtil.validateError(result, 2, "incompatible types: expected 'int', found " +
