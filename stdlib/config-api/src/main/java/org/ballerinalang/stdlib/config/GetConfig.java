@@ -65,15 +65,17 @@ public class GetConfig {
     @SuppressWarnings("unchecked")
     private static MapValue buildMapValue(Map<String, Object> section) {
         MapValue map = new MapValueImpl<String, Object>();
-        section.forEach((key, val) -> map.put(key, getConvertedValue(val)));
+        for (Map.Entry<String, Object> entry : section.entrySet()) {
+            map.put(entry.getKey(), getConvertedValue(entry.getValue()));
+        }
         return map;
     }
 
-    @SuppressWarnings("unchecked")
     private static BArray buildArrayValue(List value) {
         Object[] convertedValues = new Object[value.size()];
-        value.forEach(convertedValue -> convertedValues[value.indexOf(convertedValue)] =
-                getConvertedValue(convertedValue));
+        for (Object entry : value) {
+            convertedValues[value.indexOf(entry)] = getConvertedValue(entry);
+        }
         return BValueCreator.createArrayValue(convertedValues, new BArrayType(BTypes.typeAnydata));
     }
 
