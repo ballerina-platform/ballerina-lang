@@ -159,11 +159,11 @@ public class KafkaMetricsTestCase extends BaseTest {
         expectedMetrics.put("kafka_published_value{context=\"producer\",url=\"localhost:14110\",topic=\"t4\"," +
                                     "client_id=\"producer_2\",}", "8.0");
         expectedMetrics.put("kafka_published_size_value{context=\"producer\",url=\"localhost:14110\",topic=\"t3\"," +
-                                    "client_id=\"producer_1\",}", "294.0");
+                                    "client_id=\"producer_1\",}", "132.0");
         expectedMetrics.put("kafka_publishers_value{context=\"producer\",url=\"localhost:14110\"," +
                                     "client_id=\"producer_1\",}", "1.0");
         expectedMetrics.put("kafka_published_size_value{context=\"producer\",url=\"localhost:14110\",topic=\"t4\"," +
-                                    "client_id=\"producer_2\",}", "392.0");
+                                    "client_id=\"producer_2\",}", "176.0");
         expectedMetrics.put("kafka_publishers_value{context=\"producer\",url=\"localhost:14110\"," +
                                     "client_id=\"producer_2\",}", "1.0");
         return expectedMetrics;
@@ -172,9 +172,9 @@ public class KafkaMetricsTestCase extends BaseTest {
     private Map<String, String> getConsumerMetrics() {
         Map<String, String> expectedMetrics = new HashMap<>();
         expectedMetrics.put("kafka_consumed_size_value{context=\"consumer\",url=\"localhost:14110\",topic=\"t1\"," +
-                                    "client_id=\"consumer_2\",}", "120.0");
+                                    "client_id=\"consumer_2\",}", "810.0");
         expectedMetrics.put("kafka_consumed_size_value{context=\"consumer\",url=\"localhost:14110\",topic=\"t2\"," +
-                                    "client_id=\"consumer_2\",}", "120.0");
+                                    "client_id=\"consumer_2\",}", "810.0");
         expectedMetrics.put("kafka_consumed_value{context=\"consumer\",url=\"localhost:14110\",topic=\"t1\"," +
                                     "client_id=\"consumer_2\",}", "10.0");
         expectedMetrics.put("kafka_consumed_value{context=\"consumer\",url=\"localhost:14110\",topic=\"t2\"," +

@@ -41,6 +41,9 @@ import java.util.Properties;
 
 import static java.io.File.separator;
 
+/**
+ * Test class for test the functionality of Ballerina Kafka serializers and deserializers.
+ */
 public class KafkaSerializerDeserializerTest extends BaseTest {
 
     protected static BServerInstance serverInstance;
