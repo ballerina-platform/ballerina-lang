@@ -2056,7 +2056,7 @@ public class JvmMethodGen {
         func.basicBlocks = basicBlocks;
     }
 
-    static void enrichPkgWithInitializers(Map<String, JavaClass> jvmClassMap, String typeOwnerClass,
+    static void enrichPkgWithInitializers(Map<String, JvmPackageGen.JavaClass> jvmClassMap, String typeOwnerClass,
                                           BIRPackage pkg, List<PackageID> depModArray) {
         JavaClass javaClass = (JavaClass) jvmClassMap.get(typeOwnerClass);
         BIRFunction initFunc = generateDepModInit(depModArray, pkg, MODULE_INIT, "<init>");

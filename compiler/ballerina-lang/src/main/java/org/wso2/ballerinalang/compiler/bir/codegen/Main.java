@@ -31,7 +31,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.compiled
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.dlogger;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.externalMapCache;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.generatePackage;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.readFileFully;
 
 
 //import ballerina/io;
