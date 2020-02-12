@@ -307,7 +307,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        // TODO: Check if we need to take pos and ws of expr or the whole body
         this.pkgBuilder.endExprFunctionBody(getCurrentPos(ctx), getWS(ctx));
     }
 
