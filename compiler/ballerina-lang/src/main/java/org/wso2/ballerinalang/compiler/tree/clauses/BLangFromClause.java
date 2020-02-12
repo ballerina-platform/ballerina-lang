@@ -41,6 +41,9 @@ public class BLangFromClause extends BLangNode implements FromClauseNode {
     public BType nillableResultType; // map<T>?
     public boolean isDeclaredWithVar;
 
+    public BLangFromClause() {
+    }
+
     @Override
     public ExpressionNode getCollection() {
         return collection;

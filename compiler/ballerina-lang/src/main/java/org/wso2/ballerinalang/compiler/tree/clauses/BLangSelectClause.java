@@ -33,6 +33,9 @@ public class BLangSelectClause extends BLangNode implements SelectClauseNode {
 
     public BLangExpression expression;
 
+    public BLangSelectClause() {
+    }
+
     @Override
     public NodeKind getKind() {
         return NodeKind.SELECT;

@@ -33,6 +33,9 @@ public class BLangDoClause extends BLangNode implements DoClauseNode {
 
     public BLangBlockStmt body;
 
+    public BLangDoClause() {
+    }
+
     @Override
     public BLangBlockStmt getBody() {
         return body;

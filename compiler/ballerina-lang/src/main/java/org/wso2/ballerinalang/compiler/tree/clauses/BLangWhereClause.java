@@ -34,6 +34,9 @@ public class BLangWhereClause extends BLangNode implements WhereClauseNode {
 
     public BLangExpression expression;
 
+    public BLangWhereClause() {
+    }
+
     @Override
     public ExpressionNode getExpression() {
         return expression;
