@@ -66,7 +66,10 @@ public class Respond extends ConnectionAction {
             String errorMessage = "Couldn't complete the respond operation as the response has been already used.";
             HttpUtil.sendOutboundResponse(inboundRequestMsg, HttpUtil.createErrorMessage(errorMessage, 500));
             unBlockStrand(strand);
-            log.debug(errorMessage);
+            if (log.isDebugEnabled()) {
+                log.debug("Couldn't complete the respond operation for the sequence id of the request: {} " +
+                        "as the response has been already used.", inboundRequestMsg.getSequenceId());
+            }
             return HttpUtil.createHttpError(errorMessage, HttpErrorType.GENERIC_LISTENER_ERROR);
         }
         outboundResponseObj.addNativeData(HttpConstants.DIRTY_RESPONSE, true);
