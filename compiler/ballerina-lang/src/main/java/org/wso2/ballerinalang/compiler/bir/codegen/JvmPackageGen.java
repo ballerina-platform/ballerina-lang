@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  WSO2 Inc. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
@@ -22,8 +22,8 @@ import org.ballerinalang.model.elements.PackageID;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.MethodVisitor;
-import org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.BIRFunctionWrapper;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.InteropValidator;
+import org.wso2.ballerinalang.compiler.bir.model.BIRInstruction;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRFunction;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRGlobalVariableDcl;
@@ -91,7 +91,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.getMainFu
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.getMethodDesc;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.getTypeDef;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.isExternFunc;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.logCompileError;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.nameOfBStringFunc;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.nameOfNonBStringFunc;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen.generateCreateTypesMethod;
@@ -103,22 +102,11 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen.typeRefToCl
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmValueGen.ObjectGenerator;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmValueGen.getTypeValueClassName;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmValueGen.injectDefaultParamInitsToAttachedFuncs;
-import static org.wso2.ballerinalang.compiler.bir.codegen.Main.JarFile;
-import static org.wso2.ballerinalang.compiler.bir.codegen.Main.JavaClass;
-import static org.wso2.ballerinalang.compiler.bir.codegen.Main.birCacheDirs;
-import static org.wso2.ballerinalang.compiler.bir.codegen.Main.readMap;
 import static org.wso2.ballerinalang.compiler.bir.codegen.interop.ExternalMethodGen.createOldStyleExternalFunctionWrapper;
 import static org.wso2.ballerinalang.compiler.bir.codegen.interop.ExternalMethodGen.injectDefaultParamInits;
 import static org.wso2.ballerinalang.compiler.bir.codegen.interop.ExternalMethodGen.isBallerinaBuiltinModule;
 import static org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.FPLoad;
 import static org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewInstance;
-
-
-//import ballerina/bir;
-//import ballerina/file;
-//import ballerina/io;
-//import ballerina/jvm;
-//import ballerina/stringutils;
 
 public class JvmPackageGen {
     public static DiagnosticLogger dlogger = null;
@@ -126,7 +114,7 @@ public class JvmPackageGen {
     public static Map<String, BIRFunctionWrapper> birFunctionMap = null;
     public static Map<String, BIRTypeDefinition> typeDefMap = null;
     public static Map<String, String> globalVarClassNames = null;
-    public static Map<String, AbstractMap.SimpleEntry<AsyncCall, FPLoad>> lambdas = new HashMap<>();
+    public static Map<String, BIRInstruction> lambdas = new HashMap<>();
     public static Map<String, BIRPackage> compiledPkgCache = null;
     public static Map<String, String> externalMapCache = null;
     public static Map<String, PackageID> dependentModules = null;
@@ -348,9 +336,9 @@ public class JvmPackageGen {
                 generateMethod(getFunction(func), cw, module, null, false, getFunction(func).workerName.value);
             }
             // generate lambdas created during generating methods
-            for (Map.Entry<String, AbstractMap.SimpleEntry<AsyncCall, FPLoad>> l : lambdas.entrySet()) {
+            for (Map.Entry<String, BIRInstruction> l : lambdas.entrySet()) {
                 String name = l.getKey();
-                AbstractMap.SimpleEntry<AsyncCall, FPLoad> call = l.getValue();
+                BIRInstruction call = l.getValue();
                 generateLambdaMethod(call, cw, name);
             }
 //        foreach var [name, call] in lambdas.entries() {
@@ -505,7 +493,7 @@ public class JvmPackageGen {
 
     static String getPackageName(String orgName, String moduleName) {
         String packageName = "";
-        if (moduleName != ".") {
+        if (!moduleName.equals(".")) {
             packageName = cleanupName(moduleName) + "/";
         }
 

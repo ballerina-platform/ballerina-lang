@@ -1289,7 +1289,7 @@ public class JvmInstructionGen {
                     String.format("(L%s;L%s;L%s;)V", FUNCTION_POINTER, MAP_VALUE, STRING_VALUE), false);
 
             this.storeToVar(inst.lhsOp.variableDcl);
-            lambdas.add(lambdaName, inst);
+            lambdas.put(lambdaName, inst);
         }
 
         static void generateNewXMLElementIns(BIRNewXMLElement newXMLElement) {

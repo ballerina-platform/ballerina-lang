@@ -33,6 +33,8 @@ import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRPackage;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRVariableDcl;
 import org.wso2.ballerinalang.compiler.bir.model.BIROperand;
 import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator;
+import org.wso2.ballerinalang.compiler.bir.model.BIRVisitor;
+import org.wso2.ballerinalang.compiler.bir.model.InstructionKind;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
@@ -548,8 +550,8 @@ public class InteropMethodGen {
         }
     }
 
-    static void genVarArg(MethodVisitor mv, BalToJVMIndexMap indexMap, BType bType, JType jvmType,
-                          int varArgIndex) {
+    public static void genVarArg(MethodVisitor mv, BalToJVMIndexMap indexMap, BType bType, JType jvmType,
+                                 int varArgIndex) {
         JType jElementType;
         BType bElementType;
         if (jvmType.tag == JTypeTags.JARRAY && bType.tag == TypeTags.ARRAY) {
@@ -760,39 +762,63 @@ public class InteropMethodGen {
         anydata...;
     }
 
-    public static class JIMethodCall {
+    public static class JIMethodCall extends BIRTerminator {
         DiagnosticPos pos;
         @Nilable
-        List<BIRVarRef> args;
-        boolean varArgExist;
+        public
+        List<ExternalMethodGen.BIRVarRef> args;
+        public boolean varArgExist;
         @Nilable
+        public
         JType varArgType;
         BIRTerminatorKind kind = BIRTERMINATOR_PLATFORM;
         @Nilable
-        BIRVarRef lhsOp;
+        public
+        ExternalMethodGen.BIRVarRef lhsOp;
         JTermKind jKind = JTERM_CALL;
-        String jClassName;
-        String jMethodVMSig;
-        String name;
-        int invocationType;
+        public String jClassName;
+        public String jMethodVMSig;
+        public String name;
+        public int invocationType;
         BIRBasicBlock thenBB;
+
+        public JIMethodCall(DiagnosticPos pos, InstructionKind kind) {
+            super(pos, kind);
+        }
+
+        @Override
+        public void accept(BIRVisitor visitor) {
+
+        }
     }
 
-    public static class JIConstructorCall {
+    public static class JIConstructorCall extends BIRTerminator {
         DiagnosticPos pos;
         @Nilable
-        List<BIRVarRef> args;
+        public
+        List<ExternalMethodGen.BIRVarRef> args;
         boolean varArgExist;
         @Nilable
         JType varArgType;
         BIRTerminatorKind kind = BIRTERMINATOR_PLATFORM;
         @Nilable
-        BIRVarRef lhsOp;
+        public
+        ExternalMethodGen.BIRVarRef lhsOp;
         JTermKind jKind = JTERM_NEW;
-        String jClassName;
-        String jMethodVMSig;
-        String name;
+        public String jClassName;
+        public String jMethodVMSig;
+        public String name;
         BIRBasicBlock thenBB;
+
+        public JIConstructorCall(DiagnosticPos pos, InstructionKind kind) {
+
+            super(pos, kind);
+        }
+
+        @Override
+        public void accept(BIRVisitor visitor) {
+
+        }
     }
 
     // Java specific instruction definitions

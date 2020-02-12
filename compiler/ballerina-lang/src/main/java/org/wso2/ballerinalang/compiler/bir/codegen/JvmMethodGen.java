@@ -35,8 +35,11 @@ import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRFunctionParameter;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRPackage;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRTypeDefinition;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRVariableDcl;
+import org.wso2.ballerinalang.compiler.bir.model.BIROperand;
 import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator;
+import org.wso2.ballerinalang.compiler.bir.model.InstructionKind;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
@@ -1028,26 +1031,30 @@ public class JvmMethodGen {
         mv.visitJumpInsn(GOTO, gotoLabel);
     }
 
-    static void generateLambdaMethod(Map.Entry<AsyncCall, FPLoad> ins, ClassWriter cw, String lambdaName) {
+    static void generateLambdaMethod(BIRInstruction ins, ClassWriter cw, String lambdaName) {
         @Nilable BType lhsType;
         String orgName;
         String moduleName;
         String funcName;
         int paramIndex = 1;
         boolean isVirtual = false;
-        AsyncCall asyncIns = ins.getKey();
-        FPLoad fpIns = ins.getValue();
-        if (ins.getKey() != null) {
+        InstructionKind kind = ins.getKind();
+        if (kind == InstructionKind.ASYNC_CALL) {
+            AsyncCall asyncIns = (AsyncCall) ins;
             isVirtual = asyncIns.isVirtual;
             lhsType = asyncIns.lhsOp != null ? asyncIns.lhsOp.variableDcl.type : null;
             orgName = asyncIns.calleePkg.orgName.value;
             moduleName = asyncIns.calleePkg.name.value;
             funcName = asyncIns.name.getValue();
-        } else {
+        } else if (kind == InstructionKind.FP_LOAD) {
+            FPLoad fpIns = (FPLoad) ins;
             lhsType = fpIns.lhsOp.variableDcl.type;
             orgName = fpIns.pkgId.orgName.value;
             moduleName = fpIns.pkgId.name.value;
             funcName = fpIns.funcName.getValue();
+        } else {
+            throw new BLangCompilerException("JVM lambda method generation is not supported for instruction " +
+                    String.format("%s", ins));
         }
 
         boolean isExternFunction = isExternStaticFunctionCall(ins);
@@ -1055,22 +1062,21 @@ public class JvmMethodGen {
 
         BType returnType = new BNilType();
         if (lhsType.tag == TypeTags.FUTURE) {
-            returnType = lhsType.returnType;
+            returnType = ((BFutureType) lhsType).constraint;
         } else if (fpIns != null) {
             returnType = fpIns.retType;
             if (returnType.tag == TypeTags.INVOKABLE) {
-                returnType = (BType) returnType ?.retType;
+                returnType = (BType) returnType.retType;
             }
         } else {
-            BLangCompilerException err = new BLangCompilerException("JVM generation is not supported for async return type " +
+            throw new BLangCompilerException("JVM generation is not supported for async return type " +
                     String.format("%s", lhsType));
-            throw err;
         }
 
 
         int closureMapsCount = 0;
-        if (ins instanceof BIRFPLoad) {
-            closureMapsCount = ins.closureMaps.size();
+        if (kind == InstructionKind.FP_LOAD) {
+            closureMapsCount = ((FPLoad)ins).closureMaps.size();
         }
         String closureMapsDesc = getMapValueDesc(closureMapsCount);
 
@@ -1107,10 +1113,11 @@ public class JvmMethodGen {
         }
         @Nilable List<BType> paramBTypes = new ArrayList<>();
 
-        if (ins instanceof BIRAsyncCall) {
-            @Nilable List<BIRVarRef> paramTypes = ins.args;
+        if (kind == InstructionKind.ASYNC_CALL) {
+            AsyncCall asyncIns = (AsyncCall) ins;
+            @Nilable List<BIROperand> paramTypes = asyncIns.args;
             if (isVirtual) {
-                genLoadDataForObjectAttachedLambdas(ins, mv, closureMapsCount, paramTypes, isBuiltinModule);
+                genLoadDataForObjectAttachedLambdas(asyncIns, mv, closureMapsCount, paramTypes, isBuiltinModule);
                 int paramTypeIndex = 1;
                 paramIndex = 2;
                 while (paramTypeIndex < paramTypes.size()) {
@@ -1193,7 +1200,7 @@ public class JvmMethodGen {
         mv.visitEnd();
     }
 
-    static void genLoadDataForObjectAttachedLambdas(BIRAsyncCall ins, MethodVisitor mv, int closureMapsCount,
+    static void genLoadDataForObjectAttachedLambdas(AsyncCall ins, MethodVisitor mv, int closureMapsCount,
                                                     @Nilable List<BIRVarRef> paramTypes, boolean isBuiltinModule) {
         mv.visitInsn(POP);
         mv.visitVarInsn(ALOAD, closureMapsCount);
@@ -1530,7 +1537,7 @@ public class JvmMethodGen {
         return userMainFunc;
     }
 
-    static void createFunctionPointer(MethodVisitor mv, String class, String lambdaName, int closureMapCount) {
+    static void createFunctionPointer(MethodVisitor mv, String klass, String lambdaName, int closureMapCount) {
         mv.visitTypeInsn(NEW, FUNCTION_POINTER);
         mv.visitInsn(DUP);
         mv.visitInvokeDynamicInsn(klass, cleanupFunctionName(lambdaName), closureMapCount);
