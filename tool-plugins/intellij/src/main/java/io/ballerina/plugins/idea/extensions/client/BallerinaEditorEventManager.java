@@ -283,6 +283,11 @@ public class BallerinaEditorEventManager extends EditorEventManager {
         // Fixes IDEA internal assertion failure in windows.
         lookupString = lookupString.replace(DocumentUtils.WIN_SEPARATOR, DocumentUtils.LINUX_SEPARATOR);
 
+        // Line breaks and indentations are properly handled by the live templates and therefore we have to manually
+        // process the indentations only for non-snippet kind completion items.
+        if (!shouldRunInSnippetMode(item, lookupString) && lookupString.contains(DocumentUtils.LINUX_SEPARATOR)) {
+            lookupString = insertIndents(lookupString, position);
+        }
         if (shouldRunInSnippetMode(item, lookupString)) {
             lookupElementBuilder = LookupElementBuilder.create(convertPlaceHolders(lookupString));
         } else {
