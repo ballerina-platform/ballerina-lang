@@ -82,8 +82,10 @@ public class WebSocketClientHandshakeListenerForRetry implements ClientHandshake
         // Calls the countDown() to initial connection's countDown latch
         WebSocketUtil.countDownForHandshake(webSocketClient);
         WebSocketObservabilityUtil.observeConnection(connectionInfo);
-        logger.debug(WebSocketConstants.LOG_MESSAGE, "Connected to ", webSocketClient.getStringValue(
-                WebSocketConstants.CLIENT_URL_CONFIG));
+        if (logger.isDebugEnabled()) {
+            logger.debug(WebSocketConstants.LOG_MESSAGE, "Connected to ", webSocketClient.getStringValue(
+                    WebSocketConstants.CLIENT_URL_CONFIG));
+        }
         // The following are created for future connections.
         // Checks whether the config has a retry config or not.
         // If it has a retry config, set these variables to the default variable.

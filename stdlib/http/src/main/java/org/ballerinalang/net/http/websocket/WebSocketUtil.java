@@ -24,8 +24,6 @@ import io.netty.handler.codec.TooLongFrameException;
 import io.netty.handler.codec.http.websocketx.CorruptedWebSocketFrameException;
 import io.netty.handler.codec.http.websocketx.WebSocketCloseStatus;
 import io.netty.handler.codec.http.websocketx.WebSocketHandshakeException;
-import jdk.nashorn.internal.runtime.Debug;
-import jdk.nashorn.internal.runtime.logging.DebugLogger;
 import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.scheduling.Strand;
@@ -273,8 +271,10 @@ public class WebSocketUtil {
             establishWebSocketConnection(webSocketClient, wsService);
             return true;
         }
-        logger.debug(WebSocketConstants.LOG_MESSAGE, "Maximum retry attempts but couldn't connect to the server: ",
+        if (logger.isDebugEnabled()) {
+            logger.debug(WebSocketConstants.LOG_MESSAGE, "Maximum retry attempts but couldn't connect to the server: ",
                     webSocketClient.getStringValue(WebSocketConstants.CLIENT_URL_CONFIG));
+        }
         return false;
     }
 
@@ -308,8 +308,10 @@ public class WebSocketUtil {
                     webSocketClient), webSocketClient, wsService);
             return true;
         }
-        logger.debug(WebSocketConstants.LOG_MESSAGE, "Couldn't connect to one of the server in the targets: ",
-                targets);
+        if (logger.isDebugEnabled()) {
+            logger.debug(WebSocketConstants.LOG_MESSAGE, "Couldn't connect to one of the server in the targets: ",
+                    targets);
+        }
         return false;
     }
 

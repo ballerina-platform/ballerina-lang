@@ -55,7 +55,7 @@ public class WebSocketClientConnectorListenerForRetry extends WebSocketClientCon
                     WebSocketUtil.reconnect(connectionInfo)) {
                 return;
             } else {
-                if (statusCode != WebSocketConstants.STATUS_CODE_ABNORMAL_CLOSURE) {
+                if (statusCode != WebSocketConstants.STATUS_CODE_ABNORMAL_CLOSURE && logger.isDebugEnabled()) {
                     logger.debug(WebSocketConstants.LOG_MESSAGE, "Reconnect attempt not made because of " +
                             "close initiated by the server: ", webSocketClient.getStringValue(WebSocketConstants.
                             CLIENT_URL_CONFIG));

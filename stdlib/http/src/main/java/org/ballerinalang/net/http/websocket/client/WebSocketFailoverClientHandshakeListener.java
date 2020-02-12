@@ -84,8 +84,10 @@ public class WebSocketFailoverClientHandshakeListener implements ClientHandshake
         WebSocketObservabilityUtil.observeConnection(connectionInfo);
         // Following these are created for future connection
         int currentIndex = failoverConfig.getCurrentIndex();
-        logger.debug(WebSocketConstants.LOG_MESSAGE, WebSocketConstants.CONNECTED_TO,
-                failoverConfig.getTargetUrls().get(currentIndex));
+        if (logger.isDebugEnabled()) {
+            logger.debug(WebSocketConstants.LOG_MESSAGE, WebSocketConstants.CONNECTED_TO,
+                    failoverConfig.getTargetUrls().get(currentIndex));
+        }
         // Sets failover context variable's value
         failoverConfig.setInitialIndex(currentIndex);
         if (!failoverConfig.isFirstConnectionMadeSuccessfully()) {
