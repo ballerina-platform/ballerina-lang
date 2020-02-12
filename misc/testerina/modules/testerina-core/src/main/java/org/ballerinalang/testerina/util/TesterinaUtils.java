@@ -108,16 +108,16 @@ public class TesterinaUtils {
      *
      * @param sourceRootPath source root path
      * @param programFileMap map containing bLangPackage nodes along with their compiled program files
-     * @param outStream      error stream for logging.
-     * @param errStream      info stream for logging.
+     * @param outStream      error stream for logging
+     * @param errStream      info stream for logging
      */
     public static void listTestGroups(Path sourceRootPath, Map<BLangPackage, TestarinaClassLoader> programFileMap,
                                       PrintStream outStream, PrintStream errStream) {
-        // Set org-name and version to the Testerina Registry.
+        // Sets the org-name and version to the Testerina Registry.
         setManifestConfigs(sourceRootPath);
 
         BTestRunner testRunner = new BTestRunner(outStream, errStream);
-        // Run the tests
+        // Runs the tests.
         testRunner.listGroups(programFileMap);
 
         if (testRunner.getTesterinaReport().isFailure()) {

@@ -32,7 +32,7 @@ import java.util.List;
 public class TestFileUtils {
 
     /**
-     * Updates paths of dependency jars for test execution.
+     * Updates paths of dependency JARs for test execution.
      *
      * @param importPackageSymbols  list of import package symbols
      * @param buildContext build context
@@ -45,11 +45,11 @@ public class TestFileUtils {
             if (!buildContext.moduleDependencyPathMap.containsKey(importPkgId)) {
                 continue;
             }
-            // add imported module's dependent jar paths
+            // Add the dependent JAR paths of the imported modules 
             HashSet<Path> testDependencies = buildContext.moduleDependencyPathMap.get(importPkgId).platformLibs;
             dependencyJarPaths.addAll(testDependencies);
 
-            // add imported module's jar path
+            // Add the JAR path of the imported module
             Path testJarPath = buildContext.getTestJarPathFromTargetCache(importPkgId);
             Path moduleJarPath = buildContext.getJarPathFromTargetCache(importPkgId);
             if (Files.exists(testJarPath)) {

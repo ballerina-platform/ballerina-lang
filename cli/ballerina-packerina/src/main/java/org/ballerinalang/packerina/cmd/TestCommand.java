@@ -32,7 +32,6 @@ import org.ballerinalang.packerina.task.CreateJarTask;
 import org.ballerinalang.packerina.task.CreateTargetDirTask;
 import org.ballerinalang.packerina.task.ListTestGroupsTask;
 import org.ballerinalang.packerina.task.RunTestsTask;
-import org.ballerinalang.packerina.task.Task;
 import org.ballerinalang.tool.BLauncherCmd;
 import org.ballerinalang.tool.LauncherUtils;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
@@ -71,7 +70,6 @@ public class TestCommand implements BLauncherCmd {
     private Path sourceRootPath;
     private boolean exitWhenFinish;
     private boolean skipCopyLibsFromDist;
-    private Task testTask;
 
     public TestCommand() {
         this.sourceRootPath = Paths.get(System.getProperty("user.dir"));
@@ -335,12 +333,6 @@ public class TestCommand implements BLauncherCmd {
         boolean isSingleFileBuild = buildContext.getSourceType().equals(SINGLE_BAL_FILE);
         // output path is the current directory if -o flag is not given.
 
-        if (listGroups) {
-            testTask = new ListTestGroupsTask();
-        } else {
-            testTask = new RunTestsTask(groupList, disableGroupList);
-        }
-
         TaskExecutor taskExecutor = new TaskExecutor.TaskBuilder()
                 .addTask(new CleanTargetDirTask(), isSingleFileBuild)   // clean the target directory(projects only)
                 .addTask(new CreateTargetDirTask()) // create target directory.
@@ -352,7 +344,10 @@ public class TestCommand implements BLauncherCmd {
                 .addTask(new CreateJarTask(this.dumpBIR, this.skipCopyLibsFromDist, this.nativeBinary, this.dumpLLVMIR,
                         this.noOptimizeLLVM))
                 .addTask(new CopyModuleJarTask(skipCopyLibsFromDist))
-                .addTask(testTask) // run tests
+                // tasks to list groups or execute tests. the 'listGroups' boolean is used to decide whether to
+                // skip the task or to execute
+                .addTask(new ListTestGroupsTask(), !listGroups) // list the available test groups
+                .addTask(new RunTestsTask(), listGroups) // run tests
                 .build();
 
         taskExecutor.executeTasks(buildContext);
