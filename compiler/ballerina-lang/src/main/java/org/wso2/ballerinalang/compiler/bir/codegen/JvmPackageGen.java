@@ -32,10 +32,15 @@ import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRPackage;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRTypeDefinition;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRVariableDcl;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
+import org.wso2.ballerinalang.util.Flags;
 
+import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -100,12 +105,19 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen.typeRefToCl
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmValueGen.ObjectGenerator;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmValueGen.getTypeValueClassName;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmValueGen.injectDefaultParamInitsToAttachedFuncs;
+import static org.wso2.ballerinalang.compiler.bir.codegen.interop.ExternalMethodGen.createExternalFunctionWrapper;
 import static org.wso2.ballerinalang.compiler.bir.codegen.interop.ExternalMethodGen.createOldStyleExternalFunctionWrapper;
 import static org.wso2.ballerinalang.compiler.bir.codegen.interop.ExternalMethodGen.injectDefaultParamInits;
 import static org.wso2.ballerinalang.compiler.bir.codegen.interop.ExternalMethodGen.isBallerinaBuiltinModule;
 import static org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewInstance;
 
+/**
+ * BIR module to JVM byte code generation class.
+ *
+ * @since 1.2.0
+ */
 class JvmPackageGen {
+
     public static DiagnosticLogger dlogger = null;
 
     public static Map<String, BIRFunctionWrapper> birFunctionMap = null;
@@ -121,22 +133,27 @@ class JvmPackageGen {
     public static SymbolTable symbolTable = null;
 
     static class JarFile {
+
         Map<String, String> manifestEntries = null;
         Map<String, byte[]> pkgEntries = null;
     }
 
     static class JavaClass {
+
         String sourceFileName;
         String moduleClass;
         @Nilable
         List<BIRFunction> functions = new ArrayList<>();
+
         JavaClass(String sourceFileName, String moduleClass) {
+
             this.sourceFileName = sourceFileName;
             this.moduleClass = moduleClass;
         }
     }
 
     String[] splitPkgName(String key) {
+
         int index = key.lastIndexOf("/");
         String pkgName = key.substring(0, index);
         String functionName = key.substring(index + 1);
@@ -144,6 +161,7 @@ class JvmPackageGen {
     }
 
     static String lookupFullQualifiedClassName(String key) {
+
         if (birFunctionMap.containsKey(key)) {
             BIRFunctionWrapper functionWrapper = getBIRFunctionWrapper(birFunctionMap.get(key));
             return functionWrapper.fullQualifiedClassName;
@@ -153,6 +171,7 @@ class JvmPackageGen {
     }
 
     static BIRTypeDefinition lookupTypeDef(NewInstance objectNewIns) {
+
         if (!objectNewIns.isExternalDef) {
             return objectNewIns.def;
         } else {
@@ -167,6 +186,7 @@ class JvmPackageGen {
     }
 
     static String lookupJavaMethodDescription(String key, boolean useBString) {
+
         if (birFunctionMap.containsKey(key)) {
             BIRFunctionWrapper functionWrapper = getBIRFunctionWrapper(birFunctionMap.get(key));
             return useBString ? (functionWrapper.jvmMethodDescriptionBString != null ?
@@ -177,6 +197,7 @@ class JvmPackageGen {
     }
 
     static boolean isBIRFunctionExtern(String key) {
+
         if (birFunctionMap.containsKey(key)) {
             BIRFunctionWrapper functionWrapper = getBIRFunctionWrapper(birFunctionMap.get(key));
             return isExternFunc(functionWrapper.func);
@@ -186,6 +207,7 @@ class JvmPackageGen {
     }
 
     static BIRFunctionWrapper getBIRFunctionWrapper(@Nilable BIRFunctionWrapper wrapper) {
+
         if (wrapper != null) {
             return wrapper;
         } else {
@@ -194,6 +216,7 @@ class JvmPackageGen {
     }
 
     static String lookupGlobalVarClassName(String key) {
+
         String result = globalVarClassNames.get(key);
         if (result != null) {
             return result;
@@ -204,10 +227,11 @@ class JvmPackageGen {
 
     private static void generateDependencyList(BIRPackage moduleId, JarFile jarFile,
                                                InteropValidator interopValidator) {
+
         generatePackage(moduleId, jarFile, interopValidator, false);
         String pkgName = getPackageName(moduleId.org, moduleId.name);
         if (!dependentModules.containsKey(pkgName)) {
-            dependentModules.put(pkgName, moduleId);
+            dependentModules.put(pkgName, packageToModuleId(moduleId));
         }
     }
 
@@ -237,6 +261,7 @@ class JvmPackageGen {
 
     static void generatePackage(BIRNode.BIRPackage moduleId, JarFile jarFile,
                                 InteropValidator interopValidator, boolean isEntry) {
+
         String orgName = moduleId.org.value;
         String moduleName = moduleId.name.value;
         String pkgName = getPackageName(orgName, moduleName);
@@ -252,10 +277,11 @@ class JvmPackageGen {
 
         // generate imported modules recursively
         for (BIRImportModule mod : module.importModules) {
-            generateDependencyList(importModuleToModuleId(mod), jarFile, interopValidator);
-            if (DiagnosticLogger.getErrorCount() > 0) {
-                return;
-            }
+            // TODO fix imported module's linking
+//            generateDependencyList(importModuleToModuleId(mod), jarFile, interopValidator);
+//            if (DiagnosticLogger.getErrorCount() > 0) {
+//                return;
+//            }
         }
 
         injectBStringFunctions(module);
@@ -263,7 +289,7 @@ class JvmPackageGen {
         typeOwnerClass = getModuleLevelClassName(orgName, moduleName, MODULE_INIT_CLASS_NAME);
         Map<String, JavaClass> jvmClassMap = generateClassNameMappings(module, pkgName, typeOwnerClass,
                 interopValidator);
-        if (!isEntry || DiagnosticLogger.getErrorCount() > 0) {
+        if (!isEntry || dlogger.getErrorCount() > 0) {
             return;
         }
 
@@ -298,7 +324,7 @@ class JvmPackageGen {
                 generateValueCreatorMethods(cw, module.typeDefs, moduleId);
                 // populate global variable to class name mapping and generate them
                 for (BIRGlobalVariableDcl globalVar : module.globalVars) {
-                    if (globalVar instanceof BIRGlobalVariableDcl) {
+                    if (globalVar != null) {
                         generatePackageVariable(globalVar, cw);
                         generateLockForVariable(globalVar, cw);
                     }
@@ -307,13 +333,13 @@ class JvmPackageGen {
                 if (isEntry) {  // TODO: this check seems redundant: check and remove
                     @Nilable BIRFunction mainFunc = getMainFunc(module.functions);
                     String mainClass = "";
-                    if (mainFunc instanceof BIRFunction) {
+                    if (mainFunc != null) {
                         mainClass = getModuleLevelClassName(orgName, moduleName,
                                 cleanupPathSeperators(cleanupBalExt(mainFunc.pos.getSource().cUnitName)));
                     }
 
                     generateMainMethod(mainFunc, cw, module, mainClass, moduleClass, serviceEPAvailable);
-                    if (mainFunc instanceof BIRFunction) {
+                    if (mainFunc != null) {
                         generateLambdaForMain(mainFunc, cw, module, mainClass, moduleClass);
                     }
                     generateLambdaForPackageInits(cw, module, mainClass, moduleClass, dependentModuleArray);
@@ -355,10 +381,10 @@ class JvmPackageGen {
             }
         }
 
-
     }
 
-    static void createDependantModuleFlatArray() {
+    private static void createDependantModuleFlatArray() {
+
         for (Map.Entry<String, PackageID> entry : dependentModules.entrySet()) {
             String k = entry.getKey();
             PackageID id = entry.getValue();
@@ -366,26 +392,29 @@ class JvmPackageGen {
         }
     }
 
-    static void generatePackageVariable(BIRGlobalVariableDcl globalVar, ClassWriter cw) {
+    private static void generatePackageVariable(BIRGlobalVariableDcl globalVar, ClassWriter cw) {
+
         String varName = globalVar.name.value;
         BType bType = globalVar.type;
         generateField(cw, bType, varName, true);
     }
 
-    static void generateLockForVariable(BIRGlobalVariableDcl globalVar, ClassWriter cw) {
+    private static void generateLockForVariable(BIRGlobalVariableDcl globalVar, ClassWriter cw) {
+
         String lockClass = "L" + LOCK_VALUE + ";";
         FieldVisitor fv;
         fv = cw.visitField(ACC_PUBLIC + ACC_FINAL + ACC_STATIC, computeLockName(globalVar), lockClass, null, null);
         fv.visitEnd();
     }
 
-    static void generateStaticInitializer(@Nilable List<BIRGlobalVariableDcl> globalVars, ClassWriter cw, String className,
-                                          boolean serviceEPAvailable) {
+    private static void generateStaticInitializer(@Nilable List<BIRGlobalVariableDcl> globalVars, ClassWriter cw,
+                                                  String className, boolean serviceEPAvailable) {
+
         MethodVisitor mv = cw.visitMethod(ACC_STATIC, "<clinit>", "()V", null, null);
 
         String lockClass = "L" + LOCK_VALUE + ";";
         for (BIRGlobalVariableDcl globalVar : globalVars) {
-            if (globalVar instanceof BIRGlobalVariableDcl) {
+            if (globalVar != null) {
                 mv.visitTypeInsn(NEW, LOCK_VALUE);
                 mv.visitInsn(DUP);
                 mv.visitMethodInsn(INVOKESPECIAL, LOCK_VALUE, "<init>", "()V", false);
@@ -400,8 +429,9 @@ class JvmPackageGen {
         mv.visitEnd();
     }
 
-    static void setServiceEPAvailableField(ClassWriter cw, MethodVisitor mv, boolean serviceEPAvailable,
-                                           String initClass) {
+    private static void setServiceEPAvailableField(ClassWriter cw, MethodVisitor mv, boolean serviceEPAvailable,
+                                                   String initClass) {
+
         FieldVisitor fv = cw.visitField(ACC_PUBLIC + ACC_STATIC, "serviceEPAvailable", "Z", null, null);
         fv.visitEnd();
 
@@ -414,66 +444,74 @@ class JvmPackageGen {
         }
     }
 
-    static String computeLockName(BIRGlobalVariableDcl globalVar) {
+    private static String computeLockName(BIRGlobalVariableDcl globalVar) {
+
         String varName = globalVar.name.value;
         return computeLockNameFromString(varName);
     }
 
     static String computeLockNameFromString(String varName) {
+
         return "$lock" + varName;
     }
 
-    static Map.Entry<BIRPackage, Boolean> lookupModule(BIRPackage modId) {
+    private static Map.Entry<BIRPackage, Boolean> lookupModule(BIRPackage modId) {
+
         String orgName = modId.org.value;
         String moduleName = modId.name.value;
         String versionName = modId.version.value;
 
         BIRPackage pkgFromCache = compiledPkgCache.get(orgName + moduleName);
-        if (pkgFromCache instanceof BIRPackage) {
-            return new pkgFromCache, true]
+        if (pkgFromCache != null) {
+            new AbstractMap.SimpleEntry<>(pkgFromCache, true);
         }
 
-        var cacheDir = findCacheDirFor(modId);
-        var parsedPkg = BIRpopulateBIRModuleFromBinary(readFileFully(calculateBirCachePath(cacheDir, modId, ".bir")), true);
-        var mappingFile = calculateBirCachePath(cacheDir, modId, ".map.json");
-        if (file:exists(mappingFile)){
-            var externalMap = readMap(mappingFile);
-            foreach[] var key, val]in externalMap.entries() {
-                externalMapCache.add(key, val);
-            }
-        }
-        compiledPkgCache[orgName + moduleName] = parsedPkg;
-        return [parsedPkg, false]
-
+//        var cacheDir = findCacheDirFor(modId);
+//        BIRPackage parsedPkg = BIRpopulateBIRModuleFromBinary(readFileFully(calculateBirCachePath(cacheDir,
+//        modId, ".bir")), true);
+//        var mappingFile = calculateBirCachePath(cacheDir, modId, ".map.json");
+//        if (file:exists(mappingFile)){
+//            var externalMap = readMap(mappingFile);
+//            foreach[] var key, val]in externalMap.entries() {
+//                externalMapCache.add(key, val);
+//            }
+//        }
+//        compiledPkgCache[orgName + moduleName] = parsedPkg;
+////        return [parsedPkg, false]
+//        return new AbstractMap.SimpleEntry<>(parsedPkg, false);
+        return null;
     }
 
-    static String findCacheDirFor(PackageID modId) {
-        for (String birCacheDir : birCacheDirs) {
-            String birPath = calculateBirCachePath(birCacheDir, modId, ".bir");
-            if (file:exists(birPath)){
-                return birCacheDir;
-            }
-        }
-        BLangCompilerException e = new BLangCompilerException(String.format("%s not found in %s", calculateBirCachePath("", modId, ".bir"), birCacheDirs));
-        throw e;
-    }
+//    static String findCacheDirFor(PackageID modId) {
+//        for (String birCacheDir : birCacheDirs) {
+//            String birPath = calculateBirCachePath(birCacheDir, modId, ".bir");
+//            if (file:exists(birPath)){
+//                return birCacheDir;
+//            }
+//        }
+//        BLangCompilerException e = new BLangCompilerException(String.format("%s not found in %s",
+//        calculateBirCachePath("", modId, ".bir"), birCacheDirs));
+//        throw e;
+//    }
 
-    static String calculateBirCachePath(String birCacheDir, PackageID modId, String ext) {
-        String nonEmptyVersion = modId.modVersion;
-        if (nonEmptyVersion.equals("")) {
-            nonEmptyVersion = "0.0.0";
-        }
-
-        return birCacheDir + "/" + modId.org + "/" + modId.name + "/" + nonEmptyVersion + "/" + modId.name + ext;
-    }
+//    static String calculateBirCachePath(String birCacheDir, PackageID modId, String ext) {
+//        String nonEmptyVersion = modId.version.value;
+//        if (nonEmptyVersion.equals("")) {
+//            nonEmptyVersion = "0.0.0";
+//        }
+//
+//        return birCacheDir + "/" + modId.orgName.value + "/" + modId.name.value + "/" + nonEmptyVersion + "/" +
+//                modId.name.value + ext;
+//    }
 
     static String getModuleLevelClassName(String orgName, String moduleName, String sourceFileName) {
+
         String className = cleanupSourceFileName(sourceFileName);
         // handle source file path start with '/'.
         if (className.startsWith(JAVA_PACKAGE_SEPERATOR)) {
-            className = className.substring(1, className.size());
+            className = className.substring(1);
         }
-        if (moduleName != ".") {
+        if (!moduleName.equals(".")) {
             className = cleanupName(moduleName) + "/" + className;
         }
 
@@ -485,10 +523,12 @@ class JvmPackageGen {
     }
 
     static String getPackageName(Name orgName, Name moduleName) {
+
         return getPackageName(orgName.getValue(), moduleName.getValue());
     }
 
     static String getPackageName(String orgName, String moduleName) {
+
         String packageName = "";
         if (!moduleName.equals(".")) {
             packageName = cleanupName(moduleName) + "/";
@@ -501,17 +541,18 @@ class JvmPackageGen {
         return packageName;
     }
 
-    static [String,String]
+    private static String cleanupName(String name) {
 
-    static String cleanupName(String name) {
         return name.replace(".", "_");
     }
 
-    static String cleanupSourceFileName(String name) {
+    private static String cleanupSourceFileName(String name) {
+
         return name.replace(".", FILE_NAME_PERIOD_SEPERATOR);
     }
 
-    static String cleanupPackageName(String pkgName) {
+    private static String cleanupPackageName(String pkgName) {
+
         int index = pkgName.lastIndexOf("/");
         if (index > 0) {
             return pkgName.substring(0, index);
@@ -528,16 +569,16 @@ class JvmPackageGen {
 //# + initClass - The module init class
 //# + lambdaCalls - The lambdas
 //# + return - The map of javaClass records on given source file name
-    static Map<String, JavaClass> generateClassNameMappings(BIRPackage module, String pkgName, String initClass,
-                                                            InteropValidator interopValidator) {
+    private static Map<String, JavaClass> generateClassNameMappings(BIRPackage module, String pkgName, String initClass,
+                                                                    InteropValidator interopValidator) {
 
         String orgName = module.org.value;
         String moduleName = module.name.value;
         String version = module.version.value;
-        Map<String, JavaClass> jvmClassMap = null;
+        Map<String, JavaClass> jvmClassMap = new HashMap<>();
 
         for (BIRGlobalVariableDcl globalVar : module.globalVars) {
-            if (globalVar instanceof BIRGlobalVariableDcl) {
+            if (globalVar != null) {
                 globalVarClassNames.put(pkgName + globalVar.name.value, initClass);
             }
         }
@@ -586,7 +627,7 @@ class JvmPackageGen {
 
                 if (!isBallerinaBuiltinModule(orgName, moduleName)) {
                     JavaClass javaClass = jvmClassMap.get(birModuleClassName);
-                    if (javaClass instanceof JavaClass) {
+                    if (javaClass != null) {
                         javaClass.functions.add(birFunc);
                     } else {
                         klass = new JavaClass(balFileName, birModuleClassName);
@@ -595,20 +636,22 @@ class JvmPackageGen {
                     }
                 }
 
-                BIRFunctionWrapper | BLangCompilerException birFuncWrapperOrError;
+                BIRFunctionWrapper birFuncWrapperOrError;
                 if (isExternFunc(getFunction(birFunc))) {
-                    birFuncWrapperOrError = createExternalFunctionWrapper(interopValidator, birFunc, orgName, moduleName,
-                            version, birModuleClassName);
+                    birFuncWrapperOrError = createExternalFunctionWrapper(interopValidator, birFunc, orgName,
+                            moduleName, version, birModuleClassName);
                 } else {
                     addDefaultableBooleanVarsToSignature(birFunc);
-                    birFuncWrapperOrError = getFunctionWrapper(birFunc, orgName, moduleName, version, birModuleClassName);
+                    birFuncWrapperOrError = getFunctionWrapper(birFunc, orgName, moduleName, version,
+                            birModuleClassName);
                 }
 
-                if (birFuncWrapperOrError instanceof BLangCompilerException) {
-                    dlogger.logError(birFuncWrapperOrError, birFunc.pos, module);
-                    continue;
+                if (birFuncWrapperOrError == null) {
+                    // todo handle error
+//                    dlogger.logError(birFuncWrapperOrError, birFunc.pos, module);
+//                    continue;
                 } else {
-                    birFunctionMap[pkgName + birFuncName] = birFuncWrapperOrError;
+                    birFunctionMap.put(pkgName + birFuncName, birFuncWrapperOrError);
                 }
             }
         }
@@ -622,17 +665,19 @@ class JvmPackageGen {
 
             if (bType.tag == TypeTags.OBJECT || bType.tag == TypeTags.RECORD) {
                 String key = getModuleLevelClassName(orgName, moduleName, typeDef.name.value);
-                typeDefMap.add(key, typeDef);
+                typeDefMap.put(key, typeDef);
             }
 
-            if ((bType.tag == TypeTags.OBJECT && !bType.isAbstract) || bType.tag == TypeTags.SERVICE) {
+            if ((bType.tag == TypeTags.OBJECT &&
+                    !Symbols.isFlagOn(((BObjectType) bType).tsymbol.flags, Flags.ABSTRACT)) ||
+                    bType.tag == TypeTags.SERVICE) {
                 @Nilable List<BIRFunction> attachedFuncs = getFunctions(typeDef.attachedFuncs);
-                String typeName = "";
-                if (bType.tag == TypeTags.OBJECT) {
-                    typeName = bType.name.value;
-                } else {
-                    typeName = bType.oType.name.value;
-                }
+                String typeName = typeName = ((BObjectType) bType).name.getValue();
+//                if (bType.tag == TypeTags.OBJECT) {
+//                    typeName = ((BObjectType)bType).name.getValue();
+//                } else {
+//                    typeName = bType.oType.name.value;
+//                }
                 for (BIRFunction func : attachedFuncs) {
 
                     // link the bir function for lookup
@@ -642,18 +687,18 @@ class JvmPackageGen {
 
                     if (!isExternFunc(currentFunc)) {
                         String className = getTypeValueClassName(module, typeName);
-                        birFunctionMap[pkgName + lookupKey] = getFunctionWrapper(currentFunc, orgName, moduleName,
-                                version, className);
+                        birFunctionMap.put(pkgName + lookupKey, getFunctionWrapper(currentFunc, orgName, moduleName,
+                                version, className));
                         continue;
                     }
 
-                    var jClassName = lookupExternClassName(cleanupPackageName(pkgName), lookupKey);
-                    if (jClassName instanceof String) {
-                        birFunctionMap[pkgName + lookupKey] = createOldStyleExternalFunctionWrapper(currentFunc, orgName,
-                                moduleName, version, jClassName, jClassName);
+                    String jClassName = lookupExternClassName(cleanupPackageName(pkgName), lookupKey);
+                    if (jClassName != null) {
+                        birFunctionMap.put(pkgName + lookupKey, createOldStyleExternalFunctionWrapper(currentFunc,
+                                orgName, moduleName, version, jClassName, jClassName));
                     } else {
-                        BLangCompilerException err = new BLangCompilerException("native function not available: " + pkgName + lookupKey);
-                        throw err;
+                        throw new BLangCompilerException("native function not available: " +
+                                pkgName + lookupKey);
                     }
                 }
             }
@@ -664,184 +709,180 @@ class JvmPackageGen {
     static BIRFunctionWrapper getFunctionWrapper(BIRFunction currentFunc, String orgName, String moduleName,
                                                  String version, String moduleClass) {
 
-        BIRBInvokableType functionTypeDesc = currentFunc.type;
+        BInvokableType functionTypeDesc = currentFunc.type;
         @Nilable BIRVariableDcl receiver = currentFunc.receiver;
-        @Nilable BType attachedType = receiver instanceof BIRVariableDcl ? receiver.type : null;
-        String jvmMethodDescription = getMethodDesc(functionTypeDesc.paramTypes, functionTypeDesc ?.retType,
-                attachedType = attachedType)
-        String jvmMethodDescriptionBString = getMethodDesc(functionTypeDesc.paramTypes, functionTypeDesc ?.retType,
-                attachedType = attachedType, useBString = true)
-        return {
-                orgName :orgName,
-                moduleName :moduleName,
-                version :version,
-                func :currentFunc,
-                fullQualifiedClassName :moduleClass,
-                jvmMethodDescriptionBString :jvmMethodDescriptionBString,
-                jvmMethodDescription :jvmMethodDescription
-    }
+        @Nilable BType attachedType = receiver != null ? receiver.type : null;
+        String jvmMethodDescription = getMethodDesc(functionTypeDesc.paramTypes, functionTypeDesc.retType,
+                attachedType, false, false);
+        String jvmMethodDescriptionBString = getMethodDesc(functionTypeDesc.paramTypes, functionTypeDesc.retType,
+                attachedType, false, true);
+
+        return new BIRFunctionWrapper(orgName, moduleName, version, currentFunc, moduleClass,
+                jvmMethodDescriptionBString, jvmMethodDescription);
     }
 
     // TODO: remove name/org form Package and replace with ModuleID
-    static PackageID packageToModuleId(BIRPackage module) {
-        return {org :module.org.value, name :module.name.value, modVersion :module.version.value}
+    static PackageID packageToModuleId(BIRPackage mod) {
+//        return {org :module.org.value, name :module.name.value, modVersion :module.version.value}
+        return new PackageID(mod.org, mod.name, mod.version);
     }
 
     // TODO: remove ImportModule type replace with ModuleID
-    static PackageID importModuleToModuleId(BIRImportModule mod) {
-        return {org:mod.modOrg.value, name:mod.modName.value, modVersion:mod.modVersion.value}
+    private static PackageID importModuleToModuleId(BIRImportModule mod) {
+//        return {org:mod.modOrg.value, name:mod.modName.value, modVersion:mod.modVersion.value}
+        return new PackageID(mod.org, mod.name, mod.version);
     }
 
-    static void addBuiltinImports(BIRPackage moduleId, BIRPackage module) {
+    private static void addBuiltinImports(BIRPackage moduleId, BIRPackage module) {
         // Add the builtin and utils modules to the imported list of modules
-        BIRImportModule annotationsModule = new BIRImportModule(modOrg :new (value:"ballerina"),
-        modName:
-        new (value:"lang.annotations"),
-        modVersion:
-        new (value:""))
-
-        if (isSameModule(moduleId, annotationsModule)) {
-            return;
-        }
-
-        module.importModules.add(annotationsModule);
-
-        if (isLangModule(moduleId)) {
-            return;
-        }
-
-        BIRImportModule internalModule = new BIRImportModule(modOrg :new (value:"ballerina"),
-        modName:
-        new (value:"lang.__internal"),
-        modVersion:
-        new (value:""))
-
-        if (isSameModule(moduleId, internalModule)) {
-            return;
-        }
-
-        module.importModules.add(internalModule);
-
-        BIRImportModule langArrayModule = new BIRImportModule(modOrg :new (value:"ballerina"),
-        modName:
-        new (value:"lang.array"),
-        modVersion:
-        new (value:""))
-
-        BIRImportModule langDecimalModule = new BIRImportModule(modOrg :new (value:"ballerina"),
-        modName:
-        new (value:"lang.decimal"),
-        modVersion:
-        new (value:""))
-
-        BIRImportModule langErrorModule = new BIRImportModule(modOrg :new (value:"ballerina"),
-        modName:
-        new (value:"lang.error"),
-        modVersion:
-        new (value:""))
-
-        BIRImportModule langFloatModule = new BIRImportModule(modOrg :new (value:"ballerina"),
-        modName:
-        new (value:"lang.float"),
-        modVersion:
-        new (value:""))
-
-        BIRImportModule langFutureModule = new BIRImportModule(modOrg :new (value:"ballerina"),
-        modName:
-        new (value:"lang.future"),
-        modVersion:
-        new (value:""))
-
-        BIRImportModule langIntModule = new BIRImportModule(modOrg :new (value:"ballerina"),
-        modName:
-        new (value:"lang.int"),
-        modVersion:
-        new (value:""))
-
-        BIRImportModule langMapModule = new BIRImportModule(modOrg :new (value:"ballerina"),
-        modName:
-        new (value:"lang.map"),
-        modVersion:
-        new (value:""))
-
-        BIRImportModule langObjectModule = new BIRImportModule(modOrg :new (value:"ballerina"),
-        modName:
-        new (value:"lang.object"),
-        modVersion:
-        new (value:""))
-
-        BIRImportModule langStringModule = new BIRImportModule(modOrg :new (value:"ballerina"),
-        modName:
-        new (value:"lang.string"),
-        modVersion:
-        new (value:""))
-
-        BIRImportModule langTableModule = new BIRImportModule(modOrg :new (value:"ballerina"),
-        modName:
-        new (value:"lang.table"),
-        modVersion:
-        new (value:""))
-
-        BIRImportModule langValueModule = new BIRImportModule(modOrg :new (value:"ballerina"),
-        modName:
-        new (value:"lang.value"),
-        modVersion:
-        new (value:""))
-
-        BIRImportModule langXmlModule = new BIRImportModule(modOrg :new (value:"ballerina"),
-        modName:
-        new (value:"lang.xml"),
-        modVersion:
-        new (value:""))
-
-        BIRImportModule langTypedescModule = new BIRImportModule(modOrg :new (value:"ballerina"),
-        modName:
-        new (value:"lang.typedesc"),
-        modVersion:
-        new (value:""))
-        module.importModules.add(langArrayModule);
-        module.importModules.add(langDecimalModule);
-        module.importModules.add(langErrorModule);
-        module.importModules.add(langFloatModule);
-        module.importModules.add(langFutureModule);
-        module.importModules.add(langIntModule);
-        module.importModules.add(langMapModule);
-        module.importModules.add(langObjectModule);
-        module.importModules.add(langStringModule);
-        module.importModules.add(langTableModule);
-        module.importModules.add(langValueModule);
-        module.importModules.add(langXmlModule);
-        module.importModules.add(langTypedescModule);
+//        BIRImportModule annotationsModule = new BIRImportModule(modOrg :new (value:"ballerina"),
+//        modName:
+//        new (value:"lang.annotations"),
+//        modVersion:
+//        new (value:""))
+//
+//        if (isSameModule(moduleId, annotationsModule)) {
+//            return;
+//        }
+//
+//        module.importModules.add(annotationsModule);
+//
+//        if (isLangModule(moduleId)) {
+//            return;
+//        }
+//
+//        BIRImportModule internalModule = new BIRImportModule(modOrg :new (value:"ballerina"),
+//        modName:
+//        new (value:"lang.__internal"),
+//        modVersion:
+//        new (value:""))
+//
+//        if (isSameModule(moduleId, internalModule)) {
+//            return;
+//        }
+//
+//        module.importModules.add(internalModule);
+//
+//        BIRImportModule langArrayModule = new BIRImportModule(modOrg :new (value:"ballerina"),
+//        modName:
+//        new (value:"lang.array"),
+//        modVersion:
+//        new (value:""))
+//
+//        BIRImportModule langDecimalModule = new BIRImportModule(modOrg :new (value:"ballerina"),
+//        modName:
+//        new (value:"lang.decimal"),
+//        modVersion:
+//        new (value:""))
+//
+//        BIRImportModule langErrorModule = new BIRImportModule(modOrg :new (value:"ballerina"),
+//        modName:
+//        new (value:"lang.error"),
+//        modVersion:
+//        new (value:""))
+//
+//        BIRImportModule langFloatModule = new BIRImportModule(modOrg :new (value:"ballerina"),
+//        modName:
+//        new (value:"lang.float"),
+//        modVersion:
+//        new (value:""))
+//
+//        BIRImportModule langFutureModule = new BIRImportModule(modOrg :new (value:"ballerina"),
+//        modName:
+//        new (value:"lang.future"),
+//        modVersion:
+//        new (value:""))
+//
+//        BIRImportModule langIntModule = new BIRImportModule(modOrg :new (value:"ballerina"),
+//        modName:
+//        new (value:"lang.int"),
+//        modVersion:
+//        new (value:""))
+//
+//        BIRImportModule langMapModule = new BIRImportModule(modOrg :new (value:"ballerina"),
+//        modName:
+//        new (value:"lang.map"),
+//        modVersion:
+//        new (value:""))
+//
+//        BIRImportModule langObjectModule = new BIRImportModule(modOrg :new (value:"ballerina"),
+//        modName:
+//        new (value:"lang.object"),
+//        modVersion:
+//        new (value:""))
+//
+//        BIRImportModule langStringModule = new BIRImportModule(modOrg :new (value:"ballerina"),
+//        modName:
+//        new (value:"lang.string"),
+//        modVersion:
+//        new (value:""))
+//
+//        BIRImportModule langTableModule = new BIRImportModule(modOrg :new (value:"ballerina"),
+//        modName:
+//        new (value:"lang.table"),
+//        modVersion:
+//        new (value:""))
+//
+//        BIRImportModule langValueModule = new BIRImportModule(modOrg :new (value:"ballerina"),
+//        modName:
+//        new (value:"lang.value"),
+//        modVersion:
+//        new (value:""))
+//
+//        BIRImportModule langXmlModule = new BIRImportModule(modOrg :new (value:"ballerina"),
+//        modName:
+//        new (value:"lang.xml"),
+//        modVersion:
+//        new (value:""))
+//
+//        BIRImportModule langTypedescModule = new BIRImportModule(modOrg :new (value:"ballerina"),
+//        modName:
+//        new (value:"lang.typedesc"),
+//        modVersion:
+//        new (value:""))
+//        module.importModules.add(langArrayModule);
+//        module.importModules.add(langDecimalModule);
+//        module.importModules.add(langErrorModule);
+//        module.importModules.add(langFloatModule);
+//        module.importModules.add(langFutureModule);
+//        module.importModules.add(langIntModule);
+//        module.importModules.add(langMapModule);
+//        module.importModules.add(langObjectModule);
+//        module.importModules.add(langStringModule);
+//        module.importModules.add(langTableModule);
+//        module.importModules.add(langValueModule);
+//        module.importModules.add(langXmlModule);
+//        module.importModules.add(langTypedescModule);
     }
 
-    static boolean isSameModule(PackageID moduleId, BIRImportModule importModule) {
-        if (moduleId.org != importModule.modOrg.value) {
-            return false;
-        } else if (moduleId.name != importModule.modName.value) {
-            return false;
-        } else {
-            return moduleId.modVersion == importModule.modVersion.value;
-        }
-    }
+//    static boolean isSameModule(PackageID moduleId, BIRImportModule importModule) {
+//        if (moduleId.org != importModule.modOrg.value) {
+//            return false;
+//        } else if (moduleId.name != importModule.modName.value) {
+//            return false;
+//        } else {
+//            return moduleId.modVersion == importModule.modVersion.value;
+//        }
+//    }
+//
+//    static boolean isLangModule(PackageID moduleId) {
+//        if (!moduleId.orgName.value.equals("ballerina")) {
+//            return false;
+//        }
+//        return moduleId.name.value.indexOf("lang.") == 0;
+//    }
 
-    static boolean isLangModule(PackageID moduleId) {
-        if (moduleId.org != "ballerina") {
-            return false;
-        }
-        return moduleId.name.indexOf("lang.") == 0;
-    }
-
-    // TODO: this only works for 1000000 byte or less files, get a proper method in stdlib
-    static void readFileFully(String path) returns
+//    // TODO: this only works for 1000000 byte or less files, get a proper method in stdlib
+//    static void readFileFully(String path) returns
 
     public static @Nilable
     String lookupExternClassName(String pkgName, String functionName) {
-        return externalMapCache[cleanupName(pkgName) + "/" + nameOfNonBStringFunc(functionName)];
+
+        return externalMapCache.get(cleanupName(pkgName) + "/" + nameOfNonBStringFunc(functionName));
     }
 
-    byte[]  =external
-
     static void generateShutdownSignalListener(BIRPackage pkg, String initClass, Map<String, byte[]> jarEntries) {
+
         String innerClassName = initClass + "$SignalListener";
         ClassWriter cw = new ClassWriter(COMPUTE_FRAMES);
         cw.visit(V1_8, ACC_SUPER, innerClassName, null, JAVA_THREAD, null);
@@ -866,10 +907,11 @@ class JvmPackageGen {
         mv.visitEnd();
 
         cw.visitEnd();
-        jarEntries[innerClassName + ".class"] = checkpanic cw.toByteArray();
+        jarEntries.put(innerClassName + ".class", cw.toByteArray());
     }
 
     public static class BIRFunctionWrapper {
+
         String orgName;
         String moduleName;
         String version;
@@ -878,5 +920,18 @@ class JvmPackageGen {
         String jvmMethodDescription;
         @Nilable
         String jvmMethodDescriptionBString = null;
+
+        BIRFunctionWrapper(String orgName, String moduleName, String version, BIRFunction func,
+                           String fullQualifiedClassName, String jvmMethodDescription,
+                           String jvmMethodDescriptionBString) {
+
+            this.orgName = orgName;
+            this.moduleName = moduleName;
+            this.version = version;
+            this.func = func;
+            this.fullQualifiedClassName = fullQualifiedClassName;
+            this.jvmMethodDescription = jvmMethodDescription;
+            this.jvmMethodDescriptionBString = jvmMethodDescriptionBString;
+        }
     }
 }

@@ -217,7 +217,7 @@ public class JvmInstructionGen {
         }
     }
 
-    void addJUnboxInsn(MethodVisitor mv, @Nilable BType bType) {
+    static void addJUnboxInsn(MethodVisitor mv, @Nilable BType bType) {
         if (bType == null) {
             return;
         } else if (bType.tag == JTypeTags.JBYTE) {

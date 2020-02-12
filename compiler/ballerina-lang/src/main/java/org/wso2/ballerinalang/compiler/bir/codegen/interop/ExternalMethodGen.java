@@ -183,9 +183,9 @@ public class ExternalMethodGen {
         }
     }
 
-    static OldStyleExternalFunctionWrapper createOldStyleExternalFunctionWrapper(BIRFunction birFunc, String orgName,
-                                                                                 String moduleName, String version, String birModuleClassName,
-                                                                                 String jClassName) {
+    public static OldStyleExternalFunctionWrapper createOldStyleExternalFunctionWrapper(BIRFunction birFunc, String orgName,
+                                                                                        String moduleName, String version, String birModuleClassName,
+                                                                                        String jClassName) {
 
         @Nilable List<BType> jMethodPramTypes = birFunc.type.paramTypes.clone();
         addDefaultableBooleanVarsToSignature(birFunc);
@@ -229,9 +229,10 @@ public class ExternalMethodGen {
         return orgName.equals("ballerina") && moduleName.equals("builtin");
     }
 
-    BLangCompilerException createExternalFunctionWrapper(InteropValidator interopValidator, BIRFunction birFunc,
-                                                         String orgName, String moduleName, String version,
-                                                         String birModuleClassName) {
+    public static BIRFunctionWrapper createExternalFunctionWrapper(InteropValidator interopValidator,
+                                                                   BIRFunction birFunc, String orgName,
+                                                                   String moduleName, String version,
+                                                                   String birModuleClassName) {
         BIRFunctionWrapper birFuncWrapper;
         @Nilable InteropValidationRequest jInteropValidationReq = getInteropAnnotValue(birFunc);
         if (jInteropValidationReq == null) {
