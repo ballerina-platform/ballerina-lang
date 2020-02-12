@@ -902,7 +902,7 @@ public class JvmMethodGen {
                 }
 
                 if (insKind <= BIRBINARY_BITWISE_UNSIGNED_RIGHT_SHIFT) {
-                    instGen.generateBinaryOpIns((BIRBinaryOp) inst);
+                    instGen.generateBinaryOpIns((BinaryOp) inst);
                 } else if (insKind <= BIRINS_KIND_TYPE_CAST) {
                     if (insKind == BIRINS_KIND_MOVE) {
                         instGen.generateMoveIns((BIRMove) inst);

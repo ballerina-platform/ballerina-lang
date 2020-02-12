@@ -106,7 +106,7 @@ public class JvmErrorGen {
             mv.visitFieldInsn(GETFIELD, FUTURE_VALUE, PANIC_FIELD, String.format("L%s;", THROWABLE));
 
             // handle any runtime errors
-            Label labelIf = new;
+            Label labelIf = new Label();
             mv.visitJumpInsn(IFNULL, labelIf);
             mv.visitFieldInsn(GETFIELD, FUTURE_VALUE, PANIC_FIELD, String.format("L%s;", THROWABLE));
             mv.visitMethodInsn(INVOKESTATIC, RUNTIME_UTILS, HANDLE_THROWABLE_METHOD, String.format("(L%s;)V", THROWABLE),
@@ -137,8 +137,8 @@ public class JvmErrorGen {
             BIRErrorEntry currentEE = (BIRErrorEntry) nilableEE;
 
             Label startLabel = labelGen.getLabel(funcName + currentEE.trapBB.id.value);
-            Label endLabel = new;
-            Label jumpLabel = new;
+            Label endLabel = new Label();
+            Label jumpLabel = new Label();
 
 
             this.mv.visitLabel(endLabel);
@@ -152,24 +152,24 @@ public class JvmErrorGen {
                     if (ERROR_VALUE.equals(catchIns.errorClass)) {
                         exeptionExist = true;
                     }
-                    Label errorValueLabel = new;
+                    Label errorValueLabel = new Label();
                     this.mv.visitTryCatchBlock(startLabel, endLabel, errorValueLabel, catchIns.errorClass);
                     this.mv.visitLabel(errorValueLabel);
                     this.mv.visitMethodInsn(INVOKESTATIC, BAL_ERRORS, "createInteropError", String.format("(L%s;)L%s;", THROWABLE, ERROR_VALUE), false);
                     generateVarStore(this.mv, retVarDcl, this.currentPackageName, retIndex);
                     Return term = catchIns.term;
-                    termGen.genReturnTerm(term, retIndex, func);
+                    termGen.genReturnTerm(term, retIndex, func, false, -1);
                     this.mv.visitJumpInsn(GOTO, jumpLabel);
                 }
                 if (!exeptionExist) {
-                    Label errorValErrorLabel = new;
+                    Label errorValErrorLabel = new Label();
                     this.mv.visitTryCatchBlock(startLabel, endLabel, errorValErrorLabel, ERROR_VALUE);
 
                     this.mv.visitLabel(errorValErrorLabel);
                     this.mv.visitInsn(ATHROW);
                     this.mv.visitJumpInsn(GOTO, jumpLabel);
                 }
-                Label otherErrorLabel = new;
+                Label otherErrorLabel = new Label();
                 this.mv.visitTryCatchBlock(startLabel, endLabel, otherErrorLabel, THROWABLE);
 
                 this.mv.visitLabel(otherErrorLabel);
@@ -180,8 +180,8 @@ public class JvmErrorGen {
                 return;
             }
 
-            Label errorValueLabel = new;
-            Label otherErrorLabel = new;
+            Label errorValueLabel = new Label();
+            Label otherErrorLabel = new Label();
             this.mv.visitTryCatchBlock(startLabel, endLabel, errorValueLabel, ERROR_VALUE);
             this.mv.visitTryCatchBlock(startLabel, endLabel, otherErrorLabel, STACK_OVERFLOW_ERROR);
             this.mv.visitLabel(errorValueLabel);
@@ -204,15 +204,14 @@ public class JvmErrorGen {
 
     static class DiagnosticLogger {
         List<DiagnosticLog> errors = new ArrayList<>();
-        int size = 0;
 
-        static int getErrorCount() {
-            return this.size;
+        int getErrorCount() {
+            return this.errors.size();
         }
 
-        static void printErrors() {
+        void printErrors() {
             for (DiagnosticLog log : this.errors) {
-                String fileName = log.pos.sourceFileName;
+                String fileName = log.pos.getSource().cUnitName;
                 String orgName = log.module.org.value;
                 String moduleName = log.module.name.value;
 
@@ -231,19 +230,18 @@ public class JvmErrorGen {
                 }
 
                 String errorStr;
-                String detail = log.err.detail().toString();
+                String detail = log.err.getCause() != null ? log.err.getCause().getMessage() : "";
                 if (detail.equals("")) {
-                    errorStr = String.format("error: %s: %s", positionStr, log.err.reason());
+                    errorStr = String.format("error: %s: %s", positionStr, log.err.getMessage());
                 } else {
-                    errorStr = String.format("error: %s: %s %s", positionStr, log.err.reason(), detail);
+                    errorStr = String.format("error: %s: %s %s", positionStr, log.err.getMessage(), detail);
                 }
                 print(errorStr);
             }
         }
 
         void logError(BLangCompilerException err, DiagnosticPos pos, BIRPackage module) {
-            this.errors.get(this.size) = new (err:err, pos:pos, module:module);
-            this.size += 1;
+            this.errors.add(new DiagnosticLog(err, pos, module));
         }
     }
 
@@ -262,5 +260,12 @@ public class JvmErrorGen {
         BLangCompilerException err;
         DiagnosticPos pos;
         BIRPackage module;
+
+        public DiagnosticLog(BLangCompilerException err, DiagnosticPos pos, BIRPackage module) {
+            this.err = err;
+            this.pos = pos;
+            this.module = module;
+        }
+
     }
 }

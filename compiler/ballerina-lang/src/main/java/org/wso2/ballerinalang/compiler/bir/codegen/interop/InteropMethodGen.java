@@ -26,11 +26,13 @@ import org.wso2.ballerinalang.compiler.bir.codegen.CodeGenerator;
 import org.wso2.ballerinalang.compiler.bir.codegen.JType;
 import org.wso2.ballerinalang.compiler.bir.codegen.JTypeTags;
 import org.wso2.ballerinalang.compiler.bir.codegen.Nilable;
+import org.wso2.ballerinalang.compiler.bir.codegen.interop.ExternalMethodGen.BIRVarRef;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRBasicBlock;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRErrorEntry;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRFunction;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRPackage;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRVariableDcl;
+import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator;
 import org.wso2.ballerinalang.compiler.bir.model.BIROperand;
 import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator;
 import org.wso2.ballerinalang.compiler.bir.model.BIRVisitor;
@@ -115,6 +117,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.BIRFunct
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.getFunctionWrapper;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.getPackageName;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTerminatorGen.TerminatorGenerator;
+import static org.wso2.ballerinalang.compiler.bir.codegen.interop.JInsKind.JCAST;
 
 
 //import ballerina/bir;
@@ -445,6 +448,7 @@ public class InteropMethodGen {
         }
         return false;
     }
+
     JCAST |JNEW;
 
     // These conversions are already validate beforehand, therefore I am just emitting type conversion instructions here.
@@ -639,6 +643,7 @@ public class InteropMethodGen {
         mv.visitLabel(l2);
         mv.visitVarInsn(ALOAD, valueArrayIndex);
     }
+
     JMethodFunctionWrapper |JFieldFunctionWrapper;
 
     static JInteropFunctionWrapper |
@@ -752,6 +757,7 @@ public class InteropMethodGen {
     *BIRFunctionWrapper;
         Field jField;
     }
+
     bir:BTypeInt |bir:BTypeFloat |bir:BTypeBoolean |bir:BTypeByte |bir:BTypeNil;
 
     // Java specific terminator definitions
@@ -822,20 +828,29 @@ public class InteropMethodGen {
     }
 
     // Java specific instruction definitions
-    public static class JInstruction {
-        DiagnosticPos pos;
-        BIRInstructionKind kind = BIRINS_KIND_PLATFORM;
-        JInsKind jKind;
-        anydata...;
+    public static class JInstruction extends BIRNonTerminator {
+        public DiagnosticPos pos;
+        public JInsKind jKind;
+
+        JInstruction(DiagnosticPos pos, InstructionKind kind) {
+            super(pos,  InstructionKind.PLATFORM);
+        }
+
+        @Override
+        public void accept(BIRVisitor visitor) {
+            throw new UnsupportedOperationException();
+        }
     }
 
-    public static class JCast {
-        DiagnosticPos pos;
-        BIRInstructionKind kind = BIRINS_KIND_PLATFORM;
-        JInsKind jKind = JCAST;
-        BIROperand lhsOp;
-        BIROperand rhsOp;
-        BType targetType;
+    public static class JCast extends JInstruction {
+        public BIROperand lhsOp;
+        public BIROperand rhsOp;
+        public BType targetType;
+
+        JCast(DiagnosticPos pos, InstructionKind kind) {
+            super(pos, kind);
+            jKind = JCAST;
+        }
     }
 
     public static class JErrorEntry extends BIRErrorEntry {

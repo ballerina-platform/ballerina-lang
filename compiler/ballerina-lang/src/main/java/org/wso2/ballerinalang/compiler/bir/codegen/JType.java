@@ -8,7 +8,7 @@ public class JType extends BType {
     public String type;
 
     public JType(int tag, BTypeSymbol tsymbol) {
-        super(tag, tsymbol);
+        super(JTypeTags.JTYPE, tsymbol);
     }
 
     public static String JBYTE_KIND = "byte";

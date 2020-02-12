@@ -920,20 +920,21 @@ class JvmTypeGen {
     //              Type loading methods
     // -------------------------------------------------------
 
+    static void loadExternalType(MethodVisitor mv, PackageID pkgId, String name) {
+        String fieldName = getTypeFieldName(name);
+        String externlTypeOwner = typeRefToClassName(pkgId, MODULE_INIT_CLASS_NAME);
+        mv.visitFieldInsn(GETSTATIC, externlTypeOwner, fieldName, String.format("L%s;", BTYPE));
+    }
+
     static void loadExternalOrLocalType(MethodVisitor mv, BIRTypeDefinition typeDefinition) {
-        if (!typeDefinition.referencedTypes.isEmpty()) /*instanceof BIRTypeDefinition)*/ {
-            String fieldName = getTypeFieldName(typeDefinition.name.value);
-            String externlTypeOwner = typeRefToClassName(typeDefinition.type.tsymbol.pkgID, MODULE_INIT_CLASS_NAME);
-            mv.visitFieldInsn(GETSTATIC, externlTypeOwner, fieldName, String.format("L%s;", BTYPE));
-        } else {
-            loadType(mv, typeDefinition.type);
-//            BType bType = typeDefinition.type;
-//            if (bType.tag == TypeTags.SERVICE) {
-//                loadType(mv, bType);
-//            } else {
-//                loadType(mv, bType);
-//            }
-        }
+        //TODO:rename loadLocalType
+        loadType(mv, typeDefinition.type);
+//      BType bType = typeDefinition.type;
+//      if (bType.tag == TypeTags.SERVICE) {
+//          loadType(mv, bType);
+//      } else {
+//          loadType(mv, bType);
+//      }
     }
 
     //# Generate code to load an instance of the given type
