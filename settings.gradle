@@ -111,6 +111,7 @@ include(':ballerina-llvm')
 // include(':composer-integration-test')
 // include(':ballerina-tools-integration-test')
 include(':ballerina-jsonutils')
+include(':testerina-unit-test')
 
 // include(':examples-test')
 // TODO: enable at 'dependsOn' of tools-intergration-tests
@@ -248,6 +249,7 @@ project(':ballerina-bootstrapper').projectDir = file('distribution/bootstrapper'
 project(':ballerina-libs').projectDir = file('distribution/libs')
 project(':ballerina-xmlutils').projectDir = file('stdlib/xmlutils')
 project(':ballerina-llvm').projectDir = file('stdlib/llvm')
+project(':testerina-unit-test').projectDir = file('tests/testerina-unit-test')
 
 project(':debug-adapter:debug-adapter-core').projectDir = file('misc/debug-adapter/modules/debug-adapter-core')
 project(':debug-adapter:debug-adapter-cli').projectDir = file('misc/debug-adapter/modules/debug-adapter-cli')
@@ -258,3 +260,5 @@ buildCache {
         push = true
     }
 }
+include 'testerina-intg-test'
+
