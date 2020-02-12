@@ -37,8 +37,10 @@ import java.util.StringJoiner;
  */
 public class BFiniteType extends BType implements FiniteType {
 
-    public Set<BLangExpression> valueSpace;
+    private Set<BLangExpression> valueSpace;
+    private boolean nullable = false;
     private Optional<Boolean> isAnyData = Optional.empty();
+
 
     public BFiniteType(BTypeSymbol tsymbol) {
         super(TypeTags.FINITE, tsymbol);
@@ -92,7 +94,7 @@ public class BFiniteType extends BType implements FiniteType {
 
     @Override
     public boolean isNullable() {
-        return this.valueSpace.stream().anyMatch(v -> v.type.tag == TypeTags.NIL);
+        return nullable;
     }
 
     @Override
@@ -110,5 +112,12 @@ public class BFiniteType extends BType implements FiniteType {
 
         this.isAnyData = Optional.of(true);
         return true;
+    }
+
+    public void addValue(BLangExpression value) {
+        this.valueSpace.add(value);
+        if (!nullable && (value.type.tag == TypeTags.NIL)) {
+            nullable = true;
+        }
     }
 }

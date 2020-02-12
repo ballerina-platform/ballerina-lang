@@ -476,7 +476,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
     private boolean literalAssignableToFiniteType(BLangLiteral literalExpr, BFiniteType finiteType,
                                                   int targetMemberTypeTag) {
-        return finiteType.valueSpace.stream()
+        return finiteType.getValueSpace().stream()
                 .anyMatch(valueExpr -> valueExpr.type.tag == targetMemberTypeTag &&
                         types.checkLiteralAssignabilityBasedOnType((BLangLiteral) valueExpr, literalExpr));
     }
@@ -527,7 +527,7 @@ public class TypeChecker extends BLangNodeVisitor {
         Set<BLangExpression> matchedValueSpace = new LinkedHashSet<>();
 
         for (BFiniteType finiteType : finiteTypeMembers) {
-            matchedValueSpace.addAll(finiteType.valueSpace.stream()
+            matchedValueSpace.addAll(finiteType.getValueSpace().stream()
                                              .filter(expression -> expression.type.tag == tag)
                                              .collect(Collectors.toSet()));
         }
@@ -636,7 +636,7 @@ public class TypeChecker extends BLangNodeVisitor {
                     return;
                 }
                 if (!types.hasFillerValue(arrayType.eType)) {
-                    dlog.error(listConstructor.pos, DiagnosticCode.INVALID_LIST_CONSTRUCTOR, expType);
+                    dlog.error(listConstructor.pos, DiagnosticCode.INVALID_LIST_CONSTRUCTOR_ELEMENT_TYPE, expType);
                     return;
                 }
             }
@@ -3182,7 +3182,7 @@ public class TypeChecker extends BLangNodeVisitor {
                 return false;
             } else {
                 BFiniteType reasonType = (BFiniteType) ctorType.reasonType;
-                if (reasonType.valueSpace.size() > 1) {
+                if (reasonType.getValueSpace().size() > 1) {
                     dlog.error(iExpr.pos, DiagnosticCode.INDIRECT_ERROR_CTOR_NOT_ALLOWED_ON_NON_CONST_REASON,
                             iExpr.type);
                     return false;
@@ -3211,7 +3211,7 @@ public class TypeChecker extends BLangNodeVisitor {
             return true;
         } else {
             BFiniteType finiteType = (BFiniteType) errorType.reasonType;
-            if (finiteType.valueSpace.size() != 1) {
+            if (finiteType.getValueSpace().size() != 1) {
                 if (errorType == symTable.errorType) {
                     dlog.error(pos, DiagnosticCode.CANNOT_INFER_ERROR_TYPE, expType.tsymbol.name);
                 } else {
@@ -3248,7 +3248,7 @@ public class TypeChecker extends BLangNodeVisitor {
     private void setErrorReasonParam(BLangInvocation iExpr, boolean reasonArgGiven, BErrorType ctorType) {
         if (!reasonArgGiven && ctorType.reasonType.getKind() == TypeKind.FINITE) {
             BFiniteType finiteType = (BFiniteType) ctorType.reasonType;
-            BLangExpression reasonExpr = (BLangExpression) finiteType.valueSpace.toArray()[0];
+            BLangExpression reasonExpr = (BLangExpression) finiteType.getValueSpace().toArray()[0];
             iExpr.requiredArgs.add(reasonExpr);
             return;
         }
@@ -4418,7 +4418,7 @@ public class TypeChecker extends BLangNodeVisitor {
             case TypeTags.FINITE:
                 BFiniteType finiteIndexExpr = (BFiniteType) indexExprType;
                 boolean validIndexExists = false;
-                for (BLangExpression finiteMember : finiteIndexExpr.valueSpace) {
+                for (BLangExpression finiteMember : finiteIndexExpr.getValueSpace()) {
                     int indexValue = ((Long) ((BLangLiteral) finiteMember).value).intValue();
                     if (indexValue >= 0 &&
                             (arrayType.state == BArrayState.UNSEALED || indexValue < arrayType.size)) {
@@ -4443,7 +4443,7 @@ public class TypeChecker extends BLangNodeVisitor {
                     finiteType = finiteTypes.get(0);
                 } else {
                     Set<BLangExpression> valueSpace = new LinkedHashSet<>();
-                    finiteTypes.forEach(constituent -> valueSpace.addAll(constituent.valueSpace));
+                    finiteTypes.forEach(constituent -> valueSpace.addAll(constituent.getValueSpace()));
                     finiteType = new BFiniteType(null, valueSpace);
                 }
 
@@ -4504,7 +4504,7 @@ public class TypeChecker extends BLangNodeVisitor {
             case TypeTags.FINITE:
                 BFiniteType finiteIndexExpr = (BFiniteType) currentType;
                 LinkedHashSet<BType> possibleTypes = new LinkedHashSet<>();
-                for (BLangExpression finiteMember : finiteIndexExpr.valueSpace) {
+                for (BLangExpression finiteMember : finiteIndexExpr.getValueSpace()) {
                     int indexValue = ((Long) ((BLangLiteral) finiteMember).value).intValue();
                     BType fieldType = checkTupleFieldType(tuple, indexValue);
                     if (fieldType.tag != TypeTags.SEMANTIC_ERROR) {
@@ -4539,7 +4539,7 @@ public class TypeChecker extends BLangNodeVisitor {
                     finiteType = finiteTypes.get(0);
                 } else {
                     Set<BLangExpression> valueSpace = new LinkedHashSet<>();
-                    finiteTypes.forEach(constituent -> valueSpace.addAll(constituent.valueSpace));
+                    finiteTypes.forEach(constituent -> valueSpace.addAll(constituent.getValueSpace()));
                     finiteType = new BFiniteType(null, valueSpace);
                 }
 
@@ -4655,7 +4655,7 @@ public class TypeChecker extends BLangNodeVisitor {
             case TypeTags.FINITE:
                 BFiniteType finiteIndexExpr = (BFiniteType) currentType;
                 LinkedHashSet<BType> possibleTypes = new LinkedHashSet<>();
-                for (BLangExpression finiteMember : finiteIndexExpr.valueSpace) {
+                for (BLangExpression finiteMember : finiteIndexExpr.getValueSpace()) {
                     String fieldName = (String) ((BLangLiteral) finiteMember).value;
                     BType fieldType = checkRecordRequiredFieldAccess(accessExpr, names.fromString(fieldName), record);
                     if (fieldType == symTable.semanticError) {
@@ -4707,7 +4707,7 @@ public class TypeChecker extends BLangNodeVisitor {
                     finiteType = finiteTypes.get(0);
                 } else {
                     Set<BLangExpression> valueSpace = new LinkedHashSet<>();
-                    finiteTypes.forEach(constituent -> valueSpace.addAll(constituent.valueSpace));
+                    finiteTypes.forEach(constituent -> valueSpace.addAll(constituent.getValueSpace()));
                     finiteType = new BFiniteType(null, valueSpace);
                 }
 

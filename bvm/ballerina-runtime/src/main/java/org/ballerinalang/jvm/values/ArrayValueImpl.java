@@ -72,7 +72,7 @@ public class ArrayValueImpl extends AbstractArrayValue {
     private String[] stringValues;
     private BString[] bStringValues;
 
-    private Optional<Boolean> hasFillerValue = Optional.empty();;
+    private Optional<Boolean> hasFillerValue = Optional.empty();
 
     // ------------------------ Constructors -------------------------------------------------------------------
 
@@ -140,7 +140,7 @@ public class ArrayValueImpl extends AbstractArrayValue {
     }
 
     private void initArrayValues(BType elementType, boolean useBString) {
-        int initialArraySize = Math.max(DEFAULT_ARRAY_SIZE, arrayType.getSize());
+        int initialArraySize = (arrayType.getSize() != -1) ? arrayType.getSize() : DEFAULT_ARRAY_SIZE;
         switch (elementType.getTag()) {
             case TypeTags.INT_TAG:
                 this.intValues = new long[initialArraySize];
@@ -165,7 +165,7 @@ public class ArrayValueImpl extends AbstractArrayValue {
                 this.refValues = new Object[initialArraySize];
                 if (arrayType.getState() == ArrayState.CLOSED_SEALED) {
                     fillerValueCheck(initialArraySize, initialArraySize);
-                    fillValues(arrayType.getSize());
+                    fillValues(initialArraySize);
                 }
         }
     }

@@ -118,6 +118,8 @@ public class SealedArrayTest {
         BRunUtil.invoke(compileResult, "createRecordAutoFilledSealedArray");
 
         BRunUtil.invoke(compileResult, "createRecordSealedArrayWithLabel");
+
+        BRunUtil.invoke(compileResult, "createRecordSealedArrayAutoFill");
     }
 
     @Test
@@ -223,21 +225,48 @@ public class SealedArrayTest {
     // TODO : uncomment
     @Test()
     public void testNegativeAutoFillSealedArray() {
-        Assert.assertEquals(listExprNegative.getErrorCount(), 7);
-        BAssertUtil.validateError(listExprNegative, 0, "invalid usage of list constructor with type 'Person[5]'", 24,
+        Assert.assertEquals(listExprNegative.getErrorCount(), 10);
+        BAssertUtil.validateError(listExprNegative, 0,
+                                  "invalid usage of list constructor: type 'Person[5]' does not have a filler value",
+                                  24,
                                   19);
-        BAssertUtil.validateError(listExprNegative, 1, "invalid usage of list constructor with type 'Person[5][]'", 31,
+        BAssertUtil.validateError(listExprNegative, 1,
+                                  "invalid usage of list constructor: type 'Person[5][]' does not have a filler value",
+                                  31,
                                   21);
-        BAssertUtil.validateError(listExprNegative, 2, "invalid usage of list constructor with type 'Person[5][1]'", 32,
+        BAssertUtil.validateError(listExprNegative, 2,
+                                  "invalid usage of list constructor: type 'Person[5][1]' does not have a filler value",
+                                  32,
                                   22);
-        BAssertUtil.validateError(listExprNegative, 3, "invalid usage of list constructor with type 'Age[5][]'", 44,
+        BAssertUtil.validateError(listExprNegative, 3,
+                                  "invalid usage of list constructor: type 'Age[5][]' does not have a filler value", 44,
                                   18);
-        BAssertUtil.validateError(listExprNegative, 4, "invalid usage of list constructor with type 'Age[5][1]'", 45,
+        BAssertUtil.validateError(listExprNegative, 4,
+                                  "invalid usage of list constructor: type 'Age[5][1]' does not have a filler value",
+                                  45,
                                   19);
-        BAssertUtil.validateError(listExprNegative, 5, "invalid usage of list constructor with type '1|2|3|4[3]'", 66,
+        BAssertUtil.validateError(listExprNegative, 5,
+                                  "invalid usage of list constructor: type '1|2|3|4[3]' does not have a filler value",
+                                  66,
                                   18);
-        BAssertUtil.validateError(listExprNegative, 6, "invalid usage of list constructor with type '0|0.0f|[3]'", 72,
+        BAssertUtil.validateError(listExprNegative, 6,
+                                  "invalid usage of list constructor: type '0|0.0f|[3]' does not have a filler value",
+                                  72,
                                   34);
+        BAssertUtil.validateError(listExprNegative, 7,
+                                  "invalid usage of list constructor: type 'Rec[2]' does not have a filler value",
+                                  91,
+                                  16);
+        BAssertUtil.validateError(listExprNegative, 8,
+                                  "invalid usage of list constructor: type 'RecWithManyOptional[2]' does not have a " +
+                                          "filler value",
+                                  95,
+                                  32);
+        BAssertUtil.validateError(listExprNegative, 9,
+                                  "invalid usage of list constructor: type 'RecWithOptional[2]' does not have a " +
+                                          "filler value",
+                                  99,
+                                  28);
     }
 
     @Test()

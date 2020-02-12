@@ -111,8 +111,9 @@ public class Types {
     private int finiteTypeCount = 0;
 
     /**
-     * Keep default values for basic types in String format.
+     * Keep filler value for basic types in String format.
      *
+     * @since 1.1.2
      */
     public enum DefaultValues {
         STRING(""),
@@ -247,7 +248,7 @@ public class Types {
     }
 
     boolean finiteTypeContainsNumericTypeValues(BFiniteType finiteType) {
-        return finiteType.valueSpace.stream().anyMatch(valueExpr -> isBasicNumericType(valueExpr.type));
+        return finiteType.getValueSpace().stream().anyMatch(valueExpr -> isBasicNumericType(valueExpr.type));
     }
 
     private boolean containsNumericType(BType type) {
@@ -1849,20 +1850,20 @@ public class Types {
 
     private boolean isFiniteTypeAssignable(BFiniteType finiteType, BType targetType, Set<TypePair> unresolvedTypes) {
         if (targetType.tag == TypeTags.FINITE) {
-            return finiteType.valueSpace.stream()
+            return finiteType.getValueSpace().stream()
                     .allMatch(expression -> isAssignableToFiniteType(targetType, (BLangLiteral) expression));
         }
 
         if (targetType.tag == TypeTags.UNION) {
             List<BType> unionMemberTypes = getAllTypes(targetType);
-            return finiteType.valueSpace.stream()
+            return finiteType.getValueSpace().stream()
                     .allMatch(valueExpr ->  unionMemberTypes.stream()
                             .anyMatch(targetMemType -> targetMemType.tag == TypeTags.FINITE ?
                                     isAssignableToFiniteType(targetMemType, (BLangLiteral) valueExpr) :
                                     isAssignable(valueExpr.type, targetType, unresolvedTypes)));
         }
 
-        return finiteType.valueSpace.stream()
+        return finiteType.getValueSpace().stream()
                 .allMatch(expression -> isAssignable(expression.type, targetType, unresolvedTypes));
     }
 
@@ -1872,7 +1873,7 @@ public class Types {
         }
 
         BFiniteType expType = (BFiniteType) type;
-        return expType.valueSpace.stream().anyMatch(memberLiteral -> {
+        return expType.getValueSpace().stream().anyMatch(memberLiteral -> {
             if (((BLangLiteral) memberLiteral).value == null) {
                 return literalExpr.value == null;
             }
@@ -1980,7 +1981,7 @@ public class Types {
 
         // Identify all the values from the value space of the finite type that are assignable to the target type.
         // e.g., finiteType - type Foo "foo"|1 ;
-        Set<BLangExpression> matchingValues = finiteType.valueSpace.stream()
+        Set<BLangExpression> matchingValues = finiteType.getValueSpace().stream()
                 .filter(
                         // case I: targetType - string ("foo" is assignable to string)
                         // case II: targetType - type Bar "foo"|"baz" ; ("foo" is assignable to Bar)
@@ -2105,7 +2106,7 @@ public class Types {
                 break;
             case TypeTags.FINITE:
                 BFiniteType expType = (BFiniteType) bType;
-                expType.valueSpace.forEach(value -> {
+                expType.getValueSpace().forEach(value -> {
                     memberTypes.add(value.type);
                 });
                 break;
@@ -2405,7 +2406,7 @@ public class Types {
     private BType getRemainingType(BFiniteType originalType, List<BType> removeTypes) {
         Set<BLangExpression> remainingValueSpace = new LinkedHashSet<>();
 
-        for (BLangExpression valueExpr : originalType.valueSpace) {
+        for (BLangExpression valueExpr : originalType.getValueSpace()) {
             boolean matchExists = false;
             for (BType remType : removeTypes) {
                 if (isAssignable(valueExpr.type, remType) ||
@@ -2491,7 +2492,7 @@ public class Types {
             case TypeTags.MAP:
                 return isAllowedConstantType(((BMapType) type).constraint);
             case TypeTags.FINITE:
-                BLangExpression finiteValue = ((BFiniteType) type).valueSpace.toArray(new BLangExpression[0])[0];
+                BLangExpression finiteValue = ((BFiniteType) type).getValueSpace().toArray(new BLangExpression[0])[0];
                 return isAllowedConstantType(finiteValue.type);
             default:
                 return false;
@@ -2581,9 +2582,6 @@ public class Types {
     }
 
     public boolean hasFillerValue(BType type) {
-        if (type == null) {
-            return true;
-        }
         if (type.tag < TypeTags.RECORD) {
             return true;
         }
@@ -2619,44 +2617,44 @@ public class Types {
             if (initFunction.symbol.getReturnType().getKind() == TypeKind.ERROR) {
                 return false;
             }
-            if (!hasFillerValue(initFunction.symbol.getReturnType())) {
+            if (initFunction.symbol.getReturnType().getKind() != TypeKind.NIL) {
                 return false;
             }
-            if (!initFunction.symbol.getParameters().stream()
-                    .allMatch(bVarSymbol -> bVarSymbol.defaultableParam == true)) {
-                return false;
+            for (BVarSymbol bVarSymbol : initFunction.symbol.getParameters()) {
+                if (!bVarSymbol.defaultableParam) {
+                    return false;
+                }
             }
         }
         return true;
     }
 
     /**
-     * This will handle two types.
-     *  Singleton : As singleton can have one value that value should it self be a valid fill value
-     *  Union :
-     *          1. if nil is a member it is the fill values
-     *          2. else all the values should belong to same type and the default value for that type
-     *              should be a member of the union
+     * This will handle two types. Singleton : As singleton can have one value that value should it self be a valid fill
+     * value Union : 1. if nil is a member it is the fill values 2. else all the values should belong to same type and
+     * the default value for that type should be a member of the union precondition : value space should have at least
+     * one element
+     *
      * @param type BFiniteType union or finite
-     * @return
+     * @return boolean whether type has a valid filler value or not
      */
     private boolean checkFillerValue(BFiniteType type) {
+        if (type.isNullable()) {
+            return true;
+        }
+
         // For singleton types, that value is the implicit initial value
-        if (type.valueSpace.size() == 1) {
+        if (type.getValueSpace().size() == 1) {
             return true;
         }
 
-        // is first value null
-        Iterator iterator = type.valueSpace.iterator();
-        BLangExpression firstElement = (BLangExpression) iterator.next();
-        if ((firstElement == null) || (firstElement.type.getKind() == TypeKind.NIL)) {
-            return true;
+        Iterator iterator = type.getValueSpace().iterator();
+        if (!iterator.hasNext()) { // sanity check this cannot be
+            return false;
         }
-
-        boolean allMembersHaveSameType = true;
         boolean defaultFillValuePresent = false;
 
-        // is first value is a valid fill value
+        BLangExpression firstElement = (BLangExpression) iterator.next();
         String defaultFillValue = getDefaultFillValue(firstElement);
         if (firstElement.toString().equals(defaultFillValue)) {
             defaultFillValuePresent = true;
@@ -2664,28 +2662,14 @@ public class Types {
 
         while (iterator.hasNext()) {
             Object value =  iterator.next();
-            if (value == null) {
-                return true;
-            }
-
             BType valueType = ((BLangExpression) value).type;
-            if (valueType.getKind() == TypeKind.NIL) {
-                return true;
+            if (!isSameType(valueType, firstElement.type)) {
+                return false;
             }
-
-            if (allMembersHaveSameType && !isSameType(valueType, firstElement.type)) {
-                allMembersHaveSameType = false;
-            }
-
             if (!defaultFillValuePresent && value.toString().equals(defaultFillValue)) {
                 defaultFillValuePresent = true;
             }
         }
-
-        if (!allMembersHaveSameType) {
-            return false;
-        }
-
         return defaultFillValuePresent;
     }
 
@@ -2693,15 +2677,11 @@ public class Types {
         if (type.isNullable()) {
             return true;
         }
-
         Iterator<BType> iterator = type.getMemberTypes().iterator();
-        BType firstMember = iterator.next();
-        // is first value is a valid fill value
-        if (firstMember.getKind() == TypeKind.NIL) {
-            return true;
+        if (!iterator.hasNext()) { // sanity check this cannot be
+            return false;
         }
-
-        boolean allMembersHaveSameType = true;
+        BType firstMember = iterator.next();
         boolean defaultFillValuePresent = false;
 
         // is first value is a valid fill value
@@ -2711,33 +2691,25 @@ public class Types {
         }
 
         while (iterator.hasNext()) {
+            Object value = iterator.next();
 
-            Object value =  iterator.next();
-            if (value == null) {
-                return true;
-            }
-
-            if (allMembersHaveSameType && !isSameType(firstMember, iterator.next())) {
-                allMembersHaveSameType = false;
+            if (!isSameType(firstMember, iterator.next())) {
+                return false;
             }
 
             if (!defaultFillValuePresent && value.toString().equals(defaultFillValue)) {
                 defaultFillValuePresent = true;
             }
         }
-
-        if (!allMembersHaveSameType) {
-            return false;
-        }
         return defaultFillValuePresent;
     }
 
     private boolean checkFillerValue(BRecordType type) {
         for (BField field : type.fields) {
-            if (field.symbol.defaultableParam) {
+            if (Symbols.isFlagOn(field.symbol.flags, Flags.OPTIONAL)) {
                 continue;
             }
-            if (!hasFillerValue(field.type)) {
+            if (Symbols.isFlagOn(field.symbol.flags, Flags.REQUIRED)) {
                 return false;
             }
         }
@@ -2749,8 +2721,7 @@ public class Types {
     }
 
     private String getDefaultFillValue(BLangExpression expr) {
-        BType type = expr.type;
-        return getDefaultFillValue(type);
+        return getDefaultFillValue(expr.type);
     }
 
     private String getDefaultFillValue(BType type) {

@@ -142,6 +142,21 @@ type Person record {
     int age = 0;
 };
 
+type PersonFillable record {
+    string name = "doe";
+    int age?;
+    boolean employee?;
+};
+
+function createRecordSealedArrayAutoFill() {
+    PersonFillable p = {name:"John", age:25, employee:false};
+    PersonFillable[5] sealedArray = [p];
+    sealedArray[3] = p;
+    assertEqualPanic("doe", sealedArray[2].name);
+    assertEqualPanic("John", sealedArray[3].name);
+    assertArrayLengthPanic(5, sealedArray);
+}
+
 function createRecordSealedArray() {
     Person[5] sealedArray = [{}, {}, {}, {}, {}];
     assertArrayLengthPanic(5, sealedArray);

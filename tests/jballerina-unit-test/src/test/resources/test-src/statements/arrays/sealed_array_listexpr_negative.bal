@@ -71,3 +71,30 @@ type myNonHomogeneousUnion 0 | 0.0 | "";
 function createInvalidNonHomogeneousUnionInitializedArray() {
     myNonHomogeneousUnion[3] z = [];
 }
+
+type Rec record {
+    int i;
+};
+
+type RecWithManyOptional record {|
+    int j?;
+    int k;
+    int a?;
+|};
+
+type RecWithOptional record {
+    int k;
+    int a?;
+};
+
+function testRecordTypeWithManyRequiredFieldsArrayAutoFill() {
+    Rec[2] x = [];
+}
+
+function testRecordTypeWithManyOptionalFieldsArrayAutoFill() {
+    RecWithManyOptional[2] x = [];
+}
+
+function testRecordTypeWithOptionalFieldsArrayAutoFill() {
+    RecWithOptional[2] x = [];
+}

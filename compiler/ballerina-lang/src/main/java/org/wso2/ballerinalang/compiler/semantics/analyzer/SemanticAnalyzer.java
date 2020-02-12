@@ -515,7 +515,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 return;
             case TypeTags.FINITE:
                 BFiniteType finiteType = (BFiniteType) reasonType;
-                for (BLangExpression expr : finiteType.valueSpace) {
+                for (BLangExpression expr : finiteType.getValueSpace()) {
                     validateModuleQualifiedReason(pos, (String) ((BLangLiteral) expr).value);
                 }
                 return;

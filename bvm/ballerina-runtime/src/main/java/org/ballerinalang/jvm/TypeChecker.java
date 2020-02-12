@@ -1734,7 +1734,7 @@ public class TypeChecker {
             if (Flags.isFlagOn(field.flags, Flags.OPTIONAL)) {
                 continue;
             }
-            if ((!Flags.isFlagOn(field.flags, Flags.OPTIONAL) && !Flags.isFlagOn(field.flags, Flags.REQUIRED))) {
+            if (!Flags.isFlagOn(field.flags, Flags.REQUIRED)) {
                 continue;
             }
             return false;
