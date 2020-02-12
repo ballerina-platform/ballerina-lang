@@ -160,7 +160,7 @@ class JvmValueGen {
                             // Note when this support new interop, update here as well TODO
                             desugarOldExternFuncs(module, (OldStyleExternalFunctionWrapper) extFuncWrapper, func);
                         }
-                    } else{
+                    } else {
                         addDefaultableBooleanVarsToSignature(func);
                     }
                     enrichWithDefaultableParamInits(getFunction(func));
@@ -214,9 +214,12 @@ class JvmValueGen {
         if (module instanceof BIRPackage) {
             BIRPackage birPackage = (BIRPackage) module;
             packageName = getPackageName(birPackage.org.value, birPackage.name.value);
-        } else {
+        } else if (module instanceof PackageID) {
             PackageID packageID = (PackageID) module;
             packageName = getPackageName(packageID.orgName, packageID.name);
+        } else {
+            throw new ClassCastException("module should be PackageID or BIRPackage but is : "
+                    + (module == null ? "null" : module.getClass()));
         }
 
         return packageName + "$value$" + cleanupTypeName(typeName);
@@ -262,7 +265,7 @@ class JvmValueGen {
 
         private void createLambdas(ClassWriter cw) {
             for (Map.Entry<String, BIRInstruction> entry : JvmPackageGen.lambdas.entrySet()) {
-               generateLambdaMethod(entry.getValue(), cw, entry.getKey());
+                generateLambdaMethod(entry.getValue(), cw, entry.getKey());
             }
 
             JvmPackageGen.lambdas = new HashMap<>();
@@ -328,7 +331,7 @@ class JvmValueGen {
         }
 
         private void createCallMethod(ClassWriter cw, @Nilable List<BIRFunction> functions, String objClassName,
-                                             String objTypeName, boolean isService) {
+                                      String objTypeName, boolean isService) {
 
             @Nilable List<BIRFunction> funcs = getFunctions(functions);
 
@@ -449,7 +452,7 @@ class JvmValueGen {
         }
 
         private void createObjectSetMethod(ClassWriter cw, @Nilable List<BField> fields, String className,
-                                                  boolean useBString) {
+                                           boolean useBString) {
             MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "set",
                     String.format("(L%s;L%s;)V", useBString ? I_STRING_VALUE : STRING_VALUE, OBJECT), null, null);
             mv.visitCode();
@@ -552,7 +555,7 @@ class JvmValueGen {
             if (result == null) {
 //                logCompileError(result, typeDef, this.module);
                 return null;
-            } else{
+            } else {
                 return result;
             }
         }
@@ -592,7 +595,7 @@ class JvmValueGen {
 
             // Invoke the init-functions of referenced types. This is done to initialize the
             // defualt values of the fields coming from the referenced types.
-            for(BType typeRef : typeDef.referencedTypes) {
+            for (BType typeRef : typeDef.referencedTypes) {
                 if (typeRef.tag == TypeTags.RECORD) {
                     String refTypeClassName = getTypeValueClassName(typeRef.tsymbol.pkgID, typeRef.name.getValue());
                     mv.visitInsn(DUP2);
@@ -778,7 +781,7 @@ class JvmValueGen {
         }
 
         private void createRecordPutDefaultCase(MethodVisitor mv, Label defaultCaseLabel, int nameRegIndex,
-                                                       int valueRegIndex) {
+                                                int valueRegIndex) {
             mv.visitLabel(defaultCaseLabel);
             mv.visitVarInsn(ALOAD, 0);
             mv.visitVarInsn(ALOAD, nameRegIndex);

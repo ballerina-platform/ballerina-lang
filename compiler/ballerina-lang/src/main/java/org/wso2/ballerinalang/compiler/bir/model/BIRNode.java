@@ -344,6 +344,19 @@ public abstract class BIRNode {
         public void accept(BIRVisitor visitor) {
             visitor.visit(this);
         }
+
+        public BIRFunction duplicate() {
+            BIRFunction f = new BIRFunction(pos, name, flags, type, workerName, 0, taintTable);
+            f.localVars = localVars;
+            f.parameters = parameters;
+            f.requiredParams = requiredParams;
+            f.basicBlocks = basicBlocks;
+            f.errorTable = errorTable;
+            f.workerChannels = workerChannels;
+            f.annotAttachments = annotAttachments;
+            return f;
+
+        }
     }
 
     /**
