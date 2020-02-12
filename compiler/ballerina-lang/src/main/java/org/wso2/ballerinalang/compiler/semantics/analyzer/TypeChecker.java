@@ -2640,9 +2640,13 @@ public class TypeChecker extends BLangNodeVisitor {
         return fromClauseEnv;
     }
 
-    SymbolEnv typeCheckWhereClause(BLangWhereClause whereClause, BLangSelectClause selectClause,
-                                           SymbolEnv parentEnv) {
-        checkExpr(whereClause.expression, parentEnv);
+    private SymbolEnv typeCheckWhereClause(BLangWhereClause whereClause, BLangSelectClause selectClause,
+                                   SymbolEnv parentEnv) {
+        checkExpr(whereClause.expression, parentEnv, symTable.booleanType);
+        BType actualType = whereClause.expression.type;
+        if (TypeTags.TUPLE == actualType.tag) {
+            dlog.error(whereClause.expression.pos, DiagnosticCode.INCOMPATIBLE_TYPES, symTable.booleanType, actualType);
+        }
         return typeNarrower.evaluateTruth(whereClause.expression, selectClause, parentEnv);
     }
 

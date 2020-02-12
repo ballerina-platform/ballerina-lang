@@ -34,7 +34,7 @@ public class QueryNegativeTests {
     @Test
     public void testFromClauseWithInvalidType() {
         CompileResult compileResult = BCompileUtil.compile("test-src/query/query-semantics-native.bal");
-        Assert.assertEquals(compileResult.getErrorCount(), 4);
+        Assert.assertEquals(compileResult.getErrorCount(), 7);
         int index = 0;
 
         BAssertUtil.validateError(compileResult, index++,
@@ -54,6 +54,18 @@ public class QueryNegativeTests {
         BAssertUtil.validateError(compileResult, index++,
                 "unknown type 'XYZ'",
                 40, 18);
+
+        BAssertUtil.validateError(compileResult, index++,
+                "incompatible types: 'int' is not an iterable collection",
+                59, 32);
+
+        BAssertUtil.validateError(compileResult, index++,
+                "incompatible types: expected 'boolean', found 'int'",
+                60, 19);
+
+        BAssertUtil.validateError(compileResult, index++,
+                "incompatible types: expected 'Person', found 'int'",
+                61, 20);
 
     }
 }
