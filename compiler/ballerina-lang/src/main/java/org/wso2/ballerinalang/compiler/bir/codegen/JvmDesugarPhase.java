@@ -17,13 +17,13 @@
  */
 package org.wso2.ballerinalang.compiler.bir.codegen;
 
-import org.wso2.ballerinalang.compiler.bir.codegen.interop.ExternalMethodGen.BIRVarRef;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRBasicBlock;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRFunction;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRFunctionParameter;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRTypeDefinition;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRVariableDcl;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.UnaryOP;
+import org.wso2.ballerinalang.compiler.bir.model.BIROperand;
 import org.wso2.ballerinalang.compiler.bir.model.InstructionKind;
 import org.wso2.ballerinalang.compiler.bir.model.VarKind;
 import org.wso2.ballerinalang.compiler.bir.model.VarScope;
@@ -109,7 +109,7 @@ public class JvmDesugarPhase {
             if (funcParam instanceof BIRFunctionParameter && funcParam.hasDefaultExpr) {
                 int boolParam = paramCounter + 1;
                 BIRFunctionParameter funcBooleanParam = getFunctionParam(functionParams.get(boolParam));
-                BIRVarRef boolRef = new BIRVarRef(new BType(TypeTags.BOOLEAN, null), funcBooleanParam);
+                BIROperand boolRef = new BIROperand(funcBooleanParam);
                 UnaryOP notOp = new UnaryOP(pos, InstructionKind.NOT, boolRef, boolRef);
                 nextBB.instructions.add(notOp);
                 @Nilable List<BIRBasicBlock> bbArray = currentFunc.parameters.get(funcParam);

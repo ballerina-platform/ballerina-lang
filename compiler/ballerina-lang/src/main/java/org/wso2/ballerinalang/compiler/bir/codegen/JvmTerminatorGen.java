@@ -132,7 +132,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.lookupJa
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.symbolTable;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen.loadType;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmValueGen.getTypeValueClassName;
-import static org.wso2.ballerinalang.compiler.bir.codegen.interop.ExternalMethodGen.BIRVarRef;
 import static org.wso2.ballerinalang.compiler.bir.codegen.interop.ExternalMethodGen.JavaMethodCall;
 import static org.wso2.ballerinalang.compiler.bir.codegen.interop.ExternalMethodGen.isBallerinaBuiltinModule;
 import static org.wso2.ballerinalang.compiler.bir.codegen.interop.InteropMethodGen.JIConstructorCall;
@@ -518,7 +517,7 @@ class JvmTerminatorGen {
 
             int argsCount = callIns.args.size();
             while (argIndex < argsCount) {
-                @Nilable BIRVarRef arg = callIns.args.get(argIndex);
+                @Nilable BIROperand arg = callIns.args.get(argIndex);
                 this.visitArg(arg);
                 argIndex += 1;
             }
@@ -555,7 +554,7 @@ class JvmTerminatorGen {
                 this.mv.visitFieldInsn(GETFIELD, "org/ballerinalang/jvm/scheduling/Strand", "returnValue",
                         "Ljava/lang/Object;");
                 // store return
-                @Nilable BIRVarRef lhsOpVarDcl = callIns.lhsOp;
+                @Nilable BIROperand lhsOpVarDcl = callIns.lhsOp;
                 addJUnboxInsn(this.mv, lhsOpVarDcl.variableDcl.type);
                 this.storeToVar(lhsOpVarDcl.variableDcl);
             }
@@ -595,12 +594,12 @@ class JvmTerminatorGen {
 
             int argsCount = callIns.varArgExist ? callIns.args.size() - 1 : callIns.args.size();
             while (argIndex < argsCount) {
-                @Nilable BIRVarRef arg = callIns.args.get(argIndex);
+                @Nilable BIROperand arg = callIns.args.get(argIndex);
                 this.visitArg(arg);
                 argIndex += 1;
             }
             if (callIns.varArgExist) {
-                BIRVarRef arg = callIns.args.get(argIndex);
+                BIROperand arg = callIns.args.get(argIndex);
                 int localVarIndex = this.indexMap.getIndex(arg.variableDcl);
                 genVarArg(this.mv, this.indexMap, arg.variableDcl.type, (JType) callIns.varArgType, localVarIndex);
             }
@@ -654,7 +653,7 @@ class JvmTerminatorGen {
 
             int argsCount = callIns.args.size();
             while (argIndex < argsCount) {
-                @Nilable BIRVarRef arg = callIns.args.get(argIndex);
+                @Nilable BIROperand arg = callIns.args.get(argIndex);
                 this.visitArg(arg);
                 argIndex += 1;
             }
@@ -816,27 +815,14 @@ class JvmTerminatorGen {
             }
         }
 
-        void visitArg(@Nilable BIRVarRef arg) {
-
-            BIRVarRef argRef = getVarRef(arg);
-            if (argRef.variableDcl.name.value.startsWith("_")) {
-                loadDefaultValue(this.mv, argRef.variableDcl.type);
-                return;
-            }
-
-            BIRVariableDcl varDcl = getVariableDcl(argRef.variableDcl);
-            this.loadVar(varDcl);
-        }
-
         boolean visitArg(BIROperand arg) {
 
-            BIRVariableDcl variableDcl = arg.variableDcl;
-            if (variableDcl.name.value.startsWith("_")) {
-                loadDefaultValue(this.mv, variableDcl.type);
+            BIRVariableDcl varDcl = getVariableDcl(arg.variableDcl);
+            if (varDcl.name.value.startsWith("_")) {
+                loadDefaultValue(this.mv, varDcl.type);
                 return false;
             }
 
-            BIRVariableDcl varDcl = getVariableDcl(variableDcl);
             this.loadVar(varDcl);
             return true;
         }
@@ -907,7 +893,7 @@ class JvmTerminatorGen {
             while (i < waitInst.exprList.size()) {
                 this.mv.visitInsn(DUP);
                 @Nilable BIROperand futureVal = waitInst.exprList.get(i);
-                if (futureVal instanceof BIRVarRef) {
+                if (futureVal != null) {
                     this.loadVar(futureVal.variableDcl);
                 }
                 this.mv.visitMethodInsn(INVOKEINTERFACE, LIST, "add", String.format("(L%s;)Z", OBJECT), true);
@@ -1120,7 +1106,7 @@ class JvmTerminatorGen {
                     false);
 
             // store return
-            if (lhsOp instanceof BIRVarRef) {
+            if (lhsOp.variableDcl != null) {
                 @Nilable BIRVariableDcl lhsOpVarDcl = lhsOp.variableDcl;
                 // store the returned strand as the future
                 this.storeToVar(getVariableDcl(lhsOpVarDcl));

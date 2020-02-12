@@ -182,7 +182,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen.loadExterna
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen.loadType;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen.typeOwnerClass;
 import static org.wso2.ballerinalang.compiler.bir.codegen.Main.JavaClass;
-import static org.wso2.ballerinalang.compiler.bir.codegen.interop.ExternalMethodGen.BIRVarRef;
+import static org.wso2.ballerinalang.compiler.bir.codegen.interop.ExternalMethodGen.BIROperand;
 import static org.wso2.ballerinalang.compiler.bir.codegen.interop.ExternalMethodGen.genJMethodForBExternalFunc;
 import static org.wso2.ballerinalang.compiler.bir.codegen.interop.ExternalMethodGen.isBallerinaBuiltinModule;
 import static org.wso2.ballerinalang.compiler.bir.codegen.interop.InteropMethodGen.JInstruction;
@@ -1132,8 +1132,8 @@ public class JvmMethodGen {
             } else {
                 // load and cast param values
                 int argIndex = 1;
-                for (BIRVarRef paramType : paramTypes) {
-                    BIRVarRef ref = getVarRef(paramType);
+                for (BIROperand paramType : paramTypes) {
+                    BIROperand ref = getVarRef(paramType);
                     mv.visitVarInsn(ALOAD, 0);
                     mv.visitIntInsn(BIPUSH, argIndex);
                     mv.visitInsn(AALOAD);
@@ -1163,7 +1163,7 @@ public class JvmMethodGen {
             // load and cast param values
 
             int argIndex = 1;
-            for (BIRVarRef paramType : paramTypes) {
+            for (BIROperand paramType : paramTypes) {
                 BIRVariableDcl dcl = getVariableDcl(paramType);
                 mv.visitVarInsn(ALOAD, closureMapsCount);
                 mv.visitIntInsn(BIPUSH, argIndex);
@@ -1201,11 +1201,11 @@ public class JvmMethodGen {
     }
 
     static void genLoadDataForObjectAttachedLambdas(AsyncCall ins, MethodVisitor mv, int closureMapsCount,
-                                                    @Nilable List<BIRVarRef> paramTypes, boolean isBuiltinModule) {
+                                                    @Nilable List<BIROperand> paramTypes, boolean isBuiltinModule) {
         mv.visitInsn(POP);
         mv.visitVarInsn(ALOAD, closureMapsCount);
         mv.visitInsn(ICONST_1);
-        BIRVarRef ref = getVarRef(ins.args.get(0));
+        BIROperand ref = getVarRef(ins.args.get(0));
         mv.visitInsn(AALOAD);
         addUnboxInsn(mv, ref.type);
         mv.visitVarInsn(ALOAD, closureMapsCount);
@@ -2076,7 +2076,7 @@ public class JvmMethodGen {
 
         BIRVariableDcl retVar = new BIRVariableDcl(name:new (value:"%ret"),type:
         errUnion);
-        BIRVarRef retVarRef = new BIRVarRef(variableDcl:retVar, type:errUnion);
+        BIROperand retVarRef = new BIROperand(variableDcl:retVar, type:errUnion);
 
         BIRFunction modInitFunc = new BIRFunction(pos:new (sLine:0),basicBlocks:[],localVars:[retVar],
         name:
@@ -2087,7 +2087,7 @@ public class JvmMethodGen {
         _ = addAndGetNextBasicBlock(modInitFunc);
 
         BIRVariableDcl boolVal = addAndGetNextVar(modInitFunc, BIRTYPE_BOOLEAN);
-        BIRVarRef boolRef = new BIRVarRef(variableDcl:boolVal, type:BIRTYPE_BOOLEAN);
+        BIROperand boolRef = new BIROperand()variableDcl:boolVal, type:BIRTYPE_BOOLEAN);
 
         for (T id : imprtMods) {
             String initFuncName = calculateModuleSpecialFuncName(id, initName);
@@ -2117,7 +2117,7 @@ public class JvmMethodGen {
     }
 
     static BIRBasicBlock addCheckedInvocation(BIRFunction func, PackageID modId, String initFuncName,
-                                              BIRVarRef retVar, BIRVarRef boolRef) {
+                                              BIROperand retVar, BIROperand boolRef) {
         BIRBasicBlock lastBB = (BIRBasicBlock) func.basicBlocks[func.basicBlocks.size() - 1];
         BIRBasicBlock nextBB = addAndGetNextBasicBlock(func);
         // TODO remove once lang.annotation is fixed
@@ -2440,7 +2440,7 @@ public class JvmMethodGen {
         return (func.flags & BIRNATIVE) == BIRNATIVE;
     }
 
-    static BIRVarRef getVarRef(@Nilable BIRVarRef varRef) {
+    static BIROperand getVarRef(@Nilable BIROperand varRef) {
         if (varRef == null) {
             BLangCompilerException err = new BLangCompilerException("Invalid variable reference");
             throw err;

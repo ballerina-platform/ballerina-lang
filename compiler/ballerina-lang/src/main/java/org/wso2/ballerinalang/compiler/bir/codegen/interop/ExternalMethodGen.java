@@ -108,7 +108,7 @@ public class ExternalMethodGen {
                                       BIRFunction birFunc) {
         BType retType = (BType) birFunc.type["retType"];
 
-        @Nilable BIRVarRef retRef = null;
+        @Nilable BIROperand retRef = null;
         if (!(retType.tag == TypeTags.NIL)) {
             retRef = new (variableDcl:getVariableDcl(birFunc.localVars.get(0)), type:retType);
         }
@@ -119,11 +119,11 @@ public class ExternalMethodGen {
         BIRBasicBlock beginBB = insertAndGetNextBasicBlock(birFunc.basicBlocks, prefix = "wrapperGen");
         BIRBasicBlock retBB = insertAndGetNextBasicBlock(birFunc.basicBlocks, prefix = "wrapperGen");
 
-        @Nilable List<BIRVarRef> args = new ArrayList<>();
+        @Nilable List<BIROperand> args = new ArrayList<>();
 
         @Nilable BIRVariableDcl receiver = birFunc.receiver;
         if (!(receiver == null)) {
-            BIRVarRef argRef = new BIRVarRef(variableDcl:receiver, type:receiver.type);
+            BIROperand argRef = new BIROperand()variableDcl:receiver, type:receiver.type);
             args.add(argRef);
         }
 
@@ -132,7 +132,7 @@ public class ExternalMethodGen {
         int birFuncParamIndex = 0;
         while (birFuncParamIndex < birFuncParams.size()) {
             BIRFunctionParam birFuncParam = (BIRFunctionParam) birFuncParams.get(birFuncParamIndex);
-            BIRVarRef argRef = new BIRVarRef(variableDcl:birFuncParam, type:birFuncParam.type);
+            BIROperand argRef = new BIROperand(variableDcl:birFuncParam, type:birFuncParam.type);
             args.add(argRef);
             birFuncParamIndex += 1;
         }
@@ -261,14 +261,14 @@ public class ExternalMethodGen {
 
 //    static BIRFunctionWrapper |
 
-    public static class BIRVarRef extends BIROperand {
-        BType typeValue;
-
-        public BIRVarRef(BType typeValue, BIRVariableDcl variableDcl) {
-            super(variableDcl);
-            this.typeValue = typeValue;
-        }
-    }
+//    public static class BIRVarRef extends BIROperand {
+//        BType typeValue;
+//
+//        public BIRVarRef(BType typeValue, BIRVariableDcl variableDcl) {
+//            super(variableDcl);
+//            this.typeValue = typeValue;
+//        }
+//    }
 
     public static class OldStyleExternalFunctionWrapper extends BIRFunctionWrapper implements ExternalFunctionWrapper {
         String jClassName;
@@ -283,11 +283,11 @@ public class ExternalMethodGen {
         DiagnosticPos pos;
         @Nilable
         public
-        List<BIRVarRef> args;
+        List<BIROperand> args;
         InstructionKind kind;
         @Nilable
         public
-        BIRVarRef lhsOp;
+        BIROperand lhsOp;
         public String jClassName;
         public String jMethodVMSig;
         public String jMethodVMSigBString;

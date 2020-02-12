@@ -31,13 +31,11 @@ import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRImportModule;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRPackage;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRTypeDefinition;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRVariableDcl;
-import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator.AsyncCall;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 
-import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -105,10 +103,9 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmValueGen.injectDefa
 import static org.wso2.ballerinalang.compiler.bir.codegen.interop.ExternalMethodGen.createOldStyleExternalFunctionWrapper;
 import static org.wso2.ballerinalang.compiler.bir.codegen.interop.ExternalMethodGen.injectDefaultParamInits;
 import static org.wso2.ballerinalang.compiler.bir.codegen.interop.ExternalMethodGen.isBallerinaBuiltinModule;
-import static org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.FPLoad;
 import static org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewInstance;
 
-public class JvmPackageGen {
+class JvmPackageGen {
     public static DiagnosticLogger dlogger = null;
 
     public static Map<String, BIRFunctionWrapper> birFunctionMap = null;
@@ -133,7 +130,7 @@ public class JvmPackageGen {
         String moduleClass;
         @Nilable
         List<BIRFunction> functions = new ArrayList<>();
-        public JavaClass(String sourceFileName, String moduleClass) {
+        JavaClass(String sourceFileName, String moduleClass) {
             this.sourceFileName = sourceFileName;
             this.moduleClass = moduleClass;
         }
@@ -161,7 +158,7 @@ public class JvmPackageGen {
         } else {
             String className = typeRefToClassName(objectNewIns.externalPackageId, objectNewIns.objectName);
             BIRTypeDefinition typeDef = typeDefMap.get(className);
-            if (typeDef instanceof BIRTypeDefinition) {
+            if (typeDef != null) {
                 return typeDef;
             }
 
@@ -189,7 +186,7 @@ public class JvmPackageGen {
     }
 
     static BIRFunctionWrapper getBIRFunctionWrapper(@Nilable BIRFunctionWrapper wrapper) {
-        if (wrapper instanceof BIRFunctionWrapper) {
+        if (wrapper != null) {
             return wrapper;
         } else {
             throw new BLangCompilerException("invalid bir function linking");
@@ -198,15 +195,15 @@ public class JvmPackageGen {
 
     static String lookupGlobalVarClassName(String key) {
         String result = globalVarClassNames.get(key);
-        if (result instanceof String) {
+        if (result != null) {
             return result;
         } else {
             throw new BLangCompilerException("cannot find full qualified class for global variable : " + key);
         }
     }
 
-    static void generateDependencyList(BIRPackage moduleId, JarFile jarFile,
-                                       InteropValidator interopValidator) {
+    private static void generateDependencyList(BIRPackage moduleId, JarFile jarFile,
+                                               InteropValidator interopValidator) {
         generatePackage(moduleId, jarFile, interopValidator, false);
         String pkgName = getPackageName(moduleId.org, moduleId.name);
         if (!dependentModules.containsKey(pkgName)) {
@@ -265,7 +262,7 @@ public class JvmPackageGen {
 
         typeOwnerClass = getModuleLevelClassName(orgName, moduleName, MODULE_INIT_CLASS_NAME);
         Map<String, JavaClass> jvmClassMap = generateClassNameMappings(module, pkgName, typeOwnerClass,
-                lambdas, interopValidator);
+                interopValidator);
         if (!isEntry || DiagnosticLogger.getErrorCount() > 0) {
             return;
         }
@@ -532,7 +529,7 @@ public class JvmPackageGen {
 //# + lambdaCalls - The lambdas
 //# + return - The map of javaClass records on given source file name
     static Map<String, JavaClass> generateClassNameMappings(BIRPackage module, String pkgName, String initClass,
-                                                            Map<String, AbstractMap.SimpleEntry<AsyncCall, FPLoad>> lambdaCalls, InteropValidator interopValidator) {
+                                                            InteropValidator interopValidator) {
 
         String orgName = module.org.value;
         String moduleName = module.name.value;
