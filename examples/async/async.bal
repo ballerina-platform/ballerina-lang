@@ -25,9 +25,7 @@ public function main() {
     io:println("Counting done in one second: ", count);
 
     // Asynchronously invokes the action call `get()`.
-    // By default this async call runs on the same physical thread of the caller.
-    // `@strand` annotation allows the invocation to run parallel.
-    future<http:Response|error> f3 = @strand {thread: "any"} start clientEndpoint-> get("/get?test=123");
+    future<http:Response|error> f3 = start clientEndpoint-> get("/get?test=123");
 
     // Waits for action call `f3` to finish.
     http:Response|error response = wait f3;

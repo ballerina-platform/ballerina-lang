@@ -233,10 +233,4 @@ public class Symbols {
     public static boolean isFunctionDeclaration(BSymbol sym) {
         return (sym.flags & Flags.INTERFACE) == Flags.INTERFACE;
     }
-
-    public static BTypeSymbol createScopeSymbol(Name name, PackageID pkgID, BType type, BSymbol owner) {
-        BTypeSymbol typeSymbol = createTypeSymbol(SymTag.SCOPE, 0, name, pkgID, type, owner);
-        typeSymbol.kind = SymbolKind.SCOPE;
-        return typeSymbol;
-    }
 }

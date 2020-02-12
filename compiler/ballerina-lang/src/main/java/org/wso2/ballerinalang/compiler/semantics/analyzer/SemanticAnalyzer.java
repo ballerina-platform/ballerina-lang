@@ -1427,9 +1427,9 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 && errorVariable.reasonMatchConst == null
                 && isReasonSpecified(errorVariable)) {
 
-            BSymbol reasonConst = symResolver.lookupSymbol(
-                    this.env.enclEnv, names.fromString(errorVariable.reason.name.value), SymTag.CONSTANT);
-            if (reasonConst == symTable.notFoundSymbol) {
+            BSymbol reasonConst = symResolver.lookupSymbolInMainSpace(this.env.enclEnv,
+                    names.fromString(errorVariable.reason.name.value));
+            if ((reasonConst.tag & SymTag.CONSTANT) != SymTag.CONSTANT) {
                 dlog.error(errorVariable.reason.pos, DiagnosticCode.INVALID_ERROR_REASON_BINDING_PATTERN,
                         errorVariable.reason.name);
             } else {
@@ -2439,8 +2439,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         workerSendNode.env = this.env;
         this.typeChecker.checkExpr(workerSendNode.expr, this.env);
 
-        BSymbol symbol = symResolver.lookupSymbol(env, names.fromIdNode(workerSendNode.workerIdentifier), SymTag
-                .VARIABLE);
+        BSymbol symbol = symResolver.lookupSymbolInMainSpace(env, names.fromIdNode(workerSendNode.workerIdentifier));
 
         if (symTable.notFoundSymbol.equals(symbol)) {
             workerSendNode.type = symTable.semanticError;
@@ -2894,7 +2893,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     }
 
     private void defineOriginalSymbol(BLangExpression lhsExpr, BVarSymbol varSymbol, SymbolEnv env) {
-        BSymbol foundSym = symResolver.lookupSymbol(env, varSymbol.name, varSymbol.tag);
+        BSymbol foundSym = symResolver.lookupSymbolInMainSpace(env, varSymbol.name);
 
         // Terminate if we reach the env where the original symbol is available.
         if (foundSym == varSymbol) {

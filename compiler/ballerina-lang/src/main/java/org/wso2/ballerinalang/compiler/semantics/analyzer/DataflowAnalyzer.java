@@ -584,7 +584,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
             // Todo: test lambdas and function arguments
 
-            BSymbol dependsOnFunctionSym = symResolver.lookupSymbol(this.env, name, SymTag.FUNCTION);
+            BSymbol dependsOnFunctionSym = symResolver.lookupSymbolInMainSpace(this.env, name);
             if (symTable.notFoundSymbol != dependsOnFunctionSym) {
                 addDependency(invokableOwnerSymbol, dependsOnFunctionSym);
             }

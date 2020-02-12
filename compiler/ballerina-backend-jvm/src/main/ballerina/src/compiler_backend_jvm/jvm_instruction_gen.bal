@@ -770,16 +770,17 @@ type InstructionGenerator object {
                 io:sprintf("(L%s;L%s;)V", useBString ? B_STRING_VALUE : STRING_VALUE, OBJECT), true);
     }
 
-    function generateStringLoadIns(bir:FieldAccess stringLoadIns) {
+    function generateStringLoadIns(bir:FieldAccess stringLoadIns, boolean useBString) {
         // visit the string
         self.loadVar(stringLoadIns.rhsOp.variableDcl);
 
         // visit the key expr
         self.loadVar(stringLoadIns.keyOp.variableDcl);
 
+        string consVal = useBString ? B_STRING_VALUE : STRING_VALUE;
         // invoke the `getStringAt()` method
         self.mv.visitMethodInsn(INVOKESTATIC, STRING_UTILS, "getStringAt",
-                                io:sprintf("(L%s;J)L%s;", STRING_VALUE, STRING_VALUE), false);
+                                io:sprintf("(L%s;J)L%s;", consVal, consVal), false);
 
         // store in the target reg
         self.storeToVar(stringLoadIns.lhsOp.variableDcl);
