@@ -17,7 +17,6 @@
 package org.ballerinalang.test.worker;
 
 import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
@@ -79,14 +78,5 @@ public class BasicWorkerTest {
         Assert.assertEquals(vals.length, 1);
         BInteger ret = (BInteger) vals[0];
         Assert.assertEquals(ret.intValue(), 51);
-    }
-
-    @Test
-    public void workerSameThreadSchedulingTest() {
-        BValue[] vals = BRunUtil.invoke(result, "workerSameThreadTest", new BValue[0]);
-        Assert.assertEquals(vals.length, 1);
-        BMap result = (BMap) vals[0];
-        Assert.assertEquals(result.get("w"), result.get("w1"));
-        Assert.assertEquals(result.get("w"), result.get("w2"));
     }
 }
