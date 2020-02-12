@@ -37,7 +37,7 @@ function processKafkaRecord(kafka:ConsumerRecord kafkaRecord) {
     if (msg is string) {
         // Print the retrieved Kafka record.
         io:println("Topic: ", kafkaRecord.topic, " Partition: ",
-        kafkaRecord.partition.toString(), " Received Message: ", msg);
+            kafkaRecord.partition.toString(), " Received Message: ", msg);
     } else {
         log:printError("Error occurred while converting message data", msg);
     }

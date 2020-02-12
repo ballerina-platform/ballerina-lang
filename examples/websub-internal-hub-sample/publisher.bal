@@ -36,7 +36,7 @@ public function main() {
     // Publishes directly to the internal Ballerina hub.
     io:println("Publishing update to internal Hub");
     var publishResponse = webSubHub.publishUpdate("http://websubpubtopic.com",
-    {"action": "publish", "mode": "internal-hub"});
+        {"action": "publish", "mode": "internal-hub"});
 
     if (publishResponse is error) {
         io:println("Error notifying hub: " +

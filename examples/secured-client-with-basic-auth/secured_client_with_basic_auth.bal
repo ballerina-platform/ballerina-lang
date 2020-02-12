@@ -13,7 +13,7 @@ auth:OutboundBasicAuthProvider outboundBasicAuthProvider = new ({
 
 // Creates a Basic Auth handler with the created Basic Auth provider.
 http:BasicAuthHandler outboundBasicAuthHandler =
-new (outboundBasicAuthProvider);
+                                            new (outboundBasicAuthProvider);
 
 http:Client httpEndpoint = new ("https://localhost:9090", {
     auth: {
@@ -33,7 +33,7 @@ public function main() {
     if (response is http:Response) {
         var result = response.getTextPayload();
         log:printInfo((result is error) ? "Failed to retrieve payload."
-        : result);
+                                        : result);
     } else {
         log:printError("Failed to call the endpoint.", response);
     }

@@ -44,7 +44,7 @@ public function main() {
     if (response is http:Response) {
         var result = response.getTextPayload();
         log:printInfo((result is error) ? "Failed to retrieve payload."
-        : result);
+                                        : result);
     } else {
         log:printError("Failed to call the endpoint.", response);
     }
