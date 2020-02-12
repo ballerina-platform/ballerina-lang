@@ -310,7 +310,7 @@ public class InteropMethodGen {
         BIRBasicBlock beginBB = insertAndGetNextBasicBlock(birFunc.basicBlocks, prefix = bbPrefix);
         BIRBasicBlock retBB = new BIRBasicBlock(id:getNextDesugarBBId(bbPrefix), instructions: []);
 
-        @Nilable List<BIRVarRef> args = new ArrayList<>();
+        @Nilable List<BIROperand> args = new ArrayList<>();
 
         @Nilable BIRVariableDcl receiver = birFunc.receiver;
 
@@ -320,7 +320,7 @@ public class InteropMethodGen {
         if (jMethod.kind instanceof METHOD && !jMethod.isStatic) {
             BIRFunctionParam birFuncParam = (BIRFunctionParam) birFuncParams.get(birFuncParamIndex);
             BType bPType = birFuncParam.type;
-            BIRVarRef argRef = new BIRVarRef(variableDcl:birFuncParam, type:bPType);
+            BIROperand argRef = new BIROperand(variableDcl:birFuncParam, type:bPType);
             args.add(argRef);
             birFuncParamIndex = 1;
         }
@@ -333,14 +333,14 @@ public class InteropMethodGen {
             boolean isVarArg = (birFuncParamIndex == (paramCount - 1)) && birFunc.restParamExist;
             BType bPType = birFuncParam.type;
             JType jPType = jMethodParamTypes.get(jMethodParamIndex);
-            BIRVarRef argRef = new BIRVarRef(variableDcl:birFuncParam, type:bPType);
+            BIROperand argRef = new BIROperand(variableDcl:birFuncParam, type:bPType);
             // we generate cast operations for unmatching B to J types
             if (!isVarArg && !isMatchingBAndJType(bPType, jPType)) {
                 String varName = "$_param_jobject_var" + birFuncParamIndex.toString() + "_$";
                 BIRVariableDcl paramVarDcl = new BIRVariableDcl(type:jPType, name:new (value:varName ),kind:
                 "LOCAL" );
                 birFunc.localVars.add(paramVarDcl);
-                BIRVarRef paramVarRef = new BIRVarRef(type:jPType, variableDcl:paramVarDcl);
+                BIROperand paramVarRef = new BIROperand(type:jPType, variableDcl:paramVarDcl);
                 JCast jToBCast = new JCast(pos:birFunc.pos, lhsOp:paramVarRef, rhsOp:argRef, targetType:jPType);
                 argRef = paramVarRef;
                 beginBB.instructions.add(jToBCast);
@@ -371,20 +371,20 @@ public class InteropMethodGen {
             invocationType = INVOKESPECIAL;
         }
 
-        @Nilable BIRVarRef jRetVarRef = null;
+        @Nilable BIROperand jRetVarRef = null;
 
         BIRBasicBlock thenBB = insertAndGetNextBasicBlock(birFunc.basicBlocks, prefix = bbPrefix);
         BIRGOTO gotoRet = new BIRGOTO(pos:birFunc.pos, kind:BIRTERMINATOR_GOTO, targetBB:retBB);
         thenBB.terminator = gotoRet;
 
         if (!(retType.tag == TypeTags.NIL)) {
-            BIRVarRef retRef = new BIRVarRef(variableDcl:getVariableDcl(birFunc.localVars.get(0)), type:retType);
+            BIROperand retRef = new BIROperand(variableDcl:getVariableDcl(birFunc.localVars.get(0)), type:retType);
             if (!(jMethodRetType instanceof JVoid)) {
                 BIRVariableDcl retJObjectVarDcl = new BIRVariableDcl(type:jMethodRetType, name:new (value:
                 "$_ret_jobject_var_$" ),kind:
                 "LOCAL" );
                 birFunc.localVars.add(retJObjectVarDcl);
-                BIRVarRef castVarRef = new BIRVarRef(type:jMethodRetType, variableDcl:retJObjectVarDcl);
+                BIROperand castVarRef = new BIROperand(type:jMethodRetType, variableDcl:retJObjectVarDcl);
                 jRetVarRef = castVarRef;
                 JCast jToBCast = new JCast(pos:birFunc.pos, lhsOp:retRef, rhsOp:castVarRef, targetType:retType);
                 thenBB.instructions.add(jToBCast);
@@ -766,7 +766,7 @@ public class InteropMethodGen {
         DiagnosticPos pos;
         @Nilable
         public
-        List<ExternalMethodGen.BIRVarRef> args;
+        List<BIROperand> args;
         public boolean varArgExist;
         @Nilable
         public
@@ -774,7 +774,7 @@ public class InteropMethodGen {
         BIRTerminatorKind kind = BIRTERMINATOR_PLATFORM;
         @Nilable
         public
-        ExternalMethodGen.BIRVarRef lhsOp;
+        BIROperand lhsOp;
         JTermKind jKind = JTERM_CALL;
         public String jClassName;
         public String jMethodVMSig;
@@ -796,14 +796,14 @@ public class InteropMethodGen {
         DiagnosticPos pos;
         @Nilable
         public
-        List<ExternalMethodGen.BIRVarRef> args;
+        List<BIROperand> args;
         boolean varArgExist;
         @Nilable
         JType varArgType;
         BIRTerminatorKind kind = BIRTERMINATOR_PLATFORM;
         @Nilable
         public
-        ExternalMethodGen.BIRVarRef lhsOp;
+        BIROperand lhsOp;
         JTermKind jKind = JTERM_NEW;
         public String jClassName;
         public String jMethodVMSig;
@@ -833,8 +833,8 @@ public class InteropMethodGen {
         DiagnosticPos pos;
         BIRInstructionKind kind = BIRINS_KIND_PLATFORM;
         JInsKind jKind = JCAST;
-        BIRVarRef lhsOp;
-        BIRVarRef rhsOp;
+        BIROperand lhsOp;
+        BIROperand rhsOp;
         BType targetType;
     }
 
@@ -842,7 +842,7 @@ public class InteropMethodGen {
         public List<CatchIns> catchIns;
         BIRBasicBlock trapBB;
         BIRBasicBlock endBB;
-        BIRVarRef errorOp;
+        BIROperand errorOp;
         BIRBasicBlock targetBB;
 
         public JErrorEntry(BIRBasicBlock trapBB, BIRBasicBlock endBB, BIROperand errorOp, BIRBasicBlock targetBB) {

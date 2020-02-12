@@ -149,7 +149,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen.getTypeDesc
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen.loadExternalOrLocalType;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen.loadType;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmValueGen.getTypeValueClassName;
-import static org.wso2.ballerinalang.compiler.bir.codegen.interop.ExternalMethodGen.BIRVarRef;
+import static org.wso2.ballerinalang.compiler.bir.codegen.interop.ExternalMethodGen.BIROperand;
 import static org.wso2.ballerinalang.compiler.bir.codegen.interop.InteropMethodGen.JCast;
 import static org.wso2.ballerinalang.compiler.bir.codegen.interop.InteropMethodGen.JInstruction;
 import static org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.ConstantLoad;
@@ -1269,7 +1269,7 @@ public class JvmInstructionGen {
             }
 
             for (T v : inst.closureMaps) {
-                if (v instanceof BIRVarRef) {
+                if (v instanceof BIROperand) {
                     this.loadVar(v.variableDcl);
                 }
             }
