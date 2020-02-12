@@ -32,6 +32,7 @@ import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator;
 import org.wso2.ballerinalang.compiler.bir.model.InstructionKind;
 import org.wso2.ballerinalang.compiler.bir.model.VarKind;
 import org.wso2.ballerinalang.compiler.bir.model.VarScope;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.util.Name;
@@ -885,7 +886,7 @@ class JvmTerminatorGen {
             @Nilable BType futureType = callIns.lhsOp.variableDcl.type;
             BType returnType = symbolTable.nilType;
             if (futureType.tag == TypeTags.FUTURE) {
-                returnType = futureType;
+                returnType = ((BFutureType) futureType).constraint;
             }
 
             createFunctionPointer(this.mv, currentClass, lambdaName, 0);
@@ -1108,7 +1109,7 @@ class JvmTerminatorGen {
             @Nilable BType futureType = lhsOp.variableDcl.type;
             BType returnType = symbolTable.anyType;
             if (futureType.tag == TypeTags.FUTURE) {
-                returnType = futureType;
+                returnType = ((BFutureType) futureType).constraint;
             }
 
             // load strand

@@ -39,6 +39,7 @@ import org.wso2.ballerinalang.compiler.bir.model.BIROperand;
 import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator;
 import org.wso2.ballerinalang.compiler.bir.model.InstructionKind;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
@@ -1061,7 +1062,7 @@ public class JvmMethodGen {
 
         BType returnType = new BNilType();
         if (lhsType.tag == TypeTags.FUTURE) {
-            returnType = lhsType;
+            returnType = ((BFutureType) lhsType).constraint;
         } else if (fpIns != null) {
             returnType = fpIns.retType;
             if (returnType.tag == TypeTags.INVOKABLE) {
