@@ -637,7 +637,7 @@ public class FormattingNodeTree {
                 node.getAsJsonObject(FormattingConstants.EXPRESSION).add(FormattingConstants.FORMATTING_CONFIG,
                         this.getFormattingConfig(0, 1, 0, false,
                                 this.getWhiteSpaceCount((indentationSpaceCount > 0) ?
-                                                                indentationWithParent : indentation), true));
+                                        indentationWithParent : indentation), true));
             }
         }
     }
@@ -2563,7 +2563,7 @@ public class FormattingNodeTree {
                                         .get(FormattingConstants.NEW_LINE_COUNT).getAsInt()) + indentation);
                             }
                         }
-                    } else if (text.equals(Tokens.CLOSING_PARENTHESES)) {
+                    } else if (text.equals(Tokens.CLOSING_PARENTHESES) || text.equals(Tokens.CLOSING_BRACKET)) {
                         if (lineSeparationAvailable) {
                             currentWS.addProperty(FormattingConstants.WS, FormattingConstants.NEW_LINE
                                     + indentationOfParent);
@@ -2572,13 +2572,6 @@ public class FormattingNodeTree {
                         }
                     } else if (text.equals(Tokens.COMMA)) {
                         currentWS.addProperty(FormattingConstants.WS, FormattingConstants.EMPTY_SPACE);
-                    } else if (text.equals(Tokens.CLOSING_BRACKET)) {
-                        if (lineSeparationAvailable) {
-                            currentWS.addProperty(FormattingConstants.WS, FormattingConstants.NEW_LINE
-                                    + indentationOfParent);
-                        } else {
-                            currentWS.addProperty(FormattingConstants.WS, FormattingConstants.EMPTY_SPACE);
-                        }
                     }
                 } else if (text.equals(Tokens.COMMA) && lineSeparationAvailable) {
                     currentWS.addProperty(FormattingConstants.WS, currentWS.get(FormattingConstants.WS)
@@ -3624,12 +3617,12 @@ public class FormattingNodeTree {
             // Update whitespaces for initial expression.
             if (node.has(FormattingConstants.INITIAL_EXPRESSION)) {
                 node.getAsJsonObject(FormattingConstants.INITIAL_EXPRESSION).add(FormattingConstants.FORMATTING_CONFIG,
-                                                         this.getFormattingConfig(0, 1, 0, false,
-                                                                                  this.getWhiteSpaceCount(
-                                                                                          useParentIndentation ?
-                                                                                                  indentationOfParent :
-                                                                                                  indentation),
-                                                                                  true));
+                        this.getFormattingConfig(0, 1, 0, false,
+                                this.getWhiteSpaceCount(
+                                        useParentIndentation ?
+                                                indentationOfParent :
+                                                indentation),
+                                true));
             }
         }
     }
