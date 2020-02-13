@@ -93,7 +93,7 @@ function testStreamConstructWithFilter() returns boolean {
     return testPassed;
 }
 
-int val = 1;
+int val = 0;
 function getIntStream() returns stream<int> {
     return stream {
         val += 1;

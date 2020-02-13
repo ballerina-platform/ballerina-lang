@@ -24,6 +24,7 @@ import org.ballerinalang.jvm.types.BFunctionType;
 import org.ballerinalang.jvm.types.BStreamType;
 import org.ballerinalang.jvm.values.FPValue;
 import org.ballerinalang.jvm.values.IteratorValue;
+import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.StreamValue;
 import org.ballerinalang.jvm.values.TypedescValue;
 import org.ballerinalang.jvm.values.api.BFunctionPointer;
@@ -65,7 +66,11 @@ public class Construct {
         @Override
         public Object next() {
             Strand strand = Scheduler.getStrand();
-            return this.genFunc.call(new Object[]{strand});
+            MapValueImpl record = (MapValueImpl) this.genFunc.call(new Object[]{strand});
+            if (record != null) {
+                return record.get("value");
+            }
+            return null;
         }
 
         @Override
