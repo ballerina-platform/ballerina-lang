@@ -37,4 +37,9 @@ public class Constants {
     static final String SEARCH_COMMAND = "search";
     static final String CLEAN_COMMAND = "clean";
     static final String UNINSTALL_COMMAND = "uninstall";
+
+    static final String MODULE_NAME_REGEX = "[^0-9_][_\\w]+/[^0-9_][_\\.\\w]+|" +
+            "[^0-9_][_\\w]+/[^0-9_][_\\.\\w]+:[\\*\\d]+|" +
+            "[^0-9_][_\\w]+/[^0-9_][_\\.\\w]+:[\\*\\d]+\\.[\\*\\d]|" +
+            "[^0-9_][_\\w]+/[^0-9_][_\\.\\w]+:[\\*\\d]+\\.[\\*\\d]+\\.[\\*\\d]+";
 }
