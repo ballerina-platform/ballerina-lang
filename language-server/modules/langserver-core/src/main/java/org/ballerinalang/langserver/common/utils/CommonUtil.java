@@ -39,7 +39,9 @@ import org.ballerinalang.langserver.completions.util.Priority;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
+import org.ballerinalang.model.tree.BlockNode;
 import org.ballerinalang.model.tree.TopLevelNode;
+import org.ballerinalang.model.tree.statements.StatementNode;
 import org.ballerinalang.model.types.ConstrainedType;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionItemKind;
@@ -77,6 +79,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
+import org.wso2.ballerinalang.compiler.tree.BLangFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
@@ -823,7 +826,7 @@ public class CommonUtil {
      * @param node Node to be evaluated
      * @return {@link Boolean}  whether a worker derivative
      */
-    public static boolean isWorkerDereivative(BLangNode node) {
+    public static boolean isWorkerDereivative(StatementNode node) {
         return (node instanceof BLangSimpleVariableDef)
                 && ((BLangSimpleVariableDef) node).var.expr != null
                 && ((BLangSimpleVariableDef) node).var.expr.type instanceof BFutureType
@@ -1320,5 +1323,22 @@ public class CommonUtil {
             // ignore
         }
         return Optional.empty();
+    }
+
+    /**
+     * Get the position of the block node from the respective implementations.
+     * 
+     * @param blockNode Block node to get the position
+     * @return {@link DiagnosticPos} block node's position
+     */
+    public static DiagnosticPos getBlockNodePosition(BlockNode blockNode) {
+        if (blockNode instanceof BLangFunctionBody) {
+            return ((BLangFunctionBody) blockNode).getPosition();
+        }
+        if (blockNode instanceof BLangBlockStmt) {
+            return  ((BLangBlockStmt) blockNode).getPosition();
+        }
+        
+        return null;
     }
 }

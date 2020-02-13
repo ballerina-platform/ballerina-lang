@@ -45,6 +45,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
+import org.wso2.ballerinalang.compiler.tree.BLangFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
@@ -613,8 +614,8 @@ public class FilterUtils {
 
         return entry -> {
             if (symbolType.tag == TypeTags.RECORD && (invocationTkn == BallerinaParser.DOT
-                    || invocationTkn == BallerinaParser.NOT) && scope instanceof BLangBlockStmt
-                    && defaultTokenTypes.contains(BallerinaParser.ASSIGN)) {
+                    || invocationTkn == BallerinaParser.NOT) && (scope instanceof BLangBlockStmt
+                    || scope instanceof BLangFunctionBody) && defaultTokenTypes.contains(BallerinaParser.ASSIGN)) {
                 return !org.ballerinalang.jvm.util.Flags.isFlagOn(entry.getValue().symbol.flags,
                         Flags.OPTIONAL);
             }
