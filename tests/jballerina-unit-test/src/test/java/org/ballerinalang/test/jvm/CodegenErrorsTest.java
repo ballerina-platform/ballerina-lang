@@ -35,8 +35,7 @@ public class CodegenErrorsTest {
     }
 
     @Test(expectedExceptions = RuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: .:too-large-object-field.bal:18:9: method is too large: " +
-                    "'\\$__init\\$'")
+            expectedExceptionsMessageRegExp = "error: .:too-large-object-field.bal:18:9: method is too large: '__init'")
     public void testTooLargeObjectMethod() {
         BCompileUtil.compileInProc("test-src/jvm/too-large-object-field.bal");
     }

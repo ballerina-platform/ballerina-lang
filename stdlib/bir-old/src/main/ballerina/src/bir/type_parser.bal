@@ -291,15 +291,10 @@ public type TypeParser object {
             isAbstract: isAbstract,
             fields: [],
             attachedFunctions: [],
-            constructor: (),
-            generatedConstructor: () };
+            constructor: () };
         self.cp.types[self.cpI] = obj;
         obj.fields = self.parseObjectFields();
 
-        boolean generatedConstructorPresent = self.readBoolean();
-        if (generatedConstructorPresent) {
-            obj.generatedConstructor = self.readAttachFunction();
-        }
         boolean constructorPresent = self.readBoolean();
         if (constructorPresent) {
             obj.constructor = self.readAttachFunction();
