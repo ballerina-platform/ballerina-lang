@@ -506,13 +506,13 @@ public class AuthnConfigPatternTest extends AuthBaseTest {
         // }
 
         Map<String, String> headers = new HashMap<>();
-        headers.put("Authorization", "Bearer eyJhbGciOiJSUzI1NiIsICJ0eXAiOiJKV1QifQ==.eyJzdWIiOiJiYWxsZXJpbmEiLCAi" +
+        headers.put("Authorization", "Bearer eyJhbGciOiJSUzI1NiIsICJ0eXAiOiJKV1QifQ.eyJzdWIiOiJiYWxsZXJpbmEiLCAi" +
                 "aXNzIjoiZXhhbXBsZTQiLCAiZXhwIjoyODE4NDE1MDE5LCAiaWF0IjoxNTI0NTc1MDE5LCAianRpIjoiZjVhZGVkNTA1ODVjN" +
                 "DZmMmI4Y2EyMzNkMGMyYTNjOWQiLCAiYXVkIjpbImJhbGxlcmluYSIsICJiYWxsZXJpbmEub3JnIiwgImJhbGxlcmluYS5pby" +
-                "JdfQ==.B0S-9DbmFMvNcjmlQU0-ApKZjBKSxu9pQ-99GBV3oVklVYjYHQZ0FSfzN7bQu__Ap2EPkSVv3ugZbMc59FOxnO_580" +
+                "JdfQ.B0S-9DbmFMvNcjmlQU0-ApKZjBKSxu9pQ-99GBV3oVklVYjYHQZ0FSfzN7bQu__Ap2EPkSVv3ugZbMc59FOxnO_580" +
                 "73C_tf7OPuYO1GQGbkYtXaynngxZ-xELZDdUXa0RYY4x-Sf7UM6tg7SPht8BreBig6QH_rnRuuTSQAYLbynxX3BgMbguA5BDQ" +
                 "wj-JEdWdFdTknBlCHU4-pSV_77jRRZ9Lb51aVE7MT-G69X4oQMZCvFh935I5FVx2kfh6-RL3RDvvkKJMz5MEL7vtnHIqNmGMO" +
-                "TdlJG9xtLnzfGc17UnJD7WP-Cb4s1ZKZnwuDJQsODTtAbtIKYC52aTomGw==");
+                "TdlJG9xtLnzfGc17UnJD7WP-Cb4s1ZKZnwuDJQsODTtAbtIKYC52aTomGw");
         HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort, "echo/test1"),
                 headers, serverInstance.getServerHome());
         assertUnauthorized(response);
@@ -535,13 +535,13 @@ public class AuthnConfigPatternTest extends AuthBaseTest {
         // }
 
         Map<String, String> headers = new HashMap<>();
-        headers.put("Authorization", "Bearer eyJhbGciOiJSUzI1NiIsICJ0eXAiOiJKV1QifQ==.eyJzdWIiOiJiYWxsZXJpbmEiLCAi" +
+        headers.put("Authorization", "Bearer eyJhbGciOiJSUzI1NiIsICJ0eXAiOiJKV1QifQ.eyJzdWIiOiJiYWxsZXJpbmEiLCAi" +
                 "aXNzIjoiZXhhbXBsZTQiLCAiZXhwIjoyODE4NDE1MDE5LCAiaWF0IjoxNTI0NTc1MDE5LCAianRpIjoiZjVhZGVkNTA1ODVjN" +
                 "DZmMmI4Y2EyMzNkMGMyYTNjOWQiLCAiYXVkIjpbImJhbGxlcmluYSIsICJiYWxsZXJpbmEub3JnIiwgImJhbGxlcmluYS5pby" +
-                "JdfQ==.B0S-9DbmFMvNcjmlQU0-ApKZjBKSxu9pQ-99GBV3oVklVYjYHQZ0FSfzN7bQu__Ap2EPkSVv3ugZbMc59FOxnO_580" +
+                "JdfQ.B0S-9DbmFMvNcjmlQU0-ApKZjBKSxu9pQ-99GBV3oVklVYjYHQZ0FSfzN7bQu__Ap2EPkSVv3ugZbMc59FOxnO_580" +
                 "73C_tf7OPuYO1GQGbkYtXaynngxZ-xELZDdUXa0RYY4x-Sf7UM6tg7SPht8BreBig6QH_rnRuuTSQAYLbynxX3BgMbguA5BDQ" +
                 "wj-JEdWdFdTknBlCHU4-pSV_77jRRZ9Lb51aVE7MT-G69X4oQMZCvFh935I5FVx2kfh6-RL3RDvvkKJMz5MEL7vtnHIqNmGMO" +
-                "TdlJG9xtLnzfGc17UnJD7WP-Cb4s1ZKZnwuDJQsODTtAbtIKYC52aTomGw==");
+                "TdlJG9xtLnzfGc17UnJD7WP-Cb4s1ZKZnwuDJQsODTtAbtIKYC52aTomGw");
         HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort, "echo/test2"),
                 headers, serverInstance.getServerHome());
         assertUnauthorized(response);
@@ -564,13 +564,13 @@ public class AuthnConfigPatternTest extends AuthBaseTest {
         // }
 
         Map<String, String> headers = new HashMap<>();
-        headers.put("Authorization", "Bearer eyJhbGciOiJSUzI1NiIsICJ0eXAiOiJKV1QifQ==.eyJzdWIiOiJiYWxsZXJpbmEiLCAi" +
+        headers.put("Authorization", "Bearer eyJhbGciOiJSUzI1NiIsICJ0eXAiOiJKV1QifQ.eyJzdWIiOiJiYWxsZXJpbmEiLCAi" +
                 "aXNzIjoiZXhhbXBsZTQiLCAiZXhwIjoyODE4NDE1MDE5LCAiaWF0IjoxNTI0NTc1MDE5LCAianRpIjoiZjVhZGVkNTA1ODVjN" +
                 "DZmMmI4Y2EyMzNkMGMyYTNjOWQiLCAiYXVkIjpbImJhbGxlcmluYSIsICJiYWxsZXJpbmEub3JnIiwgImJhbGxlcmluYS5pby" +
-                "JdfQ==.B0S-9DbmFMvNcjmlQU0-ApKZjBKSxu9pQ-99GBV3oVklVYjYHQZ0FSfzN7bQu__Ap2EPkSVv3ugZbMc59FOxnO_580" +
+                "JdfQ.B0S-9DbmFMvNcjmlQU0-ApKZjBKSxu9pQ-99GBV3oVklVYjYHQZ0FSfzN7bQu__Ap2EPkSVv3ugZbMc59FOxnO_580" +
                 "73C_tf7OPuYO1GQGbkYtXaynngxZ-xELZDdUXa0RYY4x-Sf7UM6tg7SPht8BreBig6QH_rnRuuTSQAYLbynxX3BgMbguA5BDQ" +
                 "wj-JEdWdFdTknBlCHU4-pSV_77jRRZ9Lb51aVE7MT-G69X4oQMZCvFh935I5FVx2kfh6-RL3RDvvkKJMz5MEL7vtnHIqNmGMO" +
-                "TdlJG9xtLnzfGc17UnJD7WP-Cb4s1ZKZnwuDJQsODTtAbtIKYC52aTomGw==");
+                "TdlJG9xtLnzfGc17UnJD7WP-Cb4s1ZKZnwuDJQsODTtAbtIKYC52aTomGw");
         HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort, "echo/test3"),
                 headers, serverInstance.getServerHome());
         assertUnauthorized(response);
@@ -593,13 +593,13 @@ public class AuthnConfigPatternTest extends AuthBaseTest {
         // }
 
         Map<String, String> headers = new HashMap<>();
-        headers.put("Authorization", "Bearer eyJhbGciOiJSUzI1NiIsICJ0eXAiOiJKV1QifQ==.eyJzdWIiOiJiYWxsZXJpbmEiLCAi" +
+        headers.put("Authorization", "Bearer eyJhbGciOiJSUzI1NiIsICJ0eXAiOiJKV1QifQ.eyJzdWIiOiJiYWxsZXJpbmEiLCAi" +
                 "aXNzIjoiZXhhbXBsZTQiLCAiZXhwIjoyODE4NDE1MDE5LCAiaWF0IjoxNTI0NTc1MDE5LCAianRpIjoiZjVhZGVkNTA1ODVjN" +
                 "DZmMmI4Y2EyMzNkMGMyYTNjOWQiLCAiYXVkIjpbImJhbGxlcmluYSIsICJiYWxsZXJpbmEub3JnIiwgImJhbGxlcmluYS5pby" +
-                "JdfQ==.B0S-9DbmFMvNcjmlQU0-ApKZjBKSxu9pQ-99GBV3oVklVYjYHQZ0FSfzN7bQu__Ap2EPkSVv3ugZbMc59FOxnO_580" +
+                "JdfQ.B0S-9DbmFMvNcjmlQU0-ApKZjBKSxu9pQ-99GBV3oVklVYjYHQZ0FSfzN7bQu__Ap2EPkSVv3ugZbMc59FOxnO_580" +
                 "73C_tf7OPuYO1GQGbkYtXaynngxZ-xELZDdUXa0RYY4x-Sf7UM6tg7SPht8BreBig6QH_rnRuuTSQAYLbynxX3BgMbguA5BDQ" +
                 "wj-JEdWdFdTknBlCHU4-pSV_77jRRZ9Lb51aVE7MT-G69X4oQMZCvFh935I5FVx2kfh6-RL3RDvvkKJMz5MEL7vtnHIqNmGMO" +
-                "TdlJG9xtLnzfGc17UnJD7WP-Cb4s1ZKZnwuDJQsODTtAbtIKYC52aTomGw==");
+                "TdlJG9xtLnzfGc17UnJD7WP-Cb4s1ZKZnwuDJQsODTtAbtIKYC52aTomGw");
         HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort, "echo/test4"),
                 headers, serverInstance.getServerHome());
         assertUnauthorized(response);
@@ -622,13 +622,13 @@ public class AuthnConfigPatternTest extends AuthBaseTest {
         // }
 
         Map<String, String> headers = new HashMap<>();
-        headers.put("Authorization", "Bearer eyJhbGciOiJSUzI1NiIsICJ0eXAiOiJKV1QifQ==.eyJzdWIiOiJiYWxsZXJpbmEiLCAi" +
+        headers.put("Authorization", "Bearer eyJhbGciOiJSUzI1NiIsICJ0eXAiOiJKV1QifQ.eyJzdWIiOiJiYWxsZXJpbmEiLCAi" +
                 "aXNzIjoiZXhhbXBsZTQiLCAiZXhwIjoyODE4NDE1MDE5LCAiaWF0IjoxNTI0NTc1MDE5LCAianRpIjoiZjVhZGVkNTA1ODVjN" +
                 "DZmMmI4Y2EyMzNkMGMyYTNjOWQiLCAiYXVkIjpbImJhbGxlcmluYSIsICJiYWxsZXJpbmEub3JnIiwgImJhbGxlcmluYS5pby" +
-                "JdfQ==.B0S-9DbmFMvNcjmlQU0-ApKZjBKSxu9pQ-99GBV3oVklVYjYHQZ0FSfzN7bQu__Ap2EPkSVv3ugZbMc59FOxnO_580" +
+                "JdfQ.B0S-9DbmFMvNcjmlQU0-ApKZjBKSxu9pQ-99GBV3oVklVYjYHQZ0FSfzN7bQu__Ap2EPkSVv3ugZbMc59FOxnO_580" +
                 "73C_tf7OPuYO1GQGbkYtXaynngxZ-xELZDdUXa0RYY4x-Sf7UM6tg7SPht8BreBig6QH_rnRuuTSQAYLbynxX3BgMbguA5BDQ" +
                 "wj-JEdWdFdTknBlCHU4-pSV_77jRRZ9Lb51aVE7MT-G69X4oQMZCvFh935I5FVx2kfh6-RL3RDvvkKJMz5MEL7vtnHIqNmGMO" +
-                "TdlJG9xtLnzfGc17UnJD7WP-Cb4s1ZKZnwuDJQsODTtAbtIKYC52aTomGw==");
+                "TdlJG9xtLnzfGc17UnJD7WP-Cb4s1ZKZnwuDJQsODTtAbtIKYC52aTomGw");
         HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort, "echo/test5"),
                 headers, serverInstance.getServerHome());
         assertUnauthorized(response);

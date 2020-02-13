@@ -20,8 +20,11 @@ package org.ballerinalang.langserver.completions.providers.contextproviders;
 import org.antlr.v4.runtime.CommonToken;
 import org.antlr.v4.runtime.Token;
 import org.ballerinalang.annotation.JavaSPIService;
+import org.ballerinalang.langserver.SnippetBlock;
+import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.completions.CompletionKeys;
+import org.ballerinalang.langserver.completions.SymbolInfo;
 import org.ballerinalang.langserver.completions.spi.LSCompletionProvider;
 import org.ballerinalang.langserver.completions.util.Snippet;
 import org.eclipse.lsp4j.CompletionItem;
@@ -46,8 +49,52 @@ public class TypeDefinitionContextProvider extends LSCompletionProvider {
 
     @Override
     public List<CompletionItem> getCompletions(LSContext ctx) {
+        List<CommonToken> lhsDefaultTokens = ctx.get(CompletionKeys.LHS_DEFAULT_TOKENS_KEY);
+        List<Integer> lhsTokenTypes = lhsDefaultTokens.stream()
+                .map(CommonToken::getType)
+                .collect(Collectors.toList());
         if (this.isObjectTypeDefinition(ctx)) {
+            /*
+            Ex: public type <cursor> object {}
+             */
             return Arrays.asList(Snippet.KW_ABSTRACT.get().build(ctx), Snippet.KW_CLIENT.get().build(ctx));
+        } else if (lhsTokenTypes.contains(BallerinaParser.TYPE)) {
+            List<CompletionItem> lsCItems = new ArrayList<>();
+            Integer invocationType = ctx.get(CompletionKeys.INVOCATION_TOKEN_TYPE_KEY);
+            List<SymbolInfo> visibleSymbols = ctx.get(CommonKeys.VISIBLE_SYMBOLS_KEY);
+
+            if (invocationType == BallerinaParser.COLON) {
+                CommonToken pkgName = lhsDefaultTokens.get(lhsTokenTypes.indexOf(invocationType) - 1);
+                lsCItems.addAll(this.getTypeItemsInPackage(visibleSymbols, pkgName.getText(), ctx));
+            } else if (lhsTokenTypes.contains(BallerinaParser.CLIENT)
+                    && lhsTokenTypes.contains(BallerinaParser.ABSTRACT)) {
+                /*
+                Ex: public type testType client abstract <cursor>
+                 */
+                lsCItems.add(Snippet.KW_OBJECT.get().build(ctx));
+            } else if (lhsTokenTypes.contains(BallerinaParser.CLIENT)
+                    || lhsTokenTypes.contains(BallerinaParser.ABSTRACT)) {
+                /*
+                Ex: public type testType client | abstract <cursor>
+                 */
+                SnippetBlock objectModifier = lhsTokenTypes.contains(BallerinaParser.CLIENT)
+                        ? Snippet.KW_ABSTRACT.get() : Snippet.KW_CLIENT.get();
+                lsCItems.add(objectModifier.build(ctx));
+                lsCItems.add(Snippet.KW_OBJECT.get().build(ctx));
+            } else {
+                /*
+                Ex: public type testType <cursor>
+                Ex: public type testType r<cursor>
+                 */
+                lsCItems.addAll(this.getPackagesCompletionItems(ctx));
+                lsCItems.addAll(this.getBasicTypesItems(visibleSymbols));
+                lsCItems.add(Snippet.KW_ABSTRACT.get().build(ctx));
+                lsCItems.add(Snippet.KW_CLIENT.get().build(ctx));
+                lsCItems.add(Snippet.KW_RECORD.get().build(ctx));
+                lsCItems.add(Snippet.KW_OBJECT.get().build(ctx));
+            }
+
+            return lsCItems;
         }
 
         return new ArrayList<>();
@@ -57,7 +104,7 @@ public class TypeDefinitionContextProvider extends LSCompletionProvider {
      * Check whether the cursor is within the object type definition.
      * This is identified capturing the first open brace and the token before that. If the token before the first brace
      * is object, then cursor is within the object type
-     * 
+     *
      * @return {@link Boolean} whether the cursor is within the object context
      */
     private boolean isObjectTypeDefinition(LSContext ctx) {

@@ -149,6 +149,14 @@ public function getAsMap(@untainted string key) returns map<any> {
     }
 }
 
+# Retrieves the specified configuration value as an array. If there is no mapping, an empty array will be returned.
+#
+# + key - The configuration to be retrieved
+# + return - Configuration value mapped by the key
+public function getAsArray(@untainted string key) returns anydata[] {
+    return <anydata[]>get(key, ARRAY);
+}
+
 function lookupEnvVar(string key) returns string {
     string convertedKey = stringutils:replace(key, ".", "_");
     return system:getEnv(convertedKey);

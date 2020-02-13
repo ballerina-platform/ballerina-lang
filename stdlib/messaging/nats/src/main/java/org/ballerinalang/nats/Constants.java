@@ -79,6 +79,7 @@ public class Constants {
     public static final String NATS_BASIC_CONSUMER_ANNOTATION = "SubscriptionConfig";
 
     public static final String NATS_STREAMING_SUBSCRIPTION_ANNOTATION = "StreamingSubscriptionConfig";
+    public static final String NATS_STREAMING_MANUAL_ACK = "manualAck";
 
     public static final String NATS_STREAMING_MESSAGE_OBJ_NAME = "StreamingMessage";
 

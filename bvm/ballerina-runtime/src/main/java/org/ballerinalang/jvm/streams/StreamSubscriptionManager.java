@@ -37,6 +37,7 @@ import java.util.Observer;
  *
  * @since 0.995.0
  */
+@Deprecated
 public class StreamSubscriptionManager implements Observer {
 
     private Map<String, List<StreamSubscription>> processors = new HashMap<>();

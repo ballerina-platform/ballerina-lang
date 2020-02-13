@@ -2,7 +2,7 @@ import ballerina/log;
 import ballerina/nats;
 
 // Initializes a connection.
-nats:Connection connection = new("nats://localhost:4222");
+nats:Connection connection = new(url = "nats://localhost:4222");
 
 // Initializes the NATS listener.
 listener nats:Listener subscription = new(connection);

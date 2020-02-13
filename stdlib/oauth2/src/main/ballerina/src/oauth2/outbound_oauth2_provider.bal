@@ -191,7 +191,7 @@ public type DirectTokenRefreshConfig record {|
 #
 # + accessToken - Access token for the  authorization endpoint
 # + refreshToken - Refresh token for the refresh token server
-# + expiryTime - Expiry time of the access token in milliseconds
+# + expiryTime - Expiry time (milliseconds since the Epoch) of the access token
 public type CachedToken record {
     string accessToken;
     string refreshToken;
@@ -566,7 +566,7 @@ function prepareRequest(RequestConfig config) returns http:Request|Error {
         }
     }
     if (scopeString != "") {
-        textPayload = textPayload + "&scope=" + scopeString;
+        textPayload = textPayload + "&scope=" + scopeString.trim();
     }
 
     string? clientId = config?.clientId;

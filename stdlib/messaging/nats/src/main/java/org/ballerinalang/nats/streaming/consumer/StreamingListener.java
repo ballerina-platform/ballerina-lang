@@ -51,11 +51,13 @@ public class StreamingListener implements MessageHandler {
     private ObjectValue service;
     private BRuntime runtime;
     private String connectedUrl;
+    private boolean manualAck;
 
-    public StreamingListener(ObjectValue service, BRuntime runtime, String connectedUrl) {
+    public StreamingListener(ObjectValue service, boolean manualAck, BRuntime runtime, String connectedUrl) {
         this.service = service;
         this.runtime = runtime;
         this.connectedUrl = connectedUrl;
+        this.manualAck = manualAck;
     }
 
     /**
@@ -68,6 +70,7 @@ public class StreamingListener implements MessageHandler {
                 Constants.NATS_PACKAGE_ID, NATS_STREAMING_MESSAGE_OBJ_NAME, msg.getSubject(),
                 BValueCreator.createArrayValue(msg.getData()), msg.getReplyTo());
         ballerinaNatsMessage.addNativeData(Constants.NATS_STREAMING_MSG, msg);
+        ballerinaNatsMessage.addNativeData(Constants.NATS_STREAMING_MANUAL_ACK, manualAck);
         AttachedFunction onMessageResource = getAttachedFunction(service, "onMessage");
         BType[] parameterTypes = onMessageResource.getParameterType();
         if (parameterTypes.length == 1) {

@@ -112,6 +112,7 @@ public class OpenApiGenServiceCmd implements BLauncherCmd {
         final File openApiFile = new File(argList.get(0));
         final String openApiFilePath = openApiFile.getPath();
         Path resourcePath = Paths.get(resourcesDirectory + "/" + openApiFile.getName());
+        Path relativeResourcePath = Paths.get("resources", openApiFile.getName());
 
         //Check provided OpenApi file is a valid and existing one
         if (Files.notExists(Paths.get(openApiFilePath))) {
@@ -198,7 +199,7 @@ public class OpenApiGenServiceCmd implements BLauncherCmd {
         //Path pathRelative = basePath.relativize(absPath);
 
         try {
-            generator.generateService(executionPath, resourcePath.toString(), resourcePath.toString(),
+            generator.generateService(executionPath, resourcePath.toString(), relativeResourcePath.toString(),
                     moduleArgs.get(1), output);
         } catch (IOException | BallerinaOpenApiException e) {
             throw LauncherUtils.createLauncherException("Error occurred when generating service for openapi " +

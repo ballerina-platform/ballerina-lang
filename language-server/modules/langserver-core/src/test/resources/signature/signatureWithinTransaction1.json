@@ -1,44 +1,50 @@
 {
   "position": {
     "line": 7,
-    "character": 23
+    "character": 27
   },
   "expected": {
     "result": {
       "signatures": [
         {
-          "label": "indexOf(string str, string substr, int startIndex)",
+          "label": "indexOf(string str, string substr, int startIndex?)",
           "documentation": {
             "right": {
               "kind": "markdown",
-              "value": "Searches for one string in another string."
+              "value": "**Description**  \nSearches for one string in another string."
             }
           },
           "parameters": [
             {
-              "label": "str",
+              "label": {
+                "left": "string str"
+              },
               "documentation": {
                 "right": {
                   "kind": "markdown",
-                  "value": "the string in which to search"
+                  "value": "**Parameter**  \n**`string`str**: the string in which to search"
                 }
               }
             },
             {
-              "label": "substr",
+              "label": {
+                "left": "string substr"
+              },
               "documentation": {
                 "right": {
                   "kind": "markdown",
-                  "value": "the string to search for"
+                  "value": "**Parameter**  \n**`string`substr**: the string to search for"
                 }
               }
             },
             {
-              "label": "startIndex",
+              "label": {
+                "left": "int startIndex?"
+              },
               "documentation": {
                 "right": {
                   "kind": "markdown",
-                  "value": "index to start searching from"
+                  "value": "**Parameter**  \n**`int`startIndex?**: index to start searching from"
                 }
               }
             }
@@ -47,9 +53,6 @@
       ],
       "activeSignature": 0,
       "activeParameter": 0
-    },
-    "id": {
-      "left": "324"
     },
     "jsonrpc": "2.0"
   }

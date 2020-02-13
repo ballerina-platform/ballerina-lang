@@ -280,7 +280,7 @@ public type Consumer client object {
         return consumerGetPositionOffset(self, partition, duration);
     }
 
-    # Returns set of topics wich are currently subscribed by the consumer.
+    # Returns set of topics which are currently subscribed by the consumer.
     #
     # + return - Array of subscribed topics for the consumer if executes successfully, returns `kafka:ConsumerError` if the operation fails.
     public remote function getSubscription() returns string[]|ConsumerError {
@@ -372,7 +372,9 @@ public type Consumer client object {
     public remote function subscribeWithPartitionRebalance(string[] topics,
                            function(Consumer consumer, TopicPartition[] partitions) onPartitionsRevoked,
                            function(Consumer consumer, TopicPartition[] partitions) onPartitionsAssigned)
-                           returns ConsumerError? = external;
+                           returns ConsumerError? {
+        return consumerSubscribeWithPartitionRebalance(self, topics, onPartitionsRevoked, onPartitionsAssigned);
+    }
 
 
     # Unsubscribe the consumer from all the topic subscriptions.
@@ -516,6 +518,15 @@ function consumerSubscribeToPattern(Consumer consumer, handle regex) returns Con
 @java:Method {
     name: "subscribeToPattern",
     class: "org.ballerinalang.messaging.kafka.nativeimpl.consumer.SubscribeToPattern"
+} external;
+
+function consumerSubscribeWithPartitionRebalance(Consumer consumer, string[] topics,
+                                        function(Consumer consumer, TopicPartition[] partitions) onPartitionsRevoked,
+                                        function(Consumer consumer, TopicPartition[] partitions) onPartitionsAssigned)
+                                        returns ConsumerError? =
+@java:Method {
+    name: "subscribeWithPartitionRebalance",
+    class: "org.ballerinalang.messaging.kafka.nativeimpl.consumer.SubscribeWithPartitionRebalance"
 } external;
 
 function consumerUnsubscribe(Consumer consumer) returns ConsumerError? =

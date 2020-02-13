@@ -115,9 +115,9 @@ function testElementLiteralWithTemplateChildren1() returns [xml, xml] {
     *
     ;
     return [
-    x3
-    ,
-    x4
+        x3
+        ,
+        x4
     ]
     ;
 }
