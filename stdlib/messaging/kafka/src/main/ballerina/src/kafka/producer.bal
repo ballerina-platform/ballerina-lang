@@ -83,7 +83,7 @@ public type ProducerConfig record {|
     int reconnectBackoffMaxTimeInMillis = -1;
     int retryBackoffTimeInMillis = -1;
     int maxBlock = -1;
-    int requestTimeoutInMillis = -1;
+    int requestTimeoutInMillis = 1000;
     int metadataMaxAgeInMillis = -1;
     int metricsSampleWindowInMillis = -1;
     int metricsNumSamples = -1;
@@ -171,10 +171,7 @@ public type Producer client object {
             }
         }
 
-        var result = self.init();
-        if (result is error) {
-            panic result;
-        }
+        checkpanic self.init();
     }
 
     # Initialize the producer endpoint. Panics if the initialization fails.

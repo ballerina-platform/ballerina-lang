@@ -31,6 +31,7 @@ import org.ballerinalang.jvm.values.connector.CallableUnitCallback;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Semaphore;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 
 /**
@@ -111,7 +112,16 @@ public class BRuntime {
         }
     }
 
-    public Object getSyncMethodInvokeResult(ObjectValue object, String methodName, Object... args) {
+    /**
+     * Invoke Ballerina function and get the result.
+     *
+     * @param object     Ballerina object in which the function is defined.
+     * @param methodName Ballerina function name, to invoke.
+     * @param timeout    Timeout in milliseconds to wait until acquiring the semaphore.
+     * @param args       Ballerina function arguments.
+     * @return Ballerina function invoke result.
+     */
+    public Object getSyncMethodInvokeResult(ObjectValue object, String methodName, long timeout, Object... args) {
         Function<?, ?> func = o -> object.call((Strand) (((Object[]) o)[0]), methodName, args);
         Semaphore semaphore = new Semaphore(0);
         final ErrorValue[] errorValue = new ErrorValue[1];
@@ -130,7 +140,7 @@ public class BRuntime {
             }
         });
         try {
-            semaphore.acquire();
+            semaphore.tryAcquire(timeout, TimeUnit.MILLISECONDS);
         } catch (InterruptedException e) {
             // Ignore
         }

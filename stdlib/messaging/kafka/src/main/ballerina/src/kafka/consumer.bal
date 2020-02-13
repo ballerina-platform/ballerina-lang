@@ -99,7 +99,7 @@ public type ConsumerConfig record {|
     int retryBackoffInMillis = -1;
     int metricsSampleWindowInMillis = -1;
     int metricsNumSamples = -1;
-    int requestTimeoutInMillis = -1;
+    int requestTimeoutInMillis = 1000;
     int connectionMaxIdleTimeInMillis = -1;
     int maxPollRecords = -1;
     int maxPollInterval = -1;
@@ -194,10 +194,7 @@ public type Consumer client object {
             }
         }
 
-        var initResult = self.init(config);
-        if (initResult is error) {
-            panic initResult;
-        }
+        checkpanic self.init(config);
     }
 
     public function __start() returns error? {
@@ -220,17 +217,11 @@ public type Consumer client object {
     }
 
     function init(ConsumerConfig config) returns ConsumerError? {
-        var connectResult = self->connect();
-        if (connectResult is error) {
-            panic connectResult;
-        }
+        checkpanic self->connect();
 
         string[]? topics = config.topics;
         if (topics is string[]){
-            var result = self->subscribe(topics);
-            if (result is error) {
-                panic result;
-            }
+            checkpanic self->subscribe(topics);
         }
         return;
     }

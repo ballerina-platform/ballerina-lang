@@ -293,21 +293,30 @@ public class Send {
             if (strand.isInTransaction()) {
                 handleTransactions(strand, producerObject);
             }
+//            Future<RecordMetadata> future = producer.send(record);
+//            RecordMetadata metadata = future.get();
+//            callback.setReturnValues(null);
+//            callback.notifySuccess();
+
             producer.send(record, (metadata, e) -> {
                 if (Objects.nonNull(e)) {
                     KafkaMetricsUtil.reportProducerError(producerObject,
                                                          KafkaObservabilityConstants.ERROR_TYPE_PUBLISH);
-                    callback.notifyFailure(createKafkaError("Failed to send data to Kafka server: " + e.getMessage(),
+                    callback.setReturnValues(createKafkaError("Failed to send data to Kafka server: " + e.getMessage(),
                                                             PRODUCER_ERROR));
                 } else {
                     KafkaMetricsUtil.reportPublish(producerObject, record.topic(), record.value());
+                    callback.setReturnValues(null);
                 }
+
                 callback.notifySuccess();
             });
         } catch (IllegalStateException | KafkaException e) {
             KafkaMetricsUtil.reportProducerError(producerObject, KafkaObservabilityConstants.ERROR_TYPE_PUBLISH);
-            callback.notifyFailure(createKafkaError("Failed to send data to Kafka server: " + e.getMessage(),
+            callback.setReturnValues(createKafkaError("Failed to send data to Kafka server: " + e.getMessage(),
                                                     PRODUCER_ERROR));
+            callback.notifySuccess();
+
         }
         return null;
     }

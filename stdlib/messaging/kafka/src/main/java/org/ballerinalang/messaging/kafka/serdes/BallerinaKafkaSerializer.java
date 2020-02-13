@@ -32,6 +32,7 @@ import java.util.Map;
 public class BallerinaKafkaSerializer implements Serializer {
 
     private ObjectValue serializerObject = null;
+    long timeout = 10000;
 
     @Override
     public void configure(Map configs, boolean isKey) {
@@ -40,18 +41,21 @@ public class BallerinaKafkaSerializer implements Serializer {
         } else {
             this.serializerObject = (ObjectValue) configs.get(KafkaConstants.PRODUCER_VALUE_SERIALIZER_CONFIG);
         }
+        //this.timeout = this.serializerObject.getIntValue("requestTimeoutInMillis");
     }
 
     @Override
     public byte[] serialize(String topic, Object data) {
         Object[] args = new Object[]{data, false};
-        BArray result = (BArray) BRuntime.getCurrentRuntime().getSyncMethodInvokeResult(this.serializerObject,
-                                                                      KafkaConstants.FUNCTION_SERIALIZE, args);
+        BArray result = (BArray) BRuntime.getCurrentRuntime()
+                .getSyncMethodInvokeResult(this.serializerObject, KafkaConstants.FUNCTION_SERIALIZE, timeout, args);
         return result.getBytes();
+        // return "test".getBytes();
     }
 
     @Override
     public void close() {
-        BRuntime.getCurrentRuntime().getSyncMethodInvokeResult(this.serializerObject, KafkaConstants.FUNCTION_CLOSE);
+        BRuntime.getCurrentRuntime()
+                .getSyncMethodInvokeResult(this.serializerObject, KafkaConstants.FUNCTION_CLOSE, timeout);
     }
 }

@@ -35,7 +35,7 @@ import static org.ballerinalang.messaging.kafka.utils.KafkaUtils.getLongValue;
  */
 public class SendAnyKeys {
     // TODO: This class should be merged with "Send" when #20918 is fixed.
-    private static final Logger logger = LoggerFactory.getLogger(SendAnyValues.class);
+    private static final Logger logger = LoggerFactory.getLogger(SendAnyKeys.class);
 
     // String and ballerina any
     public static Object send(ObjectValue producer, String value, String topic, Object key, Object partition,
