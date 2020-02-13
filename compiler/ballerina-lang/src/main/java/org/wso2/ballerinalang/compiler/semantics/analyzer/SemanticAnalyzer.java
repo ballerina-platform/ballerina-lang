@@ -309,8 +309,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
         validateObjectAttachedFunction(funcNode);
 
-        if (funcNode.funcBody != null) {
-            analyzeNode(funcNode.funcBody, funcEnv);
+        if (funcNode.hasBody()) {
+            analyzeNode(funcNode.funcBody, funcEnv, funcNode.returnTypeNode.type, null);
         }
 
         if (funcNode.anonForkName != null) {
@@ -343,7 +343,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangExprFunctionBody body) {
         env = SymbolEnv.createFuncBodyEnv(body, env);
-        typeChecker.checkExpr(body.expr, env);
+        typeChecker.checkExpr(body.expr, env, expType);
     }
 
     @Override

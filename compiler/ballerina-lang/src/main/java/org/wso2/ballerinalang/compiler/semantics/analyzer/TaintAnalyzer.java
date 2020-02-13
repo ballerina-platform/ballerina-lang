@@ -409,6 +409,13 @@ public class TaintAnalyzer extends BLangNodeVisitor {
     public void visit(BLangExprFunctionBody body) {
         SymbolEnv bodyEnv = SymbolEnv.createFuncBodyEnv(body, env);
         analyzeNode(body.expr, bodyEnv);
+
+        if (getCurrentAnalysisState().taintedStatus == TaintedStatus.TAINTED) {
+            getCurrentAnalysisState().returnTaintedStatus = TaintedStatus.TAINTED;
+        }
+
+        getCurrentAnalysisState().taintedStatus = getCurrentAnalysisState().returnTaintedStatus;
+        updateParameterTaintedStatuses();
     }
 
     @Override
