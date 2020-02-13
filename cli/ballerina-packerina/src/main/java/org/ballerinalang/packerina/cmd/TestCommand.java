@@ -128,7 +128,7 @@ public class TestCommand implements BLauncherCmd {
     @CommandLine.Option(names = "--debug", description = "start Ballerina in remote debugging mode")
     private String debugPort;
 
-    @CommandLine.Option(names = {"--list-groups", "-lg"}, description = "list the groups available in the tests")
+    @CommandLine.Option(names = "--list-groups", description = "list the groups available in the tests")
     private boolean listGroups;
 
     @CommandLine.Option(names = "--groups", split = ",", description = "test groups to be executed")
