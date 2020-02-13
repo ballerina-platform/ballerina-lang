@@ -41,7 +41,7 @@ public class BallerinaKafkaSerializer implements Serializer {
         } else {
             this.serializerObject = (ObjectValue) configs.get(KafkaConstants.PRODUCER_VALUE_SERIALIZER_CONFIG);
         }
-        this.timeout = this.serializerObject.getIntValue(KafkaConstants.PRODUCER_REQUEST_TIMEOUT_MS_CONFIG);
+        this.timeout = (long) configs.get(KafkaConstants.PRODUCER_REQUEST_TIMEOUT_MS_CONFIG);
     }
 
     @Override
