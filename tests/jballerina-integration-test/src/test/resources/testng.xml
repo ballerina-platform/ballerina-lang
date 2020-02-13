@@ -335,4 +335,11 @@
             <class name="org.ballerinalang.test.logging.LogAPITestCase" />
         </classes>
     </test>
+
+    <test name="ballerina-testerina-tests" parallel="false">
+        <parameter name="enableJBallerinaTests" value="true" />
+        <classes>
+            <class name="org.ballerinalang.test.testarina.TestarinaTestCase" />
+        </classes>
+    </test>
 </suite>
