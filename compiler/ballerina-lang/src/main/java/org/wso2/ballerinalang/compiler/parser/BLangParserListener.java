@@ -1861,6 +1861,14 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         this.pkgBuilder.createSimpleVariableReference(getCurrentPos(ctx), getWS(ctx));
     }
 
+    @Override public void exitInvocation(BallerinaParser.InvocationContext ctx) {
+        if (isInErrorState) {
+            return;
+        }
+
+        this.pkgBuilder.addInvocationWS(getWS(ctx));
+    }
+
     @Override
     public void exitStringFunctionInvocationReference(BallerinaParser.StringFunctionInvocationReferenceContext ctx) {
         if (isInErrorState) {
