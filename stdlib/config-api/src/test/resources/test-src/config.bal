@@ -28,7 +28,7 @@ function testGetAsBoolean(string key) returns boolean {
     return config:getAsBoolean(key);
 }
 
-function testGetAsArray(string key) returns any[] {
+function testGetAsArray(string key) returns anydata[] {
     return config:getAsArray(key);
 }
 
@@ -38,5 +38,14 @@ function testGetAsArray2(string key) returns int[] {
         return ports;
     } else {
         panic ports;
+    }
+}
+
+function testGetAsArray3(string key) returns map<anydata>[] {
+    map<anydata>[]|error result = map<anydata>[].constructFrom(config:getAsArray(key));
+    if (result is error) {
+        panic result;
+    } else {
+        return result;
     }
 }
