@@ -41,7 +41,7 @@ public class BallerinaKafkaSerializer implements Serializer {
         } else {
             this.serializerObject = (ObjectValue) configs.get(KafkaConstants.PRODUCER_VALUE_SERIALIZER_CONFIG);
         }
-        //this.timeout = this.serializerObject.getIntValue("requestTimeoutInMillis");
+        this.timeout = this.serializerObject.getIntValue(KafkaConstants.PRODUCER_REQUEST_TIMEOUT_MS_CONFIG);
     }
 
     @Override
@@ -50,7 +50,6 @@ public class BallerinaKafkaSerializer implements Serializer {
         BArray result = (BArray) BRuntime.getCurrentRuntime()
                 .getSyncMethodInvokeResult(this.serializerObject, KafkaConstants.FUNCTION_SERIALIZE, timeout, args);
         return result.getBytes();
-        // return "test".getBytes();
     }
 
     @Override

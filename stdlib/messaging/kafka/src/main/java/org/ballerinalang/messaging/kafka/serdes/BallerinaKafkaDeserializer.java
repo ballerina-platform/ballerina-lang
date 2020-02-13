@@ -46,7 +46,7 @@ public class BallerinaKafkaDeserializer implements Deserializer {
         } else {
             this.deserializerObject = (ObjectValue) configs.get(KafkaConstants.CONSUMER_VALUE_DESERIALIZER_CONFIG);
         }
-        //this.timeout = this.deserializerObject.getIntValue("requestTimeoutInMillis");
+        this.timeout = this.deserializerObject.getIntValue(KafkaConstants.CONSUMER_REQUEST_TIMEOUT_MS_CONFIG);
     }
 
     @Override
