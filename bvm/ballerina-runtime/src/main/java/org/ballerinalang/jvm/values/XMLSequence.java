@@ -26,6 +26,7 @@ import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.util.BLangConstants;
 import org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons;
 import org.ballerinalang.jvm.values.api.BMap;
+import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.jvm.values.api.BXML;
 import org.ballerinalang.jvm.values.freeze.FreezeUtils;
 import org.ballerinalang.jvm.values.freeze.State;
@@ -453,6 +454,11 @@ public final class XMLSequence extends XMLValue<ArrayValue> {
             handleXmlException("failed to get xml as string: ", t);
         }
         return BLangConstants.STRING_NULL_VALUE;
+    }
+
+    @Override
+    public BString bStringValue() {
+        return null;
     }
 
 

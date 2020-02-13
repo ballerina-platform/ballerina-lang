@@ -46,3 +46,17 @@ function testFromClauseWithUnDefinedType() returns Person[]{
 
     return  outputPersonList;
 }
+
+function testSelectTypeMismatch() {
+    Person[] personList = [
+        {firstName: "Alex", lastName: "George", age: 23},
+        {firstName: "Ranjan", lastName: "Fonseka", age: 30}
+    ];
+
+    Teacher[] outputPersonList =
+            from Person person in personList
+            select {
+                   firstName: person.firstName,
+                   lastName: person.lastName
+            };
+}

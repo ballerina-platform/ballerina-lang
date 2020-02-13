@@ -17,9 +17,17 @@
 */
 package org.ballerinalang.langserver.common.utils.completion;
 
+import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
+import org.ballerinalang.langserver.completions.SymbolCompletionItem;
+import org.ballerinalang.langserver.completions.builder.BVariableCompletionItemBuilder;
+import org.eclipse.lsp4j.CompletionItem;
+import org.wso2.ballerinalang.compiler.semantics.model.Scope;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstantSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
@@ -27,7 +35,9 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -49,6 +59,7 @@ public class BLangRecordLiteralUtil {
     public static List<LSCompletionItem> getFieldsForMatchingRecord(LSContext context,
                                                                     BLangRecordLiteral recordLiteral) {
         BType expectedType = recordLiteral.expectedType;
+        List<Scope.ScopeEntry> visibleSymbols = context.get(CommonKeys.VISIBLE_SYMBOLS_KEY);
         Optional<BType> evalType = expectedType instanceof BUnionType ? getRecordTypeFromUnionType(expectedType)
                 : Optional.ofNullable(expectedType);
         if (!evalType.isPresent() || !(evalType.get() instanceof BRecordType)) {
@@ -57,6 +68,7 @@ public class BLangRecordLiteralUtil {
         List<BField> fields = ((BRecordType) evalType.get()).fields;
         List<LSCompletionItem> completionItems = CommonUtil.getRecordFieldCompletionItems(context, fields);
         completionItems.add(CommonUtil.getFillAllStructFieldsItem(context, fields));
+        completionItems.addAll(getVariableCompletionsForFields(context, visibleSymbols, fields));
 
         return completionItems;
     }
@@ -73,5 +85,26 @@ public class BLangRecordLiteralUtil {
             return Optional.ofNullable(filteredRecords.get(0));
         }
         return Optional.empty();
+    }
+    
+    private static List<LSCompletionItem> getVariableCompletionsForFields(LSContext ctx,
+                                                                          List<Scope.ScopeEntry> visibleSymbols,
+                                                                          List<BField> recordFields) {
+        Map<String, BType> filedTypeMap = new HashMap<>();
+        recordFields.forEach(bField -> filedTypeMap.put(bField.name.value, bField.type));
+        List<LSCompletionItem> completionItems = new ArrayList<>();
+        visibleSymbols.forEach(scopeEntry -> {
+            BSymbol symbol = scopeEntry.symbol;
+            BType type = symbol instanceof BConstantSymbol ? ((BConstantSymbol) symbol).literalType : symbol.type;
+            String symbolName = symbol.name.getValue();
+            if (filedTypeMap.containsKey(symbolName) && filedTypeMap.get(symbolName) == type
+                    && symbol instanceof BVarSymbol) {
+                String bTypeName = CommonUtil.getBTypeName(type, ctx, false);
+                CompletionItem cItem = BVariableCompletionItemBuilder.build((BVarSymbol) symbol, symbolName, bTypeName);
+                completionItems.add(new SymbolCompletionItem(ctx, symbol, cItem));
+            }
+        });
+        
+        return completionItems;
     }
 }

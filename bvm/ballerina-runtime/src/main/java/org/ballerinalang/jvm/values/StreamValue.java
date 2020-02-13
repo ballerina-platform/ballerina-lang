@@ -18,12 +18,14 @@
 
 package org.ballerinalang.jvm.values;
 
+import org.ballerinalang.jvm.IteratorUtils;
 import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.types.BStreamType;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.values.api.BFunctionPointer;
 import org.ballerinalang.jvm.values.api.BIterator;
 import org.ballerinalang.jvm.values.api.BStream;
+import org.ballerinalang.jvm.values.api.BString;
 
 import java.util.Map;
 import java.util.UUID;
@@ -42,6 +44,7 @@ public class StreamValue implements RefValue, BStream {
 
     private BType type;
     private BType constraintType;
+    private BType iteratorNextReturnType;
     private BIterator<Object> iterator;
     public FunctionPointerWrapper<Boolean, Object> filter;
     public FunctionPointerWrapper<Object, Object> mapper;
@@ -91,11 +94,24 @@ public class StreamValue implements RefValue, BStream {
         return streamId;
     }
 
+    public BType getIteratorNextReturnType() {
+        if (iteratorNextReturnType == null) {
+            iteratorNextReturnType = IteratorUtils.createIteratorNextReturnType(constraintType);
+        }
+
+        return iteratorNextReturnType;
+    }
+
     /**
      * {@inheritDoc}
      */
     public String stringValue() {
         return "stream <" + getType().toString() + ">";
+    }
+
+    @Override
+    public BString bStringValue() {
+        return null;
     }
 
     @Override
