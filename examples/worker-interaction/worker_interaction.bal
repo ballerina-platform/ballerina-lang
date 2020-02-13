@@ -1,8 +1,8 @@
 import ballerina/io;
 import ballerina/runtime;
 
-// Workers interact with each other by sending and receiving messages. 
-// Ballerina validates every worker interaction (send and receive) 
+// Workers interact with each other by sending and receiving messages.
+// Ballerina validates every worker interaction (send and receive)
 // to avoid deadlocks.
 public function main() {
     worker w1 {
@@ -56,7 +56,7 @@ public function main() {
         io:println("[w2 <- w1] iw: ", iw, " kw: ", kw);
 
         // Sends a message asynchronously to the worker `w1`.
-        json jw = { "name": "Ballerina" };
+        json jw = {"name": "Ballerina"};
         io:println("[w2 -> w1] jw: ", jw);
         jw -> w1;
 

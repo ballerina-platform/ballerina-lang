@@ -33,20 +33,24 @@ import static org.ballerinalang.test.util.BAssertUtil.validateError;
 public class MappingConstructorExprTest {
 
     private CompileResult result;
+    private CompileResult inferRecordResult;
 
     @BeforeClass
     public void setup() {
-         result = BCompileUtil.compile("test-src/expressions/mappingconstructor/var_name_field.bal");
+         result = BCompileUtil.compile("test-src/expressions/mappingconstructor/mapping_constructor.bal");
+         inferRecordResult = BCompileUtil.compile(
+                 "test-src/expressions/mappingconstructor/mapping_constructor_infer_record.bal");
     }
 
     @Test
     public void diagnosticsTest() {
         CompileResult result = BCompileUtil.compile(
                 "test-src/expressions/mappingconstructor/mapping_constructor_negative.bal");
-        Assert.assertEquals(result.getErrorCount(), 2);
-        validateError(result, 0, "incompatible mapping constructor expression for type '(string|Person)'", 22, 23);
-        validateError(result, 1,
-                      "a type compatible with mapping constructor expressions not found in type '(int|float)'", 26, 19);
+        Assert.assertEquals(result.getErrorCount(), 3);
+        validateError(result, 0, "incompatible mapping constructor expression for type '(string|Person)'", 33, 23);
+        validateError(result, 1, "ambiguous type '(PersonTwo|PersonThree)'", 37, 31);
+        validateError(result, 2,
+                      "a type compatible with mapping constructor expressions not found in type '(int|float)'", 41, 19);
     }
 
     @Test
@@ -94,7 +98,45 @@ public class MappingConstructorExprTest {
                 { "testVarNameAsMapField" },
                 { "testVarNameAsJsonField" },
                 { "testLikeModuleQualifiedVarNameAsJsonField" },
-                { "testVarNameFieldInAnnotation" } // final test using `s` since `s` is updated
+                { "testVarNameFieldInAnnotation" }, // final test using `s` since `s` is updated
+                { "testMappingConstuctorWithAnyACET" },
+                { "testMappingConstuctorWithAnydataACET" },
+                { "testMappingConstuctorWithJsonACET" },
+                { "testMappingConstrExprWithNoACET" },
+                { "testMappingConstrExprWithNoACET2" }
+        };
+    }
+
+    @Test
+    public void testRecordInferringInSelectNegative() {
+        CompileResult compileResult = BCompileUtil.compile(
+                "test-src/expressions/mappingconstructor/mapping_constructor_infer_record_negative.bal");
+        Assert.assertEquals(compileResult.getErrorCount(), 6);
+        int index = 0;
+
+        validateError(compileResult, index++, "incompatible types: expected 'string[]', found 'record {| string fn; " +
+                              "string ln; |}[]'", 37, 20);
+        validateError(compileResult, index++, "undefined field 'x' in 'record {| string fn; string ln; |}'", 38, 5);
+        validateError(compileResult, index++, "incompatible types: expected 'record {| anydata...; |}[]', found " +
+                "'record {| int i; any...; |}[]'", 53, 12);
+        validateError(compileResult, index++, "incompatible types: expected 'string', found 'int'", 70, 16);
+        validateError(compileResult, index++, "invalid operation: type 'record {| int i; boolean b; int...; |}' does " +
+                "not support field access for non-required field 'key'", 71, 13);
+        validateError(compileResult, index, "incompatible types: expected 'float', found '(int|boolean)?'", 72, 15);
+    }
+
+    @Test(dataProvider = "inferRecordTypeTests")
+    public void testInferRecordTypeTests(String test) {
+        BRunUtil.invoke(inferRecordResult, test);
+    }
+
+    @DataProvider(name = "inferRecordTypeTests")
+    public Object[][] inferRecordTypeTests() {
+        return new Object[][] {
+                { "testRecordInferringForMappingConstructorWithoutRestField" },
+                { "testRecordInferringForMappingConstructorWithRestField1" },
+                { "testRecordInferringForMappingConstructorWithRestField2" },
+                { "testRecordInferringForMappingConstructorWithRestField3" }
         };
     }
 }

@@ -18,11 +18,12 @@
 
 package org.ballerinalang.test.query;
 
-import org.ballerinalang.test.util.BAssertUtil;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.Test;
+
+import static org.ballerinalang.test.util.BAssertUtil.validateError;
 
 /**
  * Negative test cases for query expressions.
@@ -34,38 +35,16 @@ public class QueryNegativeTests {
     @Test
     public void testFromClauseWithInvalidType() {
         CompileResult compileResult = BCompileUtil.compile("test-src/query/query-semantics-native.bal");
-        Assert.assertEquals(compileResult.getErrorCount(), 7);
+        Assert.assertEquals(compileResult.getErrorCount(), 5);
         int index = 0;
 
-        BAssertUtil.validateError(compileResult, index++,
-                "incompatible types: expected 'Person', found 'Teacher'",
-                21, 18);
-
-        BAssertUtil.validateError(compileResult, index++,
-                "invalid operation: type 'Teacher' does not support field access for non-required " +
-                        "field 'lastName'",
-                24, 30);
-
-        BAssertUtil.validateError(compileResult, index++,
-                "invalid operation: type 'Teacher' does not support field access for non-required " +
-                        "field 'age'",
-                25, 25);
-
-        BAssertUtil.validateError(compileResult, index++,
-                "unknown type 'XYZ'",
-                40, 18);
-
-        BAssertUtil.validateError(compileResult, index++,
-                "incompatible types: 'int' is not an iterable collection",
-                59, 32);
-
-        BAssertUtil.validateError(compileResult, index++,
-                "incompatible types: expected 'boolean', found 'int'",
-                60, 19);
-
-        BAssertUtil.validateError(compileResult, index++,
-                "incompatible types: expected 'Person', found 'int'",
-                61, 20);
-
+        validateError(compileResult, index++, "incompatible types: expected 'Person', found 'Teacher'",
+                                  21, 18);
+        validateError(compileResult, index++, "invalid operation: type 'Teacher' does not support field access for " +
+                              "non-required field 'lastName'", 24, 30);
+        validateError(compileResult, index++, "invalid operation: type 'Teacher' does not support field access for " +
+                              "non-required field 'age'", 25, 25);
+        validateError(compileResult, index++, "unknown type 'XYZ'", 40, 18);
+        validateError(compileResult, index, "undefined field 'lastName' in record 'Teacher'", 60, 20);
     }
 }

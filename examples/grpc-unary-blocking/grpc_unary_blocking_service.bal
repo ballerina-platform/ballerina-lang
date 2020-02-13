@@ -4,7 +4,7 @@ import ballerina/log;
 
 service HelloWorld on new grpc:Listener(9090) {
 
-    resource function hello (grpc:Caller caller, string name,
+    resource function hello(grpc:Caller caller, string name,
                              grpc:Headers headers) {
         log:printInfo("Server received hello from " + name);
         string message = "Hello " + name;
@@ -20,7 +20,7 @@ service HelloWorld on new grpc:Listener(9090) {
         grpc:Error? err = caller->send(message, resHeader);
         if (err is grpc:Error) {
             log:printError("Error from Connector: " + err.reason() + " - "
-                                             + <string> err.detail()["message"]);
+                                             + <string>err.detail()["message"]);
         }
 
         // Sends `completed` notification to caller.

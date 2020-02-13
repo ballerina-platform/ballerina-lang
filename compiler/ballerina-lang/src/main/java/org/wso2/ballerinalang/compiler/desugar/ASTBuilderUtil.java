@@ -475,11 +475,11 @@ public class ASTBuilderUtil {
         return varRef;
     }
 
-    static BLangSimpleVariable createVariable(DiagnosticPos pos,
-                                              String name,
-                                              BType type,
-                                              BLangExpression expr,
-                                              BVarSymbol varSymbol) {
+    public static BLangSimpleVariable createVariable(DiagnosticPos pos,
+                                                     String name,
+                                                     BType type,
+                                                     BLangExpression expr,
+                                                     BVarSymbol varSymbol) {
         final BLangSimpleVariable varNode = (BLangSimpleVariable) TreeBuilder.createSimpleVariableNode();
         varNode.pos = pos;
         varNode.name = createIdentifier(pos, name);

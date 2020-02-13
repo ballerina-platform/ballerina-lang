@@ -2126,6 +2126,7 @@ public class BLangPackageBuilder {
         }
         if (isListenerVar) {
             var.flagSet.add(Flag.LISTENER);
+            var.flagSet.add(Flag.FINAL);
             if (!isTypeNameProvided) {
                 var.isDeclaredWithVar = true;
             }

@@ -22,7 +22,7 @@ function testFunction2() {
 
 // This is a random test function. This will randomly execute without depending on other functions.
 // However,the other function does depend on this.
-@test:Config{}
+@test:Config {}
 function testFunction3() {
     io:println("I'm in test function 3!");
     test:assertTrue(true, msg = "Failed!");

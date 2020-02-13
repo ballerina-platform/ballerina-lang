@@ -10,8 +10,8 @@ public function main() {
     string message = "";
     string subject = io:readln("Subject : ");
     // Initializes a producer.
-    nats:Connection connection = new();
-    nats:Producer producer = new(connection);
+    nats:Connection connection = new ();
+    nats:Producer producer = new (connection);
     while (message != ESCAPE) {
         message = io:readln("Message : ");
         // Produces a message to the specified subject.
@@ -26,7 +26,7 @@ public function main() {
     nats:Error? result = producer.close();
     if (result is nats:Error) {
         log:printError("Error occurred while closing the logical connection",
-                                                                        result);
+                       result);
     }
 
     result = connection.close();

@@ -22,7 +22,7 @@ public function main() {
                     "] for Topic [" + response.topic + "]");
     } else {
         error err = response;
-        string errCause = <string> err.detail()?.message;
+        string errCause = <string>err.detail()?.message;
         io:println("Error occurred with Subscription Request: " + errCause);
     }
 
@@ -42,7 +42,7 @@ public function main() {
                     "] for Topic [" + response.topic + "]");
     } else {
         error err = response;
-        string errCause = <string> err.detail()?.message;
+        string errCause = <string>err.detail()?.message;
         io:println("Error occurred with Unsubscription Request: " + errCause);
     }
 }
