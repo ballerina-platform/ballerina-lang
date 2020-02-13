@@ -104,27 +104,14 @@ public class TesterinaUtils {
     }
 
     /**
-     * Method to be used in unit tests to list test groups.
+     * Execute tests in build.
      *
      * @param sourceRootPath source root path
      * @param programFileMap map containing bLangPackage nodes along with their compiled program files
-     * @param outStream      error stream for logging
-     * @param errStream      info stream for logging
      */
-    public static void listTestGroups(Path sourceRootPath, Map<BLangPackage, TestarinaClassLoader> programFileMap,
-                                      PrintStream outStream, PrintStream errStream) {
-        // Sets the org-name and version to the Testerina Registry.
-        setManifestConfigs(sourceRootPath);
-
-        BTestRunner testRunner = new BTestRunner(outStream, errStream);
-        // Runs the tests.
-        testRunner.listGroups(programFileMap);
-
-        if (testRunner.getTesterinaReport().isFailure()) {
-            cleanUpDir(sourceRootPath.resolve(TesterinaConstants.TESTERINA_TEMP_DIR));
-            Runtime.getRuntime().exit(1);
-        }
-        cleanUpDir(sourceRootPath.resolve(TesterinaConstants.TESTERINA_TEMP_DIR));
+    public static void executeTests(Path sourceRootPath, Map<BLangPackage, TestarinaClassLoader>
+            programFileMap) {
+        executeTests(sourceRootPath, programFileMap, System.out, System.err);
     }
     
     /**

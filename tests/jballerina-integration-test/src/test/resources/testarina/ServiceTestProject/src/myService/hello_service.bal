@@ -2,6 +2,7 @@
 // Module objects referenced with 'http:' in code
 import ballerina/http;
 import ballerina/io;
+import ballerina/test;
 
 # A service is a network-accessible API
 # Advertised on '/hello', port comes from listener endpoint

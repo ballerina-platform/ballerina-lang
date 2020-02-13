@@ -38,7 +38,7 @@ import static org.ballerinalang.tool.LauncherUtils.createLauncherException;
  * Task for compiling a package.
  */
 public class CompileTask implements Task {
-
+    
     @Override
     public void execute(BuildContext buildContext) {
         CompilerContext context = buildContext.get(BuildContextField.COMPILER_CONTEXT);
