@@ -45,6 +45,7 @@ import org.eclipse.lsp4j.TextEdit;
 import org.eclipse.lsp4j.VersionedTextDocumentIdentifier;
 import org.eclipse.lsp4j.WorkspaceEdit;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
+import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
@@ -125,7 +126,7 @@ public class IncompatibleTypesCodeAction extends AbstractCodeActionProvider {
             try {
                 BLangFunction func = getFunctionNode(line, column, document, documentManager, context);
                 if (func != null && !BLangConstants.MAIN_FUNCTION_NAME.equals(func.name.value)) {
-                    BLangStatement statement = getStatementByLocation(func.getBody().getStatements(),
+                    BLangStatement statement = getStatementByLocation(((BLangBlockFunctionBody) func.funcBody).stmts,
                                                                       line + 1, column + 1);
                     if (statement instanceof BLangReturn) {
                         // Process full-qualified BType name  eg. ballerina/http:Client and if required; add

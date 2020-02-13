@@ -77,6 +77,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
+import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangFunctionBody;
@@ -1283,15 +1284,21 @@ public class CommonUtil {
         }
         // Retrieve block stmt
         parent = bLangNode.parent;
-        while (parent != null && !(parent instanceof BLangBlockStmt)) {
+        while (parent != null && !(parent instanceof BLangBlockStmt) && !(parent instanceof BLangBlockFunctionBody)) {
             parent = parent.parent;
         }
         if (parent != null && packageNode != null) {
             SymbolResolver symbolResolver = SymbolResolver.getInstance(context);
             SymbolTable symbolTable = SymbolTable.getInstance(context);
-            BLangBlockStmt blockStmt = (BLangBlockStmt) parent;
             SymbolEnv symbolEnv = symbolTable.pkgEnvMap.get(packageNode.symbol);
-            SymbolEnv blockEnv = SymbolEnv.createBlockEnv(blockStmt, symbolEnv);
+            SymbolEnv blockEnv;
+            if (parent instanceof BLangBlockStmt) {
+                BLangBlockStmt blockStmt = (BLangBlockStmt) parent;
+                blockEnv = SymbolEnv.createBlockEnv(blockStmt, symbolEnv);
+            } else {
+                BLangBlockFunctionBody block = (BLangBlockFunctionBody) parent;
+                blockEnv = SymbolEnv.createFuncBodyEnv(block, symbolEnv);
+            }
             Map<Name, List<Scope.ScopeEntry>> entries = symbolResolver
                     .getAllVisibleInScopeSymbols(blockEnv);
             entries.forEach((name, scopeEntries) ->

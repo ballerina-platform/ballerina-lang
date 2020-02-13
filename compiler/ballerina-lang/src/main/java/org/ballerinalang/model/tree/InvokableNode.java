@@ -19,6 +19,7 @@ package org.ballerinalang.model.tree;
 
 import org.ballerinalang.model.tree.statements.BlockStatementNode;
 import org.ballerinalang.model.tree.types.TypeNode;
+import org.wso2.ballerinalang.compiler.tree.BLangFunctionBody;
 
 import java.util.List;
 
@@ -48,6 +49,8 @@ public interface InvokableNode extends AnnotatableNode, DocumentableNode {
     void addExternalAnnotationAttachment(AnnotationAttachmentNode annAttachment);
 
     BlockStatementNode getBody();
+
+    BLangFunctionBody getFuncBody();
 
     void setBody(FunctionBodyNode body);
 
