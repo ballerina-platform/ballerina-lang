@@ -1173,18 +1173,18 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         boolean statementReturns = this.statementReturns;
         this.checkStatementExecutionValidity(queryAction);
         this.loopCount++;
-        queryAction.doClause.accept(this);
+        analyzeNode(queryAction.doClause, env);
         this.loopCount--;
         this.statementReturns = statementReturns;
         this.resetLastStatement();
         this.loopWithintransactionCheckStack.pop();
 
         for (FromClauseNode fromClauseNode : queryAction.fromClauseList) {
-            ((BLangFromClause) fromClauseNode).accept(this);
+            analyzeNode((BLangFromClause) fromClauseNode, env);
         }
 
         for (WhereClauseNode whereClauseNode : queryAction.whereClauseList) {
-            ((BLangWhereClause) whereClauseNode).accept(this);
+            analyzeNode((BLangWhereClause) whereClauseNode, env);
         }
     }
 
@@ -2335,14 +2335,14 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangQueryExpr queryExpr) {
         for (FromClauseNode fromClauseNode : queryExpr.fromClauseList) {
-            ((BLangFromClause) fromClauseNode).accept(this);
+            analyzeNode((BLangFromClause) fromClauseNode, env);
         }
 
         for (WhereClauseNode whereClauseNode : queryExpr.whereClauseList) {
-            ((BLangWhereClause) whereClauseNode).accept(this);
+            analyzeNode((BLangWhereClause) whereClauseNode, env);
         }
 
-        queryExpr.selectClause.accept(this);
+        analyzeNode(queryExpr.selectClause, env);
     }
 
     @Override
