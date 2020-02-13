@@ -91,7 +91,7 @@ public class RunExecutableTask implements Task {
             }
         }
 
-        // check if any entry points are found.
+        // If any entry point is not found.
         if (executableModule == null) {
             switch (buildContext.getSourceType()) {
                 case SINGLE_BAL_FILE:
