@@ -23,7 +23,7 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 /**
- * Test cases for validate the module names.
+ * Test cases to validate the module names.
  */
 public class UtilsTest {
 
