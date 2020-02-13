@@ -1,6 +1,6 @@
 function testXMLAccessWithIndex() returns [xml, xml, xml] {
     xml x1 = xml `<root><!-- comment node--><name>supun</name><city>colombo</city></root>`;
-    xml x2 = x1[0].*;
+    xml x2 = x1[0]/*;
 
     return [x1[0], x2[0], x2[1]];
 }
@@ -12,14 +12,14 @@ function testXMLAccessWithOutOfIndex() returns (xml) {
 
 function testXMLSequenceAccessWithOutOfIndex() returns (xml) {
     xml x1 = xml `<root><!-- comment node--><name>supun</name><city>colombo</city></root>`;
-    xml x2 = x1[0].*;
+    xml x2 = x1[0]/*;
 
     return x2[5];
 }
 
 function testLengthOfXMLSequence() returns [int, int, int, int] {
     xml x1 = xml `<root><!-- comment node--><name>supun</name><city>colombo</city></root>`;
-    xml x2 = x1[0].*;
+    xml x2 = x1[0]/*;
 
     xml[] x3 = [x1, x2];
     return [x1.length(), x2.length(), x2[2].length(), x3.length()];
@@ -31,12 +31,12 @@ function testFieldBasedAccess() returns [xml, xml, xml, xml, xml, xml] {
     xml x2 = xml `<name2><fname><foo>5</foo><bar>6</bar></fname><lname2><foo>7</foo><bar>8</bar></lname2></name2>`;
     xml x3 = x1 + x2 + xml `<foo>apple</foo>`;
 
-    xml x4 = x3.*;
-    xml x5 = x1["fname"];
-    xml x6 = x3.fname.foo[1];
-    xml x7 = x3.fname[1].foo;
-    xml x8 = x3.*.bar[1];
-    xml x9 = x3.*.*;
+    xml x4 = x3/*;
+    xml x5 = x1/<fname>;
+    xml x6 = x3/<fname>/<foo>[1];
+    xml x7 = x3/<fname>[1]/<foo>;
+    xml x8 = x3/*/<bar>[1];
+    xml x9 = x3/*/*;
 
     return [x4, x5, x6, x7, x8, x9];
 }

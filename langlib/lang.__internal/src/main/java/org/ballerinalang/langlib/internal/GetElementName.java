@@ -15,35 +15,41 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.langlib.xml;
+package org.ballerinalang.langlib.internal;
 
 import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.XMLValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
+import static org.ballerinalang.jvm.BallerinaErrors.createError;
+import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.XML_OPERATION_ERROR;
+
 /**
- * Return elements matching at least one of `elemNames`
+ * Return name of the element if `x` is a element or nil if element name is not set, else error.
  *
  * @since 1.2.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.xml",
-        functionName = "getFilteredChildrenFlat",
-        args = {@Argument(name = "xmlValue", type = TypeKind.XML),
-                @Argument(name = "index", type = TypeKind.INT),
-                @Argument(name= "elemNames", type = TypeKind.ARRAY)},
-        returnType = {@ReturnType(type = TypeKind.XML)},
+        orgName = "ballerina", packageName = "lang.internal",
+        functionName = "getElementName",
+        args = {@Argument(name = "xmlValue", type = TypeKind.XML)},
+        returnType = {@ReturnType(type = TypeKind.UNION)},
         isPublic = true
 )
-public class GetFilteredChildrenFlat {
+public class GetElementName {
 
-
-    public static String getName(Strand strand, XMLValue xmlVal, int index, ArrayValue elemNames) {
-
-        return null;
+    public static Object getElementName(Strand strand, XMLValue xmlVal, String attrName) {
+        if (IsElement.isElement(xmlVal)) {
+            String elementName = xmlVal.getElementName();
+            if (elementName.equals("")) {
+                return null;
+            }
+            return elementName;
+        }
+        String nodeTypeName = xmlVal.getNodeType().value();
+        return createError(XML_OPERATION_ERROR, "XML " + nodeTypeName + " does not contain element name");
     }
 }

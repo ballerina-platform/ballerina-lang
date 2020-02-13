@@ -39,6 +39,6 @@ import org.ballerinalang.natives.annotations.ReturnType;
 public class IsElement {
 
     public static boolean isElement(Strand strand, XMLValue xmlValue) {
-        return org.ballerinalang.langlib.__internal.IsElement.isElement(xmlValue);
+        return org.ballerinalang.langlib.internal.IsElement.isElement(xmlValue);
     }
 }

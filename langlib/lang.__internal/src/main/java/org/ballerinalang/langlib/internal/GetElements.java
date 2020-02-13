@@ -15,12 +15,11 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.langlib.xml;
+package org.ballerinalang.langlib.internal;
 
 import org.ballerinalang.jvm.XMLNodeType;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ArrayValue;
-import org.ballerinalang.jvm.values.XMLItem;
 import org.ballerinalang.jvm.values.XMLSequence;
 import org.ballerinalang.jvm.values.XMLValue;
 import org.ballerinalang.jvm.values.api.BXML;
@@ -32,14 +31,15 @@ import org.ballerinalang.natives.annotations.ReturnType;
 import java.util.ArrayList;
 
 /**
- * Return elements matching at least one of `elemNames`
+ * Return elements matching at least one of `elemNames`.
  *
  * @since 1.2.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.xml",
+        orgName = "ballerina", packageName = "lang.internal",
         functionName = "getElements",
-        args = {@Argument(name = "xmlValue", type = TypeKind.XML), @Argument(name= "elemNames", type = TypeKind.ARRAY)},
+        args = {@Argument(name = "xmlValue", type = TypeKind.XML),
+                @Argument(name = "elemNames", type = TypeKind.ARRAY)},
         returnType = {@ReturnType(type = TypeKind.XML)},
         isPublic = true
 )
@@ -50,28 +50,23 @@ public class GetElements {
     public static final String STAR = "*";
 
     /**
+     * Expected element name format.
      * elemNames: {nsUrl}elemName | elemName | {nsUrl}* | *
+     *
+     * @param strand the stand
+     * @param xmlVal the XML value
+     * @param elemNames element names to select
+     * @return sequence of elements matching given element names
      */
     public static XMLValue getElements(Strand strand, XMLValue xmlVal, ArrayValue elemNames) {
 
         ArrayList<String> nsList = new ArrayList<>();
         ArrayList<String> localNameList = new ArrayList<>();
-        int filterCount = elemNames.size();
-        for(int i = 0; i < filterCount; i++) {
-            String fullName = elemNames.getString(i);
-            int lastIndexOf = fullName.lastIndexOf('}');
-            if (lastIndexOf < 0) {
-                nsList.add(EMPTY);
-                localNameList.add(fullName);
-            } else {
-                nsList.add(fullName.substring(1, lastIndexOf));
-                localNameList.add(fullName.substring(lastIndexOf+1));
-            }
-        }
+        destructureFilters(elemNames, nsList, localNameList);
 
         // If this is a element; return this as soon as some filter match this elem. Else return empty sequence.
-        if (IsElement.isElement(strand, xmlVal)) {
-            if (matchFilters(elemNames, nsList, localNameList, ((XMLItem) xmlVal).getElementName())) {
+        if (IsElement.isElement(xmlVal)) {
+            if (matchFilters(elemNames, nsList, localNameList, xmlVal.getElementName())) {
                 return xmlVal;
             }
             return new XMLSequence();
@@ -93,7 +88,23 @@ public class GetElements {
         return new XMLSequence(selectedElements);
     }
 
-    private static boolean matchFilters(ArrayValue elemNames,
+    public static void destructureFilters(ArrayValue elemNames,
+                                          ArrayList<String> nsList, ArrayList<String> localNameList) {
+        int filterCount = elemNames.size();
+        for (int i = 0; i < filterCount; i++) {
+            String fullName = elemNames.getString(i);
+            int lastIndexOf = fullName.lastIndexOf('}');
+            if (lastIndexOf < 0) {
+                nsList.add(EMPTY);
+                localNameList.add(fullName);
+            } else {
+                nsList.add(fullName.substring(1, lastIndexOf));
+                localNameList.add(fullName.substring(lastIndexOf + 1));
+            }
+        }
+    }
+
+    public static boolean matchFilters(ArrayValue elemNames,
                                         ArrayList<String> nsList, ArrayList<String> elemList, String elementName) {
         int filterCount = elemNames.size();
         for (int i = 0; i < filterCount; i++) {

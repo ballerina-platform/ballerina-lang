@@ -54,11 +54,14 @@ public class ClientErrorsTest extends WebSocketTestCommons {
 
     @Test(description = "Connection refused IO error")
     public void testConnectionError() throws InterruptedException {
-        sendTextAndAssertResponse(
-                "invalid-connection",
-                "error {ballerina/http}WsConnectionError " +
-                        "message=IO Error " +
-                        "cause=error {ballerina/io}GenericError message=lmnop.ls: Name or service not known");
+        String expectedError1 = "error {ballerina/http}WsConnectionError " +
+                "message=IO Error " +
+                "cause=error {ballerina/io}GenericError message=lmnop.ls: Name or service not known";
+
+        String expectedError2 = "error {ballerina/http}WsConnectionError " +
+                "message=IO Error " +
+                "cause=error {ballerina/io}GenericError message=lmnop.ls: nodename nor servname provided, or not known";
+        sendTextAndMatchAnyResponse("invalid-connection", expectedError1, expectedError2);
     }
 
     @Test(description = "SSL/TLS error")
@@ -112,6 +115,17 @@ public class ClientErrorsTest extends WebSocketTestCommons {
         countDownLatch.await(20, TimeUnit.SECONDS);
         String textReceived = client.getTextReceived();
         Assert.assertEquals(textReceived, expected);
+    }
+
+    private void sendTextAndMatchAnyResponse(String msg, String expected1, String expected2)
+            throws InterruptedException {
+        CountDownLatch countDownLatch = new CountDownLatch(1);
+        client.setCountDownLatch(countDownLatch);
+        client.sendText(msg);
+        countDownLatch.await(20, TimeUnit.SECONDS);
+        String textReceived = client.getTextReceived();
+        boolean matched = textReceived.equals(expected1) || textReceived.equals(expected2);
+        Assert.assertTrue(matched);
     }
 
     @AfterClass(description = "Stops the Ballerina server")

@@ -391,7 +391,7 @@ public final class XMLItem extends XMLValue {
     public XMLValue descendants(List<String> qnames) {
         if (qnames.contains(getQName().toString())) {
             List<BXML> descendants = Arrays.asList(this);
-            addDescendants(descendants, this,qnames);
+            addDescendants(descendants, this, qnames);
             return new XMLSequence(descendants);
         }
         return children.descendants(qnames);

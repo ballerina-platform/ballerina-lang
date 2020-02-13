@@ -15,12 +15,15 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.langlib.__internal;
+package org.ballerinalang.langlib.internal;
 
 import org.ballerinalang.jvm.XMLNodeType;
 import org.ballerinalang.jvm.values.XMLSequence;
 import org.ballerinalang.jvm.values.XMLValue;
 
+/**
+ * Helper function to check xml.isElement().
+ */
 public class IsElement {
 
     public static boolean isElement(XMLValue xmlValue) {

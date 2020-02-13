@@ -26,8 +26,8 @@ import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.tree.expressions.NamedArgNode;
-import org.ballerinalang.model.tree.expressions.XMLNavigationAccess;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
+import org.ballerinalang.model.tree.expressions.XMLNavigationAccess;
 import org.ballerinalang.model.tree.statements.BlockNode;
 import org.ballerinalang.model.tree.statements.VariableDefinitionNode;
 import org.ballerinalang.model.tree.types.TypeNode;
@@ -217,6 +217,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
 import org.wso2.ballerinalang.compiler.util.ClosureVarSymbol;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.DefaultValueLiteral;
+import org.wso2.ballerinalang.compiler.util.FieldKind;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
@@ -224,7 +225,6 @@ import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.util.Flags;
 import org.wso2.ballerinalang.util.Lists;
 
-import javax.xml.XMLConstants;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -241,6 +241,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.Stack;
 import java.util.stream.Collectors;
+
+import javax.xml.XMLConstants;
 
 import static org.wso2.ballerinalang.compiler.util.Constants.INIT_METHOD_SPLIT_SIZE;
 import static org.wso2.ballerinalang.compiler.util.Names.GEN_VAR_PREFIX;
@@ -3259,7 +3261,8 @@ public class Desugar extends BLangNodeVisitor {
             }
         } else if (types.isLax(varRefType)) {
             if (varRefType.tag != TypeTags.XML) {
-                // Handle unions of lax types such as json|map<json>, by casting to json and creating a BLangJSONAccessExpr.
+                // Handle unions of lax types such as json|map<json>,
+                // by casting to json and creating a BLangJSONAccessExpr.
                 fieldAccessExpr.expr = addConversionExprIfRequired(fieldAccessExpr.expr, symTable.jsonType);
                 targetVarRef = new BLangJSONAccessExpr(fieldAccessExpr.pos, fieldAccessExpr.expr, stringLit);
             } else {
@@ -3282,15 +3285,28 @@ public class Desugar extends BLangNodeVisitor {
     private BLangAccessExpression rewriteXMLAttributeOrElemNameAccess(BLangFieldBasedAccess fieldAccessExpr) {
         ArrayList<BLangExpression> args = new ArrayList<>();
 
-        // todo: we need to support namespace prefixes in attr access
-        // for desugar look at expandFilters function
+        String fieldName = fieldAccessExpr.field.value;
+        if (fieldAccessExpr.fieldKind == FieldKind.WITH_NS) {
+            BLangFieldBasedAccess.BLangNSPrefixedFieldBasedAccess nsPrefixAccess =
+                    (BLangFieldBasedAccess.BLangNSPrefixedFieldBasedAccess) fieldAccessExpr;
+            fieldName = createExpandedQName(nsPrefixAccess.nsSymbol.namespaceURI, fieldName);
+        }
 
-        BLangLiteral attributeNameLiteral = createStringLiteral(fieldAccessExpr.field.pos, fieldAccessExpr.field.value);
+        // Handle element name access.
+        if (fieldName.equals("_")) {
+            return createLanglibXMLInvocation(fieldAccessExpr.pos,  "getElementName", fieldAccessExpr.expr,
+                    new ArrayList<>(), new ArrayList<>());
+        }
+
+        BLangLiteral attributeNameLiteral = createStringLiteral(fieldAccessExpr.field.pos, fieldName);
         args.add(attributeNameLiteral);
 
-        BLangInvocation invocationNode = createLanglibXMLInvocation(fieldAccessExpr.pos, "getAttribute",
-                fieldAccessExpr.expr, args, new ArrayList<>());
-        return invocationNode;
+        return createLanglibXMLInvocation(fieldAccessExpr.pos, "getAttribute", fieldAccessExpr.expr, args,
+                new ArrayList<>());
+    }
+
+    private String createExpandedQName(String nsURI, String localName) {
+        return "{" + nsURI + "}" + localName;
     }
 
     private void addToLocks(BLangStructFieldAccessExpr targetVarRef) {
@@ -4176,14 +4192,14 @@ public class Desugar extends BLangNodeVisitor {
             BSymbol nsSymbol = symResolver.lookupSymbol(env, names.fromString(filter.namespace), SymTag.XMLNS);
             if (nsSymbol == symTable.notFoundSymbol) {
                 if (defaultNS != null && !filter.name.equals("*")) {
-                    String expandedName = "{" + defaultNS + "}" + filter.name;
+                    String expandedName = createExpandedQName(defaultNS, filter.name);
                     args.add(createStringLiteral(filter.elemNamePos, expandedName));
                 } else {
                     args.add(createStringLiteral(filter.elemNamePos, filter.name));
                 }
             } else {
                 BXMLNSSymbol bxmlnsSymbol = (BXMLNSSymbol) nsSymbol;
-                String expandedName = "{" + bxmlnsSymbol.namespaceURI + "}" + filter.name;
+                String expandedName = createExpandedQName(bxmlnsSymbol.namespaceURI, filter.name);
                 BLangLiteral stringLiteral = createStringLiteral(filter.elemNamePos, expandedName);
                 args.add(stringLiteral);
             }

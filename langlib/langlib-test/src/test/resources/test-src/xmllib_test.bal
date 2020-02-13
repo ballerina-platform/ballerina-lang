@@ -189,7 +189,7 @@ function testCopingComment() returns xml {
 
 function testForEach() returns xml {
     xml r = xmllib:concat();
-    foreach var x in catalog.* {
+    foreach var x in catalog/* {
         if (x is xml) {
             if (x.isElement()) {
                 r += x;

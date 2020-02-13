@@ -81,6 +81,7 @@ public enum DiagnosticCode {
     GLOBAL_VARIABLE_CYCLIC_DEFINITION("global.variable.cyclic.reference"),
     CANNOT_FIND_ERROR_TYPE("cannot.find.error.constructor.for.type"),
     INVALID_PACKAGE_NAME_QUALIFER("invalid.package.name.qualifier"),
+    INVALID_FIELD_ACCESS_EXPRESSION("invalid.char.colon.in.field.access.expr"),
 
     REQUIRED_PARAM_DEFINED_AFTER_DEFAULTABLE_PARAM("required.param.not.allowed.after.defaultable.param"),
     POSITIONAL_ARG_DEFINED_AFTER_NAMED_ARG("positional.arg.defined.after.named.arg"),

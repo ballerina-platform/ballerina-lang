@@ -40,10 +40,15 @@ public function getFilteredChildrenFlat(xml x, int index, string... elemNames) r
 # + return - All the descendants that matches the given qualified name, as a sequence
 public function selectDescendants(xml x, string... qname) returns xml = external;
 
-
 # Return attribute matching expanded attribute name
 #
 # + x - The xml value
 # + attributeName - Attribute name in expanded from
 # + return - Attribute value
 public function getAttribute(xml x, string attributeName) returns string|error? = external;
+
+# Return name of the element if `x` is a element or nil if element name is not set, else error.
+#
+# + x - The xml value
+# + return - Element name
+public function getElementName(xml x) returns string|error? = external;

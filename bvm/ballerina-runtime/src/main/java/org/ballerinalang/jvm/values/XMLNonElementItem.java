@@ -54,7 +54,7 @@ public abstract class XMLNonElementItem extends XMLValue {
 
     @Override
     public String getElementName() {
-        return "";
+        return null;
     }
 
     @Override

@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.langlib.__internal;
+package org.ballerinalang.langlib.internal;
 
 import org.ballerinalang.jvm.XMLNodeType;
 import org.ballerinalang.jvm.scheduling.Strand;
@@ -34,16 +34,17 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * Return elements matching at least one of `elemNames`
+ * Return children matching provided condition.
+ * When operating on a xml sequence, flat map on each xml item in the sequence.
  *
  * @since 1.2.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.__internal",
+        orgName = "ballerina", packageName = "lang.internal",
         functionName = "getFilteredChildrenFlat",
         args = {@Argument(name = "xmlValue", type = TypeKind.XML),
                 @Argument(name = "index", type = TypeKind.INT),
-                @Argument(name= "elemNames", type = TypeKind.ARRAY)},
+                @Argument(name = "elemNames", type = TypeKind.ARRAY)},
         returnType = {@ReturnType(type = TypeKind.XML)},
         isPublic = true
 )

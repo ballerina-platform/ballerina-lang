@@ -66,4 +66,9 @@ public class BLangXMLElementFilter extends BLangExpression implements XMLElement
     public NodeKind getKind() {
         return NodeKind.XML_ELEMENT_FILTER_EXPR;
     }
+
+    @Override
+    public String toString() {
+        return (namespace != null ? namespace + ":" : "") + name;
+    }
 }

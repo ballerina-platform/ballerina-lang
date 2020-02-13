@@ -25,7 +25,6 @@ import org.apache.commons.lang3.StringEscapeUtils;
 import org.ballerinalang.model.Whitespace;
 import org.ballerinalang.model.elements.AttachPoint;
 import org.ballerinalang.model.tree.CompilationUnitNode;
-import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser.FieldContext;
@@ -2020,21 +2019,24 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     private void createFieldBasedAccessNode(ParserRuleContext ctx, FieldContext field) {
         String fieldName;
-        DiagnosticPos fieldNamePos;
         FieldKind fieldType;
-        if (field.Identifier() != null) {
-            fieldName = field.Identifier().getText();
-            fieldNamePos = getCurrentPos(field);
-            fieldType = FieldKind.SINGLE;
+        String nsName = null;
+        DiagnosticPos nsPos = null;
 
-        } else {
+        if (field.Identifier().isEmpty()) {
             fieldName = field.MUL().getText();
-            // Set the position as same as field position.
-            fieldNamePos = getCurrentPos(field);
             fieldType = FieldKind.ALL;
+        } else if (field.Identifier().size() == 1) {
+            fieldName = field.Identifier(0).getText();
+            fieldType = FieldKind.SINGLE;
+        } else {
+            nsName = field.Identifier(0).getText();
+            nsPos = getCurrentPos(field.Identifier(0));
+            fieldName = field.Identifier(1).getText();
+            fieldType = FieldKind.WITH_NS;
         }
-        this.pkgBuilder.createFieldBasedAccessNode(getCurrentPos(ctx), getWS(ctx), fieldName, fieldNamePos,
-                fieldType, field.OPTIONAL_FIELD_ACCESS() != null);
+        this.pkgBuilder.createFieldBasedAccessNode(getCurrentPos(ctx), getWS(ctx), fieldName, getCurrentPos(field),
+                nsName, nsPos, fieldType, field.OPTIONAL_FIELD_ACCESS() != null);
     }
 
     @Override

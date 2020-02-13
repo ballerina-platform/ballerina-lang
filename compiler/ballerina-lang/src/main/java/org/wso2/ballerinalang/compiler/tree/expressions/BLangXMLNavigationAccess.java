@@ -25,6 +25,7 @@ import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import java.util.List;
 import java.util.Set;
+import java.util.StringJoiner;
 
 /**
  * @since 1.2.0
@@ -60,5 +61,19 @@ public class BLangXMLNavigationAccess extends BLangAccessExpression implements X
     @Override
     public NavAccessType getNavAccessType() {
         return navAccessType;
+    }
+
+    @Override
+    public String toString() {
+        switch (navAccessType) {
+            case CHILDREN:
+                return String.valueOf(expr) + "/*";
+            case CHILD_ELEMS:
+                StringJoiner filters = new StringJoiner(" |");
+                this.filters.forEach(f -> filters.toString());
+                return String.valueOf(expr) + "/<" + filters.toString() + ">" +
+                        (childIndex != null ? "[" + String.valueOf(childIndex) + "]" : "");
+        }
+        return null;
     }
 }

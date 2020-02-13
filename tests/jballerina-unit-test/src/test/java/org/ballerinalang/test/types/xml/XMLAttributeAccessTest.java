@@ -18,6 +18,7 @@
 package org.ballerinalang.test.types.xml;
 
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.test.util.BAssertUtil;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
@@ -34,12 +35,34 @@ public class XMLAttributeAccessTest {
 
     @BeforeClass
     public void setup() {
-        compileResult = BCompileUtil.compile("test-src/types/xml/xml-attibute-access-syntax.bal");
+        compileResult = BCompileUtil.compile("test-src/types/xml/xml-attribute-access-syntax.bal");
     }
 
     @Test
-    public void testElementNameSyntax() {
+    public void testBasicAttributeAccessSyntax() {
         BValue[] result = BRunUtil.invoke(compileResult, "getElementAttrBasic");
-        Assert.assertEquals(result[0].stringValue(), "root");
+        Assert.assertEquals(result[0].stringValue(), "attr-val");
     }
+
+    @Test
+    public void testAttributeAccessSyntaxWithNS() {
+        BValue[] result = BRunUtil.invoke(compileResult, "getElementAttrWithNSPrefix");
+        Assert.assertEquals(result[0].stringValue(), "attr-with-ns-val");
+    }
+
+    @Test
+    public void testGetAttrOfASequence() {
+        BValue[] result = BRunUtil.invoke(compileResult, "getAttrOfASequence");
+        Assert.assertEquals(result[0].stringValue(),
+                "{ballerina/lang.xml}XMLOperationError {message:\"Invalid xml attribute access on xml sequence\"}");
+    }
+
+    @Test
+    public void testXMLAttributeAccessNegative() {
+        CompileResult negative = BCompileUtil.compile("test-src/types/xml/xml-attribute-access-syntax-neg.bal");
+        Assert.assertEquals(negative.getErrorCount(), 2);
+        BAssertUtil.validateError(negative, 0, "invalid character ':' in field access expression", 7, 13);
+        BAssertUtil.validateError(negative, 1, "invalid character ':' in field access expression", 10, 13);
+    }
+
 }

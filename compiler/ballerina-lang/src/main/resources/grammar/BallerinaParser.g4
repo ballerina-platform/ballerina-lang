@@ -653,7 +653,7 @@ variableReference
     ;
 
 field
-    :   (DOT | OPTIONAL_FIELD_ACCESS) (Identifier | MUL)
+    :   (DOT | OPTIONAL_FIELD_ACCESS) ((Identifier COLON)? Identifier | MUL)
     ;
 
 xmlElementAccess

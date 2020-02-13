@@ -31,7 +31,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
 import java.util.ArrayList;
 
 /**
- * Return lift getChildren over sequences
+ * Return lift getChildren over sequences.
  *
  * @since 1.2
  */

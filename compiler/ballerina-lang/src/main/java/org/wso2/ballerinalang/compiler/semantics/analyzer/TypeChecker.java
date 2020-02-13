@@ -284,6 +284,9 @@ public class TypeChecker extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangXMLNavigationAccess xmlNavigation) {
+        if (xmlNavigation.lhsVar) {
+            dlog.error(xmlNavigation.pos, DiagnosticCode.CANNOT_UPDATE_XML_SEQUENCE);
+        }
         checkXMLNamespacePrefixes(xmlNavigation.filters);
         if (xmlNavigation.childIndex != null) {
             checkExpr(xmlNavigation.childIndex, env, symTable.intType);
@@ -1597,6 +1600,14 @@ public class TypeChecker extends BLangNodeVisitor {
                 fieldAccessExpr.compoundAssignmentLhsVar;
         BType varRefType = getTypeOfExprInFieldAccess(fieldAccessExpr.expr);
 
+        // Disallow `expr.ns:attrname` syntax on non xml expressions.
+        if (fieldAccessExpr instanceof BLangFieldBasedAccess.BLangNSPrefixedFieldBasedAccess
+                && fieldAccessExpr.expr.type.tag != TypeTags.XML) {
+            dlog.error(fieldAccessExpr.pos, DiagnosticCode.INVALID_FIELD_ACCESS_EXPRESSION);
+            resultType = symTable.semanticError;
+            return;
+        }
+
         BType actualType;
         // Accessing all fields using * is only supported for XML.
         // todo: remove this, this is no longer supported, this is moved to xml.<*>
@@ -1616,6 +1627,7 @@ public class TypeChecker extends BLangNodeVisitor {
                 actualType = checkFieldAccessExpr(fieldAccessExpr, varRefType, names.fromIdNode(fieldAccessExpr.field));
             }
         }
+
         resultType = types.checkType(fieldAccessExpr, actualType, this.expType);
     }
 
@@ -4060,6 +4072,19 @@ public class TypeChecker extends BLangNodeVisitor {
                         DiagnosticCode.OPERATION_DOES_NOT_SUPPORT_FIELD_ACCESS_FOR_ASSIGNMENT, varRefType);
                 return symTable.semanticError;
             }
+            if (fieldAccessExpr.fieldKind == FieldKind.WITH_NS) {
+                BLangFieldBasedAccess.BLangNSPrefixedFieldBasedAccess nsPrefixedFieldAccess =
+                        (BLangFieldBasedAccess.BLangNSPrefixedFieldBasedAccess) fieldAccessExpr;
+                String nsPrefix = nsPrefixedFieldAccess.nsPrefix.value;
+                BSymbol nsSymbol = symResolver.lookupSymbol(env, names.fromString(nsPrefix), SymTag.XMLNS);
+
+                if (nsSymbol == symTable.notFoundSymbol) {
+                    dlog.error(nsPrefixedFieldAccess.nsPrefix.pos, DiagnosticCode.CANNOT_FIND_XML_NAMESPACE,
+                            nsPrefixedFieldAccess.nsPrefix);
+                } else {
+                    nsPrefixedFieldAccess.nsSymbol = (BXMLNSSymbol) nsSymbol;
+                }
+            }
             BType laxFieldAccessType = getLaxFieldAccessType(varRefType);
             actualType = BUnionType.create(null, laxFieldAccessType, symTable.errorType);
             fieldAccessExpr.originalType = laxFieldAccessType;
@@ -4094,7 +4119,7 @@ public class TypeChecker extends BLangNodeVisitor {
             case TypeTags.JSON:
                 return symTable.jsonType;
             case TypeTags.XML: // XML attribute access and element name access is lax typed.
-                return symTable.stringType;
+                return BUnionType.create(null, symTable.stringType, symTable.nilType);
             case TypeTags.MAP:
                 return ((BMapType) exprType).constraint;
             case TypeTags.UNION:

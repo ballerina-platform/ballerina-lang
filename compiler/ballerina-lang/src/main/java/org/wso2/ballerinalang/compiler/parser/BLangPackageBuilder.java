@@ -1569,8 +1569,18 @@ public class BLangPackageBuilder {
     }
 
     void createFieldBasedAccessNode(DiagnosticPos pos, Set<Whitespace> ws, String fieldName, DiagnosticPos fieldNamePos,
+                                    String nsPrefixName, DiagnosticPos nsPrefixPos,
                                     FieldKind fieldType, boolean optionalFieldAccess) {
-        BLangFieldBasedAccess fieldBasedAccess = (BLangFieldBasedAccess) TreeBuilder.createFieldBasedAccessNode();
+        BLangFieldBasedAccess fieldBasedAccess;
+        if (nsPrefixName != null) {
+            BLangFieldBasedAccess.BLangNSPrefixedFieldBasedAccess accessWithPrefixNode =
+                    (BLangFieldBasedAccess.BLangNSPrefixedFieldBasedAccess)
+                            TreeBuilder.createFieldBasedAccessWithPrefixNode();
+            accessWithPrefixNode.nsPrefix = createIdentifier(nsPrefixPos, nsPrefixName);
+            fieldBasedAccess = accessWithPrefixNode;
+        } else {
+            fieldBasedAccess = (BLangFieldBasedAccess) TreeBuilder.createFieldBasedAccessNode();
+        }
         fieldBasedAccess.pos = pos;
         fieldBasedAccess.addWS(ws);
         fieldBasedAccess.field = createIdentifier(fieldNamePos, fieldName, ws);
@@ -3408,7 +3418,7 @@ public class BLangPackageBuilder {
 
     private List<BLangXMLElementFilter> popFilters(int filterCount) {
         ArrayList<BLangXMLElementFilter> filters = new ArrayList<>();
-        for(int i = 0; i < filterCount; i++) {
+        for (int i = 0; i < filterCount; i++) {
             filters.add((BLangXMLElementFilter) elementFilterStack.pop());
         }
         // Filters were collected from right to left, hence need to reverse the order.

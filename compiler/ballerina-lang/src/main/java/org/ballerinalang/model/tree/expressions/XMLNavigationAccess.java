@@ -21,20 +21,23 @@ package org.ballerinalang.model.tree.expressions;
  * @since 1.2.0
  */
 public interface XMLNavigationAccess extends  VariableReferenceNode {
+    /**
+     * Indicate what kind of navigation access.
+     */
     enum NavAccessType {
         /**
          * Get element children.
-         * xml/< elem > or xml/<*>
+         * xml/&lt;elem&gt; or xml/&lt;*&gt;
          */
         CHILD_ELEMS,
         /**
-         * Get children
+         * Get children.
          * xml/*
          */
         CHILDREN,
         /**
-         * Get descendents
-         * xml/** /< elem >
+         * Get descendants.
+         * xml/** /&lt;elem&gt;
          */
         DESCENDANTS;
 

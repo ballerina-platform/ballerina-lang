@@ -215,7 +215,7 @@ public final class XMLSequence extends XMLValue {
         List<BXML> elementsSeq = new ArrayList<>();
         String qnameStr = getQname(qname).toString();
         for (BXML child : children) {
-            if (child.getElementName().equals(qnameStr)) {
+            if (child.getNodeType() == XMLNodeType.ELEMENT && child.getElementName().equals(qnameStr)) {
                 elementsSeq.add(child);
             }
         }
