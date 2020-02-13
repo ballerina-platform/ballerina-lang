@@ -15,36 +15,30 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-
 package org.wso2.ballerinalang.compiler.tree.clauses;
 
-import org.ballerinalang.model.clauses.WhereClauseNode;
+import org.ballerinalang.model.clauses.DoClauseNode;
 import org.ballerinalang.model.tree.NodeKind;
-import org.ballerinalang.model.tree.expressions.ExpressionNode;
+import org.ballerinalang.model.tree.statements.BlockNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 
 /**
- * Implementation of "where" clause statement.
+ * Implementation of "do" clause statement.
  *
  * @since 1.2.0
  */
-public class BLangWhereClause extends BLangNode implements WhereClauseNode {
+public class BLangDoClause extends BLangNode implements DoClauseNode {
 
-    public BLangExpression expression;
+    public BLangBlockStmt body;
 
-    public BLangWhereClause() {
+    public BLangDoClause() {
     }
 
     @Override
-    public ExpressionNode getExpression() {
-        return expression;
-    }
-
-    @Override
-    public void setExpression(ExpressionNode expression) {
-        this.expression = (BLangExpression) expression;
+    public BLangBlockStmt getBody() {
+        return body;
     }
 
     @Override
@@ -54,11 +48,16 @@ public class BLangWhereClause extends BLangNode implements WhereClauseNode {
 
     @Override
     public NodeKind getKind() {
-        return NodeKind.WHERE;
+        return NodeKind.DO;
+    }
+
+    @Override
+    public void setBody(BlockNode body) {
+        this.body = (BLangBlockStmt) body;
     }
 
     @Override
     public String toString() {
-        return "where " + expression;
+        return "do {" + body + "} ";
     }
 }
