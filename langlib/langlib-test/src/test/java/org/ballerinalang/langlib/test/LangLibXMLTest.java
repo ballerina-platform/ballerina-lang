@@ -99,6 +99,7 @@ public class LangLibXMLTest {
         assertFalse(((BBoolean) returns[0]).booleanValue());
         assertTrue(((BBoolean) returns[1]).booleanValue());
         assertFalse(((BBoolean) returns[2]).booleanValue());
+        assertTrue(((BBoolean) returns[3]).booleanValue());
     }
 
     @Test
@@ -165,6 +166,9 @@ public class LangLibXMLTest {
     public void testSetChildren() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testSetChildren");
         assertEquals((returns[0]).stringValue(), "<CD><e>child</e></CD>");
+
+        BValue[] returns1 = BRunUtil.invoke(compileResult, "testSetChildrenAfterNavigationAccess");
+        assertEquals((returns1[0]).stringValue(), "<a><b><e>child</e></b></a>");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,

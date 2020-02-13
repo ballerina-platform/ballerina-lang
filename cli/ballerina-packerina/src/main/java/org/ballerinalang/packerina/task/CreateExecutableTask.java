@@ -29,10 +29,10 @@ import org.ballerinalang.packerina.buildcontext.sourcecontext.SingleModuleContex
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.util.Lists;
 
+import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.HashMap;
@@ -133,17 +133,19 @@ public class CreateExecutableTask implements Task {
 
         ZipFile zipFile = new ZipFile(sourceJarFile);
         ZipArchiveEntryPredicate predicate = entry -> {
-            try {
-                String entryName = entry.getName();
-                if (entryName.startsWith("META-INF/services")) {
-                    StringBuilder s = services.get(entryName);
-                    if (s == null) {
-                        s = new StringBuilder();
-                        services.put(entryName, s);
-                    }
-                    char c = '\n';
-                    InputStream inStream = zipFile.getInputStream(entry);
+
+            String entryName = entry.getName();
+            if (entryName.startsWith("META-INF/services")) {
+                StringBuilder s = services.get(entryName);
+                if (s == null) {
+                    s = new StringBuilder();
+                    services.put(entryName, s);
+                }
+                char c = '\n';
+                BufferedInputStream inStream = null;
+                try {
                     int len;
+                    inStream = new BufferedInputStream(zipFile.getInputStream(entry));
                     while ((len = inStream.read()) != -1) {
                         c = (char) len;
                         s.append(c);
@@ -151,21 +153,25 @@ public class CreateExecutableTask implements Task {
                     if (c != '\n') {
                         s.append('\n');
                     }
-                    // Its not required to copy SPI entries in here as we'll be adding merged SPI related entries
-                    // separately. Therefore the predicate should be set as false.
-                    return false;
+                } catch (IOException e) {
+                    throw createLauncherException(
+                            "Error occurred while creating final executable jar due to: " + e.getMessage());
+                } finally {
+                    if (inStream != null) {
+                        closeStream(inStream);
+                    }
                 }
-                // Skip already copied files or excluded extensions.
-                if (entries.contains(entryName) ||
-                        excludeExtensions.contains(entryName.substring(entryName.lastIndexOf(".") + 1))) {
-                    return false;
-                }
-                // SPIs will be merged first and then put into jar separately.
-                entries.add(entryName);
-            } catch (IOException e) {
-                throw createLauncherException(e.getMessage());
+                // Its not required to copy SPI entries in here as we'll be adding merged SPI related entries
+                // separately. Therefore the predicate should be set as false.
+                return false;
             }
-
+            // Skip already copied files or excluded extensions.
+            if (entries.contains(entryName) ||
+                    excludeExtensions.contains(entryName.substring(entryName.lastIndexOf(".") + 1))) {
+                return false;
+            }
+            // SPIs will be merged first and then put into jar separately.
+            entries.add(entryName);
             return true;
         };
 
@@ -173,5 +179,14 @@ public class CreateExecutableTask implements Task {
         // all the other original attributes.
         zipFile.copyRawEntries(outStream, predicate);
         zipFile.close();
+    }
+
+    private void closeStream(BufferedInputStream stream) {
+        try {
+            stream.close();
+        } catch (IOException e) {
+            throw createLauncherException("error: Failed to close input stream while creating the final " +
+                    "executable jar.\n" + e.getMessage());
+        }
     }
 }

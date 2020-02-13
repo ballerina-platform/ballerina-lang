@@ -27,6 +27,13 @@ message HelloRequest {
     string name = 1;
     string channel = 2;
     bool check = 3;
+    string json = 4;
+    string xml = 5;
+    string stream = 6;
+    string table = 7;
+    string break = 8;
+    string untaint = 9;
+    string future = 10;
 }
 message HelloResponse {
     string message = 1;

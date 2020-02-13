@@ -57,10 +57,16 @@ public class TesterinaReport {
             printTestSuiteResult(0, 0, 0);
             return;
         }
+        outStream.println();
         if (!testSummary.failedTests.isEmpty()) {
             for (TesterinaResult failedResult : testSummary.failedTests) {
                 outStream.println("\t[fail] " + failedResult.getTestFunctionName() + ":");
                 outStream.println("\t    " + TesterinaUtils.formatError(failedResult.getAssertFailureMessage()));
+            }
+        }
+        if (!testSummary.passedTests.isEmpty()) {
+            for (TesterinaResult passedResult : testSummary.passedTests) {
+                outStream.println("\t[pass] " + passedResult.getTestFunctionName());
             }
         }
 
@@ -69,6 +75,7 @@ public class TesterinaReport {
     }
 
     private void printTestSuiteResult(int passed, int failed, int skipped) {
+        outStream.println();
         outStream.println("\t" + passed + " passing");
         outStream.println("\t" + failed + " failing");
         outStream.println("\t" + skipped + " skipped");

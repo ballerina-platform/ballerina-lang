@@ -499,7 +499,8 @@ public abstract class LSCompletionProvider {
         
         BObjectTypeSymbol objectTypeSymbol = (BObjectTypeSymbol) bSymbol;
         BAttachedFunction initFunction = objectTypeSymbol.initializerFunc;
-        
+        BInvokableSymbol initFunctionSymbol = initFunction == null ? null : initFunction.symbol;
+
         if (newTokenIndex > -1 && firstColonIndex > -1 && lastColonIndex == firstColonIndex) {
             /*
             ex: modName:ObjectName = new <cursor>
@@ -511,9 +512,9 @@ public abstract class LSCompletionProvider {
             ex: modName:ObjectName = new modName:
                 ObjectName = new 
              */
-            Pair<String, String> newWithTypeSign = getFunctionInvocationSignature(initFunction.symbol, typeName,
+            Pair<String, String> newWithTypeSign = getFunctionInvocationSignature(initFunctionSymbol, typeName,
                     context);
-            completionItems.add(BFunctionCompletionItemBuilder.build(initFunction.symbol, newWithTypeSign.getRight(),
+            completionItems.add(BFunctionCompletionItemBuilder.build(initFunctionSymbol, newWithTypeSign.getRight(),
                     newWithTypeSign.getLeft(), context));
             return completionItems;
         } else if (invocationType > -1) {
@@ -990,6 +991,63 @@ public abstract class LSCompletionProvider {
         }
         
         return false;
+    }
+
+    /**
+     * Get all the types in the Package with given name.
+     *
+     * @param visibleSymbols Visible Symbols
+     * @param pkgName package name
+     * @param ctx language server context
+     * @return {@link List} list of Type completion items
+     */
+    protected List<CompletionItem> getTypeItemsInPackage(List<SymbolInfo> visibleSymbols, String pkgName,
+                                                           LSContext ctx) {
+        List<SymbolInfo> filteredList = new ArrayList<>();
+        Optional<SymbolInfo> pkgSymbolInfo = visibleSymbols.stream()
+                .filter(symbolInfo -> {
+                    BSymbol symbol = symbolInfo.getScopeEntry().symbol;
+                    return symbol instanceof BPackageSymbol
+                            && symbolInfo.getScopeEntry().symbol.name.getValue().equals(pkgName);
+                })
+                .findAny();
+        pkgSymbolInfo.ifPresent(pkgEntry -> {
+            BSymbol pkgSymbol = pkgEntry.getScopeEntry().symbol;
+            pkgSymbol.scope.entries.forEach((name, scopeEntry) -> {
+                if (scopeEntry.symbol instanceof BTypeSymbol || (scopeEntry.symbol instanceof BConstructorSymbol
+                        && Names.ERROR.equals(scopeEntry.symbol.name))) {
+                    filteredList.add(new SymbolInfo(scopeEntry.symbol.name.getValue(), scopeEntry));
+                }
+            });
+        });
+
+        return this.getCompletionItemList(filteredList, ctx);
+    }
+
+    /**
+     * Get the basic types.
+     *
+     * @param visibleSymbols List of visible symbols
+     * @return {@link List}     List of completion items
+     */
+    protected List<CompletionItem> getBasicTypesItems(List<SymbolInfo> visibleSymbols) {
+        visibleSymbols.removeIf(CommonUtil.invalidSymbolsPredicate());
+        List<CompletionItem> completionItems = new ArrayList<>();
+        visibleSymbols.forEach(symbolInfo -> {
+            BSymbol bSymbol = symbolInfo.getScopeEntry().symbol;
+            if (((bSymbol instanceof BConstructorSymbol && Names.ERROR.equals(bSymbol.name)))
+                    || (bSymbol instanceof BTypeSymbol && !(bSymbol instanceof BPackageSymbol))) {
+                BSymbol symbol = bSymbol;
+                if (bSymbol instanceof BConstructorSymbol) {
+                    symbol = ((BConstructorSymbol) bSymbol).type.tsymbol;
+                }
+                CompletionItem cItem = BTypeCompletionItemBuilder.build(symbol,
+                        symbolInfo.getScopeEntry().symbol.name.getValue());
+                completionItems.add(cItem);
+            }
+        });
+
+        return completionItems;
     }
 
     /**

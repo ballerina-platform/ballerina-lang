@@ -282,6 +282,11 @@ public class BTestRunner {
             addTestSuite(packageName);
             // Keeps a track of the sources that are being built
             sourcePackages.add(packageName);
+            //Set source file name for single test files
+            if (sourcePackage.packageID.getName().getValue().equals(".")) {
+                registry.getTestSuites().get(packageName)
+                        .setSourceFileName(sourcePackage.packageID.sourceFileName.getValue());
+            }
             processProgramFile(sourcePackage, classLoader);
         });
 
@@ -330,10 +335,6 @@ public class BTestRunner {
         //packageInit = false;
         // TODO the below line is required since this method is currently getting explicitly called from BTestRunner
         TestSuite suite = TesterinaRegistry.getInstance().getTestSuites().get(bLangPackage.packageID.toString());
-
-        if (!bLangPackage.hasTestablePackage()) {
-            return;
-        }
 
         if (suite == null) {
             throw LauncherUtils.createLauncherException("No test suite found for [module]: "

@@ -430,6 +430,26 @@ public class SnippetGenerator {
     }
 
     /**
+     * Get Record Keyword Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getRecordKeywordSnippet() {
+        return new SnippetBlock(ItemResolverConstants.RECORD_KEYWORD, "record ", ItemResolverConstants.KEYWORD_TYPE,
+                                SnippetType.KEYWORD);
+    }
+
+    /**
+     * Get Object Keyword Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getObjectKeywordSnippet() {
+        return new SnippetBlock(ItemResolverConstants.OBJECT_KEYWORD, "object ", ItemResolverConstants.KEYWORD_TYPE,
+                                SnippetType.KEYWORD);
+    }
+
+    /**
      * Get Annotation Keyword Snippet Block.
      *
      * @return {@link SnippetBlock}     Generated Snippet Block

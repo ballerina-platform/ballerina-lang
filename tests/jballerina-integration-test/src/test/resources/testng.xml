@@ -73,6 +73,7 @@
             <class name="org.ballerinalang.test.service.http.sample.HTTPListenerMethodTestCase"/>
             <class name="org.ballerinalang.test.service.http.sample.HTTPCookiesTestCase"/>
             <class name="org.ballerinalang.test.service.http.sample.HttpUrlTestCase"/>
+            <class name="org.ballerinalang.test.service.http.sample.TrailingHeadersTestCase"/>
         </classes>
     </test>
 

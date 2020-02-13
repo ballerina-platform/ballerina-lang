@@ -153,10 +153,10 @@ public class RunCommand implements BLauncherCmd {
             //// check if path given is an absolute path. update source root accordingly.
             if (Paths.get(this.argList.get(0)).isAbsolute()) {
                 sourcePath = Paths.get(this.argList.get(0));
-                sourceRootPath = sourcePath.getParent();
             } else {
                 sourcePath = sourceRootPath.resolve(this.argList.get(0));
             }
+            sourceRootPath = sourcePath.getParent();
 
             //// check if the given file exists.
             if (Files.notExists(sourcePath)) {
@@ -254,7 +254,7 @@ public class RunCommand implements BLauncherCmd {
         options.put(COMPILER_PHASE, CompilerPhase.BIR_GEN.toString());
         options.put(LOCK_ENABLED, Boolean.toString(true));
         options.put(SKIP_TESTS, Boolean.toString(true));
-        options.put(TEST_ENABLED, "true");
+        options.put(TEST_ENABLED, Boolean.toString(false));
         options.put(EXPERIMENTAL_FEATURES_ENABLED, Boolean.toString(this.experimentalFlag));
 
         // create builder context
