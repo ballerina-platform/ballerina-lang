@@ -28,7 +28,6 @@ OPTIONS
            '--offline' option is specified, this remote check is not done and
            the local artifacts will be used instead.
 
-       -lg
        --list-groups
            Lists the test groups available in the test files. Groups are
            tags that are added to test functions. They are used to
@@ -84,7 +83,7 @@ EXAMPLES
            $ ballerina test math
 
         List all test groups in math module.
-           $ ballerina test -lg math
+           $ ballerina test --list-groups math
 
         Run only the set of tests belonging to group_x in current project.
            $ ballerina test --groups group_x  --all
