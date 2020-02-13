@@ -99,7 +99,7 @@ public type ConsumerConfig record {|
     int retryBackoffInMillis = -1;
     int metricsSampleWindowInMillis = -1;
     int metricsNumSamples = -1;
-    int requestTimeoutInMillis = 1000;
+    int requestTimeoutInMillis = 10000;
     int connectionMaxIdleTimeInMillis = -1;
     int maxPollRecords = -1;
     int maxPollInterval = -1;

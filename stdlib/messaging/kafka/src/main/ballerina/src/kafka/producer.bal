@@ -83,7 +83,7 @@ public type ProducerConfig record {|
     int reconnectBackoffMaxTimeInMillis = -1;
     int retryBackoffTimeInMillis = -1;
     int maxBlock = -1;
-    int requestTimeoutInMillis = 1000;
+    int requestTimeoutInMillis = 10000;
     int metadataMaxAgeInMillis = -1;
     int metricsSampleWindowInMillis = -1;
     int metricsNumSamples = -1;
