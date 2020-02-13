@@ -459,14 +459,14 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangQueryAction queryAction) {
         for (FromClauseNode fromClauseNode : queryAction.fromClauseList) {
-            ((BLangFromClause) fromClauseNode).accept(this);
+            analyzeNode((BLangFromClause) fromClauseNode, env);
         }
 
         for (WhereClauseNode whereClauseNode : queryAction.whereClauseList) {
-            ((BLangWhereClause) whereClauseNode).accept(this);
+            analyzeNode((BLangWhereClause) whereClauseNode, env);
         }
 
-        queryAction.doClause.accept(this);
+        analyzeNode(queryAction.doClause, env);
     }
 
     @Override
@@ -620,14 +620,14 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangQueryExpr queryExpr) {
         for (FromClauseNode fromClauseNode : queryExpr.fromClauseList) {
-            ((BLangFromClause) fromClauseNode).accept(this);
+            analyzeNode((BLangFromClause) fromClauseNode, env);
         }
 
         for (WhereClauseNode whereClauseNode : queryExpr.whereClauseList) {
-            ((BLangWhereClause) whereClauseNode).accept(this);
+            analyzeNode((BLangWhereClause) whereClauseNode, env);
         }
 
-        queryExpr.selectClause.accept(this);
+        analyzeNode(queryExpr.selectClause, env);
     }
 
     @Override
