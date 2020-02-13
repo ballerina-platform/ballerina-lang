@@ -1380,6 +1380,22 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     }
 
     @Override
+    public void enterStreamConstructorExpr(BallerinaParser.StreamConstructorExprContext ctx) {
+        if (isInErrorState) {
+            return;
+        }
+        this.pkgBuilder.startStreamConstructor(getCurrentPos(ctx), diagnosticSrc.pkgID);
+    }
+
+    @Override
+    public void exitStreamConstructorExpr(BallerinaParser.StreamConstructorExprContext ctx) {
+        if (isInErrorState) {
+            return;
+        }
+        this.pkgBuilder.endStreamConstructor(getCurrentPos(ctx), getWS(ctx));
+    }
+
+    @Override
     public void exitListConstructorExpr(BallerinaParser.ListConstructorExprContext ctx) {
         if (isInErrorState) {
             return;
