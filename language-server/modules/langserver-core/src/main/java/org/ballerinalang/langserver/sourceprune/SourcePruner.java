@@ -58,7 +58,8 @@ public class SourcePruner {
         List<Token> tokenList = new ArrayList<>(((CommonTokenStream) tokenStream).getTokens());
         Optional<Token> tokenAtCursor = searchTokenAtCursor(tokenList, cursorPosition.getLine(),
                                                             cursorPosition.getCharacter(), false);
-        if (tokenAtCursor.isPresent() && tokenAtCursor.get().getText().startsWith("//")) {
+        if (tokenAtCursor.isPresent() && (tokenAtCursor.get().getText().startsWith("//")
+                || tokenAtCursor.get().getText().startsWith("#"))) {
             lsContext.put(DocumentServiceKeys.TERMINATE_OPERATION_KEY, true);
             return;
         }
