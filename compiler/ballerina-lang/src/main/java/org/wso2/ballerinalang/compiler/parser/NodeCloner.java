@@ -90,6 +90,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangRestArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangServiceConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStatementExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangStreamConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
@@ -399,6 +400,14 @@ class NodeCloner extends BLangNodeVisitor {
 
         clone.variableNode = clone(source.variableNode);
         clone.isAnonymousServiceValue = source.isAnonymousServiceValue;
+    }
+
+    @Override
+    public void visit(BLangStreamConstructorExpr source) {
+
+        BLangStreamConstructorExpr clone = new BLangStreamConstructorExpr();
+        source.cloneRef = clone;
+        clone.lambdaFunction = clone(source.lambdaFunction);
     }
 
     @Override

@@ -84,6 +84,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangRestArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangServiceConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStatementExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangStreamConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
@@ -1369,6 +1370,11 @@ public class TaintAnalyzer extends BLangNodeVisitor {
             setTaintedStatus(serviceConstructorExpr.type.tsymbol, TaintedStatus.TAINTED);
         }
         getCurrentAnalysisState().taintedStatus = TaintedStatus.UNTAINTED;
+    }
+
+    @Override
+    public void visit(BLangStreamConstructorExpr streamConstructorExpr) {
+        streamConstructorExpr.lambdaFunction.accept(this);
     }
 
     @Override

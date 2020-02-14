@@ -14,12 +14,31 @@
 // specific language governing permissions and limitations
 // under the License.
 
-@typeParam
-type PureType3 anydata | error;
+int i = 0;
 
-# Takes in a lambda function and returns a new stream out of it.
-#
-# + td - A type description.
-# + func - A lambda function.
-# + return - New stream containing results of `func` invocation.
-public function construct(typedesc<PureType3> td, function() returns PureType3 func) returns stream<PureType3> = external;
+stream<int> evenNumberStream = stream {
+    i += 2;
+    return { value: i };
+};
+
+stream<int> evenNumberStream1 = stream {
+    i += 2;
+    return i;
+};
+
+stream<int> evenNumberStream2 = stream {
+    i += 2;
+    return { val: i }; // undefined field 'val' in record '$anonType$2', since it get's type checked with an annon type
+};
+
+stream<int> evenNumberStream3 = stream {
+    return { value: "string" };
+};
+
+stream<int> evenNumberStream4 = stream {
+    return { value: true };
+};
+
+stream<int> evenNumberStream5 = stream {
+    return ();
+};
