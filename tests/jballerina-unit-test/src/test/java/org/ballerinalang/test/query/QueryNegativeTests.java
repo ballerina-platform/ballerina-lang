@@ -34,8 +34,8 @@ public class QueryNegativeTests {
 
     @Test
     public void testFromClauseWithInvalidType() {
-        CompileResult compileResult = BCompileUtil.compile("test-src/query/query-semantics-native.bal");
-        Assert.assertEquals(compileResult.getErrorCount(), 5);
+        CompileResult compileResult = BCompileUtil.compile("test-src/query/query-semantics-negative.bal");
+        Assert.assertEquals(compileResult.getErrorCount(), 8);
         int index = 0;
 
         validateError(compileResult, index++, "incompatible types: expected 'Person', found 'Teacher'",
@@ -45,6 +45,9 @@ public class QueryNegativeTests {
         validateError(compileResult, index++, "invalid operation: type 'Teacher' does not support field access for " +
                               "non-required field 'age'", 25, 25);
         validateError(compileResult, index++, "unknown type 'XYZ'", 40, 18);
-        validateError(compileResult, index, "undefined field 'lastName' in record 'Teacher'", 60, 20);
+        validateError(compileResult, index++, "undefined field 'lastName' in record 'Teacher'", 60, 20);
+        validateError(compileResult, index++, "incompatible types: 'int' is not an iterable collection", 73, 32);
+        validateError(compileResult, index++, "incompatible types: expected 'boolean', found 'int'", 74, 19);
+        validateError(compileResult, index, "incompatible types: expected 'Person', found 'int'", 75, 20);
     }
 }

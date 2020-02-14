@@ -2625,12 +2625,40 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         this.pkgBuilder.createSelectClause(getCurrentPos(ctx), getWS(ctx));
     }
 
-    @Override public void exitQueryExpr(BallerinaParser.QueryExprContext ctx) {
+    @Override
+    public void exitDoClause(BallerinaParser.DoClauseContext ctx) {
+        if (isInErrorState) {
+            return;
+        }
+
+        this.pkgBuilder.createDoClause(getCurrentPos(ctx), getWS(ctx));
+    }
+
+    @Override
+    public void exitQueryExpr(BallerinaParser.QueryExprContext ctx) {
         if (isInErrorState) {
             return;
         }
 
         this.pkgBuilder.createQueryExpr(getCurrentPos(ctx), getWS(ctx));
+    }
+
+    @Override
+    public void enterQueryActionStatement(BallerinaParser.QueryActionStatementContext ctx) {
+        if (isInErrorState) {
+            return;
+        }
+
+        this.pkgBuilder.startDoActionStatement();
+    }
+
+    @Override
+    public void exitQueryActionStatement(BallerinaParser.QueryActionStatementContext ctx) {
+        if (isInErrorState) {
+            return;
+        }
+
+        this.pkgBuilder.createQueryActionStatement(getCurrentPos(ctx), getWS(ctx));
     }
 
     @Override

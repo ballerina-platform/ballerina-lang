@@ -49,6 +49,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangWorker;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangDoClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangFromClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWhereClause;
@@ -134,6 +135,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStat
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStructuredBindingPatternClause;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchTypedBindingPatternClause;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangPanic;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangQueryAction;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRetry;
@@ -1204,6 +1206,16 @@ class NodeCloner extends BLangNodeVisitor {
     }
 
     @Override
+    public void visit(BLangQueryAction source) {
+
+        BLangQueryAction clone = new BLangQueryAction();
+        source.cloneRef = clone;
+        clone.fromClauseList = cloneList(source.fromClauseList);
+        clone.doClause = clone(source.doClause);
+        clone.whereClauseList = cloneList(source.whereClauseList);
+    }
+
+    @Override
     public void visit(BLangQueryExpr source) {
 
         BLangQueryExpr clone = new BLangQueryExpr();
@@ -1240,6 +1252,14 @@ class NodeCloner extends BLangNodeVisitor {
         BLangWhereClause clone = new BLangWhereClause();
         source.cloneRef = clone;
         clone.expression = clone(source.expression);
+    }
+
+    @Override
+    public void visit(BLangDoClause source) {
+
+        BLangDoClause clone = new BLangDoClause();
+        source.cloneRef = clone;
+        clone.body = clone(source.body);
     }
 
     @Override

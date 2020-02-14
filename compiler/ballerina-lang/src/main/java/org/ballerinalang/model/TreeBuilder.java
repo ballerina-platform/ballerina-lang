@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.model;
 
+import org.ballerinalang.model.clauses.DoClauseNode;
 import org.ballerinalang.model.clauses.FromClauseNode;
 import org.ballerinalang.model.clauses.SelectClauseNode;
 import org.ballerinalang.model.clauses.WhereClauseNode;
@@ -104,6 +105,7 @@ import org.ballerinalang.model.tree.statements.MatchNode.MatchStaticBindingPatte
 import org.ballerinalang.model.tree.statements.MatchNode.MatchStructuredBindingPatternNode;
 import org.ballerinalang.model.tree.statements.MatchNode.MatchTypedBindingPatternNode;
 import org.ballerinalang.model.tree.statements.PanicNode;
+import org.ballerinalang.model.tree.statements.QueryActionNode;
 import org.ballerinalang.model.tree.statements.RecordDestructureNode;
 import org.ballerinalang.model.tree.statements.RetryNode;
 import org.ballerinalang.model.tree.statements.ReturnNode;
@@ -147,6 +149,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangTestablePackage;
 import org.wso2.ballerinalang.compiler.tree.BLangTupleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangDoClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangFromClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWhereClause;
@@ -224,6 +227,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStat
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStructuredBindingPatternClause;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchTypedBindingPatternClause;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangPanic;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangQueryAction;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRetry;
@@ -651,6 +655,14 @@ public class TreeBuilder {
 
     public static SelectClauseNode createSelectClauseNode() {
         return new BLangSelectClause();
+    }
+
+    public static DoClauseNode createDoClauseNode() {
+        return new BLangDoClause();
+    }
+
+    public static QueryActionNode createQueryActionStatementNode() {
+        return new BLangQueryAction();
     }
 
     public static WhereClauseNode createWhereClauseNode() {

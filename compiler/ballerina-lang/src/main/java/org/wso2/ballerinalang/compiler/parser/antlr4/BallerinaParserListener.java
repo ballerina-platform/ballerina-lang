@@ -2488,6 +2488,16 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 */
 	void exitFromClause(BallerinaParser.FromClauseContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#doClause}.
+	 * @param ctx the parse tree
+	 */
+	void enterDoClause(BallerinaParser.DoClauseContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#doClause}.
+	 * @param ctx the parse tree
+	 */
+	void exitDoClause(BallerinaParser.DoClauseContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#queryPipeline}.
 	 * @param ctx the parse tree
 	 */
@@ -2507,6 +2517,16 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitQueryExpr(BallerinaParser.QueryExprContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#queryActionStatement}.
+	 * @param ctx the parse tree
+	 */
+	void enterQueryActionStatement(BallerinaParser.QueryActionStatementContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#queryActionStatement}.
+	 * @param ctx the parse tree
+	 */
+	void exitQueryActionStatement(BallerinaParser.QueryActionStatementContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#nameReference}.
 	 * @param ctx the parse tree

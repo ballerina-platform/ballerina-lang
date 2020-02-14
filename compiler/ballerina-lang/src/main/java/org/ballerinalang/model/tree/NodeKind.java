@@ -151,11 +151,13 @@ public enum NodeKind {
     COMPENSATE,
     CHANNEL_RECEIVE,
     CHANNEL_SEND,
+    DO_ACTION,
 
     /* Clauses */
     SELECT,
     FROM,
     WHERE,
+    DO,
 
     /* Types */
     ARRAY_TYPE,

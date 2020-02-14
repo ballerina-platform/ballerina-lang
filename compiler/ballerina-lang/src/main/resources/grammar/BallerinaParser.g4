@@ -334,6 +334,7 @@ statement
     |   retryStatement
     |   lockStatement
     |   namespaceDeclarationStatement
+    |   queryActionStatement
     ;
 
 variableDefinitionStatement
@@ -870,12 +871,20 @@ fromClause
     :   FROM (typeName | VAR) bindingPattern IN expression
     ;
 
+doClause
+    :   DO LEFT_BRACE statement* RIGHT_BRACE
+    ;
+
 queryPipeline
     :   fromClause (fromClause | whereClause)*
     ;
 
 queryExpr
     :   queryPipeline selectClause
+    ;
+
+queryActionStatement
+    :   queryPipeline doClause
     ;
 
 //reusable productions

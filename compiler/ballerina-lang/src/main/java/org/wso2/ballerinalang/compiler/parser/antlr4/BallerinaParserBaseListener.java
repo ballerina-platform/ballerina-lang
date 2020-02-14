@@ -2824,6 +2824,18 @@ public class BallerinaParserBaseListener implements BallerinaParserListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterDoClause(BallerinaParser.DoClauseContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitDoClause(BallerinaParser.DoClauseContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterQueryPipeline(BallerinaParser.QueryPipelineContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -2843,6 +2855,18 @@ public class BallerinaParserBaseListener implements BallerinaParserListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitQueryExpr(BallerinaParser.QueryExprContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterQueryActionStatement(BallerinaParser.QueryActionStatementContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitQueryActionStatement(BallerinaParser.QueryActionStatementContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
