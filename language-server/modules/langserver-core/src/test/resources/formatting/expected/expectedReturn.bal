@@ -13,13 +13,17 @@ function name3() returns byte | error {
 }
 
 function name4() returns [int, string] {
-    return [0,
-    "Marcus"];
+    return [
+        0,
+        "Marcus"
+    ];
 }
 
 function name5() returns [int, string] {
     int id = 0;
     string name = "marcus";
-    return [id,
-    name];
+    return [
+        id,
+        name
+    ];
 }

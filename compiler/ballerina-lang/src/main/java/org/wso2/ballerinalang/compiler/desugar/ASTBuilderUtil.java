@@ -475,11 +475,11 @@ public class ASTBuilderUtil {
         return varRef;
     }
 
-    static BLangSimpleVariable createVariable(DiagnosticPos pos,
-                                              String name,
-                                              BType type,
-                                              BLangExpression expr,
-                                              BVarSymbol varSymbol) {
+    public static BLangSimpleVariable createVariable(DiagnosticPos pos,
+                                                     String name,
+                                                     BType type,
+                                                     BLangExpression expr,
+                                                     BVarSymbol varSymbol) {
         final BLangSimpleVariable varNode = (BLangSimpleVariable) TreeBuilder.createSimpleVariableNode();
         varNode.pos = pos;
         varNode.name = createIdentifier(pos, name);
@@ -590,10 +590,10 @@ public class ASTBuilderUtil {
         return recordLiteralNode;
     }
 
-    static BLangRecordLiteral.BLangRecordKeyValue createBLangRecordKeyValue(BLangExpression key,
-                                                                            BLangExpression value) {
-        final BLangRecordLiteral.BLangRecordKeyValue recordKeyValue =
-                (BLangRecordLiteral.BLangRecordKeyValue) TreeBuilder.createRecordKeyValue();
+    static BLangRecordLiteral.BLangRecordKeyValueField createBLangRecordKeyValue(BLangExpression key,
+                                                                                 BLangExpression value) {
+        final BLangRecordLiteral.BLangRecordKeyValueField recordKeyValue =
+                (BLangRecordLiteral.BLangRecordKeyValueField) TreeBuilder.createRecordKeyValue();
         recordKeyValue.key = new BLangRecordLiteral.BLangRecordKey(key);
         recordKeyValue.valueExpr = value;
         return recordKeyValue;

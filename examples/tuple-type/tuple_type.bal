@@ -5,7 +5,7 @@ public function main() {
     // Defines the type of `a` as a pair that consists of an `int` and a `string`.
     [int, string] a = [10, "John"];
     io:println(a);
-    
+
     int aint;
     string astr;
     // Defines a tuple of variable names on the left with a variable reference of which the type is a tuple.
@@ -25,7 +25,7 @@ public function main() {
     // To ignore a value in a tuple, use `_`.
     // This ignores the second return value.
     var [q1, _] = divideBy10(57);
-    io:println("57/10: ", "quotient=",  q1);
+    io:println("57/10: ", "quotient=", q1);
 
     [int, int] returnValue = divideBy10(9);
     // This ignores the first value of a tuple.

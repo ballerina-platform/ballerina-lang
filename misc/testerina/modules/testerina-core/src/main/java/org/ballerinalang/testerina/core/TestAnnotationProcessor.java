@@ -23,11 +23,13 @@ import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.FunctionNode;
 import org.ballerinalang.model.tree.PackageNode;
+import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
 import org.ballerinalang.testerina.core.entity.Test;
 import org.ballerinalang.testerina.core.entity.TestSuite;
 import org.ballerinalang.util.diagnostic.DiagnosticLog;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 
@@ -116,11 +118,26 @@ public class TestAnnotationProcessor extends AbstractCompilerPlugin {
                 // TODO: when default values are supported in annotation struct we can remove this
                 vals[0] = packageName;
                 if (attachmentNode.getExpression() instanceof BLangRecordLiteral) {
-                    List<BLangRecordLiteral.BLangRecordKeyValue> attributes = ((BLangRecordLiteral) attachmentNode
-                            .getExpression()).getKeyValuePairs();
-                    attributes.forEach(attributeNode -> {
-                        String name = attributeNode.getKey().toString();
-                        String value = attributeNode.getValue().toString();
+                    List<RecordLiteralNode.RecordField> attributes = ((BLangRecordLiteral) attachmentNode
+                            .getExpression()).getFields();
+                    attributes.forEach(field -> {
+                        String name;
+                        BLangExpression valueExpr;
+
+                        if (field.isKeyValueField()) {
+                            BLangRecordLiteral.BLangRecordKeyValueField attributeNode =
+                                    (BLangRecordLiteral.BLangRecordKeyValueField) field;
+                            name = attributeNode.getKey().toString();
+                            valueExpr = attributeNode.getValue();
+                        } else {
+                            BLangRecordLiteral.BLangRecordVarNameField varNameField =
+                                    (BLangRecordLiteral.BLangRecordVarNameField) field;
+                            name = varNameField.variableName.value;
+                            valueExpr = varNameField;
+                        }
+
+                        String value = valueExpr.toString();
+
                         if (MODULE.equals(name)) {
                             vals[0] = value;
                         } else if (FUNCTION.equals(name)) {
@@ -138,13 +155,27 @@ public class TestAnnotationProcessor extends AbstractCompilerPlugin {
                 boolean shouldIncludeGroups = registry.shouldIncludeGroups();
 
                 if (attachmentNode.getExpression() instanceof BLangRecordLiteral) {
-                    List<BLangRecordLiteral.BLangRecordKeyValue> attributes = ((BLangRecordLiteral) attachmentNode
-                            .getExpression()).getKeyValuePairs();
+                    List<RecordLiteralNode.RecordField> attributes = ((BLangRecordLiteral) attachmentNode
+                            .getExpression()).getFields();
 
-                    attributes.forEach(attributeNode -> {
-                        String name = attributeNode.getKey().toString();
+                    attributes.forEach(field -> {
+                        String name;
+                        BLangExpression valueExpr;
+
+                        if (field.isKeyValueField()) {
+                            BLangRecordLiteral.BLangRecordKeyValueField attributeNode =
+                                    (BLangRecordLiteral.BLangRecordKeyValueField) field;
+                            name = attributeNode.getKey().toString();
+                            valueExpr = attributeNode.getValue();
+                        } else {
+                            BLangRecordLiteral.BLangRecordVarNameField varNameField =
+                                    (BLangRecordLiteral.BLangRecordVarNameField) field;
+                            name = varNameField.variableName.value;
+                            valueExpr = varNameField;
+                        }
+
                         // Check if enable property is present in the annotation
-                        if (TEST_ENABLE_ANNOTATION_NAME.equals(name) && "false".equals(attributeNode.getValue()
+                        if (TEST_ENABLE_ANNOTATION_NAME.equals(name) && "false".equals(valueExpr
                                 .toString())) {
                             // If enable is false, disable the test, no further processing is needed
                             shouldSkip.set(true);
@@ -153,8 +184,8 @@ public class TestAnnotationProcessor extends AbstractCompilerPlugin {
 
                         // check if groups attribute is present in the annotation
                         if (GROUP_ANNOTATION_NAME.equals(name)) {
-                            if (attributeNode.getValue() instanceof BLangListConstructorExpr) {
-                                BLangListConstructorExpr values = (BLangListConstructorExpr) attributeNode.getValue();
+                            if (valueExpr instanceof BLangListConstructorExpr) {
+                                BLangListConstructorExpr values = (BLangListConstructorExpr) valueExpr;
                                 test.setGroups(values.exprs.stream().map(node -> node.toString())
                                                            .collect(Collectors.toList()));
                                 // Check whether user has provided a group list
@@ -180,20 +211,20 @@ public class TestAnnotationProcessor extends AbstractCompilerPlugin {
                             }
                         }
                         if (VALUE_SET_ANNOTATION_NAME.equals(name)) {
-                            test.setDataProvider(attributeNode.getValue().toString());
+                            test.setDataProvider(valueExpr.toString());
                         }
 
                         if (BEFORE_FUNCTION.equals(name)) {
-                            test.setBeforeTestFunction(attributeNode.getValue().toString());
+                            test.setBeforeTestFunction(valueExpr.toString());
                         }
 
                         if (AFTER_FUNCTION.equals(name)) {
-                            test.setAfterTestFunction(attributeNode.getValue().toString());
+                            test.setAfterTestFunction(valueExpr.toString());
                         }
 
                         if (DEPENDS_ON_FUNCTIONS.equals(name)) {
-                            if (attributeNode.getValue() instanceof BLangListConstructorExpr) {
-                                BLangListConstructorExpr values = (BLangListConstructorExpr) attributeNode.getValue();
+                            if (valueExpr instanceof BLangListConstructorExpr) {
+                                BLangListConstructorExpr values = (BLangListConstructorExpr) valueExpr;
                                 values.exprs.stream().map(node -> node.toString()).forEach
                                         (test::addDependsOnTestFunction);
                             }

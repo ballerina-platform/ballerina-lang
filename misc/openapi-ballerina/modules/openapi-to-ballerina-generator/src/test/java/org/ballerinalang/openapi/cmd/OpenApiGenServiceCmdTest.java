@@ -1,3 +1,20 @@
+/*
+ * Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 package org.ballerinalang.openapi.cmd;
 
 import org.ballerinalang.tool.BLauncherException;
@@ -272,6 +289,103 @@ public class OpenApiGenServiceCmdTest extends OpenAPICommandTest {
 
         } else {
             Assert.fail("Service generation for inline request body type failed.");
+        }
+    }
+
+    @Test(description = "Test open-api genservice for successful service generation with all of schema type")
+    public void testAllOfSchemaGen() throws IOException {
+        Path allOfYaml = RES_DIR.resolve(Paths.get("allof-petstore.yaml"));
+        createBalProjectModule(petProject, "allofmodule");
+        String[] args = {"allofmodule:allofservice", allOfYaml.toString()};
+
+        OpenApiGenServiceCmd cmd = new OpenApiGenServiceCmd(printStream, petProject.getBalProjectPath().toString());
+        new CommandLine(cmd).parseArgs(args);
+
+        String output = "";
+        try {
+            cmd.execute();
+        } catch (BLauncherException e) {
+            output = e.getDetailedMessages().get(0);
+        }
+
+        Path expectedServiceFile = RES_DIR.resolve(Paths.get("expected_gen",
+                "allOf-schema-petstore.bal"));
+
+        Stream<String> expectedServiceLines = Files.lines(expectedServiceFile);
+        String expectedSchema = expectedServiceLines.collect(Collectors.joining("\n"));
+
+        if (Files.exists(petProject.getResourcePath().resolve(allOfYaml.getFileName()))
+                && Files.exists(petProject.getSrcPath().resolve("allofmodule").resolve("allofservice.bal"))) {
+
+            Stream<String> serviceLines = Files.lines(petProject.getSrcPath()
+                    .resolve("allofmodule").resolve("schema.bal"));
+            String generatedSchema = serviceLines.collect(Collectors.joining("\n"));
+            serviceLines.close();
+
+            Pattern pattern = Pattern.compile("\\bcontract\\b: \"(.*?)\"");
+            Matcher matcher = pattern.matcher(generatedSchema);
+            matcher.find();
+
+            if (expectedSchema.trim().equals(generatedSchema.trim())) {
+                Assert.assertTrue(true);
+            } else {
+                Assert.fail("Expected content and actual generated content is mismatched for: "
+                        + allOfYaml.toString());
+            }
+
+        } else {
+            Assert.fail("Service generation for All Of Schema type failed.");
+        }
+    }
+
+    @Test(description = "Test open-api genservice for successful service generation with OneOf schema type")
+    public void testOneOfSchemaGen() throws IOException {
+        Path allOfYaml = RES_DIR.resolve(Paths.get("oneof-petstore.yaml"));
+        createBalProjectModule(petProject, "oneofmodule");
+        String[] args = {"oneofmodule:oneofservice", allOfYaml.toString()};
+
+        OpenApiGenServiceCmd cmd = new OpenApiGenServiceCmd(printStream, petProject.getBalProjectPath().toString());
+        new CommandLine(cmd).parseArgs(args);
+
+        String output = "";
+        try {
+            cmd.execute();
+        } catch (BLauncherException e) {
+            output = e.getDetailedMessages().get(0);
+        }
+
+        Path expectedServiceFile = RES_DIR.resolve(Paths.get("expected_gen",
+                "oneof-schema-petstore.bal"));
+
+        Stream<String> expectedServiceLines = Files.lines(expectedServiceFile);
+        String expectedService = expectedServiceLines.collect(Collectors.joining("\n"));
+
+        if (Files.exists(petProject.getResourcePath().resolve(allOfYaml.getFileName()))
+                && Files.exists(petProject.getSrcPath().resolve("oneofmodule").resolve("oneofservice.bal"))) {
+
+            Stream<String> serviceLines = Files.lines(petProject.getSrcPath()
+                    .resolve("oneofmodule").resolve("oneofservice.bal"));
+            String generatedService = serviceLines.collect(Collectors.joining("\n"));
+            serviceLines.close();
+
+            Pattern pattern = Pattern.compile("\\bcontract\\b: \"(.*?)\"");
+            Matcher matcher = pattern.matcher(generatedService);
+            matcher.find();
+
+            String contractPath = "contract: " + "\"" + matcher.group(1)  + "\"";
+            expectedService = expectedService.replaceAll("\\bcontract\\b: \"(.*?)\"",
+                    Matcher.quoteReplacement(contractPath));
+            expectedServiceLines.close();
+
+            if (expectedService.trim().equals(generatedService.trim())) {
+                Assert.assertTrue(true);
+            } else {
+                Assert.fail("Expected content and actual generated content is mismatched for: "
+                        + allOfYaml.toString());
+            }
+
+        } else {
+            Assert.fail("Service generation for OneOf Schema type failed.");
         }
     }
 

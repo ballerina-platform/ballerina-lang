@@ -10,7 +10,7 @@ task:TimerConfiguration timerConfiguration = {
 };
 
 // Initialize the listener using the above defined configurations.
-listener task:Listener timer = new(timerConfiguration);
+listener task:Listener timer = new (timerConfiguration);
 
 int count = 0;
 

@@ -46,6 +46,7 @@ import org.ballerinalang.langserver.compiler.exception.CompilationFailedExceptio
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.tree.SimpleVariableNode;
 import org.ballerinalang.model.tree.TopLevelNode;
+import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
 import org.ballerinalang.model.tree.types.TypeNode;
 import org.ballerinalang.tool.LauncherUtils;
 import org.wso2.ballerinalang.compiler.Compiler;
@@ -192,10 +193,10 @@ public class OpenApiConverterUtils {
 
                     if (annotation.getAnnotationName().getValue().equals("ServiceInfo")) {
                         BLangRecordLiteral expression = (BLangRecordLiteral) annotation.getExpression();
-                        Iterator<BLangRecordLiteral.BLangRecordKeyValue> keyValueIterator = expression
-                                .getKeyValuePairs().iterator();
+                        Iterator<RecordLiteralNode.RecordField> keyValueIterator = expression.getFields().iterator();
                         while (keyValueIterator.hasNext()) {
-                            BLangRecordLiteral.BLangRecordKeyValue keyValuePair = keyValueIterator.next();
+                            BLangRecordLiteral.BLangRecordKeyValueField keyValuePair =
+                                    (BLangRecordLiteral.BLangRecordKeyValueField) keyValueIterator.next();
                             BLangExpression key = keyValuePair.getKey();
                             if (key instanceof BLangSimpleVarRef) {
                                 BLangSimpleVarRef varRef = (BLangSimpleVarRef) key;

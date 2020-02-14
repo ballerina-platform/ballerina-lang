@@ -364,7 +364,7 @@ function geerateFrameClassFieldLoad(bir:VariableDcl?[] localVars, jvm:MethodVisi
             mv.visitVarInsn(DSTORE, index);
         } else if (bType is bir:BTypeString) {
             mv.visitFieldInsn(GETFIELD, frameName, stringutils:replace(localVar.name.value, "%","_"),
-                    io:sprintf("L%s;", useBString ? I_STRING_VALUE : STRING_VALUE));
+                    io:sprintf("L%s;", useBString ? B_STRING_VALUE : STRING_VALUE));
             mv.visitVarInsn(ASTORE, index);
         } else if (bType is bir:BTypeDecimal) {
             mv.visitFieldInsn(GETFIELD, frameName, stringutils:replace(localVar.name.value, "%","_"),
@@ -500,7 +500,7 @@ function geerateFrameClassFieldUpdate(bir:VariableDcl?[] localVars, jvm:MethodVi
         } else if (bType is bir:BTypeString) {
             mv.visitVarInsn(ALOAD, index);
             mv.visitFieldInsn(PUTFIELD, frameName, stringutils:replace(localVar.name.value, "%","_"),
-                    io:sprintf("L%s;", useBString ? I_STRING_VALUE : STRING_VALUE));
+                    io:sprintf("L%s;", useBString ? B_STRING_VALUE : STRING_VALUE));
         } else if (bType is bir:BTypeDecimal) {
             mv.visitVarInsn(ALOAD, index);
             mv.visitFieldInsn(PUTFIELD, frameName, stringutils:replace(localVar.name.value, "%","_"),
@@ -731,13 +731,13 @@ function generateBasicBlocks(jvm:MethodVisitor mv, bir:BasicBlock?[] basicBlocks
                 } else if (insKind == bir:INS_KIND_MAP_STORE) {
                     instGen.generateMapStoreIns(<bir:FieldAccess> inst);
                 } else if (insKind == bir:INS_KIND_NEW_ARRAY) {
-                    instGen.generateArrayNewIns(<bir:NewArray> inst);
+                    instGen.generateArrayNewIns(<bir:NewArray> inst, useBString);
                 } else if (insKind == bir:INS_KIND_ARRAY_STORE) {
-                    instGen.generateArrayStoreIns(<bir:FieldAccess> inst);
+                    instGen.generateArrayStoreIns(<bir:FieldAccess> inst, useBString);
                 } else if (insKind == bir:INS_KIND_MAP_LOAD) {
                     instGen.generateMapLoadIns(<bir:FieldAccess> inst);
                 } else if (insKind == bir:INS_KIND_ARRAY_LOAD) {
-                    instGen.generateArrayValueLoad(<bir:FieldAccess> inst);
+                    instGen.generateArrayValueLoad(<bir:FieldAccess> inst, useBString);
                 } else if (insKind == bir:INS_KIND_NEW_ERROR) {
                     instGen.generateNewErrorIns(<bir:NewError> inst);
                 } else {
@@ -1244,7 +1244,7 @@ function getArgTypeSignature(bir:BType bType, boolean useBString = false) return
     } else if (bType is bir:BTypeFloat) {
         return "D";
     } else if (bType is bir:BTypeString) {
-        return io:sprintf("L%s;", useBString ? I_STRING_VALUE : STRING_VALUE);
+        return io:sprintf("L%s;", useBString ? B_STRING_VALUE : STRING_VALUE);
     } else if (bType is bir:BTypeDecimal) {
         return io:sprintf("L%s;", DECIMAL_VALUE);
     } else if (bType is bir:BTypeBoolean) {
@@ -1298,7 +1298,7 @@ function generateReturnType(bir:BType? bType, boolean isExtern = false, boolean 
     } else if (bType is bir:BTypeFloat) {
         return ")D";
     } else if (bType is bir:BTypeString) {
-        return io:sprintf(")L%s;", useBString ? I_STRING_VALUE : STRING_VALUE);
+        return io:sprintf(")L%s;", useBString ? B_STRING_VALUE : STRING_VALUE);
     } else if (bType is bir:BTypeDecimal) {
         return io:sprintf(")L%s;", DECIMAL_VALUE);
     } else if (bType is bir:BTypeBoolean) {

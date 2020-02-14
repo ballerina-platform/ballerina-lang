@@ -75,3 +75,19 @@ name
 ;
     }
 };
+
+function invocation2() {
+        string s5   =     ","  . 'join  ( "hello" ,"ballerina" ) ;
+}
+
+function invocation3() {
+    string s5 =
+            ","
+ .
+         'join
+   (
+       "hello"
+ ,
+        "ballerina"
+   ) ;
+}

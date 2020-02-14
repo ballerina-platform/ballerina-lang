@@ -235,7 +235,7 @@ public class AnnotationDesugar {
         BLangRecordLiteral mapLiteral = ASTBuilderUtil.createEmptyRecordLiteral(function.pos, symTable.mapType);
         addAnnotsToLiteral(annAttachments, mapLiteral, function);
 
-        if (mapLiteral.keyValuePairs.isEmpty()) {
+        if (mapLiteral.fields.isEmpty()) {
             return null;
         }
 
@@ -289,7 +289,7 @@ public class AnnotationDesugar {
         }
 
         if (annotFunctionDefined) {
-            if (mapLiteral.keyValuePairs.isEmpty()) {
+            if (mapLiteral.fields.isEmpty()) {
                 return null;
             }
             lambdaFunction = addReturnAndDefineLambda(function, mapLiteral, pkgNode, env, pkgID, owner);
@@ -307,7 +307,7 @@ public class AnnotationDesugar {
         BLangAnnotationAttachment annoAttachment = (BLangAnnotationAttachment) TreeBuilder.createAnnotAttachmentNode();
         mainFunc.addAnnotationAttachment(annoAttachment);
         final SymbolEnv pkgEnv = symTable.pkgEnvMap.get(mainFunc.symbol.getEnclosingSymbol());
-        BSymbol annSymbol = symResolver.lookupSymbol(pkgEnv, names.fromString(DEFAULTABLE_ANN), SymTag.ANNOTATION);
+        BSymbol annSymbol = symResolver.lookupSymbolInAnnotationSpace(pkgEnv, names.fromString(DEFAULTABLE_ANN));
         if (annSymbol instanceof BAnnotationSymbol) {
             annoAttachment.annotationSymbol = (BAnnotationSymbol) annSymbol;
         }
@@ -325,16 +325,16 @@ public class AnnotationDesugar {
         annoAttachment.attachPoints.add(AttachPoint.Point.FUNCTION);
         literalNode.pos = pos;
         BStructureTypeSymbol bStructSymbol = null;
-        BSymbol annTypeSymbol = symResolver.lookupSymbol(pkgEnv, names.fromString(DEFAULTABLE_REC), SymTag.STRUCT);
+        BSymbol annTypeSymbol = symResolver.lookupSymbolInMainSpace(pkgEnv, names.fromString(DEFAULTABLE_REC));
         if (annTypeSymbol instanceof BStructureTypeSymbol) {
             bStructSymbol = (BStructureTypeSymbol) annTypeSymbol;
             literalNode.type = bStructSymbol.type;
         }
 
         //Add Root Descriptor
-        BLangRecordLiteral.BLangRecordKeyValue descriptorKeyValue = (BLangRecordLiteral.BLangRecordKeyValue)
+        BLangRecordLiteral.BLangRecordKeyValueField descriptorKeyValue = (BLangRecordLiteral.BLangRecordKeyValueField)
                 TreeBuilder.createRecordKeyValue();
-        literalNode.keyValuePairs.add(descriptorKeyValue);
+        literalNode.fields.add(descriptorKeyValue);
 
         BLangLiteral keyLiteral = (BLangLiteral) TreeBuilder.createLiteralExpression();
         keyLiteral.value = ARG_NAMES;
@@ -579,7 +579,7 @@ public class AnnotationDesugar {
     private void addInvocationToLiteral(BLangRecordLiteral recordLiteral, String identifier,
                                         DiagnosticPos pos, BLangLambdaFunction lambdaFunction) {
         BLangInvocation annotFuncInvocation = getInvocation(lambdaFunction);
-        recordLiteral.keyValuePairs.add(ASTBuilderUtil.createBLangRecordKeyValue(
+        recordLiteral.fields.add(ASTBuilderUtil.createBLangRecordKeyValue(
                 ASTBuilderUtil.createLiteral(pos, symTable.stringType, identifier), annotFuncInvocation));
     }
 
@@ -598,7 +598,7 @@ public class AnnotationDesugar {
 
     private void addAnnotValueToLiteral(BLangRecordLiteral recordLiteral, String identifier,
                                         BLangExpression expression, DiagnosticPos pos) {
-        recordLiteral.keyValuePairs.add(ASTBuilderUtil.createBLangRecordKeyValue(
+        recordLiteral.fields.add(ASTBuilderUtil.createBLangRecordKeyValue(
                 ASTBuilderUtil.createLiteral(pos, symTable.stringType, identifier), expression));
     }
 

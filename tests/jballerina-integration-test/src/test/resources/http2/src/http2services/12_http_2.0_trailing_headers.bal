@@ -36,20 +36,6 @@ service initiator on new http:Listener(9108) {
             var resultSentToClient = caller->respond("No response from backend");
         }
     }
-
-    resource function smallPayloadRequest(http:Caller caller, http:Request request) {
-        http:Request req = new;
-        req.setTextPayload("Small request payload");
-        req.setHeader("trailer", "bar, foo");
-        req.setHeader("bar", "Trailer for small payload", position = "trailing");
-        req.setHeader("foo", "The second trailer", position = "trailing");
-        var responseFromBackend = clientEp->post("/backend/smallPayloadReceive", req);
-        if (responseFromBackend is http:Response) {
-            var resultSentToClient = caller->respond(responseFromBackend);
-        } else {
-            var resultSentToClient = caller->respond("No response from backend");
-        }
-    }
 }
 
 service backend on new http:Listener(9109, {httpVersion: "2.0"}) {
@@ -62,16 +48,5 @@ service backend on new http:Listener(9109, {httpVersion: "2.0"}) {
         response.setHeader("foo", "Trailer for echo payload", position = "trailing");
         response.setHeader("baz", "The second trailer", position = "trailing");
         var result = caller->respond(response);
-    }
-
-    resource function smallPayloadReceive(http:Caller caller, http:Request request) {
-        string trailerHeaderValue = request.getHeader("trailer");
-        var textPayload = request.getTextPayload();
-        string header = request.getHeader("bar", position = "trailing");
-
-        http:Response newResponse = new;
-        newResponse.setJsonPayload({bar: <@untainted> header});
-        newResponse.setHeader("request-trailer", trailerHeaderValue);
-        var result = caller->respond(<@untainted> newResponse);
     }
 }

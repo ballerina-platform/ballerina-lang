@@ -36,6 +36,7 @@ import java.nio.file.Path;
 import java.nio.file.PathMatcher;
 import java.nio.file.Paths;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -120,7 +121,10 @@ public class PathConverter implements Converter<Path> {
     public Stream<Path> expandBal(Path path) {
         if (Files.isDirectory(path)) {
             try {
-                FilterSearch filterSearch = new FilterSearch(Paths.get(ProjectDirConstants.TEST_DIR_NAME));
+                List<Path> excludePaths = new ArrayList<>();
+                excludePaths.add(Paths.get(ProjectDirConstants.TEST_DIR_NAME));
+                excludePaths.add(Paths.get(ProjectDirConstants.RESOURCE_DIR_NAME));
+                FilterSearch filterSearch = new FilterSearch(excludePaths);
                 Files.walkFileTree(path, filterSearch);
                 return filterSearch.getPathList().stream().sorted();
             } catch (IOException ignore) {
