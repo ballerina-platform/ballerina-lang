@@ -65,7 +65,7 @@ public class KafkaSerializerDeserializerTest extends BaseTest {
         kafkaCluster = createKafkaCluster(dataDir, 14002, 14102).addBrokers(1).startup();
     }
 
-    @Test(description = "Tests Kafka custom serializer / deserializer functionality")
+    @Test(description = "Tests Kafka custom serializer / deserializer functionality", enabled = false)
     public void testPublishToKafkaCluster() throws IOException {
         Map<String, String> headers = new HashMap<>();
         headers.put(HttpHeaderNames.CONTENT_TYPE.toString(), TestConstant.CONTENT_TYPE_JSON);
