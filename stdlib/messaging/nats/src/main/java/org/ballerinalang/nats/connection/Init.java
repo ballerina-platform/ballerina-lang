@@ -131,7 +131,7 @@ public class Init {
             String errorMsg = "Error while setting up a connection. " +
                     (e.getCause() != null ? e.getCause().getMessage() : e.getMessage());
             throw Utils.createNatsError(errorMsg);
-        } catch (IllegalStateException e) {
+        } catch (IllegalArgumentException e) {
             NatsMetricsUtil.reportError(NatsObservabilityConstants.CONTEXT_CONNECTION,
                     NatsObservabilityConstants.ERROR_TYPE_CONNECTION);
             throw Utils.createNatsError(e.getMessage());
