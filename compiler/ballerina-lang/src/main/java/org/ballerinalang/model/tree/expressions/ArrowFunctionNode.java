@@ -19,6 +19,7 @@
 package org.ballerinalang.model.tree.expressions;
 
 import org.ballerinalang.model.tree.VariableNode;
+import org.wso2.ballerinalang.compiler.tree.BLangExprFunctionBody;
 
 import java.util.List;
 
@@ -31,6 +32,6 @@ public interface ArrowFunctionNode extends ExpressionNode {
 
     List<? extends VariableNode> getParameters();
 
-    ExpressionNode getExprBody();
+    BLangExprFunctionBody getBody();
 
 }

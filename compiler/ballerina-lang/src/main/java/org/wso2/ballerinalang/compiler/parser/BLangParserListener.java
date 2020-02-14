@@ -331,7 +331,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        this.pkgBuilder.endExternalFunctionBody(ctx.annotationAttachment().size());
+        this.pkgBuilder.endExternalFunctionBody(ctx.annotationAttachment().size(), getWS(ctx));
     }
 
     /**

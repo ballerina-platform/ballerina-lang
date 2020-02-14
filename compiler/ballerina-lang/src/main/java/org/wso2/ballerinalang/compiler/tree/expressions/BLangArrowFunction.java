@@ -57,8 +57,8 @@ public class BLangArrowFunction extends BLangExpression implements ArrowFunction
     }
 
     @Override
-    public BLangExpression getExprBody() {
-        return body.expr;
+    public BLangExprFunctionBody getBody() {
+        return this.body;
     }
 
     @Override
