@@ -16,6 +16,7 @@
  */
 package org.ballerinalang.test.annotations;
 
+import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.test.util.BCompileUtil;
@@ -25,6 +26,10 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
+import org.wso2.ballerinalang.compiler.tree.BLangPackage;
+import org.wso2.ballerinalang.compiler.tree.BLangService;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 
 /**
  * Class to test annotation access.
@@ -35,6 +40,7 @@ public class AnnotationAccessTest {
 
     private CompileResult resultOne;
     private CompileResult resultTwo;
+    private CompileResult resultThree;
 
     @BeforeClass
     public void setup() {
@@ -43,6 +49,10 @@ public class AnnotationAccessTest {
 
         resultTwo = BCompileUtil.compile("test-src/annotations/annot_access_with_source_only_points.bal");
         Assert.assertEquals(resultTwo.getErrorCount(), 0);
+
+        resultThree = BCompileUtil.compile("test-src/annotations/annotations_constant_propagation.bal",
+                CompilerPhase.COMPILER_PLUGIN);
+        Assert.assertEquals(resultThree.getErrorCount(), 0);
     }
 
     @Test(dataProvider = "annotAccessTests")
@@ -60,6 +70,22 @@ public class AnnotationAccessTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BBoolean.class);
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+    }
+
+    @Test(description = "Test if constants used in annotation are replaced on constant propagation phase")
+    public void testConstantPropagationOnAnnotation() {
+        BLangPackage pkg = (BLangPackage) resultThree.getAST();
+
+        BLangService service = pkg.services.get(0);
+        BLangRecordLiteral serviceAnnotation = (BLangRecordLiteral) service.annAttachments.get(0).expr;
+        Assert.assertTrue(((BLangRecordLiteral.BLangRecordKeyValueField) serviceAnnotation.fields.get(0)).valueExpr
+                instanceof BLangLiteral);
+
+        BLangRecordLiteral helloFunctionAnnotation = (BLangRecordLiteral) service.resourceFunctions.get(0)
+                .annAttachments.get(0).expr;
+        Assert.assertTrue(((BLangRecordLiteral.BLangRecordKeyValueField) helloFunctionAnnotation.fields.get(0))
+                .valueExpr instanceof BLangLiteral);
+
     }
 
     @DataProvider(name = "annotAccessTests")

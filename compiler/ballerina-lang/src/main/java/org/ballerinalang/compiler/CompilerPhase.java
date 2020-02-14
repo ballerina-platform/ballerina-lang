@@ -68,7 +68,7 @@ public enum CompilerPhase {
                 return TAINT_ANALYZE;
             case "constantPropagation":
                 return CONSTANT_PROPAGATION;
-            case "annotationProcess":
+            case "compilerPlugin":
                 return COMPILER_PLUGIN;
             case "desugar":
                 return DESUGAR;
