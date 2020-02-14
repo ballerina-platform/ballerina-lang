@@ -699,7 +699,7 @@ type InstructionGenerator object {
         }
     }
 
-    function generateMapLoadIns(bir:FieldAccess mapLoadIns) {
+    function generateMapLoadIns(bir:FieldAccess mapLoadIns, boolean useBString) {
         // visit map_ref
         self.loadVar(mapLoadIns.rhsOp.variableDcl);
         bir:BType varRefType = mapLoadIns.rhsOp.variableDcl.typeValue;
@@ -730,7 +730,7 @@ type InstructionGenerator object {
 
         // store in the target reg
         bir:BType targetType = mapLoadIns.lhsOp.variableDcl.typeValue;
-        addUnboxInsn(self.mv, targetType);
+        addUnboxInsn(self.mv, targetType, useBString);
         self.storeToVar(mapLoadIns.lhsOp.variableDcl);
     }
 
