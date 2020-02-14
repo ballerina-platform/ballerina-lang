@@ -40,7 +40,7 @@ public class BLockManager {
         globalLockMap.put(lockName, new BLock());
     }
 
-    public static BLock getLockFromMap(String lockName) {
+    public static synchronized BLock getLockFromMap(String lockName) {
         BLock lock = globalLockMap.get(lockName);
 
         if (lock == null) {
