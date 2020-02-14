@@ -66,8 +66,10 @@ This plugin will be useful to check and validate a [grammar rule](#contributing-
 
 1. Do your changes in the source code.
     
-    <details style="border:1px; border-style:solid;">
+    <details>
     <summary>If you are contributing to Ballerina Grammar:</summary>
+
+    <div style="border:1px solid #000; padding: 10px;">
 
     Ballerina grammar has been implemented using ANTLR plugin version 4.5.3. To get a basic understanding of ANTLR grammar syntax and concepts before working with Ballerina grammar, go to [Parr, Terence (January 15, 2013), The Definitive ANTLR 4 Reference](https://www.oreilly.com/library/view/the-definitive-antlr/9781941222621/).
 
@@ -87,7 +89,8 @@ This plugin will be useful to check and validate a [grammar rule](#contributing-
     **Info:** The above command will autogenerate some Java classes. The Ballerina AST builder is written on top of the auto-generated `BallerinaParserBaseListener.java` class. Thus, if any new rules are added to the `BallerinaParser.g4`, above command will generate new methods in the `BallerinaParserBaseListener.java` and you need to override those newly-added methods inside the `BLangParserListener.java` accordingly.
 
     For more information about the Ballerina compiler, go to [Ballerina Compiler — Design](https://medium.com/@sameerajayasoma/ballerina-compiler-design-3406acc2476c?).
-    
+
+    </div>
     </details>
 
 2. Add unit tests accordingly. (The build process will automatically execute all the tests.)
