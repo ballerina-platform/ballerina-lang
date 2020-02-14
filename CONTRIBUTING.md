@@ -20,28 +20,10 @@ We appreciate your help!
 
 - Join the conversations at:
 
- <div class="col-sm-12 col-md-12 cBallerinaLearnWrapper cGrayWrapper cCommunityLinks">
-  <div class="col-sm-12 col-md-3 cBoxContainer cCommunityIconsContainer">
-      <div class="cBallerina-Box">
-      <a class="cCommunityIcons" href="https://twitter.com/ballerinalang"><img src="/img/twitter.svg"></a>
-      </div>
-   </div>
-   <div class="col-sm-12 col-md-3 cBoxContainer cCommunityIconsContainer">
-      <div class="cBallerina-Box">
-      <a class="cCommunityIcons" href="/community/slack"><img src="/img/slack.svg"></a>
-      </div>
-   </div>
-      <div class="col-sm-12 col-md-3 cBoxContainer cCommunityIconsContainer">
-      <div class="cBallerina-Box">
-      <a class="cCommunityIcons" href="https://stackoverflow.com/questions/tagged/ballerina"><img src="/img/stackoverflow.svg"></a>
-      </div>
-   </div>
-   <div class="col-sm-12 col-md-3 cBoxContainer cCommunityIconsContainer">
-      <div class="cBallerina-Box">
-      <a class="cCommunityIcons" href="https://groups.google.com/forum/#!forum/ballerina-dev"><img src="/img/google-groups.svg"></a>
-      </div>
-   </div>
-</div>
+    <a href="https://stackoverflow.com/questions/tagged/ballerina"><img src="/docs/images/stack-overflow.png"></a>
+    <a href="https://ballerinalang.slack.com/"><img src="/docs/images/slack.png"></a>
+    <a href="https://groups.google.com/forum/#!forum/ballerina-dev"><img src="/docs/images/google-groups.png"></a>
+    <a href="https://twitter.com/ballerinalang"><img src="/docs/images/twitter.png"></a>
 
 - Submitting a bug is just as important as contributing to code. Report an issue in the relevant repo out of the GitHub repos listed below. 
 
