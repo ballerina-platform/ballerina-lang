@@ -135,11 +135,6 @@ public abstract class BLangInvokableNode extends BLangNode implements InvokableN
     }
 
     @Override
-    public BLangBlockStmt getBody() {
-        return body;
-    }
-
-    @Override
     public BLangFunctionBody getFuncBody() {
         return funcBody;
     }

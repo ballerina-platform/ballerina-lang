@@ -17,7 +17,6 @@
 */
 package org.ballerinalang.model.tree;
 
-import org.ballerinalang.model.tree.statements.BlockStatementNode;
 import org.ballerinalang.model.tree.types.TypeNode;
 import org.wso2.ballerinalang.compiler.tree.BLangFunctionBody;
 
@@ -47,8 +46,6 @@ public interface InvokableNode extends AnnotatableNode, DocumentableNode {
     void addReturnTypeAnnotationAttachment(AnnotationAttachmentNode annAttachment);
 
     void addExternalAnnotationAttachment(AnnotationAttachmentNode annAttachment);
-
-    BlockStatementNode getBody();
 
     BLangFunctionBody getFuncBody();
 
