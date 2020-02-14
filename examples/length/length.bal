@@ -12,8 +12,8 @@ public function main() {
 
     // Create a JSON array with several JSON elements.
     json[] jsonArray = [
-        { "name": "John", "age": 31 },
-        { "name": "Neal", "age": 22 }
+        {"name": "John", "age": 31},
+        {"name": "Neal", "age": 22}
     ];
 
     // Print the length of the created JSON array.
@@ -56,7 +56,7 @@ public function main() {
     io:println("Tuple size: ", length);
 
     // Create a record of the `Student` type.
-    Student stu = { id: 1, fname: "John", lname: "Doe", age: 17};
+    Student stu = {id: 1, fname: "John", lname: "Doe", age: 17};
 
     // Print the number of fields in the created `Student` record.
     length = stu.length();

@@ -54,13 +54,4 @@ public class Http2TrailingHeadersTestCase extends Http2BaseTest {
                 "trailer\"}");
         Assert.assertEquals(response.getHeaders().get("response-trailer"), "foo, baz");
     }
-
-    @Test(description = "Test inbound request trailers with <8K payload")
-    public void testSmallPayloadRequestTrailers() throws IOException {
-        HttpResponse response = HttpClientRequest
-                .doGet(serverInstance.getServiceURLHttp(servicePort, "initiator/smallPayloadRequest"));
-        Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
-        Assert.assertEquals(response.getData(), "{\"bar\":\"Trailer for small payload\"}");
-        Assert.assertEquals(response.getHeaders().get("request-trailer"), "bar, foo");
-    }
 }

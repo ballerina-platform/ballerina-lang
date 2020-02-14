@@ -54,6 +54,10 @@ serviceBody
     :   LEFT_BRACE objectMethod* RIGHT_BRACE
     ;
 
+streamConstructorBody
+    :   LEFT_BRACE statement* RIGHT_BRACE
+    ;
+
 blockFunctionBody
     :   LEFT_BRACE statement* (workerDeclaration+ statement*)? RIGHT_BRACE
     ;
@@ -330,6 +334,7 @@ statement
     |   retryStatement
     |   lockStatement
     |   namespaceDeclarationStatement
+    |   queryActionStatement
     ;
 
 variableDefinitionStatement
@@ -387,6 +392,10 @@ tableData
 
 listConstructorExpr
     :   LEFT_BRACKET expressionList? RIGHT_BRACKET
+    ;
+
+streamConstructorExpr
+    :   TYPE_STREAM streamConstructorBody
     ;
 
 assignmentStatement
@@ -782,6 +791,7 @@ expression
     |   recordLiteral                                                       # recordLiteralExpression
     |   xmlLiteral                                                          # xmlLiteralExpression
     |   tableLiteral                                                        # tableLiteralExpression
+    |   streamConstructorExpr                                               # streamConstructorExpression
     |   stringTemplateLiteral                                               # stringTemplateLiteralExpression
     |   (annotationAttachment* START)? variableReference                    # variableReferenceExpression
     |   actionInvocation                                                    # actionInvocationExpression
@@ -861,12 +871,20 @@ fromClause
     :   FROM (typeName | VAR) bindingPattern IN expression
     ;
 
+doClause
+    :   DO LEFT_BRACE statement* RIGHT_BRACE
+    ;
+
 queryPipeline
     :   fromClause (fromClause | whereClause)*
     ;
 
 queryExpr
     :   queryPipeline selectClause
+    ;
+
+queryActionStatement
+    :   queryPipeline doClause
     ;
 
 //reusable productions

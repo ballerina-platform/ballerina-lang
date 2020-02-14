@@ -27,7 +27,7 @@ public function main() {
     // `...otherDetails` is a rest parameter. Since `Person` is an open record, the remaining field values that have
     // not been matched in the record binding pattern will be assigned as a `map<anydata|error>` to the variable
     // `otherDetails`.
-    { name: firstName, age: personAge, ...otherDetails } = getPerson();
+    {name: firstName, age: personAge, ...otherDetails} = getPerson();
     io:println("Name: ", firstName);
     io:println("Age: ", personAge);
     io:println("Other Details: ", otherDetails);
@@ -38,7 +38,7 @@ public function main() {
     // same name as the field.
     // i.e., {name, age} is same as {name: name, age: age}.
     // Since a rest parameter is not given, all remaining fields are ignored.
-    { name, age } = getPerson();
+    {name, age} = getPerson();
     io:println("Name: ", name);
     io:println("Age: ", age);
 
@@ -46,19 +46,23 @@ public function main() {
     string capitalName;
     // Binding patterns are recursive in nature. `capital`, which is a field of type `Capital` in `Country` can also be
     // destructured as follows:
-    { name: countryName, capital: { name: capitalName }} = getCountry();
+    {name: countryName, capital: {name: capitalName}} = getCountry();
     io:println("Country Name: ", countryName);
     io:println("Capital Name: ", capitalName);
 }
 
 function getPerson() returns Person {
-    Person person = { name: "Peter", age: 28, country: "Sri Lanka",
-                      "occupation": "Software Engineer" };
+    Person person = {
+        name: "Peter",
+        age: 28,
+        country: "Sri Lanka",
+        "occupation": "Software Engineer"
+    };
     return person;
 }
 
 function getCountry() returns Country {
-    Capital capital = { name: "Colombo" };
-    Country country = { name: "Sri Lanka", capital: capital };
+    Capital capital = {name: "Colombo"};
+    Country country = {name: "Sri Lanka", capital: capital};
     return country;
 }

@@ -13,3 +13,13 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
+
+@typeParam
+type PureType3 anydata | error;
+
+# Takes in a lambda function and returns a new stream out of it.
+#
+# + td - A type description.
+# + func - A lambda function.
+# + return - New stream containing results of `func` invocation.
+public function construct(typedesc<PureType3> td, function() returns PureType3 func) returns stream<PureType3> = external;

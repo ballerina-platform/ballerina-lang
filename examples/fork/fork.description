@@ -1,4 +1,4 @@
-// The `fork` block allows you to start any number of workers simultaneously. Workers are visible outside the fork block as futures.
+// The `fork` block allows you to start any number of parallel workers simultaneously. Workers are visible outside the fork block as futures.
 // These futures behave similar to the futures returned by asynchronous functions created by `start`. You may wait until the worker 
 // finishes by using the `wait` expression.
 // You can only send `anydata` variables from a worker of one fork to another worker in the same fork.

@@ -17,8 +17,8 @@ public function main(string... args) {
         url: "jdbc:mysql://localhost:3306/testdb",
         username: "root",
         password: "root",
-        poolOptions: { maximumPoolSize: 5 },
-        dbOptions: { useSSL: false }
+        poolOptions: {maximumPoolSize: 5},
+        dbOptions: {useSSL: false}
     });
 
     // Sensitive parameters of functions that are built-in to Ballerina are decorated with the `@untainted` annotation.
@@ -31,9 +31,9 @@ public function main(string... args) {
     var result = customerDBEP->
     select("SELECT firstname FROM student WHERE registration_id = " +
             args[0], ());
-    table<record { string firstname; }> dataTable;
+    table<record {string firstname;}> dataTable;
     if (result is error) {
-        error e = <error> result;
+        error e = <error>result;
         panic e;
     } else {
         dataTable = result;
@@ -45,7 +45,7 @@ public function main(string... args) {
     if (isInteger(args[0])) {
         // After performing necessary validations and/or escaping, we can use type cast expression with @untainted annotation
         // to mark the proceeding value as `trusted` and pass it to a sensitive parameter.
-        userDefinedSecureOperation(<@untainted> args[0]);
+        userDefinedSecureOperation(<@untainted>args[0]);
     } else {
         error err = error("Validation error: ID should be an integer");
         panic err;
