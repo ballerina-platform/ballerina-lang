@@ -18,6 +18,8 @@
 package org.ballerinalang.model.tree.expressions;
 
 /**
+ * This represents the stream construct expression node.
+ *
  * @since 1.2.0
  */
 public interface StreamConstructorNode extends ExpressionNode {

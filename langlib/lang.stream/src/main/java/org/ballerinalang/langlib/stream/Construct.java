@@ -37,7 +37,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
 /**
  * Native implementation of lang.stream:construct(typeDesc, function).
  *
- * @since 1.2
+ * @since 1.2.0
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "lang.stream", functionName = "construct",
