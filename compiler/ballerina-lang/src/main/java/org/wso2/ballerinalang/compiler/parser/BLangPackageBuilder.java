@@ -45,6 +45,7 @@ import org.ballerinalang.model.tree.ServiceNode;
 import org.ballerinalang.model.tree.SimpleVariableNode;
 import org.ballerinalang.model.tree.VariableNode;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
+import org.ballerinalang.model.tree.expressions.StreamConstructorNode;
 import org.ballerinalang.model.tree.expressions.XMLAttributeNode;
 import org.ballerinalang.model.tree.expressions.XMLLiteralNode;
 import org.ballerinalang.model.tree.statements.BlockStatementNode;
@@ -77,6 +78,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangTupleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangDoClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangFromClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWhereClause;
@@ -112,6 +114,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordVarRef.BLangR
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRestArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangServiceConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangStreamConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
@@ -154,6 +157,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStaticBindingPatternClause;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStructuredBindingPatternClause;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangPanic;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangQueryAction;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRetry;
@@ -263,6 +267,8 @@ public class BLangPackageBuilder {
 
     private Stack<BLangWhereClause> whereClauseNodeStack = new Stack<>();
 
+    private Stack<BLangDoClause> doClauseNodeStack = new Stack<>();
+
     private Stack<TransactionNode> transactionNodeStack = new Stack<>();
 
     private Stack<ForkJoinNode> forkJoinNodesStack = new Stack<>();
@@ -272,6 +278,8 @@ public class BLangPackageBuilder {
     private Stack<XMLAttributeNode> xmlAttributeNodeStack = new Stack<>();
 
     private Stack<AttachPoint> attachPointStack = new Stack<>();
+
+    private Stack<StreamConstructorNode> streamConstructorNodeStack = new Stack<>();
 
     private Set<BLangImportPackage> imports = new HashSet<>();
 
@@ -293,6 +301,7 @@ public class BLangPackageBuilder {
     private Stack<Set<Whitespace>> simpleMatchPatternWS = new Stack<>();
     private Stack<Set<Whitespace>> recordKeyWS = new Stack<>();
     private Stack<Set<Whitespace>> inferParamListWSStack = new Stack<>();
+    private Stack<Set<Whitespace>> invocationRuleWS = new Stack<>();
 
     private BLangAnonymousModelHelper anonymousModelHelper;
     private CompilerOptions compilerOptions;
@@ -1550,6 +1559,10 @@ public class BLangPackageBuilder {
         invocationNode.pos = pos;
         invocationNode.addWS(ws);
         invocationNode.addWS(invocationWsStack.pop());
+        if (!invocationRuleWS.isEmpty()) {
+            invocationNode.addWS(invocationRuleWS.pop());
+        }
+
         if (argsAvailable) {
             List<ExpressionNode> exprNodes = exprNodeListStack.pop();
             exprNodes.forEach(exprNode -> invocationNode.argExprs.add((BLangExpression) exprNode));
@@ -1560,6 +1573,10 @@ public class BLangPackageBuilder {
         invocationNode.name = createIdentifier(identifierPos, invocation, ws);
         invocationNode.pkgAlias = createIdentifier(pos, null);
         addExpressionNode(invocationNode);
+    }
+
+    void addInvocationWS(Set<Whitespace> ws) {
+        invocationRuleWS.push(ws);
     }
 
     void createWorkerLambdaInvocationNode(DiagnosticPos pos, Set<Whitespace> ws, String invocation) {
@@ -1797,6 +1814,40 @@ public class BLangPackageBuilder {
         whereClauseNodeStack.push(whereClause);
     }
 
+    void startDoActionStatement() {
+        startBlock();
+    }
+
+    void createDoClause(DiagnosticPos pos, Set<Whitespace> ws) {
+        BLangDoClause doClause = (BLangDoClause) TreeBuilder.createDoClauseNode();
+        doClause.addWS(ws);
+        doClause.pos = pos;
+        BlockNode blockNode = blockNodeStack.pop();
+        ((BLangBlockStmt) blockNode).pos = pos;
+        doClause.setBody(blockNode);
+        doClause.addWS(ws);
+        doClauseNodeStack.push(doClause);
+    }
+
+    void createQueryActionStatement(DiagnosticPos pos, Set<Whitespace> ws) {
+        BLangQueryAction queryAction = (BLangQueryAction) TreeBuilder.createQueryActionStatementNode();
+        queryAction.pos = pos;
+        queryAction.addWS(ws);
+
+        Collections.reverse(fromClauseNodeStack);
+        while (fromClauseNodeStack.size() > 0) {
+            queryAction.addFromClauseNode(fromClauseNodeStack.pop());
+        }
+
+        Collections.reverse(whereClauseNodeStack);
+        while (whereClauseNodeStack.size() > 0) {
+            queryAction.addWhereClauseNode(whereClauseNodeStack.pop());
+        }
+
+        queryAction.setDoClauseNode(doClauseNodeStack.pop());
+        addStmtToCurrentBlock(queryAction);
+    }
+
     void endFunctionDefinition(DiagnosticPos pos, Set<Whitespace> ws, String funcName, DiagnosticPos funcNamePos,
                                boolean publicFunc, boolean remoteFunc, boolean nativeFunc, boolean privateFunc,
                                boolean isLambda) {
@@ -1835,6 +1886,27 @@ public class BLangPackageBuilder {
         BLangFunction lambdaFunction = (BLangFunction) this.invokableNodeStack.peek();
         lambdaFunction.addFlag(Flag.WORKER);
         this.startBlockFunctionBody();
+    }
+
+    void startStreamConstructor(DiagnosticPos pos, PackageID packageID) {
+        StreamConstructorNode streamConstructorNode = TreeBuilder.createStreamConstructorNode();
+        ((BLangStreamConstructorExpr) streamConstructorNode).pos = pos;
+        this.streamConstructorNodeStack.push(streamConstructorNode);
+        this.startLambdaFunctionDef(packageID);
+        this.startBlock();
+    }
+
+    void endStreamConstructor(DiagnosticPos pos, Set<Whitespace> ws) {
+        endBlockFunctionBody(ws);
+        BLangStreamConstructorExpr streamConstructorExpr = (BLangStreamConstructorExpr)
+                this.streamConstructorNodeStack.pop();
+        streamConstructorExpr.pos = pos;
+        streamConstructorExpr.addWS(ws);
+
+        endFunctionSignature(pos, ws, false, false, false);
+        addLambdaFunctionDef(pos, ws);
+        streamConstructorExpr.setInvokableBody((BLangLambdaFunction) this.exprNodeStack.pop());
+        addExpressionNode(streamConstructorExpr);
     }
 
     void addWorker(DiagnosticPos pos, Set<Whitespace> ws, String workerName, DiagnosticPos workerNamePos,
@@ -2120,6 +2192,7 @@ public class BLangPackageBuilder {
         }
         if (isListenerVar) {
             var.flagSet.add(Flag.LISTENER);
+            var.flagSet.add(Flag.FINAL);
             if (!isTypeNameProvided) {
                 var.isDeclaredWithVar = true;
             }

@@ -73,6 +73,7 @@
             <class name="org.ballerinalang.test.service.http.sample.HTTPListenerMethodTestCase"/>
             <class name="org.ballerinalang.test.service.http.sample.HTTPCookiesTestCase"/>
             <class name="org.ballerinalang.test.service.http.sample.HttpUrlTestCase"/>
+            <class name="org.ballerinalang.test.service.http.sample.TrailingHeadersTestCase"/>
         </classes>
     </test>
 
@@ -285,6 +286,7 @@
             <class name="org.ballerinalang.test.observability.tracing.TracingTestCase"/>
             <class name="org.ballerinalang.test.observability.metrics.MetricsTestCase"/>
             <class name="org.ballerinalang.test.observability.metrics.WebSocketMetricsTestCase"/>
+            <class name="org.ballerinalang.test.observability.metrics.KafkaMetricsTestCase"/>
         </classes>
     </test>
 
@@ -333,6 +335,13 @@
         <parameter name="enableJBallerinaTests" value="true" />
         <classes>
             <class name="org.ballerinalang.test.logging.LogAPITestCase" />
+        </classes>
+    </test>
+
+    <test name="ballerina-testerina-tests" parallel="false">
+        <parameter name="enableJBallerinaTests" value="true" />
+        <classes>
+            <class name="org.ballerinalang.test.testarina.TestarinaTestCase" />
         </classes>
     </test>
 </suite>

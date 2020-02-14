@@ -4,7 +4,7 @@ import ballerina/log;
 
 // Defines the sample backend service, which is secured with JWT Auth
 // authentication.
-jwt:InboundJwtAuthProvider inboundJwtAuthProvider = new({
+jwt:InboundJwtAuthProvider inboundJwtAuthProvider = new ({
     issuer: "ballerina",
     audience: "ballerina.io",
     trustStoreConfig: {
@@ -15,8 +15,8 @@ jwt:InboundJwtAuthProvider inboundJwtAuthProvider = new({
         }
     }
 });
-http:BearerAuthHandler inboundJwtAuthHandler = new(inboundJwtAuthProvider);
-listener http:Listener ep = new(9090, config = {
+http:BearerAuthHandler inboundJwtAuthHandler = new (inboundJwtAuthProvider);
+listener http:Listener ep = new (9090, config = {
     auth: {
         authHandlers: [inboundJwtAuthHandler],
         scopes: ["hello"]

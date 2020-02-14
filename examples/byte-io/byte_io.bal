@@ -13,7 +13,7 @@ function copy(io:ReadableByteChannel src,
         if (result is io:EofError) {
             break;
         } else if (result is error) {
-            return <@untained> result;
+            return <@untained>result;
         } else {
             // The operation writes the given content into the channel.
             int i = 0;

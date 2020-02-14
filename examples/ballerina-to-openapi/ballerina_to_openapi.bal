@@ -1,7 +1,7 @@
 import ballerina/http;
 import ballerina/log;
 
-listener http:Listener helloEp = new(9090);
+listener http:Listener helloEp = new (9090);
 
 service hello on helloEp {
     resource function hi(http:Caller caller, http:Request request) {
@@ -10,7 +10,7 @@ service hello on helloEp {
 
         var result = caller->respond(res);
         if (result is error) {
-           log:printError("Error when responding", err = result);
+           log:printError("Error when responding", result);
         }
     }
 }

@@ -19,12 +19,15 @@ package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.TreeBuilder;
+import org.ballerinalang.model.clauses.FromClauseNode;
+import org.ballerinalang.model.clauses.WhereClauseNode;
 import org.ballerinalang.model.elements.AttachPoint;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
+import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
 import org.ballerinalang.model.tree.statements.StatementNode;
 import org.ballerinalang.model.tree.types.BuiltInReferenceTypeNode;
@@ -77,6 +80,9 @@ import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangWorker;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangDoClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangFromClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangWhereClause;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAccessExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
@@ -115,6 +121,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStaticBindingPatternClause;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStructuredBindingPatternClause;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangPanic;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangQueryAction;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRetry;
@@ -239,10 +246,16 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 .forEach(constant -> analyzeDef((BLangNode) constant, pkgEnv));
         this.constantValueResolver.resolve(pkgNode.constants);
 
-        pkgNode.topLevelNodes.stream().filter(pkgLevelNode -> pkgLevelNode.getKind() != NodeKind.CONSTANT)
-                .filter(pkgLevelNode -> !(pkgLevelNode.getKind() == NodeKind.FUNCTION
-                        && ((BLangFunction) pkgLevelNode).flagSet.contains(Flag.LAMBDA)))
-                .forEach(topLevelNode -> analyzeDef((BLangNode) topLevelNode, pkgEnv));
+        for (int i = 0; i < pkgNode.topLevelNodes.size(); i++) {
+            TopLevelNode pkgLevelNode = pkgNode.topLevelNodes.get(i);
+            NodeKind kind = pkgLevelNode.getKind();
+            if (kind == NodeKind.CONSTANT ||
+                    ((kind == NodeKind.FUNCTION && ((BLangFunction) pkgLevelNode).flagSet.contains(Flag.LAMBDA)))) {
+                continue;
+            }
+
+            analyzeDef((BLangNode) pkgLevelNode, pkgEnv);
+        }
 
         while (pkgNode.lambdaFunctions.peek() != null) {
             BLangLambdaFunction lambdaFunction = pkgNode.lambdaFunctions.poll();
@@ -2077,25 +2090,17 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         Name varName = names.fromIdNode(simpleVarRef.variableName);
         if (!Names.IGNORE.equals(varName) && env.enclInvokable != env.enclPkg.initFunction) {
             if ((simpleVarRef.symbol.flags & Flags.FINAL) == Flags.FINAL) {
-                dlog.error(varRef.pos, DiagnosticCode.CANNOT_ASSIGN_VALUE_FINAL, varRef);
+                if ((simpleVarRef.symbol.flags & Flags.SERVICE) == Flags.SERVICE) {
+                    dlog.error(varRef.pos, DiagnosticCode.INVALID_ASSIGNMENT_DECLARATION_FINAL, Names.SERVICE);
+                } else if ((simpleVarRef.symbol.flags & Flags.LISTENER) == Flags.LISTENER) {
+                    dlog.error(varRef.pos, DiagnosticCode.INVALID_ASSIGNMENT_DECLARATION_FINAL, LISTENER_NAME);
+                } else {
+                    dlog.error(varRef.pos, DiagnosticCode.CANNOT_ASSIGN_VALUE_FINAL, varRef);
+                }
             } else if ((simpleVarRef.symbol.flags & Flags.CONSTANT) == Flags.CONSTANT) {
                 dlog.error(varRef.pos, DiagnosticCode.CANNOT_ASSIGN_VALUE_TO_CONSTANT);
             } else if ((simpleVarRef.symbol.flags & Flags.FUNCTION_FINAL) == Flags.FUNCTION_FINAL) {
                 dlog.error(varRef.pos, DiagnosticCode.CANNOT_ASSIGN_VALUE_FUNCTION_ARGUMENT, varRef);
-            }
-        }
-    }
-
-    private void checkReadonlyAssignment(BLangExpression varRef) {
-        if (varRef.type == symTable.semanticError) {
-            return;
-        }
-
-        BLangVariableReference varRefExpr = (BLangVariableReference) varRef;
-        if (varRefExpr.symbol != null) {
-            if (env.enclPkg.symbol.pkgID != varRefExpr.symbol.pkgID && varRefExpr.lhsVar
-                    && (varRefExpr.symbol.flags & Flags.READONLY) == Flags.READONLY) {
-                dlog.error(varRefExpr.pos, DiagnosticCode.CANNOT_ASSIGN_VALUE_READONLY, varRefExpr);
             }
         }
     }
@@ -2290,6 +2295,29 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         handleForeachVariables(foreach, blockEnv);
         // Analyze foreach node's statements.
         analyzeStmt(foreach.body, blockEnv);
+    }
+
+    @Override
+    public void visit(BLangQueryAction queryAction) {
+        List<? extends FromClauseNode> fromClauseList = queryAction.fromClauseList;
+        List<? extends WhereClauseNode> whereClauseList = queryAction.whereClauseList;
+        BLangDoClause doClauseNode = queryAction.doClause;
+
+        SymbolEnv parentEnv = env;
+        for (FromClauseNode fromClause : fromClauseList) {
+            parentEnv = typeChecker.typeCheckFromClause((BLangFromClause) fromClause, parentEnv);
+        }
+
+        SymbolEnv whereEnv = parentEnv;
+        for (WhereClauseNode whereClauseNode : whereClauseList) {
+            BLangWhereClause whereClause = (BLangWhereClause) whereClauseNode;
+            typeChecker.checkExpr(whereClause.expression, parentEnv);
+            whereEnv = typeNarrower.evaluateTruth(whereClause.expression, doClauseNode, parentEnv);
+        }
+
+        SymbolEnv blockEnv = SymbolEnv.createBlockEnv(doClauseNode.body, whereEnv);
+        // Analyze foreach node's statements.
+        analyzeStmt(doClauseNode.body, blockEnv);
     }
 
     @Override
@@ -2677,12 +2705,9 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     }
 
     private boolean validateVariableDefinition(BLangExpression expr) {
-        // following cases are invalid.
-        // var a = { x : y };
+        // Following is invalid:
         // var a = new ;
-        final NodeKind kind = expr.getKind();
-        if (kind == RECORD_LITERAL_EXPR || (kind == NodeKind.TYPE_INIT_EXPR
-                && ((BLangTypeInit) expr).userDefinedType == null)) {
+        if (expr.getKind() == NodeKind.TYPE_INIT_EXPR && ((BLangTypeInit) expr).userDefinedType == null) {
             dlog.error(expr.pos, DiagnosticCode.INVALID_ANY_VAR_DEF);
             return false;
         }
@@ -2723,7 +2748,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         typeChecker.checkExpr(varRefExpr, env);
 
         // Check whether this is an readonly field.
-        checkReadonlyAssignment(varRefExpr);
         checkConstantAssignment(varRefExpr);
 
         // If this is an update of a type narrowed variable, the assignment should allow assigning
