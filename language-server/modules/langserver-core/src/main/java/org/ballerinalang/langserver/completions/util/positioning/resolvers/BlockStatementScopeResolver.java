@@ -134,7 +134,7 @@ public class BlockStatementScopeResolver extends CursorPositionResolver {
         if (blockOwner == null) {
             // When the else node is evaluating, block owner is null and the block statement only present
             // This is because, else node is represented with a blocks statement only
-            return CommonUtil.toZeroBasedPosition(CommonUtil.getBlockNodePosition(blockNode)).getEndLine();
+            return CommonUtil.toZeroBasedPosition((DiagnosticPos) blockNode.getPosition()).getEndLine();
         } else if (blockOwner instanceof BLangTransaction) {
             return this.getTransactionBlockComponentEndLine((BLangTransaction) blockOwner, blockNode);
         } else {
@@ -146,7 +146,7 @@ public class BlockStatementScopeResolver extends CursorPositionResolver {
         if (blockOwner == null) {
             // When the else node is evaluating, block owner is null and the block statement only present
             // This is because, else node is represented with a blocks statement only
-            return CommonUtil.toZeroBasedPosition(CommonUtil.getBlockNodePosition(blockNode)).getEndColumn();
+            return CommonUtil.toZeroBasedPosition((DiagnosticPos) blockNode.getPosition()).getEndColumn();
         } else {
             return CommonUtil.toZeroBasedPosition((DiagnosticPos) blockOwner.getPosition()).getEndColumn();
         }

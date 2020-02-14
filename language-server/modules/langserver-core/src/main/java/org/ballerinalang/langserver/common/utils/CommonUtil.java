@@ -1331,21 +1331,4 @@ public class CommonUtil {
         }
         return Optional.empty();
     }
-
-    /**
-     * Get the position of the block node from the respective implementations.
-     * 
-     * @param blockNode Block node to get the position
-     * @return {@link DiagnosticPos} block node's position
-     */
-    public static DiagnosticPos getBlockNodePosition(BlockNode blockNode) {
-        if (blockNode instanceof BLangFunctionBody) {
-            return ((BLangFunctionBody) blockNode).getPosition();
-        }
-        if (blockNode instanceof BLangBlockStmt) {
-            return  ((BLangBlockStmt) blockNode).getPosition();
-        }
-        
-        return null;
-    }
 }
