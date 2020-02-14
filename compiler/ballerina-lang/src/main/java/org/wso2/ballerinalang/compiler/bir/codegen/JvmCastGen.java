@@ -111,7 +111,7 @@ public class JvmCastGen {
         }
     }
 
-    static void generateBToJCheckCast(MethodVisitor mv, BType sourceType, JType targetType) {
+    public static void generateBToJCheckCast(MethodVisitor mv, BType sourceType, JType targetType) {
         if (targetType.tag == JTypeTags.JREF && targetType.type == I_STRING_VALUE) {
             generateCheckCastBToJString(mv, sourceType);
             return;

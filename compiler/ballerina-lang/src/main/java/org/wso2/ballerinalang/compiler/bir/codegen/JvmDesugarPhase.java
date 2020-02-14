@@ -160,7 +160,7 @@ public class JvmDesugarPhase {
         return nextbb;
     }
 
-    static Name getNextDesugarBBId(String prefix) {
+    public static Name getNextDesugarBBId(String prefix) {
         String bbIdPrefix = prefix;
         nextId += 1;
         return new Name(bbIdPrefix + nextId);

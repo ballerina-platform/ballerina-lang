@@ -211,7 +211,7 @@ public class JvmInstructionGen {
 
     ;
 
-    static void addUnboxInsn(MethodVisitor mv, @Nilable BType bType, boolean useBString /* = false */) {
+    public static void addUnboxInsn(MethodVisitor mv, @Nilable BType bType, boolean useBString /* = false */) {
         if (bType == null) {
             return;
         } else {
@@ -246,7 +246,7 @@ public class JvmInstructionGen {
         }
     }
 
-    static void generateVarLoad(MethodVisitor mv, BIRVariableDcl varDcl, String currentPackageName, int valueIndex) {
+    public static void generateVarLoad(MethodVisitor mv, BIRVariableDcl varDcl, String currentPackageName, int valueIndex) {
         BType bType = varDcl.type;
 
         if (varDcl.kind == VarKind.GLOBAL) {
@@ -340,7 +340,7 @@ public class JvmInstructionGen {
         }
     }
 
-    static void generateVarStore(MethodVisitor mv, BIRVariableDcl varDcl, String currentPackageName, int valueIndex) {
+    public static void generateVarStore(MethodVisitor mv, BIRVariableDcl varDcl, String currentPackageName, int valueIndex) {
         BType bType = varDcl.type;
 
         if (varDcl.kind == VarKind.GLOBAL) {
@@ -454,53 +454,70 @@ public class JvmInstructionGen {
 
         void generateBinaryOpIns(BinaryOp binaryIns) {
             InstructionKind insKind = binaryIns.kind;
-            if (insKind == InstructionKind.ADD) {
-                this.generateAddIns(binaryIns);
-            } else if (insKind == InstructionKind.SUB) {
-                this.generateSubIns(binaryIns);
-            } else if (insKind == InstructionKind.MUL) {
-                this.generateMulIns(binaryIns);
-            } else if (insKind == InstructionKind.DIV) {
-                this.generateDivIns(binaryIns);
-            } else if (insKind == InstructionKind.MOD) {
-                this.generateRemIns(binaryIns);
-            } else if (insKind == InstructionKind.EQUAL) {
-                this.generateEqualIns(binaryIns);
-            } else if (insKind == InstructionKind.NOT_EQUAL) {
-                this.generateNotEqualIns(binaryIns);
-            } else if (insKind == InstructionKind.GREATER_THAN) {
-                this.generateGreaterThanIns(binaryIns);
-            } else if (insKind == InstructionKind.GREATER_EQUAL) {
-                this.generateGreaterEqualIns(binaryIns);
-            } else if (insKind == InstructionKind.LESS_THAN) {
-                this.generateLessThanIns(binaryIns);
-//                } else {
-//                    this.generateLessEqualIns(binaryIns);
-            } else if (insKind == InstructionKind.REF_EQUAL) {
-                this.generateRefEqualIns(binaryIns);
-            } else if (insKind == InstructionKind.REF_NOT_EQUAL) {
-                this.generateRefNotEqualIns(binaryIns);
-            } else if (insKind == InstructionKind.CLOSED_RANGE) {
-                this.generateClosedRangeIns(binaryIns);
-            } else if (insKind == InstructionKind.HALF_OPEN_RANGE) {
-                this.generateClosedRangeIns(binaryIns);
-            } else if (insKind == InstructionKind.ANNOT_ACCESS) {
-                this.generateAnnotAccessIns(binaryIns);
-            } else if (insKind == InstructionKind.BITWISE_AND) {
-                this.generateBitwiseAndIns(binaryIns);
-            } else if (insKind == InstructionKind.BITWISE_OR) {
-                this.generateBitwiseOrIns(binaryIns);
-            } else if (insKind == InstructionKind.BITWISE_XOR) {
-                this.generateBitwiseXorIns(binaryIns);
-            } else if (insKind == InstructionKind.BITWISE_LEFT_SHIFT) {
-                this.generateBitwiseLeftShiftIns(binaryIns);
-            } else if (insKind == InstructionKind.BITWISE_RIGHT_SHIFT) {
-                this.generateBitwiseRightShiftIns(binaryIns);
-//            } else {
-//                this.generateBitwiseUnsignedRightShiftIns(binaryIns);
-            } else {
-                throw new BLangCompilerException("JVM generation is not supported for type : " +
-                        String.format("%s", insKind));
+            switch (insKind) {
+                case ADD:
+                    this.generateAddIns(binaryIns);
+                    break;
+                case SUB:
+                    this.generateSubIns(binaryIns);
+                    break;
+                case MUL:
+                    this.generateMulIns(binaryIns);
+                    break;
+                case DIV:
+                    this.generateDivIns(binaryIns);
+                    break;
+                case MOD:
+                    this.generateRemIns(binaryIns);
+                    break;
+                case EQUAL:
+                    this.generateEqualIns(binaryIns);
+                    break;
+                case NOT_EQUAL:
+                    this.generateNotEqualIns(binaryIns);
+                    break;
+                case GREATER_THAN:
+                    this.generateGreaterThanIns(binaryIns);
+                    break;
+                case GREATER_EQUAL:
+                    this.generateGreaterEqualIns(binaryIns);
+                    break;
+                case LESS_THAN:
+                    this.generateLessThanIns(binaryIns);
+                    break;
+                case REF_EQUAL:
+                    this.generateRefEqualIns(binaryIns);
+                    break;
+                case REF_NOT_EQUAL:
+                    this.generateRefNotEqualIns(binaryIns);
+                    break;
+                case CLOSED_RANGE:
+                    this.generateClosedRangeIns(binaryIns);
+                    break;
+                case HALF_OPEN_RANGE:
+                    this.generateClosedRangeIns(binaryIns);
+                    break;
+                case ANNOT_ACCESS:
+                    this.generateAnnotAccessIns(binaryIns);
+                    break;
+                case BITWISE_AND:
+                    this.generateBitwiseAndIns(binaryIns);
+                    break;
+                case BITWISE_OR:
+                    this.generateBitwiseOrIns(binaryIns);
+                    break;
+                case BITWISE_XOR:
+                    this.generateBitwiseXorIns(binaryIns);
+                    break;
+                case BITWISE_LEFT_SHIFT:
+                    this.generateBitwiseLeftShiftIns(binaryIns);
+                    break;
+                case BITWISE_RIGHT_SHIFT:
+                    this.generateBitwiseRightShiftIns(binaryIns);
+                    break;
+                default:
+                    BLangCompilerException err = new BLangCompilerException("JVM generation is not supported for type : " + String.format("%s", insKind));
+                    throw err;
             }
         }
 
@@ -1308,17 +1325,7 @@ public class JvmInstructionGen {
                 }
             }
 
-            String mapDesc = getMapsDesc(inst.closureMaps.size());
-            Handle handle = new Handle(Opcodes.H_INVOKESTATIC, "java/lang/invoke/LambdaMetafactory",
-                    "metafactory", "(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;" +
-                    "Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodHandle;" +
-                    "Ljava/lang/invoke/MethodType;)Ljava/lang/invoke/CallSite;", false);
-
-            mv.visitInvokeDynamicInsn("apply", "(" + mapDesc + ")Ljava/util/function/Function;", handle,
-                    Type.getType("(Ljava/lang/Object;)Ljava/lang/Object;"),
-                    new Handle(Opcodes.H_INVOKESTATIC, currentClass, lambdaName, "(" + mapDesc + "[" +
-                            "Ljava/lang/Object;)Ljava/lang/Object;", false),
-                    Type.getType("([Ljava/lang/Object;" + ")Ljava/lang/Object;"));
+            visitInvokeDyn(mv, currentClass, lambdaName, inst.closureMaps.size());
             loadType(this.mv, returnType);
             this.mv.visitMethodInsn(INVOKESPECIAL, FUNCTION_POINTER, "<init>",
                     String.format("(L%s;L%s;)V", FUNCTION, BTYPE), false);
@@ -1334,6 +1341,20 @@ public class JvmInstructionGen {
 
             this.storeToVar(inst.lhsOp.variableDcl);
             lambdas.put(lambdaName, inst);
+        }
+
+        static void visitInvokeDyn(MethodVisitor mv, String currentClass, String lambdaName, int size) {
+            String mapDesc = getMapsDesc(size);
+            Handle handle = new Handle(Opcodes.H_INVOKESTATIC, "java/lang/invoke/LambdaMetafactory",
+                    "metafactory", "(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;" +
+                    "Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodHandle;" +
+                    "Ljava/lang/invoke/MethodType;)Ljava/lang/invoke/CallSite;", false);
+
+            mv.visitInvokeDynamicInsn("apply", "(" + mapDesc + ")Ljava/util/function/Function;", handle,
+                    Type.getType("(Ljava/lang/Object;)Ljava/lang/Object;"),
+                    new Handle(Opcodes.H_INVOKESTATIC, currentClass, lambdaName, "(" + mapDesc + "[" +
+                            "Ljava/lang/Object;)Ljava/lang/Object;", false),
+                    Type.getType("([Ljava/lang/Object;" + ")Ljava/lang/Object;"));
         }
 
         private static String getMapsDesc(long count) {

@@ -1128,8 +1128,8 @@ public class JvmTerminatorGen {
             generateVarStore(this.mv, varDcl, this.currentPackageName, this.getJVMIndexOfVarRef(varDcl));
         }
 
-        void genReturnTerm(BIRTerminator.Return returnIns, int returnVarRefIndex, BIRFunction func,
-                           boolean isObserved /* = false */, int localVarOffset /* = -1 */) {
+        public void genReturnTerm(BIRTerminator.Return returnIns, int returnVarRefIndex, BIRFunction func,
+                                  boolean isObserved /* = false */, int localVarOffset /* = -1 */) {
 
             if (isObserved) {
                 emitStopObservationInvocation(this.mv, localVarOffset);
