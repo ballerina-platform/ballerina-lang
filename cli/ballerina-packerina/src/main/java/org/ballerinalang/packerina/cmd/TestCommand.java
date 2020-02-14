@@ -31,6 +31,7 @@ import org.ballerinalang.packerina.task.CreateBaloTask;
 import org.ballerinalang.packerina.task.CreateBirTask;
 import org.ballerinalang.packerina.task.CreateJarTask;
 import org.ballerinalang.packerina.task.CreateTargetDirTask;
+import org.ballerinalang.packerina.task.ListTestGroupsTask;
 import org.ballerinalang.packerina.task.RunTestsTask;
 import org.ballerinalang.tool.BLauncherCmd;
 import org.ballerinalang.tool.LauncherUtils;
@@ -128,6 +129,15 @@ public class TestCommand implements BLauncherCmd {
     @CommandLine.Option(names = "--debug", description = "start Ballerina in remote debugging mode")
     private String debugPort;
 
+    @CommandLine.Option(names = "--list-groups", description = "list the groups available in the tests")
+    private boolean listGroups;
+
+    @CommandLine.Option(names = "--groups", split = ",", description = "test groups to be executed")
+    private List<String> groupList;
+
+    @CommandLine.Option(names = "--disable-groups", split = ",", description = "test groups to be disabled")
+    private List<String> disableGroupList;
+
     public void execute() {
         if (this.helpFlag) {
             String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(TEST_COMMAND);
@@ -166,6 +176,24 @@ public class TestCommand implements BLauncherCmd {
                 Paths.get(this.sourceRoot).toAbsolutePath() : this.sourceRootPath;
         Path sourcePath = null;
         Path targetPath = this.sourceRootPath.resolve(ProjectDirConstants.TARGET_DIR_NAME);
+
+        if (groupList != null && disableGroupList != null) {
+            CommandUtil.printError(this.errStream,
+                    "Cannot specify both --groups and --disable-groups flags at the same time",
+                    "ballerina test --groups <group1, ...> <module-name> | -a | --all",
+                    true);
+            CommandUtil.exitError(this.exitWhenFinish);
+            return;
+        }
+
+        if ((listGroups && disableGroupList != null) || (listGroups && groupList != null)) {
+            CommandUtil.printError(this.errStream,
+                    "Cannot specify both --list-groups and --disable-groups/--groups flags at the same time",
+                    "ballerina test --list-groups <module-name> | -a | --all",
+                    true);
+            CommandUtil.exitError(this.exitWhenFinish);
+            return;
+        }
 
         // when -a or --all flag is provided. check if the command is executed within a ballerina project. update source
         // root path if command executed inside a project.
@@ -318,7 +346,10 @@ public class TestCommand implements BLauncherCmd {
                         this.noOptimizeLLVM))
                 .addTask(new CopyResourcesTask(), isSingleFileBuild)
                 .addTask(new CopyModuleJarTask(skipCopyLibsFromDist))
-                .addTask(new RunTestsTask()) // run tests
+                // tasks to list groups or execute tests. the 'listGroups' boolean is used to decide whether to
+                // skip the task or to execute
+                .addTask(new ListTestGroupsTask(), !listGroups) // list the available test groups
+                .addTask(new RunTestsTask(groupList, disableGroupList), listGroups) // run tests
                 .build();
 
         taskExecutor.executeTasks(buildContext);
