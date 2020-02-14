@@ -310,7 +310,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         validateObjectAttachedFunction(funcNode);
 
         if (funcNode.hasBody()) {
-            analyzeNode(funcNode.funcBody, funcEnv, funcNode.returnTypeNode.type, null);
+            analyzeNode(funcNode.body, funcEnv, funcNode.returnTypeNode.type, null);
         }
 
         if (funcNode.anonForkName != null) {
@@ -322,7 +322,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     private void processWorkers(BLangInvokableNode invNode, SymbolEnv invEnv) {
         if (invNode.workers.size() > 0) {
-            invEnv.scope.entries.putAll(invNode.funcBody.scope.entries);
+            invEnv.scope.entries.putAll(invNode.body.scope.entries);
             for (BLangWorker worker : invNode.workers) {
                 this.symbolEnter.defineNode(worker, invEnv);
             }
@@ -2440,7 +2440,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangWorker workerNode) {
         SymbolEnv workerEnv = SymbolEnv.createWorkerEnv(workerNode, this.env);
-        this.analyzeNode(workerNode.funcBody, workerEnv);
+        this.analyzeNode(workerNode.body, workerEnv);
     }
 
     @Override
@@ -2839,7 +2839,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
         // If the function is attached to an abstract object, it don't need to have an implementation.
         if (Symbols.isFlagOn(funcNode.receiver.type.tsymbol.flags, Flags.ABSTRACT)) {
-            if (funcNode.funcBody != null) {
+            if (funcNode.body != null) {
                 dlog.error(funcNode.pos, DiagnosticCode.ABSTRACT_OBJECT_FUNCTION_CANNOT_HAVE_BODY, funcNode.name,
                         funcNode.receiver.type);
             }

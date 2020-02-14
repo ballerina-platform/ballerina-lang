@@ -126,7 +126,7 @@ public class IncompatibleTypesCodeAction extends AbstractCodeActionProvider {
             try {
                 BLangFunction func = getFunctionNode(line, column, document, documentManager, context);
                 if (func != null && !BLangConstants.MAIN_FUNCTION_NAME.equals(func.name.value)) {
-                    BLangStatement statement = getStatementByLocation(((BLangBlockFunctionBody) func.funcBody).stmts,
+                    BLangStatement statement = getStatementByLocation(((BLangBlockFunctionBody) func.body).stmts,
                                                                       line + 1, column + 1);
                     if (statement instanceof BLangReturn) {
                         // Process full-qualified BType name  eg. ballerina/http:Client and if required; add

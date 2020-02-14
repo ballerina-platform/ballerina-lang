@@ -1821,9 +1821,9 @@ public class BLangPackageBuilder {
             function.flagSet.add(Flag.NATIVE);
         }
 
-        function.funcBody = (BLangFunctionBody) this.funcBodyNodeStack.pop();
+        function.body = (BLangFunctionBody) this.funcBodyNodeStack.pop();
 
-        if (function.funcBody.getKind() == NodeKind.BLOCK_FUNCTION_BODY) {
+        if (function.body.getKind() == NodeKind.BLOCK_FUNCTION_BODY) {
             this.blockNodeStack.pop();
         }
 
@@ -2308,13 +2308,13 @@ public class BLangPackageBuilder {
         }
 
         if (isDeclaration) {
-            function.funcBody = null;
+            function.body = null;
             function.flagSet.add(Flag.INTERFACE);
             function.interfaceFunction = true;
         } else {
-            function.funcBody = (BLangFunctionBody) this.funcBodyNodeStack.pop();
+            function.body = (BLangFunctionBody) this.funcBodyNodeStack.pop();
 
-            NodeKind bodyKind = function.funcBody.getKind();
+            NodeKind bodyKind = function.body.getKind();
             if (bodyKind == NodeKind.BLOCK_FUNCTION_BODY) {
                 this.blockNodeStack.pop();
             } else if (bodyKind == NodeKind.EXTERN_FUNCTION_BODY) {

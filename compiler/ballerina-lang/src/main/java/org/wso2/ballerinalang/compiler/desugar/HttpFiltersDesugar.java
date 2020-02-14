@@ -238,7 +238,7 @@ public class HttpFiltersDesugar {
                 new BVarSymbol(0, names.fromString(filterContextVarName), resourceNode.symbol.pkgID, filterContextType,
                                resourceNode.symbol));
         filterContextVar.typeNode = filterContextUserDefinedType;
-        addStatementToResourceBody(resourceNode.funcBody,
+        addStatementToResourceBody(resourceNode.body,
                                    ASTBuilderUtil.createVariableDef(resourceNode.pos, filterContextVar), 0);
         return filterContextVar;
     }
@@ -336,7 +336,7 @@ public class HttpFiltersDesugar {
         BLangAssignment filterContextAssignment = ASTBuilderUtil.createAssignmentStmt(
                 resourceNode.pos, filterContextField, filterContextRef, false);
 
-        addStatementToResourceBody(resourceNode.funcBody, filterContextAssignment, 1);
+        addStatementToResourceBody(resourceNode.body, filterContextAssignment, 1);
         //Assignment statement END
 
         //forEach statement START
@@ -453,7 +453,7 @@ public class HttpFiltersDesugar {
         this.types.setForeachTypedBindingPatternType(foreach);
         foreach.variableDefinitionNode = variableDefinition;
 
-        addStatementToResourceBody(resourceNode.funcBody, foreach, 2);
+        addStatementToResourceBody(resourceNode.body, foreach, 2);
         //forEach statement END
     }
 

@@ -159,13 +159,13 @@ public class AnnotationDesugar {
 
             BLangLambdaFunction lambdaFunction = defineAnnotations(typeDef, typeDef.pos, pkgNode, env, pkgID, owner);
             if (lambdaFunction != null) {
-                addInvocationToGlobalAnnotMap(typeDef.name.value, lambdaFunction, initFunction.funcBody);
+                addInvocationToGlobalAnnotMap(typeDef.name.value, lambdaFunction, initFunction.body);
             }
         }
     }
 
     private void defineServiceAnnotations(BLangPackage pkgNode, SymbolEnv env, BLangFunction initFunction) {
-        BLangBlockFunctionBody initFnBody = (BLangBlockFunctionBody) initFunction.funcBody;
+        BLangBlockFunctionBody initFnBody = (BLangBlockFunctionBody) initFunction.body;
         for (BLangService service : pkgNode.services) {
             BLangLambdaFunction lambdaFunction = defineAnnotations(service, service.pos, pkgNode, env,
                                                                    service.symbol.pkgID, service.symbol.owner);
@@ -186,7 +186,7 @@ public class AnnotationDesugar {
     }
 
     private void defineFunctionAnnotations(BLangPackage pkgNode, SymbolEnv env, BLangFunction initFunction) {
-        BLangBlockFunctionBody initFnBody = (BLangBlockFunctionBody) initFunction.funcBody;
+        BLangBlockFunctionBody initFnBody = (BLangBlockFunctionBody) initFunction.body;
         BLangFunction[] functions = pkgNode.functions.toArray(new BLangFunction[pkgNode.functions.size()]);
         for (BLangFunction function : functions) {
             PackageID pkgID = function.symbol.pkgID;
@@ -394,7 +394,7 @@ public class AnnotationDesugar {
         function.returnTypeNode = anyMapType;
         function.returnTypeNode.type = symTable.mapType;
 
-        function.funcBody = ASTBuilderUtil.createBlockFunctionBody(pos, new ArrayList<>());
+        function.body = ASTBuilderUtil.createBlockFunctionBody(pos, new ArrayList<>());
 
         BInvokableSymbol functionSymbol = new BInvokableSymbol(SymTag.INVOKABLE, Flags.asMask(function.flagSet),
                                                                new Name(funcName), pkgID, function.type, owner);
@@ -411,7 +411,7 @@ public class AnnotationDesugar {
                                                          BLangPackage pkgNode, SymbolEnv env, PackageID pkgID,
                                                          BSymbol owner) {
         BLangReturn returnStmt = ASTBuilderUtil.createReturnStmt(function.pos,
-                                                                 (BLangBlockFunctionBody) function.funcBody);
+                                                                 (BLangBlockFunctionBody) function.body);
         returnStmt.expr = mapLiteral;
 
         BInvokableSymbol lambdaFunctionSymbol = createInvokableSymbol(function, pkgID, owner);

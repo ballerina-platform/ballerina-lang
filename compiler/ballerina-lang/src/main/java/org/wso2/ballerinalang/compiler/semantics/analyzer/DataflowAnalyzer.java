@@ -265,7 +265,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         funcNode.annAttachments.forEach(bLangAnnotationAttachment -> analyzeNode(bLangAnnotationAttachment.expr, env));
         funcNode.requiredParams.forEach(param -> analyzeNode(param, funcEnv));
         analyzeNode(funcNode.restParam, funcEnv);
-        analyzeBranch(funcNode.funcBody, funcEnv);
+        analyzeBranch(funcNode.body, funcEnv);
         this.currDependentSymbol.pop();
     }
 
@@ -367,7 +367,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangWorker worker) {
         SymbolEnv workerEnv = SymbolEnv.createWorkerEnv(worker, this.env);
-        analyzeBranch(worker.funcBody, workerEnv);
+        analyzeBranch(worker.body, workerEnv);
     }
 
     @Override
@@ -817,7 +817,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         this.uninitializedVars = copyUninitializedVars();
         this.flowTerminated = false;
 
-        analyzeNode(funcNode.funcBody, funcEnv);
+        analyzeNode(funcNode.body, funcEnv);
 
         // Restore the original set of uninitialized vars
         this.uninitializedVars = prevUninitializedVars;
@@ -985,7 +985,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
         // Visit the constructor with the same scope as the object
         if (objectTypeNode.initFunction != null) {
-            if (objectTypeNode.initFunction.funcBody == null) {
+            if (objectTypeNode.initFunction.body == null) {
                 // if the __init() function is defined as an outside function definition
                 Optional<BLangFunction> outerFuncDef =
                         objectEnv.enclPkg.functions.stream()
@@ -994,14 +994,14 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
                 outerFuncDef.ifPresent(bLangFunction -> objectTypeNode.initFunction = bLangFunction);
             }
 
-            if (objectTypeNode.initFunction.funcBody != null) {
-                if (objectTypeNode.initFunction.funcBody.getKind() == NodeKind.BLOCK_FUNCTION_BODY) {
+            if (objectTypeNode.initFunction.body != null) {
+                if (objectTypeNode.initFunction.body.getKind() == NodeKind.BLOCK_FUNCTION_BODY) {
                     for (BLangStatement statement :
-                            ((BLangBlockFunctionBody) objectTypeNode.initFunction.funcBody).stmts) {
+                            ((BLangBlockFunctionBody) objectTypeNode.initFunction.body).stmts) {
                         analyzeNode(statement, objectEnv);
                     }
-                } else if (objectTypeNode.initFunction.funcBody.getKind() == NodeKind.EXPR_FUNCTION_BODY) {
-                    analyzeNode(((BLangExprFunctionBody)objectTypeNode.initFunction.funcBody).expr, objectEnv);
+                } else if (objectTypeNode.initFunction.body.getKind() == NodeKind.EXPR_FUNCTION_BODY) {
+                    analyzeNode(((BLangExprFunctionBody)objectTypeNode.initFunction.body).expr, objectEnv);
                 }
             }
         }

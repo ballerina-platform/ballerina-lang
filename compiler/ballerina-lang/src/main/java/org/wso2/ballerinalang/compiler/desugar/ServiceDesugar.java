@@ -116,11 +116,11 @@ public class ServiceDesugar {
 
         // Create method invocation
         addMethodInvocation(pos, varRef, methodInvocationSymbol, Collections.emptyList(), Collections.emptyList(),
-                            (BLangBlockFunctionBody) lifeCycleFunction.funcBody);
+                            (BLangBlockFunctionBody) lifeCycleFunction.body);
     }
 
     void rewriteServiceAttachments(BLangBlockStmt serviceAttachments, SymbolEnv env) {
-        ASTBuilderUtil.appendStatements(serviceAttachments, (BLangBlockFunctionBody) env.enclPkg.initFunction.funcBody);
+        ASTBuilderUtil.appendStatements(serviceAttachments, (BLangBlockFunctionBody) env.enclPkg.initFunction.body);
     }
 
     BLangBlockStmt rewriteServiceVariables(List<BLangService> services, SymbolEnv env) {

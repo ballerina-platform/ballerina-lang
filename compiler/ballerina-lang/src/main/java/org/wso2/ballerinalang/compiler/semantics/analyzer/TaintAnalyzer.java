@@ -2011,7 +2011,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
     private void analyzeReturnTaintedStatus(BLangInvokableNode invokableNode, SymbolEnv symbolEnv) {
         getCurrentAnalysisState().returnTaintedStatus = TaintedStatus.UNTAINTED;
         getCurrentAnalysisState().parameterTaintedStatus = new ArrayList<>();
-        analyzeNode(invokableNode.funcBody, symbolEnv);
+        analyzeNode(invokableNode.body, symbolEnv);
         if (stopAnalysis) {
             stopAnalysis = false;
         }

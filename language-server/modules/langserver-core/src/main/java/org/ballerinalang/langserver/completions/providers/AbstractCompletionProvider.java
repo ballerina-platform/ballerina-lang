@@ -781,7 +781,7 @@ public abstract class AbstractCompletionProvider implements LSCompletionProvider
             typeNode = bLangPackage.get().globalVars.get(0).getTypeNode();
         } else {
             typeNode = ((BLangSimpleVariableDef) ((BLangBlockFunctionBody) bLangPackage.get().getFunctions().get(0)
-                    .funcBody).stmts.get(0)).getVariable().typeNode;
+                    .body).stmts.get(0)).getVariable().typeNode;
         }
 
         return Optional.ofNullable(typeNode);

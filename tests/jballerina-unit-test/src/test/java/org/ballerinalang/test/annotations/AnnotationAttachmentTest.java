@@ -235,7 +235,7 @@ public class AnnotationAttachmentTest {
         Assert.assertEquals(attachment.annotationName.getValue(), "v7");
         Assert.assertNull(attachment.expr);
 
-        attachments = ((BLangExternalFunctionBody) function.funcBody).annAttachments;
+        attachments = ((BLangExternalFunctionBody) function.body).annAttachments;
         Assert.assertEquals(attachments.size(), 1);
         assertNameAndKeyValuePair(attachments.get(0), "v13", "strOne", "one");
         assertNameAndKeyValuePair(attachments.get(0), "v13", "strTwo", "two");

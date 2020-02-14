@@ -63,7 +63,7 @@ class SemanticHighlightingVisitor extends LSNodeVisitor {
     @Override
     public void visit(BLangFunction funcNode) {
         funcNode.requiredParams.forEach(this::acceptNode);
-        this.acceptNode(funcNode.funcBody);
+        this.acceptNode(funcNode.body);
     }
 
     @Override

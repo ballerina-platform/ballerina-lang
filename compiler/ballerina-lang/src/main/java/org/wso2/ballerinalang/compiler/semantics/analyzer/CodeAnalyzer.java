@@ -382,8 +382,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             analyzeNode(funcNode.returnTypeNode, invokableEnv);
         }
         /* the body can be null in the case of Object type function declarations */
-        if (funcNode.funcBody != null) {
-            analyzeNode(funcNode.funcBody, invokableEnv);
+        if (funcNode.body != null) {
+            analyzeNode(funcNode.body, invokableEnv);
 
             boolean isNilableReturn = funcNode.symbol.type.getReturnType().isNullable();
             // If the return signature is nil-able, an implicit return will be added in Desugar.
@@ -1590,7 +1590,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     private boolean isTopLevel() {
         SymbolEnv env = this.env;
-        return env.enclInvokable.funcBody == env.node;
+        return env.enclInvokable.body == env.node;
     }
 
     private boolean isInWorker() {

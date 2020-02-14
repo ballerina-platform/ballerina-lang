@@ -415,7 +415,7 @@ public class ServiceProtoUtils {
 
     private static Message getResponseMessage(FunctionNode resourceNode) throws GrpcServerException {
         org.wso2.ballerinalang.compiler.semantics.model.types.BType responseType;
-        BLangFunctionBody body = resourceNode.getFuncBody();
+        BLangFunctionBody body = resourceNode.getBody();
         BLangInvocation sendExpression =
                 (body != null && body.getKind() == NodeKind.BLOCK_FUNCTION_BODY) ?
                         getInvocationExpression((BLangBlockFunctionBody) body) : null;

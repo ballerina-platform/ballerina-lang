@@ -46,13 +46,13 @@ public class CommentStmtTest {
     @Test
     public void commentsTest() {
         Assert.assertEquals(result.getErrorCount(), 0);
-        List<BLangStatement> statements = ((BLangBlockFunctionBody) compiledPackage.functions.get(0).funcBody)
+        List<BLangStatement> statements = ((BLangBlockFunctionBody) compiledPackage.functions.get(0).body)
                 .getStatements();
         Assert.assertNotNull(statements, "statements not found");
         //since return statement is added at desugar phase, expected statement count is 8
         Assert.assertEquals(statements.size(), 8, "statement count mismatched");
 
-        statements = ((BLangBlockFunctionBody) compiledPackage.functions.get(1).funcBody).getStatements();
+        statements = ((BLangBlockFunctionBody) compiledPackage.functions.get(1).body).getStatements();
         Assert.assertNotNull(statements, "statements not found");
         Assert.assertEquals(statements.size(), 3, "statement count mismatched");
     }

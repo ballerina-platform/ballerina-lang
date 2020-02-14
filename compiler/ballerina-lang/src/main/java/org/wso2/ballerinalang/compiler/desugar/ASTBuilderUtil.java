@@ -180,7 +180,7 @@ public class ASTBuilderUtil {
         bLangFunction.flagSet = EnumSet.of(Flag.LAMBDA);
         bLangFunction.pos = pos;
         // Create body of the function
-        bLangFunction.funcBody = createBlockFunctionBody(pos);
+        bLangFunction.body = createBlockFunctionBody(pos);
         return bLangFunction;
     }
 

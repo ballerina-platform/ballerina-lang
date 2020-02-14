@@ -254,7 +254,7 @@ public class ClosureDesugar extends BLangNodeVisitor {
             addToFunctionMap(funcNode, funcEnv, position, receiver.symbol, receiver.type);
         }
 
-        funcNode.funcBody = rewrite(funcNode.funcBody, funcEnv);
+        funcNode.body = rewrite(funcNode.body, funcEnv);
         result = funcNode;
     }
 
@@ -294,10 +294,10 @@ public class ClosureDesugar extends BLangNodeVisitor {
         // Add the map variable to the top of the statements in the block node.
         mapVarDef = desugar.rewrite(mapVarDef, funcEnv);
         // Add the map variable to the top of the statements in the block node.
-        if (funcNode.funcBody == null) {
-            funcNode.funcBody = ASTBuilderUtil.createBlockFunctionBody(funcNode.pos);
+        if (funcNode.body == null) {
+            funcNode.body = ASTBuilderUtil.createBlockFunctionBody(funcNode.pos);
         }
-        ((BLangBlockFunctionBody) funcNode.funcBody).stmts.add(0, mapVarDef);
+        ((BLangBlockFunctionBody) funcNode.body).stmts.add(0, mapVarDef);
     }
 
     /**
@@ -342,7 +342,7 @@ public class ClosureDesugar extends BLangNodeVisitor {
         accessExpr.lhsVar = true;
         BLangAssignment stmt = desugar.rewrite(ASTBuilderUtil.createAssignmentStmt(funcNode.pos, accessExpr,
                 localVarRef), symbolEnv);
-        ((BLangBlockFunctionBody) funcNode.funcBody).stmts.add(position, stmt);
+        ((BLangBlockFunctionBody) funcNode.body).stmts.add(position, stmt);
     }
 
     @Override

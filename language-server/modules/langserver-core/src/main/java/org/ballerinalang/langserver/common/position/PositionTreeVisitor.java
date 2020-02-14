@@ -151,7 +151,7 @@ public class PositionTreeVisitor extends LSNodeVisitor {
         }
 
         if (funcNode.hasBody()) {
-            this.acceptNode(funcNode.funcBody);
+            this.acceptNode(funcNode.body);
         }
 
         // Process workers
@@ -389,8 +389,8 @@ public class PositionTreeVisitor extends LSNodeVisitor {
             workerNode.requiredParams.forEach(this::acceptNode);
         }
 
-        if (workerNode.funcBody != null) {
-            acceptNode(workerNode.funcBody);
+        if (workerNode.body != null) {
+            acceptNode(workerNode.body);
         }
 
         if (workerNode.workers != null) {

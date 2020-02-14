@@ -434,7 +434,7 @@ public class Desugar extends BLangNodeVisitor {
                                                                                      Names.INIT_FUNCTION_SUFFIX,
                                                                                      symTable);
         // Add package level namespace declarations to the init function
-        BLangBlockFunctionBody initFnBody = (BLangBlockFunctionBody) pkgNode.initFunction.funcBody;
+        BLangBlockFunctionBody initFnBody = (BLangBlockFunctionBody) pkgNode.initFunction.body;
         for (BLangXMLNS xmlns : pkgNode.xmlnsList) {
             initFnBody.addStatement(createNamespaceDeclrStatement(xmlns));
         }
@@ -457,7 +457,7 @@ public class Desugar extends BLangNodeVisitor {
                             bLangFunction.name.value.equals(Names.USER_DEFINED_INIT_SUFFIX.value))
                 .findFirst();
 
-        BLangBlockFunctionBody initFnBody = (BLangBlockFunctionBody) pkgNode.initFunction.funcBody;
+        BLangBlockFunctionBody initFnBody = (BLangBlockFunctionBody) pkgNode.initFunction.body;
         if (!userDefInitOptional.isPresent()) {
             // Assumption: compiler generated module init function body is always a block function body.
             addNilReturnStatement(initFnBody);
@@ -552,7 +552,7 @@ public class Desugar extends BLangNodeVisitor {
                 .forEach(constant -> pkgNode.typeDefinitions.add(constant.associatedTypeDefinition));
 
         BLangBlockStmt serviceAttachments = serviceDesugar.rewriteServiceVariables(pkgNode.services, env);
-        BLangBlockFunctionBody initFnBody = (BLangBlockFunctionBody) pkgNode.initFunction.funcBody;
+        BLangBlockFunctionBody initFnBody = (BLangBlockFunctionBody) pkgNode.initFunction.body;
 
         for (BLangConstant constant : pkgNode.constants) {
             if (constant.symbol.type.tag == TypeTags.MAP) {
@@ -594,8 +594,8 @@ public class Desugar extends BLangNodeVisitor {
         serviceDesugar.rewriteListeners(pkgNode.globalVars, env);
         serviceDesugar.rewriteServiceAttachments(serviceAttachments, env);
 
-        addNilReturnStatement((BLangBlockFunctionBody) pkgNode.startFunction.funcBody);
-        addNilReturnStatement((BLangBlockFunctionBody) pkgNode.stopFunction.funcBody);
+        addNilReturnStatement((BLangBlockFunctionBody) pkgNode.startFunction.body);
+        addNilReturnStatement((BLangBlockFunctionBody) pkgNode.stopFunction.body);
 
         pkgNode.initFunction = splitInitFunction(pkgNode, env);
         pkgNode.initFunction = rewrite(pkgNode.initFunction, env);
@@ -655,7 +655,7 @@ public class Desugar extends BLangNodeVisitor {
         // Adding init statements to the init function.
         BLangStatement[] initStmts = initFunctionStmts.values().toArray(new BLangStatement[0]);
         BLangBlockFunctionBody generatedInitFnBody =
-                (BLangBlockFunctionBody) objectTypeNode.generatedInitFunction.funcBody;
+                (BLangBlockFunctionBody) objectTypeNode.generatedInitFunction.body;
         int i;
         for (i = 0; i < initFunctionStmts.size(); i++) {
             generatedInitFnBody.stmts.add(i, initStmts[i]);
@@ -711,7 +711,7 @@ public class Desugar extends BLangNodeVisitor {
         //Adding init statements to the init function.
         BLangStatement[] initStmts = recordTypeNode.initFunction.initFunctionStmts
                 .values().toArray(new BLangStatement[0]);
-        BLangBlockFunctionBody initFnBody = (BLangBlockFunctionBody) recordTypeNode.initFunction.funcBody;
+        BLangBlockFunctionBody initFnBody = (BLangBlockFunctionBody) recordTypeNode.initFunction.body;
         for (int i = 0; i < recordTypeNode.initFunction.initFunctionStmts.size(); i++) {
             initFnBody.stmts.add(i, initStmts[i]);
         }
@@ -764,7 +764,7 @@ public class Desugar extends BLangNodeVisitor {
                                          .filter(a -> Transactions.isTransactionsAnnotation(a.pkgAlias.value,
                                                                                             a.annotationName.value))
                                          .collect(Collectors.toList());
-        funcNode.funcBody = rewrite(funcNode.funcBody, fucEnv);
+        funcNode.body = rewrite(funcNode.body, fucEnv);
         funcNode.annAttachments.forEach(attachment -> rewrite(attachment, env));
         if (funcNode.returnTypeNode != null) {
             funcNode.returnTypeAnnAttachments.forEach(attachment -> rewrite(attachment, env));
@@ -850,14 +850,14 @@ public class Desugar extends BLangNodeVisitor {
             returnStmt.expr = ASTBuilderUtil.createLiteral(funcNode.pos, symTable.nilType, Names.NIL_VALUE);
         }
 
-        commitFunc.function.funcBody = onCommitBody;
+        commitFunc.function.body = onCommitBody;
         commitFunc.function.requiredParams.add(onCommitTrxVar);
         commitFunc.type = new BInvokableType(Lists.of(onCommitTrxVar.symbol.type),
                                              commitFunc.function.symbol.type.getReturnType(), null);
         commitFunc.function.symbol.type = commitFunc.type;
         commitFunc.function.symbol.params = Lists.of(onCommitTrxVar.symbol);
 
-        abortFunc.function.funcBody = onAbortBody;
+        abortFunc.function.body = onAbortBody;
         abortFunc.function.requiredParams.add(onAbortTrxVar);
         abortFunc.type = new BInvokableType(Lists.of(onAbortTrxVar.symbol.type),
                                             abortFunc.function.symbol.type.getReturnType(), null);
@@ -901,7 +901,7 @@ public class Desugar extends BLangNodeVisitor {
         BLangLambdaFunction trxMainWrapperFunc = createLambdaFunction(funcNode.pos, "$anonTrxWrapperFunc$",
                                                                       Collections.emptyList(),
                                                                       funcNode.returnTypeNode,
-                                                                      funcNode.funcBody);
+                                                                      funcNode.body);
 
         for (BLangSimpleVariable var : funcNode.requiredParams) {
             trxMainWrapperFunc.function.closureVarSymbols.add(new ClosureVarSymbol(var.symbol, var.pos));
@@ -943,7 +943,7 @@ public class Desugar extends BLangNodeVisitor {
         participantInvocation.type = ((BInvokableType) invokableSymbol.type).retType;
         BLangStatement stmt = ASTBuilderUtil.createReturnStmt(funcNode.pos, addConversionExprIfRequired
                 (participantInvocation, funcNode.symbol.retType));
-        funcNode.funcBody = ASTBuilderUtil.createBlockFunctionBody(funcNode.pos, Lists.of(rewrite(stmt, env)));
+        funcNode.body = ASTBuilderUtil.createBlockFunctionBody(funcNode.pos, Lists.of(rewrite(stmt, env)));
         
         return funcNode;
     }
@@ -1520,7 +1520,7 @@ public class Desugar extends BLangNodeVisitor {
         function.returnTypeNode = anyType;
 
         BLangBlockFunctionBody functionBlock = ASTBuilderUtil.createBlockFunctionBody(pos, new ArrayList<>());
-        function.funcBody = functionBlock;
+        function.body = functionBlock;
 
         BLangIndexBasedAccess indexBasesAccessExpr =
                 ASTBuilderUtil.createIndexBasesAccessExpr(pos, symTable.anyType, keyValSymbol,
@@ -1809,7 +1809,7 @@ public class Desugar extends BLangNodeVisitor {
         function.returnTypeNode = booleanTypeKind;
 
         BLangBlockFunctionBody functionBlock = ASTBuilderUtil.createBlockFunctionBody(pos, new ArrayList<>());
-        function.funcBody = functionBlock;
+        function.body = functionBlock;
         return functionBlock;
     }
 
@@ -2914,7 +2914,7 @@ public class Desugar extends BLangNodeVisitor {
         defineFunction(func, env.enclPkg);
         lambdaFunctionVariable = func.requiredParams;
 
-        func.funcBody = lambdaBody;
+        func.body = lambdaBody;
         func.desugared = false;
         lambdaFunction.pos = pos;
         List<BType> paramTypes = new ArrayList<>();
@@ -3933,7 +3933,7 @@ public class Desugar extends BLangNodeVisitor {
         funcNode.type = new BInvokableType(paramTypes, getRestType(funcSymbol), funcNode.returnTypeNode.type, null);
 
         lambdaFunction.function.pos = bLangArrowFunction.pos;
-        lambdaFunction.function.funcBody.pos = bLangArrowFunction.pos;
+        lambdaFunction.function.body.pos = bLangArrowFunction.pos;
         rewrite(lambdaFunction.function, env);
         env.enclPkg.addFunction(lambdaFunction.function);
         bLangArrowFunction.function = lambdaFunction.function;
@@ -4816,12 +4816,12 @@ public class Desugar extends BLangNodeVisitor {
     // TODO: See if this is needed at all. Can't this be done when rewriting the function body?
     private void addReturnIfNotPresent(BLangInvokableNode invokableNode) {
         if (Symbols.isNative(invokableNode.symbol) ||
-                (invokableNode.hasBody() && invokableNode.funcBody.getKind() != NodeKind.BLOCK_FUNCTION_BODY)) {
+                (invokableNode.hasBody() && invokableNode.body.getKind() != NodeKind.BLOCK_FUNCTION_BODY)) {
             return;
         }
         //This will only check whether last statement is a return and just add a return statement.
         //This won't analyse if else blocks etc to see whether return statements are present
-        BLangBlockFunctionBody funcBody = (BLangBlockFunctionBody) invokableNode.funcBody;
+        BLangBlockFunctionBody funcBody = (BLangBlockFunctionBody) invokableNode.body;
         if (invokableNode.workers.size() == 0 && invokableNode.symbol.type.getReturnType().isNullable()
                 && (funcBody.stmts.size() < 1
                 || funcBody.stmts.get(funcBody.stmts.size() - 1).getKind() != NodeKind.RETURN)) {
@@ -6129,7 +6129,7 @@ public class Desugar extends BLangNodeVisitor {
         Name funcSymbolName = names.fromString(Symbols.getAttachedFuncSymbolName(structTypeName, suffix.value));
         initFunction.symbol = Symbols
                 .createFunctionSymbol(Flags.asMask(initFunction.flagSet), funcSymbolName, env.enclPkg.symbol.pkgID,
-                                      initFunction.type, structureTypeNode.symbol, initFunction.funcBody != null);
+                                      initFunction.type, structureTypeNode.symbol, initFunction.body != null);
         initFunction.symbol.scope = new Scope(initFunction.symbol);
         initFunction.symbol.scope.define(receiverSymbol.name, receiverSymbol);
         initFunction.symbol.receiverSymbol = receiverSymbol;
@@ -6249,7 +6249,7 @@ public class Desugar extends BLangNodeVisitor {
      */
     private BLangFunction splitInitFunction(BLangPackage packageNode, SymbolEnv env) {
         int methodSize = INIT_METHOD_SPLIT_SIZE;
-        BLangBlockFunctionBody funcBody = (BLangBlockFunctionBody) packageNode.initFunction.funcBody;
+        BLangBlockFunctionBody funcBody = (BLangBlockFunctionBody) packageNode.initFunction.body;
         if (funcBody.stmts.size() < methodSize || !isJvmTarget) {
             return packageNode.initFunction;
         }
@@ -6259,7 +6259,7 @@ public class Desugar extends BLangNodeVisitor {
         List<BLangStatement> stmts = new ArrayList<>(funcBody.stmts);
         funcBody.stmts.clear();
         BLangFunction newFunc = initFunction;
-        BLangBlockFunctionBody newFuncBody = (BLangBlockFunctionBody) newFunc.funcBody;
+        BLangBlockFunctionBody newFuncBody = (BLangBlockFunctionBody) newFunc.body;
 
         // until we get to a varDef, stmts are independent, divide it based on methodSize
         int varDefIndex = 0;
@@ -6271,7 +6271,7 @@ public class Desugar extends BLangNodeVisitor {
             if (i > 0 && i % methodSize == 0) {
                 generatedFunctions.add(newFunc);
                 newFunc = createIntermediateInitFunction(packageNode, env);
-                newFuncBody = (BLangBlockFunctionBody) newFunc.funcBody;
+                newFuncBody = (BLangBlockFunctionBody) newFunc.body;
                 symTable.rootScope.define(names.fromIdNode(newFunc.name), newFunc.symbol);
             }
 
@@ -6291,7 +6291,7 @@ public class Desugar extends BLangNodeVisitor {
                 if (newFuncBody.stmts.size() + chunkStmts.size() > methodSize) {
                     generatedFunctions.add(newFunc);
                     newFunc = createIntermediateInitFunction(packageNode, env);
-                    newFuncBody = (BLangBlockFunctionBody) newFunc.funcBody;
+                    newFuncBody = (BLangBlockFunctionBody) newFunc.body;
                     symTable.rootScope.define(names.fromIdNode(newFunc.name), newFunc.symbol);
                 }
                 newFuncBody.stmts.addAll(chunkStmts);
@@ -6312,7 +6312,7 @@ public class Desugar extends BLangNodeVisitor {
             if (i > 0 && i % methodSize == 0) {
                 generatedFunctions.add(newFunc);
                 newFunc = createIntermediateInitFunction(packageNode, env);
-                newFuncBody = (BLangBlockFunctionBody) newFunc.funcBody;
+                newFuncBody = (BLangBlockFunctionBody) newFunc.body;
                 symTable.rootScope.define(names.fromIdNode(newFunc.name), newFunc.symbol);
             }
             newFuncBody.stmts.add(stmts.get(i));
@@ -6331,7 +6331,7 @@ public class Desugar extends BLangNodeVisitor {
             checkedExpr.equivalentErrorTypeList.add(symTable.errorType);
 
             BLangExpressionStmt expressionStmt = ASTBuilderUtil
-                    .createExpressionStmt(thisFunction.pos, (BLangBlockFunctionBody) thisFunction.funcBody);
+                    .createExpressionStmt(thisFunction.pos, (BLangBlockFunctionBody) thisFunction.body);
             expressionStmt.expr = checkedExpr;
             expressionStmt.expr.pos = initFunction.pos;
 

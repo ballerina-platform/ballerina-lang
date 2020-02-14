@@ -265,7 +265,7 @@ public class TreeVisitor extends LSNodeVisitor {
         if (funcNode.hasBody()) {
             this.blockOwnerStack.push(funcNode);
             this.cursorPositionResolver = BlockStatementScopeResolver.class;
-            this.acceptNode(funcNode.funcBody, funcEnv);
+            this.acceptNode(funcNode.body, funcEnv);
             this.blockOwnerStack.pop();
         }
     }
@@ -627,7 +627,7 @@ public class TreeVisitor extends LSNodeVisitor {
 
         SymbolEnv workerEnv = SymbolEnv.createWorkerEnv(workerNode, this.symbolEnv);
         this.blockOwnerStack.push(workerNode);
-        this.acceptNode(workerNode.funcBody, workerEnv);
+        this.acceptNode(workerNode.body, workerEnv);
         this.blockOwnerStack.pop();
     }
 

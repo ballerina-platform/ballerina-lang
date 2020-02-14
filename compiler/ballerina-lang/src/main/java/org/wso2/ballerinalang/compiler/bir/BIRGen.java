@@ -444,8 +444,8 @@ public class BIRGen extends BLangNodeVisitor {
         }
 
         // Populate annotation attachments on external in BIRFunction node
-        if (astFunc.hasBody() && astFunc.funcBody.getKind() == NodeKind.EXTERN_FUNCTION_BODY) {
-            populateBIRAnnotAttachments(((BLangExternalFunctionBody) astFunc.funcBody).annAttachments,
+        if (astFunc.hasBody() && astFunc.body.getKind() == NodeKind.EXTERN_FUNCTION_BODY) {
+            populateBIRAnnotAttachments(((BLangExternalFunctionBody) astFunc.body).annAttachments,
                                         birFunc.annotAttachments, this.env);
         }
         // Populate annotation attachments on function in BIRFunction node
@@ -487,7 +487,7 @@ public class BIRGen extends BLangNodeVisitor {
         this.env.enclBB = entryBB;
         addToTrapStack(entryBB);
 
-        astFunc.funcBody.accept(this);
+        astFunc.body.accept(this);
         birFunc.basicBlocks.add(this.env.returnBB);
 
         // Due to the current algorithm, some basic blocks will not contain any instructions or a terminator.

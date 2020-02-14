@@ -83,7 +83,7 @@ public class SymbolFindingVisitor extends LSNodeVisitor {
             funcNode.getWorkers().forEach(bLangWorker -> bLangWorker.accept(this));
             return;
         }
-        funcNode.funcBody.accept(this);
+        funcNode.body.accept(this);
     }
 
     @Override
@@ -189,7 +189,7 @@ public class SymbolFindingVisitor extends LSNodeVisitor {
     @Override
     public void visit(BLangWorker workerNode) {
         this.addSymbol(workerNode, workerNode.symbol, SymbolKind.Class);
-        workerNode.funcBody.accept(this);
+        workerNode.body.accept(this);
     }
 
     private void addSymbol(BLangNode node, BSymbol balSymbol, SymbolKind kind) {

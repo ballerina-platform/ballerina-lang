@@ -47,7 +47,7 @@ public interface InvokableNode extends AnnotatableNode, DocumentableNode {
 
     void addExternalAnnotationAttachment(AnnotationAttachmentNode annAttachment);
 
-    BLangFunctionBody getFuncBody();
+    BLangFunctionBody getBody();
 
     void setBody(FunctionBodyNode body);
 

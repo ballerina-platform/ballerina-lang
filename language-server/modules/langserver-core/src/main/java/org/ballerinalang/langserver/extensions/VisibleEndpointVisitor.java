@@ -95,11 +95,11 @@ public class VisibleEndpointVisitor extends LSNodeVisitor {
     @Override
     public void visit(BLangFunction funcNode) {
         SymbolEnv funcEnv = SymbolEnv.createFunctionEnv(funcNode, funcNode.symbol.scope, this.symbolEnv);
-        SymbolEnv funcBodyEnv = SymbolEnv.createFuncBodyEnv(funcNode.funcBody, funcEnv);
+        SymbolEnv funcBodyEnv = SymbolEnv.createFuncBodyEnv(funcNode.body, funcEnv);
         // resolve visible in-scope endpoints coming from current module or other modules
         List<SymbolMetaInfo> visibleEPSymbols = resolveVisibleEndpointSymbols(funcBodyEnv, funcNode);
-        this.visibleEPsByNode.put(funcNode.funcBody, visibleEPSymbols);
-        this.acceptNode(funcNode.funcBody, funcBodyEnv);
+        this.visibleEPsByNode.put(funcNode.body, visibleEPSymbols);
+        this.acceptNode(funcNode.body, funcBodyEnv);
     }
 
     @Override
@@ -146,7 +146,7 @@ public class VisibleEndpointVisitor extends LSNodeVisitor {
 
     @Override
     public void visit(BLangWorker workerNode) {
-        this.visit((BLangBlockFunctionBody) workerNode.funcBody);
+        this.visit((BLangBlockFunctionBody) workerNode.body);
     }
 
     @Override

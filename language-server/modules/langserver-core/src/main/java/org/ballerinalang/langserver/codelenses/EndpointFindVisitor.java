@@ -79,8 +79,8 @@ public class EndpointFindVisitor extends LSNodeVisitor {
 
     @Override
     public void visit(BLangFunction funcNode) {
-        if (funcNode.funcBody != null) {
-            acceptNode(funcNode.funcBody);
+        if (funcNode.body != null) {
+            acceptNode(funcNode.body);
         }
     }
 
@@ -131,7 +131,7 @@ public class EndpointFindVisitor extends LSNodeVisitor {
 
     @Override
     public void visit(BLangWorker workerNode) {
-        this.acceptNode(workerNode.funcBody);
+        this.acceptNode(workerNode.body);
     }
 
     @Override

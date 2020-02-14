@@ -237,11 +237,11 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
         funcNode.externalAnnAttachments.forEach(this::acceptNode);
         funcNode.returnTypeAnnAttachments.forEach(this::acceptNode);
         this.acceptNode(funcNode.returnTypeNode);
-        if (!isWorker && funcNode.funcBody != null) {
+        if (!isWorker && funcNode.body != null) {
             // Fill the worker varDefs in the current function scope
-            this.fillVisibleWorkerVarDefMaps(((BLangBlockFunctionBody) funcNode.funcBody).stmts);
+            this.fillVisibleWorkerVarDefMaps(((BLangBlockFunctionBody) funcNode.body).stmts);
         }
-        this.acceptNode(funcNode.funcBody);
+        this.acceptNode(funcNode.body);
         if (!isWorker) {
             // Clear the worker varDefs in the current function scope
             this.workerVarDefMap.clear();
@@ -615,7 +615,7 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
         funcNode.externalAnnAttachments.forEach(this::acceptNode);
         funcNode.returnTypeAnnAttachments.forEach(this::acceptNode);
         this.acceptNode(funcNode.returnTypeNode);
-        this.acceptNode(funcNode.funcBody);
+        this.acceptNode(funcNode.body);
     }
 
     @Override

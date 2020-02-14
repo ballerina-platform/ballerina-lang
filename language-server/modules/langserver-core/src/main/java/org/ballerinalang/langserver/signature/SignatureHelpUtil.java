@@ -237,13 +237,13 @@ public class SignatureHelpUtil {
         if (topLevelNodes.isEmpty()) {
             return Optional.empty();
         }
-        BLangStatement evalStatement = ((BLangBlockFunctionBody) ((BLangFunction) topLevelNodes.get(0)).funcBody)
+        BLangStatement evalStatement = ((BLangBlockFunctionBody) ((BLangFunction) topLevelNodes.get(0)).body)
                 .stmts.get(0);
 
         // Handle object new constructor
         if (evalStatement instanceof BLangExpressionStmt
                 && ((BLangExpressionStmt) evalStatement).expr instanceof BLangTypeInit && topLevelNodes.size() >= 2) {
-            BLangStatement stmt = ((BLangBlockFunctionBody) ((BLangFunction) topLevelNodes.get(1)).funcBody)
+            BLangStatement stmt = ((BLangBlockFunctionBody) ((BLangFunction) topLevelNodes.get(1)).body)
                     .stmts.get(0);
             if (stmt instanceof BLangSimpleVariableDef) {
                 BLangSimpleVariableDef varDef = (BLangSimpleVariableDef) stmt;

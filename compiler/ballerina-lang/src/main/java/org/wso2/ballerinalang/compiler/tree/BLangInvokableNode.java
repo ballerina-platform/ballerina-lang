@@ -30,7 +30,6 @@ import org.ballerinalang.model.tree.WorkerNode;
 import org.ballerinalang.model.tree.types.TypeNode;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 
 import java.util.ArrayList;
@@ -52,8 +51,7 @@ public abstract class BLangInvokableNode extends BLangNode implements InvokableN
     public BLangType returnTypeNode;
     public List<BLangAnnotationAttachment> returnTypeAnnAttachments;
     public List<BLangAnnotationAttachment> externalAnnAttachments;
-    public BLangBlockStmt body;
-    public BLangFunctionBody funcBody;
+    public BLangFunctionBody body;
     public Set<Flag> flagSet;
     public List<BLangAnnotationAttachment> annAttachments;
     public BLangMarkdownDocumentation markdownDocumentationAttachment;
@@ -135,18 +133,18 @@ public abstract class BLangInvokableNode extends BLangNode implements InvokableN
     }
 
     @Override
-    public BLangFunctionBody getFuncBody() {
-        return funcBody;
+    public BLangFunctionBody getBody() {
+        return body;
     }
 
     @Override
     public void setBody(FunctionBodyNode body) {
-        this.funcBody = (BLangFunctionBody) body;
+        this.body = (BLangFunctionBody) body;
     }
 
     @Override
     public boolean hasBody() {
-        return this.funcBody != null;
+        return this.body != null;
     }
 
     @Override
@@ -207,7 +205,7 @@ public abstract class BLangInvokableNode extends BLangNode implements InvokableN
     @Override
     public String toString() {
         return this.flagSet + " " + this.getName() + " (" + this.requiredParams +
-                ") (" + this.returnTypeNode + ") Body: {" + this.funcBody + "}"
+                ") (" + this.returnTypeNode + ") Body: {" + this.body + "}"
                 + (!workers.isEmpty() ? " Workers: {" + Arrays.toString(workers.toArray()) + "}" : "");
     }
 
