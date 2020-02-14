@@ -32,6 +32,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
+import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
@@ -124,7 +125,7 @@ public class SignatureTreeVisitor extends LSNodeVisitor {
         BSymbol funcSymbol = funcNode.symbol;
         SymbolEnv funcEnv = SymbolEnv.createFunctionEnv(funcNode, funcSymbol.scope, symbolEnv);
         blockPositionStack.push(funcNode.pos);
-        this.acceptNode(funcNode.body, funcEnv);
+        this.acceptNode(funcNode.funcBody, funcEnv);
         blockPositionStack.pop();
         // Process workers
         if (terminateVisitor && !funcNode.workers.isEmpty()) {
@@ -171,6 +172,17 @@ public class SignatureTreeVisitor extends LSNodeVisitor {
     public void visit(BLangBlockStmt blockNode) {
         SymbolEnv blockEnv = SymbolEnv.createBlockEnv(blockNode, symbolEnv);
         blockNode.stmts.forEach(stmt -> this.acceptNode(stmt, blockEnv));
+        if (!terminateVisitor && this.isCursorWithinBlock()) {
+            Map<Name, List<Scope.ScopeEntry>> visibleSymbolEntries
+                    = symbolResolver.getAllVisibleInScopeSymbols(blockEnv);
+            this.populateSymbols(visibleSymbolEntries);
+        }
+    }
+
+    @Override
+    public void visit(BLangBlockFunctionBody blockFuncBody) {
+        SymbolEnv blockEnv = SymbolEnv.createFuncBodyEnv(blockFuncBody, symbolEnv);
+        blockFuncBody.stmts.forEach(stmt -> this.acceptNode(stmt, blockEnv));
         if (!terminateVisitor && this.isCursorWithinBlock()) {
             Map<Name, List<Scope.ScopeEntry>> visibleSymbolEntries
                     = symbolResolver.getAllVisibleInScopeSymbols(blockEnv);

@@ -39,7 +39,9 @@ import org.ballerinalang.langserver.completions.util.Priority;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
+import org.ballerinalang.model.tree.BlockNode;
 import org.ballerinalang.model.tree.TopLevelNode;
+import org.ballerinalang.model.tree.statements.StatementNode;
 import org.ballerinalang.model.types.ConstrainedType;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionItemKind;
@@ -75,8 +77,10 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
+import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
+import org.wso2.ballerinalang.compiler.tree.BLangFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
@@ -823,7 +827,7 @@ public class CommonUtil {
      * @param node Node to be evaluated
      * @return {@link Boolean}  whether a worker derivative
      */
-    public static boolean isWorkerDereivative(BLangNode node) {
+    public static boolean isWorkerDereivative(StatementNode node) {
         return (node instanceof BLangSimpleVariableDef)
                 && ((BLangSimpleVariableDef) node).var.expr != null
                 && ((BLangSimpleVariableDef) node).var.expr.type instanceof BFutureType
@@ -1280,15 +1284,21 @@ public class CommonUtil {
         }
         // Retrieve block stmt
         parent = bLangNode.parent;
-        while (parent != null && !(parent instanceof BLangBlockStmt)) {
+        while (parent != null && !(parent instanceof BLangBlockStmt) && !(parent instanceof BLangBlockFunctionBody)) {
             parent = parent.parent;
         }
         if (parent != null && packageNode != null) {
             SymbolResolver symbolResolver = SymbolResolver.getInstance(context);
             SymbolTable symbolTable = SymbolTable.getInstance(context);
-            BLangBlockStmt blockStmt = (BLangBlockStmt) parent;
             SymbolEnv symbolEnv = symbolTable.pkgEnvMap.get(packageNode.symbol);
-            SymbolEnv blockEnv = SymbolEnv.createBlockEnv(blockStmt, symbolEnv);
+            SymbolEnv blockEnv;
+            if (parent instanceof BLangBlockStmt) {
+                BLangBlockStmt blockStmt = (BLangBlockStmt) parent;
+                blockEnv = SymbolEnv.createBlockEnv(blockStmt, symbolEnv);
+            } else {
+                BLangBlockFunctionBody block = (BLangBlockFunctionBody) parent;
+                blockEnv = SymbolEnv.createFuncBodyEnv(block, symbolEnv);
+            }
             Map<Name, List<Scope.ScopeEntry>> entries = symbolResolver
                     .getAllVisibleInScopeSymbols(blockEnv);
             entries.forEach((name, scopeEntries) ->

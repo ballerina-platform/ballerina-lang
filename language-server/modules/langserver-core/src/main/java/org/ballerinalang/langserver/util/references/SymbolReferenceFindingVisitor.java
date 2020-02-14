@@ -30,6 +30,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
+import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangErrorVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
@@ -236,11 +237,11 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
         funcNode.externalAnnAttachments.forEach(this::acceptNode);
         funcNode.returnTypeAnnAttachments.forEach(this::acceptNode);
         this.acceptNode(funcNode.returnTypeNode);
-        if (!isWorker && funcNode.body != null) {
+        if (!isWorker && funcNode.funcBody != null) {
             // Fill the worker varDefs in the current function scope
-            this.fillVisibleWorkerVarDefMaps(funcNode.body.stmts);
+            this.fillVisibleWorkerVarDefMaps(((BLangBlockFunctionBody) funcNode.funcBody).stmts);
         }
-        this.acceptNode(funcNode.body);
+        this.acceptNode(funcNode.funcBody);
         if (!isWorker) {
             // Clear the worker varDefs in the current function scope
             this.workerVarDefMap.clear();
@@ -272,6 +273,11 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
     @Override
     public void visit(BLangBlockStmt blockNode) {
         blockNode.getStatements().forEach(this::acceptNode);
+    }
+
+    @Override
+    public void visit(BLangBlockFunctionBody blockFuncBody) {
+        blockFuncBody.stmts.forEach(this::acceptNode);
     }
 
     @Override
@@ -609,7 +615,7 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
         funcNode.externalAnnAttachments.forEach(this::acceptNode);
         funcNode.returnTypeAnnAttachments.forEach(this::acceptNode);
         this.acceptNode(funcNode.returnTypeNode);
-        this.acceptNode(funcNode.body);
+        this.acceptNode(funcNode.funcBody);
     }
 
     @Override

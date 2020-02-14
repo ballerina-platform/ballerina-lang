@@ -56,6 +56,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
+import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
@@ -236,12 +237,14 @@ public class SignatureHelpUtil {
         if (topLevelNodes.isEmpty()) {
             return Optional.empty();
         }
-        BLangStatement evalStatement = ((BLangFunction) topLevelNodes.get(0)).getBody().stmts.get(0);
+        BLangStatement evalStatement = ((BLangBlockFunctionBody) ((BLangFunction) topLevelNodes.get(0)).funcBody)
+                .stmts.get(0);
 
         // Handle object new constructor
         if (evalStatement instanceof BLangExpressionStmt
                 && ((BLangExpressionStmt) evalStatement).expr instanceof BLangTypeInit && topLevelNodes.size() >= 2) {
-            BLangStatement stmt = ((BLangFunction) topLevelNodes.get(1)).getBody().stmts.get(0);
+            BLangStatement stmt = ((BLangBlockFunctionBody) ((BLangFunction) topLevelNodes.get(1)).funcBody)
+                    .stmts.get(0);
             if (stmt instanceof BLangSimpleVariableDef) {
                 BLangSimpleVariableDef varDef = (BLangSimpleVariableDef) stmt;
                 if (varDef.var.typeNode instanceof BLangUserDefinedType) {

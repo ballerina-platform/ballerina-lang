@@ -140,6 +140,11 @@ public abstract class BLangInvokableNode extends BLangNode implements InvokableN
     }
 
     @Override
+    public BLangFunctionBody getFuncBody() {
+        return funcBody;
+    }
+
+    @Override
     public void setBody(FunctionBodyNode body) {
         this.funcBody = (BLangFunctionBody) body;
     }
