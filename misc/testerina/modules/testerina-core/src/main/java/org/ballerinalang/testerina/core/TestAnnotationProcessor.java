@@ -19,6 +19,7 @@ package org.ballerinalang.testerina.core;
 
 import org.ballerinalang.compiler.plugins.AbstractCompilerPlugin;
 import org.ballerinalang.compiler.plugins.SupportedAnnotationPackages;
+import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.FunctionNode;
 import org.ballerinalang.model.tree.PackageNode;
@@ -29,6 +30,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
+import org.wso2.ballerinalang.compiler.util.Names;
 
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -79,14 +81,24 @@ public class TestAnnotationProcessor extends AbstractCompilerPlugin {
         if (!enabled) {
             return;
         }
-        String packageName = getPackageName((BLangPackage) ((BLangFunction) functionNode).parent);
+        BLangPackage bLangPackage = (BLangPackage) ((BLangFunction) functionNode).parent;
+        String packageName = getPackageName(bLangPackage);
         suite = registry.getTestSuites().get(packageName);
         // Check if the registry contains a test suite for the package
         if (suite == null) {
-            // Add a test suite to the registry if it does not contain one pertaining to the package name
-            registry.getTestSuites().computeIfAbsent(packageName, func -> new TestSuite(packageName));
-            // Get the test suite related to the package from registry
-            suite = registry.getTestSuites().get(packageName);
+            //Set testable flag for single bal file execution
+            if ((Names.DOT.getValue()).equals(packageName)) {
+                bLangPackage.flagSet.add(Flag.TESTABLE);
+            }
+            // Skip adding test suite if no tests are available in the tests path
+            if (bLangPackage.getFlags().contains(Flag.TESTABLE)) {
+                // Add a test suite to the registry if it does not contain one pertaining to the package name
+                registry.getTestSuites().computeIfAbsent(packageName, func -> new TestSuite(packageName));
+                // Get the test suite related to the package from registry
+                suite = registry.getTestSuites().get(packageName);
+            } else {
+                return;
+            }
         }
         // Remove the duplicated annotations.
         annotations = annotations.stream().distinct().collect(Collectors.toList());
