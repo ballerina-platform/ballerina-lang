@@ -77,11 +77,19 @@ public abstract class AbstractStub {
         descriptors.add(descriptor);
     }
 
+    public void setDescriptors(Set<Descriptor> descriptors) {
+        this.descriptors = descriptors;
+    }
+
     public Set<Descriptor> getDescriptors() {
         return descriptors;
     }
 
     public void setMessageList(List<Message> messageList) {
         this.messageList = messageList;
+    }
+
+    public void setEnumList(List<EnumMessage> enumList) {
+        this.enumList = enumList;
     }
 }
