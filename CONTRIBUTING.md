@@ -19,10 +19,10 @@ We appreciate your help!
 
 - Join the conversations at:
 
-    - [StackOverflow](https://stackoverflow.com/questions/tagged/ballerina): to get help with Ballerina (use the Ballerina tag for any of your questions.)
-    - [Slack](https://ballerinalang.slack.com/): for real-time discussions with the team and community
+    - [StackOverflow](https://stackoverflow.com/questions/tagged/ballerina): to get help with Ballerina (use the Ballerina tag for any of your questions)
+    - [Slack](https://ballerina.io/community/slack/): for real-time discussions with the team and community
     - [Ballerina-Dev Google Group](https://groups.google.com/forum/#!forum/ballerina-dev): (developer team mailing list) to discuss Ballerina roadmap, features, and related issues
-    - [Twitter](https://twitter.com/ballerinalang): to tweet about Ballerina (use the “#ballerinalang” hashtag). 
+    - [Twitter](https://twitter.com/ballerinalang): to tweet about Ballerina (use the “#ballerinalang” hashtag) 
 
 - Submitting a bug is just as important as contributing to code. Report an issue in the relevant repo out of the GitHub repos listed below. 
 
@@ -38,11 +38,11 @@ We appreciate your help!
 
 ## Set up the prerequisites
 1. Download [Ballerina](https://ballerina.io) and go through the [learning resources](https://ballerina.io/learn).
-2. Read the <a href="/code-of-conduct">Ballerina Code of Conduct</a>.
+2. Read the <a href="https://ballerina.io/code-of-conduct">Ballerina Code of Conduct</a>.
 
 ## Build the source code 
 
-For instructions, see <a href="/learn/installing-ballerina/#installing-from-source">Installing from source</a>.
+For instructions, see <a href="https://ballerina.io/learn/installing-ballerina/#installing-from-source">Installing from source</a>.
 
 ## Set up the development environment
 
@@ -66,8 +66,8 @@ This plugin will be useful to check and validate a [grammar rule](#contributing-
 
 1. Do your changes in the source code.
     
-    <details border="1">
-    <summary>If you are contributing to Ballerina Grammar;</summary>
+    <details border="1px solid">
+    <summary border="1px solid">If you are contributing to Ballerina Grammar:</summary>
 
     Ballerina grammar has been implemented using ANTLR plugin version 4.5.3. To get a basic understanding of ANTLR grammar syntax and concepts before working with Ballerina grammar, go to [Parr, Terence (January 15, 2013), The Definitive ANTLR 4 Reference](https://www.oreilly.com/library/view/the-definitive-antlr/9781941222621/).
 
