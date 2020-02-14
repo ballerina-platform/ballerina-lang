@@ -1,9 +1,3 @@
----
-layout: ballerina-inner-page
-title: Reporting a Security Vulnerability
-permalink: /security/
----
-
 # Security Policy
 
 Ballerina project maintainers take security issues very seriously and all the vulnerability reports are treated with the highest priority and confidentiality.

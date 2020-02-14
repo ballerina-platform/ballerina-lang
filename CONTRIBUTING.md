@@ -1,9 +1,3 @@
----
-layout: ballerina-inner-page
-title: Contributing to Ballerina
-permalink: /contribution-guide
----
-
 # Contributing to Ballerina
 
 Ballerina is an open source programming language and platform for cloud-era application programmers to easily write software. It is licensed under the [Apache license](https://www.apache.org/licenses/LICENSE-2.0) and is nurtured by all the contributors of the Ballerina community.
@@ -78,8 +72,8 @@ See the below sections to set up the required plugins in your preferred IDEs/Edi
 Currently, Ballerina has the below plugins developed for IntelliJ IDEA and VS Code. 
 - [Ballerina plugin for IntelliJ IDEA](https://plugins.jetbrains.com/plugin/9520-ballerina)
     
-    For installation instructions, see [Ballerina IntelliJ Plugin Documentation](https://ballerina.io/learn/vscode-plugin).
-- [Ballerina plugin for VS Code](https://plugins.jetbrains.com/plugin/9520-ballerina)
+    For installation instructions, see [Ballerina IntelliJ Plugin Documentation](https://ballerina.io/learn/intellij-plugin/).
+- [Ballerina plugin for VS Code](https://marketplace.visualstudio.com/items?itemName=ballerina.ballerina)
     
     For installation instructions, see [Ballerina VS Code Documentation](https://ballerina.io/learn/vscode-plugin).
 
