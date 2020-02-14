@@ -1,7 +1,7 @@
 <idea-plugin>
     <id>io.ballerina</id>
     <name>Ballerina</name>
-    <version>1.1.1</version>
+    <version>1.1.2</version>
     <vendor email="ballerinalang@wso2.com" url="https://ballerina.io/">BallerinaLang</vendor>
 
     <description><![CDATA[
@@ -12,11 +12,7 @@
     ]]></description>
 
     <change-notes><![CDATA[
-      <ul>
-        <li> Added signature help support. </li>
-        <li> Added minor fix for plugin version compatibility checker. </li>
-        <li> Added code actions related improvements. </li>
-      </ul>
+        <li> Added minor fix for ballerina live templates. </li>
     ]]>
     </change-notes>
     <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/build_number_ranges.html for description -->
