@@ -115,7 +115,7 @@ public class JvmErrorGen {
             mv.visitLabel(labelIf);
         }
 
-        void ErrorHandlerGenerator(MethodVisitor mv, BalToJVMIndexMap indexMap, String currentPackageName) {
+        ErrorHandlerGenerator(MethodVisitor mv, BalToJVMIndexMap indexMap, String currentPackageName) {
             this.mv = mv;
             this.indexMap = indexMap;
             this.currentPackageName = currentPackageName;

@@ -488,7 +488,7 @@ public class InteropMethodGen {
         }
     }
 
-    static String getJTypeSignature(JType jType) {
+    public static String getJTypeSignature(JType jType) {
         if (jType.tag == JTypeTags.JREF) {
             return "L" + jType.type + ";";
         } else if (jType.tag == JTypeTags.JARRAY) {

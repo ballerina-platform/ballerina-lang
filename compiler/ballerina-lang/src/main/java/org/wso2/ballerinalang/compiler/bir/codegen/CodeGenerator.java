@@ -43,7 +43,8 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.generate
 public class CodeGenerator {
     private static final CompilerContext.Key<CodeGenerator> CODE_GEN = new CompilerContext.Key<>();
 
-    private SymbolTable symbolTable;
+    //TODO: remove static
+    static SymbolTable symbolTable;
 
     private CodeGenerator(CompilerContext context) {
         context.put(CODE_GEN, this);

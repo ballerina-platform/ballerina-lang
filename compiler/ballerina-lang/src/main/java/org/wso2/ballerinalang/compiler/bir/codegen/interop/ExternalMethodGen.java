@@ -64,10 +64,10 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.interop.InteropMethodG
 
 public class ExternalMethodGen {
 
-    static void genJMethodForBExternalFunc(BIRFunction birFunc,
-                                           ClassWriter cw,
-                                           BIRPackage birModule,
-                                           @Nilable BType attachedType /* = () */) {
+    public static void genJMethodForBExternalFunc(BIRFunction birFunc,
+                                                  ClassWriter cw,
+                                                  BIRPackage birModule,
+                                                  @Nilable BType attachedType /* = () */) {
         var extFuncWrapper = getExternalFunctionWrapper(birModule, birFunc, attachedType = attachedType);
 
         if (extFuncWrapper instanceof JFieldFunctionWrapper) {

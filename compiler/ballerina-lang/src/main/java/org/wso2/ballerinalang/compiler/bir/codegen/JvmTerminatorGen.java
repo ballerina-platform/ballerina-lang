@@ -110,7 +110,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmLabelGen.LabelGener
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.BalToJVMIndexMap;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.cleanupFunctionName;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.createFunctionPointer;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.getVarRef;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.getVariableDcl;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.isBStringFunc;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.isExternFunc;
@@ -156,9 +155,9 @@ class JvmTerminatorGen {
         mv.visitJumpInsn(IFNE, yieldLabel);
     }
 
-    static void loadChannelDetails(MethodVisitor mv, List<BIRNode.ChannelDetails> channels) {
+    static void loadChannelDetails(MethodVisitor mv, BIRNode.ChannelDetails[] channels) {
 
-        mv.visitIntInsn(BIPUSH, channels.size());
+        mv.visitIntInsn(BIPUSH, channels.length);
         mv.visitTypeInsn(ANEWARRAY, CHANNEL_DETAILS);
         int index = 0;
         for (BIRNode.ChannelDetails ch : channels) {
