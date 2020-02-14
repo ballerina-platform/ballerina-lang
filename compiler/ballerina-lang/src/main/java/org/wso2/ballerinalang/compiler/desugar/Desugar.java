@@ -2725,9 +2725,9 @@ public class Desugar extends BLangNodeVisitor {
         //
         // after desugar -
         //
-        // lock a;
+        // lock ;
         // var res = trap a = a + 7;
-        // unlock a;
+        // unlock ;
         // if (res is error) {
         //      panic res;
         // }
