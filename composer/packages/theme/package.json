@@ -1,6 +1,6 @@
 {
   "name": "@ballerina/theme",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "description": "Theme for web components of Ballerina Tooling.",
   "keywords": [
     "ballerina",
@@ -21,6 +21,6 @@
     "watch": "^1.0.2"
   },
   "dependencies": {
-    "@ballerina/font": "^1.1.1"
+    "@ballerina/font": "^1.1.2"
   }
 }
