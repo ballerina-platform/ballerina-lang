@@ -23,6 +23,8 @@ import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
+import org.wso2.ballerinalang.compiler.bir.codegen.interop.JType;
+import org.wso2.ballerinalang.compiler.bir.codegen.interop.JTypeTags;
 import org.wso2.ballerinalang.compiler.bir.model.BIRInstruction;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRAnnotationArrayValue;
@@ -242,12 +244,12 @@ public class JvmMethodGen {
         }
     }
 
-    static void genJMethodForBFunc(BIRFunction func,
-                                   ClassWriter cw,
-                                   BIRPackage module,
-                                   boolean isService,
-                                   String serviceName,
-                                   @Nilable BType attachedType /* = () */) {
+    public static void genJMethodForBFunc(BIRFunction func,
+                                          ClassWriter cw,
+                                          BIRPackage module,
+                                          boolean isService,
+                                          String serviceName,
+                                          @Nilable BType attachedType /* = () */) {
         String currentPackageName = getPackageName(module.org.value, module.name.value);
         BalToJVMIndexMap indexMap = new;
         String funcName = cleanupFunctionName(func.name.value);
@@ -1385,8 +1387,8 @@ public class JvmMethodGen {
         }
     }
 
-    static String getMethodDesc(@Nilable List<BType> paramTypes, @Nilable BType retType, @Nilable BType attachedType /* = () */,
-                                boolean isExtern /* = false */, boolean useBString /* = false */) {
+    public static String getMethodDesc(@Nilable List<BType> paramTypes, @Nilable BType retType, @Nilable BType attachedType /* = () */,
+                                       boolean isExtern /* = false */, boolean useBString /* = false */) {
         String desc = "(Lorg/ballerinalang/jvm/scheduling/Strand;";
 
         if (attachedType instanceof BType) {
@@ -2373,7 +2375,7 @@ public class JvmMethodGen {
         return functionName.replaceAll("[\\.:/<>]", "_");
     }
 
-    static BIRVariableDcl getVariableDcl(@Nilable BIRVariableDcl localVar) {
+    public static BIRVariableDcl getVariableDcl(@Nilable BIRVariableDcl localVar) {
         if (localVar instanceof BIRVariableDcl) {
             return localVar;
         } else {
@@ -2736,7 +2738,7 @@ public class JvmMethodGen {
         return nonBStringFuncName + "$bstring";
     }
 
-    static String nameOfNonBStringFunc(String funcName) {
+    public static String nameOfNonBStringFunc(String funcName) {
         if (isBStringFunc(funcName)) {
             return funcName.substring(0, funcName.size() - 8);
         }
@@ -2745,7 +2747,7 @@ public class JvmMethodGen {
 
     static handle /* = @java:Method getProperty(handle propertyName */)
 
-    static class BalToJVMIndexMap {
+    public static class BalToJVMIndexMap {
         private int localVarIndex = 0;
         private Map<String, int> jvmLocalVarIndexMap = null;
 
@@ -2769,7 +2771,7 @@ public class JvmMethodGen {
             return varDcl.name.value;
         }
 
-        int getIndex(BIRVariableDcl varDcl) {
+        public int getIndex(BIRVariableDcl varDcl) {
             String varRefName = this.getVarRefName(varDcl);
             if (!(this.jvmLocalVarIndexMap.containsKey(varRefName))) {
                 this.add(varDcl);

@@ -19,14 +19,12 @@ package org.wso2.ballerinalang.compiler.bir.codegen.interop;
 
 import com.sun.codemodel.internal.JPrimitiveType;
 import org.ballerinalang.compiler.BLangCompilerException;
+import org.ballerinalang.model.types.Field;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
-import org.wso2.ballerinalang.compiler.bir.codegen.CodeGenerator;
-import org.wso2.ballerinalang.compiler.bir.codegen.JType;
-import org.wso2.ballerinalang.compiler.bir.codegen.JTypeTags;
 import org.wso2.ballerinalang.compiler.bir.codegen.Nilable;
-import org.wso2.ballerinalang.compiler.bir.codegen.interop.ExternalMethodGen.BIRVarRef;
+import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRBasicBlock;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRErrorEntry;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRFunction;
@@ -37,7 +35,9 @@ import org.wso2.ballerinalang.compiler.bir.model.BIROperand;
 import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator;
 import org.wso2.ballerinalang.compiler.bir.model.BIRVisitor;
 import org.wso2.ballerinalang.compiler.bir.model.InstructionKind;
+import org.wso2.ballerinalang.compiler.bir.model.VarKind;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
@@ -116,13 +116,10 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.nextVarId
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.BIRFunctionWrapper;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.getFunctionWrapper;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.getPackageName;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.symbolTable;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTerminatorGen.TerminatorGenerator;
 import static org.wso2.ballerinalang.compiler.bir.codegen.interop.JInsKind.JCAST;
 
-
-//import ballerina/bir;
-//import ballerina/jvm;
-//import ballerina/io;
 
 public class InteropMethodGen {
     public type JTermKind
@@ -139,17 +136,16 @@ public class InteropMethodGen {
     static void genJFieldForInteropField(JFieldFunctionWrapper jFieldFuncWrapper,
                                          ClassWriter cw,
                                          BIRPackage birModule) {
-        var currentPackageName = getPackageName(birModule.org.value, birModule.name.value);
+        String currentPackageName = getPackageName(birModule.org.value, birModule.name.value);
 
         // Create a local variable for the strand
-        BalToJVMIndexMap indexMap = new;
-        BIRVariableDcl strandVarDcl = new BIRVariableDcl(type:"string", name:new (value:"$_strand_$" ),kind:
-        "ARG" );
+        BalToJVMIndexMap indexMap = new BalToJVMIndexMap();
+        BIRVariableDcl strandVarDcl = new BIRVariableDcl(symbolTable.stringType, new Name("$_strand_$"), null, VarKind.ARG);
         int strandParamIndex = indexMap.getIndex(strandVarDcl);
 
         // Generate method desc
         BIRFunction birFunc = jFieldFuncWrapper.func;
-        String desc = getMethodDesc(birFunc.type.paramTypes, birFunc.type["retType"]);
+        String desc = getMethodDesc(birFunc.type.paramTypes, birFunc.type.retType, null, false, false);
         int access = ACC_PUBLIC + ACC_STATIC;
 
         MethodVisitor mv = cw.visitMethod(access, birFunc.name.value, desc, null, null);
@@ -167,21 +163,22 @@ public class InteropMethodGen {
         //  availability of default values.
         // The following line cast localvars to function params. This is guaranteed not to fail.
         // Get a JVM method local variable index for the parameter
-        @Nilable List<BIRFunctionParam> birFuncParams = new ArrayList<>();
-        for (T birLocalVarOptional : birFunc.localVars) {
-            if (birLocalVarOptional instanceof BIRFunctionParam) {
-                birFuncParams.add(birLocalVarOptional);
-                _ = indexMap.getIndex((BIRFunctionParam) birLocalVarOptional);
+        @Nilable List<BIRNode.BIRFunctionParameter> birFuncParams = new ArrayList<>();
+        for (BIRVariableDcl birLocalVarOptional : birFunc.localVars) {
+            if (birLocalVarOptional instanceof BIRNode.BIRFunctionParameter) {
+                BIRNode.BIRFunctionParameter functionParameter = (BIRNode.BIRFunctionParameter) birLocalVarOptional;
+                birFuncParams.add(functionParameter);
+                indexMap.getIndex(functionParameter);
             }
         }
 
         // Generate if blocks to check and set default values to parameters
         int birFuncParamIndex = 0;
         int paramDefaultsBBIndex = 0;
-        for (BIRFunctionParam birFuncParamOptional : birFuncParams) {
-            var birFuncParam = (BIRFunctionParam) birFuncParamOptional;
+        for (BIRNode.BIRFunctionParameter birFuncParam : birFuncParams) {
+//            var birFuncParam = (BIRFunctionParam) birFuncParamOptional;
             // Skip boolean function parameters to indicate the existence of default values
-            if (birFuncParamIndex % 2 != = 0 || !birFuncParam.hasDefaultExpr) {
+            if (birFuncParamIndex % 2 != 0 || !birFuncParam.hasDefaultExpr) {
                 // Skip the loop if:
                 //  1) This birFuncParamIndex had an odd value: indicates a generated boolean parameter
                 //  2) This function param doesn't have a default value
@@ -190,7 +187,7 @@ public class InteropMethodGen {
             }
 
             // The following boolean parameter indicates the existence of a default value
-            var isDefaultValueExist = (BIRFunctionParam) birFuncParams[birFuncParamIndex + 1];
+            BIRNode.BIRFunctionParameter isDefaultValueExist = birFuncParams.get(birFuncParamIndex + 1);
             mv.visitVarInsn(ILOAD, indexMap.getIndex(isDefaultValueExist));
 
             // Gen the if not equal logic
@@ -207,7 +204,7 @@ public class InteropMethodGen {
         }
 
         Field jField = jFieldFuncWrapper.jField;
-        JType jFieldType = jField.fType;
+        JType jFieldType = jField.getType();
 
         // Load receiver which is the 0th parameter in the birFunc
         if (!jField.isStatic) {
@@ -698,7 +695,7 @@ public class InteropMethodGen {
 
     static JFieldFunctionWrapper |
 
-    BLangCompilerException createJInteropFunctionWrapper(CodeGenerator.InteropValidator interopValidator,
+    static BIRFunctionWrapper createJInteropFunctionWrapper(InteropValidator interopValidator,
                                                          InteropValidationRequest jInteropValidationReq,
                                                          BIRFunction birFunc,
                                                          String orgName,
@@ -748,12 +745,12 @@ public class InteropMethodGen {
     };
     }
 
-    static class JMethodFunctionWrapper extends ExternalFunctionWrapper {
+    static class JMethodFunctionWrapper extends BIRFunctionWrapper {
     *BIRFunctionWrapper;
         Method jMethod;
     }
 
-    static class JFieldFunctionWrapper {
+    static class JFieldFunctionWrapper extends BIRFunctionWrapper  {
     *BIRFunctionWrapper;
         Field jField;
     }

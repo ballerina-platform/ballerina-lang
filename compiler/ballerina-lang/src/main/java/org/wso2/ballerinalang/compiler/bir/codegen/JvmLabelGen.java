@@ -27,10 +27,10 @@ import java.util.Map;
  * @since 1.2.0
  */
 public class JvmLabelGen {
-    static class LabelGenerator {
+    public static class LabelGenerator {
         Map<String, Label> bbLabels = null;
 
-        Label getLabel(String labelKey) {
+        public Label getLabel(String labelKey) {
             Label result = this.bbLabels.get(labelKey);
             if (result != null) {
                 return result;

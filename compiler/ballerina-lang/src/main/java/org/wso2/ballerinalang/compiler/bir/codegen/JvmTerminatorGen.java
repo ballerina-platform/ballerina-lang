@@ -21,6 +21,7 @@ import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.model.elements.PackageID;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
+import org.wso2.ballerinalang.compiler.bir.codegen.interop.JType;
 import org.wso2.ballerinalang.compiler.bir.model.BIRInstruction;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRFunction;
@@ -110,7 +111,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmLabelGen.LabelGener
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.BalToJVMIndexMap;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.cleanupFunctionName;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.createFunctionPointer;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.getVarRef;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.getVariableDcl;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.isBStringFunc;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.isExternFunc;
@@ -146,7 +146,7 @@ import static org.wso2.ballerinalang.compiler.bir.model.InstructionKind.FP_LOAD;
  *
  * @since 1.2.0
  */
-class JvmTerminatorGen {
+public class JvmTerminatorGen {
 
     private static void genYieldCheckForLock(MethodVisitor mv, LabelGenerator labelGen, String funcName,
                                              int localVarOffset) {
@@ -242,7 +242,7 @@ class JvmTerminatorGen {
         return false;
     }
 
-    static class TerminatorGenerator {
+    public static class TerminatorGenerator {
 
         MethodVisitor mv;
         BalToJVMIndexMap indexMap;
@@ -252,8 +252,8 @@ class JvmTerminatorGen {
         String currentPackageName;
         int kl = 0;
 
-        TerminatorGenerator(MethodVisitor mv, BalToJVMIndexMap indexMap, LabelGenerator labelGen,
-                            ErrorHandlerGenerator errorGen, BIRPackage module) {
+        public TerminatorGenerator(MethodVisitor mv, BalToJVMIndexMap indexMap, LabelGenerator labelGen,
+                                   ErrorHandlerGenerator errorGen, BIRPackage module) {
 
             this.mv = mv;
             this.indexMap = indexMap;

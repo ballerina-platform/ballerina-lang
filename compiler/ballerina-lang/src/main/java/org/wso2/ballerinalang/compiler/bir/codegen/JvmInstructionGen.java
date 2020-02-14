@@ -25,6 +25,8 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.JInsKind;
+import org.wso2.ballerinalang.compiler.bir.codegen.interop.JType;
+import org.wso2.ballerinalang.compiler.bir.codegen.interop.JTypeTags;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRGlobalVariableDcl;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRPackage;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRTypeDefinition;
@@ -421,11 +423,19 @@ public class JvmInstructionGen {
         }
     }
 
-    static class InstructionGenerator {
+    public static class InstructionGenerator {
         MethodVisitor mv;
         BalToJVMIndexMap indexMap;
         String currentPackageName;
         BIRPackage currentPackage;
+
+        public InstructionGenerator(MethodVisitor mv, BalToJVMIndexMap indexMap, BIRPackage currentPackage) {
+
+            this.mv = mv;
+            this.indexMap = indexMap;
+            this.currentPackage = currentPackage;
+            this.currentPackageName = getPackageName(currentPackage.org.value, currentPackage.name.value);
+        }
 
         void generatePlatformIns(JInstruction ins) {
             if (ins.jKind == JInsKind.JCAST) {
@@ -489,8 +499,8 @@ public class JvmInstructionGen {
 //            } else {
 //                this.generateBitwiseUnsignedRightShiftIns(binaryIns);
             } else {
-                BLangCompilerException err = new BLangCompilerException("JVM generation is not supported for type : " + String.format("%s", insKind));
-                throw err;
+                throw new BLangCompilerException("JVM generation is not supported for type : " +
+                        String.format("%s", insKind));
             }
         }
 
@@ -518,8 +528,7 @@ public class JvmInstructionGen {
 
         private void generateBinaryCompareIns(BinaryOp binaryIns, int opcode) {
             if (opcode != IFLT && opcode != IFGT && opcode != IFLE && opcode != IFGE) {
-                BLangCompilerException err = new BLangCompilerException(String.format("Unsupported opcode '%s' for binary operator.", opcode));
-                throw err;
+                throw new BLangCompilerException(String.format("Unsupported opcode '%s' for binary operator.", opcode));
             }
 
             this.generateBinaryRhsAndLhsLoad(binaryIns);
@@ -573,8 +582,7 @@ public class JvmInstructionGen {
             } else if (opcode == IFLE) {
                 return "checkDecimalLessThanOrEqual";
             } else {
-                BLangCompilerException err = new BLangCompilerException(String.format("Opcode: '%s' is not a comparison opcode.", opcode));
-                throw err;
+                throw new BLangCompilerException(String.format("Opcode: '%s' is not a comparison opcode.", opcode));
             }
         }
 

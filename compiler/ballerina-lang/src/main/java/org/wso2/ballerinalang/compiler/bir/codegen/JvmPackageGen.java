@@ -116,7 +116,7 @@ import static org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewInst
  *
  * @since 1.2.0
  */
-class JvmPackageGen {
+public class JvmPackageGen {
 
     public static DiagnosticLogger dlogger = null;
 
@@ -527,7 +527,7 @@ class JvmPackageGen {
         return getPackageName(orgName.getValue(), moduleName.getValue());
     }
 
-    static String getPackageName(String orgName, String moduleName) {
+    public static String getPackageName(String orgName, String moduleName) {
 
         String packageName = "";
         if (!moduleName.equals(".")) {
@@ -551,7 +551,7 @@ class JvmPackageGen {
         return name.replace(".", FILE_NAME_PERIOD_SEPERATOR);
     }
 
-    private static String cleanupPackageName(String pkgName) {
+    public static String cleanupPackageName(String pkgName) {
 
         int index = pkgName.lastIndexOf("/");
         if (index > 0) {
@@ -706,8 +706,8 @@ class JvmPackageGen {
         return jvmClassMap;
     }
 
-    static BIRFunctionWrapper getFunctionWrapper(BIRFunction currentFunc, String orgName, String moduleName,
-                                                 String version, String moduleClass) {
+    public static BIRFunctionWrapper getFunctionWrapper(BIRFunction currentFunc, String orgName, String moduleName,
+                                                        String version, String moduleClass) {
 
         BInvokableType functionTypeDesc = currentFunc.type;
         @Nilable BIRVariableDcl receiver = currentFunc.receiver;
@@ -915,15 +915,15 @@ class JvmPackageGen {
         String orgName;
         String moduleName;
         String version;
-        BIRFunction func;
+        public BIRFunction func;
         String fullQualifiedClassName;
         String jvmMethodDescription;
         @Nilable
         String jvmMethodDescriptionBString = null;
 
-        BIRFunctionWrapper(String orgName, String moduleName, String version, BIRFunction func,
-                           String fullQualifiedClassName, String jvmMethodDescription,
-                           String jvmMethodDescriptionBString) {
+        protected BIRFunctionWrapper(String orgName, String moduleName, String version, BIRFunction func,
+                                     String fullQualifiedClassName, String jvmMethodDescription,
+                                     String jvmMethodDescriptionBString) {
 
             this.orgName = orgName;
             this.moduleName = moduleName;
