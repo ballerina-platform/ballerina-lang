@@ -32,6 +32,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
+import org.wso2.ballerinalang.compiler.util.Names;
 
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -87,8 +88,8 @@ public class TestAnnotationProcessor extends AbstractCompilerPlugin {
         suite = registry.getTestSuites().get(packageName);
         // Check if the registry contains a test suite for the package
         if (suite == null) {
-            // Skip adding test suite if no tests are available in the tests path
-            if (bLangPackage.getFlags().contains(Flag.TESTABLE)) {
+            // Add test suite if tests available in tests path or single bal file test execution
+            if (bLangPackage.getFlags().contains(Flag.TESTABLE) || (Names.DOT.getValue()).equals(packageName)) {
                 // Add a test suite to the registry if it does not contain one pertaining to the package name
                 registry.getTestSuites().computeIfAbsent(packageName, func -> new TestSuite(packageName));
                 // Get the test suite related to the package from registry
