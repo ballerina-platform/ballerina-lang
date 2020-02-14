@@ -389,8 +389,8 @@ public class PositionTreeVisitor extends LSNodeVisitor {
             workerNode.requiredParams.forEach(this::acceptNode);
         }
 
-        if (workerNode.body != null) {
-            acceptNode(workerNode.body);
+        if (workerNode.funcBody != null) {
+            acceptNode(workerNode.funcBody);
         }
 
         if (workerNode.workers != null) {

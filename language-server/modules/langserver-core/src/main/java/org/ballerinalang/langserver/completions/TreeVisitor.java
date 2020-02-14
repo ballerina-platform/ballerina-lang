@@ -627,7 +627,7 @@ public class TreeVisitor extends LSNodeVisitor {
 
         SymbolEnv workerEnv = SymbolEnv.createWorkerEnv(workerNode, this.symbolEnv);
         this.blockOwnerStack.push(workerNode);
-        this.acceptNode(workerNode.body, workerEnv);
+        this.acceptNode(workerNode.funcBody, workerEnv);
         this.blockOwnerStack.pop();
     }
 

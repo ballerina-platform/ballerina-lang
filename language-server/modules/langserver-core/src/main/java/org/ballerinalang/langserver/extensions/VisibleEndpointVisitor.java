@@ -146,7 +146,7 @@ public class VisibleEndpointVisitor extends LSNodeVisitor {
 
     @Override
     public void visit(BLangWorker workerNode) {
-        this.visit(workerNode.body);
+        this.visit((BLangBlockFunctionBody) workerNode.funcBody);
     }
 
     @Override

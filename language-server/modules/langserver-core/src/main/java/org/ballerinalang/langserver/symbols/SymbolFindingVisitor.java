@@ -189,7 +189,7 @@ public class SymbolFindingVisitor extends LSNodeVisitor {
     @Override
     public void visit(BLangWorker workerNode) {
         this.addSymbol(workerNode, workerNode.symbol, SymbolKind.Class);
-        workerNode.body.accept(this);
+        workerNode.funcBody.accept(this);
     }
 
     private void addSymbol(BLangNode node, BSymbol balSymbol, SymbolKind kind) {

@@ -18,6 +18,7 @@ package org.ballerinalang.langserver.codelenses;
 import org.ballerinalang.langserver.common.LSNodeVisitor;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.model.tree.TopLevelNode;
+import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
@@ -28,6 +29,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangSimpleVariableDef;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.util.Flags;
@@ -77,8 +79,15 @@ public class EndpointFindVisitor extends LSNodeVisitor {
 
     @Override
     public void visit(BLangFunction funcNode) {
-        if (funcNode.body != null) {
-            funcNode.body.stmts.forEach(f -> f.accept(this));
+        if (funcNode.funcBody != null) {
+            acceptNode(funcNode.funcBody);
+        }
+    }
+
+    @Override
+    public void visit(BLangBlockFunctionBody body) {
+        for (BLangStatement stmt : body.stmts) {
+            stmt.accept(this);
         }
     }
 
@@ -122,7 +131,7 @@ public class EndpointFindVisitor extends LSNodeVisitor {
 
     @Override
     public void visit(BLangWorker workerNode) {
-        this.acceptNode(workerNode.body);
+        this.acceptNode(workerNode.funcBody);
     }
 
     @Override
