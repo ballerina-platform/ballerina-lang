@@ -1325,7 +1325,7 @@ public class Types {
         }
 
         if (actualType.tag == TypeTags.BYTE && expType.tag == TypeTags.INT) {
-            symbol = createCastOperatorSymbol(actualType, expType, true);
+            symbol = createCastOperatorSymbol(actualType, expType);
         } else if (isValueType(expType) &&
                 (actualType.tag == TypeTags.FINITE ||
                          (actualType.tag == TypeTags.UNION && ((BUnionType) actualType).getMemberTypes().stream()
@@ -1335,11 +1335,11 @@ public class Types {
                 // for decimal or nil, no cast is required
                 return symbol;
             }
-            symbol = createCastOperatorSymbol(symTable.anyType, expType, true);
+            symbol = createCastOperatorSymbol(symTable.anyType, expType);
         } else if (expType.tag == TypeTags.ERROR
                 && (actualType.tag == TypeTags.UNION
                 && isAllErrorMembers((BUnionType) actualType))) {
-            symbol = createCastOperatorSymbol(symTable.anyType, symTable.errorType, true);
+            symbol = createCastOperatorSymbol(symTable.anyType, symTable.errorType);
 
         }
         return symbol;
@@ -1370,19 +1370,19 @@ public class Types {
     public BSymbol getCastOperator(BLangExpression expr, BType sourceType, BType targetType) {
         if (sourceType.tag == TypeTags.SEMANTIC_ERROR || targetType.tag == TypeTags.SEMANTIC_ERROR ||
                 sourceType == targetType) {
-            return createCastOperatorSymbol(sourceType, targetType, true);
+            return createCastOperatorSymbol(sourceType, targetType);
         }
         BSymbol bSymbol = symResolver.resolveTypeCastOperator(expr, sourceType, targetType);
         if (bSymbol != null && bSymbol != symTable.notFoundSymbol) {
             return bSymbol;
         }
-        return createCastOperatorSymbol(sourceType, targetType, true);
+        return createCastOperatorSymbol(sourceType, targetType);
     }
 
     public BSymbol getConversionOperator(BType sourceType, BType targetType) {
         if (sourceType.tag == TypeTags.SEMANTIC_ERROR || targetType.tag == TypeTags.SEMANTIC_ERROR ||
                 sourceType == targetType) {
-            return createCastOperatorSymbol(sourceType, targetType, true);
+            return createCastOperatorSymbol(sourceType, targetType);
         }
         BSymbol bSymbol = symResolver.resolveOperator(Names.CONVERSION_OP, Lists.of(sourceType, targetType));
         if (bSymbol != null && bSymbol != symTable.notFoundSymbol) {
@@ -1394,14 +1394,14 @@ public class Types {
     BSymbol getTypeCastOperator(BLangExpression expr, BType sourceType, BType targetType) {
         if (sourceType.tag == TypeTags.SEMANTIC_ERROR || targetType.tag == TypeTags.SEMANTIC_ERROR ||
                 sourceType == targetType) {
-            return createCastOperatorSymbol(sourceType, targetType, true);
+            return createCastOperatorSymbol(sourceType, targetType);
         }
 
         if (isAssignable(sourceType, targetType)) {
             if (isValueType(sourceType) || isValueType(targetType)) {
                 return getImplicitCastOpSymbol(sourceType, targetType);
             }
-            return createCastOperatorSymbol(sourceType, targetType, true);
+            return createCastOperatorSymbol(sourceType, targetType);
         }
 
         if (isAssignable(targetType, sourceType)) {
@@ -1519,10 +1519,10 @@ public class Types {
     // private methods
 
     private BCastOperatorSymbol createCastOperatorSymbol(BType sourceType,
-                                                         BType targetType,
-                                                         boolean safe) {
+                                                         BType targetType) {
+
         return Symbols.createCastOperatorSymbol(sourceType, targetType, symTable.errorType,
-                false, safe, null, null);
+                false, true, null, null);
     }
 
     private boolean isNullable(BType fieldType) {
