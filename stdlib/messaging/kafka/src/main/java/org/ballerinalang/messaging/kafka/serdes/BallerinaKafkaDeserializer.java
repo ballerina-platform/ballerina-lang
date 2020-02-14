@@ -18,6 +18,7 @@
 
 package org.ballerinalang.messaging.kafka.serdes;
 
+import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.Deserializer;
 import org.ballerinalang.jvm.BRuntime;
 import org.ballerinalang.jvm.values.ObjectValue;
@@ -36,7 +37,7 @@ public class BallerinaKafkaDeserializer implements Deserializer {
 
     private ObjectValue deserializerObject = null;
     private BRuntime runtime = null;
-    private long timeout = 10000;
+    private int timeout = 10000;
 
     @Override
     public void configure(Map configs, boolean isKey) {
@@ -46,7 +47,7 @@ public class BallerinaKafkaDeserializer implements Deserializer {
         } else {
             this.deserializerObject = (ObjectValue) configs.get(KafkaConstants.CONSUMER_VALUE_DESERIALIZER_CONFIG);
         }
-        this.timeout = (long) configs.get(KafkaConstants.CONSUMER_REQUEST_TIMEOUT_MS_CONFIG);
+        this.timeout = (int) configs.get(ConsumerConfig.REQUEST_TIMEOUT_MS_CONFIG);
     }
 
     @Override

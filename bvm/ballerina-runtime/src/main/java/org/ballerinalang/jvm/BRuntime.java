@@ -121,7 +121,7 @@ public class BRuntime {
      * @param args       Ballerina function arguments.
      * @return Ballerina function invoke result.
      */
-    public Object getSyncMethodInvokeResult(ObjectValue object, String methodName, long timeout, Object... args) {
+    public Object getSyncMethodInvokeResult(ObjectValue object, String methodName, int timeout, Object... args) {
         Function<?, ?> func = o -> object.call((Strand) (((Object[]) o)[0]), methodName, args);
         Semaphore semaphore = new Semaphore(0);
         final ErrorValue[] errorValue = new ErrorValue[1];

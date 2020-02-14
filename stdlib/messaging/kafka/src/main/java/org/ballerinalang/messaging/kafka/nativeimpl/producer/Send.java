@@ -293,11 +293,6 @@ public class Send {
             if (strand.isInTransaction()) {
                 handleTransactions(strand, producerObject);
             }
-//            Future<RecordMetadata> future = producer.send(record);
-//            RecordMetadata metadata = future.get();
-//            callback.setReturnValues(null);
-//            callback.notifySuccess();
-
             producer.send(record, (metadata, e) -> {
                 if (Objects.nonNull(e)) {
                     KafkaMetricsUtil.reportProducerError(producerObject,

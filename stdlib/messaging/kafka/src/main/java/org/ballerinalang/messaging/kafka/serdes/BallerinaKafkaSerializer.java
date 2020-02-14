@@ -18,6 +18,7 @@
 
 package org.ballerinalang.messaging.kafka.serdes;
 
+import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.Serializer;
 import org.ballerinalang.jvm.BRuntime;
 import org.ballerinalang.jvm.values.ObjectValue;
@@ -32,7 +33,7 @@ import java.util.Map;
 public class BallerinaKafkaSerializer implements Serializer {
 
     private ObjectValue serializerObject = null;
-    long timeout = 10000;
+    int timeout = 10000;
 
     @Override
     public void configure(Map configs, boolean isKey) {
@@ -41,7 +42,7 @@ public class BallerinaKafkaSerializer implements Serializer {
         } else {
             this.serializerObject = (ObjectValue) configs.get(KafkaConstants.PRODUCER_VALUE_SERIALIZER_CONFIG);
         }
-        this.timeout = (long) configs.get(KafkaConstants.PRODUCER_REQUEST_TIMEOUT_MS_CONFIG);
+        this.timeout = (int) configs.get(ProducerConfig.REQUEST_TIMEOUT_MS_CONFIG);
     }
 
     @Override

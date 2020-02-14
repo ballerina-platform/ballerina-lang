@@ -30,6 +30,7 @@ import org.ballerinalang.test.util.HttpClientRequest;
 import org.ballerinalang.test.util.HttpResponse;
 import org.ballerinalang.test.util.TestConstant;
 import org.testng.Assert;
+import org.testng.annotations.AfterTest;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
@@ -56,15 +57,15 @@ public class KafkaSerializerDeserializerTest extends BaseTest {
 
     @BeforeTest(alwaysRun = true)
     public void start() throws BallerinaTestException, IOException {
-        int[] requiredPorts = new int[]{14001, 14002, 14102};
+        int[] requiredPorts = new int[]{14001, 14002, 14003};
         String sourcePath = new File(resourceLocation).getAbsolutePath();
         serverInstance = new BServerInstance(balServer);
-        serverInstance.startServer(sourcePath, requiredPorts);
+        serverInstance.startServer(sourcePath, requiredPorts, true);
         File dataDir = Testing.Files.createTestingDirectory("cluster-kafka-serdes-test");
         kafkaCluster = createKafkaCluster(dataDir, 14002, 14102).addBrokers(1).startup();
     }
 
-    @Test(description = "Tests Kafka custom serializer / deserializer functionality")
+    @Test(description = "Tests Kafka custom serializer / deserializer functionality", enabled = false)
     public void testPublishToKafkaCluster() throws IOException {
         Map<String, String> headers = new HashMap<>();
         headers.put(HttpHeaderNames.CONTENT_TYPE.toString(), TestConstant.CONTENT_TYPE_JSON);
@@ -73,6 +74,13 @@ public class KafkaSerializerDeserializerTest extends BaseTest {
                                                          headers);
         Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
         Assert.assertEquals(response.getData(), "Successfully received", "Message content mismatched");
+    }
+
+    @AfterTest(alwaysRun = true)
+    private void cleanup() {
+        if (kafkaCluster.isRunning()) {
+            kafkaCluster.shutdown();
+        }
     }
 
     private static KafkaCluster createKafkaCluster(File dataDir, int zkPort, int brokerPort) {
