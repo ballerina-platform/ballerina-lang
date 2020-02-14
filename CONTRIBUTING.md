@@ -67,7 +67,7 @@ This plugin will be useful to check and validate a [grammar rule](#contributing-
 1. Do your changes in the source code.
     
     <details>
-    <summary>If you are contributing to Ballerina Grammar;</summary>
+    <summary border="1">If you are contributing to Ballerina Grammar;</summary>
 
     Ballerina grammar has been implemented using ANTLR plugin version 4.5.3. To get a basic understanding of ANTLR grammar syntax and concepts before working with Ballerina grammar, go to [Parr, Terence (January 15, 2013), The Definitive ANTLR 4 Reference](https://www.oreilly.com/library/view/the-definitive-antlr/9781941222621/).
 
