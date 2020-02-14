@@ -20,10 +20,10 @@ We appreciate your help!
 
 - Join the conversations at:
 
-    <a href="https://stackoverflow.com/questions/tagged/ballerina"><img src="/docs/images/stack-overflow.png"></a>
-    <a href="https://ballerinalang.slack.com/"><img src="/docs/images/slack.png"></a>
-    <a href="https://groups.google.com/forum/#!forum/ballerina-dev"><img src="/docs/images/google-groups.png"></a>
-    <a href="https://twitter.com/ballerinalang"><img src="/docs/images/twitter.png"></a>
+    <a href="https://twitter.com/ballerinalang"><img src="/docs/images/twitter.png" width="50px" height="50px"></a>
+    <a href="https://ballerinalang.slack.com/"><img src="/docs/images/slack.png" width="50px" height="50px"></a>
+    <a href="https://stackoverflow.com/questions/tagged/ballerina"><img src="/docs/images/stack-overflow.png" width="50px" height="50px"></a>
+    <a href="https://groups.google.com/forum/#!forum/ballerina-dev"><img src="/docs/images/google-groups.png" width="50px" height="50px"></a>
 
 - Submitting a bug is just as important as contributing to code. Report an issue in the relevant repo out of the GitHub repos listed below. 
 
