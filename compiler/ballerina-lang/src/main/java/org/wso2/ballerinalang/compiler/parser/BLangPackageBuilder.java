@@ -1822,8 +1822,8 @@ public class BLangPackageBuilder {
         BLangDoClause doClause = (BLangDoClause) TreeBuilder.createDoClauseNode();
         doClause.addWS(ws);
         doClause.pos = pos;
-        BlockNode blockNode = blockNodeStack.pop();
-        ((BLangBlockStmt) blockNode).pos = pos;
+        BLangBlockStmt blockNode = (BLangBlockStmt) blockNodeStack.pop();
+        blockNode.pos = pos;
         doClause.setBody(blockNode);
         doClause.addWS(ws);
         doClauseNodeStack.push(doClause);
@@ -1897,7 +1897,7 @@ public class BLangPackageBuilder {
     }
 
     void endStreamConstructor(DiagnosticPos pos, Set<Whitespace> ws) {
-        endBlockFunctionBody(ws);
+        endBlockFunctionBody(pos, ws);
         BLangStreamConstructorExpr streamConstructorExpr = (BLangStreamConstructorExpr)
                 this.streamConstructorNodeStack.pop();
         streamConstructorExpr.pos = pos;
