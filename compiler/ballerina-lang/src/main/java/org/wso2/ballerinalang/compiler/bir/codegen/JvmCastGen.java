@@ -20,6 +20,8 @@ package org.wso2.ballerinalang.compiler.bir.codegen;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
+import org.wso2.ballerinalang.compiler.bir.codegen.interop.JType;
+import org.wso2.ballerinalang.compiler.bir.codegen.interop.JTypeTags;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRVariableDcl;
 import org.wso2.ballerinalang.compiler.bir.model.VarKind;
 import org.wso2.ballerinalang.compiler.bir.model.VarScope;
@@ -109,7 +111,7 @@ public class JvmCastGen {
         }
     }
 
-    static void generateBToJCheckCast(MethodVisitor mv, BType sourceType, JType targetType) {
+    public static void generateBToJCheckCast(MethodVisitor mv, BType sourceType, JType targetType) {
         if (targetType.tag == JTypeTags.JREF && targetType.type == I_STRING_VALUE) {
             generateCheckCastBToJString(mv, sourceType);
             return;

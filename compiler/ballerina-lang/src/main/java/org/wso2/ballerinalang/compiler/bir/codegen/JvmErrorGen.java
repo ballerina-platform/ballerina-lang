@@ -92,10 +92,16 @@ public class JvmErrorGen {
         return System.err;
     }
 
-    static class ErrorHandlerGenerator {
+    public static class ErrorHandlerGenerator {
         MethodVisitor mv;
         BalToJVMIndexMap indexMap;
         String currentPackageName;
+
+        public ErrorHandlerGenerator(MethodVisitor mv, BalToJVMIndexMap indexMap, String currentPackageName) {
+            this.mv = mv;
+            this.indexMap = indexMap;
+            this.currentPackageName = currentPackageName;
+        }
 
         static void printStackTraceFromFutureValue(MethodVisitor mv, BalToJVMIndexMap indexMap) {
             mv.visitInsn(DUP);
@@ -113,12 +119,6 @@ public class JvmErrorGen {
                     false);
             mv.visitInsn(RETURN);
             mv.visitLabel(labelIf);
-        }
-
-        ErrorHandlerGenerator(MethodVisitor mv, BalToJVMIndexMap indexMap, String currentPackageName) {
-            this.mv = mv;
-            this.indexMap = indexMap;
-            this.currentPackageName = currentPackageName;
         }
 
         void genPanic(Panic panicTerm) {

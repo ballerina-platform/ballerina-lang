@@ -21,6 +21,7 @@ import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.model.elements.PackageID;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
+import org.wso2.ballerinalang.compiler.bir.codegen.interop.JType;
 import org.wso2.ballerinalang.compiler.bir.model.BIRInstruction;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRFunction;
@@ -145,7 +146,7 @@ import static org.wso2.ballerinalang.compiler.bir.model.InstructionKind.FP_LOAD;
  *
  * @since 1.2.0
  */
-class JvmTerminatorGen {
+public class JvmTerminatorGen {
 
     private static void genYieldCheckForLock(MethodVisitor mv, LabelGenerator labelGen, String funcName,
                                              int localVarOffset) {
@@ -155,9 +156,9 @@ class JvmTerminatorGen {
         mv.visitJumpInsn(IFNE, yieldLabel);
     }
 
-    static void loadChannelDetails(MethodVisitor mv, BIRNode.ChannelDetails[] channels) {
+    static void loadChannelDetails(MethodVisitor mv, List<BIRNode.ChannelDetails> channels) {
 
-        mv.visitIntInsn(BIPUSH, channels.length);
+        mv.visitIntInsn(BIPUSH, channels.size());
         mv.visitTypeInsn(ANEWARRAY, CHANNEL_DETAILS);
         int index = 0;
         for (BIRNode.ChannelDetails ch : channels) {
@@ -241,7 +242,7 @@ class JvmTerminatorGen {
         return false;
     }
 
-    static class TerminatorGenerator {
+    public static class TerminatorGenerator {
 
         MethodVisitor mv;
         BalToJVMIndexMap indexMap;
@@ -251,8 +252,8 @@ class JvmTerminatorGen {
         String currentPackageName;
         int kl = 0;
 
-        TerminatorGenerator(MethodVisitor mv, BalToJVMIndexMap indexMap, LabelGenerator labelGen,
-                            ErrorHandlerGenerator errorGen, BIRPackage module) {
+        public TerminatorGenerator(MethodVisitor mv, BalToJVMIndexMap indexMap, LabelGenerator labelGen,
+                                   ErrorHandlerGenerator errorGen, BIRPackage module) {
 
             this.mv = mv;
             this.indexMap = indexMap;
@@ -1127,8 +1128,8 @@ class JvmTerminatorGen {
             generateVarStore(this.mv, varDcl, this.currentPackageName, this.getJVMIndexOfVarRef(varDcl));
         }
 
-        void genReturnTerm(BIRTerminator.Return returnIns, int returnVarRefIndex, BIRFunction func,
-                           boolean isObserved /* = false */, int localVarOffset /* = -1 */) {
+        public void genReturnTerm(BIRTerminator.Return returnIns, int returnVarRefIndex, BIRFunction func,
+                                  boolean isObserved /* = false */, int localVarOffset /* = -1 */) {
 
             if (isObserved) {
                 emitStopObservationInvocation(this.mv, localVarOffset);

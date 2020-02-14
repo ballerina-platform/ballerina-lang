@@ -23,6 +23,8 @@ import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
+import org.wso2.ballerinalang.compiler.bir.codegen.interop.JType;
+import org.wso2.ballerinalang.compiler.bir.codegen.interop.JTypeTags;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmErrorGen.ErrorHandlerGenerator;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmInstructionGen.InstructionGenerator;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmLabelGen.LabelGenerator;
@@ -61,6 +63,7 @@ import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -219,13 +222,11 @@ import static org.wso2.ballerinalang.compiler.bir.model.BIRTerminator.Branch;
 import static org.wso2.ballerinalang.compiler.bir.model.BIRTerminator.Call;
 import static org.wso2.ballerinalang.compiler.bir.model.BIRTerminator.Return;
 
-
-//import ballerina/bir;
-//import ballerina/io;
-//import ballerina/jvm;
-//import ballerina/stringutils;
-//import ballerinax/java;
-
+/**
+ * BIR function to JVM byte code generation class.
+ *
+ * @since 1.2.0
+ */
 public class JvmMethodGen {
     public static List<String> generatedInitFuncs = new ArrayList<>();
     public static int nextId = -1;
@@ -244,12 +245,12 @@ public class JvmMethodGen {
         }
     }
 
-    static void genJMethodForBFunc(BIRFunction func,
-                                   ClassWriter cw,
-                                   BIRPackage module,
-                                   boolean isService,
-                                   String serviceName,
-                                   @Nilable BType attachedType /* = () */) {
+    public static void genJMethodForBFunc(BIRFunction func,
+                                          ClassWriter cw,
+                                          BIRPackage module,
+                                          boolean isService,
+                                          String serviceName,
+                                          @Nilable BType attachedType /* = () */) {
         String currentPackageName = getPackageName(module.org.value, module.name.value);
         BalToJVMIndexMap indexMap = new BalToJVMIndexMap();
         String funcName = cleanupFunctionName(func.name.value);
@@ -306,7 +307,7 @@ public class JvmMethodGen {
         // we cannot set this during strand creation, because function call do not have this info.
         if (func.workerChannels.length > 0) {
             mv.visitVarInsn(ALOAD, localVarOffset);
-            loadChannelDetails(mv, func.workerChannels);
+            loadChannelDetails(mv, Arrays.asList(func.workerChannels));
             mv.visitMethodInsn(INVOKEVIRTUAL, STRAND, "updateChannelDetails", String.format("([L%s;)V", CHANNEL_DETAILS), false);
         }
 
@@ -1421,9 +1422,8 @@ public class JvmMethodGen {
         }
     }
 
-    static String getMethodDesc(@Nilable List<BType> paramTypes, @Nilable BType retType, @Nilable BType
-            attachedType /* = () */,
-                                boolean isExtern /* = false */, boolean useBString /* = false */) {
+    public static String getMethodDesc(@Nilable List<BType> paramTypes, @Nilable BType retType, @Nilable BType attachedType /* = () */,
+                                       boolean isExtern /* = false */, boolean useBString /* = false */) {
         String desc = "(Lorg/ballerinalang/jvm/scheduling/Strand;";
 
         if (attachedType instanceof BType) {
@@ -2394,7 +2394,7 @@ public class JvmMethodGen {
         return functionName.replaceAll("[\\.:/<>]", "_");
     }
 
-    static BIRVariableDcl getVariableDcl(@Nilable BIRVariableDcl localVar) {
+    public static BIRVariableDcl getVariableDcl(@Nilable BIRVariableDcl localVar) {
         if (localVar instanceof BIRVariableDcl) {
             return localVar;
         } else {
@@ -2746,14 +2746,16 @@ public class JvmMethodGen {
         return nonBStringFuncName + "$bstring";
     }
 
-    static String nameOfNonBStringFunc(String funcName) {
+    public static String nameOfNonBStringFunc(String funcName) {
         if (isBStringFunc(funcName)) {
             return funcName.substring(0, funcName.length() - 8);
         }
         return funcName;
     }
 
-    static class BalToJVMIndexMap {
+//    static handle /* = @java:Method getProperty(handle propertyName */)
+
+    public static class BalToJVMIndexMap {
         private int localVarIndex = 0;
         private Map<String, Integer> jvmLocalVarIndexMap = null;
 
@@ -2777,7 +2779,7 @@ public class JvmMethodGen {
             return varDcl.name.value;
         }
 
-        int getIndex(BIRVariableDcl varDcl) {
+        public int getIndex(BIRVariableDcl varDcl) {
             String varRefName = this.getVarRefName(varDcl);
             if (!(this.jvmLocalVarIndexMap.containsKey(varRefName))) {
                 this.add(varDcl);

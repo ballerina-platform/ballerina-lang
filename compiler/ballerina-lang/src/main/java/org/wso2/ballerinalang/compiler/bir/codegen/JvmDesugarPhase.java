@@ -54,7 +54,7 @@ import static org.wso2.ballerinalang.compiler.bir.model.BIRTerminator.GOTO;
 
 public class JvmDesugarPhase {
 
-    static void addDefaultableBooleanVarsToSignature(@Nilable BIRFunction func) {
+    public static void addDefaultableBooleanVarsToSignature(@Nilable BIRFunction func) {
         BIRFunction currentFunc = getFunction(func);
         currentFunc.type = new BInvokableType(null, currentFunc.type.restType, currentFunc.type.retType, currentFunc.type.tsymbol);
         BInvokableType type = currentFunc.type;
@@ -81,7 +81,7 @@ public class JvmDesugarPhase {
         currentFunc.localVars = updatedVars;
     }
 
-    static void enrichWithDefaultableParamInits(BIRFunction currentFunc) {
+    public static void enrichWithDefaultableParamInits(BIRFunction currentFunc) {
 
         int k = 1;
         @Nilable List<BIRFunctionParameter> functionParams = new ArrayList<>();
@@ -154,13 +154,13 @@ public class JvmDesugarPhase {
         currentFunc.basicBlocks = basicBlocks;
     }
 
-    static BIRBasicBlock insertAndGetNextBasicBlock(@Nilable List<BIRBasicBlock> basicBlocks, String prefix /* = "desugaredBB" */) {
+    public static BIRBasicBlock insertAndGetNextBasicBlock(@Nilable List<BIRBasicBlock> basicBlocks, String prefix /* = "desugaredBB" */) {
         BIRBasicBlock nextbb = new BIRBasicBlock(getNextDesugarBBId(prefix));
         basicBlocks.add(nextbb);
         return nextbb;
     }
 
-    static Name getNextDesugarBBId(String prefix) {
+    public static Name getNextDesugarBBId(String prefix) {
         String bbIdPrefix = prefix;
         nextId += 1;
         return new Name(bbIdPrefix + nextId);

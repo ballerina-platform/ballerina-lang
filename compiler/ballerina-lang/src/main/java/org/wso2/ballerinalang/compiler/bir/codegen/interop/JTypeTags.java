@@ -1,4 +1,4 @@
-package org.wso2.ballerinalang.compiler.bir.codegen;
+package org.wso2.ballerinalang.compiler.bir.codegen.interop;
 
 public class JTypeTags {
     public static final int JBYTE = 1;

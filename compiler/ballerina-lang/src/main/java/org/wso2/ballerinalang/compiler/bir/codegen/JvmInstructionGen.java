@@ -25,6 +25,8 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.JInsKind;
+import org.wso2.ballerinalang.compiler.bir.codegen.interop.JType;
+import org.wso2.ballerinalang.compiler.bir.codegen.interop.JTypeTags;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRGlobalVariableDcl;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRPackage;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRTypeDefinition;
@@ -209,7 +211,7 @@ public class JvmInstructionGen {
 
     ;
 
-    static void addUnboxInsn(MethodVisitor mv, @Nilable BType bType, boolean useBString /* = false */) {
+    public static void addUnboxInsn(MethodVisitor mv, @Nilable BType bType, boolean useBString /* = false */) {
         if (bType == null) {
             return;
         } else {
@@ -244,7 +246,7 @@ public class JvmInstructionGen {
         }
     }
 
-    static void generateVarLoad(MethodVisitor mv, BIRVariableDcl varDcl, String currentPackageName, int valueIndex) {
+    public static void generateVarLoad(MethodVisitor mv, BIRVariableDcl varDcl, String currentPackageName, int valueIndex) {
         BType bType = varDcl.type;
 
         if (varDcl.kind == VarKind.GLOBAL) {
@@ -338,7 +340,7 @@ public class JvmInstructionGen {
         }
     }
 
-    static void generateVarStore(MethodVisitor mv, BIRVariableDcl varDcl, String currentPackageName, int valueIndex) {
+    public static void generateVarStore(MethodVisitor mv, BIRVariableDcl varDcl, String currentPackageName, int valueIndex) {
         BType bType = varDcl.type;
 
         if (varDcl.kind == VarKind.GLOBAL) {
@@ -421,17 +423,18 @@ public class JvmInstructionGen {
         }
     }
 
-    static class InstructionGenerator {
+    public static class InstructionGenerator {
         MethodVisitor mv;
         BalToJVMIndexMap indexMap;
         String currentPackageName;
         BIRPackage currentPackage;
 
-        InstructionGenerator(MethodVisitor mv, BalToJVMIndexMap indexMap, BIRPackage moduleId) {
+        public InstructionGenerator(MethodVisitor mv, BalToJVMIndexMap indexMap, BIRPackage currentPackage) {
+
             this.mv = mv;
             this.indexMap = indexMap;
-            this.currentPackage = moduleId;
-            this.currentPackageName = getPackageName(moduleId.org.value, moduleId.name.value);
+            this.currentPackage = currentPackage;
+            this.currentPackageName = getPackageName(currentPackage.org.value, currentPackage.name.value);
         }
 
         void generatePlatformIns(JInstruction ins) {
@@ -542,8 +545,7 @@ public class JvmInstructionGen {
 
         private void generateBinaryCompareIns(BinaryOp binaryIns, int opcode) {
             if (opcode != IFLT && opcode != IFGT && opcode != IFLE && opcode != IFGE) {
-                BLangCompilerException err = new BLangCompilerException(String.format("Unsupported opcode '%s' for binary operator.", opcode));
-                throw err;
+                throw new BLangCompilerException(String.format("Unsupported opcode '%s' for binary operator.", opcode));
             }
 
             this.generateBinaryRhsAndLhsLoad(binaryIns);
@@ -597,8 +599,7 @@ public class JvmInstructionGen {
             } else if (opcode == IFLE) {
                 return "checkDecimalLessThanOrEqual";
             } else {
-                BLangCompilerException err = new BLangCompilerException(String.format("Opcode: '%s' is not a comparison opcode.", opcode));
-                throw err;
+                throw new BLangCompilerException(String.format("Opcode: '%s' is not a comparison opcode.", opcode));
             }
         }
 
