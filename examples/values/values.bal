@@ -28,15 +28,15 @@ public function main() {
 
     // The `.isNaN()`, `.isInfinite()`, and `.isFinite()` langlib functions are supported by the `float` type.
     // The `.isNaN()` function will return true if the `float` value is neither finite nor infinite.
-    float nanVal = 0.0/0.0;
+    float nanVal = 0.0 / 0.0;
     io:println(nanVal.isNaN());
 
     // The `.isInfinite()` function will return true if the `float` value is neither NaN nor finite.
-    float infiniteVal = 12.0/0.0;
+    float infiniteVal = 12.0 / 0.0;
     io:println(infiniteVal.isInfinite());
 
     // The `.isFinite()` function will return true if the `float` value is neither NaN nor infinite.
-    float finiteVal = 6.0/3.0;
+    float finiteVal = 6.0 / 3.0;
     io:println(finiteVal.isFinite());
 
     // The `decimal` type represents the set of 128-bits IEEE 754R decimal floating point numbers.

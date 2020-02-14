@@ -145,6 +145,10 @@ public enum Snippet {
 
     KW_TYPE(SnippetGenerator.getTypeKeywordSnippet()),
 
+    KW_RECORD(SnippetGenerator.getRecordKeywordSnippet()),
+
+    KW_OBJECT(SnippetGenerator.getObjectKeywordSnippet()),
+
     KW_ANNOTATION(SnippetGenerator.getAnnotationKeywordSnippet()),
 
     KW_VAR(SnippetGenerator.getVarKeywordSnippet()),

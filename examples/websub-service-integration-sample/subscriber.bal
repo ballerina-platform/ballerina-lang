@@ -3,7 +3,7 @@ import ballerina/log;
 import ballerina/websub;
 
 // The endpoint to which the subscriber service is bound.
-listener websub:Listener websubEP = new(8181);
+listener websub:Listener websubEP = new (8181);
 
 // Annotations specifying the subscription parameters for the order management service.
 // A subscription request would be sent to the hub with the topic discovered at the

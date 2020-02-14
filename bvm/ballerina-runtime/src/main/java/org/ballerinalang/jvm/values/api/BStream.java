@@ -18,7 +18,6 @@
 
 package org.ballerinalang.jvm.values.api;
 
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BType;
 
 /**
@@ -28,7 +27,7 @@ import org.ballerinalang.jvm.types.BType;
  *
  * @since 1.2.0
  */
-public interface BStream extends BStreamIterator, BRefValue {
+public interface BStream extends BIterator<Object>, BRefValue {
     /**
      * Returns the constrained {@code BType} of the stream.
      *
@@ -58,27 +57,17 @@ public interface BStream extends BStreamIterator, BRefValue {
      * Combines the members of an stream using a combining function. The combining function takes the combined value so
      * far and a member of the stream, and returns a new combined value.
      *
-     * @param strand The strand
      * @param reduceFunc The function pointer representing the user provided reduce function
      * @param initialValue The initial value of reduce function
      * @return The reduced value
      */
-    Object reduce(Strand strand, BFunctionPointer<Object, Object> reduceFunc, Object initialValue);
+    Object reduce(BFunctionPointer<Object, Object> reduceFunc, Object initialValue);
 
     /**
      * Applies a function to each member of a stream.
      * The parameter 'func' is applied to each member of stream 'strm' in order.
      *
-     * @param strand The strand
      * @param foreachFunc The function which is applied to each member in stream 'strm'
      */
-    void forEach(Strand strand, BFunctionPointer<Object, Object> foreachFunc);
-
-    /**
-     * Returns the next element in the stream after applying filters, mapping and reductions.
-     *
-     * @param strand The strand in which the filtering, mapping reduction... etc functions are invoked
-     * @return The next element if the stream has or Nil if stream ends.
-     */
-    Object next(Strand strand);
+    void forEach(BFunctionPointer<Object, Object> foreachFunc);
 }

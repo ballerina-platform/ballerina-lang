@@ -35,11 +35,11 @@ function basicMatch(any a) {
     match a {
         // This pattern check is for a tuple of three members of any type.
         var [s, i, b] => {
-            io:println("Matched with three vars : ",  io:sprintf("%s", a));
+            io:println("Matched with three vars : ", io:sprintf("%s", a));
         }
         // This pattern check is for a tuple of two members of any type.
         var [s, i] => {
-            io:println("Matched with two vars : ",  io:sprintf("%s", a));
+            io:println("Matched with two vars : ", io:sprintf("%s", a));
         }
         // This pattern check is for a single variable, which can be of type `any`. This has to be the last pattern.
         var s => {
@@ -63,7 +63,7 @@ function matchWithMatchGuard(any b) {
         }
         // This pattern check is for a tuple of two members where the second member is of the type `int`.
         var [s, i] if i is int => {
-           io:println("Only 'i' is int : ", io:sprintf("%s", b));
+            io:println("Only 'i' is int : ", io:sprintf("%s", b));
         }
         // This pattern check is for a tuple of two members without any match guard.
         var [s, i] => {
@@ -71,7 +71,7 @@ function matchWithMatchGuard(any b) {
         }
         // This pattern check is for a single variable of the type `float`.
         var s if s is float => {
-           io:println("'s' is float only : ", io:sprintf("%s", b));
+            io:println("'s' is float only : ", io:sprintf("%s", b));
         }
 
     }

@@ -7,13 +7,18 @@ Creating balos
         target/balo/test_module-2019r3-any-0.1.0.balo
 
 Running tests
-    ballerinatest/test_module:0.1.0
+        ballerinatest/test_module:0.1.0
 I'm the before function!
 I'm in test function 3!
 I'm the before function!
 I'm in test function 2!
 I'm the before function!
 I'm in test function 1!
+
+        [pass] testFunction3
+        [pass] testFunction2
+        [pass] testFunction1
+
         3 passing
         0 failing
         0 skipped

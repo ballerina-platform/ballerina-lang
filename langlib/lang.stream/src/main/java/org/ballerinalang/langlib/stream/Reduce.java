@@ -42,6 +42,6 @@ import org.ballerinalang.natives.annotations.ReturnType;
 public class Reduce {
 
     public static Object reduce(Strand strand, StreamValue strm, FPValue<Object, Object> func, Object initial) {
-        return strm.reduce(strand, func, initial);
+        return strm.reduce(func, initial);
     }
 }

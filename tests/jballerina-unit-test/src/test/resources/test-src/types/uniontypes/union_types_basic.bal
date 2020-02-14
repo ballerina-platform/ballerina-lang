@@ -144,6 +144,22 @@ function testUnionTypeWithMultipleRecordTypes() returns string[] {
     return returnValues;
 }
 
+const ASSERTION_ERR_REASON = "AssertionError";
+
+function testUnionTypeWithMultipleRecordTypesWithLiteralKeysInLiteral() {
+
+    Foo|Bar v1 = {s: "dummy string", "i": 1};
+    Foo|Bar v2 = {"x": "dummy string", y: 2};
+
+    if !(v1 is Foo) {
+        panic error(ASSERTION_ERR_REASON, message = "expected v1 to be of type Foo");
+    }
+
+    if !(v2 is Bar) {
+        panic error(ASSERTION_ERR_REASON, message = "expected v2 to be of type Bar");
+    }
+}
+
 function testUnionLhsWithDiscriminatedFloatDecimalLiterals() returns [(float|decimal), (float|decimal), (float|decimal)] {
     float|decimal a = 1.0;
     float|decimal b = 1.0f;

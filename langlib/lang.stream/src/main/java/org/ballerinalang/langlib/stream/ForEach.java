@@ -38,6 +38,6 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 public class ForEach {
 
     public static void forEach(Strand strand, StreamValue strm, FPValue<Object, Object> func) {
-        strm.forEach(strand, func);
+        strm.forEach(func);
     }
 }

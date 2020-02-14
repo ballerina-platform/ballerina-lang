@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.jvm.types;
 
+import org.ballerinalang.jvm.IteratorUtils;
 import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.util.Flags;
 
@@ -62,6 +63,9 @@ public class BTypes {
     public static BType typePureType = new BUnionType(Arrays.asList(typeAnydata, typeError));
     public static BType typeAllType = new BUnionType(Arrays.asList(typeAny, typeError));
     public static BType typeHandle = new BHandleType(TypeConstants.HANDLE_TNAME, new BPackage(null, null, null));
+    public static BRecordType stringItrNextReturnType = IteratorUtils.createIteratorNextReturnType(BTypes.typeString);
+    public static BRecordType xmlItrNextReturnType = IteratorUtils
+            .createIteratorNextReturnType(new BUnionType(Arrays.asList(BTypes.typeString, BTypes.typeXML)));
 
     static {
         HashMap<String, BField> fields = new HashMap<>();
@@ -75,7 +79,7 @@ public class BTypes {
         restFieldType[1] = BTypes.typeError;
         typeErrorDetail.restFieldType = new BUnionType(Arrays.asList(restFieldType));
     }
-    
+
     private BTypes() {
     }
 
@@ -149,4 +153,5 @@ public class BTypes {
         }
         return getTypeFromName(typeName);
     }
+
 }

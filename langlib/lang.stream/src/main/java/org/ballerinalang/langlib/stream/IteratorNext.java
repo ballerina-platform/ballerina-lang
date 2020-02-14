@@ -51,20 +51,16 @@ import java.util.Map;
 public class IteratorNext {
     //TODO: refactor hard coded values
     public static Object next(Strand strand, ObjectValue m) {
-        StreamValue strmIterator = (StreamValue) m.getNativeData("&iterator&");
+        StreamValue stream = (StreamValue) m.getNativeData("&iterator&");
 
-        if (strmIterator == null) {
-            strmIterator = ((StreamValue) m.get("strm"));
-            m.addNativeData("&iterator&", strmIterator);
+        if (stream == null) {
+            stream = ((StreamValue) m.get("strm"));
+            m.addNativeData("&iterator&", stream);
         }
 
-        Object next = strmIterator.next(strand);
+        Object next = stream.next();
         if (next != null) {
-            Map<String, BField> fields = new HashMap<>();
-            fields.put("value", new BField(strmIterator.getConstraintType(), "value", Flags.PUBLIC + Flags.REQUIRED));
-            BRecordType recordType = new BRecordType("$$returnType$$", strmIterator.getType().getPackage(), 0, fields,
-                    null, true, TypeFlags.PURETYPE);
-            return BallerinaValues.createRecord(new MapValueImpl<>(recordType), next);
+            return BallerinaValues.createRecord(new MapValueImpl<>(stream.getIteratorNextReturnType()), next);
         }
 
         return null;

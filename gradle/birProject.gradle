@@ -1,9 +1,9 @@
-import org.gradle.internal.os.OperatingSystem;
-import org.apache.tools.ant.filters.*;
+import org.gradle.internal.os.OperatingSystem
+import org.apache.tools.ant.filters.*
 
 import java.util.jar.Attributes
 import java.util.jar.JarOutputStream
-import java.util.jar.Manifest;
+import java.util.jar.Manifest
 
 apply from: "$rootDir/gradle/birTestableProject.gradle"
 
@@ -73,7 +73,7 @@ task createBirJar(type: Exec) {
     onlyIf { file(generatedBirDir + project.ext.moduleName + '.bir').exists() }
 
     doFirst {
-        Set jarsToBeLoaded = [];
+        Set jarsToBeLoaded = []
         def mapPath = OperatingSystem.current().isWindows() ? "\"\"" : ""
         if (!sourceSets.main.allJava.isEmpty()) {
             def generatedMapPath = generatedBirDir + project.ext.moduleName + '.map.json'
@@ -83,15 +83,15 @@ task createBirJar(type: Exec) {
         }
 
         configurations.interopImports.each {
-            jarsToBeLoaded.addAll(it);
+            jarsToBeLoaded.addAll(it)
         }
-        jarsToBeLoaded.add("$rootDir" + "/bvm/ballerina-runtime/build/libs/ballerina-runtime-${project.version}.jar");
+        jarsToBeLoaded.add("$rootDir" + "/bvm/ballerina-runtime/build/libs/ballerina-runtime-${project.version}.jar")
         new File("$projectDir/src/main/ballerina/Ballerina.toml").readLines().
                 findAll({x -> x ==~ /.*path = ".\/lib\/.*/ }).
                 collect {
                     def jarPath = it.split(/"/)[1].replace('@project.version@', "${project.version}").
                             replace('./lib', "")
-                    jarsToBeLoaded.add("$rootDir" + "/distribution/libs/libs" + jarPath);
+                    jarsToBeLoaded.add("$rootDir" + "/distribution/libs/libs" + jarPath)
         }
 
         configurations.birJarCompile.each {
@@ -164,7 +164,7 @@ def getJarCreationCommand(it, generatedBirDir, mapPath, jarsToBeLoaded) {
         def classPath = fileTree(new File(it, '/bre/lib/')).filter{ it.isFile() }.files.path.join(':')
         commands = [ 'java', '-cp', classPath];
     }
-    if(project.name == 'string' || project.name=="error") {
+    if (project.name == 'string' || project.name == "error" || project.name == "value") {
         commands.add('-Dballerina.bstring=true')
     }
     commands.addAll(getCompilerBackendArgs(it, generatedBirDir, mapPath))

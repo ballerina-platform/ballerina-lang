@@ -54,49 +54,50 @@ public class ErrorValue extends BError implements RefValue {
 
     private static final long serialVersionUID = 1L;
     private final BType type;
-    private final String reason;
+    private final BString reason;
     private final Object details;
 
     @Deprecated
     public ErrorValue(String reason, Object details) {
-        super(reason);
-        this.type = new BErrorType(TypeConstants.ERROR, BTypes.typeError.getPackage(),
-                BTypes.typeString, TypeChecker.getType(details));
-        this.reason = reason;
-        this.details = details;
+        this(new BErrorType(TypeConstants.ERROR, BTypes.typeError.getPackage(),
+                            BTypes.typeString, TypeChecker.getType(details)), reason, details);
     }
 
     @Deprecated
     public ErrorValue(BType type, String reason, Object details) {
         super(reason);
         this.type = type;
+        this.reason = StringUtils.fromString(reason);
+        this.details = details;
+    }
+
+    @Deprecated
+    public ErrorValue(BString reason, Object details) {
+        this(new BErrorType(TypeConstants.ERROR, BTypes.typeError.getPackage(),
+                            BTypes.typeString, TypeChecker.getType(details)), reason, details);
+    }
+
+    @Deprecated
+    public ErrorValue(BType type, BString reason, Object details) {
+        super(reason);
+        this.type = type;
         this.reason = reason;
         this.details = details;
     }
 
-    @Deprecated
-    public ErrorValue(StringValue reason, Object details) {
-        super(reason);
-        this.type = new BErrorType(TypeConstants.ERROR, BTypes.typeError.getPackage(),
-                                   BTypes.typeString, TypeChecker.getType(details));
-        this.reason = reason.getValue();
-        this.details = details;
-    }
-
-    @Deprecated
-    public ErrorValue(BType type, StringValue reason, Object details) {
-        super(reason);
-        this.type = type;
-        this.reason = reason.getValue();
-        this.details = details;
-    }
-
     @Override
+    @Deprecated
     public String stringValue() {
-        return "error " + reason +
+        return "error " + reason.getValue() +
                 Optional.ofNullable(details).map(
                         details -> " " + org.ballerinalang.jvm.values.utils.StringUtils.getStringValue(details)).orElse(
                         "");
+    }
+
+    @Override
+    public BString bStringValue() {
+        return StringUtils.fromString("error ").concat(reason).concat(StringUtils.fromString(" ")).concat(
+                org.ballerinalang.jvm.values.utils.StringUtils.getBStringValue(details));
     }
 
     @Override
@@ -140,7 +141,7 @@ public class ErrorValue extends BError implements RefValue {
      */
     @Deprecated
     public String getReason() {
-        return reason;
+        return reason.getValue();
     }
 
     /**
@@ -149,7 +150,7 @@ public class ErrorValue extends BError implements RefValue {
      * @return reason string
      */
     public BString getErrorReason() {
-        return StringUtils.fromString(reason);
+        return reason;
     }
 
     /**
@@ -239,8 +240,8 @@ public class ErrorValue extends BError implements RefValue {
     private String getErrorMessage() {
         String errorMsg = "";
         boolean reasonAdded = false;
-        if (reason != null && !reason.isEmpty()) {
-            errorMsg = reason;
+        if (reason != null && reason.length() != 0) {
+            errorMsg = reason.getValue();
             reasonAdded = true;
         }
         if (details != null) {
