@@ -1940,12 +1940,14 @@ public class BLangPackageBuilder {
         body.addWS(ws);
     }
 
-    void endExternalFunctionBody(int annotCount) {
+    void endExternalFunctionBody(int annotCount, Set<Whitespace> ws) {
+        ExternalFunctionBodyNode externBody = (ExternalFunctionBodyNode) this.funcBodyNodeStack.peek();
+        externBody.addWS(ws);
+
         if (annotCount == 0) {
             return;
         }
 
-        ExternalFunctionBodyNode externBody = (ExternalFunctionBodyNode) this.funcBodyNodeStack.peek();
         List<AnnotationAttachmentNode> annotAttachments =
                 (List<AnnotationAttachmentNode>) externBody.getAnnotationAttachments();
 

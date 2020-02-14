@@ -40,4 +40,9 @@ public class BLangExprFunctionBody extends BLangFunctionBody implements ExprFunc
     public NodeKind getKind() {
         return NodeKind.EXPR_FUNCTION_BODY;
     }
+
+    @Override
+    public BLangExpression getExpr() {
+        return this.expr;
+    }
 }
