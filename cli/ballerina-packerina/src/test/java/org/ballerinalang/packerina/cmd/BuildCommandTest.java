@@ -87,8 +87,8 @@ public class BuildCommandTest extends CommandTest {
         String buildLog = readOutput(true);
         Assert.assertEquals(buildLog.replaceAll("\r", ""),
                 "ballerina: invalid Ballerina source path. It should either be a name of a module " +
-                                      "in a Ballerina project or a file with a '.bal' extension. Use the -a or " +
-                                      "--all flag to build or compile all modules.\n" +
+                                      "in a Ballerina project or a file with a '.bal' extension. Use -a or " +
+                                      "--all to build or compile all modules.\n" +
                                       "\n" +
                                       "USAGE:\n" +
                                       "    ballerina build {<ballerina-file> | <module-name> | -a | --all}\n" +
@@ -269,7 +269,7 @@ public class BuildCommandTest extends CommandTest {
         String buildLog = readOutput(true);
         Assert.assertEquals(buildLog.replaceAll("\r", ""),
                                       "ballerina: 'build' command requires a module name or a Ballerina file to " +
-                                      "build/compile. use '-a' or '--all' flag to build/compile all the modules of " +
+                                      "build/compile. Use '-a' or '--all' to build/compile all the modules of " +
                                       "the project.\n" +
                                       "\n" +
                                       "USAGE:\n" +
@@ -342,8 +342,8 @@ public class BuildCommandTest extends CommandTest {
         String buildLog = readOutput(true);
         Assert.assertEquals(buildLog.replaceAll("\r", ""),
                 "ballerina: invalid Ballerina source path. It should either be a name of a module " +
-                                      "in a Ballerina project or a file with a '.bal' extension. Use the -a or --all " +
-                                      "flag to build or compile all modules.\n" +
+                                      "in a Ballerina project or a file with a '.bal' extension. Use -a or --all " +
+                                      "to build or compile all modules.\n" +
                                       "\n" +
                                       "USAGE:\n" +
                                       "    ballerina build {<ballerina-file> | <module-name> | -a | --all}\n" +
@@ -515,11 +515,16 @@ public class BuildCommandTest extends CommandTest {
     }
 
     @Test(dependsOnMethods = {"testBuildCommand"})
-    public void testBuildOutput() {
+    public void testBuildOutput() throws IOException {
         Path bin = this.testResources.resolve("valid-project").resolve(ProjectDirConstants.TARGET_DIR_NAME)
                 .resolve(ProjectDirConstants.BIN_DIR_NAME);
         Assert.assertTrue(Files.exists(bin));
-        Assert.assertTrue(Files.exists(bin.resolve("mymodule" + BLANG_COMPILED_JAR_EXT)));
+        Path myModuleJar = bin.resolve("mymodule" + BLANG_COMPILED_JAR_EXT);
+        Assert.assertTrue(Files.exists(myModuleJar));
+        JarFile jar = new JarFile(myModuleJar.toFile());
+        // check resources
+        Assert.assertNotNull(jar.getJarEntry("resources/testOrg/mymodule/resource.txt"));
+        Assert.assertNotNull(jar.getJarEntry("resources/testOrg/mymodule/myresource/insideDirectory.txt"));
     }
     
     @Test(dependsOnMethods = {"testBuildOutput"})

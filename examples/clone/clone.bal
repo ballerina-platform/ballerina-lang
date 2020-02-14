@@ -20,7 +20,7 @@ public type Address record {
 public function main() {
     // Define an `Address` value.
     Address address = {
-        country : "USA",
+        country: "USA",
         state: "NC",
         city: "Raleigh",
         street: "Daniels St"

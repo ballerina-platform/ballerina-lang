@@ -59,11 +59,11 @@ public class LangLibArrayTest {
         assertEquals(((BInteger) returns[0]).intValue(), 4);
     }
 
-//    @Test
-//    public void testIterator() {
-//        BValue[] returns = BRunUtil.invoke(compileResult, "testIterator");
-//        assertEquals(returns[0].stringValue(), "HelloWorld!FromBallerina");
-//    }
+    @Test
+    public void testIterator() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testIterator");
+        assertEquals(returns[0].stringValue(), "HelloWorld!FromBallerina");
+    }
 
     @Test
     public void testEnumerate() {

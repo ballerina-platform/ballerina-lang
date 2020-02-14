@@ -21,7 +21,7 @@ service HelloWorld on new grpc:Listener(9090) {
     //This `resource` is triggered when the server receives an error message from the caller.
     resource function onError(grpc:Caller caller, error err) {
         log:printError("Error from Connector: " + err.reason() + " - "
-                                           + <string> err.detail()["message"]);
+                                           + <string>err.detail()["message"]);
     }
 
     //This `resource` is triggered when the caller sends a notification to the server to indicate that it has finished sending messages.
@@ -29,7 +29,7 @@ service HelloWorld on new grpc:Listener(9090) {
         grpc:Error? err = caller->send("Ack");
         if (err is grpc:Error) {
             log:printError("Error from Connector: " + err.reason() + " - "
-                                           + <string> err.detail()["message"]);
+                                           + <string>err.detail()["message"]);
         } else {
             log:printInfo("Server send response : Ack");
         }

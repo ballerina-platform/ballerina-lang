@@ -2,7 +2,7 @@ import ballerina/http;
 import ballerina/log;
 import ballerina/mime;
 
-http:Client clientEP = new("http://localhost:9090");
+http:Client clientEP = new ("http://localhost:9090");
 
 @http:ServiceConfig {
     basePath: "/multiparts"
@@ -23,15 +23,15 @@ service multipartDemoService on new http:Listener(9090) {
             foreach var part in bodyParts {
                 handleContent(part);
             }
-            response.setPayload(<@untainted> bodyParts);
+            response.setPayload(<@untainted>bodyParts);
         } else {
-            log:printError(<string> bodyParts.reason());
+            log:printError(<string>bodyParts.reason());
             response.setPayload("Error in decoding multiparts!");
             response.statusCode = 500;
         }
         var result = caller->respond(response);
         if (result is error) {
-            log:printError("Error sending response", err = result);
+            log:printError("Error sending response", result);
         }
     }
 
@@ -67,7 +67,7 @@ service multipartDemoService on new http:Listener(9090) {
         if (returnResponse is http:Response) {
             var result = caller->respond(returnResponse);
             if (result is error) {
-                log:printError("Error sending response", err = result);
+                log:printError("Error sending response", result);
             }
         } else {
             http:Response response = new;
@@ -76,7 +76,7 @@ service multipartDemoService on new http:Listener(9090) {
             response.statusCode = 500;
             var result = caller->respond(response);
             if (result is error) {
-                log:printError("Error sending response", err = result);
+                log:printError("Error sending response", result);
             }
         }
     }
@@ -93,7 +93,7 @@ function handleContent(mime:Entity bodyPart) {
             if (payload is xml) {
                 log:printInfo(payload.toString());
             } else {
-                log:printError(<string> payload.detail().message);
+                log:printError(<string>payload.detail().message);
             }
         } else if (mime:APPLICATION_JSON == baseType) {
             //Extracts `json` data from the body part.
@@ -101,7 +101,7 @@ function handleContent(mime:Entity bodyPart) {
             if (payload is json) {
                 log:printInfo(payload.toJsonString());
             } else {
-                log:printError(<string> payload.detail().message);
+                log:printError(<string>payload.detail().message);
             }
         } else if (mime:TEXT_PLAIN == baseType) {
             //Extracts text data from the body part.
@@ -109,7 +109,7 @@ function handleContent(mime:Entity bodyPart) {
             if (payload is string) {
                 log:printInfo(payload);
             } else {
-                log:printError(<string> payload.detail().message);
+                log:printError(<string>payload.detail().message);
             }
         }
     }

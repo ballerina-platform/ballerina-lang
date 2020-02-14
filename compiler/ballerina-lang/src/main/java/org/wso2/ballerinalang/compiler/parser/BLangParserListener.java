@@ -1380,6 +1380,22 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     }
 
     @Override
+    public void enterStreamConstructorExpr(BallerinaParser.StreamConstructorExprContext ctx) {
+        if (isInErrorState) {
+            return;
+        }
+        this.pkgBuilder.startStreamConstructor(getCurrentPos(ctx), diagnosticSrc.pkgID);
+    }
+
+    @Override
+    public void exitStreamConstructorExpr(BallerinaParser.StreamConstructorExprContext ctx) {
+        if (isInErrorState) {
+            return;
+        }
+        this.pkgBuilder.endStreamConstructor(getCurrentPos(ctx), getWS(ctx));
+    }
+
+    @Override
     public void exitListConstructorExpr(BallerinaParser.ListConstructorExprContext ctx) {
         if (isInErrorState) {
             return;
@@ -1920,6 +1936,15 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         }
 
         this.pkgBuilder.createSimpleVariableReference(getCurrentPos(ctx), getWS(ctx));
+    }
+
+    @Override
+    public void exitInvocation(BallerinaParser.InvocationContext ctx) {
+        if (isInErrorState) {
+            return;
+        }
+
+        this.pkgBuilder.addInvocationWS(getWS(ctx));
     }
 
     @Override
@@ -2609,12 +2634,40 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         this.pkgBuilder.createSelectClause(getCurrentPos(ctx), getWS(ctx));
     }
 
-    @Override public void exitQueryExpr(BallerinaParser.QueryExprContext ctx) {
+    @Override
+    public void exitDoClause(BallerinaParser.DoClauseContext ctx) {
+        if (isInErrorState) {
+            return;
+        }
+
+        this.pkgBuilder.createDoClause(getCurrentPos(ctx), getWS(ctx));
+    }
+
+    @Override
+    public void exitQueryExpr(BallerinaParser.QueryExprContext ctx) {
         if (isInErrorState) {
             return;
         }
 
         this.pkgBuilder.createQueryExpr(getCurrentPos(ctx), getWS(ctx));
+    }
+
+    @Override
+    public void enterQueryActionStatement(BallerinaParser.QueryActionStatementContext ctx) {
+        if (isInErrorState) {
+            return;
+        }
+
+        this.pkgBuilder.startDoActionStatement();
+    }
+
+    @Override
+    public void exitQueryActionStatement(BallerinaParser.QueryActionStatementContext ctx) {
+        if (isInErrorState) {
+            return;
+        }
+
+        this.pkgBuilder.createQueryActionStatement(getCurrentPos(ctx), getWS(ctx));
     }
 
     @Override

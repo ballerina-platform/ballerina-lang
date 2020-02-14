@@ -73,6 +73,7 @@
             <class name="org.ballerinalang.test.service.http.sample.HTTPListenerMethodTestCase"/>
             <class name="org.ballerinalang.test.service.http.sample.HTTPCookiesTestCase"/>
             <class name="org.ballerinalang.test.service.http.sample.HttpUrlTestCase"/>
+            <class name="org.ballerinalang.test.service.http.sample.TrailingHeadersTestCase"/>
         </classes>
     </test>
 
@@ -340,6 +341,12 @@
         <parameter name="enableJBallerinaTests" value="true" />
         <classes>
             <class name="org.ballerinalang.test.kafka.KafkaSerializerDeserializerTest" />
+        </classes>
+    </test>
+    <test name="ballerina-testerina-tests" parallel="false">
+        <parameter name="enableJBallerinaTests" value="true" />
+        <classes>
+            <class name="org.ballerinalang.test.testarina.TestarinaTestCase" />
         </classes>
     </test>
 </suite>
