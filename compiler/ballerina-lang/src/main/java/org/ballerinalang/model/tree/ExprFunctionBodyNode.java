@@ -18,10 +18,13 @@
 
 package org.ballerinalang.model.tree;
 
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
+
 /**
  * Represents a function body which can only contain a single expression as its body.
  *
  * @since 1.2.0
  */
 public interface ExprFunctionBodyNode extends FunctionBodyNode {
+    BLangExpression getExpr();
 }
