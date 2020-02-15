@@ -363,6 +363,10 @@ public class TreeBuilder {
         return new BLangRecordLiteral.BLangRecordKeyValueField();
     }
 
+    public static RecordLiteralNode.RecordSpreadOperatorFieldNode createRecordSpreadOperatorField() {
+        return new BLangRecordLiteral.BLangRecordSpreadOperatorField();
+    }
+
     public static TableLiteralNode createTableLiteralNode() {
         return new BLangTableLiteral();
     }

@@ -18,6 +18,7 @@
 package org.wso2.ballerinalang.compiler.tree.expressions;
 
 import org.ballerinalang.model.tree.NodeKind;
+import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
@@ -32,6 +33,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static org.ballerinalang.model.tree.NodeKind.RECORD_LITERAL_KEY_VALUE;
+import static org.ballerinalang.model.tree.NodeKind.RECORD_LITERAL_SPREAD_OP;
 
 /**
  * The super class of all the record literal expressions.
@@ -137,6 +139,46 @@ public class BLangRecordLiteral extends BLangExpression implements RecordLiteral
      * @since 1.2.0
      */
     public static class BLangRecordVarNameField extends BLangSimpleVarRef implements RecordVarNameFieldNode {
+
+        @Override
+        public boolean isKeyValueField() {
+            return false;
+        }
+    }
+
+    /**
+     * This static inner class represents a spread operator as a field in a mapping constructor.
+     *
+     * @since 1.2.0
+     */
+    public static class BLangRecordSpreadOperatorField extends BLangNode implements RecordSpreadOperatorFieldNode {
+
+        public BLangExpression expr;
+
+        @Override
+        public BLangExpression getExpression() {
+            return expr;
+        }
+
+        @Override
+        public void setExpression(ExpressionNode expr) {
+            this.expr = (BLangExpression) expr;
+        }
+
+        @Override
+        public NodeKind getKind() {
+            return RECORD_LITERAL_SPREAD_OP;
+        }
+
+        @Override
+        public void accept(BLangNodeVisitor visitor) {
+            visitor.visit(this);
+        }
+
+        @Override
+        public String toString() {
+            return "..." + expr;
+        }
 
         @Override
         public boolean isKeyValueField() {

@@ -981,19 +981,15 @@ public class TypeChecker extends BLangNodeVisitor {
     private void reportMissingRecordFieldDiagnostics(List<RecordLiteralNode.RecordField> fields, BRecordType recType) {
         Set<String> expFieldNames = recType.fields.stream().map(f -> f.name.value).collect(Collectors.toSet());
 
-        for (RecordLiteralNode.RecordField field : fields) {
-            String fieldName = getFieldName(field);
+        HashMap<String, DiagnosticPos> namesAndPos = getFieldNamesAndPos(fields);
 
-            if (fieldName == null) {
+        for (String name : namesAndPos.keySet()) {
+            if (expFieldNames.contains(name)) {
                 continue;
             }
 
-            if (!expFieldNames.contains(fieldName)) {
-                dlog.error(field.isKeyValueField() ? ((BLangRecordKeyValueField) field).key.expr.pos :
-                                   ((BLangRecordLiteral.BLangRecordVarNameField) field).pos,
-                           DiagnosticCode.UNDEFINED_STRUCTURE_FIELD_WITH_TYPE, fieldName,
-                           "record", recType);
-            }
+            dlog.error(namesAndPos.get(name), DiagnosticCode.UNDEFINED_STRUCTURE_FIELD_WITH_TYPE, name, "record",
+                       recType);
         }
     }
 
@@ -1071,10 +1067,12 @@ public class TypeChecker extends BLangNodeVisitor {
             return false;
         }
 
-        for (RecordLiteralNode.RecordField specField : recordLiteral.getFields()) {
+        HashSet<String> names = getFieldNames(recordLiteral.fields);
+
+        for (String name : names) {
             boolean matched = false;
             for (BField field : bRecordType.getFields()) {
-                matched = field.getName().getValue().equals(getFieldName(specField));
+                matched = field.getName().getValue().equals(name);
                 if (matched) {
                     break;
                 }
@@ -1088,46 +1086,20 @@ public class TypeChecker extends BLangNodeVisitor {
 
     private void checkMissingRequiredFields(BRecordType type, List<RecordLiteralNode.RecordField> specifiedFields,
                                             DiagnosticPos pos) {
-        type.fields.forEach(field -> {
-            // Check if `field` is explicitly assigned a value in the record literal
-            boolean hasField = specifiedFields.stream()
-                    .anyMatch(specField -> field.name.value.equals(getFieldName(specField)));
+        HashSet<String> specFieldNames = getFieldNames(specifiedFields);
 
+        for (BField field : type.fields) {
+            // Check if `field` is explicitly assigned a value in the record literal
             // If a required field is missing, it's a compile error
-            if (!hasField && Symbols.isFlagOn(field.symbol.flags, Flags.REQUIRED)) {
+            if (!specFieldNames.contains(field.name.value) && Symbols.isFlagOn(field.symbol.flags, Flags.REQUIRED)) {
                 dlog.error(pos, DiagnosticCode.MISSING_REQUIRED_RECORD_FIELD, field.name);
             }
-        });
-    }
-
-    private String getFieldName(RecordLiteralNode.RecordField field) {
-        if (field.isKeyValueField()) {
-            BLangRecordKey key = ((BLangRecordKeyValueField) field).key;
-            BLangExpression keyExpression = key.expr;
-
-            if (key.computedKey) {
-                return null;
-            }
-
-            if (keyExpression.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
-                return ((BLangSimpleVarRef) keyExpression).variableName.value;
-            } else if (keyExpression.getKind() == NodeKind.LITERAL) {
-                BLangLiteral literal = (BLangLiteral) keyExpression;
-                if (literal.type.tag != TypeTags.STRING) {
-                    return null;
-                }
-                return (String) literal.value;
-            }
-        } else {
-            return ((BLangRecordLiteral.BLangRecordVarNameField) field).variableName.value;
         }
-
-        return null;
     }
 
     private boolean hasRequiredRecordFields(List<RecordLiteralNode.RecordField> specifiedFields,
                                             BRecordType targetRecType) {
-        List<String> fieldNames = getFieldNames(specifiedFields);
+        HashSet<String> fieldNames = getFieldNames(specifiedFields);
 
         for (BField field : targetRecType.fields) {
             if (!fieldNames.contains(field.name.value) && Symbols.isFlagOn(field.symbol.flags, Flags.REQUIRED)) {
@@ -1137,28 +1109,98 @@ public class TypeChecker extends BLangNodeVisitor {
         return true;
     }
 
-    private List<String> getFieldNames(List<RecordLiteralNode.RecordField> specifiedFields) {
-        List<String> fieldNames = new ArrayList<>(specifiedFields.size());
+    private HashSet<String> getFieldNames(List<RecordLiteralNode.RecordField> specifiedFields) {
+        HashSet<String> fieldNames = new HashSet<>();
 
         for (RecordLiteralNode.RecordField specifiedField : specifiedFields) {
             if (specifiedField.isKeyValueField()) {
-                BLangRecordKey key = ((BLangRecordKeyValueField) specifiedField).key;
-                if (key.computedKey) {
-                    continue;
+                String name = getKeyValueFieldName((BLangRecordKeyValueField) specifiedField);
+                if (name == null) {
+                    continue; // computed key
                 }
 
-                BLangExpression keyExpr = key.expr;
-
-                if (keyExpr.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
-                    fieldNames.add(((BLangSimpleVarRef) keyExpr).variableName.value);
-                } else {
-                    fieldNames.add((String) ((BLangLiteral) keyExpr).value);
-                }
+                fieldNames.add(name);
+            } else if (specifiedField.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
+                fieldNames.add(getVarNameFieldName((BLangRecordLiteral.BLangRecordVarNameField) specifiedField));
             } else {
-                fieldNames.add(((BLangSimpleVarRef) specifiedField).variableName.value);
+                fieldNames.addAll(getSpreadOpFieldRequiredFieldNames(
+                        (BLangRecordLiteral.BLangRecordSpreadOperatorField) specifiedField));
             }
         }
 
+        return fieldNames;
+    }
+
+    private HashMap<String, DiagnosticPos> getFieldNamesAndPos(List<RecordLiteralNode.RecordField> specifiedFields) {
+        HashMap<String, DiagnosticPos> fieldNamesAndPos = new HashMap<>();
+
+        for (RecordLiteralNode.RecordField specifiedField : specifiedFields) {
+            if (specifiedField.isKeyValueField()) {
+                BLangRecordKeyValueField keyValuField = (BLangRecordKeyValueField) specifiedField;
+                String name = getKeyValueFieldName(keyValuField);
+                if (name == null) {
+                    continue; // computed key
+                }
+
+                if (!fieldNamesAndPos.containsKey(name)) {
+                    fieldNamesAndPos.put(name, keyValuField.key.expr.pos);
+                }
+            } else if (specifiedField.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
+                BLangRecordLiteral.BLangRecordVarNameField varNameField =
+                        (BLangRecordLiteral.BLangRecordVarNameField) specifiedField;
+                String name = getVarNameFieldName(varNameField);
+
+                if (!fieldNamesAndPos.containsKey(name)) {
+                    fieldNamesAndPos.put(name, varNameField.pos);
+                }
+            } else {
+                BLangRecordLiteral.BLangRecordSpreadOperatorField spreadOpField =
+                        (BLangRecordLiteral.BLangRecordSpreadOperatorField) specifiedField;
+                DiagnosticPos pos = spreadOpField.expr.pos;
+                for (String name : getSpreadOpFieldRequiredFieldNames(spreadOpField)) {
+                    if (!fieldNamesAndPos.containsKey(name)) {
+                        fieldNamesAndPos.put(name, pos);
+                    }
+                }
+            }
+        }
+
+        return fieldNamesAndPos;
+    }
+
+    private String getKeyValueFieldName(BLangRecordKeyValueField field) {
+        BLangRecordKey key = field.key;
+        if (key.computedKey) {
+            return null;
+        }
+
+        BLangExpression keyExpr = key.expr;
+
+        if (keyExpr.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
+            return ((BLangSimpleVarRef) keyExpr).variableName.value;
+        } else if (keyExpr.getKind() == NodeKind.LITERAL) {
+            return (String) ((BLangLiteral) keyExpr).value;
+        }
+        return null;
+    }
+
+    private String getVarNameFieldName(BLangRecordLiteral.BLangRecordVarNameField field) {
+        return field.variableName.value;
+    }
+
+    private List<String> getSpreadOpFieldRequiredFieldNames(BLangRecordLiteral.BLangRecordSpreadOperatorField field) {
+        BType spreadType = field.expr.type;
+
+        if (spreadType.tag == TypeTags.MAP) {
+            return Collections.emptyList();
+        }
+
+        List<String> fieldNames = new ArrayList<>();
+        for (BField bField : ((BRecordType) spreadType).getFields()) {
+            if (!Symbols.isOptional(bField.symbol)) {
+                fieldNames.add(bField.name.value);
+            }
+        }
         return fieldNames;
     }
 
@@ -3547,22 +3589,54 @@ public class TypeChecker extends BLangNodeVisitor {
         }
     }
 
-    private void checkRecLiteralField(RecordLiteralNode.RecordField field, BType recType) {
+    private void checkRecLiteralField(RecordLiteralNode.RecordField field, BType mappingType) {
         BType fieldType = symTable.semanticError;
         boolean keyValueField = field.isKeyValueField();
-        BLangExpression valueExpr = keyValueField ? ((BLangRecordKeyValueField) field).valueExpr :
-                (BLangRecordLiteral.BLangRecordVarNameField) field;
-        switch (recType.tag) {
+        boolean spreadOpField = field.getKind() == NodeKind.RECORD_LITERAL_SPREAD_OP;
+
+        BLangExpression valueExpr = null;
+
+        if (keyValueField) {
+            valueExpr = ((BLangRecordKeyValueField) field).valueExpr;
+        } else if (!spreadOpField) {
+            valueExpr = (BLangRecordLiteral.BLangRecordVarNameField) field;
+        }
+
+        switch (mappingType.tag) {
             case TypeTags.RECORD:
                 if (keyValueField) {
                     BLangRecordKey key = ((BLangRecordKeyValueField) field).key;
-                    fieldType = checkRecordLiteralKeyExpr(key.expr, key.computedKey, (BRecordType) recType);
+                    fieldType = checkRecordLiteralKeyExpr(key.expr, key.computedKey, (BRecordType) mappingType);
+                } else if (spreadOpField) {
+                    BLangExpression spreadExpr = ((BLangRecordLiteral.BLangRecordSpreadOperatorField) field).expr;
+                    checkExpr(spreadExpr, this.env);
+
+                    BType spreadExprType = spreadExpr.type;
+                    if (spreadExprType.tag == TypeTags.MAP) {
+                        return;
+                    }
+
+                    for (BField bField : ((BRecordType) spreadExprType).getFields()) {
+                        BType specFieldType = bField.type;
+                        BType expectedFieldType = checkRecordLiteralKeyByName(spreadExpr.pos, this.env, bField.name,
+                                                                   (BRecordType) mappingType);
+                        if (expectedFieldType != symTable.semanticError &&
+                                !types.isAssignable(specFieldType, expectedFieldType)) {
+                            dlog.error(spreadExpr.pos, DiagnosticCode.INCOMPATIBLE_TYPES_FIELD, expectedFieldType,
+                                       bField.name, specFieldType);
+                        }
+                    }
+                    return;
                 } else {
                     fieldType = checkRecordLiteralKeyExpr((BLangRecordLiteral.BLangRecordVarNameField) field, false,
-                                                          (BRecordType) recType);
+                                                          (BRecordType) mappingType);
                 }
                 break;
             case TypeTags.MAP:
+                if (spreadOpField) {
+                    return;
+                }
+
                 boolean validMapKey;
                 if (keyValueField) {
                     BLangRecordKey key = ((BLangRecordKeyValueField) field).key;
@@ -3572,9 +3646,13 @@ public class TypeChecker extends BLangNodeVisitor {
                                                                     false);
                 }
 
-                fieldType = validMapKey ? ((BMapType) recType).constraint : symTable.semanticError;
+                fieldType = validMapKey ? ((BMapType) mappingType).constraint : symTable.semanticError;
                 break;
             case TypeTags.JSON:
+                if (spreadOpField) {
+                    return;
+                }
+
                 boolean validJsonKey;
                 if (keyValueField) {
                     BLangRecordKey key = ((BLangRecordKeyValueField) field).key;
@@ -3599,7 +3677,7 @@ public class TypeChecker extends BLangNodeVisitor {
                 }
                 resultType = valueExpr.type;
                 return;
-            case TypeTags.ERROR:
+            case TypeTags.ERROR:    // TODO: 2/13/20 remove and check
                 checkExpr(valueExpr, this.env, fieldType);
         }
 
@@ -3636,19 +3714,22 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         // Check whether the struct field exists
-        BSymbol fieldSymbol = symResolver.resolveStructField(keyExpr.pos, this.env,
-                fieldName, recordType.tsymbol);
-        if (fieldSymbol == symTable.notFoundSymbol) {
-            if (recordType.sealed) {
-                dlog.error(keyExpr.pos, DiagnosticCode.UNDEFINED_STRUCTURE_FIELD_WITH_TYPE, fieldName,
-                        recordType.tsymbol.type.getKind().typeName(), recordType.tsymbol);
-                return symTable.semanticError;
-            }
+        return checkRecordLiteralKeyByName(keyExpr.pos, this.env, fieldName, recordType);
+    }
 
-            return recordType.restFieldType;
+    private BType checkRecordLiteralKeyByName(DiagnosticPos pos, SymbolEnv env, Name key, BRecordType recordType) {
+        BSymbol fieldSymbol = symResolver.resolveStructField(pos, env, key, recordType.tsymbol);
+        if (fieldSymbol != symTable.notFoundSymbol) {
+            return fieldSymbol.type;
         }
 
-        return fieldSymbol.type;
+        if (recordType.sealed) {
+            dlog.error(pos, DiagnosticCode.UNDEFINED_STRUCTURE_FIELD_WITH_TYPE, key,
+                       recordType.tsymbol.type.getKind().typeName(), recordType.tsymbol);
+            return symTable.semanticError;
+        }
+
+        return recordType.restFieldType;
     }
 
     private boolean checkValidJsonOrMapLiteralKeyExpr(BLangExpression keyExpr, boolean computedKey) {
