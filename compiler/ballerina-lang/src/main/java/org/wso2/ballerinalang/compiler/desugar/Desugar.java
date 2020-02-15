@@ -1710,14 +1710,9 @@ public class Desugar extends BLangNodeVisitor {
                                                  getStringAnyTupleType(), this.env.scope.owner);
         BLangBlockFunctionBody functionBlock = createAnonymousFunctionBlock(pos, function, keyValSymbol);
 
-        BLangIndexBasedAccess indexBasesAccessExpr = ASTBuilderUtil.createIndexBasesAccessExpr(pos,
-                                                                                               symTable.anyType,
-                                                                                               keyValSymbol,
-                                                                                               ASTBuilderUtil
-                                                                                                       .createLiteral(
-                                                                                                               pos,
-                                                                                                               symTable.intType,
-                                                                                                               (long) 0));
+        BLangIndexBasedAccess indexBasesAccessExpr =
+                ASTBuilderUtil.createIndexBasesAccessExpr(pos, symTable.anyType, keyValSymbol, ASTBuilderUtil
+                        .createLiteral(pos, symTable.intType, (long) 0));
         BLangSimpleVariableDef tupFirstElem = createVarDef("key", indexBasesAccessExpr.type,
                                                            indexBasesAccessExpr, pos);
         functionBlock.addStatement(tupFirstElem);

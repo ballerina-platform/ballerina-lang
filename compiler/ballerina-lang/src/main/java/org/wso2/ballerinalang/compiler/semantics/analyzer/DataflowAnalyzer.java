@@ -1050,7 +1050,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
                         analyzeNode(statement, objectEnv);
                     }
                 } else if (objectTypeNode.initFunction.body.getKind() == NodeKind.EXPR_FUNCTION_BODY) {
-                    analyzeNode(((BLangExprFunctionBody)objectTypeNode.initFunction.body).expr, objectEnv);
+                    analyzeNode(((BLangExprFunctionBody) objectTypeNode.initFunction.body).expr, objectEnv);
                 }
             }
         }
