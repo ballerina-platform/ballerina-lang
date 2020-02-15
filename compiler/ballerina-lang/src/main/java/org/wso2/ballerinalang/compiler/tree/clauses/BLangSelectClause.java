@@ -33,6 +33,9 @@ public class BLangSelectClause extends BLangNode implements SelectClauseNode {
 
     public BLangExpression expression;
 
+    public BLangSelectClause() {
+    }
+
     @Override
     public NodeKind getKind() {
         return NodeKind.SELECT;
@@ -51,5 +54,10 @@ public class BLangSelectClause extends BLangNode implements SelectClauseNode {
     @Override
     public void setExpression(ExpressionNode expression) {
         this.expression = (BLangExpression) expression;
+    }
+
+    @Override
+    public String toString() {
+        return "select " + expression;
     }
 }
