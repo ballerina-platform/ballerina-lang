@@ -1893,7 +1893,7 @@ public class BLangPackageBuilder {
         ((BLangStreamConstructorExpr) streamConstructorNode).pos = pos;
         this.streamConstructorNodeStack.push(streamConstructorNode);
         this.startLambdaFunctionDef(packageID);
-        this.startBlock();
+        this.startBlockFunctionBody();
     }
 
     void endStreamConstructor(DiagnosticPos pos, Set<Whitespace> ws) {
