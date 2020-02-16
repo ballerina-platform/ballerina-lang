@@ -41,11 +41,7 @@ public interface InvokableNode extends AnnotatableNode, DocumentableNode {
 
     List<? extends AnnotationAttachmentNode> getReturnTypeAnnotationAttachments();
 
-    List<? extends AnnotationAttachmentNode> getExternalAnnotationAttachments();
-
     void addReturnTypeAnnotationAttachment(AnnotationAttachmentNode annAttachment);
-
-    void addExternalAnnotationAttachment(AnnotationAttachmentNode annAttachment);
 
     BLangFunctionBody getBody();
 

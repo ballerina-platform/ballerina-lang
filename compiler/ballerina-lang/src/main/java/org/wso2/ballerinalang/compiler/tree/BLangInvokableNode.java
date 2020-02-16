@@ -50,7 +50,6 @@ public abstract class BLangInvokableNode extends BLangNode implements InvokableN
     public List<BLangSimpleVariable> requiredParams;
     public BLangType returnTypeNode;
     public List<BLangAnnotationAttachment> returnTypeAnnAttachments;
-    public List<BLangAnnotationAttachment> externalAnnAttachments;
     public BLangFunctionBody body;
     public Set<Flag> flagSet;
     public List<BLangAnnotationAttachment> annAttachments;
@@ -74,7 +73,6 @@ public abstract class BLangInvokableNode extends BLangNode implements InvokableN
         this.requiredParams = new ArrayList<>();
         this.annAttachments = new ArrayList<>();
         this.returnTypeAnnAttachments = new ArrayList<>();
-        this.externalAnnAttachments = new ArrayList<>();
         this.endpoints = new ArrayList<>();
         this.flagSet = EnumSet.noneOf(Flag.class);
         this.workers = new ArrayList<>();
@@ -118,18 +116,8 @@ public abstract class BLangInvokableNode extends BLangNode implements InvokableN
     }
 
     @Override
-    public List<BLangAnnotationAttachment> getExternalAnnotationAttachments() {
-        return externalAnnAttachments;
-    }
-
-    @Override
     public void addReturnTypeAnnotationAttachment(AnnotationAttachmentNode annAttachment) {
         this.returnTypeAnnAttachments.add((BLangAnnotationAttachment) annAttachment);
-    }
-
-    @Override
-    public void addExternalAnnotationAttachment(AnnotationAttachmentNode annAttachment) {
-        this.externalAnnAttachments.add((BLangAnnotationAttachment) annAttachment);
     }
 
     @Override

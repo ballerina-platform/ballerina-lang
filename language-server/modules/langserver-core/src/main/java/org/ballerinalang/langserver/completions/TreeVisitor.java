@@ -62,6 +62,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
+import org.wso2.ballerinalang.compiler.tree.BLangExternalFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
@@ -260,7 +261,6 @@ public class TreeVisitor extends LSNodeVisitor {
         List<BLangNode> functionParamsOrdered = CompletionVisitorUtil.getFunctionParamsOrdered(funcNode);
         functionParamsOrdered.forEach(param -> this.acceptNode(param, symbolEnv));
         funcNode.returnTypeAnnAttachments.forEach(annotation -> this.acceptNode(annotation, symbolEnv));
-        funcNode.externalAnnAttachments.forEach(annotation -> this.acceptNode(annotation, symbolEnv));
 
         if (funcNode.hasBody()) {
             this.blockOwnerStack.push(funcNode);
@@ -427,6 +427,13 @@ public class TreeVisitor extends LSNodeVisitor {
                 lsContext.put(CompletionKeys.PREVIOUS_NODE_KEY, this.previousNode);
             }
             this.blockStmtStack.pop();
+        }
+    }
+
+    @Override
+    public void visit(BLangExternalFunctionBody body) {
+        for (BLangAnnotationAttachment annotation : body.annAttachments) {
+            this.acceptNode(annotation, symbolEnv);
         }
     }
 
