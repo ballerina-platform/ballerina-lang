@@ -1131,17 +1131,6 @@ public class ClosureDesugar extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangRecordLiteral.BLangJSONLiteral jsonLiteral) {
-        jsonLiteral.fields.forEach(field -> {
-            BLangRecordLiteral.BLangRecordKeyValueField bLangRecordKeyValue =
-                    (BLangRecordLiteral.BLangRecordKeyValueField) field;
-            bLangRecordKeyValue.key.expr = rewriteExpr(bLangRecordKeyValue.key.expr);
-            bLangRecordKeyValue.valueExpr = rewriteExpr(bLangRecordKeyValue.valueExpr);
-        });
-        result = jsonLiteral;
-    }
-
-    @Override
     public void visit(BLangRecordLiteral.BLangMapLiteral mapLiteral) {
         mapLiteral.fields.forEach(field -> {
             BLangRecordLiteral.BLangRecordKeyValueField bLangRecordKeyValue =

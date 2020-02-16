@@ -124,7 +124,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchExpression.BLa
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangJSONLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangMapLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangStructLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordVarRef;
@@ -3071,10 +3070,8 @@ public class Desugar extends BLangNodeVisitor {
         BLangExpression expr;
         if (recordLiteral.type.tag == TypeTags.RECORD) {
             expr = new BLangStructLiteral(recordLiteral.pos, fields, recordLiteral.type);
-        } else if (recordLiteral.type.tag == TypeTags.MAP) {
-            expr = new BLangMapLiteral(recordLiteral.pos, fields, recordLiteral.type);
         } else {
-            expr = new BLangJSONLiteral(recordLiteral.pos, fields, recordLiteral.type);
+            expr = new BLangMapLiteral(recordLiteral.pos, fields, recordLiteral.type);
         }
 
         result = rewriteExpr(expr);
@@ -4095,11 +4092,6 @@ public class Desugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangTupleAccessExpr arrayIndexAccessExpr) {
         result = arrayIndexAccessExpr;
-    }
-
-    @Override
-    public void visit(BLangJSONLiteral jsonLiteral) {
-        result = jsonLiteral;
     }
 
     @Override
@@ -5837,124 +5829,10 @@ public class Desugar extends BLangNodeVisitor {
                         symTable.intType));
     }
 
-    private BLangExpression getDefaultValueExpr(BLangAccessExpression accessExpr) {
-        BType fieldType = accessExpr.originalType;
-        BType type = types.getSafeType(accessExpr.expr.type, true, false);
-        switch (type.tag) {
-            case TypeTags.JSON:
-                if (accessExpr.getKind() == NodeKind.INDEX_BASED_ACCESS_EXPR &&
-                        ((BLangIndexBasedAccess) accessExpr).indexExpr.type.tag == TypeTags.INT) {
-                    return new BLangJSONArrayLiteral(new ArrayList<>(), new BArrayType(fieldType));
-                }
-                return new BLangJSONLiteral(accessExpr.pos, new ArrayList<>(), fieldType);
-            case TypeTags.MAP:
-                return new BLangMapLiteral(accessExpr.pos, new ArrayList<>(), type);
-            case TypeTags.RECORD:
-                return new BLangRecordLiteral(accessExpr.pos, type);
-            default:
-                throw new IllegalStateException();
-        }
-    }
-
-    private BLangExpression getDefaultValueLiteral(DefaultValueLiteral defaultValue, int paramTypeTag) {
-        if (defaultValue == null || defaultValue.getValue() == null) {
-            return getNullLiteral();
-        }
-        Object value = defaultValue.getValue();
-        int literalTypeTag = defaultValue.getLiteralTypeTag();
-
-        if (value instanceof Long) {
-            switch (paramTypeTag) {
-                case TypeTags.FLOAT:
-                    return getFloatLiteral(((Long) value).doubleValue());
-                case TypeTags.DECIMAL:
-                    return getDecimalLiteral(String.valueOf(value));
-                default:
-                    return getIntLiteral((Long) value);
-            }
-        }
-        if (value instanceof String) {
-            switch (paramTypeTag) {
-                case TypeTags.FLOAT:
-                    return getFloatLiteral(Double.parseDouble((String) value));
-                case TypeTags.DECIMAL:
-                    return getDecimalLiteral(String.valueOf(value));
-                case TypeTags.FINITE:
-                case TypeTags.UNION:
-                    if (literalTypeTag == TypeTags.FLOAT) {
-                        return getFloatLiteral(Double.parseDouble((String) value));
-                    }
-                    return getStringLiteral((String) value);
-                default:
-                    return getStringLiteral((String) value);
-            }
-        }
-        if (value instanceof Boolean) {
-            return getBooleanLiteral((Boolean) value);
-        }
-        throw new IllegalStateException("Unsupported default value type " + paramTypeTag);
-    }
-
-    private BLangExpression getDefaultValue(int paramTypeTag) {
-        switch (paramTypeTag) {
-            case TypeTags.STRING:
-                return getStringLiteral("");
-            case TypeTags.BOOLEAN:
-                return getBooleanLiteral(false);
-            case TypeTags.FLOAT:
-                return getFloatLiteral(0.0);
-            case TypeTags.BYTE:
-            case TypeTags.INT:
-                return getIntLiteral(0);
-            case TypeTags.DECIMAL:
-                return getDecimalLiteral("0.0");
-            case TypeTags.FINITE:
-            case TypeTags.RECORD:
-            case TypeTags.OBJECT:
-            case TypeTags.UNION:
-            default:
-                return getNullLiteral();
-        }
-    }
-
-    private BLangLiteral getStringLiteral(String value) {
-        BLangLiteral literal = (BLangLiteral) TreeBuilder.createLiteralExpression();
-        literal.value = value;
-        literal.type = symTable.stringType;
-        return literal;
-    }
-
-    private BLangLiteral getIntLiteral(long value) {
-        BLangLiteral literal = (BLangLiteral) TreeBuilder.createLiteralExpression();
-        literal.value = value;
-        literal.type = symTable.intType;
-        return literal;
-    }
-
-    private BLangLiteral getFloatLiteral(double value) {
-        BLangLiteral literal = (BLangLiteral) TreeBuilder.createLiteralExpression();
-        literal.value = value;
-        literal.type = symTable.floatType;
-        return literal;
-    }
-
-    private BLangLiteral getDecimalLiteral(String value) {
-        BLangLiteral literal = (BLangLiteral) TreeBuilder.createLiteralExpression();
-        literal.value = value;
-        literal.type = symTable.decimalType;
-        return literal;
-    }
-
     private BLangLiteral getBooleanLiteral(boolean value) {
         BLangLiteral literal = (BLangLiteral) TreeBuilder.createLiteralExpression();
         literal.value = value;
         literal.type = symTable.booleanType;
-        return literal;
-    }
-
-    private BLangLiteral getNullLiteral() {
-        BLangLiteral literal = (BLangLiteral) TreeBuilder.createLiteralExpression();
-        literal.type = symTable.nilType;
         return literal;
     }
 

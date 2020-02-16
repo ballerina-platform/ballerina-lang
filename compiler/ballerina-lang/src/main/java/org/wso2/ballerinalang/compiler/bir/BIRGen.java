@@ -104,7 +104,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr.BLangTupleLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangJSONLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangMapLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordKey;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordKeyValueField;
@@ -1236,11 +1235,6 @@ public class BIRGen extends BLangNodeVisitor {
     @Override
     public void visit(BLangMapLiteral astMapLiteralExpr) {
         generateMappingLiteral(astMapLiteralExpr);
-    }
-
-    @Override
-    public void visit(BLangJSONLiteral jsonLiteral) {
-        generateMappingLiteral(jsonLiteral);
     }
 
     @Override

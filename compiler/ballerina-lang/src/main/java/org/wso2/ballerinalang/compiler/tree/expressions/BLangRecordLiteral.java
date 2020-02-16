@@ -261,25 +261,6 @@ public class BLangRecordLiteral extends BLangExpression implements RecordLiteral
     }
 
     /**
-     * This class represents a JSON type literal expression.
-     *
-     * @since 0.94
-     */
-    public static class BLangJSONLiteral extends BLangRecordLiteral {
-
-        public BLangJSONLiteral(DiagnosticPos pos, List<RecordField> fields, BType jsonType) {
-            super(pos);
-            this.fields = fields;
-            this.type = jsonType;
-        }
-
-        @Override
-        public void accept(BLangNodeVisitor visitor) {
-            visitor.visit(this);
-        }
-    }
-
-    /**
      * This class represents a channel type literal expression.
      *
      * @since 0.982.0
