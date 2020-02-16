@@ -72,7 +72,7 @@ public class VisibleEndpointTest {
 
         // validate first function
         JsonObject func = topLevelNodes.get(2).getAsJsonObject();
-        JsonObject transaction = func.getAsJsonObject("funcBody")
+        JsonObject transaction = func.getAsJsonObject("body")
                 .getAsJsonArray("statements")
                 .get(0).getAsJsonObject(); // first statement is the transaction
         Assert.assertNotNull(transaction);
@@ -112,7 +112,7 @@ public class VisibleEndpointTest {
 
         // validate first function
         JsonObject funcOne = topLevelNodes.get(1).getAsJsonObject();
-        JsonObject wrapperIf = funcOne.getAsJsonObject("funcBody")
+        JsonObject wrapperIf = funcOne.getAsJsonObject("body")
                 .getAsJsonArray("statements")
                 .get(0).getAsJsonObject() // first statement is a If
                 .getAsJsonObject("body");
@@ -135,7 +135,7 @@ public class VisibleEndpointTest {
 
         // validate second function
         JsonObject funcTwo = topLevelNodes.get(1).getAsJsonObject();
-        JsonObject wrapperWhile = funcTwo.getAsJsonObject("funcBody")
+        JsonObject wrapperWhile = funcTwo.getAsJsonObject("body")
                 .getAsJsonArray("statements")
                 .get(0).getAsJsonObject() // first statement is a While
                 .getAsJsonObject("body");
