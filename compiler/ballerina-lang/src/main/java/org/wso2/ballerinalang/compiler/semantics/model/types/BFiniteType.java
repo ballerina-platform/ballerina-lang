@@ -26,6 +26,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.util.TypeDescriptor;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 
+import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Optional;
 import java.util.Set;
@@ -54,7 +55,7 @@ public class BFiniteType extends BType implements FiniteType {
 
     @Override
     public Set<BLangExpression> getValueSpace() {
-        return valueSpace;
+        return Collections.unmodifiableSet(valueSpace);
     }
 
     @Override

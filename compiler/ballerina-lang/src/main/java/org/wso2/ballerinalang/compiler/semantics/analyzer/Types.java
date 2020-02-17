@@ -113,7 +113,7 @@ public class Types {
     /**
      * Keep filler value for basic types in String format.
      *
-     * @since 1.1.2
+     * @since 1.2.0
      */
     public enum DefaultValues {
         STRING(""),
@@ -2608,22 +2608,21 @@ public class Types {
     }
 
     private boolean checkFillerValue(BObjectType type) {
+        if ((type.tsymbol.flags & Flags.ABSTRACT) == Flags.ABSTRACT) {
+            return false;
+        }
+
         BAttachedFunction initFunction = ((BObjectTypeSymbol) type.tsymbol).initializerFunc;
         if (initFunction == null) {
-            if ((type.tsymbol.flags & Flags.ABSTRACT) == Flags.ABSTRACT) {
+            return true;
+        }
+        if (initFunction.symbol.getReturnType().getKind() != TypeKind.NIL) {
+            return false;
+        }
+
+        for (BVarSymbol bVarSymbol : initFunction.symbol.getParameters()) {
+            if (!bVarSymbol.defaultableParam) {
                 return false;
-            }
-        } else {
-            if (initFunction.symbol.getReturnType().getKind() == TypeKind.ERROR) {
-                return false;
-            }
-            if (initFunction.symbol.getReturnType().getKind() != TypeKind.NIL) {
-                return false;
-            }
-            for (BVarSymbol bVarSymbol : initFunction.symbol.getParameters()) {
-                if (!bVarSymbol.defaultableParam) {
-                    return false;
-                }
             }
         }
         return true;
@@ -2648,13 +2647,11 @@ public class Types {
             return true;
         }
 
-        Iterator iterator = type.getValueSpace().iterator();
-        if (!iterator.hasNext()) { // sanity check this cannot be
-            return false;
-        }
         boolean defaultFillValuePresent = false;
 
+        Iterator iterator = type.getValueSpace().iterator();
         BLangExpression firstElement = (BLangExpression) iterator.next();
+        BType firstElementType = firstElement.type;
         String defaultFillValue = getDefaultFillValue(firstElement);
         if (firstElement.toString().equals(defaultFillValue)) {
             defaultFillValuePresent = true;
@@ -2663,7 +2660,7 @@ public class Types {
         while (iterator.hasNext()) {
             Object value =  iterator.next();
             BType valueType = ((BLangExpression) value).type;
-            if (!isSameType(valueType, firstElement.type)) {
+            if (!isSameType(valueType, firstElementType)) {
                 return false;
             }
             if (!defaultFillValuePresent && value.toString().equals(defaultFillValue)) {
@@ -2678,9 +2675,6 @@ public class Types {
             return true;
         }
         Iterator<BType> iterator = type.getMemberTypes().iterator();
-        if (!iterator.hasNext()) { // sanity check this cannot be
-            return false;
-        }
         BType firstMember = iterator.next();
         boolean defaultFillValuePresent = false;
 

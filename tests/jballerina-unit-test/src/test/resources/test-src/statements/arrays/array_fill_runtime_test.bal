@@ -27,6 +27,14 @@ type Obj object {
     }
 };
 
+type ObjInitNullable object {
+    int i;
+
+    function __init() returns () {
+        self.i = 1;
+    }
+};
+
 type Age object {
     public int age;
     public function __init(int age = 5) {
@@ -34,13 +42,29 @@ type Age object {
     }
 };
 
-// TODO: fix me
+// TODO: fix me https://github.com/ballerina-platform/ballerina-lang/issues/20983
 function testObjectDynamicArrayFilling() {
     //Age[2] y = [];
     //y[1] = new(10);
     //
     //assertEqualPanic(5, y[0].age);
     //assertEqualPanic(10, y[1].age);
+}
+
+function testObjectRetNullableDynamicArrayFilling() {
+    ObjInitNullable[2] y = [];
+    y[1] = new();
+
+    assertEqualPanic(1, y[0].i);
+    assertEqualPanic(1, y[1].i);
+}
+
+function testObjectNoRetDynamicArrayFilling() {
+    Obj[2] y = [];
+    y[1] = new();
+
+    assertEqualPanic(1, y[0].i);
+    assertEqualPanic(1, y[1].i);
 }
 
 function testRecordTypeWithOptionalFieldsArrayFill() {
@@ -63,6 +87,8 @@ public function main() {
     testObjectDynamicArrayFilling();
     testRecordTypeWithOptionalFieldsArrayFill();
     testRecordTypeWithOptionalFieldsSealedArrayFill();
+    testObjectRetNullableDynamicArrayFilling();
+    testObjectNoRetDynamicArrayFilling();
 }
 
 function assertEqualPanic(anydata expected, anydata actual, string message = "Value mismatch") {

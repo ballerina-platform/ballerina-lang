@@ -98,3 +98,16 @@ function testRecordTypeWithManyOptionalFieldsArrayAutoFill() {
 function testRecordTypeWithOptionalFieldsArrayAutoFill() {
     RecWithOptional[2] x = [];
 }
+
+
+type ObjError object {
+    int i;
+
+    function __init() returns error? {
+        self.i = 1;
+    }
+};
+
+function testObjectRetErrorArrayFilling() {
+    ObjError [2] y = [];
+}

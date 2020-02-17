@@ -848,8 +848,6 @@ public class ArrayValueImpl extends AbstractArrayValue {
 
     @Override
     protected void fillerValueCheck(int index, int size) {
-        // if there has been values added beyond the current index, that means filler values
-        // has already been checked. Therefore no need to check again.
         if (!hasFillerValue.isPresent()) {
             hasFillerValue = Optional.of(TypeChecker.hasFillerValue(this.elementType));
         }
