@@ -38,7 +38,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import static org.apache.commons.lang3.ClassUtils.getPackageName;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmDesugarPhase.addDefaultableBooleanVarsToSignature;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmDesugarPhase.enrichWithDefaultableParamInits;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmDesugarPhase.insertAndGetNextBasicBlock;
@@ -52,6 +51,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.BIRFunct
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.birFunctionMap;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.cleanupPackageName;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.getFunctionWrapper;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.getPackageName;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.lookupExternClassName;
 import static org.wso2.ballerinalang.compiler.bir.codegen.interop.AnnotationProc.getInteropAnnotValue;
 import static org.wso2.ballerinalang.compiler.bir.codegen.interop.InteropMethodGen.JFieldFunctionWrapper;

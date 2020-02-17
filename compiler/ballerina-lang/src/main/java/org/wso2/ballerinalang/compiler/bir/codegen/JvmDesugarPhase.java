@@ -173,7 +173,9 @@ public class JvmDesugarPhase {
         int counter = 0;
         int index = 0;
         // Update the param types to add boolean variables to indicate if the previous variable contains a user given value
-        while (counter < funcParams.size()) {
+        int size = funcParams == null ? 0 :funcParams.size();
+        while (true) {
+            if (!(counter < size)) break;
             paramTypes.add(index, funcParams.get(counter));
             paramTypes.add(index + 1, new BType(TypeTags.BOOLEAN, null));
             index += 2;

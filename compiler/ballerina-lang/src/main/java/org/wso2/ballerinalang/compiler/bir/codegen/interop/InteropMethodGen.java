@@ -17,14 +17,13 @@
  */
 package org.wso2.ballerinalang.compiler.bir.codegen.interop;
 
-import com.sun.codemodel.internal.JPrimitiveType;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
+import org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.Nilable;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
-import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRBasicBlock;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRErrorEntry;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRFunction;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRPackage;
@@ -42,7 +41,6 @@ import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
-import java.lang.invoke.MethodType;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -51,40 +49,26 @@ import java.util.List;
 import static org.objectweb.asm.Opcodes.AASTORE;
 import static org.objectweb.asm.Opcodes.ACC_PUBLIC;
 import static org.objectweb.asm.Opcodes.ACC_STATIC;
-import static org.objectweb.asm.Opcodes.ACONST_NULL;
 import static org.objectweb.asm.Opcodes.ALOAD;
 import static org.objectweb.asm.Opcodes.ANEWARRAY;
 import static org.objectweb.asm.Opcodes.ASTORE;
-import static org.objectweb.asm.Opcodes.ATHROW;
 import static org.objectweb.asm.Opcodes.BASTORE;
 import static org.objectweb.asm.Opcodes.CASTORE;
 import static org.objectweb.asm.Opcodes.CHECKCAST;
 import static org.objectweb.asm.Opcodes.DASTORE;
 import static org.objectweb.asm.Opcodes.DUP;
-import static org.objectweb.asm.Opcodes.F2D;
 import static org.objectweb.asm.Opcodes.FASTORE;
-import static org.objectweb.asm.Opcodes.GETFIELD;
-import static org.objectweb.asm.Opcodes.GETSTATIC;
 import static org.objectweb.asm.Opcodes.GOTO;
-import static org.objectweb.asm.Opcodes.I2D;
 import static org.objectweb.asm.Opcodes.I2L;
 import static org.objectweb.asm.Opcodes.IASTORE;
 import static org.objectweb.asm.Opcodes.ICONST_0;
 import static org.objectweb.asm.Opcodes.IFNE;
-import static org.objectweb.asm.Opcodes.IFNONNULL;
 import static org.objectweb.asm.Opcodes.IF_ICMPGE;
 import static org.objectweb.asm.Opcodes.ILOAD;
 import static org.objectweb.asm.Opcodes.INVOKEINTERFACE;
-import static org.objectweb.asm.Opcodes.INVOKESPECIAL;
-import static org.objectweb.asm.Opcodes.INVOKESTATIC;
-import static org.objectweb.asm.Opcodes.INVOKEVIRTUAL;
 import static org.objectweb.asm.Opcodes.ISTORE;
-import static org.objectweb.asm.Opcodes.L2D;
 import static org.objectweb.asm.Opcodes.LASTORE;
-import static org.objectweb.asm.Opcodes.NEW;
 import static org.objectweb.asm.Opcodes.NEWARRAY;
-import static org.objectweb.asm.Opcodes.PUTFIELD;
-import static org.objectweb.asm.Opcodes.PUTSTATIC;
 import static org.objectweb.asm.Opcodes.SASTORE;
 import static org.objectweb.asm.Opcodes.T_BOOLEAN;
 import static org.objectweb.asm.Opcodes.T_CHAR;
@@ -95,34 +79,20 @@ import static org.objectweb.asm.Opcodes.T_LONG;
 import static org.objectweb.asm.Opcodes.T_SHORT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCastGen.generateBToJCheckCast;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ARRAY_VALUE;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BAL_ERROR_REASONS;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BLANG_EXCEPTION_HELPER;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ERROR_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.HANDLE_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.RUNTIME_ERRORS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmDesugarPhase.addDefaultableBooleanVarsToSignature;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmDesugarPhase.getNextDesugarBBId;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmDesugarPhase.insertAndGetNextBasicBlock;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmErrorGen.ErrorHandlerGenerator;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmInstructionGen.InstructionGenerator;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmInstructionGen.addUnboxInsn;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmInstructionGen.generateVarLoad;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmInstructionGen.generateVarStore;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmLabelGen.LabelGenerator;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.BalToJVMIndexMap;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.generateBasicBlocks;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.getMethodDesc;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.getVariableDcl;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.nextId;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.nextVarId;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.BIRFunctionWrapper;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.getFunctionWrapper;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.getPackageName;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.symbolTable;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTerminatorGen.TerminatorGenerator;
-import static org.wso2.ballerinalang.compiler.bir.codegen.interop.JInsKind.JCAST;
 
 
 public class InteropMethodGen {
@@ -454,7 +424,7 @@ public class InteropMethodGen {
 
     // These conversions are already validate beforehand, therefore I am just emitting type conversion instructions here.
     // We can improve following logic with a type lattice.
-    static void performWideningPrimitiveConversion(MethodVisitor mv, BLangValueType bType, JPrimitiveType jType) {
+    static void performWideningPrimitiveConversion(MethodVisitor mv, BLangValueType bType, Object jType) {
 //        if (bType.tag == TypeTags.INT && jType.tag == JTypeTags.JLONG {
 //            return; // NOP
 //        } else if bType.tag == TypeTags.FLOAT && jType.tag == JTypeTags.JDOUBLE {
@@ -690,17 +660,17 @@ public class InteropMethodGen {
 
 //    static JFieldFunctionWrapper |
 
-    static BIRFunctionWrapper createJInteropFunctionWrapper(InteropValidator interopValidator,
-                                                         InteropValidationRequest jInteropValidationReq,
-                                                         BIRFunction birFunc,
-                                                         String orgName,
-                                                         String moduleName,
-                                                         String version,
-                                                         String birModuleClassName) {
+    static JvmPackageGen.BIRFunctionWrapper createJInteropFunctionWrapper(InteropValidator interopValidator,
+                                                                          InteropValidationRequest jInteropValidationReq,
+                                                                          BIRFunction birFunc,
+                                                                          String orgName,
+                                                                          String moduleName,
+                                                                          String version,
+                                                                          String birModuleClassName) {
 
         addDefaultableBooleanVarsToSignature(birFunc);
         // Update the function wrapper only for Java interop functions
-        BIRFunctionWrapper birFuncWrapper = getFunctionWrapper(birFunc, orgName, moduleName,
+        JvmPackageGen.BIRFunctionWrapper birFuncWrapper = getFunctionWrapper(birFunc, orgName, moduleName,
                 version, birModuleClassName);
         if (jInteropValidationReq instanceof InteropValidationRequest.MethodValidationRequest) {
             InteropValidationRequest.MethodValidationRequest methodValidationRequest =
@@ -716,7 +686,7 @@ public class InteropMethodGen {
 
     static JMethodFunctionWrapper createJMethodWrapper(InteropValidator interopValidator,
                                                        InteropValidationRequest.MethodValidationRequest jMethodValidationReq,
-                                                       BIRFunctionWrapper birFuncWrapper) {
+                                                       JvmPackageGen.BIRFunctionWrapper birFuncWrapper) {
 //        var jMethod = check interopValidator.validateAndGetJMethod(jMethodValidationReq);
 //
 //        return {
@@ -733,7 +703,7 @@ public class InteropMethodGen {
 
     static JFieldFunctionWrapper createJFieldWrapper(InteropValidator interopValidator,
                                                       InteropValidationRequest.FieldValidationRequest jFieldValidationReq,
-                                                      BIRFunctionWrapper birFuncWrapper) {
+                                                      JvmPackageGen.BIRFunctionWrapper birFuncWrapper) {
 //        var jField = check interopValidator.validateAndGetJField(jFieldValidationReq);
 //
 //        return {
@@ -748,8 +718,8 @@ public class InteropMethodGen {
         return null;
     }
 
-    static class JMethodFunctionWrapper extends BIRFunctionWrapper {
-//    *BIRFunctionWrapper;
+    static class JMethodFunctionWrapper extends JvmPackageGen.BIRFunctionWrapper {
+//    *JvmPackageGen.BIRFunctionWrapper;
         Method jMethod;
 
         protected JMethodFunctionWrapper(String orgName, String moduleName, String version, BIRFunction func,
@@ -761,8 +731,8 @@ public class InteropMethodGen {
         }
     }
 
-    static class JFieldFunctionWrapper extends BIRFunctionWrapper  {
-//    *BIRFunctionWrapper;
+    static class JFieldFunctionWrapper extends JvmPackageGen.BIRFunctionWrapper {
+//    *JvmPackageGen.BIRFunctionWrapper;
         Field jField;
 
         protected JFieldFunctionWrapper(String orgName, String moduleName, String version, BIRFunction func,

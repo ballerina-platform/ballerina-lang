@@ -46,7 +46,7 @@ public class CodeGenerator {
     //TODO: remove static
     static SymbolTable symbolTable;
 
-    private CodeGenerator(CompilerContext context) {
+    public CodeGenerator(CompilerContext context) {
         context.put(CODE_GEN, this);
         symbolTable = SymbolTable.getInstance(context);
     }
@@ -63,50 +63,13 @@ public class CodeGenerator {
 
     public void generate(BIRNode.BIRPackage entryMod, Path target) {
         JvmPackageGen.symbolTable = this.symbolTable;
-
-//        if (!isEmpty(mapPath)) {
-//            externalMapCache = readMap(mapPath);
-//        }
-
-//        byte[] moduleBytes = readFileFully(pathToEntryBir);
-//        BIRNode.BIRPackage entryMod = BIRpopulateBIRModuleFromBinary(moduleBytes, false);
-
         compiledPkgCache.put(entryMod.org.value + entryMod.name.value, entryMod);
-
         JvmPackageGen.JarFile jarFile = new JvmPackageGen.JarFile();
         InteropValidator interopValidator = new InteropValidator();
         generatePackage(entryMod, jarFile, interopValidator, true);
         writeJarFile(jarFile, target);
     }
 
-//    static boolean isEmpty(String s) {
-//        return s.trim() == "";
-//    }
-
-//    static Map<String, String> readMap(String path) {
-//        var rbc = io:openReadableFile(path);
-//        if (rbc instanceof BLangCompilerException) {
-//            BLangCompilerException openError = (BLangCompilerException) rbc;
-//            throw openError;
-//        } else {
-//            io:
-//            ReadableCharacterChannel rch = new ReadableCharacterChannel(rbc, "UTF8");
-//
-//            var result = rch.readJson();
-//            var didClose = rch.close();
-//            if (result instanceof BLangCompilerException) {
-//                BLangCompilerException e = (BLangCompilerException) result;
-//                throw e;
-//            } else {
-//                Map<String, String> externalMap = null;
-//                Map<String, json> jsonMapResult = <Map<String, json>>result;
-//                foreach var[ key, val]in jsonMapResult.entries() {
-//                    externalMap.add(key, (String) val);
-//                }
-//                return externalMap;
-//            }
-//        }
-//    }
 
     private static void writeJarFile(JvmPackageGen.JarFile entries, Path targetPath) {
         Manifest manifest = new Manifest();
