@@ -819,6 +819,8 @@ public class SymbolResolver extends BLangNodeVisitor {
             symTable.defineOperators(); // Define all operators e.g. binary, unary, cast and conversion
             symTable.pureType = BUnionType.create(null, symTable.anydataType, symTable.errorType);
             symTable.errorOrNilType = BUnionType.create(null, symTable.errorType, symTable.nilType);
+            symTable.anyOrErrorType = BUnionType.create(null, symTable.anyType, symTable.errorType);
+            symTable.mapAllType = new BMapType(TypeTags.MAP, symTable.anyOrErrorType, null);
             return;
         }
         throw new IllegalStateException("built-in error not found ?");

@@ -58,8 +58,10 @@ public class StringValueBasicsTest {
     }
 
     @Test
-    public void testRecordStringValuePut() {
-        BValue[] returns = BRunUtil.invoke(result, "recordStringValuePut");
+    public void testRecordStringValue() {
+        BValue[] returns = BRunUtil.invoke(result, "recordStringValue");
+        Assert.assertEquals(returns[0].getClass(), BInteger.class);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 5);
         //TODO assert return value has BString
     }
 

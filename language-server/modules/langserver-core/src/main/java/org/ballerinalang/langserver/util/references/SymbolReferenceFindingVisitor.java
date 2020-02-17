@@ -30,8 +30,10 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
+import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangErrorVariable;
+import org.wso2.ballerinalang.compiler.tree.BLangExternalFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangRecordVariable;
@@ -233,12 +235,11 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
         funcNode.annAttachments.forEach(this::acceptNode);
         funcNode.requiredParams.forEach(this::acceptNode);
         this.acceptNode(funcNode.restParam);
-        funcNode.externalAnnAttachments.forEach(this::acceptNode);
         funcNode.returnTypeAnnAttachments.forEach(this::acceptNode);
         this.acceptNode(funcNode.returnTypeNode);
         if (!isWorker && funcNode.body != null) {
             // Fill the worker varDefs in the current function scope
-            this.fillVisibleWorkerVarDefMaps(funcNode.body.stmts);
+            this.fillVisibleWorkerVarDefMaps(((BLangBlockFunctionBody) funcNode.body).stmts);
         }
         this.acceptNode(funcNode.body);
         if (!isWorker) {
@@ -272,6 +273,18 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
     @Override
     public void visit(BLangBlockStmt blockNode) {
         blockNode.getStatements().forEach(this::acceptNode);
+    }
+
+    @Override
+    public void visit(BLangBlockFunctionBody blockFuncBody) {
+        blockFuncBody.stmts.forEach(this::acceptNode);
+    }
+
+    @Override
+    public void visit(BLangExternalFunctionBody body) {
+        for (BLangAnnotationAttachment annAttachment : body.annAttachments) {
+            acceptNode(annAttachment);
+        }
     }
 
     @Override
@@ -606,7 +619,6 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
             this.acceptNode(funcNode.restParam);
             this.acceptNode(funcNode.restParam.typeNode);
         }
-        funcNode.externalAnnAttachments.forEach(this::acceptNode);
         funcNode.returnTypeAnnAttachments.forEach(this::acceptNode);
         this.acceptNode(funcNode.returnTypeNode);
         this.acceptNode(funcNode.body);
@@ -793,7 +805,7 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
     @Override
     public void visit(BLangArrowFunction bLangArrowFunction) {
         bLangArrowFunction.params.forEach(this::acceptNode);
-        this.acceptNode(bLangArrowFunction.expression);
+        this.acceptNode(bLangArrowFunction.body.expr);
     }
 
     @Override

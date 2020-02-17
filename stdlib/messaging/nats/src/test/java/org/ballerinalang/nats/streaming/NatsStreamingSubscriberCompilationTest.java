@@ -20,6 +20,7 @@ package org.ballerinalang.nats.streaming;
 import org.ballerinalang.test.util.BAssertUtil;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.CompileResult;
+import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -114,6 +115,19 @@ public class NatsStreamingSubscriberCompilationTest {
                         + "second paramter (optional) type is "
                         + "byte[] | boolean | string | int | float | decimal | xml | json | record {}",
                 28, 6);
+    }
+
+    @Test(description = "Test invalid connection URL")
+    public void testInvalidURL() {
+        String resourceRoot = Paths.get("src", "test", "resources").toAbsolutePath().toString();
+        Path testResourceRoot = Paths.get(resourceRoot, "test-src", "basic");
+        try {
+            BCompileUtil.compileOffline(testResourceRoot.resolve("nats_invalid_url.bal").toString());
+        } catch (BLangRuntimeException e) {
+            String actualMsg = e.getMessage();
+            String expectedErrorMsg = "Bad server URL: /localhost:4222";
+            Assert.assertTrue(actualMsg.contains(expectedErrorMsg));
+        }
     }
 
     private CompileResult compileBasicTests(String fileName) {

@@ -66,6 +66,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BServiceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
@@ -779,8 +780,8 @@ public abstract class AbstractCompletionProvider implements LSCompletionProvider
         if (onGlobal) {
             typeNode = bLangPackage.get().globalVars.get(0).getTypeNode();
         } else {
-            typeNode = ((BLangSimpleVariableDef) bLangPackage.get().getFunctions().get(0).getBody().stmts.get(0))
-                    .getVariable().typeNode;
+            typeNode = ((BLangSimpleVariableDef) ((BLangBlockFunctionBody) bLangPackage.get().getFunctions().get(0)
+                    .body).stmts.get(0)).getVariable().typeNode;
         }
 
         return Optional.ofNullable(typeNode);

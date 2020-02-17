@@ -22,11 +22,13 @@ import org.ballerinalang.langserver.commons.completion.CompletionKeys;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.util.Snippet;
+import org.ballerinalang.model.elements.Flag;
 import org.eclipse.lsp4j.InsertTextFormat;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
-import org.wso2.ballerinalang.compiler.tree.BLangFunction;
+import org.wso2.ballerinalang.compiler.tree.BLangFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
@@ -66,8 +68,10 @@ public class StatementTemplateFilter extends AbstractSymbolFilter {
         completionItems.add(new SnippetCompletionItem(context, Snippet.STMT_TRANSACTION.get()));
         // Populate Match statement template
         completionItems.add(new SnippetCompletionItem(context, Snippet.STMT_MATCH.get()));
-        if (bLangNode instanceof BLangBlockStmt
-                && (bLangNode.parent instanceof BLangFunction || bLangNode.parent instanceof BLangForkJoin)) {
+        if ((bLangNode instanceof BLangBlockStmt && bLangNode.parent instanceof BLangForkJoin)
+                || (bLangNode instanceof BLangFunctionBody
+                && !(bLangNode.parent instanceof  BLangLambdaFunction
+                && (((BLangLambdaFunction) bLangNode.parent).function.flagSet.contains(Flag.WORKER))))) {
             // Populate Worker Declaration statement template
             completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_WORKER.get()));
         }

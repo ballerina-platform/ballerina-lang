@@ -29,8 +29,10 @@ import org.ballerinalang.langserver.completions.providers.contextproviders.IfWhi
 import org.ballerinalang.langserver.completions.providers.contextproviders.InvocationArgsContextProvider;
 import org.ballerinalang.langserver.completions.providers.contextproviders.StatementContextProvider;
 import org.ballerinalang.langserver.sourceprune.SourcePruneKeys;
+import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -42,7 +44,7 @@ import java.util.stream.Collectors;
 public class BlockStatementScopeProvider extends AbstractCompletionProvider {
 
     public BlockStatementScopeProvider() {
-        this.attachmentPoints.add(BLangBlockStmt.class);
+        this.attachmentPoints.addAll(Arrays.asList(BLangBlockStmt.class, BLangBlockFunctionBody.class));
     }
 
     @Override

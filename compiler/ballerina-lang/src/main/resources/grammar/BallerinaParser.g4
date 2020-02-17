@@ -72,6 +72,7 @@ exprFunctionBody
 
 functionDefinitionBody
     :   blockFunctionBody
+    |   exprFunctionBody SEMICOLON
     |   externalFunctionBody SEMICOLON
     ;
 
@@ -85,7 +86,7 @@ anonymousFunctionExpr
     ;
 
 explicitAnonymousFunctionExpr
-    :   FUNCTION functionSignature blockFunctionBody
+    :   FUNCTION functionSignature (blockFunctionBody | exprFunctionBody)
     ;
 
 inferAnonymousFunctionExpr

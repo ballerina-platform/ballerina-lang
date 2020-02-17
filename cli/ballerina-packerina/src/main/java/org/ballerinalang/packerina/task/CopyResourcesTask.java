@@ -18,25 +18,23 @@
 
 package org.ballerinalang.packerina.task;
 
-import org.apache.commons.compress.archivers.jar.JarArchiveEntry;
-import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream;
 import org.ballerinalang.packerina.buildcontext.BuildContext;
 import org.ballerinalang.packerina.buildcontext.BuildContextField;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 
-import java.io.BufferedOutputStream;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
+import java.net.URI;
+import java.nio.file.FileSystem;
+import java.nio.file.FileSystems;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
+import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.util.Collections;
 import java.util.List;
-import java.util.StringJoiner;
 
 import static org.ballerinalang.tool.LauncherUtils.createLauncherException;
 
@@ -64,51 +62,48 @@ public class CopyResourcesTask implements Task {
         if (!resourceDir.toFile().exists()) {
             return;
         }
+        // Get the module jar
         Path moduleJarPath = buildContext.getJarPathFromTargetCache(module.packageID);
-        try (ZipArchiveOutputStream outStream = new ZipArchiveOutputStream(new BufferedOutputStream(
-                new FileOutputStream(String.valueOf(moduleJarPath))))) {
-            String copyEntryPath = new StringJoiner("/")
-                    .add(ProjectDirConstants.RESOURCE_DIR_NAME)
-                    .add(module.packageID.orgName.value)
-                    .add(module.packageID.name.value).toString();
-            Files.walkFileTree(resourceDir, new CopyResourceFileVisitor(outStream, resourceDir.toString(),
-                                                                        copyEntryPath));
+        URI uberJarUri = URI.create("jar:" + moduleJarPath.toUri().toString());
+        try (FileSystem toFs = FileSystems.newFileSystem(uberJarUri, Collections.emptyMap())) {
+            Path to = toFs.getRootDirectories().iterator().next().resolve("resources")
+                    .resolve(module.packageID.orgName.value)
+                    .resolve(module.packageID.name.value);
+            Files.walkFileTree(resourceDir, new Copy(resourceDir, to));
         } catch (IOException e) {
-            throw createLauncherException("unable to extract the uber jar :" + e.getMessage());
+            throw createLauncherException("error while adding resources to module jar :" + e.getMessage());
         }
     }
 
-    static class CopyResourceFileVisitor extends SimpleFileVisitor<Path> {
+    static class Copy extends SimpleFileVisitor<Path> {
 
-        private ZipArchiveOutputStream outStream;
-        private String resourcesSourcePath;
-        private String resourcesEntryPath;
+        private Path fromPath;
+        private Path toPath;
+        private StandardCopyOption copyOption;
 
-        private CopyResourceFileVisitor(ZipArchiveOutputStream outStream, String resourcesSourcePath,
-                                        String resourcesEntryPath) {
-            this.outStream = outStream;
-            this.resourcesSourcePath = resourcesSourcePath;
-            this.resourcesEntryPath = resourcesEntryPath;
+        Copy(Path fromPath, Path toPath, StandardCopyOption copyOption) {
+            this.fromPath = fromPath;
+            this.toPath = toPath;
+            this.copyOption = copyOption;
+        }
+
+        Copy(Path fromPath, Path toPath) {
+            this(fromPath, toPath, StandardCopyOption.REPLACE_EXISTING);
         }
 
         @Override
-        public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) {
+        public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
+            Path targetPath = toPath.resolve(fromPath.relativize(dir).toString());
+            if (!Files.exists(targetPath)) {
+                Files.createDirectories(targetPath);
+            }
             return FileVisitResult.CONTINUE;
         }
 
         @Override
         public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-            try (InputStream is = new FileInputStream(file.toFile())) {
-                JarArchiveEntry e =
-                        new JarArchiveEntry(resourcesEntryPath + file.toString().replace(resourcesSourcePath, ""));
-                outStream.putArchiveEntry(e);
-                byte[] buffer = new byte[1024];
-                int length;
-                while ((length = is.read(buffer)) > 0) {
-                    outStream.write(buffer, 0, length);
-                }
-                outStream.closeArchiveEntry();
-            }
+            Path toFile = toPath.resolve(fromPath.relativize(file).toString());
+            Files.copy(file, toFile, copyOption);
             return FileVisitResult.CONTINUE;
         }
     }

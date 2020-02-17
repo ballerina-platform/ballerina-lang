@@ -178,6 +178,18 @@ public abstract class BLangNodeVisitor {
         throw new AssertionError();
     }
 
+    public void visit(BLangBlockFunctionBody blockFuncBody) {
+        throw new AssertionError();
+    }
+
+    public void visit(BLangExprFunctionBody exprFuncBody) {
+        throw new AssertionError();
+    }
+
+    public void visit(BLangExternalFunctionBody externFuncBody) {
+        throw new AssertionError();
+    }
+
     public void visit(BLangService serviceNode) {
         throw new AssertionError();
     }

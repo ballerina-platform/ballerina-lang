@@ -60,8 +60,11 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
+import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
 import org.wso2.ballerinalang.compiler.tree.BLangErrorVariable;
+import org.wso2.ballerinalang.compiler.tree.BLangExprFunctionBody;
+import org.wso2.ballerinalang.compiler.tree.BLangExternalFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangInvokableNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
@@ -308,14 +311,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             validateAnnotationAttachmentCount(funcNode.returnTypeAnnAttachments);
         }
 
-        if (Symbols.isNative(funcNode.symbol)) {
-            funcNode.externalAnnAttachments.forEach(annotationAttachment -> {
-                annotationAttachment.attachPoints.add(AttachPoint.Point.EXTERNAL);
-                this.analyzeDef(annotationAttachment, funcEnv);
-            });
-            validateAnnotationAttachmentCount(funcNode.externalAnnAttachments);
-        }
-
         for (BLangSimpleVariable param : funcNode.requiredParams) {
             symbolEnter.defineExistingVarSymbolInEnv(param.symbol, funcNode.clonedEnv);
             this.analyzeDef(param, funcNode.clonedEnv);
@@ -327,16 +322,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
         validateObjectAttachedFunction(funcNode);
 
-        // Check for native functions
-        if (Symbols.isNative(funcNode.symbol) || funcNode.interfaceFunction) {
-            if (funcNode.body != null) {
-                dlog.error(funcNode.pos, DiagnosticCode.EXTERN_FUNCTION_CANNOT_HAVE_BODY, funcNode.name);
-            }
-            return;
-        }
-
-        if (funcNode.body != null) {
-            analyzeStmt(funcNode.body, funcEnv);
+        if (funcNode.hasBody()) {
+            analyzeNode(funcNode.body, funcEnv, funcNode.returnTypeNode.type, null);
         }
 
         if (funcNode.anonForkName != null) {
@@ -349,9 +336,37 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     private void processWorkers(BLangInvokableNode invNode, SymbolEnv invEnv) {
         if (invNode.workers.size() > 0) {
             invEnv.scope.entries.putAll(invNode.body.scope.entries);
-            invNode.workers.forEach(e -> this.symbolEnter.defineNode(e, invEnv));
-            invNode.workers.forEach(e -> analyzeNode(e, invEnv));
+            for (BLangWorker worker : invNode.workers) {
+                this.symbolEnter.defineNode(worker, invEnv);
+            }
+            for (BLangWorker e : invNode.workers) {
+                analyzeNode(e, invEnv);
+            }
         }
+    }
+
+    @Override
+    public void visit(BLangBlockFunctionBody body) {
+        env = SymbolEnv.createFuncBodyEnv(body, env);
+        for (BLangStatement stmt : body.stmts) {
+            analyzeStmt(stmt, env);
+        }
+    }
+
+    @Override
+    public void visit(BLangExprFunctionBody body) {
+        env = SymbolEnv.createFuncBodyEnv(body, env);
+        typeChecker.checkExpr(body.expr, env, expType);
+    }
+
+    @Override
+    public void visit(BLangExternalFunctionBody body) {
+        // TODO: Check if a func body env is needed
+        for (BLangAnnotationAttachment annotationAttachment : body.annAttachments) {
+            annotationAttachment.attachPoints.add(AttachPoint.Point.EXTERNAL);
+            this.analyzeDef(annotationAttachment, env);
+        }
+        validateAnnotationAttachmentCount(body.annAttachments);
     }
 
     @Override
@@ -2834,6 +2849,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         });
     }
 
+    // TODO: Check if the below method can be removed. This doesn't seem necessary.
+    //  https://github.com/ballerina-platform/ballerina-lang/issues/20997
     /**
      * Validate functions attached to objects.
      *

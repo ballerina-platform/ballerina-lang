@@ -18,6 +18,7 @@
 package org.ballerinalang.langlib.test;
 
 import org.ballerinalang.model.values.BBoolean;
+import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
@@ -42,19 +43,37 @@ public class LangLibStreamTest {
 
     @Test
     public void testFilterFunc() {
-        BValue[] values = BRunUtil.invoke(result, "testFilterFunc", new BValue[] {});
+        BValue[] values = BRunUtil.invoke(result, "testFilterFunc", new BValue[]{});
         Assert.assertTrue(((BBoolean) values[0]).booleanValue());
     }
 
     @Test
     public void testMapFunc() {
-        BValue[] values = BRunUtil.invoke(result, "testMapFunc", new BValue[] {});
+        BValue[] values = BRunUtil.invoke(result, "testMapFunc", new BValue[]{});
         Assert.assertTrue(((BBoolean) values[0]).booleanValue());
     }
 
     @Test
     public void testFilterAndMapFunc() {
-        BValue[] values = BRunUtil.invoke(result, "testFilterAndMapFunc", new BValue[] {});
+        BValue[] values = BRunUtil.invoke(result, "testFilterAndMapFunc", new BValue[]{});
+        Assert.assertTrue(((BBoolean) values[0]).booleanValue());
+    }
+
+    @Test
+    public void testReduceFunc() {
+        BValue[] values = BRunUtil.invoke(result, "testReduce", new BValue[]{});
+        Assert.assertEquals(((BFloat) values[0]).floatValue(), 135.0);
+    }
+
+    @Test
+    public void testForReachFunc() {
+        BValue[] values = BRunUtil.invoke(result, "testForEach", new BValue[]{});
+        Assert.assertEquals(((BFloat) values[0]).floatValue(), 135.0);
+    }
+
+    @Test
+    public void testIteratorFunc() {
+        BValue[] values = BRunUtil.invoke(result, "testIterator", new BValue[]{});
         Assert.assertTrue(((BBoolean) values[0]).booleanValue());
     }
 }

@@ -20,6 +20,7 @@ package org.wso2.ballerinalang.compiler.bir;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.symbols.SymbolKind;
+import org.ballerinalang.model.tree.BlockNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
@@ -70,7 +71,9 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
+import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangConstantValue;
+import org.wso2.ballerinalang.compiler.tree.BLangExternalFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
@@ -198,8 +201,8 @@ public class BIRGen extends BLangNodeVisitor {
     // Required variables to generate code for assignment statements
     private boolean varAssignment = false;
     private Map<BTypeSymbol, BIRTypeDefinition> typeDefs = new LinkedHashMap<>();
-    private BLangBlockStmt currentBlock;
-    private Map<BLangBlockStmt, List<BIRVariableDcl>> varDclsByBlock = new HashMap<>();
+    private BlockNode currentBlock;
+    private Map<BlockNode, List<BIRVariableDcl>> varDclsByBlock = new HashMap<>();
     // This is a global variable cache
     public Map<BSymbol, BIRGlobalVariableDcl> globalVarMap = new HashMap<>();
 
@@ -433,14 +436,17 @@ public class BIRGen extends BLangNodeVisitor {
 
         //create channelDetails array
         int i = 0;
-        for (String channelName: astFunc.sendsToThis) {
+        for (String channelName : astFunc.sendsToThis) {
             birFunc.workerChannels[i] = new BIRNode.ChannelDetails(channelName, astFunc.defaultWorkerName.value
                     .equals(DEFAULT_WORKER_NAME), isWorkerSend(channelName, astFunc.defaultWorkerName.value));
             i++;
         }
 
         // Populate annotation attachments on external in BIRFunction node
-        populateBIRAnnotAttachments(astFunc.externalAnnAttachments, birFunc.annotAttachments, this.env);
+        if (astFunc.hasBody() && astFunc.body.getKind() == NodeKind.EXTERN_FUNCTION_BODY) {
+            populateBIRAnnotAttachments(((BLangExternalFunctionBody) astFunc.body).annAttachments,
+                                        birFunc.annotAttachments, this.env);
+        }
         // Populate annotation attachments on function in BIRFunction node
         populateBIRAnnotAttachments(astFunc.annAttachments, birFunc.annotAttachments, this.env);
 
@@ -500,6 +506,24 @@ public class BIRGen extends BLangNodeVisitor {
         // Rearrange error entries.
         birFunc.errorTable.sort(Comparator.comparingInt(o -> Integer.parseInt(o.trapBB.id.value.replace("bb", ""))));
         this.env.clear();
+    }
+
+    @Override
+    public void visit(BLangBlockFunctionBody astBody) {
+        BlockNode prevBlock = this.currentBlock;
+        this.currentBlock = astBody;
+        this.varDclsByBlock.computeIfAbsent(astBody, k -> new ArrayList<>());
+
+        for (BLangStatement astStmt : astBody.stmts) {
+            astStmt.accept(this);
+        }
+
+        List<BIRVariableDcl> varDecls = this.varDclsByBlock.get(astBody);
+        for (BIRVariableDcl birVariableDcl : varDecls) {
+            birVariableDcl.endBB = this.env.enclBasicBlocks.get(this.env.enclBasicBlocks.size() - 1);
+        }
+
+        this.currentBlock = prevBlock;
     }
 
     @Override
@@ -775,7 +799,7 @@ public class BIRGen extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangBlockStmt astBlockStmt) {
-        BLangBlockStmt prevBlock = this.currentBlock;
+        BlockNode prevBlock = this.currentBlock;
         this.currentBlock = astBlockStmt;
         this.varDclsByBlock.computeIfAbsent(astBlockStmt, k -> new ArrayList<>());
         for (BLangStatement astStmt : astBlockStmt.stmts) {

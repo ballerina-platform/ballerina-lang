@@ -25,10 +25,13 @@ import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.statements.VariableDefinitionNode;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
+import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
 import org.wso2.ballerinalang.compiler.tree.BLangErrorVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangErrorVariable.BLangErrorDetailEntry;
+import org.wso2.ballerinalang.compiler.tree.BLangExprFunctionBody;
+import org.wso2.ballerinalang.compiler.tree.BLangExternalFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
@@ -251,7 +254,6 @@ class NodeCloner extends BLangNodeVisitor {
         clone.requiredParams = cloneList(source.requiredParams);
         clone.returnTypeNode = clone(source.returnTypeNode);
         clone.returnTypeAnnAttachments = cloneList(source.returnTypeAnnAttachments);
-        clone.externalAnnAttachments = cloneList(source.externalAnnAttachments);
         clone.body = clone(source.body);
         clone.flagSet = cloneSet(source.flagSet, Flag.class);
         clone.markdownDocumentationAttachment = clone(source.markdownDocumentationAttachment);
@@ -383,6 +385,30 @@ class NodeCloner extends BLangNodeVisitor {
         clone.anonForkName = source.anonForkName;
 
         cloneBLangInvokableNode(source, clone);
+    }
+
+    @Override
+    public void visit(BLangBlockFunctionBody source) {
+        BLangBlockFunctionBody clone = new BLangBlockFunctionBody();
+        source.cloneRef = clone;
+        clone.pos = source.pos;
+        clone.stmts = cloneList(source.stmts);
+    }
+
+    @Override
+    public void visit(BLangExprFunctionBody source) {
+        BLangExprFunctionBody clone = new BLangExprFunctionBody();
+        source.cloneRef = clone;
+        clone.pos = source.pos;
+        clone.expr = clone(source.expr);
+    }
+
+    @Override
+    public void visit(BLangExternalFunctionBody source) {
+        BLangExternalFunctionBody clone = new BLangExternalFunctionBody();
+        source.cloneRef = clone;
+        clone.annAttachments = cloneList(source.annAttachments);
+        clone.pos = source.pos;
     }
 
     @Override
@@ -1090,7 +1116,7 @@ class NodeCloner extends BLangNodeVisitor {
         BLangArrowFunction clone = new BLangArrowFunction();
         source.cloneRef = clone;
         clone.params = cloneList(source.params);
-        clone.expression = clone(source.expression);
+        clone.body = clone(source.body);
         clone.funcType = source.funcType;
         clone.functionName = source.functionName;
     }

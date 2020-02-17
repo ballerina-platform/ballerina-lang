@@ -30,7 +30,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
 /**
  * Native implementation of lang.stream:next(stream&lt;Type&gt;).
  *
- * @since 1.2
+ * @since 1.2.0
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "lang.stream", functionName = "next",

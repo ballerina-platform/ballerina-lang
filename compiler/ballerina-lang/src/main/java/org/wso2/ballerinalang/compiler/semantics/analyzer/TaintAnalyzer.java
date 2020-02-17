@@ -39,9 +39,12 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.TaintRecord;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
+import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
 import org.wso2.ballerinalang.compiler.tree.BLangErrorVariable;
+import org.wso2.ballerinalang.compiler.tree.BLangExprFunctionBody;
+import org.wso2.ballerinalang.compiler.tree.BLangExternalFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
@@ -390,6 +393,36 @@ public class TaintAnalyzer extends BLangNodeVisitor {
             visitInvokable(funcNode, funcEnv);
         }
         analysisStateStack.pop();
+    }
+
+    @Override
+    public void visit(BLangBlockFunctionBody body) {
+        SymbolEnv bodyEnv = SymbolEnv.createFuncBodyEnv(body, env);
+        for (BLangStatement stmt : body.stmts) {
+            if (stopAnalysis) {
+                break;
+            } else {
+                analyzeNode(stmt, bodyEnv);
+            }
+        }
+    }
+
+    @Override
+    public void visit(BLangExprFunctionBody body) {
+        SymbolEnv bodyEnv = SymbolEnv.createFuncBodyEnv(body, env);
+        analyzeNode(body.expr, bodyEnv);
+
+        if (getCurrentAnalysisState().taintedStatus == TaintedStatus.TAINTED) {
+            getCurrentAnalysisState().returnTaintedStatus = TaintedStatus.TAINTED;
+        }
+
+        getCurrentAnalysisState().taintedStatus = getCurrentAnalysisState().returnTaintedStatus;
+        updateParameterTaintedStatuses();
+    }
+
+    @Override
+    public void visit(BLangExternalFunctionBody body) {
+        // do nothing
     }
 
     @Override

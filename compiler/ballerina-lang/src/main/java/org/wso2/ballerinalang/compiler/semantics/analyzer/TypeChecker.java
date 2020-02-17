@@ -2468,10 +2468,10 @@ public class TypeChecker extends BLangNodeVisitor {
 
         BInvokableType expectedInvocation = (BInvokableType) expectedType;
         populateArrowExprParamTypes(bLangArrowFunction, expectedInvocation.paramTypes);
-        bLangArrowFunction.expression.type = populateArrowExprReturn(bLangArrowFunction, expectedInvocation.retType);
+        bLangArrowFunction.body.expr.type = populateArrowExprReturn(bLangArrowFunction, expectedInvocation.retType);
         // if function return type is none, assign the inferred return type
         if (expectedInvocation.retType.tag == TypeTags.NONE) {
-            expectedInvocation.retType = bLangArrowFunction.expression.type;
+            expectedInvocation.retType = bLangArrowFunction.body.expr.type;
         }
         resultType = bLangArrowFunction.funcType = expectedInvocation;
     }
@@ -2928,7 +2928,7 @@ public class TypeChecker extends BLangNodeVisitor {
     private BType populateArrowExprReturn(BLangArrowFunction bLangArrowFunction, BType expectedRetType) {
         SymbolEnv arrowFunctionEnv = SymbolEnv.createArrowFunctionSymbolEnv(bLangArrowFunction, env);
         bLangArrowFunction.params.forEach(param -> symbolEnter.defineNode(param, arrowFunctionEnv));
-        return checkExpr(bLangArrowFunction.expression, arrowFunctionEnv, expectedRetType);
+        return checkExpr(bLangArrowFunction.body.expr, arrowFunctionEnv, expectedRetType);
     }
 
     private void populateArrowExprParamTypes(BLangArrowFunction bLangArrowFunction, List<BType> paramTypes) {
