@@ -6,7 +6,7 @@
  * in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *   http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -15,19 +15,21 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.model.clauses;
 
-import org.ballerinalang.model.tree.Node;
-import org.ballerinalang.model.tree.statements.BlockStatementNode;
+package org.wso2.ballerinalang.compiler.tree;
+
+import org.ballerinalang.model.tree.FunctionBodyNode;
+import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 
 /**
- * The interface with the APIs to implement the "do" clause.
+ * Represents a function/method body.
  *
  * @since 1.2.0
  */
-public interface DoClauseNode extends Node {
+public abstract class BLangFunctionBody extends BLangNode implements FunctionBodyNode {
 
-    BlockStatementNode getBody();
-
-    void setBody(BlockStatementNode body);
+    /**
+     * We need to keep a reference to the function body's scope here.
+     */
+    public Scope scope;
 }

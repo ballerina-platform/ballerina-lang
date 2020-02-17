@@ -6,7 +6,7 @@
  * in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *   http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -15,19 +15,20 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.model.clauses;
 
-import org.ballerinalang.model.tree.Node;
-import org.ballerinalang.model.tree.statements.BlockStatementNode;
+package org.ballerinalang.model.tree;
+
+import java.util.List;
 
 /**
- * The interface with the APIs to implement the "do" clause.
+ * Represents the body of a function whose implementation is native.
  *
  * @since 1.2.0
  */
-public interface DoClauseNode extends Node {
+public interface ExternalFunctionBodyNode extends FunctionBodyNode {
 
-    BlockStatementNode getBody();
+    List<? extends AnnotationAttachmentNode> getAnnotationAttachments();
 
-    void setBody(BlockStatementNode body);
+    void addAnnotationAttachment(AnnotationAttachmentNode annAttachment);
+
 }

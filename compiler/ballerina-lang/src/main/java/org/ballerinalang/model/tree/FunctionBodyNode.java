@@ -6,7 +6,7 @@
  * in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *   http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -15,19 +15,11 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.model.clauses;
 
-import org.ballerinalang.model.tree.Node;
-import org.ballerinalang.model.tree.statements.BlockStatementNode;
+package org.ballerinalang.model.tree;
 
 /**
- * The interface with the APIs to implement the "do" clause.
- *
  * @since 1.2.0
  */
-public interface DoClauseNode extends Node {
-
-    BlockStatementNode getBody();
-
-    void setBody(BlockStatementNode body);
+public interface FunctionBodyNode extends Node {
 }
