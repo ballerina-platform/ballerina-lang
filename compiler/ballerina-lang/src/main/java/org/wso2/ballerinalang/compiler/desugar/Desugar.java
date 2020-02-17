@@ -662,11 +662,11 @@ public class Desugar extends BLangNodeVisitor {
         }
 
         // Adding init statements to the init function.
-        BLangStatement[] initStmts = initFunctionStmts.values().toArray(new BLangStatement[0]);
+        BLangStatement[] initStmts = initFuncStmts.values().toArray(new BLangStatement[0]);
         BLangBlockFunctionBody generatedInitFnBody =
                 (BLangBlockFunctionBody) objectTypeNode.generatedInitFunction.body;
         int i;
-        for (i = 0; i < initFunctionStmts.size(); i++) {
+        for (i = 0; i < initStmts.length; i++) {
             generatedInitFnBody.stmts.add(i, initStmts[i]);
         }
 
@@ -721,7 +721,8 @@ public class Desugar extends BLangNodeVisitor {
 
         // Will be null only for locally defined anonymous types
         if (recordTypeNode.initFunction == null) {
-            recordTypeNode.initFunction = createInitFunctionForRecordType(recordTypeNode, env);
+            recordTypeNode.initFunction = TypeDefBuilderHelper.createInitFunctionForRecordType(recordTypeNode, env,
+                                                                                               names, symTable);
             env.enclPkg.addFunction(recordTypeNode.initFunction);
             env.enclPkg.topLevelNodes.add(recordTypeNode.initFunction);
         }
@@ -752,7 +753,8 @@ public class Desugar extends BLangNodeVisitor {
 
         if (recordTypeNode.isAnonymous && recordTypeNode.isLocal) {
             BLangUserDefinedType userDefinedType = desugarLocalAnonRecordTypeNode(recordTypeNode);
-            createTypeDefinition(recordTypeNode.type, recordTypeNode.type.tsymbol, recordTypeNode);
+            TypeDefBuilderHelper.addTypeDefinition(recordTypeNode.type, recordTypeNode.type.tsymbol, recordTypeNode,
+                                                   env);
             recordTypeNode.desugared = true;
             result = userDefinedType;
             return;
