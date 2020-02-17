@@ -21,6 +21,7 @@ package org.wso2.ballerinalang.compiler.tree;
 import org.ballerinalang.model.tree.BlockFunctionBodyNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.statements.StatementNode;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
 
 import java.util.ArrayList;
@@ -35,6 +36,7 @@ import java.util.StringJoiner;
 public class BLangBlockFunctionBody extends BLangFunctionBody implements BlockFunctionBodyNode {
 
     public List<BLangStatement> stmts;
+    public BVarSymbol mapSymbol;
 
     public BLangBlockFunctionBody() {
         this.stmts = new ArrayList<>();

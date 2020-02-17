@@ -2024,9 +2024,6 @@ public class BLangPackageBuilder {
                 (List<AnnotationAttachmentNode>) externBody.getAnnotationAttachments();
 
         for (int i = 0; i < annotCount; i++) {
-            if (annotAttachmentStack.empty()) {
-                break;
-            }
             annotAttachments.add(annotAttachmentStack.pop());
         }
 
