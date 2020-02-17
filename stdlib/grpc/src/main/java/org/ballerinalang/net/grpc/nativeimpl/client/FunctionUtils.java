@@ -25,6 +25,8 @@ import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.observability.ObserveUtils;
 import org.ballerinalang.jvm.observability.ObserverContext;
 import org.ballerinalang.jvm.scheduling.Scheduler;
+import org.ballerinalang.jvm.scheduling.State;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValue;
@@ -262,7 +264,7 @@ public class FunctionUtils extends AbstractExecute {
                 }
             } catch (Exception e) {
                 if (dataContext != null) {
-                    dataContext.getCallback().notifyFailure(MessageUtils.getConnectorError(e));
+                    unBlockStrand(dataContext.getStrand());
                 }
                 return notifyErrorReply(INTERNAL, "gRPC Client Connector Error :" + e.getMessage());
             }
@@ -271,6 +273,13 @@ public class FunctionUtils extends AbstractExecute {
                     "type not supported");
         }
         return null;
+    }
+
+    // Please refer #18763. This should be done through a JBallerina API which provides the capability
+    // of high level strand state handling - There is no such API ATM.
+    private static void unBlockStrand(Strand strand) {
+        strand.setState(State.RUNNABLE);
+        strand.blockedOnExtern = false;
     }
 
     /**
