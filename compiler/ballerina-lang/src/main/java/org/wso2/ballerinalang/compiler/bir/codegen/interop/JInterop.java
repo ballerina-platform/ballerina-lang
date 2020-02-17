@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  WSO2 Inc. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
@@ -110,6 +110,19 @@ class JInterop {
 
         String getStringValue() {
             return this.strValue;
+        }
+    }
+
+    enum JTermKind {
+        JTERM_CALL(1), JTERM_NEW(2);
+
+        private int termKind;
+        JTermKind(int termKind) {
+            this.termKind = termKind;
+        }
+
+        int getTermKind() {
+            return this.termKind;
         }
     }
 
@@ -252,6 +265,45 @@ class JInterop {
         jRefTypeBRecord.put(IS_ARRAY_FIELD, jTypeClass.isArray());
         return jRefTypeBRecord;
     }
+
+    static JType getJType(Class<?> jTypeClass) {
+        if (jTypeClass.isPrimitive()) {
+            String primitiveName = jTypeClass.getName();
+            switch (primitiveName) {
+                case J_BYTE:
+                    return JType.jByte;
+                case J_CHAR:
+                    return JType.jChar;
+                case J_SHORT:
+                    return JType.jShort;
+                case J_INT:
+                    return JType.jInt;
+                case J_LONG:
+                    return JType.jLong;
+                case J_FLOAT:
+                    return JType.jFloat;
+                case J_DOUBLE:
+                    return JType.jDouble;
+                case J_BOOLEAN:
+                    return JType.jBoolean;
+                case J_VOID:
+                    return JType.jVoid;
+                default:
+                    throw new IllegalArgumentException("The Java " + primitiveName + " type is not yet supported.");
+            }
+        } else if (jTypeClass == Void.class) {
+            throw new IllegalArgumentException("The Java Void type is not yet supported.");
+        } else if (jTypeClass.isArray()) {
+            return JType.getJArrayTypeFromTypeName(jTypeClass.getComponentType().getName(), (byte) 0);
+        }
+
+        JType.JRefType jRefType = new JType.JRefType(jTypeClass.getName().replace('.', '/'));
+        jRefType.isArray = jTypeClass.isArray();
+        jRefType.isInterface = jTypeClass.isInterface();
+
+        return jRefType;
+    }
+
 
     static String getMethodSig(Class<?> returnType, Class<?>... parameterTypes) {
         StringBuilder sb = new StringBuilder();
