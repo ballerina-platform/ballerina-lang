@@ -118,15 +118,15 @@ import static org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewInst
  */
 public class JvmPackageGen {
 
-    public static DiagnosticLogger dlogger = null;
+    public static DiagnosticLogger dlogger = new DiagnosticLogger();
 
-    public static Map<String, BIRFunctionWrapper> birFunctionMap = null;
-    public static Map<String, BIRTypeDefinition> typeDefMap = null;
-    public static Map<String, String> globalVarClassNames = null;
+    public static Map<String, BIRFunctionWrapper> birFunctionMap = new HashMap<>();
+    public static Map<String, BIRTypeDefinition> typeDefMap = new HashMap<>();
+    public static Map<String, String> globalVarClassNames = new HashMap<>();
     public static Map<String, BIRInstruction> lambdas = new HashMap<>();
-    public static Map<String, BIRPackage> compiledPkgCache = null;
-    public static Map<String, String> externalMapCache = null;
-    public static Map<String, PackageID> dependentModules = null;
+    public static Map<String, BIRPackage> compiledPkgCache = new HashMap<>();
+    public static Map<String, String> externalMapCache = new HashMap<>();
+    public static Map<String, PackageID> dependentModules = new HashMap<>();
     public static List<PackageID> dependentModuleArray = new ArrayList<>();
     public static String currentClass = "";
     public static int lambdaIndex = 0;
@@ -134,8 +134,8 @@ public class JvmPackageGen {
 
     static class JarFile {
 
-        Map<String, String> manifestEntries = null;
-        Map<String, byte[]> pkgEntries = null;
+        Map<String, String> manifestEntries = new HashMap<>();
+        Map<String, byte[]> pkgEntries = new HashMap<>();
     }
 
     static class JavaClass {
@@ -247,8 +247,7 @@ public class JvmPackageGen {
                 BIRFunction birFunc = functions.get(count);
                 count = count + 1;
                 if (IS_BSTRING) {
-                    BIRFunction bStringFunc = new BIRFunction(birFunc.pos, birFunc.name, birFunc.flags, birFunc.type,
-                            birFunc.workerName, birFunc.workerChannels.length, birFunc.taintTable);
+                    BIRFunction bStringFunc = birFunc.duplicate();
                     bStringFunc.name = new Name(nameOfBStringFunc(birFunc.name.value));
                     bStringFuncs.add(bStringFunc);
                 }
@@ -272,17 +271,17 @@ public class JvmPackageGen {
         if (!isEntry && isFromCache) {
             return;
         }
-
-        addBuiltinImports(moduleId, module);
+//
+//        addBuiltinImports(moduleId, module);
 
         // generate imported modules recursively
-        for (BIRImportModule mod : module.importModules) {
-            // TODO fix imported module's linking
+//        for (BIRImportModule mod : module.importModules) {
+        // TODO fix imported module's linking
 //            generateDependencyList(importModuleToModuleId(mod), jarFile, interopValidator);
 //            if (DiagnosticLogger.getErrorCount() > 0) {
 //                return;
 //            }
-        }
+//        }
 
         injectBStringFunctions(module);
 
@@ -356,7 +355,8 @@ public class JvmPackageGen {
             cw.visitSource(v.sourceFileName, null);
             // generate methods
             for (BIRFunction func : v.functions) {
-                generateMethod(getFunction(func), cw, module, null, false, getFunction(func).workerName.value);
+                String workerName = getFunction(func).workerName == null ? null : func.workerName.value;
+                generateMethod(getFunction(func), cw, module, null, false, workerName);
             }
             // generate lambdas created during generating methods
             for (Map.Entry<String, BIRInstruction> l : lambdas.entrySet()) {
@@ -367,7 +367,7 @@ public class JvmPackageGen {
 //        foreach var [name, call] in lambdas.entries() {
 //        }
             // clear the lambdas
-            lambdas = null;
+            lambdas = new HashMap<>();
             lambdaIndex = 0;
             cw.visitEnd();
 
@@ -463,7 +463,7 @@ public class JvmPackageGen {
 
         BIRPackage pkgFromCache = compiledPkgCache.get(orgName + moduleName);
         if (pkgFromCache != null) {
-            new AbstractMap.SimpleEntry<>(pkgFromCache, true);
+            return new AbstractMap.SimpleEntry<>(pkgFromCache, true);
         }
 
 //        var cacheDir = findCacheDirFor(modId);

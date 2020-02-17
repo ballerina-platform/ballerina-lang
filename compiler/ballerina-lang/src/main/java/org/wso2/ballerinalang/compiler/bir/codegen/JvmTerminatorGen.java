@@ -270,62 +270,65 @@ public class JvmTerminatorGen {
             switch (terminator.kind) {
                 case LOCK:
                     this.genLockTerm((BIRTerminator.Lock) terminator, funcName, localVarOffset);
-                    break;
+                    return;
                 case FIELD_LOCK:
                     this.genFieldLockTerm((BIRTerminator.FieldLock) terminator, funcName, localVarOffset, attachedType);
-                    break;
+                    return;
                 case UNLOCK:
                     this.genUnlockTerm((BIRTerminator.Unlock) terminator, funcName, attachedType);
-                    break;
+                    return;
                 case GOTO:
                     this.genGoToTerm((BIRTerminator.GOTO) terminator, funcName);
-                    break;
+                    return;
                 case CALL:
                     this.genCallTerm((BIRTerminator.Call) terminator, funcName, localVarOffset);
-                    break;
+                    return;
                 case ASYNC_CALL:
                     this.genAsyncCallTerm((BIRTerminator.AsyncCall) terminator, localVarOffset);
-                    break;
+                    return;
                 case BRANCH:
                     this.genBranchTerm((BIRTerminator.Branch) terminator, funcName);
-                    break;
+                    return;
                 case RETURN:
                     this.genReturnTerm((BIRTerminator.Return) terminator, returnVarRefIndex, func, isObserved,
                             localVarOffset);
-                    break;
+                    return;
                 case PANIC:
                     this.errorGen.genPanic((BIRTerminator.Panic) terminator);
-                    break;
+                    return;
                 case WAIT:
                     this.generateWaitIns((BIRTerminator.Wait) terminator, funcName, localVarOffset);
-                    break;
+                    return;
                 case WAIT_ALL:
                     this.genWaitAllIns((BIRTerminator.WaitAll) terminator, funcName, localVarOffset);
-                    break;
+                    return;
                 case FP_CALL:
                     this.genFPCallIns((BIRTerminator.FPCall) terminator, funcName, localVarOffset);
-                    break;
+                    return;
                 case WK_SEND:
                     this.genWorkerSendIns((BIRTerminator.WorkerSend) terminator, funcName, localVarOffset);
-                    break;
+                    return;
                 case WK_RECEIVE:
                     this.genWorkerReceiveIns((BIRTerminator.WorkerReceive) terminator, funcName, localVarOffset);
-                    break;
+                    return;
                 case FLUSH:
                     this.genFlushIns((BIRTerminator.Flush) terminator, funcName, localVarOffset);
-                    break;
+                    return;
+                case PLATFORM:
+                    if (terminator instanceof JavaMethodCall) {
+                        this.genJCallTerm((JavaMethodCall) terminator, funcName, attachedType, localVarOffset);
+                        return;
+                    } else if (terminator instanceof JIMethodCall) {
+                        this.genJICallTerm((JIMethodCall) terminator, funcName, attachedType, localVarOffset);
+                        return;
+                    } else if (terminator instanceof JIConstructorCall) {
+                        this.genJIConstructorTerm((JIConstructorCall) terminator, funcName, attachedType, localVarOffset);
+                        return;
+                    }
             }
+            throw new BLangCompilerException("JVM generation is not supported for terminator instruction " +
+                    String.format("%s", terminator));
 
-            if (terminator instanceof JavaMethodCall) {
-                this.genJCallTerm((JavaMethodCall) terminator, funcName, attachedType, localVarOffset);
-            } else if (terminator instanceof JIMethodCall) {
-                this.genJICallTerm((JIMethodCall) terminator, funcName, attachedType, localVarOffset);
-            } else if (terminator instanceof JIConstructorCall) {
-                this.genJIConstructorTerm((JIConstructorCall) terminator, funcName, attachedType, localVarOffset);
-            } else {
-                throw new BLangCompilerException("JVM generation is not supported for terminator instruction " +
-                        String.format("%s", terminator));
-            }
         }
 
         void genGoToTerm(BIRTerminator.GOTO gotoIns, String funcName) {

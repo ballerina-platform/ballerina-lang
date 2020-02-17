@@ -23,12 +23,12 @@ import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
-import org.wso2.ballerinalang.compiler.bir.codegen.interop.JType;
-import org.wso2.ballerinalang.compiler.bir.codegen.interop.JTypeTags;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmErrorGen.ErrorHandlerGenerator;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmInstructionGen.InstructionGenerator;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmLabelGen.LabelGenerator;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmTerminatorGen.TerminatorGenerator;
+import org.wso2.ballerinalang.compiler.bir.codegen.interop.JType;
+import org.wso2.ballerinalang.compiler.bir.codegen.interop.JTypeTags;
 import org.wso2.ballerinalang.compiler.bir.model.BIRInstruction;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRAnnotationArrayValue;
@@ -65,6 +65,7 @@ import org.wso2.ballerinalang.util.Flags;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -506,14 +507,14 @@ public class JvmMethodGen {
             if (!tmpBoolParam && (localVar.kind == VarKind.LOCAL || localVar.kind == VarKind.ARG)) {
                 // local vars have visible range information
                 if (localVar.kind == VarKind.LOCAL) {
-                    String startBBID = localVar.startBB.id.value;
-                    String endBBID = localVar.endBB.id.value;
+//                    String startBBID = localVar.startBB.id.value;
+//                    String endBBID = localVar.endBB.id.value;
                     int insOffset = localVar.insOffset;
-                    if (startBBID != "") {
-                        startLabel = labelGen.getLabel(funcName + startBBID + "ins" + insOffset);
+                    if (localVar.startBB != null) {
+                        startLabel = labelGen.getLabel(funcName + localVar.startBB.id.value + "ins" + insOffset);
                     }
-                    if (endBBID != "") {
-                        endLabel = labelGen.getLabel(funcName + endBBID + "beforeTerm");
+                    if (localVar.endBB != null) {
+                        endLabel = labelGen.getLabel(funcName + localVar.endBB.id.value + "beforeTerm");
                     }
                 }
                 String metaVarName = localVar.name.value;
@@ -886,7 +887,7 @@ public class JvmMethodGen {
             String serviceOrConnectorName = serviceName;
             if (isObserved && j == 0) {
                 String observationStartMethod = isService ? "startResourceObservation" : "startCallableObservation";
-                if (!isService && attachedType.tag == TypeTags.OBJECT) {
+                if (!isService && attachedType != null && attachedType.tag == TypeTags.OBJECT) {
                     // add module org and module name to remote spans.
                     BObjectType attachedTypeObj = (BObjectType) attachedType;
                     serviceOrConnectorName = getFullQualifiedRemoteFunctionName(
@@ -2261,7 +2262,9 @@ public class JvmMethodGen {
         BIRFunction currentFunc = getFunction(func);
         String frameClassName = getFrameClassName(pkgName, currentFunc.name.value, attachedType);
         ClassWriter cw = new ClassWriter(COMPUTE_FRAMES);
-        cw.visitSource(currentFunc.pos.src.cUnitName, null);
+        if (currentFunc.pos != null) {
+            cw.visitSource(currentFunc.pos.src.cUnitName, null);
+        }
         currentClass = frameClassName;
         cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, frameClassName, null, OBJECT, null);
         generateDefaultConstructor(cw, OBJECT);
@@ -2288,12 +2291,14 @@ public class JvmMethodGen {
 
     static String getFrameClassName(String pkgName, String funcName, @Nilable BType attachedType) {
         String frameClassName = pkgName;
-        if (attachedType.tag == TypeTags.OBJECT) {
-            frameClassName += cleanupTypeName(attachedType.name.getValue()) + "_";
-        } else if (attachedType.tag == TypeTags.SERVICE) {
-            frameClassName += cleanupTypeName(attachedType.name.getValue()) + "_";
-        } else if (attachedType.tag == TypeTags.RECORD) {
-            frameClassName += cleanupTypeName(attachedType.name.getValue()) + "_";
+        if (attachedType != null) {
+            if (attachedType.tag == TypeTags.OBJECT) {
+                frameClassName += cleanupTypeName(attachedType.name.getValue()) + "_";
+            } else if (attachedType.tag == TypeTags.SERVICE) {
+                frameClassName += cleanupTypeName(attachedType.name.getValue()) + "_";
+            } else if (attachedType.tag == TypeTags.RECORD) {
+                frameClassName += cleanupTypeName(attachedType.name.getValue()) + "_";
+            }
         }
 
         return frameClassName + cleanupFunctionName(funcName) + "Frame";
@@ -2387,7 +2392,7 @@ public class JvmMethodGen {
     }
 
     static void generateDiagnosticPos(DiagnosticPos pos, MethodVisitor mv) {
-        if (pos.sLine != 0x80000000) {
+        if (pos != null && pos.sLine != 0x80000000) {
             Label label = new Label();
             mv.visitLabel(label);
             mv.visitLineNumber(pos.sLine, label);
@@ -2761,7 +2766,7 @@ public class JvmMethodGen {
 
     public static class BalToJVMIndexMap {
         private int localVarIndex = 0;
-        private Map<String, Integer> jvmLocalVarIndexMap = null;
+        private Map<String, Integer> jvmLocalVarIndexMap = new HashMap<>();
 
         void add(BIRVariableDcl varDcl) {
             String varRefName = this.getVarRefName(varDcl);

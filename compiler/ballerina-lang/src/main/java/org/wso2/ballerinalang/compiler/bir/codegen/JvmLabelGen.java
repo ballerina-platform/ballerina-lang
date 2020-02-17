@@ -19,6 +19,7 @@ package org.wso2.ballerinalang.compiler.bir.codegen;
 
 import org.objectweb.asm.Label;
 
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -28,7 +29,7 @@ import java.util.Map;
  */
 public class JvmLabelGen {
     public static class LabelGenerator {
-        Map<String, Label> bbLabels = null;
+        Map<String, Label> bbLabels = new HashMap<>();
 
         public Label getLabel(String labelKey) {
             Label result = this.bbLabels.get(labelKey);
