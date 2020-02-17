@@ -45,6 +45,7 @@ import static java.io.File.separator;
 /**
  * Test class for test the functionality of Ballerina Kafka serializers and deserializers.
  */
+@Test(enabled = false)
 public class KafkaSerializerDeserializerTest extends BaseTest {
 
     protected static BServerInstance serverInstance;
@@ -65,7 +66,7 @@ public class KafkaSerializerDeserializerTest extends BaseTest {
         kafkaCluster = createKafkaCluster(dataDir, 14002, 14102).addBrokers(1).startup();
     }
 
-    @Test(description = "Tests Kafka custom serializer / deserializer functionality", enabled = false)
+    @Test(description = "Tests Kafka custom serializer / deserializer functionality")
     public void testPublishToKafkaCluster() throws IOException {
         Map<String, String> headers = new HashMap<>();
         headers.put(HttpHeaderNames.CONTENT_TYPE.toString(), TestConstant.CONTENT_TYPE_JSON);
