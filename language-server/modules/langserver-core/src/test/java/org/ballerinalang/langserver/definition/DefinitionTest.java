@@ -315,6 +315,7 @@ public class DefinitionTest {
                 {"defVarDefStmt6.json", "vardefstatement"},
                 {"defVarDefStmt7.json", "vardefstatement"},
                 {"defVarDefStmt8.json", "vardefstatement"},
+                {"defVarDefStmt26.json", "vardefstatement"},
                 // Covers Variable Definition Statement with Error Binding pattern
                 {"defVarDefStmt12.json", "vardefstatement"},
                 {"defVarDefStmt13.json", "vardefstatement"},

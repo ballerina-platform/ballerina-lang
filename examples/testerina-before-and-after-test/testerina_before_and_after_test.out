@@ -11,6 +11,9 @@ Running tests
 I'm the before function!
 I'm in test function!
 I'm the after function!
+
+        [pass] testFunction
+
         1 passing
         0 failing
         0 skipped

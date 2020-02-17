@@ -20,6 +20,8 @@ import org.ballerinalang.jvm.XMLNodeType;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
+import org.ballerinalang.jvm.values.api.BMap;
+import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.jvm.values.api.BXML;
 import org.ballerinalang.jvm.values.api.BXMLQName;
 import org.ballerinalang.jvm.values.freeze.State;
@@ -69,14 +71,133 @@ public abstract class XMLValue implements RefValue, BXML, CollectionValue {
      * @param attributeName Qualified name of the attribute
      * @param value Value of the attribute
      */
+    @Deprecated
     public void setAttribute(BXMLQName attributeName, String value) {
         setAttribute(attributeName.getLocalName(), attributeName.getUri(), attributeName.getPrefix(), value);
     }
 
-    @Override
-    public MapValue<String, ?> getAttributesMap() {
-        return new MapValueImpl<>();
+    /**
+     * Set the value of a single attribute. If the attribute already exsists, then the value will be updated.
+     * Otherwise a new attribute will be added.
+     *
+     * @param attributeName Qualified name of the attribute
+     * @param value Value of the attribute
+     */
+    public void setAttribute(BXMLQName attributeName, BString value) {
+        setAttribute(attributeName.getLocalName(), attributeName.getUri(), attributeName.getPrefix(), value.getValue());
     }
+
+    /**
+     * Get attributes as a {@link MapValueImpl}.
+     * 
+     * @return Attributes as a {@link MapValueImpl}
+     */
+    public abstract MapValue<String, ?> getAttributesMap();
+
+    /**
+     * Set the attributes of the XML{@link MapValueImpl}.
+     * 
+     * @param attributes Attributes to be set.
+     */
+    public abstract void setAttributes(BMap<String, ?> attributes);
+
+    /**
+     * Get all the elements-type items, in the given sequence.
+     * 
+     * @return All the elements-type items, in the given sequence
+     */
+    public abstract XMLValue<?> elements();
+
+    /**
+     * Get all the elements-type items in the given sequence, that matches a given qualified name.
+     * 
+     * @param qname qualified name of the element
+     * @return All the elements-type items, that matches a given qualified name, from the this sequence.
+     */
+    public abstract XMLValue<?> elements(String qname);
+
+    /**
+     * Selects and concatenate all the children sequences of the elements in this sequence.
+     * 
+     * @return All the children sequences of the elements in this sequence
+     */
+    public abstract XMLValue<?> children();
+
+    /**
+     * Selects and concatenate all the children sequences that matches the given qualified name,
+     * in all the element-type items in this sequence. Only the children will be selected, but not
+     * the nested children.
+     * 
+     * @param qname qualified name of the children to filter
+     * @return All the children that matches the given qualified name, as a sequence
+     */
+    public abstract XMLValue<?> children(String qname);
+
+    /**
+     * Set the children of this XML. Any existing children will be removed.
+     * 
+     * @param seq XML Sequence to be set as the children
+     */
+    public abstract void setChildren(XMLValue<?> seq);
+
+    /**
+     * Add a XMl sequence to this XML as children.
+     * 
+     * @param seq XML Sequence to be added as the children
+     */
+    public abstract void addChildren(XMLValue<?> seq);
+
+    /**
+     * Strips any text items from the XML that are all whitespace.
+     *
+     * @return striped xml
+     */
+    public abstract XMLValue<?> strip();
+
+    /**
+     * Get the type of the XML.
+     * 
+     * @return Type of the XML
+     */
+    public abstract XMLNodeType getNodeType();
+
+    /**
+     * Slice and return a subsequence of the given XML sequence.
+     * 
+     * @param startIndex To slice
+     * @param endIndex To slice
+     * @return sliced sequence
+     */
+    public abstract XMLValue<?> slice(long startIndex, long endIndex);
+
+    /**
+     * Searches in children recursively for elements matching the name and returns a sequence containing them all.
+     * Does not search within a matched result.
+     * 
+     * @param qname Qualified name of the descendants to filter
+     * @return All the descendants that matches the given qualified name, as a sequence
+     */
+    public abstract XMLValue<?> descendants(String qname);
+
+    /**
+     * Get an item from the XML sequence, at the given index.
+     * 
+     * @param index Index of the item to retrieve
+     * @return Item at the given index in the sequence
+     */
+    public abstract XMLValue<?> getItem(int index);
+
+    /**
+     * Get the length of this XML sequence.
+     * 
+     * @return length of this XML sequence.
+     */
+    public abstract int size();
+
+    /**
+     * Builds itself.
+     */
+    public abstract void build();
 
     /**
      * {@inheritDoc}

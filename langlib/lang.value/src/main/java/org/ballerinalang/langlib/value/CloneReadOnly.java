@@ -53,4 +53,8 @@ public class CloneReadOnly {
 
         return ((RefValue) value).frozenCopy(new HashMap<>());
     }
+
+    public static Object cloneReadOnly_bstring(Strand strand, Object value) {
+        return cloneReadOnly(strand, value);
+    }
 }

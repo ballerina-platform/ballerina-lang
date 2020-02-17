@@ -8,7 +8,7 @@ import ballerina/rabbitmq;
     }
 }
 // Attaches the service to the listener.
-service transactionConsumer on new rabbitmq:Listener({ host: "localhost", port: 5672 }) {
+service transactionConsumer on new rabbitmq:Listener({host: "localhost", port: 5672}) {
 
     // Gets triggered when a message is received by the queue.
     resource function onMessage(rabbitmq:Message message) {

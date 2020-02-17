@@ -33,28 +33,3 @@ type ArgsData record {|
 
 # Defaultable annotation data generated at compile time. This is for internal use.
 annotation ArgsData DefaultableArgs on function;
-
-//# Defines a disptcher to be used for concurrent execution of strands.
-//#
-//# + dispatcher - Dispatcher identifier.
-//type Dispatcher record {|
-//    string dispatcher = "DEFAULT";
-//|};
-
-//# Denotes that the new strand should run concurrently.
-//public annotation Dispatcher concurrent on worker,start;
-
-public type Thread "parent" | "any";
-
-# Describes Strand execution details for the runtime.
-#
-# + name - name of the dispatching policy (not yet supported).
-# + thread - specifies whether strand should run on parent strand's thread or in any available thread.
-public type StrandData record {|
-	string name?;
-	Thread thread = "parent";
-|};
-
-# Denotes new Strand execution semantics.
-public annotation StrandData strand on worker, start;
-

@@ -3,20 +3,20 @@ import ballerina/rabbitmq;
 
 public function main() {
     // Creates a ballerina RabbitMQ connection that allows re-usability if necessary.
-    rabbitmq:Connection connection = new({ host: "localhost", port: 5672 });
+    rabbitmq:Connection connection = new ({host: "localhost", port: 5672});
 
     // Creates multiple ballerina RabbitMQ channels.
-    rabbitmq:Channel newChannel1 = new(connection);
-    rabbitmq:Channel newChannel2 = new(connection);
+    rabbitmq:Channel newChannel1 = new (connection);
+    rabbitmq:Channel newChannel2 = new (connection);
 
     // Declares the queue, MyQueue1.
-    var queueResult1 = newChannel1->queueDeclare({ queueName: "MyQueue1" });
+    var queueResult1 = newChannel1->queueDeclare({queueName: "MyQueue1"});
     if (queueResult1 is error) {
         io:println("An error occurred while creating the MyQueue1 queue.");
     }
 
     // Declares the queue, MyQueue2.
-    var queueResult2 = newChannel2->queueDeclare({ queueName: "MyQueue2" });
+    var queueResult2 = newChannel2->queueDeclare({queueName: "MyQueue2"});
     if (queueResult2 is error) {
         io:println("An error occurred while creating the MyQueue2 queue.");
     }

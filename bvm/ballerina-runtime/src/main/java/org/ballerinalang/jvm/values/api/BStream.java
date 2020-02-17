@@ -18,7 +18,6 @@
 
 package org.ballerinalang.jvm.values.api;
 
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BType;
 
 /**
@@ -28,7 +27,7 @@ import org.ballerinalang.jvm.types.BType;
  *
  * @since 1.2.0
  */
-public interface BStream extends BStreamIterator, BRefValue {
+public interface BStream extends BIterator<Object>, BRefValue {
     /**
      * Returns the constrained {@code BType} of the stream.
      *
@@ -53,12 +52,4 @@ public interface BStream extends BStreamIterator, BRefValue {
      * @return The output stream
      */
     BStream map(BStream stream, BFunctionPointer<Object, Object> functionPointer);
-
-    /**
-     * Returns the next element in the stream after applying filters, mapping and reductions.
-     *
-     * @param strand The strand in which the filtering, mapping reduction... etc functions are invoked
-     * @return The next element if the stream has or Nil if stream ends.
-     */
-    Object next(Strand strand);
 }

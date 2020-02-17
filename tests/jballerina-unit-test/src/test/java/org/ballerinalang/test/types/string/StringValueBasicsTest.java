@@ -23,6 +23,7 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
+import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -74,6 +75,19 @@ public class StringValueBasicsTest {
         BValue[] returns = BRunUtil.invoke(result, "testArrayStore");
         Assert.assertEquals(returns[0].getClass(), BInteger.class);
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 10);
+    }
+
+    @Test
+    public void testStringIndexAccess() {
+        BValue[] returns = BRunUtil.invoke(result, "testStringIndexAccess");
+        Assert.assertEquals(returns[0].getClass(), BInteger.class);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
+    }
+
+    @Test(expectedExceptions = BLangRuntimeException.class,
+          expectedExceptionsMessageRegExp = ".*string index out of range: index: 6, size: 6.*")
+    public void testStringIndexAccessException() {
+        BRunUtil.invoke(result, "testStringIndexAccessException");
     }
 
     @AfterClass

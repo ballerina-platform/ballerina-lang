@@ -21,12 +21,14 @@ import org.apache.axiom.om.OMException;
 import org.apache.axiom.om.OMNode;
 import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.BallerinaXMLSerializer;
+import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.XMLFactory;
 import org.ballerinalang.jvm.XMLNodeType;
 import org.ballerinalang.jvm.XMLValidator;
 import org.ballerinalang.jvm.types.BMapType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.values.api.BMap;
+import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.jvm.values.api.BXML;
 import org.ballerinalang.jvm.values.freeze.FreezeUtils;
 import org.ballerinalang.jvm.values.freeze.State;
@@ -442,6 +444,7 @@ public final class XMLItem extends XMLValue {
      * {@inheritDoc}
      */
     @Override
+    @Deprecated
     public String stringValue() {
         try {
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
@@ -455,6 +458,12 @@ public final class XMLItem extends XMLValue {
             handleXmlException("failed to get xml as string: ", t);
         }
         return STRING_NULL_VALUE;
+    }
+
+    @Override
+    public BString bStringValue() {
+        String text = stringValue();
+        return text == STRING_NULL_VALUE ? null : StringUtils.fromString(text);
     }
 
     /**

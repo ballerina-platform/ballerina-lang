@@ -744,8 +744,7 @@ public class TreeVisitor extends LSNodeVisitor {
     @Override
     public void visit(BLangSimpleVarRef simpleVarRef) {
         CursorPositionResolvers.getResolverByClass(cursorPositionResolver)
-                .isCursorBeforeNode(simpleVarRef.getPosition(), this, this.lsContext, simpleVarRef,
-                        simpleVarRef.symbol);
+                .isCursorBeforeNode(simpleVarRef.getPosition(), this, this.lsContext, simpleVarRef);
     }
 
     @Override

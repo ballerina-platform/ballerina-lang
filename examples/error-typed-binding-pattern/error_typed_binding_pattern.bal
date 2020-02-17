@@ -26,7 +26,7 @@ public function main() {
     io:println("Detail Mapping: ", params);
 
     // When some error detail field names are provided rest parameter will only contain detail field that are not matched.
-    var error(reasonThree, info=info2, ...filteredParams) = getSampleError();
+    var error(reasonThree, info = info2, ...filteredParams) = getSampleError();
     io:println("Detail Mapping: ", filteredParams);
     
     // The underscore '_' sign can be used to ignore either the reason string or the detail mapping.

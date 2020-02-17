@@ -5,9 +5,9 @@ import ballerina/log;
 // Defines the sample backend service, which is secured with Basic Auth
 // authentication.
 auth:InboundBasicAuthProvider inboundBasicAuthProvider = new;
-http:BasicAuthHandler inboundBasicAuthHandler = new(inboundBasicAuthProvider);
+http:BasicAuthHandler inboundBasicAuthHandler = new (inboundBasicAuthProvider);
 
-listener http:Listener ep  = new(9090, config = {
+listener http:Listener ep = new (9090, config = {
     auth: {
         authHandlers: [inboundBasicAuthHandler],
         scopes: ["hello"]

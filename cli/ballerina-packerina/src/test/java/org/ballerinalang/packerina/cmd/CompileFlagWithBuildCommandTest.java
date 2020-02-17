@@ -78,7 +78,7 @@ public class CompileFlagWithBuildCommandTest extends CommandTest {
         String buildLog = readOutput(true);
         Assert.assertEquals(buildLog, "ballerina: invalid Ballerina source path. It should either be a name of a " +
                                       "module in a Ballerina project or a file with a '.bal' extension. " +
-                                      "Use the -a or --all flag to build or compile all modules.\n" +
+                                      "Use -a or --all to build or compile all modules.\n" +
                                       "\n" +
                                       "USAGE:\n" +
                                       "    ballerina build {<ballerina-file> | <module-name> | -a | --all}\n" +
@@ -96,8 +96,7 @@ public class CompileFlagWithBuildCommandTest extends CommandTest {
         buildCommand.execute();
     
         String buildLog = readOutput(true);
-        Assert.assertEquals(buildLog, "ballerina: '-c' or '--compile' flag cannot be used on Ballerina files. " +
-                                      "the flag can only be used with Ballerina projects.\n");
+        Assert.assertEquals(buildLog, "ballerina: '-c' or '--compile' can only be used with modules.\n");
     }
     
     @Test(description = "Compile a valid ballerina file by passing invalid source root path and absolute bal file path")
@@ -111,8 +110,7 @@ public class CompileFlagWithBuildCommandTest extends CommandTest {
         buildCommand.execute();
     
         String buildLog = readOutput(true);
-        Assert.assertEquals(buildLog, "ballerina: '-c' or '--compile' flag cannot be used on Ballerina files. " +
-                                      "the flag can only be used with Ballerina projects.\n");
+        Assert.assertEquals(buildLog, "ballerina: '-c' or '--compile' can only be used with modules.\n");
     }
     
     @Test(description = "Compile a valid ballerina file with toml")
@@ -123,8 +121,7 @@ public class CompileFlagWithBuildCommandTest extends CommandTest {
         buildCommand.execute();
     
         String buildLog = readOutput(true);
-        Assert.assertEquals(buildLog, "ballerina: '-c' or '--compile' flag cannot be used on Ballerina files. " +
-                                      "the flag can only be used with Ballerina projects.\n");
+        Assert.assertEquals(buildLog, "ballerina: '-c' or '--compile' can only be used with modules.\n");
     }
     
     @Test(description = "Compile a ballerina project with no modules.")
@@ -148,7 +145,7 @@ public class CompileFlagWithBuildCommandTest extends CommandTest {
         String buildLog = readOutput(true);
         Assert.assertEquals(buildLog, "ballerina: invalid Ballerina source path. It should either be a name of a " +
                                       "module in a Ballerina project or a file with a '.bal' extension. " +
-                                      "Use the -a or --all flag to build or compile all modules.\n" +
+                                      "Use -a or --all to build or compile all modules.\n" +
                                       "\n" +
                                       "USAGE:\n" +
                                       "    ballerina build {<ballerina-file> | <module-name> | -a | --all}\n" +
