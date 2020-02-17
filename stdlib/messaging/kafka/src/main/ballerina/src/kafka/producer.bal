@@ -28,9 +28,9 @@ import ballerinax/java;
 # + partitionerClass - Partitioner class to be used to select partition to which the message is sent.
 # + interceptorClasses - Interceptor classes to be used before sending records.
 # + transactionalId - Transactional ID to be used in transactional delivery.
-# + keySerializerType - Serializer used for the Kafka record key. This can be either `kafka:SerializerType` or an
+# + keySerializerType - Serializer used for the Kafka record key. This can be either `kafka:SerializerType` or a
 #       user-defined serializer.
-# + valueSerializerType - Serializer used for the Kafka record value. This can be either `kafka:SerializerType` or an
+# + valueSerializerType - Serializer used for the Kafka record value. This can be either `kafka:SerializerType` or a
 #       user-defined serializer.
 # + keySerializer - Custom serializer object to serialize kafka keys. This should be implement the `kafka:Serializer`
 #       object.
@@ -83,7 +83,7 @@ public type ProducerConfig record {|
     int reconnectBackoffMaxTimeInMillis = -1;
     int retryBackoffTimeInMillis = -1;
     int maxBlock = -1;
-    int requestTimeoutInMillis = 10000;
+    int requestTimeoutInMillis = 30000;
     int metadataMaxAgeInMillis = -1;
     int metricsSampleWindowInMillis = -1;
     int metricsNumSamples = -1;
