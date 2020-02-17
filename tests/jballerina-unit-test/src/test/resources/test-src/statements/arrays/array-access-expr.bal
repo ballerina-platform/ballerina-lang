@@ -108,14 +108,35 @@ function testArrayIndexOutOfRangeErrorWithUnionWithFiniteTypesIndex() {
     name = animals[ot];
 }
 
-function testAssignToNonExistingFirstDimensionOfTwoDimensionArray() returns int[][] {
-    int[][] x = [];
-    x[0][1] = 2;
-    return x;
+function testAssignToExistingFirstDimensionOfTwoDimensionArray() {
+    int[][] x = [[5], [5, 5]];
+    x[2][1] = 2;
+
+    assertEqualPanic(5, x[0][0]);
+    assertEqualPanic(5, x[1][0]);
+    assertEqualPanic(5, x[1][1]);
+    assertEqualPanic(0, x[2][0]);
+    assertEqualPanic(2, x[2][1]);
 }
 
-function testAssignToNonExistingFirstDimensionOfThreeDimensionalArray() returns int[][][] {
+function testAssignToNonExistingFirstDimensionOfTwoDimensionArray() {
+    int[][] x = [];
+    x[0][1] = 2;
+
+    assertEqualPanic(2, x[0][1]);
+    assertEqualPanic(0, x[0][0]);
+}
+
+function testAssignToNonExistingFirstDimensionOfThreeDimensionalArray() {
     int[][][] x = [];
     x[0][0][1] = 2;
-    return x;
+
+    assertEqualPanic(2, x[0][0][1]);
+    assertEqualPanic(0, x[0][0][0]);
+}
+
+function assertEqualPanic(anydata expected, anydata actual, string message = "Value mismatch") {
+    if (expected != actual) {
+        panic error(message + " Expected : " + expected.toString() + " Actual : " + actual.toString());
+    }
 }
