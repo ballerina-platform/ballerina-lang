@@ -41,7 +41,6 @@ import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
-import java.lang.reflect.Executable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -233,13 +232,13 @@ public class InteropMethodGen {
         }
 
         if (jField.isStatic()) {
-            if (jField.method == JavaField.JFieldMethod.ACCESS){
+            if (jField.method == JFieldMethod.ACCESS){
                 mv.visitFieldInsn(GETSTATIC, jField.getDeclaringClassName(), jField.getName(), jField.getSignature());
             } else{
                 mv.visitFieldInsn(PUTSTATIC, jField.getDeclaringClassName(), jField.getName(), jField.getSignature());
             }
         } else{
-            if (jField.method == JavaField.JFieldMethod.ACCESS) {
+            if (jField.method == JFieldMethod.ACCESS) {
                 mv.visitFieldInsn(GETFIELD, jField.getDeclaringClassName(), jField.getName(), jField.getSignature());
             } else {
                 mv.visitFieldInsn(PUTFIELD, jField.getDeclaringClassName(), jField.getName(), jField.getSignature());
@@ -769,7 +768,7 @@ public class InteropMethodGen {
         @Nilable
         public
         BIROperand lhsOp;
-        JInterop.JTermKind jKind = JInterop.JTermKind.JTERM_CALL;
+        JTermKind jKind = JTermKind.JTERM_CALL;
         public String jClassName;
         public String jMethodVMSig;
         public String name;
@@ -798,7 +797,7 @@ public class InteropMethodGen {
         @Nilable
         public
         BIROperand lhsOp;
-        JInterop.JTermKind jKind = JInterop.JTermKind.JTERM_NEW;
+        JTermKind jKind = JTermKind.JTERM_NEW;
         public String jClassName;
         public String jMethodVMSig;
         public String name;
