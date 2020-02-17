@@ -292,7 +292,7 @@ functionTypeName
     ;
 
 errorTypeName
-    :   TYPE_ERROR (LT typeName (COMMA typeName)? GT)?
+    :   TYPE_ERROR (LT ((typeName (COMMA typeName)?) | MUL) GT)?
     ;
 
 xmlNamespaceName
