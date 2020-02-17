@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  WSO2 Inc. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
@@ -31,10 +31,10 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 /**
- * Test class for optional message field for gRPC unary service with blocking client.
+ * Test class for map message field for gRPC unary service with blocking client.
  */
 @Test(groups = "grpc-test")
-public class UnaryBlockingOptionalFieldTestCase extends GrpcBaseTest {
+public class UnaryBlockingMapFieldTestCase extends GrpcBaseTest {
 
     private CompileResult result;
 
@@ -42,15 +42,25 @@ public class UnaryBlockingOptionalFieldTestCase extends GrpcBaseTest {
     private void setup() throws Exception {
         TestUtils.prepareBalo(this);
         Path balFilePath = Paths.get("src", "test", "resources", "grpc", "src", "clients",
-                "18_grpc_optional_field_client.bal");
+                "19_grpc_map_field_client.bal");
         result = BCompileUtil.compile(balFilePath.toAbsolutePath().toString());
     }
 
-    @Test
-    public void testOptionalFieldMessage() {
-        final String serverMsg = "This is a address";
+    @Test(description = "Test for sending message with map field value")
+    public void testMapFieldMessage() {
+        final String serverMsg = "Metrics published successfully";
 
-        BValue[] responses = BRunUtil.invoke(result, "testOptionalFieldMessage");
+        BValue[] responses = BRunUtil.invoke(result, "testMapFields");
+        Assert.assertEquals(responses.length, 1);
+        Assert.assertTrue(responses[0] instanceof BString);
+        Assert.assertEquals(responses[0].stringValue(), serverMsg);
+    }
+
+    @Test(description = "Test for sending message without setting any values for the field")
+    public void testOptionalFieldMessage() {
+        final String serverMsg = "Handshake succeeded: 123456";
+
+        BValue[] responses = BRunUtil.invoke(result, "testOptionalFields");
         Assert.assertEquals(responses.length, 1);
         Assert.assertTrue(responses[0] instanceof BString);
         Assert.assertEquals(responses[0].stringValue(), serverMsg);
