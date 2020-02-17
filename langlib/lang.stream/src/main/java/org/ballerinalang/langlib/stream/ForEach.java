@@ -19,32 +19,25 @@
 package org.ballerinalang.langlib.stream;
 
 import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.values.MapValueImpl;
+import org.ballerinalang.jvm.values.FPValue;
 import org.ballerinalang.jvm.values.StreamValue;
-import org.ballerinalang.jvm.values.api.BValueCreator;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
- * Native implementation of lang.stream:next(stream&lt;Type&gt;).
+ * Native implementation of lang.stream:forEach(stream, function(PureType)).
  *
- * @since 1.2.0
+ * @since 1.2
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.stream", functionName = "next",
-        args = {@Argument(name = "strm", type = TypeKind.STREAM)},
-        returnType = {@ReturnType(type = TypeKind.RECORD)},
+        orgName = "ballerina", packageName = "lang.stream", functionName = "forEach",
+        args = {@Argument(name = "strm", type = TypeKind.STREAM), @Argument(name = "func", type = TypeKind.FUNCTION)},
         isPublic = true
 )
-public class Next {
-    public static Object next(Strand strand, StreamValue strm) {
-        Object next = strm.next();
-        if (next == null) {
-            return null;
-        }
+public class ForEach {
 
-        return BValueCreator.createRecord(new MapValueImpl<>(strm.getIteratorNextReturnType()), next);
+    public static void forEach(Strand strand, StreamValue strm, FPValue<Object, Object> func) {
+        strm.forEach(func);
     }
 }

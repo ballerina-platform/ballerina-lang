@@ -18,33 +18,44 @@
 
 package org.ballerinalang.langlib.stream;
 
+import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.MapValueImpl;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.StreamValue;
-import org.ballerinalang.jvm.values.api.BValueCreator;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
+import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
 
+
 /**
- * Native implementation of lang.stream:next(stream&lt;Type&gt;).
+ * Native implementation of lang.stream.StreamIterator:next().
  *
- * @since 1.2.0
+ * @since 1.2
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "lang.stream", functionName = "next",
-        args = {@Argument(name = "strm", type = TypeKind.STREAM)},
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = "StreamIterator",
+                structPackage = "ballerina/lang.stream"),
         returnType = {@ReturnType(type = TypeKind.RECORD)},
         isPublic = true
 )
-public class Next {
-    public static Object next(Strand strand, StreamValue strm) {
-        Object next = strm.next();
-        if (next == null) {
-            return null;
+public class IteratorNext {
+    //TODO: refactor hard coded values
+    public static Object next(Strand strand, ObjectValue m) {
+        StreamValue stream = (StreamValue) m.getNativeData("&iterator&");
+
+        if (stream == null) {
+            stream = ((StreamValue) m.get("strm"));
+            m.addNativeData("&iterator&", stream);
         }
 
-        return BValueCreator.createRecord(new MapValueImpl<>(strm.getIteratorNextReturnType()), next);
+        Object next = stream.next();
+        if (next != null) {
+            return BallerinaValues.createRecord(new MapValueImpl<>(stream.getIteratorNextReturnType()), next);
+        }
+
+        return null;
     }
 }

@@ -23,6 +23,10 @@ type PureType1 anydata | error;
 @typeParam
 type PureType2 anydata | error;
 
+@typeParam
+type Type any | error;
+
+
 # Selects the members from an array for which a function returns true.
 #
 # + strm - The stream
@@ -43,3 +47,40 @@ public function next(stream<PureType1> strm) returns record {| PureType1 value; 
 # + func - A function to apply to each member
 # + return - New stream containing result of applying `func` to each member of `strm` in order
 public function 'map(stream<PureType1> strm, function(PureType1 val) returns PureType2 func) returns stream<PureType2> = external;
+
+# Combines the members of an stream using a combining function.
+# The combining function takes the combined value so far and a member of the stream,
+# and returns a new combined value.
+#
+# + strm - the stream
+# + func - combining function
+# + initial - initial value for the first argument of combining parameter `func`
+# + return - result of combining the members of `strm` using `func`
+#
+# For example
+# ```
+# reduce([1, 2, 3].toStream(), function (int total, int n) returns int { return total + n; }, 0)
+# ```
+# is the same as `sum(1, 2, 3)`.
+public function reduce(stream<PureType1> strm, function(Type accum, PureType1 val) returns Type func, Type initial) returns Type = external;
+
+# Applies a function to each member of a stream.
+# The parameter `func` is applied to each member of stream `strm` in order.
+#
+# + strm - the stream
+# + func - a function to apply to each member
+public function forEach(stream<PureType1> strm, function(PureType1 val) returns () func) returns () = external;
+
+# Returns an iterator over a stream.
+# The iterator will iterate over the members of the stream.
+#
+# + strm - the stream
+# + return - a new iterator object that will iterate over the members of `strm`
+public function iterator(stream<PureType1> strm) returns abstract object {
+    public function next() returns record {|
+        PureType1 value;
+    |}?;
+} {
+    StreamIterator streamIterator = new(strm);
+    return streamIterator;
+}
