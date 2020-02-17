@@ -353,6 +353,7 @@ public class BIRGen extends BLangNodeVisitor {
 
             birFunc.returnVariable = new BIRVariableDcl(astTypeDefinition.pos, funcSymbol.retType,
                     this.env.nextLocalVarId(names), VarScope.FUNCTION, VarKind.RETURN, null);
+            birFunc.localVars.add(0, birFunc.returnVariable);
 
             typeDef.attachedFuncs.add(birFunc);
         }
@@ -459,6 +460,7 @@ public class BIRGen extends BLangNodeVisitor {
         // Special %0 location for storing return values
         birFunc.returnVariable = new BIRVariableDcl(astFunc.pos, astFunc.symbol.type.getReturnType(),
                 this.env.nextLocalVarId(names), VarScope.FUNCTION, VarKind.RETURN, null);
+        birFunc.localVars.add(0, birFunc.returnVariable);
 
         //add closure vars
         astFunc.paramClosureMap.forEach((k, v) -> addRequiredParam(birFunc, v, astFunc.pos));

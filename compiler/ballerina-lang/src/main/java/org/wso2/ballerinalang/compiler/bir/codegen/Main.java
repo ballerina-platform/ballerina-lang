@@ -17,22 +17,6 @@
  */
 package org.wso2.ballerinalang.compiler.bir.codegen;
 
-import org.ballerinalang.compiler.BLangCompilerException;
-import org.ballerinalang.model.elements.PackageID;
-import org.wso2.ballerinalang.compiler.bir.codegen.interop.InteropValidator;
-import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRFunction;
-import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRPackage;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.compiledPkgCache;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.dlogger;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.externalMapCache;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.generatePackage;
-
-
 //import ballerina/io;
 //import ballerina/bir;
 //import ballerina/jvm;
