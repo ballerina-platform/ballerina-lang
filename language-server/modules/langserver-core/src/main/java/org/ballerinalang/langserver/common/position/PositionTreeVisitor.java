@@ -33,6 +33,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
+import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
@@ -149,7 +150,7 @@ public class PositionTreeVisitor extends LSNodeVisitor {
             this.acceptNode(funcNode.returnTypeNode);
         }
 
-        if (funcNode.body != null) {
+        if (funcNode.hasBody()) {
             this.acceptNode(funcNode.body);
         }
 
@@ -258,6 +259,12 @@ public class PositionTreeVisitor extends LSNodeVisitor {
         if (blockNode.stmts != null) {
             blockNode.stmts.forEach(this::acceptNode);
         }
+    }
+
+    @Override
+    public void visit(BLangBlockFunctionBody blockFuncBody) {
+        setPreviousNode(blockFuncBody);
+        blockFuncBody.stmts.forEach(this::acceptNode);
     }
 
     @Override

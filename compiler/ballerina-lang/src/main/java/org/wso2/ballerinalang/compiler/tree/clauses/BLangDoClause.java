@@ -19,7 +19,7 @@ package org.wso2.ballerinalang.compiler.tree.clauses;
 
 import org.ballerinalang.model.clauses.DoClauseNode;
 import org.ballerinalang.model.tree.NodeKind;
-import org.ballerinalang.model.tree.statements.BlockNode;
+import org.ballerinalang.model.tree.statements.BlockStatementNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
@@ -52,7 +52,7 @@ public class BLangDoClause extends BLangNode implements DoClauseNode {
     }
 
     @Override
-    public void setBody(BlockNode body) {
+    public void setBody(BlockStatementNode body) {
         this.body = (BLangBlockStmt) body;
     }
 

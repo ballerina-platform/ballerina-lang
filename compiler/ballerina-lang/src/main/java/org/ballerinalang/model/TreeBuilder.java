@@ -23,9 +23,11 @@ import org.ballerinalang.model.clauses.SelectClauseNode;
 import org.ballerinalang.model.clauses.WhereClauseNode;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.AnnotationNode;
+import org.ballerinalang.model.tree.BlockFunctionBodyNode;
 import org.ballerinalang.model.tree.CompilationUnitNode;
 import org.ballerinalang.model.tree.EndpointNode;
 import org.ballerinalang.model.tree.ErrorVariableNode;
+import org.ballerinalang.model.tree.FunctionBodyNode;
 import org.ballerinalang.model.tree.FunctionNode;
 import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.ImportPackageNode;
@@ -88,7 +90,7 @@ import org.ballerinalang.model.tree.expressions.XMLQuotedStringNode;
 import org.ballerinalang.model.tree.expressions.XMLTextLiteralNode;
 import org.ballerinalang.model.tree.statements.AbortNode;
 import org.ballerinalang.model.tree.statements.AssignmentNode;
-import org.ballerinalang.model.tree.statements.BlockNode;
+import org.ballerinalang.model.tree.statements.BlockStatementNode;
 import org.ballerinalang.model.tree.statements.BreakNode;
 import org.ballerinalang.model.tree.statements.CatchNode;
 import org.ballerinalang.model.tree.statements.CompoundAssignmentNode;
@@ -132,9 +134,12 @@ import org.ballerinalang.model.tree.types.UserDefinedTypeNode;
 import org.ballerinalang.model.tree.types.ValueTypeNode;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
+import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
 import org.wso2.ballerinalang.compiler.tree.BLangErrorVariable;
+import org.wso2.ballerinalang.compiler.tree.BLangExprFunctionBody;
+import org.wso2.ballerinalang.compiler.tree.BLangExternalFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
@@ -313,7 +318,19 @@ public class TreeBuilder {
         return new BLangFunction();
     }
 
-    public static BlockNode createBlockNode() {
+    public static BlockFunctionBodyNode createBlockFunctionBodyNode() {
+        return new BLangBlockFunctionBody();
+    }
+
+    public static FunctionBodyNode createExprFunctionBodyNode() {
+        return new BLangExprFunctionBody();
+    }
+
+    public static FunctionBodyNode createExternFunctionBodyNode() {
+        return new BLangExternalFunctionBody();
+    }
+
+    public static BlockStatementNode createBlockNode() {
         return new BLangBlockStmt();
     }
 
