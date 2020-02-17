@@ -49,10 +49,10 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckPanickedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorVarRef;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangGroupExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
@@ -837,21 +837,24 @@ public class ConstantPropagation extends BLangNodeVisitor {
             // If the var ref is a const-ref of value type, then replace the ref
             // from a simple literal
             if (constSymbol.literalType.tag <= TypeTags.BOOLEAN || constSymbol.literalType.tag == TypeTags.NIL) {
-                BLangExpression literal = ASTBuilderUtil.createLiteral(varRefExpr.pos, constSymbol.literalType,
+                BLangConstRef constRef = ASTBuilderUtil.createBLangConstRef(varRefExpr.pos, constSymbol.literalType,
                         constSymbol.value.value);
+                constRef.variableName = varRefExpr.variableName;
+                constRef.symbol = constSymbol;
+                constRef.pkgAlias = varRefExpr.pkgAlias;
                 if (varRefExpr.impConversionExpr != null) {
                     BLangTypeConversionExpr implConversionExpr = (BLangTypeConversionExpr)
                             TreeBuilder.createTypeConversionNode();
-                    implConversionExpr.expr = literal;
+                    implConversionExpr.expr = constRef;
                     implConversionExpr.pos = varRefExpr.impConversionExpr.pos;
                     implConversionExpr.type = varRefExpr.impConversionExpr.type;
                     implConversionExpr.targetType = varRefExpr.impConversionExpr.targetType;
                     implConversionExpr.conversionSymbol = varRefExpr.impConversionExpr.conversionSymbol;
-                    literal.impConversionExpr = implConversionExpr;
+                    constRef.impConversionExpr = implConversionExpr;
                 } else {
-                    types.setImplicitCastExpr(literal, literal.type, varRefExpr.type);
+                    types.setImplicitCastExpr(constRef, constRef.type, varRefExpr.type);
                 }
-                result = literal;
+                result = constRef;
                 return;
             }
         }

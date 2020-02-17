@@ -28,7 +28,7 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 
 /**
@@ -79,12 +79,12 @@ public class AnnotationAccessTest {
         BLangService service = pkg.services.get(0);
         BLangRecordLiteral serviceAnnotation = (BLangRecordLiteral) service.annAttachments.get(0).expr;
         Assert.assertTrue(((BLangRecordLiteral.BLangRecordKeyValueField) serviceAnnotation.fields.get(0)).valueExpr
-                instanceof BLangLiteral);
+                instanceof BLangConstRef);
 
         BLangRecordLiteral helloFunctionAnnotation = (BLangRecordLiteral) service.resourceFunctions.get(0)
                 .annAttachments.get(0).expr;
         Assert.assertTrue(((BLangRecordLiteral.BLangRecordKeyValueField) helloFunctionAnnotation.fields.get(0))
-                .valueExpr instanceof BLangLiteral);
+                .valueExpr instanceof BLangConstRef);
 
     }
 

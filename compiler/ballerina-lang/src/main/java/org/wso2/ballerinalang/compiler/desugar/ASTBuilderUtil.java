@@ -49,6 +49,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTupleVariable;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
@@ -599,6 +600,14 @@ public class ASTBuilderUtil {
         literal.value = value;
         literal.type = type;
         return literal;
+    }
+
+    static BLangConstRef createBLangConstRef(DiagnosticPos pos, BType type, Object value) {
+        final BLangConstRef constRef = (BLangConstRef) TreeBuilder.createConstLiteralNode();
+        constRef.pos = pos;
+        constRef.value = value;
+        constRef.type = type;
+        return constRef;
     }
 
     static BLangRecordLiteral createEmptyRecordLiteral(DiagnosticPos pos, BType type) {

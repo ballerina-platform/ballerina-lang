@@ -96,6 +96,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckPanickedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorVarRef;
@@ -137,7 +138,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordVarRef.BLangR
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRestArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangServiceConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangConstRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangFieldVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangFunctionVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangLocalVarRef;
@@ -4394,7 +4394,7 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangConstRef constantRef) {
-        result = constantRef;
+        result = ASTBuilderUtil.createLiteral(constantRef.pos, constantRef.type, constantRef.value);
     }
 
     // private functions

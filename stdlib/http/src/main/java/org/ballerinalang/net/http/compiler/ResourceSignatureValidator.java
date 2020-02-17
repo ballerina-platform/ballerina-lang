@@ -3,6 +3,7 @@ package org.ballerinalang.net.http.compiler;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.FunctionNode;
 import org.ballerinalang.model.tree.SimpleVariableNode;
+import org.ballerinalang.model.tree.expressions.LiteralNode;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
 import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.ballerinalang.util.diagnostic.DiagnosticLog;
@@ -90,7 +91,7 @@ public class ResourceSignatureValidator {
                     break;
                 case ANN_RESOURCE_ATTR_BODY:
                     List<? extends SimpleVariableNode> parameters = resourceNode.getParameters();
-                    String bodyFieldValue = keyValue.getValue().toString();
+                    String bodyFieldValue = ((LiteralNode) (keyValue.getValue())).getValue().toString();
                     // Data binding param should be placed as the last signature param
                     String signatureBodyParam = parameters.get(parameters.size() - 1).getName().getValue();
                     if (bodyFieldValue.isEmpty()) {
@@ -149,7 +150,7 @@ public class ResourceSignatureValidator {
     private static void validateResourcePath(DiagnosticLog dlog, List<String> paramSegments,
                                              BLangRecordLiteral.BLangRecordKeyValueField keyValue) {
         DiagnosticPos position = keyValue.getValue().getPosition();
-        String[] segments = keyValue.getValue().toString().split("/");
+        String[] segments = ((LiteralNode) (keyValue.getValue())).getValue().toString().split("/");
         for (String segment : segments) {
             validatePathSegment(segment, position, dlog, paramSegments);
         }
