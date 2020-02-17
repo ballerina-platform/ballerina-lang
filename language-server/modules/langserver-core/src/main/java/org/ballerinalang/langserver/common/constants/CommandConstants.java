@@ -19,6 +19,7 @@ import java.util.regex.Pattern;
 
 /**
  * Constants related to {@link org.eclipse.lsp4j.Command}.
+ *
  * @since v0.964.0
  */
 public class CommandConstants {
@@ -43,6 +44,8 @@ public class CommandConstants {
             "function '(.*)' in abstract object '(.*)' cannot have a body");
     public static final Pattern FQ_TYPE_PATTERN = Pattern.compile("(.*)/([^:]*):(?:.*:)?(.*)");
     public static final Pattern NO_CONCAT_PATTERN = Pattern.compile("^\\\"[^\\\"]*\\\"$|^[^\\\"\\+]*$");
+    public static final Pattern RESOURCE_PATH_NOT_FOUND = Pattern.compile(
+            "Couldn't find a Ballerina service resource for the path '(.*)' which is documented in the OpenAPI contract");
 
     // Command Arguments
     public static final String ARG_KEY_DOC_URI = "doc.uri";
@@ -62,6 +65,8 @@ public class CommandConstants {
     public static final String ARG_KEY_MESSAGE_TYPE = "message.type";
 
     public static final String ARG_KEY_MESSAGE = "message";
+
+    public static final String ARG_KEY_PATH = "path";
 
     // Command Titles
     public static final String IMPORT_MODULE_TITLE = "Import Module ";
@@ -93,4 +98,6 @@ public class CommandConstants {
     public static final String MAKE_OBJ_NON_ABSTRACT_TITLE = "Make '%s' an Non-Abstract Object";
 
     public static final String TYPE_GUARD_TITLE = "Type Guard '%s'";
+
+    public static final String CREATE_SERVICE_RESOURCE = "Create service resource for the path '%s'";
 }

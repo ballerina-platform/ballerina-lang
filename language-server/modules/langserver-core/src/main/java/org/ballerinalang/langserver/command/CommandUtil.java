@@ -47,6 +47,7 @@ import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.eclipse.lsp4j.services.LanguageClient;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
+import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 
@@ -204,6 +205,19 @@ public class CommandUtil {
                 }
                 parent = parent.parent;
             }
+            return null;
+        }
+    }
+
+    public static BLangService getServiceNode(int line, int column, String uri,
+                                                            WorkspaceDocumentManager documentManager, LSContext context)
+            throws CompilationFailedException {
+        Pair<BLangNode, Object> bLangNode = getBLangNode(line, column, uri, documentManager, context);
+        if (bLangNode.getLeft() instanceof BLangService) {
+            return (BLangService) bLangNode.getLeft();
+        } else if (bLangNode.getRight() instanceof BLangService) {
+            return (BLangService) bLangNode.getRight();
+        } else {
             return null;
         }
     }

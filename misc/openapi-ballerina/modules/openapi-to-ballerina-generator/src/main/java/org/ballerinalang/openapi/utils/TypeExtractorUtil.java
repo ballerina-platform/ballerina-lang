@@ -112,7 +112,7 @@ public class TypeExtractorUtil {
      * @return - List of Ballerina compatible operation types
      * @throws BallerinaOpenApiException - throws exception if extraction fails.
      */
-    private static List<BallerinaOpenApiOperation> extractOpenApiOperations(Map<PathItem.HttpMethod,
+    public static List<BallerinaOpenApiOperation> extractOpenApiOperations(Map<PathItem.HttpMethod,
             Operation> operationMap, String pathName) throws BallerinaOpenApiException {
         final Iterator<Map.Entry<PathItem.HttpMethod, Operation>> opIterator = operationMap.entrySet().iterator();
         List<BallerinaOpenApiOperation> typeOpList = new ArrayList<>();
