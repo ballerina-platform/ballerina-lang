@@ -37,7 +37,7 @@ import java.util.Map;
  */
 public class GetConfig {
     private static final ConfigRegistry configRegistry = ConfigRegistry.getInstance();
-    public static final String LOOKUP_ERROR_REASON = "{ballerina/config}LookupError";
+    private static final String LOOKUP_ERROR_REASON = "{ballerina/config}LookupError";
 
     public static Object get(String configKey, String type) {
         try {
@@ -65,16 +65,29 @@ public class GetConfig {
     @SuppressWarnings("unchecked")
     private static MapValue buildMapValue(Map<String, Object> section) {
         MapValue map = new MapValueImpl<String, Object>();
-
-        section.forEach((key, val) -> {
-            if (val instanceof String || val instanceof Long || val instanceof Double || val instanceof Boolean) {
-                map.put(key, val);
-            }
-        });
+        for (Map.Entry<String, Object> entry : section.entrySet()) {
+            map.put(entry.getKey(), getConvertedValue(entry.getValue()));
+        }
         return map;
     }
 
     private static BArray buildArrayValue(List value) {
-        return BValueCreator.createArrayValue(value.toArray(), new BArrayType(BTypes.typeAnydata));
+        Object[] convertedValues = new Object[value.size()];
+        for (Object entry : value) {
+            convertedValues[value.indexOf(entry)] = getConvertedValue(entry);
+        }
+        return BValueCreator.createArrayValue(convertedValues, new BArrayType(BTypes.typeAnydata));
+    }
+
+    @SuppressWarnings("unchecked")
+    private static Object getConvertedValue(Object obj) {
+        if (obj instanceof String || obj instanceof Long || obj instanceof Double || obj instanceof Boolean) {
+            return obj;
+        } else if (obj instanceof Map) {
+            return buildMapValue((Map<String, Object>) obj);
+        } else if (obj instanceof List) {
+            return buildArrayValue((List) obj);
+        }
+        return String.valueOf(obj);
     }
 }

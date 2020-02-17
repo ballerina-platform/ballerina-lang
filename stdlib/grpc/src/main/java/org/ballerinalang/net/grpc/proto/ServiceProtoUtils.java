@@ -19,11 +19,11 @@ package org.ballerinalang.net.grpc.proto;
 
 import com.google.protobuf.DescriptorProtos;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
+import org.ballerinalang.model.tree.BlockNode;
 import org.ballerinalang.model.tree.FunctionNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.ServiceNode;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
-import org.ballerinalang.model.tree.statements.BlockNode;
 import org.ballerinalang.model.tree.statements.StatementNode;
 import org.ballerinalang.model.types.FiniteType;
 import org.ballerinalang.model.types.TypeKind;
@@ -47,6 +47,8 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
+import org.wso2.ballerinalang.compiler.tree.BLangFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
@@ -413,7 +415,10 @@ public class ServiceProtoUtils {
 
     private static Message getResponseMessage(FunctionNode resourceNode) throws GrpcServerException {
         org.wso2.ballerinalang.compiler.semantics.model.types.BType responseType;
-        BLangInvocation sendExpression = getInvocationExpression(resourceNode.getBody());
+        BLangFunctionBody body = resourceNode.getBody();
+        BLangInvocation sendExpression =
+                (body != null && body.getKind() == NodeKind.BLOCK_FUNCTION_BODY) ?
+                        getInvocationExpression((BLangBlockFunctionBody) body) : null;
         if (sendExpression != null) {
             responseType = getReturnType(sendExpression);
         } else {

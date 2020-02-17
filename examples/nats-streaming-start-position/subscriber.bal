@@ -3,10 +3,10 @@ import ballerina/log;
 import ballerina/nats;
 
 // Creates a NATS connection.
-nats:Connection conn = new("localhost:4222");
+nats:Connection conn = new ("localhost:4222");
 
 // Initializes the NATS Streaming listener.
-listener nats:StreamingListener lis = new(conn);
+listener nats:StreamingListener lis = new (conn);
 
 // Binds the consumer to listen to the messages published to the 'demo' subject.
 // By default, only new messages are received.
@@ -27,7 +27,7 @@ service receiveNewOnly on lis {
 
     resource function onError(nats:StreamingMessage message, nats:Error errorVal) {
         error e = errorVal;
-        log:printError("Error occurred: ", err = e);
+        log:printError("Error occurred: ", e);
     }
 }
 
@@ -35,7 +35,7 @@ service receiveNewOnly on lis {
 // Receives all messages from the beginning.
 @nats:StreamingSubscriptionConfig {
     subject: "demo",
-    startPosition : nats:FIRST
+    startPosition: nats:FIRST
 }
 service receiveFromBegining on lis {
     resource function onMessage(nats:StreamingMessage message) {
@@ -51,7 +51,7 @@ service receiveFromBegining on lis {
 
     resource function onError(nats:StreamingMessage message, nats:Error errorVal) {
         error e = errorVal;
-        log:printError("Error occurred: ", err = e);
+        log:printError("Error occurred: ", e);
     }
 }
 
@@ -59,7 +59,7 @@ service receiveFromBegining on lis {
 // Receives messages starting from the last received message.
 @nats:StreamingSubscriptionConfig {
     subject: "demo",
-    startPosition : nats:LAST_RECEIVED
+    startPosition: nats:LAST_RECEIVED
 }
 service receiveFromLastReceived on lis {
     resource function onMessage(nats:StreamingMessage message) {
@@ -75,7 +75,7 @@ service receiveFromLastReceived on lis {
 
     resource function onError(nats:StreamingMessage message, nats:Error errorVal) {
         error e = errorVal;
-        log:printError("Error occurred: ", err = e);
+        log:printError("Error occurred: ", e);
     }
 }
 
@@ -84,7 +84,7 @@ service receiveFromLastReceived on lis {
 // Receives messages starting from the provided sequence number.
 @nats:StreamingSubscriptionConfig {
     subject: "demo",
-    startPosition : sequenceNo
+    startPosition: sequenceNo
 }
 service receiveFromGivenIndex on lis {
     resource function onMessage(nats:StreamingMessage message) {
@@ -100,7 +100,7 @@ service receiveFromGivenIndex on lis {
 
     resource function onError(nats:StreamingMessage message, nats:Error errorVal) {
         error e = errorVal;
-        log:printError("Error occurred: ", err = e);
+        log:printError("Error occurred: ", e);
     }
 }
 
@@ -109,7 +109,7 @@ service receiveFromGivenIndex on lis {
 // Receives messages since the provided historical time delta.
 @nats:StreamingSubscriptionConfig {
     subject: "demo",
-    startPosition : timeDelta
+    startPosition: timeDelta
 }
 service receiveSinceTimeDelta on lis {
     resource function onMessage(nats:StreamingMessage message) {
@@ -125,6 +125,6 @@ service receiveSinceTimeDelta on lis {
 
     resource function onError(nats:StreamingMessage message, nats:Error errorVal) {
         error e = errorVal;
-        log:printError("Error occurred: ", err = e);
+        log:printError("Error occurred: ", e);
     }
 }

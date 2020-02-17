@@ -45,7 +45,8 @@ public class CreateElement {
 
     public static XMLValue<?> createElement(Strand strand, String name, XMLValue<?> children) {
         XMLQName xmlqName = new XMLQName(name);
-        XMLValue<?> xmlElement = XMLFactory.createXMLElement(xmlqName, xmlqName, null);
+        String temp = null;
+        XMLValue<?> xmlElement = XMLFactory.createXMLElement(xmlqName, xmlqName, temp);
         xmlElement.setChildren(getChildren(children));
         return xmlElement;
     }

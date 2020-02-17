@@ -39,7 +39,7 @@ service ParticipantService on new http:Listener(8889) {
         } else {
             res.statusCode = http:STATUS_INTERNAL_SERVER_ERROR;
             res.setPayload(updateReq.reason());
-            log:printError("Payload error occurred!", err = updateReq);
+            log:printError("Payload error occurred!", updateReq);
         }
         // Send the response back to the initiator.
         var result = conn->respond(res);

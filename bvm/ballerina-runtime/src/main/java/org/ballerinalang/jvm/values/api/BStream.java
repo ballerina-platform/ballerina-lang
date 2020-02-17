@@ -18,7 +18,6 @@
 
 package org.ballerinalang.jvm.values.api;
 
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BType;
 
 /**
@@ -28,7 +27,7 @@ import org.ballerinalang.jvm.types.BType;
  *
  * @since 1.2.0
  */
-public interface BStream extends BStreamIterator, BRefValue {
+public interface BStream extends BIterator<Object>, BRefValue {
     /**
      * Returns the constrained {@code BType} of the stream.
      *
@@ -40,25 +39,35 @@ public interface BStream extends BStreamIterator, BRefValue {
      * Returns a stream which applies a filtering condition on the input stream.
      *
      * @param stream The input stream being filtered
-     * @param functionPointer The function pointer which represents the filtering condition
+     * @param filterFunc The function pointer which represents the filtering condition
      * @return The output stream
      */
-    BStream filter(BStream stream, BFunctionPointer<Object, Boolean> functionPointer);
+    BStream filter(BStream stream, BFunctionPointer<Object, Boolean> filterFunc);
 
     /**
      * Returns a new stream which applies a mapping condition on the input stream.
      *
      * @param stream The input stream being mapped
-     * @param functionPointer The function pointer which represents the mapping condition
+     * @param mapFunc The function pointer which represents the mapping condition
      * @return The output stream
      */
-    BStream map(BStream stream, BFunctionPointer<Object, Object> functionPointer);
+    BStream map(BStream stream, BFunctionPointer<Object, Object> mapFunc);
 
     /**
-     * Returns the next element in the stream after applying filters, mapping and reductions.
+     * Combines the members of an stream using a combining function. The combining function takes the combined value so
+     * far and a member of the stream, and returns a new combined value.
      *
-     * @param strand The strand in which the filtering, mapping reduction... etc functions are invoked
-     * @return The next element if the stream has or Nil if stream ends.
+     * @param reduceFunc The function pointer representing the user provided reduce function
+     * @param initialValue The initial value of reduce function
+     * @return The reduced value
      */
-    Object next(Strand strand);
+    Object reduce(BFunctionPointer<Object, Object> reduceFunc, Object initialValue);
+
+    /**
+     * Applies a function to each member of a stream.
+     * The parameter 'func' is applied to each member of stream 'strm' in order.
+     *
+     * @param foreachFunc The function which is applied to each member in stream 'strm'
+     */
+    void forEach(BFunctionPointer<Object, Object> foreachFunc);
 }

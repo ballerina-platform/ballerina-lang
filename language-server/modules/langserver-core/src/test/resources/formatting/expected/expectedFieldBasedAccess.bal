@@ -22,11 +22,13 @@ function name() {
     string nameTest = rec.name;
 
     Cities cities = {
-        cities: [{
-            name: "London",
-            lat: "51.5073219",
-            lng: "-0.1276474"
-        }]
+        cities: [
+            {
+                name: "London",
+                lat: "51.5073219",
+                lng: "-0.1276474"
+            }
+        ]
     };
 
     json | error payload = json.constructFrom(cities);

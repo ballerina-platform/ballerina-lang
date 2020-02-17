@@ -5,11 +5,11 @@ public function main() {
     // These variables can be accessed by the forked workers.
     int i = 100;
     string s = "WSO2";
-    map<string> m = { "name": "Bert", "city": "New York", "postcode": "10001"};
+    map<string> m = {"name": "Bert", "city": "New York", "postcode": "10001"};
 
-    string name = <string> m["name"];
-    string city = <string> m["city"];
-    string postcode = <string> m["postcode"];
+    string name = <string>m["name"];
+    string city = <string>m["city"];
+    string postcode = <string>m["postcode"];
 
     io:println("[value type variables] before fork: " +
                    "value of integer variable is [", i, "] ",
@@ -65,10 +65,10 @@ public function main() {
 
     // The internal content of the reference-type variables have got updated 
     // since they are passed in as a reference to the workers.
-    name = <string> m["name"];
-    city = <string> m["city"];
+    name = <string>m["name"];
+    city = <string>m["city"];
     // Gets the value of the new field added to the `map` variable `m` inside the worker `W3`.
-    string street = <string> m["street"];
+    string street = <string>m["street"];
     io:println("[reference type variables] after fork: " +
                "value of name is [", name,
                "] value of city is [", city, "] value of street is [", street,

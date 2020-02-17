@@ -30,6 +30,7 @@ import org.apache.axiom.om.impl.common.OMNamespaceImpl;
 import org.apache.axiom.om.impl.llom.OMElementImpl;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.ballerinalang.jvm.BallerinaErrors;
+import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.XMLFactory;
 import org.ballerinalang.jvm.XMLNodeType;
 import org.ballerinalang.jvm.XMLValidator;
@@ -37,6 +38,7 @@ import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BMapType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.values.api.BMap;
+import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.jvm.values.api.BXML;
 import org.ballerinalang.jvm.values.freeze.FreezeUtils;
 import org.ballerinalang.jvm.values.freeze.State;
@@ -592,6 +594,7 @@ public final class XMLItem extends XMLValue<OMNode> {
      * {@inheritDoc}
      */
     @Override
+    @Deprecated
     public String stringValue() {
         try {
             switch (this.omNode.getType()) {
@@ -614,6 +617,12 @@ public final class XMLItem extends XMLValue<OMNode> {
             handleXmlException("failed to get xml as string: ", t);
         }
         return STRING_NULL_VALUE;
+    }
+
+    @Override
+    public BString bStringValue() {
+        String text = stringValue();
+        return text == STRING_NULL_VALUE ? null : StringUtils.fromString(text);
     }
 
     /**

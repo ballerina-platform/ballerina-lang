@@ -2,7 +2,7 @@ import ballerina/io;
 
 public function main() {
     // Create an `anydata`-typed `map` with two entries.
-    map<string|int> m1 = { stringVal: "str", intVal: 1 };
+    map<string|int> m1 = {stringVal: "str", intVal: 1};
 
     // Call `.cloneReadOnly()` on the map `m1` and assign the returned value to another variable.
     map<string|int> m2 = m1.cloneReadOnly();
@@ -38,7 +38,7 @@ public function main() {
     // In other words, storage type is not considered.
     // Define a `map` of the constraint type `string` or `int`, but with
     // values of the type `string` only.
-    map<string|int> m5 = { valueType: "map", constraint: "string" };
+    map<string|int> m5 = {valueType: "map", constraint: "string"};
     // Make the map immutable. The resultant value would only
     // contain values of the type `string` and no values can now be
     // added to the map.

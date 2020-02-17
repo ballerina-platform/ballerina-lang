@@ -34,7 +34,7 @@ public function main() {
     io:println(attributeMap["count"]);
 
     // However, if we apply the `@` operator to a XML sequence, it will return NIL because only XML elements have attributes.
-    xml x2 = xml `<Person name="James" />`;
+    xml x2 = xml `<Person name="James"/>`;
     xml x3 = x1 + x2;
     map<string>? attributeMapOfSeq = x3@;
     io:println(attributeMapOfSeq);

@@ -21,6 +21,7 @@ import org.ballerinalang.langserver.common.LSNodeVisitor;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.model.tree.TopLevelNode;
+import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
@@ -97,9 +98,12 @@ class SemanticHighlightingVisitor extends LSNodeVisitor {
 
     @Override
     public void visit(BLangBlockStmt blockNode) {
-        blockNode.stmts.forEach(stmt-> {
-            this.acceptNode(stmt);
-        });
+        blockNode.stmts.forEach(this::acceptNode);
+    }
+
+    @Override
+    public void visit(BLangBlockFunctionBody blockFuncBody) {
+        blockFuncBody.stmts.forEach(this::acceptNode);
     }
 
     @Override

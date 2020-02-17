@@ -17,15 +17,10 @@
 */
 package org.ballerinalang.model.tree.statements;
 
-import java.util.List;
+import org.ballerinalang.model.tree.BlockNode;
 
 /**
  * @since 0.94
  */
-public interface BlockNode extends StatementNode {
-    
-    List<? extends StatementNode> getStatements();
-    
-    void addStatement(StatementNode statement);
-    
+public interface BlockStatementNode extends BlockNode, StatementNode {
 }

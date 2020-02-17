@@ -23,6 +23,7 @@ import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.api.BMap;
+import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.jvm.values.api.BXML;
 import org.ballerinalang.jvm.values.api.BXMLQName;
 import org.ballerinalang.jvm.values.freeze.State;
@@ -157,8 +158,20 @@ public abstract class XMLValue<T> implements RefValue, BXML<T>, CollectionValue 
      * @param attributeName Qualified name of the attribute
      * @param value Value of the attribute
      */
+    @Deprecated
     public void setAttribute(BXMLQName attributeName, String value) {
         setAttribute(attributeName.getLocalName(), attributeName.getUri(), attributeName.getPrefix(), value);
+    }
+
+    /**
+     * Set the value of a single attribute. If the attribute already exsists, then the value will be updated.
+     * Otherwise a new attribute will be added.
+     *
+     * @param attributeName Qualified name of the attribute
+     * @param value Value of the attribute
+     */
+    public void setAttribute(BXMLQName attributeName, BString value) {
+        setAttribute(attributeName.getLocalName(), attributeName.getUri(), attributeName.getPrefix(), value.getValue());
     }
 
     /**
