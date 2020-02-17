@@ -854,12 +854,16 @@ public class JvmMethodGen {
         return jvmType;
     }
 
-    static void generateBasicBlocks(MethodVisitor mv, @Nilable List<BIRBasicBlock> basicBlocks, LabelGenerator
-            labelGen,
-                                    ErrorHandlerGenerator errorGen, InstructionGenerator instGen, TerminatorGenerator termGen,
-                                    BIRFunction func, int returnVarRefIndex, int stateVarIndex, int localVarOffset, boolean isArg,
-                                    BIRPackage module, String currentPackageName, @Nilable BType attachedType, boolean isObserved /* = false */,
-                                    boolean isService /* = false */, String serviceName /* = "" */, boolean useBString /* = false */) {
+    public static void generateBasicBlocks(MethodVisitor mv, @Nilable List<BIRBasicBlock> basicBlocks,
+                                           LabelGenerator labelGen, ErrorHandlerGenerator errorGen,
+                                           InstructionGenerator instGen, TerminatorGenerator termGen,
+                                           BIRFunction func, int returnVarRefIndex, int stateVarIndex,
+                                           int localVarOffset, boolean isArg, BIRPackage module,
+                                           String currentPackageName, @Nilable BType attachedType,
+                                           boolean isObserved /* = false */,
+                                           boolean isService /* = false */, String serviceName /* = "" */,
+                                           boolean useBString /* = false */) {
+
         int j = 0;
         String funcName = cleanupFunctionName(func.name.value);
 

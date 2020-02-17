@@ -26,7 +26,7 @@ import java.lang.reflect.Modifier;
  * @since 1.0.0
  */
 class JavaField {
-    private JFieldMethod method;
+    JFieldMethod method;
     private Field field;
 
     JavaField(JFieldMethod method, Field field) {

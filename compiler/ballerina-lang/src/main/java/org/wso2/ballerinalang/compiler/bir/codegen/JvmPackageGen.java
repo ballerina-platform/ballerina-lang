@@ -912,14 +912,14 @@ public class JvmPackageGen {
 
     public static class BIRFunctionWrapper {
 
-        String orgName;
-        String moduleName;
-        String version;
+        public String orgName;
+        public String moduleName;
+        public String version;
         public BIRFunction func;
-        String fullQualifiedClassName;
-        String jvmMethodDescription;
+        public String fullQualifiedClassName;
+        public String jvmMethodDescription;
         @Nilable
-        String jvmMethodDescriptionBString = null;
+        public String jvmMethodDescriptionBString;
 
         protected BIRFunctionWrapper(String orgName, String moduleName, String version, BIRFunction func,
                                      String fullQualifiedClassName, String jvmMethodDescription,

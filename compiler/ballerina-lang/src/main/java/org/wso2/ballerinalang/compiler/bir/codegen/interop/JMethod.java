@@ -39,7 +39,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.interop.JInteropExcept
 class JMethod {
     static final JMethod NO_SUCH_METHOD = new JMethod(null, null);
 
-    private JMethodKind kind;
+    JMethodKind kind;
     private Executable method;
 
     static JMethod build(JMethodKind kind, Executable executable) {
