@@ -175,9 +175,8 @@ public type Consumer client object {
         if (self.keyDeserializerType == DES_CUSTOM) {
             var keyDeserializerObject = config.keyDeserializer;
             if (keyDeserializerObject is ()) {
-                ConsumerError e = error(CONSUMER_ERROR, message = "Invalid keyDeserializer config: Please Provide a " +
+                panic error(CONSUMER_ERROR, message = "Invalid keyDeserializer config: Please Provide a " +
                                         "valid custom deserializer for the keyDeserializer");
-                panic e;
             } else {
                 self.keyDeserializer = keyDeserializerObject;
             }
@@ -186,9 +185,8 @@ public type Consumer client object {
         if (self.valueDeserializerType == DES_CUSTOM) {
             var valueDeserializerObject = config.valueDeserializer;
             if (valueDeserializerObject is ()) {
-                ConsumerError e = error(CONSUMER_ERROR, message = "Invalid valueDeserializer config: Please Provide a" +
+                panic error(CONSUMER_ERROR, message = "Invalid valueDeserializer config: Please Provide a" +
                                         " valid custom deserializer for the valueDeserializer");
-                panic e;
             } else {
                 self.valueDeserializer = valueDeserializerObject;
             }
