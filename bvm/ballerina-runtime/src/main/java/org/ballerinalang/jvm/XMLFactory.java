@@ -270,7 +270,7 @@ public class XMLFactory {
         }
     }
 
-    public static XMLValue<?> createXMLElement(XMLQName startTagName, XMLQName endTagName,
+    public static XMLValue createXMLElement(XMLQName startTagName, XMLQName endTagName,
                                                BString defaultNsUriVal) {
         return createXMLElement(startTagName, endTagName,
                                 defaultNsUriVal == null ? XMLConstants.NULL_NS_URI : defaultNsUriVal.getValue());
@@ -293,7 +293,7 @@ public class XMLFactory {
      * @param content Comment content
      * @return XMLValue Comment type XMLValue
      */
-    public static XMLValue<?> createXMLComment(BString content) {
+    public static XMLValue createXMLComment(BString content) {
         return createXMLComment(content.getValue());
     }
 
@@ -323,7 +323,7 @@ public class XMLFactory {
      * @param contentVal Text content
      * @return XMLValue Text type XMLValue
      */
-    public static XMLValue<?> createXMLText(BString contentVal) {
+    public static XMLValue createXMLText(BString contentVal) {
         return createXMLText(contentVal.getValue());
     }
 
@@ -346,7 +346,7 @@ public class XMLFactory {
      * @param data    PI data
      * @return XMLValue Processing instruction type XMLValue
      */
-    public static XMLValue<?> createXMLProcessingInstruction(BString tartget, BString data) {
+    public static XMLValue createXMLProcessingInstruction(BString tartget, BString data) {
         return createXMLProcessingInstruction(tartget.getValue(), data.getValue());
     }
 

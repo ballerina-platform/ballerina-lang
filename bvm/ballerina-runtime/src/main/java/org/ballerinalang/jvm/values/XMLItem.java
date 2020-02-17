@@ -613,6 +613,11 @@ public final class XMLItem extends XMLValue {
     public IteratorValue getIterator() {
         XMLItem that = this;
         return new IteratorValue() {
+            @Override
+            public BString bStringValue() {
+                return that.bStringValue();
+            }
+
             boolean read = false;
 
             @Override

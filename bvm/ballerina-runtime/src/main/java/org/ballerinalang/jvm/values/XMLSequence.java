@@ -579,6 +579,11 @@ public final class XMLSequence extends XMLValue {
     @Override
     public IteratorValue getIterator() {
         return new IteratorValue() {
+            @Override
+            public BString bStringValue() {
+                return null;
+            }
+
             Iterator<BXML> iterator = children.iterator();
 
             @Override

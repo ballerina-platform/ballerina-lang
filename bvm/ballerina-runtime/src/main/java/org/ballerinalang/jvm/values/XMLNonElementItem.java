@@ -21,6 +21,7 @@ import org.apache.axiom.om.OMNode;
 import org.ballerinalang.jvm.BallerinaXMLSerializer;
 import org.ballerinalang.jvm.XMLNodeType;
 import org.ballerinalang.jvm.values.api.BMap;
+import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.jvm.values.api.BXML;
 import org.ballerinalang.jvm.values.freeze.Status;
 
@@ -188,6 +189,11 @@ public abstract class XMLNonElementItem extends XMLValue {
     @Override
     public IteratorValue getIterator() {
         return new IteratorValue() {
+            @Override
+            public BString bStringValue() {
+                return null;
+            }
+
             @Override
             public boolean hasNext() {
                 return false;
