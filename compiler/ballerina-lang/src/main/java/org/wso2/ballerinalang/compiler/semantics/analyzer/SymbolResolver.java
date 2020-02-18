@@ -155,7 +155,7 @@ public class SymbolResolver extends BLangNodeVisitor {
             return true;
         }
 
-        if (hasSameOwner(symbol, foundSym)) {
+        if (isRedeclaredSymbol(symbol, foundSym)) {
             dlog.error(pos, DiagnosticCode.REDECLARED_SYMBOL, symbol.name);
             return false;
         }
@@ -167,6 +167,10 @@ public class SymbolResolver extends BLangNodeVisitor {
 
         // if a symbol is found, then check whether it is unique
         return isDistinctSymbol(pos, symbol, foundSym);
+    }
+
+    private boolean isRedeclaredSymbol(BSymbol symbol, BSymbol foundSym) {
+        return hasSameOwner(symbol, foundSym) || isSymbolRedeclaredInTestPackage(symbol, foundSym);
     }
 
     public boolean checkForUniqueSymbol(SymbolEnv env, BSymbol symbol) {
@@ -256,6 +260,14 @@ public class SymbolResolver extends BLangNodeVisitor {
         // symbols are in the same block scope.
         return Symbols.isFlagOn(symbol.owner.flags, Flags.LAMBDA) &&
                 ((foundSym.owner.tag & SymTag.INVOKABLE) == SymTag.INVOKABLE);
+    }
+
+    private boolean isSymbolRedeclaredInTestPackage(BSymbol symbol, BSymbol foundSym) {
+        if (Symbols.isFlagOn(symbol.owner.flags, Flags.TESTABLE) &&
+                !Symbols.isFlagOn(foundSym.owner.flags, Flags.TESTABLE)) {
+            return true;
+        }
+        return false;
     }
 
     private boolean isSymbolDefinedInRootPkgLvl(BSymbol foundSym) {
