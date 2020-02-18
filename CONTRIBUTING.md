@@ -59,7 +59,7 @@ Currently, Ballerina has the below plugins developed for IntelliJ IDEA and VS Co
 
 ### Set up the ANTLR4 plugin
 
-This plugin will be useful to check and validate a [grammar rule](#contributing-to-ballerina-grammar) you wrote. For instructions on installing the ANTLR4 plugin based on your preferred IDE/Editor (which supports ANTLR 4.x version), go to [ANTLR Documentation](https://www.antlr.org/tools.html).
+This plugin will be useful to check and validate a grammar rule you wrote. For instructions on installing the ANTLR4 plugin based on your preferred IDE/Editor (which supports ANTLR 4.x version), go to [ANTLR Documentation](https://www.antlr.org/tools.html).
 
 ## Submit your contribution
 
@@ -67,9 +67,6 @@ This plugin will be useful to check and validate a [grammar rule](#contributing-
     
     <details>
     <summary>If you are contributing to Ballerina Grammar:</summary>
-    <div>
-
-    <div style="border:1px solid #000; padding: 10px;">
 
     Ballerina grammar has been implemented using ANTLR plugin version 4.5.3. To get a basic understanding of ANTLR grammar syntax and concepts before working with Ballerina grammar, go to [Parr, Terence (January 15, 2013), The Definitive ANTLR 4 Reference](https://www.oreilly.com/library/view/the-definitive-antlr/9781941222621/).
 
@@ -90,8 +87,6 @@ This plugin will be useful to check and validate a [grammar rule](#contributing-
 
     For more information about the Ballerina compiler, go to [Ballerina Compiler — Design](https://medium.com/@sameerajayasoma/ballerina-compiler-design-3406acc2476c?).
 
-    </div>
-    </div>
     </details>
 
 2. Add unit tests accordingly. (The build process will automatically execute all the tests.)
