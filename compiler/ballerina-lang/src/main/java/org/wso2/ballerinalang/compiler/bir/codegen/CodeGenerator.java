@@ -18,6 +18,7 @@
 package org.wso2.ballerinalang.compiler.bir.codegen;
 
 import org.ballerinalang.compiler.BLangCompilerException;
+import org.wso2.ballerinalang.compiler.PackageCache;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.InteropValidator;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
@@ -45,10 +46,12 @@ public class CodeGenerator {
 
     //TODO: remove static
     static SymbolTable symbolTable;
+    static PackageCache packageCache;
 
     private CodeGenerator(CompilerContext context) {
         context.put(CODE_GEN, this);
         symbolTable = SymbolTable.getInstance(context);
+        packageCache = PackageCache.getInstance(context);
     }
 
     public static CodeGenerator getInstance(CompilerContext context) {
