@@ -17,6 +17,11 @@
  */
 package org.wso2.ballerinalang.compiler.bir.codegen.interop;
 
+/**
+ * Java terminator kind types.
+ *
+ * @since 1.2.0
+ */
 enum JTermKind {
     JTERM_CALL(1), JTERM_NEW(2);
 

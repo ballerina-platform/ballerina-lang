@@ -664,7 +664,7 @@ public class BCompileUtil {
 //                    systemBirCache.toString(), importsBirCache.toString());
 //        }
 
-        backendDriver.execute(bLangPackage.symbol.bir, false, jarTarget);
+        backendDriver.execute(bLangPackage.symbol.bir, dumpBir, jarTarget);
 
         if (!Files.exists(jarTarget)) {
             throw new RuntimeException("Compiled binary jar is not found: " + jarTarget);

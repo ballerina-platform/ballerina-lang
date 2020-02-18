@@ -19,6 +19,11 @@ package org.wso2.ballerinalang.compiler.bir.codegen.interop;
 
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 
+/**
+ * Interop representation of java types.
+ *
+ * @since 1.2.0
+ */
 public class JType extends BType {
 
     public String type;
@@ -39,6 +44,7 @@ public class JType extends BType {
     static final String JVOID_KIND = "void";
     static final String JARRAY_KIND = "array";
     static final String JREF_KIND = "ref";
+    static final String JNO_KIND = "no";
 
     static JType jByte = new JType(JBYTE_KIND);
     static JType jChar = new JType(JCHAR_KIND);

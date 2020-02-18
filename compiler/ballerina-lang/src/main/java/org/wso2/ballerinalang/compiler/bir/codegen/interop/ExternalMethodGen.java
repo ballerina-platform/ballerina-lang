@@ -153,8 +153,6 @@ public class ExternalMethodGen {
         retBB.terminator = new BIRTerminator.Return(birFunc.pos);
     }
 
-//   type ExternalFunctionWrapper JInteropFunctionWrapper | OldStyleExternalFunctionWrapper;
-
     private static ExternalFunctionWrapper getExternalFunctionWrapper(BIRPackage birModule, BIRFunction birFunc,
                                                                       @Nilable BType attachedType /* = () */) {
 
@@ -253,17 +251,6 @@ public class ExternalMethodGen {
 
         return birFuncWrapper;
     }
-
-//    static BIRFunctionWrapper |
-
-//    public static class BIRVarRef extends BIROperand {
-//        BType typeValue;
-//
-//        public BIRVarRef(BType typeValue, BIRVariableDcl variableDcl) {
-//            super(variableDcl);
-//            this.typeValue = typeValue;
-//        }
-//    }
 
     public static class OldStyleExternalFunctionWrapper extends BIRFunctionWrapper implements ExternalFunctionWrapper {
         String jClassName;

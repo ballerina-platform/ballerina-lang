@@ -717,7 +717,8 @@ public class InteropMethodGen {
     private static JFieldFunctionWrapper createJFieldWrapper(InteropValidator interopValidator,
                                                              InteropValidationRequest jFieldValidationReq,
                                                              BIRFunctionWrapper birFuncWrapper) {
-        JavaField jField = interopValidator.validateAndGetJField(jFieldValidationReq);
+        JavaField jField = interopValidator.validateAndGetJField(
+                (InteropValidationRequest.FieldValidationRequest) jFieldValidationReq);
         return new JFieldFunctionWrapper(birFuncWrapper, jField);
     }
 
