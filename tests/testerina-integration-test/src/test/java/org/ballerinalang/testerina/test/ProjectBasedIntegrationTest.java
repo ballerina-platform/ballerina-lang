@@ -61,10 +61,10 @@ public class ProjectBasedIntegrationTest extends BaseTestCase {
         balClient.runMain("test", new String[]{"--disable-groups", "p1", "--all"}, null, new String[]{},
                 new LogLeecher[]{clientLeecher1, clientLeecher2, clientLeecher3, clientLeecher4, clientLeecher5},
                 projectPath);
-        clientLeecher1.waitForText(20000);
-        clientLeecher2.waitForText(20000);
-        clientLeecher3.waitForText(20000);
-        clientLeecher4.waitForText(20000);
-        clientLeecher5.waitForText(20000);
+        clientLeecher1.waitForText(400000);
+        clientLeecher2.waitForText(400000);
+        clientLeecher3.waitForText(400000);
+        clientLeecher4.waitForText(400000);
+        clientLeecher5.waitForText(400000);
     }
 }
