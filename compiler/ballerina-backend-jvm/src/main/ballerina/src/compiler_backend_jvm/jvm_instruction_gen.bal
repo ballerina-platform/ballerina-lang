@@ -905,7 +905,7 @@ type InstructionGenerator object {
         // load source value
         self.loadVar(typeCastIns.rhsOp.variableDcl);
         if (typeCastIns.checkType) {
-            generateCheckCast(self.mv, typeCastIns.rhsOp.typeValue, typeCastIns.castType, useBString);
+            generateCheckCast(self.mv, typeCastIns.rhsOp.typeValue, typeCastIns.castType, self.indexMap, useBString);
         } else {
             generateCast(self.mv, typeCastIns.rhsOp.typeValue, typeCastIns.castType);
         }
