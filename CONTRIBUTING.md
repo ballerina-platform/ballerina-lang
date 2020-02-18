@@ -99,7 +99,7 @@ This plugin will be useful to check and validate a [grammar rule](#contributing-
 
     >**Tip:** Follow these commit message requirements:
 
-    - Separate subject from body with a blank line
+    - Separate subject from the body with a blank line
     - Limit the subject line to 50 characters
     - Capitalize the subject line
     - Do not end the subject line with a period
