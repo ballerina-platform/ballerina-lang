@@ -472,9 +472,7 @@ public class JvmTerminatorGen {
             this.genCall(callInsCopy, orgName, moduleName, localVarOffset);
 
             // store return
-            if (callIns.lhsOp != null) {
-                this.storeReturnFromCallIns(callIns.lhsOp.variableDcl);
-            }
+            this.storeReturnFromCallIns(callIns.lhsOp != null ? callIns.lhsOp.variableDcl : null);
         }
 
         void genJCallTerm(JavaMethodCall callIns, String funcName, @Nilable BType attachedType, int localVarOffset) {
