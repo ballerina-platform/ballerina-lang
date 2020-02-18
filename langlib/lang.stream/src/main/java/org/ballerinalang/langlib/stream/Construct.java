@@ -45,8 +45,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
                 @Argument(name = "td", type = TypeKind.TYPEDESC),
                 @Argument(name = "func", type = TypeKind.FUNCTION)
         },
-        returnType = {@ReturnType(type = TypeKind.STREAM)},
-        isPublic = true
+        returnType = {@ReturnType(type = TypeKind.STREAM)}
 )
 public class Construct {
 
@@ -75,7 +74,7 @@ public class Construct {
 
         @Override
         public boolean hasNext() {
-            return true;
+            throw new UnsupportedOperationException();
         }
 
         @Override
