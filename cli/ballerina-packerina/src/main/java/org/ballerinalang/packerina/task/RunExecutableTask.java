@@ -181,10 +181,10 @@ public class RunExecutableTask implements Task {
                                                                executableModule.packageID.name.value,
                                                                MODULE_INIT_CLASS_NAME);
         try {
-            URL[] urls = new URL[executableJar.platformLibs.size() + 1];
-            urls[0] = executableJar.moduleJar.toUri().toURL();
+            URL[] urls = new URL[executableJar.moduleLibs.size() + 1];
+            urls[0] = executableJar.moduleJarPath.toUri().toURL();
             int i = 1;
-            for (Path platformLib : executableJar.platformLibs) {
+            for (Path platformLib : executableJar.moduleLibs) {
                 urls[i++] = platformLib.toUri().toURL();
             }
             URLClassLoader classLoader = new URLClassLoader(urls);
@@ -212,8 +212,8 @@ public class RunExecutableTask implements Task {
         if (OsUtils.isWindows()) {
             seperator = ";";
         }
-        StringBuilder classPath = new StringBuilder(jar.moduleJar.toString());
-        for (Path path : jar.platformLibs) {
+        StringBuilder classPath = new StringBuilder(jar.moduleJarPath.toString());
+        for (Path path : jar.moduleLibs) {
             classPath.append(seperator).append(path);
         }
         return classPath.toString();
