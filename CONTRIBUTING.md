@@ -6,10 +6,9 @@ We appreciate your help!
 
 - [Get started](#get-started)
 - [Set up the Prerequisites](#set-up-the-prerequisites)
-- [Obtain the source code](#obtain-the-source-code)
-- [Build the project](#build-the-project)
+- [Build the source code](#build-the-source-code)
 - [Set up the development environment](#set-up-the-development-environment)
-    - [Set up the Ballerina plugin](#set-up-the-ballerina-plugin)
+    - [Set up the Ballerina plugins](#set-up-the-ballerina-plugins)
     - [Set up the ANTLR4 plugin](#set-up-the-antlr4-plugin)
 - [Submit your contribution](#submit-your-contribution)
 - [Accept the Contributor License Agreement](#accept-the-contributor-license-agreement)
@@ -21,7 +20,7 @@ We appreciate your help!
 
     - [StackOverflow](https://stackoverflow.com/questions/tagged/ballerina): to get help with Ballerina (use the Ballerina tag for any of your questions)
     - [Slack](https://ballerina.io/community/slack/): for real-time discussions with the team and community
-    - [Ballerina-Dev Google Group](https://groups.google.com/forum/#!forum/ballerina-dev): (developer team mailing list) to discuss Ballerina roadmap, features, and related issues
+    - [Ballerina-Dev Google Group](https://groups.google.com/forum/#!forum/ballerina-dev): (community mailing list) to discuss Ballerina roadmap, features, and related issues
     - [Twitter](https://twitter.com/ballerinalang): to tweet about Ballerina (use the “#ballerinalang” hashtag) 
 
 - Submitting a bug is just as important as contributing to code. Report an issue in the relevant repo out of the GitHub repos listed below. 
@@ -68,6 +67,7 @@ This plugin will be useful to check and validate a [grammar rule](#contributing-
     
     <details>
     <summary>If you are contributing to Ballerina Grammar:</summary>
+    <div>
 
     <div style="border:1px solid #000; padding: 10px;">
 
@@ -90,6 +90,7 @@ This plugin will be useful to check and validate a [grammar rule](#contributing-
 
     For more information about the Ballerina compiler, go to [Ballerina Compiler — Design](https://medium.com/@sameerajayasoma/ballerina-compiler-design-3406acc2476c?).
 
+    </div>
     </div>
     </details>
 
