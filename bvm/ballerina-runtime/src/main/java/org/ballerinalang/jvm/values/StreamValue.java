@@ -48,6 +48,7 @@ public class StreamValue implements RefValue, BStream {
     private BIterator<Object> iterator;
     public FunctionPointerWrapper<Boolean, Object> filter;
     public FunctionPointerWrapper<Object, Object> mapper;
+    private FPValue<Object, Object> genFunc;
 
 
     /**
@@ -63,14 +64,16 @@ public class StreamValue implements RefValue, BStream {
         this.iterator = null;
         this.filter = new NoFilterFunctionPointerWrapper();
         this.mapper = new NoMapFunctionPointerWrapper();
+        this.genFunc = null;
     }
 
     public StreamValue(BType type, BIterator iterator, BFunctionPointer<Object, Boolean> filterFunc,
-                       BFunctionPointer<Object, Object> mapFunc) {
+                       BFunctionPointer<Object, Object> mapFunc, FPValue<Object, Object> genFunc) {
         this.constraintType = ((BStreamType) type).getConstrainedType();
         this.type = new BStreamType(constraintType);
         this.streamId = UUID.randomUUID().toString();
         this.iterator = iterator;
+        this.genFunc = genFunc;
 
         if (filterFunc != null) {
             this.filter = new FilterFunctionPointerWrapper(filterFunc);
@@ -86,12 +89,16 @@ public class StreamValue implements RefValue, BStream {
     }
 
     public StreamValue(BStream sourceStream, BFunctionPointer<Object, Boolean> filterFunc,
-                       BFunctionPointer<Object, Object> mapFunc) {
-        this(sourceStream.getType(), sourceStream, filterFunc, mapFunc);
+                       BFunctionPointer<Object, Object> mapFunc, FPValue<Object, Object> genFunc) {
+        this(sourceStream.getType(), sourceStream, filterFunc, mapFunc, genFunc);
     }
 
     public String getStreamId() {
         return streamId;
+    }
+
+    public FPValue<Object, Object> getGenFunc() {
+        return genFunc;
     }
 
     public BType getIteratorNextReturnType() {
@@ -137,12 +144,12 @@ public class StreamValue implements RefValue, BStream {
 
     @Override
     public BStream filter(BStream stream, BFunctionPointer<Object, Boolean> filterFunc) {
-        return new StreamValue(stream, filterFunc, null);
+        return new StreamValue(stream, filterFunc, null, null);
     }
 
     @Override
     public BStream map(BStream stream, BFunctionPointer<Object, Object> mapFunc) {
-        return new StreamValue(stream, null, mapFunc);
+        return new StreamValue(stream, null, mapFunc, null);
     }
 
     @Override

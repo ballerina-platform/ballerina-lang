@@ -44,7 +44,7 @@
             <class name="org.ballerinalang.langlib.test.LangLibXMLTest" />
             <class name="org.ballerinalang.langlib.test.LangLibErrorTest" />
             <class name="org.ballerinalang.langlib.test.LangLibNegativeTest" />
-            <class name="org.ballerinalang.langlib.test.LangLibStreamTest" />
+            <!-- TODO: Enable <class name="org.ballerinalang.langlib.test.LangLibStreamTest" />-->
 
             <class name="org.ballerinalang.langlib.test.statements.foreach.ForeachErrorBindingPatternsTests"/>
             <class name="org.ballerinalang.langlib.test.statements.foreach.ForeachJSONTests"/>

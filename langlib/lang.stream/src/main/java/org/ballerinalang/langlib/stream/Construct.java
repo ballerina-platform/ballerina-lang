@@ -53,7 +53,7 @@ public class Construct {
     public static StreamValue construct(Strand strand, TypedescValue td, FPValue<Object, Object> func) {
         BFunctionType functionType = (BFunctionType) func.getType();
         IteratorValue iterator = new Iterator(func);
-        return new StreamValue(new BStreamType(functionType.getReturnParameterType()), iterator, null, null);
+        return new StreamValue(new BStreamType(functionType.getReturnParameterType()), iterator, null, null, func);
     }
 
     static class Iterator implements IteratorValue {

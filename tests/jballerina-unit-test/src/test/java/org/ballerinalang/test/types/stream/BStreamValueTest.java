@@ -53,7 +53,7 @@ public class BStreamValueTest {
         Assert.assertTrue(((BBoolean) values[0]).booleanValue());
     }
 
-    @Test(description = "Test stream construct with stream filter")
+    @Test(description = "Test stream construct with stream filter", enabled = false)
     public void testStreamConstructWithFilter() {
         BValue[] values = BRunUtil.invoke(result, "testStreamConstructWithFilter", new BValue[]{});
         Assert.assertTrue(((BBoolean) values[0]).booleanValue());

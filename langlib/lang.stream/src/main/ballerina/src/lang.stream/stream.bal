@@ -35,7 +35,10 @@ public function filter(stream<PureType1> strm, function(PureType1 val) returns b
 # + strm - The stream
 # + return - If the stream has elements, return the element wrapped in a record with single field called `value`,
 #            otherwise returns ()
-public function next(stream<PureType1> strm) returns record {| PureType1 value; |}? = external;
+public function next(stream<PureType1> strm) returns record {| PureType1 value; |}? {
+    var fp = getGenFunc(strm);
+    return fp();
+}
 
 # Applies a function to each member of a stream and returns a new stream of the results.
 #

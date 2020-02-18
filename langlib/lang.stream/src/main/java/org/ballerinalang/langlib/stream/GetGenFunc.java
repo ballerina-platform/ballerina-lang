@@ -16,11 +16,10 @@
  * under the License.
  */
 
-package org.ballerinalang.langlib.array;
+package org.ballerinalang.langlib.stream;
 
 import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.types.BStreamType;
-import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.FPValue;
 import org.ballerinalang.jvm.values.StreamValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
@@ -28,19 +27,20 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
- * Native implementation of lang.array:toStream((any|error)[]).
+ * Native implementation of lang.stream:getGenFunc(stream&lt;Type&gt;).
  *
- * @since 1.2
+ * @since 1.2.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.array", functionName = "toStream",
-        args = {@Argument(name = "arr", type = TypeKind.ARRAY)},
-        returnType = {@ReturnType(type = TypeKind.INT)},
+        orgName = "ballerina", packageName = "lang.stream", functionName = "getGenFunc",
+        args = {@Argument(name = "strm", type = TypeKind.STREAM)},
+        returnType = {@ReturnType(type = TypeKind.FUNCTION)},
         isPublic = true
 )
-public class ToStream {
+public class GetGenFunc {
 
-    public static StreamValue toStream(Strand strand, ArrayValue arr) {
-        return new StreamValue(new BStreamType(arr.getElementType()), arr.getIterator(), null, null, null);
+    public static FPValue<Object, Object> getGenFunc(Strand strand, StreamValue strm) {
+        return strm.getGenFunc();
     }
+
 }

@@ -23,3 +23,9 @@ type PureType3 anydata | error;
 # + func - A lambda function.
 # + return - New stream containing results of `func` invocation.
 public function construct(typedesc<PureType3> td, function() returns PureType3 func) returns stream<PureType3> = external;
+
+# Takes in a stream and returns the value gen function of that stream.
+#
+# + strm - The stream
+# + return - A function pointer to the value gen function.
+public function getGenFunc(stream<PureType3> strm) returns (function() returns record {| PureType3 value; |}?) = external;
