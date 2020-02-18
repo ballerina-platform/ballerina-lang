@@ -201,6 +201,8 @@ public class BIRGen extends BLangNodeVisitor {
     // This is a global variable cache
     public Map<BSymbol, BIRGlobalVariableDcl> globalVarMap = new HashMap<>();
 
+    // Required variables for Mock function implementation
+    private static final String MOCK_ANNOTATION_DELIMITER = "#";
 
     public static BIRGen getInstance(CompilerContext context) {
         BIRGen birGen = context.get(BIR_GEN);
@@ -247,6 +249,10 @@ public class BIRGen extends BLangNodeVisitor {
                 testPkg.accept(this);
                 this.birOptimizer.optimizePackage(testBirPkg);
                 testPkg.symbol.bir = testBirPkg;
+                Map<String, String> mockFunctionMap = astPkg.getTestablePkg().getMockFunctionNamesMap();
+                if (!mockFunctionMap.isEmpty()) {
+                    visitMockFunctions(birPkg, mockFunctionMap);
+                }
             });
         }
 
@@ -284,6 +290,39 @@ public class BIRGen extends BLangNodeVisitor {
             function.symbol.name.value = modifiedFuncName;
         }
     }
+
+    private void visitMockFunctions(BIRPackage birPkg, Map<String, String> mockFunctionMap) {
+        for (BIRFunction function : birPkg.functions) {
+            List<BIRBasicBlock> functionBasicBlocks = function.basicBlocks;
+            for (BIRBasicBlock functionBasicBlock : functionBasicBlocks) {
+                BIRTerminator bbTerminator = functionBasicBlock.terminator;
+                if ((bbTerminator.kind.equals(InstructionKind.CALL))) {
+                    mockFunctionMap.forEach((k, v) -> {
+                        String[] mockInfo = k.split(MOCK_ANNOTATION_DELIMITER);
+                        if (mockInfo.length != 2) {
+                            return;
+                        }
+                        if (((BIRTerminator.Call) bbTerminator).name.getValue().equals(mockInfo[1])) {
+                            ((BIRTerminator.Call) bbTerminator).name = getMockFunctionName(v, birPkg);
+                            if (!mockInfo[0].equals(".")) {
+                                ((BIRTerminator.Call) bbTerminator).calleePkg = function.pos.src.pkgID;
+                            }
+                        }
+                    });
+                }
+            }
+        }
+    }
+
+    private Name getMockFunctionName(String name, BIRPackage birPkg) {
+        for (BIRFunction function : birPkg.functions) {
+            if (function.name.value.equals(name)) {
+                return function.name;
+            }
+        }
+        return null;
+    }
+
 
     // Nodes
 

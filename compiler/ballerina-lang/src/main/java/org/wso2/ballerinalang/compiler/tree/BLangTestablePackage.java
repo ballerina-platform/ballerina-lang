@@ -32,10 +32,6 @@ public class BLangTestablePackage extends BLangPackage {
         return mockFunctionNamesMap;
     }
 
-    public void setMockFunctionNamesMap(Map<String, String> mockFunctionNamesMap) {
-        this.mockFunctionNamesMap = mockFunctionNamesMap;
-    }
-
     public void addMockFunction(String id, String function) {
         this.mockFunctionNamesMap.put(id, function);
     }

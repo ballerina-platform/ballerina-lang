@@ -140,7 +140,8 @@ public class TestAnnotationProcessor extends AbstractCompilerPlugin {
                     });
 
                     //Creating a bLangTestablePackage to add a mock function
-                    BLangTestablePackage bLangTestablePackage = (BLangTestablePackage)((BLangFunction) functionNode).parent;
+                    BLangTestablePackage bLangTestablePackage =
+                            (BLangTestablePackage) ((BLangFunction) functionNode).parent;
                     bLangTestablePackage.addMockFunction(vals[0] + MOCK_ANNOTATION_DELIMITER + vals[1], functionName);
 
                 }
