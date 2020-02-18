@@ -15,50 +15,61 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.testerina.core.entity;
+package org.ballerinalang.test.launcher.entity;
 
-import org.ballerinalang.model.elements.PackageID;
-
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 /**
  * Java class to store and get data from a json (for a test run).
  */
-public class TestJsonData {
+public class TestMetaData {
+
     private String orgName;
     private String version;
+    private String packageName;
+    private String packageId;
+
     private String initFunctionName;
     private String startFunctionName;
     private String stopFunctionName;
+
     private String testInitFunctionName;
     private String testStartFunctionName;
     private String testStopFunctionName;
-    private String hasTestablePackages;
-    private String packageName;
+
+    private boolean hasTestablePackages;
+
     private String sourceRootPath;
+    private String sourceFileName;
     private String jarPath;
-    private String moduleJarName;
+    private String moduleJarPath;
+    private List<String> dependencyJarPaths;
+
     private HashMap<String, String> callableFunctionNames;
     private HashMap<String, String> testFunctionNames;
-    private PackageID packageID;
-    private String [] dependencyJarPaths;
+    private List<String> beforeSuiteFunctionNames = new ArrayList<>();
+    private List<String> afterSuiteFunctionNames = new ArrayList<>();
+    private List<String> beforeEachFunctionNames = new ArrayList<>();
+    private List<String> afterEachFunctionNames = new ArrayList<>();
+    private List<Test> tests = new ArrayList<>();
 
-    public String[] getDependencyJarPaths() {
-        String[] tmpDependencyJarPaths = this.dependencyJarPaths;
-        return tmpDependencyJarPaths;
+    public List<String> getDependencyJarPaths() {
+        return this.dependencyJarPaths;
     }
 
-    public void setDependencyJarPaths(String [] dependencyJarPaths) {
-        this.dependencyJarPaths = Arrays.copyOf(dependencyJarPaths, dependencyJarPaths.length);
+    public void setDependencyJarPaths(List<String> dependencyJarPaths) {
+        this.dependencyJarPaths = dependencyJarPaths;
     }
 
-    public PackageID getPackageID() {
-        return packageID;
+    public String getPackageID() {
+        return packageId;
     }
 
-    public void setPackageID(PackageID packageID) {
-        this.packageID = packageID;
+    public void setPackageId(String packageId) {
+
+        this.packageId = packageId;
     }
 
     public String getSourceRootPath() {
@@ -77,12 +88,12 @@ public class TestJsonData {
         this.jarPath = jarPath;
     }
 
-    public String getModuleJarName() {
-        return moduleJarName;
+    public String getModuleJarPath() {
+        return moduleJarPath;
     }
 
-    public void setModuleJarName(String moduleJarName) {
-        this.moduleJarName = moduleJarName;
+    public void setModuleJarPath(String moduleJarPath) {
+        this.moduleJarPath = moduleJarPath;
     }
 
     public String getOrgName() {
@@ -149,11 +160,11 @@ public class TestJsonData {
         this.testStopFunctionName = testStopFunctionName;
     }
 
-    public String isHasTestablePackages() {
+    public Boolean isHasTestablePackages() {
         return hasTestablePackages;
     }
 
-    public void setHasTestablePackages(String hasTestablePackages) {
+    public void setHasTestablePackages(Boolean hasTestablePackages) {
         this.hasTestablePackages = hasTestablePackages;
     }
 
@@ -179,5 +190,61 @@ public class TestJsonData {
 
     public void setTestFunctionNames(HashMap<String, String> testFunctionNames) {
         this.testFunctionNames = testFunctionNames;
+    }
+
+    public String getPackageId() {
+        return packageId;
+    }
+
+    public List<String> getBeforeSuiteFunctionNames() {
+        return beforeSuiteFunctionNames;
+    }
+
+    public List<String> getAfterSuiteFunctionNames() {
+        return afterSuiteFunctionNames;
+    }
+
+    public void setHasTestablePackages(boolean hasTestablePackages) {
+        this.hasTestablePackages = hasTestablePackages;
+    }
+
+    public void setBeforeSuiteFunctionNames(List<String> beforeSuiteFunctionNames) {
+        this.beforeSuiteFunctionNames = beforeSuiteFunctionNames;
+    }
+
+    public void setAfterSuiteFunctionNames(List<String> afterSuiteFunctionNames) {
+        this.afterSuiteFunctionNames = afterSuiteFunctionNames;
+    }
+
+    public List<String> getBeforeEachFunctionNames() {
+        return beforeEachFunctionNames;
+    }
+
+    public void setBeforeEachFunctionNames(List<String> beforeEachFunctionNames) {
+        this.beforeEachFunctionNames = beforeEachFunctionNames;
+    }
+
+    public List<String> getAfterEachFunctionNames() {
+        return afterEachFunctionNames;
+    }
+
+    public void setAfterEachFunctionNames(List<String> afterEachFunctionNames) {
+        this.afterEachFunctionNames = afterEachFunctionNames;
+    }
+
+    public List<Test> getTests() {
+        return tests;
+    }
+
+    public void setTests(List<Test> tests) {
+        this.tests = tests;
+    }
+
+    public String getSourceFileName() {
+        return sourceFileName;
+    }
+
+    public void setSourceFileName(String sourceFileName) {
+        this.sourceFileName = sourceFileName;
     }
 }

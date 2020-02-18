@@ -17,10 +17,10 @@
  */
 package org.ballerinalang.testerina.util;
 
+import org.ballerinalang.test.launcher.entity.TestJsonData;
 import org.ballerinalang.testerina.core.BTestRunner;
 import org.ballerinalang.testerina.core.TesterinaConstants;
 import org.ballerinalang.testerina.core.TesterinaRegistry;
-import org.ballerinalang.testerina.core.entity.TestMetaData;
 import org.ballerinalang.toml.model.Manifest;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.util.TomlParserUtils;
@@ -42,11 +42,6 @@ public class TesterinaUtils {
 
     private static PrintStream errStream = System.err;
     private static TesterinaRegistry registry = TesterinaRegistry.getInstance();
-
-
-    public static boolean isPackageInitialized(String entryPkgName) {
-        return !registry.getInitializedPackages().contains(entryPkgName);
-    }
 
     /**
      * Cleans up any remaining testerina metadata.
@@ -103,28 +98,6 @@ public class TesterinaUtils {
         TesterinaRegistry.getInstance().setVersion(version);
     }
 
-    /**
-     * Execute tests in build.
-     *
-     * @param sourceRootPath source root path
-     * @param testMetaDataMap map containing testMetaData nodes along with their compiled program files
-     * @param outStream      error stream for logging.
-     * @param errStream      info stream for logging.
-     */
-    public static void executeTests(Path sourceRootPath, Map<TestMetaData, String> testMetaDataMap,
-                                    PrintStream outStream, PrintStream errStream) {
-        setManifestConfigs(sourceRootPath);
-
-        BTestRunner testRunner = new BTestRunner(outStream, errStream);
-        // Run the tests
-        testRunner.runTest(testMetaDataMap);
-
-        if (testRunner.getTesterinaReport().isFailure()) {
-            cleanUpDir(sourceRootPath.resolve(TesterinaConstants.TESTERINA_TEMP_DIR));
-            Runtime.getRuntime().exit(1);
-        }
-        cleanUpDir(sourceRootPath.resolve(TesterinaConstants.TESTERINA_TEMP_DIR));
-    }
     /**
      * Format error message.
      *

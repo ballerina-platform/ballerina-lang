@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.ballerinalang.testerina.core.entity;
+package org.ballerinalang.test.launcher.entity;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -15,22 +15,21 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.testerina.core.entity;
+package org.ballerinalang.test.launcher.entity;
 
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BTypes;
+import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.FutureValue;
-import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
-
 
 /**
  * TesterinaFunction entity class.

@@ -18,24 +18,18 @@
 package org.ballerinalang.test.launcher;
 
 import com.google.gson.Gson;
+import org.ballerinalang.test.launcher.entity.TestJsonData;
 import org.ballerinalang.testerina.core.TesterinaConstants;
-import org.ballerinalang.testerina.core.TesterinaRegistry;
-import org.ballerinalang.testerina.core.entity.Test;
-import org.ballerinalang.testerina.core.entity.TestJsonData;
-import org.ballerinalang.testerina.core.entity.TestMetaData;
-import org.ballerinalang.testerina.core.entity.TestSuite;
-import org.ballerinalang.testerina.util.TesterinaUtils;
 
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.Comparator;
 
 /**
  * Main class to init the test suit.
@@ -54,8 +48,7 @@ public class Launch {
             //convert the json string back to object
             Gson gson = new Gson();
             TestJsonData response = gson.fromJson(br, TestJsonData.class);
-            HashMap<TestMetaData, String> testMetaDataMap = initTestSuit(response);
-            startTestSuit(Paths.get(response.getSourceRootPath()), testMetaDataMap);
+            startTestSuit(Paths.get(response.getSourceRootPath()), response);
         } catch (RuntimeException e) {
             throw new RuntimeException(e);
         } catch (Exception e) {
@@ -63,60 +56,43 @@ public class Launch {
         }
     }
 
-    private static HashMap<TestMetaData, String> initTestSuit(TestJsonData testJsonData) {
-        TestMetaData testMetaData = new TestMetaData();
-
-        // set the PackageID
-        testMetaData.setPackageID(testJsonData.getPackageID());
-
-        // set the tests into the test suit and init the test suit
-        List<Test> testNames = new ArrayList<>();
-        Map<String, String> tmpTestMap = testJsonData.getTestFunctionNames();
-        tmpTestMap.forEach((functionName, className) -> {
-            if (!functionName.contains("$")) {
-                Test test = new Test();
-                test.setTestName(functionName);
-                testNames.add(test);
-            }
-        });
-        TestSuite testSuite = new TestSuite(testJsonData.getPackageName());
-        testSuite.setTests(testNames);
-
-        // create the test suit map
-        Map<String, TestSuite> testSuiteMap = new HashMap<>();
-        testSuiteMap.put(testJsonData.getPackageName(), testSuite);
-
-        // set the test suit into the Testerina registry
-        TesterinaRegistry testerinaRegistry = TesterinaRegistry.getInstance();
-        testerinaRegistry.setTestSuites(testSuiteMap);
-
-        // setting the function name maps with class names
-        HashMap<String, String> callableFunctionNames = testJsonData.getCallableFunctionNames();
-        HashMap<String, String> testFunctionNames = testJsonData.getTestFunctionNames();
-        testMetaData.setCallableFunctionNames(callableFunctionNames);
-        testMetaData.setTestFunctionNames(testFunctionNames);
-
-        // set the init/start/stop function names for both normal and test functions
-        testMetaData.setInitFunctionName(testJsonData.getInitFunctionName());
-        testMetaData.setStartFunctionName(testJsonData.getStartFunctionName());
-        testMetaData.setStopFunctionName(testJsonData.getStopFunctionName());
-        testMetaData.setTestInitFunctionName(testJsonData.getTestInitFunctionName());
-        testMetaData.setTestStartFunctionName(testJsonData.getTestStartFunctionName());
-        testMetaData.setTestStopFunctionName(testJsonData.getTestStopFunctionName());
-
-        // set rest required data
-        testMetaData.setPackageName(testJsonData.getPackageName());
-        testMetaData.setHasTestablePackages(Boolean.parseBoolean(testJsonData.isHasTestablePackages()));
-
-        String testName = testJsonData.getPackageName();
-
-        HashMap<TestMetaData, String> testMetaDataMap = new HashMap<>();
-        testMetaDataMap.put(testMetaData, testName);
-
-        return testMetaDataMap;
+    private static void startTestSuit(Path sourceRootPath, TestJsonData testJsonData) {
+        executeTests(sourceRootPath, testJsonData, outsStream, errStream);
     }
 
-    private static void startTestSuit(Path sourceRootPath, Map<TestMetaData, String> classLoaderMap) {
-        TesterinaUtils.executeTests(sourceRootPath, classLoaderMap, outsStream, errStream);
+    /**
+     * Execute tests in build.
+     *
+     * @param sourceRootPath source root path
+     * @param testJsonData testMetaData
+     * @param outStream      error stream for logging.
+     * @param errStream      info stream for logging.
+     */
+    public static void executeTests(Path sourceRootPath, TestJsonData testJsonData,
+                                    PrintStream outStream, PrintStream errStream) {
+        BTestRunner testRunner = new BTestRunner(outStream, errStream);
+        // Run the tests
+        testRunner.runTest(testJsonData);
+        if (testRunner.getTesterinaReport().isFailure()) {
+            cleanUpDir(sourceRootPath.resolve(TesterinaConstants.TESTERINA_TEMP_DIR));
+            Runtime.getRuntime().exit(1);
+        }
+        cleanUpDir(sourceRootPath.resolve(TesterinaConstants.TESTERINA_TEMP_DIR));
+    }
+
+    /**
+     * Cleans up any remaining testerina metadata.
+     *
+     * @param path The path of the Directory/File to be deleted
+     */
+    public static void cleanUpDir(Path path) {
+        try {
+            if (Files.exists(path)) {
+                Files.walk(path).sorted(Comparator.reverseOrder()).map(Path::toFile).forEach(File::delete);
+            }
+        } catch (IOException e) {
+            errStream.println("Error occurred while deleting the dir : " + path.toString() + " with error : "
+                                      + e.getMessage());
+        }
     }
 }
