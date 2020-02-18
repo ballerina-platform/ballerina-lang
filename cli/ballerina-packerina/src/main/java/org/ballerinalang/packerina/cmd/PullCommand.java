@@ -34,9 +34,11 @@ import java.io.PrintStream;
 import java.net.URI;
 import java.util.HashMap;
 import java.util.List;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static org.ballerinalang.jvm.runtime.RuntimeConstants.SYSTEM_PROP_BAL_DEBUG;
+import static org.ballerinalang.packerina.cmd.Constants.MODULE_NAME_REGEX;
 import static org.ballerinalang.packerina.cmd.Constants.PULL_COMMAND;
 
 /**
@@ -86,21 +88,21 @@ public class PullCommand implements BLauncherCmd {
         String version;
 
         // Get org-name
-        String[] module = resourceName.split("/");
-        if (module.length == 2) {
-            orgName = module[0];
-            packageName = module[1];
-            if (orgName.equals("ballerina")) {
-                throw LauncherUtils.createLauncherException("`Ballerina` is the builtin organization and its modules"
-                                                                    + " are included in the runtime.");
-            }
-        } else {
+        if (!validateModuleName(resourceName)) {
             CommandUtil.printError(outStream,
-                    "pull command requires the names of the organization and module.",
+                    "invalid module name. Provide the module-name with the org-name",
                     "ballerina pull {<org-name>/<module-name> | <org-name>/<module-name>:<version>}",
                     false);
             Runtime.getRuntime().exit(1);
             return;
+        }
+
+        String[] module = resourceName.split("/");
+        orgName = module[0];
+        packageName = module[1];
+        if (orgName.equals("ballerina")) {
+            throw LauncherUtils.createLauncherException("`Ballerina` is the builtin organization and its modules"
+                    + " are included in the runtime.");
         }
 
         // Get module name
@@ -152,5 +154,13 @@ public class PullCommand implements BLauncherCmd {
 
     @Override
     public void setParentCmdParser(CommandLine parentCmdParser) {
+    }
+
+    private String getPullCommandRegex() {
+        return MODULE_NAME_REGEX;
+    }
+
+    public boolean validateModuleName(String str) {
+        return (Pattern.matches(getPullCommandRegex(), str));
     }
 }
