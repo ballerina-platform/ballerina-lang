@@ -43,6 +43,7 @@ task extractDistribution(type: Copy) {
 
 // Integration tests for testerina
 test {
+    mustRunAfter ':jballerina-integration-test:test'
     dependsOn extractDistribution
     systemProperty 'enableTesterinaTests', 'true'
 
