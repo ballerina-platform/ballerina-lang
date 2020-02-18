@@ -20,11 +20,12 @@ package org.ballerinalang.test.launcher.entity;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Java class to store and get data from a json (for a test run).
  */
-public class TestMetaData {
+public class TestSuite {
 
     private String orgName;
     private String version;
@@ -39,15 +40,9 @@ public class TestMetaData {
     private String testStartFunctionName;
     private String testStopFunctionName;
 
-    private boolean hasTestablePackages;
-
     private String sourceRootPath;
     private String sourceFileName;
-    private String jarPath;
-    private String moduleJarPath;
-    private List<String> dependencyJarPaths;
 
-    private HashMap<String, String> callableFunctionNames;
     private HashMap<String, String> testFunctionNames;
     private List<String> beforeSuiteFunctionNames = new ArrayList<>();
     private List<String> afterSuiteFunctionNames = new ArrayList<>();
@@ -55,21 +50,21 @@ public class TestMetaData {
     private List<String> afterEachFunctionNames = new ArrayList<>();
     private List<Test> tests = new ArrayList<>();
 
-    public List<String> getDependencyJarPaths() {
-        return this.dependencyJarPaths;
-    }
+    /**
+     * Key - unique identifier for the function to be mocked.
+     * Value - name of the mock function
+     */
+    private Map<String, String> mockFunctionNamesMap = new HashMap<>();
 
-    public void setDependencyJarPaths(List<String> dependencyJarPaths) {
-        this.dependencyJarPaths = dependencyJarPaths;
+    public TestSuite(String packageId, String packageName, String orgName, String version) {
+        this.packageId = packageId;
+        this.packageName = packageName;
+        this.orgName = orgName;
+        this.version = version;
     }
 
     public String getPackageID() {
         return packageId;
-    }
-
-    public void setPackageId(String packageId) {
-
-        this.packageId = packageId;
     }
 
     public String getSourceRootPath() {
@@ -78,22 +73,6 @@ public class TestMetaData {
 
     public void setSourceRootPath(String sourceRootPath) {
         this.sourceRootPath = sourceRootPath;
-    }
-
-    public String getJarPath() {
-        return jarPath;
-    }
-
-    public void setJarPath(String jarPath) {
-        this.jarPath = jarPath;
-    }
-
-    public String getModuleJarPath() {
-        return moduleJarPath;
-    }
-
-    public void setModuleJarPath(String moduleJarPath) {
-        this.moduleJarPath = moduleJarPath;
     }
 
     public String getOrgName() {
@@ -160,14 +139,6 @@ public class TestMetaData {
         this.testStopFunctionName = testStopFunctionName;
     }
 
-    public Boolean isHasTestablePackages() {
-        return hasTestablePackages;
-    }
-
-    public void setHasTestablePackages(Boolean hasTestablePackages) {
-        this.hasTestablePackages = hasTestablePackages;
-    }
-
     public String getPackageName() {
         return packageName;
     }
@@ -176,12 +147,8 @@ public class TestMetaData {
         this.packageName = packageName;
     }
 
-    public HashMap<String, String> getCallableFunctionNames() {
-        return callableFunctionNames;
-    }
-
     public void setCallableFunctionNames(HashMap<String, String> callableFunctionNames) {
-        this.callableFunctionNames = callableFunctionNames;
+//        this.callableFunctionNames = callableFunctionNames;
     }
 
     public HashMap<String, String> getTestFunctionNames() {
@@ -192,10 +159,6 @@ public class TestMetaData {
         this.testFunctionNames = testFunctionNames;
     }
 
-    public String getPackageId() {
-        return packageId;
-    }
-
     public List<String> getBeforeSuiteFunctionNames() {
         return beforeSuiteFunctionNames;
     }
@@ -204,32 +167,12 @@ public class TestMetaData {
         return afterSuiteFunctionNames;
     }
 
-    public void setHasTestablePackages(boolean hasTestablePackages) {
-        this.hasTestablePackages = hasTestablePackages;
-    }
-
-    public void setBeforeSuiteFunctionNames(List<String> beforeSuiteFunctionNames) {
-        this.beforeSuiteFunctionNames = beforeSuiteFunctionNames;
-    }
-
-    public void setAfterSuiteFunctionNames(List<String> afterSuiteFunctionNames) {
-        this.afterSuiteFunctionNames = afterSuiteFunctionNames;
-    }
-
     public List<String> getBeforeEachFunctionNames() {
         return beforeEachFunctionNames;
     }
 
-    public void setBeforeEachFunctionNames(List<String> beforeEachFunctionNames) {
-        this.beforeEachFunctionNames = beforeEachFunctionNames;
-    }
-
     public List<String> getAfterEachFunctionNames() {
         return afterEachFunctionNames;
-    }
-
-    public void setAfterEachFunctionNames(List<String> afterEachFunctionNames) {
-        this.afterEachFunctionNames = afterEachFunctionNames;
     }
 
     public List<Test> getTests() {
@@ -246,5 +189,29 @@ public class TestMetaData {
 
     public void setSourceFileName(String sourceFileName) {
         this.sourceFileName = sourceFileName;
+    }
+
+    public void addBeforeSuiteFunction(String function) {
+        this.beforeSuiteFunctionNames.add(function);
+    }
+
+    public void addAfterSuiteFunction(String function) {
+        this.afterSuiteFunctionNames.add(function);
+    }
+
+    public void addBeforeEachFunction(String function) {
+        this.beforeEachFunctionNames.add(function);
+    }
+
+    public void addAfterEachFunction(String function) {
+        this.afterEachFunctionNames.add(function);
+    }
+
+    public void addMockFunction(String id, String function) {
+        this.mockFunctionNamesMap.put(id, function);
+    }
+
+    public void addTests(Test tests) {
+        this.tests.add(tests);
     }
 }

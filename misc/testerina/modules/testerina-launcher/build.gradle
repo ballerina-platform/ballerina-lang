@@ -17,15 +17,23 @@
 
 apply from: "$rootDir/gradle/javaProject.gradle"
 
-dependencies {
-    implementation project(':ballerina-tool')
-    implementation project(':ballerina-lang')
-    implementation project(':ballerina-runtime')
-    implementation project(':ballerina-config')
-    implementation project(':toml-parser')
-    implementation 'com.moandjiezana.toml:toml4j'
-
-    compile fileTree(dir: 'libs', include: ['*.jar'])
+configurations {
+    dist {
+        transitive false
+    }
 }
 
-description = 'Ballerina - Test starter'
+dependencies {
+    implementation project(':ballerina-runtime')
+    implementation project(':ballerina-config')
+    implementation 'com.google.code.gson:gson'
+    dist 'com.google.code.gson:gson:2.7'
+
+    jar {
+        from {
+            configurations.dist.collect { it.isDirectory() ? it : zipTree(it) }
+        }
+    }
+}
+
+description = 'Ballerina - Test Executer'

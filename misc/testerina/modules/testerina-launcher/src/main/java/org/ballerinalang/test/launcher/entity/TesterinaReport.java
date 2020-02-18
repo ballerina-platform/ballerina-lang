@@ -18,7 +18,7 @@
 
 package org.ballerinalang.test.launcher.entity;
 
-import org.ballerinalang.testerina.util.TesterinaUtils;
+import org.ballerinalang.test.launcher.util.TesterinaUtils;
 
 import java.io.PrintStream;
 import java.util.ArrayList;

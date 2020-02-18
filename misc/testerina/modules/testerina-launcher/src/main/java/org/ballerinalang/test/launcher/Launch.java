@@ -18,81 +18,38 @@
 package org.ballerinalang.test.launcher;
 
 import com.google.gson.Gson;
-import org.ballerinalang.test.launcher.entity.TestJsonData;
-import org.ballerinalang.testerina.core.TesterinaConstants;
+import org.ballerinalang.jvm.launch.LaunchUtils;
+import org.ballerinalang.test.launcher.entity.TestSuite;
+import org.ballerinalang.test.launcher.util.TesterinaConstants;
+import org.ballerinalang.test.launcher.util.TesterinaUtils;
 
 import java.io.BufferedReader;
-import java.io.File;
-import java.io.IOException;
-import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Comparator;
+import java.util.Arrays;
 
 /**
  * Main class to init the test suit.
  */
 public class Launch {
 
-    private static PrintStream outsStream = System.out;
-    private static PrintStream errStream = System.err;
-
-    public static void main(String[] args) {
-
+    public static void main(String[] args) throws Exception {
         Path jsonCachePath = Paths.get(args[0], TesterinaConstants.TESTERINA_TEST_SUITE);
-        try {
-            BufferedReader br = Files.newBufferedReader(jsonCachePath, StandardCharsets.UTF_8);
+        System.out.println(jsonCachePath);
+        String[] configArgs = Arrays.copyOfRange(args, 1, args.length);
+        LaunchUtils.initConfigurations(configArgs);
+        BufferedReader br = Files.newBufferedReader(jsonCachePath, StandardCharsets.UTF_8);
 
-            //convert the json string back to object
-            Gson gson = new Gson();
-            TestJsonData response = gson.fromJson(br, TestJsonData.class);
-            startTestSuit(Paths.get(response.getSourceRootPath()), response);
-        } catch (RuntimeException e) {
-            throw new RuntimeException(e);
-        } catch (Exception e) {
-            errStream.println(e);
-        }
+        //convert the json string back to object
+        Gson gson = new Gson();
+        TestSuite response = gson.fromJson(br, TestSuite.class);
+        startTestSuit(Paths.get(response.getSourceRootPath()), response);
     }
 
-    private static void startTestSuit(Path sourceRootPath, TestJsonData testJsonData) {
-        executeTests(sourceRootPath, testJsonData, outsStream, errStream);
-    }
 
-    /**
-     * Execute tests in build.
-     *
-     * @param sourceRootPath source root path
-     * @param testJsonData testMetaData
-     * @param outStream      error stream for logging.
-     * @param errStream      info stream for logging.
-     */
-    public static void executeTests(Path sourceRootPath, TestJsonData testJsonData,
-                                    PrintStream outStream, PrintStream errStream) {
-        BTestRunner testRunner = new BTestRunner(outStream, errStream);
-        // Run the tests
-        testRunner.runTest(testJsonData);
-        if (testRunner.getTesterinaReport().isFailure()) {
-            cleanUpDir(sourceRootPath.resolve(TesterinaConstants.TESTERINA_TEMP_DIR));
-            Runtime.getRuntime().exit(1);
-        }
-        cleanUpDir(sourceRootPath.resolve(TesterinaConstants.TESTERINA_TEMP_DIR));
-    }
-
-    /**
-     * Cleans up any remaining testerina metadata.
-     *
-     * @param path The path of the Directory/File to be deleted
-     */
-    public static void cleanUpDir(Path path) {
-        try {
-            if (Files.exists(path)) {
-                Files.walk(path).sorted(Comparator.reverseOrder()).map(Path::toFile).forEach(File::delete);
-            }
-        } catch (IOException e) {
-            errStream.println("Error occurred while deleting the dir : " + path.toString() + " with error : "
-                                      + e.getMessage());
-        }
+    private static void startTestSuit(Path sourceRootPath, TestSuite testSuite) throws ClassNotFoundException {
+        TesterinaUtils.executeTests(sourceRootPath, testSuite);
     }
 }

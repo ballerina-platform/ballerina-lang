@@ -17,13 +17,13 @@
  */
 package org.ballerinalang.test.launcher.entity;
 
-import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.FutureValue;
+import org.ballerinalang.test.launcher.BallerinaTestException;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -38,10 +38,6 @@ public class TesterinaFunction {
 
     public Scheduler scheduler;
 
-//    public BLangFunction getbFunction() {
-//        return bFunction;
-//    }
-
     private String bFunctionName;
     private Class<?> programFile;
     private boolean runTest = true;
@@ -49,22 +45,17 @@ public class TesterinaFunction {
     // Annotation info
     private List<String> groups = new ArrayList<>();
 
-    public TesterinaFunction(Class<?> programFile, String bFunctionName) {
+    public TesterinaFunction(Class<?> programFile, String bFunctionName, Scheduler scheduler) {
         this.bFunctionName = bFunctionName;
         this.programFile = programFile;
+        this.scheduler = scheduler;
     }
 
     public Object invoke() throws BallerinaException {
-        if (scheduler == null) {
-            throw new AssertionError("Scheduler is not initialized in " + bFunctionName);
-        }
         return runOnSchedule(programFile, bFunctionName, scheduler, new Class[]{Strand.class}, new Object[1]);
     }
 
     public Object invoke(Class[] types, Object[] args) {
-        if (scheduler == null) {
-            throw new AssertionError("Scheduler is not initialized in " + bFunctionName);
-        }
         return runOnSchedule(programFile, bFunctionName, scheduler, types, args);
     }
 
@@ -110,7 +101,7 @@ public class TesterinaFunction {
             final Method method = initClazz.getDeclaredMethod(funcName, paramTypes);
             return method.invoke(null, new Object[]{});
         } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
-            throw new BLangCompilerException("Error while invoking function '" + funcName + "" + e.getMessage());
+            throw new BallerinaTestException("Error while invoking function '" + funcName + "" + e.getMessage());
         }
     }
 
@@ -145,7 +136,7 @@ public class TesterinaFunction {
             }
             return out.result;
         } catch (NoSuchMethodException e) {
-            throw new BLangCompilerException("Error while invoking function '" + funcName + "'\n" +
+            throw new BallerinaTestException("Error while invoking function '" + funcName + "'\n" +
                     "If you are using data providers please check if types return from data provider " +
                     "match test function parameter types.", e);
         }

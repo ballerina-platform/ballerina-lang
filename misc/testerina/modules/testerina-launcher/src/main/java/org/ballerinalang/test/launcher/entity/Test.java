@@ -27,15 +27,10 @@ import java.util.List;
 public class Test {
 
     String testName;
-    TesterinaFunction testFunction;
     String beforeTestFunction;
-    TesterinaFunction beforeTestFunctionObj;
     String afterTestFunction;
-    TesterinaFunction afterTestFunctionObj;
     String dataProvider;
-    TesterinaFunction dataProviderFunction;
     List<String> dependsOnTestFunctions = new ArrayList<>();
-    List<TesterinaFunction> dependsOnTestFunctionObjs = new ArrayList<>();
     List<String> groups = new ArrayList<>();
 
     public String getTestName() {
@@ -46,23 +41,6 @@ public class Test {
         this.testName = testName;
     }
 
-    public TesterinaFunction getBeforeTestFunctionObj() {
-        return beforeTestFunctionObj;
-    }
-
-    public void setBeforeTestFunctionObj(TesterinaFunction beforeTestFunctionObj) {
-        this.beforeTestFunctionObj = beforeTestFunctionObj;
-    }
-
-    public TesterinaFunction getAfterTestFunctionObj() {
-        return afterTestFunctionObj;
-    }
-
-    public void setAfterTestFunctionObj(TesterinaFunction afterTestFunctionObj) {
-        this.afterTestFunctionObj = afterTestFunctionObj;
-    }
-
-
     public String getDataProvider() {
         return dataProvider;
     }
@@ -70,16 +48,6 @@ public class Test {
     public void setDataProvider(String dataProvider) {
         this.dataProvider = dataProvider;
     }
-
-
-    public TesterinaFunction getDataProviderFunction() {
-        return dataProviderFunction;
-    }
-
-    public void setDataProviderFunction(TesterinaFunction dataProviderFunction) {
-        this.dataProviderFunction = dataProviderFunction;
-    }
-
 
     public List<String> getDependsOnTestFunctions() {
         return dependsOnTestFunctions;
@@ -97,14 +65,6 @@ public class Test {
         this.beforeTestFunction = beforeTestFunction;
     }
 
-    public TesterinaFunction getTestFunction() {
-        return testFunction;
-    }
-
-    public void setTestFunction(TesterinaFunction testFunction) {
-        this.testFunction = testFunction;
-    }
-
     public String getAfterTestFunction() {
         return afterTestFunction;
     }
@@ -117,15 +77,16 @@ public class Test {
         this.dependsOnTestFunctions.add(function);
     }
 
-    public void addDependsOnTestFunction(TesterinaFunction function) {
-        this.dependsOnTestFunctionObjs.add(function);
-    }
-
     public void setGroups(List<String> groups) {
         this.groups = groups;
     }
 
     public List<String> getGroups() {
         return groups;
+    }
+
+    @Override
+    public String toString() {
+        return getTestName();
     }
 }

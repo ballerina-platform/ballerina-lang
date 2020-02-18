@@ -15,15 +15,10 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.testerina.util;
+package org.ballerinalang.test.launcher.util;
 
-import org.ballerinalang.test.launcher.entity.TestJsonData;
-import org.ballerinalang.testerina.core.BTestRunner;
-import org.ballerinalang.testerina.core.TesterinaConstants;
-import org.ballerinalang.testerina.core.TesterinaRegistry;
-import org.ballerinalang.toml.model.Manifest;
-import org.wso2.ballerinalang.compiler.util.Names;
-import org.wso2.ballerinalang.util.TomlParserUtils;
+import org.ballerinalang.test.launcher.BTestRunner;
+import org.ballerinalang.test.launcher.entity.TestSuite;
 
 import java.io.File;
 import java.io.IOException;
@@ -33,15 +28,17 @@ import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
+
+import static org.ballerinalang.test.launcher.util.TesterinaConstants.ANON_ORG;
+import static org.ballerinalang.test.launcher.util.TesterinaConstants.DOT;
 
 /**
  * Utility methods.
  */
 public class TesterinaUtils {
 
-    private static PrintStream errStream = System.err;
-    private static TesterinaRegistry registry = TesterinaRegistry.getInstance();
+    public static PrintStream outStream = System.out;
+    public static PrintStream errStream = System.err;
 
     /**
      * Cleans up any remaining testerina metadata.
@@ -60,44 +57,21 @@ public class TesterinaUtils {
     }
 
     /**
-     * Returns the full module name with org name for a given module.
+     * Execute tests in build.
      *
-     * @param moduleName module name
-     * @return full module name with organization name if org name exists
+     * @param sourceRootPath source root path
+     * @param testSuite test meta data
      */
-    public static String getFullModuleName(String moduleName) {
-        String orgName = registry.getOrgName();
-        String version = registry.getVersion();
-        // If the orgName is null there is no module, .bal execution
-        if (orgName == null) {
-            return ".";
+    public static void executeTests(Path sourceRootPath, TestSuite testSuite) throws ClassNotFoundException {
+        BTestRunner testRunner = new BTestRunner(outStream, errStream);
+        // Run the tests
+        testRunner.runTest(testSuite);
+        cleanUpDir(sourceRootPath.resolve(TesterinaConstants.TESTERINA_TEMP_DIR));
+        if (testRunner.getTesterinaReport().isFailure()) {
+            Runtime.getRuntime().exit(1);
         }
-        if (orgName.isEmpty() || orgName.equals(Names.ANON_ORG.value)) {
-            orgName = "";
-        } else {
-            orgName = orgName + Names.ORG_NAME_SEPARATOR;
-        }
-
-        if (version == null || version.isEmpty() || version.equals(Names.DEFAULT_VERSION.value)) {
-            return orgName + moduleName + Names.VERSION_SEPARATOR + Names.DEFAULT_VERSION.value;
-        }
-
-        return orgName + moduleName + Names.VERSION_SEPARATOR + version;
+        Runtime.getRuntime().exit(0);
     }
-
-    /**
-     * Set manifest configurations.
-     *
-     * @param sourceRoot source root path
-     */
-    public static void setManifestConfigs(Path sourceRoot) {
-        Manifest manifest = TomlParserUtils.getManifest(sourceRoot);
-        String orgName = manifest.getProject().getOrgName();
-        String version = manifest.getProject().getVersion();
-        TesterinaRegistry.getInstance().setOrgName(orgName);
-        TesterinaRegistry.getInstance().setVersion(version);
-    }
-
     /**
      * Format error message.
      *
@@ -118,5 +92,23 @@ public class TesterinaUtils {
             }
         }
         return newErrMsg.toString();
+    }
+
+    /**
+     * Provides Qualified Class Name.
+     *
+     * @param orgName     Org name
+     * @param packageName Package name
+     * @param className   Class name
+     * @return Qualified class name
+     */
+    public static String getQualifiedClassName(String orgName, String packageName, String className) {
+        if (!DOT.equals(packageName)) {
+            className = packageName.replace('.', '_') + "." + className;
+        }
+        if (!ANON_ORG.equals(orgName)) {
+            className = orgName.replace('.', '_') + "." +  className;
+        }
+        return className;
     }
 }

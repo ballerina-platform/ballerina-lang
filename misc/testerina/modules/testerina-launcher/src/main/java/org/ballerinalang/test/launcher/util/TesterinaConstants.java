@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.ballerinalang.test.launcher;
+package org.ballerinalang.test.launcher.util;
 
 /**
  * Testerina Constant Class holds constants used in runtime.
