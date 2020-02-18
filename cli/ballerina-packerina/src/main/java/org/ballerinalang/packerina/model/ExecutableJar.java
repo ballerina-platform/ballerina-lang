@@ -26,8 +26,9 @@ import java.util.HashSet;
  */
 public class ExecutableJar {
 
-    public Path moduleJar;
+    public Path moduleJarPath;
 
-    public HashSet<Path> platformLibs = new HashSet<>();
+    public HashSet<Path> moduleLibs = new HashSet<>();
 
+    public HashSet<Path> testLibs = new HashSet<>();
 }
