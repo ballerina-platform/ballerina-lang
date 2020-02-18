@@ -36,7 +36,7 @@ public class KafkaConstants {
     public static final String BLOCK_SEPARATOR = ":";
     public static final String ARRAY_INDICATOR = "[]";
     public static final String KAFKA_PACKAGE_NAME = "kafka";
-    public static final String VERSION = "1.1.0";
+    private static final String VERSION = "1.1.0";
 
     public static final String FULL_PACKAGE_NAME = KAFKA_PACKAGE_NAME + BLOCK_SEPARATOR + VERSION;
     public static final String KAFKA_PROTOCOL_PACKAGE = BALLERINA_PACKAGE_PREFIX + KAFKA_PACKAGE_NAME;

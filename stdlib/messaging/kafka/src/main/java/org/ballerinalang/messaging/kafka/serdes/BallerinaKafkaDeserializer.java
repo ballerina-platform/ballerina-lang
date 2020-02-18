@@ -37,7 +37,7 @@ public class BallerinaKafkaDeserializer implements Deserializer {
 
     private ObjectValue deserializerObject = null;
     private BRuntime runtime = null;
-    private int timeout = 10000;
+    private int timeout = 30000;
 
     @Override
     public void configure(Map configs, boolean isKey) {
@@ -60,7 +60,6 @@ public class BallerinaKafkaDeserializer implements Deserializer {
 
     @Override
     public void close() {
-        BRuntime.getCurrentRuntime().getSyncMethodInvokeResult(this.deserializerObject, KafkaConstants.FUNCTION_CLOSE,
-                                                               this.timeout);
+        this.runtime.getSyncMethodInvokeResult(this.deserializerObject, KafkaConstants.FUNCTION_CLOSE, this.timeout);
     }
 }

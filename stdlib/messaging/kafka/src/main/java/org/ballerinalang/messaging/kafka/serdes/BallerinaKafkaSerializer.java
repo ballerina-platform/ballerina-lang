@@ -33,7 +33,7 @@ import java.util.Map;
 public class BallerinaKafkaSerializer implements Serializer {
 
     private ObjectValue serializerObject = null;
-    int timeout = 10000;
+    private int timeout = 30000;
 
     @Override
     public void configure(Map configs, boolean isKey) {

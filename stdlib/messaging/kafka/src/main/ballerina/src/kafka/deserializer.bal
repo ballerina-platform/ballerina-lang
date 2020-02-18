@@ -14,8 +14,15 @@
 // specific language governing permissions and limitations
 // under the License.
 
+# Represents a Kafka deserializer object. This object can be used to create custom deserializers for Ballerina Kafka
+# consumers.
 public type Deserializer abstract object {
+    # Close the deserialization process. This function runs after the deserialization process is done.
     public function close();
 
+    # Deserialize the provided data. Implement this to deserialize `byte[]` and return any data type.
+    #
+    # + data - Data which should be deserialized.
+    # + return - Deserialized value.
     public function deserialize(byte[] data) returns any;
 };

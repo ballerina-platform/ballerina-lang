@@ -1,4 +1,4 @@
-// Copyright (c) 2019 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+// Copyright (c) 2020 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 //
 // WSO2 Inc. licenses this file to you under the Apache License,
 // Version 2.0 (the "License"); you may not use this file except
@@ -31,7 +31,7 @@ public type PersonSerializer object {
     *kafka:Serializer;
 
     public function serialize(any data) returns byte[] {
-        Person person = <Person> data;
+        Person person = <Person>data;
         byte[] result = person.age.toString().toBytes();
         byte[] nameBytes = person.name.toBytes();
         result.push(...nameBytes);
@@ -51,7 +51,7 @@ public type PersonDeserializer object {
         int age = checkpanic 'int:fromString(checkpanic 'string:fromBytes('array:slice(data, 0, 2)));
         string name = checkpanic 'string:fromBytes('array:slice(data, 2));
 
-        Person result = { name: name, age: age };
+        Person result = {name: name, age: age};
         return result;
     }
 
@@ -72,7 +72,7 @@ kafka:ProducerConfig producerConfigs = {
     valueSerializerType: kafka:SER_CUSTOM,
     valueSerializer: personSerializer
 };
-kafka:Producer producer = new(producerConfigs);
+kafka:Producer producer = new (producerConfigs);
 
 kafka:ConsumerConfig consumerConfigs = {
     bootstrapServers: "localhost:14113",
@@ -84,7 +84,7 @@ kafka:ConsumerConfig consumerConfigs = {
     valueDeserializerType: kafka:DES_CUSTOM,
     valueDeserializer: personDeserializer
 };
-kafka:Consumer consumer = new(consumerConfigs);
+kafka:Consumer consumer = new (consumerConfigs);
 
 public function sendData() returns error? {
     Person person = {
@@ -95,7 +95,7 @@ public function sendData() returns error? {
     return producer->send(person, TOPIC);
 }
 
-public function retrieveData() returns any|error {
+public function retrieveData() returns any | error {
     var records = consumer->poll(1000);
     if (records is error) {
         return records;
@@ -113,4 +113,3 @@ public function retrieveData() returns any|error {
         }
     }
 }
-

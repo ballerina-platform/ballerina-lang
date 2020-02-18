@@ -126,7 +126,7 @@ public class KafkaMetricsUtil {
         reportPublish(observerContext, size);
     }
 
-    public static int getMessageSize(Object message) {
+    private static int getMessageSize(Object message) {
         int size = 0;
         if (message instanceof String) {
             byte[] bytes = ((String) message).getBytes(StandardCharsets.UTF_8);
