@@ -59,7 +59,7 @@ Currently, Ballerina has the below plugins developed for IntelliJ IDEA and VS Co
 
 ### Set up the ANTLR4 plugin
 
-This plugin will be useful to check and validate a [grammar rule](#contributing-to-ballerina-grammar) you wrote. For instructions on installing the ANTLR4 plugin based on your preferred IDE/Editor (which supports antlr 4.x version), go to [ANTLR Documentation](https://www.antlr.org/tools.html).
+This plugin will be useful to check and validate a [grammar rule](#contributing-to-ballerina-grammar) you wrote. For instructions on installing the ANTLR4 plugin based on your preferred IDE/Editor (which supports ANTLR 4.x version), go to [ANTLR Documentation](https://www.antlr.org/tools.html).
 
 ## Submit your contribution
 
