@@ -4,6 +4,10 @@ type Person record {|
    int age;
 |};
 
+type Teacher record {|
+   string firstName;
+   string lastName;
+|};
 
 function testSimpleSelectQueryWithSimpleVariable() returns Person[]{
 
@@ -57,6 +61,24 @@ function testSimpleSelectQueryWithRecordVariableV2() returns Person[]{
                    firstName: firstName,
                    lastName: lastName,
                    age: age
+            };
+
+    return  outputPersonList;
+}
+
+function testSimpleSelectQueryWithRecordVariableV3() returns Teacher[]{
+
+    Person p1 = {firstName:"Alex", lastName: "George", age: 23};
+    Person p2 = {firstName:"Ranjan", lastName: "Fonseka", age: 30};
+    Person p3 = {firstName:"John", lastName: "David", age: 33};
+
+    Person[] personList = [p1, p2, p3];
+
+    Teacher[] outputPersonList =
+            from var { firstName, lastName, age } in personList
+            select {
+                   firstName,
+                   lastName
             };
 
     return  outputPersonList;

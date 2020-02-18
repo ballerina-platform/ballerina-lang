@@ -91,6 +91,21 @@ public class SimpleQueryExpressionWithDefinedTypeTest {
         Assert.assertEquals(((BInteger) person3.get("age")).intValue(), 33);
     }
 
+    @Test(description = "Test simple select clause - record variable definition statement v3 ")
+    public void testSimpleSelectQueryWithRecordVariableV3() {
+        BValue[] returnValues = BRunUtil.invoke(result, "testSimpleSelectQueryWithRecordVariableV3");
+        Assert.assertNotNull(returnValues);
+
+        Assert.assertEquals(returnValues.length, 3, "Expected events are not received");
+
+        BMap<String, BValue> person1 = (BMap<String, BValue>) returnValues[0];
+        BMap<String, BValue> person2 = (BMap<String, BValue>) returnValues[1];
+        BMap<String, BValue> person3 = (BMap<String, BValue>) returnValues[2];
+
+        Assert.assertEquals(person1.get("firstName").stringValue(), "Alex");
+        Assert.assertEquals(person2.get("lastName").stringValue(), "Fonseka");
+    }
+
     @Test(description = "Test simple select clause with a where clause")
     public void testSimpleSelectQueryWithWhereClause() {
         BValue[] returnValues = BRunUtil.invoke(result, "testSimpleSelectQueryWithWhereClause");
