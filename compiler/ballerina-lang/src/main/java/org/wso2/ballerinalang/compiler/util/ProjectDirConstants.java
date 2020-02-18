@@ -94,4 +94,6 @@ public class ProjectDirConstants {
     public static final String JSON_CACHE_DIR_NAME = "json_cache";
 
     public static final String BLANG_PKG_DEFAULT_VERSION = "0.0.0";
+
+    public static final String TEST_RUNTIME_JAR_PREFIX = "testerina-launcher-";
 }
