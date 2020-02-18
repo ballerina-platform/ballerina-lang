@@ -2198,7 +2198,7 @@ public class JvmMethodGen {
         mv.visitVarInsn(ALOAD, 0);
 
         // load value[i]
-        mv.visitLdcInsn(paramIndex);
+        mv.visitLdcInsn((long) paramIndex);
         mv.visitInsn(L2I);
         mv.visitInsn(AALOAD);
     }

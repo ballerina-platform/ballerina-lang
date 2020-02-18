@@ -385,7 +385,7 @@ class JvmValueGen {
                     mv.visitVarInsn(ALOAD, 3);
 
                     // load j'th parameter
-                    mv.visitLdcInsn(j);
+                    mv.visitLdcInsn((long)j);
                     mv.visitInsn(L2I);
                     mv.visitInsn(AALOAD);
                     addUnboxInsn(mv, pType, useBString);
