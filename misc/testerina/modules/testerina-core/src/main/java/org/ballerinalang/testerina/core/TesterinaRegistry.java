@@ -17,7 +17,7 @@
 */
 package org.ballerinalang.testerina.core;
 
-import org.ballerinalang.testerina.core.entity.TestSuite;
+import org.ballerinalang.test.launcher.entity.TestSuite;
 
 import java.util.ArrayList;
 import java.util.HashMap;
