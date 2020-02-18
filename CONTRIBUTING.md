@@ -86,7 +86,7 @@ This plugin will be useful to check and validate a [grammar rule](#contributing-
     java -jar <PATH-TO-ANTLR-JAR>/antlr-4.5.3-complete.jar *.g4 -package org.wso2.ballerinalang.compiler.parser.antlr4 -o <BALLERINA_PROJECT_ROOT>/compiler/ballerina-lang/src/main/java/org/wso2/ballerinalang/compiler/parser/antlr4/
     ```
 
-    **Info:** The above command will autogenerate some Java classes. The Ballerina AST builder is written on top of the auto-generated `BallerinaParserBaseListener.java` class. Thus, if any new rules are added to the `BallerinaParser.g4`, above command will generate new methods in the `BallerinaParserBaseListener.java` and you need to override those newly-added methods inside the `BLangParserListener.java` accordingly.
+    **Info:** The above command will autogenerate some Java classes. The Ballerina AST builder is written on top of the auto-generated `BallerinaParserBaseListener.java` class. Thus, if any new rules are added to the `BallerinaParser.g4`, the above command will generate new methods in the `BallerinaParserBaseListener.java` and you need to override those newly-added methods inside the `BLangParserListener.java` accordingly.
 
     For more information about the Ballerina compiler, go to [Ballerina Compiler — Design](https://medium.com/@sameerajayasoma/ballerina-compiler-design-3406acc2476c?).
 
