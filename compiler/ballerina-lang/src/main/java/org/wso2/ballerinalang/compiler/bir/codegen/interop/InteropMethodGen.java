@@ -710,7 +710,8 @@ public class InteropMethodGen {
     private static JMethodFunctionWrapper createJMethodWrapper(InteropValidator interopValidator,
                                                                InteropValidationRequest jMethodValidationReq,
                                                                BIRFunctionWrapper birFuncWrapper) {
-        JMethod jMethod = interopValidator.validateAndGetJMethod(jMethodValidationReq);
+        JMethod jMethod = interopValidator.validateAndGetJMethod(
+                (InteropValidationRequest.MethodValidationRequest) jMethodValidationReq);
         return new JMethodFunctionWrapper(birFuncWrapper, jMethod);
     }
 
@@ -746,18 +747,7 @@ public class InteropMethodGen {
         }
     }
 
-//    bir:BTypeInt |bir:BTypeFloat |bir:BTypeBoolean |bir:BTypeByte |bir:BTypeNil;
-
-//    // Java specific terminator definitions
-//    public static class JTerminator {
-//        DiagnosticPos pos;
-//        BIRTerminatorKind kind = BIRTERMINATOR_PLATFORM;
-//        JTermKind jKind;
-//        anydata...;
-//    }
-
     public static class JIMethodCall extends BIRTerminator {
-        DiagnosticPos pos;
         @Nilable
         public
         List<BIROperand> args;
@@ -787,7 +777,6 @@ public class InteropMethodGen {
     }
 
     public static class JIConstructorCall extends BIRTerminator {
-//        DiagnosticPos pos;
         @Nilable
         public
         List<BIROperand> args;
@@ -843,10 +832,6 @@ public class InteropMethodGen {
 
     public static class JErrorEntry extends BIRErrorEntry {
         public List<CatchIns> catchIns;
-        BIRBasicBlock trapBB;
-        BIRBasicBlock endBB;
-        BIROperand errorOp;
-        BIRBasicBlock targetBB;
 
         public JErrorEntry(BIRBasicBlock trapBB, BIRBasicBlock endBB, BIROperand errorOp, BIRBasicBlock targetBB) {
             super(trapBB, endBB, errorOp, targetBB);
