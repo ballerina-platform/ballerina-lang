@@ -40,6 +40,7 @@ dependencies {
     implementation project(':ballerina-runtime')
     implementation project(':ballerina-tool')
     implementation project(':testerina:testerina-core')
+    implementation project(':testerina:testerina-launcher')
     implementation project(':toml-parser')
     implementation project(':docerina')
     implementation 'com.moandjiezana.toml:toml4j'
