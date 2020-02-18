@@ -33,12 +33,12 @@ public abstract class InteropValidationRequest {
     }
 
     static class MethodValidationRequest extends InteropValidationRequest {
-        JInterop.MethodKind methodKind;
+        JMethodKind methodKind;
         List<JType> paramTypeConstraints;
         boolean restParamExist = false;
 
         MethodValidationRequest(String name, String klass, BInvokableType bFuncType,
-                                JInterop.MethodKind methodKind) {
+                                JMethodKind methodKind) {
 
             super(name, klass, bFuncType);
             this.methodKind = methodKind;
@@ -46,12 +46,12 @@ public abstract class InteropValidationRequest {
     }
 
     static class FieldValidationRequest extends InteropValidationRequest {
-        JInterop.FieldMethod method;
+        JFieldMethod fieldMethod;
 
         FieldValidationRequest(String name, String klass, BInvokableType bFuncType,
-                               JInterop.FieldMethod method) {
+                               JFieldMethod fieldMethod) {
             super(name, klass, bFuncType);
-            this.method = method;
+            this.fieldMethod = fieldMethod;
         }
     }
 }

@@ -15,16 +15,17 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-
 package org.wso2.ballerinalang.compiler.bir.codegen.interop;
 
-public class InteropValidator {
-    JMethod validateAndGetJMethod(InteropValidationRequest interopValidationRequest) {
-        return null;
+enum JTermKind {
+    JTERM_CALL(1), JTERM_NEW(2);
+
+    private int termKind;
+    JTermKind(int termKind) {
+        this.termKind = termKind;
     }
 
-    JavaField validateAndGetJField(InteropValidationRequest interopValidationRequest) {
-        return JInteropFieldValidator.validateAndGetJField(
-                (InteropValidationRequest.FieldValidationRequest) interopValidationRequest);
+    int getTermKind() {
+        return this.termKind;
     }
 }

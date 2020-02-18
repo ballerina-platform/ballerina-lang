@@ -86,46 +86,6 @@ class JInterop {
     static final String ARRAY_ELEMENT_TYPE_FIELD = "eType";
     static final String CLASS_LOADER_DATA = "class_loader";
 
-
-    enum FieldMethod {
-        ACCESS("access"), MUTATE("mutate");
-
-        private String strValue;
-        FieldMethod(String strValue) {
-            this.strValue = strValue;
-        }
-
-        String getStringValue() {
-            return this.strValue;
-        }
-    }
-
-    enum MethodKind {
-        METHOD("method"), CONSTRUCTOR("constructor");
-
-        private String strValue;
-        MethodKind(String strValue) {
-            this.strValue = strValue;
-        }
-
-        String getStringValue() {
-            return this.strValue;
-        }
-    }
-
-    enum JTermKind {
-        JTERM_CALL(1), JTERM_NEW(2);
-
-        private int termKind;
-        JTermKind(int termKind) {
-            this.termKind = termKind;
-        }
-
-        int getTermKind() {
-            return this.termKind;
-        }
-    }
-
     static final String CONSTRUCTOR_ANNOT_TAG = "Constructor";
     static final String METHOD_ANNOT_TAG = "Method";
     static final String FIELD_GET_ANNOT_TAG = "FieldGet";
@@ -498,6 +458,14 @@ class JInterop {
         }
     }
 
+    static Class<?> loadClass(String className) {
+        try {
+            return Class.forName(className.replace("/", "."));
+        } catch (ClassNotFoundException | NoClassDefFoundError e) {
+            throw new JInteropException(CLASS_NOT_FOUND_REASON, e.getMessage(), e);
+        }
+    }
+
     static ErrorValue createErrorBValue(String reason, String details) {
         MapValue<String, Object> refData = new MapValueImpl<>(BTypes.typeError.detailType);
         if (details != null) {
@@ -509,19 +477,19 @@ class JInterop {
     }
 
 
-    static MethodKind getMethodKindFromAnnotTag(String annotTagRef) {
+    static JMethodKind getMethodKindFromAnnotTag(String annotTagRef) {
         if (CONSTRUCTOR_ANNOT_TAG.equals(annotTagRef)) {
-            return MethodKind.CONSTRUCTOR;
+            return JMethodKind.CONSTRUCTOR;
         } else {
-            return MethodKind.METHOD;
+            return JMethodKind.METHOD;
         }
     }
 
-    static FieldMethod getFieldMethodFromAnnotTag(String annotTagRef) {
+    static JFieldMethod getFieldMethodFromAnnotTag(String annotTagRef) {
         if (FIELD_GET_ANNOT_TAG.equals(annotTagRef)) {
-            return FieldMethod.ACCESS;
+            return JFieldMethod.ACCESS;
         } else {
-            return FieldMethod.MUTATE;
+            return JFieldMethod.MUTATE;
         }
     }
 

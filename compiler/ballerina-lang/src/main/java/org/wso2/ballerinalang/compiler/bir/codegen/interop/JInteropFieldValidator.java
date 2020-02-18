@@ -17,71 +17,80 @@
  */
 package org.wso2.ballerinalang.compiler.bir.codegen.interop;
 
-import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.values.MapValue;
-import org.ballerinalang.jvm.values.ObjectValue;
-import org.wso2.ballerinalang.compiler.bir.codegen.interop.JavaField.JFieldMethod;
-
 import java.lang.reflect.Field;
-
-import static org.wso2.ballerinalang.compiler.bir.codegen.interop.JInterop.CLASS_FIELD;
-import static org.wso2.ballerinalang.compiler.bir.codegen.interop.JInterop.CLASS_LOADER_DATA;
-import static org.wso2.ballerinalang.compiler.bir.codegen.interop.JInterop.FIELD_TYPE_FIELD;
-import static org.wso2.ballerinalang.compiler.bir.codegen.interop.JInterop.IS_STATIC_FIELD;
-import static org.wso2.ballerinalang.compiler.bir.codegen.interop.JInterop.METHOD_FIELD;
-import static org.wso2.ballerinalang.compiler.bir.codegen.interop.JInterop.NAME_FIELD;
-import static org.wso2.ballerinalang.compiler.bir.codegen.interop.JInterop.SIG_FIELD;
 
 /**
  * Ballerina external function implementation that validates Java interop functions and link them with Java fields.
  *
- * @since 1.0.0
+ * @since 1.2.0
  */
 
-public class JInteropFieldValidator {
+class JInteropFieldValidator {
 
-    public static Object validateAndGetJField(Strand strand, ObjectValue interopValidatorStruct,
-                                              MapValue<String, Object> jFieldValidationRequest) {
+    static JavaField validateAndGetJField(InteropValidationRequest.FieldValidationRequest fieldValidationRequest) {
+        // 1) Load Java class  - validate
+        JFieldMethod method = fieldValidationRequest.fieldMethod;
+        String className = fieldValidationRequest.klass;
+        Class clazz = JInterop.loadClass(className);
+
+        // 2) Load Java method details - use the method kind in the request - validate kind and the existance of the
+        // method. Possible there may be more than one methods for the given kind and the name
+        String fieldName = fieldValidationRequest.name;
+        JavaField javaField;
         try {
-            // 1) Load Java class  - validate
-            ClassLoader classLoader = (ClassLoader) interopValidatorStruct.getNativeData(CLASS_LOADER_DATA);
-            JavaField.JFieldMethod method = getFieldMethod(jFieldValidationRequest);
-            String className = (String) jFieldValidationRequest.get(CLASS_FIELD);
-            Class clazz = JInterop.loadClass(className, classLoader);
-
-            // 2) Load Java method details - use the method kind in the request - validate kind and the existance of the
-            // method. Possible there may be more than one methods for the given kind and the name
-            String fieldName = (String) jFieldValidationRequest.get(NAME_FIELD);
-            JavaField javaField;
-            try {
-                Field field = clazz.getField(fieldName);
-                javaField = new JavaField(method, field);
-            } catch (NoSuchFieldException e) {
-                throw new JInteropException(JInteropException.FIELD_NOT_FOUND_REASON,
-                                            "No such field '" + fieldName + "' found in class '" + className + "'");
-            }
-            return createJFieldBValue(javaField);
-        } catch (JInteropException e) {
-            return JInterop.createErrorBValue(e.getReason(), e.getMessage());
+            Field field = clazz.getField(fieldName);
+            javaField = new JavaField(method, field);
+        } catch (NoSuchFieldException e) {
+            throw new JInteropException(JInteropException.FIELD_NOT_FOUND_REASON, "No such field '" + fieldName +
+                    "' found in class '" + className + "'");
         }
-        // Any other exceptions will cause a panic.
+
+        return javaField;
     }
 
-    private static JFieldMethod getFieldMethod(MapValue<String, Object> jFieldValidationRequest) {
-        return JFieldMethod.getKind((String) jFieldValidationRequest.get(METHOD_FIELD));
-    }
 
-    private static MapValue<String, Object> createJFieldBValue(JavaField javaField) {
-        MapValue<String, Object> jFieldBRecord = JInterop.createRecordBValue(JInterop.FIELD_TYPE_NAME);
-        jFieldBRecord.put(NAME_FIELD, javaField.getName());
-        jFieldBRecord.put(CLASS_FIELD, javaField.getDeclaringClassName().replace('.', '/'));
-        jFieldBRecord.put(IS_STATIC_FIELD, javaField.isStatic());
-        jFieldBRecord.put(METHOD_FIELD, javaField.getMethod().getStringValue());
-        jFieldBRecord.put(SIG_FIELD, javaField.getSignature());
-        jFieldBRecord.put(FIELD_TYPE_FIELD, JInterop.createJTypeBValue(javaField.getFieldType()));
-
-        return jFieldBRecord;
-    }
+//    public static Object validateAndGetJField(Strand strand, ObjectValue interopValidatorStruct,
+//                                              MapValue<String, Object> jFieldValidationRequest) {
+//        try {
+//            // 1) Load Java class  - validate
+//            ClassLoader classLoader = (ClassLoader) interopValidatorStruct.getNativeData(CLASS_LOADER_DATA);
+//            JFieldMethod method = getFieldMethod(jFieldValidationRequest);
+//            String className = (String) jFieldValidationRequest.get(CLASS_FIELD);
+//            Class clazz = JInterop.loadClass(className, classLoader);
+//
+//            // 2) Load Java method details - use the method kind in the request - validate kind and the existance of the
+//            // method. Possible there may be more than one methods for the given kind and the name
+//            String fieldName = (String) jFieldValidationRequest.get(NAME_FIELD);
+//            JavaField javaField;
+//            try {
+//                Field field = clazz.getField(fieldName);
+//                javaField = new JavaField(method, field);
+//            } catch (NoSuchFieldException e) {
+//                throw new JInteropException(JInteropException.FIELD_NOT_FOUND_REASON,
+//                                            "No such field '" + fieldName + "' found in class '" + className + "'");
+//            }
+//            return createJFieldBValue(javaField);
+//        } catch (JInteropException e) {
+//            return JInterop.createErrorBValue(e.getReason(), e.getMessage());
+//        }
+//        // Any other exceptions will cause a panic.
+//    }
+//
+//    private static JFieldMethod getFieldMethod(MapValue<String, Object> jFieldValidationRequest) {
+//        return JFieldMethod.getKind((String) jFieldValidationRequest.get(METHOD_FIELD));
+//    }
+//
+//    private static MapValue<String, Object> createJFieldBValue(JavaField javaField) {
+//        MapValue<String, Object> jFieldBRecord = JInterop.createRecordBValue(JInterop.FIELD_TYPE_NAME);
+//        jFieldBRecord.put(NAME_FIELD, javaField.getName());
+//        jFieldBRecord.put(CLASS_FIELD, javaField.getDeclaringClassName().replace('.', '/'));
+//        jFieldBRecord.put(IS_STATIC_FIELD, javaField.isStatic());
+//        jFieldBRecord.put(METHOD_FIELD, javaField.getMethod().getStringValue());
+//        jFieldBRecord.put(SIG_FIELD, javaField.getSignature());
+//        jFieldBRecord.put(FIELD_TYPE_FIELD, JInterop.createJTypeBValue(javaField.getFieldType()));
+//
+//        return jFieldBRecord;
+//    }
 }
 
 

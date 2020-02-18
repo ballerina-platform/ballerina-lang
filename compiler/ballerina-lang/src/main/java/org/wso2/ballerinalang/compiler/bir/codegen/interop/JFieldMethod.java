@@ -15,16 +15,31 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-
 package org.wso2.ballerinalang.compiler.bir.codegen.interop;
 
-public class InteropValidator {
-    JMethod validateAndGetJMethod(InteropValidationRequest interopValidationRequest) {
-        return null;
+/**
+ * This enum is used to indicate whether the given Ballerina function mutates or access the java field.
+ *
+ * @since 1.2.0
+ */
+enum JFieldMethod {
+    ACCESS("access"),
+    MUTATE("mutate");
+
+    private String strValue;
+
+    JFieldMethod(String strValue) {
+        this.strValue = strValue;
     }
 
-    JavaField validateAndGetJField(InteropValidationRequest interopValidationRequest) {
-        return JInteropFieldValidator.validateAndGetJField(
-                (InteropValidationRequest.FieldValidationRequest) interopValidationRequest);
+    static JFieldMethod getKind(String value) {
+        if ("access".equals(value)) {
+            return ACCESS;
+        }
+        return MUTATE;
+    }
+
+    String getStringValue() {
+        return this.strValue;
     }
 }

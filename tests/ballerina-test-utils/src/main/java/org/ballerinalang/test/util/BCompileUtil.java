@@ -32,6 +32,7 @@ import org.ballerinalang.util.exceptions.BallerinaException;
 import org.wso2.ballerinalang.compiler.Compiler;
 import org.wso2.ballerinalang.compiler.FileSystemProjectDirectory;
 import org.wso2.ballerinalang.compiler.SourceDirectory;
+import org.wso2.ballerinalang.compiler.bir.BackendDriver;
 import org.wso2.ballerinalang.compiler.desugar.ASTBuilderUtil;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
@@ -546,20 +547,20 @@ public class BCompileUtil {
         }
 
         BLangPackage bLangPackage = (BLangPackage) compileResult.getAST();
+        BackendDriver backendDriver = BackendDriver.getInstance(context);
         try {
             Path buildDir = Paths.get("build").toAbsolutePath().normalize();
             Path systemBirCache = buildDir.resolve("bir-cache");
-            URLClassLoader cl = createClassLoaders(bLangPackage, systemBirCache, buildDir.resolve("test-bir-temp"),
-                    Optional.empty(), false, inProc);
+            URLClassLoader cl = createClassLoaders(backendDriver, bLangPackage, systemBirCache,
+                    buildDir.resolve("test-bir-temp"), Optional.empty(), false, inProc);
             compileResult.setClassLoader(cl);
 
             // TODO: calling run on compile method is wrong, should be called from BRunUtil
             if (init) {
                 runInit(bLangPackage, cl, temp);
             }
-
             return compileResult;
-        } catch (ClassNotFoundException | IOException e) {
+        } catch (Exception e) {
             throw new BLangRuntimeException("Error during jvm code gen of the test", e);
         }
     }
@@ -633,12 +634,13 @@ public class BCompileUtil {
         return compileOnJBallerina(context, sourceRoot.toString(), packageName, temp, init);
     }
 
-    private static URLClassLoader createClassLoaders(BLangPackage bLangPackage,
-                                                 Path systemBirCache,
-                                                 Path buildRoot,
-                                                 Optional<Path> jarTargetRoot,
-                                                 boolean dumpBir,
-                                                 boolean inProc) throws IOException {
+    private static URLClassLoader createClassLoaders(BackendDriver backendDriver,
+                                                     BLangPackage bLangPackage,
+                                                     Path systemBirCache,
+                                                     Path buildRoot,
+                                                     Optional<Path> jarTargetRoot,
+                                                     boolean dumpBir,
+                                                     boolean inProc) throws IOException {
         byte[] bytes = PackageFileWriter.writePackage(bLangPackage.symbol.birPackageFile);
         String fileName = calcFileNameForJar(bLangPackage);
         Files.createDirectories(buildRoot);
@@ -650,17 +652,19 @@ public class BCompileUtil {
         Path importsBirCache = intermediates.resolve("imports").resolve("bir-cache");
         Path importsTarget = importsBirCache.getParent().resolve("generated-bir-jar");
         Files.createDirectories(importsTarget);
+        //      TODO : add imports codegen below
+//        writeNonEntryPkgs(bLangPackage.symbol.imports, systemBirCache, importsBirCache, importsTarget, dumpBir);
+//        if (inProc) {
+//            List<String> commands = BootstrapRunner.createArgsForJBalCompilerBackend(entryBir.toString(),
+//                    jarTarget.toString(), dumpBir, Collections.emptyList(), systemBirCache.toString(),
+//                    importsBirCache.toString());
+//            BootstrapRunner.generateJarBinaryInProc(commands);
+//        } else {
+//            generateJarBinary(entryBir.toString(), jarTarget.toString(), dumpBir, Collections.emptyList(),
+//                    systemBirCache.toString(), importsBirCache.toString());
+//        }
 
-        writeNonEntryPkgs(bLangPackage.symbol.imports, systemBirCache, importsBirCache, importsTarget, dumpBir);
-        if (inProc) {
-            List<String> commands = BootstrapRunner.createArgsForJBalCompilerBackend(entryBir.toString(),
-                    jarTarget.toString(), dumpBir, Collections.emptyList(), systemBirCache.toString(),
-                    importsBirCache.toString());
-            BootstrapRunner.generateJarBinaryInProc(commands);
-        } else {
-            generateJarBinary(entryBir.toString(), jarTarget.toString(), dumpBir, Collections.emptyList(),
-                    systemBirCache.toString(), importsBirCache.toString());
-        }
+        backendDriver.execute(bLangPackage.symbol.bir, false, jarTarget);
 
         if (!Files.exists(jarTarget)) {
             throw new RuntimeException("Compiled binary jar is not found: " + jarTarget);
