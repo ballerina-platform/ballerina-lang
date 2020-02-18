@@ -46,7 +46,7 @@ public class CodeGenerator {
     //TODO: remove static
     static SymbolTable symbolTable;
 
-    public CodeGenerator(CompilerContext context) {
+    private CodeGenerator(CompilerContext context) {
         context.put(CODE_GEN, this);
         symbolTable = SymbolTable.getInstance(context);
     }
@@ -62,10 +62,13 @@ public class CodeGenerator {
     }
 
     public void generate(BIRNode.BIRPackage entryMod, Path target) {
-        JvmPackageGen.symbolTable = this.symbolTable;
+        JvmPackageGen.symbolTable = symbolTable;
         compiledPkgCache.put(entryMod.org.value + entryMod.name.value, entryMod);
         JvmPackageGen.JarFile jarFile = new JvmPackageGen.JarFile();
-        InteropValidator interopValidator = new InteropValidator();
+
+        //TODO : do we need a classloader?
+        ClassLoader classLoader = CodeGenerator.class.getClassLoader();
+        InteropValidator interopValidator = new InteropValidator(classLoader, symbolTable);
         generatePackage(entryMod, jarFile, interopValidator, true);
         writeJarFile(jarFile, target);
     }

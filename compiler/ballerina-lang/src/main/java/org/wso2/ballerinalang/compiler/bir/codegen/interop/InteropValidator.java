@@ -15,16 +15,75 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-
 package org.wso2.ballerinalang.compiler.bir.codegen.interop;
 
+import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
+
+import java.lang.reflect.Field;
+
+/**
+ * Java interop validation class for both field access and method invocations.
+ *
+ * @since 1.2.0
+ */
 public class InteropValidator {
-    JMethod validateAndGetJMethod(InteropValidationRequest interopValidationRequest) {
-        return null;
+
+    private ClassLoader classLoader;
+    private SymbolTable symbolTable;
+
+    public InteropValidator(ClassLoader classLoader, SymbolTable symbolTable) {
+        this.classLoader = classLoader;
+        this.symbolTable = symbolTable;
     }
 
-    JavaField validateAndGetJField(InteropValidationRequest interopValidationRequest) {
-        return JInteropFieldValidator.validateAndGetJField(
-                (InteropValidationRequest.FieldValidationRequest) interopValidationRequest);
+    /**
+     * Method that validates Java interop functions and link them with Java methods.
+     *
+     * @param methodValidationRequest the methodValidationRequest
+     * @return validated and linked java method representation
+     */
+    JMethod validateAndGetJMethod(InteropValidationRequest.MethodValidationRequest methodValidationRequest) {
+        try {
+            // Populate JMethodRequest from the BValue
+            JMethodRequest jMethodRequest = JMethodRequest.build(methodValidationRequest, classLoader);
+
+            // Find the most specific Java method or constructor for the given request
+            JMethodResolver methodResolver = new JMethodResolver(classLoader, symbolTable);
+
+            return methodResolver.resolve(jMethodRequest);
+        } catch (JInteropException e) {
+            throw JInterop.createJInteropError(e.getReason(), e.getMessage());
+        }
+    }
+
+    /**
+     * Method that validates Java interop functions and link them with Java fields.
+     *
+     * @param fieldValidationRequest the fieldValidationRequest
+     * @return validated and linked java field representation
+     */
+    JavaField validateAndGetJField(InteropValidationRequest.FieldValidationRequest fieldValidationRequest) {
+        try {
+            // 1) Load Java class  - validate
+            JFieldMethod method = fieldValidationRequest.fieldMethod;
+            String className = fieldValidationRequest.klass;
+            Class clazz = JInterop.loadClass(className, classLoader);
+
+            // 2) Load Java method details - use the method kind in the request - validate kind and the existence of the
+            // method. Possible there may be more than one methods for the given kind and the name
+            String fieldName = fieldValidationRequest.name;
+            JavaField javaField;
+            try {
+                Field field = clazz.getField(fieldName);
+                javaField = new JavaField(method, field);
+            } catch (NoSuchFieldException e) {
+                throw new JInteropException(JInteropException.FIELD_NOT_FOUND_REASON, "No such field '" + fieldName +
+                        "' found in class '" + className + "'");
+            }
+
+            return javaField;
+        } catch (JInteropException e) {
+            throw JInterop.createJInteropError(e.getReason(), e.getMessage());
+        }
     }
 }

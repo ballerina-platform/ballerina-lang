@@ -17,14 +17,6 @@
  */
 package org.wso2.ballerinalang.compiler.bir.codegen.interop;
 
-import org.ballerinalang.jvm.TypeChecker;
-import org.ballerinalang.jvm.types.BArrayType;
-import org.ballerinalang.jvm.types.BFiniteType;
-import org.ballerinalang.jvm.types.BMapType;
-import org.ballerinalang.jvm.types.BType;
-import org.ballerinalang.jvm.types.BTypes;
-import org.ballerinalang.jvm.types.BUnionType;
-import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.values.api.BArray;
 import org.ballerinalang.jvm.values.api.BDecimal;
 import org.ballerinalang.jvm.values.api.BError;
@@ -36,6 +28,12 @@ import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.jvm.values.api.BTable;
 import org.ballerinalang.jvm.values.api.BTypedesc;
 import org.ballerinalang.jvm.values.api.BXML;
+import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
+import org.wso2.ballerinalang.compiler.util.TypeTags;
 
 import java.lang.reflect.Executable;
 import java.lang.reflect.Method;
@@ -67,16 +65,16 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.interop.JInteropExcept
 /**
  * Responsible for resolving a Java method for a given {@code JMethodResolverRequest}.
  *
- * @since 1.0.0
+ * @since 1.2.0
  */
 class JMethodResolver {
 
     private ClassLoader classLoader;
-    private static final BType[] JSON_MEMBERS = new BType[] { BTypes.typeNull, BTypes.typeString, BTypes.typeInt,
-            BTypes.typeFloat, BTypes.typeBoolean, new BMapType(BTypes.typeJSON), new BArrayType(BTypes.typeJSON) };
+    private SymbolTable symbolTable;
 
-    JMethodResolver(ClassLoader classLoader) {
+    JMethodResolver(ClassLoader classLoader, SymbolTable symbolTable) {
         this.classLoader = classLoader;
+        this.symbolTable = symbolTable;
     }
 
     JMethod resolve(JMethodRequest jMethodRequest) {
@@ -222,33 +220,33 @@ class JMethodResolver {
     private boolean isValidParamBType(Class<?> jType, BType bType, JMethodRequest jMethodRequest) {
         try {
             String jTypeName = jType.getTypeName();
-            switch (bType.getTag()) {
-                case TypeTags.ANY_TAG:
-                case TypeTags.ANYDATA_TAG:
+            switch (bType.tag) {
+                case TypeTags.ANY:
+                case TypeTags.ANYDATA:
                     if (jTypeName.equals(J_STRING_TNAME)) {
                         return false;
                     }
                     return !jType.isPrimitive();
-                case TypeTags.HANDLE_TAG:
+                case TypeTags.HANDLE:
                     return !jType.isPrimitive();
-                case TypeTags.NULL_TAG:
+                case TypeTags.NIL:
                     return jTypeName.equals(J_VOID_TNAME);
-                case TypeTags.INT_TAG:
-                case TypeTags.BYTE_TAG:
-                case TypeTags.FLOAT_TAG:
+                case TypeTags.INT:
+                case TypeTags.BYTE:
+                case TypeTags.FLOAT:
                     if (jTypeName.equals(J_OBJECT_TNAME)) {
                         return true;
                     }
 
-                    if (bType.getTag() == TypeTags.INT_TAG && jTypeName.equals(J_LONG_OBJ_TNAME)) {
+                    if (bType.tag == TypeTags.INT && jTypeName.equals(J_LONG_OBJ_TNAME)) {
                         return true;
                     }
 
-                    if (bType.getTag() == TypeTags.BYTE_TAG && jTypeName.equals(J_INTEGER_OBJ_TNAME)) {
+                    if (bType.tag == TypeTags.BYTE && jTypeName.equals(J_INTEGER_OBJ_TNAME)) {
                         return true;
                     }
 
-                    if (bType.getTag() == TypeTags.FLOAT_TAG && jTypeName.equals(J_DOUBLE_OBJ_TNAME)) {
+                    if (bType.tag == TypeTags.FLOAT && jTypeName.equals(J_DOUBLE_OBJ_TNAME)) {
                         return true;
                     }
 
@@ -256,41 +254,40 @@ class JMethodResolver {
                             jTypeName.equals(J_PRIMITIVE_BYTE_TNAME) || jTypeName.equals(J_PRIMITIVE_SHORT_TNAME) ||
                             jTypeName.equals(J_PRIMITIVE_LONG_TNAME) || jTypeName.equals(J_PRIMITIVE_CHAR_TNAME) ||
                             jTypeName.equals(J_PRIMITIVE_FLOAT_TNAME) || jTypeName.equals(J_PRIMITIVE_DOUBLE_TNAME));
-                case TypeTags.BOOLEAN_TAG:
+                case TypeTags.BOOLEAN:
                     if (jTypeName.equals(J_OBJECT_TNAME) || jTypeName.equals(J_BOOLEAN_OBJ_TNAME)) {
                         return true;
                     }
                     return jType.isPrimitive() && jTypeName.equals(J_PRIMITIVE_BOOLEAN_TNAME);
-                case TypeTags.DECIMAL_TAG:
+                case TypeTags.DECIMAL:
                     return this.classLoader.loadClass(BDecimal.class.getCanonicalName()).isAssignableFrom(jType);
-                case TypeTags.STRING_TAG:
+                case TypeTags.STRING:
                     return this.classLoader.loadClass(BString.class.getCanonicalName()).isAssignableFrom(jType);
-                case TypeTags.MAP_TAG:
-                case TypeTags.RECORD_TYPE_TAG:
+                case TypeTags.MAP:
+                case TypeTags.RECORD:
                     return this.classLoader.loadClass(BMap.class.getCanonicalName()).isAssignableFrom(jType);
-                case TypeTags.JSON_TAG:
+                case TypeTags.JSON:
                     return jTypeName.equals(J_OBJECT_TNAME);
-                case TypeTags.OBJECT_TYPE_TAG:
-                case TypeTags.SERVICE_TAG:
+                case TypeTags.OBJECT:
                     return this.classLoader.loadClass(BObject.class.getCanonicalName()).isAssignableFrom(jType);
-                case TypeTags.ERROR_TAG:
+                case TypeTags.ERROR:
                     return this.classLoader.loadClass(BError.class.getCanonicalName()).isAssignableFrom(jType);
-                case TypeTags.TABLE_TAG:
+                case TypeTags.TABLE:
                     return this.classLoader.loadClass(BTable.class.getCanonicalName()).isAssignableFrom(jType);
-                case TypeTags.XML_TAG:
+                case TypeTags.XML:
                     return this.classLoader.loadClass(BXML.class.getCanonicalName()).isAssignableFrom(jType);
-                case TypeTags.TUPLE_TAG:
-                case TypeTags.ARRAY_TAG:
+                case TypeTags.TUPLE:
+                case TypeTags.ARRAY:
                     if (jMethodRequest.restParamExist) {
                         return jType.isArray();
                     }
                     return this.classLoader.loadClass(BArray.class.getCanonicalName()).isAssignableFrom(jType);
-                case TypeTags.UNION_TAG:
+                case TypeTags.UNION:
                     if (jTypeName.equals(J_OBJECT_TNAME)) {
                         return true;
                     }
 
-                    List<BType> members = ((BUnionType) bType).getMemberTypes();
+                    Set<BType> members = ((BUnionType) bType).getMemberTypes();
                     // for method arguments, all ballerina member types should be assignable to java-type.
                     for (BType member : members) {
                         if (!isValidParamBType(jType, member, jMethodRequest)) {
@@ -298,25 +295,24 @@ class JMethodResolver {
                         }
                     }
                     return true;
-                case TypeTags.FINITE_TYPE_TAG:
+                case TypeTags.FINITE:
                     if (jTypeName.equals(J_OBJECT_TNAME)) {
                         return true;
                     }
 
-                    Set<Object> valueSpace = ((BFiniteType) bType).valueSpace;
-                    for (Object value : valueSpace) {
-                        BType valueType = TypeChecker.getType(value);
-                        if (!isValidParamBType(jType, valueType, jMethodRequest)) {
+                    Set<BLangExpression> valueSpace = ((BFiniteType) bType).valueSpace;
+                    for (BLangExpression value : valueSpace) {
+                        if (!isValidParamBType(jType, value.type, jMethodRequest)) {
                             return false;
                         }
                     }
                     return true;
-                case TypeTags.FUNCTION_POINTER_TAG:
+                case TypeTags.FUNCTION_POINTER:
                     return this.classLoader.loadClass(BFunctionPointer.class.getCanonicalName())
                             .isAssignableFrom(jType);
-                case TypeTags.FUTURE_TAG:
+                case TypeTags.FUTURE:
                     return this.classLoader.loadClass(BFuture.class.getCanonicalName()).isAssignableFrom(jType);
-                case TypeTags.TYPEDESC_TAG:
+                case TypeTags.TYPEDESC:
                     return this.classLoader.loadClass(BTypedesc.class.getCanonicalName()).isAssignableFrom(jType);
                 default:
                     return false;
@@ -329,18 +325,18 @@ class JMethodResolver {
     private boolean isValidReturnBType(Class<?> jType, BType bType, JMethodRequest jMethodRequest) {
         try {
             String jTypeName = jType.getTypeName();
-            switch (bType.getTag()) {
-                case TypeTags.ANY_TAG:
-                case TypeTags.ANYDATA_TAG:
+            switch (bType.tag) {
+                case TypeTags.ANY:
+                case TypeTags.ANYDATA:
                     if (jTypeName.equals(J_STRING_TNAME)) {
                         return false;
                     }
                     return !jType.isPrimitive();
-                case TypeTags.HANDLE_TAG:
+                case TypeTags.HANDLE:
                     return !jType.isPrimitive();
-                case TypeTags.NULL_TAG:
+                case TypeTags.NIL:
                     return jTypeName.equals(J_VOID_TNAME);
-                case TypeTags.INT_TAG:
+                case TypeTags.INT:
                     if (jTypeName.equals(J_OBJECT_TNAME)) {
                         return true;
                     }
@@ -352,7 +348,7 @@ class JMethodResolver {
                     } else {
                         return jTypeName.equals(J_LONG_OBJ_TNAME);
                     }
-                case TypeTags.BYTE_TAG:
+                case TypeTags.BYTE:
                     if (jTypeName.equals(J_OBJECT_TNAME)) {
                         return true;
                     }
@@ -362,7 +358,7 @@ class JMethodResolver {
                     } else {
                         return jTypeName.equals(J_INTEGER_OBJ_TNAME);
                     }
-                case TypeTags.FLOAT_TAG:
+                case TypeTags.FLOAT:
                     if (jTypeName.equals(J_OBJECT_TNAME)) {
                         return true;
                     }
@@ -375,51 +371,50 @@ class JMethodResolver {
                     } else {
                         return jTypeName.equals(J_DOUBLE_OBJ_TNAME);
                     }
-                case TypeTags.BOOLEAN_TAG:
+                case TypeTags.BOOLEAN:
                     if (jTypeName.equals(J_OBJECT_TNAME) || jTypeName.equals(J_BOOLEAN_OBJ_TNAME)) {
                         return true;
                     }
                     return jType.isPrimitive() && jTypeName.equals(J_PRIMITIVE_BOOLEAN_TNAME);
-                case TypeTags.DECIMAL_TAG:
+                case TypeTags.DECIMAL:
                     return this.classLoader.loadClass(BDecimal.class.getCanonicalName()).isAssignableFrom(jType);
-                case TypeTags.STRING_TAG:
+                case TypeTags.STRING:
                     return this.classLoader.loadClass(BString.class.getCanonicalName()).isAssignableFrom(jType);
-                case TypeTags.MAP_TAG:
-                case TypeTags.RECORD_TYPE_TAG:
+                case TypeTags.MAP:
+                case TypeTags.RECORD:
                     return this.classLoader.loadClass(BMap.class.getCanonicalName()).isAssignableFrom(jType);
-                case TypeTags.JSON_TAG:
+                case TypeTags.JSON:
                     if (jTypeName.equals(J_OBJECT_TNAME)) {
                         return true;
                     }
 
-                    for (BType member : JSON_MEMBERS) {
+                    for (BType member : getJSONMemberTypes()) {
                         if (isValidReturnBType(jType, member, jMethodRequest)) {
                             return true;
                         }
                     }
 
                     return false;
-                case TypeTags.OBJECT_TYPE_TAG:
-                case TypeTags.SERVICE_TAG:
+                case TypeTags.OBJECT:
                     return this.classLoader.loadClass(BObject.class.getCanonicalName()).isAssignableFrom(jType);
-                case TypeTags.ERROR_TAG:
+                case TypeTags.ERROR:
                     return this.classLoader.loadClass(BError.class.getCanonicalName()).isAssignableFrom(jType);
-                case TypeTags.TABLE_TAG:
+                case TypeTags.TABLE:
                     return this.classLoader.loadClass(BTable.class.getCanonicalName()).isAssignableFrom(jType);
-                case TypeTags.XML_TAG:
+                case TypeTags.XML:
                     return this.classLoader.loadClass(BXML.class.getCanonicalName()).isAssignableFrom(jType);
-                case TypeTags.TUPLE_TAG:
-                case TypeTags.ARRAY_TAG:
+                case TypeTags.TUPLE:
+                case TypeTags.ARRAY:
                     if (jMethodRequest.restParamExist) {
                         return jType.isArray();
                     }
                     return this.classLoader.loadClass(BArray.class.getCanonicalName()).isAssignableFrom(jType);
-                case TypeTags.UNION_TAG:
+                case TypeTags.UNION:
                     if (jTypeName.equals(J_OBJECT_TNAME)) {
                         return true;
                     }
 
-                    List<BType> members = ((BUnionType) bType).getMemberTypes();
+                    Set<BType> members = ((BUnionType) bType).getMemberTypes();
                     // for method return, java-type should be matched to at-least one of the ballerina member types.
                     for (BType member : members) {
                         if (isValidReturnBType(jType, member, jMethodRequest)) {
@@ -427,25 +422,24 @@ class JMethodResolver {
                         }
                     }
                     return false;
-                case TypeTags.FINITE_TYPE_TAG:
+                case TypeTags.FINITE:
                     if (jTypeName.equals(J_OBJECT_TNAME)) {
                         return true;
                     }
 
-                    Set<Object> valueSpace = ((BFiniteType) bType).valueSpace;
-                    for (Object value : valueSpace) {
-                        BType valueType = TypeChecker.getType(value);
-                        if (isValidReturnBType(jType, valueType, jMethodRequest)) {
+                    Set<BLangExpression> valueSpace = ((BFiniteType) bType).valueSpace;
+                    for (BLangExpression value : valueSpace) {
+                        if (isValidReturnBType(jType, value.type, jMethodRequest)) {
                             return true;
                         }
                     }
                     return false;
-                case TypeTags.FUNCTION_POINTER_TAG:
+                case TypeTags.FUNCTION_POINTER:
                     return this.classLoader.loadClass(BFunctionPointer.class.getCanonicalName())
                             .isAssignableFrom(jType);
-                case TypeTags.FUTURE_TAG:
+                case TypeTags.FUTURE:
                     return this.classLoader.loadClass(BFuture.class.getCanonicalName()).isAssignableFrom(jType);
-                case TypeTags.TYPEDESC_TAG:
+                case TypeTags.TYPEDESC:
                     return this.classLoader.loadClass(BTypedesc.class.getCanonicalName()).isAssignableFrom(jType);
                 default:
                     return false;
@@ -453,6 +447,14 @@ class JMethodResolver {
         } catch (ClassNotFoundException | NoClassDefFoundError e) {
             throw new JInteropException(CLASS_NOT_FOUND_REASON, e.getMessage(), e);
         }
+    }
+
+    private BType[] getJSONMemberTypes() {
+        // TODO can't we use a static instance of this?
+        return new BType[]{
+                this.symbolTable.nilType, this.symbolTable.stringType, this.symbolTable.intType,
+                this.symbolTable.floatType, this.symbolTable.booleanType, this.symbolTable.mapJsonType,
+                this.symbolTable.jsonArrayType};
     }
 
     private JMethod resolveExactMethod(Class<?> clazz, String name, JMethodKind kind,

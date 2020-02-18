@@ -188,12 +188,6 @@ import static org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.TypeCas
 import static org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.TypeTest;
 import static org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.XMLAccess;
 
-
-//import ballerina/io;
-//import ballerina/bir;
-//import ballerina/jvm;
-//import ballerina/runtime;
-
 public class JvmInstructionGen {
     public static final String I_STRING_VALUE = "org/ballerinalang/jvm/values/StringValue";
     public static final String BMP_STRING_VALUE = "org/ballerinalang/jvm/values/BmpStringValue";
@@ -208,8 +202,6 @@ public class JvmInstructionGen {
             generateCast(mv, bType, new BAnyType(TypeTags.ANY, null), false);
         }
     }
-
-    ;
 
     public static void addUnboxInsn(MethodVisitor mv, @Nilable BType bType, boolean useBString /* = false */) {
         if (bType == null) {
