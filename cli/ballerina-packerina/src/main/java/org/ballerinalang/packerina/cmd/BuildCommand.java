@@ -31,7 +31,6 @@ import org.ballerinalang.packerina.task.CreateBaloTask;
 import org.ballerinalang.packerina.task.CreateBirTask;
 import org.ballerinalang.packerina.task.CreateExecutableTask;
 import org.ballerinalang.packerina.task.CreateJarTask;
-import org.ballerinalang.packerina.task.CreateJsonTask;
 import org.ballerinalang.packerina.task.CreateLockFileTask;
 import org.ballerinalang.packerina.task.CreateTargetDirTask;
 import org.ballerinalang.packerina.task.PrintExecutablePathTask;
@@ -51,6 +50,7 @@ import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.HashMap;
 import java.util.List;
 
 import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
@@ -164,11 +164,18 @@ public class BuildCommand implements BLauncherCmd {
             return;
         }
 
-        String[] args = LaunchUtils
-                .initConfigurations(this.argList == null ? new String[0] : this.argList.toArray(new String[0]));
+        String[] args;
+        if (this.argList == null) {
+            args = new String[0];
+        } else if (this.buildAll) {
+            args = this.argList.toArray(new String[0]);
+        } else {
+            args = argList.subList(1, argList.size()).toArray(new String[0]);
+        }
 
+        String[] userArgs = LaunchUtils.getUserArgs(args, new HashMap<>());
         // check if there are too many arguments.
-        if (args.length > 1) {
+        if (userArgs.length > 0) {
             CommandUtil.printError(this.errStream, "too many arguments.", buildCmd, false);
             CommandUtil.exitError(this.exitWhenFinish);
             return;
@@ -224,11 +231,6 @@ public class BuildCommand implements BLauncherCmd {
         
             targetPath = this.sourceRootPath.resolve(ProjectDirConstants.TARGET_DIR_NAME);
 
-            if (args.length > 0) {
-                CommandUtil.printError(this.errStream, "too many arguments.", buildCmd, false);
-                CommandUtil.exitError(this.exitWhenFinish);
-                return;
-            }
         } else if (this.argList.get(0).endsWith(BLangConstants.BLANG_SRC_FILE_SUFFIX)) {
             // when a single bal file is provided.
             if (this.compile) {
@@ -382,9 +384,8 @@ public class BuildCommand implements BLauncherCmd {
                 // create the jar.
                 .addTask(new CreateJarTask(this.dumpBIR, skipCopyLibsFromDist, this.nativeBinary, this.dumpLLVMIR,
                         this.noOptimizeLlvm))
-                .addTask(new CopyModuleJarTask(skipCopyLibsFromDist))
-                .addTask(new CreateJsonTask(), isSingleFileBuild) // create the json to store test init data
-                .addTask(new RunTestsTask(), this.skipTests || isSingleFileBuild) // run tests
+                .addTask(new CopyModuleJarTask(skipCopyLibsFromDist, skipTests))
+                .addTask(new RunTestsTask(args), this.skipTests || isSingleFileBuild) // run tests
                                                                                                 // (projects only)
                 .addTask(new CreateExecutableTask(), this.compile)  // create the executable.jar
                                                                                         // file

@@ -29,7 +29,6 @@ import org.ballerinalang.packerina.task.CopyNativeLibTask;
 import org.ballerinalang.packerina.task.CreateBaloTask;
 import org.ballerinalang.packerina.task.CreateBirTask;
 import org.ballerinalang.packerina.task.CreateJarTask;
-import org.ballerinalang.packerina.task.CreateJsonTask;
 import org.ballerinalang.packerina.task.CreateTargetDirTask;
 import org.ballerinalang.packerina.task.RunTestsTask;
 import org.ballerinalang.tool.BLauncherCmd;
@@ -44,6 +43,7 @@ import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.HashMap;
 import java.util.List;
 
 import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
@@ -132,12 +132,18 @@ public class TestCommand implements BLauncherCmd {
             this.errStream.println(commandUsageInfo);
             return;
         }
-
-        String[] args = LaunchUtils
-                .initConfigurations(this.argList == null ? new String[0] : this.argList.toArray(new String[0]));
+        String[] args;
+        if (this.argList == null) {
+            args = new String[0];
+        } else if (this.buildAll) {
+            args = this.argList.toArray(new String[0]);
+        } else {
+            args = argList.subList(1, argList.size()).toArray(new String[0]);
+        }
+        String[] userArgs = LaunchUtils.getUserArgs(args, new HashMap<>());
 
         // check if there are too many arguments.
-        if (args.length > 1) {
+        if (userArgs.length > 0) {
             CommandUtil.printError(this.errStream,
                     "too many arguments.",
                     "ballerina test [--offline] [--sourceroot <path>] [--experimental] [--skip-lock]\n" +
@@ -277,8 +283,7 @@ public class TestCommand implements BLauncherCmd {
                 .addTask(new CreateJarTask(this.dumpBIR, this.skipCopyLibsFromDist, this.nativeBinary, this.dumpLLVMIR,
                         this.noOptimizeLLVM))
                 .addTask(new CopyModuleJarTask(skipCopyLibsFromDist))
-                .addTask(new CreateJsonTask()) // // create the json to store test init data
-                .addTask(new RunTestsTask()) // run tests
+                .addTask(new RunTestsTask(args)) // run tests
                 .build();
 
         taskExecutor.executeTasks(buildContext);
