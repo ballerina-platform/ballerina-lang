@@ -17,7 +17,7 @@
  */
 package org.ballerinalang.testerina.test;
 
-import org.ballerinalang.testerina.core.BTestRunner;
+import org.ballerinalang.test.launcher.BTestRunner;
 import org.ballerinalang.testerina.core.TesterinaRegistry;
 import org.ballerinalang.tool.BLauncherException;
 import org.testng.Assert;

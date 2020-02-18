@@ -19,9 +19,8 @@
 package org.ballerinalang.testerina.test;
 
 import org.ballerinalang.compiler.BLangCompilerException;
-import org.ballerinalang.testerina.core.BTestRunner;
+import org.ballerinalang.test.launcher.BTestRunner;
 import org.ballerinalang.testerina.core.TesterinaRegistry;
-import org.ballerinalang.testerina.util.BTestUtil;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.Test;
 
@@ -60,7 +59,7 @@ public class TesterinaCompilationNegativeTest {
         try {
             defaultErr = System.err;
             System.setErr(new PrintStream(tempErrStream));
-            BTestUtil.runTestsInProject(sourceRoot, false);
+//            BTestUtil.runTestsInProject(sourceRoot, false);
         } catch (BLangCompilerException e) {
             expectedExceptionThrown = true;
             assertEquals(e.getMessage(), "compilation contains errors",

@@ -17,10 +17,10 @@
 */
 package org.ballerinalang.testerina.test;
 
-import org.ballerinalang.testerina.core.BTestRunner;
-import org.ballerinalang.testerina.core.TesterinaConstants;
+import org.ballerinalang.test.launcher.BTestRunner;
+import org.ballerinalang.test.launcher.util.TesterinaConstants;
+import org.ballerinalang.test.launcher.util.TesterinaUtils;
 import org.ballerinalang.testerina.core.TesterinaRegistry;
-import org.ballerinalang.testerina.util.TesterinaUtils;
 import org.testng.Assert;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.AfterTest;
