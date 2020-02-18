@@ -28,6 +28,10 @@ function nonBMPLength() returns (int) {
 function recordStringValue() returns int {
     string smiley = "h😀llo";
     record {| string myField; |} r = {myField: smiley};
+    boolean containsKey = r.hasKey("myField");
+    if (!containsKey) {
+        return -1;
+    }
     return r.myField.length();
 }
 
