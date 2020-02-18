@@ -92,6 +92,13 @@ public class StringValueBasicsTest {
         BRunUtil.invoke(result, "testStringIndexAccessException");
     }
 
+    @Test
+    public void testCastToString() {
+        BValue[] returns = BRunUtil.invoke(result, "successfulXmlCasting");
+        Assert.assertEquals(returns[0].getClass(), BInteger.class);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 6);
+    }
+
     @AfterClass
     public void down() {
         System.clearProperty(IS_STRING_VALUE_PROP);

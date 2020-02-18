@@ -54,3 +54,9 @@ function testStringIndexAccessException() {
     string hello = "hello👋";
     string val = hello[6];
 }
+
+function successfulXmlCasting() returns int  {
+  any a = "hello👋";
+  string k = <string> a;
+  return k.length();
+}
