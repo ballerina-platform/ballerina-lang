@@ -42,11 +42,15 @@ public class CopyModuleJarTask implements Task {
 
     private boolean skipCopyLibsFromDist = false;
 
-    public CopyModuleJarTask(boolean skipCopyLibsFromDist) {
+    private boolean skipTests;
+
+    public CopyModuleJarTask(boolean skipCopyLibsFromDist, boolean skipTests) {
         this.skipCopyLibsFromDist = skipCopyLibsFromDist;
+        this.skipTests = skipTests;
     }
 
-    public CopyModuleJarTask() {
+    public CopyModuleJarTask(boolean skipTests) {
+        this.skipTests = skipTests;
     }
     
     @Override
@@ -65,8 +69,8 @@ public class CopyModuleJarTask implements Task {
     private void copyModuleJar(BuildContext buildContext, List<BLangPackage> moduleBirMap) {
         for (BLangPackage module : moduleBirMap) {
             // get the jar path of the module.
-            Path jarOutput = buildContext.getJarPathFromTargetCache(module.packageID);
-            buildContext.moduleDependencyPathMap.get(module.packageID).moduleJar = jarOutput;
+            buildContext.moduleDependencyPathMap.get(module.packageID).moduleJarPath =
+                    buildContext.getJarPathFromTargetCache(module.packageID);
         }
     }
 
@@ -76,7 +80,14 @@ public class CopyModuleJarTask implements Task {
         Map<PackageID, Path> alreadyImportedMap = new HashMap<>();
         for (BLangPackage pkg : moduleBirMap) {
             copyImportedJars(pkg.symbol.imports, buildContext, sourceRootPath, balHomePath,
-                             buildContext.moduleDependencyPathMap.get(pkg.packageID).platformLibs, alreadyImportedMap);
+                             buildContext.moduleDependencyPathMap.get(pkg.packageID).moduleLibs, alreadyImportedMap);
+            if (skipTests || !pkg.hasTestablePackage()) {
+                continue;
+            }
+            for (BLangPackage testPkg : pkg.getTestablePkgs()) {
+                copyImportedJars(testPkg.symbol.imports, buildContext, sourceRootPath, balHomePath,
+                                 buildContext.moduleDependencyPathMap.get(pkg.packageID).testLibs, alreadyImportedMap);
+            }
         }
     }
 
