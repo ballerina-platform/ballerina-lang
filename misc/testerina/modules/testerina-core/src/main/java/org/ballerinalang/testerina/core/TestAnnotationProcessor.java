@@ -29,6 +29,7 @@ import org.ballerinalang.util.diagnostic.DiagnosticLog;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
+import org.wso2.ballerinalang.compiler.tree.BLangTestablePackage;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 
@@ -137,7 +138,11 @@ public class TestAnnotationProcessor extends AbstractCompilerPlugin {
                             vals[1] = value;
                         }
                     });
-                    suite.addMockFunction(vals[0] + MOCK_ANNOTATION_DELIMITER + vals[1], functionName);
+
+                    //Creating a bLangTestablePackage to add a mock function
+                    BLangTestablePackage bLangTestablePackage = (BLangTestablePackage)((BLangFunction) functionNode).parent;
+                    bLangTestablePackage.addMockFunction(vals[0] + MOCK_ANNOTATION_DELIMITER + vals[1], functionName);
+
                 }
             } else if (TEST_ANNOTATION_NAME.equals(annotationName)) {
                 Test test = new Test();

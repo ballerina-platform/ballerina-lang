@@ -17,8 +17,27 @@
  */
 package org.wso2.ballerinalang.compiler.tree;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * @since 0.983.0
  */
 public class BLangTestablePackage extends BLangPackage {
+
+    //Map to maintain all the mock functions
+    private Map<String, String> mockFunctionNamesMap = new HashMap<>();
+
+    public Map<String, String> getMockFunctionNamesMap() {
+        return mockFunctionNamesMap;
+    }
+
+    public void setMockFunctionNamesMap(Map<String, String> mockFunctionNamesMap) {
+        this.mockFunctionNamesMap = mockFunctionNamesMap;
+    }
+
+    public void addMockFunction(String id, String function) {
+        this.mockFunctionNamesMap.put(id, function);
+    }
+
 }
