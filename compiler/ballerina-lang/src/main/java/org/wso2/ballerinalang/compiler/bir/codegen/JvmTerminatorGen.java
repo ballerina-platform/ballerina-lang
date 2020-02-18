@@ -33,12 +33,15 @@ import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator;
 import org.wso2.ballerinalang.compiler.bir.model.InstructionKind;
 import org.wso2.ballerinalang.compiler.bir.model.VarKind;
 import org.wso2.ballerinalang.compiler.bir.model.VarScope;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -111,6 +114,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmLabelGen.LabelGener
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.BalToJVMIndexMap;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.cleanupFunctionName;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.createFunctionPointer;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.getMethodDesc;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.getVariableDcl;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.isBStringFunc;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.isExternFunc;
@@ -126,9 +130,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.getBIRFu
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.getPackageName;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.lambdaIndex;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.lambdas;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.lookupFullQualifiedClassName;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.lookupGlobalVarClassName;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.lookupJavaMethodDescription;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.symbolTable;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen.loadType;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmValueGen.getTypeValueClassName;
@@ -466,7 +468,7 @@ public class JvmTerminatorGen {
             BIRTerminator.Call callInsCopy = new BIRTerminator.Call(callIns.pos, callIns.kind, callIns.isVirtual,
                     calleePkgId, callIns.name, callIns.args, callIns.lhsOp, callIns.thenBB);
             if (isBStringFunc(funcName)) {
-                callInsCopy.name.value = nameOfBStringFunc(callIns.name.value);
+                callInsCopy.name = new Name(nameOfBStringFunc(callIns.name.value));
             }
             // invoke the function
             this.genCall(callInsCopy, orgName, moduleName, localVarOffset);
@@ -737,14 +739,25 @@ public class JvmTerminatorGen {
                 i += 1;
             }
 
-            String jvmClass = lookupFullQualifiedClassName(lookupKey);
+            String jvmClass = moduleName;
             String cleanMethodName = cleanupFunctionName(methodName);
             boolean useBString = IS_BSTRING && orgName.equals("ballerina") &&
                     moduleName.equals("lang.string") && !cleanMethodName.endsWith("_");
             if (useBString) {
                 cleanMethodName = nameOfBStringFunc(cleanMethodName);
             }
-            String methodDesc = lookupJavaMethodDescription(lookupKey, useBString);
+            BIRFunctionWrapper functionWrapper = birFunctionMap.get(lookupKey);
+            String methodDesc;
+            if (functionWrapper != null) {
+                methodDesc = functionWrapper.jvmMethodDescription;
+            } else {
+                BPackageSymbol symbol = CodeGenerator.packageCache.getSymbol(orgName + "/" + moduleName);
+                BInvokableType type = (BInvokableType) symbol.scope.lookup(new Name(nameOfNonBStringFunc(methodName))).symbol.type;
+                ArrayList<BType> params = new ArrayList<>(type.paramTypes);
+                params.add(type.restType);
+//TODO: add receiver:  BType attachedType = type.r != null ? receiver.type : null;
+                methodDesc = getMethodDesc(params, type.retType, null, false, useBString);
+            }
             this.mv.visitMethodInsn(INVOKESTATIC, jvmClass, cleanMethodName, methodDesc, false);
         }
 

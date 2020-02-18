@@ -205,7 +205,7 @@ public class JvmDesugarPhase {
 
         // Rename the function name by appending the record name to it.
         // This done to avoid frame class name overlappings.
-        func.name.value = cleanupFunctionName(recordType.name.getValue() + func.name.value);
+        func.name = new Name(cleanupFunctionName(recordType.name.getValue() + func.name.value));
 
         // change the kind of receiver to 'ARG'
         receiver.kind = VarKind.ARG;
@@ -213,7 +213,7 @@ public class JvmDesugarPhase {
         // Update the name of the reciever. Then any instruction that was refering to the receiver will
         // now refer to the injected parameter.
         String paramName = "$_" + receiver.name.value;
-        receiver.name.value = paramName;
+        receiver.name = new Name(paramName);
 
         // Inject an additional parameter to accept the self-record value into the init function
         BIRFunctionParameter selfParam = new BIRFunctionParameter(null, receiver.type, receiver.name,
@@ -224,10 +224,12 @@ public class JvmDesugarPhase {
         func.type.paramTypes = Collections.singletonList(receiver.type);
 
         @Nilable List<BIRVariableDcl> localVars = func.localVars;
-        @Nilable List<BIRVariableDcl> updatedLocalVars = Arrays.asList(localVars.get(0), selfParam);
+        @Nilable List<BIRVariableDcl> updatedLocalVars = new ArrayList<>();
+        updatedLocalVars.add(localVars.get(0));
+        updatedLocalVars.add(selfParam);
         int index = 1;
         while (index < localVars.size()) {
-            updatedLocalVars.set(index + 1, localVars.get(index));
+            updatedLocalVars.add(localVars.get(index));
             index += 1;
         }
         func.localVars = updatedLocalVars;
