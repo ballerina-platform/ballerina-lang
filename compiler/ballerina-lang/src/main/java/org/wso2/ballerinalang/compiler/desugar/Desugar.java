@@ -3382,7 +3382,10 @@ public class Desugar extends BLangNodeVisitor {
         // can change the type of the expression, if it is type narrowed.
         BType varRefType = indexAccessExpr.expr.type;
 
-        if (isTwoDemensionalArrayLValueAccess(indexAccessExpr, varRefType)) {
+        if (isTwoDimensionalArrayLValueAccess(indexAccessExpr, varRefType)) {
+
+            System.out.println(getLValueArrayAccessDimensions(indexAccessExpr));
+
             result = rewriteMultiDimensionalLValAccess(indexAccessExpr, varRefType);
             return;
         }
@@ -3414,11 +3417,21 @@ public class Desugar extends BLangNodeVisitor {
         result = targetVarRef;
     }
 
-    private boolean isTwoDemensionalArrayLValueAccess(BLangIndexBasedAccess indexAccessExpr, BType varRefType) {
+    private boolean isTwoDimensionalArrayLValueAccess(BLangIndexBasedAccess indexAccessExpr, BType varRefType) {
         return indexAccessExpr.lhsVar
                 && varRefType.tag == TypeTags.ARRAY
                 && indexAccessExpr.expr.getKind() == NodeKind.INDEX_BASED_ACCESS_EXPR
                 && ((BLangIndexBasedAccess) indexAccessExpr.expr).expr.type.tag == TypeTags.ARRAY;
+    }
+
+    private int getLValueArrayAccessDimensions(BLangIndexBasedAccess indexAccessExpr) {
+        int dimensions = 1;
+        BLangIndexBasedAccess expr = indexAccessExpr;
+        while ((expr != null) && (expr.expr.getKind() == NodeKind.INDEX_BASED_ACCESS_EXPR)) {
+            expr = (BLangIndexBasedAccess) expr.expr;
+            dimensions++;
+        }
+        return dimensions;
     }
 
     private BLangExpression rewriteMultiDimensionalLValAccess(BLangIndexBasedAccess indexAccessExpr, BType varRefType) {
@@ -3433,12 +3446,14 @@ public class Desugar extends BLangNodeVisitor {
                 createVarDef("$tempIndex$", expr.indexExpr.type, expr.indexExpr, expr.indexExpr.pos);
         bLangBlockStmt.addStatement(firstIndex);
 
+        // TODO : why ?
         BLangInvocation invocationNode = createArrayLengthInvocation(expr);
         BLangSimpleVariableDef lengthOfArray = createVarDef("$arrayLength$", symTable.intType, invocationNode, pos);
         bLangBlockStmt.addStatement(lengthOfArray);
 
         BLangIf ifStmt = ASTBuilderUtil.createIfStmt(pos, bLangBlockStmt);
         // todo: extract index to a var, and then use that var here
+        // arr.length() < index + 1
         BLangSimpleVarRef firstIndexVarRef = ASTBuilderUtil.createVariableRef(firstIndex.pos, firstIndex.var.symbol);
         BLangBinaryExpr addOneToIndex = ASTBuilderUtil.createBinaryExpr(pos,
                 firstIndexVarRef,
