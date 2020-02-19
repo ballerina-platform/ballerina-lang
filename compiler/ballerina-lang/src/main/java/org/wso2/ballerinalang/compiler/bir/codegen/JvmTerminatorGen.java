@@ -33,6 +33,7 @@ import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator;
 import org.wso2.ballerinalang.compiler.bir.model.InstructionKind;
 import org.wso2.ballerinalang.compiler.bir.model.VarKind;
 import org.wso2.ballerinalang.compiler.bir.model.VarScope;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
@@ -112,7 +113,9 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmInstructionGen.gene
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmInstructionGen.generateVarStore;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmLabelGen.LabelGenerator;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.BalToJVMIndexMap;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.cleanupBalExt;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.cleanupFunctionName;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.cleanupPathSeperators;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.createFunctionPointer;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.getMethodDesc;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.getVariableDcl;
@@ -127,9 +130,11 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.birFunct
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.computeLockNameFromString;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.currentClass;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.getBIRFunctionWrapper;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.getModuleLevelClassName;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.getPackageName;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.lambdaIndex;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.lambdas;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.lookupFullQualifiedClassName;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.lookupGlobalVarClassName;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.symbolTable;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen.loadType;
@@ -738,8 +743,7 @@ public class JvmTerminatorGen {
                 this.loadBooleanArgToIndicateUserProvidedArg(orgName, moduleName, userProvidedArg);
                 i += 1;
             }
-
-            String jvmClass = moduleName;
+            String jvmClass = lookupFullQualifiedClassName(lookupKey);
             String cleanMethodName = cleanupFunctionName(methodName);
             boolean useBString = IS_BSTRING && orgName.equals("ballerina") &&
                     moduleName.equals("lang.string") && !cleanMethodName.endsWith("_");
@@ -752,10 +756,16 @@ public class JvmTerminatorGen {
                 methodDesc = functionWrapper.jvmMethodDescription;
             } else {
                 BPackageSymbol symbol = CodeGenerator.packageCache.getSymbol(orgName + "/" + moduleName);
-                BInvokableType type = (BInvokableType) symbol.scope.lookup(new Name(nameOfNonBStringFunc(methodName))).symbol.type;
+                BInvokableSymbol funcSymbol = (BInvokableSymbol) symbol.scope.lookup(new Name(nameOfNonBStringFunc(methodName))).symbol;
+                BInvokableType type = (BInvokableType) funcSymbol.type;
                 ArrayList<BType> params = new ArrayList<>(type.paramTypes);
                 params.add(type.restType);
-//TODO: add receiver:  BType attachedType = type.r != null ? receiver.type : null;
+                for (int j = params.size() - 1; j >= 0; j--) {
+                    params.add(j + 1, new BType(TypeTags.BOOLEAN, null));
+                }
+                String balFileName = funcSymbol.source;
+                jvmClass = getModuleLevelClassName(orgName, moduleName, cleanupPathSeperators(cleanupBalExt(balFileName)));
+                //TODO: add receiver:  BType attachedType = type.r != null ? receiver.type : null;
                 methodDesc = getMethodDesc(params, type.retType, null, false, useBString);
             }
             this.mv.visitMethodInsn(INVOKESTATIC, jvmClass, cleanMethodName, methodDesc, false);
@@ -776,7 +786,7 @@ public class JvmTerminatorGen {
             // create an Object[] for the rest params
             int argsCount = callIns.args.size() - 1;
             // arg count doubled and 'isExist' boolean variables added for each arg.
-            this.mv.visitLdcInsn(argsCount * 2);
+            this.mv.visitLdcInsn((long) (argsCount * 2));
             this.mv.visitInsn(L2I);
             this.mv.visitTypeInsn(ANEWARRAY, OBJECT);
 
@@ -784,7 +794,7 @@ public class JvmTerminatorGen {
             int j = 0;
             while (i < argsCount) {
                 this.mv.visitInsn(DUP);
-                this.mv.visitLdcInsn(j);
+                this.mv.visitLdcInsn((long) j);
                 this.mv.visitInsn(L2I);
                 j += 1;
                 // i + 1 is used since we skip the first argument (self)
@@ -796,7 +806,7 @@ public class JvmTerminatorGen {
                 this.mv.visitInsn(AASTORE);
 
                 this.mv.visitInsn(DUP);
-                this.mv.visitLdcInsn(j);
+                this.mv.visitLdcInsn((long) j);
                 this.mv.visitInsn(L2I);
                 j += 1;
 
@@ -854,14 +864,14 @@ public class JvmTerminatorGen {
             // create an Object[] for the rest params
             int argsCount = callIns.args.size();
             //create an object array of args
-            this.mv.visitLdcInsn(argsCount * 2 + 1);
+            this.mv.visitLdcInsn((long) (argsCount * 2 + 1));
             this.mv.visitInsn(L2I);
             this.mv.visitTypeInsn(ANEWARRAY, OBJECT);
 
             int paramIndex = 1;
             for (BIROperand arg : callIns.args) {
                 this.mv.visitInsn(DUP);
-                this.mv.visitLdcInsn(paramIndex);
+                this.mv.visitLdcInsn((long) paramIndex);
                 this.mv.visitInsn(L2I);
 
                 boolean userProvidedArg = this.visitArg(arg);
@@ -871,7 +881,7 @@ public class JvmTerminatorGen {
                 paramIndex += 1;
 
                 this.mv.visitInsn(DUP);
-                this.mv.visitLdcInsn(paramIndex);
+                this.mv.visitLdcInsn((long) paramIndex);
                 this.mv.visitInsn(L2I);
 
                 this.loadBooleanArgToIndicateUserProvidedArg(orgName, moduleName, userProvidedArg);

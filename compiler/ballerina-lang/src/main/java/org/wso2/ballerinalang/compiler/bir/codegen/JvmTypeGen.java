@@ -538,14 +538,14 @@ class JvmTypeGen {
                 "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V", false);
 
         // Load flags
-        mv.visitLdcInsn(typeDef.flags);
+        mv.visitLdcInsn((long)typeDef.flags);
         mv.visitInsn(L2I);
 
         // Load 'sealed' flag
         mv.visitLdcInsn(recordType.sealed);
 
         // Load type flags
-        mv.visitLdcInsn(recordType.flags);
+        mv.visitLdcInsn((long)recordType.flags);
         mv.visitInsn(L2I);
 
         // initialize the record type
@@ -603,7 +603,7 @@ class JvmTypeGen {
         mv.visitLdcInsn(field.name.value);
 
         // Load flags
-        mv.visitLdcInsn(field.type.flags);
+        mv.visitLdcInsn((long)field.type.flags);
         mv.visitInsn(L2I);
 
         mv.visitMethodInsn(INVOKESPECIAL, BFIELD, "<init>",
@@ -652,7 +652,7 @@ class JvmTypeGen {
                 "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V", false);
 
         // Load flags
-        mv.visitLdcInsn(typeDef.flags);
+        mv.visitLdcInsn((long)typeDef.flags);
         mv.visitInsn(L2I);
 
         // initialize the object
@@ -687,7 +687,7 @@ class JvmTypeGen {
                 "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V", false);
 
         // Load flags
-        mv.visitLdcInsn(typeDef.flags);
+        mv.visitLdcInsn((long)typeDef.flags);
         mv.visitInsn(L2I);
 
         // initialize the object
@@ -712,14 +712,14 @@ class JvmTypeGen {
         BObjectTypeSymbol objectTypeSymbol = (BObjectTypeSymbol) objectType.tsymbol;
 
         List<BAttachedFunction> attachedFunctions = objectTypeSymbol.attachedFuncs;
-        mv.visitLdcInsn(attachedFunctions.size());
+        mv.visitLdcInsn((long)attachedFunctions.size());
         mv.visitInsn(L2I);
         mv.visitTypeInsn(ANEWARRAY, ATTACHED_FUNCTION);
         int i = 0;
         for (BAttachedFunction attachedFunc : attachedFunctions) {
             if (attachedFunc != null) {
                 mv.visitInsn(DUP);
-                mv.visitLdcInsn(i);
+                mv.visitLdcInsn((long)i);
                 mv.visitInsn(L2I);
                 createObjectAttachedFunction(mv, attachedFunc, objectType);
                 mv.visitInsn(AASTORE);
@@ -779,7 +779,7 @@ class JvmTypeGen {
         mv.visitLdcInsn(field.name.value);
 
         // Load flags
-        mv.visitLdcInsn(field.type.flags);
+        mv.visitLdcInsn((long)field.type.flags);
         mv.visitInsn(L2I);
 
         mv.visitMethodInsn(INVOKESPECIAL, BFIELD, "<init>",
@@ -795,7 +795,7 @@ class JvmTypeGen {
     private static void addObjectAttachedFunctions(MethodVisitor mv, List<BAttachedFunction> attachedFunctions,
                                                    BObjectType objType, BalToJVMIndexMap indexMap) {
         // Create the attached function array
-        mv.visitLdcInsn(attachedFunctions.size());
+        mv.visitLdcInsn((long)attachedFunctions.size());
         mv.visitInsn(L2I);
         mv.visitTypeInsn(ANEWARRAY, ATTACHED_FUNCTION);
         int i = 0;
@@ -810,7 +810,7 @@ class JvmTypeGen {
                 mv.visitVarInsn(ASTORE, attachedFunctionVarIndex);
 
                 mv.visitInsn(DUP);
-                mv.visitLdcInsn(i);
+                mv.visitLdcInsn((long)i);
                 mv.visitInsn(L2I);
 
                 // Add the member to the array
@@ -869,7 +869,7 @@ class JvmTypeGen {
         loadType(mv, attachedFunc.type);
 
         // Load flags
-        mv.visitLdcInsn(attachedFunc.type.flags);
+        mv.visitLdcInsn((long)attachedFunc.type.flags);
         mv.visitInsn(L2I);
 
         mv.visitMethodInsn(INVOKESPECIAL, ATTACHED_FUNCTION, "<init>",
@@ -1040,7 +1040,7 @@ class JvmTypeGen {
         loadType(mv, bType.eType);
 
         int arraySize = bType.size;
-        mv.visitLdcInsn(arraySize);
+        mv.visitLdcInsn((long)arraySize);
         mv.visitInsn(L2I);
 
         // invoke the constructor
@@ -1122,14 +1122,14 @@ class JvmTypeGen {
 
         // Create the members array
         Set<BType> memberTypes = bType.getMemberTypes();
-        mv.visitLdcInsn(memberTypes.size());
+        mv.visitLdcInsn((long)memberTypes.size());
         mv.visitInsn(L2I);
         mv.visitTypeInsn(ANEWARRAY, BTYPE);
         int i = 0;
         for (BType memberType : memberTypes) {
             BType mType = getType(memberType);
             mv.visitInsn(DUP);
-            mv.visitLdcInsn(i);
+            mv.visitLdcInsn((long)i);
             mv.visitInsn(L2I);
 
             // Load the member type
@@ -1141,7 +1141,7 @@ class JvmTypeGen {
         }
 
         // Load type flags
-        mv.visitLdcInsn(bType.flags);
+        mv.visitLdcInsn((long)bType.flags);
         mv.visitInsn(L2I);
 
         // initialize the union type using the members array
@@ -1177,7 +1177,7 @@ class JvmTypeGen {
         }
 
         // Load type flags
-        mv.visitLdcInsn(bType.flags);
+        mv.visitLdcInsn((long)bType.flags);
         mv.visitInsn(L2I);
 
         mv.visitMethodInsn(INVOKESPECIAL, TUPLE_TYPE, "<init>", String.format("(L%s;L%s;I)V", LIST, BTYPE), false);
@@ -1231,13 +1231,13 @@ class JvmTypeGen {
         mv.visitInsn(DUP);
 
         // Create param types array
-        mv.visitLdcInsn(bType.paramTypes.size());
+        mv.visitLdcInsn((long)bType.paramTypes.size());
         mv.visitInsn(L2I);
         mv.visitTypeInsn(ANEWARRAY, BTYPE);
         int i = 0;
         for (BType paramType : bType.paramTypes) {
             mv.visitInsn(DUP);
-            mv.visitLdcInsn(i);
+            mv.visitLdcInsn((long)i);
             mv.visitInsn(L2I);
 
             // load param type
@@ -1355,7 +1355,7 @@ class JvmTypeGen {
         }
 
         // Load type flags
-        mv.visitLdcInsn(finiteType.flags);
+        mv.visitLdcInsn((long)finiteType.flags);
         mv.visitInsn(L2I);
 
         // initialize the finite type using the value space
