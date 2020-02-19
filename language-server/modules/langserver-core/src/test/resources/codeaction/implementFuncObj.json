@@ -1,0 +1,48 @@
+{
+    "line": 12,
+    "character": 4,
+    "expected": {
+        "title": "Implement All Functions",
+        "edits": [
+            {
+                "range": {
+                    "start": {
+                        "line": 16,
+                        "character": 0
+                    },
+                    "end": {
+                        "line": 16,
+                        "character": 0
+                    }
+                },
+                "newText": "\n    public function pushText2(string text) returns error? {\n        return error(\"\");\n    }\n"
+            },
+            {
+                "range": {
+                    "start": {
+                        "line": 16,
+                        "character": 0
+                    },
+                    "end": {
+                        "line": 16,
+                        "character": 0
+                    }
+                },
+                "newText": "\n    public function pushText3(string text) returns error? {\n        return error(\"\");\n    }\n"
+            },
+            {
+                "range": {
+                    "start": {
+                        "line": 16,
+                        "character": 0
+                    },
+                    "end": {
+                        "line": 16,
+                        "character": 0
+                    }
+                },
+                "newText": "\n    public function pushText1(string text) returns error? {\n        return error(\"\");\n    }\n"
+            }
+        ]
+    }
+}
