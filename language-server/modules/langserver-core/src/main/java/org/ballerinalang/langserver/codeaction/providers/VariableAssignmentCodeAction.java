@@ -207,7 +207,7 @@ public class VariableAssignmentCodeAction extends AbstractCodeActionProvider {
             );
             if (notFound) {
                 String pkgName = orgName + "/" + alias;
-                edits.add(addPackage(pkgName, context));
+                edits.add(createImportTextEdit(pkgName, context));
             }
         };
         String variableType;
@@ -324,7 +324,7 @@ public class VariableAssignmentCodeAction extends AbstractCodeActionProvider {
         return edits;
     }
 
-    private static TextEdit addPackage(String pkgName, LSContext context) {
+    private static TextEdit createImportTextEdit(String pkgName, LSContext context) {
         DiagnosticPos pos = null;
 
         // Filter the imports except the runtime import
