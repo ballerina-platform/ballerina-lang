@@ -79,7 +79,7 @@ public class CreateFunctionCodeAction extends AbstractCodeActionProvider {
         }
         for (Diagnostic diagnostic : diagnostics) {
             if (diagnostic.getMessage().startsWith(UNDEFINED_FUNCTION)) {
-                CodeAction codeAction = getFunctionImportCommand(document, diagnostic, lsContext);
+                CodeAction codeAction = getFunctionCreateCommand(document, diagnostic, lsContext);
                 if (codeAction != null) {
                     actions.add(codeAction);
                 }
@@ -88,7 +88,7 @@ public class CreateFunctionCodeAction extends AbstractCodeActionProvider {
         return actions;
     }
 
-    private static CodeAction getFunctionImportCommand(LSDocumentIdentifier document, Diagnostic diagnostic,
+    private static CodeAction getFunctionCreateCommand(LSDocumentIdentifier document, Diagnostic diagnostic,
                                                        LSContext context) {
         String diagnosticMessage = diagnostic.getMessage();
         Position position = diagnostic.getRange().getStart();
