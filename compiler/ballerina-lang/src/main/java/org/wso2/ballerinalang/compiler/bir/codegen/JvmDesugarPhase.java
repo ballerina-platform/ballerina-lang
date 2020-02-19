@@ -56,8 +56,7 @@ public class JvmDesugarPhase {
 
     public static void addDefaultableBooleanVarsToSignature(@Nilable BIRFunction func) {
         BIRFunction currentFunc = getFunction(func);
-        currentFunc.type = new BInvokableType(null, currentFunc.type.restType, currentFunc.type.retType,
-                currentFunc.type.tsymbol);
+        currentFunc.type = new BInvokableType(currentFunc.type.paramTypes, currentFunc.type.restType, currentFunc.type.retType, currentFunc.type.tsymbol);
         BInvokableType type = currentFunc.type;
         currentFunc.type.paramTypes = updateParamTypesWithDefaultableBooleanVar(currentFunc.type.paramTypes,
                 type != null ? type.restType : type);
