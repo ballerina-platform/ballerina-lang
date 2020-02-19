@@ -88,7 +88,16 @@ public abstract class AbstractCodeActionProvider implements LSCodeActionProvider
         return this.codeActionNodeTypes;
     }
 
-    protected static String getDiagnosedContent(Diagnostic diagnostic, LSContext context, LSDocumentIdentifier document) {
+    /**
+     * Returns diagnostic message highlighted content.
+     *
+     * @param diagnostic {@link Diagnostic}
+     * @param context    {@link LSContext}
+     * @param document   {@link LSDocumentIdentifier}
+     * @return diagnostic highlighted content
+     */
+    protected static String getDiagnosedContent(Diagnostic diagnostic, LSContext context,
+                                                LSDocumentIdentifier document) {
         WorkspaceDocumentManager docManager = context.get(CodeActionKeys.DOCUMENT_MANAGER_KEY);
         StringBuilder content = new StringBuilder();
         Position start = diagnostic.getRange().getStart();
@@ -146,6 +155,7 @@ public abstract class AbstractCodeActionProvider implements LSCodeActionProvider
         while (loop) {
             pointer--;
             if (content.length() == 2) {
+                count += 2;
                 break;
             }
             // Check for stop-conditions
@@ -181,7 +191,7 @@ public abstract class AbstractCodeActionProvider implements LSCodeActionProvider
         // Thus we offset into last
         int bal = diagnosedContent.length() - count;
         if (bal > 0) {
-            position.setCharacter(position.getCharacter() + bal + 1);
+            position = new Position(position.getLine(), position.getCharacter() + bal + 1);
         }
         return position;
     }
