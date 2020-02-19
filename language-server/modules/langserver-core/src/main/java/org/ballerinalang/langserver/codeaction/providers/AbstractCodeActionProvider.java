@@ -25,7 +25,6 @@ import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentManager;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.Position;
-import org.eclipse.lsp4j.TextEdit;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -129,5 +128,29 @@ public abstract class AbstractCodeActionProvider implements LSCodeActionProvider
             // ignore error
         }
         return content.toString();
+    }
+
+    /**
+     * Returns offset position of the function invocation.
+     *
+     * @param diagnosedContent diagnose message highlighted content
+     * @param position         diagnose message position
+     * @return offset position skipping package alias
+     */
+    protected static Position offsetInvocation(String diagnosedContent, Position position) {
+        // Diagnosed message only contains the erroneous part of the line
+        // Thus we offset into last
+        int leftParenthesisIndex = diagnosedContent.indexOf("(");
+        diagnosedContent = (leftParenthesisIndex == -1) ? diagnosedContent
+                : diagnosedContent.substring(0, leftParenthesisIndex);
+        String quotesRemoved = diagnosedContent
+                .replaceAll(".*:", "") // package invocation
+                .replaceAll(".*->", "") // action invocation
+                .replaceAll(".*\\.", ""); // object access invocation
+        int bal = diagnosedContent.length() - quotesRemoved.length();
+        if (bal > 0) {
+            position = new Position(position.getLine(), position.getCharacter() + bal + 1);
+        }
+        return position;
     }
 }
