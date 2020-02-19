@@ -717,8 +717,8 @@ public class JvmPackageGen {
         String jvmMethodDescriptionBString = getMethodDesc(functionTypeDesc.paramTypes, functionTypeDesc.retType,
                 attachedType, false, true);
 
-        return new BIRFunctionWrapper(orgName, moduleName, version, currentFunc, moduleClass,
-                jvmMethodDescriptionBString, jvmMethodDescription);
+        return new BIRFunctionWrapper(orgName, moduleName, version, currentFunc, moduleClass,jvmMethodDescription,
+                                      jvmMethodDescriptionBString);
     }
 
     // TODO: remove name/org form Package and replace with ModuleID
