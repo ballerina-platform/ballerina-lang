@@ -309,7 +309,8 @@ public class JvmMethodGen {
         if (func.workerChannels.length > 0) {
             mv.visitVarInsn(ALOAD, localVarOffset);
             loadChannelDetails(mv, Arrays.asList(func.workerChannels));
-            mv.visitMethodInsn(INVOKEVIRTUAL, STRAND, "updateChannelDetails", String.format("([L%s;)V", CHANNEL_DETAILS), false);
+            mv.visitMethodInsn(INVOKEVIRTUAL, STRAND, "updateChannelDetails",
+                    String.format("([L%s;)V", CHANNEL_DETAILS), false);
         }
 
         // panic if this strand is cancelled
@@ -390,8 +391,9 @@ public class JvmMethodGen {
         Label yieldLable = labelGen.getLabel(funcName + "yield");
         mv.visitLookupSwitchInsn(yieldLable, toIntArray(states), lables.toArray(new Label[0]));
 
-        generateBasicBlocks(mv, basicBlocks, labelGen, errorGen, instGen, termGen, func, returnVarRefIndex, stateVarIndex,
-                localVarOffset, false, module, currentPackageName, attachedType, isObserved, isService, serviceName, useBString);
+        generateBasicBlocks(mv, basicBlocks, labelGen, errorGen, instGen, termGen, func, returnVarRefIndex,
+                stateVarIndex, localVarOffset, false, module, currentPackageName, attachedType, isObserved, isService,
+                serviceName, useBString);
 
         String frameName = getFrameClassName(currentPackageName, funcName, attachedType);
         mv.visitLabel(resumeLable);
@@ -498,7 +500,8 @@ public class JvmMethodGen {
         // Create Local Variable Table
         k = localVarOffset;
         // Add strand variable to LVT
-        mv.visitLocalVariable("__strand", String.format("L%s;", STRAND), null, methodStartLabel, methodEndLabel, localVarOffset);
+        mv.visitLocalVariable("__strand", String.format("L%s;", STRAND), null, methodStartLabel, methodEndLabel,
+                localVarOffset);
         while (k < localVars.size()) {
             BIRVariableDcl localVar = getVariableDcl(localVars.get(k));
             Label startLabel = methodStartLabel;
@@ -625,9 +628,8 @@ public class JvmMethodGen {
             } else if (bType.tag == JTypeTags.JTYPE) {
                 generateFrameClassJFieldLoad(localVar, mv, index, frameName);
             } else {
-                BLangCompilerException err = new BLangCompilerException("JVM generation is not supported for type " +
+                throw new BLangCompilerException("JVM generation is not supported for type " +
                         String.format("%s", bType));
-                throw err;
             }
             k = k + 1;
         }
@@ -667,9 +669,7 @@ public class JvmMethodGen {
             mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%", "_"), getJTypeSignature(jType));
             mv.visitVarInsn(ASTORE, index);
         } else {
-            BLangCompilerException err = new BLangCompilerException("JVM generation is not supported for type " +
-                    String.format("%s", jType));
-            throw err;
+            throw new BLangCompilerException("JVM generation is not supported for type " + String.format("%s", jType));
         }
 
     }
@@ -758,9 +758,8 @@ public class JvmMethodGen {
             } else if (bType.tag == JTypeTags.JTYPE) {
                 generateFrameClassJFieldUpdate(localVar, mv, index, frameName);
             } else {
-                BLangCompilerException err = new BLangCompilerException("JVM generation is not supported for type " +
+                throw new BLangCompilerException("JVM generation is not supported for type " +
                         String.format("%s", bType));
-                throw err;
             }
             k = k + 1;
         }
@@ -801,9 +800,7 @@ public class JvmMethodGen {
             mv.visitTypeInsn(CHECKCAST, className);
             mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%", "_"), classSig);
         } else {
-            BLangCompilerException err = new BLangCompilerException("JVM generation is not supported for type " +
-                    String.format("%s", jType));
-            throw err;
+            throw new BLangCompilerException("JVM generation is not supported for type " + String.format("%s", jType));
         }
     }
 
@@ -894,7 +891,8 @@ public class JvmMethodGen {
                             attachedTypeObj.tsymbol.pkgID.orgName.value,
                             attachedTypeObj.tsymbol.pkgID.name.value, serviceName);
                 }
-                emitStartObservationInvocation(mv, localVarOffset, serviceOrConnectorName, funcName, observationStartMethod);
+                emitStartObservationInvocation(mv, localVarOffset, serviceOrConnectorName, funcName,
+                        observationStartMethod);
             }
 
             // generate instructions
@@ -1023,8 +1021,8 @@ public class JvmMethodGen {
                             instGen.generatePlatformIns((JInstruction) inst);
                             break;
                         default:
-                            BLangCompilerException err = new BLangCompilerException("JVM generation is not supported for operation " + String.format("%s", inst));
-                            throw err;
+                            throw new BLangCompilerException("JVM generation is not supported for operation " +
+                                    String.format("%s", inst));
                     }
                 }
                 m += 1;
@@ -1048,7 +1046,8 @@ public class JvmMethodGen {
                 if (isModuleInitFunction(module, func) && terminator instanceof Return) {
                     generateAnnotLoad(mv, module.typeDefs, getPackageName(module.org.value, module.name.value));
                 }
-                termGen.genTerminator(terminator, func, funcName, localVarOffset, returnVarRefIndex, attachedType, isObserved);
+                termGen.genTerminator(terminator, func, funcName, localVarOffset, returnVarRefIndex, attachedType,
+                        isObserved);
             }
 
             errorGen.generateTryCatch(func, funcName, bb, instGen, termGen, labelGen);
@@ -1322,9 +1321,7 @@ public class JvmMethodGen {
         } else if (bType.tag == JTypeTags.JTYPE) {
             genJDefaultValue(mv, (JType) bType, index);
         } else {
-            BLangCompilerException err = new BLangCompilerException("JVM generation is not supported for type " +
-                    String.format("%s", bType));
-            throw err;
+            throw new BLangCompilerException("JVM generation is not supported for type " + String.format("%s", bType));
         }
     }
 
@@ -1358,9 +1355,7 @@ public class JvmMethodGen {
             mv.visitInsn(ACONST_NULL);
             mv.visitVarInsn(ASTORE, index);
         } else {
-            BLangCompilerException err = new BLangCompilerException("JVM generation is not supported for type " +
-                    String.format("%s", jType));
-            throw err;
+            throw new BLangCompilerException("JVM generation is not supported for type " + String.format("%s", jType));
         }
     }
 
@@ -1394,9 +1389,7 @@ public class JvmMethodGen {
         } else if (bType.tag == JTypeTags.JTYPE) {
             loadDefaultJValue(mv, (JType) bType);
         } else {
-            BLangCompilerException err = new BLangCompilerException("JVM generation is not supported for type " +
-                    String.format("%s", bType));
-            throw err;
+            throw new BLangCompilerException("JVM generation is not supported for type " + String.format("%s", bType));
         }
     }
 
@@ -1421,14 +1414,13 @@ public class JvmMethodGen {
                 jType.tag == JTypeTags.JREF) {
             mv.visitInsn(ACONST_NULL);
         } else {
-            BLangCompilerException err = new BLangCompilerException("JVM generation is not supported for type " +
-                    String.format("%s", jType));
-            throw err;
+            throw new BLangCompilerException("JVM generation is not supported for type " + String.format("%s", jType));
         }
     }
 
-    public static String getMethodDesc(@Nilable List<BType> paramTypes, @Nilable BType retType, @Nilable BType attachedType /* = () */,
-                                       boolean isExtern /* = false */, boolean useBString /* = false */) {
+    public static String getMethodDesc(@Nilable List<BType> paramTypes, @Nilable BType retType,
+                                       @Nilable BType attachedType /* = () */, boolean isExtern /* = false */,
+                                       boolean useBString /* = false */) {
         String desc = "(Lorg/ballerinalang/jvm/scheduling/Strand;";
 
         if (attachedType instanceof BType) {
@@ -1510,8 +1502,7 @@ public class JvmMethodGen {
         } else if (bType.tag == TypeTags.HANDLE) {
             return String.format("L%s;", HANDLE_VALUE);
         } else {
-            BLangCompilerException err = new BLangCompilerException("JVM generation is not supported for type " + String.format("%s", bType));
-            throw err;
+            throw new BLangCompilerException("JVM generation is not supported for type " + String.format("%s", bType));
         }
     }
 
@@ -1563,8 +1554,8 @@ public class JvmMethodGen {
         } else if (bType.tag == TypeTags.HANDLE) {
             return String.format(")L%s;", HANDLE_VALUE);
         } else {
-            BLangCompilerException err = new BLangCompilerException("JVM generation is not supported for type " + String.format("%s", bType));
-            throw err;
+            throw new BLangCompilerException("JVM generation is not supported for type " +
+                    String.format("%s", bType));
         }
     }
 
@@ -1646,7 +1637,8 @@ public class JvmMethodGen {
             BType anyType = new BAnyType(TypeTags.ANY, null);
             loadType(mv, anyType);
             mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, SCHEDULE_FUNCTION_METHOD,
-                    String.format("([L%s;L%s;L%s;L%s;)L%s;", OBJECT, FUNCTION_POINTER, STRAND, BTYPE, FUTURE_VALUE), false);
+                    String.format("([L%s;L%s;L%s;L%s;)L%s;", OBJECT, FUNCTION_POINTER, STRAND, BTYPE, FUTURE_VALUE),
+                    false);
             mv.visitInsn(DUP);
             mv.visitInsn(DUP);
             mv.visitFieldInsn(GETFIELD, FUTURE_VALUE, "strand", String.format("L%s;", STRAND));
@@ -1662,7 +1654,8 @@ public class JvmMethodGen {
             mv.visitVarInsn(ALOAD, futureVarIndex);
             mv.visitFieldInsn(GETFIELD, FUTURE_VALUE, "result", String.format("L%s;", OBJECT));
 
-            mv.visitMethodInsn(INVOKESTATIC, RUNTIME_UTILS, HANDLE_RETURNED_ERROR_METHOD, String.format("(L%s;)V", OBJECT), false);
+            mv.visitMethodInsn(INVOKESTATIC, RUNTIME_UTILS, HANDLE_RETURNED_ERROR_METHOD,
+                    String.format("(L%s;)V", OBJECT), false);
         }
 
         if (userMainFunc != null) {
@@ -1680,7 +1673,8 @@ public class JvmMethodGen {
             //submit to the scheduler
             loadType(mv, userMainFunc.type.retType);
             mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, SCHEDULE_FUNCTION_METHOD,
-                    String.format("([L%s;L%s;L%s;L%s;)L%s;", OBJECT, FUNCTION_POINTER, STRAND, BTYPE, FUTURE_VALUE), false);
+                    String.format("([L%s;L%s;L%s;L%s;)L%s;", OBJECT, FUNCTION_POINTER, STRAND, BTYPE, FUTURE_VALUE),
+                    false);
             mv.visitInsn(DUP);
 
             mv.visitInsn(DUP);
@@ -1700,7 +1694,8 @@ public class JvmMethodGen {
                 mv.visitVarInsn(ALOAD, futureVarIndex);
                 mv.visitFieldInsn(GETFIELD, FUTURE_VALUE, "result", String.format("L%s;", OBJECT));
 
-                mv.visitMethodInsn(INVOKESTATIC, RUNTIME_UTILS, HANDLE_RETURNED_ERROR_METHOD, String.format("(L%s;)V", OBJECT), false);
+                mv.visitMethodInsn(INVOKESTATIC, RUNTIME_UTILS, HANDLE_RETURNED_ERROR_METHOD,
+                        String.format("(L%s;)V", OBJECT), false);
             }
         }
 
@@ -1743,7 +1738,8 @@ public class JvmMethodGen {
         mv.visitTypeInsn(NEW, shutdownClassName);
         mv.visitInsn(DUP);
         mv.visitMethodInsn(INVOKESPECIAL, shutdownClassName, "<init>", "()V", false);
-        mv.visitMethodInsn(INVOKEVIRTUAL, JAVA_RUNTIME, "addShutdownHook", String.format("(L%s;)V", JAVA_THREAD), false);
+        mv.visitMethodInsn(INVOKEVIRTUAL, JAVA_RUNTIME, "addShutdownHook", String.format("(L%s;)V", JAVA_THREAD),
+                false);
     }
 
     static void scheduleStartMethod(MethodVisitor mv, BIRPackage pkg, String initClass, boolean serviceEPAvailable,
@@ -1783,7 +1779,8 @@ public class JvmMethodGen {
         mv.visitVarInsn(ALOAD, futureVarIndex);
         mv.visitFieldInsn(GETFIELD, FUTURE_VALUE, "result", String.format("L%s;", OBJECT));
 
-        mv.visitMethodInsn(INVOKESTATIC, RUNTIME_UTILS, HANDLE_RETURNED_ERROR_METHOD, String.format("(L%s;)V", OBJECT), false);
+        mv.visitMethodInsn(INVOKESTATIC, RUNTIME_UTILS, HANDLE_RETURNED_ERROR_METHOD, String.format("(L%s;)V", OBJECT),
+                false);
         // need to set immortal=true and start the scheduler again
         if (serviceEPAvailable) {
             mv.visitVarInsn(ALOAD, schedulerVarIndex);
@@ -1844,10 +1841,12 @@ public class JvmMethodGen {
         List<String> defaultableNames = new ArrayList<>();
         int defaultableIndex = 0;
         for (BIRAnnotationAttachment attachment : annotAttachments) {
-            if (attachment instanceof BIRAnnotationAttachment && attachment.annotTagRef.value.equals(DEFAULTABLE_ARGS_ANOT_NAME)) {
+            if (attachment instanceof BIRAnnotationAttachment &&
+                    attachment.annotTagRef.value.equals(DEFAULTABLE_ARGS_ANOT_NAME)) {
                 BIRAnnotationRecordValue annotRecValue = (BIRAnnotationRecordValue) attachment.annotValues.get(0);
                 Map<String, BIRAnnotationValue> annotFieldMap = annotRecValue.annotValueEntryMap;
-                BIRAnnotationArrayValue annotArrayValue = (BIRAnnotationArrayValue) annotFieldMap.get(DEFAULTABLE_ARGS_ANOT_FIELD);
+                BIRAnnotationArrayValue annotArrayValue =
+                        (BIRAnnotationArrayValue) annotFieldMap.get(DEFAULTABLE_ARGS_ANOT_FIELD);
                 for (BIRAnnotationValue entryOptional : annotArrayValue.annotArrayValue) {
                     BIRAnnotationLiteralValue argValue = (BIRAnnotationLiteralValue) entryOptional;
                     defaultableNames.add(defaultableIndex, (String) argValue.value);
@@ -1978,9 +1977,11 @@ public class JvmMethodGen {
         } else if (targetType.tag == TypeTags.BYTE) {
             mv.visitMethodInsn(INVOKESTATIC, INT_VALUE, "parseInt", String.format("(L%s;)I", STRING_VALUE), false);
         } else if (targetType.tag == TypeTags.FLOAT) {
-            mv.visitMethodInsn(INVOKESTATIC, DOUBLE_VALUE, "parseDouble", String.format("(L%s;)D", STRING_VALUE), false);
+            mv.visitMethodInsn(INVOKESTATIC, DOUBLE_VALUE, "parseDouble", String.format("(L%s;)D", STRING_VALUE),
+                    false);
         } else if (targetType.tag == TypeTags.BOOLEAN) {
-            mv.visitMethodInsn(INVOKESTATIC, BOOLEAN_VALUE, "parseBoolean", String.format("(L%s;)Z", STRING_VALUE), false);
+            mv.visitMethodInsn(INVOKESTATIC, BOOLEAN_VALUE, "parseBoolean", String.format("(L%s;)Z", STRING_VALUE),
+                    false);
         } else if (targetType.tag == TypeTags.DECIMAL) {
             mv.visitMethodInsn(INVOKESPECIAL, DECIMAL_VALUE, "<init>", String.format("(L%s;)V", STRING_VALUE), false);
         } else if (targetType.tag == TypeTags.ARRAY) {
@@ -1997,35 +1998,35 @@ public class JvmMethodGen {
             // do nothing
             return;
         } else {
-            BLangCompilerException err = new BLangCompilerException("JVM generation is not supported for type " + String.format("%s", targetType));
-            throw err;
+            throw new BLangCompilerException("JVM generation is not supported for type " +
+                    String.format("%s", targetType));
         }
     }
 
-    static boolean hasInitFunction(BIRPackage pkg) {
+    private static boolean hasInitFunction(BIRPackage pkg) {
         for (BIRFunction func : pkg.functions) {
-            if (func instanceof BIRFunction && isModuleInitFunction(pkg, func)) {
+            if (func != null && isModuleInitFunction(pkg, func)) {
                 return true;
             }
         }
         return false;
     }
 
-    static boolean isModuleInitFunction(BIRPackage module, BIRFunction func) {
+    private static boolean isModuleInitFunction(BIRPackage module, BIRFunction func) {
         String moduleInit = getModuleInitFuncName(module);
-        return func.name.value == moduleInit;
+        return func.name.value.equals(moduleInit);
     }
 
     // TODO: remove and use calculateModuleInitFuncName
-    static String getModuleInitFuncName(BIRPackage module) {
+    private static String getModuleInitFuncName(BIRPackage module) {
         return calculateModuleInitFuncName(packageToModuleId(module));
     }
 
-    static String calculateModuleInitFuncName(PackageID id) {
+    private static String calculateModuleInitFuncName(PackageID id) {
         return calculateModuleSpecialFuncName(id, "<init>");
     }
 
-    static String calculateModuleSpecialFuncName(PackageID id, String funcSuffix) {
+    private static String calculateModuleSpecialFuncName(PackageID id, String funcSuffix) {
         String orgName = id.orgName.value;
         String moduleName = id.name.value;
         String version = id.version.value;
@@ -2129,8 +2130,7 @@ public class JvmMethodGen {
         String currentInitFuncName = calculateModuleSpecialFuncName(currentModId, initName);
         BIRBasicBlock lastBB = addCheckedInvocation(modInitFunc, currentModId, currentInitFuncName, retVarRef, boolRef);
 
-        Return ret = new Return(null);
-        lastBB.terminator = ret;
+        lastBB.terminator = new Return(null);
 
         return modInitFunc;
     }
@@ -2181,13 +2181,13 @@ public class JvmMethodGen {
         return falseBB;
     }
 
-    static BIRBasicBlock addAndGetNextBasicBlock(BIRFunction func) {
+    private static BIRBasicBlock addAndGetNextBasicBlock(BIRFunction func) {
         BIRBasicBlock nextbb = new BIRBasicBlock(getNextBBId());
         func.basicBlocks.add(nextbb);
         return nextbb;
     }
 
-    static BIRVariableDcl addAndGetNextVar(BIRFunction func, BType typeVal) {
+    private static BIRVariableDcl addAndGetNextVar(BIRFunction func, BType typeVal) {
         BIRVariableDcl nextLocalVar = new BIRVariableDcl(typeVal, getNextVarId(), VarScope.FUNCTION, VarKind.LOCAL);
         func.localVars.add(nextLocalVar);
         return nextLocalVar;
@@ -2203,7 +2203,7 @@ public class JvmMethodGen {
         mv.visitInsn(AALOAD);
     }
 
-    static void generateAnnotLoad(MethodVisitor mv, @Nilable List<BIRTypeDefinition> typeDefs, String pkgName) {
+    private static void generateAnnotLoad(MethodVisitor mv, @Nilable List<BIRTypeDefinition> typeDefs, String pkgName) {
         String typePkgName = ".";
         if (pkgName != "") {
             typePkgName = pkgName;
@@ -2221,7 +2221,7 @@ public class JvmMethodGen {
         }
     }
 
-    static void loadAnnots(MethodVisitor mv, String pkgName, BIRTypeDefinition typeDef) {
+    private static void loadAnnots(MethodVisitor mv, String pkgName, BIRTypeDefinition typeDef) {
         String pkgClassName = pkgName.equals(".") || pkgName.equals("") ? MODULE_INIT_CLASS_NAME :
                 lookupGlobalVarClassName(pkgName + ANNOTATION_MAP_NAME);
         mv.visitFieldInsn(GETSTATIC, pkgClassName, ANNOTATION_MAP_NAME, String.format("L%s;", MAP_VALUE));
@@ -2249,20 +2249,20 @@ public class JvmMethodGen {
                     attachedType = typeDef.type;
                 }
                 for (BIRFunction func : attachedFuncs) {
-                    generateFrameClassForFunction(pkg, func, pkgEntries, attachedType = attachedType);
+                    generateFrameClassForFunction(pkg, func, pkgEntries, attachedType);
                 }
             }
         }
     }
 
-    static void generateFrameClassForFunction(BIRPackage pkg, @Nilable BIRFunction func, Map<String, byte[]>
-            pkgEntries,
-                                              @Nilable BType attachedType /* = () */) {
+    private static void generateFrameClassForFunction(BIRPackage pkg, @Nilable BIRFunction func,
+                                                      Map<String, byte[]> pkgEntries,
+                                                      @Nilable BType attachedType /* = () */) {
         String pkgName = getPackageName(pkg.org.value, pkg.name.value);
         BIRFunction currentFunc = getFunction(func);
         String frameClassName = getFrameClassName(pkgName, currentFunc.name.value, attachedType);
         ClassWriter cw = new ClassWriter(COMPUTE_FRAMES);
-        if (currentFunc.pos != null) {
+        if (currentFunc.pos != null && currentFunc.pos.src != null) {
             cw.visitSource(currentFunc.pos.src.cUnitName, null);
         }
         currentClass = frameClassName;
@@ -2522,7 +2522,8 @@ public class JvmMethodGen {
         mv.visitFieldInsn(GETFIELD, STRAND, "cancel", "Z");
         Label notCancelledLabel = new Label();
         mv.visitJumpInsn(IFEQ, notCancelledLabel);
-        mv.visitMethodInsn(INVOKESTATIC, BAL_ERRORS, "createCancelledFutureError", String.format("()L%s;", ERROR_VALUE), false);
+        mv.visitMethodInsn(INVOKESTATIC, BAL_ERRORS, "createCancelledFutureError",
+                String.format("()L%s;", ERROR_VALUE), false);
         mv.visitInsn(ATHROW);
 
         mv.visitLabel(notCancelledLabel);
@@ -2659,7 +2660,8 @@ public class JvmMethodGen {
         PackageID currentModId = packageToModuleId(module);
         String fullFuncName = calculateModuleSpecialFuncName(currentModId, stopFuncName);
 
-        scheduleStopMethod(mv, initClass, cleanupFunctionName(fullFuncName), errorGen, indexMap, schedulerIndex, futureIndex);
+        scheduleStopMethod(mv, initClass, cleanupFunctionName(fullFuncName), errorGen, indexMap, schedulerIndex,
+                futureIndex);
 
         int i = imprtMods.size() - 1;
         while (i >= 0) {
@@ -2667,7 +2669,8 @@ public class JvmMethodGen {
             i -= 1;
             fullFuncName = calculateModuleSpecialFuncName(id, stopFuncName);
 
-            scheduleStopMethod(mv, initClass, cleanupFunctionName(fullFuncName), errorGen, indexMap, schedulerIndex, futureIndex);
+            scheduleStopMethod(mv, initClass, cleanupFunctionName(fullFuncName), errorGen, indexMap, schedulerIndex,
+                    futureIndex);
         }
 
         mv.visitInsn(RETURN);
@@ -2798,5 +2801,4 @@ public class JvmMethodGen {
             return index != null ? index : -1;
         }
     }
-
 }
