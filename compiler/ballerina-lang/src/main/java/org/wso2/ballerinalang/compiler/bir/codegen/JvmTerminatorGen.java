@@ -743,7 +743,6 @@ public class JvmTerminatorGen {
                 this.loadBooleanArgToIndicateUserProvidedArg(orgName, moduleName, userProvidedArg);
                 i += 1;
             }
-            String jvmClass = lookupFullQualifiedClassName(lookupKey);
             String cleanMethodName = cleanupFunctionName(methodName);
             boolean useBString = IS_BSTRING && orgName.equals("ballerina") &&
                     moduleName.equals("lang.string") && !cleanMethodName.endsWith("_");
@@ -752,7 +751,9 @@ public class JvmTerminatorGen {
             }
             BIRFunctionWrapper functionWrapper = birFunctionMap.get(lookupKey);
             String methodDesc;
+            String jvmClass;
             if (functionWrapper != null) {
+                jvmClass = functionWrapper.fullQualifiedClassName;
                 methodDesc = functionWrapper.jvmMethodDescription;
             } else {
                 BPackageSymbol symbol = CodeGenerator.packageCache.getSymbol(orgName + "/" + moduleName);
