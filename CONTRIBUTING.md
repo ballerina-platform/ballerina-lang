@@ -15,7 +15,7 @@ We appreciate your help!
 
 ## Get started
 
-- Download [Ballerina](https://ballerina.io) and go through the [learning resources](https://ballerina.io/learn).
+- Download [Ballerina](https://ballerina.io/downloads/) and go through the [learning resources](https://ballerina.io/learn).
 - Read the <a href="https://ballerina.io/code-of-conduct">Ballerina Code of Conduct</a>.
 
 - Join the conversations at:
