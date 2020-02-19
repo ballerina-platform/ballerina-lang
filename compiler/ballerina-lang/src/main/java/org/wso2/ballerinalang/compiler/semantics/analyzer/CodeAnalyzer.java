@@ -2359,7 +2359,15 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangQueryExpr queryExpr) {
+        int fromCount = 0;
         for (FromClauseNode fromClauseNode : queryExpr.fromClauseList) {
+            fromCount++;
+            BLangExpression collection = (BLangExpression) fromClauseNode.getCollection();
+            if (fromCount > 1) {
+                if (types.isAssignable(collection.type, symTable.streamType)) {
+                    this.dlog.error(collection.pos, DiagnosticCode.NOT_ALLOWED_STREAM_USAGE_WITH_FROM);
+                }
+            }
             analyzeNode((BLangFromClause) fromClauseNode, env);
         }
 
