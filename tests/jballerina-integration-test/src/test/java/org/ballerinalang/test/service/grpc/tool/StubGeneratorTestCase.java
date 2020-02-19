@@ -353,6 +353,21 @@ public class StubGeneratorTestCase {
 
         assertTrue(Files.exists(sampleServiceFile));
         assertFalse(Files.exists(sampleStubFile));
+
+        CompileResult compileResult = BCompileUtil.compile(sampleServiceFile.toString());
+        assertEquals(compileResult.getDiagnostics().length, 0);
+        assertEquals(((BLangPackage) compileResult.getAST()).constants.size(), 1,
+                "Expected constants count not found." +
+                        ((BLangPackage) compileResult.getAST()).constants.size()
+        );
+        assertEquals(((BLangPackage) compileResult.getAST()).services.size(), 1,
+                "Expected services count not found. " +
+                        ((BLangPackage) compileResult.getAST()).constants.size()
+        );
+        assertEquals(((BLangPackage) compileResult.getAST()).getTypeDefinitions().size(), 6,
+                "Expected type definitions count not found." +
+                        ((BLangPackage) compileResult.getAST()).constants.size()
+        );
     }
 
     private void validatePublicAttachedFunctions(CompileResult compileResult) {
