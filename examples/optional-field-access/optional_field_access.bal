@@ -40,7 +40,7 @@ function getPerson(string name, int age) returns Person? {
 public function main() {
 
     // Create a `Person` value without specifying the `age` field.
-    Person p1 = { name: "Anne", addr: () };
+    Person p1 = {name: "Anne", addr: ()};
     // The optional field `age` can be accessed using the optional field access operator.
     // The return type will be the union of the type of the field and `()`.
     // If the value is present, the value will be returned.
@@ -50,7 +50,7 @@ public function main() {
     io:println("Age: ", age);
 
     // Create a `Person` value with the `age` field.
-    p1 = { name: "Anne", age: 24, addr: () };
+    p1 = {name: "Anne", age: 24, addr: ()};
     // Now, `age` will be the `int` value that is set.
     age = p1?.age;
     io:println("Age: ", age);
@@ -74,7 +74,7 @@ public function main() {
     io:println(city2);
 
     // Now, assign a `Person` record to `p3` setting the `address` field to `()`.
-    p3 = { name: "George", age: 20, addr: () };
+    p3 = {name: "George", age: 20, addr: ()};
     // Again, the `city2` variable will contain `()`, since the value of the `address` field is `()`.
     city2 = p3?.addr?.city;
     io:println(city2);

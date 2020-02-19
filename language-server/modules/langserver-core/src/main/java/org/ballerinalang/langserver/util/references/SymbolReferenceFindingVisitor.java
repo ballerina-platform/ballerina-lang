@@ -18,19 +18,22 @@ package org.ballerinalang.langserver.util.references;
 import org.ballerinalang.langserver.common.LSNodeVisitor;
 import org.ballerinalang.langserver.common.constants.NodeContextKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
-import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.eclipse.lsp4j.TextDocumentPositionParams;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
+import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangErrorVariable;
+import org.wso2.ballerinalang.compiler.tree.BLangExternalFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangRecordVariable;
@@ -222,18 +225,21 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
     public void visit(BLangFunction funcNode) {
         boolean isWorker = funcNode.flagSet.contains(Flag.WORKER);
         String funcName = isWorker ? funcNode.defaultWorkerName.value : funcNode.name.value;
-        if (funcName.equals(this.tokenName)) {
+        if (funcName.equals(this.tokenName) || ("__init".equals(funcName) && "new".equals(this.tokenName))) {
+            /*
+            If the go-to definition is triggered for the new keyword and there is an init function defined,
+            then jump to the init function
+             */
             this.addBLangFunctionSymbol(funcNode);
         }
         funcNode.annAttachments.forEach(this::acceptNode);
         funcNode.requiredParams.forEach(this::acceptNode);
         this.acceptNode(funcNode.restParam);
-        funcNode.externalAnnAttachments.forEach(this::acceptNode);
         funcNode.returnTypeAnnAttachments.forEach(this::acceptNode);
         this.acceptNode(funcNode.returnTypeNode);
         if (!isWorker && funcNode.body != null) {
             // Fill the worker varDefs in the current function scope
-            this.fillVisibleWorkerVarDefMaps(funcNode.body.stmts);
+            this.fillVisibleWorkerVarDefMaps(((BLangBlockFunctionBody) funcNode.body).stmts);
         }
         this.acceptNode(funcNode.body);
         if (!isWorker) {
@@ -248,7 +254,13 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
             // skip if service type definition or anon type
             return;
         }
-        if (typeDefinition.name.value.equals(this.tokenName)) {
+        if (typeDefinition.name.value.equals(this.tokenName)
+                || ("new".equals(this.tokenName) && typeDefinition.symbol instanceof BObjectTypeSymbol
+                && ((BObjectTypeSymbol) typeDefinition.symbol).initializerFunc == null)) {
+            /*
+            If the type definition is an object type definition and it doesn't have an init function,
+            then go to definition from new keyword will jump to the Type Definition. Otherwise it will jump to the init
+             */
             DiagnosticPos pos = typeDefinition.getName().getPosition();
             this.addSymbol(typeDefinition, typeDefinition.symbol, true, pos);
         }
@@ -261,6 +273,18 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
     @Override
     public void visit(BLangBlockStmt blockNode) {
         blockNode.getStatements().forEach(this::acceptNode);
+    }
+
+    @Override
+    public void visit(BLangBlockFunctionBody blockFuncBody) {
+        blockFuncBody.stmts.forEach(this::acceptNode);
+    }
+
+    @Override
+    public void visit(BLangExternalFunctionBody body) {
+        for (BLangAnnotationAttachment annAttachment : body.annAttachments) {
+            acceptNode(annAttachment);
+        }
     }
 
     @Override
@@ -595,7 +619,6 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
             this.acceptNode(funcNode.restParam);
             this.acceptNode(funcNode.restParam.typeNode);
         }
-        funcNode.externalAnnAttachments.forEach(this::acceptNode);
         funcNode.returnTypeAnnAttachments.forEach(this::acceptNode);
         this.acceptNode(funcNode.returnTypeNode);
         this.acceptNode(funcNode.body);
@@ -657,9 +680,15 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
 
     @Override
     public void visit(BLangRecordLiteral recordLiteral) {
-        recordLiteral.keyValuePairs.forEach(bLangRecordKeyValue -> {
-            this.acceptNode(bLangRecordKeyValue.key.expr);
-            this.acceptNode(bLangRecordKeyValue.valueExpr);
+        recordLiteral.fields.forEach(field -> {
+            if (field.isKeyValueField()) {
+                BLangRecordLiteral.BLangRecordKeyValueField bLangRecordKeyValue =
+                        (BLangRecordLiteral.BLangRecordKeyValueField) field;
+                this.acceptNode(bLangRecordKeyValue.key.expr);
+                this.acceptNode(bLangRecordKeyValue.valueExpr);
+            } else {
+                this.acceptNode((BLangRecordLiteral.BLangRecordVarNameField) field);
+            }
         });
     }
 
@@ -776,7 +805,7 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
     @Override
     public void visit(BLangArrowFunction bLangArrowFunction) {
         bLangArrowFunction.params.forEach(this::acceptNode);
-        this.acceptNode(bLangArrowFunction.expression);
+        this.acceptNode(bLangArrowFunction.body.expr);
     }
 
     @Override

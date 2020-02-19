@@ -46,6 +46,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BSemanticErrorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BServiceType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
@@ -105,6 +106,7 @@ public class SymbolTable {
     public final BType mapType = new BMapType(TypeTags.MAP, anyType, null);
     public final BType mapStringType = new BMapType(TypeTags.MAP, stringType, null);
     public final BType mapAnydataType = new BMapType(TypeTags.MAP, anydataType, null);
+    public final BType mapJsonType = new BMapType(TypeTags.MAP, jsonType, null);
     public final BType futureType = new BFutureType(TypeTags.FUTURE, nilType, null);
     public final BType arrayType = new BArrayType(noType);
     public final BType tupleType = new BTupleType(Lists.of(noType));
@@ -123,10 +125,13 @@ public class SymbolTable {
     public BErrorType errorType;
     public BRecordType detailType;
     public BConstructorSymbol errorConstructor;
+    public BUnionType anyOrErrorType;
     public BUnionType pureType;
     public BUnionType errorOrNilType;
+    public BType streamType = new BStreamType(TypeTags.STREAM, pureType, null);
     public BFiniteType trueType;
     public BObjectType intRangeType;
+    public BMapType mapAllType;
 
     public BPackageSymbol langInternalModuleSymbol;
     public BPackageSymbol langAnnotationModuleSymbol;
@@ -138,6 +143,7 @@ public class SymbolTable {
     public BPackageSymbol langIntModuleSymbol;
     public BPackageSymbol langMapModuleSymbol;
     public BPackageSymbol langObjectModuleSymbol;
+    public BPackageSymbol langStreamModuleSymbol;
     public BPackageSymbol langStringModuleSymbol;
     public BPackageSymbol langTableModuleSymbol;
     public BPackageSymbol langTypedescModuleSymbol;
@@ -183,6 +189,7 @@ public class SymbolTable {
         initializeType(jsonType, TypeKind.JSON.typeName());
         initializeType(xmlType, TypeKind.XML.typeName());
         initializeType(tableType, TypeKind.TABLE.typeName());
+        initializeType(streamType, TypeKind.STREAM.typeName());
         initializeType(mapType, TypeKind.MAP.typeName());
         initializeType(mapStringType, TypeKind.MAP.typeName());
         initializeType(mapAnydataType, TypeKind.MAP.typeName());
@@ -234,6 +241,8 @@ public class SymbolTable {
                 return xmlType;
             case TypeTags.TABLE:
                 return tableType;
+            case TypeTags.STREAM:
+                return streamType;
             case TypeTags.NIL:
                 return nilType;
             case TypeTags.ERROR:
@@ -488,6 +497,7 @@ public class SymbolTable {
         defineCastOperator(anyType, xmlType, false);
         defineCastOperator(anyType, mapType, false);
         defineCastOperator(anyType, tableType, false);
+        defineCastOperator(anyType, streamType, false);
         defineCastOperator(anyType, handleType, false);
         defineCastOperator(anydataType, intType, false);
         defineCastOperator(anydataType, byteType, false);

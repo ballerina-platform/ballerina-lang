@@ -76,6 +76,7 @@ dependencies {
     // dist 'org.ow2.asm:asm:6.2.1'
     dist 'org.codehaus.woodstox:woodstox-core-asl:4.2.0'
     dist 'org.codehaus.woodstox:stax2-api:3.1.1'
+    dist 'org.apache.commons:commons-compress:1.18'
 
     // Following dependencies are required for kraal library
     dist 'org.jetbrains.kotlin:kotlin-stdlib:1.3.31'
@@ -100,6 +101,7 @@ dependencies {
     dist project(':ballerina-backend-jvm')
     birJar project(path: ':ballerina-backend-jvm', configuration: 'birJar')
     dist project(':language-server:language-server-compiler')
+    dist project(':language-server:language-server-commons')
     dist project(':ballerina-packerina')
     dist project(':openapi-ballerina:ballerina-to-openapi-generator')
     dist project(':openapi-ballerina:openapi-to-ballerina-generator')

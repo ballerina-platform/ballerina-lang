@@ -63,7 +63,8 @@ public class WebSocketServerService extends WebSocketService {
         MapValue<String, Object> configAnnotation = getServiceConfigAnnotation();
         if (configAnnotation != null) {
             negotiableSubProtocols = WebSocketUtil.findNegotiableSubProtocols(configAnnotation);
-            idleTimeoutInSeconds = WebSocketUtil.findIdleTimeoutInSeconds(configAnnotation);
+            idleTimeoutInSeconds = WebSocketUtil.findTimeoutInSeconds(configAnnotation,
+                    WebSocketConstants.ANNOTATION_ATTR_IDLE_TIMEOUT, 0);
             maxFrameSize = WebSocketUtil.findMaxFrameSize(configAnnotation);
         }
         // This will be overridden if there is an upgrade path

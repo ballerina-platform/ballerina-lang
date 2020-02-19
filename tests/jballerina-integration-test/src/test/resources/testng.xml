@@ -73,6 +73,7 @@
             <class name="org.ballerinalang.test.service.http.sample.HTTPListenerMethodTestCase"/>
             <class name="org.ballerinalang.test.service.http.sample.HTTPCookiesTestCase"/>
             <class name="org.ballerinalang.test.service.http.sample.HttpUrlTestCase"/>
+            <class name="org.ballerinalang.test.service.http.sample.TrailingHeadersTestCase"/>
         </classes>
     </test>
 
@@ -104,6 +105,7 @@
             <class name="org.ballerinalang.test.service.http2.Http2MutualSslTestCase"/>
             <class name="org.ballerinalang.test.service.http2.Http2ForwardHeaderTest"/>
             <class name="org.ballerinalang.test.service.http2.Http2100ContinueTestCase"/>
+            <class name="org.ballerinalang.test.service.http2.Http2TrailingHeadersTestCase"/>
         </classes>
     </test>
 
@@ -184,6 +186,7 @@
             <class name="org.ballerinalang.test.service.websocket.ClientErrorsTest"/>
             <class name="org.ballerinalang.test.service.websocket.ServerErrorsTest"/>
             <class name="org.ballerinalang.test.service.websocket.AttachDetachTest"/>
+            <class name="org.ballerinalang.test.service.websocket.RetryClientTest"/>
         </classes>
     </test>
 
@@ -283,6 +286,7 @@
             <class name="org.ballerinalang.test.observability.tracing.TracingTestCase"/>
             <class name="org.ballerinalang.test.observability.metrics.MetricsTestCase"/>
             <class name="org.ballerinalang.test.observability.metrics.WebSocketMetricsTestCase"/>
+            <class name="org.ballerinalang.test.observability.metrics.KafkaMetricsTestCase"/>
         </classes>
     </test>
 
@@ -331,6 +335,13 @@
         <parameter name="enableJBallerinaTests" value="true" />
         <classes>
             <class name="org.ballerinalang.test.logging.LogAPITestCase" />
+        </classes>
+    </test>
+
+    <test name="ballerina-testerina-tests" parallel="false">
+        <parameter name="enableJBallerinaTests" value="true" />
+        <classes>
+            <class name="org.ballerinalang.test.testarina.TestarinaTestCase" />
         </classes>
     </test>
 </suite>

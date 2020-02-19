@@ -18,8 +18,23 @@ type Person record {|
     string name;
 |};
 
+type PersonTwo record {|
+    string name;
+    int id;
+|};
+
+type PersonThree record {|
+    string name;
+    int id;
+    float...;
+|};
+
 function testUnionsWithTypesSupportingMappingConstructors() {
     string|Person x = {name: "John", age: 25};
+}
+
+function testMappingConstrWithLiteralKeysForUnionCET() {
+    PersonTwo|PersonThree x = {name: "John", "id": 25};
 }
 
 function testUnionsOfTypesWithoutSupportForMappingConstructors() {

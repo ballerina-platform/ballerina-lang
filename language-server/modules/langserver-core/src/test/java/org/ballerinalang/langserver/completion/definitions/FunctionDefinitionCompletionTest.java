@@ -17,7 +17,7 @@
 */
 package org.ballerinalang.langserver.completion.definitions;
 
-import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentException;
+import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.completion.CompletionTest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -176,6 +176,7 @@ public class FunctionDefinitionCompletionTest extends CompletionTest {
                 {"delimiterBasedCompletionOverXML.json", "function"},
                 {"langLibPackageSuggestion1.json", "function"},
                 {"langLibPackageSuggestion2.json", "function"},
+                {"groupedExpressionSuggestion1.json", "function"},
 //                {"statementWithMissingSemiColon1.json", "function"},
 //                {"statementWithMissingSemiColon2.json", "function"},
 //                {"statementWithMissingSemiColon3.json", "function"},

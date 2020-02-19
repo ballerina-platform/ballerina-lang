@@ -37,7 +37,6 @@ public class Launch {
 
     public static void main(String[] args) throws Exception {
         Path jsonCachePath = Paths.get(args[0], TesterinaConstants.TESTERINA_TEST_SUITE);
-        System.out.println(jsonCachePath);
         String[] configArgs = Arrays.copyOfRange(args, 1, args.length);
         LaunchUtils.initConfigurations(configArgs);
         BufferedReader br = Files.newBufferedReader(jsonCachePath, StandardCharsets.UTF_8);

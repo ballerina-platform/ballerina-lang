@@ -141,6 +141,11 @@ public const WRITING_100_CONTINUE_RESPONSE_FAILED = "{ballerina/http}Writing100C
 # Represents an error that occurred while writing 100 continue response
 public type Writing100ContinueResponseError error<WRITING_100_CONTINUE_RESPONSE_FAILED, Detail>;
 
+# Represents the reason string for the `http:InvalidCookieError`
+public const INVALID_COOKIE_ERROR = "{ballerina/http}InvalidCookieError";
+# Represents a cookie error that occurred when sending cookies in the response
+public type InvalidCookieError error<INVALID_COOKIE_ERROR, Detail>;
+
 // Generic errors (mostly to wrap errors from other modules)
 # Error reason for generic client error
 public const GENERIC_CLIENT_ERROR = "{ballerina/http}GenericClientError";
@@ -173,7 +178,12 @@ public const SSL_ERROR = "{ballerina/http}SslError";
 # Represents a client error that occurred due to SSL failure
 public type SslError error<SSL_ERROR, Detail>;
 
-// Ballerina Http Union Errors
+# Represents the reason string for the `http:CookieHandlingError`
+public const COOKIE_HANDLING_ERROR = "{ballerina/http}CookieHandlingError";
+# Represents a cookie error that occurred when using the cookies
+public type CookieHandlingError error<COOKIE_HANDLING_ERROR, Detail>;
+
+// Ballerina HTTP Union Errors
 # Defines the resiliency error types that returned from client
 public type ResiliencyError FailoverAllEndpointsFailedError | FailoverActionFailedError |
                             UpstreamServiceUnavailableError | AllLoadBalanceEndpointsFailedError |
@@ -197,12 +207,12 @@ public type InboundRequestError InitializingInboundRequestError|ReadingInboundRe
 # Defines the listener error types that returned while sending outbound response
 public type OutboundResponseError InitializingOutboundResponseError|WritingOutboundResponseHeadersError|
                             WritingOutboundResponseBodyError|Initiating100ContinueResponseError|
-                            Writing100ContinueResponseError;
+                            Writing100ContinueResponseError|InvalidCookieError;
 
 # Defines the possible client error types
 public type ClientError ResiliencyError|ClientAuthError|OutboundRequestError|
                             InboundResponseError|UnsupportedActionError|Http2ClientError|
-                            MaximumWaitTimeExceededError|SslError|GenericClientError;
+                            MaximumWaitTimeExceededError|SslError|GenericClientError|CookieHandlingError;
 
 # Defines the possible listener error types
 public type ListenerError GenericListenerError|InboundRequestError|OutboundResponseError;

@@ -133,37 +133,6 @@ public class BTestRunner {
         execute(suite);
     }
 
-    /**
-     * lists the groups available in tests.
-     *
-     * @param testSuite testSuite
-     */
-    public void listGroups(TestSuite testSuite) {
-        List<String> groupList = getGroupList(testSuite);
-        if (groupList.size() == 0) {
-            outStream.println("There are no groups available!");
-        } else {
-            outStream.println("Following groups are available : ");
-            outStream.println(groupList);
-        }
-    }
-
-    /**
-     * Returns a distinct list of groups in test functions.
-     *
-     * @param testSuite testSuite
-     * @return a list of groups
-     */
-    public List<String> getGroupList(TestSuite testSuite) {
-        List<String> groupList = new ArrayList<>();
-        for (Test test : testSuite.getTests()) {
-            if (test.getGroups().size() > 0) {
-                groupList.addAll(test.getGroups());
-            }
-        }
-        return groupList.stream().distinct().collect(Collectors.toList());
-    }
-
     private static List<Test> orderTests(List<Test> tests, int[] testExecutionOrder) {
         List<Test> sortedTests = new ArrayList<>();
         for (int idx : testExecutionOrder) {

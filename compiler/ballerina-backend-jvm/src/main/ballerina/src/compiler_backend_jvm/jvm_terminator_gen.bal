@@ -189,6 +189,7 @@ type TerminatorGenerator object {
                 bType is bir:BArrayType ||
                 bType is bir:BTypeAny ||
                 bType is bir:BTableType ||
+                bType is bir:BStreamType ||
                 bType is bir:BTypeAnyData ||
                 bType is bir:BObjectType ||
                 bType is bir:BServiceType ||
@@ -551,7 +552,8 @@ type TerminatorGenerator object {
         string jvmClass = lookupFullQualifiedClassName(lookupKey);
         string cleanMethodName = cleanupFunctionName(methodName);
         boolean useBString = IS_BSTRING && orgName == "ballerina" &&
-                             moduleName == "lang.string" && !cleanMethodName.endsWith("_");
+                             (moduleName == "lang.string" || moduleName == "lang.error" || moduleName == "lang.value" 
+                             || moduleName == "lang.map") && !cleanMethodName.endsWith("_");
         if (useBString) {
             cleanMethodName = nameOfBStringFunc(cleanMethodName);
         }

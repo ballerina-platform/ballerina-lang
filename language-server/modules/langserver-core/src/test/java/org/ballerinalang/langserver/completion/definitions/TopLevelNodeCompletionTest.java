@@ -17,7 +17,7 @@
 */
 package org.ballerinalang.langserver.completion.definitions;
 
-import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentException;
+import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.completion.CompletionTest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -72,6 +72,12 @@ public class TopLevelNodeCompletionTest extends CompletionTest {
                 {"statementWithMissingSemiColon2.json", "toplevel"},
                 {"statementWithMissingSemiColon3.json", "toplevel"},
                 {"statementWithMissingSemiColon4.json", "toplevel"},
+                {"topLevelTypeDesc1.json", "toplevel"},
+                {"topLevelTypeDesc2.json", "toplevel"},
+                {"topLevelTypeDesc3.json", "toplevel"},
+                {"topLevelTypeDesc4.json", "toplevel"},
+                {"topLevelTypeDesc5.json", "toplevel"},
+                {"completionWithinDocComments.json", "toplevel"},
         };
     }
 }

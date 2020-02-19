@@ -1,10 +1,10 @@
-import ballerinax/java;
 import ballerina/io;
+import ballerinax/java;
 
 // Define a Ballerina function which will act as a Java field getter.
 public function pi() returns float = @java:FieldGet {
-    name:"PI",
-    class:"java/lang/Math"
+    name: "PI",
+    class: "java/lang/Math"
 } external;
 
 public function main() {

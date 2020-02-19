@@ -40,6 +40,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BServiceType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
@@ -80,6 +81,7 @@ public class TypeParamAnalyzer {
 
     private SymbolTable symTable;
     private Types types;
+    private Names names;
     private BLangDiagnosticLog dlog;
 
     public static TypeParamAnalyzer getInstance(CompilerContext context) {
@@ -98,6 +100,7 @@ public class TypeParamAnalyzer {
 
         this.symTable = SymbolTable.getInstance(context);
         this.types = Types.getInstance(context);
+        this.names = Names.getInstance(context);
         this.dlog = BLangDiagnosticLog.getInstance(context);
     }
 
@@ -181,6 +184,8 @@ public class TypeParamAnalyzer {
                 return containsTypeParam(((BTableType) type).constraint, resolvedTypes);
             case TypeTags.MAP:
                 return containsTypeParam(((BMapType) type).constraint, resolvedTypes);
+            case TypeTags.STREAM:
+                return containsTypeParam(((BStreamType) type).constraint, resolvedTypes);
             case TypeTags.RECORD:
                 BRecordType recordType = (BRecordType) type;
                 for (BField field : recordType.fields) {
@@ -308,6 +313,12 @@ public class TypeParamAnalyzer {
                 if (actualType.tag == TypeTags.RECORD) {
                     findTypeParamInMapForRecord((BMapType) expType, (BRecordType) actualType, env, resolvedTypes,
                                                 result);
+                }
+                return;
+            case TypeTags.STREAM:
+                if (actualType.tag == TypeTags.STREAM) {
+                    findTypeParam(((BStreamType) expType).constraint, ((BStreamType) actualType).constraint, env,
+                                  resolvedTypes, result);
                 }
                 return;
             case TypeTags.TUPLE:
@@ -519,6 +530,10 @@ public class TypeParamAnalyzer {
                 BType constraint = ((BMapType) expType).constraint;
                 return new BMapType(TypeTags.MAP, getMatchingBoundType(constraint, env, resolvedTypes),
                         symTable.mapType.tsymbol);
+            case TypeTags.STREAM:
+                BType streamConstraint = ((BStreamType) expType).constraint;
+                return new BStreamType(TypeTags.STREAM, getMatchingBoundType(streamConstraint, env, resolvedTypes),
+                                       symTable.streamType.tsymbol);
             case TypeTags.TUPLE:
                 return getMatchingTupleBoundType((BTupleType) expType, env, resolvedTypes);
             case TypeTags.RECORD:
@@ -593,9 +608,8 @@ public class TypeParamAnalyzer {
 
     private BType getMatchingObjectBoundType(BObjectType expType, SymbolEnv env, HashSet<BType> resolvedTypes) {
 
-        BObjectTypeSymbol actObjectSymbol = (BObjectTypeSymbol) Symbols.createObjectSymbol(0, expType.tsymbol.name,
-                                                                                           expType.tsymbol.pkgID, null,
-                                                                                           expType.tsymbol.scope.owner);
+        BObjectTypeSymbol actObjectSymbol = (BObjectTypeSymbol) Symbols.createObjectSymbol(expType.tsymbol.flags,
+                expType.tsymbol.name, expType.tsymbol.pkgID, null, expType.tsymbol.scope.owner);
         BObjectType objectType = new BObjectType(actObjectSymbol);
         actObjectSymbol.type = objectType;
         actObjectSymbol.scope = new Scope(actObjectSymbol);
@@ -613,11 +627,14 @@ public class TypeParamAnalyzer {
             BInvokableType matchType = getMatchingFunctionBoundType(expFunc.type, env, resolvedTypes);
             BInvokableSymbol invokableSymbol = new BInvokableSymbol(expFunc.symbol.tag, expFunc.symbol.flags,
                     expFunc.symbol.name, env.enclPkg.packageID, matchType, env.scope.owner);
+            invokableSymbol.retType = invokableSymbol.getType().retType;
             matchType.tsymbol = Symbols.createTypeSymbol(SymTag.FUNCTION_TYPE, invokableSymbol.flags, Names.EMPTY,
                                                          env.enclPkg.symbol.pkgID, invokableSymbol.type,
                                                          env.scope.owner);
             actObjectSymbol.attachedFuncs.add(new BAttachedFunction(expFunc.funcName, invokableSymbol, matchType));
-            actObjectSymbol.methodScope.define(expFunc.funcName, invokableSymbol);
+            String funcName = Symbols.getAttachedFuncSymbolName(actObjectSymbol.type.tsymbol.name.value,
+                    expFunc.funcName.value);
+            actObjectSymbol.methodScope.define(names.fromString(funcName), invokableSymbol);
         }
 
         return objectType;
@@ -661,5 +678,4 @@ public class TypeParamAnalyzer {
         boolean found = false;
         boolean isNew = false;
     }
-
 }

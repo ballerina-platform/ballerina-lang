@@ -18,10 +18,11 @@
 package org.ballerinalang.langserver.completions.util.positioning.resolvers;
 
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
-import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.completions.TreeVisitor;
 import org.ballerinalang.model.tree.Node;
+import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
@@ -56,11 +57,12 @@ public class RecordLiteralScopeResolver extends CursorPositionResolver {
         int nodeStartCol = nodePos.getStartColumn();
         int nodeEndCol = nodePos.getEndColumn();
         int nodeEndLine = nodePos.getEndLine();
-        List<BLangRecordLiteral.BLangRecordKeyValue> keyValuePairs = recordLiteral.keyValuePairs;
-        boolean isLastField = keyValuePairs.indexOf(node) == keyValuePairs.size() - 1;
+        List<RecordLiteralNode.RecordField> fields = recordLiteral.fields;
+        boolean isLastField = fields.indexOf(node) == fields.size() - 1;
         boolean isCursorBefore = ((nodeStartLine > line) || (nodeStartLine == line && col < nodeStartCol)) ||
                 (isLastField && ((line < ownerEndLine && (line > nodeEndLine
-                        || (line == nodeEndLine && col > nodeEndCol))) || (line == ownerEndLine && col < ownerEndCol)));
+                        || (line == nodeEndLine && col >= nodeEndCol)))
+                        || (line == ownerEndLine && col < ownerEndCol)));
         
         if (isCursorBefore) {
             treeVisitor.forceTerminateVisitor();

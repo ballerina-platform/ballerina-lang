@@ -19,15 +19,20 @@ package org.ballerinalang.langserver.completions.providers.scopeproviders;
 import org.antlr.v4.runtime.CommonToken;
 import org.antlr.v4.runtime.Token;
 import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.langserver.compiler.LSContext;
-import org.ballerinalang.langserver.completions.CompletionKeys;
+import org.ballerinalang.langserver.commons.LSContext;
+import org.ballerinalang.langserver.commons.completion.CompletionKeys;
+import org.ballerinalang.langserver.commons.completion.LSCompletionException;
+import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
+import org.ballerinalang.langserver.commons.completion.spi.LSCompletionProvider;
+import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
 import org.ballerinalang.langserver.completions.providers.contextproviders.IfWhileConditionContextProvider;
 import org.ballerinalang.langserver.completions.providers.contextproviders.InvocationArgsContextProvider;
 import org.ballerinalang.langserver.completions.providers.contextproviders.StatementContextProvider;
-import org.ballerinalang.langserver.completions.spi.LSCompletionProvider;
-import org.eclipse.lsp4j.CompletionItem;
+import org.ballerinalang.langserver.sourceprune.SourcePruneKeys;
+import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -35,22 +40,25 @@ import java.util.stream.Collectors;
 /**
  * Resolves all items that can appear within the block statement.
  */
-@JavaSPIService("org.ballerinalang.langserver.completions.spi.LSCompletionProvider")
-public class BlockStatementScopeProvider extends LSCompletionProvider {
+@JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.LSCompletionProvider")
+public class BlockStatementScopeProvider extends AbstractCompletionProvider {
 
     public BlockStatementScopeProvider() {
-        this.attachmentPoints.add(BLangBlockStmt.class);
+        this.attachmentPoints.addAll(Arrays.asList(BLangBlockStmt.class, BLangBlockFunctionBody.class));
     }
 
     @Override
-    public List<CompletionItem> getCompletions(LSContext context) {
+    public List<LSCompletionItem> getCompletions(LSContext context) throws LSCompletionException {
         Optional<LSCompletionProvider> contextProvider = getContextProvider(context);
-        return contextProvider.map(lsCompletionProvider -> lsCompletionProvider.getCompletions(context)).orElse(null);
+        if (contextProvider.isPresent()) {
+            return contextProvider.get().getCompletions(context);
+        }
+        return null;
     }
 
     @Override
     public Optional<LSCompletionProvider> getContextProvider(LSContext ctx) {
-        List<CommonToken> lhsDefaultTokens = ctx.get(CompletionKeys.LHS_TOKENS_KEY).stream()
+        List<CommonToken> lhsDefaultTokens = ctx.get(SourcePruneKeys.LHS_TOKENS_KEY).stream()
                 .filter(commonToken -> commonToken.getChannel() == Token.DEFAULT_CHANNEL)
                 .collect(Collectors.toList());
         if (ctx.get(CompletionKeys.IN_INVOCATION_PARAM_CONTEXT_KEY) != null

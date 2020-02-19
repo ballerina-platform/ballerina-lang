@@ -19,8 +19,8 @@ package org.ballerinalang.langserver;
 
 import org.apache.commons.lang3.tuple.Pair;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
-import org.ballerinalang.langserver.compiler.LSContext;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionItemKind;
 import org.eclipse.lsp4j.TextEdit;
@@ -124,6 +124,10 @@ public class SnippetBlock {
 
     public String getLabel() {
         return label;
+    }
+
+    public SnippetType getSnippetType() {
+        return snippetType;
     }
 
     /**

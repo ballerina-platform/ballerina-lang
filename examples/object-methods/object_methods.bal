@@ -1,6 +1,6 @@
 import ballerina/io;
 
-// Defines an object called `Person`. It has method definitions both inside and outside the object.
+// Defines an object called `Person`.
 type Person object {
     public int age;
     public string firstName;
@@ -13,7 +13,7 @@ type Person object {
         self.lastName = lastName;
     }
 
-    // A method defined within the object.
+    // A method returning the full name value of the `Person` object.
     function getFullName() returns string {
         return self.firstName + " " + self.lastName;
     }
@@ -22,7 +22,7 @@ type Person object {
 
 public function main() {
     // Initializes a `Person` object.
-    Person p1 = new(5, "John", "Doe");
+    Person p1 = new (5, "John", "Doe");
 
     io:println(p1.getFullName());
 }

@@ -58,11 +58,26 @@ import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.TEST_RUNT
  */
 public class RunTestsTask implements Task {
 
-
     private final String[] args;
+    private List<String> groupList;
+    private List<String> disableGroupList;
+    private TesterinaRegistry testerinaRegistry = TesterinaRegistry.getInstance();
 
     public RunTestsTask(String[] args) {
         this.args = args;
+    }
+
+    public RunTestsTask(String[] args, List<String> groupList, List<String> disableGroupList) {
+        this.args =args;
+        this.groupList = groupList;
+        this.disableGroupList = disableGroupList;
+        if (disableGroupList != null) {
+            testerinaRegistry.setGroups(this.disableGroupList);
+            testerinaRegistry.setShouldIncludeGroups(false);
+        } else if (groupList != null) {
+            testerinaRegistry.setGroups(this.groupList);
+            testerinaRegistry.setShouldIncludeGroups(true);
+        }
     }
 
     @Override
@@ -109,12 +124,7 @@ public class RunTestsTask implements Task {
         String testStopFunctionName = bLangPackage.getTestablePkg().stopFunction.name.value;
         String orgName = bLangPackage.packageID.getOrgName().value;
         String version = bLangPackage.packageID.getPackageVersion().value;
-        String packageName;
-        if (bLangPackage.packageID.getName().getValue().equals(".")) {
-            packageName = bLangPackage.packageID.getName().getValue();
-        } else {
-            packageName = orgName + "/" + bLangPackage.packageID.getName().value + ":" + version;
-        }
+        String packageName = bLangPackage.packageID.toString();
         HashMap<String, String> normalFunctionNames = new HashMap<>();
         HashMap<String, String> testFunctionNames = new HashMap<>();
 

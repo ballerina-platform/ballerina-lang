@@ -20,8 +20,8 @@ import org.ballerinalang.langserver.common.LSNodeVisitor;
 import org.ballerinalang.langserver.common.constants.ContextConstants;
 import org.ballerinalang.langserver.common.constants.NodeContextKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
-import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.hover.util.HoverUtil;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.eclipse.lsp4j.Position;
@@ -33,6 +33,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
+import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
@@ -149,7 +150,7 @@ public class PositionTreeVisitor extends LSNodeVisitor {
             this.acceptNode(funcNode.returnTypeNode);
         }
 
-        if (funcNode.body != null) {
+        if (funcNode.hasBody()) {
             this.acceptNode(funcNode.body);
         }
 
@@ -258,6 +259,12 @@ public class PositionTreeVisitor extends LSNodeVisitor {
         if (blockNode.stmts != null) {
             blockNode.stmts.forEach(this::acceptNode);
         }
+    }
+
+    @Override
+    public void visit(BLangBlockFunctionBody blockFuncBody) {
+        setPreviousNode(blockFuncBody);
+        blockFuncBody.stmts.forEach(this::acceptNode);
     }
 
     @Override
@@ -603,10 +610,16 @@ public class PositionTreeVisitor extends LSNodeVisitor {
     public void visit(BLangRecordLiteral recordLiteral) {
         setPreviousNode(recordLiteral);
 
-        if (recordLiteral.keyValuePairs != null) {
-            recordLiteral.keyValuePairs.forEach((bLangRecordKeyValue -> {
-                if (bLangRecordKeyValue.valueExpr != null) {
-                    this.acceptNode(bLangRecordKeyValue.valueExpr);
+        if (recordLiteral.fields != null) {
+            recordLiteral.fields.forEach((field -> {
+                if (field.isKeyValueField()) {
+                    BLangRecordLiteral.BLangRecordKeyValueField bLangRecordKeyValue =
+                            (BLangRecordLiteral.BLangRecordKeyValueField) field;
+                    if (bLangRecordKeyValue.valueExpr != null) {
+                        this.acceptNode(bLangRecordKeyValue.valueExpr);
+                    }
+                } else {
+                    this.acceptNode((BLangRecordLiteral.BLangRecordVarNameField) field);
                 }
             }));
         }

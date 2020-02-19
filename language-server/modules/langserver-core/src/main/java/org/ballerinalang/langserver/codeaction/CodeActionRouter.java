@@ -15,18 +15,22 @@
  */
 package org.ballerinalang.langserver.codeaction;
 
-import org.ballerinalang.langserver.compiler.LSContext;
+import org.ballerinalang.langserver.commons.LSContext;
+import org.ballerinalang.langserver.commons.codeaction.CodeActionNodeType;
+import org.ballerinalang.langserver.commons.codeaction.spi.LSCodeActionProvider;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.Diagnostic;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
- * Represents the interface for the Ballerina Code Action Router.
+ * Represents the Code Action router.
  *
  * @since 1.1.1
  */
-public interface CodeActionRouter {
+public class CodeActionRouter {
 
     /**
      * @param nodeType    code action node type
@@ -34,6 +38,27 @@ public interface CodeActionRouter {
      * @param diagnostics list of diagnostics
      * @return list of code actions
      */
-    List<CodeAction> getBallerinaCodeActions(CodeActionNodeType nodeType, LSContext context,
-                                             List<Diagnostic> diagnostics);
+    public static List<CodeAction> getBallerinaCodeActions(CodeActionNodeType nodeType, LSContext context,
+                                                    List<Diagnostic> diagnostics) {
+        List<CodeAction> codeActions = new ArrayList<>();
+        CodeActionProvidersHolder codeActionProvidersHolder = CodeActionProvidersHolder.getInstance();
+        if (nodeType != null) {
+            Map<CodeActionNodeType, List<LSCodeActionProvider>> nodeBasedProviders =
+                    codeActionProvidersHolder.getNodeBasedProviders();
+            if (nodeBasedProviders.containsKey(nodeType)) {
+                nodeBasedProviders.get(nodeType).forEach(ballerinaCodeAction -> {
+                    codeActions.addAll(ballerinaCodeAction.getCodeActions(nodeType, context, null));
+                });
+            }
+        }
+        if (diagnostics != null && diagnostics.size() > 0) {
+            codeActionProvidersHolder.getDiagnosticsBasedProviders().forEach(ballerinaCodeAction -> {
+                List<CodeAction> codeActionList = ballerinaCodeAction.getCodeActions(nodeType, context, diagnostics);
+                if (codeActionList != null) {
+                    codeActions.addAll(codeActionList);
+                }
+            });
+        }
+        return codeActions;
+    }
 }

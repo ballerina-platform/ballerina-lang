@@ -16,25 +16,27 @@
 package org.ballerinalang.langserver.codeaction.providers;
 
 import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.langserver.codeaction.BallerinaCodeActionProvider;
-import org.ballerinalang.langserver.codeaction.CodeActionNodeType;
-import org.ballerinalang.langserver.command.ExecuteCommandKeys;
-import org.ballerinalang.langserver.compiler.LSContext;
+import org.ballerinalang.langserver.command.executors.AddDocumentationExecutor;
+import org.ballerinalang.langserver.common.constants.CommandConstants;
+import org.ballerinalang.langserver.commons.LSContext;
+import org.ballerinalang.langserver.commons.codeaction.CodeActionKeys;
+import org.ballerinalang.langserver.commons.codeaction.CodeActionNodeType;
+import org.ballerinalang.langserver.commons.command.CommandArgument;
 import org.eclipse.lsp4j.CodeAction;
+import org.eclipse.lsp4j.Command;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-
-import static org.ballerinalang.langserver.command.CommandUtil.getDocGenerationCommand;
 
 /**
  * Code Action provider for adding single documentation.
  *
  * @since 1.1.1
  */
-@JavaSPIService("org.ballerinalang.langserver.codeaction.BallerinaCodeActionProvider")
-public class AddDocumentationCodeAction extends BallerinaCodeActionProvider {
+@JavaSPIService("org.ballerinalang.langserver.commons.codeaction.spi.LSCodeActionProvider")
+public class AddDocumentationCodeAction extends AbstractCodeActionProvider {
     public AddDocumentationCodeAction() {
         super(Arrays.asList(CodeActionNodeType.FUNCTION,
                             CodeActionNodeType.OBJECT,
@@ -50,9 +52,17 @@ public class AddDocumentationCodeAction extends BallerinaCodeActionProvider {
     @Override
     public List<CodeAction> getCodeActions(CodeActionNodeType nodeType, LSContext lsContext,
                                            List<org.eclipse.lsp4j.Diagnostic> diagnostics) {
-        String docUri = lsContext.get(ExecuteCommandKeys.FILE_URI_KEY);
-        return Collections.singletonList(
-                getDocGenerationCommand(nodeType.name(), docUri,
-                                        lsContext.get(ExecuteCommandKeys.POSITION_START_KEY).getLine()));
+        String docUri = lsContext.get(CodeActionKeys.FILE_URI_KEY);
+        int line = lsContext.get(CodeActionKeys.POSITION_START_KEY).getLine();
+
+        CommandArgument nodeTypeArg = new CommandArgument(CommandConstants.ARG_KEY_NODE_TYPE, nodeType.name());
+        CommandArgument docUriArg = new CommandArgument(CommandConstants.ARG_KEY_DOC_URI, docUri);
+        CommandArgument lineStart = new CommandArgument(CommandConstants.ARG_KEY_NODE_LINE, String.valueOf(line));
+        List<Object> args = new ArrayList<>(Arrays.asList(nodeTypeArg, docUriArg, lineStart));
+
+        CodeAction action = new CodeAction(CommandConstants.ADD_DOCUMENTATION_TITLE);
+        Command command = new Command(CommandConstants.ADD_DOCUMENTATION_TITLE, AddDocumentationExecutor.COMMAND, args);
+        action.setCommand(command);
+        return Collections.singletonList(action);
     }
 }

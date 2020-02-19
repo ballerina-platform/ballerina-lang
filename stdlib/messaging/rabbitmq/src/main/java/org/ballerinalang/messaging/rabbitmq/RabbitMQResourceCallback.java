@@ -18,9 +18,12 @@
 
 package org.ballerinalang.messaging.rabbitmq;
 
+import com.rabbitmq.client.Channel;
 import org.ballerinalang.jvm.services.ErrorHandlerUtils;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.connector.CallableUnitCallback;
+import org.ballerinalang.messaging.rabbitmq.observability.RabbitMQMetricsUtil;
+import org.ballerinalang.messaging.rabbitmq.observability.RabbitMQObservabilityConstants;
 
 import java.util.concurrent.CountDownLatch;
 
@@ -31,19 +34,28 @@ import java.util.concurrent.CountDownLatch;
  */
 public class RabbitMQResourceCallback implements CallableUnitCallback {
     private CountDownLatch countDownLatch;
+    private Channel channel;
+    private String queueName;
+    private int size;
 
-    RabbitMQResourceCallback(CountDownLatch countDownLatch) {
+    RabbitMQResourceCallback(CountDownLatch countDownLatch, Channel channel, String queueName, int size) {
         this.countDownLatch = countDownLatch;
+        this.channel = channel;
+        this.queueName = queueName;
+        this.size = size;
     }
 
     @Override
     public void notifySuccess() {
+        RabbitMQMetricsUtil.reportConsume(channel, queueName, size,
+                                          RabbitMQObservabilityConstants.CONSUME_TYPE_SERVICE);
         countDownLatch.countDown();
     }
 
     @Override
     public void notifyFailure(ErrorValue error) {
         countDownLatch.countDown();
+        RabbitMQMetricsUtil.reportError(channel, RabbitMQObservabilityConstants.ERROR_TYPE_DISPATCH);
         ErrorHandlerUtils.printError("RabbitMQ Error: " + error.getPrintableStackTrace());
     }
 }

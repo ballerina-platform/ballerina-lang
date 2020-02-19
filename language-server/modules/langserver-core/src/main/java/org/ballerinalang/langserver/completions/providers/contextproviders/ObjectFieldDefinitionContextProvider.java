@@ -20,14 +20,16 @@ package org.ballerinalang.langserver.completions.providers.contextproviders;
 import org.antlr.v4.runtime.CommonToken;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.CommonKeys;
-import org.ballerinalang.langserver.compiler.LSContext;
-import org.ballerinalang.langserver.completions.CompletionKeys;
-import org.ballerinalang.langserver.completions.SymbolInfo;
-import org.ballerinalang.langserver.completions.spi.LSCompletionProvider;
+import org.ballerinalang.langserver.commons.LSContext;
+import org.ballerinalang.langserver.commons.completion.CompletionKeys;
+import org.ballerinalang.langserver.commons.completion.LSCompletionException;
+import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
+import org.ballerinalang.langserver.completions.SnippetCompletionItem;
+import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
 import org.ballerinalang.langserver.completions.util.Snippet;
-import org.ballerinalang.langserver.completions.util.sorters.ActionAndFieldAccessContextItemSorter;
-import org.eclipse.lsp4j.CompletionItem;
+import org.ballerinalang.langserver.sourceprune.SourcePruneKeys;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
+import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,18 +37,18 @@ import java.util.List;
 /**
  * Parser rule based variable definition statement context resolver.
  */
-@JavaSPIService("org.ballerinalang.langserver.completions.spi.LSCompletionProvider")
-public class ObjectFieldDefinitionContextProvider extends LSCompletionProvider {
+@JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.LSCompletionProvider")
+public class ObjectFieldDefinitionContextProvider extends AbstractCompletionProvider {
     public ObjectFieldDefinitionContextProvider() {
         this.attachmentPoints.add(BallerinaParser.ObjectFieldDefinitionContext.class);
     }
 
     @Override
-    public List<CompletionItem> getCompletions(LSContext ctx) {
-        ArrayList<CompletionItem> completionItems = new ArrayList<>();
-        List<CommonToken> lhsTokens = ctx.get(CompletionKeys.LHS_DEFAULT_TOKENS_KEY);
-        List<Integer> lhsTokenTypes = ctx.get(CompletionKeys.LHS_DEFAULT_TOKEN_TYPES_KEY);
-        List<SymbolInfo> visibleSymbols = new ArrayList<>(ctx.get(CommonKeys.VISIBLE_SYMBOLS_KEY));
+    public List<LSCompletionItem> getCompletions(LSContext ctx) throws LSCompletionException {
+        ArrayList<LSCompletionItem> completionItems = new ArrayList<>();
+        List<CommonToken> lhsTokens = ctx.get(SourcePruneKeys.LHS_DEFAULT_TOKENS_KEY);
+        List<Integer> lhsTokenTypes = ctx.get(SourcePruneKeys.LHS_DEFAULT_TOKEN_TYPES_KEY);
+        List<Scope.ScopeEntry> visibleSymbols = new ArrayList<>(ctx.get(CommonKeys.VISIBLE_SYMBOLS_KEY));
         int invocationOrDelimiterTokenType = ctx.get(CompletionKeys.INVOCATION_TOKEN_TYPE_KEY);
 
         if (lhsTokenTypes.contains(BallerinaParser.ASSIGN)) {
@@ -55,25 +57,24 @@ public class ObjectFieldDefinitionContextProvider extends LSCompletionProvider {
 
         if (invocationOrDelimiterTokenType == BallerinaParser.COLON) {
             String pkgName = lhsTokens.get(lhsTokenTypes.indexOf(invocationOrDelimiterTokenType) - 1).getText();
-            completionItems.addAll(this.getTypesInPackage(visibleSymbols, pkgName, ctx));
-            ctx.put(CompletionKeys.ITEM_SORTER_KEY, ActionAndFieldAccessContextItemSorter.class);
+            completionItems.addAll(this.getTypeItemsInPackage(visibleSymbols, pkgName, ctx));
             return completionItems;
         }
 
-        completionItems.addAll(this.getBasicTypes(visibleSymbols));
+        completionItems.addAll(this.getBasicTypesItems(ctx, visibleSymbols));
         completionItems.addAll(this.getPackagesCompletionItems(ctx));
 
-        completionItems.add(Snippet.DEF_FUNCTION_SIGNATURE.get().build(ctx));
-        completionItems.add(Snippet.DEF_FUNCTION.get().build(ctx));
-        completionItems.add(Snippet.DEF_REMOTE_FUNCTION.get().build(ctx));
-        completionItems.add(Snippet.DEF_INIT_FUNCTION.get().build(ctx));
-        completionItems.add(Snippet.DEF_ATTACH_FUNCTION.get().build(ctx));
-        completionItems.add(Snippet.DEF_DETACH_FUNCTION.get().build(ctx));
-        completionItems.add(Snippet.DEF_START_FUNCTION.get().build(ctx));
-        completionItems.add(Snippet.DEF_GRACEFUL_STOP_FUNCTION.get().build(ctx));
-        completionItems.add(Snippet.DEF_IMMEDIATE_STOP_FUNCTION.get().build(ctx));
-        completionItems.add(Snippet.KW_PUBLIC.get().build(ctx));
-        completionItems.add(Snippet.KW_PRIVATE.get().build(ctx));
+        completionItems.add(new SnippetCompletionItem(ctx, Snippet.DEF_FUNCTION_SIGNATURE.get()));
+        completionItems.add(new SnippetCompletionItem(ctx, Snippet.DEF_FUNCTION.get()));
+        completionItems.add(new SnippetCompletionItem(ctx, Snippet.DEF_REMOTE_FUNCTION.get()));
+        completionItems.add(new SnippetCompletionItem(ctx, Snippet.DEF_INIT_FUNCTION.get()));
+        completionItems.add(new SnippetCompletionItem(ctx, Snippet.DEF_ATTACH_FUNCTION.get()));
+        completionItems.add(new SnippetCompletionItem(ctx, Snippet.DEF_DETACH_FUNCTION.get()));
+        completionItems.add(new SnippetCompletionItem(ctx, Snippet.DEF_START_FUNCTION.get()));
+        completionItems.add(new SnippetCompletionItem(ctx, Snippet.DEF_GRACEFUL_STOP_FUNCTION.get()));
+        completionItems.add(new SnippetCompletionItem(ctx, Snippet.DEF_IMMEDIATE_STOP_FUNCTION.get()));
+        completionItems.add(new SnippetCompletionItem(ctx, Snippet.KW_PUBLIC.get()));
+        completionItems.add(new SnippetCompletionItem(ctx, Snippet.KW_PRIVATE.get()));
 
         return completionItems;
     }
