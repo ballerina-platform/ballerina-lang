@@ -217,10 +217,10 @@ public class CodeActionTest {
             if (editText == null) {
                 continue;
             }
-            JsonObject edit = editText.getAsJsonObject().get("documentChanges")
-                    .getAsJsonArray().get(0).getAsJsonObject().get("edits").getAsJsonArray().get(0)
-                    .getAsJsonObject();
-            if (right.getAsJsonObject().get("title").getAsString().equals(title) && edit.equals(expected.get("edit"))) {
+            JsonArray edit = editText.getAsJsonObject().get("documentChanges")
+                    .getAsJsonArray().get(0).getAsJsonObject().get("edits").getAsJsonArray();
+            boolean editsMatched = edit.equals(expected.get("edits").getAsJsonArray());
+            if (right.getAsJsonObject().get("title").getAsString().equals(title) && editsMatched) {
                 codeActionFound = true;
                 break;
             }
