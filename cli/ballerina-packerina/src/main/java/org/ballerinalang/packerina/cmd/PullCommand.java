@@ -87,28 +87,29 @@ public class PullCommand implements BLauncherCmd {
         String moduleName;
         String version;
 
-        // Get org-name
+        // Get the name of the organization.
         if (!validateModuleName(resourceName)) {
             CommandUtil.printError(outStream,
-                    "Invalid module name. Provide the module-name with the org-name",
+                    "invalid module name. Provide the module name with the org name ",
                     "ballerina pull {<org-name>/<module-name> | <org-name>/<module-name>:<version>}",
                     false);
             Runtime.getRuntime().exit(1);
             return;
         }
 
-        String[] module = resourceName.split("/");
-        orgName = module[0];
-        packageName = module[1];
-        if (orgName.equals("ballerina")) {
-            throw LauncherUtils.createLauncherException("`Ballerina` is the builtin organization and its modules"
-                    + " are included in the runtime.");
+        String[] moduleInfo = resourceName.split("/");
+        orgName = moduleInfo[0];
+        packageName = moduleInfo[1];
+        if (orgName.equals("ballerina") || orgName.equals("ballerinax")) {
+            throw LauncherUtils.createLauncherException("`ballerina` and `ballerinax` are reserved organization" +
+                    " names used by ballerina");
         }
 
-        // Get module name
-        if (packageName.contains(":")) { // version is provided
-            moduleName = packageName.split(":")[0];
-            version = packageName.split(":")[1];
+        // Get the name of the module.
+        String[] packageInfo = packageName.split(":");
+        if (packageName.length() == 2) { // version is provided
+            moduleName = packageInfo[0];
+            version = packageInfo[1];
         } else {
             moduleName = packageName;
             version = Names.EMPTY.getValue();
@@ -161,6 +162,6 @@ public class PullCommand implements BLauncherCmd {
     }
 
     public boolean validateModuleName(String str) {
-        return (Pattern.matches(getPullCommandRegex(), str));
+        return Pattern.matches(getPullCommandRegex(), str);
     }
 }
