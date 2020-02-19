@@ -2115,6 +2115,7 @@ public class JvmMethodGen {
 
         BIRFunction modInitFunc = new BIRFunction(null, new Name(funcName), 0,
                 new BInvokableType(Collections.emptyList(), null, symbolTable.errorOrNilType, null), null, 0, null);
+        modInitFunc.localVars.add(retVar);
         BIRBasicBlock _NextBB = addAndGetNextBasicBlock(modInitFunc);
 
         BIRVariableDcl boolVal = addAndGetNextVar(modInitFunc, new BType(TypeTags.BOOLEAN, null));
