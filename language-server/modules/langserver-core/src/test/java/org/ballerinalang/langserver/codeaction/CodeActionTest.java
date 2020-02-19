@@ -219,7 +219,7 @@ public class CodeActionTest {
             }
             JsonArray edit = editText.getAsJsonObject().get("documentChanges")
                     .getAsJsonArray().get(0).getAsJsonObject().get("edits").getAsJsonArray();
-            boolean editsMatched = edit.equals(expected.get("edits").getAsJsonArray());
+            boolean editsMatched = expected.get("edits").getAsJsonArray().equals(edit);
             if (right.getAsJsonObject().get("title").getAsString().equals(title) && editsMatched) {
                 codeActionFound = true;
                 break;

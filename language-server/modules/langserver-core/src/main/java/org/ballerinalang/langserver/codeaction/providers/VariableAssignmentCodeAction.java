@@ -52,6 +52,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
@@ -198,7 +199,6 @@ public class VariableAssignmentCodeAction extends AbstractCodeActionProvider {
         List<TextEdit> edits = new ArrayList<>();
         CompilerContext compilerContext = context.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY);
         Set<String> nameEntries = CommonUtil.getAllNameEntries(bLangNode, compilerContext);
-        String variableName = CommonUtil.generateVariableName(bLangNode, nameEntries);
 
         PackageID currentPkgId = bLangNode.pos.src.pkgID;
         BiConsumer<String, String> importsAcceptor = (orgName, alias) -> {
@@ -211,6 +211,7 @@ public class VariableAssignmentCodeAction extends AbstractCodeActionProvider {
             }
         };
         String variableType;
+        String variableName;
         if (hasDefaultInitFunction) {
             BType bType = referenceAtCursor.getSymbol().type;
             variableType = FunctionGenerator.generateTypeDefinition(importsAcceptor, currentPkgId, bType);
@@ -223,6 +224,14 @@ public class VariableAssignmentCodeAction extends AbstractCodeActionProvider {
             // Recursively find parent, when it is an indexBasedAccessNode
             while (bLangNode.parent instanceof IndexBasedAccessNode) {
                 bLangNode = bLangNode.parent;
+            }
+            if (bLangNode instanceof BLangInvocation) {
+                variableName = CommonUtil.generateVariableName(bLangNode, nameEntries);
+            } else if (bLangNode instanceof BLangFieldBasedAccess) {
+                variableName = CommonUtil.generateVariableName(((BLangFieldBasedAccess) bLangNode).expr.type,
+                                                               nameEntries);
+            } else {
+                variableName = CommonUtil.generateVariableName(bLangNode.type, nameEntries);
             }
             variableType = FunctionGenerator.generateTypeDefinition(importsAcceptor, currentPkgId, bLangNode.type);
         }
