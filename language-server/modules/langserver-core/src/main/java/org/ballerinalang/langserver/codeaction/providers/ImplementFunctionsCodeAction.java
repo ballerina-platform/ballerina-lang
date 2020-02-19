@@ -75,34 +75,32 @@ public class ImplementFunctionsCodeAction extends AbstractCodeActionProvider {
                                            List<Diagnostic> diagnostics) {
         List<CodeAction> actions = new ArrayList<>();
         List<DiagnosticPos> addedObjPosition = new ArrayList<>();
-        for (Diagnostic diagnostic : diagnostics) {
-            if (diagnostic.getMessage().startsWith(NO_IMPL_FOUND_FOR_FUNCTION)) {
-                try {
-                    CodeAction codeAction = getNoImplementationFoundCommand(diagnostic, addedObjPosition, lsContext);
+        WorkspaceDocumentManager documentManager = lsContext.get(DocumentServiceKeys.DOC_MANAGER_KEY);
+        try {
+            BLangPackage bLangPackage = LSModuleCompiler.getBLangPackage(lsContext, documentManager,
+                                                                         LSCustomErrorStrategy.class, false, false);
+            for (Diagnostic diagnostic : diagnostics) {
+                if (diagnostic.getMessage().startsWith(NO_IMPL_FOUND_FOR_FUNCTION)) {
+                    CodeAction codeAction = getNoImplementationFoundCommand(diagnostic, addedObjPosition,
+                                                                            bLangPackage, lsContext);
                     if (codeAction != null) {
                         actions.add(codeAction);
                     }
-                } catch (CompilationFailedException e) {
-                    // ignore
                 }
             }
+        } catch (CompilationFailedException e) {
+            // ignore
         }
-
         return actions;
     }
 
     private static CodeAction getNoImplementationFoundCommand(Diagnostic diagnostic,
                                                               List<DiagnosticPos> addedObjPosition,
-                                                              LSContext context) throws CompilationFailedException {
+                                                              BLangPackage bLangPackage, LSContext context) {
         Position position = diagnostic.getRange().getStart();
         int line = position.getLine();
         int column = position.getCharacter();
         String uri = context.get(CodeActionKeys.FILE_URI_KEY);
-        WorkspaceDocumentManager documentManager = context.get(DocumentServiceKeys.DOC_MANAGER_KEY);
-
-        BLangPackage bLangPackage = LSModuleCompiler.getBLangPackage(context, documentManager,
-                                                                     LSCustomErrorStrategy.class, false, false);
-
         Optional<BLangTypeDefinition> objType = bLangPackage.topLevelNodes.stream()
                 .filter(topLevelNode -> {
                     if (topLevelNode instanceof BLangTypeDefinition) {
