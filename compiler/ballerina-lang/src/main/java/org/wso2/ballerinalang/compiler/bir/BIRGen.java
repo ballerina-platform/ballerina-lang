@@ -741,6 +741,7 @@ public class BIRGen extends BLangNodeVisitor {
         BIRParameter parameter = new BIRParameter(pos, paramSymbol.name, paramSymbol.flags);
         birFunc.requiredParams.add(parameter);
         birFunc.parameters.put(birVarDcl, bbsOfDefaultValueExpr);
+        birFunc.localVars.add(birVarDcl);
 
         // We maintain a mapping from variable symbol to the bir_variable declaration.
         // This is required to pull the correct bir_variable declaration for variable references.
@@ -751,6 +752,7 @@ public class BIRGen extends BLangNodeVisitor {
         BIRFunctionParameter birVarDcl = new BIRFunctionParameter(pos, paramSymbol.type,
                 this.env.nextLocalVarId(names), VarScope.FUNCTION, VarKind.ARG, paramSymbol.name.value, false);
         birFunc.parameters.put(birVarDcl, new ArrayList<>());
+        birFunc.localVars.add(birVarDcl);
 
         birFunc.restParam = new BIRParameter(pos, paramSymbol.name, paramSymbol.flags);
 
@@ -763,6 +765,7 @@ public class BIRGen extends BLangNodeVisitor {
         BIRFunctionParameter birVarDcl = new BIRFunctionParameter(pos, paramSymbol.type,
                 this.env.nextLocalVarId(names), VarScope.FUNCTION, VarKind.ARG, paramSymbol.name.value, false);
         birFunc.parameters.put(birVarDcl, new ArrayList<>());
+        birFunc.localVars.add(birVarDcl);
 
         BIRParameter parameter = new BIRParameter(pos, paramSymbol.name, paramSymbol.flags);
         birFunc.requiredParams.add(parameter);
