@@ -304,12 +304,8 @@ public class BRunUtil {
     @Deprecated
     private static BValue[] invoke(CompileResult compileResult, BIRNode.BIRFunction function, String functionName,
                                    BValue[] bvmArgs) {
-        List<org.wso2.ballerinalang.compiler.semantics.model.types.BType> bvmParamTypes = new ArrayList<>();
-        for (org.wso2.ballerinalang.compiler.semantics.model.types.BType paramType : function.type.paramTypes) {
-            bvmParamTypes.add(paramType);
-            bvmParamTypes.add(
-                    new org.wso2.ballerinalang.compiler.semantics.model.types.BType(TypeTags.BOOLEAN_TAG, null));
-        }
+        List<org.wso2.ballerinalang.compiler.semantics.model.types.BType> bvmParamTypes =
+                new ArrayList<>(function.type.paramTypes);
         if (function.type.restType != null) {
             bvmParamTypes.add(function.type.restType);
             bvmParamTypes.add(
