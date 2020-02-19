@@ -591,7 +591,7 @@ public class JvmPackageGen {
             // function.
             BIRFunction initFunc = functions.get(0);
             String functionName = initFunc.name.value;
-            JavaClass klass = new JavaClass(initFunc.pos.getSource().cUnitName, initClass);
+            JavaClass klass = new JavaClass(initFunc.pos.src.cUnitName, initClass);
             klass.functions.add(0, initFunc);
             addInitAndTypeInitInstructions(module, initFunc);
             jvmClassMap.put(initClass, klass);
@@ -621,7 +621,7 @@ public class JvmPackageGen {
                 count = count + 1;
                 // link the bir function for lookup
                 String birFuncName = birFunc.name.value;
-                String balFileName = birFunc.pos.getSource().cUnitName;
+                String balFileName = birFunc.pos.src.cUnitName;
                 String birModuleClassName = getModuleLevelClassName(orgName, moduleName,
                         cleanupPathSeperators(cleanupBalExt(balFileName)));
 
