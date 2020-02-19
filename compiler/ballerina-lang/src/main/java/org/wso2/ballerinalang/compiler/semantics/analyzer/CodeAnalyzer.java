@@ -2364,7 +2364,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             fromCount++;
             BLangExpression collection = (BLangExpression) fromClauseNode.getCollection();
             if (fromCount > 1) {
-                if (types.isAssignable(collection.type, symTable.streamType)) {
+                if (TypeTags.STREAM == collection.type.tag) {
                     this.dlog.error(collection.pos, DiagnosticCode.NOT_ALLOWED_STREAM_USAGE_WITH_FROM);
                 }
             }
