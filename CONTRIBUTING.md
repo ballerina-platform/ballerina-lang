@@ -5,7 +5,6 @@ Ballerina is an open source programming language and platform for cloud-era appl
 We appreciate your help!
 
 - [Get started](#get-started)
-- [Set up the Prerequisites](#set-up-the-prerequisites)
 - [Build the source code](#build-the-source-code)
 - [Set up the development environment](#set-up-the-development-environment)
     - [Set up the Ballerina plugins](#set-up-the-ballerina-plugins)
@@ -16,12 +15,16 @@ We appreciate your help!
 
 ## Get started
 
+- Download [Ballerina](https://ballerina.io) and go through the [learning resources](https://ballerina.io/learn).
+- Read the <a href="https://ballerina.io/code-of-conduct">Ballerina Code of Conduct</a>.
+
 - Join the conversations at:
 
     - [StackOverflow](https://stackoverflow.com/questions/tagged/ballerina): to get help with Ballerina (use the Ballerina tag for any of your questions)
     - [Slack](https://ballerina.io/community/slack/): for real-time discussions with the team and community
     - [Ballerina-Dev Google Group](https://groups.google.com/forum/#!forum/ballerina-dev): (community mailing list) to discuss Ballerina roadmap, features, and related issues
     - [Twitter](https://twitter.com/ballerinalang): to tweet about Ballerina (use the “#ballerinalang” hashtag) 
+    - [GitHub](https://github.com/ballerina-platform/ballerina-lang/issues): to file issues, join the conversations on new features, comment on other issues, and send your pull requests.
 
 - Submitting a bug is just as important as contributing to code. Report an issue in the relevant repo out of the GitHub repos listed below. 
 
@@ -34,10 +37,6 @@ We appreciate your help!
 -  Start with GitHub issues that can be fixed easily:
     - Browse issues labeled "good first issue" in the <a href="https://github.com/ballerina-platform/ballerina-lang/issues">ballerina-lang</a> repo.
     - Use comments on the issue itself to indicate that you will be working on it and get guidance and help.
-
-## Set up the prerequisites
-1. Download [Ballerina](https://ballerina.io) and go through the [learning resources](https://ballerina.io/learn).
-2. Read the <a href="https://ballerina.io/code-of-conduct">Ballerina Code of Conduct</a>.
 
 ## Build the source code 
 
@@ -66,7 +65,7 @@ This plugin will be useful to check and validate a grammar rule you wrote. For i
 1. Do your changes in the source code.
     
     <details>
-    <summary>If you are contributing to Ballerina Grammar:</summary>
+    <summary>Contributing to Ballerina Grammer:</summary>
 
     Ballerina grammar has been implemented using ANTLR plugin version 4.5.3. To get a basic understanding of ANTLR grammar syntax and concepts before working with Ballerina grammar, go to [Parr, Terence (January 15, 2013), The Definitive ANTLR 4 Reference](https://www.oreilly.com/library/view/the-definitive-antlr/9781941222621/).
 
