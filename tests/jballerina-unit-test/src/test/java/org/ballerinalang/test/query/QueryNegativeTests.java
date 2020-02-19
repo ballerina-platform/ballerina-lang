@@ -34,7 +34,7 @@ public class QueryNegativeTests {
 
     @Test
     public void testFromClauseWithInvalidType() {
-        CompileResult compileResult = BCompileUtil.compile("test-src/query/query-semantics-negative.bal");
+        CompileResult compileResult = BCompileUtil.compile("test-src/query/query-negative.bal");
         Assert.assertEquals(compileResult.getErrorCount(), 8);
         int index = 0;
 

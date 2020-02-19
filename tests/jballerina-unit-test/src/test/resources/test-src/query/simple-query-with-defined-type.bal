@@ -166,3 +166,18 @@ function testArrayWithTuple() returns string[] {
                    select v;
     return val;
 }
+
+function testFromClauseWithStream() returns Person[]{
+    Person p1 = {firstName: "Alex", lastName: "George", age: 30};
+    Person p2 = {firstName: "Ranjan", lastName: "Fonseka", age: 40};
+    Person p3 = {firstName: "John", lastName: "David", age: 50};
+
+    Person[] personList = [p1, p2, p3];
+    stream<Person> streamedPersons = personList.toStream();
+
+    Person[] outputPersonList =
+            from var person in streamedPersons
+            where person.age == 40
+            select person;
+    return  outputPersonList;
+}

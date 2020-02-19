@@ -187,5 +187,17 @@ public class SimpleQueryExpressionWithDefinedTypeTest {
         Assert.assertEquals(returnValues.length, 1);
         Assert.assertEquals(returnValues[0].stringValue(), "[\"C\"]");
     }
+
+    @Test(description = "Test from clause with a stream")
+    public void testFromClauseWithStream() {
+        BValue[] returnValues = BRunUtil.invoke(result, "testFromClauseWithStream");
+        Assert.assertNotNull(returnValues);
+        Assert.assertEquals(returnValues.length, 1, "Expected events are not received");
+
+        BMap<String, BValue> person = (BMap<String, BValue>) returnValues[0];
+
+        Assert.assertEquals(person.get("firstName").stringValue(), "Ranjan");
+        Assert.assertEquals(((BInteger) person.get("age")).intValue(), 40);
+    }
 }
 
