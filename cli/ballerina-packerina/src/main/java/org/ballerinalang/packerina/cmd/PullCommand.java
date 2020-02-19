@@ -90,25 +90,26 @@ public class PullCommand implements BLauncherCmd {
         // Get org-name
         if (!validateModuleName(resourceName)) {
             CommandUtil.printError(outStream,
-                    "invalid module name. Provide the module-name with the org-name",
+                    "invalid module name. Provide the module-name with the org-name ",
                     "ballerina pull {<org-name>/<module-name> | <org-name>/<module-name>:<version>}",
                     false);
             Runtime.getRuntime().exit(1);
             return;
         }
 
-        String[] module = resourceName.split("/");
-        orgName = module[0];
-        packageName = module[1];
+        String[] moduleInfo = resourceName.split("/");
+        orgName = moduleInfo[0];
+        packageName = moduleInfo[1];
         if (orgName.equals("ballerina")) {
-            throw LauncherUtils.createLauncherException("`Ballerina` is the builtin organization and its modules"
+            throw LauncherUtils.createLauncherException("`ballerina` is the builtin organization and its modules"
                     + " are included in the runtime.");
         }
 
         // Get module name
-        if (packageName.contains(":")) { // version is provided
-            moduleName = packageName.split(":")[0];
-            version = packageName.split(":")[1];
+        String[] packageInfo = packageName.split(":");
+        if (packageName.length() == 2) { // version is provided
+            moduleName = packageInfo[0];
+            version = packageInfo[1];
         } else {
             moduleName = packageName;
             version = Names.EMPTY.getValue();
@@ -161,6 +162,6 @@ public class PullCommand implements BLauncherCmd {
     }
 
     public boolean validateModuleName(String str) {
-        return (Pattern.matches(getPullCommandRegex(), str));
+        return Pattern.matches(getPullCommandRegex(), str);
     }
 }
