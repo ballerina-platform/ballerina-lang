@@ -36,8 +36,7 @@ public class KafkaConstants {
     public static final String BLOCK_SEPARATOR = ":";
     public static final String ARRAY_INDICATOR = "[]";
     public static final String KAFKA_PACKAGE_NAME = "kafka";
-    public static final String ORG_NAME = "ballerina";
-    public static final String VERSION = "0.0.0";
+    private static final String VERSION = "1.1.0";
 
     public static final String FULL_PACKAGE_NAME = KAFKA_PACKAGE_NAME + BLOCK_SEPARATOR + VERSION;
     public static final String KAFKA_PROTOCOL_PACKAGE = BALLERINA_PACKAGE_PREFIX + KAFKA_PACKAGE_NAME;
@@ -70,6 +69,7 @@ public class KafkaConstants {
     public static final String SERVER_CONNECTOR = "serverConnector";
 
     public static final String CONSUMER_CONFIG_FIELD_NAME = "consumerConfig";
+    public static final String PRODUCER_CONFIG_FIELD_NAME = "producerConfig";
 
     public static final String PARAMETER_CONSUMER_NAME = KAFKA_PROTOCOL_PACKAGE + BLOCK_SEPARATOR
             + CONSUMER_STRUCT_NAME;
@@ -102,8 +102,11 @@ public class KafkaConstants {
     public static final String CONSUMER_CLIENT_ID_CONFIG = "clientId";
     public static final String CONSUMER_INTERCEPTOR_CLASSES_CONFIG = "interceptorClasses";
     public static final String CONSUMER_ISOLATION_LEVEL_CONFIG = "isolationLevel";
+    public static final String CONSUMER_KEY_DESERIALIZER_TYPE_CONFIG = "keyDeserializerType";
+    public static final String CONSUMER_VALUE_DESERIALIZER_TYPE_CONFIG = "valueDeserializerType";
     public static final String CONSUMER_KEY_DESERIALIZER_CONFIG = "keyDeserializer";
     public static final String CONSUMER_VALUE_DESERIALIZER_CONFIG = "valueDeserializer";
+    public static final String BALLERINA_STRAND = "ballerina.strand";
 
     public static final String CONSUMER_SESSION_TIMEOUT_MS_CONFIG = "sessionTimeoutInMillis";
     public static final String CONSUMER_HEARTBEAT_INTERVAL_MS_CONFIG = "heartBeatIntervalInMillis";
@@ -139,6 +142,8 @@ public class KafkaConstants {
     public static final String PRODUCER_PARTITIONER_CLASS_CONFIG = "partitionerClass";
     public static final String PRODUCER_INTERCEPTOR_CLASSES_CONFIG = "interceptorClasses";
     public static final String PRODUCER_TRANSACTIONAL_ID_CONFIG = "transactionalId";
+    public static final String PRODUCER_KEY_SERIALIZER_TYPE_CONFIG = "keySerializerType";
+    public static final String PRODUCER_VALUE_SERIALIZER_TYPE_CONFIG = "valueSerializerType";
     public static final String PRODUCER_KEY_SERIALIZER_CONFIG = "keySerializer";
     public static final String PRODUCER_VALUE_SERIALIZER_CONFIG = "valueSerializer";
     public static final String PRODUCER_BUFFER_MEMORY_CONFIG = "bufferMemory";
@@ -187,6 +192,7 @@ public class KafkaConstants {
     public static final String SERDES_STRING = "STRING";
     public static final String SERDES_INT = "INT";
     public static final String SERDES_FLOAT = "FLOAT";
+    public static final String SERDES_CUSTOM = "CUSTOM";
 
     // Default class names
     // Serializers
@@ -200,6 +206,14 @@ public class KafkaConstants {
     public static final String STRING_DESERIALIZER = "org.apache.kafka.common.serialization.StringDeserializer";
     public static final String INT_DESERIALIZER = "org.apache.kafka.common.serialization.LongDeserializer";
     public static final String FLOAT_DESERIALIZER = "org.apache.kafka.common.serialization.DoubleDeserializer";
+    public static final String CUSTOM_SERIALIZER = "org.ballerinalang.messaging.kafka.serdes.BallerinaKafkaSerializer";
+    public static final String CUSTOM_DESERIALIZER =
+            "org.ballerinalang.messaging.kafka.serdes.BallerinaKafkaDeserializer";
+
+    // Serializer / Deserializer function names
+    public static final String FUNCTION_SERIALIZE = "serialize";
+    public static final String FUNCTION_DESERIALIZE = "deserialize";
+    public static final String FUNCTION_CLOSE = "close";
 
     // Warning suppression
     public static final String UNCHECKED = "unchecked";

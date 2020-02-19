@@ -25,7 +25,7 @@ kafka:ConsumerConfig consumerConfigs = {
     offsetReset: "earliest",
     topics: [topic],
     autoCommit:false,
-    valueDeserializer: kafka:DES_INT
+    valueDeserializerType: kafka:DES_INT
 };
 
 listener kafka:Consumer kafkaConsumer = new(consumerConfigs);
@@ -35,7 +35,7 @@ kafka:ProducerConfig producerConfigs = {
     clientId: "advanced-service-producer",
     acks: kafka:ACKS_ALL,
     retryCount: 3,
-    valueSerializer: kafka:SER_INT
+    valueSerializerType: kafka:SER_INT
 };
 
 kafka:Producer kafkaProducer = new(producerConfigs);
