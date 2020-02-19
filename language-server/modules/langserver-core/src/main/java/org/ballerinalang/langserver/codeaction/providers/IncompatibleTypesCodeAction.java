@@ -86,8 +86,8 @@ public class IncompatibleTypesCodeAction extends AbstractCodeActionProvider {
     public List<CodeAction> getCodeActions(CodeActionNodeType nodeType, LSContext lsContext,
                                            List<Diagnostic> diagnostics) {
         List<CodeAction> actions = new ArrayList<>();
-        WorkspaceDocumentManager documentManager = lsContext.get(CodeActionKeys.DOCUMENT_MANAGER_KEY);
-        Optional<Path> filePath = CommonUtil.getPathFromURI(lsContext.get(CodeActionKeys.FILE_URI_KEY));
+        WorkspaceDocumentManager documentManager = lsContext.get(DocumentServiceKeys.DOC_MANAGER_KEY);
+        Optional<Path> filePath = CommonUtil.getPathFromURI(lsContext.get(DocumentServiceKeys.FILE_URI_KEY));
         LSDocumentIdentifier document = null;
         try {
             document = documentManager.getLSDocument(filePath.get());
@@ -116,7 +116,7 @@ public class IncompatibleTypesCodeAction extends AbstractCodeActionProvider {
         Position position = diagnostic.getRange().getStart();
         int line = position.getLine();
         int column = position.getCharacter();
-        String uri = context.get(CodeActionKeys.FILE_URI_KEY);
+        String uri = context.get(DocumentServiceKeys.FILE_URI_KEY);
         List<Diagnostic> diagnostics = new ArrayList<>();
 
         Matcher matcher = CommandConstants.INCOMPATIBLE_TYPE_PATTERN.matcher(diagnosticMessage);

@@ -22,6 +22,7 @@ import org.ballerinalang.langserver.commons.codeaction.spi.LSCodeActionProvider;
 import org.ballerinalang.langserver.commons.workspace.LSDocumentIdentifier;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentManager;
+import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.Position;
@@ -98,7 +99,7 @@ public abstract class AbstractCodeActionProvider implements LSCodeActionProvider
      */
     protected static String getDiagnosedContent(Diagnostic diagnostic, LSContext context,
                                                 LSDocumentIdentifier document) {
-        WorkspaceDocumentManager docManager = context.get(CodeActionKeys.DOCUMENT_MANAGER_KEY);
+        WorkspaceDocumentManager docManager = context.get(DocumentServiceKeys.DOC_MANAGER_KEY);
         StringBuilder content = new StringBuilder();
         Position start = diagnostic.getRange().getStart();
         Position end = diagnostic.getRange().getEnd();

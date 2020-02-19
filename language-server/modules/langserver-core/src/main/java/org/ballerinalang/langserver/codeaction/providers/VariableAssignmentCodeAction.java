@@ -89,8 +89,8 @@ public class VariableAssignmentCodeAction extends AbstractCodeActionProvider {
     public List<CodeAction> getCodeActions(CodeActionNodeType nodeType, LSContext lsContext,
                                            List<Diagnostic> diagnostics) {
         List<CodeAction> actions = new ArrayList<>();
-        WorkspaceDocumentManager documentManager = lsContext.get(CodeActionKeys.DOCUMENT_MANAGER_KEY);
-        Optional<Path> filePath = CommonUtil.getPathFromURI(lsContext.get(CodeActionKeys.FILE_URI_KEY));
+        WorkspaceDocumentManager documentManager = lsContext.get(DocumentServiceKeys.DOC_MANAGER_KEY);
+        Optional<Path> filePath = CommonUtil.getPathFromURI(lsContext.get(DocumentServiceKeys.FILE_URI_KEY));
         LSDocumentIdentifier document = null;
         try {
             document = documentManager.getLSDocument(filePath.get());
@@ -247,7 +247,7 @@ public class VariableAssignmentCodeAction extends AbstractCodeActionProvider {
                                                               SymbolReferencesModel.Reference referenceAtCursor,
                                                               BUnionType unionType)
             throws WorkspaceDocumentException, IOException {
-        WorkspaceDocumentManager docManager = context.get(CodeActionKeys.DOCUMENT_MANAGER_KEY);
+        WorkspaceDocumentManager docManager = context.get(DocumentServiceKeys.DOC_MANAGER_KEY);
         BLangNode bLangNode = referenceAtCursor.getbLangNode();
         Position startPos = new Position(bLangNode.pos.sLine - 1, bLangNode.pos.sCol - 1);
         Position endPosWithSemiColon = new Position(bLangNode.pos.eLine - 1, bLangNode.pos.eCol);

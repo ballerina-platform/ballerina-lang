@@ -414,8 +414,6 @@ class BallerinaTextDocumentService implements TextDocumentService {
                     .ServiceOperationContextBuilder(LSContextOperation.TXT_CODE_ACTION)
                     .withCodeActionParams(documentManager)
                     .build();
-            context.put(CodeActionKeys.DOCUMENT_MANAGER_KEY, documentManager);
-            context.put(CodeActionKeys.FILE_URI_KEY, fileUri);
             context.put(DocumentServiceKeys.FILE_URI_KEY, fileUri);
             context.put(CodeActionKeys.POSITION_START_KEY, params.getRange().getStart());
             context.put(DocumentServiceKeys.DOC_MANAGER_KEY, documentManager);
