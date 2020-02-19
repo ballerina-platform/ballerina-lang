@@ -73,6 +73,7 @@ import static org.ballerinalang.net.grpc.builder.utils.BalGenConstants.SAMPLE_CL
 import static org.ballerinalang.net.grpc.builder.utils.BalGenConstants.SAMPLE_FILE_PREFIX;
 import static org.ballerinalang.net.grpc.builder.utils.BalGenConstants.SAMPLE_SERVICE_FILE_PREFIX;
 import static org.ballerinalang.net.grpc.builder.utils.BalGenConstants.SAMPLE_SERVICE_TEMPLATE_NAME;
+import static org.ballerinalang.net.grpc.builder.utils.BalGenConstants.SERVICE_SKELETON_TEMPLATE_NAME;
 import static org.ballerinalang.net.grpc.builder.utils.BalGenConstants.SKELETON_TEMPLATE_NAME;
 import static org.ballerinalang.net.grpc.builder.utils.BalGenConstants.STUB_FILE_PREFIX;
 import static org.ballerinalang.net.grpc.builder.utils.BalGenConstants.TEMPLATES_DIR_PATH_KEY;
@@ -225,7 +226,7 @@ public class BallerinaFileBuilder {
                 }
             }
 
-            if (!GRPC_SERVICE.equals(mode) || needStubFile) {
+            if (!GRPC_SERVICE.equals(mode)) {
                 stubFileObject.setMessageList(messageList);
                 stubFileObject.setEnumList(enumList);
                 stubFileObject.setDescriptors(descriptors);
@@ -234,6 +235,15 @@ public class BallerinaFileBuilder {
                 }
                 String stubFilePath = generateOutputFile(this.balOutPath, filename + STUB_FILE_PREFIX);
                 writeOutputFile(stubFileObject, DEFAULT_SKELETON_DIR, SKELETON_TEMPLATE_NAME, stubFilePath);
+            } else if (needStubFile) {
+                stubFileObject.setMessageList(messageList);
+                stubFileObject.setEnumList(enumList);
+                stubFileObject.setDescriptors(descriptors);
+                if (!stubRootDescriptor.isEmpty()) {
+                    stubFileObject.setRootDescriptor(stubRootDescriptor);
+                }
+                String stubFilePath = generateOutputFile(this.balOutPath, filename + STUB_FILE_PREFIX);
+                writeOutputFile(stubFileObject, DEFAULT_SKELETON_DIR, SERVICE_SKELETON_TEMPLATE_NAME, stubFilePath);
             }
         } catch (GrpcServerException e) {
             throw new CodeBuilderException("Message descriptor error. " + e.getMessage());
