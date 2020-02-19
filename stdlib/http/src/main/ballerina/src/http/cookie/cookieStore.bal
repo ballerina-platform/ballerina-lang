@@ -50,33 +50,35 @@ public type CookieStore object {
         if (index is int) {
             path = requestPath.substring(0, index);
         }
-        Cookie? identicalCookie = getIdenticalCookie(cookie, self);
-        if (!isDomainMatched(cookie, domain, cookieConfig)) {
-            return;
-        }
-        if (!isPathMatched(cookie, path, cookieConfig)) {
-            return;
-        }
-        if (!isExpiresAttributeValid(cookie)) {
-            return;
-        }
-        if (!((url.startsWith(HTTP) && cookie.httpOnly) || cookie.httpOnly == false)) {
-            return;
-        }
-        if (cookie.isPersistent()) {
-            var persistentCookieHandler = self.persistentCookieHandler;
-            if (persistentCookieHandler is PersistentCookieHandler) {
-                var result = addPersistentCookie(identicalCookie, cookie, url, persistentCookieHandler, self);
-                if (result is error) {
-                    return error(COOKIE_HANDLING_ERROR, message = "Error in adding persistent cookies", cause = result);
-                }
-            } else if (isFirstRequest(self.allSessionCookies, domain)) {
-                log:printWarn("Client is not configured to use persistent cookies. Hence, persistent cookies from " + domain + " will be discarded.");
+        lock {
+            Cookie? identicalCookie = getIdenticalCookie(cookie, self);
+            if (!isDomainMatched(cookie, domain, cookieConfig)) {
+                return;
             }
-        } else {
-            var result = addSessionCookie(identicalCookie, cookie, url, self);
-            if (result is error) {
-                return error(COOKIE_HANDLING_ERROR, message = "Error in adding session cookie", cause = result);
+            if (!isPathMatched(cookie, path, cookieConfig)) {
+                return;
+            }
+            if (!isExpiresAttributeValid(cookie)) {
+                return;
+            }
+            if (!((url.startsWith(HTTP) && cookie.httpOnly) || cookie.httpOnly == false)) {
+                return;
+            }
+            if (cookie.isPersistent()) {
+                var persistentCookieHandler = self.persistentCookieHandler;
+                if (persistentCookieHandler is PersistentCookieHandler) {
+                    var result = addPersistentCookie(identicalCookie, cookie, url, persistentCookieHandler, self);
+                    if (result is error) {
+                        return error(COOKIE_HANDLING_ERROR, message = "Error in adding persistent cookies", cause = result);
+                    }
+                } else if (isFirstRequest(self.allSessionCookies, domain)) {
+                    log:printWarn("Client is not configured to use persistent cookies. Hence, persistent cookies from " + domain + " will be discarded.");
+                }
+            } else {
+                var result = addSessionCookie(identicalCookie, cookie, url, self);
+                if (result is error) {
+                    return error(COOKIE_HANDLING_ERROR, message = "Error in adding session cookie", cause = result);
+                }
             }
         }
     }
@@ -195,26 +197,28 @@ public type CookieStore object {
     # + path - Path of the cookie to be removed
     # + return - An error will be returned if there is any error occurred during the removal of the cookie or else nil is returned
     public function removeCookie(string name, string domain, string path) returns CookieHandlingError? {
-        // Removes the session cookie if it is in the session cookies array, which is matched with the given name, domain, and path.
-        int k = 0;
-        while (k < self.allSessionCookies.length()) {
-            if (name == self.allSessionCookies[k].name && domain == self.allSessionCookies[k].domain && path ==  self.allSessionCookies[k].path) {
-                int j = k;
-                while (j < self.allSessionCookies.length() - 1) {
-                    self.allSessionCookies[j] = self.allSessionCookies[j + 1];
-                    j = j + 1;
+        lock {
+            // Removes the session cookie if it is in the session cookies array, which is matched with the given name, domain, and path.
+            int k = 0;
+            while (k < self.allSessionCookies.length()) {
+                if (name == self.allSessionCookies[k].name && domain == self.allSessionCookies[k].domain && path ==  self.allSessionCookies[k].path) {
+                    int j = k;
+                    while (j < self.allSessionCookies.length() - 1) {
+                        self.allSessionCookies[j] = self.allSessionCookies[j + 1];
+                        j = j + 1;
+                    }
+                    _ = self.allSessionCookies.pop();
+                    return;
                 }
-                _ = self.allSessionCookies.pop();
-                return;
+                k = k + 1;
             }
-            k = k + 1;
+            // Removes the persistent cookie if it is in the persistent cookie store, which is matched with the given name, domain, and path.
+            var persistentCookieHandler = self.persistentCookieHandler;
+            if (persistentCookieHandler is PersistentCookieHandler) {
+                return persistentCookieHandler.removeCookie(name, domain, path);
+            }
+            return error(COOKIE_HANDLING_ERROR, message = "Error in removing cookie: No such cookie to remove");
         }
-        // Removes the persistent cookie if it is in the persistent cookie store, which is matched with the given name, domain, and path.
-        var persistentCookieHandler = self.persistentCookieHandler;
-        if (persistentCookieHandler is PersistentCookieHandler) {
-            return persistentCookieHandler.removeCookie(name, domain, path);
-        }
-        return error(COOKIE_HANDLING_ERROR, message = "Error in removing cookie: No such cookie to remove");
     }
 
     # Removes cookies, which match with the given domain.
