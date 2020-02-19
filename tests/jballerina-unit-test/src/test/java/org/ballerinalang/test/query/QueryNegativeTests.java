@@ -39,15 +39,15 @@ public class QueryNegativeTests {
         int index = 0;
 
         validateError(compileResult, index++, "incompatible types: expected 'Person', found 'Teacher'",
-                                  21, 18);
+                                  25, 18);
         validateError(compileResult, index++, "invalid operation: type 'Teacher' does not support field access for " +
-                              "non-required field 'lastName'", 24, 30);
+                              "non-required field 'lastName'", 28, 30);
         validateError(compileResult, index++, "invalid operation: type 'Teacher' does not support field access for " +
-                              "non-required field 'age'", 25, 25);
-        validateError(compileResult, index++, "unknown type 'XYZ'", 40, 18);
-        validateError(compileResult, index++, "undefined field 'lastName' in record 'Teacher'", 60, 20);
-        validateError(compileResult, index++, "incompatible types: 'int' is not an iterable collection", 73, 32);
-        validateError(compileResult, index++, "incompatible types: expected 'boolean', found 'int'", 74, 19);
-        validateError(compileResult, index, "incompatible types: expected 'Person', found 'int'", 75, 20);
+                              "non-required field 'age'", 29, 25);
+        validateError(compileResult, index++, "unknown type 'XYZ'", 44, 18);
+        validateError(compileResult, index++, "undefined field 'lastName' in record 'Teacher'", 64, 20);
+        validateError(compileResult, index++, "incompatible types: 'int' is not an iterable collection", 77, 32);
+        validateError(compileResult, index++, "incompatible types: expected 'boolean', found 'int'", 78, 19);
+        validateError(compileResult, index, "incompatible types: expected 'Person', found 'int'", 79, 20);
     }
 }
