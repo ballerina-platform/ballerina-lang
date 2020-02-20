@@ -24,7 +24,6 @@ string BSTRING_VALUE = runtime:getProperty("ballerina.bstring") == "" ? STRING_V
 
 const string B_STRING_VALUE = "org/ballerinalang/jvm/values/api/BString";
 const string I_STRING_VALUE = "org/ballerinalang/jvm/values/StringValue";
-const string BMP_STRING_VALUE = "org/ballerinalang/jvm/values/BmpStringValue";
 const string NON_BMP_STRING_VALUE = "org/ballerinalang/jvm/values/NonBmpStringValue";
 
 type InstructionGenerator object {

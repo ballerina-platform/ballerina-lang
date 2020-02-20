@@ -703,10 +703,10 @@ function generateNonBMPStringValue(jvm:MethodVisitor mv, BalToJVMIndexMap indexM
     var tmpVarIndex = indexMap.getIndex(strVar);
     
     mv.visitVarInsn(ASTORE, tmpVarIndex);
-    mv.visitTypeInsn(NEW, "org/ballerinalang/jvm/values/BmpStringValue");
+    mv.visitTypeInsn(NEW, BMP_STRING_VALUE);
     mv.visitInsn(DUP);
     mv.visitVarInsn(ALOAD, tmpVarIndex);
-    mv.visitMethodInsn(INVOKESPECIAL, "org/ballerinalang/jvm/values/BmpStringValue", "<init>", "(Ljava/lang/String;)V", false);
+    mv.visitMethodInsn(INVOKESPECIAL, BMP_STRING_VALUE, "<init>", io:sprintf("(L%s;)V", STRING_VALUE), false);
 }
 
 function generateCheckCastToBoolean(jvm:MethodVisitor mv, bir:BType sourceType) {
