@@ -15,41 +15,51 @@
  */
 package org.ballerinalang.langserver.codeaction;
 
-import org.ballerinalang.langserver.DocumentServiceOperationContext;
-import org.ballerinalang.langserver.LSContextOperation;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.LSContext;
+import org.ballerinalang.langserver.commons.codeaction.CodeActionKeys;
 import org.ballerinalang.langserver.commons.codeaction.CodeActionNodeType;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentManager;
+import org.ballerinalang.langserver.compiler.CollectDiagnosticListener;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSCompilerCache;
 import org.ballerinalang.langserver.compiler.LSModuleCompiler;
 import org.ballerinalang.langserver.compiler.common.LSCustomErrorStrategy;
 import org.ballerinalang.langserver.compiler.exception.CompilationFailedException;
 import org.ballerinalang.model.tree.TopLevelNode;
+import org.ballerinalang.util.diagnostic.Diagnostic;
+import org.ballerinalang.util.diagnostic.DiagnosticListener;
+import org.eclipse.lsp4j.DiagnosticSeverity;
+import org.eclipse.lsp4j.Position;
+import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextDocumentIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
+import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
+import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 /**
  * Code Action related Utils.
- * 
+ *
  * @since 1.0.1
  */
 public class CodeActionUtil {
     private static final Logger logger = LoggerFactory.getLogger(CodeActionUtil.class);
+
     private CodeActionUtil() {
     }
 
@@ -61,8 +71,8 @@ public class CodeActionUtil {
      * @param docManager Workspace document manager
      * @return {@link String}   Top level node type
      */
-    public static CodeActionNodeType topLevelNodeInLine(TextDocumentIdentifier identifier, int cursorLine,
-                                            WorkspaceDocumentManager docManager) {
+    public static CodeActionNodeType topLevelNodeInLine(LSContext context, TextDocumentIdentifier identifier, int cursorLine,
+                                                        WorkspaceDocumentManager docManager) {
         Optional<Path> filePath = CommonUtil.getPathFromURI(identifier.getUri());
         LSCompilerCache.clearAll();
         if (!filePath.isPresent()) {
@@ -70,23 +80,25 @@ public class CodeActionUtil {
         }
 
         try {
-            LSContext context = new DocumentServiceOperationContext
-                    .ServiceOperationContextBuilder(LSContextOperation.TXT_CODE_ACTION)
-                    .build();
-            context.put(DocumentServiceKeys.IS_CACHE_SUPPORTED, true);
-            context.put(DocumentServiceKeys.FILE_URI_KEY, identifier.getUri());
-            context.put(DocumentServiceKeys.DOC_MANAGER_KEY, docManager);
             BLangPackage bLangPackage = LSModuleCompiler.getBLangPackage(context, docManager,
-                    LSCustomErrorStrategy.class, false, false);
+                                                                         LSCustomErrorStrategy.class, false, false);
             String relativeSourcePath = context.get(DocumentServiceKeys.RELATIVE_FILE_PATH_KEY);
             BLangPackage evalPkg = CommonUtil.getSourceOwnerBLangPackage(relativeSourcePath, bLangPackage);
-            
+
+            List<Diagnostic> diagnostics = new ArrayList<>();
+            CompilerContext compilerContext = context.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY);
+            if (compilerContext.get(DiagnosticListener.class) instanceof CollectDiagnosticListener) {
+                diagnostics = ((CollectDiagnosticListener) compilerContext.get(DiagnosticListener.class))
+                        .getDiagnostics();
+            }
+            context.put(CodeActionKeys.DIAGNOSTICS_KEY, CodeActionUtil.toDiagnostics(diagnostics));
+
             Optional<BLangCompilationUnit> filteredCUnit = evalPkg.compUnits.stream()
-                    .filter(cUnit ->
-                            cUnit.getPosition().getSource().cUnitName.replace("/", CommonUtil.FILE_SEPARATOR)
-                                    .equals(relativeSourcePath))
+                    .filter(cUnit -> cUnit.getPosition().getSource()
+                            .cUnitName.replace("/", CommonUtil.FILE_SEPARATOR)
+                            .equals(relativeSourcePath))
                     .findAny();
-            
+
             if (!filteredCUnit.isPresent()) {
                 return null;
             }
@@ -115,7 +127,7 @@ public class CodeActionUtil {
                 if (topLevelNode instanceof BLangFunction && cursorLine == diagnosticPos.sLine) {
                     return CodeActionNodeType.FUNCTION;
                 }
-                
+
                 if (topLevelNode instanceof BLangTypeDefinition
                         && ((BLangTypeDefinition) topLevelNode).typeNode instanceof BLangRecordTypeNode
                         && cursorLine == diagnosticPos.sLine) {

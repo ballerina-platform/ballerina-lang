@@ -409,14 +409,18 @@ class BallerinaTextDocumentService implements TextDocumentService {
             }
 
             Path compilationPath = getUntitledFilePath(filePath.get().toString()).orElse(filePath.get());
-            Optional<Lock> lock = documentManager.lockFile(compilationPath);
+            Optional<Lock> lock = docManager.lockFile(compilationPath);
+
+            int line = params.getRange().getStart().getLine();
+            int col = params.getRange().getStart().getCharacter();
+            TextDocumentPositionParams positionParams = new TextDocumentPositionParams(params.getTextDocument(),
+                                                                                       new Position(line, col));
+
             LSContext context = new DocumentServiceOperationContext
                     .ServiceOperationContextBuilder(LSContextOperation.TXT_CODE_ACTION)
-                    .withCodeActionParams(documentManager)
+                    .withCommonParams(positionParams, fileUri, docManager)
+                    .withCodeActionParams(params.getRange().getStart())
                     .build();
-            context.put(DocumentServiceKeys.FILE_URI_KEY, fileUri);
-            context.put(CodeActionKeys.POSITION_START_KEY, params.getRange().getStart());
-            context.put(DocumentServiceKeys.DOC_MANAGER_KEY, documentManager);
             try {
                 int line = params.getRange().getStart().getLine();
                 int col = params.getRange().getStart().getCharacter();
