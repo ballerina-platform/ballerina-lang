@@ -71,8 +71,8 @@ public class CodeActionUtil {
      * @param docManager Workspace document manager
      * @return {@link String}   Top level node type
      */
-    public static CodeActionNodeType topLevelNodeInLine(LSContext context, TextDocumentIdentifier identifier, int cursorLine,
-                                                        WorkspaceDocumentManager docManager) {
+    public static CodeActionNodeType topLevelNodeInLine(LSContext context, TextDocumentIdentifier identifier,
+                                                        int cursorLine, WorkspaceDocumentManager docManager) {
         Optional<Path> filePath = CommonUtil.getPathFromURI(identifier.getUri());
         LSCompilerCache.clearAll();
         if (!filePath.isPresent()) {

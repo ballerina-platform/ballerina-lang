@@ -251,7 +251,8 @@ public class CodeActionTest {
                 {"typeGuardCodeAction2.json", "typeGuard.bal"},
                 {"typeGuardCodeAction3.json", "typeGuard.bal"},
 //                {"typeGuardCodeAction4.json", "typeGuard.bal"},
-                {"implementFuncObj.json", "implementFuncObj.bal"}
+                {"implementFuncObj.json", "implementFuncObj.bal"},
+                {"optimizeImports.json", "optimizeImports.bal"}
         };
     }
 

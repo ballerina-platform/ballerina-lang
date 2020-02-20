@@ -47,7 +47,6 @@ import org.ballerinalang.langserver.exception.UserErrorException;
 import org.ballerinalang.langserver.extensions.ballerina.semantichighlighter.HighlightingFailedException;
 import org.ballerinalang.langserver.extensions.ballerina.semantichighlighter.SemanticHighlightProvider;
 import org.ballerinalang.langserver.implementation.GotoImplementationCustomErrorStrategy;
-import org.ballerinalang.langserver.implementation.GotoImplementationUtil;
 import org.ballerinalang.langserver.signature.SignatureHelpUtil;
 import org.ballerinalang.langserver.signature.SignatureTreeVisitor;
 import org.ballerinalang.langserver.symbols.SymbolFindingVisitor;
@@ -114,6 +113,7 @@ import java.util.stream.Collectors;
 import static org.ballerinalang.langserver.compiler.LSClientLogger.logError;
 import static org.ballerinalang.langserver.compiler.LSClientLogger.notifyUser;
 import static org.ballerinalang.langserver.compiler.LSCompilerUtil.getUntitledFilePath;
+import static org.ballerinalang.langserver.implementation.GotoImplementationUtil.getImplementationLocation;
 import static org.ballerinalang.langserver.signature.SignatureHelpUtil.getFuncScopeEntry;
 import static org.ballerinalang.langserver.signature.SignatureHelpUtil.getFunctionInvocationDetails;
 
@@ -597,13 +597,11 @@ class BallerinaTextDocumentService implements TextDocumentService {
             Optional<Lock> lock = docManager.lockFile(compilationPath);
 
             try {
-                BLangPackage bLangPackage = LSModuleCompiler.getBLangPackage(context, docManager,
-                                                                             GotoImplementationCustomErrorStrategy.class,
-                                                                             false, false);
-                List<Location> locations = GotoImplementationUtil.getImplementationLocation(bLangPackage, context,
-                                                                                            position.getPosition(),
-                                                                                            lsDocument
-                                                                                                    .getProjectRoot());
+                BLangPackage bLangPkg = LSModuleCompiler.getBLangPackage(context, docManager,
+                                                                         GotoImplementationCustomErrorStrategy.class,
+                                                                         false, false);
+                List<Location> locations = getImplementationLocation(bLangPkg, context, position.getPosition(),
+                                                                     lsDocument.getProjectRoot());
                 implementationLocations.addAll(locations);
             } catch (UserErrorException e) {
                 notifyUser("Goto Implementation", e);
