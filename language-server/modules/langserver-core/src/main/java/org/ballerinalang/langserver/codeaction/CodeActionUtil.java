@@ -107,7 +107,11 @@ public class CodeActionUtil {
                         }
                     }
                 }
-                
+
+                if (topLevelNode instanceof BLangImportPackage && cursorLine == diagnosticPos.sLine) {
+                    return CodeActionNodeType.IMPORTS;
+                }
+
                 if (topLevelNode instanceof BLangFunction && cursorLine == diagnosticPos.sLine) {
                     return CodeActionNodeType.FUNCTION;
                 }
