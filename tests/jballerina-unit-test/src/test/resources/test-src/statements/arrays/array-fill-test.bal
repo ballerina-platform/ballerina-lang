@@ -56,7 +56,7 @@ type Person record {
 };
 
 function testArrayOfArraysFill(int index) returns Person[][] {
-    Person p = {name:"John", age:25};
+    Person p = {name: "John", age: 25};
     Person[] personArr = [p, p];
     Person[][] ar = [];
     ar[index] = personArr;
@@ -126,7 +126,7 @@ function testUnionArrayFill2(int index) returns (string|string)[] {
 }
 
 function testUnionArrayFill3(int index) returns (Person|Person|())[] {
-    (Person|Person) value = {name:"John", age:25};
+    (Person|Person) value = {name: "John", age: 25};
     (Person|Person|())[] ar = [];
     ar[index] = value;
     return ar;
@@ -150,7 +150,7 @@ function testOptionalTypeArrayFill(int index) returns string?[] {
 }
 
 function testAnyArrayFill(int index) returns any[] {
-    Person p = {name:"John", age:25};
+    Person p = {name: "John", age: 25};
     any value = p;
     any[] ar = [];
     ar[index] = value;
@@ -158,7 +158,7 @@ function testAnyArrayFill(int index) returns any[] {
 }
 
 function testAnySealedArrayFill(int index) returns any[] {
-    Person p = {name:"John", age:25};
+    Person p = {name: "John", age: 25};
     any value = p;
     any[251] ar = []; // 251 == index + 1
     ar[index] = value;
@@ -166,7 +166,7 @@ function testAnySealedArrayFill(int index) returns any[] {
 }
 
 function testAnydataArrayFill(int index) returns anydata[] {
-    Person p = {name:"John", age:25};
+    Person p = {name: "John", age: 25};
     anydata value = p;
     anydata[] ar = [];
     ar[index] = value;
@@ -174,7 +174,7 @@ function testAnydataArrayFill(int index) returns anydata[] {
 }
 
 function testAnydataSealedArrayFill(int index) returns anydata[] {
-    Person p = {name:"John", age:25};
+    Person p = {name: "John", age: 25};
     anydata value = p;
     anydata[251] ar = []; // 251 == index + 1
     ar[index] = value;
@@ -188,7 +188,7 @@ function testByteArrayFill(int index, byte value) returns byte[] {
 }
 
 function testJSONArrayFill(int index) returns json[] {
-    json value = {name:"John", age:25};
+    json value = {name: "John", age: 25};
     json[] ar = [];
     ar[index] = value;
     return ar;

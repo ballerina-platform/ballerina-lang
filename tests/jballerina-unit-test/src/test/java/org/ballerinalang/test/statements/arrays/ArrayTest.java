@@ -211,4 +211,9 @@ public class ArrayTest {
     public void createAbstractObjectEmptyArray() {
         BRunUtil.invokeFunction(compileResult, "createAbstractObjectEmptyArray");
     }
+
+    @Test
+    public void testObjectDynamicArrayFilling() {
+        BRunUtil.invokeFunction(compileResult, "testObjectDynamicArrayFilling");
+    }
 }

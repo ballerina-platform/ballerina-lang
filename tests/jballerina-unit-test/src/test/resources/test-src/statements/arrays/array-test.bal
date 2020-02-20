@@ -165,6 +165,7 @@ function testObjectDynamicArrayFilling() {
     Age[] y = [];
     y[0] = new(5);
     y[1] = new(5);
+    assertArrayLengthPanic(2, y);
 }
 
 type AbstractPersonObject abstract object {
@@ -199,8 +200,4 @@ function assertArrayLengthPanic(int expected, any[] arr, string message = "Array
     if (expected != actual) {
         panic error(message + " Expected : " + expected.toString() + " Actual : " + actual.toString());
     }
-}
-
-public function main() {
-    createAbstractObjectEmptyArray();
 }

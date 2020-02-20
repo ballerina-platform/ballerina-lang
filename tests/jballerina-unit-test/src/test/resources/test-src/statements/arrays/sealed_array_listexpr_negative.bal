@@ -27,8 +27,7 @@ function createAbstractObjectArray() {
 }
 
 // cannot create multi dimensional arrays of abstract objects
-function createAbstractObjectEmptyArray() {
-    Person[5][] y = []; Person[][5] r = [];// TODO: this should be allowed
+function createAbstractObjectMultidimentionalSealedArray() {
     Person[5][1] z = [[]];
 }
 
@@ -40,8 +39,7 @@ type Age object {
 };
 
 // cannot create object without properly initializing it
-function createDirtyObjectEmptyArray() {
-    Age[5][] y = []; // TODO: this should be allowed
+function createDirtyObjectMultidimentionalSealedArray() {
     Age[5][1] z = [[]];
     z[0][0].age = 30;
 }
@@ -54,21 +52,20 @@ type AgeDefaulted object {
 };
 
 // should not have a problem
-function createObjectDefaultedInitializedEmptyArray() {
-    AgeDefaulted[5][] y = [];
+function createObjectWithDefaultInitializerParametersSealedArray() {
     AgeDefaulted[5][1] z = [[]];
     z[0][0].age = 30;
 }
 
 // [3] invalid union fill
 type myVar 1 | 2 | 3 | 4;
-function createInvalidUnionInitializedArray() {
+function createInvalidUnionSealedArray() {
     myVar[3] z = [];
 }
 
 // [4] invalid union fill
 type myNonHomogeneousUnion 0 | 0.0 | "";
-function createInvalidNonHomogeneousUnionInitializedArray() {
+function createInvalidNonHomogeneousUnionSealedArray() {
     myNonHomogeneousUnion[3] z = [];
 }
 
@@ -87,15 +84,15 @@ type RecWithOptional record {
     int a?;
 };
 
-function testRecordTypeWithManyRequiredFieldsArrayAutoFill() {
+function createRecordTypeWithManyRequiredFieldsSealedArrayCreation() {
     Rec[2] x = [];
 }
 
-function testRecordTypeWithManyOptionalFieldsArrayAutoFill() {
+function createRecordTypeWithManyOptionalFieldsSealedArrayCreation() {
     RecWithManyOptional[2] x = [];
 }
 
-function testRecordTypeWithOptionalFieldsArrayAutoFill() {
+function createRecordTypeWithOptionalFieldsSealedArrayCreation() {
     RecWithOptional[2] x = [];
 }
 
@@ -108,7 +105,7 @@ type ObjError object {
     }
 };
 
-function testObjectRetErrorArrayFilling() {
+function createObjectWithErrorTypeReturningInitializerSealedArray() {
     ObjError [2] y = [];
 }
 
@@ -117,6 +114,6 @@ const MyIntConst = 2;
 
 type unionWithConst MyConst | MyIntConst ;
 
-function testUnionWithConstTypes() {
+function createUnionWithConstTypesSealedArray() {
     unionWithConst[2] unionArr = [];
 }

@@ -37,8 +37,8 @@ function testListConstructorExpr() returns boolean {
 }
 
 function testListConstructorAutoFillExpr() {
-    int [8] arrOfEightInts = [1, 2, 3];
-    int  sum = 0;
+    int[8] arrOfEightInts = [1, 2, 3];
+    int sum = 0;
     int i = 0;
 
     while (i < 8) {

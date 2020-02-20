@@ -50,102 +50,76 @@ public class SealedArrayTest {
     @Test
     public void testCreateIntegerSealedArray() {
         BRunUtil.invoke(compileResult, "createIntSealedArray");
-
         BRunUtil.invoke(compileResult, "createIntAutoFilledSealedArray");
-
         BRunUtil.invoke(compileResult, "createIntSealedArrayWithLabel");
-
         BRunUtil.invoke(compileResult, "createIntDefaultSealedArray");
     }
 
     @Test
     public void testCreateBooleanSealedArray() {
         BRunUtil.invoke(compileResult, "createBoolSealedArray");
-
         BRunUtil.invoke(compileResult, "createBoolAutoFilledSealedArray");
-
         BRunUtil.invoke(compileResult, "createBoolSealedArrayWithLabel");
-
         BRunUtil.invoke(compileResult, "createBoolDefaultSealedArray");
     }
 
     @Test
     public void testCreateFloatSealedArray() {
         BRunUtil.invoke(compileResult, "createFloatSealedArray");
-
         BRunUtil.invoke(compileResult, "createFloatAutoFilledSealedArray");
-
         BRunUtil.invoke(compileResult, "createFloatSealedArrayWithLabel");
-
         BRunUtil.invoke(compileResult, "createFloatDefaultSealedArray");
     }
 
     @Test
     public void testCreateStringSealedArray() {
         BRunUtil.invoke(compileResult, "createStringSealedArray");
-
         BRunUtil.invoke(compileResult, "createStringAutoFilledSealedArray");
-
         BRunUtil.invoke(compileResult, "createStringSealedArrayWithLabel");
-
         BRunUtil.invoke(compileResult, "createStringDefaultSealedArray");
     }
 
     @Test
     public void testCreateJSONSealedArray() {
         BRunUtil.invoke(compileResult, "createJSONSealedArray");
-
         BRunUtil.invoke(compileResult, "createJSONSealedArrayWithLabel");
-
         BRunUtil.invoke(compileResult, "createJSONDefaultSealedArray");
-
         BRunUtil.invoke(compileResult, "createJSONAutoFilledSealedArray");
     }
 
     @Test
     public void testCreateAnySealedArray() {
         BRunUtil.invoke(compileResult, "createAnySealedArray");
-
         BRunUtil.invoke(compileResult, "createAnyAutoFilledSealedArray");
-
         BRunUtil.invoke(compileResult, "createAnySealedArrayWithLabel");
     }
 
     @Test
     public void testCreateRecordSealedArray() {
         BRunUtil.invoke(compileResult, "createRecordSealedArray");
-
         BRunUtil.invoke(compileResult, "createRecordAutoFilledSealedArray");
-
         BRunUtil.invoke(compileResult, "createRecordSealedArrayWithLabel");
-
         BRunUtil.invoke(compileResult, "createRecordSealedArrayAutoFill");
     }
 
     @Test
     public void testCreateByteSealedArray() {
         BRunUtil.invoke(compileResult, "createByteSealedArray");
-
         BRunUtil.invoke(compileResult, "createByteAutoFilledSealedArray");
-
         BRunUtil.invoke(compileResult, "createByteSealedArrayWithLabel");
-
         BRunUtil.invoke(compileResult, "createByteDefaultSealedArray");
     }
 
     @Test
     public void testCreateTupleSealedArray() {
         BRunUtil.invoke(compileResult, "createTupleSealedArray");
-
         BRunUtil.invoke(compileResult, "createTupleAutoFilledSealedArray");
-
         BRunUtil.invoke(compileResult, "createTupleSealedArrayWithLabel");
     }
 
     @Test
     public void testFunctionParametersAndReturnValues() {
         BRunUtil.invoke(compileResult, "functionParametersAndReturns");
-
         BRunUtil.invoke(compileResult, "functionParametersAndReturnsAutoFilling");
     }
 
@@ -222,54 +196,43 @@ public class SealedArrayTest {
         BAssertUtil.validateError(resultNegative, 0, "variable 'sealedArray1' is not initialized", 19, 5);
     }
 
-    // TODO : uncomment
     @Test()
     public void testNegativeAutoFillSealedArray() {
         Assert.assertEquals(listExprNegative.getErrorCount(), 10);
         BAssertUtil.validateError(listExprNegative, 0,
                                   "invalid usage of list constructor: type 'Person[5]' does not have a filler value",
-                                  24,
-                                  19);
+                                  24, 19);
         BAssertUtil.validateError(listExprNegative, 1,
                                   "invalid usage of list constructor: type 'Person[5][1]' does not have a filler value",
-                                  32,
-                                  22);
+                                  31, 22);
         BAssertUtil.validateError(listExprNegative, 2,
                                   "invalid usage of list constructor: type 'Age[5][1]' does not have a filler value",
-                                  45,
-                                  19);
+                                  43, 19);
         BAssertUtil.validateError(listExprNegative, 3,
                                   "invalid usage of list constructor: type '1|2|3|4[3]' does not have a filler value",
-                                  66,
-                                  18);
+                                  63, 18);
         BAssertUtil.validateError(listExprNegative, 4,
                                   "invalid usage of list constructor: type '0|0.0f|[3]' does not have a filler value",
-                                  72,
-                                  34);
+                                  69, 34);
         BAssertUtil.validateError(listExprNegative, 5,
                                   "invalid usage of list constructor: type 'Rec[2]' does not have a filler value",
-                                  91,
-                                  16);
+                                  88, 16);
         BAssertUtil.validateError(listExprNegative, 6,
                                   "invalid usage of list constructor: type 'RecWithManyOptional[2]' does not have a " +
                                           "filler value",
-                                  95,
-                                  32);
+                                  92, 32);
         BAssertUtil.validateError(listExprNegative, 7,
                                   "invalid usage of list constructor: type 'RecWithOptional[2]' does not have a " +
                                           "filler value",
-                                  99,
-                                  28);
+                                  96, 28);
         BAssertUtil.validateError(listExprNegative, 8,
                                   "invalid usage of list constructor: type 'ObjError[2]' does not have a " +
                                           "filler value",
-                                  112,
-                                  22);
+                                  109, 22);
         BAssertUtil.validateError(listExprNegative, 9,
                                   "invalid usage of list constructor: type '(HELLO|2)[2]' does not have a filler " +
                                           "value",
-                                  121,
-                                  34);
+                                  118, 34);
     }
 
     @Test()
