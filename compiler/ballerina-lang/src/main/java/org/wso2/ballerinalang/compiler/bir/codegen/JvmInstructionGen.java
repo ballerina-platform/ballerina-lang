@@ -160,6 +160,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.lambdas;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.lookupFullQualifiedClassName;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.lookupGlobalVarClassName;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.lookupTypeDef;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTerminatorGen.TerminatorGenerator.toNameString;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen.duplicateServiceTypeWithAnnots;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen.getTypeDesc;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen.loadExternalType;
@@ -984,9 +985,9 @@ public class JvmInstructionGen {
 
             if (typeOfMapNewIns.tag == TypeTags.RECORD) {
                 if (mapNewIns.isExternalDef) {
-                    className = getTypeValueClassName(mapNewIns.externalPackageId, typeOfMapNewIns.name.getValue());
+                    className = getTypeValueClassName(mapNewIns.externalPackageId, toNameString(typeOfMapNewIns));
                 } else {
-                    className = getTypeValueClassName(this.currentPackage, typeOfMapNewIns.name.getValue());
+                    className = getTypeValueClassName(this.currentPackage, toNameString(typeOfMapNewIns));
                 }
 
                 this.mv.visitTypeInsn(NEW, className);
