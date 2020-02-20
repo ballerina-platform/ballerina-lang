@@ -1281,7 +1281,7 @@ public class JvmInstructionGen {
             if (objectNewIns.isExternalDef) {
                 className = getTypeValueClassName(objectNewIns.externalPackageId, objectNewIns.objectName);
             } else {
-                className = getTypeValueClassName(this.currentPackage, objectNewIns.objectName);
+                className = getTypeValueClassName(this.currentPackage, objectNewIns.def.name.value);
             }
 
             this.mv.visitTypeInsn(NEW, className);
