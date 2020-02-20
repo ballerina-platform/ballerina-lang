@@ -363,7 +363,6 @@ class JvmValueGen {
                 Label targetLabel = targetLabels.get(i);
                 mv.visitLabel(targetLabel);
 
-                String methodName = getName(func);
                 @Nilable List<BType> paramTypes = func.type.paramTypes;
                 @Nilable BType retType = func.type.retType;
 
@@ -392,7 +391,7 @@ class JvmValueGen {
                     j += 1;
                 }
 
-                mv.visitMethodInsn(INVOKEVIRTUAL, objClassName, getName(func), methodSig, false);
+                mv.visitMethodInsn(INVOKEVIRTUAL, objClassName, func.name.value, methodSig, false);
                 if (retType == null || retType.tag == TypeTags.NIL) {
                     mv.visitInsn(ACONST_NULL);
                 } else {

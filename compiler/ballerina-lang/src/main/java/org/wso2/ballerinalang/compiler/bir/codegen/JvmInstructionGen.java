@@ -477,6 +477,9 @@ public class JvmInstructionGen {
                 case LESS_THAN:
                     this.generateLessThanIns(binaryIns);
                     break;
+                case LESS_EQUAL:
+                    this.generateLessEqualIns(binaryIns);
+                    break;
                 case REF_EQUAL:
                     this.generateRefEqualIns(binaryIns);
                     break;
@@ -508,8 +511,8 @@ public class JvmInstructionGen {
                     this.generateBitwiseRightShiftIns(binaryIns);
                     break;
                 default:
-                    BLangCompilerException err = new BLangCompilerException("JVM generation is not supported for type : " + String.format("%s", insKind));
-                    throw err;
+                    throw new BLangCompilerException("JVM generation is not supported for instruction kind : " +
+                            String.format("%s", insKind));
             }
         }
 
