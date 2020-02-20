@@ -18,6 +18,7 @@
 
 package org.ballerinalang.jvm.values;
 
+import org.ballerinalang.jvm.IteratorUtils;
 import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.types.BStreamType;
 import org.ballerinalang.jvm.types.BType;
@@ -43,6 +44,7 @@ public class StreamValue implements RefValue, BStream {
 
     private BType type;
     private BType constraintType;
+    private BType iteratorNextReturnType;
     private BIterator<Object> iterator;
     public FunctionPointerWrapper<Boolean, Object> filter;
     public FunctionPointerWrapper<Object, Object> mapper;
@@ -92,6 +94,14 @@ public class StreamValue implements RefValue, BStream {
         return streamId;
     }
 
+    public BType getIteratorNextReturnType() {
+        if (iteratorNextReturnType == null) {
+            iteratorNextReturnType = IteratorUtils.createIteratorNextReturnType(constraintType);
+        }
+
+        return iteratorNextReturnType;
+    }
+
     /**
      * {@inheritDoc}
      */
@@ -133,6 +143,32 @@ public class StreamValue implements RefValue, BStream {
     @Override
     public BStream map(BStream stream, BFunctionPointer<Object, Object> mapFunc) {
         return new StreamValue(stream, null, mapFunc);
+    }
+
+    @Override
+    public Object reduce(BFunctionPointer<Object, Object> reduceFunc,
+                         Object initialValue) {
+        Object reducedValue = initialValue;
+        Object next;
+        do {
+            next = next();
+            if (next == null) {
+                return reducedValue;
+            }
+            reducedValue = reduceFunc.call(new Object[] {Scheduler.getStrand(), reducedValue, true, next, true});
+        } while (true);
+    }
+
+    @Override
+    public void forEach(BFunctionPointer<Object, Object> foreachFunc) {
+        Object next;
+        do {
+            next = next();
+            if (next == null) {
+                break;
+            }
+            foreachFunc.call(new Object[] {Scheduler.getStrand(), next, true});
+        } while (true);
     }
 
     @Override

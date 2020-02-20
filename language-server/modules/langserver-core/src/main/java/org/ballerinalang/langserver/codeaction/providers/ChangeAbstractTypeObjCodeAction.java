@@ -27,10 +27,13 @@ import org.eclipse.lsp4j.CodeActionKind;
 import org.eclipse.lsp4j.Command;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.Position;
+import org.eclipse.lsp4j.Range;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 
 /**
@@ -57,13 +60,21 @@ public class ChangeAbstractTypeObjCodeAction extends AbstractCodeActionProvider 
                 if (codeAction != null) {
                     actions.add(codeAction);
                 }
-            } else if (diagnostic.getMessage().startsWith(NO_IMPL_FOUND_FOR_FUNCTION)) {
-                CodeAction codeAction = getNoImplementationFoundCommand(diagnostic, lsContext);
-                if (codeAction != null) {
-                    actions.add(codeAction);
-                }
             }
         }
+
+        // Remove overlapping diagnostics of NO_IMPL_FOUND_FOR_FUNCTION
+        Map<Range, Diagnostic> rangeToDiagnostics = new HashMap<>();
+        diagnostics.stream()
+                .filter(diagnostic -> (diagnostic.getMessage().startsWith(NO_IMPL_FOUND_FOR_FUNCTION)))
+                .forEach(diagnostic -> rangeToDiagnostics.put(diagnostic.getRange(), diagnostic));
+
+        rangeToDiagnostics.values().forEach(diagnostic -> {
+            CodeAction codeAction = getNoImplementationFoundCommand(diagnostic, lsContext);
+            if (codeAction != null) {
+                actions.add(codeAction);
+            }
+        });
 
         return actions;
     }

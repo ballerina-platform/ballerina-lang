@@ -26,6 +26,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
+import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
@@ -36,6 +37,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangSimpleVariableDef;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
@@ -43,7 +45,7 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -93,11 +95,11 @@ public class VisibleEndpointVisitor extends LSNodeVisitor {
     @Override
     public void visit(BLangFunction funcNode) {
         SymbolEnv funcEnv = SymbolEnv.createFunctionEnv(funcNode, funcNode.symbol.scope, this.symbolEnv);
-        SymbolEnv blockEnv = SymbolEnv.createBlockEnv(funcNode.getBody(), funcEnv);
+        SymbolEnv funcBodyEnv = SymbolEnv.createFuncBodyEnv(funcNode.body, funcEnv);
         // resolve visible in-scope endpoints coming from current module or other modules
-        List<SymbolMetaInfo> visibleEPSymbols = resolveVisibleEndpointSymbols(blockEnv, funcNode);
+        List<SymbolMetaInfo> visibleEPSymbols = resolveVisibleEndpointSymbols(funcBodyEnv, funcNode);
         this.visibleEPsByNode.put(funcNode.body, visibleEPSymbols);
-        this.visit(funcNode.body);
+        this.acceptNode(funcNode.body, funcBodyEnv);
     }
 
     @Override
@@ -117,36 +119,16 @@ public class VisibleEndpointVisitor extends LSNodeVisitor {
 
     public void visit(BLangBlockStmt blockNode) {
         // resolve locally declared endpoints
-        blockNode.stmts.forEach(stmt -> {
-            if (stmt instanceof  BLangSimpleVariableDef) {
-                BVarSymbol symbol = ((BLangSimpleVariableDef) stmt).var.symbol;
-                if (CommonUtil.isClientObject(symbol)) {
-                    BLangImportPackage importPackage = this.packageMap.get(symbol.type.tsymbol.pkgID);
-                    String typeName = symbol.type.tsymbol.getName().getValue();
-                    String pkgName = symbol.pkgID.getName().getValue();
-                    String orgName = symbol.pkgID.getOrgName().getValue();
-                    String alias = importPackage == null ? "" : importPackage.getAlias().getValue();
-                    SymbolMetaInfo visibleEndpoint = new SymbolMetaInfo.SymbolMetaInfoBuilder()
-                            .setName(symbol.getName().getValue())
-                            .setPkgName(pkgName)
-                            .setPkgOrgName(orgName)
-                            .setPkgAlias(alias)
-                            .setKind("VisibleEndpoint")
-                            .setCaller(false)
-                            .setTypeName(typeName)
-                            .setLocal(true)
-                            .setPos(stmt.pos)
-                            .build();
-                    if (this.visibleEPsByNode.containsKey(blockNode)) {
-                        this.visibleEPsByNode.get(blockNode).add(visibleEndpoint);
-                    } else {
-                        this.visibleEPsByNode.put(blockNode, Arrays.asList(visibleEndpoint));
-                    }
-                }
-            } else {
-                stmt.accept(this);
-            }
-        });
+        if (blockNode == null) {
+            return;
+        }
+        this.resolveEndpointsFromStatements(blockNode.stmts, blockNode);
+    }
+
+    @Override
+    public void visit(BLangBlockFunctionBody blockFuncBody) {
+        // resolve locally declared endpoints
+        this.resolveEndpointsFromStatements(blockFuncBody.stmts, blockFuncBody);
     }
 
     @Override
@@ -164,7 +146,7 @@ public class VisibleEndpointVisitor extends LSNodeVisitor {
 
     @Override
     public void visit(BLangWorker workerNode) {
-        this.visit(workerNode.body);
+        this.visit((BLangBlockFunctionBody) workerNode.body);
     }
 
     @Override
@@ -225,5 +207,38 @@ public class VisibleEndpointVisitor extends LSNodeVisitor {
                             .build();
                 })
                 .collect(Collectors.toList());
+    }
+    
+    private void resolveEndpointsFromStatements(List<BLangStatement> statements, BLangNode owner) {
+        statements.forEach(stmt -> {
+            if (stmt instanceof  BLangSimpleVariableDef) {
+                BVarSymbol symbol = ((BLangSimpleVariableDef) stmt).var.symbol;
+                if (CommonUtil.isClientObject(symbol)) {
+                    BLangImportPackage importPackage = this.packageMap.get(symbol.type.tsymbol.pkgID);
+                    String typeName = symbol.type.tsymbol.getName().getValue();
+                    String pkgName = symbol.pkgID.getName().getValue();
+                    String orgName = symbol.pkgID.getOrgName().getValue();
+                    String alias = importPackage == null ? "" : importPackage.getAlias().getValue();
+                    SymbolMetaInfo visibleEndpoint = new SymbolMetaInfo.SymbolMetaInfoBuilder()
+                            .setName(symbol.getName().getValue())
+                            .setPkgName(pkgName)
+                            .setPkgOrgName(orgName)
+                            .setPkgAlias(alias)
+                            .setKind("VisibleEndpoint")
+                            .setCaller(false)
+                            .setTypeName(typeName)
+                            .setLocal(true)
+                            .setPos(stmt.pos)
+                            .build();
+                    if (this.visibleEPsByNode.containsKey(owner)) {
+                        this.visibleEPsByNode.get(owner).add(visibleEndpoint);
+                    } else {
+                        this.visibleEPsByNode.put(owner, Collections.singletonList(visibleEndpoint));
+                    }
+                }
+            } else {
+                stmt.accept(this);
+            }
+        });
     }
 }

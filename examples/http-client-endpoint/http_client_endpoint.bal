@@ -2,7 +2,7 @@ import ballerina/http;
 import ballerina/io;
 
 // Creates a new client with the backend URL.
-http:Client clientEndpoint = new("http://postman-echo.com");
+http:Client clientEndpoint = new ("http://postman-echo.com");
 
 public function main() {
     io:println("GET request:");
@@ -35,7 +35,7 @@ public function main() {
         io:println("Status code: " + statusCode.toString());
 
     } else {
-        io:println("Error when calling the backend: " , response.reason());
+        io:println("Error when calling the backend: ", response.reason());
     }
 }
 
@@ -47,7 +47,7 @@ function handleResponse(http:Response|error response) {
             // Prints the received `json` response.
             io:println(msg.toJsonString());
         } else {
-            io:println("Invalid payload received:" , msg.reason());
+            io:println("Invalid payload received:", msg.reason());
         }
     } else {
         io:println("Error when calling the backend: ", response.reason());

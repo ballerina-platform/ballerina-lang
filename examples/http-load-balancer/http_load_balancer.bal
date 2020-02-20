@@ -2,15 +2,15 @@ import ballerina/http;
 import ballerina/log;
 
 // Create an endpoint with port 8080 for the mock backend services.
-listener http:Listener backendEP = new(8080);
+listener http:Listener backendEP = new (8080);
 
 // Define the load balance client endpoint to call the backend services.
-http:LoadBalanceClient lbBackendEP = new({
+http:LoadBalanceClient lbBackendEP = new ({
         // Define the set of HTTP clients that need to be load balanced.
         targets: [
-            { url: "http://localhost:8080/mock1" },
-            { url: "http://localhost:8080/mock2" },
-            { url: "http://localhost:8080/mock3" }
+            {url: "http://localhost:8080/mock1"},
+            {url: "http://localhost:8080/mock2"},
+            {url: "http://localhost:8080/mock3"}
         ],
         timeoutInMillis: 5000
 });
@@ -20,13 +20,13 @@ http:LoadBalanceClient lbBackendEP = new({
 @http:ServiceConfig {
     basePath: "/lb"
 }
-service loadBalancerDemoService on new http:Listener (9090) {
+service loadBalancerDemoService on new http:Listener(9090) {
     // Create a REST resource within the API.
     @http:ResourceConfig {
         path: "/"
     }
     resource function roundRobin(http:Caller caller, http:Request req) {
-        json requestPayload = { "name": "Ballerina" };
+        json requestPayload = {"name": "Ballerina"};
         var response = lbBackendEP->post("/", requestPayload);
         // If a response is returned, the normal process runs. If the service
         // does not get the expected response, the error-handling logic is

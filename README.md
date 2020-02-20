@@ -28,40 +28,9 @@ You can use one of the following options to try out Ballerina.
 * [Quick Tour](https://ballerina.io/learn/quick-tour/)
 * [Ballerina by Example](https://ballerina.io/learn/by-example/) 
 
-## Download and install
+## Downloading and installing
 
-### Download the binary
-
-You can download the Ballerina distribution at https://ballerina.io.
-
-### Install from source
-
-Alternatively, you can install Ballerina from the source using the following instructions.
-
-#### Prerequisites
-
-* [Oracle JDK 8](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html) or [OpenJDK 8](http://openjdk.java.net/install/)
-* [Node (v8.9.x) + npm (v5.6.0 or later)](https://nodejs.org/en/download/)
-* [Docker](https://www.docker.com/get-docker)
-
-#### Building the source
-
-1. Clone this repository using the following command.
-
-    ```bash
-    git clone --recursive https://github.com/ballerina-platform/ballerina-lang
-    ```
-    
-2. Build project with Gradle. Use following command on Unix/macOS:
-    ```bash
-    ./gradlew build
-    ```  
-    or the following command on Windows:
-    ```bash
-    gradlew build
-    ```
-
-3. Extract the Ballerina distribution created at `distribution/zip/jballerina-tools/build/extracted-distributions/ballerina-<version>-SNAPSHOT.zip`.
+You can download the Ballerina distribution at https://ballerina.io. For instructions on installing, see [Installing Ballerina](https://ballerina.io/learn/installing-ballerina/).
 
 ## Reporting issues and security flaws
 

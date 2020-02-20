@@ -18,6 +18,7 @@
 package org.ballerinalang.jvm.values;
 
 import org.ballerinalang.jvm.BallerinaErrors;
+import org.ballerinalang.jvm.IteratorUtils;
 import org.ballerinalang.jvm.JSONGenerator;
 import org.ballerinalang.jvm.JSONUtils;
 import org.ballerinalang.jvm.TypeChecker;
@@ -27,6 +28,7 @@ import org.ballerinalang.jvm.types.BRecordType;
 import org.ballerinalang.jvm.types.BTupleType;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypes;
+import org.ballerinalang.jvm.types.BUnionType;
 import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.util.exceptions.BLangFreezeException;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
@@ -50,6 +52,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.StringJoiner;
+import java.util.stream.Collectors;
 
 import static org.ballerinalang.jvm.JSONUtils.mergeJson;
 import static org.ballerinalang.jvm.util.BLangConstants.MAP_LANG_LIB;
@@ -78,6 +81,7 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
     private BType type;
     private volatile Status freezeStatus = new Status(State.UNFROZEN);
     private final Map<String, Object> nativeData = new HashMap<>();
+    private BType iteratorNextReturnType;
 
     public MapValueImpl(BType type) {
         super();
@@ -510,6 +514,34 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
         return this.nativeData;
     }
 
+    private void initializeIteratorNextReturnType() {
+        BType type;
+        if (this.type.getTag() == BTypes.typeMap.getTag()) {
+            BMapType mapType = (BMapType) this.type;
+            type = mapType.getConstrainedType();
+        } else {
+            BRecordType recordType = (BRecordType) this.type;
+            LinkedHashSet<BType> types = recordType.getFields().values().stream().map(bField -> bField.type)
+                    .collect(Collectors.toCollection(LinkedHashSet::new));
+            if (recordType.restFieldType != null) {
+                types.add(recordType.restFieldType);
+            }
+            if (types.size() == 1) {
+                type = types.iterator().next();
+            } else {
+                type = new BUnionType(new ArrayList<>(types));
+            }
+        }
+        iteratorNextReturnType = IteratorUtils.createIteratorNextReturnType(type);
+    }
+
+    public BType getIteratorNextReturnType() {
+        if (iteratorNextReturnType == null) {
+            initializeIteratorNextReturnType();
+        }
+
+        return iteratorNextReturnType;
+    }
     /*
      * Below are a set of convenient methods that handle map related operations.
      * This makes it easier to extend the operations without affecting the

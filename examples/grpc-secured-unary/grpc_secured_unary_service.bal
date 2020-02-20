@@ -3,7 +3,7 @@ import ballerina/grpc;
 import ballerina/log;
 
 // Server endpoint configuration with the SSL configurations.
-listener grpc:Listener ep = new(9090, {
+listener grpc:Listener ep = new (9090, {
     host: "localhost",
     secureSocket: {
         keyStore: {
@@ -23,7 +23,7 @@ service HelloWorld on ep {
 
         if (err is grpc:Error) {
             log:printError("Error from Connector: " + err.reason() + " - "
-                                           + <string> err.detail()["message"]);
+                                           + <string>err.detail()["message"]);
         } else {
             log:printInfo("Server send response : " + message);
         }

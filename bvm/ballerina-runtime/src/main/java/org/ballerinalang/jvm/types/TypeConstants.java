@@ -55,4 +55,6 @@ public class TypeConstants {
     public static final String DETAIL_MESSAGE = "message";
     public static final String DETAIL_CAUSE = "cause";
 
+    // Return type of the next function in iterators
+    public static final String ITERATOR_NEXT_RETURN_TYPE = "$$returnType$$";
 }

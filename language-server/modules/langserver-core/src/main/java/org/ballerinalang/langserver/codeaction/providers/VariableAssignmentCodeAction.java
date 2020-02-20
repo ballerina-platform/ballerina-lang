@@ -29,6 +29,7 @@ import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.exception.CompilationFailedException;
+import org.ballerinalang.langserver.util.references.ReferencesKeys;
 import org.ballerinalang.langserver.util.references.SymbolReferencesModel;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.expressions.IndexBasedAccessNode;
@@ -51,14 +52,13 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.util.Flags;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.StringReader;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -118,6 +118,7 @@ public class VariableAssignmentCodeAction extends AbstractCodeActionProvider {
         Position position = diagnostic.getRange().getStart();
 
         try {
+            context.put(ReferencesKeys.OFFSET_CURSOR_N_TRY_NEXT_BEST, true);
             Position afterAliasPos = offsetInvocation(diagnosedContent, position);
             SymbolReferencesModel.Reference refAtCursor = getReferenceAtCursor(context, document, afterAliasPos);
             BSymbol symbolAtCursor = refAtCursor.getSymbol();
@@ -136,7 +137,7 @@ public class VariableAssignmentCodeAction extends AbstractCodeActionProvider {
 
             String commandTitle = CommandConstants.CREATE_VARIABLE_TITLE;
             CodeAction action = new CodeAction(commandTitle);
-            List<TextEdit> edits = getCreateVariableCodeActionEdits(context, uri, refAtCursor,
+            List<TextEdit> edits = getCreateVariableCodeActionEdits(context, uri, refAtCursor, position,
                                                                     hasDefaultInitFunction, hasCustomInitFunction);
             action.setKind(CodeActionKind.QuickFix);
             action.setEdit(new WorkspaceEdit(Collections.singletonList(Either.forLeft(
@@ -189,65 +190,15 @@ public class VariableAssignmentCodeAction extends AbstractCodeActionProvider {
         return actions;
     }
 
-    private static String getDiagnosedContent(Diagnostic diagnostic, LSContext context, LSDocumentIdentifier document) {
-        WorkspaceDocumentManager docManager = context.get(CodeActionKeys.DOCUMENT_MANAGER_KEY);
-        StringBuilder content = new StringBuilder();
-        Position start = diagnostic.getRange().getStart();
-        Position end = diagnostic.getRange().getEnd();
-        try (BufferedReader reader = new BufferedReader(
-                new StringReader(docManager.getFileContent(document.getPath())))) {
-            String strLine;
-            int count = 0;
-            while ((strLine = reader.readLine()) != null) {
-                if (count >= start.getLine() && count <= end.getLine()) {
-                    if (count == start.getLine()) {
-                        content.append(strLine.substring(start.getCharacter()));
-                        if (start.getLine() != end.getLine()) {
-                            content.append(System.lineSeparator());
-                        }
-                    } else if (count == end.getLine()) {
-                        content.append(strLine.substring(0, end.getCharacter()));
-                    } else {
-                        content.append(strLine).append(System.lineSeparator());
-                    }
-                }
-                if (count == end.getLine()) {
-                    break;
-                }
-                count++;
-            }
-        } catch (WorkspaceDocumentException | IOException e) {
-            // ignore error
-        }
-        return content.toString();
-    }
-
-    private static Position offsetInvocation(String diagnosedContent, Position position) {
-        // Diagnosed message only contains the erroneous part of the line
-        // Thus we offset into last
-        int leftParenthesisIndex = diagnosedContent.indexOf("(");
-        diagnosedContent = (leftParenthesisIndex == -1) ? diagnosedContent
-                : diagnosedContent.substring(0, leftParenthesisIndex);
-        String quotesRemoved = diagnosedContent
-                .replaceAll(".*:", "") // package invocation
-                .replaceAll(".*->", "") // action invocation
-                .replaceAll(".*\\.", ""); // object access invocation
-        int bal = diagnosedContent.length() - quotesRemoved.length();
-        if (bal > 0) {
-            position.setCharacter(position.getCharacter() + bal + 1);
-        }
-        return position;
-    }
-
     private static List<TextEdit> getCreateVariableCodeActionEdits(LSContext context, String uri,
                                                                    SymbolReferencesModel.Reference referenceAtCursor,
+                                                                   Position position,
                                                                    boolean hasDefaultInitFunction,
                                                                    boolean hasCustomInitFunction) {
         BLangNode bLangNode = referenceAtCursor.getbLangNode();
         List<TextEdit> edits = new ArrayList<>();
         CompilerContext compilerContext = context.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY);
         Set<String> nameEntries = CommonUtil.getAllNameEntries(bLangNode, compilerContext);
-        String variableName = CommonUtil.generateVariableName(bLangNode, nameEntries);
 
         PackageID currentPkgId = bLangNode.pos.src.pkgID;
         BiConsumer<String, String> importsAcceptor = (orgName, alias) -> {
@@ -256,10 +207,11 @@ public class VariableAssignmentCodeAction extends AbstractCodeActionProvider {
             );
             if (notFound) {
                 String pkgName = orgName + "/" + alias;
-                edits.add(addPackage(pkgName, context));
+                edits.add(createImportTextEdit(pkgName, context));
             }
         };
         String variableType;
+        String variableName;
         if (hasDefaultInitFunction) {
             BType bType = referenceAtCursor.getSymbol().type;
             variableType = FunctionGenerator.generateTypeDefinition(importsAcceptor, currentPkgId, bType);
@@ -273,13 +225,21 @@ public class VariableAssignmentCodeAction extends AbstractCodeActionProvider {
             while (bLangNode.parent instanceof IndexBasedAccessNode) {
                 bLangNode = bLangNode.parent;
             }
+            if (bLangNode instanceof BLangInvocation) {
+                variableName = CommonUtil.generateVariableName(bLangNode, nameEntries);
+            } else if (bLangNode instanceof BLangFieldBasedAccess) {
+                variableName = CommonUtil.generateVariableName(((BLangFieldBasedAccess) bLangNode).expr.type,
+                                                               nameEntries);
+            } else {
+                variableName = CommonUtil.generateVariableName(bLangNode.type, nameEntries);
+            }
             variableType = FunctionGenerator.generateTypeDefinition(importsAcceptor, currentPkgId, bLangNode.type);
         }
         // Remove brackets of the unions
         variableType = variableType.replaceAll("^\\((.*)\\)$", "$1");
         String editText = createVariableDeclaration(variableName, variableType);
-        Position position = new Position(bLangNode.pos.sLine - 1, bLangNode.pos.sCol - 1);
-        edits.add(new TextEdit(new Range(position, position), editText));
+        Position insertPos = new Position(position.getLine(), position.getCharacter());
+        edits.add(new TextEdit(new Range(insertPos, insertPos), editText));
         return edits;
     }
 
@@ -373,7 +333,7 @@ public class VariableAssignmentCodeAction extends AbstractCodeActionProvider {
         return edits;
     }
 
-    private static TextEdit addPackage(String pkgName, LSContext context) {
+    private static TextEdit createImportTextEdit(String pkgName, LSContext context) {
         DiagnosticPos pos = null;
 
         // Filter the imports except the runtime import

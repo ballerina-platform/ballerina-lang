@@ -41,6 +41,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
+import org.wso2.ballerinalang.compiler.tree.BLangFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
@@ -372,9 +373,9 @@ public class FunctionGenerator {
                                                    PackageID currentPkgId,
                                                    String variableName, BLangNode parent) {
         // Recursively find BLangBlockStmt to get scope-entries
-        if (parent instanceof BLangBlockStmt) {
-            BLangBlockStmt blockStmt = (BLangBlockStmt) parent;
-            Scope scope = blockStmt.scope;
+        if (parent instanceof BLangBlockStmt || parent instanceof BLangFunctionBody) {
+            Scope scope = parent instanceof BLangBlockStmt ? ((BLangBlockStmt) parent).scope
+                    : ((BLangFunctionBody) parent).scope;
             if (scope != null) {
                 for (Map.Entry<Name, Scope.ScopeEntry> entry : scope.entries.entrySet()) {
                     String key = entry.getKey().getValue();
@@ -404,7 +405,7 @@ public class FunctionGenerator {
                 ? lookupFunctionReturnType(functionName, parent.parent) : "any";
     }
 
-    private static String generateReturnValue(BiConsumer<String, String> importsAcceptor, PackageID currentPkgId,
+    public static String generateReturnValue(BiConsumer<String, String> importsAcceptor, PackageID currentPkgId,
                                               BType bType,
                                               String template) {
         if (bType instanceof BArrayType) {
@@ -432,7 +433,7 @@ public class FunctionGenerator {
                 Optional<BType> type = memberTypes.stream()
                         .filter(bType1 -> !(bType1 instanceof BNilType)).findFirst();
                 if (type.isPresent()) {
-                    return generateReturnValue(importsAcceptor, currentPkgId, type.get(), "{%1}?");
+                    return generateReturnValue(importsAcceptor, currentPkgId, type.get(), template);
                 }
             }
             if (!memberTypes.isEmpty()) {
@@ -492,6 +493,9 @@ public class FunctionGenerator {
                 break;
             case "table":
                 result = "table{}";
+                break;
+            case "error":
+                result = "error(\"\")";
                 break;
             default:
                 result = "()";
