@@ -96,6 +96,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.getTypeDe
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.isExternFunc;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.nameOfBStringFunc;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.nameOfNonBStringFunc;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTerminatorGen.TerminatorGenerator.toNameString;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen.generateCreateTypesMethod;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen.generateUserDefinedTypeFields;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen.generateValueCreatorMethods;
@@ -672,7 +673,7 @@ public class JvmPackageGen {
                     !Symbols.isFlagOn(((BObjectType) bType).tsymbol.flags, Flags.ABSTRACT)) ||
                     bType.tag == TypeTags.SERVICE) {
                 @Nilable List<BIRFunction> attachedFuncs = getFunctions(typeDef.attachedFuncs);
-                String typeName = typeName = ((BObjectType) bType).name.getValue();
+                String typeName = typeName = toNameString(((BObjectType) bType));
 //                if (bType.tag == TypeTags.OBJECT) {
 //                    typeName = ((BObjectType)bType).name.getValue();
 //                } else {
