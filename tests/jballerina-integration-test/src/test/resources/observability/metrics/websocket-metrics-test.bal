@@ -23,7 +23,7 @@ byte[] pingData = ping.toBytes();
     subProtocols: ["xml", "json"],
     idleTimeoutInSeconds: 120
 }
-service basic on new http:Listener(9090) {
+service basic on new http:Listener(9898) {
     resource function onOpen(http:WebSocketCaller caller) {
     }
     resource function onText(http:WebSocketCaller caller, string text,
