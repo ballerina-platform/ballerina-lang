@@ -2256,7 +2256,7 @@ public class JvmMethodGen {
         String pkgName = getPackageName(pkg.org.value, pkg.name.value);
         BIRFunction currentFunc = getFunction(func);
         String frameClassName = getFrameClassName(pkgName, currentFunc.name.value, attachedType);
-        ClassWriter cw = new ClassWriter(COMPUTE_FRAMES);
+        ClassWriter cw = new BallerinaClassWriter(COMPUTE_FRAMES);
         if (currentFunc.pos != null && currentFunc.pos.src != null) {
             cw.visitSource(currentFunc.pos.src.cUnitName, null);
         }
