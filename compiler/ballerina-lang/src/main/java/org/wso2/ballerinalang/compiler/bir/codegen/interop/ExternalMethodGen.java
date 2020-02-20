@@ -53,6 +53,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.cleanupP
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.getFunctionWrapper;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.getPackageName;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.lookupExternClassName;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTerminatorGen.TerminatorGenerator.toNameString;
 import static org.wso2.ballerinalang.compiler.bir.codegen.interop.AnnotationProc.getInteropAnnotValue;
 import static org.wso2.ballerinalang.compiler.bir.codegen.interop.InteropMethodGen.JFieldFunctionWrapper;
 import static org.wso2.ballerinalang.compiler.bir.codegen.interop.InteropMethodGen.JMethodFunctionWrapper;
@@ -173,7 +174,7 @@ public class ExternalMethodGen {
         if (attachedType == null) {
             lookupKey = currentPackageName + birFuncName;
         } else if (attachedType.tag == TypeTags.OBJECT) {
-            lookupKey = currentPackageName + attachedType.name.getValue() + "." + birFuncName;
+            lookupKey = currentPackageName + toNameString(attachedType) + "." + birFuncName;
         } else {
             throw new BLangCompilerException(String.format("Java method generation for the receiver type %s " +
                     "is not supported: ", attachedType));

@@ -187,6 +187,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.lookupFu
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.lookupGlobalVarClassName;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.packageToModuleId;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.symbolTable;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTerminatorGen.TerminatorGenerator.toNameString;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTerminatorGen.cleanupObjectTypeName;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTerminatorGen.isExternStaticFunctionCall;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTerminatorGen.loadChannelDetails;
@@ -2288,11 +2289,11 @@ public class JvmMethodGen {
         String frameClassName = pkgName;
         if (attachedType != null) {
             if (attachedType.tag == TypeTags.OBJECT) {
-                frameClassName += cleanupTypeName(attachedType.name.getValue()) + "_";
+                frameClassName += cleanupTypeName(toNameString(attachedType)) + "_";
             } else if (attachedType.tag == TypeTags.SERVICE) {
-                frameClassName += cleanupTypeName(attachedType.name.getValue()) + "_";
+                frameClassName += cleanupTypeName(toNameString(attachedType)) + "_";
             } else if (attachedType.tag == TypeTags.RECORD) {
-                frameClassName += cleanupTypeName(attachedType.name.getValue()) + "_";
+                frameClassName += cleanupTypeName(toNameString(attachedType)) + "_";
             }
         }
 

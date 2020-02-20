@@ -367,7 +367,7 @@ public class JvmTerminatorGen {
             this.loadVar(lockIns.localVar.variableDcl);
 
             if (attachedType.tag == TypeTags.OBJECT) {
-                String className = getTypeValueClassName(this.module, attachedType.name.getValue());
+                String className = getTypeValueClassName(this.module, toNameString(attachedType));
                 this.mv.visitFieldInsn(GETFIELD, className, lockName, lockClass);
                 this.mv.visitVarInsn(ALOAD, localVarOffset);
                 this.mv.visitMethodInsn(INVOKEVIRTUAL, LOCK_VALUE, "lock", String.format("(L%s;)Z", STRAND), false);
@@ -378,6 +378,10 @@ public class JvmTerminatorGen {
                 throw new BLangCompilerException("JVM field lock generation is not supported for type " +
                         String.format("%s", attachedType));
             }
+        }
+
+        public static String toNameString(BType t) {
+            return t.tsymbol.name.value;
         }
 
         void genUnlockTerm(BIRTerminator.Unlock unlockIns, String funcName, @Nilable BType attachedType) {
@@ -397,7 +401,7 @@ public class JvmTerminatorGen {
             for (Map.Entry<BIROperand, Set<String>> localLockDetails : unlockIns.fieldLocks.entrySet()) {
                 if (localLockDetails != null) {
                     if (attachedType.tag == TypeTags.OBJECT) {
-                        String className = getTypeValueClassName(this.module, attachedType.name.getValue());
+                        String className = getTypeValueClassName(this.module, toNameString(attachedType));
                         for (String fieldName : localLockDetails.getValue()) {
                             String lockName = computeLockNameFromString(fieldName);
                             this.loadVar(localLockDetails.getKey().variableDcl);

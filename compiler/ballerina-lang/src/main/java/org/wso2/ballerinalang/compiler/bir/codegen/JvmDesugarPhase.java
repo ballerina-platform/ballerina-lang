@@ -46,6 +46,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.getFuncti
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.getVariableDcl;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.nextId;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.nextVarId;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTerminatorGen.TerminatorGenerator.toNameString;
 import static org.wso2.ballerinalang.compiler.bir.model.BIRTerminator.Branch;
 import static org.wso2.ballerinalang.compiler.bir.model.BIRTerminator.GOTO;
 
@@ -205,7 +206,7 @@ public class JvmDesugarPhase {
 
         // Rename the function name by appending the record name to it.
         // This done to avoid frame class name overlappings.
-        func.name = new Name(cleanupFunctionName(recordType.name.getValue() + func.name.value));
+        func.name = new Name(cleanupFunctionName(toNameString(recordType) + func.name.value));
 
         // change the kind of receiver to 'ARG'
         receiver.kind = VarKind.ARG;

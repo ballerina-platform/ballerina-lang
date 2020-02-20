@@ -122,6 +122,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.computeL
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.currentClass;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.getPackageName;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.symbolTable;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTerminatorGen.TerminatorGenerator.toNameString;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen.getTypeDesc;
 import static org.wso2.ballerinalang.compiler.bir.codegen.interop.ExternalMethodGen.OldStyleExternalFunctionWrapper;
 import static org.wso2.ballerinalang.compiler.bir.codegen.interop.ExternalMethodGen.desugarOldExternFuncs;
@@ -596,7 +597,7 @@ class JvmValueGen {
             // defualt values of the fields coming from the referenced types.
             for (BType typeRef : typeDef.referencedTypes) {
                 if (typeRef.tag == TypeTags.RECORD) {
-                    String refTypeClassName = getTypeValueClassName(typeRef.tsymbol.pkgID, typeRef.name.getValue());
+                    String refTypeClassName = getTypeValueClassName(typeRef.tsymbol.pkgID, toNameString(typeRef));
                     mv.visitInsn(DUP2);
                     mv.visitMethodInsn(INVOKESTATIC, refTypeClassName, "$init",
                             String.format("(L%s;L%s;)V", STRAND, MAP_VALUE), false);
@@ -616,7 +617,7 @@ class JvmValueGen {
             } else {
                 // record type is the original record-type of this type-label
                 BRecordType recordType = (BRecordType) typeDef.type;
-                valueClassName = getTypeValueClassName(recordType.tsymbol.pkgID, recordType.name.getValue());
+                valueClassName = getTypeValueClassName(recordType.tsymbol.pkgID, toNameString(recordType));
                 initFuncName = cleanupFunctionName(recordType.name + "__init_");
             }
 
@@ -1119,7 +1120,7 @@ class JvmValueGen {
             }
 
             this.createObjectInit(cw, fields, className);
-            this.createCallMethod(cw, attachedFuncs, className, objectType.name.getValue(), isService);
+            this.createCallMethod(cw, attachedFuncs, className, toNameString(objectType), isService);
             this.createObjectGetMethod(cw, fields, className);
             if (IS_BSTRING) {
                 this.createObjectSetMethod(cw, fields, className, true);

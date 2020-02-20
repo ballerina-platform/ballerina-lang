@@ -142,6 +142,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.getModul
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.getPackageName;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.lookupGlobalVarClassName;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.symbolTable;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTerminatorGen.TerminatorGenerator.toNameString;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmValueGen.NodeSorter;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmValueGen.createDefaultCase;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmValueGen.createLabelsForEqualCheck;
@@ -804,8 +805,8 @@ class JvmTypeGen {
                 // create and load attached function
                 createObjectAttachedFunction(mv, attachedFunc, objType);
                 BIRVariableDcl attachedFuncVar = new BIRVariableDcl(symbolTable.anyType,
-                        new Name(objType.name.getValue() + attachedFunc.funcName.value), VarScope.FUNCTION,
-                        VarKind.LOCAL);
+                                                                    new Name(toNameString(objType) + attachedFunc.funcName.value), VarScope.FUNCTION,
+                                                                    VarKind.LOCAL);
                 int attachedFunctionVarIndex = indexMap.getIndex(attachedFuncVar);
                 mv.visitVarInsn(ASTORE, attachedFunctionVarIndex);
 
@@ -969,7 +970,7 @@ class JvmTypeGen {
             loadTypedescType(mv, (BTypedescType) bType);
             return;
         } else if (bType.tag == TypeTags.SERVICE) {
-            if (!Objects.equals(getTypeFieldName(bType.name.getValue()), "$type$service")) {
+            if (!Objects.equals(getTypeFieldName(toNameString(bType)), "$type$service")) {
                 loadUserDefinedType(mv, bType);
                 return;
             } else if (bType instanceof BObjectType) {
@@ -1107,7 +1108,7 @@ class JvmTypeGen {
             return;
         }
         String typeOwner = getPackageName(packageID.orgName.value, packageID.name.value) + MODULE_INIT_CLASS_NAME;
-        String fieldName = getTypeFieldName(errorType.name.getValue());
+        String fieldName = getTypeFieldName(toNameString(errorType));
         mv.visitFieldInsn(GETSTATIC, typeOwner, fieldName, String.format("L%s;", BTYPE));
     }
 
@@ -1201,7 +1202,7 @@ class JvmTypeGen {
 //        }
 
         String typeOwner = getPackageName(packageID.orgName.value, packageID.name.value) + MODULE_INIT_CLASS_NAME;
-        String fieldName = getTypeFieldName(bType.name.getValue());
+        String fieldName = getTypeFieldName(toNameString(bType));
 
         mv.visitFieldInsn(GETSTATIC, typeOwner, fieldName, String.format("L%s;", BTYPE));
     }
@@ -1314,7 +1315,7 @@ class JvmTypeGen {
         mv.visitInsn(DUP);
 
         // Load type name
-        String name = finiteType.name.getValue();
+        String name = toNameString(finiteType);
         mv.visitLdcInsn(name);
 
         mv.visitTypeInsn(NEW, LINKED_HASH_SET);
