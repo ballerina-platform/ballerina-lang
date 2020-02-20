@@ -1792,6 +1792,7 @@ public class BLangPackageBuilder {
         BLangFromClause fromClause = (BLangFromClause) TreeBuilder.createFromClauseNode();
         fromClause.addWS(ws);
         fromClause.pos = pos;
+        markVariableAsFinal((BLangVariable) variableDefinitionNode.getVariable());
         fromClause.setVariableDefinitionNode(variableDefinitionNode);
         fromClause.setCollection(this.exprNodeStack.pop());
         fromClause.isDeclaredWithVar = isDeclaredWithVar;
