@@ -38,6 +38,7 @@ public class NonBlockingCallback {
         strand.setState(State.BLOCK_AND_YIELD);
         this.strand = strand;
         this.scheduler = strand.scheduler;
+        this.strand.setReturnValues(null);
     }
 
     public void notifySuccess() {

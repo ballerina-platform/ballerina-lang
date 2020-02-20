@@ -677,7 +677,10 @@ public type ObjectGenerator object {
 
         // cast key to java.lang.String
         mv.visitVarInsn(ALOAD, fieldNameRegIndex);
-        mv.visitTypeInsn(CHECKCAST, STRING_VALUE);
+        mv.visitTypeInsn(CHECKCAST, IS_BSTRING ? B_STRING_VALUE : STRING_VALUE);
+        if (IS_BSTRING) {
+            mv.visitMethodInsn(INVOKEINTERFACE, B_STRING_VALUE, "getValue", io:sprintf("()L%s;", STRING_VALUE) , true);
+        }
         mv.visitVarInsn(ASTORE, strKeyVarIndex);
 
         // sort the fields before generating switch case
@@ -714,7 +717,7 @@ public type ObjectGenerator object {
         // default case
         mv.visitLabel(defaultCaseLabel);
         mv.visitVarInsn(ALOAD, 0);
-        mv.visitVarInsn(ALOAD, fieldNameRegIndex);
+        mv.visitVarInsn(ALOAD, strKeyVarIndex);
         mv.visitMethodInsn(INVOKESPECIAL, MAP_VALUE_IMPL, "containsKey", io:sprintf("(L%s;)Z", OBJECT), false);
         mv.visitInsn(IRETURN);
 
