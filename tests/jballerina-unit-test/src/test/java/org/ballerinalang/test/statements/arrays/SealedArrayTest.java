@@ -225,7 +225,7 @@ public class SealedArrayTest {
     // TODO : uncomment
     @Test()
     public void testNegativeAutoFillSealedArray() {
-        Assert.assertEquals(listExprNegative.getErrorCount(), 11);
+        Assert.assertEquals(listExprNegative.getErrorCount(), 12);
         BAssertUtil.validateError(listExprNegative, 0,
                                   "invalid usage of list constructor: type 'Person[5]' does not have a filler value",
                                   24,
@@ -272,6 +272,11 @@ public class SealedArrayTest {
                                           "filler value",
                                   112,
                                   22);
+        BAssertUtil.validateError(listExprNegative, 11,
+                                  "invalid usage of list constructor: type '(HELLO|2)[2]' does not have a filler " +
+                                          "value",
+                                  121,
+                                  34);
     }
 
     @Test()

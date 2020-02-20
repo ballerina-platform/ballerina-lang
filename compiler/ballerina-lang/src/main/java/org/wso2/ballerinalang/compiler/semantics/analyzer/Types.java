@@ -110,30 +110,33 @@ public class Types {
     private Names names;
     private int finiteTypeCount = 0;
 
-    /**
-     * Keep filler value for basic types in String format.
-     *
-     * @since 1.2.0
-     */
-    public enum DefaultValues {
-        STRING(""),
-        INTEGER("0"),
-        BYTE("0"),
-        FLOAT("0.0"),
-        BIGDECIMAL("0.0"),
-        BOOLEAN("false"),
-        NIL("()"),
-        UNKNOWN("UNKNOWN");
+    private boolean checkFillerValue(BUnionType type) {
+        if (type.isNullable()) {
+            return true;
+        }
+        Iterator<BType> iterator = type.getMemberTypes().iterator();
+        BType firstMember = iterator.next();
+        boolean defaultFillValuePresent = false;
 
-        private String value;
-
-        DefaultValues(String value) {
-            this.value = value;
+        // is first value is a valid fill value
+        String defaultFillValue = getDefaultFillValue(firstMember);
+        if (defaultFillValue.equals(DefaultValues.UNKNOWN.getValue())) {
+            return false;
+        }
+        if (firstMember.toString().equals(defaultFillValue)) {
+            defaultFillValuePresent = true;
         }
 
-        public String getValue() {
-            return value;
+        while (iterator.hasNext()) {
+            Object value = iterator.next();
+            if (!isSameType(firstMember, (BType) value)) {
+                return false;
+            }
+            if (!defaultFillValuePresent && value.toString().equals(defaultFillValue)) {
+                defaultFillValuePresent = true;
+            }
         }
+        return defaultFillValuePresent;
     }
 
     public static Types getInstance(CompilerContext context) {
@@ -2670,32 +2673,29 @@ public class Types {
         return defaultFillValuePresent;
     }
 
-    private boolean checkFillerValue(BUnionType type) {
-        if (type.isNullable()) {
-            return true;
+    private String getDefaultFillValue(BType type) {
+        switch(type.getKind()) {
+            case INT:
+            case BYTE:
+                return DefaultValues.INTEGER.getValue();
+            case STRING:
+                return DefaultValues.STRING.getValue();
+            case DECIMAL:
+            case FLOAT:
+                return DefaultValues.FLOAT.getValue();
+            case BOOLEAN:
+                return DefaultValues.BOOLEAN.getValue();
+            case NIL:
+                return DefaultValues.NIL.getValue();
+            case ERROR:
+            case TYPEDESC:
+                return DefaultValues.UNKNOWN.getValue();
+            default:
+                if (type instanceof BFiniteType) {
+                    return getDefaultFillValue((BFiniteType) type);
+                }
+                return DefaultValues.UNKNOWN.getValue();
         }
-        Iterator<BType> iterator = type.getMemberTypes().iterator();
-        BType firstMember = iterator.next();
-        boolean defaultFillValuePresent = false;
-
-        // is first value is a valid fill value
-        String defaultFillValue = getDefaultFillValue(firstMember);
-        if (firstMember.toString().equals(defaultFillValue)) {
-            defaultFillValuePresent = true;
-        }
-
-        while (iterator.hasNext()) {
-            Object value = iterator.next();
-
-            if (!isSameType(firstMember, iterator.next())) {
-                return false;
-            }
-
-            if (!defaultFillValuePresent && value.toString().equals(defaultFillValue)) {
-                defaultFillValuePresent = true;
-            }
-        }
-        return defaultFillValuePresent;
     }
 
     private boolean checkFillerValue(BRecordType type) {
@@ -2718,22 +2718,41 @@ public class Types {
         return getDefaultFillValue(expr.type);
     }
 
-    private String getDefaultFillValue(BType type) {
-        switch(type.getKind()) {
-            case INT:
-            case BYTE:
-                return DefaultValues.INTEGER.getValue();
-            case STRING:
-                return DefaultValues.STRING.getValue();
-            case DECIMAL:
-            case FLOAT:
-                return DefaultValues.FLOAT.getValue();
-            case BOOLEAN:
-                return DefaultValues.BOOLEAN.getValue();
-            case NIL:
-                return DefaultValues.NIL.getValue();
-            default:
-                return DefaultValues.UNKNOWN.getValue();
+    private String getDefaultFillValue(BFiniteType finiteType) {
+        if (finiteType.getValueSpace().size() == 1) {
+            for (BLangExpression valueLiteral : finiteType.getValueSpace()) {
+                if (!(valueLiteral instanceof BLangLiteral)) {
+                    return DefaultValues.UNKNOWN.getValue();
+                }
+                return valueLiteral.toString();
+            }
+        }
+        return DefaultValues.UNKNOWN.getValue();
+    }
+
+    /**
+     * Keep filler value for basic types in String format.
+     *
+     * @since 1.2.0
+     */
+    public enum DefaultValues {
+        STRING(""),
+        INTEGER("0"),
+        BYTE("0"),
+        FLOAT("0.0"),
+        BIGDECIMAL("0.0"),
+        BOOLEAN("false"),
+        NIL("()"),
+        UNKNOWN("NA");
+
+        private String value;
+
+        DefaultValues(String value) {
+            this.value = value;
+        }
+
+        public String getValue() {
+            return value;
         }
     }
 }

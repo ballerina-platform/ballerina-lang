@@ -19,16 +19,16 @@ type Person abstract object {
     function getFullName() returns string;
 };
 
-// [0] cannot initialize abstract objects
+// cannot initialize abstract objects
 function createAbstractObjectArray() {
     Person[5] x = [];
     Person p1 = x[2];
     p1.age = 20;
 }
 
-// [1] cannot create multi dimensional arrays of abstract objects
+// cannot create multi dimensional arrays of abstract objects
 function createAbstractObjectEmptyArray() {
-    Person[5][] y = [];
+    Person[5][] y = []; Person[][5] r = [];// TODO: this should be allowed
     Person[5][1] z = [[]];
 }
 
@@ -39,9 +39,9 @@ type Age object {
     }
 };
 
-// [2] cannot create object without properly initializing it
+// cannot create object without properly initializing it
 function createDirtyObjectEmptyArray() {
-    Age[5][] y = [];
+    Age[5][] y = []; // TODO: this should be allowed
     Age[5][1] z = [[]];
     z[0][0].age = 30;
 }
@@ -110,4 +110,13 @@ type ObjError object {
 
 function testObjectRetErrorArrayFilling() {
     ObjError [2] y = [];
+}
+
+const MyConst = "HELLO";
+const MyIntConst = 2;
+
+type unionWithConst MyConst | MyIntConst ;
+
+function testUnionWithConstTypes() {
+    unionWithConst[2] unionArr = [];
 }
