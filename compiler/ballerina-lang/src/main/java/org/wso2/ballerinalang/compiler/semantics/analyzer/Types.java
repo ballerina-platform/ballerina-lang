@@ -2656,12 +2656,15 @@ public class Types {
         BLangExpression firstElement = (BLangExpression) iterator.next();
         BType firstElementType = firstElement.type;
         String defaultFillValue = getDefaultFillValue(firstElement);
+        if (defaultFillValue.equals(DefaultValues.UNKNOWN.getValue())) {
+            return false;
+        }
         if (firstElement.toString().equals(defaultFillValue)) {
             defaultFillValuePresent = true;
         }
 
         while (iterator.hasNext()) {
-            Object value =  iterator.next();
+            Object value = iterator.next();
             BType valueType = ((BLangExpression) value).type;
             if (!isSameType(valueType, firstElementType)) {
                 return false;
