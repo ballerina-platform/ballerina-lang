@@ -144,4 +144,42 @@ public class CodeActionUtil {
             return null;
         }
     }
+
+    /**
+     * Translates ballerina diagnostics into lsp4j diagnostics.
+     *
+     * @param ballerinaDiags a list of {@link org.ballerinalang.util.diagnostic.Diagnostic}
+     * @return a list of {@link Diagnostic}
+     */
+    public static List<org.eclipse.lsp4j.Diagnostic> toDiagnostics(
+            List<org.ballerinalang.util.diagnostic.Diagnostic> ballerinaDiags) {
+        List<org.eclipse.lsp4j.Diagnostic> lsDiagnostics = new ArrayList<>();
+        ballerinaDiags.forEach(diagnostic -> {
+            org.eclipse.lsp4j.Diagnostic lsDiagnostic = new org.eclipse.lsp4j.Diagnostic();
+            lsDiagnostic.setSeverity(DiagnosticSeverity.Error);
+            lsDiagnostic.setMessage(diagnostic.getMessage());
+            Range r = new Range();
+
+            int startLine = diagnostic.getPosition().getStartLine() - 1; // LSP diagnostics range is 0 based
+            int startChar = diagnostic.getPosition().getStartColumn() - 1;
+            int endLine = diagnostic.getPosition().getEndLine() - 1;
+            int endChar = diagnostic.getPosition().getEndColumn() - 1;
+
+            if (endLine <= 0) {
+                endLine = startLine;
+            }
+
+            if (endChar <= 0) {
+                endChar = startChar + 1;
+            }
+
+            r.setStart(new Position(startLine, startChar));
+            r.setEnd(new Position(endLine, endChar));
+            lsDiagnostic.setRange(r);
+
+            lsDiagnostics.add(lsDiagnostic);
+        });
+
+        return lsDiagnostics;
+    }
 }

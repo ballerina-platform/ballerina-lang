@@ -32,7 +32,6 @@ import org.ballerinalang.langserver.util.FileUtils;
 import org.ballerinalang.langserver.util.TestUtil;
 import org.eclipse.lsp4j.CodeActionContext;
 import org.eclipse.lsp4j.Diagnostic;
-import org.eclipse.lsp4j.DiagnosticSeverity;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.jsonrpc.Endpoint;
@@ -121,7 +120,8 @@ public class CodeActionTest {
 
         BallerinaFile ballerinaFile = ExtendedLSCompiler.compileFile(sourcePath, CompilerPhase.COMPILER_PLUGIN);
         List<Diagnostic> lsDiagnostics = new ArrayList<>();
-        ballerinaFile.getDiagnostics().ifPresent(diagnostics -> lsDiagnostics.addAll(getLSDiagnostics(diagnostics)));
+        ballerinaFile.getDiagnostics().ifPresent(
+                diagnostics -> lsDiagnostics.addAll(CodeActionUtil.toDiagnostics(diagnostics)));
         CodeActionContext codeActionContext = new CodeActionContext(lsDiagnostics);
         Range range = gson.fromJson(configJsonObject.get("range"), Range.class);
         TestUtil.openDocument(serviceEndpoint, sourcePath);
@@ -156,10 +156,10 @@ public class CodeActionTest {
         JsonObject configJsonObject = FileUtils.fileContentAsObject(configJsonPath);
         TestUtil.openDocument(serviceEndpoint, sourcePath);
 
-        BallerinaFile ballerinaFile = ExtendedLSCompiler.compileFile(sourcePath, CompilerPhase.COMPILER_PLUGIN);
-        List<Diagnostic> lsDiagnostics = new ArrayList<>();
-        ballerinaFile.getDiagnostics().ifPresent(diagnostics -> lsDiagnostics.addAll(getLSDiagnostics(diagnostics)));
-        CodeActionContext context = new CodeActionContext(lsDiagnostics);
+        List<Diagnostic> diags = new ArrayList<>(
+                CodeActionUtil.toDiagnostics(TestUtil.compileAndGetDiagnostics(sourcePath)));
+        CodeActionContext context = new CodeActionContext(diags);
+
         JsonArray ranges = configJsonObject.getAsJsonArray("cursor");
         for (JsonElement rangeElement : ranges) {
             JsonObject rangeObject = rangeElement.getAsJsonObject();
@@ -197,14 +197,13 @@ public class CodeActionTest {
         JsonObject configJsonObject = FileUtils.fileContentAsObject(configJsonPath);
         TestUtil.openDocument(serviceEndpoint, sourcePath);
 
-        BallerinaFile ballerinaFile = ExtendedLSCompiler.compileFile(sourcePath, CompilerPhase.COMPILER_PLUGIN);
-        List<Diagnostic> lsDiagnostics = new ArrayList<>();
-        ballerinaFile.getDiagnostics().ifPresent(diagnostics -> lsDiagnostics.addAll(getLSDiagnostics(diagnostics)));
-        CodeActionContext context = new CodeActionContext(lsDiagnostics);
+        List<Diagnostic> diags = new ArrayList<>(
+                CodeActionUtil.toDiagnostics(TestUtil.compileAndGetDiagnostics(sourcePath)));
+        CodeActionContext codeActionContext = new CodeActionContext(diags);
         Position pos = new Position(configJsonObject.get("line").getAsInt(),
                                     configJsonObject.get("character").getAsInt());
         Range range = new Range(pos, pos);
-        String res = TestUtil.getCodeActionResponse(serviceEndpoint, sourcePath.toString(), range, context);
+        String res = TestUtil.getCodeActionResponse(serviceEndpoint, sourcePath.toString(), range, codeActionContext);
 
         JsonObject expected = configJsonObject.get("expected").getAsJsonObject();
         String title = expected.get("title").getAsString();
@@ -304,34 +303,4 @@ public class CodeActionTest {
         return responseJson;
     }
 
-    private List<Diagnostic> getLSDiagnostics(List<org.ballerinalang.util.diagnostic.Diagnostic> ballerinaDiags) {
-        List<Diagnostic> lsDiagnostics = new ArrayList<>();
-        ballerinaDiags.forEach(diagnostic -> {
-            Diagnostic lsDiagnostic = new Diagnostic();
-            lsDiagnostic.setSeverity(DiagnosticSeverity.Error);
-            lsDiagnostic.setMessage(diagnostic.getMessage());
-            Range r = new Range();
-
-            int startLine = diagnostic.getPosition().getStartLine() - 1; // LSP diagnostics range is 0 based
-            int startChar = diagnostic.getPosition().getStartColumn() - 1;
-            int endLine = diagnostic.getPosition().getEndLine() - 1;
-            int endChar = diagnostic.getPosition().getEndColumn() - 1;
-
-            if (endLine <= 0) {
-                endLine = startLine;
-            }
-
-            if (endChar <= 0) {
-                endChar = startChar + 1;
-            }
-
-            r.setStart(new Position(startLine, startChar));
-            r.setEnd(new Position(endLine, endChar));
-            lsDiagnostic.setRange(r);
-
-            lsDiagnostics.add(lsDiagnostic);
-        });
-
-        return lsDiagnostics;
-    }
 }
