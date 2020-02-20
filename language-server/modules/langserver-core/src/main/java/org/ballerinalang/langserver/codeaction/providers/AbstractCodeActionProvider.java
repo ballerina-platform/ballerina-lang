@@ -16,7 +16,6 @@
 package org.ballerinalang.langserver.codeaction.providers;
 
 import org.ballerinalang.langserver.commons.LSContext;
-import org.ballerinalang.langserver.commons.codeaction.CodeActionKeys;
 import org.ballerinalang.langserver.commons.codeaction.CodeActionNodeType;
 import org.ballerinalang.langserver.commons.codeaction.spi.LSCodeActionProvider;
 import org.ballerinalang.langserver.commons.workspace.LSDocumentIdentifier;
@@ -62,8 +61,16 @@ public abstract class AbstractCodeActionProvider implements LSCodeActionProvider
      * {@inheritDoc}
      */
     @Override
-    public abstract List<CodeAction> getCodeActions(CodeActionNodeType nodeType, LSContext lsContext,
-                                                    List<Diagnostic> diagnostics);
+    public abstract List<CodeAction> getNodeBasedCodeActions(CodeActionNodeType nodeType, LSContext lsContext,
+                                                             List<Diagnostic> allDiagnostics);
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public abstract List<CodeAction> getDiagBasedCodeActions(CodeActionNodeType nodeType, LSContext lsContext,
+                                                             List<Diagnostic> diagnosticsOfRange,
+                                                             List<Diagnostic> allDiagnostics);
 
     /**
      * {@inheritDoc}

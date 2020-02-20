@@ -23,11 +23,7 @@ import org.ballerinalang.langserver.common.utils.FunctionGenerator;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.codeaction.CodeActionKeys;
 import org.ballerinalang.langserver.commons.codeaction.CodeActionNodeType;
-import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
-import org.ballerinalang.langserver.compiler.LSModuleCompiler;
-import org.ballerinalang.langserver.compiler.common.LSCustomErrorStrategy;
-import org.ballerinalang.langserver.compiler.exception.CompilationFailedException;
 import org.ballerinalang.model.elements.PackageID;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.CodeActionKind;
@@ -71,27 +67,34 @@ public class ImplementFunctionsCodeAction extends AbstractCodeActionProvider {
      * {@inheritDoc}
      */
     @Override
-    public List<CodeAction> getCodeActions(CodeActionNodeType nodeType, LSContext lsContext,
-                                           List<Diagnostic> diagnostics) {
+    public List<CodeAction> getDiagBasedCodeActions(CodeActionNodeType nodeType, LSContext lsContext,
+                                                    List<Diagnostic> diagnosticsOfRange,
+                                                    List<Diagnostic> allDiagnostics) {
         List<CodeAction> actions = new ArrayList<>();
         List<DiagnosticPos> addedObjPosition = new ArrayList<>();
-        WorkspaceDocumentManager documentManager = lsContext.get(DocumentServiceKeys.DOC_MANAGER_KEY);
-        try {
-            BLangPackage bLangPackage = LSModuleCompiler.getBLangPackage(lsContext, documentManager,
-                                                                         LSCustomErrorStrategy.class, false, false);
-            for (Diagnostic diagnostic : diagnostics) {
-                if (diagnostic.getMessage().startsWith(NO_IMPL_FOUND_FOR_FUNCTION)) {
-                    CodeAction codeAction = getNoImplementationFoundCommand(diagnostic, addedObjPosition,
-                                                                            bLangPackage, lsContext);
-                    if (codeAction != null) {
-                        actions.add(codeAction);
-                    }
+        BLangPackage bLangPackage = lsContext.get(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY);
+        if (bLangPackage == null) {
+            return actions;
+        }
+        for (Diagnostic diagnostic : diagnosticsOfRange) {
+            if (diagnostic.getMessage().startsWith(NO_IMPL_FOUND_FOR_FUNCTION)) {
+                CodeAction codeAction = getNoImplementationFoundCommand(diagnostic, addedObjPosition,
+                                                                        bLangPackage, lsContext);
+                if (codeAction != null) {
+                    actions.add(codeAction);
                 }
             }
-        } catch (CompilationFailedException e) {
-            // ignore
         }
         return actions;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public List<CodeAction> getNodeBasedCodeActions(CodeActionNodeType nodeType, LSContext lsContext,
+                                                    List<Diagnostic> allDiagnostics) {
+        throw new UnsupportedOperationException("Not supported");
     }
 
     private static CodeAction getNoImplementationFoundCommand(Diagnostic diagnostic,

@@ -45,17 +45,27 @@ public class PullModuleCodeAction extends AbstractCodeActionProvider {
      * {@inheritDoc}
      */
     @Override
-    public List<CodeAction> getCodeActions(CodeActionNodeType nodeType, LSContext lsContext,
-                                           List<Diagnostic> diagnostics) {
+    public List<CodeAction> getDiagBasedCodeActions(CodeActionNodeType nodeType, LSContext lsContext,
+                                                    List<Diagnostic> diagnosticsOfRange,
+                                                    List<Diagnostic> allDiagnostics) {
 
         List<CodeAction> actions = new ArrayList<>();
 
-        for (Diagnostic diagnostic : diagnostics) {
+        for (Diagnostic diagnostic : diagnosticsOfRange) {
             if (diagnostic.getMessage().startsWith(UNRESOLVED_MODULE)) {
                 actions.add(getUnresolvedPackageCommand(diagnostic, lsContext));
             }
         }
         return actions;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public List<CodeAction> getNodeBasedCodeActions(CodeActionNodeType nodeType, LSContext lsContext,
+                                                    List<Diagnostic> allDiagnostics) {
+        throw new UnsupportedOperationException("Not supported");
     }
 
     private static CodeAction getUnresolvedPackageCommand(Diagnostic diagnostic, LSContext context) {

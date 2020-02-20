@@ -20,7 +20,6 @@ import org.ballerinalang.langserver.command.executors.CreateFunctionExecutor;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.LSContext;
-import org.ballerinalang.langserver.commons.codeaction.CodeActionKeys;
 import org.ballerinalang.langserver.commons.codeaction.CodeActionNodeType;
 import org.ballerinalang.langserver.commons.command.CommandArgument;
 import org.ballerinalang.langserver.commons.workspace.LSDocumentIdentifier;
@@ -62,8 +61,9 @@ public class CreateFunctionCodeAction extends AbstractCodeActionProvider {
      * {@inheritDoc}
      */
     @Override
-    public List<CodeAction> getCodeActions(CodeActionNodeType nodeType, LSContext lsContext,
-                                           List<Diagnostic> diagnostics) {
+    public List<CodeAction> getDiagBasedCodeActions(CodeActionNodeType nodeType, LSContext lsContext,
+                                                    List<Diagnostic> diagnosticsOfRange,
+                                                    List<Diagnostic> allDiagnostics) {
         WorkspaceDocumentManager documentManager = lsContext.get(DocumentServiceKeys.DOC_MANAGER_KEY);
         Optional<Path> filePath = CommonUtil.getPathFromURI(lsContext.get(DocumentServiceKeys.FILE_URI_KEY));
         LSDocumentIdentifier document = null;
@@ -77,7 +77,7 @@ public class CreateFunctionCodeAction extends AbstractCodeActionProvider {
         if (document == null) {
             return actions;
         }
-        for (Diagnostic diagnostic : diagnostics) {
+        for (Diagnostic diagnostic : diagnosticsOfRange) {
             if (diagnostic.getMessage().startsWith(UNDEFINED_FUNCTION)) {
                 CodeAction codeAction = getFunctionCreateCommand(document, diagnostic, lsContext);
                 if (codeAction != null) {
@@ -86,6 +86,15 @@ public class CreateFunctionCodeAction extends AbstractCodeActionProvider {
             }
         }
         return actions;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public List<CodeAction> getNodeBasedCodeActions(CodeActionNodeType nodeType, LSContext lsContext,
+                                                    List<Diagnostic> allDiagnostics) {
+        throw new UnsupportedOperationException("Not supported");
     }
 
     private static CodeAction getFunctionCreateCommand(LSDocumentIdentifier document, Diagnostic diagnostic,
