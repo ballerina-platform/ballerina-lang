@@ -172,36 +172,6 @@ public class Symbols {
         return new BXMLNSSymbol(name, nsURI, pkgID, owner);
     }
 
-    public static BCastOperatorSymbol createCastOperatorSymbol(final BType sourceType,
-                                                               final BType targetType,
-                                                               final BType errorType,
-                                                               boolean implicit,
-                                                               boolean safe,
-                                                               PackageID pkgID,
-                                                               BSymbol owner) {
-        List<BType> paramTypes = Lists.of(sourceType, targetType);
-        BType retType;
-        if (safe) {
-            retType = targetType;
-        } else if (targetType.tag == TypeTags.UNION && targetType instanceof BUnionType) {
-            BUnionType unionType = (BUnionType) targetType;
-            unionType.add(errorType);
-            retType = unionType;
-        } else {
-            retType = BUnionType.create(null, targetType, errorType);
-        }
-
-        BInvokableType opType = new BInvokableType(paramTypes, retType, null);
-        return new BCastOperatorSymbol(pkgID, opType, sourceType, owner, implicit, safe);
-    }
-
-    public static BCastOperatorSymbol createUnboxValueTypeOpSymbol(BType sourceType, BType targetType) {
-
-        List<BType> paramTypes = Lists.of(sourceType, targetType);
-        BInvokableType opType = new BInvokableType(paramTypes, targetType, null);
-        return new BCastOperatorSymbol(null, opType, sourceType, null, false, true);
-    }
-
     public static String getAttachedFuncSymbolName(String typeName, String funcName) {
         return typeName + Names.DOT.value + funcName;
     }

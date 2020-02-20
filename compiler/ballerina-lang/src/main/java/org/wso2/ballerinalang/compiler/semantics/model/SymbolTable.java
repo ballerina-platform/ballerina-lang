@@ -21,9 +21,7 @@ import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.types.TypeKind;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BCastOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstructorSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConversionOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
@@ -453,111 +451,6 @@ public class SymbolTable {
         defineUnaryOperator(OperatorKind.BITWISE_COMPLEMENT, byteType, byteType);
         defineUnaryOperator(OperatorKind.BITWISE_COMPLEMENT, intType, intType);
 
-        defineConversionOperators();
-
-    }
-
-    private void defineConversionOperators() {
-        // Define both implicit and explicit conversion operators
-        defineImplicitCastOperator(intType, jsonType, true);
-        defineImplicitCastOperator(intType, anyType, true);
-        defineImplicitCastOperator(byteType, jsonType, true);
-        defineImplicitCastOperator(byteType, anyType, true);
-        defineImplicitCastOperator(floatType, jsonType, true);
-        defineImplicitCastOperator(floatType, anyType, true);
-        defineImplicitCastOperator(decimalType, jsonType, true);
-        defineImplicitCastOperator(decimalType, anyType, true);
-        defineImplicitCastOperator(stringType, jsonType, true);
-        defineImplicitCastOperator(stringType, anyType, true);
-        defineImplicitCastOperator(booleanType, jsonType, true);
-        defineImplicitCastOperator(booleanType, anyType, true);
-        defineImplicitCastOperator(typeDesc, anyType, true);
-        defineImplicitCastOperator(intType, anydataType, true);
-        defineImplicitCastOperator(byteType, anydataType, true);
-        defineImplicitCastOperator(floatType, anydataType, true);
-        defineImplicitCastOperator(decimalType, anydataType, true);
-        defineImplicitCastOperator(stringType, anydataType, true);
-        defineImplicitCastOperator(booleanType, anydataType, true);
-
-        // Define explicit conversion operators
-        defineCastOperator(anyType, intType, false);
-        defineCastOperator(anyType, byteType, false);
-        defineCastOperator(anyType, floatType, false);
-        defineCastOperator(anyType, decimalType, false);
-        defineCastOperator(anyType, stringType, false);
-        defineCastOperator(anyType, booleanType, false);
-        defineCastOperator(anyType, typeDesc, false);
-        defineCastOperator(anyType, jsonType, false);
-        defineCastOperator(anyType, xmlType, false);
-        defineCastOperator(anyType, mapType, false);
-        defineCastOperator(anyType, tableType, false);
-        defineCastOperator(anyType, streamType, false);
-        defineCastOperator(anyType, handleType, false);
-        defineCastOperator(anydataType, intType, false);
-        defineCastOperator(anydataType, byteType, false);
-        defineCastOperator(anydataType, floatType, false);
-        defineCastOperator(anydataType, decimalType, false);
-        defineCastOperator(anydataType, stringType, false);
-        defineCastOperator(anydataType, booleanType, false);
-        defineCastOperator(anydataType, jsonType, false);
-        defineCastOperator(anydataType, xmlType, false);
-        defineCastOperator(anydataType, tableType, false);
-
-        defineCastOperator(jsonType, intType, false);
-        defineCastOperator(jsonType, floatType, false);
-        defineCastOperator(jsonType, decimalType, false);
-        defineCastOperator(jsonType, stringType, false);
-        defineCastOperator(jsonType, booleanType, false);
-
-        // Define conversion operators
-
-        defineConversionOperator(anyType, intType, false);
-        defineConversionOperator(anyType, byteType, false);
-        defineConversionOperator(anyType, floatType, false);
-        defineConversionOperator(anyType, decimalType, false);
-        defineConversionOperator(anyType, stringType, true);
-        defineConversionOperator(anyType, booleanType, false);
-        defineConversionOperator(anydataType, intType, false);
-        defineConversionOperator(anydataType, byteType, false);
-        defineConversionOperator(anydataType, floatType, false);
-        defineConversionOperator(anydataType, decimalType, false);
-        defineConversionOperator(anydataType, stringType, true);
-        defineConversionOperator(anydataType, booleanType, false);
-        defineConversionOperator(jsonType, intType, false);
-        defineConversionOperator(jsonType, floatType, false);
-        defineConversionOperator(jsonType, decimalType, false);
-        defineConversionOperator(jsonType, stringType, false);
-        defineConversionOperator(jsonType, booleanType, false);
-
-        defineConversionOperator(intType, floatType, true);
-        defineConversionOperator(intType, decimalType, true);
-        defineConversionOperator(intType, booleanType, true);
-        defineConversionOperator(intType, stringType, true);
-        defineConversionOperator(intType, byteType, false);
-        defineConversionOperator(floatType, intType, false);
-        defineConversionOperator(floatType, decimalType, true);
-        defineConversionOperator(floatType, booleanType, true);
-        defineConversionOperator(floatType, stringType, true);
-        defineConversionOperator(floatType, byteType, true);
-        defineConversionOperator(decimalType, intType, false);
-        defineConversionOperator(decimalType, floatType, true);
-        defineConversionOperator(decimalType, booleanType, true);
-        defineConversionOperator(decimalType, stringType, true);
-        defineConversionOperator(decimalType, byteType, true);
-        defineConversionOperator(byteType, intType, true);
-        defineConversionOperator(byteType, floatType, true);
-        defineConversionOperator(byteType, decimalType, true);
-        defineConversionOperator(stringType, floatType, false);
-        defineConversionOperator(stringType, decimalType, false);
-        defineConversionOperator(stringType, intType, false);
-        defineConversionOperator(stringType, booleanType, true);
-        defineConversionOperator(booleanType, stringType, true);
-        defineConversionOperator(booleanType, intType, true);
-        defineConversionOperator(booleanType, floatType, true);
-        defineConversionOperator(booleanType, decimalType, true);
-        defineConversionOperator(tableType, xmlType, false);
-        defineConversionOperator(tableType, jsonType, false);
-        defineConversionOperator(xmlType, stringType, true);
     }
 
     public void defineBinaryOperator(OperatorKind kind,
@@ -573,65 +466,6 @@ public class SymbolTable {
                                      BType retType) {
         List<BType> paramTypes = Lists.of(type);
         defineOperator(names.fromString(kind.value()), paramTypes, retType);
-    }
-
-    private void defineImplicitCastOperator(BType sourceType,
-                                            BType targetType,
-                                            boolean safe) {
-
-        defineCastOperator(sourceType, targetType, true, safe);
-    }
-
-    private void defineCastOperator(BType sourceType,
-                                    BType targetType,
-                                    boolean safe) {
-
-        defineCastOperator(sourceType, targetType, false, safe);
-    }
-
-    private void defineConversionOperator(BType sourceType,
-                                          BType targetType,
-                                          boolean safe) {
-        List<BType> paramTypes = Lists.of(sourceType, targetType);
-        BType retType;
-        if (safe) {
-            retType = targetType;
-        } else {
-            if (targetType.tag == TypeTags.UNION) {
-                BUnionType unionType = (BUnionType) targetType;
-                unionType.add(this.errorType);
-                retType = targetType;
-            } else {
-                retType = BUnionType.create(null, targetType, errorType);
-            }
-        }
-        BInvokableType opType = new BInvokableType(paramTypes, retType, null);
-        BConversionOperatorSymbol symbol = new BConversionOperatorSymbol(this.rootPkgSymbol.pkgID, opType, sourceType,
-                this.rootPkgSymbol, safe);
-        rootScope.define(symbol.name, symbol);
-    }
-
-    private void defineCastOperator(BType sourceType,
-                                    BType targetType,
-                                    boolean implicit,
-                                    boolean safe) {
-        List<BType> paramTypes = Lists.of(sourceType, targetType);
-        BType retType;
-        if (safe) {
-            retType = targetType;
-        } else {
-            if (targetType.tag == TypeTags.UNION) {
-                BUnionType unionType = (BUnionType) targetType;
-                unionType.add(this.errorType);
-                retType = targetType;
-            } else {
-                retType = BUnionType.create(null, targetType, errorType);
-            }
-        }
-        BInvokableType opType = new BInvokableType(paramTypes, retType, null);
-        BCastOperatorSymbol symbol = new BCastOperatorSymbol(this.rootPkgSymbol.pkgID, opType, sourceType,
-                this.rootPkgSymbol, implicit, safe);
-        rootScope.define(symbol.name, symbol);
     }
 
     private void defineOperator(Name name,

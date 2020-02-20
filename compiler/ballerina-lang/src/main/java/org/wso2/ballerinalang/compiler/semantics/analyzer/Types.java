@@ -26,7 +26,6 @@ import org.ballerinalang.util.BLangCompilerConstants;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BCastOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BStructureTypeSymbol;
@@ -562,8 +561,7 @@ public class Types {
             return isAssignable(((BStreamType) source).constraint, ((BStreamType) target).constraint, unresolvedTypes);
         }
 
-        BSymbol symbol = symResolver.resolveImplicitCastOp(source, target);
-        if (symbol != symTable.notFoundSymbol) {
+        if (isBuiltInTypeWidenPossible(source, target) == TypeTestResult.TRUE) {
             return true;
         }
 
@@ -1337,108 +1335,115 @@ public class Types {
         return unionType.getMemberTypes().iterator().next();
     }
 
-    public BSymbol getImplicitCastOpSymbol(BType actualType, BType expType) {
-        BSymbol symbol = symResolver.resolveImplicitCastOp(actualType, expType);
-        if ((expType.tag == TypeTags.UNION || expType.tag == TypeTags.FINITE) && isValueType(actualType)) {
-            symbol = symResolver.resolveImplicitCastOp(actualType, symTable.anyType);
-        }
+    /**
+     * Enum to represent type test result.
+     *
+     * @since 1.2.0
+     */
+    enum TypeTestResult {
+        NOT_FOUND,
+        TRUE,
+        FALSE
+    }
 
-        if (symbol != symTable.notFoundSymbol) {
-            return symbol;
-        }
+    TypeTestResult isBuiltInTypeWidenPossible(BType actualType, BType targetType) {
 
-        if (actualType.tag == TypeTags.BYTE && expType.tag == TypeTags.INT) {
-            symbol = createCastOperatorSymbol(actualType, expType);
-        } else if (isValueType(expType) &&
-                (actualType.tag == TypeTags.FINITE ||
-                         (actualType.tag == TypeTags.UNION && ((BUnionType) actualType).getMemberTypes().stream()
-                                 .anyMatch(type -> type.tag == TypeTags.FINITE && isAssignable(type, expType))))) {
-            if (expType.tag != TypeTags.INT && expType.tag != TypeTags.BYTE && expType.tag != TypeTags.FLOAT
-                    && expType.tag != TypeTags.STRING && expType.tag != TypeTags.BOOLEAN) {
-                // for decimal or nil, no cast is required
-                return symbol;
+        int targetTag = targetType.tag;
+
+        if (actualType.tag < TypeTags.JSON && targetTag < TypeTags.JSON) {
+            // Fail Fast for value types.
+            switch (actualType.tag) {
+                case TypeTags.INT:
+                case TypeTags.BYTE:
+                case TypeTags.FLOAT:
+                case TypeTags.DECIMAL:
+                    if (targetTag == TypeTags.BOOLEAN || targetTag == TypeTags.STRING) {
+                        return TypeTestResult.FALSE;
+                    }
+                    break;
+                case TypeTags.BOOLEAN:
+                    if (targetTag == TypeTags.INT || targetTag == TypeTags.BYTE || targetTag == TypeTags.FLOAT
+                            || targetTag == TypeTags.DECIMAL || targetTag == TypeTags.STRING) {
+                        return TypeTestResult.FALSE;
+                    }
+                    break;
+                case TypeTags.STRING:
+                    if (targetTag == TypeTags.INT || targetTag == TypeTags.BYTE || targetTag == TypeTags.FLOAT
+                            || targetTag == TypeTags.DECIMAL || targetTag == TypeTags.BOOLEAN) {
+                        return TypeTestResult.FALSE;
+                    }
+                    break;
             }
-            symbol = createCastOperatorSymbol(symTable.anyType, expType);
-        } else if (expType.tag == TypeTags.ERROR
+        }
+        switch (actualType.tag) {
+            case TypeTags.INT:
+            case TypeTags.BYTE:
+            case TypeTags.FLOAT:
+            case TypeTags.DECIMAL:
+            case TypeTags.BOOLEAN:
+            case TypeTags.STRING:
+                if (targetTag == TypeTags.JSON || targetTag == TypeTags.ANYDATA || targetTag == TypeTags.ANY) {
+                    return TypeTestResult.TRUE;
+                }
+                break;
+            case TypeTags.ANYDATA:
+            case TypeTags.TYPEDESC:
+                if (targetTag == TypeTags.ANY) {
+                    return TypeTestResult.TRUE;
+                }
+                break;
+            default:
+        }
+
+        if (targetType.tag == TypeTags.INT) {
+            // TODO : Add support for builtin subtypes of int.
+            if (actualType.tag == TypeTags.BYTE) {
+                return TypeTestResult.TRUE;
+            }
+        }
+        return TypeTestResult.NOT_FOUND;
+    }
+
+    public boolean isImplicityCastable(BType actualType, BType targetType) {
+        /* The word Builtin refers for Compiler known types. */
+
+        BType newTargetType = targetType;
+        if ((targetType.tag == TypeTags.UNION || targetType.tag == TypeTags.FINITE) && isValueType(actualType)) {
+            newTargetType = symTable.anyType;   // TODO : Check for correctness.
+        }
+
+        TypeTestResult result = isBuiltInTypeWidenPossible(actualType, newTargetType);
+        if (result != TypeTestResult.NOT_FOUND) {
+            return result == TypeTestResult.TRUE;
+        }
+
+        if (isValueType(targetType) &&
+                (actualType.tag == TypeTags.FINITE ||
+                        (actualType.tag == TypeTags.UNION && ((BUnionType) actualType).getMemberTypes().stream()
+                                .anyMatch(type -> type.tag == TypeTags.FINITE && isAssignable(type, targetType))))) {
+            // for decimal or nil, no cast is required
+            return targetType.tag == TypeTags.INT || targetType.tag == TypeTags.BYTE || targetType.tag == TypeTags.FLOAT
+                    || targetType.tag == TypeTags.STRING || targetType.tag == TypeTags.BOOLEAN;
+        } else if (targetType.tag == TypeTags.ERROR
                 && (actualType.tag == TypeTags.UNION
                 && isAllErrorMembers((BUnionType) actualType))) {
-            symbol = createCastOperatorSymbol(symTable.anyType, symTable.errorType);
+            return true;
 
         }
-        return symbol;
+        return false;
     }
 
-    private boolean isAllErrorMembers(BUnionType actualType) {
-        return actualType.getMemberTypes().stream().allMatch(t -> isAssignable(t, symTable.errorType));
-    }
+    public boolean isTypeCastPossible(BLangExpression expr, BType sourceType, BType targetType) {
 
-    public void setImplicitCastExpr(BLangExpression expr, BType actualType, BType expType) {
-        BSymbol symbol = getImplicitCastOpSymbol(actualType, expType);
-
-        if (symbol == symTable.notFoundSymbol) {
-            return;
-        }
-
-        BCastOperatorSymbol conversionSym = (BCastOperatorSymbol) symbol;
-        BLangTypeConversionExpr implicitConversionExpr =
-                (BLangTypeConversionExpr) TreeBuilder.createTypeConversionNode();
-        implicitConversionExpr.pos = expr.pos;
-        implicitConversionExpr.expr = expr.impConversionExpr == null ? expr : expr.impConversionExpr;
-        implicitConversionExpr.type = expType;
-        implicitConversionExpr.targetType = expType;
-        implicitConversionExpr.conversionSymbol = conversionSym;
-        expr.impConversionExpr = implicitConversionExpr;
-    }
-
-    public BSymbol getCastOperator(BLangExpression expr, BType sourceType, BType targetType) {
         if (sourceType.tag == TypeTags.SEMANTIC_ERROR || targetType.tag == TypeTags.SEMANTIC_ERROR ||
                 sourceType == targetType) {
-            return createCastOperatorSymbol(sourceType, targetType);
+            return true;
         }
-        BSymbol bSymbol = symResolver.resolveTypeCastOperator(expr, sourceType, targetType);
-        if (bSymbol != null && bSymbol != symTable.notFoundSymbol) {
-            return bSymbol;
+        if (isAssignable(sourceType, targetType) || isAssignable(targetType, sourceType)) {
+            return true;
         }
-        return createCastOperatorSymbol(sourceType, targetType);
-    }
-
-    public BSymbol getConversionOperator(BType sourceType, BType targetType) {
-        if (sourceType.tag == TypeTags.SEMANTIC_ERROR || targetType.tag == TypeTags.SEMANTIC_ERROR ||
-                sourceType == targetType) {
-            return createCastOperatorSymbol(sourceType, targetType);
-        }
-        BSymbol bSymbol = symResolver.resolveOperator(Names.CONVERSION_OP, Lists.of(sourceType, targetType));
-        if (bSymbol != null && bSymbol != symTable.notFoundSymbol) {
-            return bSymbol;
-        }
-        return symResolver.resolveOperator(Names.CAST_OP, Lists.of(sourceType, targetType));
-    }
-
-    BSymbol getTypeCastOperator(BLangExpression expr, BType sourceType, BType targetType) {
-        if (sourceType.tag == TypeTags.SEMANTIC_ERROR || targetType.tag == TypeTags.SEMANTIC_ERROR ||
-                sourceType == targetType) {
-            return createCastOperatorSymbol(sourceType, targetType);
-        }
-
-        if (isAssignable(sourceType, targetType)) {
-            if (isValueType(sourceType) || isValueType(targetType)) {
-                return getImplicitCastOpSymbol(sourceType, targetType);
-            }
-            return createCastOperatorSymbol(sourceType, targetType);
-        }
-
-        if (isAssignable(targetType, sourceType)) {
-            if (isValueType(sourceType)) {
-                setImplicitCastExpr(expr, sourceType, symTable.anyType);
-            }
-            return symResolver.createTypeCastSymbol(sourceType, targetType);
-        }
-
-        if (containsNumericType(targetType)) {
-            BSymbol symbol = symResolver.getNumericConversionOrCastSymbol(expr, sourceType, targetType);
-            if (symbol != symTable.notFoundSymbol) {
-                return symbol;
-            }
+        if (isNumericConversionPossible(expr, sourceType, targetType)) {
+            return true;
         }
 
         boolean validTypeCast = false;
@@ -1479,9 +1484,87 @@ public class Types {
             if (isValueType(sourceType)) {
                 setImplicitCastExpr(expr, sourceType, symTable.anyType);
             }
-            return symResolver.createTypeCastSymbol(sourceType, targetType);
+            return true;
         }
-        return symTable.notFoundSymbol;
+
+        return false;
+    }
+
+    boolean isNumericConversionPossible(BLangExpression expr, BType sourceType,
+                                        BType targetType) {
+
+        if (isBasicNumericType(sourceType) && isBasicNumericType(targetType)) {
+            // We only reach here for different numeric types.
+            // 2019R3 Spec defines numeric conversion between each type.
+            return true;
+        }
+        if (targetType.tag == TypeTags.UNION) {
+            long count = 0L;
+            for (BType bType : ((BUnionType) targetType).getMemberTypes()) {
+                if (isBasicNumericType(bType)) {
+                    count++;
+                }
+            }
+
+            // Multiple Basic numeric types found in the union.
+            // (Assumptions: Union type can contain single instance of a type)
+            if (count > 1) {
+                return false;
+            }
+        }
+
+        // Target type is always a union here and have at least one numeric type member.
+
+        if (isBasicNumericType(sourceType)) {
+            // i.e., a conversion from a numeric type to another numeric type in a union.
+            // int|string u1 = <int|string> 1.0;
+            // TODO : Fix me. This doesn't belong here.
+            setImplicitCastExpr(expr, sourceType, symTable.anyType);
+            return true;
+        }
+
+        // TODO : Do we need this? This doesn't belong here.
+        switch (sourceType.tag) {
+            case TypeTags.ANY:
+            case TypeTags.ANYDATA:
+            case TypeTags.JSON:
+                // This
+                return true;
+            case TypeTags.UNION:
+                for (BType memType : ((BUnionType) sourceType).getMemberTypes()) {
+                    if (isBasicNumericType(memType) ||
+                            (memType.tag == TypeTags.FINITE &&
+                                    finiteTypeContainsNumericTypeValues((BFiniteType) memType))) {
+                        return true;
+                    }
+                }
+                break;
+            case TypeTags.FINITE:
+                if (finiteTypeContainsNumericTypeValues((BFiniteType) sourceType)) {
+                    return true;
+                }
+                break;
+        }
+        return false;
+    }
+
+    private boolean isAllErrorMembers(BUnionType actualType) {
+
+        return actualType.getMemberTypes().stream().allMatch(t -> isAssignable(t, symTable.errorType));
+    }
+
+    public void setImplicitCastExpr(BLangExpression expr, BType actualType, BType expType) {
+
+        if (!isImplicityCastable(actualType, expType)) {
+            return;
+        }
+        BLangTypeConversionExpr implicitConversionExpr =
+                (BLangTypeConversionExpr) TreeBuilder.createTypeConversionNode();
+        implicitConversionExpr.pos = expr.pos;
+        implicitConversionExpr.expr = expr.impConversionExpr == null ? expr : expr.impConversionExpr;
+        implicitConversionExpr.type = expType;
+        implicitConversionExpr.targetType = expType;
+        expr.impConversionExpr = implicitConversionExpr;
     }
 
     public BType getElementType(BType type) {
@@ -1540,13 +1623,6 @@ public class Types {
     }
 
     // private methods
-
-    private BCastOperatorSymbol createCastOperatorSymbol(BType sourceType,
-                                                         BType targetType) {
-
-        return Symbols.createCastOperatorSymbol(sourceType, targetType, symTable.errorType,
-                false, true, null, null);
-    }
 
     private boolean isNullable(BType fieldType) {
         return fieldType.isNullable();

@@ -57,8 +57,6 @@ public class Names {
     public static final Name INVALID = new Name("><");
     public static final Name GEN_VAR_PREFIX = new Name("_$$_");
     public static final Name DEFAULT_VERSION = new Name("0.0.0");
-    public static final Name CAST_OP = new Name("<type>");
-    public static final Name CONVERSION_OP = new Name("convert");
     public static final Name SERVICE = new Name("service");
     public static final Name LISTENER = new Name("Listener");
     public static final Name INIT_FUNCTION_SUFFIX = new Name(".<init>");

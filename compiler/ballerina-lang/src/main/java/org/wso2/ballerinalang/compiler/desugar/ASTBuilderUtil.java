@@ -28,7 +28,6 @@ import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BCastOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
@@ -163,16 +162,9 @@ public class ASTBuilderUtil {
         }
         BLangTypeConversionExpr castExpr = (BLangTypeConversionExpr) TreeBuilder.createTypeConversionNode();
         castExpr.expr = exprToWrap;
-        castExpr.conversionSymbol = createUnboxValueOpSymbolToAnyType(exprToWrap.type, symTable);
         castExpr.type = symTable.anyType;
         castExpr.targetType = castExpr.type;
         return castExpr;
-    }
-
-    private static BCastOperatorSymbol createUnboxValueOpSymbolToAnyType(BType sourceType, SymbolTable symTable) {
-        List<BType> paramTypes = Lists.of(sourceType, symTable.anyType);
-        BInvokableType opType = new BInvokableType(paramTypes, symTable.anyType, null);
-        return new BCastOperatorSymbol(null, opType, sourceType, null, false, true);
     }
 
     static BLangFunction createFunction(DiagnosticPos pos, String name) {
@@ -418,8 +410,6 @@ public class ASTBuilderUtil {
         conversion.expr = varRef;
         conversion.type = target;
         conversion.targetType = target;
-        conversion.conversionSymbol = (BCastOperatorSymbol) symResolver.resolveCastOperator(varRef, varRef.type,
-                                                                                            target);
         return conversion;
     }
 
