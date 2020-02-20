@@ -40,7 +40,6 @@ import java.io.OutputStream;
 import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.Map;
-import java.util.Optional;
 import java.util.StringJoiner;
 import java.util.stream.IntStream;
 
@@ -71,8 +70,6 @@ public class ArrayValueImpl extends AbstractArrayValue {
     private double[] floatValues;
     private String[] stringValues;
     private BString[] bStringValues;
-
-    private Optional<Boolean> hasFillerValue = Optional.empty();
 
     // ------------------------ Constructors -------------------------------------------------------------------
 
@@ -817,7 +814,6 @@ public class ArrayValueImpl extends AbstractArrayValue {
                 return;
             default:
                 Arrays.fill(refValues, size, index, elementType.getZeroValue());
-
         }
     }
 
@@ -848,17 +844,13 @@ public class ArrayValueImpl extends AbstractArrayValue {
 
     @Override
     protected void fillerValueCheck(int index, int size) {
-        if (!hasFillerValue.isPresent()) {
-            hasFillerValue = Optional.of(TypeChecker.hasFillerValue(this.elementType));
-        }
-
         // if the elementType doesn't have an implicit initial value & if the insertion is not a consecutive append
         // to the array, then an exception will be thrown.
-        if (hasFillerValue.get()) {
+        if (arrayType.hasFillerValue()) {
             return;
         } else if (index > size) {
             throw BLangExceptionHelper.getRuntimeException(BallerinaErrorReasons.ILLEGAL_LIST_INSERTION_ERROR,
-                    RuntimeErrors.ILLEGAL_ARRAY_INSERTION, size, index + 1);
+                                                           RuntimeErrors.ILLEGAL_ARRAY_INSERTION, size, index + 1);
         }
     }
 
