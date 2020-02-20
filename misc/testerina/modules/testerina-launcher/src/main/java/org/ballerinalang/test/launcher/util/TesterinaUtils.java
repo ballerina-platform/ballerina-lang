@@ -37,8 +37,8 @@ import static org.ballerinalang.test.launcher.util.TesterinaConstants.DOT;
  */
 public class TesterinaUtils {
 
-    public static PrintStream outStream = System.out;
-    public static PrintStream errStream = System.err;
+    private static final PrintStream outStream = System.out;
+    private static final PrintStream errStream = System.err;
 
     /**
      * Cleans up any remaining testerina metadata.
@@ -61,6 +61,7 @@ public class TesterinaUtils {
      *
      * @param sourceRootPath source root path
      * @param testSuite test meta data
+     * @throws ClassNotFoundException when cannot load the given test class
      */
     public static void executeTests(Path sourceRootPath, TestSuite testSuite) throws ClassNotFoundException {
         BTestRunner testRunner = new BTestRunner(outStream, errStream);

@@ -68,7 +68,7 @@ public class RunTestsTask implements Task {
     }
 
     public RunTestsTask(String[] args, List<String> groupList, List<String> disableGroupList) {
-        this.args =args;
+        this.args = args;
         this.groupList = groupList;
         this.disableGroupList = disableGroupList;
         if (disableGroupList != null) {
@@ -144,7 +144,7 @@ public class RunTestsTask implements Task {
 
         // set data
         TestSuite suite = TesterinaRegistry.getInstance().getTestSuites().get(packageName);
-        if(suite == null){
+        if (suite == null) {
             suite = new TestSuite(bLangPackage.packageID.name.value, packageName, orgName, version);
         }
         suite.setInitFunctionName(initFunctionName);

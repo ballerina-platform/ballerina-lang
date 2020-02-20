@@ -19,8 +19,8 @@
 package org.ballerinalang.testerina.test;
 
 import org.ballerinalang.test.launcher.BTestRunner;
-import org.ballerinalang.testerina.core.TesterinaRegistry;
 import org.ballerinalang.test.launcher.util.TesterinaUtils;
+import org.ballerinalang.testerina.core.TesterinaRegistry;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterMethod;

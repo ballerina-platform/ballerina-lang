@@ -122,6 +122,7 @@ public class BTestRunner {
      * Executes a given set of ballerina program files when running tests using the build command.
      *
      * @param suite test meta data for module
+     * @throws ClassNotFoundException when cannot load the given test class
      */
     public void runTest(TestSuite suite) throws ClassNotFoundException {
         // validate test suite
@@ -303,7 +304,6 @@ public class BTestRunner {
         suite.getBeforeSuiteFunctionNames().forEach(test -> {
             String errorMsg;
             try {
-                System.out.println(test);
                 invokeTestFunction(suite, test, classLoader, scheduler);
             } catch (Throwable e) {
                 shouldSkip.set(true);
