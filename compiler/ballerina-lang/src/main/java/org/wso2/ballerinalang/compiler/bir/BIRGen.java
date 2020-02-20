@@ -173,7 +173,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-
 import javax.xml.XMLConstants;
 
 import static org.wso2.ballerinalang.compiler.desugar.AnnotationDesugar.ANNOTATION_DATA;
@@ -2055,7 +2054,7 @@ public class BIRGen extends BLangNodeVisitor {
         long size = -1L;
         if (listConstructorExpr.type.tag == TypeTags.ARRAY &&
                 ((BArrayType) listConstructorExpr.type).state != BArrayState.UNSEALED) {
-            size = (long) ((BArrayType) listConstructorExpr.type).size;
+            size = ((BArrayType) listConstructorExpr.type).size;
         } else if (listConstructorExpr.type.tag == TypeTags.TUPLE) {
             size = listConstructorExpr.exprs.size();
         }

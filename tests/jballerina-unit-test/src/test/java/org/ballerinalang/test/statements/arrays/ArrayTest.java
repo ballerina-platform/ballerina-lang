@@ -206,4 +206,9 @@ public class ArrayTest {
         BInteger value = (BInteger) retVals[0];
         Assert.assertEquals(value.intValue(), 4);
     }
+
+    @Test
+    public void createAbstractObjectEmptyArray() {
+        BRunUtil.invokeFunction(compileResult, "createAbstractObjectEmptyArray");
+    }
 }

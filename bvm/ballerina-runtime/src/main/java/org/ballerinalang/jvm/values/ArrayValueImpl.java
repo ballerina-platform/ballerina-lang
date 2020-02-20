@@ -813,7 +813,9 @@ public class ArrayValueImpl extends AbstractArrayValue {
             case TypeTags.BOOLEAN_TAG:
                 return;
             default:
-                Arrays.fill(refValues, size, index, elementType.getZeroValue());
+                if (arrayType.hasFillerValue()) {
+                    Arrays.fill(refValues, size, index, elementType.getZeroValue());
+                }
         }
     }
 

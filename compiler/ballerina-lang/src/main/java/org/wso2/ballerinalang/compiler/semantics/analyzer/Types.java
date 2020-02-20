@@ -2711,6 +2711,9 @@ public class Types {
     }
 
     private boolean checkFillerValue(BArrayType type) {
+        if (type.size == -1) {
+            return true;
+        }
         return hasFillerValue(type.eType);
     }
 
