@@ -23,11 +23,11 @@ import org.ballerinalang.nativeimpl.llvm.FFIUtil;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.bytedeco.javacpp.LLVM;
-import org.bytedeco.javacpp.LLVM.LLVMValueRef;
+import org.bytedeco.llvm.LLVM.LLVMBuilderRef;
+import org.bytedeco.llvm.LLVM.LLVMValueRef;
 
 import static org.ballerinalang.model.types.TypeKind.RECORD;
-import static org.bytedeco.javacpp.LLVM.LLVMBuildStore;
+import static org.bytedeco.llvm.global.LLVM.LLVMBuildStore;
 
 /**
  * Auto generated class.
@@ -52,10 +52,10 @@ public class LLVMBuildStore {
                                                           MapValue<String, Object> val,
                                                           MapValue<String, Object> ptr) {
 
-        LLVM.LLVMBuilderRef arg0Ref = (LLVM.LLVMBuilderRef) FFIUtil.getRecodeArgumentNative(arg0);
-        LLVM.LLVMValueRef valRef = (LLVMValueRef) FFIUtil.getRecodeArgumentNative(val);
-        LLVM.LLVMValueRef ptrRef = (LLVMValueRef) FFIUtil.getRecodeArgumentNative(ptr);
-        LLVMValueRef returnValue = LLVM.LLVMBuildStore(arg0Ref, valRef, ptrRef);
+        LLVMBuilderRef arg0Ref = (LLVMBuilderRef) FFIUtil.getRecodeArgumentNative(arg0);
+        LLVMValueRef valRef = (LLVMValueRef) FFIUtil.getRecodeArgumentNative(val);
+        LLVMValueRef ptrRef = (LLVMValueRef) FFIUtil.getRecodeArgumentNative(ptr);
+        LLVMValueRef returnValue = LLVMBuildStore(arg0Ref, valRef, ptrRef);
         MapValue<String, Object> returnWrappedRecord = FFIUtil.newRecord(new BPackage("ballerina",
                 "llvm"), "LLVMValueRef");
         FFIUtil.addNativeToRecode(returnValue, returnWrappedRecord);

@@ -17,8 +17,8 @@
  */
 package org.ballerinalang.langserver.sourceprune;
 
-import org.ballerinalang.langserver.compiler.LSContext;
-import org.ballerinalang.langserver.compiler.LSOperation;
+import org.ballerinalang.langserver.commons.LSOperation;
+import org.ballerinalang.langserver.compiler.LSContextImpl;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -28,12 +28,11 @@ import java.util.Map;
  *
  * @since 0.995.0
  */
-public class SourcePruneContext implements LSContext {
-    private final LSOperation operation;
+public class SourcePruneContext extends LSContextImpl {
     private final Map<Key<?>, Object> props = new HashMap<>();
 
     public SourcePruneContext(LSOperation operation) {
-        this.operation = operation;
+        super(operation);
     }
 
     @Override
@@ -45,10 +44,5 @@ public class SourcePruneContext implements LSContext {
     @SuppressWarnings("unchecked")
     public <V> V get(Key<V> key) {
         return (V) props.get(key);
-    }
-
-    @Override
-    public LSOperation getOperation() {
-        return operation;
     }
 }

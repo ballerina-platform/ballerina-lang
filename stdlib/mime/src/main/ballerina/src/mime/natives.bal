@@ -226,10 +226,10 @@ public type Entity object {
             self.setText(entityBody);
         } else if (entityBody is xml) {
             self.setXml(entityBody);
+        }  else if (entityBody is byte[]) {
+            self.setByteArray(entityBody);
         } else if (entityBody is json) {
             self.setJson(entityBody);
-        } else if (entityBody is byte[]) {
-            self.setByteArray(entityBody);
         } else if(entityBody is io:ReadableByteChannel) {
             self.setByteChannel(entityBody);
         } else {
@@ -380,20 +380,24 @@ public type Entity object {
     # Gets the header value associated with the given header name.
     #
     # + headerName - Represents header name
+    # + position - Represents the position of the header as an optional parameter
     # + return - Header value associated with the given header name as a `string`. If multiple header values are
     #            present, then the first value is returned. An exception is thrown if no header is found. Use
     #            `Entity.hasHeader()` beforehand to check the existence of header.
-    public function getHeader(@untainted string headerName) returns @tainted string {
-        return <string>java:toString(externGetHeader(self, java:fromString(headerName)));
+    public function getHeader(@untainted string headerName, public HeaderPosition position = LEADING)
+                                                                                returns @tainted string {
+        return <string>java:toString(externGetHeader(self, java:fromString(headerName), position));
     }
 
     # Gets all the header values associated with the given header name.
     #
     # + headerName - The header name
+    # + position - Represents the position of the header as an optional parameter
     # + return - All the header values associated with the given header name as a `string[]`. An exception is thrown
     #            if no header is found. Use `Entity.hasHeader()` beforehand to check the existence of header.
-    public function getHeaders(@untainted string headerName) returns @tainted string[] {
-        handle[] headerValues = externGetHeaders(self, java:fromString(headerName));
+    public function getHeaders(@untainted string headerName, public HeaderPosition position = LEADING)
+                                                                                returns @tainted string[] {
+        handle[] headerValues = externGetHeaders(self, java:fromString(headerName), position);
         string[] headers = [];
         int index = 0;
         foreach var headerValue in headerValues {
@@ -405,9 +409,10 @@ public type Entity object {
 
     # Gets all header names.
     #
+    # + position - Represents the position of the header as an optional parameter
     # + return - All header names as a `string[]`
-    public function getHeaderNames() returns @tainted string[] {
-        handle[] headerNames = externGetHeaderNames(self);
+    public function getHeaderNames(public HeaderPosition position = LEADING) returns @tainted string[] {
+        handle[] headerNames = externGetHeaderNames(self, position);
         string[] headers = [];
         int index = 0;
         foreach var headerName in headerNames {
@@ -421,8 +426,9 @@ public type Entity object {
     #
     # + headerName - The header name
     # + headerValue - Represents the header value to be added
-    public function addHeader(@untainted string headerName, string headerValue) {
-        return externAddHeader(self, java:fromString(headerName), java:fromString(headerValue));
+    # + position - Represents the position of the header as an optional parameter
+    public function addHeader(@untainted string headerName, string headerValue, public HeaderPosition position = LEADING) {
+        return externAddHeader(self, java:fromString(headerName), java:fromString(headerValue), position);
     }
 
     # Sets the given header value against the existing header. If a header already exists, its value is replaced
@@ -430,28 +436,33 @@ public type Entity object {
     #
     # + headerName - The header name
     # + headerValue - Represents the header value
-    public function setHeader(@untainted string headerName, string headerValue) {
-        return externSetHeader(self, java:fromString(headerName), java:fromString(headerValue));
+    # + position - Represents the position of the header as an optional parameter
+    public function setHeader(@untainted string headerName, string headerValue, public HeaderPosition position = LEADING) {
+        return externSetHeader(self, java:fromString(headerName), java:fromString(headerValue), position);
     }
 
     # Removes the given header from the entity.
     #
     # + headerName - Represents the header name
-    public function removeHeader(@untainted string headerName) {
-        return externRemoveHeader(self, java:fromString(headerName));
+    # + position - Represents the position of the header as an optional parameter
+    public function removeHeader(@untainted string headerName, public HeaderPosition position = LEADING) {
+        return externRemoveHeader(self, java:fromString(headerName), position);
     }
 
     # Removes all headers associated with the entity.
-    public function removeAllHeaders() {
-        return externRemoveAllHeaders(self);
+    #
+    # + position - Represents the position of the header as an optional parameter
+    public function removeAllHeaders(public HeaderPosition position = LEADING) {
+        return externRemoveAllHeaders(self, position);
     }
 
     # Checks whether the requested header key exists in the header map.
     #
     # + headerName - The header name
+    # + position - Represents the position of the header as an optional parameter
     # + return - True if the specified header key exists
-    public function hasHeader(@untainted string headerName) returns boolean {
-        return externHasHeader(self, java:fromString(headerName));
+    public function hasHeader(@untainted string headerName, public HeaderPosition position = LEADING) returns boolean {
+        return externHasHeader(self, java:fromString(headerName), position);
     }
 };
 
@@ -520,42 +531,46 @@ function externGetBodyPartsAsChannel(Entity entity) returns @tainted io:Readable
     name: "getBodyPartsAsChannel"
 } external;
 
-function externGetHeader(Entity entity, handle headerName) returns @tainted handle = @java:Method {
+function externGetHeader(Entity entity, handle headerName, HeaderPosition position) returns @tainted handle =
+@java:Method {
     class: "org.ballerinalang.mime.nativeimpl.EntityHeaders",
     name: "getHeader"
 } external;
 
-function externGetHeaders(Entity entity, handle headerName) returns @tainted handle[] = @java:Method {
+function externGetHeaders(Entity entity, handle headerName, HeaderPosition position) returns @tainted handle[] =
+@java:Method {
     class: "org.ballerinalang.mime.nativeimpl.EntityHeaders",
     name: "getHeaders"
 } external;
 
-function externGetHeaderNames(Entity entity) returns @tainted handle[] = @java:Method {
+function externGetHeaderNames(Entity entity, HeaderPosition position) returns @tainted handle[] = @java:Method {
     class: "org.ballerinalang.mime.nativeimpl.EntityHeaders",
     name: "getHeaderNames"
 } external;
 
-function externAddHeader(Entity entity, handle headerName, handle headerValue) = @java:Method {
+function externAddHeader(Entity entity, handle headerName, handle headerValue, HeaderPosition position) =
+@java:Method {
     class: "org.ballerinalang.mime.nativeimpl.EntityHeaders",
     name: "addHeader"
 } external;
 
-function externSetHeader(Entity entity, handle headerName, handle headerValue) = @java:Method {
+function externSetHeader(Entity entity, handle headerName, handle headerValue, HeaderPosition position) =
+@java:Method {
     class: "org.ballerinalang.mime.nativeimpl.EntityHeaders",
     name: "setHeader"
 } external;
 
-function externRemoveHeader(Entity entity, handle headerName) = @java:Method {
+function externRemoveHeader(Entity entity, handle headerName, HeaderPosition position) = @java:Method {
     class: "org.ballerinalang.mime.nativeimpl.EntityHeaders",
     name: "removeHeader"
 } external;
 
-function externRemoveAllHeaders(Entity entity) = @java:Method {
+function externRemoveAllHeaders(Entity entity, HeaderPosition position) = @java:Method {
     class: "org.ballerinalang.mime.nativeimpl.EntityHeaders",
     name: "removeAllHeaders"
 } external;
 
-function externHasHeader(Entity entity, handle headerName) returns boolean = @java:Method {
+function externHasHeader(Entity entity, handle headerName, HeaderPosition position) returns boolean = @java:Method {
     class: "org.ballerinalang.mime.nativeimpl.EntityHeaders",
     name: "hasHeader"
 } external;

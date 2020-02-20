@@ -19,9 +19,11 @@ package org.wso2.ballerinalang.compiler.desugar;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
+import org.ballerinalang.model.tree.BlockNode;
 import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
+import org.ballerinalang.model.tree.statements.StatementNode;
 import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
@@ -36,6 +38,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangErrorVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
@@ -120,14 +123,16 @@ public class ASTBuilderUtil {
      * @param generatedCode generated code.
      * @param target        prepend target
      */
-    static void appendStatements(BLangBlockStmt generatedCode, BLangBlockStmt target) {
+    static void appendStatements(BlockNode generatedCode, BlockNode target) {
         int index = 0;
-        if (target.stmts.get(target.stmts.size() - 1).getKind() == NodeKind.RETURN) {
-            index = target.stmts.size() - 1;
+        List<StatementNode> generatedCodeStmts = (List<StatementNode>) generatedCode.getStatements();
+        List<StatementNode> targetStmts = (List<StatementNode>) target.getStatements();
+
+        if (targetStmts.get(targetStmts.size() - 1).getKind() == NodeKind.RETURN) {
+            index = targetStmts.size() - 1;
         }
-        for (BLangStatement stmt : generatedCode.stmts) {
-            target.stmts.add(index++, stmt);
-        }
+
+        targetStmts.addAll(index, generatedCodeStmts);
     }
 
     static void appendStatement(BLangStatement stmt, BLangBlockStmt target) {
@@ -175,7 +180,7 @@ public class ASTBuilderUtil {
         bLangFunction.flagSet = EnumSet.of(Flag.LAMBDA);
         bLangFunction.pos = pos;
         // Create body of the function
-        bLangFunction.body = createBlockStmt(pos);
+        bLangFunction.body = createBlockFunctionBody(pos);
         return bLangFunction;
     }
 
@@ -194,7 +199,7 @@ public class ASTBuilderUtil {
         return bLangType;
     }
 
-    static BLangIf createIfStmt(DiagnosticPos pos, BLangBlockStmt target) {
+    static BLangIf createIfStmt(DiagnosticPos pos, BlockNode target) {
         final BLangIf ifNode = (BLangIf) TreeBuilder.createIfElseStatementNode();
         ifNode.pos = pos;
         target.addStatement(ifNode);
@@ -232,7 +237,7 @@ public class ASTBuilderUtil {
         return foreach;
     }
 
-    static BLangSimpleVariableDef createVariableDefStmt(DiagnosticPos pos, BLangBlockStmt target) {
+    static BLangSimpleVariableDef createVariableDefStmt(DiagnosticPos pos, BlockNode target) {
         final BLangSimpleVariableDef variableDef = createVariableDef(pos);
         target.addStatement(variableDef);
         return variableDef;
@@ -245,7 +250,7 @@ public class ASTBuilderUtil {
         return variableDef;
     }
 
-    static BLangAssignment createAssignmentStmt(DiagnosticPos pos, BLangBlockStmt target) {
+    static BLangAssignment createAssignmentStmt(DiagnosticPos pos, BlockNode target) {
         final BLangAssignment assignment = (BLangAssignment) TreeBuilder.createAssignmentNode();
         assignment.pos = pos;
         target.addStatement(assignment);
@@ -266,14 +271,14 @@ public class ASTBuilderUtil {
         return assignment;
     }
 
-    static BLangExpressionStmt createExpressionStmt(DiagnosticPos pos, BLangBlockStmt target) {
+    static BLangExpressionStmt createExpressionStmt(DiagnosticPos pos, BlockNode target) {
         final BLangExpressionStmt exprStmt = (BLangExpressionStmt) TreeBuilder.createExpressionStatementNode();
         exprStmt.pos = pos;
         target.addStatement(exprStmt);
         return exprStmt;
     }
 
-    static BLangReturn createReturnStmt(DiagnosticPos pos, BLangBlockStmt target) {
+    static BLangReturn createReturnStmt(DiagnosticPos pos, BlockNode target) {
         final BLangReturn returnStmt = (BLangReturn) TreeBuilder.createReturnNode();
         returnStmt.pos = pos;
         target.addStatement(returnStmt);
@@ -305,6 +310,19 @@ public class ASTBuilderUtil {
         final BLangContinue nextStmt = (BLangContinue) TreeBuilder.createContinueNode();
         nextStmt.pos = pos;
         target.addStatement(nextStmt);
+    }
+
+    static BLangBlockFunctionBody createBlockFunctionBody(DiagnosticPos pos) {
+        final BLangBlockFunctionBody blockNode = (BLangBlockFunctionBody) TreeBuilder.createBlockFunctionBodyNode();
+        blockNode.pos = pos;
+        return blockNode;
+    }
+
+    static BLangBlockFunctionBody createBlockFunctionBody(DiagnosticPos pos, List<BLangStatement> stmts) {
+        final BLangBlockFunctionBody blockNode = (BLangBlockFunctionBody) TreeBuilder.createBlockFunctionBodyNode();
+        blockNode.pos = pos;
+        blockNode.stmts = stmts;
+        return blockNode;
     }
 
     static BLangBlockStmt createBlockStmt(DiagnosticPos pos) {
@@ -475,11 +493,11 @@ public class ASTBuilderUtil {
         return varRef;
     }
 
-    static BLangSimpleVariable createVariable(DiagnosticPos pos,
-                                              String name,
-                                              BType type,
-                                              BLangExpression expr,
-                                              BVarSymbol varSymbol) {
+    public static BLangSimpleVariable createVariable(DiagnosticPos pos,
+                                                     String name,
+                                                     BType type,
+                                                     BLangExpression expr,
+                                                     BVarSymbol varSymbol) {
         final BLangSimpleVariable varNode = (BLangSimpleVariable) TreeBuilder.createSimpleVariableNode();
         varNode.pos = pos;
         varNode.name = createIdentifier(pos, name);
@@ -590,10 +608,10 @@ public class ASTBuilderUtil {
         return recordLiteralNode;
     }
 
-    static BLangRecordLiteral.BLangRecordKeyValue createBLangRecordKeyValue(BLangExpression key,
-                                                                            BLangExpression value) {
-        final BLangRecordLiteral.BLangRecordKeyValue recordKeyValue =
-                (BLangRecordLiteral.BLangRecordKeyValue) TreeBuilder.createRecordKeyValue();
+    static BLangRecordLiteral.BLangRecordKeyValueField createBLangRecordKeyValue(BLangExpression key,
+                                                                                 BLangExpression value) {
+        final BLangRecordLiteral.BLangRecordKeyValueField recordKeyValue =
+                (BLangRecordLiteral.BLangRecordKeyValueField) TreeBuilder.createRecordKeyValue();
         recordKeyValue.key = new BLangRecordLiteral.BLangRecordKey(key);
         recordKeyValue.valueExpr = value;
         return recordKeyValue;
@@ -614,14 +632,14 @@ public class ASTBuilderUtil {
         objectInitNode.type = type;
 
         BLangInvocation invocationNode = (BLangInvocation) TreeBuilder.createInvocationNode();
-        invocationNode.symbol = ((BObjectTypeSymbol) type.tsymbol).initializerFunc.symbol;
+        invocationNode.symbol = ((BObjectTypeSymbol) type.tsymbol).generatedInitializerFunc.symbol;
         invocationNode.type = type;
 
         BLangIdentifier pkgNameNode = (BLangIdentifier) TreeBuilder.createIdentifierNode();
         BLangIdentifier nameNode = (BLangIdentifier)  TreeBuilder.createIdentifierNode();
 
         nameNode.setLiteral(false);
-        nameNode.setValue(Names.USER_DEFINED_INIT_SUFFIX.getValue());
+        nameNode.setValue(Names.GENERATED_INIT_SUFFIX.getValue());
         invocationNode.name = nameNode;
         invocationNode.pkgAlias = pkgNameNode;
 
@@ -711,7 +729,7 @@ public class ASTBuilderUtil {
         initFunction.returnTypeNode = returnTypeNode;
 
         // Create body of the init function
-        BLangBlockStmt body = (BLangBlockStmt) TreeBuilder.createBlockNode();
+        BLangBlockFunctionBody body = (BLangBlockFunctionBody) TreeBuilder.createBlockFunctionBodyNode();
         body.pos = pos;
         initFunction.setBody(body);
         return initFunction;

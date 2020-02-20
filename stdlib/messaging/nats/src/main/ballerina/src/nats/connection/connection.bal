@@ -26,7 +26,7 @@ public type Connection object {
     #
     # + url - NATS Broker URL. For a clustered use case, pass the URLs as comma-separated values.
     # + config - Information necessary for the NATS client to establish a connection with the server.
-    public function __init(string url, ConnectionConfig? config = ()) {
+    public function __init(public string url = DEFAULT_URL, public ConnectionConfig? config = ()) {
         self.config = config ?: {};
         self.url = url;
         externInit(self, java:fromString(self.url), self.config);

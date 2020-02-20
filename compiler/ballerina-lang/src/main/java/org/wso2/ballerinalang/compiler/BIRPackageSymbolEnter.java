@@ -363,10 +363,13 @@ public class BIRPackageSymbolEnter {
                 BAttachedFunction attachedFunc =
                         new BAttachedFunction(names.fromString(funcName), invokableSymbol, funcType);
                 BStructureTypeSymbol structureTypeSymbol = (BStructureTypeSymbol) attachedType.tsymbol;
-                structureTypeSymbol.attachedFuncs.add(attachedFunc);
                 if (Names.USER_DEFINED_INIT_SUFFIX.value.equals(funcName)
                         || funcName.equals(Names.INIT_FUNCTION_SUFFIX.value)) {
                     structureTypeSymbol.initializerFunc = attachedFunc;
+                } else if (funcName.equals(Names.GENERATED_INIT_SUFFIX.value)) {
+                    ((BObjectTypeSymbol) structureTypeSymbol).generatedInitializerFunc = attachedFunc;
+                } else {
+                    structureTypeSymbol.attachedFuncs.add(attachedFunc);
                 }
             }
         }
@@ -486,8 +489,8 @@ public class BIRPackageSymbolEnter {
     }
 
     private void defineErrorConstructor(Scope scope, BTypeSymbol typeDefSymbol) {
-        BConstructorSymbol symbol = new BConstructorSymbol(SymTag.CONSTRUCTOR,
-                typeDefSymbol.flags, typeDefSymbol.name, typeDefSymbol.pkgID, typeDefSymbol.type, typeDefSymbol.owner);
+        BConstructorSymbol symbol = new BConstructorSymbol(SymTag.CONSTRUCTOR, typeDefSymbol.flags, typeDefSymbol.name,
+                typeDefSymbol.pkgID, typeDefSymbol.type, typeDefSymbol.owner);
         symbol.kind = SymbolKind.ERROR_CONSTRUCTOR;
         symbol.scope = new Scope(symbol);
         symbol.retType = typeDefSymbol.type;
@@ -896,7 +899,7 @@ public class BIRPackageSymbolEnter {
 
                     BPackageSymbol pkgSymbol = packageLoader.loadPackageSymbol(pkgId, null, null);
                     SymbolEnv pkgEnv = symTable.pkgEnvMap.get(pkgSymbol);
-                    return symbolResolver.lookupSymbol(pkgEnv, names.fromString(recordName), SymTag.TYPE).type;
+                    return symbolResolver.lookupSymbolInMainSpace(pkgEnv, names.fromString(recordName)).type;
                 case TypeTags.TYPEDESC:
                     BTypedescType typedescType = new BTypedescType(null, symTable.typeDesc.tsymbol);
                     typedescType.constraint = readTypeFromCp();
@@ -1064,6 +1067,10 @@ public class BIRPackageSymbolEnter {
                         objectType.fields.add(structField);
                         objectSymbol.scope.define(objectVarSymbol.name, objectVarSymbol);
                     }
+                    boolean generatedConstructorPresent = inputStream.readBoolean();
+                    if (generatedConstructorPresent) {
+                        ignoreAttachedFunc();
+                    }
                     boolean constructorPresent = inputStream.readBoolean();
                     if (constructorPresent) {
                         ignoreAttachedFunc();
@@ -1081,7 +1088,7 @@ public class BIRPackageSymbolEnter {
 
                     pkgSymbol = packageLoader.loadPackageSymbol(pkgId, null, null);
                     pkgEnv = symTable.pkgEnvMap.get(pkgSymbol);
-                    return symbolResolver.lookupSymbol(pkgEnv, names.fromString(objName), SymTag.TYPE).type;
+                    return symbolResolver.lookupSymbolInMainSpace(pkgEnv, names.fromString(objName)).type;
                 case TypeTags.BYTE_ARRAY:
                     // TODO fix
                     break;

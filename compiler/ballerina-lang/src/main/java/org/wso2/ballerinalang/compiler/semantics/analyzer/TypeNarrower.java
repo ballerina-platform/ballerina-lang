@@ -26,6 +26,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType.NarrowedTypes;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
+import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
@@ -110,13 +111,13 @@ public class TypeNarrower extends BLangNodeVisitor {
      * @return target environment
      */
     public SymbolEnv evaluateFalsity(BLangExpression expr, BLangNode targetNode, SymbolEnv env) {
-        Map<BVarSymbol, NarrowedTypes> narroedTypes = getNarrowedTypes(expr, env);
-        if (narroedTypes.isEmpty()) {
+        Map<BVarSymbol, NarrowedTypes> narrowedTypes = getNarrowedTypes(expr, env);
+        if (narrowedTypes.isEmpty()) {
             return env;
         }
 
         SymbolEnv targetEnv = getTargetEnv(targetNode, env);
-        narroedTypes.forEach((symbol, typeInfo) -> {
+        narrowedTypes.forEach((symbol, typeInfo) -> {
             symbolEnter.defineTypeNarrowedSymbol(expr.pos, targetEnv, getOriginalVarSymbol(symbol), typeInfo.falseType);
         });
 
@@ -194,13 +195,15 @@ public class TypeNarrower extends BLangNodeVisitor {
             case UNARY_EXPR:
                 break;
             default:
-                expr.narrowedTypeInfo = new HashMap<>();
+                if (expr.narrowedTypeInfo == null) {
+                    expr.narrowedTypeInfo = new HashMap<>();
+                }
                 return;
         }
 
         SymbolEnv prevEnv = this.env;
         this.env = env;
-        if (expr != null && expr.narrowedTypeInfo == null) {
+        if (expr.narrowedTypeInfo == null) {
             expr.narrowedTypeInfo = new HashMap<>();
             expr.accept(this);
         }
@@ -298,7 +301,7 @@ public class TypeNarrower extends BLangNodeVisitor {
         return BUnionType.create(null, union);
     }
 
-    private BVarSymbol getOriginalVarSymbol(BVarSymbol varSymbol) {
+    BVarSymbol getOriginalVarSymbol(BVarSymbol varSymbol) {
         if (varSymbol.originalSymbol == null) {
             return varSymbol;
         }
@@ -310,6 +313,9 @@ public class TypeNarrower extends BLangNodeVisitor {
         SymbolEnv targetEnv = SymbolEnv.createTypeNarrowedEnv(targetNode, env);
         if (targetNode.getKind() == NodeKind.BLOCK) {
             ((BLangBlockStmt) targetNode).scope = targetEnv.scope;
+        }
+        if (targetNode.getKind() == NodeKind.BLOCK_FUNCTION_BODY) {
+            ((BLangBlockFunctionBody) targetNode).scope = targetEnv.scope;
         }
 
         return targetEnv;

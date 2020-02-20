@@ -18,7 +18,7 @@
 package org.wso2.ballerinalang.compiler.tree.statements;
 
 import org.ballerinalang.model.tree.NodeKind;
-import org.ballerinalang.model.tree.statements.BlockNode;
+import org.ballerinalang.model.tree.statements.BlockStatementNode;
 import org.ballerinalang.model.tree.statements.LockNode;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
@@ -58,7 +58,7 @@ public class BLangLock extends BLangStatement implements LockNode {
     }
 
     @Override
-    public void setBody(BlockNode body) {
+    public void setBody(BlockStatementNode body) {
         this.body = (BLangBlockStmt) body;
     }
 

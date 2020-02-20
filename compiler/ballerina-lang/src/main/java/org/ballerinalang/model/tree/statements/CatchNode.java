@@ -28,5 +28,5 @@ import org.ballerinalang.model.tree.SimpleVariableNode;
 public interface CatchNode extends Node {
     SimpleVariableNode getParameter();
 
-    BlockNode getBody();
+    BlockStatementNode getBody();
 }

@@ -15,12 +15,7 @@
  */
 package org.ballerinalang.langserver.codelenses.providers;
 
-import org.ballerinalang.langserver.codelenses.LSCodeLensesProvider;
-import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
-import org.wso2.ballerinalang.compiler.tree.BLangMarkdownDocumentation;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownDocumentationLine;
-
-import java.util.List;
+import org.ballerinalang.langserver.commons.codelenses.spi.LSCodeLensesProvider;
 
 /**
  * Abstract code lenses provider containing all utility functions.
@@ -56,40 +51,5 @@ public abstract class AbstractCodeLensesProvider implements LSCodeLensesProvider
     @Override
     public boolean isEnabled() {
         return isEnabled;
-    }
-
-    /**
-     * Calculate and returns topmost position of the annotations.
-     *
-     * @param annotationAttachments a list of {@link BLangAnnotationAttachment}
-     * @param initialValue          initial position
-     * @return calculated topmost position for the node
-     */
-    protected static int getTopMostLocOfAnnotations(List<BLangAnnotationAttachment> annotationAttachments,
-                                                    int initialValue) {
-        int topMost = initialValue;
-        if (annotationAttachments != null) {
-            for (BLangAnnotationAttachment attachment : annotationAttachments) {
-                topMost = Math.min(attachment.pos.sLine - 1, topMost);
-            }
-        }
-        return topMost;
-    }
-
-    /**
-     * Calculate and returns topmost position of the documentations.
-     *
-     * @param docs         {@link BLangMarkdownDocumentation} markdown docs
-     * @param initialValue initial position
-     * @return calculated topmost position for the node
-     */
-    protected static int getTopMostLocOfDocs(BLangMarkdownDocumentation docs, int initialValue) {
-        int topMost = initialValue;
-        if (docs != null) {
-            for (BLangMarkdownDocumentationLine line : docs.documentationLines) {
-                topMost = Math.min(line.pos.sLine - 1, topMost);
-            }
-        }
-        return topMost;
     }
 }

@@ -17,11 +17,12 @@ package org.ballerinalang.langserver.sourcegen;
 
 import com.google.gson.JsonObject;
 import org.ballerinalang.langserver.LSContextOperation;
+import org.ballerinalang.langserver.LSTestOperationContext;
+import org.ballerinalang.langserver.commons.LSContext;
+import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
-import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.ballerinalang.langserver.compiler.format.TextDocumentFormatUtil;
 import org.ballerinalang.langserver.compiler.sourcegen.FormattingSourceGen;
-import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManagerImpl;
 import org.ballerinalang.langserver.util.TestUtil;
 import org.eclipse.lsp4j.jsonrpc.Endpoint;
@@ -67,7 +68,9 @@ public class SourceGenTest {
 
     @Test(description = "Source gen test suit for formatting source gen", dataProvider = "unitTestFiles")
     public void formattingSourceGenTests(File file) {
-        LSServiceOperationContext formatContext = new LSServiceOperationContext(LSContextOperation.TXT_FORMATTING);
+        LSContext formatContext = new LSTestOperationContext
+                .LSTestOperationContextBuilder(LSContextOperation.TXT_FORMATTING)
+                .build();
         try {
             Path filePath = Paths.get(file.getPath());
             formatContext.put(DocumentServiceKeys.FILE_URI_KEY, filePath.toUri().toString());

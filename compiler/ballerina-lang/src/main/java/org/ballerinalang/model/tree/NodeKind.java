@@ -32,6 +32,9 @@ public enum NodeKind {
     MARKDOWN_DOCUMENTATION,
     ENDPOINT,
     FUNCTION,
+    BLOCK_FUNCTION_BODY,
+    EXPR_FUNCTION_BODY,
+    EXTERN_FUNCTION_BODY,
     IDENTIFIER,
     IMPORT,
     PACKAGE,
@@ -57,6 +60,7 @@ public enum NodeKind {
     TUPLE_LITERAL_EXPR,
     LIST_CONSTRUCTOR_EXPR,
     BINARY_EXPR,
+    QUERY_EXPR,
     ELVIS_EXPR,
     GROUP_EXPR,
     TYPE_INIT_EXPR,
@@ -108,10 +112,7 @@ public enum NodeKind {
     DOCUMENTATION_PARAMETER,
     DOCUMENTATION_REFERENCE,
     SERVICE_CONSTRUCTOR,
-
-    /* streams/tables expressions */
-    SELECT_EXPRESSION,
-    TABLE_QUERY_EXPRESSION,
+    STREAM_CONSTRUCTOR,
 
     /* Statements */
     ABORT,
@@ -153,6 +154,13 @@ public enum NodeKind {
     COMPENSATE,
     CHANNEL_RECEIVE,
     CHANNEL_SEND,
+    DO_ACTION,
+
+    /* Clauses */
+    SELECT,
+    FROM,
+    WHERE,
+    DO,
 
     /* Types */
     ARRAY_TYPE,
@@ -168,29 +176,4 @@ public enum NodeKind {
     OBJECT_TYPE,
     ERROR_TYPE,
 
-    /* Clauses */
-    ORDER_BY,
-    ORDER_BY_VARIABLE,
-    LIMIT,
-    GROUP_BY,
-    HAVING,
-    SELECT_CLAUSE,
-    WHERE,
-    FUNCTION_CLAUSE,
-    WINDOW_CLAUSE,
-    STREAMING_INPUT,
-    JOIN_STREAMING_INPUT,
-    TABLE_QUERY,
-    SET_ASSIGNMENT_CLAUSE,
-    SET,
-    STREAM_ACTION,
-    PATTERN_STREAMING_EDGE_INPUT,
-    PATTERN_STREAMING_INPUT,
-    STREAMING_QUERY,
-    QUERY,
-    STREAMING_QUERY_DECLARATION,
-    WITHIN,
-    PATTERN_CLAUSE,
-    OUTPUT_RATE_LIMIT,
-    FOREVER,
 }

@@ -506,6 +506,9 @@ public class TableLiteralSyntaxTest {
         BAssertUtil.validateError(resultNegative, i++,
                                   "field 'bar' of type 'error' is not allowed as a table column", 196, 31);
         BAssertUtil.validateError(resultNegative, i++,
+                                  "incompatible types: expected 'table<ballerina/lang.table:RowType>', found " +
+                                          "'table<ErrorInRecord>'", 202, 16);
+        BAssertUtil.validateError(resultNegative, i++,
                 "incompatible types: expected 'ballerina/lang.table:RowType', found 'ErrorInRecord'", 202, 23);
         BAssertUtil.validateError(resultNegative, i++,
                 "field 'eArr' of type 'error?[]' is not allowed as a table column", 212, 29);
@@ -517,6 +520,11 @@ public class TableLiteralSyntaxTest {
                                   "table type constraint must be a record type", 233, 20);
         BAssertUtil.validateError(resultNegative, i++,
                 "missing non-defaultable required record field 'name'", 251, 9);
+        BAssertUtil.validateError(resultNegative, i++,
+                                  "incompatible types: expected 'table<Baz>', found 'table<Qux>'", 272, 21);
+        BAssertUtil.validateError(resultNegative, i++,
+                                  "incompatible types: expected 'error', found '(table<record {| anydata...; " +
+                                          "|}>|error)'", 282, 19);
         Assert.assertEquals(resultNegative.getErrorCount(), i);
     }
 

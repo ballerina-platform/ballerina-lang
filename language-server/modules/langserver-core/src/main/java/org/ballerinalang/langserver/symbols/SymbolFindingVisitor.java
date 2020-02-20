@@ -21,8 +21,8 @@ package org.ballerinalang.langserver.symbols;
 import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.common.LSNodeVisitor;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
-import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.eclipse.lsp4j.DocumentSymbol;
 import org.eclipse.lsp4j.Location;
 import org.eclipse.lsp4j.Position;
@@ -31,6 +31,7 @@ import org.eclipse.lsp4j.SymbolInformation;
 import org.eclipse.lsp4j.SymbolKind;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
+import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
@@ -57,7 +58,7 @@ public class SymbolFindingVisitor extends LSNodeVisitor {
     private String uri;
     private String query;
 
-    public SymbolFindingVisitor(LSServiceOperationContext documentServiceContext) {
+    public SymbolFindingVisitor(LSContext documentServiceContext) {
         this.symbols = documentServiceContext.get(DocumentServiceKeys.SYMBOL_LIST_KEY);
         this.uri = documentServiceContext.get(DocumentServiceKeys.FILE_URI_KEY);
         this.query = documentServiceContext.get(DocumentServiceKeys.SYMBOL_QUERY);
@@ -74,7 +75,7 @@ public class SymbolFindingVisitor extends LSNodeVisitor {
     public void visit(BLangFunction funcNode) {
         SymbolKind symbolKind = SymbolKind.Function;
 
-        if (CommonKeys.NEW_KEYWORD_KEY.equals(funcNode.name.value) || funcNode.getBody() == null) {
+        if (CommonKeys.NEW_KEYWORD_KEY.equals(funcNode.name.value) || !funcNode.hasBody()) {
             return;
         }
         this.addSymbol(funcNode, funcNode.symbol, symbolKind);
@@ -82,7 +83,7 @@ public class SymbolFindingVisitor extends LSNodeVisitor {
             funcNode.getWorkers().forEach(bLangWorker -> bLangWorker.accept(this));
             return;
         }
-        funcNode.getBody().accept(this);
+        funcNode.body.accept(this);
     }
 
     @Override
@@ -165,6 +166,11 @@ public class SymbolFindingVisitor extends LSNodeVisitor {
     @Override
     public void visit(BLangBlockStmt blockNode) {
         blockNode.stmts.forEach(stmt -> stmt.accept(this));
+    }
+
+    @Override
+    public void visit(BLangBlockFunctionBody blockFuncBody) {
+        blockFuncBody.stmts.forEach(stmt -> stmt.accept(this));
     }
 
     @Override

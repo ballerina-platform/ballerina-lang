@@ -17,18 +17,18 @@ package org.ballerinalang.langserver.command.executors;
 
 import com.google.gson.JsonObject;
 import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.langserver.command.ExecuteCommandKeys;
-import org.ballerinalang.langserver.command.LSCommandExecutor;
-import org.ballerinalang.langserver.command.LSCommandExecutorException;
 import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.commons.LSContext;
+import org.ballerinalang.langserver.commons.command.ExecuteCommandKeys;
+import org.ballerinalang.langserver.commons.command.LSCommandExecutorException;
+import org.ballerinalang.langserver.commons.command.spi.LSCommandExecutor;
+import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
-import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.compiler.LSModuleCompiler;
 import org.ballerinalang.langserver.compiler.common.LSCustomErrorStrategy;
 import org.ballerinalang.langserver.compiler.exception.CompilationFailedException;
-import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
@@ -44,7 +44,7 @@ import static org.ballerinalang.langserver.command.CommandUtil.applySingleTextEd
  *
  * @since 0.983.0
  */
-@JavaSPIService("org.ballerinalang.langserver.command.LSCommandExecutor")
+@JavaSPIService("org.ballerinalang.langserver.commons.command.spi.LSCommandExecutor")
 public class ImportModuleExecutor implements LSCommandExecutor {
 
     public static final String COMMAND = "IMPORT_MODULE";
@@ -58,16 +58,20 @@ public class ImportModuleExecutor implements LSCommandExecutor {
         VersionedTextDocumentIdentifier textDocumentIdentifier = new VersionedTextDocumentIdentifier();
 
         for (Object arg : context.get(ExecuteCommandKeys.COMMAND_ARGUMENTS_KEY)) {
-            if (((JsonObject) arg).get(ARG_KEY).getAsString().equals(CommandConstants.ARG_KEY_DOC_URI)) {
-                documentUri = ((JsonObject) arg).get(ARG_VALUE).getAsString();
-                textDocumentIdentifier.setUri(documentUri);
-                context.put(DocumentServiceKeys.FILE_URI_KEY, documentUri);
-            } else if (((JsonObject) arg).get(ARG_KEY).getAsString().equals(CommandConstants.ARG_KEY_MODULE_NAME)) {
-                context.put(ExecuteCommandKeys.PKG_NAME_KEY, ((JsonObject) arg).get(ARG_VALUE).getAsString());
+            switch (((JsonObject) arg).get(ARG_KEY).getAsString()) {
+                case CommandConstants.ARG_KEY_DOC_URI:
+                    documentUri = ((JsonObject) arg).get(ARG_VALUE).getAsString();
+                    textDocumentIdentifier.setUri(documentUri);
+                    context.put(DocumentServiceKeys.FILE_URI_KEY, documentUri);
+                    break;
+                case CommandConstants.ARG_KEY_MODULE_NAME:
+                    context.put(ExecuteCommandKeys.PKG_NAME_KEY, ((JsonObject) arg).get(ARG_VALUE).getAsString());
+                    break;
+                default:
             }
         }
 
-        WorkspaceDocumentManager documentManager = context.get(CommonKeys.DOC_MANAGER_KEY);
+        WorkspaceDocumentManager documentManager = context.get(DocumentServiceKeys.DOC_MANAGER_KEY);
         if (documentUri != null && context.get(ExecuteCommandKeys.PKG_NAME_KEY) != null) {
             try {
                 LSModuleCompiler.getBLangPackage(context, documentManager, LSCustomErrorStrategy.class, false, false);
@@ -91,7 +95,7 @@ public class ImportModuleExecutor implements LSCommandExecutor {
                     + CommonKeys.SEMI_COLON_SYMBOL_KEY + CommonUtil.LINE_SEPARATOR;
 
             return applySingleTextEdit(importStatement, range, textDocumentIdentifier,
-                    context.get(ExecuteCommandKeys.LANGUAGE_SERVER_KEY).getClient());
+                    context.get(ExecuteCommandKeys.LANGUAGE_CLIENT_KEY));
         }
 
         return new Object();

@@ -15,17 +15,17 @@
  */
 package org.ballerinalang.langserver.codeaction;
 
+import org.ballerinalang.langserver.DocumentServiceOperationContext;
 import org.ballerinalang.langserver.LSContextOperation;
-import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.commons.LSContext;
+import org.ballerinalang.langserver.commons.codeaction.CodeActionNodeType;
+import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSCompilerCache;
-import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.compiler.LSModuleCompiler;
-import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.ballerinalang.langserver.compiler.common.LSCustomErrorStrategy;
 import org.ballerinalang.langserver.compiler.exception.CompilationFailedException;
-import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.eclipse.lsp4j.TextDocumentIdentifier;
 import org.slf4j.Logger;
@@ -70,10 +70,12 @@ public class CodeActionUtil {
         }
 
         try {
-            LSContext context = new LSServiceOperationContext(LSContextOperation.TXT_CODE_ACTION);
+            LSContext context = new DocumentServiceOperationContext
+                    .ServiceOperationContextBuilder(LSContextOperation.TXT_CODE_ACTION)
+                    .build();
             context.put(DocumentServiceKeys.IS_CACHE_SUPPORTED, true);
             context.put(DocumentServiceKeys.FILE_URI_KEY, identifier.getUri());
-            context.put(CommonKeys.DOC_MANAGER_KEY, docManager);
+            context.put(DocumentServiceKeys.DOC_MANAGER_KEY, docManager);
             BLangPackage bLangPackage = LSModuleCompiler.getBLangPackage(context, docManager,
                     LSCustomErrorStrategy.class, false, false);
             String relativeSourcePath = context.get(DocumentServiceKeys.RELATIVE_FILE_PATH_KEY);

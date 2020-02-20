@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  WSO2 Inc. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
@@ -18,7 +18,6 @@
 
 package org.ballerinalang.jvm.values.api;
 
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BType;
 
 /**
@@ -26,9 +25,9 @@ import org.ballerinalang.jvm.types.BType;
  * The {@link BStream} represents a stream in Ballerina.
  * </p>
  *
- * @since 1.1.0
+ * @since 1.2.0
  */
-public interface BStream extends BRefValue {
+public interface BStream extends BIterator<Object>, BRefValue {
     /**
      * Returns the constrained {@code BType} of the stream.
      *
@@ -37,18 +36,38 @@ public interface BStream extends BRefValue {
     BType getConstraintType();
 
     /**
-     * Method to publish to a topic representing the stream in the broker.
+     * Returns a stream which applies a filtering condition on the input stream.
      *
-     * @param strand the strand in which the data being published
-     * @param data the data to publish to the stream
+     * @param stream The input stream being filtered
+     * @param filterFunc The function pointer which represents the filtering condition
+     * @return The output stream
      */
-    void publish(Strand strand, Object data);
+    BStream filter(BStream stream, BFunctionPointer<Object, Boolean> filterFunc);
 
     /**
-     * Method to register a subscription to the underlying topic representing the stream in the broker.
+     * Returns a new stream which applies a mapping condition on the input stream.
      *
-     * @param functionPointer represents the function pointer reference for the function to be invoked on receiving
-     *                        messages
+     * @param stream The input stream being mapped
+     * @param mapFunc The function pointer which represents the mapping condition
+     * @return The output stream
      */
-    void subscribe(BFunctionPointer<Object[], Object> functionPointer);
+    BStream map(BStream stream, BFunctionPointer<Object, Object> mapFunc);
+
+    /**
+     * Combines the members of an stream using a combining function. The combining function takes the combined value so
+     * far and a member of the stream, and returns a new combined value.
+     *
+     * @param reduceFunc The function pointer representing the user provided reduce function
+     * @param initialValue The initial value of reduce function
+     * @return The reduced value
+     */
+    Object reduce(BFunctionPointer<Object, Object> reduceFunc, Object initialValue);
+
+    /**
+     * Applies a function to each member of a stream.
+     * The parameter 'func' is applied to each member of stream 'strm' in order.
+     *
+     * @param foreachFunc The function which is applied to each member in stream 'strm'
+     */
+    void forEach(BFunctionPointer<Object, Object> foreachFunc);
 }

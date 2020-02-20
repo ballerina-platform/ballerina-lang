@@ -14,6 +14,11 @@
 // specific language governing permissions and limitations
 // under the License.
 
-function testIncompatibleListConstructorExprs() {
+function testIncompatibleListConstructorExprs1() {
     var [v1, v2, v3] = ["hello", 123, 34.56];
+}
+
+function testIncompatibleListConstructorExprs2() {
+    [int, int] a = [];
+    [[int, int], [int, int]] b = [];
 }

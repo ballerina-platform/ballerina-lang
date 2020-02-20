@@ -45,7 +45,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangForever;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
@@ -197,10 +196,6 @@ public class CompilerPluginRunner extends BLangNodeVisitor {
     public void visit(BLangXMLNS xmlnsNode) {
     }
 
-    public void visit(BLangForever foreverStatement) {
-        /* ignore */
-    }
-
     public void visit(BLangConstant constant) {
         /* ignore */
     }
@@ -306,8 +301,8 @@ public class CompilerPluginRunner extends BLangNodeVisitor {
             BPackageSymbol symbol = this.packageCache.getSymbol(packageQName);
             if (symbol != null) {
                 SymbolEnv pkgEnv = symTable.pkgEnvMap.get(symbol);
-                final BSymbol listenerSymbol = symResolver.lookupSymbol(pkgEnv, listenerName, SymTag.OBJECT);
-                if (listenerSymbol != symTable.notFoundSymbol) {
+                BSymbol listenerSymbol = symResolver.lookupSymbolInMainSpace(pkgEnv, listenerName);
+                if ((listenerSymbol.tag & SymTag.OBJECT) == SymTag.OBJECT) {
                     listenerType = listenerSymbol.type;
                 }
             }

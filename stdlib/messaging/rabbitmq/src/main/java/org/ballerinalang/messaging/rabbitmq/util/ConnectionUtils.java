@@ -24,6 +24,8 @@ import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.messaging.rabbitmq.RabbitMQConnectorException;
 import org.ballerinalang.messaging.rabbitmq.RabbitMQConstants;
 import org.ballerinalang.messaging.rabbitmq.RabbitMQUtils;
+import org.ballerinalang.messaging.rabbitmq.observability.RabbitMQMetricsUtil;
+import org.ballerinalang.messaging.rabbitmq.observability.RabbitMQObservabilityConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -101,8 +103,11 @@ public class ConnectionUtils {
             if (connectionHeartBeat != null) {
                 connectionFactory.setRequestedHeartbeat(Integer.parseInt(connectionHeartBeat.toString()));
             }
-            return connectionFactory.newConnection();
+            Connection connection = connectionFactory.newConnection();
+            RabbitMQMetricsUtil.reportNewConnection(connection);
+            return connection;
         } catch (IOException | TimeoutException exception) {
+            RabbitMQMetricsUtil.reportError(RabbitMQObservabilityConstants.ERROR_TYPE_CONNECTION);
             throw new RabbitMQConnectorException(RabbitMQConstants.CREATE_CONNECTION_ERROR
                     + exception.getMessage(), exception);
         }
@@ -124,6 +129,7 @@ public class ConnectionUtils {
                     keyStore.load(keyFileInputStream, keyPassphrase);
                 }
             } else {
+                RabbitMQMetricsUtil.reportError(RabbitMQObservabilityConstants.ERROR_TYPE_CONNECTION);
                 throw new RabbitMQConnectorException(RabbitMQConstants.CREATE_SECURE_CONNECTION_ERROR +
                         "Path for the keystore is not found.");
             }
@@ -137,6 +143,7 @@ public class ConnectionUtils {
                     trustStore.load(trustFileInputStream, trustPassphrase);
                 }
             } else {
+                RabbitMQMetricsUtil.reportError(RabbitMQObservabilityConstants.ERROR_TYPE_CONNECTION);
                 throw new RabbitMQConnectorException("Path for the truststore is not found.");
             }
             TrustManagerFactory trustManagerFactory =
@@ -150,22 +157,28 @@ public class ConnectionUtils {
             throw new RabbitMQConnectorException(RabbitMQConstants.CREATE_SECURE_CONNECTION_ERROR +
                     exception.getLocalizedMessage());
         } catch (IOException exception) {
+            RabbitMQMetricsUtil.reportError(RabbitMQObservabilityConstants.ERROR_TYPE_CONNECTION);
             throw new RabbitMQConnectorException(RabbitMQConstants.CREATE_SECURE_CONNECTION_ERROR +
                     "I/O error occurred.");
         } catch (CertificateException exception) {
+            RabbitMQMetricsUtil.reportError(RabbitMQObservabilityConstants.ERROR_TYPE_CONNECTION);
             throw new RabbitMQConnectorException(RabbitMQConstants.CREATE_SECURE_CONNECTION_ERROR +
                     "Certification error occurred.");
         } catch (UnrecoverableKeyException exception) {
+            RabbitMQMetricsUtil.reportError(RabbitMQObservabilityConstants.ERROR_TYPE_CONNECTION);
             throw new RabbitMQConnectorException(RabbitMQConstants.CREATE_SECURE_CONNECTION_ERROR +
                     "A key in the keystore cannot be recovered.");
         } catch (NoSuchAlgorithmException exception) {
+            RabbitMQMetricsUtil.reportError(RabbitMQObservabilityConstants.ERROR_TYPE_CONNECTION);
             throw new RabbitMQConnectorException(RabbitMQConstants.CREATE_SECURE_CONNECTION_ERROR +
                     "The particular cryptographic algorithm requested is not available in the environment.");
         } catch (KeyStoreException exception) {
+            RabbitMQMetricsUtil.reportError(RabbitMQObservabilityConstants.ERROR_TYPE_CONNECTION);
             throw new RabbitMQConnectorException(RabbitMQConstants.CREATE_SECURE_CONNECTION_ERROR +
                     "No provider supports a KeyStoreSpi implementation for this keystore type." +
                     exception.getLocalizedMessage());
         } catch (KeyManagementException exception) {
+            RabbitMQMetricsUtil.reportError(RabbitMQObservabilityConstants.ERROR_TYPE_CONNECTION);
             throw new RabbitMQConnectorException(RabbitMQConstants.CREATE_SECURE_CONNECTION_ERROR +
                     "Error occurred in an operation with key management." +
                     exception.getLocalizedMessage());
@@ -192,7 +205,9 @@ public class ConnectionUtils {
             } else {
                 connection.close();
             }
+            RabbitMQMetricsUtil.reportConnectionClose(connection);
         } catch (IOException | ArithmeticException exception) {
+            RabbitMQMetricsUtil.reportError(RabbitMQObservabilityConstants.ERROR_TYPE_CONNECTION_CLOSE);
             return RabbitMQUtils.returnErrorValue("Error occurred while closing the connection: "
                     + exception.getMessage());
         }
@@ -214,6 +229,7 @@ public class ConnectionUtils {
         } else {
             connection.abort();
         }
+        RabbitMQMetricsUtil.reportConnectionClose(connection);
     }
 
     private ConnectionUtils() {

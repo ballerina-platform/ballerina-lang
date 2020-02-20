@@ -21,6 +21,8 @@ import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.model.elements.PackageID;
 
 import java.io.IOException;
+import java.io.UncheckedIOException;
+import java.nio.file.AccessDeniedException;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
@@ -78,7 +80,7 @@ public class ProjectDirs {
      * @param pkgPath package path
      * @return true if source files exists else false
      */
-    public static boolean containsSourceFiles(Path pkgPath) {
+    public static boolean containsSourceFiles(Path pkgPath) throws BLangCompilerException {
         List<Path> sourceFiles = new ArrayList<>();
         try {
             sourceFiles = Files.find(pkgPath, Integer.MAX_VALUE, (path, attrs) ->
@@ -86,6 +88,15 @@ public class ProjectDirs {
         } catch (IOException ignored) {
             // Here we are trying to check if there are source files inside the package to be compiled. If an error
             // occurs when trying to visit the files inside the package then we simply return the empty list created.
+        } catch (UncheckedIOException e) {
+            // Files#find returns an UncheckedIOException instead of an AccessDeniedException when there is a file to
+            // which user doesn't have required permission.
+            if (e.getCause() instanceof AccessDeniedException) {
+                throw new BLangCompilerException("permission denied for path " + pkgPath.toString()
+                        + ", cause: " + e.getMessage());
+            } else {
+                throw e;
+            }
         }
         return sourceFiles.size() > 0;
     }

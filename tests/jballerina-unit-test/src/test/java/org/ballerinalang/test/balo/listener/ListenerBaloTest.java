@@ -45,7 +45,7 @@ public class ListenerBaloTest {
         final BValue[] result = BRunUtil.invoke(compileResult, "getStartAndAttachCount");
         Assert.assertEquals(result.length, 1, "expected one return type");
         Assert.assertNotNull(result[0]);
-        Assert.assertEquals(result[0].stringValue(), "1_1");
+        Assert.assertEquals(result[0].stringValue(), "2_3");
     }
 
     @AfterClass

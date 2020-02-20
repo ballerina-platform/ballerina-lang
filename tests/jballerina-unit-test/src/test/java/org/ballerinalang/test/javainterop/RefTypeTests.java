@@ -17,10 +17,13 @@
  */
 package org.ballerinalang.test.javainterop;
 
+import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.types.BTypes;
+import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.FPValue;
 import org.ballerinalang.jvm.values.FutureValue;
+import org.ballerinalang.jvm.values.HandleValue;
 import org.ballerinalang.jvm.values.TypedescValue;
 import org.ballerinalang.jvm.values.XMLItem;
 import org.ballerinalang.jvm.values.XMLValue;
@@ -42,6 +45,9 @@ import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Test cases for java interop with ballerina ref types.
@@ -277,6 +283,42 @@ public class RefTypeTests {
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 4);
     }
 
+    @Test
+    public void testGetHandle() {
+        BValue[] returns = BRunUtil.invoke(result, "testGetHandle");
+        Assert.assertTrue(returns[0] instanceof BHandleValue);
+        BHandleValue handle = (BHandleValue) returns[0];
+        Assert.assertTrue(handle.getValue() instanceof Map);
+        Map map = (Map) handle.getValue();
+        Assert.assertEquals(map.size(), 1);
+        Assert.assertEquals(map.get("name"), "John");
+    }
+
+    @Test
+    public void testUseHandle() {
+        BValue[] returns = BRunUtil.invoke(result, "testUseHandle");
+        Assert.assertTrue(returns[0] instanceof BString);
+        Assert.assertEquals(((BString) returns[0]).stringValue(), "John");
+    }
+
+    @Test
+    public void testUseHandleInUnion() {
+        BValue[] returns = BRunUtil.invoke(result, "testUseHandleInUnion");
+        Assert.assertTrue(returns[0] instanceof BString);
+        Assert.assertEquals(((BString) returns[0]).stringValue(), "John");
+    }
+
+    @Test
+    public void testThrowJavaException() {
+        Object returns = BRunUtil.invokeAndGetJVMResult(result, "testThrowJavaException2");
+        Assert.assertTrue(returns instanceof ErrorValue);
+        ErrorValue error = (ErrorValue) returns;
+        Assert.assertEquals(error.getPrintableStackTrace(), "java.util.EmptyStackException \n" +
+                "\tat ballerina_types_as_interop_types:javaStackPop(ballerina_types_as_interop_types.bal:400)\n" +
+                "\t   ballerina_types_as_interop_types:testThrowJavaException2(ballerina_types_as_interop_types.bal:" +
+                "392)");
+    }
+
     // static methods
 
     public static XMLValue getXML() {
@@ -337,5 +379,16 @@ public class RefTypeTests {
 
     public static FutureValue getFuture(Object a) {
         return (FutureValue) a;
+    }
+
+    public static HandleValue getHandle() {
+        Map<String, String> m = new HashMap<>();
+        m.put("name", "John");
+        return new HandleValue(m);
+    }
+
+    public static org.ballerinalang.jvm.values.api.BString useHandle(HandleValue h) {
+        Map<String, String> m = (Map<String, String>) h.getValue();
+        return StringUtils.fromString(m.get("name"));
     }
 }

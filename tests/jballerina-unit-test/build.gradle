@@ -41,7 +41,6 @@ dependencies {
     implementation project(':ballerina-java')
     implementation project(':ballerina-java-arrays')
     implementation project(':ballerina-runtime')
-    implementation project(':ballerina-streams')
     implementation project(':ballerina-jsonutils')
     implementation project(':ballerina-xmlutils')
 
@@ -84,7 +83,6 @@ dependencies {
     baloTestImplementation project(path: ':ballerina-java-arrays', configuration: 'baloImplementation')
     // baloTestImplementation project(path: ':ballerina-websub', configuration: 'baloImplementation')
     // baloTestImplementation project(path: ':ballerina-grpc', configuration: 'baloImplementation')
-    baloTestImplementation project(path: ':ballerina-streams', configuration: 'baloImplementation')
     baloTestImplementation project(path: ':ballerina-observability', configuration: 'baloImplementation')
     baloTestImplementation project(path: ':ballerina-system', configuration: 'baloImplementation')
     baloTestImplementation project(path: ':ballerina-xmlutils', configuration: 'baloImplementation')

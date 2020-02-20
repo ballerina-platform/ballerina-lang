@@ -17,11 +17,12 @@ package org.ballerinalang.langserver.codelenses.providers;
 
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.client.config.BallerinaClientConfigHolder;
-import org.ballerinalang.langserver.codelenses.CodeLensesProviderKeys;
-import org.ballerinalang.langserver.codelenses.LSCodeLensesProviderException;
-import org.ballerinalang.langserver.command.CommandUtil;
+import org.ballerinalang.langserver.codelenses.CodeLensUtil;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
-import org.ballerinalang.langserver.compiler.LSContext;
+import org.ballerinalang.langserver.commons.LSContext;
+import org.ballerinalang.langserver.commons.codelenses.CodeLensesProviderKeys;
+import org.ballerinalang.langserver.commons.codelenses.LSCodeLensesProviderException;
+import org.ballerinalang.langserver.commons.command.CommandArgument;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.eclipse.lsp4j.CodeLens;
 import org.eclipse.lsp4j.Command;
@@ -39,7 +40,7 @@ import java.util.List;
  *
  * @since 0.990.3
  */
-@JavaSPIService("org.ballerinalang.langserver.codelenses.LSCodeLensesProvider")
+@JavaSPIService("org.ballerinalang.langserver.commons.codelenses.spi.LSCodeLensesProvider")
 public class ServicesBasedCodeLensesProvider extends AbstractCodeLensesProvider {
     public ServicesBasedCodeLensesProvider() {
         super("services.CodeLenses");
@@ -71,12 +72,12 @@ public class ServicesBasedCodeLensesProvider extends AbstractCodeLensesProvider 
                 return;
             }
             int sLine = service.pos.sLine - 1;
-            sLine = getTopMostLocOfAnnotations(service.annAttachments, sLine);
-            sLine = getTopMostLocOfDocs(service.markdownDocumentationAttachment, sLine);
+            sLine = CodeLensUtil.getTopMostLocOfAnnotations(service.annAttachments, sLine);
+            sLine = CodeLensUtil.getTopMostLocOfDocs(service.markdownDocumentationAttachment, sLine);
             Position pos = new Position(sLine, 0);
             // Show API Editor
-            CommandUtil.CommandArgument serviceNameArg = new CommandUtil.CommandArgument(
-                    CommandConstants.ARG_KEY_SERVICE_NAME, service.name.value);
+            CommandArgument serviceNameArg = new CommandArgument(CommandConstants.ARG_KEY_SERVICE_NAME,
+                                                                 service.name.value);
             List<Object> args = new ArrayList<>(Collections.singletonList(serviceNameArg));
             Command showApiEditor = new Command("Show API Design", "ballerina.showAPIEditor", args);
             CodeLens apiEditorLens = new CodeLens(new Range(pos, pos), showApiEditor, null);

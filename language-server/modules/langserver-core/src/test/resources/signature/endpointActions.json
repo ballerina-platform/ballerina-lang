@@ -7,29 +7,33 @@
     "result": {
       "signatures": [
         {
-          "label": "Client.get(string path, (ballerina/http:Request|string|xml|json|byte[]|ballerina/io:ReadableByteChannel|ballerina/mime:Entity[]) message)",
+          "label": "Client.get(string path, (http:Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]) message?)",
           "documentation": {
             "right": {
               "kind": "markdown",
-              "value": "The `Client.get()` function can be used to send HTTP GET requests to HTTP endpoints."
+              "value": "**Description**  \nThe `Client.get()` function can be used to send HTTP GET requests to HTTP endpoints."
             }
           },
           "parameters": [
             {
-              "label": "path",
+              "label": {
+                "left": "string path"
+              },
               "documentation": {
                 "right": {
                   "kind": "markdown",
-                  "value": "Request path"
+                  "value": "**Parameter**  \n**`string`path**: Request path"
                 }
               }
             },
             {
-              "label": "message",
+              "label": {
+                "left": "(http:Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]) message?"
+              },
               "documentation": {
                 "right": {
                   "kind": "markdown",
-                  "value": "An optional HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,\n            `io:ReadableByteChannel` or `mime:Entity[]`"
+                  "value": "**Parameter**  \n**`(http:Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[])`message?**: An optional HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,\n            `io:ReadableByteChannel` or `mime:Entity[]`"
                 }
               }
             }

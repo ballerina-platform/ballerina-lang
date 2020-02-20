@@ -22,7 +22,8 @@ import org.antlr.v4.runtime.InputMismatchException;
 import org.antlr.v4.runtime.NoViableAltException;
 import org.antlr.v4.runtime.Parser;
 import org.antlr.v4.runtime.ParserRuleContext;
-import org.ballerinalang.langserver.compiler.LSContext;
+import org.ballerinalang.langserver.commons.LSContext;
+import org.ballerinalang.langserver.commons.completion.CompletionKeys;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
 
 /**
@@ -64,7 +65,7 @@ public class SubRuleParserErrorStrategy extends DefaultErrorStrategy {
         }
         if (isInvalidExpressionContext(parserRuleContext)
                 || parserRuleContext instanceof BallerinaParser.AnyIdentifierNameContext
-                || parserRuleContext instanceof BallerinaParser.CallableUnitSignatureContext
+                || parserRuleContext instanceof BallerinaParser.BlockFunctionBodyContext
                 || parserRuleContext instanceof BallerinaParser.PackageNameContext
                 || parserRuleContext instanceof BallerinaParser.TypeNameContext
                 || parserRuleContext instanceof BallerinaParser.TypeInitExprContext

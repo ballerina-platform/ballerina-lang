@@ -479,10 +479,10 @@ public type Request object {
             self.setTextPayload(payload);
         } else if (payload is xml) {
             self.setXmlPayload(payload);
-        } else if (payload is json) {
-            self.setJsonPayload(payload);
         } else if (payload is byte[]) {
             self.setBinaryPayload(payload);
+        } else if (payload is json) {
+            self.setJsonPayload(payload);
         } else if (payload is io:ReadableByteChannel) {
             self.setByteChannel(payload);
         } else {
@@ -538,14 +538,12 @@ public type Request object {
     # + cookiesToAdd - Represents the cookies to be added
     public function addCookies(Cookie[] cookiesToAdd) {
         string cookieheader = "";
-        string? temp1 = ();
-        string? temp2 = ();
         Cookie[] sortedCookies = cookiesToAdd.sort(comparator);
         foreach var cookie in sortedCookies {
-            temp1 = cookie.name;
-            temp2 = cookie.value;
-            if (temp1 is string && temp2 is string) {
-                cookieheader = cookieheader + temp1 + EQUALS + temp2 + SEMICOLON + SPACE;
+            var cookieName = cookie.name;
+            var cookieValue = cookie.value;
+            if (cookieName is string && cookieValue is string) {
+                cookieheader = cookieheader + cookieName + EQUALS + cookieValue + SEMICOLON + SPACE;
             }
             cookie.lastAccessedTime = time:currentTime();
         }
