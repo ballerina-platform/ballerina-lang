@@ -100,10 +100,6 @@ public class PullCommand implements BLauncherCmd {
         String[] moduleInfo = resourceName.split("/");
         orgName = moduleInfo[0];
         packageName = moduleInfo[1];
-        if (orgName.equals("ballerina") || orgName.equals("ballerinax")) {
-            throw LauncherUtils.createLauncherException("`ballerina` and `ballerinax` are reserved organization" +
-                    " names used by ballerina");
-        }
 
         // Get the name of the module.
         String[] packageInfo = packageName.split(":");
