@@ -43,7 +43,6 @@ public class BLangTypeConversionExpr extends BLangExpression implements TypeConv
     public BLangExpression expr;
     public BLangType typeNode;
     public BType targetType;
-    public BOperatorSymbol conversionSymbol;
     public List<BLangAnnotationAttachment> annAttachments = new ArrayList<>();
     public Set<Flag> flagSet = EnumSet.noneOf(Flag.class);
     public boolean checkTypes = true;
