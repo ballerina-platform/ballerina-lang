@@ -160,7 +160,7 @@ public class BTestRunner {
             if (test.getAfterTestFunction() != null) {
                 if (!functionNames.contains(test.getAfterTestFunction())) {
                     String msg = String.format("Cannot find the specified after function : [%s] for testerina " +
-                            "function : [%s]", test.getBeforeTestFunction(), test.getTestName());
+                            "function : [%s]", test.getAfterTestFunction(), test.getTestName());
                     throw new BallerinaTestException(msg);
                 }
             }

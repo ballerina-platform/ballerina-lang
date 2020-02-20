@@ -112,6 +112,7 @@ include(':ballerina-llvm')
 // include(':ballerina-tools-integration-test')
 include(':ballerina-jsonutils')
 include(':testerina:testerina-launcher')
+include(':testerina-integration-test')
 // include(':examples-test')
 // TODO: enable at 'dependsOn' of tools-intergration-tests
 // and 'mustRunAfter' of vs-code-pluggin
@@ -249,6 +250,7 @@ project(':ballerina-libs').projectDir = file('distribution/libs')
 project(':ballerina-xmlutils').projectDir = file('stdlib/xmlutils')
 project(':ballerina-llvm').projectDir = file('stdlib/llvm')
 project(':testerina:testerina-launcher').projectDir = file('misc/testerina/modules/testerina-launcher')
+project(':testerina-integration-test').projectDir = file('tests/testerina-integration-test')
 
 project(':debug-adapter:debug-adapter-core').projectDir = file('misc/debug-adapter/modules/debug-adapter-core')
 project(':debug-adapter:debug-adapter-cli').projectDir = file('misc/debug-adapter/modules/debug-adapter-cli')

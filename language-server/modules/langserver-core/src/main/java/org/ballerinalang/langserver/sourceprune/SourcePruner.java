@@ -56,8 +56,8 @@ public class SourcePruner {
 
         // Process tokens
         List<Token> tokenList = new ArrayList<>(((CommonTokenStream) tokenStream).getTokens());
-        Optional<Token> tokenAtCursor = searchTokenAtCursor(tokenList, cursorPosition.getLine(),
-                                                            cursorPosition.getCharacter(), false);
+        Optional<Token> tokenAtCursor = searchTokenAtCursor(lsContext, tokenList, cursorPosition.getLine(),
+                                                            cursorPosition.getCharacter(), false, false);
         if (tokenAtCursor.isPresent() && (tokenAtCursor.get().getText().startsWith("//")
                 || tokenAtCursor.get().getText().startsWith("#"))) {
             throw new CompletionContextNotSupportedException("Operations within Comments are not Supported");
