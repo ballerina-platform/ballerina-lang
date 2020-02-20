@@ -68,7 +68,7 @@ public class MetricsTestCase extends BaseTest {
         List<String> args = new ArrayList<>();
         args.add("--" + ObservabilityConstants.CONFIG_METRICS_ENABLED + "=true");
         args.add("--" + CONFIG_TABLE_METRICS + ".statistic.percentiles=0.5, 0.75, 0.98, 0.99, 0.999");
-        serverInstance.startServer(balFile, null, args.toArray(new String[args.size()]), new int[] { 9090 });
+        serverInstance.startServer(balFile, null, args.toArray(new String[args.size()]), new int[] { 9898 });
         addMetrics();
     }
 
@@ -76,13 +76,13 @@ public class MetricsTestCase extends BaseTest {
     public void testMetrics() throws Exception {
         // Test Service
         await().atMost(20, TimeUnit.SECONDS)
-                .ignoreExceptions().until(() -> HttpClientRequest.doGet("http://localhost:9090/test")
+                .ignoreExceptions().until(() -> HttpClientRequest.doGet("http://localhost:9898/test")
                 .getData().equals("productId=1 productName=WSO2-IAM productId=3 productName=WSO2-EI"));
 
         // Send some requests
         int i = 0;
         while (i < 5) {
-            HttpClientRequest.doGet("http://localhost:9090/test");
+            HttpClientRequest.doGet("http://localhost:9898/test");
             i++;
         }
 
