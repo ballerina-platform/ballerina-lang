@@ -1024,6 +1024,14 @@ public class Types {
                 }
                 varType = tableType.constraint;
                 break;
+            case TypeTags.STREAM:
+                BStreamType streamType = (BStreamType) collectionType;
+                if (streamType.constraint.tag == TypeTags.NONE) {
+                    varType = symTable.anydataType;
+                    break;
+                }
+                varType = streamType.constraint;
+                break;
             case TypeTags.OBJECT:
                 // check for iterable objects
                 BUnionType nextMethodReturnType = getVarTypeFromIterableObject((BObjectType) collectionType);
@@ -1102,6 +1110,14 @@ public class Types {
                     break;
                 }
                 varType = tableType.constraint;
+                break;
+            case TypeTags.STREAM:
+                BStreamType streamType = (BStreamType) collectionType;
+                if (streamType.constraint.tag == TypeTags.NONE) {
+                    varType = symTable.anydataType;
+                    break;
+                }
+                varType = streamType.constraint;
                 break;
             case TypeTags.OBJECT:
                 // check for iterable objects
