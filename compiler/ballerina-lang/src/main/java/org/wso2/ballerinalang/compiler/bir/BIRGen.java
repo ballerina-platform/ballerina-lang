@@ -1099,12 +1099,13 @@ public class BIRGen extends BLangNodeVisitor {
         }
         if (this.env.enclBB.terminator == null) {
             this.env.unlockVars.forEach(s -> {
-                while (s.numLocks > 0) {
+                long i = s.numLocks;
+                while (i > 0) {
                     BIRBasicBlock unlockBB = new BIRBasicBlock(this.env.nextBBId(names));
                     this.env.enclBasicBlocks.add(unlockBB);
                     this.env.enclBB.terminator = new BIRTerminator.Unlock(null,  unlockBB);
                     this.env.enclBB = unlockBB;
-                    s.numLocks--;
+                    i--;
                 }
             });
 

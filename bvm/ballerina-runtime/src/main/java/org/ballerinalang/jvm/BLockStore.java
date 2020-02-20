@@ -18,36 +18,31 @@
 
 package org.ballerinalang.jvm;
 
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  *
  * @since 1.2.0
  */
-public class BLockManager {
+public class BLockStore {
 
     /**
      * The map of locks inferred.
      */
-    private static Map<String, BLock> globalLockMap;
+    private  Map<String, BLock> globalLockMap;
 
-    static {
-        globalLockMap = new HashMap<>();
+    public BLockStore() {
+        globalLockMap = new ConcurrentHashMap<>();
     }
 
-    public static void addLockToMap(String lockName) {
+    public void addLockToMap(String lockName) {
         globalLockMap.put(lockName, new BLock());
     }
 
-    public static synchronized BLock getLockFromMap(String lockName) {
-        BLock lock = globalLockMap.get(lockName);
-
-        if (lock == null) {
-            lock = new BLock();
-            globalLockMap.put(lockName, lock);
-        }
-
-        return lock;
+    public synchronized BLock getLockFromMap(String lockName) {
+        return globalLockMap.computeIfAbsent(lockName, (k) -> {
+            return new BLock();
+        });
     }
 }

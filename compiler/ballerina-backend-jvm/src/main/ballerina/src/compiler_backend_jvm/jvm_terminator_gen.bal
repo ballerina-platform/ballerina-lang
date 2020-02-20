@@ -41,8 +41,6 @@ type TerminatorGenerator object {
                            int localVarOffset, int returnVarRefIndex, bir:BType? attachedType, boolean isObserved = false) {
         if (terminator is bir:Lock) {
             self.genLockTerm(terminator, funcName, localVarOffset);
-        } else if (terminator is bir:FieldLock) {
-            self.genFieldLockTerm(terminator, funcName, localVarOffset, attachedType);
         } else if (terminator is bir:Unlock) {
             self.genUnlockTerm(terminator, funcName, attachedType);
         } else if (terminator is bir:GOTO) {
@@ -89,8 +87,11 @@ type TerminatorGenerator object {
 
     function genLockTerm(bir:Lock lockIns, string funcName, int localVarOffset) {
         jvm:Label gotoLabel = self.labelGen.getLabel(funcName + lockIns.lockBB.id.value);
+        string lockStore = "L" + LOCK_STORE + ";";
+        string initClassName = lookupGlobalVarClassName(self.currentPackageName + "LOCK_STORE");
+        self.mv.visitFieldInsn(GETSTATIC, initClassName, "LOCK_STORE", lockStore);
         self.mv.visitLdcInsn("global");
-        self.mv.visitMethodInsn(INVOKESTATIC, LOCK_MANAGER, "getLockFromMap", io:sprintf("(L%s;)L%s;", STRING_VALUE,
+        self.mv.visitMethodInsn(INVOKEVIRTUAL, LOCK_STORE, "getLockFromMap", io:sprintf("(L%s;)L%s;", STRING_VALUE,
             LOCK_VALUE), false);
         self.mv.visitVarInsn(ALOAD, localVarOffset);
         self.mv.visitMethodInsn(INVOKEVIRTUAL, LOCK_VALUE, "lock", io:sprintf("(L%s;)Z", STRAND), false);
@@ -100,34 +101,15 @@ type TerminatorGenerator object {
         self.mv.visitJumpInsn(GOTO, gotoLabel);
     }
 
-    function genFieldLockTerm(bir:FieldLock lockIns, string funcName, int localVarOffset, bir:BType? attachedType) {
-        jvm:Label gotoLabel = self.labelGen.getLabel(funcName + lockIns.lockBB.id.value);
-        string lockClass = "L" + LOCK_VALUE + ";";
-        var lockName = computeLockNameFromString(lockIns.field);
-        self.loadVar(lockIns.localVar);
-
-        if (attachedType is bir:BObjectType) {
-            string className = getTypeValueClassName(self.module, attachedType.name.value);
-            self.mv.visitFieldInsn(GETFIELD, className, lockName, lockClass);
-            self.mv.visitVarInsn(ALOAD, localVarOffset);
-            self.mv.visitMethodInsn(INVOKEVIRTUAL, LOCK_VALUE, "lock", io:sprintf("(L%s;)Z", STRAND), false);
-            self.mv.visitInsn(POP);
-            genYieldCheckForLock(self.mv, self.labelGen, funcName, localVarOffset);
-
-            self.mv.visitJumpInsn(GOTO, gotoLabel);
-        } else {
-            error err = error( "JVM field lock generation is not supported for type " +
-                            io:sprintf("%s", attachedType));
-            panic err;
-        }
-    }
-
     function genUnlockTerm(bir:Unlock unlockIns, string funcName, bir:BType? attachedType) {
         jvm:Label gotoLabel = self.labelGen.getLabel(funcName + unlockIns.unlockBB.id.value);
 
         // unlocked in the same order https://yarchive.net/comp/linux/lock_ordering.html
+        string lockStore = "L" + LOCK_STORE + ";";
+        string initClassName = lookupGlobalVarClassName(self.currentPackageName + "LOCK_STORE");
+        self.mv.visitFieldInsn(GETSTATIC, initClassName, "LOCK_STORE", lockStore);
         self.mv.visitLdcInsn("global");
-        self.mv.visitMethodInsn(INVOKESTATIC, LOCK_MANAGER, "getLockFromMap", io:sprintf("(L%s;)L%s;", STRING_VALUE,
+        self.mv.visitMethodInsn(INVOKEVIRTUAL, LOCK_STORE, "getLockFromMap", io:sprintf("(L%s;)L%s;", STRING_VALUE,
             LOCK_VALUE), false);
         self.mv.visitMethodInsn(INVOKEVIRTUAL, LOCK_VALUE, "unlock", "()V", false);
 
