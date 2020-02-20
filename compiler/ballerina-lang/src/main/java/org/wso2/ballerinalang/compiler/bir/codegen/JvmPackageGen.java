@@ -314,7 +314,7 @@ public class JvmPackageGen {
         for (Map.Entry<String, JavaClass> entry : jvmClassMap.entrySet()) {
             String moduleClass = entry.getKey();
             JavaClass v = entry.getValue();
-            ClassWriter cw = new ClassWriter(COMPUTE_FRAMES);
+            ClassWriter cw = new BallerinaClassWriter(COMPUTE_FRAMES);
             currentClass = moduleClass;
             if (Objects.equals(moduleClass, typeOwnerClass)) {
                 cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, moduleClass, null, VALUE_CREATOR, null);
@@ -884,7 +884,7 @@ public class JvmPackageGen {
     static void generateShutdownSignalListener(BIRPackage pkg, String initClass, Map<String, byte[]> jarEntries) {
 
         String innerClassName = initClass + "$SignalListener";
-        ClassWriter cw = new ClassWriter(COMPUTE_FRAMES);
+        ClassWriter cw = new BallerinaClassWriter(COMPUTE_FRAMES);
         cw.visit(V1_8, ACC_SUPER, innerClassName, null, JAVA_THREAD, null);
 
         // create constructor

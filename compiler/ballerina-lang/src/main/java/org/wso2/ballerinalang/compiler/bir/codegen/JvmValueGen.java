@@ -523,7 +523,7 @@ class JvmValueGen {
 
         private byte[] createRecordValueClass(BRecordType recordType, String className,
                                               BIRNode.BIRTypeDefinition typeDef) {
-            ClassWriter cw = new ClassWriter(COMPUTE_FRAMES);
+            ClassWriter cw = new BallerinaClassWriter(COMPUTE_FRAMES);
             cw.visitSource(typeDef.pos.getSource().cUnitName, null);
             currentClass = className;
             cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, className,
@@ -1106,7 +1106,7 @@ class JvmValueGen {
         // Private methods
         private byte[] createObjectValueClass(BObjectType objectType, String className,
                                               BIRNode.BIRTypeDefinition typeDef, boolean isService) {
-            ClassWriter cw = new ClassWriter(COMPUTE_FRAMES);
+            ClassWriter cw = new BallerinaClassWriter(COMPUTE_FRAMES);
             cw.visitSource(typeDef.pos.getSource().cUnitName, null);
             currentClass = className;
             cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, className, null, ABSTRACT_OBJECT_VALUE, new String[]{OBJECT_VALUE});

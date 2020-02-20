@@ -2256,7 +2256,7 @@ public class JvmMethodGen {
         String pkgName = getPackageName(pkg.org.value, pkg.name.value);
         BIRFunction currentFunc = getFunction(func);
         String frameClassName = getFrameClassName(pkgName, currentFunc.name.value, attachedType);
-        ClassWriter cw = new ClassWriter(COMPUTE_FRAMES);
+        ClassWriter cw = new BallerinaClassWriter(COMPUTE_FRAMES);
         if (currentFunc.pos != null && currentFunc.pos.src != null) {
             cw.visitSource(currentFunc.pos.src.cUnitName, null);
         }
@@ -2761,8 +2761,7 @@ public class JvmMethodGen {
 
             BType bType = varDcl.type;
 
-            if (bType.tag == TypeTags.INT ||
-                    bType.tag == TypeTags.FLOAT) {
+            if (bType.tag == TypeTags.INT || bType.tag == TypeTags.FLOAT) {
                 this.localVarIndex = this.localVarIndex + 2;
             } else if (bType.tag == JTypeTags.JLONG || bType.tag == JTypeTags.JDOUBLE) {
                 this.localVarIndex = this.localVarIndex + 2;
@@ -2771,7 +2770,7 @@ public class JvmMethodGen {
             }
         }
 
-        static String getVarRefName(BIRVariableDcl varDcl) {
+        private String getVarRefName(BIRVariableDcl varDcl) {
             return varDcl.name.value;
         }
 

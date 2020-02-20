@@ -182,4 +182,8 @@ public class JvmConstants {
     public static final int TYPE_FLAG_NILABLE = 1;
     public static final int TYPE_FLAG_ANYDATA = 2;
     public static final int TYPE_FLAG_PURETYPE = 4;
+
+    // ballerina error reasons for ASM operations.
+    public static final String METHOD_TOO_LARGE = "MethodTooLarge";
+    public static final String CLASS_TOO_LARGE = "ClassTooLarge";
 }
