@@ -20,7 +20,6 @@ package org.ballerinalang.langlib.stream;
 
 import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.types.BFunctionType;
 import org.ballerinalang.jvm.types.BStreamType;
 import org.ballerinalang.jvm.values.FPValue;
 import org.ballerinalang.jvm.values.IteratorValue;
@@ -50,7 +49,6 @@ import org.ballerinalang.natives.annotations.ReturnType;
 public class Construct {
 
     public static StreamValue construct(Strand strand, TypedescValue td, FPValue<Object, Object> func) {
-        BFunctionType functionType = (BFunctionType) func.getType();
         IteratorValue iterator = new Iterator(func);
         return new StreamValue(new BStreamType(td.getDescribingType()), iterator, null, null);
     }
