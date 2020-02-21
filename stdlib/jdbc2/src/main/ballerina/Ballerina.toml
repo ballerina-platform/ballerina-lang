@@ -1,0 +1,20 @@
+[project]
+org-name = "ballerinax"
+version = "0.0.0"
+
+[platform]
+target = "java8"
+
+    [[platform.libraries]]
+    artifactId = "jdbc"
+    version = "@project.version@"
+    path = "./lib/ballerina-jdbc-@project.version@.jar"
+    groupId = "ballerina"
+    modules = ["jdbc"]
+
+    [[platform.libraries]]
+    artifactId = "HikariCP"
+    version = "3.3.1"
+    path = "./lib/HikariCP-3.3.1.jar"
+    groupId = "com.zaxxer"
+    modules = ["jdbc"]
