@@ -50,6 +50,9 @@ public class CommandConstants {
     public static final Pattern RESOURCE_METHOD_NOT_FOUND = Pattern.compile(
             "Couldn't find Ballerina service resource\\(s\\) for http method\\(s\\) '(.*)' for the path '(.*)' which " +
                     "is documented in the OpenAPI contract");
+    public static final Pattern RESOURCE_METHOD_NOT_FOUND_IN_OPENAPI = Pattern.compile(
+            "Ballerina service contains a Resource that is not documented in the OpenAPI contract. Error Resource " +
+                    "path '(.*)'");
 
     // Command Arguments
     public static final String ARG_KEY_DOC_URI = "doc.uri";
@@ -109,4 +112,7 @@ public class CommandConstants {
 
     public static final String CREATE_SERVICE_RESOURCE_METHOD =
             "Create service resource for http method '%s' for the path '%s'";
+
+    public static final String CREATE_SERVICE_RESOURCE_METHOD_IN_OPENAPI =
+            "Create service resource for the path '%s' in the OpenAPI contract";
 }

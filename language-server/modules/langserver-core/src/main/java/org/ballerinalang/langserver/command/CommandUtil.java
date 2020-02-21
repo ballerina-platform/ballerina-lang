@@ -45,6 +45,7 @@ import org.eclipse.lsp4j.VersionedTextDocumentIdentifier;
 import org.eclipse.lsp4j.WorkspaceEdit;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.eclipse.lsp4j.services.LanguageClient;
+import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
@@ -202,6 +203,26 @@ public class CommandUtil {
             while (parent != null) {
                 if (parent instanceof BLangInvocation) {
                     return (BLangInvocation) parent;
+                }
+                parent = parent.parent;
+            }
+            return null;
+        }
+    }
+
+    public static BLangFunction getFunctionNode(int line, int column, String uri,
+                                                          WorkspaceDocumentManager documentManager, LSContext context)
+            throws CompilationFailedException {
+        Pair<BLangNode, Object> bLangNode = getBLangNode(line, column, uri, documentManager, context);
+        if (bLangNode.getLeft() instanceof BLangFunction) {
+            return (BLangFunction) bLangNode.getLeft();
+        } else if (bLangNode.getRight() instanceof BLangFunction) {
+            return (BLangFunction) bLangNode.getRight();
+        } else {
+            BLangNode parent = bLangNode.getLeft().parent;
+            while (parent != null) {
+                if (parent instanceof BLangFunction) {
+                    return (BLangFunction) parent;
                 }
                 parent = parent.parent;
             }

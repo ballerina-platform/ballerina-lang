@@ -33,10 +33,12 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
+import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
+import org.wso2.ballerinalang.compiler.tree.BLangRecordVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
@@ -49,6 +51,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangGroupExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
@@ -145,6 +148,10 @@ public class PositionTreeVisitor extends LSNodeVisitor {
             funcNode.requiredParams.forEach(this::acceptNode);
         }
 
+        if (funcNode.annAttachments != null) {
+            funcNode.annAttachments.forEach(this::acceptNode);
+        }
+
         if (funcNode.returnTypeNode != null && !(funcNode.returnTypeNode.type instanceof BNilType)) {
             this.acceptNode(funcNode.returnTypeNode);
         }
@@ -157,6 +164,12 @@ public class PositionTreeVisitor extends LSNodeVisitor {
         if (funcNode.workers != null) {
             funcNode.workers.forEach(this::acceptNode);
         }
+    }
+
+    @Override
+    public void visit(BLangAnnotationAttachment annAttachmentNode) {
+        this.acceptNode(annAttachmentNode.expr);
+        setPreviousNode(annAttachmentNode);
     }
 
     @Override
@@ -469,6 +482,13 @@ public class PositionTreeVisitor extends LSNodeVisitor {
 
         if (conversionExpr.typeNode != null) {
             acceptNode(conversionExpr.typeNode);
+        }
+    }
+
+    public void visit(BLangLiteral literalExpr) {
+        if (HoverUtil.isMatchingPosition(literalExpr.pos, this.position)) {
+            addPosition(literalExpr, this.previousNode);
+            setTerminateVisitor();
         }
     }
 
