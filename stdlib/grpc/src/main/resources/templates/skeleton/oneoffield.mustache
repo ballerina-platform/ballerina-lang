@@ -1,4 +1,3 @@
-public type {{camelcase @key}} {{#each this}}{{this.messageName}}{{#unless @last}}|{{/unless}}{{/each}};
 {{#each this}}
 public type {{this.messageName}} record {|
     {{#this.fieldList}}{{fieldType}}{{fieldLabel}} {{fieldName}}{{#if defaultValue}} = {{defaultValue}}{{/if}};
