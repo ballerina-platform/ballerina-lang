@@ -143,7 +143,7 @@ class JvmValueGen {
             if (bType.tag == TypeTags.OBJECT &&
                     !Symbols.isFlagOn(((BObjectType) bType).tsymbol.flags, Flags.ABSTRACT)) {
                 desugarObjectMethods(module, bType, typeDef.attachedFuncs);
-            } else if (bType.tag == TypeTags.SERVICE) {
+            } else if (bType instanceof BServiceType) {
                 desugarObjectMethods(module, bType, typeDef.attachedFuncs);
             } else if (bType.tag == TypeTags.RECORD) {
                 desugarObjectMethods(module, bType, typeDef.attachedFuncs);
@@ -364,7 +364,6 @@ class JvmValueGen {
                 Label targetLabel = targetLabels.get(i);
                 mv.visitLabel(targetLabel);
 
-                String methodName = getName(func);
                 @Nilable List<BType> paramTypes = func.type.paramTypes;
                 @Nilable BType retType = func.type.retType;
 
@@ -393,7 +392,7 @@ class JvmValueGen {
                     j += 1;
                 }
 
-                mv.visitMethodInsn(INVOKEVIRTUAL, objClassName, getName(func), methodSig, false);
+                mv.visitMethodInsn(INVOKEVIRTUAL, objClassName, func.name.value, methodSig, false);
                 if (retType == null || retType.tag == TypeTags.NIL) {
                     mv.visitInsn(ACONST_NULL);
                 } else {
@@ -1088,7 +1087,7 @@ class JvmValueGen {
                     String className = getTypeValueClassName(this.module, typeDef.name.value);
                     byte[] bytes = this.createObjectValueClass(objectType, className, typeDef, false);
                     jarEntries.put(className + ".class", bytes);
-                } else if (bType.tag == TypeTags.SERVICE) {
+                } else if (bType instanceof BServiceType) {
                     BServiceType serviceType = (BServiceType) bType;
                     this.currentObjectType = serviceType;
                     String className = getTypeValueClassName(this.module, typeDef.name.value);
