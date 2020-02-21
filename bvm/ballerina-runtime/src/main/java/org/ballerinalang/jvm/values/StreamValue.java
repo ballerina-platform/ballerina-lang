@@ -20,6 +20,7 @@ package org.ballerinalang.jvm.values;
 
 import org.ballerinalang.jvm.IteratorUtils;
 import org.ballerinalang.jvm.scheduling.Scheduler;
+import org.ballerinalang.jvm.types.BFunctionType;
 import org.ballerinalang.jvm.types.BStreamType;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.values.api.BFunctionPointer;
@@ -68,7 +69,6 @@ public class StreamValue implements RefValue, BStream {
     public StreamValue(BType type, BIterator iterator, BFunctionPointer<Object, Boolean> filterFunc,
                        BFunctionPointer<Object, Object> mapFunc) {
         this.constraintType = ((BStreamType) type).getConstrainedType();
-        this.type = new BStreamType(constraintType);
         this.streamId = UUID.randomUUID().toString();
         this.iterator = iterator;
 
@@ -79,10 +79,13 @@ public class StreamValue implements RefValue, BStream {
         }
 
         if (mapFunc != null) {
+            this.constraintType = ((BFunctionType) mapFunc.getType()).retType;
             this.mapper = new MapFunctionPointerWrapper(mapFunc);
         } else {
             this.mapper = new NoMapFunctionPointerWrapper();
         }
+
+        this.type = new BStreamType(constraintType);
     }
 
     public StreamValue(BStream sourceStream, BFunctionPointer<Object, Boolean> filterFunc,
