@@ -33,11 +33,12 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BServiceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
-import org.wso2.ballerinalang.compiler.util.Name;
+import org.wso2.ballerinalang.compiler.semantics.model.types.NamedNode;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -133,7 +134,9 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.interop.ExternalMethod
  *
  * @since 1.2.0
  */
-class JvmValueGen {
+public class JvmValueGen {
+
+    public static final NameHashComparator NAME_HASH_COMPARATOR = new NameHashComparator();
 
     static void injectDefaultParamInitsToAttachedFuncs(BIRPackage module) {
         @Nilable List<BIRNode.BIRTypeDefinition> typeDefs = module.typeDefs;
@@ -170,7 +173,7 @@ class JvmValueGen {
         }
     }
 
-    static List<Label> createLabelsForSwitch(MethodVisitor mv, int nameRegIndex, @Nilable List<NamedNode> nodes,
+    static List<Label> createLabelsForSwitch(MethodVisitor mv, int nameRegIndex, @Nilable List<? extends NamedNode> nodes,
                                              Label defaultCaseLabel) {
         mv.visitVarInsn(ALOAD, nameRegIndex);
         mv.visitMethodInsn(INVOKEVIRTUAL, STRING_VALUE, "hashCode", "()I", false);
@@ -226,7 +229,8 @@ class JvmValueGen {
         return packageName + "$value$" + cleanupTypeName(typeName);
     }
 
-    static List<Label> createLabelsForEqualCheck(MethodVisitor mv, int nameRegIndex, @Nilable List<NamedNode> nodes,
+    static List<Label> createLabelsForEqualCheck(MethodVisitor mv, int nameRegIndex,
+                                                 @Nilable List<? extends NamedNode> nodes,
                                                  List<Label> labels, Label defaultCaseLabel) {
         List<Label> targetLabels = new ArrayList<>();
         int i = 0;
@@ -250,7 +254,7 @@ class JvmValueGen {
 
     private static String getName(Object node) {
         if (node instanceof NamedNode) {
-            return ((NamedNode) node).name.value;
+            return ((NamedNode) node).getName().value;
         } else {
             throw new BLangCompilerException(String.format("Invalid node: %s", node));
         }
@@ -336,10 +340,6 @@ class JvmValueGen {
 
             @Nilable List<BIRFunction> funcs = getFunctions(functions);
 
-            List<NamedNode> functionNames = new ArrayList<>();
-            for (BIRFunction func : funcs) {
-                functionNames.add(new NamedNode(func.name));
-            }
 
             MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "call",
                     String.format("(L%s;L%s;[L%s;)L%s;", STRAND, STRING_VALUE, OBJECT, OBJECT), null, null);
@@ -350,11 +350,10 @@ class JvmValueGen {
             Label defaultCaseLabel = new Label();
 
             // sort the fields before generating switch case
-            NodeSorter sorter = new NodeSorter();
-            sorter.sortByHash(functionNames);
+            funcs.sort(NAME_HASH_COMPARATOR);
 
-            List<Label> labels = createLabelsForSwitch(mv, funcNameRegIndex, functionNames, defaultCaseLabel);
-            List<Label> targetLabels = createLabelsForEqualCheck(mv, funcNameRegIndex, functionNames, labels,
+            List<Label> labels = createLabelsForSwitch(mv, funcNameRegIndex, funcs, defaultCaseLabel);
+            List<Label> targetLabels = createLabelsForEqualCheck(mv, funcNameRegIndex, funcs, labels,
                     defaultCaseLabel);
 
             // case body
@@ -420,18 +419,11 @@ class JvmValueGen {
             Label defaultCaseLabel = new Label();
 
             // sort the fields before generating switch case
-            NodeSorter sorter = new NodeSorter();
-            @Nilable List<BField> sortedFields = new ArrayList<>();
+            @Nilable List<BField> sortedFields = new ArrayList<>(fields);
+            sortedFields.sort(NAME_HASH_COMPARATOR);
 
-            List<NamedNode> fieldNames = new ArrayList<>();
-            for (BField bField : fields) {
-                fieldNames.add(new NamedNode(bField.name));
-                sortedFields.add(new BField(bField.name, bField.pos, bField.symbol));
-            }
-            sorter.sortByHash(fieldNames);
-
-            List<Label> labels = createLabelsForSwitch(mv, fieldNameRegIndex, fieldNames, defaultCaseLabel);
-            List<Label> targetLabels = createLabelsForEqualCheck(mv, fieldNameRegIndex, fieldNames, labels,
+            List<Label> labels = createLabelsForSwitch(mv, fieldNameRegIndex, sortedFields, defaultCaseLabel);
+            List<Label> targetLabels = createLabelsForEqualCheck(mv, fieldNameRegIndex, sortedFields, labels,
                     defaultCaseLabel);
 
             int i = 0;
@@ -475,19 +467,11 @@ class JvmValueGen {
                     String.format("(L%s;L%s;)V", STRING_VALUE, OBJECT), false);
 
             // sort the fields before generating switch case
-            NodeSorter sorter = new NodeSorter();
-            @Nilable List<BField> sortedFields = new ArrayList<>();
+            @Nilable List<BField> sortedFields = new ArrayList<>(fields);
+            sortedFields.sort(NAME_HASH_COMPARATOR);
 
-            List<NamedNode> fieldNames = new ArrayList<>();
-            for (BField bField : fields) {
-                fieldNames.add(new NamedNode(bField.name));
-                sortedFields.add(new BField(bField.name, bField.pos, bField.symbol));
-            }
-
-            sorter.sortByHash(fieldNames);
-
-            List<Label> labels = createLabelsForSwitch(mv, fieldNameRegIndex, fieldNames, defaultCaseLabel);
-            List<Label> targetLabels = createLabelsForEqualCheck(mv, fieldNameRegIndex, fieldNames, labels,
+            List<Label> labels = createLabelsForSwitch(mv, fieldNameRegIndex, sortedFields, defaultCaseLabel);
+            List<Label> targetLabels = createLabelsForEqualCheck(mv, fieldNameRegIndex, sortedFields, labels,
                     defaultCaseLabel);
 
             // case body
@@ -667,19 +651,11 @@ class JvmValueGen {
             mv.visitVarInsn(ASTORE, strKeyVarIndex);
 
             // sort the fields before generating switch case
-            NodeSorter sorter = new NodeSorter();
-            @Nilable List<BField> sortedFields = new ArrayList<>();
+            @Nilable List<BField> sortedFields = new ArrayList<>(fields);
+            sortedFields.sort(NAME_HASH_COMPARATOR);
 
-            List<NamedNode> fieldNames = new ArrayList<>();
-            for (BField bField : fields) {
-                fieldNames.add(new NamedNode(bField.name));
-                sortedFields.add(new BField(bField.name, bField.pos, bField.symbol));
-            }
-
-            sorter.sortByHash(fieldNames);
-
-            List<Label> labels = createLabelsForSwitch(mv, strKeyVarIndex, fieldNames, defaultCaseLabel);
-            List<Label> targetLabels = createLabelsForEqualCheck(mv, strKeyVarIndex, fieldNames, labels,
+            List<Label> labels = createLabelsForSwitch(mv, strKeyVarIndex, sortedFields, defaultCaseLabel);
+            List<Label> targetLabels = createLabelsForEqualCheck(mv, strKeyVarIndex, sortedFields, labels,
                     defaultCaseLabel);
 
             int i = 0;
@@ -730,19 +706,11 @@ class JvmValueGen {
             mv.visitVarInsn(ASTORE, strKeyVarIndex);
 
             // sort the fields before generating switch case
-            NodeSorter sorter = new NodeSorter();
-            @Nilable List<BField> sortedFields = new ArrayList<>();
+            @Nilable List<BField> sortedFields = new ArrayList<>(fields);
+            sortedFields.sort(NAME_HASH_COMPARATOR);
 
-            List<NamedNode> fieldNames = new ArrayList<>();
-            for (BField bField : fields) {
-                fieldNames.add(new NamedNode(bField.name));
-                sortedFields.add(new BField(bField.name, bField.pos, bField.symbol));
-            }
-
-            sorter.sortByHash(fieldNames);
-
-            List<Label> labels = createLabelsForSwitch(mv, strKeyVarIndex, fieldNames, defaultCaseLabel);
-            List<Label> targetLabels = createLabelsForEqualCheck(mv, strKeyVarIndex, fieldNames, labels,
+            List<Label> labels = createLabelsForSwitch(mv, strKeyVarIndex, sortedFields, defaultCaseLabel);
+            List<Label> targetLabels = createLabelsForEqualCheck(mv, strKeyVarIndex, sortedFields, labels,
                     defaultCaseLabel);
 
             // case body
@@ -872,20 +840,12 @@ class JvmValueGen {
             mv.visitVarInsn(ASTORE, strKeyVarIndex);
 
             // sort the fields before generating switch case
-            NodeSorter sorter = new NodeSorter();
-            @Nilable List<BField> sortedFields = new ArrayList<>();
-
-            List<NamedNode> fieldNames = new ArrayList<>();
-            for (BField bField : fields) {
-                fieldNames.add(new NamedNode(bField.name));
-                sortedFields.add(new BField(bField.name, bField.pos, bField.symbol));
-            }
-
-            sorter.sortByHash(fieldNames);
+            @Nilable List<BField> sortedFields = new ArrayList<>(fields);
+            sortedFields.sort(NAME_HASH_COMPARATOR);
 
             Label defaultCaseLabel = new Label();
-            List<Label> labels = createLabelsForSwitch(mv, strKeyVarIndex, fieldNames, defaultCaseLabel);
-            List<Label> targetLabels = createLabelsForEqualCheck(mv, strKeyVarIndex, fieldNames, labels,
+            List<Label> labels = createLabelsForSwitch(mv, strKeyVarIndex, sortedFields, defaultCaseLabel);
+            List<Label> targetLabels = createLabelsForEqualCheck(mv, strKeyVarIndex, sortedFields, labels,
                     defaultCaseLabel);
 
             int i = 0;
@@ -1143,19 +1103,11 @@ class JvmValueGen {
 
     // --------------------- Sorting ---------------------------
 
-    static class NamedNode {
-        Name name;
-
-        NamedNode(Name name) {
-            this.name = name;
-        }
-    }
-
     static class NodeSorter {
 
-        void sortByHash(@Nilable List<NamedNode> arr) {
-            quickSort(arr, 0, arr.size() - 1);
-        }
+//        void sortByHash(@Nilable List<NamedNode> arr) {
+//            quickSort(arr, 0, arr.size() - 1);
+//        }
 
         private static void quickSort(@Nilable List<NamedNode> arr, int low, int high) {
             if (low < high) {
