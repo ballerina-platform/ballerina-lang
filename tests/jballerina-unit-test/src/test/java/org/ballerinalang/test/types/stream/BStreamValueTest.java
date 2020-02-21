@@ -68,9 +68,10 @@ public class BStreamValueTest {
     @Test(description = "Test negative test scenarios of stream type")
     public void testStreamTypeNegative() {
         int i = 0;
-        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'record {| int value; |}?', found" +
-                " 'int'", 26, 12);
-        BAssertUtil.validateError(negativeResult, i++, "undefined field 'val' in record 'record {| int value; |}'", 31, 14);
+        BAssertUtil.validateError(negativeResult, i++,
+                "incompatible types: expected 'record {| int value; |}?', found 'int'", 26, 12);
+        BAssertUtil.validateError(negativeResult, i++,
+                "undefined field 'val' in record 'record {| int value; |}'", 31, 14);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int', found 'string'", 35, 21);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int', found 'boolean'", 39, 21);
     }
