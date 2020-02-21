@@ -764,7 +764,9 @@ public class JvmTerminatorGen {
                 BInvokableSymbol funcSymbol = (BInvokableSymbol) symbol.scope.lookup(new Name(nameOfNonBStringFunc(methodName))).symbol;
                 BInvokableType type = (BInvokableType) funcSymbol.type;
                 ArrayList<BType> params = new ArrayList<>(type.paramTypes);
-                params.add(type.restType);
+                if (type.restType != null) {
+                    params.add(type.restType);
+                }
                 for (int j = params.size() - 1; j >= 0; j--) {
                     params.add(j + 1, new BType(TypeTags.BOOLEAN, null));
                 }

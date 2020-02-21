@@ -969,11 +969,11 @@ class JvmTypeGen {
         } else if (bType.tag == TypeTags.TYPEDESC) {
             loadTypedescType(mv, (BTypedescType) bType);
             return;
-        } else if (bType.tag == TypeTags.SERVICE) {
-            if (!Objects.equals(getTypeFieldName(toNameString(bType)), "$type$service")) {
+        } else if (bType.tag == TypeTags.OBJECT) {
+            if (bType instanceof BObjectType) {
                 loadUserDefinedType(mv, bType);
                 return;
-            } else if (bType instanceof BObjectType) {
+            } else if (!Objects.equals(getTypeFieldName(toNameString(bType)), "$type$service")) {
                 loadUserDefinedType(mv, bType);
                 return;
             }
@@ -1367,7 +1367,7 @@ class JvmTypeGen {
         for (BIRTypeDefinition optionalTypeDef : typeDefs) {
             BIRTypeDefinition typeDef = getTypeDef(optionalTypeDef);
             BType bType = typeDef.type;
-            if (bType.tag == TypeTags.SERVICE) {
+            if (bType instanceof BServiceType) {
                 return true;
             }
         }

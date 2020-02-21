@@ -40,6 +40,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BAnyType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BJSONType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BServiceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 
@@ -163,6 +164,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.lookupTy
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTerminatorGen.TerminatorGenerator.toNameString;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen.duplicateServiceTypeWithAnnots;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen.getTypeDesc;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen.loadExternalOrLocalType;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen.loadExternalType;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen.loadType;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmValueGen.getTypeValueClassName;
@@ -478,6 +480,9 @@ public class JvmInstructionGen {
                 case LESS_THAN:
                     this.generateLessThanIns(binaryIns);
                     break;
+                case LESS_EQUAL:
+                    this.generateLessEqualIns(binaryIns);
+                    break;
                 case REF_EQUAL:
                     this.generateRefEqualIns(binaryIns);
                     break;
@@ -509,8 +514,8 @@ public class JvmInstructionGen {
                     this.generateBitwiseRightShiftIns(binaryIns);
                     break;
                 default:
-                    BLangCompilerException err = new BLangCompilerException("JVM generation is not supported for type : " + String.format("%s", insKind));
-                    throw err;
+                    throw new BLangCompilerException("JVM generation is not supported for instruction kind : " +
+                            String.format("%s", insKind));
             }
         }
 
@@ -1278,18 +1283,18 @@ public class JvmInstructionGen {
             if (objectNewIns.isExternalDef) {
                 className = getTypeValueClassName(objectNewIns.externalPackageId, objectNewIns.objectName);
             } else {
-                className = getTypeValueClassName(this.currentPackage, objectNewIns.objectName);
+                className = getTypeValueClassName(this.currentPackage, objectNewIns.def.name.value);
             }
 
             this.mv.visitTypeInsn(NEW, className);
             this.mv.visitInsn(DUP);
 
             BType type = typeDef.type;
-            if (type.tag == TypeTags.SERVICE) {
+            if (type instanceof BServiceType) {
                 // For services, create a new type for each new service value. TODO: do only for local vars
                 duplicateServiceTypeWithAnnots(this.mv, (BObjectType) type, typeDef, this.currentPackageName, strandIndex);
             } else {
-                loadExternalType(this.mv, objectNewIns.externalPackageId, objectNewIns.objectName);
+                loadExternalOrLocalType(this.mv, typeDef);
             }
             this.mv.visitTypeInsn(CHECKCAST, OBJECT_TYPE);
             this.mv.visitMethodInsn(INVOKESPECIAL, className, "<init>", String.format("(L%s;)V", OBJECT_TYPE), false);
@@ -1568,15 +1573,24 @@ public class JvmInstructionGen {
 
         void generateConstantLoadIns(ConstantLoad loadIns, boolean useBString) {
             BType bType = loadIns.type;
+            Object constVal = loadIns.value;
 
-            if (bType.tag == TypeTags.INT || bType.tag == TypeTags.BYTE) {
-                Object val = loadIns.value;
-                this.mv.visitLdcInsn(val);
+            if (bType.tag == TypeTags.INT ){
+                long intValue = constVal instanceof Long ? (long) constVal : Long.parseLong((String) constVal);
+                this.mv.visitLdcInsn(intValue);
+            } else if (bType.tag == TypeTags.BYTE) {
+                int byteValue = constVal instanceof Integer ? (int) constVal : Integer.parseInt((String) constVal);
+                this.mv.visitLdcInsn(byteValue);
             } else if (bType.tag == TypeTags.FLOAT) {
-                Object val = loadIns.value;
-                this.mv.visitLdcInsn(val);
+                double doubleValue = constVal instanceof Double ? (double) constVal :
+                        Double.parseDouble((String) constVal);
+                this.mv.visitLdcInsn(doubleValue);
+            } else if (bType.tag == TypeTags.BOOLEAN) {
+                boolean booleanVal = constVal instanceof Boolean ? (boolean) constVal :
+                        Boolean.parseBoolean((String) constVal);
+                this.mv.visitLdcInsn(booleanVal);
             } else if (bType.tag == TypeTags.STRING) {
-                String val = (String) loadIns.value;
+                String val = (String) constVal;
                 if (useBString) {
                     int[] highSurrogates = listHighSurrogates(val);
 
@@ -1594,28 +1608,24 @@ public class JvmInstructionGen {
                         i = i + 1;
                         this.mv.visitInsn(IASTORE);
                     }
-                    this.mv.visitMethodInsn(INVOKESPECIAL, NON_BMP_STRING_VALUE, "<init>", String.format("(L%s;[I)V", STRING_VALUE), false);
+                    this.mv.visitMethodInsn(INVOKESPECIAL, NON_BMP_STRING_VALUE, "<init>",
+                            String.format("(L%s;[I)V", STRING_VALUE), false);
                 } else {
                     this.mv.visitLdcInsn(val);
                 }
             } else if (bType.tag == TypeTags.DECIMAL) {
-                Object val = loadIns.value;
                 this.mv.visitTypeInsn(NEW, DECIMAL_VALUE);
                 this.mv.visitInsn(DUP);
-                this.mv.visitLdcInsn(val);
-                this.mv.visitMethodInsn(INVOKESPECIAL, DECIMAL_VALUE, "<init>", String.format("(L%s;)V", STRING_VALUE), false);
-            } else if (bType.tag == TypeTags.BOOLEAN) {
-                Object val = loadIns.value;
-                this.mv.visitLdcInsn(val);
+                this.mv.visitLdcInsn(constVal);
+                this.mv.visitMethodInsn(INVOKESPECIAL, DECIMAL_VALUE, "<init>",
+                        String.format("(L%s;)V", STRING_VALUE), false);
             } else if (bType.tag == TypeTags.NIL) {
                 this.mv.visitInsn(ACONST_NULL);
             } else {
-                BLangCompilerException err = new BLangCompilerException("JVM generation is not supported for type : " + String.format("%s", bType));
-                throw err;
+                throw new BLangCompilerException("JVM generation is not supported for type : " + String.format("%s", bType));
             }
 
             this.storeToVar(loadIns.lhsOp.variableDcl);
         }
     }
-
 }

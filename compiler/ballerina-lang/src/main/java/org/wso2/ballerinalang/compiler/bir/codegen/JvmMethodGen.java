@@ -56,6 +56,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BServiceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
@@ -2209,7 +2210,7 @@ public class JvmMethodGen {
             BIRTypeDefinition typeDef = getTypeDef(optionalTypeDef);
             BType bType = typeDef.type;
 
-            if (bType.tag == TypeTags.FINITE || bType.tag == TypeTags.SERVICE) {
+            if (bType.tag == TypeTags.FINITE || bType instanceof BServiceType) {
                 continue;
             }
 
@@ -2290,7 +2291,7 @@ public class JvmMethodGen {
         if (attachedType != null) {
             if (attachedType.tag == TypeTags.OBJECT) {
                 frameClassName += cleanupTypeName(toNameString(attachedType)) + "_";
-            } else if (attachedType.tag == TypeTags.SERVICE) {
+            } else if (attachedType instanceof BServiceType) {
                 frameClassName += cleanupTypeName(toNameString(attachedType)) + "_";
             } else if (attachedType.tag == TypeTags.RECORD) {
                 frameClassName += cleanupTypeName(toNameString(attachedType)) + "_";
