@@ -22,6 +22,7 @@ import org.ballerinalang.model.elements.MarkdownDocAttachment;
 import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.NamedNode;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
@@ -243,7 +244,7 @@ public abstract class BIRNode {
      *
      * @since 0.980.0
      */
-    public static class BIRFunction extends BIRDocumentableNode {
+    public static class BIRFunction extends BIRDocumentableNode implements NamedNode {
 
         /**
          * Name of the function.
@@ -357,6 +358,11 @@ public abstract class BIRNode {
             return f;
 
         }
+
+        @Override
+        public Name getName() {
+            return name;
+        }
     }
 
     /**
@@ -392,7 +398,7 @@ public abstract class BIRNode {
      *
      * @since 0.995.0
      */
-    public static class BIRTypeDefinition extends BIRDocumentableNode {
+    public static class BIRTypeDefinition extends BIRDocumentableNode implements NamedNode{
 
         /**
          * Name of the type definition.
@@ -434,6 +440,11 @@ public abstract class BIRNode {
         @Override
         public String toString() {
             return String.valueOf(type) + " " + String.valueOf(name);
+        }
+
+        @Override
+        public Name getName() {
+            return name;
         }
     }
 
