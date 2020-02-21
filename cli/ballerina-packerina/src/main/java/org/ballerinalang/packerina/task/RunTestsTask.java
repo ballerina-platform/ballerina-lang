@@ -19,7 +19,6 @@
 package org.ballerinalang.packerina.task;
 
 import com.google.gson.Gson;
-import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.packerina.OsUtils;
 import org.ballerinalang.packerina.buildcontext.BuildContext;
 import org.ballerinalang.packerina.buildcontext.BuildContextField;
@@ -43,7 +42,6 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 
@@ -59,9 +57,6 @@ import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.TEST_RUNT
 public class RunTestsTask implements Task {
 
     private final String[] args;
-    private List<String> groupList;
-    private List<String> disableGroupList;
-    private TesterinaRegistry testerinaRegistry = TesterinaRegistry.getInstance();
 
     public RunTestsTask(String[] args) {
         this.args = args;
@@ -69,13 +64,12 @@ public class RunTestsTask implements Task {
 
     public RunTestsTask(String[] args, List<String> groupList, List<String> disableGroupList) {
         this.args = args;
-        this.groupList = groupList;
-        this.disableGroupList = disableGroupList;
+        TesterinaRegistry testerinaRegistry = TesterinaRegistry.getInstance();
         if (disableGroupList != null) {
-            testerinaRegistry.setGroups(this.disableGroupList);
+            testerinaRegistry.setGroups(disableGroupList);
             testerinaRegistry.setShouldIncludeGroups(false);
         } else if (groupList != null) {
-            testerinaRegistry.setGroups(this.groupList);
+            testerinaRegistry.setGroups(groupList);
             testerinaRegistry.setShouldIncludeGroups(true);
         }
     }
@@ -91,16 +85,17 @@ public class RunTestsTask implements Task {
         // as "." are ignored. This is to be consistent with the "ballerina test" command which only executes tests
         // in packages.
         for (BLangPackage bLangPackage : moduleBirMap) {
-            if (!bLangPackage.containsTestablePkg()) {
+            TestSuite suite = TesterinaRegistry.getInstance().getTestSuites().get(bLangPackage.packageID.toString());
+            if (suite == null) {
                 buildContext.out().println();
                 buildContext.out().println("\t" + bLangPackage.packageID);
                 buildContext.out().println("\t" + "No tests found");
                 buildContext.out().println();
                 continue;
             }
-            HashSet<Path> testDependencies = getTestDependencies(buildContext, bLangPackage.packageID);
+            HashSet<Path> testDependencies = getTestDependencies(buildContext, bLangPackage);
             Path jsonPath = buildContext.getTestJsonPathTargetCache(bLangPackage.packageID);
-            createTestJson(bLangPackage, sourceRootPath, jsonPath);
+            createTestJson(bLangPackage, suite, sourceRootPath, jsonPath);
             int testResult = runTestSuit(jsonPath, buildContext, testDependencies);
             if (testResult != 0) {
                 throw createLauncherException("there are test failures");
@@ -115,48 +110,34 @@ public class RunTestsTask implements Task {
      * @param sourceRootPath Source root path
      * @param jsonPath Path to the test json
      */
-    private static void createTestJson(BLangPackage bLangPackage, Path sourceRootPath, Path jsonPath) {
-        String initFunctionName = bLangPackage.initFunction.name.value;
-        String startFunctionName = bLangPackage.startFunction.name.value;
-        String stopFunctionName = bLangPackage.stopFunction.name.value;
-        String testInitFunctionName = bLangPackage.getTestablePkg().initFunction.name.value;
-        String testStartFunctionName = bLangPackage.getTestablePkg().startFunction.name.value;
-        String testStopFunctionName = bLangPackage.getTestablePkg().stopFunction.name.value;
-        String orgName = bLangPackage.packageID.getOrgName().value;
-        String version = bLangPackage.packageID.getPackageVersion().value;
-        String packageName = bLangPackage.packageID.toString();
-        HashMap<String, String> normalFunctionNames = new HashMap<>();
-        HashMap<String, String> testFunctionNames = new HashMap<>();
-
+    private static void createTestJson(BLangPackage bLangPackage, TestSuite suite, Path sourceRootPath, Path jsonPath) {
+        // set data
+        suite.setInitFunctionName(bLangPackage.initFunction.name.value);
+        suite.setStartFunctionName(bLangPackage.startFunction.name.value);
+        suite.setStopFunctionName(bLangPackage.stopFunction.name.value);
+        suite.setPackageName(bLangPackage.packageID.toString());
+        suite.setSourceRootPath(sourceRootPath.toString());
+        // add module functions
         bLangPackage.functions.forEach(function -> {
             String functionClassName = BFileUtil.getQualifiedClassName(bLangPackage.packageID.orgName.value,
                                                                        bLangPackage.packageID.name.value,
                                                                        getClassName(function.pos.src.cUnitName));
-            normalFunctionNames.put(function.name.value, functionClassName);
+            suite.addTestUtilityFunction(function.name.value, functionClassName);
         });
-
-        bLangPackage.getTestablePkg().functions.forEach(function -> {
-            String functionClassName = BFileUtil.getQualifiedClassName(bLangPackage.packageID.orgName.value,
-                                                                       bLangPackage.packageID.name.value,
-                                                                       getClassName(function.pos.src.cUnitName));
-            testFunctionNames.put(function.name.value, functionClassName);
-        });
-
-        // set data
-        TestSuite suite = TesterinaRegistry.getInstance().getTestSuites().get(packageName);
-        if (suite == null) {
-            suite = new TestSuite(bLangPackage.packageID.name.value, packageName, orgName, version);
+        // add test functions
+        if (bLangPackage.containsTestablePkg()) {
+            suite.setTestInitFunctionName(bLangPackage.getTestablePkg().initFunction.name.value);
+            suite.setTestStartFunctionName(bLangPackage.getTestablePkg().startFunction.name.value);
+            suite.setTestStopFunctionName(bLangPackage.getTestablePkg().stopFunction.name.value);
+            bLangPackage.getTestablePkg().functions.forEach(function -> {
+                String functionClassName = BFileUtil.getQualifiedClassName(bLangPackage.packageID.orgName.value,
+                                                                           bLangPackage.packageID.name.value,
+                                                                           getClassName(function.pos.src.cUnitName));
+                suite.addTestUtilityFunction(function.name.value, functionClassName);
+            });
+        } else {
+            suite.setSourceFileName(bLangPackage.packageID.sourceFileName.value);
         }
-        suite.setInitFunctionName(initFunctionName);
-        suite.setStartFunctionName(startFunctionName);
-        suite.setStopFunctionName(stopFunctionName);
-        suite.setTestInitFunctionName(testInitFunctionName);
-        suite.setTestStartFunctionName(testStartFunctionName);
-        suite.setTestStopFunctionName(testStopFunctionName);
-        suite.setCallableFunctionNames(normalFunctionNames);
-        suite.setTestFunctionNames(testFunctionNames);
-        suite.setPackageName(packageName);
-        suite.setSourceRootPath(sourceRootPath.toString());
         // write to json
         writeToJson(suite, jsonPath);
     }
@@ -195,35 +176,40 @@ public class RunTestsTask implements Task {
             String classPath = getClassPath(getTestRuntimeJar(buildContext), testDependencies);
             List<String> cmdArgs = Lists.of(javaCommand, "-cp", classPath, mainClassName, jsonPath.toString());
             cmdArgs.addAll(Arrays.asList(args));
-            ProcessBuilder processBuilder = new ProcessBuilder(cmdArgs);
+            ProcessBuilder processBuilder = new ProcessBuilder(cmdArgs).inheritIO();;
             Process proc = processBuilder.start();
-            int testResult = proc.waitFor();
 
-            // Then retrieve the process output
-            InputStream in = proc.getInputStream();
-            InputStream err = proc.getErrorStream();
-            int outputStreamLength;
-
-            byte[] b = new byte[in.available()];
-            outputStreamLength = in.read(b, 0, b.length);
-            if (outputStreamLength > 0) {
-                buildContext.out().println(new String(b, StandardCharsets.UTF_8));
-            }
-
-            byte[] c = new byte[err.available()];
-            outputStreamLength = err.read(c, 0, c.length);
-            if (outputStreamLength > 0) {
-                buildContext.out().println(new String(c, StandardCharsets.UTF_8));
-            }
-           return testResult;
+//            // Then retrieve the process output
+//            InputStream in = proc.getInputStream();
+//            InputStream err = proc.getErrorStream();
+//            int outputStreamLength;
+//
+//            byte[] b = new byte[in.available()];
+//            outputStreamLength = in.read(b, 0, b.length);
+//            if (outputStreamLength > 0) {
+//                buildContext.out().println(new String(b, StandardCharsets.UTF_8));
+//            }
+//
+//            byte[] c = new byte[err.available()];
+//            outputStreamLength = err.read(c, 0, c.length);
+//            if (outputStreamLength > 0) {
+//                buildContext.out().println(new String(c, StandardCharsets.UTF_8));
+//            }
+           return proc.waitFor();
         } catch (IOException | InterruptedException e) {
             throw createLauncherException("unable to run the tests: " + e.getMessage());
         }
     }
 
-    private HashSet<Path> getTestDependencies(BuildContext buildContext, PackageID packageID) {
-        Path testJarPath = buildContext.getTestJarPathFromTargetCache(packageID);
-        ExecutableJar executableJar = buildContext.moduleDependencyPathMap.get(packageID);
+    private HashSet<Path> getTestDependencies(BuildContext buildContext, BLangPackage bLangPackage) {
+        Path testJarPath;
+        if (bLangPackage.containsTestablePkg()) {
+            testJarPath = buildContext.getTestJarPathFromTargetCache(bLangPackage.packageID);
+        } else {
+            // Single bal file test code will be in module jar
+            testJarPath = buildContext.getJarPathFromTargetCache(bLangPackage.packageID);
+        }
+        ExecutableJar executableJar = buildContext.moduleDependencyPathMap.get(bLangPackage.packageID);
         HashSet<Path> testDependencies = new HashSet<>(executableJar.moduleLibs);
         testDependencies.addAll(executableJar.testLibs);
         testDependencies.add(testJarPath);

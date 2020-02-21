@@ -61,17 +61,8 @@ public class CopyModuleJarTask implements Task {
 
         // Copy module jar
         List<BLangPackage> moduleBirMap = buildContext.getModules();
-        copyModuleJar(buildContext, moduleBirMap);
         // Copy imported jars.
         copyImportedJars(buildContext, moduleBirMap, sourceRootPath, balHomePath);
-    }
-
-    private void copyModuleJar(BuildContext buildContext, List<BLangPackage> moduleBirMap) {
-        for (BLangPackage module : moduleBirMap) {
-            // get the jar path of the module.
-            buildContext.moduleDependencyPathMap.get(module.packageID).moduleJarPath =
-                    buildContext.getJarPathFromTargetCache(module.packageID);
-        }
     }
 
     private void copyImportedJars(BuildContext buildContext, List<BLangPackage> moduleBirMap, Path sourceRootPath,

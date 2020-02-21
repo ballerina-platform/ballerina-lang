@@ -171,7 +171,7 @@ public class RunExecutableTask implements Task {
                 MODULE_INIT_CLASS_NAME);
         try {
             URL[] urls = new URL[executableJar.moduleLibs.size() + 1];
-            urls[0] = executableJar.moduleJarPath.toUri().toURL();
+            urls[0] = buildContext.getJarPathFromTargetCache(executableModule.packageID).toUri().toURL();
             int i = 1;
             for (Path platformLib : executableJar.moduleLibs) {
                 urls[i++] = platformLib.toUri().toURL();

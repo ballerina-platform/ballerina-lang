@@ -518,10 +518,17 @@ public class BuildContext extends HashMap<BuildContextField, Object> {
 
     public Path getTestJsonPathTargetCache(PackageID moduleID) {
         try {
-            return Files.createDirectories(targetTestJsonCacheDir
-                                                   .resolve(moduleID.orgName.value)
-                                                   .resolve(moduleID.name.value)
-                                                   .resolve(moduleID.version.value));
+            Files.createDirectories(targetTestJsonCacheDir);
+            switch (this.getSourceType()) {
+                case SINGLE_MODULE:
+                case ALL_MODULES:
+                    return Files.createDirectories(targetTestJsonCacheDir
+                                                           .resolve(moduleID.orgName.value)
+                                                           .resolve(moduleID.name.value)
+                                                           .resolve(moduleID.version.value));
+                default:
+                    return targetTestJsonCacheDir;
+            }
 
         } catch (IOException e) {
             throw new BLangCompilerException(
