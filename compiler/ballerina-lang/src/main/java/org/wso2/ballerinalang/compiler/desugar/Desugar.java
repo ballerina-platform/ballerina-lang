@@ -3388,9 +3388,9 @@ public class Desugar extends BLangNodeVisitor {
 
             System.out.println(getLValueArrayAccessDimensions(indexAccessExpr));
 
-            result = rewriteTwoDimensionalLValAccess(indexAccessExpr, varRefType);
-            return;
-        } else if (dimensions > 2) {
+            //result = rewriteMultiDimensionalLValAccess(indexAccessExpr, dimensions);
+//            return;
+        } else if (dimensions == 3) {
             System.out.println(getLValueArrayAccessDimensions(indexAccessExpr));
 
             result = rewriteMultiDimensionalLValAccess(indexAccessExpr, dimensions);
@@ -3400,6 +3400,13 @@ public class Desugar extends BLangNodeVisitor {
         }
 
         indexAccessExpr.expr = rewriteExpr(indexAccessExpr.expr);
+
+//        if (indexAccessExpr.lhsVar) { // TODO: improve this check to avoid being called always
+//            BLangExpression expr = convertToFillingRead(indexAccessExpr);
+////            convertToFillingRead(indexAccessExpr);
+////            return;
+//        }
+
         if (!types.isSameType(indexAccessExpr.expr.type, varRefType)) {
             indexAccessExpr.expr = addConversionExprIfRequired(indexAccessExpr.expr, varRefType);
         }
@@ -3447,117 +3454,181 @@ public class Desugar extends BLangNodeVisitor {
         // ar[i][j] = n; -> int $t = i; if ($t < ar.length() + 1) { ar[$t] = []; } ar[$t][j] = n;
         BType varRefType = indexAccessExpr.expr.type;
         DiagnosticPos pos = indexAccessExpr.pos;
-        BLangIndexBasedAccess expr = (BLangIndexBasedAccess) indexAccessExpr.expr;
+
         BLangStatementExpression bLangStatementExpression = new BLangStatementExpression();
 
         BLangBlockStmt bLangBlockStmt = new BLangBlockStmt();
-        BLangSimpleVariableDef firstIndex =
-                createVarDef("$tempIndex$", expr.indexExpr.type, expr.indexExpr, expr.indexExpr.pos);
-        bLangBlockStmt.addStatement(firstIndex);
+        // star of the logic
+        if (dimensions == 2) {
 
-        // TODO : why ?
-        BLangInvocation invocationNode = createArrayLengthInvocation(expr);
-        BLangSimpleVariableDef lengthOfArray = createVarDef("$arrayLength$", symTable.intType, invocationNode, pos);
-        bLangBlockStmt.addStatement(lengthOfArray);
+            BLangIndexBasedAccess expr = (BLangIndexBasedAccess) indexAccessExpr.expr;
+            BLangSimpleVariableDef firstIndex =
+                    createVarDef("$tempIndex$", expr.indexExpr.type, expr.indexExpr, expr.indexExpr.pos);
+            bLangBlockStmt.addStatement(firstIndex);
 
-        BLangIf ifStmt = ASTBuilderUtil.createIfStmt(pos, bLangBlockStmt);
-        // todo: extract index to a var, and then use that var here
-        // arr.length() < index + 1
-        BLangSimpleVarRef firstIndexVarRef = ASTBuilderUtil.createVariableRef(firstIndex.pos, firstIndex.var.symbol);
-        BLangBinaryExpr addOneToIndex = ASTBuilderUtil.createBinaryExpr(pos,
-                                                                        firstIndexVarRef,
-                                                                        ASTBuilderUtil.createLiteral(pos, symTable.intType, Long.valueOf(1)),
-                                                                        symTable.intType,
-                                                                        OperatorKind.ADD, null);
-        BLangBinaryExpr condition = ASTBuilderUtil.createBinaryExpr(pos,
-                                                                    ASTBuilderUtil.createVariableRef(pos, lengthOfArray.var.symbol),
-                                                                    addOneToIndex,
-                                                                    symTable.booleanType, OperatorKind.LESS_THAN, null);
-        ifStmt.expr = rewriteExpr(condition);
+            BLangInvocation invocationNode = createArrayLengthInvocation(expr);
+            BLangSimpleVariableDef lengthOfArray = createVarDef("$arrayLength$", symTable.intType, invocationNode, pos);
+            bLangBlockStmt.addStatement(lengthOfArray);
 
-        BLangIndexBasedAccess arrayAccess = (BLangIndexBasedAccess) TreeBuilder.createIndexBasedAccessNode();
-        arrayAccess.pos = pos;
-        arrayAccess.expr = expr.expr;
-        arrayAccess.indexExpr = firstIndexVarRef;
-        arrayAccess.type = expr.type;
+            BLangIf ifStmt = ASTBuilderUtil.createIfStmt(pos, bLangBlockStmt);
+            // todo: extract index to a var, and then use that var here
+            BLangSimpleVarRef firstIndexVarRef = ASTBuilderUtil.createVariableRef(firstIndex.pos,
+                                                                                  firstIndex.var.symbol);
+            BLangBinaryExpr addOneToIndex = ASTBuilderUtil.createBinaryExpr(pos,
+                                                                            firstIndexVarRef,
+                                                                            ASTBuilderUtil.createLiteral(pos,
+                                                                                                         symTable.intType,
+                                                                                                         Long.valueOf(
+                                                                                                                 1)),
+                                                                            symTable.intType,
+                                                                            OperatorKind.ADD, null);
+            BLangBinaryExpr condition = ASTBuilderUtil.createBinaryExpr(pos,
+                                                                        ASTBuilderUtil.createVariableRef(pos,
+                                                                                                         lengthOfArray.var.symbol),
+                                                                        addOneToIndex,
+                                                                        symTable.booleanType, OperatorKind.LESS_THAN,
+                                                                        null);
+            ifStmt.expr = rewriteExpr(condition);
 
-        BLangArrayAccessExpr arrayAccessExpr = new BLangArrayAccessExpr(pos, arrayAccess, indexAccessExpr.indexExpr);
-        arrayAccessExpr.lhsVar = true;
-        arrayAccessExpr.type = varRefType;
-        bLangStatementExpression.expr = arrayAccessExpr;
-        bLangStatementExpression.stmt = bLangBlockStmt;
-        BLangAssignment assignment = new BLangAssignment();
-        ifStmt.body = ASTBuilderUtil.createBlockStmt(pos);
-        ifStmt.body.addStatement(assignment);
+            BLangIndexBasedAccess arrayAccess = (BLangIndexBasedAccess) TreeBuilder.createIndexBasedAccessNode();
+            arrayAccess.pos = pos;
+            arrayAccess.expr = expr.expr;
+            arrayAccess.indexExpr = firstIndexVarRef;
+            arrayAccess.type = expr.type;
 
-        assignment.varRef = rewrite(arrayAccess, env);
+            BLangAssignment assignment = new BLangAssignment();
+            ifStmt.body = ASTBuilderUtil.createBlockStmt(pos);
+            ifStmt.body.addStatement(assignment);
 
-        BLangArrayLiteral arrayLiteral = new BLangArrayLiteral();
-        arrayLiteral.pos = indexAccessExpr.expr.pos;
-        assignment.expr = arrayLiteral;
-        arrayLiteral.type = expr.type;
-        assignment.type = expr.type;
+            assignment.varRef = rewrite(arrayAccess, env);
+
+            BLangArrayLiteral arrayLiteral = new BLangArrayLiteral();
+            arrayLiteral.pos = indexAccessExpr.expr.pos;
+            assignment.expr = arrayLiteral;
+            arrayLiteral.type = expr.type;
+            assignment.type = expr.type;
+
+            BLangArrayAccessExpr arrayAccessExpr = new BLangArrayAccessExpr(pos, arrayAccess, indexAccessExpr.indexExpr);
+            arrayAccessExpr.lhsVar = true;
+            arrayAccessExpr.type = varRefType;
+            bLangStatementExpression.expr = arrayAccessExpr;
+        } else if (dimensions == 3) {
+
+            BLangIndexBasedAccess expr = (BLangIndexBasedAccess) indexAccessExpr.expr;
+            BLangSimpleVariableDef firstIndex =
+                    createVarDef("$tempIndex$", expr.indexExpr.type, expr.indexExpr, expr.indexExpr.pos);
+            bLangBlockStmt.addStatement(firstIndex);
+
+            BLangInvocation invocationNode = createArrayLengthInvocation(expr);
+            BLangSimpleVariableDef lengthOfArray = createVarDef("$arrayLength$", symTable.intType, invocationNode, pos);
+            bLangBlockStmt.addStatement(lengthOfArray);
+
+            BLangIf ifStmt = ASTBuilderUtil.createIfStmt(pos, bLangBlockStmt);
+            // todo: extract index to a var, and then use that var here
+            BLangSimpleVarRef firstIndexVarRef = ASTBuilderUtil.createVariableRef(firstIndex.pos,
+                                                                                  firstIndex.var.symbol);
+            BLangBinaryExpr addOneToIndex = ASTBuilderUtil.createBinaryExpr(pos,
+                                                                            firstIndexVarRef,
+                                                                            ASTBuilderUtil.createLiteral(pos,
+                                                                                                         symTable.intType,
+                                                                                                         Long.valueOf(
+                                                                                                                 1)),
+                                                                            symTable.intType,
+                                                                            OperatorKind.ADD, null);
+            BLangBinaryExpr condition = ASTBuilderUtil.createBinaryExpr(pos,
+                                                                        ASTBuilderUtil.createVariableRef(pos,
+                                                                                                         lengthOfArray.var.symbol),
+                                                                        addOneToIndex,
+                                                                        symTable.booleanType, OperatorKind.LESS_THAN,
+                                                                        null);
+            ifStmt.expr = rewriteExpr(condition);
+
+            BLangIndexBasedAccess arrayAccess = (BLangIndexBasedAccess) TreeBuilder.createIndexBasedAccessNode();
+            arrayAccess.pos = pos;
+            arrayAccess.expr = expr.expr;
+            arrayAccess.indexExpr = firstIndexVarRef;
+            arrayAccess.type = expr.type;
+
+            BLangAssignment assignment = new BLangAssignment();
+            ifStmt.body = ASTBuilderUtil.createBlockStmt(pos);
+            ifStmt.body.addStatement(assignment);
+
+            assignment.varRef = rewrite(arrayAccess, env);
+
+            BLangArrayLiteral arrayLiteral = new BLangArrayLiteral();
+            arrayLiteral.pos = indexAccessExpr.expr.pos;
+            assignment.expr = arrayLiteral;
+            arrayLiteral.type = expr.type;
+            assignment.type = expr.type;
+
+            BLangArrayAccessExpr arrayAccessExpr = new BLangArrayAccessExpr(pos, arrayAccess, indexAccessExpr.indexExpr);
+            arrayAccessExpr.lhsVar = true;
+            arrayAccessExpr.type = varRefType;
+//            bLangStatementExpression.expr = arrayAccessExpr;
+
+            //(BLangIndexBasedAccess) indexAccessExpr.expr;
+            expr = (BLangIndexBasedAccess) arrayAccessExpr.expr;
+
+            //############ third index
+            BLangSimpleVariableDef firstIndexDim2 =
+                    createVarDef("$tempIndex$", expr.indexExpr.type, expr.indexExpr, expr.indexExpr.pos);
+            bLangBlockStmt.addStatement(firstIndexDim2);
+
+            BLangInvocation invocationNode2 = createArrayLengthInvocation(expr);
+            BLangSimpleVariableDef lengthOfArrayDim2 = createVarDef("$arrayLength$", symTable.intType, invocationNode2,
+                                                                pos);
+            bLangBlockStmt.addStatement(lengthOfArrayDim2);
+
+            BLangIf ifStmtDim2 = ASTBuilderUtil.createIfStmt(pos, bLangBlockStmt);
+            // todo: extract index to a var, and then use that var here
+            BLangSimpleVarRef firstIndexVarRefDim2 = ASTBuilderUtil.createVariableRef(firstIndexDim2.pos,
+                                                                                      firstIndexDim2.var.symbol);
+            BLangBinaryExpr addOneToIndexDim2 = ASTBuilderUtil.createBinaryExpr(pos,
+                                                                            firstIndexVarRefDim2,
+                                                                            ASTBuilderUtil.createLiteral(pos,
+                                                                                                         symTable.intType,
+                                                                                                         Long.valueOf(
+                                                                                                                 1)),
+                                                                            symTable.intType,
+                                                                            OperatorKind.ADD, null);
+            BLangBinaryExpr conditionDim2 = ASTBuilderUtil.createBinaryExpr(pos,
+                                                                        ASTBuilderUtil.createVariableRef(pos,
+                                                                                                         lengthOfArrayDim2.var.symbol),
+                                                                        addOneToIndexDim2,
+                                                                        symTable.booleanType, OperatorKind.LESS_THAN,
+                                                                        null);
+            ifStmtDim2.expr = rewriteExpr(conditionDim2);
+
+            BLangIndexBasedAccess arrayAccessDim2 = (BLangIndexBasedAccess) TreeBuilder.createIndexBasedAccessNode();
+            arrayAccessDim2.pos = pos;
+            arrayAccessDim2.expr = expr.expr;
+            arrayAccessDim2.indexExpr = firstIndexVarRefDim2;
+            arrayAccessDim2.type = expr.type;
+
+            BLangAssignment assignmentDim2 = new BLangAssignment();
+            ifStmtDim2.body = ASTBuilderUtil.createBlockStmt(pos);
+            ifStmtDim2.body.addStatement(assignmentDim2);
+
+            assignmentDim2.varRef = rewrite(arrayAccess, env);
+
+            BLangArrayLiteral arrayLiteralDim2 = new BLangArrayLiteral();
+            arrayLiteralDim2.pos = indexAccessExpr.expr.pos;
+            assignmentDim2.expr = arrayLiteralDim2;
+            arrayLiteralDim2.type = expr.type;
+            assignmentDim2.type = expr.type;
+
+            BLangArrayAccessExpr arrayAccessExprDim2 = new BLangArrayAccessExpr(pos, arrayAccessDim2,
+                                                                             indexAccessExpr.indexExpr);
+            arrayAccessExprDim2.lhsVar = true;
+            arrayAccessExprDim2.type = varRefType;
+            bLangStatementExpression.expr = arrayAccessExprDim2;
+
+        }
+
+        // end of the logic
 
         bLangStatementExpression.type = indexAccessExpr.type;
-        return rewriteExpr(bLangStatementExpression);
-    }
-
-    private BLangExpression rewriteTwoDimensionalLValAccess(BLangIndexBasedAccess indexAccessExpr, BType varRefType) {
-        // ar[i][j] = n; -> int $t = i; if ($t < ar.length() + 1) { ar[$t] = []; } ar[$t][j] = n;
-
-        DiagnosticPos pos = indexAccessExpr.pos;
-        BLangIndexBasedAccess expr = (BLangIndexBasedAccess) indexAccessExpr.expr;
-        BLangStatementExpression bLangStatementExpression = new BLangStatementExpression();
-
-        BLangBlockStmt bLangBlockStmt = new BLangBlockStmt();
-        BLangSimpleVariableDef firstIndex =
-                createVarDef("$tempIndex$", expr.indexExpr.type, expr.indexExpr, expr.indexExpr.pos);
-        bLangBlockStmt.addStatement(firstIndex);
-
-        // TODO : why ?
-        BLangInvocation invocationNode = createArrayLengthInvocation(expr);
-        BLangSimpleVariableDef lengthOfArray = createVarDef("$arrayLength$", symTable.intType, invocationNode, pos);
-        bLangBlockStmt.addStatement(lengthOfArray);
-
-        BLangIf ifStmt = ASTBuilderUtil.createIfStmt(pos, bLangBlockStmt);
-        // todo: extract index to a var, and then use that var here
-        // arr.length() < index + 1
-        BLangSimpleVarRef firstIndexVarRef = ASTBuilderUtil.createVariableRef(firstIndex.pos, firstIndex.var.symbol);
-        BLangBinaryExpr addOneToIndex = ASTBuilderUtil.createBinaryExpr(pos,
-                firstIndexVarRef,
-                ASTBuilderUtil.createLiteral(pos, symTable.intType, Long.valueOf(1)),
-                symTable.intType,
-                OperatorKind.ADD, null);
-        BLangBinaryExpr condition = ASTBuilderUtil.createBinaryExpr(pos,
-                ASTBuilderUtil.createVariableRef(pos, lengthOfArray.var.symbol),
-                addOneToIndex,
-                symTable.booleanType, OperatorKind.LESS_THAN, null);
-        ifStmt.expr = rewriteExpr(condition);
-
-        BLangIndexBasedAccess arrayAccess = (BLangIndexBasedAccess) TreeBuilder.createIndexBasedAccessNode();
-        arrayAccess.pos = pos;
-        arrayAccess.expr = expr.expr;
-        arrayAccess.indexExpr = firstIndexVarRef;
-        arrayAccess.type = expr.type;
-
-        BLangArrayAccessExpr arrayAccessExpr = new BLangArrayAccessExpr(pos, arrayAccess, indexAccessExpr.indexExpr);
-        arrayAccessExpr.lhsVar = true;
-        arrayAccessExpr.type = varRefType;
-        bLangStatementExpression.expr = arrayAccessExpr;
         bLangStatementExpression.stmt = bLangBlockStmt;
-        BLangAssignment assignment = new BLangAssignment();
-        ifStmt.body = ASTBuilderUtil.createBlockStmt(pos);
-        ifStmt.body.addStatement(assignment);
-
-        assignment.varRef = rewrite(arrayAccess, env);
-
-        BLangArrayLiteral arrayLiteral = new BLangArrayLiteral();
-        arrayLiteral.pos = indexAccessExpr.expr.pos;
-        assignment.expr = arrayLiteral;
-        arrayLiteral.type = expr.type;
-        assignment.type = expr.type;
-
-        bLangStatementExpression.type = indexAccessExpr.type;
         return rewriteExpr(bLangStatementExpression);
     }
 
