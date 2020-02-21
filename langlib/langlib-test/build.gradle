@@ -66,6 +66,7 @@ dependencies {
     testRuntime project(':ballerina-lang:typedesc')
     testRuntime project(':ballerina-lang:value')
     testRuntime project(':ballerina-lang:xml')
+    testRuntime project(':ballerina-io')
     testRuntime project(':ballerina-runtime')
     testRuntime project(':ballerina-lang:internal')
     testRuntime 'org.slf4j:slf4j-jdk14'
@@ -86,6 +87,7 @@ dependencies {
     baloTestImplementation project(path: ':ballerina-lang:value', configuration: 'baloImplementation')
     baloTestImplementation project(path: ':ballerina-lang:xml', configuration: 'baloImplementation')
     baloTestImplementation project(path: ':ballerina-lang:internal', configuration: 'baloImplementation')
+    baloTestImplementation project(path: ':ballerina-io', configuration: 'baloImplementation')
 }
 
 task createBre(type: org.gradle.api.tasks.Copy) {

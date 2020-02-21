@@ -46,4 +46,17 @@ public class CloneUtils {
         RefValue refValue = (RefValue) value;
         return refValue.copy(new HashMap<>());
     }
+
+    public static Object cloneReadOnly(Object value) {
+        if (value == null) {
+            return null;
+        }
+
+        if (!(value instanceof RefValue)) {
+            return value;
+        }
+
+        RefValue refValue = (RefValue) value;
+        return refValue.copy(new HashMap<>());
+    }
 }

@@ -76,7 +76,7 @@ function testMapFunc() returns boolean {
         return e;
     });
 
-    var employee = employeeStream.next();
+    record {|Employee value;|}? employee = employeeStream.next();
     testPassed = testPassed && employee?.value?.name == "Gima" && employee?.value?.company == "WSO2";
 
     employee = employeeStream.next();
@@ -116,7 +116,7 @@ function testFilterAndMapFunc() returns boolean {
     }
     );
 
-    var employee = employeeStream.next();
+    record {|Employee value;|}? employee = employeeStream.next();
     testPassed = testPassed && employee?.value?.name == "Mohan" && employee?.value?.company == "WSO2";
 
     employee = employeeStream.next();

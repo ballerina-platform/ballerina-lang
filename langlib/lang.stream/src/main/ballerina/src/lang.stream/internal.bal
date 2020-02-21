@@ -17,13 +17,6 @@
 @typeParam
 type PureType3 anydata | error;
 
-# Takes in a lambda function and returns a new stream out of it.
-#
-# + td - A type description.
-# + func - A lambda function.
-# + return - New stream containing results of `func` invocation.
-function construct(typedesc<PureType3> td, function() returns PureType3 func) returns stream<PureType3> = external;
-
 # Takes in a stream and returns the value gen function of that stream.
 #
 # + strm - The stream
@@ -43,5 +36,7 @@ type StreamIterator object {
     # + return - iterator result
     public function next() returns record {|
         PureType1 value;
-    |}? = external;
+    |}? {
+        return next(self.strm);
+    }
 };

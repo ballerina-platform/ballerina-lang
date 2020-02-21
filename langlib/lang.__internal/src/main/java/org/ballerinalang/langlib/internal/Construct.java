@@ -16,32 +16,34 @@
  * under the License.
  */
 
-package org.ballerinalang.langlib.stream;
+package org.ballerinalang.langlib.internal;
 
 import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.types.BStreamType;
 import org.ballerinalang.jvm.values.FPValue;
 import org.ballerinalang.jvm.values.StreamValue;
+import org.ballerinalang.jvm.values.TypedescValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
-
 /**
- * Native implementation of lang.stream:reduce(stream&lt;PureType&gt;, function).
+ * Native implementation of lang.internal:construct(typeDesc, function).
  *
- * @since 1.2
+ * @since 1.2.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.stream", functionName = "reduce",
-        args = {@Argument(name = "strm", type = TypeKind.STREAM), @Argument(name = "func", type = TypeKind.FUNCTION),
-                @Argument(name = "initial", type = TypeKind.ANY)},
-        returnType = {@ReturnType(type = TypeKind.ANY)},
-        isPublic = true
+        orgName = "ballerina", packageName = "lang.__internal", functionName = "construct",
+        args = {
+                @Argument(name = "td", type = TypeKind.TYPEDESC),
+                @Argument(name = "func", type = TypeKind.FUNCTION)
+        },
+        returnType = {@ReturnType(type = TypeKind.STREAM)}
 )
-public class Reduce {
+public class Construct {
 
-    public static Object reduce(Strand strand, StreamValue strm, FPValue<Object, Object> func, Object initial) {
-        return strm.reduce(func, initial);
+    public static StreamValue construct(Strand strand, TypedescValue td, FPValue<Object, Object> func) {
+        return new StreamValue(new BStreamType(td.getDescribingType()), func);
     }
 }

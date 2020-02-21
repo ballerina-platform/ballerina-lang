@@ -131,8 +131,8 @@ public class CompilerDriver {
     void loadLangModules(List<PackageID> pkgIdList) {
         // This logic interested in loading lang modules from source. For others we can load from balo.
         if (!LOAD_BUILTIN_FROM_SOURCE) {
-            symbolTable.langInternalModuleSymbol = pkgLoader.loadPackageSymbol(INTERNAL, null, null);
             symbolTable.langAnnotationModuleSymbol = pkgLoader.loadPackageSymbol(ANNOTATIONS, null, null);
+            symbolTable.langInternalModuleSymbol = pkgLoader.loadPackageSymbol(INTERNAL, null, null);
             symResolver.reloadErrorAndDependentTypes();
             symResolver.reloadIntRangeType();
             symbolTable.langArrayModuleSymbol = pkgLoader.loadPackageSymbol(ARRAY, null, null);
