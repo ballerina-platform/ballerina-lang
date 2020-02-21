@@ -47,6 +47,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.NamedNode;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.util.Name;
@@ -143,6 +144,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.getPacka
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.lookupGlobalVarClassName;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.symbolTable;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTerminatorGen.TerminatorGenerator.toNameString;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmValueGen.NAME_HASH_COMPARATOR;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmValueGen.NodeSorter;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmValueGen.createDefaultCase;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmValueGen.createLabelsForEqualCheck;
@@ -349,15 +351,10 @@ class JvmTypeGen {
         Label defaultCaseLabel = new Label();
 
         // sort the fields before generating switch case
-        NodeSorter sorter = new NodeSorter();
-        List<JvmValueGen.NamedNode> recrodTypeNames = new ArrayList<>();
-        for (BIRTypeDefinition typeDefinition : recordTypeDefs) {
-            recrodTypeNames.add(new JvmValueGen.NamedNode(typeDefinition.name));
-        }
-        sorter.sortByHash(recrodTypeNames);
+        recordTypeDefs.sort(NAME_HASH_COMPARATOR);
 
-        List<Label> labels = createLabelsForSwitch(mv, fieldNameRegIndex, recrodTypeNames, defaultCaseLabel);
-        List<Label> targetLabels = createLabelsForEqualCheck(mv, fieldNameRegIndex, recrodTypeNames, labels,
+        List<Label> labels = createLabelsForSwitch(mv, fieldNameRegIndex, recordTypeDefs, defaultCaseLabel);
+        List<Label> targetLabels = createLabelsForEqualCheck(mv, fieldNameRegIndex, recordTypeDefs, labels,
                 defaultCaseLabel);
 
         int i = 0;
@@ -429,15 +426,10 @@ class JvmTypeGen {
         Label defaultCaseLabel = new Label();
 
         // sort the fields before generating switch case
-        NodeSorter sorter = new NodeSorter();
-        List<JvmValueGen.NamedNode> objectTypeNames = new ArrayList<>();
-        for (BIRTypeDefinition typeDefinition : objectTypeDefs) {
-            objectTypeNames.add(new JvmValueGen.NamedNode(typeDefinition.name));
-        }
-        sorter.sortByHash(objectTypeNames);
+        objectTypeDefs.sort(NAME_HASH_COMPARATOR);
 
-        List<Label> labels = createLabelsForSwitch(mv, var1Index, objectTypeNames, defaultCaseLabel);
-        List<Label> targetLabels = createLabelsForEqualCheck(mv, var1Index, objectTypeNames, labels,
+        List<Label> labels = createLabelsForSwitch(mv, var1Index, objectTypeDefs, defaultCaseLabel);
+        List<Label> targetLabels = createLabelsForEqualCheck(mv, var1Index, objectTypeDefs, labels,
                 defaultCaseLabel);
 
         int i = 0;
