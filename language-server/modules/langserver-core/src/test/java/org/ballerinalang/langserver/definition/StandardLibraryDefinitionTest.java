@@ -20,7 +20,6 @@ package org.ballerinalang.langserver.definition;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.exception.LSStdlibCacheException;
 import org.ballerinalang.langserver.util.FileUtils;
 import org.ballerinalang.langserver.util.TestUtil;
@@ -33,9 +32,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
-import java.io.File;
 import java.io.IOException;
-import java.net.URI;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 

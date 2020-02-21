@@ -73,12 +73,12 @@ import static org.ballerinalang.compiler.CompilerOptionName.PROJECT_DIR;
 public class LSStandardLibCache {
     private static final LSStandardLibCache STANDARD_LIB_CACHE;
     private static final ReentrantLock lock = new ReentrantLock();
-    private LoadingCache<String, List<TopLevelNode>> topLevelNodeCache;
-    private Path STDLIB_CACHE_PROJECT_PATH;
-    private Path STDLIB_SOURCE_ROOT;
     private static final String CACHE_PROJECT_NAME = "stdlib_cache_proj";
     private static final String TOML_CONTENT = "[project]\norg-name= \"lsbalorg\"\nversion=\"1.1.0\"\n\n[dependencies]";
-    private static boolean cacheProjectRootSuccess;
+    private Path stdlibCacheProjectPath;
+    private Path stdlibSourceRoot;
+    private boolean cacheProjectRootSuccess;
+    private LoadingCache<String, List<TopLevelNode>> topLevelNodeCache;
 
     static {
         STANDARD_LIB_CACHE = new LSStandardLibCache();
@@ -97,15 +97,15 @@ public class LSStandardLibCache {
 
         try {
             Path cachedProjectPath = CommonUtil.LS_STDLIB_CACHE_DIR.resolve(CACHE_PROJECT_NAME);
-            STDLIB_CACHE_PROJECT_PATH = Files.createDirectories(cachedProjectPath);
-            Path manifestPath = STDLIB_CACHE_PROJECT_PATH.resolve(ProjectDirConstants.MANIFEST_FILE_NAME);
+            stdlibCacheProjectPath = Files.createDirectories(cachedProjectPath);
+            Path manifestPath = stdlibCacheProjectPath.resolve(ProjectDirConstants.MANIFEST_FILE_NAME);
             Files.write(manifestPath, Collections.singletonList(TOML_CONTENT));
             cacheProjectRootSuccess = true;
         } catch (IOException e) {
             cacheProjectRootSuccess = false;
             return;
         }
-        STDLIB_SOURCE_ROOT = Paths.get(CommonUtil.BALLERINA_HOME).resolve("lib").resolve("repo");
+        stdlibSourceRoot = Paths.get(CommonUtil.BALLERINA_HOME).resolve("lib").resolve("repo");
     }
 
     /**
@@ -141,8 +141,8 @@ public class LSStandardLibCache {
                     String orgName = module.getOrgName().getValue();
                     String moduleName = LSStdLibCacheUtil.getCacheEntryName(module);
                     try {
-                        LSStdLibCacheUtil.extractSourceFromBalo(STDLIB_SOURCE_ROOT.resolve(orgName),
-                                STDLIB_CACHE_PROJECT_PATH.resolve(ProjectDirConstants.SOURCE_DIR_NAME), module);
+                        LSStdLibCacheUtil.extractSourceFromBalo(stdlibSourceRoot.resolve(orgName),
+                                stdlibCacheProjectPath.resolve(ProjectDirConstants.SOURCE_DIR_NAME), module);
                         topLevelNodeCache.put(moduleName, getNodesForModule(moduleName));
                     } catch (IOException | LSStdlibCacheException e) {
                         // Ignore the exception since the cache will not be polluted
@@ -179,11 +179,11 @@ public class LSStandardLibCache {
         if (!cacheProjectRootSuccess) {
             throw new LSStdlibCacheException("Cache Root could not initialized");
         }
-        return STDLIB_CACHE_PROJECT_PATH;
+        return stdlibCacheProjectPath;
     }
 
     private List<TopLevelNode> getNodesForModule(String moduleName) throws UnsupportedEncodingException {
-        Compiler compiler = getCompiler(STDLIB_CACHE_PROJECT_PATH.toString());
+        Compiler compiler = getCompiler(stdlibCacheProjectPath.toString());
         BLangPackage bLangPackage = compiler.compile(moduleName);
         return bLangPackage.topLevelNodes.stream()
                 .filter(topLevelNode -> {

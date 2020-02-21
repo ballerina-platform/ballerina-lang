@@ -18,6 +18,8 @@ package org.ballerinalang.langserver.util.definition;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.exception.LSStdlibCacheException;
 import org.ballerinalang.model.elements.PackageID;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.util.Name;
@@ -25,6 +27,7 @@ import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -42,11 +45,13 @@ public class LSStdLibCacheUtil {
     private static final String DIR_VALIDATION_PATTERN = ProjectDirConstants.SOURCE_DIR_NAME
             + CommonUtil.FILE_SEPARATOR + ProjectDirConstants.SOURCE_DIR_NAME + CommonUtil.FILE_SEPARATOR;
 
+    private static final Logger logger = LoggerFactory.getLogger(LSStdLibCacheUtil.class);
+
     private LSStdLibCacheUtil() {
     }
 
     protected static void extractSourceFromBalo(Path sourceRoot, Path destinationRoot, BLangImportPackage module)
-            throws IOException, LSStdlibCacheException {
+            throws LSStdlibCacheException {
         String moduleName = module.getPackageName().stream()
                 .map(BLangIdentifier::getValue)
                 .collect(Collectors.joining("."));
@@ -56,6 +61,7 @@ public class LSStdLibCacheUtil {
         String moduleDir = moduleName + "_" + version;
         Path baloPath = sourceRoot.resolve(moduleName).resolve(version).resolve(moduleName
                 + ProjectDirConstants.BLANG_COMPILED_PKG_EXT);
+        FileInputStream baloFileInputStream;
 
         if (Files.exists(destinationRoot.resolve(moduleDir))) {
             // Already extracted
@@ -66,13 +72,23 @@ public class LSStdLibCacheUtil {
         }
 
         // Create the new extract root
-        Path destinationPath = Files.createDirectories(destinationRoot.resolve(getCacheEntryName(moduleName, version)));
+        Path destinationPath;
+        try {
+            destinationPath = Files.createDirectories(destinationRoot.resolve(getCacheEntryName(moduleName, version)));
+        } catch (IOException e) {
+            throw new LSStdlibCacheException(e.getMessage(), e);
+        }
+
         String moduleDirValidationPattern = DIR_VALIDATION_PATTERN + moduleName + CommonUtil.FILE_SEPARATOR;
         byte[] buffer = new byte[1024];
-        ZipInputStream zis = new ZipInputStream(new FileInputStream(baloPath.toAbsolutePath().toString()));
-        ZipEntry zipEntry = zis.getNextEntry();
-
         try {
+            baloFileInputStream = new FileInputStream(baloPath.toAbsolutePath().toString());
+        } catch (FileNotFoundException e) {
+            throw new LSStdlibCacheException(e.getMessage(), e);
+        }
+
+        try (ZipInputStream zis = new ZipInputStream(baloFileInputStream)) {
+            ZipEntry zipEntry = zis.getNextEntry();
             while (zipEntry != null) {
                 String fileName = zipEntry.getName().replace(moduleDirValidationPattern, "");
                 if (zipEntry.isDirectory()) {
@@ -85,19 +101,27 @@ public class LSStdLibCacheUtil {
                 }
                 if (!fileName.endsWith(ProjectDirConstants.BLANG_COMPILED_PKG_BIR_EXT)) {
                     File newFile = destinationPath.resolve(fileName).toFile();
-                    FileOutputStream fos = new FileOutputStream(newFile);
                     int length;
-                    while ((length = zis.read(buffer)) > 0) {
-                        fos.write(buffer, 0, length);
+                    try (FileOutputStream fos = new FileOutputStream(newFile)) {
+                        while ((length = zis.read(buffer)) > 0) {
+                            fos.write(buffer, 0, length);
+                        }
+                        boolean readOnly = newFile.setReadOnly();
+                        if (!readOnly) {
+                            logger.warn("Failed to set the cached source read only");
+                        }
                     }
-                    newFile.setReadOnly();
-                    fos.close();
                 }
                 zipEntry = zis.getNextEntry();
             }
+        } catch (IOException e) {
+            throw new LSStdlibCacheException(e.getMessage(), e);
         } finally {
-            zis.closeEntry();
-            zis.close();
+            try {
+                baloFileInputStream.close();
+            } catch (IOException e) {
+                // Ignore
+            }
         }
     }
 
@@ -107,7 +131,7 @@ public class LSStdLibCacheUtil {
      * @param module import module
      * @return {@link String} computed cache entry name
      */
-    protected synchronized static String getCacheEntryName(BLangImportPackage module) {
+    protected static synchronized String getCacheEntryName(BLangImportPackage module) {
         String moduleName = module.getPackageName().stream()
                 .map(BLangIdentifier::getValue)
                 .collect(Collectors.joining("."));
@@ -122,7 +146,7 @@ public class LSStdLibCacheUtil {
      * @param packageID Package ID instance to evaluate
      * @return {@link String} computed cache entry name
      */
-    protected synchronized static String getCacheEntryName(PackageID packageID) {
+    protected static synchronized String getCacheEntryName(PackageID packageID) {
         String moduleName = packageID.getNameComps().stream()
                 .map(Name::getValue)
                 .collect(Collectors.joining("."));

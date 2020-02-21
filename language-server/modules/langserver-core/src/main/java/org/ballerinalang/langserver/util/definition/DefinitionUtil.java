@@ -44,6 +44,11 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * Utilities for the definition operations.
+ * 
+ * @since 1.2.0
+ */
 public class DefinitionUtil {
 
     /**

@@ -16,12 +16,16 @@
 package org.ballerinalang.langserver.exception;
 
 /**
- * This Exception is thrown when there is an error in standard library cache in language server
+ * This Exception is thrown when there is an error in standard library cache in language server.
  * 
  * @since 1.2.0
  */
 public class LSStdlibCacheException extends Exception {
     public LSStdlibCacheException(String message) {
         super(message);
+    }
+
+    public LSStdlibCacheException(String message, Throwable cause) {
+        super(message, cause);
     }
 }
