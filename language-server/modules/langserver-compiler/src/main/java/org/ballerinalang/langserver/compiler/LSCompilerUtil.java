@@ -365,8 +365,11 @@ public class LSCompilerUtil {
         }
     }
 
-    static class EmptyPrintStream extends PrintStream {
-        EmptyPrintStream() throws UnsupportedEncodingException {
+    /**
+     * Represents an empty print stream to avoid writing to the standard print stream.
+     */
+    public static class EmptyPrintStream extends PrintStream {
+        public EmptyPrintStream() throws UnsupportedEncodingException {
             super(new OutputStream() {
                 @Override
                 public void write(int b) {
