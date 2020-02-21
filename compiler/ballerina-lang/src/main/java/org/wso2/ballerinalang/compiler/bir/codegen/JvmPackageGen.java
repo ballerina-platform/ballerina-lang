@@ -35,6 +35,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BServiceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
@@ -671,7 +672,7 @@ public class JvmPackageGen {
 
             if ((bType.tag == TypeTags.OBJECT &&
                     !Symbols.isFlagOn(((BObjectType) bType).tsymbol.flags, Flags.ABSTRACT)) ||
-                    bType.tag == TypeTags.SERVICE) {
+                    bType instanceof BServiceType) {
                 @Nilable List<BIRFunction> attachedFuncs = getFunctions(typeDef.attachedFuncs);
                 String typeName = typeName = toNameString(((BObjectType) bType));
 //                if (bType.tag == TypeTags.OBJECT) {

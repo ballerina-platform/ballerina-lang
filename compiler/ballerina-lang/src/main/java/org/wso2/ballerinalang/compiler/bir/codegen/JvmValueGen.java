@@ -143,7 +143,7 @@ class JvmValueGen {
             if (bType.tag == TypeTags.OBJECT &&
                     !Symbols.isFlagOn(((BObjectType) bType).tsymbol.flags, Flags.ABSTRACT)) {
                 desugarObjectMethods(module, bType, typeDef.attachedFuncs);
-            } else if (bType.tag == TypeTags.SERVICE) {
+            } else if (bType instanceof BServiceType) {
                 desugarObjectMethods(module, bType, typeDef.attachedFuncs);
             } else if (bType.tag == TypeTags.RECORD) {
                 desugarObjectMethods(module, bType, typeDef.attachedFuncs);
@@ -1087,7 +1087,7 @@ class JvmValueGen {
                     String className = getTypeValueClassName(this.module, typeDef.name.value);
                     byte[] bytes = this.createObjectValueClass(objectType, className, typeDef, false);
                     jarEntries.put(className + ".class", bytes);
-                } else if (bType.tag == TypeTags.SERVICE) {
+                } else if (bType instanceof BServiceType) {
                     BServiceType serviceType = (BServiceType) bType;
                     this.currentObjectType = serviceType;
                     String className = getTypeValueClassName(this.module, typeDef.name.value);

@@ -40,6 +40,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BAnyType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BJSONType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BServiceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 
@@ -163,6 +164,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.lookupTy
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTerminatorGen.TerminatorGenerator.toNameString;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen.duplicateServiceTypeWithAnnots;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen.getTypeDesc;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen.loadExternalOrLocalType;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen.loadExternalType;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen.loadType;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmValueGen.getTypeValueClassName;
@@ -1288,11 +1290,11 @@ public class JvmInstructionGen {
             this.mv.visitInsn(DUP);
 
             BType type = typeDef.type;
-            if (type.tag == TypeTags.SERVICE) {
+            if (type instanceof BServiceType) {
                 // For services, create a new type for each new service value. TODO: do only for local vars
                 duplicateServiceTypeWithAnnots(this.mv, (BObjectType) type, typeDef, this.currentPackageName, strandIndex);
             } else {
-                loadExternalType(this.mv, objectNewIns.externalPackageId, objectNewIns.objectName);
+                loadExternalOrLocalType(this.mv, typeDef);
             }
             this.mv.visitTypeInsn(CHECKCAST, OBJECT_TYPE);
             this.mv.visitMethodInsn(INVOKESPECIAL, className, "<init>", String.format("(L%s;)V", OBJECT_TYPE), false);
