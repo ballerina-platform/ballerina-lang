@@ -50,6 +50,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
+import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -319,9 +320,13 @@ public class OpenApiResourceMapper {
         //Add path parameters if in path
         if (resource.requiredParams.size() > 0) {
             List requiredParams = resource.requiredParams;
-            for (Object parameter :requiredParams) {
+            for (Object parameter : requiredParams) {
                 BLangSimpleVariable param = (BLangSimpleVariable) parameter;
-                if (!param.symbol.name.value.equals("caller") && !param.symbol.name.value.equals("request")) {
+                boolean isCaller = ((param.typeNode instanceof BLangUserDefinedType) &&
+                        ((BLangUserDefinedType) param.typeNode).typeName.value.equals("Caller"));
+                boolean isRequest = ((param.typeNode instanceof BLangUserDefinedType) &&
+                        ((BLangUserDefinedType) param.typeNode).typeName.value.equals("Request"));
+                if (!isCaller && !isRequest) {
                     PathParameter pathParameter = new PathParameter();
                     pathParameter.setName(param.getName().value);
                     pathParameter.setType(param.type.tsymbol.name.value);
