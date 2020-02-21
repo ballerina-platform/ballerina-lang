@@ -23,7 +23,6 @@ import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.FutureValue;
-import org.ballerinalang.test.launcher.BallerinaTestException;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -40,7 +39,6 @@ public class TesterinaFunction {
 
     private String bFunctionName;
     private Class<?> programFile;
-    private boolean runTest = true;
 
     // Annotation info
     private List<String> groups = new ArrayList<>();
@@ -85,23 +83,15 @@ public class TesterinaFunction {
         this.groups = groups;
     }
 
-    public boolean getRunTest() {
-        return runTest;
-    }
-
-    public void setRunTest() {
-        this.runTest = false;
-    }
-
     private static Object run(Class<?> initClazz, String name, Scheduler scheduler,
                               Class[] paramTypes) {
         String funcName = cleanupFunctionName(name);
         try {
-
             final Method method = initClazz.getDeclaredMethod(funcName, paramTypes);
             return method.invoke(null, new Object[]{});
         } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
-            throw new BallerinaTestException("Error while invoking function '" + funcName + "" + e.getMessage());
+            throw new BallerinaException("Failed to invoke the function '" +
+                                                     funcName + " due to " + e.getMessage());
         }
     }
 
@@ -136,7 +126,7 @@ public class TesterinaFunction {
             }
             return out.result;
         } catch (NoSuchMethodException e) {
-            throw new BallerinaTestException("Error while invoking function '" + funcName + "'\n" +
+            throw new BallerinaException("Error while invoking function '" + funcName + "'\n" +
                     "If you are using data providers please check if types return from data provider " +
                     "match test function parameter types.", e);
         }

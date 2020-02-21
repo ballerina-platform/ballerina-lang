@@ -43,7 +43,7 @@ public class TestSuite {
     private String sourceRootPath;
     private String sourceFileName;
 
-    private HashMap<String, String> testFunctionNames;
+    private Map<String, String> testUtilityFunctions = new HashMap<>();
     private List<String> beforeSuiteFunctionNames = new ArrayList<>();
     private List<String> afterSuiteFunctionNames = new ArrayList<>();
     private List<String> beforeEachFunctionNames = new ArrayList<>();
@@ -147,16 +147,8 @@ public class TestSuite {
         this.packageName = packageName;
     }
 
-    public void setCallableFunctionNames(HashMap<String, String> callableFunctionNames) {
-//        this.callableFunctionNames = callableFunctionNames;
-    }
-
-    public HashMap<String, String> getTestFunctionNames() {
-        return testFunctionNames;
-    }
-
-    public void setTestFunctionNames(HashMap<String, String> testFunctionNames) {
-        this.testFunctionNames = testFunctionNames;
+    public Map<String, String> getTestUtilityFunctions() {
+        return testUtilityFunctions;
     }
 
     public List<String> getBeforeSuiteFunctionNames() {
@@ -209,6 +201,10 @@ public class TestSuite {
 
     public void addMockFunction(String id, String function) {
         this.mockFunctionNamesMap.put(id, function);
+    }
+
+    public void addTestUtilityFunction(String functionName, String functionClassName) {
+        this.testUtilityFunctions.put(functionName, functionClassName);
     }
 
     public void addTests(Test tests) {

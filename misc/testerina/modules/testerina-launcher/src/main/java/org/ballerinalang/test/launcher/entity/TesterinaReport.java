@@ -100,25 +100,6 @@ public class TesterinaReport {
     }
 
     /**
-     * Returns a count of passed/failed/skipped tests of a given package.
-     *
-     * @param packageName name of the package
-     * @param type        category - passed/failed/skipped
-     * @return count per category per package.
-     */
-    public int getTestSummary(String packageName, String type) {
-        TestSummary summary = testReportOfPackage.get(packageName);
-        if ("passed".equals(type)) {
-            return summary == null ? 0 : summary.passedTests.size();
-        } else if ("failed".equals(type)) {
-            return summary == null ? 0 : summary.failedTests.size();
-        } else if ("skipped".equals(type)) {
-            return summary == null ? 0 : summary.skippedTests.size();
-        }
-        return -1;
-    }
-
-    /**
      * Was there at least one test failure or skip.
      *
      * @return whether there's a test failure or not

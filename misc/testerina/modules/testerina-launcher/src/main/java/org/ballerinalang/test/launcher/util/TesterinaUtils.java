@@ -61,18 +61,23 @@ public class TesterinaUtils {
      *
      * @param sourceRootPath source root path
      * @param testSuite test meta data
-     * @throws ClassNotFoundException when cannot load the given test class
      */
-    public static void executeTests(Path sourceRootPath, TestSuite testSuite) throws ClassNotFoundException {
-        BTestRunner testRunner = new BTestRunner(outStream, errStream);
-        // Run the tests
-        testRunner.runTest(testSuite);
-        cleanUpDir(sourceRootPath.resolve(TesterinaConstants.TESTERINA_TEMP_DIR));
-        if (testRunner.getTesterinaReport().isFailure()) {
+    public static void executeTests(Path sourceRootPath, TestSuite testSuite) {
+        try {
+            BTestRunner testRunner = new BTestRunner(outStream, errStream);
+            // Run the tests
+            testRunner.runTest(testSuite);
+            cleanUpDir(sourceRootPath.resolve(TesterinaConstants.TESTERINA_TEMP_DIR));
+            if (testRunner.getTesterinaReport().isFailure()) {
+                Runtime.getRuntime().exit(1);
+            }
+            Runtime.getRuntime().exit(0);
+        } catch (Throwable e) {
+            errStream.println("error: " + e.getMessage());
             Runtime.getRuntime().exit(1);
         }
-        Runtime.getRuntime().exit(0);
     }
+
     /**
      * Format error message.
      *
