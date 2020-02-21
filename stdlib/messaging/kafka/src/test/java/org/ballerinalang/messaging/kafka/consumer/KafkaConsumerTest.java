@@ -21,7 +21,6 @@ package org.ballerinalang.messaging.kafka.consumer;
 import io.debezium.kafka.KafkaCluster;
 import io.debezium.util.Testing;
 import org.ballerinalang.model.values.BBoolean;
-import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
@@ -100,18 +99,6 @@ public class KafkaConsumerTest {
         Assert.assertEquals(returnBValues.length, 1);
         Assert.assertTrue(returnBValues[0] instanceof BBoolean);
         Assert.assertTrue(((BBoolean) returnBValues[0]).booleanValue());
-    }
-
-    @Test(description = "Test kafka consumer connect with no config values")
-    public void testKafkaConsumerConnectNegative() {
-        BValue[] returnBValues = BRunUtil.invoke(result, "funcKafkaConnectNegative");
-        Assert.assertEquals(returnBValues.length, 1);
-        Assert.assertTrue(returnBValues[0] instanceof BError);
-        String errorReason = "{ballerina/kafka}ConsumerError";
-        String errorMessage =
-                "{message:\"Cannot connect to the kafka server: Failed to construct kafka consumer\"}";
-        Assert.assertEquals(((BError) returnBValues[0]).getReason(), errorReason);
-        Assert.assertEquals(((BError) returnBValues[0]).getDetails().stringValue(), errorMessage);
     }
 
     @Test(description = "Test functionality of unsubscribe() function")

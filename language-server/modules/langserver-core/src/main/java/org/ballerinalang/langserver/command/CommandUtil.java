@@ -15,19 +15,13 @@
  */
 package org.ballerinalang.langserver.command;
 
-import org.apache.commons.lang3.tuple.ImmutablePair;
-import org.apache.commons.lang3.tuple.Pair;
 import org.ballerinalang.langserver.client.ExtendedLanguageClient;
-import org.ballerinalang.langserver.common.constants.NodeContextKeys;
-import org.ballerinalang.langserver.common.position.PositionTreeVisitor;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.workspace.LSDocumentIdentifier;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
-import org.ballerinalang.langserver.compiler.LSModuleCompiler;
-import org.ballerinalang.langserver.compiler.common.LSCustomErrorStrategy;
 import org.ballerinalang.langserver.compiler.common.LSDocumentIdentifierImpl;
 import org.ballerinalang.langserver.compiler.exception.CompilationFailedException;
 import org.ballerinalang.langserver.diagnostic.DiagnosticsHelper;
@@ -39,16 +33,11 @@ import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.ResourceOperation;
 import org.eclipse.lsp4j.TextDocumentEdit;
 import org.eclipse.lsp4j.TextDocumentIdentifier;
-import org.eclipse.lsp4j.TextDocumentPositionParams;
 import org.eclipse.lsp4j.TextEdit;
 import org.eclipse.lsp4j.VersionedTextDocumentIdentifier;
 import org.eclipse.lsp4j.WorkspaceEdit;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.eclipse.lsp4j.services.LanguageClient;
-import org.wso2.ballerinalang.compiler.tree.BLangNode;
-import org.wso2.ballerinalang.compiler.tree.BLangPackage;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
-import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -67,28 +56,6 @@ import static org.ballerinalang.langserver.compiler.LSCompilerUtil.getUntitledFi
 public class CommandUtil {
 
     private CommandUtil() {
-    }
-
-    public static Pair<BLangNode, Object> getBLangNode(int line, int column, String uri,
-                                                       WorkspaceDocumentManager documentManager, LSContext context)
-            throws CompilationFailedException {
-        Position position = new Position();
-        position.setLine(line);
-        position.setCharacter(column + 1);
-        context.put(DocumentServiceKeys.FILE_URI_KEY, uri);
-        TextDocumentIdentifier identifier = new TextDocumentIdentifier(uri);
-        context.put(DocumentServiceKeys.POSITION_KEY, new TextDocumentPositionParams(identifier, position));
-        List<BLangPackage> bLangPackages = LSModuleCompiler.getBLangPackages(context, documentManager,
-                                                                             LSCustomErrorStrategy.class, true, false,
-                                                                             true);
-        context.put(DocumentServiceKeys.BLANG_PACKAGES_CONTEXT_KEY, bLangPackages);
-        // Get the current package.
-        BLangPackage currentBLangPackage = context.get(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY);
-        // Run the position calculator for the current package.
-        PositionTreeVisitor positionTreeVisitor = new PositionTreeVisitor(context);
-        currentBLangPackage.accept(positionTreeVisitor);
-        return new ImmutablePair<>(context.get(NodeContextKeys.NODE_KEY),
-                                   context.get(NodeContextKeys.PREVIOUSLY_VISITED_NODE_KEY));
     }
 
     /**
@@ -165,47 +132,6 @@ public class CommandUtil {
             client.applyEdit(applyWorkspaceEditParams);
         }
         return applyWorkspaceEditParams;
-    }
-
-    public static BLangObjectTypeNode getObjectNode(int line, int column, String uri,
-                                                    WorkspaceDocumentManager documentManager, LSContext context)
-            throws CompilationFailedException {
-        Pair<BLangNode, Object> bLangNode = getBLangNode(line, column, uri, documentManager, context);
-        if (bLangNode.getLeft() instanceof BLangObjectTypeNode) {
-            return (BLangObjectTypeNode) bLangNode.getLeft();
-        }
-        if (bLangNode.getRight() instanceof BLangObjectTypeNode) {
-            return (BLangObjectTypeNode) bLangNode.getRight();
-        } else {
-            BLangNode parent = bLangNode.getLeft().parent;
-            while (parent != null) {
-                if (parent instanceof BLangObjectTypeNode) {
-                    return (BLangObjectTypeNode) parent;
-                }
-                parent = parent.parent;
-            }
-            return null;
-        }
-    }
-
-    public static BLangInvocation getFunctionInvocationNode(int line, int column, String uri,
-                                                            WorkspaceDocumentManager documentManager, LSContext context)
-            throws CompilationFailedException {
-        Pair<BLangNode, Object> bLangNode = getBLangNode(line, column, uri, documentManager, context);
-        if (bLangNode.getLeft() instanceof BLangInvocation) {
-            return (BLangInvocation) bLangNode.getLeft();
-        } else if (bLangNode.getRight() instanceof BLangInvocation) {
-            return (BLangInvocation) bLangNode.getRight();
-        } else {
-            BLangNode parent = bLangNode.getLeft().parent;
-            while (parent != null) {
-                if (parent instanceof BLangInvocation) {
-                    return (BLangInvocation) parent;
-                }
-                parent = parent.parent;
-            }
-            return null;
-        }
     }
 
     /**

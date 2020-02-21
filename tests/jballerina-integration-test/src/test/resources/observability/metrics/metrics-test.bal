@@ -34,7 +34,7 @@ type Product record {
 @http:ServiceConfig {
     basePath:"/test"
 }
-service metricsTest on new http:Listener(9090) {
+service metricsTest on new http:Listener(9898) {
     @http:ResourceConfig {
         path: "/"
     }

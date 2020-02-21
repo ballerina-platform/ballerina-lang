@@ -74,7 +74,9 @@ public class SymbolReferencesModel {
             this.position = position;
             this.symbol = symbol;
             this.bLangNode = bLangNode;
-            this.symbolPkgName = symbol.pkgID.nameComps.stream().map(Name::getValue).collect(Collectors.joining("."));
+            this.symbolPkgName = (symbol != null)
+                    ? symbol.pkgID.nameComps.stream().map(Name::getValue).collect(Collectors.joining("."))
+                    : "";
             this.compilationUnit = position.src.cUnitName;
             this.sourcePkgName = position.src.pkgID.name.value;
         }
