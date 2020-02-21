@@ -1,4 +1,4 @@
-package org.ballerinalang.langserver.command.executors.openAPI;
+package org.ballerinalang.langserver.command.executors.openAPI.BallerinToOpenAPI;
 
 import com.github.jknack.handlebars.Handlebars;
 import com.github.jknack.handlebars.Template;

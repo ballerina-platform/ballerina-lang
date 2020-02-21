@@ -1,9 +1,8 @@
-package org.ballerinalang.langserver.codeaction.providers.openAPI;
+package org.ballerinalang.langserver.codeaction.providers.openAPI.openAPIToBallerina;
 
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.codeaction.providers.AbstractCodeActionProvider;
-import org.ballerinalang.langserver.command.executors.openAPI.CreateOpenApiServiceResourceExecutor;
-import org.ballerinalang.langserver.command.executors.openAPI.CreateOpenApiServiceResourceMethodExecutor;
+import org.ballerinalang.langserver.command.executors.openAPI.openAPIToBallerina.CreateOpenApiServiceResourceMethodExecutor;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.LSContext;
@@ -26,7 +25,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.regex.Matcher;
 
-import static org.ballerinalang.langserver.common.constants.CommandConstants.CREATE_SERVICE_RESOURCE;
 import static org.ballerinalang.langserver.common.constants.CommandConstants.CREATE_SERVICE_RESOURCE_METHOD;
 
 /**

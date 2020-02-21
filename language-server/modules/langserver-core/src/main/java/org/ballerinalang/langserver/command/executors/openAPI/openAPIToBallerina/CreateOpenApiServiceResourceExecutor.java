@@ -1,4 +1,4 @@
-package org.ballerinalang.langserver.command.executors.openAPI;
+package org.ballerinalang.langserver.command.executors.openAPI.openAPIToBallerina;
 
 import com.github.jknack.handlebars.Context;
 import com.github.jknack.handlebars.Handlebars;
@@ -67,9 +67,9 @@ import static org.ballerinalang.openapi.utils.TypeExtractorUtil.extractOpenApiOp
  * @since 1.2.0
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.command.spi.LSCommandExecutor")
-public class CreateOpenApiServiceResourceMethodExecutor implements LSCommandExecutor {
+public class CreateOpenApiServiceResourceExecutor implements LSCommandExecutor {
 
-    public static final String COMMAND = "CREATE_SERVICE_RESOURCE_METHOD";
+    public static final String COMMAND = "CREATE_SERVICE_RESOURCE";
 
     /**
      * {@inheritDoc}
@@ -79,7 +79,6 @@ public class CreateOpenApiServiceResourceMethodExecutor implements LSCommandExec
         String documentUri = null;
         VersionedTextDocumentIdentifier textDocumentIdentifier = new VersionedTextDocumentIdentifier();
         String resourcePath = null;
-        String resourceMethod = null;
         int line = -1;
         int column = -1;
 
@@ -100,10 +99,6 @@ public class CreateOpenApiServiceResourceMethodExecutor implements LSCommandExec
                     break;
                 case CommandConstants.ARG_KEY_PATH:
                     resourcePath = argVal;
-                    break;
-                case CommandConstants.ARG_KEY_METHOD:
-                    resourceMethod = argVal;
-                    break;
                 default:
             }
         }
@@ -163,10 +158,6 @@ public class CreateOpenApiServiceResourceMethodExecutor implements LSCommandExec
                 List<BallerinaOpenApiPath> paths = extractOpenApiPaths(openAPI.getPaths());
                 for (BallerinaOpenApiPath path : paths) {
                     if (path.getPath().equals(resourcePath)) {
-                        String finalResourceMethod = resourceMethod;
-                        // remove already available methods
-                        path.getOperationsList().removeIf(operation -> !operation.getOpMethod().equalsIgnoreCase(
-                                finalResourceMethod));
                         editText = getContent(path, "/openAPITemplates", "balFunction");
                     }
                 }
