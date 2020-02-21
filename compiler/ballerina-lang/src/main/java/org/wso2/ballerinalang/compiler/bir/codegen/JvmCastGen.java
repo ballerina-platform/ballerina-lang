@@ -886,7 +886,7 @@ public class JvmCastGen {
             generateCastToFloat(mv, sourceType);
             return;
         } else if (targetType.tag == TypeTags.STRING) {
-            generateCastToString(mv, sourceType, useBString = useBString);
+            generateCastToString(mv, sourceType, useBString);
             return;
         } else if (targetType.tag == TypeTags.BOOLEAN) {
             generateCastToBoolean(mv, sourceType);
