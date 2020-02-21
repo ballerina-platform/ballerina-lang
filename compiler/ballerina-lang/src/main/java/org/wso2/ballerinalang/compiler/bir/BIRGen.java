@@ -337,8 +337,7 @@ public class BIRGen extends BLangNodeVisitor {
                     names.fromString(DEFAULT_WORKER_NAME), 0, new TaintTable());
 
             if (funcSymbol.receiverSymbol != null) {
-                birFunc.receiver = new BIRVariableDcl(astTypeDefinition.pos, funcSymbol.receiverSymbol.type,
-                        funcSymbol.receiverSymbol.name, VarScope.FUNCTION, VarKind.SELF, null);
+                birFunc.receiver = getSelf(funcSymbol.receiverSymbol, funcSymbol.receiverSymbol.type, funcSymbol.receiverSymbol.name);
             }
 
             birFunc.setMarkdownDocAttachment(funcSymbol.markdownDocumentation);
@@ -427,8 +426,7 @@ public class BIRGen extends BLangNodeVisitor {
         }
 
         if (astFunc.receiver != null) {
-            birFunc.receiver = new BIRVariableDcl(astFunc.pos, astFunc.receiver.type, astFunc.receiver.symbol.name,
-                    VarScope.FUNCTION, VarKind.SELF, null);
+            birFunc.receiver = getSelf(astFunc.receiver.symbol, astFunc.receiver.type, astFunc.receiver.symbol.name);
         }
 
         birFunc.setMarkdownDocAttachment(astFunc.symbol.markdownDocumentation);
@@ -503,6 +501,18 @@ public class BIRGen extends BLangNodeVisitor {
         // Rearrange error entries.
         birFunc.errorTable.sort(Comparator.comparingInt(o -> Integer.parseInt(o.trapBB.id.value.replace("bb", ""))));
         this.env.clear();
+    }
+
+    private BIRVariableDcl getSelf(BSymbol receiver, BType type, Name name) {
+        BIRVariableDcl self = this.env.symbolVarMap.get(receiver);
+        if (self == null) {
+             return new BIRVariableDcl(null, receiver.type, receiver.name,
+                                                  VarScope.FUNCTION, VarKind.SELF, null);
+        }
+        self.kind = VarKind.SELF;
+        self.name = new Name("%self");
+
+        return self;
     }
 
     @Override
@@ -1485,7 +1495,7 @@ public class BIRGen extends BLangNodeVisitor {
 
             BIRVariableDcl varDecl;
             if (isSelfVar(varSymbol)) {
-                varDecl = new BIRVariableDcl(varSymbol.type, varSymbol.name, VarScope.FUNCTION, VarKind.SELF);
+                varDecl = getSelf(varSymbol, varSymbol.type, varSymbol.name);
             } else {
                 varDecl = this.env.symbolVarMap.get(varSymbol);
             }
