@@ -2566,6 +2566,7 @@ public class Desugar extends BLangNodeVisitor {
             case TypeTags.XML:
             case TypeTags.MAP:
             case TypeTags.TABLE:
+            case TypeTags.STREAM:
             case TypeTags.RECORD:
                 BInvokableSymbol iteratorSymbol = getLangLibIteratorInvokableSymbol(collectionSymbol);
                 blockNode = desugarForeachWithIteratorDef(foreach, dataVarDef, collectionSymbol, iteratorSymbol, true);

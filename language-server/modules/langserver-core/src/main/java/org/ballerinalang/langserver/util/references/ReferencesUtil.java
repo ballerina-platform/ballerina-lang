@@ -78,8 +78,9 @@ public class ReferencesUtil {
         context.put(DocumentServiceKeys.POSITION_KEY, pos);
         context.put(DocumentServiceKeys.FILE_URI_KEY, document.getURIString());
         context.put(DocumentServiceKeys.COMPILE_FULL_PROJECT, true);
-        List<BLangPackage> modules = ReferencesUtil.compileModulesAndFindReferences(context);
-        prepareReferences(modules, context);
+        List<BLangPackage> modules = ReferencesUtil.findCursorTokenAndCompileModules(context);
+        fillReferences(modules, context);
+        context.put(DocumentServiceKeys.BLANG_PACKAGES_CONTEXT_KEY, modules);
         SymbolReferencesModel referencesModel = context.get(NodeContextKeys.REFERENCES_KEY);
         Optional<SymbolReferencesModel.Reference> symbolAtCursor = referencesModel.getReferenceAtCursor();
         return symbolAtCursor.orElse(null);
@@ -96,22 +97,22 @@ public class ReferencesUtil {
      */
     public static WorkspaceEdit getRenameWorkspaceEdits(LSContext context, String newName)
             throws WorkspaceDocumentException, CompilationFailedException {
-        List<BLangPackage> modules = compileModulesAndFindReferences(context);
+        List<BLangPackage> modules = findCursorTokenAndCompileModules(context);
         SymbolReferencesModel referencesModel = context.get(NodeContextKeys.REFERENCES_KEY);
         String nodeName = context.get(NodeContextKeys.NODE_NAME_KEY);
         if (CommonKeys.NEW_KEYWORD_KEY.equals(nodeName)) {
             throw new IllegalStateException("Symbol at cursor '" + nodeName + "' not supported or could not find!");
         }
-        prepareReferences(modules, context);
+        fillReferences(modules, context);
         fillAllReferences(modules, context);
         return getWorkspaceEdit(referencesModel, context, newName);
     }
 
     public static List<Location> getReferences(LSContext context, boolean includeDeclaration)
             throws WorkspaceDocumentException, CompilationFailedException {
-        List<BLangPackage> modules = compileModulesAndFindReferences(context);
+        List<BLangPackage> modules = findCursorTokenAndCompileModules(context);
         SymbolReferencesModel referencesModel = context.get(NodeContextKeys.REFERENCES_KEY);
-        prepareReferences(modules, context);
+        fillReferences(modules, context);
         fillAllReferences(modules, context);
         List<SymbolReferencesModel.Reference> references = new ArrayList<>();
         if (includeDeclaration) {
@@ -134,9 +135,9 @@ public class ReferencesUtil {
      * @throws CompilationFailedException when compilation failed
      */
     public static Hover getHover(LSContext context) throws WorkspaceDocumentException, CompilationFailedException {
-        List<BLangPackage> modules = compileModulesAndFindReferences(context);
+        List<BLangPackage> modules = findCursorTokenAndCompileModules(context);
         SymbolReferencesModel referencesModel = context.get(NodeContextKeys.REFERENCES_KEY);
-        prepareReferences(modules, context);
+        fillReferences(modules, context);
         Optional<SymbolReferencesModel.Reference> symbolAtCursor = referencesModel.getReferenceAtCursor();
 
         // Ignore the optional check since it has been handled during prepareReference and throws exception
@@ -146,7 +147,7 @@ public class ReferencesUtil {
                 : HoverUtil.getDefaultHoverObject();
     }
 
-    public static List<BLangPackage> compileModulesAndFindReferences(LSContext context)
+    public static List<BLangPackage> findCursorTokenAndCompileModules(LSContext context)
             throws WorkspaceDocumentException, CompilationFailedException {
         String fileUri = context.get(DocumentServiceKeys.FILE_URI_KEY);
         WorkspaceDocumentManager docManager = context.get(DocumentServiceKeys.DOC_MANAGER_KEY);
@@ -200,7 +201,7 @@ public class ReferencesUtil {
         });
     }
 
-    public static void prepareReferences(List<BLangPackage> modules, LSContext context) {
+    public static void fillReferences(List<BLangPackage> modules, LSContext context) {
         String currentPkgName = context.get(DocumentServiceKeys.CURRENT_PKG_NAME_KEY);
         /*
         In windows platform, relative file path key components are separated with "\" while antlr always uses "/"

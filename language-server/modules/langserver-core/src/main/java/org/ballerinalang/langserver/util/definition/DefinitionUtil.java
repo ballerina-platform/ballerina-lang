@@ -56,8 +56,8 @@ public class DefinitionUtil {
      */
     public static List<Location> getDefinition(LSContext context) throws WorkspaceDocumentException,
             CompilationFailedException, LSStdlibCacheException {
-        List<BLangPackage> modules = ReferencesUtil.compileModulesAndFindReferences(context);
-        ReferencesUtil.prepareReferences(modules, context);
+        List<BLangPackage> modules = ReferencesUtil.findCursorTokenAndCompileModules(context);
+        ReferencesUtil.fillReferences(modules, context);
         SymbolReferencesModel referencesModel = context.get(NodeContextKeys.REFERENCES_KEY);
         // If the definition list contains an item after the prepare reference mode, then return it.
         // In this case, definition is in the current compilation unit it self

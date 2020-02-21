@@ -460,7 +460,7 @@ public class BTestRunner {
                             .getAfterTestFunction())).findFirst().get());
                 } else {
                     String msg = String.format("Cannot find the specified after function : [%s] for testerina " +
-                            "function : [%s]", test.getBeforeTestFunction(), test.getTestName());
+                            "function : [%s]", test.getAfterTestFunction(), test.getTestName());
                     throw LauncherUtils.createLauncherException(msg);
                 }
             }
