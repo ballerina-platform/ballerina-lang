@@ -317,8 +317,7 @@ public final class XMLItem extends XMLValue {
         if (seq.getNodeType() == XMLNodeType.SEQUENCE) {
             children = (XMLSequence) seq;
         } else {
-            children = new XMLSequence();
-            children.children.add(seq);
+            children = new XMLSequence(seq);
         }
     }
 

@@ -1004,11 +1004,9 @@ type InstructionGenerator object {
     function generateNewXMLElementIns(bir:NewXMLElement newXMLElement, boolean useBString) {
         self.loadVar(newXMLElement.startTagOp.variableDcl);
         self.mv.visitTypeInsn(CHECKCAST, XML_QNAME);
-        self.loadVar(newXMLElement.endTagOp.variableDcl);
-        self.mv.visitTypeInsn(CHECKCAST, XML_QNAME);
         self.loadVar(newXMLElement.defaultNsURIOp.variableDcl);
         self.mv.visitMethodInsn(INVOKESTATIC, XML_FACTORY, "createXMLElement",
-                io:sprintf("(L%s;L%s;L%s;)L%s;", XML_QNAME, XML_QNAME, useBString ? B_STRING_VALUE : STRING_VALUE,
+                io:sprintf("(L%s;L%s;)L%s;", XML_QNAME, useBString ? B_STRING_VALUE : STRING_VALUE,
                 XML_VALUE), false);
         self.storeToVar(newXMLElement.lhsOp.variableDcl);
     }
