@@ -17,6 +17,7 @@
 package org.ballerinalang.ballerina.openapi.convertor;
 
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
+import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
@@ -36,10 +37,19 @@ public class ConverterUtils {
      * @param list The BLangRecord list.
      * @return A map of attributes.
      */
-    public static Map<String, BLangExpression> listToMap(List<BLangRecordLiteral.BLangRecordKeyValue> list) {
+    public static Map<String, BLangExpression> listToMap(List<RecordLiteralNode.RecordField> list) {
         Map<String, BLangExpression> attrMap = new HashMap<>();
 
-        list.forEach(attr -> attrMap.put(attr.getKey().toString(), attr.getValue()));
+        for (RecordLiteralNode.RecordField field : list) {
+            if (field.isKeyValueField()) {
+                BLangRecordLiteral.BLangRecordKeyValueField attr = (BLangRecordLiteral.BLangRecordKeyValueField) field;
+                attrMap.put(attr.getKey().toString(), attr.getValue());
+            } else {
+                BLangRecordLiteral.BLangRecordVarNameField varNameField =
+                        (BLangRecordLiteral.BLangRecordVarNameField) field;
+                attrMap.put(varNameField.variableName.value, varNameField);
+            }
+        }
 
         return attrMap;
     }

@@ -75,6 +75,7 @@
             <package name="org.ballerinalang.test.jvm.*"/>
             <package name="org.ballerinalang.test.main.function.*"/>
             <package name="org.ballerinalang.test.error.*"/>
+            <package name="org.ballerinalang.test.types.stream.*"/>
             <package name="org.ballerinalang.test.statements.arrays.*"/>
             <package name="org.ballerinalang.test.statements.assign.*"/>
             <package name="org.ballerinalang.test.statements.block.*"/>
@@ -123,6 +124,7 @@
             <package name="org.ballerinalang.test.functions.*"/>
             <package name="org.ballerinalang.test.javainterop.*"/>
             <package name="org.ballerinalang.test.execution.*" />
+            <package name="org.ballerinalang.test.query.*" />
         </packages>
 
         <classes>

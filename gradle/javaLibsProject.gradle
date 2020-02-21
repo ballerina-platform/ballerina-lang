@@ -38,13 +38,13 @@ dependencies {
     dist 'org.wso2.carbon:org.wso2.carbon.core:5.1.0'
     dist 'org.wso2.securevault:org.wso2.securevault:1.0.0-wso2v2'
     dist 'org.wso2.transport.file:org.wso2.transport.local-file-system:6.0.55'
-    dist 'org.wso2.transport.http:org.wso2.transport.http.netty:6.2.34'
+    dist 'org.wso2.transport.http:org.wso2.transport.http.netty:6.3.3'
     dist 'org.bouncycastle:bcprov-jdk15on:1.61'
     dist 'org.bouncycastle:bcpkix-jdk15on:1.61'
 
     dist 'info.picocli:picocli:4.0.1'
-    dist 'org.apache.kafka:kafka-clients:2.0.1'
-    dist 'org.apache.kafka:kafka_2.11:2.0.1'
+    dist 'org.apache.kafka:kafka-clients:2.3.1'
+    dist 'org.apache.kafka:kafka_2.11:2.3.1'
     dist 'io.ballerina.messaging:broker-auth:0.970.0'
     dist 'io.ballerina.messaging:broker-common:0.970.0'
     dist 'io.ballerina.messaging:broker-coordination:0.970.0'
@@ -132,11 +132,6 @@ dependencies {
     dist project(':ballerina-oauth2')
     dist project(':ballerina-xmlutils')
     dist project(':ballerina-jsonutils')
-    dist project(':ballerina-docker')
-    dist project(':ballerina-knative')
-    dist project(':ballerina-kubernetes')
-    dist project(':ballerina-istio')
-    dist project(':ballerina-openshift')
 
     // Lang libs
     dist project(':ballerina-lang:internal')
@@ -149,6 +144,7 @@ dependencies {
     dist project(':ballerina-lang:integer')
     dist project(':ballerina-lang:map')
     dist project(':ballerina-lang:object')
+    dist project(':ballerina-lang:stream')
     dist project(':ballerina-lang:string')
     dist project(':ballerina-lang:table')
     dist project(':ballerina-lang:typedesc')

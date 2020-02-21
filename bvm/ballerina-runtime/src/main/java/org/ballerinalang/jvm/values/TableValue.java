@@ -20,6 +20,7 @@ package org.ballerinalang.jvm.values;
 import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.ColumnDefinition;
 import org.ballerinalang.jvm.DataIterator;
+import org.ballerinalang.jvm.IteratorUtils;
 import org.ballerinalang.jvm.TableProvider;
 import org.ballerinalang.jvm.TableUtils;
 import org.ballerinalang.jvm.scheduling.Strand;
@@ -32,6 +33,7 @@ import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons;
 import org.ballerinalang.jvm.values.api.BFunctionPointer;
 import org.ballerinalang.jvm.values.api.BMap;
+import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.jvm.values.api.BTable;
 import org.ballerinalang.jvm.values.freeze.FreezeUtils;
 import org.ballerinalang.jvm.values.freeze.State;
@@ -65,6 +67,7 @@ public class TableValue implements RefValue, BTable {
     private boolean tableClosed;
     private volatile Status freezeStatus = new Status(State.UNFROZEN);
     private BType type;
+    private BType iteratorNextReturnType;
 
     @Deprecated
     public TableValue() {
@@ -139,6 +142,11 @@ public class TableValue implements RefValue, BTable {
      */
     public String stringValue() {
         return createStringValueDataEntry();
+    }
+
+    @Override
+    public BString bStringValue() {
+        return null;
     }
 
     private String createStringValueDataEntry() {
@@ -518,6 +526,11 @@ public class TableValue implements RefValue, BTable {
             }
             return null;
         }
+
+        @Override
+        public StringValue bStringValue() {
+            return null;
+        }
     }
 
     /**
@@ -541,5 +554,13 @@ public class TableValue implements RefValue, BTable {
     @Override
     public void freezeDirect() {
         this.freezeStatus.setFrozen();
+    }
+
+    public BType getIteratorNextReturnType() {
+        if (iteratorNextReturnType == null) {
+            iteratorNextReturnType = IteratorUtils.createIteratorNextReturnType(constraintType);
+        }
+
+        return iteratorNextReturnType;
     }
 }

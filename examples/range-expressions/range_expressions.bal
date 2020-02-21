@@ -30,8 +30,8 @@ public function main() {
 
     io:println("\niterable object for 25 ..< 28");
     while (true) {
-        record {| int value; |}? r = iterator.next();
-        if (r is record {| int value; |}) {
+        record {|int value;|}? r = iterator.next();
+        if (r is record {|int value;|}) {
             io:println(r.value);
         } else {
             // `r` is `()` implying the end of the iteration.

@@ -3,18 +3,20 @@
     "character": 10,
     "expected": {
         "title": "Mark 'sqlQuery' as Untainted",
-        "edit": {
-            "range": {
-                "start": {
-                    "line": 24,
-                    "character": 10
+        "edits": [
+            {
+                "range": {
+                    "start": {
+                        "line": 24,
+                        "character": 10
+                    },
+                    "end": {
+                        "line": 25,
+                        "character": 16
+                    }
                 },
-                "end": {
-                    "line": 25,
-                    "character": 16
-                }
-            },
-            "newText": "<@untained> (\"SELECT firstname FROM student WHERE registration_id = \" +\n         args[0])"
-        }
+                "newText": "<@untained> (\"SELECT firstname FROM student WHERE registration_id = \" +\n         args[0])"
+            }
+        ]
     }
 }

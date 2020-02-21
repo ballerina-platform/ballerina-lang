@@ -30,11 +30,11 @@ import org.apache.commons.lang3.StringUtils;
 import org.ballerinalang.openapi.exception.BallerinaOpenApiException;
 import org.ballerinalang.openapi.model.BallerinaOpenApi;
 import org.ballerinalang.openapi.model.GenSrcFile;
-import org.ballerinalang.openapi.typemodel.OpenApiType;
+import org.ballerinalang.openapi.typemodel.BallerinaOpenApiType;
 import org.ballerinalang.openapi.utils.CodegenUtils;
 import org.ballerinalang.openapi.utils.GeneratorConstants;
 import org.ballerinalang.openapi.utils.GeneratorConstants.GenType;
-import org.ballerinalang.openapi.utils.TypeMatchingUtil;
+import org.ballerinalang.openapi.utils.TypeExtractorUtil;
 import org.ballerinalang.tool.LauncherUtils;
 import org.wso2.ballerinalang.compiler.util.ProjectDirs;
 
@@ -190,17 +190,17 @@ public class CodeGenerator {
             api.getInfo().setTitle(GeneratorConstants.UNTITLED_SERVICE);
         }
 
-        final OpenApiType openApi = TypeMatchingUtil.traveseOpenApiTypes(api);
-        openApi.setServiceName(serviceName);
-        openApi.setModuleName(srcPackage);
+        final BallerinaOpenApiType openApi = TypeExtractorUtil.extractOpenApiObject(api);
+        openApi.setBalServiceName(serviceName);
+        openApi.setBalModule(srcPackage);
         openApi.setServers(api);
         openApi.setTags(api.getTags());
         
         if (reldefinitionPath == null) {
-            openApi.setDefinitionPath(definitionPath.replaceAll(Pattern.quote("\\"),
+            openApi.setDefPath(definitionPath.replaceAll(Pattern.quote("\\"),
                     Matcher.quoteReplacement("\\\\")));
         } else {
-            openApi.setDefinitionPath(reldefinitionPath.replaceAll(Pattern.quote("\\"),
+            openApi.setDefPath(reldefinitionPath.replaceAll(Pattern.quote("\\"),
                     Matcher.quoteReplacement("\\\\")));
         }
 
@@ -270,6 +270,7 @@ public class CodeGenerator {
         fileTemplateLoader.setSuffix(GeneratorConstants.TEMPLATES_SUFFIX);
 
         Handlebars handlebars = new Handlebars().with(cpTemplateLoader, fileTemplateLoader);
+        handlebars.setInfiniteLoops(true); //This will allow templates to call themselves with recursion.
         handlebars.registerHelpers(StringHelpers.class);
         handlebars.registerHelper("equals", (object, options) -> {
             CharSequence result;
@@ -378,21 +379,21 @@ public class CodeGenerator {
         return sourceFiles;
     }
 
-    private List<GenSrcFile> generateBallerinaService(OpenApiType api) throws IOException {
+    private List<GenSrcFile> generateBallerinaService(BallerinaOpenApiType api) throws IOException {
         if (srcPackage == null || srcPackage.isEmpty()) {
             srcPackage = GeneratorConstants.DEFAULT_MOCK_PKG;
         }
 
         List<GenSrcFile> sourceFiles = new ArrayList<>();
-        String concatTitle = api.getServiceName().toLowerCase(Locale.ENGLISH).replaceAll(" ", "_");
+        String concatTitle = api.getBalServiceName().toLowerCase(Locale.ENGLISH).replaceAll(" ", "_");
         String srcFile = concatTitle + ".bal";
 
         String mainContent = getContent(api, GeneratorConstants.DEFAULT_TEMPLATE_DIR + "/service",
-                "serviceMock");
+                "balService");
         sourceFiles.add(new GenSrcFile(GenFileType.GEN_SRC, srcPackage, srcFile, mainContent));
 
         String schemaContent = getContent(api, GeneratorConstants.DEFAULT_TEMPLATE_DIR + "/service",
-                "schema");
+                "schemaList");
         sourceFiles.add(new GenSrcFile(GenFileType.GEN_SRC, srcPackage, GeneratorConstants.SCHEMA_FILE_NAME,
                 schemaContent));
 
@@ -408,7 +409,7 @@ public class CodeGenerator {
      * @return String with populated template
      * @throws IOException when template population fails
      */
-    private String getContent(OpenApiType object, String templateDir, String templateName) throws IOException {
+    private String getContent(BallerinaOpenApiType object, String templateDir, String templateName) throws IOException {
         Template template = compileTemplate(templateDir, templateName);
         Context context = Context.newBuilder(object)
                 .resolver(MapValueResolver.INSTANCE, JavaBeanValueResolver.INSTANCE, FieldValueResolver.INSTANCE)

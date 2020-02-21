@@ -114,5 +114,5 @@ export function activate(context: ExtensionContext): Promise<any> {
                 });
             });
         }
-    }); 
+    });
 }

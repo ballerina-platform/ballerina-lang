@@ -22,14 +22,18 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.commons.LSContext;
+import org.ballerinalang.langserver.commons.completion.CompletionKeys;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
-import org.ballerinalang.langserver.completions.CompletionKeys;
-import org.ballerinalang.langserver.completions.SymbolInfo;
+import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
+import org.ballerinalang.langserver.completions.SnippetCompletionItem;
+import org.ballerinalang.langserver.completions.SymbolCompletionItem;
 import org.ballerinalang.langserver.completions.builder.BFunctionCompletionItemBuilder;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
 import org.ballerinalang.langserver.completions.util.Snippet;
+import org.ballerinalang.langserver.sourceprune.SourcePruneKeys;
 import org.eclipse.lsp4j.CompletionItem;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
+import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
@@ -55,15 +59,15 @@ public class AssignmentStatementContextProvider extends AbstractCompletionProvid
     }
 
     @Override
-    public List<CompletionItem> getCompletions(LSContext ctx) throws LSCompletionException {
-        List<CompletionItem> completionItems = new ArrayList<>();
-        List<Integer> defaultTokenTypes = ctx.get(CompletionKeys.LHS_DEFAULT_TOKEN_TYPES_KEY);
-        List<CommonToken> defaultTokens = ctx.get(CompletionKeys.LHS_DEFAULT_TOKENS_KEY);
+    public List<LSCompletionItem> getCompletions(LSContext ctx) throws LSCompletionException {
+        List<LSCompletionItem> completionItems = new ArrayList<>();
+        List<Integer> defaultTokenTypes = ctx.get(SourcePruneKeys.LHS_DEFAULT_TOKEN_TYPES_KEY);
+        List<CommonToken> defaultTokens = ctx.get(SourcePruneKeys.LHS_DEFAULT_TOKENS_KEY);
         int assignTokenIndex = defaultTokenTypes.indexOf(BallerinaParser.ASSIGN);
         int newTokenIndex = defaultTokenTypes.indexOf(BallerinaParser.NEW);
         String lhsToken = defaultTokens.get(assignTokenIndex - 1).getText();
         Optional<BSymbol> lhsTokenSymbol = this.getSymbolByName(lhsToken, ctx).stream()
-                .map(symbolInfo -> symbolInfo.getScopeEntry().symbol)
+                .map(scopeEntry -> scopeEntry.symbol)
                 .filter(symbol -> symbol instanceof BVarSymbol)
                 .findFirst();
         
@@ -86,32 +90,29 @@ public class AssignmentStatementContextProvider extends AbstractCompletionProvid
                     ctx);
             CompletionItem cItem = BFunctionCompletionItemBuilder.build(initFunction, newSign.getRight(),
                     newSign.getLeft(), ctx);
-            completionItems.add(cItem);
+            completionItems.add(new SymbolCompletionItem(ctx, initFunction, cItem));
         }
 
-        List<SymbolInfo> filteredList = new ArrayList<>(ctx.get(CommonKeys.VISIBLE_SYMBOLS_KEY));
+        List<Scope.ScopeEntry> filteredList = new ArrayList<>(ctx.get(CommonKeys.VISIBLE_SYMBOLS_KEY));
         filteredList.removeIf(this.attachedSymbolFilter());
-        filteredList.removeIf(symbolInfo -> symbolInfo.getScopeEntry().symbol instanceof BTypeSymbol);
-        completionItems.addAll(this.getCompletionItemList(filteredList, ctx));
+        filteredList.removeIf(scopeEntry -> scopeEntry.symbol instanceof BTypeSymbol);
+        completionItems.addAll(this.getCompletionItemList(new ArrayList<>(filteredList), ctx));
         completionItems.addAll(this.getPackagesCompletionItems(ctx));
-        fillStaticItems(completionItems, ctx);
+        fillStaticSnippetItems(completionItems, ctx);
         return completionItems;
     }
-    
-    private void fillStaticItems(List<CompletionItem> completionItems, LSContext context) {
+
+    private void fillStaticSnippetItems(List<LSCompletionItem> completionItems, LSContext context) {
         // Add the wait keyword
-        CompletionItem waitKeyword = Snippet.KW_WAIT.get().build(context);
-        completionItems.add(waitKeyword);
+        completionItems.add(new SnippetCompletionItem(context, Snippet.KW_WAIT.get()));
         // Add the start keyword
-        CompletionItem startKeyword = Snippet.KW_START.get().build(context);
-        completionItems.add(startKeyword);
+        completionItems.add(new SnippetCompletionItem(context, Snippet.KW_START.get()));
         // Add the flush keyword
-        CompletionItem flushKeyword = Snippet.KW_FLUSH.get().build(context);
-        completionItems.add(flushKeyword);
+        completionItems.add(new SnippetCompletionItem(context, Snippet.KW_FLUSH.get()));
     }
     
-    private List<CompletionItem> getCompletionsAfterNewKW(BSymbol lhsSymbol, LSContext context) {
-        List<CompletionItem> completionItems = new ArrayList<>();
+    private List<LSCompletionItem> getCompletionsAfterNewKW(BSymbol lhsSymbol, LSContext context) {
+        List<LSCompletionItem> completionItems = new ArrayList<>();
         if (!(lhsSymbol.type.tsymbol instanceof BObjectTypeSymbol)) {
             return completionItems;
         }
@@ -125,8 +126,8 @@ public class AssignmentStatementContextProvider extends AbstractCompletionProvid
                 context);
         CompletionItem cItem = BFunctionCompletionItemBuilder.build(initFunction, newSign.getRight(),
                 newSign.getLeft(), context);
-        completionItems.add(cItem);
-        
+        completionItems.add(new SymbolCompletionItem(context, initFunction, cItem));
+
         return completionItems;
     }
 }
