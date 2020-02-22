@@ -1450,7 +1450,8 @@ public class Desugar extends BLangNodeVisitor {
         String name = "$map$ref$" + restNum;
         BLangSimpleVariable mapVariable = defVariable(pos, targetType, parentBlockStmt, typeCastExpr, name);
 
-        BLangInvocation entriesInvocation = generateMapEntriesInvocation(pos, typeCastExpr, mapVariable);
+        BLangInvocation entriesInvocation = generateMapEntriesInvocation(
+                ASTBuilderUtil.createVariableRef(pos, mapVariable.symbol), typeCastExpr.type);
         String entriesVarName = "$map$ref$entries$" + restNum;
         BType entriesType = new BMapType(TypeTags.MAP,
                 new BTupleType(Arrays.asList(symTable.stringType, ((BMapType) targetType).constraint)), null);
@@ -1479,14 +1480,14 @@ public class Desugar extends BLangNodeVisitor {
                 filteredRestVarName);
     }
 
-    private BLangInvocation generateMapEntriesInvocation(DiagnosticPos pos, BLangExpression typeCastExpr,
-                                                         BLangSimpleVariable detailMap) {
-        BLangInvocation invocationNode = createInvocationNode("entries", new ArrayList<>(), typeCastExpr.type);
+    private BLangInvocation generateMapEntriesInvocation(BLangExpression expr, BType type) {
+        BLangInvocation invocationNode = createInvocationNode("entries", new ArrayList<>(), type);
 
-        invocationNode.expr = ASTBuilderUtil.createVariableRef(pos, detailMap.symbol);
-        invocationNode.symbol = symResolver.lookupLangLibMethod(typeCastExpr.type, names.fromString("entries"));
-        invocationNode.requiredArgs = Lists.of(ASTBuilderUtil.createVariableRef(pos, detailMap.symbol));
+        invocationNode.expr = expr;
+        invocationNode.symbol = symResolver.lookupLangLibMethod(type, names.fromString("entries"));
+        invocationNode.requiredArgs = Lists.of(expr);
         invocationNode.type = invocationNode.symbol.type.getReturnType();
+        invocationNode.langLibInvocation = true;
         return invocationNode;
     }
 
@@ -4638,6 +4639,13 @@ public class Desugar extends BLangNodeVisitor {
         return stringLit;
     }
 
+    private BLangLiteral createIntLiteral(long value) {
+        BLangLiteral literal = (BLangLiteral) TreeBuilder.createLiteralExpression();
+        literal.value = value;
+        literal.type = symTable.intType;
+        return literal;
+    }
+
     private BLangLiteral createByteLiteral(DiagnosticPos pos, Byte value) {
         BLangLiteral byteLiteral = new BLangLiteral(Byte.toUnsignedInt(value), symTable.byteType);
         byteLiteral.pos = pos;
@@ -6098,14 +6106,49 @@ public class Desugar extends BLangNodeVisitor {
                         keyExpr.getKind() == NodeKind.SIMPLE_VARIABLE_REF ?
                                 createStringLiteral(pos, ((BLangSimpleVarRef) keyExpr).variableName.value) :
                                 ((BLangLiteral) keyExpr);;
-                addMemberStoreForNonSpreadOpField(pos, blockStmt, mappingVarRef, indexExpr, keyValueField.valueExpr);
+                addMemberStoreForKeyValuePair(pos, blockStmt, mappingVarRef, indexExpr, keyValueField.valueExpr);
             } else if (field.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
                 BLangSimpleVarRef varRefField = (BLangSimpleVarRef) field;
-                addMemberStoreForNonSpreadOpField(pos, blockStmt, mappingVarRef,
-                                                  createStringLiteral(pos, varRefField.variableName.value),
-                                                  varRefField);
+                addMemberStoreForKeyValuePair(pos, blockStmt, mappingVarRef,
+                                              createStringLiteral(pos, varRefField.variableName.value),
+                                              varRefField);
             } else {
-                // TODO: 2/17/20 Spread op
+                BLangRecordLiteral.BLangRecordSpreadOperatorField spreadOpField =
+                        (BLangRecordLiteral.BLangRecordSpreadOperatorField) field;
+
+                BLangForeach foreach = (BLangForeach) TreeBuilder.createForeachNode();
+                foreach.pos = pos;
+
+                foreach.collection = generateMapEntriesInvocation(spreadOpField.expr, spreadOpField.expr.type);
+                types.setForeachTypedBindingPatternType(foreach);
+
+                BLangSimpleVariable foreachVariable = ASTBuilderUtil.createVariable(pos, "$foreach$i", foreach.varType);
+                foreachVariable.symbol = new BVarSymbol(0, names.fromIdNode(foreachVariable.name),
+                                                        this.env.scope.owner.pkgID, foreachVariable.type,
+                                                        this.env.scope.owner);
+                BLangSimpleVarRef foreachVarRef = ASTBuilderUtil.createVariableRef(pos, foreachVariable.symbol);
+                foreach.variableDefinitionNode = ASTBuilderUtil.createVariableDef(pos, foreachVariable);
+                foreach.isDeclaredWithVar = true;
+                BLangBlockStmt foreachBodyBlock = ASTBuilderUtil.createBlockStmt(pos);
+
+                BTupleType foreachVarRefType = (BTupleType) foreachVarRef.type;
+
+                BLangIndexBasedAccess indexExpr = (BLangIndexBasedAccess) TreeBuilder.createIndexBasedAccessNode();
+                indexExpr.pos = pos;
+                indexExpr.expr = foreachVarRef;
+                indexExpr.indexExpr = rewriteExpr(createIntLiteral(0));
+                indexExpr.type = foreachVarRefType.tupleTypes.get(0);
+
+                BLangIndexBasedAccess valueExpr = (BLangIndexBasedAccess) TreeBuilder.createIndexBasedAccessNode();
+                valueExpr.pos = pos;
+                valueExpr.expr = foreachVarRef;
+                valueExpr.indexExpr = rewriteExpr(createIntLiteral(1));
+                valueExpr.type = foreachVarRefType.tupleTypes.get(1);
+
+                addMemberStoreForKeyValuePair(pos, foreachBodyBlock, mappingVarRef, indexExpr, valueExpr);
+
+                foreach.body = foreachBodyBlock;
+                blockStmt.addStatement(foreach);
             }
         }
 
@@ -6114,11 +6157,10 @@ public class Desugar extends BLangNodeVisitor {
         return stmtExpression;
     }
 
-    private void addMemberStoreForNonSpreadOpField(DiagnosticPos pos, BLangBlockStmt blockStmt,
-                                                   BLangExpression mappingVarRef, BLangExpression indexExpr,
-                                                   BLangExpression value) {
-        BLangAssignment assignmentStmt =
-                ASTBuilderUtil.createAssignmentStmt(pos, blockStmt);
+    private void addMemberStoreForKeyValuePair(DiagnosticPos pos, BLangBlockStmt blockStmt,
+                                               BLangExpression mappingVarRef, BLangExpression indexExpr,
+                                               BLangExpression value) {
+        BLangAssignment assignmentStmt = ASTBuilderUtil.createAssignmentStmt(pos, blockStmt);
         assignmentStmt.expr = rewriteExpr(value);
 
         BLangIndexBasedAccess indexAccessNode = (BLangIndexBasedAccess) TreeBuilder.createIndexBasedAccessNode();
