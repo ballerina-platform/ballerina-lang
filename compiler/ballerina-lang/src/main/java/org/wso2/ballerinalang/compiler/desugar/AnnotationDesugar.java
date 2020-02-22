@@ -265,7 +265,7 @@ public class AnnotationDesugar {
             annotFunctionDefined = true;
         }
 
-        for (BLangSimpleVariable param : bLangFunction.getParameters()) {
+        for (BLangSimpleVariable param : getParams(bLangFunction)) {
             BLangLambdaFunction paramAnnotLambda = defineAnnotations(param.annAttachments, param.pos, pkgNode, funcEnv,
                                                                      pkgID, owner);
             if (paramAnnotLambda != null) {
@@ -661,5 +661,15 @@ public class AnnotationDesugar {
             }
         }
         return statements.size();
+    }
+
+    private List<BLangSimpleVariable> getParams(BLangFunction function) {
+        List<BLangSimpleVariable> params = new ArrayList<>(function.getParameters());
+
+        if (function.restParam != null) {
+            params.add(function.restParam);
+        }
+
+        return params;
     }
 }
