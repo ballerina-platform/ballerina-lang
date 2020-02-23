@@ -16,20 +16,19 @@
  * under the License.
  *
  */
-package org.wso2.ballerinalang.compiler.tree.expressions;
+
+package org.wso2.ballerinalang.compiler.tree.types;
 
 import org.ballerinalang.model.tree.NodeKind;
-import org.ballerinalang.model.tree.expressions.LetExpressionNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
-import org.wso2.ballerinalang.compiler.tree.types.BLangLetVariable;
+import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 
-import java.util.ArrayList;
-import java.util.List;
-
-public class BLangLetExpression extends BLangExpression implements LetExpressionNode {
-
-    public List<BLangLetVariable> letVarDeclarations = new ArrayList<>();
-    public BLangExpression expr;
+/**
+ * Represents a variable declarations used in let expression.
+ *
+ * @since 1.2.0
+ */
+public class BLangLetVariable extends BLangSimpleVariable {
 
     @Override
     public void accept(BLangNodeVisitor visitor) {
@@ -38,6 +37,6 @@ public class BLangLetExpression extends BLangExpression implements LetExpression
 
     @Override
     public NodeKind getKind() {
-        return NodeKind.LET_EXPR;
+        return NodeKind.LET_VARIABLE;
     }
 }

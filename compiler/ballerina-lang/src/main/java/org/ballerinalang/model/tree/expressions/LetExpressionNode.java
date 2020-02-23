@@ -18,7 +18,7 @@
 package org.ballerinalang.model.tree.expressions;
 
 /**
- * @since 1.1.0
+ * @since 1.2.0
  */
 public interface LetExpressionNode extends ExpressionNode {
 

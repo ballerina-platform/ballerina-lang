@@ -255,6 +255,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangConstrainedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangErrorType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFiniteTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFunctionTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangLetVariable;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangTupleTypeNode;
@@ -299,6 +300,10 @@ public class TreeBuilder {
 
     public static SimpleVariableNode createSimpleVariableNode() {
         return new BLangSimpleVariable();
+    }
+
+    public static SimpleVariableNode createLetVariableNode() {
+        return new BLangLetVariable();
     }
 
     public static TupleVariableNode createTupleVariableNode() {

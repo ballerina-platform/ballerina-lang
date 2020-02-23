@@ -1484,7 +1484,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        this.pkgBuilder.startVarList();
+        this.pkgBuilder.startLetVarList();
     }
 
     @Override
@@ -1493,7 +1493,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        this.pkgBuilder.startVarList();
+        this.pkgBuilder.startLetVarList();
     }
 
     @Override
@@ -1516,7 +1516,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
         // TODO : extend this for other binding patterns
         if (ctx.bindingPattern().Identifier() != null) {
-            this.pkgBuilder.addSimpleVariable(getCurrentPos(ctx), getWS(ctx),
+            this.pkgBuilder.addLetVariableDecl(getCurrentPos(ctx), getWS(ctx),
                     ctx.bindingPattern().Identifier().getText(),
                     getCurrentPos(ctx.bindingPattern().Identifier()),
                     isExpressionAvailable, isDeclaredWithVar);

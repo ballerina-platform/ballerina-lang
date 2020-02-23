@@ -47,6 +47,7 @@ public enum NodeKind {
     TABLE,
     TABLE_COLUMN,
     VARIABLE,
+    LET_VARIABLE,
     TUPLE_VARIABLE,
     RECORD_VARIABLE,
     ERROR_VARIABLE,

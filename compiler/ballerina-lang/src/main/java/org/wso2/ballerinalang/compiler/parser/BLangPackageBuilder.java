@@ -179,6 +179,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangConstrainedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangErrorType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFiniteTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFunctionTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangLetVariable;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangStructureTypeNode;
@@ -230,6 +231,8 @@ public class BLangPackageBuilder {
     private Stack<BLangVariable> varStack = new Stack<>();
 
     private Stack<List<BLangVariable>> varListStack = new Stack<>();
+
+    private Stack<List<BLangLetVariable>> letVarListStack = new Stack<>();
 
     private Stack<List<BLangRecordVariableKeyValue>> recordVarListStack = new Stack<>();
 
@@ -601,6 +604,10 @@ public class BLangPackageBuilder {
 
     void startVarList() {
         this.varListStack.push(new ArrayList<>());
+    }
+
+    void startLetVarList() {
+        this.letVarListStack.push(new ArrayList<>());
     }
 
     void startFunctionDef(int annotCount, boolean isLambda) {
@@ -1130,10 +1137,10 @@ public class BLangPackageBuilder {
         addStmtToCurrentBlock(varDefNode);
     }
 
-    void addSimpleVariable(DiagnosticPos pos, Set<Whitespace> ws, String identifier,
+    void addLetVariableDecl(DiagnosticPos pos, Set<Whitespace> ws, String identifier,
                            DiagnosticPos identifierPos, boolean isExpressionAvailable,
                            boolean isDeclaredWithVar) {
-        BLangSimpleVariable var = (BLangSimpleVariable) TreeBuilder.createSimpleVariableNode();
+        BLangLetVariable var = (BLangLetVariable) TreeBuilder.createLetVariableNode();
         var.pos = pos;
         var.addWS(ws);
         var.setName(this.createIdentifier(identifierPos, identifier, ws));
@@ -1148,8 +1155,8 @@ public class BLangPackageBuilder {
             var.setInitialExpression(this.exprNodeStack.pop());
         }
 
-        if (!this.varListStack.isEmpty()) {
-            this.varListStack.peek().add(var);
+        if (!this.letVarListStack.isEmpty()) {
+            this.letVarListStack.peek().add(var);
         }
     }
 
@@ -1467,8 +1474,7 @@ public class BLangPackageBuilder {
     void addLetExpression() {
         BLangLetExpression letExpression = (BLangLetExpression) TreeBuilder.createLetExpressionNode();
         letExpression.expr = (BLangExpression) exprNodeStack.pop();
-        letExpression.letVarDeclarations = varListStack.pop();
-
+        letExpression.letVarDeclarations = letVarListStack.pop();
         addExpressionNode(letExpression);
     }
 
