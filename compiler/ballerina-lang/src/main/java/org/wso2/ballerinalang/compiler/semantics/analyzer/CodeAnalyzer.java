@@ -1865,7 +1865,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                 BLangExpression spreadOpExpr = spreadOpField.expr;
 
                 analyzeExpr(spreadOpExpr);
-                if (spreadOpExpr.type.tag == TypeTags.MAP) {
+                if (spreadOpExpr.type.tag != TypeTags.RECORD) {
                     continue;
                 }
 

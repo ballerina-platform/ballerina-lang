@@ -1193,7 +1193,7 @@ public class TypeChecker extends BLangNodeVisitor {
     private List<String> getSpreadOpFieldRequiredFieldNames(BLangRecordLiteral.BLangRecordSpreadOperatorField field) {
         BType spreadType = field.expr.type;
 
-        if (spreadType.tag == TypeTags.MAP) {
+        if (spreadType.tag != TypeTags.RECORD) {
             return Collections.emptyList();
         }
 
@@ -3665,6 +3665,11 @@ public class TypeChecker extends BLangNodeVisitor {
                         return;
                     }
 
+                    if (spreadExprType.tag != TypeTags.RECORD) {
+                        dlog.error(spreadExpr.pos, DiagnosticCode.INCOMPATIBLE_TYPES_SPREAD_OP, spreadExprType);
+                        return;
+                    }
+
                     for (BField bField : ((BRecordType) spreadExprType).getFields()) {
                         BType specFieldType = bField.type;
                         BType expectedFieldType = checkRecordLiteralKeyByName(spreadExpr.pos, this.env, bField.name,
@@ -5001,7 +5006,7 @@ public class TypeChecker extends BLangNodeVisitor {
         List<BType> restFieldTypes = new ArrayList<>();
 
         for (RecordLiteralNode.RecordField field : recordLiteral.fields) {
-            if (field.getKind() == NodeKind.RECORD_LITERAL_KEY_VALUE) {
+            if (field.isKeyValueField()) {
                 BLangRecordKeyValueField keyValue = (BLangRecordKeyValueField) field;
                 BLangRecordKey key = keyValue.key;
                 BLangExpression expression = keyValue.valueExpr;
@@ -5013,11 +5018,38 @@ public class TypeChecker extends BLangNodeVisitor {
                         restFieldTypes.add(exprType);
                     }
                 } else {
-                    addToNonRestFieldTypes(nonRestFieldTypes, keyExpr, expression);
+                    addToNonRestFieldTypes(nonRestFieldTypes, getKeyName(keyExpr), checkExpr(expression, env));
+                }
+            } else if (field.getKind() == NodeKind.RECORD_LITERAL_SPREAD_OP) {
+                BType type = checkExpr(((BLangRecordLiteral.BLangRecordSpreadOperatorField) field).expr, env);
+                int typeTag = type.tag;
+
+                if (typeTag == TypeTags.MAP) {
+                    BType constraintType = ((BMapType) type).constraint;
+
+                    if (isUniqueType(restFieldTypes, constraintType)) {
+                        restFieldTypes.add(constraintType);
+                    }
+                }
+
+                if (type.tag != TypeTags.RECORD) {
+                    continue;
+                }
+
+                BRecordType recordType = (BRecordType) type;
+                for (BField recField : recordType.fields) {
+                    addToNonRestFieldTypes(nonRestFieldTypes, recField.name.value, recField.type);
+                }
+
+                if (!recordType.sealed) {
+                    BType restFieldType = recordType.restFieldType;
+                    if (isUniqueType(restFieldTypes, restFieldType)) {
+                        restFieldTypes.add(restFieldType);
+                    }
                 }
             } else {
                 BLangSimpleVarRef varRef = (BLangSimpleVarRef) field;
-                addToNonRestFieldTypes(nonRestFieldTypes, varRef, varRef);
+                addToNonRestFieldTypes(nonRestFieldTypes, getKeyName(varRef), checkExpr(varRef, env));
             }
         }
 
@@ -5057,12 +5089,13 @@ public class TypeChecker extends BLangNodeVisitor {
         return recordType;
     }
 
-    private void addToNonRestFieldTypes(Map<String, List<BType>> nonRestFieldTypes, BLangExpression key,
-                                        BLangExpression expression) {
-        String keyString = key.getKind() == NodeKind.SIMPLE_VARIABLE_REF ?
+    private String getKeyName(BLangExpression key) {
+        return key.getKind() == NodeKind.SIMPLE_VARIABLE_REF ?
                 ((BLangSimpleVarRef) key).variableName.value : (String) ((BLangLiteral) key).value;
-        BType exprType = checkExpr(expression, env);
+    }
 
+    private void addToNonRestFieldTypes(Map<String, List<BType>> nonRestFieldTypes, String keyString,
+                                        BType exprType) {
         if (!nonRestFieldTypes.containsKey(keyString)) {
             nonRestFieldTypes.put(keyString, new ArrayList<BType>() {{ add(exprType); }});
             return;
