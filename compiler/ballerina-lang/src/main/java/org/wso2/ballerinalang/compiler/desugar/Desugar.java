@@ -1103,6 +1103,8 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangLetExpression letExpression) {
+        SymbolEnv prevEnv = this.env;
+        this.env = letExpression.env;
         BLangExpression expr = letExpression.expr;
         BLangBlockStmt blockStmt = ASTBuilderUtil.createBlockStmt(letExpression.pos);
         for (BLangVariable var : letExpression.letVarDeclarations) {
@@ -1114,8 +1116,9 @@ public class Desugar extends BLangNodeVisitor {
         BLangSimpleVarRef tempVarRef = ASTBuilderUtil.createVariableRef(expr.pos, tempVarDef.var.symbol);
         blockStmt.addStatement(tempVarDef);
         BLangStatementExpression stmtExpr = ASTBuilderUtil.createStatementExpression(blockStmt, tempVarRef);
-        stmtExpr.type = ((BLangSimpleVariable) letExpression.parent).symbol.type;
+        stmtExpr.type = expr.type;
         result = rewrite(stmtExpr, env);
+        this.env = prevEnv;
     }
 
     @Override
@@ -4698,6 +4701,7 @@ public class Desugar extends BLangNodeVisitor {
         BLangNode resultNode = this.result;
         this.result = null;
         resultNode.desugared = true;
+
         return (E) resultNode;
     }
 

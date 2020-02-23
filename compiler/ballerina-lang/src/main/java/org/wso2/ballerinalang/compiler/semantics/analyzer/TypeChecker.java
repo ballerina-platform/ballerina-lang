@@ -1768,10 +1768,11 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     public void visit(BLangLetExpression letExpression) {
-        for(BLangVariable var : letExpression.letVarDeclarations) {
-            semanticAnalyzer.analyzeDef(var, env);
+        letExpression.env = SymbolEnv.createExprEnv(letExpression, env);
+        for (BLangVariable var : letExpression.letVarDeclarations) {
+            semanticAnalyzer.analyzeDef(var, letExpression.env);
         }
-        checkExpr(letExpression.expr, env);
+        checkExpr(letExpression.expr, letExpression.env);
     }
 
     private void checkInLangLib(BLangInvocation iExpr, BType varRefType) {

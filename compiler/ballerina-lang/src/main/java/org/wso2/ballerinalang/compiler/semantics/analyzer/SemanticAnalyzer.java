@@ -580,7 +580,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
 
         int ownerSymTag = env.scope.owner.tag;
-        if ((ownerSymTag & SymTag.INVOKABLE) == SymTag.INVOKABLE) {
+        if ((ownerSymTag & SymTag.INVOKABLE) == SymTag.INVOKABLE || varNode.getKind() == NodeKind.LET_VARIABLE) {
             // This is a variable declared in a function, an action or a resource
             // If the variable is parameter then the variable symbol is already defined
             if (varNode.symbol == null) {
@@ -815,6 +815,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
         switch (variable.getKind()) {
             case VARIABLE:
+            case LET_VARIABLE:
                 if (!validateVariableDefinition(varRefExpr)) {
                     rhsType = symTable.semanticError;
                 }
@@ -1619,10 +1620,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
 
         analyzeDef(varDefNode.var, env);
-    }
-
-    public void visit(BLangLetExpression letExpression) {
-        analyzeDef(letExpression, env);
     }
 
     public void visit(BLangRecordVariableDef varDefNode) {

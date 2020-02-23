@@ -20,16 +20,23 @@ package org.wso2.ballerinalang.compiler.tree.expressions;
 
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.LetExpressionNode;
+import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.types.BLangLetVariable;
 
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * This represents a let expression in ballerina.
+ *
+ * @since 1.2.0
+ */
 public class BLangLetExpression extends BLangExpression implements LetExpressionNode {
 
     public List<BLangLetVariable> letVarDeclarations = new ArrayList<>();
     public BLangExpression expr;
+    public SymbolEnv env;
 
     @Override
     public void accept(BLangNodeVisitor visitor) {
