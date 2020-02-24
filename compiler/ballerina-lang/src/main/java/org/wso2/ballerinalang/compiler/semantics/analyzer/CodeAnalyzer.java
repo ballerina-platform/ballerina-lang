@@ -310,7 +310,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     private void analyzeTypeNode(BLangType node, SymbolEnv env) {
-
         if (node == null) {
             return;
         }
@@ -1272,7 +1271,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     private void analyzeExportableTypeRef(BSymbol owner, BTypeSymbol symbol, boolean inFuncSignature,
                                           DiagnosticPos pos) {
-
         if (!inFuncSignature && Symbols.isFlagOn(owner.flags, Flags.ANONYMOUS)) {
             // Specially validate function signatures.
             return;
@@ -1283,7 +1281,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     private void checkForExportableType(BTypeSymbol symbol, DiagnosticPos pos) {
-
         if (symbol == null || symbol.type == null || Symbols.isFlagOn(symbol.flags, Flags.TYPE_PARAM)) {
             // This is a built-in symbol or a type Param.
             return;
@@ -1344,7 +1341,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangSimpleVariable varNode) {
-
         analyzeTypeNode(varNode.typeNode, this.env);
         analyzeExpr(varNode.expr);
 
@@ -1396,7 +1392,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangTupleVariable bLangTupleVariable) {
-
         if (bLangTupleVariable.typeNode != null) {
             analyzeNode(bLangTupleVariable.typeNode, this.env);
         }
@@ -1405,7 +1400,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangRecordVariable bLangRecordVariable) {
-
         if (bLangRecordVariable.typeNode != null) {
             analyzeNode(bLangRecordVariable.typeNode, this.env);
         }
@@ -1414,7 +1408,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangErrorVariable bLangErrorVariable) {
-
         if (bLangErrorVariable.typeNode != null) {
             analyzeNode(bLangErrorVariable.typeNode, this.env);
         }
@@ -2211,12 +2204,10 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangArrowFunction bLangArrowFunction) {
-
         analyzeExpr(bLangArrowFunction.body.expr);
     }
 
     public void visit(BLangXMLAttributeAccess xmlAttributeAccessExpr) {
-
         analyzeExpr(xmlAttributeAccessExpr.expr);
         analyzeExpr(xmlAttributeAccessExpr.indexExpr);
     }
@@ -2231,7 +2222,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangRecordTypeNode recordTypeNode) {
-
         SymbolEnv recordEnv = SymbolEnv.createTypeEnv(recordTypeNode, recordTypeNode.symbol.scope, env);
         if (recordTypeNode.isFieldAnalyseRequired) {
             recordTypeNode.fields.forEach(field -> analyzeNode(field, recordEnv));
@@ -2269,7 +2259,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangConstrainedType constrainedType) {
-
         if (constrainedType.type.type.tag == TypeTags.STREAM) {
             checkExperimentalFeatureValidity(ExperimentalFeatures.STREAMS, constrainedType.pos);
         }
@@ -2277,7 +2266,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangErrorType errorType) {
-
         analyzeTypeNode(errorType.reasonType, env);
         analyzeTypeNode(errorType.detailType, env);
     }
@@ -2287,13 +2275,11 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangTupleTypeNode tupleTypeNode) {
-
         tupleTypeNode.memberTypeNodes.forEach(memberType -> analyzeTypeNode(memberType, env));
         analyzeTypeNode(tupleTypeNode.restParamType, env);
     }
 
     public void visit(BLangUnionTypeNode unionTypeNode) {
-
         unionTypeNode.memberTypeNodes.forEach(memberType -> analyzeTypeNode(memberType, env));
     }
 
@@ -2305,19 +2291,16 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangFiniteTypeNode finiteTypeNode) {
-
         /* Ignore */
     }
 
     @Override
     public void visit(BLangRestArgsExpression bLangVarArgsExpression) {
-
         analyzeExpr(bLangVarArgsExpression.expr);
     }
 
     @Override
     public void visit(BLangNamedArgsExpression bLangNamedArgsExpression) {
-
         analyzeExpr(bLangNamedArgsExpression.expr);
     }
 
@@ -2477,7 +2460,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangConstant constant) {
-
         analyzeTypeNode(constant.typeNode, env);
         analyzeNode(constant.expr, env);
         analyzeExportableTypeRef(constant.symbol, constant.symbol.type.tsymbol, false, constant.pos);
@@ -2836,7 +2818,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     private void checkExperimentalFeatureValidity(ExperimentalFeatures constructName, DiagnosticPos pos) {
-
         if (enableExperimentalFeatures) {
             return;
         }

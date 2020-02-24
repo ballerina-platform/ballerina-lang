@@ -490,17 +490,17 @@ public class BLangPackageBuilder {
     }
 
     void addErrorType(DiagnosticPos pos, Set<Whitespace> ws, boolean reasonTypeExists, boolean detailsTypeExists,
-                      boolean isAnonymous) {
+                      boolean isAnonymous, boolean typeInferenceNeeded) {
         BLangErrorType errorType = (BLangErrorType) TreeBuilder.createErrorTypeNode();
         errorType.pos = pos;
         errorType.addWS(ws);
         if (detailsTypeExists) {
             errorType.detailType = (BLangType) this.typeNodeStack.pop();
         }
-        if (reasonTypeExists) {
+        if (reasonTypeExists && !typeInferenceNeeded) {
             errorType.reasonType = (BLangType) this.typeNodeStack.pop();
         }
-
+        errorType.typeInferenceNeeded = typeInferenceNeeded;
         if (!isAnonymous) {
             addType(errorType);
             return;
@@ -1111,6 +1111,9 @@ public class BLangPackageBuilder {
             var.isDeclaredWithVar = true;
         } else {
             var.setTypeNode(this.typeNodeStack.pop());
+            if (var.getTypeNode().getKind() == NodeKind.ERROR_TYPE) {
+                var.isDeclaredWithVar = ((BLangErrorType) var.typeNode).typeInferenceNeeded;
+            }
         }
         if (isExpressionAvailable) {
             var.setInitialExpression(this.exprNodeStack.pop());
@@ -2195,6 +2198,9 @@ public class BLangPackageBuilder {
             if (!isTypeNameProvided) {
                 var.isDeclaredWithVar = true;
             }
+        }
+        if (var.typeNode.getKind() == NodeKind.ERROR_TYPE) {
+            var.isDeclaredWithVar = ((BLangErrorType) var.typeNode).typeInferenceNeeded;
         }
 
         attachAnnotations(var);
