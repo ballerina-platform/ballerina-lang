@@ -83,6 +83,7 @@ public class BallerinaConstants {
     public static final String BALLERINA_LS_LAUNCHER_PATH = "lib/tools/lang-server/launcher";
     public static final String BALLERINA_LS_LAUNCHER_NAME = "language-server-launcher";
     public static final String BALLERINA_COMPOSER_LIB_PATH = "lib/tools/composer-library";
+    public static final String SYS_PROP_EXPERIMENTAL = "ALLOW_EXPERIMETAL";
 
     // Debug server launcher constants.
     public static final String BALLERINA_DEBUG_LAUNCHER_PATH = "lib/tools/debug-adapter/launcher";
