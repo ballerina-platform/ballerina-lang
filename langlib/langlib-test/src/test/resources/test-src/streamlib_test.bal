@@ -177,3 +177,26 @@ function testIterator() returns boolean {
 
     return testPassed;
 }
+
+function testMapFuncWithRecordType() returns boolean {
+     boolean testPassed = true;
+     Person[] personList = getPersonList();
+
+    stream<Person> personStream =  personList.toStream();
+
+    stream<Employee> mappedEmpStream = personStream.'map(function (Person person) returns Employee {
+        Employee e = {
+          name: person.name,
+          company: "WSO2"
+        };
+        return e;
+
+        });
+
+    record {| Employee value; |}? nextValue = mappedEmpStream.next();
+    Employee employee = <Employee>nextValue?.value;
+
+    testPassed = testPassed && employee.name == "Gima" && employee.company == "WSO2";
+    return  testPassed;
+}
+

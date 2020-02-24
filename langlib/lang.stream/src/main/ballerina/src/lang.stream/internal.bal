@@ -21,7 +21,7 @@ type PureType3 anydata | error;
 # + td - A type description.
 # + func - A lambda function.
 # + return - New stream containing results of `func` invocation.
-function construct(typedesc<PureType3> td, function() returns PureType3 func) returns stream<PureType3> = external;
+function construct(typedesc<PureType3> td, function() returns record {|PureType3 value;|}? func) returns stream<PureType3> = external;
 
 # Represent the iterator type returned when `iterator` method is invoked.
 type StreamIterator object {
