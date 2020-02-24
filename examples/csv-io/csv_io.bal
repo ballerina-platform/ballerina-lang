@@ -61,7 +61,7 @@ public function main() returns @tainted error? {
         }
     } else {
         log:printError("An error occurred while creating table: ",
-                        err = tblResult);
+                        err = <error>tblResult);
     }
     closeReadableCSVChannel(rCsvChannel2);
     // Opens a CSV channel in the "write" mode and writes the `table` to a `.CSV` file.

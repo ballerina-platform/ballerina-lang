@@ -1,7 +1,7 @@
 import ballerina/http;
 import ballerina/test;
 
-@test:Config
+@test:Config { }
 function testFunc() {
     http:Client httpEndpoint = new("https://localhost:9095", config = {
         secureSocket: {

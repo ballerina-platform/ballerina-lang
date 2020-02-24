@@ -14,7 +14,7 @@
  * limitations under the License.
  *
  */
- 
+
 apply plugin: "base"
 
 
@@ -29,11 +29,11 @@ configurations {
 }
 
 dependencies {
-    ballerinaTools project(path: ':ballerina-tools', configuration: 'unzipped')
+    ballerinaTools project(path: ':jballerina-tools', configuration: 'unzipped')
 }
 
 task copyDistribution() {
-    dependsOn ":ballerina-tools:build"
+    dependsOn ":jballerina-tools:build"
     doFirst {
         copy {
             from file(configurations.ballerinaTools.asPath)
@@ -41,14 +41,322 @@ task copyDistribution() {
         }
     }
 }
+def distPath = "$buildDir/extractedDistribution"
+def bbeList = []
+def canbuild = [
+        'secured-service-with-basic-auth',
+        'secured-service-with-jwt',
+        'secured-service-with-oauth2',
+        'udp-socket-client',
+        'tcp-socket-listener-client',
+        'rabbitmq-consumer-with-qos-settings',
+        'rabbitmq-consumer-with-data-binding',
+        'rabbitmq-consumer-with-client-acknowledgement',
+        'rabbitmq-consumer',
+        'rabbitmq-producer',
+        'nats-streaming-start-position',
+        'nats-streaming-queue-group',
+        'nats-streaming-durable-subscriptions',
+        'nats-streaming-consumer-with-data-binding',
+        'nats-streaming-client',
+        'client-generation',
+        'tracing',
+        'directory-listener',
+        'query-path-matrix-param',
+        'restrict-by-media-type',
+        'http-trace-logs',
+        'different-payload-types',
+        'http-streaming',
+        'websocket-client',
+        'websocket-retry',
+        'passthrough',
+        'websub-internal-hub-sample',
+        'websub-service-integration-sample',
+        'task-service-appointment',
+        'task-service-timer',
+        'character-io',
+        'file',
+        'byte-io',
+        'csv-io',
+        'log-api',
+        'base-path-and-path',
+        'http-redirects',
+        'http-caching-client',
+        'response-with-multiparts',
+        'http-data-binding',
+        'http-1.1-to-2.0-protocol-switch',
+        'websocket-basic-sample',
+        'http-to-websocket-upgrade',
+        'websocket-proxy-server'
+]
+def Testable = [
+        'hello-world-service',
+        'http-100-continue',
+        'http-circuit-breaker',
+        'http-cors',
+        'http-disable-chunking',
+        'http-failover',
+        'http-filters',
+        'http-load-balancer',
+        'http-timeout',
+        'http-retry',
+        'https-listener',
+        'ballerina-to-openapi',
+        'content-based-routing',
+        'basic-https-listener-client',
+        'mutual-ssl',
+        'request-with-multiparts',
+        'http-access-logs',
+        'http-compression',
+        'header-based-routing'
+]
+def ignoreList = [
+        'proto-to-ballerina',
+        'swagger-to-ballerina',
+        'taint-checking',
+        'websub-hub-client-sample',
+        'websub-remote-hub-sample',
+        'config-api',
+        'testerina-function-mocks',
+        'jdbc-client-crud-operations',
+        'jdbc-client-batch-update',
+        'jdbc-client-call-procedures',
+        'streaming-big-dataset',
+        'docker-deployment',
+        'kubernetes-deployment',
+        'awslambda-deployment',
+        'openshift-deployment',
+        'grpc-server-streaming',
+        'transactions-distributed',
+        'local-transactions',
+        'local-transactions-with-participants',
+        'xa-transactions',
+        'secured-client-with-oauth2',
+        'gauge-metrics',
+        'counter-metrics',
+        'xml-functions',
+        'openapi-to-ballerina',
+        'kafka_message_consumer_group_service',
+        'kafka_message_consumer_simple',
+        'kafka_message_consumer_service',
+        'kafka_message_producer',
+        'kafka_message_producer_transactional',
+        'grpc-secured-unary',
+        'grpc-bidirectional-streaming',
+        'grpc-client-streaming',
+        'grpc-unary-non-blocking',
+        'grpc-unary-blocking',
+        'nats-streaming-start-position',
+        'nats-streaming-queue-group',
+        'nats-streaming-durable-subscriptions',
+        'nats-streaming-consumer-with-data-binding',
+        'nats-streaming-client',
+        'nats-basic-client',
+        'jdbc-streaming-big-dataset',
+        'testerina-guarantee-test-execution-order',
+        'testerina-data-driven-tests',
+        'testerina-before-and-after-suite',
+        'testerina-before-each-test',
+        'testerina-before-and-after-test',
+        'testerina-assertions',
+        'taint-checking',
+        'websocket-chat-application'
+]
+
+def withmockcanbuild = [
+        'secured-client-with-basic-auth',
+        'secured-client-with-jwt-auth',
+        'http-2.0-server-push',
+        'task-scheduler-appointment',
+        'task-scheduler-timer',
+        'worker-interaction',
+        'workers',
+        'hello-world-parallel',
+        'the-main-function',
+        'checkpanic',
+        'type-cast',
+        'async',
+        'panic',
+        'time',
+        'crypto',
+        'http-client-endpoint',
+        'type-conversion'
+]
+
+
+task createProject {
+
+    dependsOn copyDistribution
+
+    doFirst {
+        exec {
+            //Initialize Ballerina project
+            if (Os.isFamily(Os.FAMILY_WINDOWS)) {
+                //TODO: Need to verify with windows
+                workingDir "${buildDir}/"
+                commandLine 'cmd', '/c', "${distPath}/bin/ballerina.bat", 'new', 'TestProject'
+            } else {
+                workingDir "${buildDir}/"
+                commandLine "${distPath}/bin/./ballerina", 'new', 'TestProject'
+            }
+        }
+    }
+    doFirst {
+        def inputFile = new File("${distPath}/examples/index.json")
+        def categories = new JsonSlurper().parseText(inputFile.text)
+        categories.each { category ->
+            def examples = category.samples
+            examples.each { example ->
+                bbeList.push("$example.url")
+            }
+        }
+    }
+    doLast {
+        bbeList.each { String bbe ->
+            def src = "${project.rootDir}/examples/${bbe}"
+            def dis = "${buildDir}/TestProject/src/${bbe}_test/"
+            copy {
+                from(src) {}
+                into dis
+            }
+        }
+    }
+}
+
+
+task TestWithTool {
+
+    doFirst {
+//         Remove excludes
+        def listof = ignoreList + withmockcanbuild + Testable + canbuild
+
+        listof.each { String listofitem ->
+            bbeList.remove("$listofitem")
+        }
+
+        bbeList.each { String bbe ->
+
+            bbe = "${bbe}_test"
+            def outputarry = []
+
+            if (Os.isFamily(Os.FAMILY_WINDOWS)) {
+                //TODO: Need to verify with windows
+                exec {
+                    workingDir "${buildDir}/TestProject"
+                    commandLine 'cmd', '/c', "${distPath}/bin/ballerina.bat", 'build', '--skip-tests', '--experimental', bbe
+                }
+            } else {
+                exec {
+                    workingDir "${buildDir}/TestProject"
+                    commandLine "${distPath}/bin/./ballerina", 'build', '--skip-tests', '--experimental', bbe
+                }
+            }
+
+            new ByteArrayOutputStream().withStream { os ->
+                if (Os.isFamily(Os.FAMILY_WINDOWS)) {
+                    //TODO: Need to verify with windows
+                    exec {
+                        workingDir "${buildDir}/TestProject/target/bin"
+                        commandLine 'cmd', '/c', "${distPath}/bin/ballerina.bat", 'run', "${bbe}.jar"
+                        standardOutput = os
+                    }
+                } else {
+                    exec {
+                        println bbe
+                        workingDir "${buildDir}/TestProject/target/bin"
+                        commandLine "${distPath}/bin/./ballerina", 'run', "${bbe}.jar"
+                        standardOutput = os
+                    }
+                }
+                outputarry.add(os.toString())
+                println outputarry[0]
+            }
+            def lines = "${outputarry[0]}".split('\n')
+
+            def variable = bbe - "_test"
+            variable = variable.replace('-', '_')
+            File file = file("${buildDir}/TestProject/src/${bbe}/${variable}.out")
+
+            def fileout = []
+            file.readLines().each {
+                def str2 = it.toString()
+                str2 = str2.trim()
+                if (str2?.trim()) {
+                    if (str2[0] != '#') {
+                        fileout.add(str2)
+                    }
+                }
+            }
+            def newlines = []
+            for (int i = 0; i < lines.size(); i++) {
+                def str1 = lines[i].toString()
+                str1 = str1.trim()
+                if (str1?.trim()) {
+                    newlines.add(str1)
+                }
+            }
+            def index = fileout.findIndexOf { it == newlines[0] }
+            if (index == -1) {
+                throw new GradleException('Error occurred')
+            }
+            for (int i = 0; i < newlines.size(); i++) {
+                if (newlines[i] != fileout[index + i]) {
+                    throw new GradleException('Error occurred')
+                }
+            }
+        }
+    }
+}
+
+task TestWithoutTool {
+
+    doLast {
+        Testable.each { String bbe ->
+            bbe = "${bbe}_test"
+            if (Os.isFamily(Os.FAMILY_WINDOWS)) {
+                //TODO: Need to verify with windows
+                exec {
+                    workingDir "${buildDir}/TestProject"
+                    commandLine 'cmd', '/c', "${distPath}/bin/ballerina.bat", 'build', '--experimental', "${bbe}"
+                }
+            } else {
+                exec {
+                    workingDir "${buildDir}/TestProject"
+                    commandLine "${buildDir}/extractedDistribution/bin/./ballerina", 'build', '--experimental', "${bbe}"
+                }
+            }
+        }
+    }
+}
+
+task BuildModules {
+    doFirst {
+        def listof = withmockcanbuild + canbuild
+        listof.each { String bbe ->
+            bbe = "${bbe}_test"
+            if (Os.isFamily(Os.FAMILY_WINDOWS)) {
+                //TODO: Need to verify with windows
+                exec {
+                    workingDir "${buildDir}/TestProject"
+                    commandLine 'cmd', '/c', "${distPath}/bin/ballerina.bat", 'build', '--skip-tests', '--experimental', "${bbe}"
+                }
+            } else {
+                exec {
+                    workingDir "${buildDir}/TestProject"
+                    commandLine "${buildDir}/extractedDistribution/bin/./ballerina", 'build', '--skip-tests', '--experimental', "${bbe}"
+                }
+            }
+        }
+    }
+}
 
 task test {
-    dependsOn copyDistribution
-    def distPath = "$buildDir/extractedDistribution"
+    dependsOn createProject
+
     mustRunAfter ':jballerina-integration-test:test'
     outputs.dir("${distPath}/examples/target")
     outputs.dir("${distPath}/examples/.ballerina/repo/")
-    outputs.cacheIf{ true }
+    outputs.cacheIf { true }
 
     PatternSet patternSet = new PatternSet();
     patternSet.exclude("**/.ballerina/**");
@@ -56,87 +364,12 @@ task test {
     patternSet.exclude("**/Ballerina.lock");
     patternSet.exclude("**/ballerina-internal.log")
     inputs.files(files("${distPath}/examples").asFileTree.matching(patternSet))
-    
-    doFirst {
-        exec {
-            //Initialize Ballerina project
-            if (Os.isFamily(Os.FAMILY_WINDOWS)) {
-                //TODO: Need to verify with windows
-                workingDir "${distPath}/examples"
-                commandLine 'cmd', '/c', "${distPath}/bin/ballerina.bat", 'init'
-            } else {
-                workingDir "${distPath}/examples"
-                commandLine "${distPath}/bin/./ballerina", 'init'
-            }
-        }
-
-    }
-
-    doLast {
-        // TODO: run examples list as dynamic tasks
-        //List of BBEs excluded from building
-        def ignoreList = [ 'proto-to-ballerina',
-                           'swagger-to-ballerina',
-                           'taint-checking',
-                           'websub-hub-client-sample',
-                           'websub-remote-hub-sample',
-                           'config-api',
-                           'testerina-function-mocks',
-                           'jdbc-client-crud-operations',
-                           'jdbc-client-batch-update',
-                           'jdbc-client-call-procedures',
-                           'streaming-big-dataset',
-                           'docker-deployment',
-                           'kubernetes-deployment',
-                           'awslambda-deployment',
-                           'openshift-deployment',
-                           'grpc-server-streaming',
-                           'transactions-distributed',
-                           'local-transactions',
-                           'local-transactions-with-participants',
-                           'xa-transactions',
-                           'secured-client-with-oauth2',
-                           'gauge-metrics',
-                           'counter-metrics',
-                           'xml-functions',
-                           'openapi-to-ballerina',
-                           'rabbitmq-simple-consumer',
-                           'rabbitmq-simple-producer'
-                           ]
-
-        def inputFile = new File( "${distPath}/examples/index.json")
-        def categories = new JsonSlurper().parseText(inputFile.text)
-        def bbeList = []
-        categories.each { category ->
-            def examples = category.samples
-            examples.each { example ->
-                bbeList.push("$example.url")
-
-            }
-        }
-
-        // Remove excludes
-        ignoreList.each { ignoreItem ->
-            bbeList.remove("$ignoreItem")
-        }
-
-        bbeList.each { String bbe ->
-            if (Os.isFamily(Os.FAMILY_WINDOWS)) {
-                //TODO: Need to verify with windows
-                exec {
-                    workingDir "${distPath}/examples"
-                    commandLine 'cmd', '/c', "${distPath}/bin/ballerina.bat", 'build', bbe, '--experimental'
-                }
-            } else {
-                exec {
-                    workingDir "${distPath}/examples"
-                    commandLine "${distPath}/bin/./ballerina", 'build', bbe, '--experimental'
-                }
-            }
-        }
-   }
 }
 
 build {
     dependsOn test
 }
+
+test.finalizedBy TestWithoutTool
+test.finalizedBy TestWithTool
+test.finalizedBy BuildModules
