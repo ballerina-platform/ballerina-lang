@@ -2206,7 +2206,7 @@ public class TypeChecker extends BLangNodeVisitor {
             }
         }
 
-        if (expType == symTable.semanticError) {
+        if (expType == symTable.semanticError || exprType == symTable.semanticError) {
             actualType = symTable.semanticError;
         } else {
             LinkedHashSet<BType> resultTypes = new LinkedHashSet<>();
@@ -2404,7 +2404,7 @@ public class TypeChecker extends BLangNodeVisitor {
         BType expType = requireTypeInference(conversionExpr.expr) ? targetType : symTable.noType;
         BType sourceType = checkExpr(conversionExpr.expr, env, expType);
 
-        if (types.isTypeCastPossible(conversionExpr.expr, sourceType, targetType)) {
+        if (types.isTypeCastable(conversionExpr.expr, sourceType, targetType)) {
             // We reach this block only if the cast is valid, so we set the target type as the actual type.
             actualType = targetType;
         } else {
@@ -2760,8 +2760,10 @@ public class TypeChecker extends BLangNodeVisitor {
             return;
         }
         // Log an error and define a symbol with the node's type to avoid undeclared symbol errors.
-        dlog.error(variableNode.typeNode.pos, DiagnosticCode.INCOMPATIBLE_TYPES, fromClause.varType,
+        if (typeNodeType != symTable.semanticError) {
+            dlog.error(variableNode.typeNode.pos, DiagnosticCode.INCOMPATIBLE_TYPES, fromClause.varType,
                    typeNodeType);
+        }
         semanticAnalyzer.handleDeclaredVarInForeach(variableNode, typeNodeType, blockEnv);
     }
 
@@ -4328,7 +4330,7 @@ public class TypeChecker extends BLangNodeVisitor {
                        DiagnosticCode.OPERATION_DOES_NOT_SUPPORT_OPTIONAL_FIELD_ACCESS, varRefType);
         }
 
-        if (nillableExprType && !actualType.isNullable()) {
+        if (nillableExprType && actualType != symTable.semanticError && !actualType.isNullable()) {
             actualType = BUnionType.create(null, actualType, symTable.nilType);
         }
 

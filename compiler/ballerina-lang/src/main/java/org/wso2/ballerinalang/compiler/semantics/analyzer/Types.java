@@ -1433,7 +1433,7 @@ public class Types {
         return false;
     }
 
-    public boolean isTypeCastPossible(BLangExpression expr, BType sourceType, BType targetType) {
+    public boolean isTypeCastable(BLangExpression expr, BType sourceType, BType targetType) {
 
         if (sourceType.tag == TypeTags.SEMANTIC_ERROR || targetType.tag == TypeTags.SEMANTIC_ERROR ||
                 sourceType == targetType) {
@@ -1493,29 +1493,33 @@ public class Types {
     boolean isNumericConversionPossible(BLangExpression expr, BType sourceType,
                                         BType targetType) {
 
-        if (isBasicNumericType(sourceType) && isBasicNumericType(targetType)) {
+        final boolean isSourceNumericType = isBasicNumericType(sourceType);
+        final boolean isTargetNumericType = isBasicNumericType(targetType);
+        if (isSourceNumericType && isTargetNumericType) {
             // We only reach here for different numeric types.
             // 2019R3 Spec defines numeric conversion between each type.
             return true;
         }
         if (targetType.tag == TypeTags.UNION) {
-            long count = 0L;
+            HashSet<Integer> typeTags = new HashSet<>();
             for (BType bType : ((BUnionType) targetType).getMemberTypes()) {
                 if (isBasicNumericType(bType)) {
-                    count++;
+                    typeTags.add(bType.tag);
+                    if (typeTags.size() > 1) {
+                        // Multiple Basic numeric types found in the union.
+                        return false;
+                    }
                 }
-            }
-
-            // Multiple Basic numeric types found in the union.
-            // (Assumptions: Union type can contain single instance of a type)
-            if (count > 1) {
-                return false;
             }
         }
 
-        // Target type is always a union here and have at least one numeric type member.
+        if (!isTargetNumericType && targetType.tag != TypeTags.UNION) {
+            return false;
+        }
 
-        if (isBasicNumericType(sourceType)) {
+        // Target type has at least one numeric type member.
+
+        if (isSourceNumericType) {
             // i.e., a conversion from a numeric type to another numeric type in a union.
             // int|string u1 = <int|string> 1.0;
             // TODO : Fix me. This doesn't belong here.
