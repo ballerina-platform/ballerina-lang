@@ -67,10 +67,21 @@ public type Client client object {
     # + path - Resource path
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
-    # + return - The response for the request or an `http:ClientError` if failed to establish communication with the upstream server
-    public remote function post(@untainted string path, RequestMessage message) returns Response|ClientError {
+    # + targetType - The types of payloads that are expected be returned after data-binding
+    # + return - The response for the request or the response payload if data-binding expected otherwise an
+    # `http:ClientError` if failed to establish communication with the upstream server or data binding failure
+    public remote function post(@untainted string path, RequestMessage message, TargetType targetType = Response)
+            returns @tainted Response|PayloadType|ClientError {
         Request req = buildRequest(message);
-        return self.httpClient->post(path, req);
+        if (targetType is typedesc<Response>) {
+            return self.httpClient->post(path, req);
+        }
+        var result = self.httpClient->post(path, req);
+        if (result is ClientError) {
+            return result;
+        } else {
+            return processResponse(<Response>result, targetType);
+        }
     }
 
     # The `Client.head()` function can be used to send HTTP HEAD requests to HTTP endpoints.
@@ -221,6 +232,51 @@ public type Client client object {
         return self.cookieStore;
     }
 };
+
+function processResponse(Response response, TargetType targetType) returns @tainted PayloadType|ClientError {
+    int statusCode = response.statusCode;
+    if (400 <= statusCode && statusCode < 500) {
+        string errorPayload = check response.getTextPayload();
+        ClientRequestError err = error(CLIENT_REQUEST_ERROR, message = errorPayload, statusCode = statusCode);
+        return err;
+    }
+    if (500 <= statusCode && statusCode < 600) {
+        string errorPayload = check response.getTextPayload();
+        RemoteServerError err = error(REMOTE_SERVER_ERROR, message = errorPayload, statusCode = statusCode);
+        return err;
+    }
+    return performDataBinding(response, targetType);
+}
+
+function performDataBinding(Response response, TargetType targetType) returns @tainted PayloadType|ClientError {
+    if (targetType is typedesc<string>) {
+        return response.getTextPayload();
+    } else if (targetType is typedesc<json>) {
+        return response.getJsonPayload();
+    } else if (targetType is typedesc<xml>) {
+        return response.getXmlPayload();
+    } else if (targetType is typedesc<byte[]>) {
+        return response.getBinaryPayload();
+    //} else if (targetType is typedesc<CustomRecordType> || targetType is typedesc<CustomRecordType[]>) {
+    //    return targetType.constructFrom(check response.getJsonPayload());
+    } else if (targetType is typedesc<CustomRecordType>) {
+        return <CustomRecordType> targetType.constructFrom(check response.getJsonPayload());
+    } else if (targetType is typedesc<CustomRecordType[]>) {
+        return <CustomRecordType[]> targetType.constructFrom(check response.getJsonPayload());
+    }
+}
+
+//function createAndReturnError(Response response) returns ClientError {
+//    string|error errorPayload = response.getTextPayload();
+//    if (errorPayload is error) {
+//        GenericClientError err = error(GENERIC_CLIENT_ERROR, message = "Payload retrieval error", cause = errorPayload);
+//        return err;
+//    }
+//    string errMsg = <string> errorPayload;
+//    GenericClientError err = error("{ballerina/http}GenericClientError", message = errMsg);
+//    return error(INVALID_COOKIE_ERROR, message = "Invalid name: Name cannot be empty");
+//}
+
 
 # Represents a single service and its related configurations.
 #

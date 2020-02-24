@@ -153,9 +153,11 @@ public type CircuitBreakerClient client object {
     # + path - Resource path
     # + message - A Request or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel`
     #             or `mime:Entity[]`
-    # + return - The response for the request or an `http:ClientError` if failed to establish communication with the upstream
-    #            server
-    public function post(string path, RequestMessage message) returns Response|ClientError {
+    # + targetType - The types of payloads that are expected be returned after data-binding
+    # + return - The response for the request or the response payload if data-binding expected otherwise an
+    # `http:ClientError` if failed to establish communication with the upstream server or data binding failure
+    public function post(string path, RequestMessage message, TargetType targetType = Response)
+            returns Response|PayloadType|ClientError {
         CircuitBreakerInferredConfig cbic = self.circuitBreakerInferredConfig;
         self.currentCircuitState = updateCircuitState(self.circuitHealth, self.currentCircuitState, cbic);
 
@@ -164,7 +166,7 @@ public type CircuitBreakerClient client object {
             return handleOpenCircuit(self.circuitHealth, cbic);
         } else {
             var serviceResponse = self.httpClient->post(path, <Request>message);
-            return updateCircuitHealthAndRespond(serviceResponse, self.circuitHealth, cbic);
+            return updateCircuitHealthAndRespond2(serviceResponse, self.circuitHealth, cbic);
         }
     }
 
@@ -480,6 +482,22 @@ function updateCircuitState(CircuitHealth circuitHealth, CircuitState currentSta
     }
 }
 
+function updateCircuitHealthAndRespond2(Response|PayloadType|ClientError serviceResponse, CircuitHealth circuitHealth,
+                               CircuitBreakerInferredConfig circuitBreakerInferredConfig) returns
+                               Response|PayloadType|ClientError {
+    if (serviceResponse is Response) {
+        if (circuitBreakerInferredConfig.statusCodes[serviceResponse.statusCode]) {
+            updateCircuitHealthFailure(circuitHealth, circuitBreakerInferredConfig);
+        } else {
+            updateCircuitHealthSuccess(circuitHealth, circuitBreakerInferredConfig);
+        }
+    } else if (serviceResponse is ClientError) {
+        updateCircuitHealthFailure(circuitHealth, circuitBreakerInferredConfig);
+    }
+    return serviceResponse;
+}
+
+//TODO delete
 function updateCircuitHealthAndRespond(Response|ClientError serviceResponse, CircuitHealth circuitHealth,
                                CircuitBreakerInferredConfig circuitBreakerInferredConfig) returns Response|ClientError {
     if (serviceResponse is Response) {

@@ -46,11 +46,16 @@ public type HttpSecureClient client object {
     # + path - Resource path
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
-    # + return - The inbound response message or the error if one occurred while attempting to fulfill the HTTP request
-    public remote function post(string path, RequestMessage message) returns Response|ClientError {
+    # + targetType - The types of payload that are expected be returned after data-binding
+    # + return - The response for the request or the response payload if data-binding expected otherwise an
+    # `http:ClientError` if failed to establish communication with the upstream server or data binding failure
+    public remote function post(string path, RequestMessage message, TargetType targetType = Response)
+            returns Response|PayloadType|ClientError {
         Request req = <Request>message;
         req = check prepareSecureRequest(req, self.config);
-        Response res = check self.httpClient->post(path, req);
+        // TODO delete  action invocation as an expression not allowed here
+        var result = check self.httpClient->post(path, req);
+        Response res = <Response> result;
         var inspection = check doInspection(req, res, self.config);
         if (inspection is Request) {
             return self.httpClient->post(path, inspection);

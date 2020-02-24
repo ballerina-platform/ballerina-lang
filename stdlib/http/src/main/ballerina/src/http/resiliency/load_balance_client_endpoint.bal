@@ -55,8 +55,11 @@ public type LoadBalanceClient client object {
     # + path - Resource path
     # + message - An HTTP request or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel`
     #             or `mime:Entity[]`
-    # + return - The response or an `http:ClientError` if failed to fulfill the request
-    public remote function post(string path, RequestMessage message) returns Response|ClientError {
+    # + targetType - The types of payloads that are expected be returned after data-binding
+    # + return - The response for the request or the response payload if data-binding expected otherwise an
+    # `http:ClientError` if failed to establish communication with the upstream server or data binding failure
+    public remote function post(@untainted string path, RequestMessage message, TargetType targetType = Response)
+                returns Response|PayloadType|ClientError {
         Request req = buildRequest(message);
         return performLoadBalanceAction(self, path, req, HTTP_POST);
     }

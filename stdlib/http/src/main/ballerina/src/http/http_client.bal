@@ -38,8 +38,11 @@ public type HttpClient client object {
     # + path - Resource path
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
-    # + return - The response for the request or an `http:ClientError` if failed to establish communication with the upstream server
-    public remote function post(@untainted string path, RequestMessage message) returns Response|ClientError {
+    # + targetType - The types of payloads that are expected be returned after data-binding
+    # + return - The response for the request or the response payload if data-binding expected otherwise an
+    # `http:ClientError` if failed to establish communication with the upstream server or data binding failure
+    public remote function post(@untainted string path, RequestMessage message, TargetType targetType = Response)
+                returns Response|PayloadType|ClientError {
         return externExecuteClientAction(self, java:fromString(path), <Request>message, java:fromString(HTTP_POST));
     }
 

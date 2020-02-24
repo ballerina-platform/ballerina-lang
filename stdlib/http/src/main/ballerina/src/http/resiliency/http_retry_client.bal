@@ -68,8 +68,11 @@ public type RetryClient client object {
     # + path - Resource path
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
-    # + return - The HTTP `Response` message, or an error if the invocation fails
-    public remote function post(string path, RequestMessage message) returns @tainted Response|ClientError {
+    # + targetType - The types of payloads that are expected be returned after data-binding
+    # + return - The response for the request or the response payload if data-binding expected otherwise an
+    # `http:ClientError` if failed to establish communication with the upstream server or data binding failure
+    public remote function post(string path, RequestMessage message, TargetType targetType = Response)
+            returns @tainted Response|PayloadType|ClientError {
         var result = performRetryAction(path, <Request>message, HTTP_POST, self);
         if (result is HttpFuture) {
             return getInvalidTypeError();

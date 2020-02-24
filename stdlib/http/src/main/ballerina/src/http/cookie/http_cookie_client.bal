@@ -66,12 +66,15 @@ public type CookieClient object {
     # + path - Resource path
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
-    # + return - The response for the request or an `http:ClientError` if failed to establish communication with the upstream server
-    public function post(string path, RequestMessage message) returns Response|ClientError {
+    # + targetType - The types of payload that are expected be returned after data-binding
+    # + return - The response for the request or the response payload if data-binding expected otherwise an
+    # `http:ClientError` if failed to establish communication with the upstream server or data binding failure
+    public function post(string path, RequestMessage message, TargetType targetType = Response)
+            returns Response|PayloadType|ClientError {
         Request request = <Request>message;
         addStoredCookiesToRequest(self.url, path, self.cookieStore, request);
         var inboundResponse = self.httpClient->post(path, request);
-        return addCookiesInResponseToStore(inboundResponse, self.cookieStore, self.cookieConfig, self.url, path);
+        return addCookiesInResponseToStore2(inboundResponse, self.cookieStore, self.cookieConfig, self.url, path);
     }
 
     # The `CookieClient.head()` function wraps the underlying HTTP remote functions in a way to provide
@@ -239,6 +242,15 @@ function addStoredCookiesToRequest(string url, string path, CookieStore? cookieS
 }
 
 // Gets the cookies from the inbound response, adds them to the cookies store, and returns the response.
+function addCookiesInResponseToStore2(Response|PayloadType|ClientError inboundResponse, @tainted CookieStore?
+cookieStore, CookieConfig cookieConfig, string url, string path) returns Response|PayloadType|ClientError {
+    if (cookieStore is CookieStore && inboundResponse is Response) {
+        Cookie[] cookiesInResponse = inboundResponse.getCookies();
+        cookieStore.addCookies(cookiesInResponse, cookieConfig, url, path );
+    }
+    return inboundResponse;
+}
+
 function addCookiesInResponseToStore(Response|ClientError inboundResponse, @tainted CookieStore? cookieStore, CookieConfig cookieConfig, string url, string path) returns Response|ClientError {
     if (cookieStore is CookieStore && inboundResponse is Response) {
         Cookie[] cookiesInResponse = inboundResponse.getCookies();
