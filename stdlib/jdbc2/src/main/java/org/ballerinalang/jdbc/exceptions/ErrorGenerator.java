@@ -65,11 +65,7 @@ public class ErrorGenerator {
     }
 
     public static ErrorValue getSQLApplicationError(String detailedErrorMessage) {
-        Map<String, Object> valueMap = new HashMap<>();
-        valueMap.put("message", detailedErrorMessage);
-        MapValue<String, Object> sqlClientErrorDetailRecord = BallerinaValues.
-                createRecordValue(Constants.SQL_PACKAGE_ID, Constants.APPLICATION_ERROR_DATA_RECORD_NAME, valueMap);
-        return BallerinaErrors.createError(Constants.APPLICATION_ERROR_CODE, sqlClientErrorDetailRecord);
+        return BallerinaErrors.createError(detailedErrorMessage);
     }
 
     private static ErrorValue getSQLDatabaseError(String message, int vendorCode, String sqlState) {

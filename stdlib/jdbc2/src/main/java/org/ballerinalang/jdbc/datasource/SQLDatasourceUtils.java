@@ -187,7 +187,7 @@ public class SQLDatasourceUtils {
             return existingDataSourceMap;
         }
         poolOptions.addNativeData(POOL_MAP_KEY, datasourceMap);
-        return existingDataSourceMap;
+        return datasourceMap;
     }
 
     static boolean isSupportedDbOptionType(Object value) {

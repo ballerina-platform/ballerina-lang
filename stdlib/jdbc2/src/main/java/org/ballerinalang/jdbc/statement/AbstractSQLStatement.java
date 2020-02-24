@@ -21,13 +21,11 @@ import org.ballerinalang.jdbc.Constants;
 import org.ballerinalang.jdbc.datasource.SQLDatasource;
 import org.ballerinalang.jdbc.exceptions.ApplicationException;
 import org.ballerinalang.jdbc.exceptions.ErrorGenerator;
-import org.ballerinalang.jdbc.table.BCursorTable;
 import org.ballerinalang.jdbc.table.SQLDataIterator;
 import org.ballerinalang.jdbc.table.StreamSqlIterator;
 import org.ballerinalang.jdbc.transaction.SQLTransactionContext;
 import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.ColumnDefinition;
-import org.ballerinalang.jvm.TableResourceManager;
 import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.observability.ObservabilityConstants;
 import org.ballerinalang.jvm.observability.ObserveUtils;
@@ -42,7 +40,6 @@ import org.ballerinalang.jvm.types.BField;
 import org.ballerinalang.jvm.types.BPackage;
 import org.ballerinalang.jvm.types.BRecordType;
 import org.ballerinalang.jvm.types.BStreamType;
-import org.ballerinalang.jvm.types.BStructureType;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.types.TypeFlags;
@@ -54,7 +51,6 @@ import org.ballerinalang.jvm.values.DecimalValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.StreamValue;
-import org.ballerinalang.jvm.values.TableValue;
 
 import java.math.BigDecimal;
 import java.sql.Connection;
@@ -64,7 +60,6 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Types;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -72,7 +67,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.TimeZone;
 
 import javax.sql.XAConnection;
 import javax.transaction.xa.XAResource;
@@ -95,7 +89,6 @@ public abstract class AbstractSQLStatement implements SQLStatement {
 
     private static final BType SQL_PARAMETER_TYPE =
             BallerinaValues.createRecordValue(Constants.SQL_PACKAGE_ID, Constants.SQL_PARAMETER).getType();
-    Calendar utcCalendar = Calendar.getInstance(TimeZone.getTimeZone(Constants.TIMEZONE_UTC));
     Strand strand;
 
     AbstractSQLStatement(Strand strand) {
@@ -160,20 +153,6 @@ public abstract class AbstractSQLStatement implements SQLStatement {
             }
         }
         return currentQuery;
-    }
-
-    TableValue constructTable(TableResourceManager rm, ResultSet rs, BStructureType structType,
-                              List<ColumnDefinition> columnDefinitions, String databaseProductName) {
-        BStructureType tableConstraint = structType;
-        if (structType == null) {
-            tableConstraint = new BRecordType("$table$anon$constraint$",
-                    new BPackage("ballerina", "lang.annotations", "0.0.0"), 0, false,
-                    TypeFlags.asMask(TypeFlags.ANYDATA, TypeFlags.PURETYPE));
-            ((BRecordType) tableConstraint).restFieldType = BTypes.typeAnydata;
-        }
-        return new BCursorTable(
-                new SQLDataIterator(rm, rs, utcCalendar, columnDefinitions, structType, databaseProductName),
-                tableConstraint);
     }
 
     StreamValue constructStream(ResultSet rs, List<ColumnDefinition> columnDefinitions) {
