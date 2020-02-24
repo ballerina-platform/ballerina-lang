@@ -202,7 +202,6 @@ public class CompilerPluginRunner extends BLangNodeVisitor {
     }
 
     public void visit(BLangLetExpression letExpression) {
-
     }
 
     // private methods
