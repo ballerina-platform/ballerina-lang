@@ -1,5 +1,5 @@
 [project]
-org-name = "ballerinax"
+org-name = "ballerina"
 version = "0.0.0"
 
 [platform]
@@ -8,7 +8,7 @@ target = "java8"
     [[platform.libraries]]
     artifactId = "jdbc"
     version = "@project.version@"
-    path = "./lib/ballerina-jdbc-@project.version@.jar"
+    path = "./lib/ballerina-jdbc2-@project.version@.jar"
     groupId = "ballerina"
     modules = ["jdbc"]
 

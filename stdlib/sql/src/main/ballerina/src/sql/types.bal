@@ -13,10 +13,12 @@ import ballerina/time;
 # + maxConnectionLifeTimeSeconds - The maximum lifetime of a connection in the pool. Default value is 1800 seconds (30 minutes)
 #                  and it can be changed through the configuration API with the key `b7a.sql.pool.maxLifetimeInMillis`.
 #                  A value of 0 indicates unlimited maximum lifetime (infinite lifetime).
-public type PoolOptions record {|
+public type ConnectionPoolOptions record {|
+    //TODO: Is this name should be changed to ConnectionPool?
+    //whether it's only placeholer for config? or actual underneath object is also stored?
     int maxOpenConnections = config:getAsInt("\"b7a.sql.pool.maxOpenConnections\"", 15);
-    int minIdleConnections = config:getAsInt("b7a.sql.pool.minIdleConnections", 15);
     decimal maxConnectionLifeTimeSeconds = <decimal>config:getAsFloat("b7a.sql.pool.maxConnectionLifeTime", 1800.0);
+    int minIdleConnections = config:getAsInt("b7a.sql.pool.minIdleConnections", 15);
 |};
 
 # The SQL Datatype of the parameter.
