@@ -26,7 +26,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.array_  \n  \nReturns a stream from the given array.  \n"
+          "value": "**Package:** _ballerina/lang.array_  \n  \nReturns a stream from the given array.\n  \n"
         }
       },
       "sortText": "120",
