@@ -64,7 +64,6 @@ public enum DiagnosticCode {
     ATTEMPT_EXPOSE_NON_PUBLIC_SYMBOL("attempt.expose.non.public.symbol"),
     UNDEFINED_PARAMETER("undefined.parameter"),
     ATTACHED_FUNCTIONS_MUST_HAVE_BODY("attached.functions.must.have.body"),
-    EXTERN_FUNCTION_CANNOT_HAVE_BODY("extern.function.cannot.have.body"),
     ABSTRACT_OBJECT_CONSTRUCTOR("abstract.object.constructor"),
     CANNOT_INITIALIZE_ABSTRACT_OBJECT("cannot.initialize.abstract.object"),
     INVALID_INTERFACE_ON_NON_ABSTRACT_OBJECT("invalid.interface.of.non.abstract.object"),
