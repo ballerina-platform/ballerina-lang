@@ -53,7 +53,10 @@ public class CommandConstants {
     public static final Pattern RESOURCE_METHOD_NOT_FOUND_IN_OPENAPI = Pattern.compile(
             "Ballerina service contains a Resource that is not documented in the OpenAPI contract. Error Resource " +
                     "path '(.*)'");
-
+    public static final Pattern PARAMETER_FOR_THE_METHOD_NOT_FOUND_IN_OPENAPI =
+            Pattern.compile(
+                    "'(.*)' parameter for the method '(.*)' of the resource associated with the path '(.*)' is not " +
+                            "documented in the OpenAPI contract");
     // Command Arguments
     public static final String ARG_KEY_DOC_URI = "doc.uri";
 
@@ -76,6 +79,8 @@ public class CommandConstants {
     public static final String ARG_KEY_PATH = "path";
 
     public static final String ARG_KEY_METHOD = "method";
+
+    public static final String ARG_KEY_PARAMETER = "parameter";
 
     // Command Titles
     public static final String IMPORT_MODULE_TITLE = "Import Module ";
@@ -115,4 +120,7 @@ public class CommandConstants {
 
     public static final String CREATE_SERVICE_RESOURCE_METHOD_IN_OPENAPI =
             "Create service resource for the path '%s' in the OpenAPI contract";
+
+    public static final String ADD_MISSING_PARAMETER_IN_OPENAPI =
+            "Add missing parameter '%s' for the method '%s' for the path '%s' in the OpenAPI contract";
 }
