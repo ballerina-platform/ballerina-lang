@@ -30,19 +30,18 @@ import io.ballerina.plugins.idea.extensions.BallerinaLSPExtensionManager;
 import io.ballerina.plugins.idea.sdk.BallerinaSdk;
 import io.ballerina.plugins.idea.sdk.BallerinaSdkUtils;
 import io.ballerina.plugins.idea.settings.autodetect.BallerinaAutoDetectionSettings;
-import io.ballerina.plugins.idea.settings.experimental.BallerinaExperimentalFeatureSettings;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.wso2.lsp4intellij.IntellijLanguageClient;
-import org.wso2.lsp4intellij.client.languageserver.serverdefinition.RawCommandServerDefinition;
+import org.wso2.lsp4intellij.client.languageserver.serverdefinition.ProcessBuilderServerDefinition;
 
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
+import static io.ballerina.plugins.idea.BallerinaConstants.BAL_FILE_EXT;
 import static io.ballerina.plugins.idea.BallerinaConstants.LAUNCHER_SCRIPT_PATH;
+import static io.ballerina.plugins.idea.BallerinaConstants.SYS_PROP_EXPERIMENTAL;
 import static io.ballerina.plugins.idea.preloading.OSUtils.getOperatingSystem;
 
 /**
@@ -134,6 +133,7 @@ public class BallerinaPreloadingActivity extends PreloadingActivity {
 
         // Creates the args list to register the language server definition using the ballerina lang-server launcher
         // script.
+        ProcessBuilder processBuilder;
         List<String> args = new ArrayList<>();
         if (os.equals(OSUtils.UNIX) || os.equals(OSUtils.MAC)) {
             args.add(Paths.get(sdkPath, LAUNCHER_SCRIPT_PATH, "language-server-launcher.sh").toString());
@@ -141,17 +141,18 @@ public class BallerinaPreloadingActivity extends PreloadingActivity {
             args.add(Paths.get(sdkPath, LAUNCHER_SCRIPT_PATH, "language-server-launcher.bat").toString());
         }
 
-        // Checks user-configurable setting for allowing ballerina experimental features and sets the flag accordinly.
-        if (BallerinaExperimentalFeatureSettings.getInstance().getAllowExperimental()) {
-            args.add("--experimental");
+        processBuilder = new ProcessBuilder(args);
+        // Checks user-configurable setting for allowing ballerina experimental features and sets the flag accordingly.
+        if (BallerinaAutoDetectionSettings.getInstance(project).getIsAutoDetectionEnabled()) {
+            processBuilder.environment().put(SYS_PROP_EXPERIMENTAL, "true");
         }
 
         // Adds ballerina-specific custom LSP extensions by creating a ballerina lsp extension manager.
-        IntellijLanguageClient.addExtensionManager("bal", new BallerinaLSPExtensionManager());
+        IntellijLanguageClient.addExtensionManager(BAL_FILE_EXT, new BallerinaLSPExtensionManager());
 
         // Registers language server definition in the lsp4intellij lang-client library.
-        IntellijLanguageClient.addServerDefinition(new RawCommandServerDefinition("bal",
-                args.toArray(new String[0])), project);
+        IntellijLanguageClient
+                .addServerDefinition(new ProcessBuilderServerDefinition(BAL_FILE_EXT, processBuilder), project);
 
         LOG.info("Registered language server definition using Sdk path: " + sdkPath);
         return true;
