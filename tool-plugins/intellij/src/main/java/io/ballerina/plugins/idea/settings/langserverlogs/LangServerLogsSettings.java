@@ -14,12 +14,13 @@
  * limitations under the License.
  */
 
-package io.ballerina.plugins.idea.settings.debuglogs;
+package io.ballerina.plugins.idea.settings.langserverlogs;
 
 import com.intellij.openapi.components.PersistentStateComponent;
 import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
+import com.intellij.openapi.project.Project;
 import com.intellij.util.xmlb.XmlSerializerUtil;
 import com.intellij.util.xmlb.annotations.Attribute;
 import org.jetbrains.annotations.NotNull;
@@ -28,32 +29,42 @@ import org.jetbrains.annotations.Nullable;
 /**
  * Language server debug logs settings provider.
  */
-@State(name = "LangServerDebugLogs", storages = @Storage(value = "editor.langserver.debuglogs.xml"))
-public class LangServerDebugLogsSettings implements PersistentStateComponent<LangServerDebugLogsSettings> {
+@State(name = "LangServerLogs", storages = @Storage(value = "editor.langserver.logs.xml"))
+public class LangServerLogsSettings implements PersistentStateComponent<LangServerLogsSettings> {
 
     @Attribute
     private boolean enableLangServerDebugLogs = false;
+    @Attribute
+    private boolean enableLangServerTraceLogs = false;
 
-    public static LangServerDebugLogsSettings getInstance() {
-        return ServiceManager.getService(LangServerDebugLogsSettings.class);
+    public static LangServerLogsSettings getInstance(Project project) {
+        return ServiceManager.getService(project, LangServerLogsSettings.class);
     }
 
     @Nullable
     @Override
-    public LangServerDebugLogsSettings getState() {
+    public LangServerLogsSettings getState() {
         return this;
     }
 
     @Override
-    public void loadState(@NotNull LangServerDebugLogsSettings state) {
+    public void loadState(@NotNull LangServerLogsSettings state) {
         XmlSerializerUtil.copyBean(state, this);
     }
 
-    public boolean getIsLangServerDebugLogsEnabled() {
+    public boolean isLangServerDebugLogsEnabled() {
         return enableLangServerDebugLogs;
+    }
+
+    public boolean isLangServerTraceLogsEnabled() {
+        return enableLangServerTraceLogs;
     }
 
     public void setIsLangServerDebugLogsEnabled(boolean enableLangServerDebugLogs) {
         this.enableLangServerDebugLogs = enableLangServerDebugLogs;
+    }
+
+    public void setIsLangServerTraceLogsEnabled(boolean enableLangServerTraceLogs) {
+        this.enableLangServerTraceLogs = enableLangServerTraceLogs;
     }
 }

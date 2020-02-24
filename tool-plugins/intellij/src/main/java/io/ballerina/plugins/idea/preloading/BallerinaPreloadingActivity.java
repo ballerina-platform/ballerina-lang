@@ -42,6 +42,8 @@ import java.util.List;
 import static io.ballerina.plugins.idea.BallerinaConstants.BAL_FILE_EXT;
 import static io.ballerina.plugins.idea.BallerinaConstants.LAUNCHER_SCRIPT_PATH;
 import static io.ballerina.plugins.idea.BallerinaConstants.SYS_PROP_EXPERIMENTAL;
+import static io.ballerina.plugins.idea.BallerinaConstants.SYS_PROP_LS_DEBUG;
+import static io.ballerina.plugins.idea.BallerinaConstants.SYS_PROP_LS_TRACE;
 import static io.ballerina.plugins.idea.preloading.OSUtils.getOperatingSystem;
 
 /**
@@ -112,8 +114,8 @@ public class BallerinaPreloadingActivity extends PreloadingActivity {
         if (!Strings.isNullOrEmpty(balSdkPath)) {
             boolean success = doRegister(project, balSdkPath);
             if (success && autoDetected) {
-                LOG.info(String.format("Auto-detected Ballerina Home: %s for the project: %s",
-                        balSdkPath, project.getBasePath()));
+                LOG.info(String.format("Auto-detected Ballerina Home: %s for the project: %s", balSdkPath,
+                        project.getBasePath()));
                 showInIdeaEventLog("Auto-Detected Ballerina Home: " + balSdkPath);
             }
             return success;
@@ -147,6 +149,16 @@ public class BallerinaPreloadingActivity extends PreloadingActivity {
             processBuilder.environment().put(SYS_PROP_EXPERIMENTAL, "true");
         }
 
+        // Checks user-configurable setting for allowing language server debug logs and sets the flag accordingly.
+        if (BallerinaAutoDetectionSettings.getInstance(project).getIsAutoDetectionEnabled()) {
+            processBuilder.environment().put(SYS_PROP_LS_DEBUG, "true");
+        }
+
+        // Checks user-configurable setting for allowing language server trace logs and sets the flag accordingly.
+        if (BallerinaAutoDetectionSettings.getInstance(project).getIsAutoDetectionEnabled()) {
+            processBuilder.environment().put(SYS_PROP_LS_TRACE, "true");
+        }
+
         // Adds ballerina-specific custom LSP extensions by creating a ballerina lsp extension manager.
         IntellijLanguageClient.addExtensionManager(BAL_FILE_EXT, new BallerinaLSPExtensionManager());
 
@@ -154,7 +166,7 @@ public class BallerinaPreloadingActivity extends PreloadingActivity {
         IntellijLanguageClient
                 .addServerDefinition(new ProcessBuilderServerDefinition(BAL_FILE_EXT, processBuilder), project);
 
-        LOG.info("Registered language server definition using Sdk path: " + sdkPath);
+        LOG.info("language server definition is registered using sdk path: " + sdkPath);
         return true;
     }
 
