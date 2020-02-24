@@ -71,3 +71,14 @@ function testMapFieldsOfIncorrectTypeViaSpreadOp() {
 function testUndeclaredMapSpreadOpField() {
     map<string|int> m = {s, i: 2, ...b, ...getFoo()};
 }
+
+function testJsonSpreadOpFieldOfIncorrectType() {
+    map<anydata> m = {a: 1, b: "hi"};
+    record {|
+        string s;
+        any...;
+    |} r = {s: "str"};
+
+    json j = {...r, c: 2, ...m};
+    map<json> mj = {a: 1, ...r, ...m};
+}

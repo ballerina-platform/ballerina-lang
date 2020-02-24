@@ -3754,40 +3754,6 @@ public class TypeChecker extends BLangNodeVisitor {
 
                 fieldType = validMapKey ? ((BMapType) mappingType).constraint : symTable.semanticError;
                 break;
-            case TypeTags.JSON: // TODO: 2/24/20 remove and check
-                if (spreadOpField) {
-                    BLangExpression spreadExp = ((BLangRecordLiteral.BLangRecordSpreadOperatorField) field).expr;
-                    BType spreadOpType = checkExpr(spreadExp, this.env);
-                    if (spreadOpType.tag != TypeTags.RECORD && spreadOpType.tag != TypeTags.MAP) {
-                        dlog.error(spreadExp.pos, DiagnosticCode.INCOMPATIBLE_TYPES_SPREAD_OP, spreadOpType);
-                    }
-                    return;
-                }
-
-                boolean validJsonKey;
-                if (keyValueField) {
-                    BLangRecordKey key = ((BLangRecordKeyValueField) field).key;
-                    validJsonKey = checkValidJsonOrMapLiteralKeyExpr(key.expr, key.computedKey);
-                } else {
-                    validJsonKey = checkValidJsonOrMapLiteralKeyExpr((BLangRecordLiteral.BLangRecordVarNameField) field,
-                                                                     false);
-                }
-
-                fieldType = validJsonKey ? symTable.jsonType : symTable.semanticError;
-
-                // First visit the expression having field type, as the expected type.
-                checkExpr(valueExpr, this.env, fieldType);
-
-                // Again check the type compatibility with JSON
-                if (valueExpr.impConversionExpr == null) {
-                    types.checkTypes(valueExpr, Lists.of(valueExpr.type), Lists.of(symTable.jsonType));
-                } else {
-                    BType valueType = valueExpr.type;
-                    types.checkType(valueExpr, valueExpr.impConversionExpr.type, symTable.jsonType);
-                    valueExpr.type = valueType;
-                }
-                resultType = valueExpr.type;
-                return;
         }
 
         if (valueExpr != null) {
