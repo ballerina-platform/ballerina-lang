@@ -122,17 +122,31 @@ public class JvmPackageGen {
 
     public static DiagnosticLogger dlogger = new DiagnosticLogger();
 
-    public static Map<String, BIRFunctionWrapper> birFunctionMap = new HashMap<>();
-    public static Map<String, BIRTypeDefinition> typeDefMap = new HashMap<>();
-    public static Map<String, String> globalVarClassNames = new HashMap<>();
-    public static Map<String, BIRInstruction> lambdas = new HashMap<>();
-    public static Map<String, BIRPackage> compiledPkgCache = new HashMap<>();
-    public static Map<String, String> externalMapCache = new HashMap<>();
-    public static Map<String, PackageID> dependentModules = new HashMap<>();
-    public static List<PackageID> dependentModuleArray = new ArrayList<>();
-    public static String currentClass = "";
-    public static int lambdaIndex = 0;
-    public static SymbolTable symbolTable = null;
+    public static Map<String, BIRFunctionWrapper> birFunctionMap;
+    public static Map<String, BIRTypeDefinition> typeDefMap;
+    public static Map<String, String> globalVarClassNames;
+    public static Map<String, BIRInstruction> lambdas;
+    public static Map<String, BIRPackage> compiledPkgCache;
+    public static Map<String, String> externalMapCache;
+    public static Map<String, PackageID> dependentModules;
+    public static List<PackageID> dependentModuleArray;
+    public static String currentClass;
+    public static int lambdaIndex;
+    public static SymbolTable symbolTable;
+
+    public static void intiPackageGen() {
+        birFunctionMap = new HashMap<>();
+        typeDefMap = new HashMap<>();
+        globalVarClassNames = new HashMap<>();
+        lambdas = new HashMap<>();
+        compiledPkgCache = new HashMap<>();
+        externalMapCache = new HashMap<>();
+        dependentModules = new HashMap<>();
+        dependentModuleArray = new ArrayList<>();
+        currentClass = "";
+        lambdaIndex = 0;
+        symbolTable = null;
+    }
 
     static class JarFile {
 
