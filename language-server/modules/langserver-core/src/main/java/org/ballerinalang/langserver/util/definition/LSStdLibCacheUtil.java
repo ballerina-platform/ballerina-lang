@@ -15,7 +15,6 @@
  */
 package org.ballerinalang.langserver.util.definition;
 
-import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.exception.LSStdlibCacheException;
 import org.ballerinalang.model.elements.PackageID;
 import org.slf4j.Logger;
@@ -42,8 +41,9 @@ import java.util.zip.ZipInputStream;
  * @since 1.2.0
  */
 public class LSStdLibCacheUtil {
+    private static final String ZIPENTRY_FILE_SEPARATOR = "/";
     private static final String DIR_VALIDATION_PATTERN = ProjectDirConstants.SOURCE_DIR_NAME
-            + CommonUtil.FILE_SEPARATOR + ProjectDirConstants.SOURCE_DIR_NAME + CommonUtil.FILE_SEPARATOR;
+            + ZIPENTRY_FILE_SEPARATOR + ProjectDirConstants.SOURCE_DIR_NAME + ZIPENTRY_FILE_SEPARATOR;
 
     private static final Logger logger = LoggerFactory.getLogger(LSStdLibCacheUtil.class);
 
@@ -79,7 +79,7 @@ public class LSStdLibCacheUtil {
             throw new LSStdlibCacheException(e.getMessage(), e);
         }
 
-        String moduleDirValidationPattern = DIR_VALIDATION_PATTERN + moduleName + CommonUtil.FILE_SEPARATOR;
+        String moduleDirValidationPattern = DIR_VALIDATION_PATTERN + moduleName + ZIPENTRY_FILE_SEPARATOR;
         byte[] buffer = new byte[1024];
         try {
             baloFileInputStream = new FileInputStream(baloPath.toAbsolutePath().toString());
