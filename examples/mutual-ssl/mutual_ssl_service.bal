@@ -13,20 +13,20 @@ http:ListenerConfiguration helloWorldEPConfig = {
             path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
             password: "ballerina"
         },
-         // Enable the preferred SSL protocol and its versions.
+        // Enable the preferred SSL protocol and its versions.
         protocol: {
             name: "TLS",
             versions: ["TLSv1.2", "TLSv1.1"]
         },
-         // Configure the preferred ciphers.
+        // Configure the preferred ciphers.
         ciphers: ["TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA"],
-         // Enable mutual SSL.
+        // Enable mutual SSL.
         sslVerifyClient: "require"
     }
 };
 
 // Create a listener endpoint.
-listener http:Listener helloWorldEP = new(9095, helloWorldEPConfig);
+listener http:Listener helloWorldEP = new (9095, helloWorldEPConfig);
 
 @http:ServiceConfig {
     basePath: "/hello"
@@ -42,7 +42,7 @@ service helloWorld on helloWorldEP {
         // Send the response to the caller.
         var result = caller->respond("Successful");
         if (result is error) {
-            log:printError("Error in responding", err = result);
+            log:printError("Error in responding", result);
         }
     }
 }

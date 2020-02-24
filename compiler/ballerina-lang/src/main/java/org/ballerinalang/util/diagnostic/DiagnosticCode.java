@@ -234,7 +234,7 @@ public enum DiagnosticCode {
 
     NO_NEW_VARIABLES_VAR_ASSIGNMENT("no.new.variables.var.assignment"),
     INVALID_VARIABLE_ASSIGNMENT("invalid.variable.assignment"),
-    CANNOT_ASSIGN_VALUE_READONLY("cannot.assign.value.to.readonly.field"),
+    INVALID_ASSIGNMENT_DECLARATION_FINAL("invalid.variable.assignment.declaration.final"),
     CANNOT_ASSIGN_VALUE_FINAL("cannot.assign.value.to.final.field"),
     CANNOT_ASSIGN_VALUE_FUNCTION_ARGUMENT("cannot.assign.value.to.function.argument"),
     CANNOT_ASSIGN_VALUE_ENDPOINT("cannot.assign.value.to.endpoint"),
@@ -393,6 +393,7 @@ public enum DiagnosticCode {
 
     // Streaming related codes
     INVALID_STREAM_CONSTRUCTOR("invalid.stream.constructor"),
+    NOT_ALLOWED_STREAM_USAGE_WITH_FROM("invalid.stream.usage.with.from"),
 
     // Taint checking related codes
     ENTRY_POINT_PARAMETERS_CANNOT_BE_UNTAINTED("entry.point.parameters.cannot.be.untainted"),
@@ -460,7 +461,8 @@ public enum DiagnosticCode {
     INVALID_INVOCATION_LVALUE_ASSIGNMENT("invalid.lvalue.lhs.of.assignment"),
     INVALID_INVOCATION_LVALUE_COMPOUND_ASSIGNMENT("invalid.lvalue.lhs.of.compound.assignment"),
 
-    IDENTIFIER_LITERAL_ONLY_SUPPORTS_ALPHANUMERICS("identifier.literal.only.supports.alphanumerics")
+    IDENTIFIER_LITERAL_ONLY_SUPPORTS_ALPHANUMERICS("identifier.literal.only.supports.alphanumerics"),
+    INVALID_UNICODE("invalid.unicode")
 
     ;
     private String value;

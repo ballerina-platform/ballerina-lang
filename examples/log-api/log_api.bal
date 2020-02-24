@@ -1,5 +1,5 @@
-import ballerina/log;
 import ballerina/io;
+import ballerina/log;
 
 public function main() {
     error e = error("error occurred");
@@ -33,8 +33,8 @@ public function main() {
     // `<MODULE_NAME>.loglevel`.
     //
     // E.g., `--foo.loglevel=DEBUG`
-    Fruit apple = new("Apple");
-    Fruit orange = new("Orange");
+    Fruit apple = new ("Apple");
+    Fruit orange = new ("Orange");
 
     log:printDebug("Name of the fruit is Strawberry.");
     log:printDebug(io:sprintf("Names of the fruits are %s, %s.", apple.getName(), orange.getName()));
@@ -46,11 +46,11 @@ public function main() {
 }
 
 public type Fruit object {
-     string name;
-     public function __init(string name) {
-	    self.name = name;
-     }
-     function getName() returns string {
+    string name;
+    public function __init(string name) {
+        self.name = name;
+    }
+    function getName() returns string {
         return self.name;
-     }
+    }
 };

@@ -21,9 +21,9 @@ package org.ballerinalang.packerina.task;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.packerina.buildcontext.BuildContext;
 import org.ballerinalang.packerina.buildcontext.BuildContextField;
+import org.ballerinalang.testerina.core.TesterinaRegistry;
 import org.ballerinalang.testerina.util.TestarinaClassLoader;
 import org.ballerinalang.testerina.util.TesterinaUtils;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangTestablePackage;
 
@@ -34,10 +34,32 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
+import static org.ballerinalang.packerina.utils.TestFileUtils.updateDependencyJarPaths;
+
 /**
  * Task for executing tests.
  */
 public class RunTestsTask implements Task {
+
+    private List<String> groupList;
+    private List<String> disableGroupList;
+    private TesterinaRegistry testerinaRegistry = TesterinaRegistry.getInstance();
+
+    public RunTestsTask(List<String> groupList, List<String> disableGroupList) {
+        this.groupList = groupList;
+        this.disableGroupList = disableGroupList;
+        if (disableGroupList != null) {
+            testerinaRegistry.setGroups(this.disableGroupList);
+            testerinaRegistry.setShouldIncludeGroups(false);
+        } else if (groupList != null) {
+            testerinaRegistry.setGroups(this.groupList);
+            testerinaRegistry.setShouldIncludeGroups(true);
+        }
+    }
+
+    public RunTestsTask() {
+
+    }
 
     @Override
     public void execute(BuildContext buildContext) {
@@ -88,29 +110,6 @@ public class RunTestsTask implements Task {
         }
         if (programFileMap.size() > 0) {
             TesterinaUtils.executeTests(sourceRootPath, programFileMap, buildContext.out(), buildContext.err());
-        }
-    }
-
-    private void updateDependencyJarPaths(List<BPackageSymbol> importPackageSymbols, BuildContext buildContext,
-                                          HashSet<Path> dependencyJarPaths) {
-        for (BPackageSymbol importPackageSymbol : importPackageSymbols) {
-            PackageID importPkgId = importPackageSymbol.pkgID;
-            if (!buildContext.moduleDependencyPathMap.containsKey(importPkgId)) {
-                continue;
-            }
-            // add imported module's dependent jar paths
-            HashSet<Path> testDependencies = buildContext.moduleDependencyPathMap.get(importPkgId).platformLibs;
-            dependencyJarPaths.addAll(testDependencies);
-
-            // add imported module's jar path
-            Path testJarPath = buildContext.getTestJarPathFromTargetCache(importPkgId);
-            Path moduleJarPath = buildContext.getJarPathFromTargetCache(importPkgId);
-            if (Files.exists(testJarPath)) {
-                dependencyJarPaths.add(testJarPath);
-            } else if (Files.exists(moduleJarPath)) {
-                dependencyJarPaths.add(moduleJarPath);
-            }
-            updateDependencyJarPaths(importPackageSymbol.imports, buildContext, dependencyJarPaths);
         }
     }
 }

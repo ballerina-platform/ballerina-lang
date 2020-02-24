@@ -16,7 +16,7 @@ type Employee record {
 
 // This function attempts to convert an `anydata` record `Employee` to an `anydata` record `Person`.
 function convertEmployeeToPerson(Employee emp) {
-    // Attempts to create a new value of the type `Person` from the `Employee`-typed `emp` value without changing 
+    // Attempts to create a new value of the type `Person` from the `Employee`-typed `emp` value without changing
     // the inherent type of `emp`.
     Person|error res = Person.constructFrom(emp);
     if (res is Person) {
@@ -85,17 +85,17 @@ function createNumericValues() {
 
 public function main() {
     // Attempts to convert an `anydata`-typed record to another `anydata`-typed record.
-    Employee emp = { name: "Jack Sparrow", age: 54, empNo: 100 };
+    Employee emp = {name: "Jack Sparrow", age: 54, empNo: 100};
     convertEmployeeToPerson(emp);
 
     // Attempts to convert an `anydata` constrained map to an `anydata`-typed record.
     // This conversion would be successful since all the expected elements are present.
-    map<anydata> m = { name: "Hector Barbossa", age: 54, empNo: 100 };
+    map<anydata> m = {name: "Hector Barbossa", age: 54, empNo: 100};
     convertAnydataMapToPerson(m);
 
     // This conversion would not be successful since all the required elements are not
     // present in the map.
-    map<anydata> n = { name: "Elizabeth Swann" };
+    map<anydata> n = {name: "Elizabeth Swann"};
     convertAnydataMapToPerson(n);
 
     // Attempts to convert strings to numeric types.

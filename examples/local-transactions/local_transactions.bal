@@ -33,7 +33,7 @@ public function main() {
                                      "VALUES (1, 'Anne')");
         // This is the second remote function participant of the transaction.
         ret = testDB->update("INSERT INTO SALARY (ID, MON_SALARY) " +
-                                 "VALUES (1, 2500)");
+                             "VALUES (1, 2500)");
         if (ret is jdbc:UpdateResult) {
             io:println("Inserted count: ", ret.updatedRowCount);
             // If the transaction is forced to abort, it will roll back the transaction

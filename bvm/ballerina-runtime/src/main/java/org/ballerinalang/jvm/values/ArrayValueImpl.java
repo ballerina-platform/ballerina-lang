@@ -519,6 +519,11 @@ public class ArrayValueImpl extends AbstractArrayValue {
     }
 
     @Override
+    public BString bStringValue() {
+        return null;
+    }
+
+    @Override
     public BType getType() {
         return this.arrayType;
     }

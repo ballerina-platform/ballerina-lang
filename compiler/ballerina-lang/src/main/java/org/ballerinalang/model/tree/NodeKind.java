@@ -32,6 +32,9 @@ public enum NodeKind {
     MARKDOWN_DOCUMENTATION,
     ENDPOINT,
     FUNCTION,
+    BLOCK_FUNCTION_BODY,
+    EXPR_FUNCTION_BODY,
+    EXTERN_FUNCTION_BODY,
     IDENTIFIER,
     IMPORT,
     PACKAGE,
@@ -109,6 +112,7 @@ public enum NodeKind {
     DOCUMENTATION_PARAMETER,
     DOCUMENTATION_REFERENCE,
     SERVICE_CONSTRUCTOR,
+    STREAM_CONSTRUCTOR,
 
     /* Statements */
     ABORT,
@@ -150,11 +154,13 @@ public enum NodeKind {
     COMPENSATE,
     CHANNEL_RECEIVE,
     CHANNEL_SEND,
+    DO_ACTION,
 
     /* Clauses */
     SELECT,
     FROM,
     WHERE,
+    DO,
 
     /* Types */
     ARRAY_TYPE,

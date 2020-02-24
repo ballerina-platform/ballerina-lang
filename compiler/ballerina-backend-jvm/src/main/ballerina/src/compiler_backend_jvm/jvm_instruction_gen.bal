@@ -699,7 +699,7 @@ type InstructionGenerator object {
         }
     }
 
-    function generateMapLoadIns(bir:FieldAccess mapLoadIns) {
+    function generateMapLoadIns(bir:FieldAccess mapLoadIns, boolean useBString) {
         // visit map_ref
         self.loadVar(mapLoadIns.rhsOp.variableDcl);
         bir:BType varRefType = mapLoadIns.rhsOp.variableDcl.typeValue;
@@ -730,7 +730,7 @@ type InstructionGenerator object {
 
         // store in the target reg
         bir:BType targetType = mapLoadIns.lhsOp.variableDcl.typeValue;
-        addUnboxInsn(self.mv, targetType);
+        addUnboxInsn(self.mv, targetType, useBString);
         self.storeToVar(mapLoadIns.lhsOp.variableDcl);
     }
 
@@ -770,16 +770,17 @@ type InstructionGenerator object {
                 io:sprintf("(L%s;L%s;)V", useBString ? B_STRING_VALUE : STRING_VALUE, OBJECT), true);
     }
 
-    function generateStringLoadIns(bir:FieldAccess stringLoadIns) {
+    function generateStringLoadIns(bir:FieldAccess stringLoadIns, boolean useBString) {
         // visit the string
         self.loadVar(stringLoadIns.rhsOp.variableDcl);
 
         // visit the key expr
         self.loadVar(stringLoadIns.keyOp.variableDcl);
 
+        string consVal = useBString ? B_STRING_VALUE : STRING_VALUE;
         // invoke the `getStringAt()` method
         self.mv.visitMethodInsn(INVOKESTATIC, STRING_UTILS, "getStringAt",
-                                io:sprintf("(L%s;J)L%s;", STRING_VALUE, STRING_VALUE), false);
+                                io:sprintf("(L%s;J)L%s;", consVal, consVal), false);
 
         // store in the target reg
         self.storeToVar(stringLoadIns.lhsOp.variableDcl);
@@ -1000,25 +1001,27 @@ type InstructionGenerator object {
         lambdas[lambdaName] = inst;
     }
 
-    function generateNewXMLElementIns(bir:NewXMLElement newXMLElement) {
+    function generateNewXMLElementIns(bir:NewXMLElement newXMLElement, boolean useBString) {
         self.loadVar(newXMLElement.startTagOp.variableDcl);
         self.mv.visitTypeInsn(CHECKCAST, XML_QNAME);
         self.loadVar(newXMLElement.endTagOp.variableDcl);
         self.mv.visitTypeInsn(CHECKCAST, XML_QNAME);
         self.loadVar(newXMLElement.defaultNsURIOp.variableDcl);
         self.mv.visitMethodInsn(INVOKESTATIC, XML_FACTORY, "createXMLElement",
-                io:sprintf("(L%s;L%s;L%s;)L%s;", XML_QNAME, XML_QNAME, STRING_VALUE, XML_VALUE), false);
+                io:sprintf("(L%s;L%s;L%s;)L%s;", XML_QNAME, XML_QNAME, useBString ? B_STRING_VALUE : STRING_VALUE,
+                XML_VALUE), false);
         self.storeToVar(newXMLElement.lhsOp.variableDcl);
     }
 
-    function generateNewXMLQNameIns(bir:NewXMLQName newXMLQName) {
+    function generateNewXMLQNameIns(bir:NewXMLQName newXMLQName, boolean useBString) {
         self.mv.visitTypeInsn(NEW, XML_QNAME);
         self.mv.visitInsn(DUP);
         self.loadVar(newXMLQName.localnameOp.variableDcl);
         self.loadVar(newXMLQName.nsURIOp.variableDcl);
         self.loadVar(newXMLQName.prefixOp.variableDcl);
+        string consVal = useBString ? B_STRING_VALUE : STRING_VALUE;
         self.mv.visitMethodInsn(INVOKESPECIAL, XML_QNAME, "<init>",
-                io:sprintf("(L%s;L%s;L%s;)V", STRING_VALUE, STRING_VALUE, STRING_VALUE), false);
+                io:sprintf("(L%s;L%s;L%s;)V", consVal, consVal, consVal), false);
         self.storeToVar(newXMLQName.lhsOp.variableDcl);
     }
 
@@ -1031,25 +1034,26 @@ type InstructionGenerator object {
         self.storeToVar(newStringXMLQName.lhsOp.variableDcl);
     }
 
-    function generateNewXMLTextIns(bir:NewXMLText newXMLText) {
+    function generateNewXMLTextIns(bir:NewXMLText newXMLText, boolean useBString) {
         self.loadVar(newXMLText.textOp.variableDcl);
         self.mv.visitMethodInsn(INVOKESTATIC, XML_FACTORY, "createXMLText",
-                io:sprintf("(L%s;)L%s;", STRING_VALUE, XML_VALUE), false);
+                io:sprintf("(L%s;)L%s;", useBString ? B_STRING_VALUE : STRING_VALUE, XML_VALUE), false);
         self.storeToVar(newXMLText.lhsOp.variableDcl);
     }
 
-    function generateNewXMLCommentIns(bir:NewXMLComment newXMLComment) {
+    function generateNewXMLCommentIns(bir:NewXMLComment newXMLComment, boolean useBString) {
         self.loadVar(newXMLComment.textOp.variableDcl);
         self.mv.visitMethodInsn(INVOKESTATIC, XML_FACTORY, "createXMLComment",
-                io:sprintf("(L%s;)L%s;", STRING_VALUE, XML_VALUE), false);
+                io:sprintf("(L%s;)L%s;", useBString ? B_STRING_VALUE : STRING_VALUE, XML_VALUE), false);
         self.storeToVar(newXMLComment.lhsOp.variableDcl);
     }
 
-    function generateNewXMLProcIns(bir:NewXMLPI newXMLPI) {
+    function generateNewXMLProcIns(bir:NewXMLPI newXMLPI, boolean useBString) {
         self.loadVar(newXMLPI.targetOp.variableDcl);
         self.loadVar(newXMLPI.dataOp.variableDcl);
-        self.mv.visitMethodInsn(INVOKESTATIC, XML_FACTORY, "createXMLProcessingInstruction",
-                io:sprintf("(L%s;L%s;)L%s;", STRING_VALUE, STRING_VALUE, XML_VALUE), false);
+          string consVal = useBString ? B_STRING_VALUE : STRING_VALUE;
+      self.mv.visitMethodInsn(INVOKESTATIC, XML_FACTORY, "createXMLProcessingInstruction",
+                io:sprintf("(L%s;L%s;)L%s;", consVal, consVal, XML_VALUE), false);
         self.storeToVar(newXMLPI.lhsOp.variableDcl);
     }
 
@@ -1084,7 +1088,7 @@ type InstructionGenerator object {
         self.storeToVar(xmlAttrStoreIns.lhsOp.variableDcl);
     }
 
-    function generateXMLAttrStoreIns(bir:FieldAccess xmlAttrStoreIns) {
+    function generateXMLAttrStoreIns(bir:FieldAccess xmlAttrStoreIns, boolean useBString) {
         // visit xml_ref
         self.loadVar(xmlAttrStoreIns.lhsOp.variableDcl);
 
@@ -1097,7 +1101,7 @@ type InstructionGenerator object {
 
         // invoke setAttribute() method
         self.mv.visitMethodInsn(INVOKEVIRTUAL, XML_VALUE, "setAttribute",
-                io:sprintf("(L%s;L%s;)V", BXML_QNAME, STRING_VALUE), false);
+                io:sprintf("(L%s;L%s;)V", BXML_QNAME, useBString ? B_STRING_VALUE : STRING_VALUE), false);
     }
 
     function generateXMLLoadIns(bir:FieldAccess xmlLoadIns) {

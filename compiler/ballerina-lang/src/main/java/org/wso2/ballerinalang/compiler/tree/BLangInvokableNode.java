@@ -21,16 +21,15 @@ import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.EndpointNode;
+import org.ballerinalang.model.tree.FunctionBodyNode;
 import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.InvokableNode;
 import org.ballerinalang.model.tree.MarkdownDocumentationNode;
 import org.ballerinalang.model.tree.SimpleVariableNode;
 import org.ballerinalang.model.tree.WorkerNode;
-import org.ballerinalang.model.tree.statements.BlockNode;
 import org.ballerinalang.model.tree.types.TypeNode;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 
 import java.util.ArrayList;
@@ -51,8 +50,7 @@ public abstract class BLangInvokableNode extends BLangNode implements InvokableN
     public List<BLangSimpleVariable> requiredParams;
     public BLangType returnTypeNode;
     public List<BLangAnnotationAttachment> returnTypeAnnAttachments;
-    public List<BLangAnnotationAttachment> externalAnnAttachments;
-    public BLangBlockStmt body;
+    public BLangFunctionBody body;
     public Set<Flag> flagSet;
     public List<BLangAnnotationAttachment> annAttachments;
     public BLangMarkdownDocumentation markdownDocumentationAttachment;
@@ -75,7 +73,6 @@ public abstract class BLangInvokableNode extends BLangNode implements InvokableN
         this.requiredParams = new ArrayList<>();
         this.annAttachments = new ArrayList<>();
         this.returnTypeAnnAttachments = new ArrayList<>();
-        this.externalAnnAttachments = new ArrayList<>();
         this.endpoints = new ArrayList<>();
         this.flagSet = EnumSet.noneOf(Flag.class);
         this.workers = new ArrayList<>();
@@ -119,28 +116,23 @@ public abstract class BLangInvokableNode extends BLangNode implements InvokableN
     }
 
     @Override
-    public List<BLangAnnotationAttachment> getExternalAnnotationAttachments() {
-        return externalAnnAttachments;
-    }
-
-    @Override
     public void addReturnTypeAnnotationAttachment(AnnotationAttachmentNode annAttachment) {
         this.returnTypeAnnAttachments.add((BLangAnnotationAttachment) annAttachment);
     }
 
     @Override
-    public void addExternalAnnotationAttachment(AnnotationAttachmentNode annAttachment) {
-        this.externalAnnAttachments.add((BLangAnnotationAttachment) annAttachment);
-    }
-
-    @Override
-    public BLangBlockStmt getBody() {
+    public BLangFunctionBody getBody() {
         return body;
     }
 
     @Override
-    public void setBody(BlockNode body) {
-        this.body = (BLangBlockStmt) body;
+    public void setBody(FunctionBodyNode body) {
+        this.body = (BLangFunctionBody) body;
+    }
+
+    @Override
+    public boolean hasBody() {
+        return this.body != null;
     }
 
     @Override
