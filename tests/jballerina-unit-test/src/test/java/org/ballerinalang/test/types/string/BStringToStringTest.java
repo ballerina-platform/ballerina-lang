@@ -31,55 +31,45 @@ import org.testng.annotations.Test;
 import static org.ballerinalang.test.util.BRunUtil.IS_STRING_VALUE_PROP;
 
 /**
- * Tests for the generateNewXML* functions for StringValue.
+ * Tests for the migration of bValues' stringValue implementations.
  */
-public class StringValueXmlTest {
+public class BStringToStringTest {
     private CompileResult result;
 
     @BeforeClass
     public void setup() {
         System.setProperty(IS_STRING_VALUE_PROP, "true");
-        result = BCompileUtil.compile("test-src/types/string/string-value-xml-test.bal");
+        result = BCompileUtil.compile("test-src/types/string/bstring-tostring-test.bal");
     }
 
     @Test
-    public void testXmlComment() {
-        testAndAssert("testXmlComment", 12);
+    public void testVarArgs() {
+        testAndAssert("testVarArgs", 19);
     }
 
     @Test
-    public void testXmlQName() {
-        testAndAssert("testXmlQName", 13);
+    public void testDecimalToString() {
+        testAndAssert("testDecimalToString", 7);
     }
 
     @Test
-    public void testXmlText() {
-        testAndAssert("testXmlText", 19);
+    public void testFunctionPointerToString() {
+        testAndAssert("testFunctionPointerToString", 41);
     }
 
     @Test
-    public void testXmlProcessingIns() {
-        testAndAssert("testXmlProcessingIns", 12);
+    public void testMapToString() {
+        testAndAssert("testMapToString", 64);
     }
 
     @Test
-    public void testXmlStr() {
-        testAndAssert("testXmlStr", 8);
+    public void testMapToStringWithSymbol() {
+        testAndAssert("testMapToStringWithSymbol", 67);
     }
 
     @Test
-    public void testComplexXml() {
-        testAndAssert("testComplexXml", 202);
-    }
-
-    @Test
-    public void testXmlNamespace() {
-        testAndAssert("testXmlNamespace", 334);
-    }
-
-    @Test
-    public void testXmlInterpolation() {
-        testAndAssert("testXmlInterpolation", 249);
+    public void testTupleToString() {
+        testAndAssert("testTupleToString", 14);
     }
 
     private void testAndAssert(String funcName, int i) {

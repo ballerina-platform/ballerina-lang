@@ -376,8 +376,27 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
     }
 
     @Override
-    public StringValue bStringValue() {
-        return null;
+    public BString bStringValue() {
+        BString sj = org.ballerinalang.jvm.StringUtils.fromString("");
+        BString space = org.ballerinalang.jvm.StringUtils.fromString(" ");
+        BString eq = org.ballerinalang.jvm.StringUtils.fromString("=");
+        for (Map.Entry<K, V> kvEntry : this.entrySet()) {
+            K key = kvEntry.getKey();
+            V value = kvEntry.getValue();
+            if (key instanceof BString) {
+                sj = sj.concat((BString) key);
+            } else {
+                sj = sj.concat(org.ballerinalang.jvm.StringUtils.fromString(key.toString()));
+            }
+            sj = sj.concat(eq);
+            if (value instanceof BString) {
+                sj = sj.concat((BString) value);
+            } else {
+                sj = sj.concat(StringUtils.getBStringValue(value));
+            }
+            sj = sj.concat(space);
+        }
+        return sj;
     }
 
     @Override
@@ -478,11 +497,6 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
         @Override
         public boolean hasNext() {
             return iterator.hasNext();
-        }
-
-        @Override
-        public BString bStringValue() {
-            return null;
         }
     }
 

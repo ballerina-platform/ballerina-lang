@@ -525,7 +525,7 @@ public class ArrayValueImpl extends AbstractArrayValue {
 
     @Override
     public BString bStringValue() {
-        return null;
+        return org.ballerinalang.jvm.StringUtils.fromString(stringValue());
     }
 
     @Override

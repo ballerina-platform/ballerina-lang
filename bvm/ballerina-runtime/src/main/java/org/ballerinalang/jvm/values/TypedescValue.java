@@ -64,7 +64,7 @@ public class TypedescValue implements RefValue, BTypedesc {
 
     @Override
     public BString bStringValue() {
-        return null;
+        return org.ballerinalang.jvm.StringUtils.fromString(stringValue());
     }
 
     @Override

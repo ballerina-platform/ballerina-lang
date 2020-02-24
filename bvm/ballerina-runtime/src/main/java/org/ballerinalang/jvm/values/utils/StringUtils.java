@@ -38,6 +38,8 @@ import org.ballerinalang.jvm.values.api.BString;
  */
 public class StringUtils {
 
+    public static final String TO_STRING = "toString";
+
     /**
      * Returns the human-readable string value of Ballerina values.
      * 
@@ -75,9 +77,9 @@ public class StringUtils {
             AbstractObjectValue objectValue = (AbstractObjectValue) value;
             BObjectType objectType = objectValue.getType();
             for (AttachedFunction func : objectType.getAttachedFunctions()) {
-                if (func.funcName.equals("toString") && func.paramTypes.length == 0 &&
+                if (func.funcName.equals(TO_STRING) && func.paramTypes.length == 0 &&
                     func.type.retType.getTag() == TypeTags.STRING_TAG) {
-                    return (String) objectValue.call(Scheduler.getStrand(), "toString");
+                    return (String) objectValue.call(Scheduler.getStrand(), TO_STRING);
                 }
             }
         }
@@ -109,21 +111,21 @@ public class StringUtils {
 
         if (type.getTag() == TypeTags.MAP_TAG || type.getTag() == TypeTags.RECORD_TYPE_TAG) {
             MapValueImpl mapValue = (MapValueImpl) value;
-            return org.ballerinalang.jvm.StringUtils.fromString(mapValue.stringValue());
+            return mapValue.bStringValue();
         }
 
         if (type.getTag() == TypeTags.ARRAY_TAG || type.getTag() == TypeTags.TUPLE_TAG) {
             ArrayValue arrayValue = (ArrayValue) value;
-            return org.ballerinalang.jvm.StringUtils.fromString(arrayValue.stringValue());
+            return arrayValue.bStringValue();
         }
 
         if (type.getTag() == TypeTags.OBJECT_TYPE_TAG) {
             AbstractObjectValue objectValue = (AbstractObjectValue) value;
             BObjectType objectType = objectValue.getType();
             for (AttachedFunction func : objectType.getAttachedFunctions()) {
-                if (func.funcName.equals("toString") && func.paramTypes.length == 0 &&
+                if (func.funcName.equals(TO_STRING) && func.paramTypes.length == 0 &&
                         func.type.retType.getTag() == TypeTags.STRING_TAG) {
-                    return (StringValue) objectValue.call(Scheduler.getStrand(), "toString");
+                    return (StringValue) objectValue.call(Scheduler.getStrand(), TO_STRING);
                 }
             }
         }
@@ -161,5 +163,8 @@ public class StringUtils {
 
         RefValue refValue = (RefValue) value;
         return refValue.stringValue();
+    }
+
+    private StringUtils() {
     }
 }
