@@ -21,6 +21,7 @@ package org.ballerinalang.packerina.task;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.packerina.buildcontext.BuildContext;
 import org.ballerinalang.packerina.buildcontext.BuildContextField;
+import org.ballerinalang.packerina.model.ExecutableJar;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.ProjectDirs;
@@ -40,16 +41,12 @@ import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_COM
  */
 public class CopyModuleJarTask implements Task {
 
-    private boolean skipCopyLibsFromDist = false;
+    private boolean skipCopyLibsFromDist;
 
     private boolean skipTests;
 
     public CopyModuleJarTask(boolean skipCopyLibsFromDist, boolean skipTests) {
         this.skipCopyLibsFromDist = skipCopyLibsFromDist;
-        this.skipTests = skipTests;
-    }
-
-    public CopyModuleJarTask(boolean skipTests) {
         this.skipTests = skipTests;
     }
     
@@ -70,14 +67,15 @@ public class CopyModuleJarTask implements Task {
         // Imported jar
         Map<PackageID, Path> alreadyImportedMap = new HashMap<>();
         for (BLangPackage pkg : moduleBirMap) {
+            ExecutableJar executableJar = buildContext.moduleDependencyPathMap.get(pkg.packageID);
             copyImportedJars(pkg.symbol.imports, buildContext, sourceRootPath, balHomePath,
-                             buildContext.moduleDependencyPathMap.get(pkg.packageID).moduleLibs, alreadyImportedMap);
+                             executableJar.moduleLibs, alreadyImportedMap);
             if (skipTests || !pkg.hasTestablePackage()) {
                 continue;
             }
             for (BLangPackage testPkg : pkg.getTestablePkgs()) {
                 copyImportedJars(testPkg.symbol.imports, buildContext, sourceRootPath, balHomePath,
-                                 buildContext.moduleDependencyPathMap.get(pkg.packageID).testLibs, alreadyImportedMap);
+                                 executableJar.testLibs, alreadyImportedMap);
             }
         }
     }

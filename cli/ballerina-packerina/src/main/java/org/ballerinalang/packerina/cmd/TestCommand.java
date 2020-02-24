@@ -353,7 +353,7 @@ public class TestCommand implements BLauncherCmd {
                 .addTask(new CreateJarTask(this.dumpBIR, this.skipCopyLibsFromDist, this.nativeBinary, this.dumpLLVMIR,
                                            this.noOptimizeLLVM), listGroups)
                 .addTask(new CopyResourcesTask(), isSingleFileBuild || listGroups)
-                .addTask(new CopyModuleJarTask(skipCopyLibsFromDist), listGroups)
+                .addTask(new CopyModuleJarTask(skipCopyLibsFromDist, false), listGroups)
                 // tasks to list groups or execute tests. the 'listGroups' boolean is used to decide whether to
                 // skip the task or to execute
                 .addTask(new ListTestGroupsTask(), !listGroups) // list the available test groups

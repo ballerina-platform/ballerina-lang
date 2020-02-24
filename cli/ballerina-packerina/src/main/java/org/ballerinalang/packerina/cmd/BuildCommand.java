@@ -382,7 +382,7 @@ public class BuildCommand implements BLauncherCmd {
                 .addTask(new CreateJarTask(this.dumpBIR, skipCopyLibsFromDist, this.nativeBinary, this.dumpLLVMIR,
                         this.noOptimizeLlvm))
                 .addTask(new CopyResourcesTask(), isSingleFileBuild)
-                .addTask(new CopyModuleJarTask(skipCopyLibsFromDist))
+                .addTask(new CopyModuleJarTask(skipCopyLibsFromDist, skipTests))
                 .addTask(new RunTestsTask(args), this.skipTests || isSingleFileBuild) // run tests
                                                                                                 // (projects only)
                 .addTask(new CreateExecutableTask(), this.compile)  // create the executable.jar
