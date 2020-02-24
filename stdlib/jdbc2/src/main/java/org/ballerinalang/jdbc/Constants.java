@@ -124,13 +124,12 @@ public final class Constants {
     /**
      * Constants for Endpoint Configs.
      */
-    public static final class EndpointConfig {
+    public static final class ClientConfiguration {
         public static final String URL = "url";
-        public static final String NAME = "name";
-        public static final String USERNAME = "username";
+        public static final String USER = "username";
         public static final String PASSWORD = "password";
-        public static final String POOL_OPTIONS = "poolOptions";
-        public static final String DB_OPTIONS = "dbOptions";
+        public static final String CONNECTION_POOL_OPTIONS = "connPool";
+        public static final String OPTIONS = "options";
     }
 
     /**

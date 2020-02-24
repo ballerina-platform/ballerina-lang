@@ -20,9 +20,9 @@ package org.ballerinalang.jdbc.datasource;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import org.ballerinalang.jdbc.Constants;
+import org.ballerinalang.jdbc.exceptions.ApplicationException;
+import org.ballerinalang.jdbc.exceptions.DatabaseException;
 import org.ballerinalang.jdbc.exceptions.ErrorGenerator;
-import org.ballerinalang.jdbc.exceptions.PanickingApplicationException;
-import org.ballerinalang.jdbc.exceptions.PanickingDatabaseException;
 import org.ballerinalang.jvm.values.MapValue;
 
 import java.sql.Connection;
@@ -57,7 +57,7 @@ public class SQLDatasource {
         buildDataSource(sqlDatasourceParams);
         try {
             xaConn = isXADataSource();
-        } catch (PanickingDatabaseException e) {
+        } catch (DatabaseException e) {
             throw ErrorGenerator.getSQLDatabaseError(e);
         }
         try (Connection con = getSQLConnection()) {
@@ -96,12 +96,12 @@ public class SQLDatasource {
         return this.xaConn;
     }
 
-    public XADataSource getXADataSource() throws PanickingDatabaseException {
+    public XADataSource getXADataSource() throws DatabaseException {
         XADataSource xaDataSource;
         try {
             xaDataSource = hikariDataSource.unwrap(XADataSource.class);
         } catch (SQLException e) {
-            throw new PanickingDatabaseException("error while obtaining distributed data source", e);
+            throw new DatabaseException("Error while obtaining distributed data source", e);
         }
         return xaDataSource;
     }
@@ -257,7 +257,7 @@ public class SQLDatasource {
     }
 
     private String getXADatasourceClassName(String dbType, String url, String userName, String password)
-            throws PanickingApplicationException, PanickingDatabaseException {
+            throws ApplicationException, DatabaseException {
         String xaDataSource = null;
         switch (dbType) {
             case Constants.DBTypes.MYSQL:
@@ -270,7 +270,7 @@ public class SQLDatasource {
                         xaDataSource = Constants.XADataSources.MYSQL_6_XA_DATASOURCE;
                     }
                 } catch (SQLException e) {
-                    throw new PanickingDatabaseException("error while obtaining the connection for "
+                    throw new DatabaseException("error while obtaining the connection for "
                             + Constants.CONNECTOR_NAME + ": ", e);
                 }
                 break;
@@ -307,16 +307,16 @@ public class SQLDatasource {
                 xaDataSource = Constants.XADataSources.DERBY_FILE_XA_DATASOURCE;
                 break;
             default:
-                throw new PanickingApplicationException("unknown database type " + dbType + " used for xa connection");
+                throw new ApplicationException("unknown database type " + dbType + " used for xa connection");
         }
         return xaDataSource;
     }
 
-    private boolean isXADataSource() throws PanickingDatabaseException {
+    private boolean isXADataSource() throws DatabaseException {
         try {
             return hikariDataSource.isWrapperFor(XADataSource.class);
         } catch (SQLException e) {
-            throw new PanickingDatabaseException("error while checking distributed data source: ", e);
+            throw new DatabaseException("error while checking distributed data source: ", e);
         }
     }
 

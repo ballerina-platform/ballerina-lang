@@ -59,16 +59,19 @@ public type Client client object {
     }
 };
 
-function nativeQuery(Client jdbcClient, @untainted handle sqlQuery,
-    sql:Value[]? params, typedesc<record {}>? rowType) returns @tainted stream<record {}> = @java:Method {
-        class: "org.ballerinalang.jdbc.methods.ExternActions"
-    } external;
 
 function createClient(Client jdbcClient, ClientConfiguration clientConf,
     sql:ConnectionPoolOptions globalConnPool) = @java:Method {
-    class: "org.ballerinalang.jdbc.methods.ExternFunctions"
+    class: "org.ballerinalang.jdbc.nativeImpl.Utils"
 } external;
 
+
+function nativeQuery(Client jdbcClient, @untainted handle sqlQuery,
+    sql:Value[]? params, typedesc<record {}>? rowType) returns @tainted stream<record {}> = @java:Method {
+        class: "org.ballerinalang.jdbc.nativeImpl.Utils"
+} external;
+
+
 function close(Client jdbcClient) returns error? = @java:Method {
-    class: "org.ballerinalang.jdbc.methods.ExternFunctions"
+    class: "org.ballerinalang.jdbc.nativeImpl.Utils"
 } external;

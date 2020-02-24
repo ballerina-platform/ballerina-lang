@@ -20,7 +20,7 @@ package org.ballerinalang.jdbc.table;
 import org.ballerinalang.jdbc.Constants;
 import org.ballerinalang.jdbc.datasource.SQLDatasourceUtils;
 import org.ballerinalang.jdbc.exceptions.ErrorGenerator;
-import org.ballerinalang.jdbc.exceptions.PanickingApplicationException;
+import org.ballerinalang.jdbc.exceptions.ApplicationException;
 import org.ballerinalang.jvm.ColumnDefinition;
 import org.ballerinalang.jvm.TableResourceManager;
 import org.ballerinalang.jvm.types.BArrayType;
@@ -235,35 +235,35 @@ public class SQLDataIterator extends TableIterator {
         } catch (IOException | SQLException e) {
             throw ErrorGenerator.getSQLApplicationError("error while retrieving next value for column "
                     + columnName + " of SQL Type " + sqlType + " at index " + index + ", " + e.getMessage());
-        } catch (PanickingApplicationException e) {
+        } catch (ApplicationException e) {
             throw ErrorGenerator.getSQLApplicationError(e);
         }
         return bStruct;
     }
 
     private void validateAndSetRefRecordField(MapValue<String, Object> bStruct, String fieldName, int expectedTypeTag,
-            int actualTypeTag, Object value, String exceptionMessage) throws PanickingApplicationException {
+            int actualTypeTag, Object value, String exceptionMessage) throws ApplicationException {
         setMatchingRefRecordField(bStruct, fieldName, value, expectedTypeTag == actualTypeTag, exceptionMessage);
     }
 
     private void validateAndSetRefRecordField(MapValue<String, Object> bStruct, String fieldName,
             int[] expectedTypeTags, int actualTypeTag, Object value, String exceptionMessage)
-            throws PanickingApplicationException {
+            throws ApplicationException {
         boolean typeMatches = Arrays.stream(expectedTypeTags).anyMatch(tag -> actualTypeTag == tag);
         setMatchingRefRecordField(bStruct, fieldName, value, typeMatches, exceptionMessage);
     }
 
     private void setMatchingRefRecordField(MapValue<String, Object> bStruct, String fieldName, Object value,
-            boolean typeMatches, String exceptionMessage) throws PanickingApplicationException {
+            boolean typeMatches, String exceptionMessage) throws ApplicationException {
         if (typeMatches) {
             bStruct.put(fieldName, value);
         } else {
-            throw new PanickingApplicationException(exceptionMessage);
+            throw new ApplicationException(exceptionMessage);
         }
     }
     private void validateAndSetDecimalValue(MapValue<String, Object> bStruct, String fieldName, int actualTypeTag,
             DecimalValue value, String exceptionMessage)
-            throws PanickingApplicationException {
+            throws ApplicationException {
         boolean typeMatches = isValidType(actualTypeTag, value);
         setMatchingRefRecordField(bStruct, fieldName, value, typeMatches, exceptionMessage);
     }
@@ -277,19 +277,19 @@ public class SQLDataIterator extends TableIterator {
         return false;
     }
 
-    private void handleNilToNonNillableFieldAssignment() throws PanickingApplicationException {
-        throw new PanickingApplicationException("trying to assign a Nil value to a non-nillable field");
+    private void handleNilToNonNillableFieldAssignment() throws ApplicationException {
+        throw new ApplicationException("trying to assign a Nil value to a non-nillable field");
     }
 
-    private void handleMismatchingFieldAssignment() throws PanickingApplicationException {
-        throw new PanickingApplicationException("trying to assign to a mismatching type");
+    private void handleMismatchingFieldAssignment() throws ApplicationException {
+        throw new ApplicationException("trying to assign to a mismatching type");
     }
 
-    private void handleUnAssignableUnionTypeAssignment() throws PanickingApplicationException {
-        throw new PanickingApplicationException(UNASSIGNABLE_UNIONTYPE_EXCEPTION);
+    private void handleUnAssignableUnionTypeAssignment() throws ApplicationException {
+        throw new ApplicationException(UNASSIGNABLE_UNIONTYPE_EXCEPTION);
     }
 
-    private int retrieveNonNilTypeTag(BType fieldType) throws PanickingApplicationException {
+    private int retrieveNonNilTypeTag(BType fieldType) throws ApplicationException {
         List<BType> members = ((BUnionType) fieldType).getMemberTypes();
         return retrieveNonNilType(members).getTag();
     }
@@ -300,7 +300,7 @@ public class SQLDataIterator extends TableIterator {
     }
 
     private MapValue<String, Object> createUserDefinedType(Struct structValue, BStructureType structType)
-            throws PanickingApplicationException {
+            throws ApplicationException {
         if (structValue == null) {
             return null;
         }
@@ -310,7 +310,7 @@ public class SQLDataIterator extends TableIterator {
             Object[] dataArray = structValue.getAttributes();
             if (dataArray != null) {
                 if (dataArray.length != internalStructFields.length) {
-                    throw new PanickingApplicationException("specified record and the returned record types are " +
+                    throw new ApplicationException("specified record and the returned record types are " +
                             "not compatible");
                 }
                 int index = 0;
@@ -352,20 +352,20 @@ public class SQLDataIterator extends TableIterator {
                                 createUserDefinedType((Struct) value, (BStructureType) internalField.getFieldType()));
                         break;
                     default:
-                        throw new PanickingApplicationException(
+                        throw new ApplicationException(
                                 "error while retrieving UDT data for unsupported type " + type);
                     }
                     ++index;
                 }
             }
         } catch (SQLException e) {
-            throw new PanickingApplicationException("error while retrieving UDT data: " + e.getMessage());
+            throw new ApplicationException("error while retrieving UDT data: " + e.getMessage());
         }
         return struct;
     }
 
     private void handleArrayValue(MapValue<String, Object> bStruct, String fieldName, Array data, BType fieldType)
-            throws SQLException, PanickingApplicationException {
+            throws SQLException, ApplicationException {
         int fieldTypeTag = fieldType.getTag();
         ArrayValue dataArray = getDataArray(data);
         if (dataArray != null) {
@@ -388,7 +388,7 @@ public class SQLDataIterator extends TableIterator {
     }
 
     private void handleMappingArrayValue(BType nonNilType, MapValue<String, Object> bStruct, ArrayValue dataArray,
-            String fieldName, boolean containsNull) throws PanickingApplicationException {
+            String fieldName, boolean containsNull) throws ApplicationException {
         if (nonNilType.getTag() == TypeTags.ARRAY_TAG) {
             BArrayType expectedArrayType = (BArrayType) nonNilType;
             if (((BArrayType) nonNilType).getElementType().getTag() == TypeTags.UNION_TAG) {
@@ -402,9 +402,9 @@ public class SQLDataIterator extends TableIterator {
     }
 
     private void handleMappingArrayElementToNonUnionType(boolean containsNull, BType nonNilType, ArrayValue newArray,
-            MapValue<String, Object> bStruct, String fieldName) throws PanickingApplicationException {
+            MapValue<String, Object> bStruct, String fieldName) throws ApplicationException {
         if (containsNull) {
-            throw new PanickingApplicationException(
+            throw new ApplicationException(
                     "trying to assign an array containing NULL values to an array of a non-nillable element type");
         } else {
             int expectedTypeTag = ((BArrayType) nonNilType).getElementType().getTag();
@@ -420,7 +420,7 @@ public class SQLDataIterator extends TableIterator {
     }
 
     private void handleMappingArrayElementToUnionType(BArrayType expectedArrayType, ArrayValue arrayTobeSet,
-            String fieldName, MapValue<String, Object> bStruct) throws PanickingApplicationException {
+            String fieldName, MapValue<String, Object> bStruct) throws ApplicationException {
         BType arrayType;
         if (arrayTobeSet.getType().getTag() == TypeTags.DECIMAL_TAG) {
             arrayType = BTypes.typeDecimal;
@@ -446,21 +446,21 @@ public class SQLDataIterator extends TableIterator {
         }
     }
 
-    private BType retrieveNonNilType(List<BType> members) throws PanickingApplicationException {
+    private BType retrieveNonNilType(List<BType> members) throws ApplicationException {
         if (members.size() != 2) {
-            throw new PanickingApplicationException(UNASSIGNABLE_UNIONTYPE_EXCEPTION);
+            throw new ApplicationException(UNASSIGNABLE_UNIONTYPE_EXCEPTION);
         }
         if (members.get(0).getTag() == TypeTags.NULL_TAG) {
             return members.get(1);
         } else if (members.get(1).getTag() == TypeTags.NULL_TAG) {
             return members.get(0);
         } else {
-            throw new PanickingApplicationException(UNASSIGNABLE_UNIONTYPE_EXCEPTION);
+            throw new ApplicationException(UNASSIGNABLE_UNIONTYPE_EXCEPTION);
         }
     }
 
     private void handleStructValue(MapValue<String, Object> bStruct, String fieldName, Struct structData,
-            BType fieldType) throws PanickingApplicationException {
+            BType fieldType) throws ApplicationException {
         int fieldTypeTag = fieldType.getTag();
         if (fieldTypeTag == TypeTags.UNION_TAG) {
             BType structFieldType = retrieveNonNilType(((BUnionType) fieldType).getMemberTypes());
@@ -480,7 +480,7 @@ public class SQLDataIterator extends TableIterator {
     }
 
     private void handleBooleanValue(MapValue<String, Object> bStruct, String fieldName, boolean boolValue,
-            BType fieldType) throws SQLException, PanickingApplicationException {
+            BType fieldType) throws SQLException, ApplicationException {
         int fieldTypeTag = fieldType.getTag();
         boolean isOriginalValueNull = rs.wasNull();
         if (fieldTypeTag == TypeTags.UNION_TAG) {
@@ -500,7 +500,7 @@ public class SQLDataIterator extends TableIterator {
     }
 
     private void handleDateValue(MapValue<String, Object> record, String fieldName, java.util.Date date,
-            BType fieldType) throws PanickingApplicationException {
+            BType fieldType) throws ApplicationException {
         int fieldTypeTag = fieldType.getTag();
         if (fieldTypeTag == TypeTags.UNION_TAG) {
             handleMappingDateValueToUnionType(fieldType, record, fieldName, date);
@@ -510,7 +510,7 @@ public class SQLDataIterator extends TableIterator {
     }
 
     private void handleBinaryValue(MapValue<String, Object> bStruct, String fieldName, byte[] bytes, BType fieldType)
-            throws PanickingApplicationException {
+            throws ApplicationException {
         int fieldTypeTag = fieldType.getTag();
         if (fieldTypeTag == TypeTags.UNION_TAG) {
             BType nonNillType = retrieveNonNilType(((BUnionType) fieldType).getMemberTypes());
@@ -532,10 +532,10 @@ public class SQLDataIterator extends TableIterator {
                     if (elementTypeTag == TypeTags.BYTE_TAG) {
                         bStruct.put(fieldName, new ArrayValueImpl(bytes));
                     } else {
-                        throw new PanickingApplicationException(MISMATCHING_FIELD_ASSIGNMENT);
+                        throw new ApplicationException(MISMATCHING_FIELD_ASSIGNMENT);
                     }
                 } else {
-                    throw new PanickingApplicationException(MISMATCHING_FIELD_ASSIGNMENT);
+                    throw new ApplicationException(MISMATCHING_FIELD_ASSIGNMENT);
                 }
             } else {
                 handleNilToNonNillableFieldAssignment();
@@ -544,7 +544,7 @@ public class SQLDataIterator extends TableIterator {
     }
 
     private void handleStringValue(String stringValue, String fieldName, MapValue<String, Object> bStruct,
-            BType fieldType) throws PanickingApplicationException {
+            BType fieldType) throws ApplicationException {
         int fieldTypeTag = fieldType.getTag();
         if (fieldTypeTag == TypeTags.UNION_TAG) {
             int[] expectedTypeTags = { TypeTags.STRING_TAG, TypeTags.JSON_TAG };
@@ -563,14 +563,14 @@ public class SQLDataIterator extends TableIterator {
 
     @FunctionalInterface
     private interface ErrorHandlerFunction {
-        void apply() throws PanickingApplicationException;
+        void apply() throws ApplicationException;
     }
 
     private ErrorHandlerFunction mismatchingFieldAssignmentHandler = this::handleMismatchingFieldAssignment;
     private ErrorHandlerFunction unassignableUnionTypeAssignmentHandler = this::handleUnAssignableUnionTypeAssignment;
 
     private void handleOIDValue(int index, MapValue<String, Object> bStruct, String fieldName, BType fieldType)
-            throws SQLException, PanickingApplicationException {
+            throws SQLException, ApplicationException {
         int fieldTypeTag = fieldType.getTag();
         if (fieldTypeTag == TypeTags.UNION_TAG) {
             BType nonNilType = retrieveNonNilType(((BUnionType) fieldType).getMemberTypes());
@@ -590,7 +590,7 @@ public class SQLDataIterator extends TableIterator {
 
     private void assignOIDValue(int fieldTypeTag, BType fieldType, String fieldName, int index,
             MapValue<String, Object> bStruct, ErrorHandlerFunction errorHandlerFunction)
-            throws SQLException, PanickingApplicationException {
+            throws SQLException, ApplicationException {
         if (fieldTypeTag == TypeTags.ARRAY_TAG) {
             int elementTypeTag = ((BArrayType) fieldType).getElementType().getTag();
             if (elementTypeTag == TypeTags.BYTE_TAG) {
@@ -608,7 +608,7 @@ public class SQLDataIterator extends TableIterator {
     }
 
     private void handleLongValue(long longValue, MapValue<String, Object> bStruct, String fieldName, BType fieldType)
-            throws SQLException, PanickingApplicationException {
+            throws SQLException, ApplicationException {
         boolean isOriginalValueNull = rs.wasNull();
         int fieldTypeTag = fieldType.getTag();
         if (fieldTypeTag == TypeTags.UNION_TAG) {
@@ -626,7 +626,7 @@ public class SQLDataIterator extends TableIterator {
     }
 
     private void handleDoubleValue(double fValue, MapValue<String, Object> bStruct, String fieldName, BType fieldType)
-            throws SQLException, PanickingApplicationException {
+            throws SQLException, ApplicationException {
         boolean isOriginalValueNull = rs.wasNull();
         int fieldTypeTag = fieldType.getTag();
         if (fieldTypeTag == TypeTags.UNION_TAG) {
@@ -644,7 +644,7 @@ public class SQLDataIterator extends TableIterator {
     }
 
     private void handleDecimalValue(BigDecimal fValue, MapValue<String, Object> bStruct, String fieldName,
-            BType fieldType) throws SQLException, PanickingApplicationException {
+            BType fieldType) throws SQLException, ApplicationException {
         boolean isOriginalValueNull = rs.wasNull();
         int fieldTypeTag = fieldType.getTag();
         if (fieldTypeTag == TypeTags.UNION_TAG) {
@@ -662,7 +662,7 @@ public class SQLDataIterator extends TableIterator {
     }
 
     private void handleMappingDateValueToUnionType(BType fieldType, MapValue<String, Object> record, String fieldName,
-            java.util.Date date) throws PanickingApplicationException {
+            java.util.Date date) throws ApplicationException {
         int type = retrieveNonNilTypeTag(fieldType);
         switch (type) {
         case TypeTags.STRING_TAG:
@@ -682,7 +682,7 @@ public class SQLDataIterator extends TableIterator {
     }
 
     private void handleMappingDateValueToNonUnionType(java.util.Date date, int fieldTypeTag,
-            MapValue<String, Object> record, String fieldName) throws PanickingApplicationException {
+            MapValue<String, Object> record, String fieldName) throws ApplicationException {
         if (date != null) {
             switch (fieldTypeTag) {
             case TypeTags.STRING_TAG:

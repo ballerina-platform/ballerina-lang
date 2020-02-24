@@ -62,7 +62,7 @@ type GlobalConnectionPoolContainer object {
 
 function initGlobalPoolContainer(GlobalConnectionPoolContainer poolConfigContainer,
                                  sql: ConnectionPoolOptions poolConfig) = @java:Method {
-    class: "org.ballerinalang.jdbc.methods.ExternFunctions"
+    class: "org.ballerinalang.jdbc.nativeImpl.Utils"
 } external;
 
 // This is an instance of GlobalPoolConfigContainer object type. The __init functions of database clients pass
