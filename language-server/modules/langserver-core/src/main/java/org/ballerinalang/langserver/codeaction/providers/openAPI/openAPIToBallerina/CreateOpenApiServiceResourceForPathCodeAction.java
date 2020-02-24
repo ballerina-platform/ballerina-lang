@@ -2,7 +2,7 @@ package org.ballerinalang.langserver.codeaction.providers.openAPI.openAPIToBalle
 
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.codeaction.providers.AbstractCodeActionProvider;
-import org.ballerinalang.langserver.command.executors.openAPI.openAPIToBallerina.CreateOpenApiServiceResourceMethodExecutor;
+import org.ballerinalang.langserver.command.executors.openAPI.openAPIToBallerina.CreateOpenApiServiceResourceExecutor;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.LSContext;
@@ -25,7 +25,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.regex.Matcher;
 
-import static org.ballerinalang.langserver.common.constants.CommandConstants.CREATE_SERVICE_RESOURCE_METHOD;
+import static org.ballerinalang.langserver.common.constants.CommandConstants.CREATE_SERVICE_RESOURCE;
 
 /**
  * Code Action provider for open api service resource implement.
@@ -33,8 +33,8 @@ import static org.ballerinalang.langserver.common.constants.CommandConstants.CRE
  * @since 1.2.0
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.codeaction.spi.LSCodeActionProvider")
-public class CreateOpenApiServiceResourceMethodCodeAction extends AbstractCodeActionProvider {
-    private static final String RESOURCE_METHOD_NOT_FOUND = "Couldn't find Ballerina service resource(s) for http method(s)";
+public class CreateOpenApiServiceResourceForPathCodeAction extends AbstractCodeActionProvider {
+    private static final String RESOURCE_NOT_FOUND = "Couldn't find a Ballerina service resource for the path";
 
     @Override
     public List<CodeAction> getCodeActions(CodeActionNodeType nodeType, LSContext lsContext,
@@ -53,8 +53,8 @@ public class CreateOpenApiServiceResourceMethodCodeAction extends AbstractCodeAc
             return actions;
         }
         for (Diagnostic diagnostic : diagnostics) {
-            if (diagnostic.getMessage().startsWith(RESOURCE_METHOD_NOT_FOUND)) {
-                CodeAction codeAction = getCommand(document, diagnostic, lsContext);
+            if (diagnostic.getMessage().startsWith(RESOURCE_NOT_FOUND)) {
+                CodeAction codeAction = getOpenApiCommand(document, diagnostic, lsContext);
                 if (codeAction != null) {
                     actions.add(codeAction);
                 }
@@ -63,8 +63,8 @@ public class CreateOpenApiServiceResourceMethodCodeAction extends AbstractCodeAc
         return actions;
     }
 
-    private static CodeAction getCommand(LSDocumentIdentifier document, Diagnostic diagnostic,
-                                         LSContext lsContext) {
+    private static CodeAction getOpenApiCommand(LSDocumentIdentifier document, Diagnostic diagnostic,
+                                                LSContext lsContext) {
         String diagnosticMessage = diagnostic.getMessage();
         Position position = diagnostic.getRange().getStart();
         int line = position.getLine();
@@ -75,18 +75,16 @@ public class CreateOpenApiServiceResourceMethodCodeAction extends AbstractCodeAc
         CommandArgument uriArg = new CommandArgument(CommandConstants.ARG_KEY_DOC_URI, uri);
         List<Diagnostic> diagnostics = new ArrayList<>();
 
-        Matcher matcher = CommandConstants.RESOURCE_METHOD_NOT_FOUND.matcher(diagnosticMessage);
-        if (matcher.find() && matcher.groupCount() > 1) {
-            String httpType = matcher.group(1);
-            String path = matcher.group(2);
-            String commandTitle = String.format(CommandConstants.CREATE_SERVICE_RESOURCE_METHOD, httpType, path);
+        Matcher matcher = CommandConstants.RESOURCE_PATH_NOT_FOUND.matcher(diagnosticMessage);
+        if (matcher.find() && matcher.groupCount() > 0) {
+            String path = matcher.group(1);
+            String commandTitle = String.format(CommandConstants.CREATE_SERVICE_RESOURCE, path);
             CommandArgument pathArg = new CommandArgument(CommandConstants.ARG_KEY_PATH, path);
-            CommandArgument methodArg = new CommandArgument(CommandConstants.ARG_KEY_METHOD, httpType);
 
-            List<Object> args = Arrays.asList(lineArg, colArg, uriArg, pathArg, methodArg);
+            List<Object> args = Arrays.asList(lineArg, colArg, uriArg, pathArg);
             CodeAction action = new CodeAction(commandTitle);
             action.setKind(CodeActionKind.QuickFix);
-            action.setCommand(new Command(CREATE_SERVICE_RESOURCE_METHOD, CreateOpenApiServiceResourceMethodExecutor.COMMAND, args));
+            action.setCommand(new Command(CREATE_SERVICE_RESOURCE, CreateOpenApiServiceResourceExecutor.COMMAND, args));
             action.setDiagnostics(diagnostics);
             return action;
         }
