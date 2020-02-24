@@ -732,7 +732,7 @@ public class TypeChecker extends BLangNodeVisitor {
             ((BTupleType) actualType).restType = restType;
         } else if (listConstructor.exprs.size() > 1) {
             // This is an array.
-            BArrayType arrayType = new BArrayType(getRepresentativeBroadType(listConstructor.exprs));
+            BArrayType arrayType = new BArrayType(getRepresentativeBroadTypeForExprs(listConstructor.exprs));
             checkExprs(listConstructor.exprs, this.env, arrayType.eType);
             actualType = arrayType;
         } else if (expTypeTag != TypeTags.SEMANTIC_ERROR) {
@@ -891,16 +891,39 @@ public class TypeChecker extends BLangNodeVisitor {
         if (inferRecordContext) {
             expType = defineInferredRecordType(recordLiteral);
         } else if (expTypeTag == TypeTags.NONE) {
-            List<BLangExpression> expressions = new ArrayList<>();
+            List<BType> types = new ArrayList<>();
             for (RecordLiteralNode.RecordField field : recordLiteral.fields) {
-                if (field.getKind() == NodeKind.RECORD_LITERAL_KEY_VALUE) {
-                    expressions.add(((BLangRecordKeyValueField) field).valueExpr);
-                    continue;
+                if (field.isKeyValueField()) {
+                    types.add(checkExpr(((BLangRecordKeyValueField) field).valueExpr, env));
+                } else if (field.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
+                    types.add(checkExpr((BLangSimpleVarRef) field, env));
+                } else {
+                    BType spreadOpType = checkExpr(((BLangRecordLiteral.BLangRecordSpreadOperatorField) field).expr,
+                                                   env);
+                    int tag = spreadOpType.tag;
+
+                    if (tag == TypeTags.MAP) {
+                        types.add(((BMapType) spreadOpType).constraint);
+                        continue;
+                    }
+
+                    if (tag != TypeTags.RECORD) {
+                        continue;
+                    }
+
+                    BRecordType recordType = (BRecordType) spreadOpType;
+
+                    for (BField recField : recordType.fields) {
+                        types.add(recField.type);
+                    }
+
+                    if (!recordType.sealed) {
+                        types.add(recordType.restFieldType);
+                    }
                 }
-                expressions.add((BLangSimpleVarRef) field);
             }
 
-            BType constraintType = getRepresentativeBroadType(expressions);
+            BType constraintType = getRepresentativeBroadType(types);
 
             if (constraintType.tag == TypeTags.SEMANTIC_ERROR) {
                 resultType = symTable.semanticError;
@@ -1191,7 +1214,7 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     private List<String> getSpreadOpFieldRequiredFieldNames(BLangRecordLiteral.BLangRecordSpreadOperatorField field) {
-        BType spreadType = field.expr.type;
+        BType spreadType = checkExpr(field.expr, env);
 
         if (spreadType.tag != TypeTags.RECORD) {
             return Collections.emptyList();
@@ -3688,6 +3711,35 @@ public class TypeChecker extends BLangNodeVisitor {
                 break;
             case TypeTags.MAP:
                 if (spreadOpField) {
+                    BLangExpression spreadExp = ((BLangRecordLiteral.BLangRecordSpreadOperatorField) field).expr;
+                    BType spreadOpType = checkExpr(spreadExp, this.env);
+                    BType spreadOpMemberType;
+
+                    switch (spreadOpType.tag) {
+                        case TypeTags.RECORD:
+                            List<BType> types = new ArrayList<>();
+                            BRecordType recordType = (BRecordType) spreadOpType;
+
+                            for (BField recField : recordType.fields) {
+                                types.add(recField.type);
+                            }
+
+                            if (!recordType.sealed) {
+                                types.add(recordType.restFieldType);
+                            }
+
+                            spreadOpMemberType = getRepresentativeBroadType(types);
+                            break;
+                        case TypeTags.MAP:
+                            spreadOpMemberType = ((BMapType) spreadOpType).constraint;
+                            break;
+                        default:
+                            dlog.error(spreadExp.pos, DiagnosticCode.INCOMPATIBLE_TYPES_SPREAD_OP, spreadOpType);
+                            return;
+                    }
+
+                    types.checkType(spreadExp.pos, spreadOpMemberType, ((BMapType) mappingType).constraint,
+                                    DiagnosticCode.INCOMPATIBLE_TYPES);
                     return;
                 }
 
@@ -3702,8 +3754,13 @@ public class TypeChecker extends BLangNodeVisitor {
 
                 fieldType = validMapKey ? ((BMapType) mappingType).constraint : symTable.semanticError;
                 break;
-            case TypeTags.JSON:
+            case TypeTags.JSON: // TODO: 2/24/20 remove and check
                 if (spreadOpField) {
+                    BLangExpression spreadExp = ((BLangRecordLiteral.BLangRecordSpreadOperatorField) field).expr;
+                    BType spreadOpType = checkExpr(spreadExp, this.env);
+                    if (spreadOpType.tag != TypeTags.RECORD && spreadOpType.tag != TypeTags.MAP) {
+                        dlog.error(spreadExp.pos, DiagnosticCode.INCOMPATIBLE_TYPES_SPREAD_OP, spreadOpType);
+                    }
                     return;
                 }
 
@@ -3731,11 +3788,11 @@ public class TypeChecker extends BLangNodeVisitor {
                 }
                 resultType = valueExpr.type;
                 return;
-            case TypeTags.ERROR:    // TODO: 2/13/20 remove and check
-                checkExpr(valueExpr, this.env, fieldType);
         }
 
-        checkExpr(valueExpr, this.env, fieldType);
+        if (valueExpr != null) {
+            checkExpr(valueExpr, this.env, fieldType);
+        }
     }
 
     private BType checkRecordLiteralKeyExpr(BLangExpression keyExpr, boolean computedKey, BRecordType recordType) {
@@ -4948,9 +5005,11 @@ public class TypeChecker extends BLangNodeVisitor {
         return names.fromString(node.pos.getSource().getCompilationUnitName());
     }
 
-    private BType getRepresentativeBroadType(List<BLangExpression> exprs) {
-        ArrayList<BType> inferredTypeList = new ArrayList<>(Arrays.asList(checkExprList(exprs, env)));
+    private BType getRepresentativeBroadTypeForExprs(List<BLangExpression> exprs) {
+        return getRepresentativeBroadType(new ArrayList<>(Arrays.asList(checkExprList(exprs, env))));
+    }
 
+    private BType getRepresentativeBroadType(List<BType> inferredTypeList) {
         for (int i = 0; i < inferredTypeList.size(); i++) {
             BType type = inferredTypeList.get(i);
             if (type.tag == TypeTags.SEMANTIC_ERROR) {
@@ -4964,15 +5023,16 @@ public class TypeChecker extends BLangNodeVisitor {
                     return otherType;
                 }
 
+                if (types.isAssignable(otherType, type)) {
+                    inferredTypeList.remove(j);
+                    j -= 1;
+                    continue;
+                }
+
                 if (types.isAssignable(type, otherType)) {
                     inferredTypeList.remove(i);
                     i -= 1;
                     break;
-                }
-
-                if (types.isAssignable(otherType, type)) {
-                    inferredTypeList.remove(j);
-                    j -= 1;
                 }
             }
         }

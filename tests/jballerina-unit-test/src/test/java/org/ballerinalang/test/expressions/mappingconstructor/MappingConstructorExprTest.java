@@ -91,6 +91,36 @@ public class MappingConstructorExprTest {
         BRunUtil.invoke(result, test);
     }
 
+    @Test
+    public void testSpreadOpFieldSemanticAnalysisNegative() {
+        CompileResult result = BCompileUtil.compile(
+                "test-src/expressions/mappingconstructor/spread_op_field_semantic_analysis_negative.bal");
+        Assert.assertEquals(result.getErrorCount(), 15);
+        validateError(result, 0, "incompatible types: expected a map or a record, found 'string'", 33, 17);
+        validateError(result, 1, "incompatible types: expected a map or a record, found 'boolean'", 33, 32);
+        validateError(result, 2, "incompatible types: expected 'int' for field 'i', found 'float'", 41, 17);
+        validateError(result, 3, "incompatible types: expected 'string' for field 's', found 'int'", 41, 17);
+        validateError(result, 4, "incompatible types: expected 'int' for field 'i', found 'boolean'", 41, 29);
+        validateError(result, 5, "undefined field 'x' in record 'Foo'", 49, 29);
+        validateError(result, 6, "incompatible types: expected a map or a record, found 'other'", 53, 26);
+        validateError(result, 7, "undefined symbol 'b'", 53, 26);
+        validateError(result, 8, "incompatible types: expected a map or a record, found 'int'", 60, 28);
+        validateError(result, 9, "incompatible types: expected 'string', found '(int|float)'", 68, 25);
+        validateError(result, 10, "incompatible types: expected 'string', found 'anydata'", 68, 39);
+        validateError(result, 11, "incompatible types: expected a map or a record, found 'other'", 72, 38);
+        validateError(result, 12, "undefined symbol 'b'", 72, 38);
+        validateError(result, 13, "incompatible types: expected a map or a record, found 'other'", 72, 44);
+    }
+
+    @Test
+    public void testSpreadOpFieldTaintAnalysisNegative() {
+        CompileResult result = BCompileUtil.compile(
+                "test-src/expressions/mappingconstructor/spread_op_field_taint_analysis_negative.bal");
+        Assert.assertEquals(result.getErrorCount(), 2);
+        validateError(result, 0, "tainted value passed to global variable 'm'", 36, 5);
+        validateError(result, 1, "tainted value passed to global variable 'bn'", 37, 5);
+    }
+
     @DataProvider(name = "varNameFieldTests")
     public Object[][] varNameFieldTests() {
         return new Object[][] {
