@@ -20,9 +20,11 @@ package org.wso2.ballerinalang.compiler.semantics.analyzer;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
+import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
+import org.wso2.ballerinalang.compiler.parser.BLangAnonymousModelHelper;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope.ScopeEntry;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
@@ -117,6 +119,8 @@ public class SymbolResolver extends BLangNodeVisitor {
     private SymbolEnv env;
     private BType resultType;
     private DiagnosticCode diagCode;
+    private SymbolEnter symbolEnter;
+    private BLangAnonymousModelHelper anonymousModelHelper;
 
     public static SymbolResolver getInstance(CompilerContext context) {
         SymbolResolver symbolResolver = context.get(SYMBOL_RESOLVER_KEY);
@@ -134,6 +138,8 @@ public class SymbolResolver extends BLangNodeVisitor {
         this.names = Names.getInstance(context);
         this.dlog = BLangDiagnosticLog.getInstance(context);
         this.types = Types.getInstance(context);
+        this.symbolEnter = SymbolEnter.getInstance(context);
+        this.anonymousModelHelper = BLangAnonymousModelHelper.getInstance(context);
     }
 
     public boolean checkForUniqueSymbol(DiagnosticPos pos, SymbolEnv env, BSymbol symbol) {
@@ -926,12 +932,22 @@ public class SymbolResolver extends BLangNodeVisitor {
         // a record, a symbol will be created for it when we define the dummy symbol (from here). When we define the
         // node later, this method will be called again. In such cases, we don't need to create a new symbol here.
         if (recordTypeNode.symbol == null) {
-            EnumSet<Flag> flags = recordTypeNode.isAnonymous ? EnumSet.of(Flag.PUBLIC) : EnumSet.noneOf(Flag.class);
+            EnumSet<Flag> flags = recordTypeNode.isAnonymous ? EnumSet.of(Flag.PUBLIC, Flag.ANONYMOUS)
+                    : EnumSet.noneOf(Flag.class);
             BRecordTypeSymbol recordSymbol = Symbols.createRecordSymbol(Flags.asMask(flags), Names.EMPTY,
-                    env.enclPkg.symbol.pkgID, null, env.scope.owner);
+                                                                        env.enclPkg.symbol.pkgID, null,
+                                                                        env.scope.owner);
             BRecordType recordType = new BRecordType(recordSymbol);
             recordSymbol.type = recordType;
             recordTypeNode.symbol = recordSymbol;
+
+            if (env.node.getKind() != NodeKind.PACKAGE) {
+                recordSymbol.name = names.fromString(
+                        anonymousModelHelper.getNextAnonymousTypeKey(env.enclPkg.packageID));
+                symbolEnter.defineSymbol(recordTypeNode.pos, recordTypeNode.symbol, env);
+                symbolEnter.defineNode(recordTypeNode, env);
+            }
+
             resultType = recordType;
         } else {
             resultType = recordTypeNode.symbol.type;

@@ -172,11 +172,6 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.Stack;
-import java.util.TreeMap;
-import java.util.TreeSet;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import javax.xml.XMLConstants;
@@ -407,7 +402,7 @@ public class BIRGen extends BLangNodeVisitor {
 
         Name workerName = names.fromIdNode(astFunc.defaultWorkerName);
 
-        this.env.unlockVars.push(new Stack<>());
+        this.env.unlockVars.push(new BIRLockDetailsHolder());
         BIRFunction birFunc;
 
         TaintTable taintTable = populateTaintTable(astFunc.symbol.taintTable);
@@ -1104,12 +1099,13 @@ public class BIRGen extends BLangNodeVisitor {
         }
         if (this.env.enclBB.terminator == null) {
             this.env.unlockVars.forEach(s -> {
-                for (BIRLockDetailsHolder vars : s) {
+                long i = s.numLocks;
+                while (i > 0) {
                     BIRBasicBlock unlockBB = new BIRBasicBlock(this.env.nextBBId(names));
                     this.env.enclBasicBlocks.add(unlockBB);
-                    this.env.enclBB.terminator = new BIRTerminator.Unlock(null, vars.globalLocks,
-                            vars.fieldLocks, unlockBB);
+                    this.env.enclBB.terminator = new BIRTerminator.Unlock(null,  unlockBB);
                     this.env.enclBB = unlockBB;
+                    i--;
                 }
             });
 
@@ -1229,7 +1225,7 @@ public class BIRGen extends BLangNodeVisitor {
         this.env.enclBB = whileBodyBB;
         this.env.enclLoopBB = whileExprBB;
         this.env.enclLoopEndBB = whileEndBB;
-        this.env.unlockVars.push(new Stack<>());
+        this.env.unlockVars.push(new BIRLockDetailsHolder());
         astWhileStmt.body.accept(this);
         this.env.unlockVars.pop();
         if (this.env.enclBB.terminator == null) {
@@ -1873,38 +1869,41 @@ public class BIRGen extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangBreak breakStmt) {
-        Stack<BIRLockDetailsHolder> toUnlock = this.env.unlockVars.peek();
+        BIRLockDetailsHolder toUnlock = this.env.unlockVars.peek();
         if (!toUnlock.isEmpty()) {
             BIRBasicBlock goToBB = new BIRBasicBlock(this.env.nextBBId(names));
             this.env.enclBasicBlocks.add(goToBB);
             this.env.enclBB.terminator = new BIRTerminator.GOTO(breakStmt.pos, goToBB);
             this.env.enclBB = goToBB;
         }
-        for (BIRLockDetailsHolder vars : toUnlock) {
+
+        long numLocks = toUnlock.numLocks;
+        while (numLocks > 0) {
             BIRBasicBlock unlockBB = new BIRBasicBlock(this.env.nextBBId(names));
             this.env.enclBasicBlocks.add(unlockBB);
-            this.env.enclBB.terminator = new BIRTerminator.Unlock(null, vars.globalLocks,
-                    vars.fieldLocks, unlockBB);
+            this.env.enclBB.terminator = new BIRTerminator.Unlock(null, unlockBB);
             this.env.enclBB = unlockBB;
+            numLocks--;
         }
         this.env.enclBB.terminator = new BIRTerminator.GOTO(breakStmt.pos, this.env.enclLoopEndBB);
     }
 
     @Override
     public void visit(BLangContinue continueStmt) {
-        Stack<BIRLockDetailsHolder> toUnlock = this.env.unlockVars.peek();
+        BIRLockDetailsHolder toUnlock = this.env.unlockVars.peek();
         if (!toUnlock.isEmpty()) {
             BIRBasicBlock goToBB = new BIRBasicBlock(this.env.nextBBId(names));
             this.env.enclBasicBlocks.add(goToBB);
             this.env.enclBB.terminator = new BIRTerminator.GOTO(continueStmt.pos, goToBB);
             this.env.enclBB = goToBB;
         }
-        for (BIRLockDetailsHolder vars : toUnlock) {
+        long numLocks = toUnlock.numLocks;
+        while (numLocks > 0) {
             BIRBasicBlock unlockBB = new BIRBasicBlock(this.env.nextBBId(names));
             this.env.enclBasicBlocks.add(unlockBB);
-            this.env.enclBB.terminator = new BIRTerminator.Unlock(null, vars.globalLocks,
-                    vars.fieldLocks, unlockBB);
+            this.env.enclBB.terminator = new BIRTerminator.Unlock(null,  unlockBB);
             this.env.enclBB = unlockBB;
+            numLocks--;
         }
 
         this.env.enclBB.terminator = new BIRTerminator.GOTO(continueStmt.pos, this.env.enclLoopBB);
@@ -1922,47 +1921,28 @@ public class BIRGen extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangLockStmt lockStmt) {
-        Supplier<TreeSet<BIRGlobalVariableDcl>> supplier = () -> new TreeSet<>(Comparator.comparing(v -> v.name.value));
-        Set<BIRGlobalVariableDcl> lockedOn = lockStmt.lockVariables.stream()
-                .map(e -> this.globalVarMap.get(e))
-                .collect(Collectors.toCollection(supplier));
-        for (BIRGlobalVariableDcl globalVar : lockedOn) {
-            BIRBasicBlock lockedBB = new BIRBasicBlock(this.env.nextBBId(names));
-            addToTrapStack(lockedBB);
-            this.env.enclBasicBlocks.add(lockedBB);
-            this.env.enclBB.terminator = new BIRTerminator.Lock(null, globalVar, lockedBB);
-            this.env.enclBB = lockedBB;
-        }
+        BIRBasicBlock lockedBB = new BIRBasicBlock(this.env.nextBBId(names));
+        addToTrapStack(lockedBB);
+        this.env.enclBasicBlocks.add(lockedBB);
+        this.env.enclBB.terminator = new BIRTerminator.Lock(null, lockedBB);
+        this.env.enclBB = lockedBB;
 
-        for (Map.Entry<BVarSymbol, Set<String>> entry : lockStmt.fieldVariables.entrySet()) {
-            BIROperand variableDcl = new BIROperand(this.env.symbolVarMap.get(entry.getKey()));
-            for (String field : entry.getValue()) {
-                BIRBasicBlock lockedBB = new BIRBasicBlock(this.env.nextBBId(names));
-                addToTrapStack(lockedBB);
-                this.env.enclBasicBlocks.add(lockedBB);
-                this.env.enclBB.terminator = new BIRTerminator.FieldLock(null, variableDcl, field, lockedBB);
-                this.env.enclBB = lockedBB;
-            }
-        }
-        Map<BIROperand, Set<String>> fieldLocks = new TreeMap<>((o1, o2) -> o2.variableDcl.name.value
-                .compareTo(o1.variableDcl.name.value));
-        fieldLocks.putAll(lockStmt.fieldVariables.entrySet().stream().collect(Collectors
-                .toMap(x -> new BIROperand(this.env.symbolVarMap.get(x.getKey())), Map.Entry::getValue)));
-        this.env.unlockVars.peek().push(new BIRLockDetailsHolder(lockedOn, fieldLocks));
+        this.env.unlockVars.peek().numLocks++;
     }
 
     @Override
     public void visit(BLangUnLockStmt unLockStmt) {
-        BIRLockDetailsHolder lockDetailsHolder = this.env.unlockVars.peek().pop();
+        BIRLockDetailsHolder lockDetailsHolder = this.env.unlockVars.peek();
         if (lockDetailsHolder.isEmpty()) {
             return;
         }
         BIRBasicBlock unLockedBB = new BIRBasicBlock(this.env.nextBBId(names));
         addToTrapStack(unLockedBB);
         this.env.enclBasicBlocks.add(unLockedBB);
-        this.env.enclBB.terminator = new BIRTerminator.Unlock(null, lockDetailsHolder.globalLocks,
-                lockDetailsHolder.fieldLocks, unLockedBB);
+        this.env.enclBB.terminator = new BIRTerminator.Unlock(null, unLockedBB);
         this.env.enclBB = unLockedBB;
+
+        lockDetailsHolder.numLocks--;
     }
 
     private void emit(BIRNonTerminator instruction) {
