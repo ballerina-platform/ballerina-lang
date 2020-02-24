@@ -1471,9 +1471,10 @@ public class BLangPackageBuilder {
         recordLiteralNodes.peek().fields.add(keyValue);
     }
 
-    void addLetExpression() {
+    void addLetExpression(DiagnosticPos pos) {
         BLangLetExpression letExpression = (BLangLetExpression) TreeBuilder.createLetExpressionNode();
         letExpression.expr = (BLangExpression) exprNodeStack.pop();
+        letExpression.pos = pos;
         letExpression.letVarDeclarations = letVarListStack.pop();
         addExpressionNode(letExpression);
     }

@@ -32,12 +32,13 @@ import org.testng.annotations.Test;
  */
 public class LetExpressionTest {
 
-    private CompileResult compileResult, negativeResult;
+    private CompileResult compileResult, negativeResult, notSupportedResult;
 
     @BeforeClass
     public void setup() {
         compileResult = BCompileUtil.compile("test-src/expressions/let/let-expression-test.bal");
         negativeResult = BCompileUtil.compile("test-src/expressions/let/let-expression-negative.bal");
+        notSupportedResult = BCompileUtil.compile("test-src/expressions/let/let-not-supported.bal");
     }
 
     @Test(description = "Positive tests for let expression", dataProvider = "FunctionList")
@@ -52,6 +53,15 @@ public class LetExpressionTest {
         BAssertUtil.validateError(negativeResult, i++, "undefined symbol 'y'", 23, 27);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int', found 'string'", 27, 25);
         BAssertUtil.validateError(negativeResult, i, "incompatible types: expected 'string', found 'int'", 29, 28);
+    }
+
+    @Test(description = "Test cases for scenarios where let expression is not yet supported")
+    public void testLetExpressionNotSupported() {
+        int i = 0;
+        BAssertUtil.validateError(notSupportedResult, i++, "let expressions are not yet supported for record fields",
+                18, 17);
+        BAssertUtil.validateError(notSupportedResult, i, "let expressions are not yet supported for object fields",
+                22, 22);
     }
 
     @DataProvider(name = "FunctionList")

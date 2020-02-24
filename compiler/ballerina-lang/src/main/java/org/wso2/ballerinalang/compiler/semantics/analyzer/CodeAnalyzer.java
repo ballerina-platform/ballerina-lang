@@ -1345,10 +1345,17 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangLetExpression letExpression) {
-        for(BLangVariable var : letExpression.letVarDeclarations) {
-            analyzeNode(var, env);
+        int ownerSymTag = this.env.scope.owner.tag;
+        if ((ownerSymTag & SymTag.RECORD) == SymTag.RECORD) {
+            dlog.error(letExpression.pos, DiagnosticCode.LET_EXPRESSION_NOT_YET_SUPPORTED_RECORD_FIELD);
+        } else if ((ownerSymTag & SymTag.OBJECT) == SymTag.OBJECT) {
+            dlog.error(letExpression.pos, DiagnosticCode.LET_EXPRESSION_NOT_YET_SUPPORTED_OBJECT_FIELD);
         }
-        analyzeExpr(letExpression.expr);
+
+        for (BLangVariable var : letExpression.letVarDeclarations) {
+            analyzeNode(var, letExpression.env);
+        }
+        analyzeExpr(letExpression.expr, letExpression.env);
     }
 
     public void visit(BLangSimpleVariable varNode) {
@@ -2508,6 +2515,22 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         this.isJSONContext = false;
         parent = myParent;
         checkAccess(node);
+    }
+
+    private <E extends BLangExpression> void analyzeExpr(E node, SymbolEnv env) {
+        if (node == null) {
+            return;
+        }
+        SymbolEnv prevEnv = this.env;
+        this.env = env;
+        BLangNode myParent = parent;
+        node.parent = parent;
+        parent = node;
+        node.accept(this);
+        this.isJSONContext = false;
+        parent = myParent;
+        checkAccess(node);
+        this.env = prevEnv;
     }
 
     @Override
