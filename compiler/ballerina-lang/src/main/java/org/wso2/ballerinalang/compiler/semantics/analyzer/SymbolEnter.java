@@ -689,6 +689,10 @@ public class SymbolEnter extends BLangNodeVisitor {
     @Override
     public void visit(BLangTypeDefinition typeDefinition) {
         BType definedType = symResolver.resolveTypeNode(typeDefinition.typeNode, env);
+        if (definedType == symTable.semanticError) {
+            // TODO : Fix this properly. issue #21242
+            return;
+        }
         if (definedType == symTable.noType) {
             // This is to prevent concurrent modification exception.
             if (!this.unresolvedTypes.contains(typeDefinition)) {
@@ -1343,7 +1347,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                 // resolved by the time we reach here. It is achieved by ordering the typeDefs
                 // according to the precedence.
                 for (BLangType typeRef : objTypeNode.typeRefs) {
-                    if (typeRef.type.tsymbol.kind != SymbolKind.OBJECT) {
+                    if (typeRef.type.tsymbol == null || typeRef.type.tsymbol.kind != SymbolKind.OBJECT) {
                         continue;
                     }
 

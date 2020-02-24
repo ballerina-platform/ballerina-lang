@@ -861,7 +861,6 @@ public class ConstantPropagation extends BLangNodeVisitor {
                     implConversionExpr.pos = varRefExpr.impConversionExpr.pos;
                     implConversionExpr.type = varRefExpr.impConversionExpr.type;
                     implConversionExpr.targetType = varRefExpr.impConversionExpr.targetType;
-                    implConversionExpr.conversionSymbol = varRefExpr.impConversionExpr.conversionSymbol;
                     constRef.impConversionExpr = implConversionExpr;
                 } else {
                     types.setImplicitCastExpr(constRef, constRef.type, varRefExpr.type);
