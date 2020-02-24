@@ -186,7 +186,12 @@ public class BCompileUtil {
                 try {
                     return method.invoke(null, objects[0]);
                 } catch (InvocationTargetException e) {
-                    throw (RuntimeException) e.getTargetException();
+                    Throwable targetException = e.getTargetException();
+                    if (targetException instanceof RuntimeException) {
+                        throw (RuntimeException) targetException;
+                    } else {
+                        throw new RuntimeException(targetException);
+                    }
                 } catch (IllegalAccessException e) {
                     throw new BallerinaException("Method has private access", e);
                 }
