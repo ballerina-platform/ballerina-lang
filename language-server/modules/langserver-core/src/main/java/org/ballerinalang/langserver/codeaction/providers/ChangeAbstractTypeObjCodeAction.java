@@ -19,9 +19,9 @@ import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.command.executors.ChangeAbstractTypeObjExecutor;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.commons.LSContext;
-import org.ballerinalang.langserver.commons.codeaction.CodeActionKeys;
 import org.ballerinalang.langserver.commons.codeaction.CodeActionNodeType;
 import org.ballerinalang.langserver.commons.command.CommandArgument;
+import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.CodeActionKind;
 import org.eclipse.lsp4j.Command;
@@ -94,7 +94,7 @@ public class ChangeAbstractTypeObjCodeAction extends AbstractCodeActionProvider 
         Position position = diagnostic.getRange().getStart();
         int line = position.getLine();
         int column = position.getCharacter();
-        String uri = context.get(CodeActionKeys.FILE_URI_KEY);
+        String uri = context.get(DocumentServiceKeys.FILE_URI_KEY);
         CommandArgument lineArg = new CommandArgument(CommandConstants.ARG_KEY_NODE_LINE, "" + line);
         CommandArgument colArg = new CommandArgument(CommandConstants.ARG_KEY_NODE_COLUMN, "" + column);
         CommandArgument uriArg = new CommandArgument(CommandConstants.ARG_KEY_DOC_URI, uri);
@@ -122,7 +122,7 @@ public class ChangeAbstractTypeObjCodeAction extends AbstractCodeActionProvider 
         Position position = diagnostic.getRange().getStart();
         int line = position.getLine();
         int column = position.getCharacter();
-        String uri = context.get(CodeActionKeys.FILE_URI_KEY);
+        String uri = context.get(DocumentServiceKeys.FILE_URI_KEY);
         CommandArgument lineArg = new CommandArgument(CommandConstants.ARG_KEY_NODE_LINE, "" + line);
         CommandArgument colArg = new CommandArgument(CommandConstants.ARG_KEY_NODE_COLUMN, "" + column);
         CommandArgument uriArg = new CommandArgument(CommandConstants.ARG_KEY_DOC_URI, uri);

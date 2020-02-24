@@ -19,9 +19,9 @@ import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.command.executors.PullModuleExecutor;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.commons.LSContext;
-import org.ballerinalang.langserver.commons.codeaction.CodeActionKeys;
 import org.ballerinalang.langserver.commons.codeaction.CodeActionNodeType;
 import org.ballerinalang.langserver.commons.command.CommandArgument;
+import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.CodeActionKind;
 import org.eclipse.lsp4j.Command;
@@ -70,7 +70,7 @@ public class PullModuleCodeAction extends AbstractCodeActionProvider {
 
     private static CodeAction getUnresolvedPackageCommand(Diagnostic diagnostic, LSContext context) {
         String diagnosticMessage = diagnostic.getMessage();
-        String uri = context.get(CodeActionKeys.FILE_URI_KEY);
+        String uri = context.get(DocumentServiceKeys.FILE_URI_KEY);
         CommandArgument uriArg = new CommandArgument(CommandConstants.ARG_KEY_DOC_URI, uri);
         List<Diagnostic> diagnostics = new ArrayList<>();
 

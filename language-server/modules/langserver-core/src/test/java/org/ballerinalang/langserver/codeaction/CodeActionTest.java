@@ -137,6 +137,9 @@ public class CodeActionTest {
         JsonObject responseJson = this.getResponseJson(res);
         for (JsonElement jsonElement : responseJson.getAsJsonArray("result")) {
             JsonObject leftItem = jsonElement.getAsJsonObject().get("right").getAsJsonObject();
+            if (leftItem.get("command") == null) {
+                continue;
+            }
             JsonObject cmd = leftItem.get("command").getAsJsonObject();
             if (leftItem.get("title").toString().equals(title) &&
                     cmd.get("command").toString().equals(command)

@@ -21,7 +21,6 @@ import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.FunctionGenerator;
 import org.ballerinalang.langserver.commons.LSContext;
-import org.ballerinalang.langserver.commons.codeaction.CodeActionKeys;
 import org.ballerinalang.langserver.commons.codeaction.CodeActionNodeType;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.model.elements.PackageID;
@@ -103,7 +102,7 @@ public class ImplementFunctionsCodeAction extends AbstractCodeActionProvider {
         Position position = diagnostic.getRange().getStart();
         int line = position.getLine();
         int column = position.getCharacter();
-        String uri = context.get(CodeActionKeys.FILE_URI_KEY);
+        String uri = context.get(DocumentServiceKeys.FILE_URI_KEY);
         Optional<BLangTypeDefinition> objType = bLangPackage.topLevelNodes.stream()
                 .filter(topLevelNode -> {
                     if (topLevelNode instanceof BLangTypeDefinition) {

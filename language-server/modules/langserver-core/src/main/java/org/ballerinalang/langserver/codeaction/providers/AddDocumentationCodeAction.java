@@ -22,6 +22,7 @@ import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.codeaction.CodeActionKeys;
 import org.ballerinalang.langserver.commons.codeaction.CodeActionNodeType;
 import org.ballerinalang.langserver.commons.command.CommandArgument;
+import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.Command;
 import org.eclipse.lsp4j.Diagnostic;
@@ -53,7 +54,7 @@ public class AddDocumentationCodeAction extends AbstractCodeActionProvider {
     @Override
     public List<CodeAction> getNodeBasedCodeActions(CodeActionNodeType nodeType, LSContext lsContext,
                                                     List<Diagnostic> allDiagnostics) {
-        String docUri = lsContext.get(CodeActionKeys.FILE_URI_KEY);
+        String docUri = lsContext.get(DocumentServiceKeys.FILE_URI_KEY);
         int line = lsContext.get(CodeActionKeys.POSITION_START_KEY).getLine();
 
         CommandArgument nodeTypeArg = new CommandArgument(CommandConstants.ARG_KEY_NODE_TYPE, nodeType.name());

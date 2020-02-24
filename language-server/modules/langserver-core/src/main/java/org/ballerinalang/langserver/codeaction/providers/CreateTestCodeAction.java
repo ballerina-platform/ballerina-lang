@@ -59,8 +59,7 @@ public class CreateTestCodeAction extends AbstractCodeActionProvider {
      * {@inheritDoc}
      */
     @Override
-    public List<CodeAction> getDiagBasedCodeActions(CodeActionNodeType nodeType, LSContext context,
-                                                    List<Diagnostic> diagnosticsOfRange,
+    public List<CodeAction> getNodeBasedCodeActions(CodeActionNodeType nodeType, LSContext context,
                                                     List<Diagnostic> allDiagnostics) {
         try {
             String docUri = context.get(DocumentServiceKeys.FILE_URI_KEY);
@@ -101,7 +100,8 @@ public class CreateTestCodeAction extends AbstractCodeActionProvider {
      * {@inheritDoc}
      */
     @Override
-    public List<CodeAction> getNodeBasedCodeActions(CodeActionNodeType nodeType, LSContext lsContext,
+    public List<CodeAction> getDiagBasedCodeActions(CodeActionNodeType nodeType, LSContext context,
+                                                    List<Diagnostic> diagnosticsOfRange,
                                                     List<Diagnostic> allDiagnostics) {
         throw new UnsupportedOperationException("Not supported");
     }

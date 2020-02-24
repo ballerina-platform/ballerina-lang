@@ -28,8 +28,6 @@ import java.util.List;
  */
 public class CodeActionKeys {
 
-    public static final LSContext.Key<String> FILE_URI_KEY = new LSContext.Key<>();
-
     public static final LSContext.Key<Position> POSITION_START_KEY = new LSContext.Key<>();
 
     public static final LSContext.Key<List<Object>> COMMAND_ARGUMENTS_KEY = new LSContext.Key<>();
