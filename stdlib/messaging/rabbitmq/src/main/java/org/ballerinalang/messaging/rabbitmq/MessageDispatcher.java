@@ -163,7 +163,7 @@ public class MessageDispatcher {
             CountDownLatch countDownLatch = new CountDownLatch(1);
             CallableUnitCallback callback = new RabbitMQResourceCallback(countDownLatch, channel, queueName,
                                                                          message.length);
-            executeResource(RabbitMQConstants.FUNC_ON_MESSAGE, callback, message, messageObjectValue,
+            executeResource(RabbitMQConstants.FUNC_ON_MESSAGE, callback, messageObjectValue,
                             true, forContent, true);
             countDownLatch.await();
         } catch (BallerinaConnectorException | UnsupportedEncodingException exception) {
