@@ -29,13 +29,14 @@ type PureType2 anydata | error;
 type Type any | error;
 
 
-# Selects the members from an array for which a function returns true.
+# Selects the members from an array for which the `func` function returns true.
 #
 # + strm - The stream
 # + func - a predicate to apply to each member to test whether it should be selected
 # + return - new stream only containing members of `strm` for which `func` evaluates to true
 public function filter(stream<PureType1> strm, function(PureType1 val) returns boolean func) returns stream<PureType1> {
     return stream {
+            // while loop is required to continue filtering until we find a value which matches the filter or ().
             while(true) {
                 var nextVal = next(strm);
                 if (nextVal is ()) {
