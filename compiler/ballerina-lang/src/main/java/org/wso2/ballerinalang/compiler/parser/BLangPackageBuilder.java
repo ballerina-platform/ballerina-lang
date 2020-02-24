@@ -366,6 +366,8 @@ public class BLangPackageBuilder {
     private Stack<Set<Whitespace>> errorMatchPatternWS = new Stack<>();
     private Stack<Set<Whitespace>> simpleMatchPatternWS = new Stack<>();
     private Stack<Set<Whitespace>> recordKeyWS = new Stack<>();
+    private Stack<Set<Whitespace>> errorRestBindingPatternWS = new Stack<>();
+    private Stack<Set<Whitespace>> restMatchPatternWS = new Stack<>();
 
     private BLangAnonymousModelHelper anonymousModelHelper;
     private CompilerOptions compilerOptions;
@@ -760,6 +762,14 @@ public class BLangPackageBuilder {
         ((BLangErrorVariable) this.varStack.peek()).isInMatchStmt = true;
     }
 
+    void addWSForErrorRestBinding(Set<Whitespace> ws) {
+        this.errorRestBindingPatternWS.push(ws);
+    }
+
+    void addWSForRestMatchPattern(Set<Whitespace> ws) {
+        this.restMatchPatternWS.push(ws);
+    }
+
     void addErrorVariable(DiagnosticPos pos, Set<Whitespace> ws, String reason, String restIdentifier,
                           boolean reasonVar, boolean constReasonMatchPattern, DiagnosticPos restParamPos) {
         BLangErrorVariable errorVariable = (BLangErrorVariable) varStack.peek();
@@ -785,6 +795,13 @@ public class BLangPackageBuilder {
         if (restIdentifier != null) {
             errorVariable.restDetail = (BLangSimpleVariable)
                     generateBasicVarNodeWithoutType(pos, null, restIdentifier, restParamPos, false);
+            if (!this.errorRestBindingPatternWS.isEmpty()) {
+                errorVariable.restDetail.addWS(this.errorRestBindingPatternWS.pop());
+            }
+
+            if (!this.restMatchPatternWS.isEmpty()) {
+                errorVariable.restDetail.addWS(this.restMatchPatternWS.pop());
+            }
         }
     }
 
@@ -803,6 +820,9 @@ public class BLangPackageBuilder {
         if (restIdName != null) {
             errorVariable.restDetail = (BLangSimpleVariable)
                     generateBasicVarNodeWithoutType(currentPos, null, restIdName, restPos, false);
+            if (!this.errorRestBindingPatternWS.isEmpty()) {
+                errorVariable.restDetail.addWS(this.errorRestBindingPatternWS.pop());
+            }
         }
     }
 
@@ -2501,8 +2521,8 @@ public class BLangPackageBuilder {
     }
 
     private BLangMarkdownReferenceDocumentation createReferenceDocumentation(DiagnosticPos pos,
-                                                                              DocumentationReferenceType type,
-                                                                              String identifier) {
+                                                                             DocumentationReferenceType type,
+                                                                             String identifier) {
         BLangMarkdownReferenceDocumentation referenceDocumentation =
                 (BLangMarkdownReferenceDocumentation) TreeBuilder.createMarkdownReferenceDocumentationNode();
         referenceDocumentation.type = type;
@@ -2855,6 +2875,12 @@ public class BLangPackageBuilder {
         if (this.errorMatchPatternWS.size() > 0) {
             patternClause.bindingPatternVariable.addWS(this.errorMatchPatternWS.pop());
         }
+
+        // TODO: add rest match pattern ws to rest detail field in error variable when the rest detail is added.
+        if (!this.restMatchPatternWS.isEmpty()) {
+            patternClause.bindingPatternVariable.addWS(this.restMatchPatternWS.pop());
+        }
+
         patternClause.body = (BLangBlockStmt) blockNodeStack.pop();
         patternClause.body.pos = pos;
 

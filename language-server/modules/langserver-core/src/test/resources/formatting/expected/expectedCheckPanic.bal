@@ -7,8 +7,8 @@ function testBasicCheckpanic1(int testNumber) returns int | float {
         }
         2 => {
             int i =
-            checkpanic
-            getGenericErrorWithDetail();
+                checkpanic
+                getGenericErrorWithDetail();
         }
         3 => {
             int | boolean i = checkpanic getGenericErrorWithMultiUnion();
@@ -21,7 +21,7 @@ function testBasicCheckpanic1(int testNumber) returns int | float {
         }
         6 => {
             int i = checkpanic
-            getCustomError();
+                getCustomError();
         }
     }
     return 0.0;
