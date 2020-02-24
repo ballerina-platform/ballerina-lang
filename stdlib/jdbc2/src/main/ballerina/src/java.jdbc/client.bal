@@ -25,7 +25,7 @@ public type Client client object {
 
     # Gets called when the JDBC client is instantiated.
     public function __init(public string url, public string? user = (), public string? password = (),
-                           public string|Driver? driver = (),
+                           public string? driver = (),
                            public map<anydata>? options = (), public sql:ConnectionPool? connPool = ()) {
       ClientConfiguration clientConf = {
         url: url,
@@ -62,16 +62,16 @@ public type Client client object {
 
 function createClient(Client jdbcClient, ClientConfiguration clientConf,
     sql:ConnectionPool globalConnPool) = @java:Method {
-    class: "org.ballerinalang.jdbc.nativeImpl.Utils"
+    class: "org.ballerinalang.jdbc.nativeimpl.Utils"
 } external;
 
 
 function nativeQuery(Client jdbcClient, @untainted handle sqlQuery,
     sql:Value[]? params, typedesc<record {}>? rowType) returns @tainted stream<record {}> = @java:Method {
-        class: "org.ballerinalang.jdbc.nativeImpl.Utils"
+        class: "org.ballerinalang.jdbc.nativeimpl.Utils"
 } external;
 
 
 function close(Client jdbcClient) returns error? = @java:Method {
-    class: "org.ballerinalang.jdbc.nativeImpl.Utils"
+    class: "org.ballerinalang.jdbc.nativeimpl.Utils"
 } external;

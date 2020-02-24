@@ -30,20 +30,11 @@ type ClientConfiguration record {|
     string url;
     string? user;
     string? password;
-    string|Driver? driver;
+    string? driver;
     map<anydata>? options;
     sql:ConnectionPool? connPool;
 |};
 
-
-# Provides a set of configurations to configure the Driver details.
-#
-# + name - Driver class name
-# + isXA - Boolean value to enable distributed transactions.
-public type Driver record {|
-    string name;
-    boolean? isXA;
-|};
 
 // This is a container object that holds the global pool config and initializes the internal map of connection pools
 type GlobalConnectionPoolContainer object {
@@ -62,7 +53,7 @@ type GlobalConnectionPoolContainer object {
 
 function initGlobalPoolContainer(GlobalConnectionPoolContainer poolConfigContainer,
                                  sql: ConnectionPool poolConfig) = @java:Method {
-    class: "org.ballerinalang.jdbc.nativeImpl.Utils"
+    class: "org.ballerinalang.jdbc.nativeimpl.Utils"
 } external;
 
 // This is an instance of GlobalPoolConfigContainer object type. The __init functions of database clients pass

@@ -19,8 +19,8 @@ package org.ballerinalang.jdbc.table;
 
 import org.ballerinalang.jdbc.Constants;
 import org.ballerinalang.jdbc.datasource.SQLDatasourceUtils;
-import org.ballerinalang.jdbc.exceptions.ErrorGenerator;
 import org.ballerinalang.jdbc.exceptions.ApplicationException;
+import org.ballerinalang.jdbc.exceptions.ErrorGenerator;
 import org.ballerinalang.jvm.ColumnDefinition;
 import org.ballerinalang.jvm.TableResourceManager;
 import org.ballerinalang.jvm.types.BArrayType;

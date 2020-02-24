@@ -31,11 +31,11 @@ import java.util.Map;
  */
 public class PoolKey {
     private String jdbcUrl;
-    private MapValue<String, ?> dbOptions;
+    private MapValue<String, ?> options;
 
-    public PoolKey(String jdbcUrl, MapValue<String, ?> dbOptions) {
+    public PoolKey(String jdbcUrl, MapValue<String, ?> options) {
         this.jdbcUrl = jdbcUrl;
-        this.dbOptions = dbOptions;
+        this.options = options;
     }
 
     @Override
@@ -47,14 +47,14 @@ public class PoolKey {
             return false;
         }
         boolean jdbcUrlEqual = ((PoolKey) obj).jdbcUrl.equals(this.jdbcUrl);
-        return jdbcUrlEqual && dbOptionsEqual((PoolKey) obj);
+        return jdbcUrlEqual && optionsEqual((PoolKey) obj);
     }
 
     @Override
     public int hashCode() {
         int hashCode = 17;
         hashCode = hashCode * 31 + jdbcUrl.hashCode();
-        if (dbOptions != null) {
+        if (options != null) {
             hashCode = 31 * hashCode + calculateDbOptionsHashCode();
         }
         return hashCode;
@@ -62,7 +62,7 @@ public class PoolKey {
 
     private int calculateDbOptionsHashCode() {
         int hashCode = 17;
-        for (Map.Entry<String, ?> entry : dbOptions.entrySet()) {
+        for (Map.Entry<String, ?> entry : options.entrySet()) {
             int keyHashCode = entry.getKey().hashCode();
             Object value = entry.getValue();
             BType type = TypeChecker.getType(value);
@@ -93,18 +93,18 @@ public class PoolKey {
         return hashCode;
     }
 
-    private boolean dbOptionsEqual(PoolKey anotherPoolKey) {
-        MapValue<String, ?> anotherDbOptions = anotherPoolKey.dbOptions;
-        if (dbOptions == null && anotherDbOptions == null) {
+    private boolean optionsEqual(PoolKey anotherPoolKey) {
+        MapValue<String, ?> anotherDbOptions = anotherPoolKey.options;
+        if (options == null && anotherDbOptions == null) {
             return true;
         }
-        if (dbOptions == null || anotherDbOptions == null) {
+        if (options == null || anotherDbOptions == null) {
             return false;
         }
-        if (this.dbOptions.size() != anotherDbOptions.size()) {
+        if (this.options.size() != anotherDbOptions.size()) {
             return false;
         }
-        for (Map.Entry<String, ?> entry : dbOptions.entrySet()) {
+        for (Map.Entry<String, ?> entry : options.entrySet()) {
             if (!entry.getValue().equals(anotherDbOptions.get(entry.getKey()))) {
                 return false;
             }

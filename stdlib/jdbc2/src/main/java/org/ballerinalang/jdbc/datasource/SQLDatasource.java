@@ -20,15 +20,16 @@ package org.ballerinalang.jdbc.datasource;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import org.ballerinalang.jdbc.Constants;
-import org.ballerinalang.jdbc.exceptions.ApplicationException;
 import org.ballerinalang.jdbc.exceptions.DatabaseException;
 import org.ballerinalang.jdbc.exceptions.ErrorGenerator;
+import org.ballerinalang.jvm.values.DecimalValue;
 import org.ballerinalang.jvm.values.MapValue;
 
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Locale;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -51,7 +52,7 @@ public class SQLDatasource {
     private Lock mutex = new ReentrantLock();
     private boolean poolShutdown = false;
 
-    public SQLDatasource init(SQLDatasourceParams sqlDatasourceParams) {
+    private SQLDatasource(SQLDatasourceParams sqlDatasourceParams) {
         this.globalDatasource = sqlDatasourceParams.isGlobalDatasource;
         peerAddress = sqlDatasourceParams.jdbcUrl;
         buildDataSource(sqlDatasourceParams);
@@ -66,7 +67,53 @@ public class SQLDatasource {
             throw ErrorGenerator
                     .getSQLDatabaseError(e, "error while obtaining connection for " + Constants.CONNECTOR_NAME + ", ");
         }
-        return this;
+    }
+
+    /**
+     * Retrieve the {@link SQLDatasource}} object corresponding to the provided JDBC URL in
+     * {@link SQLDatasource.SQLDatasourceParams}.
+     * Creates a datasource if it doesn't exist.
+     *
+     * @param sqlDatasourceParams datasource parameters required to retrieve the JDBC URL for datasource lookup and
+     *                            initialization of the newly created datasource if it doesn't exists
+     * @param connectionPool The connectionPool object associated with the jdbc client
+     * @return The existing or newly created {@link SQLDatasource} object
+     */
+    public static SQLDatasource retrieveDatasource(SQLDatasource.SQLDatasourceParams sqlDatasourceParams,
+                                                   MapValue<String, Object> connectionPool) {
+        PoolKey poolKey = new PoolKey(sqlDatasourceParams.jdbcUrl, sqlDatasourceParams.options);
+        Map<PoolKey, SQLDatasource> hikariDatasourceMap = SQLDatasourceUtils
+                .retrieveDatasourceContainer(connectionPool);
+        // map could be null only in a local pool creation scenario
+        if (hikariDatasourceMap == null) {
+            hikariDatasourceMap = SQLDatasourceUtils.putDatasourceContainer(connectionPool, new ConcurrentHashMap<>());
+        }
+        SQLDatasource existingSqlDatasource = hikariDatasourceMap.get(poolKey);
+        SQLDatasource sqlDatasourceToBeReturned = existingSqlDatasource;
+        if (existingSqlDatasource != null) {
+            existingSqlDatasource.acquireMutex();
+            try {
+                if (!existingSqlDatasource.isPoolShutdown()) {
+                    existingSqlDatasource.incrementClientCounter();
+                } else {
+                    sqlDatasourceToBeReturned = hikariDatasourceMap.compute(poolKey,
+                            (key, value) -> createAndInitDatasource(sqlDatasourceParams));
+                }
+            } finally {
+                existingSqlDatasource.releaseMutex();
+            }
+        } else {
+            sqlDatasourceToBeReturned = hikariDatasourceMap.computeIfAbsent(poolKey,
+                    key -> createAndInitDatasource(sqlDatasourceParams));
+
+        }
+        return sqlDatasourceToBeReturned;
+    }
+
+    private static SQLDatasource createAndInitDatasource(SQLDatasource.SQLDatasourceParams sqlDatasourceParams) {
+        SQLDatasource newSqlDatasource = new SQLDatasource(sqlDatasourceParams);
+        newSqlDatasource.incrementClientCounter();
+        return newSqlDatasource;
     }
 
     /**
@@ -141,76 +188,68 @@ public class SQLDatasource {
         mutex.lock();
     }
 
+    /**
+     * Clarification on behavior with parameters.
+     * 1. Adding an invalid param in the JDBC URL. This will result in an error getting returned
+     * eg: jdbc:Client testDB = new({
+     * url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTOR_INIT;INVALID_PARAM=-1",
+     * username: "SA",
+     * password: ""
+     * });
+     * 2. Providing an invalid param with dataSourceClassName provided. This will result in an error
+     * returned because when hikaricp tries to call setINVALID_PARAM method on the given datasource
+     * class name, it will fail since there is no such method
+     * eg: jdbc:Client testDB = new({
+     * url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTOR_INIT",
+     * username: "SA",
+     * password: "",
+     * poolOptions: { dataSourceClassName: "org.h2.jdbcx.JdbcDataSource" },
+     * dbOptions: { "INVALID_PARAM": -1 }
+     * });
+     * 3. Providing an invalid param WITHOUT dataSourceClassName provided. This may not return any error.
+     * Because this will result in the INVALID_PARAM being passed to Driver.Connect which may not recognize
+     * it as an invalid parameter.
+     * eg: jdbc:Client testDB = new({
+     * url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTOR_INIT",
+     * username: "SA",
+     * password: "",
+     * dbOptions: { "INVALID_PARAM": -1 }
+     * });
+     *
+     * @param sqlDatasourceParams This includes the configuration for the datasource to be built.
+     */
     private void buildDataSource(SQLDatasourceParams sqlDatasourceParams) {
         try {
             HikariConfig config = new HikariConfig();
-            //Set username password
+            config.setJdbcUrl(sqlDatasourceParams.jdbcUrl);
             config.setUsername(sqlDatasourceParams.username);
             config.setPassword(sqlDatasourceParams.password);
-            //Set optional properties
-            if (sqlDatasourceParams.poolOptionsWrapper != null) {
-                boolean isXA = sqlDatasourceParams.poolOptionsWrapper.getBoolean(Constants.Options.IS_XA);
-
-                String dataSourceClassName = sqlDatasourceParams.poolOptionsWrapper
-                        .getString(Constants.Options.DATASOURCE_CLASSNAME);
-                if (isXA && dataSourceClassName.isEmpty()) {
-                    dataSourceClassName = getXADatasourceClassName(sqlDatasourceParams.dbType,
-                            sqlDatasourceParams.jdbcUrl, sqlDatasourceParams.username, sqlDatasourceParams.password);
+            config.setDataSourceClassName(sqlDatasourceParams.driver);
+            if (sqlDatasourceParams.connectionPool != null) {
+                int maxOpenConn = sqlDatasourceParams.connectionPool.
+                        getIntValue(Constants.Options.MAX_OPEN_CONNECTIONS).intValue();
+                if (maxOpenConn < 0) {
+                    config.setMaximumPoolSize(maxOpenConn);
                 }
-                if (dataSourceClassName != null && !dataSourceClassName.isEmpty()) {
-                    config.setDataSourceClassName(dataSourceClassName);
-                    if (sqlDatasourceParams.dbOptionsMap == null || !sqlDatasourceParams.dbOptionsMap
-                            .containsKey(Constants.URL)) {
-                        config.addDataSourceProperty(Constants.URL, sqlDatasourceParams.jdbcUrl);
+
+                Object connLifeTimeSec = sqlDatasourceParams.connectionPool
+                        .get(Constants.Options.MAX_CONNECTION_LIFE_TIME_SECONDS);
+                if (connLifeTimeSec instanceof DecimalValue) {
+                    DecimalValue connLifeTime = (DecimalValue) connLifeTimeSec;
+                    if (connLifeTime.floatValue() > 0) {
+                        long connLifeTimeMS = Double.valueOf(connLifeTime.floatValue() * 1000).longValue();
+                        config.setMaxLifetime(connLifeTimeMS);
                     }
-                    config.addDataSourceProperty(Constants.USER, sqlDatasourceParams.username);
-                    config.addDataSourceProperty(Constants.PASSWORD, sqlDatasourceParams.password);
-                } else {
-                    config.setJdbcUrl(sqlDatasourceParams.jdbcUrl);
-                }
-                String connectionInitSQL = sqlDatasourceParams.poolOptionsWrapper
-                        .getString(Constants.Options.CONNECTION_INIT_SQL);
-                if (!connectionInitSQL.isEmpty()) {
-                    config.setConnectionInitSql(connectionInitSQL);
                 }
 
-                int maximumPoolSize = sqlDatasourceParams.poolOptionsWrapper
-                        .getInt(Constants.Options.MAXIMUM_POOL_SIZE).intValue();
-                if (maximumPoolSize != -1) {
-                    config.setMaximumPoolSize(maximumPoolSize);
+                int minIdleConnections = sqlDatasourceParams.connectionPool
+                        .getIntValue(Constants.Options.MIN_IDLE_CONNECTIONS).intValue();
+                if (minIdleConnections < 0) {
+                    config.setMinimumIdle(minIdleConnections);
                 }
-                long connectionTimeout = (sqlDatasourceParams.poolOptionsWrapper
-                        .getInt(Constants.Options.CONNECTION_TIMEOUT_IN_MILLIS));
-                if (connectionTimeout != -1) {
-                    config.setConnectionTimeout(connectionTimeout);
-                }
-                long idleTimeout = sqlDatasourceParams.poolOptionsWrapper
-                        .getInt(Constants.Options.IDLE_TIMEOUT_IN_MILLIS);
-                if (idleTimeout != -1) {
-                    config.setIdleTimeout(idleTimeout);
-                }
-                int minimumIdle = sqlDatasourceParams.poolOptionsWrapper.getInt(Constants.Options.MINIMUM_IDLE)
-                        .intValue();
-                if (minimumIdle != -1) {
-                    config.setMinimumIdle(minimumIdle);
-                }
-                long maxLifetime = (sqlDatasourceParams.poolOptionsWrapper
-                        .getInt(Constants.Options.MAX_LIFETIME_IN_MILLIS));
-                if (maxLifetime != -1) {
-                    config.setMaxLifetime(maxLifetime);
-                }
-                long validationTimeout = sqlDatasourceParams.poolOptionsWrapper
-                        .getInt(Constants.Options.VALIDATION_TIMEOUT_IN_MILLIS);
-                if (validationTimeout != -1) {
-                    config.setValidationTimeout(validationTimeout);
-                }
-                boolean autoCommit = sqlDatasourceParams.poolOptionsWrapper.getBoolean(Constants.Options.AUTOCOMMIT);
-                config.setAutoCommit(autoCommit);
-            } else {
-                config.setJdbcUrl(sqlDatasourceParams.jdbcUrl);
             }
-            if (sqlDatasourceParams.dbOptionsMap != null) {
-                sqlDatasourceParams.dbOptionsMap.entrySet().forEach(entry -> {
+            if (sqlDatasourceParams.options != null) {
+                sqlDatasourceParams.options.entrySet().forEach(entry -> {
                     if (SQLDatasourceUtils.isSupportedDbOptionType(entry.getValue())) {
                         config.addDataSourceProperty(entry.getKey(), entry.getValue());
                     } else {
@@ -219,32 +258,6 @@ public class SQLDatasource {
                     }
                 });
             }
-            // Clarification on behavior with parameters.
-            // 1. Adding an invalid param in the JDBC URL. This will result in an error getting returned
-            //    eg: jdbc:Client testDB = new({
-            //        url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTOR_INIT;INVALID_PARAM=-1",
-            //        username: "SA",
-            //        password: ""
-            //    });
-            // 2. Providing an invalid param with dataSourceClassName provided. This will result in an error
-            // returned because when hikaricp tries to call setINVALID_PARAM method on the given datasource
-            // class name, it will fail since there is no such method
-            // eg: jdbc:Client testDB = new({
-            //        url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTOR_INIT",
-            //        username: "SA",
-            //        password: "",
-            //        poolOptions: { dataSourceClassName: "org.h2.jdbcx.JdbcDataSource" },
-            //        dbOptions: { "INVALID_PARAM": -1 }
-            //    });
-            // 3. Providing an invalid param WITHOUT dataSourceClassName provided. This may not return any error.
-            // Because this will result in the INVALID_PARAM being passed to Driver.Connect which may not recognize
-            // it as an invalid parameter.
-            // eg: jdbc:Client testDB = new({
-            //        url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTOR_INIT",
-            //        username: "SA",
-            //        password: "",
-            //        dbOptions: { "INVALID_PARAM": -1 }
-            //    });
             hikariDataSource = new HikariDataSource(config);
             Runtime.getRuntime().addShutdownHook(new Thread(this::closeConnectionPool));
         } catch (Throwable t) {
@@ -254,62 +267,6 @@ public class SQLDatasource {
             }
             throw ErrorGenerator.getSQLApplicationError(message);
         }
-    }
-
-    private String getXADatasourceClassName(String dbType, String url, String userName, String password)
-            throws ApplicationException, DatabaseException {
-        String xaDataSource = null;
-        switch (dbType) {
-            case Constants.DBTypes.MYSQL:
-                int driverMajorVersion;
-                try (Connection conn = DriverManager.getConnection(url, userName, password)) {
-                    driverMajorVersion = conn.getMetaData().getDriverMajorVersion();
-                    if (driverMajorVersion == 5) {
-                        xaDataSource = Constants.XADataSources.MYSQL_5_XA_DATASOURCE;
-                    } else if (driverMajorVersion > 5) {
-                        xaDataSource = Constants.XADataSources.MYSQL_6_XA_DATASOURCE;
-                    }
-                } catch (SQLException e) {
-                    throw new DatabaseException("error while obtaining the connection for "
-                            + Constants.CONNECTOR_NAME + ": ", e);
-                }
-                break;
-            case Constants.DBTypes.SQLSERVER:
-                xaDataSource = Constants.XADataSources.SQLSERVER_XA_DATASOURCE;
-                break;
-            case Constants.DBTypes.ORACLE:
-                xaDataSource = Constants.XADataSources.ORACLE_XA_DATASOURCE;
-                break;
-            case Constants.DBTypes.SYBASE:
-                xaDataSource = Constants.XADataSources.SYBASE_XA_DATASOURCE;
-                break;
-            case Constants.DBTypes.POSTGRESQL:
-                xaDataSource = Constants.XADataSources.POSTGRES_XA_DATASOURCE;
-                break;
-            case Constants.DBTypes.IBMDB2:
-                xaDataSource = Constants.XADataSources.IBMDB2_XA_DATASOURCE;
-                break;
-            case Constants.DBTypes.HSQLDB:
-            case Constants.DBTypes.HSQLDB_SERVER:
-            case Constants.DBTypes.HSQLDB_FILE:
-                xaDataSource = Constants.XADataSources.HSQLDB_XA_DATASOURCE;
-                break;
-            case Constants.DBTypes.H2:
-            case Constants.DBTypes.H2_SERVER:
-            case Constants.DBTypes.H2_FILE:
-            case Constants.DBTypes.H2_MEMORY:
-                xaDataSource = Constants.XADataSources.H2_XA_DATASOURCE;
-                break;
-            case Constants.DBTypes.DERBY_SERVER:
-                xaDataSource = Constants.XADataSources.DERBY_SERVER_XA_DATASOURCE;
-                break;
-            case Constants.DBTypes.DERBY_FILE:
-                xaDataSource = Constants.XADataSources.DERBY_FILE_XA_DATASOURCE;
-                break;
-            default:
-                throw new ApplicationException("unknown database type " + dbType + " used for xa connection");
-        }
-        return xaDataSource;
     }
 
     private boolean isXADataSource() throws DatabaseException {
@@ -324,80 +281,49 @@ public class SQLDatasource {
      * This class encapsulates the parameters required for the initialization of {@code SQLDatasource} class.
      */
     public static class SQLDatasourceParams {
-        private PoolOptionsWrapper poolOptionsWrapper;
+        private MapValue<String, Object> connectionPool;
         private String jdbcUrl;
-        private String dbType;
         private String username;
         private String password;
+        private String driver;
         private boolean isGlobalDatasource;
-        private MapValue<String, Object> dbOptionsMap;
+        private MapValue<String, Object> options;
 
-        private SQLDatasourceParams(SQLDatasourceParamsBuilder builder) {
-            this.poolOptionsWrapper = builder.poolOptions;
-            this.jdbcUrl = builder.jdbcUrl;
-            this.dbType = builder.dbType;
-            this.username = builder.username;
-            this.password = builder.password;
-            this.isGlobalDatasource = builder.isGlobalDatasource;
-            this.dbOptionsMap = builder.dbOptionsMap;
+        public SQLDatasourceParams() {
         }
 
-        public String getJdbcUrl() {
-            return jdbcUrl;
+        public SQLDatasourceParams setConnectionPool(MapValue<String, Object> connectionPool) {
+            this.connectionPool = connectionPool;
+            return this;
         }
 
-        public PoolOptionsWrapper getPoolOptionsWrapper() {
-            return poolOptionsWrapper;
-        }
-    }
-
-    /**
-     * Builder class for SQLDatasourceParams class.
-     */
-    public static class SQLDatasourceParamsBuilder {
-        private PoolOptionsWrapper poolOptions;
-        private String jdbcUrl;
-        private String dbType;
-        private String username;
-        private String password;
-        private boolean isGlobalDatasource;
-        private MapValue<String, Object> dbOptionsMap;
-
-        public SQLDatasourceParamsBuilder(String dbType) {
-            this.dbType = dbType;
-        }
-
-        public SQLDatasourceParams build() {
-            return new SQLDatasourceParams(this);
-        }
-
-        public SQLDatasourceParamsBuilder withJdbcUrl(String jdbcUrl) {
+        public SQLDatasourceParams setJdbcUrl(String jdbcUrl) {
             this.jdbcUrl = jdbcUrl;
             return this;
         }
 
-        public SQLDatasourceParamsBuilder withUsername(String username) {
+        public SQLDatasourceParams setUsername(String username) {
             this.username = username;
             return this;
         }
 
-        public SQLDatasourceParamsBuilder withPassword(String password) {
+        public SQLDatasourceParams setPassword(String password) {
             this.password = password;
             return this;
         }
 
-        public SQLDatasourceParamsBuilder withDbOptionsMap(MapValue<String, Object> dbOptionsMap) {
-            this.dbOptionsMap = dbOptionsMap;
+        public SQLDatasourceParams setGlobalDatasource(boolean globalDatasource) {
+            isGlobalDatasource = globalDatasource;
             return this;
         }
 
-        public SQLDatasourceParamsBuilder withPoolOptions(PoolOptionsWrapper options) {
-            this.poolOptions = options;
+        public SQLDatasourceParams setDriver(String driver) {
+            this.driver = driver;
             return this;
         }
 
-        public SQLDatasourceParamsBuilder withIsGlobalDatasource(boolean isGlobalDatasource) {
-            this.isGlobalDatasource = isGlobalDatasource;
+        public SQLDatasourceParams setOptions(MapValue<String, Object> options) {
+            this.options = options;
             return this;
         }
     }

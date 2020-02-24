@@ -128,6 +128,7 @@ public final class Constants {
         public static final String URL = "url";
         public static final String USER = "username";
         public static final String PASSWORD = "password";
+        public static final String DRIVER = "driver";
         public static final String CONNECTION_POOL_OPTIONS = "connPool";
         public static final String OPTIONS = "options";
     }
@@ -136,22 +137,9 @@ public final class Constants {
      * Constants for Endpoint Configs.
      */
     public static final class Options {
-        //String
-        public static final String URL = "url";
-        public static final String DATASOURCE_CLASSNAME = "dataSourceClassName";
-        public static final String CONNECTION_INIT_SQL = "connectionInitSql";
-
-        //Boolean
-        public static final String AUTOCOMMIT = "autoCommit";
-        public static final String IS_XA = "isXA";
-
-        //Int
-        public static final String MAXIMUM_POOL_SIZE = "maximumPoolSize";
-        public static final String CONNECTION_TIMEOUT_IN_MILLIS = "connectionTimeoutInMillis";
-        public static final String IDLE_TIMEOUT_IN_MILLIS = "idleTimeoutInMillis";
-        public static final String MINIMUM_IDLE = "minimumIdle";
-        public static final String MAX_LIFETIME_IN_MILLIS = "maxLifetimeInMillis";
-        public static final String VALIDATION_TIMEOUT_IN_MILLIS = "validationTimeoutInMillis";
+       public static final String MAX_OPEN_CONNECTIONS = "maxOpenConnections";
+       public static final String MAX_CONNECTION_LIFE_TIME_SECONDS = "maxConnectionLifeTimeSeconds";
+       public static final String MIN_IDLE_CONNECTIONS = "minIdleConnections";
     }
 
     /**

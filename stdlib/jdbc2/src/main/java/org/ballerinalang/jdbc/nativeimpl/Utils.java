@@ -16,11 +16,9 @@
  * under the License.
  */
 
-package org.ballerinalang.jdbc.nativeImpl;
+package org.ballerinalang.jdbc.nativeimpl;
 
 import org.ballerinalang.jdbc.Constants;
-import org.ballerinalang.jdbc.datasource.PoolKey;
-import org.ballerinalang.jdbc.datasource.PoolOptionsWrapper;
 import org.ballerinalang.jdbc.datasource.SQLDatasource;
 import org.ballerinalang.jdbc.datasource.SQLDatasourceUtils;
 import org.ballerinalang.jdbc.exceptions.ErrorGenerator;
@@ -31,10 +29,12 @@ import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.StreamValue;
 
-import java.util.Locale;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
+/**
+ * This class will include the native methods for the JDBC client.
+ */
 public class Utils {
 
     public static Object close(ObjectValue client) {
@@ -50,30 +50,27 @@ public class Utils {
 
     public static void createClient(ObjectValue client, MapValue<String, Object> clientConfig,
                                     MapValue<String, Object> globalPool) {
-        String url =  clientConfig.getStringValue(Constants.ClientConfiguration.URL);
+        String url = clientConfig.getStringValue(Constants.ClientConfiguration.URL);
         if (!isJdbcUrlValid(url)) {
             throw ErrorGenerator.getSQLApplicationError("invalid JDBC URL: " + url);
         }
-        String username =  clientConfig.getStringValue(Constants.ClientConfiguration.USER);
-        String password =  clientConfig.getStringValue(Constants.ClientConfiguration.PASSWORD);
-        MapValue<String, Object> options = (MapValue<String, Object>)  clientConfig
+        String username = clientConfig.getStringValue(Constants.ClientConfiguration.USER);
+        String password = clientConfig.getStringValue(Constants.ClientConfiguration.PASSWORD);
+        MapValue<String, Object> options = (MapValue<String, Object>) clientConfig
                 .getMapValue(Constants.ClientConfiguration.OPTIONS);
-        MapValue<String, Object> connectionPool = (MapValue<String, Object>)  clientConfig
+        MapValue<String, Object> connectionPool = (MapValue<String, Object>) clientConfig
                 .getMapValue(Constants.ClientConfiguration.CONNECTION_POOL_OPTIONS);
-        boolean userProvidedPoolOptionsNotPresent = connectionPool == null;
-        if (userProvidedPoolOptionsNotPresent) {
-            connectionPool =  globalPool;
+        String driver = clientConfig.getStringValue(Constants.ClientConfiguration.DRIVER);
+        boolean useGlobalPool = connectionPool == null;
+        if (useGlobalPool) {
+            connectionPool = globalPool;
         }
-        PoolOptionsWrapper poolOptionsWrapper = new PoolOptionsWrapper(connectionPool, new PoolKey(url, options));
-        String dbType = url.split(":")[1].toUpperCase(Locale.getDefault());
+        SQLDatasource.SQLDatasourceParams sqlDatasourceParams = new SQLDatasource.SQLDatasourceParams().
+                setJdbcUrl(url).setUsername(username).setPassword(password).
+                setGlobalDatasource(useGlobalPool).setOptions(options).
+                setConnectionPool(connectionPool).setDriver(driver);
 
-        SQLDatasource.SQLDatasourceParamsBuilder builder = new SQLDatasource.SQLDatasourceParamsBuilder(dbType);
-        SQLDatasource.SQLDatasourceParams sqlDatasourceParams = builder.withPoolOptions(poolOptionsWrapper)
-                .withJdbcUrl(url).withUsername(username).withPassword(password).withDbOptionsMap(options)
-                .withIsGlobalDatasource(userProvidedPoolOptionsNotPresent).build();
-
-        SQLDatasource sqlDatasource = sqlDatasourceParams.getPoolOptionsWrapper()
-                .retrieveDatasource(sqlDatasourceParams);
+        SQLDatasource sqlDatasource = SQLDatasource.retrieveDatasource(sqlDatasourceParams, connectionPool);
         client.addNativeData(Constants.JDBC_CLIENT, sqlDatasource);
         client.addNativeData(Constants.CONNECTOR_ID_KEY, UUID.randomUUID().toString());
     }
@@ -85,7 +82,7 @@ public class Utils {
 
     public static void initGlobalPoolContainer(ObjectValue globalPoolConfigContainer,
                                                MapValue<String, Object> poolConfig) {
-        SQLDatasourceUtils.addDatasourceContainer(poolConfig, new ConcurrentHashMap<>());
+        SQLDatasourceUtils.putDatasourceContainer(poolConfig, new ConcurrentHashMap<>());
     }
 
     public static StreamValue nativeQuery(ObjectValue client, String query,

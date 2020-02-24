@@ -37,6 +37,7 @@ import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.Base64;
 import java.util.Calendar;
+import java.util.Map;
 import java.util.StringJoiner;
 import java.util.TimeZone;
 import java.util.UUID;
@@ -56,8 +57,8 @@ public class SQLDatasourceUtils {
      *
      * @param data clob data
      * @return string value
-     * @throws  IOException error occurred while reading clob value
-     * @throws  SQLException error occurred while reading clob value
+     * @throws IOException  error occurred while reading clob value
+     * @throws SQLException error occurred while reading clob value
      */
     public static String getString(Clob data) throws IOException, SQLException {
         if (data == null) {
@@ -78,7 +79,7 @@ public class SQLDatasourceUtils {
      *
      * @param data blob data
      * @return string value
-     * @throws  SQLException error occurred while reading blob value
+     * @throws SQLException error occurred while reading blob value
      */
     public static String getString(Blob data) throws SQLException {
         // Directly allocating full length arrays for decode byte arrays since anyway we are building
@@ -172,14 +173,21 @@ public class SQLDatasourceUtils {
         return null;
     }
 
-    static ConcurrentHashMap<PoolKey, SQLDatasource> retrieveDatasourceContainer(
+    static Map<PoolKey, SQLDatasource> retrieveDatasourceContainer(
             MapValue<String, Object> poolOptions) {
         return (ConcurrentHashMap<PoolKey, SQLDatasource>) poolOptions.getNativeData(POOL_MAP_KEY);
     }
 
-    public static void addDatasourceContainer(MapValue<String, Object> poolOptions,
+    public static synchronized Map<PoolKey, SQLDatasource> putDatasourceContainer(
+            MapValue<String, Object> poolOptions,
             ConcurrentHashMap<PoolKey, SQLDatasource> datasourceMap) {
+        Map<PoolKey, SQLDatasource> existingDataSourceMap =
+                (Map<PoolKey, SQLDatasource>) poolOptions.getNativeData(POOL_MAP_KEY);
+        if (existingDataSourceMap != null) {
+            return existingDataSourceMap;
+        }
         poolOptions.addNativeData(POOL_MAP_KEY, datasourceMap);
+        return existingDataSourceMap;
     }
 
     static boolean isSupportedDbOptionType(Object value) {
@@ -200,22 +208,22 @@ public class SQLDatasourceUtils {
         }
         StringBuffer datetimeString = new StringBuffer(28);
         switch (type) {
-        case "date": //'-'? yyyy '-' mm '-' dd zzzzzz?
-            appendDate(datetimeString, calendar);
-            appendTimeZone(calendar, datetimeString);
-            break;
-        case "time": //hh ':' mm ':' ss ('.' s+)? (zzzzzz)?
-            appendTime(calendar, datetimeString);
-            appendTimeZone(calendar, datetimeString);
-            break;
-        case "datetime": //'-'? yyyy '-' mm '-' dd 'T' hh ':' mm ':' ss ('.' s+)? (zzzzzz)?
-            appendDate(datetimeString, calendar);
-            datetimeString.append("T");
-            appendTime(calendar, datetimeString);
-            appendTimeZone(calendar, datetimeString);
-            break;
-        default:
-            throw new AssertionError("invalid type " + type + " specified for datetime data");
+            case "date": //'-'? yyyy '-' mm '-' dd zzzzzz?
+                appendDate(datetimeString, calendar);
+                appendTimeZone(calendar, datetimeString);
+                break;
+            case "time": //hh ':' mm ':' ss ('.' s+)? (zzzzzz)?
+                appendTime(calendar, datetimeString);
+                appendTimeZone(calendar, datetimeString);
+                break;
+            case "datetime": //'-'? yyyy '-' mm '-' dd 'T' hh ':' mm ':' ss ('.' s+)? (zzzzzz)?
+                appendDate(datetimeString, calendar);
+                datetimeString.append("T");
+                appendTime(calendar, datetimeString);
+                appendTimeZone(calendar, datetimeString);
+                break;
+            default:
+                throw new AssertionError("invalid type " + type + " specified for datetime data");
         }
         return datetimeString.toString();
     }
