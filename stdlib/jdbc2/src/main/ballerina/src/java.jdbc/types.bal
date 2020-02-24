@@ -25,14 +25,14 @@ import ballerina/sql;
 # + driver - The name of the drirver or optionally pass the `Driver` record to specify the isXA configuraiton.
 # + options - A map of DB specific properties. These properties will have an effect only if the dataSourceClassName is
 #               provided in poolOptions
-# + connPool - Properties for the connection pool configuration. Refer `sql:ConnectionPoolOptions` for more details
+# + connPool - Properties for the connection pool configuration. Refer `sql:ConnectionPool` for more details
 type ClientConfiguration record {|
     string url;
     string? user;
     string? password;
     string|Driver? driver;
     map<anydata>? options;
-    sql:ConnectionPoolOptions? connPool;
+    sql:ConnectionPool? connPool;
 |};
 
 
@@ -47,21 +47,21 @@ public type Driver record {|
 
 // This is a container object that holds the global pool config and initializes the internal map of connection pools
 type GlobalConnectionPoolContainer object {
-    private sql:ConnectionPoolOptions connectionPoolOpt = {};
+    private sql:ConnectionPool connectionPoolOpt = {};
 
     function __init() {
         // poolConfig record is frozen so that it cannot be modified during runtime
-        sql:ConnectionPoolOptions frozenConfig = self.connectionPoolOpt.cloneReadOnly();
+        sql:ConnectionPool frozenConfig = self.connectionPoolOpt.cloneReadOnly();
         initGlobalPoolContainer(self, frozenConfig);
     }
 
-    function getGlobalConnectionPoolOptions() returns sql:ConnectionPoolOptions {
+    function getGlobalConnectionPool() returns sql:ConnectionPool {
         return self.connectionPoolOpt;
     }
 };
 
 function initGlobalPoolContainer(GlobalConnectionPoolContainer poolConfigContainer,
-                                 sql: ConnectionPoolOptions poolConfig) = @java:Method {
+                                 sql: ConnectionPool poolConfig) = @java:Method {
     class: "org.ballerinalang.jdbc.nativeImpl.Utils"
 } external;
 

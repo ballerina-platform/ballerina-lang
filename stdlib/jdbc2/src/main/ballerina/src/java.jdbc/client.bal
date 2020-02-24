@@ -26,7 +26,7 @@ public type Client client object {
     # Gets called when the JDBC client is instantiated.
     public function __init(public string url, public string? user = (), public string? password = (),
                            public string|Driver? driver = (),
-                           public map<anydata>? options = (), public sql:ConnectionPoolOptions? connPool = ()) {
+                           public map<anydata>? options = (), public sql:ConnectionPool? connPool = ()) {
       ClientConfiguration clientConf = {
         url: url,
         user: user,
@@ -35,7 +35,7 @@ public type Client client object {
         options:options,
         connPool: connPool
       };
-      createClient(self, clientConf, globalPoolConfigContainer.getGlobalConnectionPoolOptions());
+      createClient(self, clientConf, globalPoolConfigContainer.getGlobalConnectionPool());
     }
 
       # The call remote function implementation for SQL Client to invoke stored procedures/functions.
@@ -61,7 +61,7 @@ public type Client client object {
 
 
 function createClient(Client jdbcClient, ClientConfiguration clientConf,
-    sql:ConnectionPoolOptions globalConnPool) = @java:Method {
+    sql:ConnectionPool globalConnPool) = @java:Method {
     class: "org.ballerinalang.jdbc.nativeImpl.Utils"
 } external;
 

@@ -56,20 +56,20 @@ public class Utils {
         }
         String username =  clientConfig.getStringValue(Constants.ClientConfiguration.USER);
         String password =  clientConfig.getStringValue(Constants.ClientConfiguration.PASSWORD);
-        MapValue<String, Object> dbOptions = (MapValue<String, Object>)  clientConfig
+        MapValue<String, Object> options = (MapValue<String, Object>)  clientConfig
                 .getMapValue(Constants.ClientConfiguration.OPTIONS);
-        MapValue<String, Object> poolOptions = (MapValue<String, Object>)  clientConfig
+        MapValue<String, Object> connectionPool = (MapValue<String, Object>)  clientConfig
                 .getMapValue(Constants.ClientConfiguration.CONNECTION_POOL_OPTIONS);
-        boolean userProvidedPoolOptionsNotPresent = poolOptions == null;
+        boolean userProvidedPoolOptionsNotPresent = connectionPool == null;
         if (userProvidedPoolOptionsNotPresent) {
-            poolOptions =  globalPool;
+            connectionPool =  globalPool;
         }
-        PoolOptionsWrapper poolOptionsWrapper = new PoolOptionsWrapper(poolOptions, new PoolKey(url, dbOptions));
+        PoolOptionsWrapper poolOptionsWrapper = new PoolOptionsWrapper(connectionPool, new PoolKey(url, options));
         String dbType = url.split(":")[1].toUpperCase(Locale.getDefault());
 
         SQLDatasource.SQLDatasourceParamsBuilder builder = new SQLDatasource.SQLDatasourceParamsBuilder(dbType);
         SQLDatasource.SQLDatasourceParams sqlDatasourceParams = builder.withPoolOptions(poolOptionsWrapper)
-                .withJdbcUrl(url).withUsername(username).withPassword(password).withDbOptionsMap(dbOptions)
+                .withJdbcUrl(url).withUsername(username).withPassword(password).withDbOptionsMap(options)
                 .withIsGlobalDatasource(userProvidedPoolOptionsNotPresent).build();
 
         SQLDatasource sqlDatasource = sqlDatasourceParams.getPoolOptionsWrapper()
@@ -80,10 +80,7 @@ public class Utils {
 
     // Unable to perform a complete validation since URL differs based on the database.
     private static boolean isJdbcUrlValid(String jdbcUrl) {
-        boolean isJdbcUrlEmpty = jdbcUrl.isEmpty();
-        String[] splitComponents = jdbcUrl.split(":");
-        return !isJdbcUrlEmpty && splitComponents.length > 2 && "jdbc"
-                .equals(splitComponents[0].toLowerCase(Locale.getDefault()));
+        return !jdbcUrl.isEmpty() && jdbcUrl.trim().startsWith("jdbc:");
     }
 
     public static void initGlobalPoolContainer(ObjectValue globalPoolConfigContainer,
