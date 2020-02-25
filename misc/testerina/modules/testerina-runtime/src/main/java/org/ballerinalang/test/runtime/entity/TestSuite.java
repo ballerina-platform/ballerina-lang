@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.test.launcher.entity;
+package org.ballerinalang.test.runtime.entity;
 
 import java.util.ArrayList;
 import java.util.HashMap;

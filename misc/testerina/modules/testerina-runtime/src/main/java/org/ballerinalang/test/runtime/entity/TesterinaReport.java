@@ -16,9 +16,9 @@
  * under the License.
  */
 
-package org.ballerinalang.test.launcher.entity;
+package org.ballerinalang.test.runtime.entity;
 
-import org.ballerinalang.test.launcher.util.TesterinaUtils;
+import org.ballerinalang.test.runtime.util.TesterinaUtils;
 
 import java.io.PrintStream;
 import java.util.ArrayList;

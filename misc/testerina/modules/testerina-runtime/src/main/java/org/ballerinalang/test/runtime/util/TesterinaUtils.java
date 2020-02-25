@@ -15,10 +15,10 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.test.launcher.util;
+package org.ballerinalang.test.runtime.util;
 
-import org.ballerinalang.test.launcher.BTestRunner;
-import org.ballerinalang.test.launcher.entity.TestSuite;
+import org.ballerinalang.test.runtime.BTestRunner;
+import org.ballerinalang.test.runtime.entity.TestSuite;
 
 import java.io.File;
 import java.io.IOException;
@@ -29,8 +29,8 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 
-import static org.ballerinalang.test.launcher.util.TesterinaConstants.ANON_ORG;
-import static org.ballerinalang.test.launcher.util.TesterinaConstants.DOT;
+import static org.ballerinalang.test.runtime.util.TesterinaConstants.ANON_ORG;
+import static org.ballerinalang.test.runtime.util.TesterinaConstants.DOT;
 
 /**
  * Utility methods.

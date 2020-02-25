@@ -44,9 +44,9 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 
+import static org.ballerinalang.test.runtime.util.TesterinaConstants.TEST_RUNTIME_JAR_PREFIX;
 import static org.ballerinalang.tool.LauncherUtils.createLauncherException;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_COMPILED_JAR_EXT;
-import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.TEST_RUNTIME_JAR_PREFIX;
 
 /**
  * Task for executing tests.

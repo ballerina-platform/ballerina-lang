@@ -23,8 +23,8 @@ import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.FunctionNode;
 import org.ballerinalang.model.tree.PackageNode;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
-import org.ballerinalang.test.launcher.entity.Test;
-import org.ballerinalang.test.launcher.entity.TestSuite;
+import org.ballerinalang.test.runtime.entity.Test;
+import org.ballerinalang.test.runtime.entity.TestSuite;
 import org.ballerinalang.util.diagnostic.DiagnosticLog;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
@@ -62,7 +62,6 @@ public class TestAnnotationProcessor extends AbstractCompilerPlugin {
     private static final String MOCK_ANNOTATION_DELIMITER = "#";
 
     private TesterinaRegistry registry = TesterinaRegistry.getInstance();
-    private TestSuite suite;
     private boolean enabled = true;
     /**
      * this property is used as a work-around to initialize test suites only once for a package as Compiler
@@ -83,11 +82,11 @@ public class TestAnnotationProcessor extends AbstractCompilerPlugin {
         }
         BLangPackage parent = (BLangPackage) ((BLangFunction) functionNode).parent;
         String packageName = getPackageName(parent);
-        suite = registry.getTestSuites().get(packageName);
+        TestSuite suite = registry.getTestSuites().get(packageName);
         // Check if the registry contains a test suite for the package
         if (suite == null) {
             // Add a test suite to the registry if it does not contain one pertaining to the package name
-            this.suite = registry.getTestSuites().computeIfAbsent(packageName, func ->
+            suite = registry.getTestSuites().computeIfAbsent(packageName, func ->
                     new TestSuite(parent.packageID.name.value, packageName, parent.packageID.orgName.value,
                                   parent.packageID.version.value));
         }

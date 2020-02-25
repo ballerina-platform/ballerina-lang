@@ -15,13 +15,13 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.test.launcher;
+package org.ballerinalang.test.runtime;
 
 import com.google.gson.Gson;
 import org.ballerinalang.jvm.launch.LaunchUtils;
-import org.ballerinalang.test.launcher.entity.TestSuite;
-import org.ballerinalang.test.launcher.util.TesterinaConstants;
-import org.ballerinalang.test.launcher.util.TesterinaUtils;
+import org.ballerinalang.test.runtime.entity.TestSuite;
+import org.ballerinalang.test.runtime.util.TesterinaConstants;
+import org.ballerinalang.test.runtime.util.TesterinaUtils;
 
 import java.io.BufferedReader;
 import java.nio.charset.StandardCharsets;
@@ -33,7 +33,7 @@ import java.util.Arrays;
 /**
  * Main class to init the test suit.
  */
-public class Launch {
+public class Main {
 
     public static void main(String[] args) throws Exception {
         Path jsonCachePath = Paths.get(args[0], TesterinaConstants.TESTERINA_TEST_SUITE);

@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.ballerinalang.test.launcher;
+package org.ballerinalang.test.runtime;
 
 import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.scheduling.Strand;
@@ -40,13 +40,13 @@ import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.XMLValue;
-import org.ballerinalang.test.launcher.entity.Test;
-import org.ballerinalang.test.launcher.entity.TestSuite;
-import org.ballerinalang.test.launcher.entity.TesterinaFunction;
-import org.ballerinalang.test.launcher.entity.TesterinaReport;
-import org.ballerinalang.test.launcher.entity.TesterinaResult;
-import org.ballerinalang.test.launcher.util.TesterinaConstants;
-import org.ballerinalang.test.launcher.util.TesterinaUtils;
+import org.ballerinalang.test.runtime.entity.Test;
+import org.ballerinalang.test.runtime.entity.TestSuite;
+import org.ballerinalang.test.runtime.entity.TesterinaFunction;
+import org.ballerinalang.test.runtime.entity.TesterinaReport;
+import org.ballerinalang.test.runtime.entity.TesterinaResult;
+import org.ballerinalang.test.runtime.util.TesterinaConstants;
+import org.ballerinalang.test.runtime.util.TesterinaUtils;
 
 import java.io.PrintStream;
 import java.util.ArrayList;
@@ -270,6 +270,20 @@ public class BTestRunner {
         // Initialize the test suite.
         // This will init and start the test module.
         startSuite(suite, initScheduler, initClazz, testInitClazz, hasTestablePackage);
+        // Run Before suite functions
+        executeBeforeSuiteFunctions(suite, classLoader, scheduler, shouldSkip);
+        // Run Tests
+        executeTests(suite, packageName, classLoader, scheduler, shouldSkip);
+        // Run After suite functions
+        executeAfterSuiteFunctions(suite, classLoader, scheduler);
+        // Call module stop and test stop function
+        stopSuite(suite, scheduler, initClazz, testInitClazz, hasTestablePackage);
+        // print module test results
+        tReport.printTestSuiteSummary(packageName);
+    }
+
+    private void executeBeforeSuiteFunctions(TestSuite suite, ClassLoader classLoader, Scheduler scheduler,
+                                             AtomicBoolean shouldSkip) {
         suite.getBeforeSuiteFunctionNames().forEach(test -> {
             String errorMsg;
             try {
@@ -281,109 +295,141 @@ public class BTestRunner {
                 errStream.println(errorMsg);
             }
         });
+    }
+
+    private void executeTests(TestSuite suite, String packageName, ClassLoader classLoader, Scheduler scheduler,
+                              AtomicBoolean shouldSkip) {
         List<String> failedOrSkippedTests = new ArrayList<>();
         suite.getTests().forEach(test -> {
             AtomicBoolean shouldSkipTest = new AtomicBoolean(false);
-            if (!shouldSkip.get() && !shouldSkipTest.get()) {
-                // run the beforeEach tests
-                suite.getBeforeEachFunctionNames().forEach(beforeEachTest -> {
-                    String errorMsg;
-                    try {
-                        invokeTestFunction(suite, beforeEachTest, classLoader, scheduler);
-                    } catch (Throwable e) {
-                        shouldSkipTest.set(true);
-                        errorMsg = String.format("\t[fail] " + beforeEachTest +
-                                                         " [before each test function for the test %s] :\n\t    %s",
-                                                 test,
-                                                 formatErrorMessage(e));
-                        errStream.println(errorMsg);
-                    }
-                });
-            }
-            if (!shouldSkip.get() && !shouldSkipTest.get()) {
-                // run before tests
+            // run the before each tests
+            executeBeforeEachFunction(test, suite, classLoader, scheduler, shouldSkip, shouldSkipTest);
+            // run the before tests
+            executeBeforeFunction(test, suite, classLoader, scheduler, shouldSkip, shouldSkipTest);
+            // run the test
+            executeFunction(test, suite, packageName, classLoader, scheduler, shouldSkip, shouldSkipTest,
+                            failedOrSkippedTests);
+            // run the after tests
+            executeAfterFunction(test, suite, classLoader, scheduler);
+            // run the after each tests
+            executeAfterEachFunction(test, suite, classLoader, scheduler);
+        });
+    }
+
+    private void executeBeforeEachFunction(Test test, TestSuite suite, ClassLoader classLoader, Scheduler scheduler,
+                                           AtomicBoolean shouldSkip, AtomicBoolean shouldSkipTest) {
+        if (!shouldSkip.get() && !shouldSkipTest.get()) {
+            // run the beforeEach tests
+            suite.getBeforeEachFunctionNames().forEach(beforeEachTest -> {
                 String errorMsg;
                 try {
-                    if (test.getBeforeTestFunction() != null) {
-                        invokeTestFunction(suite, test.getBeforeTestFunction(), classLoader, scheduler);
-                    }
+                    invokeTestFunction(suite, beforeEachTest, classLoader, scheduler);
                 } catch (Throwable e) {
                     shouldSkipTest.set(true);
-                    errorMsg = String.format("\t[fail] " + test.getBeforeTestFunction() +
-                                                     " [before test function for the test %s] :\n\t    %s",
-                                             test, formatErrorMessage(e));
+                    errorMsg = String.format("\t[fail] " + beforeEachTest +
+                                                     " [before each test function for the test %s] :\n\t    %s",
+                                             test,
+                                             formatErrorMessage(e));
                     errStream.println(errorMsg);
                 }
-            }
-            // run the test
-            TesterinaResult functionResult;
-            try {
-                if (isTestDependsOnFailedFunctions(test.getDependsOnTestFunctions(), failedOrSkippedTests)) {
-                    shouldSkipTest.set(true);
-                }
+            });
+        }
+    }
 
-                // Check whether the this test depends on any failed or skipped functions
-                if (!shouldSkip.get() && !shouldSkipTest.get()) {
-                    Object valueSets = null;
-                    if (test.getDataProvider() != null) {
-                        valueSets = invokeTestFunction(suite, test.getDataProvider(), classLoader, scheduler);
-                    }
-                    if (valueSets == null) {
-                        invokeTestFunction(suite, test.getTestName(), classLoader, scheduler);
-                        // report the test result
-                        functionResult = new TesterinaResult(test.getTestName(), true, shouldSkip
-                                .get(), null);
-                        tReport.addFunctionResult(packageName, functionResult);
-                    } else {
-                        Class<?>[] argTypes = extractArgumentTypes(valueSets);
-                        List<Object[]> argList = extractArguments(valueSets);
-                        for (Object[] arg : argList) {
-                            invokeTestFunction(suite, test.getTestName(), classLoader, scheduler, argTypes, arg);
-                            TesterinaResult result = new TesterinaResult(test.getTestName(), true,
-                                                                         shouldSkip.get(), null);
-                            tReport.addFunctionResult(packageName, result);
-                        }
-                    }
-                } else {
-                    // If the test function is skipped lets add it to the failed test list
-                    failedOrSkippedTests.add(test.getTestName());
-                    // report the test result
-                    functionResult = new TesterinaResult(test.getTestName(), false, true, null);
-                    tReport.addFunctionResult(packageName, functionResult);
+    private void executeBeforeFunction(Test test, TestSuite suite, ClassLoader classLoader, Scheduler scheduler,
+                                       AtomicBoolean shouldSkip, AtomicBoolean shouldSkipTest)  {
+        if (!shouldSkip.get() && !shouldSkipTest.get()) {
+            // run before tests
+            String errorMsg;
+            try {
+                if (test.getBeforeTestFunction() != null) {
+                    invokeTestFunction(suite, test.getBeforeTestFunction(), classLoader, scheduler);
                 }
             } catch (Throwable e) {
+                shouldSkipTest.set(true);
+                errorMsg = String.format("\t[fail] " + test.getBeforeTestFunction() +
+                                                 " [before test function for the test %s] :\n\t    %s",
+                                         test, formatErrorMessage(e));
+                errStream.println(errorMsg);
+            }
+        }
+    }
+
+    private void executeFunction(Test test, TestSuite suite, String packageName, ClassLoader classLoader,
+                                 Scheduler scheduler, AtomicBoolean shouldSkip, AtomicBoolean shouldSkipTest,
+                                 List<String> failedOrSkippedTests) {
+        TesterinaResult functionResult;
+        try {
+            if (isTestDependsOnFailedFunctions(test.getDependsOnTestFunctions(), failedOrSkippedTests)) {
+                shouldSkipTest.set(true);
+            }
+
+            // Check whether the this test depends on any failed or skipped functions
+            if (!shouldSkip.get() && !shouldSkipTest.get()) {
+                Object valueSets = null;
+                if (test.getDataProvider() != null) {
+                    valueSets = invokeTestFunction(suite, test.getDataProvider(), classLoader, scheduler);
+                }
+                if (valueSets == null) {
+                    invokeTestFunction(suite, test.getTestName(), classLoader, scheduler);
+                    // report the test result
+                    functionResult = new TesterinaResult(test.getTestName(), true, shouldSkip
+                            .get(), null);
+                    tReport.addFunctionResult(packageName, functionResult);
+                } else {
+                    Class<?>[] argTypes = extractArgumentTypes(valueSets);
+                    List<Object[]> argList = extractArguments(valueSets);
+                    for (Object[] arg : argList) {
+                        invokeTestFunction(suite, test.getTestName(), classLoader, scheduler, argTypes, arg);
+                        TesterinaResult result = new TesterinaResult(test.getTestName(), true,
+                                                                     shouldSkip.get(), null);
+                        tReport.addFunctionResult(packageName, result);
+                    }
+                }
+            } else {
                 // If the test function is skipped lets add it to the failed test list
                 failedOrSkippedTests.add(test.getTestName());
                 // report the test result
-                functionResult = new TesterinaResult(test.getTestName(), false, shouldSkip.get(),
-                                                     formatErrorMessage(e));
+                functionResult = new TesterinaResult(test.getTestName(), false, true, null);
                 tReport.addFunctionResult(packageName, functionResult);
             }
-            // run the after tests
-            String error;
-            try {
-                if (test.getAfterTestFunction() != null) {
-                    invokeTestFunction(suite, test.getAfterTestFunction(), classLoader, scheduler);
-                }
-            } catch (Throwable e) {
-                error = String.format("\t[fail] " + test + " [after test function for the test %s] :\n\t    %s",
-                                      test, formatErrorMessage(e));
-                errStream.println(error);
+        } catch (Throwable e) {
+            // If the test function is skipped lets add it to the failed test list
+            failedOrSkippedTests.add(test.getTestName());
+            // report the test result
+            functionResult = new TesterinaResult(test.getTestName(), false, shouldSkip.get(),
+                                                 formatErrorMessage(e));
+            tReport.addFunctionResult(packageName, functionResult);
+        }
+    }
+
+    private void executeAfterFunction(Test test, TestSuite suite, ClassLoader classLoader, Scheduler scheduler)  {
+        try {
+            if (test.getAfterTestFunction() != null) {
+                invokeTestFunction(suite, test.getAfterTestFunction(), classLoader, scheduler);
             }
-            // run the afterEach tests
-            suite.getAfterEachFunctionNames().forEach(afterEachTest -> {
-                String errorMsg2;
-                try {
-                    invokeTestFunction(suite, afterEachTest, classLoader, scheduler);
-                } catch (Throwable e) {
-                    errorMsg2 = String.format("\t[fail] " + afterEachTest +
-                                                      " [after each test function for the test %s] :\n\t    %s",
-                                              test, formatErrorMessage(e));
-                    errStream.println(errorMsg2);
-                }
-            });
+        } catch (Throwable e) {
+            String error = String.format("\t[fail] " + test + " [after test function for the test %s] :\n\t    %s",
+                                  test, formatErrorMessage(e));
+            errStream.println(error);
+        }
+    }
+
+    private void executeAfterEachFunction(Test test, TestSuite suite, ClassLoader classLoader, Scheduler scheduler) {
+        suite.getAfterEachFunctionNames().forEach(afterEachTest -> {
+            String errorMsg2;
+            try {
+                invokeTestFunction(suite, afterEachTest, classLoader, scheduler);
+            } catch (Throwable e) {
+                errorMsg2 = String.format("\t[fail] " + afterEachTest +
+                                                  " [after each test function for the test %s] :\n\t    %s",
+                                          test, formatErrorMessage(e));
+                errStream.println(errorMsg2);
+            }
         });
-        // Run After suite functions
+    }
+
+    private void executeAfterSuiteFunctions(TestSuite suite, ClassLoader classLoader, Scheduler scheduler) {
         suite.getAfterSuiteFunctionNames().forEach(func -> {
             String errorMsg;
             try {
@@ -394,10 +440,6 @@ public class BTestRunner {
                 errStream.println(errorMsg);
             }
         });
-        // Call module stop and test stop function
-        stopSuite(suite, scheduler, initClazz, testInitClazz, hasTestablePackage);
-        // print module test results
-        tReport.printTestSuiteSummary(packageName);
     }
 
     private void startSuite(TestSuite suite, Scheduler initScheduler, Class<?> initClazz, Class<?> testInitClazz,
