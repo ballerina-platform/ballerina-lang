@@ -29,7 +29,6 @@ import org.wso2.ballerinalang.compiler.bir.codegen.interop.JType;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.JTypeTags;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRGlobalVariableDcl;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRPackage;
-import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRTypeDefinition;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRVariableDcl;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewXMLProcIns;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.UnaryOP;
@@ -164,7 +163,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.lookupTy
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTerminatorGen.TerminatorGenerator.toNameString;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen.duplicateServiceTypeWithAnnots;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen.getTypeDesc;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen.loadExternalOrLocalType;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen.loadExternalType;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen.loadType;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmValueGen.getTypeValueClassName;
@@ -1278,7 +1276,7 @@ public class JvmInstructionGen {
         }
 
         void generateObjectNewIns(NewInstance objectNewIns, int strandIndex) {
-            BIRTypeDefinition typeDef = lookupTypeDef(objectNewIns);
+            BType type = lookupTypeDef(objectNewIns);
             String className;
             if (objectNewIns.isExternalDef) {
                 className = getTypeValueClassName(objectNewIns.externalPackageId, objectNewIns.objectName);
@@ -1289,12 +1287,11 @@ public class JvmInstructionGen {
             this.mv.visitTypeInsn(NEW, className);
             this.mv.visitInsn(DUP);
 
-            BType type = typeDef.type;
             if (type instanceof BServiceType) {
                 // For services, create a new type for each new service value. TODO: do only for local vars
-                duplicateServiceTypeWithAnnots(this.mv, (BObjectType) type, typeDef, this.currentPackageName, strandIndex);
+                duplicateServiceTypeWithAnnots(this.mv, (BObjectType) type, this.currentPackageName, strandIndex);
             } else {
-                loadExternalOrLocalType(this.mv, typeDef);
+                loadType(mv, type);
             }
             this.mv.visitTypeInsn(CHECKCAST, OBJECT_TYPE);
             this.mv.visitMethodInsn(INVOKESPECIAL, className, "<init>", String.format("(L%s;)V", OBJECT_TYPE), false);
@@ -1579,7 +1576,7 @@ public class JvmInstructionGen {
                 long intValue = constVal instanceof Long ? (long) constVal : Long.parseLong((String) constVal);
                 this.mv.visitLdcInsn(intValue);
             } else if (bType.tag == TypeTags.BYTE) {
-                int byteValue = (int) (long) constVal;
+                int byteValue = ((Number) constVal).intValue();
                 this.mv.visitLdcInsn(byteValue);
             } else if (bType.tag == TypeTags.FLOAT) {
                 double doubleValue = constVal instanceof Double ? (double) constVal :
