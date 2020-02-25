@@ -153,33 +153,34 @@ type ErrorData record {
 
 type ER error<string, ErrorData>;
 
-function testIndirectErrorMatchPattern1() returns string {
-    ER err1 = error("Error Code", message = "Msg");
-    match err1 {
-                     ER (    message   =   m  ,    ...    var    rest  )     =>  {
-    return <string>m;
-             }
-    }
-    return "Default";
-}
+// TODO: Enable After fixing the error match pattern rest node not available issue.
+//function testIndirectErrorMatchPattern1() returns string {
+//    ER err1 = error("Error Code", message = "Msg");
+//    match err1 {
+//        ER (message = m, ...var rest) => {
+//            return <string>m;
+//        }
+//    }
+//    return "Default";
+//}
 
-function testIndirectErrorMatchPattern2() returns string {
-    ER err1 = error("Error Code", message = "Msg");
-    match err1 {
-                 ER
-   (
-               message
-     =
-               m
-   ,
-                 ...
-  var
-                  rest
-  )
-                  =>
-            {
-   return <string>m;
-            }
-    }
-    return "Default";
-}
+//function testIndirectErrorMatchPattern2() returns string {
+//    ER err1 = error("Error Code", message = "Msg");
+//    match err1 {
+//        ER
+//        (
+//            message
+//            =
+//            m
+//            ,
+//            ...
+//            var
+//            rest
+//        )
+//        =>
+//        {
+//            return <string>m;
+//        }
+//    }
+//    return "Default";
+//}
