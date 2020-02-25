@@ -199,5 +199,28 @@ public class SimpleQueryExpressionWithDefinedTypeTest {
         Assert.assertEquals(person.get("firstName").stringValue(), "Ranjan");
         Assert.assertEquals(((BInteger) person.get("age")).intValue(), 40);
     }
+
+    @Test(description = "Test let clause with a stream")
+    public void testSimpleSelectQueryWithLetClause() {
+        BValue[] returnValues = BRunUtil.invoke(result, "testSimpleSelectQueryWithLetClause");
+        Assert.assertNotNull(returnValues);
+        Assert.assertEquals(returnValues.length, 3, "Expected events are not received");
+
+        BMap<String, BValue> employee1 = (BMap<String, BValue>) returnValues[0];
+        BMap<String, BValue> employee2 = (BMap<String, BValue>) returnValues[1];
+        BMap<String, BValue> employee3 = (BMap<String, BValue>) returnValues[2];
+
+        Assert.assertEquals(employee1.get("firstName").stringValue(), "Alex");
+        Assert.assertEquals(employee1.get("department").stringValue(), "HR");
+        Assert.assertEquals(employee1.get("company").stringValue(), "WSO2");
+
+        Assert.assertEquals(employee2.get("firstName").stringValue(), "Ranjan");
+        Assert.assertEquals(employee2.get("department").stringValue(), "HR");
+        Assert.assertEquals(employee2.get("company").stringValue(), "WSO2");
+
+        Assert.assertEquals(employee3.get("firstName").stringValue(), "John");
+        Assert.assertEquals(employee3.get("department").stringValue(), "HR");
+        Assert.assertEquals(employee3.get("company").stringValue(), "WSO2");
+    }
 }
 

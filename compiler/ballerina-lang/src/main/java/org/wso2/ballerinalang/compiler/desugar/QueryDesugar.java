@@ -28,8 +28,10 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
+import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangDoClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangFromClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangLetClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWhereClause;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
@@ -98,6 +100,7 @@ public class QueryDesugar extends BLangNodeVisitor {
         BLangFromClause fromClause = fromClauseList.get(0);
         BLangSelectClause selectClause = queryExpr.selectClause;
         List<BLangWhereClause> whereClauseList = queryExpr.whereClauseList;
+        List<BLangLetClause> letClauseList = queryExpr.letClausesList;
         DiagnosticPos pos = fromClause.pos;
 
         // Create Foreach statement
@@ -139,10 +142,21 @@ public class QueryDesugar extends BLangNodeVisitor {
         BLangIndexBasedAccess indexAccessExpr = ASTBuilderUtil.createIndexAccessExpr(outputVarRef, lengthInvocation);
         indexAccessExpr.type = selectClause.expression.type;
 
+        // Create and add variable definitions for the let variable declarations to foreach body
+        for (BLangLetClause letClause : letClauseList) {
+            for (BLangVariable var : letClause.letVarDeclarations) {
+                BLangSimpleVariableDef varDef = ASTBuilderUtil.createVariableDef(pos);
+                varDef.var = (BLangSimpleVariable) var;
+                varDef.type = var.type;
+                foreachBody.addStatement(varDef);
+            }
+        }
+
+        // Set the indexed based access expression statement as foreach body
         BLangAssignment outputVarAssignment = ASTBuilderUtil.createAssignmentStmt(pos, indexAccessExpr,
                 selectClause.expression);
-        // Set the indexed based access expression statement as foreach body
         foreachBody.addStatement(outputVarAssignment);
+
         buildWhereClauseBlock(whereClauseList, leafForeach, foreachBody, selectClause.pos);
 
         // Create block statement with temp variable definition statement & foreach statement

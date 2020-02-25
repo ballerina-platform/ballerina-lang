@@ -54,6 +54,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangWorker;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangDoClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangFromClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangLetClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWhereClause;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAccessExpression;
@@ -1266,6 +1267,7 @@ class NodeCloner extends BLangNodeVisitor {
         BLangQueryExpr clone = new BLangQueryExpr();
         source.cloneRef = clone;
         clone.fromClauseList = cloneList(source.fromClauseList);
+        clone.letClausesList = cloneList(source.letClausesList);
         clone.selectClause = clone(source.selectClause);
         clone.whereClauseList = cloneList(source.whereClauseList);
     }
@@ -1281,6 +1283,13 @@ class NodeCloner extends BLangNodeVisitor {
         clone.varType = source.varType;
         clone.resultType = source.resultType;
         clone.nillableResultType = source.nillableResultType;
+    }
+
+    @Override
+    public void visit(BLangLetClause source) {
+        BLangLetClause clone = new BLangLetClause();
+        source.cloneRef = clone;
+        clone.letVarDeclarations = cloneList(source.letVarDeclarations);
     }
 
     @Override
