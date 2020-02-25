@@ -25,13 +25,11 @@ public type Client client object {
 
     # Gets called when the JDBC client is instantiated.
     public function __init(public string url, public string? user = (), public string? password = (),
-                           public string? driver = (),
-                           public map<anydata>? options = (), public sql:ConnectionPool? connPool = ()) returns sql:Error?{
+                           public Options? options = (), public sql:ConnectionPool? connPool = ()) returns sql:Error?{
       ClientConfiguration clientConf = {
         url: url,
         user: user,
         password: password,
-        driver: driver,
         options:options,
         connPool: connPool
       };
@@ -58,21 +56,27 @@ public type Client client object {
     }
 };
 
+
+# Provides a set of configuration related to database.
+# + driver - The driver class name to be used to get the connection
+# + properties - the properties of the database which should be applied when getting the connection
+public type Options record {|
+    string? driver = ();
+    map<anydata>? properties = ();
+|};
+
 # Provides a set of configurations for the JDBC Client to be passed internally within the module.
 #
 # + url - URL of the database to connect
 # + user - Username for the database connection
 # + password - Password for the database connection
-# + driver - The name of the drirver or optionally pass the `Driver` record to specify the isXA configuraiton.
-# + options - A map of DB specific properties. These properties will have an effect only if the dataSourceClassName is
-#               provided in poolOptions
+# + options - A map of DB specific `Options`.
 # + connPool - Properties for the connection pool configuration. Refer `sql:ConnectionPool` for more details
 type ClientConfiguration record {|
     string url;
     string? user;
     string? password;
-    string? driver;
-    map<anydata>? options;
+    Options? options;
     sql:ConnectionPool? connPool;
 |};
 

@@ -36,7 +36,7 @@ public class NativeImpl {
     }
 
     public static Object createClient(ObjectValue client, MapValue<String, Object> clientConfig,
-                                    MapValue<String, Object> globalPool) {
+                                      MapValue<String, Object> globalPool) {
         String url = clientConfig.getStringValue(Constants.ClientConfiguration.URL);
         if (!isJdbcUrlValid(url)) {
             return ErrorGenerator.getSQLApplicationError("invalid JDBC URL: " + url);
@@ -45,15 +45,21 @@ public class NativeImpl {
         String password = clientConfig.getStringValue(Constants.ClientConfiguration.PASSWORD);
         MapValue<String, Object> options = (MapValue<String, Object>) clientConfig
                 .getMapValue(Constants.ClientConfiguration.OPTIONS);
+        MapValue<String, Object> properties = null;
+        String driver = null;
+        if (options != null) {
+            properties = (MapValue<String, Object>) options.
+                    getMapValue(Constants.ClientConfiguration.PROPERTIES);
+            driver = options.getStringValue(Constants.ClientConfiguration.DRIVER);
+        }
         MapValue<String, Object> connectionPool = (MapValue<String, Object>) clientConfig
                 .getMapValue(Constants.ClientConfiguration.CONNECTION_POOL_OPTIONS);
-        String driver = clientConfig.getStringValue(Constants.ClientConfiguration.DRIVER);
         if (connectionPool == null) {
             connectionPool = globalPool;
         }
         SQLDatasource.SQLDatasourceParams sqlDatasourceParams = new SQLDatasource.SQLDatasourceParams().
                 setUrl(url).setUser(user).setPassword(password).setDriver(driver).
-                setOptions(options).setConnectionPool(connectionPool);
+                setOptions(properties).setConnectionPool(connectionPool);
         return ClientUtils.createClient(client, sqlDatasourceParams);
     }
 

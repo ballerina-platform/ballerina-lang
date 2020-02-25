@@ -33,5 +33,6 @@ public final class Constants {
         public static final String DRIVER = "driver";
         public static final String CONNECTION_POOL_OPTIONS = "connPool";
         public static final String OPTIONS = "options";
+        public static final String PROPERTIES = "properties";
     }
 }
