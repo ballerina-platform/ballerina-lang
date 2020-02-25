@@ -26,7 +26,6 @@ import org.ballerinalang.stdlib.utils.HTTPTestRequest;
 import org.ballerinalang.stdlib.utils.MessageUtils;
 import org.ballerinalang.stdlib.utils.Services;
 import org.ballerinalang.test.util.BCompileUtil;
-import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
@@ -44,7 +43,7 @@ public class UriTemplateDispatcherTest {
 
     @BeforeClass()
     public void setup() {
-        CompileResult compileResult = BCompileUtil.compile("test-src/services/dispatching/uri-template.bal");
+        BCompileUtil.compile("test-src/services/dispatching/uri-template.bal");
     }
 
     @Test(description = "Test accessing the variables parsed with URL. /products/{productId}/{regId}",
@@ -395,5 +394,24 @@ public class UriTemplateDispatcherTest {
         BValue bJson = JsonParser.parse(new HttpMessageDataStreamer(response).getInputStream());
         Assert.assertEquals(((BMap<String, BValue>) bJson).get("echo114").stringValue(), "b[ar14"
                 , "Resource dispatched to wrong template");
+    }
+
+    @Test(description = "Test a listener with no service registered", dataProvider = "SomeUrlsWithCorrectHost")
+    public void testListenerWithNoServiceRegistered(String path) {
+        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "GET", 9095);
+        HttpCarbonMessage response = Services.invoke(9095, cMsg);
+
+        Assert.assertEquals((int) response.getHttpStatusCode(), 404, "Response code mismatch");
+        String errorMessage = StringUtils
+                .getStringFromInputStream(new HttpMessageDataStreamer(response).getInputStream());
+        Assert.assertNotNull(errorMessage, "Message body null");
+        Assert.assertEquals(errorMessage, "no service has registered for listener : /0.0.0.0:9095");
+    }
+
+    @DataProvider(name = "SomeUrlsWithCorrectHost")
+    public static Object[][] someUrls() {
+        return new Object[][]{
+                {""}, {"/"}, {"/products"}
+        };
     }
 }
