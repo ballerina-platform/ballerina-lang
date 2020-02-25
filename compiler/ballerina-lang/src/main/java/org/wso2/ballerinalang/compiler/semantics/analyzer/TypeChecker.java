@@ -129,6 +129,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQuotedString;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLTextLiteral;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangUnionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
 import org.wso2.ballerinalang.compiler.util.BArrayState;
 import org.wso2.ballerinalang.compiler.util.ClosureVarSymbol;
@@ -2796,8 +2797,17 @@ public class TypeChecker extends BLangNodeVisitor {
     @Override
     public void visit(BLangStreamConstructorExpr streamConstructorExpr) {
         // Create `record {| T value; |}`, and use that as the lambda return type.
-        BRecordType returnType = createStreamReturnRecordType(streamConstructorExpr.pos, (BStreamType) expType);
-        BLangRecordTypeNode returnTypeNode = createRecordTypeNode(streamConstructorExpr.pos, returnType);
+        BRecordType recordType = createStreamReturnRecordType(streamConstructorExpr.pos, (BStreamType) expType);
+        BUnionType returnType = BUnionType.create(null, recordType, symTable.nilType);
+
+        BLangRecordTypeNode recordTypeNode = createRecordTypeNode(streamConstructorExpr.pos, recordType);
+        BLangValueType nilTypeNode = (BLangValueType) TreeBuilder.createValueTypeNode();
+        nilTypeNode.pos = streamConstructorExpr.pos;
+        nilTypeNode.typeKind = TypeKind.NIL;
+        BLangUnionTypeNode returnTypeNode = (BLangUnionTypeNode) TreeBuilder.createUnionTypeNode();
+        returnTypeNode.memberTypeNodes.add(recordTypeNode);
+        returnTypeNode.memberTypeNodes.add(nilTypeNode);
+        returnTypeNode.type = returnType;
         BLangLambdaFunction lambdaFunction = streamConstructorExpr.lambdaFunction;
 
         lambdaFunction.function.symbol.retType = returnType;

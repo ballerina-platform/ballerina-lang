@@ -584,6 +584,12 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             // If the variable is parameter then the variable symbol is already defined
             if (varNode.symbol == null) {
                 symbolEnter.defineNode(varNode, env);
+
+                // When 'var' is used, the typeNode is null
+                if (varNode.typeNode != null && varNode.typeNode.getKind() == NodeKind.RECORD_TYPE) {
+                    analyzeDef(varNode.typeNode, env);
+                }
+
                 varNode.annAttachments.forEach(annotationAttachment -> {
                     annotationAttachment.attachPoints.add(AttachPoint.Point.VAR);
                     annotationAttachment.accept(this);
