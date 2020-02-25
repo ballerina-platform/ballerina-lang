@@ -30,12 +30,12 @@ import java.util.UUID;
 public final class Constants {
 
     /**
-     * Constants for Endpoint Configs.
+     * Constants related connection pool.
      */
-    public static final class Options {
-       public static final String MAX_OPEN_CONNECTIONS = "maxOpenConnections";
-       public static final String MAX_CONNECTION_LIFE_TIME_SECONDS = "maxConnectionLifeTimeSeconds";
-       public static final String MIN_IDLE_CONNECTIONS = "minIdleConnections";
+    public static final class ConnectionPool {
+        public static final String MAX_OPEN_CONNECTIONS = "maxOpenConnections";
+        public static final String MAX_CONNECTION_LIFE_TIME_SECONDS = "maxConnectionLifeTimeSeconds";
+        public static final String MIN_IDLE_CONNECTIONS = "minIdleConnections";
     }
 
 
@@ -53,4 +53,12 @@ public final class Constants {
 
     public static final String APPLICATION_ERROR_MESSAGE = "Application Error Occurred";
     public static final String DATABASE_ERROR_MESSAGE = "Database Error Occurred";
+
+    /**
+     * Constants related to database options.
+     */
+    public static final class Options {
+        public static final String URL = "url";
+    }
+
 }

@@ -42,12 +42,13 @@ dependencies {
 
     testCompile project(path: ':ballerina-test-common', configuration: 'tests')
     testCompile project(':ballerina-io')
+    testCompile project(':ballerina-sql')
     testCompile project(':ballerina-log-api')
     testCompile project(':ballerina-runtime-api')
     testCompile project(':ballerina-core')
     testCompile project(':ballerina-java')
     testCompile project(':ballerina-transactions')
-
+    
     testCompile 'org.testng:testng'
     testCompile 'org.slf4j:slf4j-jdk14'
     testCompile 'com.h2database:h2'

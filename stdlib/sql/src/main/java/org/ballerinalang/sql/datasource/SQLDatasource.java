@@ -37,7 +37,7 @@ import java.util.concurrent.locks.ReentrantLock;
 import javax.sql.XADataSource;
 
 /**
- * Native SQL Connector.
+ * SQL datasource representation.
  *
  * @since 1.2.0
  */
@@ -217,16 +217,25 @@ public class SQLDatasource {
             config.setJdbcUrl(sqlDatasourceParams.url);
             config.setUsername(sqlDatasourceParams.user);
             config.setPassword(sqlDatasourceParams.password);
-            config.setDataSourceClassName(sqlDatasourceParams.driver);
+            if (sqlDatasourceParams.datasourceName != null && !sqlDatasourceParams.datasourceName.isEmpty()) {
+                if (sqlDatasourceParams.options == null || !sqlDatasourceParams.options
+                        .containsKey(Constants.Options.URL)) {
+                    //It is required to set the url to the datasource property when the
+                    //datasource class name is provided. Because according to hikari
+                    //either jdbcUrl or datasourceClassName will be honoured.
+                    config.addDataSourceProperty(Constants.Options.URL, sqlDatasourceParams.url);
+                }
+            }
+            config.setDataSourceClassName(sqlDatasourceParams.datasourceName);
             if (sqlDatasourceParams.connectionPool != null) {
                 int maxOpenConn = sqlDatasourceParams.connectionPool.
-                        getIntValue(Constants.Options.MAX_OPEN_CONNECTIONS).intValue();
+                        getIntValue(Constants.ConnectionPool.MAX_OPEN_CONNECTIONS).intValue();
                 if (maxOpenConn < 0) {
                     config.setMaximumPoolSize(maxOpenConn);
                 }
 
                 Object connLifeTimeSec = sqlDatasourceParams.connectionPool
-                        .get(Constants.Options.MAX_CONNECTION_LIFE_TIME_SECONDS);
+                        .get(Constants.ConnectionPool.MAX_CONNECTION_LIFE_TIME_SECONDS);
                 if (connLifeTimeSec instanceof DecimalValue) {
                     DecimalValue connLifeTime = (DecimalValue) connLifeTimeSec;
                     if (connLifeTime.floatValue() > 0) {
@@ -234,9 +243,8 @@ public class SQLDatasource {
                         config.setMaxLifetime(connLifeTimeMS);
                     }
                 }
-
                 int minIdleConnections = sqlDatasourceParams.connectionPool
-                        .getIntValue(Constants.Options.MIN_IDLE_CONNECTIONS).intValue();
+                        .getIntValue(Constants.ConnectionPool.MIN_IDLE_CONNECTIONS).intValue();
                 if (minIdleConnections < 0) {
                     config.setMinimumIdle(minIdleConnections);
                 }
@@ -277,7 +285,7 @@ public class SQLDatasource {
         private String url;
         private String user;
         private String password;
-        private String driver;
+        private String datasourceName;
         private MapValue<String, Object> connectionPool;
         private MapValue<String, Object> options;
 
@@ -304,8 +312,8 @@ public class SQLDatasource {
             return this;
         }
 
-        public SQLDatasourceParams setDriver(String driver) {
-            this.driver = driver;
+        public SQLDatasourceParams setDatasourceName(String datasourceName) {
+            this.datasourceName = datasourceName;
             return this;
         }
 

@@ -67,6 +67,19 @@ public class ConnectorInitTest {
         Assert.assertTrue(returnVal[0] instanceof BError);
     }
 
+    @Test
+    public void testConnectionWithValidDriver() {
+        BValue[] returnVal = BRunUtil.invokeFunction(result, "testConnectionWithValidDriver", args);
+        Assert.assertNull(returnVal[0]);
+    }
+
+    @Test
+    public void testConnectionWithInvalidDriver() {
+        BValue[] returnVal = BRunUtil.invokeFunction(result, "testConnectionWithInvalidDriver", args);
+        Assert.assertTrue(returnVal[0] instanceof BError);
+    }
+
+
     @AfterSuite
     public void cleanup() {
         SQLDBUtils.deleteDirectory(new File(SQLDBUtils.DB_DIR));

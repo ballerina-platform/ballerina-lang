@@ -30,7 +30,7 @@ public final class Constants {
         public static final String URL = "url";
         public static final String USER = "user";
         public static final String PASSWORD = "password";
-        public static final String DRIVER = "driver";
+        public static final String DATASOURCE_NAME = "datasourceName";
         public static final String CONNECTION_POOL_OPTIONS = "connPool";
         public static final String OPTIONS = "options";
         public static final String PROPERTIES = "properties";

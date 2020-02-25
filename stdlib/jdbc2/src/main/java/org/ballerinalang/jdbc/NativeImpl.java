@@ -46,11 +46,11 @@ public class NativeImpl {
         MapValue<String, Object> options = (MapValue<String, Object>) clientConfig
                 .getMapValue(Constants.ClientConfiguration.OPTIONS);
         MapValue<String, Object> properties = null;
-        String driver = null;
+        String datasourceName = null;
         if (options != null) {
             properties = (MapValue<String, Object>) options.
                     getMapValue(Constants.ClientConfiguration.PROPERTIES);
-            driver = options.getStringValue(Constants.ClientConfiguration.DRIVER);
+            datasourceName = options.getStringValue(Constants.ClientConfiguration.DATASOURCE_NAME);
         }
         MapValue<String, Object> connectionPool = (MapValue<String, Object>) clientConfig
                 .getMapValue(Constants.ClientConfiguration.CONNECTION_POOL_OPTIONS);
@@ -58,7 +58,7 @@ public class NativeImpl {
             connectionPool = globalPool;
         }
         SQLDatasource.SQLDatasourceParams sqlDatasourceParams = new SQLDatasource.SQLDatasourceParams().
-                setUrl(url).setUser(user).setPassword(password).setDriver(driver).
+                setUrl(url).setUser(user).setPassword(password).setDatasourceName(datasourceName).
                 setOptions(properties).setConnectionPool(connectionPool);
         return ClientUtils.createClient(client, sqlDatasourceParams);
     }

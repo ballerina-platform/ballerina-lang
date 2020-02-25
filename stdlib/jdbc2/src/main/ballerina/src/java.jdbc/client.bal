@@ -58,10 +58,10 @@ public type Client client object {
 
 
 # Provides a set of configuration related to database.
-# + driver - The driver class name to be used to get the connection
+# + datasourceName - The driver class name to be used to get the connection
 # + properties - the properties of the database which should be applied when getting the connection
 public type Options record {|
-    string? driver = ();
+    string? datasourceName = ();
     map<anydata>? properties = ();
 |};
 
@@ -73,7 +73,7 @@ public type Options record {|
 # + options - A map of DB specific `Options`.
 # + connPool - Properties for the connection pool configuration. Refer `sql:ConnectionPool` for more details
 type ClientConfiguration record {|
-    string url;
+    string? url;
     string? user;
     string? password;
     Options? options;

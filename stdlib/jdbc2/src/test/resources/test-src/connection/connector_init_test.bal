@@ -49,6 +49,25 @@ function testConnectionNoUserPassword(string jdbcURL) returns error?{
     }
 }
 
+function testConnectionWithValidDriver(string jdbcURL, string user, string password) returns error?{
+    jdbc:Client|sql:Error dbClient = new (jdbcURL, user, password, {datasourceName: "org.h2.jdbcx.JdbcDataSource"});
+    if(dbClient is sql:Error){
+        return dbClient;
+    } else {
+        return dbClient.close();
+    }
+}
+
+function testConnectionWithInvalidDriver(string jdbcURL, string user, string password) returns error?{
+    jdbc:Client|sql:Error dbClient = new (jdbcURL, user, password,
+                                        {datasourceName: "org.h2.jdbcx.JdbcDataSourceInvalid"});
+    if(dbClient is sql:Error){
+        return dbClient;
+    } else {
+        return dbClient.close();
+    }
+}
+
 //function testConnectionPoolProperties1(string jdbcURL) returns @tainted json {
 //    jdbc:Client testDB = new ({
 //        url: jdbcURL,
