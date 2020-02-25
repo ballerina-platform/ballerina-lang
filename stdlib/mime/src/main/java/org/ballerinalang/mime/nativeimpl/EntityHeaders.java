@@ -34,7 +34,9 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import static org.ballerinalang.mime.util.MimeConstants.ENTITY_HEADERS;
+import static org.ballerinalang.mime.util.MimeConstants.ENTITY_TRAILER_HEADERS;
 import static org.ballerinalang.mime.util.MimeConstants.HEADER_NOT_FOUND;
+import static org.ballerinalang.mime.util.MimeConstants.LEADING_HEADER;
 
 /**
  * Utilities related to entity headers.
@@ -42,49 +44,47 @@ import static org.ballerinalang.mime.util.MimeConstants.HEADER_NOT_FOUND;
  * @since 1.1.0
  */
 public class EntityHeaders {
-    public static void addHeader(ObjectValue entityObj, String headerName, String headerValue) {
+    public static void addHeader(ObjectValue entityObj, String headerName, String headerValue, Object position) {
         if (headerName == null || headerValue == null) {
             return;
         }
-        getHeaders(entityObj).add(headerName, headerValue);
+        getOrCreateHeadersBasedOnPosition(entityObj, position).add(headerName, headerValue);
     }
 
-    public static String getHeader(ObjectValue entityObj, String headerName) {
-        if (entityObj.getNativeData(ENTITY_HEADERS) == null) {
+    public static String getHeader(ObjectValue entityObj, String headerName, Object position) {
+        HttpHeaders httpHeaders = getHeadersBasedOnPosition(entityObj, position);
+        if (httpHeaders == null) {
             throw BallerinaErrors.createError(HEADER_NOT_FOUND, "Http header does not exist");
         }
-        HttpHeaders httpHeaders = (HttpHeaders) entityObj.getNativeData(ENTITY_HEADERS);
-        if (httpHeaders != null && httpHeaders.get(headerName) != null && !httpHeaders.get(headerName).isEmpty()) {
+        if (httpHeaders.get(headerName) != null && !httpHeaders.get(headerName).isEmpty()) {
             return httpHeaders.get(headerName);
         } else {
             throw BallerinaErrors.createError(HEADER_NOT_FOUND, "Http header does not exist");
         }
     }
 
-    public static ArrayValue getHeaderNames(ObjectValue entityObj) {
+    public static ArrayValue getHeaderNames(ObjectValue entityObj, Object position) {
+        HttpHeaders httpHeaders = getHeadersBasedOnPosition(entityObj, position);
         HandleValue[] handleValues = new HandleValue[0];
-        if (entityObj.getNativeData(ENTITY_HEADERS) == null) {
+        if (httpHeaders == null || httpHeaders.isEmpty()) {
             return (ArrayValue) BValueCreator.createArrayValue(handleValues, new BArrayType(BTypes.typeHandle));
         }
-        HttpHeaders httpHeaders = (HttpHeaders) entityObj.getNativeData(ENTITY_HEADERS);
-        if (httpHeaders != null && !httpHeaders.isEmpty()) {
-            int i = 0;
-            Set<String> distinctNames = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
-            distinctNames.addAll(httpHeaders.names());
-            handleValues = new HandleValue[distinctNames.size()];
-            for (String headerName : distinctNames) {
-                handleValues[i] = new HandleValue(headerName);
-                i++;
-            }
+        int i = 0;
+        Set<String> distinctNames = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
+        distinctNames.addAll(httpHeaders.names());
+        handleValues = new HandleValue[distinctNames.size()];
+        for (String headerName : distinctNames) {
+            handleValues[i] = new HandleValue(headerName);
+            i++;
         }
         return (ArrayValue) BValueCreator.createArrayValue(handleValues, new BArrayType(BTypes.typeHandle));
     }
 
-    public static ArrayValue getHeaders(ObjectValue entityObj, String headerName) {
-        if (entityObj.getNativeData(ENTITY_HEADERS) == null) {
+    public static ArrayValue getHeaders(ObjectValue entityObj, String headerName, Object position) {
+        HttpHeaders httpHeaders = getHeadersBasedOnPosition(entityObj, position);
+        if (httpHeaders == null) {
             throw MimeUtil.createError(HEADER_NOT_FOUND, "Http header does not exist");
         }
-        HttpHeaders httpHeaders = (HttpHeaders) entityObj.getNativeData(ENTITY_HEADERS);
         List<String> headerValueList = httpHeaders.getAll(headerName);
         if (headerValueList == null) {
             throw MimeUtil.createError(HEADER_NOT_FOUND, "Http header does not exist");
@@ -98,38 +98,44 @@ public class EntityHeaders {
         return (ArrayValue) BValueCreator.createArrayValue(handleValues, new BArrayType(BTypes.typeHandle));
     }
 
-    public static boolean hasHeader(ObjectValue entityObj, String headerName) {
-        if (entityObj.getNativeData(ENTITY_HEADERS) == null) {
+    public static boolean hasHeader(ObjectValue entityObj, String headerName, Object position) {
+        HttpHeaders httpHeaders = getHeadersBasedOnPosition(entityObj, position);
+        if (httpHeaders == null) {
             return false;
         }
-        HttpHeaders httpHeaders = (HttpHeaders) entityObj.getNativeData(ENTITY_HEADERS);
         List<String> headerValueList = httpHeaders.getAll(headerName);
-        if (headerValueList == null || headerValueList.isEmpty()) {
-            return false;
-        }
-        return true;
+        return headerValueList != null && !headerValueList.isEmpty();
     }
 
-    public static void removeAllHeaders(ObjectValue entityObj) {
-        if (entityObj.getNativeData(ENTITY_HEADERS) != null) {
-            HttpHeaders httpHeaders = (HttpHeaders) entityObj.getNativeData(ENTITY_HEADERS);
+    public static void removeAllHeaders(ObjectValue entityObj, Object position) {
+        HttpHeaders httpHeaders = getHeadersBasedOnPosition(entityObj, position);
+        if (httpHeaders != null) {
             httpHeaders.clear();
         }
     }
 
-    public static void removeHeader(ObjectValue entityObj, String headerName) {
-        if (entityObj.getNativeData(ENTITY_HEADERS) != null) {
-            HttpHeaders httpHeaders = (HttpHeaders) entityObj.getNativeData(ENTITY_HEADERS);
+    public static void removeHeader(ObjectValue entityObj, String headerName, Object position) {
+        HttpHeaders httpHeaders = getHeadersBasedOnPosition(entityObj, position);
+        if (httpHeaders != null) {
             httpHeaders.remove(headerName);
         }
     }
 
-    public static void setHeader(ObjectValue entityObj, String headerName, String headerValue) {
+    public static void setHeader(ObjectValue entityObj, String headerName, String headerValue, Object position) {
         if (headerName == null || headerValue == null) {
             return;
         }
-        HttpHeaders httpHeaders = getHeaders(entityObj);
-        httpHeaders.set(headerName, headerValue);
+        getOrCreateHeadersBasedOnPosition(entityObj, position).set(headerName, headerValue);
+    }
+
+    private static HttpHeaders getHeadersBasedOnPosition(ObjectValue entityObj, Object position) {
+        return position.equals(LEADING_HEADER) ? (HttpHeaders) entityObj.getNativeData(
+                ENTITY_HEADERS) : (HttpHeaders) entityObj.getNativeData(ENTITY_TRAILER_HEADERS);
+    }
+
+    private static HttpHeaders getOrCreateHeadersBasedOnPosition(ObjectValue entityObj, Object position) {
+        return position.equals(LEADING_HEADER) ? getHeaders(entityObj) : getTrailerHeaders(
+                entityObj);
     }
 
     private static HttpHeaders getHeaders(ObjectValue entityObj) {
@@ -137,14 +143,20 @@ public class EntityHeaders {
         if (entityObj.getNativeData(ENTITY_HEADERS) != null) {
             httpHeaders = (HttpHeaders) entityObj.getNativeData(ENTITY_HEADERS);
         } else {
-            httpHeaders = setEntityHeaders(entityObj);
+            httpHeaders = new DefaultHttpHeaders();
+            entityObj.addNativeData(ENTITY_HEADERS, httpHeaders);
         }
         return httpHeaders;
     }
 
-    private static HttpHeaders setEntityHeaders(ObjectValue entityObj) {
-        HttpHeaders httpHeaders = new DefaultHttpHeaders();
-        entityObj.addNativeData(ENTITY_HEADERS, httpHeaders);
-        return httpHeaders;
+    private static HttpHeaders getTrailerHeaders(ObjectValue entityObj) {
+        HttpHeaders httpTrailerHeaders;
+        if (entityObj.getNativeData(ENTITY_TRAILER_HEADERS) != null) {
+            httpTrailerHeaders = (HttpHeaders) entityObj.getNativeData(ENTITY_TRAILER_HEADERS);
+        } else {
+            httpTrailerHeaders = new DefaultHttpHeaders();
+            entityObj.addNativeData(ENTITY_TRAILER_HEADERS, httpTrailerHeaders);
+        }
+        return httpTrailerHeaders;
     }
 }

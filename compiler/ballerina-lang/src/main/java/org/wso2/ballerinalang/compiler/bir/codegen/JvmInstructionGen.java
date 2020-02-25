@@ -1310,8 +1310,7 @@ public class JvmInstructionGen {
 
             BType returnType = inst.lhsOp.variableDcl.type;
             if (returnType.tag != TypeTags.INVOKABLE) {
-                BLangCompilerException err = new BLangCompilerException("Expected BInvokableType, found " + String.format("%s", returnType));
-                throw err;
+                throw new BLangCompilerException("Expected BInvokableType, found " + String.format("%s", returnType));
             }
 
             for (BIROperand v : inst.closureMaps) {

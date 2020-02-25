@@ -189,6 +189,7 @@ type TerminatorGenerator object {
                 bType is bir:BArrayType ||
                 bType is bir:BTypeAny ||
                 bType is bir:BTableType ||
+                bType is bir:BStreamType ||
                 bType is bir:BTypeAnyData ||
                 bType is bir:BObjectType ||
                 bType is bir:BServiceType ||
@@ -331,8 +332,9 @@ type TerminatorGenerator object {
         string jClassName = callIns.jClassName;
         string jMethodName = callIns.name;
 
-        string jMethodVMSig = isBStringFunc(funcName) ? callIns.jMethodVMSigBString : callIns.jMethodVMSig;
-        self.mv.visitMethodInsn(INVOKESTATIC, jClassName, jMethodName, jMethodVMSig, false);
+        boolean useBString = isBStringFunc(funcName);
+        string jMethodVMSig = useBString ? callIns.jMethodVMSigBString : callIns.jMethodVMSig;
+        self.mv.visitMethodInsn(INVOKESTATIC, jClassName, jMethodName  + (useBString ? "_bstring" : ""), jMethodVMSig, false);
 
         bir:VariableDcl? lhsOpVarDcl = callIns.lhsOp?.variableDcl;
 

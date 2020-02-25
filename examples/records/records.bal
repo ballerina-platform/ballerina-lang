@@ -73,7 +73,7 @@ public function main() {
 
     // Member access can be used to assign to fields that are not defined in the record type descriptor.
     // An attempt to add additional fields to a closed record results in compile errors.
-    peter["address"] = <Address>{ city: "Colombo", country: "Sri Lanka" };
+    peter["address"] = <Address>{city: "Colombo", country: "Sri Lanka"};
     io:println(peter);
 
     // Create a `Grades` record adding additional fields for the `int`-typed rest field.
@@ -81,7 +81,7 @@ public function main() {
     // open record with an `int`-typed rest field.
     // Keys for such field should either be `string` literals or expressions (i.e., they
     // cannot be identifiers).
-    Grades grades = { maths: 80, physics: 75, chemistry: 65, "english": 90 };
+    Grades grades = {maths: 80, physics: 75, chemistry: 65, "english": 90};
     io:println(grades);
 
     // Similarly, only member access can be used to access the fields that are possibly

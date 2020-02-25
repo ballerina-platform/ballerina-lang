@@ -20,7 +20,7 @@ function testFunction2() {
 }
 
 // This test doesn't belong to any group.
-@test:Config{}
+@test:Config {}
 function testFunction3() {
     io:println("I'm the ungrouped test");
     test:assertTrue(true, msg = "Failed!");

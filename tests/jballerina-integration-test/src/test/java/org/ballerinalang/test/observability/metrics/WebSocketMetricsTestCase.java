@@ -56,8 +56,8 @@ public class WebSocketMetricsTestCase extends BaseTest {
     private static final Logger logger = LoggerFactory.getLogger(WebSocketMetricsTestCase.class);
     private static final String MESSAGE = "test message";
     private static final String CLOSE_MESSAGE = "closeMe";
-    private static final int PORT = 9090;
-    private static final String SERVER_URL = "ws://localhost:9090/basic/ws";
+    private static final int PORT = 9898;
+    private static final String SERVER_URL = "ws://localhost:9898/basic/ws";
     private static final String METRICS_URL = "http://localhost:9797/metrics";
 
 

@@ -18,11 +18,14 @@
 
 package org.ballerinalang.packerina.task;
 
+import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.packerina.buildcontext.BuildContext;
 import org.ballerinalang.packerina.buildcontext.BuildContextField;
+import org.ballerinalang.packerina.buildcontext.sourcecontext.SingleModuleContext;
+import org.ballerinalang.packerina.buildcontext.sourcecontext.SourceType;
+import org.wso2.ballerinalang.compiler.SourceDirectoryManager;
 
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 
 import static org.ballerinalang.packerina.utils.FileUtils.deleteDirectory;
@@ -36,11 +39,29 @@ public class CleanTargetDirTask implements Task {
     public void execute(BuildContext buildContext) {
         Path targetDir = buildContext.get(BuildContextField.TARGET_DIR);
         try {
-            if (Files.exists(targetDir)) {
-                deleteDirectory(targetDir);
+            // Deletes only the respective module's target resources if a single module is build.
+            if (buildContext.getSourceType() == SourceType.SINGLE_MODULE) {
+                SourceDirectoryManager sourceDirectoryManager = SourceDirectoryManager
+                        .getInstance(buildContext.get(BuildContextField.COMPILER_CONTEXT));
+                SingleModuleContext moduleContext = buildContext.get(BuildContextField.SOURCE_CONTEXT);
+                PackageID packageID = sourceDirectoryManager.getPackageID(moduleContext.getModuleName());
+                deleteResource(buildContext.getExecutablePathFromTarget(packageID));
+                deleteResource(buildContext.getBaloFromTarget(packageID));
+                deleteResource(buildContext.getBirPathFromTargetCache(packageID));
+                deleteResource(buildContext.getTestBirPathFromTargetCache(packageID));
+                deleteResource(buildContext.getJarPathFromTargetCache(packageID));
+                deleteResource(buildContext.getTestJarPathFromTargetCache(packageID));
+            } else {
+                deleteResource(targetDir);
             }
         } catch (IOException e) {
-            throw createLauncherException("unable to clean target'" + targetDir.toString() + "': " + targetDir);
+            throw createLauncherException("Unable to clean target : " + targetDir.toString() + "\n", e);
+        }
+    }
+
+    private void deleteResource(Path path) throws IOException {
+        if (path != null && path.toFile().exists()) {
+            deleteDirectory(path);
         }
     }
 }

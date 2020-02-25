@@ -21,15 +21,16 @@ import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.LSContext;
+import org.ballerinalang.langserver.commons.completion.CompletionKeys;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
-import org.ballerinalang.langserver.completions.CompletionKeys;
-import org.ballerinalang.langserver.completions.SymbolInfo;
+import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
+import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
 import org.ballerinalang.langserver.completions.util.Snippet;
 import org.ballerinalang.langserver.completions.util.filters.DelimiterBasedContentFilter;
 import org.ballerinalang.langserver.completions.util.filters.SymbolFilters;
-import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
+import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.util.Flags;
@@ -50,8 +51,8 @@ public class InvocationArgsContextProvider extends AbstractCompletionProvider {
     }
 
     @Override
-    public List<CompletionItem> getCompletions(LSContext context) throws LSCompletionException {
-        ArrayList<CompletionItem> completionItems = new ArrayList<>();
+    public List<LSCompletionItem> getCompletions(LSContext context) throws LSCompletionException {
+        ArrayList<LSCompletionItem> completionItems = new ArrayList<>();
         int invocationOrDelimiterTokenType = context.get(CompletionKeys.INVOCATION_TOKEN_TYPE_KEY);
 
         if (this.isAnnotationAccessExpression(context)) {
@@ -59,14 +60,14 @@ public class InvocationArgsContextProvider extends AbstractCompletionProvider {
         }
 
         if (invocationOrDelimiterTokenType > -1) {
-            Either<List<CompletionItem>, List<SymbolInfo>> filtered = SymbolFilters
+            Either<List<LSCompletionItem>, List<Scope.ScopeEntry>> filtered = SymbolFilters
                     .get(DelimiterBasedContentFilter.class).filterItems(context);
             return this.getCompletionItemList(filtered, context);
         }
-        List<SymbolInfo> visibleSymbols = new ArrayList<>(context.get(CommonKeys.VISIBLE_SYMBOLS_KEY));
+        List<Scope.ScopeEntry> visibleSymbols = new ArrayList<>(context.get(CommonKeys.VISIBLE_SYMBOLS_KEY));
         // Remove the functions without a receiver symbol, bTypes not being packages and attached functions
-        visibleSymbols.removeIf(symbolInfo -> {
-            BSymbol bSymbol = symbolInfo.getScopeEntry().symbol;
+        visibleSymbols.removeIf(scopeEntry -> {
+            BSymbol bSymbol = scopeEntry.symbol;
             return (bSymbol instanceof BInvokableSymbol
                     && ((BInvokableSymbol) bSymbol).receiverSymbol != null
                     && CommonUtil.isValidInvokableSymbol(bSymbol))
@@ -75,7 +76,7 @@ public class InvocationArgsContextProvider extends AbstractCompletionProvider {
         completionItems.addAll(getCompletionItemList(visibleSymbols, context));
         completionItems.addAll(this.getPackagesCompletionItems(context));
         // Add the untaint keyword
-        CompletionItem untaintKeyword = Snippet.KW_UNTAINT.get().build(context);
+        LSCompletionItem untaintKeyword = new SnippetCompletionItem(context, Snippet.KW_UNTAINT.get());
         completionItems.add(untaintKeyword);
 
         return completionItems;

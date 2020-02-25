@@ -17,9 +17,9 @@ package org.ballerinalang.langserver.command.executors;
 
 import com.google.gson.JsonObject;
 import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.langserver.command.ExecuteCommandKeys;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.commons.LSContext;
+import org.ballerinalang.langserver.commons.command.ExecuteCommandKeys;
 import org.ballerinalang.langserver.commons.command.LSCommandExecutorException;
 import org.ballerinalang.langserver.commons.command.spi.LSCommandExecutor;
 import org.eclipse.lsp4j.MessageParams;
@@ -49,17 +49,21 @@ public class MessageExecutor implements LSCommandExecutor {
         for (Object arg : context.get(ExecuteCommandKeys.COMMAND_ARGUMENTS_KEY)) {
             String argKey = ((JsonObject) arg).get(ARG_KEY).getAsString();
             String argVal = ((JsonObject) arg).get(ARG_VALUE).getAsString();
-            if (argKey.equals(CommandConstants.ARG_KEY_MESSAGE_TYPE)) {
-                messageType = MessageType.forValue(Integer.parseInt(argVal));
-            } else if (argKey.equals(CommandConstants.ARG_KEY_MESSAGE)) {
-                message = argVal;
+            switch (argKey) {
+                case CommandConstants.ARG_KEY_MESSAGE_TYPE:
+                    messageType = MessageType.forValue(Integer.parseInt(argVal));
+                    break;
+                case CommandConstants.ARG_KEY_MESSAGE:
+                    message = argVal;
+                    break;
+                default:
             }
         }
         // If no package, or no doc uri; then just skip
         if (messageType == null || message.isEmpty()) {
             return new Object();
         }
-        LanguageClient client = context.get(ExecuteCommandKeys.LANGUAGE_SERVER_KEY).getClient();
+        LanguageClient client = context.get(ExecuteCommandKeys.LANGUAGE_CLIENT_KEY);
         client.showMessage(new MessageParams());
         notifyClient(client, messageType, message);
         return new Object();

@@ -37,8 +37,8 @@ import org.ballerinalang.messaging.kafka.observability.KafkaTracingUtil;
 import java.time.Duration;
 
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.CONSUMER_ERROR;
-import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.CONSUMER_KEY_DESERIALIZER_CONFIG;
-import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.CONSUMER_VALUE_DESERIALIZER_CONFIG;
+import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.CONSUMER_KEY_DESERIALIZER_TYPE_CONFIG;
+import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.CONSUMER_VALUE_DESERIALIZER_TYPE_CONFIG;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.NATIVE_CONSUMER;
 import static org.ballerinalang.messaging.kafka.utils.KafkaUtils.createKafkaError;
 import static org.ballerinalang.messaging.kafka.utils.KafkaUtils.getConsumerRecord;
@@ -49,13 +49,20 @@ import static org.ballerinalang.messaging.kafka.utils.KafkaUtils.populateConsume
  */
 public class Poll {
 
+    /**
+     * Polls from kafka broker using the ballerina kafka consumer.
+     *
+     * @param consumerObject Kafka consumer object from ballerina.
+     * @param timeout        Duration in milliseconds to try the operation.
+     * @return Ballerina {@code ConsumerRecords[]} after the polling.
+     */
     public static Object poll(ObjectValue consumerObject, long timeout) {
         Strand strand = Scheduler.getStrand();
         KafkaTracingUtil.traceResourceInvocation(strand, consumerObject);
         NonBlockingCallback callback = new NonBlockingCallback(strand);
         KafkaConsumer kafkaConsumer = (KafkaConsumer) consumerObject.getNativeData(NATIVE_CONSUMER);
-        String keyType = consumerObject.getStringValue(CONSUMER_KEY_DESERIALIZER_CONFIG);
-        String valueType = consumerObject.getStringValue(CONSUMER_VALUE_DESERIALIZER_CONFIG);
+        String keyType = consumerObject.getStringValue(CONSUMER_KEY_DESERIALIZER_TYPE_CONFIG);
+        String valueType = consumerObject.getStringValue(CONSUMER_VALUE_DESERIALIZER_TYPE_CONFIG);
         Duration duration = Duration.ofMillis(timeout);
         BArray consumerRecordsArray = BValueCreator.createArrayValue(new BArrayType(getConsumerRecord().getType()));
         try {
@@ -66,14 +73,14 @@ public class Poll {
                                                                                   valueType);
                     consumerRecordsArray.append(recordValue);
                     KafkaMetricsUtil.reportConsume(consumerObject, recordValue.getStringValue("topic"),
-                                                   recordValue.getArrayValue("value").size());
+                                                   recordValue.get("value"));
                 }
             }
             callback.setReturnValues(consumerRecordsArray);
         } catch (IllegalStateException | IllegalArgumentException | KafkaException e) {
             KafkaMetricsUtil.reportConsumerError(consumerObject, KafkaObservabilityConstants.ERROR_TYPE_POLL);
             callback.notifyFailure(createKafkaError("Failed to poll from the Kafka server: " + e.getMessage(),
-                                                      CONSUMER_ERROR));
+                                                    CONSUMER_ERROR));
         }
         callback.notifySuccess();
         return null;

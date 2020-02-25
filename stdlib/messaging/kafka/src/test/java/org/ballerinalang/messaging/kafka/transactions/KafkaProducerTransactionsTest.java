@@ -123,8 +123,7 @@ public class KafkaProducerTransactionsTest {
         }
     }
 
-    // TODO: Enable after the issue #19893 is fixed
-    @Test(description = "Test transactional producer with idempotence false", enabled = false)
+    @Test(description = "Test transactional producer with idempotence false")
     public void testKafkaTransactionalProducerWithoutIdempotenceTest() {
         String message = "Failed to initialize the producer: configuration enableIdempotence must be set to true to " +
                 "enable transactional producer";

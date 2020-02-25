@@ -3,18 +3,20 @@
     "character": 6,
     "expected": {
         "title": "Type Guard 'foo'",
-        "edit": {
-            "range": {
-                "start": {
-                    "line": 3,
-                    "character": 4
+        "edits": [
+            {
+                "range": {
+                    "start": {
+                        "line": 3,
+                        "character": 4
+                    },
+                    "end": {
+                        "line": 3,
+                        "character": 10
+                    }
                 },
-                "end": {
-                    "line": 3,
-                    "character": 10
-                }
-            },
-            "newText": "(int|string|error) fooResult = foo();\n    if (fooResult is int) {\n\n    } else if (fooResult is string) {\n\n    } else {\n\n    }"
-        }
+                "newText": "(int|string|error) fooResult = foo();\n    if (fooResult is int) {\n\n    } else if (fooResult is string) {\n\n    } else {\n\n    }"
+            }
+        ]
     }
 }

@@ -22,12 +22,13 @@ import org.antlr.v4.runtime.Token;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.commons.LSContext;
-import org.ballerinalang.langserver.completions.CompletionKeys;
-import org.ballerinalang.langserver.completions.SymbolInfo;
+import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
+import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
 import org.ballerinalang.langserver.completions.util.Snippet;
-import org.eclipse.lsp4j.CompletionItem;
+import org.ballerinalang.langserver.sourceprune.SourcePruneKeys;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
+import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -46,9 +47,9 @@ public class DefinitionContextProvider extends AbstractCompletionProvider {
     }
 
     @Override
-    public List<CompletionItem> getCompletions(LSContext context) {
-        List<CompletionItem> completionItems = new ArrayList<>();
-        List<Integer> lhsDefaultTokens = context.get(CompletionKeys.LHS_TOKENS_KEY).stream()
+    public List<LSCompletionItem> getCompletions(LSContext context) {
+        List<LSCompletionItem> completionItems = new ArrayList<>();
+        List<Integer> lhsDefaultTokens = context.get(SourcePruneKeys.LHS_TOKENS_KEY).stream()
                 .filter(commonToken -> commonToken.getChannel() == Token.DEFAULT_CHANNEL)
                 .map(CommonToken::getType)
                 .collect(Collectors.toList());
@@ -59,7 +60,7 @@ public class DefinitionContextProvider extends AbstractCompletionProvider {
                 break;
             case BallerinaParser.FINAL:
             case BallerinaParser.CONST:
-                completionItems.addAll(this.getTypesAndPackages(context));
+                completionItems.addAll(this.getTypesAndPackagesItems(context));
                 break;
             default:
                 break;
@@ -67,24 +68,24 @@ public class DefinitionContextProvider extends AbstractCompletionProvider {
         return completionItems;
     }
 
-    private List<CompletionItem> getItemsAfterPublic(LSContext context) {
-        ArrayList<CompletionItem> completionItems = new ArrayList<>();
-        completionItems.add(getStaticItem(context, Snippet.DEF_FUNCTION));
-        completionItems.add(getStaticItem(context, Snippet.DEF_ANNOTATION));
-        completionItems.add(getStaticItem(context, Snippet.DEF_OBJECT_SNIPPET));
-        completionItems.add(getStaticItem(context, Snippet.DEF_RECORD));
-        completionItems.add(getStaticItem(context, Snippet.DEF_CLOSED_RECORD));
-        completionItems.add(getStaticItem(context, Snippet.KW_LISTENER));
-        completionItems.add(getStaticItem(context, Snippet.KW_TYPE));
-        completionItems.add(getStaticItem(context, Snippet.KW_CONST));
-        completionItems.add(getStaticItem(context, Snippet.KW_ANNOTATION));
-        completionItems.add(getStaticItem(context, Snippet.KW_FUNCTION));
+    private List<LSCompletionItem> getItemsAfterPublic(LSContext context) {
+        ArrayList<LSCompletionItem> completionItems = new ArrayList<>();
+        completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_FUNCTION.get()));
+        completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_ANNOTATION.get()));
+        completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_OBJECT_SNIPPET.get()));
+        completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_RECORD.get()));
+        completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_CLOSED_RECORD.get()));
+        completionItems.add(new SnippetCompletionItem(context, Snippet.KW_LISTENER.get()));
+        completionItems.add(new SnippetCompletionItem(context, Snippet.KW_TYPE.get()));
+        completionItems.add(new SnippetCompletionItem(context, Snippet.KW_CONST.get()));
+        completionItems.add(new SnippetCompletionItem(context, Snippet.KW_ANNOTATION.get()));
+        completionItems.add(new SnippetCompletionItem(context, Snippet.KW_FUNCTION.get()));
         return completionItems;
     }
 
-    private List<CompletionItem> getTypesAndPackages(LSContext ctx) {
-        List<SymbolInfo> visibleSymbols = new ArrayList<>(ctx.get(CommonKeys.VISIBLE_SYMBOLS_KEY));
-        List<CompletionItem> completionItems = new ArrayList<>(this.getBasicTypes(visibleSymbols));
+    private List<LSCompletionItem> getTypesAndPackagesItems(LSContext ctx) {
+        List<Scope.ScopeEntry> visibleSymbols = new ArrayList<>(ctx.get(CommonKeys.VISIBLE_SYMBOLS_KEY));
+        List<LSCompletionItem> completionItems = new ArrayList<>(this.getBasicTypesItems(ctx, visibleSymbols));
         completionItems.addAll(this.getPackagesCompletionItems(ctx));
 
         return completionItems;

@@ -215,6 +215,8 @@ public class DefinitionTest {
                 {"defNewExpr1.json", "expression"},
                 {"defNewExpr2.json", "expression"},
                 {"defNewExpr3.json", "expression"},
+                {"defNewExpr4.json", "expression"},
+                {"defNewExpr5.json", "expression"},
                 // Covers Function Call Expression
                 {"defFunctionCallExpr1.json", "expression"},
                 {"defFunctionCallExpr2.json", "expression"},
@@ -313,6 +315,7 @@ public class DefinitionTest {
                 {"defVarDefStmt6.json", "vardefstatement"},
                 {"defVarDefStmt7.json", "vardefstatement"},
                 {"defVarDefStmt8.json", "vardefstatement"},
+                {"defVarDefStmt26.json", "vardefstatement"},
                 // Covers Variable Definition Statement with Error Binding pattern
                 {"defVarDefStmt12.json", "vardefstatement"},
                 {"defVarDefStmt13.json", "vardefstatement"},

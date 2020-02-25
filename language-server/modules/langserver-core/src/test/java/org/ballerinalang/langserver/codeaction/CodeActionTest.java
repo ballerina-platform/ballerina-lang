@@ -217,10 +217,10 @@ public class CodeActionTest {
             if (editText == null) {
                 continue;
             }
-            JsonObject edit = editText.getAsJsonObject().get("documentChanges")
-                    .getAsJsonArray().get(0).getAsJsonObject().get("edits").getAsJsonArray().get(0)
-                    .getAsJsonObject();
-            if (right.getAsJsonObject().get("title").getAsString().equals(title) && edit.equals(expected.get("edit"))) {
+            JsonArray edit = editText.getAsJsonObject().get("documentChanges")
+                    .getAsJsonArray().get(0).getAsJsonObject().get("edits").getAsJsonArray();
+            boolean editsMatched = expected.get("edits").getAsJsonArray().equals(edit);
+            if (right.getAsJsonObject().get("title").getAsString().equals(title) && editsMatched) {
                 codeActionFound = true;
                 break;
             }
@@ -244,11 +244,15 @@ public class CodeActionTest {
                 {"variableAssignmentRequiredCodeAction2.json", "createVariable.bal"},
                 {"variableAssignmentRequiredCodeAction3.json", "createVariable.bal"},
                 {"variableAssignmentRequiredCodeAction4.json", "createVariable.bal"},
+                {"variableAssignmentRequiredCodeAction5.json", "createVariable2.bal"},
+                {"variableAssignmentRequiredCodeAction6.json", "createVariable2.bal"},
+                {"variableAssignmentRequiredCodeAction7.json", "createVariable2.bal"},
                 {"ignoreReturnValueCodeAction.json", "createVariable.bal"},
                 {"typeGuardCodeAction1.json", "typeGuard.bal"},
                 {"typeGuardCodeAction2.json", "typeGuard.bal"},
                 {"typeGuardCodeAction3.json", "typeGuard.bal"},
 //                {"typeGuardCodeAction4.json", "typeGuard.bal"},
+                {"implementFuncObj.json", "implementFuncObj.bal"}
         };
     }
 
@@ -273,7 +277,8 @@ public class CodeActionTest {
                 {"undefinedPackageWithinFunction.json", "codeActionCommon.bal"},
                 {"undefinedFunctionCodeAction.json", "createUndefinedFunction.bal"},
                 {"undefinedFunctionCodeAction2.json", "createUndefinedFunction2.bal"},
-                {"packagePull.json", "packagePull.bal"},
+                {"packagePull1.json", "packagePull.bal"},
+                {"packagePull2.json", "packagePull.bal"},
                 {"changeAbstractTypeObj1.json", "changeAbstractType.bal"},
                 {"changeAbstractTypeObj2.json", "changeAbstractType.bal"}
         };

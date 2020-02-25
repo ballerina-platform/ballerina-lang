@@ -85,11 +85,6 @@ dependencies {
     distBal project(path: ':ballerina-xmlutils', configuration: 'baloImplementation')
     distBal project(path: ':ballerina-llvm', configuration: 'baloImplementation')
     distBal project(path: ':ballerina-jsonutils', configuration: 'baloImplementation')
-    distBal project(path: ':ballerina-docker', configuration: 'baloImplementation')
-    distBal project(path: ':ballerina-kubernetes', configuration: 'baloImplementation')
-    distBal project(path: ':ballerina-knative', configuration: 'baloImplementation')
-    distBal project(path: ':ballerina-istio', configuration: 'baloImplementation')
-    distBal project(path: ':ballerina-openshift', configuration: 'baloImplementation')
 
     // Lang libs
     distBal project(path: ':ballerina-lang:internal', configuration: 'baloImplementation')
@@ -102,6 +97,7 @@ dependencies {
     distBal project(path: ':ballerina-lang:integer', configuration: 'baloImplementation')
     distBal project(path: ':ballerina-lang:map', configuration: 'baloImplementation')
     distBal project(path: ':ballerina-lang:object', configuration: 'baloImplementation')
+    distBal project(path: ':ballerina-lang:stream', configuration: 'baloImplementation')
     distBal project(path: ':ballerina-lang:string', configuration: 'baloImplementation')
     distBal project(path: ':ballerina-lang:table', configuration: 'baloImplementation')
     distBal project(path: ':ballerina-lang:typedesc', configuration: 'baloImplementation')
@@ -142,11 +138,6 @@ dependencies {
     balSource project(path: ':ballerina-xmlutils', configuration: 'balSource')
     balSource project(path: ':ballerina-llvm', configuration: 'balSource')
     balSource project(path: ':ballerina-jsonutils', configuration: 'balSource')
-    balSource project(path: ':ballerina-docker', configuration: 'balSource')
-    balSource project(path: ':ballerina-kubernetes', configuration: 'balSource')
-    balSource project(path: ':ballerina-knative', configuration: 'balSource')
-    balSource project(path: ':ballerina-istio', configuration: 'balSource')
-    balSource project(path: ':ballerina-openshift', configuration: 'balSource')
 
     // Lang Libs
     balSource project(path: ':ballerina-lang:internal', configuration: 'balSource')
@@ -159,6 +150,7 @@ dependencies {
     balSource project(path: ':ballerina-lang:integer', configuration: 'balSource')
     balSource project(path: ':ballerina-lang:map', configuration: 'balSource')
     balSource project(path: ':ballerina-lang:object', configuration: 'balSource')
+    balSource project(path: ':ballerina-lang:stream', configuration: 'balSource')
     balSource project(path: ':ballerina-lang:string', configuration: 'balSource')
     balSource project(path: ':ballerina-lang:table', configuration: 'balSource')
     balSource project(path: ':ballerina-lang:typedesc', configuration: 'balSource')

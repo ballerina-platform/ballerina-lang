@@ -127,6 +127,7 @@ public class FormattingTest {
                 {"expectedElvisExpr.bal", "elvisExpr.bal"},
                 {"expectedErrorConstructor.bal", "errorConstructor.bal"},
                 {"expectedRecordLiteralExpr.bal", "recordLiteralExpr.bal"},
+                {"expectedRecordVariable.bal", "recordVariable.bal"},
                 {"expectedTypeGuard.bal", "typeGuard.bal"},
                 {"expectedTernaryExpr.bal", "ternaryExpr.bal"},
                 {"expectedStringTemplateLiteral.bal", "stringTemplateLiteral.bal"},
@@ -166,6 +167,7 @@ public class FormattingTest {
                 {"expectedTupleTypeRest.bal", "tupleTypeRest.bal"},
                 {"expectedTupleDestructure.bal", "tupleDestructure.bal"},
                 {"expectedNegativeEOF.bal", "negativeEOF.bal"},
+                {"expectedListConstructorExpr.bal", "listConstructorExpr.bal"},
         };
     }
 

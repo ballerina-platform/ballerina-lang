@@ -37,6 +37,7 @@ public class TypeConstants {
     public static final String JSON_TNAME = "json";
     static final String ITERATOR_TNAME = "iterator";
     public static final String TABLE_TNAME = "table";
+    public static final String STREAM_TNAME = "stream";
     public static final String ANY_TNAME = "any";
     public static final String ANYDATA_TNAME = "anydata";
     public static final String TYPEDESC_TNAME = "typedesc";

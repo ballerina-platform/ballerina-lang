@@ -126,7 +126,7 @@ public class BTestRunner {
     }
 
     /**
-     * Executes a given set of ballerina program files when running tests using the test command.
+     * Executes a given set of Ballerina program files when running tests in the unit tests.
      *
      * @param sourceRoot          source root
      * @param sourceFilePaths     List of @{@link Path} of ballerina files
@@ -146,7 +146,7 @@ public class BTestRunner {
     }
 
     /**
-     * Executes a given set of ballerina program files when running tests using the build command.
+     * Executes a given set of Ballerina program files when running tests using the build/test command.
      *
      * @param packageList map containing bLangPackage nodes along with their compiled program files
      */
@@ -174,10 +174,27 @@ public class BTestRunner {
     }
 
     /**
-     * lists the groups available in tests.
+     * Lists the groups available in tests.
      *
-     * @param sourceRoot        source root of the project
-     * @param sourceFilePaths   module or program file paths
+     * @param packageList map containing bLangPackage nodes along with their compiled program files
+     */
+    public void listGroups(Map<BLangPackage, TestarinaClassLoader> packageList) {
+        //Builds the test suites.
+        buildSuites(packageList);
+        List<String> groupList = getGroupList();
+        if (groupList.size() == 0) {
+            outStream.println("There are no groups available!");
+        } else {
+            outStream.println("Following groups are available : ");
+            outStream.println(groupList);
+        }
+    }
+
+    /**
+     * Lists the groups available in the tests. This method is used for unit testing.
+     *
+     * @param sourceRoot source root of the project
+     * @param sourceFilePaths file paths of the module or program 
      * @param enableExpFeatures Flag indicating to enable the experimental feature
      */
     public void listGroups(String sourceRoot, Path[] sourceFilePaths, boolean enableExpFeatures) {
@@ -282,6 +299,11 @@ public class BTestRunner {
             addTestSuite(packageName);
             // Keeps a track of the sources that are being built
             sourcePackages.add(packageName);
+            //Set source file name for single test files
+            if (sourcePackage.packageID.getName().getValue().equals(".")) {
+                registry.getTestSuites().get(packageName)
+                        .setSourceFileName(sourcePackage.packageID.sourceFileName.getValue());
+            }
             processProgramFile(sourcePackage, classLoader);
         });
 
@@ -330,10 +352,6 @@ public class BTestRunner {
         //packageInit = false;
         // TODO the below line is required since this method is currently getting explicitly called from BTestRunner
         TestSuite suite = TesterinaRegistry.getInstance().getTestSuites().get(bLangPackage.packageID.toString());
-
-        if (!bLangPackage.hasTestablePackage()) {
-            return;
-        }
 
         if (suite == null) {
             throw LauncherUtils.createLauncherException("No test suite found for [module]: "
@@ -442,7 +460,7 @@ public class BTestRunner {
                             .getAfterTestFunction())).findFirst().get());
                 } else {
                     String msg = String.format("Cannot find the specified after function : [%s] for testerina " +
-                            "function : [%s]", test.getBeforeTestFunction(), test.getTestName());
+                            "function : [%s]", test.getAfterTestFunction(), test.getTestName());
                     throw LauncherUtils.createLauncherException(msg);
                 }
             }
@@ -930,4 +948,3 @@ public class BTestRunner {
     }
 
 }
-
