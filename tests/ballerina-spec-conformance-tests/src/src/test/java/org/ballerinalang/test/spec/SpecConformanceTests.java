@@ -18,7 +18,7 @@
 
 package org.ballerinalang.test.spec;
 
-import org.ballerinalang.test.launcher.util.BTestUtil;
+import org.ballerinalang.test.runtime.util.BTestUtil;
 import org.testng.annotations.Test;
 
 import static org.testng.Assert.assertFalse;
