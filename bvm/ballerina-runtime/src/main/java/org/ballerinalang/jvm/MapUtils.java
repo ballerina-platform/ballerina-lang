@@ -22,11 +22,14 @@ import org.ballerinalang.jvm.types.BMapType;
 import org.ballerinalang.jvm.types.BRecordType;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.TypeTags;
+import org.ballerinalang.jvm.util.Flags;
 import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.jvm.util.exceptions.RuntimeErrors;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.StringValue;
+
+import java.util.Map;
 
 import static java.lang.String.format;
 import static org.ballerinalang.jvm.util.BLangConstants.MAP_LANG_LIB;
@@ -148,9 +151,42 @@ public class MapUtils {
         switch (mapType.getTag()) {
             case TypeTags.MAP_TAG:
             case TypeTags.JSON_TAG:
+            case TypeTags.RECORD_TYPE_TAG:
                 return;
             default:
                 throw createOpNotSupportedError(mapType, op);
         }
+    }
+
+    public static void checkValidFieldForRecord(MapValue<?, ?> m, String  k, String  op) {
+        BType type = m.getType();
+        switch (type.getTag()) {
+            case TypeTags.RECORD_TYPE_TAG:
+                boolean isValid = checkField(m, k);
+                if (isValid) {
+                     boolean isRequired = checkForRequiredFields((BRecordType) type, k);
+                     if (isRequired) {
+                         throw createOpNotSupportedError(type, op);
+                     }
+                }
+            default:
+                return;
+        }
+    }
+
+    private static boolean checkField(MapValue<?,?> m, String k) {
+        Object object = m.get(k);
+        return object != null;
+    }
+
+    private static boolean checkForRequiredFields(BRecordType type, String k) {
+        Map<String, BField> fields = type.getFields();
+        BField field = fields.get(k);
+        if (field != null) {
+            if (Flags.isFlagOn(field.flags, Flags.REQUIRED)) {
+                return true;
+            }
+        }
+        return false;
     }
 }

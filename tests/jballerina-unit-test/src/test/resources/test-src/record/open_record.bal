@@ -473,3 +473,30 @@ function addStringToMapValue(string s) returns string {
     mapValue = mapValue + s;
     return mapValue;
 }
+
+type FooRecord record {
+    string a;
+    int b?;
+};
+
+function removeOptional() returns boolean {
+    FooRecord fooRecord = {a : "a", b : 1};
+    _ = fooRecord.remove("b");
+    int? testValue = fooRecord?.b;
+    if (testValue is ()) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
+function removeRest() returns boolean {
+    FooRecord fooRecord = { a: "a", b : 1, "c" : 10};
+    _ = fooRecord.remove("c");
+    anydata testValue = fooRecord["c"];
+    if (testValue is ()) {
+        return true;
+    } else {
+        return false;
+    }
+}

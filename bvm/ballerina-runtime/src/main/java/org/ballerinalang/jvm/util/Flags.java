@@ -33,6 +33,7 @@ public class Flags {
     public static final int OPTIONAL = 8192;
     public static final int RESOURCE = 262144;
     public static final int SERVICE = 524288;
+    public static final int REST = 1048576;
 
     public static boolean isFlagOn(int bitmask, int flag) {
         return (bitmask & flag) == flag;
