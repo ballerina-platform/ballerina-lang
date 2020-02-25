@@ -296,13 +296,13 @@ public class BIRGen extends BLangNodeVisitor {
             List<BIRBasicBlock> functionBasicBlocks = function.basicBlocks;
             for (BIRBasicBlock functionBasicBlock : functionBasicBlocks) {
                 BIRTerminator bbTerminator = functionBasicBlock.terminator;
-                if ((bbTerminator.kind.equals(InstructionKind.CALL))) {
+                if (bbTerminator.kind.equals(InstructionKind.CALL)) {
                     mockFunctionMap.forEach((k, v) -> {
                         String[] mockInfo = k.split(MOCK_ANNOTATION_DELIMITER);
                         if (mockInfo.length != 2) {
                             return;
                         }
-                        if (((BIRTerminator.Call) bbTerminator).name.getValue().equals(mockInfo[1])) {
+                        if (checkCallee(bbTerminator, mockInfo[0]) && checkName(bbTerminator, mockInfo[1])) {
                             ((BIRTerminator.Call) bbTerminator).name = getMockFunctionName(v, birPkg);
                             if (!mockInfo[0].equals(".")) {
                                 ((BIRTerminator.Call) bbTerminator).calleePkg = function.pos.src.pkgID;
@@ -314,6 +314,21 @@ public class BIRGen extends BLangNodeVisitor {
         }
     }
 
+    // Checks if the name of the CALL terminator and the function name matches
+    private boolean checkName(BIRTerminator bbTerminator, String mockFunctionName) {
+        return ((BIRTerminator.Call) bbTerminator).name.getValue().equals(mockFunctionName);
+    }
+
+    // Checks if the Callee of the CALL terminator matches that of the function
+    private boolean checkCallee(BIRTerminator bbTerminator, String mockFunctionModule) {
+        if (mockFunctionModule.equals(".")) {
+            return true;
+        }
+        return ((BIRTerminator.Call) bbTerminator).calleePkg.toString().contains(mockFunctionModule);
+    }
+
+    //&& ((BIRTerminator.Call) bbTerminator).calleePkg.toString().contains(mockInfo[0])
+
     private Name getMockFunctionName(String name, BIRPackage birPkg) {
         for (BIRFunction function : birPkg.functions) {
             if (function.name.value.equals(name)) {
@@ -322,7 +337,6 @@ public class BIRGen extends BLangNodeVisitor {
         }
         return null;
     }
-
 
     // Nodes
 

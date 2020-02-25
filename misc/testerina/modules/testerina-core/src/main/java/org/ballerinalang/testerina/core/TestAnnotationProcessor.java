@@ -19,21 +19,35 @@ package org.ballerinalang.testerina.core;
 
 import org.ballerinalang.compiler.plugins.AbstractCompilerPlugin;
 import org.ballerinalang.compiler.plugins.SupportedAnnotationPackages;
+import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.FunctionNode;
 import org.ballerinalang.model.tree.PackageNode;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
 import org.ballerinalang.test.runtime.entity.Test;
 import org.ballerinalang.test.runtime.entity.TestSuite;
+import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.ballerinalang.util.diagnostic.DiagnosticLog;
+import org.wso2.ballerinalang.compiler.PackageLoader;
+import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
+import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
+import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
+import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.BLangTestablePackage;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
+import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.Name;
+import org.wso2.ballerinalang.compiler.util.diagnotic.BDiagnosticSource;
 
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
@@ -64,6 +78,12 @@ public class TestAnnotationProcessor extends AbstractCompilerPlugin {
 
     private TesterinaRegistry registry = TesterinaRegistry.getInstance();
     private boolean enabled = true;
+    private CompilerContext compilerContext;
+    private DiagnosticLog diagnosticLog;
+    private Types typeChecker;
+    private SymbolResolver symbolResolver;
+    private BLangPackage bLangPackage;
+
     /**
      * this property is used as a work-around to initialize test suites only once for a package as Compiler
      * Annotation currently emits package import events too to the process method.
@@ -71,9 +91,24 @@ public class TestAnnotationProcessor extends AbstractCompilerPlugin {
 
     @Override
     public void init(DiagnosticLog diagnosticLog) {
+        this.diagnosticLog = diagnosticLog;
+        this.typeChecker = Types.getInstance(compilerContext);
+        this.symbolResolver = SymbolResolver.getInstance(compilerContext);
+
         if (TesterinaRegistry.getInstance().isTestSuitesCompiled()) {
             enabled = false;
         }
+    }
+
+    @Override
+    public void setCompilerContext(CompilerContext context) {
+        this.compilerContext = context;
+    }
+
+    private void setBlangPackage(AnnotationAttachmentNode attachmentNode) {
+        PackageLoader packageLoader = PackageLoader.getInstance(this.compilerContext);
+        Diagnostic.DiagnosticSource source = attachmentNode.getExpression().getPosition().getSource();
+        this.bLangPackage = packageLoader.loadPackage(((BDiagnosticSource) source).pkgID);
     }
 
     @Override
@@ -139,11 +174,44 @@ public class TestAnnotationProcessor extends AbstractCompilerPlugin {
                         }
                     });
 
+                    if (bLangPackage == null) {
+                        setBlangPackage(attachmentNode);
+                    }
+
+                    if (vals[0].isEmpty()) {
+                        diagnosticLog.logDiagnostic(Diagnostic.Kind.ERROR, ((BLangFunction) functionNode).pos,
+                                "Module name cannot be empty");
+                    }
+
+                    if (vals[1].isEmpty()) {
+                        diagnosticLog.logDiagnostic(Diagnostic.Kind.ERROR, ((BLangFunction) functionNode).pos,
+                                "Function name cannot be empty");
+                    }
+
+                    SymbolTable symbolTable = SymbolTable.getInstance(compilerContext);
+                    Map<BPackageSymbol, SymbolEnv> packageEnvironmentMap = symbolTable.pkgEnvMap;
+                    PackageID functionToMockID = getPackageID(vals[0], packageEnvironmentMap);
+
+                    BType functionToMockType = getFunctionType(packageEnvironmentMap, functionToMockID, vals[1]);
+                    BType mockFunctionType = getFunctionType(packageEnvironmentMap, bLangPackage.packageID,
+                            ((BLangFunction) functionNode).name.toString());
+
+                    if (functionToMockType != null && mockFunctionType != null) {
+                        if (!typeChecker.isAssignable(mockFunctionType, functionToMockType)) {
+                            diagnosticLog.logDiagnostic(Diagnostic.Kind.ERROR, ((BLangFunction) functionNode).pos,
+                                    "Function parameters and Mock function parameters do not match. Expected "
+                                            + functionToMockType.toString());
+                        }
+                    } else {
+                        diagnosticLog.logDiagnostic(Diagnostic.Kind.ERROR, attachmentNode.getPosition(),
+                                "Could not find functions in module");
+                    }
+
                     //Creating a bLangTestablePackage to add a mock function
                     BLangTestablePackage bLangTestablePackage =
                             (BLangTestablePackage) ((BLangFunction) functionNode).parent;
-                    bLangTestablePackage.addMockFunction(vals[0] + MOCK_ANNOTATION_DELIMITER + vals[1], functionName);
-
+                    bLangTestablePackage.addMockFunction(vals[0] + MOCK_ANNOTATION_DELIMITER + vals[1],
+                            functionName);
                 }
             } else if (TEST_ANNOTATION_NAME.equals(annotationName)) {
                 Test test = new Test();
@@ -245,72 +313,56 @@ public class TestAnnotationProcessor extends AbstractCompilerPlugin {
 
     }
 
-
+    /**
+     * Get the function type by iterating through the packageEnvironmentMap.
+     * @param pkgEnvMap map of BPackageSymbol and its respective SymbolEnv
+     * @param packageID Fully qualified package ID of the respective function
+     * @param functionName Name of the function
+     * @return Function type if found, null if not found
+     */
+    private BType getFunctionType(Map<BPackageSymbol, SymbolEnv> pkgEnvMap, PackageID packageID, String functionName) {
+        for (Map.Entry<BPackageSymbol, SymbolEnv> entry : pkgEnvMap.entrySet()) {
+            // Multiple packages may be present with same name, so all entries must be checked
+            if (entry.getKey().pkgID.equals(packageID)) {
+                BSymbol symbol = symbolResolver.lookupSymbolInMainSpace(entry.getValue(), new Name(functionName));
+                if (!symbol.getType().toString().equals("other")) {
+                    return symbol.getType();
+                }
+            }
+        }
+        return null;
+    }
 
     /**
-     * Process a given {@link TestSuite} and inject the user defined mock functions.
-     *
-     * @param suite a @{@link TestSuite}
+     * Returns a PackageID for the passed moduleName.
+     * @param moduleName Module name passed via function annotation
+     * @param pkgEnvMap map of BPackageSymbol and its respective SymbolEnv
+     * @return Module packageID
      */
-    /*
-    public static void injectMocks(TestSuite suite) {
-        /*ProgramFile programFile = suite.getProgramFile();
-        Map<String, TesterinaFunction> mockFunctions = suite.getMockFunctionsMap();
-        mockFunctions.forEach((k, v) -> {
-            String[] info = k.split(MOCK_ANNOTATION_DELIMITER);
-            if (info.length != 2) {
-                return;
-            }
-
-            for (PackageInfo packageInfo : programFile.getPackageInfoEntries()) {
-                int limit = getTestInstructionsPosition(packageInfo);
-                Instruction[] instructions = packageInfo.getInstructions();
-                for (int i = 0; i < limit; i++) {
-                    Instruction ins = instructions[i];
-                    if (ins instanceof Instruction.InstructionCALL) {
-                        // replace the function pointer of the instruction with the mock function pointer
-                        Instruction.InstructionCALL call = (Instruction.InstructionCALL) ins;
-                        if (call.functionInfo.getPkgPath().equals(info[0]) && call.functionInfo.getName().equals
-                                (info[1])) {
-                            suite.addMockedRealFunction(k, call.functionInfo);
-                            call.functionInfo = v.getbFunction();
+    private PackageID getPackageID(String moduleName, Map<BPackageSymbol, SymbolEnv> pkgEnvMap) {
+        if (moduleName.equals(".")) {
+            return bLangPackage.packageID;
+        } else {
+            for (Map.Entry<BPackageSymbol, SymbolEnv> entry : pkgEnvMap.entrySet()) {
+                String packageModule = entry.getKey().pkgID.toString();
+                // For ballerina native packages and fully qualified packages, we do a full check
+                if (packageModule.equals(moduleName)) {
+                    return entry.getKey().pkgID;
+                } else {
+                    // For modules without the fully qualified name
+                    // We loop extract the module name from fully qualified package modules
+                    if (packageModule.contains("/") && packageModule.contains(":")) {
+                        if (moduleName.equals(packageModule.substring(packageModule.indexOf('/') + 1,
+                                packageModule.indexOf(':')))) {
+                            return entry.getKey().pkgID;
                         }
                     }
                 }
             }
-        });*/
-
-    /**
-     * Process a given {@link TestSuite} and reset the mock functions with their original pointers.
-     *
-     * @param suite a @{@link TestSuite}
-     */
-    /**
-    public static void resetMocks(TestSuite suite) {
-        ProgramFile programFile = suite.getProgramFile();
-        Map<String, TesterinaFunction> mockFunctions = suite.getMockFunctionsMap();
-        Map<String, FunctionInfo> mockedRealFunctionsMap = suite.getMockedRealFunctionsMap();
-
-        mockFunctions.forEach((k, v) -> {
-            String[] info = k.split(MOCK_ANNOTATION_DELIMITER);
-            if (info.length != 2) {
-                return;
-            }
-
-            for (PackageInfo packageInfo : programFile.getPackageInfoEntries()) {
-                for (Instruction ins : packageInfo.getInstructions()) {
-                    if (ins instanceof Instruction.InstructionCALL) {
-                        Instruction.InstructionCALL call = (Instruction.InstructionCALL) ins;
-                        if (call.functionInfo.getPkgPath().equals(info[0]) && call.functionInfo.getName().equals
-                                (info[1])) {
-                            call.functionInfo = mockedRealFunctionsMap.get(k);
-                        }
-                    }
-                }
-            }
-        });
-    }*/
-
+        }
+        // Return null if the above conditions don't apply
+        return null;
+    }
 
 
     /**
