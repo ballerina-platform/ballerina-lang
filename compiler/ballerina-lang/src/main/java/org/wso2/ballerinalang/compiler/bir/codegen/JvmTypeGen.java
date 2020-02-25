@@ -47,7 +47,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.NamedNode;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.util.Name;
@@ -145,7 +144,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.lookupGl
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.symbolTable;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTerminatorGen.TerminatorGenerator.toNameString;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmValueGen.NAME_HASH_COMPARATOR;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmValueGen.NodeSorter;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmValueGen.createDefaultCase;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmValueGen.createLabelsForEqualCheck;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmValueGen.createLabelsForSwitch;
@@ -223,7 +221,7 @@ class JvmTypeGen {
                 createRecordType(mv, (BRecordType) bType, typeDef);
             } else if (bType.tag == TypeTags.OBJECT) {
                 if (bType instanceof BServiceType) {
-                    createServiceType(mv, (BServiceType) bType, typeDef);
+                    createServiceType(mv, (BServiceType) bType, typeDef.type);
                 }
                 createObjectType(mv, (BObjectType) bType, typeDef);
             } else if (bType.tag == TypeTags.ERROR) {
@@ -659,13 +657,13 @@ class JvmTypeGen {
 //# + mv - method visitor
 //# + objectType - object type
 //# + typeDef - type definition of the service
-    private static void createServiceType(MethodVisitor mv, BObjectType objectType, BIRTypeDefinition typeDef) {
+    private static void createServiceType(MethodVisitor mv, BObjectType objectType, BType typeDef) {
         // Create the object type
         mv.visitTypeInsn(NEW, SERVICE_TYPE);
         mv.visitInsn(DUP);
 
         // Load type name
-        String name = typeDef.name.value;
+        String name = typeDef.name.getValue();
         mv.visitLdcInsn(name);
 
         // Load package path
@@ -688,9 +686,9 @@ class JvmTypeGen {
                 String.format("(L%s;L%s;I)V", STRING_VALUE, PACKAGE_TYPE), false);
     }
 
-    static void duplicateServiceTypeWithAnnots(MethodVisitor mv, BObjectType objectType, BIRTypeDefinition typeDef,
+    static void duplicateServiceTypeWithAnnots(MethodVisitor mv, BObjectType objectType,
                                                String pkgName, int strandIndex) {
-        createServiceType(mv, objectType, typeDef);
+        createServiceType(mv, objectType, objectType);
         mv.visitInsn(DUP);
 
         String pkgClassName = pkgName.equals(".") || pkgName.equals("") ? MODULE_INIT_CLASS_NAME :
@@ -699,7 +697,7 @@ class JvmTypeGen {
 
         mv.visitVarInsn(ALOAD, strandIndex);
 
-        loadExternalOrLocalType(mv, typeDef);
+        loadType(mv, objectType);
         mv.visitTypeInsn(CHECKCAST, SERVICE_TYPE);
 
         BObjectTypeSymbol objectTypeSymbol = (BObjectTypeSymbol) objectType.tsymbol;
