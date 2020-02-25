@@ -35,7 +35,7 @@ public type Client client object {
         options:options,
         connPool: connPool
       };
-      createClient(self, clientConf, sql:getGlobalConnectionPool());
+      return createClient(self, clientConf, sql:getGlobalConnectionPool());
     }
 
       # The call remote function implementation for SQL Client to invoke stored procedures/functions.
@@ -78,7 +78,7 @@ type ClientConfiguration record {|
 
 
 function createClient(Client jdbcClient, ClientConfiguration clientConf,
-    sql:ConnectionPool globalConnPool) = @java:Method {
+    sql:ConnectionPool globalConnPool) returns sql:Error? = @java:Method {
     class: "org.ballerinalang.jdbc.NativeImpl"
 } external;
 

@@ -64,40 +64,8 @@ dependencies {
     implementation project(':ballerina-test-utils')
     implementation project(':ballerina-time')
     implementation project(':ballerina-java')
-
-    testCompile project(path: ':ballerina-test-common', configuration: 'tests')
-    testCompile project(':ballerina-io')
-    testCompile project(':ballerina-auth')
-    testCompile project(':ballerina-reflect')
-    testCompile project(':ballerina-log-api')
-    testCompile project(':ballerina-crypto')
-    testCompile project(':ballerina-math')
-    testCompile project(':ballerina-http')
-    testCompile project(':ballerina-task')
-    testCompile project(':ballerina-config-api')
-    testCompile project(':ballerina-system')
-    testCompile project(':ballerina-runtime-api')
-    testCompile project(':ballerina-core')
-    testCompile project(':ballerina-jsonutils')
-    testCompile project(':ballerina-xmlutils')
-    testCompile project(':ballerina-java')
-    testCompile project(':ballerina-llvm')
-    implementation project(':ballerina-time')
-    testCompile project(':ballerina-mime')
-    testCompile project(':ballerina-transactions')
-
-    testCompile 'org.testng:testng'
-    testCompile 'org.slf4j:slf4j-jdk14'
-    testCompile 'com.h2database:h2'
-    testCompile 'org.hsqldb:hsqldb'
-
+    
     implementation 'com.zaxxer:HikariCP'
-}
-
-configurations {
-    testCompile.exclude group: 'org.slf4j', module: 'slf4j-log4j12'
-    testCompile.exclude group: 'org.slf4j', module: 'slf4j-simple'
-    testCompile.exclude group: 'org.ops4j.pax.logging', module: 'pax-logging-api'
 }
 
 createBalo {

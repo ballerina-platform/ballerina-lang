@@ -13,6 +13,7 @@
 // specific language governing permissions and limitations
 // under the License.
 import ballerina/java.jdbc;
+import ballerina/sql;
 
 //sql:PoolOptions properties = {
 //
@@ -29,14 +30,23 @@ import ballerina/java.jdbc;
 //map<anydata> propertiesMap3 = {"loginTimeout": "1000"};
 //jdbc:PoolOptions properties6 = {dataSourceClassName: "org.h2.jdbcx.JdbcDataSource"};
 
-function test1(string jdbcURL, string user, string password) returns error?{
+function testConnection1(string jdbcURL, string user, string password) returns error?{
     jdbc:Client testDB = check new (url=jdbcURL, user = user, password = password);
     return testDB.close();
 }
 
-function test2(string jdbcURL, string user, string password) returns error?{
+function testConnection2(string jdbcURL, string user, string password) returns error?{
     jdbc:Client testDB = check new (jdbcURL, user, password);
     return testDB.close();
+}
+
+function testConnectionNoUserPassword(string jdbcURL) returns error?{
+    jdbc:Client|sql:Error dbClient = new (jdbcURL);
+    if(dbClient is sql:Error){
+        return dbClient;
+    } else {
+        return dbClient.close();
+    }
 }
 
 //function testConnectionPoolProperties1(string jdbcURL) returns @tainted json {

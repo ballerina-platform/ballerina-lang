@@ -35,11 +35,11 @@ public class NativeImpl {
         return ClientUtils.close(client);
     }
 
-    public static void createClient(ObjectValue client, MapValue<String, Object> clientConfig,
+    public static Object createClient(ObjectValue client, MapValue<String, Object> clientConfig,
                                     MapValue<String, Object> globalPool) {
         String url = clientConfig.getStringValue(Constants.ClientConfiguration.URL);
         if (!isJdbcUrlValid(url)) {
-            throw ErrorGenerator.getSQLApplicationError("invalid JDBC URL: " + url);
+            return ErrorGenerator.getSQLApplicationError("invalid JDBC URL: " + url);
         }
         String user = clientConfig.getStringValue(Constants.ClientConfiguration.USER);
         String password = clientConfig.getStringValue(Constants.ClientConfiguration.PASSWORD);
@@ -54,7 +54,7 @@ public class NativeImpl {
         SQLDatasource.SQLDatasourceParams sqlDatasourceParams = new SQLDatasource.SQLDatasourceParams().
                 setUrl(url).setUser(user).setPassword(password).setDriver(driver).
                 setOptions(options).setConnectionPool(connectionPool);
-        ClientUtils.createClient(client, sqlDatasourceParams);
+        return ClientUtils.createClient(client, sqlDatasourceParams);
     }
 
     // Unable to perform a complete validation since URL differs based on the database.

@@ -17,6 +17,7 @@
 package org.ballerinalang.jdbc.connection;
 
 import org.ballerinalang.jdbc.utils.SQLDBUtils;
+import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.test.util.BCompileUtil;
@@ -48,15 +49,22 @@ public class ConnectorInitTest {
     }
 
     @Test
-    public void test1() {
-        BValue[] returnVal = BRunUtil.invokeFunction(result, "test1", args);
+    public void testConnection1() {
+        BValue[] returnVal = BRunUtil.invokeFunction(result, "testConnection1", args);
         Assert.assertNull(returnVal[0]);
     }
 
     @Test
-    public void test2() {
-        BValue[] returnVal = BRunUtil.invokeFunction(result, "test2", args);
+    public void testConnection2() {
+        BValue[] returnVal = BRunUtil.invokeFunction(result, "testConnection2", args);
         Assert.assertNull(returnVal[0]);
+    }
+
+    @Test
+    public void testConnectionNoUserPassword() {
+        BValue[] args = {new BString(JDBC_URL)};
+        BValue[] returnVal = BRunUtil.invokeFunction(result, "testConnectionNoUserPassword", args);
+        Assert.assertTrue(returnVal[0] instanceof BError);
     }
 
     @AfterSuite
