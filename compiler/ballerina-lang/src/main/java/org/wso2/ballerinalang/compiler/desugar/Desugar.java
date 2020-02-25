@@ -326,6 +326,7 @@ public class Desugar extends BLangNodeVisitor {
     public BLangPackage perform(BLangPackage pkgNode) {
         // Initialize the annotation map
         annotationDesugar.initializeAnnotationMap(pkgNode);
+        SymbolEnv env = this.symTable.pkgEnvMap.get(pkgNode.symbol);
         return rewrite(pkgNode, env);
     }
 
@@ -397,16 +398,25 @@ public class Desugar extends BLangNodeVisitor {
         if (initFunction.requiredParams.isEmpty()) {
             return;
         }
+
+        SymbolEnv preEnv = this.env;
+        this.env = SymbolEnv.createFunctionEnv(generatedInitFunc, generatedInitFunc.symbol.scope, env);
         for (BLangSimpleVariable requiredParameter : initFunction.requiredParams) {
+            // Since the expression of the requiredParam of both init functions refer to same object,
+            // we visit the expression and both expressions are updated here.
+            // Also, package environment should be updated to the function environment.
+            BLangExpression expression = rewriteExpr(requiredParameter.expr);
+            requiredParameter.expr = expression;
             BLangSimpleVariable var =
                     ASTBuilderUtil.createVariable(initFunction.pos,
-                            requiredParameter.name.getValue(), requiredParameter.type, requiredParameter.expr,
+                            requiredParameter.name.getValue(), requiredParameter.type, expression,
                             new BVarSymbol(0, names.fromString(requiredParameter.name.getValue()),
                                     requiredParameter.symbol.pkgID,
                                     requiredParameter.type, requiredParameter.symbol.owner));
             generatedInitFunc.requiredParams.add(var);
             generatedInitializerFunc.symbol.params.add(var.symbol);
         }
+        this.env = preEnv;
     }
 
     private void addRestParamsToGeneratedInitFunction(BLangFunction initFunction, BLangFunction generatedInitFunc,
@@ -539,7 +549,6 @@ public class Desugar extends BLangNodeVisitor {
             result = pkgNode;
             return;
         }
-        SymbolEnv env = this.symTable.pkgEnvMap.get(pkgNode.symbol);
         createPackageInitFunctions(pkgNode, env);
         // Adding object functions to package level.
         addAttachedFunctionsToPackageLevel(pkgNode, env);

@@ -398,3 +398,41 @@ function testInitInvocationWithCheckAndRestParams2() returns (boolean) {
     var [s, marksBeforeChange, marksAfterChange] = testInitInvocationWithCheckAndRestParams(10, ...modules);
     return !(s is error) && marksBeforeChange == 90 && marksAfterChange == 95;
 }
+
+type Student6 object {
+    int id;
+
+    public function __init(int id = 1) {
+        self.id = id;
+    }
+
+    public function getId() returns int {
+        return self.id;
+    }
+};
+
+function testInitInvocationWithDefaultParams1() returns (boolean) {
+    Student6 student = new;
+    return student.getId() == 1;
+}
+
+type Student7 object {
+    int? id;
+
+    public function __init(int? id = 1) {
+        self.id = id;
+    }
+
+    public function getId() returns int {
+        if !(self.id is int) {
+            error err = error("ID should be an integer");
+            panic err;
+        }
+        return <int> self.id;
+    }
+};
+
+function testInitInvocationWithDefaultParams2() returns (boolean) {
+    Student7 student = new(4);
+    return student.getId() == 4;
+}

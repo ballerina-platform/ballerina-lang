@@ -238,4 +238,16 @@ public class ObjectInitializerTest {
         BValue[] returns = BRunUtil.invoke(compileResult, "testInitInvocationWithCheckAndRestParams2");
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue(), "Expected booleans to be identified as equal");
     }
+
+    @Test(description = "Test invoking '__init' function with args with default values.")
+    public void testInitInvocationWithDefaultParams1() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testInitInvocationWithDefaultParams1");
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue(), "Expected booleans to be identified as equal");
+    }
+
+    @Test(description = "Test invoking '__init' function with args with default values.")
+    public void testInitInvocationWithDefaultParams2() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testInitInvocationWithDefaultParams2");
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue(), "Expected booleans to be identified as equal");
+    }
 }
