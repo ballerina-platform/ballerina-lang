@@ -96,6 +96,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckPanickedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorVarRef;
@@ -137,7 +138,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordVarRef.BLangR
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRestArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangServiceConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangConstRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangFieldVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangFunctionVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangLocalVarRef;
@@ -204,10 +204,16 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangTupleVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerSend;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangXMLNSStatement;
+import org.wso2.ballerinalang.compiler.tree.types.BLangArrayType;
+import org.wso2.ballerinalang.compiler.tree.types.BLangBuiltInRefTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangConstrainedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangErrorType;
+import org.wso2.ballerinalang.compiler.tree.types.BLangFunctionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangTupleTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
+import org.wso2.ballerinalang.compiler.tree.types.BLangUnionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
 import org.wso2.ballerinalang.compiler.util.ClosureVarSymbol;
@@ -640,23 +646,27 @@ public class Desugar extends BLangNodeVisitor {
             return;
         }
 
+        for (BLangSimpleVariable bLangSimpleVariable : objectTypeNode.fields) {
+            bLangSimpleVariable.typeNode = rewrite(bLangSimpleVariable.typeNode, env);
+        }
+
         // Add object level variables to the init function.
-        Map<BSymbol, BLangStatement> initFunctionStmts = objectTypeNode.generatedInitFunction.initFunctionStmts;
-        objectTypeNode.fields.stream()
-                // skip if the field is already have an value set by the constructor.
-                .filter(field -> !initFunctionStmts.containsKey(field.symbol))
-                .filter(field -> field.expr != null)
-                .forEachOrdered(field -> {
-                    initFunctionStmts.put(field.symbol,
-                                          createStructFieldUpdate(objectTypeNode.generatedInitFunction, field));
-                });
+        Map<BSymbol, BLangStatement> initFuncStmts = objectTypeNode.generatedInitFunction.initFunctionStmts;
+        for (BLangSimpleVariable field : objectTypeNode.fields) {
+            // skip if the field is already have an value set by the constructor.
+            if (!initFuncStmts.containsKey(field.symbol) && field.expr != null) {
+                initFuncStmts.put(field.symbol,
+                                  createStructFieldUpdate(objectTypeNode.generatedInitFunction, field,
+                                                          objectTypeNode.generatedInitFunction.receiver.symbol));
+            }
+        }
 
         // Adding init statements to the init function.
-        BLangStatement[] initStmts = initFunctionStmts.values().toArray(new BLangStatement[0]);
+        BLangStatement[] initStmts = initFuncStmts.values().toArray(new BLangStatement[0]);
         BLangBlockFunctionBody generatedInitFnBody =
                 (BLangBlockFunctionBody) objectTypeNode.generatedInitFunction.body;
         int i;
-        for (i = 0; i < initFunctionStmts.size(); i++) {
+        for (i = 0; i < initStmts.length; i++) {
             generatedInitFnBody.stmts.add(i, initStmts[i]);
         }
 
@@ -664,6 +674,15 @@ public class Desugar extends BLangNodeVisitor {
             ((BLangReturn) generatedInitFnBody.stmts.get(i)).expr =
                     createUserDefinedInitInvocation(objectTypeNode);
         }
+
+        // Rewrite the object methods to ensure that any anonymous types defined in method params, return type etc.
+        // gets defined before its first use.
+        for (BLangFunction fn : objectTypeNode.functions) {
+            rewrite(fn, this.env);
+        }
+        rewrite(objectTypeNode.generatedInitFunction, this.env);
+        rewrite(objectTypeNode.initFunction, this.env);
+
         result = objectTypeNode;
     }
 
@@ -695,17 +714,30 @@ public class Desugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangRecordTypeNode recordTypeNode) {
         recordTypeNode.fields.addAll(recordTypeNode.referencedFields);
+
+        for (BLangSimpleVariable bLangSimpleVariable : recordTypeNode.fields) {
+            bLangSimpleVariable.typeNode = rewrite(bLangSimpleVariable.typeNode, env);
+        }
+
+        // Will be null only for locally defined anonymous types
+        if (recordTypeNode.initFunction == null) {
+            recordTypeNode.initFunction = TypeDefBuilderHelper.createInitFunctionForRecordType(recordTypeNode, env,
+                                                                                               names, symTable);
+            env.enclPkg.addFunction(recordTypeNode.initFunction);
+            env.enclPkg.topLevelNodes.add(recordTypeNode.initFunction);
+        }
+
         // Add struct level variables to the init function.
-        recordTypeNode.fields.stream()
-                // Only add a field if it is required. Checking if it's required is enough since non-defaultable
-                // required fields will have been caught in the type checking phase.
-                .filter(field -> !recordTypeNode.initFunction.initFunctionStmts.containsKey(field.symbol) &&
-                        !Symbols.isOptional(field.symbol))
-                .filter(field -> field.expr != null)
-                .forEachOrdered(field -> {
-                    recordTypeNode.initFunction.initFunctionStmts.put(field.symbol,
-                            createStructFieldUpdate(recordTypeNode.initFunction, field));
-                });
+        for (BLangSimpleVariable field : recordTypeNode.fields) {
+            // Only add a field if it is required. Checking if it's required is enough since non-defaultable
+            // required fields will have been caught in the type checking phase.
+            if (!recordTypeNode.initFunction.initFunctionStmts.containsKey(field.symbol) &&
+                    !Symbols.isOptional(field.symbol) && field.expr != null) {
+                recordTypeNode.initFunction.initFunctionStmts
+                        .put(field.symbol, createStructFieldUpdate(recordTypeNode.initFunction, field,
+                                                                   recordTypeNode.initFunction.receiver.symbol));
+            }
+        }
 
         //Adding init statements to the init function.
         BLangStatement[] initStmts = recordTypeNode.initFunction.initFunctionStmts
@@ -719,7 +751,77 @@ public class Desugar extends BLangNodeVisitor {
         // Add invocations for the initializers of each of the type referenced records. Here, the initializers of the
         // referenced types are invoked on the current record type.
 
+        if (recordTypeNode.isAnonymous && recordTypeNode.isLocal) {
+            BLangUserDefinedType userDefinedType = desugarLocalAnonRecordTypeNode(recordTypeNode);
+            TypeDefBuilderHelper.addTypeDefinition(recordTypeNode.type, recordTypeNode.type.tsymbol, recordTypeNode,
+                                                   env);
+            recordTypeNode.desugared = true;
+            result = userDefinedType;
+            return;
+        }
+
         result = recordTypeNode;
+    }
+
+    private BLangUserDefinedType desugarLocalAnonRecordTypeNode(BLangRecordTypeNode recordTypeNode) {
+        return ASTBuilderUtil.createUserDefineTypeNode(recordTypeNode.symbol.name.value, recordTypeNode.type,
+                                                       recordTypeNode.pos);
+    }
+
+    @Override
+    public void visit(BLangArrayType arrayType) {
+        arrayType.elemtype = rewrite(arrayType.elemtype, env);
+        result = arrayType;
+    }
+
+    @Override
+    public void visit(BLangConstrainedType constrainedType) {
+        constrainedType.constraint = rewrite(constrainedType.constraint, env);
+        result = constrainedType;
+    }
+
+    @Override
+    public void visit(BLangValueType valueType) {
+        result = valueType;
+    }
+
+    @Override
+    public void visit(BLangUserDefinedType userDefinedType) {
+        result = userDefinedType;
+    }
+
+    @Override
+    public void visit(BLangUnionTypeNode unionTypeNode) {
+        List<BLangType> rewrittenMembers = new ArrayList<>();
+        unionTypeNode.memberTypeNodes.forEach(typeNode -> rewrittenMembers.add(rewrite(typeNode, env)));
+        unionTypeNode.memberTypeNodes = rewrittenMembers;
+        result = unionTypeNode;
+    }
+
+    @Override
+    public void visit(BLangErrorType errorType) {
+        errorType.detailType = rewrite(errorType.detailType, env);
+        result = errorType;
+    }
+
+    @Override
+    public void visit(BLangFunctionTypeNode functionTypeNode) {
+        functionTypeNode.params.forEach(param -> rewrite(param.typeNode, env));
+        functionTypeNode.returnTypeNode = rewrite(functionTypeNode.returnTypeNode, env);
+        result = functionTypeNode;
+    }
+
+    @Override
+    public void visit(BLangBuiltInRefTypeNode refTypeNode) {
+        result = refTypeNode;
+    }
+
+    @Override
+    public void visit(BLangTupleTypeNode tupleTypeNode) {
+        List<BLangType> rewrittenMembers = new ArrayList<>();
+        tupleTypeNode.memberTypeNodes.forEach(member -> rewrittenMembers.add(rewrite(member, env)));
+        tupleTypeNode.memberTypeNodes = rewrittenMembers;
+        result = tupleTypeNode;
     }
 
     @Override
@@ -747,7 +849,7 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangFunction funcNode) {
-        SymbolEnv fucEnv = SymbolEnv.createFunctionEnv(funcNode, funcNode.symbol.scope, env);
+        SymbolEnv funcEnv = SymbolEnv.createFunctionEnv(funcNode, funcNode.symbol.scope, env);
         if (!funcNode.interfaceFunction) {
             addReturnIfNotPresent(funcNode);
         }
@@ -755,15 +857,20 @@ public class Desugar extends BLangNodeVisitor {
         // Duplicate the invokable symbol and the invokable type.
         funcNode.originalFuncSymbol = funcNode.symbol;
         funcNode.symbol = ASTBuilderUtil.duplicateInvokableSymbol(funcNode.symbol);
-        funcNode.requiredParams = rewrite(funcNode.requiredParams, fucEnv);
-        funcNode.workers = rewrite(funcNode.workers, fucEnv);
+        funcNode.requiredParams = rewrite(funcNode.requiredParams, funcEnv);
+        funcNode.restParam = rewrite(funcNode.restParam, funcEnv);
+        funcNode.workers = rewrite(funcNode.workers, funcEnv);
+
+        if (funcNode.returnTypeNode != null && funcNode.returnTypeNode.getKind() != null) {
+            funcNode.returnTypeNode = rewrite(funcNode.returnTypeNode, funcEnv);
+        }
 
         List<BLangAnnotationAttachment> participantAnnotation
                 = funcNode.annAttachments.stream()
-                                         .filter(a -> Transactions.isTransactionsAnnotation(a.pkgAlias.value,
-                                                                                            a.annotationName.value))
-                                         .collect(Collectors.toList());
-        funcNode.body = rewrite(funcNode.body, fucEnv);
+                .filter(a -> Transactions.isTransactionsAnnotation(a.pkgAlias.value,
+                                                                   a.annotationName.value))
+                .collect(Collectors.toList());
+        funcNode.body = rewrite(funcNode.body, funcEnv);
         funcNode.annAttachments.forEach(attachment -> rewrite(attachment, env));
         if (funcNode.returnTypeNode != null) {
             funcNode.returnTypeAnnAttachments.forEach(attachment -> rewrite(attachment, env));
@@ -975,6 +1082,10 @@ public class Desugar extends BLangNodeVisitor {
             return;
         }
 
+        if (varNode.typeNode != null && varNode.typeNode.getKind() != null) {
+            varNode.typeNode = rewrite(varNode.typeNode, env);
+        }
+
         // Return if this assignment is not a safe assignment
         BLangExpression bLangExpression = rewriteExpr(varNode.expr);
         if (bLangExpression != null) {
@@ -982,7 +1093,7 @@ public class Desugar extends BLangNodeVisitor {
         }
         varNode.expr = bLangExpression;
 
-        varNode.annAttachments.forEach(attachment ->  rewrite(attachment, env));
+        varNode.annAttachments.forEach(attachment -> rewrite(attachment, env));
 
         result = varNode;
     }
@@ -2726,9 +2837,9 @@ public class Desugar extends BLangNodeVisitor {
         //
         // after desugar -
         //
-        // lock a;
+        // lock ;
         // var res = trap a = a + 7;
-        // unlock a;
+        // unlock ;
         // if (res is error) {
         //      panic res;
         // }
@@ -2773,11 +2884,6 @@ public class Desugar extends BLangNodeVisitor {
         blockStmt.addStatement(ifelse);
         result = rewrite(blockStmt, env);
         enclLocks.pop();
-
-        //check both a field and parent are in locked variables
-        if (!lockStmt.lockVariables.isEmpty()) {
-            lockStmt.fieldVariables.entrySet().removeIf(entry -> lockStmt.lockVariables.contains(entry.getKey()));
-        }
     }
 
     @Override
@@ -3166,8 +3272,9 @@ public class Desugar extends BLangNodeVisitor {
             genVarRefExpr = new BLangFieldVarRef((BVarSymbol) varRefExpr.symbol);
         } else if ((ownerSymbol.tag & SymTag.PACKAGE) == SymTag.PACKAGE ||
                 (ownerSymbol.tag & SymTag.SERVICE) == SymTag.SERVICE) {
-            // If the var ref is a const-ref of value type, then replace the ref
-            // from a simple literal
+
+            // TODO: The following condition can be removed once constant propagation for mapping constructor
+            // TODO: is resolved #issue-21127
             if ((varRefExpr.symbol.tag & SymTag.CONSTANT) == SymTag.CONSTANT) {
                 BConstantSymbol constSymbol = (BConstantSymbol) varRefExpr.symbol;
                 if (constSymbol.literalType.tag <= TypeTags.BOOLEAN || constSymbol.literalType.tag == TypeTags.NIL) {
@@ -3181,10 +3288,6 @@ public class Desugar extends BLangNodeVisitor {
             // Package variable | service variable.
             // We consider both of them as package level variables.
             genVarRefExpr = new BLangPackageVarRef((BVarSymbol) varRefExpr.symbol);
-
-            if (!enclLocks.isEmpty()) {
-                enclLocks.peek().addLockVariable((BVarSymbol) varRefExpr.symbol);
-            }
         }
 
         genVarRefExpr.type = varRefExpr.type;
@@ -3236,7 +3339,6 @@ public class Desugar extends BLangNodeVisitor {
                 targetVarRef = new BLangStructFieldAccessExpr(fieldAccessExpr.pos, fieldAccessExpr.expr, stringLit,
                         (BVarSymbol) fieldAccessExpr.symbol, false);
                 // Only supporting object field lock at the moment
-                addToLocks((BLangStructFieldAccessExpr) targetVarRef);
             }
         } else if (varRefTypeTag == TypeTags.RECORD ||
                 (varRefTypeTag == TypeTags.UNION &&
@@ -3264,24 +3366,6 @@ public class Desugar extends BLangNodeVisitor {
         targetVarRef.type = fieldAccessExpr.type;
         targetVarRef.optionalFieldAccess = fieldAccessExpr.optionalFieldAccess;
         result = targetVarRef;
-    }
-
-    private void addToLocks(BLangStructFieldAccessExpr targetVarRef) {
-        if (enclLocks.isEmpty()) {
-            return;
-        }
-
-        if (targetVarRef.expr.getKind() != NodeKind.SIMPLE_VARIABLE_REF
-                || ((BLangSimpleVarRef) targetVarRef.expr).symbol.owner.getKind() == SymbolKind.PACKAGE
-                || !Names.SELF.equals(((BLangLocalVarRef) targetVarRef.expr).symbol.name)) {
-            return;
-        }
-
-        // expr symbol is null when their is a array as the field
-        if (targetVarRef.indexExpr.getKind() == NodeKind.LITERAL) {
-            String field = (String) ((BLangLiteral) targetVarRef.indexExpr).value;
-            enclLocks.peek().addFieldVariable((BVarSymbol) ((BLangLocalVarRef) targetVarRef.expr).varSymbol, field);
-        }
     }
 
     @Override
@@ -4138,8 +4222,9 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangTypedescExpr accessExpr) {
-        result = accessExpr;
+    public void visit(BLangTypedescExpr typedescExpr) {
+        typedescExpr.typeNode = rewrite(typedescExpr.typeNode, env);
+        result = typedescExpr;
     }
 
     @Override
@@ -4318,6 +4403,7 @@ public class Desugar extends BLangNodeVisitor {
             addConversionExprIfRequired(expr, symTable.anyType);
         }
         typeTestExpr.expr = rewriteExpr(expr);
+        typeTestExpr.typeNode = rewrite(typeTestExpr.typeNode, env);
         result = typeTestExpr;
     }
 
@@ -4394,7 +4480,7 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangConstRef constantRef) {
-        result = constantRef;
+        result = ASTBuilderUtil.createLiteral(constantRef.pos, constantRef.type, constantRef.value);
     }
 
     // private functions
@@ -5382,8 +5468,9 @@ public class Desugar extends BLangNodeVisitor {
         return assignmentStmt;
     }
 
-    private BLangAssignment createStructFieldUpdate(BLangFunction function, BLangSimpleVariable variable) {
-        BLangSimpleVarRef selfVarRef = ASTBuilderUtil.createVariableRef(variable.pos, function.receiver.symbol);
+    private BLangAssignment createStructFieldUpdate(BLangFunction function, BLangSimpleVariable variable,
+                                                    BVarSymbol symbol) {
+        BLangSimpleVarRef selfVarRef = ASTBuilderUtil.createVariableRef(variable.pos, symbol);
         BLangFieldBasedAccess fieldAccess = ASTBuilderUtil.createFieldAccessExpr(selfVarRef, variable.name);
         fieldAccess.symbol = variable.symbol;
         fieldAccess.type = variable.type;
