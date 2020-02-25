@@ -57,6 +57,10 @@ public class CommandConstants {
             Pattern.compile(
                     "'(.*)' parameter for the method '(.*)' of the resource associated with the path '(.*)' is not " +
                             "documented in the OpenAPI contract");
+    public static final Pattern PARAMETER_FOR_THE_METHOD_NOT_FOUND_IN_BALLERINA =
+            Pattern.compile(
+                    "Couldn't find '(.*)' parameter in the Ballerina service resource for the method '(.*)' of the " +
+                            "path '(.*)' which is documented in the OpenAPI contract");
     // Command Arguments
     public static final String ARG_KEY_DOC_URI = "doc.uri";
 
@@ -123,4 +127,7 @@ public class CommandConstants {
 
     public static final String ADD_MISSING_PARAMETER_IN_OPENAPI =
             "Add missing parameter '%s' for the method '%s' for the path '%s' in the OpenAPI contract";
+
+    public static final String ADD_MISSING_PARAMETER_IN_BALLERINA =
+            "Add missing parameter '%s' for the method '%s' for the path '%s'";
 }
