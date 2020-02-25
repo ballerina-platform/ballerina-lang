@@ -73,6 +73,7 @@ public class CopyModuleJarTask implements Task {
             if (skipTests || !pkg.hasTestablePackage()) {
                 continue;
             }
+            // Copy module jars imported by testable package
             for (BLangPackage testPkg : pkg.getTestablePkgs()) {
                 copyImportedJars(testPkg.symbol.imports, buildContext, sourceRootPath, balHomePath,
                                  executableJar.testLibs, alreadyImportedMap);

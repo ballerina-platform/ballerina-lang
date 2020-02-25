@@ -20,8 +20,8 @@ package org.ballerinalang.packerina.task;
 
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.packerina.buildcontext.BuildContext;
-import org.ballerinalang.test.launcher.entity.Test;
-import org.ballerinalang.test.launcher.entity.TestSuite;
+import org.ballerinalang.test.runtime.entity.Test;
+import org.ballerinalang.test.runtime.entity.TestSuite;
 import org.ballerinalang.testerina.core.TesterinaRegistry;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 

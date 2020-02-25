@@ -98,11 +98,9 @@ public class CopyNativeLibTask implements Task {
         for (BLangPackage pkg : moduleBirMap) {
             PackageID packageID = pkg.packageID;
             BLangPackage bLangPackage = packageCache.get(packageID);
-
             if (bLangPackage == null || !buildContext.moduleDependencyPathMap.containsKey(packageID)) {
                 continue;
             }
-
             copyImportedLibs(bLangPackage.symbol.imports,
                     buildContext.moduleDependencyPathMap.get(packageID).moduleLibs,
                     buildContext, sourceRootPath, balHomePath, alreadyImportedMap);
@@ -110,7 +108,7 @@ public class CopyNativeLibTask implements Task {
             if (skipTests || !bLangPackage.hasTestablePackage()) {
                 continue;
             }
-
+            // Copy native libs imported by testable package
             for (BLangPackage testPkg : bLangPackage.getTestablePkgs()) {
                 copyImportedLibs(testPkg.symbol.imports,
                         buildContext.moduleDependencyPathMap.get(testPkg.packageID).testLibs,

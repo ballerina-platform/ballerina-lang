@@ -23,8 +23,8 @@ import org.ballerinalang.packerina.OsUtils;
 import org.ballerinalang.packerina.buildcontext.BuildContext;
 import org.ballerinalang.packerina.buildcontext.BuildContextField;
 import org.ballerinalang.packerina.model.ExecutableJar;
-import org.ballerinalang.test.launcher.entity.TestSuite;
-import org.ballerinalang.test.launcher.util.TesterinaConstants;
+import org.ballerinalang.test.runtime.entity.TestSuite;
+import org.ballerinalang.test.runtime.util.TesterinaConstants;
 import org.ballerinalang.testerina.core.TesterinaRegistry;
 import org.ballerinalang.tool.LauncherUtils;
 import org.ballerinalang.tool.util.BFileUtil;
@@ -80,7 +80,7 @@ public class RunTestsTask implements Task {
         Path sourceRootPath = buildContext.get(BuildContextField.SOURCE_ROOT);
 
         List<BLangPackage> moduleBirMap = buildContext.getModules();
-        // Only tests in packages are executed so default packages i.e. single bal files which has the package name
+        //p Only tests in packages are executed so default packages i.e. single bal files which has the package name
         // as "." are ignored. This is to be consistent with the "ballerina test" command which only executes tests
         // in packages.
         for (BLangPackage bLangPackage : moduleBirMap) {
@@ -154,14 +154,14 @@ public class RunTestsTask implements Task {
     /**
      * Write the content into a json.
      *
-     * @param testMetaData Data that are parsed to the json
+     * @param testSuite Data that are parsed to the json
      */
-    private static void writeToJson(TestSuite testMetaData, Path jsonPath) {
+    private static void writeToJson(TestSuite testSuite, Path jsonPath) {
         Path tmpJsonPath = Paths.get(jsonPath.toString(), TesterinaConstants.TESTERINA_TEST_SUITE);
         File jsonFile = new File(tmpJsonPath.toString());
         try (Writer writer = new OutputStreamWriter(new FileOutputStream(jsonFile), StandardCharsets.UTF_8)) {
             Gson gson = new Gson();
-            String json = gson.toJson(testMetaData);
+            String json = gson.toJson(testSuite);
             writer.write(new String(json.getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8));
         } catch (IOException e) {
             throw LauncherUtils.createLauncherException("couldn't read data from the Json file : " + e.toString());
@@ -177,23 +177,6 @@ public class RunTestsTask implements Task {
             cmdArgs.addAll(Arrays.asList(args));
             ProcessBuilder processBuilder = new ProcessBuilder(cmdArgs).inheritIO();;
             Process proc = processBuilder.start();
-
-//            // Then retrieve the process output
-//            InputStream in = proc.getInputStream();
-//            InputStream err = proc.getErrorStream();
-//            int outputStreamLength;
-//
-//            byte[] b = new byte[in.available()];
-//            outputStreamLength = in.read(b, 0, b.length);
-//            if (outputStreamLength > 0) {
-//                buildContext.out().println(new String(b, StandardCharsets.UTF_8));
-//            }
-//
-//            byte[] c = new byte[err.available()];
-//            outputStreamLength = err.read(c, 0, c.length);
-//            if (outputStreamLength > 0) {
-//                buildContext.out().println(new String(c, StandardCharsets.UTF_8));
-//            }
            return proc.waitFor();
         } catch (IOException | InterruptedException e) {
             throw createLauncherException("unable to run the tests: " + e.getMessage());

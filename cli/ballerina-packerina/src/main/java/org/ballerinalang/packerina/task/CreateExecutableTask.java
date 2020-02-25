@@ -115,7 +115,6 @@ public class CreateExecutableTask implements Task {
                 outStream.closeArchiveEntry();
             }
         } catch (IOException | NullPointerException e) {
-            e.printStackTrace();
             throw createLauncherException("unable to create the executable: " + e.getMessage());
         }
     }
