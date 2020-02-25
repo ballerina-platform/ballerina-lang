@@ -14,8 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/io;
-
 type Node record {|
     any value;
     Node? prev = ();
@@ -87,28 +85,4 @@ function removeLast(LinkedList list) returns Node? {
 function clear(LinkedList list) {
     list.head = ();
     list.tail = ();
-}
-
-// TODO: Delete after debug process
-function print(LinkedList list) {
-    if (list.head is ()) {
-        io:println("List is empty ...");
-        return;
-    }
-
-    Node head = <Node>list.head;
-    io:println("HEAD: " + head.value.toString());
-    Node? prevOfHead = head.prev;
-    io:println(prevOfHead is () ? "head.prev is ()" : "head.prev -> Ooops!");
-
-    Node? next = list.head;
-    while (!(next is ())) {
-        io:println(next.value);
-        next = next.next;
-    }
-
-    Node tail = <Node>list.tail;
-    io:println("TAIL: " + tail.value.toString());
-    Node? nextOfTail = tail.next;
-    io:println(nextOfTail is () ? "tail.next is ()" : "tail.next -> Ooops!");
 }
