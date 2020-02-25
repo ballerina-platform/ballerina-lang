@@ -305,6 +305,11 @@ public class SealedArrayTest {
         BRunUtil.invoke(compileResult, "createUnionAutoFillArray");
     }
 
+    @Test(description = "Float Union array fill with an union which has default fill value as a member value.")
+    public void createUnionFloatAutoFillArray() {
+        BRunUtil.invoke(compileResult, "createUnionFloatAutoFillArray");
+    }
+
     @Test(description = "Test union array fill with list-expr with an union with nil")
     public void createNullableUnionAutoFillArray() {
         BRunUtil.invoke(compileResult, "createNullableUnionAutoFillArray");

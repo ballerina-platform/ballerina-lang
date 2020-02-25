@@ -20,6 +20,7 @@ package org.wso2.ballerinalang.compiler.semantics.analyzer;
 import org.ballerinalang.model.Name;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.Flag;
+import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.BLangCompilerConstants;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
@@ -109,35 +110,6 @@ public class Types {
     private BLangDiagnosticLog dlog;
     private Names names;
     private int finiteTypeCount = 0;
-
-    private boolean checkFillerValue(BUnionType type) {
-        if (type.isNullable()) {
-            return true;
-        }
-        Iterator<BType> iterator = type.getMemberTypes().iterator();
-        BType firstMember = iterator.next();
-        boolean defaultFillValuePresent = false;
-
-        // is first value is a valid fill value
-        String defaultFillValue = getDefaultFillValue(firstMember);
-        if (defaultFillValue.equals(DefaultValues.UNKNOWN.getValue())) {
-            return false;
-        }
-        if (firstMember.toString().equals(defaultFillValue)) {
-            defaultFillValuePresent = true;
-        }
-
-        while (iterator.hasNext()) {
-            Object value = iterator.next();
-            if (!isSameType(firstMember, (BType) value)) {
-                return false;
-            }
-            if (!defaultFillValuePresent && value.toString().equals(defaultFillValue)) {
-                defaultFillValuePresent = true;
-            }
-        }
-        return defaultFillValuePresent;
-    }
 
     public static Types getInstance(CompilerContext context) {
         Types types = context.get(TYPES_KEY);
@@ -243,7 +215,17 @@ public class Types {
     }
 
     public boolean isValueType(BType type) {
-        return type.tag < TypeTags.JSON;
+        switch (type.tag) {
+            case TypeTags.BOOLEAN:
+            case TypeTags.BYTE:
+            case TypeTags.DECIMAL:
+            case TypeTags.FLOAT:
+            case TypeTags.INT:
+            case TypeTags.STRING:
+                return true;
+            default:
+                return false;
+        }
     }
 
     boolean isBasicNumericType(BType type) {
@@ -2585,10 +2567,18 @@ public class Types {
     }
 
     public boolean hasFillerValue(BType type) {
-        if (type.tag < TypeTags.RECORD) {
-            return true;
-        }
         switch (type.tag) {
+            case TypeTags.INT:
+            case TypeTags.BYTE:
+            case TypeTags.FLOAT:
+            case TypeTags.DECIMAL:
+            case TypeTags.STRING:
+            case TypeTags.BOOLEAN:
+            case TypeTags.JSON:
+            case TypeTags.XML:
+            case TypeTags.TABLE:
+            case TypeTags.NIL:
+            case TypeTags.ANYDATA:
             case TypeTags.MAP:
             case TypeTags.ANY:
                 return true;
@@ -2644,61 +2634,63 @@ public class Types {
         if (type.isNullable()) {
             return true;
         }
-
-        // For singleton types, that value is the implicit initial value
-        if (type.getValueSpace().size() == 1) {
+        if (type.getValueSpace().size() == 1) { // For singleton types, that value is the implicit initial value
             return true;
         }
-
-        boolean defaultFillValuePresent = false;
-
         Iterator iterator = type.getValueSpace().iterator();
         BLangExpression firstElement = (BLangExpression) iterator.next();
-        BType firstElementType = firstElement.type;
-        String defaultFillValue = getDefaultFillValue(firstElement);
-        if (defaultFillValue.equals(DefaultValues.UNKNOWN.getValue())) {
-            return false;
-        }
-        if (firstElement.toString().equals(defaultFillValue)) {
-            defaultFillValuePresent = true;
-        }
+        boolean defaultFillValuePresent = isImplicitDefaultValue(firstElement);
 
         while (iterator.hasNext()) {
-            Object value = iterator.next();
-            BType valueType = ((BLangExpression) value).type;
-            if (!isSameType(valueType, firstElementType)) {
+            BLangExpression value = (BLangExpression) iterator.next();
+            if (!isSameType(value.type, firstElement.type)) {
                 return false;
             }
-            if (!defaultFillValuePresent && value.toString().equals(defaultFillValue)) {
+            if (!defaultFillValuePresent && isImplicitDefaultValue(value)) {
                 defaultFillValuePresent = true;
             }
         }
+
         return defaultFillValuePresent;
     }
 
-    private String getDefaultFillValue(BType type) {
-        switch(type.getKind()) {
-            case INT:
-            case BYTE:
-                return DefaultValues.INTEGER.getValue();
-            case STRING:
-                return DefaultValues.STRING.getValue();
-            case DECIMAL:
-            case FLOAT:
-                return DefaultValues.FLOAT.getValue();
-            case BOOLEAN:
-                return DefaultValues.BOOLEAN.getValue();
-            case NIL:
-                return DefaultValues.NIL.getValue();
-            case ERROR:
-            case TYPEDESC:
-                return DefaultValues.UNKNOWN.getValue();
-            default:
-                if (type instanceof BFiniteType) {
-                    return getDefaultFillValue((BFiniteType) type);
-                }
-                return DefaultValues.UNKNOWN.getValue();
+    private boolean checkFillerValue(BUnionType type) {
+        if (type.isNullable()) {
+            return true;
         }
+        Iterator<BType> iterator = type.getMemberTypes().iterator();
+        BType firstMember = iterator.next();
+        while (iterator.hasNext()) {
+            if (!isSameType(firstMember, iterator.next())) {
+                return false;
+            }
+        }
+        return isValueType(firstMember) && hasFillerValue(firstMember);
+    }
+
+    private boolean isImplicitDefaultValue(BLangExpression expression) {
+        if ((expression.getKind() == NodeKind.LITERAL) || (expression.getKind() == NodeKind.NUMERIC_LITERAL)) {
+            BLangLiteral literalExpression = (BLangLiteral) expression;
+            BType literalExprType = literalExpression.type;
+            Object value = literalExpression.getValue();
+            switch (literalExprType.getKind()) {
+                case INT:
+                case BYTE:
+                    return value.equals(Long.valueOf(0));
+                case STRING:
+                    return value == null || value.equals("");
+                case DECIMAL:
+                case FLOAT:
+                    return value.equals(String.valueOf(0.0));
+                case BOOLEAN:
+                    return value.equals(Boolean.valueOf(false));
+                case NIL:
+                    return true;
+                default:
+                    return false;
+            }
+        }
+        return false;
     }
 
     private boolean checkFillerValue(BRecordType type) {
@@ -2718,47 +2710,5 @@ public class Types {
             return true;
         }
         return hasFillerValue(type.eType);
-    }
-
-    private String getDefaultFillValue(BLangExpression expr) {
-        return getDefaultFillValue(expr.type);
-    }
-
-    private String getDefaultFillValue(BFiniteType finiteType) {
-        if (finiteType.getValueSpace().size() == 1) {
-            for (BLangExpression valueLiteral : finiteType.getValueSpace()) {
-                if (!(valueLiteral instanceof BLangLiteral)) {
-                    return DefaultValues.UNKNOWN.getValue();
-                }
-                return valueLiteral.toString();
-            }
-        }
-        return DefaultValues.UNKNOWN.getValue();
-    }
-
-    /**
-     * Keep filler value for basic types in String format.
-     *
-     * @since 1.2.0
-     */
-    public enum DefaultValues {
-        STRING(""),
-        INTEGER("0"),
-        BYTE("0"),
-        FLOAT("0.0"),
-        BIGDECIMAL("0.0"),
-        BOOLEAN("false"),
-        NIL("()"),
-        UNKNOWN("NA");
-
-        private String value;
-
-        DefaultValues(String value) {
-            this.value = value;
-        }
-
-        public String getValue() {
-            return value;
-        }
     }
 }

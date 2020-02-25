@@ -276,6 +276,24 @@ function createUnionAutoFillArray() {
     assertArrayLengthPanic(3, unionArray);
 }
 
+type myFloatUnion 1.2 | 3.5 | 0.0 | 3.4;
+function createUnionFloatAutoFillArray() {
+    myFloatUnion[2] unionArray = [];
+    unionArray[1] = 3.5;
+    assertArrayValuePanic(0.0, unionArray, 0);
+    assertArrayValuePanic(3.5, unionArray, 1);
+    assertArrayLengthPanic(2, unionArray);
+}
+
+type myBooleanUnion true | false;
+function createUnionBooleanAutoFillArray() {
+    myBooleanUnion[2] unionArray = [];
+    unionArray[1] = true;
+    assertArrayValuePanic(false, unionArray, 0);
+    assertArrayValuePanic(true, unionArray, 1);
+    assertArrayLengthPanic(2, unionArray);
+}
+
 type myNullableUnion 1 | 2 | 3 | 4 | ();
 function createNullableUnionAutoFillArray() {
     myNullableUnion[3] unionArray = [];
@@ -425,5 +443,11 @@ function isEqualPanic(string expected, any[] arr, string message = "Not equal") 
     string actual = arr.toString().trim();
     if (expected != actual) {
         panic error(message + " Expected : " + expected + " Actual : " + actual);
+    }
+}
+
+function assertTruePanic(boolean actual, string message = "Not equal") {
+    if (true != actual) {
+        panic error(message + " Expected : true" + " Actual : " + actual.toString());
     }
 }

@@ -117,7 +117,7 @@ public class BFiniteType extends BType implements FiniteType {
 
     public void addValue(BLangExpression value) {
         this.valueSpace.add(value);
-        if (!nullable && (value.type.tag == TypeTags.NIL)) {
+        if (!nullable && value.type.isNullable()) {
             nullable = true;
         }
     }

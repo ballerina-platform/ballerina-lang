@@ -37,7 +37,7 @@ public class BArrayType extends BType {
     private BType elementType;
     private int dimensions = 1;
     private int size = -1;
-    private boolean hasFillerValue = false;
+    private boolean hasFillerValue;
     private ArrayState state = ArrayState.UNSEALED;
 
     public BArrayType(BType elementType) {
