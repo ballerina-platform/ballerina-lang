@@ -299,7 +299,7 @@ public abstract class AbstractCompletionProvider implements LSCompletionProvider
                     CompletionItem item = new CompletionItem();
                     item.setLabel(label);
                     item.setInsertText(insertText);
-                    item.setDetail(ItemResolverConstants.PACKAGE_TYPE);
+                    item.setDetail(ItemResolverConstants.MODULE_TYPE);
                     item.setKind(CompletionItemKind.Module);
                     populatedList.add(orgName + "/" + pkgName);
                     return new SymbolCompletionItem(ctx, pkg.symbol, item);
@@ -325,7 +325,7 @@ public abstract class AbstractCompletionProvider implements LSCompletionProvider
                     insertText = "'" + pkgNameComponents[pkgNameComponents.length - 1];
                 }
                 item.setInsertText(insertText);
-                item.setDetail(ItemResolverConstants.PACKAGE_TYPE);
+                item.setDetail(ItemResolverConstants.MODULE_TYPE);
                 item.setKind(CompletionItemKind.Module);
                 item.setAdditionalTextEdits(CommonUtil.getAutoImportTextEdits(orgName, name, ctx));
                 completionItems.add(new StaticCompletionItem(ctx, item));
