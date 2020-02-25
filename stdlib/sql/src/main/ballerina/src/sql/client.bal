@@ -16,14 +16,6 @@
 
 public type Client abstract client object {
 
-    # The call remote function implementation for SQL Client to invoke stored procedures/functions.
-    #
-    # + sqlQuery - The SQL query such as SELECT statements which returns the table rows.
-    # + rowType - The type description of the record that should be returns in the retuned stream.
-    # + return - A `stream<record{}>` containing the records of the query results.
-    public remote function query(@untainted string sqlQuery, typedesc<record {}>? rowType =())
-                                returns @tainted stream<record {}>|Error;
-
     # Close the SQL client.
     #
     # + return - Possible error during closing the client

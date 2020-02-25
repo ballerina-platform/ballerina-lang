@@ -36,17 +36,6 @@ public type Client client object {
       return createClient(self, clientConf, sql:getGlobalConnectionPool());
     }
 
-      # The call remote function implementation for SQL Client to invoke stored procedures/functions.
-      #
-      # + sqlQuery - The SQL query such as SELECT statements which returns the table rows.
-      # + rowType - The type description of the record that should be returns in the retuned stream.
-      # + return - A `stream<record{}>` containing the records of the query results.
-      public remote function query(@untainted string sqlQuery, typedesc<record {}>? rowType =())
-                                  returns @tainted stream<record {}>|sql:Error {
-        //TODO: handle invocation after client is closed.
-        return nativeQuery(self, java:fromString(sqlQuery), rowType);
-    }
-
     # Stops the JDBC client.
     #
     # + return - Possible error during closing the client
@@ -84,12 +73,6 @@ type ClientConfiguration record {|
 function createClient(Client jdbcClient, ClientConfiguration clientConf,
     sql:ConnectionPool globalConnPool) returns sql:Error? = @java:Method {
     class: "org.ballerinalang.jdbc.NativeImpl"
-} external;
-
-
-function nativeQuery(Client jdbcClient, @untainted handle sqlQuery,
-    typedesc<record {}>? rowType) returns @tainted stream<record {}> = @java:Method {
-        class: "org.ballerinalang.jdbc.NativeImpl"
 } external;
 
 

@@ -19,7 +19,6 @@ package org.ballerinalang.jdbc;
 
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.jvm.values.StreamValue;
 import org.ballerinalang.sql.datasource.SQLDatasource;
 import org.ballerinalang.sql.exceptions.ErrorGenerator;
 import org.ballerinalang.sql.utils.ClientUtils;
@@ -66,9 +65,5 @@ public class NativeImpl {
     // Unable to perform a complete validation since URL differs based on the database.
     private static boolean isJdbcUrlValid(String jdbcUrl) {
         return !jdbcUrl.isEmpty() && jdbcUrl.trim().startsWith("jdbc:");
-    }
-
-    public static StreamValue nativeQuery(ObjectValue client, String query, Object recordType) {
-        return null;
     }
 }
