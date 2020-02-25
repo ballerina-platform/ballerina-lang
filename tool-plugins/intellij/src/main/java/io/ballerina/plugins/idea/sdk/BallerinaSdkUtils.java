@@ -253,7 +253,7 @@ public class BallerinaSdkUtils {
     public static String autoDetectSdk(Project project) {
 
         // Checks for the user-configured auto detection settings.
-        if (!BallerinaAutoDetectionSettings.getInstance(project).getIsAutoDetectionEnabled()) {
+        if (!BallerinaAutoDetectionSettings.getInstance(project).isAutoDetectionEnabled()) {
             return "";
         }
 
