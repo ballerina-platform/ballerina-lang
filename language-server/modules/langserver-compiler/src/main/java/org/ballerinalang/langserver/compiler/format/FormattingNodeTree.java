@@ -1289,7 +1289,6 @@ public class FormattingNodeTree {
             String indentation = this.getIndentation(formatConfig, false);
             String indentationOfParent = this.getParentIndentation(formatConfig);
             boolean useParentIndentation = formatConfig.get(FormattingConstants.USE_PARENT_INDENTATION).getAsBoolean();
-            boolean firstKeywordOnNewLine = false;
 
             this.preserveHeight(ws, useParentIndentation ? indentationOfParent : indentation, false);
 
@@ -1299,7 +1298,6 @@ public class FormattingNodeTree {
             boolean isVarAvailable = node.has(FormattingConstants.IS_VAR_EXISTS)
                     && node.get(FormattingConstants.IS_VAR_EXISTS).getAsBoolean();
             boolean isOpenParanOrErrorOnNewLine = false;
-            boolean hasTypeNode = node.has(FormattingConstants.TYPE_NODE);
             for (JsonElement wsItem : ws) {
                 JsonObject currentWS = wsItem.getAsJsonObject();
                 String text = currentWS.get(FormattingConstants.TEXT).getAsString();
