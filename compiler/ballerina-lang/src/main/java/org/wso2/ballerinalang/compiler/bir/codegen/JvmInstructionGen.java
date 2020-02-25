@@ -1579,7 +1579,7 @@ public class JvmInstructionGen {
                 long intValue = constVal instanceof Long ? (long) constVal : Long.parseLong((String) constVal);
                 this.mv.visitLdcInsn(intValue);
             } else if (bType.tag == TypeTags.BYTE) {
-                int byteValue = constVal instanceof Integer ? (int) constVal : Integer.parseInt((String) constVal);
+                int byteValue = (int) (long) constVal;
                 this.mv.visitLdcInsn(byteValue);
             } else if (bType.tag == TypeTags.FLOAT) {
                 double doubleValue = constVal instanceof Double ? (double) constVal :

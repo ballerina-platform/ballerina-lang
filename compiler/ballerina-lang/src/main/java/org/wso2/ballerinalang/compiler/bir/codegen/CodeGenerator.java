@@ -35,6 +35,7 @@ import java.util.jar.Manifest;
 
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.compiledPkgCache;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.generatePackage;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.intiPackageGen;
 
 /**
  * JVM byte code generator from BIR model.
@@ -65,6 +66,7 @@ public class CodeGenerator {
     }
 
     public void generate(BIRNode.BIRPackage entryMod, Path target) {
+        intiPackageGen();
         JvmPackageGen.symbolTable = symbolTable;
         compiledPkgCache.put(entryMod.org.value + entryMod.name.value, entryMod);
         JvmPackageGen.JarFile jarFile = new JvmPackageGen.JarFile();
