@@ -20,6 +20,7 @@ import com.intellij.openapi.options.SearchableConfigurable;
 import com.intellij.openapi.project.Project;
 import com.intellij.util.ui.FormBuilder;
 import com.intellij.util.ui.UIUtil;
+import io.ballerina.plugins.idea.sdk.BallerinaSdkUtils;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -36,6 +37,7 @@ import javax.swing.JPanel;
  */
 public class LangServerLogsConfigurable implements SearchableConfigurable {
 
+    private Project project;
     private JCheckBox myEnableDebugLogsCb;
     private JCheckBox myEnableTraceLogsCb;
     private final LangServerLogsSettings myLangServerLogsSettings;
@@ -43,7 +45,8 @@ public class LangServerLogsConfigurable implements SearchableConfigurable {
 
     public LangServerLogsConfigurable(Project project, boolean dialogMode) {
         myLangServerLogsSettings = LangServerLogsSettings.getInstance(project);
-        myIsDialog = dialogMode;
+        this.project = project;
+        this.myIsDialog = dialogMode;
     }
 
     @Nullable
@@ -73,6 +76,8 @@ public class LangServerLogsConfigurable implements SearchableConfigurable {
     public void apply() {
         myLangServerLogsSettings.setIsLangServerDebugLogsEnabled(myEnableDebugLogsCb.isSelected());
         myLangServerLogsSettings.setIsLangServerTraceLogsEnabled(myEnableTraceLogsCb.isSelected());
+        // Todo - Remove after adding support to send language server related configuration changes on-the-fly.
+        BallerinaSdkUtils.showRestartDialog(project);
     }
 
     @Override

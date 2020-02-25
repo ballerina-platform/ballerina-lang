@@ -37,13 +37,15 @@ import javax.swing.JPanel;
  */
 public class BallerinaAutoDetectionConfigurable implements SearchableConfigurable {
 
+    private Project project;
     private JCheckBox myAutoDetectionCb;
     private final BallerinaAutoDetectionSettings myBalHomeAutoDetectionSettings;
     private final boolean myIsDialog;
 
     public BallerinaAutoDetectionConfigurable(@NotNull Project project, boolean dialogMode) {
         myBalHomeAutoDetectionSettings = BallerinaAutoDetectionSettings.getInstance(project);
-        myIsDialog = dialogMode;
+        this.project = project;
+        this.myIsDialog = dialogMode;
     }
 
     @Nullable
@@ -69,7 +71,8 @@ public class BallerinaAutoDetectionConfigurable implements SearchableConfigurabl
     @Override
     public void apply() {
         myBalHomeAutoDetectionSettings.setIsAutoDetectionEnabled(myAutoDetectionCb.isSelected());
-        BallerinaSdkUtils.showRestartDialog(null);
+        // Todo - Remove after adding support to apply SDK changes on-the-fly.
+        BallerinaSdkUtils.showRestartDialog(project);
     }
 
     @Override
