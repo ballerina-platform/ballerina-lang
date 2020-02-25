@@ -23,8 +23,8 @@ import org.ballerinalang.langserver.LSContextOperation;
 import org.ballerinalang.langserver.LSTestOperationContext;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.LSContext;
+import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
-import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManagerImpl;
 import org.ballerinalang.langserver.completions.sourceprune.CompletionsTokenTraverserFactory;
 import org.ballerinalang.langserver.completions.util.SourcePruneException;
@@ -131,7 +131,6 @@ public class SourcePruneTest {
                 {"src_prune_config5.json"},
                 {"src_prune_config6.json"},
                 // Annotation attachments
-                {"src_prune_config7.json"},
                 {"src_prune_config8.json"},
                 {"src_prune_config9.json"},
                 {"src_prune_config10.json"},

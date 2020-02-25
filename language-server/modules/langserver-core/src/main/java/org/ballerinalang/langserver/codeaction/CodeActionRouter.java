@@ -41,10 +41,10 @@ public class CodeActionRouter {
     public static List<CodeAction> getBallerinaCodeActions(CodeActionNodeType nodeType, LSContext context,
                                                     List<Diagnostic> diagnostics) {
         List<CodeAction> codeActions = new ArrayList<>();
-
+        CodeActionProvidersHolder codeActionProvidersHolder = CodeActionProvidersHolder.getInstance();
         if (nodeType != null) {
             Map<CodeActionNodeType, List<LSCodeActionProvider>> nodeBasedProviders =
-                    CodeActionProvidersHolder.getNodeBasedProviders();
+                    codeActionProvidersHolder.getNodeBasedProviders();
             if (nodeBasedProviders.containsKey(nodeType)) {
                 nodeBasedProviders.get(nodeType).forEach(ballerinaCodeAction -> {
                     codeActions.addAll(ballerinaCodeAction.getCodeActions(nodeType, context, null));
@@ -52,7 +52,7 @@ public class CodeActionRouter {
             }
         }
         if (diagnostics != null && diagnostics.size() > 0) {
-            CodeActionProvidersHolder.getDiagnosticsBasedProviders().forEach(ballerinaCodeAction -> {
+            codeActionProvidersHolder.getDiagnosticsBasedProviders().forEach(ballerinaCodeAction -> {
                 List<CodeAction> codeActionList = ballerinaCodeAction.getCodeActions(nodeType, context, diagnostics);
                 if (codeActionList != null) {
                     codeActions.addAll(codeActionList);

@@ -17,8 +17,8 @@ package org.ballerinalang.langserver.signature.sourceprune;
 
 import org.antlr.v4.runtime.TokenStream;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
-import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentException;
-import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
+import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
+import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.sourceprune.SourcePruneContext;
 import org.ballerinalang.langserver.sourceprune.TokenTraverser;
 import org.ballerinalang.langserver.sourceprune.TokenTraverserFactory;

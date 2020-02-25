@@ -572,7 +572,7 @@ function prepareRequest(RequestConfig config) returns http:Request|Error {
         }
     }
     if (scopeString != "") {
-        textPayload = textPayload + "&scope=" + scopeString;
+        textPayload = textPayload + "&scope=" + scopeString.trim();
     }
 
     string? clientId = config?.clientId;

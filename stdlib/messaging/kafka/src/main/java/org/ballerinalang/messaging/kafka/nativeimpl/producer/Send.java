@@ -44,7 +44,7 @@ import static org.ballerinalang.messaging.kafka.utils.KafkaUtils.getLongValue;
 import static org.ballerinalang.messaging.kafka.utils.TransactionUtils.handleTransactions;
 
 /**
- * Native action produces blob value to given string topic.
+ * Native method to send different types of keys and values to kafka broker from ballerina kafka producer.
  */
 public class Send {
 
@@ -60,9 +60,8 @@ public class Send {
         // Shall we pass this here, or access it in sendKafkaRecord() function ?
         Integer partitionValue = getIntValue(partition, ALIAS_PARTITION, logger);
         Long timestampValue = getLongValue(timestamp);
-        ProducerRecord<String, String> kafkaRecord = new ProducerRecord<>(topic, partitionValue, timestampValue,
-                                                                          null, value);
-
+        ProducerRecord<?, String> kafkaRecord = new ProducerRecord<>(topic, partitionValue, timestampValue, null,
+                                                                     value);
         return sendKafkaRecord(kafkaRecord, producer);
     }
 
@@ -74,7 +73,6 @@ public class Send {
         Long timestampValue = getLongValue(timestamp);
         ProducerRecord<String, String> kafkaRecord = new ProducerRecord<>(topic, partitionValue, timestampValue, key,
                                                                           value);
-
         return sendKafkaRecord(kafkaRecord, producer);
     }
 
@@ -86,7 +84,6 @@ public class Send {
         Long timestampValue = getLongValue(timestamp);
         ProducerRecord<Long, String> kafkaRecord = new ProducerRecord<>(topic, partitionValue, timestampValue, key,
                                                                         value);
-
         return sendKafkaRecord(kafkaRecord, producer);
     }
 
@@ -98,7 +95,6 @@ public class Send {
         Long timestampValue = getLongValue(timestamp);
         ProducerRecord<Double, String> kafkaRecord = new ProducerRecord<>(topic, partitionValue, timestampValue,
                                                                           key, value);
-
         return sendKafkaRecord(kafkaRecord, producer);
     }
 
@@ -110,7 +106,6 @@ public class Send {
         Long timestampValue = getLongValue(timestamp);
         ProducerRecord<byte[], String> kafkaRecord = new ProducerRecord<>(topic, partitionValue, timestampValue,
                                                                           key.getBytes(), value);
-
         return sendKafkaRecord(kafkaRecord, producer);
     }
 
@@ -123,9 +118,7 @@ public class Send {
         // Shall we pass this here, or access it in sendKafkaRecord() function ?
         Integer partitionValue = getIntValue(partition, ALIAS_PARTITION, logger);
         Long timestampValue = getLongValue(timestamp);
-        ProducerRecord<Long, Long> kafkaRecord = new ProducerRecord<>(topic, partitionValue, timestampValue,
-                                                                      null, value);
-
+        ProducerRecord<?, Long> kafkaRecord = new ProducerRecord<>(topic, partitionValue, timestampValue, null, value);
         return sendKafkaRecord(kafkaRecord, producer);
     }
 
@@ -135,9 +128,8 @@ public class Send {
         // Shall we pass this here, or access it in sendKafkaRecord() function ?
         Integer partitionValue = getIntValue(partition, ALIAS_PARTITION, logger);
         Long timestampValue = getLongValue(timestamp);
-        ProducerRecord<String, Long> kafkaRecord = new ProducerRecord<>(topic, partitionValue, timestampValue,
-                                                                        key, value);
-
+        ProducerRecord<String, Long> kafkaRecord = new ProducerRecord<>(topic, partitionValue, timestampValue, key,
+                                                                        value);
         return sendKafkaRecord(kafkaRecord, producer);
     }
 
@@ -147,9 +139,8 @@ public class Send {
         // Shall we pass this here, or access it in sendKafkaRecord() function ?
         Integer partitionValue = getIntValue(partition, ALIAS_PARTITION, logger);
         Long timestampValue = getLongValue(timestamp);
-        ProducerRecord<Long, Long> kafkaRecord = new ProducerRecord<>(topic, partitionValue, timestampValue,
-                                                                      key, value);
-
+        ProducerRecord<Long, Long> kafkaRecord = new ProducerRecord<>(topic, partitionValue, timestampValue, key,
+                                                                      value);
         return sendKafkaRecord(kafkaRecord, producer);
     }
 
@@ -159,9 +150,8 @@ public class Send {
         // Shall we pass this here, or access it in sendKafkaRecord() function ?
         Integer partitionValue = getIntValue(partition, ALIAS_PARTITION, logger);
         Long timestampValue = getLongValue(timestamp);
-        ProducerRecord<Double, Long> kafkaRecord = new ProducerRecord<>(topic, partitionValue, timestampValue,
-                                                                        key, value);
-
+        ProducerRecord<Double, Long> kafkaRecord = new ProducerRecord<>(topic, partitionValue, timestampValue, key,
+                                                                        value);
         return sendKafkaRecord(kafkaRecord, producer);
     }
 
@@ -173,7 +163,6 @@ public class Send {
         Long timestampValue = getLongValue(timestamp);
         ProducerRecord<byte[], Long> kafkaRecord = new ProducerRecord<>(topic, partitionValue, timestampValue,
                                                                         key.getBytes(), value);
-
         return sendKafkaRecord(kafkaRecord, producer);
     }
 
@@ -186,9 +175,8 @@ public class Send {
         // Shall we pass this here, or access it in sendKafkaRecord() function ?
         Integer partitionValue = getIntValue(partition, ALIAS_PARTITION, logger);
         Long timestampValue = getLongValue(timestamp);
-        ProducerRecord<Double, Double> kafkaRecord = new ProducerRecord<>(topic, partitionValue, timestampValue,
-                                                                          null, value);
-
+        ProducerRecord<?, Double> kafkaRecord = new ProducerRecord<>(topic, partitionValue, timestampValue, null,
+                                                                     value);
         return sendKafkaRecord(kafkaRecord, producer);
     }
 
@@ -198,9 +186,8 @@ public class Send {
         // Shall we pass this here, or access it in sendKafkaRecord() function ?
         Integer partitionValue = getIntValue(partition, ALIAS_PARTITION, logger);
         Long timestampValue = getLongValue(timestamp);
-        ProducerRecord<String, Double> kafkaRecord = new ProducerRecord<>(topic, partitionValue, timestampValue,
-                                                                          key, value);
-
+        ProducerRecord<String, Double> kafkaRecord = new ProducerRecord<>(topic, partitionValue, timestampValue, key,
+                                                                          value);
         return sendKafkaRecord(kafkaRecord, producer);
     }
 
@@ -210,9 +197,8 @@ public class Send {
         // Shall we pass this here, or access it in sendKafkaRecord() function ?
         Integer partitionValue = getIntValue(partition, ALIAS_PARTITION, logger);
         Long timestampValue = getLongValue(timestamp);
-        ProducerRecord<Long, Double> kafkaRecord = new ProducerRecord<>(topic, partitionValue, timestampValue,
-                                                                        key, value);
-
+        ProducerRecord<Long, Double> kafkaRecord = new ProducerRecord<>(topic, partitionValue, timestampValue, key,
+                                                                        value);
         return sendKafkaRecord(kafkaRecord, producer);
     }
 
@@ -222,9 +208,8 @@ public class Send {
         // Shall we pass this here, or access it in sendKafkaRecord() function ?
         Integer partitionValue = getIntValue(partition, ALIAS_PARTITION, logger);
         Long timestampValue = getLongValue(timestamp);
-        ProducerRecord<Double, Double> kafkaRecord = new ProducerRecord<>(topic, partitionValue, timestampValue,
-                                                                          key, value);
-
+        ProducerRecord<Double, Double> kafkaRecord = new ProducerRecord<>(topic, partitionValue, timestampValue, key,
+                                                                          value);
         return sendKafkaRecord(kafkaRecord, producer);
     }
 
@@ -236,7 +221,6 @@ public class Send {
         Long timestampValue = getLongValue(timestamp);
         ProducerRecord<byte[], Double> kafkaRecord = new ProducerRecord<>(topic, partitionValue, timestampValue,
                                                                           key.getBytes(), value);
-
         return sendKafkaRecord(kafkaRecord, producer);
     }
 
@@ -250,9 +234,8 @@ public class Send {
         // Shall we pass this here, or access it in sendKafkaRecord() function ?
         Integer partitionValue = getIntValue(partition, ALIAS_PARTITION, logger);
         Long timestampValue = getLongValue(timestamp);
-        ProducerRecord<byte[], byte[]> kafkaRecord = new ProducerRecord<>(topic, partitionValue, timestampValue, null,
-                                                                          value.getBytes());
-
+        ProducerRecord<?, byte[]> kafkaRecord = new ProducerRecord<>(topic, partitionValue, timestampValue, null,
+                                                                     value.getBytes());
         return sendKafkaRecord(kafkaRecord, producer);
     }
 
@@ -262,9 +245,8 @@ public class Send {
         // Shall we pass this here, or access it in sendKafkaRecord() function ?
         Integer partitionValue = getIntValue(partition, ALIAS_PARTITION, logger);
         Long timestampValue = getLongValue(timestamp);
-        ProducerRecord<String, byte[]> kafkaRecord = new ProducerRecord<>(topic, partitionValue, timestampValue,
-                                                                          key, value.getBytes());
-
+        ProducerRecord<String, byte[]> kafkaRecord = new ProducerRecord<>(topic, partitionValue, timestampValue, key,
+                                                                          value.getBytes());
         return sendKafkaRecord(kafkaRecord, producer);
     }
 
@@ -274,9 +256,8 @@ public class Send {
         // Shall we pass this here, or access it in sendKafkaRecord() function ?
         Integer partitionValue = getIntValue(partition, ALIAS_PARTITION, logger);
         Long timestampValue = getLongValue(timestamp);
-        ProducerRecord<Long, byte[]> kafkaRecord = new ProducerRecord<>(topic, partitionValue, timestampValue,
-                                                                        key, value.getBytes());
-
+        ProducerRecord<Long, byte[]> kafkaRecord = new ProducerRecord<>(topic, partitionValue, timestampValue, key,
+                                                                        value.getBytes());
         return sendKafkaRecord(kafkaRecord, producer);
     }
 
@@ -286,9 +267,8 @@ public class Send {
         // Shall we pass this here, or access it in sendKafkaRecord() function ?
         Integer partitionValue = getIntValue(partition, ALIAS_PARTITION, logger);
         Long timestampValue = getLongValue(timestamp);
-        ProducerRecord<Double, byte[]> kafkaRecord = new ProducerRecord<>(topic, partitionValue, timestampValue,
-                                                                          key, value.getBytes());
-
+        ProducerRecord<Double, byte[]> kafkaRecord = new ProducerRecord<>(topic, partitionValue, timestampValue, key,
+                                                                          value.getBytes());
         return sendKafkaRecord(kafkaRecord, producer);
     }
 
@@ -300,14 +280,12 @@ public class Send {
         Long timestampValue = getLongValue(timestamp);
         ProducerRecord<byte[], byte[]> kafkaRecord = new ProducerRecord<>(topic, partitionValue, timestampValue,
                                                                           key.getBytes(), value.getBytes());
-
         return sendKafkaRecord(kafkaRecord, producer);
     }
 
     @SuppressWarnings(UNCHECKED)
-    private static Object sendKafkaRecord(ProducerRecord record, ObjectValue producerObject) {
+    protected static Object sendKafkaRecord(ProducerRecord record, ObjectValue producerObject) {
         Strand strand = Scheduler.getStrand();
-        KafkaTracingUtil.traceResourceInvocation(strand, producerObject, record.topic());
         KafkaTracingUtil.traceResourceInvocation(strand, producerObject, record.topic());
         final NonBlockingCallback callback = new NonBlockingCallback(strand);
         KafkaProducer producer = (KafkaProducer) producerObject.getNativeData(NATIVE_PRODUCER);
@@ -319,17 +297,21 @@ public class Send {
                 if (Objects.nonNull(e)) {
                     KafkaMetricsUtil.reportProducerError(producerObject,
                                                          KafkaObservabilityConstants.ERROR_TYPE_PUBLISH);
-                    callback.notifyFailure(createKafkaError("Failed to send data to Kafka server: " + e.getMessage(),
+                    callback.setReturnValues(createKafkaError("Failed to send data to Kafka server: " + e.getMessage(),
                                                             PRODUCER_ERROR));
                 } else {
                     KafkaMetricsUtil.reportPublish(producerObject, record.topic(), record.value());
+                    callback.setReturnValues(null);
                 }
+
                 callback.notifySuccess();
             });
         } catch (IllegalStateException | KafkaException e) {
             KafkaMetricsUtil.reportProducerError(producerObject, KafkaObservabilityConstants.ERROR_TYPE_PUBLISH);
-            callback.notifyFailure(createKafkaError("Failed to send data to Kafka server: " + e.getMessage(),
+            callback.setReturnValues(createKafkaError("Failed to send data to Kafka server: " + e.getMessage(),
                                                     PRODUCER_ERROR));
+            callback.notifySuccess();
+
         }
         return null;
     }

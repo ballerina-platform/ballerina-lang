@@ -32,6 +32,7 @@ import org.ballerinalang.jvm.values.api.BFunctionPointer;
 import org.ballerinalang.jvm.values.api.BFuture;
 import org.ballerinalang.jvm.values.api.BMap;
 import org.ballerinalang.jvm.values.api.BObject;
+import org.ballerinalang.jvm.values.api.BStream;
 import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.jvm.values.api.BTable;
 import org.ballerinalang.jvm.values.api.BTypedesc;
@@ -275,6 +276,8 @@ class JMethodResolver {
                     return this.classLoader.loadClass(BObject.class.getCanonicalName()).isAssignableFrom(jType);
                 case TypeTags.ERROR_TAG:
                     return this.classLoader.loadClass(BError.class.getCanonicalName()).isAssignableFrom(jType);
+                case TypeTags.STREAM_TAG:
+                    return this.classLoader.loadClass(BStream.class.getCanonicalName()).isAssignableFrom(jType);
                 case TypeTags.TABLE_TAG:
                     return this.classLoader.loadClass(BTable.class.getCanonicalName()).isAssignableFrom(jType);
                 case TypeTags.XML_TAG:
@@ -404,6 +407,8 @@ class JMethodResolver {
                     return this.classLoader.loadClass(BObject.class.getCanonicalName()).isAssignableFrom(jType);
                 case TypeTags.ERROR_TAG:
                     return this.classLoader.loadClass(BError.class.getCanonicalName()).isAssignableFrom(jType);
+                case TypeTags.STREAM_TAG:
+                    return this.classLoader.loadClass(BStream.class.getCanonicalName()).isAssignableFrom(jType);
                 case TypeTags.TABLE_TAG:
                     return this.classLoader.loadClass(BTable.class.getCanonicalName()).isAssignableFrom(jType);
                 case TypeTags.XML_TAG:

@@ -40,8 +40,7 @@ public class KafkaTransactionContext implements BallerinaTransactionContext {
     }
 
     /**
-     * Commits transaction for the producer.
-     * {@inheritDoc}
+     * Commits transaction for the producer. {@inheritDoc}
      */
     @Override
     public void commit() {
@@ -50,8 +49,7 @@ public class KafkaTransactionContext implements BallerinaTransactionContext {
     }
 
     /**
-     * Aborts transaction for the producer.
-     * {@inheritDoc}
+     * Aborts transaction for the producer. {@inheritDoc}
      */
     @Override
     public void rollback() {

@@ -212,6 +212,16 @@ public class SnippetGenerator {
     }
 
     /**
+     * Get resource Keyword Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getResourceKeywordSnippet() {
+        return new SnippetBlock(ItemResolverConstants.RESOURCE, "resource ", ItemResolverConstants.KEYWORD_TYPE,
+                SnippetType.KEYWORD);
+    }
+
+    /**
      * Get Continue Statement Snippet Block.
      *
      * @return {@link SnippetBlock}     Generated Snippet Block
@@ -426,6 +436,26 @@ public class SnippetGenerator {
      */
     public static SnippetBlock getTypeKeywordSnippet() {
         return new SnippetBlock(ItemResolverConstants.TYPE_TYPE, "type ", ItemResolverConstants.KEYWORD_TYPE,
+                                SnippetType.KEYWORD);
+    }
+
+    /**
+     * Get Record Keyword Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getRecordKeywordSnippet() {
+        return new SnippetBlock(ItemResolverConstants.RECORD_KEYWORD, "record ", ItemResolverConstants.KEYWORD_TYPE,
+                                SnippetType.KEYWORD);
+    }
+
+    /**
+     * Get Object Keyword Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getObjectKeywordSnippet() {
+        return new SnippetBlock(ItemResolverConstants.OBJECT_KEYWORD, "object ", ItemResolverConstants.KEYWORD_TYPE,
                                 SnippetType.KEYWORD);
     }
 

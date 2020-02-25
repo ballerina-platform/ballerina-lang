@@ -26,8 +26,8 @@ import org.slf4j.LoggerFactory;
 import java.util.concurrent.Semaphore;
 
 /**
- * {@code KafkaPollCycleFutureListener} listener provides ability control poll cycle flow by notifications
- * received from Ballerina side.
+ * {@code KafkaPollCycleFutureListener} listener provides ability control poll cycle flow by notifications received from
+ * Ballerina side.
  */
 public class KafkaPollCycleFutureListener implements CallableUnitCallback {
 
@@ -40,10 +40,10 @@ public class KafkaPollCycleFutureListener implements CallableUnitCallback {
     private String serviceId;
 
     /**
-     * Future will get notified from the Ballerina engine when the Resource invocation
-     * is over or when an error occurred.
+     * Future will get notified from the Ballerina engine when the Resource invocation is over or when an error
+     * occurred.
      *
-     * @param sem semaphore to handle futures
+     * @param sem       semaphore to handle futures
      * @param serviceId Service ID of the service handling the resource
      */
     public KafkaPollCycleFutureListener(Semaphore sem, String serviceId) {
@@ -59,7 +59,7 @@ public class KafkaPollCycleFutureListener implements CallableUnitCallback {
         sem.release();
         if (logger.isDebugEnabled()) {
             logger.debug("Ballerina engine has completed resource invocation successfully for service " + serviceId +
-                         ". Semaphore is released to continue next polling cycle.");
+                                 ". Semaphore is released to continue next polling cycle.");
         }
     }
 
@@ -70,7 +70,7 @@ public class KafkaPollCycleFutureListener implements CallableUnitCallback {
     public void notifyFailure(ErrorValue error) {
         sem.release();
         logger.error("Ballerina engine has completed resource invocation with exception for service " + serviceId +
-                     ". Semaphore is released to continue next polling cycle.", error.stringValue());
+                             ". Semaphore is released to continue next polling cycle.", error.stringValue());
     }
 
 }

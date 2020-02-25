@@ -1,0 +1,57 @@
+{
+  "position": {
+    "line": 10,
+    "character": 8
+  },
+  "source": "record/source/recordTest16.bal",
+  "items": [
+    {
+      "label": "name",
+      "kind": "Field",
+      "detail": "Field",
+      "sortText": "210",
+      "insertText": "name: \"${1}\"",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "age",
+      "kind": "Field",
+      "detail": "Field",
+      "sortText": "210",
+      "insertText": "age: ${1:0}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "district",
+      "kind": "Field",
+      "detail": "Field",
+      "sortText": "210",
+      "insertText": "district: \"${1}\"",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Add All Attributes",
+      "kind": "Property",
+      "detail": "none",
+      "sortText": "110",
+      "insertText": "name: \"\",\nage: 0,\ndistrict: \"\"",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "district",
+      "kind": "Variable",
+      "detail": "string",
+      "sortText": "130",
+      "insertText": "district",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "age",
+      "kind": "Variable",
+      "detail": "int",
+      "sortText": "130",
+      "insertText": "age",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

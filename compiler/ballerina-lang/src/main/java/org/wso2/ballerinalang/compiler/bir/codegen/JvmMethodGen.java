@@ -50,6 +50,7 @@ import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator.GOTO;
 import org.wso2.ballerinalang.compiler.bir.model.InstructionKind;
 import org.wso2.ballerinalang.compiler.bir.model.VarKind;
 import org.wso2.ballerinalang.compiler.bir.model.VarScope;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BAnyType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
@@ -1903,16 +1904,14 @@ public class JvmMethodGen {
     //#
     //# + cw - class visitor
     //# + pkg - package
-    static void generateLambdaForPackageInits(ClassWriter cw, BIRPackage pkg,
-                                              String mainClass, String initClass, List<PackageID> depMods) {
+    static void generateLambdaForPackageInits(ClassWriter cw, BIRPackage pkg, String mainClass, String initClass,
+                                              List<PackageID> depMods) {
         //need to generate lambda for package Init as well, if exist
         if (hasInitFunction(pkg)) {
-            String initFuncName = MODULE_INIT;
-            generateLambdaForModuleFunction(cw, initFuncName, initClass, false);
+            generateLambdaForModuleFunction(cw, MODULE_INIT, initClass, false);
 
             // generate another lambda for start function as well
-            String startFuncName = MODULE_START;
-            generateLambdaForModuleFunction(cw, startFuncName, initClass, false);
+            generateLambdaForModuleFunction(cw, MODULE_START, initClass, false);
 
             String stopFuncName = "<stop>";
             PackageID currentModId = packageToModuleId(pkg);
@@ -1922,10 +1921,10 @@ public class JvmMethodGen {
 
             for (PackageID id : depMods) {
                 fullFuncName = calculateModuleSpecialFuncName(id, stopFuncName);
-                String lookupKey = getPackageName(id.orgName, id.name) + fullFuncName;
+                // String lookupKey = getPackageName(id.orgName, id.name) + fullFuncName;
 
-                String jvmClass = lookupFullQualifiedClassName(lookupKey);
-
+                // String jvmClass = lookupFullQualifiedClassName(lookupKey);
+                String jvmClass =  getPackageName(id.orgName, id.name) + initClass;
                 generateLambdaForDepModStopFunc(cw, cleanupFunctionName(fullFuncName), jvmClass);
             }
         }
@@ -2092,8 +2091,7 @@ public class JvmMethodGen {
         func.basicBlocks = basicBlocks;
     }
 
-    static void enrichPkgWithInitializers(Map<String, JavaClass> jvmClassMap, String
-            typeOwnerClass,
+    static void enrichPkgWithInitializers(Map<String, JavaClass> jvmClassMap, String typeOwnerClass,
                                           BIRPackage pkg, List<PackageID> depModArray) {
         JavaClass javaClass = jvmClassMap.get(typeOwnerClass);
         BIRFunction initFunc = generateDepModInit(depModArray, pkg, MODULE_INIT, "<init>");

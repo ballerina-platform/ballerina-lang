@@ -64,6 +64,5 @@ public class BackendDriver {
 
     private void codeGen(BIRNode.BIRPackage birPackage, Path target) {
         this.codeGenerator.generate(birPackage, target);
-
     }
 }

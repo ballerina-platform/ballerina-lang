@@ -20,22 +20,22 @@ function testLength() returns int {
     return arr.length();
 }
 
-//function testIterator() returns string {
-//    string[] arr = ["Hello", "World!", "From", "Ballerina"];
-//    abstract object {
-//         public function next() returns record {| string value; |}?;
-//    } itr = arr.iterator();
-//
-//    record {| string value; |}|() elem = itr.next();
-//    string result = "";
-//
-//    while (elem is record {| string value; |}) {
-//        result += elem.value;
-//        elem = itr.next();
-//    }
-//
-//    return result;
-//}
+function testIterator() returns string {
+    string[] arr = ["Hello", "World!", "From", "Ballerina"];
+    abstract object {
+         public function next() returns record {| string value; |}?;
+    } itr = arr.iterator();
+
+    record {| string value; |}|() elem = itr.next();
+    string result = "";
+
+    while (elem is record {| string value; |}) {
+        result += elem.value;
+        elem = itr.next();
+    }
+
+    return result;
+}
 
 function testEnumerate() returns [int, string][] {
     string[] arr = ["Hello", "World!", "From", "Ballerina"];

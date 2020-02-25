@@ -1,5 +1,6 @@
 import ballerina/test;
 import ballerina/io;
+import ballerina/http;
 
 # Before Suite Function
 @test:BeforeSuite

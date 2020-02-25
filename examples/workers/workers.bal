@@ -13,7 +13,7 @@ public function main() {
         // Calculates the sum(n).
         int n = 10000000;
         int sum = 0;
-        foreach var i in 1...n {
+        foreach var i in 1 ... n {
             sum += i;
         }
         io:println("sum of first ", n, " positive numbers = ", sum);
@@ -24,7 +24,7 @@ public function main() {
         // Calculates the sum(n^2).
         int n = 10000000;
         int sum = 0;
-        foreach var i in 1...n {
+        foreach var i in 1 ... n {
             sum += i * i;
         }
         io:println("sum of squares of first ", n,

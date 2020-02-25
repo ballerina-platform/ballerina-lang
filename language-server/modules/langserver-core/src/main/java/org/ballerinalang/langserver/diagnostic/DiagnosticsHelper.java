@@ -17,12 +17,13 @@ package org.ballerinalang.langserver.diagnostic;
 
 import org.ballerinalang.langserver.client.ExtendedLanguageClient;
 import org.ballerinalang.langserver.commons.LSContext;
+import org.ballerinalang.langserver.commons.workspace.LSDocumentIdentifier;
+import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.compiler.CollectDiagnosticListener;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSModuleCompiler;
-import org.ballerinalang.langserver.compiler.common.LSDocument;
+import org.ballerinalang.langserver.compiler.common.LSDocumentIdentifierImpl;
 import org.ballerinalang.langserver.compiler.exception.CompilationFailedException;
-import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.util.diagnostic.DiagnosticListener;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.DiagnosticSeverity;
@@ -44,12 +45,17 @@ import java.util.Map;
  */
 public class DiagnosticsHelper {
     private static final List<Diagnostic> EMPTY_DIAGNOSTIC_LIST = new ArrayList<>(0);
+    private static final DiagnosticsHelper INSTANCE = new DiagnosticsHelper();
     /**
      * Holds last sent diagnostics for the purpose of clear-off when publishing new diagnostics.
      */
     private Map<String, List<Diagnostic>> lastDiagnosticMap;
 
-    public DiagnosticsHelper() {
+    public static DiagnosticsHelper getInstance() {
+        return INSTANCE;
+    }
+
+    private DiagnosticsHelper() {
         this.lastDiagnosticMap = new HashMap<>();
     }
 
@@ -58,12 +64,12 @@ public class DiagnosticsHelper {
      *
      * @param client     Language server client
      * @param context    LS context
-     * @param lsDocument {@link LSDocument}
+     * @param lsDoc {@link LSDocumentIdentifierImpl}
      * @param docManager LS Document manager
      * @throws CompilationFailedException throws a LS compiler exception
      */
     public synchronized void compileAndSendDiagnostics(ExtendedLanguageClient client, LSContext context,
-                                                       LSDocument lsDocument, WorkspaceDocumentManager docManager)
+                                                       LSDocumentIdentifier lsDoc, WorkspaceDocumentManager docManager)
             throws CompilationFailedException {
         // Compile diagnostics
         List<org.ballerinalang.util.diagnostic.Diagnostic> diagnostics = new ArrayList<>();
@@ -73,7 +79,7 @@ public class DiagnosticsHelper {
             diagnostics = ((CollectDiagnosticListener) compilerContext.get(DiagnosticListener.class)).getDiagnostics();
         }
 
-        Map<String, List<Diagnostic>> diagnosticMap = getDiagnostics(diagnostics, lsDocument);
+        Map<String, List<Diagnostic>> diagnosticMap = getDiagnostics(diagnostics, lsDoc);
         // If the client is null, returns
         if (client == null) {
             return;
@@ -97,7 +103,7 @@ public class DiagnosticsHelper {
      * @return diagnostics map
      */
     private Map<String, List<Diagnostic>> getDiagnostics(List<org.ballerinalang.util.diagnostic.Diagnostic> diagnostics,
-                                                         LSDocument lsDocument) {
+                                                         LSDocumentIdentifier lsDocument) {
         Map<String, List<Diagnostic>> diagnosticsMap = new HashMap<>();
         for (org.ballerinalang.util.diagnostic.Diagnostic diag : diagnostics) {
             Path diagnosticRoot = lsDocument.getProjectRootPath();

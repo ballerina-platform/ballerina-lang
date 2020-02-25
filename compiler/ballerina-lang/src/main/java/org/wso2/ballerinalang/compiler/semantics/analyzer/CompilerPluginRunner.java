@@ -301,8 +301,8 @@ public class CompilerPluginRunner extends BLangNodeVisitor {
             BPackageSymbol symbol = this.packageCache.getSymbol(packageQName);
             if (symbol != null) {
                 SymbolEnv pkgEnv = symTable.pkgEnvMap.get(symbol);
-                final BSymbol listenerSymbol = symResolver.lookupSymbol(pkgEnv, listenerName, SymTag.OBJECT);
-                if (listenerSymbol != symTable.notFoundSymbol) {
+                BSymbol listenerSymbol = symResolver.lookupSymbolInMainSpace(pkgEnv, listenerName);
+                if ((listenerSymbol.tag & SymTag.OBJECT) == SymTag.OBJECT) {
                     listenerType = listenerSymbol.type;
                 }
             }

@@ -26,14 +26,14 @@ service hello on new http:Listener(9234) {
         //Finish `MyRootChildSpan` span.
         error? result = observe:finishSpan(childSpanId);
         if (result is error) {
-            log:printError("Error in finishing span", err = result);
+            log:printError("Error in finishing span", result);
         }
         // Some actual logic will go here, and for example we have introduced some delay with sleep.
         runtime:sleep(1000);
         //Finish `MyRootParentSpan` span.
         result = observe:finishSpan(rootParentSpanId);
         if (result is error) {
-            log:printError("Error in finishing span", err = result);
+            log:printError("Error in finishing span", result);
         }
 
         //Some actual logic will go here, and for example we have introduced some delay with sleep.
@@ -42,7 +42,7 @@ service hello on new http:Listener(9234) {
         //Finish the created child span `MyFirstLogicSpan`, which was attached to the system trace.
         result = observe:finishSpan(spanId);
         if (result is error) {
-            log:printError("Error in finishing span", err = result);
+            log:printError("Error in finishing span", result);
         }
         //Use a util method to set a string payload.
         res.setPayload("Hello, World!");
@@ -51,7 +51,7 @@ service hello on new http:Listener(9234) {
         result = caller->respond(res);
 
         if (result is error) {
-           log:printError("Error sending response", err = result);
+            log:printError("Error sending response", result);
         }
 
         return ();

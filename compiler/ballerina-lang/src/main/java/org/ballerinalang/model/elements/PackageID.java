@@ -60,6 +60,8 @@ public class PackageID {
             Lists.of(Names.LANG, Names.MAP), Names.EMPTY);
     public static final PackageID OBJECT = new PackageID(Names.BALLERINA_ORG,
             Lists.of(Names.LANG, Names.OBJECT), Names.EMPTY);
+    public static final PackageID STREAM = new PackageID(Names.BALLERINA_ORG,
+            Lists.of(Names.LANG, Names.STREAM), Names.EMPTY);
     public static final PackageID STRING = new PackageID(Names.BALLERINA_ORG,
             Lists.of(Names.LANG, Names.STRING), Names.EMPTY);
     public static final PackageID TABLE = new PackageID(Names.BALLERINA_ORG,

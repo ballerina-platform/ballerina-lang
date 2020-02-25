@@ -16,7 +16,7 @@
 package org.ballerinalang.langserver.compiler;
 
 import org.ballerinalang.langserver.commons.LSContext;
-import org.ballerinalang.langserver.compiler.common.LSDocument;
+import org.ballerinalang.langserver.commons.workspace.LSDocumentIdentifier;
 import org.ballerinalang.langserver.compiler.common.modal.BallerinaPackage;
 import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.PackageLoader;
@@ -183,7 +183,7 @@ public class LSPackageLoader {
      */
     public static List<BallerinaPackage> getCurrentProjectModules(BLangPackage pkg, LSContext context) {
         List<BallerinaPackage> packageList = new ArrayList<>();
-        LSDocument lsDocument = context.get(DocumentServiceKeys.LS_DOCUMENT_KEY);
+        LSDocumentIdentifier lsDocument = context.get(DocumentServiceKeys.LS_DOCUMENT_KEY);
         
         /*
         If the lsDocument instance is null or not within a project, we skip processing

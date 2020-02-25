@@ -17,11 +17,17 @@
  */
 package org.ballerinalang.model;
 
+import org.ballerinalang.model.clauses.DoClauseNode;
+import org.ballerinalang.model.clauses.FromClauseNode;
+import org.ballerinalang.model.clauses.SelectClauseNode;
+import org.ballerinalang.model.clauses.WhereClauseNode;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.AnnotationNode;
+import org.ballerinalang.model.tree.BlockFunctionBodyNode;
 import org.ballerinalang.model.tree.CompilationUnitNode;
 import org.ballerinalang.model.tree.EndpointNode;
 import org.ballerinalang.model.tree.ErrorVariableNode;
+import org.ballerinalang.model.tree.FunctionBodyNode;
 import org.ballerinalang.model.tree.FunctionNode;
 import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.ImportPackageNode;
@@ -57,12 +63,14 @@ import org.ballerinalang.model.tree.expressions.MarkdownDocumentationTextAttribu
 import org.ballerinalang.model.tree.expressions.MatchExpressionNode;
 import org.ballerinalang.model.tree.expressions.MatchExpressionNode.MatchExpressionPatternNode;
 import org.ballerinalang.model.tree.expressions.NamedArgNode;
+import org.ballerinalang.model.tree.expressions.QueryExpressionNode;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
 import org.ballerinalang.model.tree.expressions.RecordVariableReferenceNode;
 import org.ballerinalang.model.tree.expressions.RestArgsNode;
 import org.ballerinalang.model.tree.expressions.ServiceConstructorNode;
 import org.ballerinalang.model.tree.expressions.SimpleVariableReferenceNode;
 import org.ballerinalang.model.tree.expressions.StatementExpressionNode;
+import org.ballerinalang.model.tree.expressions.StreamConstructorNode;
 import org.ballerinalang.model.tree.expressions.StringTemplateLiteralNode;
 import org.ballerinalang.model.tree.expressions.TableLiteralNode;
 import org.ballerinalang.model.tree.expressions.TernaryExpressionNode;
@@ -82,7 +90,7 @@ import org.ballerinalang.model.tree.expressions.XMLQuotedStringNode;
 import org.ballerinalang.model.tree.expressions.XMLTextLiteralNode;
 import org.ballerinalang.model.tree.statements.AbortNode;
 import org.ballerinalang.model.tree.statements.AssignmentNode;
-import org.ballerinalang.model.tree.statements.BlockNode;
+import org.ballerinalang.model.tree.statements.BlockStatementNode;
 import org.ballerinalang.model.tree.statements.BreakNode;
 import org.ballerinalang.model.tree.statements.CatchNode;
 import org.ballerinalang.model.tree.statements.CompoundAssignmentNode;
@@ -99,6 +107,7 @@ import org.ballerinalang.model.tree.statements.MatchNode.MatchStaticBindingPatte
 import org.ballerinalang.model.tree.statements.MatchNode.MatchStructuredBindingPatternNode;
 import org.ballerinalang.model.tree.statements.MatchNode.MatchTypedBindingPatternNode;
 import org.ballerinalang.model.tree.statements.PanicNode;
+import org.ballerinalang.model.tree.statements.QueryActionNode;
 import org.ballerinalang.model.tree.statements.RecordDestructureNode;
 import org.ballerinalang.model.tree.statements.RetryNode;
 import org.ballerinalang.model.tree.statements.ReturnNode;
@@ -125,9 +134,12 @@ import org.ballerinalang.model.tree.types.UserDefinedTypeNode;
 import org.ballerinalang.model.tree.types.ValueTypeNode;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
+import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
 import org.wso2.ballerinalang.compiler.tree.BLangErrorVariable;
+import org.wso2.ballerinalang.compiler.tree.BLangExprFunctionBody;
+import org.wso2.ballerinalang.compiler.tree.BLangExternalFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
@@ -142,6 +154,10 @@ import org.wso2.ballerinalang.compiler.tree.BLangTestablePackage;
 import org.wso2.ballerinalang.compiler.tree.BLangTupleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangDoClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangFromClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangWhereClause;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
@@ -166,12 +182,14 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchExpression.BLangMatchExprPatternClause;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNumericLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRestArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangServiceConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStatementExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangStreamConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
@@ -214,6 +232,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStat
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStructuredBindingPatternClause;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchTypedBindingPatternClause;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangPanic;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangQueryAction;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRetry;
@@ -299,7 +318,19 @@ public class TreeBuilder {
         return new BLangFunction();
     }
 
-    public static BlockNode createBlockNode() {
+    public static BlockFunctionBodyNode createBlockFunctionBodyNode() {
+        return new BLangBlockFunctionBody();
+    }
+
+    public static FunctionBodyNode createExprFunctionBodyNode() {
+        return new BLangExprFunctionBody();
+    }
+
+    public static FunctionBodyNode createExternFunctionBodyNode() {
+        return new BLangExternalFunctionBody();
+    }
+
+    public static BlockStatementNode createBlockNode() {
         return new BLangBlockStmt();
     }
 
@@ -351,8 +382,8 @@ public class TreeBuilder {
         return new BLangRecordLiteral();
     }
 
-    public static RecordLiteralNode.RecordKeyValueNode createRecordKeyValue() {
-        return new BLangRecordLiteral.BLangRecordKeyValue();
+    public static RecordLiteralNode.RecordKeyValueFieldNode createRecordKeyValue() {
+        return new BLangRecordLiteral.BLangRecordKeyValueField();
     }
 
     public static TableLiteralNode createTableLiteralNode() {
@@ -435,6 +466,10 @@ public class TreeBuilder {
         return new BLangSimpleVarRef();
     }
 
+    public static RecordLiteralNode.RecordVarNameFieldNode createRecordVarRefNameFieldNode() {
+        return new BLangRecordLiteral.BLangRecordVarNameField();
+    }
+
     public static InvocationNode createInvocationNode() {
         return new BLangInvocation();
     }
@@ -453,6 +488,10 @@ public class TreeBuilder {
 
     public static CheckedExpressionNode createCheckExpressionNode() {
         return new BLangCheckedExpr();
+    }
+
+    public static QueryExpressionNode createQueryExpressionNode() {
+        return new BLangQueryExpr();
     }
 
     public static CheckPanickedExpressionNode createCheckPanicExpressionNode() {
@@ -603,6 +642,10 @@ public class TreeBuilder {
         return new BLangService();
     }
 
+    public static StreamConstructorNode createStreamConstructorNode() {
+        return new BLangStreamConstructorExpr();
+    }
+
     public static ResourceNode createResourceNode() {
         return new BLangResource();
     }
@@ -621,6 +664,26 @@ public class TreeBuilder {
 
     public static ForeachNode createForeachNode() {
         return new BLangForeach();
+    }
+
+    public static FromClauseNode createFromClauseNode() {
+        return new BLangFromClause();
+    }
+
+    public static SelectClauseNode createSelectClauseNode() {
+        return new BLangSelectClause();
+    }
+
+    public static DoClauseNode createDoClauseNode() {
+        return new BLangDoClause();
+    }
+
+    public static QueryActionNode createQueryActionStatementNode() {
+        return new BLangQueryAction();
+    }
+
+    public static WhereClauseNode createWhereClauseNode() {
+        return new BLangWhereClause();
     }
 
     public static WhileNode createWhileNode() {
