@@ -26,22 +26,21 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
-
 /**
- * Native implementation of lang.stream:reduce(stream&lt;PureType&gt;, function).
+ * Native implementation of lang.stream:getGenFunc(stream&lt;Type&gt;).
  *
- * @since 1.2
+ * @since 1.2.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.stream", functionName = "reduce",
-        args = {@Argument(name = "strm", type = TypeKind.STREAM), @Argument(name = "func", type = TypeKind.FUNCTION),
-                @Argument(name = "initial", type = TypeKind.ANY)},
-        returnType = {@ReturnType(type = TypeKind.ANY)},
+        orgName = "ballerina", packageName = "lang.stream", functionName = "getGenFunc",
+        args = {@Argument(name = "strm", type = TypeKind.STREAM)},
+        returnType = {@ReturnType(type = TypeKind.FUNCTION)},
         isPublic = true
 )
-public class Reduce {
+public class GetGenFunc {
 
-    public static Object reduce(Strand strand, StreamValue strm, FPValue<Object, Object> func, Object initial) {
-        return strm.reduce(func, initial);
+    public static FPValue<Object, Object> getGenFunc(Strand strand, StreamValue strm) {
+        return strm.getGenFunc();
     }
+
 }

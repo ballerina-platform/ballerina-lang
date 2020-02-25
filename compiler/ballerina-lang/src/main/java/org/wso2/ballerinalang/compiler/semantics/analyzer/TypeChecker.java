@@ -129,6 +129,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQuotedString;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLTextLiteral;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUnionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
 import org.wso2.ballerinalang.compiler.util.BArrayState;
@@ -2798,23 +2799,22 @@ public class TypeChecker extends BLangNodeVisitor {
     public void visit(BLangStreamConstructorExpr streamConstructorExpr) {
         // Create `record {| T value; |}`, and use that as the lambda return type.
         BRecordType recordType = createStreamReturnRecordType(streamConstructorExpr.pos, (BStreamType) expType);
-        BUnionType returnType = BUnionType.create(null, recordType, symTable.nilType);
-
         BLangRecordTypeNode recordTypeNode = createRecordTypeNode(streamConstructorExpr.pos, recordType);
-        BLangValueType nilTypeNode = (BLangValueType) TreeBuilder.createValueTypeNode();
-        nilTypeNode.pos = streamConstructorExpr.pos;
-        nilTypeNode.typeKind = TypeKind.NIL;
-        BLangUnionTypeNode returnTypeNode = (BLangUnionTypeNode) TreeBuilder.createUnionTypeNode();
-        returnTypeNode.memberTypeNodes.add(recordTypeNode);
-        returnTypeNode.memberTypeNodes.add(nilTypeNode);
-        returnTypeNode.type = returnType;
         BLangLambdaFunction lambdaFunction = streamConstructorExpr.lambdaFunction;
 
+        BType returnType = BUnionType.create(null, recordType, symTable.nilType);
+        BLangType returnTypeNode = new BLangUnionTypeNode(new ArrayList<BLangType>() {{
+            add(recordTypeNode);
+            add(new BLangValueType(TypeKind.NIL));
+        }});
+        returnTypeNode.type = returnType;
         lambdaFunction.function.symbol.retType = returnType;
         lambdaFunction.function.returnTypeNode = returnTypeNode;
-        ((BInvokableType) lambdaFunction.function.symbol.type).retType = returnType;
+
+        ((BInvokableType) lambdaFunction.function.symbol.type).retType = lambdaFunction.function.symbol.retType;
         checkExpr(streamConstructorExpr.lambdaFunction, env);
-        ((BInvokableTypeSymbol) ((BInvokableType) lambdaFunction.type).tsymbol).returnType = returnType;
+        ((BInvokableTypeSymbol) ((BInvokableType) lambdaFunction.type).tsymbol).returnType =
+                lambdaFunction.function.symbol.retType;
         resultType = expType;
     }
 

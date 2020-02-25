@@ -13,15 +13,15 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
+
 @typeParam
 type PureType3 anydata | error;
 
-# Takes in a lambda function and returns a new stream out of it.
+# Takes in a stream and returns the value gen function of that stream.
 #
-# + td - A type description.
-# + func - A lambda function.
-# + return - New stream containing results of `func` invocation.
-function construct(typedesc<PureType3> td, function() returns record {|PureType3 value;|}? func) returns stream<PureType3> = external;
+# + strm - The stream
+# + return - A function pointer to the value gen function.
+public function getGenFunc(stream<PureType3> strm) returns (function() returns record {| PureType3 value; |}?) = external;
 
 # Represent the iterator type returned when `iterator` method is invoked.
 type StreamIterator object {
@@ -36,5 +36,7 @@ type StreamIterator object {
     # + return - iterator result
     public function next() returns record {|
         PureType1 value;
-    |}? = external;
+    |}? {
+        return next(self.strm);
+    }
 };

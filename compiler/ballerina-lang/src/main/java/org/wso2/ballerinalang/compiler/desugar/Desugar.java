@@ -4380,7 +4380,7 @@ public class Desugar extends BLangNodeVisitor {
 
     private BLangInvocation streamConstructInvocation(BLangStreamConstructorExpr streamConstructorExpr) {
         BLangLambdaFunction lambdaFunction = streamConstructorExpr.lambdaFunction;
-        BInvokableSymbol symbol = (BInvokableSymbol) symTable.langStreamModuleSymbol.scope
+        BInvokableSymbol symbol = (BInvokableSymbol) symTable.langInternalModuleSymbol.scope
                 .lookup(Names.CONSTRUCT_STREAM).symbol;
 
         BType targetType = ((BStreamType) streamConstructorExpr.type).constraint;
@@ -4392,7 +4392,7 @@ public class Desugar extends BLangNodeVisitor {
         BLangInvocation streamConstructInvocation = ASTBuilderUtil.createInvocationExprForMethod(
                 streamConstructorExpr.pos, symbol, new ArrayList<>(Lists.of(typedescExpr, lambdaFunction)),
                 symResolver);
-        streamConstructInvocation.type = symTable.streamType;
+        streamConstructInvocation.type = new BStreamType(TypeTags.STREAM, targetType, null);
         return streamConstructInvocation;
     }
 
