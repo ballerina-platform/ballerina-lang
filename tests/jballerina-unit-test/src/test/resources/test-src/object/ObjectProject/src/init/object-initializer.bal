@@ -398,3 +398,81 @@ function testInitInvocationWithCheckAndRestParams2() returns (boolean) {
     var [s, marksBeforeChange, marksAfterChange] = testInitInvocationWithCheckAndRestParams(10, ...modules);
     return !(s is error) && marksBeforeChange == 90 && marksAfterChange == 95;
 }
+
+type Student6 object {
+    int id;
+
+    public function __init(int id = 1) {
+        self.id = id;
+    }
+
+    public function getId() returns int {
+        return self.id;
+    }
+};
+
+function testInitInvocationWithDefaultParams1() returns (boolean) {
+    Student6 student = new;
+    return student.getId() == 1;
+}
+
+type Student7 object {
+    int? id;
+
+    public function __init(int? id = 1) {
+        self.id = id;
+    }
+
+    public function getId() returns int {
+        if !(self.id is int) {
+            error err = error("ID should be an integer");
+            panic err;
+        }
+        return <int> self.id;
+    }
+};
+
+function testInitInvocationWithDefaultParams2() returns (boolean) {
+    Student7 student = new(4);
+    return student.getId() == 4;
+}
+
+public type ID int|string;
+
+type Student8 object {
+    int id;
+
+    public function __init(ID i=1) {
+        self.id = <int> i;
+    }
+
+    public function getId() returns int {
+        return self.id;
+    }
+};
+
+function testInitInvocationWithFiniteType() returns (boolean) {
+    Student8 student = new(4);
+    return student.getId() == 4;
+}
+
+type AddError object {
+    error er;
+    function __init(error simpleError = error("SimpleErrorType", message = "Simple error occurred")) {
+        self.er = simpleError;
+    }
+
+    public function getError() returns error|() {
+        return self.er;
+    }
+};
+
+function testInitInvocationWithDefaultError() returns (boolean) {
+    AddError newError = new;
+    var e = newError.getError();
+    if !(e is error) {
+        error err = error("Returned value should be an error");
+        panic err;
+    }
+    return e is error;
+}
