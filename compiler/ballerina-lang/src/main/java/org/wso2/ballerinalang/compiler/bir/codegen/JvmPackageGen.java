@@ -32,6 +32,8 @@ import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRPackage;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRTypeDefinition;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRVariableDcl;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
@@ -103,7 +105,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen.generateUse
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen.generateValueCreatorMethods;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen.isServiceDefAvailable;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen.typeOwnerClass;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen.typeRefToClassName;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmValueGen.ObjectGenerator;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmValueGen.getTypeValueClassName;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmValueGen.injectDefaultParamInitsToAttachedFuncs;
@@ -186,18 +187,21 @@ public class JvmPackageGen {
         }
     }
 
-    static BIRTypeDefinition lookupTypeDef(NewInstance objectNewIns) {
-
+    static BType lookupTypeDef(NewInstance objectNewIns) {
         if (!objectNewIns.isExternalDef) {
-            return objectNewIns.def;
+            return objectNewIns.def.type;
         } else {
-            String className = typeRefToClassName(objectNewIns.externalPackageId, objectNewIns.objectName);
-            BIRTypeDefinition typeDef = typeDefMap.get(className);
-            if (typeDef != null) {
-                return typeDef;
+            PackageID id = objectNewIns.externalPackageId;
+            BPackageSymbol symbol = CodeGenerator.packageCache.getSymbol(id.orgName + "/" + id.name);
+            if (symbol != null) {
+                BObjectTypeSymbol objectTypeSymbol = (BObjectTypeSymbol) symbol.scope.lookup(new Name(objectNewIns.objectName)).symbol;
+                if (objectTypeSymbol != null) {
+                    return objectTypeSymbol.type;
+                }
             }
 
-            throw new BLangCompilerException("Reference to unknown type " + className);
+            throw new BLangCompilerException("Reference to unknown type " + objectNewIns.externalPackageId
+                                             + "/" + objectNewIns.objectName);
         }
     }
 
