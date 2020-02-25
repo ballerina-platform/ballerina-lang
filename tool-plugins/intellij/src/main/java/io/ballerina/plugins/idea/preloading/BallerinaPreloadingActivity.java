@@ -30,6 +30,7 @@ import io.ballerina.plugins.idea.notifiers.BallerinaAutoDetectNotifier;
 import io.ballerina.plugins.idea.sdk.BallerinaSdk;
 import io.ballerina.plugins.idea.sdk.BallerinaSdkUtils;
 import io.ballerina.plugins.idea.settings.autodetect.BallerinaAutoDetectionSettings;
+import io.ballerina.plugins.idea.settings.langserverlogs.LangServerLogsSettings;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.wso2.lsp4intellij.IntellijLanguageClient;
@@ -101,7 +102,7 @@ public class BallerinaPreloadingActivity extends PreloadingActivity {
         String balSdkPath = balSdk.getSdkPath();
 
         // Checks for the user-configured auto detection settings.
-        if (balSdkPath == null && BallerinaAutoDetectionSettings.getInstance(project).getIsAutoDetectionEnabled()) {
+        if (balSdkPath == null && BallerinaAutoDetectionSettings.getInstance(project).isAutoDetectionEnabled()) {
 
             //If a ballerina SDK is not configured for the project, Plugin tries to auto detect the ballerina SDK.
             showInIdeaEventLog(project, String.format("No ballerina SDK is found for project: %s\n " +
@@ -120,7 +121,7 @@ public class BallerinaPreloadingActivity extends PreloadingActivity {
             }
             return success;
         } else {
-            if (BallerinaAutoDetectionSettings.getInstance(project).getIsAutoDetectionEnabled()) {
+            if (BallerinaAutoDetectionSettings.getInstance(project).isAutoDetectionEnabled()) {
                 showInIdeaEventLog(project, "Auto-Detection Failed for: " + project.getBasePath());
             }
         }
@@ -145,17 +146,17 @@ public class BallerinaPreloadingActivity extends PreloadingActivity {
 
         processBuilder = new ProcessBuilder(args);
         // Checks user-configurable setting for allowing ballerina experimental features and sets the flag accordingly.
-        if (BallerinaAutoDetectionSettings.getInstance(project).getIsAutoDetectionEnabled()) {
+        if (BallerinaAutoDetectionSettings.getInstance(project).isAutoDetectionEnabled()) {
             processBuilder.environment().put(SYS_PROP_EXPERIMENTAL, "true");
         }
 
         // Checks user-configurable setting for allowing language server debug logs and sets the flag accordingly.
-        if (BallerinaAutoDetectionSettings.getInstance(project).getIsAutoDetectionEnabled()) {
+        if (LangServerLogsSettings.getInstance(project).isLangServerDebugLogsEnabled()) {
             processBuilder.environment().put(SYS_PROP_LS_DEBUG, "true");
         }
 
         // Checks user-configurable setting for allowing language server trace logs and sets the flag accordingly.
-        if (BallerinaAutoDetectionSettings.getInstance(project).getIsAutoDetectionEnabled()) {
+        if (LangServerLogsSettings.getInstance(project).isLangServerTraceLogsEnabled()) {
             processBuilder.environment().put(SYS_PROP_LS_TRACE, "true");
         }
 

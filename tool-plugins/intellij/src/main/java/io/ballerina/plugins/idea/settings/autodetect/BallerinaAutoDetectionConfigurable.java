@@ -65,7 +65,7 @@ public class BallerinaAutoDetectionConfigurable implements SearchableConfigurabl
 
     @Override
     public boolean isModified() {
-        return myBalHomeAutoDetectionSettings.getIsAutoDetectionEnabled() != myAutoDetectionCb.isSelected();
+        return myBalHomeAutoDetectionSettings.isAutoDetectionEnabled() != myAutoDetectionCb.isSelected();
     }
 
     @Override
@@ -77,7 +77,7 @@ public class BallerinaAutoDetectionConfigurable implements SearchableConfigurabl
 
     @Override
     public void reset() {
-        myAutoDetectionCb.setSelected(myBalHomeAutoDetectionSettings.getIsAutoDetectionEnabled());
+        myAutoDetectionCb.setSelected(myBalHomeAutoDetectionSettings.isAutoDetectionEnabled());
     }
 
     @NotNull
