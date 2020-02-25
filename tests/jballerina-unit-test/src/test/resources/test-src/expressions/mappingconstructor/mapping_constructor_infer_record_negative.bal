@@ -71,3 +71,16 @@ public function testRecordInferringForMappingConstructorWithRestFieldNegative2()
     int i = v.key;
     float f = v[key];
 }
+
+public function testInferringForVarNegative() {
+    string str = "str";
+    var x = {
+        a: 1,
+        [str]: "hello",
+        b: 23.0
+    };
+
+    record {|
+        int i;
+    |} r = x;
+}

@@ -103,9 +103,7 @@ public class MappingConstructorExprTest {
                 { "testVarNameFieldInAnnotation" }, // final test using `s` since `s` is updated
                 { "testMappingConstuctorWithAnyACET" },
                 { "testMappingConstuctorWithAnydataACET" },
-                { "testMappingConstuctorWithJsonACET" },
-                { "testMappingConstrExprWithNoACET" },
-                { "testMappingConstrExprWithNoACET2" }
+                { "testMappingConstuctorWithJsonACET" }
         };
     }
 
@@ -186,7 +184,7 @@ public class MappingConstructorExprTest {
     public void testRecordInferringInSelectNegative() {
         CompileResult compileResult = BCompileUtil.compile(
                 "test-src/expressions/mappingconstructor/mapping_constructor_infer_record_negative.bal");
-        Assert.assertEquals(compileResult.getErrorCount(), 6);
+        Assert.assertEquals(compileResult.getErrorCount(), 7);
         int index = 0;
 
         validateError(compileResult, index++, "incompatible types: expected 'string[]', found 'record {| string fn; " +
@@ -197,7 +195,9 @@ public class MappingConstructorExprTest {
         validateError(compileResult, index++, "incompatible types: expected 'string', found 'int'", 70, 16);
         validateError(compileResult, index++, "invalid operation: type 'record {| int i; boolean b; int...; |}' does " +
                 "not support field access for non-required field 'key'", 71, 13);
-        validateError(compileResult, index, "incompatible types: expected 'float', found '(int|boolean)?'", 72, 15);
+        validateError(compileResult, index++, "incompatible types: expected 'float', found '(int|boolean)?'", 72, 15);
+        validateError(compileResult, index, "incompatible types: expected 'record {| int i; |}', found 'record {| int" +
+                " a; float b; string...; |}'", 85, 12);
     }
 
     @Test(dataProvider = "inferRecordTypeTests")
@@ -211,7 +211,9 @@ public class MappingConstructorExprTest {
                 { "testRecordInferringForMappingConstructorWithoutRestField" },
                 { "testRecordInferringForMappingConstructorWithRestField1" },
                 { "testRecordInferringForMappingConstructorWithRestField2" },
-                { "testRecordInferringForMappingConstructorWithRestField3" }
+                { "testRecordInferringForMappingConstructorWithRestField3" },
+                { "testMappingConstrExprWithNoACET" },
+                { "testMappingConstrExprWithNoACET2" }
         };
     }
 }

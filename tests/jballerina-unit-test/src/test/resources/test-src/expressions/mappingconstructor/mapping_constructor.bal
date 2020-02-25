@@ -190,66 +190,6 @@ function testMappingConstuctorWithJsonACET() {
     panic getFailureError(TYPEDESC_MAP_JSON, typedescString);
 }
 
-var v1 = {
-    a: 1,
-    b: "hello world",
-    c: new Bar("bar")
-};
-
-function testMappingConstrExprWithNoACET() {
-    string expectedTypedescString = "typedesc map<int|string|Bar>";
-    typedesc<any> ta = typeof v1;
-    string typedescString = ta.toString();
-
-    if typedescString != expectedTypedescString {
-        panic getFailureError(expectedTypedescString, typedescString);
-    }
-
-    var v2 = {
-        s,
-        i,
-        s2: s,
-        t: typeof s
-    };
-
-    expectedTypedescString = "typedesc map<string|int|typedesc>";
-    ta = typeof v2;
-    typedescString = ta.toString();
-
-    if typedescString == expectedTypedescString {
-        return;
-    }
-    panic getFailureError(expectedTypedescString, typedescString);
-}
-
-function testMappingConstrExprWithNoACET2() {
-    string expectedTypedescString = "typedesc map<json|xml>";
-
-    json j = 2;
-
-    var v2 = {
-        a: 1,
-        b: j,
-        c: 23.10,
-        d: xml `foo`,
-        e: "str"
-    };
-
-    typedesc<any> ta = typeof v2;
-    string typedescString = ta.toString();
-
-    if typedescString == expectedTypedescString {
-        return;
-    }
-    panic getFailureError(expectedTypedescString, typedescString);
-}
-
-type Bar object {
-    public function __init(any arg) {
-
-    }
-};
-
 function getFailureError(any|error expected, any|error actual) returns error {
     return  error(ASSERTION_ERROR_REASON,
                     message = "expected '" + expected.toString() + "', found '" + actual.toString () + "'");

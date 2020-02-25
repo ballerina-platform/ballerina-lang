@@ -177,7 +177,6 @@ public class TypeChecker extends BLangNodeVisitor {
     private Types types;
     private BLangDiagnosticLog dlog;
     private SymbolEnv env;
-    private boolean inferRecordContext;
     private boolean isTypeChecked;
     private TypeNarrower typeNarrower;
     private TypeParamAnalyzer typeParamAnalyzer;
@@ -888,52 +887,9 @@ public class TypeChecker extends BLangNodeVisitor {
         int expTypeTag = expType.tag;
         BType originalExpType = expType;
 
-        if (inferRecordContext) {
+        if (expTypeTag == TypeTags.NONE) {
             expType = defineInferredRecordType(recordLiteral);
-        } else if (expTypeTag == TypeTags.NONE) {
-            List<BType> types = new ArrayList<>();
-            for (RecordLiteralNode.RecordField field : recordLiteral.fields) {
-                if (field.isKeyValueField()) {
-                    types.add(checkExpr(((BLangRecordKeyValueField) field).valueExpr, env));
-                } else if (field.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
-                    types.add(checkExpr((BLangSimpleVarRef) field, env));
-                } else {
-                    BType spreadOpType = checkExpr(((BLangRecordLiteral.BLangRecordSpreadOperatorField) field).expr,
-                                                   env);
-                    int tag = spreadOpType.tag;
-
-                    if (tag == TypeTags.MAP) {
-                        types.add(((BMapType) spreadOpType).constraint);
-                        continue;
-                    }
-
-                    if (tag != TypeTags.RECORD) {
-                        continue;
-                    }
-
-                    BRecordType recordType = (BRecordType) spreadOpType;
-
-                    for (BField recField : recordType.fields) {
-                        types.add(recField.type);
-                    }
-
-                    if (!recordType.sealed) {
-                        types.add(recordType.restFieldType);
-                    }
-                }
-            }
-
-            BType constraintType = getRepresentativeBroadType(types);
-
-            if (constraintType.tag == TypeTags.SEMANTIC_ERROR) {
-                resultType = symTable.semanticError;
-                return;
-            }
-
-            expType = new BMapType(TypeTags.MAP, constraintType, null);
-        }
-
-        if (expTypeTag == TypeTags.OBJECT) {
+        } else if (expTypeTag == TypeTags.OBJECT) {
             dlog.error(recordLiteral.pos, DiagnosticCode.INVALID_RECORD_LITERAL, originalExpType);
             resultType = symTable.semanticError;
             return;
@@ -2719,20 +2675,14 @@ public class TypeChecker extends BLangNodeVisitor {
             whereEnv = typeCheckWhereClause((BLangWhereClause) whereClauseNode, selectClause, parentEnv);
         }
 
-        boolean prevInferRecordContext = this.inferRecordContext;
-
         BType expSelectType = expType;
         if (expType.tag == TypeTags.ARRAY) {
             expSelectType = ((BArrayType) expType).eType;
-        } else {
-            this.inferRecordContext = true;
         }
 
         BType selectType = checkExpr(selectClause.expression, whereEnv, expSelectType);
 
         resultType = selectType == symTable.semanticError ? selectType : new BArrayType(selectType);
-
-        this.inferRecordContext = prevInferRecordContext;
     }
 
     SymbolEnv typeCheckFromClause(BLangFromClause fromClause, SymbolEnv parentEnv) {
