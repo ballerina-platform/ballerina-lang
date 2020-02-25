@@ -20,6 +20,7 @@ package org.ballerinalang.langlib.map;
 
 import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
@@ -27,6 +28,8 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
 import static org.ballerinalang.jvm.MapUtils.checkIsMapOnlyOperation;
+import static org.ballerinalang.jvm.MapUtils.checkValidFieldForRecord;
+import static org.ballerinalang.jvm.MapUtils.createOpNotSupportedError;
 import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.MAP_KEY_NOT_FOUND_ERROR;
 
 /**
@@ -42,13 +45,18 @@ import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.MAP_KE
 public class Remove {
 
     public static Object remove(Strand strand, MapValue<?, ?> m, String k) {
-        checkIsMapOnlyOperation(m.getType(), "remove()");
+        BType type = m.getType();
+        String op = "remove()";
+
+        checkIsMapOnlyOperation(type, op);
+        checkValidFieldForRecord(m, k, op);
         if (m.containsKey(k)) {
             try {
                 return m.remove(k);
-            } catch (org.ballerinalang.jvm.util.exceptions.BLangFreezeException e) {
+            }
+            catch (org.ballerinalang.jvm.util.exceptions.BLangFreezeException e) {
                 throw BallerinaErrors.createError(e.getMessage(),
-                                                  "Failed to remove element from map: " + e.getDetail());
+                        "Failed to remove element from map: " + e.getDetail());
             }
         }
 

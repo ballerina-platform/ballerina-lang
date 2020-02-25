@@ -480,4 +480,20 @@ public class OpenRecordTest {
         BAssertUtil.validateError(result, 2, "invalid key 's2': identifiers cannot be used as rest field keys, " +
                 "expected a string literal or an expression", 28, 26);
     }
+
+    @Test
+    public void testOptionalRecordRemove() {
+        CompileResult result = BCompileUtil.compile("test-src/record/open_record.bal");
+        BValue[] returns = BRunUtil.invoke(result, "removeOptional");
+
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+    }
+
+    @Test
+    public void testRestRecordRemove() {
+        CompileResult result = BCompileUtil.compile("test-src/record/open_record.bal");
+        BValue[] returns = BRunUtil.invoke(result, "removeRest");
+
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+    }
 }

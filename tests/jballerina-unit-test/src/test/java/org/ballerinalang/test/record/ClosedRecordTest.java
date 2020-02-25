@@ -323,4 +323,20 @@ public class ClosedRecordTest {
         BAssertUtil.validateError(result, index++, "undefined field 'z' in record 'Foo'", 46, 48);
         Assert.assertEquals(result.getErrorCount(), index);
     }
+
+    @Test
+    public void testOptionalRecordRemove() {
+        CompileResult result = BCompileUtil.compile("test-src/record/closed_record.bal");
+        BValue[] returns = BRunUtil.invoke(result, "removeOptional");
+
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+    }
+
+    @Test
+    public void testRestRecordRemove() {
+        CompileResult result = BCompileUtil.compile("test-src/record/closed_record.bal");
+        BValue[] returns = BRunUtil.invoke(result, "removeRest");
+
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+    }
 }
