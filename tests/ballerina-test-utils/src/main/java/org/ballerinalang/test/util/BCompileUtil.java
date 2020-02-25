@@ -658,7 +658,8 @@ public class BCompileUtil {
         Path importsTarget = importsBirCache.getParent().resolve("generated-bir-jar");
         Files.createDirectories(importsTarget);
         //      TODO : add imports codegen below
-//        writeNonEntryPkgs(bLangPackage.symbol.imports, systemBirCache, importsBirCache, importsTarget, dumpBir);
+        writeNonEntryPkgs(bLangPackage.symbol.imports, systemBirCache, importsBirCache, importsTarget, dumpBir,
+                backendDriver);
 //        if (inProc) {
 //            List<String> commands = BootstrapRunner.createArgsForJBalCompilerBackend(entryBir.toString(),
 //                    jarTarget.toString(), dumpBir, Collections.emptyList(), systemBirCache.toString(),
@@ -715,18 +716,18 @@ public class BCompileUtil {
     }
 
     private static void writeNonEntryPkgs(List<BPackageSymbol> imports, Path birCache, Path importsBirCache,
-                                          Path jarTargetDir, boolean dumpBir)
-            throws IOException {
+                                          Path jarTargetDir, boolean dumpBir, BackendDriver backendDriver) {
         for (BPackageSymbol pkg : imports) {
             PackageID id = pkg.pkgID;
             // Todo: ballerinax check shouldn't be here. This should be fixed by having a proper package hierarchy.
             // Todo: Remove ballerinax check after fixing it by the packerina team
             if (!"ballerina".equals(id.orgName.value) && !"ballerinax".equals(id.orgName.value)) {
-                writeNonEntryPkgs(pkg.imports, birCache, importsBirCache, jarTargetDir, dumpBir);
-                Path pkgBir = getModuleBir(pkg, importsBirCache);
-                String jarOutputPath = jarTargetDir.resolve(id.name.value + ".jar").toString();
-                generateJarBinary(pkgBir.toString(), jarOutputPath, dumpBir, Collections.emptyList(),
-                        birCache.toString(), importsBirCache.toString());
+                writeNonEntryPkgs(pkg.imports, birCache, importsBirCache, jarTargetDir, dumpBir, backendDriver);
+//                Path pkgBir = getModuleBir(pkg, importsBirCache);
+                Path jarOutputPath = jarTargetDir.resolve(id.name.value + ".jar");
+//                generateJarBinary(pkgBir.toString(), jarOutputPath, dumpBir, Collections.emptyList(),
+//                        birCache.toString(), importsBirCache.toString());
+                backendDriver.execute(pkg.bir, dumpBir, jarOutputPath);
             }
         }
     }
