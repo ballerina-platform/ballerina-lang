@@ -51,7 +51,7 @@ public class BallerinaAutoDetectionConfigurable implements SearchableConfigurabl
     public JComponent createComponent() {
 
         FormBuilder builder = FormBuilder.createFormBuilder();
-        myAutoDetectionCb = new JCheckBox("Auto-Detect Ballerina Home");
+        myAutoDetectionCb = new JCheckBox("Auto-detect ballerina SDK location");
         builder.addComponent(myAutoDetectionCb);
         JPanel result = new JPanel(new BorderLayout());
         result.add(builder.getPanel(), BorderLayout.NORTH);
@@ -80,7 +80,7 @@ public class BallerinaAutoDetectionConfigurable implements SearchableConfigurabl
     @NotNull
     @Override
     public String getId() {
-        return "ballerina.home.autodetect";
+        return "ballerina.autodetect";
     }
 
     @Nullable

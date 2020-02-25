@@ -50,8 +50,8 @@ public class LangServerLogsConfigurable implements SearchableConfigurable {
     @Override
     public JComponent createComponent() {
         FormBuilder builder = FormBuilder.createFormBuilder();
-        myEnableDebugLogsCb = new JCheckBox("Enable language server debug logs");
-        myEnableTraceLogsCb = new JCheckBox("Enable language server trace logs");
+        myEnableDebugLogsCb = new JCheckBox("Enable debug logs");
+        myEnableTraceLogsCb = new JCheckBox("Enable trace logs");
         builder.addComponent(myEnableDebugLogsCb);
         builder.addComponent(myEnableTraceLogsCb);
         JPanel result = new JPanel(new BorderLayout());
@@ -84,7 +84,7 @@ public class LangServerLogsConfigurable implements SearchableConfigurable {
     @NotNull
     @Override
     public String getId() {
-        return "langserver.logs";
+        return "ballerina.langserver.logs";
     }
 
     @Nullable
