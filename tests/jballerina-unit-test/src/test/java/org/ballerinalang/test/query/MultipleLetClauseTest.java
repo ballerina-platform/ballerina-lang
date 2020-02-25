@@ -41,16 +41,30 @@ public class MultipleLetClauseTest {
         result = BCompileUtil.compile("test-src/query/multiple-let-clauses.bal");
     }
 
-    @Test(description = "Test multiple let clauses - simple variable definition statement ")
-    public void testMultipleLetClausesWithSimpleVariable() {
-        BValue[] returnValues = BRunUtil.invoke(result, "testMultipleLetClausesWithSimpleVariable");
+    @Test(description = "Test multiple let clauses in single line - simple variable definition statement ")
+    public void testLetClauseWithSimpleVariable() {
+        BValue[] returnValues = BRunUtil.invoke(result, "testMultipleLetClausesWithSimpleVariable1");
         Assert.assertNotNull(returnValues);
 
-        Assert.assertEquals(returnValues.length, 3, "Expected events are not received");
+        Assert.assertEquals(returnValues.length, 1, "Expected events are not received");
 
         BMap<String, BValue> person1 = (BMap<String, BValue>) returnValues[0];
 
-        Assert.assertEquals(person1.get("firstName").stringValue(), "Alex");
+        Assert.assertEquals(person1.get("firstName").stringValue(), "Alexander");
+        Assert.assertEquals(person1.get("lastName").stringValue(), "George");
+        Assert.assertEquals(person1.get("deptAccess").stringValue(), "WSO2");
+    }
+
+    @Test(description = "Test multiple let clauses in multiple lines - simple variable definition statement ")
+    public void testMultipleLetClausesWithSimpleVariable() {
+        BValue[] returnValues = BRunUtil.invoke(result, "testMultipleLetClausesWithSimpleVariable2");
+        Assert.assertNotNull(returnValues);
+
+        Assert.assertEquals(returnValues.length, 1, "Expected events are not received");
+
+        BMap<String, BValue> person1 = (BMap<String, BValue>) returnValues[0];
+
+        Assert.assertEquals(person1.get("firstName").stringValue(), "Alexander");
         Assert.assertEquals(person1.get("lastName").stringValue(), "George");
         Assert.assertEquals(person1.get("deptAccess").stringValue(), "WSO2");
     }

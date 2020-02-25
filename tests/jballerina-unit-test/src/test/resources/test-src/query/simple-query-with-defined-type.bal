@@ -200,6 +200,7 @@ function testSimpleSelectQueryWithLetClause() returns Employee[] {
     Employee[] outputPersonList =
             from var person in personList
             let string depName = "HR", string companyName = "WSO2"
+            where person.age >= 30
             select {
                    firstName: person.firstName,
                    lastName: person.lastName,

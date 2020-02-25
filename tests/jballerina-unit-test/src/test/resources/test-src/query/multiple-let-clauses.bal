@@ -8,7 +8,26 @@ type Company record {|
    string name;
 |};
 
-function testMultipleLetClausesWithSimpleVariable() returns Person[] {
+function testMultipleLetClausesWithSimpleVariable1() returns Person[] {
+    Person p1 = {firstName: "Alex", lastName: "George", deptAccess: "XYZ"};
+    Person p2 = {firstName: "Ranjan", lastName: "Fonseka", deptAccess: "XYZ"};
+    Person p3 = {firstName: "John", lastName: "David", deptAccess: "XYZ"};
+
+    Person[] personList = [p1, p2, p3];
+
+    Person[] outputPersonList =
+            from var person in personList
+            let string depName = "WSO2", string replaceName = "Alexander"
+            where person.deptAccess == "XYZ" && person.firstName == "Alex"
+            select {
+                   firstName: replaceName,
+                   lastName: person.lastName,
+                   deptAccess: depName
+            };
+    return  outputPersonList;
+}
+
+function testMultipleLetClausesWithSimpleVariable2() returns Person[] {
     Person p1 = {firstName: "Alex", lastName: "George", deptAccess: "XYZ"};
     Person p2 = {firstName: "Ranjan", lastName: "Fonseka", deptAccess: "XYZ"};
     Person p3 = {firstName: "John", lastName: "David", deptAccess: "XYZ"};
@@ -18,9 +37,10 @@ function testMultipleLetClausesWithSimpleVariable() returns Person[] {
     Person[] outputPersonList =
             from var person in personList
             let string depName = "WSO2"
-            where person.deptAccess == "XYZ"
+            let string replaceName = "Alexander"
+            where person.deptAccess == "XYZ" && person.firstName == "Alex"
             select {
-                   firstName: person.firstName,
+                   firstName: replaceName,
                    lastName: person.lastName,
                    deptAccess: depName
             };
