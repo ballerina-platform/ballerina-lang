@@ -15,16 +15,15 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.ballerinalang.jdbc;
+package org.ballerinalang.mysql;
 
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.sql.datasource.SQLDatasource;
-import org.ballerinalang.sql.exceptions.ErrorGenerator;
 import org.ballerinalang.sql.utils.ClientUtils;
 
 /**
- * This class will include the native method implementation for the JDBC client.
+ * Native implementation for the mysql client methods.
  *
  * @since 1.2.0
  */
@@ -32,39 +31,39 @@ public class NativeImpl {
 
     public static Object createClient(ObjectValue client, MapValue<String, Object> clientConfig,
                                       MapValue<String, Object> globalPool) {
-        String url = clientConfig.getStringValue(Constants.ClientConfiguration.URL);
-        if (!isJdbcUrlValid(url)) {
-            return ErrorGenerator.getSQLApplicationError("invalid JDBC URL: " + url);
+        String url = "jdbc:mysql://" + clientConfig.getStringValue(Constants.ClientConfiguration.HOST);
+        Long portValue = client.getIntValue(Constants.ClientConfiguration.PORT);
+        if (portValue > 0) {
+            url += ":" + portValue.intValue();
         }
         String user = clientConfig.getStringValue(Constants.ClientConfiguration.USER);
         String password = clientConfig.getStringValue(Constants.ClientConfiguration.PASSWORD);
+        String database = clientConfig.getStringValue(Constants.ClientConfiguration.DATABASE);
+        if (database != null && !database.isEmpty()) {
+            url += "/" + database;
+        }
         MapValue<String, Object> options = (MapValue<String, Object>) clientConfig
                 .getMapValue(Constants.ClientConfiguration.OPTIONS);
-        MapValue<String, Object> properties = null;
-        String datasourceName = null;
-        if (options != null) {
-            properties = (MapValue<String, Object>) options.
-                    getMapValue(Constants.ClientConfiguration.PROPERTIES);
-            datasourceName = options.getStringValue(Constants.ClientConfiguration.DATASOURCE_NAME);
-        }
+        MapValue<String, Object> properties = Utils.generateOptionsMap(options);
+
         MapValue<String, Object> connectionPool = (MapValue<String, Object>) clientConfig
                 .getMapValue(Constants.ClientConfiguration.CONNECTION_POOL_OPTIONS);
         if (connectionPool == null) {
             connectionPool = globalPool;
         }
+
+        String datasourceName = Constants.MYSQL_DATASOURCE_NAME;
+        if (options.getBooleanValue(Constants.Options.USE_XA_DATASOURCE)) {
+            datasourceName = Constants.MYSQL_XA_DATASOURCE_NAME;
+        }
+
         SQLDatasource.SQLDatasourceParams sqlDatasourceParams = new SQLDatasource.SQLDatasourceParams().
                 setUrl(url).setUser(user).setPassword(password).setDatasourceName(datasourceName).
                 setOptions(properties).setConnectionPool(connectionPool);
         return ClientUtils.createClient(client, sqlDatasourceParams);
     }
 
-    // Unable to perform a complete validation since URL differs based on the database.
-    private static boolean isJdbcUrlValid(String jdbcUrl) {
-        return !jdbcUrl.isEmpty() && jdbcUrl.trim().startsWith("jdbc:");
-    }
-
     public static Object close(ObjectValue client) {
         return ClientUtils.close(client);
     }
-
 }

@@ -23,28 +23,29 @@ configurations.all {
 }
 
 dependencies {
-    baloImplementation project(path: ':ballerina-time', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-lang:annotations', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-config-api', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-sql', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-jdbc', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-crypto', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-java', configuration: 'baloImplementation')
 
     interopImports project(':ballerina-time')
     interopImports project(':ballerina-crypto')
     interopImports project(':ballerina-config-api')
-    interopImports project(':ballerina-jdbc')
 
     baloCreat project(':lib-creator')
-    
+    implementation project(':ballerina-lang')
+    implementation project(':ballerina-lang:annotations')
     implementation project(':ballerina-test-utils')
     implementation project(':ballerina-runtime')
-
+    implementation project(':ballerina-sql')
+    implementation project(':ballerina-java')
+    implementation project(':ballerina-crypto')
+    
     testCompile project(path: ':ballerina-test-common', configuration: 'tests')
     testCompile project(':ballerina-log-api')
     testCompile project(':ballerina-core')
     testCompile project(':ballerina-http')
-    testCompile project(':ballerina-jdbc')
     testCompile project(':ballerina-jsonutils')
     
     testCompile 'org.testng:testng'

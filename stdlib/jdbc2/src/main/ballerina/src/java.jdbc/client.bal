@@ -25,7 +25,7 @@ public type Client client object {
 
     # Gets called when the JDBC client is instantiated.
     public function __init(public string url, public string? user = (), public string? password = (),
-                           public Options? options = (), public sql:ConnectionPool? connPool = ()) returns sql:Error?{
+                           public Options? options = (), public sql:ConnectionPool? connPool = ()) returns sql:Error? {
       ClientConfiguration clientConf = {
         url: url,
         user: user,
