@@ -47,6 +47,13 @@ public class CloneUtils {
         return refValue.copy(new HashMap<>());
     }
 
+    /**
+     * Returns a clone of `value` which is immutable. A clone is a deep copy that does not copy immutable subtrees.
+     * A clone can therefore safely be used concurrently with the original. It corresponds to the ImmutableClone(v)
+     * abstract operation, defined in the Ballerina Language Specification.
+     * @param value The value on which the function is invoked
+     * @return String value of the value
+     */
     public static Object cloneReadOnly(Object value) {
         if (value == null) {
             return null;
@@ -57,6 +64,6 @@ public class CloneUtils {
         }
 
         RefValue refValue = (RefValue) value;
-        return refValue.copy(new HashMap<>());
+        return refValue.frozenCopy(new HashMap<>());
     }
 }
