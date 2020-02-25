@@ -229,6 +229,7 @@ const string ABSTRACT_OBJECT_VALUE = "org/ballerinalang/jvm/values/AbstractObjec
 const string REF_VALUE = "org/ballerinalang/jvm/values/RefValue";
 const string ERROR_VALUE = "org/ballerinalang/jvm/values/ErrorValue";
 const string STRING_VALUE = "java/lang/String";
+const string BMP_STRING_VALUE = "org/ballerinalang/jvm/values/BmpStringValue";
 const string LONG_VALUE = "java/lang/Long";
 const string BOOLEAN_VALUE = "java/lang/Boolean";
 const string DOUBLE_VALUE = "java/lang/Double";
