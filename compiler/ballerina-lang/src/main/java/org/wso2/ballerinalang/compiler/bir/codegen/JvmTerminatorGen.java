@@ -83,6 +83,7 @@ import static org.objectweb.asm.Opcodes.POP;
 import static org.objectweb.asm.Opcodes.PUTFIELD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ARRAY_LIST;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BAL_ERROR_REASONS;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BAL_EXTENSION;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BLANG_EXCEPTION_HELPER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BTYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CHANNEL_DETAILS;
@@ -94,6 +95,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LIST;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LOCK_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAP;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAP_VALUE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_INIT_CLASS_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.REF_VALUE;
@@ -134,7 +136,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.getModul
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.getPackageName;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.lambdaIndex;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.lambdas;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.lookupFullQualifiedClassName;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.lookupGlobalVarClassName;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.symbolTable;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen.loadType;
@@ -761,7 +762,8 @@ public class JvmTerminatorGen {
                 methodDesc = functionWrapper.jvmMethodDescription;
             } else {
                 BPackageSymbol symbol = CodeGenerator.packageCache.getSymbol(orgName + "/" + moduleName);
-                BInvokableSymbol funcSymbol = (BInvokableSymbol) symbol.scope.lookup(new Name(nameOfNonBStringFunc(methodName))).symbol;
+                BInvokableSymbol funcSymbol =
+                        (BInvokableSymbol) symbol.scope.lookup(new Name(nameOfNonBStringFunc(methodName))).symbol;
                 BInvokableType type = (BInvokableType) funcSymbol.type;
                 ArrayList<BType> params = new ArrayList<>(type.paramTypes);
                 if (type.restType != null) {
@@ -771,7 +773,13 @@ public class JvmTerminatorGen {
                     params.add(j + 1, new BType(TypeTags.BOOLEAN, null));
                 }
                 String balFileName = funcSymbol.source;
-                jvmClass = getModuleLevelClassName(orgName, moduleName, cleanupPathSeperators(cleanupBalExt(balFileName)));
+
+                if (balFileName == null || !balFileName.endsWith(BAL_EXTENSION)) {
+                    balFileName = MODULE_INIT_CLASS_NAME;
+                }
+
+                jvmClass = getModuleLevelClassName(orgName, moduleName,
+                        cleanupPathSeperators(cleanupBalExt(balFileName)));
                 //TODO: add receiver:  BType attachedType = type.r != null ? receiver.type : null;
                 methodDesc = getMethodDesc(params, type.retType, null, false, useBString);
             }
