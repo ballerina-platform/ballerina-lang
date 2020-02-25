@@ -78,21 +78,17 @@ public class ServicesBuilderUtils {
     }
 
     private static String getServiceName(ObjectValue service) {
-        String serviceName = null;
         Object serviceConfigData = service.getType().getAnnotation("ballerina/grpc:ServiceConfig");
         if (serviceConfigData != null) {
-            MapValue<String, Object> configMap = (MapValue) serviceConfigData;
+            MapValue configMap = (MapValue) serviceConfigData;
             String providedName = configMap.getStringValue("name");
             if (providedName != null && !providedName.isEmpty()) {
-                serviceName = providedName;
+                return providedName;
             }
         }
-        if (serviceName == null) {
-            String serviceTypeName = service.getType().getName(); // typeName format: <name>$$<type>$$<version>
-            String[] splitValues = serviceTypeName.split("\\$\\$");
-            serviceName = splitValues[0];
-        }
-        return serviceName;
+        String serviceTypeName = service.getType().getName(); // typeName format: <name>$$<type>$$<version>
+        String[] splitValues = serviceTypeName.split("\\$\\$");
+        return splitValues[0];
     }
 
     private static ServerServiceDefinition getServiceDefinition(BRuntime runtime, ObjectValue service,
