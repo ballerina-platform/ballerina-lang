@@ -29,8 +29,13 @@ import ballerina/java.jdbc;
 //map<anydata> propertiesMap3 = {"loginTimeout": "1000"};
 //jdbc:PoolOptions properties6 = {dataSourceClassName: "org.h2.jdbcx.JdbcDataSource"};
 
-function testURLUserPassword(string jdbcURL, string user, string password) returns error?{
-    jdbc:Client testDB = new (url=jdbcURL, user= user, password = password);
+function test1(string jdbcURL, string user, string password) returns error?{
+    jdbc:Client testDB = check new (url=jdbcURL, user = user, password = password);
+    return testDB.close();
+}
+
+function test2(string jdbcURL, string user, string password) returns error?{
+    jdbc:Client testDB = check new (jdbcURL, user, password);
     return testDB.close();
 }
 

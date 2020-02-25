@@ -14,7 +14,7 @@
  * limitations under the License.
  *
  */
- 
+
 apply from: "$rootDir/gradle/balNativeLibProject.gradle"
 apply from: "$rootDir/gradle/baseNativeStdLibProject.gradle"
 
@@ -27,72 +27,26 @@ dependencies {
     baloImplementation project(path: ':ballerina-config-api', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-sql', configuration: 'baloImplementation')
 
-    // transitive
-    baloImplementation project(path: ':ballerina-system', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-io', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-auth', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-reflect', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-log-api', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-crypto', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-math', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-http', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-task', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-system', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-runtime-api', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-transactions', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-xmlutils', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-llvm', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-jsonutils', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-java', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-mime', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-cache', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-time', configuration: 'baloImplementation')
-
-    interopImports project(':ballerina-config-api')
-    interopImports project(':ballerina-io')
-    interopImports project(':ballerina-jsonutils')
-    interopImports project(':ballerina-system')
-    interopImports project(':ballerina-reflect')
-
-    interopImports project(':ballerina-jsonutils')
-
     baloCreat project(':lib-creator')
     implementation project(':ballerina-lang')
     implementation project(':ballerina-lang:annotations')
-    implementation project(':ballerina-time')
-    implementation project(':ballerina-cache')
     implementation project(':ballerina-runtime')
     implementation project(':ballerina-test-utils')
-    implementation project(':ballerina-time')
     implementation project(':ballerina-java')
+    implementation project(':ballerina-sql')
 
     testCompile project(path: ':ballerina-test-common', configuration: 'tests')
     testCompile project(':ballerina-io')
-    testCompile project(':ballerina-auth')
-    testCompile project(':ballerina-reflect')
     testCompile project(':ballerina-log-api')
-    testCompile project(':ballerina-crypto')
-    testCompile project(':ballerina-math')
-    testCompile project(':ballerina-http')
-    testCompile project(':ballerina-task')
-    testCompile project(':ballerina-config-api')
-    testCompile project(':ballerina-system')
     testCompile project(':ballerina-runtime-api')
     testCompile project(':ballerina-core')
-    testCompile project(':ballerina-jsonutils')
-    testCompile project(':ballerina-xmlutils')
     testCompile project(':ballerina-java')
-    testCompile project(':ballerina-llvm')
-    implementation project(':ballerina-time')
-    testCompile project(':ballerina-mime')
     testCompile project(':ballerina-transactions')
 
     testCompile 'org.testng:testng'
     testCompile 'org.slf4j:slf4j-jdk14'
     testCompile 'com.h2database:h2'
     testCompile 'org.hsqldb:hsqldb'
-    
-    implementation 'com.zaxxer:HikariCP'
 }
 
 configurations {

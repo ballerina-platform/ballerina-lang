@@ -26,7 +26,6 @@ import org.testng.Assert;
 import org.testng.annotations.AfterSuite;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
 
 import java.io.File;
 
@@ -49,9 +48,15 @@ public class ConnectorInitTest {
     }
 
     @Test
-    public void testConnectorWithDefaultPropertiesForListedDB() {
-        BValue[] returnVal = BRunUtil.invokeFunction(result, "testURLUserPassword", args);
-        Assert.assertTrue(returnVal[0] instanceof BNilType);
+    public void test1() {
+        BValue[] returnVal = BRunUtil.invokeFunction(result, "test1", args);
+        Assert.assertNull(returnVal[0]);
+    }
+
+    @Test
+    public void test2() {
+        BValue[] returnVal = BRunUtil.invokeFunction(result, "test2", args);
+        Assert.assertNull(returnVal[0]);
     }
 
     @AfterSuite

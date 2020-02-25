@@ -26,7 +26,7 @@ public type Client client object {
     # Gets called when the JDBC client is instantiated.
     public function __init(public string url, public string? user = (), public string? password = (),
                            public string? driver = (),
-                           public map<anydata>? options = (), public sql:ConnectionPool? connPool = ()) {
+                           public map<anydata>? options = (), public sql:ConnectionPool? connPool = ()) returns sql:Error?{
       ClientConfiguration clientConf = {
         url: url,
         user: user,
@@ -35,19 +35,18 @@ public type Client client object {
         options:options,
         connPool: connPool
       };
-      createClient(self, clientConf, globalPoolConfigContainer.getGlobalConnectionPool());
+      createClient(self, clientConf, sql:getGlobalConnectionPool());
     }
 
       # The call remote function implementation for SQL Client to invoke stored procedures/functions.
       #
       # + sqlQuery - The SQL query such as SELECT statements which returns the table rows.
-      # + params - The parameters to be passed to query.
       # + rowType - The type description of the record that should be returns in the retuned stream.
       # + return - A `stream<record{}>` containing the records of the query results.
-      public remote function query(@untainted string sqlQuery, sql:Value[]? params = (), typedesc<record {}>? rowType =())
-                                  returns @tainted stream<record {}> {
+      public remote function query(@untainted string sqlQuery, typedesc<record {}>? rowType =())
+                                  returns @tainted stream<record {}>|sql:Error {
         //TODO: handle invocation after client is closed.
-        return nativeQuery(self, java:fromString(sqlQuery), params, rowType);
+        return nativeQuery(self, java:fromString(sqlQuery), rowType);
     }
 
     # Stops the JDBC client.
@@ -59,19 +58,37 @@ public type Client client object {
     }
 };
 
+# Provides a set of configurations for the JDBC Client to be passed internally within the module.
+#
+# + url - URL of the database to connect
+# + user - Username for the database connection
+# + password - Password for the database connection
+# + driver - The name of the drirver or optionally pass the `Driver` record to specify the isXA configuraiton.
+# + options - A map of DB specific properties. These properties will have an effect only if the dataSourceClassName is
+#               provided in poolOptions
+# + connPool - Properties for the connection pool configuration. Refer `sql:ConnectionPool` for more details
+type ClientConfiguration record {|
+    string url;
+    string? user;
+    string? password;
+    string? driver;
+    map<anydata>? options;
+    sql:ConnectionPool? connPool;
+|};
+
 
 function createClient(Client jdbcClient, ClientConfiguration clientConf,
     sql:ConnectionPool globalConnPool) = @java:Method {
-    class: "org.ballerinalang.jdbc.nativeimpl.Utils"
+    class: "org.ballerinalang.jdbc.NativeImpl"
 } external;
 
 
 function nativeQuery(Client jdbcClient, @untainted handle sqlQuery,
-    sql:Value[]? params, typedesc<record {}>? rowType) returns @tainted stream<record {}> = @java:Method {
-        class: "org.ballerinalang.jdbc.nativeimpl.Utils"
+    typedesc<record {}>? rowType) returns @tainted stream<record {}> = @java:Method {
+        class: "org.ballerinalang.jdbc.NativeImpl"
 } external;
 
 
 function close(Client jdbcClient) returns error? = @java:Method {
-    class: "org.ballerinalang.jdbc.nativeimpl.Utils"
+    class: "org.ballerinalang.jdbc.NativeImpl"
 } external;

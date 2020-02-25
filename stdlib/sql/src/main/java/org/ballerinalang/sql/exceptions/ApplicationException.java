@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.jdbc.exceptions;
+package org.ballerinalang.sql.exceptions;
 
 /**
  * The exception to throw application related exceptions of JDBC client.

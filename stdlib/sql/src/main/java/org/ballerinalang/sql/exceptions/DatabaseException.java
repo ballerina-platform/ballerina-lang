@@ -16,7 +16,7 @@
  *  under the License.
  */
 
-package org.ballerinalang.jdbc.exceptions;
+package org.ballerinalang.sql.exceptions;
 
 import java.sql.SQLException;
 

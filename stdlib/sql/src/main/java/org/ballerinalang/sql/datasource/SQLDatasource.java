@@ -15,15 +15,15 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.jdbc.datasource;
+package org.ballerinalang.sql.datasource;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
-import org.ballerinalang.jdbc.Constants;
-import org.ballerinalang.jdbc.exceptions.DatabaseException;
-import org.ballerinalang.jdbc.exceptions.ErrorGenerator;
 import org.ballerinalang.jvm.values.DecimalValue;
 import org.ballerinalang.jvm.values.MapValue;
+import org.ballerinalang.sql.Constants;
+import org.ballerinalang.sql.exceptions.DatabaseException;
+import org.ballerinalang.sql.exceptions.ErrorGenerator;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -47,14 +47,12 @@ public class SQLDatasource {
     private String peerAddress;
     private String databaseProductName;
     private boolean xaConn;
-    private boolean globalDatasource;
     private AtomicInteger clientCounter = new AtomicInteger(0);
     private Lock mutex = new ReentrantLock();
     private boolean poolShutdown = false;
 
     private SQLDatasource(SQLDatasourceParams sqlDatasourceParams) {
-        this.globalDatasource = sqlDatasourceParams.isGlobalDatasource;
-        peerAddress = sqlDatasourceParams.jdbcUrl;
+        peerAddress = sqlDatasourceParams.url;
         buildDataSource(sqlDatasourceParams);
         try {
             xaConn = isXADataSource();
@@ -76,17 +74,16 @@ public class SQLDatasource {
      *
      * @param sqlDatasourceParams datasource parameters required to retrieve the JDBC URL for datasource lookup and
      *                            initialization of the newly created datasource if it doesn't exists
-     * @param connectionPool The connectionPool object associated with the jdbc client
      * @return The existing or newly created {@link SQLDatasource} object
      */
-    public static SQLDatasource retrieveDatasource(SQLDatasource.SQLDatasourceParams sqlDatasourceParams,
-                                                   MapValue<String, Object> connectionPool) {
-        PoolKey poolKey = new PoolKey(sqlDatasourceParams.jdbcUrl, sqlDatasourceParams.options);
+    public static SQLDatasource retrieveDatasource(SQLDatasource.SQLDatasourceParams sqlDatasourceParams) {
+        PoolKey poolKey = new PoolKey(sqlDatasourceParams.url, sqlDatasourceParams.options);
         Map<PoolKey, SQLDatasource> hikariDatasourceMap = SQLDatasourceUtils
-                .retrieveDatasourceContainer(connectionPool);
+                .retrieveDatasourceContainer(sqlDatasourceParams.connectionPool);
         // map could be null only in a local pool creation scenario
         if (hikariDatasourceMap == null) {
-            hikariDatasourceMap = SQLDatasourceUtils.putDatasourceContainer(connectionPool, new ConcurrentHashMap<>());
+            hikariDatasourceMap = SQLDatasourceUtils.putDatasourceContainer(sqlDatasourceParams.connectionPool,
+                    new ConcurrentHashMap<>());
         }
         SQLDatasource existingSqlDatasource = hikariDatasourceMap.get(poolKey);
         SQLDatasource sqlDatasourceToBeReturned = existingSqlDatasource;
@@ -158,10 +155,6 @@ public class SQLDatasource {
         poolShutdown = true;
     }
 
-    public boolean isGlobalDatasource() {
-        return globalDatasource;
-    }
-
     public boolean isPoolShutdown() {
         return poolShutdown;
     }
@@ -221,8 +214,8 @@ public class SQLDatasource {
     private void buildDataSource(SQLDatasourceParams sqlDatasourceParams) {
         try {
             HikariConfig config = new HikariConfig();
-            config.setJdbcUrl(sqlDatasourceParams.jdbcUrl);
-            config.setUsername(sqlDatasourceParams.username);
+            config.setJdbcUrl(sqlDatasourceParams.url);
+            config.setUsername(sqlDatasourceParams.user);
             config.setPassword(sqlDatasourceParams.password);
             config.setDataSourceClassName(sqlDatasourceParams.driver);
             if (sqlDatasourceParams.connectionPool != null) {
@@ -281,12 +274,11 @@ public class SQLDatasource {
      * This class encapsulates the parameters required for the initialization of {@code SQLDatasource} class.
      */
     public static class SQLDatasourceParams {
-        private MapValue<String, Object> connectionPool;
-        private String jdbcUrl;
-        private String username;
+        private String url;
+        private String user;
         private String password;
         private String driver;
-        private boolean isGlobalDatasource;
+        private MapValue<String, Object> connectionPool;
         private MapValue<String, Object> options;
 
         public SQLDatasourceParams() {
@@ -297,23 +289,18 @@ public class SQLDatasource {
             return this;
         }
 
-        public SQLDatasourceParams setJdbcUrl(String jdbcUrl) {
-            this.jdbcUrl = jdbcUrl;
+        public SQLDatasourceParams setUrl(String url) {
+            this.url = url;
             return this;
         }
 
-        public SQLDatasourceParams setUsername(String username) {
-            this.username = username;
+        public SQLDatasourceParams setUser(String user) {
+            this.user = user;
             return this;
         }
 
         public SQLDatasourceParams setPassword(String password) {
             this.password = password;
-            return this;
-        }
-
-        public SQLDatasourceParams setGlobalDatasource(boolean globalDatasource) {
-            isGlobalDatasource = globalDatasource;
             return this;
         }
 

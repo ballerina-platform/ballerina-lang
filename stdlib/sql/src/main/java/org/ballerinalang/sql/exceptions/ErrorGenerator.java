@@ -15,13 +15,13 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.jdbc.exceptions;
+package org.ballerinalang.sql.exceptions;
 
-import org.ballerinalang.jdbc.Constants;
 import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValue;
+import org.ballerinalang.sql.Constants;
 
 import java.sql.SQLException;
 import java.util.HashMap;
@@ -65,13 +65,17 @@ public class ErrorGenerator {
     }
 
     public static ErrorValue getSQLApplicationError(String detailedErrorMessage) {
-        return BallerinaErrors.createError(detailedErrorMessage);
+        Map<String, Object> valueMap = new HashMap<>();
+        valueMap.put("message", detailedErrorMessage);
+        MapValue<String, Object> sqlClientErrorDetailRecord = BallerinaValues.
+                createRecordValue(Constants.SQL_PACKAGE_ID, Constants.APPLICATION_ERROR_DATA_RECORD_NAME, valueMap);
+        return BallerinaErrors.createError(Constants.APPLICATION_ERROR_CODE, sqlClientErrorDetailRecord);
     }
 
     private static ErrorValue getSQLDatabaseError(String message, int vendorCode, String sqlState) {
         Map<String, Object> valueMap = new HashMap<>();
         valueMap.put("message", message);
-        valueMap.put("sqlErrorCode", vendorCode);
+        valueMap.put("errorCode", vendorCode);
         valueMap.put("sqlState", sqlState);
         MapValue<String, Object> sqlClientErrorDetailRecord = BallerinaValues.
                 createRecordValue(Constants.SQL_PACKAGE_ID, Constants.DATABASE_ERROR_DATA_RECORD_NAME, valueMap);

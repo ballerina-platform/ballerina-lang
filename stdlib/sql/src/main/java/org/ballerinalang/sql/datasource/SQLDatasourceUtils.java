@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.jdbc.datasource;
+package org.ballerinalang.sql.datasource;
 
 import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.types.BType;
