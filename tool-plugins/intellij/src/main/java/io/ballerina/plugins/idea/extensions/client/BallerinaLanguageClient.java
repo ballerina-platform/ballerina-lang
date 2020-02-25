@@ -16,7 +16,7 @@
 package io.ballerina.plugins.idea.extensions.client;
 
 import com.intellij.openapi.diagnostic.Logger;
-import com.intellij.remoteServer.util.CloudNotifier;
+import io.ballerina.plugins.idea.notifiers.BallerinaLSLogNotifier;
 import io.ballerina.plugins.idea.settings.langserverlogs.LangServerLogsSettings;
 import org.eclipse.lsp4j.MessageParams;
 import org.eclipse.lsp4j.MessageType;
@@ -30,7 +30,7 @@ public class BallerinaLanguageClient extends DefaultLanguageClient {
 
     private final ClientContext context;
     private static final Logger LOGGER = Logger.getInstance(BallerinaLanguageClient.class);
-    private static final CloudNotifier notifier = new CloudNotifier("Ballerina LS Logs");
+    private static final BallerinaLSLogNotifier logNotifier = new BallerinaLSLogNotifier();
 
     public BallerinaLanguageClient(ClientContext context) {
         super(context);
@@ -45,13 +45,13 @@ public class BallerinaLanguageClient extends DefaultLanguageClient {
         // Todo - Revisit after the language server logger implementation is fixed with proper message types.
         LangServerLogsSettings logSettings = LangServerLogsSettings.getInstance(context.getProject());
         if (msgType == MessageType.Error && logSettings.isLangServerDebugLogsEnabled()) {
-            notifier.showMessage(message, com.intellij.openapi.ui.MessageType.ERROR);
+            logNotifier.showMessage(context.getProject(), message, com.intellij.openapi.ui.MessageType.ERROR);
         } else if (msgType == MessageType.Warning && logSettings.isLangServerDebugLogsEnabled()) {
-            notifier.showMessage(message, com.intellij.openapi.ui.MessageType.WARNING);
+            logNotifier.showMessage(context.getProject(), message, com.intellij.openapi.ui.MessageType.WARNING);
         } else if (msgType == MessageType.Info && logSettings.isLangServerTraceLogsEnabled()) {
-            notifier.showMessage(message, com.intellij.openapi.ui.MessageType.INFO);
+            logNotifier.showMessage(context.getProject(), message, com.intellij.openapi.ui.MessageType.INFO);
         } else if (msgType == MessageType.Log && logSettings.isLangServerDebugLogsEnabled()) {
-            notifier.showMessage(message, com.intellij.openapi.ui.MessageType.INFO);
+            logNotifier.showMessage(context.getProject(), message, com.intellij.openapi.ui.MessageType.INFO);
         } else if (msgType == null) {
             LOGGER.warn("unknown message type for " + message);
         }
