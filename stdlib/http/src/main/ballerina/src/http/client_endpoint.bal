@@ -17,6 +17,7 @@
 import ballerinax/java;
 import ballerina/crypto;
 import ballerina/time;
+import ballerina/io;
 
 ////////////////////////////////
 ///// HTTP Client Endpoint /////
@@ -70,16 +71,26 @@ public type Client client object {
     # + targetType - The types of payloads that are expected be returned after data-binding
     # + return - The response for the request or the response payload if data-binding expected otherwise an
     # `http:ClientError` if failed to establish communication with the upstream server or data binding failure
-    public remote function post(@untainted string path, RequestMessage message, TargetType targetType = Response)
+    public remote function post(@untainted string path, RequestMessage message, public TargetType targetType = Response)
             returns @tainted Response|PayloadType|ClientError {
         Request req = buildRequest(message);
-        if (targetType is typedesc<Response>) {
+        io:print("++++++++++++++++++++++++ targetType : ");
+        io:println(targetType);
+        if (targetType is typedesc<json>) {
+            io:print("++++++++++++++++++++++++ trick targetType is typedesc<json daaaaaaaaa????> ");
             return self.httpClient->post(path, req);
         }
+        if (targetType is typedesc<Response>) {
+            io:print("++++++++++++++++++++++++ targetType is typedesc<Response> ");
+            return self.httpClient->post(path, req);
+        }
+        io:print("++++++++++++++++++++++++ targetType is NOT typedesc<Response> ");
         var result = self.httpClient->post(path, req);
         if (result is ClientError) {
+            io:print("++++++++++++++++++++++++ error in operation");
             return result;
         } else {
+            io:print("++++++++++++++++++++++++ trying to processResponse");
             return processResponse(<Response>result, targetType);
         }
     }
@@ -236,11 +247,13 @@ public type Client client object {
 function processResponse(Response response, TargetType targetType) returns @tainted PayloadType|ClientError {
     int statusCode = response.statusCode;
     if (400 <= statusCode && statusCode < 500) {
+        io:print("++++++++++++++++++++++++400 <= statusCode && statusCode < 500");
         string errorPayload = check response.getTextPayload();
         ClientRequestError err = error(CLIENT_REQUEST_ERROR, message = errorPayload, statusCode = statusCode);
         return err;
     }
     if (500 <= statusCode && statusCode < 600) {
+        io:print("++++++++++++++++500 <= statusCode && statusCode < 600");
         string errorPayload = check response.getTextPayload();
         RemoteServerError err = error(REMOTE_SERVER_ERROR, message = errorPayload, statusCode = statusCode);
         return err;
@@ -249,19 +262,31 @@ function processResponse(Response response, TargetType targetType) returns @tain
 }
 
 function performDataBinding(Response response, TargetType targetType) returns @tainted PayloadType|ClientError {
+    io:print("+++++++++++++++performDataBinding+++++++++++");
     if (targetType is typedesc<string>) {
+                io:print("++++++++++++++targetType is typedesc<string>+++++++++++");
+
         return response.getTextPayload();
     } else if (targetType is typedesc<json>) {
+        io:print("++++++++++++++targetType is typedesc<json>+++++++++++");
         return response.getJsonPayload();
     } else if (targetType is typedesc<xml>) {
+                io:print("++++++++++++++targetType is typedesc<xml>+++++++++++");
+
         return response.getXmlPayload();
     } else if (targetType is typedesc<byte[]>) {
+                io:print("++++++++++++++targetType is typedesc<byte[]>+++++++++++");
+
         return response.getBinaryPayload();
     //} else if (targetType is typedesc<CustomRecordType> || targetType is typedesc<CustomRecordType[]>) {
     //    return targetType.constructFrom(check response.getJsonPayload());
     } else if (targetType is typedesc<CustomRecordType>) {
+                io:print("++++++++++++++targetType is typedesc<CustomRecordType>+++++++++++");
+
         return <CustomRecordType> targetType.constructFrom(check response.getJsonPayload());
     } else if (targetType is typedesc<CustomRecordType[]>) {
+                io:print("++++++++++++++targetType is typedesc<CustomRecordType[]>+++++++++++");
+
         return <CustomRecordType[]> targetType.constructFrom(check response.getJsonPayload());
     }
 }
