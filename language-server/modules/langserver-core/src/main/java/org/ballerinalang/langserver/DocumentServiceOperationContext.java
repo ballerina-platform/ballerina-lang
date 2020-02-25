@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.langserver;
 
+import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.LSOperation;
 import org.ballerinalang.langserver.commons.completion.CompletionKeys;
@@ -64,8 +65,8 @@ public class DocumentServiceOperationContext extends LSContextImpl {
             return this;
         }
 
-        ServiceOperationContextBuilder withDefinitionParams() {
-            this.lsContext.put(DocumentServiceKeys.COMPILE_FULL_PROJECT, true);
+        ServiceOperationContextBuilder withDefinitionParams(String fileUri) {
+            this.lsContext.put(DocumentServiceKeys.COMPILE_FULL_PROJECT, !CommonUtil.isCachedSource(fileUri));
             return this;
         }
 
@@ -92,6 +93,11 @@ public class DocumentServiceOperationContext extends LSContextImpl {
 
         ServiceOperationContextBuilder withRenameParams() {
             this.lsContext.put(DocumentServiceKeys.COMPILE_FULL_PROJECT, true);
+            return this;
+        }
+
+        ServiceOperationContextBuilder withStdLibDefinitionParam(boolean enableStdlibDefinition) {
+            this.lsContext.put(DocumentServiceKeys.ENABLE_STDLIB_DEFINITION_KEY, enableStdlibDefinition);
             return this;
         }
 
