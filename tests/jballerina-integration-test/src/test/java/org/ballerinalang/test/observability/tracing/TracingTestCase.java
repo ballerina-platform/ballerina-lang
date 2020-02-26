@@ -58,6 +58,7 @@ public class TracingTestCase extends BaseTest {
 
     @BeforeGroups(value = "tracing-test", alwaysRun = true)
     private void setup() throws Exception {
+        // Don't use 9898 port here. It is used in metrics test cases.
         int[] requiredPorts = new int[]{9090, 9091, 9092, 9093};
         serverInstance = new BServerInstance(balServer);
 

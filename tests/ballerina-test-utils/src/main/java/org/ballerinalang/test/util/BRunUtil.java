@@ -724,7 +724,7 @@ public class BRunUtil {
                 org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType finiteType =
                         (org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType) type;
                 Set<Object> valueSpace = new HashSet<>();
-                for (BLangExpression expr : finiteType.valueSpace) {
+                for (BLangExpression expr : finiteType.getValueSpace()) {
                     if (!(expr instanceof BLangLiteral)) {
                         continue;
                     }

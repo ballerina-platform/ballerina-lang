@@ -3449,8 +3449,12 @@ public class FormattingNodeTree {
             JsonArray fields = node.getAsJsonArray(FormattingConstants.FIELDS);
             String indentation = this.getIndentation(formatConfig, false);
             String indentationOfParent = this.getParentIndentation(formatConfig);
-            boolean isAnonType = node.has(FormattingConstants.IS_ANON_TYPE)
-                    && node.get(FormattingConstants.IS_ANON_TYPE).getAsBoolean();
+            boolean isAnonType = (node.has(FormattingConstants.IS_ANON_TYPE)
+                    && node.get(FormattingConstants.IS_ANON_TYPE).getAsBoolean())
+                    || (node.has(FormattingConstants.IS_ANONYMOUS)
+                    && node.get(FormattingConstants.IS_ANONYMOUS).getAsBoolean()
+                    && node.has(FormattingConstants.IS_LOCAL)
+                    && node.get(FormattingConstants.IS_LOCAL).getAsBoolean());
             boolean lineSeparationAvailable = false;
 
             if (isAnonType) {

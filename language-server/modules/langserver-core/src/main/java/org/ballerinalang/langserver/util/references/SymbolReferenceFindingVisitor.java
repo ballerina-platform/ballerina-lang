@@ -47,6 +47,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckPanickedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorVarRef;
@@ -122,25 +123,32 @@ import java.util.stream.Collectors;
 
 /**
  * Node Visitor to find the symbol references in different compilation units in multiple packages.
+ * <p>
+ * Intended to use of 'Renaming, Definition, References' services.
  *
  * @since 0.990.4
  */
 public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
 
     private LSContext lsContext;
-    private SymbolReferencesModel symbolReferences;
+    protected SymbolReferencesModel symbolReferences;
     private String tokenName;
-    private int cursorLine;
-    private int cursorCol;
-    private boolean currentCUnitMode;
+    protected int cursorLine;
+    protected int cursorCol;
+    protected boolean currentCUnitMode;
     private String pkgName;
+    private boolean doNotSkipNullSymbols = false;
     private List<TopLevelNode> topLevelNodes = new ArrayList<>();
     private List<BLangFunction> workerLambdas = new ArrayList<>();
     private List<BLangTypeDefinition> anonTypeDefinitions = new ArrayList<>();
     private HashMap<BSymbol, DiagnosticPos> workerVarDefMap = new HashMap<>();
 
-    SymbolReferenceFindingVisitor(LSContext lsContext, String pkgName, boolean currentCUnitMode) {
+    public SymbolReferenceFindingVisitor(LSContext lsContext, String pkgName, boolean currentCUnitMode) {
         this.lsContext = lsContext;
+
+        Boolean bDoNotSkipNullSymbols = lsContext.get(ReferencesKeys.DO_NOT_SKIP_NULL_SYMBOLS);
+        this.doNotSkipNullSymbols = (bDoNotSkipNullSymbols == null) ? false : bDoNotSkipNullSymbols;
+
         this.symbolReferences = lsContext.get(NodeContextKeys.REFERENCES_KEY);
         this.tokenName = lsContext.get(NodeContextKeys.NODE_NAME_KEY);
         TextDocumentPositionParams position = lsContext.get(DocumentServiceKeys.POSITION_KEY);
@@ -153,7 +161,7 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
         this.pkgName = pkgName;
     }
 
-    SymbolReferenceFindingVisitor(LSContext lsContext, String pkgName) {
+    public SymbolReferenceFindingVisitor(LSContext lsContext, String pkgName) {
         this(lsContext, pkgName, false);
     }
 
@@ -237,7 +245,7 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
         this.acceptNode(funcNode.restParam);
         funcNode.returnTypeAnnAttachments.forEach(this::acceptNode);
         this.acceptNode(funcNode.returnTypeNode);
-        if (!isWorker && funcNode.body != null) {
+        if (!isWorker && funcNode.body instanceof BLangBlockFunctionBody) {
             // Fill the worker varDefs in the current function scope
             this.fillVisibleWorkerVarDefMaps(((BLangBlockFunctionBody) funcNode.body).stmts);
         }
@@ -419,6 +427,13 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
 
         // Visit the expression
         this.acceptNode(varDefNode.var.expr);
+    }
+
+    @Override
+    public void visit(BLangConstRef constRef) {
+        if (constRef.variableName != null && constRef.variableName.value.equals(this.tokenName)) {
+            this.addSymbol(constRef, constRef.symbol, false, constRef.pos);
+        }
     }
 
     @Override
@@ -855,24 +870,26 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
         return bType.typeName.value.equals(this.tokenName);
     }
 
-    private SymbolReferencesModel.Reference getSymbolReference(DiagnosticPos position, BSymbol symbol,
-                                                               BLangNode bLangNode) {
+    protected SymbolReferencesModel.Reference getSymbolReference(DiagnosticPos position, BSymbol symbol,
+                                                                 BLangNode bLangNode) {
         return new SymbolReferencesModel.Reference(position, symbol, bLangNode);
     }
-    
-    private void addSymbol(BLangNode bLangNode, BSymbol bSymbol, boolean isDefinition, DiagnosticPos position) {
+
+    protected void addSymbol(BLangNode bLangNode, BSymbol bSymbol, boolean isDefinition, DiagnosticPos position) {
         Optional<SymbolReferencesModel.Reference> symbolAtCursor = this.symbolReferences.getReferenceAtCursor();
         // Here, tsymbol check has been added in order to support the finite types
         // TODO: Handle finite type. After the fix check if it falsely capture symbols in other files with same name
-        if (bSymbol == null || (!this.currentCUnitMode && symbolAtCursor.isPresent()
-                && (symbolAtCursor.get().getSymbol() != bSymbol))) {
+        if (bSymbol == null && !this.doNotSkipNullSymbols) {
+            return;
+        }
+        if ((!this.currentCUnitMode && symbolAtCursor.isPresent() && (symbolAtCursor.get().getSymbol() != bSymbol))) {
             return;
         }
         DiagnosticPos zeroBasedPos = CommonUtil.toZeroBasedPosition(position);
-        BSymbol originalSymbol = (bSymbol instanceof BVarSymbol && ((BVarSymbol) bSymbol).originalSymbol != null)
+        bSymbol = (bSymbol instanceof BVarSymbol && ((BVarSymbol) bSymbol).originalSymbol != null)
                 ? ((BVarSymbol) bSymbol).originalSymbol
                 : bSymbol;
-        SymbolReferencesModel.Reference ref = this.getSymbolReference(zeroBasedPos, originalSymbol, bLangNode);
+        SymbolReferencesModel.Reference ref = this.getSymbolReference(zeroBasedPos, bSymbol, bLangNode);
         if (this.currentCUnitMode && this.cursorLine == zeroBasedPos.sLine && this.cursorCol >= zeroBasedPos.sCol
                 && this.cursorCol <= zeroBasedPos.eCol) {
             // This is the symbol at current cursor position

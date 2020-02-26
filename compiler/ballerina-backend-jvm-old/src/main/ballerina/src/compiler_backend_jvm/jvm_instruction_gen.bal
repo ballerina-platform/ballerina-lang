@@ -895,11 +895,11 @@ type InstructionGenerator object {
         self.storeToVar(newErrorIns.lhsOp.variableDcl);
     }
 
-    function generateCastIns(bir:TypeCast typeCastIns) {
+    function generateCastIns(bir:TypeCast typeCastIns, boolean useBString) {
         // load source value
         self.loadVar(typeCastIns.rhsOp.variableDcl);
         if (typeCastIns.checkType) {
-            generateCheckCast(self.mv, typeCastIns.rhsOp.typeValue, typeCastIns.castType);
+            generateCheckCast(self.mv, typeCastIns.rhsOp.typeValue, typeCastIns.castType, useBString);
         } else {
             generateCast(self.mv, typeCastIns.rhsOp.typeValue, typeCastIns.castType);
         }

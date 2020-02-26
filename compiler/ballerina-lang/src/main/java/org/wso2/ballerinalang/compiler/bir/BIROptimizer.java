@@ -326,7 +326,7 @@ public class BIROptimizer {
 
         @Override
         public void visit(BIRTerminator.Unlock unlock) {
-            unlock.fieldLocks.keySet().forEach(k -> this.optimizeNode(k, this.env));
+            // Do nothing
         }
 
         @Override

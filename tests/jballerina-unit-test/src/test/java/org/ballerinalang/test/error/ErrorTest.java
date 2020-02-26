@@ -338,7 +338,7 @@ public class ErrorTest {
         String message = ((BLangRuntimeException) expectedException).getMessage();
         Assert.assertEquals(message,
                 "error: array index out of range: index: 4, size: 2 \n\t" +
-                        "at ballerina.lang_array:slice(array.bal:105)\n\t" +
+                        "at ballerina.lang_array:slice(array.bal:106)\n\t" +
                         "   error_test:testStackTraceInNative(error_test.bal:279)");
     }
 

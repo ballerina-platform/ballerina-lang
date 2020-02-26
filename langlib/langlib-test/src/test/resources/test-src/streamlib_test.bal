@@ -76,7 +76,7 @@ function testMapFunc() returns boolean {
         return e;
     });
 
-    var employee = employeeStream.next();
+    record {|Employee value;|}? employee = employeeStream.next();
     testPassed = testPassed && employee?.value?.name == "Gima" && employee?.value?.company == "WSO2";
 
     employee = employeeStream.next();
@@ -116,7 +116,7 @@ function testFilterAndMapFunc() returns boolean {
     }
     );
 
-    var employee = employeeStream.next();
+    record {|Employee value;|}? employee = employeeStream.next();
     testPassed = testPassed && employee?.value?.name == "Mohan" && employee?.value?.company == "WSO2";
 
     employee = employeeStream.next();
@@ -177,3 +177,26 @@ function testIterator() returns boolean {
 
     return testPassed;
 }
+
+function testMapFuncWithRecordType() returns boolean {
+     boolean testPassed = true;
+     Person[] personList = getPersonList();
+
+    stream<Person> personStream =  personList.toStream();
+
+    stream<Employee> mappedEmpStream = personStream.'map(function (Person person) returns Employee {
+        Employee e = {
+          name: person.name,
+          company: "WSO2"
+        };
+        return e;
+
+        });
+
+    record {| Employee value; |}? nextValue = mappedEmpStream.next();
+    Employee employee = <Employee>nextValue?.value;
+
+    testPassed = testPassed && employee.name == "Gima" && employee.company == "WSO2";
+    return  testPassed;
+}
+

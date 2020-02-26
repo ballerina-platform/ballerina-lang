@@ -3,13 +3,16 @@ package org.ballerinalang.net.http.compiler;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.FunctionNode;
 import org.ballerinalang.model.tree.SimpleVariableNode;
+import org.ballerinalang.model.tree.expressions.LiteralNode;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
 import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.ballerinalang.util.diagnostic.DiagnosticLog;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
+import org.wso2.ballerinalang.util.Lists;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -90,7 +93,12 @@ public class ResourceSignatureValidator {
                     break;
                 case ANN_RESOURCE_ATTR_BODY:
                     List<? extends SimpleVariableNode> parameters = resourceNode.getParameters();
-                    String bodyFieldValue = keyValue.getValue().toString();
+                    String bodyFieldValue = "";
+                    BLangExpression valueExpr = keyValue.getValue();
+                    if (valueExpr instanceof LiteralNode) {
+                        LiteralNode literal = (LiteralNode) valueExpr;
+                        bodyFieldValue = literal.getValue().toString();
+                    }
                     // Data binding param should be placed as the last signature param
                     String signatureBodyParam = parameters.get(parameters.size() - 1).getName().getValue();
                     if (bodyFieldValue.isEmpty()) {
@@ -149,7 +157,12 @@ public class ResourceSignatureValidator {
     private static void validateResourcePath(DiagnosticLog dlog, List<String> paramSegments,
                                              BLangRecordLiteral.BLangRecordKeyValueField keyValue) {
         DiagnosticPos position = keyValue.getValue().getPosition();
-        String[] segments = keyValue.getValue().toString().split("/");
+        List<String> segments = new ArrayList<>();
+        BLangExpression valueExpr = keyValue.getValue();
+        if (valueExpr instanceof LiteralNode) {
+            LiteralNode literal = (LiteralNode) valueExpr;
+            segments = Lists.of(literal.getValue().toString().split("/"));
+        }
         for (String segment : segments) {
             validatePathSegment(segment, position, dlog, paramSegments);
         }
