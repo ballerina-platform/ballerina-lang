@@ -1,7 +1,7 @@
 <idea-plugin>
     <id>io.ballerina</id>
     <name>Ballerina</name>
-    <version>1.1.2</version>
+    <version>1.1.3</version>
     <vendor email="ballerinalang@wso2.com" url="https://ballerina.io/">BallerinaLang</vendor>
 
     <description><![CDATA[
@@ -188,10 +188,10 @@
                 implementation="io.ballerina.plugins.idea.BallerinaProjectGenerator"/> <!-- for small IDEs-->
         <applicationService
                 serviceImplementation="io.ballerina.plugins.idea.settings.experimental.BallerinaExperimentalFeatureSettings"/>
-        <applicationService
-                serviceImplementation="io.ballerina.plugins.idea.settings.debuglogs.LangServerDebugLogsSettings"/>
         <projectService
                 serviceImplementation="io.ballerina.plugins.idea.settings.autodetect.BallerinaAutoDetectionSettings"/>
+        <projectService
+                serviceImplementation="io.ballerina.plugins.idea.settings.langserverlogs.LangServerLogsSettings"/>
         <preloadingActivity
                 implementation="io.ballerina.plugins.idea.preloading.BallerinaPreloadingActivity"
                 id="io.ballerina.plugins.idea.preloading.BallerinaPreloadingActivity"/>
