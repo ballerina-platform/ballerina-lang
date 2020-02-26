@@ -169,12 +169,13 @@ public class MapUtils {
                          throw createOpNotSupportedError(type, op);
                      }
                 }
+                return;
             default:
                 return;
         }
     }
 
-    private static boolean checkField(MapValue<?,?> m, String k) {
+    private static boolean checkField(MapValue<?, ?> m, String k) {
         Object object = m.get(k);
         return object != null;
     }
