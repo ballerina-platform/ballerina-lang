@@ -31,8 +31,10 @@ import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
+import org.testng.SkipException;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.Test;
 
 import java.io.File;
@@ -62,6 +64,13 @@ public class ConnectionInitTest {
         String sqlFile = SQLDBUtils.SQL_RESOURCE_DIR + File.separator + SQLDBUtils.CONNECTIONS_DIR +
                 File.separator + "connections_test_data.sql";
         datbase.source(sqlFile, DB_NAME);
+    }
+
+    @BeforeSuite
+    protected void checkEnvironment() {
+        if (!SQLDBUtils.ENABLE_TEST) {
+            throw new SkipException("Tests cannot be executed in windows");
+        }
     }
 
     @Test

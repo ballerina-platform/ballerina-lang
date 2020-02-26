@@ -46,6 +46,8 @@ public class SQLDBUtils {
 
     public static final String SQL_RESOURCE_DIR = Paths.get("datafiles", "sql").toString();
     public static final String CONNECTIONS_DIR = "connections";
+    public static final boolean ENABLE_TEST = !SQLDBUtils.isWindows();
+
     private static final Logger log = LoggerFactory.getLogger(SQLDBUtils.class);
 
     /**
@@ -60,5 +62,10 @@ public class SQLDBUtils {
         } catch (IOException e) {
             log.error("Error while deleting database directory: ", e);
         }
+    }
+
+    private static boolean isWindows() {
+        String os = System.getProperty("os.name").toLowerCase();
+        return os.contains("win");
     }
 }
