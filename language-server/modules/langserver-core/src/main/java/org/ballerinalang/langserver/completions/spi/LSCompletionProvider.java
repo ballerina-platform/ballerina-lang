@@ -58,6 +58,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BServiceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
@@ -439,7 +440,7 @@ public abstract class LSCompletionProvider {
                         SymbolFilters.get(DelimiterBasedContentFilter.class).filterItems(context);
                 return this.getCompletionItemList(filteredList, context);
             } else {
-                completionItems.addAll(getVarDefCompletions(context));
+                completionItems.addAll(getVarDefCompletions(context, !assignmentType.isPresent()));
             }
         } catch (LSCompletionException ex) {
             // do nothing
@@ -757,7 +758,7 @@ public abstract class LSCompletionProvider {
             }
             subRule.append(lhsTokens.get(counter).getText());
             if (lhsTokens.get(counter).getType() == BallerinaParser.ASSIGN) {
-                subRule.append("0;");
+                subRule.append("xxx;");
                 break;
             }
             counter++;
@@ -921,9 +922,10 @@ public abstract class LSCompletionProvider {
      * variable definition context properties.
      *
      * @param context Completion context
+     * @param includeErrorSnippets includeErrorSnippets Whether include error snippets or not
      * @return {@link List}     List of resolved completion items
      */
-    public List<CompletionItem> getVarDefCompletions(LSContext context) {
+    public List<CompletionItem> getVarDefCompletions(LSContext context, boolean includeErrorSnippets) {
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
         List<SymbolInfo> filteredList = new ArrayList<>(context.get(CommonKeys.VISIBLE_SYMBOLS_KEY));
         // Remove the functions without a receiver symbol, bTypes not being packages and attached functions
@@ -932,7 +934,8 @@ public abstract class LSCompletionProvider {
             return (bSymbol instanceof BInvokableSymbol
                     && ((BInvokableSymbol) bSymbol).receiverSymbol != null
                     && CommonUtil.isValidInvokableSymbol(bSymbol))
-                    || (FilterUtils.isBTypeEntry(symbolInfo.getScopeEntry()))
+                    || (!(includeErrorSnippets && bSymbol.type instanceof BErrorType)
+                    && FilterUtils.isBTypeEntry(symbolInfo.getScopeEntry()))
                     || (bSymbol instanceof BInvokableSymbol && ((bSymbol.flags & Flags.ATTACHED) == Flags.ATTACHED));
         });
         completionItems.addAll(getCompletionItemList(filteredList, context));
@@ -959,11 +962,27 @@ public abstract class LSCompletionProvider {
         // Add But keyword item
         CompletionItem butKeyword = Snippet.EXPR_MATCH.get().build(context);
         completionItems.add(butKeyword);
+        if (includeErrorSnippets) {
+            // Add Error Constructor item
+            CompletionItem errConstructorSnippet = Snippet.EXPR_ERROR.get().build(context);
+            completionItems.add(errConstructorSnippet);
+        }
         // Add the trap expression keyword
         CompletionItem trapExpression = Snippet.STMT_TRAP.get().build(context);
         completionItems.add(trapExpression);
 
         return completionItems;
+    }
+
+    /**
+     * Get variable definition context related completion items. This will extract the completion items analyzing the
+     * variable definition context properties.
+     *
+     * @param context Completion context
+     * @return {@link List}     List of resolved completion items
+     */
+    public List<CompletionItem> getVarDefCompletions(LSContext context) {
+        return getVarDefCompletions(context, false);
     }
 
     /**
