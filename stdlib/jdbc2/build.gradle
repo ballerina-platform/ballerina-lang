@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,7 +31,7 @@ dependencies {
     interopImports project(':ballerina-io')
     interopImports project(':ballerina-system')
     interopImports project(':ballerina-config-api')
-    
+
     baloCreat project(':lib-creator')
     implementation project(':ballerina-lang')
     implementation project(':ballerina-lang:annotations')
@@ -48,7 +48,7 @@ dependencies {
     testCompile project(':ballerina-core')
     testCompile project(':ballerina-java')
     testCompile project(':ballerina-transactions')
-    
+
     testCompile 'org.testng:testng'
     testCompile 'org.slf4j:slf4j-jdk14'
     testCompile 'com.h2database:h2'
