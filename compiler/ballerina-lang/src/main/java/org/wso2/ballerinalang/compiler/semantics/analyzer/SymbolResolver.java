@@ -961,7 +961,7 @@ public class SymbolResolver extends BLangNodeVisitor {
         BFiniteType finiteType = new BFiniteType(finiteTypeSymbol);
         for (BLangExpression literal : finiteTypeNode.valueSpace) {
             ((BLangLiteral) literal).type = symTable.getTypeFromTag(((BLangLiteral) literal).type.tag);
-            finiteType.valueSpace.add(literal);
+            finiteType.addValue(literal);
         }
         finiteTypeSymbol.type = finiteType;
 
