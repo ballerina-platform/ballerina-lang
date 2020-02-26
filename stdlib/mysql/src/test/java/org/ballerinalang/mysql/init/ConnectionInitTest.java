@@ -20,7 +20,11 @@ package org.ballerinalang.mysql.init;
 import ch.vorburger.exec.ManagedProcessException;
 import ch.vorburger.mariadb4j.DB;
 import ch.vorburger.mariadb4j.DBConfigurationBuilder;
-import org.ballerinalang.model.values.*;
+import org.ballerinalang.model.values.BError;
+import org.ballerinalang.model.values.BInteger;
+import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BString;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.mysql.utils.SQLDBUtils;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
@@ -45,7 +49,8 @@ public class ConnectionInitTest {
 
     @BeforeClass
     public void setup() throws ManagedProcessException {
-        result = BCompileUtil.compile(Paths.get("test-src", "connection", "connection_init_test.bal").toString());
+        result = BCompileUtil.compile(Paths.get("test-src", "connection",
+                "connection_init_test.bal").toString());
         DBConfigurationBuilder configBuilder = DBConfigurationBuilder.newBuilder();
         configBuilder.setPort(SQLDBUtils.DB_PORT);
         configBuilder.setDataDir(SQLDBUtils.DB_DIRECTORY);
