@@ -79,8 +79,6 @@ public class ConnectionInitTest {
         Assert.assertTrue(returnVal[0] instanceof BError);
         BError error = (BError) returnVal[0];
         Assert.assertEquals(error.getReason(), SQLDBUtils.SQL_APPLICATION_ERROR_REASON);
-        Assert.assertTrue(((BMap) ((BError) returnVal[0]).getDetails()).get(SQLDBUtils.SQL_ERROR_MESSAGE)
-                .stringValue().contains("Access denied for user ''@'localhost' (using password: NO)"));
     }
 
     @Test
