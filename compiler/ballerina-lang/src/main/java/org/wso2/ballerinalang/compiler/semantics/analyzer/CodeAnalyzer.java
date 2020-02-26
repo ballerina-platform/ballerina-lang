@@ -1171,7 +1171,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                         ((BLangSimpleVarRef) literal).symbol.getKind() == SymbolKind.CONSTANT) {
                     BConstantSymbol constSymbol = (BConstantSymbol) ((BLangSimpleVarRef) literal).symbol;
                     return types.isAssignableToFiniteType(matchType,
-                            (BLangLiteral) ((BFiniteType) constSymbol.type).valueSpace.iterator().next());
+                            (BLangLiteral) ((BFiniteType) constSymbol.type).getValueSpace().iterator().next());
                 }
                 break;
         }
@@ -2386,7 +2386,15 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangQueryExpr queryExpr) {
+        int fromCount = 0;
         for (FromClauseNode fromClauseNode : queryExpr.fromClauseList) {
+            fromCount++;
+            BLangExpression collection = (BLangExpression) fromClauseNode.getCollection();
+            if (fromCount > 1) {
+                if (TypeTags.STREAM == collection.type.tag) {
+                    this.dlog.error(collection.pos, DiagnosticCode.NOT_ALLOWED_STREAM_USAGE_WITH_FROM);
+                }
+            }
             analyzeNode((BLangFromClause) fromClauseNode, env);
         }
 

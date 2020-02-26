@@ -28,6 +28,10 @@ function nonBMPLength() returns (int) {
 function recordStringValue() returns int {
     string smiley = "h😀llo";
     record {| string myField; |} r = {myField: smiley};
+    boolean containsKey = r.hasKey("myField");
+    if (!containsKey) {
+        return -1;
+    }
     return r.myField.length();
 }
 
@@ -53,4 +57,16 @@ function testStringIndexAccess() returns int {
 function testStringIndexAccessException() {
     string hello = "hello👋";
     string val = hello[6];
+}
+
+function anyToStringCasting() returns int {
+    any a = "hello👋";
+    string k = <string> a;
+    return k.length();
+}
+
+function anydataToStringCast() returns int {
+    anydata a = "hello👋";
+    string k = <string> a;
+    return k.length();
 }

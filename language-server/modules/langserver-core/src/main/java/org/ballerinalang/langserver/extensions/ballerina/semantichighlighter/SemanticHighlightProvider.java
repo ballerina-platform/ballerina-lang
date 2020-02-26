@@ -45,6 +45,9 @@ public class SemanticHighlightProvider {
     public static void sendHighlights(ExtendedLanguageClient client, LSContext context,
                                       WorkspaceDocumentManager docManager)
             throws CompilationFailedException, HighlightingFailedException {
+        if (client == null) {
+            return;
+        }
         client.publishTextHighlighting(getHighlights(context, docManager));
     }
     // Identifies the tokens to be highlighted

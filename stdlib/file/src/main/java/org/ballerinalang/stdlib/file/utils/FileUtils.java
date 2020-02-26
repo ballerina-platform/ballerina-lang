@@ -89,7 +89,7 @@ public class FileUtils {
         lastModifiedInstance = createTimeRecord(getTimeZoneRecord(), getTimeRecord(),
                 lastModified.toMillis(), zonedDateTime.getZone().toString());
         return BallerinaValues.createObjectValue(FILE_PACKAGE_ID, FILE_INFO_TYPE, inputFile.getName(),
-                inputFile.length(), lastModifiedInstance, inputFile.isDirectory());
+                inputFile.length(), lastModifiedInstance, inputFile.isDirectory(), inputFile.getAbsolutePath());
     }
 
 

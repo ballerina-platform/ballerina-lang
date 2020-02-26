@@ -35,7 +35,7 @@ import { getServerOptions, getOldServerOptions } from '../server/server';
 import { ExtendedLangClient } from './extended-language-client';
 import { log, getOutputChannel } from '../utils/index';
 import { AssertionError } from "assert";
-import { OVERRIDE_BALLERINA_HOME, BALLERINA_HOME, ALLOW_EXPERIMENTAL, ENABLE_DEBUG_LOG, ENABLE_TRACE_LOG } from "./preferences";
+import { OVERRIDE_BALLERINA_HOME, BALLERINA_HOME, ALLOW_EXPERIMENTAL, ENABLE_DEBUG_LOG, ENABLE_TRACE_LOG, ENABLE_STDLIB_DEFINITION } from "./preferences";
 import TelemetryReporter from "vscode-extension-telemetry";
 import { createTelemetryReporter, TM_EVENT_ERROR_INVALID_BAL_HOME_CONFIGURED, TM_EVENT_ERROR_INVALID_BAL_HOME_DETECTED, TM_EVENT_OLD_BAL_HOME, TM_EVENT_OLD_BAL_PLUGIN, TM_EVENT_ERROR_OLD_BAL_HOME_DETECTED } from "../telemetry";
 
@@ -135,7 +135,7 @@ export class BallerinaExtension {
                 // if Home is found load Language Server.
                 let serverOptions:ServerOptions;
                 if (this.isNewCLICmdSupported) {
-                    serverOptions = getServerOptions(this.ballerinaCmd, this.isExperimental(), this.isDebugLogsEnabled(), this.isTraceLogsEnabled());
+                    serverOptions = getServerOptions(this.ballerinaCmd, this.isExperimental(), this.isDebugLogsEnabled(), this.isTraceLogsEnabled(), this.isStdlibDefinitionEnabled());
                 } else {
                     serverOptions = getOldServerOptions(this.ballerinaHome, this.isExperimental(), this.isDebugLogsEnabled(), this.isTraceLogsEnabled());
                 }
@@ -199,7 +199,8 @@ export class BallerinaExtension {
                 params.affectsConfiguration(OVERRIDE_BALLERINA_HOME) ||
                 params.affectsConfiguration(ALLOW_EXPERIMENTAL) ||
                 params.affectsConfiguration(ENABLE_DEBUG_LOG) ||
-                params.affectsConfiguration(ENABLE_TRACE_LOG)) {
+                params.affectsConfiguration(ENABLE_TRACE_LOG) ||
+                params.affectsConfiguration(ENABLE_STDLIB_DEFINITION)) {
                 this.showMsgAndRestart(CONFIG_CHANGED);
             }
             if (params.affectsConfiguration('ballerina')) {
@@ -448,6 +449,10 @@ export class BallerinaExtension {
 
     isTraceLogsEnabled(): boolean {
         return <boolean>workspace.getConfiguration().get(ENABLE_TRACE_LOG);
+    }
+
+    isStdlibDefinitionEnabled(): boolean {
+        return <boolean>workspace.getConfiguration().get(ENABLE_STDLIB_DEFINITION);
     }
 
     autoDetectBallerinaHome(): { home: string, cmd: string, isOldBallerinaDist: boolean, isBallerinaNotFound: boolean } {
