@@ -436,3 +436,43 @@ function testInitInvocationWithDefaultParams2() returns (boolean) {
     Student7 student = new(4);
     return student.getId() == 4;
 }
+
+public type ID int|string;
+
+type Student8 object {
+    int id;
+
+    public function __init(ID i=1) {
+        self.id = <int> i;
+    }
+
+    public function getId() returns int {
+        return self.id;
+    }
+};
+
+function testInitInvocationWithFiniteType() returns (boolean) {
+    Student8 student = new(4);
+    return student.getId() == 4;
+}
+
+type AddError object {
+    error er;
+    function __init(error simpleError = error("SimpleErrorType", message = "Simple error occurred")) {
+        self.er = simpleError;
+    }
+
+    public function getError() returns error|() {
+        return self.er;
+    }
+};
+
+function testInitInvocationWithDefaultError() returns (boolean) {
+    AddError newError = new;
+    var e = newError.getError();
+    if !(e is error) {
+        error err = error("Returned value should be an error");
+        panic err;
+    }
+    return e is error;
+}
