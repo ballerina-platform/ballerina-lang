@@ -13,6 +13,7 @@
 
     <change-notes><![CDATA[
         <li> Added support to view language server trace logs. </li>
+        <li> Improve handling ballerina source files inside non-ballerina projects. </li>
         <li> Added minor improvements to plugin settings and language server debug log view. </li>
     ]]>
     </change-notes>
