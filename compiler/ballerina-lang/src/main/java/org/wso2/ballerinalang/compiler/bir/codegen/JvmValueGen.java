@@ -143,10 +143,10 @@ public class JvmValueGen {
         for (BIRNode.BIRTypeDefinition optionalTypeDef : typeDefs) {
             BIRNode.BIRTypeDefinition typeDef = getTypeDef(optionalTypeDef);
             BType bType = typeDef.type;
-            if (bType.tag == TypeTags.OBJECT &&
-                    !Symbols.isFlagOn(((BObjectType) bType).tsymbol.flags, Flags.ABSTRACT)) {
+            if (bType instanceof BServiceType) {
                 desugarObjectMethods(module, bType, typeDef.attachedFuncs);
-            } else if (bType instanceof BServiceType) {
+            } else if (bType.tag == TypeTags.OBJECT &&
+                    !Symbols.isFlagOn(((BObjectType) bType).tsymbol.flags, Flags.ABSTRACT)) {
                 desugarObjectMethods(module, bType, typeDef.attachedFuncs);
             } else if (bType.tag == TypeTags.RECORD) {
                 desugarObjectMethods(module, bType, typeDef.attachedFuncs);
@@ -1040,20 +1040,20 @@ public class JvmValueGen {
             for (BIRNode.BIRTypeDefinition optionalTypeDef : typeDefs) {
                 BIRNode.BIRTypeDefinition typeDef = getTypeDef(optionalTypeDef);
                 BType bType = typeDef.type;
-                if (bType.tag == TypeTags.OBJECT &&
+                if (bType instanceof BServiceType) {
+                    BServiceType serviceType = (BServiceType) bType;
+                    this.currentObjectType = serviceType;
+                    String className = getTypeValueClassName(this.module, typeDef.name.value);
+                    byte[] bytes = this.createObjectValueClass(serviceType, className, typeDef, true);
+                    jarEntries.put(className + ".class", bytes);
+                } else if (bType.tag == TypeTags.OBJECT &&
                         !Symbols.isFlagOn(((BObjectType) bType).tsymbol.flags, Flags.ABSTRACT)) {
                     BObjectType objectType = (BObjectType) bType;
                     this.currentObjectType = objectType;
                     String className = getTypeValueClassName(this.module, typeDef.name.value);
                     byte[] bytes = this.createObjectValueClass(objectType, className, typeDef, false);
                     jarEntries.put(className + ".class", bytes);
-                } else if (bType instanceof BServiceType) {
-                    BServiceType serviceType = (BServiceType) bType;
-                    this.currentObjectType = serviceType;
-                    String className = getTypeValueClassName(this.module, typeDef.name.value);
-                    byte[] bytes = this.createObjectValueClass(serviceType, className, typeDef, true);
-                    jarEntries.put(className + ".class", bytes);
-                } else if (bType.tag == TypeTags.RECORD) {
+                }  else if (bType.tag == TypeTags.RECORD) {
                     BRecordType recordType = (BRecordType) bType;
                     this.currentRecordType = recordType;
                     String className = getTypeValueClassName(this.module, typeDef.name.value);

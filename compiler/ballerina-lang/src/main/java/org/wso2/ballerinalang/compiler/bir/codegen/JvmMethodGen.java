@@ -336,8 +336,8 @@ public class JvmMethodGen {
         genDefaultValue(mv, returnType, returnVarRefIndex);
 
 
-        BIRVariableDcl stateVar = new BIRVariableDcl(new BAnyType(TypeTags.ANY, null), //should  be javaInt
-                new Name("state"), VarScope.FUNCTION, VarKind.ARG);
+        BIRVariableDcl stateVar = new BIRVariableDcl(symbolTable.stringType, //should  be javaInt
+                new Name("state"), null, VarKind.TEMP);
         int stateVarIndex = indexMap.getIndex(stateVar);
         mv.visitInsn(ICONST_0);
         mv.visitVarInsn(ISTORE, stateVarIndex);
@@ -431,8 +431,7 @@ public class JvmMethodGen {
         mv.visitFieldInsn(PUTFIELD, frameName, "state", "I");
 
 
-        BIRVariableDcl frameVar = new BIRVariableDcl(new BAnyType(TypeTags.ANY, null), new Name("frame"),
-                VarScope.FUNCTION, VarKind.ARG);
+        BIRVariableDcl frameVar = new BIRVariableDcl(symbolTable.stringType, new Name("frame"), null, VarKind.TEMP);
         int frameVarIndex = indexMap.getIndex(frameVar);
         mv.visitVarInsn(ASTORE, frameVarIndex);
 
