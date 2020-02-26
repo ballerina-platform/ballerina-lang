@@ -399,6 +399,7 @@ public class UriTemplateDispatcherTest {
     @Test(description = "Test a listener with no service registered", dataProvider = "SomeUrlsWithCorrectHost")
     public void testListenerWithNoServiceRegistered(String path) {
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "GET", 9095);
+        cMsg.setHeader(HttpHeaderNames.HOST.toString(), "localhost:9095");
         HttpCarbonMessage response = Services.invoke(9095, cMsg);
 
         Assert.assertEquals((int) response.getHttpStatusCode(), 404, "Response code mismatch");

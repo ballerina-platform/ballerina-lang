@@ -54,11 +54,14 @@ public class HttpDispatcher {
         try {
             Map<String, HttpService> servicesOnInterface;
             List<String> sortedServiceURIs;
-            String hostHeaderValue = inboundReqMsg.getHeader(HttpHeaderNames.HOST.toString());
-            String hostName = hostHeaderValue != null ? hostHeaderValue : DEFAULT_HOST;
-            if (servicesRegistry.getServicesMapHolder(hostName) != null) {
+            String hostName = inboundReqMsg.getHeader(HttpHeaderNames.HOST.toString());
+
+            if (hostName != null && servicesRegistry.getServicesMapHolder(hostName) != null) {
                 servicesOnInterface = servicesRegistry.getServicesByHost(hostName);
                 sortedServiceURIs = servicesRegistry.getSortedServiceURIsByHost(hostName);
+            } else if (servicesRegistry.getServicesMapHolder(DEFAULT_HOST) != null) {
+                servicesOnInterface = servicesRegistry.getServicesByHost(DEFAULT_HOST);
+                sortedServiceURIs = servicesRegistry.getSortedServiceURIsByHost(DEFAULT_HOST);
             } else {
                 inboundReqMsg.setHttpStatusCode(404);
                 String localAddress = inboundReqMsg.getProperty(HttpConstants.LOCAL_ADDRESS).toString();
