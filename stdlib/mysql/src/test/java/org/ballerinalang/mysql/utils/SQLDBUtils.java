@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinax.mysql.utils;
+package org.ballerinalang.mysql.utils;
 
 import org.apache.commons.io.FileUtils;
 import org.ballerinalang.test.util.BCompileUtil;
@@ -50,6 +50,8 @@ public class SQLDBUtils {
     public static final int DB_PORT = 3305;
     public static final String DB_USER_NAME  = "test";
     public static final String DB_USER_PW  = "test123";
+    public static final String SQL_APPLICATION_ERROR_REASON = "{ballerina/sql}ApplicationError";
+    public static final String SQL_ERROR_MESSAGE = "message";
 
     public static final String SQL_RESOURCE_DIR = Paths.get("datafiles" , "sql").toString();
     public static final String ACTIONS_DIR = "actions";

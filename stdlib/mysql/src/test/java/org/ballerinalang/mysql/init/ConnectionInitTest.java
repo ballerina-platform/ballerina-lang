@@ -15,26 +15,22 @@
  * under the License.
  */
 
-package org.ballerinax.mysql.connections;
+package org.ballerinalang.mysql.init;
 
 import ch.vorburger.exec.ManagedProcessException;
 import ch.vorburger.mariadb4j.DB;
 import ch.vorburger.mariadb4j.DBConfigurationBuilder;
-import org.ballerinalang.model.values.BBoolean;
-import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.*;
+import org.ballerinalang.mysql.utils.SQLDBUtils;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
-import org.ballerinax.mysql.utils.SQLDBUtils;
 import org.testng.Assert;
 import org.testng.annotations.AfterSuite;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.nio.file.Paths;
 
 /**
@@ -42,14 +38,13 @@ import java.nio.file.Paths;
  */
 public class ConnectionInitTest {
     private static final String DB_NAME = "CONNECT_DB";
-    private static final String CONNECTION_INIT_TEST = "MySQLSelectTest";
     private CompileResult result;
     private DB datbase;
     private BValue[] args = {new BString(SQLDBUtils.DB_HOST), new BInteger(SQLDBUtils.DB_PORT),
             new BString(SQLDBUtils.DB_USER_NAME), new BString(SQLDBUtils.DB_USER_PW), new BString(DB_NAME)};
 
     @BeforeClass
-    public void setup() throws ManagedProcessException, FileNotFoundException {
+    public void setup() throws ManagedProcessException {
         result = BCompileUtil.compile(Paths.get("test-src", "connection", "connection_init_test.bal").toString());
         DBConfigurationBuilder configBuilder = DBConfigurationBuilder.newBuilder();
         configBuilder.setPort(SQLDBUtils.DB_PORT);
@@ -63,19 +58,30 @@ public class ConnectionInitTest {
         datbase.source(sqlFile, DB_NAME);
     }
 
-    @Test(groups = CONNECTION_INIT_TEST)
+    @Test
     public void testWithMandatoryFields() {
-        BValue[] returns = BRunUtil.invoke(result, "testWithMandatoryFields", args);
-        final boolean expected = true;
-        Assert.assertEquals(((BBoolean) returns[0]).booleanValue(), expected);
+        BValue[] returnVal = BRunUtil.invoke(result, "testConnectionWithNoFields");
+        Assert.assertTrue(returnVal[0] instanceof BError);
+        BError error = (BError) returnVal[0];
+        Assert.assertEquals(error.getReason(), SQLDBUtils.SQL_APPLICATION_ERROR_REASON);
+        Assert.assertTrue(((BMap) ((BError) returnVal[0]).getDetails()).get(SQLDBUtils.SQL_ERROR_MESSAGE)
+                .stringValue().contains("Access denied for user ''@'localhost' (using password: NO)"));
     }
 
-    @Test(groups = CONNECTION_INIT_TEST)
-    public void testWithPoolOptions() {
-        BValue[] returns = BRunUtil.invoke(result, "testWithPoolOptions", args);
-        final boolean expected = true;
-        Assert.assertEquals(((BBoolean) returns[0]).booleanValue(), expected);
+    @Test
+    public void testWithURLParams() {
+        BValue[] args = {new BString(SQLDBUtils.DB_HOST), new BString(SQLDBUtils.DB_USER_NAME), new BString(SQLDBUtils.DB_USER_PW),
+                new BString(DB_NAME), new BInteger(SQLDBUtils.DB_PORT)};
+        BValue[] returnVal = BRunUtil.invoke(result, "testWithURLParams", args);
+        Assert.assertNull(returnVal[0]);
     }
+
+//    @Test
+//    public void testWithPoolOptions() {
+//        BValue[] returns = BRunUtil.invoke(result, "testWithPoolOptions", args);
+//        final boolean expected = true;
+//        Assert.assertEquals(((BBoolean) returns[0]).booleanValue(), expected);
+//    }
 
     @AfterSuite
     public void cleanup() throws ManagedProcessException {

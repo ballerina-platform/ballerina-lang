@@ -32,7 +32,7 @@ public class NativeImpl {
     public static Object createClient(ObjectValue client, MapValue<String, Object> clientConfig,
                                       MapValue<String, Object> globalPool) {
         String url = "jdbc:mysql://" + clientConfig.getStringValue(Constants.ClientConfiguration.HOST);
-        Long portValue = client.getIntValue(Constants.ClientConfiguration.PORT);
+        Long portValue = clientConfig.getIntValue(Constants.ClientConfiguration.PORT);
         if (portValue > 0) {
             url += ":" + portValue.intValue();
         }
@@ -53,7 +53,7 @@ public class NativeImpl {
         }
 
         String datasourceName = Constants.MYSQL_DATASOURCE_NAME;
-        if (options.getBooleanValue(Constants.Options.USE_XA_DATASOURCE)) {
+        if (options != null && options.getBooleanValue(Constants.Options.USE_XA_DATASOURCE)) {
             datasourceName = Constants.MYSQL_XA_DATASOURCE_NAME;
         }
 

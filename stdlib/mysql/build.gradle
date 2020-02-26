@@ -28,6 +28,7 @@ dependencies {
     baloImplementation project(path: ':ballerina-sql', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-crypto', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-java', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-time', configuration: 'baloImplementation')
 
     interopImports project(':ballerina-time')
     interopImports project(':ballerina-crypto')
@@ -41,19 +42,21 @@ dependencies {
     implementation project(':ballerina-sql')
     implementation project(':ballerina-java')
     implementation project(':ballerina-crypto')
+    implementation project(':ballerina-time')
 
     testCompile project(path: ':ballerina-test-common', configuration: 'tests')
     testCompile project(':ballerina-log-api')
     testCompile project(':ballerina-core')
     testCompile project(':ballerina-http')
     testCompile project(':ballerina-jsonutils')
+    testCompile project(':ballerina-time')
     
     testCompile 'org.testng:testng'
     testCompile 'org.slf4j:slf4j-jdk14'
     testCompile 'com.h2database:h2'
     testCompile 'org.hsqldb:hsqldb'
-    testRuntime group: 'mysql', name: 'mysql-connector-java', version: '8.0.19'
     testCompile group: 'ch.vorburger.mariaDB4j', name: 'mariaDB4j', version: '2.4.0'
+    testRuntime group: 'mysql', name: 'mysql-connector-java', version: '8.0.19'
     
     implementation 'com.zaxxer:HikariCP'
 }

@@ -22,9 +22,10 @@ public type Client client object {
     *sql:Client;
     private boolean clientActive = true;
 
-    public function __init(public string host="localhost", public int port=3306,
+    public function __init(public string host="localhost",
         public string? user = (), public string? password= (), public string? database = (),
-        public Options? options = (), public sql:ConnectionPool? connPool = ()) returns sql:Error? {
+        public int port=3306, public Options? options = (),
+        public sql:ConnectionPool? connPool = ()) returns sql:Error? {
         ClientConfiguration clientConfig = {
             host: host,
             port :port,

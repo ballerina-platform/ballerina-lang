@@ -13,47 +13,44 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerinax/mysql;
-import ballerinax/sql;
+import ballerina/mysql;
+import ballerina/sql;
 
-function testWithMandatoryFields(string hostname, int port, string user, string pw, string db) returns boolean {
-    mysql:Client testDB = new ({
-            host: hostname,
-            port: port,
-            username: user,
-            password: pw,
-            database: db
-    });
-    var dt = testDB->select("SELECT * FROM Customers", ());
-    boolean success = false;
-    if (dt is table<record {}>) {
-        success = true;
+function testConnectionWithNoFields() returns error? {
+    mysql:Client|sql:Error dbClient = new ();
+    if(dbClient is sql:Error){
+        return dbClient;
+    } else {
+        return dbClient.close();
     }
-    checkpanic testDB.close();
-    return success;
 }
 
-function testWithPoolOptions(string hostname, int port, string user, string pw, string db) returns boolean {
-    sql:PoolOptions connectionPool = {
-        maximumPoolSize: 20,
-        autoCommit: false
-    };
-    mysql:Client testDB = new ({
-            host: hostname,
-            port: port,
-            username: user,
-            password: pw,
-            database: db,
-            poolOptions: connectionPool
-    });
-    var dt = testDB->select("SELECT * FROM Customers", ());
-    boolean success = false;
-    if (dt is table<record {}>) {
-        success = true;
-    }
-    checkpanic testDB.close();
-    return success;
+function testWithURLParams(string host, string user, string password, string database, int port) returns error? {
+    mysql:Client dbClient = check new (host, user, password, database, port);
+    return dbClient.close();
 }
+
+//function testWithPoolOptions(string hostname, int port, string user, string pw, string db) returns boolean {
+//    sql:PoolOptions connectionPool = {
+//        maximumPoolSize: 20,
+//        autoCommit: false
+//    };
+//    mysql:Client testDB = new ({
+//            host: hostname,
+//            port: port,
+//            username: user,
+//            password: pw,
+//            database: db,
+//            poolOptions: connectionPool
+//    });
+//    var dt = testDB->select("SELECT * FROM Customers", ());
+//    boolean success = false;
+//    if (dt is table<record {}>) {
+//        success = true;
+//    }
+//    checkpanic testDB.close();
+//    return success;
+//}
 
 
 
