@@ -56,7 +56,7 @@ function onBeforeInit(langClient: ExtendedLangClient) {
     class SyntaxHighlightingFeature implements StaticFeature {
         fillClientCapabilities(capabilities: ClientCapabilities): void {
             capabilities.experimental = capabilities.experimental || {};
-            capabilities.experimental.semanticSyntaxHighlighter = true;
+            capabilities.experimental.semanticSyntaxHighlighter = false;
         }
         initialize(capabilities: ServerCapabilities, documentSelector: DocumentSelector | undefined): void {
         }
