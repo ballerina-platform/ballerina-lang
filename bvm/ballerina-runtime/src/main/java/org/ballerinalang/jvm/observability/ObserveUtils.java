@@ -71,6 +71,19 @@ public class ObserveUtils {
      * @param resourceName name of the resource being invoked.
      */
     public static void startResourceObservation(Strand strand, String serviceName, String resourceName) {
+        ObserveUtils.startResourceObservation(strand, serviceName, resourceName, Collections.emptyMap());
+    }
+
+    /**
+     * Start observation of a resource invocation.
+     *
+     * @param strand which holds the observer context being started.
+     * @param serviceName name of the service to which the observer context belongs.
+     * @param resourceName name of the resource being invoked.
+     * @param tags tags to be used in the observation
+     */
+    public static void startResourceObservation(Strand strand, String serviceName, String resourceName,
+                                                Map<String, String> tags) {
         if (!enabled) {
             return;
         }
@@ -90,6 +103,9 @@ public class ObserveUtils {
         observerContext.setResourceName(resourceName);
         observerContext.setServer();
         observerContext.setStarted();
+        for (Map.Entry<String, String> tagEntry : tags.entrySet()) {
+            observerContext.addTag(tagEntry.getKey(), tagEntry.getValue());
+        }
         observers.forEach(observer -> observer.startServerObservation(strand.observerContext));
         strand.setProperty(ObservabilityConstants.SERVICE_NAME, serviceName);
     }
@@ -138,6 +154,19 @@ public class ObserveUtils {
      * @param actionName name of the action/function being invoked.
      */
     public static void startCallableObservation(Strand strand, String connectorName, String actionName) {
+        ObserveUtils.startCallableObservation(strand, connectorName, actionName, Collections.emptyMap());
+    }
+
+    /**
+     * Start observability for the synchronous function/action invocations.
+     *
+     * @param strand which holds the observer context being started.
+     * @param connectorName name of the connector to which the observer context belongs.
+     * @param actionName name of the action/function being invoked.
+     * @param tags tags to be used in the observation
+     */
+    public static void startCallableObservation(Strand strand, String connectorName, String actionName,
+                                                Map<String, String> tags) {
         if (!enabled) {
             return;
         }
@@ -150,6 +179,9 @@ public class ObserveUtils {
         newObContext.setServiceName(observerCtx == null ? UNKNOWN_SERVICE : observerCtx.getServiceName());
         newObContext.setConnectorName(connectorName);
         newObContext.setActionName(actionName);
+        for (Map.Entry<String, String> tagEntry : tags.entrySet()) {
+            newObContext.addTag(tagEntry.getKey(), tagEntry.getValue());
+        }
         strand.observerContext = newObContext;
         observers.forEach(observer -> observer.startClientObservation(newObContext));
     }
