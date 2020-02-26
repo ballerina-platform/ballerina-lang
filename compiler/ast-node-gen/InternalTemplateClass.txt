@@ -1,0 +1,21 @@
+$package
+$imports
+public $abstract class $className$type $relationship $parentClass{
+$attributes
+public $className(SyntaxKind kind $paramList){
+super(kind $immediateParent);
+$paramInit
+this.bucketCount = $bucketCount;
+this.childBuckets = new SyntaxNode[$bucketCount];
+$addChildNode
+}
+public $className(SyntaxKind kind, int width $paramList) {
+super(kind, width $immediateParent);
+$paramInit
+this.bucketCount = $bucketCount;
+this.childBuckets = new SyntaxNode[$bucketCount];
+$addChildNode
+}
+$toStringFunction
+$facadeFunction
+}

@@ -1,0 +1,173 @@
+{
+  "root": "SyntaxNode",
+  "type": "abstract",
+  "fields": [
+    {
+      "name": "kind",
+      "type": "SyntaxKind"
+    },
+    {
+      "name": "width",
+      "type": "int"
+    }
+  ],
+  "node": [
+    {
+      "name": "StatementNode",
+      "type": "abstract",
+      "ext": "SyntaxNode"
+    },
+    {
+      "name": "SyntaxToken",
+      "ext": "SyntaxNode",
+      "fields": [
+        {
+          "name": "leadingTrivia",
+          "type": "SyntaxNode"
+        },
+        {
+          "name": "trailingTrivia",
+          "type": "SyntaxNode"
+        }
+      ]
+    },
+    {
+      "name": "ModulePart",
+      "ext": "SyntaxNode",
+      "fields": [
+        {
+          "name": "importList",
+          "type": "SyntaxNode"
+        },
+        {
+          "name": "memberList",
+          "type": "SyntaxNode"
+        },
+        {
+          "name": "eofToken",
+          "type": "SyntaxToken"
+        }
+      ]
+    },
+    //todo make SyntaxToken key as base
+    {
+      "name": "LiteralValueToken",
+      "ext": "SyntaxToken",
+      "fields": [
+        {
+          "name": "text",
+          "type": "String"
+        }
+      ]
+    },
+    {
+      "name": "IdentifierToken",
+      "ext": "SyntaxToken",
+      "fields": [
+        {
+          "name": "text",
+          "type": "String"
+        }
+      ]
+    },
+    {
+      "name": "MissingToken",
+      "ext": "SyntaxToken",
+      "fields": [
+        {
+          "name": "IS_MISSING",
+          "type": "boolean",
+          "defaultValue": true
+        }
+      ]
+    },
+    {
+      "name": "SyntaxTrivia",
+      "ext": "SyntaxNode",
+      "fields": [
+        {
+          "name": "text",
+          "type": "String"
+        }
+      ]
+    },
+    {
+      "name": "BlockStatement",
+      "ext": "StatementNode",
+      "fields": [
+        {
+          "name": "openBraceToken",
+          "type": "SyntaxToken"
+        },
+        {
+          "name": "statementList",
+          "type": "SyntaxNode"
+        },
+        {
+          "name": "closeBraceToken",
+          "type": "SyntaxToken"
+        }
+      ]
+    },
+    {
+      "name": "LocalVariableDeclaration",
+      "ext": "SyntaxNode",
+      "fields": [
+        {
+          "name": "typeName",
+          "type": "SyntaxToken"
+        },
+        {
+          "name": "variableName",
+          "type": "SyntaxToken"
+        },
+        {
+          "name": "equalsToken",
+          "type": "SyntaxToken"
+        },
+        {
+          "name": "initializer",
+          "type": "SyntaxNode"
+        },
+        {
+          "name": "semicolonToken",
+          "type": "SyntaxToken"
+        }
+      ]
+    },
+    {
+      "name": "FunctionDefinition",
+      "ext": "SyntaxNode",
+      "fields": [
+        {
+          "name": "visibilityQual",
+          "type": "SyntaxToken"
+        },
+        {
+          "name": "functionKeyword",
+          "type": "SyntaxToken"
+        },
+        {
+          "name": "functionName",
+          "type": "SyntaxToken"
+        },
+        {
+          "name": "openParenToken",
+          "type": "SyntaxToken"
+        },
+        {
+          "name": "closeParenToken",
+          "type": "SyntaxToken"
+        },
+        {
+          "name": "functionBody",
+          "type": "SyntaxNode"
+        }
+      ]
+    },
+    {
+      "name": "ImportDeclaration",
+      "ext": "SyntaxNode"
+    }
+  ]
+}
