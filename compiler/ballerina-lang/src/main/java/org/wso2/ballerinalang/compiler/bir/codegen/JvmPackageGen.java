@@ -31,6 +31,8 @@ import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRImportModule;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRPackage;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRTypeDefinition;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRVariableDcl;
+import org.wso2.ballerinalang.compiler.bir.model.VarKind;
+import org.wso2.ballerinalang.compiler.bir.model.VarScope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
@@ -702,6 +704,10 @@ public class JvmPackageGen {
         String version = module.version.value;
         Map<String, JavaClass> jvmClassMap = new HashMap<>();
 
+        for (BIRNode.BIRConstant constant : module.constants) {
+            module.globalVars.add(new BIRGlobalVariableDcl(constant.pos, constant.flags, constant.type, null,
+                                                           constant.name, VarScope.GLOBAL, VarKind.CONSTANT, ""));
+        }
         for (BIRGlobalVariableDcl globalVar : module.globalVars) {
             if (globalVar != null) {
                 globalVarClassNames.put(pkgName + globalVar.name.value, initClass);
