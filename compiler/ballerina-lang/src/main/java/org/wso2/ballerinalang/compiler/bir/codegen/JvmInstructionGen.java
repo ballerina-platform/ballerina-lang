@@ -193,8 +193,9 @@ public class JvmInstructionGen {
     public static final String I_STRING_VALUE = "org/ballerinalang/jvm/values/StringValue";
     public static final String BMP_STRING_VALUE = "org/ballerinalang/jvm/values/BmpStringValue";
     public static final String NON_BMP_STRING_VALUE = "org/ballerinalang/jvm/values/NonBmpStringValue";
-    public static boolean IS_BSTRING = "".equals(System.getProperty("ballerina.bstring"));
-    public static String BSTRING_VALUE = "".equals(System.getProperty("ballerina.bstring")) ? STRING_VALUE : I_STRING_VALUE;
+    public static boolean IS_BSTRING = (System.getProperty("ballerina.bstring") != null &&
+            !"".equals(System.getProperty("ballerina.bstring")));
+    public static String BSTRING_VALUE = IS_BSTRING ? I_STRING_VALUE : STRING_VALUE ;
 
     static void addBoxInsn(MethodVisitor mv, @Nilable BType bType) {
         if (bType == null) {

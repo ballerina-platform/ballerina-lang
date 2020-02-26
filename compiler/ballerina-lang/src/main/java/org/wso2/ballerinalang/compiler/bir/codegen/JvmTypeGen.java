@@ -222,8 +222,9 @@ class JvmTypeGen {
             } else if (bType.tag == TypeTags.OBJECT) {
                 if (bType instanceof BServiceType) {
                     createServiceType(mv, (BServiceType) bType, typeDef.type);
+                } else {
+                    createObjectType(mv, (BObjectType) bType, typeDef);
                 }
-                createObjectType(mv, (BObjectType) bType, typeDef);
             } else if (bType.tag == TypeTags.ERROR) {
                 createErrorType(mv, (BErrorType) bType, typeDef.name.value);
             } else {
@@ -960,14 +961,17 @@ class JvmTypeGen {
             loadTypedescType(mv, (BTypedescType) bType);
             return;
         } else if (bType.tag == TypeTags.OBJECT) {
-            if (bType instanceof BObjectType) {
-                loadUserDefinedType(mv, bType);
-                return;
-            } else if (!Objects.equals(getTypeFieldName(toNameString(bType)), "$type$service")) {
+            if (bType instanceof BServiceType) {
+                if (!Objects.equals(getTypeFieldName(toNameString(bType)), "$type$service")) {
+                    loadUserDefinedType(mv, bType);
+                    return;
+                } else {
+                    typeFieldName = "typeAnyService";
+                }
+            } else if (bType instanceof BObjectType) {
                 loadUserDefinedType(mv, bType);
                 return;
             }
-            typeFieldName = "typeAnyService";
         } else if (bType.tag == TypeTags.HANDLE) {
             typeFieldName = "typeHandle";
         } else if (bType.tag == TypeTags.ARRAY) {
