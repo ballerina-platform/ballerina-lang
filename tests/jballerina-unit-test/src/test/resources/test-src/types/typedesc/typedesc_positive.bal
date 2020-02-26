@@ -1,3 +1,5 @@
+import ballerina/http;
+
 function testBasicTypes() returns [typedesc<any>, typedesc<any>, typedesc<any>, typedesc<any>, typedesc<any>] {
     typedesc<int> a = int;
     typedesc<string> b = string;
@@ -91,3 +93,33 @@ function testMethodLevelTypeDesc() returns typedesc<any> {
     typedesc<any> methodLocalTypeDesc = json;
     return methodLocalTypeDesc;
 }
+
+type TargetType typedesc<http:Response|string|xml|json>;
+
+function testType(TargetType targetType) returns string {
+    if (targetType is typedesc<json>) {
+        return "json";
+    }
+    if (targetType is typedesc<http:Response>) {
+        return "http:Response";
+    }
+    return "null";
+}
+
+function testTypeDescTypeTest1() returns boolean {
+    string result = testType(json);
+    if (result == "json") {
+        return true;
+    }
+
+    return false;
+}
+
+function testTypeDescTypeTest2() returns boolean {
+     string result = testType(xml);
+     if (result == "null") {
+         return true;
+     }
+
+     return false;
+ }

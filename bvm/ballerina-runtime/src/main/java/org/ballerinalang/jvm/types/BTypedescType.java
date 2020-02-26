@@ -52,6 +52,17 @@ public class BTypedescType extends BType {
         return TypeTags.TYPEDESC_TAG;
     }
 
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj instanceof BTypedescType) {
+            return constraint == ((BTypedescType)obj).getConstraint();
+        }
+        return false;
+    }
+
     public BType getConstraint() {
         return constraint;
     }
