@@ -14,11 +14,13 @@
  * limitations under the License.
  */
 
-package io.ballerina.plugins.idea.settings.debuglogs;
+package io.ballerina.plugins.idea.settings.langserverlogs;
 
 import com.intellij.openapi.options.SearchableConfigurable;
+import com.intellij.openapi.project.Project;
 import com.intellij.util.ui.FormBuilder;
 import com.intellij.util.ui.UIUtil;
+import io.ballerina.plugins.idea.sdk.BallerinaSdkUtils;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -31,25 +33,30 @@ import javax.swing.JComponent;
 import javax.swing.JPanel;
 
 /**
- * Adds enabling/disabling language server debug logs in settings.
+ * Adds enabling/disabling language server logs in settings.
  */
-public class LangServerDebugLogsConfigurable implements SearchableConfigurable {
+public class LangServerLogsConfigurable implements SearchableConfigurable {
 
+    private Project project;
     private JCheckBox myEnableDebugLogsCb;
-    private final LangServerDebugLogsSettings myLangServerDebugLogsSettings;
+    private JCheckBox myEnableTraceLogsCb;
+    private final LangServerLogsSettings myLangServerLogsSettings;
     private final boolean myIsDialog;
 
-    public LangServerDebugLogsConfigurable(boolean dialogMode) {
-        myLangServerDebugLogsSettings = LangServerDebugLogsSettings.getInstance();
-        myIsDialog = dialogMode;
+    public LangServerLogsConfigurable(Project project, boolean dialogMode) {
+        myLangServerLogsSettings = LangServerLogsSettings.getInstance(project);
+        this.project = project;
+        this.myIsDialog = dialogMode;
     }
 
     @Nullable
     @Override
     public JComponent createComponent() {
         FormBuilder builder = FormBuilder.createFormBuilder();
-        myEnableDebugLogsCb = new JCheckBox("Enable language server debug logs");
+        myEnableDebugLogsCb = new JCheckBox("Enable debug logs");
+        myEnableTraceLogsCb = new JCheckBox("Enable trace logs");
         builder.addComponent(myEnableDebugLogsCb);
+        builder.addComponent(myEnableTraceLogsCb);
         JPanel result = new JPanel(new BorderLayout());
         result.add(builder.getPanel(), BorderLayout.NORTH);
         if (myIsDialog) {
@@ -60,23 +67,29 @@ public class LangServerDebugLogsConfigurable implements SearchableConfigurable {
 
     @Override
     public boolean isModified() {
-        return myLangServerDebugLogsSettings.getIsLangServerDebugLogsEnabled() != myEnableDebugLogsCb.isSelected();
+        return myLangServerLogsSettings.isLangServerDebugLogsEnabled() != myEnableDebugLogsCb.isSelected()
+                || myLangServerLogsSettings.isLangServerTraceLogsEnabled() != myEnableTraceLogsCb.isSelected();
+
     }
 
     @Override
     public void apply() {
-        myLangServerDebugLogsSettings.setIsLangServerDebugLogsEnabled(myEnableDebugLogsCb.isSelected());
+        myLangServerLogsSettings.setIsLangServerDebugLogsEnabled(myEnableDebugLogsCb.isSelected());
+        myLangServerLogsSettings.setIsLangServerTraceLogsEnabled(myEnableTraceLogsCb.isSelected());
+        // Todo - Remove after adding support to send language server related configuration changes on-the-fly.
+        BallerinaSdkUtils.showRestartDialog(project);
     }
 
     @Override
     public void reset() {
-        myEnableDebugLogsCb.setSelected(myLangServerDebugLogsSettings.getIsLangServerDebugLogsEnabled());
+        myEnableDebugLogsCb.setSelected(myLangServerLogsSettings.isLangServerDebugLogsEnabled());
+        myEnableTraceLogsCb.setSelected(myLangServerLogsSettings.isLangServerTraceLogsEnabled());
     }
 
     @NotNull
     @Override
     public String getId() {
-        return "langserver.debuglogs";
+        return "ballerina.langserver.logs";
     }
 
     @Nullable
@@ -88,7 +101,7 @@ public class LangServerDebugLogsConfigurable implements SearchableConfigurable {
     @Nls
     @Override
     public String getDisplayName() {
-        return "Language Server Debug Logs";
+        return "Language Server Logs";
     }
 
     @Nullable
@@ -100,6 +113,8 @@ public class LangServerDebugLogsConfigurable implements SearchableConfigurable {
     @Override
     public void disposeUIResources() {
         UIUtil.dispose(myEnableDebugLogsCb);
+        UIUtil.dispose(myEnableTraceLogsCb);
         myEnableDebugLogsCb = null;
+        myEnableTraceLogsCb = null;
     }
 }
