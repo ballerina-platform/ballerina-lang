@@ -30,6 +30,8 @@ import static io.ballerina.plugins.idea.preloading.LSPUtils.registerServerDefini
 
 /**
  * Editor listener implementation which is used to handle ballerina source files inside non-ballerina projects.
+ *
+ * @since 1.1.4
  */
 public class BallerinaEditorFactoryListener implements EditorFactoryListener {
 

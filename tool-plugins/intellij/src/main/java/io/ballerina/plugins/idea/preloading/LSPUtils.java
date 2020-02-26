@@ -43,6 +43,8 @@ import static io.ballerina.plugins.idea.BallerinaConstants.SYS_PROP_LS_TRACE;
 
 /**
  * Language server protocol related utils.
+ *
+ * @since 1.1.4
  */
 public class LSPUtils {
 
@@ -85,10 +87,8 @@ public class LSPUtils {
                 showInIdeaEventLog(project, "Auto-Detected Ballerina Home: " + balSdkPath);
             }
             return success;
-        } else {
-            if (BallerinaAutoDetectionSettings.getInstance(project).isAutoDetectionEnabled()) {
-                showInIdeaEventLog(project, "Auto-Detection Failed for: " + project.getBasePath());
-            }
+        } else if (BallerinaAutoDetectionSettings.getInstance(project).isAutoDetectionEnabled()) {
+            showInIdeaEventLog(project, "Auto-Detection Failed for: " + project.getBasePath());
         }
         return false;
     }
