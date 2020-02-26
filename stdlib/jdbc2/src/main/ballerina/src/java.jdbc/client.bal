@@ -17,7 +17,7 @@
 import ballerinax/java;
 import ballerina/sql;
 
-# Represents a JDBC client endpoint.
+# Represents a JDBC client.
 #
 public type Client client object {
     *sql:Client;

@@ -14,6 +14,9 @@
 // specific language governing permissions and limitations
 // under the License.
 
+
+# Represents a SQL abstract client.
+#
 public type Client abstract client object {
 
     # Close the SQL client.

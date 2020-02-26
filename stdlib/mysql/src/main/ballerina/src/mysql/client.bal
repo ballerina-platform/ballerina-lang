@@ -18,6 +18,8 @@ import ballerina/crypto;
 import ballerinax/java;
 import ballerina/sql;
 
+# Represents a MySQL database client.
+#
 public type Client client object {
     *sql:Client;
     private boolean clientActive = true;
