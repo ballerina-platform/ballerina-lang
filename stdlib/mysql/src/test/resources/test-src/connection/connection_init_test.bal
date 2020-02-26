@@ -18,7 +18,7 @@ import ballerina/sql;
 
 //TODO:Remove this and pass with functions.
 //After fixing this https://github.com/ballerina-platform/ballerina-lang/issues/21259
-
+string host = "localhost";
 string user="test";
 string password = "test123";
 string database = "CONNECT_DB";
@@ -67,3 +67,14 @@ function testWithConnectionPool() returns error|sql:ConnectionPool {
     }
 }
 
+function testWithConnectionParams() returns error? {
+    sql:ConnectionPool connPool = {
+      maxOpenConnections: 25
+    };
+    mysql:Options options = {
+        ssl: (),
+        connectTimeoutSeconds: 60
+    };
+    mysql:Client dbClient = check new (host, user, password, database, port, options, connPool);
+    return dbClient.close();
+}

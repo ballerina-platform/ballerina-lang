@@ -23,9 +23,8 @@ under the License.
     <test name="ballerina-mysql-test" parallel="false">
         <parameter name="enableJBallerinaTests" value="true"/>
         <classes >
-<!--            <class name="org.ballerinalang.mysql.SelectTest"/>-->
             <class name="org.ballerinalang.mysql.init.ConnectionInitTest"/>
-<!--            <class name="org.ballerinalang.mysql.init.ConnectionInitSSLTest"/>-->
+            <class name="org.ballerinalang.mysql.init.ConnectionInitSSLTest"/>
         </classes>
     </test>
 </suite>

@@ -20,22 +20,18 @@ package org.ballerinalang.mysql.init;
 import ch.vorburger.exec.ManagedProcessException;
 import ch.vorburger.mariadb4j.DB;
 import ch.vorburger.mariadb4j.DBConfigurationBuilder;
-import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.mysql.Utils;
 import org.ballerinalang.mysql.utils.SQLDBUtils;
 import org.ballerinalang.sql.Constants;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
-import org.testng.annotations.AfterSuite;
-import org.testng.annotations.BeforeClass;
-import org.testng.annotations.Test;
+import org.testng.annotations.*;
 
 import java.io.File;
 import java.nio.file.Paths;
@@ -45,10 +41,9 @@ import java.nio.file.Paths;
  */
 public class ConnectionInitTest {
     private static final String DB_NAME = "CONNECT_DB";
+    private static final String DATA_DIR = SQLDBUtils.DB_DIRECTORY + "CONNECT_INIT";
     private CompileResult result;
     private DB datbase;
-    private BValue[] args = {new BString(SQLDBUtils.DB_HOST), new BInteger(SQLDBUtils.DB_PORT),
-            new BString(SQLDBUtils.DB_USER_NAME), new BString(SQLDBUtils.DB_USER_PW), new BString(DB_NAME)};
 
     @BeforeClass
     public void setup() throws ManagedProcessException {
@@ -78,8 +73,8 @@ public class ConnectionInitTest {
 
     @Test
     public void testWithURLParams() {
-        BValue[] args = {new BString(SQLDBUtils.DB_HOST), new BString(SQLDBUtils.DB_USER_NAME), new BString(SQLDBUtils.DB_USER_PW),
-                new BString(DB_NAME), new BInteger(SQLDBUtils.DB_PORT)};
+        BValue[] args = {new BString(SQLDBUtils.DB_HOST), new BString(SQLDBUtils.DB_USER_NAME),
+                new BString(SQLDBUtils.DB_USER_PW), new BString(DB_NAME), new BInteger(SQLDBUtils.DB_PORT)};
         BValue[] returnVal = BRunUtil.invoke(result, "testWithURLParams", args);
         Assert.assertNull(returnVal[0]);
     }
@@ -107,7 +102,13 @@ public class ConnectionInitTest {
         Assert.assertEquals(connPool.get(Constants.ConnectionPool.MAX_OPEN_CONNECTIONS).stringValue(), "25");
     }
 
-    @AfterSuite
+    @Test
+    public void testWithConnectionParams() {
+        BValue[] returnVal = BRunUtil.invoke(result, "testWithConnectionParams");
+        Assert.assertNull(returnVal[0]);
+    }
+
+    @AfterClass
     public void cleanup() throws ManagedProcessException {
         SQLDBUtils.deleteDirectory(new File(SQLDBUtils.DB_DIRECTORY));
         datbase.stop();

@@ -13,116 +13,76 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerinax/mysql;
-import ballerinax/sql;
+import ballerina/mysql;
 
-function testWithVerifyCert(string hostname, int port, string user, string pw, string db) returns boolean {
-    mysql:Options opt = {
+//TODO:Remove this and pass with functions.
+//After fixing this https://github.com/ballerina-platform/ballerina-lang/issues/21259
+string host = "localhost";
+string user="test";
+string password = "test123";
+string database = "SSL_CONNECT_DB";
+int port = 3305;
+
+function testSSLVerifyCert() returns error? {
+    mysql:Options options = {
         ssl: {
             mode: "VERIFY_CERT",
             clientCertKeystore : {
-                path: "/Users/sinthuja/test/mysql/ssl-2/client-keystore.p12",
+                path: "../../keystore/client-keystore.p12",
                 password: "changeit"
             },
             trustCertKeystore: {
-                 path: "/Users/sinthuja/test/mysql/ssl/trust-keystore.p12",
+                 path: "../../keystore/trust-keystore.p12",
                  password: "changeit"
             }
         }
     };
-    mysql:Client testDB = new (
-            host= hostname,
-            port= port,
-            username=user,
-            password= pw,
-            database=db,
-            options = opt);
-
-    var dt = testDB->select("SELECT * FROM Customers", ());
-    boolean success = false;
-    if (dt is table<record {}>) {
-        success = true;
-    }
-    checkpanic testDB.close();
-    return success;
+    mysql:Client dbClient = check new (user = user, password=password, database = database,
+    port=port, options = options);
+    return dbClient.close();
 }
 
-function testWithPool(string hostname, int port, string user, string pw, string db) returns boolean {
-    sql:PoolOptions pool = {};
-    mysql:Client testDB = new ();
-
-    var dt = testDB->select("SELECT * FROM Customers", ());
-    boolean success = false;
-    if (dt is table<record {}>) {
-        success = true;
-    }
-    checkpanic testDB.close();
-    return success;
-}
-
-function testWithPreferredSSL(string hostname, int port, string user, string pw, string db) returns boolean {
-    mysql:Options opt = {
+function testSSLPreffered() returns error? {
+    mysql:Options options = {
         ssl: {
-            mode: "PREFERRED"
-        },
-        readWriteTimeoutInSeconds: 60
-    };
-    mysql:Client testDB = new (
-            host= hostname,
-            port= port,
-            username=user,
-            password=pw,
-            database=db,
-            options=opt
-    );
-    var dt = testDB->select("SELECT * FROM Customers", ());
-    boolean success = false;
-    if (dt is table<record {}>) {
-        success = true;
-    }
-    checkpanic testDB.close();
-    return success;
-}
-
-function test2(string hostname, int port, string user, string pw, string db) returns boolean {
-    mysql:Options opt = {
-        ssl: {
-            mode: "PREFERRED"
-        },
-        readWriteTimeoutInSeconds: 60
-    };
-    mysql:Client testDB = new (
-            host= hostname
-    );
-    var dt = testDB->select("SELECT * FROM Customers", ());
-    boolean success = false;
-    if (dt is table<record {}>) {
-        success = true;
-    }
-    checkpanic testDB.close();
-    return success;
-}
-
-
-function testWithRequiredSSL(string hostname, int port, string user, string pw, string db) returns boolean {
-    mysql:Options opt = {
-        ssl: {
-            mode: "REQUIRED"
+            mode: "PREFERRED",
+            clientCertKeystore : {
+                path: "../../keystore/client-keystore.p12",
+                password: "changeit"
+            },
+            trustCertKeystore: {
+                 path: "../../keystore/trust-keystore.p12",
+                 password: "changeit"
+            }
         }
     };
-    mysql:Client testDB = new (
-            host= hostname,
-            port=port,
-            username= user,
-            password=pw,
-            database= db,
-            options=opt
-    );
-    var dt = testDB->select("SELECT * FROM Customers", ());
-    boolean success = false;
-    if (dt is table<record {}>) {
-        success = true;
-    }
-    checkpanic testDB.close();
-    return success;
+    mysql:Client dbClient = check new (user = user, password=password, database = database,
+    port=port, options = options);
+    return dbClient.close();
+}
+
+function testSSLRequiredWithClientCert() returns error? {
+    mysql:Options options = {
+        ssl: {
+            mode: "REQUIRED",
+            clientCertKeystore : {
+                path: "../../keystore/client-keystore.p12",
+                password: "changeit"
+            }
+        }
+    };
+    mysql:Client dbClient = check new (user = user, password=password, database = database,
+    port=port, options = options);
+    return dbClient.close();
+}
+
+function testSSLVerifyIdentity() returns error? {
+    mysql:Options options = {
+        ssl: {
+            mode: "VERIFY_IDENTITY"
+        }
+    };
+    mysql:Client dbClient = check new (user = user, password=password, database = database,
+    port=port, options = options);
+    return dbClient.close();
 }
