@@ -504,7 +504,7 @@ public class TypeChecker {
             case TypeTags.HANDLE_TAG:
                 return sourceType.getTag() == TypeTags.HANDLE_TAG;
             case TypeTags.TYPEDESC_TAG:
-                return checkTypeDescType(sourceType, (BTypedescType)targetType);
+                return checkTypeDescType(sourceType, (BTypedescType) targetType);
             default:
                 return checkIsRecursiveType(sourceType, targetType,
                         unresolvedTypes == null ? new ArrayList<>() : unresolvedTypes);

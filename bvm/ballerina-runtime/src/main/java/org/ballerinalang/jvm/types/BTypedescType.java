@@ -58,7 +58,7 @@ public class BTypedescType extends BType {
             return true;
         }
         if (obj instanceof BTypedescType) {
-            return constraint == ((BTypedescType)obj).getConstraint();
+            return constraint == ((BTypedescType) obj).getConstraint();
         }
         return false;
     }
