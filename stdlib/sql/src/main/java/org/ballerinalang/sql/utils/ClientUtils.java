@@ -26,6 +26,8 @@ import java.util.UUID;
 
 /**
  * This class implements the utils methods for the clients to be used.
+ *
+ * @since 1.2.0
  */
 public class ClientUtils {
 

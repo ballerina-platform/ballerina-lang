@@ -24,6 +24,8 @@ import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * This is the util class for handing connection pool.
+ *
+ * @since 1.2.0
  */
 public class ConnectionPoolUtils {
 

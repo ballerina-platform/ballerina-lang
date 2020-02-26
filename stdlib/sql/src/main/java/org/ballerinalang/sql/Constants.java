@@ -21,23 +21,12 @@ import org.ballerinalang.jvm.types.BPackage;
 
 import java.util.UUID;
 
-
 /**
- * Constants for JDBC client.
+ * Constants for SQL client.
  *
- * @since 0.8.0
+ * @since 1.2.0
  */
 public final class Constants {
-
-    /**
-     * Constants related connection pool.
-     */
-    public static final class ConnectionPool {
-        public static final String MAX_OPEN_CONNECTIONS = "maxOpenConnections";
-        public static final String MAX_CONNECTION_LIFE_TIME_SECONDS = "maxConnectionLifeTimeSeconds";
-        public static final String MIN_IDLE_CONNECTIONS = "minIdleConnections";
-    }
-
 
     public static final String CONNECTOR_NAME = "ClientConnector";
 
@@ -51,14 +40,33 @@ public final class Constants {
     public static final String APPLICATION_ERROR_DATA = "ApplicationErrorData";
     public static final String APPLICATION_ERROR_CODE = "{ballerina/sql}ApplicationError";
 
-    public static final String APPLICATION_ERROR_MESSAGE = "Application Error Occurred";
     public static final String DATABASE_ERROR_MESSAGE = "Database Error Occurred";
+
+    /**
+     * Constants related connection pool.
+     */
+    public static final class ConnectionPool {
+        public static final String MAX_OPEN_CONNECTIONS = "maxOpenConnections";
+        public static final String MAX_CONNECTION_LIFE_TIME_SECONDS = "maxConnectionLifeTimeSeconds";
+        public static final String MIN_IDLE_CONNECTIONS = "minIdleConnections";
+    }
 
     /**
      * Constants related to database options.
      */
     public static final class Options {
         public static final String URL = "url";
+    }
+
+    /**
+     * Constant related error fields.
+     *
+     */
+    public static final class ErrorRecordFields {
+        public static final String MESSAGE = "message";
+        public static final String ERROR_CODE = "errorCode";
+        public static final String SQL_STATE = "sqlState";
+
     }
 
 }

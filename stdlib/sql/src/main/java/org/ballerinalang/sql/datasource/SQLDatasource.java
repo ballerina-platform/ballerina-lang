@@ -22,19 +22,15 @@ import com.zaxxer.hikari.HikariDataSource;
 import org.ballerinalang.jvm.values.DecimalValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.sql.Constants;
-import org.ballerinalang.sql.exceptions.DatabaseException;
 import org.ballerinalang.sql.exceptions.ErrorGenerator;
 
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
-
-import javax.sql.XADataSource;
 
 /**
  * SQL datasource representation.
@@ -44,26 +40,16 @@ import javax.sql.XADataSource;
 public class SQLDatasource {
 
     private HikariDataSource hikariDataSource;
-    private String peerAddress;
-    private String databaseProductName;
-    private boolean xaConn;
     private AtomicInteger clientCounter = new AtomicInteger(0);
     private Lock mutex = new ReentrantLock();
     private boolean poolShutdown = false;
 
     private SQLDatasource(SQLDatasourceParams sqlDatasourceParams) {
-        peerAddress = sqlDatasourceParams.url;
         buildDataSource(sqlDatasourceParams);
-        try {
-            xaConn = isXADataSource();
-        } catch (DatabaseException e) {
-            throw ErrorGenerator.getSQLDatabaseError(e);
-        }
         try (Connection con = getSQLConnection()) {
-            databaseProductName = con.getMetaData().getDatabaseProductName().toLowerCase(Locale.ENGLISH);
         } catch (SQLException e) {
-            throw ErrorGenerator
-                    .getSQLDatabaseError(e, "error while obtaining connection for " + Constants.CONNECTOR_NAME + ", ");
+            throw ErrorGenerator.getSQLDatabaseError(e,
+                    "error while obtaining connection for " + Constants.CONNECTOR_NAME + ", ");
         }
     }
 
@@ -113,41 +99,9 @@ public class SQLDatasource {
         return newSqlDatasource;
     }
 
-    /**
-     * Get the peer address of this datasource. If URL is used, the peer address is the URL. Otherwise, the peer address
-     * is "host:port"
-     *
-     * @return The peer address for this datasource.
-     */
-    public String getPeerAddress() {
-        return peerAddress;
-    }
 
-    /**
-     * Get the database product name.
-     *
-     * @return The database product name.
-     */
-    public String getDatabaseProductName() {
-        return databaseProductName;
-    }
-
-    public Connection getSQLConnection() throws SQLException {
+    private Connection getSQLConnection() throws SQLException {
         return hikariDataSource.getConnection();
-    }
-
-    public boolean isXAConnection() {
-        return this.xaConn;
-    }
-
-    public XADataSource getXADataSource() throws DatabaseException {
-        XADataSource xaDataSource;
-        try {
-            xaDataSource = hikariDataSource.unwrap(XADataSource.class);
-        } catch (SQLException e) {
-            throw new DatabaseException("Error while obtaining distributed data source", e);
-        }
-        return xaDataSource;
     }
 
     private void closeConnectionPool() {
@@ -155,11 +109,11 @@ public class SQLDatasource {
         poolShutdown = true;
     }
 
-    public boolean isPoolShutdown() {
+    private boolean isPoolShutdown() {
         return poolShutdown;
     }
 
-    public void incrementClientCounter() {
+    private void incrementClientCounter() {
         clientCounter.incrementAndGet();
     }
 
@@ -173,44 +127,14 @@ public class SQLDatasource {
         releaseMutex();
     }
 
-    public void releaseMutex() {
+    private void releaseMutex() {
         mutex.unlock();
     }
 
-    public void acquireMutex() {
+    private void acquireMutex() {
         mutex.lock();
     }
 
-    /**
-     * Clarification on behavior with parameters.
-     * 1. Adding an invalid param in the JDBC URL. This will result in an error getting returned
-     * eg: jdbc:Client testDB = new({
-     * url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTOR_INIT;INVALID_PARAM=-1",
-     * username: "SA",
-     * password: ""
-     * });
-     * 2. Providing an invalid param with dataSourceClassName provided. This will result in an error
-     * returned because when hikaricp tries to call setINVALID_PARAM method on the given datasource
-     * class name, it will fail since there is no such method
-     * eg: jdbc:Client testDB = new({
-     * url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTOR_INIT",
-     * username: "SA",
-     * password: "",
-     * poolOptions: { dataSourceClassName: "org.h2.jdbcx.JdbcDataSource" },
-     * dbOptions: { "INVALID_PARAM": -1 }
-     * });
-     * 3. Providing an invalid param WITHOUT dataSourceClassName provided. This may not return any error.
-     * Because this will result in the INVALID_PARAM being passed to Driver.Connect which may not recognize
-     * it as an invalid parameter.
-     * eg: jdbc:Client testDB = new({
-     * url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTOR_INIT",
-     * username: "SA",
-     * password: "",
-     * dbOptions: { "INVALID_PARAM": -1 }
-     * });
-     *
-     * @param sqlDatasourceParams This includes the configuration for the datasource to be built.
-     */
     private void buildDataSource(SQLDatasourceParams sqlDatasourceParams) {
         try {
             HikariConfig config = new HikariConfig();
@@ -270,15 +194,6 @@ public class SQLDatasource {
             throw ErrorGenerator.getSQLApplicationError(message);
         }
     }
-
-    private boolean isXADataSource() throws DatabaseException {
-        try {
-            return hikariDataSource.isWrapperFor(XADataSource.class);
-        } catch (SQLException e) {
-            throw new DatabaseException("error while checking distributed data source: ", e);
-        }
-    }
-
     /**
      * This class encapsulates the parameters required for the initialization of {@code SQLDatasource} class.
      */

@@ -18,9 +18,9 @@
 package org.ballerinalang.sql.exceptions;
 
 /**
- * The exception to throw application related exceptions of JDBC client.
+ * The exception to throw application related exceptions of SQL client.
  *
- * @since 1.0.0
+ * @since 1.2.0
  */
 public class ApplicationException extends Exception {
 

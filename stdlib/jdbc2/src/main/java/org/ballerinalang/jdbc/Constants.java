@@ -27,12 +27,12 @@ public final class Constants {
      * Constants for Endpoint Configs.
      */
     public static final class ClientConfiguration {
-        public static final String URL = "url";
-        public static final String USER = "user";
-        public static final String PASSWORD = "password";
-        public static final String DATASOURCE_NAME = "datasourceName";
-        public static final String CONNECTION_POOL_OPTIONS = "connPool";
-        public static final String OPTIONS = "options";
-        public static final String PROPERTIES = "properties";
+        static final String URL = "url";
+        static final String USER = "user";
+        static final String PASSWORD = "password";
+        static final String DATASOURCE_NAME = "datasourceName";
+        static final String CONNECTION_POOL_OPTIONS = "connPool";
+        static final String OPTIONS = "options";
+        static final String PROPERTIES = "properties";
     }
 }

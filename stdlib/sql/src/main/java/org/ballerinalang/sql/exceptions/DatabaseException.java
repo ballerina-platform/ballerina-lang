@@ -22,6 +22,8 @@ import java.sql.SQLException;
 
 /**
  * This exception represents the underneath database communication error.
+ *
+ * @since 1.2.0
  */
 public class DatabaseException extends SQLException {
 
