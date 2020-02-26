@@ -18,6 +18,7 @@
 package org.ballerinalang.jvm.values;
 
 import org.ballerinalang.jvm.types.BType;
+import org.ballerinalang.jvm.types.BTypedescType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.jvm.values.api.BTypedesc;
@@ -45,7 +46,7 @@ public class TypedescValue implements RefValue, BTypedesc {
 
     @Deprecated
     public TypedescValue(BType describingType) {
-        this.type = BTypes.typeTypedesc;
+        this.type = new BTypedescType(describingType);
         this.describingType = describingType;
     }
 
