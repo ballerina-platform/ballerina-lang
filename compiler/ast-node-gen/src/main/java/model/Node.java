@@ -5,7 +5,7 @@ import java.util.List;
 public class Node {
     private String name;
     private List<Field> fields;
-    private String ext;
+    private String base;
     private String type;
 
     public String getName() {
@@ -24,12 +24,12 @@ public class Node {
         this.fields = fields;
     }
 
-    public String getExt() {
-        return ext;
+    public String getBase() {
+        return base;
     }
 
-    public void setExt(String ext) {
-        this.ext = ext;
+    public void setBase(String base) {
+        this.base = base;
     }
 
     public String getType() {

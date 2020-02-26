@@ -23,12 +23,12 @@ public class Common {
                     .replace(Constants.TYPE_PLACEHOLDER, "");
         }
         // Check for parent classes
-        if (node.getExt() == null) {
+        if (node.getBase() == null) {
             classString = classString.replace(Constants.RELATIONSHIP_PLACEHOLDER + Constants.WHITE_SPACE,
                     "").replace(Constants.PARENT_CLASS_PLACEHOLDER, "");
         } else {
             classString = classString.replace(Constants.RELATIONSHIP_PLACEHOLDER, Constants.EXTENDS_KEYWORD)
-                    .replace(Constants.PARENT_CLASS_PLACEHOLDER, node.getExt());
+                    .replace(Constants.PARENT_CLASS_PLACEHOLDER, node.getBase());
         }
         System.out.println(classString);
         return classString;

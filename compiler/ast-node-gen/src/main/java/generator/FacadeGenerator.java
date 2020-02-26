@@ -46,7 +46,7 @@ public class FacadeGenerator {
             if (!(node.getName().contains(Constants.TOKEN) || node.getName().contains(Constants.TRIVIA)) ||
                     node.getName().contains(Constants.SYNTAX_TOKEN)) {
                 Node newNode = new Node();
-                newNode.setExt(Constants.NON_TERMINAL_NODE);
+                newNode.setBase(Constants.NON_TERMINAL_NODE);
                 newNode.setName(Constants.BL + node.getName());
                 newNode.setType(node.getType());
                 if (node.getFields() != null) {

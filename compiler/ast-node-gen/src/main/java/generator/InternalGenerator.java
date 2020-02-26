@@ -29,8 +29,8 @@ public class InternalGenerator {
             internalClassString = buildParameterizedConstructor(internalClassString, node.getFields());
             internalClassString = internalClassString.replace(Constants.ADD_CHILD_NODE_PLACEHOLDER,
                     getChildNodeCall(node.getFields()));
-            if (node.getExt() != null) {
-                Node parentNode = getImmediateParentNode(node.getExt());
+            if (node.getBase() != null) {
+                Node parentNode = getImmediateParentNode(node.getBase());
                 if (parentNode != null) {
                     internalClassString = internalClassString.replace(Constants.IMMEDIATE_PARENT_PLACEHOLDER,
                             superConstructorParentValues(parentNode.getFields()));

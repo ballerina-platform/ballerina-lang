@@ -202,8 +202,8 @@ public class ClassGeneratorTemplate {
             );
             internalClassString = internalClassString.replace(ADD_CHILD_NODE_PLACEHOLDER,
                     getChildNodeCall(node.getFields()));
-            if (node.getExt() != null) {
-                Node parentNode = getImmediateParentNode(node.getExt());
+            if (node.getBase() != null) {
+                Node parentNode = getImmediateParentNode(node.getBase());
                 if (parentNode != null) {
                     internalClassString = internalClassString.replace(IMMEDIATE_PARENT_PLACEHOLDER,
                             superConstructorParentValues(parentNode.getFields()));
@@ -250,12 +250,12 @@ public class ClassGeneratorTemplate {
                     .replace(CLASSNAME_PLACEHOLDER, node.getName()).replace(TYPE_PLACEHOLDER, "");
         }
         // Check for parent classes
-        if (node.getExt() == null) {
+        if (node.getBase() == null) {
             classString = classString.replace(RELATIONSHIP_PLACEHOLDER + WHITE_SPACE, "")
                     .replace(PARENT_CLASS_PLACEHOLDER, "");
         } else {
             classString = classString.replace(RELATIONSHIP_PLACEHOLDER, EXTENDS_KEYWORD)
-                    .replace(PARENT_CLASS_PLACEHOLDER, node.getExt());
+                    .replace(PARENT_CLASS_PLACEHOLDER, node.getBase());
         }
         return classString;
     }
@@ -417,7 +417,7 @@ public class ClassGeneratorTemplate {
         for (Node node : nodeList) {
             if (!(node.getName().contains(TOKEN) || node.getName().contains(TRIVIA))) {
                 Node newNode = new Node();
-                newNode.setExt(NON_TERMINAL_NODE);
+                newNode.setBase(NON_TERMINAL_NODE);
                 newNode.setName(BL + node.getName());
                 if (node.getFields() != null) {
                     List<Field> fields = new ArrayList<>();
