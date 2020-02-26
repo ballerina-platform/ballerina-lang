@@ -21,6 +21,7 @@ package org.wso2.transport.http.netty.contractimpl.listener.states.http2;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandlerContext;
+import io.netty.handler.codec.http.DefaultLastHttpContent;
 import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpHeaders;
@@ -170,7 +171,8 @@ public class SendingEntityBody implements ListenerState {
                 logAccessInfo(outboundResponseMsg, streamId);
             }
 
-            final LastHttpContent lastContent = (LastHttpContent) httpContent;
+            final LastHttpContent lastContent = (httpContent == LastHttpContent.EMPTY_LAST_CONTENT) ?
+                    new DefaultLastHttpContent() : (LastHttpContent) httpContent;
             HttpHeaders trailers = lastContent.trailingHeaders();
             trailers.add(outboundResponseMsg.getTrailerHeaders());
             boolean endStream = trailers.isEmpty();
