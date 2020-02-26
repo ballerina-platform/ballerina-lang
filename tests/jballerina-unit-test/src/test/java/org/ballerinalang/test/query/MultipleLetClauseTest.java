@@ -82,4 +82,23 @@ public class MultipleLetClauseTest {
         Assert.assertEquals(person1.get("lastName").stringValue(), "George");
         Assert.assertEquals(person1.get("deptAccess").stringValue(), "WSO2");
     }
+
+
+    @Test(description = "Reuse variables in let clause")
+    public void testMultipleVarDeclReuseLetClause() {
+        BValue[] returnValues = BRunUtil.invoke(result, "testMultipleVarDeclReuseLetClause");
+        Assert.assertNotNull(returnValues);
+        Assert.assertEquals(returnValues.length, 2, "Expected events are not received");
+
+        BMap<String, BValue> teacher1 = (BMap<String, BValue>) returnValues[0];
+        BMap<String, BValue> teacher2 = (BMap<String, BValue>) returnValues[1];
+
+        Assert.assertEquals(teacher1.get("firstName").stringValue(), "Alex");
+        Assert.assertEquals(teacher1.get("lastName").stringValue(), "George");
+        Assert.assertEquals(teacher1.get("age").stringValue(), "30");
+
+        Assert.assertEquals(teacher2.get("firstName").stringValue(), "Ranjan");
+        Assert.assertEquals(teacher2.get("lastName").stringValue(), "Fonseka");
+        Assert.assertEquals(teacher2.get("age").stringValue(), "30");
+    }
 }

@@ -142,22 +142,12 @@ public class QueryDesugar extends BLangNodeVisitor {
         BLangIndexBasedAccess indexAccessExpr = ASTBuilderUtil.createIndexAccessExpr(outputVarRef, lengthInvocation);
         indexAccessExpr.type = selectClause.expression.type;
 
-        // Create and add variable definitions for the let variable declarations to foreach body
-        for (BLangLetClause letClause : letClauseList) {
-            for (BLangVariable var : letClause.letVarDeclarations) {
-                BLangSimpleVariableDef varDef = ASTBuilderUtil.createVariableDef(pos);
-                varDef.var = (BLangSimpleVariable) var;
-                varDef.type = var.type;
-                foreachBody.addStatement(varDef);
-            }
-        }
+        buildWhereClauseBlock(whereClauseList, letClauseList, leafForeach, foreachBody, selectClause.pos);
 
         // Set the indexed based access expression statement as foreach body
         BLangAssignment outputVarAssignment = ASTBuilderUtil.createAssignmentStmt(pos, indexAccessExpr,
                 selectClause.expression);
         foreachBody.addStatement(outputVarAssignment);
-
-        buildWhereClauseBlock(whereClauseList, leafForeach, foreachBody, selectClause.pos);
 
         // Create block statement with temp variable definition statement & foreach statement
         BLangBlockStmt blockStmt = ASTBuilderUtil.createBlockStmt(pos);
@@ -179,11 +169,25 @@ public class QueryDesugar extends BLangNodeVisitor {
 
         BLangForeach leafForeach = buildFromClauseBlock(fromClauseList);
         BLangBlockStmt foreachBody = ASTBuilderUtil.createBlockStmt(pos);
-        buildWhereClauseBlock(whereClauseList, leafForeach, foreachBody, doClause.pos);
+        buildWhereClauseBlock(whereClauseList, null, leafForeach, foreachBody, doClause.pos);
 
         leafForeach.setBody(doClause.body);
         blockNode.stmts.add(parentForeach);
         return blockNode;
+    }
+
+    private void buildLetClauseBlock(List<BLangLetClause> letClauseList, BLangBlockStmt bLangBlockStmt) {
+        // Create variable definitions for the let variable declarations
+        if (letClauseList != null) {
+            for (BLangLetClause letClause : letClauseList) {
+                for (BLangVariable var : letClause.letVarDeclarations) {
+                    BLangSimpleVariableDef varDef = ASTBuilderUtil.createVariableDef(letClause.pos);
+                    varDef.var = (BLangSimpleVariable) var;
+                    varDef.type = var.type;
+                    bLangBlockStmt.addStatement(varDef);
+                }
+            }
+        }
     }
 
     private BLangForeach buildFromClauseBlock(List<BLangFromClause> fromClauseList) {
@@ -211,8 +215,8 @@ public class QueryDesugar extends BLangNodeVisitor {
         return leafForeach;
     }
 
-    private void buildWhereClauseBlock(List<BLangWhereClause> whereClauseList, BLangForeach leafForEach,
-                                       BLangBlockStmt foreachBody, DiagnosticPos pos) {
+    private void buildWhereClauseBlock(List<BLangWhereClause> whereClauseList, List<BLangLetClause> letClauseList,
+                                       BLangForeach leafForEach, BLangBlockStmt foreachBody, DiagnosticPos pos) {
         if (whereClauseList.size() > 0) {
             // Create If Statement with Where expression and foreach body
             BLangIf outerIf = null;
@@ -232,9 +236,11 @@ public class QueryDesugar extends BLangNodeVisitor {
             }
             innerIf.setBody(foreachBody);
             BLangBlockStmt bLangBlockStmt = ASTBuilderUtil.createBlockStmt(pos);
+            buildLetClauseBlock(letClauseList, bLangBlockStmt);
             bLangBlockStmt.addStatement(outerIf);
             leafForEach.setBody(bLangBlockStmt);
         } else {
+            buildLetClauseBlock(letClauseList, foreachBody);
             leafForEach.setBody(foreachBody);
         }
     }

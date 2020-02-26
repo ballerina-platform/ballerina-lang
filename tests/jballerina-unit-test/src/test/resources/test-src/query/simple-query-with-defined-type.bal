@@ -209,3 +209,46 @@ function testSimpleSelectQueryWithLetClause() returns Employee[] {
             };
     return  outputPersonList;
 }
+
+function testFunctionCallInVarDeclLetClause() returns Person[]{
+
+   Person p1 = {firstName: "Alex", lastName: "George", age: 23};
+   Person p2 = {firstName: "Ranjan", lastName: "Fonseka", age: 30};
+
+   Person[] personList = [p1, p2];
+
+    var outputPersonList =
+            from Person person in personList
+            let int twiceAge = mutiplyBy2(person.age)
+            select {
+                   firstName: person.firstName,
+                   lastName: person.lastName,
+                   age: twiceAge
+            };
+
+    return  outputPersonList;
+}
+
+function testUseOfLetInWhereClause() returns Person[]{
+
+   Person p1 = {firstName: "Alex", lastName: "George", age: 18};
+   Person p2 = {firstName: "Ranjan", lastName: "Fonseka", age: 22};
+
+   Person[] personList = [p1, p2];
+
+    var outputPersonList =
+            from var person in personList
+            let int twiceAge = mutiplyBy2(person.age)
+            where twiceAge > 40
+            select {
+                   firstName: person.firstName,
+                   lastName: person.lastName,
+                   age: twiceAge
+            };
+
+    return  outputPersonList;
+}
+
+function mutiplyBy2 (int k) returns int {
+    return k * 2;
+}

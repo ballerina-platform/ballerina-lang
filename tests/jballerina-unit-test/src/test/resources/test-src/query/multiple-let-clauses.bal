@@ -8,6 +8,13 @@ type Company record {|
    string name;
 |};
 
+type Teacher record {|
+   string firstName;
+   string lastName;
+   int age;
+   string teacherId;
+|};
+
 function testMultipleLetClausesWithSimpleVariable1() returns Person[] {
     Person p1 = {firstName: "Alex", lastName: "George", deptAccess: "XYZ"};
     Person p2 = {firstName: "Ranjan", lastName: "Fonseka", deptAccess: "XYZ"};
@@ -61,6 +68,25 @@ function testMultipleLetClausesWithRecordVariable() returns Person[] {
                    firstName: nm1,
                    lastName: nm2,
                    deptAccess: companyRecord.name
+            };
+    return  outputPersonList;
+}
+
+function testMultipleVarDeclReuseLetClause() returns Teacher[]{
+
+    Person p1 = {firstName: "Alex", lastName: "George", deptAccess: "XYZ"};
+    Person p2 = {firstName: "Ranjan", lastName: "Fonseka", deptAccess: "XYZ"};
+
+    Person[] personList = [p1, p2];
+
+    var outputPersonList =
+            from var person in personList
+            let int x = 20, int y = x + 10
+            select {
+                   firstName: person.firstName,
+                   lastName: person.lastName,
+                   age: y,
+                   teacherId: "TER1200"
             };
     return  outputPersonList;
 }
