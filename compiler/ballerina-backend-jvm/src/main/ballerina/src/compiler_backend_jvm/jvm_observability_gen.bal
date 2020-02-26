@@ -32,12 +32,32 @@ function emitReportErrorInvocation(jvm:MethodVisitor mv, int strandIndex, int er
 }
 
 function emitStartObservationInvocation(jvm:MethodVisitor mv, int strandIndex, string serviceOrConnectorName,
-                                        string resourceOrActionName, string observationStartMethod) {
+                                        string resourceOrActionName, string observationStartMethod,
+                                        map<string> tags = {}) {
     mv.visitVarInsn(ALOAD, strandIndex);
     mv.visitLdcInsn(cleanUpServiceName(serviceOrConnectorName));
     mv.visitLdcInsn(resourceOrActionName);
-    mv.visitMethodInsn(INVOKESTATIC, OBSERVE_UTILS, observationStartMethod,
-        io:sprintf("(L%s;L%s;L%s;)V", STRAND, STRING_VALUE, STRING_VALUE), false);
+
+    if (tags.length() > 0) {
+        mv.visitTypeInsn(NEW, "java/util/HashMap");
+        mv.visitInsn(DUP);
+        mv.visitLdcInsn(tags.length());
+        mv.visitInsn(L2I);
+        mv.visitMethodInsn(INVOKESPECIAL, "java/util/HashMap", "<init>", "(I)V", false);
+        foreach var [key, value] in tags.entries() {
+            mv.visitInsn(DUP);
+            mv.visitLdcInsn(key);
+            mv.visitLdcInsn(value);
+            mv.visitMethodInsn(INVOKEINTERFACE, "java/util/Map", "put",
+                io:sprintf("(L%s;L%s;)L%s;", OBJECT, OBJECT, OBJECT), true);
+            mv.visitInsn(POP);
+        }
+        mv.visitMethodInsn(INVOKESTATIC, OBSERVE_UTILS, observationStartMethod,
+            io:sprintf("(L%s;L%s;L%s;L%s;)V", STRAND, STRING_VALUE, STRING_VALUE, MAP), false);
+    } else {
+        mv.visitMethodInsn(INVOKESTATIC, OBSERVE_UTILS, observationStartMethod,
+            io:sprintf("(L%s;L%s;L%s;)V", STRAND, STRING_VALUE, STRING_VALUE), false);
+    }
 }
 
 function cleanUpServiceName(string serviceName) returns string {
