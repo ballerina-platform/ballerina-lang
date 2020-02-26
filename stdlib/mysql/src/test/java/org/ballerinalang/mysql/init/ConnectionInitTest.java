@@ -31,17 +31,20 @@ import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
-import org.testng.annotations.*;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Test;
 
 import java.io.File;
 import java.nio.file.Paths;
 
 /**
  * This test case validates the connections.
+ *
+ * @since 1.2.0
  */
 public class ConnectionInitTest {
     private static final String DB_NAME = "CONNECT_DB";
-    private static final String DATA_DIR = SQLDBUtils.DB_DIRECTORY + "CONNECT_INIT";
     private CompileResult result;
     private DB datbase;
 

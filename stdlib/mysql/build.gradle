@@ -52,13 +52,8 @@ dependencies {
     testCompile project(':ballerina-time')
     
     testCompile 'org.testng:testng'
-    testCompile 'org.slf4j:slf4j-jdk14'
-    testCompile 'com.h2database:h2'
-    testCompile 'org.hsqldb:hsqldb'
-    testCompile group: 'ch.vorburger.mariaDB4j', name: 'mariaDB4j', version: '2.4.0'
-    testRuntime group: 'mysql', name: 'mysql-connector-java', version: '8.0.19'
-    
-    implementation 'com.zaxxer:HikariCP'
+    testCompile 'ch.vorburger.mariaDB4j:mariaDB4j'
+    testRuntime 'mysql:mysql-connector-java'
 }
 
 createBalo {

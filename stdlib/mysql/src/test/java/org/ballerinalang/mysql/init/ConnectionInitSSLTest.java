@@ -20,27 +20,28 @@ package org.ballerinalang.mysql.init;
 import ch.vorburger.exec.ManagedProcessException;
 import ch.vorburger.mariadb4j.DB;
 import ch.vorburger.mariadb4j.DBConfigurationBuilder;
-import org.ballerinalang.model.values.*;
+import org.ballerinalang.model.values.BError;
+import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.mysql.utils.SQLDBUtils;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
-import org.testng.annotations.AfterSuite;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.nio.file.Paths;
 
 /**
  * This test case validates the SSL connections.
+ *
+ * @since 1.2.0
  */
 public class ConnectionInitSSLTest {
     private static final String DB_NAME = "SSL_CONNECT_DB";
-    private static final String DATA_DIR = SQLDBUtils.DB_DIRECTORY + "SSL_INIT";
     private CompileResult result;
     private DB datbase;
 
