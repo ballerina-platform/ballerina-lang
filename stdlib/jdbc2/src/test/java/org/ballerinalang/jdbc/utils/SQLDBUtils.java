@@ -43,9 +43,13 @@ import java.util.Comparator;
  * @since 0.990.3
  */
 public class SQLDBUtils {
+    private static final Logger log = LoggerFactory.getLogger(SQLDBUtils.class);
 
     public static final String DB_DIR = Paths.get(".", "target", "tempdb").toString() + File.separator;
-    private static final Logger log = LoggerFactory.getLogger(SQLDBUtils.class);
+    public static final String DB_USER = "sa";
+    public static final String DB_PASSWORD = "";
+    public static final String SQL_APPLICATION_ERROR_REASON = "{ballerina/sql}ApplicationError";
+    public static final String SQL_ERROR_MESSAGE = "message";
 
     /**
      * Create H2 DB with the given name and initialize with given SQL file.
@@ -56,7 +60,7 @@ public class SQLDBUtils {
      */
     public static void initH2Database(String dbDirectory, String dbName, String sqlFile) {
         String jdbcURL = "jdbc:h2:file:" + dbDirectory + dbName;
-        initDatabase(jdbcURL, "sa", "", sqlFile);
+        initDatabase(jdbcURL, DB_USER, DB_PASSWORD, sqlFile);
     }
 
     /**
@@ -127,79 +131,11 @@ public class SQLDBUtils {
         return null;
     }
 
-    /**
-     * This class represents a database used for testing data clients.
-     */
-    public abstract static class TestDatabase {
-
-        String jdbcUrl;
-        String username;
-        String password;
-
-        public String getJDBCUrl() {
-            return jdbcUrl;
-        }
-
-        public String getUsername() {
-            return username;
-        }
-
-        public String getPassword() {
-            return password;
-        }
-
-        public abstract void stop();
-    }
-
-    /**
-     * This class represents a file based database used for testing data clients.
-     */
-    public static class FileBasedTestDatabase extends TestDatabase {
-
-        private String dbDirectory;
-
-        public FileBasedTestDatabase(DBType dbType, String databaseScript, String dbDirectory, String dbName) {
-            this(dbType, dbDirectory, dbName);
-            SQLDBUtils.initDatabase(jdbcUrl, username, password, databaseScript);
-        }
-
-        FileBasedTestDatabase(DBType dbType, String dbDirectory, String dbName) {
-            this.dbDirectory = dbDirectory;
-            switch (dbType) {
-                case H2:
-                    SQLDBUtils.deleteFiles(new File(dbDirectory), dbName);
-                    jdbcUrl = "jdbc:h2:file:" + dbDirectory + dbName;
-                    username = "sa";
-                    break;
-                case HSQLDB:
-                    SQLDBUtils.deleteFiles(new File(dbDirectory), dbName);
-                    jdbcUrl = "jdbc:hsqldb:file:" + dbDirectory + dbName;
-                    username = "SA";
-                    break;
-                default:
-                    throw new UnsupportedOperationException(
-                            "Creating a file based database is not supported for: " + dbType);
-            }
-            password = "";
-        }
-
-        public void stop() {
-            SQLDBUtils.deleteDirectory(new File(this.dbDirectory));
-        }
-    }
-
     public static String getSQLResourceDir(String subResourceDir, String resouceFileName) {
         return Paths.get("datafiles", "sql", subResourceDir, resouceFileName).toString();
     }
 
     public static String getBalFilesDir(String subResourceDir, String resouceFileName) {
         return Paths.get("test-src", subResourceDir, resouceFileName).toString();
-    }
-
-    /**
-     * Database types used for testing data clients.
-     */
-    public enum DBType {
-        HSQLDB, H2
     }
 }

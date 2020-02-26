@@ -18,8 +18,10 @@ package org.ballerinalang.jdbc.connection;
 
 import org.ballerinalang.jdbc.utils.SQLDBUtils;
 import org.ballerinalang.model.values.BError;
+import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.sql.Constants;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
@@ -38,7 +40,8 @@ public class ConnectorInitTest {
     private CompileResult result;
     private static final String DB_NAME = "TEST_SQL_CONNECTOR_INIT";
     private static final String JDBC_URL = "jdbc:h2:file:" + SQLDBUtils.DB_DIR + DB_NAME;
-    private BValue[] args = {new BString(JDBC_URL), new BString("sa"), new BString("")};
+    private BValue[] args = {new BString(JDBC_URL), new BString(SQLDBUtils.DB_USER),
+            new BString(SQLDBUtils.DB_PASSWORD)};
 
     @BeforeClass
     public void setup() {
@@ -79,6 +82,44 @@ public class ConnectorInitTest {
         Assert.assertTrue(returnVal[0] instanceof BError);
     }
 
+    @Test
+    public void testConnectionWithDatasourceOptions() {
+        BValue[] returnVal = BRunUtil.invokeFunction(result, "testConnectionWithDatasourceOptions", args);
+        Assert.assertNull(returnVal[0]);
+    }
+
+    @Test
+    public void testConnectionWithDatasourceInvalidProperty() {
+        BValue[] returnVal = BRunUtil.invokeFunction(result, "testConnectionWithDatasourceInvalidProperty", args);
+        Assert.assertTrue(returnVal[0] instanceof BError);
+        BError error = (BError) returnVal[0];
+        Assert.assertEquals(error.getReason(), SQLDBUtils.SQL_APPLICATION_ERROR_REASON);
+        Assert.assertTrue(((BMap) ((BError) returnVal[0]).getDetails()).get(SQLDBUtils.SQL_ERROR_MESSAGE)
+                .stringValue().contains("Property invalidProperty does not exist on target class"));
+    }
+
+    @Test
+    public void testWithConnectionPool() {
+        BValue[] returnVal = BRunUtil.invoke(result, "testWithConnectionPool", args);
+        Assert.assertFalse(returnVal[0] instanceof BError);
+        Assert.assertTrue(returnVal[0] instanceof BMap);
+        BMap connPool = (BMap) returnVal[0];
+        Assert.assertEquals(connPool.get(Constants.ConnectionPool.MAX_CONNECTION_LIFE_TIME_SECONDS).stringValue()
+                , "1800");
+        Assert.assertEquals(connPool.get(Constants.ConnectionPool.MAX_OPEN_CONNECTIONS).stringValue(), "25");
+    }
+
+    @Test
+    public void testWithSharedConnPool() {
+        BValue[] returnVal = BRunUtil.invokeFunction(result, "testWithSharedConnPool", args);
+        Assert.assertNull(returnVal[0]);
+    }
+
+    @Test
+    public void testWithAllParams() {
+        BValue[] returnVal = BRunUtil.invokeFunction(result, "testWithAllParams", args);
+        Assert.assertNull(returnVal[0]);
+    }
 
     @AfterSuite
     public void cleanup() {

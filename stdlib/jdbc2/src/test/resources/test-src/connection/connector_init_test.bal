@@ -12,23 +12,9 @@
 // KIND, either express or implied. See the License for the
 // specific language governing permissions and limitations
 // under the License.
+
 import ballerina/java.jdbc;
 import ballerina/sql;
-
-//sql:PoolOptions properties = {
-//
-//};
-//
-//map<anydata> propertiesMap = {"loginTimeout": "1000"};
-//jdbc:PoolOptions properties3 = {dataSourceClassName: "org.h2.jdbcx.JdbcDataSource"};
-//
-//map<anydata> propertiesMap2 = {"loginTimeout": "1000"};
-//jdbc:PoolOptions properties4 = {dataSourceClassName: "org.h2.jdbcx.JdbcDataSource"};
-//
-//jdbc:PoolOptions properties5 = {dataSourceClassName: "org.h2.jdbcx.JdbcDataSource"};
-//
-//map<anydata> propertiesMap3 = {"loginTimeout": "1000"};
-//jdbc:PoolOptions properties6 = {dataSourceClassName: "org.h2.jdbcx.JdbcDataSource"};
 
 function testConnection1(string jdbcURL, string user, string password) returns error?{
     jdbc:Client testDB = check new (url=jdbcURL, user = user, password = password);
@@ -68,219 +54,66 @@ function testConnectionWithInvalidDriver(string jdbcURL, string user, string pas
     }
 }
 
-//function testConnectionPoolProperties1(string jdbcURL) returns @tainted json {
-//    jdbc:Client testDB = new ({
-//        url: jdbcURL,
-//        username: "SA",
-//        password: "",
-//        poolOptions: {maximumPoolSize: 1}
-//    });
-//
-//    var dt = testDB->select("SELECT  FirstName from Customers where registrationID = 1", ());
-//
-//    json j = getJsonConversionResult(dt);
-//    checkpanic testDB.stop();
-//    return j;
-//}
-//
-//function testConnectionPoolProperties2(string jdbcURL) returns @tainted json {
-//    jdbc:Client testDB = new ({
-//        url: jdbcURL,
-//        username: "SA",
-//        password: "",
-//        poolOptions: properties
-//    });
-//
-//    var dt = testDB->select("SELECT  FirstName from Customers where registrationID = 1", ());
-//
-//    json j = getJsonConversionResult(dt);
-//    checkpanic testDB.stop();
-//    return j;
-//}
-//
-//function testConnectionPoolProperties3(string jdbcURL) returns @tainted json {
-//    jdbc:Client testDB = new ({
-//        url: jdbcURL,
-//        username: "SA",
-//        password: ""
-//    });
-//
-//    var dt = testDB->select("SELECT  FirstName from Customers where registrationID = 1", ());
-//
-//    json j = getJsonConversionResult(dt);
-//    checkpanic testDB.stop();
-//    return j;
-//}
-//
-//
-//function testConnectorWithDefaultPropertiesForListedDB(string jdbcURL) returns @tainted json {
-//    jdbc:Client testDB = new ({
-//        url: jdbcURL,
-//        username: "SA",
-//        password: "",
-//        poolOptions: {}
-//    });
-//
-//    var dt = testDB->select("SELECT  FirstName from Customers where registrationID = 1", ());
-//
-//    json j = getJsonConversionResult(dt);
-//    checkpanic testDB.stop();
-//    return j;
-//}
-//
-//function testConnectorWithWorkers(string jdbcURL) returns @tainted json {
-//    jdbc:Client testDB = new ({
-//        url: jdbcURL,
-//        username: "SA",
-//        password: "",
-//        poolOptions: {}
-//    });
-//
-//    worker w1 returns json {
-//        int x = 0;
-//        json y;
-//
-//        var dt = testDB->select("SELECT  FirstName from Customers where registrationID = 1", ());
-//
-//        json j = getJsonConversionResult(dt);
-//        checkpanic testDB.stop();
-//        return j;
-//    }
-//    worker w2 {
-//        int x = 10;
-//    }
-//    return wait w1;
-//}
-//
-//function testConnectorWithDataSourceClass(string jdbcURL) returns @tainted json {
-//    jdbc:Client testDB = new ({
-//        url: jdbcURL,
-//        username: "SA",
-//        password: "",
-//        poolOptions: properties3,
-//        dbOptions: propertiesMap
-//    });
-//
-//    var dt = testDB->select("SELECT  FirstName from Customers where registrationID = 1", ());
-//
-//    json j = getJsonConversionResult(dt);
-//    checkpanic testDB.stop();
-//    return j;
-//}
-//
-//function testConnectorWithDataSourceClassAndProps(string jdbcURL) returns @tainted json {
-//    jdbc:Client testDB = new ({
-//        url: jdbcURL,
-//        username: "SA",
-//        password: "",
-//        poolOptions: properties4,
-//        dbOptions: propertiesMap2
-//    });
-//
-//    var dt = testDB->select("SELECT  FirstName from Customers where registrationID = 1", ());
-//
-//    json j = getJsonConversionResult(dt);
-//    checkpanic testDB.stop();
-//    return j;
-//}
-//
-//function testConnectorWithDataSourceClassWithoutURL(string jdbcURL) returns @tainted json {
-//    jdbc:Client testDB = new ({
-//        url: jdbcURL,
-//        username: "SA",
-//        password: "",
-//        poolOptions: properties5
-//    });
-//
-//    var dt = testDB->select("SELECT  FirstName from Customers where registrationID = 1", ());
-//
-//    json j = getJsonConversionResult(dt);
-//    checkpanic testDB.stop();
-//    return j;
-//}
-//
-//function testConnectorWithDataSourceClassURLPriority(string jdbcURL) returns @tainted json {
-//    jdbc:Client testDB = new ({
-//        url: jdbcURL,
-//        username: "SA",
-//        password: "",
-//        poolOptions: properties6,
-//        dbOptions: propertiesMap3
-//    });
-//
-//
-//    var dt = testDB->select("SELECT  FirstName from Customers where registrationID = 1", ());
-//
-//    json j = getJsonConversionResult(dt);
-//    checkpanic testDB.stop();
-//    return j;
-//}
-//
-//
-//function testPropertiesGetUsedOnlyIfDataSourceGiven(string jdbcURL) returns @tainted json {
-//    jdbc:Client testDB = new ({
-//        url: jdbcURL,
-//        username: "SA",
-//        password: "",
-//        poolOptions: {maximumPoolSize: 1},
-//        dbOptions: {"invalidProperty": 109}
-//    });
-//
-//    var dt = testDB->select("SELECT  FirstName from Customers where registrationID = 1", ());
-//
-//    json j = getJsonConversionResult(dt);
-//    checkpanic testDB.stop();
-//    return j;
-//}
-//
-//function testConnectionFailure(string jdbcURL) {
-//    jdbc:Client testDB = new ({
-//        url: jdbcURL,
-//        username: "SA",
-//        password: "",
-//        poolOptions: {maximumPoolSize: 1},
-//        dbOptions: {"IFEXISTS": true}
-//    });
-//
-//}
-//
-//function testInvalidJdbcUrl1() {
-//    jdbc:Client testDB = new ({
-//        url: "",
-//        username: "SA",
-//        password: "",
-//        poolOptions: {maximumPoolSize: 1},
-//        dbOptions: {"IFEXISTS": true}
-//    });
-//}
-//
-//function testInvalidJdbcUrl2() {
-//    jdbc:Client testDB = new ({
-//        url: "localhost:3306/testdb",
-//        username: "SA",
-//        password: "",
-//        poolOptions: {maximumPoolSize: 1},
-//        dbOptions: {"IFEXISTS": true}
-//    });
-//}
-//
-//function testInvalidJdbcUrl3() {
-//    jdbc:Client testDB = new ({
-//        url: "jdbc://dbhost.com/testdb",
-//        username: "SA",
-//        password: "",
-//        poolOptions: {maximumPoolSize: 1},
-//        dbOptions: {"IFEXISTS": true}
-//    });
-//}
-//
-//function getJsonConversionResult(table<record {}> | error tableOrError) returns json {
-//    json retVal;
-//    if (tableOrError is table<record {}>) {
-//        var jsonConversionResult = jsonutils:fromTable(tableOrError);
-//        retVal = jsonConversionResult;
-//    } else {
-//        retVal = {"Error": <string>tableOrError.detail()["message"]};
-//    }
-//    return retVal;
-//}
+function testConnectionWithDatasourceOptions(string jdbcURL, string user, string password) returns error?{
+    jdbc:Options options = {
+        datasourceName: "org.h2.jdbcx.JdbcDataSource",
+        properties: {"loginTimeout": 5000}
+     };
+    jdbc:Client|sql:Error dbClient = new (jdbcURL, user, password, options);
+    if(dbClient is sql:Error){
+        return dbClient;
+    } else {
+        return dbClient.close();
+    }
+}
+
+function testConnectionWithDatasourceInvalidProperty(string jdbcURL, string user, string password) returns error?{
+    jdbc:Options options = {
+        datasourceName: "org.h2.jdbcx.JdbcDataSource",
+        properties: {"invalidProperty": 109}
+     };
+    jdbc:Client|sql:Error dbClient = new (jdbcURL, user, password, options);
+    if(dbClient is sql:Error){
+        return dbClient;
+    } else {
+        return dbClient.close();
+    }
+}
+
+function testWithConnectionPool(string jdbcURL, string user, string password) returns error|sql:ConnectionPool {
+    sql:ConnectionPool connPool = {
+      maxOpenConnections: 25
+    };
+    jdbc:Client dbClient = check new (url=jdbcURL, user=user, password=password,connPool=connPool);
+    error? err = dbClient.close();
+    if(err is error){
+        return err;
+    } else {
+       return connPool;
+    }
+}
+
+function testWithSharedConnPool(string jdbcURL, string user, string password) returns error? {
+    sql:ConnectionPool connPool = {
+      maxOpenConnections: 25
+    };
+    jdbc:Client dbClient1 = check new (url=jdbcURL, user=user, password=password,connPool=connPool);
+    jdbc:Client dbClient2 = check new (url=jdbcURL, user=user, password=password,connPool=connPool);
+    jdbc:Client dbClient3 = check new (url=jdbcURL, user=user, password=password,connPool=connPool);
+
+    check dbClient1.close();
+    check dbClient2.close();
+    check dbClient3.close();
+}
+
+function testWithAllParams(string jdbcURL, string user, string password) returns error?{
+    jdbc:Options options = {
+        datasourceName: "org.h2.jdbcx.JdbcDataSource",
+        properties: {"loginTimeout": 5000}
+     };
+     sql:ConnectionPool connPool = {
+           maxOpenConnections: 25
+     };
+    jdbc:Client dbClient = check new (jdbcURL, user, password, options, connPool);
+    check dbClient.close();
+}
