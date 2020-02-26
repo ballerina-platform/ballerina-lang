@@ -1,7 +1,7 @@
 <idea-plugin>
     <id>io.ballerina</id>
     <name>Ballerina</name>
-    <version>1.1.3</version>
+    <version>1.1.4</version>
     <vendor email="ballerinalang@wso2.com" url="https://ballerina.io/">BallerinaLang</vendor>
 
     <description><![CDATA[
@@ -12,7 +12,8 @@
     ]]></description>
 
     <change-notes><![CDATA[
-        <li> Added minor fix for ballerina live templates. </li>
+        <li> Added support to view language server trace logs. </li>
+        <li> Added minor improvements to plugin settings and language server debug log view. </li>
     ]]>
     </change-notes>
     <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/build_number_ranges.html for description -->
