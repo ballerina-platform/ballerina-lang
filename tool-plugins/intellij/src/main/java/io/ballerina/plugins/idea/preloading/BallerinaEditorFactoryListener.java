@@ -42,6 +42,9 @@ public class BallerinaEditorFactoryListener implements EditorFactoryListener {
             return false;
         }
         String fileUrl = file.getUrl();
+        if (fileUrl.isEmpty() || fileUrl.startsWith("jar:")) {
+            return false;
+        }
 
         return file.getExtension().equals(BAL_FILE_EXT);
     }
