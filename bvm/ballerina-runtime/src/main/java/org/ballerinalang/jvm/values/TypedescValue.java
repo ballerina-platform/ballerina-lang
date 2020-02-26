@@ -19,7 +19,6 @@ package org.ballerinalang.jvm.values;
 
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypedescType;
-import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.jvm.values.api.BTypedesc;
 
