@@ -74,7 +74,7 @@ public class ItemResolverConstants {
 
     // Symbol Types Constants
     public static final String ANNOTATION_TYPE = "Annotation";
-    public static final String PACKAGE_TYPE = "Package";
+    public static final String MODULE_TYPE = "Module";
     public static final String CONSTANT_TYPE = "Constant";
     public static final String FUNCTION_TYPE = "Function";
     public static final String KEYWORD_TYPE = "Keyword";

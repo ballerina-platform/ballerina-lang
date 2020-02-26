@@ -283,6 +283,11 @@ public class BallerinaEditorEventManager extends EditorEventManager {
         // Fixes IDEA internal assertion failure in windows.
         lookupString = lookupString.replace(DocumentUtils.WIN_SEPARATOR, DocumentUtils.LINUX_SEPARATOR);
 
+        // Line breaks and indentations are properly handled by the live templates and therefore we have to manually
+        // process the indentations only for non-snippet kind completion items.
+        if (!shouldRunInSnippetMode(item, lookupString) && lookupString.contains(DocumentUtils.LINUX_SEPARATOR)) {
+            lookupString = insertIndents(lookupString, position);
+        }
         if (shouldRunInSnippetMode(item, lookupString)) {
             lookupElementBuilder = LookupElementBuilder.create(convertPlaceHolders(lookupString));
         } else {
@@ -372,8 +377,8 @@ public class BallerinaEditorEventManager extends EditorEventManager {
         final String[] finalInsertText = {insertText};
         variables.forEach(var -> finalInsertText[0] = finalInsertText[0].replace(var.lspSnippetText, "$"));
 
-        String[] splittedInsertText = finalInsertText[0].split("\\$");
-        finalInsertText[0] = String.join("", splittedInsertText);
+        String[] splitInsertText = finalInsertText[0].split("\\$");
+        finalInsertText[0] = String.join("", splitInsertText);
 
         // Creates and constructs a intellij live template using the LSP snippet text.
         TemplateImpl template = (TemplateImpl) TemplateManager.getInstance(getProject())
@@ -381,12 +386,16 @@ public class BallerinaEditorEventManager extends EditorEventManager {
 
         final int[] varIndex = {0};
         variables.forEach(var -> {
-            template.addTextSegment(splittedInsertText[varIndex[0]]);
+            template.addTextSegment(splitInsertText[varIndex[0]]);
             template.addVariable(varIndex[0] + "_" + var.variableValue, new TextExpression(var.variableValue),
                     new TextExpression(var.variableValue), true, false);
             varIndex[0]++;
         });
-        template.addTextSegment(splittedInsertText[splittedInsertText.length - 1]);
+        // If the snippet text ends with a placeholder, there will be no string segment left to append after the last
+        // variable.
+        if (splitInsertText.length != variables.size()) {
+            template.addTextSegment(splitInsertText[splitInsertText.length - 1]);
+        }
         template.setInline(true);
         EditorModificationUtil.moveCaretRelatively(editor, -template.getTemplateText().length());
 

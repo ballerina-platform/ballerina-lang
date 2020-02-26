@@ -57,6 +57,36 @@ public class QueryActionTest {
         Assert.assertEquals(person3.get("lastName").stringValue(), "David");
     }
 
+    @Test(description = "Test simple query action - record variable definition")
+    public void testSimpleQueryActionWithRecordVariable() {
+        BValue[] returnValues = BRunUtil.invoke(result, "testSimpleQueryActionWithRecordVariable");
+        Assert.assertNotNull(returnValues);
+        Assert.assertEquals(returnValues.length, 3, "Expected events are not received");
+
+        BMap<String, BValue> person1 = (BMap<String, BValue>) returnValues[0];
+        BMap<String, BValue> person2 = (BMap<String, BValue>) returnValues[1];
+        BMap<String, BValue> person3 = (BMap<String, BValue>) returnValues[2];
+
+        Assert.assertEquals(person1.get("firstName").stringValue(), "Alex");
+        Assert.assertEquals(person2.get("lastName").stringValue(), "Fonseka");
+        Assert.assertEquals(person3.get("lastName").stringValue(), "David");
+    }
+
+    @Test(description = "Test simple query action - record variable definition")
+    public void testSimpleSelectQueryWithRecordVariableV2() {
+        BValue[] returnValues = BRunUtil.invoke(result, "testSimpleSelectQueryWithRecordVariableV2");
+        Assert.assertNotNull(returnValues);
+        Assert.assertEquals(returnValues.length, 3, "Expected events are not received");
+
+        BMap<String, BValue> person1 = (BMap<String, BValue>) returnValues[0];
+        BMap<String, BValue> person2 = (BMap<String, BValue>) returnValues[1];
+        BMap<String, BValue> person3 = (BMap<String, BValue>) returnValues[2];
+
+        Assert.assertEquals(person1.get("firstName").stringValue(), "Alex");
+        Assert.assertEquals(person2.get("lastName").stringValue(), "Fonseka");
+        Assert.assertEquals(person3.get("lastName").stringValue(), "David");
+    }
+
     @Test(description = "Test simple query action statement v2")
     public void testSimpleQueryAction2() {
         BValue[] returnValues = BRunUtil.invoke(result, "testSimpleQueryAction2");

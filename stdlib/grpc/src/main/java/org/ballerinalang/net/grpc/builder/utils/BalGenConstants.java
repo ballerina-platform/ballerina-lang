@@ -66,8 +66,10 @@ public class BalGenConstants {
     public static final String DEFAULT_SKELETON_DIR = DEFAULT_TEMPLATE_DIR + RESOURCE_SEPARATOR + "skeleton";
     
     public static final String DEFAULT_SAMPLE_DIR = DEFAULT_TEMPLATE_DIR + RESOURCE_SEPARATOR + "skeleton";
-    
+
     public static final String SKELETON_TEMPLATE_NAME = "stub_file";
+
+    public static final String SERVICE_SKELETON_TEMPLATE_NAME = "service_stub_file";
 
     public static final String GRPC_CLIENT = "client";
 
