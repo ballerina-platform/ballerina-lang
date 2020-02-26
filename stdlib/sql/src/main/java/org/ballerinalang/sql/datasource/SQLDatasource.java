@@ -68,7 +68,7 @@ public class SQLDatasource {
     }
 
     /**
-     * Retrieve the {@link SQLDatasource}} object corresponding to the provided JDBC URL in
+     * Retrieve the {@link SQLDatasource}} object corresponding to the provided  URL in
      * {@link SQLDatasource.SQLDatasourceParams}.
      * Creates a datasource if it doesn't exist.
      *

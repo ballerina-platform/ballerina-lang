@@ -45,7 +45,7 @@ public class Utils {
         return null;
     }
 
-    private static long getTimeout(Object secondsDecimal) {
+    public static long getTimeout(Object secondsDecimal) {
         if (secondsDecimal instanceof DecimalValue) {
             DecimalValue timeoutSec = (DecimalValue) secondsDecimal;
             if (timeoutSec.floatValue() > 0) {

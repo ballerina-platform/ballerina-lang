@@ -20,12 +20,15 @@ package org.ballerinalang.mysql.init;
 import ch.vorburger.exec.ManagedProcessException;
 import ch.vorburger.mariadb4j.DB;
 import ch.vorburger.mariadb4j.DBConfigurationBuilder;
+import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.mysql.Utils;
 import org.ballerinalang.mysql.utils.SQLDBUtils;
+import org.ballerinalang.sql.Constants;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
@@ -91,6 +94,17 @@ public class ConnectionInitTest {
     public void testWithOptions() {
         BValue[] returnVal = BRunUtil.invoke(result, "testWithOptions");
         Assert.assertNull(returnVal[0]);
+    }
+
+    @Test
+    public void testWithConnectionPool() {
+        BValue[] returnVal = BRunUtil.invoke(result, "testWithConnectionPool");
+        Assert.assertFalse(returnVal[0] instanceof BError);
+        Assert.assertTrue(returnVal[0] instanceof BMap);
+        BMap connPool = (BMap) returnVal[0];
+        Assert.assertEquals(connPool.get(Constants.ConnectionPool.MAX_CONNECTION_LIFE_TIME_SECONDS).stringValue()
+                , "1800");
+        Assert.assertEquals(connPool.get(Constants.ConnectionPool.MAX_OPEN_CONNECTIONS).stringValue(), "25");
     }
 
     @AfterSuite
