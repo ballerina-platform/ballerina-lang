@@ -17,11 +17,12 @@
 @typeParam
 type PureType3 anydata | error;
 
-# Takes in a stream and returns the value gen function of that stream.
+# Takes in a stream and returns the iterator object of that stream.
 #
 # + strm - The stream
-# + return - A function pointer to the value gen function.
-public function getGenFunc(stream<PureType3> strm) returns (function() returns record {| PureType3 value; |}?) = external;
+# + return - An abstract object which is iterable
+public function getIteratorObj(stream<PureType3> strm) returns abstract object { public function next() returns
+    record {|PureType3 value;|}? = external;
 
 # Represent the iterator type returned when `iterator` method is invoked.
 type StreamIterator object {

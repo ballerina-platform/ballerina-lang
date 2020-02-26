@@ -19,7 +19,7 @@
 package org.ballerinalang.langlib.stream;
 
 import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.values.FPValue;
+import org.ballerinalang.jvm.values.AbstractObjectValue;
 import org.ballerinalang.jvm.values.StreamValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
@@ -32,15 +32,15 @@ import org.ballerinalang.natives.annotations.ReturnType;
  * @since 1.2.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.stream", functionName = "getGenFunc",
+        orgName = "ballerina", packageName = "lang.stream", functionName = "getIteratorObj",
         args = {@Argument(name = "strm", type = TypeKind.STREAM)},
-        returnType = {@ReturnType(type = TypeKind.FUNCTION)},
+        returnType = {@ReturnType(type = TypeKind.OBJECT)},
         isPublic = true
 )
-public class GetGenFunc {
+public class GetIteratorObj {
 
-    public static FPValue<Object, Object> getGenFunc(Strand strand, StreamValue strm) {
-        return strm.getGenFunc();
+    public static AbstractObjectValue getIteratorObj(Strand strand, StreamValue strm) {
+        return strm.getIteratorObj();
     }
 
 }

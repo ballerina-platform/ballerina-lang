@@ -39,9 +39,10 @@ public function createClone(PureType v) returns PureType = external;
 # Takes in a lambda function and returns a new stream out of it.
 #
 # + td - A type description.
-# + func - A lambda function.
-# + return - New stream containing results of `func` invocation.
-public function construct(typedesc<PureType> td, function() returns record {| PureType value; |}? func) returns stream<PureType> = external;
+# + iteratorObj - An iterator object.
+# + return - New stream containing results of `iteratorObj` object's next function invocations.
+public function construct(typedesc<PureType> td, abstract object { public function next() returns
+        record {|PureType value;|}? iteratorObj) returns stream<PureType> = external;
 
 # Takes a typedesc of an array, stream and returns the typedesc of the element, constraint type.
 #

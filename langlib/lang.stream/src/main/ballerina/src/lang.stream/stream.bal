@@ -58,8 +58,8 @@ public function filter(stream<PureType1> strm, function(PureType1 val) returns b
 # + return - If the stream has elements, return the element wrapped in a record with single field called `value`,
 #            otherwise returns ()
 public function next(stream<PureType1> strm) returns record {| PureType1 value; |}? {
-    var fp = getGenFunc(strm);
-    return internal:createClone(fp());
+    var iteratorObj = getIteratorObj(strm);
+    return internal:createClone(iteratorObj.next());
 }
 
 # Applies a function to each member of a stream and returns a new stream of the results.
@@ -134,6 +134,5 @@ public function iterator(stream<PureType1> strm) returns abstract object {
         PureType1 value;
     |}?;
 } {
-    StreamIterator streamIterator = new(strm);
-    return streamIterator;
+    return getIteratorObj(strm);;
 }
