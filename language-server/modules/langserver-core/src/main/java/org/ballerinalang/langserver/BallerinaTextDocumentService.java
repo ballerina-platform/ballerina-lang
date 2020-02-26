@@ -25,6 +25,7 @@ import org.ballerinalang.langserver.codelenses.LSCodeLensesProviderHolder;
 import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.LSContext;
+import org.ballerinalang.langserver.commons.capability.LSClientCapabilities;
 import org.ballerinalang.langserver.commons.codeaction.CodeActionKeys;
 import org.ballerinalang.langserver.commons.codeaction.CodeActionNodeType;
 import org.ballerinalang.langserver.commons.workspace.LSDocumentIdentifier;
@@ -81,7 +82,6 @@ import org.eclipse.lsp4j.RenameParams;
 import org.eclipse.lsp4j.SignatureHelp;
 import org.eclipse.lsp4j.SignatureInformation;
 import org.eclipse.lsp4j.SymbolInformation;
-import org.eclipse.lsp4j.TextDocumentClientCapabilities;
 import org.eclipse.lsp4j.TextDocumentContentChangeEvent;
 import org.eclipse.lsp4j.TextDocumentIdentifier;
 import org.eclipse.lsp4j.TextDocumentPositionParams;
@@ -126,7 +126,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
     private final BallerinaLanguageServer languageServer;
     private final WorkspaceDocumentManager documentManager;
     private final DiagnosticsHelper diagnosticsHelper;
-    private TextDocumentClientCapabilities clientCapabilities;
+    private LSClientCapabilities clientCapabilities;
     private final boolean enableStdlibDefinition;
 
     private final Debouncer diagPushDebouncer;
@@ -140,11 +140,11 @@ class BallerinaTextDocumentService implements TextDocumentService {
     }
 
     /**
-     * Set the Text Document Capabilities.
+     * Set the client capabilities.
      *
      * @param clientCapabilities Client's Text Document Capabilities
      */
-    void setClientCapabilities(TextDocumentClientCapabilities clientCapabilities) {
+    void setClientCapabilities(LSClientCapabilities clientCapabilities) {
         this.clientCapabilities = clientCapabilities;
     }
 
@@ -166,7 +166,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
             LSContext context = new DocumentServiceOperationContext
                     .ServiceOperationContextBuilder(LSContextOperation.TXT_COMPLETION)
                     .withCommonParams(position, fileUri, documentManager)
-                    .withCompletionParams(this.clientCapabilities.getCompletion())
+                    .withCompletionParams(clientCapabilities.getTextDocCapabilities().getCompletion())
                     .build();
 
             try {
@@ -241,7 +241,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
             LSContext context = new DocumentServiceOperationContext
                     .ServiceOperationContextBuilder(LSContextOperation.TXT_SIGNATURE)
                     .withCommonParams(position, uri, documentManager)
-                    .withSignatureParams(clientCapabilities.getSignatureHelp())
+                    .withSignatureParams(clientCapabilities.getTextDocCapabilities().getSignatureHelp())
                     .build();
             try {
                 // Prune the source and compile
@@ -451,7 +451,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
             List<CodeLens> lenses;
             if (!LSCodeLensesProviderHolder.getInstance().isEnabled()) {
                 // Disabled ballerina codeLens feature
-                clientCapabilities.setCodeLens(null);
+                clientCapabilities.getTextDocCapabilities().setCodeLens(null);
                 // Skip code lenses if codeLens disabled
                 return new ArrayList<>();
             }
@@ -649,7 +649,9 @@ class BallerinaTextDocumentService implements TextDocumentService {
                 String fileUri = context.get(DocumentServiceKeys.FILE_URI_KEY);
                 LSDocumentIdentifier lsDocument = new LSDocumentIdentifierImpl(fileUri);
                 diagnosticsHelper.compileAndSendDiagnostics(client, context, lsDocument, documentManager);
-                SemanticHighlightProvider.sendHighlights(client, context, documentManager);
+                if (clientCapabilities.getExperimentalCapabilities().isSemanticSyntaxEnabled()) {
+                    SemanticHighlightProvider.sendHighlights(client, context, documentManager);
+                }
                 // Populate the Standard Library Cache
                 CommonUtil.updateStdLibCache(context);
             } catch (CompilationFailedException e) {
@@ -704,7 +706,9 @@ class BallerinaTextDocumentService implements TextDocumentService {
 
                     LSDocumentIdentifier lsDocument = new LSDocumentIdentifierImpl(fileURI);
                     diagnosticsHelper.compileAndSendDiagnostics(client, context, lsDocument, documentManager);
-                    SemanticHighlightProvider.sendHighlights(client, context, documentManager);
+                    if (clientCapabilities.getExperimentalCapabilities().isSemanticSyntaxEnabled()) {
+                        SemanticHighlightProvider.sendHighlights(client, context, documentManager);
+                    }
                     // Clear current cache upon successful compilation
                     // If the compiler fails, still we'll have the cached entry(marked as outdated)
                     LSCompilerCache.clear(context, lsDocument.getProjectRoot());
