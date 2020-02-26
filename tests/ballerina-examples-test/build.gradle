@@ -43,74 +43,8 @@ task copyDistribution() {
 }
 def distPath = "$buildDir/extractedDistribution"
 def bbeList = []
-def canbuild = [
-        'secured-service-with-basic-auth',
-        'secured-service-with-jwt',
-        'secured-service-with-oauth2',
-        'udp-socket-client',
-        'tcp-socket-listener-client',
-        'rabbitmq-consumer-with-qos-settings',
-        'rabbitmq-consumer-with-data-binding',
-        'rabbitmq-consumer-with-client-acknowledgement',
-        'rabbitmq-consumer',
-        'rabbitmq-producer',
-        'nats-streaming-start-position',
-        'nats-streaming-queue-group',
-        'nats-streaming-durable-subscriptions',
-        'nats-streaming-consumer-with-data-binding',
-        'nats-streaming-client',
-        'client-generation',
-        'tracing',
-        'directory-listener',
-        'query-path-matrix-param',
-        'restrict-by-media-type',
-        'http-trace-logs',
-        'different-payload-types',
-        'http-streaming',
-        'websocket-client',
-        'websocket-retry',
-        'passthrough',
-        'websub-internal-hub-sample',
-        'websub-service-integration-sample',
-        'task-service-appointment',
-        'task-service-timer',
-        'character-io',
-        'file',
-        'byte-io',
-        'csv-io',
-        'log-api',
-        'base-path-and-path',
-        'http-redirects',
-        'http-caching-client',
-        'response-with-multiparts',
-        'http-data-binding',
-        'http-1.1-to-2.0-protocol-switch',
-        'websocket-basic-sample',
-        'http-to-websocket-upgrade',
-        'websocket-proxy-server'
-]
-def Testable = [
-        'hello-world-service',
-        'http-100-continue',
-        'http-circuit-breaker',
-        'http-cors',
-        'http-disable-chunking',
-        'http-failover',
-        'http-filters',
-        'http-load-balancer',
-        'http-timeout',
-        'http-retry',
-        'https-listener',
-        'ballerina-to-openapi',
-        'content-based-routing',
-        'basic-https-listener-client',
-        'mutual-ssl',
-        'request-with-multiparts',
-        'http-access-logs',
-        'http-compression',
-        'header-based-routing'
-]
-def ignoreList = [
+
+def IgnoreList = [
         'proto-to-ballerina',
         'swagger-to-ballerina',
         'taint-checking',
@@ -160,34 +94,125 @@ def ignoreList = [
         'testerina-before-and-after-test',
         'testerina-assertions',
         'taint-checking',
-        'websocket-chat-application'
-]
-
-def withmockcanbuild = [
+        'websocket-chat-application',
+        'secured-service-with-basic-auth',
+        'secured-service-with-jwt',
+        'http-caching-client',
+        'response-with-multiparts',
+        'http-data-binding',
+        'http-1.1-to-2.0-protocol-switch',
+        'websocket-basic-sample',
+        'http-to-websocket-upgrade',
+        'websocket-proxy-server',
+        'http-redirects',
+        'tracing',
         'secured-client-with-basic-auth',
         'secured-client-with-jwt-auth',
         'http-2.0-server-push',
-        'task-scheduler-appointment',
-        'task-scheduler-timer',
         'worker-interaction',
         'workers',
         'hello-world-parallel',
         'the-main-function',
+        'task-scheduler-appointment',
+        'task-scheduler-timer',
         'checkpanic',
         'type-cast',
         'async',
         'panic',
         'time',
+        'log-api',
         'crypto',
         'http-client-endpoint',
-        'type-conversion'
+        'type-conversion',
+        'record-io'
+]
+
+def MockList = [
+        'filepath',
+        'strings',
+        'math-functions',
+        'cache',
+        'fork-variable-access',
+        'fork',
+        'user-defined-error',
+        'trap',
+        'check',
+        'error-handling',
+        'error-destructure-binding-pattern',
+        'record-destructure-binding-pattern',
+        'tuple-destructure-binding-pattern',
+        'error-typed-binding-pattern',
+        'record-typed-binding-pattern',
+        'tuple-typed-binding-pattern',
+        'xml-access',
+        'xml-namespaces',
+        'xml-attributes',
+        'xml-literal',
+        'xml',
+        'json-to-xml-conversion',
+        'json-record-map-conversion',
+        'json-access',
+        'json-arrays',
+        'json-objects',
+        'json',
+        'immutable-values',
+        'clone',
+        'optional-field-access',
+        'length',
+        'equality',
+        'compound-assignment-operators',
+        'object-type-reference',
+        'anonymous-objects',
+        'abstract-objects',
+        'object-assignability',
+        'object-methods',
+        'objects',
+        'record-type-reference',
+        'record-optional-fields',
+        'anonymous-records',
+        'records',
+        'string-template',
+        'range-expressions',
+        'constants',
+        'any-type',
+        'anydata-type',
+        'optional-type',
+        'byte-type',
+        'union-type',
+        'table',
+        'maps',
+        'tuple-type',
+        'arrays',
+        'values',
+        'elvis-operator',
+        'type-guard',
+        'type-test-expression',
+        'error-match-statement',
+        'record-match-statement',
+        'tuple-match-statement',
+        'match',
+        'foreach',
+        'while',
+        'if-else',
+        'functional-iteration',
+        'closures',
+        'anonymous-functions',
+        'function-pointers',
+        'quoted-identifiers',
+        'functions-with-rest-parameter',
+        'functions-with-defaultable-parameters',
+        'functions-with-required-parameters',
+        'functions',
+        'var',
+        'variables',
+        'modules',
+        'hello-world-client',
+        'hello-world'
 ]
 
 
 task createProject {
-
     dependsOn copyDistribution
-
     doFirst {
         exec {
             //Initialize Ballerina project
@@ -223,22 +248,12 @@ task createProject {
     }
 }
 
-
 task TestWithTool {
-
     doFirst {
-//         Remove excludes
-        def listof = ignoreList + withmockcanbuild + Testable + canbuild
-
-        listof.each { String listofitem ->
-            bbeList.remove("$listofitem")
-        }
-
-        bbeList.each { String bbe ->
-
+        MockList.each { String bbe ->
+            println bbe
             bbe = "${bbe}_test"
             def outputarry = []
-
             if (Os.isFamily(Os.FAMILY_WINDOWS)) {
                 //TODO: Need to verify with windows
                 exec {
@@ -251,7 +266,6 @@ task TestWithTool {
                     commandLine "${distPath}/bin/./ballerina", 'build', '--skip-tests', '--experimental', bbe
                 }
             }
-
             new ByteArrayOutputStream().withStream { os ->
                 if (Os.isFamily(Os.FAMILY_WINDOWS)) {
                     //TODO: Need to verify with windows
@@ -262,7 +276,6 @@ task TestWithTool {
                     }
                 } else {
                     exec {
-                        println bbe
                         workingDir "${buildDir}/TestProject/target/bin"
                         commandLine "${distPath}/bin/./ballerina", 'run', "${bbe}.jar"
                         standardOutput = os
@@ -272,11 +285,9 @@ task TestWithTool {
                 println outputarry[0]
             }
             def lines = "${outputarry[0]}".split('\n')
-
             def variable = bbe - "_test"
             variable = variable.replace('-', '_')
             File file = file("${buildDir}/TestProject/src/${bbe}/${variable}.out")
-
             def fileout = []
             file.readLines().each {
                 def str2 = it.toString()
@@ -308,10 +319,14 @@ task TestWithTool {
     }
 }
 
-task TestWithoutTool {
 
+task TestWithoutTool {
     doLast {
-        Testable.each { String bbe ->
+        def ListOfItem = IgnoreList + MockList
+        ListOfItem.each { String elements ->
+            bbeList.remove("$elements")
+        }
+        bbeList.each { String bbe ->
             bbe = "${bbe}_test"
             if (Os.isFamily(Os.FAMILY_WINDOWS)) {
                 //TODO: Need to verify with windows
@@ -323,27 +338,6 @@ task TestWithoutTool {
                 exec {
                     workingDir "${buildDir}/TestProject"
                     commandLine "${buildDir}/extractedDistribution/bin/./ballerina", 'build', '--experimental', "${bbe}"
-                }
-            }
-        }
-    }
-}
-
-task BuildModules {
-    doFirst {
-        def listof = withmockcanbuild + canbuild
-        listof.each { String bbe ->
-            bbe = "${bbe}_test"
-            if (Os.isFamily(Os.FAMILY_WINDOWS)) {
-                //TODO: Need to verify with windows
-                exec {
-                    workingDir "${buildDir}/TestProject"
-                    commandLine 'cmd', '/c', "${distPath}/bin/ballerina.bat", 'build', '--skip-tests', '--experimental', "${bbe}"
-                }
-            } else {
-                exec {
-                    workingDir "${buildDir}/TestProject"
-                    commandLine "${buildDir}/extractedDistribution/bin/./ballerina", 'build', '--skip-tests', '--experimental', "${bbe}"
                 }
             }
         }
@@ -372,4 +366,3 @@ build {
 
 test.finalizedBy TestWithoutTool
 test.finalizedBy TestWithTool
-test.finalizedBy BuildModules
