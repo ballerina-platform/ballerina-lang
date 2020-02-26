@@ -996,7 +996,6 @@ public class TypeChecker {
      * if fails then falls back to checking the value.
      * 
      * @param sourceValue Value to check
-     * @param sourceType Type of the value
      * @param targetType Target type
      * @param unresolvedValues Values that are unresolved so far
      * @param allowNumericConversion Flag indicating whether to perform numeric conversions
@@ -1735,7 +1734,7 @@ public class TypeChecker {
             if (Flags.isFlagOn(field.flags, Flags.OPTIONAL)) {
                 continue;
             }
-            if ((!Flags.isFlagOn(field.flags, Flags.OPTIONAL) && !Flags.isFlagOn(field.flags, Flags.REQUIRED))) {
+            if (!Flags.isFlagOn(field.flags, Flags.REQUIRED)) {
                 continue;
             }
             return false;

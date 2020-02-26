@@ -58,3 +58,15 @@ function testStringIndexAccessException() {
     string hello = "hello👋";
     string val = hello[6];
 }
+
+function anyToStringCasting() returns int {
+    any a = "hello👋";
+    string k = <string> a;
+    return k.length();
+}
+
+function anydataToStringCast() returns int {
+    anydata a = "hello👋";
+    string k = <string> a;
+    return k.length();
+}

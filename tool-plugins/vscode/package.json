@@ -81,6 +81,11 @@
                     "default": false,
                     "description": "If set to true debug msgs will be printed to Ballerina output channel"
                 },
+                "ballerina.definition.enableStdlib": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "If set to false definitions for the standard library content will be disabled"
+                },
                 "ballerina.traceLog": {
                     "type": "boolean",
                     "default": false,

@@ -21,7 +21,7 @@ import * as path from 'path';
 import { debug } from '../utils/logger';
 import { ServerOptions, ExecutableOptions } from 'vscode-languageclient';
 
-export function getServerOptions(ballerinaCmd: string, experimental: boolean, debugLogsEnabled: boolean, traceLogsEnabled: boolean) : ServerOptions {
+export function getServerOptions(ballerinaCmd: string, experimental: boolean, debugLogsEnabled: boolean, traceLogsEnabled: boolean, enableStdlibDefinition: boolean) : ServerOptions {
     debug(`Using Ballerina CLI command '${ballerinaCmd}' for Language server.`);
     let cmd = ballerinaCmd;
     let args = ["start-language-server"];
@@ -58,6 +58,9 @@ export function getServerOptions(ballerinaCmd: string, experimental: boolean, de
     }
     if (experimental) {
         args.push('--experimental');
+    }
+    if (enableStdlibDefinition) {
+        args.push('--stdlib-definition');
     }
 
     return {
