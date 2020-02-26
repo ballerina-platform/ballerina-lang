@@ -250,7 +250,8 @@ public class SQLDatasource {
                 }
             }
             if (sqlDatasourceParams.options != null) {
-                sqlDatasourceParams.options.entrySet().forEach(entry -> {
+                MapValue<String, Object> optionMap = (MapValue<String, Object>) sqlDatasourceParams.options;
+                optionMap.entrySet().forEach(entry -> {
                     if (SQLDatasourceUtils.isSupportedDbOptionType(entry.getValue())) {
                         config.addDataSourceProperty(entry.getKey(), entry.getValue());
                     } else {
@@ -286,13 +287,13 @@ public class SQLDatasource {
         private String user;
         private String password;
         private String datasourceName;
-        private MapValue<String, Object> connectionPool;
-        private MapValue<String, Object> options;
+        private MapValue connectionPool;
+        private MapValue options;
 
         public SQLDatasourceParams() {
         }
 
-        public SQLDatasourceParams setConnectionPool(MapValue<String, Object> connectionPool) {
+        public SQLDatasourceParams setConnectionPool(MapValue connectionPool) {
             this.connectionPool = connectionPool;
             return this;
         }
@@ -317,7 +318,7 @@ public class SQLDatasource {
             return this;
         }
 
-        public SQLDatasourceParams setOptions(MapValue<String, Object> options) {
+        public SQLDatasourceParams setOptions(MapValue options) {
             this.options = options;
             return this;
         }

@@ -38,17 +38,14 @@ public class NativeImpl {
         }
         String user = clientConfig.getStringValue(Constants.ClientConfiguration.USER);
         String password = clientConfig.getStringValue(Constants.ClientConfiguration.PASSWORD);
-        MapValue<String, Object> options = (MapValue<String, Object>) clientConfig
-                .getMapValue(Constants.ClientConfiguration.OPTIONS);
-        MapValue<String, Object> properties = null;
+        MapValue options = clientConfig.getMapValue(Constants.ClientConfiguration.OPTIONS);
+        MapValue properties = null;
         String datasourceName = null;
         if (options != null) {
-            properties = (MapValue<String, Object>) options.
-                    getMapValue(Constants.ClientConfiguration.PROPERTIES);
+            properties = options.getMapValue(Constants.ClientConfiguration.PROPERTIES);
             datasourceName = options.getStringValue(Constants.ClientConfiguration.DATASOURCE_NAME);
         }
-        MapValue<String, Object> connectionPool = (MapValue<String, Object>) clientConfig
-                .getMapValue(Constants.ClientConfiguration.CONNECTION_POOL_OPTIONS);
+        MapValue connectionPool = clientConfig.getMapValue(Constants.ClientConfiguration.CONNECTION_POOL_OPTIONS);
         if (connectionPool == null) {
             connectionPool = globalPool;
         }

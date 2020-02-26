@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.mysql;
 
+import org.ballerinalang.jvm.values.DecimalValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
 
@@ -25,20 +26,36 @@ import org.ballerinalang.jvm.values.MapValueImpl;
  */
 public class Utils {
 
-    static MapValue<String, Object> generateOptionsMap(MapValue<String, Object> mysqlOptions) {
+    static MapValue generateOptionsMap(MapValue mysqlOptions) {
         if (mysqlOptions != null) {
             MapValue<String, Object> options = new MapValueImpl<>();
-            addSSLOptions((MapValue<String, Object>) mysqlOptions.getMapValue(Constants.Options.SSL), options);
-            options.put(Constants.DatabaseProps.CONNECT_TIMEOUT,
-                    options.getIntValue(Constants.Options.CONNECT_TIMEOUT_SECONDS).intValue() * 1000);
-            options.put(Constants.DatabaseProps.SOCKET_TIMEOUT,
-                    options.getIntValue(Constants.Options.SOCKET_TIMEOUT_SECONDS).intValue() * 1000);
+            addSSLOptions(mysqlOptions.getMapValue(Constants.Options.SSL), options);
+
+            long connectTimeout = getTimeout(mysqlOptions.get(Constants.Options.CONNECT_TIMEOUT_SECONDS));
+            if (connectTimeout > 0) {
+                options.put(Constants.DatabaseProps.CONNECT_TIMEOUT, connectTimeout);
+            }
+
+            long socketTimeout = getTimeout(mysqlOptions.get(Constants.Options.CONNECT_TIMEOUT_SECONDS));
+            if (socketTimeout > 0) {
+                options.put(Constants.DatabaseProps.SOCKET_TIMEOUT, socketTimeout);
+            }
             return options;
         }
         return null;
     }
 
-    private static void addSSLOptions(MapValue<String, Object> sslConfig, MapValue<String, Object> options) {
+    private static long getTimeout(Object secondsDecimal) {
+        if (secondsDecimal instanceof DecimalValue) {
+            DecimalValue timeoutSec = (DecimalValue) secondsDecimal;
+            if (timeoutSec.floatValue() > 0) {
+                return Double.valueOf(timeoutSec.floatValue() * 1000).longValue();
+            }
+        }
+        return -1;
+    }
+
+    private static void addSSLOptions(MapValue sslConfig, MapValue<String, Object> options) {
         if (sslConfig == null) {
             options.put(Constants.DatabaseProps.SSL_MODE, Constants.DatabaseProps.SSL_MODE_DISABLED);
         } else {
@@ -48,8 +65,7 @@ public class Utils {
             }
             options.put(Constants.DatabaseProps.SSL_MODE, mode);
 
-            MapValue<String, Object> clientCertKeystore = (MapValue<String, Object>)
-                    sslConfig.getMapValue(Constants.SSLConfig.CLIENT_CERT_KEYSTORE);
+            MapValue clientCertKeystore = sslConfig.getMapValue(Constants.SSLConfig.CLIENT_CERT_KEYSTORE);
             if (clientCertKeystore != null) {
                 options.put(Constants.DatabaseProps.CLIENT_KEYSTORE_URL, clientCertKeystore
                         .getStringValue(org.ballerinalang.stdlib.crypto.Constants.KEY_STORE_RECORD_PATH_FIELD));
@@ -58,8 +74,7 @@ public class Utils {
                 options.put(Constants.DatabaseProps.CLIENT_KEYSTORE_TYPE, Constants.DatabaseProps.KEYSTORE_TYPE_PKCS12);
             }
 
-            MapValue<String, Object> trustCertKeystore = (MapValue<String, Object>)
-                    sslConfig.getMapValue(Constants.SSLConfig.TRUST_CERT_KEYSTORE);
+            MapValue trustCertKeystore = sslConfig.getMapValue(Constants.SSLConfig.TRUST_CERT_KEYSTORE);
             if (trustCertKeystore != null) {
                 options.put(Constants.DatabaseProps.TRUST_KEYSTORE_URL, trustCertKeystore
                         .getStringValue(org.ballerinalang.stdlib.crypto.Constants.KEY_STORE_RECORD_PATH_FIELD));

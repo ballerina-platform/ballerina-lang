@@ -81,12 +81,17 @@ public class ConnectionInitTest {
         Assert.assertNull(returnVal[0]);
     }
 
-//    @Test
-//    public void testWithPoolOptions() {
-//        BValue[] returns = BRunUtil.invoke(result, "testWithPoolOptions", args);
-//        final boolean expected = true;
-//        Assert.assertEquals(((BBoolean) returns[0]).booleanValue(), expected);
-//    }
+    @Test
+    public void testWithoutHost() {
+        BValue[] returnVal = BRunUtil.invoke(result, "testWithoutHost");
+        Assert.assertNull(returnVal[0]);
+    }
+
+    @Test
+    public void testWithOptions() {
+        BValue[] returnVal = BRunUtil.invoke(result, "testWithOptions");
+        Assert.assertNull(returnVal[0]);
+    }
 
     @AfterSuite
     public void cleanup() throws ManagedProcessException {

@@ -42,12 +42,10 @@ public class NativeImpl {
         if (database != null && !database.isEmpty()) {
             url += "/" + database;
         }
-        MapValue<String, Object> options = (MapValue<String, Object>) clientConfig
-                .getMapValue(Constants.ClientConfiguration.OPTIONS);
-        MapValue<String, Object> properties = Utils.generateOptionsMap(options);
+        MapValue options = clientConfig.getMapValue(Constants.ClientConfiguration.OPTIONS);
+        MapValue properties = Utils.generateOptionsMap(options);
 
-        MapValue<String, Object> connectionPool = (MapValue<String, Object>) clientConfig
-                .getMapValue(Constants.ClientConfiguration.CONNECTION_POOL_OPTIONS);
+        MapValue connectionPool = clientConfig.getMapValue(Constants.ClientConfiguration.CONNECTION_POOL_OPTIONS);
         if (connectionPool == null) {
             connectionPool = globalPool;
         }

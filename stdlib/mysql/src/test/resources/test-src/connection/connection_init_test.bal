@@ -16,6 +16,14 @@
 import ballerina/mysql;
 import ballerina/sql;
 
+//TODO:Remove this and pass with functions.
+//After fixing this https://github.com/ballerina-platform/ballerina-lang/issues/21259
+
+string user="test";
+string password = "test123";
+string database = "CONNECT_DB";
+int port = 3305;
+
 function testConnectionWithNoFields() returns error? {
     mysql:Client|sql:Error dbClient = new ();
     if(dbClient is sql:Error){
@@ -27,6 +35,21 @@ function testConnectionWithNoFields() returns error? {
 
 function testWithURLParams(string host, string user, string password, string database, int port) returns error? {
     mysql:Client dbClient = check new (host, user, password, database, port);
+    return dbClient.close();
+}
+
+function testWithoutHost() returns error? {
+    mysql:Client dbClient = check new (user = user, password=password, database = database, port=port);
+    return dbClient.close();
+}
+
+function testWithOptions() returns error? {
+    mysql:Options options = {
+        ssl: (),
+        connectTimeoutSeconds: 60
+    };
+    mysql:Client dbClient = check new (user = user, password=password, database = database,
+    port=port, options = options);
     return dbClient.close();
 }
 
