@@ -81,16 +81,6 @@
       ]
     },
     {
-      "name": "SyntaxTrivia",
-      "base": "SyntaxNode",
-      "fields": [
-        {
-          "name": "text",
-          "type": "String"
-        }
-      ]
-    },
-    {
       "name": "BlockStatement",
       "base": "StatementNode",
       "fields": [

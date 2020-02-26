@@ -39,7 +39,6 @@ public class Constants {
     public static final String LIST_KEYWORD = "List";
     public static final String LIST_IMPORT_STRING = "import java.util.List;";
     public static final String FACADE_RETURN_STATEMENT = "return new BL$className(this, position, parent)";
-    public static final String FACADE_LEAF_RETURN_STATEMENT = "throw new UnsupportedOperationException()";
     public static final String FACADE_FUNCTION = "public BLNode createFacade(int position, " +
             "BLNonTerminalNode parent) {\n$facadeReturnStatementPlaceholder;\n}";
     public static final String FACADE_MEMBER_FUNCTION = "public $type $attribute() {\n" +

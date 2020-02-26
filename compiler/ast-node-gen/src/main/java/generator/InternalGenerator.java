@@ -46,13 +46,13 @@ public class InternalGenerator {
                 internalClassString = internalClassString.replace(Constants.BUCKET_CODE_PLACEHOLDER, "");
             }
             internalClassString = internalClassString.replace(Constants.TO_STRING_FUNCTION_PLACEHOLDER,
-                    createToString(node.getName(), node.getFields()));
+                    createToString(node, node.getFields()));
             if ((node.getType() != null) && (node.getType().equals(Constants.ABSTRACT_KEYWORD))) {
                 internalClassString = internalClassString.replace(Constants.FACADE_FUNCTION_PLACEHOLDER,
                         "");
             } else {
                 internalClassString = internalClassString.replace(Constants.FACADE_FUNCTION_PLACEHOLDER,
-                        getFacadeFunction(node.getName()));
+                        getFacadeFunction(node));
             }
             Common.writeToFile(internalClassString, "compiler/ast-node-gen/src/main/java/generated/internal/"
                     + node.getName() + Constants.DOT + Constants.JAVA_EXT);
@@ -150,17 +150,15 @@ public class InternalGenerator {
         return values.toString();
     }
 
-    private static String createToString(String nodeName, List<Field> fieldList) {
+    private static String createToString(Node node, List<Field> fieldList) {
         String returnStatement;
-        if (nodeName.equals(Constants.MISSING_TOKEN)) {
+        if (node.getName().equals(Constants.MISSING_TOKEN)) {
             return "";
-        } else if (nodeName.equals(Constants.SYNTAX_TRIVIA)) {
-            returnStatement = Constants.RETURN_KEYWORD + Constants.WHITE_SPACE + fieldList.get(0).getName();
-        } else if (nodeName.equals(Constants.SYNTAX_TOKEN)) {
+        } else if (node.getName().equals(Constants.SYNTAX_TOKEN)) {
             returnStatement = Constants.RETURN_KEYWORD + Constants.WHITE_SPACE + Constants.LEADING_TRIVIA
                     + Constants.CONCAT_SYMBOL + Constants.KIND_PROPERTY + Constants.CONCAT_SYMBOL
                     + Constants.TRAILING_TRIVIA;
-        } else if (nodeName.contains(Constants.TOKEN)) {
+        } else if (node.getBase().equals(Constants.SYNTAX_TOKEN)) {
             returnStatement = Constants.RETURN_KEYWORD + Constants.WHITE_SPACE + Constants.LEADING_TRIVIA
                     + Constants.CONCAT_SYMBOL + Constants.PROPERTY + Constants.CONCAT_SYMBOL
                     + Constants.TRAILING_TRIVIA;
@@ -173,16 +171,13 @@ public class InternalGenerator {
                 + Constants.NEW_LINE + Constants.CLOSE_PARENTHESIS;
     }
 
-    private static String getFacadeFunction(String nodeName) {
-        if (nodeName.contains(Constants.SYNTAX_TRIVIA)) {
-            return Constants.FACADE_FUNCTION.replace(Constants.FACADE_RETURN_STATEMENT_PLACEHOLDER,
-                    Constants.FACADE_LEAF_RETURN_STATEMENT);
-        } else if (!nodeName.contains(Constants.TOKEN) || nodeName.contains(Constants.SYNTAX_TOKEN)) {
+    private static String getFacadeFunction(Node node) {
+        if (!node.getBase().equals(Constants.SYNTAX_TOKEN) || node.getName().contains(Constants.SYNTAX_TOKEN)) {
 //            public BLNode createFacade(int position, BLNonTerminalNode parent) {
 //                  return new BL$className(this, position, parent);
 //            }
             return Constants.FACADE_FUNCTION.replace(Constants.FACADE_RETURN_STATEMENT_PLACEHOLDER,
-                    Constants.FACADE_RETURN_STATEMENT).replace(Constants.CLASSNAME_PLACEHOLDER, nodeName);
+                    Constants.FACADE_RETURN_STATEMENT).replace(Constants.CLASSNAME_PLACEHOLDER, node.getName());
         } else {
             return "";
         }

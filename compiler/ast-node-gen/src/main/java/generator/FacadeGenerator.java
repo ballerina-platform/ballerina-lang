@@ -43,8 +43,7 @@ public class FacadeGenerator {
     private static List<Node> restructureNodes(List<Node> nodeList) {
         List<Node> modifiedNodeList = new ArrayList<>();
         for (Node node : nodeList) {
-            if (!(node.getName().contains(Constants.TOKEN) || node.getName().contains(Constants.TRIVIA)) ||
-                    node.getName().contains(Constants.SYNTAX_TOKEN)) {
+            if (!(node.getBase().equals(Constants.SYNTAX_TOKEN)) || node.getName().equals(Constants.SYNTAX_TOKEN)) {
                 Node newNode = new Node();
                 newNode.setBase(Constants.NON_TERMINAL_NODE);
                 newNode.setName(Constants.BL + node.getName());
