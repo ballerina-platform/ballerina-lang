@@ -110,8 +110,10 @@ public class SendingEntityBody implements ListenerState {
         ChannelFuture outboundChannelFuture;
         if (httpContent instanceof LastHttpContent) {
             if (headersWritten) {
-                ((LastHttpContent) httpContent).trailingHeaders().add(outboundResponseMsg.getTrailerHeaders());
-                outboundChannelFuture = checkHeadRequestAndWriteOutboundResponseBody(httpContent);
+                final LastHttpContent lastContent = (httpContent == LastHttpContent.EMPTY_LAST_CONTENT) ?
+                        new DefaultLastHttpContent() : (LastHttpContent) httpContent;
+                lastContent.trailingHeaders().add(outboundResponseMsg.getTrailerHeaders());
+                outboundChannelFuture = checkHeadRequestAndWriteOutboundResponseBody(lastContent);
             } else {
                 contentLength += httpContent.content().readableBytes();
                 setupContentLengthRequest(outboundResponseMsg, contentLength);
