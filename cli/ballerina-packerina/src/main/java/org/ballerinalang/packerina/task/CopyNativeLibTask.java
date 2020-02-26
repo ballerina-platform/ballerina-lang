@@ -22,6 +22,7 @@ import com.moandjiezana.toml.Toml;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.packerina.buildcontext.BuildContext;
 import org.ballerinalang.packerina.buildcontext.BuildContextField;
+import org.ballerinalang.packerina.model.ExecutableJar;
 import org.ballerinalang.toml.model.Dependency;
 import org.ballerinalang.toml.model.Library;
 import org.ballerinalang.toml.model.Manifest;
@@ -45,7 +46,6 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.jar.JarEntry;
@@ -94,7 +94,7 @@ public class CopyNativeLibTask implements Task {
     private void copyImportedJarsForModules(BuildContext buildContext, List<BLangPackage> moduleBirMap,
                                             Path sourceRootPath, String balHomePath) {
         // Iterate through the imports and copy dependencies.
-        Map<PackageID, Set<Path>> alreadyImportedMap = new HashMap<>();
+        HashSet<PackageID> alreadyImportedSet = new HashSet<>();
         for (BLangPackage pkg : moduleBirMap) {
             PackageID packageID = pkg.packageID;
             BLangPackage bLangPackage = packageCache.get(packageID);
@@ -102,35 +102,40 @@ public class CopyNativeLibTask implements Task {
                 continue;
             }
             copyImportedLibs(bLangPackage.symbol.imports,
-                    buildContext.moduleDependencyPathMap.get(packageID).moduleLibs,
-                    buildContext, sourceRootPath, balHomePath, alreadyImportedMap);
-
+                             buildContext.moduleDependencyPathMap.get(packageID).moduleLibs,
+                             buildContext, sourceRootPath, balHomePath, alreadyImportedSet);
             if (skipTests || !bLangPackage.hasTestablePackage()) {
                 continue;
             }
             // Copy native libs imported by testable package
             for (BLangPackage testPkg : bLangPackage.getTestablePkgs()) {
+                if (!buildContext.moduleDependencyPathMap.containsKey(testPkg.packageID)) {
+                    continue;
+                }
                 copyImportedLibs(testPkg.symbol.imports,
-                        buildContext.moduleDependencyPathMap.get(testPkg.packageID).testLibs,
-                        buildContext, sourceRootPath, balHomePath, alreadyImportedMap);
+                                 buildContext.moduleDependencyPathMap.get(testPkg.packageID).testLibs,
+                                 buildContext, sourceRootPath, balHomePath, alreadyImportedSet);
             }
         }
     }
 
     private void copyImportedLibs(List<BPackageSymbol> imports, Set<Path> moduleDependencySet,
                                   BuildContext buildContext, Path sourceRootPath, String balHomePath,
-                                  Map<PackageID, Set<Path>> alreadyImportedMap) {
+                                  HashSet<PackageID> alreadyImportedSet) {
         for (BPackageSymbol importSymbol : imports) {
             PackageID pkgId = importSymbol.pkgID;
-            Set<Path> importedPaths = alreadyImportedMap.get(pkgId);
-            if (importedPaths == null) {
-                importedPaths = new HashSet<>();
-                alreadyImportedMap.put(pkgId, importedPaths);
-                copyImportedLib(buildContext, importSymbol, sourceRootPath, balHomePath, importedPaths);
-                copyImportedLibs(importSymbol.imports, importedPaths, buildContext, sourceRootPath,
-                                 balHomePath, alreadyImportedMap);
+            ExecutableJar jar = buildContext.moduleDependencyPathMap.get(pkgId);
+            if (!alreadyImportedSet.contains(pkgId)) {
+                alreadyImportedSet.add(pkgId);
+                if (jar == null) {
+                    jar = new ExecutableJar();
+                    buildContext.moduleDependencyPathMap.put(pkgId, jar);
+                }
+                copyImportedLib(buildContext, importSymbol, sourceRootPath, balHomePath, jar.moduleLibs);
+                copyImportedLibs(importSymbol.imports, jar.moduleLibs, buildContext, sourceRootPath,
+                                 balHomePath, alreadyImportedSet);
             }
-            moduleDependencySet.addAll(importedPaths);
+            moduleDependencySet.addAll(jar.moduleLibs);
         }
     }
 

@@ -50,8 +50,6 @@ import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_COM
 
 /**
  * Task for executing tests.
- *
- * @since 1.1.0
  */
 public class RunTestsTask implements Task {
 

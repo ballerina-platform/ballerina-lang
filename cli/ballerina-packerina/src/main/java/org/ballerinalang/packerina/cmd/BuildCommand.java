@@ -394,7 +394,6 @@ public class BuildCommand implements BLauncherCmd {
                 .build();
         
         taskExecutor.executeTasks(buildContext);
-
         if (this.exitWhenFinish) {
             Runtime.getRuntime().exit(0);
         }

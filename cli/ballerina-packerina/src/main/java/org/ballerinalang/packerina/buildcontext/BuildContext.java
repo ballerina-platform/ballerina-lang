@@ -522,8 +522,7 @@ public class BuildContext extends HashMap<BuildContextField, Object> {
             switch (this.getSourceType()) {
                 case SINGLE_MODULE:
                 case ALL_MODULES:
-                    return Files.createDirectories(targetTestJsonCacheDir
-                                                           .resolve(moduleID.orgName.value)
+                    return Files.createDirectories(targetTestJsonCacheDir.resolve(moduleID.orgName.value)
                                                            .resolve(moduleID.name.value)
                                                            .resolve(moduleID.version.value));
                 default:
@@ -531,8 +530,8 @@ public class BuildContext extends HashMap<BuildContextField, Object> {
             }
 
         } catch (IOException e) {
-            throw new BLangCompilerException(
-                    "error creating test_json_cache dir for module(s): " + targetTestJsonCacheDir);
+            throw new BLangCompilerException("error creating test_json_cache " +
+                                                     "dir for module(s): " + targetTestJsonCacheDir);
         }
     }
     
