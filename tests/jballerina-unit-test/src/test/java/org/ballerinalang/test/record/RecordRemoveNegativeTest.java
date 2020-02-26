@@ -24,8 +24,6 @@ import org.ballerinalang.test.util.CompileResult;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import javax.naming.OperationNotSupportedException;
-
 /**
  * Negative Test cases for removing required fields in records.
  */

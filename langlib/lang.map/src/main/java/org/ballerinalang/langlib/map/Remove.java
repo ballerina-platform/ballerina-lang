@@ -29,7 +29,6 @@ import org.ballerinalang.natives.annotations.ReturnType;
 
 import static org.ballerinalang.jvm.MapUtils.checkIsMapOnlyOperation;
 import static org.ballerinalang.jvm.MapUtils.checkValidFieldForRecord;
-import static org.ballerinalang.jvm.MapUtils.createOpNotSupportedError;
 import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.MAP_KEY_NOT_FOUND_ERROR;
 
 /**
@@ -53,8 +52,7 @@ public class Remove {
         if (m.containsKey(k)) {
             try {
                 return m.remove(k);
-            }
-            catch (org.ballerinalang.jvm.util.exceptions.BLangFreezeException e) {
+            } catch (org.ballerinalang.jvm.util.exceptions.BLangFreezeException e) {
                 throw BallerinaErrors.createError(e.getMessage(),
                         "Failed to remove element from map: " + e.getDetail());
             }
