@@ -503,8 +503,6 @@ public class TypeChecker {
                 return checkIsServiceType(sourceType);
             case TypeTags.HANDLE_TAG:
                 return sourceType.getTag() == TypeTags.HANDLE_TAG;
-            case TypeTags.TYPEDESC_TAG:
-                return checkTypeDescType(sourceType, (BTypedescType) targetType);
             default:
                 return checkIsRecursiveType(sourceType, targetType,
                         unresolvedTypes == null ? new ArrayList<>() : unresolvedTypes);
@@ -513,13 +511,14 @@ public class TypeChecker {
 
     // Private methods
 
-    private static boolean checkTypeDescType(BType sourceType, BTypedescType targetType) {
+    private static boolean checkTypeDescType(BType sourceType, BTypedescType targetType,
+            List<TypePair> unresolvedTypes) {
         if (sourceType.getTag() != TypeTags.TYPEDESC_TAG) {
             return false;
         }
 
         BTypedescType sourceTypedesc = (BTypedescType) sourceType;
-        return checkIsType(sourceTypedesc.getConstraint(), targetType.getConstraint(), (List<TypePair>) null);
+        return checkIsType(sourceTypedesc.getConstraint(), targetType.getConstraint(), unresolvedTypes);
     }
 
     private static boolean checkIsRecursiveType(BType sourceType, BType targetType, List<TypePair> unresolvedTypes) {
@@ -550,6 +549,8 @@ public class TypeChecker {
                 return checkIsFutureType(sourceType, (BFutureType) targetType, unresolvedTypes);
             case TypeTags.ERROR_TAG:
                 return checkIsErrorType(sourceType, (BErrorType) targetType, unresolvedTypes);
+            case TypeTags.TYPEDESC_TAG:
+                return checkTypeDescType(sourceType, (BTypedescType) targetType, unresolvedTypes);
             default:
                 // other non-recursive types shouldn't reach here
                 return false;

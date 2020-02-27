@@ -17,7 +17,6 @@
 package org.ballerinalang.test.types.typedesc;
 
 import org.ballerinalang.model.types.TypeTags;
-import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BTypeDescValue;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.test.util.BAssertUtil;
@@ -129,17 +128,5 @@ public class TypedescTests {
         BValue[] returns = BRunUtil.invoke(result, "testMethodLevelTypeDesc");
         Assert.assertTrue(returns[0] instanceof BTypeDescValue);
         Assert.assertEquals(TypeTags.JSON_TAG, ((BTypeDescValue) returns[0]).value().getTag());
-    }
-
-    @Test(description = "Test Typetest for TypeDefs when types are equal")
-    public void testTypetestForTypedefs1() {
-        BValue[] returns = BRunUtil.invoke(result, "testTypeDescTypeTest1");
-        Assert.assertEquals(BBoolean.TRUE, (BBoolean) returns[0]);
-    }
-
-    @Test(description = "Test Typetest for TypeDefs when types are not equal")
-    public void testTypetestForTypedefs2() {
-        BValue[] returns = BRunUtil.invoke(result, "testTypeDescTypeTest2");
-        Assert.assertEquals(BBoolean.TRUE, (BBoolean) returns[0]);
     }
 }
