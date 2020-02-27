@@ -18,7 +18,7 @@ import ballerina/mysql;
 //TODO:Remove this and pass with functions.
 //After fixing this https://github.com/ballerina-platform/ballerina-lang/issues/21259
 string host = "localhost";
-string user="test";
+string user = "test";
 string password = "test123";
 string database = "SSL_CONNECT_DB";
 int port = 3305;
@@ -27,18 +27,18 @@ function testSSLVerifyCert() returns error? {
     mysql:Options options = {
         ssl: {
             mode: "VERIFY_CERT",
-            clientCertKeystore : {
+            clientCertKeystore: {
                 path: "../../keystore/client-keystore.p12",
                 password: "changeit"
             },
             trustCertKeystore: {
-                 path: "../../keystore/trust-keystore.p12",
-                 password: "changeit"
+                path: "../../keystore/trust-keystore.p12",
+                password: "changeit"
             }
         }
     };
-    mysql:Client dbClient = check new (user = user, password=password, database = database,
-    port=port, options = options);
+    mysql:Client dbClient = check new (user = user, password = password, database = database,
+    port = port, options = options);
     return dbClient.close();
 }
 
@@ -46,18 +46,18 @@ function testSSLPreffered() returns error? {
     mysql:Options options = {
         ssl: {
             mode: "PREFERRED",
-            clientCertKeystore : {
+            clientCertKeystore: {
                 path: "../../keystore/client-keystore.p12",
                 password: "changeit"
             },
             trustCertKeystore: {
-                 path: "../../keystore/trust-keystore.p12",
-                 password: "changeit"
+                path: "../../keystore/trust-keystore.p12",
+                password: "changeit"
             }
         }
     };
-    mysql:Client dbClient = check new (user = user, password=password, database = database,
-    port=port, options = options);
+    mysql:Client dbClient = check new (user = user, password = password, database = database,
+    port = port, options = options);
     return dbClient.close();
 }
 
@@ -65,14 +65,14 @@ function testSSLRequiredWithClientCert() returns error? {
     mysql:Options options = {
         ssl: {
             mode: "REQUIRED",
-            clientCertKeystore : {
+            clientCertKeystore: {
                 path: "../../keystore/client-keystore.p12",
                 password: "changeit"
             }
         }
     };
-    mysql:Client dbClient = check new (user = user, password=password, database = database,
-    port=port, options = options);
+    mysql:Client dbClient = check new (user = user, password = password, database = database,
+    port = port, options = options);
     return dbClient.close();
 }
 
@@ -82,7 +82,7 @@ function testSSLVerifyIdentity() returns error? {
             mode: "VERIFY_IDENTITY"
         }
     };
-    mysql:Client dbClient = check new (user = user, password=password, database = database,
-    port=port, options = options);
+    mysql:Client dbClient = check new (user = user, password = password, database = database,
+    port = port, options = options);
     return dbClient.close();
 }

@@ -16,104 +16,104 @@
 import ballerina/java.jdbc;
 import ballerina/sql;
 
-function testConnection1(string jdbcURL, string user, string password) returns error?{
-    jdbc:Client testDB = check new (url=jdbcURL, user = user, password = password);
+function testConnection1(string jdbcURL, string user, string password) returns error? {
+    jdbc:Client testDB = check new (url = jdbcURL, user = user, password = password);
     return testDB.close();
 }
 
-function testConnection2(string jdbcURL, string user, string password) returns error?{
+function testConnection2(string jdbcURL, string user, string password) returns error? {
     jdbc:Client testDB = check new (jdbcURL, user, password);
     return testDB.close();
 }
 
-function testConnectionNoUserPassword(string jdbcURL) returns error?{
-    jdbc:Client|sql:Error dbClient = new (jdbcURL);
-    if(dbClient is sql:Error){
+function testConnectionNoUserPassword(string jdbcURL) returns error? {
+    jdbc:Client | sql:Error dbClient = new (jdbcURL);
+    if (dbClient is sql:Error) {
         return dbClient;
     } else {
         return dbClient.close();
     }
 }
 
-function testConnectionWithValidDriver(string jdbcURL, string user, string password) returns error?{
-    jdbc:Client|sql:Error dbClient = new (jdbcURL, user, password, {datasourceName: "org.h2.jdbcx.JdbcDataSource"});
-    if(dbClient is sql:Error){
+function testConnectionWithValidDriver(string jdbcURL, string user, string password) returns error? {
+    jdbc:Client | sql:Error dbClient = new (jdbcURL, user, password, {datasourceName: "org.h2.jdbcx.JdbcDataSource"});
+    if (dbClient is sql:Error) {
         return dbClient;
     } else {
         return dbClient.close();
     }
 }
 
-function testConnectionWithInvalidDriver(string jdbcURL, string user, string password) returns error?{
-    jdbc:Client|sql:Error dbClient = new (jdbcURL, user, password,
-                                        {datasourceName: "org.h2.jdbcx.JdbcDataSourceInvalid"});
-    if(dbClient is sql:Error){
+function testConnectionWithInvalidDriver(string jdbcURL, string user, string password) returns error? {
+    jdbc:Client | sql:Error dbClient = new (jdbcURL, user, password,
+    {datasourceName: "org.h2.jdbcx.JdbcDataSourceInvalid"});
+    if (dbClient is sql:Error) {
         return dbClient;
     } else {
         return dbClient.close();
     }
 }
 
-function testConnectionWithDatasourceOptions(string jdbcURL, string user, string password) returns error?{
+function testConnectionWithDatasourceOptions(string jdbcURL, string user, string password) returns error? {
     jdbc:Options options = {
         datasourceName: "org.h2.jdbcx.JdbcDataSource",
         properties: {"loginTimeout": 5000}
-     };
-    jdbc:Client|sql:Error dbClient = new (jdbcURL, user, password, options);
-    if(dbClient is sql:Error){
+    };
+    jdbc:Client | sql:Error dbClient = new (jdbcURL, user, password, options);
+    if (dbClient is sql:Error) {
         return dbClient;
     } else {
         return dbClient.close();
     }
 }
 
-function testConnectionWithDatasourceInvalidProperty(string jdbcURL, string user, string password) returns error?{
+function testConnectionWithDatasourceInvalidProperty(string jdbcURL, string user, string password) returns error? {
     jdbc:Options options = {
         datasourceName: "org.h2.jdbcx.JdbcDataSource",
         properties: {"invalidProperty": 109}
-     };
-    jdbc:Client|sql:Error dbClient = new (jdbcURL, user, password, options);
-    if(dbClient is sql:Error){
+    };
+    jdbc:Client | sql:Error dbClient = new (jdbcURL, user, password, options);
+    if (dbClient is sql:Error) {
         return dbClient;
     } else {
         return dbClient.close();
     }
 }
 
-function testWithConnectionPool(string jdbcURL, string user, string password) returns error|sql:ConnectionPool {
+function testWithConnectionPool(string jdbcURL, string user, string password) returns error | sql:ConnectionPool {
     sql:ConnectionPool connPool = {
-      maxOpenConnections: 25
+        maxOpenConnections: 25
     };
-    jdbc:Client dbClient = check new (url=jdbcURL, user=user, password=password,connPool=connPool);
+    jdbc:Client dbClient = check new (url = jdbcURL, user = user, password = password, connPool = connPool);
     error? err = dbClient.close();
-    if(err is error){
+    if (err is error) {
         return err;
     } else {
-       return connPool;
+        return connPool;
     }
 }
 
 function testWithSharedConnPool(string jdbcURL, string user, string password) returns error? {
     sql:ConnectionPool connPool = {
-      maxOpenConnections: 25
+        maxOpenConnections: 25
     };
-    jdbc:Client dbClient1 = check new (url=jdbcURL, user=user, password=password,connPool=connPool);
-    jdbc:Client dbClient2 = check new (url=jdbcURL, user=user, password=password,connPool=connPool);
-    jdbc:Client dbClient3 = check new (url=jdbcURL, user=user, password=password,connPool=connPool);
+    jdbc:Client dbClient1 = check new (url = jdbcURL, user = user, password = password, connPool = connPool);
+    jdbc:Client dbClient2 = check new (url = jdbcURL, user = user, password = password, connPool = connPool);
+    jdbc:Client dbClient3 = check new (url = jdbcURL, user = user, password = password, connPool = connPool);
 
     check dbClient1.close();
     check dbClient2.close();
     check dbClient3.close();
 }
 
-function testWithAllParams(string jdbcURL, string user, string password) returns error?{
+function testWithAllParams(string jdbcURL, string user, string password) returns error? {
     jdbc:Options options = {
         datasourceName: "org.h2.jdbcx.JdbcDataSource",
         properties: {"loginTimeout": 5000}
-     };
-     sql:ConnectionPool connPool = {
-           maxOpenConnections: 25
-     };
+    };
+    sql:ConnectionPool connPool = {
+        maxOpenConnections: 25
+    };
     jdbc:Client dbClient = check new (jdbcURL, user, password, options, connPool);
     check dbClient.close();
 }

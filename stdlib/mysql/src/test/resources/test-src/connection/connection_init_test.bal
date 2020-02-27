@@ -19,14 +19,14 @@ import ballerina/sql;
 //TODO:Remove this and pass with functions.
 //After fixing this https://github.com/ballerina-platform/ballerina-lang/issues/21259
 string host = "localhost";
-string user="test";
+string user = "test";
 string password = "test123";
 string database = "CONNECT_DB";
 int port = 3305;
 
 function testConnectionWithNoFields() returns error? {
-    mysql:Client|sql:Error dbClient = new ();
-    if(dbClient is sql:Error){
+    mysql:Client | sql:Error dbClient = new ();
+    if (dbClient is sql:Error) {
         return dbClient;
     } else {
         return dbClient.close();
@@ -39,7 +39,7 @@ function testWithURLParams(string host, string user, string password, string dat
 }
 
 function testWithoutHost() returns error? {
-    mysql:Client dbClient = check new (user = user, password=password, database = database, port=port);
+    mysql:Client dbClient = check new (user = user, password = password, database = database, port = port);
     return dbClient.close();
 }
 
@@ -48,28 +48,28 @@ function testWithOptions() returns error? {
         ssl: (),
         connectTimeoutSeconds: 60
     };
-    mysql:Client dbClient = check new (user = user, password=password, database = database,
-    port=port, options = options);
+    mysql:Client dbClient = check new (user = user, password = password, database = database,
+    port = port, options = options);
     return dbClient.close();
 }
 
-function testWithConnectionPool() returns error|sql:ConnectionPool {
+function testWithConnectionPool() returns error | sql:ConnectionPool {
     sql:ConnectionPool connPool = {
-      maxOpenConnections: 25
+        maxOpenConnections: 25
     };
-    mysql:Client dbClient = check new (user = user, password=password, database = database,
-    port=port, connPool=connPool);
+    mysql:Client dbClient = check new (user = user, password = password, database = database,
+    port = port, connPool = connPool);
     error? err = dbClient.close();
-    if(err is error){
+    if (err is error) {
         return err;
     } else {
-       return connPool;
+        return connPool;
     }
 }
 
 function testWithConnectionParams() returns error? {
     sql:ConnectionPool connPool = {
-      maxOpenConnections: 25
+        maxOpenConnections: 25
     };
     mysql:Options options = {
         ssl: (),

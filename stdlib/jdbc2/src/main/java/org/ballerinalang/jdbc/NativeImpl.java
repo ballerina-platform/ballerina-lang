@@ -34,7 +34,7 @@ public class NativeImpl {
                                       MapValue<String, Object> globalPool) {
         String url = clientConfig.getStringValue(Constants.ClientConfiguration.URL);
         if (!isJdbcUrlValid(url)) {
-            return ErrorGenerator.getSQLApplicationError("invalid JDBC URL: " + url);
+            return ErrorGenerator.getSQLApplicationError("Invalid JDBC URL: " + url);
         }
         String user = clientConfig.getStringValue(Constants.ClientConfiguration.USER);
         String password = clientConfig.getStringValue(Constants.ClientConfiguration.PASSWORD);
@@ -63,5 +63,4 @@ public class NativeImpl {
     public static Object close(ObjectValue client) {
         return ClientUtils.close(client);
     }
-
 }
