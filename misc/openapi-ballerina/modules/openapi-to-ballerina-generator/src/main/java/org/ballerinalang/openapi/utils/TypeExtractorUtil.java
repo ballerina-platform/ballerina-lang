@@ -133,7 +133,7 @@ public class TypeExtractorUtil {
                 outStream.println("warning : `" + resName + "` is used as the resource name since the " +
                         "operation id is missing for " + pathName + " " + nextOp.getKey());
             } else {
-                operation.setOpName(escapeIdentifier(
+                operation.setOpName(escapeIdentifierInFunctionName(
                         opObject.getOperationId().replace(" ", "_")));
             }
 
@@ -382,6 +382,19 @@ public class TypeExtractorUtil {
         if (!identifier.matches("[a-zA-Z]+") || BAL_KEYWORDS.stream().anyMatch(identifier::equals)) {
             identifier = identifier.replaceAll("([\\\\?!<>*\\-=^+()_{}|.$])", "\\\\$1");
             identifier = "'" + identifier;
+        }
+        return identifier;
+    }
+
+    /**
+     * This method will escape special characters used in method names and identifiers.
+     *
+     * @param identifier - identifier or method name
+     * @return - escaped string
+     */
+    public static String escapeIdentifierInFunctionName(String identifier) {
+        if (!identifier.matches("[a-zA-Z]+") || BAL_KEYWORDS.stream().anyMatch(identifier::equals)) {
+            identifier = identifier.replaceAll("([\\\\?!<>*\\-=^+()_{}|.$])", "_");
         }
         return identifier;
     }
