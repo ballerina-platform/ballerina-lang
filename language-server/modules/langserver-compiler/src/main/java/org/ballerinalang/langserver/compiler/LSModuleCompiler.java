@@ -91,7 +91,9 @@ public class LSModuleCompiler {
         String sourceRoot = Paths.get(new URI(context.get(DocumentServiceKeys.SOURCE_ROOT_KEY))).toString();
         PackageRepository pkgRepo = new WorkspacePackageRepository(sourceRoot, docManager);
 
-        CompilerContext compilerContext = prepareCompilerContext(pkgRepo, sourceRoot, docManager, stopOnSemanticErrors);
+        boolean isExperimentalEnabled = context.get(DocumentServiceKeys.EXPERIMENTAL_FEATURES_ENABLED_KEY);
+        CompilerContext compilerContext = prepareCompilerContext(pkgRepo, sourceRoot, docManager, stopOnSemanticErrors,
+                                                                 isExperimentalEnabled);
         Compiler compiler = LSCompilerUtil.getCompiler(context, compilerContext, errStrategy);
         return compilePackagesSafe(compiler, sourceRoot, false, context);
     }
@@ -145,8 +147,9 @@ public class LSModuleCompiler {
             pkgID = generatePackageFromManifest(pkgName, projectRoot);
         }
         context.put(DocumentServiceKeys.RELATIVE_FILE_PATH_KEY, relativeFilePath);
+        boolean isExperimentalEnabled = context.get(DocumentServiceKeys.EXPERIMENTAL_FEATURES_ENABLED_KEY);
         CompilerContext compilerContext = prepareCompilerContext(pkgID, pkgRepo, sourceDoc, docManager,
-                stopOnSemanticErrors);
+                                                                 stopOnSemanticErrors, isExperimentalEnabled);
 
         context.put(DocumentServiceKeys.SOURCE_ROOT_KEY, projectRoot);
         context.put(DocumentServiceKeys.CURRENT_PKG_NAME_KEY, pkgID.getNameComps().stream()

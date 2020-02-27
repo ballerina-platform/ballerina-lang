@@ -13,12 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.ballerinalang.langserver.client.config;
+package org.ballerinalang.langserver.compiler.config;
 
 /**
  * Ballerina Client Configuration.
  */
-public class BallerinaClientConfig {
+public class LSClientConfig {
     private final String home;
     private final boolean allowExperimental;
     private final boolean debugLog;
@@ -26,7 +26,7 @@ public class BallerinaClientConfig {
     private final boolean traceLog;
     private final GoToDefinitionConfig goToDefinition;
 
-    private BallerinaClientConfig() {
+    private LSClientConfig() {
         this.home = "";
         this.allowExperimental = false;
         this.debugLog = false;
@@ -38,10 +38,10 @@ public class BallerinaClientConfig {
     /**
      * Returns default ballerina client configuration.
      *
-     * @return {@link BallerinaClientConfig}
+     * @return {@link LSClientConfig}
      */
-    public static BallerinaClientConfig getDefault() {
-        return new BallerinaClientConfig();
+    public static LSClientConfig getDefault() {
+        return new LSClientConfig();
     }
 
     /**
