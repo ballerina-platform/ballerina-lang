@@ -806,8 +806,8 @@ class JvmTypeGen {
                 // create and load attached function
                 createObjectAttachedFunction(mv, attachedFunc, objType);
                 BIRVariableDcl attachedFuncVar = new BIRVariableDcl(symbolTable.anyType,
-                                                                    new Name(toNameString(objType) + attachedFunc.funcName.value), VarScope.FUNCTION,
-                                                                    VarKind.LOCAL);
+                        new Name(toNameString(objType) + attachedFunc.funcName.value), VarScope.FUNCTION,
+                        VarKind.LOCAL);
                 int attachedFunctionVarIndex = indexMap.getIndex(attachedFuncVar);
                 mv.visitVarInsn(ASTORE, attachedFunctionVarIndex);
 
@@ -871,7 +871,7 @@ class JvmTypeGen {
         loadType(mv, attachedFunc.type);
 
         // Load flags
-        mv.visitLdcInsn(typeFlag(attachedFunc.type));
+        mv.visitLdcInsn((long) attachedFunc.type.tsymbol.flags);
         mv.visitInsn(L2I);
 
         mv.visitMethodInsn(INVOKESPECIAL, ATTACHED_FUNCTION, "<init>",

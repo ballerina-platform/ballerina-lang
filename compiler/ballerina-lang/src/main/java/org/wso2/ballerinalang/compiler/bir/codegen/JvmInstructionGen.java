@@ -157,7 +157,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.currentC
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.getPackageName;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.lambdaIndex;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.lambdas;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.lookupFullQualifiedClassName;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.lookupGlobalVarClassName;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.lookupTypeDef;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTerminatorGen.TerminatorGenerator.toNameString;
@@ -1310,7 +1309,6 @@ public class JvmInstructionGen {
             lambdaIndex += 1;
             String pkgName = getPackageName(inst.pkgId.orgName, inst.pkgId.name);
             String lookupKey = pkgName + inst.funcName.value;
-            String methodClass = lookupFullQualifiedClassName(lookupKey);
 
             BType returnType = inst.lhsOp.variableDcl.type;
             if (returnType.tag != TypeTags.INVOKABLE) {
