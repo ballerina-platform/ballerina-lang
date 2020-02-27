@@ -162,6 +162,7 @@ public class QueryDesugar extends BLangNodeVisitor {
     BLangBlockStmt desugarQueryAction(BLangQueryAction queryAction, SymbolEnv env) {
         BLangBlockStmt blockNode = ASTBuilderUtil.createBlockStmt(queryAction.pos);
         List<BLangFromClause> fromClauseList = queryAction.fromClauseList;
+        List<BLangLetClause> letClauseList = queryAction.letClauseList;
         BLangFromClause fromClause = fromClauseList.get(0);
         BLangDoClause doClause = queryAction.doClause;
         List<BLangWhereClause> whereClauseList = queryAction.whereClauseList;
@@ -169,9 +170,8 @@ public class QueryDesugar extends BLangNodeVisitor {
 
         BLangForeach leafForeach = buildFromClauseBlock(fromClauseList);
         BLangBlockStmt foreachBody = ASTBuilderUtil.createBlockStmt(pos);
-        buildWhereClauseBlock(whereClauseList, null, leafForeach, foreachBody, doClause.pos);
-
-        leafForeach.setBody(doClause.body);
+        buildWhereClauseBlock(whereClauseList, letClauseList, leafForeach, foreachBody, doClause.pos);
+        foreachBody.addStatement(doClause.body);
         blockNode.stmts.add(parentForeach);
         return blockNode;
     }

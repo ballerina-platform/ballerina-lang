@@ -1956,7 +1956,10 @@ public class BLangPackageBuilder {
         while (fromClauseNodeStack.size() > 0) {
             queryAction.addFromClauseNode(fromClauseNodeStack.pop());
         }
-
+        Collections.reverse(letClauseNodeStack);
+        while (letClauseNodeStack.size() > 0) {
+            queryAction.addLetClauseNode(letClauseNodeStack.pop());
+        }
         Collections.reverse(whereClauseNodeStack);
         while (whereClauseNodeStack.size() > 0) {
             queryAction.addWhereClauseNode(whereClauseNodeStack.pop());

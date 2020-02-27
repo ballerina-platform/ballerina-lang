@@ -20,6 +20,7 @@ package org.wso2.ballerinalang.compiler.semantics.analyzer;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.clauses.FromClauseNode;
+import org.ballerinalang.model.clauses.LetClauseNode;
 import org.ballerinalang.model.clauses.WhereClauseNode;
 import org.ballerinalang.model.elements.AttachPoint;
 import org.ballerinalang.model.elements.Flag;
@@ -82,6 +83,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangWorker;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangDoClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangFromClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangLetClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWhereClause;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAccessExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
@@ -2313,13 +2315,16 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     public void visit(BLangQueryAction queryAction) {
         List<? extends FromClauseNode> fromClauseList = queryAction.fromClauseList;
         List<? extends WhereClauseNode> whereClauseList = queryAction.whereClauseList;
+        List<? extends LetClauseNode> letClauseList = queryAction.letClauseList;
         BLangDoClause doClauseNode = queryAction.doClause;
 
         SymbolEnv parentEnv = env;
         for (FromClauseNode fromClause : fromClauseList) {
             parentEnv = typeChecker.typeCheckFromClause((BLangFromClause) fromClause, parentEnv);
         }
-
+        for (LetClauseNode letClauseNode : letClauseList) {
+            parentEnv = typeChecker.typeCheckLetClause((BLangLetClause) letClauseNode, parentEnv);
+        }
         SymbolEnv whereEnv = parentEnv;
         for (WhereClauseNode whereClauseNode : whereClauseList) {
             BLangWhereClause whereClause = (BLangWhereClause) whereClauseNode;

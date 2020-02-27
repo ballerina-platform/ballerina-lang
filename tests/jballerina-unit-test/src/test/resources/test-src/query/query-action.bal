@@ -75,3 +75,40 @@ function testSimpleSelectQueryWithRecordVariableV2() returns FullName[]{
 
     return  nameList;
 }
+
+function testSimpleSelectQueryWithLetClause() returns  FullName[] {
+    Person p1 = {firstName:"Alex", lastName: "George", age: 23};
+    Person p2 = {firstName:"Ranjan", lastName: "Fonseka", age: 30};
+    Person p3 = {firstName:"John", lastName: "David", age: 33};
+
+    Person[] personList = [p1, p2, p3];
+    FullName[] nameList = [];
+
+    from var person in personList
+    let int twiceAge  = (person.age * 2)
+    do {
+        if(twiceAge < 50) {
+          FullName fullName = {firstName: person.firstName, lastName: person.lastName};
+          nameList[nameList.length()] = fullName;
+        }
+
+    }
+    return  nameList;
+}
+
+function testSimpleSelectQueryWithWhereClause() returns  FullName[] {
+    Person p1 = {firstName:"Alex", lastName: "George", age: 23};
+    Person p2 = {firstName:"Ranjan", lastName: "Fonseka", age: 30};
+    Person p3 = {firstName:"John", lastName: "David", age: 33};
+
+    Person[] personList = [p1, p2, p3];
+    FullName[] nameList = [];
+
+    from var person in personList
+    where (person.age * 2) < 50
+    do {
+          FullName fullName = {firstName: person.firstName, lastName: person.lastName};
+          nameList[nameList.length()] = fullName;
+    }
+    return  nameList;
+}

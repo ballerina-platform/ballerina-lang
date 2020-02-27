@@ -72,7 +72,7 @@ function testMultipleLetClausesWithRecordVariable() returns Person[] {
     return  outputPersonList;
 }
 
-function testMultipleVarDeclReuseLetClause() returns Teacher[]{
+function testMultipleVarDeclReuseLetClause() returns Teacher[] {
 
     Person p1 = {firstName: "Alex", lastName: "George", deptAccess: "XYZ"};
     Person p2 = {firstName: "Ranjan", lastName: "Fonseka", deptAccess: "XYZ"};
