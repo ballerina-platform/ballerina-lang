@@ -48,7 +48,7 @@ public class StandardLibraryDefinitionTest extends DefinitionTest {
     public void init() {
         configRoot = FileUtils.RES_DIR.resolve("definition").resolve("expected");
         sourceRoot = FileUtils.RES_DIR.resolve("definition").resolve("sources");
-        System.setProperty("ballerina.definition.enableStdlib", String.valueOf(true));
+        System.setProperty("ballerina.goToDefinition.enableStandardLibraries", String.valueOf(true));
         this.serviceEndpoint = TestUtil.initializeLanguageSever();
     }
 
@@ -88,6 +88,6 @@ public class StandardLibraryDefinitionTest extends DefinitionTest {
     @Override
     public void shutDownLanguageServer() throws IOException {
         super.shutDownLanguageServer();
-        System.setProperty("ballerina.definition.enableStdlib", "");
+        System.setProperty("ballerina.goToDefinition.enableStandardLibraries", "");
     }
 }
