@@ -1,7 +1,7 @@
 <idea-plugin>
     <id>io.ballerina</id>
     <name>Ballerina</name>
-    <version>1.1.1</version>
+    <version>1.1.4</version>
     <vendor email="ballerinalang@wso2.com" url="https://ballerina.io/">BallerinaLang</vendor>
 
     <description><![CDATA[
@@ -12,11 +12,9 @@
     ]]></description>
 
     <change-notes><![CDATA[
-      <ul>
-        <li> Added signature help support. </li>
-        <li> Added minor fix for plugin version compatibility checker. </li>
-        <li> Added code actions related improvements. </li>
-      </ul>
+        <li> Added support to view language server trace logs. </li>
+        <li> Improve handling ballerina source files inside non-ballerina projects. </li>
+        <li> Added minor improvements to plugin settings and language server debug log view. </li>
     ]]>
     </change-notes>
     <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/build_number_ranges.html for description -->
@@ -192,10 +190,10 @@
                 implementation="io.ballerina.plugins.idea.BallerinaProjectGenerator"/> <!-- for small IDEs-->
         <applicationService
                 serviceImplementation="io.ballerina.plugins.idea.settings.experimental.BallerinaExperimentalFeatureSettings"/>
-        <applicationService
-                serviceImplementation="io.ballerina.plugins.idea.settings.debuglogs.LangServerDebugLogsSettings"/>
         <projectService
                 serviceImplementation="io.ballerina.plugins.idea.settings.autodetect.BallerinaAutoDetectionSettings"/>
+        <projectService
+                serviceImplementation="io.ballerina.plugins.idea.settings.langserverlogs.LangServerLogsSettings"/>
         <preloadingActivity
                 implementation="io.ballerina.plugins.idea.preloading.BallerinaPreloadingActivity"
                 id="io.ballerina.plugins.idea.preloading.BallerinaPreloadingActivity"/>

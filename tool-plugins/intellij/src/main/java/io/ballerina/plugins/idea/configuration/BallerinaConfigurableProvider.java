@@ -24,8 +24,8 @@ import com.intellij.openapi.options.UnnamedConfigurable;
 import com.intellij.openapi.project.Project;
 import io.ballerina.plugins.idea.sdk.BallerinaSdkService;
 import io.ballerina.plugins.idea.settings.autodetect.BallerinaAutoDetectionConfigurable;
-import io.ballerina.plugins.idea.settings.debuglogs.LangServerDebugLogsConfigurable;
 import io.ballerina.plugins.idea.settings.experimental.BallerinaExperimentalFeatureConfigurable;
+import io.ballerina.plugins.idea.settings.langserverlogs.LangServerLogsConfigurable;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -50,14 +50,14 @@ public class BallerinaConfigurableProvider extends ConfigurableProvider {
         Configurable sdkConfigurable = BallerinaSdkService.getInstance(myProject).createSdkConfigurable();
         Configurable autoDetectionConfigurable = new BallerinaAutoDetectionConfigurable(myProject, false);
         Configurable experimentalFeatureConfigurable = new BallerinaExperimentalFeatureConfigurable(false);
-        Configurable lsDebugLogConfigurable = new LangServerDebugLogsConfigurable(false);
+        Configurable lsLogConfigurable = new LangServerLogsConfigurable(myProject, false);
 
         BallerinaCompositeConfigurable configurableWithSDK = new BallerinaCompositeConfigurable(sdkConfigurable,
                 librariesConfigurable, autoDetectionConfigurable, experimentalFeatureConfigurable,
-                lsDebugLogConfigurable);
+                lsLogConfigurable);
         BallerinaCompositeConfigurable configurableWithoutSDK = new BallerinaCompositeConfigurable(
                 librariesConfigurable, autoDetectionConfigurable, experimentalFeatureConfigurable,
-                lsDebugLogConfigurable);
+                lsLogConfigurable);
 
         return sdkConfigurable != null ? configurableWithSDK : configurableWithoutSDK;
     }

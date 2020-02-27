@@ -90,7 +90,7 @@ public class PullCommand implements BLauncherCmd {
             orgName = resourceName.substring(0, orgNameIndex);
             if (orgName.equals("ballerina")) {
                 throw LauncherUtils.createLauncherException("`Ballerina` is the builtin organization and its modules"
-                                                                    + " are included in the runtime.");
+                        + " are included in the runtime.");
             }
         } else {
             throw LauncherUtils.createLauncherException("no module-name provided");

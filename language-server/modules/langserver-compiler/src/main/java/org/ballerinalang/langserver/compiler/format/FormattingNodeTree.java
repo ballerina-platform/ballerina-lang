@@ -643,7 +643,7 @@ public class FormattingNodeTree {
                 node.getAsJsonObject(FormattingConstants.EXPRESSION).add(FormattingConstants.FORMATTING_CONFIG,
                         this.getFormattingConfig(0, 1, 0, false,
                                 this.getWhiteSpaceCount((indentationSpaceCount > 0) ?
-                                                                indentationWithParent : indentation), true));
+                                        indentationWithParent : indentation), true));
             }
         }
     }
@@ -5504,9 +5504,13 @@ public class FormattingNodeTree {
                                     && node.get(FormattingConstants.IS_VAR_EXISTS).getAsBoolean())) {
                                 currentWS.addProperty(FormattingConstants.WS, FormattingConstants.SINGLE_SPACE);
                             } else {
-                                currentWS.addProperty(FormattingConstants.WS,
-                                        this.getWhiteSpaces(formatConfig
-                                                .get(FormattingConstants.SPACE_COUNT).getAsInt()));
+                                if (formatConfig.get(FormattingConstants.SPACE_COUNT).getAsInt() > 0) {
+                                    currentWS.addProperty(FormattingConstants.WS,
+                                            this.getWhiteSpaces(formatConfig
+                                                    .get(FormattingConstants.SPACE_COUNT).getAsInt()));
+                                } else if (node.has(FormattingConstants.TYPE_NODE)) {
+                                    currentWS.addProperty(FormattingConstants.WS, FormattingConstants.SINGLE_SPACE);
+                                }
                             }
                         } else if (text.equals(Tokens.CLOSING_BRACKET) || text.equals(Tokens.COMMA)) {
                             currentWS.addProperty(FormattingConstants.WS, FormattingConstants.EMPTY_SPACE);
@@ -5547,6 +5551,13 @@ public class FormattingNodeTree {
                                         ? indentWithParentIndentation : indentation), true);
                     }
                     restVariable.add(FormattingConstants.FORMATTING_CONFIG, restParamFormatConfig);
+                }
+
+                if (node.has("initialExpression")) {
+                    JsonObject initialExpression = node.getAsJsonObject("initialExpression");
+                    initialExpression.add(FormattingConstants.FORMATTING_CONFIG,
+                            this.getFormattingConfig(0, 1, 0, false,
+                                    this.getWhiteSpaceCount(indentWithParentIndentation), true));
                 }
             } else if (node.has(FormattingConstants.TYPE_NODE)) {
                 node.getAsJsonObject(FormattingConstants.TYPE_NODE)

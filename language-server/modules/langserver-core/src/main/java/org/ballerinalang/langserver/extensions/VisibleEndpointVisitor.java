@@ -92,6 +92,9 @@ public class VisibleEndpointVisitor extends LSNodeVisitor {
 
     @Override
     public void visit(BLangFunction funcNode) {
+        if (funcNode.getBody() == null) {
+            return;
+        }
         SymbolEnv funcEnv = SymbolEnv.createFunctionEnv(funcNode, funcNode.symbol.scope, this.symbolEnv);
         SymbolEnv blockEnv = SymbolEnv.createBlockEnv(funcNode.getBody(), funcEnv);
         // resolve visible in-scope endpoints coming from current module or other modules
@@ -109,6 +112,9 @@ public class VisibleEndpointVisitor extends LSNodeVisitor {
     }
 
     private void acceptNode(BLangNode node, SymbolEnv env) {
+        if (node == null) {
+            return;
+        }
         SymbolEnv prevEnv = this.symbolEnv;
         this.symbolEnv = env;
         node.accept(this);
