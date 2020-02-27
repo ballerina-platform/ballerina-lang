@@ -27,6 +27,9 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 import java.io.IOException;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -35,6 +38,7 @@ import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BALLERINA
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BALLERINA_HOME_LIB;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.DOT_BALLERINA_REPO_DIR_NAME;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.HOME_REPO_DEFAULT_DIRNAME;
+import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.JAR_CACHE_DIR_NAME;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.USER_DIR;
 
 /**
@@ -66,11 +70,29 @@ public class BaloCreator {
         BFileUtil.delete(projectPath.resolve(baloPath).resolve(DOT_BALLERINA_REPO_DIR_NAME));
 
         // compile and create the balo
-        compileWithTestsAndWrite(projectPath, packageId, buildFolder + "/" + BALLERINA_HOME_LIB + "/");
+        CompileResult compileResult = compileWithTestsAndWrite(projectPath, packageId, buildFolder +
+                "/" + BALLERINA_HOME_LIB + "/");
 
         // copy the balo to the temp-ballerina-home/libs/
         BFileUtil.delete(Paths.get(buildFolder, BALLERINA_HOME_LIB, DOT_BALLERINA_REPO_DIR_NAME, orgName, packageId));
         BFileUtil.copy(projectPath.resolve(baloPath), Paths.get(buildFolder, BALLERINA_HOME_LIB));
+
+        if (compileResult.getClassLoader() != null) {
+            Path jarCachePath = Paths.get(buildFolder, BALLERINA_HOME_LIB, JAR_CACHE_DIR_NAME);
+            if (!Files.exists(jarCachePath)) {
+                Files.createDirectories(jarCachePath);
+            }
+            for (URL classPathEntry : compileResult.getClassLoader().getURLs()) {
+                try {
+                    Path sourcePath = Paths.get(classPathEntry.toURI());
+                    Path targetPath = Paths.get(jarCachePath.toString(), sourcePath.getFileName().toString());
+
+                    BFileUtil.copy(sourcePath, targetPath);
+                } catch (URISyntaxException e) {
+                    //ignore
+                }
+            }
+        }
     }
 
     /**
@@ -109,12 +131,12 @@ public class BaloCreator {
         BFileUtil.delete(Paths.get(projectPath.toString(), HOME_REPO_DEFAULT_DIRNAME, DOT_BALLERINA_REPO_DIR_NAME));
     }
 
-    public static void compileWithTestsAndWrite(Path sourceRootPath, String packageName, String targetPath) {
+    public static CompileResult compileWithTestsAndWrite(Path sourceRootPath, String packageName, String targetPath) {
         CompilerContext context = new CompilerContext();
         context.put(SourceDirectory.class, new FileSystemProjectDirectory(sourceRootPath));
 
-        CompileResult compileResult = BCompileUtil
-                .compileOnJBallerina(context, sourceRootPath.toString(), packageName, false, true);
+        CompileResult compileResult = BCompileUtil.compileOnJBallerina(context, sourceRootPath.toString(),
+                packageName, false, true);
 
         if (compileResult.getErrorCount() > 0) {
             throw new RuntimeException(compileResult.toString());
@@ -123,6 +145,8 @@ public class BaloCreator {
         BLangPackage bLangPackage = (BLangPackage) compileResult.getAST();
         Compiler compiler = Compiler.getInstance(context);
         compiler.write(bLangPackage, targetPath);
+
+        return compileResult;
     }
         
 }

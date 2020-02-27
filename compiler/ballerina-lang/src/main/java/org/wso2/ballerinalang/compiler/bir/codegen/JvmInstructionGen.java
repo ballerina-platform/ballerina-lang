@@ -1552,77 +1552,78 @@ public class JvmInstructionGen {
             this.currentPackageName = getPackageName(moduleId.org.value, moduleId.name.value);
         }
 
-        public static int[] listHighSurrogates(String str) {
-            List<Integer> highSurrogates = new ArrayList<>();
-            for (int i = 0; i < str.length(); i++) {
-                char c = str.charAt(i);
-                if (Character.isHighSurrogate(c)) {
-                    highSurrogates.add(i - highSurrogates.size());
-                }
-            }
-            int[] highSurrogatesArr = new int[highSurrogates.size()];
-            for (int i = 0; i < highSurrogates.size(); i++) {
-                Integer highSurrogate = highSurrogates.get(i);
-                highSurrogatesArr[i] = highSurrogate;
-            }
-            return highSurrogatesArr;
-        }
-
         void generateConstantLoadIns(ConstantLoad loadIns, boolean useBString) {
-            BType bType = loadIns.type;
-            Object constVal = loadIns.value;
-
-            if (bType.tag == TypeTags.INT ){
-                long intValue = constVal instanceof Long ? (long) constVal : Long.parseLong((String) constVal);
-                this.mv.visitLdcInsn(intValue);
-            } else if (bType.tag == TypeTags.BYTE) {
-                int byteValue = ((Number) constVal).intValue();
-                this.mv.visitLdcInsn(byteValue);
-            } else if (bType.tag == TypeTags.FLOAT) {
-                double doubleValue = constVal instanceof Double ? (double) constVal :
-                        Double.parseDouble((String) constVal);
-                this.mv.visitLdcInsn(doubleValue);
-            } else if (bType.tag == TypeTags.BOOLEAN) {
-                boolean booleanVal = constVal instanceof Boolean ? (boolean) constVal :
-                        Boolean.parseBoolean((String) constVal);
-                this.mv.visitLdcInsn(booleanVal);
-            } else if (bType.tag == TypeTags.STRING) {
-                String val = (String) constVal;
-                if (useBString) {
-                    int[] highSurrogates = listHighSurrogates(val);
-
-                    this.mv.visitTypeInsn(NEW, NON_BMP_STRING_VALUE);
-                    this.mv.visitInsn(DUP);
-                    this.mv.visitLdcInsn(val);
-                    this.mv.visitIntInsn(BIPUSH, highSurrogates.length);
-                    this.mv.visitIntInsn(NEWARRAY, T_INT);
-
-                    int i = 0;
-                    for (int ch : highSurrogates) {
-                        this.mv.visitInsn(DUP);
-                        this.mv.visitIntInsn(BIPUSH, i);
-                        this.mv.visitIntInsn(BIPUSH, ch);
-                        i = i + 1;
-                        this.mv.visitInsn(IASTORE);
-                    }
-                    this.mv.visitMethodInsn(INVOKESPECIAL, NON_BMP_STRING_VALUE, "<init>",
-                            String.format("(L%s;[I)V", STRING_VALUE), false);
-                } else {
-                    this.mv.visitLdcInsn(val);
-                }
-            } else if (bType.tag == TypeTags.DECIMAL) {
-                this.mv.visitTypeInsn(NEW, DECIMAL_VALUE);
-                this.mv.visitInsn(DUP);
-                this.mv.visitLdcInsn(constVal);
-                this.mv.visitMethodInsn(INVOKESPECIAL, DECIMAL_VALUE, "<init>",
-                        String.format("(L%s;)V", STRING_VALUE), false);
-            } else if (bType.tag == TypeTags.NIL) {
-                this.mv.visitInsn(ACONST_NULL);
-            } else {
-                throw new BLangCompilerException("JVM generation is not supported for type : " + String.format("%s", bType));
-            }
-
+            loadConstantValue(loadIns.type, loadIns.value, this.mv, useBString);
             this.storeToVar(loadIns.lhsOp.variableDcl);
+        }
+    }
+
+    public static int[] listHighSurrogates(String str) {
+        List<Integer> highSurrogates = new ArrayList<>();
+        for (int i = 0; i < str.length(); i++) {
+            char c = str.charAt(i);
+            if (Character.isHighSurrogate(c)) {
+                highSurrogates.add(i - highSurrogates.size());
+            }
+        }
+        int[] highSurrogatesArr = new int[highSurrogates.size()];
+        for (int i = 0; i < highSurrogates.size(); i++) {
+            Integer highSurrogate = highSurrogates.get(i);
+            highSurrogatesArr[i] = highSurrogate;
+        }
+        return highSurrogatesArr;
+    }
+
+
+    public static void loadConstantValue(BType bType, Object constVal, MethodVisitor mv, boolean useBString) {
+        if (bType.tag == TypeTags.INT){
+            long intValue = constVal instanceof Long ? (long) constVal : Long.parseLong(String.valueOf(constVal));
+            mv.visitLdcInsn(intValue);
+        } else if (bType.tag == TypeTags.BYTE) {
+            int byteValue = ((Number) constVal).intValue();
+            mv.visitLdcInsn(byteValue);
+        } else if (bType.tag == TypeTags.FLOAT) {
+            double doubleValue = constVal instanceof Double ? (double) constVal :
+                    Double.parseDouble(String.valueOf(constVal));
+            mv.visitLdcInsn(doubleValue);
+        } else if (bType.tag == TypeTags.BOOLEAN) {
+            boolean booleanVal = constVal instanceof Boolean ? (boolean) constVal :
+                    Boolean.parseBoolean(String.valueOf(constVal));
+            mv.visitLdcInsn(booleanVal);
+        } else if (bType.tag == TypeTags.STRING) {
+            String val = String.valueOf(constVal);
+            if (useBString) {
+                int[] highSurrogates = listHighSurrogates(val);
+
+                mv.visitTypeInsn(NEW, NON_BMP_STRING_VALUE);
+                mv.visitInsn(DUP);
+                mv.visitLdcInsn(val);
+                mv.visitIntInsn(BIPUSH, highSurrogates.length);
+                mv.visitIntInsn(NEWARRAY, T_INT);
+
+                int i = 0;
+                for (int ch : highSurrogates) {
+                    mv.visitInsn(DUP);
+                    mv.visitIntInsn(BIPUSH, i);
+                    mv.visitIntInsn(BIPUSH, ch);
+                    i = i + 1;
+                    mv.visitInsn(IASTORE);
+                }
+                mv.visitMethodInsn(INVOKESPECIAL, NON_BMP_STRING_VALUE, "<init>",
+                        String.format("(L%s;[I)V", STRING_VALUE), false);
+            } else {
+                mv.visitLdcInsn(val);
+            }
+        } else if (bType.tag == TypeTags.DECIMAL) {
+            mv.visitTypeInsn(NEW, DECIMAL_VALUE);
+            mv.visitInsn(DUP);
+            mv.visitLdcInsn(constVal);
+            mv.visitMethodInsn(INVOKESPECIAL, DECIMAL_VALUE, "<init>", String.format("(L%s;)V", STRING_VALUE), false);
+        } else if (bType.tag == TypeTags.NIL) {
+            mv.visitInsn(ACONST_NULL);
+        } else {
+            throw new BLangCompilerException("JVM generation is not supported for type : " +
+                    String.format("%s", bType));
         }
     }
 }

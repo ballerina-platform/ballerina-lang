@@ -50,6 +50,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.charset.StandardCharsets;
@@ -59,8 +60,8 @@ import java.nio.file.Paths;
 import java.security.Permission;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.StringJoiner;
 import java.util.function.Function;
@@ -74,6 +75,9 @@ import static org.ballerinalang.compiler.CompilerOptionName.PRESERVE_WHITESPACE;
 import static org.ballerinalang.compiler.CompilerOptionName.PROJECT_DIR;
 import static org.ballerinalang.test.util.TestConstant.ENABLE_JBALLERINA_TESTS;
 import static org.ballerinalang.test.util.TestConstant.MODULE_INIT_CLASS_NAME;
+import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BALLERINA_HOME;
+import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BALLERINA_HOME_LIB;
+import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.JAR_CACHE_DIR_NAME;
 
 /**
  * Utility methods for compile Ballerina files.
@@ -556,8 +560,8 @@ public class BCompileUtil {
         try {
             Path buildDir = Paths.get("build").toAbsolutePath().normalize();
             Path systemBirCache = buildDir.resolve("bir-cache");
-            URLClassLoader cl = createClassLoaders(backendDriver, bLangPackage, systemBirCache,
-                    buildDir.resolve("test-bir-temp"), Optional.empty(), false, inProc);
+            URLClassLoader cl = createClassLoaders(backendDriver, bLangPackage, systemBirCache, buildDir,
+                    Optional.empty(), false, inProc);
             compileResult.setClassLoader(cl);
 
             // TODO: calling run on compile method is wrong, should be called from BRunUtil
@@ -646,10 +650,11 @@ public class BCompileUtil {
                                                      Optional<Path> jarTargetRoot,
                                                      boolean dumpBir,
                                                      boolean inProc) throws IOException {
+        Path testBirTempRoot = buildRoot.resolve("test-bir-temp");
         byte[] bytes = PackageFileWriter.writePackage(bLangPackage.symbol.birPackageFile);
         String fileName = calcFileNameForJar(bLangPackage);
-        Files.createDirectories(buildRoot);
-        Path intermediates = Files.createTempDirectory(buildRoot, fileName + "-");
+        Files.createDirectories(testBirTempRoot);
+        Path intermediates = Files.createTempDirectory(testBirTempRoot, fileName + "-");
         Path entryBir = intermediates.resolve(fileName + ".bir");
         Path jarTarget = jarTargetRoot.orElse(intermediates).resolve(fileName + ".jar");
         Files.write(entryBir, bytes);
@@ -657,7 +662,6 @@ public class BCompileUtil {
         Path importsBirCache = intermediates.resolve("imports").resolve("bir-cache");
         Path importsTarget = importsBirCache.getParent().resolve("generated-bir-jar");
         Files.createDirectories(importsTarget);
-        //      TODO : add imports codegen below
         writeNonEntryPkgs(bLangPackage.symbol.imports, systemBirCache, importsBirCache, importsTarget, dumpBir,
                 backendDriver);
 //        if (inProc) {
@@ -677,18 +681,42 @@ public class BCompileUtil {
         }
         int index = 0;
         URL[] urls;
-        File importsCache = importsTarget.toFile();
-        if (importsCache.isDirectory()) {
-            String[] jarFIles = importsCache.list();
-            urls = new URL[jarFIles.length + 1];
-            for (String file : jarFIles) {
-                urls[index++] = Paths.get(importsCache.getPath(), file).toUri().toURL();
+        List<URL> jarFiles = new ArrayList<>();
+
+        addLibsFromJarCache(buildRoot, jarFiles);
+
+        addLibsFromImportsCache(importsTarget, jarFiles);
+
+        if (jarFiles.size() > 0) {
+            urls = new URL[jarFiles.size() + 1];
+            for (URL file : jarFiles) {
+                urls[index++] = file;
             }
         } else {
             urls = new URL[1];
         }
         urls[index] = jarTarget.toFile().toURI().toURL();
         return new URLClassLoader(urls);
+    }
+
+    private static void addLibsFromImportsCache(Path importsTarget, List<URL> jarFiles) throws MalformedURLException {
+        File importsCache = importsTarget.toFile();
+        if (importsCache.isDirectory()) {
+            for (String jarFile : Objects.requireNonNull(importsCache.list())) {
+                jarFiles.add(Paths.get(importsCache.getPath(), jarFile).toUri().toURL());
+            }
+        }
+    }
+
+    private static void addLibsFromJarCache(Path buildRoot, List<URL> jarFiles) throws MalformedURLException {
+        Path importModulesJarCache = buildRoot.resolve(Paths.get(System.getProperty(BALLERINA_HOME))).
+                resolve(BALLERINA_HOME_LIB).resolve(JAR_CACHE_DIR_NAME);
+        File importsJarCache = importModulesJarCache.toFile();
+        if (importsJarCache.isDirectory()) {
+            for (String jarFile : Objects.requireNonNull(importsJarCache.list())) {
+                jarFiles.add(Paths.get(importsJarCache.getPath(), jarFile).toUri().toURL());
+            }
+        }
     }
 
     private static void generateJarBinary(String entryBir, String jarOutputPath, boolean dumpBir,
@@ -727,7 +755,9 @@ public class BCompileUtil {
                 Path jarOutputPath = jarTargetDir.resolve(id.name.value + ".jar");
 //                generateJarBinary(pkgBir.toString(), jarOutputPath, dumpBir, Collections.emptyList(),
 //                        birCache.toString(), importsBirCache.toString());
-                backendDriver.execute(pkg.bir, dumpBir, jarOutputPath);
+                if (pkg.bir != null) {
+                    backendDriver.execute(pkg.bir, dumpBir, jarOutputPath);
+                }
             }
         }
     }

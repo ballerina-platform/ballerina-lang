@@ -133,6 +133,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPES_ERR
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.UNION_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.XML_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmInstructionGen.I_STRING_VALUE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmInstructionGen.loadConstantValue;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.BalToJVMIndexMap;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.getObjectField;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.getRecordField;
@@ -1321,11 +1322,7 @@ class JvmTypeGen {
             BType valueType = valueTypePair.type;
             mv.visitInsn(DUP);
 
-            if (valueType.tag == TypeTags.NIL) {
-                mv.visitInsn(ACONST_NULL);
-            }  else {
-                mv.visitLdcInsn(value);
-            }
+            loadConstantValue(valueType, value, mv, false);
 
             if (valueType.tag == TypeTags.INT) {
                 mv.visitMethodInsn(INVOKESTATIC, LONG_VALUE, "valueOf", String.format("(J)L%s;", LONG_VALUE), false);
@@ -1340,8 +1337,6 @@ class JvmTypeGen {
                 mv.visitInsn(DUP);
                 mv.visitLdcInsn(value);
                 mv.visitMethodInsn(INVOKESPECIAL, DECIMAL_VALUE, "<init>", String.format("(L%s;)V", STRING_VALUE), false);
-            } else {
-                // if value is string or (), then do nothing
             }
 
             // Add the value to the set

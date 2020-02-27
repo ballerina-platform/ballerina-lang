@@ -236,6 +236,8 @@ public class JvmMethodGen {
     public static int nextId = -1;
     public static int nextVarId = -1;
 
+    private static final FunctionParamComparator FUNCTION_PARAM_COMPARATOR = new FunctionParamComparator();
+
     static void generateMethod(BIRFunction birFunc,
                                ClassWriter cw,
                                BIRPackage birModule,
@@ -318,6 +320,8 @@ public class JvmMethodGen {
 
         // panic if this strand is cancelled
         checkStrandCancelled(mv, localVarOffset);
+
+        func.localVars.sort(FUNCTION_PARAM_COMPARATOR);
 
         @Nilable List<BIRVariableDcl> localVars = func.localVars;
         while (k < localVars.size()) {
