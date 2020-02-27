@@ -905,8 +905,12 @@ public class BIRPackageSymbolEnter {
                     typedescType.constraint = readTypeFromCp();
                     return typedescType;
                 case TypeTags.STREAM:
-                    BStreamType bStreamType = new BStreamType(TypeTags.STREAM, null, symTable.streamType.tsymbol);
+                    BStreamType bStreamType = new BStreamType(TypeTags.STREAM, null, null, symTable.streamType.tsymbol);
                     bStreamType.constraint = readTypeFromCp();
+                    boolean hasError = inputStream.readByte() == 1;
+                    if (hasError) {
+                        bStreamType.error = readTypeFromCp();
+                    }
                     return bStreamType;
                 case TypeTags.MAP:
                     BMapType bMapType = new BMapType(TypeTags.MAP, null, symTable.mapType.tsymbol);

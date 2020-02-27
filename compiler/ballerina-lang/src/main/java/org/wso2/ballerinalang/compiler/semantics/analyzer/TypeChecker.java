@@ -58,7 +58,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
@@ -102,7 +101,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRestArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangServiceConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangStreamConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
@@ -129,8 +127,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQuotedString;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLTextLiteral;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
-import org.wso2.ballerinalang.compiler.tree.types.BLangType;
-import org.wso2.ballerinalang.compiler.tree.types.BLangUnionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
 import org.wso2.ballerinalang.compiler.util.BArrayState;
 import org.wso2.ballerinalang.compiler.util.ClosureVarSymbol;
@@ -2800,57 +2796,6 @@ public class TypeChecker extends BLangNodeVisitor {
     @Override
     public void visit(BLangServiceConstructorExpr serviceConstructorExpr) {
         resultType = serviceConstructorExpr.serviceNode.symbol.type;
-    }
-
-    @Override
-    public void visit(BLangStreamConstructorExpr streamConstructorExpr) {
-        // Create `record {| T value; |}`, and use that as the lambda return type.
-        BRecordType recordType = createStreamReturnRecordType(streamConstructorExpr.pos, (BStreamType) expType);
-        BLangRecordTypeNode recordTypeNode = createRecordTypeNode(streamConstructorExpr.pos, recordType);
-        BLangLambdaFunction lambdaFunction = streamConstructorExpr.lambdaFunction;
-
-        BType returnType = BUnionType.create(null, recordType, symTable.nilType);
-        BLangType returnTypeNode = new BLangUnionTypeNode(new ArrayList<BLangType>() {{
-            add(recordTypeNode);
-            add(new BLangValueType(TypeKind.NIL));
-        }});
-        returnTypeNode.type = returnType;
-        lambdaFunction.function.symbol.retType = returnType;
-        lambdaFunction.function.returnTypeNode = returnTypeNode;
-
-        ((BInvokableType) lambdaFunction.function.symbol.type).retType = lambdaFunction.function.symbol.retType;
-        checkExpr(streamConstructorExpr.lambdaFunction, env);
-        ((BInvokableTypeSymbol) ((BInvokableType) lambdaFunction.type).tsymbol).returnType =
-                lambdaFunction.function.symbol.retType;
-        resultType = expType;
-    }
-
-    private BRecordType createStreamReturnRecordType(DiagnosticPos pos, BStreamType streamType) {
-        BRecordType recordType = new BRecordType(null);
-        recordType.restFieldType = symTable.noType;
-        recordType.sealed = true;
-
-        Name fieldName = Names.VALUE;
-        BField field = new BField(fieldName, pos, new BVarSymbol(Flags.PUBLIC,
-                fieldName, env.enclPkg.packageID, streamType.constraint, env.scope.owner));
-        field.type = streamType.constraint;
-        recordType.fields.add(field);
-
-        recordType.tsymbol = Symbols.createRecordSymbol(0,
-                names.fromString(anonymousModelHelper.getNextAnonymousTypeKey(env.enclPkg.symbol.pkgID)),
-                env.enclPkg.packageID, recordType, env.scope.owner);
-        recordType.tsymbol.scope = new Scope(env.scope.owner);
-        recordType.tsymbol.scope.define(fieldName, field.symbol);
-        return recordType;
-    }
-
-    private BLangRecordTypeNode createRecordTypeNode(DiagnosticPos pos, BRecordType recordType) {
-        BLangRecordTypeNode recordTypeNode = TypeDefBuilderHelper.createRecordTypeNode(recordType,
-                env.enclPkg.packageID, symTable, pos);
-        recordTypeNode.initFunction = TypeDefBuilderHelper.createInitFunctionForRecordType(recordTypeNode,
-                env, names, symTable);
-        TypeDefBuilderHelper.addTypeDefinition(recordType, recordType.tsymbol, recordTypeNode, env);
-        return recordTypeNode;
     }
 
     @Override

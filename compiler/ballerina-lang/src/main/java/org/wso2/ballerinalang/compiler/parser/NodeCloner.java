@@ -94,7 +94,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangRestArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangServiceConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStatementExpression;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangStreamConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
@@ -160,6 +159,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangFiniteTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFunctionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangStreamType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangStructureTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangTupleTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
@@ -428,14 +428,6 @@ class NodeCloner extends BLangNodeVisitor {
 
         clone.variableNode = clone(source.variableNode);
         clone.isAnonymousServiceValue = source.isAnonymousServiceValue;
-    }
-
-    @Override
-    public void visit(BLangStreamConstructorExpr source) {
-
-        BLangStreamConstructorExpr clone = new BLangStreamConstructorExpr();
-        source.cloneRef = clone;
-        clone.lambdaFunction = clone(source.lambdaFunction);
     }
 
     @Override
@@ -1326,6 +1318,17 @@ class NodeCloner extends BLangNodeVisitor {
         source.cloneRef = clone;
         clone.type = clone(source.type);
         clone.constraint = clone(source.constraint);
+        cloneBLangType(source, clone);
+    }
+
+    @Override
+    public void visit(BLangStreamType source) {
+
+        BLangStreamType clone = new BLangStreamType();
+        source.cloneRef = clone;
+        clone.type = clone(source.type);
+        clone.constraint = clone(source.constraint);
+        clone.error = clone(source.error);
         cloneBLangType(source, clone);
     }
 

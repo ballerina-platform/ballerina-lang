@@ -45,7 +45,6 @@ import org.ballerinalang.model.tree.ServiceNode;
 import org.ballerinalang.model.tree.SimpleVariableNode;
 import org.ballerinalang.model.tree.VariableNode;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
-import org.ballerinalang.model.tree.expressions.StreamConstructorNode;
 import org.ballerinalang.model.tree.expressions.XMLAttributeNode;
 import org.ballerinalang.model.tree.expressions.XMLLiteralNode;
 import org.ballerinalang.model.tree.statements.BlockStatementNode;
@@ -114,7 +113,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordVarRef.BLangR
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRestArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangServiceConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangStreamConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
@@ -179,6 +177,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangFiniteTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFunctionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangStreamType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangStructureTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangTupleTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
@@ -278,8 +277,6 @@ public class BLangPackageBuilder {
     private Stack<XMLAttributeNode> xmlAttributeNodeStack = new Stack<>();
 
     private Stack<AttachPoint> attachPointStack = new Stack<>();
-
-    private Stack<StreamConstructorNode> streamConstructorNodeStack = new Stack<>();
 
     private Set<BLangImportPackage> imports = new HashSet<>();
 
@@ -553,6 +550,31 @@ public class BLangPackageBuilder {
         constrainedType.addWS(ws);
 
         addType(constrainedType);
+    }
+
+
+    void addStreamTypeWithTypeName(DiagnosticPos pos, Set<Whitespace> ws, boolean hasError) {
+        String typeName = "stream";
+        BLangType constraint, error = null;
+        if (hasError) {
+            error = (BLangType) this.typeNodeStack.pop();
+        }
+        constraint = (BLangType) this.typeNodeStack.pop();
+        Set<Whitespace> refTypeWS = removeNthFromLast(ws, 2);
+
+        BLangBuiltInRefTypeNode refType = (BLangBuiltInRefTypeNode) TreeBuilder.createBuiltInReferenceTypeNode();
+        refType.typeKind = TreeUtils.stringToTypeKind(typeName);
+        refType.pos = pos;
+        refType.addWS(refTypeWS);
+
+        BLangStreamType streamType = (BLangStreamType) TreeBuilder.createStreamTypeNode();
+        streamType.type = refType;
+        streamType.constraint = constraint;
+        streamType.error = error;
+        streamType.pos = pos;
+        streamType.addWS(ws);
+
+        addType(streamType);
     }
 
     void addFunctionType(DiagnosticPos pos, Set<Whitespace> ws, boolean paramsAvail,
@@ -1905,27 +1927,6 @@ public class BLangPackageBuilder {
         BLangFunction lambdaFunction = (BLangFunction) this.invokableNodeStack.peek();
         lambdaFunction.addFlag(Flag.WORKER);
         this.startBlockFunctionBody();
-    }
-
-    void startStreamConstructor(DiagnosticPos pos, PackageID packageID) {
-        StreamConstructorNode streamConstructorNode = TreeBuilder.createStreamConstructorNode();
-        ((BLangStreamConstructorExpr) streamConstructorNode).pos = pos;
-        this.streamConstructorNodeStack.push(streamConstructorNode);
-        this.startLambdaFunctionDef(packageID);
-        this.startBlockFunctionBody();
-    }
-
-    void endStreamConstructor(DiagnosticPos pos, Set<Whitespace> ws) {
-        endBlockFunctionBody(pos, ws);
-        BLangStreamConstructorExpr streamConstructorExpr = (BLangStreamConstructorExpr)
-                this.streamConstructorNodeStack.pop();
-        streamConstructorExpr.pos = pos;
-        streamConstructorExpr.addWS(ws);
-
-        endFunctionSignature(pos, ws, false, false, false);
-        addLambdaFunctionDef(pos, ws);
-        streamConstructorExpr.setInvokableBody((BLangLambdaFunction) this.exprNodeStack.pop());
-        addExpressionNode(streamConstructorExpr);
     }
 
     void addWorker(DiagnosticPos pos, Set<Whitespace> ws, String workerName, DiagnosticPos workerNamePos,
