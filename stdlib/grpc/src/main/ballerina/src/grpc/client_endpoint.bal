@@ -14,6 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/runtime;
 import ballerina/crypto;
 import ballerinax/java;
 
@@ -56,6 +57,10 @@ public type Client client object {
     # + headers - Optional headers parameter. Passes header value if needed. Default sets to nil.
     # + return - Returns response message and headers if executes successfully, error otherwise.
     public remote function blockingExecute(string methodID, anydata payload, Headers? headers = ()) returns ([anydata, Headers]|Error) {
+        var retryConfig = self.config.retryConfiguration;
+        if (retryConfig is RetryConfiguration) {
+            return retryBlockingAction(methodId, payload, headers, retryConfig);
+        }
         return externBlockingExecute(self, java:fromString(methodID), payload, headers);
     }
 
@@ -79,6 +84,31 @@ public type Client client object {
     # + return - Returns client connection if executes successfully, error otherwise.
     public remote function streamingExecute(string methodID, service listenerService, Headers? headers = ()) returns StreamingClient|Error {
         return externStreamingExecute(self, java:fromString(methodID), listenerService, headers);
+    }
+
+    function retryBlockingAction(string methodID, anydata payload, Headers? headers, RetryConfiguration retryConfig)
+    returns ([anydata, Headers]|Error) {
+        int currentRetryCount = 0;
+        int retryCount = retryConfig.retryCount;
+        int interval = retryConfig.intervalInMillis;
+        int maxInterval = retryConfig.maxIntervalInMillis;
+        int backoffFactor = retryConfig.backoffFactor;
+        ErrorTypes[] errorTypes = retryConfig.errorTypes;
+
+        while (currentRetryCount < retryCount) {
+            var result = externBlockingExecute(self, java:fromString(methodID), payload, headers);
+            if (result is [anydata, Headers]) {
+                return result;
+            } else {
+                if (!(checkErrorForRetry(result, errorTypes))) {
+                    return result;
+                }
+            }
+            runtime:sleep(interval);
+            int newInterval = interval * backoffFactor;
+            interval = (newInterval > maxInterval) ? maxInterval : newInterval;
+            currentRetryCount += 1;
+        }
     }
 };
 
@@ -114,6 +144,21 @@ public type AbstractClientEndpoint abstract object {
 
 };
 
+# Represents grpc client retry functionality configurations.
+#
+# + retryCount - Maximum number of retry attempts in an failure scenario
+# + intervalInMillis - Initial interval between retry attempts
+# + maxIntervalInMillis - Maximum interval between two retry attempts
+# + backoffFactor - Retry interval will be multiplied by this factor, in between retry attempts
+# + errorTypes - Error reasons which should be considered as failure scenarios to retry
+public type RetryConfiguration record {|
+   int retryCount;
+   int intervalInMillis;
+   int maxIntervalInMillis;
+   int backoffFactor;
+   ErrorTypes[] errorTypes = [INTERNAL_ERROR];
+|};
+
 # Represents client endpoint configuration.
 #
 # + timeoutInMillis - The maximum time to wait (in milliseconds) for a response before closing the connection
@@ -125,6 +170,7 @@ public type ClientConfiguration record {|
     PoolConfiguration? poolConfig = ();
     SecureSocket? secureSocket = ();
     Compression compression = COMPRESSION_AUTO;
+    RetryConfiguration? retryConfiguration = ();
 |};
 
 # Provides configurations for facilitating secure communication with a remote HTTP endpoint.
