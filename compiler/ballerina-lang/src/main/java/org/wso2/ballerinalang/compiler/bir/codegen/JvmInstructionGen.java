@@ -1310,7 +1310,6 @@ public class JvmInstructionGen {
             lambdaIndex += 1;
             String pkgName = getPackageName(inst.pkgId.orgName, inst.pkgId.name);
             String lookupKey = pkgName + inst.funcName.value;
-            String methodClass = lookupFullQualifiedClassName(lookupKey);
 
             BType returnType = inst.lhsOp.variableDcl.type;
             if (returnType.tag != TypeTags.INVOKABLE) {

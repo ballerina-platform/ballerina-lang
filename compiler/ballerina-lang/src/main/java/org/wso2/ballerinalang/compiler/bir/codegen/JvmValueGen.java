@@ -508,7 +508,11 @@ public class JvmValueGen {
         private byte[] createRecordValueClass(BRecordType recordType, String className,
                                               BIRNode.BIRTypeDefinition typeDef) {
             ClassWriter cw = new BallerinaClassWriter(COMPUTE_FRAMES);
-            cw.visitSource(typeDef.pos.getSource().cUnitName, null);
+            if (typeDef.pos != null && typeDef.pos.src != null) {
+                cw.visitSource(typeDef.pos.getSource().cUnitName, null);
+            } else {
+                cw.visitSource(className, null);
+            }
             currentClass = className;
             cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, className,
                     String.format("<K:L%s;V:L%s;>L%s<TK;TV;>;L%s<TK;TV;>;", OBJECT, OBJECT, MAP_VALUE_IMPL, MAP_VALUE),

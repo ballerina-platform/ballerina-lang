@@ -50,6 +50,7 @@ import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator.GOTO;
 import org.wso2.ballerinalang.compiler.bir.model.InstructionKind;
 import org.wso2.ballerinalang.compiler.bir.model.VarKind;
 import org.wso2.ballerinalang.compiler.bir.model.VarScope;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BAnyType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
@@ -184,6 +185,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.JavaClas
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.birFunctionMap;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.currentClass;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.getFunctionWrapper;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.getModuleLevelClassName;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.getPackageName;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.lookupFullQualifiedClassName;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.lookupGlobalVarClassName;
@@ -1234,8 +1236,37 @@ public class JvmMethodGen {
             String methodDesc = String.format("(L%s;L%s;[L%s;)L%s;", STRAND, STRING_VALUE, OBJECT, OBJECT);
             mv.visitMethodInsn(INVOKEINTERFACE, OBJECT_VALUE, "call", methodDesc, true);
         } else {
-            String methodDesc = getLambdaMethodDesc(paramBTypes, returnType, closureMapsCount);
-            String jvmClass = lookupFullQualifiedClassName(getPackageName(orgName, moduleName) + funcName);
+            String lookupKey = getPackageName(orgName, moduleName) + funcName;
+            JvmPackageGen.BIRFunctionWrapper functionWrapper = birFunctionMap.get(lookupKey);
+            String methodDesc;
+            String jvmClass;
+
+            if (functionWrapper != null) {
+                jvmClass = functionWrapper.fullQualifiedClassName;
+                methodDesc = functionWrapper.jvmMethodDescription;
+            } else {
+                methodDesc = getLambdaMethodDesc(paramBTypes, returnType, closureMapsCount);
+                BPackageSymbol symbol = CodeGenerator.packageCache.getSymbol(orgName + "/" + moduleName);
+                BInvokableSymbol funcSymbol =
+                        (BInvokableSymbol) symbol.scope.lookup(new Name(nameOfNonBStringFunc(funcName))).symbol;
+                BInvokableType type = (BInvokableType) funcSymbol.type;
+                ArrayList<BType> params = new ArrayList<>(type.paramTypes);
+                if (type.restType != null) {
+                    params.add(type.restType);
+                }
+                for (int j = params.size() - 1; j >= 0; j--) {
+                    params.add(j + 1, new BType(TypeTags.BOOLEAN, null));
+                }
+                String balFileName = funcSymbol.source;
+
+                if (balFileName == null || !balFileName.endsWith(BAL_EXTENSION)) {
+                    balFileName = MODULE_INIT_CLASS_NAME;
+                }
+
+                jvmClass = getModuleLevelClassName(orgName, moduleName,
+                        cleanupPathSeperators(cleanupBalExt(balFileName)));
+            }
+
             mv.visitMethodInsn(INVOKESTATIC, jvmClass, funcName, methodDesc, false);
         }
 
