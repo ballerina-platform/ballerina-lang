@@ -476,3 +476,37 @@ function testInitInvocationWithDefaultError() returns (boolean) {
     }
     return e is error;
 }
+
+type Student9 object {
+    int fullMarks;
+
+    public function __init(int firstMark = 80, int secondMark = firstMark) {
+        self.fullMarks = firstMark + secondMark;
+    }
+
+    public function getMarks() returns int {
+        return self.fullMarks;
+    }
+};
+
+function testInitInvocationWithReferenceToDefaultValue1() returns (boolean) {
+    Student9 student = new;
+    return student.getMarks() == 160;
+}
+
+type Calculate object {
+    int sum;
+
+    public function __init(int a, int b, int c, int d = a + b + c*c) {
+        self.sum = d;
+    }
+
+    public function getSum() returns int {
+        return self.sum;
+    }
+};
+
+function testInitInvocationWithReferenceToDefaultValue2() returns (boolean) {
+    Calculate cal = new(2, 3, 4);
+    return cal.getSum() == 21;
+}
