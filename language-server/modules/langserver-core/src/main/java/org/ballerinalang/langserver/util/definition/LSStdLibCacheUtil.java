@@ -74,7 +74,7 @@ public class LSStdLibCacheUtil {
         // Create the new extract root
         Path destinationPath;
         try {
-            destinationPath = Files.createDirectories(destinationRoot.resolve(getCacheEntryName(moduleName, version)));
+            destinationPath = Files.createDirectories(destinationRoot.resolve(getCacheableKey(moduleName, version)));
         } catch (IOException e) {
             throw new LSStdlibCacheException(e.getMessage(), e);
         }
@@ -131,13 +131,13 @@ public class LSStdLibCacheUtil {
      * @param module import module
      * @return {@link String} computed cache entry name
      */
-    protected static synchronized String getCacheEntryName(BLangImportPackage module) {
+    protected static synchronized String getCacheableKey(BLangImportPackage module) {
         String moduleName = module.getPackageName().stream()
                 .map(BLangIdentifier::getValue)
                 .collect(Collectors.joining("."));
         String version = module.getPackageVersion().getValue();
 
-        return getCacheEntryName(moduleName, version);
+        return getCacheableKey(moduleName, version);
     }
 
     /**
@@ -146,16 +146,16 @@ public class LSStdLibCacheUtil {
      * @param packageID Package ID instance to evaluate
      * @return {@link String} computed cache entry name
      */
-    protected static synchronized String getCacheEntryName(PackageID packageID) {
+    protected static synchronized String getCacheableKey(PackageID packageID) {
         String moduleName = packageID.getNameComps().stream()
                 .map(Name::getValue)
                 .collect(Collectors.joining("."));
         String version = packageID.getPackageVersion().getValue();
 
-        return getCacheEntryName(moduleName, version);
+        return getCacheableKey(moduleName, version);
     }
 
-    private static String getCacheEntryName(String moduleName, String version) {
+    private static String getCacheableKey(String moduleName, String version) {
         return moduleName + "_" + (version.isEmpty() ? ProjectDirConstants.BLANG_PKG_DEFAULT_VERSION : version);
     }
 }
