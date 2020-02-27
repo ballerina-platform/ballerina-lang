@@ -22,7 +22,6 @@ import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.FunctionGenerator;
 import org.ballerinalang.langserver.commons.LSContext;
-import org.ballerinalang.langserver.commons.codeaction.CodeActionKeys;
 import org.ballerinalang.langserver.commons.codeaction.CodeActionNodeType;
 import org.ballerinalang.langserver.commons.workspace.LSDocumentIdentifier;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
@@ -86,11 +85,12 @@ public class VariableAssignmentCodeAction extends AbstractCodeActionProvider {
      * {@inheritDoc}
      */
     @Override
-    public List<CodeAction> getCodeActions(CodeActionNodeType nodeType, LSContext lsContext,
-                                           List<Diagnostic> diagnostics) {
+    public List<CodeAction> getDiagBasedCodeActions(CodeActionNodeType nodeType, LSContext lsContext,
+                                                    List<Diagnostic> diagnosticsOfRange,
+                                                    List<Diagnostic> allDiagnostics) {
         List<CodeAction> actions = new ArrayList<>();
-        WorkspaceDocumentManager documentManager = lsContext.get(CodeActionKeys.DOCUMENT_MANAGER_KEY);
-        Optional<Path> filePath = CommonUtil.getPathFromURI(lsContext.get(CodeActionKeys.FILE_URI_KEY));
+        WorkspaceDocumentManager documentManager = lsContext.get(DocumentServiceKeys.DOC_MANAGER_KEY);
+        Optional<Path> filePath = CommonUtil.getPathFromURI(lsContext.get(DocumentServiceKeys.FILE_URI_KEY));
         LSDocumentIdentifier document = null;
         try {
             document = documentManager.getLSDocument(filePath.get());
@@ -99,7 +99,7 @@ public class VariableAssignmentCodeAction extends AbstractCodeActionProvider {
         }
 
         if (document != null) {
-            for (Diagnostic diagnostic : diagnostics) {
+            for (Diagnostic diagnostic : diagnosticsOfRange) {
                 String diagnosticMsg = diagnostic.getMessage().toLowerCase(Locale.ROOT);
                 if (diagnosticMsg.contains(CommandConstants.VAR_ASSIGNMENT_REQUIRED)) {
                     actions.addAll(getVariableAssignmentCommand(document, diagnostic, lsContext));
@@ -107,6 +107,15 @@ public class VariableAssignmentCodeAction extends AbstractCodeActionProvider {
             }
         }
         return actions;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public List<CodeAction> getNodeBasedCodeActions(CodeActionNodeType nodeType, LSContext lsContext,
+                                                    List<Diagnostic> allDiagnostics) {
+        throw new UnsupportedOperationException("Not supported");
     }
 
     private static List<CodeAction> getVariableAssignmentCommand(LSDocumentIdentifier document, Diagnostic diagnostic,
@@ -247,7 +256,7 @@ public class VariableAssignmentCodeAction extends AbstractCodeActionProvider {
                                                               SymbolReferencesModel.Reference referenceAtCursor,
                                                               BUnionType unionType)
             throws WorkspaceDocumentException, IOException {
-        WorkspaceDocumentManager docManager = context.get(CodeActionKeys.DOCUMENT_MANAGER_KEY);
+        WorkspaceDocumentManager docManager = context.get(DocumentServiceKeys.DOC_MANAGER_KEY);
         BLangNode bLangNode = referenceAtCursor.getbLangNode();
         Position startPos = new Position(bLangNode.pos.sLine - 1, bLangNode.pos.sCol - 1);
         Position endPosWithSemiColon = new Position(bLangNode.pos.eLine - 1, bLangNode.pos.eCol);

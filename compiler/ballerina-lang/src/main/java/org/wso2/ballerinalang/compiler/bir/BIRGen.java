@@ -2055,7 +2055,7 @@ public class BIRGen extends BLangNodeVisitor {
         long size = -1L;
         if (listConstructorExpr.type.tag == TypeTags.ARRAY &&
                 ((BArrayType) listConstructorExpr.type).state != BArrayState.UNSEALED) {
-            size = (long) ((BArrayType) listConstructorExpr.type).size;
+            size = ((BArrayType) listConstructorExpr.type).size;
         } else if (listConstructorExpr.type.tag == TypeTags.TUPLE) {
             size = listConstructorExpr.exprs.size();
         }

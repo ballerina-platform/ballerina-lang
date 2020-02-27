@@ -26,6 +26,7 @@ import org.ballerinalang.langserver.command.testgen.TestGenerator;
 import org.ballerinalang.langserver.command.testgen.TestGeneratorException;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.commons.LSContext;
+import org.ballerinalang.langserver.commons.capability.LSClientCapabilities;
 import org.ballerinalang.langserver.commons.command.ExecuteCommandKeys;
 import org.ballerinalang.langserver.commons.command.LSCommandExecutorException;
 import org.ballerinalang.langserver.commons.command.spi.LSCommandExecutor;
@@ -67,8 +68,6 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiConsumer;
-
-import static org.ballerinalang.langserver.Experimental.SHOW_TEXT_DOCUMENT;
 
 /**
  * Represents the create variable command executor.
@@ -240,7 +239,10 @@ public class CreateTestExecutor implements LSCommandExecutor {
                 client.applyEdit(editParams);
                 String message = "Tests generated into the file:" + testFile.toString();
                 client.showMessage(new MessageParams(MessageType.Info, message));
-                showTextDocument(workspace, client, focus, identifier);
+                LSClientCapabilities clientCapabilities = context.get(ExecuteCommandKeys.LS_CLIENT_CAPABILITIES_KEY);
+                if (clientCapabilities.getExperimentalCapabilities().isShowTextDocumentEnabled()) {
+                    showTextDocument(workspace, client, focus, identifier);
+                }
             }
             return editParams;
         } catch (TestGeneratorException | CompilationFailedException | WorkspaceDocumentException e) {
@@ -254,8 +256,7 @@ public class CreateTestExecutor implements LSCommandExecutor {
 
     private void showTextDocument(BallerinaWorkspaceService workspace, LanguageClient client, Range focus,
                                   VersionedTextDocumentIdentifier identifier) {
-        if (workspace != null && workspace.getExperimentalClientCapabilities().get(SHOW_TEXT_DOCUMENT.getValue()) &&
-                client instanceof ExtendedLanguageClient) {
+        if (workspace != null && client instanceof ExtendedLanguageClient) {
             Location location = new Location(identifier.getUri(), focus);
             ((ExtendedLanguageClient) client).showTextDocument(location);
         }

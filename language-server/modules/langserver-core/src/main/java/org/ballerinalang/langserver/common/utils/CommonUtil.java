@@ -461,7 +461,7 @@ public class CommonUtil {
                 typeString = "new()";
                 break;
             case FINITE:
-                List<BLangExpression> valueSpace = new ArrayList<>(((BFiniteType) bType).valueSpace);
+                List<BLangExpression> valueSpace = new ArrayList<>(((BFiniteType) bType).getValueSpace());
                 String value = valueSpace.get(0).toString();
                 BType type = valueSpace.get(0).type;
                 typeString = value;
