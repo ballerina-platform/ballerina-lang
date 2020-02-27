@@ -49,9 +49,11 @@ import org.wso2.ballerinalang.util.Flags;
 import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 
 import static org.objectweb.asm.ClassWriter.COMPUTE_FRAMES;
 import static org.objectweb.asm.Opcodes.ACC_FINAL;
@@ -308,9 +310,9 @@ public class JvmPackageGen {
             return;
         }
 
-        List<PackageID> dependentModuleArray =  new ArrayList<>();
+        Set<PackageID> dependentModuleSet = new HashSet<>();
 
-        addBuiltinImports(module, dependentModuleArray);
+        addBuiltinImports(module, dependentModuleSet);
 
         BPackageSymbol pkgSymbol = CodeGenerator.packageCache.getSymbol(getBvmAlias(orgName, moduleName));
 
@@ -345,7 +347,9 @@ public class JvmPackageGen {
         injectDefaultParamInits(module);
         injectDefaultParamInitsToAttachedFuncs(module);
         // create dependant modules flat array
-        createDependantModuleFlatArray(dependentModuleArray);
+        createDependantModuleFlatArray(dependentModuleSet);
+        List<PackageID> dependentModuleArray = new ArrayList<>(dependentModuleSet);
+
         // enrich current package with package initializers
         enrichPkgWithInitializers(jvmClassMap, typeOwnerClass, module, dependentModuleArray);
 
@@ -440,14 +444,14 @@ public class JvmPackageGen {
         return orgName + "/" + moduleName;
     }
 
-    private static void createDependantModuleFlatArray(List<PackageID> dependentModuleArray) {
+    private static void createDependantModuleFlatArray(Set<PackageID> dependentModuleArray) {
         for (Map.Entry<String, PackageID> entry : dependentModules.entrySet()) {
             PackageID id = entry.getValue();
             dependentModuleArray.add(id);
         }
     }
 
-    private static void addBuiltinImports(BIRPackage currentModule, List<PackageID> dependentModuleArray) {
+    private static void addBuiltinImports(BIRPackage currentModule, Set<PackageID> dependentModuleArray) {
         // Add the builtin and utils modules to the imported list of modules
 
         Name ballerinaOrgName = new Name("ballerina");
