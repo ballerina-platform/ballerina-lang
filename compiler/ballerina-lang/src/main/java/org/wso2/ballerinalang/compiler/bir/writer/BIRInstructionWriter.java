@@ -318,7 +318,7 @@ public class BIRInstructionWriter extends BIRVisitor {
             case TypeTags.NIL:
                 break;
             default:
-                throw new IllegalStateException("unsupported constant type: " + type.getDesc());
+                throw new IllegalStateException("unsupported constant type: " + type);
         }
     }
 
