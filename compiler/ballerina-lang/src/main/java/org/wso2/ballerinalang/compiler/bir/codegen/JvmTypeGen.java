@@ -48,6 +48,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.TypeFlags;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.util.Name;
@@ -533,14 +534,14 @@ class JvmTypeGen {
                 "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V", false);
 
         // Load flags
-        mv.visitLdcInsn((long)typeSymbol.flags);
+        mv.visitLdcInsn(typeFlag(recordType));
         mv.visitInsn(L2I);
 
         // Load 'sealed' flag
         mv.visitLdcInsn(recordType.sealed);
 
         // Load type flags
-        mv.visitLdcInsn((long)recordType.flags);
+        mv.visitLdcInsn(typeFlag(recordType));
         mv.visitInsn(L2I);
 
         // initialize the record type
@@ -598,12 +599,16 @@ class JvmTypeGen {
         mv.visitLdcInsn(field.name.value);
 
         // Load flags
-        mv.visitLdcInsn((long)field.type.flags);
+        mv.visitLdcInsn(typeFlag(field.type));
         mv.visitInsn(L2I);
 
         mv.visitMethodInsn(INVOKESPECIAL, BFIELD, "<init>",
                 String.format("(L%s;L%s;I)V", BTYPE, STRING_VALUE),
                 false);
+    }
+
+    private static long typeFlag(BType type) {
+        return TypeFlags.asMask(type.isNullable(), type.isAnydata(), type.isPureType());
     }
 
     //# Add the rest field to a record type. The record type is assumed
@@ -648,7 +653,7 @@ class JvmTypeGen {
                 "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V", false);
 
         // Load flags
-        mv.visitLdcInsn((long)typeSymbol.flags);
+        mv.visitLdcInsn(typeFlag(objectType));
         mv.visitInsn(L2I);
 
         // initialize the object
@@ -684,7 +689,7 @@ class JvmTypeGen {
                 "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V", false);
 
         // Load flags
-        mv.visitLdcInsn((long)typeSymbol.flags);
+        mv.visitLdcInsn(typeFlag(objectType));
         mv.visitInsn(L2I);
 
         // initialize the object
@@ -776,7 +781,7 @@ class JvmTypeGen {
         mv.visitLdcInsn(field.name.value);
 
         // Load flags
-        mv.visitLdcInsn((long)field.type.flags);
+        mv.visitLdcInsn(typeFlag(field.type));
         mv.visitInsn(L2I);
 
         mv.visitMethodInsn(INVOKESPECIAL, BFIELD, "<init>",
@@ -866,7 +871,7 @@ class JvmTypeGen {
         loadType(mv, attachedFunc.type);
 
         // Load flags
-        mv.visitLdcInsn((long)attachedFunc.type.flags);
+        mv.visitLdcInsn(typeFlag(attachedFunc.type));
         mv.visitInsn(L2I);
 
         mv.visitMethodInsn(INVOKESPECIAL, ATTACHED_FUNCTION, "<init>",
@@ -1141,7 +1146,7 @@ class JvmTypeGen {
         }
 
         // Load type flags
-        mv.visitLdcInsn((long)bType.flags);
+        mv.visitLdcInsn(typeFlag(bType));
         mv.visitInsn(L2I);
 
         // initialize the union type using the members array
@@ -1177,7 +1182,7 @@ class JvmTypeGen {
         }
 
         // Load type flags
-        mv.visitLdcInsn((long)bType.flags);
+        mv.visitLdcInsn(typeFlag(bType));
         mv.visitInsn(L2I);
 
         mv.visitMethodInsn(INVOKESPECIAL, TUPLE_TYPE, "<init>", String.format("(L%s;L%s;I)V", LIST, BTYPE), false);
@@ -1349,7 +1354,7 @@ class JvmTypeGen {
         }
 
         // Load type flags
-        mv.visitLdcInsn((long)finiteType.flags);
+        mv.visitLdcInsn(typeFlag(finiteType));
         mv.visitInsn(L2I);
 
         // initialize the finite type using the value space
