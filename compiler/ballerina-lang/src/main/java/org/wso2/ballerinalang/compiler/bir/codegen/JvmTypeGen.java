@@ -30,6 +30,7 @@ import org.wso2.ballerinalang.compiler.bir.model.VarKind;
 import org.wso2.ballerinalang.compiler.bir.model.VarScope;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BAnyType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
@@ -227,7 +228,7 @@ class JvmTypeGen {
                     createObjectType(mv, (BObjectType) bType, typeDef);
                 }
             } else if (bType.tag == TypeTags.ERROR) {
-                createErrorType(mv, (BErrorType) bType, typeDef.name.value);
+                createErrorType(mv, (BErrorType) bType, bType.tsymbol.name.value);
             } else {
                 // do not generate anything for other types (e.g.: finite type, unions, etc.)
                 continue;
@@ -514,7 +515,8 @@ class JvmTypeGen {
         mv.visitInsn(DUP);
 
         // Load type name
-        String name = typeDef.name.value;
+        BTypeSymbol typeSymbol = recordType.tsymbol;
+        String name = typeSymbol.name.getValue();
         mv.visitLdcInsn(name);
 
         // Load package path
@@ -531,7 +533,7 @@ class JvmTypeGen {
                 "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V", false);
 
         // Load flags
-        mv.visitLdcInsn((long)typeDef.flags);
+        mv.visitLdcInsn((long)typeSymbol.flags);
         mv.visitInsn(L2I);
 
         // Load 'sealed' flag
@@ -629,7 +631,8 @@ class JvmTypeGen {
         mv.visitInsn(DUP);
 
         // Load type name
-        String name = typeDef.name.value;
+        BTypeSymbol typeSymbol = objectType.tsymbol;
+        String name = typeSymbol.name.getValue();
         mv.visitLdcInsn(name);
 
         // Load package path
@@ -645,7 +648,7 @@ class JvmTypeGen {
                 "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V", false);
 
         // Load flags
-        mv.visitLdcInsn((long)typeDef.flags);
+        mv.visitLdcInsn((long)typeSymbol.flags);
         mv.visitInsn(L2I);
 
         // initialize the object
@@ -665,7 +668,8 @@ class JvmTypeGen {
         mv.visitInsn(DUP);
 
         // Load type name
-        String name = typeDef.name.getValue();
+        BTypeSymbol typeSymbol = objectType.tsymbol;
+        String name = typeSymbol.name.getValue();
         mv.visitLdcInsn(name);
 
         // Load package path
@@ -680,7 +684,7 @@ class JvmTypeGen {
                 "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V", false);
 
         // Load flags
-        mv.visitLdcInsn((long)typeDef.flags);
+        mv.visitLdcInsn((long)typeSymbol.flags);
         mv.visitInsn(L2I);
 
         // initialize the object
