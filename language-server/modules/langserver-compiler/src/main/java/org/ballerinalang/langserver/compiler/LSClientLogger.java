@@ -35,7 +35,7 @@ import java.nio.charset.StandardCharsets;
 public class LSClientLogger {
     private static LanguageClient languageClient = null;
     private static boolean debugEnabled = false;
-    private static boolean isInitialized = false;
+    private static boolean isInitializedOnce = false;
     private static boolean traceEnabled = false;
 
     /**
@@ -45,11 +45,11 @@ public class LSClientLogger {
      * @param lsDebugEnabled LS Debug Enabled
      * @param lsTraceEnabled LS Trace Enabled
      */
-    public static void init(LanguageClient languageClient, boolean lsDebugEnabled, boolean lsTraceEnabled) {
+    public static void initAndUpdate(LanguageClient languageClient, boolean lsDebugEnabled, boolean lsTraceEnabled) {
         LSClientLogger.debugEnabled = lsDebugEnabled;
         LSClientLogger.traceEnabled = lsTraceEnabled;
         LSClientLogger.languageClient = languageClient;
-        LSClientLogger.isInitialized = true;
+        LSClientLogger.isInitializedOnce = true;
     }
 
     /**
@@ -59,7 +59,7 @@ public class LSClientLogger {
      * @param error     {@link Throwable}
      */
     public static void notifyUser(String operation, Throwable error) {
-        if (!LSClientLogger.isInitialized) {
+        if (!LSClientLogger.isInitializedOnce) {
             return;
         }
         if (languageClient != null) {
@@ -73,15 +73,15 @@ public class LSClientLogger {
      *
      * @param message      log message
      * @param error        {@link Throwable}
-     * @param textDocument text document
+     * @param identifier text document
      * @param position     position
      */
-    public static void logError(String message, Throwable error, TextDocumentIdentifier textDocument,
+    public static void logError(String message, Throwable error, TextDocumentIdentifier identifier,
                                 Position... position) {
-        if (!LSClientLogger.isInitialized) {
+        if (!LSClientLogger.isInitializedOnce) {
             return;
         }
-        String details = getErrorDetails(textDocument, error, position);
+        String details = getErrorDetails(identifier, error, position);
         if (LSClientLogger.debugEnabled && LSClientLogger.languageClient != null) {
             final Charset charset = StandardCharsets.UTF_8;
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -102,7 +102,7 @@ public class LSClientLogger {
      * @param message      log message
      */
     public static void logTrace(String message) {
-        if (!LSClientLogger.isInitialized) {
+        if (!LSClientLogger.isInitializedOnce) {
             return;
         }
         if (LSClientLogger.traceEnabled && LSClientLogger.languageClient != null) {
@@ -129,11 +129,11 @@ public class LSClientLogger {
         return LSClientLogger.traceEnabled;
     }
 
-    private static String getErrorDetails(TextDocumentIdentifier textDocument, Throwable error, Position... position) {
+    private static String getErrorDetails(TextDocumentIdentifier identifier, Throwable error, Position... position) {
         String msg = error.getMessage();
         StringBuilder result = new StringBuilder("{");
-        if (textDocument != null) {
-            result.append("uri: '").append(textDocument.getUri().replaceFirst("file://", "")).append("'");
+        if (identifier != null) {
+            result.append("uri: '").append(identifier.getUri().replaceFirst("file://", "")).append("'");
         }
         if (position != null && position[0] != null) {
             if (position.length == 2) {
