@@ -773,7 +773,6 @@ public class ASTBuilderUtil {
     public static BVarSymbol duplicateVarSymbol(BVarSymbol varSymbol) {
         BVarSymbol dupVarSymbol = new BVarSymbol(varSymbol.flags, varSymbol.name,
                 varSymbol.pkgID, varSymbol.type, varSymbol.owner);
-        dupVarSymbol.varIndex = varSymbol.varIndex;
         dupVarSymbol.tainted = varSymbol.tainted;
         dupVarSymbol.closure = varSymbol.closure;
         dupVarSymbol.markdownDocumentation = varSymbol.markdownDocumentation;

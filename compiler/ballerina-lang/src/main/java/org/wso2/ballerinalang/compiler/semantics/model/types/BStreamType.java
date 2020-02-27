@@ -21,7 +21,6 @@ package org.wso2.ballerinalang.compiler.semantics.model.types;
 import org.ballerinalang.model.types.ConstrainedType;
 import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
-import org.wso2.ballerinalang.compiler.util.TypeDescriptor;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 
 /**
@@ -55,11 +54,6 @@ public class BStreamType extends BBuiltInRefType implements ConstrainedType {
         }
 
         return super.toString() + "<" + constraint + ">";
-    }
-
-    @Override
-    public String getDesc() {
-        return TypeDescriptor.SIG_STREAM + constraint.getDesc();
     }
 
     @Override
