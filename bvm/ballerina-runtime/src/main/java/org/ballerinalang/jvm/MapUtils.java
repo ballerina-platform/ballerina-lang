@@ -190,4 +190,10 @@ public class MapUtils {
         }
         return false;
     }
+
+    public static void throwErrorOnRecord(BType type, String op) {
+        if (type instanceof BRecordType) {
+            throw createOpNotSupportedError(type, op);
+        }
+    }
 }
