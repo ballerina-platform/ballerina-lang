@@ -32,6 +32,8 @@ import java.nio.file.Paths;
 
 /**
  * Test class for gzip communication between client and server.
+ *
+ * @since 1.1.4
  */
 @Test(groups = "grpc-test")
 public class UnaryGZipEncodingTestCase {
