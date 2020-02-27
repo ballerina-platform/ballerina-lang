@@ -1021,9 +1021,6 @@ public class BIRPackageSymbolEnter {
                     BFutureType bFutureType = new BFutureType(TypeTags.FUTURE, null, symTable.futureType.tsymbol);
                     bFutureType.constraint = readTypeFromCp();
                     return bFutureType;
-                case TypeTags.INTERMEDIATE_COLLECTION:
-                    // TODO fix
-                    break;
                 case TypeTags.FINITE:
                     String finiteTypeName = getStringCPEntryValue(inputStream);
                     int finiteTypeFlags = inputStream.readInt();

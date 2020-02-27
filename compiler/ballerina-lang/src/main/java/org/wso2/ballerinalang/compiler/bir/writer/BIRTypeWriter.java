@@ -43,7 +43,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BHandleType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BIntermediateCollectionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BJSONType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
@@ -147,11 +146,6 @@ public class BIRTypeWriter implements TypeVisitor {
             writeTypeCpIndex(valueLiteral.type);
             writeValue(((BLangLiteral) valueLiteral).value, valueLiteral.type);
         }
-    }
-
-    @Override
-    public void visit(BIntermediateCollectionType bIntermediateCollectionType) {
-        throwUnimplementedError(bIntermediateCollectionType);
     }
 
     @Override
