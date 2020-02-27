@@ -42,6 +42,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BServiceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.Name;
+import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 
@@ -311,7 +312,7 @@ public class JvmPackageGen {
 
         addBuiltinImports(module, dependentModuleArray);
 
-        BPackageSymbol pkgSymbol = CodeGenerator.packageCache.getSymbol(orgName + "/" + moduleName);
+        BPackageSymbol pkgSymbol = CodeGenerator.packageCache.getSymbol(getBvmAlias(orgName, moduleName));
 
         // TODO fix imported module's linking
         if (pkgSymbol != null) {
@@ -430,6 +431,13 @@ public class JvmPackageGen {
             }
         }
 
+    }
+
+    private static String getBvmAlias(String orgName, String moduleName) {
+        if (Names.ANON_ORG.value.equals(orgName)) {
+            return moduleName;
+        }
+        return orgName + "/" + moduleName;
     }
 
     private static void createDependantModuleFlatArray(List<PackageID> dependentModuleArray) {
