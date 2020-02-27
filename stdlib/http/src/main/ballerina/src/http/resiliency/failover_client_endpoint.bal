@@ -447,13 +447,11 @@ function populateErrorsFromLastResponse (Response inResponse, ClientError?[] fai
 # circuitBreaker - Copied from CommonClientConfiguration
 # retryConfig - Copied from CommonClientConfiguration
 # cookieConfig - Copied from CommonClientConfiguration
-# + proxy - Proxy related options
 # + targets - The upstream HTTP endpoints among which the incoming HTTP traffic load should be sent on failover
 # + failoverCodes - Array of HTTP response status codes for which the failover behaviour should be triggered
 # + intervalInMillis - Failover delay interval in milliseconds
 public type FailoverClientConfiguration record {|
     *CommonClientConfiguration;
-    ProxyConfig? proxy = ();
     TargetService[] targets = [];
     int[] failoverCodes = [501, 502, 503, 504];
     int intervalInMillis = 0;
