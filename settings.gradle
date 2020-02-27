@@ -1,5 +1,6 @@
 
 rootProject.name = 'ballerina-parent'
+include(':ballerina-parser')
 include(':ballerina-lang')
 include(':ballerina-lang:internal')
 include(':ballerina-lang:annotations')
@@ -130,6 +131,7 @@ include(':debug-adapter:debug-adapter-core')
 include(':debug-adapter:debug-adapter-cli')
 include(':ballerina-bootstrapper')
 include(':ballerina-libs')
+project(':ballerina-parser').projectDir = file('compiler/ballerina-parser')
 project(':ballerina-lang').projectDir = file('compiler/ballerina-lang')
 project(':ballerina-lang:internal').projectDir = file('langlib/lang.__internal')
 project(':ballerina-lang:annotations').projectDir = file('langlib/lang.annotations')
