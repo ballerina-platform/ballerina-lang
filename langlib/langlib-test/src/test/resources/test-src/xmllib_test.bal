@@ -206,3 +206,20 @@ function testSlice() returns [xml, xml, xml] {
     xml elem = elemL + elemN + elemM;
     return [elem.slice(0, 2), elem.slice(1), xmllib:slice(elem, 1)];
 }
+
+function testXMLCycleError() returns [error|xml, error|xml] {
+     return [trap testXMLCycleErrorInner(), trap testXMLCycleInnerNonError()];
+}
+
+function testXMLCycleErrorInner() returns xml {
+    xml cat = catalog.clone();
+    cat.getChildren().strip()[0].setChildren(cat);
+    return cat;
+}
+
+function testXMLCycleInnerNonError() returns xml {
+    xml cat = catalog.clone();
+    var cds = cat.getChildren().strip();
+    cds[0].setChildren(cds[1]);
+    return cat;
+}
