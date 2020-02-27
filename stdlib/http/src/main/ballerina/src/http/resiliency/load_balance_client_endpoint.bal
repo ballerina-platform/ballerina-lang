@@ -317,13 +317,11 @@ function populateGenericLoadBalanceActionError(LoadBalanceActionErrorData loadBa
 # circuitBreaker - Copied from CommonClientConfiguration
 # retryConfig - Copied from CommonClientConfiguration
 # cookieConfig - Copied from CommonClientConfiguration
-# + proxy - Proxy related options
 # + targets - The upstream HTTP endpoints among which the incoming HTTP traffic load should be distributed
 # + lbRule - LoadBalancing rule
 # + failover - Configuration for load balancer whether to fail over in case of a failure
 public type LoadBalanceClientConfiguration record {|
     *CommonClientConfiguration;
-    ProxyConfig? proxy = ();
     TargetService[] targets = [];
     LoadBalancerRule? lbRule = ();
     boolean failover = true;
