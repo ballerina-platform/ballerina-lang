@@ -54,10 +54,6 @@ serviceBody
     :   LEFT_BRACE objectMethod* RIGHT_BRACE
     ;
 
-streamConstructorBody
-    :   LEFT_BRACE statement* RIGHT_BRACE
-    ;
-
 blockFunctionBody
     :   LEFT_BRACE statement* (workerDeclaration+ statement*)? RIGHT_BRACE
     ;
@@ -284,7 +280,12 @@ builtInReferenceTypeName
     |   TYPE_DESC LT typeName GT
     |   SERVICE
     |   errorTypeName
+    |   streamTypeName
     |   functionTypeName
+    ;
+
+streamTypeName
+    :   TYPE_STREAM LT typeName (COMMA errorTypeName)? GT
     ;
 
 functionTypeName
@@ -393,10 +394,6 @@ tableData
 
 listConstructorExpr
     :   LEFT_BRACKET expressionList? RIGHT_BRACKET
-    ;
-
-streamConstructorExpr
-    :   TYPE_STREAM streamConstructorBody
     ;
 
 assignmentStatement
@@ -792,7 +789,6 @@ expression
     |   recordLiteral                                                       # recordLiteralExpression
     |   xmlLiteral                                                          # xmlLiteralExpression
     |   tableLiteral                                                        # tableLiteralExpression
-    |   streamConstructorExpr                                               # streamConstructorExpression
     |   stringTemplateLiteral                                               # stringTemplateLiteralExpression
     |   (annotationAttachment* START)? variableReference                    # variableReferenceExpression
     |   actionInvocation                                                    # actionInvocationExpression

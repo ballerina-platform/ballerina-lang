@@ -35,21 +35,33 @@ type Type any | error;
 # + func - a predicate to apply to each member to test whether it should be selected
 # + return - new stream only containing members of `strm` for which `func` evaluates to true
 public function filter(stream<PureType1> strm, function(PureType1 val) returns boolean func) returns stream<PureType1> {
-    return stream {
+    object {
+        public stream<PureType1> strm;
+        public function(PureType1 val) returns boolean func;
+
+        public function __init(stream<PureType1> strm, function(PureType1 val) returns boolean func) {
+            self.strm = strm;
+            self.func = func;
+        }
+
+        public function next() returns record {|PureType1 value;|}? {
             // while loop is required to continue filtering until we find a value which matches the filter or ().
             while(true) {
-                var nextVal = next(strm);
+                var nextVal = next(self.strm);
                 if (nextVal is ()) {
                     return ();
                 } else {
                     var value = nextVal?.value;
+                    function(PureType1 val) returns boolean func = self.func;
                     if (func(value)) {
                         return nextVal;
                     }
                 }
             }
             return ();
-        };
+        }
+    } itrObj = new(strm, func);
+    return internal:construct(internal:getElementType(typeof strm), itrObj);
 }
 
 # Returns the next element in the stream wrapped in a record or () if the stream ends.
@@ -59,7 +71,7 @@ public function filter(stream<PureType1> strm, function(PureType1 val) returns b
 #            otherwise returns ()
 public function next(stream<PureType1> strm) returns record {| PureType1 value; |}? {
     var iteratorObj = getIteratorObj(strm);
-    return internal:createClone(iteratorObj.next());
+    return iteratorObj.next();
 }
 
 # Applies a function to each member of a stream and returns a new stream of the results.
@@ -68,16 +80,28 @@ public function next(stream<PureType1> strm) returns record {| PureType1 value; 
 # + func - A function to apply to each member
 # + return - New stream containing result of applying `func` to each member of `strm` in order
 public function 'map(stream<PureType1> strm, function(PureType1 val) returns PureType2 func) returns stream<PureType2> {
-    return stream {
-        var nextVal = next(strm);
-        if (nextVal is ()) {
-            return ();
-        } else {
-            function(anydata | error) returns anydata | error mappingFunc = func;
-            var value = mappingFunc(nextVal.value);
-            return internal:setNarrowType(typeof value, {value : value});
-        }
-    };
+    object {
+       public stream<PureType1> strm;
+       public function(PureType1 val) returns PureType2 func;
+
+       public function __init(stream<PureType1> strm, function(PureType1 val) returns PureType2 func) {
+           self.strm = strm;
+           self.func = func;
+       }
+
+       public function next() returns record {|PureType1 value;|}? {
+           var nextVal = next(self.strm);
+           if (nextVal is ()) {
+               return ();
+           } else {
+               function(anydata | error) returns anydata | error mappingFunc = self.func;
+               var value = mappingFunc(nextVal.value);
+               return internal:setNarrowType(typeof value, {value : value});
+           }
+       }
+    } iteratorObj = new(strm, func);
+    //TODO:use stream constructor instead, to get the correct elementType. It is not correct at all.
+    return internal:construct(internal:getElementType(typeof strm), iteratorObj);
 }
 
 # Combines the members of an stream using a combining function.

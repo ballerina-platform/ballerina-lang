@@ -20,7 +20,7 @@
 # Has the special semantic that when used in a declaration
 # all uses in the declaration must refer to same type.
 @typeParam
-type PureType anydata|error;
+public type PureType anydata|error;
 
 # Sets the narrowed type of the `value`.
 #

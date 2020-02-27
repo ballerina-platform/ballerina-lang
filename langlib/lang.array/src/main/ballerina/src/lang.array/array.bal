@@ -231,6 +231,7 @@ public function toStream(PureType[] arr) returns stream<PureType> {
     object {
             public int index;
             public PureType[] arr;
+
             public function __init(PureType[] arr, int index) {
                 self.index = index;
                 self.arr = arr;

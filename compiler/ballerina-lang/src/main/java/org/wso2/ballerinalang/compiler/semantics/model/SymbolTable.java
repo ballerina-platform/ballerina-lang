@@ -122,13 +122,13 @@ public class SymbolTable {
     public final BTypeSymbol semanticErrSymbol;
     public final BType semanticError;
 
+    public BType streamType = new BStreamType(TypeTags.STREAM, anydataType, null, null);
     public BErrorType errorType;
     public BRecordType detailType;
     public BConstructorSymbol errorConstructor;
     public BUnionType anyOrErrorType;
     public BUnionType pureType;
     public BUnionType errorOrNilType;
-    public BType streamType = new BStreamType(TypeTags.STREAM, pureType, null);
     public BFiniteType trueType;
     public BObjectType intRangeType;
     public BMapType mapAllType;

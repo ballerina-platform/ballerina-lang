@@ -112,7 +112,6 @@ public enum NodeKind {
     DOCUMENTATION_PARAMETER,
     DOCUMENTATION_REFERENCE,
     SERVICE_CONSTRUCTOR,
-    STREAM_CONSTRUCTOR,
 
     /* Statements */
     ABORT,
@@ -175,5 +174,6 @@ public enum NodeKind {
     RECORD_TYPE,
     OBJECT_TYPE,
     ERROR_TYPE,
+    STREAM_TYPE,
 
 }
