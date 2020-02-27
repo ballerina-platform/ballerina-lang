@@ -23,14 +23,16 @@ public class BallerinaClientConfig {
     private final boolean allowExperimental;
     private final boolean debugLog;
     private final CodeLensConfig codeLens;
-    private final boolean showLSErrors;
+    private final boolean traceLog;
+    private final GoToDefinitionConfig goToDefinition;
 
     private BallerinaClientConfig() {
         this.home = "";
         this.allowExperimental = false;
         this.debugLog = false;
         this.codeLens = new CodeLensConfig();
-        this.showLSErrors = false;
+        this.traceLog = false;
+        this.goToDefinition = new GoToDefinitionConfig();
     }
 
     /**
@@ -65,7 +67,7 @@ public class BallerinaClientConfig {
      *
      * @return True if enabled, False otherwise
      */
-    public boolean isDebugLog() {
+    public boolean isDebugLogEnabled() {
         return debugLog;
     }
 
@@ -79,11 +81,20 @@ public class BallerinaClientConfig {
     }
 
     /**
-     * Returns True if show LS errors enabled, False otherwise.
+     * Returns True if trace log enabled, False otherwise.
      *
      * @return True if enabled, False otherwise
      */
-    public boolean isShowLSErrors() {
-        return showLSErrors;
+    public boolean isTraceLogEnabled() {
+        return traceLog;
+    }
+
+    /**
+     * Returns Goto Definition Config.
+     *
+     * @return {@link GoToDefinitionConfig}
+     */
+    public GoToDefinitionConfig getGoToDefinition() {
+        return goToDefinition;
     }
 }
