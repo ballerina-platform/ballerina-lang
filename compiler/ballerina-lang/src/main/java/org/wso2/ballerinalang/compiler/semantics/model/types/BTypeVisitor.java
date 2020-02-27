@@ -63,8 +63,4 @@ public interface BTypeVisitor<T, R> {
 
     R visit(BTypedescType t, T s);
 
-
-    default R visit(BIntermediateCollectionType t, T s) {
-        throw new AssertionError();
-    }
 }

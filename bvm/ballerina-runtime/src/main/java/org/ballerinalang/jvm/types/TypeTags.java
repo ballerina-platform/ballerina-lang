@@ -55,8 +55,7 @@ public class TypeTags {
     public static final int ITERATOR_TAG = ERROR_TAG + 1;
     public static final int TUPLE_TAG = ITERATOR_TAG + 1;
     public static final int FUTURE_TAG = TUPLE_TAG + 1;
-    public static final int INTERMEDIATE_COLLECTION = FUTURE_TAG + 1;
-    public static final int FINITE_TYPE_TAG = INTERMEDIATE_COLLECTION + 1;
+    public static final int FINITE_TYPE_TAG = FUTURE_TAG + 1;
     public static final int OBJECT_TYPE_TAG = FINITE_TYPE_TAG + 1;
     public static final int BYTE_ARRAY_TAG = OBJECT_TYPE_TAG + 1;
     public static final int FUNCTION_POINTER_TAG = BYTE_ARRAY_TAG + 1;
