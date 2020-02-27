@@ -49,7 +49,8 @@ import org.wso2.ballerinalang.util.Flags;
 import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -146,7 +147,7 @@ public class JvmPackageGen {
         lambdas = new HashMap<>();
         compiledPkgCache = new HashMap<>();
         externalMapCache = new HashMap<>();
-        dependentModules = new HashMap<>();
+        dependentModules = new LinkedHashMap<>();
         currentClass = "";
         lambdaIndex = 0;
         symbolTable = null;
@@ -263,6 +264,13 @@ public class JvmPackageGen {
 
         if (packageSymbol.bir != null) {
             generatePackage(packageSymbol.bir, jarFile, interopValidator, false);
+        } else {
+            for (BPackageSymbol importPkgSymbol : packageSymbol.imports) {
+                if (importPkgSymbol == null) {
+                    continue;
+                }
+                generateDependencyList(importPkgSymbol, jarFile, interopValidator);
+            }
         }
 
         PackageID moduleId = packageSymbol.pkgID;
@@ -310,7 +318,7 @@ public class JvmPackageGen {
             return;
         }
 
-        Set<PackageID> dependentModuleSet = new HashSet<>();
+        Set<PackageID> dependentModuleSet = new LinkedHashSet<>();
 
         addBuiltinImports(module, dependentModuleSet);
 
