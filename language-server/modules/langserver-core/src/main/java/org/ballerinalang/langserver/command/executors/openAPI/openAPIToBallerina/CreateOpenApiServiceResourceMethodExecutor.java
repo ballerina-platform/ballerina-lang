@@ -171,23 +171,8 @@ public class CreateOpenApiServiceResourceMethodExecutor implements LSCommandExec
                     }
                 }
 
-                BLangNode parent = serviceNode.parent;
-                BLangPackage packageNode = CommonUtil.getPackageNode(serviceNode);
-
                 List<TextEdit> edits = new ArrayList<>();
-                if (parent != null && packageNode != null) {
-                    BiConsumer<String, String> importsAcceptor = (orgName, alias) -> {
-                        boolean notFound = packageNode.getImports().stream().noneMatch(
-                                pkg -> (pkg.orgName.value.equals(orgName) && pkg.alias.value.equals(alias))
-                        );
-                        if (notFound) {
-                            String pkgName = orgName + "/" + alias;
-                            edits.add(addPackage(pkgName, context));
-                        }
-                    };
-                } else {
-                    throw new LSCommandExecutorException("Error occurred when retrieving function node!");
-                }
+
                 LanguageClient client = context.get(ExecuteCommandKeys.LANGUAGE_CLIENT_KEY);
                 DiagnosticPos serviceNodePos = serviceNode.pos;
                 Range range = new Range(new Position(serviceNodePos.eLine - 1, serviceNodePos.eCol - 2),
@@ -203,23 +188,6 @@ public class CreateOpenApiServiceResourceMethodExecutor implements LSCommandExec
             e.printStackTrace();
         }
         return null;
-    }
-
-    private TextEdit addPackage(String pkgName, LSContext context) {
-        DiagnosticPos pos = null;
-        // Filter the imports except the runtime import
-        List<BLangImportPackage> imports = CommonUtil.getCurrentFileImports(context);
-        if (!imports.isEmpty()) {
-            BLangImportPackage lastImport = CommonUtil.getLastItem(imports);
-            pos = lastImport.getPosition();
-        }
-
-        int endCol = 0;
-        int endLine = pos == null ? 0 : pos.getEndLine();
-
-        String editText = "import " + pkgName + ";\n";
-        Range range = new Range(new Position(endLine, endCol), new Position(endLine, endCol));
-        return new TextEdit(range, editText);
     }
 
     /**

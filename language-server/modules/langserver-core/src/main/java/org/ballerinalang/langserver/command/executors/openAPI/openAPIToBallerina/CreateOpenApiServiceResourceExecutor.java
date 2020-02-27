@@ -162,23 +162,8 @@ public class CreateOpenApiServiceResourceExecutor implements LSCommandExecutor {
                     }
                 }
 
-                BLangNode parent = serviceNode.parent;
-                BLangPackage packageNode = CommonUtil.getPackageNode(serviceNode);
-
                 List<TextEdit> edits = new ArrayList<>();
-                if (parent != null && packageNode != null) {
-                    BiConsumer<String, String> importsAcceptor = (orgName, alias) -> {
-                        boolean notFound = packageNode.getImports().stream().noneMatch(
-                                pkg -> (pkg.orgName.value.equals(orgName) && pkg.alias.value.equals(alias))
-                        );
-                        if (notFound) {
-                            String pkgName = orgName + "/" + alias;
-                            edits.add(addPackage(pkgName, context));
-                        }
-                    };
-                } else {
-                    throw new LSCommandExecutorException("Error occurred when retrieving function node!");
-                }
+
                 LanguageClient client = context.get(ExecuteCommandKeys.LANGUAGE_CLIENT_KEY);
                 DiagnosticPos serviceNodePos = serviceNode.pos;
                 Range range = new Range(new Position(serviceNodePos.eLine - 1, serviceNodePos.eCol - 2),

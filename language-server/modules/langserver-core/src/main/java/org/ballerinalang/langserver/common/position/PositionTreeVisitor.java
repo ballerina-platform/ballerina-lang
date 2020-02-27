@@ -207,7 +207,7 @@ public class PositionTreeVisitor extends LSNodeVisitor {
         if (varNode.symbol != null) {
             CommonUtil.calculateEndColumnOfGivenName(varNode.getPosition(), varNode.symbol.name.getValue(), "");
             DiagnosticPos identifierPos = HoverUtil.getIdentifierPosition(varNode);
-            if (HoverUtil.isMatchingPosition(identifierPos, this.position)) {
+            if (HoverUtil.isMatchingPosition(varNode.pos, this.position)) {
                 addPosition(varNode, this.previousNode);
                 setTerminateVisitor();
             }
@@ -456,6 +456,10 @@ public class PositionTreeVisitor extends LSNodeVisitor {
     }
 
     public void visit(BLangListConstructorExpr listConstructorExpr) {
+        if (HoverUtil.isMatchingPosition(listConstructorExpr.pos, this.position)) {
+            addPosition(listConstructorExpr, this.previousNode);
+            setTerminateVisitor();
+        }
         setPreviousNode(listConstructorExpr);
         if (listConstructorExpr.exprs != null) {
             listConstructorExpr.exprs.forEach(this::acceptNode);
