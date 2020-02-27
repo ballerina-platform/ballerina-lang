@@ -454,7 +454,7 @@ public class BallerinaLexer {
         if ('a' <= c && c <= 'f') {
             return true;
         }
-        if ('A' <= c && c <= 'f') {
+        if ('A' <= c && c <= 'F') {
             return true;
         }
         return isDigit(c);
