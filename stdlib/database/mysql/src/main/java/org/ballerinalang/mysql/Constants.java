@@ -33,7 +33,7 @@ public final class Constants {
         static final String PASSWORD = "password";
         static final String DATABASE = "database";
         static final String OPTIONS = "options";
-        static final String CONNECTION_POOL_OPTIONS = "connPool";
+        static final String CONNECTION_POOL_OPTIONS = "connectionPool";
     }
 
     /**

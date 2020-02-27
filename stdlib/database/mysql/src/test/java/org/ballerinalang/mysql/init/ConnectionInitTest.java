@@ -106,10 +106,10 @@ public class ConnectionInitTest {
         BValue[] returnVal = BRunUtil.invoke(result, "testWithConnectionPool");
         Assert.assertFalse(returnVal[0] instanceof BError);
         Assert.assertTrue(returnVal[0] instanceof BMap);
-        BMap connPool = (BMap) returnVal[0];
-        Assert.assertEquals(connPool.get(Constants.ConnectionPool.MAX_CONNECTION_LIFE_TIME_SECONDS).stringValue()
+        BMap connectionPool = (BMap) returnVal[0];
+        Assert.assertEquals(connectionPool.get(Constants.ConnectionPool.MAX_CONNECTION_LIFE_TIME_SECONDS).stringValue()
                 , "1800");
-        Assert.assertEquals(connPool.get(Constants.ConnectionPool.MAX_OPEN_CONNECTIONS).stringValue(), "25");
+        Assert.assertEquals(connectionPool.get(Constants.ConnectionPool.MAX_OPEN_CONNECTIONS).stringValue(), "25");
     }
 
     @Test

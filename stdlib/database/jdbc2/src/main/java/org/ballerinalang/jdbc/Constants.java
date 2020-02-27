@@ -31,7 +31,7 @@ public final class Constants {
         static final String USER = "user";
         static final String PASSWORD = "password";
         static final String DATASOURCE_NAME = "datasourceName";
-        static final String CONNECTION_POOL_OPTIONS = "connPool";
+        static final String CONNECTION_POOL_OPTIONS = "connectionPool";
         static final String OPTIONS = "options";
         static final String PROPERTIES = "properties";
     }

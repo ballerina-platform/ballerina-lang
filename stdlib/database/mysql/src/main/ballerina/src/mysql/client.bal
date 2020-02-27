@@ -26,7 +26,7 @@ public type Client client object {
     public function __init(public string host = "localhost",
     public string? user = (), public string? password = (), public string? database = (),
     public int port = 3306, public Options? options = (),
-    public sql:ConnectionPool? connPool = ()) returns sql:Error? {
+    public sql:ConnectionPool? connectionPool = ()) returns sql:Error? {
         ClientConfiguration clientConfig = {
             host: host,
             port: port,
@@ -34,7 +34,7 @@ public type Client client object {
             password: password,
             database: database,
             options: options,
-            connPool: connPool
+            connectionPool: connectionPool
         };
         return createClient(self, clientConfig, sql:getGlobalConnectionPool());
     }
@@ -56,7 +56,7 @@ public type Client client object {
 # + password - Password for the database connection
 # + database - Name of the database
 # + options - Mysql datasource `Options` to be configured
-# + connPool - Properties for the connection pool configuration. Refer `sql:ConnectionPool` for more details
+# + connectionPool - Properties for the connection pool configuration. Refer `sql:ConnectionPool` for more details
 type ClientConfiguration record {|
     string host;
     int port;
@@ -64,7 +64,7 @@ type ClientConfiguration record {|
     string? password;
     string? database;
     Options? options;
-    sql:ConnectionPool? connPool;
+    sql:ConnectionPool? connectionPool;
 |};
 
 # MySQL database options.

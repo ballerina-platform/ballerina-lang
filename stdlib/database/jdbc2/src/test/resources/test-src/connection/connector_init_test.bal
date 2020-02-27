@@ -81,25 +81,25 @@ function testConnectionWithDatasourceInvalidProperty(string jdbcURL, string user
 }
 
 function testWithConnectionPool(string jdbcURL, string user, string password) returns error | sql:ConnectionPool {
-    sql:ConnectionPool connPool = {
+    sql:ConnectionPool connectionPool = {
         maxOpenConnections: 25
     };
-    jdbc:Client dbClient = check new (url = jdbcURL, user = user, password = password, connPool = connPool);
+    jdbc:Client dbClient = check new (url = jdbcURL, user = user, password = password, connectionPool = connectionPool);
     error? err = dbClient.close();
     if (err is error) {
         return err;
     } else {
-        return connPool;
+        return connectionPool;
     }
 }
 
 function testWithSharedConnPool(string jdbcURL, string user, string password) returns error? {
-    sql:ConnectionPool connPool = {
+    sql:ConnectionPool connectionPool = {
         maxOpenConnections: 25
     };
-    jdbc:Client dbClient1 = check new (url = jdbcURL, user = user, password = password, connPool = connPool);
-    jdbc:Client dbClient2 = check new (url = jdbcURL, user = user, password = password, connPool = connPool);
-    jdbc:Client dbClient3 = check new (url = jdbcURL, user = user, password = password, connPool = connPool);
+    jdbc:Client dbClient1 = check new (url = jdbcURL, user = user, password = password, connectionPool = connectionPool);
+    jdbc:Client dbClient2 = check new (url = jdbcURL, user = user, password = password, connectionPool = connectionPool);
+    jdbc:Client dbClient3 = check new (url = jdbcURL, user = user, password = password, connectionPool = connectionPool);
 
     check dbClient1.close();
     check dbClient2.close();
@@ -111,9 +111,9 @@ function testWithAllParams(string jdbcURL, string user, string password) returns
         datasourceName: "org.h2.jdbcx.JdbcDataSource",
         properties: {"loginTimeout": 5000}
     };
-    sql:ConnectionPool connPool = {
+    sql:ConnectionPool connectionPool = {
         maxOpenConnections: 25
     };
-    jdbc:Client dbClient = check new (jdbcURL, user, password, options, connPool);
+    jdbc:Client dbClient = check new (jdbcURL, user, password, options, connectionPool);
     check dbClient.close();
 }

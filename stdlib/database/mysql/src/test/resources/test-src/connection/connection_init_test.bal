@@ -54,27 +54,27 @@ function testWithOptions() returns error? {
 }
 
 function testWithConnectionPool() returns error | sql:ConnectionPool {
-    sql:ConnectionPool connPool = {
+    sql:ConnectionPool connectionPool = {
         maxOpenConnections: 25
     };
     mysql:Client dbClient = check new (user = user, password = password, database = database,
-    port = port, connPool = connPool);
+    port = port, connectionPool = connectionPool);
     error? err = dbClient.close();
     if (err is error) {
         return err;
     } else {
-        return connPool;
+        return connectionPool;
     }
 }
 
 function testWithConnectionParams() returns error? {
-    sql:ConnectionPool connPool = {
+    sql:ConnectionPool connectionPool = {
         maxOpenConnections: 25
     };
     mysql:Options options = {
         ssl: (),
         connectTimeoutInSeconds: 60
     };
-    mysql:Client dbClient = check new (host, user, password, database, port, options, connPool);
+    mysql:Client dbClient = check new (host, user, password, database, port, options, connectionPool);
     return dbClient.close();
 }

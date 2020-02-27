@@ -25,13 +25,13 @@ public type Client client object {
 
     # Gets called when the JDBC client is instantiated.
     public function __init(public string url, public string? user = (), public string? password = (),
-    public Options? options = (), public sql:ConnectionPool? connPool = ()) returns sql:Error? {
+    public Options? options = (), public sql:ConnectionPool? connectionPool = ()) returns sql:Error? {
         ClientConfiguration clientConf = {
             url: url,
             user: user,
             password: password,
             options: options,
-            connPool: connPool
+            connectionPool: connectionPool
         };
         return createClient(self, clientConf, sql:getGlobalConnectionPool());
     }
@@ -59,13 +59,13 @@ public type Options record {|
 # + user - Username for the database connection
 # + password - Password for the database connection
 # + options - A map of DB specific `Options`
-# + connPool - Properties for the connection pool configuration. Refer `sql:ConnectionPool` for more details
+# + connectionPool - Properties for the connection pool configuration. Refer `sql:ConnectionPool` for more details
 type ClientConfiguration record {|
     string? url;
     string? user;
     string? password;
     Options? options;
-    sql:ConnectionPool? connPool;
+    sql:ConnectionPool? connectionPool;
 |};
 
 function createClient(Client jdbcClient, ClientConfiguration clientConf,
