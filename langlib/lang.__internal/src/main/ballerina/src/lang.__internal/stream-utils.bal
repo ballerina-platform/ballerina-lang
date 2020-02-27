@@ -35,7 +35,6 @@ public function setNarrowType(typedesc<PureType> td, record {|PureType value;|} 
 # + return - immutable clone of `v`
 public function createClone(PureType v) returns PureType = external;
 
-
 # Takes in a lambda function and returns a new stream out of it.
 #
 # + td - A type description.

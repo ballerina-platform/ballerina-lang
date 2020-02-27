@@ -228,24 +228,5 @@ public function fromBase16(string str) returns byte[]|error = external;
 # + arr - The array from which the stream is created
 # + return - The stream representation of the array `arr`
 public function toStream(PureType[] arr) returns stream<PureType> {
-    object {
-            public int index;
-            public PureType[] arr;
-
-            public function __init(PureType[] arr, int index) {
-                self.index = index;
-                self.arr = arr;
-            }
-            public function next() returns record {|PureType value;|}? {
-                self.index += 1;
-                if (length(self.arr) > self.index) {
-                    var value = self.arr[self.index];
-                    return internal:setNarrowType(typeof value, {value : value});
-                } else {
-                    return ();
-                }
-            }
-        } itrObj = new(arr, -1);
-
-    return internal:construct(internal:getElementType(typeof arr), itrObj);
+    return internal:construct(internal:getElementType(typeof arr), iterator(arr));
 }
