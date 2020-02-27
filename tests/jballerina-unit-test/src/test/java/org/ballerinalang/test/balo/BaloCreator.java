@@ -63,6 +63,8 @@ public class BaloCreator {
                 .relativize(Paths.get(System.getProperty(BALLERINA_HOME))).toString();
         Path baloPath = Paths.get(USER_REPO_DEFAULT_DIRNAME);
         projectPath = TEST_RESOURCES_SOURCE_PATH.resolve(projectPath);
+        Path jarCachePath = Paths.get(buildFolder, BALLERINA_HOME_LIB, JAR_CACHE_DIR_NAME);
+        BFileUtil.delete(jarCachePath);
 
         // Clear any old balos
         // clearing from .ballerina will remove the .ballerina file as well. Therefore start clearing from
@@ -78,7 +80,6 @@ public class BaloCreator {
         BFileUtil.copy(projectPath.resolve(baloPath), Paths.get(buildFolder, BALLERINA_HOME_LIB));
 
         if (compileResult.getClassLoader() != null) {
-            Path jarCachePath = Paths.get(buildFolder, BALLERINA_HOME_LIB, JAR_CACHE_DIR_NAME);
             if (!Files.exists(jarCachePath)) {
                 Files.createDirectories(jarCachePath);
             }
