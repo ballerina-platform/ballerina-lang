@@ -254,7 +254,7 @@ public class SymbolTable {
         initializeType(type, names.fromString(name));
     }
 
-    private void initializeType(BType   type, Name name) {
+    private void initializeType(BType type, Name name) {
         defineType(type, new BTypeSymbol(SymTag.TYPE, Flags.PUBLIC, name, rootPkgSymbol.pkgID, type, rootPkgSymbol));
     }
 
