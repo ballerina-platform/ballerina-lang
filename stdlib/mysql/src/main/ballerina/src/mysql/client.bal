@@ -15,8 +15,8 @@
 // under the License.
 
 import ballerina/crypto;
-import ballerinax/java;
 import ballerina/sql;
+import ballerinax/java;
 
 # Represents a MySQL database client.
 #
@@ -24,17 +24,17 @@ public type Client client object {
     *sql:Client;
     private boolean clientActive = true;
 
-    public function __init(public string host="localhost",
-        public string? user = (), public string? password= (), public string? database = (),
-        public int port=3306, public Options? options = (),
-        public sql:ConnectionPool? connPool = ()) returns sql:Error? {
+    public function __init(public string host = "localhost",
+    public string? user = (), public string? password = (), public string? database = (),
+    public int port = 3306, public Options? options = (),
+    public sql:ConnectionPool? connPool = ()) returns sql:Error? {
         ClientConfiguration clientConfig = {
             host: host,
-            port :port,
+            port: port,
             user: user,
             password: password,
             database: database,
-            options:options,
+            options: options,
             connPool: connPool
         };
         return createClient(self, clientConfig, sql:getGlobalConnectionPool());
@@ -43,9 +43,9 @@ public type Client client object {
     # Close the SQL client.
     #
     # + return - Possible error during closing the client
-    public function close() returns error?{
-       self.clientActive = false;
-       return close(self);
+    public function close() returns error? {
+        self.clientActive = false;
+        return close(self);
     }
 };
 
@@ -76,7 +76,7 @@ type ClientConfiguration record {|
 # + useXADatasource - Boolean value to enable XADatasource
 # + connectTimeoutSeconds - Timeout to be used when connecting to the mysql serevr.
 # + socketTimeoutSeconds - Timeout during the read/write operations with mysql server.
-public type Options record{|
+public type Options record {|
     SSLConfig? ssl = {};
     boolean useXADatasource = false;
     decimal connectTimeoutSeconds = 30;
@@ -85,7 +85,7 @@ public type Options record{|
 
 
 # Possible options for SSL Mode.
-public type SSLMode "PREFERRED"| "REQUIRED" | "VERIFY_CERT" | "VERIFY_IDENTITY";
+public type SSLMode "PREFERRED" | "REQUIRED" | "VERIFY_CERT" | "VERIFY_IDENTITY";
 
 
 # SSL Configuration to be used when connecting to mysql server.
@@ -95,14 +95,14 @@ public type SSLMode "PREFERRED"| "REQUIRED" | "VERIFY_CERT" | "VERIFY_IDENTITY";
 # + trustCertKeystore - Keystore configurtion of the trust certificates.
 #
 public type SSLConfig record {|
-  SSLMode mode = "PREFERRED";
-  crypto:KeyStore clientCertKeystore?;
-  crypto:KeyStore trustCertKeystore?;
+    SSLMode mode = "PREFERRED";
+    crypto:KeyStore clientCertKeystore?;
+    crypto:KeyStore trustCertKeystore?;
 |};
 
 
 function createClient(Client mysqlClient, ClientConfiguration clientConf,
-    sql:ConnectionPool globalConnPool) returns sql:Error? = @java:Method {
+sql:ConnectionPool globalConnPool) returns sql:Error? = @java:Method {
     class: "org.ballerinalang.mysql.NativeImpl"
 } external;
 

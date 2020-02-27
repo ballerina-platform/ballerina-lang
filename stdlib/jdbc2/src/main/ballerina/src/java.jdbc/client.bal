@@ -14,8 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerinax/java;
 import ballerina/sql;
+import ballerinax/java;
 
 # Represents a JDBC client.
 #
@@ -25,15 +25,15 @@ public type Client client object {
 
     # Gets called when the JDBC client is instantiated.
     public function __init(public string url, public string? user = (), public string? password = (),
-                           public Options? options = (), public sql:ConnectionPool? connPool = ()) returns sql:Error? {
-      ClientConfiguration clientConf = {
-        url: url,
-        user: user,
-        password: password,
-        options:options,
-        connPool: connPool
-      };
-      return createClient(self, clientConf, sql:getGlobalConnectionPool());
+    public Options? options = (), public sql:ConnectionPool? connPool = ()) returns sql:Error? {
+        ClientConfiguration clientConf = {
+            url: url,
+            user: user,
+            password: password,
+            options: options,
+            connPool: connPool
+        };
+        return createClient(self, clientConf, sql:getGlobalConnectionPool());
     }
 
     # Stops the JDBC client.
@@ -71,7 +71,7 @@ type ClientConfiguration record {|
 
 
 function createClient(Client jdbcClient, ClientConfiguration clientConf,
-    sql:ConnectionPool globalConnPool) returns sql:Error? = @java:Method {
+sql:ConnectionPool globalConnPool) returns sql:Error? = @java:Method {
     class: "org.ballerinalang.jdbc.NativeImpl"
 } external;
 

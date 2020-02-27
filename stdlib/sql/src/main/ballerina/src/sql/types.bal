@@ -43,6 +43,6 @@ function initGlobalPoolContainer(ConnectionPool poolConfig) = @java:Method {
 // of connection pools.
 final GlobalConnectionPoolContainer globalPoolContainer = new;
 
-public function getGlobalConnectionPool() returns ConnectionPool{
+public function getGlobalConnectionPool() returns ConnectionPool {
     return globalPoolContainer.getGlobalConnectionPool();
 }

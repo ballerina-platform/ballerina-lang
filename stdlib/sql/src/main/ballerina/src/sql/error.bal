@@ -48,5 +48,5 @@ public type DatabaseError error<DATABASE_ERROR_REASON, DatabaseErrorData>;
 public type ApplicationError error<APPLICATION_ERROR_REASON, ApplicationErrorData>;
 
 # Represents a database or application level error returned from JDBC client remote functions.
-public type Error DatabaseError|ApplicationError;
+public type Error DatabaseError | ApplicationError;
 
