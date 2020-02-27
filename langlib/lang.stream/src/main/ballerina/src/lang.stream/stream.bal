@@ -134,5 +134,5 @@ public function iterator(stream<PureType1> strm) returns abstract object {
         PureType1 value;
     |}?;
 } {
-    return getIteratorObj(strm);;
+    return getIteratorObj(strm);
 }

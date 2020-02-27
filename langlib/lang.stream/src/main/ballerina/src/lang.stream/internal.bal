@@ -22,7 +22,7 @@ type PureType3 anydata | error;
 # + strm - The stream
 # + return - An abstract object which is iterable
 public function getIteratorObj(stream<PureType3> strm) returns abstract object { public function next() returns
-    record {|PureType3 value;|}? = external;
+    record {|PureType3 value;|}?;} = external;
 
 # Represent the iterator type returned when `iterator` method is invoked.
 type StreamIterator object {

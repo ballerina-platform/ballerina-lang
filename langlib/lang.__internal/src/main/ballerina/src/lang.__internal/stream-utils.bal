@@ -42,7 +42,7 @@ public function createClone(PureType v) returns PureType = external;
 # + iteratorObj - An iterator object.
 # + return - New stream containing results of `iteratorObj` object's next function invocations.
 public function construct(typedesc<PureType> td, abstract object { public function next() returns
-        record {|PureType value;|}? iteratorObj) returns stream<PureType> = external;
+        record {|PureType value;|}?;} iteratorObj) returns stream<PureType> = external;
 
 # Takes a typedesc of an array, stream and returns the typedesc of the element, constraint type.
 #
