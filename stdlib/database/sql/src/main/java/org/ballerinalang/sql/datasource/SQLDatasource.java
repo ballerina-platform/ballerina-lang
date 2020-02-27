@@ -154,7 +154,7 @@ public class SQLDatasource {
             if (sqlDatasourceParams.connectionPool != null) {
                 int maxOpenConn = sqlDatasourceParams.connectionPool.
                         getIntValue(Constants.ConnectionPool.MAX_OPEN_CONNECTIONS).intValue();
-                if (maxOpenConn < 0) {
+                if (maxOpenConn > 0) {
                     config.setMaximumPoolSize(maxOpenConn);
                 }
 
@@ -169,7 +169,7 @@ public class SQLDatasource {
                 }
                 int minIdleConnections = sqlDatasourceParams.connectionPool
                         .getIntValue(Constants.ConnectionPool.MIN_IDLE_CONNECTIONS).intValue();
-                if (minIdleConnections < 0) {
+                if (minIdleConnections > 0) {
                     config.setMinimumIdle(minIdleConnections);
                 }
             }
