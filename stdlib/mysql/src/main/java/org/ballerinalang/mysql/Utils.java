@@ -36,7 +36,7 @@ public class Utils {
                 options.put(Constants.DatabaseProps.CONNECT_TIMEOUT, connectTimeout);
             }
 
-            long socketTimeout = getTimeout(mysqlOptions.get(Constants.Options.CONNECT_TIMEOUT_SECONDS));
+            long socketTimeout = getTimeout(mysqlOptions.get(Constants.Options.SOCKET_TIMEOUT_SECONDS));
             if (socketTimeout > 0) {
                 options.put(Constants.DatabaseProps.SOCKET_TIMEOUT, socketTimeout);
             }

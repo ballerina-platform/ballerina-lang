@@ -18,4 +18,3 @@ target = "java8"
     path = "./lib/ballerina-sql-@project.version@.jar"
     groupId = "ballerina"
     modules = ["jdbc"]
-

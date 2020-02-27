@@ -19,7 +19,6 @@ import ballerina/sql;
 import ballerinax/java;
 
 # Represents a MySQL database client.
-#
 public type Client client object {
     *sql:Client;
     private boolean clientActive = true;
@@ -49,7 +48,6 @@ public type Client client object {
     }
 };
 
-
 # Provides a set of configurations for the mysql client to be passed internally within the module.
 #
 # + host - URL of the database to connect
@@ -57,7 +55,7 @@ public type Client client object {
 # + user - Username for the database connection
 # + password - Password for the database connection
 # + database - Name of the database
-# + options - Mysql datasource `Options` to be configured.
+# + options - Mysql datasource `Options` to be configured
 # + connPool - Properties for the connection pool configuration. Refer `sql:ConnectionPool` for more details
 type ClientConfiguration record {|
     string host;
@@ -69,30 +67,28 @@ type ClientConfiguration record {|
     sql:ConnectionPool? connPool;
 |};
 
-
 # MySQL database options.
 #
 # + ssl - SSL Configuration to be used
 # + useXADatasource - Boolean value to enable XADatasource
-# + connectTimeoutSeconds - Timeout to be used when connecting to the mysql serevr.
-# + socketTimeoutSeconds - Timeout during the read/write operations with mysql server.
+# + connectTimeoutInSeconds - Timeout to be used when connecting to the mysql server
+# + socketTimeoutInSeconds - Socket timeout during the read/write operations with mysql server,
+#                            0 means no socket timeout
 public type Options record {|
     SSLConfig? ssl = {};
     boolean useXADatasource = false;
-    decimal connectTimeoutSeconds = 30;
-    decimal socketTimeoutSeconds = 0;
+    decimal connectTimeoutInSeconds = 30;
+    decimal socketTimeoutInSeconds = 0;
 |};
-
 
 # Possible options for SSL Mode.
 public type SSLMode "PREFERRED" | "REQUIRED" | "VERIFY_CERT" | "VERIFY_IDENTITY";
 
-
 # SSL Configuration to be used when connecting to mysql server.
 #
 # + mode - `SSLMode` to be usedduring the connection
-# + clientCertKeystore - Keystore configuration of the client certificates.
-# + trustCertKeystore - Keystore configurtion of the trust certificates.
+# + clientCertKeystore - Keystore configuration of the client certificates
+# + trustCertKeystore - Keystore configurtion of the trust certificates
 #
 public type SSLConfig record {|
     SSLMode mode = "PREFERRED";
@@ -100,12 +96,10 @@ public type SSLConfig record {|
     crypto:KeyStore trustCertKeystore?;
 |};
 
-
 function createClient(Client mysqlClient, ClientConfiguration clientConf,
 sql:ConnectionPool globalConnPool) returns sql:Error? = @java:Method {
     class: "org.ballerinalang.mysql.NativeImpl"
 } external;
-
 
 function close(Client mysqlClient) returns error? = @java:Method {
     class: "org.ballerinalang.mysql.NativeImpl"

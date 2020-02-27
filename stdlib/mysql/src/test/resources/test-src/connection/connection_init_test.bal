@@ -46,7 +46,7 @@ function testWithoutHost() returns error? {
 function testWithOptions() returns error? {
     mysql:Options options = {
         ssl: (),
-        connectTimeoutSeconds: 60
+        connectTimeoutInSeconds: 60
     };
     mysql:Client dbClient = check new (user = user, password = password, database = database,
     port = port, options = options);
@@ -73,7 +73,7 @@ function testWithConnectionParams() returns error? {
     };
     mysql:Options options = {
         ssl: (),
-        connectTimeoutSeconds: 60
+        connectTimeoutInSeconds: 60
     };
     mysql:Client dbClient = check new (host, user, password, database, port, options, connPool);
     return dbClient.close();

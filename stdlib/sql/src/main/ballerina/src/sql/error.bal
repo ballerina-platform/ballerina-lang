@@ -16,7 +16,7 @@
 
 public const DATABASE_ERROR_REASON = "{ballerina/sql}DatabaseError";
 
-# Represents the properties belonging to a `DatabaseError`
+# Represents the properties belonging to a `DatabaseError`.
 #
 # + message - Error message
 # + errorCode - SQL error code
@@ -31,7 +31,7 @@ public type DatabaseErrorData record {|
 
 public const APPLICATION_ERROR_REASON = "{ballerina/sql}ApplicationError";
 
-# Represents the properties belonging to an `ApplicationError`
+# Represents the properties belonging to an `ApplicationError`.
 #
 # + message - Error message
 # + cause - Cause of the error
@@ -49,4 +49,3 @@ public type ApplicationError error<APPLICATION_ERROR_REASON, ApplicationErrorDat
 
 # Represents a database or application level error returned from JDBC client remote functions.
 public type Error DatabaseError | ApplicationError;
-

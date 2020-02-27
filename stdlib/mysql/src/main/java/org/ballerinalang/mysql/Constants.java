@@ -42,8 +42,8 @@ public final class Constants {
     public static final class Options {
         static final String SSL = "ssl";
         static final String USE_XA_DATASOURCE = "useXADatasource";
-        static final String CONNECT_TIMEOUT_SECONDS = "connectTimeoutSeconds";
-        static final String SOCKET_TIMEOUT_SECONDS = "socketTimeoutSeconds";
+        static final String CONNECT_TIMEOUT_SECONDS = "connectTimeoutInSeconds";
+        static final String SOCKET_TIMEOUT_SECONDS = "socketTimeoutInSeconds";
     }
 
     /**
@@ -75,5 +75,4 @@ public final class Constants {
 
     static final String MYSQL_DATASOURCE_NAME = "com.mysql.cj.jdbc.MysqlDataSource";
     static final String MYSQL_XA_DATASOURCE_NAME = "com.mysql.cj.jdbc.MysqlXADataSource";
-
 }

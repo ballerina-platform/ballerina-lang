@@ -20,8 +20,8 @@ package org.ballerinalang.jdbc;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.sql.datasource.SQLDatasource;
-import org.ballerinalang.sql.exceptions.ErrorGenerator;
 import org.ballerinalang.sql.utils.ClientUtils;
+import org.ballerinalang.sql.utils.ErrorGenerator;
 
 /**
  * This class will include the native method implementation for the JDBC client.

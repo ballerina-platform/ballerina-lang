@@ -45,7 +45,6 @@ public type Client client object {
     }
 };
 
-
 # Provides a set of configuration related to database.
 # + datasourceName - The driver class name to be used to get the connection
 # + properties - the properties of the database which should be applied when getting the connection
@@ -59,7 +58,7 @@ public type Options record {|
 # + url - URL of the database to connect
 # + user - Username for the database connection
 # + password - Password for the database connection
-# + options - A map of DB specific `Options`.
+# + options - A map of DB specific `Options`
 # + connPool - Properties for the connection pool configuration. Refer `sql:ConnectionPool` for more details
 type ClientConfiguration record {|
     string? url;
@@ -69,12 +68,10 @@ type ClientConfiguration record {|
     sql:ConnectionPool? connPool;
 |};
 
-
 function createClient(Client jdbcClient, ClientConfiguration clientConf,
 sql:ConnectionPool globalConnPool) returns sql:Error? = @java:Method {
     class: "org.ballerinalang.jdbc.NativeImpl"
 } external;
-
 
 function close(Client jdbcClient) returns error? = @java:Method {
     class: "org.ballerinalang.jdbc.NativeImpl"

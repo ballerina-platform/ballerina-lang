@@ -43,7 +43,7 @@ import java.nio.file.Paths;
 public class ConnectionInitSSLTest {
     private static final String DB_NAME = "SSL_CONNECT_DB";
     private CompileResult result;
-    private DB datbase;
+    private DB database;
 
     @BeforeClass
     public void setup() throws ManagedProcessException {
@@ -53,12 +53,12 @@ public class ConnectionInitSSLTest {
         configBuilder.setPort(SQLDBUtils.DB_PORT);
         configBuilder.setDataDir(SQLDBUtils.DB_DIRECTORY);
         configBuilder.setDeletingTemporaryBaseAndDataDirsOnShutdown(true);
-        datbase = DB.newEmbeddedDB(configBuilder.build());
-        datbase.start();
-        datbase.createDB(DB_NAME, SQLDBUtils.DB_USER_NAME, SQLDBUtils.DB_USER_PW);
+        database = DB.newEmbeddedDB(configBuilder.build());
+        database.start();
+        database.createDB(DB_NAME, SQLDBUtils.DB_USER_NAME, SQLDBUtils.DB_USER_PW);
         String sqlFile = SQLDBUtils.SQL_RESOURCE_DIR + File.separator + SQLDBUtils.CONNECTIONS_DIR +
                 File.separator + "connections_test_data.sql";
-        datbase.source(sqlFile, DB_NAME);
+        database.source(sqlFile, DB_NAME);
     }
 
     @Test
@@ -100,6 +100,6 @@ public class ConnectionInitSSLTest {
     @AfterClass
     public void cleanup() throws ManagedProcessException {
         SQLDBUtils.deleteDirectory(new File(SQLDBUtils.DB_DIRECTORY));
-        datbase.stop();
+        database.stop();
     }
 }

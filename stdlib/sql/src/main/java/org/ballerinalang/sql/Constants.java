@@ -29,7 +29,6 @@ import java.util.UUID;
 public final class Constants {
 
     public static final String CONNECTOR_NAME = "ClientConnector";
-
     public static final BPackage SQL_PACKAGE_ID = new BPackage("ballerina", "sql");
     public static final String DATABASE_CLIENT = "Client";
     public static final String CONNECTOR_ID_KEY = UUID.randomUUID().toString();
@@ -47,7 +46,7 @@ public final class Constants {
      */
     public static final class ConnectionPool {
         public static final String MAX_OPEN_CONNECTIONS = "maxOpenConnections";
-        public static final String MAX_CONNECTION_LIFE_TIME_SECONDS = "maxConnectionLifeTimeSeconds";
+        public static final String MAX_CONNECTION_LIFE_TIME_SECONDS = "maxConnectionLifeTimeInSeconds";
         public static final String MIN_IDLE_CONNECTIONS = "minIdleConnections";
     }
 
@@ -68,5 +67,4 @@ public final class Constants {
         public static final String SQL_STATE = "sqlState";
 
     }
-
 }

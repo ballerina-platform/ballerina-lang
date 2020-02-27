@@ -22,7 +22,7 @@ import com.zaxxer.hikari.HikariDataSource;
 import org.ballerinalang.jvm.values.DecimalValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.sql.Constants;
-import org.ballerinalang.sql.exceptions.ErrorGenerator;
+import org.ballerinalang.sql.utils.ErrorGenerator;
 
 import java.sql.Connection;
 import java.sql.SQLException;
