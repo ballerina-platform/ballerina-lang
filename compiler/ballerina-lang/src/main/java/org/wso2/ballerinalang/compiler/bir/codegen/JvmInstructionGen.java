@@ -512,6 +512,9 @@ public class JvmInstructionGen {
                 case BITWISE_RIGHT_SHIFT:
                     this.generateBitwiseRightShiftIns(binaryIns);
                     break;
+                case BITWISE_UNSIGNED_RIGHT_SHIFT:
+                    this.generateBitwiseUnsignedRightShiftIns(binaryIns);
+                    break;
                 default:
                     throw new BLangCompilerException("JVM generation is not supported for instruction kind : " +
                             String.format("%s", insKind));
