@@ -346,7 +346,7 @@ public class JvmPackageGen {
 
         typeOwnerClass = getModuleLevelClassName(orgName, moduleName, MODULE_INIT_CLASS_NAME);
         Map<String, JavaClass> jvmClassMap = generateClassNameMappings(module, pkgName, typeOwnerClass,
-                interopValidator);
+                interopValidator, isEntry);
         if (!isEntry || dlogger.getErrorCount() > 0) {
             return;
         }
@@ -716,16 +716,19 @@ public class JvmPackageGen {
 //# + lambdaCalls - The lambdas
 //# + return - The map of javaClass records on given source file name
     private static Map<String, JavaClass> generateClassNameMappings(BIRPackage module, String pkgName, String initClass,
-                                                                    InteropValidator interopValidator) {
+                                                                    InteropValidator interopValidator,
+                                                                    boolean isEntry) {
 
         String orgName = module.org.value;
         String moduleName = module.name.value;
         String version = module.version.value;
         Map<String, JavaClass> jvmClassMap = new HashMap<>();
 
-        for (BIRNode.BIRConstant constant : module.constants) {
-            module.globalVars.add(new BIRGlobalVariableDcl(constant.pos, constant.flags, constant.type, null,
-                                                           constant.name, VarScope.GLOBAL, VarKind.CONSTANT, ""));
+        if (isEntry) {
+            for (BIRNode.BIRConstant constant : module.constants) {
+                module.globalVars.add(new BIRGlobalVariableDcl(constant.pos, constant.flags, constant.type, null,
+                                                               constant.name, VarScope.GLOBAL, VarKind.CONSTANT, ""));
+            }
         }
         for (BIRGlobalVariableDcl globalVar : module.globalVars) {
             if (globalVar != null) {
@@ -798,7 +801,9 @@ public class JvmPackageGen {
                     birFuncWrapperOrError = createExternalFunctionWrapper(interopValidator, birFunc, orgName,
                             moduleName, version, birModuleClassName);
                 } else {
-                    addDefaultableBooleanVarsToSignature(birFunc);
+                    if (isEntry) {
+                        addDefaultableBooleanVarsToSignature(birFunc);
+                    }
                     birFuncWrapperOrError = getFunctionWrapper(birFunc, orgName, moduleName, version,
                             birModuleClassName);
                 }
@@ -829,7 +834,7 @@ public class JvmPackageGen {
                     !Symbols.isFlagOn(((BObjectType) bType).tsymbol.flags, Flags.ABSTRACT)) ||
                     bType instanceof BServiceType) {
                 @Nilable List<BIRFunction> attachedFuncs = getFunctions(typeDef.attachedFuncs);
-                String typeName = typeName = toNameString(((BObjectType) bType));
+                String typeName = toNameString(bType);
 //                if (bType.tag == TypeTags.OBJECT) {
 //                    typeName = ((BObjectType)bType).name.getValue();
 //                } else {
@@ -874,7 +879,7 @@ public class JvmPackageGen {
         String jvmMethodDescriptionBString = getMethodDesc(functionTypeDesc.paramTypes, functionTypeDesc.retType,
                 attachedType, false, true);
 
-        return new BIRFunctionWrapper(orgName, moduleName, version, currentFunc, moduleClass,jvmMethodDescription,
+        return new BIRFunctionWrapper(orgName, moduleName, version, currentFunc, moduleClass, jvmMethodDescription,
                                       jvmMethodDescriptionBString);
     }
 
