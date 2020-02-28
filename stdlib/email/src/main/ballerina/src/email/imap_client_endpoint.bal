@@ -17,7 +17,7 @@
 # Represents an IMAP Client, which interacts with an IMAP Server.
 public type ImapClient client object {
 
-    # Gets invoked during object initialization
+    # Gets invoked during object initialization.
     #
     # + clientConfig - Configurations for IMAP Client
     public function __init(ImapConfig clientConfig) {
