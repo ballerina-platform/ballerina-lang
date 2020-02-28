@@ -37,7 +37,7 @@ public type EvictionPolicy LRU|FIFO;
 public type CacheConfig record {|
     int capacity;
     EvictionPolicy evictionPolicy;
-    float evictionFactor = 0.25;
+    float evictionFactor;
     int defaultMaxAgeInSeconds = -1;
     int timerIntervalInSeconds?;
 |};

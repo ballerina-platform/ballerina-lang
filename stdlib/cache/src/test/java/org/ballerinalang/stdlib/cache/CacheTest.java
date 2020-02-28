@@ -15,11 +15,12 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
 package org.ballerinalang.stdlib.cache;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.ballerinalang.model.values.BFloat;
+import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
@@ -33,6 +34,10 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * Test class for cache package.
@@ -44,172 +49,189 @@ public class CacheTest {
 
     @BeforeClass
     public void setup() {
-        compileResult = BCompileUtil.compileOffline("test-src/cache/cache-test.bal");
+        compileResult = BCompileUtil.compileOffline("test-src/cache-test.bal");
         CommonTestUtils.printDiagnostics(compileResult, log);
     }
 
     @Test
     public void testCreateCache() {
-        int expiryTime = 20000;
-        int capacity = 10;
-        float evictionFactor = 0.1f;
-        BValue[] args = new BValue[3];
-        args[0] = new BInteger(expiryTime);
-        args[1] = new BInteger(capacity);
-        args[2] = new BFloat(evictionFactor);
-        BValue[] returns = BRunUtil.invoke(compileResult, "testCreateCache", args);
-        Assert.assertTrue(returns[0] instanceof BInteger);
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 0);
-    }
-
-    @Test
-    public void testCreateCacheWithNamedParams() {
-        int expiryTime = 20000;
-        int capacity = 10;
-        float evictionFactor = 0.1f;
-        BValue[] args = new BValue[3];
-        args[0] = new BInteger(expiryTime);
-        args[1] = new BInteger(capacity);
-        args[2] = new BFloat(evictionFactor);
-        BValue[] returns = BRunUtil.invoke(compileResult, "testCreateCacheWithNamedParams", args);
+        BValue[] returns = BRunUtil.invoke(compileResult, "testCreateCache");
         Assert.assertTrue(returns[0] instanceof BInteger);
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 0);
     }
 
     @Test
     public void testPut() {
-        String key = "Ballerina";
-        String value = "Rocks";
+        String key = "Hello";
+        String value = "Ballerina";
         BValue[] args = new BValue[2];
         args[0] = new BString(key);
         args[1] = new BString(value);
         BValue[] returns = BRunUtil.invoke(compileResult, "testPut", args);
-        Assert.assertEquals(returns.length, 1);
         Assert.assertTrue(returns[0] instanceof BInteger);
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
     }
 
     @Test
-    public void testGettingExistingValue() {
-        String key = "Ballerina";
-        String value = "Rocks";
+    public void testPutWithMaxAge() {
+        String key = "Hello";
+        String value = "Ballerina";
+        int maxAge = 5;
+        BValue[] args = new BValue[3];
+        args[0] = new BString(key);
+        args[1] = new BString(value);
+        args[2] = new BInteger(maxAge);
+        BValue[] returns = BRunUtil.invoke(compileResult, "testPutWithMaxAge", args);
+        Assert.assertTrue(returns[0] instanceof BInteger);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
+    }
+
+    @Test
+    public void testGetExistingValue() {
+        String key = "Hello";
+        String value = "Ballerina";
         BValue[] args = new BValue[2];
         args[0] = new BString(key);
         args[1] = new BString(value);
-        BValue[] returns = BRunUtil.invoke(compileResult, "testGettingExistingValue", args);
-        Assert.assertEquals(returns.length, 2);
-        Assert.assertTrue(returns[0] instanceof BInteger);
-        Assert.assertTrue(returns[1] instanceof BString);
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
-        Assert.assertEquals(returns[1].stringValue(), "Rocks");
+        BValue[] returns = BRunUtil.invoke(compileResult, "testGetExistingValue", args);
+        Assert.assertTrue(returns[0] instanceof BString);
+        Assert.assertEquals(returns[0].stringValue(), "Ballerina");
     }
 
     @Test
-    public void testGettingNonExistingValue() {
-        String key = "Ballerina";
+    public void testGetNonExistingValue() {
+        String key = "Hello";
         BValue[] args = new BValue[1];
         args[0] = new BString(key);
-        BValue[] returns = BRunUtil.invoke(compileResult, "testGettingNonExistingValue", args);
-        Assert.assertEquals(returns.length, 1);
+        BValue[] returns = BRunUtil.invoke(compileResult, "testGetNonExistingValue", args);
+        Assert.assertNull(returns[0]);
+    }
+
+    @Test
+    public void testGetExpiredValue() {
+        String key = "Hello";
+        String value = "Ballerina";
+        BValue[] args = new BValue[2];
+        args[0] = new BString(key);
+        args[1] = new BString(value);
+        BValue[] returns = BRunUtil.invoke(compileResult, "testGetExpiredValue", args);
         Assert.assertNull(returns[0]);
     }
 
     @Test
     public void testRemove() {
-        String key = "Ballerina";
-        String value = "Rocks";
+        BValue[] returns = BRunUtil.invoke(compileResult, "testRemove");
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 0);
+    }
+
+    @Test
+    public void testRemoveAll() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testRemoveAll");
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 0);
+    }
+
+    @Test
+    public void testHasKey() {
+        String key = "Hello";
+        String value = "Ballerina";
         BValue[] args = new BValue[2];
         args[0] = new BString(key);
         args[1] = new BString(value);
-        BValue[] returns = BRunUtil.invoke(compileResult, "testRemove", args);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 0);
+        BValue[] returns = BRunUtil.invoke(compileResult, "testHasKey", args);
+        Assert.assertTrue(returns[0] instanceof BBoolean);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
     }
 
     @Test
-    public void testCacheEviction1() {
-        BValue[] args = new BValue[0];
-        BValue[] returns = BRunUtil.invoke(compileResult, "testCacheEviction1", args);
-        Assert.assertEquals(returns.length, 2);
+    public void testKeys() {
+        String key1 = "Hello";
+        String value1 = "Ballerina";
+        String key2 = "Ballerina";
+        String value2 = "Language";
+        BValue[] args = new BValue[4];
+        args[0] = new BString(key1);
+        args[1] = new BString(value1);
+        args[2] = new BString(key2);
+        args[3] = new BString(value2);
+        BValue[] returns = BRunUtil.invoke(compileResult, "testKeys", args);
         Assert.assertTrue(returns[0] instanceof BValueArray);
-        Assert.assertEquals(((BValueArray) returns[0]).getString(0), "C");
-        Assert.assertEquals(((BValueArray) returns[0]).getString(1), "D");
-        Assert.assertEquals(((BValueArray) returns[0]).getString(2), "E");
-        Assert.assertEquals(((BValueArray) returns[0]).getString(3), "F");
-        Assert.assertEquals(((BValueArray) returns[0]).getString(4), "G");
-        Assert.assertEquals(((BValueArray) returns[0]).getString(5), "H");
-        Assert.assertEquals(((BValueArray) returns[0]).getString(6), "I");
-        Assert.assertEquals(((BValueArray) returns[0]).getString(7), "J");
-        Assert.assertEquals(((BValueArray) returns[0]).getString(8), "K");
-        Assert.assertEquals(((BInteger) returns[1]).intValue(), 9);
+        String[] expected = new String[]{"Hello", "Ballerina"};
+        String[] actual = removeEmptyValues(((BValueArray) returns[0]).getStringArray());
+        Assert.assertTrue(Arrays.equals(actual, expected));
     }
 
     @Test
-    public void testCacheEviction2() {
-        BValue[] args = new BValue[0];
-        BValue[] returns = BRunUtil.invoke(compileResult, "testCacheEviction2", args);
-        Assert.assertEquals(returns.length, 2);
-        Assert.assertTrue(returns[0] instanceof BValueArray);
-        Assert.assertEquals(((BValueArray) returns[0]).getString(0), "B");
-        Assert.assertEquals(((BValueArray) returns[0]).getString(1), "D");
-        Assert.assertEquals(((BValueArray) returns[0]).getString(2), "E");
-        Assert.assertEquals(((BValueArray) returns[0]).getString(3), "F");
-        Assert.assertEquals(((BValueArray) returns[0]).getString(4), "G");
-        Assert.assertEquals(((BValueArray) returns[0]).getString(5), "H");
-        Assert.assertEquals(((BValueArray) returns[0]).getString(6), "I");
-        Assert.assertEquals(((BValueArray) returns[0]).getString(7), "J");
-        Assert.assertEquals(((BValueArray) returns[0]).getString(8), "K");
-        Assert.assertEquals(((BInteger) returns[1]).intValue(), 9);
-    }
-
-    @Test
-    public void testCacheEviction3() {
-        BValue[] args = new BValue[0];
-        BValue[] returns = BRunUtil.invoke(compileResult, "testCacheEviction3", args);
-        Assert.assertEquals(returns.length, 2);
-        Assert.assertTrue(returns[0] instanceof BValueArray);
-        Assert.assertEquals(((BValueArray) returns[0]).getString(0), "A");
-        Assert.assertEquals(((BValueArray) returns[0]).getString(1), "B");
-        Assert.assertEquals(((BValueArray) returns[0]).getString(2), "E");
-        Assert.assertEquals(((BValueArray) returns[0]).getString(3), "F");
-        Assert.assertEquals(((BValueArray) returns[0]).getString(4), "G");
-        Assert.assertEquals(((BValueArray) returns[0]).getString(5), "H");
-        Assert.assertEquals(((BValueArray) returns[0]).getString(6), "I");
-        Assert.assertEquals(((BValueArray) returns[0]).getString(7), "J");
-        Assert.assertEquals(((BValueArray) returns[0]).getString(8), "K");
-        Assert.assertEquals(((BInteger) returns[1]).intValue(), 9);
-    }
-
-    @Test
-    public void testCacheEviction4() {
-        BValue[] args = new BValue[0];
-        BValue[] returns = BRunUtil.invoke(compileResult, "testCacheEviction4", args);
-        Assert.assertEquals(returns.length, 2);
-        Assert.assertTrue(returns[0] instanceof BValueArray);
-        Assert.assertEquals(((BValueArray) returns[0]).getString(0), "A");
-        Assert.assertEquals(((BValueArray) returns[0]).getString(1), "B");
-        Assert.assertEquals(((BValueArray) returns[0]).getString(2), "C");
-        Assert.assertEquals(((BValueArray) returns[0]).getString(3), "D");
-        Assert.assertEquals(((BValueArray) returns[0]).getString(4), "F");
-        Assert.assertEquals(((BInteger) returns[1]).intValue(), 5);
-    }
-
-    @Test
-    public void testExpiredCacheAccess() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testExpiredCacheAccess");
-        Assert.assertEquals(returns.length, 1);
+    public void testCapacity() {
+        int capacity = 10;
+        BValue[] args = new BValue[1];
+        args[0] = new BInteger(capacity);
+        BValue[] returns = BRunUtil.invoke(compileResult, "testCapacity", args);
         Assert.assertTrue(returns[0] instanceof BInteger);
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 0);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), capacity);
     }
 
-    @Test(expectedExceptions = BLangRuntimeException.class)
-    public void testCreateCacheWithZeroExpiryTime() {
-        BRunUtil.invoke(compileResult, "testCreateCacheWithZeroExpiryTime");
+    @Test
+    public void testSize() {
+        String key1 = "Hello";
+        String value1 = "Ballerina";
+        String key2 = "Ballerina";
+        String value2 = "Language";
+        BValue[] args = new BValue[4];
+        args[0] = new BString(key1);
+        args[1] = new BString(value1);
+        args[2] = new BString(key2);
+        args[3] = new BString(value2);
+        BValue[] returns = BRunUtil.invoke(compileResult, "testSize", args);
+        Assert.assertTrue(returns[0] instanceof BInteger);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), args.length / 2);
     }
 
-    @Test(expectedExceptions = BLangRuntimeException.class)
-    public void testCreateCacheWithNegativeExpiryTime() {
-        BRunUtil.invoke(compileResult, "testCreateCacheWithNegativeExpiryTime");
+    @Test
+    public void testCacheEvictionWithCapacity1() {
+        BValue[] args = new BValue[0];
+        BValue[] returns = BRunUtil.invoke(compileResult, "testCacheEvictionWithCapacity1", args);
+        Assert.assertTrue(returns[0] instanceof BValueArray);
+        Assert.assertTrue(returns[1] instanceof BInteger);
+        String[] expected = new String[]{"C", "D", "E", "F", "G", "H", "I", "J", "K"};
+        String[] actual = removeEmptyValues(((BValueArray) returns[0]).getStringArray());
+        Assert.assertTrue(Arrays.equals(actual, expected));
+        Assert.assertEquals(((BInteger) returns[1]).intValue(), expected.length);
+    }
+
+    @Test
+    public void testCacheEvictionWithCapacity2() {
+        BValue[] args = new BValue[0];
+        BValue[] returns = BRunUtil.invoke(compileResult, "testCacheEvictionWithCapacity2", args);
+        Assert.assertTrue(returns[0] instanceof BValueArray);
+        Assert.assertTrue(returns[1] instanceof BInteger);
+        String[] expected = new String[]{"A", "D", "E", "F", "G", "H", "I", "J", "K"};
+        String[] actual = removeEmptyValues(((BValueArray) returns[0]).getStringArray());
+        Assert.assertTrue(Arrays.equals(actual, expected));
+        Assert.assertEquals(((BInteger) returns[1]).intValue(), expected.length);
+    }
+
+    @Test
+    public void testCacheEvictionWithTimer1() {
+        BValue[] args = new BValue[0];
+        BValue[] returns = BRunUtil.invoke(compileResult, "testCacheEvictionWithTimer1", args);
+        Assert.assertTrue(returns[0] instanceof BValueArray);
+        Assert.assertTrue(returns[1] instanceof BInteger);
+        String[] expected = new String[]{};
+        String[] actual = removeEmptyValues(((BValueArray) returns[0]).getStringArray());
+        Assert.assertTrue(Arrays.equals(actual, expected));
+        Assert.assertEquals(((BInteger) returns[1]).intValue(), expected.length);
+    }
+
+    @Test
+    public void testCacheEvictionWithTimer2() {
+        BValue[] args = new BValue[0];
+        BValue[] returns = BRunUtil.invoke(compileResult, "testCacheEvictionWithTimer2", args);
+        Assert.assertTrue(returns[0] instanceof BValueArray);
+        Assert.assertTrue(returns[1] instanceof BInteger);
+        String[] expected = new String[]{"B"};
+        String[] actual = removeEmptyValues(((BValueArray) returns[0]).getStringArray());
+        Assert.assertTrue(Arrays.equals(actual, expected));
+        Assert.assertEquals(((BInteger) returns[1]).intValue(), expected.length);
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class)
@@ -228,7 +250,28 @@ public class CacheTest {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class)
+    public void testCreateCacheWithNegativeEvictionFactor() {
+        BRunUtil.invoke(compileResult, "testCreateCacheWithNegativeEvictionFactor");
+    }
+
+    @Test(expectedExceptions = BLangRuntimeException.class)
     public void testCreateCacheWithInvalidEvictionFactor() {
         BRunUtil.invoke(compileResult, "testCreateCacheWithInvalidEvictionFactor");
+    }
+
+    @Test(expectedExceptions = BLangRuntimeException.class)
+    public void testCreateCacheWithZeroDefaultMaxAge() {
+        BRunUtil.invoke(compileResult, "testCreateCacheWithZeroDefaultMaxAge");
+    }
+
+    @Test(expectedExceptions = BLangRuntimeException.class)
+    public void testCreateCacheWithNegativeDefaultMaxAge() {
+        BRunUtil.invoke(compileResult, "testCreateCacheWithNegativeDefaultMaxAge");
+    }
+
+    private String[] removeEmptyValues(String[] arr) {
+        List<String> list = new ArrayList<>(Arrays.asList(arr));
+        list.removeAll(Collections.singletonList(""));
+        return list.toArray(new String[0]);
     }
 }
