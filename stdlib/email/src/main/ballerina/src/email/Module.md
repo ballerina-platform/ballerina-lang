@@ -4,7 +4,7 @@ This module contains functions to perform email operations such as sending and r
 
 ## Sample
 
-The sample given below uses the functions in the module to send an email with SMTP protocol.
+The below sample uses the functions in the module to send an email using the SMTP protocol.
 
 ```ballerina
 import ballerina/io;
