@@ -21,7 +21,6 @@ package org.ballerinalang.stdlib.email.service.compiler;
 import org.ballerinalang.compiler.plugins.AbstractCompilerPlugin;
 import org.ballerinalang.util.diagnostic.DiagnosticLog;
 
-
 /**
  * This class validates annotations attached to Ballerina service and resource nodes.
  *
