@@ -130,6 +130,7 @@ import java.util.stream.Stream;
 import javax.xml.XMLConstants;
 
 import static org.ballerinalang.model.elements.PackageID.ARRAY;
+import static org.ballerinalang.model.elements.PackageID.BOOLEAN;
 import static org.ballerinalang.model.elements.PackageID.DECIMAL;
 import static org.ballerinalang.model.elements.PackageID.ERROR;
 import static org.ballerinalang.model.elements.PackageID.FLOAT;
@@ -1137,6 +1138,10 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
         if (langLib.equals(XML)) {
             symTable.langXmlModuleSymbol = packageSymbol;
+            return;
+        }
+        if (langLib.equals(BOOLEAN)) {
+            symTable.langBooleanModuleSymbol = packageSymbol;
             return;
         }
     }

@@ -626,6 +626,9 @@ public class SymbolResolver extends BLangNodeVisitor {
             case TypeTags.XML:
                 bSymbol = lookupLangLibMethodInModule(symTable.langXmlModuleSymbol, name);
                 break;
+            case TypeTags.BOOLEAN:
+                bSymbol = lookupLangLibMethodInModule(symTable.langBooleanModuleSymbol, name);
+                break;
             case TypeTags.UNION:
                 Iterator<BType> itr = ((BUnionType) type).getMemberTypes().iterator();
 
