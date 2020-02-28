@@ -37,7 +37,6 @@ import javax.mail.NoSuchProviderException;
 import javax.mail.Session;
 import javax.mail.Store;
 
-
 /**
  * Contains functionality of POP Client.
  */
