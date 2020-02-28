@@ -26,7 +26,7 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 
 import static org.ballerinalang.jvm.MapUtils.checkIsMapOnlyOperation;
-import static org.ballerinalang.jvm.MapUtils.throwErrorOnRecord;
+import static org.ballerinalang.jvm.MapUtils.validateRecord;
 
 /**
  * ENative implementation of lang.map:removeAll(map&lt;Type&gt;).
@@ -42,7 +42,7 @@ public class RemoveAll {
 
     public static void removeAll(Strand strand, MapValue<?, ?> m) {
         checkIsMapOnlyOperation(m.getType(), "removeAll()");
-        throwErrorOnRecord(m.getType(), "removeAll()");
+        validateRecord(m.getType(), "removeAll()");
         try {
             m.clear();
         } catch (org.ballerinalang.jvm.util.exceptions.BLangFreezeException e) {
