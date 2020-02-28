@@ -74,6 +74,7 @@ import static org.objectweb.asm.Opcodes.V1_8;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FILE_NAME_PERIOD_SEPERATOR;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JAVA_PACKAGE_SEPERATOR;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JAVA_THREAD;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LOCK_STORE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LOCK_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_INIT_CLASS_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_STOP;
@@ -386,7 +387,6 @@ public class JvmPackageGen {
                 for (BIRGlobalVariableDcl globalVar : module.globalVars) {
                     if (globalVar != null) {
                         generatePackageVariable(globalVar, cw);
-                        generateLockForVariable(globalVar, cw);
                     }
                 }
 
@@ -405,7 +405,8 @@ public class JvmPackageGen {
                     generateLambdaForPackageInits(cw, module, mainClass, moduleClass, dependentModuleArray);
                     jarFile.manifestEntries.put("Main-Class", moduleClass);
                 }
-                generateStaticInitializer(module.globalVars, cw, moduleClass, serviceEPAvailable);
+                generateLockForVariable(cw);
+                generateStaticInitializer(cw, moduleClass, serviceEPAvailable);
                 generateCreateTypesMethod(cw, module.typeDefs);
                 generateModuleInitializer(cw, module);
                 generateExecutionStopMethod(cw, typeOwnerClass, module, dependentModuleArray);
@@ -540,28 +541,52 @@ public class JvmPackageGen {
         generateField(cw, bType, varName, true);
     }
 
-    private static void generateLockForVariable(BIRGlobalVariableDcl globalVar, ClassWriter cw) {
+//    private static void generateLockForVariable(BIRGlobalVariableDcl globalVar, ClassWriter cw) {
+//
+//        String lockClass = "L" + LOCK_VALUE + ";";
+//        FieldVisitor fv;
+//        fv = cw.visitField(ACC_PUBLIC + ACC_FINAL + ACC_STATIC, computeLockName(globalVar), lockClass, null, null);
+//        fv.visitEnd();
+//    }
+//
+//    private static void generateStaticInitializer(@Nilable List<BIRGlobalVariableDcl> globalVars, ClassWriter cw,
+//                                                  String className, boolean serviceEPAvailable) {
+//
+//        MethodVisitor mv = cw.visitMethod(ACC_STATIC, "<clinit>", "()V", null, null);
+//
+//        String lockClass = "L" + LOCK_VALUE + ";";
+//        for (BIRGlobalVariableDcl globalVar : globalVars) {
+//            if (globalVar != null) {
+//                mv.visitTypeInsn(NEW, LOCK_VALUE);
+//                mv.visitInsn(DUP);
+//                mv.visitMethodInsn(INVOKESPECIAL, LOCK_VALUE, "<init>", "()V", false);
+//                mv.visitFieldInsn(PUTSTATIC, className, computeLockName(globalVar), lockClass);
+//            }
+//        }
+//
+//        setServiceEPAvailableField(cw, mv, serviceEPAvailable, className);
+//
+//        mv.visitInsn(RETURN);
+//        mv.visitMaxs(0, 0);
+//        mv.visitEnd();
+//    }
 
-        String lockClass = "L" + LOCK_VALUE + ";";
+    private static void generateLockForVariable(ClassWriter cw) {
+        String lockStoreClass = "L" + LOCK_STORE + ";";
         FieldVisitor fv;
-        fv = cw.visitField(ACC_PUBLIC + ACC_FINAL + ACC_STATIC, computeLockName(globalVar), lockClass, null, null);
+        fv = cw.visitField(ACC_PUBLIC + ACC_FINAL + ACC_STATIC, "LOCK_STORE", lockStoreClass, null, null);
         fv.visitEnd();
     }
 
-    private static void generateStaticInitializer(@Nilable List<BIRGlobalVariableDcl> globalVars, ClassWriter cw,
-                                                  String className, boolean serviceEPAvailable) {
-
+    private static void generateStaticInitializer(ClassWriter cw, String className,
+                                                  boolean serviceEPAvailable) {
         MethodVisitor mv = cw.visitMethod(ACC_STATIC, "<clinit>", "()V", null, null);
 
-        String lockClass = "L" + LOCK_VALUE + ";";
-        for (BIRGlobalVariableDcl globalVar : globalVars) {
-            if (globalVar != null) {
-                mv.visitTypeInsn(NEW, LOCK_VALUE);
-                mv.visitInsn(DUP);
-                mv.visitMethodInsn(INVOKESPECIAL, LOCK_VALUE, "<init>", "()V", false);
-                mv.visitFieldInsn(PUTSTATIC, className, computeLockName(globalVar), lockClass);
-            }
-        }
+        String lockStoreClass = "L" + LOCK_STORE + ";";
+        mv.visitTypeInsn(NEW, LOCK_STORE);
+        mv.visitInsn(DUP);
+        mv.visitMethodInsn(INVOKESPECIAL, LOCK_STORE, "<init>", "()V", false);
+        mv.visitFieldInsn(PUTSTATIC, className, "LOCK_STORE", lockStoreClass);
 
         setServiceEPAvailableField(cw, mv, serviceEPAvailable, className);
 
@@ -735,6 +760,8 @@ public class JvmPackageGen {
                 globalVarClassNames.put(pkgName + globalVar.name.value, initClass);
             }
         }
+
+        globalVarClassNames.put(pkgName + "LOCK_STORE", initClass);
         // filter out functions.
         @Nilable List<BIRFunction> functions = module.functions;
         if (functions.size() > 0) {
