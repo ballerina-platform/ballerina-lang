@@ -36,15 +36,16 @@ import static org.testng.Assert.assertEquals;
  */
 public class RecordInBaloTest {
 
+    private CompileResult result;
+
     @BeforeClass
     public void setup() {
         BaloCreator.createAndSetupBalo("test-src/balo/test_projects/test_project/", "testorg", "records");
+        result = BCompileUtil.compile("test-src/record/rest_in_balo.bal");
     }
 
     @Test
     public void testRestFieldTypeDefAfterRecordDef() {
-        CompileResult result = BCompileUtil.compile("test-src/record/rest_in_balo.bal");
-
         BValue[] returns = BRunUtil.invoke(result, "testORRestFieldInOR");
         assertEquals(returns[0].stringValue(), "{name:\"Open Foo\", ob:{x:1.0}}");
 
