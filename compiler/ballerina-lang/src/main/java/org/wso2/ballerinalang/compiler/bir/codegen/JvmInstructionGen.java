@@ -1618,7 +1618,7 @@ public class JvmInstructionGen {
         } else if (bType.tag == TypeTags.DECIMAL) {
             mv.visitTypeInsn(NEW, DECIMAL_VALUE);
             mv.visitInsn(DUP);
-            mv.visitLdcInsn(constVal);
+            mv.visitLdcInsn(String.valueOf(constVal));
             mv.visitMethodInsn(INVOKESPECIAL, DECIMAL_VALUE, "<init>", String.format("(L%s;)V", STRING_VALUE), false);
         } else if (bType.tag == TypeTags.NIL) {
             mv.visitInsn(ACONST_NULL);
