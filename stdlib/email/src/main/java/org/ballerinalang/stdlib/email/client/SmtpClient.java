@@ -71,7 +71,7 @@ public class SmtpClient {
      * Sends an email to an SMTP server.
      * @param clientConnector Represents the SMTP Client class
      * @param message Fields of an email
-     * @throws BallerinaSmtpException If an error occurs in SMTP client
+     * @throws BallerinaSmtpException If an error occurs in the SMTP client
      */
     public static void sendMessage(ObjectValue clientConnector, MapValue<Object, Object> message)
             throws BallerinaSmtpException {
