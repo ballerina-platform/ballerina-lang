@@ -155,7 +155,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.XML_VALUE
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.BalToJVMIndexMap;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.currentClass;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.getPackageName;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.globalVarClassNames;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.lambdaIndex;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.lambdas;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.lookupGlobalVarClassName;
