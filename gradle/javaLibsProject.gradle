@@ -150,5 +150,6 @@ dependencies {
     dist project(':ballerina-lang:typedesc')
     dist project(':ballerina-lang:value')
     dist project(':ballerina-lang:xml')
+    dist project(':ballerina-lang:bool')
 
 }
