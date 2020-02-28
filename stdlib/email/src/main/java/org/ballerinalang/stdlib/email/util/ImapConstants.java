@@ -21,7 +21,7 @@ package org.ballerinalang.stdlib.email.util;
 /**
  * Constants for IMAP-related functions.
  *
- * @since 1.1.3
+ * @since 1.1.5
  */
 public class ImapConstants {
     public static final String DEFAULT_PORT_NUMBER = "143";
@@ -30,6 +30,7 @@ public class ImapConstants {
     public static final String PROPS_IMAP_PORT = "mail.imap.port";
     public static final String PROPS_IMAP_STARTTLS = "mail.imap.starttls.enable";
     public static final String PROPS_IMAP_AUTH = "mail.imap.auth";
+    public static final String IMAP_ERROR_CODE = "{ballerina/email}Imap";
 
     private ImapConstants() {
         // private constructor

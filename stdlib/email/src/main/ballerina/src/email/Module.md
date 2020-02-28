@@ -11,12 +11,10 @@ import ballerina/io;
 import ballerina/email;
 
 email:SmtpConfig smtpConfig = {
-    connConfig: {
-        host: "smtp.gmail.com",
-        port: 587,
-        username: "sender@email.com",
-        password: "pass123"
-    }
+    host: "smtp.gmail.com",
+    port: 587,
+    username: "sender@email.com",
+    password: "pass123"
 };
 
 public function main() {
@@ -30,8 +28,7 @@ public function main() {
         fromAddr: "sender@email.com",
         senderAddr: "sender@email.com"
     };
-
-    error? dd = smtpClient->send(email);
+    error? response = smtpClient->send(email);
 }
 ```
 
@@ -40,6 +37,7 @@ The below sample uses the functions in the module to receive an email using the 
 ```ballerina
 email:PopConfig popConfig = {
     host: "pop.gmail.com",
+    port: 995,
     username: "sender@email.com",
     password: "senderPa$$w0rd"
 };
@@ -63,6 +61,7 @@ The below sample uses the functions in the module to receive an email using the 
 ```ballerina
 email:ImapConfig imapConfig = {
     host: "imap.gmail.com",
+    port: 143,
     username: "sender@email.com",
     password: "senderPa$$w0rd"
 };

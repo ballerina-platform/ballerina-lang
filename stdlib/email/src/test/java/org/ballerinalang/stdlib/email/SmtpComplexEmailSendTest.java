@@ -45,7 +45,7 @@ import static org.testng.AssertJUnit.assertTrue;
 /**
  * Test class for email send using SMTP with all the parameters.
  *
- * @since 1.1.3
+ * @since 1.1.5
  */
 public class SmtpComplexEmailSendTest {
 

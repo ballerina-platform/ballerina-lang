@@ -18,6 +18,7 @@
 
 package org.ballerinalang.stdlib.email.util;
 
+import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -91,10 +92,10 @@ public class SmtpUtil {
     public static MimeMessage generateMessage(Session session, String username, MapValue message)
             throws AddressException {
         MimeMessage emailMessage = new MimeMessage(session);
-        String[] toAddress = message.getArrayValue(EmailConstants.MESSAGE_TO).getStringArray();
-        String[] ccAddress = message.getArrayValue(EmailConstants.MESSAGE_CC).getStringArray();
-        String[] bccAddress = message.getArrayValue(EmailConstants.MESSAGE_BCC).getStringArray();
-        String[] replyToAddress = message.getArrayValue(EmailConstants.MESSAGE_REPLY_TO).getStringArray();
+        String[] toAddress = getNullCheckedStringArray(message, EmailConstants.MESSAGE_TO);
+        String[] ccAddress = getNullCheckedStringArray(message, EmailConstants.MESSAGE_CC);
+        String[] bccAddress = getNullCheckedStringArray(message, EmailConstants.MESSAGE_BCC);
+        String[] replyToAddress = getNullCheckedStringArray(message, EmailConstants.MESSAGE_REPLY_TO);
         int toAddressArrayLength = getNullArrayLengthChecked(toAddress);
         int ccAddressArrayLength = getNullArrayLengthChecked(ccAddress);
         int bccAddressArrayLength = getNullArrayLengthChecked(bccAddress);
@@ -146,6 +147,15 @@ public class SmtpUtil {
             log.error("Failed to send message : ", e);
         }
         return emailMessage;
+    }
+
+    private static String[] getNullCheckedStringArray(MapValue mapValue, String parameter) {
+        ArrayValue arrayValue = mapValue.getArrayValue(parameter);
+        if (arrayValue != null) {
+            return arrayValue.getStringArray();
+        } else {
+            return new String[0];
+        }
     }
 
     private static int getNullArrayLengthChecked(String[] addresses) {

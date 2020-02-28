@@ -45,7 +45,7 @@ import static org.testng.AssertJUnit.assertTrue;
 /**
  * Test class for email send using SMTP with least number of parameters.
  *
- * @since 1.1.3
+ * @since 1.1.5
  */
 public class SmtpSimpleEmailSendTest {
 

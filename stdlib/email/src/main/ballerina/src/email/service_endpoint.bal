@@ -16,34 +16,34 @@
 
 import ballerinax/java;
 
-public function initSmtpClientEndpoint(SmtpClient clientEndpoint, map<anydata> config) returns error? = @java:Method {
+public function initSmtpClientEndpoint(SmtpClient clientEndpoint, SmtpConfig config) returns error? = @java:Method {
     name : "initClientEndpoint",
     class : "org.ballerinalang.stdlib.email.client.SmtpClient"
 } external;
 
-public function send(SmtpClient clientEndpoint, map<anydata> email) returns error? = @java:Method {
+public function send(SmtpClient clientEndpoint, Email email) returns error? = @java:Method {
     name : "sendMessage",
     class : "org.ballerinalang.stdlib.email.client.SmtpClient"
 } external;
 
 
-public function initPopClientEndpoint(PopClient clientEndpoint, map<anydata> config, boolean isPop) returns error? = @java:Method {
+public function initPopClientEndpoint(PopClient clientEndpoint, PopConfig config, boolean isPop) returns error? = @java:Method {
     name : "initClientEndpoint",
     class : "org.ballerinalang.stdlib.email.client.PopClient"
 } external;
 
-public function popRead(PopClient clientEndpoint, map<anydata> message, boolean isPop) returns map<anydata>|error? = @java:Method {
+public function popRead(PopClient clientEndpoint, Filter message, boolean isPop) returns Email|error? = @java:Method {
     name : "readMessage",
     class : "org.ballerinalang.stdlib.email.client.PopClient"
 } external;
 
 
-public function initImapClientEndpoint(ImapClient clientEndpoint, map<anydata> config, boolean isPop) returns error? = @java:Method {
+public function initImapClientEndpoint(ImapClient clientEndpoint, ImapConfig config, boolean isPop) returns error? = @java:Method {
     name : "initClientEndpoint",
     class : "org.ballerinalang.stdlib.email.client.PopClient"
 } external;
 
-public function imapRead(ImapClient clientEndpoint, map<anydata> message, boolean isPop) returns map<anydata>|error? = @java:Method {
+public function imapRead(ImapClient clientEndpoint, Filter message, boolean isPop) returns Email|error? = @java:Method {
     name : "readMessage",
     class : "org.ballerinalang.stdlib.email.client.PopClient"
 } external;

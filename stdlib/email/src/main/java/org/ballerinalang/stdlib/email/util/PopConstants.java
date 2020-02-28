@@ -21,7 +21,7 @@ package org.ballerinalang.stdlib.email.util;
 /**
  * Constants for POP3-related functions.
  *
- * @since 1.1.3
+ * @since 1.1.5
  */
 public class PopConstants {
     public static final String DEFAULT_PORT_NUMBER = "995";
@@ -36,6 +36,7 @@ public class PopConstants {
     public static final String PROPS_POP_PORT = "mail.pop3.port";
     public static final String PROPS_POP_AUTH = "mail.pop.auth";
     public static final String PROPS_POP_STARTTLS = "mail.pop3.starttls.enable";
+    public static final String POP_ERROR_CODE = "{ballerina/email}Pop";
 
     static final String EMAIL = "Email";
 

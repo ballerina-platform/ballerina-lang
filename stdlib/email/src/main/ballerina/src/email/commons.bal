@@ -38,19 +38,19 @@ public type ConnectionConfig record {|
 # + sender - Sender's address
 # + replyTo - Reply To addresses
 public type Email record {|
-    string[] to = [];
-    string[]? cc = [];
-    string[]? bcc = [];
-    string subject = "";
-    string body = "";
-    string 'from = "";
-    string? sender = "";
-    string[]? replyTo = [];
+    string[] to;
+    string[] cc?;
+    string[] bcc?;
+    string subject;
+    string body;
+    string 'from;
+    string sender?;
+    string[] replyTo?;
 |};
 
 # Filter to receive an email.
 #
 # + folder - Folder to read emails
 public type Filter record {|
-    string? folder = "INBOX";
+    string folder = "INBOX";
 |};

@@ -43,7 +43,7 @@ public type SmtpClient client object {
 public type SmtpConfig record {|
     //ConnectionConfig? connConfig = ();
     string host;
-    int? port = 587;
+    int port = 587;
     string username;
     string password;
 |};

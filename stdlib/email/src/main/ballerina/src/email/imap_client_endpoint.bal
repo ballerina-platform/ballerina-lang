@@ -31,7 +31,7 @@ public type ImapClient client object {
         Filter filter = {
             folder: "INBOX"
         };
-        map<anydata>|error? email = imapRead(self, filter, false);
+        Email|error? email = imapRead(self, filter, false);
         if(email is error) {
             return email;
         } else {

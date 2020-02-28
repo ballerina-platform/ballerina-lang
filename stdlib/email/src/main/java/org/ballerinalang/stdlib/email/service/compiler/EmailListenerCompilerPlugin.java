@@ -24,7 +24,7 @@ import org.ballerinalang.util.diagnostic.DiagnosticLog;
 /**
  * This class validates annotations attached to the Ballerina service and its resource nodes.
  *
- * @since 1.1.3
+ * @since 1.1.5
  */
 class EmailListenerCompilerPlugin extends AbstractCompilerPlugin {
 

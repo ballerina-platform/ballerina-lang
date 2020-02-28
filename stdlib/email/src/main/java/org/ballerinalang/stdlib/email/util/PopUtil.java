@@ -94,25 +94,29 @@ public class PopUtil {
         Address[] ccAddress = message.getRecipients(Message.RecipientType.CC);
         Address[] bccAddress = message.getRecipients(Message.RecipientType.BCC);
         Address[] replyToAddress = message.getReplyTo();
-        int toAddressArrayLength = getNullArrayLengthChecked(toAddress);
-        int ccAddressArrayLength = getNullArrayLengthChecked(ccAddress);
-        int bccAddressArrayLength = getNullArrayLengthChecked(bccAddress);
-        int replyToAddressArrayLength = getNullArrayLengthChecked(replyToAddress);
         ArrayValue toAddressArrayValue = new ArrayValueImpl(new BArrayType(BTypes.typeString));
         ArrayValue ccAddressArrayValue = new ArrayValueImpl(new BArrayType(BTypes.typeString));
         ArrayValue bccAddressArrayValue = new ArrayValueImpl(new BArrayType(BTypes.typeString));
         ArrayValue replyToAddressArrayValue = new ArrayValueImpl(new BArrayType(BTypes.typeString));
-        for (int i = 0; i < toAddressArrayLength; i++) {
-            toAddressArrayValue.add(i, toAddress[i].toString());
+        if (toAddress != null) {
+            for (Address address: toAddress) {
+                toAddressArrayValue.append(address.toString());
+            }
         }
-        for (int i = 0; i < ccAddressArrayLength; i++) {
-            ccAddressArrayValue.add(i, ccAddress[i].toString());
+        if (ccAddress != null) {
+            for (Address address: ccAddress) {
+                ccAddressArrayValue.append(address.toString());
+            }
         }
-        for (int i = 0; i < bccAddressArrayLength; i++) {
-            bccAddressArrayValue.add(i, bccAddress[i].toString());
+        if (bccAddress != null) {
+            for (Address address: bccAddress) {
+                bccAddressArrayValue.append(address.toString());
+            }
         }
-        for (int i = 0; i < replyToAddressArrayLength; i++) {
-            replyToAddressArrayValue.add(i, replyToAddress[i].toString());
+        if (replyToAddress != null) {
+            for (Address address: replyToAddress) {
+                replyToAddressArrayValue.append(address.toString());
+            }
         }
         String subject = getStringNullChecked(message.getSubject());
         String messageBody = "";
@@ -170,14 +174,6 @@ public class PopUtil {
             return "";
         } else {
             return string;
-        }
-    }
-
-    private static int getNullArrayLengthChecked(Address[] addresses) {
-        if (addresses == null) {
-            return 0;
-        } else {
-            return addresses.length;
         }
     }
 

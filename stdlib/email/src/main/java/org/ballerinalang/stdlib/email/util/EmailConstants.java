@@ -25,7 +25,7 @@
  /**
   * Constants for email package functions.
   *
-  * @since 1.1.3
+  * @since 1.1.5
   */
  public class EmailConstants {
 

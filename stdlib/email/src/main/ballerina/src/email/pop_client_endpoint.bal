@@ -31,7 +31,7 @@ public type PopClient client object {
         Filter filter = {
             folder: "INBOX"
         };
-        map<anydata>|error? email = popRead(self, filter, true);
+        Email|error? email = popRead(self, filter, true);
         if(email is error) {
             return email;
         } else {
@@ -49,7 +49,7 @@ public type PopClient client object {
 # + password - Password to access the POP server
 public type PopConfig record {|
     string host;
-    int? port = 995;
+    int port = 995;
     string username;
     string password;
 |};
