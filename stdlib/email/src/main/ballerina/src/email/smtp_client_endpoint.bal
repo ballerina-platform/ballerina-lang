@@ -24,7 +24,7 @@ public type SmtpClient client object {
         error? response = initSmtpClientEndpoint(self, clientConfig);
     }
 
-    # Used to send a message
+    # Send a message.
     #
     # + email - String message
     # + return - An `error` if failed to send the message to the recipient
