@@ -17,7 +17,7 @@
 # Represents a POP Client, which interacts with a POP Server.
 public type PopClient client object {
 
-    # Gets invoked during object initialization
+    # Gets invoked during object initialization.
     #
     # + clientConfig - Configurations for POP Client
     public function __init(PopConfig clientConfig) {
