@@ -44,6 +44,7 @@ public class JvmConstants {
     public static final String TYPEDESC_VALUE = "org/ballerinalang/jvm/values/TypedescValue";
     public static final String HANDLE_VALUE = "org/ballerinalang/jvm/values/HandleValue";
     public static final String LOCK_VALUE = "org/ballerinalang/jvm/BLock";
+    public static final String LOCK_STORE = "org/ballerinalang/jvm/BLockStore";
     public static final String FUNCTION_POINTER = "org/ballerinalang/jvm/values/FPValue";
     public static final String ARRAY_VALUE_IMPL = "org/ballerinalang/jvm/values/ArrayValueImpl";
     public static final String TUPLE_VALUE_IMPL = "org/ballerinalang/jvm/values/TupleValueImpl";

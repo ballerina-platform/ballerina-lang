@@ -27,6 +27,7 @@ public enum CodeActionNodeType {
     SERVICE,
     OBJECT,
     RECORD,
+    IMPORTS,
     NONE;
 
     /**

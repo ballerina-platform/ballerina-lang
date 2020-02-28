@@ -25,8 +25,6 @@ import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator;
 import org.wso2.ballerinalang.compiler.bir.model.InstructionKind;
 
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 import static org.wso2.ballerinalang.compiler.bir.emit.EmitterUtils.emitBasicBlockRef;
 import static org.wso2.ballerinalang.compiler.bir.emit.EmitterUtils.emitBinaryOpInstructionKind;
@@ -671,8 +669,6 @@ class InstructionEmitter {
         str += emitTabs(tabs);
         str += "lock";
         str += emitSpaces(1);
-        str += emitName(term.globalVar.name);
-        str += emitSpaces(1);
         str += "->";
         str += emitSpaces(1);
         str += emitBasicBlockRef(term.lockedBB);
@@ -703,50 +699,6 @@ class InstructionEmitter {
         StringBuilder str = new StringBuilder();
         str.append(emitTabs(tabs));
         str.append("unlock");
-        str.append(emitSpaces(1));
-        str.append("(");
-        int i = 0;
-        int argLength = term.globalVars.size();
-        for (BIRNode.BIRGlobalVariableDcl ref : term.globalVars) {
-            if (ref != null) {
-                str.append(emitName(ref.name));
-                i += 1;
-                if (i < argLength) {
-                    str.append(",");
-                    str.append(emitSpaces(1));
-                }
-            }
-        }
-        str.append(")");
-        str.append(emitSpaces(1));
-        str.append("(");
-        i = 0;
-        Map<BIROperand, Set<String>> fieldLocks = term.fieldLocks;
-        argLength = fieldLocks.size();
-        for (Map.Entry<BIROperand, Set<String>> entry : fieldLocks.entrySet()) {
-            if (entry.getKey() != null) {
-                int j = 0;
-                int length = entry.getValue().size();
-                for (String f : entry.getValue()) {
-                    str.append(emitName(entry.getKey().variableDcl.name));
-                    str.append("[\"");
-                    str.append(f);
-                    str.append("\"]");
-                    j += 1;
-                    if (j < length) {
-                        str.append(",");
-                        str.append(emitSpaces(1));
-                    }
-                }
-
-                i += 1;
-                if (i < argLength) {
-                    str.append(",");
-                    str.append(emitSpaces(1));
-                }
-            }
-        }
-        str.append(")");
         str.append(emitSpaces(1));
         str.append("->");
         str.append(emitSpaces(1));

@@ -80,3 +80,19 @@ function testQueryWithInvalidExpressions() returns Person[]{
 
     return  outputPersonList;
 }
+
+function testQueryActionWithMutableParams() returns Person[]{
+
+    Person p1 = {firstName: "Alex", lastName: "George", age: 23};
+    Person p2 = {firstName: "Ranjan", lastName: "Fonseka", age: 30};
+    Person p3 = {firstName: "John", lastName: "David", age: 33};
+
+    Person[] personList = [p1, p2, p3];
+
+    from var person in personList
+    do {
+            person = {firstName: "XYZ", lastName: "George", age: 30};
+    }
+
+    return personList;
+}

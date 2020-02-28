@@ -138,8 +138,8 @@ public class BIRTypeWriter implements TypeVisitor {
         BTypeSymbol tsymbol = bFiniteType.tsymbol;
         buff.writeInt(addStringCPEntry(tsymbol.name.value));
         buff.writeInt(tsymbol.flags);
-        buff.writeInt(bFiniteType.valueSpace.size());
-        for (BLangExpression valueLiteral : bFiniteType.valueSpace) {
+        buff.writeInt(bFiniteType.getValueSpace().size());
+        for (BLangExpression valueLiteral : bFiniteType.getValueSpace()) {
             if (!(valueLiteral instanceof BLangLiteral)) {
                 throw new AssertionError(
                         "Type serialization is not implemented for finite type with value: " + valueLiteral.getKind());

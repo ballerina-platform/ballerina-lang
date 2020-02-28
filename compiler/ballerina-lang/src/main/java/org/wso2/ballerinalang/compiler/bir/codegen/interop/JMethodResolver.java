@@ -300,7 +300,7 @@ class JMethodResolver {
                         return true;
                     }
 
-                    Set<BLangExpression> valueSpace = ((BFiniteType) bType).valueSpace;
+                    Set<BLangExpression> valueSpace = ((BFiniteType) bType).getValueSpace();
                     for (BLangExpression value : valueSpace) {
                         if (!isValidParamBType(jType, value.type, jMethodRequest)) {
                             return false;
@@ -427,7 +427,7 @@ class JMethodResolver {
                         return true;
                     }
 
-                    Set<BLangExpression> valueSpace = ((BFiniteType) bType).valueSpace;
+                    Set<BLangExpression> valueSpace = ((BFiniteType) bType).getValueSpace();
                     for (BLangExpression value : valueSpace) {
                         if (isValidReturnBType(jType, value.type, jMethodRequest)) {
                             return true;
