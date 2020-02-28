@@ -16,14 +16,14 @@
 import ballerina/lang.__internal as internal;
 
 //TODO: stream<Type, E>, supporting E is not implemented yet.
-# A type parameter that is a subtype of `anydata|error`.
+# A type parameter that is a subtype of `any|error`.
 # Has the special semantic that when used in a declaration
 # all uses in the declaration must refer to same type.
 @typeParam
-type PureType1 anydata | error;
+type PureType1 any | error;
 
 @typeParam
-type PureType2 anydata | error;
+type PureType2 any | error;
 
 @typeParam
 type Type any | error;
@@ -44,12 +44,15 @@ public function filter(stream<PureType1> strm, function(PureType1 val) returns b
             self.func = func;
         }
 
-        public function next() returns record {|PureType1 value;|}? {
+        public function next() returns record {|PureType1 value;|}|error? {
             // while loop is required to continue filtering until we find a value which matches the filter or ().
             while(true) {
                 var nextVal = next(self.strm);
                 if (nextVal is ()) {
                     return ();
+                } else if (nextVal is error) {
+                    // TODO: double check
+                    return nextVal;
                 } else {
                     var value = nextVal?.value;
                     function(PureType1 val) returns boolean func = self.func;
@@ -69,7 +72,7 @@ public function filter(stream<PureType1> strm, function(PureType1 val) returns b
 # + strm - The stream
 # + return - If the stream has elements, return the element wrapped in a record with single field called `value`,
 #            otherwise returns ()
-public function next(stream<PureType1> strm) returns record {| PureType1 value; |}? {
+public function next(stream<PureType1> strm) returns record {| PureType1 value; |}|error? {
     var iteratorObj = getIteratorObj(strm);
     return iteratorObj.next();
 }
@@ -89,14 +92,19 @@ public function 'map(stream<PureType1> strm, function(PureType1 val) returns Pur
            self.func = func;
        }
 
-       public function next() returns record {|PureType1 value;|}? {
+       public function next() returns record {|PureType1 value;|}|error? {
            var nextVal = next(self.strm);
            if (nextVal is ()) {
                return ();
            } else {
-               function(anydata | error) returns anydata | error mappingFunc = self.func;
-               var value = mappingFunc(nextVal.value);
-               return internal:setNarrowType(typeof value, {value : value});
+               function(any | error) returns any | error mappingFunc = self.func;
+               if (nextVal is error) {
+                    // TODO: double check
+                    return nextVal;
+               } else {
+                    var value = mappingFunc(nextVal.value);
+                    return internal:setNarrowType(typeof value, {value : value});
+               }
            }
        }
     } iteratorObj = new(strm, func);
@@ -124,9 +132,13 @@ public function reduce(stream<PureType1> strm, function(Type accum, PureType1 va
         var nextVal = next(strm);
         if (nextVal is ()) {
             return reducedValue;
+        } else if (nextVal is error) {
+            // TODO: double check
+            return reducedValue;
+        } else {
+            var value = nextVal?.value;
+            reducedValue = func(reducedValue, value);
         }
-        var value = nextVal?.value;
-        reducedValue = func(reducedValue, value);
     }
 }
 
@@ -139,6 +151,9 @@ public function forEach(stream<PureType1> strm, function(PureType1 val) returns 
     var nextVal = next(strm);
     while(true) {
         if (nextVal is ()) {
+            return;
+        } else if (nextVal is error) {
+            // TODO: double check
             return;
         } else {
             var value = nextVal?.value;
@@ -156,7 +171,7 @@ public function forEach(stream<PureType1> strm, function(PureType1 val) returns 
 public function iterator(stream<PureType1> strm) returns abstract object {
     public function next() returns record {|
         PureType1 value;
-    |}?;
+    |}|error?;
 } {
     return getIteratorObj(strm);
 }

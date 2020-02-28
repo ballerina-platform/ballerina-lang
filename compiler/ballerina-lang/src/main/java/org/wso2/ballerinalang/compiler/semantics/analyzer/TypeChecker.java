@@ -58,6 +58,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
@@ -153,7 +154,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
-
 import javax.xml.XMLConstants;
 
 import static org.wso2.ballerinalang.compiler.tree.BLangInvokableNode.DEFAULT_WORKER_NAME;
@@ -1763,8 +1763,20 @@ public class TypeChecker extends BLangNodeVisitor {
                 }
                 break;
             case TypeTags.STREAM:
-                dlog.error(cIExpr.pos, DiagnosticCode.INVALID_STREAM_CONSTRUCTOR, cIExpr.initInvocation.name);
-                resultType = symTable.semanticError;
+
+                if (cIExpr.initInvocation.argExprs.size() != 1) {
+                    dlog.error(cIExpr.pos, DiagnosticCode.INVALID_STREAM_CONSTRUCTOR, cIExpr.initInvocation.name);
+                    resultType = symTable.semanticError;
+                    return;
+                }
+
+                BType constructType = checkExpr(cIExpr.initInvocation.argExprs.get(0), env, symTable.noType);
+                BUnionType nextReturnType = types.getVarTypeFromIteratorFuncReturnType(constructType);
+
+//                resultType = types.checkType(cIExpr, actualTypeInitType, expType);
+
+                // TODO: add checks
+                resultType = expType;
                 return;
             case TypeTags.UNION:
                 List<BType> matchingMembers = findMembersWithMatchingInitFunc(cIExpr, (BUnionType) actualType);
@@ -3541,7 +3553,8 @@ public class TypeChecker extends BLangNodeVisitor {
             return;
         }
         checkExpr(arg, env, expectedType);
-        typeParamAnalyzer.checkForTypeParamsInArg(arg.type, this.env, expectedType);
+        BType actualType = (arg.type.tag == TypeTags.STREAM) ? ((BStreamType) arg.type).constraint : arg.type;
+        typeParamAnalyzer.checkForTypeParamsInArg(actualType, this.env, expectedType);
     }
 
     private boolean requireTypeInference(BLangExpression expr) {

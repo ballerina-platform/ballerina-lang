@@ -61,6 +61,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
@@ -209,6 +210,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangErrorType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFunctionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangStreamType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangTupleTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUnionTypeNode;
@@ -776,6 +778,13 @@ public class Desugar extends BLangNodeVisitor {
     public void visit(BLangConstrainedType constrainedType) {
         constrainedType.constraint = rewrite(constrainedType.constraint, env);
         result = constrainedType;
+    }
+
+    @Override
+    public void visit(BLangStreamType streamType) {
+        streamType.constraint = rewrite(streamType.constraint, env);
+        streamType.error = rewrite(streamType.error, env);
+        result = streamType;
     }
 
     @Override
@@ -3529,7 +3538,11 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     public void visit(BLangTypeInit typeInitExpr) {
-        result = rewrite(desugarObjectTypeInit(typeInitExpr), env);
+        if (typeInitExpr.type.tag == TypeTags.STREAM) {
+            result = rewriteExpr(desugarStreamTypeInit(typeInitExpr));
+        } else {
+            result = rewrite(desugarObjectTypeInit(typeInitExpr), env);
+        }
     }
 
     private BLangStatementExpression desugarObjectTypeInit(BLangTypeInit typeInitExpr) {
@@ -3602,6 +3615,24 @@ public class Desugar extends BLangNodeVisitor {
         BLangStatementExpression stmtExpr = ASTBuilderUtil.createStatementExpression(blockStmt, resultVarRef);
         stmtExpr.type = resultVarRef.symbol.type;
         return stmtExpr;
+    }
+
+    private BLangInvocation desugarStreamTypeInit(BLangTypeInit typeInitExpr) {
+        BInvokableSymbol symbol = (BInvokableSymbol) symTable.langInternalModuleSymbol.scope
+                .lookup(Names.CONSTRUCT_STREAM).symbol;
+        BType targetType = ((BStreamType) typeInitExpr.type).constraint;
+        BType errorType = ((BStreamType) typeInitExpr.type).error;
+        BType typedescType = new BTypedescType(targetType, symTable.typeDesc.tsymbol);
+        BLangTypedescExpr typedescExpr = new BLangTypedescExpr();
+        typedescExpr.resolvedType = targetType;
+        typedescExpr.type = typedescType;
+        BLangExpression iteratorObj = typeInitExpr.argsExpr.get(0);
+
+        BLangInvocation streamConstructInvocation = ASTBuilderUtil.createInvocationExprForMethod(
+                typeInitExpr.pos, symbol, new ArrayList<>(Lists.of(typedescExpr, iteratorObj)),
+                symResolver);
+        streamConstructInvocation.type = new BStreamType(TypeTags.STREAM, targetType, errorType, null);
+        return streamConstructInvocation;
     }
 
     private BLangSimpleVariableDef createVarDef(String name, BType type, BLangExpression expr, DiagnosticPos pos) {

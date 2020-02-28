@@ -15,11 +15,11 @@
 // under the License.
 
 @typeParam
-type PureType3 anydata | error;
+type PureType3 any | error;
 
 # Takes in a stream and returns the iterator object of that stream.
 #
 # + strm - The stream
 # + return - An abstract object which is iterable
 public function getIteratorObj(stream<PureType3> strm) returns abstract object { public function next() returns
-    record {|PureType3 value;|}?;} = external;
+    record {|PureType3 value;|}|error?;} = external;

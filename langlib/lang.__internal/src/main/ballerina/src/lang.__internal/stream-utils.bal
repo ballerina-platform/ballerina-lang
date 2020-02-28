@@ -16,11 +16,11 @@
 
 # This file contains the utility functions implemented natively which are used by the 'stream' langib module.
 
-# A type parameter that is a subtype of `anydata|error`.
+# A type parameter that is a subtype of `any|error`.
 # Has the special semantic that when used in a declaration
 # all uses in the declaration must refer to same type.
 @typeParam
-public type PureType anydata|error;
+public type PureType any|error;
 
 # Sets the narrowed type of the `value`.
 #
@@ -42,7 +42,7 @@ public function createClone(PureType v) returns PureType = external;
 # + iteratorObj - An iterator object.
 # + return - New stream containing results of `iteratorObj` object's next function invocations.
 public function construct(typedesc<PureType> td, abstract object { public function next() returns
-        record {|PureType value;|}?;} iteratorObj) returns stream<PureType> = external;
+        record {|PureType value;|}|error?;} iteratorObj) returns stream<PureType> = external;
 
 # Takes a typedesc of an array, stream and returns the typedesc of the element, constraint type.
 #

@@ -19,7 +19,7 @@
 package org.ballerinalang.langlib.stream;
 
 import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.values.AbstractObjectValue;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.StreamValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
@@ -39,8 +39,8 @@ import org.ballerinalang.natives.annotations.ReturnType;
 )
 public class GetIteratorObj {
 
-    public static AbstractObjectValue getIteratorObj(Strand strand, StreamValue strm) {
-        return strm.getIteratorObj();
+    public static ObjectValue getIteratorObj(Strand strand, Object strm) {
+        return ((StreamValue) strm).getIteratorObj();
     }
 
 }

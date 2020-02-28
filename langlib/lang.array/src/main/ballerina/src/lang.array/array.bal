@@ -31,7 +31,7 @@ type Type1 any|error;
 # Has the special semantic that when used in a declaration
 # all uses in the declaration must refer to same type.
 @typeParam
-type PureType anydata|error;
+type PureType any|error;
 
 # Returns the number of members of an array.
 #
@@ -46,7 +46,7 @@ public function length((any|error)[] arr) returns int = external;
 public function iterator(Type[] arr) returns abstract object {
     public function next() returns record {|
         Type value;
-    |}?;
+    |}|error?;
 } {
     ArrayIterator arrIterator = new(arr);
     return arrIterator;
@@ -236,7 +236,7 @@ public function toStream(PureType[] arr) returns stream<PureType> {
                 self.index = index;
                 self.arr = arr;
             }
-            public function next() returns record {|PureType value;|}? {
+            public function next() returns record {|PureType value;|}|error? {
                 self.index += 1;
                 if (length(self.arr) > self.index) {
                     var value = self.arr[self.index];
