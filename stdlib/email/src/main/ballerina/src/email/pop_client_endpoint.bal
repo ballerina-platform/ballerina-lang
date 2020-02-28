@@ -43,7 +43,7 @@ public type PopClient client object {
 
 # Configuration of the POP Endpoint.
 #
-# + host - Host address of POP server
+# + host - Host address of the POP server
 # + port - Port number of POP server
 # + username - Username to access POP server
 # + password - Password to access POP server
