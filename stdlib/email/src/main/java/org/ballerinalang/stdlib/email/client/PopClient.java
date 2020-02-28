@@ -86,7 +86,7 @@ public class PopClient {
     /**
      * Read emails from the server.
      * @param clientConnector Represents the POP Client class
-     * @param filter Criteria which are used to read emails
+     * @param filter Criteria, which is used to read emails
      * @param isPop True if the protocol is POP3 and false otherwise (if protocol is IMAP)
      * @return MapValue Returns the type supported to Ballerina
      * @throws BallerinaPopException If an error occurs in POP client
