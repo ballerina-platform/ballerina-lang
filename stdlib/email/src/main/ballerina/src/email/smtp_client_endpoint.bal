@@ -36,7 +36,7 @@ public type SmtpClient client object {
 
 # Configuration of the SMTP Endpoint.
 #
-# + host - Host address of SMTP server
+# + host - Host address of the SMTP server
 # + port - Port number of SMTP server
 # + username - Username to access SMTP server
 # + password - Password to access SMTP server
