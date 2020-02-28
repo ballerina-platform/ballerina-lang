@@ -68,7 +68,7 @@ public class SmtpClient {
     }
 
     /**
-     * Send an email to an SMTP server.
+     * Sends an email to an SMTP server.
      * @param clientConnector Represents the SMTP Client class
      * @param message Fields of an email
      * @throws BallerinaSmtpException If an error occurs in SMTP client
