@@ -64,7 +64,6 @@ public class BaloCreator {
         Path baloPath = Paths.get(USER_REPO_DEFAULT_DIRNAME);
         projectPath = TEST_RESOURCES_SOURCE_PATH.resolve(projectPath);
         Path jarCachePath = Paths.get(buildFolder, BALLERINA_HOME_LIB, JAR_CACHE_DIR_NAME);
-        BFileUtil.delete(jarCachePath);
 
         // Clear any old balos
         // clearing from .ballerina will remove the .ballerina file as well. Therefore start clearing from
@@ -79,19 +78,27 @@ public class BaloCreator {
         BFileUtil.delete(Paths.get(buildFolder, BALLERINA_HOME_LIB, DOT_BALLERINA_REPO_DIR_NAME, orgName, packageId));
         BFileUtil.copy(projectPath.resolve(baloPath), Paths.get(buildFolder, BALLERINA_HOME_LIB));
 
-        if (compileResult.getClassLoader() != null) {
-            if (!Files.exists(jarCachePath)) {
-                Files.createDirectories(jarCachePath);
-            }
-            for (URL classPathEntry : compileResult.getClassLoader().getURLs()) {
-                try {
-                    Path sourcePath = Paths.get(classPathEntry.toURI());
-                    Path targetPath = Paths.get(jarCachePath.toString(), sourcePath.getFileName().toString());
+        if (compileResult.getClassLoader() == null) {
+            return;
+        }
 
-                    BFileUtil.copy(sourcePath, targetPath);
-                } catch (URISyntaxException e) {
-                    //ignore
-                }
+        if (!Files.exists(jarCachePath)) {
+            Files.createDirectories(jarCachePath);
+        }
+
+        for (URL classPathEntry : compileResult.getClassLoader().getURLs()) {
+
+            if (classPathEntry.getPath().contains(JAR_CACHE_DIR_NAME)) {
+                continue;
+            }
+
+            try {
+                Path sourcePath = Paths.get(classPathEntry.toURI());
+                Path targetPath = Paths.get(jarCachePath.toString(), sourcePath.getFileName().toString());
+
+                BFileUtil.copy(sourcePath, targetPath);
+            } catch (URISyntaxException e) {
+                //ignore
             }
         }
     }
