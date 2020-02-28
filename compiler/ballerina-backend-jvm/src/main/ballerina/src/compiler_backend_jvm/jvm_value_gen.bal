@@ -865,6 +865,13 @@ public type ObjectGenerator object {
                 mv.visitFieldInsn(GETFIELD, className, conditionalBStringName(fieldName, IS_BSTRING), getTypeDesc(field.typeValue, IS_BSTRING));
                 addBoxInsn(mv, field.typeValue);
 
+                // Set default value for reference types
+                if (checkIfValueIsJReferenceType(field.typeValue)) {
+                    mv.visitVarInsn(ALOAD, 0);
+                    mv.visitInsn(ACONST_NULL);
+                    mv.visitFieldInsn(PUTFIELD, className, conditionalBStringName(fieldName, IS_BSTRING), getTypeDesc(field.typeValue, IS_BSTRING));
+                }
+
                 mv.visitInsn(ARETURN);
             } else {
                 mv.visitTypeInsn(NEW, UNSUPPORTED_OPERATION_EXCEPTION);
@@ -933,6 +940,14 @@ public type ObjectGenerator object {
         mv.visitEnd();
     }
 };
+
+function checkIfValueIsJReferenceType(bir:BType bType) returns boolean {
+    if (bType is bir:BTypeInt|bir:BTypeBoolean|bir:BTypeFloat) {
+        return false;
+    } else {
+        return true;
+    }
+}
 
 function injectDefaultParamInitsToAttachedFuncs(bir:Package module) {
     bir:TypeDef?[] typeDefs = module.typeDefs;
