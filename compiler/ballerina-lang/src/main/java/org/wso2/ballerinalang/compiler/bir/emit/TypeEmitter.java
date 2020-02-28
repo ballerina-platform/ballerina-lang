@@ -326,8 +326,8 @@ class TypeEmitter {
         StringBuilder str = new StringBuilder();
         str.append("[");
         int i = 0;
-        int length = bType.valueSpace.size();
-        for (Object v : bType.valueSpace) {
+        int length = bType.getValueSpace().size();
+        for (Object v : bType.getValueSpace()) {
             str.append(v.toString());
             i += 1;
             if (i < length) {
