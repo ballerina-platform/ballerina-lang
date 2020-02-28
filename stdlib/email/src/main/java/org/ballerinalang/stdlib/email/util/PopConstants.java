@@ -42,6 +42,4 @@ public class PopConstants {
     private PopConstants() {
         // private constructor
     }
-
-
 }
