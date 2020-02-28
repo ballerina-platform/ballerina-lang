@@ -24,7 +24,7 @@ public type PopClient client object {
         error? response = initPopClientEndpoint(self, clientConfig, true);
     }
 
-    # Used to read a message
+    # Used to read a message.
     #
     # + return - An `error` if failed to send the message to the recipient
     public remote function read() returns Email|error? {
