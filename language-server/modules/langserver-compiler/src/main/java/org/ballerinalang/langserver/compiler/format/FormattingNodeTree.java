@@ -3981,13 +3981,9 @@ public class FormattingNodeTree {
             JsonArray ws = node.getAsJsonArray(FormattingConstants.WS);
             String indentation = this.getIndentation(formatConfig, false);
             String indentationOfParent = this.getParentIndentation(formatConfig);
-            String indentWithParentIndentation = this.getParentIndentation(formatConfig);
             boolean useParentIndentation = formatConfig.get(FormattingConstants.USE_PARENT_INDENTATION).getAsBoolean();
 
-            node.getAsJsonObject(FormattingConstants.POSITION).addProperty(FormattingConstants.START_COLUMN,
-                    this.getWhiteSpaceCount(indentation));
-
-            this.preserveHeight(ws, useParentIndentation ? indentWithParentIndentation : indentation,
+            this.preserveHeight(ws, useParentIndentation ? indentationOfParent : indentation,
                     useParentIndentation);
 
             // Has at least one line separation in records.
@@ -4035,7 +4031,7 @@ public class FormattingNodeTree {
                                 currentWS.addProperty(FormattingConstants.WS, FormattingConstants.EMPTY_SPACE);
                             } else {
                                 currentWS.addProperty(FormattingConstants.WS,
-                                        FormattingConstants.NEW_LINE + indentWithParentIndentation);
+                                        FormattingConstants.NEW_LINE + indentationOfParent);
                             }
                         } else {
                             currentWS.addProperty(FormattingConstants.WS, FormattingConstants.EMPTY_SPACE);
@@ -4081,18 +4077,18 @@ public class FormattingNodeTree {
                         JsonObject variableFormatConfig;
                         if (lineSeparationAvailable) {
                             variableFormatConfig = this.getFormattingConfig(1, 0,
-                                    this.getWhiteSpaceCount(indentWithParentIndentation), true,
-                                    this.getWhiteSpaceCount(useParentIndentation ? indentWithParentIndentation
-                                            : indentation), true);
+                                    this.getWhiteSpaceCount(indentationOfParent), true,
+                                    this.getWhiteSpaceCount(useParentIndentation ? indentationOfParent
+                                            : indentation), false);
                         } else if (i == 0) {
                             variableFormatConfig = this.getFormattingConfig(0, 0, 0, false,
                                     this.getWhiteSpaceCount(useParentIndentation
-                                            ? indentWithParentIndentation : indentation), true);
+                                            ? indentationOfParent : indentation), true);
                             ++i;
                         } else {
                             variableFormatConfig = this.getFormattingConfig(0, 1, 0, false,
                                     this.getWhiteSpaceCount(useParentIndentation
-                                            ? indentWithParentIndentation : indentation), true);
+                                            ? indentationOfParent : indentation), true);
                         }
 
                         variable.add(FormattingConstants.FORMATTING_CONFIG, variableFormatConfig);

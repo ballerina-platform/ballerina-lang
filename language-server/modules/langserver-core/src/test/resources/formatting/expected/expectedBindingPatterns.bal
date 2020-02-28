@@ -59,7 +59,7 @@ function recordVarInRecordVar2() returns [string, Age] {
     };
     PersonWithAge {
         name: fName,
-            age
+        age
     } = p;
     return [fName, age];
 }

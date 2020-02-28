@@ -1153,7 +1153,6 @@ public class FormattingSourceGen {
                 JsonObject anonType = anonTypes.get(node.getAsJsonObject("typeName").get("value").getAsString());
                 anonType.addProperty("isAnonType", true);
                 node.add("anonType", anonType);
-                //anonTypes.remove(node.getAsJsonObject("typeName").get("value").getAsString());
             }
         }
 
