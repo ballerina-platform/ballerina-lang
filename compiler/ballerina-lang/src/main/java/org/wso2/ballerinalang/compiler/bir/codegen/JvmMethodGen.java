@@ -2251,7 +2251,7 @@ public class JvmMethodGen {
 
     private static void loadAnnots(MethodVisitor mv, String pkgName, BIRTypeDefinition typeDef) {
         String pkgClassName = pkgName.equals(".") || pkgName.equals("") ? MODULE_INIT_CLASS_NAME :
-                lookupGlobalVarClassName(pkgName + ANNOTATION_MAP_NAME);
+                lookupGlobalVarClassName(pkgName,  ANNOTATION_MAP_NAME);
         mv.visitFieldInsn(GETSTATIC, pkgClassName, ANNOTATION_MAP_NAME, String.format("L%s;", MAP_VALUE));
         loadExternalOrLocalType(mv, typeDef);
         mv.visitMethodInsn(INVOKESTATIC, String.format("%s", ANNOTATION_UTILS), "processAnnotations",

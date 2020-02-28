@@ -349,7 +349,7 @@ public class JvmTerminatorGen {
 
             Label gotoLabel = this.labelGen.getLabel(funcName + lockIns.lockedBB.id.value);
             String lockClass = "L" + LOCK_VALUE + ";";
-            String varClassName = lookupGlobalVarClassName(this.currentPackageName + lockIns.globalVar.name.value);
+            String varClassName = lookupGlobalVarClassName(this.currentPackageName, lockIns.globalVar.name.value);
             String lockName = computeLockNameFromString(lockIns.globalVar.name.value);
             this.mv.visitFieldInsn(GETSTATIC, varClassName, lockName, lockClass);
             this.mv.visitVarInsn(ALOAD, localVarOffset);
@@ -393,7 +393,7 @@ public class JvmTerminatorGen {
             // unlocked in the same order https://yarchive.net/comp/linux/lock_ordering.html
             for (BIRNode.BIRGlobalVariableDcl globalVariable : unlockIns.globalVars) {
                 BIRVariableDcl globleVar = this.cleanupVariableDecl(globalVariable);
-                String varClassName = lookupGlobalVarClassName(this.currentPackageName + globleVar.name.value);
+                String varClassName = lookupGlobalVarClassName(this.currentPackageName, globleVar.name.value);
                 String lockName = computeLockNameFromString(globleVar.name.value);
                 this.mv.visitFieldInsn(GETSTATIC, varClassName, lockName, lockClass);
                 this.mv.visitMethodInsn(INVOKEVIRTUAL, LOCK_VALUE, "unlock", "()V", false);

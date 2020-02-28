@@ -155,6 +155,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.XML_VALUE
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.BalToJVMIndexMap;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.currentClass;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.getPackageName;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.globalVarClassNames;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.lambdaIndex;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.lambdas;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.lookupGlobalVarClassName;
@@ -248,7 +249,7 @@ public class JvmInstructionGen {
             String moduleName = getPackageName(modId.orgName, modId.name);
 
             String varName = varDcl.name.value;
-            String className = lookupGlobalVarClassName(moduleName + varName);
+            String className = lookupGlobalVarClassName(moduleName, varName);
 
             String typeSig = getTypeDesc(bType, false);
             mv.visitFieldInsn(GETSTATIC, className, varName, typeSig);
@@ -260,7 +261,7 @@ public class JvmInstructionGen {
             String varName = varDcl.name.value;
             PackageID moduleId = ((BIRGlobalVariableDcl) varDcl).pkgId;
             String pkgName = getPackageName(moduleId.orgName, moduleId.name);
-            String className = lookupGlobalVarClassName(pkgName + varName);
+            String className = lookupGlobalVarClassName(pkgName, varName);
             String typeSig = getTypeDesc(bType, false);
             mv.visitFieldInsn(GETSTATIC, className, varName, typeSig);
             return;
@@ -338,7 +339,7 @@ public class JvmInstructionGen {
 
         if (varDcl.kind == VarKind.GLOBAL) {
             String varName = varDcl.name.value;
-            String className = lookupGlobalVarClassName(currentPackageName + varName);
+            String className = lookupGlobalVarClassName(currentPackageName, varName);
             String typeSig = getTypeDesc(bType, false);
             mv.visitFieldInsn(PUTSTATIC, className, varName, typeSig);
             return;
@@ -346,7 +347,7 @@ public class JvmInstructionGen {
             String varName = varDcl.name.value;
             PackageID moduleId = ((BIRGlobalVariableDcl) varDcl).pkgId;
             String pkgName = getPackageName(moduleId.orgName, moduleId.name);
-            String className = lookupGlobalVarClassName(pkgName + varName);
+            String className = lookupGlobalVarClassName(pkgName, varName);
             String typeSig = getTypeDesc(bType, false);
             mv.visitFieldInsn(PUTSTATIC, className, varName, typeSig);
             return;
@@ -1329,7 +1330,7 @@ public class JvmInstructionGen {
             // Set annotations if available.
             this.mv.visitInsn(DUP);
             String pkgClassName = pkgName.equals(".") || pkgName.equals("") ? MODULE_INIT_CLASS_NAME :
-                    lookupGlobalVarClassName(pkgName + ANNOTATION_MAP_NAME);
+                    lookupGlobalVarClassName(pkgName,  ANNOTATION_MAP_NAME);
             this.mv.visitFieldInsn(GETSTATIC, pkgClassName, ANNOTATION_MAP_NAME, String.format("L%s;", MAP_VALUE));
             this.mv.visitLdcInsn(inst.funcName.value);
             this.mv.visitMethodInsn(INVOKESTATIC, String.format("%s", ANNOTATION_UTILS), "processFPValueAnnotations",

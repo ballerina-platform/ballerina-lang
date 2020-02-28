@@ -239,13 +239,12 @@ public class JvmPackageGen {
         }
     }
 
-    static String lookupGlobalVarClassName(String key) {
-
-        String result = globalVarClassNames.get(key);
-        if (result != null) {
-            return result;
+    static String lookupGlobalVarClassName(String pkgName, String varName) {
+        String key = pkgName + varName;
+        if (!globalVarClassNames.containsKey(key)) {
+            return pkgName + MODULE_INIT_CLASS_NAME;
         } else {
-            throw new BLangCompilerException("cannot find full qualified class for global variable : " + key);
+            return globalVarClassNames.get(key);
         }
     }
 
