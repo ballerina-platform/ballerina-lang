@@ -48,7 +48,7 @@ public type Email record {|
     string[]? replyTo = [];
 |};
 
-# Provides filter to receive email
+# Filter to receive an email.
 #
 # + folder - Folder to read emails
 public type Filter record {|
