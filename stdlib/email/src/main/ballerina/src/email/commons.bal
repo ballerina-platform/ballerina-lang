@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-# Provides configurations for connections
+# Configurations for the connections.
 #
 # + host - IP Address
 # + port - Port
