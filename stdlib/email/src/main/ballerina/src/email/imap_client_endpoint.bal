@@ -43,7 +43,7 @@ public type ImapClient client object {
 
 # Configuration of the IMAP Endpoint.
 #
-# + host - Host address of IMAP server
+# + host - Host address of the IMAP server
 # + port - Port number of IMAP server
 # + username - Username to access IMAP server
 # + password - Password to access IMAP server
