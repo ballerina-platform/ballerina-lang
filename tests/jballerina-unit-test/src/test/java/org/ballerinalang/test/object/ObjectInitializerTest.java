@@ -276,4 +276,10 @@ public class ObjectInitializerTest {
         BValue[] returns = BRunUtil.invoke(compileResult, "testInitInvocationWithReferenceToDefaultValue2");
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue(), "Expected booleans to be identified as equal");
     }
+
+    @Test(description = "Test invoking '__init' function with args with default values and returns error.")
+    public void testErrorReturnWithInitialization() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testErrorReturnWithInitialization");
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue(), "Expected booleans to be identified as equal");
+    }
 }

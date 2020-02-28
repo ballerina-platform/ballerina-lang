@@ -494,7 +494,7 @@ function testInitInvocationWithReferenceToDefaultValue1() returns (boolean) {
     return student.getMarks() == 160;
 }
 
-type Calculate object {
+type Calculate1 object {
     int sum;
 
     public function __init(int a, int b, int c, int d = a + b + c*c) {
@@ -507,6 +507,29 @@ type Calculate object {
 };
 
 function testInitInvocationWithReferenceToDefaultValue2() returns (boolean) {
-    Calculate cal = new(2, 3, 4);
+    Calculate1 cal = new(2, 3, 4);
     return cal.getSum() == 21;
+}
+
+type Calculate2 object {
+    int sum;
+    string op;
+
+    public function __init(string operation, int a, int b, int c, int d = a + b + c*c) returns error? {
+        self.op = check checkOperation(operation);
+        self.sum = d;
+    }
+};
+
+function checkOperation(string operation) returns string|error {
+    if (operation == "SUB") {
+        error e = error("unsupported operation", op = operation);
+        return e;
+    }
+    return operation;
+}
+
+function testErrorReturnWithInitialization() returns (boolean) {
+    Calculate2|error cal = new("SUB", 2, 3, 4);
+    return cal is error;
 }
