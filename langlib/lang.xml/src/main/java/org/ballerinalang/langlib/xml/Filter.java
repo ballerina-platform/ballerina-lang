@@ -19,14 +19,11 @@
 package org.ballerinalang.langlib.xml;
 
 import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.types.BArrayType;
-import org.ballerinalang.jvm.types.BTypes;
-import org.ballerinalang.jvm.values.ArrayValue;
-import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.jvm.values.FPValue;
 import org.ballerinalang.jvm.values.IteratorValue;
 import org.ballerinalang.jvm.values.XMLSequence;
 import org.ballerinalang.jvm.values.XMLValue;
+import org.ballerinalang.jvm.values.api.BXML;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -50,7 +47,7 @@ import java.util.List;
 )
 public class Filter {
 
-    public static XMLValue<?> filter(Strand strand, XMLValue<?> x, FPValue<Object, Boolean> func) {
+    public static XMLValue filter(Strand strand, XMLValue x, FPValue<Object, Boolean> func) {
         if (x.isSingleton()) {
             if (func.apply(new Object[]{strand, x, true})) {
                 return x;
@@ -59,15 +56,14 @@ public class Filter {
         }
 
         IteratorValue iterator = ((XMLSequence) x).getIterator();
-        List<XMLValue<?>> elements = new ArrayList<>();
+        List<BXML> elements = new ArrayList<>();
         while (iterator.hasNext()) {
-            XMLValue<?> next = (XMLValue<?>) iterator.next();
+            XMLValue next = (XMLValue) iterator.next();
             if (func.apply(new Object[]{strand, next, true})) {
                 elements.add(next);
             }
         }
 
-        ArrayValue elemArray = new ArrayValueImpl(elements.toArray(), new BArrayType(BTypes.typeXML));
-        return new XMLSequence(elemArray);
+        return new XMLSequence(elements);
     }
 }
