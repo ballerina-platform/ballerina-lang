@@ -58,7 +58,7 @@ public function main() {
 }
 ```
 
-The sample given below uses the functions in the module to receive an email with IMAP4 protocol.
+The below sample uses the functions in the module to receive an email using the IMAP4 protocol.
 
 ```ballerina
 email:ImapConfig imapConfig = {
