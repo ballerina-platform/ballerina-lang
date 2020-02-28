@@ -42,7 +42,7 @@ public class SmtpUtil {
     private static final int MAX_PORT = 65535;
 
     /**
-     * Generates Properties object using the passed MapValue.
+     * Generates the Properties object using the passed MapValue.
      *
      * @param smtpConfig MapValue with the configuration values
      * @return Properties object
