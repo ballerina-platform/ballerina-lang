@@ -111,6 +111,8 @@ def IgnoreList = [
         'http-2.0-server-push',
         'worker-interaction',
         'workers',
+        'fork-variable-access',
+        'fork',
         'hello-world-parallel',
         'the-main-function',
         'task-scheduler-appointment',
@@ -124,7 +126,8 @@ def IgnoreList = [
         'crypto',
         'http-client-endpoint',
         'type-conversion',
-        'record-io'
+        'record-io',
+        'xml-literal',
 ]
 
 def MockList = [
@@ -132,8 +135,6 @@ def MockList = [
         'strings',
         'math-functions',
         'cache',
-        'fork-variable-access',
-        'fork',
         'user-defined-error',
         'trap',
         'check',
@@ -147,7 +148,6 @@ def MockList = [
         'xml-access',
         'xml-namespaces',
         'xml-attributes',
-        'xml-literal',
         'xml',
         'json-to-xml-conversion',
         'json-record-map-conversion',
@@ -249,9 +249,10 @@ task createProject {
 }
 
 task TestWithTool {
+    dependsOn createProject
     doFirst {
         MockList.each { String bbe ->
-            println bbe
+            def balname = bbe
             bbe = "${bbe}_test"
             def outputarry = []
             if (Os.isFamily(Os.FAMILY_WINDOWS)) {
@@ -308,11 +309,13 @@ task TestWithTool {
             }
             def index = fileout.findIndexOf { it == newlines[0] }
             if (index == -1) {
-                throw new GradleException('Error occurred')
+                throw new GradleException("Ballerina example test failed : ${balname}")
             }
             for (int i = 0; i < newlines.size(); i++) {
                 if (newlines[i] != fileout[index + i]) {
-                    throw new GradleException('Error occurred')
+                    println newlines[i]
+                    println fileout[index + i]
+                    throw new GradleException("Ballerina example test failed : ${balname}")
                 }
             }
         }
@@ -321,6 +324,7 @@ task TestWithTool {
 
 
 task TestWithoutTool {
+    dependsOn createProject
     doLast {
         def ListOfItem = IgnoreList + MockList
         ListOfItem.each { String elements ->

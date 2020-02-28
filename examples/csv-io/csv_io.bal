@@ -55,13 +55,14 @@ public function main() returns @tainted error? {
     // Reads the `.CSV` file as a `table`.
     io:println("Reading  " + srcFileName + " as a table");
     var tblResult = rCsvChannel2.getTable(Employee);
-    if (tblResult is table<Employee>) {
-        foreach var rec in tblResult {
+    if (tblResult is table<record {}>) {
+        table<Employee> empTable = <table<Employee>> tblResult;
+        foreach var rec in empTable {
             io:println(rec);
         }
     } else {
         log:printError("An error occurred while creating table: ",
-                        err = <error>tblResult);
+                        err = tblResult);
     }
     closeReadableCSVChannel(rCsvChannel2);
     // Opens a CSV channel in the "write" mode and writes the `table` to a `.CSV` file.
