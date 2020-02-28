@@ -34,7 +34,7 @@ import javax.mail.internet.MimeMessage;
 
 
 /**
- * Contains Utility functions related to the SMTP protocol.
+ * Contains the utility functions related to the SMTP protocol.
  */
 public class SmtpUtil {
 
