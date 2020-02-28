@@ -19,7 +19,7 @@
 package org.ballerinalang.stdlib.email.util;
 
 /**
- * Constants for SMTP related functions.
+ * Constants for SMTP-related functions.
  *
  * @since 1.1.3
  */
