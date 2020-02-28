@@ -45,7 +45,7 @@ public class PopClient {
     private static final Logger log = LoggerFactory.getLogger(PopClient.class);
 
     private PopClient() {
-        // Singleton class
+        // A Singleton class.
     }
 
     /**
