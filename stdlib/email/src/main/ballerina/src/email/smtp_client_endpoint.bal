@@ -17,7 +17,7 @@
 # Represents an SMTP Client, which interacts with an SMTP Server.
 public type SmtpClient client object {
 
-    # Gets invoked during object initialization
+    # Gets invoked during object initialization.
     #
     # + clientConfig - Configurations for SMTP Client
     public function __init(SmtpConfig clientConfig) {
