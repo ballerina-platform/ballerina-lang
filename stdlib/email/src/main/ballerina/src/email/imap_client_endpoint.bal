@@ -41,7 +41,7 @@ public type ImapClient client object {
 
 };
 
-# Configuration of the IMAP Endpoint
+# Configuration of the IMAP Endpoint.
 #
 # + host - Host address of IMAP server
 # + port - Port number of IMAP server
