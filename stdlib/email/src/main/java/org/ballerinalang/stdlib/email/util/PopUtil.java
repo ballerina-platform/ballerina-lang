@@ -79,7 +79,6 @@ public class PopUtil {
         return properties;
     }
 
-
     /**
      * Generates MapValue object using the passed Message.
      *
