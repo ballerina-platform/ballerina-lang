@@ -27,7 +27,7 @@ public type ConnectionConfig record {|
     string password;
 |};
 
-# Provides email message sends and receives
+# Email message sending and receiving configurations.
 #
 # + to - TO address list
 # + cc - CC address list
