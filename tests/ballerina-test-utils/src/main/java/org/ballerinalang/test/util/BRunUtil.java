@@ -152,6 +152,8 @@ public class BRunUtil {
                 paramTypes[i] = Boolean.class;
             } else if (arg instanceof MapValue) {
                 paramTypes[i] = MapValue.class;
+            } else if (arg instanceof ErrorValue) {
+                paramTypes[i] = ErrorValue.class;
             } else {
                 // This is done temporarily, until blocks are added here for all possible cases.
                 throw new RuntimeException("unknown param type: " + arg.getClass());
