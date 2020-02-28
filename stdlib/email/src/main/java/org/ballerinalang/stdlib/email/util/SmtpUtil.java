@@ -64,7 +64,7 @@ public class SmtpUtil {
     /**
      * Extracts port value and checks validity.
      *
-     * @param longValue Port value extracted from Config
+     * @param longValue Port value extracted from the Config
      * @return Port value as a string
      */
     private static String extractPortValue(long longValue) {
