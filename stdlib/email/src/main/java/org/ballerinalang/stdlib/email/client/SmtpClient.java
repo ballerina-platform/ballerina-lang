@@ -18,7 +18,6 @@
 
 package org.ballerinalang.stdlib.email.client;
 
-
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.stdlib.email.util.BallerinaSmtpException;
