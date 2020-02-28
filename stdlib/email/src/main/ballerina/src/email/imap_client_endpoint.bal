@@ -24,7 +24,7 @@ public type ImapClient client object {
         error? response = initImapClientEndpoint(self, clientConfig, false);
     }
 
-    # Used to read a message
+    # Reads a message.
     #
     # + return - An `error` if failed to send the message to the recipient
     public remote function read() returns Email|error? {
