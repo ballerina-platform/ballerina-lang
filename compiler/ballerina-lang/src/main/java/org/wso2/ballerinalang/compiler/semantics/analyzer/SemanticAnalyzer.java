@@ -2516,7 +2516,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         return analyzeNode(stmtNode, env);
     }
 
-    BType analyzeNode(BLangNode node, SymbolEnv env) {
+    public BType analyzeNode(BLangNode node, SymbolEnv env) {
         return analyzeNode(node, env, symTable.noType, null);
     }
 

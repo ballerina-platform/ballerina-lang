@@ -3188,7 +3188,8 @@ public class TypeChecker extends BLangNodeVisitor {
             return;
         }
 
-        if (iExpr.argExprs.isEmpty() && checkNoArgErrorCtorInvocation(expectedError, iExpr.name, iExpr.pos)) {
+        if (iExpr.argExprs.isEmpty() && iExpr.requiredArgs.isEmpty() && checkNoArgErrorCtorInvocation(expectedError,
+                iExpr.name, iExpr.pos)) {
             return;
         }
 
@@ -3332,8 +3333,10 @@ public class TypeChecker extends BLangNodeVisitor {
             iExpr.requiredArgs.add(reasonExpr);
             return;
         }
-        iExpr.requiredArgs.add(iExpr.argExprs.get(0));
-        iExpr.argExprs.remove(0);
+        if (!iExpr.argExprs.isEmpty()) {
+            iExpr.requiredArgs.add(iExpr.argExprs.get(0));
+            iExpr.argExprs.remove(0);
+        }
     }
 
     /**
