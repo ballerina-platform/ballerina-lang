@@ -22,7 +22,7 @@ import org.ballerinalang.compiler.plugins.AbstractCompilerPlugin;
 import org.ballerinalang.util.diagnostic.DiagnosticLog;
 
 /**
- * This class validates annotations attached to Ballerina service and resource nodes.
+ * This class validates annotations attached to the Ballerina service and its resource nodes.
  *
  * @since 1.1.3
  */
