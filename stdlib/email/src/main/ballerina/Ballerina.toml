@@ -1,0 +1,18 @@
+[project]
+org-name = "ballerina"
+version = "1.1.3"
+
+[platform]
+target = "java8"
+
+    [[platform.libraries]]
+    artifactId = "java.mail"
+    version = "1.6.2"
+    path = "./lib/javax.mail-1.6.2.jar"
+
+    [[platform.libraries]]
+    artifactId = "email"
+    version = "@project.version@"
+    path = "./lib/ballerina-email-@project.version@.jar"
+    groupId = "ballerina"
+    modules = ["email"]

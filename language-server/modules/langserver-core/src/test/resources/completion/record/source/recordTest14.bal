@@ -7,5 +7,5 @@ function testRecordFieldAccess1() {
     Person bob = {
         name: "Bob"
     };
-    bob.
+    string name = bob.
 }
