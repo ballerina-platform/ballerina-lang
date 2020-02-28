@@ -78,7 +78,7 @@ public class ImapSimpleEmailReceiveTest {
         message.setSubject(EMAIL_SUBJECT);
         message.setText(EMAIL_TEXT);
 
-        // use greenmail to store the message
+        // Use greenmail to store the message.
         user.deliver(message);
 
         Path sourceFilePath = Paths.get("src", "test", "resources", "test-src", "ImapSimpleEmailReceive.bal");
