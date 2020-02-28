@@ -29,7 +29,6 @@ import org.ballerinalang.util.diagnostic.DiagnosticLog;
  */
 class EmailListenerCompilerPlugin extends AbstractCompilerPlugin {
 
-
     @Override
     public void init(DiagnosticLog diagnosticLog) {
 
