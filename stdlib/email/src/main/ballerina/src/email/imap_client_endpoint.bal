@@ -45,7 +45,7 @@ public type ImapClient client object {
 #
 # + host - Host address of the IMAP server
 # + port - Port number of the IMAP server
-# + username - Username to access IMAP server
+# + username - Username to access the IMAP server
 # + password - Password to access IMAP server
 public type ImapConfig record {|
     string host;
