@@ -2519,14 +2519,11 @@ public class TypeChecker extends BLangNodeVisitor {
         if (namespaces.containsKey(defaultNs)) {
             bLangXMLElementLiteral.defaultNsSymbol = namespaces.remove(defaultNs);
         }
-
-        // todo: only put namespaces that are used within this element. childrent of this will probably have their own, test that too.
         for (Map.Entry<Name, BXMLNSSymbol> nsEntry : namespaces.entrySet()) {
             if (usedPrefixes.contains(nsEntry.getKey().value)) {
                 bLangXMLElementLiteral.namespacesInScope.put(nsEntry.getKey(), nsEntry.getValue());
             }
         }
-        //bLangXMLElementLiteral.namespacesInScope.putAll(namespaces);
 
         // Visit the tag names
         validateTags(bLangXMLElementLiteral, xmlElementEnv);

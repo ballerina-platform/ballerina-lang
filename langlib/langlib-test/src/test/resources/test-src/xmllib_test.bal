@@ -223,3 +223,16 @@ function testXMLCycleInnerNonError() returns xml {
     cds[0].setChildren(cds[1]);
     return cat;
 }
+
+function testXMLCycleDueToChildrenOfChildren() returns xml|error {
+    xml cat = catalog.clone();
+    xml subRoot = xml `<subRoot></subRoot>`;
+    subRoot.setChildren(cat);
+    var cds = cat.getChildren().strip();
+    error? er = trap cds[0].setChildren(subRoot);
+    if (er is ()) {
+        return cat;
+    } else {
+        return er;
+    }
+}

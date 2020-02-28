@@ -43,6 +43,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.IdentityHashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -391,17 +392,29 @@ public final class XMLItem extends XMLValue {
     }
 
     private void ensureAcyclicGraph(BXML newSubTree, XMLItem current) {
+        IdentityHashMap<XMLItem, XMLItem> lineageSet = new IdentityHashMap<>();
+        lineageSet.put(this, this);
+        ensureAcyclicParentGraph(newSubTree, current, lineageSet);
+    }
+
+    private void ensureAcyclicParentGraph(BXML newSubTree, XMLItem current,
+                                          Map<XMLItem, XMLItem> lineageSet) {
         for (WeakReference<XMLItem> probableParentRef : current.probableParents) {
             XMLItem parent = probableParentRef.get();
             // probable parent is the actual parent.
             if (parent.children.children.contains(current)) {
                 // If new subtree is in the lineage of current node, adding this newSubTree forms a cycle.
                 if (parent == newSubTree) {
-                    throw new BallerinaException(BallerinaErrorReasons.XML_OPERATION_ERROR, "Cycle detected");
+                    throw createXMLCycleError();
                 }
-                ensureAcyclicGraph(newSubTree, parent);
+                lineageSet.put(parent, parent);
+                ensureAcyclicParentGraph(newSubTree, parent, lineageSet);
             }
         }
+    }
+
+    private BallerinaException createXMLCycleError() {
+        return new BallerinaException(BallerinaErrorReasons.XML_OPERATION_ERROR, "Cycle detected");
     }
 
     private void mergeAdjoiningTextNodesIntoList(List leftList, List<BXML> appendingList) {
