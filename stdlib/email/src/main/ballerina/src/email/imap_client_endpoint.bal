@@ -19,7 +19,7 @@ public type ImapClient client object {
 
     # Gets invoked during object initialization.
     #
-    # + clientConfig - Configurations for IMAP Client
+    # + clientConfig - Configurations for the IMAP Client
     public function __init(ImapConfig clientConfig) {
         error? response = initImapClientEndpoint(self, clientConfig, false);
     }
