@@ -30,8 +30,12 @@ import ballerinax/java;
 # + isolationLevel - Transactional message reading method. Use "read_committed" to read the committed messages
 #       only in transactional mode when poll() is called. Use "read_uncommitted" to read all the messages,
 #       even the aborted ones.
-# + keyDeserializer - Deserializer used for the Kafka record key. This should be a `kafka:DeserializerType`
-# + valueDeserializer - Deserializer used for the Kafka record value. This should be a `kafka:DeserializerType`
+# + keyDeserializerType - Deserializer used for the Kafka record key. This should be a `kafka:DeserializerType`
+# + valueDeserializerType - Deserializer used for the Kafka record value. This should be a `kafka:DeserializerType`
+# + keyDeserializer - Custom deserializer object to deserialize kafka keys. This should be implement the
+#       `kafka:Deserializer` object.
+# + valueDeserializer - Custom deserializer object to deserialize kafka values. This should implement the
+#       `kafka:Deserializer` object.
 # + topics - Topics to be subscribed by the consumer.
 # + properties - Additional properties if required.
 # + sessionTimeoutInMillis - Timeout used to detect consumer failures when heartbeat threshold is reached.
@@ -63,7 +67,7 @@ import ballerinax/java;
 # + decoupleProcessing - Decouples processing.
 # + secureSocket - Configurations related to SSL/TLS.
 public type ConsumerConfig record {|
-    string? bootstrapServers = ();
+    string bootstrapServers;
     string? groupId = ();
     string? offsetReset = ();
     string? partitionAssignmentStrategy = ();
@@ -72,8 +76,11 @@ public type ConsumerConfig record {|
     string? clientId = ();
     string? interceptorClasses = ();
     string? isolationLevel = ();
-    DeserializerType keyDeserializer = DES_BYTE_ARRAY;
-    DeserializerType valueDeserializer = DES_BYTE_ARRAY;
+
+    DeserializerType keyDeserializerType = DES_BYTE_ARRAY;
+    DeserializerType valueDeserializerType = DES_BYTE_ARRAY;
+    Deserializer? keyDeserializer = ();
+    Deserializer? valueDeserializer = ();
 
     string[]? topics = ();
     string[]? properties = ();
@@ -92,7 +99,7 @@ public type ConsumerConfig record {|
     int retryBackoffInMillis = -1;
     int metricsSampleWindowInMillis = -1;
     int metricsNumSamples = -1;
-    int requestTimeoutInMillis = -1;
+    int requestTimeoutInMillis = 30000;
     int connectionMaxIdleTimeInMillis = -1;
     int maxPollRecords = -1;
     int maxPollInterval = -1;
@@ -119,8 +126,8 @@ public type ConsumerConfig record {|
 # + timestamp - Timestamp of the record, in milliseconds since epoch.
 # + topic - Topic to which the record belongs to.
 public type ConsumerRecord record {|
-    Data key;
-    Data value;
+    any key;
+    any value;
     int offset;
     int partition;
     int timestamp;
@@ -139,8 +146,11 @@ public const DES_INT = "INT";
 # In-built Kafka float deserializer.
 public const DES_FLOAT = "FLOAT";
 
+# User-defined deserializer.
+public const DES_CUSTOM = "CUSTOM";
+
 # Kafka in-built deserializer type.
-public type DeserializerType DES_BYTE_ARRAY|DES_STRING|DES_INT|DES_FLOAT;
+public type DeserializerType DES_BYTE_ARRAY|DES_STRING|DES_INT|DES_FLOAT|DES_CUSTOM;
 
 # Represent a Kafka consumer endpoint.
 #
@@ -149,20 +159,40 @@ public type Consumer client object {
     *'object:Listener;
 
     public ConsumerConfig? consumerConfig = ();
-    private string keyDeserializer;
-    private string valueDeserializer;
+    private string keyDeserializerType;
+    private string valueDeserializerType;
+    private Deserializer? keyDeserializer = ();
+    private Deserializer? valueDeserializer = ();
 
     # Creates a new Kafka `Consumer`.
     #
     # + config - Configurations related to consumer endpoint.
     public function __init (ConsumerConfig config) {
         self.consumerConfig = config;
-        self.keyDeserializer = config.keyDeserializer;
-        self.valueDeserializer = config.valueDeserializer;
-        var initResult = self.init(config);
-        if (initResult is error) {
-            panic initResult;
+        self.keyDeserializerType = config.keyDeserializerType;
+        self.valueDeserializerType = config.valueDeserializerType;
+
+        if (self.keyDeserializerType == DES_CUSTOM) {
+            var keyDeserializerObject = config.keyDeserializer;
+            if (keyDeserializerObject is ()) {
+                panic error(CONSUMER_ERROR, message = "Invalid keyDeserializer config: Please Provide a " +
+                                        "valid custom deserializer for the keyDeserializer");
+            } else {
+                self.keyDeserializer = keyDeserializerObject;
+            }
         }
+
+        if (self.valueDeserializerType == DES_CUSTOM) {
+            var valueDeserializerObject = config.valueDeserializer;
+            if (valueDeserializerObject is ()) {
+                panic error(CONSUMER_ERROR, message = "Invalid valueDeserializer config: Please Provide a" +
+                                        " valid custom deserializer for the valueDeserializer");
+            } else {
+                self.valueDeserializer = valueDeserializerObject;
+            }
+        }
+
+        checkpanic self.init(config);
     }
 
     public function __start() returns error? {
@@ -185,19 +215,11 @@ public type Consumer client object {
     }
 
     function init(ConsumerConfig config) returns ConsumerError? {
-        if (config.bootstrapServers is string) {
-            var result = self->connect();
-            if (result is error) {
-                panic result;
-            }
-        }
+        checkpanic self->connect();
 
         string[]? topics = config.topics;
         if (topics is string[]){
-            var result = self->subscribe(topics);
-            if (result is error) {
-                panic result;
-            }
+            checkpanic self->subscribe(topics);
         }
         return;
     }

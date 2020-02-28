@@ -24,25 +24,27 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.project.ProjectManager;
 import com.intellij.openapi.project.ProjectManagerListener;
 import com.intellij.openapi.ui.MessageType;
-import com.intellij.remoteServer.util.CloudNotifier;
 import com.intellij.util.messages.MessageBusConnection;
 import io.ballerina.plugins.idea.extensions.BallerinaLSPExtensionManager;
+import io.ballerina.plugins.idea.notifiers.BallerinaAutoDetectNotifier;
 import io.ballerina.plugins.idea.sdk.BallerinaSdk;
 import io.ballerina.plugins.idea.sdk.BallerinaSdkUtils;
 import io.ballerina.plugins.idea.settings.autodetect.BallerinaAutoDetectionSettings;
-import io.ballerina.plugins.idea.settings.experimental.BallerinaExperimentalFeatureSettings;
+import io.ballerina.plugins.idea.settings.langserverlogs.LangServerLogsSettings;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.wso2.lsp4intellij.IntellijLanguageClient;
-import org.wso2.lsp4intellij.client.languageserver.serverdefinition.RawCommandServerDefinition;
+import org.wso2.lsp4intellij.client.languageserver.serverdefinition.ProcessBuilderServerDefinition;
 
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
+import static io.ballerina.plugins.idea.BallerinaConstants.BAL_FILE_EXT;
 import static io.ballerina.plugins.idea.BallerinaConstants.LAUNCHER_SCRIPT_PATH;
+import static io.ballerina.plugins.idea.BallerinaConstants.SYS_PROP_EXPERIMENTAL;
+import static io.ballerina.plugins.idea.BallerinaConstants.SYS_PROP_LS_DEBUG;
+import static io.ballerina.plugins.idea.BallerinaConstants.SYS_PROP_LS_TRACE;
 import static io.ballerina.plugins.idea.preloading.OSUtils.getOperatingSystem;
 
 /**
@@ -51,7 +53,7 @@ import static io.ballerina.plugins.idea.preloading.OSUtils.getOperatingSystem;
 public class BallerinaPreloadingActivity extends PreloadingActivity {
 
     private static final Logger LOG = Logger.getInstance(BallerinaPreloadingActivity.class);
-    private static Map<String, CloudNotifier> projectNotifiers = new HashMap<>();
+    private static BallerinaAutoDetectNotifier autoDetectNotifier = new BallerinaAutoDetectNotifier();
 
     /**
      * Preloading of the ballerina plugin.
@@ -100,10 +102,10 @@ public class BallerinaPreloadingActivity extends PreloadingActivity {
         String balSdkPath = balSdk.getSdkPath();
 
         // Checks for the user-configured auto detection settings.
-        if (balSdkPath == null && BallerinaAutoDetectionSettings.getInstance(project).getIsAutoDetectionEnabled()) {
+        if (balSdkPath == null && BallerinaAutoDetectionSettings.getInstance(project).isAutoDetectionEnabled()) {
 
             //If a ballerina SDK is not configured for the project, Plugin tries to auto detect the ballerina SDK.
-            showInIdeaEventLog(project.getBasePath(), String.format("No ballerina SDK is found for project: %s\n " +
+            showInIdeaEventLog(project, String.format("No ballerina SDK is found for project: %s\n " +
                     "Trying to Auto detect Ballerina Home...", project.getBasePath()));
 
             balSdkPath = BallerinaSdkUtils.autoDetectSdk(project);
@@ -113,14 +115,14 @@ public class BallerinaPreloadingActivity extends PreloadingActivity {
         if (!Strings.isNullOrEmpty(balSdkPath)) {
             boolean success = doRegister(project, balSdkPath);
             if (success && autoDetected) {
-                LOG.info(String.format("Auto-detected Ballerina Home: %s for the project: %s",
-                        balSdkPath, project.getBasePath()));
-                showInIdeaEventLog(project.getBasePath(), "Auto-Detected Ballerina Home: " + balSdkPath);
+                LOG.info(String.format("Auto-detected Ballerina Home: %s for the project: %s", balSdkPath,
+                        project.getBasePath()));
+                showInIdeaEventLog(project, "Auto-Detected Ballerina Home: " + balSdkPath);
             }
             return success;
         } else {
-            if (BallerinaAutoDetectionSettings.getInstance(project).getIsAutoDetectionEnabled()) {
-                showInIdeaEventLog(project.getBasePath(), "Auto-Detection Failed");
+            if (BallerinaAutoDetectionSettings.getInstance(project).isAutoDetectionEnabled()) {
+                showInIdeaEventLog(project, "Auto-Detection Failed for: " + project.getBasePath());
             }
         }
         return false;
@@ -134,6 +136,7 @@ public class BallerinaPreloadingActivity extends PreloadingActivity {
 
         // Creates the args list to register the language server definition using the ballerina lang-server launcher
         // script.
+        ProcessBuilder processBuilder;
         List<String> args = new ArrayList<>();
         if (os.equals(OSUtils.UNIX) || os.equals(OSUtils.MAC)) {
             args.add(Paths.get(sdkPath, LAUNCHER_SCRIPT_PATH, "language-server-launcher.sh").toString());
@@ -141,29 +144,36 @@ public class BallerinaPreloadingActivity extends PreloadingActivity {
             args.add(Paths.get(sdkPath, LAUNCHER_SCRIPT_PATH, "language-server-launcher.bat").toString());
         }
 
-        // Checks user-configurable setting for allowing ballerina experimental features and sets the flag accordinly.
-        if (BallerinaExperimentalFeatureSettings.getInstance().getAllowExperimental()) {
-            args.add("--experimental");
+        processBuilder = new ProcessBuilder(args);
+        // Checks user-configurable setting for allowing ballerina experimental features and sets the flag accordingly.
+        if (BallerinaAutoDetectionSettings.getInstance(project).isAutoDetectionEnabled()) {
+            processBuilder.environment().put(SYS_PROP_EXPERIMENTAL, "true");
+        }
+
+        // Checks user-configurable setting for allowing language server debug logs and sets the flag accordingly.
+        if (LangServerLogsSettings.getInstance(project).isLangServerDebugLogsEnabled()) {
+            processBuilder.environment().put(SYS_PROP_LS_DEBUG, "true");
+        }
+
+        // Checks user-configurable setting for allowing language server trace logs and sets the flag accordingly.
+        if (LangServerLogsSettings.getInstance(project).isLangServerTraceLogsEnabled()) {
+            processBuilder.environment().put(SYS_PROP_LS_TRACE, "true");
         }
 
         // Adds ballerina-specific custom LSP extensions by creating a ballerina lsp extension manager.
-        IntellijLanguageClient.addExtensionManager("bal", new BallerinaLSPExtensionManager());
+        IntellijLanguageClient.addExtensionManager(BAL_FILE_EXT, new BallerinaLSPExtensionManager());
 
         // Registers language server definition in the lsp4intellij lang-client library.
-        IntellijLanguageClient.addServerDefinition(new RawCommandServerDefinition("bal",
-                args.toArray(new String[0])), project);
+        IntellijLanguageClient
+                .addServerDefinition(new ProcessBuilderServerDefinition(BAL_FILE_EXT, processBuilder), project);
 
-        LOG.info("Registered language server definition using Sdk path: " + sdkPath);
+        LOG.info("language server definition is registered using sdk path: " + sdkPath);
         return true;
     }
 
-    private static void showInIdeaEventLog(String project, String message) {
-        if (projectNotifiers.get(project) == null) {
-            projectNotifiers.put(project,
-                    new CloudNotifier("Ballerina Home Auto Detection notifier for " + project));
-        }
-        ApplicationManager.getApplication().invokeLater(() ->
-                projectNotifiers.get(project).showMessage(message, MessageType.INFO));
+    private static void showInIdeaEventLog(Project project, String message) {
+        ApplicationManager.getApplication().invokeLater(() -> autoDetectNotifier.showMessage(project, message,
+                MessageType.INFO));
     }
 
     /**

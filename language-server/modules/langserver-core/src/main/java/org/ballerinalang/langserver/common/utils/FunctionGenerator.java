@@ -405,7 +405,7 @@ public class FunctionGenerator {
                 ? lookupFunctionReturnType(functionName, parent.parent) : "any";
     }
 
-    private static String generateReturnValue(BiConsumer<String, String> importsAcceptor, PackageID currentPkgId,
+    public static String generateReturnValue(BiConsumer<String, String> importsAcceptor, PackageID currentPkgId,
                                               BType bType,
                                               String template) {
         if (bType instanceof BArrayType) {
@@ -415,7 +415,7 @@ public class FunctionGenerator {
         } else if (bType instanceof BFiniteType) {
             // Check for finite set assignment
             BFiniteType bFiniteType = (BFiniteType) bType;
-            Set<BLangExpression> valueSpace = bFiniteType.valueSpace;
+            Set<BLangExpression> valueSpace = bFiniteType.getValueSpace();
             if (!valueSpace.isEmpty()) {
                 return generateReturnValue(importsAcceptor, currentPkgId, valueSpace.stream().findFirst().get(),
                         template);
@@ -433,7 +433,7 @@ public class FunctionGenerator {
                 Optional<BType> type = memberTypes.stream()
                         .filter(bType1 -> !(bType1 instanceof BNilType)).findFirst();
                 if (type.isPresent()) {
-                    return generateReturnValue(importsAcceptor, currentPkgId, type.get(), "{%1}?");
+                    return generateReturnValue(importsAcceptor, currentPkgId, type.get(), template);
                 }
             }
             if (!memberTypes.isEmpty()) {
@@ -493,6 +493,9 @@ public class FunctionGenerator {
                 break;
             case "table":
                 result = "table{}";
+                break;
+            case "error":
+                result = "error(\"\")";
                 break;
             default:
                 result = "()";

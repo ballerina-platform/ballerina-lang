@@ -16,12 +16,10 @@
 package org.ballerinalang.langserver.codeaction.providers;
 
 import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.langserver.command.CommandUtil;
 import org.ballerinalang.langserver.command.executors.CreateFunctionExecutor;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.LSContext;
-import org.ballerinalang.langserver.commons.codeaction.CodeActionKeys;
 import org.ballerinalang.langserver.commons.codeaction.CodeActionNodeType;
 import org.ballerinalang.langserver.commons.command.CommandArgument;
 import org.ballerinalang.langserver.commons.workspace.LSDocumentIdentifier;
@@ -29,12 +27,15 @@ import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.exception.CompilationFailedException;
+import org.ballerinalang.langserver.util.references.ReferencesKeys;
+import org.ballerinalang.langserver.util.references.SymbolReferencesModel;
 import org.ballerinalang.model.elements.PackageID;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.CodeActionKind;
 import org.eclipse.lsp4j.Command;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.Position;
+import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 
@@ -44,6 +45,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.regex.Matcher;
+
+import static org.ballerinalang.langserver.util.references.ReferencesUtil.getReferenceAtCursor;
 
 /**
  * Code Action provider for importing a package.
@@ -58,10 +61,11 @@ public class CreateFunctionCodeAction extends AbstractCodeActionProvider {
      * {@inheritDoc}
      */
     @Override
-    public List<CodeAction> getCodeActions(CodeActionNodeType nodeType, LSContext lsContext,
-                                           List<Diagnostic> diagnostics) {
-        WorkspaceDocumentManager documentManager = lsContext.get(CodeActionKeys.DOCUMENT_MANAGER_KEY);
-        Optional<Path> filePath = CommonUtil.getPathFromURI(lsContext.get(CodeActionKeys.FILE_URI_KEY));
+    public List<CodeAction> getDiagBasedCodeActions(CodeActionNodeType nodeType, LSContext lsContext,
+                                                    List<Diagnostic> diagnosticsOfRange,
+                                                    List<Diagnostic> allDiagnostics) {
+        WorkspaceDocumentManager documentManager = lsContext.get(DocumentServiceKeys.DOC_MANAGER_KEY);
+        Optional<Path> filePath = CommonUtil.getPathFromURI(lsContext.get(DocumentServiceKeys.FILE_URI_KEY));
         LSDocumentIdentifier document = null;
         try {
             document = documentManager.getLSDocument(filePath.get());
@@ -73,9 +77,9 @@ public class CreateFunctionCodeAction extends AbstractCodeActionProvider {
         if (document == null) {
             return actions;
         }
-        for (Diagnostic diagnostic : diagnostics) {
+        for (Diagnostic diagnostic : diagnosticsOfRange) {
             if (diagnostic.getMessage().startsWith(UNDEFINED_FUNCTION)) {
-                CodeAction codeAction = getFunctionImportCommand(document, diagnostic, lsContext);
+                CodeAction codeAction = getFunctionCreateCommand(document, diagnostic, lsContext);
                 if (codeAction != null) {
                     actions.add(codeAction);
                 }
@@ -84,13 +88,22 @@ public class CreateFunctionCodeAction extends AbstractCodeActionProvider {
         return actions;
     }
 
-    private static CodeAction getFunctionImportCommand(LSDocumentIdentifier document, Diagnostic diagnostic,
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public List<CodeAction> getNodeBasedCodeActions(CodeActionNodeType nodeType, LSContext lsContext,
+                                                    List<Diagnostic> allDiagnostics) {
+        throw new UnsupportedOperationException("Not supported");
+    }
+
+    private static CodeAction getFunctionCreateCommand(LSDocumentIdentifier document, Diagnostic diagnostic,
                                                        LSContext context) {
         String diagnosticMessage = diagnostic.getMessage();
         Position position = diagnostic.getRange().getStart();
         int line = position.getLine();
         int column = position.getCharacter();
-        String uri = context.get(CodeActionKeys.FILE_URI_KEY);
+        String uri = context.get(DocumentServiceKeys.FILE_URI_KEY);
         CommandArgument lineArg = new CommandArgument(CommandConstants.ARG_KEY_NODE_LINE, "" + line);
         CommandArgument colArg = new CommandArgument(CommandConstants.ARG_KEY_NODE_COLUMN, "" + column);
         CommandArgument uriArg = new CommandArgument(CommandConstants.ARG_KEY_DOC_URI, uri);
@@ -99,11 +112,19 @@ public class CreateFunctionCodeAction extends AbstractCodeActionProvider {
         List<Object> args = Arrays.asList(lineArg, colArg, uriArg);
         Matcher matcher = CommandConstants.UNDEFINED_FUNCTION_PATTERN.matcher(diagnosticMessage);
         String functionName = (matcher.find() && matcher.groupCount() > 0) ? matcher.group(1) + "(...)" : "";
-        WorkspaceDocumentManager docManager = context.get(CodeActionKeys.DOCUMENT_MANAGER_KEY);
+        WorkspaceDocumentManager docManager = context.get(DocumentServiceKeys.DOC_MANAGER_KEY);
+        String diagnosedContent = getDiagnosedContent(diagnostic, context, document);
         try {
-            BLangInvocation node = CommandUtil.getFunctionInvocationNode(line, column, document.getURIString(),
-                                                                         docManager,
-                                                                         context);
+            LSDocumentIdentifier lsDocument = docManager.getLSDocument(CommonUtil.getPathFromURI(uri).get());
+            context.put(ReferencesKeys.OFFSET_CURSOR_N_TRY_NEXT_BEST, true);
+            context.put(ReferencesKeys.DO_NOT_SKIP_NULL_SYMBOLS, true);
+            Position afterAliasPos = offsetInvocation(diagnosedContent, position);
+            SymbolReferencesModel.Reference refAtCursor = getReferenceAtCursor(context, lsDocument, afterAliasPos);
+            BLangNode bLangNode = refAtCursor.getbLangNode();
+            BLangInvocation node = null;
+            if (bLangNode instanceof BLangInvocation) {
+                node = (BLangInvocation) bLangNode;
+            }
             if (node != null && node.pkgAlias.value.isEmpty()) {
                 boolean isWithinProject = (node.expr == null);
                 if (node.expr != null) {
@@ -122,7 +143,7 @@ public class CreateFunctionCodeAction extends AbstractCodeActionProvider {
                     return action;
                 }
             }
-        } catch (CompilationFailedException e) {
+        } catch (CompilationFailedException | WorkspaceDocumentException e) {
             // ignore
         }
         return null;

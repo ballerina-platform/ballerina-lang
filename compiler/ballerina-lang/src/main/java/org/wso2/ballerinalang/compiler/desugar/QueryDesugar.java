@@ -26,7 +26,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangDoClause;
@@ -113,15 +112,9 @@ public class QueryDesugar extends BLangNodeVisitor {
         BLangForeach leafForeach = buildFromClauseBlock(fromClauseList);
         BLangBlockStmt foreachBody = ASTBuilderUtil.createBlockStmt(pos);
 
-        BType outputArrayType;
-        if (selectClause.expression != null && selectClause.expression.type != null) {
-            outputArrayType = new BArrayType(selectClause.expression.type);
-        } else {
-            outputArrayType = fromClause.varType;
-        }
-
+        BArrayType outputArrayType = new BArrayType(selectClause.expression.type);
         BLangListConstructorExpr emptyArrayExpr = ASTBuilderUtil.createEmptyArrayLiteral(pos,
-                (BArrayType) outputArrayType);
+                outputArrayType);
         BVarSymbol emptyArrayVarSymbol = new BVarSymbol(0, new Name("$outputDataArray$"),
                 env.scope.owner.pkgID, outputArrayType, env.scope.owner);
         BLangSimpleVariable outputArrayVariable =
@@ -140,10 +133,6 @@ public class QueryDesugar extends BLangNodeVisitor {
         //         firstName: person.firstName,
         //         lastName: person.lastName
         //      };
-
-        if (selectClause.expression.type == null) {
-            selectClause.expression.type = fromClause.varType;
-        }
 
         BLangInvocation lengthInvocation = createLengthInvocation(selectClause.pos, outputArrayVariable.symbol);
         lengthInvocation.expr = outputVarRef;

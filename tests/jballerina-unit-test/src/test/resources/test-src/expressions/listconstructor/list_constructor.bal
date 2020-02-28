@@ -35,3 +35,18 @@ function testListConstructorExpr() returns boolean {
         && fooArr[0] == "DDD"
         && fooArr[1] == 444;
 }
+
+function testListConstructorAutoFillExpr() {
+    int[8] arrOfEightInts = [1, 2, 3];
+    int sum = 0;
+    int i = 0;
+
+    while (i < 8) {
+        sum += arrOfEightInts[i];
+        i = i + 1;
+    }
+
+    if (sum != 6) {
+        panic error("Invalid sum of int array");
+    }
+}
