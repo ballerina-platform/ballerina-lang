@@ -26,9 +26,9 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
  * @since 0.94
  */
 public interface TransactionNode extends StatementNode {
-    BlockNode getTransactionBody();
+    BlockStatementNode getTransactionBody();
 
-    BlockNode getOnRetryBody();
+    BlockStatementNode getOnRetryBody();
 
     ExpressionNode getRetryCount();
 
@@ -36,13 +36,13 @@ public interface TransactionNode extends StatementNode {
 
     BLangBlockStmt getCommittedBody();
 
-    void setTransactionBody(BlockNode body);
+    void setTransactionBody(BlockStatementNode body);
 
-    void setOnRetryBody(BlockNode body);
+    void setOnRetryBody(BlockStatementNode body);
 
     void setRetryCount(ExpressionNode retryCount);
 
-    void setCommittedBody(BlockNode committedBlock);
+    void setCommittedBody(BlockStatementNode committedBlock);
 
-    void setAbortedBody(BlockNode abortedBlock);
+    void setAbortedBody(BlockStatementNode abortedBlock);
 }

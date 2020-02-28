@@ -25,11 +25,11 @@ service crossOriginService on new http:Listener(9092) {
     }
     resource function companyInfo(http:Caller caller, http:Request req) {
         http:Response res = new;
-        json responseJson = { "type": "middleware" };
+        json responseJson = {"type": "middleware"};
         res.setJsonPayload(responseJson);
         var result = caller->respond(res);
         if (result is error) {
-           log:printError(result.reason(), err = result);
+            log:printError(result.reason(), result);
         }
     }
 
@@ -41,11 +41,11 @@ service crossOriginService on new http:Listener(9092) {
     }
     resource function langInfo(http:Caller caller, http:Request req) {
         http:Response res = new;
-        json responseJson = { "lang": "Ballerina" };
+        json responseJson = {"lang": "Ballerina"};
         res.setJsonPayload(responseJson);
         var result = caller->respond(res);
         if (result is error) {
-           log:printError(result.reason(), err = result);
+            log:printError(result.reason(), result);
         }
     }
 }

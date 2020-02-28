@@ -229,6 +229,7 @@ const string ABSTRACT_OBJECT_VALUE = "org/ballerinalang/jvm/values/AbstractObjec
 const string REF_VALUE = "org/ballerinalang/jvm/values/RefValue";
 const string ERROR_VALUE = "org/ballerinalang/jvm/values/ErrorValue";
 const string STRING_VALUE = "java/lang/String";
+const string BMP_STRING_VALUE = "org/ballerinalang/jvm/values/BmpStringValue";
 const string LONG_VALUE = "java/lang/Long";
 const string BOOLEAN_VALUE = "java/lang/Boolean";
 const string DOUBLE_VALUE = "java/lang/Double";
@@ -240,6 +241,7 @@ const string FUTURE_VALUE = "org/ballerinalang/jvm/values/FutureValue";
 const string TYPEDESC_VALUE = "org/ballerinalang/jvm/values/TypedescValue";
 const string HANDLE_VALUE = "org/ballerinalang/jvm/values/HandleValue";
 const string LOCK_VALUE = "org/ballerinalang/jvm/BLock";
+const string LOCK_STORE = "org/ballerinalang/jvm/BLockStore";
 const string FUNCTION_POINTER = "org/ballerinalang/jvm/values/FPValue";
 const string ARRAY_VALUE_IMPL = "org/ballerinalang/jvm/values/ArrayValueImpl";
 const string TUPLE_VALUE_IMPL = "org/ballerinalang/jvm/values/TupleValueImpl";
@@ -360,7 +362,6 @@ const string BUILT_IN_PACKAGE_NAME = "lang.annotations";
 
 // scheduler related constants
 const string SCHEDULE_FUNCTION_METHOD =  "scheduleFunction";
-const string SCHEDULE_LOCAL_METHOD = "scheduleLocal";
 const string SCHEDULER_START_METHOD =  "start";
 
 // observability related constants

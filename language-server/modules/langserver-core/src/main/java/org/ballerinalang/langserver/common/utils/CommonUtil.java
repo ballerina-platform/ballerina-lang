@@ -36,10 +36,13 @@ import org.ballerinalang.langserver.completions.StaticCompletionItem;
 import org.ballerinalang.langserver.completions.SymbolCompletionItem;
 import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
 import org.ballerinalang.langserver.completions.util.Priority;
+import org.ballerinalang.langserver.exception.LSStdlibCacheException;
+import org.ballerinalang.langserver.util.definition.LSStandardLibCache;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.TopLevelNode;
+import org.ballerinalang.model.tree.statements.StatementNode;
 import org.ballerinalang.model.types.ConstrainedType;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionItemKind;
@@ -75,6 +78,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
+import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
@@ -93,6 +97,7 @@ import org.wso2.ballerinalang.util.Flags;
 
 import java.io.File;
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Path;
@@ -120,6 +125,8 @@ import java.util.stream.Collectors;
 public class CommonUtil {
     private static final Logger logger = LoggerFactory.getLogger(CommonUtil.class);
 
+    private static final Path TEMP_DIR = Paths.get(System.getProperty("java.io.tmpdir"));
+
     public static final String MD_LINE_SEPARATOR = "  " + System.lineSeparator();
 
     public static final String LINE_SEPARATOR = System.lineSeparator();
@@ -139,6 +146,14 @@ public class CommonUtil {
     public static final String BALLERINA_CMD;
 
     public static final String MARKDOWN_MARKUP_KIND = "markdown";
+    
+    public static final String BALLERINA_ORG_NAME = "ballerina";
+
+    public static final String BALLERINAX_ORG_NAME = "ballerinax";
+
+    public static final String SDK_VERSION = System.getProperty("ballerina.version");
+
+    public static final Path LS_STDLIB_CACHE_DIR = TEMP_DIR.resolve("ls_stdlib_cache").resolve(SDK_VERSION);
 
     static {
         LS_DEBUG_ENABLED = Boolean.parseBoolean(System.getProperty("ballerina.debugLog"));
@@ -321,7 +336,7 @@ public class CommonUtil {
      * @return {@link CompletionItem} Completion item for the annotation
      */
     public static LSCompletionItem getAnnotationCompletionItem(PackageID packageID, BAnnotationSymbol annotationSymbol,
-                                                             LSContext ctx, Map<String, String> pkgAliasMap) {
+                                                               LSContext ctx, Map<String, String> pkgAliasMap) {
         return getAnnotationCompletionItem(packageID, annotationSymbol, ctx, null, pkgAliasMap);
     }
 
@@ -446,7 +461,7 @@ public class CommonUtil {
                 typeString = "new()";
                 break;
             case FINITE:
-                List<BLangExpression> valueSpace = new ArrayList<>(((BFiniteType) bType).valueSpace);
+                List<BLangExpression> valueSpace = new ArrayList<>(((BFiniteType) bType).getValueSpace());
                 String value = valueSpace.get(0).toString();
                 BType type = valueSpace.get(0).type;
                 typeString = value;
@@ -510,7 +525,7 @@ public class CommonUtil {
      * Get completion items list for struct fields.
      *
      * @param context Language server operation context
-     * @param fields List of struct fields
+     * @param fields  List of struct fields
      * @return {@link List}     List of completion items for the struct fields
      */
     public static List<LSCompletionItem> getRecordFieldCompletionItems(LSContext context, List<BField> fields) {
@@ -534,7 +549,7 @@ public class CommonUtil {
      * Get the completion item to fill all the struct fields.
      *
      * @param context Language Server Operation Context
-     * @param fields List of struct fields
+     * @param fields  List of struct fields
      * @return {@link LSCompletionItem}   Completion Item to fill all the options
      */
     public static LSCompletionItem getFillAllStructFieldsItem(LSContext context, List<BField> fields) {
@@ -562,8 +577,8 @@ public class CommonUtil {
     /**
      * Get the BType name as string.
      *
-     * @param bType BType to get the name
-     * @param ctx   LS Operation Context
+     * @param bType      BType to get the name
+     * @param ctx        LS Operation Context
      * @param doSimplify Simplifies the types eg. Errors
      * @return {@link String}   BType Name as String
      */
@@ -691,8 +706,8 @@ public class CommonUtil {
     /**
      * Get the constraint type name.
      *
-     * @param bType   BType to evaluate
-     * @param context Language server operation context
+     * @param bType      BType to evaluate
+     * @param context    Language server operation context
      * @param doSimplify
      * @return {@link StringBuilder} constraint type name
      */
@@ -823,7 +838,7 @@ public class CommonUtil {
      * @param node Node to be evaluated
      * @return {@link Boolean}  whether a worker derivative
      */
-    public static boolean isWorkerDereivative(BLangNode node) {
+    public static boolean isWorkerDereivative(StatementNode node) {
         return (node instanceof BLangSimpleVariableDef)
                 && ((BLangSimpleVariableDef) node).var.expr != null
                 && ((BLangSimpleVariableDef) node).var.expr.type instanceof BFutureType
@@ -841,8 +856,8 @@ public class CommonUtil {
         String relativeFilePath = ctx.get(DocumentServiceKeys.RELATIVE_FILE_PATH_KEY);
         BLangCompilationUnit filteredCUnit = pkgNode.compUnits.stream()
                 .filter(cUnit ->
-                                cUnit.getPosition().getSource().cUnitName.replace("/", FILE_SEPARATOR)
-                                        .equals(relativeFilePath))
+                        cUnit.getPosition().getSource().cUnitName.replace("/", FILE_SEPARATOR)
+                                .equals(relativeFilePath))
                 .findAny().orElse(null);
         List<TopLevelNode> topLevelNodes = filteredCUnit == null
                 ? new ArrayList<>()
@@ -944,6 +959,10 @@ public class CommonUtil {
      */
     public static Pair<String, String> getFunctionInvocationSignature(BInvokableSymbol symbol, String functionName,
                                                                       LSContext ctx) {
+        if (symbol == null) {
+            // Symbol can be null for object init functions without an explicit __init
+            return ImmutablePair.of(functionName + "();", functionName + "()");
+        }
         StringBuilder signature = new StringBuilder(functionName + "(");
         StringBuilder insertText = new StringBuilder(functionName + "(");
         List<String> funcArguments = FunctionGenerator.getFuncArguments(symbol, ctx);
@@ -1055,7 +1074,7 @@ public class CommonUtil {
     }
 
     /**
-     * Predicate to check for the invalid symbols.
+     * Predicate to check for the imports in the current file.
      *
      * @return {@link Predicate}    Predicate for the check
      */
@@ -1063,6 +1082,18 @@ public class CommonUtil {
         String currentFile = ctx.get(DocumentServiceKeys.RELATIVE_FILE_PATH_KEY);
         return importPkg -> importPkg.pos.getSource().cUnitName.replace("/", FILE_SEPARATOR).equals(currentFile)
                 && importPkg.getWS() != null;
+    }
+
+    /**
+     * Predicate to check for the standard library imports in the current file which aren't cached already.
+     *
+     * @return {@link Predicate}    Predicate for the check
+     */
+    public static Predicate<BLangImportPackage> stdLibImportsNotCachedPredicate(LSContext ctx) {
+        String currentFile = ctx.get(DocumentServiceKeys.RELATIVE_FILE_PATH_KEY);
+        return importPkg -> importPkg.pos.getSource().cUnitName.replace("/", FILE_SEPARATOR).equals(currentFile)
+                && importPkg.getWS() != null && (importPkg.orgName.value.equals(BALLERINA_ORG_NAME)
+                || importPkg.orgName.value.equals(BALLERINAX_ORG_NAME));
     }
 
     /**
@@ -1276,15 +1307,21 @@ public class CommonUtil {
         }
         // Retrieve block stmt
         parent = bLangNode.parent;
-        while (parent != null && !(parent instanceof BLangBlockStmt)) {
+        while (parent != null && !(parent instanceof BLangBlockStmt) && !(parent instanceof BLangBlockFunctionBody)) {
             parent = parent.parent;
         }
         if (parent != null && packageNode != null) {
             SymbolResolver symbolResolver = SymbolResolver.getInstance(context);
             SymbolTable symbolTable = SymbolTable.getInstance(context);
-            BLangBlockStmt blockStmt = (BLangBlockStmt) parent;
             SymbolEnv symbolEnv = symbolTable.pkgEnvMap.get(packageNode.symbol);
-            SymbolEnv blockEnv = SymbolEnv.createBlockEnv(blockStmt, symbolEnv);
+            SymbolEnv blockEnv;
+            if (parent instanceof BLangBlockStmt) {
+                BLangBlockStmt blockStmt = (BLangBlockStmt) parent;
+                blockEnv = SymbolEnv.createBlockEnv(blockStmt, symbolEnv);
+            } else {
+                BLangBlockFunctionBody block = (BLangBlockFunctionBody) parent;
+                blockEnv = SymbolEnv.createFuncBodyEnv(block, symbolEnv);
+            }
             Map<Name, List<Scope.ScopeEntry>> entries = symbolResolver
                     .getAllVisibleInScopeSymbols(blockEnv);
             entries.forEach((name, scopeEntries) ->
@@ -1316,5 +1353,37 @@ public class CommonUtil {
             // ignore
         }
         return Optional.empty();
+    }
+
+    /**
+     * Update the standard library cache.
+     *
+     * @param context Language Server operation context
+     */
+    public static void updateStdLibCache(LSContext context) throws LSStdlibCacheException {
+        Boolean enabled = context.get(DocumentServiceKeys.ENABLE_STDLIB_DEFINITION_KEY);
+        if (enabled == null || !enabled) {
+            return;
+        }
+        List<BLangImportPackage> stdLibImports = getCurrentModuleImports(context).stream()
+                .filter(stdLibImportsNotCachedPredicate(context))
+                .collect(Collectors.toList());
+
+        LSStandardLibCache.getInstance().updateCache(stdLibImports);
+    }
+
+    /**
+     * Check whether the file is a cached file entry.
+     *
+     * @param fileUri file URI to evaluate
+     * @return whether the file is a cached entry or not
+     */
+    public static boolean isCachedSource(String fileUri) {
+        try {
+            Path path = Paths.get(new URI(fileUri));
+            return path.toAbsolutePath().toString().startsWith(LS_STDLIB_CACHE_DIR.toAbsolutePath().toString());
+        } catch (URISyntaxException e) {
+            return false;
+        }
     }
 }

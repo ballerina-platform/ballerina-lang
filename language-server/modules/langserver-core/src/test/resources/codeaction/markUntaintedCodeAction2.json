@@ -3,18 +3,20 @@
     "character": 30,
     "expected": {
         "title": "Mark 'secureParameter' as Untainted",
-        "edit": {
-            "range": {
-                "start": {
-                    "line": 28,
-                    "character": 30
+        "edits": [
+            {
+                "range": {
+                    "start": {
+                        "line": 28,
+                        "character": 30
+                    },
+                    "end": {
+                        "line": 28,
+                        "character": 37
+                    }
                 },
-                "end": {
-                    "line": 28,
-                    "character": 37
-                }
-            },
-            "newText": "<@untained>  args[0]"
-        }
+                "newText": "<@untained>  args[0]"
+            }
+        ]
     }
 }

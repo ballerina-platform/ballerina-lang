@@ -123,8 +123,7 @@ public class ClientGeneratorPlugin extends AbstractCompilerPlugin {
         }
 
         BLangRecordLiteral bLiteral = ((BLangRecordLiteral) ((BLangAnnotationAttachment) ann).getExpression());
-        List<BLangRecordLiteral.BLangRecordKeyValue> list = bLiteral.getKeyValuePairs();
-        Map<String, String[]> attrs = GeneratorUtils.getKeyValuePairAsMap(list);
+        Map<String, String[]> attrs = GeneratorUtils.getKeyValuePairAsMap(bLiteral.getFields());
         String val = attrs.get("generate")[0];
         isClientRequested = Boolean.parseBoolean(val);
 

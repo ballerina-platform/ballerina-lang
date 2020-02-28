@@ -107,6 +107,11 @@ public class UnionTypeTest {
         Assert.assertEquals(((BValueArray) returns[0]).getString(1), "BAR");
     }
 
+    @Test
+    public void testUnionTypeWithMultipleRecordTypesWithLiteralKeysInLiteral() {
+        BRunUtil.invoke(result, "testUnionTypeWithMultipleRecordTypesWithLiteralKeysInLiteral");
+    }
+
     @Test(description = "Test union type LHS with float/decimal literals")
     public void testUnionLhsWithDiscriminatedFloatDecimalLiterals() {
         BValue[] returns = BRunUtil.invoke(result, "testUnionLhsWithDiscriminatedFloatDecimalLiterals");

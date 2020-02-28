@@ -83,7 +83,7 @@ public class BallerinaExperimentalFeatureConfigurable implements SearchableConfi
     @NotNull
     @Override
     public String getId() {
-        return "ballerina.allow.experimental";
+        return "ballerina.experimental";
     }
 
     @Nullable

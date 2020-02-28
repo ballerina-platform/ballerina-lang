@@ -13,7 +13,7 @@ type InvalidAccountTypeErrorData record {
 // User-defined `error` with a `constant` reason.
 type InvalidAccountTypeError error<INVALID_ACC_TYPE, InvalidAccountTypeErrorData>;
 
-function getTypeId(string accountType) returns int | InvalidAccountTypeError {
+function getTypeId(string accountType) returns int|InvalidAccountTypeError {
     match accountType {
         "checking" => { return 1; }
         "savings" => { return 2; }
@@ -35,7 +35,7 @@ const INVALID_ACCOUNT_ID = "InvalidAccountID";
 const ACCOUNT_NOT_FOUND = "AccountNotFound";
 
 // Define an `error` type where error reason must be either `ACCOUNT_NOT_FOUND` or `INVALID_ACCOUNT_ID`.
-type AccountNotFoundError error<ACCOUNT_NOT_FOUND | INVALID_ACCOUNT_ID, AccountNotFoundErrorData>;
+type AccountNotFoundError error<ACCOUNT_NOT_FOUND|INVALID_ACCOUNT_ID, AccountNotFoundErrorData>;
 
 function getAccountBalance(int accountID) returns int|AccountNotFoundError {
     if (accountID < 0) {

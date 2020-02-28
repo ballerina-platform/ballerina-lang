@@ -78,7 +78,7 @@ public class ServiceTest {
         validateError(compileResult, errIdx++, "resource function can not be invoked with in a service", 9, 9);
         validateError(compileResult, errIdx++, "redeclared symbol 'name1'", 19, 9);
         validateError(compileResult, errIdx++,
-                "incompatible types: expected 'Listener', found 'string'", 19, 18);
+                "incompatible types: expected 'listener', found 'string'", 19, 18);
         validateError(compileResult, errIdx++, "invalid listener attachment", 19, 18);
         validateError(compileResult, errIdx++, "redeclared symbol 'MyService$$service$2.foo'", 30, 14);
         validateError(compileResult, errIdx++, "undefined symbol 'invalidVar'", 58, 12);

@@ -26,6 +26,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.util.TypeDescriptor;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 
+import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Optional;
 import java.util.Set;
@@ -37,8 +38,10 @@ import java.util.StringJoiner;
  */
 public class BFiniteType extends BType implements FiniteType {
 
-    public Set<BLangExpression> valueSpace;
+    private Set<BLangExpression> valueSpace;
+    private boolean nullable = false;
     private Optional<Boolean> isAnyData = Optional.empty();
+
 
     public BFiniteType(BTypeSymbol tsymbol) {
         super(TypeTags.FINITE, tsymbol);
@@ -52,7 +55,7 @@ public class BFiniteType extends BType implements FiniteType {
 
     @Override
     public Set<BLangExpression> getValueSpace() {
-        return valueSpace;
+        return Collections.unmodifiableSet(valueSpace);
     }
 
     @Override
@@ -92,7 +95,7 @@ public class BFiniteType extends BType implements FiniteType {
 
     @Override
     public boolean isNullable() {
-        return this.valueSpace.stream().anyMatch(v -> v.type.tag == TypeTags.NIL);
+        return nullable;
     }
 
     @Override
@@ -110,5 +113,12 @@ public class BFiniteType extends BType implements FiniteType {
 
         this.isAnyData = Optional.of(true);
         return true;
+    }
+
+    public void addValue(BLangExpression value) {
+        this.valueSpace.add(value);
+        if (!nullable && value.type.isNullable()) {
+            nullable = true;
+        }
     }
 }

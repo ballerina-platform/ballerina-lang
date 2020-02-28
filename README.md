@@ -28,40 +28,20 @@ You can use one of the following options to try out Ballerina.
 * [Quick Tour](https://ballerina.io/learn/quick-tour/)
 * [Ballerina by Example](https://ballerina.io/learn/by-example/) 
 
-## Download and install
+## Downloading and installing
 
-### Download the binary
+You can download the Ballerina distribution at https://ballerina.io. For instructions on installing, see [Installing Ballerina](https://ballerina.io/learn/installing-ballerina/).
 
-You can download the Ballerina distribution at https://ballerina.io.
+## Reporting issues and security flaws
 
-### Install from source
+Report an issue in the relevant repo out of the GitHub repos listed below. 
 
-Alternatively, you can install Ballerina from the source using the following instructions.
+>**Tip:** If you are unsure whether you have found a bug, search existing issues in the corresponding repo on GitHub and raise it in the [Ballerina-Dev Google Group](#https://groups.google.com/forum/#!forum/ballerina-dev).
+  - Compiler, runtime, standard library, or tooling: <a href="https://github.com/ballerina-platform/ballerina-lang/issues">ballerina-lang</a> repo
+  - Language specification: <a href="https://github.com/ballerina-platform/ballerina-spec/issues">ballerina-spec</a> repo
+  - Website: <a href="https://github.com/ballerina-platform/ballerina-dev-website/issues">ballerina-dev-website</a> repo
+  - Security flaw: send an email to security@ballerina.io. For details, see the <a href="https://ballerina.io/security/">security policy</a>.
 
-#### Prerequisites
-
-* [Oracle JDK 8](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html) or [OpenJDK 8](http://openjdk.java.net/install/)
-* [Node (v8.9.x) + npm (v5.6.0 or later)](https://nodejs.org/en/download/)
-* [Docker](https://www.docker.com/get-docker)
-
-#### Building the source
-
-1. Clone this repository using the following command.
-
-    ```bash
-    git clone --recursive https://github.com/ballerina-platform/ballerina-lang
-    ```
-    
-2. Build project with Gradle. Use following command on Unix/macOS:
-    ```bash
-    ./gradlew build
-    ```  
-    or the following command on Windows:
-    ```bash
-    gradlew build
-    ```
-
-3. Extract the Ballerina distribution created at `distribution/zip/jballerina-tools/build/extracted-distributions/ballerina-<version>-SNAPSHOT.zip`.
 
 ## Contributing to Ballerina
 

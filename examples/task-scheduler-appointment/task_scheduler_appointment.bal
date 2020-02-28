@@ -4,7 +4,7 @@ import ballerina/task;
 
 int reminderCount = 0;
 
-public function main () {
+public function main() {
     // The Appointment data record provides the appointment configurations.
     task:AppointmentData appointmentData = {
         seconds: "0/2",
@@ -17,7 +17,7 @@ public function main () {
     };
 
     // Create an Appointment using the configurations.
-    task:Scheduler appointment = new({ appointmentDetails: appointmentData });
+    task:Scheduler appointment = new ({appointmentDetails: appointmentData});
 
     // Attach the service to the scheduler and exit if there is an error.
     var attachResult = appointment.attach(appointmentService);

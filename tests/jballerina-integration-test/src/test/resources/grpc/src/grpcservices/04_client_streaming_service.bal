@@ -20,7 +20,7 @@ import ballerina/io;
 // Server endpoint configuration
 listener grpc:Listener ep4 = new (9094);
 
-@grpc:ServiceConfig {name:"lotsOfGreetings",
+@grpc:ServiceConfig {name:"HelloWorld7",
     clientStreaming:true}
 @grpc:ServiceDescriptor {
     descriptor: ROOT_DESCRIPTOR_4,

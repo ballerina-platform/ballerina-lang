@@ -17,24 +17,11 @@
  */
 package org.ballerinalang.jvm;
 
-import org.apache.axiom.c14n.Canonicalizer;
-import org.apache.axiom.c14n.exceptions.CanonicalizationException;
-import org.apache.axiom.c14n.exceptions.InvalidCanonicalizerException;
 import org.apache.axiom.om.DeferredParsingException;
 import org.apache.axiom.om.OMAbstractFactory;
-import org.apache.axiom.om.OMAttribute;
-import org.apache.axiom.om.OMComment;
-import org.apache.axiom.om.OMDocument;
 import org.apache.axiom.om.OMElement;
-import org.apache.axiom.om.OMException;
 import org.apache.axiom.om.OMFactory;
-import org.apache.axiom.om.OMNamespace;
-import org.apache.axiom.om.OMNode;
-import org.apache.axiom.om.OMProcessingInstruction;
-import org.apache.axiom.om.OMText;
 import org.apache.axiom.om.OMXMLBuilderFactory;
-import org.apache.axiom.om.impl.dom.TextImpl;
-import org.apache.axiom.om.impl.llom.OMSourcedElementImpl;
 import org.apache.axiom.om.util.StAXParserConfiguration;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BMapType;
@@ -42,28 +29,41 @@ import org.ballerinalang.jvm.types.BPackage;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.types.TypeConstants;
+import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.TableValue;
+import org.ballerinalang.jvm.values.XMLComment;
 import org.ballerinalang.jvm.values.XMLItem;
+import org.ballerinalang.jvm.values.XMLPi;
 import org.ballerinalang.jvm.values.XMLQName;
 import org.ballerinalang.jvm.values.XMLSequence;
+import org.ballerinalang.jvm.values.XMLText;
 import org.ballerinalang.jvm.values.XMLValue;
+import org.ballerinalang.jvm.values.api.BString;
+import org.ballerinalang.jvm.values.api.BXML;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.StringReader;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.xml.XMLConstants;
 import javax.xml.namespace.QName;
+import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamWriter;
 
 /**
  * Common utility methods used for XML manipulation.
@@ -75,37 +75,10 @@ public class XMLFactory {
     private static final String XML_NAMESPACE_PREFIX = "xmlns:";
     private static final String XML_VALUE_TAG = "#text";
     private static final String XML_DCLR_START = "<?xml";
-    private static Canonicalizer canonicalizer = null;
 
-    private static final String CANONICALIZER_OMIT_COMMENTS = "http://www.w3.org/TR/2001/REC-xml-c14n-20010315";
-    private static final String CANONICALIZER_WITH_COMMENTS =
-            "http://www.w3.org/TR/2001/REC-xml-c14n-20010315#WithComments";
-    private static final String CANONICALIZER_EXCL_OMIT_COMMENTS = "http://www.w3.org/2001/10/xml-exc-c14n#";
-    private static final String CANONICALIZER_EXCL_WITH_COMMENTS =
-            "http://www.w3.org/2001/10/xml-exc-c14n#WithComments";
     private static final BType jsonMapType =
             new BMapType(TypeConstants.MAP_TNAME, BTypes.typeJSON, new BPackage(null, null, null));
-    private static final OMFactory OM_FACTORY = OMAbstractFactory.getOMFactory();
     public static final StAXParserConfiguration STAX_PARSER_CONFIGURATION = StAXParserConfiguration.STANDALONE;
-
-    static {
-        Canonicalizer.init();
-        try {
-            Canonicalizer.register(CANONICALIZER_OMIT_COMMENTS,
-                    "org.apache.axiom.c14n.impl.Canonicalizer20010315OmitComments");
-            Canonicalizer.register(CANONICALIZER_WITH_COMMENTS,
-                    "org.apache.axiom.c14n.impl.Canonicalizer20010315WithComments");
-            Canonicalizer.register(CANONICALIZER_EXCL_OMIT_COMMENTS,
-                    "org.apache.axiom.c14n.impl.Canonicalizer20010315ExclOmitComments");
-            Canonicalizer.register(CANONICALIZER_EXCL_WITH_COMMENTS,
-                    "org.apache.axiom.c14n.impl.Canonicalizer20010315ExclWithComments");
-            canonicalizer = Canonicalizer.getInstance(CANONICALIZER_WITH_COMMENTS);
-        } catch (InvalidCanonicalizerException e) {
-            throw BallerinaErrors.createError("Error initializing canonicalizer: " + e.getMessage());
-        } catch (Exception ignore) {
-            // Ignore
-        }
-    }
 
     /**
      * Create a XML item from string literal.
@@ -113,45 +86,17 @@ public class XMLFactory {
      * @param xmlStr String representation of the XML
      * @return XML sequence
      */
-    @SuppressWarnings("unchecked")
-    public static XMLValue<?> parse(String xmlStr) {
+    public static XMLValue parse(String xmlStr) {
         try {
 
             if (xmlStr.isEmpty()) {
-                return new XMLItem(new TextImpl());
+                return new XMLSequence();
             }
 
-            // If this is an XML document, parse it and return an element type XML.
-            if (xmlStr.trim().startsWith(XML_DCLR_START)) {
-                return new XMLItem(xmlStr);
-            }
-
-            // Here we add a dummy enclosing tag, and send to AXIOM to parse the XML.
-            // This is to overcome the issue of axiom not allowing to parse xml-comments,
-            // xml-text nodes, and pi nodes, without having an enclosing xml-element node.
-            OMElement omElement = stringToOM("<root>" + xmlStr + "</root>");
-            Iterator<OMNode> children = omElement.getChildren();
-            OMNode omNode = null;
-            if (children.hasNext()) {
-                omNode = children.next();
-            }
-
-            if (children.hasNext()) {
-                throw BallerinaErrors
-                        .createError("xml item must be one of the types: 'element', 'comment', 'text', 'pi'");
-            }
-
-            // Here the node is detached from the dummy root, and added to a
-            // document element. This is to get the xpath working correctly
-            omNode = omNode.detach();
-            OMDocument doc = OM_FACTORY.createOMDocument();
-            doc.addChild(omNode);
-            return new XMLItem(omNode);
+            XMLTreeBuilder treeBuilder = new XMLTreeBuilder(xmlStr);
+            return treeBuilder.parse();
         } catch (ErrorValue e) {
             throw e;
-        } catch (OMException | XMLStreamException e) {
-            Throwable cause = e.getCause() == null ? e : e.getCause();
-            throw BallerinaErrors.createError(cause.getMessage());
         } catch (Throwable e) {
             throw BallerinaErrors.createError("failed to parse xml: " + e.getMessage());
         }
@@ -163,23 +108,15 @@ public class XMLFactory {
      * @param xmlStream XML input stream
      * @return XML Sequence
      */
-    @SuppressWarnings("unchecked")
-    public static XMLValue<?> parse(InputStream xmlStream) {
-        ArrayValue elementsSeq = new ArrayValueImpl(new BArrayType(BTypes.typeXML));
-        OMDocument doc;
+    public static XMLValue parse(InputStream xmlStream) {
         try {
-            doc = OMXMLBuilderFactory.createOMBuilder(STAX_PARSER_CONFIGURATION, xmlStream).getDocument();
-            Iterator<OMNode> docChildItr = doc.getChildren();
-            int i = 0;
-            while (docChildItr.hasNext()) {
-                elementsSeq.add(i++, new XMLItem(docChildItr.next()));
-            }
+            XMLTreeBuilder treeBuilder = new XMLTreeBuilder(new InputStreamReader(xmlStream));
+            return treeBuilder.parse();
         } catch (DeferredParsingException e) {
             throw BallerinaErrors.createError(e.getCause().getMessage());
         } catch (Throwable e) {
             throw BallerinaErrors.createError("failed to create xml: " + e.getMessage());
         }
-        return new XMLSequence(elementsSeq);
     }
 
     /**
@@ -189,23 +126,15 @@ public class XMLFactory {
      * @param charset Charset to be used for parsing
      * @return XML Sequence
      */
-    @SuppressWarnings("unchecked")
-    public static XMLValue<?> parse(InputStream xmlStream, String charset) {
-        ArrayValue elementsSeq = new ArrayValueImpl(new BArrayType(BTypes.typeXML));
-        OMDocument doc;
+    public static XMLValue parse(InputStream xmlStream, String charset) {
         try {
-            doc = OMXMLBuilderFactory.createOMBuilder(STAX_PARSER_CONFIGURATION, xmlStream, charset).getDocument();
-            Iterator<OMNode> docChildItr = doc.getChildren();
-            int index = 0;
-            while (docChildItr.hasNext()) {
-                elementsSeq.add(index++, new XMLItem(docChildItr.next()));
-            }
+            XMLTreeBuilder xmlTreeBuilder = new XMLTreeBuilder(new InputStreamReader(xmlStream, charset));
+            return xmlTreeBuilder.parse();
         } catch (DeferredParsingException e) {
             throw BallerinaErrors.createError(e.getCause().getMessage());
         } catch (Throwable e) {
             throw BallerinaErrors.createError("failed to create xml: " + e.getMessage());
         }
-        return new XMLSequence(elementsSeq);
     }
 
     /**
@@ -214,23 +143,15 @@ public class XMLFactory {
      * @param reader XML reader
      * @return XML Sequence
      */
-    @SuppressWarnings("unchecked")
-    public static XMLValue<?> parse(Reader reader) {
-        ArrayValue elementsSeq = new ArrayValueImpl(new BArrayType(BTypes.typeXML));
-        OMDocument doc;
+    public static XMLValue parse(Reader reader) {
         try {
-            doc = OMXMLBuilderFactory.createOMBuilder(STAX_PARSER_CONFIGURATION, reader).getDocument();
-            Iterator<OMNode> docChildItr = doc.getChildren();
-            int i = 0;
-            while (docChildItr.hasNext()) {
-                elementsSeq.add(i++, new XMLItem(docChildItr.next()));
-            }
+            XMLTreeBuilder xmlTreeBuilder = new XMLTreeBuilder(reader);
+            return xmlTreeBuilder.parse();
         } catch (DeferredParsingException e) {
             throw BallerinaErrors.createError(e.getCause().getMessage());
         } catch (Throwable e) {
             throw BallerinaErrors.createError("failed to create xml: " + e.getMessage());
         }
-        return new XMLSequence(elementsSeq);
     }
 
     /**
@@ -240,35 +161,52 @@ public class XMLFactory {
      * @param secondSeq Second XML sequence
      * @return Concatenated XML sequence
      */
-    public static XMLValue<?> concatenate(XMLValue<?> firstSeq, XMLValue<?> secondSeq) {
-        ArrayValue concatSeq = new ArrayValueImpl(new BArrayType(BTypes.typeXML));
-        int j = 0;
+    public static XMLValue concatenate(XMLValue firstSeq, XMLValue secondSeq) {
+        ArrayList<BXML> concatenatedList = new ArrayList<>();
 
-        // Load the content fully before concat the two
-        firstSeq.build();
-        secondSeq.build();
+        if (firstSeq.getNodeType() == XMLNodeType.TEXT && secondSeq.getNodeType() == XMLNodeType.TEXT) {
+            return new XMLText(firstSeq.getTextValue() + secondSeq.getTextValue());
+        }
 
         // Add all the items in the first sequence
         if (firstSeq.getNodeType() == XMLNodeType.SEQUENCE) {
-            ArrayValue seq = ((XMLSequence) firstSeq).value();
-            for (int i = 0; i < seq.size(); i++) {
-                concatSeq.add(j++, seq.getRefValue(i));
-            }
+            concatenatedList.addAll(((XMLSequence) firstSeq).getChildrenList());
         } else {
-            concatSeq.add(j++, firstSeq);
+            concatenatedList.add(firstSeq);
+        }
+
+        // When last item fo left seq and first item of right seq are both text nodes merge them into single consecutive
+        // text node.
+        if (!concatenatedList.isEmpty()) {
+            int lastIndexOFLeftChildren = concatenatedList.size() - 1;
+            BXML lastItem = concatenatedList.get(lastIndexOFLeftChildren);
+            if (lastItem.getNodeType() == XMLNodeType.TEXT && secondSeq.getNodeType() == XMLNodeType.SEQUENCE) {
+                List<BXML> rightChildren = ((XMLSequence) secondSeq).getChildrenList();
+                if (!rightChildren.isEmpty()) {
+                    BXML firsOfRightSeq = rightChildren.get(0);
+                    if (firsOfRightSeq.getNodeType() == XMLNodeType.TEXT) {
+                        concatenatedList.remove(lastIndexOFLeftChildren); // remove last item, from already copied list
+                        concatenatedList.addAll(rightChildren);
+                        String merged = ((XMLText) lastItem).getTextValue() + ((XMLText) firsOfRightSeq).getTextValue();
+                        concatenatedList.set(lastIndexOFLeftChildren, new XMLText(merged));
+                        return new XMLSequence(concatenatedList);
+                    }
+                }
+            } else if (lastItem.getNodeType() == XMLNodeType.TEXT && secondSeq.getNodeType() == XMLNodeType.TEXT) {
+                String merged = lastItem.getTextValue() + secondSeq.getTextValue();
+                concatenatedList.set(lastIndexOFLeftChildren, new XMLText(merged));
+                return new XMLSequence(concatenatedList);
+            }
         }
 
         // Add all the items in the second sequence
         if (secondSeq.getNodeType() == XMLNodeType.SEQUENCE) {
-            ArrayValue seq = ((XMLSequence) secondSeq).value();
-            for (int i = 0; i < seq.size(); i++) {
-                concatSeq.add(j++, seq.getRefValue(i));
-            }
+            concatenatedList.addAll(((XMLSequence) secondSeq).getChildrenList());
         } else {
-            concatSeq.add(j++, secondSeq);
+            concatenatedList.add(secondSeq);
         }
 
-        return new XMLSequence(concatSeq);
+        return new XMLSequence(concatenatedList);
     }
 
     /**
@@ -277,11 +215,21 @@ public class XMLFactory {
      * @param table {@link org.ballerinalang.jvm.values.TableValue} to convert
      * @return converted {@link XMLValue}
      */
-    @SuppressWarnings("rawtypes")
     public static XMLValue tableToXML(TableValue table) {
-        OMSourcedElementImpl omSourcedElement = new OMSourcedElementImpl();
-        omSourcedElement.init(new TableOMDataSource(table, null, null));
-        return new XMLItem(omSourcedElement);
+        // todo: Implement table to xml (issue #19910)
+
+        try {
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            XMLStreamWriter streamWriter = XMLOutputFactory.newInstance().createXMLStreamWriter(outputStream);
+            TableOMDataSource tableOMDataSource = new TableOMDataSource(table, null, null);
+            tableOMDataSource.serialize(streamWriter);
+            streamWriter.flush();
+            outputStream.flush();
+            ByteArrayInputStream inputStream = new ByteArrayInputStream(outputStream.toByteArray());
+            return parse(inputStream);
+        } catch (IOException | XMLStreamException e) {
+            throw new BallerinaException(e);
+        }
     }
 
     /**
@@ -292,7 +240,8 @@ public class XMLFactory {
      * @param defaultNsUri Default namespace URI
      * @return XMLValue Element type XMLValue
      */
-    public static XMLValue<?> createXMLElement(XMLQName startTagName, XMLQName endTagName, String defaultNsUri) {
+    @Deprecated
+    public static XMLValue createXMLElement(XMLQName startTagName, XMLQName endTagName, String defaultNsUri) {
         if (!StringUtils.isEqual(startTagName.getLocalName(), endTagName.getLocalName()) ||
                 !StringUtils.isEqual(startTagName.getUri(), endTagName.getUri()) ||
                 !StringUtils.isEqual(startTagName.getPrefix(), endTagName.getPrefix())) {
@@ -304,7 +253,6 @@ public class XMLFactory {
         XMLValidator.validateXMLQName(startTagName);
 
         String nsUri = startTagName.getUri();
-        OMElement omElement;
         if (defaultNsUri == null) {
             defaultNsUri = XMLConstants.NULL_NS_URI;
         }
@@ -312,20 +260,20 @@ public class XMLFactory {
         String prefix = startTagName.getPrefix() == null ? XMLConstants.DEFAULT_NS_PREFIX : startTagName.getPrefix();
 
         if (nsUri == null) {
-            omElement = OM_FACTORY.createOMElement(startTagName.getLocalName(), defaultNsUri, prefix);
-        } else if (nsUri.isEmpty()) {
-            omElement = OM_FACTORY.createOMElement(startTagName.getLocalName(), nsUri, prefix);
-        } else if (nsUri.equals(defaultNsUri)) {
-            omElement = OM_FACTORY.createOMElement(startTagName.getLocalName(), defaultNsUri, prefix);
+            return new XMLItem(new QName(defaultNsUri, startTagName.getLocalName(), prefix));
         } else {
-            QName qname = getQName(startTagName.getLocalName(), nsUri, prefix);
-            omElement = OM_FACTORY.createOMElement(qname);
-            if (!defaultNsUri.isEmpty()) {
-                omElement.declareDefaultNamespace(defaultNsUri);
+            XMLItem xmlItem = new XMLItem(new QName(nsUri, startTagName.getLocalName(), prefix));
+            if (defaultNsUri != null && !defaultNsUri.isEmpty()) {
+                xmlItem.setAttribute(XMLConstants.XMLNS_ATTRIBUTE, null, null, defaultNsUri);
             }
+            return xmlItem;
         }
+    }
 
-        return new XMLItem(omElement);
+    public static XMLValue createXMLElement(XMLQName startTagName, XMLQName endTagName,
+                                               BString defaultNsUriVal) {
+        return createXMLElement(startTagName, endTagName,
+                                defaultNsUriVal == null ? XMLConstants.NULL_NS_URI : defaultNsUriVal.getValue());
     }
 
     /**
@@ -334,9 +282,19 @@ public class XMLFactory {
      * @param content Comment content
      * @return XMLValue Comment type XMLValue
      */
-    public static XMLValue<?> createXMLComment(String content) {
-        OMComment omComment = OM_FACTORY.createOMComment(OM_FACTORY.createOMDocument(), content);
-        return new XMLItem(omComment);
+    @Deprecated
+    public static XMLValue createXMLComment(String content) {
+        return new XMLComment(content);
+    }
+
+    /**
+     * Create a comment type XMLValue.
+     *
+     * @param content Comment content
+     * @return XMLValue Comment type XMLValue
+     */
+    public static XMLValue createXMLComment(BString content) {
+        return createXMLComment(content.getValue());
     }
 
     /**
@@ -345,7 +303,8 @@ public class XMLFactory {
      * @param content Text content
      * @return XMLValue Text type XMLValue
      */
-    public static XMLValue<?> createXMLText(String content) {
+    @Deprecated
+    public static XMLValue createXMLText(String content) {
         // Remove carriage return on windows environments to eliminate additional &#xd; being added
         content = content.replace("\r\n", "\n");
 
@@ -355,55 +314,66 @@ public class XMLFactory {
                 .replace("&lt;", "<")
                 .replace("&amp;", "&");
 
-        OMText omText = OM_FACTORY.createOMText(content);
-        return new XMLItem(omText);
+        return new XMLText(content);
+    }
+
+    /**
+     * Create a comment type XMLValue.
+     *
+     * @param contentVal Text content
+     * @return XMLValue Text type XMLValue
+     */
+    public static XMLValue createXMLText(BString contentVal) {
+        return createXMLText(contentVal.getValue());
     }
 
     /**
      * Create a processing instruction type XMLValue.
      *
      * @param tartget PI target
-     * @param data PI data
+     * @param data    PI data
      * @return XMLValue Processing instruction type XMLValue
      */
-    public static XMLValue<?> createXMLProcessingInstruction(String tartget, String data) {
-        OMProcessingInstruction omText =
-                OM_FACTORY.createOMProcessingInstruction(OM_FACTORY.createOMDocument(), tartget, data);
-        return new XMLItem(omText);
+    @Deprecated
+    public static XMLValue createXMLProcessingInstruction(String tartget, String data) {
+        return new XMLPi(data, tartget);
+    }
+
+    /**
+     * Create a processing instruction type XMLValue.
+     *
+     * @param tartget PI target
+     * @param data    PI data
+     * @return XMLValue Processing instruction type XMLValue
+     */
+    public static XMLValue createXMLProcessingInstruction(BString tartget, BString data) {
+        return createXMLProcessingInstruction(tartget.getValue(), data.getValue());
     }
 
     /**
      * Converts given xml object to the corresponding json.
      *
-     * @param xml XML object to get the corresponding json
-     * @param attributePrefix Prefix to use in attributes
+     * @param xml                XML object to get the corresponding json
+     * @param attributePrefix    Prefix to use in attributes
      * @param preserveNamespaces preserve the namespaces when converting
      * @return BJSON JSON representation of the given xml object
      */
     @SuppressWarnings("rawtypes")
     public static Object convertToJSON(XMLValue xml, String attributePrefix, boolean preserveNamespaces) {
-        Object json = null;
-        if (xml instanceof XMLItem) {
-            // Process xml item
-            XMLItem xmlItem = (XMLItem) xml;
-            OMNode omNode = xmlItem.value();
-            if (OMNode.ELEMENT_NODE == omNode.getType()) {
-                json = traverseXMLElement((OMElement) omNode, attributePrefix, preserveNamespaces);
-            } else if (OMNode.TEXT_NODE == omNode.getType()) {
-                json = JSONParser.parse("\"" + ((OMText) omNode).getText() + "\"");
-            } else {
-                json = new MapValueImpl<String, Object>(jsonMapType);
-            }
-        } else {
-            // Process xml sequence
-            XMLSequence xmlSequence = (XMLSequence) xml;
-            if (xmlSequence.isEmpty()) {
-                return new ArrayValueImpl(new BArrayType(BTypes.typeJSON));
-            }
-            json = traverseXMLSequence(xmlSequence, attributePrefix, preserveNamespaces);
-
+        switch (xml.getNodeType()) {
+            case TEXT:
+                return JSONParser.parse("\"" + ((XMLText) xml).stringValue() + "\"");
+            case ELEMENT:
+                return traverseXMLElement((XMLItem) xml, attributePrefix, preserveNamespaces);
+            case SEQUENCE:
+                XMLSequence xmlSequence = (XMLSequence) xml;
+                if (xmlSequence.isEmpty()) {
+                    return new ArrayValueImpl(new BArrayType(BTypes.typeJSON));
+                }
+                return traverseXMLSequence(xmlSequence, attributePrefix, preserveNamespaces);
+            default:
+                return new MapValueImpl<String, Object>(jsonMapType);
         }
-        return json;
     }
 
     /**
@@ -417,109 +387,53 @@ public class XMLFactory {
      * @param xmlTwo the second XML value
      * @return true if the two are equal, false if not equal or an exception is thrown while checking equality
      */
-    public static boolean isEqual(XMLValue<?> xmlOne, XMLValue<?> xmlTwo) {
-        XMLNodeType xmlOneNodeType = xmlOne.getNodeType();
-        XMLNodeType xmlTwoNodeType = xmlTwo.getNodeType();
-
-        try {
-            if (xmlOneNodeType == XMLNodeType.SEQUENCE && xmlTwoNodeType == XMLNodeType.SEQUENCE) {
-                return isXmlSequenceEqual((XMLSequence) xmlOne, (XMLSequence) xmlTwo);
-            } else if (xmlOneNodeType != XMLNodeType.SEQUENCE && xmlTwoNodeType != XMLNodeType.SEQUENCE) {
-                return isXmlItemEqual((XMLItem) xmlOne, (XMLItem) xmlTwo);
-            } else {
-                if (xmlOneNodeType == XMLNodeType.SEQUENCE && xmlOne.isSingleton()) {
-                    return isXmlSingletonSequenceItemEqual((XMLSequence) xmlOne, (XMLItem) xmlTwo);
-                }
-
-                if (xmlTwoNodeType == XMLNodeType.SEQUENCE && xmlTwo.isSingleton()) {
-                    return isXmlSingletonSequenceItemEqual((XMLSequence) xmlTwo, (XMLItem) xmlOne);
-                }
-            }
-        } catch (Exception e) {
-            // ignore and return false
-        }
-        return false;
-    }
-
-    private static boolean isXmlSequenceEqual(XMLSequence xmlSequenceOne, XMLSequence xmlSequenceTwo) {
-        if (xmlSequenceOne.size() != xmlSequenceTwo.size()) {
-            return false;
-        }
-
-        for (int i = 0; i < xmlSequenceOne.size(); i++) {
-            if (!isEqual((XMLValue<?>) xmlSequenceOne.value().getRefValue(i),
-                    (XMLValue<?>) xmlSequenceTwo.value().getRefValue(i))) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    private static boolean isXmlItemEqual(XMLItem xmlItemOne, XMLItem xmlItemTwo) throws CanonicalizationException {
-        switch (xmlItemOne.getNodeType()) {
-            case ELEMENT:
-                return Arrays.equals(canonicalize(xmlItemOne), canonicalize(xmlItemTwo));
-            default:
-                return xmlItemOne.toString().equals(xmlItemTwo.toString());
-        }
-    }
-
-    private static boolean isXmlSingletonSequenceItemEqual(XMLSequence singletonXmlSequence, XMLItem xmlItem)
-            throws CanonicalizationException {
-        switch (xmlItem.getNodeType()) {
-            case ELEMENT:
-                return Arrays.equals(canonicalize((XMLItem) singletonXmlSequence.getItem(0)), canonicalize(xmlItem));
-            default:
-                return singletonXmlSequence.getItem(0).toString().equals(xmlItem.toString());
-        }
-    }
-
-    private static byte[] canonicalize(XMLItem bxmlItem) throws CanonicalizationException {
-        return canonicalizer.canonicalize((bxmlItem).value().toString().getBytes());
+    public static boolean isEqual(XMLValue xmlOne, XMLValue xmlTwo) {
+        return xmlOne.equals(xmlTwo);
     }
 
     /**
      * Converts given xml object to the corresponding json.
      *
-     * @param omElement XML element to traverse
+     * @param xmlItem XML element to traverse
      * @param attributePrefix Prefix to use in attributes
      * @param preserveNamespaces preserve the namespaces when converting
      * @return ObjectNode Json object node corresponding to the given xml element
      */
-    @SuppressWarnings("rawtypes")
-    private static MapValueImpl<String, Object> traverseXMLElement(OMElement omElement, String attributePrefix,
+    private static MapValueImpl<String, Object> traverseXMLElement(XMLItem xmlItem, String attributePrefix,
                                                                    boolean preserveNamespaces) {
         MapValueImpl<String, Object> rootNode = new MapValueImpl<>(jsonMapType);
-        LinkedHashMap<String, String> attributeMap = collectAttributesAndNamespaces(omElement, preserveNamespaces);
-        Iterator iterator = omElement.getChildElements();
-        String keyValue = getElementKey(omElement, preserveNamespaces);
+        LinkedHashMap<String, String> attributeMap = collectAttributesAndNamespaces(xmlItem, preserveNamespaces);
+        Iterator<BXML> iterator = getChildrenIterator(xmlItem);
+        String keyValue = getElementKey(xmlItem, preserveNamespaces);
         if (iterator.hasNext()) {
             MapValueImpl<String, Object> currentRoot = new MapValueImpl<>(jsonMapType);
-            ArrayList<OMElement> childArray = new ArrayList<>();
+            ArrayList<XMLItem> childArray = new ArrayList<>();
             LinkedHashMap<String, ArrayList<Object>> rootMap = new LinkedHashMap<>();
             while (iterator.hasNext()) {
-                // Process all child elements
-                OMNode node = (OMNode) iterator.next();
-                if (OMNode.ELEMENT_NODE == node.getType()) {
-                    OMElement omChildElement = (OMElement) node;
-                    LinkedHashMap<String, String> childAttributeMap =
-                            collectAttributesAndNamespaces(omChildElement, preserveNamespaces);
-                    Iterator iteratorChild = omChildElement.getChildElements();
-                    String childKeyValue = getElementKey(omChildElement, preserveNamespaces);
-                    if (iteratorChild.hasNext()) {
-                        // The child element itself has more child elements
-                        MapValueImpl<String, ?> nodeIntermediate =
-                                traverseXMLElement(omChildElement, attributePrefix, preserveNamespaces);
-                        addToRootMap(rootMap, childKeyValue, nodeIntermediate.get(childKeyValue));
+                // Process all child elements, skip non element children.
+                BXML child = iterator.next();
+                if (child.getNodeType() != XMLNodeType.ELEMENT) {
+                    continue;
+                }
+
+                XMLItem item = (XMLItem) child;
+                LinkedHashMap<String, String> childAttributeMap =
+                        collectAttributesAndNamespaces(item, preserveNamespaces);
+                String childKeyValue = getElementKey(item, preserveNamespaces);
+                Iterator<BXML> childrenIterator = getChildrenIterator(item);
+                if (childrenIterator.hasNext()) {
+                    // The child element itself has more child elements
+                    MapValueImpl<String, ?> nodeIntermediate =
+                            traverseXMLElement(item, attributePrefix, preserveNamespaces);
+                    addToRootMap(rootMap, childKeyValue, nodeIntermediate.get(childKeyValue));
+                } else {
+                    // The child element is a single element with no child elements
+                    if (childAttributeMap.size() > 0) {
+                        Object attrObject = processAttributeAndNamespaces(null, childAttributeMap, attributePrefix,
+                                xmlItem.getTextValue());
+                        addToRootMap(rootMap, childKeyValue, attrObject);
                     } else {
-                        // The child element is a single element with no child elements
-                        if (childAttributeMap.size() > 0) {
-                            Object attrObject = processAttributeAndNamespaces(null, childAttributeMap, attributePrefix,
-                                    omChildElement.getText());
-                            addToRootMap(rootMap, childKeyValue, attrObject);
-                        } else {
-                            childArray.add(omChildElement);
-                        }
+                        childArray.add(item);
                     }
                 }
             }
@@ -536,13 +450,17 @@ public class XMLFactory {
             if (attributeMap.size() > 0) {
                 // Element has attributes or namespaces
                 MapValueImpl<String, Object> attrObject =
-                        processAttributeAndNamespaces(null, attributeMap, attributePrefix, omElement.getText());
+                        processAttributeAndNamespaces(null, attributeMap, attributePrefix, xmlItem.getTextValue());
                 rootNode.put(keyValue, attrObject);
             } else {
-                rootNode.put(keyValue, omElement.getText());
+                rootNode.put(keyValue, xmlItem.getTextValue());
             }
         }
         return rootNode;
+    }
+
+    private static Iterator<BXML> getChildrenIterator(XMLItem xmlItem) {
+        return xmlItem.getChildrenSeq().getChildrenList().iterator();
     }
 
     /**
@@ -555,17 +473,16 @@ public class XMLFactory {
      */
     private static Object traverseXMLSequence(XMLSequence xmlSequence, String attributePrefix,
                                               boolean preserveNamespaces) {
-        ArrayValue sequence = xmlSequence.value();
+        List<BXML> sequence = xmlSequence.getChildrenList();
         long count = sequence.size();
-        ArrayList<OMElement> childArray = new ArrayList<>();
-        ArrayList<OMText> textArray = new ArrayList<>();
+        ArrayList<XMLItem> childArray = new ArrayList<>();
+        ArrayList<XMLText> textArray = new ArrayList<>();
         for (int i = 0; i < count; ++i) {
-            XMLItem xmlItem = (XMLItem) sequence.getRefValue(i);
-            OMNode omNode = xmlItem.value();
-            if (OMNode.ELEMENT_NODE == omNode.getType()) {
-                childArray.add((OMElement) omNode);
-            } else if (OMNode.TEXT_NODE == omNode.getType()) {
-                textArray.add((OMText) omNode);
+            BXML xmlVal = sequence.get(i);
+            if (xmlVal.getNodeType() == XMLNodeType.ELEMENT) {
+                childArray.add((XMLItem) xmlVal);
+            } else if (xmlVal.getNodeType() == XMLNodeType.TEXT) {
+                textArray.add((XMLText) xmlVal);
             }
         }
 
@@ -598,34 +515,34 @@ public class XMLFactory {
      * @param attributePrefix Prefix to use in attributes
      * @param preserveNamespaces preserve the namespaces when converting
      */
-    private static void processChildelements(MapValueImpl<String, Object> root, ArrayList<OMElement> childArray,
+    private static void processChildelements(MapValueImpl<String, Object> root, ArrayList<XMLItem> childArray,
                                              String attributePrefix, boolean preserveNamespaces) {
-        LinkedHashMap<String, ArrayList<OMElement>> rootMap = new LinkedHashMap<>();
+        LinkedHashMap<String, ArrayList<XMLItem>> rootMap = new LinkedHashMap<>();
         // Check child elements and group them from the key. XML sequences contain multiple child elements with same key
-        for (OMElement element : childArray) {
-            String key = element.getLocalName();
+        for (XMLItem element : childArray) {
+            String key = element.getQName().toString();
             rootMap.putIfAbsent(key, new ArrayList<>());
             rootMap.get(key).add(element);
         }
-        for (Map.Entry<String, ArrayList<OMElement>> entry : rootMap.entrySet()) {
-            ArrayList<OMElement> elementList = entry.getValue();
+        for (Map.Entry<String, ArrayList<XMLItem>> entry : rootMap.entrySet()) {
+            ArrayList<XMLItem> elementList = entry.getValue();
             if (elementList.size() > 0) {
                 String nodeKey = getElementKey(elementList.get(0), preserveNamespaces);
                 if (elementList.size() == 1) {
-                    OMElement element = elementList.get(0);
-                    if (element.getChildElements().hasNext()) {
+                    XMLItem element = elementList.get(0);
+                    if (!element.children().elements().isEmpty()) {
                         // If the element it self has child elements traverse through them
                         MapValueImpl<String, Object> node =
                                 traverseXMLElement(element, attributePrefix, preserveNamespaces);
                         root.put(nodeKey, node.get(nodeKey));
                     } else {
-                        root.put(nodeKey, elementList.get(0).getText());
+                        root.put(nodeKey, elementList.get(0).getTextValue());
                     }
                 } else {
                     // Child elements with similar keys are put into an array
                     ArrayValue arrayNode = new ArrayValueImpl(new BArrayType(BTypes.typeJSON));
-                    for (OMElement element : elementList) {
-                        arrayNode.append(element.getText());
+                    for (XMLItem element : elementList) {
+                        arrayNode.append(element.getTextValue());
                     }
                     root.put(nodeKey, arrayNode);
                 }
@@ -663,32 +580,36 @@ public class XMLFactory {
      * Extract attributes and namespaces from the XML element.
      *
      * @param element XML element to extract attributes and namespaces
+     * @param preserveNamespaces should namespace attribute be preserved
      */
-    @SuppressWarnings("rawtypes")
-    private static LinkedHashMap<String, String> collectAttributesAndNamespaces(OMElement element,
+    private static LinkedHashMap<String, String> collectAttributesAndNamespaces(XMLItem element,
                                                                                 boolean preserveNamespaces) {
-        // Extract namespaces from the element
+        int nsPrefixBeginIndex = XMLItem.XMLNS_URL_PREFIX.length() - 1;
         LinkedHashMap<String, String> attributeMap = new LinkedHashMap<>();
-        if (preserveNamespaces) {
-            Iterator namespaceIterator = element.getAllDeclaredNamespaces();
-            while (namespaceIterator.hasNext()) {
-                OMNamespace namespace = (OMNamespace) namespaceIterator.next();
-                attributeMap.put(XML_NAMESPACE_PREFIX + namespace.getPrefix(), namespace.getNamespaceURI());
-            }
-        }
-        // Extract attributes from the element
-        Iterator attributeIterator = element.getAllAttributes();
-        while (attributeIterator.hasNext()) {
-            OMAttribute attribute = (OMAttribute) attributeIterator.next();
-            StringBuffer key = new StringBuffer();
-            if (preserveNamespaces) {
-                String prefix = attribute.getPrefix();
-                if (prefix != null) {
-                    key.append(prefix).append(":");
+        Map<String, String> nsPrefixMap = new HashMap<>();
+        for (Map.Entry<String, String> entry : element.getAttributesMap().entrySet()) {
+            if (entry.getKey().startsWith(XMLItem.XMLNS_URL_PREFIX)) {
+                String prefix = entry.getKey().substring(nsPrefixBeginIndex);
+                String ns = entry.getValue();
+                nsPrefixMap.put(ns, prefix);
+                if (preserveNamespaces) {
+                    attributeMap.put(XML_NAMESPACE_PREFIX + prefix, ns);
                 }
             }
-            key.append(attribute.getLocalName());
-            attributeMap.put(key.toString(), attribute.getAttributeValue());
+        }
+        for (Map.Entry<String, String> entry : element.getAttributesMap().entrySet()) {
+            String key = entry.getKey();
+            if (preserveNamespaces && !key.startsWith(XMLItem.XMLNS_URL_PREFIX)) {
+                int nsEndIndex = key.lastIndexOf('}');
+                String ns = key.substring(1, nsEndIndex);
+                String local = key.substring(nsEndIndex);
+                String nsPrefix = nsPrefixMap.get(ns);
+                if (nsPrefix != null) {
+                    attributeMap.put(nsPrefix + ":" + local, entry.getValue());
+                } else {
+                    attributeMap.put(local, entry.getValue());
+                }
+            }
         }
         return attributeMap;
     }
@@ -729,11 +650,11 @@ public class XMLFactory {
      * @param childArray List of XML text elements
      * @return ArrayNode Json array node corresponding to the given text elements
      */
-    private static ArrayValue processTextArray(ArrayList<OMText> childArray) {
+    private static ArrayValue processTextArray(ArrayList<XMLText> childArray) {
         // Create array based on xml text elements
         ArrayValue arrayNode = new ArrayValueImpl(new BArrayType(BTypes.typeJSON));
-        for (OMText element : childArray) {
-            arrayNode.append(element.getText());
+        for (XMLText element : childArray) {
+            arrayNode.append(element.getTextValue());
         }
         return arrayNode;
     }
@@ -741,21 +662,22 @@ public class XMLFactory {
     /**
      * Extract the key from the element with namespace information.
      *
-     * @param omElement XML element for which the key needs to be generated
+     * @param xmlItem XML element for which the key needs to be generated
      * @param preserveNamespaces Whether namespace info included in the key or not
      * @return String Element key with the namespace information
      */
-    private static String getElementKey(OMElement omElement, boolean preserveNamespaces) {
+    private static String getElementKey(XMLItem xmlItem, boolean preserveNamespaces) {
         // Construct the element key based on the namespaces
-        StringBuffer stringBuffer = new StringBuffer();
+        StringBuilder elementKey = new StringBuilder();
+        QName qName = xmlItem.getQName();
         if (preserveNamespaces) {
-            String prefix = omElement.getPrefix();
-            if (prefix != null) {
-                stringBuffer.append(prefix).append(":");
+            String prefix = qName.getPrefix();
+            if (prefix != null && !prefix.isEmpty()) {
+                elementKey.append(prefix).append(':');
             }
         }
-        stringBuffer.append(omElement.getLocalName());
-        return stringBuffer.toString();
+        elementKey.append(qName.getLocalPart());
+        return elementKey.toString();
     }
 
     /**

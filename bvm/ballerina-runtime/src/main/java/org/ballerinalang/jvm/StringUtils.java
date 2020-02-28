@@ -19,7 +19,7 @@ package org.ballerinalang.jvm;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.BmpStringValue;
 import org.ballerinalang.jvm.values.NonBmpStringValue;
-import org.ballerinalang.jvm.values.StringValue;
+import org.ballerinalang.jvm.values.api.BString;
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
@@ -109,7 +109,17 @@ public class StringUtils {
         return String.valueOf(s.charAt((int) index));
     }
 
-    public static StringValue fromString(String s) {
+    public static BString getStringAt(BString s, long index) {
+        if (index < 0 || index >= s.length()) {
+            throw BallerinaErrors.createError(getModulePrefixedReason(STRING_LANG_LIB,
+                                                                      INDEX_OUT_OF_RANGE_ERROR_IDENTIFIER),
+                                              "string index out of range: index: " + index + ", size: " + s.length());
+        }
+
+        return StringUtils.fromString(String.valueOf(Character.toChars(s.getCodePoint((int) index))));
+    }
+
+    public static BString fromString(String s) {
         List<Integer> highSurrogates = null;
         for (int i = 0; i < s.length(); i++) {
             char c = s.charAt(i);
@@ -132,5 +142,4 @@ public class StringUtils {
         }
         return new NonBmpStringValue(s, highSurrogatesArr);
     }
-
 }
