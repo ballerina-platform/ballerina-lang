@@ -54,7 +54,8 @@ public class PopClient {
      * Initializes the ObjectValue object with the POP Properties.
      * @param clientEndpoint Represents the POP Client class
      * @param config Properties required to configure the POP Session
-     * @throws BallerinaPopException
+     * @param isPop True if the protocol is POP3 and false otherwise (if protocol is IMAP)
+     * @throws BallerinaPopException If an error occurs in POP client
      */
     public static void initClientEndpoint(ObjectValue clientEndpoint, MapValue<Object, Object> config, boolean isPop)
             throws BallerinaPopException {
@@ -88,7 +89,9 @@ public class PopClient {
      * Read emails from the server.
      * @param clientConnector Represents the POP Client class
      * @param filter Criteria which are used to read emails
-     * @throws BallerinaPopException
+     * @param isPop True if the protocol is POP3 and false otherwise (if protocol is IMAP)
+     * @return MapValue Returns the type supported to Ballerina
+     * @throws BallerinaPopException If an error occurs in POP client
      */
     public static MapValue readMessage(ObjectValue clientConnector, MapValue<Object, Object> filter, boolean isPop)
             throws BallerinaPopException {

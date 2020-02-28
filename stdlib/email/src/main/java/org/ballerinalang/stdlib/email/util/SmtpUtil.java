@@ -85,6 +85,7 @@ public class SmtpUtil {
      * @param username User who sens the email
      * @param message Ballerina typed data object
      * @return Email message as a MIME message
+     * @throws AddressException If an error occurs related to Internet Address operations
      */
 
     public static MimeMessage generateMessage(Session session, String username, MapValue message)

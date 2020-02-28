@@ -50,6 +50,7 @@ public class PopUtil {
      * Generates Properties object using the passed MapValue.
      *
      * @param popConfig MapValue with the configuration values
+     * @param isPop True if the protocol is POP3 and false otherwise (if protocol is IMAP)
      * @return Properties object
      */
     public static Properties getProperties(MapValue popConfig, boolean isPop) {
@@ -84,6 +85,8 @@ public class PopUtil {
      *
      * @param message received
      * @return MapValue object
+     * @throws MessagingException If an error occurs related to messaging
+     * @throws IOException If an error occurs related to I/O
      */
     public static MapValue getMapValue(Message message) throws MessagingException, IOException {
         log.debug("[PopUtil][getMapValue] Extracting MapValue values from Config");
