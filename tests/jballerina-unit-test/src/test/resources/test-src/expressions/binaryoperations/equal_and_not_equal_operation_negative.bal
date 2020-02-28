@@ -105,8 +105,8 @@ function testArrayTupleEqualityOfIncompatibleTypes() returns boolean {
 }
 
 function testEqualityWithNonAnydataType() returns boolean {
-    stream<int> s = new;
-    [int, stream<int>] a = [1, s];
+    map<int> s = {};
+    [int, map<int>] a = [1, {}];
     [int, float] b = [3, 23.9];
     boolean equals = a == b && !(b != a);
 

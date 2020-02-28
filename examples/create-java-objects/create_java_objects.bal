@@ -1,5 +1,5 @@
-import ballerinax/java;
 import ballerina/io;
+import ballerinax/java;
 
 // The `@java:Constructor` annotation links the default constructor of
 // the class `java.util.ArrayDeque` with this Ballerina function declaration.

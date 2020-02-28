@@ -30,13 +30,13 @@ function name() {
     Person p2 = new;
     Person p3 = new ("", {id: 0, address: ""});
     Person p4 = new Person("", {
-        id: 0,
-        address: ""
-    });
+            id: 0,
+            address: ""
+        });
     Person p5 = new ("", {
-        id: 0,
-        address: ""
-    });
+            id: 0,
+            address: ""
+        });
 
     jdbc:Client studentDb4 =
         new

@@ -56,8 +56,11 @@ function testStructuredMatchPatternsBasic4() returns string {
     Foo1 foo2 = {
         s: "S",
         i: 23,
-        fib: [5.6, 3,
-            true]
+        fib: [
+            5.6,
+            3,
+            true
+        ]
     };
 
     match foo2 {

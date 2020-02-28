@@ -45,6 +45,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import static org.awaitility.Awaitility.await;
+
 /**
  * Integration test for observability of metrics.
  */
@@ -54,6 +56,9 @@ public class WebSocketMetricsTestCase extends BaseTest {
     private static final Logger logger = LoggerFactory.getLogger(WebSocketMetricsTestCase.class);
     private static final String MESSAGE = "test message";
     private static final String CLOSE_MESSAGE = "closeMe";
+    private static final int PORT = 9898;
+    private static final String SERVER_URL = "ws://localhost:9898/basic/ws";
+    private static final String METRICS_URL = "http://localhost:9797/metrics";
 
 
     private static final String RESOURCE_LOCATION = "src" + File.separator + "test" + File.separator +
@@ -69,37 +74,44 @@ public class WebSocketMetricsTestCase extends BaseTest {
         List<String> args = new ArrayList<>();
         args.add("--" + ObservabilityConstants.CONFIG_METRICS_ENABLED + "=true");
         args.add("--b7a.log.console.loglevel=INFO");
-        serverInstance.startServer(balFile, null, args.toArray(new String[args.size()]), new int[] { 9090 });
+        serverInstance.startServer(balFile, null, args.toArray(new String[args.size()]), new int[]{PORT});
         addMetrics();
     }
+
     /**
      * Creates a new WebSocket client and connects to the server. Sends 5 text messages, 1 ping, 1 ping, 1 binary, 1
      * close message and then closes the connection.
-     *
+     * <p>
      * Checks whether the published metrics are the same as the expected metrics.
      *
      * @throws Exception Error when executing the commands.
      */
     @Test
     public void testMetrics() throws Exception {
-        WebSocketTestClient client = new WebSocketTestClient("ws://localhost:9090/basic/ws");
-        client.handshake();
-        client.sendText(MESSAGE);
-        client.sendText(MESSAGE);
-        client.sendText(MESSAGE);
-        client.sendText(MESSAGE);
-        client.sendText(MESSAGE);
-        client.sendPing(SENDING_BYTE_BUFFER);
-        client.sendPong(SENDING_BYTE_BUFFER);
-        client.sendBinary(SENDING_BYTE_BUFFER);
-        client.sendText(CLOSE_MESSAGE);
+        final WebSocketTestClient[] client = new WebSocketTestClient[1];
+        await().atMost(200, TimeUnit.SECONDS)
+                .ignoreExceptions().until(() -> {
+            client[0] = new WebSocketTestClient(SERVER_URL);
+            client[0].handshake();
+            return client[0].isOpen();
+        });
+        client[0].sendText(MESSAGE);
+        client[0].sendText(MESSAGE);
+        client[0].sendText(MESSAGE);
+        client[0].sendText(MESSAGE);
+        client[0].sendText(MESSAGE);
+        client[0].sendPing(SENDING_BYTE_BUFFER);
+        client[0].sendPong(SENDING_BYTE_BUFFER);
+        client[0].sendBinary(SENDING_BYTE_BUFFER);
         CountDownLatch countDownLatch = new CountDownLatch(1);
-        countDownLatch.await(10, TimeUnit.SECONDS);
-        client.shutDown();
+        client[0].setCountDownLatch(countDownLatch);
+        client[0].sendText(CLOSE_MESSAGE);
+        client[0].shutDown();
+        countDownLatch.await(200, TimeUnit.SECONDS);
 
-        URL metricsEndPoint = new URL("http://localhost:9797/metrics");
+        URL metricsEndPoint = new URL(METRICS_URL);
         BufferedReader reader = new BufferedReader(new InputStreamReader(metricsEndPoint.openConnection()
-                .getInputStream()));
+                                                                                 .getInputStream()));
         List<String> metricsList = reader.lines().filter(s -> !s.startsWith("#")).collect(Collectors.toList());
         Assert.assertTrue(metricsList.size() != 0);
         int count = 0;
@@ -165,7 +177,7 @@ public class WebSocketMetricsTestCase extends BaseTest {
 
     private String generateNewKey(String metric, String[] tags) {
         String key = metric + "{";
-        for (String tag: tags) {
+        for (String tag : tags) {
             key = key + tag;
         }
         key = key + "}";

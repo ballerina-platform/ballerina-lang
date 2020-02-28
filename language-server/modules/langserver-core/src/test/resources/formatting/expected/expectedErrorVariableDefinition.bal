@@ -31,8 +31,20 @@ string?, map<any>, any, any, any] {
     SMA error (reason22, message = message22, detail = detail22,
         extra = extra22) = err2;
 
-    return [reason11, reason12, reason21, reason22, detail11, message12, detail12, extra12, detail21, message22,
-        detail22, extra22];
+    return [
+        reason11,
+        reason12,
+        reason21,
+        reason22,
+        detail11,
+        message12,
+        detail12,
+        extra12,
+        detail21,
+        message22,
+        detail22,
+        extra22
+    ];
 }
 
 function testErrorBindingPattern() returns string {

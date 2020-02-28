@@ -18,33 +18,35 @@ package org.ballerinalang.langserver;
 import com.google.gson.JsonObject;
 import org.apache.commons.lang3.tuple.Pair;
 import org.ballerinalang.langserver.client.ExtendedLanguageClient;
-import org.ballerinalang.langserver.codeaction.CodeActionNodeType;
+import org.ballerinalang.langserver.codeaction.CodeActionRouter;
 import org.ballerinalang.langserver.codeaction.CodeActionUtil;
 import org.ballerinalang.langserver.codelenses.CodeLensUtil;
-import org.ballerinalang.langserver.codelenses.LSCodeLensesProviderFactory;
-import org.ballerinalang.langserver.command.CommandUtil;
+import org.ballerinalang.langserver.codelenses.LSCodeLensesProviderHolder;
 import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.commons.LSContext;
+import org.ballerinalang.langserver.commons.codeaction.CodeActionKeys;
+import org.ballerinalang.langserver.commons.codeaction.CodeActionNodeType;
+import org.ballerinalang.langserver.commons.workspace.LSDocumentIdentifier;
+import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSClientLogger;
 import org.ballerinalang.langserver.compiler.LSCompilerCache;
-import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.compiler.LSModuleCompiler;
 import org.ballerinalang.langserver.compiler.common.LSCustomErrorStrategy;
-import org.ballerinalang.langserver.compiler.common.LSDocument;
+import org.ballerinalang.langserver.compiler.common.LSDocumentIdentifierImpl;
 import org.ballerinalang.langserver.compiler.exception.CompilationFailedException;
 import org.ballerinalang.langserver.compiler.format.FormattingVisitorEntry;
 import org.ballerinalang.langserver.compiler.format.TextDocumentFormatUtil;
 import org.ballerinalang.langserver.compiler.sourcegen.FormattingSourceGen;
-import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
-import org.ballerinalang.langserver.completions.SymbolInfo;
 import org.ballerinalang.langserver.completions.exceptions.CompletionContextNotSupportedException;
 import org.ballerinalang.langserver.completions.util.CompletionUtil;
 import org.ballerinalang.langserver.diagnostic.DiagnosticsHelper;
 import org.ballerinalang.langserver.exception.UserErrorException;
+import org.ballerinalang.langserver.extensions.ballerina.semantichighlighter.HighlightingFailedException;
+import org.ballerinalang.langserver.extensions.ballerina.semantichighlighter.SemanticHighlightProvider;
 import org.ballerinalang.langserver.implementation.GotoImplementationCustomErrorStrategy;
 import org.ballerinalang.langserver.implementation.GotoImplementationUtil;
-import org.ballerinalang.langserver.index.LSIndexImpl;
 import org.ballerinalang.langserver.signature.SignatureHelpUtil;
 import org.ballerinalang.langserver.signature.SignatureTreeVisitor;
 import org.ballerinalang.langserver.symbols.SymbolFindingVisitor;
@@ -86,6 +88,7 @@ import org.eclipse.lsp4j.TextEdit;
 import org.eclipse.lsp4j.WorkspaceEdit;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.eclipse.lsp4j.services.TextDocumentService;
+import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
@@ -107,11 +110,10 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import static org.ballerinalang.langserver.command.CommandUtil.getCommandForNodeType;
 import static org.ballerinalang.langserver.compiler.LSClientLogger.logError;
 import static org.ballerinalang.langserver.compiler.LSClientLogger.notifyUser;
 import static org.ballerinalang.langserver.compiler.LSCompilerUtil.getUntitledFilePath;
-import static org.ballerinalang.langserver.signature.SignatureHelpUtil.getFuncSymbolInfo;
+import static org.ballerinalang.langserver.signature.SignatureHelpUtil.getFuncScopeEntry;
 import static org.ballerinalang.langserver.signature.SignatureHelpUtil.getFunctionInvocationDetails;
 
 /**
@@ -123,7 +125,6 @@ class BallerinaTextDocumentService implements TextDocumentService {
     private final BallerinaLanguageServer languageServer;
     private final WorkspaceDocumentManager documentManager;
     private final DiagnosticsHelper diagnosticsHelper;
-    private final LSIndexImpl lsIndex;
     private TextDocumentClientCapabilities clientCapabilities;
 
     private final Debouncer diagPushDebouncer;
@@ -132,7 +133,6 @@ class BallerinaTextDocumentService implements TextDocumentService {
         this.languageServer = globalContext.get(LSGlobalContextKeys.LANGUAGE_SERVER_KEY);
         this.documentManager = globalContext.get(LSGlobalContextKeys.DOCUMENT_MANAGER_KEY);
         this.diagnosticsHelper = globalContext.get(LSGlobalContextKeys.DIAGNOSTIC_HELPER_KEY);
-        this.lsIndex = globalContext.get(LSGlobalContextKeys.LS_INDEX_KEY);
         this.diagPushDebouncer = new Debouncer(DIAG_PUSH_DEBOUNCE_DELAY);
     }
 
@@ -160,7 +160,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
             LSContext context = new DocumentServiceOperationContext
                     .ServiceOperationContextBuilder(LSContextOperation.TXT_COMPLETION)
                     .withCommonParams(position, fileUri, documentManager)
-                    .withCompletionParams(this.clientCapabilities.getCompletion(), this.lsIndex)
+                    .withCompletionParams(this.clientCapabilities.getCompletion())
                     .build();
 
             try {
@@ -240,22 +240,21 @@ class BallerinaTextDocumentService implements TextDocumentService {
                 SignatureTreeVisitor signatureTreeVisitor = new SignatureTreeVisitor(context);
                 bLangPackage.accept(signatureTreeVisitor);
                 int activeParamIndex = 0;
-                List<SymbolInfo> visibleSymbols = context.get(CommonKeys.VISIBLE_SYMBOLS_KEY);
+                List<Scope.ScopeEntry> visibleSymbols = context.get(CommonKeys.VISIBLE_SYMBOLS_KEY);
                 if (visibleSymbols == null) {
                     throw new Exception("Couldn't find the symbol, visible symbols are NULL!");
                 }
                 // Search function invocation symbol
                 List<SignatureInformation> signatures = new ArrayList<>();
-                List<SymbolInfo> symbols = new ArrayList<>(visibleSymbols);
+                List<Scope.ScopeEntry> symbols = new ArrayList<>(visibleSymbols);
                 Pair<Optional<String>, Integer> funcPathAndParamIndexPair = getFunctionInvocationDetails(context);
                 Optional<String> funcPath = funcPathAndParamIndexPair.getLeft();
                 activeParamIndex = funcPathAndParamIndexPair.getRight();
                 funcPath.ifPresent(pathStr -> {
-                    Optional<SymbolInfo> searchSymbol = getFuncSymbolInfo(context, pathStr,
-                                                                          symbols);
-                    searchSymbol.ifPresent(s -> {
-                        if (s.getScopeEntry().symbol instanceof BInvokableSymbol) {
-                            BInvokableSymbol symbol = (BInvokableSymbol) s.getScopeEntry().symbol;
+                    Optional<Scope.ScopeEntry> searchSymbol = getFuncScopeEntry(context, pathStr, symbols);
+                    searchSymbol.ifPresent(entry -> {
+                        if (entry.symbol instanceof BInvokableSymbol) {
+                            BInvokableSymbol symbol = (BInvokableSymbol) entry.symbol;
                             signatures.add(SignatureHelpUtil.getSignatureInformation(symbol, context));
                         }
                     });
@@ -389,47 +388,24 @@ class BallerinaTextDocumentService implements TextDocumentService {
                     .ServiceOperationContextBuilder(LSContextOperation.TXT_CODE_ACTION)
                     .withCodeActionParams(documentManager)
                     .build();
+            context.put(CodeActionKeys.DOCUMENT_MANAGER_KEY, documentManager);
+            context.put(CodeActionKeys.FILE_URI_KEY, fileUri);
+            context.put(DocumentServiceKeys.FILE_URI_KEY, fileUri);
+            context.put(CodeActionKeys.POSITION_START_KEY, params.getRange().getStart());
+            context.put(DocumentServiceKeys.DOC_MANAGER_KEY, documentManager);
             try {
-                LSDocument document = documentManager.getLSDocument(filePath.get());
                 int line = params.getRange().getStart().getLine();
                 int col = params.getRange().getStart().getCharacter();
                 List<Diagnostic> diagnostics = params.getContext().getDiagnostics();
+                context.put(DocumentServiceKeys.POSITION_KEY,
+                            new TextDocumentPositionParams(params.getTextDocument(), new Position(line, col)));
 
                 CodeActionNodeType nodeType = CodeActionUtil.topLevelNodeInLine(identifier, line, documentManager);
 
-//                // Add create test commands
-//                Path modulePath = document.getOwnerModulePath() == null ? document.getProjectRootPath()
-//                        : document.getOwnerModulePath();
-//                String innerDirName = modulePath.relativize(document.getPath()).toString()
-//                        .split(Pattern.quote(File.separator))[0];
-//                String moduleName = document.getOwnerModule();
-//                if (topLevelNodeType != null && diagnostics.isEmpty() && document.isWithinProject() &&
-//                        !TEST_DIR_NAME.equals(innerDirName) && !moduleName.isEmpty() &&
-//                        !moduleName.endsWith(ProjectDirConstants.BLANG_SOURCE_EXT)) {
-//                    /*
-//                    Test generation suggested only when no code diagnosis exists, inside a bal project,
-//                    inside a module, not inside /tests folder
-//                     */
-//                    actions.addAll(CommandUtil.getTestGenerationCommand(topLevelNodeType, fileUri, params, context));
-//                }
-
-                // Add commands base on node diagnostics
-                if (!diagnostics.isEmpty()) {
-                    diagnostics.forEach(diagnostic -> {
-                        int sLine = diagnostic.getRange().getStart().getLine();
-                        int sCol = diagnostic.getRange().getStart().getCharacter();
-                        int eLine = diagnostic.getRange().getEnd().getLine();
-                        int eCol = diagnostic.getRange().getEnd().getCharacter();
-                        if ((line == sLine && col >= sCol) || (line == eLine && col <= eCol) ||
-                                (line > sLine && eLine < line)) {
-                            actions.addAll(CommandUtil.getCommandsByDiagnostic(document, diagnostic, params, context));
-                        }
-                    });
-                }
-
-                // Add commands base on node type
-                if (nodeType != null) {
-                    actions.addAll(getCommandForNodeType(nodeType, fileUri, line));
+                // add commands
+                List<CodeAction> codeActions = CodeActionRouter.getBallerinaCodeActions(nodeType, context, diagnostics);
+                if (codeActions != null) {
+                    actions.addAll(codeActions);
                 }
             } catch (UserErrorException e) {
                 notifyUser("Code Action", e);
@@ -449,7 +425,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
     public CompletableFuture<List<? extends CodeLens>> codeLens(CodeLensParams params) {
         return CompletableFuture.supplyAsync(() -> {
             List<CodeLens> lenses;
-            if (!LSCodeLensesProviderFactory.getInstance().isEnabled()) {
+            if (!LSCodeLensesProviderHolder.getInstance().isEnabled()) {
                 // Disabled ballerina codeLens feature
                 clientCapabilities.setCodeLens(null);
                 // Skip code lenses if codeLens disabled
@@ -579,7 +555,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
                     .ServiceOperationContextBuilder(LSContextOperation.TXT_IMPL)
                     .withCommonParams(position, fileUri, documentManager)
                     .build();
-            LSDocument lsDocument = new LSDocument(fileUri);
+            LSDocumentIdentifier lsDocument = new LSDocumentIdentifierImpl(fileUri);
             Path implementationPath = lsDocument.getPath();
             Path compilationPath = getUntitledFilePath(implementationPath.toString()).orElse(implementationPath);
             Optional<Lock> lock = documentManager.lockFile(compilationPath);
@@ -627,10 +603,16 @@ class BallerinaTextDocumentService implements TextDocumentService {
                         .withCommonParams(null, docUri, documentManager)
                         .build();
 
-                LSDocument lsDocument = new LSDocument(context.get(DocumentServiceKeys.FILE_URI_KEY));
+                String fileUri = context.get(DocumentServiceKeys.FILE_URI_KEY);
+                LSDocumentIdentifier lsDocument = new LSDocumentIdentifierImpl(fileUri);
                 diagnosticsHelper.compileAndSendDiagnostics(client, context, lsDocument, documentManager);
+                SemanticHighlightProvider.sendHighlights(client, context, documentManager);
             } catch (CompilationFailedException e) {
                 String msg = "Computing 'diagnostics' failed!";
+                TextDocumentIdentifier identifier = new TextDocumentIdentifier(params.getTextDocument().getUri());
+                logError(msg, e, identifier, (Position) null);
+            } catch (HighlightingFailedException e) {
+                String msg = "Semantic highlighting failed!";
                 TextDocumentIdentifier identifier = new TextDocumentIdentifier(params.getTextDocument().getUri());
                 logError(msg, e, identifier, (Position) null);
             } catch (Throwable e) {
@@ -673,14 +655,19 @@ class BallerinaTextDocumentService implements TextDocumentService {
                             .build();
                     String fileURI = params.getTextDocument().getUri();
 
-                    LSDocument lsDocument = new LSDocument(fileURI);
+                    LSDocumentIdentifier lsDocument = new LSDocumentIdentifierImpl(fileURI);
                     diagnosticsHelper.compileAndSendDiagnostics(client, context, lsDocument, documentManager);
+                    SemanticHighlightProvider.sendHighlights(client, context, documentManager);
                     // Clear current cache upon successfull compilation
                     // If the compiler fails, still we'll have the cached entry(marked as outdated)
                     LSCompilerCache.clear(context, lsDocument.getProjectRoot());
                 } catch (CompilationFailedException e) {
                     String msg = "Computing 'diagnostics' failed!";
                     logError(msg, e, params.getTextDocument(), (Position) null);
+                } catch (HighlightingFailedException e) {
+                    String msg = "Semantic highlighting failed!";
+                    TextDocumentIdentifier identifier = new TextDocumentIdentifier(params.getTextDocument().getUri());
+                    logError(msg, e, identifier, (Position) null);
                 } finally {
                     nLock.ifPresent(Lock::unlock);
                 }

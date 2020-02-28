@@ -48,8 +48,6 @@ import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 /**
  * Responsible for serializing BIR instructions and operands.
@@ -111,12 +109,6 @@ public class BIRInstructionWriter extends BIRVisitor {
     public void visit(BIRTerminator.Lock lock) {
         writePosition(lock.pos);
         buf.writeByte(lock.kind.getValue());
-        addCpAndWriteString(lock.globalVar.name.value);
-
-        int pkgIndex = addPkgCPEntry(lock.globalVar.pkgId);
-        buf.writeInt(pkgIndex);
-
-        writeType(lock.globalVar.type);
 
         addCpAndWriteString(lock.lockedBB.id.value);
     }
@@ -133,24 +125,6 @@ public class BIRInstructionWriter extends BIRVisitor {
     public void visit(BIRTerminator.Unlock unlock) {
         writePosition(unlock.pos);
         buf.writeByte(unlock.kind.getValue());
-        buf.writeInt(unlock.globalVars.size());
-        for (BIRNode.BIRGlobalVariableDcl globalVar : unlock.globalVars) {
-            addCpAndWriteString(globalVar.name.value);
-
-            int pkgIndex = addPkgCPEntry(globalVar.pkgId);
-            buf.writeInt(pkgIndex);
-
-            writeType(globalVar.type);
-        }
-        buf.writeInt(unlock.fieldLocks.size());
-        for (Map.Entry<BIROperand, Set<String>> entry : unlock.fieldLocks.entrySet()) {
-            // TODO properly use operand instead of variablDcl.name here
-            addCpAndWriteString(entry.getKey().variableDcl.name.value);
-            buf.writeInt(entry.getValue().size());
-            for (String field : entry.getValue()) {
-                addCpAndWriteString(field);
-            }
-        }
         addCpAndWriteString(unlock.unlockBB.id.value);
     }
 
@@ -428,13 +402,6 @@ public class BIRInstructionWriter extends BIRVisitor {
         newTable.columnsOp.accept(this);
         newTable.dataOp.accept(this);
         newTable.keyColOp.accept(this);
-    }
-
-    public void visit(BIRNonTerminator.NewStream newStream) {
-        writePosition(newStream.pos);
-        buf.writeByte(newStream.kind.getValue());
-        writeType(newStream.type);
-        newStream.lhsOp.accept(this);
     }
 
     // Operands

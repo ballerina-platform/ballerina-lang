@@ -15,13 +15,15 @@ service SimpleProxyService on new http:Listener(9090) {
     // operations which should happen before reading messages should be done in the `onOpen` resource.
     resource function onOpen(http:WebSocketCaller caller) {
 
-        http:WebSocketClient wsClientEp = new(
+        http:WebSocketClient wsClientEp = new (
             REMOTE_BACKEND,
-            {callbackService: ClientService,
-            // When creating client endpoint, if `readyOnConnect` flag is set to
-            // `false` client endpoint does not start reading frames automatically.
-            readyOnConnect: false
-        });
+            {
+                callbackService: ClientService,
+                // When creating client endpoint, if `readyOnConnect` flag is set to
+                // `false` client endpoint does not start reading frames automatically.
+                readyOnConnect: false
+            }
+        );
         //Associate connections before starting to read messages.
         wsClientEp.setAttribute(ASSOCIATED_CONNECTION, caller);
         caller.setAttribute(ASSOCIATED_CONNECTION, wsClientEp);
@@ -109,7 +111,7 @@ service ClientService = @http:WebSocketServiceConfig {} service {
                         getAssociatedServerEndpoint(caller);
         var err = serverEp->pushBinary(data, finalFrame);
         if (err is http:WebSocketError) {
-           log:printError("Error occurred when sending binary message", err);
+            log:printError("Error occurred when sending binary message", err);
         }
     }
 
@@ -135,9 +137,9 @@ service ClientService = @http:WebSocketServiceConfig {} service {
         http:WebSocketCaller serverEp =
                         getAssociatedServerEndpoint(caller);
         var err = serverEp->close(statusCode = statusCode, reason = reason);
-            if (err is http:WebSocketError) {
-                log:printError("Error occurred when closing the connection", err);
-            }
+        if (err is http:WebSocketError) {
+            log:printError("Error occurred when closing the connection", err);
+        }
         _ = caller.removeAttribute(ASSOCIATED_CONNECTION);
     }
 };

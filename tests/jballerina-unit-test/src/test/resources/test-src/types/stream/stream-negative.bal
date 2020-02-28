@@ -1,80 +1,44 @@
-type Person record {
-    string name;
-    int age;
-    string address;
+// Copyright (c) 2020 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+//
+// WSO2 Inc. licenses this file to you under the Apache License,
+// Version 2.0 (the "License"); you may not use this file except
+// in compliance with the License.
+// You may obtain a copy of the License at
+//
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing,
+// software distributed under the License is distributed on an
+// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+// KIND, either express or implied.  See the License for the
+// specific language governing permissions and limitations
+// under the License.
+
+int i = 0;
+
+stream<int> evenNumberStream = stream {
+    i += 2;
+    return { value: i };
 };
 
-type Employee record {
-    string name;
-    int age;
+stream<int> evenNumberStream1 = stream {
+    i += 2;
+    return i;
 };
 
-function testInvalidStreamAssignment() returns stream<int> {
-    stream<anydata> testStream = new;
-    return testStream;
-}
-
-function testInvalidConstrainedStreamAssignment() returns stream<int> {
-    stream<string> testStream = new;
-    return testStream;
-}
-
-function testStreamAsInvalidArgument() returns stream<Person> {
-    stream<Employee> testStream = new;
-    stream<Person> m = returnStream(testStream);
-    return m;
-}
-
-function testAnydataStreamAsInvalidArgument() returns stream<Person> {
-    stream<anydata> testStream = new;
-    stream<Person> m = returnStream(testStream);
-    return m;
-}
-
-function returnStream(stream<Person> m) returns stream<Person> {
-    return m;
-}
-
-type Captain object {
-    public string name;
-
-    function __init(string name) {
-        self.name = name;
-    }
+stream<int> evenNumberStream2 = stream {
+    i += 2;
+    return { val: i }; // undefined field 'val' in record '$anonType$2', since it get's type checked with an annon type
 };
 
-stream<Captain> s1 = new;
-
-type Job record {
-    string description;
+stream<int> evenNumberStream3 = stream {
+    return { value: "string" };
 };
 
-function testInvalidRecordPublishingToStream() {
-    stream<Employee> s1 = new;
-    Job j1 = { description:"Dummy Description 1" };
-    s1.publish(j1);
-}
+stream<int> evenNumberStream4 = stream {
+    return { value: true };
+};
 
-function testSubscriptionFunctionWithIncorrectRecordParameter() {
-    stream<Employee> s1 = new;
-    s1.subscribe(printJobDescription);
-}
-
-function testSubscriptionFunctionWithUnassignableTupleTypeParameter() {
-    stream<[int, float]> tupleStream = new;
-    tupleStream.subscribe(addToGlobalAnydataArrayForTupleType);
-}
-
-function testSubscriptionFunctionWithUnassignableUnionParameter() {
-    stream<int[]|string|boolean|float> unionStream = new;
-    unionStream.subscribe(addToGlobalAnydataArrayForUnionType);
-}
-
-function printJobDescription(Job j) {
-}
-
-function addToGlobalAnydataArrayForTupleType([string, int] val) {
-}
-
-function addToGlobalAnydataArrayForUnionType(int[]|string|boolean val) {
-}
+stream<int> evenNumberStream5 = stream {
+    return ();
+};

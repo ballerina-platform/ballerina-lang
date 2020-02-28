@@ -40,11 +40,11 @@ public class BLock {
 
     public synchronized boolean lock(Strand strand) {
         if (isLockFree() || lockedBySameContext(strand)) {
-            current.offerLast(strand);
+            this.current.offerLast(strand);
             return true;
         }
 
-        waitingForLock.offerLast(strand);
+        this.waitingForLock.offerLast(strand);
 
         // Strand state change
         strand.setState(State.BLOCK_AND_YIELD);
@@ -54,18 +54,18 @@ public class BLock {
 
     public synchronized void unlock() {
         //current cannot be empty as unlock cannot be called without lock being called first.
-        current.removeLast();
+        this.current.removeLast();
         if (!waitingForLock.isEmpty()) {
-            Strand strand = waitingForLock.removeFirst();
+            Strand strand = this.waitingForLock.removeFirst();
             strand.scheduler.unblockStrand(strand);
         }
     }
 
     private boolean isLockFree() {
-        return current.isEmpty();
+        return this.current.isEmpty();
     }
 
     private boolean lockedBySameContext(Strand ctx) {
-        return current.getLast() == ctx;
+        return this.current.getLast() == ctx;
     }
 }

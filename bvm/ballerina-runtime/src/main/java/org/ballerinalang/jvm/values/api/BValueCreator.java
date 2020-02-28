@@ -37,6 +37,7 @@ import org.ballerinalang.jvm.values.FPValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.StreamValue;
 import org.ballerinalang.jvm.values.StreamingJsonValue;
+import org.ballerinalang.jvm.values.StringValue;
 import org.ballerinalang.jvm.values.TableValue;
 import org.ballerinalang.jvm.values.TupleValueImpl;
 import org.ballerinalang.jvm.values.TypedescValue;
@@ -126,6 +127,16 @@ import java.util.function.Function;
      }
 
      /**
+      * Creates a new string array.
+      *
+      * @param values initial array values
+      * @return string array
+      */
+     public static BArray createArrayValue(BString[] values) {
+         return new ArrayValueImpl(values);
+     }
+
+     /**
       * Create a new Ref value array.
       *
       * @param values initial array values
@@ -180,17 +191,6 @@ import java.util.function.Function;
      }
 
      /**
-      * Create error value with given reason and error details.
-      *
-      * @param reason error reason
-      * @param details error detail
-      * @return error value
-      */
-     public static BError createErrorValue(String reason, Object details) {
-         return new ErrorValue(reason, details);
-     }
-
-     /**
       * Create error value with given type, reason and details.
       *
       * @param type {@code BErrorType} of the error
@@ -198,8 +198,19 @@ import java.util.function.Function;
       * @param details error details
       * @return error value
       */
-     public static BError createErrorValue(BErrorType type, String reason, Object details) {
-         return new ErrorValue(type, reason, details);
+     public static BError createErrorValue(BErrorType type, BString reason, Object details) {
+         return new ErrorValue(type, (StringValue) reason, details);
+     }
+
+     /**
+      * Create error value with given reason and error details.
+      *
+      * @param reason error reason
+      * @param details error detail
+      * @return error value
+      */
+     public static BError createErrorValue(BString reason, Object details) {
+         return new ErrorValue((StringValue) reason, details);
      }
 
      /**

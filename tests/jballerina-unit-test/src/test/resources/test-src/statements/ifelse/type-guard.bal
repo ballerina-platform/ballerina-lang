@@ -1032,3 +1032,106 @@ type Detail record {
 function errorReturningFunc(int? i) returns error<string, Detail> {
     return error("hello", message = "hello", code = i, f = 1.0);
 }
+
+const ASSERTION_ERROR_REASON = "AssertionError";
+const EXP_STR = "hello world";
+
+function testSameVarNameInDifferentScopes() {
+    string|int val = "hello ";
+
+    string str = "";
+    if (val is string) {
+        str = val;
+        boolean bool = false;
+
+        if bool {
+            string s = "you";
+            str += s;
+            val = 1;
+        } else {
+            string s = "world";
+            str += s;
+        }
+
+        if str == EXP_STR {
+            return;
+        }
+    }
+    panic error(ASSERTION_ERROR_REASON, message = "expected '" + EXP_STR + "', found '" + str + "'");
+}
+
+public type XYZ record {
+    string x;
+    string y;
+    int z;
+};
+
+function testNarrowedTypeResetWithMultipleBranches() {
+
+    XYZ|string sampleValue = {x: "X", y :"Y", z: -1};
+
+    if sampleValue is XYZ {
+        if isZpositive(sampleValue) {
+            sampleValue = "one";
+        } else if isXNotEmpty(sampleValue) {
+            sampleValue = "two";
+        } else if isYEmpty(sampleValue) {
+            sampleValue = "three";
+        }
+    }
+
+    if sampleValue is string && sampleValue == "two" {
+        return;
+    }
+
+    panic error(ASSERTION_ERROR_REASON, message = "expected 'two', found '" + sampleValue.toString() + "'");
+}
+
+function isXNotEmpty(XYZ xyz) returns boolean {
+    return xyz.x.length() > 0;
+}
+
+function isYEmpty(XYZ xyz) returns boolean {
+    return xyz.y.length() == 0;
+}
+
+function isZpositive(XYZ xyz) returns boolean {
+    return xyz.z > 0;
+}
+
+function testNarrowedTypeResetWithNestedTypeGuards() {
+    int|string? i = 1;
+    int jo = 0;
+    int|string? qo = 0;
+    int|string? ro = 0;
+
+    if i is int|string {
+        if true {
+            if i is int {
+                if true {
+                    int j = i;
+                    jo = j;
+                    i = "hello";
+                } else {
+                    int k = i;
+                }
+            } else {
+                string s = i;
+            }
+            int|string? q = i;
+            qo = q;
+        } else {
+            int|string x = i;
+        }
+        int|string? r = i;
+        ro = r;
+    }
+
+    if jo == 1 && i == "hello" && qo == "hello" && ro == "hello" {
+        return;
+    }
+
+    json[] jarr = [jo, i, qo, ro];
+    panic error(ASSERTION_ERROR_REASON, message = "expected '[1, \"hello\", \"hello\", \"hello\"]', found '" +
+                                                        jarr.toJsonString() + "'");
+}

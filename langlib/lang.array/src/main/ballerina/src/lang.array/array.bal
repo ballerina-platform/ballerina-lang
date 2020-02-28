@@ -13,6 +13,7 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
+import ballerina/lang.__internal as internal;
 
 # A type parameter that is a subtype of `any|error`.
 # Has the special semantic that when used in a declaration
@@ -221,3 +222,22 @@ public function toBase16(byte[] arr) returns string = external;
 # + str - Base16 string representation
 # + return - the byte array or error
 public function fromBase16(string str) returns byte[]|error = external;
+
+# Returns a stream from the given array.
+#
+# + arr - The array from which the stream is created
+# + return - The stream representation of the array `arr`
+public function toStream(PureType[] arr) returns stream<PureType> {
+    int index = -1;
+    function () returns record {|PureType value;|}? func = function () returns record {|PureType value;|}? {
+        index += 1;
+        if (length(arr) > index) {
+            var value = arr[index];
+            return internal:setNarrowType(typeof value, {value : value});
+        } else {
+            return ();
+        }
+    };
+
+    return internal:construct(internal:getElementType(typeof arr), func);
+}

@@ -26,23 +26,21 @@ import org.apache.commons.lang3.SystemUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.ballerinalang.jvm.util.BLangConstants;
-import org.ballerinalang.langserver.LSGlobalContextKeys;
 import org.ballerinalang.langserver.common.CommonKeys;
+import org.ballerinalang.langserver.commons.LSContext;
+import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
-import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.compiler.common.modal.BallerinaPackage;
-import org.ballerinalang.langserver.completions.SymbolInfo;
+import org.ballerinalang.langserver.completions.FieldCompletionItem;
+import org.ballerinalang.langserver.completions.StaticCompletionItem;
+import org.ballerinalang.langserver.completions.SymbolCompletionItem;
 import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
 import org.ballerinalang.langserver.completions.util.Priority;
-import org.ballerinalang.langserver.index.LSIndexException;
-import org.ballerinalang.langserver.index.LSIndexImpl;
-import org.ballerinalang.langserver.index.dao.BPackageSymbolDAO;
-import org.ballerinalang.langserver.index.dao.DAOType;
-import org.ballerinalang.langserver.index.dto.BPackageSymbolDTO;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.TopLevelNode;
+import org.ballerinalang.model.tree.statements.StatementNode;
 import org.ballerinalang.model.types.ConstrainedType;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionItemKind;
@@ -78,6 +76,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
+import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
@@ -104,7 +103,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -153,37 +151,6 @@ public class CommonUtil {
     }
 
     private CommonUtil() {
-    }
-
-    /**
-     * Get the package URI to the given package name.
-     *
-     * @param pkgName        Name of the package that need the URI for
-     * @param pkgPath        String URI of the current package
-     * @param currentPkgName Name of the current package
-     * @return String URI for the given path.
-     */
-    public static String getPackageURI(String pkgName, String pkgPath, String currentPkgName) {
-        String newPackagePath;
-        // If current package path is not null and current package is not default package continue,
-        // else new package path is same as the current package path.
-        if (pkgPath != null && !currentPkgName.equals(".")) {
-            int indexOfCurrentPkgName = pkgPath.lastIndexOf(currentPkgName);
-            if (indexOfCurrentPkgName >= 0) {
-                newPackagePath = pkgPath.substring(0, indexOfCurrentPkgName);
-            } else {
-                newPackagePath = pkgPath;
-            }
-
-            if (pkgName.equals(".")) {
-                newPackagePath = Paths.get(newPackagePath).toString();
-            } else {
-                newPackagePath = Paths.get(newPackagePath, pkgName).toString();
-            }
-        } else {
-            newPackagePath = pkgPath;
-        }
-        return newPackagePath;
     }
 
     /**
@@ -294,11 +261,11 @@ public class CommonUtil {
      * @param annotationSymbol BLang annotation to extract the completion Item
      * @param ctx              LS Service operation context, in this case completion context
      * @param pkgAlias         LS Service operation context, in this case completion context
-     * @return {@link CompletionItem} Completion item for the annotation
+     * @return {@link LSCompletionItem} Completion item for the annotation
      */
-    public static CompletionItem getAnnotationCompletionItem(PackageID packageID, BAnnotationSymbol annotationSymbol,
-                                                             LSContext ctx, CommonToken pkgAlias,
-                                                             Map<String, String> pkgAliasMap) {
+    public static LSCompletionItem getAnnotationCompletionItem(PackageID packageID, BAnnotationSymbol annotationSymbol,
+                                                               LSContext ctx, CommonToken pkgAlias,
+                                                               Map<String, String> pkgAliasMap) {
         PackageID currentPkgID = ctx.get(DocumentServiceKeys.CURRENT_PACKAGE_ID_KEY);
         String currentProjectOrgName = currentPkgID == null ? "" : currentPkgID.orgName.value;
 
@@ -322,10 +289,10 @@ public class CommonUtil {
         annotationItem.setKind(CompletionItemKind.Property);
         if (currentPkgID != null && currentPkgID.name.value.equals(packageID.name.value)) {
             // If the annotation resides within the current package, no need to set the additional text edits
-            return annotationItem;
+            return new SymbolCompletionItem(ctx, annotationSymbol, annotationItem);
         }
         List<BLangImportPackage> imports = ctx.get(DocumentServiceKeys.CURRENT_DOC_IMPORTS_KEY);
-        Optional pkgImport = imports.stream()
+        Optional<BLangImportPackage> pkgImport = imports.stream()
                 .filter(bLangImportPackage -> {
                     String orgName = bLangImportPackage.orgName.value;
                     String importPkgName = (orgName.equals("") ? currentProjectOrgName : orgName) + "/"
@@ -343,7 +310,7 @@ public class CommonUtil {
             annotationItem.setAdditionalTextEdits(getAutoImportTextEdits(packageID.orgName.getValue(),
                     packageID.name.getValue(), ctx));
         }
-        return annotationItem;
+        return new SymbolCompletionItem(ctx, annotationSymbol, annotationItem);
     }
 
     /**
@@ -355,7 +322,7 @@ public class CommonUtil {
      * @param pkgAliasMap      Package alias map for the file
      * @return {@link CompletionItem} Completion item for the annotation
      */
-    public static CompletionItem getAnnotationCompletionItem(PackageID packageID, BAnnotationSymbol annotationSymbol,
+    public static LSCompletionItem getAnnotationCompletionItem(PackageID packageID, BAnnotationSymbol annotationSymbol,
                                                              LSContext ctx, Map<String, String> pkgAliasMap) {
         return getAnnotationCompletionItem(packageID, annotationSymbol, ctx, null, pkgAliasMap);
     }
@@ -388,51 +355,6 @@ public class CommonUtil {
                 + orgName + CommonKeys.SLASH_KEYWORD_KEY + pkgNameComponent + CommonKeys.SEMI_COLON_SYMBOL_KEY
                 + CommonUtil.LINE_SEPARATOR;
         return Collections.singletonList(new TextEdit(new Range(start, start), importStatement));
-    }
-
-    /**
-     * Fill the completion items extracted from LS Index db with the auto import text edits.
-     * Here the Completion Items are mapped against the respective package ID.
-     *
-     * @param completionsMap Completion Map to evaluate
-     * @param ctx            Lang Server Operation Context
-     * @return {@link List} List of modified completion items
-     */
-    public static List<CompletionItem> fillCompletionWithPkgImport(HashMap<Integer, ArrayList<CompletionItem>>
-                                                                           completionsMap, LSContext ctx) {
-        LSIndexImpl lsIndex = ctx.get(LSGlobalContextKeys.LS_INDEX_KEY);
-        List<CompletionItem> returnList = new ArrayList<>();
-        completionsMap.forEach((integer, completionItems) -> {
-            try {
-                BPackageSymbolDTO dto = ((BPackageSymbolDAO) lsIndex.getDaoFactory().get(DAOType.PACKAGE_SYMBOL))
-                        .get(integer);
-                completionItems.forEach(completionItem -> {
-                    List<TextEdit> textEdits = CommonUtil.getAutoImportTextEdits(dto.getOrgName(), dto.getName(), ctx);
-                    completionItem.setAdditionalTextEdits(textEdits);
-                    returnList.add(completionItem);
-                });
-            } catch (LSIndexException e) {
-                logger.error("Error While retrieving Package Symbol for text edits");
-            }
-        });
-
-        return returnList;
-    }
-
-    /**
-     * Populate the given map with the completion item.
-     *
-     * @param map            ID to completion item map
-     * @param id             pkg id in index
-     * @param completionItem completion item to populate
-     */
-    public static void populateIdCompletionMap(HashMap<Integer, ArrayList<CompletionItem>> map, int id,
-                                               CompletionItem completionItem) {
-        if (map.containsKey(id)) {
-            map.get(id).add(completionItem);
-        } else {
-            map.put(id, new ArrayList<>(Collections.singletonList(completionItem)));
-        }
     }
 
     /**
@@ -589,11 +511,12 @@ public class CommonUtil {
     /**
      * Get completion items list for struct fields.
      *
+     * @param context Language server operation context
      * @param fields List of struct fields
      * @return {@link List}     List of completion items for the struct fields
      */
-    public static List<CompletionItem> getRecordFieldCompletionItems(List<BField> fields) {
-        List<CompletionItem> completionItems = new ArrayList<>();
+    public static List<LSCompletionItem> getRecordFieldCompletionItems(LSContext context, List<BField> fields) {
+        List<LSCompletionItem> completionItems = new ArrayList<>();
         fields.forEach(field -> {
             String insertText = getRecordFieldCompletionInsertText(field, 0);
             CompletionItem fieldItem = new CompletionItem();
@@ -603,7 +526,7 @@ public class CommonUtil {
             fieldItem.setDetail(ItemResolverConstants.FIELD_TYPE);
             fieldItem.setKind(CompletionItemKind.Field);
             fieldItem.setSortText(Priority.PRIORITY120.toString());
-            completionItems.add(fieldItem);
+            completionItems.add(new FieldCompletionItem(context, field, fieldItem));
         });
 
         return completionItems;
@@ -612,10 +535,11 @@ public class CommonUtil {
     /**
      * Get the completion item to fill all the struct fields.
      *
+     * @param context Language Server Operation Context
      * @param fields List of struct fields
-     * @return {@link CompletionItem}   Completion Item to fill all the options
+     * @return {@link LSCompletionItem}   Completion Item to fill all the options
      */
-    public static CompletionItem getFillAllStructFieldsItem(List<BField> fields) {
+    public static LSCompletionItem getFillAllStructFieldsItem(LSContext context, List<BField> fields) {
         List<String> fieldEntries = new ArrayList<>();
 
         for (BField bStructField : fields) {
@@ -634,7 +558,7 @@ public class CommonUtil {
         completionItem.setKind(CompletionItemKind.Property);
         completionItem.setSortText(Priority.PRIORITY110.toString());
 
-        return completionItem;
+        return new StaticCompletionItem(context, completionItem);
     }
 
     /**
@@ -665,6 +589,18 @@ public class CommonUtil {
             return getRecordTypeName((BRecordType) bType, ctx, doSimplify);
         }
         return getShallowBTypeName(bType, ctx);
+    }
+
+    /**
+     * Get the Symbol Name.
+     *
+     * @param bSymbol BSymbol to evaluate
+     * @return captured symbol name
+     */
+    public static String getSymbolName(BSymbol bSymbol) {
+        String nameValue = bSymbol.name.getValue();
+        String[] split = nameValue.split("\\.");
+        return split[split.length - 1];
     }
 
     private static String getShallowBTypeName(BType bType, LSContext ctx) {
@@ -889,7 +825,7 @@ public class CommonUtil {
      * @param node Node to be evaluated
      * @return {@link Boolean}  whether a worker derivative
      */
-    public static boolean isWorkerDereivative(BLangNode node) {
+    public static boolean isWorkerDereivative(StatementNode node) {
         return (node instanceof BLangSimpleVariableDef)
                 && ((BLangSimpleVariableDef) node).var.expr != null
                 && ((BLangSimpleVariableDef) node).var.expr.type instanceof BFutureType
@@ -1010,6 +946,10 @@ public class CommonUtil {
      */
     public static Pair<String, String> getFunctionInvocationSignature(BInvokableSymbol symbol, String functionName,
                                                                       LSContext ctx) {
+        if (symbol == null) {
+            // Symbol can be null for object init functions without an explicit __init
+            return ImmutablePair.of(functionName + "();", functionName + "()");
+        }
         StringBuilder signature = new StringBuilder(functionName + "(");
         StringBuilder insertText = new StringBuilder(functionName + "(");
         List<String> funcArguments = FunctionGenerator.getFuncArguments(symbol, ctx);
@@ -1040,10 +980,10 @@ public class CommonUtil {
      * @param context Language Server operation conext
      * @return {@link List} filtered visible symbols
      */
-    public static List<SymbolInfo> getWorkerSymbols(LSContext context) {
-        List<SymbolInfo> visibleSymbols = new ArrayList<>(context.get(CommonKeys.VISIBLE_SYMBOLS_KEY));
-        return visibleSymbols.stream().filter(symbolInfo -> {
-            BType bType = symbolInfo.getScopeEntry().symbol.type;
+    public static List<Scope.ScopeEntry> getWorkerSymbols(LSContext context) {
+        List<Scope.ScopeEntry> visibleSymbols = new ArrayList<>(context.get(CommonKeys.VISIBLE_SYMBOLS_KEY));
+        return visibleSymbols.stream().filter(scopeEntry -> {
+            BType bType = scopeEntry.symbol.type;
             return bType instanceof BFutureType && ((BFutureType) bType).workerDerivative;
         }).collect(Collectors.toList());
     }
@@ -1116,10 +1056,8 @@ public class CommonUtil {
      *
      * @return {@link Predicate}    Predicate for the check
      */
-    public static Predicate<SymbolInfo> invalidSymbolsPredicate() {
-        return symbolInfo -> !symbolInfo.isCustomOperation()
-                && symbolInfo.getScopeEntry() != null
-                && isInvalidSymbol(symbolInfo.getScopeEntry().symbol);
+    public static Predicate<Scope.ScopeEntry> invalidSymbolsPredicate() {
+        return scopeEntry -> scopeEntry != null && isInvalidSymbol(scopeEntry.symbol);
     }
 
     /**
@@ -1344,15 +1282,21 @@ public class CommonUtil {
         }
         // Retrieve block stmt
         parent = bLangNode.parent;
-        while (parent != null && !(parent instanceof BLangBlockStmt)) {
+        while (parent != null && !(parent instanceof BLangBlockStmt) && !(parent instanceof BLangBlockFunctionBody)) {
             parent = parent.parent;
         }
         if (parent != null && packageNode != null) {
             SymbolResolver symbolResolver = SymbolResolver.getInstance(context);
             SymbolTable symbolTable = SymbolTable.getInstance(context);
-            BLangBlockStmt blockStmt = (BLangBlockStmt) parent;
             SymbolEnv symbolEnv = symbolTable.pkgEnvMap.get(packageNode.symbol);
-            SymbolEnv blockEnv = SymbolEnv.createBlockEnv(blockStmt, symbolEnv);
+            SymbolEnv blockEnv;
+            if (parent instanceof BLangBlockStmt) {
+                BLangBlockStmt blockStmt = (BLangBlockStmt) parent;
+                blockEnv = SymbolEnv.createBlockEnv(blockStmt, symbolEnv);
+            } else {
+                BLangBlockFunctionBody block = (BLangBlockFunctionBody) parent;
+                blockEnv = SymbolEnv.createFuncBodyEnv(block, symbolEnv);
+            }
             Map<Name, List<Scope.ScopeEntry>> entries = symbolResolver
                     .getAllVisibleInScopeSymbols(blockEnv);
             entries.forEach((name, scopeEntries) ->
@@ -1369,28 +1313,6 @@ public class CommonUtil {
      */
     public static boolean isLangLibSymbol(BSymbol symbol) {
         return ((symbol.flags & Flags.LANG_LIB) == Flags.LANG_LIB);
-    }
-
-    public static BPackageSymbolDTO getPackageSymbolDTO(LSContext ctx, String pkgName) {
-        Optional<BLangImportPackage> bLangImport = getCurrentFileImports(ctx).stream()
-                .filter(importPkg -> importPkg.getAlias().getValue().equals(pkgName))
-                .findFirst();
-        String realPkgName;
-        String realOrgName;
-
-        if (bLangImport.isPresent()) {
-            // There is an added import statement.
-            realPkgName = CommonUtil.getPackageNameComponentsCombined(bLangImport.get());
-            realOrgName = bLangImport.get().getOrgName().getValue();
-        } else {
-            realPkgName = pkgName;
-            realOrgName = "";
-        }
-
-        return new BPackageSymbolDTO.BPackageSymbolDTOBuilder()
-                .setName(realPkgName)
-                .setOrgName(realOrgName)
-                .build();
     }
 
     /**

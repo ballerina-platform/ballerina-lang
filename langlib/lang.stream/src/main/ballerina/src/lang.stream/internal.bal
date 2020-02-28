@@ -1,4 +1,4 @@
-// Copyright (c) 2019 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+// Copyright (c) 2020 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 //
 // WSO2 Inc. licenses this file to you under the Apache License,
 // Version 2.0 (the "License"); you may not use this file except
@@ -13,61 +13,30 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
-import ballerina/lang.'array as arrays;
-import ballerina/lang.'value as values;
 
-# Singleton Instance of SubscriptionManager.
-StreamManager streamManager = new StreamManager();
-int lockObj = 0;
+@typeParam
+type PureType3 anydata | error;
 
-# Represent the stream subscription manager for different streams.
-type StreamManager object {
+# Takes in a stream and returns the value gen function of that stream.
+#
+# + strm - The stream
+# + return - A function pointer to the value gen function.
+public function getGenFunc(stream<PureType3> strm) returns (function() returns record {| PureType3 value; |}?) = external;
 
-    # Add a new subscription function to the given stream.
-    # + strm - The stream to which the subscription is added
-    # + subscription - The subscription object to be added
-    # + func - The subscription function to be added
-    function addSubscriptionFunc(stream<PureType> strm, Subscription subscription, any func) = external;
+# Represent the iterator type returned when `iterator` method is invoked.
+type StreamIterator object {
 
-    # Return subscription functions as an array when the stream is given.
-    # + strm - input stream
-    # + return - subcription functions and number of subscription functions
-    function getSubscriptionFuncs(stream<PureType> strm) returns Subscription[] = external;
-};
+    private stream<PureType1> strm;
 
-type Subscription object {
-    private PureType[] queue = [];
-    private boolean status = false;
-    public function(any | error) func;
-
-    public function __init() {
-        self.func = function (any|error msg) {
-
-        };
+    public function __init(stream<PureType1> strm) {
+        self.strm = strm;
     }
 
-    function publishMessage(PureType message) {
-        lock {
-            lockObj = 0;
-            arrays:push(self.queue, message);
-            if (self.status == false) {
-                self.status = true;
-                _ = start self.startProcessingEvents(arrays:remove(self.queue, 0));
-            }
-        }
-    }
-
-    function startProcessingEvents(PureType message) {
-        var func = self.func;
-        func(message);
-        lock {
-            lockObj = 0;
-            if (self.status) {
-                while (arrays:length(self.queue) != 0) {
-                    func(arrays:remove(self.queue, 0));
-                }
-                self.status = false;
-            }
-        }
+    # Return the next member in stream iterator, nil if end of iterator is reached.
+    # + return - iterator result
+    public function next() returns record {|
+        PureType1 value;
+    |}? {
+        return next(self.strm);
     }
 };

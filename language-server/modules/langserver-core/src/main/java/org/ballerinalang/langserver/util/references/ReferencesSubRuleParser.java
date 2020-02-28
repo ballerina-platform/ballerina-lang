@@ -18,7 +18,7 @@ package org.ballerinalang.langserver.util.references;
 import org.antlr.v4.runtime.Token;
 import org.ballerinalang.langserver.common.constants.NodeContextKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
-import org.ballerinalang.langserver.compiler.LSContext;
+import org.ballerinalang.langserver.commons.LSContext;
 import org.eclipse.lsp4j.Position;
 
 import java.util.List;
@@ -38,7 +38,9 @@ class ReferencesSubRuleParser {
     static void parseCompilationUnit(String content, LSContext context, Position pos) {
         // TODO: 1/23/19 Check what happens when the content is not a valid compilation unit and when there are errors
         List<Token> tokenList = CommonUtil.getTokenList(content);
-        Optional<Token> tokenAtCursor = searchTokenAtCursor(tokenList, pos.getLine(), pos.getCharacter(), true);
+        Boolean nextBest = context.get(ReferencesKeys.OFFSET_CURSOR_N_TRY_NEXT_BEST);
+        Optional<Token> tokenAtCursor = searchTokenAtCursor(context, tokenList, pos.getLine(), pos.getCharacter(), true,
+                                                            (nextBest == null) ? false : nextBest);
         tokenAtCursor.ifPresent(token -> {
             context.put(NodeContextKeys.NODE_NAME_KEY, token.getText());
             int tokenIndex = token.getTokenIndex() - 1;

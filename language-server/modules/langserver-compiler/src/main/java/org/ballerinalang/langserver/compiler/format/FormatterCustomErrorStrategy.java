@@ -21,8 +21,8 @@ import org.antlr.v4.runtime.InputMismatchException;
 import org.antlr.v4.runtime.NoViableAltException;
 import org.antlr.v4.runtime.Parser;
 import org.antlr.v4.runtime.ParserRuleContext;
+import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
-import org.ballerinalang.langserver.compiler.LSContext;
 import org.wso2.ballerinalang.compiler.parser.BLangParserListener;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParserErrorStrategy;
@@ -66,7 +66,7 @@ public class FormatterCustomErrorStrategy extends BallerinaParserErrorStrategy {
         ParserRuleContext context = parser.getContext();
         // Note: Here we forcefully set the exception to null, in order to avoid the callable unit body being null at
         // the run time
-        if (context instanceof BallerinaParser.CallableUnitBodyContext) {
+        if (context instanceof BallerinaParser.BlockFunctionBodyContext) {
             listener.unsetErrorState();
             return;
         } else if (context instanceof BallerinaParser.SimpleVariableReferenceContext

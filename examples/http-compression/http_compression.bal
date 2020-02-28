@@ -1,7 +1,7 @@
 import ballerina/http;
 import ballerina/log;
 
-listener http:Listener listenerEndpoint = new(9090);
+listener http:Listener listenerEndpoint = new (9090);
 
 // Since compression behaviour of the service is set as `COMPRESSION_AUTO`, entity body compression is done according
 // to the scheme indicated in `Accept-Encoding` request header. Compression is not performed when the header is not
@@ -16,10 +16,10 @@ service autoCompress on listenerEndpoint {
         path: "/"
     }
     resource function invokeEndpoint(http:Caller caller, http:Request req) {
-        var result = caller->respond({ "Type": "Auto compression" });
+        var result = caller->respond({"Type": "Auto compression"});
 
         if (result is error) {
-           log:printError("Error sending response", err = result);
+            log:printError("Error sending response", result);
         }
     }
 }
@@ -33,24 +33,24 @@ service autoCompress on listenerEndpoint {
 @http:ServiceConfig {
     compression: {
         enable: http:COMPRESSION_ALWAYS,
-        contentTypes:["text/plain"]
+        contentTypes: ["text/plain"]
     }
 }
 service alwaysCompress on listenerEndpoint {
     // Since compression is only constrained to "text/plain" MIME type,
     // `getJson` resource does not compress the response entity body.
     resource function getJson(http:Caller caller, http:Request req) {
-        json msg = { "Type": "Always but constrained by content-type" };
+        json msg = {"Type": "Always but constrained by content-type"};
         var result = caller->respond(msg);
         if (result is error) {
-           log:printError("Error sending response", err = result);
+            log:printError("Error sending response", result);
         }
     }
     // The response entity body is always compressed since MIME type has matched.
     resource function getString(http:Caller caller, http:Request req) {
         var result = caller->respond("Type : This is a string");
         if (result is error) {
-           log:printError("Error sending response", err = result);
+            log:printError("Error sending response", result);
         }
     }
 }
@@ -61,26 +61,27 @@ service alwaysCompress on listenerEndpoint {
 // `Accept-Encoding` header, the client specifies it with "deflate, gzip". Alternatively, the existing header is sent.
 // When compression is specified as `COMPRESSION_AUTO`, only the user specified `Accept-Encoding` header is sent.
 // If the behaviour is set as `COMPRESSION_NEVER`, the client makes sure not to send the `Accept-Encoding` header.
-http:Client clientEndpoint = new("http://localhost:9090", {
+http:Client clientEndpoint = new ("http://localhost:9090", {
         compression: http:COMPRESSION_ALWAYS
-    });
+    }
+);
 
 service passthrough on new http:Listener(9092) {
     @http:ResourceConfig {
         path: "/"
     }
     resource function getCompressed(http:Caller caller, http:Request req) {
-        var response = clientEndpoint->post("/backend/echo", <@untainted> req);
+        var response = clientEndpoint->post("/backend/echo", <@untainted>req);
         if (response is http:Response) {
             var result = caller->respond(response);
             if (result is error) {
-               log:printError("Error sending response", err = result);
+                log:printError("Error sending response", result);
             }
         } else {
-            json err = { "error": "error occurred while invoking service" };
+            json err = {"error": "error occurred while invoking service"};
             var result = caller->respond(err);
             if (result is error) {
-               log:printError("Error sending response", err = result);
+                log:printError("Error sending response", result);
             }
         }
     }
@@ -93,14 +94,14 @@ service backend on listenerEndpoint {
         http:Response res = new;
         if (req.hasHeader("accept-encoding")) {
             string value = req.getHeader("accept-encoding");
-            res.setPayload("Backend response was encoded : " + <@untainted> value);
+            res.setPayload("Backend response was encoded : " + <@untainted>value);
         } else {
             res.setPayload("Accept-Encoding header is not present");
         }
 
         var result = caller->respond(res);
         if (result is error) {
-           log:printError("Error sending response", err = result);
+            log:printError("Error sending response", result);
         }
     }
 }

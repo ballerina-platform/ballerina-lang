@@ -20,17 +20,21 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.langserver.command.ExecuteCommandKeys;
-import org.ballerinalang.langserver.command.LSCommandExecutor;
-import org.ballerinalang.langserver.command.LSCommandExecutorException;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.FunctionGenerator;
+import org.ballerinalang.langserver.commons.LSContext;
+import org.ballerinalang.langserver.commons.command.ExecuteCommandKeys;
+import org.ballerinalang.langserver.commons.command.LSCommandExecutorException;
+import org.ballerinalang.langserver.commons.command.spi.LSCommandExecutor;
+import org.ballerinalang.langserver.commons.workspace.LSDocumentIdentifier;
+import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
+import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
-import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.compiler.exception.CompilationFailedException;
-import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentException;
-import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
+import org.ballerinalang.langserver.util.references.ReferencesKeys;
+import org.ballerinalang.langserver.util.references.ReferencesUtil;
+import org.ballerinalang.langserver.util.references.SymbolReferencesModel;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.eclipse.lsp4j.Position;
@@ -60,7 +64,6 @@ import java.util.List;
 import java.util.function.BiConsumer;
 
 import static org.ballerinalang.langserver.command.CommandUtil.applyWorkspaceEdit;
-import static org.ballerinalang.langserver.command.CommandUtil.getFunctionInvocationNode;
 import static org.ballerinalang.langserver.compiler.LSCompilerUtil.getUntitledFilePath;
 
 /**
@@ -68,7 +71,7 @@ import static org.ballerinalang.langserver.compiler.LSCompilerUtil.getUntitledFi
  *
  * @since 0.983.0
  */
-@JavaSPIService("org.ballerinalang.langserver.command.LSCommandExecutor")
+@JavaSPIService("org.ballerinalang.langserver.commons.command.spi.LSCommandExecutor")
 public class CreateFunctionExecutor implements LSCommandExecutor {
 
     public static final String COMMAND = "CREATE_FUNC";
@@ -110,12 +113,20 @@ public class CreateFunctionExecutor implements LSCommandExecutor {
             throw new LSCommandExecutorException("Invalid parameters received for the create function command!");
         }
 
-        WorkspaceDocumentManager documentManager = context.get(DocumentServiceKeys.DOC_MANAGER_KEY);
+        WorkspaceDocumentManager docManager = context.get(DocumentServiceKeys.DOC_MANAGER_KEY);
 
-        BLangInvocation functionNode;
+        BLangInvocation functionNode = null;
         try {
-            functionNode = getFunctionInvocationNode(line, column, documentUri, documentManager, context);
-        } catch (CompilationFailedException e) {
+            LSDocumentIdentifier lsDocument = docManager.getLSDocument(CommonUtil.getPathFromURI(documentUri).get());
+            Position pos = new Position(line, column + 1);
+            context.put(ReferencesKeys.OFFSET_CURSOR_N_TRY_NEXT_BEST, true);
+            context.put(ReferencesKeys.DO_NOT_SKIP_NULL_SYMBOLS, true);
+            SymbolReferencesModel.Reference refAtCursor = ReferencesUtil.getReferenceAtCursor(context, lsDocument, pos);
+            BLangNode bLangNode = refAtCursor.getbLangNode();
+            if (bLangNode instanceof BLangInvocation) {
+                functionNode = (BLangInvocation) bLangNode;
+            }
+        } catch (CompilationFailedException | WorkspaceDocumentException e) {
             throw new LSCommandExecutorException("Error while compiling the source!");
         }
         if (functionNode == null) {
@@ -127,7 +138,7 @@ public class CreateFunctionExecutor implements LSCommandExecutor {
         Path compilationPath = getUntitledFilePath(filePath.toString()).orElse(filePath);
         String fileContent;
         try {
-            fileContent = documentManager.getFileContent(compilationPath);
+            fileContent = docManager.getFileContent(compilationPath);
         } catch (WorkspaceDocumentException e) {
             throw new LSCommandExecutorException("Error occurred while reading the file:" + filePath.toString(), e);
         }
@@ -162,7 +173,7 @@ public class CreateFunctionExecutor implements LSCommandExecutor {
         } else {
             throw new LSCommandExecutorException("Error occurred when retrieving function node!");
         }
-        LanguageClient client = context.get(ExecuteCommandKeys.LANGUAGE_SERVER_KEY).getClient();
+        LanguageClient client = context.get(ExecuteCommandKeys.LANGUAGE_CLIENT_KEY);
         String modifiers = "";
         boolean prependLineFeed = true;
         String padding = "";

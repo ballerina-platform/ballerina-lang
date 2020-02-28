@@ -4,7 +4,7 @@ import ballerina/log;
 import ballerina/mime;
 
 // Creates an endpoint for the client.
-http:Client clientEndpoint = new("http://localhost:9090");
+http:Client clientEndpoint = new ("http://localhost:9090");
 
 @http:ServiceConfig {
     basePath: "/stream"
@@ -27,10 +27,10 @@ service HTTPStreamingService on new http:Listener(9090) {
         var clientResponse = clientEndpoint->post("/stream/receiver", request);
 
         http:Response res = new;
-        if(clientResponse is http:Response) {
+        if (clientResponse is http:Response) {
             var payload = clientResponse.getTextPayload();
             if (payload is string) {
-                res.setPayload(<@untainted> payload);
+                res.setPayload(<@untainted>payload);
             } else {
                 setError(res, payload);
             }
@@ -84,7 +84,7 @@ service HTTPStreamingService on new http:Listener(9090) {
 //Sets the error to the response.
 function setError(http:Response res, error err) {
     res.statusCode = 500;
-    res.setPayload(<@untainted> <string> err.detail()?.message);
+    res.setPayload(<@untainted string>err.detail()?.message);
 }
 
 // Copies the content from the source channel to a destination channel.
@@ -99,7 +99,7 @@ function copy(io:ReadableByteChannel src,
         if (result is io:EofError) {
             break;
         } else if (result is error) {
-            return <@untained> result;
+            return <@untained>result;
         } else {
             // The operation writes the given content into the channel.
             int i = 0;
@@ -123,6 +123,6 @@ function close(io:ReadableByteChannel|io:WritableByteChannel ch) {
     } channelResult = ch;
     var cr = channelResult.close();
     if (cr is error) {
-        log:printError("Error occurred while closing the channel: ", err = cr);
+        log:printError("Error occurred while closing the channel: ", cr);
     }
 }

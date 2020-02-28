@@ -2,9 +2,9 @@ import ballerina/log;
 import ballerina/rabbitmq;
 
 // Creates a ballerina RabbitMQ connection that allows reusability if necessary.
-rabbitmq:Connection connection = new({ host: "localhost", port: 5672 });
+rabbitmq:Connection connection = new ({host: "localhost", port: 5672});
 
-listener rabbitmq:Listener channelListener = new(connection);
+listener rabbitmq:Listener channelListener = new (connection);
 
 // The consumer service listens to the "MyQueue" queue.
 // Quality of service settings(prefetchCount and prefetchSize) can be

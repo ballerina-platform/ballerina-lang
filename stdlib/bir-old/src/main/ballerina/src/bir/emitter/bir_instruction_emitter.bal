@@ -32,8 +32,6 @@ function emitInstruction(Instruction ins, int tabs) returns string {
         return emitInsNewMap(ins, tabs); 
     } else if ins is NewTable {
         return emitInsNewTable(ins, tabs); 
-    } else if ins is NewStream {
-        return emitInsNewStream(ins, tabs); 
     } else if ins is NewInstance {
         return emitInsNewInstance(ins, tabs); 
     } else if ins is NewArray {
@@ -123,19 +121,6 @@ function emitInsNewTable(NewTable ins, int tabs) returns string {
     str += emitVarRef(ins.keyColOp); 
     str += ")<";
     str += emitTypeRef(ins.typeValue); 
-    str += ">;";
-    return str;
-}
- 
-function emitInsNewStream(NewStream ins, int tabs) returns string {
-    string str = "";
-    str += emitTabs(tabs);
-    str += emitVarRef(ins.lhsOp); 
-    str += emitSpaces(1);
-    str += "=";
-    str += emitSpaces(1);
-    str += "stream<";
-    str += emitTypeRef(ins.streamType); 
     str += ">;";
     return str;
 }
@@ -615,8 +600,6 @@ function emitLock(Lock term, int tabs) returns string {
     str += emitTabs(tabs);
     str += "lock";
     str += emitSpaces(1);
-    str += emitName(term.globleVar.name);
-    str += emitSpaces(1);
     str += "->";
     str += emitSpaces(1);
     str += emitBasicBlockRef(term.lockBB);
@@ -646,48 +629,7 @@ function emitUnlock(Unlock term, int tabs) returns string {
     str += emitTabs(tabs);
     str += "unlock";
     str += emitSpaces(1);
-    str += "(";
-    int i = 0;
-    int argLength = term.globleVars.length();
-    foreach VariableDcl? ref in term.globleVars {
-        if ref is VariableDcl {
-            str += emitName(ref.name);
-            i += 1;
-            if i < argLength {
-                str += ",";
-                str += emitSpaces(1);
-            }
-        }
-    }
-    str += ")";
-    str += emitSpaces(1);
-    str += "(";
-    i = 0;
-    argLength = term.localLocks.length();
-    foreach LocalLocks? ref in term.localLocks {
-        if ref is LocalLocks {
-            int j = 0;
-            int length = ref.fields.length();
-            foreach string f in ref.fields {
-                str += emitName(ref.localVar.name);
-                str += "[\"";
-                str += f;
-                str += "\"]";
-                j += 1;
-                if j < length {
-                    str += ",";
-                    str += emitSpaces(1);
-                }
-            }
-            
-            i += 1;
-            if i < argLength {
-                str += ",";
-                str += emitSpaces(1);
-            }
-        }
-    }
-    str += ")";
+    str += "()";
     str += emitSpaces(1);
     str += "->";
     str += emitSpaces(1);

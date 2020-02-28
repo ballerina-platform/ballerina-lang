@@ -17,14 +17,16 @@ package org.ballerinalang.langserver.command.executors;
 
 import com.google.gson.JsonObject;
 import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.langserver.command.ExecuteCommandKeys;
-import org.ballerinalang.langserver.command.LSCommandExecutor;
-import org.ballerinalang.langserver.command.LSCommandExecutorException;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
+import org.ballerinalang.langserver.commons.LSContext;
+import org.ballerinalang.langserver.commons.command.ExecuteCommandKeys;
+import org.ballerinalang.langserver.commons.command.LSCommandExecutorException;
+import org.ballerinalang.langserver.commons.command.spi.LSCommandExecutor;
+import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
-import org.ballerinalang.langserver.compiler.LSContext;
+import org.ballerinalang.langserver.compiler.LSModuleCompiler;
+import org.ballerinalang.langserver.compiler.common.LSCustomErrorStrategy;
 import org.ballerinalang.langserver.compiler.exception.CompilationFailedException;
-import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.model.Whitespace;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
@@ -33,23 +35,24 @@ import org.eclipse.lsp4j.TextEdit;
 import org.eclipse.lsp4j.VersionedTextDocumentIdentifier;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.eclipse.lsp4j.services.LanguageClient;
-import org.wso2.ballerinalang.compiler.tree.BLangNode;
-import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
+import org.wso2.ballerinalang.compiler.tree.BLangPackage;
+import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
+import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
 
 import static org.ballerinalang.langserver.command.CommandUtil.applyWorkspaceEdit;
-import static org.ballerinalang.langserver.command.CommandUtil.getObjectNode;
 
 /**
  * Represents the change abstract type command executor.
  *
  * @since 1.0
  */
-@JavaSPIService("org.ballerinalang.langserver.command.LSCommandExecutor")
+@JavaSPIService("org.ballerinalang.langserver.commons.command.spi.LSCommandExecutor")
 public class ChangeAbstractTypeObjExecutor implements LSCommandExecutor {
 
     public static final String COMMAND = "CHANGE_ABSTRACT_TYPE_OBJ";
@@ -87,87 +90,99 @@ public class ChangeAbstractTypeObjExecutor implements LSCommandExecutor {
             throw new LSCommandExecutorException("Invalid parameters received for the change abstract type command!");
         }
 
-        WorkspaceDocumentManager documentManager = context.get(DocumentServiceKeys.DOC_MANAGER_KEY);
-
-        BLangObjectTypeNode objectNode;
+        int line = sLine;
+        int col = sCol;
+        WorkspaceDocumentManager docManager = context.get(DocumentServiceKeys.DOC_MANAGER_KEY);
         try {
-            objectNode = getObjectNode(sLine, sCol, documentUri, documentManager, context);
+            BLangPackage bLangPackage = LSModuleCompiler.getBLangPackage(context, docManager,
+                                                                         LSCustomErrorStrategy.class, false, false);
+
+            Optional<BLangTypeDefinition> objType = bLangPackage.topLevelNodes.stream()
+                    .filter(topLevelNode -> {
+                        if (topLevelNode instanceof BLangTypeDefinition) {
+                            org.ballerinalang.util.diagnostic.Diagnostic.DiagnosticPosition pos =
+                                    topLevelNode.getPosition();
+                            return ((pos.getStartLine() == line || pos.getEndLine() == line ||
+                                    (pos.getStartLine() < line && pos.getEndLine() > line)) &&
+                                    (pos.getStartColumn() <= col && pos.getEndColumn() <= col));
+                        }
+                        return false;
+                    }).findAny().map(t -> (BLangTypeDefinition) t);
+
+            if (!objType.isPresent()) {
+                throw new LSCommandExecutorException("Could not locate the object node!");
+            }
+
+            String editText;
+            TextEdit textEdit;
+            boolean isAbstract = (objType.get().symbol.flags & Flags.ABSTRACT) == Flags.ABSTRACT;
+            Iterator<Whitespace> iterator = objType.get().getWS().iterator();
+
+            if (!isAbstract) {
+                int colBeforeObjKeyword = objType.get().pos.sCol;
+                boolean isFirst = true;
+                StringBuilder str = new StringBuilder();
+                while (iterator.hasNext()) {
+                    Whitespace next = iterator.next();
+                    if ("object".equals(next.getPrevious())) {
+                        break;
+                    }
+                    if (!isFirst) {
+                        str.append(next.getWs());
+                    }
+                    str.append(next.getPrevious());
+                    isFirst = false;
+                }
+                colBeforeObjKeyword += str.toString().length();
+
+                editText = " abstract";
+                Position position = new Position(objType.get().pos.sLine - 1, colBeforeObjKeyword - 1);
+                textEdit = new TextEdit(new Range(position, position), editText);
+            } else {
+                int colBeforeLeftBrace = objType.get().pos.sCol;
+                boolean isFirst = true;
+                StringBuilder str = new StringBuilder();
+                boolean skipNextWS = false;
+                boolean loop = true;
+                while (iterator.hasNext() && loop) {
+                    Whitespace next = iterator.next();
+                    String prev = next.getPrevious();
+                    if ("{".equals(prev)) {
+                        loop = false;
+                    }
+                    if (!isFirst) {
+                        String ws = next.getWs();
+                        if (!skipNextWS) {
+                            str.append(ws);
+                        } else {
+                            skipNextWS = false;
+                        }
+                        colBeforeLeftBrace += ws.length();
+                    }
+                    if (!"abstract".equals(prev)) {
+                        str.append(prev);
+                    } else {
+                        skipNextWS = true;
+                    }
+                    colBeforeLeftBrace += prev.length();
+                    isFirst = false;
+                }
+                colBeforeLeftBrace += str.toString().length();
+
+                editText = str.toString();
+                Position start = new Position(objType.get().pos.sLine - 1, objType.get().pos.sCol - 1);
+                Position end = new Position(objType.get().pos.sLine - 1, colBeforeLeftBrace - 1);
+                textEdit = new TextEdit(new Range(start, end), editText);
+            }
+
+            LanguageClient client = context.get(ExecuteCommandKeys.LANGUAGE_CLIENT_KEY);
+            List<TextEdit> edits = new ArrayList<>();
+            edits.add(textEdit);
+            TextDocumentEdit textDocumentEdit = new TextDocumentEdit(textDocumentIdentifier, edits);
+            return applyWorkspaceEdit(Collections.singletonList(Either.forLeft(textDocumentEdit)), client);
         } catch (CompilationFailedException e) {
             throw new LSCommandExecutorException("Error while compiling the source!");
         }
-        if (objectNode == null) {
-            throw new LSCommandExecutorException("Couldn't find the object node!");
-        }
-
-        BLangNode parent = objectNode.parent;
-        Iterator<Whitespace> iterator = parent.getWS().iterator();
-
-        String editText;
-        TextEdit textEdit;
-        boolean hasAbstractKeyword = parent.getWS().stream().anyMatch(s -> "abstract".equals(s.getPrevious()));
-
-        if (!hasAbstractKeyword) {
-            int colBeforeObjKeyword = parent.pos.sCol;
-            boolean isFirst = true;
-            StringBuilder str = new StringBuilder();
-            while (iterator.hasNext()) {
-                Whitespace next = iterator.next();
-                if ("object".equals(next.getPrevious())) {
-                    break;
-                }
-                if (!isFirst) {
-                    str.append(next.getWs());
-                }
-                str.append(next.getPrevious());
-                isFirst = false;
-            }
-            colBeforeObjKeyword += str.toString().length();
-
-            editText = " abstract";
-            Position position = new Position(parent.pos.sLine - 1, colBeforeObjKeyword - 1);
-            textEdit = new TextEdit(new Range(position, position), editText);
-        } else {
-            int colBeforeLeftBrace = parent.pos.sCol;
-            boolean isFirst = true;
-            StringBuilder str = new StringBuilder();
-            boolean skipNextWS = false;
-            boolean loop = true;
-            while (iterator.hasNext() && loop) {
-                Whitespace next = iterator.next();
-                String prev = next.getPrevious();
-                if ("{".equals(prev)) {
-                    loop = false;
-                }
-                if (!isFirst) {
-                    String ws = next.getWs();
-                    if (!skipNextWS) {
-                        str.append(ws);
-                    } else {
-                        skipNextWS = false;
-                    }
-                    colBeforeLeftBrace += ws.length();
-                }
-                if (!"abstract".equals(prev)) {
-                    str.append(prev);
-                } else {
-                    skipNextWS = true;
-                }
-                colBeforeLeftBrace += prev.length();
-                isFirst = false;
-            }
-            colBeforeLeftBrace += str.toString().length();
-
-            editText = str.toString();
-            Position start = new Position(parent.pos.sLine - 1, parent.pos.sCol - 1);
-            Position end = new Position(parent.pos.sLine - 1, colBeforeLeftBrace - 1);
-            textEdit = new TextEdit(new Range(start, end), editText);
-        }
-
-        LanguageClient client = context.get(ExecuteCommandKeys.LANGUAGE_SERVER_KEY).getClient();
-        List<TextEdit> edits = new ArrayList<>();
-        edits.add(textEdit);
-        TextDocumentEdit textDocumentEdit = new TextDocumentEdit(textDocumentIdentifier, edits);
-        return applyWorkspaceEdit(Collections.singletonList(Either.forLeft(textDocumentEdit)), client);
     }
 
     /**

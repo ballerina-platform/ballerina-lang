@@ -92,7 +92,7 @@ public final class ClientCall {
                 x -> observerContext.ifPresent(ctx -> ctx.addTag(x.getKey(), x.getValue())));
 
         outboundMessage.setProperty(Constants.TO, "/" + method.getFullMethodName());
-        outboundMessage.setHttpMethod(GrpcConstants.HTTP_METHOD);
+        outboundMessage.setHttpMethod();
         outboundMessage.setHttpVersion("2.0");
         outboundMessage.setHeader(CONTENT_TYPE_KEY, GrpcConstants.CONTENT_TYPE_GRPC);
         outboundMessage.setHeader(TE_KEY, GrpcConstants.TE_TRAILERS);
@@ -182,13 +182,17 @@ public final class ClientCall {
         cancelCalled = true;
         if (outboundMessage != null) {
             Status status = Status.Code.CANCELLED.toStatus();
-            if (message != null) {
-                status = status.withDescription(message);
+            if (cause instanceof StatusRuntimeException) {
+                status = ((StatusRuntimeException) cause).getStatus();
             } else {
-                status = status.withDescription("Call cancelled without message");
-            }
-            if (cause != null) {
-                status = status.withCause(cause);
+                if (message != null) {
+                    status = status.withDescription(message);
+                } else {
+                    status = status.withDescription("Call cancelled without message");
+                }
+                if (cause != null) {
+                    status = status.withCause(cause);
+                }
             }
             outboundMessage.complete(status, new DefaultHttpHeaders());
         }

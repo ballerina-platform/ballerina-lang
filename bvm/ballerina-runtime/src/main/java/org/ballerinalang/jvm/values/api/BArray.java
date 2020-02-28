@@ -75,7 +75,15 @@ public interface BArray extends BRefValue, BCollection {
      * @param index array index
      * @return array element
      */
+    @Deprecated
     String getString(long index);
+
+   /**
+    * Get string value in the given index.
+    * @param index array index
+    * @return array element
+    */
+   BString getBString(long index);
 
     /**
      * Add ref value to the given array index.
@@ -118,7 +126,16 @@ public interface BArray extends BRefValue, BCollection {
      * @param index array index
      * @param value value to be added
      */
+    @Deprecated
     void add(long index, String value);
+
+   /**
+    * Add string value to the given array index.
+    *
+    * @param index array index
+    * @param value value to be added
+    */
+    void add(long index, BString value);
 
     /**
      * Append value to the existing array.

@@ -21,16 +21,15 @@ import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.commons.LSContext;
+import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
+import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.ExtendedLSCompiler;
-import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.compiler.exception.CompilationFailedException;
-import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentException;
-import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
-import org.ballerinalang.langserver.completions.CompletionKeys;
-import org.ballerinalang.langserver.completions.SymbolInfo;
 import org.ballerinalang.langserver.completions.util.SourcePruneException;
 import org.ballerinalang.langserver.signature.sourceprune.SignatureTokenTraverserFactory;
+import org.ballerinalang.langserver.sourceprune.SourcePruneKeys;
 import org.ballerinalang.langserver.sourceprune.SourcePruner;
 import org.ballerinalang.langserver.sourceprune.TokenTraverserFactory;
 import org.ballerinalang.model.elements.MarkdownDocAttachment;
@@ -44,6 +43,7 @@ import org.eclipse.lsp4j.SignatureInformationCapabilities;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
+import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
@@ -56,6 +56,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
+import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
@@ -146,7 +147,7 @@ public class SignatureHelpUtil {
         };
 
         // Visit Left-Hand side tokens before cursor
-        List<CommonToken> lhsTokens = context.get(CompletionKeys.LHS_TOKENS_KEY);
+        List<CommonToken> lhsTokens = context.get(SourcePruneKeys.LHS_TOKENS_KEY);
         if (lhsTokens != null) {
             while (lhsTokens.get(0).getType() == BallerinaParser.COMMA) {
                 lhsTokens.remove(0);
@@ -180,7 +181,7 @@ public class SignatureHelpUtil {
         Collections.reverse(tokenTexts);
 
         // Visit Right-Hand side tokens after cursor
-        List<CommonToken> rhsTokens = context.get(CompletionKeys.RHS_TOKENS_KEY);
+        List<CommonToken> rhsTokens = context.get(SourcePruneKeys.RHS_TOKENS_KEY);
         if (rhsTokens != null && !rhsTokens.isEmpty()) {
             // Remove if any comma[,] when RHS next immediate token is right parenthesis
             int lastIndex = tokenTexts.size() - 1;
@@ -236,12 +237,14 @@ public class SignatureHelpUtil {
         if (topLevelNodes.isEmpty()) {
             return Optional.empty();
         }
-        BLangStatement evalStatement = ((BLangFunction) topLevelNodes.get(0)).getBody().stmts.get(0);
+        BLangStatement evalStatement = ((BLangBlockFunctionBody) ((BLangFunction) topLevelNodes.get(0)).body)
+                .stmts.get(0);
 
         // Handle object new constructor
         if (evalStatement instanceof BLangExpressionStmt
                 && ((BLangExpressionStmt) evalStatement).expr instanceof BLangTypeInit && topLevelNodes.size() >= 2) {
-            BLangStatement stmt = ((BLangFunction) topLevelNodes.get(1)).getBody().stmts.get(0);
+            BLangStatement stmt = ((BLangBlockFunctionBody) ((BLangFunction) topLevelNodes.get(1)).body)
+                    .stmts.get(0);
             if (stmt instanceof BLangSimpleVariableDef) {
                 BLangSimpleVariableDef varDef = (BLangSimpleVariableDef) stmt;
                 if (varDef.var.typeNode instanceof BLangUserDefinedType) {
@@ -323,37 +326,34 @@ public class SignatureHelpUtil {
         }
     }
 
-    public static Optional<SymbolInfo> getFuncSymbolInfo(LSContext context, String funcName,
-                                                         List<SymbolInfo> visibleSymbols) {
+    public static Optional<Scope.ScopeEntry> getFuncScopeEntry(LSContext context, String funcName,
+                                                               List<Scope.ScopeEntry> visibleSymbols) {
         CompilerContext compilerContext = context.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY);
         SymbolTable symbolTable = SymbolTable.getInstance(compilerContext);
         Types types = Types.getInstance(compilerContext);
 
         String[] nameComps = funcName.split("\\.");
         int index = 0;
-        Optional<SymbolInfo> searchSymbol = Optional.empty();
+        Optional<Scope.ScopeEntry> searchSymbol = Optional.empty();
         while (index < nameComps.length) {
             String name = nameComps[index];
             int pkgPrefix = name.indexOf(":");
             boolean hasPkgPrefix = pkgPrefix > -1;
             if (!hasPkgPrefix) {
                 searchSymbol = visibleSymbols.stream()
-                        .filter(s -> name.equals(getLastItem(s.getSymbolName().split("\\."))))
+                        .filter(symbol ->
+                                name.equals(getLastItem(symbol.symbol.name.getValue().split("\\."))))
                         .findFirst();
             } else {
                 String[] moduleComps = name.substring(0, pkgPrefix).split("/");
                 String alias = moduleComps[1].split(" ")[0];
-
-                Optional<SymbolInfo> moduleSymbol = visibleSymbols.stream()
-                        .filter(s -> s.getSymbolName().equals(alias))
+                Optional<Scope.ScopeEntry> moduleSymbol = visibleSymbols.stream()
+                        .filter(entry -> entry.symbol.name.getValue().equals(alias))
                         .findFirst();
-
-                visibleSymbols = moduleSymbol.get().getScopeEntry().symbol.scope.entries.entrySet().stream()
-                        .map(e -> new SymbolInfo(e.getKey().value, e.getValue()))
-                        .collect(Collectors.toList());
-
+                visibleSymbols = new ArrayList<>(moduleSymbol.get().symbol.scope.entries.values());
                 searchSymbol = visibleSymbols.stream()
-                        .filter(s -> name.substring(pkgPrefix + 1).equals(getLastItem(s.getSymbolName().split("\\."))))
+                        .filter(entry -> name.substring(pkgPrefix + 1)
+                                .equals(getLastItem(entry.symbol.name.getValue().split("\\."))))
                         .findFirst();
             }
             // If search symbol not found, return
@@ -361,30 +361,26 @@ public class SignatureHelpUtil {
                 break;
             }
             // The `searchSymbol` found, resolve further
-            boolean isInvocation = searchSymbol.get().getScopeEntry().symbol instanceof BInvokableSymbol;
-            boolean isObject = searchSymbol.get().getScopeEntry().symbol instanceof BObjectTypeSymbol;
-            boolean isVariable = searchSymbol.get().getScopeEntry().symbol instanceof BVarSymbol;
+            boolean isInvocation = searchSymbol.get().symbol instanceof BInvokableSymbol;
+            boolean isObject = searchSymbol.get().symbol instanceof BObjectTypeSymbol;
+            boolean isVariable = searchSymbol.get().symbol instanceof BVarSymbol;
             boolean hasNextNameComp = index + 1 < nameComps.length;
             if (isInvocation && hasNextNameComp) {
-                BInvokableSymbol invokableSymbol = (BInvokableSymbol) searchSymbol.get().getScopeEntry().symbol;
+                BInvokableSymbol invokableSymbol = (BInvokableSymbol) searchSymbol.get().symbol;
                 BTypeSymbol returnTypeSymbol = invokableSymbol.getReturnType().tsymbol;
                 if (returnTypeSymbol instanceof BObjectTypeSymbol) {
                     BObjectTypeSymbol objectTypeSymbol = (BObjectTypeSymbol) returnTypeSymbol;
-                    visibleSymbols = objectTypeSymbol.methodScope.entries.entrySet().stream()
-                            .map(e -> new SymbolInfo(e.getKey().value, e.getValue()))
-                            .collect(Collectors.toList());
+                    visibleSymbols = new ArrayList<>(objectTypeSymbol.methodScope.entries.values());
                 }
             } else if (isObject && hasNextNameComp) {
-                BObjectTypeSymbol bObjectTypeSymbol = (BObjectTypeSymbol) searchSymbol.get().getScopeEntry().symbol;
+                BObjectTypeSymbol bObjectTypeSymbol = (BObjectTypeSymbol) searchSymbol.get().symbol;
                 BTypeSymbol typeSymbol = bObjectTypeSymbol.type.tsymbol;
                 if (typeSymbol instanceof BObjectTypeSymbol) {
                     BObjectTypeSymbol objectTypeSymbol = (BObjectTypeSymbol) typeSymbol;
-                    visibleSymbols = objectTypeSymbol.methodScope.entries.entrySet().stream()
-                            .map(e -> new SymbolInfo(e.getKey().value, e.getValue()))
-                            .collect(Collectors.toList());
+                    visibleSymbols = new ArrayList<>(objectTypeSymbol.methodScope.entries.values());
                 }
             } else if (isVariable && hasNextNameComp) {
-                BVarSymbol bVarSymbol = (BVarSymbol) searchSymbol.get().getScopeEntry().symbol;
+                BVarSymbol bVarSymbol = (BVarSymbol) searchSymbol.get().symbol;
                 BTypeSymbol typeSymbol = bVarSymbol.type.tsymbol;
                 if (typeSymbol.type instanceof BUnionType) {
                     // Check for optional field accesses.
@@ -401,21 +397,14 @@ public class SignatureHelpUtil {
                 }
                 if (typeSymbol instanceof BObjectTypeSymbol) {
                     BObjectTypeSymbol objectTypeSymbol = (BObjectTypeSymbol) typeSymbol;
-                    visibleSymbols = objectTypeSymbol.methodScope.entries.entrySet().stream()
-                            .map(e -> new SymbolInfo(e.getKey().value, e.getValue()))
-                            .collect(Collectors.toList());
-                    visibleSymbols.addAll(objectTypeSymbol.scope.entries.entrySet().stream()
-                                                  .map(e -> new SymbolInfo(e.getKey().value, e.getValue()))
-                                                  .collect(Collectors.toList()));
+                    visibleSymbols = new ArrayList<>(objectTypeSymbol.methodScope.entries.values());
+                    visibleSymbols.addAll(objectTypeSymbol.scope.entries.values());
                 } else if (typeSymbol instanceof BRecordTypeSymbol) {
                     BRecordTypeSymbol bRecordTypeSymbol = (BRecordTypeSymbol) typeSymbol;
-                    visibleSymbols = bRecordTypeSymbol.scope.entries.entrySet().stream()
-                            .map(e -> new SymbolInfo(e.getKey().value, e.getValue()))
-                            .collect(Collectors.toList());
+                    visibleSymbols = new ArrayList<>(bRecordTypeSymbol.scope.entries.values());
                 } else {
-                    visibleSymbols = getLangLibScopeEntries(typeSymbol.type, symbolTable, types).entrySet().stream()
-                            .map(e -> new SymbolInfo(e.getKey().value, e.getValue()))
-                            .collect(Collectors.toList());
+                    visibleSymbols = new ArrayList<>(getLangLibScopeEntries(typeSymbol.type, symbolTable, types)
+                            .values());
                 }
             }
             index++;

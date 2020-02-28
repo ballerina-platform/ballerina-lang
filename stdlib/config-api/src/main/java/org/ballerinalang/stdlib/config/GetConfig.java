@@ -20,9 +20,14 @@ package org.ballerinalang.stdlib.config;
 
 import org.ballerinalang.config.ConfigRegistry;
 import org.ballerinalang.jvm.BallerinaErrors;
+import org.ballerinalang.jvm.types.BArrayType;
+import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
+import org.ballerinalang.jvm.values.api.BArray;
+import org.ballerinalang.jvm.values.api.BValueCreator;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -32,7 +37,7 @@ import java.util.Map;
  */
 public class GetConfig {
     private static final ConfigRegistry configRegistry = ConfigRegistry.getInstance();
-    public static final String LOOKUP_ERROR_REASON = "{ballerina/config}LookupError";
+    private static final String LOOKUP_ERROR_REASON = "{ballerina/config}LookupError";
 
     public static Object get(String configKey, String type) {
         try {
@@ -47,23 +52,42 @@ public class GetConfig {
                     return configRegistry.getAsBoolean(configKey);
                 case "MAP":
                     return buildMapValue(configRegistry.getAsMap(configKey));
+                case "ARRAY":
+                    return buildArrayValue(configRegistry.getAsArray(configKey));
                 default:
                     throw new IllegalStateException("invalid value type: " + type);
             }
         } catch (IllegalArgumentException e) {
-            throw BallerinaErrors.createError(LOOKUP_ERROR_REASON,  e.getMessage());
+            throw BallerinaErrors.createError(LOOKUP_ERROR_REASON, e.getMessage());
         }
     }
 
     @SuppressWarnings("unchecked")
     private static MapValue buildMapValue(Map<String, Object> section) {
         MapValue map = new MapValueImpl<String, Object>();
-
-        section.forEach((key, val) -> {
-            if (val instanceof String || val instanceof Long || val instanceof Double || val instanceof Boolean) {
-                map.put(key, val);
-            }
-        });
+        for (Map.Entry<String, Object> entry : section.entrySet()) {
+            map.put(entry.getKey(), getConvertedValue(entry.getValue()));
+        }
         return map;
+    }
+
+    private static BArray buildArrayValue(List value) {
+        Object[] convertedValues = new Object[value.size()];
+        for (Object entry : value) {
+            convertedValues[value.indexOf(entry)] = getConvertedValue(entry);
+        }
+        return BValueCreator.createArrayValue(convertedValues, new BArrayType(BTypes.typeAnydata));
+    }
+
+    @SuppressWarnings("unchecked")
+    private static Object getConvertedValue(Object obj) {
+        if (obj instanceof String || obj instanceof Long || obj instanceof Double || obj instanceof Boolean) {
+            return obj;
+        } else if (obj instanceof Map) {
+            return buildMapValue((Map<String, Object>) obj);
+        } else if (obj instanceof List) {
+            return buildArrayValue((List) obj);
+        }
+        return String.valueOf(obj);
     }
 }

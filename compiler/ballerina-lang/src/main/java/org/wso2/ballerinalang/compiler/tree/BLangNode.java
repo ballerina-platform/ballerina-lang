@@ -41,6 +41,11 @@ public abstract class BLangNode implements Node {
     public boolean desugared;
 
     /**
+     * Indicates whether the node has already been propagated.
+     */
+    public boolean constantPropagated;
+
+    /**
      * The position of this node in the source file.
      */
     public DiagnosticPos pos;

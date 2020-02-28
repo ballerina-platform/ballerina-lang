@@ -29,7 +29,7 @@ service chatAppUpgrader on new http:Listener(9090) {
             return;
         }
         map<string> headers = {};
-        http:WebSocketCaller | http:WebSocketError wsEp = caller->acceptWebSocketUpgrade(headers);
+        http:WebSocketCaller|http:WebSocketError wsEp = caller->acceptWebSocketUpgrade(headers);
         if (wsEp is http:WebSocketCaller) {
             // The attributes of the caller is useful for storing connection-specific data.
             // In this case, the `NAME`and `AGE` are unique to each connection.

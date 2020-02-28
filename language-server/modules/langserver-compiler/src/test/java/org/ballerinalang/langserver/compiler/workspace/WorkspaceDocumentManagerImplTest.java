@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.langserver.compiler.workspace;
 
+import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;

@@ -18,11 +18,9 @@
 package org.ballerinalang.langserver.completions.providers.contextproviders;
 
 import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.langserver.compiler.LSContext;
-import org.ballerinalang.langserver.completions.CompletionKeys;
-import org.ballerinalang.langserver.completions.spi.LSCompletionProvider;
-import org.ballerinalang.langserver.completions.util.sorters.ActionAndFieldAccessContextItemSorter;
-import org.eclipse.lsp4j.CompletionItem;
+import org.ballerinalang.langserver.commons.LSContext;
+import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
+import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
 
 import java.util.ArrayList;
@@ -31,24 +29,15 @@ import java.util.List;
 /**
  * Parser rule based variable definition statement context resolver.
  */
-@JavaSPIService("org.ballerinalang.langserver.completions.spi.LSCompletionProvider")
-public class VarDefContextProvider extends LSCompletionProvider {
+@JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.LSCompletionProvider")
+public class VarDefContextProvider extends AbstractCompletionProvider {
     public VarDefContextProvider() {
         this.attachmentPoints.add(BallerinaParser.VariableDefinitionStatementContext.class);
     }
 
     @Override
     @SuppressWarnings("unchecked")
-    public List<CompletionItem> getCompletions(LSContext context) {
-        int invocationOrDelimiterTokenType = context.get(CompletionKeys.INVOCATION_TOKEN_TYPE_KEY);
-
-        Class sorterKey;
-        if (invocationOrDelimiterTokenType > -1) {
-            sorterKey = ActionAndFieldAccessContextItemSorter.class;
-        } else {
-            sorterKey = context.get(CompletionKeys.PARSER_RULE_CONTEXT_KEY).getClass();
-        }
-        context.put(CompletionKeys.ITEM_SORTER_KEY, sorterKey);
+    public List<LSCompletionItem> getCompletions(LSContext context) {
         return new ArrayList<>(this.getVarDefExpressionCompletions(context, false));
     }
 }

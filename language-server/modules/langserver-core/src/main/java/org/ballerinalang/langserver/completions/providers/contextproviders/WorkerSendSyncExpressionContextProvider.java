@@ -19,9 +19,9 @@ package org.ballerinalang.langserver.completions.providers.contextproviders;
 
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
-import org.ballerinalang.langserver.compiler.LSContext;
-import org.ballerinalang.langserver.completions.spi.LSCompletionProvider;
-import org.eclipse.lsp4j.CompletionItem;
+import org.ballerinalang.langserver.commons.LSContext;
+import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
+import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
 
 import java.util.List;
@@ -29,14 +29,14 @@ import java.util.List;
 /**
  * Parser rule based worker send sync expression context resolver.
  */
-@JavaSPIService("org.ballerinalang.langserver.completions.spi.LSCompletionProvider")
-public class WorkerSendSyncExpressionContextProvider extends LSCompletionProvider {
+@JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.LSCompletionProvider")
+public class WorkerSendSyncExpressionContextProvider extends AbstractCompletionProvider {
 
     public WorkerSendSyncExpressionContextProvider() {
         this.attachmentPoints.add(BallerinaParser.WorkerSendSyncExpressionContext.class);
     }
     @Override
-    public List<CompletionItem> getCompletions(LSContext context) {
+    public List<LSCompletionItem> getCompletions(LSContext context) {
         return this.getCompletionItemList(CommonUtil.getWorkerSymbols(context), context);
     }
 }
