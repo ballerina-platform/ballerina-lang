@@ -189,9 +189,21 @@ public class MapUtils {
         return false;
     }
 
-    public static void throwErrorOnRecord(BType type, String op) {
+    public static void validateRecord(BType type, String op) {
         if (type instanceof BRecordType) {
-            throw createOpNotSupportedError(type, op);
+            Map<String, BField> fields = ((BRecordType) type).getFields();
+            for(String key : fields.keySet()) {
+                boolean isRequired = checkForRequiredFields((BRecordType) type, key);
+                if (isRequired) {
+                    throw createOpNotSupportedErrorForRecord(type, op);
+                }
+            }
         }
+    }
+
+    private static ErrorValue createOpNotSupportedErrorForRecord(BType type, String op) {
+        return BallerinaErrors.createError(getModulePrefixedReason(MAP_LANG_LIB,
+                OPERATION_NOT_SUPPORTED_IDENTIFIER),
+                format("%s not supported on type '%s' since there are required fields.", op, type.getQualifiedName()));
     }
 }

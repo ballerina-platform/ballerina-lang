@@ -932,7 +932,7 @@ public type ObjectGenerator object {
 };
 
 function checkIfValueIsJReferenceType(bir:BType bType) returns boolean {
-    if (bType is bir:BTypeInt|bir:BTypeBoolean|bir:BTypeFloat) {
+    if (bType is bir:BTypeInt|bir:BTypeBoolean|bir:BTypeFloat|bir:BTypeByte) {
         return false;
     } else {
         return true;
