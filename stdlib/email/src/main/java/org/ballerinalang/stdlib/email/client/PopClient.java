@@ -89,7 +89,7 @@ public class PopClient {
      * @param filter Criteria, which is used to read emails
      * @param isPop True if the protocol is POP3 and false otherwise (if protocol is IMAP)
      * @return MapValue Returns the type supported by Ballerina
-     * @throws BallerinaPopException If an error occurs in POP client
+     * @throws BallerinaPopException If an error occurs in the POP client
      */
     public static MapValue readMessage(ObjectValue clientConnector, MapValue<Object, Object> filter, boolean isPop)
             throws BallerinaPopException {
