@@ -199,7 +199,6 @@ public class PopUtil {
                         + ImapConstants.DEFAULT_PORT_NUMBER);
                 return PopConstants.DEFAULT_PORT_NUMBER;
             }
-
         } else {
             return Long.toString(longValue);
         }
