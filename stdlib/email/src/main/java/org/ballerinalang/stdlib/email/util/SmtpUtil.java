@@ -83,7 +83,7 @@ public class SmtpUtil {
      *
      * @param session Session to which the message is attached
      * @param username User who sends the email
-     * @param message Ballerina typed data object
+     * @param message Ballerina-typed data object
      * @return Email message as a MIME message
      * @throws AddressException If an error occurs related to Internet Address operations
      */
