@@ -33,7 +33,7 @@ public type ConnectionConfig record {|
 # + cc - CC address list
 # + bcc - BCC address list
 # + subject - Subject of email
-# + body - Email message body
+# + body - Body of the email message
 # + from - From address
 # + sender - Sender's address
 # + replyTo - Reply To addresses
