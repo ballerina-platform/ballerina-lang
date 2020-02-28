@@ -48,7 +48,7 @@ public class SmtpClient {
      * Initializes the ObjectValue object with the SMTP Properties.
      * @param clientEndpoint Represents the SMTP Client class
      * @param config Properties required to configure the SMTP Session
-     * @throws BallerinaSmtpException If an error occurs in SMTP client
+     * @throws BallerinaSmtpException If an error occurs in the SMTP client
      */
     public static void initClientEndpoint(ObjectValue clientEndpoint, MapValue<Object, Object> config)
             throws BallerinaSmtpException {
