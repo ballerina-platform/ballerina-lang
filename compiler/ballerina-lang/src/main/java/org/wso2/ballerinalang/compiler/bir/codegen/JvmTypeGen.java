@@ -534,15 +534,13 @@ class JvmTypeGen {
                 "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V", false);
 
         // Load flags
-        mv.visitLdcInsn(typeFlag(recordType));
-        mv.visitInsn(L2I);
+        mv.visitLdcInsn(recordType.tsymbol.flags);
 
         // Load 'sealed' flag
         mv.visitLdcInsn(recordType.sealed);
 
         // Load type flags
         mv.visitLdcInsn(typeFlag(recordType));
-        mv.visitInsn(L2I);
 
         // initialize the record type
         mv.visitMethodInsn(INVOKESPECIAL, RECORD_TYPE, "<init>",
@@ -599,15 +597,14 @@ class JvmTypeGen {
         mv.visitLdcInsn(field.name.value);
 
         // Load flags
-        mv.visitLdcInsn(typeFlag(field.type));
-        mv.visitInsn(L2I);
+        mv.visitLdcInsn(field.symbol.flags);
 
         mv.visitMethodInsn(INVOKESPECIAL, BFIELD, "<init>",
                 String.format("(L%s;L%s;I)V", BTYPE, STRING_VALUE),
                 false);
     }
 
-    private static long typeFlag(BType type) {
+    private static int typeFlag(BType type) {
         return TypeFlags.asMask(type.isNullable(), type.isAnydata(), type.isPureType());
     }
 
@@ -653,8 +650,7 @@ class JvmTypeGen {
                 "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V", false);
 
         // Load flags
-        mv.visitLdcInsn(typeFlag(objectType));
-        mv.visitInsn(L2I);
+        mv.visitLdcInsn(typeSymbol.flags);
 
         // initialize the object
         mv.visitMethodInsn(INVOKESPECIAL, OBJECT_TYPE, "<init>",
@@ -689,8 +685,7 @@ class JvmTypeGen {
                 "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V", false);
 
         // Load flags
-        mv.visitLdcInsn(typeFlag(objectType));
-        mv.visitInsn(L2I);
+        mv.visitLdcInsn(typeSymbol.flags);
 
         // initialize the object
         mv.visitMethodInsn(INVOKESPECIAL, SERVICE_TYPE, "<init>",
@@ -781,8 +776,7 @@ class JvmTypeGen {
         mv.visitLdcInsn(field.name.value);
 
         // Load flags
-        mv.visitLdcInsn(typeFlag(field.type));
-        mv.visitInsn(L2I);
+        mv.visitLdcInsn(field.symbol.flags);
 
         mv.visitMethodInsn(INVOKESPECIAL, BFIELD, "<init>",
                 String.format("(L%s;L%s;I)V", BTYPE, STRING_VALUE),
@@ -871,8 +865,7 @@ class JvmTypeGen {
         loadType(mv, attachedFunc.type);
 
         // Load flags
-        mv.visitLdcInsn((long) attachedFunc.type.tsymbol.flags);
-        mv.visitInsn(L2I);
+        mv.visitLdcInsn(attachedFunc.symbol.flags);
 
         mv.visitMethodInsn(INVOKESPECIAL, ATTACHED_FUNCTION, "<init>",
                 String.format("(L%s;L%s;L%s;I)V", STRING_VALUE, OBJECT_TYPE, FUNCTION_TYPE), false);
@@ -1147,7 +1140,6 @@ class JvmTypeGen {
 
         // Load type flags
         mv.visitLdcInsn(typeFlag(bType));
-        mv.visitInsn(L2I);
 
         // initialize the union type using the members array
         mv.visitMethodInsn(INVOKESPECIAL, UNION_TYPE, "<init>", String.format("([L%s;I)V", BTYPE), false);
@@ -1183,7 +1175,6 @@ class JvmTypeGen {
 
         // Load type flags
         mv.visitLdcInsn(typeFlag(bType));
-        mv.visitInsn(L2I);
 
         mv.visitMethodInsn(INVOKESPECIAL, TUPLE_TYPE, "<init>", String.format("(L%s;L%s;I)V", LIST, BTYPE), false);
     }
@@ -1355,7 +1346,6 @@ class JvmTypeGen {
 
         // Load type flags
         mv.visitLdcInsn(typeFlag(finiteType));
-        mv.visitInsn(L2I);
 
         // initialize the finite type using the value space
         mv.visitMethodInsn(INVOKESPECIAL, FINITE_TYPE, "<init>", String.format("(L%s;L%s;I)V", STRING_VALUE, SET), false);
