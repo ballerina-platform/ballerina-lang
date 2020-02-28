@@ -181,7 +181,6 @@ public class PopUtil {
         }
     }
 
-
     /**
      * Extracts port value and checks validity.
      *
