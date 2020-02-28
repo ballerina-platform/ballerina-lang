@@ -33,7 +33,6 @@ import javax.mail.PasswordAuthentication;
 import javax.mail.Session;
 import javax.mail.Transport;
 
-
 /**
  * Contains functionality of SMTP Client.
  */
