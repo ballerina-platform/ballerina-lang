@@ -48,7 +48,7 @@ import static org.testng.AssertJUnit.fail;
 
 
 /**
- * Test class for email receive using IMAP4 with least number of parameters.
+ * Test class for email receipt using IMAP4 with least number of parameters.
  *
  * @since 1.1.3
  */
