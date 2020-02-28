@@ -35,7 +35,7 @@ public function main() {
 }
 ```
 
-The sample given below uses the functions in the module to receive an email with POP3 protocol.
+The below sample uses the functions in the module to receive an email using the POP3 protocol.
 
 ```ballerina
 email:PopConfig popConfig = {
