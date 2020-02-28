@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-# Represents an SMTP Client that interacts with an SMTP Server
+# Represents an SMTP Client, which interacts with an SMTP Server.
 public type SmtpClient client object {
 
     # Gets invoked during object initialization
