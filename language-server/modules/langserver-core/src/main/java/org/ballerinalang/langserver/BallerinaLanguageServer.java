@@ -97,7 +97,7 @@ public class BallerinaLanguageServer implements ExtendedLanguageServer, Extended
         this.workspaceService = new BallerinaWorkspaceService(lsGlobalContext);
         this.ballerinaDocumentService = new BallerinaDocumentServiceImpl(lsGlobalContext);
         this.ballerinaProjectService = new BallerinaProjectServiceImpl(lsGlobalContext);
-        this.ballerinaExampleService = new BallerinaExampleServiceImpl(lsGlobalContext);
+        this.ballerinaExampleService = new BallerinaExampleServiceImpl();
         this.ballerinaTraceService = new BallerinaTraceServiceImpl(lsGlobalContext);
         this.ballerinaTraceListener = new Listener(this.ballerinaTraceService);
         this.ballerinaSymbolService = new BallerinaSymbolServiceImpl();
