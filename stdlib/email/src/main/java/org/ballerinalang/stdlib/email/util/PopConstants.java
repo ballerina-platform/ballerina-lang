@@ -19,7 +19,7 @@
 package org.ballerinalang.stdlib.email.util;
 
 /**
- * Constants for POP3 related functions.
+ * Constants for POP3-related functions.
  *
  * @since 1.1.3
  */
