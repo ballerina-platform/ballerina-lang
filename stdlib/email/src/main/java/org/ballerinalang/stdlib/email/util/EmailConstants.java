@@ -46,7 +46,3 @@
      public static final String MAIL_STORE_PROTOCOL = "mail.store.protocol";
 
  }
-
-
-
-
