@@ -703,7 +703,7 @@ class JvmTypeGen {
         mv.visitInsn(DUP);
 
         String pkgClassName = pkgName.equals(".") || pkgName.equals("") ? MODULE_INIT_CLASS_NAME :
-                lookupGlobalVarClassName(pkgName + ANNOTATION_MAP_NAME);
+                lookupGlobalVarClassName(pkgName, ANNOTATION_MAP_NAME);
         mv.visitFieldInsn(GETSTATIC, pkgClassName, ANNOTATION_MAP_NAME, String.format("L%s;", MAP_VALUE));
 
         mv.visitVarInsn(ALOAD, strandIndex);
@@ -945,7 +945,9 @@ class JvmTypeGen {
 //# + bType - type to load
     static void loadType(MethodVisitor mv, @Nilable BType bType) {
         String typeFieldName = "";
-        if (bType.tag == TypeTags.INT) {
+        if (bType == null || bType.tag == TypeTags.NIL) {
+            typeFieldName = "typeNull";
+        } else if (bType.tag == TypeTags.INT) {
             typeFieldName = "typeInt";
         } else if (bType.tag == TypeTags.FLOAT) {
             typeFieldName = "typeFloat";
@@ -957,8 +959,6 @@ class JvmTypeGen {
             typeFieldName = "typeBoolean";
         } else if (bType.tag == TypeTags.BYTE) {
             typeFieldName = "typeByte";
-        } else if (bType.tag == TypeTags.NIL || bType == null) {
-            typeFieldName = "typeNull";
         } else if (bType.tag == TypeTags.ANY) {
             typeFieldName = "typeAny";
         } else if (bType.tag == TypeTags.ANYDATA) {
