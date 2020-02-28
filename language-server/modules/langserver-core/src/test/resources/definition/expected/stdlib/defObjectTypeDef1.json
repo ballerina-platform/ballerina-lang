@@ -1,0 +1,24 @@
+{
+  "source": {
+    "file": "defObjectTypeDef1.bal"
+  },
+  "position": {
+    "line": 3,
+    "character": 13
+  },
+  "result": [
+    {
+      "range": {
+        "start": {
+          "line": 23,
+          "character": 0
+        },
+        "end": {
+          "line": 174,
+          "character": 2
+        }
+      },
+      "uri": "src/http_0.0.0/http_connection.bal"
+    }
+  ]
+}

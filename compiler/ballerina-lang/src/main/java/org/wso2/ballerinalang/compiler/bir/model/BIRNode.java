@@ -718,17 +718,12 @@ public abstract class BIRNode {
      * @since 1.0.0
      */
     public static class BIRLockDetailsHolder {
-        public Set<BIRGlobalVariableDcl> globalLocks;
-        public Map<BIROperand, Set<String>> fieldLocks;
 
-        public BIRLockDetailsHolder(Set<BIRGlobalVariableDcl> globalLocks,
-                                    Map<BIROperand, Set<String>> fieldLocks) {
-            this.globalLocks = globalLocks;
-            this.fieldLocks = fieldLocks;
-        }
+        //This is the number of recursive locks in the current scope.
+        public long numLocks = 0;
 
         public boolean isEmpty() {
-            return globalLocks.isEmpty() && fieldLocks.isEmpty();
+            return numLocks == 0;
         }
     }
 }

@@ -23,6 +23,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.exception.LSStdlibCacheException;
 import org.ballerinalang.langserver.util.FileUtils;
 import org.ballerinalang.langserver.util.TestUtil;
 import org.eclipse.lsp4j.Position;
@@ -45,8 +46,8 @@ import java.nio.file.Paths;
  * Test goto definition language server feature.
  */
 public class DefinitionTest {
-    private Path configRoot;
-    private Path sourceRoot;
+    protected Path configRoot;
+    protected Path sourceRoot;
     private Path projectPath = FileUtils.RES_DIR.resolve("referencesProject");
     protected Gson gson = new Gson();
     protected JsonParser parser = new JsonParser();
@@ -61,7 +62,7 @@ public class DefinitionTest {
     }
 
     @Test(description = "Test goto definitions", dataProvider = "testDataProvider")
-    public void test(String configPath, String configDir) throws IOException {
+    public void test(String configPath, String configDir) throws IOException, LSStdlibCacheException {
         JsonObject configObject = FileUtils.fileContentAsObject(configRoot.resolve(configDir)
                 .resolve(configPath).toString());
         JsonObject source = configObject.getAsJsonObject("source");
@@ -71,7 +72,7 @@ public class DefinitionTest {
     }
 
     @Test(description = "Test Go to definition between two files in same module", enabled = false)
-    public void testDifferentFiles() throws IOException {
+    public void testDifferentFiles() throws IOException, LSStdlibCacheException {
         log.info("Test textDocument/definition for Two Files in same module");
         JsonObject configObject = FileUtils.fileContentAsObject(configRoot.resolve("multifile")
                 .resolve("defMultiFile1.json").toString());
@@ -83,7 +84,7 @@ public class DefinitionTest {
     }
 
     @Test(description = "Test Go to definition between two modules", enabled = false)
-    public void testDifferentModule() throws IOException {
+    public void testDifferentModule() throws IOException, LSStdlibCacheException {
         log.info("Test textDocument/definition for two modules");
         JsonObject configObject = FileUtils.fileContentAsObject(configRoot.resolve("multipkg")
                 .resolve("defMultiPkg1.json").toString());
@@ -94,8 +95,8 @@ public class DefinitionTest {
         this.compareResults(sourcePath, position, configObject, projectPath);
     }
 
-    private void compareResults(Path sourcePath, Position position, JsonObject configObject, Path root)
-            throws IOException {
+    protected void compareResults(Path sourcePath, Position position, JsonObject configObject, Path root)
+            throws IOException, LSStdlibCacheException {
         TestUtil.openDocument(serviceEndpoint, sourcePath);
         String actualStr = TestUtil.getDefinitionResponse(sourcePath.toString(), position, serviceEndpoint);
         TestUtil.closeDocument(serviceEndpoint, sourcePath);
@@ -108,7 +109,7 @@ public class DefinitionTest {
     }
 
     @DataProvider
-    public Object[][] testDataProvider() throws IOException {
+    private Object[][] testDataProvider() throws IOException {
         log.info("Test textDocument/definition for Basic Cases");
         return new Object[][]{
                 // Note: Variable Reference Expressions will be addressed in almost all the test cases
@@ -432,7 +433,7 @@ public class DefinitionTest {
         TestUtil.shutdownLanguageServer(this.serviceEndpoint);
     }
 
-    private void alterExpectedUri(JsonArray expected, Path root) throws IOException {
+    protected void alterExpectedUri(JsonArray expected, Path root) throws IOException, LSStdlibCacheException {
         for (JsonElement jsonElement : expected) {
             JsonObject item = jsonElement.getAsJsonObject();
             String[] uriComponents = item.get("uri").toString().replace("\"", "").split("/");
@@ -445,7 +446,7 @@ public class DefinitionTest {
         }
     }
 
-    private void alterActualUri(JsonArray actual) throws IOException {
+    protected void alterActualUri(JsonArray actual) throws IOException {
         for (JsonElement jsonElement : actual) {
             JsonObject item = jsonElement.getAsJsonObject();
             String uri = item.get("uri").toString().replace("\"", "");

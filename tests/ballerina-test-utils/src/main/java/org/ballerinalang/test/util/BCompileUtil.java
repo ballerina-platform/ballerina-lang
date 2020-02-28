@@ -135,7 +135,7 @@ public class BCompileUtil {
         String packageName = sourcePath.getFileName().toString();
         Path sourceRoot = resourceDir.resolve(sourcePath.getParent());
         CompilerContext context = new CompilerContext();
-        return compileOnJBallerina(context, sourceRoot.toString(), packageName, false, true, true);
+        return compileOnJBallerina(context, sourceRoot.toString(), packageName, false, true, true, false);
     }
 
     /**
@@ -246,14 +246,29 @@ public class BCompileUtil {
      *
      * @param sourceRoot  root path of the modules
      * @param packageName name of the module to compile
+     * @return Semantic errors
+     */
+    public static CompileResult compileWithTests(String sourceRoot, String packageName) {
+        return compile(sourceRoot, packageName, true, true);
+    }
+
+    /**
+     * Compile and return the semantic errors.
+     *
+     * @param sourceRoot  root path of the modules
+     * @param packageName name of the module to compile
      * @param init init the module or not
      * @return Semantic errors
      */
     public static CompileResult compile(String sourceRoot, String packageName, boolean init) {
+        return compile(sourceRoot, packageName, init, false);
+    }
+
+    private static CompileResult compile(String sourceRoot, String packageName, boolean init, boolean withTests) {
         String filePath = concatFileName(sourceRoot, resourceDir);
         Path rootPath = Paths.get(filePath);
         Path packagePath = Paths.get(packageName);
-        return getCompileResult(packageName, rootPath, packagePath, init);
+        return getCompileResult(packageName, rootPath, packagePath, init, withTests);
     }
 
     /**
@@ -281,10 +296,11 @@ public class BCompileUtil {
         String filePath = concatFileName(sourceRoot, resourceDir);
         Path rootPath = Paths.get(filePath);
         Path packagePath = Paths.get(packageName);
-        return getCompileResult(packageName, rootPath, packagePath, init);
+        return getCompileResult(packageName, rootPath, packagePath, init, false);
     }
 
-    private static CompileResult getCompileResult(String packageName, Path rootPath, Path packagePath, boolean init) {
+    private static CompileResult getCompileResult(String packageName, Path rootPath, Path packagePath, boolean init,
+            boolean withTests) {
         String effectiveSource;
         if (Files.isDirectory(packagePath)) {
             String[] pkgParts = packageName.split("\\/");
@@ -301,12 +317,12 @@ public class BCompileUtil {
             // TODO: orgName is anon, fix it.
             PackageID pkgId = new PackageID(Names.ANON_ORG, pkgNameComps, Names.DEFAULT_VERSION);
             effectiveSource = pkgId.getName().getValue();
-            return compileOnJBallerina(rootPath.toString(), effectiveSource, false, init);
+            return compileOnJBallerina(rootPath.toString(), effectiveSource, false, init, withTests);
         }
 
         effectiveSource = packageName;
         return compileOnJBallerina(rootPath.toString(), effectiveSource, new FileSystemProjectDirectory(rootPath),
-                init);
+                init, withTests);
     }
 
     /**
@@ -525,32 +541,46 @@ public class BCompileUtil {
     }
 
     private static CompileResult compileOnJBallerina(String sourceRoot, String packageName,
-                                                     SourceDirectory sourceDirectory, boolean init) {
+                                                     SourceDirectory sourceDirectory, boolean init, boolean withTests) {
         CompilerContext context = new CompilerContext();
         context.put(SourceDirectory.class, sourceDirectory);
-        return compileOnJBallerina(context, sourceRoot, packageName, false, init);
+        return compileOnJBallerina(context, sourceRoot, packageName, false, init, withTests);
     }
 
     public static CompileResult compileOnJBallerina(String sourceRoot, String packageName, boolean temp, boolean init) {
+        return compileOnJBallerina(sourceRoot, packageName, temp, init, false);
+    }
+
+    private static CompileResult compileOnJBallerina(String sourceRoot, String packageName, boolean temp, boolean init,
+            boolean withTests) {
         CompilerContext context = new CompilerContext();
-        return compileOnJBallerina(context, sourceRoot, packageName, temp, init);
+        return compileOnJBallerina(context, sourceRoot, packageName, temp, init, withTests);
     }
 
     public static CompileResult compileOnJBallerina(CompilerContext context, String sourceRoot, String packageName,
                                                     boolean temp, boolean init) {
-        return compileOnJBallerina(context, sourceRoot, packageName, temp, init, false);
+        return compileOnJBallerina(context, sourceRoot, packageName, temp, init, false, false);
     }
 
     private static CompileResult compileOnJBallerina(CompilerContext context, String sourceRoot, String packageName,
-                                                     boolean temp, boolean init, boolean inProc) {
+                                                    boolean temp, boolean init, boolean withTests) {
+        return compileOnJBallerina(context, sourceRoot, packageName, temp, init, false, withTests);
+    }
+
+    private static CompileResult compileOnJBallerina(CompilerContext context, String sourceRoot, String packageName,
+                                                     boolean temp, boolean init, boolean inProc, boolean withTests) {
         CompilerOptions options = CompilerOptions.getInstance(context);
         options.put(PROJECT_DIR, sourceRoot);
         options.put(COMPILER_PHASE, CompilerPhase.BIR_GEN.toString());
         options.put(PRESERVE_WHITESPACE, "false");
         options.put(LOCK_ENABLED, Boolean.toString(true));
         options.put(CompilerOptionName.EXPERIMENTAL_FEATURES_ENABLED, Boolean.TRUE.toString());
+        if (withTests) {
+            options.put(CompilerOptionName.SKIP_TESTS, "false");
+            options.put(CompilerOptionName.TEST_ENABLED, "true");
+        }
 
-        CompileResult compileResult = compile(context, packageName, CompilerPhase.BIR_GEN, false);
+        CompileResult compileResult = compile(context, packageName, CompilerPhase.BIR_GEN, withTests);
         if (compileResult.getErrorCount() > 0) {
             return compileResult;
         }

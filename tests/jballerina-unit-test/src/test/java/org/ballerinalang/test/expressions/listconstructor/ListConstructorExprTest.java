@@ -59,4 +59,9 @@ public class ListConstructorExprTest {
                 23, 34);
         Assert.assertEquals(resultNegative.getErrorCount(), i);
     }
+
+    @Test
+    public void testListConstructorAutoFillExpr() {
+        BRunUtil.invoke(result, "testListConstructorAutoFillExpr");
+    }
 }

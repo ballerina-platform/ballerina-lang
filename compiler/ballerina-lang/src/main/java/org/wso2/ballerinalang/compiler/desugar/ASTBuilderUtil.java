@@ -49,6 +49,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTupleVariable;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
@@ -85,6 +86,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangSimpleVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTupleVariableDef;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
+import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
@@ -197,6 +199,15 @@ public class ASTBuilderUtil {
         };
         bLangType.type = type;
         return bLangType;
+    }
+
+    static BLangUserDefinedType createUserDefineTypeNode(String typeName, BType type, DiagnosticPos pos) {
+        BLangUserDefinedType userDefinedType = (BLangUserDefinedType) TreeBuilder.createUserDefinedTypeNode();
+        userDefinedType.typeName = (BLangIdentifier) createIdentifier(typeName);
+        userDefinedType.type = type;
+        userDefinedType.pos = pos;
+        userDefinedType.pkgAlias = (BLangIdentifier) createIdentifier("");
+        return userDefinedType;
     }
 
     static BLangIf createIfStmt(DiagnosticPos pos, BlockNode target) {
@@ -599,6 +610,14 @@ public class ASTBuilderUtil {
         literal.value = value;
         literal.type = type;
         return literal;
+    }
+
+    static BLangConstRef createBLangConstRef(DiagnosticPos pos, BType type, Object value) {
+        final BLangConstRef constRef = (BLangConstRef) TreeBuilder.createConstLiteralNode();
+        constRef.pos = pos;
+        constRef.value = value;
+        constRef.type = type;
+        return constRef;
     }
 
     static BLangRecordLiteral createEmptyRecordLiteral(DiagnosticPos pos, BType type) {

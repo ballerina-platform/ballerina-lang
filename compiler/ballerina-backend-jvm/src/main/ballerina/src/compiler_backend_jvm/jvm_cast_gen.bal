@@ -544,7 +544,8 @@ function generateCheckCastJToBFiniteType(jvm:MethodVisitor mv, BalToJVMIndexMap 
     }
 }
 
-function generateCheckCast(jvm:MethodVisitor mv, bir:BType sourceType, bir:BType targetType) {
+function generateCheckCast(jvm:MethodVisitor mv, bir:BType sourceType, bir:BType targetType, BalToJVMIndexMap indexMap, 
+    boolean useBString = false) {
     if (targetType is bir:BTypeInt) {
         generateCheckCastToInt(mv, sourceType);
         return;
@@ -552,7 +553,7 @@ function generateCheckCast(jvm:MethodVisitor mv, bir:BType sourceType, bir:BType
         generateCheckCastToFloat(mv, sourceType);
         return;
     } else if (targetType is bir:BTypeString) {
-        generateCheckCastToString(mv, sourceType);
+        generateCheckCastToString(mv, sourceType, indexMap, useBString);
         return;
     } else if (targetType is bir:BTypeDecimal) {
         generateCheckCastToDecimal(mv, sourceType);
@@ -662,16 +663,23 @@ function generateCheckCastToDecimal(jvm:MethodVisitor mv, bir:BType sourceType) 
     }
 }
 
-function generateCheckCastToString(jvm:MethodVisitor mv, bir:BType sourceType) {
+function generateCheckCastToString(jvm:MethodVisitor mv, bir:BType sourceType, BalToJVMIndexMap indexMap, 
+    boolean useBString = false) {
     if (sourceType is bir:BTypeString) {
         // do nothing
+        return;
     } else if (sourceType is bir:BTypeAny ||
             sourceType is bir:BTypeAnyData ||
             sourceType is bir:BUnionType ||
             sourceType is bir:BJSONType ||
             sourceType is bir:BFiniteType) {
         checkCast(mv, bir:TYPE_STRING);
-        mv.visitTypeInsn(CHECKCAST, STRING_VALUE);
+        if (useBString) {
+            mv.visitTypeInsn(CHECKCAST, B_STRING_VALUE);
+        } else {
+            mv.visitTypeInsn(CHECKCAST, STRING_VALUE);
+        }
+        return;
     } else if (sourceType is bir:BTypeInt) {
         mv.visitMethodInsn(INVOKESTATIC, LONG_VALUE, "toString", io:sprintf("(J)L%s;", STRING_VALUE), false);
     } else if (sourceType is bir:BTypeFloat) {
@@ -685,6 +693,20 @@ function generateCheckCastToString(jvm:MethodVisitor mv, bir:BType sourceType) {
         error err = error(io:sprintf("Casting is not supported from '%s' to 'string'", sourceType));
         panic err;
     }
+    generateNonBMPStringValue(mv, indexMap);
+}
+
+function generateNonBMPStringValue(jvm:MethodVisitor mv, BalToJVMIndexMap indexMap) {
+    bir:VariableDcl strVar = { typeValue: "string",
+                                 name: { value: "str" },
+                                 kind: "TEMP" };
+    var tmpVarIndex = indexMap.getIndex(strVar);
+    
+    mv.visitVarInsn(ASTORE, tmpVarIndex);
+    mv.visitTypeInsn(NEW, BMP_STRING_VALUE);
+    mv.visitInsn(DUP);
+    mv.visitVarInsn(ALOAD, tmpVarIndex);
+    mv.visitMethodInsn(INVOKESPECIAL, BMP_STRING_VALUE, "<init>", io:sprintf("(L%s;)V", STRING_VALUE), false);
 }
 
 function generateCheckCastToBoolean(jvm:MethodVisitor mv, bir:BType sourceType) {
