@@ -2472,17 +2472,6 @@
             "insertTextFormat": "Snippet"
         },
         {
-            "label": "ClientConfiguration",
-            "kind": "Struct",
-            "detail": "Record",
-            "documentation": {
-                "left": "Provides a set of configurations for controlling the behaviours when communicating with a remote HTTP endpoint.\n"
-            },
-            "sortText": "120",
-            "insertText": "ClientConfiguration",
-            "insertTextFormat": "Snippet"
-        },
-        {
             "label": "ClientHttp1Settings",
             "kind": "Struct",
             "detail": "Record",
@@ -2751,6 +2740,17 @@
             },
             "sortText": "120",
             "insertText": "CompressionConfig",
+            "insertTextFormat": "Snippet"
+        },
+        {
+            "label": "CommonClientConfiguration",
+            "kind": "Struct",
+            "detail": "Record",
+            "documentation": {
+                "left": "Common client configurations for the next level clients.\n"
+            },
+            "sortText": "120",
+            "insertText": "CommonClientConfiguration",
             "insertTextFormat": "Snippet"
         },
         {
@@ -3351,7 +3351,7 @@
             "kind": "Struct",
             "detail": "Record",
             "documentation": {
-                "left": "Provides a set of HTTP related configurations and failover related configurations.\n"
+                "left": "Provides a set of HTTP related configurations and failover related configurations.\n\nhttpVersion - Copied from CommonClientConfiguration\nhttp1Settings - Copied from CommonClientConfiguration\nhttp2Settings - Copied from CommonClientConfiguration\ntimeoutInMillis - Copied from CommonClientConfiguration\nforwarded - Copied from CommonClientConfiguration\nfollowRedirects - Copied from CommonClientConfiguration\npoolConfig - Copied from CommonClientConfiguration\ncache - Copied from CommonClientConfiguration\ncompression - Copied from CommonClientConfiguration\nauth - Copied from CommonClientConfiguration\ncircuitBreaker - Copied from CommonClientConfiguration\nretryConfig - Copied from CommonClientConfiguration\ncookieConfig - Copied from CommonClientConfiguration"
             },
             "sortText": "120",
             "insertText": "FailoverClientConfiguration",
@@ -3512,7 +3512,7 @@
             "kind": "Struct",
             "detail": "Record",
             "documentation": {
-                "left": "The configurations related to the load balance client endpoint.\n"
+                "left": "The configurations related to the load balance client endpoint.\n\nhttpVersion - Copied from CommonClientConfiguration\nhttp1Settings - Copied from CommonClientConfiguration\nhttp2Settings - Copied from CommonClientConfiguration\ntimeoutInMillis - Copied from CommonClientConfiguration\nforwarded - Copied from CommonClientConfiguration\nfollowRedirects - Copied from CommonClientConfiguration\npoolConfig - Copied from CommonClientConfiguration\ncache - Copied from CommonClientConfiguration\ncompression - Copied from CommonClientConfiguration\nauth - Copied from CommonClientConfiguration\ncircuitBreaker - Copied from CommonClientConfiguration\nretryConfig - Copied from CommonClientConfiguration\ncookieConfig - Copied from CommonClientConfiguration"
             },
             "sortText": "120",
             "insertText": "LoadBalanceClientConfiguration",
@@ -3768,6 +3768,17 @@
             },
             "sortText": "120",
             "insertText": "BearerAuthHandler",
+            "insertTextFormat": "Snippet"
+        },
+        {
+            "label": "ClientConfiguration",
+            "kind": "Struct",
+            "detail": "Record",
+            "documentation": {
+                "left": "Provides a set of configurations for controlling the behaviours when communicating with a remote HTTP endpoint.\n\nhttpVersion - Copied from CommonClientConfiguration\nhttp1Settings - Copied from CommonClientConfiguration\nhttp2Settings - Copied from CommonClientConfiguration\ntimeoutInMillis - Copied from CommonClientConfiguration\nforwarded - Copied from CommonClientConfiguration\nfollowRedirects - Copied from CommonClientConfiguration\npoolConfig - Copied from CommonClientConfiguration\ncache - Copied from CommonClientConfiguration\ncompression - Copied from CommonClientConfiguration\nauth - Copied from CommonClientConfiguration\ncircuitBreaker - Copied from CommonClientConfiguration\nretryConfig - Copied from CommonClientConfiguration\ncookieConfig - Copied from CommonClientConfiguration"
+            },
+            "sortText": "120",
+            "insertText": "ClientConfiguration",
             "insertTextFormat": "Snippet"
         },
         {
