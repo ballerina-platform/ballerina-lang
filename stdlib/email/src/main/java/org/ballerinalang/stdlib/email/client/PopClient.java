@@ -53,7 +53,7 @@ public class PopClient {
      * @param clientEndpoint Represents the POP Client class
      * @param config Properties required to configure the POP Session
      * @param isPop True if the protocol is POP3 and false otherwise (if protocol is IMAP)
-     * @throws BallerinaPopException If an error occurs in POP client
+     * @throws BallerinaPopException If an error occurs in the POP client
      */
     public static void initClientEndpoint(ObjectValue clientEndpoint, MapValue<Object, Object> config, boolean isPop)
             throws BallerinaPopException {
