@@ -1333,10 +1333,7 @@ class JvmTypeGen {
             } else if (valueType.tag == TypeTags.BYTE) {
                 mv.visitMethodInsn(INVOKESTATIC, INT_VALUE, "valueOf", String.format("(I)L%s;", INT_VALUE), false);
             } else if (valueType.tag == TypeTags.DECIMAL) {
-                mv.visitTypeInsn(NEW, DECIMAL_VALUE);
-                mv.visitInsn(DUP);
-                mv.visitLdcInsn(value);
-                mv.visitMethodInsn(INVOKESPECIAL, DECIMAL_VALUE, "<init>", String.format("(L%s;)V", STRING_VALUE), false);
+                // this is handled within the 'loadConstantValue()' method
             }
 
             // Add the value to the set
