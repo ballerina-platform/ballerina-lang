@@ -80,7 +80,7 @@ public class PopUtil {
     }
 
     /**
-     * Generates MapValue object using the passed Message.
+     * Generates MapValue object using the passed message.
      *
      * @param message received
      * @return MapValue object
