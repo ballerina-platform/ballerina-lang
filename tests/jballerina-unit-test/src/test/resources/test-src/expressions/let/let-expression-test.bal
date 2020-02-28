@@ -14,7 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
-const int globalVar = 2;
+const globalVar = 2;
+int k = let int x = 4 in 2*x*globalVar;
 
 function testBasicLetExpr() {
     int b = let int x = 4 in 2*x*globalVar;
@@ -36,6 +37,10 @@ function testMultipleVarDeclLetExpr() {
 function testMultipleVarDeclReuseLetExpr() {
     int b = let int x = 2, int z = 5+x in z*x*globalVar;
     assertTrue(b == 28, "b == 28");
+}
+
+function testGloballyDefinedLetExpr() {
+    assertTrue(k == 16, "b == 16");
 }
 
 function testFunctionCallInVarDeclLetExpr() {

@@ -18,6 +18,7 @@
 package org.wso2.ballerinalang.compiler.semantics.model;
 
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
@@ -214,8 +215,8 @@ public class SymbolEnv {
         return symbolEnv;
     }
 
-    public static SymbolEnv createExprEnv(BLangExpression expr, SymbolEnv env) {
-        Scope scope = new Scope(env.scope.owner);
+    public static SymbolEnv createExprEnv(BLangExpression expr, SymbolEnv env, BSymbol owner) {
+        Scope scope = new Scope(owner);
         SymbolEnv symbolEnv = new SymbolEnv(expr, scope);
         env.copyTo(symbolEnv);
         return symbolEnv;

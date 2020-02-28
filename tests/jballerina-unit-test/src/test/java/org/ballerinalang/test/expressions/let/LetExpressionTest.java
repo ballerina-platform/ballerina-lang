@@ -73,6 +73,7 @@ public class LetExpressionTest {
                 {"testFunctionCallInVarDeclLetExpr"},
                 {"testFunctionCallInLetExpr"},
                 {"testMultipleVarDeclReuseLetExpr"},
+                {"testGloballyDefinedLetExpr"},
                 {"testLetExprAsFunctionArg"},
                 {"testLetExprInIfStatement"},
                 {"testLetExprInWhileStatement"},

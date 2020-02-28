@@ -40,6 +40,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstantSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BErrorTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BLetSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
@@ -187,6 +188,7 @@ public class TypeChecker extends BLangNodeVisitor {
     private BLangAnonymousModelHelper anonymousModelHelper;
     private SemanticAnalyzer semanticAnalyzer;
 
+    private int letCount = 0;
     /**
      * Expected types or inherited types.
      */
@@ -1768,7 +1770,10 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     public void visit(BLangLetExpression letExpression) {
-        letExpression.env = SymbolEnv.createExprEnv(letExpression, env);
+        BLetSymbol letSymbol = new BLetSymbol(SymTag.LET, Flags.asMask(new HashSet<>(Lists.of())),
+                new Name(String.format("$let_symbol_%d$", letCount++)), env.enclPkg.symbol.pkgID,
+                letExpression.type, env.scope.owner);
+        letExpression.env = SymbolEnv.createExprEnv(letExpression, env, letSymbol);
         for (BLangVariable var : letExpression.letVarDeclarations) {
             semanticAnalyzer.analyzeDef(var, letExpression.env);
         }
