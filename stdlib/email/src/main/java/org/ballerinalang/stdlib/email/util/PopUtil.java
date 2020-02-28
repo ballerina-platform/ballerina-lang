@@ -39,7 +39,7 @@ import javax.mail.MessagingException;
 import javax.mail.internet.MimeMultipart;
 
 /**
- * Contains Utility functions related to POP3 protocol.
+ * Contains Utility functions related to the POP3 protocol.
  */
 public class PopUtil {
 
