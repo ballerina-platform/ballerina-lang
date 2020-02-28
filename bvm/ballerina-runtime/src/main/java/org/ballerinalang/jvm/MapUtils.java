@@ -192,7 +192,7 @@ public class MapUtils {
     public static void validateRecord(BType type, String op) {
         if (type instanceof BRecordType) {
             Map<String, BField> fields = ((BRecordType) type).getFields();
-            for(String key : fields.keySet()) {
+            for (String key : fields.keySet()) {
                 boolean isRequired = checkForRequiredFields((BRecordType) type, key);
                 if (isRequired) {
                     throw createOpNotSupportedErrorForRecord(type, op);
