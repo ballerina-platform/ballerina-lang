@@ -163,11 +163,12 @@ public class MapUtils {
         switch (type.getTag()) {
             case TypeTags.RECORD_TYPE_TAG:
                 boolean isValid = checkField(m, k);
-                if (isValid) {
-                     boolean isRequired = checkForRequiredFields((BRecordType) type, k);
-                     if (isRequired) {
-                         throw createOpNotSupportedError(type, op);
-                     }
+                if (!isValid) {
+                    return;
+                }
+                boolean isRequired = checkForRequiredFields((BRecordType) type, k);
+                if (isRequired) {
+                    throw createOpNotSupportedError(type, op);
                 }
                 return;
             default:
@@ -176,17 +177,14 @@ public class MapUtils {
     }
 
     private static boolean checkField(MapValue<?, ?> m, String k) {
-        Object object = m.get(k);
-        return object != null;
+        return m.containsKey(k);
     }
 
     private static boolean checkForRequiredFields(BRecordType type, String k) {
         Map<String, BField> fields = type.getFields();
         BField field = fields.get(k);
-        if (field != null) {
-            if (Flags.isFlagOn(field.flags, Flags.REQUIRED)) {
-                return true;
-            }
+        if (field != null && Flags.isFlagOn(field.flags, Flags.REQUIRED)) {
+            return true;
         }
         return false;
     }
