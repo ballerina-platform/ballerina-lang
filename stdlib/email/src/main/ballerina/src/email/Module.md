@@ -1,6 +1,6 @@
 ## Module overview
 
-This module contains functions to perform email operations such as sending and reading emails using SMTP, POP3 and IMAP4 protocols.
+This module contains functions to perform email operations such as sending and reading emails using SMTP, POP3, and IMAP4 protocols.
 
 ## Sample
 
@@ -80,4 +80,3 @@ public function main() {
     }
 }
 ```
-
