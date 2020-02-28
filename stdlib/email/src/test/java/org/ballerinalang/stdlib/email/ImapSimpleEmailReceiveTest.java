@@ -71,7 +71,7 @@ public class ImapSimpleEmailReceiveTest {
         GreenMailUser user = mailServer.setUser(EMAIL_USER_ADDRESS, USER_NAME, USER_PASSWORD);
         mailServer.setUser(EMAIL_USER_ADDRESS, USER_NAME, USER_PASSWORD);
 
-        // create an e-mail message using javax.mail ..
+        // Create an e-mail message using javax.mail.
         MimeMessage message = new MimeMessage((Session) null);
         message.setFrom(new InternetAddress(EMAIL_FROM));
         message.addRecipient(Message.RecipientType.TO, new InternetAddress(EMAIL_USER_ADDRESS));
