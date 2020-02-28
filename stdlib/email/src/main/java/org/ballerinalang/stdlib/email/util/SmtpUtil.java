@@ -81,7 +81,7 @@ public class SmtpUtil {
     /**
      * Generates a MIME message to be sent as an email.
      *
-     * @param session Session the message is attached
+     * @param session Session to which the message is attached
      * @param username User who sens the email
      * @param message Ballerina typed data object
      * @return Email message as a MIME message
