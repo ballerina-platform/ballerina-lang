@@ -38,7 +38,7 @@ public type SmtpClient client object {
 #
 # + host - Host address of the SMTP server
 # + port - Port number of the SMTP server
-# + username - Username to access SMTP server
+# + username - Username to access the SMTP server
 # + password - Password to access SMTP server
 public type SmtpConfig record {|
     //ConnectionConfig? connConfig = ();
