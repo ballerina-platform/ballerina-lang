@@ -19,7 +19,7 @@ public type PopClient client object {
 
     # Gets invoked during object initialization.
     #
-    # + clientConfig - Configurations for POP Client
+    # + clientConfig - Configurations for the POP Client
     public function __init(PopConfig clientConfig) {
         error? response = initPopClientEndpoint(self, clientConfig, true);
     }
