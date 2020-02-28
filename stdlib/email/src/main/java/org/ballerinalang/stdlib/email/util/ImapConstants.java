@@ -34,6 +34,4 @@ public class ImapConstants {
     private ImapConstants() {
         // private constructor
     }
-
-
 }
