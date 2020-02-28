@@ -182,7 +182,7 @@ import java.util.Set;
  *
  * @since 1.1
  */
-class NodeCloner extends BLangNodeVisitor {
+public class NodeCloner extends BLangNodeVisitor {
 
     private static final CompilerContext.Key<NodeCloner> NODE_CLONER_KEY = new CompilerContext.Key<>();
 
@@ -227,7 +227,7 @@ class NodeCloner extends BLangNodeVisitor {
     }
 
     @SuppressWarnings("unchecked")
-    private <T extends Node> T clone(T source) {
+    public <T extends Node> T clone(T source) {
 
         if (source == null) {
             return null;
@@ -897,6 +897,7 @@ class NodeCloner extends BLangNodeVisitor {
         clone.async = source.async;
         clone.flagSet = cloneSet(source.flagSet, Flag.class);
         clone.annAttachments = cloneList(source.annAttachments);
+        clone.requiredArgs = cloneList(source.requiredArgs);
 
         cloneBLangAccessExpression(source, clone);
     }
