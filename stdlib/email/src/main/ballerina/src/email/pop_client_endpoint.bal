@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-# Represents an POP Client that interacts with an POP Server
+# Represents a POP Client, which interacts with a POP Server.
 public type PopClient client object {
 
     # Gets invoked during object initialization
