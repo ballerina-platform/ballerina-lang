@@ -20,16 +20,22 @@ package org.wso2.ballerinalang.compiler.bir.codegen;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
+import org.wso2.ballerinalang.compiler.bir.codegen.JvmInstructionGen.InstructionGenerator;
+import org.wso2.ballerinalang.compiler.bir.codegen.JvmLabelGen.LabelGenerator;
+import org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.BalToJVMIndexMap;
+import org.wso2.ballerinalang.compiler.bir.codegen.JvmTerminatorGen.TerminatorGenerator;
+import org.wso2.ballerinalang.compiler.bir.codegen.interop.InteropMethodGen.CatchIns;
+import org.wso2.ballerinalang.compiler.bir.codegen.interop.InteropMethodGen.JErrorEntry;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRBasicBlock;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRErrorEntry;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRFunction;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRPackage;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRVariableDcl;
+import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator.Panic;
 import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator.Return;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import java.io.PrintStream;
-import java.util.ArrayList;
 import java.util.List;
 
 import static org.objectweb.asm.Opcodes.ASTORE;
@@ -53,15 +59,8 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STACK_OVE
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.THROWABLE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TRAP_ERROR_METHOD;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmInstructionGen.InstructionGenerator;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmInstructionGen.generateVarLoad;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmInstructionGen.generateVarStore;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmLabelGen.LabelGenerator;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.BalToJVMIndexMap;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTerminatorGen.TerminatorGenerator;
-import static org.wso2.ballerinalang.compiler.bir.codegen.interop.InteropMethodGen.CatchIns;
-import static org.wso2.ballerinalang.compiler.bir.codegen.interop.InteropMethodGen.JErrorEntry;
-import static org.wso2.ballerinalang.compiler.bir.model.BIRTerminator.Panic;
 
 
 //import ballerina/io;
@@ -202,48 +201,48 @@ public class JvmErrorGen {
         }
     }
 
-    static class DiagnosticLogger {
-        List<DiagnosticLog> errors = new ArrayList<>();
-
-        int getErrorCount() {
-            return this.errors.size();
-        }
-
-        void printErrors() {
-            for (DiagnosticLog log : this.errors) {
-                String fileName = log.pos.getSource().cUnitName;
-                String orgName = log.module.org.value;
-                String moduleName = log.module.name.value;
-
-                String pkgIdStr;
-                if (moduleName.equals(".") && orgName.equals("$anon")) {
-                    pkgIdStr = ".";
-                } else {
-                    pkgIdStr = orgName + ":" + moduleName;
-                }
-
-                String positionStr;
-                if (fileName.equals(".")) {
-                    positionStr = String.format("%s:%s:%s", pkgIdStr, log.pos.sLine, log.pos.sCol);
-                } else {
-                    positionStr = String.format("%s:%s:%s:%s", pkgIdStr, fileName, log.pos.sLine, log.pos.sCol);
-                }
-
-                String errorStr;
-                String detail = log.err.getCause() != null ? log.err.getCause().getMessage() : "";
-                if (detail.equals("")) {
-                    errorStr = String.format("error: %s: %s", positionStr, log.err.getMessage());
-                } else {
-                    errorStr = String.format("error: %s: %s %s", positionStr, log.err.getMessage(), detail);
-                }
-                print(errorStr);
-            }
-        }
-
-        void logError(BLangCompilerException err, DiagnosticPos pos, BIRPackage module) {
-            this.errors.add(new DiagnosticLog(err, pos, module));
-        }
-    }
+//    static class DiagnosticLogger {
+//        List<DiagnosticLog> errors = new ArrayList<>();
+//
+//        int getErrorCount() {
+//            return this.errors.size();
+//        }
+//
+//        void printErrors() {
+//            for (DiagnosticLog log : this.errors) {
+//                String fileName = log.pos.getSource().cUnitName;
+//                String orgName = log.module.org.value;
+//                String moduleName = log.module.name.value;
+//
+//                String pkgIdStr;
+//                if (moduleName.equals(".") && orgName.equals("$anon")) {
+//                    pkgIdStr = ".";
+//                } else {
+//                    pkgIdStr = orgName + ":" + moduleName;
+//                }
+//
+//                String positionStr;
+//                if (fileName.equals(".")) {
+//                    positionStr = String.format("%s:%s:%s", pkgIdStr, log.pos.sLine, log.pos.sCol);
+//                } else {
+//                    positionStr = String.format("%s:%s:%s:%s", pkgIdStr, fileName, log.pos.sLine, log.pos.sCol);
+//                }
+//
+//                String errorStr;
+//                String detail = log.err.getCause() != null ? log.err.getCause().getMessage() : "";
+//                if (detail.equals("")) {
+//                    errorStr = String.format("error: %s: %s", positionStr, log.err.getMessage());
+//                } else {
+//                    errorStr = String.format("error: %s: %s %s", positionStr, log.err.getMessage(), detail);
+//                }
+//                print(errorStr);
+//            }
+//        }
+//
+//        void logError(BLangCompilerException err, DiagnosticPos pos, BIRPackage module) {
+//            this.errors.add(new DiagnosticLog(err, pos, module));
+//        }
+//    }
 
 //   public static printToErrorStream(Object receiver , Object message) {
 //       PrintStream.
