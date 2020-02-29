@@ -45,7 +45,7 @@ public class ForeachXMLTypedBindingPatternsTests {
             "1:<p:address xmlns:p=\"foo\" xmlns:q=\"bar\">\n" +
             "            <p:city>NY</p:city>\n" +
             "            <q:country>US</q:country>\n" +
-            "        </p:address> 2:<q:ID xmlns:q=\"bar\" xmlns:p=\"foo\">1131313</q:ID> ";
+            "        </p:address> 2:<q:ID xmlns:p=\"foo\" xmlns:q=\"bar\">1131313</q:ID> ";
 
     @BeforeClass
     public void setup() {
