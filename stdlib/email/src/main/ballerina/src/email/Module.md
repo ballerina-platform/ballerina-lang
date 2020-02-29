@@ -69,7 +69,7 @@ email:ImapConfig imapConfig = {
 public function main() {
     email:ImapClient imapClient = new (imapConfig);
     email:Email|error? emailResponse = imapClient->read();
-    if(emailResponse is email:Email) {
+    if (emailResponse is email:Email) {
         io:println("Email Subject: ", emailResponse.subject);
         io:println("Email Body: ", emailResponse.body);
     } else if (emailResponse is ()) {
