@@ -462,7 +462,10 @@ public enum DiagnosticCode {
     INVALID_INVOCATION_LVALUE_COMPOUND_ASSIGNMENT("invalid.lvalue.lhs.of.compound.assignment"),
 
     IDENTIFIER_LITERAL_ONLY_SUPPORTS_ALPHANUMERICS("identifier.literal.only.supports.alphanumerics"),
-    INVALID_UNICODE("invalid.unicode")
+    INVALID_UNICODE("invalid.unicode"),
+
+    METHOD_TOO_LARGE("method.too.large"),
+    FILE_TOO_LARGE("file.too.large")
 
     ;
     private String value;
