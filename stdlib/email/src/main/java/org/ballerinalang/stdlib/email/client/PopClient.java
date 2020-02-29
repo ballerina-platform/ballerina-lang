@@ -90,10 +90,9 @@ public class PopClient {
      * Read emails from the server.
      * @param clientConnector Represents the POP Client class
      * @param filter Criteria, which is used to read emails
-     * @param isPop True if the protocol is POP3 and false otherwise (if protocol is IMAP)
      * @return If successful return the received email, otherwise an error
      */
-    public static Object readMessage(ObjectValue clientConnector, MapValue<Object, Object> filter, boolean isPop) {
+    public static Object readMessage(ObjectValue clientConnector, MapValue<Object, Object> filter) {
         try {
             Store store = (Store) clientConnector.getNativeData(PopConstants.PROPS_STORE);
             String host = (String) clientConnector.getNativeData(PopConstants.PROPS_HOST);

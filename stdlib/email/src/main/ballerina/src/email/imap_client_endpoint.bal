@@ -31,7 +31,7 @@ public type ImapClient client object {
         Filter filter = {
             folder: "INBOX"
         };
-        Email|error? email = imapRead(self, filter, false);
+        Email|error? email = imapRead(self, filter);
         if(email is error) {
             return email;
         } else {
@@ -49,7 +49,7 @@ public type ImapClient client object {
 # + password - Password to access the IMAP server
 public type ImapConfig record {|
     string host;
-    int? port = 143;
+    int port = 143;
     string username;
     string password;
 |};

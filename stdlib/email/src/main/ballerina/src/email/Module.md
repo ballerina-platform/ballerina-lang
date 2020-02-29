@@ -7,8 +7,8 @@ This module contains functions to perform email operations such as sending and r
 The below sample uses the functions in the module to send an email using the SMTP protocol.
 
 ```ballerina
-import ballerina/io;
 import ballerina/email;
+import ballerina/io;
 
 email:SmtpConfig smtpConfig = {
     host: "smtp.gmail.com",
@@ -20,13 +20,14 @@ email:SmtpConfig smtpConfig = {
 public function main() {
     email:SmtpClient smtpClient = new (smtpConfig);
     email:Email email = {
-        toAddr: ["receiver1@email.com", "receiver2@email.com"],
-        ccAddr: ["receiver3@email.com", "receiver4@email.com"],
-        bccAddr: ["receiver5@email.com"],
+        to: ["receiver1@email.com", "receiver2@email.com"],
+        cc: ["receiver3@email.com", "receiver4@email.com"],
+        bcc: ["receiver5@email.com"],
+        'from: "sender@email.com",
         subject: "Sample Email",
-        messageBody: "This is a sample email.",
-        fromAddr: "sender@email.com",
-        senderAddr: "sender@email.com"
+        body: "This is a sample email.",
+        sender: "sender@email.com",
+        replyTo: ["sender1@email.com", "sender2@email.com"]
     };
     error? response = smtpClient->send(email);
 }

@@ -31,7 +31,7 @@ public type PopClient client object {
         Filter filter = {
             folder: "INBOX"
         };
-        Email|error? email = popRead(self, filter, true);
+        Email|error? email = popRead(self, filter);
         if(email is error) {
             return email;
         } else {

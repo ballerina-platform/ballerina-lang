@@ -32,7 +32,7 @@ public function initPopClientEndpoint(PopClient clientEndpoint, PopConfig config
     class : "org.ballerinalang.stdlib.email.client.PopClient"
 } external;
 
-public function popRead(PopClient clientEndpoint, Filter message, boolean isPop) returns Email|error? = @java:Method {
+public function popRead(PopClient clientEndpoint, Filter message) returns Email|error? = @java:Method {
     name : "readMessage",
     class : "org.ballerinalang.stdlib.email.client.PopClient"
 } external;
@@ -43,7 +43,7 @@ public function initImapClientEndpoint(ImapClient clientEndpoint, ImapConfig con
     class : "org.ballerinalang.stdlib.email.client.PopClient"
 } external;
 
-public function imapRead(ImapClient clientEndpoint, Filter message, boolean isPop) returns Email|error? = @java:Method {
+public function imapRead(ImapClient clientEndpoint, Filter message) returns Email|error? = @java:Method {
     name : "readMessage",
     class : "org.ballerinalang.stdlib.email.client.PopClient"
 } external;
