@@ -91,13 +91,13 @@ public class BallerinaLanguageServer implements ExtendedLanguageServer, Extended
         lsGlobalContext.put(LSGlobalContextKeys.DOCUMENT_MANAGER_KEY, documentManager);
         lsGlobalContext.put(LSGlobalContextKeys.DIAGNOSTIC_HELPER_KEY, DiagnosticsHelper.getInstance());
         lsGlobalContext.put(LSGlobalContextKeys.ENABLE_STDLIB_DEFINITION,
-                Boolean.valueOf(System.getProperty("ballerina.definition.enableStdlib")));
+                Boolean.valueOf(System.getProperty("ballerina.goToDefinition.enableStandardLibraries")));
 
         this.textService = new BallerinaTextDocumentService(lsGlobalContext);
         this.workspaceService = new BallerinaWorkspaceService(lsGlobalContext);
         this.ballerinaDocumentService = new BallerinaDocumentServiceImpl(lsGlobalContext);
         this.ballerinaProjectService = new BallerinaProjectServiceImpl(lsGlobalContext);
-        this.ballerinaExampleService = new BallerinaExampleServiceImpl(lsGlobalContext);
+        this.ballerinaExampleService = new BallerinaExampleServiceImpl();
         this.ballerinaTraceService = new BallerinaTraceServiceImpl(lsGlobalContext);
         this.ballerinaTraceListener = new Listener(this.ballerinaTraceService);
         this.ballerinaSymbolService = new BallerinaSymbolServiceImpl();
@@ -133,9 +133,10 @@ public class BallerinaLanguageServer implements ExtendedLanguageServer, Extended
         res.getCapabilities().setImplementationProvider(false);
 //        res.getCapabilities().setCodeLensProvider(new CodeLensOptions());
 
-        HashMap expCapabilities = null;
+        HashMap experimentalClientCapabilities = null;
         if (params.getCapabilities().getExperimental() != null) {
-            expCapabilities = new Gson().fromJson(params.getCapabilities().getExperimental().toString(), HashMap.class);
+            experimentalClientCapabilities = new Gson().fromJson(params.getCapabilities().getExperimental().toString(),
+                                                                 HashMap.class);
         }
 
         // Set AST provider and examples provider capabilities
@@ -143,23 +144,28 @@ public class BallerinaLanguageServer implements ExtendedLanguageServer, Extended
         experimentalServerCapabilities.put(AST_PROVIDER.getValue(), true);
         experimentalServerCapabilities.put(EXAMPLES_PROVIDER.getValue(), true);
         experimentalServerCapabilities.put(API_EDITOR_PROVIDER.getValue(), true);
-        if (expCapabilities != null && expCapabilities.get(INTROSPECTION.getValue()) != null) {
-            int port = ballerinaTraceListener.startListener();
-            experimentalServerCapabilities.put(INTROSPECTION.getValue(), new ProviderOptions(port));
-        }
-        if (expCapabilities != null &&
-                expCapabilities.get(SEMANTIC_SYNTAX_HIGHLIGHTER.getValue()) != null) {
-            experimentalServerCapabilities.put(SEMANTIC_SYNTAX_HIGHLIGHTER.getValue(), true);
-            String[][] scopes = getScopes();
-            experimentalServerCapabilities.put(SEMANTIC_SCOPES.getValue(), scopes);
+
+        if (experimentalClientCapabilities != null) {
+            Object introspectionObj = experimentalClientCapabilities.get(INTROSPECTION.getValue());
+            if (introspectionObj instanceof Boolean && (Boolean) introspectionObj) {
+                int port = ballerinaTraceListener.startListener();
+                experimentalServerCapabilities.put(INTROSPECTION.getValue(), new ProviderOptions(port));
+            }
+            Object semanticHighlighterObj = experimentalClientCapabilities.get(SEMANTIC_SYNTAX_HIGHLIGHTER.getValue());
+            if (semanticHighlighterObj instanceof Boolean && (Boolean) semanticHighlighterObj) {
+                experimentalServerCapabilities.put(SEMANTIC_SYNTAX_HIGHLIGHTER.getValue(), true);
+                String[][] scopes = getScopes();
+                experimentalServerCapabilities.put(SEMANTIC_SCOPES.getValue(), scopes);
+            }
         }
         res.getCapabilities().setExperimental(experimentalServerCapabilities);
 
 
-        TextDocumentClientCapabilities txtCapabilities = params.getCapabilities().getTextDocument();
-        WorkspaceClientCapabilities wsCapabilities = params.getCapabilities().getWorkspace();
-        LSClientCapabilities capabilities = new LSClientCapabilitiesImpl(txtCapabilities, wsCapabilities,
-                                                                         expCapabilities);
+        TextDocumentClientCapabilities textDocClientCapabilities = params.getCapabilities().getTextDocument();
+        WorkspaceClientCapabilities workspaceClientCapabilities = params.getCapabilities().getWorkspace();
+        LSClientCapabilities capabilities = new LSClientCapabilitiesImpl(textDocClientCapabilities,
+                                                                         workspaceClientCapabilities,
+                                                                         experimentalClientCapabilities);
         ((BallerinaTextDocumentService) textService).setClientCapabilities(capabilities);
         ((BallerinaWorkspaceService) workspaceService).setClientCapabilities(capabilities);
         return CompletableFuture.supplyAsync(() -> res);

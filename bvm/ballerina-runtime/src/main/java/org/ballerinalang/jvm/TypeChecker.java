@@ -36,6 +36,7 @@ import org.ballerinalang.jvm.types.BStreamType;
 import org.ballerinalang.jvm.types.BTableType;
 import org.ballerinalang.jvm.types.BTupleType;
 import org.ballerinalang.jvm.types.BType;
+import org.ballerinalang.jvm.types.BTypedescType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.types.BUnionType;
 import org.ballerinalang.jvm.types.TypeTags;
@@ -510,6 +511,16 @@ public class TypeChecker {
 
     // Private methods
 
+    private static boolean checkTypeDescType(BType sourceType, BTypedescType targetType,
+            List<TypePair> unresolvedTypes) {
+        if (sourceType.getTag() != TypeTags.TYPEDESC_TAG) {
+            return false;
+        }
+
+        BTypedescType sourceTypedesc = (BTypedescType) sourceType;
+        return checkIsType(sourceTypedesc.getConstraint(), targetType.getConstraint(), unresolvedTypes);
+    }
+
     private static boolean checkIsRecursiveType(BType sourceType, BType targetType, List<TypePair> unresolvedTypes) {
         switch (targetType.getTag()) {
             case TypeTags.MAP_TAG:
@@ -538,6 +549,8 @@ public class TypeChecker {
                 return checkIsFutureType(sourceType, (BFutureType) targetType, unresolvedTypes);
             case TypeTags.ERROR_TAG:
                 return checkIsErrorType(sourceType, (BErrorType) targetType, unresolvedTypes);
+            case TypeTags.TYPEDESC_TAG:
+                return checkTypeDescType(sourceType, (BTypedescType) targetType, unresolvedTypes);
             default:
                 // other non-recursive types shouldn't reach here
                 return false;

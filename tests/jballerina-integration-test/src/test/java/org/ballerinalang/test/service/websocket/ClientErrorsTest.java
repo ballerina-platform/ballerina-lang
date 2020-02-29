@@ -23,7 +23,7 @@ import org.ballerinalang.test.util.websocket.client.WebSocketTestClient;
 import org.ballerinalang.test.util.websocket.server.WebSocketRemoteServer;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
-import org.testng.annotations.BeforeClass;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import java.net.URISyntaxException;
@@ -39,21 +39,30 @@ public class ClientErrorsTest extends WebSocketTestCommons {
     private WebSocketTestClient client;
     private static final String URL = "ws://localhost:21027/client/errors";
     private WebSocketRemoteServer remoteServer;
+    private volatile boolean setupped = false;
 
-    @BeforeClass(description = "Related file 27_client_exceptions.bal")
+    @BeforeMethod(description = "Related file 27_client_exceptions.bal")
     public void setup() throws InterruptedException, URISyntaxException, BallerinaTestException {
-        remoteServer = new WebSocketRemoteServer(15000);
-        remoteServer.run();
-        client = new WebSocketTestClient(URL);
-        client.handshake();
+        if (!setupped) {
+            remoteServer = new WebSocketRemoteServer(15000);
+            remoteServer.run();
+            client = new WebSocketTestClient(URL);
+            client.handshake();
+            setupped = true;
+        }
     }
 
     @Test(description = "Connection refused IO error")
     public void testConnectionError() throws InterruptedException {
-        sendTextAndAssertResponse(
-                "invalid-connection",
-                "error {ballerina/http}WsConnectionError message=IO Error cause=error {ballerina/io}GenericError " +
-                        "message=lmnop.ls: Name or service not known");
+
+        String expectedError1 = "error {ballerina/http}WsConnectionError " +
+                "message=IO Error " +
+                "cause=error {ballerina/io}GenericError message=lmnop.ls: Name or service not known";
+
+        String expectedError2 = "error {ballerina/http}WsConnectionError " +
+                "message=IO Error " +
+                "cause=error {ballerina/io}GenericError message=lmnop.ls: nodename nor servname provided, or not known";
+        sendTextAndMatchAnyResponse("invalid-connection", expectedError1, expectedError2);
     }
 
     @Test(description = "SSL/TLS error")
@@ -107,6 +116,17 @@ public class ClientErrorsTest extends WebSocketTestCommons {
         countDownLatch.await(20, TimeUnit.SECONDS);
         String textReceived = client.getTextReceived();
         Assert.assertEquals(textReceived, expected);
+    }
+
+    private void sendTextAndMatchAnyResponse(String msg, String expected1, String expected2)
+            throws InterruptedException {
+        CountDownLatch countDownLatch = new CountDownLatch(1);
+        client.setCountDownLatch(countDownLatch);
+        client.sendText(msg);
+        countDownLatch.await(20, TimeUnit.SECONDS);
+        String textReceived = client.getTextReceived();
+        boolean matched = textReceived.equals(expected1) || textReceived.equals(expected2);
+        Assert.assertTrue(matched);
     }
 
     @AfterClass(description = "Stops the Ballerina server")

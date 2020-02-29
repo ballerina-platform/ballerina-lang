@@ -54,7 +54,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
 
 import javax.annotation.Nonnull;
@@ -72,9 +71,9 @@ import static org.ballerinalang.compiler.CompilerOptionName.PROJECT_DIR;
  */
 public class LSStandardLibCache {
     private static final LSStandardLibCache STANDARD_LIB_CACHE;
-    private static final ReentrantLock lock = new ReentrantLock();
     private static final String CACHE_PROJECT_NAME = "stdlib_cache_proj";
     private static final String TOML_CONTENT = "[project]\norg-name= \"lsbalorg\"\nversion=\"1.1.0\"\n\n[dependencies]";
+    private volatile boolean cacheUpdating = false;
     private Path stdlibCacheProjectPath;
     private Path stdlibSourceRoot;
     private boolean cacheProjectRootSuccess;
@@ -126,20 +125,20 @@ public class LSStandardLibCache {
         if (!cacheProjectRootSuccess) {
             throw new LSStdlibCacheException("Trying to access failed cache");
         }
-        if (lock.isLocked() || importPackages == null || importPackages.isEmpty()) {
+        if (cacheUpdating || importPackages == null || importPackages.isEmpty()) {
             return;
         }
         Set<String> cachedModules = topLevelNodeCache.asMap().keySet();
         List<BLangImportPackage> evalModules = importPackages.parallelStream()
-                .filter(importModule -> !cachedModules.contains(LSStdLibCacheUtil.getCacheEntryName(importModule)))
+                .filter(importModule -> !cachedModules.contains(LSStdLibCacheUtil.getCacheableKey(importModule)))
                 .collect(Collectors.toList());
         // Populate cache entries in a separate thread
         new Thread(() -> {
             try {
-                lock.lock();
+                cacheUpdating = true;
                 evalModules.forEach(module -> {
                     String orgName = module.getOrgName().getValue();
-                    String moduleName = LSStdLibCacheUtil.getCacheEntryName(module);
+                    String moduleName = LSStdLibCacheUtil.getCacheableKey(module);
                     try {
                         LSStdLibCacheUtil.extractSourceFromBalo(stdlibSourceRoot.resolve(orgName),
                                 stdlibCacheProjectPath.resolve(ProjectDirConstants.SOURCE_DIR_NAME), module);
@@ -149,7 +148,7 @@ public class LSStandardLibCache {
                     }
                 });
             } finally {
-                lock.unlock();
+                cacheUpdating = false;
             }
         }).start();
     }
@@ -165,7 +164,7 @@ public class LSStandardLibCache {
         if (enabled == null || !enabled) {
             return new ArrayList<>();
         }
-        String cachedModuleName = LSStdLibCacheUtil.getCacheEntryName(pkgId);
+        String cachedModuleName = LSStdLibCacheUtil.getCacheableKey(pkgId);
         return topLevelNodeCache.getUnchecked(cachedModuleName);
     }
 
