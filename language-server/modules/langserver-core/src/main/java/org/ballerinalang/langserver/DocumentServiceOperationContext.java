@@ -67,7 +67,7 @@ public class DocumentServiceOperationContext extends LSContextImpl {
         }
 
         ServiceOperationContextBuilder withDefinitionParams(String fileUri) {
-            this.lsContext.put(DocumentServiceKeys.COMPILE_FULL_PROJECT, !CommonUtil.isCachedSource(fileUri));
+            this.lsContext.put(DocumentServiceKeys.COMPILE_FULL_PROJECT, !CommonUtil.isCachedExternalSource(fileUri));
             return this;
         }
 
