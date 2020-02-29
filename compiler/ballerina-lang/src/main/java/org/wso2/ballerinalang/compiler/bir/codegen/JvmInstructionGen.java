@@ -159,6 +159,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.lambdaIn
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.lambdas;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.lookupGlobalVarClassName;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.lookupTypeDef;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.symbolTable;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTerminatorGen.TerminatorGenerator.toNameString;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen.duplicateServiceTypeWithAnnots;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen.getTypeDesc;
@@ -200,7 +201,7 @@ public class JvmInstructionGen {
         if (bType == null) {
             return;
         } else {
-            generateCast(mv, bType, new BAnyType(TypeTags.ANY, null), false);
+            generateCast(mv, bType, symbolTable.anyType, false);
         }
     }
 
@@ -208,7 +209,7 @@ public class JvmInstructionGen {
         if (bType == null) {
             return;
         } else {
-            generateCast(mv, new BAnyType(TypeTags.ANY, null), bType, useBString);
+            generateCast(mv, symbolTable.anyType, bType, useBString);
         }
     }
 

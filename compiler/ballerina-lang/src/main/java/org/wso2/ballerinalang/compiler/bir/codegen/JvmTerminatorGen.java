@@ -45,8 +45,6 @@ import org.wso2.ballerinalang.compiler.util.TypeTags;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 import static org.objectweb.asm.Opcodes.AASTORE;
 import static org.objectweb.asm.Opcodes.ALOAD;
@@ -130,7 +128,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.nameOfNon
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmObservabilityGen.emitStopObservationInvocation;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.BIRFunctionWrapper;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.birFunctionMap;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.computeLockNameFromString;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.currentClass;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.getBIRFunctionWrapper;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.getModuleLevelClassName;
@@ -140,7 +137,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.lambdas;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.lookupGlobalVarClassName;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.symbolTable;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen.loadType;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmValueGen.getTypeValueClassName;
 import static org.wso2.ballerinalang.compiler.bir.codegen.interop.ExternalMethodGen.JavaMethodCall;
 import static org.wso2.ballerinalang.compiler.bir.codegen.interop.ExternalMethodGen.isBallerinaBuiltinModule;
 import static org.wso2.ballerinalang.compiler.bir.codegen.interop.InteropMethodGen.JIConstructorCall;
@@ -799,7 +795,7 @@ public class JvmTerminatorGen {
                     params.add(type.restType);
                 }
                 for (int j = params.size() - 1; j >= 0; j--) {
-                    params.add(j + 1, new BType(TypeTags.BOOLEAN, null));
+                    params.add(j + 1, symbolTable.booleanType);
                 }
                 String balFileName = funcSymbol.source;
 
@@ -855,7 +851,7 @@ public class JvmTerminatorGen {
                 j += 1;
 
                 this.loadBooleanArgToIndicateUserProvidedArg(orgName, moduleName, userProvidedArg);
-                addBoxInsn(this.mv, new BType(TypeTags.BOOLEAN, null));
+                addBoxInsn(this.mv, symbolTable.booleanType);
                 this.mv.visitInsn(AASTORE);
 
                 i += 1;
@@ -929,7 +925,7 @@ public class JvmTerminatorGen {
                 this.mv.visitInsn(L2I);
 
                 this.loadBooleanArgToIndicateUserProvidedArg(orgName, moduleName, userProvidedArg);
-                addBoxInsn(this.mv, new BType(TypeTags.BOOLEAN, null));
+                addBoxInsn(this.mv, symbolTable.booleanType);
                 this.mv.visitInsn(AASTORE);
                 paramIndex += 1;
             }
@@ -1085,7 +1081,7 @@ public class JvmTerminatorGen {
             this.mv.visitInsn(DUP);
             this.mv.visitIntInsn(BIPUSH, paramIndex);
             this.mv.visitInsn(ICONST_1);
-            addBoxInsn(this.mv, new BType(TypeTags.BOOLEAN, null));
+            addBoxInsn(this.mv, symbolTable.booleanType);
             this.mv.visitInsn(AASTORE);
         }
 

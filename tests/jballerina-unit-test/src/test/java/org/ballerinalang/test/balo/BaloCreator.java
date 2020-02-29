@@ -58,7 +58,7 @@ public class BaloCreator {
      * @param orgName Organization name
      * @throws IOException If any error occurred while reading the source files
      */
-    private static void create(Path projectPath, String packageId, String orgName) throws IOException {
+    private static void create(Path projectPath, String packageId, String orgName, String version) throws IOException {
         String buildFolder = Paths.get(System.getProperty(USER_DIR))
                 .relativize(Paths.get(System.getProperty(BALLERINA_HOME))).toString();
         Path baloPath = Paths.get(USER_REPO_DEFAULT_DIRNAME);
@@ -85,6 +85,8 @@ public class BaloCreator {
         if (!Files.exists(jarCachePath)) {
             Files.createDirectories(jarCachePath);
         }
+        version = version.replaceAll("\\.", "_");
+        String jarNamePrefix = orgName.concat("_").concat(packageId).concat("_").concat(version);
 
         for (URL classPathEntry : compileResult.getClassLoader().getURLs()) {
 
@@ -94,7 +96,8 @@ public class BaloCreator {
 
             try {
                 Path sourcePath = Paths.get(classPathEntry.toURI());
-                Path targetPath = Paths.get(jarCachePath.toString(), sourcePath.getFileName().toString());
+                Path targetPath = Paths.get(jarCachePath.toString(),
+                        jarNamePrefix.concat("_").concat(sourcePath.getFileName().toString()));
 
                 BFileUtil.copy(sourcePath, targetPath);
             } catch (URISyntaxException e) {
@@ -112,9 +115,34 @@ public class BaloCreator {
      */
     public static void createAndSetupBalo(String projectRoot, String orgName, String pkgName) {
         try {
-            create(Paths.get(projectRoot), pkgName, orgName);
+            create(Paths.get(projectRoot), pkgName, orgName, "0.0.0");
         } catch (IOException e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * Helper method to create balo from the source and setup the repository.
+     *
+     * @param projectRoot   root folder location.
+     * @param orgName       org name.
+     * @param pkgName       package name.
+     * @param version       package version.
+     */
+    public static void createAndSetupBalo(String projectRoot, String orgName, String pkgName, String version) {
+        try {
+            create(Paths.get(projectRoot), pkgName, orgName, version);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static void cleanCacheDirectories() {
+        Path buildPath = Paths.get(System.getProperty(USER_DIR))
+                .relativize(Paths.get(System.getProperty(BALLERINA_HOME)));
+        Path jarCachePath = Paths.get(buildPath.toString(), BALLERINA_HOME_LIB, JAR_CACHE_DIR_NAME);
+        if (jarCachePath.toFile().exists()) {
+            BFileUtil.delete(jarCachePath);
         }
     }
 

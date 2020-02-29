@@ -24,6 +24,7 @@ import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -31,13 +32,13 @@ import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.jar.Attributes;
 import java.util.jar.JarEntry;
 import java.util.jar.JarOutputStream;
 import java.util.jar.Manifest;
 
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.compiledPkgCache;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.generatePackage;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.intiPackageGen;
 
@@ -49,14 +50,19 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.intiPack
 public class CodeGenerator {
     private static final CompilerContext.Key<CodeGenerator> CODE_GEN = new CompilerContext.Key<>();
 
+    public static BLangDiagnosticLog dlog;
+
     //TODO: remove static
     static SymbolTable symbolTable;
     static PackageCache packageCache;
+
+    private Map<String, BIRNode.BIRPackage> compiledPkgCache = new HashMap<>();
 
     private CodeGenerator(CompilerContext context) {
         context.put(CODE_GEN, this);
         symbolTable = SymbolTable.getInstance(context);
         packageCache = PackageCache.getInstance(context);
+        dlog = BLangDiagnosticLog.getInstance(context);
     }
 
     public static CodeGenerator getInstance(CompilerContext context) {
@@ -70,6 +76,11 @@ public class CodeGenerator {
     }
 
     public void generate(BIRNode.BIRPackage entryMod, Path target) {
+
+        if (compiledPkgCache.containsValue(entryMod)) {
+            return;
+        }
+
         intiPackageGen();
         JvmPackageGen.symbolTable = symbolTable;
         JvmMethodGen.ERROR_OR_NIL_TYPE = BUnionType.create(null, symbolTable.errorType, symbolTable.nilType);

@@ -63,12 +63,7 @@ public class JBallerinaTestInitializer implements ITestListener {
 
     @Override
     public void onTestStart(ITestResult result) {
-        Path buildPath = Paths.get(System.getProperty(USER_DIR))
-                .relativize(Paths.get(System.getProperty(BALLERINA_HOME)));
-        Path jarCachePath = Paths.get(buildPath.toString(), BALLERINA_HOME_LIB, JAR_CACHE_DIR_NAME);
-        if (jarCachePath.toFile().exists()) {
-            BFileUtil.delete(jarCachePath);
-        }
+        //ignore
     }
 
     @Override

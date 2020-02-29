@@ -45,6 +45,7 @@ import org.wso2.ballerinalang.programfile.PackageFileWriter;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -501,7 +502,7 @@ public class BCompileUtil {
     }
 
     public static String readFileAsString(String path) throws IOException {
-        InputStream is = ClassLoader.getSystemResourceAsStream(path);
+        InputStream is = new FileInputStream(path);
         InputStreamReader inputStreamREader = null;
         BufferedReader br = null;
         StringBuilder sb = new StringBuilder();
@@ -599,7 +600,7 @@ public class BCompileUtil {
                 runInit(bLangPackage, cl, temp);
             }
             return compileResult;
-        } catch (Exception e) {
+        } catch (ClassNotFoundException | IOException e) {
             throw new BLangRuntimeException("Error during jvm code gen of the test", e);
         }
     }

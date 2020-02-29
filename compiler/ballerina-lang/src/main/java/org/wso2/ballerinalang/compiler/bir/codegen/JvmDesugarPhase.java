@@ -46,6 +46,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.getFuncti
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.getVariableDcl;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.nextId;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.nextVarId;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.symbolTable;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTerminatorGen.TerminatorGenerator.toNameString;
 import static org.wso2.ballerinalang.compiler.bir.model.BIRTerminator.Branch;
 import static org.wso2.ballerinalang.compiler.bir.model.BIRTerminator.GOTO;
@@ -73,7 +74,7 @@ public class JvmDesugarPhase {
                 // An additional boolean arg is gen for each function parameter.
                 String argName = "%syn" + nameIndex;
                 nameIndex += 1;
-                BIRFunctionParameter booleanVar = new BIRFunctionParameter(null, new BType(TypeTags.BOOLEAN, null),
+                BIRFunctionParameter booleanVar = new BIRFunctionParameter(null, symbolTable.booleanType,
                         new Name(argName), VarScope.FUNCTION, VarKind.ARG, "", false);
                 updatedVars.add(index, booleanVar);
                 index += 1;
@@ -178,13 +179,13 @@ public class JvmDesugarPhase {
         while (true) {
             if (!(counter < size)) break;
             paramTypes.add(index, funcParams.get(counter));
-            paramTypes.add(index + 1, new BType(TypeTags.BOOLEAN, null));
+            paramTypes.add(index + 1, symbolTable.booleanType);
             index += 2;
             counter += 1;
         }
         if (!(restType == null)) {
             paramTypes.add(index, restType);
-            paramTypes.add(index + 1, new BType(TypeTags.BOOLEAN, null));
+            paramTypes.add(index + 1, symbolTable.booleanType);
         }
         return paramTypes;
     }
