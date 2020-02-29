@@ -484,7 +484,7 @@ public class JvmCastGen {
     static void generateCheckCastJToBAnyData(MethodVisitor mv, BalToJVMIndexMap indexMap, JType sourceType) {
         if (!(sourceType.tag == JTypeTags.JREF || sourceType.tag == JTypeTags.JARRAY)) {
             // if value types, then ad box instruction
-            generateJCastToBAny(mv, indexMap, sourceType, new BAnyType(TypeTags.ANY, null));
+            generateJCastToBAny(mv, indexMap, sourceType, JvmPackageGen.symbolTable.anydataType);
         }
     }
 
@@ -574,7 +574,7 @@ public class JvmCastGen {
             mv.visitTypeInsn(INSTANCEOF, REF_VALUE);
             mv.visitJumpInsn(IFNE, afterHandle);
 
-            BIRVariableDcl retJObjectVarDcl = new BIRVariableDcl(null, new BAnyType(TypeTags.ANY, null),
+            BIRVariableDcl retJObjectVarDcl = new BIRVariableDcl(null, CodeGenerator.symbolTable.anyType,
                     new Name("$_ret_jobject_val_$"), VarScope.FUNCTION, VarKind.LOCAL, "");
             int returnJObjectVarRefIndex = indexMap.getIndex(retJObjectVarDcl);
             mv.visitVarInsn(ASTORE, returnJObjectVarRefIndex);
@@ -807,7 +807,7 @@ public class JvmCastGen {
 
     static void generateCheckCastToAnyData(MethodVisitor mv, BType sourceType) {
         if (sourceType.tag == TypeTags.ANY || sourceType.tag == TypeTags.UNION) {
-            checkCast(mv, new BAnyType(TypeTags.ANY, null));
+            checkCast(mv, JvmPackageGen.symbolTable.anydataType);
         } else {
             // if value types, then ad box instruction
             generateCastToAny(mv, sourceType);
@@ -818,7 +818,7 @@ public class JvmCastGen {
         if (sourceType.tag == TypeTags.ANY ||
                 sourceType.tag == TypeTags.UNION ||
                 sourceType.tag == TypeTags.MAP) {
-            checkCast(mv, new BAnyType(TypeTags.ANY, null));
+            checkCast(mv, JvmPackageGen.symbolTable.jsonType);
         } else {
             // if value types, then ad box instruction
             generateCastToAny(mv, sourceType);

@@ -108,6 +108,7 @@ public class ImportsTests {
 
     @Test(description = "Get the version from the lock file.")
     public void testVersionSupportImportFromLockFile() throws IOException {
+        BaloCreator.cleanCacheDirectories();
         BaloCreator.createAndSetupBalo(imports.resolve(Paths.get("test_module3", "test_module")).toString(),
                 "testOrg", "testModule", "1.1.2");
         birFiles = Files.find(tempBir, Integer.MAX_VALUE, (path, attribute) ->
