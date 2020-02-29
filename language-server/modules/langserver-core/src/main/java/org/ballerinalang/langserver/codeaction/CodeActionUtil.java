@@ -22,7 +22,6 @@ import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.codeaction.CodeActionNodeType;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
-import org.ballerinalang.langserver.compiler.LSCompilerCache;
 import org.ballerinalang.langserver.compiler.LSModuleCompiler;
 import org.ballerinalang.langserver.compiler.common.LSCustomErrorStrategy;
 import org.ballerinalang.langserver.compiler.exception.CompilationFailedException;
@@ -64,7 +63,6 @@ public class CodeActionUtil {
     public static CodeActionNodeType topLevelNodeInLine(TextDocumentIdentifier identifier, int cursorLine,
                                             WorkspaceDocumentManager docManager) {
         Optional<Path> filePath = CommonUtil.getPathFromURI(identifier.getUri());
-        LSCompilerCache.clearAll();
         if (!filePath.isPresent()) {
             return null;
         }
