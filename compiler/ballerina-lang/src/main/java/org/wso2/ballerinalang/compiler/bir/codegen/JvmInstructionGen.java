@@ -281,6 +281,7 @@ public class JvmInstructionGen {
                 bType.tag == TypeTags.STRING ||
                 bType.tag == TypeTags.MAP ||
                 bType.tag == TypeTags.TABLE ||
+                bType.tag == TypeTags.STREAM ||
                 bType.tag == TypeTags.ANY ||
                 bType.tag == TypeTags.ANYDATA ||
                 bType.tag == TypeTags.NIL ||
@@ -365,6 +366,7 @@ public class JvmInstructionGen {
                 bType.tag == TypeTags.STRING ||
                 bType.tag == TypeTags.MAP ||
                 bType.tag == TypeTags.TABLE ||
+                bType.tag == TypeTags.STREAM ||
                 bType.tag == TypeTags.ANY ||
                 bType.tag == TypeTags.ANYDATA ||
                 bType.tag == TypeTags.NIL ||

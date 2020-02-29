@@ -26,6 +26,8 @@ import org.ballerinalang.util.diagnostic.DiagnosticListener;
 import org.wso2.ballerinalang.compiler.Compiler;
 import org.wso2.ballerinalang.compiler.FileSystemProjectDirectory;
 import org.wso2.ballerinalang.compiler.SourceDirectory;
+import org.wso2.ballerinalang.compiler.bir.BackendDriver;
+import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
@@ -101,7 +103,7 @@ public class GenerateBalo {
 
         context.put(SourceDirectory.class, new MvnSourceDirectory(sourceRootDir, targetDir));
 
-        CompilerPhase compilerPhase = jvmTarget ? CompilerPhase.BIR_GEN : CompilerPhase.CODE_GEN;
+        CompilerPhase compilerPhase = CompilerPhase.CODE_GEN;
 
         CompilerOptions options = CompilerOptions.getInstance(context);
         options.put(PROJECT_DIR, sourceRootDir);
@@ -113,6 +115,7 @@ public class GenerateBalo {
 
         Compiler compiler = Compiler.getInstance(context);
         List<BLangPackage> buildPackages = compiler.compilePackages(false);
+        BackendDriver backendDriver = BackendDriver.getInstance(context);
 
         List<Diagnostic> diagnostics = diagListner.getDiagnostics();
         if (diagListner.getErrorCount() > 0 || (reportWarnings && diagListner.getWarnCount() > 0)) {
@@ -124,6 +127,12 @@ public class GenerateBalo {
         }
 
         compiler.write(buildPackages);
+
+        for (BLangPackage pkg : buildPackages) {
+            Path jarOutput = Paths.get("./build/generated-bir-jar/" + pkg.packageID.name + ".jar");
+            Files.createDirectories(jarOutput.getParent());
+            backendDriver.execute(pkg.symbol.bir, false, jarOutput);
+        }
     }
 
     private static class MvnSourceDirectory extends FileSystemProjectDirectory {

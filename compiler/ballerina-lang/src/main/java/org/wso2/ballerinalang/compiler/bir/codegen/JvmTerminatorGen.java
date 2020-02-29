@@ -567,10 +567,8 @@ public class JvmTerminatorGen {
             String jMethodVMSig = isBStringFunc(funcName) ? callIns.jMethodVMSigBString : callIns.jMethodVMSig;
             this.mv.visitMethodInsn(INVOKESTATIC, jClassName, jMethodName, jMethodVMSig, false);
 
-            @Nilable BIRVariableDcl lhsOpVarDcl = callIns.lhsOp.variableDcl;
-
-            if (lhsOpVarDcl != null) {
-                this.storeToVar(lhsOpVarDcl);
+            if (callIns.lhsOp != null && callIns.lhsOp.variableDcl != null) {
+                this.storeToVar(callIns.lhsOp.variableDcl);
             }
 
             this.mv.visitLabel(notBlockedOnExternLabel);
@@ -1223,6 +1221,7 @@ public class JvmTerminatorGen {
                     bType.tag == TypeTags.ARRAY ||
                     bType.tag == TypeTags.ANY ||
                     bType.tag == TypeTags.TABLE ||
+                    bType.tag == TypeTags.STREAM ||
                     bType.tag == TypeTags.ANYDATA ||
                     bType.tag == TypeTags.OBJECT ||
                     bType.tag == TypeTags.DECIMAL ||
