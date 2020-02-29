@@ -23,6 +23,7 @@ import org.wso2.ballerinalang.compiler.bir.codegen.interop.InteropValidator;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -45,6 +46,8 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.intiPack
 public class CodeGenerator {
     private static final CompilerContext.Key<CodeGenerator> CODE_GEN = new CompilerContext.Key<>();
 
+    public static BLangDiagnosticLog dlog;
+
     //TODO: remove static
     static SymbolTable symbolTable;
     static PackageCache packageCache;
@@ -55,6 +58,7 @@ public class CodeGenerator {
         context.put(CODE_GEN, this);
         symbolTable = SymbolTable.getInstance(context);
         packageCache = PackageCache.getInstance(context);
+        dlog = BLangDiagnosticLog.getInstance(context);
     }
 
     public static CodeGenerator getInstance(CompilerContext context) {
