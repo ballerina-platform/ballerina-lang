@@ -18,7 +18,6 @@
 package org.ballerinalang.test.types.xml;
 
 import org.ballerinalang.jvm.XMLFactory;
-import org.ballerinalang.jvm.values.XMLItem;
 import org.ballerinalang.jvm.values.XMLValue;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BIterator;
@@ -233,10 +232,10 @@ public class XMLLiteralTest {
     public void testXMLLiteralWithEscapeSequence() {
         BValue[] returns = BRunUtil.invoke(result, "testXMLLiteralWithEscapeSequence");
         Assert.assertTrue(returns[0] instanceof BXML);
-        Assert.assertEquals(returns[0].stringValue(), "hello &lt; &gt; &amp;");
+        Assert.assertEquals(returns[0].stringValue(), "hello &lt; &gt; &amp;"); // BXMLItem.toString()
         Assert.assertEquals(arrayToString(returns[1]), "hello < > &");
-        Assert.assertEquals(((BInteger) returns[2]).intValue(), 11);
-        Assert.assertEquals(arrayToString(returns[3]), "hello < > &");
+        Assert.assertEquals(((BInteger) returns[2]).intValue(), 0);
+        Assert.assertEquals(arrayToString(returns[3]), "");
     }
 
     private String arrayToString(BValue aReturn) {
@@ -438,7 +437,7 @@ public class XMLLiteralTest {
         BValue[] returns = BRunUtil.invoke(literalWithNamespacesResult, "getXML");
         Assert.assertTrue(returns[0] instanceof BXML);
 
-        XMLItem xmlItem = new XMLItem(returns[0].stringValue());
+        XMLValue xmlItem = (XMLValue) XMLFactory.parse(returns[0].stringValue());
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         xmlItem.serialize(baos);
         Assert.assertEquals(new String(baos.toByteArray()),
@@ -447,7 +446,7 @@ public class XMLLiteralTest {
 
     @Test
     public void testXMLToString() {
-        XMLValue<?> xml = XMLFactory.parse("<?xml version=\"1.0\" encoding=\"UTF-8\"?>" +
+        XMLValue xml = XMLFactory.parse("<?xml version=\"1.0\" encoding=\"UTF-8\"?>" +
                 "<!DOCTYPE foo [<!ELEMENT foo ANY ><!ENTITY data \"Example\" >]><foo>&data;</foo>");
         Assert.assertEquals(xml.toString(), "<foo>Example</foo>");
     }

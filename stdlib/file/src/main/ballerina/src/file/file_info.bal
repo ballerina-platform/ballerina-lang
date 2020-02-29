@@ -24,12 +24,14 @@ public type FileInfo object {
     int size;
     time:Time modifiedTime;
     boolean dir;
+    string path;
 
-    public function __init(string name, int size, time:Time modifiedTime, boolean dir) {
+    public function __init(string name, int size, time:Time modifiedTime, boolean dir, string path) {
         self.name = name;
         self.size = size;
         self.modifiedTime = modifiedTime;
         self.dir = dir;
+        self.path = path;
     }
 
     # Returns the file name.
@@ -58,5 +60,12 @@ public type FileInfo object {
     # + return - File is a directory or not.
     public function isDir() returns boolean {
         return self.dir;
+    }
+
+    # Returns the file path.
+    #
+    # + return - the file path
+    public function getPath() returns string {
+        return self.path;
     }
 };

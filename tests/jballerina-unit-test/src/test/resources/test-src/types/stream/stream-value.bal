@@ -25,7 +25,7 @@ function testGlobalStreamConstruct() returns boolean {
     boolean testPassed = true;
     i = 0;
 
-    var evenNumber = evenNumberStream.next();
+    record {| int value; |}? evenNumber = evenNumberStream.next();
     testPassed = testPassed && (<int>evenNumber["value"] % 2 == 0);
 
     evenNumber = evenNumberStream.next();

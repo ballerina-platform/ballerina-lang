@@ -22,18 +22,23 @@ import org.wso2.ballerinalang.compiler.PackageCache;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.InteropValidator;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
 
+import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.jar.Attributes;
 import java.util.jar.JarEntry;
 import java.util.jar.JarOutputStream;
 import java.util.jar.Manifest;
 
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.compiledPkgCache;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.generatePackage;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.intiPackageGen;
 
@@ -45,14 +50,19 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.intiPack
 public class CodeGenerator {
     private static final CompilerContext.Key<CodeGenerator> CODE_GEN = new CompilerContext.Key<>();
 
+    public static BLangDiagnosticLog dlog;
+
     //TODO: remove static
     static SymbolTable symbolTable;
     static PackageCache packageCache;
+
+    private Map<String, BIRNode.BIRPackage> compiledPkgCache = new HashMap<>();
 
     private CodeGenerator(CompilerContext context) {
         context.put(CODE_GEN, this);
         symbolTable = SymbolTable.getInstance(context);
         packageCache = PackageCache.getInstance(context);
+        dlog = BLangDiagnosticLog.getInstance(context);
     }
 
     public static CodeGenerator getInstance(CompilerContext context) {
@@ -66,16 +76,48 @@ public class CodeGenerator {
     }
 
     public void generate(BIRNode.BIRPackage entryMod, Path target) {
+
+        if (compiledPkgCache.containsValue(entryMod)) {
+            return;
+        }
+
         intiPackageGen();
         JvmPackageGen.symbolTable = symbolTable;
+        JvmMethodGen.ERROR_OR_NIL_TYPE = BUnionType.create(null, symbolTable.errorType, symbolTable.nilType);
         compiledPkgCache.put(entryMod.org.value + entryMod.name.value, entryMod);
         JvmPackageGen.JarFile jarFile = new JvmPackageGen.JarFile();
+        populateExternalMap();
 
         //TODO : do we need a classloader?
         ClassLoader classLoader = CodeGenerator.class.getClassLoader();
         InteropValidator interopValidator = new InteropValidator(classLoader, symbolTable);
         generatePackage(entryMod, jarFile, interopValidator, true);
         writeJarFile(jarFile, target);
+    }
+
+    private void populateExternalMap() {
+        String nativeMap = System.getenv("BALLERINA_NATIVE_MAP");
+        if (nativeMap == null) {
+            return;
+        }
+        File mapFile = new File(nativeMap);
+        if (!mapFile.exists()) {
+            return;
+        }
+
+        try (BufferedReader br = new BufferedReader(new FileReader(mapFile))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                if (line.startsWith("\"")) {
+                    int firstQuote = line.indexOf('"', 1);
+                    String key = line.substring(1, firstQuote);
+                    String value = line.substring(line.indexOf('"', firstQuote + 1) + 1, line.lastIndexOf('"'));
+                    JvmPackageGen.externalMapCache.put(key, value);
+                }
+            }
+        } catch (IOException e) {
+            //ignore because this is only important in langlibs users shouldn't see this error
+        }
     }
 
 

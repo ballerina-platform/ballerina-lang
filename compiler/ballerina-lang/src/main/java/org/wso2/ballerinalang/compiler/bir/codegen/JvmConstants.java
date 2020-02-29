@@ -17,6 +17,8 @@
  */
 package org.wso2.ballerinalang.compiler.bir.codegen;
 
+import org.ballerinalang.jvm.values.TableValue;
+
 // jvm bytecode instructions
 public class JvmConstants {
 
@@ -27,6 +29,7 @@ public class JvmConstants {
     public static final String MAP_VALUE = "org/ballerinalang/jvm/values/MapValue";
     public static final String MAP_VALUE_IMPL = "org/ballerinalang/jvm/values/MapValueImpl";
     public static final String TABLE_VALUE = "org/ballerinalang/jvm/values/TableValue";
+    public static final String STREAM_VALUE = "org/ballerinalang/jvm/values/StreamValue";
     public static final String ARRAY_VALUE = "org/ballerinalang/jvm/values/ArrayValue";
     public static final String OBJECT_VALUE = "org/ballerinalang/jvm/values/ObjectValue";
     public static final String ABSTRACT_OBJECT_VALUE = "org/ballerinalang/jvm/values/AbstractObjectValue";
@@ -44,6 +47,7 @@ public class JvmConstants {
     public static final String TYPEDESC_VALUE = "org/ballerinalang/jvm/values/TypedescValue";
     public static final String HANDLE_VALUE = "org/ballerinalang/jvm/values/HandleValue";
     public static final String LOCK_VALUE = "org/ballerinalang/jvm/BLock";
+    public static final String LOCK_STORE = "org/ballerinalang/jvm/BLockStore";
     public static final String FUNCTION_POINTER = "org/ballerinalang/jvm/values/FPValue";
     public static final String ARRAY_VALUE_IMPL = "org/ballerinalang/jvm/values/ArrayValueImpl";
     public static final String TUPLE_VALUE_IMPL = "org/ballerinalang/jvm/values/TupleValueImpl";
@@ -57,6 +61,7 @@ public class JvmConstants {
     public static final String ARRAY_TYPE = "org/ballerinalang/jvm/types/BArrayType";
     public static final String MAP_TYPE = "org/ballerinalang/jvm/types/BMapType";
     public static final String TABLE_TYPE = "org/ballerinalang/jvm/types/BTableType";
+    public static final String STREAM_TYPE = "org/ballerinalang/jvm/types/BStreamType";
     public static final String UNION_TYPE = "org/ballerinalang/jvm/types/BUnionType";
     public static final String RECORD_TYPE = "org/ballerinalang/jvm/types/BRecordType";
     public static final String OBJECT_TYPE = "org/ballerinalang/jvm/types/BObjectType";

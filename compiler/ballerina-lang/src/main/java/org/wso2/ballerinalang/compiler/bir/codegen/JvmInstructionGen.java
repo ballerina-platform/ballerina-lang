@@ -157,9 +157,9 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.currentC
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.getPackageName;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.lambdaIndex;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.lambdas;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.lookupFullQualifiedClassName;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.lookupGlobalVarClassName;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.lookupTypeDef;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.symbolTable;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTerminatorGen.TerminatorGenerator.toNameString;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen.duplicateServiceTypeWithAnnots;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen.getTypeDesc;
@@ -202,7 +202,7 @@ public class JvmInstructionGen {
         if (bType == null) {
             return;
         } else {
-            generateCast(mv, bType, new BAnyType(TypeTags.ANY, null), false);
+            generateCast(mv, bType, symbolTable.anyType, false);
         }
     }
 
@@ -210,7 +210,7 @@ public class JvmInstructionGen {
         if (bType == null) {
             return;
         } else {
-            generateCast(mv, new BAnyType(TypeTags.ANY, null), bType, useBString);
+            generateCast(mv, symbolTable.anyType, bType, useBString);
         }
     }
 
@@ -250,7 +250,7 @@ public class JvmInstructionGen {
             String moduleName = getPackageName(modId.orgName, modId.name);
 
             String varName = varDcl.name.value;
-            String className = lookupGlobalVarClassName(moduleName + varName);
+            String className = lookupGlobalVarClassName(moduleName, varName);
 
             String typeSig = getTypeDesc(bType, false);
             mv.visitFieldInsn(GETSTATIC, className, varName, typeSig);
@@ -262,7 +262,7 @@ public class JvmInstructionGen {
             String varName = varDcl.name.value;
             PackageID moduleId = ((BIRGlobalVariableDcl) varDcl).pkgId;
             String pkgName = getPackageName(moduleId.orgName, moduleId.name);
-            String className = lookupGlobalVarClassName(pkgName + varName);
+            String className = lookupGlobalVarClassName(pkgName, varName);
             String typeSig = getTypeDesc(bType, false);
             mv.visitFieldInsn(GETSTATIC, className, varName, typeSig);
             return;
@@ -282,6 +282,7 @@ public class JvmInstructionGen {
                 bType.tag == TypeTags.STRING ||
                 bType.tag == TypeTags.MAP ||
                 bType.tag == TypeTags.TABLE ||
+                bType.tag == TypeTags.STREAM ||
                 bType.tag == TypeTags.ANY ||
                 bType.tag == TypeTags.ANYDATA ||
                 bType.tag == TypeTags.NIL ||
@@ -340,7 +341,7 @@ public class JvmInstructionGen {
 
         if (varDcl.kind == VarKind.GLOBAL) {
             String varName = varDcl.name.value;
-            String className = lookupGlobalVarClassName(currentPackageName + varName);
+            String className = lookupGlobalVarClassName(currentPackageName, varName);
             String typeSig = getTypeDesc(bType, false);
             mv.visitFieldInsn(PUTSTATIC, className, varName, typeSig);
             return;
@@ -348,7 +349,7 @@ public class JvmInstructionGen {
             String varName = varDcl.name.value;
             PackageID moduleId = ((BIRGlobalVariableDcl) varDcl).pkgId;
             String pkgName = getPackageName(moduleId.orgName, moduleId.name);
-            String className = lookupGlobalVarClassName(pkgName + varName);
+            String className = lookupGlobalVarClassName(pkgName, varName);
             String typeSig = getTypeDesc(bType, false);
             mv.visitFieldInsn(PUTSTATIC, className, varName, typeSig);
             return;
@@ -366,6 +367,7 @@ public class JvmInstructionGen {
                 bType.tag == TypeTags.STRING ||
                 bType.tag == TypeTags.MAP ||
                 bType.tag == TypeTags.TABLE ||
+                bType.tag == TypeTags.STREAM ||
                 bType.tag == TypeTags.ANY ||
                 bType.tag == TypeTags.ANYDATA ||
                 bType.tag == TypeTags.NIL ||
@@ -512,6 +514,9 @@ public class JvmInstructionGen {
                     break;
                 case BITWISE_RIGHT_SHIFT:
                     this.generateBitwiseRightShiftIns(binaryIns);
+                    break;
+                case BITWISE_UNSIGNED_RIGHT_SHIFT:
+                    this.generateBitwiseUnsignedRightShiftIns(binaryIns);
                     break;
                 default:
                     throw new BLangCompilerException("JVM generation is not supported for instruction kind : " +
@@ -1308,7 +1313,6 @@ public class JvmInstructionGen {
             lambdaIndex += 1;
             String pkgName = getPackageName(inst.pkgId.orgName, inst.pkgId.name);
             String lookupKey = pkgName + inst.funcName.value;
-            String methodClass = lookupFullQualifiedClassName(lookupKey);
 
             BType returnType = inst.lhsOp.variableDcl.type;
             if (returnType.tag != TypeTags.INVOKABLE) {
@@ -1329,7 +1333,7 @@ public class JvmInstructionGen {
             // Set annotations if available.
             this.mv.visitInsn(DUP);
             String pkgClassName = pkgName.equals(".") || pkgName.equals("") ? MODULE_INIT_CLASS_NAME :
-                    lookupGlobalVarClassName(pkgName + ANNOTATION_MAP_NAME);
+                    lookupGlobalVarClassName(pkgName,  ANNOTATION_MAP_NAME);
             this.mv.visitFieldInsn(GETSTATIC, pkgClassName, ANNOTATION_MAP_NAME, String.format("L%s;", MAP_VALUE));
             this.mv.visitLdcInsn(inst.funcName.value);
             this.mv.visitMethodInsn(INVOKESTATIC, String.format("%s", ANNOTATION_UTILS), "processFPValueAnnotations",
@@ -1553,77 +1557,78 @@ public class JvmInstructionGen {
             this.currentPackageName = getPackageName(moduleId.org.value, moduleId.name.value);
         }
 
-        public static int[] listHighSurrogates(String str) {
-            List<Integer> highSurrogates = new ArrayList<>();
-            for (int i = 0; i < str.length(); i++) {
-                char c = str.charAt(i);
-                if (Character.isHighSurrogate(c)) {
-                    highSurrogates.add(i - highSurrogates.size());
-                }
-            }
-            int[] highSurrogatesArr = new int[highSurrogates.size()];
-            for (int i = 0; i < highSurrogates.size(); i++) {
-                Integer highSurrogate = highSurrogates.get(i);
-                highSurrogatesArr[i] = highSurrogate;
-            }
-            return highSurrogatesArr;
-        }
-
         void generateConstantLoadIns(ConstantLoad loadIns, boolean useBString) {
-            BType bType = loadIns.type;
-            Object constVal = loadIns.value;
-
-            if (bType.tag == TypeTags.INT ){
-                long intValue = constVal instanceof Long ? (long) constVal : Long.parseLong((String) constVal);
-                this.mv.visitLdcInsn(intValue);
-            } else if (bType.tag == TypeTags.BYTE) {
-                int byteValue = ((Number) constVal).intValue();
-                this.mv.visitLdcInsn(byteValue);
-            } else if (bType.tag == TypeTags.FLOAT) {
-                double doubleValue = constVal instanceof Double ? (double) constVal :
-                        Double.parseDouble((String) constVal);
-                this.mv.visitLdcInsn(doubleValue);
-            } else if (bType.tag == TypeTags.BOOLEAN) {
-                boolean booleanVal = constVal instanceof Boolean ? (boolean) constVal :
-                        Boolean.parseBoolean((String) constVal);
-                this.mv.visitLdcInsn(booleanVal);
-            } else if (bType.tag == TypeTags.STRING) {
-                String val = (String) constVal;
-                if (useBString) {
-                    int[] highSurrogates = listHighSurrogates(val);
-
-                    this.mv.visitTypeInsn(NEW, NON_BMP_STRING_VALUE);
-                    this.mv.visitInsn(DUP);
-                    this.mv.visitLdcInsn(val);
-                    this.mv.visitIntInsn(BIPUSH, highSurrogates.length);
-                    this.mv.visitIntInsn(NEWARRAY, T_INT);
-
-                    int i = 0;
-                    for (int ch : highSurrogates) {
-                        this.mv.visitInsn(DUP);
-                        this.mv.visitIntInsn(BIPUSH, i);
-                        this.mv.visitIntInsn(BIPUSH, ch);
-                        i = i + 1;
-                        this.mv.visitInsn(IASTORE);
-                    }
-                    this.mv.visitMethodInsn(INVOKESPECIAL, NON_BMP_STRING_VALUE, "<init>",
-                            String.format("(L%s;[I)V", STRING_VALUE), false);
-                } else {
-                    this.mv.visitLdcInsn(val);
-                }
-            } else if (bType.tag == TypeTags.DECIMAL) {
-                this.mv.visitTypeInsn(NEW, DECIMAL_VALUE);
-                this.mv.visitInsn(DUP);
-                this.mv.visitLdcInsn(constVal);
-                this.mv.visitMethodInsn(INVOKESPECIAL, DECIMAL_VALUE, "<init>",
-                        String.format("(L%s;)V", STRING_VALUE), false);
-            } else if (bType.tag == TypeTags.NIL) {
-                this.mv.visitInsn(ACONST_NULL);
-            } else {
-                throw new BLangCompilerException("JVM generation is not supported for type : " + String.format("%s", bType));
-            }
-
+            loadConstantValue(loadIns.type, loadIns.value, this.mv, useBString);
             this.storeToVar(loadIns.lhsOp.variableDcl);
+        }
+    }
+
+    public static int[] listHighSurrogates(String str) {
+        List<Integer> highSurrogates = new ArrayList<>();
+        for (int i = 0; i < str.length(); i++) {
+            char c = str.charAt(i);
+            if (Character.isHighSurrogate(c)) {
+                highSurrogates.add(i - highSurrogates.size());
+            }
+        }
+        int[] highSurrogatesArr = new int[highSurrogates.size()];
+        for (int i = 0; i < highSurrogates.size(); i++) {
+            Integer highSurrogate = highSurrogates.get(i);
+            highSurrogatesArr[i] = highSurrogate;
+        }
+        return highSurrogatesArr;
+    }
+
+
+    public static void loadConstantValue(BType bType, Object constVal, MethodVisitor mv, boolean useBString) {
+        if (bType.tag == TypeTags.INT){
+            long intValue = constVal instanceof Long ? (long) constVal : Long.parseLong(String.valueOf(constVal));
+            mv.visitLdcInsn(intValue);
+        } else if (bType.tag == TypeTags.BYTE) {
+            int byteValue = ((Number) constVal).intValue();
+            mv.visitLdcInsn(byteValue);
+        } else if (bType.tag == TypeTags.FLOAT) {
+            double doubleValue = constVal instanceof Double ? (double) constVal :
+                    Double.parseDouble(String.valueOf(constVal));
+            mv.visitLdcInsn(doubleValue);
+        } else if (bType.tag == TypeTags.BOOLEAN) {
+            boolean booleanVal = constVal instanceof Boolean ? (boolean) constVal :
+                    Boolean.parseBoolean(String.valueOf(constVal));
+            mv.visitLdcInsn(booleanVal);
+        } else if (bType.tag == TypeTags.STRING) {
+            String val = String.valueOf(constVal);
+            if (useBString) {
+                int[] highSurrogates = listHighSurrogates(val);
+
+                mv.visitTypeInsn(NEW, NON_BMP_STRING_VALUE);
+                mv.visitInsn(DUP);
+                mv.visitLdcInsn(val);
+                mv.visitIntInsn(BIPUSH, highSurrogates.length);
+                mv.visitIntInsn(NEWARRAY, T_INT);
+
+                int i = 0;
+                for (int ch : highSurrogates) {
+                    mv.visitInsn(DUP);
+                    mv.visitIntInsn(BIPUSH, i);
+                    mv.visitIntInsn(BIPUSH, ch);
+                    i = i + 1;
+                    mv.visitInsn(IASTORE);
+                }
+                mv.visitMethodInsn(INVOKESPECIAL, NON_BMP_STRING_VALUE, "<init>",
+                        String.format("(L%s;[I)V", STRING_VALUE), false);
+            } else {
+                mv.visitLdcInsn(val);
+            }
+        } else if (bType.tag == TypeTags.DECIMAL) {
+            mv.visitTypeInsn(NEW, DECIMAL_VALUE);
+            mv.visitInsn(DUP);
+            mv.visitLdcInsn(String.valueOf(constVal));
+            mv.visitMethodInsn(INVOKESPECIAL, DECIMAL_VALUE, "<init>", String.format("(L%s;)V", STRING_VALUE), false);
+        } else if (bType.tag == TypeTags.NIL) {
+            mv.visitInsn(ACONST_NULL);
+        } else {
+            throw new BLangCompilerException("JVM generation is not supported for type : " +
+                    String.format("%s", bType));
         }
     }
 }

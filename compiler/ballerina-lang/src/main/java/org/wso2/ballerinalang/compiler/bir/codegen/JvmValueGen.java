@@ -23,6 +23,7 @@ import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
+import org.wso2.ballerinalang.compiler.bir.codegen.interop.ExternalMethodGen.OldStyleExternalFunctionWrapper;
 import org.wso2.ballerinalang.compiler.bir.model.BIRInstruction;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRFunction;
@@ -38,7 +39,6 @@ import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -125,7 +125,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.getPacka
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.symbolTable;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTerminatorGen.TerminatorGenerator.toNameString;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen.getTypeDesc;
-import static org.wso2.ballerinalang.compiler.bir.codegen.interop.ExternalMethodGen.OldStyleExternalFunctionWrapper;
 import static org.wso2.ballerinalang.compiler.bir.codegen.interop.ExternalMethodGen.desugarOldExternFuncs;
 import static org.wso2.ballerinalang.compiler.bir.codegen.interop.ExternalMethodGen.lookupBIRFunctionWrapper;
 
@@ -508,7 +507,11 @@ public class JvmValueGen {
         private byte[] createRecordValueClass(BRecordType recordType, String className,
                                               BIRNode.BIRTypeDefinition typeDef) {
             ClassWriter cw = new BallerinaClassWriter(COMPUTE_FRAMES);
-            cw.visitSource(typeDef.pos.getSource().cUnitName, null);
+            if (typeDef.pos != null && typeDef.pos.src != null) {
+                cw.visitSource(typeDef.pos.getSource().cUnitName, null);
+            } else {
+                cw.visitSource(className, null);
+            }
             currentClass = className;
             cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, className,
                     String.format("<K:L%s;V:L%s;>L%s<TK;TV;>;L%s<TK;TV;>;", OBJECT, OBJECT, MAP_VALUE_IMPL, MAP_VALUE),
@@ -535,13 +538,8 @@ public class JvmValueGen {
             this.createRecordInitWrapper(cw, className, typeDef);
             this.createLambdas(cw);
             cw.visitEnd();
-            byte[] result = cw.toByteArray();
-            if (result == null) {
-//                logCompileError(result, typeDef, this.module);
-                return null;
-            } else {
-                return result;
-            }
+
+            return JvmPackageGen.getBytes(cw, typeDef);
         }
 
         private void createRecordMethods(ClassWriter cw, @Nilable List<BIRFunction> attachedFuncs) {
@@ -1090,15 +1088,9 @@ public class JvmValueGen {
             this.createLambdas(cw);
 
             cw.visitEnd();
-            byte[] result = cw.toByteArray();
-            if (result == null) {
-//                logCompileError(result, typeDef, this.module);
-                // TODO log error
-                return new byte[0];
-            } else {
-                return result;
-            }
+            return JvmPackageGen.getBytes(cw, typeDef);
         }
+
     }
 
     // --------------------- Sorting ---------------------------

@@ -40,7 +40,7 @@ public class GetTextValue {
 
     private static final String OPERATION = "get text from xml";
 
-    public static String getTextValue(Strand strand, XMLValue<?> xml) {
+    public static String getTextValue(Strand strand, XMLValue xml) {
         try {
             return xml.getTextValue();
         } catch (Throwable e) {

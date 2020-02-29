@@ -45,8 +45,6 @@ import org.wso2.ballerinalang.compiler.util.TypeTags;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 import static org.objectweb.asm.Opcodes.AASTORE;
 import static org.objectweb.asm.Opcodes.ALOAD;
@@ -92,6 +90,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FUNCTION_
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FUTURE_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.HANDLE_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LIST;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LOCK_STORE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LOCK_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAP;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAP_VALUE;
@@ -129,7 +128,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.nameOfNon
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmObservabilityGen.emitStopObservationInvocation;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.BIRFunctionWrapper;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.birFunctionMap;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.computeLockNameFromString;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.currentClass;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.getBIRFunctionWrapper;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.getModuleLevelClassName;
@@ -139,7 +137,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.lambdas;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.lookupGlobalVarClassName;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.symbolTable;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen.loadType;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmValueGen.getTypeValueClassName;
 import static org.wso2.ballerinalang.compiler.bir.codegen.interop.ExternalMethodGen.JavaMethodCall;
 import static org.wso2.ballerinalang.compiler.bir.codegen.interop.ExternalMethodGen.isBallerinaBuiltinModule;
 import static org.wso2.ballerinalang.compiler.bir.codegen.interop.InteropMethodGen.JIConstructorCall;
@@ -279,9 +276,9 @@ public class JvmTerminatorGen {
                 case LOCK:
                     this.genLockTerm((BIRTerminator.Lock) terminator, funcName, localVarOffset);
                     return;
-                case FIELD_LOCK:
-                    this.genFieldLockTerm((BIRTerminator.FieldLock) terminator, funcName, localVarOffset, attachedType);
-                    return;
+//                case FIELD_LOCK:
+//                    this.genFieldLockTerm((BIRTerminator.FieldLock) terminator, funcName, localVarOffset, attachedType);
+//                    return;
                 case UNLOCK:
                     this.genUnlockTerm((BIRTerminator.Unlock) terminator, funcName, attachedType);
                     return;
@@ -346,12 +343,13 @@ public class JvmTerminatorGen {
         }
 
         void genLockTerm(BIRTerminator.Lock lockIns, String funcName, int localVarOffset) {
-
             Label gotoLabel = this.labelGen.getLabel(funcName + lockIns.lockedBB.id.value);
-            String lockClass = "L" + LOCK_VALUE + ";";
-            String varClassName = lookupGlobalVarClassName(this.currentPackageName + lockIns.globalVar.name.value);
-            String lockName = computeLockNameFromString(lockIns.globalVar.name.value);
-            this.mv.visitFieldInsn(GETSTATIC, varClassName, lockName, lockClass);
+            String lockStore = "L" + LOCK_STORE + ";";
+            String initClassName = lookupGlobalVarClassName(this.currentPackageName, "LOCK_STORE");
+            this.mv.visitFieldInsn(GETSTATIC, initClassName, "LOCK_STORE", lockStore);
+            this.mv.visitLdcInsn("global");
+            this.mv.visitMethodInsn(INVOKEVIRTUAL, LOCK_STORE, "getLockFromMap", String.format("(L%s;)L%s;", STRING_VALUE,
+                    LOCK_VALUE), false);
             this.mv.visitVarInsn(ALOAD, localVarOffset);
             this.mv.visitMethodInsn(INVOKEVIRTUAL, LOCK_VALUE, "lock", String.format("(L%s;)Z", STRAND), false);
             this.mv.visitInsn(POP);
@@ -359,65 +357,94 @@ public class JvmTerminatorGen {
             this.mv.visitJumpInsn(GOTO, gotoLabel);
         }
 
-        void genFieldLockTerm(BIRTerminator.FieldLock lockIns, String funcName, int localVarOffset,
-                              @Nilable BType attachedType) {
-
-            Label gotoLabel = this.labelGen.getLabel(funcName + lockIns.lockedBB.id.value);
-            String lockClass = "L" + LOCK_VALUE + ";";
-            String lockName = computeLockNameFromString(lockIns.field);
-            this.loadVar(lockIns.localVar.variableDcl);
-
-            if (attachedType.tag == TypeTags.OBJECT) {
-                String className = getTypeValueClassName(this.module, toNameString(attachedType));
-                this.mv.visitFieldInsn(GETFIELD, className, lockName, lockClass);
-                this.mv.visitVarInsn(ALOAD, localVarOffset);
-                this.mv.visitMethodInsn(INVOKEVIRTUAL, LOCK_VALUE, "lock", String.format("(L%s;)Z", STRAND), false);
-                this.mv.visitInsn(POP);
-                genYieldCheckForLock(this.mv, this.labelGen, funcName, localVarOffset);
-                this.mv.visitJumpInsn(GOTO, gotoLabel);
-            } else {
-                throw new BLangCompilerException("JVM field lock generation is not supported for type " +
-                        String.format("%s", attachedType));
-            }
-        }
+//        void genLockTerm(BIRTerminator.Lock lockIns, String funcName, int localVarOffset) {
+//
+//            Label gotoLabel = this.labelGen.getLabel(funcName + lockIns.lockedBB.id.value);
+//            String lockClass = "L" + LOCK_VALUE + ";";
+//            String varClassName = lookupGlobalVarClassName(this.currentPackageName, lockIns.globalVar.name.value);
+//            String lockName = computeLockNameFromString(lockIns.globalVar.name.value);
+//            this.mv.visitFieldInsn(GETSTATIC, varClassName, lockName, lockClass);
+//            this.mv.visitVarInsn(ALOAD, localVarOffset);
+//            this.mv.visitMethodInsn(INVOKEVIRTUAL, LOCK_VALUE, "lock", String.format("(L%s;)Z", STRAND), false);
+//            this.mv.visitInsn(POP);
+//            genYieldCheckForLock(this.mv, this.labelGen, funcName, localVarOffset);
+//            this.mv.visitJumpInsn(GOTO, gotoLabel);
+//        }
+//
+//        void genFieldLockTerm(BIRTerminator.FieldLock lockIns, String funcName, int localVarOffset,
+//                              @Nilable BType attachedType) {
+//
+//            Label gotoLabel = this.labelGen.getLabel(funcName + lockIns.lockedBB.id.value);
+//            String lockClass = "L" + LOCK_VALUE + ";";
+//            String lockName = computeLockNameFromString(lockIns.field);
+//            this.loadVar(lockIns.localVar.variableDcl);
+//
+//            if (attachedType.tag == TypeTags.OBJECT) {
+//                String className = getTypeValueClassName(this.module, toNameString(attachedType));
+//                this.mv.visitFieldInsn(GETFIELD, className, lockName, lockClass);
+//                this.mv.visitVarInsn(ALOAD, localVarOffset);
+//                this.mv.visitMethodInsn(INVOKEVIRTUAL, LOCK_VALUE, "lock", String.format("(L%s;)Z", STRAND), false);
+//                this.mv.visitInsn(POP);
+//                genYieldCheckForLock(this.mv, this.labelGen, funcName, localVarOffset);
+//                this.mv.visitJumpInsn(GOTO, gotoLabel);
+//            } else {
+//                throw new BLangCompilerException("JVM field lock generation is not supported for type " +
+//                        String.format("%s", attachedType));
+//            }
+//        }
 
         public static String toNameString(BType t) {
             return t.tsymbol.name.value;
         }
 
         void genUnlockTerm(BIRTerminator.Unlock unlockIns, String funcName, @Nilable BType attachedType) {
-
             Label gotoLabel = this.labelGen.getLabel(funcName + unlockIns.unlockBB.id.value);
 
-            String lockClass = "L" + LOCK_VALUE + ";";
             // unlocked in the same order https://yarchive.net/comp/linux/lock_ordering.html
-            for (BIRNode.BIRGlobalVariableDcl globalVariable : unlockIns.globalVars) {
-                BIRVariableDcl globleVar = this.cleanupVariableDecl(globalVariable);
-                String varClassName = lookupGlobalVarClassName(this.currentPackageName + globleVar.name.value);
-                String lockName = computeLockNameFromString(globleVar.name.value);
-                this.mv.visitFieldInsn(GETSTATIC, varClassName, lockName, lockClass);
-                this.mv.visitMethodInsn(INVOKEVIRTUAL, LOCK_VALUE, "unlock", "()V", false);
-            }
-
-            for (Map.Entry<BIROperand, Set<String>> localLockDetails : unlockIns.fieldLocks.entrySet()) {
-                if (localLockDetails != null) {
-                    if (attachedType.tag == TypeTags.OBJECT) {
-                        String className = getTypeValueClassName(this.module, toNameString(attachedType));
-                        for (String fieldName : localLockDetails.getValue()) {
-                            String lockName = computeLockNameFromString(fieldName);
-                            this.loadVar(localLockDetails.getKey().variableDcl);
-                            this.mv.visitFieldInsn(GETFIELD, className, lockName, lockClass);
-                            this.mv.visitMethodInsn(INVOKEVIRTUAL, LOCK_VALUE, "unlock", "()V", false);
-                        }
-                    } else {
-                        throw new BLangCompilerException("JVM field unlock generation is not supported for type " +
-                                String.format("%s", attachedType));
-                    }
-                }
-            }
+            String lockStore = "L" + LOCK_STORE + ";";
+            String initClassName = lookupGlobalVarClassName(this.currentPackageName, "LOCK_STORE");
+            this.mv.visitFieldInsn(GETSTATIC, initClassName, "LOCK_STORE", lockStore);
+            this.mv.visitLdcInsn("global");
+            this.mv.visitMethodInsn(INVOKEVIRTUAL, LOCK_STORE, "getLockFromMap", String.format("(L%s;)L%s;",
+                    STRING_VALUE, LOCK_VALUE), false);
+            this.mv.visitMethodInsn(INVOKEVIRTUAL, LOCK_VALUE, "unlock", "()V", false);
 
             this.mv.visitJumpInsn(GOTO, gotoLabel);
         }
+
+//        void genUnlockTerm(BIRTerminator.Unlock unlockIns, String funcName, @Nilable BType attachedType) {
+//
+//            Label gotoLabel = this.labelGen.getLabel(funcName + unlockIns.unlockBB.id.value);
+//
+//            String lockClass = "L" + LOCK_VALUE + ";";
+//            // unlocked in the same order https://yarchive.net/comp/linux/lock_ordering.html
+//            for (BIRNode.BIRGlobalVariableDcl globalVariable : unlockIns.globalVars) {
+//                BIRVariableDcl globleVar = this.cleanupVariableDecl(globalVariable);
+//                String varClassName = lookupGlobalVarClassName(this.currentPackageName, globleVar.name.value);
+//                String lockName = computeLockNameFromString(globleVar.name.value);
+//                this.mv.visitFieldInsn(GETSTATIC, varClassName, lockName, lockClass);
+//                this.mv.visitMethodInsn(INVOKEVIRTUAL, LOCK_VALUE, "unlock", "()V", false);
+//            }
+//
+//            for (Map.Entry<BIROperand, Set<String>> localLockDetails : unlockIns.fieldLocks.entrySet()) {
+//                if (localLockDetails != null) {
+//                    if (attachedType.tag == TypeTags.OBJECT) {
+//                        String className = getTypeValueClassName(this.module, toNameString(attachedType));
+//                        for (String fieldName : localLockDetails.getValue()) {
+//                            String lockName = computeLockNameFromString(fieldName);
+//                            this.loadVar(localLockDetails.getKey().variableDcl);
+//                            this.mv.visitFieldInsn(GETFIELD, className, lockName, lockClass);
+//                            this.mv.visitMethodInsn(INVOKEVIRTUAL, LOCK_VALUE, "unlock", "()V", false);
+//                        }
+//                    } else {
+//                        throw new BLangCompilerException("JVM field unlock generation is not supported for type " +
+//                                String.format("%s", attachedType));
+//                    }
+//                }
+//            }
+//
+//            this.mv.visitJumpInsn(GOTO, gotoLabel);
+//        }
 
         void handleErrorRetInUnion(int returnVarRefIndex, List<BIRNode.ChannelDetails> channels, BUnionType bType) {
 
@@ -540,10 +567,8 @@ public class JvmTerminatorGen {
             String jMethodVMSig = isBStringFunc(funcName) ? callIns.jMethodVMSigBString : callIns.jMethodVMSig;
             this.mv.visitMethodInsn(INVOKESTATIC, jClassName, jMethodName, jMethodVMSig, false);
 
-            @Nilable BIRVariableDcl lhsOpVarDcl = callIns.lhsOp.variableDcl;
-
-            if (lhsOpVarDcl != null) {
-                this.storeToVar(lhsOpVarDcl);
+            if (callIns.lhsOp != null && callIns.lhsOp.variableDcl != null) {
+                this.storeToVar(callIns.lhsOp.variableDcl);
             }
 
             this.mv.visitLabel(notBlockedOnExternLabel);
@@ -768,7 +793,7 @@ public class JvmTerminatorGen {
                     params.add(type.restType);
                 }
                 for (int j = params.size() - 1; j >= 0; j--) {
-                    params.add(j + 1, new BType(TypeTags.BOOLEAN, null));
+                    params.add(j + 1, symbolTable.booleanType);
                 }
                 String balFileName = funcSymbol.source;
 
@@ -824,7 +849,7 @@ public class JvmTerminatorGen {
                 j += 1;
 
                 this.loadBooleanArgToIndicateUserProvidedArg(orgName, moduleName, userProvidedArg);
-                addBoxInsn(this.mv, new BType(TypeTags.BOOLEAN, null));
+                addBoxInsn(this.mv, symbolTable.booleanType);
                 this.mv.visitInsn(AASTORE);
 
                 i += 1;
@@ -898,7 +923,7 @@ public class JvmTerminatorGen {
                 this.mv.visitInsn(L2I);
 
                 this.loadBooleanArgToIndicateUserProvidedArg(orgName, moduleName, userProvidedArg);
-                addBoxInsn(this.mv, new BType(TypeTags.BOOLEAN, null));
+                addBoxInsn(this.mv, symbolTable.booleanType);
                 this.mv.visitInsn(AASTORE);
                 paramIndex += 1;
             }
@@ -1054,7 +1079,7 @@ public class JvmTerminatorGen {
             this.mv.visitInsn(DUP);
             this.mv.visitIntInsn(BIPUSH, paramIndex);
             this.mv.visitInsn(ICONST_1);
-            addBoxInsn(this.mv, new BType(TypeTags.BOOLEAN, null));
+            addBoxInsn(this.mv, symbolTable.booleanType);
             this.mv.visitInsn(AASTORE);
         }
 
@@ -1194,6 +1219,7 @@ public class JvmTerminatorGen {
                     bType.tag == TypeTags.ARRAY ||
                     bType.tag == TypeTags.ANY ||
                     bType.tag == TypeTags.TABLE ||
+                    bType.tag == TypeTags.STREAM ||
                     bType.tag == TypeTags.ANYDATA ||
                     bType.tag == TypeTags.OBJECT ||
                     bType.tag == TypeTags.DECIMAL ||

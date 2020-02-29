@@ -50,7 +50,8 @@ import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator.GOTO;
 import org.wso2.ballerinalang.compiler.bir.model.InstructionKind;
 import org.wso2.ballerinalang.compiler.bir.model.VarKind;
 import org.wso2.ballerinalang.compiler.bir.model.VarScope;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BAnyType;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
@@ -58,6 +59,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BServiceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
@@ -162,6 +164,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SCHEDULER
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SCHEDULER_START_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SCHEDULE_FUNCTION_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STREAM_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TABLE_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.THROWABLE;
@@ -183,8 +186,8 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.JavaClas
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.birFunctionMap;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.currentClass;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.getFunctionWrapper;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.getModuleLevelClassName;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.getPackageName;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.lookupFullQualifiedClassName;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.lookupGlobalVarClassName;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.packageToModuleId;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.symbolTable;
@@ -235,6 +238,9 @@ public class JvmMethodGen {
     public static int nextId = -1;
     public static int nextVarId = -1;
 
+    private static final FunctionParamComparator FUNCTION_PARAM_COMPARATOR = new FunctionParamComparator();
+    public static BUnionType ERROR_OR_NIL_TYPE;
+
     static void generateMethod(BIRFunction birFunc,
                                ClassWriter cw,
                                BIRPackage birModule,
@@ -260,7 +266,7 @@ public class JvmMethodGen {
         boolean useBString = IS_BSTRING;
         int returnVarRefIndex = -1;
 
-        BIRVariableDcl strandVar = new BIRVariableDcl(new BAnyType(TypeTags.ANY, null), new Name("strand"),
+        BIRVariableDcl strandVar = new BIRVariableDcl(symbolTable.stringType, new Name("strand"),
                 VarScope.FUNCTION, VarKind.ARG);
         int _strandVarIndex = indexMap.getIndex(strandVar);
 
@@ -273,7 +279,7 @@ public class JvmMethodGen {
 
             // add the self as the first local var
             // TODO: find a better way
-            BIRVariableDcl selfVar = new BIRVariableDcl(new BAnyType(TypeTags.ANY, null), new Name("self"),
+            BIRVariableDcl selfVar = new BIRVariableDcl(symbolTable.anyType, new Name("self"),
                     VarScope.FUNCTION, VarKind.ARG);
             int _selfVarIndex = indexMap.getIndex(selfVar);
         } else {
@@ -317,6 +323,8 @@ public class JvmMethodGen {
 
         // panic if this strand is cancelled
         checkStrandCancelled(mv, localVarOffset);
+
+        func.localVars.sort(FUNCTION_PARAM_COMPARATOR);
 
         @Nilable List<BIRVariableDcl> localVars = func.localVars;
         while (k < localVars.size()) {
@@ -458,11 +466,11 @@ public class JvmMethodGen {
             Label tryCatchFinally = labelGen.getLabel("try-catch-finally");
             mv.visitTryCatchBlock(tryCatch, tryCatchFinally, tryFinally, null);
 
-            BIRVariableDcl catchVarDcl = new BIRVariableDcl(new BAnyType(TypeTags.ANY, null), new Name("$_catch_$"),
+            BIRVariableDcl catchVarDcl = new BIRVariableDcl(symbolTable.anyType, new Name("$_catch_$"),
                     VarScope.FUNCTION, VarKind.ARG);
             int catchVarIndex = indexMap.getIndex(catchVarDcl);
-            BIRVariableDcl throwableVarDcl = new BIRVariableDcl(new BAnyType(TypeTags.ANY, null),
-                    new Name("$_throwable_$"), VarScope.FUNCTION, VarKind.ARG);
+            BIRVariableDcl throwableVarDcl = new BIRVariableDcl(symbolTable.anyType, new Name("$_throwable_$"),
+                    VarScope.FUNCTION, VarKind.ARG);
             int throwableVarIndex = indexMap.getIndex(throwableVarDcl);
 
             // Try-To-Finally
@@ -583,6 +591,10 @@ public class JvmMethodGen {
             } else if (bType.tag == TypeTags.TABLE) {
                 mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%", "_"),
                         String.format("L%s;", TABLE_VALUE));
+                mv.visitVarInsn(ASTORE, index);
+            } else if (bType.tag == TypeTags.STREAM) {
+                mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%", "_"),
+                                  String.format("L%s;", STREAM_VALUE));
                 mv.visitVarInsn(ASTORE, index);
             } else if (bType.tag == TypeTags.ARRAY ||
                     bType.tag == TypeTags.TUPLE) {
@@ -713,6 +725,10 @@ public class JvmMethodGen {
                 mv.visitVarInsn(ALOAD, index);
                 mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%", "_"),
                         String.format("L%s;", TABLE_VALUE));
+            } else if (bType.tag == TypeTags.STREAM) {
+                mv.visitVarInsn(ALOAD, index);
+                mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%", "_"),
+                                  String.format("L%s;", STREAM_VALUE));
             } else if (bType.tag == TypeTags.ARRAY ||
                     bType.tag == TypeTags.TUPLE) {
                 mv.visitVarInsn(ALOAD, index);
@@ -822,6 +838,8 @@ public class JvmMethodGen {
             jvmType = String.format("L%s;", MAP_VALUE);
         } else if (bType.tag == TypeTags.TABLE) {
             jvmType = String.format("L%s;", TABLE_VALUE);
+        } else if (bType.tag == TypeTags.STREAM) {
+            jvmType = String.format("L%s;", STREAM_VALUE);
         } else if (bType.tag == TypeTags.ARRAY ||
                 bType.tag == TypeTags.TUPLE) {
             jvmType = String.format("L%s;", ARRAY_VALUE);
@@ -848,6 +866,9 @@ public class JvmMethodGen {
             jvmType = getJTypeSignature((JType) bType);
         } else if (bType.tag == TypeTags.XML) {
             jvmType = String.format("L%s;", XML_VALUE);
+        } else {
+            throw new BLangCompilerException("JVM code generation is not supported for type " +
+                    String.format("%s", bType));
         }
         return jvmType;
     }
@@ -1185,7 +1206,7 @@ public class JvmMethodGen {
                     argIndex += 1;
                     if (!isBuiltinModule) {
                         addBooleanTypeToLambdaParamTypes(mv, 0, argIndex);
-                        paramBTypes.add(paramIndex - 1, new BType(TypeTags.BOOLEAN, null));
+                        paramBTypes.add(paramIndex - 1, symbolTable.booleanType);
                         paramIndex += 1;
                     }
                     argIndex += 1;
@@ -1217,7 +1238,7 @@ public class JvmMethodGen {
 
                 if (!isBuiltinModule) {
                     addBooleanTypeToLambdaParamTypes(mv, closureMapsCount, argIndex);
-                    paramBTypes.add(paramIndex - 1, new BType(TypeTags.BOOLEAN, null));
+                    paramBTypes.add(paramIndex - 1, symbolTable.booleanType);
                     paramIndex += 1;
                 }
                 argIndex += 1;
@@ -1228,8 +1249,37 @@ public class JvmMethodGen {
             String methodDesc = String.format("(L%s;L%s;[L%s;)L%s;", STRAND, STRING_VALUE, OBJECT, OBJECT);
             mv.visitMethodInsn(INVOKEINTERFACE, OBJECT_VALUE, "call", methodDesc, true);
         } else {
-            String methodDesc = getLambdaMethodDesc(paramBTypes, returnType, closureMapsCount);
-            String jvmClass = lookupFullQualifiedClassName(getPackageName(orgName, moduleName) + funcName);
+            String lookupKey = getPackageName(orgName, moduleName) + funcName;
+            JvmPackageGen.BIRFunctionWrapper functionWrapper = birFunctionMap.get(lookupKey);
+            String methodDesc;
+            String jvmClass;
+
+            if (functionWrapper != null) {
+                jvmClass = functionWrapper.fullQualifiedClassName;
+                methodDesc = functionWrapper.jvmMethodDescription;
+            } else {
+                methodDesc = getLambdaMethodDesc(paramBTypes, returnType, closureMapsCount);
+                BPackageSymbol symbol = CodeGenerator.packageCache.getSymbol(orgName + "/" + moduleName);
+                BInvokableSymbol funcSymbol =
+                        (BInvokableSymbol) symbol.scope.lookup(new Name(nameOfNonBStringFunc(funcName))).symbol;
+                BInvokableType type = (BInvokableType) funcSymbol.type;
+                ArrayList<BType> params = new ArrayList<>(type.paramTypes);
+                if (type.restType != null) {
+                    params.add(type.restType);
+                }
+                for (int j = params.size() - 1; j >= 0; j--) {
+                    params.add(j + 1, symbolTable.booleanType);
+                }
+                String balFileName = funcSymbol.source;
+
+                if (balFileName == null || !balFileName.endsWith(BAL_EXTENSION)) {
+                    balFileName = MODULE_INIT_CLASS_NAME;
+                }
+
+                jvmClass = getModuleLevelClassName(orgName, moduleName,
+                        cleanupPathSeperators(cleanupBalExt(balFileName)));
+            }
+
             mv.visitMethodInsn(INVOKESTATIC, jvmClass, funcName, methodDesc, false);
         }
 
@@ -1278,7 +1328,7 @@ public class JvmMethodGen {
         mv.visitVarInsn(ALOAD, arrayIndex);
         mv.visitIntInsn(BIPUSH, paramIndex);
         mv.visitInsn(AALOAD);
-        addUnboxInsn(mv, new BType(TypeTags.BOOLEAN, null), false);
+        addUnboxInsn(mv, symbolTable.booleanType, false);
     }
 
     private static void genDefaultValue(MethodVisitor mv, BType bType, int index) {
@@ -1300,6 +1350,7 @@ public class JvmMethodGen {
         } else if (bType.tag == TypeTags.MAP ||
                 bType.tag == TypeTags.ARRAY ||
                 bType.tag == TypeTags.TABLE ||
+                bType.tag == TypeTags.STREAM ||
                 bType.tag == TypeTags.ERROR ||
                 bType.tag == TypeTags.NIL ||
                 bType.tag == TypeTags.ANY ||
@@ -1492,6 +1543,8 @@ public class JvmMethodGen {
             return String.format("L%s;", FUTURE_VALUE);
         } else if (bType.tag == TypeTags.TABLE) {
             return String.format("L%s;", TABLE_VALUE);
+        } else if (bType.tag == TypeTags.STREAM) {
+            return String.format("L%s;", STREAM_VALUE);
         } else if (bType.tag == TypeTags.INVOKABLE) {
             return String.format("L%s;", FUNCTION_POINTER);
         } else if (bType.tag == TypeTags.TYPEDESC) {
@@ -1536,6 +1589,8 @@ public class JvmMethodGen {
             return String.format(")L%s;", ERROR_VALUE);
         } else if (bType.tag == TypeTags.TABLE) {
             return String.format(")L%s;", TABLE_VALUE);
+        } else if (bType.tag == TypeTags.STREAM) {
+            return String.format(")L%s;", STREAM_VALUE);
         } else if (bType.tag == TypeTags.FUTURE) {
             return String.format(")L%s;", FUTURE_VALUE);
         } else if (bType.tag == TypeTags.TYPEDESC) {
@@ -1606,8 +1661,8 @@ public class JvmMethodGen {
         ErrorHandlerGenerator errorGen = new ErrorHandlerGenerator(mv, indexMap, pkgName);
 
         // add main string[] args param first
-        BIRVariableDcl argsVar = new BIRVariableDcl(new BAnyType(TypeTags.ANY, null),
-                new Name("argsdummy"), VarScope.FUNCTION, VarKind.ARG);
+        BIRVariableDcl argsVar = new BIRVariableDcl(symbolTable.anyType, new Name("argsdummy"), VarScope.FUNCTION,
+                VarKind.ARG);
         int _argsVarIndex = indexMap.getIndex(argsVar);
 
         boolean isVoidFunction = userMainFunc instanceof BIRFunction && userMainFunc.type.retType.tag == TypeTags.NIL;
@@ -1616,8 +1671,8 @@ public class JvmMethodGen {
         mv.visitInsn(DUP);
         mv.visitInsn(ICONST_0);
         mv.visitMethodInsn(INVOKESPECIAL, SCHEDULER, "<init>", "(Z)V", false);
-        BIRVariableDcl schedulerVar = new BIRVariableDcl(new BAnyType(TypeTags.ANY, null),
-                new Name("schedulerdummy"), VarScope.FUNCTION, VarKind.ARG);
+        BIRVariableDcl schedulerVar = new BIRVariableDcl(symbolTable.anyType, new Name("schedulerdummy"),
+                VarScope.FUNCTION, VarKind.ARG);
         int schedulerVarIndex = indexMap.getIndex(schedulerVar);
         mv.visitVarInsn(ASTORE, schedulerVarIndex);
 
@@ -1635,7 +1690,7 @@ public class JvmMethodGen {
 
             // no parent strand
             mv.visitInsn(ACONST_NULL);
-            BType anyType = new BAnyType(TypeTags.ANY, null);
+            BType anyType = symbolTable.anyType;
             loadType(mv, anyType);
             mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, SCHEDULE_FUNCTION_METHOD,
                     String.format("([L%s;L%s;L%s;L%s;)L%s;", OBJECT, FUNCTION_POINTER, STRAND, BTYPE, FUTURE_VALUE),
@@ -1648,8 +1703,8 @@ public class JvmMethodGen {
             mv.visitFieldInsn(PUTFIELD, STRAND, "frames", String.format("[L%s;", OBJECT));
             errorGen.printStackTraceFromFutureValue(mv, indexMap);
 
-            BIRVariableDcl futureVar = new BIRVariableDcl(new BAnyType(TypeTags.ANY, null),
-                    new Name("initdummy"), VarScope.FUNCTION, VarKind.ARG);
+            BIRVariableDcl futureVar = new BIRVariableDcl(symbolTable.anyType, new Name("initdummy"),
+                    VarScope.FUNCTION, VarKind.ARG);
             int futureVarIndex = indexMap.getIndex(futureVar);
             mv.visitVarInsn(ASTORE, futureVarIndex);
             mv.visitVarInsn(ALOAD, futureVarIndex);
@@ -1688,8 +1743,8 @@ public class JvmMethodGen {
             // At this point we are done executing all the functions including asyncs
             if (!isVoidFunction) {
                 // store future value
-                BIRVariableDcl futureVar = new BIRVariableDcl(new BAnyType(TypeTags.ANY, null),
-                        new Name("dummy"), VarScope.FUNCTION, VarKind.ARG);
+                BIRVariableDcl futureVar = new BIRVariableDcl(symbolTable.anyType, new Name("dummy"),
+                        VarScope.FUNCTION, VarKind.ARG);
                 int futureVarIndex = indexMap.getIndex(futureVar);
                 mv.visitVarInsn(ASTORE, futureVarIndex);
                 mv.visitVarInsn(ALOAD, futureVarIndex);
@@ -1760,7 +1815,7 @@ public class JvmMethodGen {
 
         // no parent strand
         mv.visitInsn(ACONST_NULL);
-        BType anyType = new BAnyType(TypeTags.ANY, null);
+        BType anyType = symbolTable.anyType;
         loadType(mv, anyType);
         mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, SCHEDULE_FUNCTION_METHOD,
                 String.format("([L%s;L%s;L%s;L%s;)L%s;", OBJECT, FUNCTION_POINTER, STRAND, BTYPE, FUTURE_VALUE), false);
@@ -1774,8 +1829,8 @@ public class JvmMethodGen {
         mv.visitFieldInsn(PUTFIELD, STRAND, "frames", String.format("[L%s;", OBJECT));
         errorGen.printStackTraceFromFutureValue(mv, indexMap);
 
-        BIRVariableDcl futureVar = new BIRVariableDcl(new BAnyType(TypeTags.ANY, null),
-                new Name("startdummy"), VarScope.FUNCTION, VarKind.ARG);
+        BIRVariableDcl futureVar = new BIRVariableDcl(symbolTable.anyType, new Name("startdummy"), VarScope.FUNCTION,
+                VarKind.ARG);
         int futureVarIndex = indexMap.getIndex(futureVar);
         mv.visitVarInsn(ASTORE, futureVarIndex);
         mv.visitVarInsn(ALOAD, futureVarIndex);
@@ -1921,7 +1976,7 @@ public class JvmMethodGen {
                 // String lookupKey = getPackageName(id.orgName, id.name) + fullFuncName;
 
                 // String jvmClass = lookupFullQualifiedClassName(lookupKey);
-                String jvmClass =  getPackageName(id.orgName, id.name) + initClass;
+                String jvmClass =  getPackageName(id.orgName, id.name) + MODULE_INIT_CLASS_NAME;
                 generateLambdaForDepModStopFunc(cw, cleanupFunctionName(fullFuncName), jvmClass);
             }
         }
@@ -1941,7 +1996,7 @@ public class JvmMethodGen {
         mv.visitTypeInsn(CHECKCAST, STRAND);
 
         mv.visitMethodInsn(INVOKESTATIC, initClass, funcName, String.format("(L%s;)L%s;", STRAND, OBJECT), false);
-        addBoxInsn(mv, CodeGenerator.symbolTable.errorOrNilType);
+        addBoxInsn(mv, ERROR_OR_NIL_TYPE);
         mv.visitInsn(ARETURN);
         mv.visitMaxs(0, 0);
         mv.visitEnd();
@@ -1990,6 +2045,8 @@ public class JvmMethodGen {
             mv.visitTypeInsn(CHECKCAST, MAP_VALUE);
         } else if (targetType.tag == TypeTags.TABLE) {
             mv.visitTypeInsn(CHECKCAST, TABLE_VALUE);
+        } else if (targetType.tag == TypeTags.STREAM) {
+            mv.visitTypeInsn(CHECKCAST, STREAM_VALUE);
         } else if (targetType.tag == TypeTags.ANY ||
                 targetType.tag == TypeTags.ANYDATA ||
                 targetType.tag == TypeTags.NIL ||
@@ -2106,16 +2163,16 @@ public class JvmMethodGen {
         nextId = -1;
         nextVarId = -1;
 
-        BIRVariableDcl retVar = new BIRVariableDcl(null, symbolTable.errorOrNilType, new Name("%ret"),
-                VarScope.FUNCTION, VarKind.RETURN, "");
+        BIRVariableDcl retVar = new BIRVariableDcl(null, ERROR_OR_NIL_TYPE, new Name("%ret"),
+                                                   VarScope.FUNCTION, VarKind.RETURN, "");
         BIROperand retVarRef = new BIROperand(retVar);
 
         BIRFunction modInitFunc = new BIRFunction(null, new Name(funcName), 0,
-                new BInvokableType(Collections.emptyList(), null, symbolTable.errorOrNilType, null), null, 0, null);
+                                                  new BInvokableType(Collections.emptyList(), null, ERROR_OR_NIL_TYPE, null), null, 0, null);
         modInitFunc.localVars.add(retVar);
         BIRBasicBlock _NextBB = addAndGetNextBasicBlock(modInitFunc);
 
-        BIRVariableDcl boolVal = addAndGetNextVar(modInitFunc, new BType(TypeTags.BOOLEAN, null));
+        BIRVariableDcl boolVal = addAndGetNextVar(modInitFunc, symbolTable.booleanType);
         BIROperand boolRef = new BIROperand(boolVal);
 
         for (PackageID id : imprtMods) {
@@ -2215,7 +2272,7 @@ public class JvmMethodGen {
 
     private static void loadAnnots(MethodVisitor mv, String pkgName, BIRTypeDefinition typeDef) {
         String pkgClassName = pkgName.equals(".") || pkgName.equals("") ? MODULE_INIT_CLASS_NAME :
-                lookupGlobalVarClassName(pkgName + ANNOTATION_MAP_NAME);
+                lookupGlobalVarClassName(pkgName,  ANNOTATION_MAP_NAME);
         mv.visitFieldInsn(GETSTATIC, pkgClassName, ANNOTATION_MAP_NAME, String.format("L%s;", MAP_VALUE));
         loadExternalOrLocalType(mv, typeDef);
         mv.visitMethodInsn(INVOKESTATIC, String.format("%s", ANNOTATION_UTILS), "processAnnotations",
@@ -2331,6 +2388,8 @@ public class JvmMethodGen {
             typeSig = String.format("L%s;", MAP_VALUE);
         } else if (bType.tag == TypeTags.TABLE) {
             typeSig = String.format("L%s;", TABLE_VALUE);
+        } else if (bType.tag == TypeTags.STREAM) {
+            typeSig = String.format("L%s;", STREAM_VALUE);
         } else if (bType.tag == TypeTags.RECORD) {
             typeSig = String.format("L%s;", MAP_VALUE);
         } else if (bType.tag == TypeTags.ARRAY ||
@@ -2620,10 +2679,10 @@ public class JvmMethodGen {
         BalToJVMIndexMap indexMap = new BalToJVMIndexMap();
         ErrorHandlerGenerator errorGen = new ErrorHandlerGenerator(mv, indexMap, pkgName);
 
-        BIRVariableDcl argsVar = new BIRVariableDcl(new BAnyType(TypeTags.ANY, null), new Name("schedulerVar"),
+        BIRVariableDcl argsVar = new BIRVariableDcl(symbolTable.anyType, new Name("schedulerVar"),
                 VarScope.FUNCTION, VarKind.ARG);
         int schedulerIndex = indexMap.getIndex(argsVar);
-        BIRVariableDcl futureVar = new BIRVariableDcl(new BAnyType(TypeTags.ANY, null), new Name("futureVar"),
+        BIRVariableDcl futureVar = new BIRVariableDcl(symbolTable.anyType, new Name("futureVar"),
                 VarScope.FUNCTION, VarKind.ARG);
         int futureIndex = indexMap.getIndex(futureVar);
 

@@ -104,9 +104,7 @@ public class ExtendedLSCompiler extends LSModuleCompiler {
         context.put(SourceDirectory.class, programDirectory);
         
         CompilerOptions options = CompilerOptions.getInstance(context);
-        String phase = compilerPhase.toString().equals(CompilerPhase.COMPILER_PLUGIN.toString()) ? "annotationProcess"
-                : compilerPhase.toString();
-        options.put(COMPILER_PHASE, phase);
+        options.put(COMPILER_PHASE, compilerPhase.toString());
         options.put(PRESERVE_WHITESPACE, Boolean.TRUE.toString());
         options.put(TEST_ENABLED, String.valueOf(true));
         options.put(SKIP_TESTS, String.valueOf(false));

@@ -17,13 +17,7 @@
  */
 package org.wso2.ballerinalang.compiler.bir.codegen;
 
-import org.ballerinalang.compiler.BLangCompilerException;
-import org.objectweb.asm.ClassTooLargeException;
 import org.objectweb.asm.ClassWriter;
-import org.objectweb.asm.MethodTooLargeException;
-
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CLASS_TOO_LARGE;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.METHOD_TOO_LARGE;
 
 /**
  * Class Writer for generating ballerina classes.
@@ -38,22 +32,9 @@ public class BallerinaClassWriter extends ClassWriter {
         super(flags);
     }
 
-    @Override
-    public byte[] toByteArray() {
-        try {
-            return super.toByteArray();
-        } catch (MethodTooLargeException e) {
-            throw new BLangCompilerException(METHOD_TOO_LARGE, e);
-        } catch (ClassTooLargeException e) {
-            throw new BLangCompilerException(CLASS_TOO_LARGE, e);
-        } catch (Exception e) {
-            throw  new BLangCompilerException(e.getMessage(), e);
-        }
-    }
-
     /**
-     * Returns the common super type of the two given types. If any of the classes are 
-     * not found, assume its a generated or to-be generated class and return 
+     * Returns the common super type of the two given types. If any of the classes are
+     * not found, assume its a generated or to-be generated class and return
      * {@link Object} as the super type.
      */
     @Override
