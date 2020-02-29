@@ -650,7 +650,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
                 if (CommonUtil.isCachedExternalSource(fileUri)) {
                     context.put(DocumentServiceKeys.IS_CACHE_SUPPORTED, true);
                     context.put(DocumentServiceKeys.IS_CACHE_OUTDATED_SUPPORTED, true);
-                    LSModuleCompiler.getBLangPackages(context, documentManager, LSCustomErrorStrategy.class, false,
+                    LSModuleCompiler.getBLangPackages(context, docManager, LSCustomErrorStrategy.class, false,
                             true, true);
                     // Populate the Standard Library Cache
                     CommonUtil.updateStdLibCache(context);
