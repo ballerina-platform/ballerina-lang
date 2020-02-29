@@ -45,7 +45,7 @@ email:PopConfig popConfig = {
 public function main() {
     email:PopClient popClient = new (popConfig);
     email:Email|error? emailResponse = popClient->read();
-    if(emailResponse is email:Email) {
+    if (emailResponse is email:Email) {
         io:println("Email Subject: ", emailResponse.subject);
         io:println("Email Body: ", emailResponse.body);
     } else if (emailResponse is ()) {
