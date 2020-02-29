@@ -147,9 +147,9 @@ public class ExternalMethodGen {
 
         String jMethodName = birFunc.name.value;
         beginBB.terminator = new JavaMethodCall(birFunc.pos, InstructionKind.PLATFORM, args, retRef,
-                extFuncWrapper.jClassName, jMethodName,
+                extFuncWrapper.jClassName,
                 extFuncWrapper.jMethodVMSigBString != null ? extFuncWrapper.jMethodVMSigBString :"<error>",
-                extFuncWrapper.jMethodVMSig, retBB);
+                extFuncWrapper.jMethodVMSig, jMethodName, retBB);
 
         retBB.terminator = new BIRTerminator.Return(birFunc.pos);
     }
