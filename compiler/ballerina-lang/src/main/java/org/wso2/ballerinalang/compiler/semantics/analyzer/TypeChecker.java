@@ -953,14 +953,14 @@ public class TypeChecker extends BLangNodeVisitor {
         if (matchedTypeList.isEmpty()) {
             reportIncompatibleMappingConstructorError(recordLiteral, expType);
             recordLiteral.fields
-                    .forEach(field -> checkRecLiteralField(field, symTable.errorType));
+                    .forEach(field -> checkMappingField(field, symTable.errorType));
         } else if (matchedTypeList.size() > 1) {
             dlog.error(recordLiteral.pos, DiagnosticCode.AMBIGUOUS_TYPES, expType);
             recordLiteral.fields
-                    .forEach(field -> checkRecLiteralField(field, symTable.errorType));
+                    .forEach(field -> checkMappingField(field, symTable.errorType));
         } else {
             recordLiteral.fields
-                    .forEach(field -> checkRecLiteralField(field, matchedTypeList.get(0)));
+                    .forEach(field -> checkMappingField(field, matchedTypeList.get(0)));
             actualType = matchedTypeList.get(0);
         }
 
@@ -3678,7 +3678,7 @@ public class TypeChecker extends BLangNodeVisitor {
         }
     }
 
-    private void checkRecLiteralField(RecordLiteralNode.RecordField field, BType mappingType) {
+    private void checkMappingField(RecordLiteralNode.RecordField field, BType mappingType) {
         BType fieldType = symTable.semanticError;
         boolean keyValueField = field.isKeyValueField();
         boolean spreadOpField = field.getKind() == NodeKind.RECORD_LITERAL_SPREAD_OP;
@@ -5045,7 +5045,7 @@ public class TypeChecker extends BLangNodeVisitor {
                 names.fromString(recordSymbol.name.value + "." + recordSymbol.initializerFunc.funcName.value),
                 recordSymbol.initializerFunc.symbol);
 
-        Map<String, List<BType>> nonRestFieldTypes = new LinkedHashMap<>();
+        Map<String, FieldInfo> nonRestFieldTypes = new LinkedHashMap<>();
         List<BType> restFieldTypes = new ArrayList<>();
 
         for (RecordLiteralNode.RecordField field : recordLiteral.fields) {
@@ -5061,7 +5061,7 @@ public class TypeChecker extends BLangNodeVisitor {
                         restFieldTypes.add(exprType);
                     }
                 } else {
-                    addToNonRestFieldTypes(nonRestFieldTypes, getKeyName(keyExpr), checkExpr(expression, env));
+                    addToNonRestFieldTypes(nonRestFieldTypes, getKeyName(keyExpr), checkExpr(expression, env), true);
                 }
             } else if (field.getKind() == NodeKind.RECORD_LITERAL_SPREAD_OP) {
                 BType type = checkExpr(((BLangRecordLiteral.BLangRecordSpreadOperatorField) field).expr, env);
@@ -5081,7 +5081,8 @@ public class TypeChecker extends BLangNodeVisitor {
 
                 BRecordType recordType = (BRecordType) type;
                 for (BField recField : recordType.fields) {
-                    addToNonRestFieldTypes(nonRestFieldTypes, recField.name.value, recField.type);
+                    addToNonRestFieldTypes(nonRestFieldTypes, recField.name.value, recField.type,
+                                           !Symbols.isOptional(recField.symbol));
                 }
 
                 if (!recordType.sealed) {
@@ -5092,19 +5093,21 @@ public class TypeChecker extends BLangNodeVisitor {
                 }
             } else {
                 BLangSimpleVarRef varRef = (BLangSimpleVarRef) field;
-                addToNonRestFieldTypes(nonRestFieldTypes, getKeyName(varRef), checkExpr(varRef, env));
+                addToNonRestFieldTypes(nonRestFieldTypes, getKeyName(varRef), checkExpr(varRef, env), true);
             }
         }
 
         List<BField> fields = new ArrayList<>();
 
-        for (Map.Entry<String, List<BType>> entry : nonRestFieldTypes.entrySet()) {
-            List<BType> types = entry.getValue();
+        for (Map.Entry<String, FieldInfo> entry : nonRestFieldTypes.entrySet()) {
+            FieldInfo fieldInfo = entry.getValue();
+            List<BType> types = fieldInfo.types;
 
             String key = entry.getKey();
             Name fieldName = names.fromString(key);
             BType type = types.size() == 1 ? types.get(0) : BUnionType.create(null, types.toArray(new BType[0]));
-            BVarSymbol fieldSymbol = new BVarSymbol(Flags.REQUIRED, fieldName, pkgID, type, recordSymbol);
+            BVarSymbol fieldSymbol = new BVarSymbol(fieldInfo.required ? Flags.REQUIRED : Flags.OPTIONAL, fieldName,
+                                                    pkgID, type, recordSymbol);
             fields.add(new BField(fieldName, null, fieldSymbol));
             recordSymbol.scope.define(fieldName, fieldSymbol);
         }
@@ -5137,16 +5140,22 @@ public class TypeChecker extends BLangNodeVisitor {
                 ((BLangSimpleVarRef) key).variableName.value : (String) ((BLangLiteral) key).value;
     }
 
-    private void addToNonRestFieldTypes(Map<String, List<BType>> nonRestFieldTypes, String keyString,
-                                        BType exprType) {
+    private void addToNonRestFieldTypes(Map<String, FieldInfo> nonRestFieldTypes, String keyString,
+                                        BType exprType, boolean required) {
         if (!nonRestFieldTypes.containsKey(keyString)) {
-            nonRestFieldTypes.put(keyString, new ArrayList<BType>() {{ add(exprType); }});
+            nonRestFieldTypes.put(keyString, new FieldInfo(new ArrayList<BType>() {{ add(exprType); }}, required));
             return;
         }
 
-        List<BType> typeList = nonRestFieldTypes.get(keyString);
+        FieldInfo fieldInfo = nonRestFieldTypes.get(keyString);
+        List<BType> typeList = fieldInfo.types;
+
         if (isUniqueType(typeList, exprType)) {
             typeList.add(exprType);
+        }
+
+        if (required && !fieldInfo.required) {
+            fieldInfo.required = true;
         }
     }
 
@@ -5157,5 +5166,15 @@ public class TypeChecker extends BLangNodeVisitor {
             }
         }
         return true;
+    }
+
+    private static class FieldInfo {
+        List<BType> types;
+        boolean required;
+
+        private FieldInfo(List<BType> types, boolean required) {
+            this.types = types;
+            this.required = required;
+        }
     }
 }
