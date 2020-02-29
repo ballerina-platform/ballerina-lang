@@ -18,9 +18,11 @@
 
 package org.ballerinalang.stdlib.email.client;
 
+import org.ballerinalang.jvm.BallerinaErrors;
+import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.stdlib.email.util.BallerinaPopException;
+import org.ballerinalang.jvm.values.api.BValueCreator;
 import org.ballerinalang.stdlib.email.util.ImapConstants;
 import org.ballerinalang.stdlib.email.util.PopConstants;
 import org.ballerinalang.stdlib.email.util.PopUtil;
@@ -53,16 +55,15 @@ public class PopClient {
      * @param clientEndpoint Represents the POP Client class
      * @param config Properties required to configure the POP Session
      * @param isPop True if the protocol is POP3 and false otherwise (if protocol is IMAP)
-     * @throws BallerinaPopException If an error occurs in the POP client
+     * @return If an error occurs in the POP client, error
      */
-    public static void initClientEndpoint(ObjectValue clientEndpoint, MapValue<Object, Object> config, boolean isPop)
-            throws BallerinaPopException {
+    public static Object initClientEndpoint(ObjectValue clientEndpoint, MapValue<Object, Object> config,
+                                            boolean isPop) {
         log.debug("[PopClient][InitClient] Calling getProperties");
         Properties properties = PopUtil.getProperties(config, isPop);
         Session session = Session.getInstance(properties, null);
         try {
             Store store;
-
             if (isPop) {
                 store = session.getStore(PopConstants.POP_PROTOCOL);
                 clientEndpoint.addNativeData(PopConstants.PROPS_HOST,
@@ -77,9 +78,11 @@ public class PopClient {
                     properties.getProperty(PopConstants.PROPS_USERNAME));
             clientEndpoint.addNativeData(PopConstants.PROPS_PASSWORD,
                     properties.getProperty(PopConstants.PROPS_PASSWORD));
+            return null;
         } catch (NoSuchProviderException e) {
-            log.error("Failed to read message : ", e);
-            throw new BallerinaPopException("Error occurred while accessing POP server", e);
+            log.error("Failed initialize client properties : ", e);
+            return BValueCreator.createErrorValue(StringUtils.fromString(PopConstants.POP_ERROR_CODE),
+                    e.getMessage());
         }
     }
 
@@ -88,11 +91,9 @@ public class PopClient {
      * @param clientConnector Represents the POP Client class
      * @param filter Criteria, which is used to read emails
      * @param isPop True if the protocol is POP3 and false otherwise (if protocol is IMAP)
-     * @return MapValue Returns the type supported by Ballerina
-     * @throws BallerinaPopException If an error occurs in the POP client
+     * @return If successful return the received email, otherwise an error
      */
-    public static MapValue readMessage(ObjectValue clientConnector, MapValue<Object, Object> filter, boolean isPop)
-            throws BallerinaPopException {
+    public static Object readMessage(ObjectValue clientConnector, MapValue<Object, Object> filter, boolean isPop) {
         try {
             Store store = (Store) clientConnector.getNativeData(PopConstants.PROPS_STORE);
             String host = (String) clientConnector.getNativeData(PopConstants.PROPS_HOST);
@@ -116,7 +117,8 @@ public class PopClient {
             return mapValue;
         } catch (MessagingException | IOException e) {
             log.error("Failed to read message : ", e);
-            throw new BallerinaPopException("Error occurred while accessing POP server", e);
+            return BallerinaErrors.createError(StringUtils.fromString(PopConstants.POP_ERROR_CODE),
+                    e.getMessage());
         }
     }
 
