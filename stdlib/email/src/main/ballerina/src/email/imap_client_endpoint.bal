@@ -31,12 +31,7 @@ public type ImapClient client object {
         Filter filter = {
             folder: "INBOX"
         };
-        Email|error? email = imapRead(self, filter, false);
-        if(email is error) {
-            return email;
-        } else {
-            return <Email?>email;
-        }
+        return imapRead(self, filter, false);
     }
 
 };
