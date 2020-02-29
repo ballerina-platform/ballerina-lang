@@ -1214,7 +1214,7 @@ class JvmTypeGen {
         mv.visitTypeInsn(NEW, FUTURE_TYPE);
         mv.visitInsn(DUP);
 
-        loadType(mv, bType.getReturnType());
+        loadType(mv, bType.constraint);
         mv.visitMethodInsn(INVOKESPECIAL, FUTURE_TYPE, "<init>", String.format("(L%s;)V", BTYPE), false);
     }
 
