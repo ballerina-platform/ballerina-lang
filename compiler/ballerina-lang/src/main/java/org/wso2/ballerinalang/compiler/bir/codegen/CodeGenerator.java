@@ -22,9 +22,13 @@ import org.wso2.ballerinalang.compiler.PackageCache;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.InteropValidator;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
+import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Map;
@@ -68,14 +72,41 @@ public class CodeGenerator {
     public void generate(BIRNode.BIRPackage entryMod, Path target) {
         intiPackageGen();
         JvmPackageGen.symbolTable = symbolTable;
+        JvmMethodGen.ERROR_OR_NIL_TYPE = BUnionType.create(null, symbolTable.errorType, symbolTable.nilType);
         compiledPkgCache.put(entryMod.org.value + entryMod.name.value, entryMod);
         JvmPackageGen.JarFile jarFile = new JvmPackageGen.JarFile();
+        populateExternalMap();
 
         //TODO : do we need a classloader?
         ClassLoader classLoader = CodeGenerator.class.getClassLoader();
         InteropValidator interopValidator = new InteropValidator(classLoader, symbolTable);
         generatePackage(entryMod, jarFile, interopValidator, true);
         writeJarFile(jarFile, target);
+    }
+
+    private void populateExternalMap() {
+        String nativeMap = System.getenv("BALLERINA_NATIVE_MAP");
+        if (nativeMap == null) {
+            return;
+        }
+        File mapFile = new File(nativeMap);
+        if (!mapFile.exists()) {
+            return;
+        }
+
+        try (BufferedReader br = new BufferedReader(new FileReader(mapFile))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                if (line.startsWith("\"")) {
+                    int firstQuote = line.indexOf('"', 1);
+                    String key = line.substring(1, firstQuote);
+                    String value = line.substring(line.indexOf('"', firstQuote + 1) + 1, line.lastIndexOf('"'));
+                    JvmPackageGen.externalMapCache.put(key, value);
+                }
+            }
+        } catch (IOException e) {
+            //ignore because this is only important in langlibs users shouldn't see this error
+        }
     }
 
 

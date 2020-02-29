@@ -24,6 +24,10 @@ configurations {
 }
 project.ext.orgName = file('src/main/ballerina/Ballerina.toml').text.split("\n")[1].split("=")[1].split("\"")[1]
 
+project.ext.moduleName = files(file('src/main/ballerina/src').listFiles()).filter { File f ->
+    f.isDirectory() && f.name != 'target' && f.name != '.ballerina'
+}.singleFile.name
+
 // TODO: remove project names 
 if (project.name != "ballerina-jvm" && project.name != "ballerina-backend-jvm" && project.name != "ballerina-bir") {
 
@@ -75,16 +79,28 @@ class CreateBaloTask extends JavaExec {
 
 }
 
+task copyExternalMappingNextToBir(type: Copy) {
+    dependsOn compileJava
+    from "$buildDir/classes/java/main/META-INF/this.map.json"
+    into "$buildDir/generated-bir-jar"
+    rename { project.ext.moduleName + ".map.json" }
+    inputs.file "$buildDir/classes/java/main/META-INF/this.map.json"
+}
+
+
 task createBalo(type: CreateBaloTask) {
     dependsOn createBalHome
     dependsOn configurations.baloImplementation
+    dependsOn copyExternalMappingNextToBir
 
+    environment 'BALLERINA_NATIVE_MAP', "./build/classes/java/main/META-INF/this.map.json"
     def balFiles = file("src/main/ballerina/")
     inputs.dir(balFiles)
     inputs.files(configurations.baloImplementation)
     outputs.dir("$buildDir/generated-balo")
     outputs.cacheIf { true }
 }
+
 
 artifacts {
     baloImplementation file("$buildDir/generated-balo/"), { builtBy(createBalo) }

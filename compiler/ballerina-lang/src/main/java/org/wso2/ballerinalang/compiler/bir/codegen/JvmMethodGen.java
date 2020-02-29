@@ -60,6 +60,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BServiceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
@@ -164,6 +165,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SCHEDULER
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SCHEDULER_START_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SCHEDULE_FUNCTION_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STREAM_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TABLE_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.THROWABLE;
@@ -238,6 +240,7 @@ public class JvmMethodGen {
     public static int nextVarId = -1;
 
     private static final FunctionParamComparator FUNCTION_PARAM_COMPARATOR = new FunctionParamComparator();
+    public static BUnionType ERROR_OR_NIL_TYPE;
 
     static void generateMethod(BIRFunction birFunc,
                                ClassWriter cw,
@@ -590,6 +593,10 @@ public class JvmMethodGen {
                 mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%", "_"),
                         String.format("L%s;", TABLE_VALUE));
                 mv.visitVarInsn(ASTORE, index);
+            } else if (bType.tag == TypeTags.STREAM) {
+                mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%", "_"),
+                                  String.format("L%s;", STREAM_VALUE));
+                mv.visitVarInsn(ASTORE, index);
             } else if (bType.tag == TypeTags.ARRAY ||
                     bType.tag == TypeTags.TUPLE) {
                 mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%", "_"),
@@ -719,6 +726,10 @@ public class JvmMethodGen {
                 mv.visitVarInsn(ALOAD, index);
                 mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%", "_"),
                         String.format("L%s;", TABLE_VALUE));
+            } else if (bType.tag == TypeTags.STREAM) {
+                mv.visitVarInsn(ALOAD, index);
+                mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%", "_"),
+                                  String.format("L%s;", STREAM_VALUE));
             } else if (bType.tag == TypeTags.ARRAY ||
                     bType.tag == TypeTags.TUPLE) {
                 mv.visitVarInsn(ALOAD, index);
@@ -1336,6 +1347,7 @@ public class JvmMethodGen {
         } else if (bType.tag == TypeTags.MAP ||
                 bType.tag == TypeTags.ARRAY ||
                 bType.tag == TypeTags.TABLE ||
+                bType.tag == TypeTags.STREAM ||
                 bType.tag == TypeTags.ERROR ||
                 bType.tag == TypeTags.NIL ||
                 bType.tag == TypeTags.ANY ||
@@ -1572,6 +1584,8 @@ public class JvmMethodGen {
             return String.format(")L%s;", ERROR_VALUE);
         } else if (bType.tag == TypeTags.TABLE) {
             return String.format(")L%s;", TABLE_VALUE);
+        } else if (bType.tag == TypeTags.STREAM) {
+            return String.format(")L%s;", STREAM_VALUE);
         } else if (bType.tag == TypeTags.FUTURE) {
             return String.format(")L%s;", FUTURE_VALUE);
         } else if (bType.tag == TypeTags.TYPEDESC) {
@@ -1977,7 +1991,7 @@ public class JvmMethodGen {
         mv.visitTypeInsn(CHECKCAST, STRAND);
 
         mv.visitMethodInsn(INVOKESTATIC, initClass, funcName, String.format("(L%s;)L%s;", STRAND, OBJECT), false);
-        addBoxInsn(mv, CodeGenerator.symbolTable.errorOrNilType);
+        addBoxInsn(mv, ERROR_OR_NIL_TYPE);
         mv.visitInsn(ARETURN);
         mv.visitMaxs(0, 0);
         mv.visitEnd();
@@ -2142,12 +2156,12 @@ public class JvmMethodGen {
         nextId = -1;
         nextVarId = -1;
 
-        BIRVariableDcl retVar = new BIRVariableDcl(null, symbolTable.errorOrNilType, new Name("%ret"),
-                VarScope.FUNCTION, VarKind.RETURN, "");
+        BIRVariableDcl retVar = new BIRVariableDcl(null, ERROR_OR_NIL_TYPE, new Name("%ret"),
+                                                   VarScope.FUNCTION, VarKind.RETURN, "");
         BIROperand retVarRef = new BIROperand(retVar);
 
         BIRFunction modInitFunc = new BIRFunction(null, new Name(funcName), 0,
-                new BInvokableType(Collections.emptyList(), null, symbolTable.errorOrNilType, null), null, 0, null);
+                                                  new BInvokableType(Collections.emptyList(), null, ERROR_OR_NIL_TYPE, null), null, 0, null);
         modInitFunc.localVars.add(retVar);
         BIRBasicBlock _NextBB = addAndGetNextBasicBlock(modInitFunc);
 
@@ -2367,6 +2381,8 @@ public class JvmMethodGen {
             typeSig = String.format("L%s;", MAP_VALUE);
         } else if (bType.tag == TypeTags.TABLE) {
             typeSig = String.format("L%s;", TABLE_VALUE);
+        } else if (bType.tag == TypeTags.STREAM) {
+            typeSig = String.format("L%s;", STREAM_VALUE);
         } else if (bType.tag == TypeTags.RECORD) {
             typeSig = String.format("L%s;", MAP_VALUE);
         } else if (bType.tag == TypeTags.ARRAY ||
