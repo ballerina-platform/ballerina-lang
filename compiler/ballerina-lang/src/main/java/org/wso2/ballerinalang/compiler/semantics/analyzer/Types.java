@@ -129,6 +129,14 @@ public class Types {
         this.names = Names.getInstance(context);
     }
 
+    BLangDiagnosticLog getDLog() {
+        return this.dlog;
+    }
+
+    void setDLog(BLangDiagnosticLog dlog) {
+        this.dlog = dlog;
+    }
+
     public List<BType> checkTypes(BLangExpression node,
                                   List<BType> actualTypes,
                                   List<BType> expTypes) {

@@ -87,7 +87,6 @@ import org.wso2.ballerinalang.util.Flags;
 import org.wso2.ballerinalang.util.Lists;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -345,32 +344,6 @@ public class SymbolResolver extends BLangNodeVisitor {
                                          BType lhsType,
                                          BType rhsType) {
         return resolveOperator(names.fromString(opKind.value()), Lists.of(lhsType, rhsType));
-    }
-
-    public BSymbol resolveBuiltinOperator(Name method, BType... args) {
-        BType type = args[0];
-        switch (type.tag) {
-            case TypeTags.RECORD:
-                type = symTable.recordType;
-                break;
-            case TypeTags.ARRAY:
-                type = symTable.arrayType;
-                break;
-            case TypeTags.TUPLE:
-                type = symTable.tupleType;
-                break;
-            case TypeTags.ERROR:
-                type = symTable.errorType;
-                break;
-            case TypeTags.MAP:
-                type = symTable.mapType;
-                break;
-        }
-
-        List<BType> argsList = Lists.of(type);
-        List<BType> paramTypes = Arrays.asList(args).subList(1, args.length);
-        argsList.addAll(paramTypes);
-        return resolveOperator(method, argsList);
     }
 
     BSymbol createEqualityOperator(OperatorKind opKind, BType lhsType, BType rhsType) {

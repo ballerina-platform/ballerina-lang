@@ -267,7 +267,6 @@ public enum DiagnosticCode {
     DUPLICATE_KEY_IN_RECORD_LITERAL_SPREAD_OP("duplicate.key.in.record.literal.spread.op"),
     INVALID_ARRAY_LITERAL("invalid.array.literal"),
     INVALID_TUPLE_LITERAL("invalid.tuple.literal"),
-    INVALID_LIST_CONSTRUCTOR("invalid.list.constructor"),
     INVALID_LIST_CONSTRUCTOR_ELEMENT_TYPE("invalid.list.constructor.type"),
     INVALID_ARRAY_ELEMENT_TYPE("invalid.array.element.type"),
     INVALID_TUPLE_BINDING_PATTERN("invalid.tuple.binding.pattern"),

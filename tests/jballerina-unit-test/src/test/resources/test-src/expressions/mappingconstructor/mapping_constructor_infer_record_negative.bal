@@ -84,3 +84,16 @@ public function testInferringForVarNegative() {
         int i;
     |} r = x;
 }
+
+public function testInferringForVarNegative2() {
+    var x = {x: 1, y: 1};
+    int i = x;
+
+    string fieldName1 = "s1";
+    string fieldName2 = "s2";
+    var y = {x: 1, y: 2, [fieldName1]: "str", [fieldName2]: true };
+    record {| int...; |} b = y;
+
+    var z = {};
+    boolean c = z;
+}

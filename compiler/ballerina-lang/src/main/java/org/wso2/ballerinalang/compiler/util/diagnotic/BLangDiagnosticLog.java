@@ -49,7 +49,7 @@ public class BLangDiagnosticLog implements DiagnosticLog {
 
     public int errorCount = 0;
 
-    private DiagnosticListener listener;
+    protected DiagnosticListener listener;
     private PackageCache pkgCache;
 
     public static BLangDiagnosticLog getInstance(CompilerContext context) {
@@ -69,6 +69,9 @@ public class BLangDiagnosticLog implements DiagnosticLog {
         if (this.listener == null) {
             this.listener = new DefaultDiagnosticListener();
         }
+    }
+
+    protected BLangDiagnosticLog() {
     }
 
     public void error(DiagnosticPos pos, DiagnosticCode code, Object... args) {
@@ -99,7 +102,7 @@ public class BLangDiagnosticLog implements DiagnosticLog {
         return MessageFormat.format(msgKey, args);
     }
 
-    private void reportDiagnostic(BDiagnostic diagnostic) {
+    protected void reportDiagnostic(BDiagnostic diagnostic) {
         if (diagnostic.kind == Diagnostic.Kind.ERROR) {
             errorCount++;
         }

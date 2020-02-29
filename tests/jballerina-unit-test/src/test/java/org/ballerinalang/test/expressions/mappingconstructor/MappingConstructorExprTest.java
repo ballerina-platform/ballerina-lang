@@ -184,7 +184,7 @@ public class MappingConstructorExprTest {
     public void testRecordInferringInSelectNegative() {
         CompileResult compileResult = BCompileUtil.compile(
                 "test-src/expressions/mappingconstructor/mapping_constructor_infer_record_negative.bal");
-        Assert.assertEquals(compileResult.getErrorCount(), 7);
+        Assert.assertEquals(compileResult.getErrorCount(), 10);
         int index = 0;
 
         validateError(compileResult, index++, "incompatible types: expected 'string[]', found 'record {| string fn; " +
@@ -196,8 +196,13 @@ public class MappingConstructorExprTest {
         validateError(compileResult, index++, "invalid operation: type 'record {| int i; boolean b; int...; |}' does " +
                 "not support field access for non-required field 'key'", 71, 13);
         validateError(compileResult, index++, "incompatible types: expected 'float', found '(int|boolean)?'", 72, 15);
-        validateError(compileResult, index, "incompatible types: expected 'record {| int i; |}', found 'record {| int" +
-                " a; float b; string...; |}'", 85, 12);
+        validateError(compileResult, index++, "incompatible types: expected 'record {| int i; |}', found 'record {| " +
+                "int a; float b; string...; |}'", 85, 12);
+        validateError(compileResult, index++, "incompatible types: expected 'int', found 'record {| int x; int y; " +
+                "|}'", 90, 13);
+        validateError(compileResult, index++, "incompatible types: expected 'record {| int...; |}', found 'record {| " +
+                "int x; int y; (string|boolean)...; |}'", 95, 30);
+        validateError(compileResult, index, "incompatible types: expected 'boolean', found 'record {| |}'", 98, 17);
     }
 
     @Test(dataProvider = "inferRecordTypeTests")
