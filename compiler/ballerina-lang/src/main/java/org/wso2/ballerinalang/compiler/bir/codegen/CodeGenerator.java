@@ -27,13 +27,13 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.jar.Attributes;
 import java.util.jar.JarEntry;
 import java.util.jar.JarOutputStream;
 import java.util.jar.Manifest;
 
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.compiledPkgCache;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.generatePackage;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.intiPackageGen;
 
@@ -48,6 +48,8 @@ public class CodeGenerator {
     //TODO: remove static
     static SymbolTable symbolTable;
     static PackageCache packageCache;
+
+    private Map<String, BIRNode.BIRPackage> compiledPkgCache = new HashMap<>();
 
     private CodeGenerator(CompilerContext context) {
         context.put(CODE_GEN, this);
@@ -66,6 +68,11 @@ public class CodeGenerator {
     }
 
     public void generate(BIRNode.BIRPackage entryMod, Path target) {
+
+        if (compiledPkgCache.containsValue(entryMod)) {
+            return;
+        }
+
         intiPackageGen();
         JvmPackageGen.symbolTable = symbolTable;
         compiledPkgCache.put(entryMod.org.value + entryMod.name.value, entryMod);

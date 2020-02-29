@@ -134,7 +134,6 @@ public class JvmPackageGen {
     public static Map<String, BIRTypeDefinition> typeDefMap;
     public static Map<String, String> globalVarClassNames;
     public static Map<String, BIRInstruction> lambdas;
-    public static Map<String, BIRPackage> compiledPkgCache;
     public static Map<String, String> externalMapCache;
     public static Map<String, PackageID> dependentModules;
     public static String currentClass;
@@ -146,7 +145,6 @@ public class JvmPackageGen {
         typeDefMap = new HashMap<>();
         globalVarClassNames = new HashMap<>();
         lambdas = new HashMap<>();
-        compiledPkgCache = new HashMap<>();
         externalMapCache = new HashMap<>();
         dependentModules = new LinkedHashMap<>();
         currentClass = "";
@@ -304,19 +302,12 @@ public class JvmPackageGen {
 
     }
 
-    static void generatePackage(BIRNode.BIRPackage moduleId, JarFile jarFile,
-                                InteropValidator interopValidator, boolean isEntry) {
+    static void generatePackage(BIRNode.BIRPackage module, JarFile jarFile, InteropValidator interopValidator,
+                                boolean isEntry) {
 
-        String orgName = moduleId.org.value;
-        String moduleName = moduleId.name.value;
+        String orgName = module.org.value;
+        String moduleName = module.name.value;
         String pkgName = getPackageName(orgName, moduleName);
-
-        Map.Entry<BIRPackage, Boolean> pair = lookupModule(moduleId);
-        boolean isFromCache = pair.getValue();
-        BIRPackage module = pair.getKey();
-        if (!isEntry && isFromCache) {
-            return;
-        }
 
         Set<PackageID> dependentModuleSet = new LinkedHashSet<>();
 
@@ -324,26 +315,18 @@ public class JvmPackageGen {
 
         BPackageSymbol pkgSymbol = CodeGenerator.packageCache.getSymbol(getBvmAlias(orgName, moduleName));
 
-        // TODO fix imported module's linking
         if (pkgSymbol != null) {
             for (BPackageSymbol packageSymbol : pkgSymbol.imports) {
                 generateDependencyList(packageSymbol, jarFile, interopValidator);
-    //            if (DiagnosticLogger.getErrorCount() > 0) {
-    //                return;
-    //            }
+                if (dlogger.getErrorCount() > 0) {
+                    return;
+                }
             }
         }
 
-        // generate imported modules recursively
-//        for (BIRImportModule mod : module.importModules) {
-        // TODO fix imported module's linking
-//            generateDependencyList(importModuleToModuleId(mod), jarFile, interopValidator);
-//            if (DiagnosticLogger.getErrorCount() > 0) {
-//                return;
-//            }
-//        }
-
-        injectBStringFunctions(module);
+        if (isEntry) {
+            injectBStringFunctions(module);
+        }
 
         typeOwnerClass = getModuleLevelClassName(orgName, moduleName, MODULE_INIT_CLASS_NAME);
         Map<String, JavaClass> jvmClassMap = generateClassNameMappings(module, pkgName, typeOwnerClass,
@@ -382,7 +365,7 @@ public class JvmPackageGen {
                 cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, moduleClass, null, VALUE_CREATOR, null);
                 generateDefaultConstructor(cw, VALUE_CREATOR);
                 generateUserDefinedTypeFields(cw, module.typeDefs);
-                generateValueCreatorMethods(cw, module.typeDefs, moduleId);
+                generateValueCreatorMethods(cw, module.typeDefs, module);
                 // populate global variable to class name mapping and generate them
                 for (BIRGlobalVariableDcl globalVar : module.globalVars) {
                     if (globalVar != null) {
@@ -621,17 +604,17 @@ public class JvmPackageGen {
         return "$lock" + varName;
     }
 
-    private static Map.Entry<BIRPackage, Boolean> lookupModule(BIRPackage modId) {
-
-        String orgName = modId.org.value;
-        String moduleName = modId.name.value;
-        String versionName = modId.version.value;
-
-        BIRPackage pkgFromCache = compiledPkgCache.get(orgName + moduleName);
-        if (pkgFromCache != null) {
-            return new AbstractMap.SimpleEntry<>(pkgFromCache, true);
-        }
-
+//    private static Map.Entry<BIRPackage, Boolean> lookupModule(BIRPackage modId) {
+//
+//        String orgName = modId.org.value;
+//        String moduleName = modId.name.value;
+//        String versionName = modId.version.value;
+//
+//        BIRPackage pkgFromCache = compiledPkgCache.get(orgName + moduleName);
+//        if (pkgFromCache != null) {
+//            return new AbstractMap.SimpleEntry<>(pkgFromCache, true);
+//        }
+//
 //        var cacheDir = findCacheDirFor(modId);
 //        BIRPackage parsedPkg = BIRpopulateBIRModuleFromBinary(readFileFully(calculateBirCachePath(cacheDir,
 //        modId, ".bir")), true);
@@ -643,15 +626,15 @@ public class JvmPackageGen {
 //            }
 //        }
 //        compiledPkgCache[orgName + moduleName] = parsedPkg;
-////        return [parsedPkg, false]
-
-        BPackageSymbol pkgSymbol = CodeGenerator.packageCache.getSymbol(orgName + "/" + moduleName);
-
-        if (pkgSymbol != null) {
-            return new AbstractMap.SimpleEntry<>(pkgSymbol.bir, false);
-        }
-        return null;
-    }
+//        return [parsedPkg, false]
+//
+//        BPackageSymbol pkgSymbol = CodeGenerator.packageCache.getSymbol(orgName + "/" + moduleName);
+//
+//        if (pkgSymbol != null) {
+//            return new AbstractMap.SimpleEntry<>(pkgSymbol.bir, false);
+//        }
+//        return null;
+//    }
 
 //    static String findCacheDirFor(PackageID modId) {
 //        for (String birCacheDir : birCacheDirs) {
