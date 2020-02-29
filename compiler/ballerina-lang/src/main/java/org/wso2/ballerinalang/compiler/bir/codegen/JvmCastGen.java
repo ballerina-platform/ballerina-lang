@@ -75,6 +75,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.REF_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SIMPLE_VALUE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STREAM_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_UTILS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TABLE_VALUE;
@@ -846,6 +847,8 @@ public class JvmCastGen {
             targetTypeClass = MAP_VALUE;
         } else if (targetType.tag == TypeTags.TABLE) {
             targetTypeClass = TABLE_VALUE;
+        } else if (targetType.tag == TypeTags.STREAM) {
+            targetTypeClass = STREAM_VALUE;
         } else if (targetType.tag == TypeTags.OBJECT || targetType.tag == TypeTags.SERVICE) {
             targetTypeClass = OBJECT_VALUE;
         } else if (targetType.tag == TypeTags.ERROR) {

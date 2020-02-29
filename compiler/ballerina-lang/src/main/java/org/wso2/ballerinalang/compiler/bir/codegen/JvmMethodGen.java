@@ -840,6 +840,8 @@ public class JvmMethodGen {
             jvmType = String.format("L%s;", MAP_VALUE);
         } else if (bType.tag == TypeTags.TABLE) {
             jvmType = String.format("L%s;", TABLE_VALUE);
+        } else if (bType.tag == TypeTags.STREAM) {
+            jvmType = String.format("L%s;", STREAM_VALUE);
         } else if (bType.tag == TypeTags.ARRAY ||
                 bType.tag == TypeTags.TUPLE) {
             jvmType = String.format("L%s;", ARRAY_VALUE);
@@ -866,6 +868,9 @@ public class JvmMethodGen {
             jvmType = getJTypeSignature((JType) bType);
         } else if (bType.tag == TypeTags.XML) {
             jvmType = String.format("L%s;", XML_VALUE);
+        } else {
+            throw new BLangCompilerException("JVM code generation is not supported for type " +
+                    String.format("%s", bType));
         }
         return jvmType;
     }
@@ -1540,6 +1545,8 @@ public class JvmMethodGen {
             return String.format("L%s;", FUTURE_VALUE);
         } else if (bType.tag == TypeTags.TABLE) {
             return String.format("L%s;", TABLE_VALUE);
+        } else if (bType.tag == TypeTags.STREAM) {
+            return String.format("L%s;", STREAM_VALUE);
         } else if (bType.tag == TypeTags.INVOKABLE) {
             return String.format("L%s;", FUNCTION_POINTER);
         } else if (bType.tag == TypeTags.TYPEDESC) {
@@ -2040,6 +2047,8 @@ public class JvmMethodGen {
             mv.visitTypeInsn(CHECKCAST, MAP_VALUE);
         } else if (targetType.tag == TypeTags.TABLE) {
             mv.visitTypeInsn(CHECKCAST, TABLE_VALUE);
+        } else if (targetType.tag == TypeTags.STREAM) {
+            mv.visitTypeInsn(CHECKCAST, STREAM_VALUE);
         } else if (targetType.tag == TypeTags.ANY ||
                 targetType.tag == TypeTags.ANYDATA ||
                 targetType.tag == TypeTags.NIL ||
