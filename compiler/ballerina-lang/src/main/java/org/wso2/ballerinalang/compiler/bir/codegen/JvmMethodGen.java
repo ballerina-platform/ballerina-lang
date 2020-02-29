@@ -1957,7 +1957,7 @@ public class JvmMethodGen {
                 // String lookupKey = getPackageName(id.orgName, id.name) + fullFuncName;
 
                 // String jvmClass = lookupFullQualifiedClassName(lookupKey);
-                String jvmClass =  getPackageName(id.orgName, id.name) + initClass;
+                String jvmClass =  getPackageName(id.orgName, id.name) + MODULE_INIT_CLASS_NAME;
                 generateLambdaForDepModStopFunc(cw, cleanupFunctionName(fullFuncName), jvmClass);
             }
         }
