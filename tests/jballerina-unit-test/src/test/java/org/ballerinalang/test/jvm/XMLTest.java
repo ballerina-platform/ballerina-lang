@@ -54,13 +54,14 @@ public class XMLTest {
         Assert.assertEquals(result[0].stringValue(),
                 "<ns0:foo xmlns:ns0=\"http://wso2.com/\" xmlns:ns1=\"http://ballerinalang.org/\" " +
                         "a=\"hello world\" ns0:b=\"active\"><ns1:bar1>hello1</ns1:bar1><bar2>hello2</bar2></ns0:foo>");
-        Assert.assertEquals(result[1].stringValue(), "{\"{http://www.w3.org/2000/xmlns/}ns0\":\"http://wso2.com/\"," +
-                " \"{http://www.w3.org/2000/xmlns/}ns1\":\"http://ballerinalang.org/\", \"a\":\"hello world\", " +
+        Assert.assertEquals(result[1].stringValue(),
+                "{\"{http://www.w3.org/2000/xmlns/}ns1\":\"http://ballerinalang.org/\"," +
+                " \"{http://www.w3.org/2000/xmlns/}ns0\":\"http://wso2.com/\", \"a\":\"hello world\", " +
                 "\"{http://wso2.com/}b\":\"active\"}");
         Assert.assertEquals(result[2].stringValue(), "active");
-        Assert.assertEquals(result[3].stringValue(), "<ns1:bar1 xmlns:ns1=\"http://ballerinalang.org/\" " +
-                "xmlns:ns0=\"http://wso2.com/\">hello1</ns1:bar1><bar2 xmlns:ns1=\"http://ballerinalang.org/\" " +
-                "xmlns:ns0=\"http://wso2.com/\">hello2</bar2>");
+        Assert.assertEquals(result[3].stringValue(),
+                "<ns1:bar1 xmlns:ns1=\"http://ballerinalang.org/\" xmlns:ns0=\"http://wso2.com/\">hello1</ns1:bar1>" +
+                        "<bar2 xmlns:ns1=\"http://ballerinalang.org/\" xmlns:ns0=\"http://wso2.com/\">hello2</bar2>");
         Assert.assertEquals(result[4].stringValue(), "<ns1:bar1 xmlns:ns1=\"http://ballerinalang.org/\" " +
                 "xmlns:ns0=\"http://wso2.com/\">hello1</ns1:bar1>");
         Assert.assertEquals(result[5].stringValue(), "<ns1:bar1 xmlns:ns1=\"http://ballerinalang.org/\" " +
@@ -174,7 +175,7 @@ public class XMLTest {
                 "<p:person xmlns:p=\"foo\" xmlns:q=\"bar\" xmlns:ns1=\"http://ballerina.com/b\">hello</p:person>");
     }
 
-    @Test
+    @Test(enabled =  false) // todo: re-enable when implementing getElement syntax (seq.<elm>)
     public void testFieldBasedAccess() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testFieldBasedAccess");
         Assert.assertEquals(returns[0].stringValue(),
