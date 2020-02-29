@@ -832,7 +832,7 @@ class JvmTypeGen {
         if (initFunction != null && initFunction.funcName.value.contains(funcName)) {
             mv.visitInsn(DUP);
             createObjectAttachedFunction(mv, initFunction, objType);
-            BType anyType = new BAnyType(TypeTags.ANY, null);
+            BType anyType = symbolTable.anyType;
             BIRVariableDcl attachedFuncVar = new BIRVariableDcl(anyType,
                     new Name(objType.name + initFunction.funcName.value), VarScope.FUNCTION, VarKind.LOCAL);
             int attachedFunctionVarIndex = indexMap.getIndex(attachedFuncVar);
