@@ -384,7 +384,7 @@ public class InteropMethodGen {
             for (Class exception : extFuncWrapper.jMethod.getExceptionTypes()){
                 BIRTerminator.Return exceptionRet = new BIRTerminator.Return(birFunc.pos);
                 CatchIns catchIns = new CatchIns();
-                catchIns.errorClass = exception.getName();
+                catchIns.errorClass = exception.getName().replace(".", "/");
                 catchIns.term = exceptionRet;
                 ee.catchIns.add(catchIns);
             }
@@ -400,7 +400,7 @@ public class InteropMethodGen {
             jCall.varArgExist = birFunc.restParam != null;
             jCall.varArgType = varArgType;
             jCall.lhsOp = jRetVarRef;
-            jCall.jClassName = jMethod.getClassName();
+            jCall.jClassName = jMethod.getClassName().replace(".","/");
             jCall.name = jMethod.getName();
             jCall.jMethodVMSig = jMethod.getSignature();
             jCall.thenBB = thenBB;
@@ -411,7 +411,7 @@ public class InteropMethodGen {
             jCall.varArgExist = birFunc.restParam != null;
             jCall.varArgType = varArgType;
             jCall.lhsOp = jRetVarRef;
-            jCall.jClassName = jMethod.getClassName();
+            jCall.jClassName = jMethod.getClassName().replace(".","/");
             jCall.name = jMethod.getName();
             jCall.jMethodVMSig = jMethod.getSignature();
             jCall.invocationType = invocationType;
@@ -438,9 +438,9 @@ public class InteropMethodGen {
     public static final int JNEW =2;
 
     static boolean isMatchingBAndJType(BType sourceTypes, JType targetType) {
-        if ((sourceTypes.tag == TypeTags.INT && targetType.tag == JTypeTags.JLONG) ||
-                (sourceTypes.tag == TypeTags.FLOAT && targetType.tag == JTypeTags.JDOUBLE) ||
-                (sourceTypes.tag == TypeTags.BOOLEAN && targetType.tag == JTypeTags.JBOOLEAN)) {
+        if ((sourceTypes.tag == TypeTags.INT && targetType.jTag == JTypeTags.JLONG) ||
+                (sourceTypes.tag == TypeTags.FLOAT && targetType.jTag == JTypeTags.JDOUBLE) ||
+                (sourceTypes.tag == TypeTags.BOOLEAN && targetType.jTag == JTypeTags.JBOOLEAN)) {
             return true;
         }
         return false;
@@ -449,16 +449,16 @@ public class InteropMethodGen {
     // These conversions are already validate beforehand, therefore I am just emitting type conversion instructions here.
     // We can improve following logic with a type lattice.
     static void performWideningPrimitiveConversion(MethodVisitor mv, BType bType, JType jType) {
-        if (bType.tag == TypeTags.INT && jType.tag == JTypeTags.JLONG) {
+        if (bType.tag == TypeTags.INT && jType.jTag == JTypeTags.JLONG) {
             return; // NOP
-        } else if (bType.tag == TypeTags.FLOAT && jType.tag == JTypeTags.JDOUBLE) {
+        } else if (bType.tag == TypeTags.FLOAT && jType.jTag == JTypeTags.JDOUBLE) {
             return; // NOP
         } else if (bType.tag == TypeTags.INT){
             mv.visitInsn(I2L);
         } else if (bType.tag == TypeTags.FLOAT) {
-            if (jType.tag == JTypeTags.JLONG){
+            if (jType.jTag == JTypeTags.JLONG){
                 mv.visitInsn(L2D);
-            } else if (jType.tag == JTypeTags.JFLOAT) {
+            } else if (jType.jTag == JTypeTags.JFLOAT) {
                 mv.visitInsn(F2D);
             } else {
                 mv.visitInsn(I2D);
@@ -484,27 +484,27 @@ public class InteropMethodGen {
     }
 
     public static String getJTypeSignature(JType jType) {
-        if (jType.tag == JTypeTags.JREF) {
-            return "L" + jType.type + ";";
-        } else if (jType.tag == JTypeTags.JARRAY) {
+        if (jType.jTag == JTypeTags.JREF) {
+            return "L" + ((JType.JRefType)jType).typeValue + ";";
+        } else if (jType.jTag == JTypeTags.JARRAY) {
             JType eType = ((JType.JArrayType) jType).elementType;
             return "[" + getJTypeSignature(eType);
         } else {
-            if (jType.tag == JTypeTags.JBYTE) {
+            if (jType.jTag == JTypeTags.JBYTE) {
                 return "B";
-            } else if (jType.tag == JTypeTags.JCHAR) {
+            } else if (jType.jTag == JTypeTags.JCHAR) {
                 return "C";
-            } else if (jType.tag == JTypeTags.JSHORT) {
+            } else if (jType.jTag == JTypeTags.JSHORT) {
                 return "S";
-            } else if (jType.tag == JTypeTags.JINT) {
+            } else if (jType.jTag == JTypeTags.JINT) {
                 return "I";
-            } else if (jType.tag == JTypeTags.JLONG) {
+            } else if (jType.jTag == JTypeTags.JLONG) {
                 return "J";
-            } else if (jType.tag == JTypeTags.JFLOAT) {
+            } else if (jType.jTag == JTypeTags.JFLOAT) {
                 return "F";
-            } else if (jType.tag == JTypeTags.JDOUBLE) {
+            } else if (jType.jTag == JTypeTags.JDOUBLE) {
                 return "D";
-            } else if (jType.tag == JTypeTags.JBOOLEAN) {
+            } else if (jType.jTag == JTypeTags.JBOOLEAN) {
                 return "Z";
             } else {
                 throw new BLangCompilerException(String.format("invalid element type: %s", jType));
@@ -513,33 +513,33 @@ public class InteropMethodGen {
     }
 
     public static String getSignatureForJType(JType jType) {
-        if (jType.tag == JTypeTags.JREF) {
-            return jType.type;
-        } else if (jType.tag == JTypeTags.JARRAY) { //must be JArrayType
+        if (jType.jTag == JTypeTags.JREF) {
+            return ((JType.JRefType) jType).typeValue;
+        } else if (jType.jTag == JTypeTags.JARRAY) { //must be JArrayType
             JType eType = ((JType.JArrayType) jType).elementType;
             String sig = "[";
-            while (eType.tag == JTypeTags.JARRAY) {
+            while (eType.jTag == JTypeTags.JARRAY) {
                 eType = ((JType.JArrayType) eType).elementType;
                 sig += "[";
             }
 
-            if (eType.tag == JTypeTags.JREF) {
+            if (eType.jTag == JTypeTags.JREF) {
                 return sig + "L" + getSignatureForJType(eType) + ";";
-            } else if (eType.tag == JTypeTags.JBYTE) {
+            } else if (eType.jTag == JTypeTags.JBYTE) {
                 return sig + "B";
-            } else if (eType.tag == JTypeTags.JCHAR) {
+            } else if (eType.jTag == JTypeTags.JCHAR) {
                 return sig + "C";
-            } else if (eType.tag == JTypeTags.JSHORT) {
+            } else if (eType.jTag == JTypeTags.JSHORT) {
                 return sig + "S";
-            } else if (eType.tag == JTypeTags.JINT) {
+            } else if (eType.jTag == JTypeTags.JINT) {
                 return sig + "I";
-            } else if (eType.tag == JTypeTags.JLONG) {
+            } else if (eType.jTag == JTypeTags.JLONG) {
                 return sig + "J";
-            } else if (eType.tag == JTypeTags.JFLOAT) {
+            } else if (eType.jTag == JTypeTags.JFLOAT) {
                 return sig + "F";
-            } else if (eType.tag == JTypeTags.JDOUBLE) {
+            } else if (eType.jTag == JTypeTags.JDOUBLE) {
                 return sig + "D";
-            } else if (eType.tag == JTypeTags.JBOOLEAN) {
+            } else if (eType.jTag == JTypeTags.JBOOLEAN) {
                 return sig + "Z";
             } else {
                 throw new BLangCompilerException(String.format("invalid element type: %s", eType));
@@ -553,7 +553,7 @@ public class InteropMethodGen {
                                  int varArgIndex) {
         JType jElementType;
         BType bElementType;
-        if (jvmType.tag == JTypeTags.JARRAY && bType.tag == TypeTags.ARRAY) {
+        if (jvmType.jTag == JTypeTags.JARRAY && bType.tag == TypeTags.ARRAY) {
             jElementType = ((JType.JArrayType) jvmType).elementType;
             bElementType = ((BArrayType)bType).eType;
         } else {
@@ -636,19 +636,19 @@ public class InteropMethodGen {
 
     static void genArrayStore(MethodVisitor mv, JType jType) {
         int code;
-        if (jType.tag == JTypeTags.JINT) {
+        if (jType.jTag == JTypeTags.JINT) {
             code = IASTORE;
-        } else if (jType.tag == JTypeTags.JLONG) {
+        } else if (jType.jTag == JTypeTags.JLONG) {
             code = LASTORE;
-        } else if (jType.tag == JTypeTags.JDOUBLE) {
+        } else if (jType.jTag == JTypeTags.JDOUBLE) {
             code = DASTORE;
-        } else if (jType.tag == JTypeTags.JBYTE || jType.tag == JTypeTags.JBOOLEAN) {
+        } else if (jType.jTag == JTypeTags.JBYTE || jType.jTag == JTypeTags.JBOOLEAN) {
             code = BASTORE;
-        } else if (jType.tag == JTypeTags.JSHORT) {
+        } else if (jType.jTag == JTypeTags.JSHORT) {
             code = SASTORE;
-        } else if (jType.tag == JTypeTags.JCHAR) {
+        } else if (jType.jTag == JTypeTags.JCHAR) {
             code = CASTORE;
-        } else if (jType.tag == JTypeTags.JFLOAT) {
+        } else if (jType.jTag == JTypeTags.JFLOAT) {
             code = FASTORE;
         } else {
             code = AASTORE;
@@ -660,21 +660,21 @@ public class InteropMethodGen {
 //    static JMethodFunctionWrapper |
 
     static void genArrayNew(MethodVisitor mv, JType elementType) {
-        if (elementType.tag == JTypeTags.JINT) {
+        if (elementType.jTag == JTypeTags.JINT) {
             mv.visitIntInsn(NEWARRAY, T_INT);
-        } else if (elementType.tag == JTypeTags.JLONG) {
+        } else if (elementType.jTag == JTypeTags.JLONG) {
             mv.visitIntInsn(NEWARRAY, T_LONG);
-        } else if (elementType.tag == JTypeTags.JDOUBLE) {
+        } else if (elementType.jTag == JTypeTags.JDOUBLE) {
             mv.visitIntInsn(NEWARRAY, T_DOUBLE);
-        } else if (elementType.tag == JTypeTags.JBYTE || elementType.tag == JTypeTags.JBOOLEAN) {
+        } else if (elementType.jTag == JTypeTags.JBYTE || elementType.jTag == JTypeTags.JBOOLEAN) {
             mv.visitIntInsn(NEWARRAY, T_BOOLEAN);
-        } else if (elementType.tag == JTypeTags.JSHORT) {
+        } else if (elementType.jTag == JTypeTags.JSHORT) {
             mv.visitIntInsn(NEWARRAY, T_SHORT);
-        } else if (elementType.tag == JTypeTags.JCHAR) {
+        } else if (elementType.jTag == JTypeTags.JCHAR) {
             mv.visitIntInsn(NEWARRAY, T_CHAR);
-        } else if (elementType.tag == JTypeTags.JFLOAT) {
+        } else if (elementType.jTag == JTypeTags.JFLOAT) {
             mv.visitIntInsn(NEWARRAY, T_FLOAT);
-        } else if (elementType.tag == JTypeTags.JREF ||  elementType.tag == JTypeTags.JARRAY) {
+        } else if (elementType.jTag == JTypeTags.JREF ||  elementType.jTag == JTypeTags.JARRAY) {
             mv.visitTypeInsn(ANEWARRAY, getSignatureForJType(elementType));
         } else {
             throw new BLangCompilerException(String.format("invalid type for var-arg: %s", elementType));
@@ -723,7 +723,7 @@ public class InteropMethodGen {
         return new JFieldFunctionWrapper(birFuncWrapper, jField);
     }
 
-    static class JMethodFunctionWrapper extends BIRFunctionWrapper {
+    static class JMethodFunctionWrapper extends BIRFunctionWrapper implements ExternalFunctionWrapper {
         JMethod jMethod;
 
         JMethodFunctionWrapper(BIRFunctionWrapper functionWrapper, JMethod jMethod) {
@@ -735,7 +735,7 @@ public class InteropMethodGen {
         }
     }
 
-    static class JFieldFunctionWrapper extends BIRFunctionWrapper  {
+    static class JFieldFunctionWrapper extends BIRFunctionWrapper implements ExternalFunctionWrapper  {
         JavaField jField;
 
         JFieldFunctionWrapper(BIRFunctionWrapper functionWrapper, JavaField jField) {
@@ -831,7 +831,7 @@ public class InteropMethodGen {
     }
 
     public static class JErrorEntry extends BIRErrorEntry {
-        public List<CatchIns> catchIns;
+        public List<CatchIns> catchIns = new ArrayList<>();
 
         public JErrorEntry(BIRBasicBlock trapBB, BIRBasicBlock endBB, BIROperand errorOp, BIRBasicBlock targetBB) {
             super(trapBB, endBB, errorOp, targetBB);

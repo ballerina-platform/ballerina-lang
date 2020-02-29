@@ -17,6 +17,7 @@
  */
 package org.wso2.ballerinalang.compiler.bir.codegen.interop;
 
+import org.ballerinalang.jvm.values.FPValue;
 import org.ballerinalang.jvm.values.api.BArray;
 import org.ballerinalang.jvm.values.api.BDecimal;
 import org.ballerinalang.jvm.values.api.BError;
@@ -310,6 +311,9 @@ class JMethodResolver {
                 case TypeTags.FUNCTION_POINTER:
                     return this.classLoader.loadClass(BFunctionPointer.class.getCanonicalName())
                             .isAssignableFrom(jType);
+                case TypeTags.INVOKABLE:
+                    return this.classLoader.loadClass(FPValue.class.getCanonicalName())
+                            .isAssignableFrom(jType);
                 case TypeTags.FUTURE:
                     return this.classLoader.loadClass(BFuture.class.getCanonicalName()).isAssignableFrom(jType);
                 case TypeTags.TYPEDESC:
@@ -436,6 +440,9 @@ class JMethodResolver {
                     return false;
                 case TypeTags.FUNCTION_POINTER:
                     return this.classLoader.loadClass(BFunctionPointer.class.getCanonicalName())
+                            .isAssignableFrom(jType);
+                case TypeTags.INVOKABLE:
+                    return this.classLoader.loadClass(FPValue.class.getCanonicalName())
                             .isAssignableFrom(jType);
                 case TypeTags.FUTURE:
                     return this.classLoader.loadClass(BFuture.class.getCanonicalName()).isAssignableFrom(jType);

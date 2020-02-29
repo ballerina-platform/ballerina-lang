@@ -19,15 +19,17 @@ package org.wso2.ballerinalang.compiler.bir.codegen.interop;
 
 public class JTypeTags {
     public static final int JBYTE = 1;
-    public static final int JCHAR = 1;
-    public static final int JSHORT = 1;
-    public static final int JINT = 1;
-    public static final int JLONG = 1;
-    public static final int JFLOAT = 1;
-    public static final int JDOUBLE = 1;
-    public static final int JBOOLEAN = 1;
-    public static final int JARRAY = 1;
-    public static final int JREF = 1;
+    public static final int JCHAR = 2;
+    public static final int JSHORT = 3;
+    public static final int JINT = 4;
+    public static final int JLONG = 5;
+    public static final int JFLOAT = 6;
+    public static final int JDOUBLE = 7;
+    public static final int JBOOLEAN = 8;
+    public static final int JARRAY = 9;
+    public static final int JREF = 10;
+    public static final int JVOID = 11;
+    public static final int JNO = 12;
 
     public static final int JTYPE = Integer.MAX_VALUE;
 

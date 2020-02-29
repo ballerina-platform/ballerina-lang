@@ -947,8 +947,6 @@ class JvmTypeGen {
             typeFieldName = "typeBoolean";
         } else if (bType.tag == TypeTags.BYTE) {
             typeFieldName = "typeByte";
-        } else if (bType.tag == TypeTags.NIL || bType == null) {
-            typeFieldName = "typeNull";
         } else if (bType.tag == TypeTags.ANY) {
             typeFieldName = "typeAny";
         } else if (bType.tag == TypeTags.ANYDATA) {

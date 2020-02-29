@@ -26,17 +26,18 @@ import java.util.Optional;
 
 import static org.wso2.ballerinalang.compiler.bir.codegen.interop.JInteropException.CLASS_NOT_FOUND_REASON;
 import static org.wso2.ballerinalang.compiler.bir.codegen.interop.JInteropException.UNSUPPORTED_PRIMITIVE_TYPE_REASON;
-import static org.wso2.ballerinalang.compiler.bir.codegen.interop.JType.JARRAY_KIND;
-import static org.wso2.ballerinalang.compiler.bir.codegen.interop.JType.JBOOLEAN_KIND;
-import static org.wso2.ballerinalang.compiler.bir.codegen.interop.JType.JBYTE_KIND;
-import static org.wso2.ballerinalang.compiler.bir.codegen.interop.JType.JCHAR_KIND;
-import static org.wso2.ballerinalang.compiler.bir.codegen.interop.JType.JDOUBLE_KIND;
-import static org.wso2.ballerinalang.compiler.bir.codegen.interop.JType.JFLOAT_KIND;
-import static org.wso2.ballerinalang.compiler.bir.codegen.interop.JType.JINT_KIND;
-import static org.wso2.ballerinalang.compiler.bir.codegen.interop.JType.JLONG_KIND;
-import static org.wso2.ballerinalang.compiler.bir.codegen.interop.JType.JREF_KIND;
-import static org.wso2.ballerinalang.compiler.bir.codegen.interop.JType.JSHORT_KIND;
-import static org.wso2.ballerinalang.compiler.bir.codegen.interop.JType.JVOID_KIND;
+import static org.wso2.ballerinalang.compiler.bir.codegen.interop.JType.getJTypeForPrimitive;
+import static org.wso2.ballerinalang.compiler.bir.codegen.interop.JTypeTags.JARRAY;
+import static org.wso2.ballerinalang.compiler.bir.codegen.interop.JTypeTags.JBOOLEAN;
+import static org.wso2.ballerinalang.compiler.bir.codegen.interop.JTypeTags.JBYTE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.interop.JTypeTags.JCHAR;
+import static org.wso2.ballerinalang.compiler.bir.codegen.interop.JTypeTags.JDOUBLE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.interop.JTypeTags.JFLOAT;
+import static org.wso2.ballerinalang.compiler.bir.codegen.interop.JTypeTags.JINT;
+import static org.wso2.ballerinalang.compiler.bir.codegen.interop.JTypeTags.JLONG;
+import static org.wso2.ballerinalang.compiler.bir.codegen.interop.JTypeTags.JNO;
+import static org.wso2.ballerinalang.compiler.bir.codegen.interop.JTypeTags.JREF;
+import static org.wso2.ballerinalang.compiler.bir.codegen.interop.JTypeTags.JSHORT;
 
 /**
  * This class contains a set of utility methods and constants used in this implementation.
@@ -73,28 +74,7 @@ class JInterop {
     static JType getJType(Class<?> jTypeClass) {
         if (jTypeClass.isPrimitive()) {
             String primitiveName = jTypeClass.getName();
-            switch (primitiveName) {
-                case JBYTE_KIND:
-                    return JType.jByte;
-                case JCHAR_KIND:
-                    return JType.jChar;
-                case JSHORT_KIND:
-                    return JType.jShort;
-                case JINT_KIND:
-                    return JType.jInt;
-                case JLONG_KIND:
-                    return JType.jLong;
-                case JFLOAT_KIND:
-                    return JType.jFloat;
-                case JDOUBLE_KIND:
-                    return JType.jDouble;
-                case JBOOLEAN_KIND:
-                    return JType.jBoolean;
-                case JVOID_KIND:
-                    return JType.jVoid;
-                default:
-                    throw new IllegalArgumentException("The Java " + primitiveName + " type is not yet supported.");
-            }
+           return getJTypeForPrimitive(primitiveName);
         } else if (jTypeClass == Void.class) {
             throw new IllegalArgumentException("The Java Void type is not yet supported.");
         } else if (jTypeClass.isArray()) {
@@ -165,12 +145,12 @@ class JInterop {
         return constraintList.toArray(new ParamTypeConstraint[0]);
     }
     private static ParamTypeConstraint buildParamTypeConstraint(JType javaTypeConstraint, ClassLoader classLoader) {
-        switch (javaTypeConstraint.type) {
-            case JREF_KIND:
+        switch (javaTypeConstraint.jTag) {
+            case JREF:
                 return buildConstraintFromJavaRefType((JType.JRefType) javaTypeConstraint, classLoader);
-            case JType.JARRAY_KIND:
+            case JARRAY:
                 return buildConstraintFromJavaArrayType((JType.JArrayType) javaTypeConstraint, classLoader);
-            case JType.JNO_KIND:
+            case JNO:
                 return ParamTypeConstraint.NO_CONSTRAINT;
             default:
                 return buildConstraintFromJavaPrimitiveType(javaTypeConstraint);
@@ -178,7 +158,7 @@ class JInterop {
     }
 
     private static ParamTypeConstraint buildConstraintFromJavaRefType(JType.JRefType javaRefType, ClassLoader classLoader) {
-        String constraintBValue = javaRefType.type;
+        String constraintBValue = javaRefType.typeValue;
         return new ParamTypeConstraint(loadClass(constraintBValue, classLoader));
     }
 
@@ -190,10 +170,10 @@ class JInterop {
     private static String getJavaArrayTypeSig(JType.JArrayType jArrayType) {
         JType elementType = jArrayType.elementType;
         String elementTypeSig = "[";
-        String tagValue = elementType.type;
-        if (tagValue.equals(JREF_KIND)) {
-            elementTypeSig += "L" + ((JType.JRefType) elementType).type + ";";
-        } else if (tagValue.equals(JARRAY_KIND)) {
+        int jTag = elementType.jTag;
+        if (jTag == JREF) {
+            elementTypeSig += "L" + ((JType.JRefType) elementType).typeValue + ";";
+        } else if (jTag == JARRAY) {
             elementTypeSig += getJavaArrayTypeSig((JType.JArrayType) elementType);
         } else {
             elementTypeSig += getSignatureFromJavaPrimitiveType(elementType);
@@ -205,29 +185,29 @@ class JInterop {
     private static ParamTypeConstraint buildConstraintFromJavaPrimitiveType(JType primitiveTypeName) {
         // Java primitive types: byte, short, char, int, long, float, double, boolean
         Class<?> constraintClass;
-        switch (primitiveTypeName.type) {
-            case "byte":
+        switch (primitiveTypeName.jTag) {
+            case JBYTE:
                 constraintClass = byte.class;
                 break;
-            case "short":
+            case JSHORT:
                 constraintClass = short.class;
                 break;
-            case "char":
+            case JCHAR:
                 constraintClass = char.class;
                 break;
-            case "int":
+            case JINT:
                 constraintClass = int.class;
                 break;
-            case "long":
+            case JLONG:
                 constraintClass = long.class;
                 break;
-            case "float":
+            case JFLOAT:
                 constraintClass = float.class;
                 break;
-            case "double":
+            case JDOUBLE:
                 constraintClass = double.class;
                 break;
-            case "boolean":
+            case JBOOLEAN:
                 constraintClass = boolean.class;
                 break;
             default:
@@ -239,22 +219,22 @@ class JInterop {
 
     private static String getSignatureFromJavaPrimitiveType(JType primitiveTypeName) {
         // Java primitive types: byte, short, char, int, long, float, double, boolean
-        switch (primitiveTypeName.type) {
-            case "byte":
+        switch (primitiveTypeName.jTag) {
+            case JBYTE:
                 return "B";
-            case "short":
+            case JSHORT:
                 return "S";
-            case "char":
+            case JCHAR:
                 return "C";
-            case "int":
+            case JINT:
                 return "I";
-            case "long":
+            case JLONG:
                 return "J";
-            case "float":
+            case JFLOAT:
                 return "F";
-            case "double":
+            case JDOUBLE:
                 return "D";
-            case "boolean":
+            case JBOOLEAN:
                 return "Z";
             default:
                 throw new JInteropException(UNSUPPORTED_PRIMITIVE_TYPE_REASON,
