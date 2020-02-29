@@ -43,6 +43,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BServiceType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
@@ -125,6 +126,8 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SERVICE_T
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SET;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SET_DETAIL_TYPE_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STREAM_TYPE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STREAM_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TABLE_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TABLE_VALUE;
@@ -986,6 +989,9 @@ class JvmTypeGen {
         } else if (bType.tag == TypeTags.TABLE) {
             loadTableType(mv, (BTableType) bType);
             return;
+        } else if (bType.tag == TypeTags.STREAM) {
+            loadStreamType(mv, (BStreamType) bType);
+            return;
         } else if (bType.tag == TypeTags.ERROR) {
             loadErrorType(mv, (BErrorType) bType);
             return;
@@ -1091,6 +1097,18 @@ class JvmTypeGen {
 
         // invoke the constructor
         mv.visitMethodInsn(INVOKESPECIAL, TABLE_TYPE, "<init>", String.format("(L%s;)V", BTYPE), false);
+    }
+
+    private static void loadStreamType(MethodVisitor mv, BStreamType bType) {
+        // Create an new stream type
+        mv.visitTypeInsn(NEW, STREAM_TYPE);
+        mv.visitInsn(DUP);
+
+        // Load the constraint type
+        loadType(mv, bType.constraint);
+
+        // invoke the constructor
+        mv.visitMethodInsn(INVOKESPECIAL, STREAM_TYPE, "<init>", String.format("(L%s;)V", BTYPE), false);
     }
 
     //# Generate code to load an instance of the given error type
@@ -1284,6 +1302,8 @@ class JvmTypeGen {
             return String.format("L%s;", TYPEDESC_VALUE);
         } else if (bType.tag == TypeTags.TABLE) {
             return String.format("L%s;", TABLE_VALUE);
+        } else if (bType.tag == TypeTags.STREAM) {
+            return String.format("L%s;", STREAM_VALUE);
         } else if (bType.tag == TypeTags.DECIMAL) {
             return String.format("L%s;", DECIMAL_VALUE);
         } else if (bType.tag == TypeTags.OBJECT) {
