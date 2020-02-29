@@ -59,8 +59,10 @@ public class ImportsTests {
         // Delete all existing bir files.
         BFileUtil.deleteAll(tempBir, "testModule.bir");
 
+        BaloCreator.cleanCacheDirectories();
+
         BaloCreator.createAndSetupBalo(imports.resolve(Paths.get("test_module1", "test_module")).toString(),
-                "testOrg", "testModule");
+                "testOrg", "testModule", "1.1.0");
         birFiles = Files.find(tempBir, Integer.MAX_VALUE, (path, attribute) ->
                 path.toString().contains("testModule.bir")
                         && !path.toString().contains("imports")).collect(Collectors.toList());
@@ -69,7 +71,7 @@ public class ImportsTests {
         BFileUtil.delete(birFiles.get(0));
 
         BaloCreator.createAndSetupBalo(imports.resolve(Paths.get("test_module2", "test_module")).toString(),
-                "testOrg", "testModule");
+                "testOrg", "testModule", "1.1.1");
         birFiles = Files.find(tempBir, Integer.MAX_VALUE, (path, attribute) ->
                 path.toString().contains("testModule.bir")
                         && !path.toString().contains("imports")).collect(Collectors.toList());
@@ -78,7 +80,7 @@ public class ImportsTests {
         BFileUtil.delete(birFiles.get(0));
 
         BaloCreator.createAndSetupBalo(imports.resolve(Paths.get("test_module3", "test_module")).toString(),
-                "testOrg", "testModule");
+                "testOrg", "testModule", "1.1.2");
         birFiles = Files.find(tempBir, Integer.MAX_VALUE, (path, attribute) ->
                 path.toString().contains("testModule.bir")
                         && !path.toString().contains("imports")).collect(Collectors.toList());
