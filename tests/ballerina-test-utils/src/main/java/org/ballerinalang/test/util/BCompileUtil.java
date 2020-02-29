@@ -599,7 +599,7 @@ public class BCompileUtil {
                 runInit(bLangPackage, cl, temp);
             }
             return compileResult;
-        } catch (Exception e) {
+        } catch (ClassNotFoundException | IOException e) {
             throw new BLangRuntimeException("Error during jvm code gen of the test", e);
         }
     }
