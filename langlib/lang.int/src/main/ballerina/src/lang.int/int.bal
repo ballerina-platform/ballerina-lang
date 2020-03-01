@@ -1,4 +1,4 @@
-// Copyright (c) 2019, 2020 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+// Copyright (c) 2019 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 //
 // WSO2 Inc. licenses this file to you under the Apache License,
 // Version 2.0 (the "License"); you may not use this file except
@@ -50,6 +50,29 @@ public type Unsigned16 int;
 # This is the same as `byte`.
 @builtinSubtype
 public type Unsigned8 int;
+
+# Maximum value of type `int`.
+public const int MAX_VALUE = 9223372036854775807;
+# Minimum value of type `int`.
+public const int MIN_VALUE = -9223372036854775807 - 1; // -9223372036854775808 would overflow
+# Maximum value of type `Signed32`.
+public const int SIGNED32_MAX_VALUE = 2147483647;
+# Minimum value of type `Signed32`.
+public const int SIGNED32_MIN_VALUE = -2147483648;
+# Maximum value of type `Signed16`.
+public const int SIGNED16_MAX_VALUE = 32767;
+# Minimum value of type `Signed16`.
+public const int SIGNED16_MIN_VALUE = -32768;
+# Maximum value of type `Signed8`.
+public const int SIGNED8_MAX_VALUE = 127;
+# Minimum value of type `Signed8`.
+public const int SIGNED8_MIN_VALUE = -128;
+# Maximum value of type `Unsigned32`.
+public const int UNSIGNED32_MAX_VALUE = 4294967295;
+# Maximum value of type `Unsigned16`.
+public const int UNSIGNED16_MAX_VALUE = 65535;
+# Maximum value of type `Unsigned8`.
+public const int UNSIGNED8_MAX_VALUE = 255;
 
 // XXX this will panic for the most negative value (-2^63 is an int but +2^63 isn't)
 // consistent with policy on integer overflow
