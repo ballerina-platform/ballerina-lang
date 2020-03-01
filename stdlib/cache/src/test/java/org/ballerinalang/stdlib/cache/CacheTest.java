@@ -36,7 +36,6 @@ import org.testng.annotations.Test;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -271,7 +270,7 @@ public class CacheTest {
 
     private String[] removeEmptyValues(String[] arr) {
         List<String> list = new ArrayList<>(Arrays.asList(arr));
-        list.removeAll(Collections.singletonList(""));
+        list.removeAll(Arrays.asList("", null));
         return list.toArray(new String[0]);
     }
 }

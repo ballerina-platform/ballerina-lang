@@ -57,7 +57,9 @@ type MapAndList record {|
 // Cleanup service which cleans the cache entries periodically.
 service cleanupService = service {
     resource function onTrigger(MapAndList mapAndList) {
-        cleanup(mapAndList);
+        lock {
+            cleanup(mapAndList);
+        }
     }
 };
 
@@ -293,6 +295,9 @@ function getOnEvictionPolicy(EvictionPolicy evictionPolicy, LinkedList list, Nod
 }
 
 function cleanup(MapAndList mapAndList) {
+    if (mapAndList.entries.length() == 0) {
+        return;
+    }
     foreach Node node in mapAndList.entries {
         CacheEntry entry = <CacheEntry>node.value;
         if (entry.expTime != -1 && entry.expTime < time:nanoTime()) {

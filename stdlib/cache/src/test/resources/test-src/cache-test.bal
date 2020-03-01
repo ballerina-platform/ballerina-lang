@@ -233,7 +233,7 @@ function testCacheEvictionWithTimer2() returns [string[], int] {
     };
     cache:Cache cache = new(config);
     cache.put("A", "1");
-    cache.put("B", "2", 5);
+    cache.put("B", "2", 3600);
     cache.put("C", "3");
     runtime:sleep(timerIntervalInSeconds * 1000 * 2 + 1000);
     return [cache.keys(), cache.size()];
