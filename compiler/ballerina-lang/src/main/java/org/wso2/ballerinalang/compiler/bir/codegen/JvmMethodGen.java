@@ -52,7 +52,6 @@ import org.wso2.ballerinalang.compiler.bir.model.VarKind;
 import org.wso2.ballerinalang.compiler.bir.model.VarScope;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BAnyType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
@@ -654,32 +653,32 @@ public class JvmMethodGen {
                                                      int index, String frameName) {
         JType jType = (JType) localVar.type;
 
-        if (jType.tag == JTypeTags.JBYTE) {
+        if (jType.jTag == JTypeTags.JBYTE) {
             mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%", "_"), "I");
             mv.visitVarInsn(ISTORE, index);
-        } else if (jType.tag == JTypeTags.JCHAR) {
+        } else if (jType.jTag == JTypeTags.JCHAR) {
             mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%", "_"), "I");
             mv.visitVarInsn(ISTORE, index);
-        } else if (jType.tag == JTypeTags.JSHORT) {
+        } else if (jType.jTag == JTypeTags.JSHORT) {
             mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%", "_"), "I");
             mv.visitVarInsn(ISTORE, index);
-        } else if (jType.tag == JTypeTags.JINT) {
+        } else if (jType.jTag == JTypeTags.JINT) {
             mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%", "_"), "I");
             mv.visitVarInsn(ISTORE, index);
-        } else if (jType.tag == JTypeTags.JLONG) {
+        } else if (jType.jTag == JTypeTags.JLONG) {
             mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%", "_"), "J");
             mv.visitVarInsn(LSTORE, index);
-        } else if (jType.tag == JTypeTags.JFLOAT) {
+        } else if (jType.jTag == JTypeTags.JFLOAT) {
             mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%", "_"), "F");
             mv.visitVarInsn(FSTORE, index);
-        } else if (jType.tag == JTypeTags.JDOUBLE) {
+        } else if (jType.jTag == JTypeTags.JDOUBLE) {
             mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%", "_"), "D");
             mv.visitVarInsn(DSTORE, index);
-        } else if (jType.tag == JTypeTags.JBOOLEAN) {
+        } else if (jType.jTag == JTypeTags.JBOOLEAN) {
             mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%", "_"), "Z");
             mv.visitVarInsn(ISTORE, index);
-        } else if (jType.tag == JTypeTags.JARRAY ||
-                jType.tag == JTypeTags.JREF) {
+        } else if (jType.jTag == JTypeTags.JARRAY ||
+                jType.jTag == JTypeTags.JREF) {
             mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%", "_"), getJTypeSignature(jType));
             mv.visitVarInsn(ASTORE, index);
         } else {
@@ -786,34 +785,33 @@ public class JvmMethodGen {
     private static void generateFrameClassJFieldUpdate(BIRVariableDcl localVar, MethodVisitor mv,
                                                        int index, String frameName) {
         JType jType = (JType) localVar.type;
-        if (jType.tag == JTypeTags.JBYTE) {
+        if (jType.jTag == JTypeTags.JBYTE) {
             mv.visitVarInsn(ILOAD, index);
             mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%", "_"), "B");
-        } else if (jType.tag == JTypeTags.JCHAR) {
+        } else if (jType.jTag == JTypeTags.JCHAR) {
             mv.visitVarInsn(ILOAD, index);
             mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%", "_"), "C");
-        } else if (jType.tag == JTypeTags.JSHORT) {
+        } else if (jType.jTag == JTypeTags.JSHORT) {
             mv.visitVarInsn(ILOAD, index);
             mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%", "_"), "S");
-        } else if (jType.tag == JTypeTags.JINT) {
+        } else if (jType.jTag == JTypeTags.JINT) {
             mv.visitVarInsn(ILOAD, index);
             mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%", "_"), "I");
-        } else if (jType.tag == JTypeTags.JLONG) {
+        } else if (jType.jTag == JTypeTags.JLONG) {
             mv.visitVarInsn(LLOAD, index);
             mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%", "_"), "J");
-        } else if (jType.tag == JTypeTags.JFLOAT) {
+        } else if (jType.jTag == JTypeTags.JFLOAT) {
             mv.visitVarInsn(FLOAD, index);
             mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%", "_"), "F");
-        } else if (jType.tag == JTypeTags.JDOUBLE) {
+        } else if (jType.jTag == JTypeTags.JDOUBLE) {
             mv.visitVarInsn(DLOAD, index);
             mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%", "_"), "D");
-        } else if (jType.tag == JTypeTags.JBOOLEAN) {
+        } else if (jType.jTag == JTypeTags.JBOOLEAN) {
             mv.visitVarInsn(ILOAD, index);
             mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%", "_"), "Z");
-        } else if (jType.tag == JTypeTags.JARRAY ||
-                jType.tag == JTypeTags.JREF) {
-            String classSig = getJTypeSignature((JType) jType);
-            String className = getSignatureForJType((JType) jType);
+        } else if (jType.jTag == JTypeTags.JARRAY || jType.jTag == JTypeTags.JREF) {
+            String classSig = getJTypeSignature(jType);
+            String className = getSignatureForJType(jType);
             mv.visitVarInsn(ALOAD, index);
             mv.visitTypeInsn(CHECKCAST, className);
             mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%", "_"), classSig);
@@ -1380,32 +1378,32 @@ public class JvmMethodGen {
     }
 
     private static void genJDefaultValue(MethodVisitor mv, JType jType, int index) {
-        if (jType.tag == JTypeTags.JBYTE) {
+        if (jType.jTag == JTypeTags.JBYTE) {
             mv.visitInsn(ICONST_0);
             mv.visitVarInsn(ISTORE, index);
-        } else if (jType.tag == JTypeTags.JCHAR) {
+        } else if (jType.jTag == JTypeTags.JCHAR) {
             mv.visitInsn(ICONST_0);
             mv.visitVarInsn(ISTORE, index);
-        } else if (jType.tag == JTypeTags.JSHORT) {
+        } else if (jType.jTag == JTypeTags.JSHORT) {
             mv.visitInsn(ICONST_0);
             mv.visitVarInsn(ISTORE, index);
-        } else if (jType.tag == JTypeTags.JINT) {
+        } else if (jType.jTag == JTypeTags.JINT) {
             mv.visitInsn(ICONST_0);
             mv.visitVarInsn(ISTORE, index);
-        } else if (jType.tag == JTypeTags.JLONG) {
+        } else if (jType.jTag == JTypeTags.JLONG) {
             mv.visitInsn(LCONST_0);
             mv.visitVarInsn(LSTORE, index);
-        } else if (jType.tag == JTypeTags.JFLOAT) {
+        } else if (jType.jTag == JTypeTags.JFLOAT) {
             mv.visitInsn(FCONST_0);
             mv.visitVarInsn(FSTORE, index);
-        } else if (jType.tag == JTypeTags.JDOUBLE) {
+        } else if (jType.jTag == JTypeTags.JDOUBLE) {
             mv.visitInsn(DCONST_0);
             mv.visitVarInsn(DSTORE, index);
-        } else if (jType.tag == JTypeTags.JBOOLEAN) {
+        } else if (jType.jTag == JTypeTags.JBOOLEAN) {
             mv.visitInsn(ICONST_0);
             mv.visitVarInsn(ISTORE, index);
-        } else if (jType.tag == JTypeTags.JARRAY ||
-                jType.tag == JTypeTags.JREF) {
+        } else if (jType.jTag == JTypeTags.JARRAY ||
+                jType.jTag == JTypeTags.JREF) {
             mv.visitInsn(ACONST_NULL);
             mv.visitVarInsn(ASTORE, index);
         } else {
@@ -1448,24 +1446,24 @@ public class JvmMethodGen {
     }
 
     private static void loadDefaultJValue(MethodVisitor mv, JType jType) {
-        if (jType.tag == JTypeTags.JBYTE) {
+        if (jType.jTag == JTypeTags.JBYTE) {
             mv.visitInsn(ICONST_0);
-        } else if (jType.tag == JTypeTags.JCHAR) {
+        } else if (jType.jTag == JTypeTags.JCHAR) {
             mv.visitInsn(ICONST_0);
-        } else if (jType.tag == JTypeTags.JSHORT) {
+        } else if (jType.jTag == JTypeTags.JSHORT) {
             mv.visitInsn(ICONST_0);
-        } else if (jType.tag == JTypeTags.JINT) {
+        } else if (jType.jTag == JTypeTags.JINT) {
             mv.visitInsn(ICONST_0);
-        } else if (jType.tag == JTypeTags.JLONG) {
+        } else if (jType.jTag == JTypeTags.JLONG) {
             mv.visitInsn(LCONST_0);
-        } else if (jType.tag == JTypeTags.JFLOAT) {
+        } else if (jType.jTag == JTypeTags.JFLOAT) {
             mv.visitInsn(FCONST_0);
-        } else if (jType.tag == JTypeTags.JDOUBLE) {
+        } else if (jType.jTag == JTypeTags.JDOUBLE) {
             mv.visitInsn(DCONST_0);
-        } else if (jType.tag == JTypeTags.JBOOLEAN) {
+        } else if (jType.jTag == JTypeTags.JBOOLEAN) {
             mv.visitInsn(ICONST_0);
-        } else if (jType.tag == JTypeTags.JARRAY ||
-                jType.tag == JTypeTags.JREF) {
+        } else if (jType.jTag == JTypeTags.JARRAY ||
+                jType.jTag == JTypeTags.JREF) {
             mv.visitInsn(ACONST_NULL);
         } else {
             throw new BLangCompilerException("JVM generation is not supported for type " + String.format("%s", jType));
@@ -2821,8 +2819,13 @@ public class JvmMethodGen {
 
             if (bType.tag == TypeTags.INT || bType.tag == TypeTags.FLOAT) {
                 this.localVarIndex = this.localVarIndex + 2;
-            } else if (bType.tag == JTypeTags.JLONG || bType.tag == JTypeTags.JDOUBLE) {
-                this.localVarIndex = this.localVarIndex + 2;
+            } else if (bType.tag == JTypeTags.JTYPE) {
+                JType jType = (JType) bType;
+                if (jType.jTag == JTypeTags.JLONG || jType.jTag == JTypeTags.JDOUBLE) {
+                    this.localVarIndex = this.localVarIndex + 2;
+                } else {
+                    this.localVarIndex = this.localVarIndex + 1;
+                }
             } else {
                 this.localVarIndex = this.localVarIndex + 1;
             }

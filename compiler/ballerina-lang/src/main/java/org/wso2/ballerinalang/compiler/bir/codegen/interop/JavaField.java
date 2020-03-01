@@ -35,7 +35,7 @@ class JavaField {
     }
 
     String getDeclaringClassName() {
-        return field.getDeclaringClass().getName();
+        return field.getDeclaringClass().getName().replace(".", "/");
     }
 
     String getName() {

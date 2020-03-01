@@ -134,7 +134,8 @@ public class AnnotationProc {
                     Map<String, BIRAnnotationValue> annotValueMap =
                             ((BIRAnnotationRecordValue) annotArrayElement).annotValueEntryMap;
                     String elementClass = (String) getLiteralValueFromAnnotValue(annotValueMap.get(CLASS_FIELD_NAME));
-                    byte dimensions = (byte) getLiteralValueFromAnnotValue(annotValueMap.get(DIMENSIONS_FIELD_NAME));
+                    byte dimensions = ((Long) getLiteralValueFromAnnotValue(annotValueMap.get(DIMENSIONS_FIELD_NAME)))
+                            .byteValue();
                     jType = getJArrayTypeFromTypeName(elementClass, dimensions);
                 } else {
                     throw new BLangCompilerException(String.format("unexpected annotation value: %s",

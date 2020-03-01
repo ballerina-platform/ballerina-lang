@@ -19,6 +19,18 @@ package org.wso2.ballerinalang.compiler.bir.codegen.interop;
 
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 
+import static org.wso2.ballerinalang.compiler.bir.codegen.interop.JTypeTags.JARRAY;
+import static org.wso2.ballerinalang.compiler.bir.codegen.interop.JTypeTags.JBOOLEAN;
+import static org.wso2.ballerinalang.compiler.bir.codegen.interop.JTypeTags.JBYTE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.interop.JTypeTags.JCHAR;
+import static org.wso2.ballerinalang.compiler.bir.codegen.interop.JTypeTags.JDOUBLE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.interop.JTypeTags.JFLOAT;
+import static org.wso2.ballerinalang.compiler.bir.codegen.interop.JTypeTags.JINT;
+import static org.wso2.ballerinalang.compiler.bir.codegen.interop.JTypeTags.JLONG;
+import static org.wso2.ballerinalang.compiler.bir.codegen.interop.JTypeTags.JREF;
+import static org.wso2.ballerinalang.compiler.bir.codegen.interop.JTypeTags.JSHORT;
+import static org.wso2.ballerinalang.compiler.bir.codegen.interop.JTypeTags.JVOID;
+
 /**
  * Interop representation of java types.
  *
@@ -26,58 +38,57 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
  */
 public class JType extends BType {
 
-    public String type;
+    public int jTag;
 
-    public JType(String type) {
+    public JType(int jTag) {
         super(JTypeTags.JTYPE, null);
-        this.type = type;
+        this.jTag = jTag;
     }
 
-    static final String JBYTE_KIND = "byte";
-    static final String JCHAR_KIND = "char";
-    static final String JSHORT_KIND = "short";
-    static final String JINT_KIND = "int";
-    static final String JLONG_KIND = "long";
-    static final String JFLOAT_KIND = "float";
-    static final String JDOUBLE_KIND = "double";
-    static final String JBOOLEAN_KIND = "boolean";
-    static final String JVOID_KIND = "void";
-    static final String JARRAY_KIND = "array";
-    static final String JREF_KIND = "ref";
-    static final String JNO_KIND = "no";
+    private static final String JBYTE_KIND = "byte";
+    private static final String JCHAR_KIND = "char";
+    private static final String JSHORT_KIND = "short";
+    private static final String JINT_KIND = "int";
+    private static final String JLONG_KIND = "long";
+    private static final String JFLOAT_KIND = "float";
+    private static final String JDOUBLE_KIND = "double";
+    private static final String JBOOLEAN_KIND = "boolean";
+    private static final String JVOID_KIND = "void";
+    private static final String JARRAY_KIND = "array";
+    private static final String JREF_KIND = "ref";
+    private static final String JNO_KIND = "no";
 
-    static JType jByte = new JType(JBYTE_KIND);
-    static JType jChar = new JType(JCHAR_KIND);
-    static JType jShort = new JType(JSHORT_KIND);
-    static JType jInt = new JType(JINT_KIND);
-    static JType jLong = new JType(JLONG_KIND);
-    static JType jFloat = new JType(JFLOAT_KIND);
-    static JType jDouble = new JType(JDOUBLE_KIND);
-    static JType jBoolean = new JType(JBOOLEAN_KIND);
-    static JType jVoid = new JType(JVOID_KIND);
+    static JType jByte = new JType(JBYTE);
+    static JType jChar = new JType(JCHAR);
+    static JType jShort = new JType(JSHORT);
+    static JType jInt = new JType(JINT);
+    static JType jLong = new JType(JLONG);
+    static JType jFloat = new JType(JFLOAT);
+    static JType jDouble = new JType(JDOUBLE);
+    static JType jBoolean = new JType(JBOOLEAN);
+    static JType jVoid = new JType(JVOID);
 
     public static class JArrayType extends JType {
         JType elementType;
 
         public JArrayType(JType elementType) {
-            super(JARRAY_KIND);
+            super(JARRAY);
             this.elementType = elementType;
         }
     }
 
     public static class JRefType extends JType {
-        String type;
+        public String typeValue;
         boolean isInterface = false;
         boolean isArray = false;
 
-        public JRefType(String type) {
-            super(JREF_KIND);
-            this.type = type;
+        public JRefType(String typeValue) {
+            super(JREF);
+            this.typeValue = typeValue;
         }
     }
 
     static JType getJTypeFromTypeName(String typeName) {
-
         switch (typeName) {
             case JBYTE_KIND:
                 return jByte;
@@ -95,8 +106,58 @@ public class JType extends BType {
                 return jDouble;
             case JBOOLEAN_KIND:
                 return jBoolean;
+            case JVOID_KIND:
+                return jVoid;
             default:
-                return new JRefType(typeName);
+                return new JRefType(typeName.replace('.', '/'));
+        }
+    }
+
+    static JType getJTypeForPrimitive(String typeName) {
+        switch (typeName) {
+            case JBYTE_KIND:
+                return jByte;
+            case JCHAR_KIND:
+                return jChar;
+            case JSHORT_KIND:
+                return jShort;
+            case JINT_KIND:
+                return jInt;
+            case JLONG_KIND:
+                return jLong;
+            case JFLOAT_KIND:
+                return jFloat;
+            case JDOUBLE_KIND:
+                return jDouble;
+            case JBOOLEAN_KIND:
+                return jBoolean;
+            case JVOID_KIND:
+                return jVoid;
+            default:
+                throw new IllegalArgumentException("The Java " + typeName + " type is not yet supported.");
+        }
+    }
+
+    static int getJTypeTagForPrimitive(String typeName) {
+        switch (typeName) {
+            case JBYTE_KIND:
+                return JBYTE;
+            case JCHAR_KIND:
+                return JCHAR;
+            case JSHORT_KIND:
+                return JSHORT;
+            case JINT_KIND:
+                return JINT;
+            case JLONG_KIND:
+                return JLONG;
+            case JFLOAT_KIND:
+                return JFLOAT;
+            case JDOUBLE_KIND:
+                return JDOUBLE;
+            case JBOOLEAN_KIND:
+                return JBOOLEAN;
+            default:
+                throw new IllegalArgumentException("The Java " + typeName + " type is not yet supported.");
         }
     }
 

@@ -593,7 +593,7 @@ public class JvmTerminatorGen {
                         "Ljava/lang/Object;");
                 // store return
                 @Nilable BIROperand lhsOpVarDcl = callIns.lhsOp;
-                addJUnboxInsn(this.mv, lhsOpVarDcl.variableDcl.type);
+                addJUnboxInsn(this.mv, ((JType)lhsOpVarDcl.variableDcl.type));
                 this.storeToVar(lhsOpVarDcl.variableDcl);
             }
 
@@ -647,10 +647,8 @@ public class JvmTerminatorGen {
             String jMethodVMSig = callIns.jMethodVMSig;
             this.mv.visitMethodInsn(callIns.invocationType, jClassName, jMethodName, jMethodVMSig, isInterface);
 
-            @Nilable BIRVariableDcl lhsOpVarDcl = callIns.lhsOp.variableDcl;
-
-            if (lhsOpVarDcl != null) {
-                this.storeToVar(lhsOpVarDcl);
+            if (callIns.lhsOp != null && callIns.lhsOp.variableDcl != null) {
+                this.storeToVar(callIns.lhsOp.variableDcl);
             }
 
             this.mv.visitLabel(notBlockedOnExternLabel);

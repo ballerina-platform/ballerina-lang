@@ -191,6 +191,7 @@ import static org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.XMLAcce
 
 public class JvmInstructionGen {
     public static final String I_STRING_VALUE = "org/ballerinalang/jvm/values/StringValue";
+    public static final String B_STRING_VALUE = "org/ballerinalang/jvm/values/api/BString";
     public static final String BMP_STRING_VALUE = "org/ballerinalang/jvm/values/BmpStringValue";
     public static final String NON_BMP_STRING_VALUE = "org/ballerinalang/jvm/values/NonBmpStringValue";
     public static boolean IS_BSTRING = (System.getProperty("ballerina.bstring") != null &&
@@ -213,27 +214,27 @@ public class JvmInstructionGen {
         }
     }
 
-    static void addJUnboxInsn(MethodVisitor mv, @Nilable BType bType) {
-        if (bType == null) {
+    static void addJUnboxInsn(MethodVisitor mv, @Nilable JType jType) {
+        if (jType == null) {
             return;
-        } else if (bType.tag == JTypeTags.JBYTE) {
+        } else if (jType.jTag == JTypeTags.JBYTE) {
             mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "anyToJByte", String.format("(L%s;)B", OBJECT), false);
-        } else if (bType.tag == JTypeTags.JCHAR) {
+        } else if (jType.jTag == JTypeTags.JCHAR) {
             mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "anyToJChar", String.format("(L%s;)C", OBJECT), false);
-        } else if (bType.tag == JTypeTags.JSHORT) {
+        } else if (jType.jTag == JTypeTags.JSHORT) {
             mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "anyToJShort", String.format("(L%s;)S", OBJECT), false);
-        } else if (bType.tag == JTypeTags.JINT) {
+        } else if (jType.jTag == JTypeTags.JINT) {
             mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "anyToJInt", String.format("(L%s;)I", OBJECT), false);
-        } else if (bType.tag == JTypeTags.JLONG) {
+        } else if (jType.jTag == JTypeTags.JLONG) {
             mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "anyToJLong", String.format("(L%s;)J", OBJECT), false);
-        } else if (bType.tag == JTypeTags.JFLOAT) {
+        } else if (jType.jTag == JTypeTags.JFLOAT) {
             mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "anyToJFloat", String.format("(L%s;)F", OBJECT), false);
-        } else if (bType.tag == JTypeTags.JDOUBLE) {
+        } else if (jType.jTag == JTypeTags.JDOUBLE) {
             mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "anyToJDouble", String.format("(L%s;)D", OBJECT), false);
-        } else if (bType.tag == JTypeTags.JBOOLEAN) {
+        } else if (jType.jTag == JTypeTags.JBOOLEAN) {
             mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "anyToJBoolean", String.format("(L%s;)Z", OBJECT), false);
-        } else if (bType.tag == JTypeTags.JREF) {
-            mv.visitTypeInsn(CHECKCAST, ((JType) bType).type);
+        } else if (jType.jTag == JTypeTags.JREF) {
+            mv.visitTypeInsn(CHECKCAST, ((JType.JRefType)jType).typeValue);
             //} else {
             //    error err = error(io:sprintf("Unboxing is not supported for '%s'", bType));
             //    panic err;
@@ -310,24 +311,24 @@ public class JvmInstructionGen {
 
     static void generateJVarLoad(MethodVisitor mv, JType jType, String currentPackageName, int valueIndex) {
 
-        if (jType.tag == JTypeTags.JBYTE) {
+        if (jType.jTag == JTypeTags.JBYTE) {
             mv.visitVarInsn(ILOAD, valueIndex);
-        } else if (jType.tag == JTypeTags.JCHAR) {
+        } else if (jType.jTag == JTypeTags.JCHAR) {
             mv.visitVarInsn(ILOAD, valueIndex);
-        } else if (jType.tag == JTypeTags.JSHORT) {
+        } else if (jType.jTag == JTypeTags.JSHORT) {
             mv.visitVarInsn(ILOAD, valueIndex);
-        } else if (jType.tag == JTypeTags.JINT) {
+        } else if (jType.jTag == JTypeTags.JINT) {
             mv.visitVarInsn(ILOAD, valueIndex);
-        } else if (jType.tag == JTypeTags.JLONG) {
+        } else if (jType.jTag == JTypeTags.JLONG) {
             mv.visitVarInsn(LLOAD, valueIndex);
-        } else if (jType.tag == JTypeTags.JFLOAT) {
+        } else if (jType.jTag == JTypeTags.JFLOAT) {
             mv.visitVarInsn(FLOAD, valueIndex);
-        } else if (jType.tag == JTypeTags.JDOUBLE) {
+        } else if (jType.jTag == JTypeTags.JDOUBLE) {
             mv.visitVarInsn(DLOAD, valueIndex);
-        } else if (jType.tag == JTypeTags.JBOOLEAN) {
+        } else if (jType.jTag == JTypeTags.JBOOLEAN) {
             mv.visitVarInsn(ILOAD, valueIndex);
-        } else if (jType.tag == JTypeTags.JARRAY ||
-                jType.tag == JTypeTags.JREF) {
+        } else if (jType.jTag == JTypeTags.JARRAY ||
+                jType.jTag == JTypeTags.JREF) {
             mv.visitVarInsn(ALOAD, valueIndex);
         } else {
             BLangCompilerException err = new BLangCompilerException("JVM generation is not supported for type " + String.format("%s", jType));
@@ -394,24 +395,24 @@ public class JvmInstructionGen {
     }
 
     static void generateJVarStore(MethodVisitor mv, JType jType, String currentPackageName, int valueIndex) {
-        if (jType.tag == JTypeTags.JBYTE) {
+        if (jType.jTag == JTypeTags.JBYTE) {
             mv.visitVarInsn(ISTORE, valueIndex);
-        } else if (jType.tag == JTypeTags.JCHAR) {
+        } else if (jType.jTag == JTypeTags.JCHAR) {
             mv.visitVarInsn(ISTORE, valueIndex);
-        } else if (jType.tag == JTypeTags.JSHORT) {
+        } else if (jType.jTag == JTypeTags.JSHORT) {
             mv.visitVarInsn(ISTORE, valueIndex);
-        } else if (jType.tag == JTypeTags.JINT) {
+        } else if (jType.jTag == JTypeTags.JINT) {
             mv.visitVarInsn(ISTORE, valueIndex);
-        } else if (jType.tag == JTypeTags.JLONG) {
+        } else if (jType.jTag == JTypeTags.JLONG) {
             mv.visitVarInsn(LSTORE, valueIndex);
-        } else if (jType.tag == JTypeTags.JFLOAT) {
+        } else if (jType.jTag == JTypeTags.JFLOAT) {
             mv.visitVarInsn(FSTORE, valueIndex);
-        } else if (jType.tag == JTypeTags.JDOUBLE) {
+        } else if (jType.jTag == JTypeTags.JDOUBLE) {
             mv.visitVarInsn(DSTORE, valueIndex);
-        } else if (jType.tag == JTypeTags.JBOOLEAN) {
+        } else if (jType.jTag == JTypeTags.JBOOLEAN) {
             mv.visitVarInsn(ISTORE, valueIndex);
-        } else if (jType.tag == JTypeTags.JARRAY ||
-                jType.tag == JTypeTags.JREF) {
+        } else if (jType.jTag == JTypeTags.JARRAY ||
+                jType.jTag == JTypeTags.JREF) {
             mv.visitVarInsn(ASTORE, valueIndex);
         } else {
             BLangCompilerException err = new BLangCompilerException("JVM generation is not supported for type " + String.format("%s", jType));

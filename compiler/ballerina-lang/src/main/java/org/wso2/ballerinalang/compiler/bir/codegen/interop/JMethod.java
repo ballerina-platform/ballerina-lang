@@ -126,6 +126,17 @@ class JMethod {
     }
 
     Class<?>[] getExceptionTypes() {
-        return method.getExceptionTypes();
+        List<Class<?>> checkedExceptions = new ArrayList<>();
+        try {
+            Class<?> runtimeException = ClassLoader.getSystemClassLoader().loadClass(RuntimeException.class.getCanonicalName());
+            for (Class<?> exceptionType : method.getExceptionTypes()) {
+                if (!runtimeException.isAssignableFrom(exceptionType)) {
+                    checkedExceptions.add(exceptionType);
+                }
+            }
+        } catch (ClassNotFoundException | NoClassDefFoundError e) {
+            throw new JInteropException(CLASS_NOT_FOUND_REASON, e.getMessage(), e);
+        }
+        return checkedExceptions.toArray(new Class[0]);
     }
 }

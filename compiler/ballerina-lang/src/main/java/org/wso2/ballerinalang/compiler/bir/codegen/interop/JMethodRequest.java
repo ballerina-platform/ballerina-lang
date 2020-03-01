@@ -19,6 +19,7 @@ package org.wso2.ballerinalang.compiler.bir.codegen.interop;
 
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 
 import java.util.List;
@@ -66,7 +67,16 @@ class JMethodRequest {
 
         BType returnType = bFuncType.retType;
         jMethodReq.bReturnType = returnType;
-        jMethodReq.returnsBErrorType = returnType.tag == TypeTags.ERROR;
+        if (returnType.tag == TypeTags.UNION) {
+            for (BType bType : ((BUnionType) returnType).getMemberTypes()) {
+                if (bType.tag == TypeTags.ERROR) {
+                    jMethodReq.returnsBErrorType = true;
+                    break;
+                }
+            }
+        } else {
+            jMethodReq.returnsBErrorType = returnType.tag == TypeTags.ERROR;
+        }
         jMethodReq.restParamExist = methodValidationRequest.restParamExist;
         return jMethodReq;
     }
