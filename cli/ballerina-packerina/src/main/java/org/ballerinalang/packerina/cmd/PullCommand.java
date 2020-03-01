@@ -34,9 +34,11 @@ import java.io.PrintStream;
 import java.net.URI;
 import java.util.HashMap;
 import java.util.List;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static org.ballerinalang.jvm.runtime.RuntimeConstants.SYSTEM_PROP_BAL_DEBUG;
+import static org.ballerinalang.packerina.cmd.Constants.MODULE_NAME_REGEX;
 import static org.ballerinalang.packerina.cmd.Constants.PULL_COMMAND;
 
 /**
@@ -81,28 +83,32 @@ public class PullCommand implements BLauncherCmd {
 
         String resourceName = argList.get(0);
         String orgName;
+        String packageName;
         String moduleName;
         String version;
 
         // Get org-name
-        int orgNameIndex = resourceName.indexOf("/");
-        if (orgNameIndex != -1) {
-            orgName = resourceName.substring(0, orgNameIndex);
-            if (orgName.equals("ballerina")) {
-                throw LauncherUtils.createLauncherException("`Ballerina` is the builtin organization and its modules"
-                                                                    + " are included in the runtime.");
-            }
-        } else {
-            throw LauncherUtils.createLauncherException("no module-name provided");
+        if (!validateModuleName(resourceName)) {
+            CommandUtil.printError(outStream,
+                    "invalid module name. Provide the module name with the org name ",
+                    "ballerina pull {<org-name>/<module-name> | <org-name>/<module-name>:<version>}",
+                    false);
+            Runtime.getRuntime().exit(1);
+            return;
         }
 
+        // Get org-name
+        String[] moduleInfo = resourceName.split("/");
+        orgName = moduleInfo[0];
+        packageName = moduleInfo[1];
+
         // Get module name
-        int packageNameIndex = resourceName.indexOf(":");
-        if (packageNameIndex != -1) { // version is provided
-            moduleName = resourceName.substring(orgNameIndex + 1, packageNameIndex);
-            version = resourceName.substring(packageNameIndex + 1, resourceName.length());
+        String[] packageInfo = packageName.split(":");
+        if (packageInfo.length == 2) {
+            moduleName = packageInfo[0];
+            version = packageInfo[1];
         } else {
-            moduleName = resourceName.substring(orgNameIndex + 1, resourceName.length());
+            moduleName = packageName;
             version = Names.EMPTY.getValue();
         }
 
@@ -146,5 +152,13 @@ public class PullCommand implements BLauncherCmd {
 
     @Override
     public void setParentCmdParser(CommandLine parentCmdParser) {
+    }
+
+    private String getPullCommandRegex() {
+        return MODULE_NAME_REGEX;
+    }
+
+    public boolean validateModuleName(String str) {
+        return Pattern.matches(getPullCommandRegex(), str);
     }
 }
