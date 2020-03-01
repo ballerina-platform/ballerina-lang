@@ -91,4 +91,10 @@
             <Bug pattern="BC_UNCONFIRMED_CAST" />
         </OR>
     </Match>
+    <Match>
+        <Class name="org.ballerinalang.langserver.util.definition.DefinitionUtil" />
+        <OR>
+            <Bug pattern="BC_UNCONFIRMED_CAST" />
+        </OR>
+    </Match>
 </FindBugsFilter>
