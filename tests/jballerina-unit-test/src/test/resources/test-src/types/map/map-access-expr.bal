@@ -105,3 +105,39 @@ function testMapRemoveNegative() {
     map<any> namesMap = {fname:"Supun", lname:"Setunga", sname:"Kevin", tname:"Ratnasekera"};
     _ = namesMap.remove("fname2"); // panic
 }
+
+function testRemoveIfHasKeyPositive1() returns boolean {
+    map<string> student = {id:"1", name:"Andrew", country:"Sri Lanka", city:"Colombo"};
+    string? s = student.removeIfHasKey("city");
+    if (s is ()) {
+        return false;
+    }
+    return <string> s == "Colombo";
+}
+
+function testRemoveIfHasKeyNegative1() returns boolean {
+    map<string> student = {id:"1", name:"Andrew", country:"Sri Lanka", city:"Colombo"};
+    string? s = student.removeIfHasKey("age");
+    if (s is ()) {
+        return false;
+    }
+    return <string> s == "Sri Lanka";
+}
+
+function testRemoveIfHasKeyPositive2() returns boolean {
+    map<any> student = {id:1, name:"Andrew", country:"Sri Lanka", city:"Colombo"};
+    var s = student.removeIfHasKey("city");
+    if (s is ()) {
+        return false;
+    }
+    return <string> s == "Colombo";
+}
+
+function testRemoveIfHasKeyNegative2() returns boolean {
+    map<any> student = {id:1, name:"Andrew", country:"Sri Lanka", city:"Colombo"};
+    var s = student.removeIfHasKey("age");
+    if (s is ()) {
+        return false;
+    }
+    return <string> s == "Sri Lanka";
+}

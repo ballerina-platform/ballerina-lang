@@ -106,6 +106,15 @@ public function reduce(map<Type> m, function(Type1 accum, Type val) returns Type
 # It panics if there is no such member.
 public function remove(map<Type> m, string k) returns Type = external;
 
+# Removes a member of a map with a given key, if the map has member with the key.
+#
+# + m - the map
+# + k - the key
+# + return - the member of `m` that had key `k`, or `()` if `m` does not have a key `k`
+# If `m` has a member with key `k`, it removes and returns it;
+# otherwise it returns `()`.
+public function removeIfHasKey(map<Type> m, string k) returns Type? = external;
+
 # Removes all members of a map.
 # This panics if any member cannot be removed.
 #
