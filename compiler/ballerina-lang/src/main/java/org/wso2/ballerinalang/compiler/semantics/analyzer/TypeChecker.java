@@ -1776,7 +1776,7 @@ public class TypeChecker extends BLangNodeVisitor {
 //                resultType = types.checkType(cIExpr, actualTypeInitType, expType);
 
                 // TODO: add checks
-                resultType = expType;
+                resultType = actualType;
                 return;
             case TypeTags.UNION:
                 List<BType> matchingMembers = findMembersWithMatchingInitFunc(cIExpr, (BUnionType) actualType);

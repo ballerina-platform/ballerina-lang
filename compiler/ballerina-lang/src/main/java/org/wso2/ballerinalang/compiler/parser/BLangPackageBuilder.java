@@ -1247,7 +1247,7 @@ public class BLangPackageBuilder {
         initNode.pos = pos;
         initNode.addWS(ws);
         if (typeAvailable) {
-            initNode.userDefinedType = (BLangUserDefinedType) typeNodeStack.pop();
+            initNode.userDefinedType = (BLangType) typeNodeStack.pop();
         }
 
         BLangInvocation invocationNode = (BLangInvocation) TreeBuilder.createInvocationNode();

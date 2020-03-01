@@ -62,7 +62,7 @@ public class BLangStreamType extends BLangType implements StreamTypeNode {
     @Override
     public String toString() {
         return this.type.toString() + "<" + this.constraint.toString() + ((this.error == null) ? ">" :
-                this.error.toString() + ">");
+                ", " + this.error.toString() + ">");
     }
 
     @Override

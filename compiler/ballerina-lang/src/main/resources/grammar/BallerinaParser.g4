@@ -837,7 +837,7 @@ typeDescExpr
 
 typeInitExpr
     :   NEW (LEFT_PARENTHESIS invocationArgList? RIGHT_PARENTHESIS)?
-    |   NEW userDefineTypeName LEFT_PARENTHESIS invocationArgList? RIGHT_PARENTHESIS
+    |   NEW (userDefineTypeName | streamTypeName) LEFT_PARENTHESIS invocationArgList? RIGHT_PARENTHESIS
     ;
 
 serviceConstructorExpr
