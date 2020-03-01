@@ -32,7 +32,12 @@ map<TwoPhaseCommitTransaction> initiatedTransactions = {};
 @tainted map<TwoPhaseCommitTransaction> participatedTransactions = {};
 
 # This cache is used for caching HTTP connectors against the URL, since creating connectors is expensive.
-cache:Cache httpClientCache = new;
+cache:CacheConfig config = {
+    capacity: 100,
+    evictionPolicy: cache:LRU,
+    evictionFactor: 0.25
+};
+cache:Cache httpClientCache = new(config);
 
 listener task:Listener timer = new({
     intervalInMillis: 60000,

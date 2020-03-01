@@ -35,9 +35,14 @@ public type HttpCache object {
     #
     # + config - The configurations for the HTTP cache
     public function __init(CacheConfig cacheConfig) {
-            self.cache = new cache:Cache(cacheConfig.expiryTimeInMillis, cacheConfig.capacity, cacheConfig.evictionFactor);
-            self.policy = cacheConfig.policy;
-            self.isShared = cacheConfig.isShared;
+        cache:CacheConfig config = {
+            capacity: cacheConfig.capacity,
+            evictionPolicy: cacheConfig.evictionPolicy,
+            evictionFactor: cacheConfig.evictionFactor
+        };
+        self.cache = new cache:Cache(config);
+        self.policy = cacheConfig.policy;
+        self.isShared = cacheConfig.isShared;
     }
 
     function isAllowedToCache(Response response) returns boolean {

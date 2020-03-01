@@ -27,7 +27,13 @@ import ballerina/time;
 @tainted map<PendingSubscriptionChangeRequest> pendingRequests = {};
 
 # This cache is used for caching HTTP clients against the subscriber callbacks.
-cache:Cache subscriberCallbackClientCache = new (expiryTimeInMillis = DEFAULT_CACHE_EXPIRY_MILLIS);
+cache:CacheConfig config = {
+    capacity: 100,
+    evictionPolicy: cache:LRU,
+    evictionFactor: 0.25,
+    defaultMaxAgeInSeconds: DEFAULT_CACHE_EXPIRY_SECONDS
+};
+cache:Cache subscriberCallbackClientCache = new(config);
 
 function getHubService() returns service {
     return @http:ServiceConfig {
@@ -554,14 +560,14 @@ function distributeContent(string callback, SubscriptionDetails subscriptionDeta
 function getSubcriberCallbackClient(string callback) returns http:Client {
     http:Client subscriberCallbackClient;
     if (subscriberCallbackClientCache.hasKey(callback)) {
-        return <http:Client>subscriberCallbackClientCache.get(callback);
+        return <http:Client>subscriberCallbackClientCache.get(<@untainted> callback);
     } else {
         lock {
             if (subscriberCallbackClientCache.hasKey(callback)) {
-                return <http:Client>subscriberCallbackClientCache.get(callback);
+                return <http:Client>subscriberCallbackClientCache.get(<@untainted> callback);
             }
             subscriberCallbackClient = new http:Client(callback, hubClientConfig);
-            subscriberCallbackClientCache.put(callback, <@untainted> subscriberCallbackClient);
+            subscriberCallbackClientCache.put(<@untainted> callback, <@untainted> subscriberCallbackClient);
             return subscriberCallbackClient;
         }
     }

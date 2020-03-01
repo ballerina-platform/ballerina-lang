@@ -14,6 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/cache;
 import ballerina/crypto;
 import ballerina/encoding;
 import ballerina/io;
@@ -49,12 +50,12 @@ public type JwtTrustStoreConfig record {|
 # Represents inbound JWT cache configurations.
 #
 # + capacity - Maximum number of entries allowed
-# + expTimeInSeconds - Time since its last access in which the cache will be expired
 # + evictionFactor - The factor which the entries will be evicted once the cache full
+# + evictionPolicy - The policy which defines the cache eviction algorithm
 public type InboundJwtCacheConfig record {|
     int capacity = 900000;
-    int expTimeInSeconds = 1;
     float evictionFactor = 0.25;
+    cache:EvictionPolicy evictionPolicy = cache:LRU;
 |};
 
 # Represents an entry of JWT cache.

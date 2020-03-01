@@ -302,14 +302,14 @@ public type ListenerSecureSocket record {|
 #
 # + enabled - Specifies whether authorization caching is enabled. Caching is enabled by default.
 # + capacity - The capacity of the cache
-# + expiryTimeInMillis - The number of milliseconds to keep an entry in the cache
 # + evictionFactor - The fraction of entries to be removed when the cache is full. The value should be
 #                    between 0 (exclusive) and 1 (inclusive).
+# + evictionPolicy - The policy which defines the cache eviction algorithm
 public type AuthzCacheConfig record {|
     boolean enabled = true;
     int capacity = 100;
-    int expiryTimeInMillis = 5 * 1000; // 5 seconds;
     float evictionFactor = 1;
+    cache:EvictionPolicy evictionPolicy = cache:LRU;
 |};
 
 # Defines the possible values for the keep-alive configuration in service and client endpoints.
@@ -345,14 +345,20 @@ function addAuthFilters(ListenerConfiguration config) {
         cache:Cache? positiveAuthzCache = ();
         cache:Cache? negativeAuthzCache = ();
         if (auth.positiveAuthzCache.enabled) {
-            positiveAuthzCache = new cache:Cache(auth.positiveAuthzCache.expiryTimeInMillis,
-                                     auth.positiveAuthzCache.capacity,
-                                     auth.positiveAuthzCache.evictionFactor);
+            cache:CacheConfig cacheConfig = {
+                capacity: auth.positiveAuthzCache.capacity,
+                evictionPolicy: auth.positiveAuthzCache.evictionPolicy,
+                evictionFactor: auth.positiveAuthzCache.evictionFactor
+            };
+            positiveAuthzCache = new(cacheConfig);
         }
         if (auth.negativeAuthzCache.enabled) {
-            negativeAuthzCache = new cache:Cache(auth.negativeAuthzCache.expiryTimeInMillis,
-                                     auth.negativeAuthzCache.capacity,
-                                     auth.negativeAuthzCache.evictionFactor);
+            cache:CacheConfig cacheConfig = {
+                capacity: auth.positiveAuthzCache.capacity,
+                evictionPolicy: auth.positiveAuthzCache.evictionPolicy,
+                evictionFactor: auth.positiveAuthzCache.evictionFactor
+            };
+            negativeAuthzCache = new(cacheConfig);
         }
         AuthzHandler authzHandler = new(positiveAuthzCache, negativeAuthzCache);
         var scopes = auth["scopes"];

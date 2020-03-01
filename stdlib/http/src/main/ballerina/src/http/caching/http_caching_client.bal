@@ -14,6 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/cache;
 import ballerina/log;
 import ballerina/runtime;
 import ballerina/time;
@@ -56,6 +57,7 @@ public const RFC_7234 = "RFC_7234";
 # + capacity - The capacity of the cache
 # + evictionFactor - The fraction of entries to be removed when the cache is full. The value should be
 #                    between 0 (exclusive) and 1 (inclusive).
+# + evictionPolicy - The policy which defines the cache eviction algorithm
 # + policy - Gives the user some control over the caching behaviour. By default, this is set to
 #            `CACHE_CONTROL_AND_VALIDATORS`. The default behaviour is to allow caching only when the `cache-control`
 #            header and either the `etag` or `last-modified` header are present.
@@ -65,6 +67,7 @@ public type CacheConfig record {|
     int expiryTimeInMillis = 86400;
     int capacity = 8388608; // 8MB
     float evictionFactor = 0.2;
+    cache:EvictionPolicy evictionPolicy = cache:LRU;
     CachingPolicy policy = CACHE_CONTROL_AND_VALIDATORS;
 |};
 

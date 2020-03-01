@@ -20,7 +20,6 @@ import ballerina/http;
 import ballerina/log;
 import ballerina/mime;
 import ballerina/stringutils;
-import ballerina/time;
 
 # Represents inbound OAuth2 provider, which calls the introspection server and validate the received credentials.
 #
@@ -40,8 +39,13 @@ public type InboundOAuth2Provider object {
         self.introspectionClient = new(config.url, config.clientConfig);
         var oauth2CacheConfig = config?.oauth2CacheConfig;
         if (oauth2CacheConfig is InboundOAuth2CacheConfig) {
-            self.inboundOAuth2Cache = new(oauth2CacheConfig.capacity, oauth2CacheConfig.expTimeInSeconds * 1000,
-                                          oauth2CacheConfig.evictionFactor);
+            cache:CacheConfig cacheConfig = {
+                capacity: oauth2CacheConfig.capacity,
+                evictionFactor: oauth2CacheConfig.evictionFactor,
+                evictionPolicy: oauth2CacheConfig.evictionPolicy,
+                defaultMaxAgeInSeconds: oauth2CacheConfig.defaultTokenExpTimeInSeconds
+            };
+            self.inboundOAuth2Cache = new(cacheConfig);
             self.defaultTokenExpTimeInSeconds = oauth2CacheConfig.defaultTokenExpTimeInSeconds;
         }
     }
@@ -97,11 +101,6 @@ public type InboundOAuth2Provider object {
                 }
                 if (payload.exp is int) {
                     exp = <@untainted> <int>payload.exp;
-                } else {
-                    int? defaultTokenExpTimeInSeconds = self.defaultTokenExpTimeInSeconds;
-                    if (defaultTokenExpTimeInSeconds is int) {
-                        exp = defaultTokenExpTimeInSeconds +  (time:currentTime().time / 1000);
-                    }
                 }
 
                 if (oauth2Cache is cache:Cache) {
@@ -119,8 +118,12 @@ public type InboundOAuth2Provider object {
 };
 
 function addToAuthenticationCache(cache:Cache oauth2Cache, string token, string? username, string? scopes, int? exp) {
-    InboundOAuth2CacheEntry oauth2CacheEntry = {username: username ?: "", scopes: scopes ?: "", expTime: exp ?: 0};
-    oauth2Cache.put(token, oauth2CacheEntry);
+    InboundOAuth2CacheEntry oauth2CacheEntry = {username: username ?: "", scopes: scopes ?: ""};
+    if (exp is int) {
+        oauth2Cache.put(token, oauth2CacheEntry, exp);
+    } else {
+        oauth2Cache.put(token, oauth2CacheEntry);
+    }
     if (username is string) {
         string user = username;
         log:printDebug(function() returns string {
@@ -130,15 +133,15 @@ function addToAuthenticationCache(cache:Cache oauth2Cache, string token, string?
 }
 
 function authenticateFromCache(cache:Cache oauth2Cache, string token) returns InboundOAuth2CacheEntry? {
-    InboundOAuth2CacheEntry oauth2CacheEntry = <InboundOAuth2CacheEntry>oauth2Cache.get(token);
-    if (oauth2CacheEntry.expTime > (time:currentTime().time / 1000)) {
-        log:printDebug(function() returns string {
-            return "Get authenticated user: " + oauth2CacheEntry.username + " from the cache.";
-        });
-        return oauth2CacheEntry;
-    } else {
-        oauth2Cache.remove(token);
+    var oauth2CacheEntry = oauth2Cache.get(token);
+    if (oauth2CacheEntry is ()) {
+        return;
     }
+    InboundOAuth2CacheEntry entry = <InboundOAuth2CacheEntry>oauth2CacheEntry;
+    log:printDebug(function() returns string {
+        return "Get authenticated user: " + entry.username + " from the cache.";
+    });
+    return entry;
 }
 
 # Reads the scope(s) for the user with the given username.
@@ -171,11 +174,13 @@ public type IntrospectionServerConfig record {|
 # + capacity - Maximum number of entries allowed
 # + expTimeInSeconds - Time since its last access in which the cache will be expired
 # + evictionFactor - The factor which the entries will be evicted once the cache full
+# + evictionPolicy - The policy which defines the cache eviction algorithm
 # + defaultTokenExpTimeInSeconds - Expiration time of the tokens if introspection response does not contain `exp` field
 public type InboundOAuth2CacheConfig record {|
     int capacity;
     int expTimeInSeconds;
     float evictionFactor;
+    cache:EvictionPolicy evictionPolicy = cache:LRU;
     int defaultTokenExpTimeInSeconds = 3600;
 |};
 
@@ -183,9 +188,7 @@ public type InboundOAuth2CacheConfig record {|
 #
 # + username - Username of the OAuth2 validated user
 # + scopes - Scopes of the OAuth2 validated user
-# + expTime - Expiration time, identifies the expiration time on or after which the OAuth2 token must not be accepted
 public type InboundOAuth2CacheEntry record {|
     string username;
     string scopes;
-    int expTime;
 |};
