@@ -890,19 +890,19 @@ public class Types {
     }
 
     public boolean checkArrayEquality(BType source, BType target, Set<TypePair> unresolvedTypes) {
-        if (target.tag == TypeTags.ARRAY && source.tag == TypeTags.ARRAY) {
-            // Both types are array types
-            BArrayType lhsArrayType = (BArrayType) target;
-            BArrayType rhsArrayType = (BArrayType) source;
-            if (lhsArrayType.state == BArrayState.UNSEALED) {
-                return checkArrayEquality(lhsArrayType.eType, rhsArrayType.eType, unresolvedTypes);
-            }
-            return checkSealedArraySizeEquality(rhsArrayType, lhsArrayType)
-                    && isArrayTypesAssignable(rhsArrayType.eType, lhsArrayType.eType, unresolvedTypes);
+        if (target.tag != TypeTags.ARRAY || source.tag != TypeTags.ARRAY) {
+            return false;
         }
 
-        // Now one or both types are not array types and they have to be equal
-        return isSameType(source, target);
+        BArrayType lhsArrayType = (BArrayType) target;
+        BArrayType rhsArrayType = (BArrayType) source;
+        if (lhsArrayType.state == BArrayState.UNSEALED) {
+            return rhsArrayType.state == BArrayState.UNSEALED &&
+                    isSameType(lhsArrayType.eType, rhsArrayType.eType, unresolvedTypes);
+        }
+
+        return checkSealedArraySizeEquality(rhsArrayType, lhsArrayType)
+                && isSameType(lhsArrayType.eType, rhsArrayType.eType, unresolvedTypes);
     }
 
     public boolean checkSealedArraySizeEquality(BArrayType rhsArrayType, BArrayType lhsArrayType) {

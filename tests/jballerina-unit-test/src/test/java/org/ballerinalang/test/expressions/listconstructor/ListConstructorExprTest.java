@@ -54,9 +54,9 @@ public class ListConstructorExprTest {
         BAssertUtil.validateError(resultNegative, i++, "invalid list constructor expression: " +
                 "types cannot be inferred for '[v1, v2, v3]'", 18, 24);
         BAssertUtil.validateError(resultNegative, i++, "tuple and expression size does not match",
-                22, 20);
+                22, 31);
         BAssertUtil.validateError(resultNegative, i++, "tuple and expression size does not match",
-                23, 34);
+                23, 56);
         Assert.assertEquals(resultNegative.getErrorCount(), i);
     }
 

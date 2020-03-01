@@ -32,6 +32,7 @@ import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.parser.BLangAnonymousModelHelper;
+import org.wso2.ballerinalang.compiler.parser.NodeCloner;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
@@ -178,6 +179,7 @@ public class TypeChecker extends BLangNodeVisitor {
     private SymbolTable symTable;
     private SymbolEnter symbolEnter;
     private SymbolResolver symResolver;
+    private NodeCloner nodeCloner;
     private Types types;
     private BLangDiagnosticLog dlog;
     private SymbolEnv env;
@@ -186,6 +188,7 @@ public class TypeChecker extends BLangNodeVisitor {
     private TypeParamAnalyzer typeParamAnalyzer;
     private BLangAnonymousModelHelper anonymousModelHelper;
     private SemanticAnalyzer semanticAnalyzer;
+    private boolean nonErrorLoggingCheck = false;
 
     /**
      * Expected types or inherited types.
@@ -211,6 +214,7 @@ public class TypeChecker extends BLangNodeVisitor {
         this.symTable = SymbolTable.getInstance(context);
         this.symbolEnter = SymbolEnter.getInstance(context);
         this.symResolver = SymbolResolver.getInstance(context);
+        this.nodeCloner = NodeCloner.getInstance(context);
         this.types = Types.getInstance(context);
         this.dlog = BLangDiagnosticLog.getInstance(context);
         this.typeNarrower = TypeNarrower.getInstance(context);
@@ -617,17 +621,18 @@ public class TypeChecker extends BLangNodeVisitor {
             return;
         }
 
-        resultType = checkListConstructorCompatibility(expType, listConstructor, false);
+        resultType = checkListConstructorCompatibility(expType, listConstructor);
     }
 
-    private BType checkListConstructorCompatibility(BType bType, BLangListConstructorExpr listConstructor,
-                                                    boolean nonErrorLoggingCheck) {
+    private BType checkListConstructorCompatibility(BType bType, BLangListConstructorExpr listConstructor) {
         if (bType.tag == TypeTags.UNION) {
             BLangDiagnosticLog prevTypeCheckerDLog = this.dlog;
             BLangDiagnosticLog prevTypesDLog = types.getDLog();
 
             this.dlog = new ErrorCountingBLangDiagnosticLog();
             types.setDLog(this.dlog);
+            boolean prevNonErrorLoggingCheck = this.nonErrorLoggingCheck;
+            this.nonErrorLoggingCheck = true;
 
             List<BType> compatibleTypes = new ArrayList<>();
             for (BType memberType : ((BUnionType) bType).getMemberTypes()) {
@@ -637,8 +642,7 @@ public class TypeChecker extends BLangNodeVisitor {
                     continue;
                 }
 
-                BType memCompatibiltyType = checkListConstructorCompatibility(listCompatibleMemType, listConstructor,
-                                                                              true);
+                BType memCompatibiltyType = checkListConstructorCompatibility(listCompatibleMemType, listConstructor);
 
                 if (memCompatibiltyType != symTable.semanticError && dlog.errorCount == 0 &&
                         isUniqueType(compatibleTypes, memCompatibiltyType)) {
@@ -646,8 +650,10 @@ public class TypeChecker extends BLangNodeVisitor {
                 }
                 dlog.errorCount = 0;
             }
-            this.dlog = prevTypeCheckerDLog;
+
+            this.nonErrorLoggingCheck = prevNonErrorLoggingCheck;
             types.setDLog(prevTypesDLog);
+            this.dlog = prevTypeCheckerDLog;
 
             if (compatibleTypes.isEmpty()) {
                 dlog.error(listConstructor.pos, DiagnosticCode.INCOMPATIBLE_TYPES, expType,
@@ -658,17 +664,16 @@ public class TypeChecker extends BLangNodeVisitor {
                 return symTable.semanticError;
             }
 
-            return checkListConstructorCompatibility(compatibleTypes.get(0), listConstructor, false);
+            return checkListConstructorCompatibility(compatibleTypes.get(0), listConstructor);
         }
 
         BType possibleType = getListConstructorCompatibleNonUnionType(bType);
 
         switch (possibleType.tag) {
             case TypeTags.ARRAY:
-                return checkArrayType(listConstructor, (BArrayType) possibleType, nonErrorLoggingCheck);
+                return checkArrayType(listConstructor, (BArrayType) possibleType);
             case TypeTags.TUPLE:
-                // TODO: 2/28/20 Check filler value.
-                return checkTupleType(listConstructor, (BTupleType) possibleType, nonErrorLoggingCheck);
+                return checkTupleType(listConstructor, (BTupleType) possibleType);
             case TypeTags.TYPEDESC:
                 // i.e typedesc t = [int, string]
                 List<BType> results = new ArrayList<>();
@@ -694,6 +699,8 @@ public class TypeChecker extends BLangNodeVisitor {
                 }
                 return new BTypedescType(listConstructor.typedescType, null);
         }
+        dlog.error(listConstructor.pos, DiagnosticCode.INCOMPATIBLE_TYPES, bType,
+                   getInferredTupleType(listConstructor));
         return symTable.semanticError;
     }
 
@@ -713,8 +720,7 @@ public class TypeChecker extends BLangNodeVisitor {
         return symTable.semanticError;
     }
 
-    private BType checkArrayType(BLangListConstructorExpr listConstructor, BArrayType arrayType,
-                                 boolean nonErrorLoggingCheck) {
+    private BType checkArrayType(BLangListConstructorExpr listConstructor, BArrayType arrayType) {
         BType eType = arrayType.eType;
 
         if (arrayType.state == BArrayState.OPEN_SEALED) {
@@ -734,29 +740,16 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         boolean errored = false;
-        BType prevType;
         for (BLangExpression expr : listConstructor.exprs) {
-            if (expr.typeChecked) {
-                errored = expr.type == symTable.semanticError;
-                continue;
-            }
-
-            prevType = expr.type;
-            if (checkExpr(expr, this.env, eType) == symTable.semanticError) {
+            if (exprIncompatible(eType, expr) && !errored) {
                 errored = true;
-            }
-
-            if (nonErrorLoggingCheck) {
-                expr.typeChecked = false;
-                expr.type = prevType;
             }
         }
 
         return errored ? symTable.semanticError : arrayType;
     }
 
-    private BType checkTupleType(BLangListConstructorExpr listConstructor, BTupleType tupleType,
-                                 boolean nonErrorLoggingCheck) {
+    private BType checkTupleType(BLangListConstructorExpr listConstructor, BTupleType tupleType) {
         List<BLangExpression> exprs = listConstructor.exprs;
         List<BType> memberTypes = tupleType.tupleTypes;
         BType restType = tupleType.restType;
@@ -772,52 +765,42 @@ public class TypeChecker extends BLangNodeVisitor {
                     return symTable.semanticError;
                 }
             }
-        }
-
-        if (listExprSize > memberTypeSize && restType == null) {
+        } else if (listExprSize > memberTypeSize && restType == null) {
             dlog.error(listConstructor.pos, DiagnosticCode.SYNTAX_ERROR, "tuple and expression size does not match");
             return symTable.semanticError;
         }
 
         boolean errored = false;
-        BType prevType;
 
-        for (int i = 0; i < memberTypes.size(); i++) {
-            BLangExpression expr = exprs.get(i);
-            if (expr.typeChecked) {
-                errored = expr.type == symTable.semanticError;
-                continue;
-            }
+        int nonRestCountToCheck = listExprSize < memberTypeSize ? listExprSize : memberTypeSize;
 
-            prevType = expr.type;
-            if (checkExpr(expr, this.env, memberTypes.get(i)) == symTable.semanticError) {
+        for (int i = 0; i < nonRestCountToCheck; i++) {
+            if (exprIncompatible(memberTypes.get(i), exprs.get(i)) && !errored) {
                 errored = true;
-            }
-
-            if (nonErrorLoggingCheck) {
-                expr.typeChecked = false;
-                expr.type = prevType;
             }
         }
 
-        for (int i = memberTypes.size(); i < exprs.size(); i++) {
-            BLangExpression expr = exprs.get(i);
-            if (expr.typeChecked) {
-                errored = expr.type == symTable.semanticError;
-                continue;
-            }
-
-            prevType = expr.type;
-            if (checkExpr(expr, this.env, restType) == symTable.semanticError) {
+        for (int i = nonRestCountToCheck; i < exprs.size(); i++) {
+            if (exprIncompatible(restType, exprs.get(i)) && !errored) {
                 errored = true;
-            }
-
-            if (nonErrorLoggingCheck) {
-                expr.typeChecked = false;
-                expr.type = prevType;
             }
         }
         return errored ? symTable.semanticError : tupleType;
+    }
+
+    private boolean exprIncompatible(BType eType, BLangExpression expr) {
+        if (expr.typeChecked) {
+            return expr.type == symTable.semanticError;
+        }
+
+        BLangExpression exprToCheck = expr;
+
+        if (this.nonErrorLoggingCheck) {
+            expr.cloneAttempt++;
+            exprToCheck = nodeCloner.clone(expr);
+        }
+
+        return checkExpr(exprToCheck, this.env, eType) == symTable.semanticError;
     }
 
     private BType[] getExprListUniqueTypes(List<BLangExpression> exprs, SymbolEnv env) {
