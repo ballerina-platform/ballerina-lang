@@ -170,6 +170,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangConstrainedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangErrorType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFiniteTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFunctionTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangLetVariable;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangTupleTypeNode;
@@ -1352,9 +1353,16 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             dlog.error(letExpression.pos, DiagnosticCode.LET_EXPRESSION_NOT_YET_SUPPORTED_OBJECT_FIELD);
         }
 
-        for (BLangVariable var : letExpression.letVarDeclarations) {
-            analyzeNode(var, letExpression.env);
+        // This is to support when let expressions are used in return statements
+        // Since variable declarations are visited after return node, this stops false positive unreachable code error
+        boolean returnStateBefore = this.statementReturns;
+        this.statementReturns = false;
+
+        for (BLangLetVariable letVariable : letExpression.letVarDeclarations) {
+            analyzeNode((BLangNode) letVariable.definitionNode, letExpression.env);
         }
+
+        this.statementReturns = returnStateBefore;
         analyzeExpr(letExpression.expr, letExpression.env);
     }
 

@@ -130,6 +130,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQName;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQuotedString;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLTextLiteral;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
+import org.wso2.ballerinalang.compiler.tree.types.BLangLetVariable;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUnionTypeNode;
@@ -1774,8 +1775,8 @@ public class TypeChecker extends BLangNodeVisitor {
                 new Name(String.format("$let_symbol_%d$", letCount++)), env.enclPkg.symbol.pkgID,
                 letExpression.type, env.scope.owner);
         letExpression.env = SymbolEnv.createExprEnv(letExpression, env, letSymbol);
-        for (BLangVariable var : letExpression.letVarDeclarations) {
-            semanticAnalyzer.analyzeDef(var, letExpression.env);
+        for (BLangLetVariable letVariable : letExpression.letVarDeclarations) {
+            semanticAnalyzer.analyzeDef((BLangNode) letVariable.definitionNode, letExpression.env);
         }
         checkExpr(letExpression.expr, letExpression.env);
     }

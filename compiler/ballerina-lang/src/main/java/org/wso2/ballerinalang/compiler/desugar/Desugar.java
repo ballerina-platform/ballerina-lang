@@ -208,6 +208,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangArrayType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangBuiltInRefTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangConstrainedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangErrorType;
+import org.wso2.ballerinalang.compiler.tree.types.BLangLetVariable;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFunctionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
@@ -1109,10 +1110,16 @@ public class Desugar extends BLangNodeVisitor {
         this.env = letExpression.env;
         BLangExpression expr = letExpression.expr;
         BLangBlockStmt blockStmt = ASTBuilderUtil.createBlockStmt(letExpression.pos);
-        for (BLangVariable var : letExpression.letVarDeclarations) {
-            BLangSimpleVariableDef varDef = createVarDef(((BLangSimpleVariable) var).name.getValue(), var.type,
-                    var.expr, var.pos);
-            blockStmt.addStatement(varDef);
+        for (BLangLetVariable letVariable : letExpression.letVarDeclarations) {
+            BLangNode node  = rewrite((BLangNode) letVariable.definitionNode, env);
+            if (node.getKind() == NodeKind.BLOCK) {
+                BLangBlockStmt defBlock = (BLangBlockStmt) node;
+                for (BLangStatement stmt : defBlock.stmts) {
+                    blockStmt.addStatement(stmt);
+                }
+            } else {
+                blockStmt.addStatement((BLangSimpleVariableDef) node);
+            }
         }
         BLangSimpleVariableDef tempVarDef = createVarDef(String.format("$let_var_%d_$", letCount++),
                 expr.type, expr, expr.pos);

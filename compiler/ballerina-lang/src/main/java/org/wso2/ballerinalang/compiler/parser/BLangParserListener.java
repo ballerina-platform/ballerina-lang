@@ -1309,18 +1309,21 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         if (ctx.Identifier() != null) {
             this.pkgBuilder.addSimpleVariableDefStatement(getCurrentPos(ctx), getWS(ctx), ctx.Identifier().getText(),
                                                           getCurrentPos(ctx.Identifier()),
-                                                          isFinal, isExpressionAvailable, isDeclaredWithVar);
+                                                          isFinal, isExpressionAvailable, isDeclaredWithVar, false);
         } else if (ctx.bindingPattern().Identifier() != null) {
             this.pkgBuilder.addSimpleVariableDefStatement(getCurrentPos(ctx), getWS(ctx),
                                                           ctx.bindingPattern().Identifier().getText(),
                                                           getCurrentPos(ctx.bindingPattern().Identifier()),
-                                                          isFinal, isExpressionAvailable, isDeclaredWithVar);
+                                                          isFinal, isExpressionAvailable, isDeclaredWithVar, false);
         } else if (ctx.bindingPattern().structuredBindingPattern().recordBindingPattern() != null) {
-            this.pkgBuilder.addRecordVariableDefStatement(getCurrentPos(ctx), getWS(ctx), isFinal, isDeclaredWithVar);
+            this.pkgBuilder.addRecordVariableDefStatement(getCurrentPos(ctx), getWS(ctx), isFinal, isDeclaredWithVar,
+                    false);
         } else if (ctx.bindingPattern().structuredBindingPattern().errorBindingPattern() != null) {
-            this.pkgBuilder.addErrorVariableDefStatement(getCurrentPos(ctx), getWS(ctx), isFinal, isDeclaredWithVar);
+            this.pkgBuilder.addErrorVariableDefStatement(getCurrentPos(ctx), getWS(ctx), isFinal, isDeclaredWithVar,
+                    false);
         } else if (ctx.bindingPattern().structuredBindingPattern().listBindingPattern() != null) {
-            this.pkgBuilder.addTupleVariableDefStatement(getCurrentPos(ctx), getWS(ctx), isFinal, isDeclaredWithVar);
+            this.pkgBuilder.addTupleVariableDefStatement(getCurrentPos(ctx), getWS(ctx), isFinal, isDeclaredWithVar,
+                    false);
         }
     }
 
@@ -1514,12 +1517,20 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         boolean isDeclaredWithVar = ctx.VAR() != null;
         boolean isExpressionAvailable = ctx.expression() != null;
 
-        // TODO : extend this for other binding patterns
         if (ctx.bindingPattern().Identifier() != null) {
-            this.pkgBuilder.addLetVariableDecl(getCurrentPos(ctx), getWS(ctx),
+            this.pkgBuilder.addSimpleVariableDefStatement(getCurrentPos(ctx), getWS(ctx),
                     ctx.bindingPattern().Identifier().getText(),
                     getCurrentPos(ctx.bindingPattern().Identifier()),
-                    isExpressionAvailable, isDeclaredWithVar);
+                    false, isExpressionAvailable, isDeclaredWithVar, true);
+        } else if (ctx.bindingPattern().structuredBindingPattern().recordBindingPattern() != null) {
+            this.pkgBuilder.addRecordVariableDefStatement(getCurrentPos(ctx), getWS(ctx), false, isDeclaredWithVar,
+                    true);
+        } else if (ctx.bindingPattern().structuredBindingPattern().errorBindingPattern() != null) {
+            this.pkgBuilder.addErrorVariableDefStatement(getCurrentPos(ctx), getWS(ctx), false, isDeclaredWithVar,
+                    true);
+        } else if (ctx.bindingPattern().structuredBindingPattern().listBindingPattern() != null) {
+            this.pkgBuilder.addTupleVariableDefStatement(getCurrentPos(ctx), getWS(ctx), false, isDeclaredWithVar,
+                    true);
         }
     }
 

@@ -26,6 +26,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangLetVariable;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.StringJoiner;
 
 /**
  * This represents a let expression in ballerina.
@@ -46,5 +47,14 @@ public class BLangLetExpression extends BLangExpression implements LetExpression
     @Override
     public NodeKind getKind() {
         return NodeKind.LET_EXPR;
+    }
+
+    @Override
+    public String toString() {
+        StringJoiner declarations = new StringJoiner(", ");
+        for (BLangLetVariable letVarDeclaration : letVarDeclarations) {
+            declarations.add(String.valueOf(letVarDeclaration));
+        }
+        return "let " + declarations.toString() + " in " + String.valueOf(this.expr);
     }
 }

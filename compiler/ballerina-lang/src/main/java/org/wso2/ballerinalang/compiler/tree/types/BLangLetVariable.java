@@ -16,27 +16,20 @@
  * under the License.
  *
  */
-
 package org.wso2.ballerinalang.compiler.tree.types;
 
-import org.ballerinalang.model.tree.NodeKind;
-import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
-import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
+import org.ballerinalang.model.tree.statements.VariableDefinitionNode;
 
 /**
  * Represents a variable declarations used in let expression.
  *
  * @since 1.2.0
  */
-public class BLangLetVariable extends BLangSimpleVariable {
+public class BLangLetVariable {
+    public VariableDefinitionNode definitionNode;
 
     @Override
-    public void accept(BLangNodeVisitor visitor) {
-        visitor.visit(this);
-    }
-
-    @Override
-    public NodeKind getKind() {
-        return NodeKind.LET_VARIABLE;
+    public String toString() {
+        return String.valueOf(this.definitionNode);
     }
 }

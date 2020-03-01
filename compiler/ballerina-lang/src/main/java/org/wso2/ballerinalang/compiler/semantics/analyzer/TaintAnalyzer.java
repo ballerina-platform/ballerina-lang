@@ -445,7 +445,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangLetExpression letExpression) {
         for (BLangLetVariable letVarDeclaration : letExpression.letVarDeclarations) {
-            analyzeNode(letVarDeclaration, letExpression.env);
+            analyzeNode((BLangNode) letVarDeclaration.definitionNode, letExpression.env);
         }
         analyzeNode(letExpression.expr, letExpression.env);
     }

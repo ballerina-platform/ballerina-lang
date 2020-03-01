@@ -302,7 +302,7 @@ public class TreeBuilder {
         return new BLangSimpleVariable();
     }
 
-    public static SimpleVariableNode createLetVariableNode() {
+    public static BLangLetVariable createLetVariableNode() {
         return new BLangLetVariable();
     }
 

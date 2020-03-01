@@ -172,6 +172,62 @@ function testLetExprInMap() {
 
 }
 
+function testLetExpressionTupleSimple() {
+    int b = let [boolean, int] t = [true, 4], int x = 2 in t[1]*x;
+    assertTrue(b == 8, "b == 8");
+}
+
+function testLetExpressionTupleBinding() {
+    int b = let [boolean, int] [a1, a2] = [true, 4], int y = a2*2 in a2 + y;
+    assertTrue(b == 12, "b == 12");
+}
+
+function testLetExpressionTupleComplex() {
+    int b = let [[string, [int, [boolean, byte]]], [float, int]] v1 =
+            [["Ballerina", [3, [true, 34]]], [5.6, 45]], int x = 2 in v1[0][1][0] + x;
+    assertTrue(b == 5, "b == 5");
+}
+
+function testLetExpressionTupleBindingComplex() {
+    int b = let [[string, int], [boolean, float]] [[c1, c2],[c3, c4]] =
+            [["Ballerina", 34], [true, 6.7]], int x = 2 in c2 + x;
+    assertTrue(b == 36, "b == 36");
+}
+
+function testLetExpressionTupleBindingRef() {
+    [[string, [int, [boolean, byte]]], [float, int]] v1 = [["Ballerina", [3, [true, 34]]], [5.6, 45]];
+    int b = let [[string, [int, [boolean, byte]]], [float, int]] [[d1, [d2, [d3, d4]]], [d5, d6]] = v1, int x = 2
+            in  d2+d4+x;
+    assertTrue(b == 39, "b == 39");
+}
+
+function testLetExpressionRecordBindingSimple() {
+    int b = let Person { name: firstName, age: personAge, ...otherDetails } = getPerson(), int x = 1 in personAge + x;
+    assertTrue(b == 25, "b == 25");
+}
+
+function testLetExpressionRecordBindingComplexVar() {
+    string city = let var { name: countryName, capital: { name: capitalName } } = getCountry(), string comma = ", "
+        in capitalName + comma + countryName;
+    assertTrue(city == "Colombo, Sri Lanka", "city == \"Colombo, Sri Lanka\"");
+}
+
+function testLetExpressionErrorBindingSimple() {
+    int k = let SampleError error(reason, info = info, fatal = fatal) = getSampleError(), int x = 1
+        in reason.length() + x;
+    assertTrue(k == 13, "k == 13");
+}
+
+function testLetExpressionErrorBindingVar() {
+    boolean k = let var error(reasonTwo, ...params) = getSampleError() in params["fatal"];
+    assertTrue(k, "k == true");
+}
+
+function testLetExpressionRecordConstrainedErrorBinding() {
+     string msg = let var error(_, detailMsg = detailMsg, isFatal = isFatal) = getRecordConstrainedError() in detailMsg;
+     assertTrue(msg == "Failed Message", "msg == \"Failed Message\"");
+}
+
 //type Student record {
 //    int marks = let int x = 3, int z = 5 in z*x;
 //};
@@ -181,14 +237,14 @@ function testLetExprInMap() {
 //    assertTrue(s.marks == 15, "s.marks == 6");
 //}
 
-//type Person object {
-//    public int age = let int x = 3, int z = 5 in z*x;
+//type Car object {
+//    public int year = let int x = 3, int z = 5 in z*x;
 //};
 
 //
 //function testLetExprInOBj() {
-//    Person s = new;
-//    assertTrue(s.age == 15, "s.age == 15");
+//    Car s = new;
+//    assertTrue(s.year == 15, "s.year == 15");
 //}
 
 
@@ -202,6 +258,59 @@ function func(int k) returns int {
 
 function func2(string y) returns int {
     return y.length();
+}
+
+type Person record {
+    string name;
+    int age;
+    string country;
+};
+
+type Country record {
+    string name;
+    Capital capital;
+};
+
+type Capital record {|
+    string name;
+|};
+
+function getPerson() returns Person {
+    Person person = { name: "Irshad", age: 24, country: "Sri Lanka",
+                      "occupation": "Software Engineer" };
+    return person;
+}
+
+function getCountry() returns Country {
+    Capital capital = { name: "Colombo" };
+    Country country = { name: "Sri Lanka", capital: capital };
+    return country;
+}
+
+type SampleErrorData record {
+    string message?;
+    error cause?;
+    string info;
+    boolean fatal;
+};
+
+type SampleError error<string, SampleErrorData>;
+
+function getSampleError() returns SampleError {
+    SampleError e = error("Sample Error", info = "Detail Msg", fatal = true);
+    return e;
+}
+
+type Foo record {|
+    string message?;
+    error cause?;
+    string detailMsg;
+    boolean isFatal;
+|};
+
+function getRecordConstrainedError() returns error<string, Foo> {
+    error<string, Foo> e = error("Some Error", detailMsg = "Failed Message", isFatal = true);
+    return e;
 }
 
 //// Util functions

@@ -88,6 +88,16 @@ public class LetExpressionTest {
                 {"testLetExpresionInArrays"},
                 {"testLetExpresionInTuples"},
                 {"testLetExprInMap"},
+                {"testLetExpressionTupleSimple"},
+                {"testLetExpressionTupleBinding"},
+                {"testLetExpressionTupleComplex"},
+                {"testLetExpressionTupleBindingComplex"},
+                {"testLetExpressionTupleBindingRef"},
+                {"testLetExpressionRecordBindingSimple"},
+                {"testLetExpressionRecordBindingComplexVar"},
+                {"testLetExpressionErrorBindingSimple"},
+                {"testLetExpressionErrorBindingVar"},
+                {"testLetExpressionRecordConstrainedErrorBinding"},
         };
     }
 }
