@@ -24,6 +24,9 @@ public const annotation untainted on return, parameter, source type, source list
 # Denotes annotated type is a parametric type.
 public const annotation typeParam on source type;
 
+# Denotes annotated type is a builtin sub type.
+public const annotation builtinSubtype on source type;
+
 # Defaultable argument names. This is for internal use.
 #
 # + args - Defaultable argument names are set at compile time.
