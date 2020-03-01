@@ -1,4 +1,4 @@
-// Copyright (c) 2017 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+// Copyright (c) 2019, 2020 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 //
 // WSO2 Inc. licenses this file to you under the Apache License,
 // Version 2.0 (the "License"); you may not use this file except
@@ -13,6 +13,10 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
+
+# Built-in subtype of string containing strings of length 1.
+@builtinSubtype
+type Char string;
 
 # Returns the length of the string.
 #
@@ -71,7 +75,7 @@ public function codePointCompare(string str1, string str2) returns int = externa
 #     with `separator` in between them
 public function 'join(string separator, string... strs) returns string = external;
 
-# Searches for one string in another string.
+# Finds the first occurrence of one string in another string.
 #
 # + str - the string in which to search
 # + substr - the string to search for
