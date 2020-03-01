@@ -48,6 +48,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.intiPack
  * @since 1.2.0
  */
 public class CodeGenerator {
+
     private static final CompilerContext.Key<CodeGenerator> CODE_GEN = new CompilerContext.Key<>();
 
     public static BLangDiagnosticLog dlog;
@@ -59,6 +60,7 @@ public class CodeGenerator {
     private Map<String, BIRNode.BIRPackage> compiledPkgCache = new HashMap<>();
 
     private CodeGenerator(CompilerContext context) {
+
         context.put(CODE_GEN, this);
         symbolTable = SymbolTable.getInstance(context);
         packageCache = PackageCache.getInstance(context);
@@ -83,7 +85,7 @@ public class CodeGenerator {
 
         intiPackageGen();
         JvmPackageGen.symbolTable = symbolTable;
-        JvmMethodGen.ERROR_OR_NIL_TYPE = BUnionType.create(null, symbolTable.errorType, symbolTable.nilType);
+        JvmMethodGen.errorOrNilType = BUnionType.create(null, symbolTable.errorType, symbolTable.nilType);
         compiledPkgCache.put(entryMod.org.value + entryMod.name.value, entryMod);
         JvmPackageGen.JarFile jarFile = new JvmPackageGen.JarFile();
         populateExternalMap();
@@ -96,6 +98,7 @@ public class CodeGenerator {
     }
 
     private void populateExternalMap() {
+
         String nativeMap = System.getenv("BALLERINA_NATIVE_MAP");
         if (nativeMap == null) {
             return;
@@ -120,8 +123,8 @@ public class CodeGenerator {
         }
     }
 
-
     private static void writeJarFile(JvmPackageGen.JarFile entries, Path targetPath) {
+
         Manifest manifest = new Manifest();
         manifest.getMainAttributes().put(Attributes.Name.MANIFEST_VERSION, "1.0");
 

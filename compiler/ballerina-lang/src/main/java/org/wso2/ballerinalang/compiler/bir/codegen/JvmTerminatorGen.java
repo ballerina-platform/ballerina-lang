@@ -155,6 +155,7 @@ public class JvmTerminatorGen {
 
     private static void genYieldCheckForLock(MethodVisitor mv, LabelGenerator labelGen, String funcName,
                                              int localVarOffset) {
+
         mv.visitVarInsn(ALOAD, localVarOffset);
         mv.visitMethodInsn(INVOKEVIRTUAL, STRAND, "isYielded", "()Z", false);
         Label yieldLabel = labelGen.getLabel(funcName + "yield");
@@ -247,6 +248,11 @@ public class JvmTerminatorGen {
         return false;
     }
 
+    /**
+     * BIR terminator instruction generator class to keep track of method visitor and index map.
+     *
+     * @since 1.2.0
+     */
     public static class TerminatorGenerator {
 
         MethodVisitor mv;
@@ -277,7 +283,8 @@ public class JvmTerminatorGen {
                     this.genLockTerm((BIRTerminator.Lock) terminator, funcName, localVarOffset);
                     return;
 //                case FIELD_LOCK:
-//                    this.genFieldLockTerm((BIRTerminator.FieldLock) terminator, funcName, localVarOffset, attachedType);
+//                    this.genFieldLockTerm((BIRTerminator.FieldLock) terminator, funcName, localVarOffset,
+//                    attachedType);
 //                    return;
                 case UNLOCK:
                     this.genUnlockTerm((BIRTerminator.Unlock) terminator, funcName, attachedType);
@@ -327,7 +334,8 @@ public class JvmTerminatorGen {
                         this.genJICallTerm((JIMethodCall) terminator, funcName, attachedType, localVarOffset);
                         return;
                     } else if (terminator instanceof JIConstructorCall) {
-                        this.genJIConstructorTerm((JIConstructorCall) terminator, funcName, attachedType, localVarOffset);
+                        this.genJIConstructorTerm((JIConstructorCall) terminator, funcName, attachedType,
+                                localVarOffset);
                         return;
                     }
             }
@@ -343,13 +351,14 @@ public class JvmTerminatorGen {
         }
 
         void genLockTerm(BIRTerminator.Lock lockIns, String funcName, int localVarOffset) {
+
             Label gotoLabel = this.labelGen.getLabel(funcName + lockIns.lockedBB.id.value);
             String lockStore = "L" + LOCK_STORE + ";";
             String initClassName = lookupGlobalVarClassName(this.currentPackageName, "LOCK_STORE");
             this.mv.visitFieldInsn(GETSTATIC, initClassName, "LOCK_STORE", lockStore);
             this.mv.visitLdcInsn("global");
-            this.mv.visitMethodInsn(INVOKEVIRTUAL, LOCK_STORE, "getLockFromMap", String.format("(L%s;)L%s;", STRING_VALUE,
-                    LOCK_VALUE), false);
+            this.mv.visitMethodInsn(INVOKEVIRTUAL, LOCK_STORE, "getLockFromMap",
+                    String.format("(L%s;)L%s;", STRING_VALUE, LOCK_VALUE), false);
             this.mv.visitVarInsn(ALOAD, localVarOffset);
             this.mv.visitMethodInsn(INVOKEVIRTUAL, LOCK_VALUE, "lock", String.format("(L%s;)Z", STRAND), false);
             this.mv.visitInsn(POP);
@@ -394,10 +403,12 @@ public class JvmTerminatorGen {
 //        }
 
         public static String toNameString(BType t) {
+
             return t.tsymbol.name.value;
         }
 
         void genUnlockTerm(BIRTerminator.Unlock unlockIns, String funcName, @Nilable BType attachedType) {
+
             Label gotoLabel = this.labelGen.getLabel(funcName + unlockIns.unlockBB.id.value);
 
             // unlocked in the same order https://yarchive.net/comp/linux/lock_ordering.html
@@ -593,7 +604,7 @@ public class JvmTerminatorGen {
                         "Ljava/lang/Object;");
                 // store return
                 @Nilable BIROperand lhsOpVarDcl = callIns.lhsOp;
-                addJUnboxInsn(this.mv, ((JType)lhsOpVarDcl.variableDcl.type));
+                addJUnboxInsn(this.mv, ((JType) lhsOpVarDcl.variableDcl.type));
                 this.storeToVar(lhsOpVarDcl.variableDcl);
             }
 
@@ -624,7 +635,8 @@ public class JvmTerminatorGen {
                 this.mv.visitInsn(ICONST_0);
                 this.mv.visitTypeInsn(ANEWARRAY, OBJECT);
                 this.mv.visitMethodInsn(INVOKESTATIC, BLANG_EXCEPTION_HELPER, "getRuntimeException",
-                        "(L" + STRING_VALUE + ";L" + RUNTIME_ERRORS + ";[L" + OBJECT + ";)L" + ERROR_VALUE + ";", false);
+                        "(L" + STRING_VALUE + ";L" + RUNTIME_ERRORS + ";[L" + OBJECT + ";)L" + ERROR_VALUE + ";",
+                        false);
                 this.mv.visitInsn(ATHROW);
                 this.mv.visitLabel(elseBlockLabel);
                 argIndex += 1;

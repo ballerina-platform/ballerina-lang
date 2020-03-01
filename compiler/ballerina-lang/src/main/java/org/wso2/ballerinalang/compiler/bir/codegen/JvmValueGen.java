@@ -133,11 +133,12 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.interop.ExternalMethod
  *
  * @since 1.2.0
  */
-public class JvmValueGen {
+class JvmValueGen {
 
-    public static final NameHashComparator NAME_HASH_COMPARATOR = new NameHashComparator();
+    static final NameHashComparator NAME_HASH_COMPARATOR = new NameHashComparator();
 
     static void injectDefaultParamInitsToAttachedFuncs(BIRPackage module) {
+
         @Nilable List<BIRNode.BIRTypeDefinition> typeDefs = module.typeDefs;
         for (BIRNode.BIRTypeDefinition optionalTypeDef : typeDefs) {
             BIRNode.BIRTypeDefinition typeDef = getTypeDef(optionalTypeDef);
@@ -154,6 +155,7 @@ public class JvmValueGen {
     }
 
     private static void desugarObjectMethods(BIRPackage module, BType bType, @Nilable List<BIRFunction> attachedFuncs) {
+
         if (attachedFuncs != null) {
             for (BIRFunction func : attachedFuncs) {
                 if (func != null) {
@@ -172,8 +174,9 @@ public class JvmValueGen {
         }
     }
 
-    static List<Label> createLabelsForSwitch(MethodVisitor mv, int nameRegIndex, @Nilable List<? extends NamedNode> nodes,
-                                             Label defaultCaseLabel) {
+    static List<Label> createLabelsForSwitch(MethodVisitor mv, int nameRegIndex,
+                                             @Nilable List<? extends NamedNode> nodes, Label defaultCaseLabel) {
+
         mv.visitVarInsn(ALOAD, nameRegIndex);
         mv.visitMethodInsn(INVOKEVIRTUAL, STRING_VALUE, "hashCode", "()I", false);
 
@@ -193,6 +196,7 @@ public class JvmValueGen {
     }
 
     static void createDefaultCase(MethodVisitor mv, Label defaultCaseLabel, int nameRegIndex) {
+
         mv.visitLabel(defaultCaseLabel);
         mv.visitTypeInsn(NEW, BLANG_RUNTIME_EXCEPTION);
         mv.visitInsn(DUP);
@@ -213,6 +217,7 @@ public class JvmValueGen {
     }
 
     static String getTypeValueClassName(Object module, String typeName) {
+
         String packageName;
         if (module instanceof BIRPackage) {
             BIRPackage birPackage = (BIRPackage) module;
@@ -231,6 +236,7 @@ public class JvmValueGen {
     static List<Label> createLabelsForEqualCheck(MethodVisitor mv, int nameRegIndex,
                                                  @Nilable List<? extends NamedNode> nodes,
                                                  List<Label> labels, Label defaultCaseLabel) {
+
         List<Label> targetLabels = new ArrayList<>();
         int i = 0;
         for (NamedNode node : nodes) {
@@ -252,6 +258,7 @@ public class JvmValueGen {
     }
 
     private static String getName(Object node) {
+
         if (node instanceof NamedNode) {
             return ((NamedNode) node).getName().value;
         } else {
@@ -268,6 +275,7 @@ public class JvmValueGen {
         BRecordType currentRecordType = null;
 
         private void createLambdas(ClassWriter cw) {
+
             for (Map.Entry<String, BIRInstruction> entry : JvmPackageGen.lambdas.entrySet()) {
                 generateLambdaMethod(entry.getValue(), cw, entry.getKey());
             }
@@ -276,6 +284,7 @@ public class JvmValueGen {
         }
 
         private void createObjectFields(ClassWriter cw, @Nilable List<BField> fields) {
+
             for (BField field : fields) {
                 if (field != null) {
                     if (IS_BSTRING) {
@@ -297,6 +306,7 @@ public class JvmValueGen {
 
         private void createObjectMethods(ClassWriter cw, @Nilable List<BIRFunction> attachedFuncs, boolean isService,
                                          String className, String typeName) {
+
             for (BIRFunction func : attachedFuncs) {
                 if (func != null) {
                     generateMethod(func, cw, this.module, this.currentObjectType, isService, typeName);
@@ -305,6 +315,7 @@ public class JvmValueGen {
         }
 
         private void createObjectInit(ClassWriter cw, @Nilable List<BField> fields, String className) {
+
             MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "<init>", String.format("(L%s;)V", OBJECT_TYPE), null, null);
             mv.visitCode();
 
@@ -338,7 +349,6 @@ public class JvmValueGen {
                                       String objTypeName, boolean isService) {
 
             @Nilable List<BIRFunction> funcs = getFunctions(functions);
-
 
             MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "call",
                     String.format("(L%s;L%s;[L%s;)L%s;", STRAND, STRING_VALUE, OBJECT, OBJECT), null, null);
@@ -383,7 +393,7 @@ public class JvmValueGen {
                     mv.visitVarInsn(ALOAD, 3);
 
                     // load j'th parameter
-                    mv.visitLdcInsn((long)j);
+                    mv.visitLdcInsn((long) j);
                     mv.visitInsn(L2I);
                     mv.visitInsn(AALOAD);
                     addUnboxInsn(mv, pType, useBString);
@@ -410,6 +420,7 @@ public class JvmValueGen {
         }
 
         private void createObjectGetMethod(ClassWriter cw, @Nilable List<BField> fields, String className) {
+
             MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "get",
                     String.format("(L%s;)L%s;", STRING_VALUE, OBJECT), null, null);
             mv.visitCode();
@@ -444,6 +455,7 @@ public class JvmValueGen {
 
         private void createObjectSetMethod(ClassWriter cw, @Nilable List<BField> fields, String className,
                                            boolean useBString) {
+
             MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "set",
                     String.format("(L%s;L%s;)V", useBString ? I_STRING_VALUE : STRING_VALUE, OBJECT), null, null);
             mv.visitCode();
@@ -497,6 +509,7 @@ public class JvmValueGen {
         }
 
         private static BIRFunction getFunction(@Nilable BIRFunction func) {
+
             if (func != null) {
                 return func;
             } else {
@@ -506,6 +519,7 @@ public class JvmValueGen {
 
         private byte[] createRecordValueClass(BRecordType recordType, String className,
                                               BIRNode.BIRTypeDefinition typeDef) {
+
             ClassWriter cw = new BallerinaClassWriter(COMPUTE_FRAMES);
             if (typeDef.pos != null && typeDef.pos.src != null) {
                 cw.visitSource(typeDef.pos.getSource().cUnitName, null);
@@ -543,6 +557,7 @@ public class JvmValueGen {
         }
 
         private void createRecordMethods(ClassWriter cw, @Nilable List<BIRFunction> attachedFuncs) {
+
             for (BIRFunction func : attachedFuncs) {
                 if (func != null) {
                     generateMethod(func, cw, this.module, null, false, "");
@@ -551,6 +566,7 @@ public class JvmValueGen {
         }
 
         private void createRecordConstructor(ClassWriter cw, String className) {
+
             MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "<init>", String.format("(L%s;)V", BTYPE), null, null);
             mv.visitCode();
 
@@ -567,6 +583,7 @@ public class JvmValueGen {
         }
 
         private void createRecordInitWrapper(ClassWriter cw, String className, BIRNode.BIRTypeDefinition typeDef) {
+
             MethodVisitor mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, "$init",
                     String.format("(L%s;L%s;)V", STRAND, MAP_VALUE), null, null);
             mv.visitCode();
@@ -612,6 +629,7 @@ public class JvmValueGen {
         }
 
         private void createRecordFields(ClassWriter cw, @Nilable List<BField> fields) {
+
             for (BField field : fields) {
                 if (field != null) {
                     FieldVisitor fv = cw.visitField(0, field.name.value, getTypeDesc(field.type, false), null, null);
@@ -627,14 +645,17 @@ public class JvmValueGen {
         }
 
         private String getFieldIsPresentFlagName(String fieldName) {
+
             return String.format("%s$isPresent", fieldName);
         }
 
         private boolean isOptionalRecordField(BField field) {
+
             return (field.symbol.flags & BAL_OPTIONAL) == BAL_OPTIONAL;
         }
 
         private void createRecordGetMethod(ClassWriter cw, @Nilable List<BField> fields, String className) {
+
             MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "get",
                     String.format("(L%s;)L%s;", OBJECT, OBJECT), String.format("(L%s;)TV;", OBJECT), null);
             mv.visitCode();
@@ -689,6 +710,7 @@ public class JvmValueGen {
         }
 
         private void createRecordSetMethod(ClassWriter cw, @Nilable List<BField> fields, String className) {
+
             MethodVisitor mv = cw.visitMethod(ACC_PROTECTED, "putValue",
                     String.format("(L%s;L%s;)L%s;", OBJECT, OBJECT, OBJECT), "(TK;TV;)TV;", null);
 
@@ -748,6 +770,7 @@ public class JvmValueGen {
 
         private void createRecordPutDefaultCase(MethodVisitor mv, Label defaultCaseLabel, int nameRegIndex,
                                                 int valueRegIndex) {
+
             mv.visitLabel(defaultCaseLabel);
             mv.visitVarInsn(ALOAD, 0);
             mv.visitVarInsn(ALOAD, nameRegIndex);
@@ -758,6 +781,7 @@ public class JvmValueGen {
         }
 
         private void createRecordGetDefaultCase(MethodVisitor mv, Label defaultCaseLabel, int nameRegIndex) {
+
             mv.visitLabel(defaultCaseLabel);
             mv.visitVarInsn(ALOAD, 0);
             mv.visitVarInsn(ALOAD, nameRegIndex);
@@ -767,6 +791,7 @@ public class JvmValueGen {
         }
 
         private void createRecordEntrySetMethod(ClassWriter cw, @Nilable List<BField> fields, String className) {
+
             MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "entrySet",
                     String.format("()L%s;", SET),
                     String.format("()L%s<L%s<TK;TV;>;>;", SET, MAP_ENTRY),
@@ -826,6 +851,7 @@ public class JvmValueGen {
         }
 
         private void createRecordContainsKeyMethod(ClassWriter cw, @Nilable List<BField> fields, String className) {
+
             MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "containsKey", String.format("(L%s;)Z", OBJECT), null, null);
             mv.visitCode();
 
@@ -879,6 +905,7 @@ public class JvmValueGen {
         }
 
         void createRecordGetValuesMethod(ClassWriter cw, @Nilable List<BField> fields, String className) {
+
             MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "values", String.format("()L%s;", COLLECTION),
                     String.format("()L%s<TV;>;", COLLECTION), null);
             mv.visitCode();
@@ -924,6 +951,7 @@ public class JvmValueGen {
         }
 
         void createGetSizeMethod(ClassWriter cw, @Nilable List<BField> fields, String className) {
+
             MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "size", "()I", null, null);
             mv.visitCode();
             int sizeVarIndex = 1;
@@ -983,14 +1011,15 @@ public class JvmValueGen {
         }
 
         void createRecordGetKeysMethod(ClassWriter cw, @Nilable List<BField> fields, String className) {
+
             MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "getKeys", String.format("()[L%s;", OBJECT), "()[TK;", null);
             mv.visitCode();
 
-            int KeysVarIndex = 1;
+            int keysVarIndex = 1;
             mv.visitTypeInsn(NEW, LINKED_HASH_SET);
             mv.visitInsn(DUP);
             mv.visitMethodInsn(INVOKESPECIAL, LINKED_HASH_SET, "<init>", "()V", false);
-            mv.visitVarInsn(ASTORE, KeysVarIndex);
+            mv.visitVarInsn(ASTORE, keysVarIndex);
 
             for (BField optionalField : fields) {
                 BField field = getRecordField(optionalField);
@@ -1005,20 +1034,20 @@ public class JvmValueGen {
                     mv.visitJumpInsn(IFEQ, ifNotPresent);
                 }
 
-                mv.visitVarInsn(ALOAD, KeysVarIndex);
+                mv.visitVarInsn(ALOAD, keysVarIndex);
                 mv.visitLdcInsn(fieldName);
                 mv.visitMethodInsn(INVOKEINTERFACE, SET, "add", String.format("(L%s;)Z", OBJECT), true);
                 mv.visitInsn(POP);
                 mv.visitLabel(ifNotPresent);
             }
 
-            mv.visitVarInsn(ALOAD, KeysVarIndex);
+            mv.visitVarInsn(ALOAD, keysVarIndex);
             mv.visitVarInsn(ALOAD, 0); // this
             mv.visitMethodInsn(INVOKESPECIAL, LINKED_HASH_MAP, "keySet", String.format("()L%s;", SET), false);
             mv.visitMethodInsn(INVOKEINTERFACE, SET, "addAll", String.format("(L%s;)Z", COLLECTION), true);
             mv.visitInsn(POP);
 
-            mv.visitVarInsn(ALOAD, KeysVarIndex);
+            mv.visitVarInsn(ALOAD, keysVarIndex);
             mv.visitInsn(DUP);
             mv.visitMethodInsn(INVOKEINTERFACE, SET, "size", "()I", true);
             mv.visitTypeInsn(ANEWARRAY, STRING_VALUE);
@@ -1030,6 +1059,7 @@ public class JvmValueGen {
         }
 
         ObjectGenerator(BIRPackage module) {
+
             this.module = module;
         }
 
@@ -1051,7 +1081,7 @@ public class JvmValueGen {
                     String className = getTypeValueClassName(this.module, typeDef.name.value);
                     byte[] bytes = this.createObjectValueClass(objectType, className, typeDef, false);
                     jarEntries.put(className + ".class", bytes);
-                }  else if (bType.tag == TypeTags.RECORD) {
+                } else if (bType.tag == TypeTags.RECORD) {
                     BRecordType recordType = (BRecordType) bType;
                     this.currentRecordType = recordType;
                     String className = getTypeValueClassName(this.module, typeDef.name.value);
@@ -1064,6 +1094,7 @@ public class JvmValueGen {
         // Private methods
         private byte[] createObjectValueClass(BObjectType objectType, String className,
                                               BIRNode.BIRTypeDefinition typeDef, boolean isService) {
+
             ClassWriter cw = new BallerinaClassWriter(COMPUTE_FRAMES);
             cw.visitSource(typeDef.pos.getSource().cUnitName, null);
             currentClass = className;
@@ -1102,6 +1133,7 @@ public class JvmValueGen {
 //        }
 
         private static void quickSort(@Nilable List<NamedNode> arr, int low, int high) {
+
             if (low < high) {
                 // pi is partitioning index, arr[pi] is now at right place
                 int pi = partition(arr, low, high);
@@ -1113,6 +1145,7 @@ public class JvmValueGen {
         }
 
         private static int partition(@Nilable List<NamedNode> arr, int begin, int end) {
+
             int pivot = getHash(arr.get(end));
             int i = begin - 1;
 
@@ -1129,10 +1162,12 @@ public class JvmValueGen {
         }
 
         private static int getHash(Object node) {
+
             return getName(node).hashCode();
         }
 
         private static void swap(@Nilable List<NamedNode> arr, int i, int j) {
+
             @Nilable NamedNode swapTemp = arr.get(i);
             arr.set(i, arr.get(j));
             arr.set(j, swapTemp);

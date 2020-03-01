@@ -21,7 +21,7 @@ import org.objectweb.asm.ClassWriter;
 
 /**
  * Class Writer for generating ballerina classes.
- * 
+ * <p>
  * since 1.2.0
  */
 public class BallerinaClassWriter extends ClassWriter {
@@ -29,6 +29,7 @@ public class BallerinaClassWriter extends ClassWriter {
     private static final String OBJECT_CLASS = "java/lang/Object";
 
     public BallerinaClassWriter(int flags) {
+
         super(flags);
     }
 
@@ -39,6 +40,7 @@ public class BallerinaClassWriter extends ClassWriter {
      */
     @Override
     protected String getCommonSuperClass(String type1, String type2) {
+
         ClassLoader classLoader = getClassLoader();
         Class<?> class1;
 

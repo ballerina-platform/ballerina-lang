@@ -100,9 +100,6 @@ public class CreateJarTask implements Task {
             // get the jar path of the module.
             Path jarOutput = buildContext.getJarPathFromTargetCache(module.packageID);
             if (!Files.exists(jarOutput)) {
-//                    BootstrapRunner.loadTargetAndGenerateJarBinary(entryBir.toString(), jarOutput.toString(),
-//                            this.dumpBir, moduleDependencySet, projectBIRCache.toString(), homeBIRCache.toString(),
-//                            systemBIRCache.toString());
                 backendDriver.execute(birPackage, dumpBir, jarOutput);
             }
 
@@ -119,9 +116,6 @@ public class CreateJarTask implements Task {
                     // get the jar path of the module.
                     Path testJarOutput = buildContext.getTestJarPathFromTargetCache(testPkg.packageID);
                     if (!Files.exists(testJarOutput)) {
-//                        BootstrapRunner.loadTargetAndGenerateJarBinary(testBir.toString(), testJarOutput.toString(),
-//                                this.dumpBir, moduleDependencySet, projectBIRCache.toString(), homeBIRCache.toString(),
-//                                systemBIRCache.toString());
                         backendDriver.execute(birPackage, dumpBir, testJarOutput);
                     }
                 }
@@ -155,8 +149,6 @@ public class CreateJarTask implements Task {
                 if (!skipCopyLibsFromDist) {
                     moduleDependencySet.add(runtimeJar);
                 }
-//                BootstrapRunner.loadTargetAndGenerateJarBinary(birFilePath.toString(), jarFilePath.toString(),
-//                        this.dumpBir, moduleDependencySet, reps);
                 backendDriver.execute(bimport.bir, dumpBir, jarFilePath);
             }
             writeImportJar(bimport.imports, sourceRoot, buildContext, runtimeJar, reps);

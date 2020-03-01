@@ -21,18 +21,26 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 
 import java.util.List;
 
+/**
+ * JInterop Validation Request modeling class.
+ *
+ * @since 1.2.0
+ */
 public abstract class InteropValidationRequest {
+
     public String name;
     public String klass;
     public BInvokableType bFuncType;
 
     public InteropValidationRequest(String name, String klass, BInvokableType bFuncType) {
+
         this.name = name;
         this.klass = klass;
         this.bFuncType = bFuncType;
     }
 
     static class MethodValidationRequest extends InteropValidationRequest {
+
         JMethodKind methodKind;
         List<JType> paramTypeConstraints;
         boolean restParamExist = false;
@@ -46,10 +54,12 @@ public abstract class InteropValidationRequest {
     }
 
     static class FieldValidationRequest extends InteropValidationRequest {
+
         JFieldMethod fieldMethod;
 
         FieldValidationRequest(String name, String klass, BInvokableType bFuncType,
                                JFieldMethod fieldMethod) {
+
             super(name, klass, bFuncType);
             this.fieldMethod = fieldMethod;
         }

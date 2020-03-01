@@ -54,7 +54,7 @@ import static org.wso2.ballerinalang.compiler.bir.emit.EmitterUtils.getTypeName;
  */
 class TypeEmitter {
 
-    static final Map<String, BType> bTypes = new HashMap<>();
+    static final Map<String, BType> B_TYPES = new HashMap<>();
 
     static String emitType(BType bType, int tabs) {
 
@@ -365,7 +365,7 @@ class TypeEmitter {
             return tName;
         }
         if (bType.tag == TypeTags.ERROR) {
-            bTypes.put(bType.tsymbol.toString(), bType);
+            B_TYPES.put(bType.tsymbol.toString(), bType);
         }
         if (bType.tag == TypeTags.RECORD || bType.tag == TypeTags.OBJECT) {
             return bType.tsymbol.toString();

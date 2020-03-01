@@ -35,7 +35,6 @@ import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -51,14 +50,18 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTerminatorGen.Termi
 import static org.wso2.ballerinalang.compiler.bir.model.BIRTerminator.Branch;
 import static org.wso2.ballerinalang.compiler.bir.model.BIRTerminator.GOTO;
 
-
-//import ballerina/bir;
-
+/**
+ * BIR desugar phase related methods at JVM code generation.
+ *
+ * @since 1.2.0
+ */
 public class JvmDesugarPhase {
 
     public static void addDefaultableBooleanVarsToSignature(@Nilable BIRFunction func) {
+
         BIRFunction currentFunc = getFunction(func);
-        currentFunc.type = new BInvokableType(currentFunc.type.paramTypes, currentFunc.type.restType, currentFunc.type.retType, currentFunc.type.tsymbol);
+        currentFunc.type = new BInvokableType(currentFunc.type.paramTypes, currentFunc.type.restType,
+                currentFunc.type.retType, currentFunc.type.tsymbol);
         BInvokableType type = currentFunc.type;
         currentFunc.type.paramTypes = updateParamTypesWithDefaultableBooleanVar(currentFunc.type.paramTypes,
                 type != null ? type.restType : type);
@@ -156,28 +159,35 @@ public class JvmDesugarPhase {
         currentFunc.basicBlocks = basicBlocks;
     }
 
-    public static BIRBasicBlock insertAndGetNextBasicBlock(@Nilable List<BIRBasicBlock> basicBlocks, String prefix /* = "desugaredBB" */) {
+    public static BIRBasicBlock insertAndGetNextBasicBlock(@Nilable List<BIRBasicBlock> basicBlocks,
+                                                           String prefix /* = "desugaredBB" */) {
+
         BIRBasicBlock nextbb = new BIRBasicBlock(getNextDesugarBBId(prefix));
         basicBlocks.add(nextbb);
         return nextbb;
     }
 
     public static Name getNextDesugarBBId(String prefix) {
+
         String bbIdPrefix = prefix;
         nextId += 1;
         return new Name(bbIdPrefix + nextId);
     }
 
-    static @Nilable
+    private static @Nilable
     List<BType> updateParamTypesWithDefaultableBooleanVar(@Nilable List<BType> funcParams, @Nilable BType restType) {
+
         @Nilable List<BType> paramTypes = new ArrayList<>();
 
         int counter = 0;
         int index = 0;
-        // Update the param types to add boolean variables to indicate if the previous variable contains a user given value
-        int size = funcParams == null ? 0 :funcParams.size();
+        // Update the param types to add boolean variables to indicate if the previous variable contains a user
+        // given value
+        int size = funcParams == null ? 0 : funcParams.size();
         while (true) {
-            if (!(counter < size)) break;
+            if (!(counter < size)) {
+                break;
+            }
             paramTypes.add(index, funcParams.get(counter));
             paramTypes.add(index + 1, symbolTable.booleanType);
             index += 2;
@@ -190,7 +200,8 @@ public class JvmDesugarPhase {
         return paramTypes;
     }
 
-    public static void rewriteRecordInits(@Nilable List<BIRTypeDefinition> typeDefs) {
+    static void rewriteRecordInits(@Nilable List<BIRTypeDefinition> typeDefs) {
+
         for (@Nilable BIRTypeDefinition typeDef : typeDefs) {
             @Nilable BType recordType = typeDef.type;
             if (recordType.tag == TypeTags.RECORD) {
@@ -202,7 +213,8 @@ public class JvmDesugarPhase {
         }
     }
 
-    static void rewriteRecordInitFunction(BIRFunction func, BRecordType recordType) {
+    private static void rewriteRecordInitFunction(BIRFunction func, BRecordType recordType) {
+
         BIRVariableDcl receiver = (BIRVariableDcl) func.receiver;
 
         // Rename the function name by appending the record name to it.

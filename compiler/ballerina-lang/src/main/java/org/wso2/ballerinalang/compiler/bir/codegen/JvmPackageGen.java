@@ -139,6 +139,7 @@ public class JvmPackageGen {
     public static SymbolTable symbolTable;
 
     public static void intiPackageGen() {
+
         birFunctionMap = new HashMap<>();
         typeDefMap = new HashMap<>();
         globalVarClassNames = new HashMap<>();
@@ -189,20 +190,22 @@ public class JvmPackageGen {
     }
 
     static BType lookupTypeDef(NewInstance objectNewIns) {
+
         if (!objectNewIns.isExternalDef) {
             return objectNewIns.def.type;
         } else {
             PackageID id = objectNewIns.externalPackageId;
             BPackageSymbol symbol = CodeGenerator.packageCache.getSymbol(id.orgName + "/" + id.name);
             if (symbol != null) {
-                BObjectTypeSymbol objectTypeSymbol = (BObjectTypeSymbol) symbol.scope.lookup(new Name(objectNewIns.objectName)).symbol;
+                BObjectTypeSymbol objectTypeSymbol =
+                        (BObjectTypeSymbol) symbol.scope.lookup(new Name(objectNewIns.objectName)).symbol;
                 if (objectTypeSymbol != null) {
                     return objectTypeSymbol.type;
                 }
             }
 
             throw new BLangCompilerException("Reference to unknown type " + objectNewIns.externalPackageId
-                                             + "/" + objectNewIns.objectName);
+                    + "/" + objectNewIns.objectName);
         }
     }
 
@@ -237,6 +240,7 @@ public class JvmPackageGen {
     }
 
     static String lookupGlobalVarClassName(String pkgName, String varName) {
+
         String key = pkgName + varName;
         if (!globalVarClassNames.containsKey(key)) {
             return pkgName + MODULE_INIT_CLASS_NAME;
@@ -255,7 +259,7 @@ public class JvmPackageGen {
 //        }
 //    }
 
-    private static void generateDependencyList(BPackageSymbol packageSymbol , JarFile jarFile,
+    private static void generateDependencyList(BPackageSymbol packageSymbol, JarFile jarFile,
                                                InteropValidator interopValidator) {
 
         if (packageSymbol.bir != null) {
@@ -421,6 +425,7 @@ public class JvmPackageGen {
     }
 
     private static String getBvmAlias(String orgName, String moduleName) {
+
         if (Names.ANON_ORG.value.equals(orgName)) {
             return moduleName;
         }
@@ -428,6 +433,7 @@ public class JvmPackageGen {
     }
 
     private static void createDependantModuleFlatArray(Set<PackageID> dependentModuleArray) {
+
         for (Map.Entry<String, PackageID> entry : dependentModules.entrySet()) {
             PackageID id = entry.getValue();
             dependentModuleArray.add(id);
@@ -440,7 +446,7 @@ public class JvmPackageGen {
         Name ballerinaOrgName = new Name("ballerina");
         Name builtInVersion = new Name("");
 
-        PackageID annotationsModule = new PackageID(ballerinaOrgName, new Name("lang.annotations"),  builtInVersion);
+        PackageID annotationsModule = new PackageID(ballerinaOrgName, new Name("lang.annotations"), builtInVersion);
 
         if (isSameModule(currentModule, annotationsModule)) {
             return;
@@ -452,8 +458,7 @@ public class JvmPackageGen {
             return;
         }
 
-
-        PackageID internalModule = new PackageID(ballerinaOrgName, new Name("lang.__internal"),  builtInVersion);
+        PackageID internalModule = new PackageID(ballerinaOrgName, new Name("lang.__internal"), builtInVersion);
 
         if (isSameModule(currentModule, internalModule)) {
             return;
@@ -461,21 +466,20 @@ public class JvmPackageGen {
 
         dependentModuleArray.add(internalModule);
 
-        PackageID langArrayModule = new PackageID(ballerinaOrgName, new Name("lang.array"),  builtInVersion);
-        PackageID langDecimalModule = new PackageID(ballerinaOrgName, new Name("lang.decimal"),  builtInVersion);
-        PackageID langErrorModule = new PackageID(ballerinaOrgName, new Name("lang.error"),  builtInVersion);
-        PackageID langFloatModule = new PackageID(ballerinaOrgName, new Name("lang.float"),  builtInVersion);
-        PackageID langFutureModule = new PackageID(ballerinaOrgName, new Name("lang.future"),  builtInVersion);
-        PackageID langIntModule = new PackageID(ballerinaOrgName, new Name("lang.int"),  builtInVersion);
-        PackageID langMapModule = new PackageID(ballerinaOrgName, new Name("lang.map"),  builtInVersion);
-        PackageID langObjectModule = new PackageID(ballerinaOrgName, new Name("lang.object"),  builtInVersion);
-        PackageID langStreamModule = new PackageID(ballerinaOrgName, new Name("lang.stream"),  builtInVersion);
-        PackageID langStringModule = new PackageID(ballerinaOrgName, new Name("lang.string"),  builtInVersion);
-        PackageID langTableModule = new PackageID(ballerinaOrgName, new Name("lang.table"),  builtInVersion);
-        PackageID langValueModule = new PackageID(ballerinaOrgName, new Name("lang.value"),  builtInVersion);
-        PackageID langXmlModule = new PackageID(ballerinaOrgName, new Name("lang.xml"),  builtInVersion);
-        PackageID langTypedescModule = new PackageID(ballerinaOrgName, new Name("lang.typedesc"),  builtInVersion);
-
+        PackageID langArrayModule = new PackageID(ballerinaOrgName, new Name("lang.array"), builtInVersion);
+        PackageID langDecimalModule = new PackageID(ballerinaOrgName, new Name("lang.decimal"), builtInVersion);
+        PackageID langErrorModule = new PackageID(ballerinaOrgName, new Name("lang.error"), builtInVersion);
+        PackageID langFloatModule = new PackageID(ballerinaOrgName, new Name("lang.float"), builtInVersion);
+        PackageID langFutureModule = new PackageID(ballerinaOrgName, new Name("lang.future"), builtInVersion);
+        PackageID langIntModule = new PackageID(ballerinaOrgName, new Name("lang.int"), builtInVersion);
+        PackageID langMapModule = new PackageID(ballerinaOrgName, new Name("lang.map"), builtInVersion);
+        PackageID langObjectModule = new PackageID(ballerinaOrgName, new Name("lang.object"), builtInVersion);
+        PackageID langStreamModule = new PackageID(ballerinaOrgName, new Name("lang.stream"), builtInVersion);
+        PackageID langStringModule = new PackageID(ballerinaOrgName, new Name("lang.string"), builtInVersion);
+        PackageID langTableModule = new PackageID(ballerinaOrgName, new Name("lang.table"), builtInVersion);
+        PackageID langValueModule = new PackageID(ballerinaOrgName, new Name("lang.value"), builtInVersion);
+        PackageID langXmlModule = new PackageID(ballerinaOrgName, new Name("lang.xml"), builtInVersion);
+        PackageID langTypedescModule = new PackageID(ballerinaOrgName, new Name("lang.typedesc"), builtInVersion);
 
         dependentModuleArray.add(langArrayModule);
         dependentModuleArray.add(langDecimalModule);
@@ -494,6 +498,7 @@ public class JvmPackageGen {
     }
 
     private static boolean isSameModule(BIRPackage moduleId, PackageID importModule) {
+
         if (!moduleId.org.value.equals(importModule.orgName.value)) {
             return false;
         } else if (!moduleId.name.value.equals(importModule.name.value)) {
@@ -503,13 +508,13 @@ public class JvmPackageGen {
         }
     }
 
-    private static boolean isLangModule(BIRPackage moduleId){
+    private static boolean isLangModule(BIRPackage moduleId) {
+
         if (!"ballerina".equals(moduleId.org.value)) {
             return false;
         }
         return moduleId.name.value.indexOf("lang.") == 0;
     }
-
 
     private static void generatePackageVariable(BIRGlobalVariableDcl globalVar, ClassWriter cw) {
 
@@ -549,6 +554,7 @@ public class JvmPackageGen {
 //    }
 
     private static void generateLockForVariable(ClassWriter cw) {
+
         String lockStoreClass = "L" + LOCK_STORE + ";";
         FieldVisitor fv;
         fv = cw.visitField(ACC_PUBLIC + ACC_FINAL + ACC_STATIC, "LOCK_STORE", lockStoreClass, null, null);
@@ -557,6 +563,7 @@ public class JvmPackageGen {
 
     private static void generateStaticInitializer(ClassWriter cw, String className,
                                                   boolean serviceEPAvailable) {
+
         MethodVisitor mv = cw.visitMethod(ACC_STATIC, "<clinit>", "()V", null, null);
 
         String lockStoreClass = "L" + LOCK_STORE + ";";
@@ -729,7 +736,7 @@ public class JvmPackageGen {
         if (isEntry) {
             for (BIRNode.BIRConstant constant : module.constants) {
                 module.globalVars.add(new BIRGlobalVariableDcl(constant.pos, constant.flags, constant.type, null,
-                                                               constant.name, VarScope.GLOBAL, VarKind.CONSTANT, ""));
+                        constant.name, VarScope.GLOBAL, VarKind.CONSTANT, ""));
             }
         }
         for (BIRGlobalVariableDcl globalVar : module.globalVars) {
@@ -884,7 +891,7 @@ public class JvmPackageGen {
                 attachedType, false, true);
 
         return new BIRFunctionWrapper(orgName, moduleName, version, currentFunc, moduleClass, jvmMethodDescription,
-                                      jvmMethodDescriptionBString);
+                jvmMethodDescriptionBString);
     }
 
     // TODO: remove name/org form Package and replace with ModuleID
@@ -900,7 +907,7 @@ public class JvmPackageGen {
     }
 
 //    private static void addBuiltinImports(BIRPackage moduleId, BIRPackage module) {
-        // Add the builtin and utils modules to the imported list of modules
+    // Add the builtin and utils modules to the imported list of modules
 //        BIRImportModule annotationsModule = new BIRImportModule(modOrg :new (value:"ballerina"),
 //        modName:
 //        new (value:"lang.annotations"),
@@ -1077,6 +1084,7 @@ public class JvmPackageGen {
     }
 
     public static byte[] getBytes(ClassWriter cw, BIRNode node) {
+
         byte[] result;
         try {
             return cw.toByteArray();
@@ -1096,6 +1104,7 @@ public class JvmPackageGen {
     }
 
     private static BIRFunction findFunction(BIRNode parentNode, String funcName) {
+
         BIRFunction func;
         if (parentNode instanceof BIRTypeDefinition) {
             BIRTypeDefinition typeDef = (BIRTypeDefinition) parentNode;
@@ -1111,6 +1120,7 @@ public class JvmPackageGen {
     }
 
     private static BIRFunction findFunction(List<BIRFunction> functions, String funcName) {
+
         for (BIRFunction func : functions) {
             if (JvmMethodGen.cleanupFunctionName(func.name.value).equals(funcName)) {
                 return func;
@@ -1120,6 +1130,11 @@ public class JvmPackageGen {
         throw new IllegalStateException("cannot find function: '" + funcName + "'");
     }
 
+    /**
+     * A wrapper used with JInterop to wrap BFuntions with JFunc description and data.
+     *
+     * @since 1.2.0
+     */
     public static class BIRFunctionWrapper {
 
         public String orgName;

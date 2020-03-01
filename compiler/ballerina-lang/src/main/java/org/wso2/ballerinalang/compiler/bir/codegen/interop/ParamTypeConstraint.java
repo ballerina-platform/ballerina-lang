@@ -21,7 +21,7 @@ package org.wso2.ballerinalang.compiler.bir.codegen.interop;
  * This class represents constraint for a single Java method parameter and this is used in resolving a
  * Java method for Ballerina external functions.
  *
- * @since 1.0.0
+ * @since 1.2.0
  */
 class ParamTypeConstraint {
 
@@ -30,10 +30,12 @@ class ParamTypeConstraint {
     private Class<?> constraint;
 
     ParamTypeConstraint(Class<?> constraint) {
+
         this.constraint = constraint;
     }
 
     Class<?> get() {
+
         return this.constraint;
     }
 }
