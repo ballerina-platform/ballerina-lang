@@ -1128,17 +1128,25 @@ public class BLangPackageBuilder {
 
     void addSimpleVariableDefStatement(DiagnosticPos pos, Set<Whitespace> ws, String identifier,
                                        DiagnosticPos identifierPos, boolean isFinal, boolean isExpressionAvailable,
-                                       boolean isDeclaredWithVar, boolean isLetDeclaration) {
+                                       boolean isDeclaredWithVar) {
         BLangSimpleVariableDef varDefNode = createSimpleVariableDef(pos, ws, identifier, identifierPos, isFinal,
                 isExpressionAvailable, isDeclaredWithVar);
         if (!this.bindingPatternIdentifierWS.isEmpty()) {
             varDefNode.addWS(this.bindingPatternIdentifierWS.pop());
         }
-        if (isLetDeclaration) {
-            addLetVarDecl(varDefNode);
-        } else {
-            addStmtToCurrentBlock(varDefNode);
+        addStmtToCurrentBlock(varDefNode);
+    }
+
+    void addSimpleLetVariableDefStatement(DiagnosticPos pos, Set<Whitespace> ws, String identifier,
+                                       DiagnosticPos identifierPos, boolean isExpressionAvailable,
+                                       boolean isDeclaredWithVar, int numAnnotations) {
+        BLangSimpleVariableDef varDefNode = createSimpleVariableDef(pos, ws, identifier, identifierPos,
+                true, isExpressionAvailable, isDeclaredWithVar);
+        if (!this.bindingPatternIdentifierWS.isEmpty()) {
+            varDefNode.addWS(this.bindingPatternIdentifierWS.pop());
         }
+        attachAnnotations(varDefNode.var, numAnnotations, false);
+        addLetVarDecl(varDefNode);
     }
 
     void addBindingPatternNameWhitespace(Set<Whitespace> ws) {
@@ -1180,23 +1188,29 @@ public class BLangPackageBuilder {
     }
 
     void addTupleVariableDefStatement(DiagnosticPos pos, Set<Whitespace> ws, boolean isFinal,
-                                      boolean isDeclaredWithVar, boolean isLetDeclaration) {
+                                      boolean isDeclaredWithVar) {
         BLangTupleVariableDef varDefNode = createTupleVariableDef(pos, ws, isFinal, true, isDeclaredWithVar);
-        if (isLetDeclaration) {
-            addLetVarDecl(varDefNode);
-        } else {
-            addStmtToCurrentBlock(varDefNode);
-        }
+        addStmtToCurrentBlock(varDefNode);
+    }
+
+    void addTupleVariableLetDefStatement(DiagnosticPos pos, Set<Whitespace> ws, boolean isDeclaredWithVar,
+                                         int numAnnotations) {
+        BLangTupleVariableDef varDefNode = createTupleVariableDef(pos, ws, true, true, isDeclaredWithVar);
+        attachAnnotations(varDefNode.var, numAnnotations, false);
+        addLetVarDecl(varDefNode);
     }
 
     void addErrorVariableDefStatement(DiagnosticPos pos, Set<Whitespace> ws, boolean isFinal,
-                                      boolean isDeclaredWithVar, boolean isLetDeclaration) {
+                                      boolean isDeclaredWithVar) {
         BLangErrorVariableDef varDefNode = createErrorVariableDef(pos, ws, isFinal, true, isDeclaredWithVar);
-        if (isLetDeclaration) {
-            addLetVarDecl(varDefNode);
-        } else {
-            addStmtToCurrentBlock(varDefNode);
-        }
+        addStmtToCurrentBlock(varDefNode);
+    }
+
+    void addErrorVariableLetDefStatement(DiagnosticPos pos, Set<Whitespace> ws, boolean isDeclaredWithVar,
+                                         int numAnnotations) {
+        BLangErrorVariableDef varDefNode = createErrorVariableDef(pos, ws, true, true, isDeclaredWithVar);
+        attachAnnotations(varDefNode.errorVariable, numAnnotations, false);
+        addLetVarDecl(varDefNode);
     }
 
     private BLangTupleVariableDef createTupleVariableDef(DiagnosticPos pos, Set<Whitespace> ws, boolean isFinal,
@@ -1240,13 +1254,17 @@ public class BLangPackageBuilder {
     }
 
     void addRecordVariableDefStatement(DiagnosticPos pos, Set<Whitespace> ws, boolean isFinal,
-                                       boolean isDeclaredWithVar, boolean isLetDeclaration) {
+                                       boolean isDeclaredWithVar) {
         BLangRecordVariableDef varDefNode = createRecordVariableDef(pos, ws, isFinal, true, isDeclaredWithVar);
-        if (isLetDeclaration) {
-            addLetVarDecl(varDefNode);
-        } else {
-            addStmtToCurrentBlock(varDefNode);
-        }
+        addStmtToCurrentBlock(varDefNode);
+    }
+
+    void addRecordVariableLetDefStatement(DiagnosticPos pos, Set<Whitespace> ws, boolean isDeclaredWithVar,
+                                          int numAnnotations) {
+        BLangRecordVariableDef varDefNode = createRecordVariableDef(pos, ws, true, true, isDeclaredWithVar);
+        attachAnnotations(varDefNode.var, numAnnotations, false);
+        addLetVarDecl(varDefNode);
+
     }
 
     private BLangRecordVariableDef createRecordVariableDef(DiagnosticPos pos, Set<Whitespace> ws, boolean isFinal,
@@ -2017,7 +2035,7 @@ public class BLangPackageBuilder {
         endFunctionSignature(pos, ws, false, retParamsAvail, false);
         addLambdaFunctionDef(pos, ws);
         String workerLambdaName = WORKER_LAMBDA_VAR_PREFIX + workerName;
-        addSimpleVariableDefStatement(pos, null, workerLambdaName, null, true, true, true, false);
+        addSimpleVariableDefStatement(pos, null, workerLambdaName, null, true, true, true);
 
         // Check if the worker is in a fork. If so add the lambda function to the worker list in fork, else ignore.
         BLangSimpleVariableDef lamdaWrkr = getLastVarDefStmtFromBlock();
