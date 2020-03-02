@@ -90,11 +90,11 @@ public class BallerinaParserErrorHandler {
         this.errorListener = new BallerinaParserErrorListener();
     }
 
-    public void pushContext(ParserRuleContext context) {
+    public void startContext(ParserRuleContext context) {
         this.ctxStack.push(context);
     }
 
-    public void popContext() {
+    public void endContext() {
         this.ctxStack.pop();
     }
 
@@ -435,6 +435,7 @@ public class BallerinaParserErrorHandler {
                         default:
                             throw new IllegalStateException();
                     }
+                    break;
                 case TYPE_OR_VAR_NAME:
                     return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount, TYPE_OR_VAR_NAME);
                 case ASSIGNMENT_OR_VAR_DECL_STMT_RHS:
@@ -750,7 +751,7 @@ public class BallerinaParserErrorHandler {
             case DEFAULTABLE_PARAM:
             case REST_PARAM:
                 // case EXPRESSION:
-                pushContext(currentCtx);
+                startContext(currentCtx);
                 break;
             default:
                 break;
@@ -775,7 +776,7 @@ public class BallerinaParserErrorHandler {
             case STATEMENT:
                 Token nextToken = this.tokenReader.peek(nextLookahead);
                 if (isEndOfBlock(nextToken)) {
-                    popContext(); // end statement
+                    endContext(); // end statement
                     return ParserRuleContext.CLOSE_BRACE;
                 } else {
                     throw new IllegalStateException();
@@ -793,17 +794,17 @@ public class BallerinaParserErrorHandler {
             case CLOSE_BRACE:
                 parentCtx = getParentContext();
                 if (parentCtx == ParserRuleContext.FUNC_BODY_BLOCK) {
-                    popContext(); // end func body block
+                    endContext(); // end func body block
                     return ParserRuleContext.TOP_LEVEL_NODE;
                 } else {
                     throw new IllegalStateException();
                 }
             case CLOSE_PARENTHESIS:
                 if (isParameter(getParentContext())) {
-                    popContext(); // end parameter
-                    popContext(); // end parameter-list
+                    endContext(); // end parameter
+                    endContext(); // end parameter-list
                 }
-                popContext(); // end func signature
+                endContext(); // end func signature
                 return ParserRuleContext.FUNC_BODY;
             case EXPRESSION:
                 nextToken = this.tokenReader.peek(nextLookahead);
@@ -856,17 +857,17 @@ public class BallerinaParserErrorHandler {
             case SEMICOLON:
                 parentCtx = getParentContext();
                 if (parentCtx == ParserRuleContext.EXTERNAL_FUNC_BODY) {
-                    popContext(); // end external func
+                    endContext(); // end external func
                     return ParserRuleContext.TOP_LEVEL_NODE;
                 } else if (isExpression(parentCtx)) {
                     // A semicolon after an expression also means its an end of a statement, Hence pop the ctx.
-                    popContext(); // end statement
+                    endContext(); // end statement
                     if (isEndOfBlock(this.tokenReader.peek(nextLookahead))) {
                         return ParserRuleContext.CLOSE_BRACE;
                     }
                     return ParserRuleContext.STATEMENT;
                 } else if (isStatement(parentCtx)) {
-                    popContext(); // end statement
+                    endContext(); // end statement
                     if (isEndOfBlock(this.tokenReader.peek(nextLookahead))) {
                         return ParserRuleContext.CLOSE_BRACE;
                     }
@@ -922,7 +923,7 @@ public class BallerinaParserErrorHandler {
             case REST_PARAM:
                 nextToken = this.tokenReader.peek(nextLookahead);
                 if (isEndOfParametersList(nextToken)) {
-                    popContext();
+                    endContext();
                     return ParserRuleContext.CLOSE_PARENTHESIS;
                 }
                 return ParserRuleContext.TYPE_DESCRIPTOR;
@@ -941,7 +942,7 @@ public class BallerinaParserErrorHandler {
                     case REQUIRED_PARAM:
                     case DEFAULTABLE_PARAM:
                     case REST_PARAM:
-                        popContext();
+                        endContext();
                         return parentCtx;
                     default:
                         throw new IllegalStateException();

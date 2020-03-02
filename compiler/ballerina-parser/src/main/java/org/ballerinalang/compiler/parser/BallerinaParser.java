@@ -19,9 +19,6 @@ package org.ballerinalang.compiler.parser;
 
 import org.ballerinalang.compiler.parser.BallerinaParserErrorHandler.Action;
 import org.ballerinalang.compiler.parser.BallerinaParserErrorHandler.Solution;
-import org.ballerinalang.compiler.parser.tree.ASTNode;
-import org.ballerinalang.compiler.parser.tree.ParameterNode;
-import org.ballerinalang.compiler.parser.tree.SyntaxNode;
 
 import java.io.InputStream;
 
@@ -179,11 +176,11 @@ public class BallerinaParser {
     }
 
     private void startContext(ParserRuleContext context) {
-        this.errorHandler.pushContext(context);
+        this.errorHandler.startContext(context);
     }
 
     private void endContext() {
-        this.errorHandler.popContext();
+        this.errorHandler.endContext();
     }
 
     /**
@@ -193,8 +190,7 @@ public class BallerinaParser {
      * @param context Context to switch to.
      */
     private void switchContext(ParserRuleContext context) {
-        this.errorHandler.popContext();
-        this.errorHandler.pushContext(context);
+        this.errorHandler.switchContext(context);
     }
 
     /**
