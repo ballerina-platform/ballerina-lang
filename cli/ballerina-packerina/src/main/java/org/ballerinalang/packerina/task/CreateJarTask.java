@@ -83,9 +83,9 @@ public class CreateJarTask implements Task {
 
             PackageID packageID = bLangPackage.packageID;
 
-            HashSet<Path> moduleDependencySet = buildContext.moduleDependencyPathMap.get(packageID).platformLibs;
+            HashSet<Path> moduleDependencies = buildContext.moduleDependencyPathMap.get(packageID).platformLibs;
             if (!skipCopyLibsFromDist) {
-                moduleDependencySet.add(runtimeJar);
+                moduleDependencies.add(runtimeJar);
             }
             // write module child imports jars
             writeImportJar(backendDriver, bLangPackage.symbol.imports, sourceRoot, buildContext, runtimeJar);
@@ -93,7 +93,7 @@ public class CreateJarTask implements Task {
             // get the jar path of the module.
             Path jarOutput = buildContext.getJarPathFromTargetCache(module.packageID);
             if (!Files.exists(jarOutput)) {
-                backendDriver.execute(birPackage, dumpBir, jarOutput);
+                backendDriver.execute(birPackage, dumpBir, jarOutput, moduleDependencies);
             }
 
             // If there is a testable package we will create testable jar.
@@ -105,7 +105,7 @@ public class CreateJarTask implements Task {
                     // get the jar path of the module.
                     Path testJarOutput = buildContext.getTestJarPathFromTargetCache(testPkg.packageID);
                     if (!Files.exists(testJarOutput)) {
-                        backendDriver.execute(birPackage, dumpBir, testJarOutput);
+                        backendDriver.execute(birPackage, dumpBir, testJarOutput, moduleDependencies);
                     }
                 }
             }
@@ -136,7 +136,7 @@ public class CreateJarTask implements Task {
                 if (!skipCopyLibsFromDist) {
                     moduleDependencySet.add(runtimeJar);
                 }
-                backendDriver.execute(bimport.bir, dumpBir, jarFilePath);
+                backendDriver.execute(bimport.bir, dumpBir, jarFilePath, moduleDependencySet);
             }
             writeImportJar(backendDriver, bimport.imports, sourceRoot, buildContext, runtimeJar);
         }
