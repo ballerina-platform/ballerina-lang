@@ -88,7 +88,7 @@ public class PullCommand implements BLauncherCmd {
         String version;
 
         // Get org-name
-        if (!validateModuleName(resourceName)) {
+        if (!validModuleName(resourceName)) {
             CommandUtil.printError(outStream,
                     "invalid module name. Provide the module name with the org name ",
                     "ballerina pull {<org-name>/<module-name> | <org-name>/<module-name>:<version>}",
@@ -158,7 +158,7 @@ public class PullCommand implements BLauncherCmd {
         return MODULE_NAME_REGEX;
     }
 
-    public boolean validateModuleName(String str) {
+    public boolean validModuleName(String str) {
         return Pattern.matches(getPullCommandRegex(), str);
     }
 }

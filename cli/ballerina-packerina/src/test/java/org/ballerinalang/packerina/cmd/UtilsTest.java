@@ -24,6 +24,8 @@ import org.testng.annotations.Test;
 
 /**
  * Test cases to validate the module names.
+ *
+ * @since 1.1.x
  */
 public class UtilsTest {
 
@@ -68,11 +70,11 @@ public class UtilsTest {
 
     @Test(description = "Test the valid module names", dataProvider = "valid-data-provider")
     public void positiveChecks(String data) {
-        Assert.assertTrue(pullCommand.validateModuleName(data));
+        Assert.assertTrue(pullCommand.validModuleName(data));
     }
 
     @Test(description = "Test the invalid module names", dataProvider = "invalid-data-provider")
     public void negativeChecks(String data) {
-        Assert.assertFalse(pullCommand.validateModuleName(data));
+        Assert.assertFalse(pullCommand.validModuleName(data));
     }
 }
