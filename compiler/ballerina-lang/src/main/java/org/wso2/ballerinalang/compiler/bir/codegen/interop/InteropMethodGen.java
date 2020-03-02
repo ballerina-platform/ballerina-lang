@@ -770,22 +770,15 @@ public class InteropMethodGen {
     public static class JIMethodCall extends BIRTerminator {
 
         @Nilable
-        public
-        List<BIROperand> args;
+        public List<BIROperand> args;
         public boolean varArgExist;
         @Nilable
-        public
-        JType varArgType;
-        InstructionKind kind = InstructionKind.PLATFORM;
-        @Nilable
-        public
-        BIROperand lhsOp;
+        public JType varArgType;
         JTermKind jKind = JTermKind.JTERM_CALL;
         public String jClassName;
         public String jMethodVMSig;
         public String name;
         public int invocationType;
-        BIRBasicBlock thenBB;
 
         public JIMethodCall(DiagnosticPos pos) {
 
@@ -806,20 +799,14 @@ public class InteropMethodGen {
     public static class JIConstructorCall extends BIRTerminator {
 
         @Nilable
-        public
-        List<BIROperand> args;
+        public List<BIROperand> args;
         boolean varArgExist;
         @Nilable
         JType varArgType;
-        InstructionKind kind = InstructionKind.PLATFORM;
-        @Nilable
-        public
-        BIROperand lhsOp;
         JTermKind jKind = JTermKind.JTERM_NEW;
         public String jClassName;
         public String jMethodVMSig;
         public String name;
-        BIRBasicBlock thenBB;
 
         public JIConstructorCall(DiagnosticPos pos) {
 

@@ -302,20 +302,13 @@ public class ExternalMethodGen {
      * @since 1.2.0
      */
     public static class JavaMethodCall extends BIRTerminator {
-
-        DiagnosticPos pos;
         @Nilable
         public
         List<BIROperand> args;
-        InstructionKind kind;
-        @Nilable
-        public
-        BIROperand lhsOp;
         public String jClassName;
         public String jMethodVMSig;
         public String jMethodVMSigBString;
         public String name;
-        BIRBasicBlock thenBB;
 
         public JavaMethodCall(DiagnosticPos pos, InstructionKind kind, List<BIROperand> args,
                               BIROperand lhsOp, String jClassName, String jMethodVMSig,
