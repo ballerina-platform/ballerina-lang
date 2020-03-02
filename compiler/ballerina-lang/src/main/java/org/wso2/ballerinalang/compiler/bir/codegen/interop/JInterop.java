@@ -19,13 +19,12 @@ package org.wso2.ballerinalang.compiler.bir.codegen.interop;
 
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.jvm.values.utils.StringUtils;
+import org.ballerinalang.util.diagnostic.DiagnosticCode;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import static org.wso2.ballerinalang.compiler.bir.codegen.interop.JInteropException.CLASS_NOT_FOUND_REASON;
-import static org.wso2.ballerinalang.compiler.bir.codegen.interop.JInteropException.UNSUPPORTED_PRIMITIVE_TYPE_REASON;
 import static org.wso2.ballerinalang.compiler.bir.codegen.interop.JType.getJTypeForPrimitive;
 import static org.wso2.ballerinalang.compiler.bir.codegen.interop.JTypeTags.JARRAY;
 import static org.wso2.ballerinalang.compiler.bir.codegen.interop.JTypeTags.JBOOLEAN;
@@ -221,7 +220,7 @@ class JInterop {
                 constraintClass = boolean.class;
                 break;
             default:
-                throw new JInteropException(UNSUPPORTED_PRIMITIVE_TYPE_REASON,
+                throw new JInteropException(DiagnosticCode.UNSUPPORTED_PRIMITIVE_TYPE,
                         "Unsupported Java primitive type '" + primitiveTypeName + "'");
         }
         return new ParamTypeConstraint(constraintClass);
@@ -247,7 +246,7 @@ class JInterop {
             case JBOOLEAN:
                 return "Z";
             default:
-                throw new JInteropException(UNSUPPORTED_PRIMITIVE_TYPE_REASON,
+                throw new JInteropException(DiagnosticCode.UNSUPPORTED_PRIMITIVE_TYPE,
                         "Unsupported Java primitive type '" + primitiveTypeName + "'");
         }
     }
@@ -257,14 +256,8 @@ class JInterop {
         try {
             return Class.forName(className.replace("/", "."), false, classLoader);
         } catch (ClassNotFoundException | NoClassDefFoundError e) {
-            throw new JInteropException(CLASS_NOT_FOUND_REASON, e.getMessage(), e);
+            throw new JInteropException(DiagnosticCode.CLASS_NOT_FOUND, e.getMessage(), e);
         }
-    }
-
-    static BLangCompilerException createJInteropError(String reason, String details) {
-
-        return new BLangCompilerException("error " + reason +
-                Optional.ofNullable(details).map(d -> " " + StringUtils.getStringValue(d)).orElse(""));
     }
 
     static JMethodKind getMethodKindFromAnnotTag(String annotTagRef) {
