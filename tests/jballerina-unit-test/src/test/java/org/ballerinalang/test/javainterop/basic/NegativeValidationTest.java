@@ -19,6 +19,8 @@ package org.ballerinalang.test.javainterop.basic;
 
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.test.util.BCompileUtil;
+import org.ballerinalang.test.util.CompileResult;
+import org.testng.Assert;
 import org.testng.annotations.Test;
 
 /**
@@ -103,126 +105,201 @@ public class NegativeValidationTest {
     @Test(expectedExceptions = BLangCompilerException.class)
     public void testAcceptNothing() {
         String path = "test-src/javainterop/ballerina_types_as_interop_types_negative.bal";
-        BCompileUtil.compileInProc(path);
+        CompileResult compileResult = BCompileUtil.compileInProc(path);
+        Assert.assertEquals(compileResult.getDiagnostics().length, 1);
     }
 
-    @Test(expectedExceptions = BLangCompilerException.class, expectedExceptionsMessageRegExp = expectedMsg1)
+    @Test(expectedExceptions = BLangCompilerException.class)
     public void testClassNotFound() {
         String path = "test-src/javainterop/negative/class_not_found.bal";
-        BCompileUtil.compileInProc(path);
+        CompileResult compileResult = BCompileUtil.compileInProc(path);compileResult.getDiagnostics();
+        Assert.assertEquals(compileResult.getDiagnostics().length, 1);
+        Assert.assertEquals(compileResult.getDiagnostics()[0].getMessage(), expectedMsg1);
     }
 
-    @Test(expectedExceptions = BLangCompilerException.class, expectedExceptionsMessageRegExp = expectedMsg2)
+    @Test(expectedExceptions = BLangCompilerException.class)
     public void testMethodNotFound1() {
         String path = "test-src/javainterop/negative/method_not_found1.bal";
-        BCompileUtil.compileInProc(path);
+        CompileResult compileResult = BCompileUtil.compileInProc(path);
+        compileResult.getDiagnostics();
+        Assert.assertEquals(compileResult.getDiagnostics().length, 1);
+        Assert.assertEquals(compileResult.getDiagnostics()[0].getMessage(), expectedMsg2);
+
     }
 
-    @Test(expectedExceptions = BLangCompilerException.class, expectedExceptionsMessageRegExp = expectedMsg3)
+    @Test(expectedExceptions = BLangCompilerException.class)
     public void testMethodNotFound2() {
         String path = "test-src/javainterop/negative/method_not_found2.bal";
-        BCompileUtil.compileInProc(path);
+
+        CompileResult compileResult = BCompileUtil.compileInProc(path);
+        compileResult.getDiagnostics();
+        Assert.assertEquals(compileResult.getDiagnostics().length, 1);
+        Assert.assertEquals(compileResult.getDiagnostics()[0].getMessage(), expectedMsg3);
     }
 
-    @Test(expectedExceptions = BLangCompilerException.class, expectedExceptionsMessageRegExp = expectedMsg4)
+    @Test(expectedExceptions = BLangCompilerException.class)
     public void testMethodNotFound3() {
         String path = "test-src/javainterop/negative/method_not_found3.bal";
-        BCompileUtil.compileInProc(path);
+
+        CompileResult compileResult = BCompileUtil.compileInProc(path);
+        compileResult.getDiagnostics();
+        Assert.assertEquals(compileResult.getDiagnostics().length, 1);
+        Assert.assertEquals(compileResult.getDiagnostics()[0].getMessage(), expectedMsg4);
     }
 
-    @Test(expectedExceptions = BLangCompilerException.class, expectedExceptionsMessageRegExp = expectedMsg5)
+    @Test(expectedExceptions = BLangCompilerException.class)
     public void testMethodNotFound4() {
         String path = "test-src/javainterop/negative/method_not_found4.bal";
-        BCompileUtil.compileInProc(path);
+
+        CompileResult compileResult = BCompileUtil.compileInProc(path);
+        compileResult.getDiagnostics();
+        Assert.assertEquals(compileResult.getDiagnostics().length, 1);
+        Assert.assertEquals(compileResult.getDiagnostics()[0].getMessage(), expectedMsg5);
     }
 
-    @Test(expectedExceptions = BLangCompilerException.class, expectedExceptionsMessageRegExp = expectedMsg6)
+    @Test(expectedExceptions = BLangCompilerException.class)
     public void testMethodNotFound5() {
         String path = "test-src/javainterop/negative/method_not_found5.bal";
-        BCompileUtil.compileInProc(path);
+
+        CompileResult compileResult = BCompileUtil.compileInProc(path);
+        compileResult.getDiagnostics();
+        Assert.assertEquals(compileResult.getDiagnostics().length, 1);
+        Assert.assertEquals(compileResult.getDiagnostics()[0].getMessage(), expectedMsg6);
     }
 
-    @Test(expectedExceptions = BLangCompilerException.class, expectedExceptionsMessageRegExp = expectedMsg7)
+    @Test(expectedExceptions = BLangCompilerException.class)
     public void testMethodSignatureNotMatch1() {
         String path = "test-src/javainterop/negative/method_sig_not_match1.bal";
-        BCompileUtil.compileInProc(path);
+
+        CompileResult compileResult = BCompileUtil.compileInProc(path);
+        compileResult.getDiagnostics();
+        Assert.assertEquals(compileResult.getDiagnostics().length, 1);
+        Assert.assertEquals(compileResult.getDiagnostics()[0].getMessage(), expectedMsg7);
     }
 
-    @Test(expectedExceptions = BLangCompilerException.class, expectedExceptionsMessageRegExp = expectedMsg8)
+    @Test(expectedExceptions = BLangCompilerException.class)
     public void testMethodSignatureNotMatch2() {
         String path = "test-src/javainterop/negative/method_sig_not_match2.bal";
-        BCompileUtil.compileInProc(path);
+
+        CompileResult compileResult = BCompileUtil.compileInProc(path);
+        compileResult.getDiagnostics();
+        Assert.assertEquals(compileResult.getDiagnostics().length, 1);
+        Assert.assertEquals(compileResult.getDiagnostics()[0].getMessage(), expectedMsg8);
     }
 
-    @Test(expectedExceptions = BLangCompilerException.class, expectedExceptionsMessageRegExp = expectedMsg9)
+    @Test(expectedExceptions = BLangCompilerException.class)
     public void testMethodSignatureNotMatch3() {
         String path = "test-src/javainterop/negative/method_sig_not_match3.bal";
-        BCompileUtil.compileInProc(path);
+
+        CompileResult compileResult = BCompileUtil.compileInProc(path);
+        compileResult.getDiagnostics();
+        Assert.assertEquals(compileResult.getDiagnostics().length, 1);
+        Assert.assertEquals(compileResult.getDiagnostics()[0].getMessage(), expectedMsg9);
     }
 
-    @Test(expectedExceptions = BLangCompilerException.class, expectedExceptionsMessageRegExp = expectedMsg10)
+    @Test(expectedExceptions = BLangCompilerException.class)
     public void testMethodSignatureNotMatch4() {
         String path = "test-src/javainterop/negative/method_sig_not_match4.bal";
-        BCompileUtil.compileInProc(path);
+
+        CompileResult compileResult = BCompileUtil.compileInProc(path);
+        compileResult.getDiagnostics();
+        Assert.assertEquals(compileResult.getDiagnostics().length, 1);
+        Assert.assertEquals(compileResult.getDiagnostics()[0].getMessage(), expectedMsg10);
     }
 
-    @Test(expectedExceptions = BLangCompilerException.class, expectedExceptionsMessageRegExp = expectedMsg11)
+    @Test(expectedExceptions = BLangCompilerException.class)
     public void testMethodSignatureNotMatch5() {
         String path = "test-src/javainterop/negative/method_sig_not_match5.bal";
-        BCompileUtil.compileInProc(path);
+
+        CompileResult compileResult = BCompileUtil.compileInProc(path);
+        compileResult.getDiagnostics();
+        Assert.assertEquals(compileResult.getDiagnostics().length, 1);
+        Assert.assertEquals(compileResult.getDiagnostics()[0].getMessage(), expectedMsg11);
     }
 
-    @Test(expectedExceptions = BLangCompilerException.class, expectedExceptionsMessageRegExp = expectedMsg12)
+    @Test(expectedExceptions = BLangCompilerException.class)
     public void testMethodSignatureNotMatch6() {
         String path = "test-src/javainterop/negative/method_sig_not_match6.bal";
-        BCompileUtil.compileInProc(path);
+
+        CompileResult compileResult = BCompileUtil.compileInProc(path);
+        compileResult.getDiagnostics();
+        Assert.assertEquals(compileResult.getDiagnostics().length, 1);
+        Assert.assertEquals(compileResult.getDiagnostics()[0].getMessage(), expectedMsg12);
     }
 
-    @Test(expectedExceptions = BLangCompilerException.class, expectedExceptionsMessageRegExp = expectedMsg13)
+    @Test(expectedExceptions = BLangCompilerException.class)
     public void testMethodSignatureNotMatch7() {
         String path = "test-src/javainterop/negative/method_sig_not_match7.bal";
-        BCompileUtil.compileInProc(path);
+
+        CompileResult compileResult = BCompileUtil.compileInProc(path);
+        compileResult.getDiagnostics();
+        Assert.assertEquals(compileResult.getDiagnostics().length, 1);
+        Assert.assertEquals(compileResult.getDiagnostics()[0].getMessage(), expectedMsg13);
     }
 
-    @Test(expectedExceptions = BLangCompilerException.class, expectedExceptionsMessageRegExp = expectedMsg14)
+    @Test(expectedExceptions = BLangCompilerException.class)
     public void testMethodSignatureNotMatch8() {
         String path = "test-src/javainterop/negative/method_sig_not_match8.bal";
-        BCompileUtil.compileInProc(path);
+
+        CompileResult compileResult = BCompileUtil.compileInProc(path);
+        compileResult.getDiagnostics();
+        Assert.assertEquals(compileResult.getDiagnostics().length, 1);
+        Assert.assertEquals(compileResult.getDiagnostics()[0].getMessage(), expectedMsg14);
     }
 
-    @Test(expectedExceptions = BLangCompilerException.class, expectedExceptionsMessageRegExp = expectedMsg15)
+    @Test(expectedExceptions = BLangCompilerException.class)
     public void testMethodSignatureNotMatch9() {
         String path = "test-src/javainterop/negative/method_sig_not_match9.bal";
-        BCompileUtil.compileInProc(path);
+
+        CompileResult compileResult = BCompileUtil.compileInProc(path);
+        compileResult.getDiagnostics();
+        Assert.assertEquals(compileResult.getDiagnostics().length, 1);
+        Assert.assertEquals(compileResult.getDiagnostics()[0].getMessage(), expectedMsg15);
     }
 
-    @Test(expectedExceptions = BLangCompilerException.class, expectedExceptionsMessageRegExp = expectedMsg16)
+    @Test(expectedExceptions = BLangCompilerException.class)
     public void testMethodSignatureNotMatch10() {
         String path = "test-src/javainterop/negative/method_sig_not_match10.bal";
-        BCompileUtil.compileInProc(path);
+
+        CompileResult compileResult = BCompileUtil.compileInProc(path);
+        compileResult.getDiagnostics();
+        Assert.assertEquals(compileResult.getDiagnostics().length, 1);
+        Assert.assertEquals(compileResult.getDiagnostics()[0].getMessage(), expectedMsg16);
     }
 
-    @Test(expectedExceptions = BLangCompilerException.class, expectedExceptionsMessageRegExp = expectedMsg17)
+    @Test(expectedExceptions = BLangCompilerException.class)
     public void testReturnStringForBUnionFromJava() {
         String path = "test-src/javainterop/negative/method_sig_not_match11.bal";
-        BCompileUtil.compileInProc(path);
+        CompileResult compileResult = BCompileUtil.compileInProc(path);
+        compileResult.getDiagnostics();
+        Assert.assertEquals(compileResult.getDiagnostics().length, 1);
+        Assert.assertEquals(compileResult.getDiagnostics()[0].getMessage(), expectedMsg17);
     }
 
-    @Test(expectedExceptions = BLangCompilerException.class, expectedExceptionsMessageRegExp = expectedMsg18)
+    @Test(expectedExceptions = BLangCompilerException.class)
     public void testJavaPrimitiveForBJsonParam() {
         String path = "test-src/javainterop/negative/method_sig_not_match12.bal";
-        BCompileUtil.compileInProc(path);
+        CompileResult compileResult = BCompileUtil.compileInProc(path);
+        compileResult.getDiagnostics();
+        Assert.assertEquals(compileResult.getDiagnostics().length, 1);
+        Assert.assertEquals(compileResult.getDiagnostics()[0].getMessage(), expectedMsg18);
     }
     
-    @Test(expectedExceptions = BLangCompilerException.class, expectedExceptionsMessageRegExp = expectedMsg19)
+    @Test(expectedExceptions = BLangCompilerException.class)
     public void testJavaPrimitiveForBUnionParam() {
         String path = "test-src/javainterop/negative/method_sig_not_match13.bal";
-        BCompileUtil.compileInProc(path);
+        CompileResult compileResult = BCompileUtil.compileInProc(path);
+        compileResult.getDiagnostics();
+        Assert.assertEquals(compileResult.getDiagnostics().length, 1);
+        Assert.assertEquals(compileResult.getDiagnostics()[0].getMessage(), expectedMsg19);
     }
     
-    @Test(expectedExceptions = BLangCompilerException.class, expectedExceptionsMessageRegExp = expectedMsg20)
+    @Test(expectedExceptions = BLangCompilerException.class)
     public void testMethodSignatureNotMatch14() {
         String path = "test-src/javainterop/negative/method_sig_not_match14.bal";
-        BCompileUtil.compileInProc(path);
+        CompileResult compileResult = BCompileUtil.compileInProc(path);
+        compileResult.getDiagnostics();
+        Assert.assertEquals(compileResult.getDiagnostics().length, 1);
+        Assert.assertEquals(compileResult.getDiagnostics()[0].getMessage(), expectedMsg20);
     }
 }

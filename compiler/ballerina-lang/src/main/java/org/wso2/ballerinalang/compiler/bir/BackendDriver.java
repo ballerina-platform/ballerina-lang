@@ -17,6 +17,7 @@
  */
 package org.wso2.ballerinalang.compiler.bir;
 
+import org.ballerinalang.compiler.BLangCompilerException;
 import org.wso2.ballerinalang.compiler.bir.codegen.CodeGenerator;
 import org.wso2.ballerinalang.compiler.bir.emit.BIREmitter;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
@@ -61,6 +62,9 @@ public class BackendDriver {
 
         // Generate JVM bytecode from BIR
         codeGen(birPackage, target, new HashSet<>());
+        if (CodeGenerator.dlog.errorCount > 0) {
+            throw new BLangCompilerException("compilation contains errors");
+        }
     }
 
     public void execute(BIRNode.BIRPackage birPackage, boolean dumpBIR, Path target, HashSet<Path> moduleDependencies) {
