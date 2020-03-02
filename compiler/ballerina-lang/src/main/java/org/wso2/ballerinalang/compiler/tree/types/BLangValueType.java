@@ -29,6 +29,14 @@ public class BLangValueType extends BLangType implements ValueTypeNode {
 
     public TypeKind typeKind;
 
+    public BLangValueType() {
+
+    }
+
+    public BLangValueType(TypeKind typeKind) {
+        this.typeKind = typeKind;
+    }
+
     @Override
     public TypeKind getTypeKind() {
         return typeKind;

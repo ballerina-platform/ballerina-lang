@@ -76,4 +76,10 @@ public class LangLibStreamTest {
         BValue[] values = BRunUtil.invoke(result, "testIterator", new BValue[]{});
         Assert.assertTrue(((BBoolean) values[0]).booleanValue());
     }
+
+    @Test
+    public void testMapFuncWithRecordType() {
+        BValue[] values = BRunUtil.invoke(result, "testMapFuncWithRecordType", new BValue[]{});
+        Assert.assertTrue(((BBoolean) values[0]).booleanValue());
+    }
 }

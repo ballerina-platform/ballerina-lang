@@ -3,18 +3,20 @@
     "character": 14,
     "expected": {
         "title": "Change Return Type to 'int'",
-        "edit": {
-            "range": {
-                "start": {
-                    "line": 0,
-                    "character": 37
+        "edits": [
+            {
+                "range": {
+                    "start": {
+                        "line": 0,
+                        "character": 37
+                    },
+                    "end": {
+                        "line": 0,
+                        "character": 37
+                    }
                 },
-                "end": {
-                    "line": 0,
-                    "character": 37
-                }
-            },
-            "newText": " returns (int)"
-        }
+                "newText": " returns (int)"
+            }
+        ]
     }
 }

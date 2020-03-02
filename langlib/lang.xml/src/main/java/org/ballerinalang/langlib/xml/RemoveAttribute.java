@@ -40,7 +40,7 @@ public class RemoveAttribute {
 
     private static final String OPERATION = "remove attribute";
 
-    public static void removeAttribute(Strand strand, XMLValue<?> xml, String qname) {
+    public static void removeAttribute(Strand strand, XMLValue xml, String qname) {
         try {
             xml.removeAttribute(qname);
         } catch (Throwable e) {

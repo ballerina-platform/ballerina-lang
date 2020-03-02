@@ -118,18 +118,27 @@ public class KafkaMetricsUtil {
         if (!ObserveUtils.isMetricsEnabled()) {
             return;
         }
+        KafkaObserverContext observerContext = new KafkaObserverContext(KafkaObservabilityConstants.CONTEXT_PRODUCER,
+                                                                        KafkaUtils.getClientId(producerObject),
+                                                                        KafkaUtils.getBootstrapServers(producerObject),
+                                                                        topic);
+        int size = getMessageSize(value);
+        reportPublish(observerContext, size);
+    }
+
+    private static int getMessageSize(Object message) {
         int size = 0;
-        if (value instanceof String) {
-            byte[] bytes = ((String) value).getBytes(StandardCharsets.UTF_8);
+        if (message instanceof String) {
+            byte[] bytes = ((String) message).getBytes(StandardCharsets.UTF_8);
             size = bytes.length;
-        } else if (value instanceof Long || value instanceof Double) {
+        } else if (message instanceof Long || message instanceof Double) {
             size = Double.BYTES;
-        } else if (value instanceof byte[]) {
-            size = ((byte[]) value).length;
+        } else if (message instanceof byte[]) {
+            size = ((byte[]) message).length;
         } else {
             try (ByteArrayOutputStream bos = new ByteArrayOutputStream()) {
                 ObjectOutputStream oos = new ObjectOutputStream(bos);
-                oos.writeObject(value);
+                oos.writeObject(message);
                 oos.flush();
                 byte[] data = bos.toByteArray();
                 size = data.length;
@@ -137,11 +146,7 @@ public class KafkaMetricsUtil {
                 LoggerFactory.getLogger(KafkaMetricsUtil.class).error(e.getMessage());
             }
         }
-        KafkaObserverContext observerContext = new KafkaObserverContext(KafkaObservabilityConstants.CONTEXT_PRODUCER,
-                                                                        KafkaUtils.getClientId(producerObject),
-                                                                        KafkaUtils.getBootstrapServers(producerObject),
-                                                                        topic);
-        reportPublish(observerContext, size);
+        return size;
     }
 
     /**
@@ -215,9 +220,9 @@ public class KafkaMetricsUtil {
      *
      * @param consumerObject Consumer object.
      * @param topic          Subject that the consumer receives the message from.
-     * @param size           Size of the message in bytes.
+     * @param value          Value of the received Kafka record.
      */
-    public static void reportConsume(ObjectValue consumerObject, String topic, int size) {
+    public static void reportConsume(ObjectValue consumerObject, String topic, Object value) {
         if (!ObserveUtils.isMetricsEnabled()) {
             return;
         }
@@ -225,6 +230,7 @@ public class KafkaMetricsUtil {
                                                                         KafkaUtils.getClientId(consumerObject),
                                                                         KafkaUtils.getBootstrapServers(consumerObject),
                                                                         topic);
+        int size = getMessageSize(value);
         reportConsume(observerContext, size);
     }
 

@@ -388,7 +388,7 @@ public class CompoundAssignmentTest {
         BValue[] returns = BRunUtil.invoke(result, "xmlCompoundAssignment");
         Assert.assertTrue(returns[0] instanceof BXMLSequence);
         BXMLSequence sequence = (BXMLSequence) returns[0];
-        Assert.assertEquals(sequence.size(), 13);
+        Assert.assertEquals(sequence.size(), 3);
         Assert.assertEquals(sequence.stringValue(),
                 "hello<hello xmlns:ns0=\"http://sample.com/wso2/a1\">hi</hello>hahblah");
     }

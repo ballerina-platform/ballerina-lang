@@ -126,10 +126,7 @@ public class LSCompilerUtil {
         if (null == compilerPhase) {
             throw new AssertionError("Compiler Phase can not be null.");
         }
-        String phase = compilerPhase.toString().equals(CompilerPhase.COMPILER_PLUGIN.toString()) ? "annotationProcess"
-                : compilerPhase.toString();
-
-        options.put(COMPILER_PHASE, phase);
+        options.put(COMPILER_PHASE, compilerPhase.toString());
         options.put(PRESERVE_WHITESPACE, Boolean.TRUE.toString());
         options.put(TEST_ENABLED, String.valueOf(true));
         options.put(SKIP_TESTS, String.valueOf(false));
@@ -365,8 +362,11 @@ public class LSCompilerUtil {
         }
     }
 
-    static class EmptyPrintStream extends PrintStream {
-        EmptyPrintStream() throws UnsupportedEncodingException {
+    /**
+     * Represents an empty print stream to avoid writing to the standard print stream.
+     */
+    public static class EmptyPrintStream extends PrintStream {
+        public EmptyPrintStream() throws UnsupportedEncodingException {
             super(new OutputStream() {
                 @Override
                 public void write(int b) {

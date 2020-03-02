@@ -34,13 +34,15 @@ service kafkaService on consumer {
 }
 
 function processKafkaRecord(kafka:ConsumerRecord kafkaRecord) {
-    byte[] serializedMsg = kafkaRecord.value;
-    string | error msg = 'string:fromBytes(serializedMsg);
-    if (msg is string) {
-        // Print the retrieved Kafka record.
-        io:println("Topic: ", kafkaRecord.topic, " Received Message: ", msg);
-    } else {
-        log:printError("Error occurred while converting message data", msg);
+    var value = kafkaRecord.value;
+    if (value is byte[]) {
+        string | error msg = 'string:fromBytes(serializedMsg);
+        if (msg is string) {
+            // Print the retrieved Kafka record.
+            io:println("Topic: ", kafkaRecord.topic, " Received Message: ", msg);
+        } else {
+            log:printError("Error occurred while converting message data", msg);
+        }
     }
 }
 ````
