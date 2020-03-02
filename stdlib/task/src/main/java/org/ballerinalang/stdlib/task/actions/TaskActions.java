@@ -119,8 +119,7 @@ public class TaskActions {
 
     @SuppressWarnings("unchecked")
     public static Object init(ObjectValue taskListener) {
-        MapValue<String, Object> configurations = (MapValue<String, Object>) taskListener.get(
-                MEMBER_LISTENER_CONFIGURATION);
+        MapValue<String, Object> configurations = taskListener.getMapValue(MEMBER_LISTENER_CONFIGURATION);
         String configurationTypeName = configurations.getType().getName();
         Task task;
         try {
