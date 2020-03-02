@@ -28,7 +28,7 @@ public class TokenReader {
     private static final int BUFFER_SIZE = 20;
 
     private BallerinaLexer lexer;
-    private CircularBuffer tokensAhead = new CircularBuffer(BUFFER_SIZE);
+    private TokenBuffer tokensAhead = new TokenBuffer(BUFFER_SIZE);
     private Token currentToken = TokenGenerator.SOF;
 
     TokenReader(BallerinaLexer lexer) {
@@ -59,10 +59,45 @@ public class TokenReader {
      * @return Next token in the input
      */
     public Token peek() {
-        if (this.tokensAhead.size == 0) {
-            this.tokensAhead.add(this.lexer.nextToken());
+        if (this.tokensAhead.size > 0) {
+            return this.tokensAhead.peek();
         }
-        return this.tokensAhead.peek();
+
+        Token token = this.lexer.nextToken();
+        this.tokensAhead.add(token);
+        return token;
+    }
+
+    /**
+     * Lookahead in the input and returns the token at the k-th position from the current
+     * position of the input token stream. This will not consume the input. That means
+     * calling this method multiple times will return the same result.
+     * 
+     * @param k Position of the character to peek
+     * @return Token at the k-position from the current position
+     */
+    public Token peek(int k) {
+        Token nextToken;
+        while (this.tokensAhead.size < k) {
+            nextToken = this.lexer.nextToken();
+            while (nextToken.kind == TokenKind.WHITE_SPACE || nextToken.kind == TokenKind.NEWLINE ||
+                    nextToken.kind == TokenKind.COMMENT) {
+                nextToken = this.lexer.nextToken();
+            }
+
+            this.tokensAhead.add(nextToken);
+        }
+
+        return this.tokensAhead.peek(k);
+    }
+
+    /**
+     * Returns the current token. i.e: last consumed token.
+     * 
+     * @return The current token.
+     */
+    public Token head() {
+        return this.currentToken;
     }
 
     public Token consumeNonTrivia() {
@@ -96,35 +131,11 @@ public class TokenReader {
     }
 
     /**
-     * Returns the current token. i.e: last consumed token.
-     * 
-     * @return The current token.
-     */
-    public Token head() {
-        return this.currentToken;
-    }
-
-    public Token peek(int k) {
-        Token nextToken;
-        while (this.tokensAhead.size < k) {
-            nextToken = this.lexer.nextToken();
-            while (nextToken.kind == TokenKind.WHITE_SPACE || nextToken.kind == TokenKind.NEWLINE ||
-                    nextToken.kind == TokenKind.COMMENT) {
-                nextToken = this.lexer.nextToken();
-            }
-
-            this.tokensAhead.add(nextToken);
-        }
-
-        return this.tokensAhead.peek(k);
-    }
-
-    /**
      * A ring buffer of tokens.
      * 
      * @since 1.2.0
      */
-    private static class CircularBuffer {
+    private static class TokenBuffer {
 
         private final int capacity;
         private final Token[] tokens;
@@ -132,7 +143,7 @@ public class TokenReader {
         private int startIndex = -1;
         private int size = 0;
 
-        CircularBuffer(int size) {
+        TokenBuffer(int size) {
             this.capacity = size;
             this.tokens = new Token[size];
         }
