@@ -30,6 +30,7 @@ import java.util.StringJoiner;
 
 /**
  * This represents a let expression in ballerina.
+ * Syntax: let int b = 1, int c = 2 in b*c;
  *
  * @since 1.2.0
  */

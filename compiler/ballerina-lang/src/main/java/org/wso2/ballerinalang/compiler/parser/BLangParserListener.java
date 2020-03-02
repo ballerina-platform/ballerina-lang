@@ -1479,15 +1479,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     }
 
     @Override
-    public void enterLetExpression(BallerinaParser.LetExpressionContext ctx) {
-        if (isInErrorState) {
-            return;
-        }
-
-        this.pkgBuilder.startLetVarList();
-    }
-
-    @Override
     public void enterLetExpr(BallerinaParser.LetExprContext ctx) {
         if (isInErrorState) {
             return;
@@ -1497,7 +1488,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     }
 
     @Override
-    public void exitLetExpression(BallerinaParser.LetExpressionContext ctx) {
+    public void exitLetExpr(BallerinaParser.LetExprContext ctx) {
         if (isInErrorState) {
             return;
         }

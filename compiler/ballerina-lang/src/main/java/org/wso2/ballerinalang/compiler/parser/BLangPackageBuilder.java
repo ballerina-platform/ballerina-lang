@@ -1138,8 +1138,8 @@ public class BLangPackageBuilder {
     }
 
     void addSimpleLetVariableDefStatement(DiagnosticPos pos, Set<Whitespace> ws, String identifier,
-                                       DiagnosticPos identifierPos, boolean isExpressionAvailable,
-                                       boolean isDeclaredWithVar, int numAnnotations) {
+                                          DiagnosticPos identifierPos, boolean isExpressionAvailable,
+                                          boolean isDeclaredWithVar, int numAnnotations) {
         BLangSimpleVariableDef varDefNode = createSimpleVariableDef(pos, ws, identifier, identifierPos,
                 true, isExpressionAvailable, isDeclaredWithVar);
         if (!this.bindingPatternIdentifierWS.isEmpty()) {

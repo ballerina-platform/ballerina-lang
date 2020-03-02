@@ -208,8 +208,8 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangArrayType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangBuiltInRefTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangConstrainedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangErrorType;
-import org.wso2.ballerinalang.compiler.tree.types.BLangLetVariable;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFunctionTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangLetVariable;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangTupleTypeNode;
@@ -1113,10 +1113,7 @@ public class Desugar extends BLangNodeVisitor {
         for (BLangLetVariable letVariable : letExpression.letVarDeclarations) {
             BLangNode node  = rewrite((BLangNode) letVariable.definitionNode, env);
             if (node.getKind() == NodeKind.BLOCK) {
-                BLangBlockStmt defBlock = (BLangBlockStmt) node;
-                for (BLangStatement stmt : defBlock.stmts) {
-                    blockStmt.addStatement(stmt);
-                }
+                blockStmt.stmts.addAll(((BLangBlockStmt) node).stmts);
             } else {
                 blockStmt.addStatement((BLangSimpleVariableDef) node);
             }
@@ -3274,8 +3271,8 @@ public class Desugar extends BLangNodeVisitor {
                 !((varRefExpr.symbol.tag & SymTag.CONSTANT) == SymTag.CONSTANT)) {
             genVarRefExpr = new BLangTypeLoad(varRefExpr.symbol);
         } else if ((ownerSymbol.tag & SymTag.INVOKABLE) == SymTag.INVOKABLE ||
-                (ownerSymbol.tag & SymTag.LET) == SymTag.LET){
-            // Local variable in a function/resource/action/worker
+                (ownerSymbol.tag & SymTag.LET) == SymTag.LET) {
+            // Local variable in a function/resource/action/worker/let
             genVarRefExpr = new BLangLocalVarRef((BVarSymbol) varRefExpr.symbol);
         } else if ((ownerSymbol.tag & SymTag.STRUCT) == SymTag.STRUCT) {
             genVarRefExpr = new BLangFieldVarRef((BVarSymbol) varRefExpr.symbol);

@@ -15,9 +15,9 @@
 // under the License.
 
 type Student record {
-    int marks = let int x = 3, int z = 5 in z*x;
+    int marks = let int x = 3, int z = 5 in z * x;
 };
 
 type Person object {
-    public int age = let int x = 3, int z = 5 in z*x;
+    public int age = let int x = 3, int z = 5 in z * x;
 };

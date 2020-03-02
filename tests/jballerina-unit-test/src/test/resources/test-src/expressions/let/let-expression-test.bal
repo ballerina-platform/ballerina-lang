@@ -15,27 +15,27 @@
 // under the License.
 
 const globalVar = 2;
-int k = let int x = 4 in 2*x*globalVar;
+int k = let int x = 4 in 2 * x * globalVar;
 
 function testBasicLetExpr() {
-    int b = let int x = 4 in 2*x*globalVar;
-    int c = let int x = 4 in 3*x*globalVar;
+    int b = let int x = 4 in 2 * x * globalVar;
+    int c = let int x = 4 in 3 * x * globalVar;
     assertTrue(b == 16, "b == 16");
     assertTrue(c == 24, "c == 24");
 }
 
 function testBasicLetExprVar() {
-    int b = let var x = 4 in 2*x*globalVar;
+    int b = let var x = 4 in 2 * x * globalVar;
     assertTrue(b == 16, "b == 16");
 }
 
 function testMultipleVarDeclLetExpr() {
-    int b = let int x = globalVar*2, int z = 5 in z*x*globalVar;
+    int b = let int x = globalVar*2, int z = 5 in z * x * globalVar;
     assertTrue(b == 40, "b == 40");
 }
 
 function testMultipleVarDeclReuseLetExpr() {
-    int b = let int x = 2, int z = 5+x in z*x*globalVar;
+    int b = let int x = 2, int z = 5+x in z * x * globalVar;
     assertTrue(b == 28, "b == 28");
 }
 
@@ -45,13 +45,13 @@ function testGloballyDefinedLetExpr() {
 
 function testFunctionCallInVarDeclLetExpr() {
     int y = 1;
-    int b = let int x = 4, int z = func(y + y*2 + globalVar) in z*(x+globalVar+y);
+    int b = let int x = 4, int z = func(y + y*2 + globalVar) in z * (x + globalVar + y);
     assertTrue(b == 70, "b == 70");
 }
 
 function testFunctionCallInLetExpr() {
     int y = 1;
-    int b = let int x = 4, int z = 10 in func(x*z);
+    int b = let int x = 4, int z = 10 in func(x * z);
     assertTrue(b == 80, "b == 80");
 }
 
@@ -63,7 +63,7 @@ function testLetExprAsFunctionArg() {
 function testLetExprInIfStatement() {
     int a = 1;
     if((let int x = 4, int z = 5 in z*x) == 20) {
-        a = let int x = 4, int z = 5+a in z+x+a+globalVar;
+        a = let int x = 4, int z = 5+a in z + x + a + globalVar;
     }
     assertTrue(a == 13, "a == 13");
 }
@@ -71,20 +71,20 @@ function testLetExprInIfStatement() {
 function testLetExprInWhileStatement() {
     int a = 1;
     while(((let int x = 4, int z = 5 in z*x) == 20) && a == 1) {
-        a = let int x = 4, int z = 5+a in z+x+a+globalVar;
+        a = let int x = 4, int z = 5+a in z + x + a + globalVar;
     }
     assertTrue(a == 13, "a == 13");
 }
 
 function testLetExprInCompoundStatement() {
     int a = 10;
-    a -= let int x = 4, int z = 5 in z+x;
+    a -= let int x = 4, int z = 5 in z + x;
     assertTrue(a == 1, "a == 1");
 }
 
 function testLetExpressionInMatch() {
     int a = 1;
-    match let int x = 4, int z = 5 in z+x {
+    match let int x = 4, int z = 5 in z + x {
         1 => {
             a = 2;
         }
@@ -103,12 +103,12 @@ function testLetExpressionInReturn() {
 function testLetExprInElvis() {
     int|() x = ();
     int b;
-    b = x ?: let int y = 5, int z = 5 in z+y;
+    b = x ?: let int y = 5, int z = 5 in z + y;
     assertTrue(b == 10, "b == 10");
 }
 
 function testLetExprInUnion() {
-    int|string x = let int y = 5, int z = 5 in z+y;
+    int|string x = let int y = 5, int z = 5 in z + y;
     assertTrue(x == 10, "x == 10");
 }
 
@@ -117,7 +117,7 @@ function testLetExprInTransaction() {
     if (a == 10) {
         int c = 8;
         transaction with retries = 0 {
-                int b = let int y = 5+c, int z = 5+a in z+y+a+c+globalVar;
+                int b = let int y = 5 + c, int z = 5 + a in z + y + a + c + globalVar;
                 a = b;
          }
     }
@@ -130,7 +130,8 @@ function testLetExprInArrowFunction() {
        int b = 11;
        transaction with retries = 0 {
            int c = a + b;
-           function (int, int) returns int ar = (x, y) => let int m = 5+x, int n = 5+y in x+y+m+n+a+b+c+globalVar;
+           function (int, int) returns int ar = (x, y) => let int m = 5 + x, int n = 5 + y
+                                                    in x + y + m + n + a + b + c + globalVar;
            a = ar(1, 1);
        }
    }
@@ -138,7 +139,7 @@ function testLetExprInArrowFunction() {
 }
 
 function testLetExprInJSON() {
-    json j = {fname:"Jhon", lname:"Doe", age:let int x = 4 in 2*x*globalVar};
+    json j = {fname:"Jhon", lname:"Doe", age:let int x = 4 in 2 * x * globalVar};
     assertTrue(j.age == 16, "j.age == 16");
 
     json k = {fname:"Jhon", lname:"Doe", age:let json x = {age: 16} in x.age};
@@ -147,7 +148,7 @@ function testLetExprInJSON() {
 }
 
 function testLetExpresionInArrays() {
-    int[] b = [let int x = globalVar*2, int z = 5 in z*x*globalVar, 2, 3, 4];
+    int[] b = [let int x = globalVar*2, int z = 5 in z * x * globalVar, 2, 3, 4];
     assertTrue(b[0] == 40, "b[0] == 40");
 
     int[] c = [let int[] x = [2, 3], int z = 5 in z*x[0], 2, 3, 4];
@@ -155,10 +156,10 @@ function testLetExpresionInArrays() {
 }
 
 function testLetExpresionInTuples() {
-    [int, string] a = [let int x = globalVar*2, int z = 5 in z*x*globalVar, "John"];
+    [int, string] a = [let int x = globalVar*2, int z = 5 in z * x * globalVar, "John"];
     assertTrue(a[0] == 40, "a[0] == 40");
 
-    [int, string] b = [let [int, string] x = [1, "hello"], int z = x[0] + 1 in z*x[0]*globalVar, "John"];
+    [int, string] b = [let [int, string] x = [1, "hello"], int z = x[0] + 1 in z * x[0] * globalVar, "John"];
     assertTrue(b[0] == 4, "b[0] == 4");
 }
 
@@ -173,12 +174,12 @@ function testLetExprInMap() {
 }
 
 function testLetExpressionTupleSimple() {
-    int b = let [boolean, int] t = [true, 4], int x = 2 in t[1]*x;
+    int b = let [boolean, int] t = [true, 4], int x = 2 in t[1] * x;
     assertTrue(b == 8, "b == 8");
 }
 
 function testLetExpressionTupleBinding() {
-    int b = let [boolean, int] [a1, a2] = [true, 4], int y = a2*2 in a2 + y;
+    int b = let [boolean, int] [a1, a2] = [true, 4], int y = a2 * 2 in a2 + y;
     assertTrue(b == 12, "b == 12");
 }
 
@@ -197,7 +198,7 @@ function testLetExpressionTupleBindingComplex() {
 function testLetExpressionTupleBindingRef() {
     [[string, [int, [boolean, byte]]], [float, int]] v1 = [["Ballerina", [3, [true, 34]]], [5.6, 45]];
     int b = let [[string, [int, [boolean, byte]]], [float, int]] [[d1, [d2, [d3, d4]]], [d5, d6]] = v1, int x = 2
-            in  d2+d4+x;
+            in  d2 + d4 + x;
     assertTrue(b == 39, "b == 39");
 }
 
@@ -253,7 +254,7 @@ function useLetInReturn() returns int {
 }
 
 function func(int k) returns int {
-    return k*2;
+    return k * 2;
 }
 
 function func2(string y) returns int {

@@ -16,15 +16,15 @@
 
 function redclaredVar() {
     int x = 5;
-    int b = let int x = 4 in 2*x;
+    int b = let int x = 4 in 2 * x;
 }
 
 function undefinedVar() {
-    int b = let int x = 4*y, int y = 2 in 2*x;
+    int b = let int x = 4*y, int y = 2 in 2 * x;
 }
 
 function wrongTypes() {
-    int b = let int x = "hello" in 2*x;
+    int b = let int x = "hello" in 2 * x;
     int c = let string x = "hello" in x;
     int d = let string x = fun() in x.length();
     string p = let string x = "hello" in fun();
