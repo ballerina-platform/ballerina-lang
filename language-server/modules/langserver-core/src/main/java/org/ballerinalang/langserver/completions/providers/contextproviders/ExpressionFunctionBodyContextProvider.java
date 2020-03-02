@@ -34,7 +34,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Handles the expression function body completion
+ * Handles the expression function body completion.
  *
  * @since 1.2.0
  */
