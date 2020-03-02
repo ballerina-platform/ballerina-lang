@@ -24,7 +24,7 @@ email:SmtpConfig smtpConfig = {
 };
 
 function testSendComplexEmail() returns error? {
-    email:SmtpClient smtpClient = new (smtpConfig);
+    email:SmtpClient|error smtpClient = new (smtpConfig);
     email:Email email = {
         to: ["hascode1@localhost", "hascode2@localhost"],
         cc: ["hascode3@localhost", "hascode4@localhost"],
@@ -35,6 +35,11 @@ function testSendComplexEmail() returns error? {
         sender: "someone@localhost.com",
         replyTo: ["abc@cde.com", "abc@cde.com"]
     };
-    return smtpClient->send(email);
+    if (smtpClient is email:SmtpClient) {
+        return smtpClient->send(email);
+    } else {
+        return smtpClient;
+    }
+
 }
 

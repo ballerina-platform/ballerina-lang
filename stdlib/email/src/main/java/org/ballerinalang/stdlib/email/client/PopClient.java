@@ -59,7 +59,9 @@ public class PopClient {
      */
     public static Object initClientEndpoint(ObjectValue clientEndpoint, MapValue<Object, Object> config,
                                             boolean isPop) {
-        log.debug("[PopClient][InitClient] Calling getProperties");
+        if (log.isDebugEnabled()) {
+            log.debug("[PopClient][InitClient] Calling getProperties");
+        }
         Properties properties = PopUtil.getProperties(config, isPop);
         Session session = Session.getInstance(properties, null);
         try {
@@ -101,16 +103,22 @@ public class PopClient {
             store.connect(host, username, password);
             String folderName = filter.getStringValue(PopConstants.PROPS_FILTER_FOLDER);
             Folder emailFolder = store.getFolder(folderName);
-            log.debug("[PopClient][Read] Got the folder.");
+            if (log.isDebugEnabled()) {
+                log.debug("[PopClient][Read] Got the folder.");
+            }
             emailFolder.open(Folder.READ_ONLY);
             Message[] messages = emailFolder.getMessages();
-            log.debug("[PopClient][Read] Got the messages.");
-            log.debug("[PopClient][Read] Email count = " + messages.length);
+            if (log.isDebugEnabled()) {
+                log.debug("[PopClient][Read] Got the messages.");
+                log.debug("[PopClient][Read] Email count = " + messages.length);
+            }
             MapValue mapValue = null;
             if (messages.length > 0) {
                 mapValue = PopUtil.getMapValue(messages[0]);
             }
-            log.debug("[PopClient][Read] Closing the folder and the store.");
+            if (log.isDebugEnabled()) {
+                log.debug("[PopClient][Read] Closing the folder and the store.");
+            }
             emailFolder.close(false);
             store.close();
             return mapValue;

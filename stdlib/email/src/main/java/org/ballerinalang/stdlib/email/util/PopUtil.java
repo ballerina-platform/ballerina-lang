@@ -40,6 +40,8 @@ import javax.mail.internet.MimeMultipart;
 
 /**
  * Contains Utility functions related to the POP3 protocol.
+ *
+ * @since 1.1.5
  */
 public class PopUtil {
 
@@ -54,7 +56,9 @@ public class PopUtil {
      * @return Properties object
      */
     public static Properties getProperties(MapValue popConfig, boolean isPop) {
-        log.debug("[PopUtil][getProperties] Extracting Property values from Config");
+        if (log.isDebugEnabled()) {
+            log.debug("[PopUtil][getProperties] Extracting Property values from Config");
+        }
         Properties properties = new Properties();
         if (isPop) {
             properties.put(PopConstants.PROPS_POP_HOST, popConfig.getStringValue(PopConstants.PROPS_HOST));
@@ -75,7 +79,9 @@ public class PopUtil {
         properties.put(PopConstants.PROPS_USERNAME, popConfig.getStringValue(PopConstants.PROPS_USERNAME));
         properties.put(PopConstants.PROPS_PASSWORD, popConfig.getStringValue(PopConstants.PROPS_PASSWORD));
 
-        log.debug("[PopUtil][getProperties] Property object created. Returning Object to PopClient");
+        if (log.isDebugEnabled()) {
+            log.debug("[PopUtil][getProperties] Property object created. Returning Object to PopClient");
+        }
         return properties;
     }
 
@@ -88,7 +94,9 @@ public class PopUtil {
      * @throws IOException If an error occurs related to I/O
      */
     public static MapValue getMapValue(Message message) throws MessagingException, IOException {
-        log.debug("[PopUtil][getMapValue] Extracting MapValue values from Config");
+        if (log.isDebugEnabled()) {
+            log.debug("[PopUtil][getMapValue] Extracting MapValue values from Config");
+        }
         Map<String, Object> valueMap = new HashMap<>();
         Address[] toAddress = message.getRecipients(Message.RecipientType.TO);
         Address[] ccAddress = message.getRecipients(Message.RecipientType.CC);
@@ -145,7 +153,9 @@ public class PopUtil {
         valueMap.put(EmailConstants.MESSAGE_MESSAGE_BODY, messageBody);
         valueMap.put(EmailConstants.MESSAGE_FROM, fromAddress);
         valueMap.put(EmailConstants.MESSAGE_SENDER, senderAddress);
-        log.debug("[PopUtil][getMapValue] MapValue object created. Returning Object to PopClient");
+        if (log.isDebugEnabled()) {
+            log.debug("[PopUtil][getMapValue] MapValue object created. Returning Object to PopClient");
+        }
         return BallerinaValues.createRecordValue(EmailConstants.EMAIL_PACKAGE_ID, PopConstants.EMAIL, valueMap);
     }
 
@@ -170,11 +180,7 @@ public class PopUtil {
     }
 
     private static String getStringNullChecked(String string) {
-        if (string == null) {
-            return "";
-        } else {
-            return string;
-        }
+        return string == null ? "" : string;
     }
 
     /**
@@ -184,7 +190,9 @@ public class PopUtil {
      * @return Port value as a string
      */
     private static String extractPortValue(long longValue, boolean isPop) {
-        log.debug("[PopUtil][extractPortValue] Extracting Port value");
+        if (log.isDebugEnabled()) {
+            log.debug("[PopUtil][extractPortValue] Extracting Port value");
+        }
         if (longValue <= 0 || longValue > MAX_PORT) {
             if (isPop) {
                 log.error("Invalid port number given in configuration. Setting default port "

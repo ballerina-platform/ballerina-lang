@@ -30,7 +30,6 @@ public class ImapConstants {
     public static final String PROPS_IMAP_PORT = "mail.imap.port";
     public static final String PROPS_IMAP_STARTTLS = "mail.imap.starttls.enable";
     public static final String PROPS_IMAP_AUTH = "mail.imap.auth";
-    public static final String IMAP_ERROR_CODE = "{ballerina/email}Imap";
 
     private ImapConstants() {
         // private constructor

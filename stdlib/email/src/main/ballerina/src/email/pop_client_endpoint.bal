@@ -20,17 +20,16 @@ public type PopClient client object {
     # Gets invoked during object initialization.
     #
     # + clientConfig - Configurations for the POP Client
-    public function __init(PopConfig clientConfig) {
-        error? response = initPopClientEndpoint(self, clientConfig, true);
+    # + return - An `error` if failed while creating the client
+    public function __init(PopConfig clientConfig) returns error? {
+        return initPopClientEndpoint(self, clientConfig, true);
     }
 
     # Used to read a message.
     #
+    # + filter - Filter parameters to read an email
     # + return - An `error` if failed to send the message to the recipient
-    public remote function read() returns Email|error? {
-        Filter filter = {
-            folder: "INBOX"
-        };
+    public remote function read(Filter filter = { folder: "INBOX" }) returns Email|error? {
         return popRead(self, filter);
     }
 

@@ -20,17 +20,16 @@ public type ImapClient client object {
     # Gets invoked during object initialization.
     #
     # + clientConfig - Configurations for the IMAP Client
-    public function __init(ImapConfig clientConfig) {
-        error? response = initImapClientEndpoint(self, clientConfig, false);
+    # + return - An `error` if failed while creating the client
+    public function __init(ImapConfig clientConfig) returns error? {
+        return initImapClientEndpoint(self, clientConfig, false);
     }
 
     # Reads a message.
     #
+    # + filter - Filter parameters to read an email
     # + return - An `error` if failed to send the message to the recipient
-    public remote function read() returns Email|error? {
-        Filter filter = {
-            folder: "INBOX"
-        };
+    public remote function read(Filter filter = { folder: "INBOX" }) returns Email|error? {
         return imapRead(self, filter);
     }
 

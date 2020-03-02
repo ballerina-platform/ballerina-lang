@@ -16,34 +16,32 @@
 
 import ballerinax/java;
 
-public function initSmtpClientEndpoint(SmtpClient clientEndpoint, SmtpConfig config) returns error? = @java:Method {
+function initSmtpClientEndpoint(SmtpClient clientEndpoint, SmtpConfig config) returns error? = @java:Method {
     name : "initClientEndpoint",
     class : "org.ballerinalang.stdlib.email.client.SmtpClient"
 } external;
 
-public function send(SmtpClient clientEndpoint, Email email) returns error? = @java:Method {
+function send(SmtpClient clientEndpoint, Email email) returns error? = @java:Method {
     name : "sendMessage",
     class : "org.ballerinalang.stdlib.email.client.SmtpClient"
 } external;
 
-
-public function initPopClientEndpoint(PopClient clientEndpoint, PopConfig config, boolean isPop) returns error? = @java:Method {
+function initPopClientEndpoint(PopClient clientEndpoint, PopConfig config, boolean isPop) returns error? = @java:Method {
     name : "initClientEndpoint",
     class : "org.ballerinalang.stdlib.email.client.PopClient"
 } external;
 
-public function popRead(PopClient clientEndpoint, Filter message) returns Email|error? = @java:Method {
+function popRead(PopClient clientEndpoint, Filter message) returns Email|error? = @java:Method {
     name : "readMessage",
     class : "org.ballerinalang.stdlib.email.client.PopClient"
 } external;
 
-
-public function initImapClientEndpoint(ImapClient clientEndpoint, ImapConfig config, boolean isPop) returns error? = @java:Method {
+function initImapClientEndpoint(ImapClient clientEndpoint, ImapConfig config, boolean isPop) returns error? = @java:Method {
     name : "initClientEndpoint",
     class : "org.ballerinalang.stdlib.email.client.PopClient"
 } external;
 
-public function imapRead(ImapClient clientEndpoint, Filter message) returns Email|error? = @java:Method {
+function imapRead(ImapClient clientEndpoint, Filter message) returns Email|error? = @java:Method {
     name : "readMessage",
     class : "org.ballerinalang.stdlib.email.client.PopClient"
 } external;

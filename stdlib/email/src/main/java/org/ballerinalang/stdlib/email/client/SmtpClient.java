@@ -53,9 +53,13 @@ public class SmtpClient {
      */
     public static Object initClientEndpoint(ObjectValue clientEndpoint, MapValue<Object, Object> config) {
         try {
-            log.debug("[SmtpClient][InitClient] Calling getProperties");
+            if (log.isDebugEnabled()) {
+                log.debug("[SmtpClient][InitClient] Calling getProperties");
+            }
             Properties properties = SmtpUtil.getProperties(config);
-            log.debug("[SmtpClient][Send] Creating session");
+            if (log.isDebugEnabled()) {
+                log.debug("[SmtpClient][Send] Creating session");
+            }
             Session session = Session.getInstance(properties,
                     new javax.mail.Authenticator() {
                         protected PasswordAuthentication getPasswordAuthentication() {
@@ -83,7 +87,9 @@ public class SmtpClient {
      */
     public static Object sendMessage(ObjectValue clientConnector, MapValue<Object, Object> message) {
         try {
-            log.debug("[SmtpClient][Send] Sending Email");
+            if (log.isDebugEnabled()) {
+                log.debug("[SmtpClient][Send] Sending Email");
+            }
             Transport.send(SmtpUtil.generateMessage(
                     (Session) clientConnector.getNativeData(SmtpConstants.PROPS_SESSION),
                     (String) clientConnector.getNativeData(SmtpConstants.PROPS_USERNAME), message));

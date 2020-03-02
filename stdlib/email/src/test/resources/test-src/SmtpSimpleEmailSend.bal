@@ -24,13 +24,18 @@ email:SmtpConfig smtpConfig = {
 };
 
 function testSendSimpleEmail() returns error? {
-    email:SmtpClient smtpClient = new (smtpConfig);
+    email:SmtpClient|error smtpClient = new (smtpConfig);
     email:Email email = {
         to: ["hascode@localhost"],
         subject: "Test E-Mail",
         body: "This is a test e-mail.",
         'from: "someone@localhost.com"
     };
-    return smtpClient->send(email);
+    if (smtpClient is email:SmtpClient) {
+        return smtpClient->send(email);
+    } else {
+        return smtpClient;
+    }
+
 }
 

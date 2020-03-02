@@ -20,8 +20,9 @@ public type SmtpClient client object {
     # Gets invoked during object initialization.
     #
     # + clientConfig - Configurations for SMTP Client
-    public function __init(SmtpConfig clientConfig) {
-        error? response = initSmtpClientEndpoint(self, clientConfig);
+    # + return - An `error` if failed while creating the client
+    public function __init(SmtpConfig clientConfig) returns error? {
+        return initSmtpClientEndpoint(self, clientConfig);
     }
 
     # Send a message.

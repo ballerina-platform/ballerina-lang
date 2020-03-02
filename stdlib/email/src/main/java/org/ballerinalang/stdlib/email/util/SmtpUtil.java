@@ -33,9 +33,10 @@ import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 
-
 /**
  * Contains the utility functions related to the SMTP protocol.
+ *
+ * @since 1.1.5
  */
 public class SmtpUtil {
 
@@ -57,7 +58,9 @@ public class SmtpUtil {
         properties.put(SmtpConstants.PROPS_SMTP_STARTTLS, "true"); //TLS
         properties.put(SmtpConstants.PROPS_USERNAME, smtpConfig.getStringValue(SmtpConstants.PROPS_USERNAME));
         properties.put(SmtpConstants.PROPS_PASSWORD, smtpConfig.getStringValue(SmtpConstants.PROPS_PASSWORD));
-        log.debug("[SmtpUtil][getProperties] Property object created. Returning Object to SMTPClient");
+        if (log.isDebugEnabled()) {
+            log.debug("[SmtpUtil][getProperties] Property object created. Returning Object to SMTPClient");
+        }
         return properties;
     }
 
@@ -69,7 +72,9 @@ public class SmtpUtil {
      * @return Port value as a string
      */
     private static String extractPortValue(long longValue) {
-        log.debug("[SmtpUtil][extractPortValue] Extracting Port value");
+        if (log.isDebugEnabled()) {
+            log.debug("[SmtpUtil][extractPortValue] Extracting Port value");
+        }
         if (longValue <= 0 || longValue > MAX_PORT) {
             log.error("Invalid port number given in configuration. Setting default port "
                     + SmtpConstants.DEFAULT_PORT_NUMBER);
@@ -116,7 +121,9 @@ public class SmtpUtil {
         for (int i = 0; i < replyToAddressArrayLength; i++) {
             replyToAddressArray[i] = new InternetAddress(replyToAddress[i]);
         }
-        log.debug("[SmtpUtil][generateMessage] Generated TO, CC and BCC Address Arrays.");
+        if (log.isDebugEnabled()) {
+            log.debug("[SmtpUtil][generateMessage] Generated TO, CC and BCC Address Arrays.");
+        }
         String subject = message.getStringValue(EmailConstants.MESSAGE_SUBJECT);
         String messageBody = message.getStringValue(EmailConstants.MESSAGE_MESSAGE_BODY);
         String fromAddress = message.getStringValue(EmailConstants.MESSAGE_FROM);
@@ -124,7 +131,9 @@ public class SmtpUtil {
             fromAddress = username;
         }
         String senderAddress = getNullCheckedString(message.getStringValue(EmailConstants.MESSAGE_SENDER));
-        log.debug("[SmtpUtil][generateMessage] Generating MimeMessage");
+        if (log.isDebugEnabled()) {
+            log.debug("[SmtpUtil][generateMessage] Generating MimeMessage");
+        }
 
         try {
             emailMessage.setRecipients(Message.RecipientType.TO, toAddressArray);

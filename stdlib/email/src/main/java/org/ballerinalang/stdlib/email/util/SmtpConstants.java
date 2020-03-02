@@ -36,7 +36,6 @@ public class SmtpConstants {
     public static final String PROPS_SMTP_AUTH = "mail.smtp.auth";
     public static final String PROPS_SMTP_STARTTLS = "mail.smtp.starttls.enable";
     public static final String SMTP_ERROR_CODE = "{ballerina/email}Smtp";
-    public static final String SMTP_ERROR_MESSAGE = "Error while sending the email.";
 
     private SmtpConstants() {
         // private constructor
