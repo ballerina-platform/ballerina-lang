@@ -23,7 +23,7 @@ import org.ballerinalang.compiler.parser.BallerinaParserErrorHandler.Solution;
 import java.io.InputStream;
 
 /**
- * A LL(k) parser for ballerina.
+ * A LL(k) recursive-descent parser for ballerina.
  * 
  * @since 1.2.0
  */
