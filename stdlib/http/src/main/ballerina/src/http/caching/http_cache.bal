@@ -37,7 +37,6 @@ public type HttpCache object {
     public function __init(CacheConfig cacheConfig) {
         cache:CacheConfig config = {
             capacity: cacheConfig.capacity,
-            evictionPolicy: cacheConfig.evictionPolicy,
             evictionFactor: cacheConfig.evictionFactor
         };
         self.cache = new cache:Cache(config);

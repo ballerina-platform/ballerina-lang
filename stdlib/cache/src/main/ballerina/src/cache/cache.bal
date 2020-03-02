@@ -35,9 +35,9 @@ public type EvictionPolicy LRU|FIFO;
 #                            This will be overwritten by the the `maxAge` property set when inserting item to cache
 # + timerIntervalInSeconds - Interval of the timer task which clean up the cache
 public type CacheConfig record {|
-    int capacity;
-    EvictionPolicy evictionPolicy;
-    float evictionFactor;
+    int capacity = 100;
+    EvictionPolicy evictionPolicy = LRU;
+    float evictionFactor = 0.25;
     int defaultMaxAgeInSeconds = -1;
     int timerIntervalInSeconds?;
 |};
@@ -86,7 +86,7 @@ public type Cache object {
     # Creates a new `Cache` object.
     #
     # + cacheConfig - Cache configurations
-    public function __init(CacheConfig cacheConfig) {
+    public function __init(CacheConfig cacheConfig = {}) {
         self.capacity = cacheConfig.capacity;
         self.evictionPolicy = cacheConfig.evictionPolicy;
         self.evictionFactor = cacheConfig.evictionFactor;

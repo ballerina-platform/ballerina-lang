@@ -28,9 +28,6 @@ import ballerina/time;
 
 # This cache is used for caching HTTP clients against the subscriber callbacks.
 cache:CacheConfig config = {
-    capacity: 100,
-    evictionPolicy: cache:LRU,
-    evictionFactor: 0.25,
     defaultMaxAgeInSeconds: DEFAULT_CACHE_EXPIRY_SECONDS
 };
 cache:Cache subscriberCallbackClientCache = new(config);

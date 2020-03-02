@@ -304,12 +304,10 @@ public type ListenerSecureSocket record {|
 # + capacity - The capacity of the cache
 # + evictionFactor - The fraction of entries to be removed when the cache is full. The value should be
 #                    between 0 (exclusive) and 1 (inclusive).
-# + evictionPolicy - The policy which defines the cache eviction algorithm
 public type AuthzCacheConfig record {|
     boolean enabled = true;
     int capacity = 100;
     float evictionFactor = 1;
-    cache:EvictionPolicy evictionPolicy = cache:LRU;
 |};
 
 # Defines the possible values for the keep-alive configuration in service and client endpoints.
@@ -347,7 +345,6 @@ function addAuthFilters(ListenerConfiguration config) {
         if (auth.positiveAuthzCache.enabled) {
             cache:CacheConfig cacheConfig = {
                 capacity: auth.positiveAuthzCache.capacity,
-                evictionPolicy: auth.positiveAuthzCache.evictionPolicy,
                 evictionFactor: auth.positiveAuthzCache.evictionFactor
             };
             positiveAuthzCache = new(cacheConfig);
@@ -355,7 +352,6 @@ function addAuthFilters(ListenerConfiguration config) {
         if (auth.negativeAuthzCache.enabled) {
             cache:CacheConfig cacheConfig = {
                 capacity: auth.positiveAuthzCache.capacity,
-                evictionPolicy: auth.positiveAuthzCache.evictionPolicy,
                 evictionFactor: auth.positiveAuthzCache.evictionFactor
             };
             negativeAuthzCache = new(cacheConfig);
