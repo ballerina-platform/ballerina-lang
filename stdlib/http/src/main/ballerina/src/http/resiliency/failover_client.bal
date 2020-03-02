@@ -76,11 +76,12 @@ public type FailoverClient client object {
     # + path - Resource path
     # + message - HTTP request or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel`
     #             or `mime:Entity[]`
-    # + targetType - The types of payloads that are expected be returned after data-binding
-    # + return - The response for the request or the response payload if data-binding expected otherwise an
-    # `http:ClientError` if failed to establish communication with the upstream server or data binding failure
+    # + targetType - HTTP response or the payload type, `string`, `xml`, `json`, `byte[]`,`record {| anydata...; |}` or
+    #                `record {| anydata...; |}[]`, that is expected to be returned after data-binding
+    # + return - The response or the payload (if the `targetType` is configured) or an `http:ClientError` if failed to
+    #            establish communication with the upstream server or a data binding failure
     public remote function post(@untainted string path, RequestMessage message, TargetType targetType = Response)
-                returns Response|PayloadType|ClientError {
+            returns @tainted Response|PayloadType|ClientError {
         Request req = buildRequest(message);
         var result = performFailoverAction(path, req, HTTP_POST, self);
         if (result is HttpFuture) {
@@ -95,8 +96,9 @@ public type FailoverClient client object {
     # + path - Resource path
     # + message - An optional HTTP request or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
-    # + return - The response or an `http:ClientError` if failed to fulfill the request
-    public remote function head(string path, public RequestMessage message = ()) returns Response|ClientError {
+    # + return - The response or an `http:ClientError` if failed to establish communication with the upstream server
+    public remote function head(@untainted string path, public RequestMessage message = ()) returns @tainted
+            Response|ClientError {
         Request req = buildRequest(message);
         var result = performFailoverAction(path, req, HTTP_HEAD, self);
         if (result is HttpFuture) {
@@ -111,8 +113,12 @@ public type FailoverClient client object {
     # + path - Resource path
     # + message - An HTTP request or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel`
     #             or `mime:Entity[]`
-    # + return - The response or an `http:ClientError` if failed to fulfill the request
-    public remote function patch(string path, RequestMessage message) returns Response|ClientError {
+    # + targetType - HTTP response or the payload type, `string`, `xml`, `json`, `byte[]`,`record {| anydata...; |}` or
+    #                `record {| anydata...; |}[]`, that is expected to be returned after data-binding
+    # + return - The response or the payload (if the `targetType` is configured) or an `http:ClientError` if failed to
+    #            establish communication with the upstream server or a data binding failure
+    public remote function patch(string path, RequestMessage message, public TargetType targetType = Response)
+            returns @tainted Response|PayloadType|ClientError {
         Request req = buildRequest(message);
         var result = performFailoverAction(path, req, HTTP_PATCH, self);
         if (result is HttpFuture) {
@@ -127,8 +133,12 @@ public type FailoverClient client object {
     # + path - Resource path
     # + message - An HTTP request or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel`
     #             or `mime:Entity[]`
-    # + return - The response or an `http:ClientError` if failed to fulfill the request
-    public remote function put(string path, RequestMessage message) returns Response|ClientError {
+    # + targetType - HTTP response or the payload type, `string`, `xml`, `json`, `byte[]`,`record {| anydata...; |}` or
+    #                `record {| anydata...; |}[]`, that is expected to be returned after data-binding
+    # + return - The response or the payload (if the `targetType` is configured) or an `http:ClientError` if failed to
+    #            establish communication with the upstream server or a data binding failure
+    public remote function put(string path, RequestMessage message, public TargetType targetType = Response)
+            returns @tainted Response|PayloadType|ClientError {
         Request req = buildRequest(message);
         var result = performFailoverAction(path, req, HTTP_PUT, self);
         if (result is HttpFuture) {
@@ -143,8 +153,12 @@ public type FailoverClient client object {
     # + path - Resource path
     # + message - An optional HTTP request or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
-    # + return - The response or an `http:ClientError` if failed to fulfill the request
-    public remote function options(string path, public RequestMessage message = ()) returns Response|ClientError {
+    # + targetType - HTTP response or the payload type, `string`, `xml`, `json`, `byte[]`,`record {| anydata...; |}` or
+    #                `record {| anydata...; |}[]`, that is expected to be returned after data-binding
+    # + return - The response or the payload (if the `targetType` is configured) or an `http:ClientError` if failed to
+    #            establish communication with the upstream server or a data binding failure
+    public remote function options(string path, public RequestMessage message = (), public TargetType targetType = Response)
+            returns @tainted Response|PayloadType|ClientError {
         Request req = buildRequest(message);
         var result = performFailoverAction(path, req, HTTP_OPTIONS, self);
         if (result is HttpFuture) {
@@ -158,8 +172,12 @@ public type FailoverClient client object {
     #
     # + path - Resource path
     # + request - An HTTP request
-    # + return - The response or an `http:ClientError` if failed to fulfill the request
-    public remote function forward(string path, Request request) returns Response|ClientError {
+    # + targetType - HTTP response or the payload type, `string`, `xml`, `json`, `byte[]`,`record {| anydata...; |}` or
+    #                `record {| anydata...; |}[]`, that is expected to be returned after data-binding
+    # + return - The response or the payload (if the `targetType` is configured) or an `http:ClientError` if failed to
+    #            establish communication with the upstream server or a data binding failure
+    public remote function forward(string path, Request request, public TargetType targetType = Response)
+            returns @tainted Response|PayloadType|ClientError {
         var result = performFailoverAction(path, request, HTTP_FORWARD, self);
         if (result is HttpFuture) {
             return getInvalidTypeError();
@@ -174,9 +192,12 @@ public type FailoverClient client object {
     # + path - Resource path
     # + message - An HTTP request or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel`
     #             or `mime:Entity[]`
-    # + return - The response or an `http:ClientError` if failed to fulfill the request
-    public remote function execute(string httpVerb, string path, RequestMessage message) returns
-                                                                                       Response|ClientError {
+    # + targetType - HTTP response or the payload type, `string`, `xml`, `json`, `byte[]`,`record {| anydata...; |}` or
+    #                `record {| anydata...; |}[]`, that is expected to be returned after data-binding
+    # + return - The response or the payload (if the `targetType` is configured) or an `http:ClientError` if failed to
+    #            establish communication with the upstream server or a data binding failure
+    public remote function execute(string httpVerb, string path, RequestMessage message,
+            public TargetType targetType = Response) returns @tainted Response|PayloadType|ClientError {
         Request req = buildRequest(message);
         var result = performExecuteAction(path, req, httpVerb, self);
         if (result is HttpFuture) {
@@ -191,8 +212,12 @@ public type FailoverClient client object {
     # + path - Resource path
     # + message - An optional HTTP request or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel`
     #             or `mime:Entity[]`
-    # + return - The response or an `http:ClientError` if failed to fulfill the request
-    public remote function delete(string path, public RequestMessage message = ()) returns Response|ClientError {
+    # + targetType - HTTP response or the payload type, `string`, `xml`, `json`, `byte[]`,`record {| anydata...; |}` or
+    #                `record {| anydata...; |}[]`, that is expected to be returned after data-binding
+    # + return - The response or the payload (if the `targetType` is configured) or an `http:ClientError` if failed to
+    #            establish communication with the upstream server or a data binding failure
+    public remote function delete(string path, public RequestMessage message = (), public TargetType targetType = Response)
+            returns @tainted Response|PayloadType|ClientError {
         Request req = buildRequest(message);
         var result = performFailoverAction(path, req, HTTP_DELETE, self);
         if (result is HttpFuture) {
@@ -207,8 +232,12 @@ public type FailoverClient client object {
     # + path - Resource path
     # + message - An optional HTTP request or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
-    # + return - The response or an `http:ClientError` if failed to fulfill the request
-    public remote function get(string path, public RequestMessage message = ()) returns Response|ClientError {
+    # + targetType - HTTP response or the payload type, `string`, `xml`, `json`, `byte[]`,`record {| anydata...; |}` or
+    #                `record {| anydata...; |}[]`, that is expected to be returned after data-binding
+    # + return - The response or the payload (if the `targetType` is configured) or an `http:ClientError` if failed to
+    #            establish communication with the upstream server or a data binding failure
+    public remote function get(string path, public RequestMessage message = (), public TargetType targetType = Response)
+            returns @tainted Response|PayloadType|ClientError {
         Request req = buildRequest(message);
         var result = performFailoverAction(path, req, HTTP_GET, self);
         if (result is HttpFuture) {
@@ -228,7 +257,8 @@ public type FailoverClient client object {
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - An `HttpFuture` that represents an asynchronous service invocation, or an `http:ClientError` if the submission
     #            fails
-    public remote function submit(string httpVerb, string path, RequestMessage message) returns HttpFuture|ClientError {
+    public remote function submit(string httpVerb, string path, RequestMessage message) returns @tainted
+            HttpFuture|ClientError {
         Request req = buildRequest(message);
         var result = performExecuteAction(path, req, "SUBMIT", self, verb = httpVerb);
         if (result is Response) {
@@ -286,16 +316,15 @@ public type FailoverClient client object {
 // Performs execute action of the Failover connector. extract the corresponding http integer value representation
 // of the http verb and invokes the perform action method.
 // `verb` is used for HTTP `submit()` method.
-function performExecuteAction (string path, Request request, string httpVerb,
-                                   FailoverClient failoverClient, string verb = "") returns HttpResponse|ClientError {
+function performExecuteAction (string path, Request request, string httpVerb, @tainted FailoverClient failoverClient,
+        string verb = "") returns @tainted HttpResponse|ClientError {
     HttpOperation connectorAction = extractHttpOperation(httpVerb);
     return performFailoverAction(path, request, connectorAction, failoverClient, verb = verb);
 }
 
 // Handles all the actions exposed through the Failover connector.
-function performFailoverAction (string path, Request request, HttpOperation requestAction,
-                                        FailoverClient failoverClient, string verb = "")
-                                        returns HttpResponse|ClientError {
+function performFailoverAction (string path, Request request, HttpOperation requestAction, @tainted FailoverClient
+        failoverClient, string verb = "") returns @tainted HttpResponse|ClientError {
 
     Client foClient = getLastSuceededClientEP(failoverClient);
     FailoverInferredConfig failoverInferredConfig = failoverClient.failoverInferredConfig;

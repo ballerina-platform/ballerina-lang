@@ -46,14 +46,14 @@ public type HttpSecureClient client object {
     # + path - Resource path
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
-    # + targetType - The types of payload that are expected be returned after data-binding
-    # + return - The response for the request or the response payload if data-binding expected otherwise an
-    # `http:ClientError` if failed to establish communication with the upstream server or data binding failure
-    public remote function post(string path, RequestMessage message, TargetType targetType = Response)
+    # + targetType - HTTP response or the payload type, `string`, `xml`, `json`, `byte[]`,`record {| anydata...; |}` or
+    #                `record {| anydata...; |}[]`, that is expected to be returned after data-binding
+    # + return - The response or the payload (if the `targetType` is configured) or an `http:ClientError` if failed to
+    #            establish communication with the upstream server or a data binding failure
+    public remote function post(string path, RequestMessage message, public TargetType targetType = Response)
             returns Response|PayloadType|ClientError {
         Request req = <Request>message;
         req = check prepareSecureRequest(req, self.config);
-        // TODO delete  action invocation as an expression not allowed here
         var result = check self.httpClient->post(path, req);
         Response res = <Response> result;
         var inspection = check doInspection(req, res, self.config);
@@ -69,8 +69,9 @@ public type HttpSecureClient client object {
     # + path - Resource path
     # + message - An optional HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
-    # + return - The inbound response message or the error if one occurred while attempting to fulfill the HTTP request
-    public remote function head(string path, public RequestMessage message = ()) returns Response|ClientError {
+    # + return - The response or an `http:ClientError` if failed to establish communication with the upstream server
+    public remote function head(@untainted string path, public RequestMessage message = ()) returns @tainted
+            Response|ClientError {
         Request req = <Request>message;
         req = check prepareSecureRequest(req, self.config);
         Response res = check self.httpClient->head(path, message = req);
@@ -87,11 +88,16 @@ public type HttpSecureClient client object {
     # + path - Resource path
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
-    # + return - The inbound response message or an error occurred while attempting to fulfill the HTTP request
-    public remote function put(string path, RequestMessage message) returns Response|ClientError {
+    # + targetType - HTTP response or the payload type, `string`, `xml`, `json`, `byte[]`,`record {| anydata...; |}` or
+    #                `record {| anydata...; |}[]`, that is expected to be returned after data-binding
+    # + return - The response or the payload (if the `targetType` is configured) or an `http:ClientError` if failed to
+    #            establish communication with the upstream server or a data binding failure
+    public remote function put(string path, RequestMessage message, public TargetType targetType = Response)
+            returns @tainted Response|PayloadType|ClientError {
         Request req = <Request>message;
         req = check prepareSecureRequest(req, self.config);
-        Response res = check self.httpClient->put(path, req);
+        var result = check self.httpClient->put(path, req);
+        Response res = <Response> result;
         var inspection = check doInspection(req, res, self.config);
         if (inspection is Request) {
             return self.httpClient->put(path, inspection);
@@ -106,11 +112,16 @@ public type HttpSecureClient client object {
     # + path - Resource path
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
-    # + return - The inbound response message or an error occurred while attempting to fulfill the HTTP request
-    public remote function execute(string httpVerb, string path, RequestMessage message) returns Response|ClientError {
+    # + targetType - HTTP response or the payload type, `string`, `xml`, `json`, `byte[]`,`record {| anydata...; |}` or
+    #                `record {| anydata...; |}[]`, that is expected to be returned after data-binding
+    # + return - The response or the payload (if the `targetType` is configured) or an `http:ClientError` if failed to
+    #            establish communication with the upstream server or a data binding failure
+    public remote function execute(string httpVerb, string path, RequestMessage message, public TargetType targetType = Response)
+            returns @tainted Response|PayloadType|ClientError {
         Request req = <Request>message;
         req = check prepareSecureRequest(req, self.config);
-        Response res = check self.httpClient->execute(httpVerb, path, req);
+        var result = check self.httpClient->execute(httpVerb, path, req);
+        Response res = <Response> result;
         var inspection = check doInspection(req, res, self.config);
         if (inspection is Request) {
             return self.httpClient->execute(httpVerb, path, inspection);
@@ -124,11 +135,16 @@ public type HttpSecureClient client object {
     # + path - Resource path
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
-    # + return - The inbound response message or an error occurred while attempting to fulfill the HTTP request
-    public remote function patch(string path, RequestMessage message) returns Response|ClientError {
+    # + targetType - HTTP response or the payload type, `string`, `xml`, `json`, `byte[]`,`record {| anydata...; |}` or
+    #                `record {| anydata...; |}[]`, that is expected to be returned after data-binding
+    # + return - The response or the payload (if the `targetType` is configured) or an `http:ClientError` if failed to
+    #            establish communication with the upstream server or a data binding failure
+    public remote function patch(string path, RequestMessage message, public TargetType targetType = Response)
+            returns @tainted Response|PayloadType|ClientError {
         Request req = <Request>message;
         req = check prepareSecureRequest(req, self.config);
-        Response res = check self.httpClient->patch(path, req);
+        var result = check self.httpClient->patch(path, req);
+        Response res = <Response> result;
         var inspection = check doInspection(req, res, self.config);
         if (inspection is Request) {
             return self.httpClient->patch(path, inspection);
@@ -142,11 +158,16 @@ public type HttpSecureClient client object {
     # + path - Resource path
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
-    # + return - The inbound response message or the error if one occurred while attempting to fulfill the HTTP request
-    public remote function delete(string path, public RequestMessage message = ()) returns Response|ClientError {
+    # + targetType - HTTP response or the payload type, `string`, `xml`, `json`, `byte[]`,`record {| anydata...; |}` or
+    #                `record {| anydata...; |}[]`, that is expected to be returned after data-binding
+    # + return - The response or the payload (if the `targetType` is configured) or an `http:ClientError` if failed to
+    #            establish communication with the upstream server or a data binding failure
+    public remote function delete(string path, public RequestMessage message = (), public TargetType targetType = Response)
+            returns @tainted Response|PayloadType|ClientError {
         Request req = <Request>message;
         req = check prepareSecureRequest(req, self.config);
-        Response res = check self.httpClient->delete(path, req);
+        var result = check self.httpClient->delete(path, req);
+        Response res = <Response> result;
         var inspection = check doInspection(req, res, self.config);
         if (inspection is Request) {
             return self.httpClient->delete(path, inspection);
@@ -160,11 +181,16 @@ public type HttpSecureClient client object {
     # + path - Request path
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
-    # + return - The inbound response message or the error if one occurred while attempting to fulfill the HTTP request
-    public remote function get(string path, public RequestMessage message = ()) returns Response|ClientError {
+    # + targetType - HTTP response or the payload type, `string`, `xml`, `json`, `byte[]`,`record {| anydata...; |}` or
+    #                `record {| anydata...; |}[]`, that is expected to be returned after data-binding
+    # + return - The response or the payload (if the `targetType` is configured) or an `http:ClientError` if failed to
+    #            establish communication with the upstream server or a data binding failure
+    public remote function get(string path, public RequestMessage message = (), public TargetType targetType = Response)
+            returns @tainted Response|PayloadType|ClientError {
         Request req = <Request>message;
         req = check prepareSecureRequest(req, self.config);
-        Response res = check self.httpClient->get(path, message = req);
+        var result = check self.httpClient->get(path, message = req);
+        Response res = <Response> result;
         var inspection = check doInspection(req, res, self.config);
         if (inspection is Request) {
             return self.httpClient->get(path, message = inspection);
@@ -178,11 +204,16 @@ public type HttpSecureClient client object {
     # + path - Request path
     # + message - An optional HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
-    # + return - The inbound response message or the error if one  occurred while attempting to fulfill the HTTP request
-    public remote function options(string path, public RequestMessage message = ()) returns Response|ClientError {
+    # + targetType - HTTP response or the payload type, `string`, `xml`, `json`, `byte[]`,`record {| anydata...; |}` or
+    #                `record {| anydata...; |}[]`, that is expected to be returned after data-binding
+    # + return - The response or the payload (if the `targetType` is configured) or an `http:ClientError` if failed to
+    #            establish communication with the upstream server or a data binding failure
+    public remote function options(string path, public RequestMessage message = (), public TargetType targetType = Response)
+            returns @tainted Response|PayloadType|ClientError {
         Request req = <Request>message;
         req = check prepareSecureRequest(req, self.config);
-        Response res = check self.httpClient->options(path, message = req);
+        var result = check self.httpClient->options(path, message = req);
+        Response res = <Response> result;
         var inspection = check doInspection(req, res, self.config);
         if (inspection is Request) {
             return self.httpClient->options(path, message = inspection);
@@ -195,11 +226,16 @@ public type HttpSecureClient client object {
     #
     # + path - Request path
     # + request - An HTTP inbound request message
-    # + return - The inbound response message or the error if one occurred while attempting to fulfill the HTTP request
-    public remote function forward(string path, Request request) returns Response|ClientError {
+    # + targetType - HTTP response or the payload type, `string`, `xml`, `json`, `byte[]`,`record {| anydata...; |}` or
+    #                `record {| anydata...; |}[]`, that is expected to be returned after data-binding
+    # + return - The response or the payload (if the `targetType` is configured) or an `http:ClientError` if failed to
+    #            establish communication with the upstream server or a data binding failure
+    public remote function forward(string path, Request request, public TargetType targetType = Response)
+            returns @tainted Response|PayloadType|ClientError {
         Request req = request;
         req = check prepareSecureRequest(request, self.config);
-        Response res = check self.httpClient->forward(path, request);
+        var result = check self.httpClient->forward(path, request);
+        Response res = <Response> result;
         var inspection = check doInspection(req, res, self.config);
         if (inspection is Request) {
             return self.httpClient->forward(path, inspection);

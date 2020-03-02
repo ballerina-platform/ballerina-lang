@@ -185,6 +185,11 @@ public const COOKIE_HANDLING_ERROR = "{ballerina/http}CookieHandlingError";
 # Represents a cookie error that occurred when using the cookies
 public type CookieHandlingError error<COOKIE_HANDLING_ERROR, Detail>;
 
+# Represents the reason string for the `http:IllegalDataBindingStateError`
+public const ILLEGAL_DATA_BINDING_STATE_ERROR = "{ballerina/http}IllegalDataBindingStateError";
+# Represents a data binding illegal state error
+public type IllegalDataBindingStateError error<ILLEGAL_DATA_BINDING_STATE_ERROR, Detail>;
+
 # Represents the reason string for the `http:ClientRequestError`
 public const CLIENT_REQUEST_ERROR = "{ballerina/http}ClientRequestError";
 # Represents an error that occurred due to bad syntax or incomplete info of client request(4xx HTTP response)
@@ -225,7 +230,7 @@ public type OutboundResponseError InitializingOutboundResponseError|WritingOutbo
 public type ClientError ResiliencyError|ClientAuthError|OutboundRequestError|
                             InboundResponseError|UnsupportedActionError|Http2ClientError|
                             MaximumWaitTimeExceededError|SslError|GenericClientError|CookieHandlingError|
-                            RemoteServerError|ClientRequestError;
+                            RemoteServerError|ClientRequestError|IllegalDataBindingStateError;
 
 # Defines the possible listener error types
 public type ListenerError GenericListenerError|InboundRequestError|OutboundResponseError;

@@ -52,8 +52,12 @@ public type CookieClient object {
     # + path - Request path
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
-    # + return - The response for the request or an `http:ClientError` if failed to establish communication with the upstream server
-    public function get(string path, public RequestMessage message = ()) returns @tainted Response|ClientError {
+    # + targetType - HTTP response or the payload type, `string`, `xml`, `json`, `byte[]`,`record {| anydata...; |}` or
+    #                `record {| anydata...; |}[]`, that is expected to be returned after data-binding
+    # + return - The response or the payload (if the `targetType` is configured) or an `http:ClientError` if failed to
+    #            establish communication with the upstream server or a data binding failure
+    public function get(string path, public RequestMessage message = (), public TargetType targetType = Response)
+            returns @tainted Response|PayloadType|ClientError {
         Request request = <Request>message;
         addStoredCookiesToRequest(self.url, path, self.cookieStore, request);
         var inboundResponse = self.httpClient->get(path, message = request);
@@ -66,15 +70,16 @@ public type CookieClient object {
     # + path - Resource path
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
-    # + targetType - The types of payload that are expected be returned after data-binding
-    # + return - The response for the request or the response payload if data-binding expected otherwise an
-    # `http:ClientError` if failed to establish communication with the upstream server or data binding failure
-    public function post(string path, RequestMessage message, TargetType targetType = Response)
+    # + targetType - HTTP response or the payload type, `string`, `xml`, `json`, `byte[]`,`record {| anydata...; |}` or
+    #                `record {| anydata...; |}[]`, that is expected to be returned after data-binding
+    # + return - The response or the payload (if the `targetType` is configured) or an `http:ClientError` if failed to
+    #            establish communication with the upstream server or a data binding failure
+    public function post(string path, RequestMessage message, public TargetType targetType = Response)
             returns Response|PayloadType|ClientError {
         Request request = <Request>message;
         addStoredCookiesToRequest(self.url, path, self.cookieStore, request);
         var inboundResponse = self.httpClient->post(path, request);
-        return addCookiesInResponseToStore2(inboundResponse, self.cookieStore, self.cookieConfig, self.url, path);
+        return addCookiesInResponseToStore(inboundResponse, self.cookieStore, self.cookieConfig, self.url, path);
     }
 
     # The `CookieClient.head()` function wraps the underlying HTTP remote functions in a way to provide
@@ -83,12 +88,18 @@ public type CookieClient object {
     # + path - Resource path
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
-    # + return - The response for the request or an `http:ClientError` if failed to establish communication with the upstream server
-    public function head(string path, public RequestMessage message = ()) returns @tainted Response|ClientError {
+    # + return - The response or an `http:ClientError` if failed to establish communication with the upstream server
+    public function head(@untainted string path, public RequestMessage message = ()) returns @tainted
+            Response|ClientError {
         Request request = <Request>message;
         addStoredCookiesToRequest(self.url, path, self.cookieStore, request);
         var inboundResponse = self.httpClient->head(path, message = request);
-        return addCookiesInResponseToStore(inboundResponse, self.cookieStore, self.cookieConfig, self.url, path);
+        var res = addCookiesInResponseToStore(inboundResponse, self.cookieStore, self.cookieConfig, self.url, path);
+        if (res is Response|ClientError) {
+            return res;
+        } else {
+            return getIllegalDataBindingStateError();
+        }
     }
 
     # The `CookieClient.put()` function wraps the underlying HTTP remote functions in a way to provide
@@ -97,8 +108,12 @@ public type CookieClient object {
     # + path - Resource path
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
-    # + return - The response for the request or an `http:ClientError` if failed to establish communication with the upstream server
-    public function put(string path, RequestMessage message) returns Response|ClientError {
+    # + targetType - HTTP response or the payload type, `string`, `xml`, `json`, `byte[]`,`record {| anydata...; |}` or
+    #                `record {| anydata...; |}[]`, that is expected to be returned after data-binding
+    # + return - The response or the payload (if the `targetType` is configured) or an `http:ClientError` if failed to
+    #            establish communication with the upstream server or a data binding failure
+    public function put(string path, RequestMessage message, public TargetType targetType = Response)
+            returns @tainted Response|PayloadType|ClientError {
         Request request = <Request>message;
         addStoredCookiesToRequest(self.url, path, self.cookieStore, request);
         var inboundResponse = self.httpClient->put(path, request);
@@ -110,8 +125,12 @@ public type CookieClient object {
     #
     # + path - Request path
     # + request - An HTTP inbound request message
-    # + return - The response for the request or an `http:ClientError` if failed to establish communication with the upstream server
-    public function forward(string path, Request request) returns Response|ClientError{
+    # + targetType - HTTP response or the payload type, `string`, `xml`, `json`, `byte[]`,`record {| anydata...; |}` or
+    #                `record {| anydata...; |}[]`, that is expected to be returned after data-binding
+    # + return - The response or the payload (if the `targetType` is configured) or an `http:ClientError` if failed to
+    #            establish communication with the upstream server or a data binding failure
+    public function forward(string path, Request request, public TargetType targetType = Response)
+            returns @tainted Response|PayloadType|ClientError {
         addStoredCookiesToRequest(self.url, path, self.cookieStore, request);
         var inboundResponse = self.httpClient->forward(path, request);
         return addCookiesInResponseToStore(inboundResponse, self.cookieStore, self.cookieConfig, self.url, path);
@@ -124,8 +143,12 @@ public type CookieClient object {
     # + path - Resource path
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
-    # + return - The response for the request or an `http:ClientError` if failed to establish communication with the upstream server
-    public function execute(string httpVerb, string path, RequestMessage message) returns Response|ClientError {
+    # + targetType - HTTP response or the payload type, `string`, `xml`, `json`, `byte[]`,`record {| anydata...; |}` or
+    #                `record {| anydata...; |}[]`, that is expected to be returned after data-binding
+    # + return - The response or the payload (if the `targetType` is configured) or an `http:ClientError` if failed to
+    #            establish communication with the upstream server or a data binding failure
+    public function execute(string httpVerb, string path, RequestMessage message, public TargetType targetType = Response)
+            returns @tainted Response|PayloadType|ClientError {
         Request request = <Request>message;
         addStoredCookiesToRequest(self.url, path, self.cookieStore, request);
         var inboundResponse = self.httpClient->execute(httpVerb, path, request);
@@ -138,8 +161,12 @@ public type CookieClient object {
     # + path - Resource path
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
-    # + return - The response for the request or an `http:ClientError` if failed to establish communication with the upstream server
-    public function patch(string path, RequestMessage message) returns Response|ClientError  {
+    # + targetType - HTTP response or the payload type, `string`, `xml`, `json`, `byte[]`,`record {| anydata...; |}` or
+    #                `record {| anydata...; |}[]`, that is expected to be returned after data-binding
+    # + return - The response or the payload (if the `targetType` is configured) or an `http:ClientError` if failed to
+    #            establish communication with the upstream server or a data binding failure
+    public function patch(string path, RequestMessage message, public TargetType targetType = Response)
+            returns @tainted Response|PayloadType|ClientError {
         Request request = <Request>message;
         addStoredCookiesToRequest(self.url, path, self.cookieStore, request);
         var inboundResponse =  self.httpClient->patch(path, request);
@@ -152,8 +179,12 @@ public type CookieClient object {
     # + path - Resource path
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
-    # + return - The response for the request or an `http:ClientError` if failed to establish communication with the upstream server
-    public function delete(string path, public RequestMessage message = ()) returns Response|ClientError  {
+    # + targetType - HTTP response or the payload type, `string`, `xml`, `json`, `byte[]`,`record {| anydata...; |}` or
+    #                `record {| anydata...; |}[]`, that is expected to be returned after data-binding
+    # + return - The response or the payload (if the `targetType` is configured) or an `http:ClientError` if failed to
+    #            establish communication with the upstream server or a data binding failure
+    public function delete(string path, public RequestMessage message = (), public TargetType targetType = Response)
+            returns @tainted Response|PayloadType|ClientError {
         Request request = <Request>message;
         addStoredCookiesToRequest(self.url, path, self.cookieStore, request);
         var inboundResponse =  self.httpClient->delete(path, request);
@@ -166,8 +197,12 @@ public type CookieClient object {
     # + path - Request path
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
-    # + return - The response for the request or an `http:ClientError` if failed to establish communication with the upstream server
-    public function options(string path, public RequestMessage message = ()) returns Response|ClientError {
+    # + targetType - HTTP response or the payload type, `string`, `xml`, `json`, `byte[]`,`record {| anydata...; |}` or
+    #                `record {| anydata...; |}[]`, that is expected to be returned after data-binding
+    # + return - The response or the payload (if the `targetType` is configured) or an `http:ClientError` if failed to
+    #            establish communication with the upstream server or a data binding failure
+    public function options(string path, public RequestMessage message = (), public TargetType targetType = Response)
+            returns @tainted Response|PayloadType|ClientError {
         Request request = <Request>message;
         addStoredCookiesToRequest(self.url, path, self.cookieStore, request);
         var inboundResponse =  self.httpClient->options(path, message = request);
@@ -242,16 +277,8 @@ function addStoredCookiesToRequest(string url, string path, CookieStore? cookieS
 }
 
 // Gets the cookies from the inbound response, adds them to the cookies store, and returns the response.
-function addCookiesInResponseToStore2(Response|PayloadType|ClientError inboundResponse, @tainted CookieStore?
-cookieStore, CookieConfig cookieConfig, string url, string path) returns Response|PayloadType|ClientError {
-    if (cookieStore is CookieStore && inboundResponse is Response) {
-        Cookie[] cookiesInResponse = inboundResponse.getCookies();
-        cookieStore.addCookies(cookiesInResponse, cookieConfig, url, path );
-    }
-    return inboundResponse;
-}
-
-function addCookiesInResponseToStore(Response|ClientError inboundResponse, @tainted CookieStore? cookieStore, CookieConfig cookieConfig, string url, string path) returns Response|ClientError {
+function addCookiesInResponseToStore(Response|PayloadType|ClientError inboundResponse, @tainted CookieStore?
+        cookieStore, CookieConfig cookieConfig, string url, string path) returns Response|PayloadType|ClientError {
     if (cookieStore is CookieStore && inboundResponse is Response) {
         Cookie[] cookiesInResponse = inboundResponse.getCookies();
         cookieStore.addCookies(cookiesInResponse, cookieConfig, url, path );

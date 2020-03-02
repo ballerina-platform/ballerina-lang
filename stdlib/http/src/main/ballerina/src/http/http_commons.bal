@@ -93,37 +93,32 @@ function buildResponse(ResponseMessage message) returns Response {
 # + verb - HTTP verb used for submit method
 # + return - The response for the request or an `http:ClientError` if failed to establish communication with the upstream server
 public function invokeEndpoint (string path, Request outRequest, HttpOperation requestAction, HttpClient httpClient,
-                                                                    string verb = "") returns HttpResponse|ClientError {
+        string verb = "") returns @tainted HttpResponse|ClientError {
 
     if (HTTP_GET == requestAction) {
         var result = httpClient->get(path, message = outRequest);
-        return result;
+        return getResponseOrError(result);
     } else if (HTTP_POST == requestAction) {
         var result = httpClient->post(path, outRequest);
-        if (result is PayloadType) {
-            GenericClientError err = error(GENERIC_CLIENT_ERROR, message = "errorPayload");
-            return err;
-        } else {
-            return result;
-        }
+        return getResponseOrError(result);
     } else if (HTTP_OPTIONS == requestAction) {
         var result = httpClient->options(path, message = outRequest);
-        return result;
+        return getResponseOrError(result);
     } else if (HTTP_PUT == requestAction) {
         var result = httpClient->put(path, outRequest);
-        return result;
+        return getResponseOrError(result);
     } else if (HTTP_DELETE == requestAction) {
         var result = httpClient->delete(path, outRequest);
-        return result;
+        return getResponseOrError(result);
     } else if (HTTP_PATCH == requestAction) {
         var result = httpClient->patch(path, outRequest);
-        return result;
+        return getResponseOrError(result);
     } else if (HTTP_FORWARD == requestAction) {
         var result = httpClient->forward(path, outRequest);
-        return result;
+        return getResponseOrError(result);
     } else if (HTTP_HEAD == requestAction) {
         var result = httpClient->head(path, message = outRequest);
-        return result;
+        return getResponseOrError(result);
     } else if (HTTP_SUBMIT == requestAction) {
         return httpClient->submit(verb, path, outRequest);
     } else {
@@ -170,6 +165,20 @@ function getError() returns UnsupportedActionError {
     string message = "Unsupported connector action received.";
     UnsupportedActionError unsupportedActionError = error(UNSUPPORTED_ACTION, message = message);
     return unsupportedActionError;
+}
+
+function getIllegalDataBindingStateError() returns IllegalDataBindingStateError {
+    string message = "Payload cannot be retrived";
+    IllegalDataBindingStateError payloadRetrievalErr = error(ILLEGAL_DATA_BINDING_STATE_ERROR, message = message);
+    return payloadRetrievalErr;
+}
+
+function getResponseOrError(Response|PayloadType|ClientError result) returns HttpResponse|ClientError {
+    if (result is HttpResponse|ClientError) {
+        return result;
+    } else {
+        return getIllegalDataBindingStateError();
+    }
 }
 
 function populateRequestFields (Request originalRequest, Request newRequest)  {
