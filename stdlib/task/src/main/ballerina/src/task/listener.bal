@@ -39,7 +39,7 @@ public type Listener object {
 
     public function __attach(service s, string? name = ()) returns error? {
         // ignore param 'name'
-        var result = attachExternal(self, s, {});
+        var result = attachExternal(self, s);
         if (result is error) {
             panic result;
         }
@@ -128,7 +128,7 @@ function detachExternal(Listener task, service attachedService) returns Listener
     class: "org.ballerinalang.stdlib.task.actions.TaskActions"
 } external;
 
-function attachExternal(Listener task, service s, map<any> config) returns ListenerError? = @java:Method {
+function attachExternal(Listener task, service s, any... attachments) returns ListenerError? = @java:Method {
     name: "attach",
     class: "org.ballerinalang.stdlib.task.actions.TaskActions"
 } external;

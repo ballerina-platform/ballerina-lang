@@ -21,8 +21,6 @@ import org.ballerinalang.jvm.BRuntime;
 import org.ballerinalang.jvm.types.AttachedFunction;
 import org.ballerinalang.stdlib.task.objects.ServiceInformation;
 
-import java.util.Objects;
-
 import static org.ballerinalang.stdlib.task.utils.TaskConstants.RESOURCE_ON_TRIGGER;
 
 /**
@@ -40,9 +38,16 @@ public class TaskExecutor {
     }
 
     private static Object[] getParameterList(AttachedFunction function, ServiceInformation serviceInformation) {
-        if (function.type.paramTypes.length > 0 && Objects.nonNull(serviceInformation.getAttachment())) {
-            return new Object[]{serviceInformation.getAttachment(), Boolean.TRUE};
+        Object[] attachments = serviceInformation.getAttachment();
+        int numberOfParameters = function.type.paramTypes.length;
+        Object[] parameters = new Object[attachments.length * 2];
+        if (numberOfParameters == attachments.length) {
+            int i = 0;
+            for (Object attachment : attachments) {
+                parameters[i++] = attachment;
+                parameters[i++] = Boolean.TRUE;
+            }
         }
-        return new Object[]{};
+        return parameters;
     }
 }
