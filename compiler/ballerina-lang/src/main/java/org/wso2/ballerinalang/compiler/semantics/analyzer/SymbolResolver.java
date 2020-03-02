@@ -1068,11 +1068,6 @@ public class SymbolResolver extends BLangNodeVisitor {
             return;
         }
 
-        if (!constraintType.isPureType()) {
-            dlog.error(streamTypeNode.constraint.pos, DiagnosticCode.STREAM_INVALID_CONSTRAINT, constraintType);
-            resultType = symTable.semanticError;
-            return;
-        }
         BType streamType = new BStreamType(TypeTags.STREAM, constraintType, error, null);
         BTypeSymbol typeSymbol = type.tsymbol;
         streamType.tsymbol = Symbols.createTypeSymbol(typeSymbol.tag, typeSymbol.flags, typeSymbol.name,

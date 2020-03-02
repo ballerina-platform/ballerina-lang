@@ -43,7 +43,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
 )
 public class Construct {
 
-    public static Object construct(Strand strand, TypedescValue td, ObjectValue iteratorObj) {
+    public static StreamValue construct(Strand strand, TypedescValue td, ObjectValue iteratorObj) {
         return new StreamValue(new BStreamType(td.getDescribingType()), iteratorObj);
     }
 }

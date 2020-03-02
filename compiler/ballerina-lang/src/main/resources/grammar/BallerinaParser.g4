@@ -276,7 +276,6 @@ builtInReferenceTypeName
     |   TYPE_XML
     |   TYPE_JSON
     |   TYPE_TABLE LT typeName GT
-    |   TYPE_STREAM LT typeName GT
     |   TYPE_DESC LT typeName GT
     |   SERVICE
     |   errorTypeName

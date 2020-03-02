@@ -39,8 +39,8 @@ import org.ballerinalang.natives.annotations.ReturnType;
 )
 public class GetIteratorObj {
 
-    public static ObjectValue getIteratorObj(Strand strand, Object strm) {
-        return ((StreamValue) strm).getIteratorObj();
+    public static ObjectValue getIteratorObj(Strand strand, StreamValue strm) {
+        return strm.getIteratorObj();
     }
 
 }

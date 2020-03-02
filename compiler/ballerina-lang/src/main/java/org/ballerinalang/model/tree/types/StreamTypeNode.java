@@ -22,7 +22,11 @@ package org.ballerinalang.model.tree.types;
  *
  * @since 1.2.0
  */
-public interface StreamTypeNode extends ConstrainedTypeNode {
+public interface StreamTypeNode extends TypeNode {
+
+    TypeNode getType();
+
+    TypeNode getConstraint();
 
     TypeNode getError();
 }
