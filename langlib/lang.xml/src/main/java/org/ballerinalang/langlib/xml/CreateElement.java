@@ -43,15 +43,15 @@ import org.ballerinalang.natives.annotations.ReturnType;
 )
 public class CreateElement {
 
-    public static XMLValue<?> createElement(Strand strand, String name, XMLValue<?> children) {
+    public static XMLValue createElement(Strand strand, String name, XMLValue children) {
         XMLQName xmlqName = new XMLQName(name);
         String temp = null;
-        XMLValue<?> xmlElement = XMLFactory.createXMLElement(xmlqName, xmlqName, temp);
+        XMLValue xmlElement = XMLFactory.createXMLElement(xmlqName, xmlqName, temp);
         xmlElement.setChildren(getChildren(children));
         return xmlElement;
     }
 
-    private static XMLValue<?> getChildren(XMLValue<?> children) {
+    private static XMLValue getChildren(XMLValue children) {
         if (children == null) {
             return new XMLSequence();
         }

@@ -24,7 +24,6 @@ string BSTRING_VALUE = runtime:getProperty("ballerina.bstring") == "" ? STRING_V
 
 const string B_STRING_VALUE = "org/ballerinalang/jvm/values/api/BString";
 const string I_STRING_VALUE = "org/ballerinalang/jvm/values/StringValue";
-const string BMP_STRING_VALUE = "org/ballerinalang/jvm/values/BmpStringValue";
 const string NON_BMP_STRING_VALUE = "org/ballerinalang/jvm/values/NonBmpStringValue";
 
 type InstructionGenerator object {
@@ -901,11 +900,11 @@ type InstructionGenerator object {
         self.storeToVar(newErrorIns.lhsOp.variableDcl);
     }
 
-    function generateCastIns(bir:TypeCast typeCastIns) {
+    function generateCastIns(bir:TypeCast typeCastIns, boolean useBString) {
         // load source value
         self.loadVar(typeCastIns.rhsOp.variableDcl);
         if (typeCastIns.checkType) {
-            generateCheckCast(self.mv, typeCastIns.rhsOp.typeValue, typeCastIns.castType);
+            generateCheckCast(self.mv, typeCastIns.rhsOp.typeValue, typeCastIns.castType, self.indexMap, useBString);
         } else {
             generateCast(self.mv, typeCastIns.rhsOp.typeValue, typeCastIns.castType);
         }

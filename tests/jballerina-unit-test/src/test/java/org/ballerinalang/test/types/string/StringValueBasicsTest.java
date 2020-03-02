@@ -92,6 +92,18 @@ public class StringValueBasicsTest {
         BRunUtil.invoke(result, "testStringIndexAccessException");
     }
 
+    @Test
+    public void testCastToString() {
+        BValue[] returns = BRunUtil.invoke(result, "anyToStringCasting");
+        Assert.assertEquals(returns[0].getClass(), BInteger.class);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 6);
+
+        BValue[] returns2 = BRunUtil.invoke(result, "anydataToStringCast");
+        Assert.assertEquals(returns2[0].getClass(), BInteger.class);
+        Assert.assertEquals(((BInteger) returns2[0]).intValue(), 6);
+
+    }
+
     @AfterClass
     public void down() {
         System.clearProperty(IS_STRING_VALUE_PROP);

@@ -191,7 +191,9 @@ function testForEach() returns xml {
     xml r = xmllib:concat();
     foreach var x in catalog.* {
         if (x is xml) {
-            r += x;
+            if (x.isElement()) {
+                r += x;
+            }
         }
     }
     return r;

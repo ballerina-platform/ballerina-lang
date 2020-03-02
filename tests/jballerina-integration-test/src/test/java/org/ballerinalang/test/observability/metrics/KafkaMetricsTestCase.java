@@ -110,7 +110,7 @@ public class KafkaMetricsTestCase extends BaseTest {
         List<String> args = new ArrayList<>();
         args.add("--" + ObservabilityConstants.CONFIG_METRICS_ENABLED + "=true");
         args.add("--b7a.log.console.loglevel=INFO");
-        serverInstance.startServer(balFile, null, args.toArray(new String[args.size()]), new int[]{9090});
+        serverInstance.startServer(balFile, null, args.toArray(new String[args.size()]), new int[]{9898});
         return serverInstance;
     }
 

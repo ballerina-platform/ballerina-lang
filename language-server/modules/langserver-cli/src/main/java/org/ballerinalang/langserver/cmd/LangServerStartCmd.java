@@ -38,7 +38,7 @@ import java.util.stream.Stream;
 
 /**
  * Class to implement "langserver start" command for ballerina. Ex: ballerina start-langserver [--debug debugPort]
- * [--classpath classpath] [--experimental] [--debug-log] [--trace-log] [--help|-h]
+ * [--classpath classpath] [--experimental] [--debug-log] [--trace-log] [--stdlib-definition] [--help|-h]
  *
  * @since 1.1.0
  */
@@ -63,6 +63,10 @@ public class LangServerStartCmd implements BLauncherCmd {
     @CommandLine.Option(names = "--trace-log", description = "start language server in trace log enabled")
     private boolean traceLog;
 
+    @CommandLine.Option(names = "--stdlib-definition", description = "start language server with standard library" +
+            "definition support enabled")
+    private boolean stdlibDefinition;
+
     @CommandLine.Option(names = {"-h", "--help"}, hidden = true)
     private boolean helpFlag;
 
@@ -86,6 +90,7 @@ public class LangServerStartCmd implements BLauncherCmd {
             System.setProperty("experimental", Boolean.toString(experimental));
             System.setProperty("ballerina.debugLog", Boolean.toString(debugLog));
             System.setProperty("ballerina.traceLog", Boolean.toString(traceLog));
+            System.setProperty("ballerina.goToDefinition.enableStandardLibraries", Boolean.toString(stdlibDefinition));
             System.setProperty("ballerina.home", BALLERINA_HOME);
 
             // Start Language Server

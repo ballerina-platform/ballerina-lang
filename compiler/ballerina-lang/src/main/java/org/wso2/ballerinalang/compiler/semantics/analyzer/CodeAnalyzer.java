@@ -1171,7 +1171,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                         ((BLangSimpleVarRef) literal).symbol.getKind() == SymbolKind.CONSTANT) {
                     BConstantSymbol constSymbol = (BConstantSymbol) ((BLangSimpleVarRef) literal).symbol;
                     return types.isAssignableToFiniteType(matchType,
-                            (BLangLiteral) ((BFiniteType) constSymbol.type).valueSpace.iterator().next());
+                            (BLangLiteral) ((BFiniteType) constSymbol.type).getValueSpace().iterator().next());
                 }
                 break;
         }
