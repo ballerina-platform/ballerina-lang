@@ -43,9 +43,10 @@ import static io.ballerina.plugins.idea.BallerinaConstants.BALLERINA_CMD;
 import static io.ballerina.plugins.idea.BallerinaConstants.BALLERINA_HOME_CMD;
 import static io.ballerina.plugins.idea.BallerinaConstants.BALLERINA_LS_CMD;
 import static io.ballerina.plugins.idea.BallerinaConstants.BAL_FILE_EXT;
-import static io.ballerina.plugins.idea.BallerinaConstants.CMD_ARG_EXPERIMENTAL;
-import static io.ballerina.plugins.idea.BallerinaConstants.CMD_ARG_LS_DEBUG;
-import static io.ballerina.plugins.idea.BallerinaConstants.CMD_ARG_LS_TRACE;
+import static io.ballerina.plugins.idea.BallerinaConstants.ENV_DEBUG_LOG;
+import static io.ballerina.plugins.idea.BallerinaConstants.ENV_DEF_STDLIBS;
+import static io.ballerina.plugins.idea.BallerinaConstants.ENV_EXPERIMENTAL;
+import static io.ballerina.plugins.idea.BallerinaConstants.ENV_TRACE_LOG;
 import static io.ballerina.plugins.idea.BallerinaConstants.LAUNCHER_SCRIPT_PATH;
 import static io.ballerina.plugins.idea.BallerinaConstants.SYS_PROP_EXPERIMENTAL;
 import static io.ballerina.plugins.idea.BallerinaConstants.SYS_PROP_LS_DEBUG;
@@ -144,20 +145,9 @@ public class LSPUtils {
             LOG.warn("unable to retrieve ballerina version from sdk path: " + balSdkPath);
             return null;
         }
-        int majorV = Integer.parseInt(getMajorVersion(version));
-        int minorV = Integer.parseInt(getMajorVersion(version));
 
-        if (majorV == 1 && minorV >= 2) {
-            // If the ballerina version is above 1.2.0, uses lang server launcher command.
-            return createCmdBasedProcess(project);
-        } else if (majorV == 1) {
-            // If the ballerina version is in between 1.1.0-1.2.0, uses lang server launcher scripts.
-            return createScriptBasedProcess(project, balSdkPath);
-        } else {
-            LOG.warn(String.format("unable to start language server as the ballerina distribution found at: %s is " +
-                    "incompatible", balSdkPath));
-            return null;
-        }
+        return hasLangServerCmdSupport(version) ? createCmdBasedProcess(project) :
+                createScriptBasedProcess(project, balSdkPath);
     }
 
     /**
@@ -210,30 +200,30 @@ public class LSPUtils {
         // Creates the args list to register the language server definition using the ballerina lang-server launcher
         // command.
         List<String> args = getLangServerCmdArgs();
-
         if (args.isEmpty()) {
             LOG.warn("Couldn't find ballerina executable to execute language server launch command.");
             return null;
         }
 
+        ProcessBuilder cmdProcessBuilder = new ProcessBuilder(args);
+
         // Checks user-configurable setting for allowing ballerina experimental features and sets the flag accordingly.
         if (BallerinaAutoDetectionSettings.getInstance(project).isAutoDetectionEnabled()) {
-            args.add(CMD_ARG_EXPERIMENTAL);
-            // Todo - Enable after add didChangeConfig support.
-            // args.add(CMD_ARG_STDLIB_DEF);
+            cmdProcessBuilder.environment().put(ENV_EXPERIMENTAL, "true");
+            cmdProcessBuilder.environment().put(ENV_DEF_STDLIBS, "true");
         }
 
         // Checks user-configurable setting for allowing language server debug logs and sets the flag accordingly.
         if (LangServerLogsSettings.getInstance(project).isLangServerDebugLogsEnabled()) {
-            args.add(CMD_ARG_LS_DEBUG);
+            cmdProcessBuilder.environment().put(ENV_DEBUG_LOG, "true");
         }
 
         // Checks user-configurable setting for allowing language server trace logs and sets the flag accordingly.
         if (LangServerLogsSettings.getInstance(project).isLangServerTraceLogsEnabled()) {
-            args.add(CMD_ARG_LS_TRACE);
+            cmdProcessBuilder.environment().put(ENV_TRACE_LOG, "true");
         }
 
-        return new ProcessBuilder(args);
+        return cmdProcessBuilder;
     }
 
     private static List<String> getLangServerCmdArgs() {
@@ -258,5 +248,21 @@ public class LSPUtils {
         cmdArgs.add(OSUtils.isWindows() ? String.format("\"%s\"", routerScriptPath) : routerScriptPath);
         cmdArgs.add(BALLERINA_LS_CMD);
         return cmdArgs;
+    }
+
+    private static boolean hasLangServerCmdSupport(String balVersion) {
+        int majorV = Integer.parseInt(getMajorVersion(balVersion));
+        int minorV = Integer.parseInt(getMajorVersion(balVersion));
+
+        // returns true if the ballerina version >= 1.2.0.
+        return majorV == 1 && minorV >= 2;
+    }
+
+    private static boolean hasDidChangeConfigSupport(String balVersion) {
+        int majorV = Integer.parseInt(getMajorVersion(balVersion));
+        int minorV = Integer.parseInt(getMajorVersion(balVersion));
+
+        // returns true if the ballerina version >= 1.2.0.
+        return majorV == 1 && minorV >= 2;
     }
 }

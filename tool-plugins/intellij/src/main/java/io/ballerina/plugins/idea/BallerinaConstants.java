@@ -92,10 +92,10 @@ public class BallerinaConstants {
     public static final String SYS_PROP_LS_DEBUG = "DEBUG_LOG";
     public static final String SYS_PROP_LS_TRACE = "TRACE_LOG";
 
-    public static final String CMD_ARG_EXPERIMENTAL = "--experimental";
-    public static final String CMD_ARG_LS_DEBUG = "--debug-log";
-    public static final String CMD_ARG_LS_TRACE = "--trace-log";
-    public static final String CMD_ARG_STDLIB_DEF = "--stdlib-definition";
+    public static final String ENV_DEBUG_LOG = "BAL_DEBUG_LOG";
+    public static final String ENV_TRACE_LOG = "BAL_TRACE_LOG";
+    public static final String ENV_EXPERIMENTAL = "BAL_EXPERIMENTAL";
+    public static final String ENV_DEF_STDLIBS = "BAL_DEF_STD_LIBS";
 
     // Debug server launcher constants.
     public static final String BALLERINA_DEBUG_LAUNCHER_PATH = "lib/tools/debug-adapter/launcher";
