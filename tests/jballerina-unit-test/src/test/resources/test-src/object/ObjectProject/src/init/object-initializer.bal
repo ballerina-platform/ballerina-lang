@@ -534,3 +534,31 @@ function testErrorReturnWithInitialization() returns (boolean) {
     Calculate2|error cal = new("SUB", 2, 3, 4);
     return cal is error;
 }
+
+public const NAME = "John";
+public const AGE = 11;
+public type TYPE NAME|AGE;
+
+type Student10 object {
+    string name = "";
+    int age = 11;
+    TYPE t1;
+    TYPE t2;
+
+    function __init(string name = NAME, int age = AGE, TYPE t1 = NAME, TYPE t2 = AGE) {
+        self.name = name;
+        self.age = age;
+        self.t1 = t1;
+        self.t2 = t2;
+    }
+
+    function getDetails() returns [string, int, TYPE, TYPE] {
+        return [self.name, self.age, self.t1, self.t2];
+    }
+};
+
+function testConstRefsAsDefaultValue() returns (boolean) {
+    Student10 s = new("Andrew");
+    [string , int, TYPE, TYPE ] details = s.getDetails();
+    return details[0] == "Andrew" && details[1] == 11 && details[2] == "John" && details[3] == 11;
+}
