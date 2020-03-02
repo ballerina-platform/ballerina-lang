@@ -27,7 +27,6 @@ import org.wso2.ballerinalang.compiler.Compiler;
 import org.wso2.ballerinalang.compiler.FileSystemProjectDirectory;
 import org.wso2.ballerinalang.compiler.SourceDirectory;
 import org.wso2.ballerinalang.compiler.bir.BackendDriver;
-import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
@@ -84,7 +83,7 @@ public class GenerateBalo {
         }
     }
 
-    private static void unsetProperty(String key, String val) throws IOException {
+    private static void unsetProperty(String key, String val) {
         if (val == null) {
             System.clearProperty(key);
         } else {
@@ -130,7 +129,10 @@ public class GenerateBalo {
 
         for (BLangPackage pkg : buildPackages) {
             Path jarOutput = Paths.get("./build/generated-bir-jar/" + pkg.packageID.name + ".jar");
-            Files.createDirectories(jarOutput.getParent());
+            Path parent = jarOutput.getParent();
+            if (parent != null) {
+                Files.createDirectories(parent);
+            }
             backendDriver.execute(pkg.symbol.bir, false, jarOutput);
         }
     }
