@@ -1378,7 +1378,7 @@ public class CommonUtil {
      * @param fileUri file URI to evaluate
      * @return whether the file is a cached entry or not
      */
-    public static boolean isCachedSource(String fileUri) {
+    public static boolean isCachedExternalSource(String fileUri) {
         try {
             Path path = Paths.get(new URI(fileUri));
             return path.toAbsolutePath().toString().startsWith(LS_STDLIB_CACHE_DIR.toAbsolutePath().toString());

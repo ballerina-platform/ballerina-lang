@@ -176,7 +176,7 @@ function testGetAttributeWithEmptyNamespace() returns [string?, string?] {
 
 function testGetNamespaceAsAttribute() returns (string?) {
     var x1 = xml `<root xmlns:ns4="http://sample.com/wso2/f" xmlns="http://sample.com/wso2/e" foo1="bar1" ns4:foo3="bar3"/>`;
-    return x1@["{http://sample.com/wso2/e}ns4"];
+    return x1@["{http://www.w3.org/2000/xmlns/}ns4"];
 }
 
 function testGetAttributeWithQName() returns [string?, string?, string?] {
