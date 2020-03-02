@@ -28,6 +28,7 @@ import io.ballerina.plugins.idea.notifiers.BallerinaAutoDetectNotifier;
 import io.ballerina.plugins.idea.sdk.BallerinaSdk;
 import io.ballerina.plugins.idea.sdk.BallerinaSdkUtils;
 import io.ballerina.plugins.idea.settings.autodetect.BallerinaAutoDetectionSettings;
+import io.ballerina.plugins.idea.settings.experimental.BallerinaExperimentalFeatureSettings;
 import io.ballerina.plugins.idea.settings.langserverlogs.LangServerLogsSettings;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -173,7 +174,7 @@ public class LSPUtils {
 
         processBuilder = new ProcessBuilder(args);
         // Checks user-configurable setting for allowing ballerina experimental features and sets the flag accordingly.
-        if (BallerinaAutoDetectionSettings.getInstance(project).isAutoDetectionEnabled()) {
+        if (BallerinaExperimentalFeatureSettings.getInstance(project).isAllowedExperimental()) {
             processBuilder.environment().put(SYS_PROP_EXPERIMENTAL, "true");
         }
 
@@ -208,7 +209,7 @@ public class LSPUtils {
         ProcessBuilder cmdProcessBuilder = new ProcessBuilder(args);
 
         // Checks user-configurable setting for allowing ballerina experimental features and sets the flag accordingly.
-        if (BallerinaAutoDetectionSettings.getInstance(project).isAutoDetectionEnabled()) {
+        if (BallerinaExperimentalFeatureSettings.getInstance(project).isAllowedExperimental()) {
             cmdProcessBuilder.environment().put(ENV_EXPERIMENTAL, "true");
             cmdProcessBuilder.environment().put(ENV_DEF_STDLIBS, "true");
         }

@@ -17,6 +17,7 @@
 package io.ballerina.plugins.idea.settings.experimental;
 
 import com.intellij.openapi.options.SearchableConfigurable;
+import com.intellij.openapi.project.Project;
 import com.intellij.util.ui.FormBuilder;
 import com.intellij.util.ui.UIUtil;
 import io.ballerina.plugins.idea.sdk.BallerinaSdkUtils;
@@ -24,27 +25,24 @@ import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.awt.BorderLayout;
-import java.awt.Dimension;
+import java.awt.*;
 
-import javax.swing.JCheckBox;
-import javax.swing.JComponent;
-import javax.swing.JPanel;
+import javax.swing.*;
 
 /**
  * Adds capability of enabling/disabling ballerina experimental feature support.
  */
 public class BallerinaExperimentalFeatureConfigurable implements SearchableConfigurable {
 
-    private JCheckBox myCbAllowExperimental;
-
-    @NotNull
     private final BallerinaExperimentalFeatureSettings ballerinaExperimentalFeatureSettings;
+    private Project project;
+    private JCheckBox myCbAllowExperimental;
     private final boolean myIsDialog;
 
-    public BallerinaExperimentalFeatureConfigurable(boolean dialogMode) {
-        ballerinaExperimentalFeatureSettings = BallerinaExperimentalFeatureSettings.getInstance();
-        myIsDialog = dialogMode;
+    public BallerinaExperimentalFeatureConfigurable(Project project, boolean dialogMode) {
+        ballerinaExperimentalFeatureSettings = BallerinaExperimentalFeatureSettings.getInstance(project);
+        this.project = project;
+        this.myIsDialog = dialogMode;
     }
 
     @Nullable
@@ -63,7 +61,7 @@ public class BallerinaExperimentalFeatureConfigurable implements SearchableConfi
 
     @Override
     public boolean isModified() {
-        return ballerinaExperimentalFeatureSettings.getAllowExperimental() != myCbAllowExperimental.isSelected();
+        return ballerinaExperimentalFeatureSettings.isAllowedExperimental() != myCbAllowExperimental.isSelected();
     }
 
     @Override
@@ -72,12 +70,12 @@ public class BallerinaExperimentalFeatureConfigurable implements SearchableConfi
         // Need to prompt a restart action to clear and re re-spawn language server instance with the changed
         // configuration.
         // Todo - Figure out a way to apply changes without restarting IDE.
-        BallerinaSdkUtils.showRestartDialog(null);
+        BallerinaSdkUtils.showRestartDialog(project);
     }
 
     @Override
     public void reset() {
-        myCbAllowExperimental.setSelected(ballerinaExperimentalFeatureSettings.getAllowExperimental());
+        myCbAllowExperimental.setSelected(ballerinaExperimentalFeatureSettings.isAllowedExperimental());
     }
 
     @NotNull
