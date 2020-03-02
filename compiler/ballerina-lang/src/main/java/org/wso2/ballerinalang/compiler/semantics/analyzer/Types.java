@@ -1186,7 +1186,7 @@ public class Types {
         return getVarTypeFromIteratorFuncReturnType(returnType);
     }
 
-    private BUnionType getVarTypeFromIteratorFuncReturnType(BType returnType) {
+    public BUnionType getVarTypeFromIteratorFuncReturnType(BType returnType) {
         BObjectTypeSymbol objectTypeSymbol;
         if (returnType.tag != TypeTags.OBJECT) {
             return null;
@@ -1229,9 +1229,13 @@ public class Types {
             return false;
         }
 
-        if (types.size() != 1) {
-            return false;
+        if (!types.removeIf(type -> type.tag == TypeTags.ERROR)) {
+            // return false;
         }
+
+//        if (types.size() != 1) {
+//            return false;
+//        }
 
         if (types.get(0).tag != TypeTags.RECORD) {
             return false;
