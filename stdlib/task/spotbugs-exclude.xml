@@ -16,9 +16,4 @@
   ~ under the License.
   -->
 <FindBugsFilter>
-    <Match>
-        <OR>
-            <Bug pattern="EI_EXPOSE_REP"/>
-        </OR>
-    </Match>
 </FindBugsFilter>

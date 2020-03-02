@@ -34,8 +34,8 @@ public class MultipleAttachmentTest extends TaskBaseTest {
         serverInstance.startServer(balFile, "multipleattachments", requiredPorts);
     }
 
-    @Test(description = "Tests the functionality of initiating a Task Timer Listener with AppointmentData record.")
-    public void testSchedulerWithMultipleServices() {
+    @Test(description = "Tests the functionality of a scheduler with multiple attachments")
+    public void testSchedulerWithMultipleAttachments() {
         String message = "Name: Sam Age: 29 A/C: 150590 Balance: 11.35";
         assertTest(5000, "http://localhost:15007/getMultipleAttachmentResult", message);
     }

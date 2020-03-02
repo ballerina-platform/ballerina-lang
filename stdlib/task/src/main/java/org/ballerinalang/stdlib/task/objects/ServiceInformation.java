@@ -58,7 +58,7 @@ public class ServiceInformation {
     }
 
     public Object[] getAttachment() {
-        return this.attachments;
+        return this.attachments.clone();
     }
 
     public BRuntime getRuntime() {

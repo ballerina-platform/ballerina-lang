@@ -33,10 +33,10 @@ public type Account record {
 };
 
 public function main() {
-    Person sam = { name: "Sam", age: 29 };
-    Account acc = { number: 150590, balance: 11.35 };
-    task:TimerConfiguration timerConfiguration = { intervalInMillis: 1000 };
-    task:Scheduler timer = new(timerConfiguration);
+    Person sam = {name: "Sam", age: 29};
+    Account acc = {number: 150590, balance: 11.35};
+    task:TimerConfiguration timerConfiguration = {intervalInMillis: 1000};
+    task:Scheduler timer = new (timerConfiguration);
     var attachResult = timer.attach(TimerService, sam, acc);
     var startResult = timer.start();
 }
@@ -51,20 +51,20 @@ service TimerService = service {
 };
 
 function getResult() returns string {
-    return "Name: " + name + " Age: " + age.toString() + " A/C: " + acNumber.toString() + " Balance: " + balance.toString();
+    return "Name: " + name + " Age: " + age.toString() + " A/C: " + acNumber.toString() + " Balance: " + balance
+        .toString();
 }
 
-listener http:Listener multipleAttachmentsListener = new(15007);
+listener http:Listener multipleAttachmentsListener = new (15007);
 
 @http:ServiceConfig {
     basePath: "/"
 }
 service MultipleAttachmentsService on multipleAttachmentsListener {
     @http:ResourceConfig {
-        methods:["GET"]
+        methods: ["GET"]
     }
     resource function getMultipleAttachmentResult(http:Caller caller, http:Request request) {
         var result = caller->respond(getResult());
     }
 }
-
