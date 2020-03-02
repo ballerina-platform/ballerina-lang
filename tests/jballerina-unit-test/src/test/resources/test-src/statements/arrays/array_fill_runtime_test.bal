@@ -83,12 +83,36 @@ function testRecordTypeWithOptionalFieldsSealedArrayFill() {
     assertEqualPanic(2, x[1].j);
 }
 
+function testTwoDimensionalSealedArrayFill() {
+    int[][2] x = [];
+    x[1] = [1, 3];
+    assertEqualPanic(2, x.length());
+    assertEqualPanic([0, 0], x[0]);
+    assertEqualPanic([1, 3], x[1]);
+
+    int[2][3] y = [];
+    assertEqualPanic(2, y.length());
+
+    foreach var item in y {
+        assertEqualPanic([0, 0, 0], item);
+    }
+
+    Rec[2][2] z = [];
+    assertEqualPanic(z.length(), 2);
+
+    foreach var item in z {
+        assertEqualPanic(10, item[0].j);
+        assertEqualPanic(10, item[1].j);
+    }
+}
+
 public function main() {
     testObjectDynamicArrayFilling();
     testRecordTypeWithOptionalFieldsArrayFill();
     testRecordTypeWithOptionalFieldsSealedArrayFill();
     testObjectRetNullableDynamicArrayFilling();
     testObjectNoRetDynamicArrayFilling();
+    testTwoDimensionalSealedArrayFill();
 }
 
 function assertEqualPanic(anydata expected, anydata actual, string message = "Value mismatch") {

@@ -1756,7 +1756,7 @@ public class TypeChecker {
     }
 
     private static boolean checkFillerValue(BArrayType type) {
-        return !(type.getState() == ArrayState.CLOSED_SEALED || type.getState() == ArrayState.OPEN_SEALED);
+        return type.getState() == ArrayState.UNSEALED || hasFillerValue(type.getElementType());
     }
 
     private static boolean checkFillerValue(BObjectType type) {
