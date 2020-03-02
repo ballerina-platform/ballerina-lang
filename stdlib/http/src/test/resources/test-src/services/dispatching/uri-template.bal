@@ -2,6 +2,7 @@ import ballerina/io;
 import ballerina/http;
 
 listener http:MockListener testEP = new(9090);
+listener http:MockListener testEPWithNoServiceAttached = new(9095);
 
 @http:ServiceConfig {
     basePath:"/ecommerceservice"

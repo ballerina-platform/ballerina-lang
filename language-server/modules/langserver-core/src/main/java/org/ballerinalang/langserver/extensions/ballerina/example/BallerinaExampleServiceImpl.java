@@ -18,13 +18,11 @@ package org.ballerinalang.langserver.extensions.ballerina.example;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
-import org.ballerinalang.langserver.LSGlobalContext;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.eclipse.lsp4j.Position;
+import org.eclipse.lsp4j.TextDocumentIdentifier;
 
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.InputStreamReader;
 import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
@@ -34,6 +32,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
+import static org.ballerinalang.langserver.compiler.LSClientLogger.logError;
+
 /**
  * Ballerina example service.
  *
@@ -41,19 +41,11 @@ import java.util.concurrent.CompletableFuture;
  */
 public class BallerinaExampleServiceImpl implements BallerinaExampleService {
 
-    private static final Logger logger = LoggerFactory.getLogger(BallerinaExampleServiceImpl.class);
-
     private static final String BBE_DEF_JSON = "index.json";
 
     private static final String EXAMPLES_DIR = "examples";
 
     private static final Type EXAMPLE_CATEGORY_TYPE = new TypeToken<List<BallerinaExampleCategory>>() { }.getType();
-
-    private LSGlobalContext lsGlobalContext;
-
-    public BallerinaExampleServiceImpl(LSGlobalContext lsGlobalContext) {
-        this.lsGlobalContext = lsGlobalContext;
-    }
 
     @Override
     public CompletableFuture<BallerinaExampleListResponse> list(BallerinaExampleListRequest request) {
@@ -67,11 +59,9 @@ public class BallerinaExampleServiceImpl implements BallerinaExampleService {
                 JsonReader jsonReader = new JsonReader(fileReader);
                 List<BallerinaExampleCategory> data = gson.fromJson(jsonReader, EXAMPLE_CATEGORY_TYPE);
                 response.setSamples(data);
-            } catch (FileNotFoundException e) {
-                if (CommonUtil.LS_DEBUG_ENABLED) {
-                    String msg = e.getMessage();
-                    logger.error("Error while fetching the list of examples" + ((msg != null) ? ": " + msg : ""), e);
-                }
+            } catch (Throwable e) {
+                String msg = "Operation 'ballerinaExample/list' failed!";
+                logError(msg, e, new TextDocumentIdentifier(bbeJSONPath.toString()), (Position) null);
                 response.setSamples(new ArrayList<>());
             }
             return response;

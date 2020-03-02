@@ -71,4 +71,6 @@ public class DocumentServiceKeys {
             = new LSContext.Key<>();
     public static final LSContext.Key<WorkspaceDocumentManager> DOC_MANAGER_KEY
             = new LSContext.Key<>();
+    public static final LSContext.Key<Boolean> ENABLE_STDLIB_DEFINITION_KEY
+            = new LSContext.Key<>();
 }

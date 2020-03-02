@@ -161,7 +161,7 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
         this.pkgName = pkgName;
     }
 
-    SymbolReferenceFindingVisitor(LSContext lsContext, String pkgName) {
+    public SymbolReferenceFindingVisitor(LSContext lsContext, String pkgName) {
         this(lsContext, pkgName, false);
     }
 
@@ -245,7 +245,7 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
         this.acceptNode(funcNode.restParam);
         funcNode.returnTypeAnnAttachments.forEach(this::acceptNode);
         this.acceptNode(funcNode.returnTypeNode);
-        if (!isWorker && funcNode.body != null) {
+        if (!isWorker && funcNode.body instanceof BLangBlockFunctionBody) {
             // Fill the worker varDefs in the current function scope
             this.fillVisibleWorkerVarDefMaps(((BLangBlockFunctionBody) funcNode.body).stmts);
         }
