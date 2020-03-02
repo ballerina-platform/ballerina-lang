@@ -22,6 +22,7 @@ import com.google.protobuf.DescriptorProtos;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import static org.ballerinalang.net.grpc.builder.utils.BalGenerationUtils.toCamelCase;
@@ -112,7 +113,7 @@ public class Message {
                         nestedMessage.setMessageName(
                                 nestedMessage.getMessageName().substring(
                                         0, nestedMessage.getMessageName().length() - 5
-                                ).toLowerCase()
+                                ).toLowerCase(Locale.getDefault())
                         );
                     }
                     mapList.add(nestedMessage);
