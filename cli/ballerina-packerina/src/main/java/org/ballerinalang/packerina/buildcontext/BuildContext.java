@@ -67,6 +67,7 @@ public class BuildContext extends HashMap<BuildContextField, Object> {
     private transient Path executableDir;
     private transient Path targetJarCacheDir;
     private transient Path targetBirCacheDir;
+    private transient Path targetTestJsonCacheDir;
     private transient Path baloCacheDir;
     private SourceType srcType;
     private transient PrintStream out;
@@ -115,6 +116,11 @@ public class BuildContext extends HashMap<BuildContextField, Object> {
                 this.targetJarCacheDir = targetPath
                         .resolve(ProjectDirConstants.CACHES_DIR_NAME)
                         .resolve(ProjectDirConstants.JAR_CACHE_DIR_NAME);
+
+                // save '<target>/cache/json_cache' dir for jar files
+                this.targetTestJsonCacheDir = targetPath
+                        .resolve(ProjectDirConstants.CACHES_DIR_NAME)
+                        .resolve(ProjectDirConstants.JSON_CACHE_DIR_NAME);
                 
                 // save '<target>/bin' dir for executables
                 this.executableDir = targetPath.resolve(ProjectDirConstants.BIN_DIR_NAME);
@@ -507,6 +513,25 @@ public class BuildContext extends HashMap<BuildContextField, Object> {
             
         } catch (IOException e) {
             throw new BLangCompilerException("error creating bir_cache dir for module(s): " + this.executableDir);
+        }
+    }
+
+    public Path getTestJsonPathTargetCache(PackageID moduleID) {
+        try {
+            Files.createDirectories(targetTestJsonCacheDir);
+            switch (this.getSourceType()) {
+                case SINGLE_MODULE:
+                case ALL_MODULES:
+                    return Files.createDirectories(targetTestJsonCacheDir.resolve(moduleID.orgName.value)
+                                                           .resolve(moduleID.name.value)
+                                                           .resolve(moduleID.version.value));
+                default:
+                    return targetTestJsonCacheDir;
+            }
+
+        } catch (IOException e) {
+            throw new BLangCompilerException("error creating test_json_cache " +
+                                                     "dir for module(s): " + targetTestJsonCacheDir);
         }
     }
     

@@ -238,7 +238,9 @@ public class BIRGen extends BLangNodeVisitor {
                 visitBuiltinFunctions(testPkg, testPkg.startFunction);
                 visitBuiltinFunctions(testPkg, testPkg.stopFunction);
                 // remove imports of the main module from testable module
-                astPkg.imports.stream().forEach(mod -> testPkg.imports.remove(mod));
+                for (BLangImportPackage mod : astPkg.imports) {
+                    testPkg.symbol.imports.remove(mod.symbol);
+                }
                 testPkg.accept(this);
                 this.birOptimizer.optimizePackage(birPkg);
                 testPkg.symbol.birPackageFile = new BIRPackageFile(new BIRBinaryWriter(birPkg).serialize());
