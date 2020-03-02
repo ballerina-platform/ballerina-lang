@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.ballerinalang.testerina.core;
+package org.ballerinalang.test.runtime.util;
 
 /**
  * Testerina Constant Class holds constants used in runtime.
@@ -27,5 +27,11 @@ public class TesterinaConstants {
 
     public static final String BALLERINA_SOURCE_ROOT = "ballerina.source.root";
     public static final String TESTERINA_TEMP_DIR = ".testerina";
+    public static final String TESTERINA_TEST_SUITE = "test_suit.json";
+    public static final String TESTERINA_LAUNCHER_CLASS_NAME = "org.ballerinalang.test.runtime.Main";
+    public static final String TEST_RUNTIME_JAR_PREFIX = "testerina-runtime-";
+
+    public static final String DOT = ".";
+    public static final String ANON_ORG = "$anon";
 
 }

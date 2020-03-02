@@ -275,7 +275,7 @@ public class RunCommand implements BLauncherCmd {
                 // create the jar.
                 .addTask(new CreateJarTask(this.dumpBIR))
                 .addTask(new CopyResourcesTask(), isSingleFileBuild)
-                .addTask(new CopyModuleJarTask())
+                .addTask(new CopyModuleJarTask(false, true))
                 .addTask(new PrintExecutablePathTask(), isSingleFileBuild)   // print the location of the executable
                 .addTask(new PrintRunningExecutableTask(!isSingleFileBuild))   // print running executables
                 .addTask(new RunExecutableTask(programArgs, isInDebugMode))

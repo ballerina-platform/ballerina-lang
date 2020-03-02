@@ -23,8 +23,8 @@ import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.FunctionNode;
 import org.ballerinalang.model.tree.PackageNode;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
-import org.ballerinalang.testerina.core.entity.Test;
-import org.ballerinalang.testerina.core.entity.TestSuite;
+import org.ballerinalang.test.runtime.entity.Test;
+import org.ballerinalang.test.runtime.entity.TestSuite;
 import org.ballerinalang.util.diagnostic.DiagnosticLog;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
@@ -62,7 +62,6 @@ public class TestAnnotationProcessor extends AbstractCompilerPlugin {
     private static final String MOCK_ANNOTATION_DELIMITER = "#";
 
     private TesterinaRegistry registry = TesterinaRegistry.getInstance();
-    private TestSuite suite;
     private boolean enabled = true;
     /**
      * this property is used as a work-around to initialize test suites only once for a package as Compiler
@@ -71,7 +70,7 @@ public class TestAnnotationProcessor extends AbstractCompilerPlugin {
 
     @Override
     public void init(DiagnosticLog diagnosticLog) {
-        if (registry.getInstance().isTestSuitesCompiled()) {
+        if (TesterinaRegistry.getInstance().isTestSuitesCompiled()) {
             enabled = false;
         }
     }
@@ -81,14 +80,15 @@ public class TestAnnotationProcessor extends AbstractCompilerPlugin {
         if (!enabled) {
             return;
         }
-        String packageName = getPackageName((BLangPackage) ((BLangFunction) functionNode).parent);
-        suite = registry.getTestSuites().get(packageName);
+        BLangPackage parent = (BLangPackage) ((BLangFunction) functionNode).parent;
+        String packageName = getPackageName(parent);
+        TestSuite suite = registry.getTestSuites().get(packageName);
         // Check if the registry contains a test suite for the package
         if (suite == null) {
             // Add a test suite to the registry if it does not contain one pertaining to the package name
-            registry.getTestSuites().computeIfAbsent(packageName, func -> new TestSuite(packageName));
-            // Get the test suite related to the package from registry
-            suite = registry.getTestSuites().get(packageName);
+            suite = registry.getTestSuites().computeIfAbsent(packageName, func ->
+                    new TestSuite(parent.packageID.name.value, packageName, parent.packageID.orgName.value,
+                                  parent.packageID.version.value));
         }
         // Remove the duplicated annotations.
         annotations = annotations.stream().distinct().collect(Collectors.toList());
@@ -246,6 +246,7 @@ public class TestAnnotationProcessor extends AbstractCompilerPlugin {
      *
      * @param suite a @{@link TestSuite}
      */
+    /*
     public static void injectMocks(TestSuite suite) {
         /*ProgramFile programFile = suite.getProgramFile();
         Map<String, TesterinaFunction> mockFunctions = suite.getMockFunctionsMap();
@@ -272,15 +273,15 @@ public class TestAnnotationProcessor extends AbstractCompilerPlugin {
                 }
             }
         });*/
-    }
 
     /**
      * Process a given {@link TestSuite} and reset the mock functions with their original pointers.
      *
      * @param suite a @{@link TestSuite}
      */
+    /**
     public static void resetMocks(TestSuite suite) {
-        /*ProgramFile programFile = suite.getProgramFile();
+        ProgramFile programFile = suite.getProgramFile();
         Map<String, TesterinaFunction> mockFunctions = suite.getMockFunctionsMap();
         Map<String, FunctionInfo> mockedRealFunctionsMap = suite.getMockedRealFunctionsMap();
 
@@ -301,8 +302,8 @@ public class TestAnnotationProcessor extends AbstractCompilerPlugin {
                     }
                 }
             }
-        });*/
-    }
+        });
+    }*/
 
 
 
