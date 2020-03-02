@@ -55,10 +55,18 @@ type MapAndList record {|
 |};
 
 // Cleanup service which cleans the cache entries periodically.
+boolean cleanUpInProgress = false;
+
+// Cleanup service which cleans the cache entries periodically.
 service cleanupService = service {
     resource function onTrigger(MapAndList mapAndList) {
-        lock {
-            cleanup(mapAndList);
+        // This check will skip the processes triggered while the clean up in progress.
+        if (!cleanUpInProgress) {
+            lock {
+                cleanUpInProgress = true;
+                cleanup(mapAndList);
+                cleanUpInProgress = false;
+            }
         }
     }
 };
