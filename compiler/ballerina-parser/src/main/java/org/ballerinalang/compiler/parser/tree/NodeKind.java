@@ -28,5 +28,7 @@ public enum NodeKind {
     PARAMETERS,
     EXTERN_FUNC_BODY,
     BLOCK_NODE,
-    VAR_DEF;
+    VAR_DEF,
+    TYPE,
+    SYNTAX;
 }

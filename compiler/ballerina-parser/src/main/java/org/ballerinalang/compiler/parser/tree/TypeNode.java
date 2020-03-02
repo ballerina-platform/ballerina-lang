@@ -25,10 +25,11 @@ public class TypeNode extends ASTNode {
 
     public TypeNode(Token name) {
         this.name = name;
+        this.kind = NodeKind.TYPE;
     }
 
     @Override
     public String toString() {
-        return name.text;
+        return this.name.text;
     }
 }
