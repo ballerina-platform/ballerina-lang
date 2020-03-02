@@ -42,7 +42,6 @@ public type SmtpClient client object {
 # + username - Username to access the SMTP server
 # + password - Password to access the SMTP server
 public type SmtpConfig record {|
-    //ConnectionConfig? connConfig = ();
     string host;
     int port = 587;
     string username;
