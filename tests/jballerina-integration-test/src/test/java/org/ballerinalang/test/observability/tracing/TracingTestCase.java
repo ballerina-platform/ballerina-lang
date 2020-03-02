@@ -59,7 +59,7 @@ public class TracingTestCase extends BaseTest {
     @BeforeGroups(value = "tracing-test", alwaysRun = true)
     private void setup() throws Exception {
         // Don't use 9898 port here. It is used in metrics test cases.
-        int[] requiredPorts = new int[]{9090, 9091, 9092, 9093};
+        int[] requiredPorts = new int[]{9090, 9091, 9092, 9093, 9095};
         serverInstance = new BServerInstance(balServer);
 
         copyFile(new File(System.getProperty(TEST_NATIVES_JAR)),  Paths.get(Paths.get(System.getProperty
@@ -216,6 +216,32 @@ public class TracingTestCase extends BaseTest {
     }
 
     @Test(dependsOnMethods = "testOOTBTracingWithWorkers")
+    public void testOOTBTracingForUserDefinedFunctions() throws Exception {
+        final String service = "http://localhost:9095/echoService/";
+        HttpClientRequest.doGet(service + "resourceOne");
+        Thread.sleep(1000);
+        Type type = new TypeToken<List<BMockSpan>>() {
+        }.getType();
+        String data = HttpClientRequest.doGet(service + "getMockTracers").getData();
+        List<BMockSpan> mockSpans = new Gson().fromJson(data, type);
+
+        // 39. echoService3__service_0 -> getMockTracers (Root Span)
+        // 40. echoService3__service_0 -> ballerina/http/Caller:respond
+
+        // 41. echoService5__service_0 -> resourceOne (Root Span)
+        // 42. echoService5__service_0 -> ballerina/http/Client:get
+        // 43. echoService5__service_0 -> ballerina/http/HttpClient:get
+        // 44. echoService5__service_0 -> resourceTwo
+        // 45. echoService5__service_0 -> default:sayHelloWorld2
+        // 46. echoService5__service_0 -> ballerina/http/Caller:respond
+        // 47. echoService5__service_0 -> default:sayHelloWorld
+        // 48. echoService5__service_0 -> ballerina/http/Caller:respond
+        Assert.assertEquals(mockSpans.size(), 48, "Mismatch in number of spans reported.");
+        Assert.assertEquals(mockSpans.stream()
+                .filter(bMockSpan -> bMockSpan.getParentId() == 0).count(), 10, "Mismatch in number of root spans.");
+    }
+
+    @Test(dependsOnMethods = "testOOTBTracingForUserDefinedFunctions")
     public void testOOTBTracingWithErrors() throws Exception {
         final String service = "http://localhost:9094/echoService/";
         HttpClientRequest.doGet(service + "resourceOne/3");
@@ -225,7 +251,7 @@ public class TracingTestCase extends BaseTest {
         String data = HttpClientRequest.doGet(service + "getMockTracers").getData();
         List<BMockSpan> mockSpans = new Gson().fromJson(data, type);
 
-        Assert.assertEquals(mockSpans.size(), 46, "Mismatch in number of spans reported.");
+        Assert.assertEquals(mockSpans.size(), 56, "Mismatch in number of spans reported.");
 
         HttpClientRequest.doGet(service + "resourceOne/2");
         Thread.sleep(1000);
@@ -234,7 +260,7 @@ public class TracingTestCase extends BaseTest {
         data = HttpClientRequest.doGet(service + "getMockTracers").getData();
         mockSpans = new Gson().fromJson(data, type);
 
-        Assert.assertEquals(mockSpans.size(), 54, "Mismatch in number of spans reported.");
+        Assert.assertEquals(mockSpans.size(), 64, "Mismatch in number of spans reported.");
 
         HttpClientRequest.doGet(service + "resourceOne/1");
         Thread.sleep(1000);
@@ -243,7 +269,7 @@ public class TracingTestCase extends BaseTest {
         data = HttpClientRequest.doGet(service + "getMockTracers").getData();
         mockSpans = new Gson().fromJson(data, type);
 
-        Assert.assertEquals(mockSpans.size(), 61, "Mismatch in number of spans reported.");
+        Assert.assertEquals(mockSpans.size(), 71, "Mismatch in number of spans reported.");
 
         HttpClientRequest.doGet(service + "resourceOne/0");
         Thread.sleep(1000);
@@ -252,30 +278,7 @@ public class TracingTestCase extends BaseTest {
         data = HttpClientRequest.doGet(service + "getMockTracers").getData();
         mockSpans = new Gson().fromJson(data, type);
 
-        Assert.assertEquals(mockSpans.size(), 64, "Mismatch in number of spans reported.");
-    }
-
-    @Test
-    public void testOOTBTracingForUserDefinedFunctions() throws Exception {
-        final String service = "http://localhost:9090/echoService/";
-        HttpClientRequest.doGet(service + "resourceOne");
-        Thread.sleep(1000);
-        Type type = new TypeToken<List<BMockSpan>>() {
-        }.getType();
-        String data = HttpClientRequest.doGet(service + "getMockTracers").getData();
-        List<BMockSpan> mockSpans = new Gson().fromJson(data, type);
-
-        // 1. echoService0__service_0 -> resourceOne (Root Span)
-        // 2. echoService0__service_0 -> ballerina/http/Client:get
-        // 3. echoService0__service_0 -> ballerina/http/HttpClient:get
-        // 4. echoService0__service_0 -> resourceTwo
-        // 5. echoService0__service_0 -> default:sayHelloWorld2
-        // 6. echoService0__service_0 -> ballerina/http/Caller:respond
-        // 7. echoService0__service_0 -> default:sayHelloWorld
-        // 8. echoService0__service_0 -> ballerina/http/Caller:respond
-        Assert.assertEquals(mockSpans.size(), 8, "Mismatch in number of spans reported.");
-        Assert.assertEquals(mockSpans.stream()
-                .filter(bMockSpan -> bMockSpan.getParentId() == 0).count(), 1, "Mismatch in number of root spans.");
+        Assert.assertEquals(mockSpans.size(), 74, "Mismatch in number of spans reported.");
     }
 
     private static void copyFile(File source, File dest) throws IOException {

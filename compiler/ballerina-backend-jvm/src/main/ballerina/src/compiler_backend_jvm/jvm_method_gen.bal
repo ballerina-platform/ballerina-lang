@@ -101,14 +101,14 @@ function genJMethodForBFunc(bir:Function func,
     boolean isObserved = false;
     boolean isWorker = (func.flags & bir:WORKER) == bir:WORKER;
     boolean isRemote = (func.flags & bir:REMOTE) == bir:REMOTE;
-    boolean isOberveAnnotaed = false;
+    boolean isObserveAnnotated = false;
     foreach var attachment in func.annotAttachments {
         if (attachment is bir:AnnotationAttachment && attachment.annotTagRef.value == OBSERVABLE_ANOT_NAME) {
-            isOberveAnnotaed = true;
+            isObserveAnnotated = true;
             break;
         }
     }
-    if ((isService || isRemote || isWorker || isOberveAnnotaed) && funcName != "__init" && funcName != "$__init$") {
+    if ((isService || isRemote || isWorker || isObserveAnnotated) && funcName != "__init" && funcName != "$__init$") {
         // create try catch block to start and stop observability.
         isObserved = true;
         tryStart = labelGen.getLabel("try-start");
