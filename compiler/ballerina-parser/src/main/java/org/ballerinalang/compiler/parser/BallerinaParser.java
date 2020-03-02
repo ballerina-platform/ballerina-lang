@@ -212,12 +212,13 @@ public class BallerinaParser {
     private void parseTopLevelNodeWithModifier(TokenKind tokenKind) {
         switch (tokenKind) {
             case PUBLIC:
-                parseModifier();
-                tokenKind = peek().kind;
-                break;
+                parsePreValidatedModifier();
+                parseTopLevelNode();
+                return;
             case FUNCTION:
                 this.listner.addEmptyModifier();
-                break;
+                parseTopLevelNode(tokenKind);
+                return;
             default:
                 Token token = peek();
                 Solution solution = recover(token, ParserRuleContext.TOP_LEVEL_NODE_WITH_MODIFIER);
@@ -231,8 +232,6 @@ public class BallerinaParser {
 
                 return;
         }
-
-        parseTopLevelNode(tokenKind);
     }
 
     /**
@@ -271,13 +270,10 @@ public class BallerinaParser {
     /**
      * Parse access modifiers.
      */
-    private void parseModifier() {
-        Token token = peek();
-        if (token.kind == TokenKind.PUBLIC) {
-            this.listner.exitModifier(consume()); // public keyword
-        } else {
-            recover(token, ParserRuleContext.PUBLIC);
-        }
+    private void parsePreValidatedModifier() {
+        // We always call this method after checking the token.
+        // Hence no need to validate the token kind here again.
+        this.listner.exitModifier(consume()); // public keyword
     }
 
     /**
@@ -298,15 +294,31 @@ public class BallerinaParser {
         revertContext();
     }
 
+    /**
+     * Parse function keyword. Need to validate the token before consuming,
+     * since we can reach here while recovering.
+     */
     private void parseFunctionKeyword() {
         Token token = peek();
         if (token.kind == TokenKind.FUNCTION) {
-            this.listner.exitSyntaxNode(consume()); // function keyword
+            parseSyntaxNode();
         } else {
             recover(token, ParserRuleContext.FUNCTION_KEYWORD);
         }
     }
 
+    /**
+     * Parse a syntax node. This method assumes the validity of the token
+     * is checked prior to calling this method. Therfore this will not
+     * do any validations.
+     */
+    private void parseSyntaxNode() {
+        this.listner.exitSyntaxNode(consume());
+    }
+
+    /**
+     * Parse function name.
+     */
     private void parseFunctionName() {
         Token token = peek();
         if (token.kind == TokenKind.IDENTIFIER) {
@@ -340,7 +352,7 @@ public class BallerinaParser {
     private void parseOpenParenthesis() {
         Token token = peek();
         if (token.kind == TokenKind.OPEN_PARENTHESIS) {
-            this.listner.exitSyntaxNode(consume()); // (
+            parseSyntaxNode();
         } else {
             recover(token, ParserRuleContext.OPEN_PARENTHESIS);
         }
@@ -352,7 +364,7 @@ public class BallerinaParser {
     private void parseCloseParenthesis() {
         Token token = peek();
         if (token.kind == TokenKind.CLOSE_PARENTHESIS) {
-            this.listner.exitSyntaxNode(consume()); // )
+            parseSyntaxNode();
         } else {
             recover(token, ParserRuleContext.CLOSE_PARENTHESIS);
         }
@@ -417,29 +429,41 @@ public class BallerinaParser {
         Token token = peek();
 
         if (token.kind == TokenKind.PUBLIC) {
-            parseModifier();
+            parsePreValidatedModifier();
+            token = peek();
         }
 
-        parseTypeDescriptor();
+        parseTypeDescriptor(token.kind);
 
         // Rest Parameter
         token = peek();
         if (token.kind == TokenKind.ELLIPSIS) {
-            this.listner.exitSyntaxNode(consume());
+            parseSyntaxNode(); // parse '...'
             parseVariableName();
             this.listner.exitRestParameter();
             return;
         }
 
-        parseVariableName();
+        parseVariableName(token.kind);
         parseParameterRhs();
     }
 
+    /**
+     * <p>
+     * Parse the right hand side of a required/defaultable parameter.
+     * </p>
+     * <code>parameter-rhs := [= expression]</code>
+     */
     private void parseParameterRhs() {
         Token token = peek();
         parseParameterRhs(token.kind);
     }
 
+    /**
+     * Parse the right hand side of a required/defaultable parameter, given the next token kind.
+     * 
+     * @param tokenKind Next token kind
+     */
     private void parseParameterRhs(TokenKind tokenKind) {
         // Required parameters
         if (isEndOfParameter(tokenKind)) {
@@ -447,7 +471,7 @@ public class BallerinaParser {
             return;
         } else if (tokenKind == TokenKind.ASSIGN) {
             // Defaultable parameters
-            parseAssignOp();
+            parsePreValidatedAssignOp();
             parseExpression();
             this.listner.exitDefaultableParameter();
         } else {
@@ -471,7 +495,7 @@ public class BallerinaParser {
     private void parseFollowUpParameter() {
         Token token = peek();
         if (token.kind == TokenKind.COMMA) {
-            parseComma();
+            parsePreValidatedComma();
         } else {
             Solution solution = recover(token, ParserRuleContext.FOLLOW_UP_PARAM);
 
@@ -490,18 +514,15 @@ public class BallerinaParser {
     /**
      * Parse comma.
      */
-    private void parseComma() {
-        Token token = peek();
-        if (token.kind == TokenKind.COMMA) {
-            this.listner.exitSyntaxNode(consume()); // parse ","
-        } else {
-            recover(token, ParserRuleContext.COMMA);
-        }
+    private void parsePreValidatedComma() {
+        parseSyntaxNode();
     }
 
     /**
-     * @param token
-     * @return
+     * Check whether the given token is an end of a parameter.
+     * 
+     * @param token Next token kind
+     * @return <code>true</code> if the token represents an end of a parameter. <code>false</code> otherwise
      */
     private boolean isEndOfParameter(TokenKind tokenKind) {
         switch (tokenKind) {
@@ -520,6 +541,12 @@ public class BallerinaParser {
         }
     }
 
+    /**
+     * Check whether the given token is an end of a parameter-list.
+     * 
+     * @param token Next token kind
+     * @return <code>true</code> if the token represents an end of a parameter-list. <code>false</code> otherwise
+     */
     private boolean isEndOfParametersList(Token token) {
         switch (token.kind) {
             case CLOSE_BRACE:
@@ -548,7 +575,7 @@ public class BallerinaParser {
         // If the return type is not present, simply return
         Token token = peek();
         if (token.kind == TokenKind.RETURNS) {
-            this.listner.exitSyntaxNode(consume()); // 'returns' keyword
+            parseSyntaxNode();
         } else {
             this.listner.addEmptyNode();
             return;
@@ -584,21 +611,42 @@ public class BallerinaParser {
      */
     private void parseTypeDescriptor() {
         Token token = peek();
-        switch (token.kind) {
+        parseTypeDescriptor(token.kind);
+    }
+
+    /**
+     * <p>
+     * Parse a type descriptor, given the next token kind.
+     * </p>
+     * 
+     * @param tokenKind Next token kind
+     */
+    private void parseTypeDescriptor(TokenKind tokenKind) {
+        switch (tokenKind) {
             case TYPE:
             case IDENTIFIER:
                 this.listner.exitTypeDescriptor(consume()); // type descriptor
                 break;
             default:
-                recover(token, ParserRuleContext.TYPE_DESCRIPTOR);
-                break;
+                Token token = peek();
+                Solution solution = recover(token, ParserRuleContext.TYPE_DESCRIPTOR);
+
+                // If the parser recovered by inserting a token, then try to re-parse the same
+                // rule with the inserted token token. This is done to pick the correct branch
+                // to continue the parsing.
+
+                if (solution.action != Action.INSERT) {
+                    break;
+                }
+
+                parseTypeDescriptor(solution.tokenKind);
         }
 
         // TODO: only supports built-in/user-defined types. Add others.
     }
 
     /**
-     * 
+     * Parse annotation attachments.
      */
     private void parseAnnotations() {
         // TODO
@@ -715,12 +763,23 @@ public class BallerinaParser {
      */
     private void parseVariableName() {
         Token token = peek();
-        if (token.kind == TokenKind.IDENTIFIER) {
-            this.listner.exitIdentifier(consume()); // variable name
+        parseVariableName(token.kind);
+    }
+
+    /**
+     * Parse variable name.
+     */
+    private void parseVariableName(TokenKind tokenKind) {
+        if (tokenKind == TokenKind.IDENTIFIER) {
+            parsePreValidatedVariableName();
             return;
         } else {
-            recover(token, ParserRuleContext.VARIABLE_NAME);
+            recover(peek(), ParserRuleContext.VARIABLE_NAME);
         }
+    }
+
+    private void parsePreValidatedVariableName() {
+        this.listner.exitIdentifier(consume()); // variable name
     }
 
     /**
@@ -729,7 +788,7 @@ public class BallerinaParser {
     private void parseOpenBrace() {
         Token token = peek();
         if (token.kind == TokenKind.OPEN_BRACE) {
-            this.listner.exitSyntaxNode(consume()); // {
+            parseSyntaxNode();
         } else {
             recover(token, ParserRuleContext.OPEN_BRACE);
         }
@@ -741,7 +800,7 @@ public class BallerinaParser {
     private void parseCloseBrace() {
         Token token = peek();
         if (token.kind == TokenKind.CLOSE_BRACE) {
-            this.listner.exitSyntaxNode(consume()); // }
+            parseSyntaxNode();
         } else {
             recover(token, ParserRuleContext.CLOSE_BRACE);
         }
@@ -771,7 +830,7 @@ public class BallerinaParser {
     private void parseStatementEnd() {
         Token token = peek();
         if (token.kind == TokenKind.SEMICOLON) {
-            this.listner.exitSyntaxNode(consume()); // ';'
+            parseSyntaxNode();
         } else {
             recover(token, ParserRuleContext.SEMICOLON);
         }
@@ -783,7 +842,7 @@ public class BallerinaParser {
     private void parseExternalKeyword() {
         Token token = peek();
         if (token.kind == TokenKind.EXTERNAL) {
-            this.listner.exitSyntaxNode(consume()); // 'external' keyword
+            parseSyntaxNode();
         } else {
             recover(token, ParserRuleContext.EXTERNAL_KEYWORD);
         }
@@ -803,6 +862,13 @@ public class BallerinaParser {
         } else {
             recover(token, ParserRuleContext.ASSIGN_OP);
         }
+    }
+
+    /**
+     * Parse assign operator.
+     */
+    private void parsePreValidatedAssignOp() {
+        this.listner.exitOperator(consume()); // =
     }
 
     /**
@@ -988,7 +1054,7 @@ public class BallerinaParser {
     private void parseVarDeclRhs(TokenKind tokenKind) {
         switch (tokenKind) {
             case ASSIGN:
-                parseAssignOp();
+                parsePreValidatedAssignOp();
                 parseExpression();
                 parseStatementEnd();
                 this.listner.exitVarDefStmt(true);
@@ -1040,7 +1106,7 @@ public class BallerinaParser {
     private void parseAssignmentOrVarDeclRhs(TokenKind tokenKind) {
         switch (tokenKind) {
             case IDENTIFIER:
-                parseVariableName();
+                parsePreValidatedVariableName();
                 parseVarDeclRhs();
                 break;
             case ASSIGN:
@@ -1122,7 +1188,7 @@ public class BallerinaParser {
                 parseLiteral();
                 break;
             case IDENTIFIER:
-                parseVariableName();
+                parsePreValidatedVariableName();
                 break;
             case OPEN_PARENTHESIS:
                 parseBracedExpression();
