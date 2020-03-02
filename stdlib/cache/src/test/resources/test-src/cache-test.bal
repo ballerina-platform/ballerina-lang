@@ -29,7 +29,7 @@ function testCreateCache() returns int {
     return cache.size();
 }
 
-function testPut(string key, string value) returns int {
+function testPutNewEntry(string key, string value) returns int {
     cache:CacheConfig config = {
         capacity: 10,
         evictionPolicy: cache:LRU,
@@ -38,6 +38,18 @@ function testPut(string key, string value) returns int {
     cache:Cache cache = new(config);
     cache.put(key, value);
     return cache.size();
+}
+
+function testPutExistingEntry(string key, string value) returns [int, string] {
+    cache:CacheConfig config = {
+        capacity: 10,
+        evictionPolicy: cache:LRU,
+        evictionFactor: 0.2
+    };
+    cache:Cache cache = new(config);
+    cache.put(key, "Random value");
+    cache.put(key, value);
+    return [cache.size(), <string>cache.get(key)];
 }
 
 function testPutWithMaxAge(string key, string value, int maxAge) returns int {
@@ -52,7 +64,7 @@ function testPutWithMaxAge(string key, string value, int maxAge) returns int {
     return cache.size();
 }
 
-function testGetExistingValue(string key, string value) returns string {
+function testGetExistingEntry(string key, string value) returns string {
     cache:CacheConfig config = {
         capacity: 10,
         evictionPolicy: cache:LRU,
@@ -63,7 +75,7 @@ function testGetExistingValue(string key, string value) returns string {
     return <string>cache.get(key);
 }
 
-function testGetNonExistingValue(string key) returns any? {
+function testGetNonExistingEntry(string key) returns any? {
     cache:CacheConfig config = {
         capacity: 10,
         evictionPolicy: cache:LRU,
@@ -73,7 +85,7 @@ function testGetNonExistingValue(string key) returns any? {
     return cache.get(key);
 }
 
-function testGetExpiredValue(string key, string value) returns any? {
+function testGetExpiredEntry(string key, string value) returns any? {
     cache:CacheConfig config = {
         capacity: 10,
         evictionPolicy: cache:LRU,

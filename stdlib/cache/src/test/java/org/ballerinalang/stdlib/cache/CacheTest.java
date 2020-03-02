@@ -60,15 +60,29 @@ public class CacheTest {
     }
 
     @Test
-    public void testPut() {
+    public void testPutNewEntry() {
         String key = "Hello";
         String value = "Ballerina";
         BValue[] args = new BValue[2];
         args[0] = new BString(key);
         args[1] = new BString(value);
-        BValue[] returns = BRunUtil.invoke(compileResult, "testPut", args);
+        BValue[] returns = BRunUtil.invoke(compileResult, "testPutNewEntry", args);
         Assert.assertTrue(returns[0] instanceof BInteger);
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
+    }
+
+    @Test
+    public void testPutExistingEntry() {
+        String key = "Hello";
+        String value = "Ballerina";
+        BValue[] args = new BValue[2];
+        args[0] = new BString(key);
+        args[1] = new BString(value);
+        BValue[] returns = BRunUtil.invoke(compileResult, "testPutExistingEntry", args);
+        Assert.assertTrue(returns[0] instanceof BInteger);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
+        Assert.assertTrue(returns[1] instanceof BString);
+        Assert.assertEquals(returns[1].stringValue(), value);
     }
 
     @Test
@@ -92,7 +106,7 @@ public class CacheTest {
         BValue[] args = new BValue[2];
         args[0] = new BString(key);
         args[1] = new BString(value);
-        BValue[] returns = BRunUtil.invoke(compileResult, "testGetExistingValue", args);
+        BValue[] returns = BRunUtil.invoke(compileResult, "testGetExistingEntry", args);
         Assert.assertTrue(returns[0] instanceof BString);
         Assert.assertEquals(returns[0].stringValue(), "Ballerina");
     }
@@ -102,7 +116,7 @@ public class CacheTest {
         String key = "Hello";
         BValue[] args = new BValue[1];
         args[0] = new BString(key);
-        BValue[] returns = BRunUtil.invoke(compileResult, "testGetNonExistingValue", args);
+        BValue[] returns = BRunUtil.invoke(compileResult, "testGetNonExistingEntry", args);
         Assert.assertNull(returns[0]);
     }
 
@@ -113,7 +127,7 @@ public class CacheTest {
         BValue[] args = new BValue[2];
         args[0] = new BString(key);
         args[1] = new BString(value);
-        BValue[] returns = BRunUtil.invoke(compileResult, "testGetExpiredValue", args);
+        BValue[] returns = BRunUtil.invoke(compileResult, "testGetExpiredEntry", args);
         Assert.assertNull(returns[0]);
     }
 

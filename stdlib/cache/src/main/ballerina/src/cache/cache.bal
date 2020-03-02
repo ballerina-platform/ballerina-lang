@@ -162,14 +162,14 @@ public type Cache object {
                 data: value,
                 expTime: calculatedExpTime
             };
+            Node newNode = { value: entry };
 
             if (self.hasKey(key)) {
                 Node node = self.entries.get(key);
-                putOnEvictionPolicy(self.evictionPolicy, self.list, node, true);
-                return;
+                putOnEvictionPolicy(self.evictionPolicy, self.list, newNode, node);
+            } else {
+                putOnEvictionPolicy(self.evictionPolicy, self.list, newNode);
             }
-            Node newNode = { value: entry };
-            putOnEvictionPolicy(self.evictionPolicy, self.list, newNode, false);
             self.entries[key] = newNode;
         }
     }
@@ -274,18 +274,16 @@ function evict(map<Node> entries, LinkedList list, EvictionPolicy evictionPolicy
     }
 }
 
-function putOnEvictionPolicy(EvictionPolicy evictionPolicy, LinkedList list, Node node, boolean alreadyAvailable) {
+function putOnEvictionPolicy(EvictionPolicy evictionPolicy, LinkedList list, Node newNode, Node? oldNode = ()) {
     match (evictionPolicy) {
         LRU => {
-            if (alreadyAvailable) {
-                remove(list, node);
-                addFirst(list, node);
-                return;
+            if (!(oldNode is ())) {
+                remove(list, oldNode);
             }
-            addFirst(list, node);
+            addFirst(list, newNode);
         }
         FIFO => {
-            addFirst(list, node);
+            addFirst(list, newNode);
         }
     }
 }
