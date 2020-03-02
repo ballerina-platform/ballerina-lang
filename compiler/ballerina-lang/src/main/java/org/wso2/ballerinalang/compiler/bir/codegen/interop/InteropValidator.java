@@ -17,6 +17,7 @@
  */
 package org.wso2.ballerinalang.compiler.bir.codegen.interop;
 
+import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 
 import java.lang.reflect.Field;
@@ -43,17 +44,14 @@ public class InteropValidator {
      * @return validated and linked java method representation
      */
     JMethod validateAndGetJMethod(InteropValidationRequest.MethodValidationRequest methodValidationRequest) {
-        try {
-            // Populate JMethodRequest from the BValue
-            JMethodRequest jMethodRequest = JMethodRequest.build(methodValidationRequest, classLoader);
+        // Populate JMethodRequest from the BValue
+        JMethodRequest jMethodRequest = JMethodRequest.build(methodValidationRequest, classLoader);
 
-            // Find the most specific Java method or constructor for the given request
-            JMethodResolver methodResolver = new JMethodResolver(classLoader, symbolTable);
+        // Find the most specific Java method or constructor for the given request
+        JMethodResolver methodResolver = new JMethodResolver(classLoader, symbolTable);
 
-            return methodResolver.resolve(jMethodRequest);
-        } catch (JInteropException e) {
-            throw JInterop.createJInteropError(e.getReason(), e.getMessage());
-        }
+        return methodResolver.resolve(jMethodRequest);
+
     }
 
     /**
@@ -63,27 +61,23 @@ public class InteropValidator {
      * @return validated and linked java field representation
      */
     JavaField validateAndGetJField(InteropValidationRequest.FieldValidationRequest fieldValidationRequest) {
+        // 1) Load Java class  - validate
+        JFieldMethod method = fieldValidationRequest.fieldMethod;
+        String className = fieldValidationRequest.klass;
+        Class clazz = JInterop.loadClass(className, classLoader);
+
+        // 2) Load Java method details - use the method kind in the request - validate kind and the existence of the
+        // method. Possible there may be more than one methods for the given kind and the name
+        String fieldName = fieldValidationRequest.name;
+        JavaField javaField;
         try {
-            // 1) Load Java class  - validate
-            JFieldMethod method = fieldValidationRequest.fieldMethod;
-            String className = fieldValidationRequest.klass;
-            Class clazz = JInterop.loadClass(className, classLoader);
-
-            // 2) Load Java method details - use the method kind in the request - validate kind and the existence of the
-            // method. Possible there may be more than one methods for the given kind and the name
-            String fieldName = fieldValidationRequest.name;
-            JavaField javaField;
-            try {
-                Field field = clazz.getField(fieldName);
-                javaField = new JavaField(method, field);
-            } catch (NoSuchFieldException e) {
-                throw new JInteropException(JInteropException.FIELD_NOT_FOUND_REASON, "No such field '" + fieldName +
-                        "' found in class '" + className + "'");
-            }
-
-            return javaField;
-        } catch (JInteropException e) {
-            throw JInterop.createJInteropError(e.getReason(), e.getMessage());
+            Field field = clazz.getField(fieldName);
+            javaField = new JavaField(method, field);
+        } catch (NoSuchFieldException e) {
+            throw new JInteropException(DiagnosticCode.FIELD_NOT_FOUND, "No such field '" + fieldName +
+                    "' found in class '" + className + "'");
         }
+
+        return javaField;
     }
 }

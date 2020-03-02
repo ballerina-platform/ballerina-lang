@@ -17,35 +17,28 @@
  */
 package org.wso2.ballerinalang.compiler.bir.codegen.interop;
 
+import org.ballerinalang.util.diagnostic.DiagnosticCode;
+
 /**
  * This error indicates Ballerina Java interoperability related error.
  *
  * @since 1.0.0
  */
-class JInteropException extends RuntimeException {
+public class JInteropException extends RuntimeException {
 
-    static final String CLASS_NOT_FOUND_REASON = "CLASS_NOT_FOUND";
-    static final String METHOD_NOT_FOUND_REASON = "METHOD_NOT_FOUND";
-    static final String CONSTRUCTOR_NOT_FOUND_REASON = "CONSTRUCTOR_NOT_FOUND";
-    static final String FIELD_NOT_FOUND_REASON = "FIELD_NOT_FOUND";
-    static final String OVERLOADED_METHODS_REASON = "OVERLOADED_METHODS";
-    static final String UNSUPPORTED_PRIMITIVE_TYPE_REASON = "UNSUPPORTED_PRIMITIVE_TYPE";
-    static final String METHOD_SIGNATURE_NOT_MATCH_REASON = "METHOD_SIGNATURE_DOES_NOT_MATCH";
-    static final String CLASS_LOADER_INIT_FAILED_REASON = "CLASS_LOADER_INIT_FAILED";
+    private DiagnosticCode code;
 
-    private String reason;
-
-    JInteropException(String reason, String message) {
+    JInteropException(DiagnosticCode code, String message) {
         super(message);
-        this.reason = reason;
+        this.code = code;
     }
 
-    JInteropException(String reason, String message, Throwable cause) {
+    JInteropException(DiagnosticCode reason, String message, Throwable cause) {
         super(message, cause);
-        this.reason = reason;
+        this.code = reason;
     }
 
-    String getReason() {
-        return this.reason;
+    public DiagnosticCode getCode() {
+        return this.code;
     }
 }

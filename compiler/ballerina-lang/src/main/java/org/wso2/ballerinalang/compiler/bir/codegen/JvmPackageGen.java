@@ -27,6 +27,7 @@ import org.objectweb.asm.MethodTooLargeException;
 import org.objectweb.asm.MethodVisitor;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmValueGen.ObjectGenerator;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.InteropValidator;
+import org.wso2.ballerinalang.compiler.bir.codegen.interop.JInteropException;
 import org.wso2.ballerinalang.compiler.bir.model.BIRInstruction;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRFunction;
@@ -800,25 +801,23 @@ public class JvmPackageGen {
                     }
                 }
 
-                BIRFunctionWrapper birFuncWrapperOrError;
-                if (isExternFunc(getFunction(birFunc))) {
-                    birFuncWrapperOrError = createExternalFunctionWrapper(interopValidator, birFunc, orgName,
-                            moduleName, version, birModuleClassName);
-                } else {
-                    if (isEntry) {
-                        addDefaultableBooleanVarsToSignature(birFunc);
+                BIRFunctionWrapper birFuncWrapperOrError = null;
+                try {
+                    if (isExternFunc(getFunction(birFunc))) {
+                        birFuncWrapperOrError = createExternalFunctionWrapper(interopValidator, birFunc, orgName,
+                                                                              moduleName, version, birModuleClassName);
+                    } else {
+                        if (isEntry) {
+                            addDefaultableBooleanVarsToSignature(birFunc);
+                        }
+                        birFuncWrapperOrError = getFunctionWrapper(birFunc, orgName, moduleName, version,
+                                                                   birModuleClassName);
                     }
-                    birFuncWrapperOrError = getFunctionWrapper(birFunc, orgName, moduleName, version,
-                            birModuleClassName);
+                } catch (JInteropException e) {
+                    CodeGenerator.dlog.error(birFunc.pos, e.getCode(), e.getMessage());
+                    continue;
                 }
-
-                if (birFuncWrapperOrError == null) {
-                    // todo handle error
-//                    dlogger.logError(birFuncWrapperOrError, birFunc.pos, module);
-//                    continue;
-                } else {
-                    birFunctionMap.put(pkgName + birFuncName, birFuncWrapperOrError);
-                }
+                birFunctionMap.put(pkgName + birFuncName, birFuncWrapperOrError);
             }
         }
 
