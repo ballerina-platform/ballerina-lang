@@ -114,6 +114,11 @@ function foo(int a, int b = 7 8, int c, string... d) {
     int y = 6;
 }
 
+function foo(int a, int b = 7, int c, string... d, int f 5, int g) {
+    int x = 4
+    int y = 6;
+}
+
 function foo() {
     Bar b = 5;
 }

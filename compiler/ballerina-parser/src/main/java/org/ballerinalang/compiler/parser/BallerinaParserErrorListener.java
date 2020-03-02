@@ -40,6 +40,10 @@ public class BallerinaParserErrorListener {
         logError(token.line, token.endCol, message);
     }
 
+    public void reportInvalidNodeError(Token token, String message) {
+        logError(token.line, token.endCol, message);
+    }
+    
     private void logError(int line, int col, String message) {
         PrintStream out = System.out;
         out.println("xxx.bal:" + line + ":" + col + ":" + message);

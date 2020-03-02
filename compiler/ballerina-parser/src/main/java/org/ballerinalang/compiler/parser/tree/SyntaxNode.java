@@ -21,10 +21,11 @@ import org.ballerinalang.compiler.parser.Token;
 
 public class SyntaxNode extends ASTNode {
 
-    Token value;
+    public Token value;
 
     public SyntaxNode(Token text) {
         this.value = text;
+        this.kind = NodeKind.SYNTAX;
     }
 
     @Override

@@ -20,6 +20,7 @@ package org.ballerinalang.compiler.parser.tree;
 import org.ballerinalang.compiler.parser.Token;
 
 public class IdentifierNode extends ASTNode {
+
     Token value;
 
     public IdentifierNode(Token text) {
@@ -29,6 +30,6 @@ public class IdentifierNode extends ASTNode {
 
     @Override
     public String toString() {
-        return value.text;
+        return this.value.text;
     }
 }

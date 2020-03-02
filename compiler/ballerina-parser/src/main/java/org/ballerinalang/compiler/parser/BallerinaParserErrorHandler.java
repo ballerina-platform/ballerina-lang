@@ -31,7 +31,7 @@ import java.util.List;
  * tried out for such errors. Once all possible paths are discovered, pick the optimal combination that leads to the
  * best recovery. Finally, apply the best solution and continue the parsing.
  * </p>
- * e.g.: 
+ * e.g.:
  * If the best combination of fixes was <code>[insert, insert, remove, remove]</code>, then apply only the first
  * fix and continue.
  * <ul>
@@ -96,6 +96,15 @@ public class BallerinaParserErrorHandler {
 
     public void popContext() {
         this.ctxStack.pop();
+    }
+
+    public void switchContext(ParserRuleContext context) {
+        this.ctxStack.pop();
+        this.ctxStack.push(context);
+    }
+
+    public void reportInvalidNode(Token startingToken, String message) {
+        this.errorListener.reportInvalidNodeError(startingToken, message);
     }
 
     private ParserRuleContext getParentContext() {
@@ -404,7 +413,7 @@ public class BallerinaParserErrorHandler {
                     // Binary expr rhs can be either the end of the expression or can be (binary-op expression).
                     ParserRuleContext parentCtx = getParentContext();
                     ParserRuleContext exprEndCtx;
-                    if (parentCtx == ParserRuleContext.PARAM_LIST) {
+                    if (isParameter(parentCtx)) {
                         exprEndCtx = ParserRuleContext.COMMA;
                     } else {
                         exprEndCtx = ParserRuleContext.SEMICOLON;
@@ -415,7 +424,17 @@ public class BallerinaParserErrorHandler {
                     hasMatch = nextToken.kind == TokenKind.COMMA;
                     break;
                 case PARAMETER_RHS:
-                    return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount, PARAMETER_RHS);
+                    parentCtx = getParentContext();
+                    switch (parentCtx) {
+                        case REQUIRED_PARAM:
+                            return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount, PARAMETER_RHS);
+                        case DEFAULTABLE_PARAM:
+                        case REST_PARAM:
+                            skipRule = true;
+                            break;
+                        default:
+                            throw new IllegalStateException();
+                    }
                 case TYPE_OR_VAR_NAME:
                     return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount, TYPE_OR_VAR_NAME);
                 case ASSIGNMENT_OR_VAR_DECL_STMT_RHS:
@@ -431,7 +450,7 @@ public class BallerinaParserErrorHandler {
                 case ASSIGNMENT_STMT:
                 case VAR_DECL_STMT:
                 case PARAM_LIST:
-                case PARAMETER:
+                case REQUIRED_PARAM:
                 default:
                     // Stay at the same place
                     skipRule = true;
@@ -534,7 +553,7 @@ public class BallerinaParserErrorHandler {
                 // Here we assume the end of an expression is always a semicolon
                 // TODO: add other types of expression-end
                 ParserRuleContext parentCtx = getParentContext();
-                if (parentCtx == ParserRuleContext.PARAM_LIST) {
+                if (isParameter(parentCtx)) {
                     nextContext = ParserRuleContext.COMMA;
                 } else if (isStatement(parentCtx)) {
                     nextContext = ParserRuleContext.SEMICOLON;
@@ -727,7 +746,9 @@ public class BallerinaParserErrorHandler {
             case VAR_DECL_STMT:
             case ASSIGNMENT_STMT:
             case PARAM_LIST:
-                // case PARAMETER:
+            case REQUIRED_PARAM:
+            case DEFAULTABLE_PARAM:
+            case REST_PARAM:
                 // case EXPRESSION:
                 pushContext(currentCtx);
                 break;
@@ -763,7 +784,8 @@ public class BallerinaParserErrorHandler {
                 parentCtx = getParentContext();
                 if (parentCtx == ParserRuleContext.EXTERNAL_FUNC_BODY) {
                     return ParserRuleContext.EXTERNAL_KEYWORD;
-                } else if (isStatement(parentCtx) || parentCtx == ParserRuleContext.PARAM_LIST) {
+                } else if (isStatement(parentCtx) || parentCtx == ParserRuleContext.REQUIRED_PARAM ||
+                        parentCtx == ParserRuleContext.DEFAULTABLE_PARAM) {
                     return ParserRuleContext.EXPRESSION;
                 } else {
                     throw new IllegalStateException();
@@ -777,13 +799,17 @@ public class BallerinaParserErrorHandler {
                     throw new IllegalStateException();
                 }
             case CLOSE_PARENTHESIS:
+                if (isParameter(getParentContext())) {
+                    popContext(); // end parameter
+                    popContext(); // end parameter-list
+                }
                 popContext(); // end func signature
                 return ParserRuleContext.FUNC_BODY;
             case EXPRESSION:
                 nextToken = this.tokenReader.peek(nextLookahead);
                 if (isEndOfExpression(nextToken)) {
                     parentCtx = getParentContext();
-                    if (parentCtx == ParserRuleContext.PARAM_LIST) {
+                    if (isParameter(parentCtx)) {
                         return ParserRuleContext.COMMA;
                     } else if (isStatement(parentCtx)) {
                         return ParserRuleContext.SEMICOLON;
@@ -819,7 +845,7 @@ public class BallerinaParserErrorHandler {
                 if (isEndOfParametersList(nextToken)) {
                     return ParserRuleContext.CLOSE_PARENTHESIS;
                 }
-                return ParserRuleContext.PARAMETER;
+                return ParserRuleContext.REQUIRED_PARAM;
             case RETURNS_KEYWORD:
                 if (this.tokenReader.peek(nextLookahead).kind != TokenKind.RETURNS) {
                     // If there are no matches in the optional rule, then continue from the
@@ -850,7 +876,7 @@ public class BallerinaParserErrorHandler {
                 }
             case TYPE_DESCRIPTOR:
                 parentCtx = getParentContext();
-                if (isStatement(parentCtx) || parentCtx == ParserRuleContext.PARAM_LIST) {
+                if (isStatement(parentCtx) || isParameter(parentCtx)) {
                     return ParserRuleContext.VARIABLE_NAME;
                 } else if (parentCtx == ParserRuleContext.RETURN_TYPE_DESCRIPTOR) {
                     return ParserRuleContext.FUNC_BODY;
@@ -858,13 +884,23 @@ public class BallerinaParserErrorHandler {
                     throw new IllegalStateException();
                 }
             case VARIABLE_NAME:
+            case PARAMETER_RHS:
                 nextToken = this.tokenReader.peek(nextLookahead);
                 parentCtx = getParentContext();
-                if (parentCtx == ParserRuleContext.PARAM_LIST) {
+                if (parentCtx == ParserRuleContext.REQUIRED_PARAM) {
                     if (isEndOfParametersList(nextToken)) {
                         return ParserRuleContext.CLOSE_PARENTHESIS;
                     } else if (isEndOfParameter(nextToken)) {
                         return ParserRuleContext.COMMA;
+                    } else {
+                        // Currently processing a required param, but now switch
+                        // to a defaultable param
+                        switchContext(ParserRuleContext.DEFAULTABLE_PARAM);
+                        return ParserRuleContext.ASSIGN_OP;
+                    }
+                } else if (parentCtx == ParserRuleContext.DEFAULTABLE_PARAM) {
+                    if (isEndOfParametersList(nextToken)) {
+                        return ParserRuleContext.CLOSE_PARENTHESIS;
                     } else {
                         return ParserRuleContext.ASSIGN_OP;
                     }
@@ -881,9 +917,12 @@ public class BallerinaParserErrorHandler {
                 return ParserRuleContext.FUNC_DEFINITION;
             case FUNC_BODY:
                 return ParserRuleContext.TOP_LEVEL_NODE;
-            case PARAMETER:
+            case REQUIRED_PARAM:
+            case DEFAULTABLE_PARAM:
+            case REST_PARAM:
                 nextToken = this.tokenReader.peek(nextLookahead);
                 if (isEndOfParametersList(nextToken)) {
+                    popContext();
                     return ParserRuleContext.CLOSE_PARENTHESIS;
                 }
                 return ParserRuleContext.TYPE_DESCRIPTOR;
@@ -897,11 +936,16 @@ public class BallerinaParserErrorHandler {
                 return ParserRuleContext.EXPRESSION;
             case COMMA:
                 parentCtx = getParentContext();
-                if (parentCtx == ParserRuleContext.PARAM_LIST) {
-                    return ParserRuleContext.PARAMETER;
+                switch (parentCtx) {
+                    case PARAM_LIST:
+                    case REQUIRED_PARAM:
+                    case DEFAULTABLE_PARAM:
+                    case REST_PARAM:
+                        popContext();
+                        return parentCtx;
+                    default:
+                        throw new IllegalStateException();
                 }
-
-                throw new IllegalStateException();
             case FOLLOW_UP_PARAM:
                 return ParserRuleContext.COMMA;
             case ANNOTATION_ATTACHMENT:
@@ -961,6 +1005,17 @@ public class BallerinaParserErrorHandler {
         }
     }
 
+    private boolean isParameter(ParserRuleContext ctx) {
+        switch (ctx) {
+            case REQUIRED_PARAM:
+            case DEFAULTABLE_PARAM:
+            case REST_PARAM:
+                return true;
+            default:
+                return false;
+        }
+    }
+
     /**
      * Get the expected token kind at the given parser rule context. If the parser rule is a terminal,
      * then the corresponding terminal token kind is returned. If the parser rule is a production,
@@ -998,9 +1053,12 @@ public class BallerinaParserErrorHandler {
             case SEMICOLON:
                 return TokenKind.SEMICOLON;
             case VARIABLE_NAME:
+            case TYPE_OR_VAR_NAME:
                 return TokenKind.IDENTIFIER;
             case PUBLIC:
                 return TokenKind.PUBLIC;
+            case TYPE_DESCRIPTOR:
+                return TokenKind.TYPE;
             case ANNOTATION_ATTACHMENT:
             case ASSIGNMENT_STMT:
             case BINARY_EXPR_RHS:
@@ -1011,17 +1069,17 @@ public class BallerinaParserErrorHandler {
             case FUNC_BODY_BLOCK:
             case FUNC_DEFINITION:
             case FUNC_SIGNATURE:
-            case PARAMETER:
+            case REQUIRED_PARAM:
             case PARAM_LIST:
             case RETURN_TYPE_DESCRIPTOR:
             case STATEMENT:
             case TOP_LEVEL_NODE:
-            case TYPE_DESCRIPTOR:
             case VAR_DECL_STMT:
             case VAR_DECL_STMT_RHS:
             case VAR_DECL_STMT_RHS_VALUE:
             case PARAMETER_RHS:
             case TOP_LEVEL_NODE_WITH_MODIFIER:
+            case ASSIGNMENT_OR_VAR_DECL_STMT_RHS:
             default:
                 break;
         }
