@@ -58,13 +58,13 @@ public class BallerinaParserListener {
     private Stack<List<ASTNode>> parameters = new Stack<>();
 
     public void exitCompUnit() {
-//        PrintStream out = System.out;
-//        out.println("--------------------------------------");
-//        while (!this.nodesStack.isEmpty()) {
-//            out.println(this.nodesStack.removeLast());
-//            out.println();
-//        }
-//        out.println("--------------------------------------");
+        PrintStream out = System.out;
+        out.println("--------------------------------------");
+        while (!this.nodesStack.isEmpty()) {
+            out.println(this.nodesStack.removeLast());
+            out.println();
+        }
+        out.println("--------------------------------------");
     }
 
     public void exitModifier(Token modifier) {

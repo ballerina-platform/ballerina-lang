@@ -90,7 +90,7 @@ public class LangServerStartCmd implements BLauncherCmd {
             System.setProperty("experimental", Boolean.toString(experimental));
             System.setProperty("ballerina.debugLog", Boolean.toString(debugLog));
             System.setProperty("ballerina.traceLog", Boolean.toString(traceLog));
-            System.setProperty("ballerina.definition.enableStdlib", Boolean.toString(stdlibDefinition));
+            System.setProperty("ballerina.goToDefinition.enableStandardLibraries", Boolean.toString(stdlibDefinition));
             System.setProperty("ballerina.home", BALLERINA_HOME);
 
             // Start Language Server

@@ -42,9 +42,9 @@ public class Slice {
 
     private static final String OPERATION = "slice xml";
 
-    public static XMLValue<?> slice(Strand strand, XMLValue<?> xml, long startIndex, long endIndex) {
+    public static XMLValue slice(Strand strand, XMLValue xml, long startIndex, long endIndex) {
         try {
-            return xml.slice(startIndex, endIndex);
+            return (XMLValue) xml.slice(startIndex, endIndex);
         } catch (Throwable e) {
             BLangExceptionHelper.handleXMLException(OPERATION, e);
         }
