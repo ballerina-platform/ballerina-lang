@@ -23,7 +23,7 @@ public type AbstractCache abstract object {
     # + key - Key of the cached value
     # + value - Value to be cached
     # + maxAgeInSeconds - The value in seconds which the cache entry is valid. '-1' means, the entry is valid forever.
-    public function put(string key, any value, int maxAgeInSeconds);
+    public function put(string key, any value, int maxAgeInSeconds = -1);
 
     # Returns the cached value associated with the given key. If the provided cache key is not found,
     # () will be returned.
