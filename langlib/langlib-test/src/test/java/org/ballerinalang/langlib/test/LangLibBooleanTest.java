@@ -69,6 +69,7 @@ public class LangLibBooleanTest {
                 {"SomeString", getError("SomeString")},
                 {"", getError("")},
                 {"123", getError("123")},
+                {"\ntrue", getError("\ntrue")},
         };
     }
 
