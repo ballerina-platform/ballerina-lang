@@ -82,7 +82,7 @@ public abstract class BIRNode {
         public void accept(BIRVisitor visitor) {
             visitor.visit(this);
         }
-        
+
         public Name getSourceFileName() {
             return sourceFileName;
         }
@@ -166,7 +166,7 @@ public abstract class BIRNode {
         public int hashCode() {
             return this.name.value.hashCode();
         }
-        
+
         @Override
         public String toString() {
             return name.toString();
@@ -398,7 +398,7 @@ public abstract class BIRNode {
      *
      * @since 0.995.0
      */
-    public static class BIRTypeDefinition extends BIRDocumentableNode implements NamedNode{
+    public static class BIRTypeDefinition extends BIRDocumentableNode implements NamedNode {
 
         /**
          * Name of the type definition.

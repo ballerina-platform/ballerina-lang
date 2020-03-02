@@ -28,10 +28,18 @@ import java.util.Map;
  * @since 1.2.0
  */
 public class JvmLabelGen {
+
+    /**
+     * JVM bytecode label generation class.
+     *
+     * @since 1.2.0
+     */
     public static class LabelGenerator {
+
         Map<String, Label> bbLabels = new HashMap<>();
 
         public Label getLabel(String labelKey) {
+
             Label result = this.bbLabels.get(labelKey);
             if (result != null) {
                 return result;

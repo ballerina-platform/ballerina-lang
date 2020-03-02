@@ -695,15 +695,6 @@ public class BCompileUtil {
         Files.createDirectories(importsTarget);
         writeNonEntryPkgs(bLangPackage.symbol.imports, systemBirCache, importsBirCache, importsTarget, dumpBir,
                 backendDriver);
-//        if (inProc) {
-//            List<String> commands = BootstrapRunner.createArgsForJBalCompilerBackend(entryBir.toString(),
-//                    jarTarget.toString(), dumpBir, Collections.emptyList(), systemBirCache.toString(),
-//                    importsBirCache.toString());
-//            BootstrapRunner.generateJarBinaryInProc(commands);
-//        } else {
-//            generateJarBinary(entryBir.toString(), jarTarget.toString(), dumpBir, Collections.emptyList(),
-//                    systemBirCache.toString(), importsBirCache.toString());
-//        }
 
         backendDriver.execute(bLangPackage.symbol.bir, dumpBir, jarTarget);
 
@@ -782,10 +773,7 @@ public class BCompileUtil {
             // Todo: Remove ballerinax check after fixing it by the packerina team
             if (!"ballerina".equals(id.orgName.value) && !"ballerinax".equals(id.orgName.value)) {
                 writeNonEntryPkgs(pkg.imports, birCache, importsBirCache, jarTargetDir, dumpBir, backendDriver);
-//                Path pkgBir = getModuleBir(pkg, importsBirCache);
                 Path jarOutputPath = jarTargetDir.resolve(id.name.value + ".jar");
-//                generateJarBinary(pkgBir.toString(), jarOutputPath, dumpBir, Collections.emptyList(),
-//                        birCache.toString(), importsBirCache.toString());
                 if (pkg.bir != null) {
                     backendDriver.execute(pkg.bir, dumpBir, jarOutputPath);
                 }

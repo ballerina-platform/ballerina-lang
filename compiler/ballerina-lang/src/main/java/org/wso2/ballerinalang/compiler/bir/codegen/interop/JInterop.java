@@ -42,7 +42,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.interop.JTypeTags.JSHO
 /**
  * This class contains a set of utility methods and constants used in this implementation.
  *
- * @since 1.0.0
+ * @since 1.2.0
  */
 class JInterop {
 
@@ -72,9 +72,10 @@ class JInterop {
     static final String J_VOID_TNAME = void.class.getTypeName();
 
     static JType getJType(Class<?> jTypeClass) {
+
         if (jTypeClass.isPrimitive()) {
             String primitiveName = jTypeClass.getName();
-           return getJTypeForPrimitive(primitiveName);
+            return getJTypeForPrimitive(primitiveName);
         } else if (jTypeClass == Void.class) {
             throw new IllegalArgumentException("The Java Void type is not yet supported.");
         } else if (jTypeClass.isArray()) {
@@ -88,8 +89,8 @@ class JInterop {
         return jRefType;
     }
 
-
     static String getMethodSig(Class<?> returnType, Class<?>... parameterTypes) {
+
         StringBuilder sb = new StringBuilder();
         sb.append('(');
         for (Class<?> type : parameterTypes) {
@@ -100,6 +101,7 @@ class JInterop {
     }
 
     static String getSig(Class<?> c) {
+
         if (c.isPrimitive()) {
             if (int.class == c) {
                 return "I";
@@ -134,6 +136,7 @@ class JInterop {
     }
 
     static ParamTypeConstraint[] buildParamTypeConstraints(List<JType> javaTypeConstraints, ClassLoader classLoader) {
+
         if (javaTypeConstraints == null) {
             return new ParamTypeConstraint[0];
         }
@@ -144,7 +147,9 @@ class JInterop {
         }
         return constraintList.toArray(new ParamTypeConstraint[0]);
     }
+
     private static ParamTypeConstraint buildParamTypeConstraint(JType javaTypeConstraint, ClassLoader classLoader) {
+
         switch (javaTypeConstraint.jTag) {
             case JREF:
                 return buildConstraintFromJavaRefType((JType.JRefType) javaTypeConstraint, classLoader);
@@ -157,17 +162,22 @@ class JInterop {
         }
     }
 
-    private static ParamTypeConstraint buildConstraintFromJavaRefType(JType.JRefType javaRefType, ClassLoader classLoader) {
+    private static ParamTypeConstraint buildConstraintFromJavaRefType(JType.JRefType javaRefType,
+                                                                      ClassLoader classLoader) {
+
         String constraintBValue = javaRefType.typeValue;
         return new ParamTypeConstraint(loadClass(constraintBValue, classLoader));
     }
 
-    private static ParamTypeConstraint buildConstraintFromJavaArrayType(JType.JArrayType jArrayType, ClassLoader classLoader) {
+    private static ParamTypeConstraint buildConstraintFromJavaArrayType(JType.JArrayType jArrayType,
+                                                                        ClassLoader classLoader) {
+
         String typeSig = getJavaArrayTypeSig(jArrayType);
         return new ParamTypeConstraint(loadClass(typeSig, classLoader));
     }
 
     private static String getJavaArrayTypeSig(JType.JArrayType jArrayType) {
+
         JType elementType = jArrayType.elementType;
         String elementTypeSig = "[";
         int jTag = elementType.jTag;
@@ -243,6 +253,7 @@ class JInterop {
     }
 
     static Class<?> loadClass(String className, ClassLoader classLoader) {
+
         try {
             return Class.forName(className.replace("/", "."), false, classLoader);
         } catch (ClassNotFoundException | NoClassDefFoundError e) {
@@ -251,12 +262,13 @@ class JInterop {
     }
 
     static BLangCompilerException createJInteropError(String reason, String details) {
+
         return new BLangCompilerException("error " + reason +
                 Optional.ofNullable(details).map(d -> " " + StringUtils.getStringValue(d)).orElse(""));
     }
 
-
     static JMethodKind getMethodKindFromAnnotTag(String annotTagRef) {
+
         if (CONSTRUCTOR_ANNOT_TAG.equals(annotTagRef)) {
             return JMethodKind.CONSTRUCTOR;
         } else {
@@ -265,6 +277,7 @@ class JInterop {
     }
 
     static JFieldMethod getFieldMethodFromAnnotTag(String annotTagRef) {
+
         if (FIELD_GET_ANNOT_TAG.equals(annotTagRef)) {
             return JFieldMethod.ACCESS;
         } else {
@@ -273,6 +286,7 @@ class JInterop {
     }
 
     static boolean isInteropAnnotationTag(String annotTag) {
+
         switch (annotTag) {
             case CONSTRUCTOR_ANNOT_TAG:
             case METHOD_ANNOT_TAG:
@@ -285,6 +299,7 @@ class JInterop {
     }
 
     static boolean isMethodAnnotationTag(String annotTag) {
+
         return CONSTRUCTOR_ANNOT_TAG.equals(annotTag) || METHOD_ANNOT_TAG.equals(annotTag);
     }
 }

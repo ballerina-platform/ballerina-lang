@@ -20,7 +20,7 @@ package org.wso2.ballerinalang.compiler.bir.codegen.interop;
 /**
  * This enum is used to indicate whether the given Java method is a static method or an instance or a constructor.
  *
- * @since 1.0.0
+ * @since 1.2.0
  */
 enum JMethodKind {
     METHOD("method"),
@@ -29,10 +29,12 @@ enum JMethodKind {
     private String strValue;
 
     JMethodKind(String strValue) {
+
         this.strValue = strValue;
     }
 
     static JMethodKind getKind(String value) {
+
         switch (value) {
             case "method":
                 return METHOD;
@@ -44,6 +46,7 @@ enum JMethodKind {
     }
 
     String getStringValue() {
+
         return this.strValue;
     }
 }

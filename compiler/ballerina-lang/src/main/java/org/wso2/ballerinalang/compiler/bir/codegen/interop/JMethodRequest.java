@@ -30,6 +30,7 @@ import java.util.List;
  * @since 1.2.0
  */
 class JMethodRequest {
+
     Class<?> declaringClass;
     String methodName;
     JMethodKind kind;
@@ -43,10 +44,12 @@ class JMethodRequest {
     boolean restParamExist = false;
 
     private JMethodRequest() {
+
     }
 
     static JMethodRequest build(InteropValidationRequest.MethodValidationRequest methodValidationRequest,
                                 ClassLoader classLoader) {
+
         JMethodRequest jMethodReq = new JMethodRequest();
         jMethodReq.kind = methodValidationRequest.methodKind;
         jMethodReq.methodName = methodValidationRequest.name;

@@ -62,15 +62,16 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TRAP_ERRO
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmInstructionGen.generateVarLoad;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmInstructionGen.generateVarStore;
 
-
-//import ballerina/io;
-//import ballerina/jvm;
-//import ballerina/bir;
-//import ballerinax/java;
-
+/**
+ * Error generation related methods for JVM bytecode generation.
+ *
+ * @since 1.2.0
+ */
 public class JvmErrorGen {
+
     static @Nilable
     BIRErrorEntry findErrorEntry(@Nilable List<BIRErrorEntry> errors, BIRBasicBlock currentBB) {
+
         for (BIRErrorEntry err : errors) {
             if (err instanceof BIRErrorEntry && err.endBB.id.value.equals(currentBB.id.value)) {
                 return err;
@@ -80,29 +81,37 @@ public class JvmErrorGen {
     }
 
     static void print(String message) {
+
         PrintStream errStream = getSystemErrorStream();
         errStream.println(message);
 //       printToErrorStream(errStream, message);
     }
 
-    ;
+    private static PrintStream getSystemErrorStream() {
 
-    public static PrintStream getSystemErrorStream() {
         return System.err;
     }
 
+    /**
+     * Error handler generator class used for holding errors and the index map.
+     *
+     * @since 1.2.0
+     */
     public static class ErrorHandlerGenerator {
+
         MethodVisitor mv;
         BalToJVMIndexMap indexMap;
         String currentPackageName;
 
         public ErrorHandlerGenerator(MethodVisitor mv, BalToJVMIndexMap indexMap, String currentPackageName) {
+
             this.mv = mv;
             this.indexMap = indexMap;
             this.currentPackageName = currentPackageName;
         }
 
-        static void printStackTraceFromFutureValue(MethodVisitor mv, BalToJVMIndexMap indexMap) {
+        void printStackTraceFromFutureValue(MethodVisitor mv, BalToJVMIndexMap indexMap) {
+
             mv.visitInsn(DUP);
             mv.visitInsn(DUP);
             mv.visitFieldInsn(GETFIELD, FUTURE_VALUE, "strand", String.format("L%s;", STRAND));
@@ -114,13 +123,14 @@ public class JvmErrorGen {
             Label labelIf = new Label();
             mv.visitJumpInsn(IFNULL, labelIf);
             mv.visitFieldInsn(GETFIELD, FUTURE_VALUE, PANIC_FIELD, String.format("L%s;", THROWABLE));
-            mv.visitMethodInsn(INVOKESTATIC, RUNTIME_UTILS, HANDLE_THROWABLE_METHOD, String.format("(L%s;)V", THROWABLE),
-                    false);
+            mv.visitMethodInsn(INVOKESTATIC, RUNTIME_UTILS, HANDLE_THROWABLE_METHOD,
+                    String.format("(L%s;)V", THROWABLE), false);
             mv.visitInsn(RETURN);
             mv.visitLabel(labelIf);
         }
 
         void genPanic(Panic panicTerm) {
+
             BIRVariableDcl varDcl = panicTerm.errorOp.variableDcl;
             int errorIndex = this.getJVMIndexOfVarRef(varDcl);
             generateVarLoad(this.mv, varDcl, this.currentPackageName, errorIndex);
@@ -129,6 +139,7 @@ public class JvmErrorGen {
 
         void generateTryCatch(BIRFunction func, String funcName, BIRBasicBlock currentBB,
                               InstructionGenerator instGen, TerminatorGenerator termGen, LabelGenerator labelGen) {
+
             @Nilable BIRErrorEntry nilableEE = findErrorEntry(func.errorTable, currentBB);
             if (nilableEE == null) {
                 return;
@@ -138,7 +149,6 @@ public class JvmErrorGen {
             Label startLabel = labelGen.getLabel(funcName + currentEE.trapBB.id.value);
             Label endLabel = new Label();
             Label jumpLabel = new Label();
-
 
             this.mv.visitLabel(endLabel);
             this.mv.visitJumpInsn(GOTO, jumpLabel);
@@ -154,7 +164,8 @@ public class JvmErrorGen {
                     Label errorValueLabel = new Label();
                     this.mv.visitTryCatchBlock(startLabel, endLabel, errorValueLabel, catchIns.errorClass);
                     this.mv.visitLabel(errorValueLabel);
-                    this.mv.visitMethodInsn(INVOKESTATIC, BAL_ERRORS, "createInteropError", String.format("(L%s;)L%s;", THROWABLE, ERROR_VALUE), false);
+                    this.mv.visitMethodInsn(INVOKESTATIC, BAL_ERRORS, "createInteropError", String.format("(L%s;)L%s;",
+                            THROWABLE, ERROR_VALUE), false);
                     generateVarStore(this.mv, retVarDcl, this.currentPackageName, retIndex);
                     Return term = catchIns.term;
                     termGen.genReturnTerm(term, retIndex, func, false, -1);
@@ -172,7 +183,8 @@ public class JvmErrorGen {
                 this.mv.visitTryCatchBlock(startLabel, endLabel, otherErrorLabel, THROWABLE);
 
                 this.mv.visitLabel(otherErrorLabel);
-                this.mv.visitMethodInsn(INVOKESTATIC, BAL_ERRORS, "createInteropError", String.format("(L%s;)L%s;", THROWABLE, ERROR_VALUE), false);
+                this.mv.visitMethodInsn(INVOKESTATIC, BAL_ERRORS, "createInteropError", String.format("(L%s;)L%s;",
+                        THROWABLE, ERROR_VALUE), false);
                 this.mv.visitInsn(ATHROW);
                 this.mv.visitJumpInsn(GOTO, jumpLabel);
                 this.mv.visitLabel(jumpLabel);
@@ -197,6 +209,7 @@ public class JvmErrorGen {
         }
 
         int getJVMIndexOfVarRef(BIRVariableDcl varDcl) {
+
             return this.indexMap.getIndex(varDcl);
         }
     }
@@ -256,11 +269,13 @@ public class JvmErrorGen {
 //} external;
 
     static class DiagnosticLog {
+
         BLangCompilerException err;
         DiagnosticPos pos;
         BIRPackage module;
 
         public DiagnosticLog(BLangCompilerException err, DiagnosticPos pos, BIRPackage module) {
+
             this.err = err;
             this.pos = pos;
             this.module = module;

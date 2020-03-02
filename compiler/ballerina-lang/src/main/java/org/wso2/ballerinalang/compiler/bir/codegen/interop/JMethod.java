@@ -34,40 +34,48 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.interop.JInteropExcept
 /**
  * Represents a java method in this implementation.
  *
- * @since 1.0.0
+ * @since 1.2.0
  */
 class JMethod {
+
     static final JMethod NO_SUCH_METHOD = new JMethod(null, null);
 
     JMethodKind kind;
     private Executable method;
 
     static JMethod build(JMethodKind kind, Executable executable) {
+
         return new JMethod(kind, executable);
     }
 
     private JMethod(JMethodKind kind, Executable executable) {
+
         this.kind = kind;
         this.method = executable;
     }
 
     String getClassName() {
+
         return method.getDeclaringClass().getName();
     }
 
     boolean isDeclaringClassInterface() {
+
         return this.method.getDeclaringClass().isInterface();
     }
 
     boolean isStatic() {
+
         return Modifier.isStatic(method.getModifiers());
     }
 
     boolean isInstanceMethod() {
+
         return !isStatic() && !(method instanceof Constructor);
     }
 
     String getName() {
+
         if (kind == JMethodKind.CONSTRUCTOR) {
             return "<init>";
         } else {
@@ -76,14 +84,17 @@ class JMethod {
     }
 
     JMethodKind getKind() {
+
         return kind;
     }
 
     Executable getMethod() {
+
         return method;
     }
 
     String getSignature() {
+
         if (kind == JMethodKind.CONSTRUCTOR) {
             return JInterop.getMethodSig(void.class, method.getParameterTypes());
         } else {
@@ -92,10 +103,12 @@ class JMethod {
     }
 
     Class<?>[] getParamTypes() {
+
         return method.getParameterTypes();
     }
 
     Class<?> getReturnType() {
+
         if (kind == JMethodKind.CONSTRUCTOR) {
             return method.getDeclaringClass();
         } else {
@@ -104,6 +117,7 @@ class JMethod {
     }
 
     ArrayValue getExceptionTypes(ClassLoader classLoader) {
+
         List<Class> checkedExceptions = new ArrayList<>();
         try {
             Class<?> runtimeException = classLoader.loadClass(RuntimeException.class.getCanonicalName());
@@ -116,7 +130,6 @@ class JMethod {
             throw new JInteropException(CLASS_NOT_FOUND_REASON, e.getMessage(), e);
         }
 
-
         ArrayValue arrayValue = new ArrayValueImpl(new BArrayType(BTypes.typeString), checkedExceptions.size());
         int i = 0;
         for (Class<?> exceptionType : checkedExceptions) {
@@ -126,9 +139,11 @@ class JMethod {
     }
 
     Class<?>[] getExceptionTypes() {
+
         List<Class<?>> checkedExceptions = new ArrayList<>();
         try {
-            Class<?> runtimeException = ClassLoader.getSystemClassLoader().loadClass(RuntimeException.class.getCanonicalName());
+            Class<?> runtimeException = ClassLoader.getSystemClassLoader().
+                    loadClass(RuntimeException.class.getCanonicalName());
             for (Class<?> exceptionType : method.getExceptionTypes()) {
                 if (!runtimeException.isAssignableFrom(exceptionType)) {
                     checkedExceptions.add(exceptionType);

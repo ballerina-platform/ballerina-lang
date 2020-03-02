@@ -40,6 +40,11 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.interop.JInterop.isMet
 import static org.wso2.ballerinalang.compiler.bir.codegen.interop.JType.getJArrayTypeFromTypeName;
 import static org.wso2.ballerinalang.compiler.bir.codegen.interop.JType.getJTypeFromTypeName;
 
+/**
+ * JInterop related annotation processing methods.
+ *
+ * @since 1.2.0
+ */
 public class AnnotationProc {
 
     public static final String NAME_FIELD_NAME = "name";
