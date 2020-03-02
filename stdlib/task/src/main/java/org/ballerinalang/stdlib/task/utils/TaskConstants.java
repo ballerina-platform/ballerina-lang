@@ -21,7 +21,6 @@ package org.ballerinalang.stdlib.task.utils;
 import org.ballerinalang.jvm.types.BPackage;
 
 import static org.ballerinalang.jvm.util.BLangConstants.BALLERINA_BUILTIN_PKG_PREFIX;
-import static org.ballerinalang.jvm.util.BLangConstants.BALLERINA_PACKAGE_PREFIX;
 
 /**
  * Task related constants.

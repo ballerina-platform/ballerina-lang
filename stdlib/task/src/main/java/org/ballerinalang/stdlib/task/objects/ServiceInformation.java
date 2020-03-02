@@ -40,12 +40,6 @@ public class ServiceInformation {
         this.attachments = attachments;
     }
 
-    public ServiceInformation(BRuntime runtime, ObjectValue service) {
-        this.runtime = runtime;
-        this.service = service;
-        this.attachments = null;
-    }
-
     public ObjectValue getService() {
         return service;
     }

@@ -40,9 +40,10 @@ public class TaskExecutor {
     private static Object[] getParameterList(AttachedFunction function, ServiceInformation serviceInformation) {
         Object[] attachments = serviceInformation.getAttachment();
         int numberOfParameters = function.type.paramTypes.length;
-        Object[] parameters = new Object[attachments.length * 2];
+        Object[] parameters = null;
         if (numberOfParameters == attachments.length) {
             int i = 0;
+            parameters = new Object[attachments.length * 2];
             for (Object attachment : attachments) {
                 parameters[i++] = attachment;
                 parameters[i++] = Boolean.TRUE;
