@@ -826,7 +826,6 @@ public class InteropMethodGen {
      */
     public static class JInstruction extends BIRNonTerminator {
 
-        public DiagnosticPos pos;
         public JInsKind jKind;
 
         JInstruction(DiagnosticPos pos) {
@@ -848,7 +847,6 @@ public class InteropMethodGen {
      */
     public static class JCast extends JInstruction {
 
-        public BIROperand lhsOp;
         public BIROperand rhsOp;
         public BType targetType;
 

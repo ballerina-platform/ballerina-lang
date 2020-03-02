@@ -23,6 +23,12 @@
         <Package name="org.wso2.ballerinalang.compiler.codegen" />
     </Match>
     <Match>
+        <Package name="org.wso2.ballerinalang.compiler.bir.codegen" />
+    </Match>
+    <Match>
+        <Package name="org.wso2.ballerinalang.compiler.bir.codegen.interop" />
+    </Match>
+    <Match>
         <Package name="org.wso2.ballerinalang.compiler.desugar" />
     </Match>
     <Match>
