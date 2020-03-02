@@ -592,6 +592,7 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
     public void visit(BLangRecordTypeNode recordTypeNode) {
         // Type name is handled at the BLangTypeDefinition visitor and here we visit the fields
         recordTypeNode.fields.forEach(this::acceptNode);
+        recordTypeNode.typeRefs.forEach(this::acceptNode);
         this.acceptNode(recordTypeNode.restFieldType);
     }
 

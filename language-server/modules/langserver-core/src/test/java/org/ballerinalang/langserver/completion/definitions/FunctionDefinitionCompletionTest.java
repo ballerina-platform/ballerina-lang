@@ -47,6 +47,7 @@ public class FunctionDefinitionCompletionTest extends CompletionTest {
                 {"nonEmptyLineCompletion.json", "function"},
                 {"actionInvocationSuggestion1.json", "function"},
                 {"actionInvocationSuggestion2.json", "function"},
+                {"aliasedModuleContentSuggestion1.json", "function"},
                 {"variableBoundItemSuggestions1.json", "function"},
                 {"variableBoundItemSuggestions2.json", "function"},
                 {"variableBoundItemSuggestions3.json", "function"},

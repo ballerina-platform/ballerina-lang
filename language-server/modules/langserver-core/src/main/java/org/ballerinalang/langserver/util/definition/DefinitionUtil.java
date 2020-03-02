@@ -29,6 +29,8 @@ import org.ballerinalang.langserver.util.references.SymbolReferencesModel;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.eclipse.lsp4j.Location;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
@@ -37,7 +39,9 @@ import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
+import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
+import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -46,7 +50,7 @@ import java.util.Optional;
 
 /**
  * Utilities for the definition operations.
- * 
+ *
  * @since 1.2.0
  */
 public class DefinitionUtil {
@@ -111,6 +115,13 @@ public class DefinitionUtil {
         LSStandardLibCache stdLibCache = LSStandardLibCache.getInstance();
         List<TopLevelNode> definitions = stdLibCache.getTopLevelNodesForModule(context, packageID);
         TopLevelNode extractedDef = null;
+
+        // For the invokable symbols get the top level note and find the definition within the definition's scope
+        if (symbolAtCursor.getSymbol() instanceof BInvokableSymbol
+                && (((BInvokableSymbol) symbolAtCursor.getSymbol()).flags & Flags.ATTACHED) == Flags.ATTACHED) {
+            return getStdLibInvocationLocation((BInvokableSymbol) symbolAtCursor.getSymbol(), definitions);
+        }
+
         for (TopLevelNode topLevelNode : definitions) {
             Pair<String, BSymbol> nameSymbolPair = getTopLevelNodeNameSymbolPair(topLevelNode);
             if (nameSymbolPair.getLeft().equals(symbolAtCursor.getSymbol().name.value)) {
@@ -121,18 +132,57 @@ public class DefinitionUtil {
 
         if (extractedDef != null) {
             Pair<String, BSymbol> nameSymbolPair = getTopLevelNodeNameSymbolPair(extractedDef);
-            DiagnosticPos diagnosticPos = CommonUtil.toZeroBasedPosition((DiagnosticPos) extractedDef.getPosition());
-            SymbolReferencesModel.Reference reference = new SymbolReferencesModel.Reference(diagnosticPos,
-                    nameSymbolPair.getRight(), (BLangNode) extractedDef);
-
-            String sourceRoot = stdLibCache.getStdlibCacheRoot().toString();
-            return ReferencesUtil.getLocations(Collections.singletonList(reference), sourceRoot);
+            DiagnosticPos diagnosticPos = getTopLevelNodePosition(extractedDef);
+            return prepareLocations(diagnosticPos, nameSymbolPair.getRight(), (BLangNode) extractedDef);
         }
 
         return new ArrayList<>();
     }
 
-    private static Pair<String, BSymbol> getTopLevelNodeNameSymbolPair(TopLevelNode topLevelNode) {
+    private static List<Location> prepareLocations(DiagnosticPos diagPos, BSymbol symbol, BLangNode node)
+            throws LSStdlibCacheException {
+        String sourceRoot = LSStandardLibCache.getInstance()
+                .getCachedStdlibRoot(diagPos.src.pkgID.name.value).toString();
+        SymbolReferencesModel.Reference reference = new SymbolReferencesModel.Reference(diagPos, symbol, node);
+        return ReferencesUtil.getLocations(Collections.singletonList(reference), sourceRoot);
+    }
+
+    private static List<Location> getStdLibInvocationLocation(BInvokableSymbol symbol, List<TopLevelNode> topLevelNodes)
+            throws LSStdlibCacheException {
+        if (!(symbol.owner instanceof BObjectTypeSymbol)) {
+            return new ArrayList<>();
+        }
+        String objectTypeName = symbol.owner.getName().getValue();
+        String symbolName = CommonUtil.getSymbolName(symbol);
+
+        TopLevelNode objectNode = topLevelNodes.parallelStream()
+                .filter(topLevelNode -> {
+                    Pair<String, BSymbol> nameSymbolPair;
+                    try {
+                        nameSymbolPair = getTopLevelNodeNameSymbolPair(topLevelNode);
+                    } catch (LSStdlibCacheException e) {
+                        return false;
+                    }
+                    return objectTypeName.equals(nameSymbolPair.getLeft());
+                })
+                .findFirst()
+                .orElse(null);
+
+        if (!(objectNode instanceof BLangTypeDefinition)
+                || !(((BLangTypeDefinition) objectNode).typeNode instanceof BLangObjectTypeNode)) {
+            return new ArrayList<>();
+        }
+        for (BLangFunction function : ((BLangObjectTypeNode) ((BLangTypeDefinition) objectNode).typeNode).functions) {
+            if (symbolName.equals(function.getName().getValue())) {
+                DiagnosticPos pos = CommonUtil.toZeroBasedPosition(function.name.pos);
+                return prepareLocations(pos, symbol, function);
+            }
+        }
+        return new ArrayList<>();
+    }
+
+    private static Pair<String, BSymbol> getTopLevelNodeNameSymbolPair(TopLevelNode topLevelNode)
+            throws LSStdlibCacheException {
         switch (topLevelNode.getKind()) {
             case FUNCTION:
                 BLangFunction funcNode = (BLangFunction) topLevelNode;
@@ -148,7 +198,29 @@ public class DefinitionUtil {
                 BLangAnnotation annotationNode = (BLangAnnotation) topLevelNode;
                 return Pair.of(annotationNode.getName().getValue(), annotationNode.symbol);
             default:
-                return Pair.of("", null);
+                throw new LSStdlibCacheException("Could not find a valid Top Level Node"
+                        + topLevelNode.getKind().name());
+        }
+    }
+
+    private static DiagnosticPos getTopLevelNodePosition(TopLevelNode topLevelNode)
+            throws LSStdlibCacheException {
+        switch (topLevelNode.getKind()) {
+            case FUNCTION:
+                BLangFunction funcNode = (BLangFunction) topLevelNode;
+                return CommonUtil.toZeroBasedPosition(funcNode.name.pos);
+            case TYPE_DEFINITION:
+                BLangTypeDefinition defNode = (BLangTypeDefinition) topLevelNode;
+                return CommonUtil.toZeroBasedPosition(defNode.name.pos);
+            case CONSTANT:
+                BLangConstant constNode = (BLangConstant) topLevelNode;
+                return CommonUtil.toZeroBasedPosition(constNode.name.pos);
+            // TODO: Handle XML Namespace Declarations
+            case ANNOTATION:
+                BLangAnnotation annotationNode = (BLangAnnotation) topLevelNode;
+                return annotationNode.name.pos;
+            default:
+                throw new LSStdlibCacheException("Could not find Position for Node" + topLevelNode.getKind().name());
         }
     }
 }
