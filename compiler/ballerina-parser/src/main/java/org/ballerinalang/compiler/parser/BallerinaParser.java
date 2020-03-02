@@ -628,18 +628,7 @@ public class BallerinaParser {
                 this.listner.exitTypeDescriptor(consume()); // type descriptor
                 break;
             default:
-                Token token = peek();
-                Solution solution = recover(token, ParserRuleContext.TYPE_DESCRIPTOR);
-
-                // If the parser recovered by inserting a token, then try to re-parse the same
-                // rule with the inserted token token. This is done to pick the correct branch
-                // to continue the parsing.
-
-                if (solution.action != Action.INSERT) {
-                    break;
-                }
-
-                parseTypeDescriptor(solution.tokenKind);
+                recover(peek(), ParserRuleContext.TYPE_DESCRIPTOR);
         }
 
         // TODO: only supports built-in/user-defined types. Add others.
