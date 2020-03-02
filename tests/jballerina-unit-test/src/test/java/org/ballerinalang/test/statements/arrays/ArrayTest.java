@@ -133,7 +133,7 @@ public class ArrayTest {
         ArrayValue bBooleanArray = new ArrayValueImpl(boolArray);
         Assert.assertEquals(bBooleanArray.stringValue(), "true true false");
 
-        XMLValue<?>[] xmlArray = { XMLFactory.parse("<foo> </foo>"), XMLFactory.parse("<bar>hello</bar>") };
+        XMLValue[] xmlArray = { XMLFactory.parse("<foo> </foo>"), XMLFactory.parse("<bar>hello</bar>") };
         ArrayValue bXmlArray = new ArrayValueImpl(xmlArray,
                 new org.ballerinalang.jvm.types.BArrayType(org.ballerinalang.jvm.types.BTypes.typeXML));
         Assert.assertEquals(bXmlArray.stringValue(), "<foo> </foo> <bar>hello</bar>");

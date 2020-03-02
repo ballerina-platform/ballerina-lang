@@ -59,8 +59,8 @@ public class CreateTestCodeAction extends AbstractCodeActionProvider {
      * {@inheritDoc}
      */
     @Override
-    public List<CodeAction> getCodeActions(CodeActionNodeType nodeType, LSContext context,
-                                           List<Diagnostic> diagnostics) {
+    public List<CodeAction> getNodeBasedCodeActions(CodeActionNodeType nodeType, LSContext context,
+                                                    List<Diagnostic> allDiagnostics) {
         try {
             String docUri = context.get(DocumentServiceKeys.FILE_URI_KEY);
             List<CodeAction> actions = new ArrayList<>();
@@ -94,6 +94,16 @@ public class CreateTestCodeAction extends AbstractCodeActionProvider {
             // ignore
         }
         return null;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public List<CodeAction> getDiagBasedCodeActions(CodeActionNodeType nodeType, LSContext context,
+                                                    List<Diagnostic> diagnosticsOfRange,
+                                                    List<Diagnostic> allDiagnostics) {
+        throw new UnsupportedOperationException("Not supported");
     }
 
     private static boolean isTopLevelNode(String uri, WorkspaceDocumentManager docManager, LSContext context,
