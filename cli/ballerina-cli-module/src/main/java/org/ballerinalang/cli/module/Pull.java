@@ -141,6 +141,10 @@ public class Pull {
      */
     private static void createBaloInHomeRepo(HttpURLConnection conn, String modulePathInBaloCache,
             String moduleNameWithOrg, boolean isNightlyBuild, String newUrl, String contentDisposition) {
+        long responseContentLength = conn.getContentLengthLong();
+        if (responseContentLength <= 0) {
+            createError("invalid response from the server, please try again");
+        }
         String resolvedURI = conn.getHeaderField(RESOLVED_REQUESTED_URI);
         if (resolvedURI == null || resolvedURI.equals("")) {
             resolvedURI = newUrl;
@@ -159,21 +163,23 @@ public class Pull {
         }
 
         createBaloFileDirectory(baloCacheWithModulePath);
-        writeBaloFile(conn, baloPath, moduleNameWithOrg + ":" + moduleVersion);
+        writeBaloFile(conn, baloPath, moduleNameWithOrg + ":" + moduleVersion, responseContentLength);
         handleNightlyBuild(isNightlyBuild, baloCacheWithModulePath);
     }
 
     /**
      * Write balo file to the home repo.
      *
-     * @param conn           http connection
-     * @param baloPath       path of the balo file
-     * @param fullModuleName full module name, <org-name>/<module-name>:<module-version>
+     * @param conn             http connection
+     * @param baloPath         path of the balo file
+     * @param fullModuleName   full module name, <org-name>/<module-name>:<module-version>
+     * @param resContentLength response content length
      */
-    private static void writeBaloFile(HttpURLConnection conn, Path baloPath, String fullModuleName) {
+    private static void writeBaloFile(HttpURLConnection conn, Path baloPath, String fullModuleName,
+            long resContentLength) {
         try (InputStream inputStream = conn.getInputStream();
                 FileOutputStream outputStream = new FileOutputStream(baloPath.toString())) {
-            writeAndHandleProgress(inputStream, outputStream, conn.getContentLengthLong() / 1024, fullModuleName);
+            writeAndHandleProgress(inputStream, outputStream, resContentLength / 1024, fullModuleName);
         } catch (IOException e) {
             createError("error occurred copying the balo file: " + e.getMessage());
         }

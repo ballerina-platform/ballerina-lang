@@ -245,9 +245,6 @@ public class PathDependencyTestCase extends BaseTest {
     
         String feeBaloFilePath = "target" + File.separator + "balo" + File.separator + feeModuleBaloFileName;
 
-        // Timeout to fix unable to read balo file, corrupted balo file error
-        SECONDS.sleep(30);
-
         given().with().pollInterval(Duration.TEN_SECONDS).and()
                 .with().pollDelay(Duration.FIVE_SECONDS)
                 .await().atMost(120, SECONDS).until(() -> {
@@ -274,17 +271,11 @@ public class PathDependencyTestCase extends BaseTest {
         String jeeModuleBaloFileName = "jee" + BLANG_COMPILED_JAR_EXT;
         String jeeExecutableFilePath = "target" + File.separator + "bin" + File.separator + jeeModuleBaloFileName;
 
-        // Timeout to fix unable to read balo file, corrupted balo file error
-        SECONDS.sleep(30);
-
-        LogLeecher project3BuildLeecher = new LogLeecher("target/bin/jee.jar");
-        balClient.runMain("build", new String[]{"-a"}, envVariables, new String[]{},
-                new LogLeecher[]{project3BuildLeecher}, caseResources.resolve("TestProject3").toString());
-        project3BuildLeecher.waitForText(60000);
-
         given().with().pollInterval(Duration.TEN_SECONDS).and()
                 .with().pollDelay(Duration.FIVE_SECONDS)
                 .await().atMost(120, SECONDS).until(() -> {
+            balClient.runMain("build", new String[]{"-a"}, envVariables, new String[]{},
+                    new LogLeecher[]{}, caseResources.resolve("TestProject3").toString());
             return Files.exists(caseResources.resolve("TestProject3").resolve(Paths.get(jeeExecutableFilePath)));
         });
     

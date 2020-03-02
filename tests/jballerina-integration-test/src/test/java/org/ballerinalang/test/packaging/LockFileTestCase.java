@@ -169,13 +169,20 @@ public class LockFileTestCase extends BaseTest {
         Files.write(fooSayBal, replaced);
         lines.close();
 
-        // Timeout to fix unable to read balo file, corrupted balo file error
-        SECONDS.sleep(60);
         // Build module
-        LogLeecher fooBuildLeecher = new LogLeecher("target/bin/foo.jar", LogLeecher.LeecherType.INFO);
-        balClient.runMain("build", new String[]{"-a"}, envVariables, new String[]{}, new
-                LogLeecher[]{fooBuildLeecher}, testProj2Path.toString());
-        fooBuildLeecher.waitForText(10000);
+        String fooBaloFileName = "foo-"
+                + ProgramFileConstants.IMPLEMENTATION_VERSION + "-"
+                + ProgramFileConstants.ANY_PLATFORM + "-"
+                + "9.9.9"
+                + BLANG_COMPILED_PKG_BINARY_EXT;
+        String fooBaloFile = "target" + File.separator + "balo" + File.separator + fooBaloFileName;
+        given().with().pollInterval(Duration.TEN_SECONDS).and()
+                .with().pollDelay(Duration.FIVE_SECONDS)
+                .await().atMost(120, SECONDS).until(() -> {
+            balClient.runMain("build", new String[]{"-a"}, envVariables, new String[]{}, new
+                    LogLeecher[]{}, testProj2Path.toString());
+            return Files.exists(testProj2Path.resolve(fooBaloFile));
+        });
         
         // Run and see output
         String msg = "Hello john!";
@@ -334,9 +341,6 @@ public class LockFileTestCase extends BaseTest {
         // Delete Ballerina.lock
         Path lockFilePath = testProj2Path.resolve("Ballerina.lock");
         Files.delete(lockFilePath);
-
-        // Timeout to fix unable to read balo file, corrupted balo file error
-        SECONDS.sleep(30);
         
         // Build module
         String fooBaloFileName = "foo-"
