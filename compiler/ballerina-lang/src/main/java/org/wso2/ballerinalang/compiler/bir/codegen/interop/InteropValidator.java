@@ -33,6 +33,7 @@ public class InteropValidator {
     private SymbolTable symbolTable;
 
     public InteropValidator(ClassLoader classLoader, SymbolTable symbolTable) {
+
         this.classLoader = classLoader;
         this.symbolTable = symbolTable;
     }
@@ -51,7 +52,6 @@ public class InteropValidator {
         JMethodResolver methodResolver = new JMethodResolver(classLoader, symbolTable);
 
         return methodResolver.resolve(jMethodRequest);
-
     }
 
     /**

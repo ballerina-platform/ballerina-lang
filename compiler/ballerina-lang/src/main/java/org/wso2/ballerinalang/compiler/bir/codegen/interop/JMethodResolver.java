@@ -74,6 +74,7 @@ class JMethodResolver {
     private SymbolTable symbolTable;
 
     JMethodResolver(ClassLoader classLoader, SymbolTable symbolTable) {
+
         this.classLoader = classLoader;
         this.symbolTable = symbolTable;
     }
@@ -110,6 +111,7 @@ class JMethodResolver {
     private List<JMethod> resolveByMethodName(Class<?> declaringClass,
                                               String methodName,
                                               JMethodKind kind) {
+
         return getExecutables(declaringClass, methodName, kind)
                 .stream()
                 .map(executable -> JMethod.build(kind, executable))
@@ -117,12 +119,14 @@ class JMethodResolver {
     }
 
     private List<JMethod> resolveByParamCount(List<JMethod> jMethods, int paramCount) {
+
         return jMethods.stream()
                 .filter(jMethod -> jMethod.getParamTypes().length == paramCount)
                 .collect(Collectors.toList());
     }
 
     private JMethod resolve(JMethodRequest jMethodRequest, List<JMethod> jMethods) {
+
         boolean noConstraints = noConstraintsSpecified(jMethodRequest.paramTypeConstraints);
         if (jMethods.size() == 1 && noConstraints) {
             return jMethods.get(0);
@@ -141,6 +145,7 @@ class JMethodResolver {
     }
 
     private void validateMethodSignature(JMethodRequest jMethodRequest, JMethod jMethod) {
+
         validateExceptionTypes(jMethodRequest, jMethod);
 
         validateArgumentTypes(jMethodRequest, jMethod);
@@ -149,6 +154,7 @@ class JMethodResolver {
     }
 
     private void validateExceptionTypes(JMethodRequest jMethodRequest, JMethod jMethod) {
+
         Executable method = jMethod.getMethod();
         boolean throwsCheckedException = false;
         boolean returnsErrorValue;
@@ -178,6 +184,7 @@ class JMethodResolver {
     }
 
     private void validateArgumentTypes(JMethodRequest jMethodRequest, JMethod jMethod) {
+
         Class<?>[] jParamTypes = jMethod.getParamTypes();
         BType[] bParamTypes = jMethodRequest.bParamTypes;
         int i = 0;
@@ -208,6 +215,7 @@ class JMethodResolver {
     }
 
     private void validateReturnTypes(JMethodRequest jMethodRequest, JMethod jMethod) {
+
         Class<?> jReturnType = jMethod.getReturnType();
         BType bReturnType = jMethodRequest.bReturnType;
         if (!isValidReturnBType(jReturnType, bReturnType, jMethodRequest)) {
@@ -219,6 +227,7 @@ class JMethodResolver {
     }
 
     private boolean isValidParamBType(Class<?> jType, BType bType, JMethodRequest jMethodRequest) {
+
         try {
             String jTypeName = jType.getTypeName();
             switch (bType.tag) {
@@ -311,7 +320,7 @@ class JMethodResolver {
                 case TypeTags.FUNCTION_POINTER:
                 case TypeTags.INVOKABLE:
                     return this.classLoader.loadClass(BFunctionPointer.class
-                                                               .getCanonicalName()).isAssignableFrom(jType);
+                            .getCanonicalName()).isAssignableFrom(jType);
                 case TypeTags.FUTURE:
                     return this.classLoader.loadClass(BFuture.class.getCanonicalName()).isAssignableFrom(jType);
                 case TypeTags.TYPEDESC:
@@ -325,6 +334,7 @@ class JMethodResolver {
     }
 
     private boolean isValidReturnBType(Class<?> jType, BType bType, JMethodRequest jMethodRequest) {
+
         try {
             String jTypeName = jType.getTypeName();
             switch (bType.tag) {
@@ -462,6 +472,7 @@ class JMethodResolver {
 
     private JMethod resolveExactMethod(Class<?> clazz, String name, JMethodKind kind,
                                        ParamTypeConstraint[] constraints) {
+
         Class<?>[] paramTypes = new Class<?>[constraints.length];
         for (int constraintIndex = 0; constraintIndex < constraints.length; constraintIndex++) {
             paramTypes[constraintIndex] = constraints[constraintIndex].get();
@@ -478,6 +489,7 @@ class JMethodResolver {
     }
 
     private JMethod resolveMatchingMethod(JMethodRequest jMethodRequest, List<JMethod> jMethods) {
+
         ParamTypeConstraint[] constraints = jMethodRequest.paramTypeConstraints;
         List<JMethod> resolvedJMethods = new ArrayList<>();
         for (JMethod jMethod : jMethods) {
@@ -508,6 +520,7 @@ class JMethodResolver {
     }
 
     private Executable resolveConstructor(Class<?> clazz, Class<?>... paramTypes) {
+
         try {
             return clazz.getConstructor(paramTypes);
         } catch (NoSuchMethodException e) {
@@ -516,6 +529,7 @@ class JMethodResolver {
     }
 
     private Executable resolveMethod(Class<?> clazz, String name, Class<?>... paramTypes) {
+
         try {
             return clazz.getMethod(name, paramTypes);
         } catch (NoSuchMethodException e) {
@@ -524,6 +538,7 @@ class JMethodResolver {
     }
 
     private List<Executable> getExecutables(Class<?> clazz, String methodName, JMethodKind kind) {
+
         return kind == JMethodKind.CONSTRUCTOR ? Arrays.asList(clazz.getConstructors()) :
                 Arrays.stream(clazz.getMethods())
                         .filter(method -> method.getName().equals(methodName))
@@ -531,6 +546,7 @@ class JMethodResolver {
     }
 
     private boolean noConstraintsSpecified(ParamTypeConstraint[] constraints) {
+
         for (ParamTypeConstraint constraint : constraints) {
             if (constraint != ParamTypeConstraint.NO_CONSTRAINT) {
                 return false;
@@ -540,6 +556,7 @@ class JMethodResolver {
     }
 
     private int getBFuncParamCount(JMethodRequest jMethodRequest, List<JMethod> jMethods) {
+
         int bFuncParamCount = jMethodRequest.bFuncParamCount;
         if (jMethodRequest.kind == JMethodKind.METHOD) {
             boolean isStaticMethod = jMethods.get(0).isStatic();
@@ -552,6 +569,7 @@ class JMethodResolver {
     private JInteropException getMethodNotFoundError(JMethodKind kind,
                                                      Class<?> declaringClass,
                                                      String methodName) {
+
         if (kind == JMethodKind.CONSTRUCTOR) {
             return new JInteropException(DiagnosticCode.CONSTRUCTOR_NOT_FOUND,
                     "No such public constructor found in class '" + declaringClass + "'");
@@ -565,6 +583,7 @@ class JMethodResolver {
                                                      Class<?> declaringClass,
                                                      String methodName,
                                                      int paramCount) {
+
         if (kind == JMethodKind.CONSTRUCTOR) {
             return new JInteropException(DiagnosticCode.CONSTRUCTOR_NOT_FOUND,
                     "No such public constructor with '" + paramCount +
@@ -580,6 +599,7 @@ class JMethodResolver {
                                                      Class<?> declaringClass,
                                                      String methodName,
                                                      ParamTypeConstraint[] constraints) {
+
         String paramTypesSig = getParamTypesAsString(constraints);
         if (kind == JMethodKind.CONSTRUCTOR) {
             return new JInteropException(DiagnosticCode.CONSTRUCTOR_NOT_FOUND,
@@ -596,6 +616,7 @@ class JMethodResolver {
                                                             Class<?> declaringClass,
                                                             String methodName,
                                                             int paramCount) {
+
         if (kind == JMethodKind.CONSTRUCTOR) {
             return new JInteropException(OVERLOADED_METHODS,
                                          "Overloaded constructors with '" + paramCount + "' parameter(s) in class '" +
@@ -613,6 +634,7 @@ class JMethodResolver {
                                                                       Class<?> declaringClass,
                                                                       String methodName,
                                                                       ParamTypeConstraint[] constraints) {
+
         String paramTypesSig = getParamTypesAsString(constraints);
         if (kind == JMethodKind.CONSTRUCTOR) {
             return new JInteropException(OVERLOADED_METHODS,
@@ -626,6 +648,7 @@ class JMethodResolver {
     }
 
     private String getParamTypesAsString(ParamTypeConstraint[] constraints) {
+
         StringJoiner stringJoiner = new StringJoiner(",", "(", ")");
         for (ParamTypeConstraint paramTypeConstraint : constraints) {
             stringJoiner.add(paramTypeConstraint.get().getName());
@@ -636,7 +659,7 @@ class JMethodResolver {
     private JInteropException getNoSuchMethodError(String methodName, Class<?> jType, BType bType,
                                                    Class<?> declaringClass) {
         return new JInteropException(DiagnosticCode.METHOD_SIGNATURE_DOES_NOT_MATCH,
-                                     "Incompatible param type for method '" + methodName + "' in class '" + declaringClass.getName() +
+                "Incompatible param type for method '" + methodName + "' in class '" + declaringClass.getName() +
                         "': Java type '" + jType.getName() + "' will not be matched to ballerina type '" + bType + "'");
     }
 

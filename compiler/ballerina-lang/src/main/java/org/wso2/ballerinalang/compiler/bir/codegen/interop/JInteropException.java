@@ -22,7 +22,7 @@ import org.ballerinalang.util.diagnostic.DiagnosticCode;
 /**
  * This error indicates Ballerina Java interoperability related error.
  *
- * @since 1.0.0
+ * @since 1.2.0
  */
 public class JInteropException extends RuntimeException {
 
@@ -33,9 +33,9 @@ public class JInteropException extends RuntimeException {
         this.code = code;
     }
 
-    JInteropException(DiagnosticCode reason, String message, Throwable cause) {
+    JInteropException(DiagnosticCode code, String message, Throwable cause) {
         super(message, cause);
-        this.code = reason;
+        this.code = code;
     }
 
     public DiagnosticCode getCode() {

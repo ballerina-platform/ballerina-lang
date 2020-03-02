@@ -26,35 +26,43 @@ import java.lang.reflect.Modifier;
  * @since 1.0.0
  */
 class JavaField {
+
     JFieldMethod method;
     private Field field;
 
     JavaField(JFieldMethod method, Field field) {
+
         this.method = method;
         this.field = field;
     }
 
     String getDeclaringClassName() {
+
         return field.getDeclaringClass().getName().replace(".", "/");
     }
 
     String getName() {
+
         return field.getName();
     }
 
     boolean isStatic() {
+
         return Modifier.isStatic(field.getModifiers());
     }
 
     JFieldMethod getMethod() {
+
         return method;
     }
 
     String getSignature() {
+
         return JInterop.getSig(field.getType());
     }
 
     Class<?> getFieldType() {
+
         return field.getType();
     }
 }

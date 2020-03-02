@@ -32,7 +32,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.interop.JTypeTags.JSHO
 import static org.wso2.ballerinalang.compiler.bir.codegen.interop.JTypeTags.JVOID;
 
 /**
- * Interop representation of java types.
+ * Interop representation of Java types.
  *
  * @since 1.2.0
  */
@@ -41,6 +41,7 @@ public class JType extends BType {
     public int jTag;
 
     public JType(int jTag) {
+
         super(JTypeTags.JTYPE, null);
         this.jTag = jTag;
     }
@@ -68,27 +69,42 @@ public class JType extends BType {
     static JType jBoolean = new JType(JBOOLEAN);
     static JType jVoid = new JType(JVOID);
 
+    /**
+     * Java array type.
+     *
+     * @since 1.2.0
+     */
     public static class JArrayType extends JType {
+
         JType elementType;
 
         public JArrayType(JType elementType) {
+
             super(JARRAY);
             this.elementType = elementType;
         }
     }
 
+    /**
+     * Java referenced type.
+     *
+     * @since 1.2.0
+     */
     public static class JRefType extends JType {
+
         public String typeValue;
         boolean isInterface = false;
         boolean isArray = false;
 
         public JRefType(String typeValue) {
+
             super(JREF);
             this.typeValue = typeValue;
         }
     }
 
     static JType getJTypeFromTypeName(String typeName) {
+
         switch (typeName) {
             case JBYTE_KIND:
                 return jByte;
@@ -114,6 +130,7 @@ public class JType extends BType {
     }
 
     static JType getJTypeForPrimitive(String typeName) {
+
         switch (typeName) {
             case JBYTE_KIND:
                 return jByte;
@@ -139,6 +156,7 @@ public class JType extends BType {
     }
 
     static int getJTypeTagForPrimitive(String typeName) {
+
         switch (typeName) {
             case JBYTE_KIND:
                 return JBYTE;

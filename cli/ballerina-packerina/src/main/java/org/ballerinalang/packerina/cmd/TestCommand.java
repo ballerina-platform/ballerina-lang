@@ -343,6 +343,7 @@ public class TestCommand implements BLauncherCmd {
                 .addTask(new CopyNativeLibTask(skipCopyLibsFromDist))    // copy the native libs(projects only)
                 // create the jar.
                 .addTask(new CreateJarTask(this.dumpBIR, this.skipCopyLibsFromDist))
+                .addTask(new CopyResourcesTask(), isSingleFileBuild)
                 .addTask(new CopyModuleJarTask(skipCopyLibsFromDist))
                 // tasks to list groups or execute tests. the 'listGroups' boolean is used to decide whether to
                 // skip the task or to execute

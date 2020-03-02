@@ -159,7 +159,7 @@ class EmitterUtils {
 
     static String getTypeName(BType bType) {
 
-        for (Map.Entry<String, BType> entry : TypeEmitter.bTypes.entrySet()) {
+        for (Map.Entry<String, BType> entry : TypeEmitter.B_TYPES.entrySet()) {
             if (entry.getValue().equals(bType)) {
                 return entry.getKey();
             }

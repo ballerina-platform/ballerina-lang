@@ -17,6 +17,11 @@
  */
 package org.wso2.ballerinalang.compiler.bir.codegen.interop;
 
+/**
+ * An interface used with JMethod and JField wrapping at JVM codegen side.
+ *
+ * @since 1.2.0
+ */
 interface ExternalFunctionWrapper {
 
 }

@@ -48,13 +48,13 @@ public class CreateJarTask implements Task {
 
     private boolean skipCopyLibsFromDist = false;
 
-    private BackendDriver backendDriver;
-
     public CreateJarTask(boolean dumpBir) {
+
         this.dumpBir = dumpBir;
     }
 
     public CreateJarTask(boolean dumpBir, boolean skipCopyLibsFromDist) {
+
         this.dumpBir = dumpBir;
         this.skipCopyLibsFromDist = skipCopyLibsFromDist;
     }
@@ -64,15 +64,12 @@ public class CreateJarTask implements Task {
         // This will avoid initializing Config registry during jar creation.
         ConfigRegistry.getInstance().setInitialized(true);
         Path sourceRoot = buildContext.get(BuildContextField.SOURCE_ROOT);
-        Path projectBIRCache = buildContext.get(BuildContextField.BIR_CACHE_DIR);
-        Path homeBIRCache = buildContext.getBirCacheFromHome();
-        Path systemBIRCache = buildContext.getSystemRepoBirCache();
         Path runtimeJar = getRuntimeAllJar(buildContext);
 
         CompilerContext context = buildContext.get(BuildContextField.COMPILER_CONTEXT);
         PackageCache packageCache = PackageCache.getInstance(context);
 
-        this.backendDriver = BackendDriver.getInstance(context);
+        BackendDriver backendDriver = BackendDriver.getInstance(context);
 
         List<BLangPackage> moduleBirMap = buildContext.getModules();
         for (BLangPackage module : moduleBirMap) {
@@ -91,18 +88,11 @@ public class CreateJarTask implements Task {
                 moduleDependencySet.add(runtimeJar);
             }
             // write module child imports jars
-            writeImportJar(bLangPackage.symbol.imports, sourceRoot, buildContext, runtimeJar,
-                    projectBIRCache.toString(), homeBIRCache.toString(), systemBIRCache.toString());
-
-            // get the bir path of the module
-            Path entryBir = buildContext.getBirPathFromTargetCache(module.packageID);
+            writeImportJar(backendDriver, bLangPackage.symbol.imports, sourceRoot, buildContext, runtimeJar);
 
             // get the jar path of the module.
             Path jarOutput = buildContext.getJarPathFromTargetCache(module.packageID);
             if (!Files.exists(jarOutput)) {
-//                    BootstrapRunner.loadTargetAndGenerateJarBinary(entryBir.toString(), jarOutput.toString(),
-//                            this.dumpBir, moduleDependencySet, projectBIRCache.toString(), homeBIRCache.toString(),
-//                            systemBIRCache.toString());
                 backendDriver.execute(birPackage, dumpBir, jarOutput);
             }
 
@@ -110,18 +100,11 @@ public class CreateJarTask implements Task {
             if (!buildContext.skipTests() && bLangPackage.hasTestablePackage()) {
                 for (BLangPackage testPkg : bLangPackage.getTestablePkgs()) {
                     // write its child imports jar file to cache
-                    writeImportJar(testPkg.symbol.imports, sourceRoot, buildContext, runtimeJar,
-                            projectBIRCache.toString(), homeBIRCache.toString(), systemBIRCache.toString());
-
-                    // get the bir path of the module
-                    Path testBir = buildContext.getTestBirPathFromTargetCache(testPkg.packageID);
+                    writeImportJar(backendDriver, testPkg.symbol.imports, sourceRoot, buildContext, runtimeJar);
 
                     // get the jar path of the module.
                     Path testJarOutput = buildContext.getTestJarPathFromTargetCache(testPkg.packageID);
                     if (!Files.exists(testJarOutput)) {
-//                        BootstrapRunner.loadTargetAndGenerateJarBinary(testBir.toString(), testJarOutput.toString(),
-//                                this.dumpBir, moduleDependencySet, projectBIRCache.toString(), homeBIRCache.toString(),
-//                                systemBIRCache.toString());
                         backendDriver.execute(birPackage, dumpBir, testJarOutput);
                     }
                 }
@@ -130,36 +113,32 @@ public class CreateJarTask implements Task {
         ConfigRegistry.getInstance().setInitialized(false);
     }
 
-    private void writeImportJar(List<BPackageSymbol> imports, Path sourceRoot, BuildContext buildContext,
-                                Path runtimeJar, String... reps) {
+    private void writeImportJar(BackendDriver backendDriver, List<BPackageSymbol> imports, Path sourceRoot,
+                                BuildContext buildContext, Path runtimeJar) {
+
         for (BPackageSymbol bimport : imports) {
             PackageID id = bimport.pkgID;
             if (id.orgName.value.equals("ballerina") || id.orgName.value.equals("ballerinax")) {
                 continue;
             }
             Path jarFilePath;
-            Path birFilePath;
             // If the module is part of the project write it to project jar cache check if file exist
             // If not write it to home jar cache
             // skip ballerina and ballerinax
             if (ProjectDirs.isModuleExist(sourceRoot, id.name.value) ||
                     buildContext.getImportPathDependency(id).isPresent()) {
                 jarFilePath = buildContext.getJarPathFromTargetCache(id);
-                birFilePath = buildContext.getBirPathFromTargetCache(id);
             } else {
                 jarFilePath = buildContext.getJarPathFromHomeCache(id);
-                birFilePath = buildContext.getBirPathFromHomeCache(id);
             }
             if (!Files.exists(jarFilePath) && buildContext.moduleDependencyPathMap.containsKey(id)) {
                 HashSet<Path> moduleDependencySet = buildContext.moduleDependencyPathMap.get(id).platformLibs;
                 if (!skipCopyLibsFromDist) {
                     moduleDependencySet.add(runtimeJar);
                 }
-//                BootstrapRunner.loadTargetAndGenerateJarBinary(birFilePath.toString(), jarFilePath.toString(),
-//                        this.dumpBir, moduleDependencySet, reps);
                 backendDriver.execute(bimport.bir, dumpBir, jarFilePath);
             }
-            writeImportJar(bimport.imports, sourceRoot, buildContext, runtimeJar, reps);
+            writeImportJar(backendDriver, bimport.imports, sourceRoot, buildContext, runtimeJar);
         }
     }
 

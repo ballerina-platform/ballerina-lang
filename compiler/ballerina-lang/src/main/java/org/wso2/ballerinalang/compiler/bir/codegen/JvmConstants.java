@@ -17,9 +17,11 @@
  */
 package org.wso2.ballerinalang.compiler.bir.codegen;
 
-import org.ballerinalang.jvm.values.TableValue;
-
-// jvm bytecode instructions
+/**
+ * JVM bytecode generation related constants.
+ *
+ * @since 1.2.0
+ */
 public class JvmConstants {
 
     // javm values public API classes
@@ -164,7 +166,6 @@ public class JvmConstants {
     public static final String FILE_NAME_PERIOD_SEPERATOR = "$$$";
     public static final String BALLERINA = "ballerina";
     public static final String BUILT_IN_PACKAGE_NAME = "lang.annotations";
-
 
     // scheduler related constants
     public static final String SCHEDULE_FUNCTION_METHOD = "scheduleFunction";

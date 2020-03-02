@@ -17,7 +17,13 @@
  */
 package org.wso2.ballerinalang.compiler.bir.codegen.interop;
 
+/**
+ * Type tag values for JTypes.
+ *
+ * @since 1.2.0
+ */
 public class JTypeTags {
+
     public static final int JBYTE = 1;
     public static final int JCHAR = 2;
     public static final int JSHORT = 3;
@@ -34,6 +40,7 @@ public class JTypeTags {
     public static final int JTYPE = Integer.MAX_VALUE;
 
     private JTypeTags() {
+
     }
 }
 

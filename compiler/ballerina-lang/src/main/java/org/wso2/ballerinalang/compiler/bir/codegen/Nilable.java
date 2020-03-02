@@ -20,6 +20,11 @@ package org.wso2.ballerinalang.compiler.bir.codegen;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Target;
 
+/**
+ * An interface to track nillable objects at JVM codegen side.
+ *
+ * @since 1.2.0
+ */
 @Target({ElementType.FIELD, ElementType.METHOD, ElementType.PARAMETER, ElementType.LOCAL_VARIABLE})
 public @interface Nilable {
 }

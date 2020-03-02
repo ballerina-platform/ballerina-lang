@@ -48,7 +48,6 @@ class CreateBaloTask extends JavaExec {
     def jvmTarget = 'false'
 
     CreateBaloTask() {
-        setClasspath(project.configurations.baloCreat)
         setMain('org.ballerinalang.stdlib.utils.GenerateBalo')
         setEnableAssertions(true)
     }
@@ -93,6 +92,8 @@ task createBalo(type: CreateBaloTask) {
     dependsOn configurations.baloImplementation
     dependsOn copyExternalMappingNextToBir
 
+    classpath = sourceSets.main.runtimeClasspath
+    classpath += project.configurations.baloCreat
     environment 'BALLERINA_NATIVE_MAP', "./build/classes/java/main/META-INF/this.map.json"
     def balFiles = file("src/main/ballerina/")
     inputs.dir(balFiles)

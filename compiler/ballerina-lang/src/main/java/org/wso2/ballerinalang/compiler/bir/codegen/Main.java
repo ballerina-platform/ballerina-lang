@@ -23,6 +23,9 @@ package org.wso2.ballerinalang.compiler.bir.codegen;
 //import ballerina/stringutils;
 //import ballerina/lang.'int as lint;
 
+/**
+ * TODO Ignore.
+ */
 public class Main {
 //    public static List<String> birCacheDirs = new ArrayList<>();
 //    public static List<String> jarLibraries = new ArrayList<>();
@@ -41,7 +44,8 @@ public class Main {
 //            birCacheDirs.add(i, args[6 + i]);
 //            i = i + 1;
 //        }
-//        // main will receive the no of cache directories as 6th arg. Then we read the rest of the args as cache directories
+//        // main will receive the no of cache directories as 6th arg. Then we read the rest of the args as
+//        // cache directories
 //        // based on 6th arg value.
 //        int argsCount = 6 + numCacheDirs;
 //        int dependentJarCnt = args.size() - argsCount;
