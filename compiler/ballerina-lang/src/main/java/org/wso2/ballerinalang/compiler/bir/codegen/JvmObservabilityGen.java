@@ -32,13 +32,16 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_VA
  * @since 1.2.0
  */
 class JvmObservabilityGen {
+
     static void emitStopObservationInvocation(MethodVisitor mv, int strandIndex) {
+
         mv.visitVarInsn(ALOAD, strandIndex);
         mv.visitMethodInsn(INVOKESTATIC, OBSERVE_UTILS, "stopObservation",
                 String.format("(L%s;)V", STRAND), false);
     }
 
     static void emitReportErrorInvocation(MethodVisitor mv, int strandIndex, int errorIndex) {
+
         mv.visitVarInsn(ALOAD, strandIndex);
         mv.visitVarInsn(ALOAD, errorIndex);
         mv.visitMethodInsn(INVOKESTATIC, OBSERVE_UTILS, "reportError",
@@ -47,6 +50,7 @@ class JvmObservabilityGen {
 
     static void emitStartObservationInvocation(MethodVisitor mv, int strandIndex, String serviceOrConnectorName,
                                                String resourceOrActionName, String observationStartMethod) {
+
         mv.visitVarInsn(ALOAD, strandIndex);
         mv.visitLdcInsn(cleanUpServiceName(serviceOrConnectorName));
         mv.visitLdcInsn(resourceOrActionName);
@@ -55,6 +59,7 @@ class JvmObservabilityGen {
     }
 
     private static String cleanUpServiceName(String serviceName) {
+
         String finalString = serviceName;
         if (serviceName.contains("$$service$")) {
             finalString = serviceName.replace("$$service$", "_");
@@ -63,6 +68,7 @@ class JvmObservabilityGen {
     }
 
     static String getFullQualifiedRemoteFunctionName(String moduleOrg, String moduleName, String funcName) {
+
         if (moduleName.equals("")) {
             return funcName;
         }

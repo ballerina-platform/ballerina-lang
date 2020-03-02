@@ -234,12 +234,13 @@ import static org.wso2.ballerinalang.compiler.bir.model.BIRTerminator.Return;
  * @since 1.2.0
  */
 public class JvmMethodGen {
-    public static List<String> generatedInitFuncs = new ArrayList<>();
+
+    private static List<String> generatedInitFuncs = new ArrayList<>();
     public static int nextId = -1;
     public static int nextVarId = -1;
 
     private static final FunctionParamComparator FUNCTION_PARAM_COMPARATOR = new FunctionParamComparator();
-    public static BUnionType ERROR_OR_NIL_TYPE;
+    static BUnionType errorOrNilType;
 
     static void generateMethod(BIRFunction birFunc,
                                ClassWriter cw,
@@ -247,6 +248,7 @@ public class JvmMethodGen {
                                @Nilable BType attachedType /* = () */,
                                boolean isService /* = false */,
                                String serviceName /* = "" */) {
+
         if (isExternFunc(birFunc)) {
             genJMethodForBExternalFunc(birFunc, cw, birModule, attachedType);
         } else {
@@ -260,6 +262,7 @@ public class JvmMethodGen {
                                           boolean isService,
                                           String serviceName,
                                           @Nilable BType attachedType /* = () */) {
+
         String currentPackageName = getPackageName(module.org.value, module.name.value);
         BalToJVMIndexMap indexMap = new BalToJVMIndexMap();
         String funcName = cleanupFunctionName(func.name.value);
@@ -268,7 +271,7 @@ public class JvmMethodGen {
 
         BIRVariableDcl strandVar = new BIRVariableDcl(symbolTable.stringType, new Name("strand"),
                 VarScope.FUNCTION, VarKind.ARG);
-        int _strandVarIndex = indexMap.getIndex(strandVar);
+        int ignoreStrandVarIndex = indexMap.getIndex(strandVar);
 
         // generate method desc
         String desc = getMethodDesc(func.type.paramTypes, func.type.retType, null, false, useBString);
@@ -281,7 +284,7 @@ public class JvmMethodGen {
             // TODO: find a better way
             BIRVariableDcl selfVar = new BIRVariableDcl(symbolTable.anyType, new Name("self"),
                     VarScope.FUNCTION, VarKind.ARG);
-            int _selfVarIndex = indexMap.getIndex(selfVar);
+            int ignoreSelfVarIndex = indexMap.getIndex(selfVar);
         } else {
             localVarOffset = 0;
             access += ACC_STATIC;
@@ -341,7 +344,6 @@ public class JvmMethodGen {
         returnVarRefIndex = indexMap.getIndex(varDcl);
         BType returnType = func.type.retType;
         genDefaultValue(mv, returnType, returnVarRefIndex);
-
 
         BIRVariableDcl stateVar = new BIRVariableDcl(symbolTable.stringType, //should  be javaInt
                 new Name("state"), null, VarKind.TEMP);
@@ -424,19 +426,16 @@ public class JvmMethodGen {
         mv.visitVarInsn(ISTORE, stateVarIndex);
         mv.visitJumpInsn(GOTO, varinitLable);
 
-
         mv.visitLabel(yieldLable);
         mv.visitTypeInsn(NEW, frameName);
         mv.visitInsn(DUP);
         mv.visitMethodInsn(INVOKESPECIAL, frameName, "<init>", "()V", false);
-
 
         generateFrameClassFieldUpdate(localVars, mv, indexMap, frameName, useBString);
 
         mv.visitInsn(DUP);
         mv.visitVarInsn(ILOAD, stateVarIndex);
         mv.visitFieldInsn(PUTFIELD, frameName, "state", "I");
-
 
         BIRVariableDcl frameVar = new BIRVariableDcl(symbolTable.stringType, new Name("frame"), null, VarKind.TEMP);
         int frameVarIndex = indexMap.getIndex(frameVar);
@@ -547,6 +546,7 @@ public class JvmMethodGen {
     }
 
     private static int[] toIntArray(List<Integer> states) {
+
         int[] ints = new int[states.size()];
         for (int i = 0; i < states.size(); i++) {
             ints[i] = states.get(i);
@@ -554,9 +554,9 @@ public class JvmMethodGen {
         return ints;
     }
 
-
     private static void generateFrameClassFieldLoad(List<BIRVariableDcl> localVars, MethodVisitor mv,
                                                     BalToJVMIndexMap indexMap, String frameName, boolean useBString) {
+
         int k = 0;
         while (k < localVars.size()) {
             BIRVariableDcl localVar = getVariableDcl(localVars.get(k));
@@ -594,7 +594,7 @@ public class JvmMethodGen {
                 mv.visitVarInsn(ASTORE, index);
             } else if (bType.tag == TypeTags.STREAM) {
                 mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%", "_"),
-                                  String.format("L%s;", STREAM_VALUE));
+                        String.format("L%s;", STREAM_VALUE));
                 mv.visitVarInsn(ASTORE, index);
             } else if (bType.tag == TypeTags.ARRAY ||
                     bType.tag == TypeTags.TUPLE) {
@@ -651,6 +651,7 @@ public class JvmMethodGen {
 
     private static void generateFrameClassJFieldLoad(BIRVariableDcl localVar, MethodVisitor mv,
                                                      int index, String frameName) {
+
         JType jType = (JType) localVar.type;
 
         if (jType.jTag == JTypeTags.JBYTE) {
@@ -689,6 +690,7 @@ public class JvmMethodGen {
 
     private static void generateFrameClassFieldUpdate(@Nilable List<BIRVariableDcl> localVars, MethodVisitor mv,
                                                       BalToJVMIndexMap indexMap, String frameName, boolean useBString) {
+
         int k = 0;
         while (k < localVars.size()) {
             BIRVariableDcl localVar = getVariableDcl(localVars.get(k));
@@ -728,7 +730,7 @@ public class JvmMethodGen {
             } else if (bType.tag == TypeTags.STREAM) {
                 mv.visitVarInsn(ALOAD, index);
                 mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%", "_"),
-                                  String.format("L%s;", STREAM_VALUE));
+                        String.format("L%s;", STREAM_VALUE));
             } else if (bType.tag == TypeTags.ARRAY ||
                     bType.tag == TypeTags.TUPLE) {
                 mv.visitVarInsn(ALOAD, index);
@@ -784,6 +786,7 @@ public class JvmMethodGen {
 
     private static void generateFrameClassJFieldUpdate(BIRVariableDcl localVar, MethodVisitor mv,
                                                        int index, String frameName) {
+
         JType jType = (JType) localVar.type;
         if (jType.jTag == JTypeTags.JBYTE) {
             mv.visitVarInsn(ILOAD, index);
@@ -821,6 +824,7 @@ public class JvmMethodGen {
     }
 
     private static String getJVMTypeSign(BType bType) {
+
         String jvmType = "";
         if (bType.tag == TypeTags.INT) {
             jvmType = "J";
@@ -1083,6 +1087,7 @@ public class JvmMethodGen {
 
     private static void genYieldCheck(MethodVisitor mv, LabelGenerator labelGen, BIRBasicBlock thenBB, String funcName,
                                       int localVarOffset) {
+
         mv.visitVarInsn(ALOAD, localVarOffset);
         mv.visitMethodInsn(INVOKEVIRTUAL, STRAND, "isYielded", "()Z", false);
         Label yieldLabel = labelGen.getLabel(funcName + "yield");
@@ -1094,6 +1099,7 @@ public class JvmMethodGen {
     }
 
     static void generateLambdaMethod(BIRInstruction ins, ClassWriter cw, String lambdaName) {
+
         @Nilable BType lhsType;
         String orgName;
         String moduleName;
@@ -1134,7 +1140,6 @@ public class JvmMethodGen {
             throw new BLangCompilerException("JVM generation is not supported for async return type " +
                     String.format("%s", lhsType));
         }
-
 
         int closureMapsCount = 0;
         if (kind == InstructionKind.FP_LOAD) {
@@ -1294,6 +1299,7 @@ public class JvmMethodGen {
     private static void genLoadDataForObjectAttachedLambdas(AsyncCall ins, MethodVisitor mv, int closureMapsCount,
                                                             @Nilable List<BIROperand> paramTypes,
                                                             boolean isBuiltinModule) {
+
         mv.visitInsn(POP);
         mv.visitVarInsn(ALOAD, closureMapsCount);
         mv.visitInsn(ICONST_1);
@@ -1316,6 +1322,7 @@ public class JvmMethodGen {
     }
 
     private static void generateObjectArgs(MethodVisitor mv, int paramIndex) {
+
         mv.visitInsn(DUP);
         mv.visitIntInsn(BIPUSH, paramIndex - 2);
         mv.visitVarInsn(ALOAD, 0);
@@ -1325,6 +1332,7 @@ public class JvmMethodGen {
     }
 
     private static void addBooleanTypeToLambdaParamTypes(MethodVisitor mv, int arrayIndex, int paramIndex) {
+
         mv.visitVarInsn(ALOAD, arrayIndex);
         mv.visitIntInsn(BIPUSH, paramIndex);
         mv.visitInsn(AALOAD);
@@ -1332,6 +1340,7 @@ public class JvmMethodGen {
     }
 
     private static void genDefaultValue(MethodVisitor mv, BType bType, int index) {
+
         if (bType.tag == TypeTags.INT) {
             mv.visitInsn(LCONST_0);
             mv.visitVarInsn(LSTORE, index);
@@ -1378,6 +1387,7 @@ public class JvmMethodGen {
     }
 
     private static void genJDefaultValue(MethodVisitor mv, JType jType, int index) {
+
         if (jType.jTag == JTypeTags.JBYTE) {
             mv.visitInsn(ICONST_0);
             mv.visitVarInsn(ISTORE, index);
@@ -1412,6 +1422,7 @@ public class JvmMethodGen {
     }
 
     static void loadDefaultValue(MethodVisitor mv, BType bType) {
+
         if (bType.tag == TypeTags.INT || bType.tag == TypeTags.BYTE) {
             mv.visitInsn(LCONST_0);
         } else if (bType.tag == TypeTags.FLOAT) {
@@ -1446,6 +1457,7 @@ public class JvmMethodGen {
     }
 
     private static void loadDefaultJValue(MethodVisitor mv, JType jType) {
+
         if (jType.jTag == JTypeTags.JBYTE) {
             mv.visitInsn(ICONST_0);
         } else if (jType.jTag == JTypeTags.JCHAR) {
@@ -1473,6 +1485,7 @@ public class JvmMethodGen {
     public static String getMethodDesc(@Nilable List<BType> paramTypes, @Nilable BType retType,
                                        @Nilable BType attachedType /* = () */, boolean isExtern /* = false */,
                                        boolean useBString /* = false */) {
+
         String desc = "(Lorg/ballerinalang/jvm/scheduling/Strand;";
 
         if (attachedType instanceof BType) {
@@ -1493,6 +1506,7 @@ public class JvmMethodGen {
 
     private static String getLambdaMethodDesc(@Nilable List<BType> paramTypes, @Nilable BType retType,
                                               int closureMapsCount) {
+
         String desc = "(Lorg/ballerinalang/jvm/scheduling/Strand;";
         int j = 0;
         while (j < closureMapsCount) {
@@ -1513,6 +1527,7 @@ public class JvmMethodGen {
     }
 
     private static String getArgTypeSignature(BType bType, boolean useBString /* = false */) {
+
         if (bType.tag == TypeTags.INT) {
             return "J";
         } else if (bType.tag == TypeTags.BYTE) {
@@ -1562,6 +1577,7 @@ public class JvmMethodGen {
 
     private static String generateReturnType(@Nilable BType bType, boolean isExtern /* = false */,
                                              boolean useBString /* = false */) {
+
         if (bType == null | bType.tag == TypeTags.NIL) {
             if (isExtern) {
                 return ")V";
@@ -1617,6 +1633,7 @@ public class JvmMethodGen {
 
     static @Nilable
     BIRFunction getMainFunc(@Nilable List<BIRFunction> funcs) {
+
         @Nilable BIRFunction userMainFunc = null;
         for (BIRFunction func : funcs) {
             if (func instanceof BIRFunction && func.name.value.equals("main")) {
@@ -1629,6 +1646,7 @@ public class JvmMethodGen {
     }
 
     static void createFunctionPointer(MethodVisitor mv, String klass, String lambdaName, int closureMapCount) {
+
         mv.visitTypeInsn(NEW, FUNCTION_POINTER);
         mv.visitInsn(DUP);
         visitInvokeDyn(mv, klass, cleanupFunctionName(lambdaName), closureMapCount);
@@ -1663,7 +1681,7 @@ public class JvmMethodGen {
         // add main string[] args param first
         BIRVariableDcl argsVar = new BIRVariableDcl(symbolTable.anyType, new Name("argsdummy"), VarScope.FUNCTION,
                 VarKind.ARG);
-        int _argsVarIndex = indexMap.getIndex(argsVar);
+        int ignoreArgsVarIndex = indexMap.getIndex(argsVar);
 
         boolean isVoidFunction = userMainFunc instanceof BIRFunction && userMainFunc.type.retType.tag == TypeTags.NIL;
 
@@ -1772,6 +1790,7 @@ public class JvmMethodGen {
     }
 
     private static void initConfigurations(MethodVisitor mv) {
+
         mv.visitVarInsn(ALOAD, 0);
         mv.visitMethodInsn(INVOKESTATIC, LAUNCH_UTILS,
                 "initConfigurations", String.format("([L%s;)[L%s;", STRING_VALUE, STRING_VALUE), false);
@@ -1779,16 +1798,19 @@ public class JvmMethodGen {
     }
 
     private static void startListeners(MethodVisitor mv, boolean isServiceEPAvailable) {
+
         mv.visitLdcInsn(isServiceEPAvailable);
         mv.visitMethodInsn(INVOKESTATIC, LAUNCH_UTILS, "startListeners", "(Z)V", false);
     }
 
     private static void stopListeners(MethodVisitor mv, boolean isServiceEPAvailable) {
+
         mv.visitLdcInsn(isServiceEPAvailable);
         mv.visitMethodInsn(INVOKESTATIC, LAUNCH_UTILS, "stopListeners", "(Z)V", false);
     }
 
     private static void registerShutdownListener(MethodVisitor mv, String initClass) {
+
         String shutdownClassName = initClass + "$SignalListener";
         mv.visitMethodInsn(INVOKESTATIC, JAVA_RUNTIME, "getRuntime", String.format("()L%s;", JAVA_RUNTIME), false);
         mv.visitTypeInsn(NEW, shutdownClassName);
@@ -1804,8 +1826,7 @@ public class JvmMethodGen {
 
         mv.visitVarInsn(ALOAD, schedulerVarIndex);
         // schedule the start method
-        String startFuncName = MODULE_START;
-        String startLambdaName = String.format("$lambda$%s$", startFuncName);
+        String startLambdaName = String.format("$lambda$%s$", MODULE_START);
 
         mv.visitIntInsn(BIPUSH, 1);
         mv.visitTypeInsn(ANEWARRAY, OBJECT);
@@ -1819,7 +1840,6 @@ public class JvmMethodGen {
         loadType(mv, anyType);
         mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, SCHEDULE_FUNCTION_METHOD,
                 String.format("([L%s;L%s;L%s;L%s;)L%s;", OBJECT, FUNCTION_POINTER, STRAND, BTYPE, FUTURE_VALUE), false);
-
 
         mv.visitInsn(DUP);
         mv.visitInsn(DUP);
@@ -1856,6 +1876,7 @@ public class JvmMethodGen {
 //# + pkg - package
     static void generateLambdaForMain(BIRFunction userMainFunc, ClassWriter cw, BIRPackage pkg,
                                       String mainClass, String initClass) {
+
         String pkgName = getPackageName(pkg.org.value, pkg.name.value);
         BType returnType = userMainFunc.type.retType;
 
@@ -1976,7 +1997,7 @@ public class JvmMethodGen {
                 // String lookupKey = getPackageName(id.orgName, id.name) + fullFuncName;
 
                 // String jvmClass = lookupFullQualifiedClassName(lookupKey);
-                String jvmClass =  getPackageName(id.orgName, id.name) + MODULE_INIT_CLASS_NAME;
+                String jvmClass = getPackageName(id.orgName, id.name) + MODULE_INIT_CLASS_NAME;
                 generateLambdaForDepModStopFunc(cw, cleanupFunctionName(fullFuncName), jvmClass);
             }
         }
@@ -1984,6 +2005,7 @@ public class JvmMethodGen {
 
     private static void generateLambdaForModuleFunction(ClassWriter cw, String funcName, String initClass,
                                                         boolean voidReturn /* = true */) {
+
         MethodVisitor mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC,
                 String.format("$lambda$%s$", funcName),
                 String.format("([L%s;)L%s;", OBJECT, OBJECT), null, null);
@@ -1996,13 +2018,14 @@ public class JvmMethodGen {
         mv.visitTypeInsn(CHECKCAST, STRAND);
 
         mv.visitMethodInsn(INVOKESTATIC, initClass, funcName, String.format("(L%s;)L%s;", STRAND, OBJECT), false);
-        addBoxInsn(mv, ERROR_OR_NIL_TYPE);
+        addBoxInsn(mv, errorOrNilType);
         mv.visitInsn(ARETURN);
         mv.visitMaxs(0, 0);
         mv.visitEnd();
     }
 
     private static void generateLambdaForDepModStopFunc(ClassWriter cw, String funcName, String initClass) {
+
         MethodVisitor mv;
         mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC,
                 String.format("$lambda$%s", funcName),
@@ -2026,6 +2049,7 @@ public class JvmMethodGen {
 //# + targetType - target type to be casted
 //# + mv - method visitor
     static void castFromString(BType targetType, MethodVisitor mv) {
+
         mv.visitTypeInsn(CHECKCAST, STRING_VALUE);
         if (targetType.tag == TypeTags.INT) {
             mv.visitMethodInsn(INVOKESTATIC, LONG_VALUE, "parseLong", String.format("(L%s;)J", STRING_VALUE), false);
@@ -2061,6 +2085,7 @@ public class JvmMethodGen {
     }
 
     private static boolean hasInitFunction(BIRPackage pkg) {
+
         for (BIRFunction func : pkg.functions) {
             if (func != null && isModuleInitFunction(pkg, func)) {
                 return true;
@@ -2070,20 +2095,24 @@ public class JvmMethodGen {
     }
 
     private static boolean isModuleInitFunction(BIRPackage module, BIRFunction func) {
+
         String moduleInit = getModuleInitFuncName(module);
         return func.name.value.equals(moduleInit);
     }
 
     // TODO: remove and use calculateModuleInitFuncName
     private static String getModuleInitFuncName(BIRPackage module) {
+
         return calculateModuleInitFuncName(packageToModuleId(module));
     }
 
     private static String calculateModuleInitFuncName(PackageID id) {
+
         return calculateModuleSpecialFuncName(id, "<init>");
     }
 
     private static String calculateModuleSpecialFuncName(PackageID id, String funcSuffix) {
+
         String orgName = id.orgName.value;
         String moduleName = id.name.value;
         String version = id.version.value;
@@ -2106,18 +2135,22 @@ public class JvmMethodGen {
 
     // TODO: remove and use calculateModuleStartFuncName
     static String getModuleStartFuncName(BIRPackage module) {
+
         return calculateModuleStartFuncName(packageToModuleId(module));
     }
 
     private static String calculateModuleStartFuncName(PackageID id) {
+
         return calculateModuleSpecialFuncName(id, "<start>");
     }
 
     static String getModuleStopFuncName(BIRPackage module) {
+
         return calculateModuleSpecialFuncName(packageToModuleId(module), "<stop>");
     }
 
     static void addInitAndTypeInitInstructions(BIRPackage pkg, BIRFunction func) {
+
         @Nilable List<BIRBasicBlock> basicBlocks = new ArrayList<>();
         nextId = -1;
         BIRBasicBlock nextBB = new BIRBasicBlock(getNextBBId());
@@ -2147,6 +2180,7 @@ public class JvmMethodGen {
 
     static void enrichPkgWithInitializers(Map<String, JavaClass> jvmClassMap, String typeOwnerClass,
                                           BIRPackage pkg, List<PackageID> depModArray) {
+
         JavaClass javaClass = jvmClassMap.get(typeOwnerClass);
         BIRFunction initFunc = generateDepModInit(depModArray, pkg, MODULE_INIT, "<init>");
         javaClass.functions.add(initFunc);
@@ -2160,24 +2194,25 @@ public class JvmMethodGen {
 
     private static BIRFunction generateDepModInit(List<PackageID> imprtMods, BIRPackage pkg, String funcName,
                                                   String initName) {
+
         nextId = -1;
         nextVarId = -1;
 
-        BIRVariableDcl retVar = new BIRVariableDcl(null, ERROR_OR_NIL_TYPE, new Name("%ret"),
-                                                   VarScope.FUNCTION, VarKind.RETURN, "");
+        BIRVariableDcl retVar = new BIRVariableDcl(null, errorOrNilType, new Name("%ret"),
+                VarScope.FUNCTION, VarKind.RETURN, "");
         BIROperand retVarRef = new BIROperand(retVar);
 
         BIRFunction modInitFunc = new BIRFunction(null, new Name(funcName), 0,
-                                                  new BInvokableType(Collections.emptyList(), null, ERROR_OR_NIL_TYPE, null), null, 0, null);
+                new BInvokableType(Collections.emptyList(), null, errorOrNilType, null), null, 0, null);
         modInitFunc.localVars.add(retVar);
-        BIRBasicBlock _NextBB = addAndGetNextBasicBlock(modInitFunc);
+        BIRBasicBlock ignoreNextBB = addAndGetNextBasicBlock(modInitFunc);
 
         BIRVariableDcl boolVal = addAndGetNextVar(modInitFunc, symbolTable.booleanType);
         BIROperand boolRef = new BIROperand(boolVal);
 
         for (PackageID id : imprtMods) {
             String initFuncName = calculateModuleSpecialFuncName(id, initName);
-            BIRBasicBlock _bb = addCheckedInvocation(modInitFunc, id, initFuncName, retVarRef, boolRef);
+            BIRBasicBlock ignoreBB = addCheckedInvocation(modInitFunc, id, initFuncName, retVarRef, boolRef);
         }
 
         PackageID currentModId = packageToModuleId(pkg);
@@ -2190,12 +2225,14 @@ public class JvmMethodGen {
     }
 
     private static Name getNextBBId() {
+
         String bbIdPrefix = "genBB";
         nextId += 1;
         return new Name(bbIdPrefix + nextId);
     }
 
     static Name getNextVarId() {
+
         String varIdPrefix = "%";
         nextVarId += 1;
         return new Name(varIdPrefix + nextVarId);
@@ -2203,6 +2240,7 @@ public class JvmMethodGen {
 
     private static BIRBasicBlock addCheckedInvocation(BIRFunction func, PackageID modId, String initFuncName,
                                                       BIROperand retVar, BIROperand boolRef) {
+
         BIRBasicBlock lastBB = func.basicBlocks.get(func.basicBlocks.size() - 1);
         BIRBasicBlock nextBB = addAndGetNextBasicBlock(func);
         // TODO remove once lang.annotation is fixed
@@ -2231,12 +2269,14 @@ public class JvmMethodGen {
     }
 
     private static BIRBasicBlock addAndGetNextBasicBlock(BIRFunction func) {
+
         BIRBasicBlock nextbb = new BIRBasicBlock(getNextBBId());
         func.basicBlocks.add(nextbb);
         return nextbb;
     }
 
     private static BIRVariableDcl addAndGetNextVar(BIRFunction func, BType typeVal) {
+
         BIRVariableDcl nextLocalVar = new BIRVariableDcl(typeVal, getNextVarId(), VarScope.FUNCTION, VarKind.LOCAL);
         func.localVars.add(nextLocalVar);
         return nextLocalVar;
@@ -2253,6 +2293,7 @@ public class JvmMethodGen {
     }
 
     private static void generateAnnotLoad(MethodVisitor mv, @Nilable List<BIRTypeDefinition> typeDefs, String pkgName) {
+
         String typePkgName = ".";
         if (!"".equals(pkgName)) {
             typePkgName = pkgName;
@@ -2271,8 +2312,9 @@ public class JvmMethodGen {
     }
 
     private static void loadAnnots(MethodVisitor mv, String pkgName, BIRTypeDefinition typeDef) {
+
         String pkgClassName = pkgName.equals(".") || pkgName.equals("") ? MODULE_INIT_CLASS_NAME :
-                lookupGlobalVarClassName(pkgName,  ANNOTATION_MAP_NAME);
+                lookupGlobalVarClassName(pkgName, ANNOTATION_MAP_NAME);
         mv.visitFieldInsn(GETSTATIC, pkgClassName, ANNOTATION_MAP_NAME, String.format("L%s;", MAP_VALUE));
         loadExternalOrLocalType(mv, typeDef);
         mv.visitMethodInsn(INVOKESTATIC, String.format("%s", ANNOTATION_UTILS), "processAnnotations",
@@ -2282,6 +2324,7 @@ public class JvmMethodGen {
     ;
 
     static void generateFrameClasses(BIRPackage pkg, Map<String, byte[]> pkgEntries) {
+
         for (BIRFunction func : pkg.functions) {
             generateFrameClassForFunction(pkg, func, pkgEntries, null);
         }
@@ -2307,6 +2350,7 @@ public class JvmMethodGen {
     private static void generateFrameClassForFunction(BIRPackage pkg, @Nilable BIRFunction func,
                                                       Map<String, byte[]> pkgEntries,
                                                       @Nilable BType attachedType /* = () */) {
+
         String pkgName = getPackageName(pkg.org.value, pkg.name.value);
         BIRFunction currentFunc = getFunction(func);
         String frameClassName = getFrameClassName(pkgName, currentFunc.name.value, attachedType);
@@ -2339,6 +2383,7 @@ public class JvmMethodGen {
     }
 
     private static String getFrameClassName(String pkgName, String funcName, @Nilable BType attachedType) {
+
         String frameClassName = pkgName;
         if (attachedType != null) {
             if (attachedType.tag == TypeTags.OBJECT) {
@@ -2356,10 +2401,12 @@ public class JvmMethodGen {
     //# Cleanup type name by replacing '$' with '_'.
 //# + return - cleaned name
     static String cleanupTypeName(String name) {
+
         return name.replace("$", "_");
     }
 
     static String cleanupBalExt(String name) {
+
         return name.replace(BAL_EXTENSION, "");
     }
 
@@ -2369,6 +2416,7 @@ public class JvmMethodGen {
     }
 
     static void generateField(ClassWriter cw, BType bType, String fieldName, boolean isPackage) {
+
         String typeSig;
         if (bType.tag == TypeTags.INT) {
             typeSig = "J";
@@ -2431,6 +2479,7 @@ public class JvmMethodGen {
     }
 
     static void generateDefaultConstructor(ClassWriter cw, String ownerClass) {
+
         MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "<init>", "()V", null, null);
         mv.visitCode();
         mv.visitVarInsn(ALOAD, 0);
@@ -2441,6 +2490,7 @@ public class JvmMethodGen {
     }
 
     private static void generateDiagnosticPos(DiagnosticPos pos, MethodVisitor mv) {
+
         if (pos != null && pos.sLine != 0x80000000) {
             Label label = new Label();
             mv.visitLabel(label);
@@ -2449,10 +2499,12 @@ public class JvmMethodGen {
     }
 
     static String cleanupFunctionName(String functionName) {
+
         return functionName.replaceAll("[\\.:/<>]", "_");
     }
 
     public static BIRVariableDcl getVariableDcl(@Nilable BIRVariableDcl localVar) {
+
         if (localVar instanceof BIRVariableDcl) {
             return localVar;
         } else {
@@ -2461,6 +2513,7 @@ public class JvmMethodGen {
     }
 
     static BIRFunctionParameter getFunctionParam(@Nilable BIRFunctionParameter localVar) {
+
         if (localVar instanceof BIRFunctionParameter) {
             return localVar;
         } else {
@@ -2469,6 +2522,7 @@ public class JvmMethodGen {
     }
 
     static BIRBasicBlock getBasicBlock(@Nilable BIRBasicBlock bb) {
+
         if (bb instanceof BIRBasicBlock) {
             return bb;
         } else {
@@ -2477,6 +2531,7 @@ public class JvmMethodGen {
     }
 
     static BIRFunction getFunction(@Nilable BIRFunction bfunction) {
+
         if (bfunction instanceof BIRFunction) {
             return bfunction;
         } else {
@@ -2485,6 +2540,7 @@ public class JvmMethodGen {
     }
 
     static BIRTypeDefinition getTypeDef(@Nilable BIRTypeDefinition typeDef) {
+
         if (typeDef instanceof BIRTypeDefinition) {
             return typeDef;
         } else {
@@ -2493,6 +2549,7 @@ public class JvmMethodGen {
     }
 
     static BField getObjectField(@Nilable BField objectField) {
+
         if (objectField instanceof BField) {
             return objectField;
         } else {
@@ -2501,6 +2558,7 @@ public class JvmMethodGen {
     }
 
     static BField getRecordField(@Nilable BField recordField) {
+
         if (recordField != null) {
             return recordField;
         } else {
@@ -2509,10 +2567,12 @@ public class JvmMethodGen {
     }
 
     static boolean isExternFunc(BIRFunction func) {
+
         return (func.flags & Flags.NATIVE) == Flags.NATIVE;
     }
 
     private static BIROperand getVarRef(@Nilable BIROperand varRef) {
+
         if (varRef == null) {
             throw new BLangCompilerException("Invalid variable reference");
         } else {
@@ -2521,6 +2581,7 @@ public class JvmMethodGen {
     }
 
     static BType getType(@Nilable BType bType) {
+
         if (bType == null) {
             throw new BLangCompilerException("Invalid type");
         } else {
@@ -2529,6 +2590,7 @@ public class JvmMethodGen {
     }
 
     private static String getMapValueDesc(int count) {
+
         int i = count;
         String desc = "";
         while (i > 0) {
@@ -2540,6 +2602,7 @@ public class JvmMethodGen {
     }
 
     static boolean isInitInvoked(String item) {
+
         for (String listItem : generatedInitFuncs) {
             if (listItem.equalsIgnoreCase(item)) {
                 return true;
@@ -2550,6 +2613,7 @@ public class JvmMethodGen {
     }
 
     static List<BIRFunction> getFunctions(List<BIRFunction> functions) {
+
         if (functions == null) {
             throw new BLangCompilerException(String.format("Invalid functions: %s", functions));
         } else {
@@ -2558,6 +2622,7 @@ public class JvmMethodGen {
     }
 
     private static void checkStrandCancelled(MethodVisitor mv, int localVarOffset) {
+
         mv.visitVarInsn(ALOAD, localVarOffset);
         mv.visitFieldInsn(GETFIELD, STRAND, "cancel", "Z");
         Label notCancelledLabel = new Label();
@@ -2570,6 +2635,7 @@ public class JvmMethodGen {
     }
 
     static boolean stringArrayContains(List<String> array, String item) {
+
         for (String listItem : array) {
             if (listItem.equalsIgnoreCase(item)) {
                 return true;
@@ -2629,6 +2695,7 @@ public class JvmMethodGen {
     }
 
     static void generateModuleInitializer(ClassWriter cw, BIRPackage module) {
+
         String orgName = module.org.value;
         String moduleName = module.name.value;
         String version = module.version.value;
@@ -2669,6 +2736,7 @@ public class JvmMethodGen {
 
     static void generateExecutionStopMethod(ClassWriter cw, String initClass, BIRPackage
             module, List<PackageID> imprtMods) {
+
         String orgName = module.org.value;
         String moduleName = module.name.value;
         String version = module.version.value;
@@ -2693,7 +2761,6 @@ public class JvmMethodGen {
         mv.visitMethodInsn(INVOKESPECIAL, SCHEDULER, "<init>", "(IZ)V", false);
 
         mv.visitVarInsn(ASTORE, schedulerIndex);
-
 
         String stopFuncName = "<stop>";
 
@@ -2727,6 +2794,7 @@ public class JvmMethodGen {
     private static void scheduleStopMethod(MethodVisitor mv, String initClass, String stopFuncName,
                                            ErrorHandlerGenerator errorGen, BalToJVMIndexMap indexMap,
                                            int schedulerIndex, int futureIndex) {
+
         String lambdaFuncName = "$lambda$" + stopFuncName;
         // Create a schedular. A new schedular is used here, to make the stop function to not to
         // depend/wait on whatever is being running on the background. eg: a busy loop in the main.
@@ -2775,12 +2843,14 @@ public class JvmMethodGen {
     }
 
     private static void generateJavaCompatibilityCheck(MethodVisitor mv) {
+
         mv.visitLdcInsn(getJavaVersion());
         mv.visitMethodInsn(INVOKESTATIC, COMPATIBILITY_CHECKER, "verifyJavaCompatibility",
                 String.format("(L%s;)V", STRING_VALUE), false);
     }
 
     private static String getJavaVersion() {
+
         String versionProperty = "java.version";
         @Nilable String javaVersion = System.getProperty(versionProperty);
         if (javaVersion instanceof String) {
@@ -2791,27 +2861,35 @@ public class JvmMethodGen {
     }
 
     static boolean isBStringFunc(String funcName) {
+
         return funcName.endsWith("$bstring");
     }
 
     static String nameOfBStringFunc(String nonBStringFuncName) {
+
         return nonBStringFuncName + "$bstring";
     }
 
     public static String nameOfNonBStringFunc(String funcName) {
+
         if (isBStringFunc(funcName)) {
             return funcName.substring(0, funcName.length() - 8);
         }
         return funcName;
     }
 
-//    static handle /* = @java:Method getProperty(handle propertyName */)
-
+    /**
+     * A map that keeps JVM stack the index values against the variables.
+     *
+     * @since 1.2.0
+     */
     public static class BalToJVMIndexMap {
+
         private int localVarIndex = 0;
         private Map<String, Integer> jvmLocalVarIndexMap = new HashMap<>();
 
         void add(BIRVariableDcl varDcl) {
+
             String varRefName = this.getVarRefName(varDcl);
             this.jvmLocalVarIndexMap.put(varRefName, this.localVarIndex);
 
@@ -2832,10 +2910,12 @@ public class JvmMethodGen {
         }
 
         private String getVarRefName(BIRVariableDcl varDcl) {
+
             return varDcl.name.value;
         }
 
         public int getIndex(BIRVariableDcl varDcl) {
+
             String varRefName = this.getVarRefName(varDcl);
             if (!(this.jvmLocalVarIndexMap.containsKey(varRefName))) {
                 this.add(varDcl);

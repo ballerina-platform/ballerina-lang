@@ -17,6 +17,11 @@
  */
 package org.wso2.ballerinalang.compiler.bir.codegen.interop;
 
+/**
+ * An enum to model the JInstruction kind.
+ *
+ * @since 1.2.0
+ */
 public enum JInsKind {
     JCAST((byte) 1),
     CALL((byte) 2);
@@ -24,10 +29,12 @@ public enum JInsKind {
     byte value;
 
     JInsKind(byte value) {
+
         this.value = value;
     }
 
     public byte getValue() {
+
         return this.value;
     }
 }

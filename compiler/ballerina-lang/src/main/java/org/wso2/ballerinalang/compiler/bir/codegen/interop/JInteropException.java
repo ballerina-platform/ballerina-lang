@@ -20,7 +20,7 @@ package org.wso2.ballerinalang.compiler.bir.codegen.interop;
 /**
  * This error indicates Ballerina Java interoperability related error.
  *
- * @since 1.0.0
+ * @since 1.2.0
  */
 class JInteropException extends RuntimeException {
 
@@ -36,16 +36,19 @@ class JInteropException extends RuntimeException {
     private String reason;
 
     JInteropException(String reason, String message) {
+
         super(message);
         this.reason = reason;
     }
 
     JInteropException(String reason, String message, Throwable cause) {
+
         super(message, cause);
         this.reason = reason;
     }
 
     String getReason() {
+
         return this.reason;
     }
 }
