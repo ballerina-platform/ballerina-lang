@@ -100,7 +100,7 @@ public class SQLDatasource {
     }
 
 
-    private Connection getSQLConnection() throws SQLException {
+    public Connection getSQLConnection() throws SQLException {
         return hikariDataSource.getConnection();
     }
 

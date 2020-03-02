@@ -16,4 +16,16 @@
   ~ under the License.
   -->
 <FindBugsFilter>
+    <Match>
+        <Package name="org.ballerinalang.sql.utils"/>
+        <Bug pattern="DLS_DEAD_LOCAL_STORE"/>
+    </Match>
+    <Match>
+        <Package name="org.ballerinalang.sql.utils"/>
+        <Bug pattern="OBL_UNSATISFIED_OBLIGATION"/>
+    </Match>
+     <Match>
+        <Package name="org.ballerinalang.sql.utils"/>
+        <Bug pattern="ODR_OPEN_DATABASE_RESOURCE"/>
+    </Match>
 </FindBugsFilter>
