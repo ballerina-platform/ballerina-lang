@@ -1464,7 +1464,12 @@ public class NodeCloner extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangConstRef constRef) {
-        // Ignore
+        BLangConstRef clone = new BLangConstRef();
+        constRef.cloneRef = clone;
+        clone.pkgAlias = constRef.pkgAlias;
+        clone.originalValue = constRef.originalValue;
+        clone.value = constRef.value;
+        clone.variableName = constRef.variableName;
     }
 
     @Override

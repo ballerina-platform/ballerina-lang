@@ -83,6 +83,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckPanickedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
@@ -1337,6 +1338,15 @@ public class TypeChecker extends BLangNodeVisitor {
         return symbol != this.symTable.notFoundSymbol &&
                symbol.type.tag == TypeTags.FUTURE &&
                ((BFutureType) symbol.type).workerDerivative;
+    }
+
+    @Override
+    public void visit(BLangConstRef constRef) {
+        constRef.symbol = symResolver.lookupMainSpaceSymbolInPackage(constRef.pos, env,
+                names.fromIdNode(constRef.pkgAlias), names.fromIdNode(constRef.variableName));
+
+        types.setImplicitCastExpr(constRef, constRef.type, expType);
+        resultType = constRef.type;
     }
 
     public void visit(BLangSimpleVarRef varRefExpr) {
