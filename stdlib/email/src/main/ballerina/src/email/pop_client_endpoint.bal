@@ -28,7 +28,7 @@ public type PopClient client object {
     # Used to read a message.
     #
     # + filter - Filter parameters to read an email
-    # + return - An `error` if failed to send the message to the recipient
+    # + return - An `error` if failed to receive the message to the recipient
     public remote function read(Filter filter = { folder: "INBOX" }) returns Email|error? {
         return popRead(self, filter);
     }
