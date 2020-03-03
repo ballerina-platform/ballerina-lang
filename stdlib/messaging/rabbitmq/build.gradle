@@ -45,6 +45,7 @@ dependencies {
     testCompile project(':ballerina-jvm')
 
     interopImports project(':ballerina-crypto')
+    interopImports 'com.rabbitmq:amqp-client:5.7.3'
 }
 
 configurations {
