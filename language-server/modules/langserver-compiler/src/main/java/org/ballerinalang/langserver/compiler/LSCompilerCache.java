@@ -96,6 +96,14 @@ public class LSCompilerCache {
                 ((isSinglePkg) ? !cacheEntry.get().isLeft() : !cacheEntry.get().isRight())) {
             return null;
         }
+        List<Diagnostic> diagnostics = cacheEntry.diagnostics;
+        DiagnosticListener diagnosticListener = cacheEntry.compilerContext.get(DiagnosticListener.class);
+        if (diagnostics != null && diagnosticListener instanceof CollectDiagnosticListener) {
+            // Restore diagnostics, since same CompilerContext is shared between different operations
+            CollectDiagnosticListener listener = (CollectDiagnosticListener) diagnosticListener;
+            listener.clearAll();
+            diagnostics.forEach(listener::received);
+        }
         context.put(DocumentServiceKeys.COMPILER_CONTEXT_KEY, cacheEntry.compilerContext);
         return cacheEntry;
     }
@@ -246,6 +254,13 @@ public class LSCompilerCache {
                    CompilerContext compilerContext) {
             this.bLangPackages = bLangPackages;
             this.compilerContext = compilerContext;
+            DiagnosticListener diagnosticListener = compilerContext.get(DiagnosticListener.class);
+            List<Diagnostic> diagnostics = null;
+            if (diagnosticListener instanceof CollectDiagnosticListener) {
+                CollectDiagnosticListener listener = (CollectDiagnosticListener) diagnosticListener;
+                diagnostics = new ArrayList<>(listener.getDiagnostics());
+            }
+            this.diagnostics = diagnostics;
         }
 
         /**
