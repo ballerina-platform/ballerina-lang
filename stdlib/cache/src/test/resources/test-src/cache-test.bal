@@ -18,9 +18,10 @@ import ballerina/cache;
 import ballerina/runtime;
 
 function testCreateCache() returns int {
+    cache:LruEvictionPolicy lruEvictionPolicy = new;
     cache:CacheConfig config = {
         capacity: 10,
-        evictionPolicy: cache:LRU,
+        evictionPolicy: lruEvictionPolicy,
         evictionFactor: 0.2,
         defaultMaxAgeInSeconds: 3600,
         cleanupIntervalInSeconds: 5
@@ -32,7 +33,6 @@ function testCreateCache() returns int {
 function testPutNewEntry(string key, string value) returns int {
     cache:CacheConfig config = {
         capacity: 10,
-        evictionPolicy: cache:LRU,
         evictionFactor: 0.2
     };
     cache:Cache cache = new(config);
@@ -43,7 +43,6 @@ function testPutNewEntry(string key, string value) returns int {
 function testPutExistingEntry(string key, string value) returns [int, any|cache:Error] {
     cache:CacheConfig config = {
         capacity: 10,
-        evictionPolicy: cache:LRU,
         evictionFactor: 0.2
     };
     cache:Cache cache = new(config);
@@ -55,7 +54,6 @@ function testPutExistingEntry(string key, string value) returns [int, any|cache:
 function testPutWithMaxAge(string key, string value, int maxAge) returns int {
     cache:CacheConfig config = {
         capacity: 10,
-        evictionPolicy: cache:LRU,
         evictionFactor: 0.2
     };
     cache:Cache cache = new(config);
@@ -67,7 +65,6 @@ function testPutWithMaxAge(string key, string value, int maxAge) returns int {
 function testGetExistingEntry(string key, string value) returns any|cache:Error {
     cache:CacheConfig config = {
         capacity: 10,
-        evictionPolicy: cache:LRU,
         evictionFactor: 0.2
     };
     cache:Cache cache = new(config);
@@ -78,7 +75,6 @@ function testGetExistingEntry(string key, string value) returns any|cache:Error 
 function testGetNonExistingEntry(string key) returns any|cache:Error {
     cache:CacheConfig config = {
         capacity: 10,
-        evictionPolicy: cache:LRU,
         evictionFactor: 0.2
     };
     cache:Cache cache = new(config);
@@ -88,7 +84,6 @@ function testGetNonExistingEntry(string key) returns any|cache:Error {
 function testGetExpiredEntry(string key, string value) returns any|cache:Error {
     cache:CacheConfig config = {
         capacity: 10,
-        evictionPolicy: cache:LRU,
         evictionFactor: 0.2
     };
     cache:Cache cache = new(config);
@@ -101,7 +96,6 @@ function testGetExpiredEntry(string key, string value) returns any|cache:Error {
 function testRemove() returns int {
     cache:CacheConfig config = {
         capacity: 10,
-        evictionPolicy: cache:LRU,
         evictionFactor: 0.2
     };
     cache:Cache cache = new(config);
@@ -115,7 +109,6 @@ function testRemove() returns int {
 function testRemoveAll() returns int {
     cache:CacheConfig config = {
         capacity: 10,
-        evictionPolicy: cache:LRU,
         evictionFactor: 0.2
     };
     cache:Cache cache = new(config);
@@ -132,7 +125,6 @@ function testRemoveAll() returns int {
 function testHasKey(string key, string value) returns boolean {
     cache:CacheConfig config = {
         capacity: 10,
-        evictionPolicy: cache:LRU,
         evictionFactor: 0.2
     };
     cache:Cache cache = new(config);
@@ -143,7 +135,6 @@ function testHasKey(string key, string value) returns boolean {
 function testKeys(string key1, string value1, string key2, string value2) returns string[] {
     cache:CacheConfig config = {
         capacity: 10,
-        evictionPolicy: cache:LRU,
         evictionFactor: 0.2
     };
     cache:Cache cache = new(config);
@@ -155,7 +146,6 @@ function testKeys(string key1, string value1, string key2, string value2) return
 function testCapacity(int capacity) returns int {
     cache:CacheConfig config = {
         capacity: capacity,
-        evictionPolicy: cache:LRU,
         evictionFactor: 0.2
     };
     cache:Cache cache = new(config);
@@ -165,7 +155,6 @@ function testCapacity(int capacity) returns int {
 function testSize(string key1, string value1, string key2, string value2) returns int {
     cache:CacheConfig config = {
         capacity: 10,
-        evictionPolicy: cache:LRU,
         evictionFactor: 0.2
     };
     cache:Cache cache = new(config);
@@ -177,7 +166,6 @@ function testSize(string key1, string value1, string key2, string value2) return
 function testCacheEvictionWithCapacity1() returns [string[], int] {
     cache:CacheConfig config = {
         capacity: 10,
-        evictionPolicy: cache:LRU,
         evictionFactor: 0.2
     };
     cache:Cache cache = new(config);
@@ -198,7 +186,6 @@ function testCacheEvictionWithCapacity1() returns [string[], int] {
 function testCacheEvictionWithCapacity2() returns [string[], int] {
     cache:CacheConfig config = {
         capacity: 10,
-        evictionPolicy: cache:LRU,
         evictionFactor: 0.2
     };
     cache:Cache cache = new(config);
@@ -221,7 +208,6 @@ function testCacheEvictionWithTimer1() returns [string[], int] {
     int cleanupIntervalInSeconds = 2;
     cache:CacheConfig config = {
         capacity: 10,
-        evictionPolicy: cache:LRU,
         evictionFactor: 0.2,
         defaultMaxAgeInSeconds: 1,
         cleanupIntervalInSeconds: cleanupIntervalInSeconds
@@ -238,7 +224,6 @@ function testCacheEvictionWithTimer2() returns [string[], int] {
     int cleanupIntervalInSeconds = 2;
     cache:CacheConfig config = {
         capacity: 10,
-        evictionPolicy: cache:LRU,
         evictionFactor: 0.2,
         defaultMaxAgeInSeconds: 1,
         cleanupIntervalInSeconds: cleanupIntervalInSeconds
@@ -254,7 +239,6 @@ function testCacheEvictionWithTimer2() returns [string[], int] {
 function testCreateCacheWithZeroCapacity() {
     cache:CacheConfig config = {
         capacity: 0,
-        evictionPolicy: cache:LRU,
         evictionFactor: 0.2
     };
     cache:Cache c = new(config);
@@ -263,7 +247,6 @@ function testCreateCacheWithZeroCapacity() {
 function testCreateCacheWithNegativeCapacity() {
     cache:CacheConfig config = {
         capacity: -1,
-        evictionPolicy: cache:LRU,
         evictionFactor: 0.2
     };
     cache:Cache c = new(config);
@@ -272,7 +255,6 @@ function testCreateCacheWithNegativeCapacity() {
 function testCreateCacheWithZeroEvictionFactor() {
     cache:CacheConfig config = {
         capacity: 10,
-        evictionPolicy: cache:LRU,
         evictionFactor: 0
     };
     cache:Cache c = new(config);
@@ -281,7 +263,6 @@ function testCreateCacheWithZeroEvictionFactor() {
 function testCreateCacheWithNegativeEvictionFactor() {
     cache:CacheConfig config = {
         capacity: 10,
-        evictionPolicy: cache:LRU,
         evictionFactor: -1
     };
     cache:Cache c = new(config);
@@ -290,7 +271,6 @@ function testCreateCacheWithNegativeEvictionFactor() {
 function testCreateCacheWithInvalidEvictionFactor() {
     cache:CacheConfig config = {
         capacity: 10,
-        evictionPolicy: cache:LRU,
         evictionFactor: 1.1
     };
     cache:Cache c = new(config);
@@ -299,7 +279,6 @@ function testCreateCacheWithInvalidEvictionFactor() {
 function testCreateCacheWithZeroDefaultMaxAge() {
     cache:CacheConfig config = {
         capacity: 10,
-        evictionPolicy: cache:LRU,
         evictionFactor: 0.2,
         defaultMaxAgeInSeconds: 0
     };
@@ -309,7 +288,6 @@ function testCreateCacheWithZeroDefaultMaxAge() {
 function testCreateCacheWithNegativeDefaultMaxAge() {
     cache:CacheConfig config = {
         capacity: 10,
-        evictionPolicy: cache:LRU,
         evictionFactor: 0.2,
         defaultMaxAgeInSeconds: -10
     };

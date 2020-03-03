@@ -14,18 +14,20 @@
 // specific language governing permissions and limitations
 // under the License.
 
-type Node record {|
+// This is a linked list data structure implementation which is used for the eviction algorithm of the cache.
+
+public type Node record {|
     any value;
     Node? prev = ();
     Node? next = ();
 |};
 
-type LinkedList record {
+public type LinkedList record {
     Node? head;
     Node? tail;
 };
 
-function addLast(LinkedList list, Node node) {
+public function addLast(LinkedList list, Node node) {
     if (list.tail is ()) {
         list.head = node;
         list.tail = list.head;
@@ -38,7 +40,7 @@ function addLast(LinkedList list, Node node) {
     list.tail = node;
 }
 
-function addFirst(LinkedList list, Node node) {
+public function addFirst(LinkedList list, Node node) {
     if (list.head is ()) {
         list.head = node;
         list.tail = list.head;
@@ -51,7 +53,7 @@ function addFirst(LinkedList list, Node node) {
     list.head = node;
 }
 
-function remove(LinkedList list, Node node) {
+public function remove(LinkedList list, Node node) {
     if (node.prev is ()) {
         list.head = node.next;
     } else {
@@ -69,7 +71,7 @@ function remove(LinkedList list, Node node) {
     node.prev = ();
 }
 
-function removeLast(LinkedList list) returns Node? {
+public function removeLast(LinkedList list) returns Node? {
     if (list.tail is ()) {
         return ();
     }
@@ -82,7 +84,7 @@ function removeLast(LinkedList list) returns Node? {
     return tail;
 }
 
-function clear(LinkedList list) {
+public function clear(LinkedList list) {
     list.head = ();
     list.tail = ();
 }

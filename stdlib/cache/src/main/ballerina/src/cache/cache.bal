@@ -17,14 +17,6 @@
 import ballerina/task;
 import ballerina/time;
 
-# The `LRU` eviction algorithm.
-public const LRU = "Least Recently Used";
-# The `FIFO` eviction algorithm.
-public const FIFO = "First In First Out";
-
-# The collection of eviction algorithms.
-public type EvictionPolicy LRU|FIFO;
-
 # Represents cache configuration.
 #
 # + capacity - Maximum number of entries allowed
@@ -36,7 +28,7 @@ public type EvictionPolicy LRU|FIFO;
 # + cleanupIntervalInSeconds - Interval of the timer task which clean up the cache
 public type CacheConfig record {|
     int capacity = 100;
-    EvictionPolicy evictionPolicy = LRU;
+    AbstractEvictionPolicy evictionPolicy = new LruEvictionPolicy();
     float evictionFactor = 0.25;
     int defaultMaxAgeInSeconds = -1;
     int cleanupIntervalInSeconds?;
@@ -49,9 +41,10 @@ type CacheEntry record {|
 |};
 
 // TODO: Remove by fixing https://github.com/ballerina-platform/ballerina-lang/issues/21268
-type MapAndList record {|
+type Attachment record {|
     map<Node> entries;
     LinkedList list;
+    AbstractEvictionPolicy evictionPolicy;
 |};
 
 // Cleanup service which cleans the cache entries periodically.
@@ -59,12 +52,12 @@ boolean cleanupInProgress = false;
 
 // Cleanup service which cleans the cache entries periodically.
 service cleanupService = service {
-    resource function onTrigger(MapAndList mapAndList) {
+    resource function onTrigger(Attachment attachment) {
         // This check will skip the processes triggered while the clean up in progress.
         if (!cleanupInProgress) {
             lock {
                 cleanupInProgress = true;
-                cleanup(mapAndList);
+                cleanup(attachment);
                 cleanupInProgress = false;
             }
         }
@@ -77,7 +70,7 @@ public type Cache object {
     *AbstractCache;
 
     private int capacity;
-    private EvictionPolicy evictionPolicy;
+    private AbstractEvictionPolicy evictionPolicy;
     private float evictionFactor;
     private int defaultMaxAgeInSeconds;
     private map<Node> entries = {};
@@ -117,11 +110,12 @@ public type Cache object {
                 initialDelayInMillis: cleanupIntervalInSeconds
             };
             task:Scheduler cleanupScheduler = new(timerConfiguration);
-            MapAndList mapAndList = {
+            Attachment attachment = {
                 entries: self.entries,
-                list: self.list
+                list: self.list,
+                evictionPolicy: self.evictionPolicy
             };
-            task:SchedulerError? result = cleanupScheduler.attach(cleanupService, attachment = mapAndList);
+            task:SchedulerError? result = cleanupScheduler.attach(cleanupService, attachment = attachment);
             if (result is task:SchedulerError) {
                 panic prepareError("Failed to create the cache cleanup task.", result);
             }
@@ -164,9 +158,9 @@ public type Cache object {
 
             if (self.hasKey(key)) {
                 Node oldNode = self.entries.get(key);
-                putOnEvictionPolicy(self.evictionPolicy, self.list, newNode, oldNode);
+                self.evictionPolicy.replace(self.list, newNode, oldNode);
             } else {
-                putOnEvictionPolicy(self.evictionPolicy, self.list, newNode);
+                self.evictionPolicy.put(self.list, newNode);
             }
             self.entries[key] = newNode;
         }
@@ -190,11 +184,11 @@ public type Cache object {
             // and runs in predefined intervals, sometimes the cache entry might not have been removed at this point
             // even though it is expired. So this check guarantees that the expired cache entries will not be returned.
             if (entry.expTime != -1 && entry.expTime < time:nanoTime()) {
-                remove(self.list, node);
+                self.evictionPolicy.remove(self.list, node);
                 return removeEntry(self.entries, key);
             }
 
-            getOnEvictionPolicy(self.evictionPolicy, self.list, node);
+            self.evictionPolicy.get(self.list, node);
             return entry.data;
         }
     }
@@ -211,7 +205,7 @@ public type Cache object {
             }
 
             Node node = self.entries.get(key);
-            remove(self.list, node);
+            self.evictionPolicy.remove(self.list, node);
             return removeEntry(self.entries, key);
         }
     }
@@ -222,7 +216,7 @@ public type Cache object {
     # `Error` if any error occurred while invalidating all from the cache.
     public function invalidateAll() returns Error? {
         lock {
-            clear(self.list);
+            self.evictionPolicy.clear(self.list);
             return removeAllEntries(self.entries);
         }
     }
@@ -257,60 +251,35 @@ public type Cache object {
     }
 };
 
-function evict(map<Node> entries, LinkedList list, EvictionPolicy evictionPolicy, int capacity, float evictionFactor) {
+function evict(map<Node> entries, LinkedList list, AbstractEvictionPolicy evictionPolicy, int capacity,
+               float evictionFactor) {
     int evictionKeysCount = <int>(capacity * evictionFactor);
-    match (evictionPolicy) {
-        LRU|FIFO => {
-            foreach int i in 1...evictionKeysCount {
-                Node? tail = removeLast(list);
-                if (tail is Node) {
-                    CacheEntry entry = <CacheEntry>tail.value;
-                    Error? result = removeEntry(entries, entry.key);
-                    // The return result (error which occurred due to unavailability of the key or nil) is ignored
-                    // since no purpose of handling it.
-                } else {
-                    break;
-                }
-            }
+    foreach int i in 1...evictionKeysCount {
+        Node? node = evictionPolicy.evict(list);
+        if (node is Node) {
+            CacheEntry entry = <CacheEntry>node.value;
+            Error? result = removeEntry(entries, entry.key);
+            // The return result (error which occurred due to unavailability of the key or nil) is ignored
+            // since no purpose of handling it.
+        } else {
+            break;
         }
     }
 }
 
-function putOnEvictionPolicy(EvictionPolicy evictionPolicy, LinkedList list, Node newNode, Node? oldNode = ()) {
-    match (evictionPolicy) {
-        LRU => {
-            if (!(oldNode is ())) {
-                remove(list, oldNode);
-            }
-            addFirst(list, newNode);
-        }
-        FIFO => {
-            addFirst(list, newNode);
-        }
-    }
-}
+function cleanup(Attachment attachment) {
+    map<Node> entries = attachment.entries;
+    LinkedList list = attachment.list;
+    AbstractEvictionPolicy evictionPolicy = attachment.evictionPolicy;
 
-function getOnEvictionPolicy(EvictionPolicy evictionPolicy, LinkedList list, Node node) {
-    match (evictionPolicy) {
-        LRU => {
-            remove(list, node);
-            addFirst(list, node);
-        }
-        FIFO => {
-            return;
-        }
-    }
-}
-
-function cleanup(MapAndList mapAndList) {
-    if (mapAndList.entries.length() == 0) {
+    if (entries.length() == 0) {
         return;
     }
-    foreach Node node in mapAndList.entries {
+    foreach Node node in entries {
         CacheEntry entry = <CacheEntry>node.value;
         if (entry.expTime != -1 && entry.expTime < time:nanoTime()) {
-            remove(mapAndList.list, node);
-            Error? result = removeEntry(mapAndList.entries, entry.key);
+            evictionPolicy.remove(list, node);
+            Error? result = removeEntry(entries, entry.key);
             // The return result (error which occurred due to unavailability of the key or nil) is ignored
             // since no purpose of handling it.
             return;
