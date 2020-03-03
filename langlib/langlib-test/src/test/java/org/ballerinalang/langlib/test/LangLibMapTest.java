@@ -175,6 +175,31 @@ public class LangLibMapTest {
         assertEquals(((BFloat) returns[0]).floatValue(), 80.5);
     }
 
+    @Test
+    public void testBasicToArray() {
+        BRunUtil.invoke(compileResult, "testBasicToArray");
+    }
+
+    @Test
+    public void testLargeMapToArray() {
+        BRunUtil.invoke(compileResult, "testLargeMapToArray");
+    }
+
+    @Test
+    public void testRecordToArray() {
+        BRunUtil.invoke(compileResult, "testRecordToArray");
+    }
+
+    @Test
+    public void testOpenRecordToArray() {
+        BRunUtil.invoke(compileResult, "testOpenRecordToArray");
+    }
+
+    @Test
+    public void testMapOfUnionToArray() {
+        BRunUtil.invoke(compileResult, "testMapOfUnionToArray");
+    }
+
     @DataProvider(name = "mapKeyProvider")
     public Object[][] getMapKeys() {
         return new Object[][]{

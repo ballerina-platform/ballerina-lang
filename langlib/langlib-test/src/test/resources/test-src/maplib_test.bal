@@ -73,3 +73,140 @@ function testReduce() returns float {
     }, 0.0);
     return avg;
 }
+
+function testBasicToArray() {
+    map<int> ints = {"one": 1, "two": 2, "three": 3, "four": 4, "five": 5};
+    int[] intArr = ints.toArray();
+
+    map<float> floats = {"one": 1.1, "two": 2.2, "three": 3.3, "four": 4.4, "five": 5.5};
+    float[] floatArr = floats.toArray();
+
+    map<decimal> decimals = {"one": 1.1, "two": 2.2, "three": 3.3, "four": 4.4, "five": 5.5};
+    decimal[] decimalArr = decimals.toArray();
+
+    map<string> strings = {"a": "A", "b": "B", "c": "C"};
+    string[] stringArr = strings.toArray();
+
+    map<boolean> booleans = {"a": true, "b": false, "c": true};
+    boolean[] booleanArr = booleans.toArray();
+
+    map<map<int>> maps = {"a": {"one": 1, "two": 2}, "b": {"three": 3, "four": 4}};
+    map<int>[] mapArr = maps.toArray();
+
+    assert(<int[]>[1, 2, 3, 4, 5], intArr);
+    assert(<float[]>[1.1, 2.2, 3.3, 4.4, 5.5], floatArr);
+    assert(<decimal[]>[1.1, 2.2, 3.3, 4.4, 5.5], decimalArr);
+    assert(<string[]>["A", "B", "C"], stringArr);
+    assert(<boolean[]>[true, false, true], booleanArr);
+    assert(<map<int>[]>[{"one": 1, "two": 2}, {"three": 3, "four": 4}], mapArr);
+}
+
+function testLargeMapToArray() {
+    var fn = function () returns int[] {
+        int[] arr = [];
+        foreach var i in 0...999 {
+            arr[i] = i + 1;
+        }
+        return arr;
+    };
+
+    assert(fn(), getLargeMap().toArray());
+}
+
+function getLargeMap() returns map<int> {
+    map<int> m = {};
+    foreach var i in 1...1000 {
+        m[i.toString()] = i;
+    }
+    return m;
+}
+
+type Person object {
+    string name;
+
+    function __init(string n) {
+        self.name = n;
+    }
+
+    function getName() returns string => self.name;
+};
+
+function testMapOfUnionToArray() {
+    map<int|string|Person> m = {"i": 10, "s": "foo", "p": new Person("Pubudu")};
+    (int|string|Person)[] arr = m.toArray();
+
+    assert(10, <anydata>arr[0]);
+    assert("foo", <anydata>arr[1]);
+    assertSameRef(m["p"], arr[2]);
+}
+
+type Foo record {|
+    string name;
+    int age;
+    float weight;
+    decimal height;
+    boolean isStudent;
+|};
+
+function testRecordToArray() {
+    Foo foo = {
+        name: "John Doe",
+        age: 25,
+        weight: 65.5,
+        height: 172.3,
+        isStudent: true
+    };
+
+    var arr = foo.toArray();
+
+    assert(<(string|int|float|decimal|boolean)[]>["John Doe", 25, 65.5, 172.3d, true], arr);
+}
+
+type OpenFoo record {
+    string name;
+    int age;
+    float weight;
+    decimal height;
+    boolean isStudent;
+};
+
+function testOpenRecordToArray() {
+    OpenFoo foo = {
+        name: "John Doe",
+        age: 25,
+        weight: 65.5,
+        height: 172.3,
+        isStudent: true,
+        "location": "Sri Lanka",
+        "postalCode": 12500
+    };
+
+    var arr = foo.toArray();
+
+    assert(<(string|int|float|decimal|boolean)[]>["John Doe", 25, 65.5, 172.3d, true, "Sri Lanka", 12500], arr);
+}
+
+
+// Util functions
+
+function assert(anydata expected, anydata actual) {
+    if (expected != actual) {
+        typedesc<anydata> expT = typeof expected;
+        typedesc<anydata> actT = typeof actual;
+        string reason = "expected [" + expected.toString() + "] of type [" + expT.toString()
+                            + "], but found [" + actual.toString() + "] of type [" + actT.toString() + "]";
+        error e = error(reason);
+        panic e;
+    }
+}
+
+function assertSameRef(any expected, any actual) {
+    if (expected !== actual) {
+        typedesc<any> expT = typeof expected;
+        typedesc<any> actT = typeof actual;
+        string reason = "expected [" + expected.toString() + "] of type [" + expT.toString()
+                            + "], but found [" + actual.toString() + "] of type [" + actT.toString() + "]";
+        error e = error(reason);
+        panic e;
+    }
+}
