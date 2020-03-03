@@ -1683,9 +1683,9 @@ public class FormattingNodeTree {
             }
 
             int spaceCount = 0;
-            if(leadWithWhiteSpace) {
+            if (leadWithWhiteSpace) {
                 spaceCount = 1;
-            } else if(!node.has("leadWithWhiteSpace")) {
+            } else if (!node.has("leadWithWhiteSpace")) {
                 spaceCount = 1;
             } else {
                 spaceCount = 0;
@@ -5646,7 +5646,7 @@ public class FormattingNodeTree {
                             if (index < previousTokenIndex && previousTokenIndex != 0) {
                                 previousTokenIndex = index;
                                 firstMember = firstWS.get(FormattingConstants.TEXT).getAsString();
-                            } else if(previousTokenIndex == 0){
+                            } else if (previousTokenIndex == 0) {
                                 previousTokenIndex = index;
                                 firstMember = firstWS.get(FormattingConstants.TEXT).getAsString();
                             }
