@@ -13,11 +13,11 @@ function divide(int a, int b) returns int {
 
 function substract(int a, int b) {
     int | error result =
-    trap
-    divide(1, 0);
+        trap
+        divide(1, 0);
     add(
-    trap
-    divide(1, 0)
+        trap
+        divide(1, 0)
     );
 }
 

@@ -66,7 +66,7 @@ public type Client client object {
     public remote function get(@untainted string path, RequestMessage message) returns Response | error = external;
 
     private function getConfig()
-    =
-    external
+        =
+        external
     ;
 }

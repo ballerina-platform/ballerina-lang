@@ -1845,8 +1845,10 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         for (RecordLiteralNode.RecordField field : fields) {
             if (field.isKeyValueField()) {
                 analyzeExpr(((BLangRecordKeyValueField) field).valueExpr);
-            } else {
+            } else if (field.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
                 analyzeExpr((BLangRecordLiteral.BLangRecordVarNameField) field);
+            } else {
+                analyzeExpr(((BLangRecordLiteral.BLangRecordSpreadOperatorField) field).expr);
             }
         }
 
@@ -1856,40 +1858,65 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         for (RecordLiteralNode.RecordField field : fields) {
 
             BLangExpression keyExpr;
-            if (field.isKeyValueField()) {
-                BLangRecordLiteral.BLangRecordKey key = ((BLangRecordKeyValueField) field).key;
-                keyExpr = key.expr;
-                if (key.computedKey) {
-                    analyzeExpr(keyExpr);
+
+            if (field.getKind() == NodeKind.RECORD_LITERAL_SPREAD_OP) {
+                BLangRecordLiteral.BLangRecordSpreadOperatorField spreadOpField =
+                        (BLangRecordLiteral.BLangRecordSpreadOperatorField) field;
+                BLangExpression spreadOpExpr = spreadOpField.expr;
+
+                analyzeExpr(spreadOpExpr);
+                if (spreadOpExpr.type.tag != TypeTags.RECORD) {
                     continue;
                 }
+
+                for (BField bField : ((BRecordType) spreadOpExpr.type).fields) {
+                    if (Symbols.isOptional(bField.symbol)) {
+                        continue;
+                    }
+
+                    String name = bField.name.value;
+                    if (names.contains(name)) {
+                        this.dlog.error(spreadOpExpr.pos, DiagnosticCode.DUPLICATE_KEY_IN_RECORD_LITERAL_SPREAD_OP,
+                                        recordLiteral.expectedType.getKind().typeName(), name, spreadOpField);
+                    }
+                    names.add(name);
+                }
+
             } else {
-                keyExpr = (BLangRecordLiteral.BLangRecordVarNameField) field;
-            }
-
-            if (keyExpr.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
-                BLangSimpleVarRef keyRef = (BLangSimpleVarRef) keyExpr;
-                String fieldName = keyRef.variableName.value;
-
-                if (names.contains(fieldName)) {
-                    String assigneeType = recordLiteral.expectedType.getKind().typeName();
-                    this.dlog.error(keyExpr.pos, DiagnosticCode.DUPLICATE_KEY_IN_RECORD_LITERAL, assigneeType, keyRef);
+                if (field.isKeyValueField()) {
+                    BLangRecordLiteral.BLangRecordKey key = ((BLangRecordKeyValueField) field).key;
+                    keyExpr = key.expr;
+                    if (key.computedKey) {
+                        analyzeExpr(keyExpr);
+                        continue;
+                    }
+                } else {
+                    keyExpr = (BLangRecordLiteral.BLangRecordVarNameField) field;
                 }
 
-                if (isOpenRecord && ((BRecordType) type).fields.stream()
-                        .noneMatch(recField -> fieldName.equals(recField.name.value))) {
-                    dlog.error(keyExpr.pos, DiagnosticCode.INVALID_RECORD_LITERAL_IDENTIFIER_KEY, fieldName);
-                }
+                if (keyExpr.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
+                    String name = ((BLangSimpleVarRef) keyExpr).variableName.value;
 
-                names.add(fieldName);
-            } else if (keyExpr.getKind() == NodeKind.LITERAL || keyExpr.getKind() == NodeKind.NUMERIC_LITERAL) {
-                BLangLiteral keyLiteral = (BLangLiteral) keyExpr;
-                if (names.contains(keyLiteral.value)) {
-                    String assigneeType = recordLiteral.parent.type.getKind().typeName();
-                    this.dlog.error(keyExpr.pos, DiagnosticCode.DUPLICATE_KEY_IN_RECORD_LITERAL, assigneeType,
-                                    keyLiteral);
+                    if (names.contains(name)) {
+                        this.dlog.error(keyExpr.pos, DiagnosticCode.DUPLICATE_KEY_IN_RECORD_LITERAL,
+                                        recordLiteral.expectedType.getKind().typeName(), name);
+                    }
+
+                    if (isOpenRecord && ((BRecordType) type).fields.stream()
+                            .noneMatch(recField -> name.equals(recField.name.value))) {
+                        dlog.error(keyExpr.pos, DiagnosticCode.INVALID_RECORD_LITERAL_IDENTIFIER_KEY, name);
+                    }
+
+                    names.add(name);
+                } else if (keyExpr.getKind() == NodeKind.LITERAL || keyExpr.getKind() == NodeKind.NUMERIC_LITERAL) {
+                    Object name = ((BLangLiteral) keyExpr).value;
+                    if (names.contains(name)) {
+                        this.dlog.error(keyExpr.pos, DiagnosticCode.DUPLICATE_KEY_IN_RECORD_LITERAL,
+                                        recordLiteral.parent.type.getKind().typeName(),
+                                        name);
+                    }
+                    names.add(name);
                 }
-                names.add(keyLiteral.value);
             }
         }
     }
