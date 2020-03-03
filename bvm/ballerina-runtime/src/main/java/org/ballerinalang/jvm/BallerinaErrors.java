@@ -61,6 +61,7 @@ public class BallerinaErrors {
     public static final String GENERATE_PKG_START = "___start_";
     public static final String GENERATE_PKG_STOP = "___stop_";
     public static final String GENERATE_OBJECT_CLASS_PREFIX = ".$value$";
+    public static final String ASYNC_CALL_INSIDE_LOCK = "AsyncCallInsideLock";
 
     @Deprecated
     public static ErrorValue createError(String reason) {
@@ -160,6 +161,10 @@ public class BallerinaErrors {
     public static ErrorValue createNumericConversionError(Object inputValue, BType inputType, BType targetType) {
         throw createError(BallerinaErrorReasons.NUMBER_CONVERSION_ERROR, BLangExceptionHelper.getErrorMessage(
                 RuntimeErrors.INCOMPATIBLE_SIMPLE_TYPE_CONVERT_OPERATION, inputType, inputValue, targetType));
+    }
+
+    public static ErrorValue createAsyncCallInsideLockError() {
+        throw createError(ASYNC_CALL_INSIDE_LOCK);
     }
 
     static String getErrorMessageFromDetail(MapValueImpl<String, Object> detailMap) {

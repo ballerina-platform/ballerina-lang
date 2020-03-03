@@ -40,9 +40,18 @@ public class BLockStore {
         globalLockMap.put(lockName, new BLock());
     }
 
-    public synchronized BLock getLockFromMap(String lockName) {
+    public BLock getLockFromMap(String lockName) {
         return globalLockMap.computeIfAbsent(lockName, (k) -> {
             return new BLock();
         });
+    }
+
+    public void panicIfInLock(String lockName) {
+        BLock lock = globalLockMap.get(lockName);
+        if (lock != null) {
+            if (!lock.isLockFree()) {
+                throw BallerinaErrors.createAsyncCallInsideLockError();
+            }
+        }
     }
 }

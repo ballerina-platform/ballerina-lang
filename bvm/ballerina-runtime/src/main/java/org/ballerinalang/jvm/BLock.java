@@ -61,7 +61,7 @@ public class BLock {
         }
     }
 
-    private boolean isLockFree() {
+    public boolean isLockFree() {
         return this.current.isEmpty();
     }
 

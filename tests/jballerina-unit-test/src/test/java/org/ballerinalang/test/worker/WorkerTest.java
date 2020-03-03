@@ -16,6 +16,7 @@
  */
 package org.ballerinalang.test.worker;
 
+import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
@@ -346,5 +347,10 @@ public class WorkerTest {
         BMap mapResult = (BMap) returns[0];
         Assert.assertEquals(mapResult.get("w1").stringValue(), "w1");
         Assert.assertEquals(mapResult.get("w2").stringValue(), "w2");
+    }
+
+    @Test(expectedExceptions = BLangRuntimeException.class)
+    public void testPanicWorkerInsideLock() {
+        BValue[] returns = BRunUtil.invoke(result, "testPanicWorkerInsideLock");
     }
 }

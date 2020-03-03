@@ -542,3 +542,15 @@ function waitInReturn() returns any {
 
     return wait {w1, w2};
 }
+
+function testPanicWorkerInsideLock() {
+    lock {
+        panicWorkerInsideLock();
+    }
+}
+
+function panicWorkerInsideLock() {
+    worker w1 {
+        int i = 5;
+    }
+}
