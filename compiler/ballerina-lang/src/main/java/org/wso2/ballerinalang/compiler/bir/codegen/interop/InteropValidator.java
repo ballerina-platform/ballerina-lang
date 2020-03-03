@@ -31,6 +31,7 @@ public class InteropValidator {
 
     private ClassLoader classLoader;
     private SymbolTable symbolTable;
+    private boolean isEntryModuleValidation;
 
     public InteropValidator(ClassLoader classLoader, SymbolTable symbolTable) {
 
@@ -46,7 +47,8 @@ public class InteropValidator {
      */
     JMethod validateAndGetJMethod(InteropValidationRequest.MethodValidationRequest methodValidationRequest) {
         // Populate JMethodRequest from the BValue
-        JMethodRequest jMethodRequest = JMethodRequest.build(methodValidationRequest, classLoader);
+        JMethodRequest jMethodRequest = JMethodRequest.build(methodValidationRequest, classLoader,
+                isEntryModuleValidation);
 
         // Find the most specific Java method or constructor for the given request
         JMethodResolver methodResolver = new JMethodResolver(classLoader, symbolTable);
@@ -79,5 +81,15 @@ public class InteropValidator {
         }
 
         return javaField;
+    }
+
+    boolean isEntryModuleValidation() {
+
+        return isEntryModuleValidation;
+    }
+
+    public void setEntryModuleValidation(boolean entryModuleValidation) {
+
+        isEntryModuleValidation = entryModuleValidation;
     }
 }

@@ -692,7 +692,9 @@ public class InteropMethodGen {
                                                             String version,
                                                             String birModuleClassName) {
 
-        addDefaultableBooleanVarsToSignature(birFunc);
+        if (interopValidator.isEntryModuleValidation()) {
+            addDefaultableBooleanVarsToSignature(birFunc);
+        }
         // Update the function wrapper only for Java interop functions
         JvmPackageGen.BIRFunctionWrapper birFuncWrapper = getFunctionWrapper(birFunc, orgName, moduleName,
                 version, birModuleClassName);

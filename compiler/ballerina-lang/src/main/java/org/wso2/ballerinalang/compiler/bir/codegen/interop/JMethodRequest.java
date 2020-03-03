@@ -22,6 +22,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -48,7 +49,7 @@ class JMethodRequest {
     }
 
     static JMethodRequest build(InteropValidationRequest.MethodValidationRequest methodValidationRequest,
-                                ClassLoader classLoader) {
+                                ClassLoader classLoader, boolean isEntryModuleValidation) {
 
         JMethodRequest jMethodReq = new JMethodRequest();
         jMethodReq.kind = methodValidationRequest.methodKind;
@@ -58,7 +59,18 @@ class JMethodRequest {
                 JInterop.buildParamTypeConstraints(methodValidationRequest.paramTypeConstraints, classLoader);
 
         BInvokableType bFuncType = methodValidationRequest.bFuncType;
-        List<BType> paramTypes = bFuncType.paramTypes;
+        List<BType> currentParamTypes = bFuncType.paramTypes;
+        List<BType> paramTypes = new ArrayList<>();
+
+        if (!isEntryModuleValidation) {
+            int i = 0;
+            while (i < currentParamTypes.size()) {
+                paramTypes.add(currentParamTypes.get(i));
+                i = i + 2;
+            }
+        } else {
+            paramTypes = currentParamTypes;
+        }
 
         BType restType = bFuncType.restType;
         if (restType != null) {

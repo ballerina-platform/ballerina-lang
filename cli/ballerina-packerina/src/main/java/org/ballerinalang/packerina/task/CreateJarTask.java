@@ -83,7 +83,7 @@ public class CreateJarTask implements Task {
 
             PackageID packageID = bLangPackage.packageID;
 
-            HashSet<Path> moduleDependencies = buildContext.moduleDependencyPathMap.get(packageID).platformLibs;
+            HashSet<Path> moduleDependencies = buildContext.moduleDependencyPathMap.get(packageID).moduleLibs;
             if (!skipCopyLibsFromDist) {
                 moduleDependencies.add(runtimeJar);
             }
