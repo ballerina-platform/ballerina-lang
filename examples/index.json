@@ -193,6 +193,10 @@
             {
                 "name": "String Template Literal",
                 "url": "string-template"
+            },
+            {
+                "name": "Let Expression",
+                "url": "let-expression"
             }
         ]
     },
