@@ -20,6 +20,8 @@ import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.workspace.LSDocumentIdentifier;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.compiler.common.LSDocumentIdentifierImpl;
+import org.ballerinalang.langserver.compiler.config.LSClientConfig;
+import org.ballerinalang.langserver.compiler.config.LSClientConfigHolder;
 import org.ballerinalang.langserver.compiler.exception.CompilationFailedException;
 import org.ballerinalang.langserver.compiler.workspace.repository.WorkspacePackageRepository;
 import org.ballerinalang.model.elements.PackageID;
@@ -91,9 +93,7 @@ public class LSModuleCompiler {
         String sourceRoot = Paths.get(new URI(context.get(DocumentServiceKeys.SOURCE_ROOT_KEY))).toString();
         PackageRepository pkgRepo = new WorkspacePackageRepository(sourceRoot, docManager);
 
-        boolean isExperimentalEnabled = context.get(DocumentServiceKeys.EXPERIMENTAL_FEATURES_ENABLED_KEY);
-        CompilerContext compilerContext = prepareCompilerContext(pkgRepo, sourceRoot, docManager, stopOnSemanticErrors,
-                                                                 isExperimentalEnabled);
+        CompilerContext compilerContext = prepareCompilerContext(pkgRepo, sourceRoot, docManager, stopOnSemanticErrors);
         Compiler compiler = LSCompilerUtil.getCompiler(context, compilerContext, errStrategy);
         return compilePackagesSafe(compiler, sourceRoot, false, context);
     }
@@ -147,9 +147,8 @@ public class LSModuleCompiler {
             pkgID = generatePackageFromManifest(pkgName, projectRoot);
         }
         context.put(DocumentServiceKeys.RELATIVE_FILE_PATH_KEY, relativeFilePath);
-        boolean isExperimentalEnabled = context.get(DocumentServiceKeys.EXPERIMENTAL_FEATURES_ENABLED_KEY);
         CompilerContext compilerContext = prepareCompilerContext(pkgID, pkgRepo, sourceDoc, docManager,
-                                                                 stopOnSemanticErrors, isExperimentalEnabled);
+                                                                 stopOnSemanticErrors);
 
         context.put(DocumentServiceKeys.SOURCE_ROOT_KEY, projectRoot);
         context.put(DocumentServiceKeys.CURRENT_PKG_NAME_KEY, pkgID.getNameComps().stream()
@@ -201,9 +200,10 @@ public class LSModuleCompiler {
     protected static BLangPackage compileSafe(Compiler compiler, String projectRoot, String pkgName, LSContext context)
             throws CompilationFailedException {
         LSCompilerCache.Key key = new LSCompilerCache.Key(projectRoot, context);
+        LSClientConfig config = LSClientConfigHolder.getInstance().getConfig();
         try {
             long startTime = 0L;
-            if (LSClientLogger.isTraceEnabled()) {
+            if (config.isTraceLogEnabled()) {
                 startTime = System.nanoTime();
             }
             boolean isCacheSupported = context.get(DocumentServiceKeys.IS_CACHE_SUPPORTED) != null &&
@@ -214,7 +214,7 @@ public class LSModuleCompiler {
             if (isCacheSupported) {
                 LSCompilerCache.CacheEntry cacheEntry = LSCompilerCache.get(key, context);
                 if (cacheEntry != null && (isOutdatedSupported || !cacheEntry.isOutdated())) {
-                    if (LSClientLogger.isTraceEnabled()) {
+                    if (config.isTraceLogEnabled()) {
                         long endTime = System.nanoTime();
                         long eTime = TimeUnit.MILLISECONDS.convert(endTime - startTime, TimeUnit.NANOSECONDS);
                         LSClientLogger.logTrace("Operation '" + context.getOperation().getName() + "' {projectRoot: '" +
@@ -229,7 +229,7 @@ public class LSModuleCompiler {
             } else {
                 bLangPackage = compiler.compile(pkgName);
             }
-            if (LSClientLogger.isTraceEnabled()) {
+            if (config.isTraceLogEnabled()) {
                 long endTime = System.nanoTime();
                 long eTime = TimeUnit.MILLISECONDS.convert(endTime - startTime, TimeUnit.NANOSECONDS);
                 LSClientLogger.logTrace("Operation '" + context.getOperation().getName() + "' {projectRoot: '" +
@@ -259,9 +259,10 @@ public class LSModuleCompiler {
                                                             LSContext context)
             throws CompilationFailedException {
         LSCompilerCache.Key key = new LSCompilerCache.Key(projectRoot, context);
+        LSClientConfig config = LSClientConfigHolder.getInstance().getConfig();
         try {
             long startTime = 0L;
-            if (LSClientLogger.isTraceEnabled()) {
+            if (config.isTraceLogEnabled()) {
                 startTime = System.nanoTime();
             }
             boolean isCacheSupported = context.get(DocumentServiceKeys.IS_CACHE_SUPPORTED) != null &&
@@ -272,7 +273,7 @@ public class LSModuleCompiler {
             if (isCacheSupported) {
                 LSCompilerCache.CacheEntry cacheEntry = LSCompilerCache.get(key, context);
                 if (cacheEntry != null && (isOutdatedSupported || !cacheEntry.isOutdated())) {
-                    if (LSClientLogger.isTraceEnabled()) {
+                    if (config.isTraceLogEnabled()) {
                         long endTime = System.nanoTime();
                         long eTime = TimeUnit.MILLISECONDS.convert(endTime - startTime, TimeUnit.NANOSECONDS);
                         LSClientLogger.logTrace("Operation '" + context.getOperation().getName() + "' {projectRoot: '" +
@@ -287,7 +288,7 @@ public class LSModuleCompiler {
             } else {
                 bLangPackages = compiler.compilePackages(isBuild);
             }
-            if (LSClientLogger.isTraceEnabled()) {
+            if (config.isTraceLogEnabled()) {
                 long endTime = System.nanoTime();
                 long eTime = TimeUnit.MILLISECONDS.convert(endTime - startTime, TimeUnit.NANOSECONDS);
                 LSClientLogger.logTrace("Operation '" + context.getOperation().getName() + "' {projectRoot: '" +

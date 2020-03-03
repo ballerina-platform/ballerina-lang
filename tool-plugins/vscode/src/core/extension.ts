@@ -135,7 +135,7 @@ export class BallerinaExtension {
                 // if Home is found load Language Server.
                 let serverOptions:ServerOptions;
                 if (this.isNewCLICmdSupported) {
-                    serverOptions = getServerOptions(this.ballerinaCmd, this.isExperimental(), this.isDebugLogsEnabled(), this.isTraceLogsEnabled(), this.isStdlibDefinitionEnabled());
+                    serverOptions = getServerOptions(this.ballerinaCmd);
                 } else {
                     serverOptions = getOldServerOptions(this.ballerinaHome, this.isExperimental(), this.isDebugLogsEnabled(), this.isTraceLogsEnabled());
                 }
@@ -196,11 +196,7 @@ export class BallerinaExtension {
         // We need to restart VSCode if we change plugin configurations.
         workspace.onDidChangeConfiguration((params: ConfigurationChangeEvent) => {
             if (params.affectsConfiguration(BALLERINA_HOME) ||
-                params.affectsConfiguration(OVERRIDE_BALLERINA_HOME) ||
-                params.affectsConfiguration(ALLOW_EXPERIMENTAL) ||
-                params.affectsConfiguration(ENABLE_DEBUG_LOG) ||
-                params.affectsConfiguration(ENABLE_TRACE_LOG) ||
-                params.affectsConfiguration(ENABLE_STDLIB_DEFINITION)) {
+                params.affectsConfiguration(OVERRIDE_BALLERINA_HOME)) {
                 this.showMsgAndRestart(CONFIG_CHANGED);
             }
             if (params.affectsConfiguration('ballerina')) {

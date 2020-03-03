@@ -23,8 +23,8 @@ package org.ballerinalang.langserver.compiler.config;
 public class GoToDefinitionConfig {
     private final boolean enableStandardLibraries;
 
-    GoToDefinitionConfig() {
-        this.enableStandardLibraries = true;
+    GoToDefinitionConfig(boolean enableStandardLibraries) {
+        this.enableStandardLibraries = enableStandardLibraries;
     }
 
     /**

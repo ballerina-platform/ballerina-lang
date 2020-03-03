@@ -22,6 +22,7 @@ import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.workspace.LSDocumentIdentifier;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.compiler.common.CustomErrorStrategyFactory;
+import org.ballerinalang.langserver.compiler.config.LSClientConfigHolder;
 import org.ballerinalang.langserver.compiler.workspace.repository.LangServerFSProgramDirectory;
 import org.ballerinalang.langserver.compiler.workspace.repository.LangServerFSProjectDirectory;
 import org.ballerinalang.model.elements.PackageID;
@@ -67,8 +68,6 @@ public class LSCompilerUtil {
     private static final Logger logger = LoggerFactory.getLogger(LSCompilerUtil.class);
 
     public static final String UNTITLED_BAL = "untitled.bal";
-    
-    public static final boolean EXPERIMENTAL_FEATURES_ENABLED;
 
     private static Path untitledProjectPath;
 
@@ -83,8 +82,7 @@ public class LSCompilerUtil {
         } catch (IOException e) {
             logger.error("Unable to create the empty stream.");
         }
-        String experimental = System.getProperty("experimental");
-        EXPERIMENTAL_FEATURES_ENABLED = Boolean.parseBoolean(experimental);
+
         // Here we will create a tmp directory as the untitled project repo.
         File untitledDir = com.google.common.io.Files.createTempDir();
         untitledProjectPath = untitledDir.toPath();
@@ -121,7 +119,8 @@ public class LSCompilerUtil {
         context.put(PackageRepository.class, packageRepository);
         CompilerOptions options = CompilerOptions.getInstance(context);
         options.put(PROJECT_DIR, sourceRoot);
-        options.put(CompilerOptionName.EXPERIMENTAL_FEATURES_ENABLED, Boolean.toString(EXPERIMENTAL_FEATURES_ENABLED));
+        boolean isExperimentalEnabled = LSClientConfigHolder.getInstance().getConfig().isAllowExperimental();
+        options.put(CompilerOptionName.EXPERIMENTAL_FEATURES_ENABLED, Boolean.toString(isExperimentalEnabled));
 
         if (null == compilerPhase) {
             throw new AssertionError("Compiler Phase can not be null.");

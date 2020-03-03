@@ -15,6 +15,7 @@
  */
 package org.ballerinalang.langserver.compiler;
 
+import org.ballerinalang.langserver.compiler.config.LSClientConfigHolder;
 import org.eclipse.lsp4j.MessageParams;
 import org.eclipse.lsp4j.MessageType;
 import org.eclipse.lsp4j.Position;
@@ -34,20 +35,15 @@ import java.nio.charset.StandardCharsets;
  */
 public class LSClientLogger {
     private static LanguageClient languageClient = null;
-    private static boolean debugEnabled = false;
     private static boolean isInitializedOnce = false;
-    private static boolean traceEnabled = false;
+    private static final LSClientConfigHolder configHolder = LSClientConfigHolder.getInstance();
 
     /**
      * Initializes the client logger.
      *
      * @param languageClient {@link LanguageClient}
-     * @param lsDebugEnabled LS Debug Enabled
-     * @param lsTraceEnabled LS Trace Enabled
      */
-    public static void initAndUpdate(LanguageClient languageClient, boolean lsDebugEnabled, boolean lsTraceEnabled) {
-        LSClientLogger.debugEnabled = lsDebugEnabled;
-        LSClientLogger.traceEnabled = lsTraceEnabled;
+    public static void initialize(LanguageClient languageClient) {
         LSClientLogger.languageClient = languageClient;
         LSClientLogger.isInitializedOnce = true;
     }
@@ -82,7 +78,7 @@ public class LSClientLogger {
             return;
         }
         String details = getErrorDetails(identifier, error, position);
-        if (LSClientLogger.debugEnabled && LSClientLogger.languageClient != null) {
+        if (configHolder.getConfig().isDebugLogEnabled() && LSClientLogger.languageClient != null) {
             final Charset charset = StandardCharsets.UTF_8;
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             try {
@@ -105,28 +101,10 @@ public class LSClientLogger {
         if (!LSClientLogger.isInitializedOnce) {
             return;
         }
-        if (LSClientLogger.traceEnabled && LSClientLogger.languageClient != null) {
+        if (configHolder.getConfig().isTraceLogEnabled() && LSClientLogger.languageClient != null) {
             LSClientLogger.languageClient.logMessage(
                     new MessageParams(MessageType.Info, message));
         }
-    }
-
-    /**
-     * Returns True if debug enabled.
-     *
-     * @return  True if debug enabled.
-     */
-    public static boolean isDebugEnabled() {
-        return LSClientLogger.debugEnabled;
-    }
-
-    /**
-     * Returns True if trace enabled.
-     *
-     * @return  True if trace enabled.
-     */
-    public static boolean isTraceEnabled() {
-        return LSClientLogger.traceEnabled;
     }
 
     private static String getErrorDetails(TextDocumentIdentifier identifier, Throwable error, Position... position) {

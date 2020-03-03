@@ -28,11 +28,19 @@ public class LSClientConfig {
 
     private LSClientConfig() {
         this.home = "";
-        this.allowExperimental = false;
-        this.debugLog = false;
+
+        // NOTE: Added reading environmental variables to support IntelliJ plugin
+        String balDebugLog = System.getenv("BAL_DEBUG_LOG");
+        String balTraceLog = System.getenv("BAL_TRACE_LOG");
+        String balExperimental = System.getenv("BAL_EXPERIMENTAL");
+        String balDefStdLibs = System.getenv("BAL_DEF_STD_LIBS");
+
+        this.allowExperimental = (balExperimental != null) && Boolean.getBoolean(balExperimental);
+        this.debugLog = (balDebugLog != null) && Boolean.getBoolean(balDebugLog);
+        this.traceLog = (balTraceLog != null) && Boolean.getBoolean(balTraceLog);
         this.codeLens = new CodeLensConfig();
-        this.traceLog = false;
-        this.goToDefinition = new GoToDefinitionConfig();
+        this.goToDefinition = (balDefStdLibs != null) ? new GoToDefinitionConfig(Boolean.getBoolean(balDefStdLibs)) :
+                new GoToDefinitionConfig(true);
     }
 
     /**
