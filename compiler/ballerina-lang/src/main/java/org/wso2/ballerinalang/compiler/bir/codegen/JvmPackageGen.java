@@ -808,7 +808,9 @@ public class JvmPackageGen {
                     }
                 }
 
-                BIRFunctionWrapper birFuncWrapperOrError = null;
+                interopValidator.setEntryModuleValidation(isEntry);
+
+                BIRFunctionWrapper birFuncWrapperOrError;
                 try {
                     if (isExternFunc(getFunction(birFunc))) {
                         birFuncWrapperOrError = createExternalFunctionWrapper(interopValidator, birFunc, orgName,
@@ -867,7 +869,7 @@ public class JvmPackageGen {
                     String jClassName = lookupExternClassName(cleanupPackageName(pkgName), lookupKey);
                     if (jClassName != null) {
                         birFunctionMap.put(pkgName + lookupKey, createOldStyleExternalFunctionWrapper(currentFunc,
-                                orgName, moduleName, version, jClassName, jClassName));
+                                orgName, moduleName, version, jClassName, jClassName, isEntry));
                     } else {
                         throw new BLangCompilerException("native function not available: " +
                                 pkgName + lookupKey);

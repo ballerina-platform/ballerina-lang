@@ -202,11 +202,14 @@ public class ExternalMethodGen {
                                                                                         String moduleName,
                                                                                         String version,
                                                                                         String birModuleClassName,
-                                                                                        String jClassName) {
+                                                                                        String jClassName,
+                                                                                        boolean isEntryModule) {
 
         @Nilable List<BType> jMethodPramTypes = new ArrayList<>(birFunc.type.paramTypes);
         /*birFunc.type.paramTypes.clone();*/
-        addDefaultableBooleanVarsToSignature(birFunc);
+        if (isEntryModule) {
+            addDefaultableBooleanVarsToSignature(birFunc);
+        }
         BInvokableType functionTypeDesc = birFunc.type;
 
         @Nilable BType restType = functionTypeDesc.restType;
@@ -252,7 +255,7 @@ public class ExternalMethodGen {
                     birFuncWrapper = getFunctionWrapper(birFunc, orgName, moduleName, version, jClassName);
                 } else {
                     birFuncWrapper = createOldStyleExternalFunctionWrapper(birFunc, orgName, moduleName, version,
-                            birModuleClassName, jClassName);
+                            birModuleClassName, jClassName, interopValidator.isEntryModuleValidation());
                 }
             } else {
                 throw new BLangCompilerException("cannot find full qualified class name for extern function : " +
@@ -302,6 +305,7 @@ public class ExternalMethodGen {
      * @since 1.2.0
      */
     public static class JavaMethodCall extends BIRTerminator {
+
         @Nilable
         public
         List<BIROperand> args;
