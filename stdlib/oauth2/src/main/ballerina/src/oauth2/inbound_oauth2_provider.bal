@@ -32,7 +32,6 @@ public type InboundOAuth2Provider object {
     public http:Client introspectionClient;
     public string? tokenTypeHint;
     cache:Cache? inboundOAuth2Cache = ();
-    int? defaultTokenExpTimeInSeconds = ();
 
     public function __init(IntrospectionServerConfig config) {
         self.tokenTypeHint = config?.tokenTypeHint;
@@ -42,11 +41,9 @@ public type InboundOAuth2Provider object {
             cache:CacheConfig cacheConfig = {
                 capacity: oauth2CacheConfig.capacity,
                 evictionFactor: oauth2CacheConfig.evictionFactor,
-                evictionPolicy: oauth2CacheConfig.evictionPolicy,
                 defaultMaxAgeInSeconds: oauth2CacheConfig.defaultTokenExpTimeInSeconds
             };
             self.inboundOAuth2Cache = new(cacheConfig);
-            self.defaultTokenExpTimeInSeconds = oauth2CacheConfig.defaultTokenExpTimeInSeconds;
         }
     }
 
@@ -174,13 +171,11 @@ public type IntrospectionServerConfig record {|
 # + capacity - Maximum number of entries allowed
 # + expTimeInSeconds - Time since its last access in which the cache will be expired
 # + evictionFactor - The factor which the entries will be evicted once the cache full
-# + evictionPolicy - The policy which defines the cache eviction algorithm
 # + defaultTokenExpTimeInSeconds - Expiration time of the tokens if introspection response does not contain `exp` field
 public type InboundOAuth2CacheConfig record {|
     int capacity;
     int expTimeInSeconds;
     float evictionFactor;
-    cache:EvictionPolicy evictionPolicy = cache:LRU;
     int defaultTokenExpTimeInSeconds = 3600;
 |};
 

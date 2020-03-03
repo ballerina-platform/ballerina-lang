@@ -37,7 +37,6 @@ public type InboundJwtAuthProvider object {
         self.jwtValidatorConfig = jwtValidatorConfig;
         cache:CacheConfig config = {
             capacity: jwtValidatorConfig.jwtCacheConfig.capacity,
-            evictionPolicy: jwtValidatorConfig.jwtCacheConfig.evictionPolicy,
             evictionFactor: jwtValidatorConfig.jwtCacheConfig.evictionFactor
         };
         self.inboundJwtCache = new(config);
