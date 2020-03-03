@@ -30,6 +30,7 @@ import io.ballerina.plugins.idea.sdk.BallerinaSdkUtils;
 import io.ballerina.plugins.idea.settings.autodetect.BallerinaAutoDetectionSettings;
 import io.ballerina.plugins.idea.settings.experimental.BallerinaExperimentalFeatureSettings;
 import io.ballerina.plugins.idea.settings.langserverlogs.LangServerLogsSettings;
+import org.eclipse.lsp4j.DidChangeConfigurationParams;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.wso2.lsp4intellij.IntellijLanguageClient;
@@ -54,6 +55,7 @@ import static io.ballerina.plugins.idea.BallerinaConstants.SYS_PROP_LS_DEBUG;
 import static io.ballerina.plugins.idea.BallerinaConstants.SYS_PROP_LS_TRACE;
 import static io.ballerina.plugins.idea.sdk.BallerinaSdkUtils.getByCommand;
 import static io.ballerina.plugins.idea.sdk.BallerinaSdkUtils.getMajorVersion;
+import static io.ballerina.plugins.idea.sdk.BallerinaSdkUtils.getMinorVersion;
 
 /**
  * Language server protocol related utils.
@@ -64,6 +66,46 @@ public class LSPUtils {
 
     private static BallerinaAutoDetectNotifier autoDetectNotifier = new BallerinaAutoDetectNotifier();
     private static final Logger LOG = Logger.getInstance(LSPUtils.class);
+
+    /**
+     * Notifies plugin settings changes to the ballerina language server.
+     *
+     * @param project project instance related to the plugin settings change(s).
+     * @return true if the config change notification is sent successfully, or false otherwise.
+     */
+    public static boolean notifyConfigChanges(Project project) {
+
+        Pair<String, Boolean> balSdk = getOrDetectBalSdkHome(project);
+        String balSdkPath = balSdk.first;
+
+        String version = BallerinaSdkUtils.retrieveBallerinaVersion(balSdkPath);
+        if (version == null) {
+            LOG.warn("unable to retrieve ballerina version from sdk path: " + balSdkPath);
+            return false;
+        }
+
+        if (!hasDidChangeConfigSupport(version)) {
+            LOG.warn("on-the-fly config changes are not supported in ballerina: " + version);
+            return false;
+        }
+
+        LSClientConfig clientConfig = new LSClientConfig();
+        if (BallerinaExperimentalFeatureSettings.getInstance(project).isAllowedExperimental()) {
+            clientConfig.setAllowExperimental(true);
+            clientConfig.setGoToDefStdLibs(true);
+        }
+        // Checks user-configurable setting for allowing language server debug logs and sets the flag accordingly.
+        if (LangServerLogsSettings.getInstance(project).isLangServerDebugLogsEnabled()) {
+            clientConfig.setDebugLog(true);
+        }
+        // Checks user-configurable setting for allowing language server trace logs and sets the flag accordingly.
+        if (LangServerLogsSettings.getInstance(project).isLangServerTraceLogsEnabled()) {
+            clientConfig.setTraceLog(true);
+        }
+
+        IntellijLanguageClient.didChangeConfiguration(new DidChangeConfigurationParams(clientConfig), project);
+        return true;
+    }
 
     /**
      * Registered language server definition using currently opened ballerina projects.
@@ -114,11 +156,13 @@ public class LSPUtils {
         return true;
     }
 
-    private static void showInIdeaEventLog(@NotNull Project project, String message) {
-        ApplicationManager.getApplication().invokeLater(() -> autoDetectNotifier.showMessage(project, message,
-                MessageType.INFO));
-    }
-
+    /**
+     * Returns ballerina sdk location for a given project. First checks for a user-configured ballerina SDK for the
+     * project if nothing found, tries to auto detect the active ballerina distribution location.
+     *
+     * @param project Project instance.
+     * @return SDK location path string and a flag which indicates whether the location is auto detected.
+     */
     public static Pair<String, Boolean> getOrDetectBalSdkHome(Project project) {
 
         //If the project does not have a ballerina SDK attached, ballerinaSdkPath will be null.
@@ -253,17 +297,22 @@ public class LSPUtils {
 
     private static boolean hasLangServerCmdSupport(String balVersion) {
         int majorV = Integer.parseInt(getMajorVersion(balVersion));
-        int minorV = Integer.parseInt(getMajorVersion(balVersion));
+        int minorV = Integer.parseInt(getMinorVersion(balVersion));
 
         // returns true if the ballerina version >= 1.2.0.
         return majorV == 1 && minorV >= 2;
     }
 
-    private static boolean hasDidChangeConfigSupport(String balVersion) {
+    public static boolean hasDidChangeConfigSupport(String balVersion) {
         int majorV = Integer.parseInt(getMajorVersion(balVersion));
-        int minorV = Integer.parseInt(getMajorVersion(balVersion));
+        int minorV = Integer.parseInt(getMinorVersion(balVersion));
 
         // returns true if the ballerina version >= 1.2.0.
         return majorV == 1 && minorV >= 2;
+    }
+
+    private static void showInIdeaEventLog(@NotNull Project project, String message) {
+        ApplicationManager.getApplication().invokeLater(() -> autoDetectNotifier.showMessage(project, message,
+                MessageType.INFO));
     }
 }

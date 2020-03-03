@@ -20,14 +20,18 @@ import com.intellij.openapi.options.SearchableConfigurable;
 import com.intellij.openapi.project.Project;
 import com.intellij.util.ui.FormBuilder;
 import com.intellij.util.ui.UIUtil;
+import io.ballerina.plugins.idea.preloading.LSPUtils;
 import io.ballerina.plugins.idea.sdk.BallerinaSdkUtils;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Dimension;
 
-import javax.swing.*;
+import javax.swing.JCheckBox;
+import javax.swing.JComponent;
+import javax.swing.JPanel;
 
 /**
  * Adds capability of enabling/disabling ballerina experimental feature support.
@@ -67,10 +71,11 @@ public class BallerinaExperimentalFeatureConfigurable implements SearchableConfi
     @Override
     public void apply() {
         ballerinaExperimentalFeatureSettings.setAllowExperimental(myCbAllowExperimental.isSelected());
-        // Need to prompt a restart action to clear and re re-spawn language server instance with the changed
-        // configuration.
-        // Todo - Figure out a way to apply changes without restarting IDE.
-        BallerinaSdkUtils.showRestartDialog(project);
+        // Tries to notify the setting changes to the language server and if failed, requests to reload the project.
+        boolean success = LSPUtils.notifyConfigChanges(project);
+        if (!success) {
+            BallerinaSdkUtils.showRestartDialog(project);
+        }
     }
 
     @Override
