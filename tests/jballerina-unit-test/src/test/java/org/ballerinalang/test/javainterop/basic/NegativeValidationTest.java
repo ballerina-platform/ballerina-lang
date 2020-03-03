@@ -111,8 +111,9 @@ public class NegativeValidationTest {
 
     @Test(expectedExceptions = BLangCompilerException.class)
     public void testClassNotFound() {
+
         String path = "test-src/javainterop/negative/class_not_found.bal";
-        CompileResult compileResult = BCompileUtil.compileInProc(path);compileResult.getDiagnostics();
+        CompileResult compileResult = BCompileUtil.compileInProc(path);
         Assert.assertEquals(compileResult.getDiagnostics().length, 1);
         Assert.assertEquals(compileResult.getDiagnostics()[0].getMessage(), expectedMsg1);
     }
