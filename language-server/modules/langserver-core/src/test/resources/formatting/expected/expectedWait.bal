@@ -61,13 +61,13 @@ function waitTest3() returns any {
     return result;
 }
 
-function waitTest2() returns map<int | string> {
+function waitTest2() returns map<int|string> {
     future<int> f1 = start add_1(5, 2);
     future<string> f4 = start concat("foo");
     future<int> f3 = start add_1(5, 2);
-    future<int | string> f7 = start concat("xyz");
+    future<int|string> f7 = start concat("xyz");
 
-    map<int | string> result =
+    map<int|string> result =
     wait
     {
     f1
@@ -122,15 +122,15 @@ function waitTest7() returns int {
     return result;
 }
 
-function waitTest8() returns int | string {
-    future<int | string> f7 = start concat("xyz");
-    int | string result = wait fuInt() | f7;
+function waitTest8() returns int|string {
+    future<int|string> f7 = start concat("xyz");
+    int|string result = wait fuInt() | f7;
     return result;
 }
 
-function waitTest9() returns int | string {
-    future<int | string> f7 = start concat("xyz");
-    int | string result =
+function waitTest9() returns int|string {
+    future<int|string> f7 = start concat("xyz");
+    int|string result =
     wait
     fuInt()
     |
@@ -139,7 +139,7 @@ function waitTest9() returns int | string {
     return result;
 }
 
-function waitTest10() returns int | string | boolean {
+function waitTest10() returns int|string|boolean {
     worker w1 returns int {
         future<int> f1 = start add_1(5, 2);
         future<int> f2 = start add_1(50, 100);
@@ -147,21 +147,21 @@ function waitTest10() returns int | string | boolean {
         int r = wait f1 | f2;
         return r;
     }
-    worker w2 returns int | string {
+    worker w2 returns int|string {
         future<int> f1 = start add_1(50, 10);
         future<string> f2 = start concat("foo");
-        int | string r = wait f1 | f2;
+        int|string r = wait f1 | f2;
         return r;
     }
-    worker w3 returns int | string | boolean {
+    worker w3 returns int|string|boolean {
         future<int> f1 = start add_1(6, 6);
         future<string> f2 = start concat("bar");
         future<boolean> f3 = start status();
-        int | string | boolean r = wait f1 | f2 | f3;
+        int|string|boolean r = wait f1 | f2 | f3;
         runtime:sleep(2000);
         return r;
     }
-    int | string | boolean result = wait w1 | w2
+    int|string|boolean result = wait w1 | w2
     |
     w3
     ;

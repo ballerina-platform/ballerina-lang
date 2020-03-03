@@ -48,7 +48,7 @@ function test6(string s) returns (string) {
     return p.name;
 }
 
-function test7(string s) returns (int | error) {
+function test7(string s) returns (int|error) {
     map<any> m = {
         "data": s == "one" ? 1 : 2
     };
@@ -147,7 +147,7 @@ function testNestedTernary4(int value) returns [string, string] {
     return [s1, s2];
 }
 
-function testErrorInTernary() returns int | error {
+function testErrorInTernary() returns int|error {
     int x = 8;
     var result = x > 5 ? decrement(x)
     :
@@ -155,10 +155,10 @@ function testErrorInTernary() returns int | error {
     return result;
 }
 
-function decrement(int i) returns error | int {
+function decrement(int i) returns error|int {
     return i - 1;
 }
 
-function increment(int i) returns error | int {
+function increment(int i) returns error|int {
     return i + 1;
 }

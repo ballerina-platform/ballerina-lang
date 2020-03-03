@@ -3,7 +3,7 @@ import ballerina/runtime;
 
 int i = 0;
 
-function testForkJoin() returns [int, int] | error {
+function testForkJoin() returns [int, int]|error {
     http:Client c = new ("http://example.com");
     fork {
         worker w1 returns int {

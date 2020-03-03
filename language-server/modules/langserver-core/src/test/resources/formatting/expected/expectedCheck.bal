@@ -1,17 +1,17 @@
 import ballerina/http;
 
-function parse(string num) returns int | error {
+function parse(string num) returns int|error {
     return int.convert(num);
 }
 
-function scale1(string num) returns int | error {
+function scale1(string num) returns int|error {
     int x = check parse(num);
     int y = 0;
     y = check parse(num);
     return x * 10;
 }
 
-function scale2(string num) returns int | error {
+function scale2(string num) returns int|error {
     int x =
     check parse(num);
     return x * 10;
@@ -43,14 +43,14 @@ service myService2 on new http:Listener(9090) {
     }
 }
 
-function scale3(string num) returns int | error {
+function scale3(string num) returns int|error {
     int x = check start parse(num);
     int y = 0;
     y = check parse(num);
     return x * 10;
 }
 
-function scale4(string num) returns int | error {
+function scale4(string num) returns int|error {
     int x = check
     start parse(num);
     int y = 0;
@@ -59,7 +59,7 @@ function scale4(string num) returns int | error {
     return x * 10;
 }
 
-function scale5(string num) returns int | error {
+function scale5(string num) returns int|error {
     int x =
     check
     start
@@ -73,7 +73,7 @@ function scale5(string num) returns int | error {
     return x * 10;
 }
 
-public function test1() returns string | error {
+public function test1() returns string|error {
     return "";
 }
 
@@ -85,7 +85,7 @@ public function test2() returns error? {
 public function test3() {
 
     json Items = [1, false, null, "foo", {first: "John", last: "Pala"}];
-    json[] | error ItemArr = trap <json[]>Items;
+    json[]|error ItemArr = trap <json[]>Items;
     foreach var item in check ItemArr {
 
     }
@@ -94,7 +94,7 @@ public function test3() {
 public function test4() {
 
     json Items = [1, false, null, "foo", {first: "John", last: "Pala"}];
-    json[] | error ItemArr = trap <json[]>Items;
+    json[]|error ItemArr = trap <json[]>Items;
     foreach var
     item
     in
