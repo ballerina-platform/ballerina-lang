@@ -578,8 +578,10 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
                     analyzeNode(keyValuePair.key.expr, env);
                 }
                 analyzeNode(keyValuePair.valueExpr, env);
-            } else {
+            } else if (field.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
                 analyzeNode((BLangRecordLiteral.BLangRecordVarNameField) field, env);
+            } else {
+                analyzeNode(((BLangRecordLiteral.BLangRecordSpreadOperatorField) field).expr, env);
             }
         }
     }

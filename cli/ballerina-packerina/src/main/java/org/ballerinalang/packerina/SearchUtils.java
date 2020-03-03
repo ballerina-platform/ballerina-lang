@@ -17,14 +17,13 @@
  */
 package org.ballerinalang.packerina;
 
-import org.ballerinalang.spi.EmbeddedExecutor;
+import org.ballerinalang.cli.module.Search;
+import org.ballerinalang.cli.module.exeptions.CommandException;
 import org.ballerinalang.toml.model.Proxy;
-import org.ballerinalang.util.EmbeddedExecutorProvider;
 import org.wso2.ballerinalang.util.RepoUtils;
 import org.wso2.ballerinalang.util.TomlParserUtils;
 
 import java.io.PrintStream;
-import java.util.Optional;
 
 /**
  * This class provides util methods when searching for Ballerina modules in the central.
@@ -33,29 +32,27 @@ import java.util.Optional;
  */
 public class SearchUtils {
     private static final PrintStream ERROR_STREAM = System.err;
-    
+
     /**
      * Search for modules in central.
      *
      * @param query search keyword.
      */
     public static void searchInCentral(String query) {
-        EmbeddedExecutor executor = EmbeddedExecutorProvider.getInstance().getExecutor();
         Proxy proxy = TomlParserUtils.readSettings().getProxy();
-        String urlWithModulePath = RepoUtils.getRemoteRepoURL() + "/modules/";
-        String proxyPortAsString = proxy.getPort() == 0 ? "" : Integer.toString(proxy.getPort());
-        
-        Optional<RuntimeException> exception = executor.executeMainFunction("module_search",
-                urlWithModulePath, query, proxy.getHost(), proxyPortAsString, proxy.getUserName(), proxy.getPassword(),
-                RepoUtils.getTerminalWidth());
-        if (exception.isPresent()) {
-            String errorMessage = exception.get().getMessage();
+        String urlWithModulePath = RepoUtils.getRemoteRepoURL() + "/modules/" + "?q=" + query;
+
+        try {
+            Search.execute(urlWithModulePath, proxy.getHost(), proxy.getPort(), proxy.getUserName(),
+                    proxy.getPassword(), RepoUtils.getTerminalWidth());
+        } catch (CommandException e) {
+            String errorMessage = e.getMessage();
             if (null != errorMessage && !"".equals(errorMessage.trim())) {
                 // removing the error stack
                 if (errorMessage.contains("\n\tat")) {
                     errorMessage = errorMessage.substring(0, errorMessage.indexOf("\n\tat"));
                 }
-    
+
                 ERROR_STREAM.println(errorMessage);
             }
         }

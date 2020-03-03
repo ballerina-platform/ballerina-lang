@@ -358,6 +358,7 @@ staticMatchLiterals
 recordField
     :   Identifier
     |   recordKey COLON expression
+    |   ELLIPSIS expression
     ;
 
 recordKey
