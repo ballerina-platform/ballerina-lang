@@ -29,7 +29,7 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.openapi.CodeGenerator;
 import org.ballerinalang.openapi.exception.BallerinaOpenApiException;
-import org.ballerinalang.testerina.core.TesterinaConstants;
+import org.ballerinalang.test.runtime.util.TesterinaConstants;
 import org.ballerinalang.tool.util.BCompileUtil;
 import org.ballerinalang.tool.util.CompileResult;
 import org.ballerinalang.util.diagnostic.Diagnostic;

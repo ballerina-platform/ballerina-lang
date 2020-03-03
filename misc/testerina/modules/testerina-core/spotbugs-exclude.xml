@@ -16,7 +16,4 @@
   ~ under the License.
   -->
 <FindBugsFilter>
-    <Match>
-        <Class name="org.ballerinalang.testerina.util.TestarinaClassLoader"/>
-    </Match>
 </FindBugsFilter>

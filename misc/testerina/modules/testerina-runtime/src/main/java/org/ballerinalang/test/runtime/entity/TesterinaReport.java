@@ -16,9 +16,9 @@
  * under the License.
  */
 
-package org.ballerinalang.testerina.core.entity;
+package org.ballerinalang.test.runtime.entity;
 
-import org.ballerinalang.testerina.util.TesterinaUtils;
+import org.ballerinalang.test.runtime.util.TesterinaUtils;
 
 import java.io.PrintStream;
 import java.util.ArrayList;
@@ -97,25 +97,6 @@ public class TesterinaReport {
             failure = true;
             testSummary.failedTests.add(result);
         }
-    }
-
-    /**
-     * Returns a count of passed/failed/skipped tests of a given package.
-     *
-     * @param packageName name of the package
-     * @param type        category - passed/failed/skipped
-     * @return count per category per package.
-     */
-    public int getTestSummary(String packageName, String type) {
-        TestSummary summary = testReportOfPackage.get(packageName);
-        if ("passed".equals(type)) {
-            return summary == null ? 0 : summary.passedTests.size();
-        } else if ("failed".equals(type)) {
-            return summary == null ? 0 : summary.failedTests.size();
-        } else if ("skipped".equals(type)) {
-            return summary == null ? 0 : summary.skippedTests.size();
-        }
-        return -1;
     }
 
     /**

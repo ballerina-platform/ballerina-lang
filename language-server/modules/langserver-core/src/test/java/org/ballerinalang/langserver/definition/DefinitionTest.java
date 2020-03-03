@@ -152,6 +152,7 @@ public class DefinitionTest {
                 {"defTypedesc14.json", "typedescriptor"},
                 {"defTypedesc15.json", "typedescriptor"},
                 {"defTypedesc16.json", "typedescriptor"},
+                {"defTypedesc53.json", "typedescriptor"},
                 // Covers Function Type Descriptor
                 {"defTypedesc17.json", "typedescriptor"},
                 {"defTypedesc18.json", "typedescriptor"},
