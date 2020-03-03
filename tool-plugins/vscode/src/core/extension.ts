@@ -31,7 +31,7 @@ import * as path from 'path';
 import * as fs from 'fs';
 import { exec, execSync } from 'child_process';
 import { LanguageClientOptions, State as LS_STATE, RevealOutputChannelOn, DidChangeConfigurationParams, ServerOptions } from "vscode-languageclient";
-import { getServerOptions, getOldServerOptions } from '../server/server';
+import { getServerOptions, getOldServerOptions, getOldCliServerOptions } from '../server/server';
 import { ExtendedLangClient } from './extended-language-client';
 import { log, getOutputChannel } from '../utils/index';
 import { AssertionError } from "assert";
@@ -53,7 +53,8 @@ export class BallerinaExtension {
     public telemetryReporter: TelemetryReporter;
     public ballerinaHome: string;
     public ballerinaCmd: string;
-    public isNewCLICmdSupported: boolean = true;
+    public isNewCLICmdSupported: boolean = false;
+    public isNewConfigChangeSupported: boolean = true;
     public extension: Extension<any>;
     private clientOptions: LanguageClientOptions;
     public langClient?: ExtendedLangClient;
@@ -131,11 +132,15 @@ export class BallerinaExtension {
 
                 // versions less than 1.1.0 are incapable of handling cli commands for langserver and debug-adapter
                 this.isNewCLICmdSupported = this.compareVersions(ballerinaVersion, "1.1.0", true) >= 0;
+                // versions higher than 1.2.0 are not accepting cli commands parameters
+                this.isNewConfigChangeSupported = this.compareVersions(ballerinaVersion, "1.2.0", true) >= 0;
 
                 // if Home is found load Language Server.
                 let serverOptions:ServerOptions;
-                if (this.isNewCLICmdSupported) {
+                if (this.isNewConfigChangeSupported) {
                     serverOptions = getServerOptions(this.ballerinaCmd);
+                } else if (this.isNewCLICmdSupported) {
+                    serverOptions = getOldCliServerOptions(this.ballerinaCmd, this.isExperimental(), this.isDebugLogsEnabled(), this.isTraceLogsEnabled(), this.isStdlibDefinitionEnabled());
                 } else {
                     serverOptions = getOldServerOptions(this.ballerinaHome, this.isExperimental(), this.isDebugLogsEnabled(), this.isTraceLogsEnabled());
                 }
@@ -312,8 +317,8 @@ export class BallerinaExtension {
                 try {
                     const implVersionLine = cmdOutput.split('\n')[0];
                     const replacePrefix = implVersionLine.startsWith("jBallerina")
-                            ? /jBallerina /
-                            : /Ballerina /;
+                        ? /jBallerina /
+                        : /Ballerina /;
                     const parsedVersion = implVersionLine.replace(replacePrefix, '').replace(/[\n\t\r]/g, '');
                     resolve(parsedVersion);
                 } catch (error) {

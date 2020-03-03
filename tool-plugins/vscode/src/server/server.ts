@@ -49,6 +49,55 @@ export function getServerOptions(ballerinaCmd: string) : ServerOptions {
     };
 }
 
+export function getOldCliServerOptions(ballerinaCmd: string, experimental: boolean, debugLogsEnabled: boolean, traceLogsEnabled: boolean, enableStdlibDefinition: boolean) : ServerOptions {
+    debug(`Using Ballerina CLI command '${ballerinaCmd}' for Language server.`);
+    let cmd = ballerinaCmd;
+    let args = ["start-language-server"];
+  
+    let opt: ExecutableOptions = {};
+    opt.env = Object.assign({}, process.env);
+    if (process.env.LS_EXTENSIONS_PATH !== "") {
+        if (opt.env.BALLERINA_CLASSPATH_EXT) {
+            opt.env.BALLERINA_CLASSPATH_EXT += path.delimiter + process.env.LS_EXTENSIONS_PATH;
+        } else {
+            opt.env.BALLERINA_CLASSPATH_EXT = process.env.LS_EXTENSIONS_PATH;
+        }
+    }
+    if (process.env.LSDEBUG === "true") {
+        debug('Language Server is starting in debug mode.');
+        let debugPort = 5005;
+        opt.env.BAL_JAVA_DEBUG = debugPort;
+        opt.env.BAL_DEBUG_OPTS = "-Xdebug -Xnoagent -Djava.compiler=NONE -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=" + debugPort + ",quiet=y";
+    }
+    if (debugLogsEnabled || traceLogsEnabled) {
+        let str = [];
+        if (debugLogsEnabled) {
+            str.push('debug');
+            args.push('--debug-log');
+        }
+        if (traceLogsEnabled) {
+            str.push('trace');
+            args.push('--trace-log');
+        }
+        debug('Language Server ' + str.join(', ') +' logs enabled.');
+    }
+    if (process.env.LS_CUSTOM_CLASSPATH) {
+        args.push('--classpath', process.env.LS_CUSTOM_CLASSPATH);
+    }
+    if (experimental) {
+        args.push('--experimental');
+    }
+    if (enableStdlibDefinition) {
+        args.push('--stdlib-definition');
+    }
+
+    return {
+        command: cmd,
+        args,
+        options: opt
+    };
+}
+
 export function getOldServerOptions(ballerinaHome: string, experimental: boolean, debugLogsEnabled: boolean, traceLogsEnabled: boolean) : ServerOptions {
     // Fallback into old way, TODO: Remove this in a later verison
     debug(`Using Ballerina installation at '${ballerinaHome}' for Language server.`);
