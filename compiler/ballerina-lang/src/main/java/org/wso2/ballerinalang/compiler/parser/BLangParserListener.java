@@ -503,6 +503,17 @@ public class BLangParserListener extends BallerinaParserBaseListener {
                 isClient, false);
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void exitObjectTypeNameLabel(BallerinaParser.ObjectTypeNameLabelContext ctx) {
+        if (isInErrorState) {
+            return;
+        }
+        this.pkgBuilder.addObjectTypeName(getWS(ctx));
+    }
+
     @Override
     public void exitTypeReference(BallerinaParser.TypeReferenceContext ctx) {
         if (isInErrorState) {
@@ -1019,6 +1030,18 @@ public class BLangParserListener extends BallerinaParserBaseListener {
                 getCurrentPos(ctx), false);
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void exitErrorRestBindingPattern(BallerinaParser.ErrorRestBindingPatternContext ctx) {
+        if (isInErrorState) {
+            return;
+        }
+
+        this.pkgBuilder.addWSForErrorRestBinding(getWS(ctx));
+    }
+
     @Override
     public void exitErrorBindingPattern(BallerinaParser.ErrorBindingPatternContext ctx) {
         if (isInErrorState) {
@@ -1073,6 +1096,15 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         }
 
         this.pkgBuilder.endSimpleMatchPattern(getWS(ctx));
+    }
+
+    @Override
+    public void exitRestMatchPattern(BallerinaParser.RestMatchPatternContext ctx) {
+        if (isInErrorState) {
+            return;
+        }
+
+        this.pkgBuilder.addWSForRestMatchPattern(getWS(ctx));
     }
 
     @Override

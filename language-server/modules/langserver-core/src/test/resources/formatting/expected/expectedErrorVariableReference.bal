@@ -29,13 +29,13 @@ function testBasicErrorVariableWithMapDetails() returns [string, string, string,
 
     error
     (
-    reason21
-    ,
-    ...
-    detail21
+        reason21
+        ,
+        ...
+        detail21
     )
     =
-    err2
+        err2
     ;
     error (reason22, message = message22, detail = detail22, extra = extra22) = err2;
 
@@ -43,9 +43,9 @@ function testBasicErrorVariableWithMapDetails() returns [string, string, string,
     ) = err2;
 
     error (reason22,
-    message = message22,
-    detail = detail22,
-    extra = extra22
+        message = message22,
+        detail = detail22,
+        extra = extra22
     ) = err2;
 
     return [reason11, reason12, reason21, reason22, detail11, message12, detail12, extra12, detail21, message22, detail22, extra22];
@@ -66,13 +66,13 @@ function testIndirectErrorVarRef2() {
     map<anydata | error> rest;
     SMS
     (
-    message = message
-    ,
-    other = other
-    ,
-    ...rest
+        message = message
+        ,
+        other = other
+        ,
+        ...rest
     )
     =
-    e
+        e
     ;
 }

@@ -15,6 +15,6 @@ public function main() {
 
     // Module level namespaces can be overridden at the function level.
     xmlns
-    "http://ballerina.com/updated" as ns0;
+        "http://ballerina.com/updated" as ns0;
     io:println(ns0:foo);
 }
