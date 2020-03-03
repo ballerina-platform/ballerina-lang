@@ -284,7 +284,7 @@ builtInReferenceTypeName
     ;
 
 streamTypeName
-    :   TYPE_STREAM LT typeName (COMMA errorTypeName)? GT
+    :   TYPE_STREAM LT typeName (COMMA typeName)? GT
     ;
 
 functionTypeName

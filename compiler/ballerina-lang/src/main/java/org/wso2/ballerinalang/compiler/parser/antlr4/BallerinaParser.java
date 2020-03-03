@@ -4614,14 +4614,14 @@ public class BallerinaParser extends Parser {
 	public static class StreamTypeNameContext extends ParserRuleContext {
 		public TerminalNode TYPE_STREAM() { return getToken(BallerinaParser.TYPE_STREAM, 0); }
 		public TerminalNode LT() { return getToken(BallerinaParser.LT, 0); }
-		public TypeNameContext typeName() {
-			return getRuleContext(TypeNameContext.class,0);
+		public List<TypeNameContext> typeName() {
+			return getRuleContexts(TypeNameContext.class);
+		}
+		public TypeNameContext typeName(int i) {
+			return getRuleContext(TypeNameContext.class,i);
 		}
 		public TerminalNode GT() { return getToken(BallerinaParser.GT, 0); }
 		public TerminalNode COMMA() { return getToken(BallerinaParser.COMMA, 0); }
-		public ErrorTypeNameContext errorTypeName() {
-			return getRuleContext(ErrorTypeNameContext.class,0);
-		}
 		public StreamTypeNameContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
@@ -4656,7 +4656,7 @@ public class BallerinaParser extends Parser {
 				setState(1023);
 				match(COMMA);
 				setState(1024);
-				errorTypeName();
+				typeName(0);
 				}
 			}
 
@@ -18796,7 +18796,7 @@ public class BallerinaParser extends Parser {
 		"\2\2\u03fc\u03ee\3\2\2\2\u03fc\u03f3\3\2\2\2\u03fc\u03f8\3\2\2\2\u03fc"+
 		"\u03f9\3\2\2\2\u03fc\u03fa\3\2\2\2\u03fc\u03fb\3\2\2\2\u03fdm\3\2\2\2"+
 		"\u03fe\u03ff\7)\2\2\u03ff\u0400\7u\2\2\u0400\u0403\5X-\2\u0401\u0402\7"+
-		"`\2\2\u0402\u0404\5r:\2\u0403\u0401\3\2\2\2\u0403\u0404\3\2\2\2\u0404"+
+		"`\2\2\u0402\u0404\5X-\2\u0403\u0401\3\2\2\2\u0403\u0404\3\2\2\2\u0404"+
 		"\u0405\3\2\2\2\u0405\u0406\7t\2\2\u0406o\3\2\2\2\u0407\u0408\7\13\2\2"+
 		"\u0408\u040b\7c\2\2\u0409\u040c\5\u0164\u00b3\2\u040a\u040c\5\u0160\u00b1"+
 		"\2\u040b\u0409\3\2\2\2\u040b\u040a\3\2\2\2\u040b\u040c\3\2\2\2\u040c\u040d"+
