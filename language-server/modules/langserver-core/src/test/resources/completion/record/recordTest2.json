@@ -234,6 +234,24 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "removeIfHasKey(string k)(((any|error)|()))",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.map_  \n  \nRemoves a member of a map with a given key, if the map has member with the key.\n  \n**Params**  \n- `string` k: the key  \n  \n**Returns** `((any|error)|())`   \n- the member of `m` that had key `k`, or `()` if `m` does not have a key `k`  \nIf `m` has a member with key `k`, it removes and returns it;  \notherwise it returns `()`.  \n  \n"
+        }
+      },
+      "sortText": "120",
+      "insertText": "removeIfHasKey(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
       "label": "filter(function ((any|error)) returns (boolean) func)(map<(any|error)>)",
       "kind": "Function",
       "detail": "Function",
