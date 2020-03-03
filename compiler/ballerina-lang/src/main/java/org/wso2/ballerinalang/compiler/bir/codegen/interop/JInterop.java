@@ -17,13 +17,10 @@
  */
 package org.wso2.ballerinalang.compiler.bir.codegen.interop;
 
-import org.ballerinalang.compiler.BLangCompilerException;
-import org.ballerinalang.jvm.values.utils.StringUtils;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 import static org.wso2.ballerinalang.compiler.bir.codegen.interop.JType.getJTypeForPrimitive;
 import static org.wso2.ballerinalang.compiler.bir.codegen.interop.JTypeTags.JARRAY;
