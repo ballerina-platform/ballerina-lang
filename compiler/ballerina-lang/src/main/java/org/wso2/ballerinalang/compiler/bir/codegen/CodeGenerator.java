@@ -31,9 +31,15 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.jar.Attributes;
 import java.util.jar.JarEntry;
 import java.util.jar.JarOutputStream;
@@ -77,7 +83,7 @@ public class CodeGenerator {
         return codeGenerator;
     }
 
-    public void generate(BIRNode.BIRPackage entryMod, Path target) {
+    public void generate(BIRNode.BIRPackage entryMod, Path target, Set<Path> moduleDependencies) {
 
         if (compiledPkgCache.containsValue(entryMod)) {
             return;
@@ -90,8 +96,16 @@ public class CodeGenerator {
         JvmPackageGen.JarFile jarFile = new JvmPackageGen.JarFile();
         populateExternalMap();
 
-        //TODO : do we need a classloader?
-        ClassLoader classLoader = CodeGenerator.class.getClassLoader();
+        List<URL> dependentJars = new ArrayList<>();
+        for (Path dependency : moduleDependencies) {
+            try {
+                dependentJars.add(dependency.toUri().toURL());
+            } catch (MalformedURLException e) {
+                // ignore
+            }
+        }
+
+        ClassLoader classLoader = new URLClassLoader(dependentJars.toArray(new URL[]{}));
         InteropValidator interopValidator = new InteropValidator(classLoader, symbolTable);
         generatePackage(entryMod, jarFile, interopValidator, true);
         writeJarFile(jarFile, target);

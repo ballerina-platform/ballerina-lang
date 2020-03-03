@@ -29,7 +29,7 @@ import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.wso2.ballerinalang.compiler.bir.codegen.interop.JInteropException.CLASS_NOT_FOUND_REASON;
+import static org.ballerinalang.util.diagnostic.DiagnosticCode.CLASS_NOT_FOUND;
 
 /**
  * Represents a java method in this implementation.
@@ -127,7 +127,7 @@ class JMethod {
                 }
             }
         } catch (ClassNotFoundException | NoClassDefFoundError e) {
-            throw new JInteropException(CLASS_NOT_FOUND_REASON, e.getMessage(), e);
+            throw new JInteropException(CLASS_NOT_FOUND, e.getMessage(), e);
         }
 
         ArrayValue arrayValue = new ArrayValueImpl(new BArrayType(BTypes.typeString), checkedExceptions.size());
@@ -150,7 +150,7 @@ class JMethod {
                 }
             }
         } catch (ClassNotFoundException | NoClassDefFoundError e) {
-            throw new JInteropException(CLASS_NOT_FOUND_REASON, e.getMessage(), e);
+            throw new JInteropException(CLASS_NOT_FOUND, e.getMessage(), e);
         }
         return checkedExceptions.toArray(new Class[0]);
     }

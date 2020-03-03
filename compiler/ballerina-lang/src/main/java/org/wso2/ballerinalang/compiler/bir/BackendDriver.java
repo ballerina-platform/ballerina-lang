@@ -17,12 +17,14 @@
  */
 package org.wso2.ballerinalang.compiler.bir;
 
+import org.ballerinalang.compiler.BLangCompilerException;
 import org.wso2.ballerinalang.compiler.bir.codegen.CodeGenerator;
 import org.wso2.ballerinalang.compiler.bir.emit.BIREmitter;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 import java.nio.file.Path;
+import java.util.HashSet;
 
 /**
  * Similar to CompilerDriver, this class drives the backend code generation of BIR packages through various phases
@@ -59,10 +61,23 @@ public class BackendDriver {
         }
 
         // Generate JVM bytecode from BIR
-        codeGen(birPackage, target);
+        codeGen(birPackage, target, new HashSet<>());
+        if (CodeGenerator.dlog.errorCount > 0) {
+            throw new BLangCompilerException("compilation contains errors");
+        }
     }
 
-    private void codeGen(BIRNode.BIRPackage birPackage, Path target) {
-        this.codeGenerator.generate(birPackage, target);
+    public void execute(BIRNode.BIRPackage birPackage, boolean dumpBIR, Path target, HashSet<Path> moduleDependencies) {
+        // Emit BIR to console if dump-bir flag is set
+        if (dumpBIR) {
+            birEmitter.emit(birPackage);
+        }
+
+        // Generate JVM bytecode from BIR
+        codeGen(birPackage, target, moduleDependencies);
+    }
+
+    private void codeGen(BIRNode.BIRPackage birPackage, Path target, HashSet<Path> moduleDependencies) {
+        this.codeGenerator.generate(birPackage, target, moduleDependencies);
     }
 }
