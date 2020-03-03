@@ -448,16 +448,20 @@ public class CreateBallerinaServiceResourceMethodExecutor implements LSCommandEx
                                     switch (finalResourceMethod) {
                                         case "get": {
                                             path.setGet(newPath.getGet());
+                                            break;
                                         }
                                         case "post": {
                                             newPath.getPost().setRequestBody(null);
                                             path.setPost(newPath.getPost());
+                                            break;
                                         }
                                         case "put": {
                                             path.setPut(newPath.getPut());
+                                            break;
                                         }
                                         case "delete": {
                                             path.setDelete(newPath.getDelete());
+                                            break;
                                         }
                                     }
                                 }
