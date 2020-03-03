@@ -2297,9 +2297,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     public void visit(BLangConstrainedType constrainedType) {
 
-        if (constrainedType.type.type.tag == TypeTags.STREAM) {
-            checkExperimentalFeatureValidity(ExperimentalFeatures.STREAMS, constrainedType.pos);
-        }
         analyzeTypeNode(constrainedType.constraint, env);
     }
 
@@ -2877,7 +2874,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
      * @since JBallerina 1.0.0
      */
     private enum ExperimentalFeatures {
-        STREAMS("stream"),
         TRANSACTIONS("transaction"),
         LOCK("lock"),
         XML_ACCESS("xml access expression"),
