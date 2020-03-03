@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -88,7 +88,7 @@ public class StringValueBasicsTest {
 
     @Test(expectedExceptions = BLangRuntimeException.class,
           expectedExceptionsMessageRegExp = ".*string index out of range: index: 6, size: 6.*",
-            groups = "brokenOnJBallerina")
+          groups = "brokenOnJBallerina")
     public void testStringIndexAccessException() {
         BRunUtil.invoke(result, "testStringIndexAccessException");
     }

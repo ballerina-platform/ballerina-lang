@@ -105,7 +105,7 @@ public class CodeGenerator {
             }
         }
 
-        ClassLoader classLoader = new URLClassLoader(dependentJars.toArray(new URL[]{}));
+        ClassLoader classLoader = new URLClassLoader(dependentJars.toArray(new URL[]{}), null);
         InteropValidator interopValidator = new InteropValidator(classLoader, symbolTable);
         generatePackage(entryMod, jarFile, interopValidator, true);
         writeJarFile(jarFile, target);

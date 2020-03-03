@@ -1,20 +1,20 @@
 /*
-*  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-*  WSO2 Inc. licenses this file to you under the Apache License,
-*  Version 2.0 (the "License"); you may not use this file except
-*  in compliance with the License.
-*  You may obtain a copy of the License at
-*
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-*  Unless required by applicable law or agreed to in writing,
-*  software distributed under the License is distributed on an
-*  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-*  KIND, either express or implied.  See the License for the
-*  specific language governing permissions and limitations
-*  under the License.
-*/
+ *  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing,
+ *  software distributed under the License is distributed on an
+ *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *  KIND, either express or implied.  See the License for the
+ *  specific language governing permissions and limitations
+ *  under the License.
+ */
 package org.ballerinalang.stdlib.utils;
 
 import org.ballerinalang.compiler.BLangCompilerException;
@@ -32,10 +32,13 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.compiler.util.Names;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.HashSet;
 import java.util.List;
 import java.util.StringJoiner;
 
@@ -92,7 +95,7 @@ public class GenerateBalo {
     }
 
     private static void genBalo(String targetDir, String sourceRootDir, boolean reportWarnings, boolean jvmTarget)
-            throws IOException {
+    throws IOException {
         Files.createDirectories(Paths.get(targetDir));
 
         CompilerContext context = new CompilerContext();
@@ -117,6 +120,28 @@ public class GenerateBalo {
         BackendDriver backendDriver = BackendDriver.getInstance(context);
 
         List<Diagnostic> diagnostics = diagListner.getDiagnostics();
+        printErrors(reportWarnings, diagListner, diagnostics);
+
+        compiler.write(buildPackages);
+
+        for (BLangPackage pkg : buildPackages) {
+            String suffix = "";
+            String bStringProp = System.getProperty("ballerina.bstring");
+            if (bStringProp != null && !"".equals(bStringProp)) {
+                suffix = "-bstring";
+            }
+            Path jarOutput = Paths.get("./build/generated-bir-jar/" + pkg.packageID.name + suffix + ".jar");
+            Path parent = jarOutput.getParent();
+            if (parent != null) {
+                Files.createDirectories(parent);
+            }
+
+            backendDriver.execute(pkg.symbol.bir, false, jarOutput, readModuleDependencies());
+            printErrors(reportWarnings, diagListner, diagnostics);
+        }
+    }
+
+    private static void printErrors(boolean reportWarnings, CompileResult.CompileResultDiagnosticListener diagListner, List<Diagnostic> diagnostics) {
         if (diagListner.getErrorCount() > 0 || (reportWarnings && diagListner.getWarnCount() > 0)) {
             StringJoiner sj = new StringJoiner("\n  ");
             diagnostics.forEach(e -> sj.add(e.toString()));
@@ -124,17 +149,17 @@ public class GenerateBalo {
             throw new BLangCompilerException("Compilation failed with " + diagListner.getErrorCount() +
                                              " error(s)" + warnMsg + " " + "\n  " + sj.toString());
         }
+    }
 
-        compiler.write(buildPackages);
-
-        for (BLangPackage pkg : buildPackages) {
-            Path jarOutput = Paths.get("./build/generated-bir-jar/" + pkg.packageID.name + ".jar");
-            Path parent = jarOutput.getParent();
-            if (parent != null) {
-                Files.createDirectories(parent);
+    private static HashSet<Path> readModuleDependencies() throws IOException {
+        HashSet<Path> moduleDependencies = new HashSet<>();
+        try (BufferedReader br = new BufferedReader(new FileReader("build/interopJars.txt"))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                moduleDependencies.add(Paths.get(line));
             }
-            backendDriver.execute(pkg.symbol.bir, false, jarOutput);
         }
+        return moduleDependencies;
     }
 
     private static class MvnSourceDirectory extends FileSystemProjectDirectory {
