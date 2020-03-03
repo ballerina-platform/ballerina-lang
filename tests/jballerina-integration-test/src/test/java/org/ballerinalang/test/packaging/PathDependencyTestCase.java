@@ -197,7 +197,7 @@ public class PathDependencyTestCase extends BaseTest {
      *
      * @throws BallerinaTestException Error when executing the commands.
      */
-    @Test()
+    @Test(groups = "brokenOnJBallerina")
     public void testBaloPathCase4() throws BallerinaTestException, IOException {
         Path caseResources = tempTestResources.resolve("case4");
         // Build bee module of TestProject1
@@ -414,7 +414,8 @@ public class PathDependencyTestCase extends BaseTest {
      *
      * @throws BallerinaTestException Error when executing the commands.
      */
-    @Test(description = "Case7: Test platform dependency of two project with common module as an interop dependency")
+    @Test(description = "Case7: Test platform dependency of two project with common module as an interop dependency",
+            groups = "brokenOnJBallerina")
     public void testBaloPathCase7() throws BallerinaTestException {
         Path caseResources = tempTestResources.resolve("case7");
         // Build all modules of TestProject3
@@ -451,7 +452,7 @@ public class PathDependencyTestCase extends BaseTest {
      * @throws BallerinaTestException Error when executing the commands.
      */
     @Test(description = "Case8: Test single bal file using external module with interop dependency",
-    dependsOnMethods = "testBaloPathCase7")
+    dependsOnMethods = "testBaloPathCase7", groups = "brokenOnJBallerina")
     public void testBaloSingleBalFileCase8() throws BallerinaTestException, IOException {
 
         Path caseResources = tempTestResources.resolve("case8");
@@ -544,7 +545,7 @@ public class PathDependencyTestCase extends BaseTest {
      *
      * @throws BallerinaTestException Error when executing the commands.
      */
-    @Test(description = "Test runtime test dependency from different modules")
+    @Test(description = "Test runtime test dependency from different modules", groups = "brokenOnJBallerina")
     public void testRuntimeTimeDependencyForExecutingModuleTests() throws BallerinaTestException {
         Path caseResources = tempTestResources.resolve("test-dependency");
         String msg = "invoked fooFn";
