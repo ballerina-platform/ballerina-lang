@@ -14,6 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/log;
+
 # Record type to hold the details of an error.
 #
 # + message - Specific error message of the error.
@@ -25,3 +27,19 @@ public type Detail record {
 
 public const CACHE_ERROR = "{ballerina/cache}Error";
 public type Error error<CACHE_ERROR, Detail>;
+
+# Log and prepare `error` as a `Error`.
+#
+# + message - Error message
+# + err - `error` instance
+# + return - Prepared `Error` instance
+function prepareError(string message, error? err = ()) returns Error {
+    log:printError(message, err);
+    Error cacheError;
+    if (err is error) {
+        cacheError = error(CACHE_ERROR, message = message, cause = err);
+    } else {
+        cacheError = error(CACHE_ERROR, message = message);
+    }
+    return cacheError;
+}

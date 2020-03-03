@@ -94,16 +94,16 @@ public type Cache object {
 
         // Cache capacity must be a positive value.
         if (self.capacity <= 0) {
-            panic error(CACHE_ERROR, message = "Capacity must be greater than 0.");
+            panic prepareError("Capacity must be greater than 0.");
         }
         // Cache eviction factor must be between 0.0 (exclusive) and 1.0 (inclusive).
         if (self.evictionFactor <= 0 || self.evictionFactor > 1) {
-            panic error(CACHE_ERROR, message = "Cache eviction factor must be between 0.0 (exclusive) and 1.0 (inclusive).");
+            panic prepareError("Cache eviction factor must be between 0.0 (exclusive) and 1.0 (inclusive).");
         }
 
         // Cache eviction factor must be between 0.0 (exclusive) and 1.0 (inclusive).
         if (self.defaultMaxAgeInSeconds != -1 && self.defaultMaxAgeInSeconds <= 0) {
-            panic error(CACHE_ERROR, message = "Default max age should be greater than 0 or -1 for indicate forever valid.");
+            panic prepareError("Default max age should be greater than 0 or -1 for indicate forever valid.");
         }
 
         self.list = {
@@ -123,18 +123,16 @@ public type Cache object {
             };
             task:SchedulerError? result = cleanupScheduler.attach(cleanupService, attachment = mapAndList);
             if (result is task:SchedulerError) {
-                record {| string message?; anydata|error...; |} detail = result.detail();
-                panic error(CACHE_ERROR, message = "Failed to create the cache cleanup task: " + <string>detail["message"]);
+                panic prepareError("Failed to create the cache cleanup task.", result);
             }
             result = cleanupScheduler.start();
             if (result is task:SchedulerError) {
-                record {| string message?; anydata|error...; |} detail = result.detail();
-                panic error(CACHE_ERROR, message = "Failed to start the cache cleanup task: " + <string>detail["message"]);
+                panic prepareError("Failed to start the cache cleanup task.", result);
             }
         }
     }
 
-    # Adds the given key, value pair to the cache.
+    # Add the given key, value pair to the cache.
     #
     # + key - Key of the cached value
     # + value - Value to be cached
@@ -165,8 +163,8 @@ public type Cache object {
             Node newNode = { value: entry };
 
             if (self.hasKey(key)) {
-                Node node = self.entries.get(key);
-                putOnEvictionPolicy(self.evictionPolicy, self.list, newNode, node);
+                Node oldNode = self.entries.get(key);
+                putOnEvictionPolicy(self.evictionPolicy, self.list, newNode, oldNode);
             } else {
                 putOnEvictionPolicy(self.evictionPolicy, self.list, newNode);
             }
@@ -174,15 +172,15 @@ public type Cache object {
         }
     }
 
-    # Returns the cached value associated with the given key. If the provided cache key is not found,
-    # () will be returned.
+    # Return the cached value associated with the given key.
     #
     # + key - Key which is used to retrieve the cached value
-    # + return - The cached value associated with the given key
-    public function get(string key) returns any? {
+    # + return - The cached value associated with the given key or
+    # `Error` if the provided cache key is not or if any error occurred while retrieving from the cache.
+    public function get(string key) returns any|Error {
         lock {
             if (!self.hasKey(key)) {
-                return;
+                return prepareError("Cache entry from the given key: " + key + ", is not available.");
             }
 
             Node node = self.entries.get(key);
@@ -193,8 +191,7 @@ public type Cache object {
             // even though it is expired. So this check guarantees that the expired cache entries will not be returned.
             if (entry.expTime != -1 && entry.expTime < time:nanoTime()) {
                 remove(self.list, node);
-                removeEntry(self.entries, key);
-                return;
+                return removeEntry(self.entries, key);
             }
 
             getOnEvictionPolicy(self.evictionPolicy, self.list, node);
@@ -202,35 +199,38 @@ public type Cache object {
         }
     }
 
-    # Removes a cached value from the cache.
+    # Invalidate a cached value from the cache.
     #
-    # + key - Key of the cache entry which needs to be removed
-    public function remove(string key) {
+    # + key - Key of the cache entry which needs to be invalidate
+    # + return - `()` if successfully invalidated or
+    # `Error` if the provided cache key is not or if any error occurred while invalidating from the cache.
+    public function invalidate(string key) returns Error? {
         lock {
             if (!self.hasKey(key)) {
-                return;
+                return prepareError("Cache entry from the given key: " + key + ", is not available.");
             }
 
             Node node = self.entries.get(key);
             remove(self.list, node);
-            removeEntry(self.entries, key);
+            return removeEntry(self.entries, key);
         }
     }
 
-    # Remove all the cached values from the cache.
-    public function removeAll() {
+    # Invalidate all the cached values from the cache.
+    #
+    # + return - `()` if successfully invalidated all or
+    # `Error` if any error occurred while invalidating all from the cache.
+    public function invalidateAll() returns Error? {
         lock {
             clear(self.list);
-            var result = trap self.entries.removeAll();
-            // The return result (removed entry or the error which occurred due to unavailability of the key)
-            // is ignored since no purpose of handling it.
+            return removeAllEntries(self.entries);
         }
     }
 
     # Checks whether the given key has an associated cache value.
     #
     # + key - The key to be checked
-    # + return - Whether the an associated cache value is available or not
+    # + return - Whether the an associated cache value is available in the cache or not
     public function hasKey(string key) returns boolean {
         return self.entries.hasKey(key);
     }
@@ -265,7 +265,9 @@ function evict(map<Node> entries, LinkedList list, EvictionPolicy evictionPolicy
                 Node? tail = removeLast(list);
                 if (tail is Node) {
                     CacheEntry entry = <CacheEntry>tail.value;
-                    removeEntry(entries, entry.key);
+                    Error? result = removeEntry(entries, entry.key);
+                    // The return result (error which occurred due to unavailability of the key or nil) is ignored
+                    // since no purpose of handling it.
                 } else {
                     break;
                 }
@@ -308,14 +310,24 @@ function cleanup(MapAndList mapAndList) {
         CacheEntry entry = <CacheEntry>node.value;
         if (entry.expTime != -1 && entry.expTime < time:nanoTime()) {
             remove(mapAndList.list, node);
-            removeEntry(mapAndList.entries, entry.key);
+            Error? result = removeEntry(mapAndList.entries, entry.key);
+            // The return result (error which occurred due to unavailability of the key or nil) is ignored
+            // since no purpose of handling it.
             return;
         }
     }
 }
 
-function removeEntry(map<Node> entries, string key) {
+function removeEntry(map<Node> entries, string key) returns Error? {
     var result = trap entries.remove(key);
-    // The return result (removed entry or the error which occurred due to unavailability of the key)
-    // is ignored since no purpose of handling it.
+    if (result is error) {
+        return prepareError("Error while removing the entry (key: " + key + ") from the map. ", result);
+    }
+}
+
+function removeAllEntries(map<Node> entries) returns Error? {
+    var result = trap entries.removeAll();
+    if (result is error) {
+        return prepareError("Error while removing all the entries from the map.", result);
+    }
 }

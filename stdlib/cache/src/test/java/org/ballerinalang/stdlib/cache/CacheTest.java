@@ -21,6 +21,7 @@ package org.ballerinalang.stdlib.cache;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.ballerinalang.model.values.BBoolean;
+import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
@@ -117,7 +118,9 @@ public class CacheTest {
         BValue[] args = new BValue[1];
         args[0] = new BString(key);
         BValue[] returns = BRunUtil.invoke(compileResult, "testGetNonExistingEntry", args);
-        Assert.assertNull(returns[0]);
+        Assert.assertTrue(returns[0] instanceof BError);
+        String errMsg = ((BError) returns[0]).getDetails().stringValue();
+        Assert.assertEquals(errMsg, "{message:\"Cache entry from the given key: " + key + ", is not available.\"}");
     }
 
     @Test

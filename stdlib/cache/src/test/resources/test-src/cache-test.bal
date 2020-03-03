@@ -40,7 +40,7 @@ function testPutNewEntry(string key, string value) returns int {
     return cache.size();
 }
 
-function testPutExistingEntry(string key, string value) returns [int, string] {
+function testPutExistingEntry(string key, string value) returns [int, any|cache:Error] {
     cache:CacheConfig config = {
         capacity: 10,
         evictionPolicy: cache:LRU,
@@ -49,7 +49,7 @@ function testPutExistingEntry(string key, string value) returns [int, string] {
     cache:Cache cache = new(config);
     cache.put(key, "Random value");
     cache.put(key, value);
-    return [cache.size(), <string>cache.get(key)];
+    return [cache.size(), cache.get(key)];
 }
 
 function testPutWithMaxAge(string key, string value, int maxAge) returns int {
@@ -64,7 +64,7 @@ function testPutWithMaxAge(string key, string value, int maxAge) returns int {
     return cache.size();
 }
 
-function testGetExistingEntry(string key, string value) returns string {
+function testGetExistingEntry(string key, string value) returns any|cache:Error {
     cache:CacheConfig config = {
         capacity: 10,
         evictionPolicy: cache:LRU,
@@ -72,10 +72,10 @@ function testGetExistingEntry(string key, string value) returns string {
     };
     cache:Cache cache = new(config);
     cache.put(key, value);
-    return <string>cache.get(key);
+    return cache.get(key);
 }
 
-function testGetNonExistingEntry(string key) returns any? {
+function testGetNonExistingEntry(string key) returns any|cache:Error {
     cache:CacheConfig config = {
         capacity: 10,
         evictionPolicy: cache:LRU,
@@ -85,7 +85,7 @@ function testGetNonExistingEntry(string key) returns any? {
     return cache.get(key);
 }
 
-function testGetExpiredEntry(string key, string value) returns any? {
+function testGetExpiredEntry(string key, string value) returns any|cache:Error {
     cache:CacheConfig config = {
         capacity: 10,
         evictionPolicy: cache:LRU,
@@ -108,7 +108,7 @@ function testRemove() returns int {
     string key = "Hello";
     string value = "Ballerina";
     cache.put(key, value);
-    cache.remove(key);
+    var result = cache.invalidate(key);
     return cache.size();
 }
 
@@ -125,7 +125,7 @@ function testRemoveAll() returns int {
     string key2 = "Ballerina";
     string value2 = "Language";
     cache.put(key2, value2);
-    cache.removeAll();
+    var result = cache.invalidateAll();
     return cache.size();
 }
 
