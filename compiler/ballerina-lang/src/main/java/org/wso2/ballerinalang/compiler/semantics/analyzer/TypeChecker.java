@@ -1773,6 +1773,15 @@ public class TypeChecker extends BLangNodeVisitor {
                 BType constructType = checkExpr(cIExpr.initInvocation.argExprs.get(0), env, symTable.noType);
                 BUnionType nextReturnType = types.getVarTypeFromIteratorFuncReturnType(constructType);
 
+                BStreamType actualStreamType = (BStreamType) actualType;
+                if (actualStreamType.error != null) {
+                    if (actualStreamType.error.tag != TypeTags.ERROR) {
+                        dlog.error(cIExpr.pos, DiagnosticCode.ERROR_TYPE_EXPECTED, actualStreamType.error.toString());
+                        resultType = symTable.semanticError;
+                        return;
+                    }
+                }
+
 //                resultType = types.checkType(cIExpr, actualTypeInitType, expType);
 
                 // TODO: add checks
