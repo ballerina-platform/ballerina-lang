@@ -52,12 +52,12 @@ function emitStartObservationInvocation(jvm:MethodVisitor mv, int strandIndex, s
                 io:sprintf("(L%s;L%s;)L%s;", OBJECT, OBJECT, OBJECT), true);
             mv.visitInsn(POP);
         }
-        mv.visitMethodInsn(INVOKESTATIC, OBSERVE_UTILS, observationStartMethod,
-            io:sprintf("(L%s;L%s;L%s;L%s;)V", STRAND, STRING_VALUE, STRING_VALUE, MAP), false);
     } else {
-        mv.visitMethodInsn(INVOKESTATIC, OBSERVE_UTILS, observationStartMethod,
-            io:sprintf("(L%s;L%s;L%s;)V", STRAND, STRING_VALUE, STRING_VALUE), false);
+        mv.visitMethodInsn(INVOKESTATIC, "java/util/Collections", "emptyMap",
+            io:sprintf("()L%s;", MAP), false);
     }
+    mv.visitMethodInsn(INVOKESTATIC, OBSERVE_UTILS, observationStartMethod,
+        io:sprintf("(L%s;L%s;L%s;L%s;)V", STRAND, STRING_VALUE, STRING_VALUE, MAP), false);
 }
 
 function cleanUpServiceName(string serviceName) returns string {

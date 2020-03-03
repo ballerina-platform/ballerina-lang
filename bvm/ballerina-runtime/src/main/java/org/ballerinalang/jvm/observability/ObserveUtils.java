@@ -69,17 +69,6 @@ public class ObserveUtils {
      * @param strand which holds the observer context being started.
      * @param serviceName name of the service to which the observer context belongs.
      * @param resourceName name of the resource being invoked.
-     */
-    public static void startResourceObservation(Strand strand, String serviceName, String resourceName) {
-        ObserveUtils.startResourceObservation(strand, serviceName, resourceName, Collections.emptyMap());
-    }
-
-    /**
-     * Start observation of a resource invocation.
-     *
-     * @param strand which holds the observer context being started.
-     * @param serviceName name of the service to which the observer context belongs.
-     * @param resourceName name of the resource being invoked.
      * @param tags tags to be used in the observation
      */
     public static void startResourceObservation(Strand strand, String serviceName, String resourceName,
@@ -144,17 +133,6 @@ public class ObserveUtils {
             observerContext.addProperty(ObservabilityConstants.PROPERTY_ERROR, Boolean.TRUE);
             observerContext.addProperty(ObservabilityConstants.PROPERTY_BSTRUCT_ERROR, errorValue);
         });
-    }
-
-    /**
-     * Start observability for the synchronous function/action invocations.
-     *
-     * @param strand which holds the observer context being started.
-     * @param connectorName name of the connector to which the observer context belongs.
-     * @param actionName name of the action/function being invoked.
-     */
-    public static void startCallableObservation(Strand strand, String connectorName, String actionName) {
-        ObserveUtils.startCallableObservation(strand, connectorName, actionName, Collections.emptyMap());
     }
 
     /**

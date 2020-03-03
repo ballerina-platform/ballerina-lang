@@ -69,7 +69,7 @@ jobs:
           - nvm install 8
           - nvm use 8
           - npm install -g npm@'5.6.0'
-      install: 
+      install:
         - |
           if [ $TRAVIS_OS_NAME == "linux" ]; then
             export DISPLAY=':99.0'
@@ -114,7 +114,7 @@ before_cache:
   - rm -fr $HOME/.gradle/caches/*/scripts/
 cache:
   directories:
-    - $HOME/.gradle/caches/
+#    - $HOME/.gradle/caches/
     - $HOME/.gradle/wrapper/
     - $HOME/.m2
 
@@ -122,6 +122,7 @@ branches:
   only:
     - master
     - packerina-dev
+    - observability-improvements
     - next-release
     - release-stage
     - /^ballerina-\d*[.]\d*[.]x$/
