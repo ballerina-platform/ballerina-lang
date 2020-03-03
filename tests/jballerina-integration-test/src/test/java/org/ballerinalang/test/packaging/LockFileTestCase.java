@@ -336,7 +336,7 @@ public class LockFileTestCase extends BaseTest {
      * @throws BallerinaTestException When running commands.
      */
     @Test(description = "Test rebuilding and running TestProject2 without lock file.",
-          dependsOnMethods = "testRebuildTestProj2WithLockRemovedAndOffline")
+          dependsOnMethods = "testRebuildTestProj2WithLockRemovedAndOffline", groups = "brokenOnJBallerina")
     public void testRebuildTestProj2WithLockRemoved() throws BallerinaTestException, IOException {
         // Delete Ballerina.lock
         Path lockFilePath = testProj2Path.resolve("Ballerina.lock");
