@@ -452,7 +452,7 @@ public class PathDependencyTestCase extends BaseTest {
      * @throws BallerinaTestException Error when executing the commands.
      */
     @Test(description = "Case8: Test single bal file using external module with interop dependency",
-    dependsOnMethods = "testBaloPathCase7")
+    dependsOnMethods = "testBaloPathCase7", groups = "brokenOnJBallerina")
     public void testBaloSingleBalFileCase8() throws BallerinaTestException, IOException {
 
         Path caseResources = tempTestResources.resolve("case8");
