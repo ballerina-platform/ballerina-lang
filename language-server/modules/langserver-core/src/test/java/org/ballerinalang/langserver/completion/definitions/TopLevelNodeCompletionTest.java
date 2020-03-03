@@ -81,7 +81,6 @@ public class TopLevelNodeCompletionTest extends CompletionTest {
                 {"exprFunctionBodyCompletion1.json", "toplevel"},
                 {"exprFunctionBodyCompletion2.json", "toplevel"},
                 {"exprFunctionBodyCompletion3.json", "toplevel"},
-                {"exprFunctionBodyCompletion4.json", "toplevel"},
                 {"exprFunctionBodyCompletion5.json", "toplevel"},
         };
     }
