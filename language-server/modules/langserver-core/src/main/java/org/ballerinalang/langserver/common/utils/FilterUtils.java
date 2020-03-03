@@ -46,6 +46,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.BLangFunctionBody;
+import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
@@ -107,8 +108,16 @@ public class FilterUtils {
             return getInvocationsAndFields(context, defaultTokens, delimIndex);
         }
         if (BallerinaParser.COLON == delimiter) {
+            String moduleName = varName;
+            for (BLangImportPackage importModule : context.get(DocumentServiceKeys.CURRENT_DOC_IMPORTS_KEY)) {
+                if (importModule.alias.getValue().equals(varName)) {
+                    moduleName = CommonUtil.getSymbolName(importModule.symbol);
+                    break;
+                }
+            }
+            String finalModuleName = moduleName;
             Optional<Scope.ScopeEntry> pkgSymbol = visibleSymbols.stream()
-                    .filter(item -> CommonUtil.getSymbolName(item.symbol).equals(varName)
+                    .filter(item -> CommonUtil.getSymbolName(item.symbol).equals(finalModuleName)
                             && item.symbol instanceof BPackageSymbol)
                     .findFirst();
 

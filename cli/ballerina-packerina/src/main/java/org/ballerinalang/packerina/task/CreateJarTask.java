@@ -132,7 +132,7 @@ public class CreateJarTask implements Task {
                 jarFilePath = buildContext.getJarPathFromHomeCache(id);
             }
             if (!Files.exists(jarFilePath) && buildContext.moduleDependencyPathMap.containsKey(id)) {
-                HashSet<Path> moduleDependencySet = buildContext.moduleDependencyPathMap.get(id).platformLibs;
+                HashSet<Path> moduleDependencySet = buildContext.moduleDependencyPathMap.get(id).moduleLibs;
                 if (!skipCopyLibsFromDist) {
                     moduleDependencySet.add(runtimeJar);
                 }
