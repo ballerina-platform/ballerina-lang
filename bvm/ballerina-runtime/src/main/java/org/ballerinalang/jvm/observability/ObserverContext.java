@@ -28,7 +28,7 @@ import java.util.Objects;
 public class ObserverContext {
 
     /**
-     * {@link Map} of properties, which is used to represent addition information required for observers.
+     * {@link Map} of properties, which is used to represent additional information required for observers.
      */
     private Map<String, Object> properties;
 
