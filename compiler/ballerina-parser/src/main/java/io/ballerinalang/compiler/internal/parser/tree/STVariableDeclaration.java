@@ -23,18 +23,18 @@ import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 
 public class STVariableDeclaration extends STStatement {
 
-    public final STToken typeName;
-    public final STToken variableName;
-    public final STToken equalsToken;
-    public final STExpression initializer;
-    public final STToken semicolonToken;
+    public final STNode typeName;
+    public final STNode variableName;
+    public final STNode equalsToken;
+    public final STNode initializer;
+    public final STNode semicolonToken;
 
     public STVariableDeclaration(SyntaxKind kind,
-                                 STToken typeName,
-                                 STToken variableName,
-                                 STToken equalsToken,
-                                 STExpression initializer,
-                                 STToken semicolonToken) {
+                                 STNode typeName,
+                                 STNode variableName,
+                                 STNode equalsToken,
+                                 STNode initializer,
+                                 STNode semicolonToken) {
         super(kind);
         this.typeName = typeName;
         this.variableName = variableName;
@@ -42,13 +42,13 @@ public class STVariableDeclaration extends STStatement {
         this.initializer = initializer;
         this.semicolonToken = semicolonToken;
 
-        this.bucketCount = 3;
-        this.childBuckets = new STNode[3];
+        this.bucketCount = 5;
+        this.childBuckets = new STNode[this.bucketCount];
         this.addChildNode(typeName, 0);
         this.addChildNode(variableName, 1);
-//        this.addChildNode(equalsToken, 2);
-//        this.addChildNode(initializer, 3);
-        this.addChildNode(semicolonToken, 2);
+        this.addChildNode(equalsToken, 2);
+        this.addChildNode(initializer, 3);
+        this.addChildNode(semicolonToken, 4);
     }
 
     @Override

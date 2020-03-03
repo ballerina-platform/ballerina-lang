@@ -17,20 +17,9 @@
  */
 package io.ballerinalang.compiler.internal.parser.tree;
 
-import java.util.ArrayList;
+public abstract class STParameter extends STNode {
 
-public class STMissingToken extends STToken {
-
-    // TODO consider using a flags here. Node flags
-    public static final boolean IS_MISSING = true;
-
-    public STMissingToken(SyntaxKind kind) {
-        super(kind, new STNodeList(new ArrayList<>(0)), new STNodeList(new ArrayList<>(0)));
-    }
-    
-    @Override
-    public String toString() {
-        // TODO for testing purpose only
-        return " MISSING[" + kind.strValue + "]";
+    public STParameter(SyntaxKind kind) {
+        super(kind);
     }
 }

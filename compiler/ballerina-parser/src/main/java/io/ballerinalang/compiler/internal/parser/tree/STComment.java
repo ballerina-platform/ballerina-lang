@@ -17,20 +17,17 @@
  */
 package io.ballerinalang.compiler.internal.parser.tree;
 
-import java.util.ArrayList;
+public class STComment extends STToken {
 
-public class STMissingToken extends STToken {
+    public final String text;
 
-    // TODO consider using a flags here. Node flags
-    public static final boolean IS_MISSING = true;
-
-    public STMissingToken(SyntaxKind kind) {
-        super(kind, new STNodeList(new ArrayList<>(0)), new STNodeList(new ArrayList<>(0)));
+    public STComment(String text, STNode leadingTrivia, STNode trailingTrivia) {
+        super(SyntaxKind.COMMENT, text.length(), leadingTrivia, trailingTrivia);
+        this.text = text;
     }
-    
+
     @Override
     public String toString() {
-        // TODO for testing purpose only
-        return " MISSING[" + kind.strValue + "]";
+        return leadingTrivia + text + trailingTrivia;
     }
 }
