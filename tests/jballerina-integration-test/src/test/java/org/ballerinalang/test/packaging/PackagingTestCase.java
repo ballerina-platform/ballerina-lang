@@ -253,6 +253,39 @@ public class PackagingTestCase extends BaseTest {
                 new LogLeecher[]{clientLeecher}, tempProjectDirectory.toString());
     }
 
+    @Test(description = "Test and run a module which has a module name contains period. eg: foo.bar")
+    public void testBuildAndRunModuleWithPeriod() throws BallerinaTestException {
+        // Test ballerina init
+        Path projectPath = tempProjectDirectory.resolve("buildAndRunModuleWithPeriodProject");
+
+        // Create project
+        balClient.runMain("new", new String[] { "buildAndRunModuleWithPeriodProject" }, envVariables, new String[] {},
+                new LogLeecher[] {}, projectPath.getParent().toString());
+
+        Assert.assertTrue(Files.exists(projectPath));
+        Assert.assertTrue(Files.isDirectory(projectPath));
+
+        // Create module named `foo.bar`
+        String moduleName = "foo.bar";
+        balClient.runMain("add", new String[] { moduleName }, envVariables, new String[] {}, new LogLeecher[] {},
+                projectPath.toString());
+
+        Assert.assertTrue(Files.exists(projectPath.resolve("src").resolve(moduleName)));
+        Assert.assertTrue(Files.isDirectory(projectPath.resolve("src").resolve(moduleName)));
+
+        // Build module
+        LogLeecher buildLeecher = new LogLeecher("[pass] testFunction");
+        balClient.runMain("build", new String[] { "-c", "-a" }, envVariables, new String[] {},
+                new LogLeecher[] { buildLeecher }, projectPath.toString());
+        buildLeecher.waitForText(60000);
+
+        // Run module
+        LogLeecher runLeecher = new LogLeecher("Hello World!");
+        balClient.runMain("run", new String[] { moduleName }, envVariables, new String[] {},
+                new LogLeecher[] { runLeecher }, projectPath.toString());
+        buildLeecher.waitForText(5000);
+    }
+
     /**
      * Get environment variables and add ballerina_home as a env variable the tmp directory.
      *
