@@ -1348,13 +1348,15 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        if (ctx.Identifier() == null) {
-            this.pkgBuilder.addKeyValueRecordField(getWS(ctx), ctx.recordKey().LEFT_BRACKET() != null);
-        } else {
+        if (ctx.Identifier() != null) {
             DiagnosticPos pos = getCurrentPos(ctx);
             this.pkgBuilder.addNameReference(pos, getWS(ctx), null, ctx.Identifier().getText());
             this.pkgBuilder.createBLangRecordVarRefNameField(pos, getWS(ctx));
             this.pkgBuilder.addIdentifierRecordField();
+        } else if (ctx.ELLIPSIS() != null) {
+            this.pkgBuilder.addSpreadOpRecordField(getWS(ctx));
+        } else {
+            this.pkgBuilder.addKeyValueRecordField(getWS(ctx), ctx.recordKey().LEFT_BRACKET() != null);
         }
     }
 
