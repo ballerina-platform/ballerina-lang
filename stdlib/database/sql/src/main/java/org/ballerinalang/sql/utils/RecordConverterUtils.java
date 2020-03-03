@@ -58,9 +58,9 @@ import java.util.TimeZone;
  *
  * @since 1.2.0
  */
-public class RecordConverterUtils {
+class RecordConverterUtils {
 
-    public static ArrayValue convert(Array array, int sqlType, BType bType) throws SQLException, ApplicationError {
+    static ArrayValue convert(Array array, int sqlType, BType bType) throws SQLException, ApplicationError {
         if (array != null) {
             validatedInvalidFieldAssignment(sqlType, bType, "SQL Array");
             Object[] dataArray = (Object[]) array.getArray();
@@ -137,7 +137,7 @@ public class RecordConverterUtils {
         }
     }
 
-    public static String getString(Clob data) throws IOException, SQLException {
+    static String getString(Clob data) throws IOException, SQLException {
         if (data == null) {
             return null;
         }
@@ -225,12 +225,12 @@ public class RecordConverterUtils {
         return returnResult;
     }
 
-    public static Object convert(String value, int sqlType, BType bType) throws ApplicationError {
+    static Object convert(String value, int sqlType, BType bType) throws ApplicationError {
         validatedInvalidFieldAssignment(sqlType, bType, "SQL String");
         return value;
     }
 
-    public static Object convert(byte[] value, int sqlType, BType bType) throws ApplicationError {
+    static Object convert(byte[] value, int sqlType, BType bType) throws ApplicationError {
         validatedInvalidFieldAssignment(sqlType, bType, "SQL Binary");
         if (value != null) {
             return new ArrayValueImpl(value);
@@ -239,7 +239,7 @@ public class RecordConverterUtils {
         }
     }
 
-    public static Object convert(long value, int sqlType, BType bType, boolean isNull) throws ApplicationError {
+    static Object convert(long value, int sqlType, BType bType, boolean isNull) throws ApplicationError {
         validatedInvalidFieldAssignment(sqlType, bType, "SQL long or integer");
         if (isNull) {
             return null;
@@ -248,7 +248,7 @@ public class RecordConverterUtils {
         }
     }
 
-    public static Object convert(double value, int sqlType, BType bType, boolean isNull) throws ApplicationError {
+    static Object convert(double value, int sqlType, BType bType, boolean isNull) throws ApplicationError {
         validatedInvalidFieldAssignment(sqlType, bType, "SQL double or float");
         if (isNull) {
             return null;
@@ -257,7 +257,7 @@ public class RecordConverterUtils {
         }
     }
 
-    public static Object convert(BigDecimal value, int sqlType, BType bType, boolean isNull) throws ApplicationError {
+    static Object convert(BigDecimal value, int sqlType, BType bType, boolean isNull) throws ApplicationError {
         validatedInvalidFieldAssignment(sqlType, bType, "SQL decimal or real");
         if (isNull) {
             return null;
@@ -266,7 +266,7 @@ public class RecordConverterUtils {
         }
     }
 
-    public static Object convert(Blob value, int sqlType, BType bType) throws ApplicationError, SQLException {
+    static Object convert(Blob value, int sqlType, BType bType) throws ApplicationError, SQLException {
         validatedInvalidFieldAssignment(sqlType, bType, "SQL Blob");
         if (value != null) {
             return new ArrayValueImpl(value.getBytes(1L, (int) value.length()));
@@ -275,7 +275,7 @@ public class RecordConverterUtils {
         }
     }
 
-    public static Object convert(java.util.Date date, int sqlType, BType bType) throws ApplicationError {
+    static Object convert(java.util.Date date, int sqlType, BType bType) throws ApplicationError {
         validatedInvalidFieldAssignment(sqlType, bType, "SQL Date/Time");
         if (date != null) {
             switch (bType.getTag()) {
@@ -291,7 +291,7 @@ public class RecordConverterUtils {
         return null;
     }
 
-    public static Object convert(boolean value, int sqlType, BType bType, boolean isNull) throws ApplicationError {
+    static Object convert(boolean value, int sqlType, BType bType, boolean isNull) throws ApplicationError {
         validatedInvalidFieldAssignment(sqlType, bType, "SQL Boolean");
         if (!isNull) {
             switch (bType.getTag()) {
@@ -308,10 +308,15 @@ public class RecordConverterUtils {
         return null;
     }
 
-    public static Object convert(Struct value, int sqlType, BType bType) throws ApplicationError, SQLException {
+    static Object convert(Struct value, int sqlType, BType bType) throws ApplicationError {
         validatedInvalidFieldAssignment(sqlType, bType, "SQL Struct");
         if (value != null) {
-            return createUserDefinedType(value, (BRecordType) bType);
+            if (bType instanceof BRecordType) {
+                return createUserDefinedType(value, (BRecordType) bType);
+            } else {
+                throw new ApplicationError("The ballerina type that can be used for SQL struct should be record type," +
+                        " but found " + bType.getName() + " .");
+            }
         } else {
             return null;
         }

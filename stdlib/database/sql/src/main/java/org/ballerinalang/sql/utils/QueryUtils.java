@@ -166,8 +166,8 @@ public class QueryUtils {
     private static ColumnDefinition generateColumnDefinition(String columnName, int sqlType, String sqlTypeName,
                                                              BStructureType streamConstraint, boolean isNullable)
             throws ApplicationError {
-        String ballerinaFieldName;
-        BType ballerinaType;
+        String ballerinaFieldName = null;
+        BType ballerinaType = null;
         if (streamConstraint != null) {
             for (Map.Entry<String, BField> field : streamConstraint.getFields().entrySet()) {
                 if (field.getKey().equalsIgnoreCase(columnName)) {
@@ -180,8 +180,10 @@ public class QueryUtils {
                     break;
                 }
             }
-            throw new ApplicationError("No mapping field for the column name : " + columnName
-                    + " found in the provided record type : " + streamConstraint.getName() + " .");
+            if (ballerinaFieldName == null || ballerinaType == null) {
+                throw new ApplicationError("No mapping field for the column name : " + columnName
+                        + " found in the provided record type : " + streamConstraint.getName() + " .");
+            }
         } else {
             ballerinaType = getDefaultBallerinaType(sqlType);
             ballerinaFieldName = columnName;
