@@ -33,13 +33,13 @@ public type EvictionPolicy LRU|FIFO;
 # + defaultMaxAgeInSeconds - The default value in seconds which all the cache entries are valid.
 #                            '-1' means, the entries are valid forever.
 #                            This will be overwritten by the the `maxAge` property set when inserting item to cache
-# + timerIntervalInSeconds - Interval of the timer task which clean up the cache
+# + cleanupIntervalInSeconds - Interval of the timer task which clean up the cache
 public type CacheConfig record {|
     int capacity = 100;
     EvictionPolicy evictionPolicy = LRU;
     float evictionFactor = 0.25;
     int defaultMaxAgeInSeconds = -1;
-    int timerIntervalInSeconds?;
+    int cleanupIntervalInSeconds?;
 |};
 
 type CacheEntry record {|
@@ -55,17 +55,17 @@ type MapAndList record {|
 |};
 
 // Cleanup service which cleans the cache entries periodically.
-boolean cleanUpInProgress = false;
+boolean cleanupInProgress = false;
 
 // Cleanup service which cleans the cache entries periodically.
 service cleanupService = service {
     resource function onTrigger(MapAndList mapAndList) {
         // This check will skip the processes triggered while the clean up in progress.
-        if (!cleanUpInProgress) {
+        if (!cleanupInProgress) {
             lock {
-                cleanUpInProgress = true;
+                cleanupInProgress = true;
                 cleanup(mapAndList);
-                cleanUpInProgress = false;
+                cleanupInProgress = false;
             }
         }
     }
@@ -110,11 +110,11 @@ public type Cache object {
             head: (),
             tail: ()
         };
-        int? timerIntervalInSeconds = cacheConfig?.timerIntervalInSeconds;
-        if (timerIntervalInSeconds is int) {
+        int? cleanupIntervalInSeconds = cacheConfig?.cleanupIntervalInSeconds;
+        if (cleanupIntervalInSeconds is int) {
             task:TimerConfiguration timerConfiguration = {
-                intervalInMillis: timerIntervalInSeconds,
-                initialDelayInMillis: timerIntervalInSeconds
+                intervalInMillis: cleanupIntervalInSeconds,
+                initialDelayInMillis: cleanupIntervalInSeconds
             };
             task:Scheduler cleanupScheduler = new(timerConfiguration);
             MapAndList mapAndList = {

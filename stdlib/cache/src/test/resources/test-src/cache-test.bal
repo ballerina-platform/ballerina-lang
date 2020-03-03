@@ -23,7 +23,7 @@ function testCreateCache() returns int {
         evictionPolicy: cache:LRU,
         evictionFactor: 0.2,
         defaultMaxAgeInSeconds: 3600,
-        timerIntervalInSeconds: 5
+        cleanupIntervalInSeconds: 5
     };
     cache:Cache cache = new(config);
     return cache.size();
@@ -218,36 +218,36 @@ function testCacheEvictionWithCapacity2() returns [string[], int] {
 }
 
 function testCacheEvictionWithTimer1() returns [string[], int] {
-    int timerIntervalInSeconds = 2;
+    int cleanupIntervalInSeconds = 2;
     cache:CacheConfig config = {
         capacity: 10,
         evictionPolicy: cache:LRU,
         evictionFactor: 0.2,
         defaultMaxAgeInSeconds: 1,
-        timerIntervalInSeconds: timerIntervalInSeconds
+        cleanupIntervalInSeconds: cleanupIntervalInSeconds
     };
     cache:Cache cache = new(config);
     cache.put("A", "1");
     cache.put("B", "2");
     cache.put("C", "3");
-    runtime:sleep(timerIntervalInSeconds * 1000 * 2 + 1000);
+    runtime:sleep(cleanupIntervalInSeconds * 1000 * 2 + 1000);
     return [cache.keys(), cache.size()];
 }
 
 function testCacheEvictionWithTimer2() returns [string[], int] {
-    int timerIntervalInSeconds = 2;
+    int cleanupIntervalInSeconds = 2;
     cache:CacheConfig config = {
         capacity: 10,
         evictionPolicy: cache:LRU,
         evictionFactor: 0.2,
         defaultMaxAgeInSeconds: 1,
-        timerIntervalInSeconds: timerIntervalInSeconds
+        cleanupIntervalInSeconds: cleanupIntervalInSeconds
     };
     cache:Cache cache = new(config);
     cache.put("A", "1");
     cache.put("B", "2", 3600);
     cache.put("C", "3");
-    runtime:sleep(timerIntervalInSeconds * 1000 * 2 + 1000);
+    runtime:sleep(cleanupIntervalInSeconds * 1000 * 2 + 1000);
     return [cache.keys(), cache.size()];
 }
 
