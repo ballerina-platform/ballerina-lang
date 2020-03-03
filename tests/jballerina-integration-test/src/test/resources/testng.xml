@@ -146,9 +146,9 @@
 
     <test name="ballerina-transaction-tests" parallel="false">
         <classes>
-            <class name="org.ballerinalang.test.transaction.MicroTransactionTestCase"/>
-            <class name="org.ballerinalang.test.transaction.RemoteParticipantTransactionTest"/>
-            <class name="org.ballerinalang.test.transaction.MultiModuleTransactionTestCase"/>
+<!--            <class name="org.ballerinalang.test.transaction.MicroTransactionTestCase"/>-->
+<!--            <class name="org.ballerinalang.test.transaction.RemoteParticipantTransactionTest"/>-->
+<!--            <class name="org.ballerinalang.test.transaction.MultiModuleTransactionTestCase"/>-->
         </classes>
     </test>
 
