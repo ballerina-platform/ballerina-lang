@@ -42,7 +42,7 @@ public type Client client object {
     # Close the SQL client.
     #
     # + return - Possible error during closing the client
-    public function close() returns error? {
+    public function close() returns sql:Error? {
         self.clientActive = false;
         return close(self);
     }
@@ -101,6 +101,6 @@ sql:ConnectionPool globalConnPool) returns sql:Error? = @java:Method {
     class: "org.ballerinalang.mysql.NativeImpl"
 } external;
 
-function close(Client mysqlClient) returns error? = @java:Method {
+function close(Client mysqlClient) returns sql:Error? = @java:Method {
     class: "org.ballerinalang.mysql.NativeImpl"
 } external;

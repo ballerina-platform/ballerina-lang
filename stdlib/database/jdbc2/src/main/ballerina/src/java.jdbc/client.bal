@@ -36,10 +36,24 @@ public type Client client object {
         return createClient(self, clientConf, sql:getGlobalConnectionPool());
     }
 
+    # Executes the sql query provided by the user, and returns the result as stream.
+    #
+    # + sqlQuery - The query which needs to be executed
+    # + rowType - The `typedesc` of the record that should be returned as a result. If this is not provided the default
+    #             column names of the query result set be used for the record attributes
+    # + return - Stream of records in the type of `rowType`
+    public function query(@untainted string sqlQuery, typedesc<record {}>? rowType = ()) returns stream<record{}, error> {
+        if(self.clientActive){
+            return nativeQuery(self, java:fromString(sqlQuery) , rowType);
+        } else {
+           return sql:generateApplicationError("JDBC Client is already closed, hence further operations are not allowed");
+        }
+    }
+
     # Stops the JDBC client.
     #
     # + return - Possible error during closing the client
-    public function close() returns error? {
+    public function close() returns sql:Error? {
         self.clientActive = false;
         return close(self);
     }
@@ -73,6 +87,10 @@ sql:ConnectionPool globalConnPool) returns sql:Error? = @java:Method {
     class: "org.ballerinalang.jdbc.NativeImpl"
 } external;
 
-function close(Client jdbcClient) returns error? = @java:Method {
+function nativeQuery(Client sqlClient, @untainted handle sqlQuery, typedesc<record {}>? rowtype) returns stream<record{}, error> = @java:Method {
+    class: "org.ballerinalang.sql.utils.QueryUtils"
+} external;
+
+function close(Client jdbcClient) returns sql:Error? = @java:Method {
     class: "org.ballerinalang.jdbc.NativeImpl"
 } external;

@@ -41,6 +41,15 @@ public final class Constants {
 
     public static final String DATABASE_ERROR_MESSAGE = "Database Error Occurred";
 
+    public static final String RESULT_ITERATOR_OBJECT = "ResultIterator";
+    public static final String RESULT_SET_NATIVE_DATA_FIELD = "ResultSet";
+    public static final String CONNECTION_NATIVE_DATA_FIELD = "Connection";
+    public static final String STATEMENT_NATIVE_DATA_FIELD = "Statement";
+    public static final String COLUMN_DEFINITIONS_DATA_FIELD = "ColumnDefinition";
+    public static final String RECORD_TYPE_DATA_FIELD = "recordType";
+
+    public static final String TIMEZONE_UTC = "UTC";
+
     /**
      * Constants related connection pool.
      */

@@ -18,56 +18,81 @@ import ballerinax/java;
 
 # Represents a SQL client.
 #
-public type Client client object {
+public type Client abstract client object {
 
-    public function query(@untainted string sqlQuery, typedesc<record {}>? rowType = ()) returns stream<record{}, error>{
-        return nativeQuery(self, sqlQuery, rowType);
-    }
+    # Executes the sql query provided by the user, and returns the result as stream.
+    #
+    # + sqlQuery - The query which needs to be executed
+    # + rowType - The `typedesc` of the record that should be returned as a result. If this is not provided the default
+    #             column names of the query result set be used for the record attributes
+    # + return - Stream of records in the type of `rowType`
+    public function query(@untainted string sqlQuery, typedesc<record {}>? rowType = ()) returns stream<record{}, error>;
 
     # Close the SQL client.
     #
     # + return - Possible error during closing the client
-    public function close() returns error? {
-
-    }
+    public function close() returns Error?;
 };
 
 type ResultIterator object {
-    boolean isClosed = false;
+    private boolean isClosed = false;
+    private Error? err;
+
+    public function __init(public Error? err = ()) {
+        self.err = err;
+    }
 
     public function next() returns record{| record{} value; |}| error? {
        if(self.isClosed) {
             return closedStreamInvocationError();
        }
-       record{}| error? result =  nextResult(self);
-       if(result is record{} ){
-            record {|
-               record{} value;
-           |} streamRecord = { value: result };
-           return streamRecord;
+       error? closeErrorIgnored = ();
+       if(self.err is Error) {
+         closeErrorIgnored = self.close();
+         return self.err;
        } else {
-          return result;
+           record{}| Error? result =  nextResult(self);
+           if(result is record{}){
+                record {|
+                   record{} value;
+               |} streamRecord = { value: result };
+               return streamRecord;
+           } else if (result is Error ){
+              self.err = result;
+              closeErrorIgnored = self.close();
+              return self.err;
+           } else {
+              closeErrorIgnored = self.close();
+              return result;
+           }
        }
     }
 
     public function close() returns error? {
-        return closeResult(self);
+    if(!self.isClosed){
+            if (self.err is ()){
+                return closeResult(self);
+            }
+        }
     }
 };
-
-function nativeQuery(Client sqlClient, @untainted string sqlQuery, typedesc<record {}>? rowtype) returns stream<record{}, error> = @java:Method {
-    class: "org.ballerinalang.sql.utils.QueryUtils"
-} external;
 
 function closedStreamInvocationError() returns Error {
     ApplicationError e = ApplicationError(message = "Stream is closed. Therefore, no operations are allowed further on the stream.");
     return e;
 }
 
-function nextResult(ResultIterator iterator) returns record{}|error? = @java:Method {
-    class: "org.ballerinalang.sql.utils.QueryUtils"
+public function generateApplicationError (string message) returns stream<record{}, error> {
+    ApplicationError applicationErr = ApplicationError(message = message);
+    ResultIterator resultIterator = new (err = applicationErr);
+    stream<record{}, error> errorStream = new (resultIterator);
+    return errorStream;
+}
+
+function nextResult(ResultIterator iterator) returns record{}|Error? = @java:Method {
+    class: "org.ballerinalang.sql.utils.RecordItertorUtils"
 } external;
 
-function closeResult(ResultIterator iterator) returns error? = @java:Method {
-    class: "org.ballerinalang.sql.utils.QueryUtils"
+function closeResult(ResultIterator iterator) returns Error? = @java:Method {
+    class: "org.ballerinalang.sql.utils.RecordItertorUtils"
 } external;
