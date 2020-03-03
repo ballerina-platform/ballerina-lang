@@ -91,7 +91,7 @@ function authenticateFromCache(cache:Cache jwtCache, string jwtToken) returns Jw
             }
             return payload;
         } else {
-            jwtCache.remove(jwtToken);
+            var result = jwtCache.invalidate(jwtToken);
         }
     }
 }

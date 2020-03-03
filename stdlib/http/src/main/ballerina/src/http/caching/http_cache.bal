@@ -151,8 +151,8 @@ public type HttpCache object {
         return matchingResponses;
     }
 
-    function remove (string key) {
-        self.cache.remove(key);
+    function remove(string key) {
+        var result = self.cache.invalidate(key);
     }
 };
 
@@ -166,10 +166,10 @@ function isCacheableStatusCode(int statusCode) returns boolean {
 }
 
 function addEntry(cache:Cache cache, string key, Response inboundResponse) {
-    var existingResponses = cache.get(key);
-    if (existingResponses is Response[]) {
+    if (cache.hasKey(key)) {
+        Response[] existingResponses = <Response[]>cache.get(key);
         existingResponses[existingResponses.length()] = inboundResponse;
-    } else if (existingResponses is ()) {
+    } else {
         Response[] cachedResponses = [inboundResponse];
         cache.put(key, cachedResponses);
     }

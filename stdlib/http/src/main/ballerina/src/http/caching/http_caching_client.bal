@@ -510,8 +510,8 @@ function invalidateResponses(HttpCache httpCache, Response inboundResponse, stri
     // TODO: Improve this logic in accordance with the spec
     if (isCacheableStatusCode(inboundResponse.statusCode) &&
         inboundResponse.statusCode >= 200 && inboundResponse.statusCode < 400) {
-        httpCache.cache.remove(getCacheKey(GET, path));
-        httpCache.cache.remove(getCacheKey(HEAD, path));
+        var result = httpCache.cache.invalidate(getCacheKey(GET, path));
+        result = httpCache.cache.invalidate(getCacheKey(HEAD, path));
     }
 }
 
