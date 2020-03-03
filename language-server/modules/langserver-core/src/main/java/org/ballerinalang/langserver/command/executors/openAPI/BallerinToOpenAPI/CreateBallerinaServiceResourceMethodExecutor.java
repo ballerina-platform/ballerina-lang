@@ -93,7 +93,7 @@ import java.util.stream.Collectors;
 import static org.ballerinalang.langserver.command.CommandUtil.getFunctionNode;
 
 /**
- * Represents the command executor for creating a openAPI service resource in contract file.
+ * Represents the command executor for creating a openAPI service resource method in contract file.
  *
  * @since 1.2.0
  */

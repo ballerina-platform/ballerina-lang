@@ -62,7 +62,7 @@ import static org.ballerinalang.langserver.command.CommandUtil.getServiceNode;
 import static org.ballerinalang.openapi.utils.TypeExtractorUtil.extractOpenApiOperations;
 
 /**
- * Represents the command executor for creating a openAPI service resource.
+ * Represents the command executor for creating a openAPI service resource method.
  *
  * @since 1.2.0
  */
