@@ -17,6 +17,7 @@
 import ballerina/lang.'string as strings;
 
 string str = "Hello Ballerina!";
+string str1 = "Hello Hello Ballerina!";
 
 function testToLower() returns string {
     return str.toLowerAscii();
@@ -60,6 +61,10 @@ function testConcat() returns string {
 
 function testIndexOf(string substr) returns int? {
     return str.indexOf(substr);
+}
+
+function testLastIndexOf(string substr) returns int? {
+    return str1.lastIndexOf(substr);
 }
 
 function testEndsWith(string substr) returns boolean {

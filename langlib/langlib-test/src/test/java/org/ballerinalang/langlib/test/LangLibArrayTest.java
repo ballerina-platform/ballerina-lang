@@ -248,6 +248,23 @@ public class LangLibArrayTest {
     }
 
     @Test
+    public void testLastIndexOf() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testLastIndexOf");
+        assertEquals(((BInteger) returns[0]).intValue(), 2);
+        assertEquals(((BInteger) returns[1]).intValue(), 5);
+        assertEquals(((BInteger) returns[2]).intValue(), 7);
+        assertEquals(((BInteger) returns[3]).intValue(), 9);
+        assertEquals(((BInteger) returns[4]).intValue(), 11);
+        assertEquals(((BInteger) returns[5]).intValue(), 13);
+        assertNull(returns[6]);
+        assertNull(returns[7]);
+        assertNull(returns[8]);
+        assertNull(returns[9]);
+        assertNull(returns[10]);
+        assertNull(returns[11]);
+    }
+
+    @Test
     public void testReverse() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testReverse");
 
