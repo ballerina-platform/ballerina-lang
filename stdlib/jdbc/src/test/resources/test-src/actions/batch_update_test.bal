@@ -27,6 +27,7 @@ function testBatchUpdate(string jdbcURL) returns [int[], jdbc:Error?, int, int] 
         url: jdbcURL,
         username: jdbcUserName,
         password: jdbcPassword,
+        getGeneratedKeys: true,
         poolOptions: {maximumPoolSize: 1}
     });
 

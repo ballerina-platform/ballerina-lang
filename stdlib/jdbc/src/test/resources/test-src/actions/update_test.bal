@@ -160,6 +160,7 @@ function testBasicInsertData(string jdbcURL) returns [int, int] {
         url: jdbcURL,
         username: jdbcUserName,
         password: jdbcPassword,
+        getGeneratedKeys: true,
         poolOptions: {maximumPoolSize: 1}
     });
 
@@ -198,6 +199,7 @@ function testInsertDataWithGeneratedKey(string jdbcURL) returns [int, int] {
         url: jdbcURL,
         username: jdbcUserName,
         password: jdbcPassword,
+        getGeneratedKeys: true,
         poolOptions: {maximumPoolSize: 1}
     });
 
@@ -342,6 +344,7 @@ function testInsertNumericDataWithParameters(string jdbcURL) returns [int, int, 
         url: jdbcURL,
         username: jdbcUserName,
         password: jdbcPassword,
+        getGeneratedKeys: true,
         poolOptions: {maximumPoolSize: 1}
     });
 
@@ -405,6 +408,7 @@ function testInsertNumericDataWithDirectValues(string jdbcURL) returns [int, int
         url: jdbcURL,
         username: jdbcUserName,
         password: jdbcPassword,
+        getGeneratedKeys: true,
         poolOptions: {maximumPoolSize: 1}
     });
 
@@ -456,6 +460,7 @@ function testInsertNumericDataWithNilValues(string jdbcURL) returns [int?, int?,
         url: jdbcURL,
         username: jdbcUserName,
         password: jdbcPassword,
+        getGeneratedKeys: true,
         poolOptions: {maximumPoolSize: 1}
     });
 
@@ -1215,6 +1220,7 @@ function testInvalidUpdateOnUpdateResultRecord(string jdbcURL) returns error | (
         url: jdbcURL,
         username: jdbcUserName,
         password: jdbcPassword,
+        getGeneratedKeys: true,
         poolOptions: {maximumPoolSize: 1}
     });
 

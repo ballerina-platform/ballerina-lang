@@ -106,6 +106,7 @@ function testGeneratedKeyOnInsert(string jdbcURL) returns string | int {
         url: jdbcURL,
         username: "SA",
         password: "",
+        getGeneratedKeys: true,
         poolOptions: {maximumPoolSize: 1}
     });
 
@@ -129,6 +130,7 @@ function testBatchUpdate(string jdbcURL) returns int[] {
         url: jdbcURL,
         username: "SA",
         password: "",
+        getGeneratedKeys: true,
         poolOptions: {maximumPoolSize: 1}
     });
 

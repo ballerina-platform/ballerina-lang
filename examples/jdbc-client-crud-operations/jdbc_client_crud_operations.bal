@@ -9,6 +9,7 @@ jdbc:Client testDB = new ({
     url: "jdbc:mysql://localhost:3306/testdb",
     username: "test",
     password: "test",
+    getGeneratedKeys: true,
     dbOptions: {useSSL: false}
 });
 

@@ -37,7 +37,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.Arrays;
 import java.util.Locale;
 
@@ -74,13 +73,20 @@ public class UpdateStatement extends AbstractSQLStatement {
             ArrayValue generatedParams = constructParameters(parameters);
             conn = getDatabaseConnection(strand, client, datasource);
             String processedQuery = createProcessedQueryString(query, generatedParams);
-            stmt = conn.prepareStatement(processedQuery, Statement.RETURN_GENERATED_KEYS);
+
+            boolean keyRetrievalSupportedStatement = isKeyRetrievalSupportedStatement();
+            if (keyRetrievalSupportedStatement) {
+                stmt = conn.prepareStatement(processedQuery, PreparedStatement.RETURN_GENERATED_KEYS);
+            } else {
+                stmt = conn.prepareStatement(processedQuery);
+            }
+
             ProcessedStatement processedStatement = new ProcessedStatement(conn, stmt, generatedParams,
                     datasource.getDatabaseProductName());
             stmt = processedStatement.prepare();
             int count = stmt.executeUpdate();
             MapValue<String, Object> generatedKeys;
-            if (!isDdlStatement()) {
+            if (keyRetrievalSupportedStatement) {
                 rs = stmt.getGeneratedKeys();
                 //This result set contains the auto generated keys.
                 if (rs.next()) {
@@ -103,11 +109,6 @@ public class UpdateStatement extends AbstractSQLStatement {
         } finally {
             cleanupResources(rs, stmt, conn, !isInTransaction);
         }
-    }
-
-    private boolean isDdlStatement() {
-        String query = this.query.trim().toUpperCase(Locale.ENGLISH);
-        return Arrays.stream(DdlKeyword.values()).anyMatch(ddlKeyword -> query.startsWith(ddlKeyword.name()));
     }
 
     private MapValue<String, Object> getGeneratedKeys(ResultSet rs) throws SQLException {
@@ -133,7 +134,18 @@ public class UpdateStatement extends AbstractSQLStatement {
         return populatedUpdateResultRecord;
     }
 
-    private enum DdlKeyword {
-        CREATE, ALTER, DROP, TRUNCATE, COMMENT, RENAME
+    private enum GenKeyStmt {
+        INSERT, DELETE, UPDATE, MERGE
+    }
+
+    /**
+     * Check if the statement is one of INSERT, DELETE, UPDATE or MERGE.
+     */
+    private boolean isKeyRetrievalSupportedStatement() {
+        if (datasource.isKeyRetrievalSupported()) {
+            return Arrays.stream(GenKeyStmt.values()).anyMatch(stmt -> this.query.trim().toUpperCase(Locale.ENGLISH).
+                    startsWith(stmt.name()));
+        }
+        return false;
     }
 }

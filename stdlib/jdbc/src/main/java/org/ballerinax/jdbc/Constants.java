@@ -131,6 +131,7 @@ public final class Constants {
         public static final String PASSWORD = "password";
         public static final String POOL_OPTIONS = "poolOptions";
         public static final String DB_OPTIONS = "dbOptions";
+        public static final String GET_GENERATED_KEYS = "getGeneratedKeys";
     }
 
     /**
@@ -164,6 +165,9 @@ public final class Constants {
         public static final String MYSQL = "mysql";
         public static final String MSSQL_SERVER = "microsoft sql server";
     }
+
+    // Warning suppression
+    public static final String UNCHECKED = "unchecked";
 
     public static final String CONNECTOR_NAME = "ClientConnector";
     public static final String TIMEZONE_UTC = "UTC";

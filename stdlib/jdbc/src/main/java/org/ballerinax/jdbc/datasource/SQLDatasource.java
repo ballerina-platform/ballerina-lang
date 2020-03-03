@@ -19,6 +19,7 @@ package org.ballerinax.jdbc.datasource;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
+import org.ballerinalang.jvm.services.ErrorHandlerUtils;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinax.jdbc.Constants;
 import org.ballerinax.jdbc.exceptions.ErrorGenerator;
@@ -26,6 +27,7 @@ import org.ballerinax.jdbc.exceptions.PanickingApplicationException;
 import org.ballerinax.jdbc.exceptions.PanickingDatabaseException;
 
 import java.sql.Connection;
+import java.sql.DatabaseMetaData;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Locale;
@@ -50,6 +52,7 @@ public class SQLDatasource {
     private AtomicInteger clientCounter = new AtomicInteger(0);
     private Lock mutex = new ReentrantLock();
     private boolean poolShutdown = false;
+    private boolean keyRetrievalSupported = false;
 
     public SQLDatasource init(SQLDatasourceParams sqlDatasourceParams) {
         this.globalDatasource = sqlDatasourceParams.isGlobalDatasource;
@@ -61,7 +64,17 @@ public class SQLDatasource {
             throw ErrorGenerator.getSQLDatabaseError(e);
         }
         try (Connection con = getSQLConnection()) {
-            databaseProductName = con.getMetaData().getDatabaseProductName().toLowerCase(Locale.ENGLISH);
+            DatabaseMetaData metaData = con.getMetaData();
+            databaseProductName = metaData.getDatabaseProductName().toLowerCase(Locale.ENGLISH);
+            if (sqlDatasourceParams.getGeneratedKeys) {
+                boolean supportsGetGeneratedKeys = metaData.supportsGetGeneratedKeys();
+                if (!supportsGetGeneratedKeys) {
+                    ErrorHandlerUtils.printError("ERROR: Unable to get keys as JDBC is not supported to retrieve " +
+                            "auto-generated keys from " + sqlDatasourceParams.dbType);
+                } else {
+                    this.keyRetrievalSupported = true;
+                }
+            }
         } catch (SQLException e) {
             throw ErrorGenerator
                     .getSQLDatabaseError(e, "error while obtaining connection for " + Constants.CONNECTOR_NAME + ", ");
@@ -117,6 +130,10 @@ public class SQLDatasource {
 
     public boolean isPoolShutdown() {
         return poolShutdown;
+    }
+
+    public boolean isKeyRetrievalSupported() {
+        return this.keyRetrievalSupported;
     }
 
     public void incrementClientCounter() {
@@ -330,6 +347,7 @@ public class SQLDatasource {
         private String username;
         private String password;
         private boolean isGlobalDatasource;
+        private boolean getGeneratedKeys;
         private MapValue<String, Object> dbOptionsMap;
 
         private SQLDatasourceParams(SQLDatasourceParamsBuilder builder) {
@@ -340,6 +358,7 @@ public class SQLDatasource {
             this.password = builder.password;
             this.isGlobalDatasource = builder.isGlobalDatasource;
             this.dbOptionsMap = builder.dbOptionsMap;
+            this.getGeneratedKeys = builder.getGeneratedKeys;
         }
 
         public String getJdbcUrl() {
@@ -361,6 +380,7 @@ public class SQLDatasource {
         private String username;
         private String password;
         private boolean isGlobalDatasource;
+        private boolean getGeneratedKeys;
         private MapValue<String, Object> dbOptionsMap;
 
         public SQLDatasourceParamsBuilder(String dbType) {
@@ -393,6 +413,11 @@ public class SQLDatasource {
 
         public SQLDatasourceParamsBuilder withPoolOptions(PoolOptionsWrapper options) {
             this.poolOptions = options;
+            return this;
+        }
+
+        public SQLDatasourceParamsBuilder withGetGeneratedKeys(boolean getGeneratedKeys) {
+            this.getGeneratedKeys = getGeneratedKeys;
             return this;
         }
 
