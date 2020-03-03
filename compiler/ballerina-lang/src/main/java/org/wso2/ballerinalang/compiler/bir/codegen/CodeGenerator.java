@@ -96,6 +96,16 @@ public class CodeGenerator {
         JvmPackageGen.JarFile jarFile = new JvmPackageGen.JarFile();
         populateExternalMap();
 
+        ClassLoader classLoader = makeClassLoader(moduleDependencies);
+        InteropValidator interopValidator = new InteropValidator(classLoader, symbolTable);
+        generatePackage(entryMod, jarFile, interopValidator, true);
+        writeJarFile(jarFile, target);
+    }
+
+    private ClassLoader makeClassLoader(Set<Path> moduleDependencies) {
+        if (moduleDependencies == null) {
+            return Thread.currentThread().getContextClassLoader();
+        }
         List<URL> dependentJars = new ArrayList<>();
         for (Path dependency : moduleDependencies) {
             try {
@@ -105,10 +115,7 @@ public class CodeGenerator {
             }
         }
 
-        ClassLoader classLoader = new URLClassLoader(dependentJars.toArray(new URL[]{}), null);
-        InteropValidator interopValidator = new InteropValidator(classLoader, symbolTable);
-        generatePackage(entryMod, jarFile, interopValidator, true);
-        writeJarFile(jarFile, target);
+        return new URLClassLoader(dependentJars.toArray(new URL[]{}), null);
     }
 
     private void populateExternalMap() {

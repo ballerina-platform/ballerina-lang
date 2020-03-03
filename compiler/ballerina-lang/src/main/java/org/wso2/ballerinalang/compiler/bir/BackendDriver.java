@@ -23,7 +23,6 @@ import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 import java.nio.file.Path;
-import java.util.HashSet;
 import java.util.Set;
 
 /**
@@ -61,7 +60,7 @@ public class BackendDriver {
         }
 
         // Generate JVM bytecode from BIR
-        codeGen(birPackage, target, new HashSet<>());
+        codeGen(birPackage, target, null);
     }
 
     public void execute(BIRNode.BIRPackage birPackage, boolean dumpBIR, Path target, Set<Path> moduleDependencies) {
