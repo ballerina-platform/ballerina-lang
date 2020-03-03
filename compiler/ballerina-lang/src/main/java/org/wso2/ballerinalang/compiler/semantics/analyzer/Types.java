@@ -221,6 +221,13 @@ public class Types {
             case TypeTags.FLOAT:
             case TypeTags.INT:
             case TypeTags.STRING:
+            case TypeTags.SIGNED32_INT:
+            case TypeTags.SIGNED16_INT:
+            case TypeTags.SIGNED8_INT:
+            case TypeTags.UNSIGNED32_INT:
+            case TypeTags.UNSIGNED16_INT:
+            case TypeTags.UNSIGNED8_INT:
+            case TypeTags.CHAR_STRING:
                 return true;
             default:
                 return false;
@@ -228,7 +235,8 @@ public class Types {
     }
 
     boolean isBasicNumericType(BType type) {
-        return type.tag < TypeTags.STRING;
+
+        return type.tag < TypeTags.STRING || type.getKind() == TypeKind.INT;
     }
 
     boolean finiteTypeContainsNumericTypeValues(BFiniteType finiteType) {
@@ -251,58 +259,6 @@ public class Types {
         }
 
         return type.tag == TypeTags.ERROR;
-    }
-
-    public boolean isLikeAnydataOrNotNil(BType type) {
-        return type.tag != TypeTags.NIL && (type.isAnydata() || isLikeAnydata(type));
-    }
-
-    private boolean isLikeAnydata(BType type) {
-        return isLikeAnydata(type, new HashSet<>());
-    }
-
-    private boolean isLikeAnydata(BType type, Set<BType> unresolvedTypes) {
-        int typeTag = type.tag;
-        if (typeTag == TypeTags.ANY) {
-            return true;
-        }
-
-        // check for anydata element/member types as part of recursive calls with structured/union types
-        if (type.tag == TypeTags.RECORD) {
-            if (unresolvedTypes.contains(type)) {
-                return true;
-            } else {
-                unresolvedTypes.add(type);
-                if (type.isAnydata()) {
-                    return true;
-                }
-            }
-        } else if (type.isAnydata()) {
-            return true;
-        }
-
-        if (type.tag == TypeTags.MAP && isLikeAnydata(((BMapType) type).constraint, unresolvedTypes)) {
-            return true;
-        }
-
-        if (type.tag == TypeTags.RECORD) {
-            BRecordType recordType = (BRecordType) type;
-            return recordType.fields.stream()
-                    .noneMatch(field -> !Symbols.isFlagOn(field.symbol.flags, Flags.OPTIONAL) &&
-                            !(isLikeAnydata(field.type, unresolvedTypes)));
-        }
-
-        if (type.tag == TypeTags.UNION) {
-            BUnionType unionType = (BUnionType) type;
-            return unionType.getMemberTypes().stream().anyMatch(bType -> isLikeAnydata(bType, unresolvedTypes));
-        }
-
-        if (type.tag == TypeTags.TUPLE) {
-            BTupleType tupleType = (BTupleType) type;
-            return tupleType.getTupleTypes().stream().allMatch(bType -> isLikeAnydata(bType, unresolvedTypes));
-        }
-
-        return type.tag == TypeTags.ARRAY && isLikeAnydata(((BArrayType) type).eType, unresolvedTypes);
     }
 
     public boolean isSubTypeOfList(BType type) {
@@ -1382,6 +1338,13 @@ public class Types {
             case TypeTags.DECIMAL:
             case TypeTags.BOOLEAN:
             case TypeTags.STRING:
+            case TypeTags.SIGNED32_INT:
+            case TypeTags.SIGNED16_INT:
+            case TypeTags.SIGNED8_INT:
+            case TypeTags.UNSIGNED32_INT:
+            case TypeTags.UNSIGNED16_INT:
+            case TypeTags.UNSIGNED8_INT:
+            case TypeTags.CHAR_STRING:
                 if (targetTag == TypeTags.JSON || targetTag == TypeTags.ANYDATA || targetTag == TypeTags.ANY) {
                     return TypeTestResult.TRUE;
                 }
@@ -1395,11 +1358,9 @@ public class Types {
             default:
         }
 
-        if (targetType.tag == TypeTags.INT) {
-            // TODO : Add support for builtin subtypes of int.
-            if (actualType.tag == TypeTags.BYTE) {
-                return TypeTestResult.TRUE;
-            }
+        if (targetType.tag == TypeTags.INT
+                && (actualType.tag == TypeTags.BYTE || actualType.getKind() == TypeKind.INT)) {
+            return TypeTestResult.TRUE;
         }
         return TypeTestResult.NOT_FOUND;
     }

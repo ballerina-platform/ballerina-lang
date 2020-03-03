@@ -35,6 +35,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BHandleType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BIntSubType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BJSONType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
@@ -44,6 +45,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BServiceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BStringSubType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
@@ -116,7 +118,7 @@ public class SymbolTable {
     public final BType anydataArrayType = new BArrayType(anydataType);
     public final BType anyServiceType = new BServiceType(null);
     public final BType handleType = new BHandleType(TypeTags.HANDLE, null);
-    public final BType typeDesc;
+    public final BType typeDesc = new BTypedescType(this.anyType, null);
 
     public final BType semanticError = new BType(TypeTags.SEMANTIC_ERROR, null);
 
@@ -130,6 +132,15 @@ public class SymbolTable {
     public BFiniteType trueType;
     public BObjectType intRangeType;
     public BMapType mapAllType;
+
+    // builtin subtypes
+    public final BIntSubType signed32IntType = new BIntSubType(TypeTags.SIGNED32_INT, Names.SIGNED32);
+    public final BIntSubType signed16IntType = new BIntSubType(TypeTags.SIGNED16_INT, Names.SIGNED16);
+    public final BIntSubType signed8IntType = new BIntSubType(TypeTags.SIGNED8_INT, Names.SIGNED8);
+    public final BIntSubType unsigned32IntType = new BIntSubType(TypeTags.UNSIGNED32_INT, Names.UNSIGNED32);
+    public final BIntSubType unsigned16IntType = new BIntSubType(TypeTags.UNSIGNED16_INT, Names.UNSIGNED16);
+    public final BIntSubType unsigned8IntType = new BIntSubType(TypeTags.UNSIGNED8_INT, Names.UNSIGNED8);
+    public final BStringSubType charStringType = new BStringSubType(TypeTags.CHAR_STRING, Names.CHAR);
 
     public BPackageSymbol langInternalModuleSymbol;
     public BPackageSymbol langAnnotationModuleSymbol;
@@ -198,19 +209,27 @@ public class SymbolTable {
         initializeType(nilType, TypeKind.NIL.typeName());
         initializeType(anyServiceType, TypeKind.SERVICE.typeName());
         initializeType(handleType, TypeKind.HANDLE.typeName());
-
-        this.typeDesc = new BTypedescType(this.anyType, null);
         initializeType(typeDesc, TypeKind.TYPEDESC.typeName());
 
+        // Define subtypes
+        initializeTSymbol(signed32IntType, Names.SIGNED32, PackageID.INT);
+        initializeTSymbol(signed16IntType, Names.SIGNED16, PackageID.INT);
+        initializeTSymbol(signed8IntType, Names.SIGNED8, PackageID.INT);
+        initializeTSymbol(unsigned32IntType, Names.UNSIGNED32, PackageID.INT);
+        initializeTSymbol(unsigned16IntType, Names.UNSIGNED16, PackageID.INT);
+        initializeTSymbol(unsigned8IntType, Names.UNSIGNED8, PackageID.INT);
+        initializeTSymbol(charStringType, Names.CHAR, PackageID.STRING);
 
         BLangLiteral trueLiteral = new BLangLiteral();
         trueLiteral.type = this.booleanType;
         trueLiteral.value = Boolean.TRUE;
 
         BTypeSymbol finiteTypeSymbol = Symbols.createTypeSymbol(SymTag.FINITE_TYPE, Flags.PUBLIC,
-                                                                names.fromString("$anonType$TRUE"),
-                                                                rootPkgNode.packageID, null, rootPkgNode.symbol.owner);
-        this.trueType = new BFiniteType(finiteTypeSymbol, new HashSet<BLangExpression>() {{ add(trueLiteral); }});
+                names.fromString("$anonType$TRUE"),
+                rootPkgNode.packageID, null, rootPkgNode.symbol.owner);
+        this.trueType = new BFiniteType(finiteTypeSymbol, new HashSet<BLangExpression>() {{
+            add(trueLiteral);
+        }});
     }
 
     public BType getTypeFromTag(int tag) {
@@ -244,12 +263,38 @@ public class SymbolTable {
         }
     }
 
+    public BType getLangLibSubType(String name) {
+        // Assuming subtype names are unique across LangLib
+        switch (name) {
+            case Names.STRING_SIGNED32:
+                return this.signed32IntType;
+            case Names.STRING_SIGNED16:
+                return this.signed16IntType;
+            case Names.STRING_SIGNED8:
+                return this.signed8IntType;
+            case Names.STRING_UNSIGNED32:
+                return this.unsigned32IntType;
+            case Names.STRING_UNSIGNED16:
+                return this.unsigned16IntType;
+            case Names.STRING_UNSIGNED8:
+                return this.unsigned8IntType;
+            case Names.STRING_CHAR:
+                return this.charStringType;
+        }
+        throw new IllegalStateException("LangLib Subtype not found: " + name);
+    }
+
     private void initializeType(BType type, String name) {
         initializeType(type, names.fromString(name));
     }
 
     private void initializeType(BType type, Name name) {
         defineType(type, new BTypeSymbol(SymTag.TYPE, Flags.PUBLIC, name, rootPkgSymbol.pkgID, type, rootPkgSymbol));
+    }
+
+    private void initializeTSymbol(BType type, Name name, PackageID packageID) {
+
+        type.tsymbol = new BTypeSymbol(SymTag.TYPE, Flags.PUBLIC, name, packageID, type, rootPkgSymbol);
     }
 
     private void defineType(BType type, BTypeSymbol tSymbol) {

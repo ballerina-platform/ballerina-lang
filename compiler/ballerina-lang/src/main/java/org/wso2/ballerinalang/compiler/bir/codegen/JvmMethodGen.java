@@ -2298,6 +2298,9 @@ public class JvmMethodGen {
         }
 
         for (BIRTypeDefinition optionalTypeDef : typeDefs) {
+            if (optionalTypeDef.isBuiltin) {
+                continue;
+            }
             BIRTypeDefinition typeDef = getTypeDef(optionalTypeDef);
             BType bType = typeDef.type;
 

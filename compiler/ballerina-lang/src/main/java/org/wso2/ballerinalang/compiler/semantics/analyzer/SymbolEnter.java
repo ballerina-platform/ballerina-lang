@@ -741,27 +741,42 @@ public class SymbolEnter extends BLangNodeVisitor {
         typeDefSymbol.flags &= getPublicFlagResetingMask(typeDefinition.flagSet, typeDefinition.typeNode);
         definedType.flags = typeDefSymbol.flags;
 
-        if (typeDefinition.annAttachments.stream()
-                .anyMatch(attachment -> attachment.annotationName.value.equals(Names.ANNOTATION_TYPE_PARAM.value))) {
-            // TODO : Clean this. Not a nice way to handle this.
-            //  TypeParam is built-in annotation, and limited only within lang.* modules.
-            if (PackageID.isLangLibPackageID(this.env.enclPkg.packageID)) {
-                typeDefSymbol.type = typeParamAnalyzer.createTypeParam(typeDefSymbol.type, typeDefSymbol.name);
-                typeDefSymbol.flags |= Flags.TYPE_PARAM;
-                if (typeDefinition.typeNode.getKind() == NodeKind.ERROR_TYPE) {
-                    typeDefSymbol.isLabel = false;
-                }
-            } else {
-                dlog.error(typeDefinition.pos, DiagnosticCode.TYPE_PARAM_OUTSIDE_LANG_MODULE);
-            }
-        }
         typeDefinition.symbol = typeDefSymbol;
+        boolean isLanglibModule = PackageID.isLangLibPackageID(this.env.enclPkg.packageID);
+        if (isLanglibModule) {
+            handleLangLibTypes(typeDefinition);
+            return;
+        }
+
         defineSymbol(typeDefinition.name.pos, typeDefSymbol);
 
         if (typeDefinition.typeNode.getKind() == NodeKind.ERROR_TYPE) {
             // constructors are only defined for named types.
             defineErrorConstructorSymbol(typeDefinition.name.pos, typeDefSymbol);
         }
+    }
+
+    private void handleLangLibTypes(BLangTypeDefinition typeDefinition) {
+
+        BTypeSymbol typeDefSymbol = typeDefinition.symbol;
+        // As per spec 2020R3 built-in types are limited only within lang.* modules.
+        for (BLangAnnotationAttachment attachment : typeDefinition.annAttachments) {
+            if (attachment.annotationName.value.equals(Names.ANNOTATION_TYPE_PARAM.value)) {
+                typeDefSymbol.type = typeParamAnalyzer.createTypeParam(typeDefSymbol.type, typeDefSymbol.name);
+                typeDefSymbol.flags |= Flags.TYPE_PARAM;
+                break;
+            } else if (attachment.annotationName.value.equals(Names.ANNOTATION_BUILTIN_SUBTYPE.value)) {
+                // Type is pre-defined in symbol Table.
+                BType type = symTable.getLangLibSubType(typeDefinition.name.value);
+                typeDefinition.symbol = type.tsymbol;
+                typeDefinition.type = type;
+                typeDefinition.typeNode.type = type;
+                typeDefinition.isBuiltinTypeDef = true;
+                break;
+            }
+            throw new IllegalStateException("Not supported annotation attachment at:" + attachment.pos);
+        }
+        defineSymbol(typeDefinition.name.pos, typeDefSymbol);
     }
 
     // If this type is defined to a public type or this is a anonymous type, return int with all bits set to 1,
