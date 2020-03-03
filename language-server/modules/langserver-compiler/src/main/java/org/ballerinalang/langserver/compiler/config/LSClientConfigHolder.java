@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.ballerinalang.langserver.client.config;
+package org.ballerinalang.langserver.compiler.config;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,27 +21,27 @@ import java.util.List;
 /**
  * This class is holding the latest client configuration.
  */
-public class BallerinaClientConfigHolder {
-    private static final BallerinaClientConfigHolder INSTANCE = new BallerinaClientConfigHolder();
+public class LSClientConfigHolder {
+    private static final LSClientConfigHolder INSTANCE = new LSClientConfigHolder();
 
     private List<ConfigChangeListener> listeners = new ArrayList<>();
 
     // Init ballerina client configuration with defaults
-    private BallerinaClientConfig clientConfig = BallerinaClientConfig.getDefault();
+    private LSClientConfig clientConfig = LSClientConfig.getDefault();
 
-    private BallerinaClientConfigHolder() {
+    private LSClientConfigHolder() {
     }
 
-    public static BallerinaClientConfigHolder getInstance() {
+    public static LSClientConfigHolder getInstance() {
         return INSTANCE;
     }
 
     /**
      * Returns current client configuration.
      *
-     * @return {@link BallerinaClientConfig}
+     * @return {@link LSClientConfig}
      */
-    public BallerinaClientConfig getConfig() {
+    public LSClientConfig getConfig() {
         return this.clientConfig;
     }
 
@@ -66,11 +66,11 @@ public class BallerinaClientConfigHolder {
     /**
      * Update current client configuration.
      *
-     * @param newConfig {@link BallerinaClientConfig} new configuration
+     * @param newConfig {@link LSClientConfig} new configuration
      */
-    public void updateConfig(BallerinaClientConfig newConfig) {
+    public void updateConfig(LSClientConfig newConfig) {
         // Update config
-        BallerinaClientConfig oldConfig = clientConfig;
+        LSClientConfig oldConfig = clientConfig;
         clientConfig = newConfig;
         // Notify listeners
         listeners.stream().parallel().forEach(listener -> listener.didChange(oldConfig, newConfig));

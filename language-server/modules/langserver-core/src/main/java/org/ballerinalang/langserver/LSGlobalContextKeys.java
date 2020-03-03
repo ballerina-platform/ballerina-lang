@@ -35,6 +35,4 @@ public class LSGlobalContextKeys {
             = new LSContext.Key<>();
     public static final LSContext.Key<DiagnosticsHelper> DIAGNOSTIC_HELPER_KEY
             = new LSContext.Key<>();
-    public static final LSContext.Key<Boolean> ENABLE_STDLIB_DEFINITION
-            = new LSContext.Key<>();
 }

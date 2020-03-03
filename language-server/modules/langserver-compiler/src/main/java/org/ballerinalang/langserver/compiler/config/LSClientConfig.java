@@ -13,33 +13,43 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.ballerinalang.langserver.client.config;
+package org.ballerinalang.langserver.compiler.config;
 
 /**
  * Ballerina Client Configuration.
  */
-public class BallerinaClientConfig {
+public class LSClientConfig {
     private final String home;
     private final boolean allowExperimental;
     private final boolean debugLog;
     private final CodeLensConfig codeLens;
-    private final boolean showLSErrors;
+    private final boolean traceLog;
+    private final GoToDefinitionConfig goToDefinition;
 
-    private BallerinaClientConfig() {
+    private LSClientConfig() {
         this.home = "";
-        this.allowExperimental = false;
-        this.debugLog = false;
+
+        // NOTE: Added reading environmental variables to support IntelliJ plugin
+        String balDebugLog = System.getenv("BAL_DEBUG_LOG");
+        String balTraceLog = System.getenv("BAL_TRACE_LOG");
+        String balExperimental = System.getenv("BAL_EXPERIMENTAL");
+        String balDefStdLibs = System.getenv("BAL_DEF_STD_LIBS");
+
+        this.allowExperimental = (balExperimental != null) && Boolean.getBoolean(balExperimental);
+        this.debugLog = (balDebugLog != null) && Boolean.getBoolean(balDebugLog);
+        this.traceLog = (balTraceLog != null) && Boolean.getBoolean(balTraceLog);
         this.codeLens = new CodeLensConfig();
-        this.showLSErrors = false;
+        this.goToDefinition = (balDefStdLibs != null) ? new GoToDefinitionConfig(Boolean.getBoolean(balDefStdLibs)) :
+                new GoToDefinitionConfig(true);
     }
 
     /**
      * Returns default ballerina client configuration.
      *
-     * @return {@link BallerinaClientConfig}
+     * @return {@link LSClientConfig}
      */
-    public static BallerinaClientConfig getDefault() {
-        return new BallerinaClientConfig();
+    public static LSClientConfig getDefault() {
+        return new LSClientConfig();
     }
 
     /**
@@ -65,7 +75,7 @@ public class BallerinaClientConfig {
      *
      * @return True if enabled, False otherwise
      */
-    public boolean isDebugLog() {
+    public boolean isDebugLogEnabled() {
         return debugLog;
     }
 
@@ -79,11 +89,20 @@ public class BallerinaClientConfig {
     }
 
     /**
-     * Returns True if show LS errors enabled, False otherwise.
+     * Returns True if trace log enabled, False otherwise.
      *
      * @return True if enabled, False otherwise
      */
-    public boolean isShowLSErrors() {
-        return showLSErrors;
+    public boolean isTraceLogEnabled() {
+        return traceLog;
+    }
+
+    /**
+     * Returns Goto Definition Config.
+     *
+     * @return {@link GoToDefinitionConfig}
+     */
+    public GoToDefinitionConfig getGoToDefinition() {
+        return goToDefinition;
     }
 }

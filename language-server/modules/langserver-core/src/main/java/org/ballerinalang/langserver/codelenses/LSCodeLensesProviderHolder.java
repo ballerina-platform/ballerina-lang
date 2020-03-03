@@ -15,8 +15,8 @@
  */
 package org.ballerinalang.langserver.codelenses;
 
-import org.ballerinalang.langserver.client.config.BallerinaClientConfigHolder;
 import org.ballerinalang.langserver.commons.codelenses.spi.LSCodeLensesProvider;
+import org.ballerinalang.langserver.compiler.config.LSClientConfigHolder;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -42,7 +42,7 @@ public class LSCodeLensesProviderHolder {
                 LSCodeLensesProviderHolder.providers.add(executor);
             }
         }
-        BallerinaClientConfigHolder.getInstance().register((oldConfig, newConfig) -> {
+        LSClientConfigHolder.getInstance().register((oldConfig, newConfig) -> {
             this.isEnabled = newConfig.getCodeLens().getAll().isEnabled();
         });
     }
