@@ -28,6 +28,14 @@ public class Names {
     public static final CompilerContext.Key<Names> NAMES_KEY =
             new CompilerContext.Key<>();
 
+    public static final String STRING_SIGNED32 = "Signed32";
+    public static final String STRING_SIGNED16 = "Signed16";
+    public static final String STRING_SIGNED8 = "Signed8";
+    public static final String STRING_UNSIGNED32 = "Unsigned32";
+    public static final String STRING_UNSIGNED16 = "Unsigned16";
+    public static final String STRING_UNSIGNED8 = "Unsigned8";
+    public static final String STRING_CHAR = "Char";
+
     public static final Name EMPTY = new Name("");
     public static final Name DOT = new Name(".");
     public static final Name DEFAULT_PACKAGE = DOT;
@@ -70,7 +78,9 @@ public class Names {
     public static final Name QUESTION_MARK = new Name("?");
     public static final Name ORG_NAME_SEPARATOR = new Name("/");
     public static final Name VERSION_SEPARATOR = new Name(":");
+    public static final Name ALIAS_SEPARATOR = VERSION_SEPARATOR;
     public static final Name ANNOTATION_TYPE_PARAM = new Name("typeParam");
+    public static final Name ANNOTATION_BUILTIN_SUBTYPE = new Name("builtinSubtype");
 
     public static final Name BIR_BASIC_BLOCK_PREFIX = new Name("bb");
     public static final Name BIR_LOCAL_VAR_PREFIX = new Name("%");
@@ -78,6 +88,15 @@ public class Names {
 
     public static final Name DETAIL_MESSAGE = new Name("message");
     public static final Name DETAIL_CAUSE = new Name("cause");
+
+    // Subtypes
+    public static final Name SIGNED32 = new Name(STRING_SIGNED32);
+    public static final Name SIGNED16 = new Name(STRING_SIGNED16);
+    public static final Name SIGNED8 = new Name(STRING_SIGNED8);
+    public static final Name UNSIGNED32 = new Name(STRING_UNSIGNED32);
+    public static final Name UNSIGNED16 = new Name(STRING_UNSIGNED16);
+    public static final Name UNSIGNED8 = new Name(STRING_UNSIGNED8);
+    public static final Name CHAR = new Name(STRING_CHAR);
 
     // Names related to transactions.
     public static final Name TRANSACTION_PACKAGE = new Name("transactions");

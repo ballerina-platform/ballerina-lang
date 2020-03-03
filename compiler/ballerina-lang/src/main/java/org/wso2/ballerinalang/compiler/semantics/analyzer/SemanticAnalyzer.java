@@ -389,6 +389,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             annotationAttachment.accept(this);
         });
         validateAnnotationAttachmentCount(typeDefinition.annAttachments);
+        validateBuiltinTypeAnnotationAttachment(typeDefinition.annAttachments);
     }
 
     public void visit(BLangTypeConversionExpr conversionExpr) {
@@ -2851,14 +2852,35 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
         attachmentCounts.forEach((symbol, count) -> {
             if ((symbol.attachedType == null || symbol.attachedType.type.tag != TypeTags.ARRAY) && count > 1) {
-                this.dlog.error(attachments.stream()
-                                        .filter(attachment -> attachment.annotationSymbol.equals(symbol))
-                                        .findFirst()
-                                        .get().pos,
-                                DiagnosticCode.ANNOTATION_ATTACHMENT_CANNOT_SPECIFY_MULTIPLE_VALUES,
-                                symbol.name);
+                Optional<BLangAnnotationAttachment> found = Optional.empty();
+                for (BLangAnnotationAttachment attachment : attachments) {
+                    if (attachment.annotationSymbol.equals(symbol)) {
+                        found = Optional.of(attachment);
+                        break;
+                    }
+                }
+                this.dlog.error(found.get().pos,
+                        DiagnosticCode.ANNOTATION_ATTACHMENT_CANNOT_SPECIFY_MULTIPLE_VALUES, symbol.name);
             }
         });
+    }
+
+    private void validateBuiltinTypeAnnotationAttachment(List<BLangAnnotationAttachment> attachments) {
+
+        if (PackageID.isLangLibPackageID(this.env.enclPkg.packageID)) {
+            return;
+        }
+        for (BLangAnnotationAttachment attachment : attachments) {
+            if (!attachment.annotationSymbol.pkgID.equals(PackageID.ANNOTATIONS)) {
+                continue;
+            }
+            String annotationName = attachment.annotationName.value;
+            if (annotationName.equals(Names.ANNOTATION_TYPE_PARAM.value)) {
+                dlog.error(attachment.pos, DiagnosticCode.TYPE_PARAM_OUTSIDE_LANG_MODULE);
+            } else if (annotationName.equals(Names.ANNOTATION_BUILTIN_SUBTYPE.value)) {
+                dlog.error(attachment.pos, DiagnosticCode.TYPE_PARAM_OUTSIDE_LANG_MODULE);
+            }
+        }
     }
 
     // TODO: Check if the below method can be removed. This doesn't seem necessary.

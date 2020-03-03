@@ -460,8 +460,9 @@ public enum DiagnosticCode {
 
     INVALID_USE_OF_NULL_LITERAL("invalid.use.of.null.literal"),
 
-    // Type Param related error codes.
+    // LangLib related error codes.
     TYPE_PARAM_OUTSIDE_LANG_MODULE("type.param.outside.lang.module"),
+    BUILTIN_SUBTYPE_OUTSIDE_LANG_MODULE("builtin.subtype.outside.lang.module"),
 
     INVALID_INVOCATION_LVALUE_ASSIGNMENT("invalid.lvalue.lhs.of.assignment"),
     INVALID_INVOCATION_LVALUE_COMPOUND_ASSIGNMENT("invalid.lvalue.lhs.of.compound.assignment"),

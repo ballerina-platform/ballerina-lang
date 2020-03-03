@@ -59,7 +59,15 @@ public class TypeTags {
     public static final int BYTE_ARRAY = OBJECT + 1;
     public static final int FUNCTION_POINTER = BYTE_ARRAY + 1;
     public static final int HANDLE = FUNCTION_POINTER + 1;
-    public static final int TYPE_PARAM = HANDLE + 1;
+//    public static final int TYPE_PARAM = HANDLE + 1;
+    // Subtypes
+    public static final int SIGNED32_INT = HANDLE + 1;
+    public static final int SIGNED16_INT = SIGNED32_INT + 1;
+    public static final int SIGNED8_INT = SIGNED16_INT + 1;
+    public static final int UNSIGNED32_INT = SIGNED8_INT + 1;
+    public static final int UNSIGNED16_INT = UNSIGNED32_INT + 1;
+    public static final int UNSIGNED8_INT = UNSIGNED16_INT + 1;
+    public static final int CHAR_STRING = UNSIGNED8_INT + 1;
 
     public static final int SERVICE = OBJECT;
 
