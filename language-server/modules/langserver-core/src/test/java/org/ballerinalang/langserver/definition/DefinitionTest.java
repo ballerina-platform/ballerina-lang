@@ -132,6 +132,8 @@ public class DefinitionTest {
                 {"defFunction10.json", "function"},
                 {"defFunction11.json", "function"},
                 {"defFunction12.json", "function"},
+                {"defFunction13.json", "function"},
+                {"defFunction14.json", "function"},
                 // Following tests covers the type descriptor and Module Type Definitions
                 // Covers Simple Type Descriptor
                 {"defTypedesc1.json", "typedescriptor"},
@@ -152,6 +154,7 @@ public class DefinitionTest {
                 {"defTypedesc14.json", "typedescriptor"},
                 {"defTypedesc15.json", "typedescriptor"},
                 {"defTypedesc16.json", "typedescriptor"},
+                {"defTypedesc53.json", "typedescriptor"},
                 // Covers Function Type Descriptor
                 {"defTypedesc17.json", "typedescriptor"},
                 {"defTypedesc18.json", "typedescriptor"},

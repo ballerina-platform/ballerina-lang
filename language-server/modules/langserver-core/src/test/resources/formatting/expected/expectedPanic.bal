@@ -52,7 +52,7 @@ public function main3(string... args) {
     panic
     error
     (
-    "Player has to be initialized"
+        "Player has to be initialized"
     )
     ;
 }

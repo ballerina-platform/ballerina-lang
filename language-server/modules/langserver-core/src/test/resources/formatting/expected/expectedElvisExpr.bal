@@ -24,9 +24,9 @@ function testElvisTupleTypeNegative() returns [string, int] {
     [string, int]|() xT = ();
     [string, int] dT = ["default", 0];
     var rT =
-    xT
-    ?:
-    dT
+        xT
+        ?:
+        dT
     ;
     return rT;
 }

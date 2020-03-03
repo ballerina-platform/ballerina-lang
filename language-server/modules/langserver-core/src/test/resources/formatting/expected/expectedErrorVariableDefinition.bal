@@ -8,28 +8,28 @@ const ERROR2 = "Some Error Two";
 function testBasicErrorVariableWithMapDetails() returns [string, string, string, string, map<string>, string?, string?,
 string?, map<any>, any, any, any] {
     SMS err1 = error("Error One",
-    message = "Msg One",
-    detail = "Detail Msg"
+        message = "Msg One",
+        detail = "Detail Msg"
     );
     SMA err2 = error("Error Two",
-    message = "Msg Two",
-    fatal = true
+        message = "Msg Two",
+        fatal = true
     );
     SMS error (reason11, ...detail11) = err1;
     SMS error (reason12, message = message12, detail = detail12, extra = extra12) = err1;
 
     SMA
-    error
-    (
-    reason21
-    ,
-    ...detail21
-    )
-    =
-    err2
-    ;
+        error
+        (
+            reason21
+            ,
+            ...detail21
+        )
+        =
+            err2
+        ;
     SMA error (reason22, message = message22, detail = detail22,
-    extra = extra22) = err2;
+        extra = extra22) = err2;
 
     return [
         reason11,
@@ -101,12 +101,12 @@ function testErrorBindingPattern4() returns string {
         }
         error
         (
-        var
-        reason
-        ,
-        message
-        =
-        message
+            var
+            reason
+            ,
+            message
+            =
+            message
         ) => {
             return "Matched with error : " + reason + " {\"message\":\"" + <string>message + "\"}";
         }
@@ -123,13 +123,13 @@ function testErrorBindingPattern5() returns string {
             return "Matched with tuple : " + reason + " " + "io:sprintf(\"%s\", detail)";
         }
         var
-        error (
-        reason
-        ,
-        message
-        =
-        message
-        ) => {
+            error (
+                reason
+                ,
+                message
+                =
+                message
+            ) => {
             return "Matched with error : " + reason + " {\"message\":\"" + <string>message + "\"}";
         }
     }
@@ -146,15 +146,15 @@ function testErrorBindingPattern6() returns string {
         }
         error
         (
-        var
-        reason
-        ,
-        message
-        =
-        message,
-        ...
-        var
-        details1
+            var
+            reason
+            ,
+            message
+            =
+            message,
+            ...
+            var
+            details1
         ) => {
             return "Matched with error : " + reason + " {\"message\":\"" + <string>message + "\"}";
         }
@@ -171,17 +171,17 @@ function testIndirectErrorVariableDef1() {
 function testIndirectErrorVariableDef2() {
     SMS e = error("the reason", message = "msg");
     var
-    SMS
-    (
-    message = message
-    ,
-    other = other
-    ,
-    ...rest
-    )
-    =
-    e
-    ;
+        SMS
+        (
+            message = message
+            ,
+            other = other
+            ,
+            ...rest
+        )
+        =
+            e
+        ;
 }
 
 type ErrorData record {
@@ -191,33 +191,34 @@ type ErrorData record {
 
 type ER error<string, ErrorData>;
 
-function testIndirectErrorMatchPattern1() returns string {
-    ER err1 = error("Error Code", message = "Msg");
-    match err1 {
-        ER (message = m, ...var rest) => {
-            return <string>m;
-        }
-    }
-    return "Default";
-}
+// TODO: Enable After fixing the error match pattern rest node not available issue.
+//function testIndirectErrorMatchPattern1() returns string {
+//    ER err1 = error("Error Code", message = "Msg");
+//    match err1 {
+//        ER (message = m, ...var rest) => {
+//            return <string>m;
+//        }
+//    }
+//    return "Default";
+//}
 
-function testIndirectErrorMatchPattern2() returns string {
-    ER err1 = error("Error Code", message = "Msg");
-    match err1 {
-        ER
-        (
-        message
-        =
-        m
-        ,
-        ...
-        var
-        rest
-        )
-        =>
-        {
-            return <string>m;
-        }
-    }
-    return "Default";
-}
+//function testIndirectErrorMatchPattern2() returns string {
+//    ER err1 = error("Error Code", message = "Msg");
+//    match err1 {
+//        ER
+//        (
+//            message
+//            =
+//            m
+//            ,
+//            ...
+//            var
+//            rest
+//        )
+//        =>
+//        {
+//            return <string>m;
+//        }
+//    }
+//    return "Default";
+//}

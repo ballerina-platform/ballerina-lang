@@ -68,22 +68,22 @@ function waitTest2() returns map<int|string> {
     future<int|string> f7 = start concat("xyz");
 
     map<int|string> result =
-    wait
-    {
-    f1
-    ,
-    str1
-    :
-    f4
-    ,
-    f3
-    :
-    f3
-    ,
-    str2
-    :
-    f7
-    }
+        wait
+        {
+            f1
+            ,
+            str1
+            :
+            f4
+            ,
+            f3
+            :
+            f3
+            ,
+            str2
+            :
+            f7
+        }
     ;
     return result;
 }
@@ -99,10 +99,10 @@ function waitTest5() returns int {
     future<int> f1 = start add_1(5, 2);
     future<int> f2 = start add_1(10, 12);
     int result =
-    wait
-    f1
-    |
-    f2
+        wait
+            f1
+            |
+            f2
     ;
     return result;
 }
@@ -116,8 +116,8 @@ function waitTest6() returns int {
 function waitTest7() returns int {
     future<int> f1 = start add_1(5, 2);
     int result =
-    wait
-    f1
+        wait
+            f1
     ;
     return result;
 }
@@ -131,10 +131,10 @@ function waitTest8() returns int|string {
 function waitTest9() returns int|string {
     future<int|string> f7 = start concat("xyz");
     int|string result =
-    wait
-    fuInt()
-    |
-    f7
+        wait
+            fuInt()
+            |
+            f7
     ;
     return result;
 }
@@ -162,8 +162,8 @@ function waitTest10() returns int|string|boolean {
         return r;
     }
     int|string|boolean result = wait w1 | w2
-    |
-    w3
+        |
+        w3
     ;
     return result;
 }
@@ -181,16 +181,16 @@ function waitTest11() returns map<anydata> {
 function waitTest12() returns map<anydata> {
     future<string> f5 = start concat("foo");
     record {int id; string name;} anonRec =
-    wait
-    {
-    id
-    :
-    fuInt()
-    ,
-    name
-    :
-    f5
-    }
+        wait
+        {
+            id
+            :
+            fuInt()
+            ,
+            name
+            :
+            f5
+        }
     ;
 
     map<anydata> m = {};

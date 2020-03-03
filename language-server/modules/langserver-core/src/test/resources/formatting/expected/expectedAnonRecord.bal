@@ -119,7 +119,7 @@ function testRecordTypes3() returns [typedesc<RecordA>, typedesc<record {}>] {
         int d;
     };
     typedesc<record {}> b1 =
-    record {string c; int d;};
+        record {string c; int d;};
     return [a, b];
 }
 
@@ -127,9 +127,9 @@ function testRecordTypes4() returns [typedesc<RecordA>, typedesc<record {}>] {
     typedesc<RecordA> a = RecordA;
     typedesc<record {}> b = record {string c; int d;};
     typedesc<record {}> b1 =
-    record {
-        string c;
-        int d;
-    };
+        record {
+            string c;
+            int d;
+        };
     return [a, b];
 }

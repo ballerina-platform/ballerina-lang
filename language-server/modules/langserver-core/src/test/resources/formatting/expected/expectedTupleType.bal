@@ -16,17 +16,17 @@ function name1() returns [int, [string, int, float]] {
 
 function name2() returns [int, [string, int, float]] {
     return
-    [
-        1
-        ,
         [
-            "ABC"
+            1
             ,
-            42
-            ,
-            0.023
+            [
+                "ABC"
+                ,
+                42
+                ,
+                0.023
+            ]
         ]
-    ]
     ;
 }
 
@@ -43,8 +43,8 @@ function testArrayToTupleAssignment3() returns [string, string[]] {
 function testArrayToTupleAssignment4() returns [string, string[]] {
     string[3] x = ["a", "b", "c"];
     [string, string...] [i,
-    ...
-    j] = x;
+        ...
+        j] = x;
     return [i, j];
 }
 
@@ -54,20 +54,20 @@ function tupleVariableTest1() {
 
 function tupleVariableTest2() {
     [
-    boolean
-    ,
-    float
+        boolean
+        ,
+        float
     ]
     [
-    a1
-    ,
-    a2
+        a1
+        ,
+        a2
     ]
     =
-    [
-        true
-        ,
-        0.4
-    ]
+        [
+            true
+            ,
+            0.4
+        ]
     ;
 }

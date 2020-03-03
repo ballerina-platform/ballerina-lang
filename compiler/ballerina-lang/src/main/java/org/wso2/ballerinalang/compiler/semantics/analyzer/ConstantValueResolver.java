@@ -135,11 +135,19 @@ public class ConstantValueResolver extends BLangNodeVisitor {
                 }
 
                 value = visitExpr(keyValuePair.valueExpr);
-            } else {
+            } else if (field.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
                 BLangRecordLiteral.BLangRecordVarNameField varNameField =
                         (BLangRecordLiteral.BLangRecordVarNameField) field;
                 key = varNameField.variableName.value;
                 value = visitExpr(varNameField);
+            } else {
+                BLangConstantValue spreadOpConstValue =
+                        visitExpr(((BLangRecordLiteral.BLangRecordSpreadOperatorField) field).expr);
+
+                if (spreadOpConstValue != null) {
+                    mapConstVal.putAll((Map<String, BLangConstantValue>) spreadOpConstValue.value);
+                }
+                continue;
             }
 
             mapConstVal.put(key, value);
