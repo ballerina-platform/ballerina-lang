@@ -126,5 +126,14 @@ public class MetricsTestCase extends BaseTest {
                 "jdbc:h2:file:../../tempdb/TEST_DB\",db_statement=\"SELECT * FROM Products\",}", regexNumber);
         expectedMetrics.put("default_response_time_seconds_value{" +
                 "action=\"getQuery\",}", regexNumber);
+        expectedMetrics.put("ballerina_http_Caller_response_time_nanoseconds_value" +
+                "{action=\"respond\",http_status_code=\"200\",}", regexNumber);
+        expectedMetrics.put("http_response_time_nanoseconds_value{service=\"metricsTest\"," +
+                "protocol=\"http\",http_url=\"/test\",resource=\"getProduct\",http_method=\"GET\",}", regexNumber);
+        expectedMetrics.put("ballerinax_java_jdbc_Client_response_time_nanoseconds_value{" +
+                "action=\"select\",db_instance=\"h2\",db_type=\"sql\",peer_address=\"" +
+                "jdbc:h2:file:../../tempdb/TEST_DB\",db_statement=\"SELECT * FROM Products\",}", regexNumber);
+        expectedMetrics.put("default_response_time_nanoseconds_value{" +
+                "action=\"getQuery\",}", regexNumber);
     }
 }
