@@ -32,11 +32,12 @@ import org.testng.annotations.Test;
  */
 public class ListConstructorExprTest {
 
-    private CompileResult result, resultNegative;
+    private CompileResult result, resultInferType, resultNegative;
 
     @BeforeClass
     public void setup() {
         result = BCompileUtil.compile("test-src/expressions/listconstructor/list_constructor.bal");
+        resultInferType = BCompileUtil.compile("test-src/expressions/listconstructor/list_constructor_infer_type.bal");
         resultNegative = BCompileUtil.compile(
                 "test-src/expressions/listconstructor/list_constructor_negative.bal");
     }
@@ -63,5 +64,19 @@ public class ListConstructorExprTest {
     @Test
     public void testListConstructorAutoFillExpr() {
         BRunUtil.invoke(result, "testListConstructorAutoFillExpr");
+    }
+
+    @Test
+    public void testListConstructorWithBroadACET() {
+        BRunUtil.invoke(result, "testListConstructorWithAnyACET");
+        BRunUtil.invoke(result, "testListConstructorWithAnydataACET");
+        BRunUtil.invoke(result, "testListConstructorWithJsonACET");
+    }
+
+    @Test
+    public void testListConstructorInferType() {
+        BRunUtil.invoke(resultInferType, "inferSimpleTuple");
+        BRunUtil.invoke(resultInferType, "inferStructuredTuple");
+        BRunUtil.invoke(resultInferType, "inferNestedTuple");
     }
 }

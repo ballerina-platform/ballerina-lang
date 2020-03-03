@@ -41,7 +41,7 @@ public class MappingConstructorExprTest {
          result = BCompileUtil.compile("test-src/expressions/mappingconstructor/mapping_constructor.bal");
          inferRecordResult = BCompileUtil.compile(
                  "test-src/expressions/mappingconstructor/mapping_constructor_infer_record.bal");
-        spreadOpFieldResult = BCompileUtil.compile("test-src/expressions/mappingconstructor/spread_op_field.bal");
+         spreadOpFieldResult = BCompileUtil.compile("test-src/expressions/mappingconstructor/spread_op_field.bal");
     }
 
     @Test
@@ -184,7 +184,7 @@ public class MappingConstructorExprTest {
     public void testRecordInferringInSelectNegative() {
         CompileResult compileResult = BCompileUtil.compile(
                 "test-src/expressions/mappingconstructor/mapping_constructor_infer_record_negative.bal");
-        Assert.assertEquals(compileResult.getErrorCount(), 10);
+        Assert.assertEquals(compileResult.getErrorCount(), 11);
         int index = 0;
 
         validateError(compileResult, index++, "incompatible types: expected 'string[]', found 'record {| string fn; " +
@@ -202,7 +202,10 @@ public class MappingConstructorExprTest {
                 "|}'", 90, 13);
         validateError(compileResult, index++, "incompatible types: expected 'record {| int...; |}', found 'record {| " +
                 "int x; int y; (string|boolean)...; |}'", 95, 30);
-        validateError(compileResult, index, "incompatible types: expected 'boolean', found 'record {| |}'", 98, 17);
+        validateError(compileResult, index++, "incompatible types: expected 'boolean', found 'record {| |}'", 98, 17);
+        validateError(compileResult, index, "incompatible types: expected 'record {| int i; boolean b; decimal a; " +
+                "float f; anydata...; |}', found 'record {| (int|string) i; boolean b; decimal a; float f?; anydata.." +
+                ".; |}'", 126, 12);
     }
 
     @Test(dataProvider = "inferRecordTypeTests")
@@ -218,7 +221,8 @@ public class MappingConstructorExprTest {
                 { "testRecordInferringForMappingConstructorWithRestField2" },
                 { "testRecordInferringForMappingConstructorWithRestField3" },
                 { "testMappingConstrExprWithNoACET" },
-                { "testMappingConstrExprWithNoACET2" }
+                { "testMappingConstrExprWithNoACET2" },
+                { "testInferredRecordTypeWithOptionalTypeFieldViaSpreadOp" }
         };
     }
 }

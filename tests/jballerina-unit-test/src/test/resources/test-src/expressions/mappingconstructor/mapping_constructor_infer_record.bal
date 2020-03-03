@@ -226,6 +226,39 @@ type Bar object {
     }
 };
 
+type Rec1 record {
+    int i;
+    boolean b;
+};
+
+type Rec2 record {
+    string i?;
+    float f?;
+};
+
+function testInferredRecordTypeWithOptionalTypeFieldViaSpreadOp() {
+    Rec1 rec1 = {i: 1, b: true};
+    Rec2 rec2 = {i: "str"};
+
+    var r1 = {
+        ...rec1,
+        a: 0.1d,
+        ...rec2
+    };
+
+    record {
+        int|string i;
+        boolean b;
+        decimal a;
+        float f?;
+    } r2 = r1;
+
+    assertEquality("str", r2.i);
+    assertEquality(true, r2.b);
+    assertEquality(0.1d, r2.a);
+    assertEquality((), r2?.f);
+}
+
 function assertEquality(any|error expected, any|error actual) {
     if expected is anydata && actual is anydata && expected == actual {
         return;

@@ -221,6 +221,26 @@ type NoFillerObject object {
     }
 };
 
+function testUnionRestDescriptor() {
+    [int, string|boolean...] x = [1, "hi", true];
+
+    assertEquality(3, x.length());
+    assertEquality(1, x[0]);
+    assertEquality("hi", x[1]);
+    assertEquality(true, x[2]);
+
+    x.push("after", false, "after2", true);
+
+    assertEquality(7, x.length());
+    assertEquality(1, x[0]);
+    assertEquality("hi", x[1]);
+    assertEquality(true, x[2]);
+    assertEquality("after", x[3]);
+    assertEquality(false, x[4]);
+    assertEquality("after2", x[5]);
+    assertEquality(true, x[6]);
+}
+
 const ASSERTION_ERROR_REASON = "AssertionError";
 
 function assertEquality(any|error expected, any|error actual) {

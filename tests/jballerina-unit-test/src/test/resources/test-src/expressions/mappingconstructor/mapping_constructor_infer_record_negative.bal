@@ -97,3 +97,31 @@ public function testInferringForVarNegative2() {
     var z = {};
     boolean c = z;
 }
+
+type Rec1 record {
+    int i;
+    boolean b;
+};
+
+type Rec2 record {
+    string i?;
+    float f?;
+};
+
+function testInferredRecordTypeWithOptionalTypeFieldViaSpreadOpNegative() {
+    Rec1 rec1 = {i: 1, b: true};
+    Rec2 rec2 = {i: "str"};
+
+    var r1 = {
+        ...rec1,
+        a: 0.1d,
+        ...rec2
+    };
+
+    record {
+        int i;
+        boolean b;
+        decimal a;
+        float f;
+    } r2 = r1;
+}

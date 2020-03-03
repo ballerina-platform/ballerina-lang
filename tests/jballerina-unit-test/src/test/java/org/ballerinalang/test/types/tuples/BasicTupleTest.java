@@ -162,6 +162,11 @@ public class BasicTupleTest {
         BRunUtil.invoke(result, "testTupleUnionExpectedType");
     }
 
+    @Test
+    public void testUnionRestDescriptor() {
+        BRunUtil.invoke(result, "testUnionRestDescriptor");
+    }
+
     @Test(description = "Test negative scenarios of assigning tuple literals")
     public void testNegativeTupleLiteralAssignments() {
         Assert.assertEquals(resultNegative.getErrorCount(), 30);
