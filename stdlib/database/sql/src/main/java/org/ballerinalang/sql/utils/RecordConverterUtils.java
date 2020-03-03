@@ -17,8 +17,19 @@
  */
 package org.ballerinalang.sql.utils;
 
-import org.ballerinalang.jvm.types.*;
-import org.ballerinalang.jvm.values.*;
+import org.ballerinalang.jvm.types.BArrayType;
+import org.ballerinalang.jvm.types.BField;
+import org.ballerinalang.jvm.types.BRecordType;
+import org.ballerinalang.jvm.types.BStructureType;
+import org.ballerinalang.jvm.types.BType;
+import org.ballerinalang.jvm.types.BTypes;
+import org.ballerinalang.jvm.types.BUnionType;
+import org.ballerinalang.jvm.types.TypeTags;
+import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.ArrayValueImpl;
+import org.ballerinalang.jvm.values.DecimalValue;
+import org.ballerinalang.jvm.values.MapValue;
+import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.sql.Constants;
 import org.ballerinalang.sql.exception.ApplicationError;
 import org.ballerinalang.stdlib.time.util.TimeUtils;
@@ -27,7 +38,15 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.Reader;
 import java.math.BigDecimal;
-import java.sql.*;
+import java.sql.Array;
+import java.sql.Blob;
+import java.sql.Clob;
+import java.sql.Date;
+import java.sql.SQLException;
+import java.sql.Struct;
+import java.sql.Time;
+import java.sql.Timestamp;
+import java.sql.Types;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -348,7 +367,8 @@ public class RecordConverterUtils {
                         case TypeTags.OBJECT_TYPE_TAG:
                         case TypeTags.RECORD_TYPE_TAG:
                             struct.put(fieldName,
-                                    createUserDefinedType((Struct) value, (BStructureType) internalField.getFieldType()));
+                                    createUserDefinedType((Struct) value,
+                                            (BStructureType) internalField.getFieldType()));
                             break;
                         default:
                             throw new ApplicationError("Error while retrieving data for unsupported type " +
@@ -359,7 +379,8 @@ public class RecordConverterUtils {
                 }
             }
         } catch (SQLException e) {
-            throw new ApplicationError("Error while retrieving data to create " + structType.getName() + " record. ", e);
+            throw new ApplicationError("Error while retrieving data to create " + structType.getName()
+                    + " record. ", e);
         }
         return struct;
     }
@@ -423,9 +444,11 @@ public class RecordConverterUtils {
         dateString.append(minits);
     }
 
-    private static void validatedInvalidFieldAssignment(int sqlType, BType bType, String sqlTypeName) throws ApplicationError {
+    private static void validatedInvalidFieldAssignment(int sqlType, BType bType, String sqlTypeName)
+            throws ApplicationError {
         if (!isValidFieldConstraint(sqlType, bType)) {
-            throw new ApplicationError(sqlTypeName + " field cannot be converted to ballerina type : " + bType.getName());
+            throw new ApplicationError(sqlTypeName + " field cannot be converted to ballerina type : "
+                    + bType.getName());
         }
     }
 

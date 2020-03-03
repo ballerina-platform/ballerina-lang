@@ -17,15 +17,25 @@
  */
 package org.ballerinalang.sql.utils;
 
-import org.ballerinalang.jvm.types.*;
-import org.ballerinalang.jvm.values.*;
+
+import org.ballerinalang.jvm.types.BStructureType;
+import org.ballerinalang.jvm.types.BType;
+import org.ballerinalang.jvm.values.MapValue;
+import org.ballerinalang.jvm.values.MapValueImpl;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.sql.Constants;
 import org.ballerinalang.sql.exception.ApplicationError;
 
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
-import java.sql.*;
+import java.sql.Date;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Struct;
+import java.sql.Time;
+import java.sql.Timestamp;
+import java.sql.Types;
 import java.util.Calendar;
 import java.util.List;
 import java.util.TimeZone;
@@ -85,7 +95,7 @@ public class RecordItertorUtils {
                 return RecordConverterUtils.convert(resultSet.getBlob(columnIndex), sqlType, ballerinaType);
             case Types.CLOB:
                 String clobValue = RecordConverterUtils.getString(resultSet.getClob(columnIndex));
-                RecordConverterUtils.convert(clobValue, sqlType, ballerinaType);
+                return RecordConverterUtils.convert(clobValue, sqlType, ballerinaType);
             case Types.NCLOB:
                 String nClobValue = RecordConverterUtils.getString(resultSet.getNClob(columnIndex));
                 return RecordConverterUtils.convert(nClobValue, sqlType, ballerinaType);

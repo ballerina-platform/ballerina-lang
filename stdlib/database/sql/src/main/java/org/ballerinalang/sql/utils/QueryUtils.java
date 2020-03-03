@@ -18,9 +18,20 @@
 package org.ballerinalang.sql.utils;
 
 import org.ballerinalang.jvm.BallerinaValues;
-import org.ballerinalang.jvm.types.*;
+import org.ballerinalang.jvm.types.BArrayType;
+import org.ballerinalang.jvm.types.BField;
+import org.ballerinalang.jvm.types.BPackage;
+import org.ballerinalang.jvm.types.BRecordType;
+import org.ballerinalang.jvm.types.BStreamType;
+import org.ballerinalang.jvm.types.BStructureType;
+import org.ballerinalang.jvm.types.BType;
+import org.ballerinalang.jvm.types.BTypes;
+import org.ballerinalang.jvm.types.TypeFlags;
 import org.ballerinalang.jvm.util.Flags;
-import org.ballerinalang.jvm.values.*;
+import org.ballerinalang.jvm.values.ErrorValue;
+import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.StreamValue;
+import org.ballerinalang.jvm.values.TypedescValue;
 import org.ballerinalang.sql.Constants;
 import org.ballerinalang.sql.datasource.SQLDatasource;
 import org.ballerinalang.sql.exception.ApplicationError;
@@ -58,8 +69,8 @@ public class QueryUtils {
                 connection = sqlDatasource.getSQLConnection();
                 preparedStatement = connection.prepareStatement(sqlQuery);
                 resultSet = preparedStatement.executeQuery();
-                List<ColumnDefinition> columnDefinitions = null;
-                BStructureType streamConstraint = null;
+                List<ColumnDefinition> columnDefinitions;
+                BStructureType streamConstraint;
                 if (recordType == null) {
                     columnDefinitions = getColumnDefinitions(resultSet, null);
                     BRecordType defaultRecord = getDefaultStreamConstraint();
@@ -163,7 +174,8 @@ public class QueryUtils {
                     ballerinaFieldName = field.getKey();
                     ballerinaType = field.getValue().type;
                     if (RecordConverterUtils.isValidFieldConstraint(sqlType, ballerinaType)) {
-                        throw new ApplicationError(ballerinaType.getName() + " cannot be mapped to sql type: " + sqlTypeName + " .");
+                        throw new ApplicationError(ballerinaType.getName() + " cannot be mapped to sql type: "
+                                + sqlTypeName + " .");
                     }
                     break;
                 }
