@@ -39,11 +39,13 @@ public type ImapClient client object {
 #
 # + host - Host address of the IMAP server
 # + port - Port number of the IMAP server
+# + ssl - SSL enable
 # + username - Username to access the IMAP server
 # + password - Password to access the IMAP server
 public type ImapConfig record {|
     string host;
     int port = 143;
+    boolean ssl = true;
     string username;
     string password;
 |};

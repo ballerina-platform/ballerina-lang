@@ -20,6 +20,7 @@ import ballerina/email;
 email:PopConfig popConfig = {
      host: "127.0.0.1",
      port: 3110,
+     ssl: false,
      username: "hascode",
      password: "abcdef123"
  };

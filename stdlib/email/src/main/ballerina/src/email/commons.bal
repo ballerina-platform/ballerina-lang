@@ -14,19 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-# Configurations for the connections.
-#
-# + host - IP Address
-# + port - Port
-# + username - Provider username
-# + password - Provider password
-public type ConnectionConfig record {|
-    string host;
-    int port;
-    string username;
-    string password;
-|};
-
 # Email message sending and receiving configurations.
 #
 # + to - TO address list

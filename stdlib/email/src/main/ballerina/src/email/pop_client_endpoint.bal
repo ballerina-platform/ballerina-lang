@@ -39,11 +39,13 @@ public type PopClient client object {
 #
 # + host - Host address of the POP server
 # + port - Port number of the POP server
+# + ssl - SSL enable
 # + username - Username to access the POP server
 # + password - Password to access the POP server
 public type PopConfig record {|
     string host;
     int port = 995;
+    boolean ssl = true;
     string username;
     string password;
 |};

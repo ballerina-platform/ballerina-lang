@@ -66,6 +66,7 @@ public class PopUtil {
                     extractPortValue(popConfig.getIntValue(PopConstants.PROPS_PORT), isPop));
             properties.put(PopConstants.PROPS_POP_AUTH, "true");
             properties.put(PopConstants.PROPS_POP_STARTTLS, "true");
+            properties.put(PopConstants.PROPS_POP_SSL_ENABLE, popConfig.getBooleanValue(PopConstants.PROPS_SSL));
             properties.put(EmailConstants.MAIL_STORE_PROTOCOL, PopConstants.POP_PROTOCOL);
         } else {
             properties.put(ImapConstants.PROPS_IMAP_HOST, popConfig.getStringValue(PopConstants.PROPS_HOST));
@@ -73,6 +74,7 @@ public class PopUtil {
                     extractPortValue(popConfig.getIntValue(PopConstants.PROPS_PORT), isPop));
             properties.put(ImapConstants.PROPS_IMAP_AUTH, "true");
             properties.put(ImapConstants.PROPS_IMAP_STARTTLS, "true");
+            properties.put(ImapConstants.PROPS_IMAP_SSL_ENABLE, popConfig.getBooleanValue(PopConstants.PROPS_SSL));
             properties.put(EmailConstants.MAIL_STORE_PROTOCOL, ImapConstants.IMAP_PROTOCOL);
         }
 

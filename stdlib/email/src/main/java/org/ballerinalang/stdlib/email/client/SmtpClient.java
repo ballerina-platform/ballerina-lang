@@ -18,6 +18,7 @@
 
 package org.ballerinalang.stdlib.email.client;
 
+import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
@@ -96,7 +97,7 @@ public class SmtpClient {
             return null;
         } catch (MessagingException e) {
             log.error("Failed to send message to SMTP server : ", e);
-            return BValueCreator.createErrorValue(StringUtils.fromString(SmtpConstants.SMTP_ERROR_CODE),
+            return BallerinaErrors.createError(StringUtils.fromString(SmtpConstants.SMTP_ERROR_CODE),
                     e.getMessage());
         }
     }

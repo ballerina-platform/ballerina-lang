@@ -29,6 +29,7 @@ public class ImapConstants {
     public static final String PROPS_IMAP_HOST = "mail.imap.host";
     public static final String PROPS_IMAP_PORT = "mail.imap.port";
     public static final String PROPS_IMAP_STARTTLS = "mail.imap.starttls.enable";
+    public static final String PROPS_IMAP_SSL_ENABLE = "mail.imap.ssl.enable";
     public static final String PROPS_IMAP_AUTH = "mail.imap.auth";
 
     private ImapConstants() {

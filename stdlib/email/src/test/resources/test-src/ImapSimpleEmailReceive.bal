@@ -20,6 +20,7 @@ import ballerina/email;
 email:ImapConfig imapConfig = {
      host: "127.0.0.1",
      port: 3143,
+     ssl: false,
      username: "hascode",
      password: "abcdef123"
  };
