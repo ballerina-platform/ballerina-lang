@@ -32,10 +32,13 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.compiler.util.Names;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.HashSet;
 import java.util.List;
 import java.util.StringJoiner;
 
@@ -117,13 +120,7 @@ public class GenerateBalo {
         BackendDriver backendDriver = BackendDriver.getInstance(context);
 
         List<Diagnostic> diagnostics = diagListner.getDiagnostics();
-        if (diagListner.getErrorCount() > 0 || (reportWarnings && diagListner.getWarnCount() > 0)) {
-            StringJoiner sj = new StringJoiner("\n  ");
-            diagnostics.forEach(e -> sj.add(e.toString()));
-            String warnMsg = reportWarnings ? " and " + diagListner.getWarnCount() + " warning(s)" : "";
-            throw new BLangCompilerException("Compilation failed with " + diagListner.getErrorCount() +
-                                             " error(s)" + warnMsg + " " + "\n  " + sj.toString());
-        }
+        printErrors(reportWarnings, diagListner, diagnostics);
 
         compiler.write(buildPackages);
 
@@ -138,8 +135,31 @@ public class GenerateBalo {
             if (parent != null) {
                 Files.createDirectories(parent);
             }
-            backendDriver.execute(pkg.symbol.bir, false, jarOutput);
+
+            backendDriver.execute(pkg.symbol.bir, false, jarOutput, readModuleDependencies());
+            printErrors(reportWarnings, diagListner, diagnostics);
         }
+    }
+
+    private static void printErrors(boolean reportWarnings, CompileResult.CompileResultDiagnosticListener diagListner, List<Diagnostic> diagnostics) {
+        if (diagListner.getErrorCount() > 0 || (reportWarnings && diagListner.getWarnCount() > 0)) {
+            StringJoiner sj = new StringJoiner("\n  ");
+            diagnostics.forEach(e -> sj.add(e.toString()));
+            String warnMsg = reportWarnings ? " and " + diagListner.getWarnCount() + " warning(s)" : "";
+            throw new BLangCompilerException("Compilation failed with " + diagListner.getErrorCount() +
+                                             " error(s)" + warnMsg + " " + "\n  " + sj.toString());
+        }
+    }
+
+    private static HashSet<Path> readModuleDependencies() throws IOException {
+        HashSet<Path> moduleDependencies = new HashSet<>();
+        try (BufferedReader br = new BufferedReader(new FileReader("build/interopJars.txt"))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                moduleDependencies.add(Paths.get(line));
+            }
+        }
+        return moduleDependencies;
     }
 
     private static class MvnSourceDirectory extends FileSystemProjectDirectory {
