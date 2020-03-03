@@ -15,7 +15,7 @@
 // under the License.
 
 function checkErrorForRetry(Error e, ErrorType[] errors) returns boolean {
-    string reason = result.reason();
+    string reason = e.reason();
     foreach var errorType in errors {
         if (errorType == reason) {
             return true;

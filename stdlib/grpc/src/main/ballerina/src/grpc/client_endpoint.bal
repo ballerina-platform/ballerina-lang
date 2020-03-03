@@ -58,10 +58,11 @@ public type Client client object {
     # + return - Returns response message and headers if executes successfully, error otherwise.
     public remote function blockingExecute(string methodID, anydata payload, Headers? headers = ()) returns ([anydata, Headers]|Error) {
         var retryConfig = self.config.retryConfiguration;
+        handle methodIdHandle = java:fromString(methodID);
         if (retryConfig is RetryConfiguration) {
-            return retryBlockingAction(methodId, payload, headers, retryConfig);
+            return retryBlockingAction(self, methodIdHandle, payload, headers, retryConfig);
         }
-        return externBlockingExecute(self, java:fromString(methodID), payload, headers);
+        return externBlockingExecute(self, methodIdHandle, payload, headers);
     }
 
     # Calls when executing non-blocking call with gRPC service.
@@ -85,32 +86,36 @@ public type Client client object {
     public remote function streamingExecute(string methodID, service listenerService, Headers? headers = ()) returns StreamingClient|Error {
         return externStreamingExecute(self, java:fromString(methodID), listenerService, headers);
     }
+};
 
-    function retryBlockingAction(string methodID, anydata payload, Headers? headers, RetryConfiguration retryConfig)
-    returns ([anydata, Headers]|Error) {
-        int currentRetryCount = 0;
-        int retryCount = retryConfig.retryCount;
-        int interval = retryConfig.intervalInMillis;
-        int maxInterval = retryConfig.maxIntervalInMillis;
-        int backoffFactor = retryConfig.backoffFactor;
-        ErrorTypes[] errorTypes = retryConfig.errorTypes;
+function retryBlockingAction(Client grpcClient, handle methodIdHandle, anydata payload, Headers? headers,
+    RetryConfiguration retryConfig) returns ([anydata, Headers]|Error) {
+    int currentRetryCount = 0;
+    int retryCount = retryConfig.retryCount;
+    int interval = retryConfig.intervalInMillis;
+    int maxInterval = retryConfig.maxIntervalInMillis;
+    int backoffFactor = retryConfig.backoffFactor;
+    ErrorType[] errorTypes = retryConfig.errorTypes;
+    error? cause = ();
 
-        while (currentRetryCount < retryCount) {
-            var result = externBlockingExecute(self, java:fromString(methodID), payload, headers);
-            if (result is [anydata, Headers]) {
+    while (currentRetryCount < retryCount) {
+        var result = externBlockingExecute(grpcClient, methodIdHandle, payload, headers);
+        if (result is [anydata, Headers]) {
+            return result;
+        } else {
+            if (!(checkErrorForRetry(result, errorTypes))) {
                 return result;
             } else {
-                if (!(checkErrorForRetry(result, errorTypes))) {
-                    return result;
-                }
+                cause = result;
             }
-            runtime:sleep(interval);
-            int newInterval = interval * backoffFactor;
-            interval = (newInterval > maxInterval) ? maxInterval : newInterval;
-            currentRetryCount += 1;
         }
+        runtime:sleep(interval);
+        int newInterval = interval * backoffFactor;
+        interval = (newInterval > maxInterval) ? maxInterval : newInterval;
+        currentRetryCount += 1;
     }
-};
+    return prepareError(ALL_RETRY_ATTEMPTS_FAILED, "Maximum retry attempts completed without getting a result", cause);
+}
 
 function externInit(Client clientEndpoint, handle url, ClientConfiguration config, PoolConfiguration globalPoolConfig) returns Error? =
 @java:Method {
@@ -156,7 +161,7 @@ public type RetryConfiguration record {|
    int intervalInMillis;
    int maxIntervalInMillis;
    int backoffFactor;
-   ErrorTypes[] errorTypes = [INTERNAL_ERROR];
+   ErrorType[] errorTypes = [INTERNAL_ERROR];
 |};
 
 # Represents client endpoint configuration.
@@ -165,6 +170,7 @@ public type RetryConfiguration record {|
 # + poolConfig - Connection pool configuration
 # + secureSocket - SSL/TLS related options
 # + compression - Specifies the way of handling compression (`accept-encoding`) header
+# + retryConfiguration - Configures the retry functionality
 public type ClientConfiguration record {|
     int timeoutInMillis = 60000;
     PoolConfiguration? poolConfig = ();
