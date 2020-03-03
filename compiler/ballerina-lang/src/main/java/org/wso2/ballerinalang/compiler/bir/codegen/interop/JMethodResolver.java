@@ -624,9 +624,10 @@ class JMethodResolver {
                             "in 'paramTypes' field in the annotation");
         } else {
             return new JInteropException(OVERLOADED_METHODS,
-                                         "Overloaded methods '" + methodName + "' with '" + paramCount + "' parameter(s) in class '" +
-                            declaringClass + "', please specify class names for each parameter " +
-                            "with 'paramTypes' field in the annotation");
+                                         "Overloaded methods '" + methodName + "' with '" + paramCount +
+                                         "' parameter(s) in class '" + declaringClass +
+                                         "', please specify class names for each parameter " +
+                                         "with 'paramTypes' field in the annotation");
         }
     }
 
@@ -638,12 +639,13 @@ class JMethodResolver {
         String paramTypesSig = getParamTypesAsString(constraints);
         if (kind == JMethodKind.CONSTRUCTOR) {
             return new JInteropException(OVERLOADED_METHODS,
-                                         "More than one public constructors that match with the parameter types '" + paramTypesSig +
-                            "' found in class '" + declaringClass + "'");
+                                         "More than one public constructors that match with the parameter types '" +
+                                         paramTypesSig + "' found in class '" + declaringClass + "'");
         } else {
             return new JInteropException(OVERLOADED_METHODS,
-                                         "More than one public methods '" + methodName + "' that match with the parameter types '" +
-                            paramTypesSig + "' found in class '" + declaringClass + "'");
+                                         "More than one public methods '" + methodName +
+                                         "' that match with the parameter types '" + paramTypesSig +
+                                         "' found in class '" + declaringClass + "'");
         }
     }
 
