@@ -17,34 +17,38 @@
  */
 package io.ballerinalang.compiler.internal.parser.tree;
 
+import io.ballerinalang.compiler.syntax.tree.LocalVariableDeclaration;
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
-import io.ballerinalang.compiler.syntax.tree.BlockStatement;
 
-public class STBlockStatement extends STStatement {
+public class STAssignmentStatement extends STStatement {
 
-    public final STNode openBraceToken;
-    public final STNode statements;
-    public final STNode closeBraceToken;
+    public final STNode varRef;
+    public final STNode equalsToken;
+    public final STNode expr;
+    public final STNode semicolonToken;
 
-    public STBlockStatement(SyntaxKind kind,
-                            STNode openBraceToken,
-                            STNode statements,
-                            STNode closeBraceToken) {
+    public STAssignmentStatement(SyntaxKind kind,
+                                 STNode variableName,
+                                 STNode equalsToken,
+                                 STNode expr,
+                                 STNode semicolonToken) {
         super(kind);
-        this.openBraceToken = openBraceToken;
-        this.statements = statements;
-        this.closeBraceToken = closeBraceToken;
+        this.varRef = variableName;
+        this.equalsToken = equalsToken;
+        this.expr = expr;
+        this.semicolonToken = semicolonToken;
 
-        this.bucketCount = 3;
+        this.bucketCount = 4;
         this.childBuckets = new STNode[this.bucketCount];
-        this.addChildNode(openBraceToken, 0);
-        this.addChildNode(statements, 1);
-        this.addChildNode(closeBraceToken, 2);
+        this.addChildNode(variableName, 0);
+        this.addChildNode(equalsToken, 1);
+        this.addChildNode(expr, 2);
+        this.addChildNode(semicolonToken, 3);
     }
 
     @Override
     public Node createFacade(int position, NonTerminalNode parent) {
-        return new BlockStatement(this, position, parent);
+        return new LocalVariableDeclaration(this, position, parent);
     }
 }

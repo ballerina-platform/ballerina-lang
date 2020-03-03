@@ -17,20 +17,18 @@
  */
 package io.ballerinalang.compiler.internal.parser.tree;
 
-import java.util.ArrayList;
+import io.ballerinalang.compiler.syntax.tree.Node;
+import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 
-public class STMissingToken extends STToken {
+public class STEmptyNode extends STNode {
 
-    // TODO consider using a flags here. Node flags
-    public static final boolean IS_MISSING = true;
-
-    public STMissingToken(SyntaxKind kind) {
-        super(kind, new STNodeList(new ArrayList<>(0)), new STNodeList(new ArrayList<>(0)));
+    public STEmptyNode() {
+        super(SyntaxKind.NONE);
     }
-    
+
     @Override
-    public String toString() {
-        // TODO for testing purpose only
-        return " MISSING[" + kind.strValue + "]";
+    public Node createFacade(int position, NonTerminalNode parent) {
+        // TODO
+        return null;
     }
 }

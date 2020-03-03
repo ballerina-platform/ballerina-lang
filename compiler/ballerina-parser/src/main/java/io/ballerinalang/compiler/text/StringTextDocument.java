@@ -17,7 +17,7 @@
  */
 package io.ballerinalang.compiler.text;
 
-import io.ballerinalang.compiler.internal.parser.CharacterReader;
+import io.ballerinalang.compiler.internal.parser.incremental.CharacterReader;
 import io.ballerinalang.compiler.text.TextLineMap.TextLine;
 
 public class StringTextDocument extends TextDocument {

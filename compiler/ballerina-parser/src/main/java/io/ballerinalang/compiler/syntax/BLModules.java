@@ -17,12 +17,12 @@
  */
 package io.ballerinalang.compiler.syntax;
 
+import io.ballerinalang.compiler.internal.parser.incremental.BallerinaParser;
 import io.ballerinalang.compiler.internal.parser.tree.STModulePart;
 import io.ballerinalang.compiler.syntax.tree.SyntaxTree;
 import io.ballerinalang.compiler.text.TextDocumentChange;
 import io.ballerinalang.compiler.syntax.tree.ModulePart;
 import io.ballerinalang.compiler.text.TextDocument;
-import io.ballerinalang.compiler.internal.parser.BallerinaParser;
 
 // TODO This is not a well thought through API.
 // TODO How about SyntaxAnalyzer?

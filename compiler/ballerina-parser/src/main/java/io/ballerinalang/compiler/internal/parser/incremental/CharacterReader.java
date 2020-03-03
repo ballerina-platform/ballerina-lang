@@ -15,7 +15,7 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package io.ballerinalang.compiler.internal.parser;
+package io.ballerinalang.compiler.internal.parser.incremental;
 
 import java.util.Arrays;
 

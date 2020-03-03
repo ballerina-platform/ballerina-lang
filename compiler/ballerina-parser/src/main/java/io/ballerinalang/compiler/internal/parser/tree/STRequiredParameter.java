@@ -19,32 +19,36 @@ package io.ballerinalang.compiler.internal.parser.tree;
 
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
-import io.ballerinalang.compiler.syntax.tree.BlockStatement;
 
-public class STBlockStatement extends STStatement {
+public class STRequiredParameter extends STParameter {
 
-    public final STNode openBraceToken;
-    public final STNode statements;
-    public final STNode closeBraceToken;
+    public final STNode leadingComma;
+    public final STNode accessModifier;
+    public final STNode type;
+    public final STNode paramName;
 
-    public STBlockStatement(SyntaxKind kind,
-                            STNode openBraceToken,
-                            STNode statements,
-                            STNode closeBraceToken) {
+    public STRequiredParameter(SyntaxKind kind,
+                               STNode leadingComma,
+                               STNode accessModifier,
+                               STNode type,
+                               STNode paramName) {
         super(kind);
-        this.openBraceToken = openBraceToken;
-        this.statements = statements;
-        this.closeBraceToken = closeBraceToken;
+        this.leadingComma = leadingComma;
+        this.accessModifier = accessModifier;
+        this.type = type;
+        this.paramName = paramName;
 
-        this.bucketCount = 3;
+        this.bucketCount = 4;
         this.childBuckets = new STNode[this.bucketCount];
-        this.addChildNode(openBraceToken, 0);
-        this.addChildNode(statements, 1);
-        this.addChildNode(closeBraceToken, 2);
+        this.addChildNode(leadingComma, 0);
+        this.addChildNode(accessModifier, 1);
+        this.addChildNode(type, 2);
+        this.addChildNode(paramName, 3);
     }
 
     @Override
     public Node createFacade(int position, NonTerminalNode parent) {
-        return new BlockStatement(this, position, parent);
+        // TODO
+        return null;
     }
 }

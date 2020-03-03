@@ -17,7 +17,7 @@
  */
 package org.ballerinalang.compiler.parser.test;
 
-import org.ballerinalang.compiler.parser.BallerinaParser;
+import io.ballerinalang.compiler.internal.parser.BallerinaParser;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;

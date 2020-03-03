@@ -123,7 +123,7 @@ function foo() {
     Bar b = 5;
 }
 
-function bar(int a, Person p,) returns Student {
+function bar(int a, Person p) returns Student {
     Foo f
     Bar b
 }

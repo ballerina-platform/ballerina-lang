@@ -17,30 +17,34 @@
  */
 package io.ballerinalang.compiler.internal.parser.tree;
 
+import io.ballerinalang.compiler.syntax.tree.BlockStatement;
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
-import io.ballerinalang.compiler.syntax.tree.BlockStatement;
 
-public class STBlockStatement extends STStatement {
+public class STExternalFuncBody extends STStatement {
 
-    public final STNode openBraceToken;
-    public final STNode statements;
-    public final STNode closeBraceToken;
+    public final STNode assign;
+    public final STNode annotation;
+    public final STNode externalKeyword;
+    public final STNode semicolon;
 
-    public STBlockStatement(SyntaxKind kind,
-                            STNode openBraceToken,
-                            STNode statements,
-                            STNode closeBraceToken) {
+    public STExternalFuncBody(SyntaxKind kind,
+                              STNode assign,
+                              STNode annotation,
+                              STNode externalKeyword,
+                              STNode semicolon) {
         super(kind);
-        this.openBraceToken = openBraceToken;
-        this.statements = statements;
-        this.closeBraceToken = closeBraceToken;
+        this.assign = assign;
+        this.annotation = annotation;
+        this.externalKeyword = externalKeyword;
+        this.semicolon = semicolon;
 
-        this.bucketCount = 3;
+        this.bucketCount = 4;
         this.childBuckets = new STNode[this.bucketCount];
-        this.addChildNode(openBraceToken, 0);
-        this.addChildNode(statements, 1);
-        this.addChildNode(closeBraceToken, 2);
+        this.addChildNode(assign, 0);
+        this.addChildNode(annotation, 1);
+        this.addChildNode(externalKeyword, 2);
+        this.addChildNode(semicolon, 3);
     }
 
     @Override
