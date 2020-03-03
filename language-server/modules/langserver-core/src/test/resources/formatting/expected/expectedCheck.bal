@@ -13,7 +13,7 @@ function scale1(string num) returns int | error {
 
 function scale2(string num) returns int | error {
     int x =
-    check parse(num);
+        check parse(num);
     return x * 10;
 }
 
@@ -52,23 +52,23 @@ function scale3(string num) returns int | error {
 
 function scale4(string num) returns int | error {
     int x = check
-    start parse(num);
+        start parse(num);
     int y = 0;
     y = check
-    parse(num);
+        parse(num);
     return x * 10;
 }
 
 function scale5(string num) returns int | error {
     int x =
-    check
-    start
-    parse(num)
+        check
+        start
+        parse(num)
     ;
     int y = 0;
     y =
-    check
-    parse(num)
+        check
+        parse(num)
     ;
     return x * 10;
 }
@@ -98,8 +98,8 @@ public function test4() {
     foreach var
     item
     in
-    check
-    ItemArr {
+        check
+        ItemArr {
 
     }
 }
