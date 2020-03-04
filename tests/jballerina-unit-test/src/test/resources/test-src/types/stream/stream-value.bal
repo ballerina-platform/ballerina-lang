@@ -170,6 +170,7 @@ type CustomErrorData record {|
 |};
 
 type CustomError error<string, CustomErrorData>;
+boolean closed = false;
 
 type IteratorWithCustomError object {
     int i = 0;
@@ -182,6 +183,10 @@ type IteratorWithCustomError object {
         } else {
             return { value: self.i };
         }
+    }
+
+    public function close() returns CustomError? {
+        closed = true;
     }
 };
 
@@ -203,7 +208,8 @@ function testIteratorWithCustomError() returns boolean {
 
     returnedVal = getRecordValue(intStreamB.next());
     testPassed = testPassed && (<int>returnedVal["value"] == 4);
-
+    error? err = intStreamB.close();
+    testPassed = testPassed && closed;
     return testPassed;
 }
 

@@ -17,9 +17,15 @@
 @typeParam
 type PureType3 any | error;
 
+@typeParam
+type ErrorType2 error;
+
 # Takes in a stream and returns the iterator object of that stream.
 #
 # + strm - The stream
 # + return - An abstract object which is iterable
-public function getIteratorObj(stream<PureType3> strm) returns abstract object { public function next() returns
-    record {|PureType3 value;|}|error?;} = external;
+public function getIteratorObj(stream<PureType3, ErrorType2> strm) returns abstract object { public function next() returns
+    record {|PureType3 value;|}|ErrorType2?;} | abstract object {
+        public function next() returns record {|PureType3 value;|}|ErrorType2?;
+        public function close() returns ErrorType2?;
+        } = external;
