@@ -1771,8 +1771,9 @@ public class TypeChecker extends BLangNodeVisitor {
 
                 BStreamType actualStreamType = (BStreamType) actualType;
                 if (actualStreamType.error != null) {
-                    if (actualStreamType.error.tag != TypeTags.ERROR) {
-                        dlog.error(cIExpr.pos, DiagnosticCode.ERROR_TYPE_EXPECTED, actualStreamType.error.toString());
+                    BType error = actualStreamType.error;
+                    if (!isErrorType(error)) {
+                        dlog.error(cIExpr.pos, DiagnosticCode.ERROR_TYPE_EXPECTED, error.toString());
                         resultType = symTable.semanticError;
                         return;
                     }
@@ -1826,6 +1827,18 @@ public class TypeChecker extends BLangNodeVisitor {
         }
         BType actualTypeInitType = getObjectConstructorReturnType(actualType, cIExpr.initInvocation.type);
         resultType = types.checkType(cIExpr, actualTypeInitType, expType);
+    }
+
+    private boolean isErrorType(BType type) {
+        if (type.tag == TypeTags.UNION) {
+            Set<BType> members = ((BUnionType)type).getMemberTypes();
+            for (BType member : members) {
+                if (!isErrorType(member)) {
+                    return false;
+                }
+            }
+            return true;
+        } else return type.tag == TypeTags.ERROR;
     }
 
     private BUnionType createNextReturnType(DiagnosticPos pos, BStreamType streamType) {

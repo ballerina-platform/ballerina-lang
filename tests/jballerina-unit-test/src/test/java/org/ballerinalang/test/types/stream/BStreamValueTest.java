@@ -89,6 +89,12 @@ public class BStreamValueTest {
         Assert.assertTrue(((BBoolean) values[0]).booleanValue());
     }
 
+    @Test(description = "Test Iterator with error union")
+    public void testIteratorWithErrorUnion() {
+        BValue[] values = BRunUtil.invoke(result, "testIteratorWithErrorUnion", new BValue[]{});
+        Assert.assertTrue(((BBoolean) values[0]).booleanValue());
+    }
+
     @Test(description = "Test negative test scenarios of stream type")
     public void testStreamTypeNegative() {
         int i = 0;
