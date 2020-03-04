@@ -596,7 +596,7 @@ public class BCompileUtil {
             compileResult.setClassLoader(cl);
 
             // TODO: calling run on compile method is wrong, should be called from BRunUtil
-            if (init) {
+            if (compileResult.getErrorCount() == 0 && init) {
                 runInit(bLangPackage, cl, temp);
             }
             return compileResult;
