@@ -49,7 +49,7 @@ public class BLangLetClause extends BLangNode implements LetClauseNode {
 
     @Override
     public NodeKind getKind() {
-        return NodeKind.LET;
+        return NodeKind.LET_CLAUSE;
     }
 
     @Override
