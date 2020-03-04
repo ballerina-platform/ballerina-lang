@@ -102,14 +102,14 @@ public class NegativeValidationTest {
             "'decimalParamAndWithBigDecimal' in class 'org.ballerinalang.nativeimpl.jvm.tests.StaticMethods':" +
             " Java type 'java.math.BigDecimal' will not be matched to ballerina type 'decimal'";
 
-    @Test(expectedExceptions = BLangCompilerException.class)
+    @Test(expectedExceptions = BLangCompilerException.class, groups = "brokenOnJBallerina")
     public void testAcceptNothing() {
         String path = "test-src/javainterop/ballerina_types_as_interop_types_negative.bal";
         CompileResult compileResult = BCompileUtil.compileInProc(path);
         Assert.assertEquals(compileResult.getDiagnostics().length, 1);
     }
 
-    @Test(expectedExceptions = BLangCompilerException.class)
+    @Test(expectedExceptions = BLangCompilerException.class, groups = "brokenOnJBallerina")
     public void testClassNotFound() {
 
         String path = "test-src/javainterop/negative/class_not_found.bal";
@@ -118,7 +118,7 @@ public class NegativeValidationTest {
         Assert.assertEquals(compileResult.getDiagnostics()[0].getMessage(), expectedMsg1);
     }
 
-    @Test(expectedExceptions = BLangCompilerException.class)
+    @Test(expectedExceptions = BLangCompilerException.class, groups = "brokenOnJBallerina")
     public void testMethodNotFound1() {
         String path = "test-src/javainterop/negative/method_not_found1.bal";
         CompileResult compileResult = BCompileUtil.compileInProc(path);
@@ -128,7 +128,7 @@ public class NegativeValidationTest {
 
     }
 
-    @Test(expectedExceptions = BLangCompilerException.class)
+    @Test(expectedExceptions = BLangCompilerException.class, groups = "brokenOnJBallerina")
     public void testMethodNotFound2() {
         String path = "test-src/javainterop/negative/method_not_found2.bal";
 
@@ -138,7 +138,7 @@ public class NegativeValidationTest {
         Assert.assertEquals(compileResult.getDiagnostics()[0].getMessage(), expectedMsg3);
     }
 
-    @Test(expectedExceptions = BLangCompilerException.class)
+    @Test(expectedExceptions = BLangCompilerException.class, groups = "brokenOnJBallerina")
     public void testMethodNotFound3() {
         String path = "test-src/javainterop/negative/method_not_found3.bal";
 
@@ -148,7 +148,7 @@ public class NegativeValidationTest {
         Assert.assertEquals(compileResult.getDiagnostics()[0].getMessage(), expectedMsg4);
     }
 
-    @Test(expectedExceptions = BLangCompilerException.class)
+    @Test(expectedExceptions = BLangCompilerException.class, groups = "brokenOnJBallerina")
     public void testMethodNotFound4() {
         String path = "test-src/javainterop/negative/method_not_found4.bal";
 
@@ -158,7 +158,7 @@ public class NegativeValidationTest {
         Assert.assertEquals(compileResult.getDiagnostics()[0].getMessage(), expectedMsg5);
     }
 
-    @Test(expectedExceptions = BLangCompilerException.class)
+    @Test(expectedExceptions = BLangCompilerException.class, groups = "brokenOnJBallerina")
     public void testMethodNotFound5() {
         String path = "test-src/javainterop/negative/method_not_found5.bal";
 
@@ -168,7 +168,7 @@ public class NegativeValidationTest {
         Assert.assertEquals(compileResult.getDiagnostics()[0].getMessage(), expectedMsg6);
     }
 
-    @Test(expectedExceptions = BLangCompilerException.class)
+    @Test(expectedExceptions = BLangCompilerException.class, groups = "brokenOnJBallerina")
     public void testMethodSignatureNotMatch1() {
         String path = "test-src/javainterop/negative/method_sig_not_match1.bal";
 
@@ -178,7 +178,7 @@ public class NegativeValidationTest {
         Assert.assertEquals(compileResult.getDiagnostics()[0].getMessage(), expectedMsg7);
     }
 
-    @Test(expectedExceptions = BLangCompilerException.class)
+    @Test(expectedExceptions = BLangCompilerException.class, groups = "brokenOnJBallerina")
     public void testMethodSignatureNotMatch2() {
         String path = "test-src/javainterop/negative/method_sig_not_match2.bal";
 
@@ -188,7 +188,7 @@ public class NegativeValidationTest {
         Assert.assertEquals(compileResult.getDiagnostics()[0].getMessage(), expectedMsg8);
     }
 
-    @Test(expectedExceptions = BLangCompilerException.class)
+    @Test(expectedExceptions = BLangCompilerException.class, groups = "brokenOnJBallerina")
     public void testMethodSignatureNotMatch3() {
         String path = "test-src/javainterop/negative/method_sig_not_match3.bal";
 
@@ -198,7 +198,7 @@ public class NegativeValidationTest {
         Assert.assertEquals(compileResult.getDiagnostics()[0].getMessage(), expectedMsg9);
     }
 
-    @Test(expectedExceptions = BLangCompilerException.class)
+    @Test(expectedExceptions = BLangCompilerException.class, groups = "brokenOnJBallerina")
     public void testMethodSignatureNotMatch4() {
         String path = "test-src/javainterop/negative/method_sig_not_match4.bal";
 
@@ -208,7 +208,7 @@ public class NegativeValidationTest {
         Assert.assertEquals(compileResult.getDiagnostics()[0].getMessage(), expectedMsg10);
     }
 
-    @Test(expectedExceptions = BLangCompilerException.class)
+    @Test(expectedExceptions = BLangCompilerException.class, groups = "brokenOnJBallerina")
     public void testMethodSignatureNotMatch5() {
         String path = "test-src/javainterop/negative/method_sig_not_match5.bal";
 
@@ -218,7 +218,7 @@ public class NegativeValidationTest {
         Assert.assertEquals(compileResult.getDiagnostics()[0].getMessage(), expectedMsg11);
     }
 
-    @Test(expectedExceptions = BLangCompilerException.class)
+    @Test(expectedExceptions = BLangCompilerException.class, groups = "brokenOnJBallerina")
     public void testMethodSignatureNotMatch6() {
         String path = "test-src/javainterop/negative/method_sig_not_match6.bal";
 
@@ -228,7 +228,7 @@ public class NegativeValidationTest {
         Assert.assertEquals(compileResult.getDiagnostics()[0].getMessage(), expectedMsg12);
     }
 
-    @Test(expectedExceptions = BLangCompilerException.class)
+    @Test(expectedExceptions = BLangCompilerException.class, groups = "brokenOnJBallerina")
     public void testMethodSignatureNotMatch7() {
         String path = "test-src/javainterop/negative/method_sig_not_match7.bal";
 
@@ -238,7 +238,7 @@ public class NegativeValidationTest {
         Assert.assertEquals(compileResult.getDiagnostics()[0].getMessage(), expectedMsg13);
     }
 
-    @Test(expectedExceptions = BLangCompilerException.class)
+    @Test(expectedExceptions = BLangCompilerException.class, groups = "brokenOnJBallerina")
     public void testMethodSignatureNotMatch8() {
         String path = "test-src/javainterop/negative/method_sig_not_match8.bal";
 
@@ -248,7 +248,7 @@ public class NegativeValidationTest {
         Assert.assertEquals(compileResult.getDiagnostics()[0].getMessage(), expectedMsg14);
     }
 
-    @Test(expectedExceptions = BLangCompilerException.class)
+    @Test(expectedExceptions = BLangCompilerException.class, groups = "brokenOnJBallerina")
     public void testMethodSignatureNotMatch9() {
         String path = "test-src/javainterop/negative/method_sig_not_match9.bal";
 
@@ -258,7 +258,7 @@ public class NegativeValidationTest {
         Assert.assertEquals(compileResult.getDiagnostics()[0].getMessage(), expectedMsg15);
     }
 
-    @Test(expectedExceptions = BLangCompilerException.class)
+    @Test(expectedExceptions = BLangCompilerException.class, groups = "brokenOnJBallerina")
     public void testMethodSignatureNotMatch10() {
         String path = "test-src/javainterop/negative/method_sig_not_match10.bal";
 
@@ -268,7 +268,7 @@ public class NegativeValidationTest {
         Assert.assertEquals(compileResult.getDiagnostics()[0].getMessage(), expectedMsg16);
     }
 
-    @Test(expectedExceptions = BLangCompilerException.class)
+    @Test(expectedExceptions = BLangCompilerException.class, groups = "brokenOnJBallerina")
     public void testReturnStringForBUnionFromJava() {
         String path = "test-src/javainterop/negative/method_sig_not_match11.bal";
         CompileResult compileResult = BCompileUtil.compileInProc(path);
@@ -277,7 +277,7 @@ public class NegativeValidationTest {
         Assert.assertEquals(compileResult.getDiagnostics()[0].getMessage(), expectedMsg17);
     }
 
-    @Test(expectedExceptions = BLangCompilerException.class)
+    @Test(expectedExceptions = BLangCompilerException.class, groups = "brokenOnJBallerina")
     public void testJavaPrimitiveForBJsonParam() {
         String path = "test-src/javainterop/negative/method_sig_not_match12.bal";
         CompileResult compileResult = BCompileUtil.compileInProc(path);
@@ -286,7 +286,7 @@ public class NegativeValidationTest {
         Assert.assertEquals(compileResult.getDiagnostics()[0].getMessage(), expectedMsg18);
     }
     
-    @Test(expectedExceptions = BLangCompilerException.class)
+    @Test(expectedExceptions = BLangCompilerException.class, groups = "brokenOnJBallerina")
     public void testJavaPrimitiveForBUnionParam() {
         String path = "test-src/javainterop/negative/method_sig_not_match13.bal";
         CompileResult compileResult = BCompileUtil.compileInProc(path);
@@ -295,7 +295,7 @@ public class NegativeValidationTest {
         Assert.assertEquals(compileResult.getDiagnostics()[0].getMessage(), expectedMsg19);
     }
     
-    @Test(expectedExceptions = BLangCompilerException.class)
+    @Test(expectedExceptions = BLangCompilerException.class, groups = "brokenOnJBallerina")
     public void testMethodSignatureNotMatch14() {
         String path = "test-src/javainterop/negative/method_sig_not_match14.bal";
         CompileResult compileResult = BCompileUtil.compileInProc(path);

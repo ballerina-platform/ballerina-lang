@@ -31,7 +31,7 @@ import org.testng.annotations.Test;
  */
 public class RefTypeNegativeTests {
 
-    @Test(expectedExceptions = BLangCompilerException.class)
+    @Test(expectedExceptions = BLangCompilerException.class, groups = "brokenOnJBallerina")
     public void testInvalidMethodSignaturesForRefTypes() {
         CompileResult compileResult =
                 BCompileUtil.compileInProc("test-src/javainterop/ballerina_ref_types_as_interop_negative.bal");
