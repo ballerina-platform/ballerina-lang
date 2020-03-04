@@ -35,7 +35,7 @@ public class BallerinaParserErrorListener {
     }
 
     public void reportInvalidToken(STToken token) {
-        logError(0, 0, "invalid token '" + token.toString() + "'");
+        logError(0, 0, "invalid token '" + token.toString().trim() + "'");
     }
 
     public void reportMissingTokenError(STToken token, String message) {

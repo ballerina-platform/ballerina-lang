@@ -377,9 +377,7 @@ public class BallerinaParserErrorHandler {
                     }
                     break;
                 case TYPE_DESCRIPTOR:
-                    // TODO: add TYPE_TOKEN
-                    hasMatch = nextToken.kind == SyntaxKind.IDENTIFIER_TOKEN;
-//                    hasMatch = nextToken.kind == SyntaxKind.TYPE_TOKEN;
+                    hasMatch = nextToken.kind == SyntaxKind.TYPE_TOKEN || nextToken.kind == SyntaxKind.IDENTIFIER_TOKEN;
                     break;
                 case FUNC_BODY:
                     return seekInFuncBodies(lookahead, currentDepth, matchingRulesCount);
@@ -1070,7 +1068,7 @@ public class BallerinaParserErrorHandler {
                 return SyntaxKind.PUBLIC_KEYWORD;
             case TYPE_DESCRIPTOR:
                 // TODO: return type token
-//                return SyntaxKind.IDENTIFIER_TOKEN;
+                // return SyntaxKind.IDENTIFIER_TOKEN;
                 return SyntaxKind.TYPE_TOKEN;
             case ANNOTATION_ATTACHMENT:
             case ASSIGNMENT_STMT:

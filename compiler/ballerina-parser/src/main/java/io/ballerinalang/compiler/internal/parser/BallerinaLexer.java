@@ -17,7 +17,6 @@
  */
 package io.ballerinalang.compiler.internal.parser;
 
-import io.ballerinalang.compiler.internal.parser.tree.STComment;
 import io.ballerinalang.compiler.internal.parser.tree.STIdentifier;
 import io.ballerinalang.compiler.internal.parser.tree.STLiteralValueToken;
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
@@ -120,9 +119,11 @@ public class BallerinaLexer {
                 break;
             case LexerTerminals.DIV:
                 if (peek() == LexerTerminals.DIV) {
-                    token = processComment();
+                    // Process comments as trivia, and continue to next token
+                    processComment(startChar);
+                    token = readToken();
                 } else {
-                    token = getSyntaxToken(SyntaxKind.COLON_TOKEN);
+                    token = getSyntaxToken(SyntaxKind.SLASH_TOKEN);
                 }
                 break;
             case LexerTerminals.MOD:
@@ -149,10 +150,12 @@ public class BallerinaLexer {
             case 0x9:
             case 0xD:
             case 0x20:
+                // Process whitespace as trivia, and continue to next token
                 processWhiteSpace(startChar);
                 token = readToken();
                 break;
             case LexerTerminals.NEWLINE:
+                // Process newline as trivia, and continue to next token
                 processNewLine(startChar);
                 token = readToken();
                 break;
@@ -165,7 +168,7 @@ public class BallerinaLexer {
                     break;
                 }
 
-                // process invalid token as trivia, and continue to next token
+                // Process invalid token as trivia, and continue to next token
                 processInvalidToken();
                 token = readToken();
                 break;
@@ -220,21 +223,21 @@ public class BallerinaLexer {
 
     /**
      * <p>
-     * Process comments.
+     * Process a comment, and add it to trivia list.
      * </p>
      * <code>Comment := // AnyCharButNewline*
      * <br/><br/>AnyCharButNewline := ^ 0xA</code>
      * 
-     * @return A comment
+     * @param commentStartChar Starting slash of the comment
      */
-    private STToken processComment() {
-        consume(); // consume the second '/' of the comment. This is already verified.
+    private void processComment(int commentStartChar) {
+        append(commentStartChar);
+        consumeAndAppend(); // consume and append the second '/' of the comment. This is already verified.
         while (peek() != LexerTerminals.NEWLINE) {
             consumeAndAppend();
         }
 
-        STNodeList leadingTrivia = new STNodeList(this.leadingTriviaList);
-        return new STComment(getCurrentTokenText(), leadingTrivia, null);
+        addTrivia(SyntaxKind.COMMENT);
     }
 
     /**
@@ -399,7 +402,6 @@ public class BallerinaLexer {
      * <code>WhiteSpaceChar := 0x9 | 0xA | 0xD | 0x20</code>
      * 
      * @param startChar Starting character of the whitespace.
-     * @return A whitespace {@link Token}
      */
     private void processWhiteSpace(int startChar) {
         append(startChar);
@@ -412,6 +414,8 @@ public class BallerinaLexer {
 
     /**
      * Process new line.
+     * 
+     * @param newLineChar new line character.
      */
     private void processNewLine(int newLineChar) {
         append(newLineChar);
