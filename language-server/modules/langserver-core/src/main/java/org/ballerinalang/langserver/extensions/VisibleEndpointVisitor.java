@@ -85,7 +85,11 @@ public class VisibleEndpointVisitor extends LSNodeVisitor {
         this.symbolEnv = pkgEnv;
 
         List<TopLevelNode> topLevelNodes = pkgNode.topLevelNodes;
-        pkgNode.getImports().forEach(importPackage -> this.packageMap.put(importPackage.symbol.pkgID, importPackage));
+        pkgNode.getImports().forEach(importPackage -> {
+            if (importPackage.symbol != null) {
+                this.packageMap.put(importPackage.symbol.pkgID, importPackage);
+            }
+        });
 
         topLevelNodes.stream()
                 .filter(CommonUtil.checkInvalidTypesDefs())
