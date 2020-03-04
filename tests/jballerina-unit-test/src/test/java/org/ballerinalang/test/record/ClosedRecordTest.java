@@ -326,16 +326,14 @@ public class ClosedRecordTest {
 
     @Test
     public void testOptionalRecordRemove() {
-        CompileResult result = BCompileUtil.compile("test-src/record/closed_record.bal");
-        BValue[] returns = BRunUtil.invoke(result, "removeOptional");
+        BValue[] returns = BRunUtil.invoke(compileResult, "removeOptional");
 
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
     }
 
     @Test
     public void testRestRecordRemove() {
-        CompileResult result = BCompileUtil.compile("test-src/record/closed_record.bal");
-        BValue[] returns = BRunUtil.invoke(result, "removeRest");
+        BValue[] returns = BRunUtil.invoke(compileResult, "removeRest");
 
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
     }
