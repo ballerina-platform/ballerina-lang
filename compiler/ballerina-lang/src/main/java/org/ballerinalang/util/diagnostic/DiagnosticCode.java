@@ -395,6 +395,7 @@ public enum DiagnosticCode {
     INVALID_STREAM_CONSTRUCTOR("invalid.stream.constructor"),
     NOT_ALLOWED_STREAM_USAGE_WITH_FROM("invalid.stream.usage.with.from"),
     ERROR_TYPE_EXPECTED("error.type.expected"),
+    MISSING_REQUIRED_METHOD_NEXT("missing.required.method.next"),
 
 
     // Taint checking related codes
