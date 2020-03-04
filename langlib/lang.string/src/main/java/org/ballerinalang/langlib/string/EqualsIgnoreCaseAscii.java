@@ -56,13 +56,23 @@ public class EqualsIgnoreCaseAscii {
         }
 
         for (int i=0; i<str1.length(); i++) {
-            if (isPureAscii(str1.charAt(i)) && )
+            String charAtIfromOne = Character.toString(str1.charAt(i));
+            String charAtIfromTwo = Character.toString(str2.charAt(i));
+            if (!(isPureAscii(charAtIfromOne) && isPureAscii(charAtIfromTwo))) {
+                if (!charAtIfromOne.equals(charAtIfromTwo)) {
+                    return false;
+                }
+            }
+            if (!charAtIfromOne.equalsIgnoreCase(charAtIfromTwo)) {
+                return false;
+            }
+
         }
         return true;
     }
 
-    private static boolean isPureAscii(char str) {
-        byte byteArray[] = (byte)str;
+    private static boolean isPureAscii(String  str) {
+        byte byteArray[] = str.getBytes();
         try {
             CharBuffer r = decoder.decode(ByteBuffer.wrap(byteArray));
             r.toString();
