@@ -158,6 +158,7 @@ public function fromCodePointInts(int[] codePoints) returns string|error = exter
 # Compare two given strings ignoring the case. In the comparison, any non ascii character
 # will be compared as is.
 #
-#  +
-#  + return = a boolean with value true if equals and value false if not equal.
+# + str1 - the first string to be compared
+# + str2 - the second string to be compared
+# + return - a boolean with value true if equals and value false if not equal.
 public function equalsIgnoreCaseAscii(string str1, string str2) returns boolean = external;
