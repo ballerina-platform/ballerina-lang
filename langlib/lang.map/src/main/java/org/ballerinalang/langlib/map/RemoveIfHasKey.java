@@ -27,6 +27,7 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
 import static org.ballerinalang.jvm.MapUtils.checkIsMapOnlyOperation;
+import static org.ballerinalang.jvm.MapUtils.checkValidFieldForRecord;
 
 /**
  * Extern function to remove element from the map if key exists.
@@ -41,7 +42,10 @@ import static org.ballerinalang.jvm.MapUtils.checkIsMapOnlyOperation;
 public class RemoveIfHasKey {
 
     public static Object removeIfHasKey(Strand strand, MapValue<?, ?> m, String k) {
-        checkIsMapOnlyOperation(m.getType(), "removeIfHasKey()");
+        String op = "removeIfHasKey()";
+
+        checkIsMapOnlyOperation(m.getType(), op);
+        checkValidFieldForRecord(m, k, op);
         try {
             return m.remove(k);
         } catch (org.ballerinalang.jvm.util.exceptions.BLangFreezeException e) {
