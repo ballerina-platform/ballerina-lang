@@ -154,3 +154,10 @@ public function toCodePointInts(string str) returns int[] = external;
 # + return - a string with a character for each code point in `codePoints`; or an error
 # if any member of `codePoints` is not a valid code point
 public function fromCodePointInts(int[] codePoints) returns string|error = external;
+
+# Compare two given strings ignoring the case. In the comparison, any non ascii character
+# will be compared as is.
+#
+#  +
+#  + return = a boolean with value true if equals and value false if not equal.
+public function equalsIgnoreCaseAscii(string str1, string str2) returns boolean = external;
