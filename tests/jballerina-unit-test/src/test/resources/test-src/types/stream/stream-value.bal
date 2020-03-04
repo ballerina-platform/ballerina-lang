@@ -44,7 +44,7 @@ type OddNumberGenerator object {
 
 function getRecordValue((record {| int value; |}|error?)|(record {| int value; |}?) returnedVal) returns ResultValue? {
     if (returnedVal is ResultValue) {
-        return <ResultValue> returnedVal;
+        return returnedVal;
     } else {
         return ();
     }
@@ -57,16 +57,16 @@ function testGlobalStreamConstruct() returns boolean {
     boolean testPassed = true;
 
     record {| int value; |}? evenNumber = getRecordValue(evenNumberStream.next());
-    testPassed = testPassed && (<int>evenNumber["value"] % 2 == 0);
+    testPassed = testPassed && (evenNumber?.value == 2);
 
     evenNumber = getRecordValue(evenNumberStream.next());
-    testPassed = testPassed && (<int>evenNumber["value"] % 2 == 0);
+    testPassed = testPassed && (evenNumber?.value == 4);
 
     evenNumber = getRecordValue(evenNumberStream.next());
-    testPassed = testPassed && (<int>evenNumber["value"] % 2 == 0);
+    testPassed = testPassed && (evenNumber?.value == 6);
 
     evenNumber = getRecordValue(evenNumberStream.next());
-    testPassed = testPassed && (<int>evenNumber["value"] % 2 == 0);
+    testPassed = testPassed && (evenNumber?.value == 8);
 
     return testPassed;
 }
@@ -77,17 +77,17 @@ function testStreamConstruct() returns boolean {
     OddNumberGenerator oddGen = new();
     var oddNumberStream = new stream<int,error>(oddGen);
 
-    var oddNumber = getRecordValue(oddNumberStream.next());
-    testPassed = testPassed && (<int>oddNumber["value"] % 2 == 1);
+    record {| int value; |}? oddNumber = getRecordValue(oddNumberStream.next());
+    testPassed = testPassed && (oddNumber?.value == 3);
 
     oddNumber = getRecordValue(oddNumberStream.next());
-    testPassed = testPassed && (<int>oddNumber["value"] % 2 == 1);
+    testPassed = testPassed && (oddNumber?.value == 5);
 
     oddNumber = getRecordValue(oddNumberStream.next());
-    testPassed = testPassed && (<int>oddNumber["value"] % 2 == 1);
+    testPassed = testPassed && (oddNumber?.value == 7);
 
     oddNumber = getRecordValue(oddNumberStream.next());
-    testPassed = testPassed && (<int>oddNumber["value"] % 2 == 1);
+    testPassed = testPassed && (oddNumber?.value == 9);
 
     return testPassed;
 }
@@ -127,7 +127,7 @@ function testStreamReturnTypeExplicit() returns boolean {
     boolean testPassed = true;
     stream<int> intStream = getIntStream();
 
-    var intNumber = getRecordValue(intStream.next());
+    record {| int value; |}? intNumber = getRecordValue(intStream.next());
     testPassed = testPassed && (<int>intNumber["value"] == 1);
 
     intNumber = getRecordValue(intStream.next());
@@ -146,7 +146,7 @@ function testStreamReturnTypeImplicit() returns boolean {
     boolean testPassed = true;
     var intStream = getIntStream();
 
-    var intNumber = getRecordValue(intStream.next());
+    record {| int value; |}? intNumber = getRecordValue(intStream.next());
     testPassed = testPassed && (<int>intNumber["value"] == 1);
 
     intNumber = getRecordValue(intStream.next());
