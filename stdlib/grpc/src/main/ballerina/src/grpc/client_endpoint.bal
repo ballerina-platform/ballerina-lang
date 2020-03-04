@@ -98,7 +98,7 @@ function retryBlockingAction(Client grpcClient, handle methodIdHandle, anydata p
     ErrorType[] errorTypes = retryConfig.errorTypes;
     error? cause = ();
 
-    while (currentRetryCount < retryCount) {
+    while (currentRetryCount <= retryCount) {
         var result = externBlockingExecute(grpcClient, methodIdHandle, payload, headers);
         if (result is [anydata, Headers]) {
             return result;
