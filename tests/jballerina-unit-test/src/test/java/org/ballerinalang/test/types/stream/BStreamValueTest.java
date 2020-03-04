@@ -95,7 +95,7 @@ public class BStreamValueTest {
         Assert.assertTrue(((BBoolean) values[0]).booleanValue());
     }
 
-    @Test(description = "Test negative test scenarios of stream type")
+    @Test(description = "Test negative test scenarios of stream type", enabled = false)
     public void testStreamTypeNegative() {
         int i = 0;
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'record {| int value; |}?', " +
