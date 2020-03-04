@@ -96,6 +96,7 @@ jobs:
         # Killing background sleep loop
         - kill %1
       os: linux
+      install: true
       language: java
       jdk: openjdk8
       node_js: 8
