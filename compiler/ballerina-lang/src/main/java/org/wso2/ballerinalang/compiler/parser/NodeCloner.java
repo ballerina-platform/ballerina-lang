@@ -75,6 +75,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIsAssignableExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIsLikeExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangLetExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownDocumentationLine;
@@ -159,6 +160,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangConstrainedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangErrorType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFiniteTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFunctionTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangLetVariable;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangStructureTypeNode;
@@ -968,6 +970,20 @@ class NodeCloner extends BLangNodeVisitor {
         clone.expression = clone(source.expression);
         clone.isTypedescExpr = source.isTypedescExpr;
         clone.typedescType = source.typedescType;
+    }
+
+    @Override
+    public void visit(BLangLetExpression source) {
+        BLangLetExpression clone = new BLangLetExpression();
+        source.cloneRef = clone;
+        List<BLangLetVariable> cloneDefs = new ArrayList<>();
+        for (BLangLetVariable letVarDeclaration : source.letVarDeclarations) {
+            BLangLetVariable clonedVar = new BLangLetVariable();
+            clonedVar.definitionNode = clone(letVarDeclaration.definitionNode);
+            cloneDefs.add(clonedVar);
+        }
+        clone.letVarDeclarations = cloneDefs;
+        clone.expr = source.expr;
     }
 
     @Override

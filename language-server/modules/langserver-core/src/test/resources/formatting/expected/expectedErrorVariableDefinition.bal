@@ -49,7 +49,7 @@ string?, map<any>, any, any, any] {
 
 function testErrorBindingPattern() returns string {
     error<string, record {|string message?; error cause?; string...;|}> err1 = error("Error Code", message = "Fatal");
-    [string, map<any>] | error t1 = err1;
+    [string, map<any>]|error t1 = err1;
     match t1 {
         var [reason, detail] => {
             return "Matched with tuple : " + reason + " " + "io:sprintf(\"%s\", detail)";
@@ -64,7 +64,7 @@ function testErrorBindingPattern() returns string {
 
 function testErrorBindingPattern2() returns string {
     error<string, record {|string message?; error cause?; string...;|}> err1 = error("Error Code", message = "Msg");
-    [string, map<any>] | error t1 = err1;
+    [string, map<any>]|error t1 = err1;
     match t1 {
         var [reason, detail] => {
             return "Matched with tuple : " + reason + " " + "io:sprintf(\"%s\", detail)";
@@ -79,7 +79,7 @@ function testErrorBindingPattern2() returns string {
 
 function testErrorBindingPattern3() returns string {
     error<string, record {|string message?; error cause?; string...;|}> err1 = error("Error Code", message = "Msg");
-    [string, map<any>] | error t1 = err1;
+    [string, map<any>]|error t1 = err1;
     match t1 {
         var [reason, detail] => {
             return "Matched with tuple : " + reason + " " + "io:sprintf(\"%s\", detail)";
@@ -94,7 +94,7 @@ function testErrorBindingPattern3() returns string {
 
 function testErrorBindingPattern4() returns string {
     error<string, record {|string message?; error cause?; string...;|}> err1 = error("Error Code", message = "Msg");
-    [string, map<any>] | error t1 = err1;
+    [string, map<any>]|error t1 = err1;
     match t1 {
         var [reason, detail] => {
             return "Matched with tuple : " + reason + " " + "io:sprintf(\"%s\", detail)";
@@ -117,7 +117,7 @@ function testErrorBindingPattern4() returns string {
 
 function testErrorBindingPattern5() returns string {
     error<string, record {|string message?; error cause?; string...;|}> err1 = error("Error Code", message = "Msg");
-    [string, map<any>] | error t1 = err1;
+    [string, map<any>]|error t1 = err1;
     match t1 {
         var [reason, detail] => {
             return "Matched with tuple : " + reason + " " + "io:sprintf(\"%s\", detail)";
@@ -139,7 +139,7 @@ function testErrorBindingPattern5() returns string {
 
 function testErrorBindingPattern6() returns string {
     error<string, record {|string message?; error cause?; string...;|}> err1 = error("Error Code", message = "Msg");
-    [string, map<any>] | error t1 = err1;
+    [string, map<any>]|error t1 = err1;
     match t1 {
         var [reason, detail] => {
             return "Matched with tuple : " + reason + " " + "io:sprintf(\"%s\", detail)";
