@@ -1166,7 +1166,7 @@ public class BIRPackageSymbolEnter {
 
         litExpr.type = valueType;
 
-        finiteType.valueSpace.add(litExpr);
+        finiteType.addValue(litExpr);
     }
 
     private BLangLiteral createLiteralBasedOnType(BType valueType) {

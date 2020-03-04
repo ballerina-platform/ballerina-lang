@@ -50,6 +50,9 @@
         <Package name="org.wso2.ballerinalang.compiler.tree.expressions" />
     </Match>
     <Match>
+        <Package name="org.wso2.ballerinalang.compiler.tree.clauses" />
+    </Match>
+    <Match>
         <Package name="org.wso2.ballerinalang.compiler.tree.statements" />
     </Match>
     <Match>

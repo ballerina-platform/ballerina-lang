@@ -58,8 +58,10 @@ public class StringValueBasicsTest {
     }
 
     @Test
-    public void testRecordStringValuePut() {
-        BValue[] returns = BRunUtil.invoke(result, "recordStringValuePut");
+    public void testRecordStringValue() {
+        BValue[] returns = BRunUtil.invoke(result, "recordStringValue");
+        Assert.assertEquals(returns[0].getClass(), BInteger.class);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 5);
         //TODO assert return value has BString
     }
 
@@ -88,6 +90,18 @@ public class StringValueBasicsTest {
           expectedExceptionsMessageRegExp = ".*string index out of range: index: 6, size: 6.*")
     public void testStringIndexAccessException() {
         BRunUtil.invoke(result, "testStringIndexAccessException");
+    }
+
+    @Test
+    public void testCastToString() {
+        BValue[] returns = BRunUtil.invoke(result, "anyToStringCasting");
+        Assert.assertEquals(returns[0].getClass(), BInteger.class);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 6);
+
+        BValue[] returns2 = BRunUtil.invoke(result, "anydataToStringCast");
+        Assert.assertEquals(returns2[0].getClass(), BInteger.class);
+        Assert.assertEquals(((BInteger) returns2[0]).intValue(), 6);
+
     }
 
     @AfterClass

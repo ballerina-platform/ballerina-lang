@@ -19,7 +19,6 @@ import java.util.regex.Pattern;
 
 /**
  * Constants related to {@link org.eclipse.lsp4j.Command}.
- *
  * @since v0.964.0
  */
 public class CommandConstants {
@@ -30,6 +29,8 @@ public class CommandConstants {
     public static final String TAINTED_PARAM_PASSED = "tainted value passed to untainted parameter";
     public static final String NO_IMPL_FOUND_FOR_FUNCTION = "no implementation found for the function";
     public static final String FUNC_IMPL_FOUND_IN_ABSTRACT_OBJ = "cannot have a body";
+    public static final Pattern UNUSED_IMPORT_MODULE_PATTERN = Pattern.compile(
+            "unused import module '([^(v)]*)(?:version (.*))?'");
     public static final Pattern UNRESOLVED_MODULE_PATTERN = Pattern.compile(
             "cannot resolve module '([^(v)]*)(?:version (.*))?'");
     public static final Pattern TAINTED_PARAM_PATTERN = Pattern.compile(
@@ -137,4 +138,8 @@ public class CommandConstants {
 
     public static final String CREATE_MISSING_METHOD_FOR_THE_PATH_IN_OPENAPI =
             "Create missing http method '%s' for the path '%s'";
+
+    public static final String IMPLEMENT_FUNCS_TITLE = "Implement All Functions";
+
+    public static final String OPTIMIZE_IMPORTS_TITLE = "Optimize All Imports";
 }

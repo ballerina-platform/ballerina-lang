@@ -18,6 +18,8 @@
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
 import org.ballerinalang.compiler.CompilerPhase;
+import org.ballerinalang.model.clauses.FromClauseNode;
+import org.ballerinalang.model.clauses.WhereClauseNode;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.TopLevelNode;
@@ -34,9 +36,12 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
+import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
 import org.wso2.ballerinalang.compiler.tree.BLangErrorVariable;
+import org.wso2.ballerinalang.compiler.tree.BLangExprFunctionBody;
+import org.wso2.ballerinalang.compiler.tree.BLangExternalFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
@@ -54,6 +59,10 @@ import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangWorker;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangDoClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangFromClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangWhereClause;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAccessExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
@@ -86,6 +95,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRestArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangServiceConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangStreamConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
@@ -129,11 +139,13 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStaticBindingPatternClause;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStructuredBindingPatternClause;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangPanic;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangQueryAction;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRetry;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangSimpleVariableDef;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangThrow;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTryCatchFinally;
@@ -263,6 +275,25 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         analyzeNode(funcNode.restParam, funcEnv);
         analyzeBranch(funcNode.body, funcEnv);
         this.currDependentSymbol.pop();
+    }
+
+    @Override
+    public void visit(BLangBlockFunctionBody body) {
+        SymbolEnv bodyEnv = SymbolEnv.createFuncBodyEnv(body, env);
+        for (BLangStatement statement : body.stmts) {
+            analyzeNode(statement, bodyEnv);
+        }
+    }
+
+    @Override
+    public void visit(BLangExprFunctionBody body) {
+        SymbolEnv bodyEnv = SymbolEnv.createFuncBodyEnv(body, env);
+        analyzeNode(body.expr, bodyEnv);
+    }
+
+    @Override
+    public void visit(BLangExternalFunctionBody body) {
+        // do nothing
     }
 
     @Override
@@ -450,6 +481,19 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     }
 
     @Override
+    public void visit(BLangQueryAction queryAction) {
+        for (FromClauseNode fromClauseNode : queryAction.fromClauseList) {
+            analyzeNode((BLangFromClause) fromClauseNode, env);
+        }
+
+        for (WhereClauseNode whereClauseNode : queryAction.whereClauseList) {
+            analyzeNode((BLangWhereClause) whereClauseNode, env);
+        }
+
+        analyzeNode(queryAction.doClause, env);
+    }
+
+    @Override
     public void visit(BLangWhile whileNode) {
         Map<BSymbol, InitStatus> prevUninitializedVars = this.uninitializedVars;
         analyzeNode(whileNode.expr, env);
@@ -534,8 +578,10 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
                     analyzeNode(keyValuePair.key.expr, env);
                 }
                 analyzeNode(keyValuePair.valueExpr, env);
-            } else {
+            } else if (field.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
                 analyzeNode((BLangRecordLiteral.BLangRecordVarNameField) field, env);
+            } else {
+                analyzeNode(((BLangRecordLiteral.BLangRecordSpreadOperatorField) field).expr, env);
             }
         }
     }
@@ -599,7 +645,35 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangQueryExpr queryExpr) {
-        /* ignore */
+        for (FromClauseNode fromClauseNode : queryExpr.fromClauseList) {
+            analyzeNode((BLangFromClause) fromClauseNode, env);
+        }
+
+        for (WhereClauseNode whereClauseNode : queryExpr.whereClauseList) {
+            analyzeNode((BLangWhereClause) whereClauseNode, env);
+        }
+
+        analyzeNode(queryExpr.selectClause, env);
+    }
+
+    @Override
+    public void visit(BLangFromClause fromClause) {
+        analyzeNode(fromClause.collection, env);
+    }
+
+    @Override
+    public void visit(BLangWhereClause whereClause) {
+        analyzeNode(whereClause.expression, env);
+    }
+
+    @Override
+    public void visit(BLangSelectClause selectClause) {
+        analyzeNode(selectClause.expression, env);
+    }
+
+    @Override
+    public void visit(BLangDoClause doClause) {
+        analyzeNode(doClause.body, env);
     }
 
     private boolean isFieldsInitializedForSelfArgument(BLangInvocation invocationExpr) {
@@ -972,7 +1046,14 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
             }
 
             if (objectTypeNode.initFunction.body != null) {
-                objectTypeNode.initFunction.body.stmts.forEach(statement -> analyzeNode(statement, objectEnv));
+                if (objectTypeNode.initFunction.body.getKind() == NodeKind.BLOCK_FUNCTION_BODY) {
+                    for (BLangStatement statement :
+                            ((BLangBlockFunctionBody) objectTypeNode.initFunction.body).stmts) {
+                        analyzeNode(statement, objectEnv);
+                    }
+                } else if (objectTypeNode.initFunction.body.getKind() == NodeKind.EXPR_FUNCTION_BODY) {
+                    analyzeNode(((BLangExprFunctionBody) objectTypeNode.initFunction.body).expr, objectEnv);
+                }
             }
         }
 
@@ -1056,6 +1137,11 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
         addDependency(serviceConstructorExpr.type.tsymbol, serviceConstructorExpr.serviceNode.symbol);
         analyzeNode(serviceConstructorExpr.serviceNode, env);
+    }
+
+    @Override
+    public void visit(BLangStreamConstructorExpr streamConstructorExpr) {
+        analyzeNode(streamConstructorExpr.lambdaFunction, env);
     }
 
     @Override

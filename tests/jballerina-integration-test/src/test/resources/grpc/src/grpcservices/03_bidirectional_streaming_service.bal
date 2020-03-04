@@ -36,7 +36,7 @@ listener grpc:Listener ep3 = new (9093, {
 @tainted map<grpc:Caller> connectionsMap = {};
 boolean initialized = false;
 
-@grpc:ServiceConfig {name:"chat",
+@grpc:ServiceConfig {name:"Chat",
     clientStreaming:true,
     serverStreaming:true}
 @grpc:ServiceDescriptor {

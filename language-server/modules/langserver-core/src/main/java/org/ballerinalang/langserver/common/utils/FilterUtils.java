@@ -40,11 +40,14 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BJSONType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
+import org.wso2.ballerinalang.compiler.tree.BLangFunctionBody;
+import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
@@ -55,6 +58,7 @@ import org.wso2.ballerinalang.util.Flags;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -106,8 +110,16 @@ public class FilterUtils {
             return getInvocationsAndFields(context, defaultTokens, delimIndex);
         }
         if (BallerinaParser.COLON == delimiter) {
+            String moduleName = varName;
+            for (BLangImportPackage importModule : context.get(DocumentServiceKeys.CURRENT_DOC_IMPORTS_KEY)) {
+                if (importModule.alias.getValue().equals(varName)) {
+                    moduleName = CommonUtil.getSymbolName(importModule.symbol);
+                    break;
+                }
+            }
+            String finalModuleName = moduleName;
             Optional<Scope.ScopeEntry> pkgSymbol = visibleSymbols.stream()
-                    .filter(item -> CommonUtil.getSymbolName(item.symbol).equals(varName)
+                    .filter(item -> CommonUtil.getSymbolName(item.symbol).equals(finalModuleName)
                             && item.symbol instanceof BPackageSymbol)
                     .findFirst();
 
@@ -263,6 +275,11 @@ public class FilterUtils {
             actualType = ((BInvokableSymbol) bSymbol).retType;
         } else if (bSymbol.type instanceof BArrayType && fieldType == InvocationFieldType.ARRAY_ACCESS) {
             return ((BArrayType) bSymbol.type).eType;
+        } else if (bSymbol.type instanceof BMapType && fieldType == InvocationFieldType.ARRAY_ACCESS) {
+            LinkedHashSet<BType> types = new LinkedHashSet<>();
+            types.add(((BMapType) bSymbol.type).constraint);
+            types.add(new BNilType());
+            actualType = BUnionType.create(((BMapType) bSymbol.type).constraint.tsymbol, types);
         } else {
             actualType = bSymbol.type;
         }
@@ -613,8 +630,8 @@ public class FilterUtils {
 
         return entry -> {
             if (symbolType.tag == TypeTags.RECORD && (invocationTkn == BallerinaParser.DOT
-                    || invocationTkn == BallerinaParser.NOT) && scope instanceof BLangBlockStmt
-                    && defaultTokenTypes.contains(BallerinaParser.ASSIGN)) {
+                    || invocationTkn == BallerinaParser.NOT) && (scope instanceof BLangBlockStmt
+                    || scope instanceof BLangFunctionBody) && defaultTokenTypes.contains(BallerinaParser.ASSIGN)) {
                 return !org.ballerinalang.jvm.util.Flags.isFlagOn(entry.getValue().symbol.flags,
                         Flags.OPTIONAL);
             }

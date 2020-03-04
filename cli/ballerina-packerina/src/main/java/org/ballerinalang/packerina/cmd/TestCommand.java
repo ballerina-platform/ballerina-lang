@@ -31,6 +31,7 @@ import org.ballerinalang.packerina.task.CreateBaloTask;
 import org.ballerinalang.packerina.task.CreateBirTask;
 import org.ballerinalang.packerina.task.CreateJarTask;
 import org.ballerinalang.packerina.task.CreateTargetDirTask;
+import org.ballerinalang.packerina.task.ListTestGroupsTask;
 import org.ballerinalang.packerina.task.RunTestsTask;
 import org.ballerinalang.tool.BLauncherCmd;
 import org.ballerinalang.tool.LauncherUtils;
@@ -46,6 +47,7 @@ import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.HashMap;
 import java.util.List;
 
 import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
@@ -128,18 +130,33 @@ public class TestCommand implements BLauncherCmd {
     @CommandLine.Option(names = "--debug", description = "start Ballerina in remote debugging mode")
     private String debugPort;
 
+    @CommandLine.Option(names = "--list-groups", description = "list the groups available in the tests")
+    private boolean listGroups;
+
+    @CommandLine.Option(names = "--groups", split = ",", description = "test groups to be executed")
+    private List<String> groupList;
+
+    @CommandLine.Option(names = "--disable-groups", split = ",", description = "test groups to be disabled")
+    private List<String> disableGroupList;
+
     public void execute() {
         if (this.helpFlag) {
             String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(TEST_COMMAND);
             this.errStream.println(commandUsageInfo);
             return;
         }
-
-        String[] args = LaunchUtils
-                .initConfigurations(this.argList == null ? new String[0] : this.argList.toArray(new String[0]));
+        String[] args;
+        if (this.argList == null) {
+            args = new String[0];
+        } else if (this.buildAll) {
+            args = this.argList.toArray(new String[0]);
+        } else {
+            args = argList.subList(1, argList.size()).toArray(new String[0]);
+        }
+        String[] userArgs = LaunchUtils.getUserArgs(args, new HashMap<>());
 
         // check if there are too many arguments.
-        if (args.length > 1) {
+        if (userArgs.length > 0) {
             CommandUtil.printError(this.errStream,
                     "too many arguments.",
                     "ballerina test [--offline] [--sourceroot <path>] [--experimental] [--skip-lock]\n" +
@@ -166,6 +183,24 @@ public class TestCommand implements BLauncherCmd {
                 Paths.get(this.sourceRoot).toAbsolutePath() : this.sourceRootPath;
         Path sourcePath = null;
         Path targetPath = this.sourceRootPath.resolve(ProjectDirConstants.TARGET_DIR_NAME);
+
+        if (groupList != null && disableGroupList != null) {
+            CommandUtil.printError(this.errStream,
+                    "Cannot specify both --groups and --disable-groups flags at the same time",
+                    "ballerina test --groups <group1, ...> <module-name> | -a | --all",
+                    true);
+            CommandUtil.exitError(this.exitWhenFinish);
+            return;
+        }
+
+        if ((listGroups && disableGroupList != null) || (listGroups && groupList != null)) {
+            CommandUtil.printError(this.errStream,
+                    "Cannot specify both --list-groups and --disable-groups/--groups flags at the same time",
+                    "ballerina test --list-groups <module-name> | -a | --all",
+                    true);
+            CommandUtil.exitError(this.exitWhenFinish);
+            return;
+        }
 
         // when -a or --all flag is provided. check if the command is executed within a ballerina project. update source
         // root path if command executed inside a project.
@@ -310,15 +345,19 @@ public class TestCommand implements BLauncherCmd {
                 .addTask(new CleanTargetDirTask(), isSingleFileBuild)   // clean the target directory(projects only)
                 .addTask(new CreateTargetDirTask()) // create target directory.
                 .addTask(new CompileTask()) // compile the modules
-                .addTask(new CreateBaloTask(), isSingleFileBuild)   // create the balos for modules(projects only)
-                .addTask(new CreateBirTask())   // create the bir
-                .addTask(new CopyNativeLibTask(skipCopyLibsFromDist))    // copy the native libs(projects only)
+                .addTask(new CreateBaloTask(), isSingleFileBuild || listGroups) // create the balos for modules
+                // (projects only)
+                .addTask(new CreateBirTask(), listGroups)   // create the bir
+                .addTask(new CopyNativeLibTask(skipCopyLibsFromDist), listGroups) // copy the native libs(projects only)
                 // create the jar.
                 .addTask(new CreateJarTask(this.dumpBIR, this.skipCopyLibsFromDist, this.nativeBinary, this.dumpLLVMIR,
-                        this.noOptimizeLLVM))
-                .addTask(new CopyResourcesTask(), isSingleFileBuild)
-                .addTask(new CopyModuleJarTask(skipCopyLibsFromDist))
-                .addTask(new RunTestsTask()) // run tests
+                                           this.noOptimizeLLVM), listGroups)
+                .addTask(new CopyResourcesTask(), isSingleFileBuild || listGroups)
+                .addTask(new CopyModuleJarTask(skipCopyLibsFromDist, false), listGroups)
+                // tasks to list groups or execute tests. the 'listGroups' boolean is used to decide whether to
+                // skip the task or to execute
+                .addTask(new ListTestGroupsTask(), !listGroups) // list the available test groups
+                .addTask(new RunTestsTask(args, groupList, disableGroupList), listGroups) // run tests
                 .build();
 
         taskExecutor.executeTasks(buildContext);

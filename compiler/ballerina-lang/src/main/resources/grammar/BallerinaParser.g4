@@ -54,6 +54,10 @@ serviceBody
     :   LEFT_BRACE objectMethod* RIGHT_BRACE
     ;
 
+streamConstructorBody
+    :   LEFT_BRACE statement* RIGHT_BRACE
+    ;
+
 blockFunctionBody
     :   LEFT_BRACE statement* (workerDeclaration+ statement*)? RIGHT_BRACE
     ;
@@ -68,6 +72,7 @@ exprFunctionBody
 
 functionDefinitionBody
     :   blockFunctionBody
+    |   exprFunctionBody SEMICOLON
     |   externalFunctionBody SEMICOLON
     ;
 
@@ -81,7 +86,7 @@ anonymousFunctionExpr
     ;
 
 explicitAnonymousFunctionExpr
-    :   FUNCTION functionSignature blockFunctionBody
+    :   FUNCTION functionSignature (blockFunctionBody | exprFunctionBody)
     ;
 
 inferAnonymousFunctionExpr
@@ -330,6 +335,7 @@ statement
     |   retryStatement
     |   lockStatement
     |   namespaceDeclarationStatement
+    |   queryActionStatement
     ;
 
 variableDefinitionStatement
@@ -352,6 +358,7 @@ staticMatchLiterals
 recordField
     :   Identifier
     |   recordKey COLON expression
+    |   ELLIPSIS expression
     ;
 
 recordKey
@@ -387,6 +394,10 @@ tableData
 
 listConstructorExpr
     :   LEFT_BRACKET expressionList? RIGHT_BRACKET
+    ;
+
+streamConstructorExpr
+    :   TYPE_STREAM streamConstructorBody
     ;
 
 assignmentStatement
@@ -782,6 +793,7 @@ expression
     |   recordLiteral                                                       # recordLiteralExpression
     |   xmlLiteral                                                          # xmlLiteralExpression
     |   tableLiteral                                                        # tableLiteralExpression
+    |   streamConstructorExpr                                               # streamConstructorExpression
     |   stringTemplateLiteral                                               # stringTemplateLiteralExpression
     |   (annotationAttachment* START)? variableReference                    # variableReferenceExpression
     |   actionInvocation                                                    # actionInvocationExpression
@@ -861,12 +873,20 @@ fromClause
     :   FROM (typeName | VAR) bindingPattern IN expression
     ;
 
+doClause
+    :   DO LEFT_BRACE statement* RIGHT_BRACE
+    ;
+
 queryPipeline
     :   fromClause (fromClause | whereClause)*
     ;
 
 queryExpr
     :   queryPipeline selectClause
+    ;
+
+queryActionStatement
+    :   queryPipeline doClause
     ;
 
 //reusable productions

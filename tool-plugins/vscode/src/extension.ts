@@ -17,7 +17,7 @@
  * under the License.
  *
  */
-import { ExtensionContext, commands, window } from 'vscode';
+import { ExtensionContext, commands, window, Location, Uri, workspace } from 'vscode';
 import { ballerinaExtInstance } from './core';
 import { activate as activateAPIEditor } from './api-editor';
 // import { activate as activateDiagram } from './diagram'; 
@@ -29,7 +29,7 @@ import { activateDebugConfigProvider } from './debugger';
 import { activate as activateProjectFeatures } from './project';
 import { activate as activateOverview } from './overview';
 import { activate as activateSyntaxHighlighter } from './syntax-highlighter';
-import { StaticFeature, ClientCapabilities, DocumentSelector, ServerCapabilities } from 'vscode-languageclient';
+import { StaticFeature, ClientCapabilities, DocumentSelector, ServerCapabilities, DidChangeConfigurationParams } from 'vscode-languageclient';
 import { ExtendedLangClient } from './core/extended-language-client';
 import { log } from './utils';
 
@@ -56,7 +56,7 @@ function onBeforeInit(langClient: ExtendedLangClient) {
     class SyntaxHighlightingFeature implements StaticFeature {
         fillClientCapabilities(capabilities: ClientCapabilities): void {
             capabilities.experimental = capabilities.experimental || {};
-            capabilities.experimental.semanticSyntaxHighlighter = true;
+            capabilities.experimental.semanticSyntaxHighlighter = false;
         }
         initialize(capabilities: ServerCapabilities, documentSelector: DocumentSelector | undefined): void {
         }
@@ -91,6 +91,21 @@ export function activate(context: ExtensionContext): Promise<any> {
         activateTreeView(ballerinaExtInstance);
         // Enable Ballerina Syntax Highlighter
         activateSyntaxHighlighter(ballerinaExtInstance);
+
+        ballerinaExtInstance.onReady().then(() => {
+            const langClient = <ExtendedLangClient>ballerinaExtInstance.langClient;
+            // Send initial configuration
+            const args: DidChangeConfigurationParams = {
+                settings: workspace.getConfiguration('ballerina'),
+            };
+            langClient.sendNotification("workspace/didChangeConfiguration", args);
+            // Register showTextDocument listener
+            langClient.onNotification('window/showTextDocument', (location: Location) => {
+                if (location.uri !== undefined) {
+                    window.showTextDocument(Uri.parse(location.uri.toString()), {selection: location.range});
+                }
+            });
+        });
     }).catch((e) => {
         log("Failed to activate Ballerina extension. " + (e.message ? e.message : e));
         // When plugins fails to start, provide a warning upon each command execution

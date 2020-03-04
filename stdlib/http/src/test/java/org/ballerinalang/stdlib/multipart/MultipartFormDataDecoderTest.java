@@ -18,13 +18,12 @@
 
 package org.ballerinalang.stdlib.multipart;
 
-import org.apache.axiom.om.OMNode;
 import org.ballerinalang.jvm.XMLFactory;
 import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.XMLValue;
 import org.ballerinalang.model.util.JsonParser;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.model.values.BXMLItem;
 import org.ballerinalang.stdlib.utils.HTTPTestRequest;
 import org.ballerinalang.stdlib.utils.ResponseReader;
 import org.ballerinalang.stdlib.utils.Services;
@@ -127,9 +126,8 @@ public class MultipartFormDataDecoderTest {
         HTTPTestRequest cMsg = getCarbonMessageWithBodyParts(messageMap, getArrayOfBodyParts(bodyParts));
         HttpCarbonMessage response = Services.invoke(TEST_PORT, cMsg);
         Assert.assertNotNull(response, "Response message not found");
-        OMNode omNode = (OMNode) XMLFactory.parse(ResponseReader.getReturnValue(response)).value();
-        Assert.assertEquals(new BXMLItem(omNode).getTextValue().stringValue(),
-                "Ballerina");
+        XMLValue value = XMLFactory.parse(ResponseReader.getReturnValue(response));
+        Assert.assertEquals(value.getTextValue(), "Ballerina");
     }
 
     @Test(description = "Test sending a multipart request with a json body part where the content is kept in a file")
@@ -141,10 +139,8 @@ public class MultipartFormDataDecoderTest {
         HTTPTestRequest cMsg = getCarbonMessageWithBodyParts(messageMap, getArrayOfBodyParts(bodyParts));
         HttpCarbonMessage response = Services.invoke(TEST_PORT, cMsg);
         Assert.assertNotNull(response, "Response message not found");
-        OMNode omNode = (OMNode) XMLFactory.parse(ResponseReader.getReturnValue(response)).value();
-        Assert.assertEquals(new BXMLItem(omNode).getTextValue().stringValue(),
-                "Ballerina" +
-                        " xml file part");
+        XMLValue omNode = XMLFactory.parse(ResponseReader.getReturnValue(response));
+        Assert.assertEquals(omNode.getTextValue(), "Ballerina xml file part");
     }
 
     @Test(description = "Test sending a multipart request with a binary body part which is kept in memory")

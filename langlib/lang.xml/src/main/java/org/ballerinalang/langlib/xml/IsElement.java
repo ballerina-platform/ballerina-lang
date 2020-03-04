@@ -39,7 +39,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
 )
 public class IsElement {
 
-    public static boolean isElement(Strand strand, XMLValue<?> xmlValue) {
+    public static boolean isElement(Strand strand, XMLValue xmlValue) {
         return xmlValue.getNodeType() == XMLNodeType.ELEMENT;
     }
 }

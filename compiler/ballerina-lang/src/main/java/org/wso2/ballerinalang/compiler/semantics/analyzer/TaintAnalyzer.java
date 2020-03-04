@@ -39,9 +39,12 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.TaintRecord;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
+import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
 import org.wso2.ballerinalang.compiler.tree.BLangErrorVariable;
+import org.wso2.ballerinalang.compiler.tree.BLangExprFunctionBody;
+import org.wso2.ballerinalang.compiler.tree.BLangExternalFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
@@ -84,6 +87,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangRestArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangServiceConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStatementExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangStreamConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
@@ -124,6 +128,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangPanic;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangQueryAction;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRetry;
@@ -388,6 +393,36 @@ public class TaintAnalyzer extends BLangNodeVisitor {
             visitInvokable(funcNode, funcEnv);
         }
         analysisStateStack.pop();
+    }
+
+    @Override
+    public void visit(BLangBlockFunctionBody body) {
+        SymbolEnv bodyEnv = SymbolEnv.createFuncBodyEnv(body, env);
+        for (BLangStatement stmt : body.stmts) {
+            if (stopAnalysis) {
+                break;
+            } else {
+                analyzeNode(stmt, bodyEnv);
+            }
+        }
+    }
+
+    @Override
+    public void visit(BLangExprFunctionBody body) {
+        SymbolEnv bodyEnv = SymbolEnv.createFuncBodyEnv(body, env);
+        analyzeNode(body.expr, bodyEnv);
+
+        if (getCurrentAnalysisState().taintedStatus == TaintedStatus.TAINTED) {
+            getCurrentAnalysisState().returnTaintedStatus = TaintedStatus.TAINTED;
+        }
+
+        getCurrentAnalysisState().taintedStatus = getCurrentAnalysisState().returnTaintedStatus;
+        updateParameterTaintedStatuses();
+    }
+
+    @Override
+    public void visit(BLangExternalFunctionBody body) {
+        // do nothing
     }
 
     @Override
@@ -772,6 +807,11 @@ public class TaintAnalyzer extends BLangNodeVisitor {
     }
 
     @Override
+    public void visit(BLangQueryAction queryAction) {
+        /* ignore */
+    }
+
+    @Override
     public void visit(BLangWhile whileNode) {
         SymbolEnv blockEnv = SymbolEnv.createBlockEnv(whileNode.body, env);
         analyzeNode(whileNode.body, blockEnv);
@@ -911,8 +951,10 @@ public class TaintAnalyzer extends BLangNodeVisitor {
                 }
 
                 keyValuePair.valueExpr.accept(this);
-            } else {
+            } else if (field.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
                 ((BLangRecordLiteral.BLangRecordVarNameField) field).accept(this);
+            } else {
+                ((BLangRecordLiteral.BLangRecordSpreadOperatorField) field).expr.accept(this);
             }
 
             // Used to update the variable this literal is getting assigned to.
@@ -1366,6 +1408,11 @@ public class TaintAnalyzer extends BLangNodeVisitor {
     }
 
     @Override
+    public void visit(BLangStreamConstructorExpr streamConstructorExpr) {
+        streamConstructorExpr.lambdaFunction.accept(this);
+    }
+
+    @Override
     public void visit(BLangTypeTestExpr typeTestExpr) {
         typeTestExpr.expr.accept(this);
     }
@@ -1471,11 +1518,6 @@ public class TaintAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangIndexBasedAccess.BLangXMLAccessExpr xmlIndexAccessExpr) {
-        /* ignore */
-    }
-
-    @Override
-    public void visit(BLangRecordLiteral.BLangJSONLiteral jsonLiteral) {
         /* ignore */
     }
 

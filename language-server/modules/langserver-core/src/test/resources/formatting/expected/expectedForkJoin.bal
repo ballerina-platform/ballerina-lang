@@ -26,7 +26,7 @@ function testForkJoin() returns [int, int] | error {
         worker
         w3
         returns
-        int
+            int
         {
             var clientResponse = c->get("");
             int code = 0;

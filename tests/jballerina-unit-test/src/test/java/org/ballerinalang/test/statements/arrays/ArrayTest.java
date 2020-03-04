@@ -133,7 +133,7 @@ public class ArrayTest {
         ArrayValue bBooleanArray = new ArrayValueImpl(boolArray);
         Assert.assertEquals(bBooleanArray.stringValue(), "true true false");
 
-        XMLValue<?>[] xmlArray = { XMLFactory.parse("<foo> </foo>"), XMLFactory.parse("<bar>hello</bar>") };
+        XMLValue[] xmlArray = { XMLFactory.parse("<foo> </foo>"), XMLFactory.parse("<bar>hello</bar>") };
         ArrayValue bXmlArray = new ArrayValueImpl(xmlArray,
                 new org.ballerinalang.jvm.types.BArrayType(org.ballerinalang.jvm.types.BTypes.typeXML));
         Assert.assertEquals(bXmlArray.stringValue(), "<foo> </foo> <bar>hello</bar>");
@@ -205,5 +205,15 @@ public class ArrayTest {
         BValue[] retVals = BRunUtil.invokeFunction(compileResult, "testGetFromFrozenArray");
         BInteger value = (BInteger) retVals[0];
         Assert.assertEquals(value.intValue(), 4);
+    }
+
+    @Test
+    public void createAbstractObjectEmptyArray() {
+        BRunUtil.invokeFunction(compileResult, "createAbstractObjectEmptyArray");
+    }
+
+    @Test
+    public void testObjectDynamicArrayFilling() {
+        BRunUtil.invokeFunction(compileResult, "testObjectDynamicArrayFilling");
     }
 }

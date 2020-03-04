@@ -20,9 +20,11 @@ package org.wso2.ballerinalang.compiler.semantics.analyzer;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
+import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
+import org.wso2.ballerinalang.compiler.parser.BLangAnonymousModelHelper;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope.ScopeEntry;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
@@ -117,6 +119,8 @@ public class SymbolResolver extends BLangNodeVisitor {
     private SymbolEnv env;
     private BType resultType;
     private DiagnosticCode diagCode;
+    private SymbolEnter symbolEnter;
+    private BLangAnonymousModelHelper anonymousModelHelper;
 
     public static SymbolResolver getInstance(CompilerContext context) {
         SymbolResolver symbolResolver = context.get(SYMBOL_RESOLVER_KEY);
@@ -134,6 +138,8 @@ public class SymbolResolver extends BLangNodeVisitor {
         this.names = Names.getInstance(context);
         this.dlog = BLangDiagnosticLog.getInstance(context);
         this.types = Types.getInstance(context);
+        this.symbolEnter = SymbolEnter.getInstance(context);
+        this.anonymousModelHelper = BLangAnonymousModelHelper.getInstance(context);
     }
 
     public boolean checkForUniqueSymbol(DiagnosticPos pos, SymbolEnv env, BSymbol symbol) {
@@ -155,7 +161,7 @@ public class SymbolResolver extends BLangNodeVisitor {
             return true;
         }
 
-        if (hasSameOwner(symbol, foundSym)) {
+        if (isRedeclaredSymbol(symbol, foundSym)) {
             dlog.error(pos, DiagnosticCode.REDECLARED_SYMBOL, symbol.name);
             return false;
         }
@@ -167,6 +173,10 @@ public class SymbolResolver extends BLangNodeVisitor {
 
         // if a symbol is found, then check whether it is unique
         return isDistinctSymbol(pos, symbol, foundSym);
+    }
+
+    private boolean isRedeclaredSymbol(BSymbol symbol, BSymbol foundSym) {
+        return hasSameOwner(symbol, foundSym) || isSymbolRedeclaredInTestPackage(symbol, foundSym);
     }
 
     public boolean checkForUniqueSymbol(SymbolEnv env, BSymbol symbol) {
@@ -256,6 +266,14 @@ public class SymbolResolver extends BLangNodeVisitor {
         // symbols are in the same block scope.
         return Symbols.isFlagOn(symbol.owner.flags, Flags.LAMBDA) &&
                 ((foundSym.owner.tag & SymTag.INVOKABLE) == SymTag.INVOKABLE);
+    }
+
+    private boolean isSymbolRedeclaredInTestPackage(BSymbol symbol, BSymbol foundSym) {
+        if (Symbols.isFlagOn(symbol.owner.flags, Flags.TESTABLE) &&
+                !Symbols.isFlagOn(foundSym.owner.flags, Flags.TESTABLE)) {
+            return true;
+        }
+        return false;
     }
 
     private boolean isSymbolDefinedInRootPkgLvl(BSymbol foundSym) {
@@ -819,6 +837,8 @@ public class SymbolResolver extends BLangNodeVisitor {
             symTable.defineOperators(); // Define all operators e.g. binary, unary, cast and conversion
             symTable.pureType = BUnionType.create(null, symTable.anydataType, symTable.errorType);
             symTable.errorOrNilType = BUnionType.create(null, symTable.errorType, symTable.nilType);
+            symTable.anyOrErrorType = BUnionType.create(null, symTable.anyType, symTable.errorType);
+            symTable.mapAllType = new BMapType(TypeTags.MAP, symTable.anyOrErrorType, null);
             return;
         }
         throw new IllegalStateException("built-in error not found ?");
@@ -924,12 +944,22 @@ public class SymbolResolver extends BLangNodeVisitor {
         // a record, a symbol will be created for it when we define the dummy symbol (from here). When we define the
         // node later, this method will be called again. In such cases, we don't need to create a new symbol here.
         if (recordTypeNode.symbol == null) {
-            EnumSet<Flag> flags = recordTypeNode.isAnonymous ? EnumSet.of(Flag.PUBLIC) : EnumSet.noneOf(Flag.class);
+            EnumSet<Flag> flags = recordTypeNode.isAnonymous ? EnumSet.of(Flag.PUBLIC, Flag.ANONYMOUS)
+                    : EnumSet.noneOf(Flag.class);
             BRecordTypeSymbol recordSymbol = Symbols.createRecordSymbol(Flags.asMask(flags), Names.EMPTY,
-                    env.enclPkg.symbol.pkgID, null, env.scope.owner);
+                                                                        env.enclPkg.symbol.pkgID, null,
+                                                                        env.scope.owner);
             BRecordType recordType = new BRecordType(recordSymbol);
             recordSymbol.type = recordType;
             recordTypeNode.symbol = recordSymbol;
+
+            if (env.node.getKind() != NodeKind.PACKAGE) {
+                recordSymbol.name = names.fromString(
+                        anonymousModelHelper.getNextAnonymousTypeKey(env.enclPkg.packageID));
+                symbolEnter.defineSymbol(recordTypeNode.pos, recordTypeNode.symbol, env);
+                symbolEnter.defineNode(recordTypeNode, env);
+            }
+
             resultType = recordType;
         } else {
             resultType = recordTypeNode.symbol.type;
@@ -943,7 +973,7 @@ public class SymbolResolver extends BLangNodeVisitor {
         BFiniteType finiteType = new BFiniteType(finiteTypeSymbol);
         for (BLangExpression literal : finiteTypeNode.valueSpace) {
             ((BLangLiteral) literal).type = symTable.getTypeFromTag(((BLangLiteral) literal).type.tag);
-            finiteType.valueSpace.add(literal);
+            finiteType.addValue(literal);
         }
         finiteTypeSymbol.type = finiteType;
 

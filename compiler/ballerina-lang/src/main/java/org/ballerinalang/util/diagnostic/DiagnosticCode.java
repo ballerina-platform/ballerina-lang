@@ -52,7 +52,7 @@ public enum DiagnosticCode {
     CANNOT_INFER_TABLE_TYPE("cannot.infer.table.type"),
     TABLE_KEY_EXPECTED("table.key.expected"),
     OBJECT_TYPE_NOT_ALLOWED("object.type.not.allowed"),
-    UNDEFINED_STRUCTURE_FIELD_WITH_TYPE("undefined.field.in.structure.with.type"), // TODO: remove Maryam
+    UNDEFINED_STRUCTURE_FIELD_WITH_TYPE("undefined.field.in.structure.with.type"),
     UNDEFINED_STRUCTURE_FIELD("undefined.field.in.structure"),
     TYPE_NOT_ALLOWED_WITH_NEW("type.not.allowed.with.new"),
     STREAM_INVALID_CONSTRAINT("stream.invalid.constraint"),
@@ -64,7 +64,6 @@ public enum DiagnosticCode {
     ATTEMPT_EXPOSE_NON_PUBLIC_SYMBOL("attempt.expose.non.public.symbol"),
     UNDEFINED_PARAMETER("undefined.parameter"),
     ATTACHED_FUNCTIONS_MUST_HAVE_BODY("attached.functions.must.have.body"),
-    EXTERN_FUNCTION_CANNOT_HAVE_BODY("extern.function.cannot.have.body"),
     ABSTRACT_OBJECT_CONSTRUCTOR("abstract.object.constructor"),
     CANNOT_INITIALIZE_ABSTRACT_OBJECT("cannot.initialize.abstract.object"),
     INVALID_INTERFACE_ON_NON_ABSTRACT_OBJECT("invalid.interface.of.non.abstract.object"),
@@ -88,6 +87,8 @@ public enum DiagnosticCode {
     MISSING_REQUIRED_PARAMETER("missing.required.parameter"),
 
     INCOMPATIBLE_TYPES("incompatible.types"),
+    INCOMPATIBLE_TYPES_SPREAD_OP("incompatible.types.spread.op"),
+    INCOMPATIBLE_TYPES_FIELD("incompatible.types.field"),
     UNKNOWN_TYPE("unknown.type"),
     BINARY_OP_INCOMPATIBLE_TYPES("binary.op.incompatible.types"),
     UNARY_OP_INCOMPATIBLE_TYPES("unary.op.incompatible.types"),
@@ -263,9 +264,11 @@ public enum DiagnosticCode {
     INVALID_FIELD_IN_RECORD_BINDING_PATTERN("invalid.field.in.record.binding.pattern"),
     INVALID_RECORD_LITERAL_BINDING_PATTERN("invalid.record.literal.in.binding.pattern"),
     DUPLICATE_KEY_IN_RECORD_LITERAL("duplicate.key.in.record.literal"),
+    DUPLICATE_KEY_IN_RECORD_LITERAL_SPREAD_OP("duplicate.key.in.record.literal.spread.op"),
     INVALID_ARRAY_LITERAL("invalid.array.literal"),
     INVALID_TUPLE_LITERAL("invalid.tuple.literal"),
     INVALID_LIST_CONSTRUCTOR("invalid.list.constructor"),
+    INVALID_LIST_CONSTRUCTOR_ELEMENT_TYPE("invalid.list.constructor.type"),
     INVALID_ARRAY_ELEMENT_TYPE("invalid.array.element.type"),
     INVALID_TUPLE_BINDING_PATTERN("invalid.tuple.binding.pattern"),
     INVALID_TYPE_FOR_TUPLE_VAR_EXPRESSION("invalid.type.for.tuple.var.expr"),
@@ -393,6 +396,7 @@ public enum DiagnosticCode {
 
     // Streaming related codes
     INVALID_STREAM_CONSTRUCTOR("invalid.stream.constructor"),
+    NOT_ALLOWED_STREAM_USAGE_WITH_FROM("invalid.stream.usage.with.from"),
 
     // Taint checking related codes
     ENTRY_POINT_PARAMETERS_CANNOT_BE_UNTAINTED("entry.point.parameters.cannot.be.untainted"),
