@@ -181,6 +181,8 @@ public enum DiagnosticCode {
     TYPE_CAST_NOT_YET_SUPPORTED("type.cast.not.yet.supported.for.type"),
     EQUALITY_NOT_YET_SUPPORTED("equality.not.yet.supported.for.type"),
     BINDING_PATTERN_NOT_YET_SUPPORTED("binding.pattern.not.yet.supported.for.type"),
+    LET_EXPRESSION_NOT_YET_SUPPORTED_RECORD_FIELD("let.expression.not.yet.supported.record.field"),
+    LET_EXPRESSION_NOT_YET_SUPPORTED_OBJECT_FIELD("let.expression.not.yet.supported.object.field"),
 
     // Cast and conversion related codes
     INCOMPATIBLE_TYPES_CAST("incompatible.types.cast"),
