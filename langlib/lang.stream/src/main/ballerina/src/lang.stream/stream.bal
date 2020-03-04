@@ -28,7 +28,6 @@ type PureType2 any | error;
 @typeParam
 type Type any | error;
 
-
 # Selects the members from an array for which the `func` function returns true.
 #
 # + strm - The stream
@@ -74,7 +73,14 @@ public function filter(stream<PureType1> strm, function(PureType1 val) returns b
 #            otherwise returns ()
 public function next(stream<PureType1> strm) returns record {| PureType1 value; |}|error? {
     var iteratorObj = getIteratorObj(strm);
-    return iteratorObj.next();
+    var next = iteratorObj.next();
+    if (next is ()) {
+        return ();
+    } else if (next is error) {
+        return next;
+    } else {
+        return internal:setNarrowType(typeof next.value, {value : next.value});
+    }
 }
 
 # Applies a function to each member of a stream and returns a new stream of the results.

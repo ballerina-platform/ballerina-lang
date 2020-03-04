@@ -48,16 +48,16 @@ function testFilterFunc() returns boolean {
         return person.age > 100 && person.name != "James";
     });
 
-    record {|Person value;|}? filteredPerson = filteredPersonStream.next();
+    record {|Person value;|}? filteredPerson = <record {|Person value;|}?>filteredPersonStream.next();
     testPassed = testPassed && filteredPerson?.value == personList[1];
 
-    filteredPerson = filteredPersonStream.next();
+    filteredPerson = <record {|Person value;|}?>filteredPersonStream.next();
     testPassed = testPassed && filteredPerson?.value == personList[2];
 
-    filteredPerson = filteredPersonStream.next();
+    filteredPerson = <record {|Person value;|}?>filteredPersonStream.next();
     testPassed = testPassed && filteredPerson?.value == personList[4];
 
-    filteredPerson = filteredPersonStream.next();
+    filteredPerson = <record {|Person value;|}?>filteredPersonStream.next();
     testPassed = testPassed && filteredPerson == ();
 
     return testPassed;
@@ -76,22 +76,22 @@ function testMapFunc() returns boolean {
         return e;
     });
 
-    record {|Employee value;|}? employee = employeeStream.next();
+    record {|Employee value;|}? employee = <record {|Employee value;|}?>employeeStream.next();
     testPassed = testPassed && employee?.value?.name == "Gima" && employee?.value?.company == "WSO2";
 
-    employee = employeeStream.next();
+    employee = <record {|Employee value;|}?>employeeStream.next();
     testPassed = testPassed && employee?.value?.name == "Mohan" && employee?.value?.company == "WSO2";
 
-    employee = employeeStream.next();
+    employee = <record {|Employee value;|}?>employeeStream.next();
     testPassed = testPassed && employee?.value?.name == "Grainier" && employee?.value?.company == "WSO2";
 
-    employee = employeeStream.next();
+    employee = <record {|Employee value;|}?>employeeStream.next();
     testPassed = testPassed && employee?.value?.name == "Chiran" && employee?.value?.company == "WSO2";
 
-    employee = employeeStream.next();
+    employee = <record {|Employee value;|}?>employeeStream.next();
     testPassed = testPassed && employee?.value?.name == "Sinthuja" && employee?.value?.company == "WSO2";
 
-    employee = employeeStream.next();
+    employee = <record {|Employee value;|}?>employeeStream.next();
     testPassed = testPassed && employee == ();
 
     return testPassed;
@@ -116,16 +116,16 @@ function testFilterAndMapFunc() returns boolean {
     }
     );
 
-    record {|Employee value;|}? employee = employeeStream.next();
+    record {|Employee value;|}? employee = <record {|Employee value;|}?>employeeStream.next();
     testPassed = testPassed && employee?.value?.name == "Mohan" && employee?.value?.company == "WSO2";
 
-    employee = employeeStream.next();
+    employee = <record {|Employee value;|}?>employeeStream.next();
     testPassed = testPassed && employee?.value?.name == "Grainier" && employee?.value?.company == "WSO2";
 
-    employee = employeeStream.next();
+    employee = <record {|Employee value;|}?>employeeStream.next();
     testPassed = testPassed && employee?.value?.name == "Sinthuja" && employee?.value?.company == "WSO2";
 
-    employee = employeeStream.next();
+    employee = <record {|Employee value;|}?>employeeStream.next();
     testPassed = testPassed && employee == ();
 
     return testPassed;
@@ -157,22 +157,22 @@ function testIterator() returns boolean {
     stream<Person> personStream = personList.toStream();
     var iterator = personStream.iterator();
 
-    record {|Person value;|}? filteredPerson = iterator.next();
+    record {|Person value;|}? filteredPerson = <record {|Person value;|}?>iterator.next();
     testPassed = testPassed && filteredPerson?.value == personList[0];
 
-    filteredPerson = iterator.next();
+    filteredPerson = <record {|Person value;|}?>iterator.next();
     testPassed = testPassed && filteredPerson?.value == personList[1];
 
-    filteredPerson = iterator.next();
+    filteredPerson = <record {|Person value;|}?>iterator.next();
     testPassed = testPassed && filteredPerson?.value == personList[2];
 
-    filteredPerson = iterator.next();
+    filteredPerson = <record {|Person value;|}?>iterator.next();
     testPassed = testPassed && filteredPerson?.value == personList[3];
 
-    filteredPerson = iterator.next();
+    filteredPerson = <record {|Person value;|}?>iterator.next();
     testPassed = testPassed && filteredPerson?.value == personList[4];
 
-    filteredPerson = iterator.next();
+    filteredPerson = <record {|Person value;|}?>iterator.next();
     testPassed = testPassed && filteredPerson == ();
 
     return testPassed;
@@ -193,7 +193,7 @@ function testMapFuncWithRecordType() returns boolean {
 
         });
 
-    record {| Employee value; |}? nextValue = mappedEmpStream.next();
+    record {| Employee value; |}? nextValue = <record {| Employee value; |}?>mappedEmpStream.next();
     Employee employee = <Employee>nextValue?.value;
 
     testPassed = testPassed && employee.name == "Gima" && employee.company == "WSO2";

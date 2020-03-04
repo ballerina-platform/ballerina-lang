@@ -27,13 +27,7 @@ public type PureType any|error;
 # + td - The narrowed type to be set.
 # + val - The value of which the type being set.
 # + return - The value with the narrowed type.
-public function setNarrowType(typedesc<PureType> td, record {|PureType value;|} val) returns record {|PureType value;|} = external;
-
-# Creates a read-only copy of the given value
-#
-# + v - source value
-# + return - immutable clone of `v`
-public function createClone(PureType v) returns PureType = external;
+public function setNarrowType(typedesc<PureType> td, record {|PureType value;|}|error? val) returns record {|PureType value;|}|error? = external;
 
 # Takes in a lambda function and returns a new stream out of it.
 #
