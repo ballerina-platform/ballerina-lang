@@ -14,6 +14,7 @@
 // under the License.
 
 import ballerina/java.jdbc;
+import ballerina/io;
 
 function testQuery(string jdbcURL, string user, string password) returns record{}|error? {
     jdbc:Client dbClient = check new (url = jdbcURL, user = user, password = password);
@@ -49,4 +50,28 @@ function testQueryNumericTypeRecord(string jdbcURL, string user, string password
     check dbClient.close();
     return returnData;
 }
+
+type NumericOptionalType record {
+    int? id;
+    int? int_type;
+    int? bigint_type;
+    int? smallint_type;
+    int? tinyint_type;
+    boolean? bit_type;
+    decimal? decimal_type;
+    decimal? numeric_type;
+    float? float_type;
+    float? real_type;
+};
+
+function testQueryNumericOptionalTypeRecord(string jdbcURL, string user, string password) returns record {| (any|error) value; |} |error? {
+    jdbc:Client dbClient = check new (url = jdbcURL, user = user, password = password);
+    stream<NumericOptionalType, error> streamData = <stream<NumericOptionalType, error>> dbClient.query("SELECT * FROM NumericTypes", NumericOptionalType);
+    record {| (NumericOptionalType|error) value; |} returnData = check streamData.next();
+    io:println(returnData);
+    check dbClient.close();
+    return returnData;
+}
+
+
 

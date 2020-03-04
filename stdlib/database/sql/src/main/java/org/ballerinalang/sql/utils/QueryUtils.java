@@ -101,12 +101,21 @@ public class QueryUtils {
             } catch (ApplicationError applicationError) {
                 closeResources(resultSet, preparedStatement, connection);
                 ErrorValue errorValue = ErrorGenerator.getSQLApplicationError(applicationError.getMessage());
-                return new StreamValue(new BStreamType(getDefaultStreamConstraint()), createRecordIterator(errorValue));
+                return getErrorStream(recordType, errorValue);
             }
         } else {
             ErrorValue errorValue = ErrorGenerator.getSQLApplicationError(
                     "Client is not properly initialized!");
-            return new StreamValue(getDefaultStreamConstraint(), createRecordIterator(errorValue));
+            return getErrorStream(recordType, errorValue);
+        }
+    }
+
+    private static StreamValue getErrorStream(Object recordType, ErrorValue errorValue) {
+        if (recordType == null) {
+            return new StreamValue(new BStreamType(getDefaultStreamConstraint()), createRecordIterator(errorValue));
+        } else {
+            return new StreamValue(new BStreamType(((TypedescValue) recordType).getDescribingType()),
+                    createRecordIterator(errorValue));
         }
     }
 
