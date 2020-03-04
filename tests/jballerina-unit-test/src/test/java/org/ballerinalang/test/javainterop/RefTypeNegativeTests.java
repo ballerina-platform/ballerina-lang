@@ -19,6 +19,8 @@ package org.ballerinalang.test.javainterop;
 
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.test.util.BCompileUtil;
+import org.ballerinalang.test.util.CompileResult;
+import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -29,25 +31,21 @@ import org.testng.annotations.Test;
  */
 public class RefTypeNegativeTests {
 
-    @Test
+    @Test(expectedExceptions = BLangCompilerException.class, groups = "brokenOnJBallerina")
     public void testInvalidMethodSignaturesForRefTypes() {
-        String[] errors = null;
-        try {
-            BCompileUtil.compileInProc("test-src/javainterop/ballerina_ref_types_as_interop_negative.bal");
-        } catch (BLangCompilerException e) {
-            errors = e.getMessage().split("\n");
-        }
-
-        Assert.assertNotNull(errors);
-        Assert.assertEquals(errors.length, 2);
-        Assert.assertEquals(errors[0], "error: .:ballerina_ref_types_as_interop_negative.bal:13:1: {ballerinax/java}" +
-                "METHOD_SIGNATURE_DOES_NOT_MATCH message=Incompatible return type for method 'getAllFloats' in class" +
-                " 'org.ballerinalang.test.javainterop.RefTypeNegativeTests': Java type 'float' will not be matched " +
-                "to ballerina type 'ALL_INT'");
-        Assert.assertEquals(errors[1], "error: .:ballerina_ref_types_as_interop_negative.bal:28:1: {ballerinax/java}" +
-                "METHOD_SIGNATURE_DOES_NOT_MATCH message=Incompatible param type for method 'acceptAllInts' in class" +
-                " 'org.ballerinalang.test.javainterop.RefTypeNegativeTests': Java type 'int' will not be matched to " +
-                "ballerina type 'MIX_TYPE'");
+        CompileResult compileResult =
+                BCompileUtil.compileInProc("test-src/javainterop/ballerina_ref_types_as_interop_negative.bal");
+        Diagnostic[] diagnostics = compileResult.getDiagnostics();
+        Assert.assertNotNull(diagnostics);
+        Assert.assertEquals(diagnostics.length, 2);
+        Assert.assertEquals(diagnostics[0].getMessage(), "error: .:ballerina_ref_types_as_interop_negative.bal:13:1: " +
+                "{ballerinax/java}METHOD_SIGNATURE_DOES_NOT_MATCH message=Incompatible return type for method " +
+                "'getAllFloats' in class 'org.ballerinalang.test.javainterop.RefTypeNegativeTests': Java type 'float'" +
+                " will not be matched to ballerina type 'ALL_INT'");
+        Assert.assertEquals(diagnostics[1].getMessage(), "error: .:ballerina_ref_types_as_interop_negative.bal:28:1: " +
+                "{ballerinax/java}METHOD_SIGNATURE_DOES_NOT_MATCH message=Incompatible param type for method " +
+                "'acceptAllInts' in class 'org.ballerinalang.test.javainterop.RefTypeNegativeTests': Java type 'int' " +
+                "will not be matched to ballerina type 'MIX_TYPE'");
     }
 
     // static methods
