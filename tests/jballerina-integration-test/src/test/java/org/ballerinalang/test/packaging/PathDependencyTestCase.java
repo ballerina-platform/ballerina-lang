@@ -25,7 +25,6 @@ import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.context.LogLeecher;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
-import org.testng.annotations.Ignore;
 import org.testng.annotations.Test;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 import org.wso2.ballerinalang.programfile.ProgramFileConstants;
@@ -116,8 +115,8 @@ public class PathDependencyTestCase extends BaseTest {
      *
      * @throws BallerinaTestException Error when executing the commands.
      */
-    @Ignore
-    @Test(description = "Case2: Test path between 2 projects where 3 modules are involved and imported as a chain.")
+    @Test(groups = "brokenOnJBallerina", description = "Case2: Test path between 2 projects where 3 modules are " +
+            "involved and imported as a chain.")
     public void testBaloPathCase2() throws BallerinaTestException {
         Path caseResources = tempTestResources.resolve("case2");
         // Build bee module of TestProject1
