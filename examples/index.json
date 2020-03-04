@@ -1096,5 +1096,23 @@
                 "url": "transactions-distributed"
             }
         ]
+    },
+    {
+        "title": "Streams",
+        "column": 2,
+        "category": "Language concepts",
+        "samples": [{
+            "name": "Streams",
+            "url": "streams"
+        }]
+    },
+    {
+        "title": "Query",
+        "column": 2,
+        "category": "Language concepts",
+        "samples": [{
+            "name": "Query",
+            "url": "query"
+        }]
     }
 ]

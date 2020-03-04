@@ -1,0 +1,8 @@
+# To run this sample, navigate to the directory that contains the
+# `.bal` file, and execute the `ballerina run` command.
+$ ballerina run query.bal
+Iterating a record list and filtering students with score greater than 1:
+name=Alex degree=Bachelor of Medicine name=John degree=Bachelor of Medicine
+
+Iterating record list and map it another record type:
+firstName=Alex lastName=George firstName=Ranjan lastName=Fonseka firstName=John lastName=David
