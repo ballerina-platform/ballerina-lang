@@ -101,6 +101,7 @@ public enum DiagnosticCode {
     INVALID_WORKER_TIMEOUT_RESULT_TYPE("invalid.worker.timeout.result.type"),
     INVALID_WORKER_REFERRENCE("invalid.worker.reference"),
     INCOMPATIBLE_TYPE_CONSTRAINT("incompatible.type.constraint"),
+    USAGE_OF_ASYNC_CALL_WITHIN_LOCK_IS_PROHIBITED("usage.of.async.call.within.lock.is.prohibited"),
     WORKER_SEND_RECEIVE_PARAMETER_COUNT_MISMATCH("worker.send.receive.parameter.count.mismatch"),
     INVALID_WORKER_INTERACTION("worker.invalid.worker.interaction"),
     WORKER_INTERACTIONS_ONLY_ALLOWED_BETWEEN_PEERS("worker.interactions.only.allowed.between.peers"),

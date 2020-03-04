@@ -21,6 +21,7 @@ import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.test.util.BAssertUtil;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
@@ -350,7 +351,14 @@ public class WorkerTest {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class)
-    public void testPanicWorkerInsideLock() {
+    public void testFunctionWithWorkerInsideLock() {
         BValue[] returns = BRunUtil.invoke(result, "testPanicWorkerInsideLock");
+    }
+
+    @Test
+    public void testWorkerInsideLock() {
+        CompileResult result = BCompileUtil.compile("test-src/workers/worker-in-lock.bal");
+        int index = 0;
+        BAssertUtil.validateError(result, index++, 4, 20);
     }
 }

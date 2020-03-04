@@ -230,6 +230,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     private boolean statementReturns;
     private boolean lastStatement;
     private boolean withinRetryBlock;
+    private boolean withinLockBlock;
     private int workerCount;
     private SymbolTable symTable;
     private Types types;
@@ -1235,7 +1236,9 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     public void visit(BLangLock lockNode) {
 
         this.checkStatementExecutionValidity(lockNode);
+        this.withinLockBlock = true;
         lockNode.body.stmts.forEach(e -> analyzeNode(e, env));
+        this.withinLockBlock = false;
     }
 
     @Override
@@ -1999,7 +2002,12 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
 
         if (invocationExpr.actionInvocation || invocationExpr.async) {
-            validateActionInvocation(invocationExpr.pos, invocationExpr);
+            if (this.withinLockBlock) {
+                dlog.error(invocationExpr.pos, DiagnosticCode.USAGE_OF_ASYNC_CALL_WITHIN_LOCK_IS_PROHIBITED,
+                        invocationExpr.name);
+            } else {
+                validateActionInvocation(invocationExpr.pos, invocationExpr);
+            }
         }
     }
 
