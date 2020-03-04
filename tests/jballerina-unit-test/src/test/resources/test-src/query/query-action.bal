@@ -9,6 +9,17 @@ type FullName record {|
    string lastName;
 |};
 
+type Department record {|
+   string name;
+|};
+
+type Employee record {|
+   string firstName;
+   string lastName;
+   string deptAccess;
+|};
+
+
 function testSimpleQueryAction() returns FullName[]{
 
     Person p1 = {firstName: "Alex", lastName: "George", age: 23};
@@ -111,4 +122,28 @@ function testSimpleSelectQueryWithWhereClause() returns  FullName[] {
           nameList[nameList.length()] = fullName;
     }
     return  nameList;
+}
+
+function testSimpleSelectQueryWithMultipleFromClauses() returns  Employee[] {
+    Person p1 = {firstName:"Alex", lastName: "George", age: 23};
+    Person p2 = {firstName:"Ranjan", lastName: "Fonseka", age: 30};
+    Person p3 = {firstName:"John", lastName: "David", age: 33};
+
+    Department d1 = {name:"HR"};
+    Department d2 = {name:"Operations"};
+
+    Person[] personList = [p1, p2, p3];
+    Department[] deptList = [d1, d2];
+    Employee[] employeeList = [];
+
+    from var person in personList
+    from var dept in deptList
+    let string hrDepartment = "Human Resource"
+    do {
+        if(dept.name == "HR") {
+          Employee employee = {firstName: person.firstName, lastName: person.lastName, deptAccess: hrDepartment};
+          employeeList[employeeList.length()] = employee;
+        }
+    }
+    return  employeeList;
 }

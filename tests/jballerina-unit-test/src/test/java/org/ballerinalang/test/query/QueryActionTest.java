@@ -116,4 +116,14 @@ public class QueryActionTest {
         Assert.assertEquals(person.get("firstName").stringValue(), "Alex");
     }
 
+    @Test(description = "Test simple query action with multiple from clauses")
+    public void testSimpleSelectQueryWithMultipleFromClauses() {
+        BValue[] returnValues = BRunUtil.invoke(result, "testSimpleSelectQueryWithMultipleFromClauses");
+        Assert.assertNotNull(returnValues);
+        Assert.assertEquals(returnValues.length, 3, "Expected events are not received");
+        BMap<String, BValue> employee = (BMap<String, BValue>) returnValues[0];
+
+        Assert.assertEquals(employee.get("firstName").stringValue(), "Alex");
+        Assert.assertEquals(employee.get("deptAccess").stringValue(), "Human Resource");
+    }
 }
