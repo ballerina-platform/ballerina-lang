@@ -14,7 +14,6 @@
 // under the License.
 
 import ballerina/java.jdbc;
-//import ballerina/io;
 
 function testQuery(string jdbcURL, string user, string password) returns record{}|error? {
     jdbc:Client dbClient = check new (url = jdbcURL, user = user, password = password);
@@ -67,7 +66,7 @@ type NumericInvalidColumn record {
 function testQueryNumericInvalidColumnRecord(string jdbcURL, string user, string password) returns error? {
     jdbc:Client dbClient = check new (url = jdbcURL, user = user, password = password);
     stream<NumericInvalidColumn, error> streamData = <stream<NumericInvalidColumn, error>> dbClient.query("SELECT * FROM NumericTypes", NumericInvalidColumn);
-    record{| any value; |} data =  check streamData.next();
+    record{| NumericInvalidColumn value; |}? data =  check streamData.next();
     check dbClient.close();
     return ();
 }
@@ -85,39 +84,11 @@ type NumericOptionalType record {
     float? real_type;
 };
 
-//function testQueryNumericOptionalTypeRecord(string jdbcURL, string user, string password) returns error? {
-//    jdbc:Client dbClient = check new (url = jdbcURL, user = user, password = password);
-//    stream<NumericOptionalType, error> streamData = <stream<NumericOptionalType, error>> dbClient.query("SELECT * FROM NumericTypes", NumericOptionalType);
-//    io:println("came1");
-//    //record{| any|error value; |} data =  check streamData.next();
-//    record{| NumericOptionalType value; |}? data =  check streamData.next();
-//    io:println(data);
-//    io:println("came2");
-//    if(data is record{| any|error value; |}){
-//        io:println("came3");
-//        io:println(data.value);
-//    }
-//    io:println("came4");
-//    //NumericOptionalType numValue = <NumericOptionalType>data?.value;
-//    //io:println(numValue);
-//    //io:println(data.value);
-//    check dbClient.close();
-//    //io:println("came3");
-//    //if(data is error?){
-//    //   io:println(data);
-//    //   return data;
-//    //} else {
-//    //    io:println(data.value);
-//    //    return data.value;
-//    //}
-//    return ();
-//}
-
 function testQueryNumericOptionalTypeRecord(string jdbcURL, string user, string password) returns NumericOptionalType|error? {
     jdbc:Client dbClient = check new (url = jdbcURL, user = user, password = password);
     stream<NumericOptionalType, error> streamData = <stream<NumericOptionalType, error>> dbClient.query("SELECT * FROM NumericTypes", NumericOptionalType);
-    record{| any value; |} data =  check streamData.next();
-    NumericOptionalType numericType = <NumericOptionalType>data.value;
+    record{| NumericOptionalType value; |}? data =  check streamData.next();
+    NumericOptionalType? numericType = data?.value;
     check dbClient.close();
     return numericType;
 }
@@ -138,8 +109,8 @@ type NumericUnionType record {
 function testQueryNumericUnionTypeRecord(string jdbcURL, string user, string password) returns NumericUnionType|error? {
     jdbc:Client dbClient = check new (url = jdbcURL, user = user, password = password);
     stream<NumericUnionType, error> streamData = <stream<NumericUnionType, error>> dbClient.query("SELECT * FROM NumericTypes", NumericUnionType);
-    record{| any value; |} data =  check streamData.next();
-    NumericUnionType numericType = <NumericUnionType>data.value;
+    record{| NumericUnionType value; |}? data =  check streamData.next();
+    NumericUnionType? numericType = data?.value;
     check dbClient.close();
     return numericType;
 }
@@ -160,8 +131,8 @@ type NumericStringType record {
 function testQueryNumericStringTypeRecord(string jdbcURL, string user, string password) returns NumericStringType|error? {
     jdbc:Client dbClient = check new (url = jdbcURL, user = user, password = password);
     stream<NumericStringType, error> streamData = <stream<NumericStringType, error>> dbClient.query("SELECT * FROM NumericTypes", NumericStringType);
-    record{| any value; |} data =  check streamData.next();
-    NumericStringType numericType = <NumericStringType>data.value;
+    record{| NumericStringType value; |}? data =  check streamData.next();
+    NumericStringType? numericType = data?.value;
     check dbClient.close();
     return numericType;
 }
