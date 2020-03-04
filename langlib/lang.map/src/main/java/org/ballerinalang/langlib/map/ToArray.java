@@ -84,7 +84,7 @@ public class ToArray {
             case TypeTags.BYTE_TAG:
                 byte[] byteArr = new byte[size];
                 for (Object val : values) {
-                    byteArr[i++] = (Byte) val;
+                    byteArr[i++] = ((Integer) val).byteValue();
                 }
                 return new ArrayValueImpl(byteArr);
             case TypeTags.BOOLEAN_TAG:

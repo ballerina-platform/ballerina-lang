@@ -186,27 +186,40 @@ function testOpenRecordToArray() {
     assert(<(string|int|float|decimal|boolean)[]>["John Doe", 25, 65.5, 172.3d, true, "Sri Lanka", 12500], arr);
 }
 
+type Bar record {|
+    byte a;
+    byte b;
+    byte...;
+|};
+
+function testRecordWithSameTypeFieldsToArray() {
+    Bar bar = {a: 10, b: 20, "c": 30, "d": 40};
+    byte[] arr = bar.toArray();
+    byte[] exp = [10, 20, 30, 40];
+    assert(exp, arr);
+}
+
 
 // Util functions
 
 function assert(anydata expected, anydata actual) {
-    if (expected != actual) {
-        typedesc<anydata> expT = typeof expected;
-        typedesc<anydata> actT = typeof actual;
-        string reason = "expected [" + expected.toString() + "] of type [" + expT.toString()
-                            + "], but found [" + actual.toString() + "] of type [" + actT.toString() + "]";
-        error e = error(reason);
-        panic e;
+    if (expected == actual) {
+        return;
     }
+    typedesc<anydata> expT = typeof expected;
+    typedesc<anydata> actT = typeof actual;
+    string msg = "expected [" + expected.toString() + "] of type [" + expT.toString()
+                        + "], but found [" + actual.toString() + "] of type [" + actT.toString() + "]";
+    panic error("{AssertionError}", message = msg);
 }
 
 function assertSameRef(any expected, any actual) {
-    if (expected !== actual) {
-        typedesc<any> expT = typeof expected;
-        typedesc<any> actT = typeof actual;
-        string reason = "expected [" + expected.toString() + "] of type [" + expT.toString()
-                            + "], but found [" + actual.toString() + "] of type [" + actT.toString() + "]";
-        error e = error(reason);
-        panic e;
+    if (expected === actual) {
+        return;
     }
+    typedesc<any> expT = typeof expected;
+    typedesc<any> actT = typeof actual;
+    string msg = "expected [" + expected.toString() + "] of type [" + expT.toString()
+                        + "], but found [" + actual.toString() + "] of type [" + actT.toString() + "]";
+    panic error("{AssertionError}", message = msg);
 }

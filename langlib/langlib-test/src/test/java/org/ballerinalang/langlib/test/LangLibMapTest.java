@@ -200,6 +200,11 @@ public class LangLibMapTest {
         BRunUtil.invoke(compileResult, "testMapOfUnionToArray");
     }
 
+    @Test
+    public void testRecordWithSameTypeFieldsToArray() {
+        BRunUtil.invoke(compileResult, "testRecordWithSameTypeFieldsToArray");
+    }
+
     @DataProvider(name = "mapKeyProvider")
     public Object[][] getMapKeys() {
         return new Object[][]{
