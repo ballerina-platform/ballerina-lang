@@ -227,6 +227,6 @@ public function fromBase16(string str) returns byte[]|error = external;
 #
 # + arr - The array from which the stream is created
 # + return - The stream representation of the array `arr`
-public function toStream(PureType[] arr) returns stream<PureType> {
+public function toStream(Type[] arr) returns stream<Type> {
     return internal:construct(internal:getElementType(typeof arr), iterator(arr));
 }

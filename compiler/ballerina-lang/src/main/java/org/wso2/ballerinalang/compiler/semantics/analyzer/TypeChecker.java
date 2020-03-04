@@ -1763,19 +1763,34 @@ public class TypeChecker extends BLangNodeVisitor {
                 }
                 break;
             case TypeTags.STREAM:
-
                 if (cIExpr.initInvocation.argExprs.size() != 1) {
                     dlog.error(cIExpr.pos, DiagnosticCode.INVALID_STREAM_CONSTRUCTOR, cIExpr.initInvocation.name);
                     resultType = symTable.semanticError;
                     return;
                 }
 
-                BType constructType = checkExpr(cIExpr.initInvocation.argExprs.get(0), env, symTable.noType);
+                BStreamType actualStreamType = (BStreamType) actualType;
+                if (actualStreamType.error != null) {
+                    if (actualStreamType.error.tag != TypeTags.ERROR) {
+                        dlog.error(cIExpr.pos, DiagnosticCode.ERROR_TYPE_EXPECTED, actualStreamType.error.toString());
+                        resultType = symTable.semanticError;
+                        return;
+                    }
+                }
+
+                BLangExpression iteratorExpr = cIExpr.initInvocation.argExprs.get(0);
+                BType constructType = checkExpr(iteratorExpr, env, symTable.noType);
                 BUnionType nextReturnType = types.getVarTypeFromIteratorFuncReturnType(constructType);
+                BUnionType expectedReturnType = createNextReturnType(cIExpr.pos, (BStreamType) actualType);
+                if (nextReturnType == null) {
+                    dlog.error(iteratorExpr.pos, DiagnosticCode.MISSING_REQUIRED_METHOD_NEXT,
+                            constructType, expectedReturnType);
+                    resultType = symTable.semanticError;
+                    return;
+                }
 
-//                resultType = types.checkType(cIExpr, actualTypeInitType, expType);
-
-                // TODO: add checks
+                types.checkType(iteratorExpr.pos, nextReturnType, expectedReturnType,
+                        DiagnosticCode.INCOMPATIBLE_TYPES);
                 resultType = actualType;
                 return;
             case TypeTags.UNION:
@@ -1811,6 +1826,36 @@ public class TypeChecker extends BLangNodeVisitor {
         }
         BType actualTypeInitType = getObjectConstructorReturnType(actualType, cIExpr.initInvocation.type);
         resultType = types.checkType(cIExpr, actualTypeInitType, expType);
+    }
+
+    private BUnionType createNextReturnType(DiagnosticPos pos, BStreamType streamType) {
+        BRecordType recordType = new BRecordType(null);
+        recordType.restFieldType = symTable.noType;
+        recordType.sealed = true;
+
+        Name fieldName = Names.VALUE;
+        BField field = new BField(fieldName, pos, new BVarSymbol(Flags.PUBLIC,
+                fieldName, env.enclPkg.packageID, streamType.constraint, env.scope.owner));
+        field.type = streamType.constraint;
+        recordType.fields.add(field);
+
+        recordType.tsymbol = Symbols.createRecordSymbol(0, Names.EMPTY, env.enclPkg.packageID,
+                recordType, env.scope.owner);
+        recordType.tsymbol.scope = new Scope(env.scope.owner);
+        recordType.tsymbol.scope.define(fieldName, field.symbol);
+
+        LinkedHashSet<BType> retTypeMembers = new LinkedHashSet<>();
+        retTypeMembers.add(recordType);
+        if (streamType.error != null) {
+            retTypeMembers.add(streamType.error);
+        }
+        retTypeMembers.add(symTable.nilType);
+
+        BUnionType unionType = BUnionType.create(null, retTypeMembers);
+        unionType.tsymbol = Symbols.createTypeSymbol(SymTag.UNION_TYPE, 0, Names.EMPTY,
+                env.enclPkg.symbol.pkgID, unionType, env.scope.owner);
+
+        return unionType;
     }
 
     private boolean isValidInitInvocation(BLangTypeInit cIExpr, BObjectType objType) {
@@ -3355,6 +3400,11 @@ public class TypeChecker extends BLangNodeVisitor {
         if (iExpr.argExprs.isEmpty() || !iExpr.argExprs.get(0).equals(iExpr.expr)) {
             iExpr.argExprs.add(0, iExpr.expr);
         }
+        if (bType.tag == TypeTags.STREAM) {
+            BType expectedType = iExpr.expectedType;
+            ((BInvokableSymbol)iExpr.symbol).retType = expectedType;
+            ((BInvokableType)((BInvokableSymbol)iExpr.symbol).type).retType = expectedType;
+        }
         checkInvocationParamAndReturnType(iExpr);
         this.env = enclEnv;
 
@@ -3553,8 +3603,7 @@ public class TypeChecker extends BLangNodeVisitor {
             return;
         }
         checkExpr(arg, env, expectedType);
-        BType actualType = (arg.type.tag == TypeTags.STREAM) ? ((BStreamType) arg.type).constraint : arg.type;
-        typeParamAnalyzer.checkForTypeParamsInArg(actualType, this.env, expectedType);
+        typeParamAnalyzer.checkForTypeParamsInArg(arg.type, this.env, expectedType);
     }
 
     private boolean requireTypeInference(BLangExpression expr) {
