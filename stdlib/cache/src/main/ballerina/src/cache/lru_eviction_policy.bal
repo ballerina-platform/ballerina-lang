@@ -20,28 +20,52 @@ public type LruEvictionPolicy object {
 
     *AbstractEvictionPolicy;
 
+    # Update linked list based on get operation related to LRU eviction algorithm.
+    #
+    # + list - Linked list data structure
+    # + node - Node of the linked list which is retrieved
     public function get(LinkedList list, Node node) {
         remove(list, node);
         addFirst(list, node);
     }
 
+    # Update linked list based on put operation related to LRU eviction algorithm.
+    #
+    # + list - Linked list data structure
+    # + node - Node of the linked list which is newly added
     public function put(LinkedList list, Node node) {
         addFirst(list, node);
     }
 
+    # Update linked list based on remove operation related to LRU eviction algorithm.
+    #
+    # + list - Linked list data structure
+    # + node - Node of the linked list which is deleted
     public function remove(LinkedList list, Node node) {
         remove(list, node);
     }
 
+    # Update linked list based on replace operation related to LRU eviction algorithm.
+    #
+    # + list - Linked list data structure
+    # + newNode - Node of the linked list which is replaced by
+    # + oldNode - Node of the linked list which is to be replaced
     public function replace(LinkedList list, Node newNode, Node oldNode) {
         remove(list, oldNode);
         addFirst(list, newNode);
     }
 
+    # Update linked list based on clear operation related to LRU eviction algorithm.
+    #
+    # + list - Linked list data structure
     public function clear(LinkedList list) {
         clear(list);
     }
 
+    # Update linked list based on evict operation related to LRU eviction algorithm.
+    #
+    # + list - Linked list data structure
+    # + return - The Ndde which should evict from the linked list or `()` if nothing to be evicted
     public function evict(LinkedList list) returns Node? {
         return removeLast(list);
     }
