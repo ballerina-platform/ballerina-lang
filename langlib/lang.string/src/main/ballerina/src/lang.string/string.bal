@@ -165,6 +165,13 @@ public function toCodePointInt(Char ch) returns int = external;
 # if any member of `codePoints` is not a valid code point
 public function fromCodePointInts(int[] codePoints) returns string|error = external;
 
+# Compare two given strings ignoring the case. In the comparison, any non ascii character
+# will be compared as is.
+#
+#  +
+#  + return = a boolean with value true if equals and value false if not equal.
+public function equalsIgnoreCaseAscii(string str1, string str2) returns boolean = external;
+
 # Constructs a single character string from a code point.
 # An int is a valid code point if it is in the range 0 to 0x10FFFF inclusive,
 # but not in the range 0xD800 or 0xDFFF inclusive.
