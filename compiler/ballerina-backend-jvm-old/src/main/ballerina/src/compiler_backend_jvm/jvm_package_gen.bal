@@ -713,15 +713,7 @@ function isLangModule(bir:ModuleID moduleId) returns boolean{
 function readFileFully(string path) returns byte[]  = external;
 
 public function lookupExternClassName(string pkgName, string functionName) returns string? {
-    string remapedPkgName = remapLangInternalPackageName(pkgName);
-    return externalMapCache[cleanupName(remapedPkgName) + "/" + nameOfNonBStringFunc(functionName)];
-}
-
-function remapLangInternalPackageName(string pkgName) returns string {
-    // Ballerina langlib module `__internal` is implemented in `org.ballerinalang.langlib.internal`
-    // to avoid naming convention violations in Java implementation.
-    // remapping extern class name of `__internal` functions to `internal`
-    return stringutils:replace(pkgName, "__internal", "internal");
+    return externalMapCache[cleanupName(pkgName) + "/" + nameOfNonBStringFunc(functionName)];
 }
 
 function generateShutdownSignalListener(bir:Package pkg, string initClass, map<byte[]> jarEntries) {

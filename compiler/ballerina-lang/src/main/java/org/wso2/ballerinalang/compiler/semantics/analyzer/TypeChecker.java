@@ -312,7 +312,7 @@ public class TypeChecker extends BLangNodeVisitor {
         for (BLangXMLElementFilter filter : filters) {
             if (!filter.namespace.isEmpty()) {
                 Name nsName = names.fromString(filter.namespace);
-                BSymbol nsSymbol = symResolver.lookupSymbol(env, nsName, SymTag.XMLNS);
+                BSymbol nsSymbol = symResolver.lookupSymbolInPrefixSpace(env, nsName);
                 filter.namespaceSymbol = nsSymbol;
                 if (nsSymbol == symTable.notFoundSymbol) {
                     dlog.error(filter.nsPos, DiagnosticCode.CANNOT_FIND_XML_NAMESPACE, nsName);
@@ -4348,10 +4348,9 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     private void resolveXMLNamespace(BLangFieldBasedAccess.BLangNSPrefixedFieldBasedAccess fieldAccessExpr) {
-        BLangFieldBasedAccess.BLangNSPrefixedFieldBasedAccess nsPrefixedFieldAccess =
-                fieldAccessExpr;
+        BLangFieldBasedAccess.BLangNSPrefixedFieldBasedAccess nsPrefixedFieldAccess = fieldAccessExpr;
         String nsPrefix = nsPrefixedFieldAccess.nsPrefix.value;
-        BSymbol nsSymbol = symResolver.lookupSymbol(env, names.fromString(nsPrefix), SymTag.XMLNS);
+        BSymbol nsSymbol = symResolver.lookupSymbolInPrefixSpace(env, names.fromString(nsPrefix));
 
         if (nsSymbol == symTable.notFoundSymbol) {
             dlog.error(nsPrefixedFieldAccess.nsPrefix.pos, DiagnosticCode.CANNOT_FIND_XML_NAMESPACE,
