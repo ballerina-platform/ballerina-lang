@@ -1781,7 +1781,7 @@ public class TypeChecker extends BLangNodeVisitor {
                 BLangExpression iteratorExpr = cIExpr.initInvocation.argExprs.get(0);
                 BType constructType = checkExpr(iteratorExpr, env, symTable.noType);
                 BUnionType nextReturnType = types.getVarTypeFromIteratorFuncReturnType(constructType);
-                BUnionType expectedReturnType = createNextReturnType(cIExpr.pos, (BStreamType) expType);
+                BUnionType expectedReturnType = createNextReturnType(cIExpr.pos, (BStreamType) actualType);
                 if (nextReturnType == null) {
                     dlog.error(iteratorExpr.pos, DiagnosticCode.MISSING_REQUIRED_METHOD_NEXT,
                             constructType, expectedReturnType);
