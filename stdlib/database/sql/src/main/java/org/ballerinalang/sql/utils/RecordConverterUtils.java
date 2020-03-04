@@ -244,6 +244,9 @@ class RecordConverterUtils {
         if (isNull) {
             return null;
         } else {
+            if (bType.getTag() == TypeTags.STRING_TAG) {
+                return String.valueOf(value);
+            }
             return value;
         }
     }
@@ -253,6 +256,9 @@ class RecordConverterUtils {
         if (isNull) {
             return null;
         } else {
+            if (bType.getTag() == TypeTags.STRING_TAG) {
+                return String.valueOf(value);
+            }
             return value;
         }
     }
@@ -262,6 +268,9 @@ class RecordConverterUtils {
         if (isNull) {
             return null;
         } else {
+            if (bType.getTag() == TypeTags.STRING_TAG) {
+                return String.valueOf(value);
+            }
             return new DecimalValue(value);
         }
     }
@@ -299,10 +308,12 @@ class RecordConverterUtils {
                     return value;
                 case TypeTags.INT_TAG:
                     if (value) {
-                        return 1;
+                        return 1L;
                     } else {
-                        return 0;
+                        return 0L;
                     }
+                case TypeTags.STRING_TAG:
+                    return String.valueOf(value);
             }
         }
         return null;
@@ -517,19 +528,23 @@ class RecordConverterUtils {
             case Types.SMALLINT:
             case Types.INTEGER:
             case Types.BIGINT:
-                return bType.getTag() == TypeTags.INT_TAG;
+                return bType.getTag() == TypeTags.INT_TAG ||
+                        bType.getTag() == TypeTags.STRING_TAG;
             case Types.BIT:
             case Types.BOOLEAN:
                 return bType.getTag() == TypeTags.BOOLEAN_TAG ||
-                        bType.getTag() == TypeTags.INT_TAG;
+                        bType.getTag() == TypeTags.INT_TAG ||
+                        bType.getTag() == TypeTags.STRING_TAG;
             case Types.NUMERIC:
             case Types.DECIMAL:
                 return bType.getTag() == TypeTags.DECIMAL_TAG ||
-                        bType.getTag() == TypeTags.INT_TAG;
+                        bType.getTag() == TypeTags.INT_TAG ||
+                        bType.getTag() == TypeTags.STRING_TAG;
             case Types.REAL:
             case Types.FLOAT:
             case Types.DOUBLE:
-                return bType.getTag() == TypeTags.FLOAT_TAG;
+                return bType.getTag() == TypeTags.FLOAT_TAG ||
+                        bType.getTag() == TypeTags.STRING_TAG;
             case Types.BLOB:
             case Types.BINARY:
             case Types.VARBINARY:

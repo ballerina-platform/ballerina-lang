@@ -122,4 +122,46 @@ function testQueryNumericOptionalTypeRecord(string jdbcURL, string user, string 
     return numericType;
 }
 
+type NumericUnionType record {
+    int|string id;
+    int|string int_type;
+    int|string bigint_type;
+    int|string smallint_type;
+    int|string tinyint_type;
+    int|string bit_type;
+    int|decimal decimal_type;
+    decimal|int numeric_type;
+    decimal|float? float_type;
+    decimal|float? real_type;
+};
 
+function testQueryNumericUnionTypeRecord(string jdbcURL, string user, string password) returns NumericUnionType|error? {
+    jdbc:Client dbClient = check new (url = jdbcURL, user = user, password = password);
+    stream<NumericUnionType, error> streamData = <stream<NumericUnionType, error>> dbClient.query("SELECT * FROM NumericTypes", NumericUnionType);
+    record{| any value; |} data =  check streamData.next();
+    NumericUnionType numericType = <NumericUnionType>data.value;
+    check dbClient.close();
+    return numericType;
+}
+
+type NumericStringType record {
+    string? id;
+    string? int_type;
+    string? bigint_type;
+    string? smallint_type;
+    string? tinyint_type;
+    string? bit_type;
+    string? decimal_type;
+    string? numeric_type;
+    string? float_type;
+    string? real_type;
+};
+
+function testQueryNumericStringTypeRecord(string jdbcURL, string user, string password) returns NumericStringType|error? {
+    jdbc:Client dbClient = check new (url = jdbcURL, user = user, password = password);
+    stream<NumericStringType, error> streamData = <stream<NumericStringType, error>> dbClient.query("SELECT * FROM NumericTypes", NumericStringType);
+    record{| any value; |} data =  check streamData.next();
+    NumericStringType numericType = <NumericStringType>data.value;
+    check dbClient.close();
+    return numericType;
+}
