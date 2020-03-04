@@ -28,11 +28,10 @@ public type Scheduler object {
     # + attachments - Set of optional parameters which needs to passed inside the resources.
     # + return - Returns `task:SchedulerError` if the process failed due to any reason, nil otherwise.
     public function attach(service serviceToAttach, any... attachments) returns SchedulerError? {
-        string message = "Failed to attach the service to the scheduler";
         var result = attachExternal(self.taskListener, serviceToAttach, ...attachments);
         if (result is ListenerError) {
-            SchedulerError err = error(SCHEDULER_ERROR_REASON, message = message, cause = result);
-            return err;
+            string message = "Failed to attach the service to the scheduler";
+            return error(SCHEDULER_ERROR_REASON, message = message, cause = result);
         }
     }
 
@@ -44,8 +43,7 @@ public type Scheduler object {
         var result = detachExternal(self.taskListener, attachedService);
         if (result is ListenerError) {
             string message = "Scheduler failed to detach the service";
-            SchedulerError err = error(SCHEDULER_ERROR_REASON, message = message, cause = result);
-            return err;
+            return error(SCHEDULER_ERROR_REASON, message = message, cause = result);
         }
     }
 
@@ -56,8 +54,7 @@ public type Scheduler object {
         var result = startExternal(self.taskListener);
         if (result is ListenerError) {
             string message = "Scheduler failed to start";
-            SchedulerError err = error(SCHEDULER_ERROR_REASON, message = message, cause = result);
-            return err;
+            return error(SCHEDULER_ERROR_REASON, message = message, cause = result);
         }
     }
 
@@ -68,8 +65,7 @@ public type Scheduler object {
         var result = stopExternal(self.taskListener);
         if (result is ListenerError) {
             string message = "Scheduler failed to stop";
-            SchedulerError err = error(SCHEDULER_ERROR_REASON, message = message, cause = result);
-            return err;
+            return error(SCHEDULER_ERROR_REASON, message = message, cause = result);
         }
     }
 
@@ -80,8 +76,7 @@ public type Scheduler object {
         var result = pauseExternal(self.taskListener);
         if (result is ListenerError) {
             string message = "Scheduler failed to pause";
-            SchedulerError err = error(SCHEDULER_ERROR_REASON, message = message, cause = result);
-            return err;
+            return error(SCHEDULER_ERROR_REASON, message = message, cause = result);
         }
     }
 
@@ -92,8 +87,7 @@ public type Scheduler object {
         var result = resumeExternal(self.taskListener);
         if (result is ListenerError) {
             string message = "Scheduler failed to resume";
-            SchedulerError err = error(SCHEDULER_ERROR_REASON, message = message, cause = result);
-            return err;
+            return error(SCHEDULER_ERROR_REASON, message = message, cause = result);
         }
     }
 
