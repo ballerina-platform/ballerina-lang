@@ -108,8 +108,8 @@ public class BallerinaParser extends Parser {
 		RULE_throwStatement = 116, RULE_panicStatement = 117, RULE_returnStatement = 118, 
 		RULE_workerSendAsyncStatement = 119, RULE_peerWorker = 120, RULE_workerName = 121, 
 		RULE_flushWorker = 122, RULE_waitForCollection = 123, RULE_waitKeyValue = 124, 
-		RULE_variableReference = 125, RULE_field = 126, RULE_xmlElementAccess = 127, 
-		RULE_xmlNavigationAccess = 128, RULE_xmlElementNames = 129, RULE_xmlElementAccessFilter = 130, 
+		RULE_variableReference = 125, RULE_field = 126, RULE_xmlElementFilter = 127, 
+		RULE_xmlStepExpression = 128, RULE_xmlElementNames = 129, RULE_xmlElementAccessFilter = 130, 
 		RULE_index = 131, RULE_xmlAttrib = 132, RULE_functionInvocation = 133, 
 		RULE_invocation = 134, RULE_invocationArgList = 135, RULE_invocationArg = 136, 
 		RULE_actionInvocation = 137, RULE_expressionList = 138, RULE_expressionStmt = 139, 
@@ -180,8 +180,8 @@ public class BallerinaParser extends Parser {
 		"breakStatement", "forkJoinStatement", "tryCatchStatement", "catchClauses", 
 		"catchClause", "finallyClause", "throwStatement", "panicStatement", "returnStatement", 
 		"workerSendAsyncStatement", "peerWorker", "workerName", "flushWorker", 
-		"waitForCollection", "waitKeyValue", "variableReference", "field", "xmlElementAccess", 
-		"xmlNavigationAccess", "xmlElementNames", "xmlElementAccessFilter", "index", 
+		"waitForCollection", "waitKeyValue", "variableReference", "field", "xmlElementFilter", 
+		"xmlStepExpression", "xmlElementNames", "xmlElementAccessFilter", "index", 
 		"xmlAttrib", "functionInvocation", "invocation", "invocationArgList", 
 		"invocationArg", "actionInvocation", "expressionList", "expressionStmt", 
 		"transactionStatement", "committedAbortedClauses", "transactionClause", 
@@ -9928,6 +9928,23 @@ public class BallerinaParser extends Parser {
 			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitGroupMapArrayVariableReference(this);
 		}
 	}
+	public static class XmlStepExpressionReferenceContext extends VariableReferenceContext {
+		public VariableReferenceContext variableReference() {
+			return getRuleContext(VariableReferenceContext.class,0);
+		}
+		public XmlStepExpressionContext xmlStepExpression() {
+			return getRuleContext(XmlStepExpressionContext.class,0);
+		}
+		public XmlStepExpressionReferenceContext(VariableReferenceContext ctx) { copyFrom(ctx); }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).enterXmlStepExpressionReference(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitXmlStepExpressionReference(this);
+		}
+	}
 	public static class GroupInvocationReferenceContext extends VariableReferenceContext {
 		public TerminalNode LEFT_PARENTHESIS() { return getToken(BallerinaParser.LEFT_PARENTHESIS, 0); }
 		public VariableReferenceContext variableReference() {
@@ -9962,6 +9979,23 @@ public class BallerinaParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitXmlAttribVariableReference(this);
+		}
+	}
+	public static class XmlElementFilterReferenceContext extends VariableReferenceContext {
+		public VariableReferenceContext variableReference() {
+			return getRuleContext(VariableReferenceContext.class,0);
+		}
+		public XmlElementFilterContext xmlElementFilter() {
+			return getRuleContext(XmlElementFilterContext.class,0);
+		}
+		public XmlElementFilterReferenceContext(VariableReferenceContext ctx) { copyFrom(ctx); }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).enterXmlElementFilterReference(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitXmlElementFilterReference(this);
 		}
 	}
 	public static class GroupFieldVariableReferenceContext extends VariableReferenceContext {
@@ -10000,23 +10034,6 @@ public class BallerinaParser extends Parser {
 			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitTypeDescExprInvocationReference(this);
 		}
 	}
-	public static class XmlNavigationAccessReferenceContext extends VariableReferenceContext {
-		public VariableReferenceContext variableReference() {
-			return getRuleContext(VariableReferenceContext.class,0);
-		}
-		public XmlNavigationAccessContext xmlNavigationAccess() {
-			return getRuleContext(XmlNavigationAccessContext.class,0);
-		}
-		public XmlNavigationAccessReferenceContext(VariableReferenceContext ctx) { copyFrom(ctx); }
-		@Override
-		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).enterXmlNavigationAccessReference(this);
-		}
-		@Override
-		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitXmlNavigationAccessReference(this);
-		}
-	}
 	public static class SimpleVariableReferenceContext extends VariableReferenceContext {
 		public NameReferenceContext nameReference() {
 			return getRuleContext(NameReferenceContext.class,0);
@@ -10029,23 +10046,6 @@ public class BallerinaParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitSimpleVariableReference(this);
-		}
-	}
-	public static class XmlElementAccessReferenceContext extends VariableReferenceContext {
-		public VariableReferenceContext variableReference() {
-			return getRuleContext(VariableReferenceContext.class,0);
-		}
-		public XmlElementAccessContext xmlElementAccess() {
-			return getRuleContext(XmlElementAccessContext.class,0);
-		}
-		public XmlElementAccessReferenceContext(VariableReferenceContext ctx) { copyFrom(ctx); }
-		@Override
-		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).enterXmlElementAccessReference(this);
-		}
-		@Override
-		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitXmlElementAccessReference(this);
 		}
 	}
 	public static class InvocationReferenceContext extends VariableReferenceContext {
@@ -10330,42 +10330,42 @@ public class BallerinaParser extends Parser {
 						break;
 					case 4:
 						{
-						_localctx = new XmlElementAccessReferenceContext(new VariableReferenceContext(_parentctx, _parentState));
+						_localctx = new XmlElementFilterReferenceContext(new VariableReferenceContext(_parentctx, _parentState));
 						pushNewRecursionContext(_localctx, _startState, RULE_variableReference);
 						setState(1772);
 						if (!(precpred(_ctx, 11))) throw new FailedPredicateException(this, "precpred(_ctx, 11)");
 						setState(1773);
-						xmlElementAccess();
+						xmlElementFilter();
 						}
 						break;
 					case 5:
 						{
-						_localctx = new XmlNavigationAccessReferenceContext(new VariableReferenceContext(_parentctx, _parentState));
+						_localctx = new InvocationReferenceContext(new VariableReferenceContext(_parentctx, _parentState));
 						pushNewRecursionContext(_localctx, _startState, RULE_variableReference);
 						setState(1774);
-						if (!(precpred(_ctx, 10))) throw new FailedPredicateException(this, "precpred(_ctx, 10)");
+						if (!(precpred(_ctx, 3))) throw new FailedPredicateException(this, "precpred(_ctx, 3)");
 						setState(1775);
-						xmlNavigationAccess();
+						invocation();
 						}
 						break;
 					case 6:
 						{
-						_localctx = new InvocationReferenceContext(new VariableReferenceContext(_parentctx, _parentState));
+						_localctx = new MapArrayVariableReferenceContext(new VariableReferenceContext(_parentctx, _parentState));
 						pushNewRecursionContext(_localctx, _startState, RULE_variableReference);
 						setState(1776);
 						if (!(precpred(_ctx, 2))) throw new FailedPredicateException(this, "precpred(_ctx, 2)");
 						setState(1777);
-						invocation();
+						index();
 						}
 						break;
 					case 7:
 						{
-						_localctx = new MapArrayVariableReferenceContext(new VariableReferenceContext(_parentctx, _parentState));
+						_localctx = new XmlStepExpressionReferenceContext(new VariableReferenceContext(_parentctx, _parentState));
 						pushNewRecursionContext(_localctx, _startState, RULE_variableReference);
 						setState(1778);
 						if (!(precpred(_ctx, 1))) throw new FailedPredicateException(this, "precpred(_ctx, 1)");
 						setState(1779);
-						index();
+						xmlStepExpression();
 						}
 						break;
 					}
@@ -10467,28 +10467,28 @@ public class BallerinaParser extends Parser {
 		return _localctx;
 	}
 
-	public static class XmlElementAccessContext extends ParserRuleContext {
+	public static class XmlElementFilterContext extends ParserRuleContext {
 		public TerminalNode DOT() { return getToken(BallerinaParser.DOT, 0); }
 		public XmlElementNamesContext xmlElementNames() {
 			return getRuleContext(XmlElementNamesContext.class,0);
 		}
-		public XmlElementAccessContext(ParserRuleContext parent, int invokingState) {
+		public XmlElementFilterContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
-		@Override public int getRuleIndex() { return RULE_xmlElementAccess; }
+		@Override public int getRuleIndex() { return RULE_xmlElementFilter; }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).enterXmlElementAccess(this);
+			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).enterXmlElementFilter(this);
 		}
 		@Override
 		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitXmlElementAccess(this);
+			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitXmlElementFilter(this);
 		}
 	}
 
-	public final XmlElementAccessContext xmlElementAccess() throws RecognitionException {
-		XmlElementAccessContext _localctx = new XmlElementAccessContext(_ctx, getState());
-		enterRule(_localctx, 254, RULE_xmlElementAccess);
+	public final XmlElementFilterContext xmlElementFilter() throws RecognitionException {
+		XmlElementFilterContext _localctx = new XmlElementFilterContext(_ctx, getState());
+		enterRule(_localctx, 254, RULE_xmlElementFilter);
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
@@ -10509,7 +10509,7 @@ public class BallerinaParser extends Parser {
 		return _localctx;
 	}
 
-	public static class XmlNavigationAccessContext extends ParserRuleContext {
+	public static class XmlStepExpressionContext extends ParserRuleContext {
 		public List<TerminalNode> DIV() { return getTokens(BallerinaParser.DIV); }
 		public TerminalNode DIV(int i) {
 			return getToken(BallerinaParser.DIV, i);
@@ -10524,23 +10524,23 @@ public class BallerinaParser extends Parser {
 		public TerminalNode MUL(int i) {
 			return getToken(BallerinaParser.MUL, i);
 		}
-		public XmlNavigationAccessContext(ParserRuleContext parent, int invokingState) {
+		public XmlStepExpressionContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
-		@Override public int getRuleIndex() { return RULE_xmlNavigationAccess; }
+		@Override public int getRuleIndex() { return RULE_xmlStepExpression; }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).enterXmlNavigationAccess(this);
+			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).enterXmlStepExpression(this);
 		}
 		@Override
 		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitXmlNavigationAccess(this);
+			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitXmlStepExpression(this);
 		}
 	}
 
-	public final XmlNavigationAccessContext xmlNavigationAccess() throws RecognitionException {
-		XmlNavigationAccessContext _localctx = new XmlNavigationAccessContext(_ctx, getState());
-		enterRule(_localctx, 256, RULE_xmlNavigationAccess);
+	public final XmlStepExpressionContext xmlStepExpression() throws RecognitionException {
+		XmlStepExpressionContext _localctx = new XmlStepExpressionContext(_ctx, getState());
+		enterRule(_localctx, 256, RULE_xmlStepExpression);
 		try {
 			setState(1809);
 			_errHandler.sync(this);
@@ -18130,7 +18130,7 @@ public class BallerinaParser extends Parser {
 		case 8:
 			return precpred(_ctx, 11);
 		case 9:
-			return precpred(_ctx, 10);
+			return precpred(_ctx, 3);
 		case 10:
 			return precpred(_ctx, 2);
 		case 11:
@@ -18964,9 +18964,9 @@ public class BallerinaParser extends Parser {
 		"\u06f8\3\2\2\2\u06e7\u06e8\f\20\2\2\u06e8\u06f7\5\u00fe\u0080\2\u06e9"+
 		"\u06ea\f\17\2\2\u06ea\u06eb\7\u0093\2\2\u06eb\u06f7\5\u0150\u00a9\2\u06ec"+
 		"\u06ed\f\16\2\2\u06ed\u06f7\5\u010a\u0086\2\u06ee\u06ef\f\r\2\2\u06ef"+
-		"\u06f7\5\u0100\u0081\2\u06f0\u06f1\f\f\2\2\u06f1\u06f7\5\u0102\u0082\2"+
-		"\u06f2\u06f3\f\4\2\2\u06f3\u06f7\5\u010e\u0088\2\u06f4\u06f5\f\3\2\2\u06f5"+
-		"\u06f7\5\u0108\u0085\2\u06f6\u06e7\3\2\2\2\u06f6\u06e9\3\2\2\2\u06f6\u06ec"+
+		"\u06f7\5\u0100\u0081\2\u06f0\u06f1\f\5\2\2\u06f1\u06f7\5\u010e\u0088\2"+
+		"\u06f2\u06f3\f\4\2\2\u06f3\u06f7\5\u0108\u0085\2\u06f4\u06f5\f\3\2\2\u06f5"+
+		"\u06f7\5\u0102\u0082\2\u06f6\u06e7\3\2\2\2\u06f6\u06e9\3\2\2\2\u06f6\u06ec"+
 		"\3\2\2\2\u06f6\u06ee\3\2\2\2\u06f6\u06f0\3\2\2\2\u06f6\u06f2\3\2\2\2\u06f6"+
 		"\u06f4\3\2\2\2\u06f7\u06fa\3\2\2\2\u06f8\u06f6\3\2\2\2\u06f8\u06f9\3\2"+
 		"\2\2\u06f9\u00fd\3\2\2\2\u06fa\u06f8\3\2\2\2\u06fb\u0702\t\f\2\2\u06fc"+

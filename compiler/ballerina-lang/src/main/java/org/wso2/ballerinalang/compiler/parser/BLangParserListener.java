@@ -1028,7 +1028,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
 
     @Override
-    public void exitXmlElementAccess(BallerinaParser.XmlElementAccessContext ctx) {
+    public void exitXmlElementFilter(BallerinaParser.XmlElementFilterContext ctx) {
         if (isInErrorState) {
             return;
         }
@@ -1038,14 +1038,14 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     }
 
     @Override
-    public void exitXmlNavigationAccessReference(BallerinaParser.XmlNavigationAccessReferenceContext ctx) {
+    public void exitXmlStepExpressionReference(BallerinaParser.XmlStepExpressionReferenceContext ctx) {
         if (isInErrorState) {
             return;
         }
 
-        boolean isIndexed = ctx.xmlNavigationAccess().index() != null;
+        boolean isIndexed = ctx.xmlStepExpression().index() != null;
 
-        BallerinaParser.XmlNavigationAccessContext navAccess = ctx.xmlNavigationAccess();
+        BallerinaParser.XmlStepExpressionContext navAccess = ctx.xmlStepExpression();
         BallerinaParser.XmlElementNamesContext filters = navAccess.xmlElementNames();
         int filterCount = filters == null ? 0 : filters.xmlElementAccessFilter().size();
         int starCount = navAccess.MUL().size();
