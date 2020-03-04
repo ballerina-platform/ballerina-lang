@@ -183,15 +183,15 @@ public class QueryUtils {
                     ballerinaFieldName = field.getKey();
                     ballerinaType = RecordConverterUtils.validFieldConstraint(sqlType, field.getValue().type);
                     if (ballerinaType == null) {
-                        throw new ApplicationError(field.getValue().type.getName() + " cannot be mapped to sql type: "
-                                + sqlTypeName + " .");
+                        throw new ApplicationError(field.getValue().type.getName() + " cannot be mapped to sql type '"
+                                + sqlTypeName + "'");
                     }
                     break;
                 }
             }
             if (ballerinaFieldName == null) {
-                throw new ApplicationError("No mapping field for the column name : " + columnName
-                        + " found in the provided record type : " + streamConstraint.getName() + " .");
+                throw new ApplicationError("No mapping field found for SQL table column '" + columnName + "'"
+                        + " in the record type '" + streamConstraint.getName() + "'");
             }
         } else {
             ballerinaType = getDefaultBallerinaType(sqlType);

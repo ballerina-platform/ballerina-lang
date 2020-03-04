@@ -18,19 +18,14 @@
 package org.ballerinalang.jdbc.query;
 
 import org.ballerinalang.jdbc.utils.SQLDBUtils;
-import org.ballerinalang.model.values.BBoolean;
-import org.ballerinalang.model.values.BDecimal;
-import org.ballerinalang.model.values.BFloat;
-import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.*;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+import org.wso2.ballerinalang.compiler.util.TypeTags;
 
 import java.io.File;
 import java.text.DecimalFormat;
@@ -56,7 +51,7 @@ public class QueryTest {
                 SQLDBUtils.getSQLResourceDir("query", "query-test-data.sql"));
     }
 
-//    @Test
+    @Test
     public void testQuery() {
         BValue[] returnVal = BRunUtil.invokeFunction(result, "testQuery", args);
         Assert.assertTrue(returnVal[0] instanceof BMap);
@@ -75,7 +70,7 @@ public class QueryTest {
         Assert.assertEquals(df.format(((BFloat) result.get("REAL_TYPE")).floatValue()), "1234.567");
     }
 
-//    @Test
+    @Test
     public void testQueryNumericTypeRecord() {
         BValue[] returnVal = BRunUtil.invokeFunction(result, "testQueryNumericTypeRecord", args);
         Assert.assertEquals(returnVal[0].getType().getName(), "NumericType");
@@ -92,6 +87,14 @@ public class QueryTest {
         DecimalFormat df = new DecimalFormat("###.###");
         Assert.assertEquals(df.format(((BFloat) result.get("float_type")).floatValue()), "1234.567");
         Assert.assertEquals(df.format(((BFloat) result.get("real_type")).floatValue()), "1234.567");
+    }
+
+    @Test
+    public void testQueryNumericInvalidColumnRecord() {
+        BValue[] returnVal = BRunUtil.invokeFunction(result, "testQueryNumericInvalidColumnRecord", args);
+        Assert.assertEquals(returnVal[0].getType().getTag(), TypeTags.ERROR);
+        Assert.assertTrue(((BMap) ((BError) returnVal[0]).getDetails()).get(SQLDBUtils.SQL_ERROR_MESSAGE)
+                .stringValue().contains("No mapping field found for SQL table column"));
     }
 
     @Test

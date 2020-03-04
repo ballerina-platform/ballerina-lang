@@ -51,6 +51,27 @@ function testQueryNumericTypeRecord(string jdbcURL, string user, string password
     return returnData;
 }
 
+type NumericInvalidColumn record {
+    int num_id;
+    int int_type;
+    int bigint_type;
+    int smallint_type;
+    int tinyint_type;
+    boolean bit_type;
+    decimal decimal_type;
+    decimal numeric_type;
+    float float_type;
+    float real_type;
+};
+
+function testQueryNumericInvalidColumnRecord(string jdbcURL, string user, string password) returns error? {
+    jdbc:Client dbClient = check new (url = jdbcURL, user = user, password = password);
+    stream<NumericInvalidColumn, error> streamData = <stream<NumericInvalidColumn, error>> dbClient.query("SELECT * FROM NumericTypes", NumericInvalidColumn);
+    record{| any value; |} data =  check streamData.next();
+    check dbClient.close();
+    return ();
+}
+
 type NumericOptionalType record {
     int? id;
     int? int_type;
@@ -100,6 +121,5 @@ function testQueryNumericOptionalTypeRecord(string jdbcURL, string user, string 
     check dbClient.close();
     return numericType;
 }
-
 
 
