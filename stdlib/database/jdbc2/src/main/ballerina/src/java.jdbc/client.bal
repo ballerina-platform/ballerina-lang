@@ -46,9 +46,23 @@ public type Client client object {
         if(self.clientActive){
             return nativeQuery(self, java:fromString(sqlQuery) , rowType);
         } else {
-           return sql:generateApplicationError("JDBC Client is already closed, hence further operations are not allowed");
+           return sql:generateApplicationErrorStream("JDBC Client is already closed, hence further operations are not allowed");
         }
     }
+
+    # Executes the DML sql queries provided by the user, and returns summary of the execution.
+    #
+    # + sqlQuery - The DML query such as INSERT, DELETE, UPDATE, etc
+    # + return - Summary of the sql update query as `sql:ExecuteResult` or returns `sql:Error`
+    #           if any error occured when executing the query
+    public function execute(@untainted string sqlQuery) returns sql:ExecuteResult|sql:Error?{
+        if(self.clientActive){
+            return nativeExecute(self, java:fromString(sqlQuery));
+        } else {
+           return sql:ApplicationError(message = "JDBC Client is already closed, hence further operations are not allowed");
+        }
+    }
+
 
     # Stops the JDBC client.
     #
@@ -89,6 +103,10 @@ sql:ConnectionPool globalConnPool) returns sql:Error? = @java:Method {
 
 function nativeQuery(Client sqlClient, @untainted handle sqlQuery, typedesc<record {}>? rowtype) returns stream<record{}, sql:Error> = @java:Method {
     class: "org.ballerinalang.sql.utils.QueryUtils"
+} external;
+
+function nativeExecute(Client sqlClient, @untainted handle sqlQuery) returns sql:ExecuteResult|sql:Error? = @java:Method {
+    class: "org.ballerinalang.sql.utils.ExecuteUtils"
 } external;
 
 function close(Client jdbcClient) returns sql:Error? = @java:Method {

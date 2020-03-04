@@ -29,7 +29,6 @@ under the License.
             <!--                <methods>-->
             <!--                    <include name="testQueryFromNullTable"/>-->
             <!--                </methods>-->
-
         </classes>
     </test>
 </suite>

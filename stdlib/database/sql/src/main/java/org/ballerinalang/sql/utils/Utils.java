@@ -41,8 +41,11 @@ import java.math.BigDecimal;
 import java.sql.Array;
 import java.sql.Blob;
 import java.sql.Clob;
+import java.sql.Connection;
 import java.sql.Date;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.sql.Struct;
 import java.sql.Time;
 import java.sql.Timestamp;
@@ -54,11 +57,33 @@ import java.util.List;
 import java.util.TimeZone;
 
 /**
- * This class has the utility methods to process and convert the SQL types into ballerina types.
+ * This class has the utility methods to process and convert the SQL types into ballerina types,
+ * and other shared utility methods.
  *
  * @since 1.2.0
  */
-class RecordConverterUtils {
+class Utils {
+
+    public static void closeResources(ResultSet resultSet, Statement statement, Connection connection) {
+        if (resultSet != null) {
+            try {
+                resultSet.close();
+            } catch (SQLException ignored) {
+            }
+        }
+        if (statement != null) {
+            try {
+                statement.close();
+            } catch (SQLException ignored) {
+            }
+        }
+        if (connection != null) {
+            try {
+                connection.close();
+            } catch (SQLException ignored) {
+            }
+        }
+    }
 
     static ArrayValue convert(Array array, int sqlType, BType bType) throws SQLException, ApplicationError {
         if (array != null) {
@@ -469,7 +494,7 @@ class RecordConverterUtils {
     }
 
     public static BType validFieldConstraint(int sqlType, BType bType) {
-        if (bType.getTag() == TypeTags.UNION_TAG) {
+        if (bType.getTag() == TypeTags.UNION_TAG && bType instanceof BUnionType) {
             BUnionType bUnionType = (BUnionType) bType;
             for (BType memberType : bUnionType.getMemberTypes()) {
                 //In case if the member type is another union type, check recursively.
@@ -486,7 +511,7 @@ class RecordConverterUtils {
     }
 
     public static boolean isValidFieldConstraint(int sqlType, BType bType) {
-        if (bType.getTag() == TypeTags.UNION_TAG) {
+        if (bType.getTag() == TypeTags.UNION_TAG && bType instanceof BUnionType) {
             BUnionType bUnionType = (BUnionType) bType;
             for (BType memberType : bUnionType.getMemberTypes()) {
                 //In case if the member type is another union type, check recursively.

@@ -50,6 +50,9 @@ public final class Constants {
 
     public static final String TIMEZONE_UTC = "UTC";
 
+    public static final String AFFECTED_ROW_COUNT_FIELD = "affectedRowCount";
+    public static final String LAST_INSERTED_ID_FIELD = "lastInsertId";
+
     /**
      * Constants related connection pool.
      */
@@ -68,7 +71,6 @@ public final class Constants {
 
     /**
      * Constant related error fields.
-     *
      */
     public static final class ErrorRecordFields {
         public static final String MESSAGE = "message";

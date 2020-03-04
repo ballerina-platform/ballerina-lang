@@ -37,7 +37,6 @@ import org.ballerinalang.sql.datasource.SQLDatasource;
 import org.ballerinalang.sql.exception.ApplicationError;
 
 import java.sql.Connection;
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
@@ -63,12 +62,12 @@ public class QueryUtils {
         if (dbClient != null) {
             SQLDatasource sqlDatasource = (SQLDatasource) dbClient;
             Connection connection = null;
-            PreparedStatement preparedStatement = null;
+            Statement statement = null;
             ResultSet resultSet = null;
             try {
                 connection = sqlDatasource.getSQLConnection();
-                preparedStatement = connection.prepareStatement(sqlQuery);
-                resultSet = preparedStatement.executeQuery();
+                statement = connection.createStatement();
+                resultSet = statement.executeQuery(sqlQuery);
                 List<ColumnDefinition> columnDefinitions;
                 BStructureType streamConstraint;
                 if (recordType == null) {
@@ -92,14 +91,14 @@ public class QueryUtils {
                     columnDefinitions = getColumnDefinitions(resultSet, streamConstraint);
                 }
                 return new StreamValue(new BStreamType(streamConstraint), createRecordIterator(resultSet,
-                        preparedStatement, connection, columnDefinitions, streamConstraint));
+                        statement, connection, columnDefinitions, streamConstraint));
             } catch (SQLException e) {
-                closeResources(resultSet, preparedStatement, connection);
+                Utils.closeResources(resultSet, statement, connection);
                 ErrorValue errorValue = ErrorGenerator.getSQLDatabaseError(e,
                         "Error while executing sql query: " + sqlQuery + ". ");
                 return new StreamValue(new BStreamType(getDefaultStreamConstraint()), createRecordIterator(errorValue));
             } catch (ApplicationError applicationError) {
-                closeResources(resultSet, preparedStatement, connection);
+                Utils.closeResources(resultSet, statement, connection);
                 ErrorValue errorValue = ErrorGenerator.getSQLApplicationError(applicationError.getMessage());
                 return getErrorStream(recordType, errorValue);
             }
@@ -125,27 +124,6 @@ public class QueryUtils {
                 TypeFlags.asMask(TypeFlags.ANYDATA, TypeFlags.PURETYPE));
         defaultRecord.restFieldType = BTypes.typeAnydata;
         return defaultRecord;
-    }
-
-    private static void closeResources(ResultSet resultSet, Statement statement, Connection connection) {
-        if (resultSet != null) {
-            try {
-                resultSet.close();
-            } catch (SQLException ignored) {
-            }
-        }
-        if (statement != null) {
-            try {
-                statement.close();
-            } catch (SQLException ignored) {
-            }
-        }
-        if (connection != null) {
-            try {
-                connection.close();
-            } catch (SQLException ignored) {
-            }
-        }
     }
 
     private static List<ColumnDefinition> getColumnDefinitions(ResultSet resultSet, BStructureType streamConstraint)
@@ -181,7 +159,7 @@ public class QueryUtils {
             for (Map.Entry<String, BField> field : streamConstraint.getFields().entrySet()) {
                 if (field.getKey().equalsIgnoreCase(columnName)) {
                     ballerinaFieldName = field.getKey();
-                    ballerinaType = RecordConverterUtils.validFieldConstraint(sqlType, field.getValue().type);
+                    ballerinaType = Utils.validFieldConstraint(sqlType, field.getValue().type);
                     if (ballerinaType == null) {
                         throw new ApplicationError(field.getValue().type.getName() + " cannot be mapped to sql type '"
                                 + sqlTypeName + "'");
@@ -202,13 +180,13 @@ public class QueryUtils {
     }
 
     private static ObjectValue createRecordIterator(ResultSet resultSet,
-                                                    PreparedStatement preparedStatement,
+                                                    Statement statement,
                                                     Connection connection, List<ColumnDefinition> columnDefinitions,
                                                     BStructureType streamConstraint) {
         ObjectValue resultIterator = BallerinaValues.createObjectValue(Constants.SQL_PACKAGE_ID,
                 Constants.RESULT_ITERATOR_OBJECT, new Object[1]);
         resultIterator.addNativeData(Constants.RESULT_SET_NATIVE_DATA_FIELD, resultSet);
-        resultIterator.addNativeData(Constants.STATEMENT_NATIVE_DATA_FIELD, preparedStatement);
+        resultIterator.addNativeData(Constants.STATEMENT_NATIVE_DATA_FIELD, statement);
         resultIterator.addNativeData(Constants.CONNECTION_NATIVE_DATA_FIELD, connection);
         resultIterator.addNativeData(Constants.COLUMN_DEFINITIONS_DATA_FIELD, columnDefinitions);
         resultIterator.addNativeData(Constants.RECORD_TYPE_DATA_FIELD, streamConstraint);

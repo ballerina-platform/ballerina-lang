@@ -49,7 +49,7 @@ public type Client client object {
         if(self.clientActive){
             return nativeQuery(self, java:fromString(sqlQuery) , rowType);
         } else {
-           return sql:generateApplicationError("MySQL Client is already closed, hence further operations are not allowed");
+           return sql:generateApplicationErrorStream("MySQL Client is already closed, hence further operations are not allowed");
         }
     }
 
