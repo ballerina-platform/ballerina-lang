@@ -66,12 +66,10 @@ public final class XMLSequence extends XMLValue {
     }
 
     public XMLSequence(List<BXML> children) {
-        this();
         this.children = children;
     }
 
     public XMLSequence(BXML child) {
-        this();
         this.children = new ArrayList<>();
         this.children.add(child);
     }

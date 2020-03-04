@@ -230,9 +230,6 @@ function testXMLCycleDueToChildrenOfChildren() returns xml|error {
     subRoot.setChildren(cat);
     var cds = cat.getChildren().strip();
     error? er = trap cds[0].setChildren(subRoot);
-    if (er is ()) {
-        return cat;
-    } else {
-        return er;
-    }
+    check trap cds[0].setChildren(subRoot);
+    return cat;
 }

@@ -43,7 +43,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.IdentityHashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -337,14 +336,15 @@ public final class XMLItem extends XMLValue {
     }
 
     /**
-     * {@inheritDoc}
+     * @param seq children to add to this element.
+     *
+     * addChildren is only used for constructing xml tree from xml literals, and only usage is to directly codegen
+     * the adding children.
+     *
+     * @deprecated
      */
     @Override
     @Deprecated
-    /**
-     * addChildren is only used for constructing xml tree from xml literals, and only usage is to directly codegen
-     * the adding children.
-     */
     public void addChildren(BXML seq) {
         synchronized (this) {
             if (freezeStatus.getState() != State.UNFROZEN || children.freezeStatus.getState() != State.UNFROZEN) {
@@ -392,13 +392,6 @@ public final class XMLItem extends XMLValue {
     }
 
     private void ensureAcyclicGraph(BXML newSubTree, XMLItem current) {
-        IdentityHashMap<XMLItem, XMLItem> lineageSet = new IdentityHashMap<>();
-        lineageSet.put(this, this);
-        ensureAcyclicParentGraph(newSubTree, current, lineageSet);
-    }
-
-    private void ensureAcyclicParentGraph(BXML newSubTree, XMLItem current,
-                                          Map<XMLItem, XMLItem> lineageSet) {
         for (WeakReference<XMLItem> probableParentRef : current.probableParents) {
             XMLItem parent = probableParentRef.get();
             // probable parent is the actual parent.
@@ -407,8 +400,7 @@ public final class XMLItem extends XMLValue {
                 if (parent == newSubTree) {
                     throw createXMLCycleError();
                 }
-                lineageSet.put(parent, parent);
-                ensureAcyclicParentGraph(newSubTree, parent, lineageSet);
+                ensureAcyclicGraph(newSubTree, parent);
             }
         }
     }
@@ -640,15 +632,17 @@ public final class XMLItem extends XMLValue {
     }
 
     private void removeParentReference(BXML removedItem) {
-        if (removedItem.getNodeType() == ELEMENT) {
-            XMLItem item = (XMLItem) removedItem;
-            for (Iterator<WeakReference<XMLItem>> iterator = item.probableParents.iterator(); iterator.hasNext();) {
-                WeakReference<XMLItem> probableParent = iterator.next();
-                XMLItem parent = probableParent.get();
-                if (parent == this) {
-                    probableParent.clear();
-                    iterator.remove();
-                }
+        if (removedItem.getNodeType() != ELEMENT) {
+            return;
+        }
+
+        XMLItem item = (XMLItem) removedItem;
+        for (Iterator<WeakReference<XMLItem>> iterator = item.probableParents.iterator(); iterator.hasNext();) {
+            WeakReference<XMLItem> probableParent = iterator.next();
+            XMLItem parent = probableParent.get();
+            if (parent == this) {
+                probableParent.clear();
+                iterator.remove();
             }
         }
     }
