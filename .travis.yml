@@ -50,6 +50,7 @@ jobs:
       language: java
       jdk: openjdk8
       node_js: 8
+      install: true
       before_install:
           - nvm install 8
           - nvm use 8
