@@ -80,6 +80,7 @@ dependencies {
     interopImports project(':ballerina-filepath')
     interopImports project(':ballerina-reflect')
     interopImports project(':ballerina-system')
+    interopImports 'org.apache.kafka:kafka-clients'
 
     implementation project(':ballerina-auth')
     implementation project(':ballerina-http')

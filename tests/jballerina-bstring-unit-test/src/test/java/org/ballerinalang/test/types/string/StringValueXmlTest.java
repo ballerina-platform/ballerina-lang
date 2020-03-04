@@ -24,7 +24,7 @@ public class StringValueXmlTest {
         result = BCompileUtil.compile("test-src/types/string/string-value-xml-test.bal");
     }
 
-    @Test
+    @Test (groups = "brokenOnJBallerina")
     public void testXmlComment() {
         testAndAssert("testXmlComment", 12);
     }
@@ -34,32 +34,32 @@ public class StringValueXmlTest {
         testAndAssert("testXmlQName", 13);
     }
 
-    @Test
+    @Test (groups = "brokenOnJBallerina")
     public void testXmlText() {
         testAndAssert("testXmlText", 19);
     }
 
-    @Test
+    @Test (groups = "brokenOnJBallerina")
     public void testXmlProcessingIns() {
         testAndAssert("testXmlProcessingIns", 12);
     }
 
-    @Test
+    @Test (groups = "brokenOnJBallerina")
     public void testXmlStr() {
         testAndAssert("testXmlStr", 8);
     }
 
-    @Test
+    @Test (groups = "brokenOnJBallerina")
     public void testComplexXml() {
         testAndAssert("testComplexXml", 202);
     }
 
-    @Test
+    @Test (groups = "brokenOnJBallerina")
     public void testXmlNamespace() {
         testAndAssert("testXmlNamespace", 334);
     }
 
-    @Test
+    @Test (groups = "brokenOnJBallerina")
     public void testXmlInterpolation() {
         testAndAssert("testXmlInterpolation", 249);
     }

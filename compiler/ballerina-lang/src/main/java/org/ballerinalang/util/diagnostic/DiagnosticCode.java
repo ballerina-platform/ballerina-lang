@@ -467,8 +467,17 @@ public enum DiagnosticCode {
     INVALID_INVOCATION_LVALUE_COMPOUND_ASSIGNMENT("invalid.lvalue.lhs.of.compound.assignment"),
 
     IDENTIFIER_LITERAL_ONLY_SUPPORTS_ALPHANUMERICS("identifier.literal.only.supports.alphanumerics"),
-    INVALID_UNICODE("invalid.unicode")
+    INVALID_UNICODE("invalid.unicode"),
 
+    METHOD_TOO_LARGE("method.too.large"),
+    FILE_TOO_LARGE("file.too.large"),
+    CLASS_NOT_FOUND("class.not.found"),
+    METHOD_NOT_FOUND("method.not.found"),
+    CONSTRUCTOR_NOT_FOUND("constructor.not.found"),
+    FIELD_NOT_FOUND("field.not.found"),
+    OVERLOADED_METHODS("overloaded.method"),
+    UNSUPPORTED_PRIMITIVE_TYPE("unsupported.primitive.type.reason"),
+    METHOD_SIGNATURE_DOES_NOT_MATCH("method.signature.not.match")
     ;
     private String value;
 
