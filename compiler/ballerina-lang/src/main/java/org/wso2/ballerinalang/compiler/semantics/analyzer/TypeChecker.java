@@ -4073,17 +4073,7 @@ public class TypeChecker extends BLangNodeVisitor {
                 return symTable.semanticError;
             }
             if (fieldAccessExpr.fieldKind == FieldKind.WITH_NS) {
-                BLangFieldBasedAccess.BLangNSPrefixedFieldBasedAccess nsPrefixedFieldAccess =
-                        (BLangFieldBasedAccess.BLangNSPrefixedFieldBasedAccess) fieldAccessExpr;
-                String nsPrefix = nsPrefixedFieldAccess.nsPrefix.value;
-                BSymbol nsSymbol = symResolver.lookupSymbol(env, names.fromString(nsPrefix), SymTag.XMLNS);
-
-                if (nsSymbol == symTable.notFoundSymbol) {
-                    dlog.error(nsPrefixedFieldAccess.nsPrefix.pos, DiagnosticCode.CANNOT_FIND_XML_NAMESPACE,
-                            nsPrefixedFieldAccess.nsPrefix);
-                } else {
-                    nsPrefixedFieldAccess.nsSymbol = (BXMLNSSymbol) nsSymbol;
-                }
+                resolveXMLNamespace((BLangFieldBasedAccess.BLangNSPrefixedFieldBasedAccess) fieldAccessExpr);
             }
             BType laxFieldAccessType = getLaxFieldAccessType(varRefType);
             actualType = BUnionType.create(null, laxFieldAccessType, symTable.errorType);
@@ -4110,6 +4100,20 @@ public class TypeChecker extends BLangNodeVisitor {
         return actualType;
     }
 
+    private void resolveXMLNamespace(BLangFieldBasedAccess.BLangNSPrefixedFieldBasedAccess fieldAccessExpr) {
+        BLangFieldBasedAccess.BLangNSPrefixedFieldBasedAccess nsPrefixedFieldAccess =
+                fieldAccessExpr;
+        String nsPrefix = nsPrefixedFieldAccess.nsPrefix.value;
+        BSymbol nsSymbol = symResolver.lookupSymbol(env, names.fromString(nsPrefix), SymTag.XMLNS);
+
+        if (nsSymbol == symTable.notFoundSymbol) {
+            dlog.error(nsPrefixedFieldAccess.nsPrefix.pos, DiagnosticCode.CANNOT_FIND_XML_NAMESPACE,
+                    nsPrefixedFieldAccess.nsPrefix);
+        } else {
+            nsPrefixedFieldAccess.nsSymbol = (BXMLNSSymbol) nsSymbol;
+        }
+    }
+
     private boolean hasLaxOriginalType(BLangFieldBasedAccess fieldBasedAccess) {
         return fieldBasedAccess.originalType != null && types.isLax(fieldBasedAccess.originalType);
     }
@@ -4118,8 +4122,8 @@ public class TypeChecker extends BLangNodeVisitor {
         switch (exprType.tag) {
             case TypeTags.JSON:
                 return symTable.jsonType;
-            case TypeTags.XML: // XML attribute access and element name access is lax typed.
-                return BUnionType.create(null, symTable.stringType, symTable.nilType);
+            case TypeTags.XML:
+                return symTable.stringType;
             case TypeTags.MAP:
                 return ((BMapType) exprType).constraint;
             case TypeTags.UNION:
@@ -4167,7 +4171,7 @@ public class TypeChecker extends BLangNodeVisitor {
             fieldAccessExpr.originalType = getSafeType(actualType, fieldAccessExpr);
         } else if (types.isLax(effectiveType)) {
             BType laxFieldAccessType = getLaxFieldAccessType(effectiveType);
-            actualType = couldHoldNonMappingJson(effectiveType) ?
+            actualType = accessCouldResultInError(effectiveType) ?
                     BUnionType.create(null, laxFieldAccessType, symTable.errorType) : laxFieldAccessType;
             fieldAccessExpr.originalType = laxFieldAccessType;
             fieldAccessExpr.nilSafeNavigation = true;
@@ -4176,7 +4180,7 @@ public class TypeChecker extends BLangNodeVisitor {
                 hasLaxOriginalType(((BLangFieldBasedAccess) fieldAccessExpr.expr))) {
             BType laxFieldAccessType =
                     getLaxFieldAccessType(((BLangFieldBasedAccess) fieldAccessExpr.expr).originalType);
-            actualType = couldHoldNonMappingJson(effectiveType) ?
+            actualType = accessCouldResultInError(effectiveType) ?
                     BUnionType.create(null, laxFieldAccessType, symTable.errorType) : laxFieldAccessType;
             fieldAccessExpr.errorSafeNavigation = true;
             fieldAccessExpr.originalType = laxFieldAccessType;
@@ -4194,7 +4198,7 @@ public class TypeChecker extends BLangNodeVisitor {
         return actualType;
     }
 
-    private boolean couldHoldNonMappingJson(BType type) {
+    private boolean accessCouldResultInError(BType type) {
         if (type.tag == TypeTags.JSON) {
             return true;
         }
@@ -4203,7 +4207,15 @@ public class TypeChecker extends BLangNodeVisitor {
             return false;
         }
 
-        return ((BUnionType) type).getMemberTypes().stream().anyMatch(this::couldHoldNonMappingJson);
+        if (type.tag == TypeTags.XML) {
+            return true;
+        }
+
+        if (type.tag == TypeTags.UNION) {
+            return ((BUnionType) type).getMemberTypes().stream().anyMatch(this::accessCouldResultInError);
+        } else {
+            return false;
+        }
     }
 
     private BType checkIndexAccessExpr(BLangIndexBasedAccess indexBasedAccessExpr) {

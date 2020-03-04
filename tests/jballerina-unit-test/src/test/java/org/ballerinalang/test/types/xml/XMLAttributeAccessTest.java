@@ -32,10 +32,12 @@ import org.testng.annotations.Test;
 public class XMLAttributeAccessTest {
 
     CompileResult compileResult;
+    CompileResult lexCompileRes;
 
     @BeforeClass
     public void setup() {
         compileResult = BCompileUtil.compile("test-src/types/xml/xml-attribute-access-syntax.bal");
+        lexCompileRes = BCompileUtil.compile("test-src/types/xml/xml-attribute-access-lax-behavior.bal");
     }
 
     @Test
@@ -63,6 +65,20 @@ public class XMLAttributeAccessTest {
         Assert.assertEquals(negative.getErrorCount(), 2);
         BAssertUtil.validateError(negative, 0, "invalid character ':' in field access expression", 7, 13);
         BAssertUtil.validateError(negative, 1, "invalid character ':' in field access expression", 10, 13);
+    }
+
+    @Test
+    public void testXMLAsMapContent() {
+        BValue[] result = BRunUtil.invoke(lexCompileRes, "testXMLAsMapContent");
+        Assert.assertEquals(result[0].stringValue(), "val");
+        Assert.assertEquals(result[1].stringValue(), "val");
+        Assert.assertEquals(result[2].stringValue(), "true");
+    }
+
+    @Test
+    public void testXMLASMapContentInvalidKey() {
+        BValue[] result = BRunUtil.invoke(lexCompileRes, "testXMLASMapContentInvalidKey");
+        Assert.assertEquals(result[0].stringValue(), "{lang.map}InvalidKey {key:\"b\"}");
     }
 
 }

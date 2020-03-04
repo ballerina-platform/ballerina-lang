@@ -18,6 +18,7 @@
 package org.wso2.ballerinalang.compiler.desugar;
 
 import org.ballerinalang.compiler.CompilerPhase;
+import org.ballerinalang.jvm.util.BLangConstants;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
@@ -3261,6 +3262,10 @@ public class Desugar extends BLangNodeVisitor {
             }
         } else if (types.isLax(varRefType)) {
             if (varRefType.tag != TypeTags.XML) {
+                if (varRefType.tag == TypeTags.MAP && ((BMapType) varRefType).constraint.tag == TypeTags.XML) {
+                    result = rewriteExpr(rewriteLaxMapAccess(fieldAccessExpr));
+                    return;
+                }
                 // Handle unions of lax types such as json|map<json>,
                 // by casting to json and creating a BLangJSONAccessExpr.
                 fieldAccessExpr.expr = addConversionExprIfRequired(fieldAccessExpr.expr, symTable.jsonType);
@@ -3280,6 +3285,78 @@ public class Desugar extends BLangNodeVisitor {
         targetVarRef.type = fieldAccessExpr.type;
         targetVarRef.optionalFieldAccess = fieldAccessExpr.optionalFieldAccess;
         result = targetVarRef;
+    }
+
+    private BLangStatementExpression rewriteLaxMapAccess(BLangFieldBasedAccess fieldAccessExpr) {
+        BLangStatementExpression statementExpression = new BLangStatementExpression();
+        BLangBlockStmt block = new BLangBlockStmt();
+        statementExpression.stmt = block;
+        BUnionType fieldAccessType = BUnionType.create(null, fieldAccessExpr.type, symTable.errorType);
+        DiagnosticPos pos = fieldAccessExpr.pos;
+        BLangSimpleVariableDef result = createVarDef("$mapAccessResult$", fieldAccessType, null, pos);
+        block.addStatement(result);
+        BLangSimpleVarRef resultRef = ASTBuilderUtil.createVariableRef(pos, result.var.symbol);
+        resultRef.type = fieldAccessType;
+        statementExpression.type = fieldAccessType;
+
+
+        // create map access expr to get the field from it.
+        // if it's nil, then return error, else return xml value or what ever the map content is
+        BLangLiteral mapIndex = ASTBuilderUtil.createLiteral(
+                        fieldAccessExpr.field.pos, symTable.stringType, fieldAccessExpr.field.value);
+        BLangMapAccessExpr mapAccessExpr = new BLangMapAccessExpr(pos, fieldAccessExpr.expr, mapIndex);
+        BUnionType xmlOrNil = BUnionType.create(null, fieldAccessExpr.type, symTable.nilType);
+        mapAccessExpr.type = xmlOrNil;
+        BLangSimpleVariableDef mapResult = createVarDef("$mapAccess", xmlOrNil, mapAccessExpr, pos);
+        BLangSimpleVarRef mapResultRef = ASTBuilderUtil.createVariableRef(pos, mapResult.var.symbol);
+        block.addStatement(mapResult);
+
+        BLangIf ifStmt = ASTBuilderUtil.createIfStmt(pos, block);
+
+        BLangIsLikeExpr isLikeNilExpr = createIsLikeExpression(pos, mapResultRef, symTable.nilType);
+
+        ifStmt.expr = isLikeNilExpr;
+        BLangBlockStmt resultNilBody = new BLangBlockStmt();
+        ifStmt.body = resultNilBody;
+        BLangBlockStmt resultHasValueBody = new BLangBlockStmt();
+        ifStmt.elseStmt = resultHasValueBody;
+
+
+
+        BLangInvocation errorInvocation = (BLangInvocation) TreeBuilder.createInvocationNode();
+        BLangIdentifier name = (BLangIdentifier) TreeBuilder.createIdentifierNode();
+        name.setLiteral(false);
+        name.setValue("error");
+        errorInvocation.name = name;
+        errorInvocation.pkgAlias = (BLangIdentifier) TreeBuilder.createIdentifierNode();
+
+        errorInvocation.symbol = symTable.errorConstructor;
+        errorInvocation.type = symTable.errorType;
+        ArrayList<BLangExpression> errorCtorArgs = new ArrayList<>();
+        errorInvocation.requiredArgs = errorCtorArgs;
+        errorCtorArgs.add(createStringLiteral(pos, "{" + BLangConstants.MAP_LANG_LIB + "}InvalidKey"));
+        BLangNamedArgsExpression message = new BLangNamedArgsExpression();
+        message.name = ASTBuilderUtil.createIdentifier(pos, "key");
+        message.expr = createStringLiteral(pos, fieldAccessExpr.field.value);
+        errorCtorArgs.add(message);
+
+        BLangSimpleVariableDef errorDef =
+                createVarDef("_$_invalid_key_error", symTable.errorType, errorInvocation, pos);
+        resultNilBody.addStatement(errorDef);
+
+        BLangSimpleVarRef errorRef = ASTBuilderUtil.createVariableRef(pos, errorDef.var.symbol);
+
+        BLangAssignment errorVarAssignment = ASTBuilderUtil.createAssignmentStmt(pos, resultNilBody);
+        errorVarAssignment.varRef = resultRef;
+        errorVarAssignment.expr = errorRef;
+
+        BLangAssignment mapResultAssignment = ASTBuilderUtil.createAssignmentStmt(
+                pos, resultHasValueBody);
+        mapResultAssignment.varRef = resultRef;
+        mapResultAssignment.expr = mapResultRef;
+
+        statementExpression.expr = resultRef;
+        return statementExpression;
     }
 
     private BLangAccessExpression rewriteXMLAttributeOrElemNameAccess(BLangFieldBasedAccess fieldAccessExpr) {
@@ -5769,8 +5846,13 @@ public class Desugar extends BLangNodeVisitor {
             handleSafeNavigation((BLangAccessExpression) accessExpr.expr, type, tempResultVar);
         }
 
-        if (!accessExpr.errorSafeNavigation && !accessExpr.nilSafeNavigation) {
-            accessExpr.type = accessExpr.originalType;
+        if (!(accessExpr.errorSafeNavigation || accessExpr.nilSafeNavigation)) {
+            BType originalType = accessExpr.originalType;
+            if (originalType.tag == TypeTags.XML) {
+                accessExpr.type = BUnionType.create(null, originalType, symTable.errorType);
+            } else {
+                accessExpr.type = originalType;
+            }
             if (this.safeNavigationAssignment != null) {
                 this.safeNavigationAssignment.expr = addConversionExprIfRequired(accessExpr, tempResultVar.type);
             }
@@ -5901,7 +5983,12 @@ public class Desugar extends BLangNodeVisitor {
         // Type of the field access expression should be always taken from the child type.
         // Because the type assigned to expression contains the inherited error/nil types,
         // and may not reflect the actual type of the child/field expr.
-        accessExpr.type = accessExpr.originalType;
+        if (accessExpr.expr.type.tag == TypeTags.XML) {
+            // todo: add discription why this is special here
+            accessExpr.type = BUnionType.create(null, accessExpr.originalType, symTable.errorType, symTable.nilType);
+        } else {
+            accessExpr.type = accessExpr.originalType;
+        }
 
         BLangVariableReference tempResultVarRef =
                 ASTBuilderUtil.createVariableRef(accessExpr.pos, tempResultVar.symbol);
