@@ -53,6 +53,7 @@ import static io.ballerina.plugins.idea.BallerinaConstants.LAUNCHER_SCRIPT_PATH;
 import static io.ballerina.plugins.idea.BallerinaConstants.SYS_PROP_EXPERIMENTAL;
 import static io.ballerina.plugins.idea.BallerinaConstants.SYS_PROP_LS_DEBUG;
 import static io.ballerina.plugins.idea.BallerinaConstants.SYS_PROP_LS_TRACE;
+import static io.ballerina.plugins.idea.sdk.BallerinaSdkService.getBallerinaExecutablePath;
 import static io.ballerina.plugins.idea.sdk.BallerinaSdkUtils.getByCommand;
 import static io.ballerina.plugins.idea.sdk.BallerinaSdkUtils.getMajorVersion;
 import static io.ballerina.plugins.idea.sdk.BallerinaSdkUtils.getMinorVersion;
@@ -124,7 +125,7 @@ public class LSPUtils {
         boolean autoDetected = balSdk.second;
 
         if (!Strings.isNullOrEmpty(balSdkPath)) {
-            boolean success = doRegister(project, balSdkPath);
+            boolean success = doRegister(project, balSdkPath, autoDetected);
             if (success && autoDetected) {
                 BallerinaPreloadingActivity.LOG.info(String.format("Auto-detected Ballerina Home: %s for the " +
                         "project: %s", balSdkPath, project.getBasePath()));
@@ -137,9 +138,9 @@ public class LSPUtils {
         return false;
     }
 
-    private static boolean doRegister(@NotNull Project project, @NotNull String sdkPath) {
+    private static boolean doRegister(@NotNull Project project, @NotNull String sdkPath, boolean autoDetected) {
 
-        ProcessBuilder processBuilder = getLangServerProcessBuilder(project, sdkPath);
+        ProcessBuilder processBuilder = getLangServerProcessBuilder(project, sdkPath, autoDetected);
         if (processBuilder == null || project.getBasePath() == null) {
             return false;
         }
@@ -183,16 +184,16 @@ public class LSPUtils {
     }
 
     @Nullable
-    private static ProcessBuilder getLangServerProcessBuilder(Project project, String balSdkPath) {
+    private static ProcessBuilder getLangServerProcessBuilder(Project project, String sdkPath, boolean autoDetected) {
 
-        String version = BallerinaSdkUtils.retrieveBallerinaVersion(balSdkPath);
+        String version = BallerinaSdkUtils.retrieveBallerinaVersion(sdkPath);
         if (version == null) {
-            LOG.warn("unable to retrieve ballerina version from sdk path: " + balSdkPath);
+            LOG.warn("unable to retrieve ballerina version from sdk path: " + sdkPath);
             return null;
         }
 
-        return hasLangServerCmdSupport(version) ? createCmdBasedProcess(project) :
-                createScriptBasedProcess(project, balSdkPath);
+        return hasLangServerCmdSupport(version) ? createCmdBasedProcess(project, sdkPath, autoDetected) :
+                createScriptBasedProcess(project, sdkPath);
     }
 
     /**
@@ -240,11 +241,11 @@ public class LSPUtils {
      * v1.2.0.
      */
     @Nullable
-    private static ProcessBuilder createCmdBasedProcess(Project project) {
+    private static ProcessBuilder createCmdBasedProcess(Project project, String balSdkPath, boolean autoDetected) {
 
         // Creates the args list to register the language server definition using the ballerina lang-server launcher
         // command.
-        List<String> args = getLangServerCmdArgs();
+        List<String> args = getLangServerCmdArgs(balSdkPath, autoDetected);
         if (args.isEmpty()) {
             LOG.warn("Couldn't find ballerina executable to execute language server launch command.");
             return null;
@@ -271,26 +272,41 @@ public class LSPUtils {
         return cmdProcessBuilder;
     }
 
-    private static List<String> getLangServerCmdArgs() {
+    private static List<String> getLangServerCmdArgs(String balSdkPath, boolean autoDetected) {
 
         List<String> cmdArgs = new ArrayList<>();
-        // Checks if the ballerina command works.
-        String ballerinaPath = getByCommand(String.format("%s %s", BALLERINA_CMD, BALLERINA_HOME_CMD));
-        if (!ballerinaPath.isEmpty()) {
-            cmdArgs.add(BALLERINA_CMD);
-            cmdArgs.add(BALLERINA_LS_CMD);
-            return cmdArgs;
+
+        // If the user has configured an SDK.
+        if (!autoDetected) {
+            String balExecPath = getBallerinaExecutablePath(balSdkPath);
+            String homeCmd = OSUtils.isWindows() ? String.format("\"%s\" %s", balExecPath, BALLERINA_HOME_CMD) :
+                    String.format("%s %s", balExecPath, BALLERINA_HOME_CMD);
+            String ballerinaPath = getByCommand(homeCmd);
+            if (!ballerinaPath.isEmpty()) {
+                cmdArgs.add(balExecPath);
+                cmdArgs.add(BALLERINA_LS_CMD);
+                return cmdArgs;
+            }
+        } else {
+            // Checks if the ballerina command works.
+            String ballerinaPath = getByCommand(String.format("%s %s", BALLERINA_CMD, BALLERINA_HOME_CMD));
+            if (!ballerinaPath.isEmpty()) {
+                cmdArgs.add(BALLERINA_CMD);
+                cmdArgs.add(BALLERINA_LS_CMD);
+                return cmdArgs;
+            }
+            // Todo - Verify
+            // Tries for default installer based locations since "ballerina" commands might not work
+            // because of the IntelliJ issue of PATH variable might not being identified by the IntelliJ java
+            // runtime.
+            String routerScriptPath = BallerinaSdkUtils.getByDefaultPath();
+            if (routerScriptPath.isEmpty()) {
+                // Returns the empty list.
+                return cmdArgs;
+            }
+            cmdArgs.add(OSUtils.isWindows() ? String.format("\"%s\"", routerScriptPath) : routerScriptPath);
         }
-        // Todo - Verify
-        // Tries for default installer based locations since "ballerina" commands might not work
-        // because of the IntelliJ issue of PATH variable might not being identified by the IntelliJ java
-        // runtime.
-        String routerScriptPath = BallerinaSdkUtils.getByDefaultPath();
-        if (routerScriptPath.isEmpty()) {
-            // Returns the empty list.
-            return cmdArgs;
-        }
-        cmdArgs.add(OSUtils.isWindows() ? String.format("\"%s\"", routerScriptPath) : routerScriptPath);
+
         cmdArgs.add(BALLERINA_LS_CMD);
         return cmdArgs;
     }
