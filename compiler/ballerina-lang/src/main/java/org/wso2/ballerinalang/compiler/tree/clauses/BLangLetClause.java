@@ -21,12 +21,11 @@ import org.ballerinalang.model.clauses.LetClauseNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
-import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.types.BLangLetVariable;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.StringJoiner;
 
 /**
  * Implementation of "let" clause statement.
@@ -60,7 +59,10 @@ public class BLangLetClause extends BLangNode implements LetClauseNode {
 
     @Override
     public String toString() {
-        return "let " + letVarDeclarations.stream().map(BLangSimpleVariable::toString)
-                .collect(Collectors.joining("\n"));
+        StringJoiner declarations = new StringJoiner(", ");
+        for (BLangLetVariable letVarDeclaration : letVarDeclarations) {
+            declarations.add(String.valueOf(letVarDeclaration));
+        }
+        return "let " + declarations.toString();
     }
 }

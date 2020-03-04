@@ -2779,8 +2779,8 @@ public class TypeChecker extends BLangNodeVisitor {
 
     SymbolEnv typeCheckLetClause(BLangLetClause letClause, SymbolEnv parentEnv) {
         SymbolEnv letClauseEnv = SymbolEnv.createTypeNarrowedEnv(letClause, parentEnv);
-        for (BLangVariable var : letClause.letVarDeclarations) {
-            semanticAnalyzer.analyzeDef(var, letClauseEnv);
+        for (BLangLetVariable letVariable : letClause.letVarDeclarations) {
+            semanticAnalyzer.analyzeDef((BLangNode) letVariable.definitionNode, letClauseEnv);
         }
         return letClauseEnv;
     }

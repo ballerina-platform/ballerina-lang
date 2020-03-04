@@ -46,6 +46,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangQueryAction;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangSimpleVariableDef;
+import org.wso2.ballerinalang.compiler.tree.types.BLangLetVariable;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
@@ -180,11 +181,8 @@ public class QueryDesugar extends BLangNodeVisitor {
         // Create variable definitions for the let variable declarations
         if (letClauseList != null) {
             for (BLangLetClause letClause : letClauseList) {
-                for (BLangVariable var : letClause.letVarDeclarations) {
-                    BLangSimpleVariableDef varDef = ASTBuilderUtil.createVariableDef(letClause.pos);
-                    varDef.var = (BLangSimpleVariable) var;
-                    varDef.type = var.type;
-                    bLangBlockStmt.addStatement(varDef);
+                for (BLangLetVariable letVariable  : letClause.letVarDeclarations) {
+                    bLangBlockStmt.addStatement(letVariable.definitionNode);
                 }
             }
         }

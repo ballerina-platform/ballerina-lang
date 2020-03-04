@@ -977,13 +977,7 @@ class NodeCloner extends BLangNodeVisitor {
     public void visit(BLangLetExpression source) {
         BLangLetExpression clone = new BLangLetExpression();
         source.cloneRef = clone;
-        List<BLangLetVariable> cloneDefs = new ArrayList<>();
-        for (BLangLetVariable letVarDeclaration : source.letVarDeclarations) {
-            BLangLetVariable clonedVar = new BLangLetVariable();
-            clonedVar.definitionNode = clone(letVarDeclaration.definitionNode);
-            cloneDefs.add(clonedVar);
-        }
-        clone.letVarDeclarations = cloneDefs;
+        clone.letVarDeclarations = cloneLetVarDeclarations(source.letVarDeclarations);
         clone.expr = source.expr;
     }
 
@@ -1290,7 +1284,17 @@ class NodeCloner extends BLangNodeVisitor {
     public void visit(BLangLetClause source) {
         BLangLetClause clone = new BLangLetClause();
         source.cloneRef = clone;
-        clone.letVarDeclarations = cloneList(source.letVarDeclarations);
+        clone.letVarDeclarations = cloneLetVarDeclarations(source.letVarDeclarations);
+    }
+
+    private List<BLangLetVariable> cloneLetVarDeclarations (List<BLangLetVariable> letVarDeclarations) {
+        List<BLangLetVariable> cloneDefs = new ArrayList<>();
+        for (BLangLetVariable letVarDeclaration : letVarDeclarations) {
+            BLangLetVariable clonedVar = new BLangLetVariable();
+            clonedVar.definitionNode = clone(letVarDeclaration.definitionNode);
+            cloneDefs.add(clonedVar);
+        }
+        return cloneDefs;
     }
 
     @Override
