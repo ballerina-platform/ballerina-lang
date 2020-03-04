@@ -136,3 +136,27 @@ function testQueryNumericStringTypeRecord(string jdbcURL, string user, string pa
     check dbClient.close();
     return numericType;
 }
+
+public type CustomType int|decimal|float;
+
+type NumericCustomType record {
+    CustomType id;
+    CustomType int_type;
+    CustomType bigint_type;
+    CustomType smallint_type;
+    CustomType tinyint_type;
+    CustomType bit_type;
+    CustomType decimal_type;
+    CustomType numeric_type;
+    CustomType float_type;
+    CustomType real_type;
+};
+
+function testQueryNumericCustomTypeRecord(string jdbcURL, string user, string password) returns NumericCustomType|error? {
+    jdbc:Client dbClient = check new (url = jdbcURL, user = user, password = password);
+    stream<NumericCustomType, error> streamData = <stream<NumericCustomType, error>> dbClient.query("SELECT * FROM NumericTypes", NumericCustomType);
+    record{| NumericCustomType value; |}? data =  check streamData.next();
+    NumericCustomType? numericType = data?.value;
+    check dbClient.close();
+    return numericType;
+}

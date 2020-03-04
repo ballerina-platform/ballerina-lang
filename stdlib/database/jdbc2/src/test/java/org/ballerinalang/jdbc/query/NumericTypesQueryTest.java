@@ -36,7 +36,7 @@ import java.util.LinkedHashMap;
  *
  * @since 1.2.0
  */
-public class QueryTest {
+public class NumericTypesQueryTest {
     private CompileResult result;
     private static final String DB_NAME = "TEST_SQL_CONNECTOR_INIT";
     private static final String JDBC_URL = "jdbc:h2:file:" + SQLDBUtils.DB_DIR + DB_NAME;
@@ -152,6 +152,25 @@ public class QueryTest {
         DecimalFormat df = new DecimalFormat("###.###");
         Assert.assertEquals(df.format(Float.parseFloat(result.get("float_type").toString())), "1234.567");
         Assert.assertEquals(df.format(Float.parseFloat(result.get("real_type").toString())), "1234.567");
+    }
+
+    @Test
+    public void testQueryNumericCustomTypeRecord() {
+        BValue[] returnVal = BRunUtil.invokeFunction(result, "testQueryNumericCustomTypeRecord", args);
+        Assert.assertEquals(returnVal[0].getType().getName(), "NumericCustomType");
+        LinkedHashMap result = ((BMap) returnVal[0]).getMap();
+        Assert.assertEquals(result.size(), 10);
+        Assert.assertEquals(result.get("id"), new BInteger(1));
+        Assert.assertEquals(result.get("int_type"), new BInteger(2147483647));
+        Assert.assertEquals(result.get("bigint_type"), new BInteger(9223372036854774807L));
+        Assert.assertEquals(result.get("smallint_type"), new BInteger(32767));
+        Assert.assertEquals(result.get("tinyint_type"), new BInteger(127));
+        Assert.assertEquals(result.get("bit_type"), new BInteger(1));
+        Assert.assertEquals(((BDecimal) result.get("decimal_type")).value().doubleValue(), 1234.567);
+        Assert.assertEquals(((BDecimal) result.get("numeric_type")).value().doubleValue(), 1234.567);
+        DecimalFormat df = new DecimalFormat("###.###");
+        Assert.assertEquals(df.format(((BFloat) result.get("float_type")).floatValue()), "1234.567");
+        Assert.assertEquals(df.format(((BFloat) result.get("real_type")).floatValue()), "1234.567");
     }
 
 }
