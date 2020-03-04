@@ -500,3 +500,56 @@ function removeRest() returns boolean {
         return false;
     }
 }
+
+type Student record {
+    int id;
+    string name?;
+};
+
+type Grades record {
+    int maths;
+    int physics;
+};
+
+function removeIfHasKeyOptional() {
+    Student s = {id : 1, name : "Andrew"};
+    string? n = <string?> s.removeIfHasKey("name");
+    if (n is ()) {
+         error err = error("Returned value should be an string.");
+         panic err;
+    }
+
+    if (<string>n !== "Andrew") {
+         error err = error("Returned value should equals 'Andrew'.");
+         panic err;
+    }
+
+    var age = s.removeIfHasKey("age");
+    if !(age is ()) {
+         error err = error("Returned value should be nil.");
+         panic err;
+    }
+}
+
+
+function removeIfHasKeyRest() {
+    Grades g1 = {maths: 80, physics:75};
+    Student s = {id : 1, name : "Andrew", "grade": g1};
+    Grades? g2 = <Grades?> s.removeIfHasKey("grade");
+    if (g2 is ()) {
+         error err = error("Returned value should be an string.");
+         panic err;
+    }
+
+    Grades g3 = <Grades>g2;
+    if !(g3.maths == g1.maths && g3.physics == g1.physics) {
+         error err = error("Returned value should be identical with expected value.");
+         panic err;
+    }
+
+    var g4 = s.removeIfHasKey("grade");
+    if !(g4 is ()) {
+         error err = error("Returned value should be nil.");
+         panic err;
+    }
+}
