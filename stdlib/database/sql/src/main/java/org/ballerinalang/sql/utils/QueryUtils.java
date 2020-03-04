@@ -97,11 +97,11 @@ public class QueryUtils {
                 closeResources(resultSet, preparedStatement, connection);
                 ErrorValue errorValue = ErrorGenerator.getSQLDatabaseError(e,
                         "Error while executing sql query: " + sqlQuery + ". ");
-                return new StreamValue(getDefaultStreamConstraint(), createRecordIterator(errorValue));
+                return new StreamValue(new BStreamType(getDefaultStreamConstraint()), createRecordIterator(errorValue));
             } catch (ApplicationError applicationError) {
                 closeResources(resultSet, preparedStatement, connection);
                 ErrorValue errorValue = ErrorGenerator.getSQLApplicationError(applicationError.getMessage());
-                return new StreamValue(getDefaultStreamConstraint(), createRecordIterator(errorValue));
+                return new StreamValue(new BStreamType(getDefaultStreamConstraint()), createRecordIterator(errorValue));
             }
         } else {
             ErrorValue errorValue = ErrorGenerator.getSQLApplicationError(
@@ -173,7 +173,7 @@ public class QueryUtils {
                 if (field.getKey().equalsIgnoreCase(columnName)) {
                     ballerinaFieldName = field.getKey();
                     ballerinaType = field.getValue().type;
-                    if (RecordConverterUtils.isValidFieldConstraint(sqlType, ballerinaType)) {
+                    if (!RecordConverterUtils.isValidFieldConstraint(sqlType, ballerinaType)) {
                         throw new ApplicationError(ballerinaType.getName() + " cannot be mapped to sql type: "
                                 + sqlTypeName + " .");
                     }

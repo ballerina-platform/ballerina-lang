@@ -75,4 +75,24 @@ public class QueryTest {
         Assert.assertEquals(df.format(((BFloat) result.get("REAL_TYPE")).floatValue()), "1234.567");
     }
 
+    @Test
+    public void testQueryNumericTypeRecord() {
+        BValue[] returnVal = BRunUtil.invokeFunction(result, "testQueryNumericTypeRecord", args);
+        Assert.assertTrue(returnVal[0] instanceof BMap);
+        Assert.assertEquals(returnVal[0].getType().getName(), "NumericType");
+        LinkedHashMap result = ((BMap) returnVal[0]).getMap();
+        Assert.assertEquals(result.size(), 10);
+        Assert.assertEquals(result.get("id"), new BInteger(1));
+        Assert.assertEquals(result.get("int_type"), new BInteger(2147483647));
+        Assert.assertEquals(result.get("bigint_type"), new BInteger(9223372036854774807L));
+        Assert.assertEquals(result.get("smallint_type"), new BInteger(32767));
+        Assert.assertEquals(result.get("tinyint_type"), new BInteger(127));
+        Assert.assertEquals(result.get("bit_type"), new BBoolean(true));
+        Assert.assertEquals(((BDecimal) result.get("decimal_type")).value().doubleValue(), 1234.567);
+        Assert.assertEquals(((BDecimal) result.get("numeric_type")).value().doubleValue(), 1234.567);
+        DecimalFormat df = new DecimalFormat("###.###");
+        Assert.assertEquals(df.format(((BFloat) result.get("float_type")).floatValue()), "1234.567");
+        Assert.assertEquals(df.format(((BFloat) result.get("real_type")).floatValue()), "1234.567");
+    }
+
 }

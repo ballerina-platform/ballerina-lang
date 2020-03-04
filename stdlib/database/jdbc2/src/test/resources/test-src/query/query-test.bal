@@ -26,3 +26,27 @@ function testQuery(string jdbcURL, string user, string password) returns record{
     return returnData;
 }
 
+type NumericType record {
+    int id;
+    int int_type;
+    int bigint_type;
+    int smallint_type;
+    int tinyint_type;
+    boolean bit_type;
+    decimal decimal_type;
+    decimal numeric_type;
+    float float_type;
+    float real_type;
+};
+
+function testQueryNumericTypeRecord(string jdbcURL, string user, string password) returns NumericType|error? {
+    jdbc:Client dbClient = check new (url = jdbcURL, user = user, password = password);
+    stream<NumericType, error> streamData = <stream<NumericType, error>> dbClient.query("SELECT * FROM NumericTypes", NumericType);
+    NumericType? returnData = ();
+    streamData.forEach(function(NumericType data){
+        returnData =  data;
+    });
+    check dbClient.close();
+    return returnData;
+}
+
