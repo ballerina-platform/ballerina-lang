@@ -28,7 +28,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
-import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangDoClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangFromClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangLetClause;
