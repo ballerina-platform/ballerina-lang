@@ -20,7 +20,7 @@ type ResultValue record {|
 
 type NumberGenerator object {
     int i = 0;
-    public function next() returns record {| int value; |}|error? {
+    public function next() returns record {| int value; |}? {
         self.i += 1;
         return { value: self.i };
     }
@@ -42,9 +42,9 @@ type OddNumberGenerator object {
     }
 };
 
-function getRecordValue(record {| int value; |}|error? returnedVal) returns ResultValue? {
+function getRecordValue((record {| int value; |}|error?)|(record {| int value; |}?) returnedVal) returns ResultValue? {
     if (returnedVal is ResultValue) {
-        return <ResultValue> returnedVal;
+        return returnedVal;
     } else {
         return ();
     }
@@ -57,16 +57,16 @@ function testGlobalStreamConstruct() returns boolean {
     boolean testPassed = true;
 
     record {| int value; |}? evenNumber = getRecordValue(evenNumberStream.next());
-    testPassed = testPassed && (<int>evenNumber["value"] % 2 == 0);
+    testPassed = testPassed && (evenNumber?.value == 2);
 
     evenNumber = getRecordValue(evenNumberStream.next());
-    testPassed = testPassed && (<int>evenNumber["value"] % 2 == 0);
+    testPassed = testPassed && (evenNumber?.value == 4);
 
     evenNumber = getRecordValue(evenNumberStream.next());
-    testPassed = testPassed && (<int>evenNumber["value"] % 2 == 0);
+    testPassed = testPassed && (evenNumber?.value == 6);
 
     evenNumber = getRecordValue(evenNumberStream.next());
-    testPassed = testPassed && (<int>evenNumber["value"] % 2 == 0);
+    testPassed = testPassed && (evenNumber?.value == 8);
 
     return testPassed;
 }
@@ -77,17 +77,17 @@ function testStreamConstruct() returns boolean {
     OddNumberGenerator oddGen = new();
     var oddNumberStream = new stream<int,error>(oddGen);
 
-    var oddNumber = getRecordValue(oddNumberStream.next());
-    testPassed = testPassed && (<int>oddNumber["value"] % 2 == 1);
+    record {| int value; |}? oddNumber = getRecordValue(oddNumberStream.next());
+    testPassed = testPassed && (oddNumber?.value == 3);
 
     oddNumber = getRecordValue(oddNumberStream.next());
-    testPassed = testPassed && (<int>oddNumber["value"] % 2 == 1);
+    testPassed = testPassed && (oddNumber?.value == 5);
 
     oddNumber = getRecordValue(oddNumberStream.next());
-    testPassed = testPassed && (<int>oddNumber["value"] % 2 == 1);
+    testPassed = testPassed && (oddNumber?.value == 7);
 
     oddNumber = getRecordValue(oddNumberStream.next());
-    testPassed = testPassed && (<int>oddNumber["value"] % 2 == 1);
+    testPassed = testPassed && (oddNumber?.value == 9);
 
     return testPassed;
 }
@@ -117,17 +117,17 @@ function testStreamConstructWithFilter() returns boolean {
     return testPassed;
 }
 
-function getIntStream() returns stream<int,error> {
+function getIntStream() returns stream<int> {
     NumberGenerator numGen = new();
-    stream<int,error> intStream = new(numGen);
+    stream<int> intStream = new(numGen);
     return intStream;
 }
 
 function testStreamReturnTypeExplicit() returns boolean {
     boolean testPassed = true;
-    stream<int,error> intStream = getIntStream();
+    stream<int> intStream = getIntStream();
 
-    var intNumber = getRecordValue(intStream.next());
+    record {| int value; |}? intNumber = getRecordValue(intStream.next());
     testPassed = testPassed && (<int>intNumber["value"] == 1);
 
     intNumber = getRecordValue(intStream.next());
@@ -146,7 +146,7 @@ function testStreamReturnTypeImplicit() returns boolean {
     boolean testPassed = true;
     var intStream = getIntStream();
 
-    var intNumber = getRecordValue(intStream.next());
+    record {| int value; |}? intNumber = getRecordValue(intStream.next());
     testPassed = testPassed && (<int>intNumber["value"] == 1);
 
     intNumber = getRecordValue(intStream.next());
@@ -157,6 +157,118 @@ function testStreamReturnTypeImplicit() returns boolean {
 
     intNumber = getRecordValue(intStream.next());
     testPassed = testPassed && (<int>intNumber["value"] == 4);
+
+    return testPassed;
+}
+
+// ------------------- Error Related Tests -------------------
+
+type CustomErrorData record {|
+    string message?;
+    error cause?;
+    int accountID?;
+|};
+
+type CustomError error<string, CustomErrorData>;
+
+type IteratorWithCustomError object {
+    int i = 0;
+
+    public function next() returns record {| int value; |}|CustomError? {
+        self.i += 1;
+        if (self.i == 2) {
+            CustomError e = error("CustomError", message = "custom error occured", accountID = 1);
+            return e;
+        } else {
+            return { value: self.i };
+        }
+    }
+};
+
+function testIteratorWithCustomError() returns boolean {
+    boolean testPassed = true;
+
+    IteratorWithCustomError numGen = new();
+    var intStreamA = new stream<int, CustomError>(numGen);
+    stream<int, CustomError> intStreamB = new(numGen);
+
+    var returnedVal = getRecordValue(intStreamA.next());
+    testPassed = testPassed && (<int>returnedVal["value"] == 1);
+
+    returnedVal = getRecordValue(intStreamB.next());
+    testPassed = testPassed && (returnedVal is ());
+
+    returnedVal = getRecordValue(intStreamA.next());
+    testPassed = testPassed && (<int>returnedVal["value"] == 3);
+
+    returnedVal = getRecordValue(intStreamB.next());
+    testPassed = testPassed && (<int>returnedVal["value"] == 4);
+
+    return testPassed;
+}
+
+type IteratorWithGenericError object {
+    int i = 0;
+
+    public function next() returns record {| int value; |}|error? {
+        self.i += 1;
+        if (self.i == 2) {
+            return error("GenericError", message = "generic error occured");
+        } else {
+            return { value: self.i };
+        }
+    }
+};
+
+function testIteratorWithGenericError() returns boolean {
+    boolean testPassed = true;
+
+    IteratorWithGenericError numGen = new();
+    var intStreamA = new stream<int, error>(numGen);
+    stream<int, error> intStreamB = new(numGen);
+
+    var returnedVal = getRecordValue(intStreamA.next());
+    testPassed = testPassed && (<int>returnedVal["value"] == 1);
+
+    returnedVal = getRecordValue(intStreamB.next());
+    testPassed = testPassed && (returnedVal is ());
+
+    returnedVal = getRecordValue(intStreamA.next());
+    testPassed = testPassed && (<int>returnedVal["value"] == 3);
+
+    returnedVal = getRecordValue(intStreamB.next());
+    testPassed = testPassed && (<int>returnedVal["value"] == 4);
+
+    return testPassed;
+}
+
+type IteratorWithOutError object {
+    int i = 0;
+
+    public function next() returns record {| int value; |}? {
+        self.i += 1;
+        return { value: self.i };
+    }
+};
+
+function testIteratorWithOutError() returns boolean {
+    boolean testPassed = true;
+
+    IteratorWithOutError numGen = new();
+    var intStreamA = new stream<int>(numGen);
+    stream<int> intStreamB = new(numGen);
+
+    var returnedVal = getRecordValue(intStreamA.next());
+    testPassed = testPassed && (<int>returnedVal["value"] == 1);
+
+    returnedVal = getRecordValue(intStreamB.next());
+    testPassed = testPassed && (<int>returnedVal["value"] == 2);
+
+    returnedVal = getRecordValue(intStreamA.next());
+    testPassed = testPassed && (<int>returnedVal["value"] == 3);
+
+    returnedVal = getRecordValue(intStreamB.next());
+    testPassed = testPassed && (<int>returnedVal["value"] == 4);
 
     return testPassed;
 }

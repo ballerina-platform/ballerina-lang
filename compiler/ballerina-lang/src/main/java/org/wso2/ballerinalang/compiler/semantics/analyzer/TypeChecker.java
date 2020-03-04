@@ -3400,11 +3400,6 @@ public class TypeChecker extends BLangNodeVisitor {
         if (iExpr.argExprs.isEmpty() || !iExpr.argExprs.get(0).equals(iExpr.expr)) {
             iExpr.argExprs.add(0, iExpr.expr);
         }
-        if (bType.tag == TypeTags.STREAM) {
-            BType expectedType = iExpr.expectedType;
-            ((BInvokableSymbol)iExpr.symbol).retType = expectedType;
-            ((BInvokableType)((BInvokableSymbol)iExpr.symbol).type).retType = expectedType;
-        }
         checkInvocationParamAndReturnType(iExpr);
         this.env = enclEnv;
 

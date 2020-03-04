@@ -643,10 +643,6 @@ public class TypeParamAnalyzer {
     }
 
     private BType getMatchingOptionalBoundType(BUnionType expType, SymbolEnv env, HashSet<BType> resolvedTypes) {
-
-        if (!expType.isNullable() || expType.getMemberTypes().size() != 2) {
-            return expType;
-        }
         LinkedHashSet<BType> members = new LinkedHashSet<>();
         expType.getMemberTypes()
                 .forEach(type -> members.add(getMatchingBoundType(type, env, resolvedTypes)));
