@@ -457,7 +457,39 @@ class RecordConverterUtils {
         }
     }
 
+    public static BType validFieldConstraint(int sqlType, BType bType) {
+        if (bType.getTag() == TypeTags.UNION_TAG) {
+            BUnionType bUnionType = (BUnionType) bType;
+            for (BType memberType : bUnionType.getMemberTypes()) {
+                //In case if the member type is another union type, check recursively.
+                if (isValidFieldConstraint(sqlType, memberType)) {
+                    return memberType;
+                }
+            }
+        } else {
+            if (isValidPrimitiveConstraint(sqlType, bType)) {
+                return bType;
+            }
+        }
+        return null;
+    }
+
     public static boolean isValidFieldConstraint(int sqlType, BType bType) {
+        if (bType.getTag() == TypeTags.UNION_TAG) {
+            BUnionType bUnionType = (BUnionType) bType;
+            for (BType memberType : bUnionType.getMemberTypes()) {
+                //In case if the member type is another union type, check recursively.
+                if (isValidFieldConstraint(sqlType, memberType)) {
+                    return true;
+                }
+            }
+            return false;
+        } else {
+            return isValidPrimitiveConstraint(sqlType, bType);
+        }
+    }
+
+    private static boolean isValidPrimitiveConstraint(int sqlType, BType bType) {
         switch (sqlType) {
             case Types.ARRAY:
                 return bType.getTag() == TypeTags.ARRAY_TAG;

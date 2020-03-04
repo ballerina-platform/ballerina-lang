@@ -181,15 +181,15 @@ public class QueryUtils {
             for (Map.Entry<String, BField> field : streamConstraint.getFields().entrySet()) {
                 if (field.getKey().equalsIgnoreCase(columnName)) {
                     ballerinaFieldName = field.getKey();
-                    ballerinaType = field.getValue().type;
-                    if (!RecordConverterUtils.isValidFieldConstraint(sqlType, ballerinaType)) {
-                        throw new ApplicationError(ballerinaType.getName() + " cannot be mapped to sql type: "
+                    ballerinaType = RecordConverterUtils.validFieldConstraint(sqlType, field.getValue().type);
+                    if (ballerinaType == null) {
+                        throw new ApplicationError(field.getValue().type.getName() + " cannot be mapped to sql type: "
                                 + sqlTypeName + " .");
                     }
                     break;
                 }
             }
-            if (ballerinaFieldName == null || ballerinaType == null) {
+            if (ballerinaFieldName == null) {
                 throw new ApplicationError("No mapping field for the column name : " + columnName
                         + " found in the provided record type : " + streamConstraint.getName() + " .");
             }

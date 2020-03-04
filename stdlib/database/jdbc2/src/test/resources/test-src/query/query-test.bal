@@ -14,13 +14,13 @@
 // under the License.
 
 import ballerina/java.jdbc;
-import ballerina/io;
+//import ballerina/io;
 
 function testQuery(string jdbcURL, string user, string password) returns record{}|error? {
     jdbc:Client dbClient = check new (url = jdbcURL, user = user, password = password);
     stream<record{}, error> streamData = dbClient.query("SELECT * FROM NumericTypes");
     record{}? returnData = ();
-    streamData.forEach(function(record{} data){
+    error? e = streamData.forEach(function(record{} data){
         returnData =  data;
     });
     check dbClient.close();
@@ -44,7 +44,7 @@ function testQueryNumericTypeRecord(string jdbcURL, string user, string password
     jdbc:Client dbClient = check new (url = jdbcURL, user = user, password = password);
     stream<NumericType, error> streamData = <stream<NumericType, error>> dbClient.query("SELECT * FROM NumericTypes", NumericType);
     NumericType? returnData = ();
-    streamData.forEach(function(NumericType data){
+    error? e =  streamData.forEach(function(NumericType data){
         returnData =  data;
     });
     check dbClient.close();
@@ -64,13 +64,41 @@ type NumericOptionalType record {
     float? real_type;
 };
 
-function testQueryNumericOptionalTypeRecord(string jdbcURL, string user, string password) returns record {| (any|error) value; |} |error? {
+//function testQueryNumericOptionalTypeRecord(string jdbcURL, string user, string password) returns error? {
+//    jdbc:Client dbClient = check new (url = jdbcURL, user = user, password = password);
+//    stream<NumericOptionalType, error> streamData = <stream<NumericOptionalType, error>> dbClient.query("SELECT * FROM NumericTypes", NumericOptionalType);
+//    io:println("came1");
+//    //record{| any|error value; |} data =  check streamData.next();
+//    record{| NumericOptionalType value; |}? data =  check streamData.next();
+//    io:println(data);
+//    io:println("came2");
+//    if(data is record{| any|error value; |}){
+//        io:println("came3");
+//        io:println(data.value);
+//    }
+//    io:println("came4");
+//    //NumericOptionalType numValue = <NumericOptionalType>data?.value;
+//    //io:println(numValue);
+//    //io:println(data.value);
+//    check dbClient.close();
+//    //io:println("came3");
+//    //if(data is error?){
+//    //   io:println(data);
+//    //   return data;
+//    //} else {
+//    //    io:println(data.value);
+//    //    return data.value;
+//    //}
+//    return ();
+//}
+
+function testQueryNumericOptionalTypeRecord(string jdbcURL, string user, string password) returns NumericOptionalType|error? {
     jdbc:Client dbClient = check new (url = jdbcURL, user = user, password = password);
     stream<NumericOptionalType, error> streamData = <stream<NumericOptionalType, error>> dbClient.query("SELECT * FROM NumericTypes", NumericOptionalType);
-    record {| (NumericOptionalType|error) value; |} returnData = check streamData.next();
-    io:println(returnData);
+    record{| any value; |} data =  check streamData.next();
+    NumericOptionalType numericType = <NumericOptionalType>data.value;
     check dbClient.close();
-    return returnData;
+    return numericType;
 }
 
 

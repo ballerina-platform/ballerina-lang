@@ -72,6 +72,9 @@ public class RecordItertorUtils {
         } catch (IOException | ApplicationError e) {
             return ErrorGenerator.getSQLApplicationError("Error when iterating the SQL result. "
                     + e.getMessage());
+        } catch (Throwable throwable) {
+            return ErrorGenerator.getSQLApplicationError("Error when iterating through the " +
+                    "SQL result. " + throwable.getMessage());
         }
     }
 
