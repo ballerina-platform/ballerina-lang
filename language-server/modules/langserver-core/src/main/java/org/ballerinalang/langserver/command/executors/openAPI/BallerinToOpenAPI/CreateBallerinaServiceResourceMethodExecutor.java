@@ -32,10 +32,13 @@ import org.ballerinalang.ballerina.openapi.convertor.service.OpenApiEndpointMapp
 import org.ballerinalang.ballerina.openapi.convertor.service.OpenApiServiceMapper;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
+import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.command.ExecuteCommandKeys;
 import org.ballerinalang.langserver.commons.command.LSCommandExecutorException;
 import org.ballerinalang.langserver.commons.command.spi.LSCommandExecutor;
+import org.ballerinalang.langserver.commons.workspace.LSDocumentIdentifier;
+import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.ExtendedLSCompiler;
@@ -47,6 +50,7 @@ import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
 import org.ballerinalang.model.tree.types.TypeNode;
 import org.ballerinalang.openapi.utils.GeneratorConstants;
+import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.VersionedTextDocumentIdentifier;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
@@ -90,7 +94,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static org.ballerinalang.langserver.command.CommandUtil.getFunctionNode;
+import static org.ballerinalang.langserver.codeaction.providers.openAPI.OpenApiCodeActionUtil.getBLangFunction;
+import static org.ballerinalang.langserver.codeaction.providers.openAPI.OpenApiCodeActionUtil.getBLangPkg;
 
 /**
  * Represents the command executor for creating a openAPI service resource method in contract file.
@@ -363,10 +368,15 @@ public class CreateBallerinaServiceResourceMethodExecutor implements LSCommandEx
 
         WorkspaceDocumentManager documentManager = context.get(DocumentServiceKeys.DOC_MANAGER_KEY);
 
-        BLangFunction functionNode;
+        BLangFunction functionNode = null;
         BLangService serviceNode = null;
         try {
-            functionNode = getFunctionNode(line, column, documentUri, documentManager, context);
+            LSDocumentIdentifier lsDocument = documentManager.getLSDocument(
+                    CommonUtil.getPathFromURI(documentUri).get());
+            Position pos = new Position(line, column + 1);
+            List<BLangPackage> pkg = getBLangPkg(context, lsDocument, pos);
+            functionNode = getBLangFunction(pkg, pos);
+
             if (functionNode != null && functionNode.parent != null) {
                 BLangObjectTypeNode serviceObj = (BLangObjectTypeNode) functionNode.parent;
                 if (serviceObj.flagSet.contains(Flag.SERVICE)) {
@@ -474,7 +484,7 @@ public class CreateBallerinaServiceResourceMethodExecutor implements LSCommandEx
                 writeFile(Paths.get(contractURI), openApiResourceNew);
 
             }
-        } catch (CompilationFailedException | IOException e) {
+        } catch (CompilationFailedException | IOException | WorkspaceDocumentException e) {
             throw new LSCommandExecutorException("Error while compiling the source!");
         }
         return null;

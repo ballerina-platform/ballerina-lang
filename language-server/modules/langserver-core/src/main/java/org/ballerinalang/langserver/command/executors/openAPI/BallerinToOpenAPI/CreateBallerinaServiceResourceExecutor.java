@@ -32,10 +32,13 @@ import org.ballerinalang.ballerina.openapi.convertor.service.OpenApiEndpointMapp
 import org.ballerinalang.ballerina.openapi.convertor.service.OpenApiServiceMapper;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
+import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.command.ExecuteCommandKeys;
 import org.ballerinalang.langserver.commons.command.LSCommandExecutorException;
 import org.ballerinalang.langserver.commons.command.spi.LSCommandExecutor;
+import org.ballerinalang.langserver.commons.workspace.LSDocumentIdentifier;
+import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.ExtendedLSCompiler;
@@ -47,6 +50,7 @@ import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
 import org.ballerinalang.model.tree.types.TypeNode;
 import org.ballerinalang.openapi.utils.GeneratorConstants;
+import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.VersionedTextDocumentIdentifier;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
@@ -89,7 +93,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static org.ballerinalang.langserver.command.CommandUtil.getFunctionNode;
+import static org.ballerinalang.langserver.codeaction.providers.openAPI.OpenApiCodeActionUtil.getBLangFunction;
+import static org.ballerinalang.langserver.codeaction.providers.openAPI.OpenApiCodeActionUtil.getBLangPkg;
 
 /**
  * Represents the command executor for creating a openAPI service resource in contract file.
@@ -100,6 +105,152 @@ import static org.ballerinalang.langserver.command.CommandUtil.getFunctionNode;
 public class CreateBallerinaServiceResourceExecutor implements LSCommandExecutor {
 
     public static final String COMMAND = "CREATE_SERVICE_RESOURCE_IN_OPENAPI";
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Object execute(LSContext context) throws LSCommandExecutorException {
+        String documentUri = null;
+        VersionedTextDocumentIdentifier textDocumentIdentifier = new VersionedTextDocumentIdentifier();
+        String resourcePath = null;
+        int line = -1;
+        int column = -1;
+
+        for (Object arg : context.get(ExecuteCommandKeys.COMMAND_ARGUMENTS_KEY)) {
+            String argKey = ((JsonObject) arg).get(ARG_KEY).getAsString();
+            String argVal = ((JsonObject) arg).get(ARG_VALUE).getAsString();
+            switch (argKey) {
+                case CommandConstants.ARG_KEY_DOC_URI:
+                    documentUri = argVal;
+                    textDocumentIdentifier.setUri(documentUri);
+                    context.put(DocumentServiceKeys.FILE_URI_KEY, documentUri);
+                    break;
+                case CommandConstants.ARG_KEY_NODE_LINE:
+                    line = Integer.parseInt(argVal);
+                    break;
+                case CommandConstants.ARG_KEY_NODE_COLUMN:
+                    column = Integer.parseInt(argVal);
+                    break;
+                case CommandConstants.ARG_KEY_PATH:
+                    resourcePath = argVal;
+                default:
+            }
+        }
+
+        if (line == -1 || column == -1 || documentUri == null) {
+            throw new LSCommandExecutorException("Invalid parameters received for the create function command!");
+        }
+
+        WorkspaceDocumentManager documentManager = context.get(DocumentServiceKeys.DOC_MANAGER_KEY);
+
+        BLangFunction functionNode = null;
+        BLangService serviceNode = null;
+        try {
+            LSDocumentIdentifier lsDocument = documentManager.getLSDocument(
+                    CommonUtil.getPathFromURI(documentUri).get());
+            Position pos = new Position(line, column + 1);
+
+            List<BLangPackage> pkg = getBLangPkg(context, lsDocument, pos);
+            functionNode = getBLangFunction(pkg, pos);
+
+            if (functionNode != null && functionNode.parent != null) {
+                BLangObjectTypeNode serviceObj = (BLangObjectTypeNode) functionNode.parent;
+                if (serviceObj.flagSet.contains(Flag.SERVICE)) {
+                    if (serviceObj.parent != null) {
+                        BLangNode typeDef = serviceObj.parent;
+                        if (typeDef.parent != null) {
+                            BLangPackage bLangPackage = (BLangPackage) typeDef.parent;
+                            if (bLangPackage.services != null && bLangPackage.services.size() > 0) {
+                                List<BLangService> services = bLangPackage.services;
+                                for (BLangService service : services) {
+                                    if (service.symbol.type.tsymbol.name == functionNode.symbol.owner.name) {
+                                        serviceNode = service;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            String contractURI = null;
+
+            if (serviceNode != null) {
+                List<BLangAnnotationAttachment> annotations = serviceNode.annAttachments;
+                for (BLangAnnotationAttachment annotation : annotations) {
+                    if (annotation.getExpression() instanceof BLangRecordLiteral) {
+                        BLangRecordLiteral recordLiteral = (BLangRecordLiteral) annotation.getExpression();
+                        for (BLangRecordLiteral.RecordField field : recordLiteral.getFields()) {
+                            BLangExpression keyExpr;
+                            BLangExpression valueExpr;
+
+                            if (field.isKeyValueField()) {
+                                BLangRecordLiteral.BLangRecordKeyValueField keyValue =
+                                        (BLangRecordLiteral.BLangRecordKeyValueField) field;
+                                keyExpr = keyValue.getKey();
+                                valueExpr = keyValue.getValue();
+                            } else {
+                                BLangRecordLiteral.BLangRecordVarNameField varNameField =
+                                        (BLangRecordLiteral.BLangRecordVarNameField) field;
+                                keyExpr = varNameField;
+                                valueExpr = varNameField;
+                            }
+
+                            if (keyExpr instanceof BLangSimpleVarRef) {
+                                BLangSimpleVarRef contract = (BLangSimpleVarRef) keyExpr;
+                                String key = contract.getVariableName().getValue();
+                                if (key.equals("contract")) {
+                                    if (valueExpr instanceof BLangLiteral) {
+                                        BLangLiteral value = (BLangLiteral) valueExpr;
+                                        if (value.getValue() instanceof String) {
+                                            contractURI = (String) value.getValue();
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            if (contractURI != null) {
+                OpenAPI openAPI = parseOpenAPIFile(contractURI);
+                Path ballerinaPath = Paths.get(documentManager.getAllFilePaths().toArray()[0].toString());
+                String balSource = readFromFile(ballerinaPath);
+
+                String openAPIDefinitions = generateOpenApiDefinitions(balSource, serviceNode.name.value, resourcePath);
+                SwaggerConverter converter = new SwaggerConverter();
+                SwaggerDeserializationResult result = new SwaggerParser().readWithInfo(openAPIDefinitions);
+                String openApiResource = Yaml.pretty(converter.convert(result).getOpenAPI());
+                OpenAPI openAPINew = new OpenAPIV3Parser().readContents(openApiResource).getOpenAPI();
+
+                openAPINew.getPaths().forEach((s, path) -> {
+                    openAPI.getPaths().addPathItem(s, path);
+                });
+
+                String openApiResourceNew = Yaml.pretty(openAPI);
+                writeFile(Paths.get(contractURI), openApiResourceNew);
+
+            }
+        } catch (CompilationFailedException | IOException | WorkspaceDocumentException e) {
+            throw new LSCommandExecutorException("Error while compiling the source!");
+        }
+        return null;
+    }
+
+    /**
+     * Parse and get the {@link OpenAPI} for the given OpenAPI contract.
+     *
+     * @param definitionURI URI for the OpenAPI contract
+     * @return {@link OpenAPI} OpenAPI model
+     */
+    static OpenAPI parseOpenAPIFile(String definitionURI) {
+        Path contractPath = Paths.get(definitionURI);
+        if (Files.exists(contractPath) && (definitionURI.endsWith(".yaml") || definitionURI.endsWith(".json"))) {
+            return new OpenAPIV3Parser().read(definitionURI);
+        }
+        return null;
+    }
 
     /**
      * This method will read the contents of ballerina service in {@code servicePath} and write output to {@code
@@ -308,146 +459,6 @@ public class CreateBallerinaServiceResourceExecutor implements LSCommandExecutor
                 //TODO handle unmatched type
                 return null;
         }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public Object execute(LSContext context) throws LSCommandExecutorException {
-        String documentUri = null;
-        VersionedTextDocumentIdentifier textDocumentIdentifier = new VersionedTextDocumentIdentifier();
-        String resourcePath = null;
-        int line = -1;
-        int column = -1;
-
-        for (Object arg : context.get(ExecuteCommandKeys.COMMAND_ARGUMENTS_KEY)) {
-            String argKey = ((JsonObject) arg).get(ARG_KEY).getAsString();
-            String argVal = ((JsonObject) arg).get(ARG_VALUE).getAsString();
-            switch (argKey) {
-                case CommandConstants.ARG_KEY_DOC_URI:
-                    documentUri = argVal;
-                    textDocumentIdentifier.setUri(documentUri);
-                    context.put(DocumentServiceKeys.FILE_URI_KEY, documentUri);
-                    break;
-                case CommandConstants.ARG_KEY_NODE_LINE:
-                    line = Integer.parseInt(argVal);
-                    break;
-                case CommandConstants.ARG_KEY_NODE_COLUMN:
-                    column = Integer.parseInt(argVal);
-                    break;
-                case CommandConstants.ARG_KEY_PATH:
-                    resourcePath = argVal;
-                default:
-            }
-        }
-
-        if (line == -1 || column == -1 || documentUri == null) {
-            throw new LSCommandExecutorException("Invalid parameters received for the create function command!");
-        }
-
-        WorkspaceDocumentManager documentManager = context.get(DocumentServiceKeys.DOC_MANAGER_KEY);
-
-        BLangFunction functionNode;
-        BLangService serviceNode = null;
-        try {
-            functionNode = getFunctionNode(line, column, documentUri, documentManager, context);
-            if (functionNode != null && functionNode.parent != null) {
-                BLangObjectTypeNode serviceObj = (BLangObjectTypeNode) functionNode.parent;
-                if (serviceObj.flagSet.contains(Flag.SERVICE)) {
-                    if (serviceObj.parent != null) {
-                        BLangNode typeDef = serviceObj.parent;
-                        if (typeDef.parent != null) {
-                            BLangPackage bLangPackage = (BLangPackage) typeDef.parent;
-                            if (bLangPackage.services != null && bLangPackage.services.size() > 0) {
-                                List<BLangService> services = bLangPackage.services;
-                                for (BLangService service : services) {
-                                    if (service.symbol.type.tsymbol.name == functionNode.symbol.owner.name) {
-                                        serviceNode = service;
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            String contractURI = null;
-
-            if (serviceNode != null) {
-                List<BLangAnnotationAttachment> annotations = serviceNode.annAttachments;
-                for (BLangAnnotationAttachment annotation : annotations) {
-                    if (annotation.getExpression() instanceof BLangRecordLiteral) {
-                        BLangRecordLiteral recordLiteral = (BLangRecordLiteral) annotation.getExpression();
-                        for (BLangRecordLiteral.RecordField field : recordLiteral.getFields()) {
-                            BLangExpression keyExpr;
-                            BLangExpression valueExpr;
-
-                            if (field.isKeyValueField()) {
-                                BLangRecordLiteral.BLangRecordKeyValueField keyValue =
-                                        (BLangRecordLiteral.BLangRecordKeyValueField) field;
-                                keyExpr = keyValue.getKey();
-                                valueExpr = keyValue.getValue();
-                            } else {
-                                BLangRecordLiteral.BLangRecordVarNameField varNameField =
-                                        (BLangRecordLiteral.BLangRecordVarNameField) field;
-                                keyExpr = varNameField;
-                                valueExpr = varNameField;
-                            }
-
-                            if (keyExpr instanceof BLangSimpleVarRef) {
-                                BLangSimpleVarRef contract = (BLangSimpleVarRef) keyExpr;
-                                String key = contract.getVariableName().getValue();
-                                if (key.equals("contract")) {
-                                    if (valueExpr instanceof BLangLiteral) {
-                                        BLangLiteral value = (BLangLiteral) valueExpr;
-                                        if (value.getValue() instanceof String) {
-                                            contractURI = (String) value.getValue();
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-
-            if (contractURI != null) {
-                OpenAPI openAPI = parseOpenAPIFile(contractURI);
-                Path ballerinaPath = Paths.get(documentManager.getAllFilePaths().toArray()[0].toString());
-                String balSource = readFromFile(ballerinaPath);
-
-                String openAPIDefinitions = generateOpenApiDefinitions(balSource, serviceNode.name.value, resourcePath);
-                SwaggerConverter converter = new SwaggerConverter();
-                SwaggerDeserializationResult result = new SwaggerParser().readWithInfo(openAPIDefinitions);
-                String openApiResource = Yaml.pretty(converter.convert(result).getOpenAPI());
-                OpenAPI openAPINew = new OpenAPIV3Parser().readContents(openApiResource).getOpenAPI();
-
-                openAPINew.getPaths().forEach((s, path) -> {
-                    openAPI.getPaths().addPathItem(s, path);
-                });
-
-                String openApiResourceNew = Yaml.pretty(openAPI);
-                writeFile(Paths.get(contractURI), openApiResourceNew);
-
-            }
-        } catch (CompilationFailedException | IOException e) {
-            throw new LSCommandExecutorException("Error while compiling the source!");
-        }
-        return null;
-    }
-
-    /**
-     * Parse and get the {@link OpenAPI} for the given OpenAPI contract.
-     *
-     * @param definitionURI URI for the OpenAPI contract
-     * @return {@link OpenAPI} OpenAPI model
-     */
-    static OpenAPI parseOpenAPIFile(String definitionURI) {
-        Path contractPath = Paths.get(definitionURI);
-        if (Files.exists(contractPath) && (definitionURI.endsWith(".yaml") || definitionURI.endsWith(".json"))) {
-            return new OpenAPIV3Parser().read(definitionURI);
-        }
-        return null;
     }
 
     /**

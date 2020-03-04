@@ -5,9 +5,9 @@ import org.ballerinalang.langserver.codeaction.providers.AbstractCodeActionProvi
 import org.ballerinalang.langserver.command.executors.openAPI.openAPIToBallerina.AddMissingParameterInBallerinaExecutor;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.commons.LSContext;
-import org.ballerinalang.langserver.commons.codeaction.CodeActionKeys;
 import org.ballerinalang.langserver.commons.codeaction.CodeActionNodeType;
 import org.ballerinalang.langserver.commons.command.CommandArgument;
+import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.CodeActionKind;
 import org.eclipse.lsp4j.Command;
@@ -30,10 +30,17 @@ import static org.ballerinalang.langserver.common.constants.CommandConstants.ADD
 public class AddMissingParameterCodeAction extends AbstractCodeActionProvider {
 
     @Override
-    public List<CodeAction> getCodeActions(CodeActionNodeType nodeType, LSContext lsContext,
-                                           List<Diagnostic> diagnostics) {
+    public List<CodeAction> getNodeBasedCodeActions(CodeActionNodeType nodeType, LSContext lsContext,
+                                                    List<Diagnostic> allDiagnostics) {
+        return null;
+    }
+
+    @Override
+    public List<CodeAction> getDiagBasedCodeActions(CodeActionNodeType nodeType, LSContext lsContext,
+                                                    List<Diagnostic> diagnosticsOfRange,
+                                                    List<Diagnostic> allDiagnostics) {
         List<CodeAction> actions = new ArrayList<>();
-        for (Diagnostic diagnostic : diagnostics) {
+        for (Diagnostic diagnostic : diagnosticsOfRange) {
             Matcher matcher = CommandConstants.PARAMETER_FOR_THE_METHOD_NOT_FOUND_IN_BALLERINA.matcher(
                     diagnostic.getMessage());
             if (matcher.find()) {
@@ -52,7 +59,7 @@ public class AddMissingParameterCodeAction extends AbstractCodeActionProvider {
         Position position = diagnostic.getRange().getStart();
         int line = position.getLine();
         int column = position.getCharacter();
-        String uri = lsContext.get(CodeActionKeys.FILE_URI_KEY);
+        String uri = lsContext.get(DocumentServiceKeys.FILE_URI_KEY);
         CommandArgument lineArg = new CommandArgument(CommandConstants.ARG_KEY_NODE_LINE, "" + line);
         CommandArgument colArg = new CommandArgument(CommandConstants.ARG_KEY_NODE_COLUMN, "" + column);
         CommandArgument uriArg = new CommandArgument(CommandConstants.ARG_KEY_DOC_URI, uri);
@@ -69,7 +76,6 @@ public class AddMissingParameterCodeAction extends AbstractCodeActionProvider {
             CommandArgument methodArg = new CommandArgument(CommandConstants.ARG_KEY_METHOD, method);
             CommandArgument pathArg = new CommandArgument(CommandConstants.ARG_KEY_PATH, path);
 
-
             List<Object> args = Arrays.asList(lineArg, colArg, uriArg, parameterArg, methodArg, pathArg);
             CodeAction action = new CodeAction(commandTitle);
             action.setKind(CodeActionKind.QuickFix);
@@ -81,4 +87,5 @@ public class AddMissingParameterCodeAction extends AbstractCodeActionProvider {
         }
         return null;
     }
+
 }

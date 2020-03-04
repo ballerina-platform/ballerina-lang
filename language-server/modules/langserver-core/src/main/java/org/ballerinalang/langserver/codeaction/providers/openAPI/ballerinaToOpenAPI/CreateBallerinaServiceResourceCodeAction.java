@@ -6,12 +6,12 @@ import org.ballerinalang.langserver.command.executors.openAPI.BallerinToOpenAPI.
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.LSContext;
-import org.ballerinalang.langserver.commons.codeaction.CodeActionKeys;
 import org.ballerinalang.langserver.commons.codeaction.CodeActionNodeType;
 import org.ballerinalang.langserver.commons.command.CommandArgument;
 import org.ballerinalang.langserver.commons.workspace.LSDocumentIdentifier;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentManager;
+import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.CodeActionKind;
 import org.eclipse.lsp4j.Command;
@@ -37,13 +37,47 @@ public class CreateBallerinaServiceResourceCodeAction extends AbstractCodeAction
     private static final String CONTAINS_RESOURCE_NOT_DOCUMENTED =
             "Ballerina service contains a Resource that is not documented in the OpenAPI contract.";
 
+    @Override
+    public List<CodeAction> getNodeBasedCodeActions(CodeActionNodeType nodeType, LSContext lsContext,
+                                                    List<Diagnostic> allDiagnostics) {
+        return null;
+    }
+
+    @Override
+    public List<CodeAction> getDiagBasedCodeActions(CodeActionNodeType nodeType, LSContext lsContext,
+                                                    List<Diagnostic> diagnosticsOfRange,
+                                                    List<Diagnostic> allDiagnostics) {
+        WorkspaceDocumentManager documentManager = lsContext.get(DocumentServiceKeys.DOC_MANAGER_KEY);
+        Optional<Path> filePath = CommonUtil.getPathFromURI(lsContext.get(DocumentServiceKeys.FILE_URI_KEY));
+        LSDocumentIdentifier document = null;
+        try {
+            document = documentManager.getLSDocument(filePath.get());
+        } catch (WorkspaceDocumentException e) {
+            // ignore
+        }
+        List<CodeAction> actions = new ArrayList<>();
+
+        if (document == null) {
+            return actions;
+        }
+        for (Diagnostic diagnostic : diagnosticsOfRange) {
+            if (diagnostic.getMessage().startsWith(CONTAINS_RESOURCE_NOT_DOCUMENTED)) {
+                CodeAction codeAction = getCommand(document, diagnostic, lsContext);
+                if (codeAction != null) {
+                    actions.add(codeAction);
+                }
+            }
+        }
+        return actions;
+    }
+
     private static CodeAction getCommand(LSDocumentIdentifier document, Diagnostic diagnostic,
                                          LSContext lsContext) {
         String diagnosticMessage = diagnostic.getMessage();
         Position position = diagnostic.getRange().getStart();
         int line = position.getLine();
         int column = position.getCharacter();
-        String uri = lsContext.get(CodeActionKeys.FILE_URI_KEY);
+        String uri = lsContext.get(DocumentServiceKeys.FILE_URI_KEY);
         CommandArgument lineArg = new CommandArgument(CommandConstants.ARG_KEY_NODE_LINE, "" + line);
         CommandArgument colArg = new CommandArgument(CommandConstants.ARG_KEY_NODE_COLUMN, "" + column);
         CommandArgument uriArg = new CommandArgument(CommandConstants.ARG_KEY_DOC_URI, uri);
@@ -67,30 +101,4 @@ public class CreateBallerinaServiceResourceCodeAction extends AbstractCodeAction
         return null;
     }
 
-    @Override
-    public List<CodeAction> getCodeActions(CodeActionNodeType nodeType, LSContext lsContext,
-                                           List<Diagnostic> diagnostics) {
-        WorkspaceDocumentManager documentManager = lsContext.get(CodeActionKeys.DOCUMENT_MANAGER_KEY);
-        Optional<Path> filePath = CommonUtil.getPathFromURI(lsContext.get(CodeActionKeys.FILE_URI_KEY));
-        LSDocumentIdentifier document = null;
-        try {
-            document = documentManager.getLSDocument(filePath.get());
-        } catch (WorkspaceDocumentException e) {
-            // ignore
-        }
-        List<CodeAction> actions = new ArrayList<>();
-
-        if (document == null) {
-            return actions;
-        }
-        for (Diagnostic diagnostic : diagnostics) {
-            if (diagnostic.getMessage().startsWith(CONTAINS_RESOURCE_NOT_DOCUMENTED)) {
-                CodeAction codeAction = getCommand(document, diagnostic, lsContext);
-                if (codeAction != null) {
-                    actions.add(codeAction);
-                }
-            }
-        }
-        return actions;
-    }
 }

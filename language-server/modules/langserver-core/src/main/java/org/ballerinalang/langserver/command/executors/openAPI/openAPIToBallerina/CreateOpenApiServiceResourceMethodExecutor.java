@@ -20,9 +20,14 @@ import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.command.ExecuteCommandKeys;
 import org.ballerinalang.langserver.commons.command.LSCommandExecutorException;
 import org.ballerinalang.langserver.commons.command.spi.LSCommandExecutor;
+import org.ballerinalang.langserver.commons.workspace.LSDocumentIdentifier;
+import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.exception.CompilationFailedException;
+import org.ballerinalang.langserver.util.references.ReferencesKeys;
+import org.ballerinalang.langserver.util.references.ReferencesUtil;
+import org.ballerinalang.langserver.util.references.SymbolReferencesModel;
 import org.ballerinalang.openapi.exception.BallerinaOpenApiException;
 import org.ballerinalang.openapi.typemodel.BallerinaOpenApiPath;
 import org.ballerinalang.openapi.utils.GeneratorConstants;
@@ -34,16 +39,12 @@ import org.eclipse.lsp4j.VersionedTextDocumentIdentifier;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.eclipse.lsp4j.services.LanguageClient;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
-import org.wso2.ballerinalang.compiler.tree.BLangFunction;
-import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
-import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
-import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import java.io.IOException;
@@ -55,10 +56,8 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.function.BiConsumer;
 
 import static org.ballerinalang.langserver.command.CommandUtil.applyWorkspaceEdit;
-import static org.ballerinalang.langserver.command.CommandUtil.getServiceNode;
 import static org.ballerinalang.openapi.utils.TypeExtractorUtil.extractOpenApiOperations;
 
 /**
@@ -114,41 +113,50 @@ public class CreateOpenApiServiceResourceMethodExecutor implements LSCommandExec
 
         WorkspaceDocumentManager documentManager = context.get(DocumentServiceKeys.DOC_MANAGER_KEY);
 
-        BLangService serviceNode;
+        BLangService serviceNode = null;
         try {
-            serviceNode = getServiceNode(line, column, documentUri, documentManager, context);
-            List<BLangFunction> functions =
-                    ((BLangObjectTypeNode) (serviceNode.serviceTypeDefinition.typeNode)).functions;
+            LSDocumentIdentifier lsDocument = documentManager.getLSDocument(
+                    CommonUtil.getPathFromURI(documentUri).get());
+            Position pos = new Position(line, column + 1);
+            context.put(ReferencesKeys.OFFSET_CURSOR_N_TRY_NEXT_BEST, true);
+            context.put(ReferencesKeys.DO_NOT_SKIP_NULL_SYMBOLS, true);
+            SymbolReferencesModel.Reference refAtCursor = ReferencesUtil.getReferenceAtCursor(context, lsDocument, pos);
+            BLangNode bLangNode = refAtCursor.getbLangNode();
+            if (bLangNode instanceof BLangService) {
+                serviceNode = (BLangService) bLangNode;
+            }
             String contractURI = null;
 
-            List<BLangAnnotationAttachment> annotations = serviceNode.annAttachments;
-            for (BLangAnnotationAttachment annotation : annotations) {
-                if (annotation.getExpression() instanceof BLangRecordLiteral) {
-                    BLangRecordLiteral recordLiteral = (BLangRecordLiteral) annotation.getExpression();
-                    for (BLangRecordLiteral.RecordField field : recordLiteral.getFields()) {
-                        BLangExpression keyExpr;
-                        BLangExpression valueExpr;
+            if (serviceNode != null) {
+                List<BLangAnnotationAttachment> annotations = serviceNode.annAttachments;
+                for (BLangAnnotationAttachment annotation : annotations) {
+                    if (annotation.getExpression() instanceof BLangRecordLiteral) {
+                        BLangRecordLiteral recordLiteral = (BLangRecordLiteral) annotation.getExpression();
+                        for (BLangRecordLiteral.RecordField field : recordLiteral.getFields()) {
+                            BLangExpression keyExpr;
+                            BLangExpression valueExpr;
 
-                        if (field.isKeyValueField()) {
-                            BLangRecordLiteral.BLangRecordKeyValueField keyValue =
-                                    (BLangRecordLiteral.BLangRecordKeyValueField) field;
-                            keyExpr = keyValue.getKey();
-                            valueExpr = keyValue.getValue();
-                        } else {
-                            BLangRecordLiteral.BLangRecordVarNameField varNameField =
-                                    (BLangRecordLiteral.BLangRecordVarNameField) field;
-                            keyExpr = varNameField;
-                            valueExpr = varNameField;
-                        }
+                            if (field.isKeyValueField()) {
+                                BLangRecordLiteral.BLangRecordKeyValueField keyValue =
+                                        (BLangRecordLiteral.BLangRecordKeyValueField) field;
+                                keyExpr = keyValue.getKey();
+                                valueExpr = keyValue.getValue();
+                            } else {
+                                BLangRecordLiteral.BLangRecordVarNameField varNameField =
+                                        (BLangRecordLiteral.BLangRecordVarNameField) field;
+                                keyExpr = varNameField;
+                                valueExpr = varNameField;
+                            }
 
-                        if (keyExpr instanceof BLangSimpleVarRef) {
-                            BLangSimpleVarRef contract = (BLangSimpleVarRef) keyExpr;
-                            String key = contract.getVariableName().getValue();
-                            if (key.equals("contract")) {
-                                if (valueExpr instanceof BLangLiteral) {
-                                    BLangLiteral value = (BLangLiteral) valueExpr;
-                                    if (value.getValue() instanceof String) {
-                                        contractURI = (String) value.getValue();
+                            if (keyExpr instanceof BLangSimpleVarRef) {
+                                BLangSimpleVarRef contract = (BLangSimpleVarRef) keyExpr;
+                                String key = contract.getVariableName().getValue();
+                                if (key.equals("contract")) {
+                                    if (valueExpr instanceof BLangLiteral) {
+                                        BLangLiteral value = (BLangLiteral) valueExpr;
+                                        if (value.getValue() instanceof String) {
+                                            contractURI = (String) value.getValue();
+                                        }
                                     }
                                 }
                             }
@@ -184,8 +192,8 @@ public class CreateOpenApiServiceResourceMethodExecutor implements LSCommandExec
             }
         } catch (CompilationFailedException e) {
             throw new LSCommandExecutorException("Error while compiling the source!");
-        } catch (BallerinaOpenApiException | IOException e) {
-            e.printStackTrace();
+        } catch (BallerinaOpenApiException | IOException | WorkspaceDocumentException e) {
+            throw new LSCommandExecutorException("Couldn't find the function node!");
         }
         return null;
     }
