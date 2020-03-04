@@ -26,7 +26,7 @@ public type Client abstract client object {
     # + rowType - The `typedesc` of the record that should be returned as a result. If this is not provided the default
     #             column names of the query result set be used for the record attributes
     # + return - Stream of records in the type of `rowType`
-    public function query(@untainted string sqlQuery, typedesc<record {}>? rowType = ()) returns stream<record{}, error>;
+    public function query(@untainted string sqlQuery, typedesc<record {}>? rowType = ()) returns stream<record{}, Error>;
 
     # Close the SQL client.
     #
@@ -42,7 +42,7 @@ type ResultIterator object {
         self.err = err;
     }
 
-    public function next() returns record{| record{} value; |}| error? {
+    public function next() returns record{| record{} value; |}| Error? {
        if(self.isClosed) {
             return closedStreamInvocationError();
        }
@@ -67,10 +67,10 @@ type ResultIterator object {
        }
     }
 
-    public function close() returns error? {
+    public function close() returns Error? {
     if(!self.isClosed){
             if (self.err is ()){
-                error? e = closeResult(self);
+                Error? e = closeResult(self);
                 if(e is ()){
                    self.isClosed = true;
                 }
@@ -88,6 +88,7 @@ function closedStreamInvocationError() returns Error {
 public function generateApplicationError (string message) returns stream<record{}, error> {
     ApplicationError applicationErr = ApplicationError(message = message);
     ResultIterator resultIterator = new (err = applicationErr);
+    //TODO: change to Error type.
     stream<record{}, error> errorStream = new (resultIterator);
     return errorStream;
 }

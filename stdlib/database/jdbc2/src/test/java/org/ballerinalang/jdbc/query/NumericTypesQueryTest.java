@@ -53,7 +53,7 @@ public class NumericTypesQueryTest {
 
     @BeforeClass
     public void setup() {
-        result = BCompileUtil.compileOffline(SQLDBUtils.getBalFilesDir("query", "query-test.bal"));
+        result = BCompileUtil.compileOffline(SQLDBUtils.getBalFilesDir("query", "numerical-query-test.bal"));
         SQLDBUtils.deleteFiles(new File(SQLDBUtils.DB_DIR), DB_NAME);
         SQLDBUtils.initH2Database(SQLDBUtils.DB_DIR, DB_NAME,
                 SQLDBUtils.getSQLResourceDir("query", "query-test-data.sql"));

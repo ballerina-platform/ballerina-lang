@@ -42,7 +42,7 @@ public type Client client object {
     # + rowType - The `typedesc` of the record that should be returned as a result. If this is not provided the default
     #             column names of the query result set be used for the record attributes
     # + return - Stream of records in the type of `rowType`
-    public function query(@untainted string sqlQuery, typedesc<record {}>? rowType = ()) returns stream<record{}, error> {
+    public function query(@untainted string sqlQuery, typedesc<record {}>? rowType = ()) returns stream<record{}, sql:Error> {
         if(self.clientActive){
             return nativeQuery(self, java:fromString(sqlQuery) , rowType);
         } else {
@@ -87,7 +87,7 @@ sql:ConnectionPool globalConnPool) returns sql:Error? = @java:Method {
     class: "org.ballerinalang.jdbc.NativeImpl"
 } external;
 
-function nativeQuery(Client sqlClient, @untainted handle sqlQuery, typedesc<record {}>? rowtype) returns stream<record{}, error> = @java:Method {
+function nativeQuery(Client sqlClient, @untainted handle sqlQuery, typedesc<record {}>? rowtype) returns stream<record{}, sql:Error> = @java:Method {
     class: "org.ballerinalang.sql.utils.QueryUtils"
 } external;
 
