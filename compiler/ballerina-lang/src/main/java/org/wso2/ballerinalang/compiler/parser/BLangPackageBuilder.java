@@ -1440,6 +1440,14 @@ public class BLangPackageBuilder {
         recordLiteralNodes.peek().fields.add(keyValue);
     }
 
+    void addSpreadOpRecordField(Set<Whitespace> ws) {
+        BLangRecordLiteral.BLangRecordSpreadOperatorField spreadOperatorField =
+                (BLangRecordLiteral.BLangRecordSpreadOperatorField) TreeBuilder.createRecordSpreadOperatorField();
+        spreadOperatorField.addWS(ws);
+        spreadOperatorField.expr = (BLangExpression) exprNodeStack.pop();
+        recordLiteralNodes.peek().fields.add(spreadOperatorField);
+    }
+
     void addRecordKeyWS(Set<Whitespace> ws) {
         this.recordKeyWS.push(ws);
     }

@@ -53,4 +53,14 @@ public interface RecordLiteralNode extends ExpressionNode {
     interface RecordVarNameFieldNode extends RecordField, SimpleVariableReferenceNode {
 
     }
+
+    /**
+     * @since 1.2.0
+     */
+    interface RecordSpreadOperatorFieldNode extends RecordField {
+
+        ExpressionNode getExpression();
+
+        void setExpression(ExpressionNode expr);
+    }
 }

@@ -951,8 +951,10 @@ public class TaintAnalyzer extends BLangNodeVisitor {
                 }
 
                 keyValuePair.valueExpr.accept(this);
-            } else {
+            } else if (field.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
                 ((BLangRecordLiteral.BLangRecordVarNameField) field).accept(this);
+            } else {
+                ((BLangRecordLiteral.BLangRecordSpreadOperatorField) field).expr.accept(this);
             }
 
             // Used to update the variable this literal is getting assigned to.
@@ -1516,11 +1518,6 @@ public class TaintAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangIndexBasedAccess.BLangXMLAccessExpr xmlIndexAccessExpr) {
-        /* ignore */
-    }
-
-    @Override
-    public void visit(BLangRecordLiteral.BLangJSONLiteral jsonLiteral) {
         /* ignore */
     }
 

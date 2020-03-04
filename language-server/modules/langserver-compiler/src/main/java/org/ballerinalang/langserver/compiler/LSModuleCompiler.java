@@ -212,7 +212,7 @@ public class LSModuleCompiler {
                     context.get(DocumentServiceKeys.IS_CACHE_OUTDATED_SUPPORTED);
             BLangPackage bLangPackage;
             if (isCacheSupported) {
-                LSCompilerCache.CacheEntry cacheEntry = LSCompilerCache.get(key, context);
+                LSCompilerCache.CacheEntry cacheEntry = LSCompilerCache.getPackage(key, context);
                 if (cacheEntry != null && (isOutdatedSupported || !cacheEntry.isOutdated())) {
                     if (config.isTraceLogEnabled()) {
                         long endTime = System.nanoTime();
@@ -225,7 +225,7 @@ public class LSModuleCompiler {
                     return cacheEntry.get().getLeft();
                 }
                 bLangPackage = compiler.compile(pkgName);
-                LSCompilerCache.put(key, EitherPair.forLeft(bLangPackage), context);
+                LSCompilerCache.putPackage(key, bLangPackage, context);
             } else {
                 bLangPackage = compiler.compile(pkgName);
             }
@@ -271,7 +271,7 @@ public class LSModuleCompiler {
                     context.get(DocumentServiceKeys.IS_CACHE_OUTDATED_SUPPORTED);
             List<BLangPackage> bLangPackages;
             if (isCacheSupported) {
-                LSCompilerCache.CacheEntry cacheEntry = LSCompilerCache.get(key, context);
+                LSCompilerCache.CacheEntry cacheEntry = LSCompilerCache.getPackages(key, context);
                 if (cacheEntry != null && (isOutdatedSupported || !cacheEntry.isOutdated())) {
                     if (config.isTraceLogEnabled()) {
                         long endTime = System.nanoTime();
@@ -284,7 +284,7 @@ public class LSModuleCompiler {
                     return cacheEntry.get().getRight();
                 }
                 bLangPackages = compiler.compilePackages(isBuild);
-                LSCompilerCache.put(key, EitherPair.forRight(bLangPackages), context);
+                LSCompilerCache.putPackages(key, bLangPackages, context);
             } else {
                 bLangPackages = compiler.compilePackages(isBuild);
             }
