@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, WSO2 Inc. (http://wso2.com) All Rights Reserved.
+ * Copyright (c) 2020, WSO2 Inc. (http://wso2.com) All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,8 @@ package io.ballerina.plugins.idea.preloading;
 
 /**
  * Ballerina Client Configuration.
+ *
+ * @since 1.2.0
  */
 public class LSClientConfig {
     private String home = "";

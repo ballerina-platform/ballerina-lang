@@ -146,8 +146,6 @@ public class LSPUtils {
         }
         processBuilder.directory(new File(project.getBasePath()));
 
-        // processBuilder.environment().put("BAL_JAVA_DEBUG", "5005");
-
         // Adds ballerina-specific custom LSP extensions by creating a ballerina lsp extension manager.
         IntellijLanguageClient.addExtensionManager(BAL_FILE_EXT, new BallerinaLSPExtensionManager());
         // Registers language server definition in the lsp4intellij lang-client library.
