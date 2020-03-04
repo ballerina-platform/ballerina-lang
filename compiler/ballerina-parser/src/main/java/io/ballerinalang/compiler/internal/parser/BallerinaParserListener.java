@@ -70,7 +70,6 @@ public class BallerinaParserListener {
     }
 
     public void exitFunctionDefinition() {
-        // FunctionNode func = new FunctionNode();
         STNode body = this.nodesStack.pop();
         STNode returnTypeDesc = this.nodesStack.pop();
         STNode closeParenthesis = this.nodesStack.pop();
@@ -115,9 +114,9 @@ public class BallerinaParserListener {
     }
 
     public void exitFunctionBody() {
-        // do nothing
-        // exitFunctionBodyBlock() or exitExternalFunctionBody() method will add the relevant node
-        // to the stack
+        // Do nothing.
+        // 'exitFunctionBodyBlock()' or 'exitExternalFunctionBody()' method will
+        // add the relevant node to the stack
     }
 
     public void exitFunctionBodyBlock() {
@@ -241,5 +240,13 @@ public class BallerinaParserListener {
         STBracedExpression bracedExpr =
                 new STBracedExpression(SyntaxKind.BRACED_EXPRESSION, openParen, expression, closeParen);
         this.nodesStack.push(bracedExpr);
+    }
+
+    public STNode getLastNode() {
+        if (!statements.isEmpty()) {
+            return statements.get(statements.size() - 1);
+        }
+
+        return nodesStack.peek();
     }
 }

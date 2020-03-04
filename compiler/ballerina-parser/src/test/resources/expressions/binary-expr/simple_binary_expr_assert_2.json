@@ -1,0 +1,28 @@
+{
+    "kind": "BINARY_EXPRESSION",
+    "children": [
+        {
+            "kind": "IDENTIFIER_TOKEN",
+            "text": "a"
+        },
+        {
+            "kind": "PLUS_TOKEN"
+        },
+        {
+            "kind": "BINARY_EXPRESSION",
+            "children": [
+                {
+                    "kind": "IDENTIFIER_TOKEN",
+                    "text": "b"
+                },
+                {
+                    "kind": "MINUS_TOKEN"
+                },
+                {
+                    "kind": "IDENTIFIER_TOKEN",
+                    "text": "c"
+                }
+            ]
+        }
+    ]
+}

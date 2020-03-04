@@ -19,6 +19,7 @@ package io.ballerinalang.compiler.internal.parser;
 
 import io.ballerinalang.compiler.internal.parser.BallerinaParserErrorHandler.Action;
 import io.ballerinalang.compiler.internal.parser.BallerinaParserErrorHandler.Solution;
+import io.ballerinalang.compiler.internal.parser.tree.STNode;
 import io.ballerinalang.compiler.internal.parser.tree.STToken;
 import io.ballerinalang.compiler.internal.parser.tree.SyntaxKind;
 
@@ -157,8 +158,17 @@ public class BallerinaParser {
                 break;
             default:
                 throw new IllegalStateException("Cannot re-parse rule:" + context);
-
         }
+    }
+
+    /**
+     * Get the built tree.
+     * 
+     * @return STNode that represents the tree
+     */
+    public STNode getTree() {
+        // TODO: have a proper mechanism to retrieve the parsed tree.
+        return this.listner.getLastNode();
     }
 
     /*

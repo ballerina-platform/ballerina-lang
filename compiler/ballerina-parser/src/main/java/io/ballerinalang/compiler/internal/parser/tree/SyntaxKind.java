@@ -65,6 +65,7 @@ public enum SyntaxKind {
     IDENTIFIER_TOKEN(1000),
     STRING_LITERAL_TOKEN(1001),
     NUMERIC_LITERAL_TOKEN(1002),
+    TYPE_TOKEN(1003),
 
 
     // Trivia
@@ -88,7 +89,6 @@ public enum SyntaxKind {
     RETURN_TYPE_DESCRIPTOR(3000),
     PARAMETER(3001),
     EXTERNAL_FUNCTION_BODY(3002),
-    TYPE_TOKEN(3003),
     
     INVALID(4),
     MODULE_PART(3),
