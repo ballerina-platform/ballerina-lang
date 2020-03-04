@@ -19,7 +19,7 @@ import ballerina/sql;
 
 function testQuery(string jdbcURL, string user, string password) returns record{}|error? {
     jdbc:Client dbClient = check new (url = jdbcURL, user = user, password = password);
-    stream<record{}, sql:Error> streamData = dbClient.query("SELECT * FROM NumericTypes");
+    stream<record{}, sql:Error> streamData = dbClient->query("SELECT * FROM NumericTypes");
     record{}? returnData = ();
     error? e = streamData.forEach(function(record{} data){
         returnData =  data;
@@ -43,7 +43,9 @@ type NumericType record {
 
 function testQueryNumericTypeRecord(string jdbcURL, string user, string password) returns NumericType|error? {
     jdbc:Client dbClient = check new (url = jdbcURL, user = user, password = password);
-    stream<NumericType, sql:Error> streamData = <stream<NumericType, sql:Error>> dbClient.query("SELECT * FROM NumericTypes", NumericType);
+    //TODO: should be able to cast directly
+    stream<record{}, error> streamResult = dbClient->query("SELECT * FROM NumericTypes", NumericType);
+    stream<NumericType, sql:Error> streamData = <stream<NumericType, sql:Error>> streamResult;
     NumericType? returnData = ();
     error? e =  streamData.forEach(function(NumericType data){
         returnData =  data;
@@ -67,7 +69,9 @@ type NumericInvalidColumn record {
 
 function testQueryNumericInvalidColumnRecord(string jdbcURL, string user, string password) returns error? {
     jdbc:Client dbClient = check new (url = jdbcURL, user = user, password = password);
-    stream<NumericInvalidColumn, sql:Error> streamData = <stream<NumericInvalidColumn, sql:Error>> dbClient.query("SELECT * FROM NumericTypes", NumericInvalidColumn);
+    //TODO: should be able to cast directly
+    stream<record{}, error> streamResult = dbClient->query("SELECT * FROM NumericTypes", NumericInvalidColumn);
+    stream<NumericInvalidColumn, sql:Error> streamData = <stream<NumericInvalidColumn, sql:Error>> streamResult;
     record{| NumericInvalidColumn value; |}? data = check streamData.next();
     any ignore = check streamData.next(); //TODO: change to close() once it's implemented.
     check dbClient.close();
@@ -89,7 +93,9 @@ type NumericOptionalType record {
 
 function testQueryNumericOptionalTypeRecord(string jdbcURL, string user, string password) returns NumericOptionalType|error? {
     jdbc:Client dbClient = check new (url = jdbcURL, user = user, password = password);
-    stream<NumericOptionalType, sql:Error> streamData = <stream<NumericOptionalType, sql:Error>> dbClient.query("SELECT * FROM NumericTypes", NumericOptionalType);
+    //TODO: should be able to cast directly
+    stream<record{}, error> streamResult = dbClient->query("SELECT * FROM NumericTypes", NumericOptionalType);
+    stream<NumericOptionalType, sql:Error> streamData = <stream<NumericOptionalType, sql:Error>> streamResult;
     record{| NumericOptionalType value; |}? data =  check streamData.next();
     any ignore = check streamData.next(); //TODO: change to close() once it's implemented.
     NumericOptionalType? numericType = data?.value;
@@ -112,7 +118,9 @@ type NumericUnionType record {
 
 function testQueryNumericUnionTypeRecord(string jdbcURL, string user, string password) returns NumericUnionType|error? {
     jdbc:Client dbClient = check new (url = jdbcURL, user = user, password = password);
-    stream<NumericUnionType, sql:Error> streamData = <stream<NumericUnionType, sql:Error>> dbClient.query("SELECT * FROM NumericTypes", NumericUnionType);
+    //TODO: should be able to cast directly
+    stream<record{}, error> streamResult =  dbClient->query("SELECT * FROM NumericTypes", NumericUnionType);
+    stream<NumericUnionType, sql:Error> streamData = <stream<NumericUnionType, sql:Error>> streamResult;
     record{| NumericUnionType value; |}? data =  check streamData.next();
     any ignore = check streamData.next(); //TODO: change to close() once it's implemented.
     NumericUnionType? numericType = data?.value;
@@ -135,7 +143,9 @@ type NumericStringType record {
 
 function testQueryNumericStringTypeRecord(string jdbcURL, string user, string password) returns NumericStringType|error? {
     jdbc:Client dbClient = check new (url = jdbcURL, user = user, password = password);
-    stream<NumericStringType, sql:Error> streamData = <stream<NumericStringType, sql:Error>> dbClient.query("SELECT * FROM NumericTypes", NumericStringType);
+    //TODO: should be able to cast directly
+    stream<record{}, error> streamResult = dbClient->query("SELECT * FROM NumericTypes", NumericStringType);
+    stream<NumericStringType, sql:Error> streamData = <stream<NumericStringType, sql:Error>> streamResult;
     record{| NumericStringType value; |}? data =  check streamData.next();
     any ignore = check streamData.next(); //TODO: change to close() once it's implemented.
     NumericStringType? numericType = data?.value;
@@ -160,7 +170,9 @@ type NumericCustomType record {
 
 function testQueryNumericCustomTypeRecord(string jdbcURL, string user, string password) returns NumericCustomType|error? {
     jdbc:Client dbClient = check new (url = jdbcURL, user = user, password = password);
-    stream<NumericCustomType, sql:Error> streamData = <stream<NumericCustomType, sql:Error>> dbClient.query("SELECT * FROM NumericTypes", NumericCustomType);
+    //TODO: should be able to cast directly
+    stream<record{}, error> streamResult = dbClient->query("SELECT * FROM NumericTypes", NumericCustomType);
+    stream<NumericCustomType, sql:Error> streamData = <stream<NumericCustomType, sql:Error>> streamResult;
     record{| NumericCustomType value; |}? data =  check streamData.next();
     any ignore = check streamData.next(); //TODO: change to close() once it's implemented.
     NumericCustomType? numericType = data?.value;
@@ -170,7 +182,7 @@ function testQueryNumericCustomTypeRecord(string jdbcURL, string user, string pa
 
 function testQueryFromNullTable(string jdbcURL, string user, string password) returns record{}[]|error? {
     jdbc:Client dbClient = check new (url = jdbcURL, user = user, password = password);
-    stream<record{}, sql:Error> streamData = dbClient.query("SELECT * FROM NumericNullTypes");
+    stream<record{}, sql:Error> streamData = dbClient->query("SELECT * FROM NumericNullTypes");
     record{}[] returnData = [];
     int count = 0;
     error? e = streamData.forEach(function(record{} data){
