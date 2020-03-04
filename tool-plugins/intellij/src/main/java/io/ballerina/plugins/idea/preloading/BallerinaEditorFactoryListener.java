@@ -55,7 +55,7 @@ public class BallerinaEditorFactoryListener implements EditorFactoryListener {
         }
     }
 
-    public static boolean isBalFile(@Nullable VirtualFile file) {
+    private static boolean isBalFile(@Nullable VirtualFile file) {
         if (file == null || file.getExtension() == null || file instanceof LightVirtualFileBase) {
             return false;
         }
