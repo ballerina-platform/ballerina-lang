@@ -1,0 +1,353 @@
+{
+  "position": {
+    "line": 5,
+    "character": 74
+  },
+  "source": "toplevel/source/exprFunctionBodyCompletion5.bal",
+  "items": [
+    {
+      "label": "fromJsonString()((json|error))",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.value_  \n  \nParses a string in JSON format and returns the the value that it represents.\nAll numbers in the JSON will be represented as float values.\nReturns an error if the string cannot be parsed.\n  \n  \n  \n**Returns** `(json|error)`   \n- `str` parsed to json or error  \n  \n"
+        }
+      },
+      "sortText": "120",
+      "insertText": "fromJsonString()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "getCodePoint(int index)(int)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.string_  \n  \nReturns the code point of a character in a string.\n  \n**Params**  \n- `int` index: an index in `str`  \n  \n**Returns** `int`   \n- the Unicode code point of the character at `index` in `str`  \n  \n"
+        }
+      },
+      "sortText": "120",
+      "insertText": "getCodePoint(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "toCodePointInts()(int[])",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.string_  \n  \nConverts a string to an array of code points.\n  \n  \n  \n**Returns** `int[]`   \n- an array with a code point for each character of `str`  \n  \n"
+        }
+      },
+      "sortText": "120",
+      "insertText": "toCodePointInts()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "toUpperAscii()(string)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.string_  \n  \nConverts occurrences of a-z to A-Z.\nOther characters are left unchanged.\n  \n  \n  \n**Returns** `string`   \n- `str` with any occurrences of a-z converted to A-Z  \n  \n"
+        }
+      },
+      "sortText": "120",
+      "insertText": "toUpperAscii()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "substring(int startIndex, int endIndex)(string)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.string_  \n  \nReturns a substring of a string.\n  \n**Params**  \n- `int` startIndex: the starting index, inclusive  \n- `int` endIndex: the ending index, exclusive(Defaultable)  \n  \n**Returns** `string`   \n- substring consisting of characters with index >= startIndex and < endIndex  \n  \n"
+        }
+      },
+      "sortText": "120",
+      "insertText": "substring(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "iterator()()",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.string_  \n  \nReturns an iterator over the string.\nThe iterator will yield the substrings of length 1 in order.\n  \n  \n  \n**Returns** ``   \n- a new iterator object  \n  \n"
+        }
+      },
+      "sortText": "120",
+      "insertText": "iterator()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "isReadOnly()(boolean)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.value_  \n  \nTests whether `v` is read-only, i.e. immutable\nReturns true if read-only, false otherwise.\n  \n  \n  \n**Returns** `boolean`   \n- true if read-only, false otherwise  \n  \n"
+        }
+      },
+      "sortText": "120",
+      "insertText": "isReadOnly()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "trim()(string)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.string_  \n  \nRemoves ASCII white space characters from the start and end of a string.\nThe ASCII white space characters are 0x9...0xD, 0x20.\n  \n  \n  \n**Returns** `string`   \n- `str` with leading or trailing ASCII white space characters removed  \n  \n"
+        }
+      },
+      "sortText": "120",
+      "insertText": "trim()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "join(string... strs)(string)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.string_  \n  \nJoins zero or more strings together with a separator.\n  \n**Params**  \n- `string[]` strs: strings to be joined  \n  \n**Returns** `string`   \n- a string consisting of all of `strs` concatenated in order  \n    with `separator` in between them  \n  \n"
+        }
+      },
+      "sortText": "120",
+      "insertText": "join(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "indexOf(string substr, int startIndex)((int|()))",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.string_  \n  \nSearches for one string in another string.\n  \n**Params**  \n- `string` substr: the string to search for  \n- `int` startIndex: index to start searching from(Defaultable)  \n  \n**Returns** `(int|())`   \n- index of the first occurrence of `substr` in `str` that is >= `startIndex`,  \n   or `()` if there is no such occurrence  \n  \n"
+        }
+      },
+      "sortText": "120",
+      "insertText": "indexOf(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "toLowerAscii()(string)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.string_  \n  \nConverts occurrences of A-Z to a-z.\nOther characters are left unchanged.\n  \n  \n  \n**Returns** `string`   \n- `str` with any occurrences of A-Z converted to a-z  \n  \n"
+        }
+      },
+      "sortText": "120",
+      "insertText": "toLowerAscii()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "toJsonString()(string)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.value_  \n  \nReturns the string that represents `v` in JSON format.\n  \n  \n  \n**Returns** `string`   \n- string representation of json  \n  \n"
+        }
+      },
+      "sortText": "120",
+      "insertText": "toJsonString()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "toBytes()(byte[])",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.string_  \n  \nRepresents `str` as an array of bytes using UTF-8.\n  \n  \n  \n**Returns** `byte[]`   \n- UTF-8 byte array  \n  \n"
+        }
+      },
+      "sortText": "120",
+      "insertText": "toBytes()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "cloneReadOnly()(anydata)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.value_  \n  \nReturns a clone of `v` that is read-only, i.e. immutable.\nIt corresponds to the ImmutableClone(v) abstract operation,\ndefined in the Ballerina Language Specification.\n  \n"
+        }
+      },
+      "sortText": "120",
+      "insertText": "cloneReadOnly()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "length()(int)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.string_  \n  \nReturns the length of the string.\n  \n  \n  \n**Returns** `int`   \n- the number of characters (code points) in `str`  \n  \n"
+        }
+      },
+      "sortText": "120",
+      "insertText": "length()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "concat(string... strs)(string)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.string_  \n  \nConcatenates zero or more strings.\n  \n  \n  \n**Returns** `string`   \n- concatenation of all of the `strs`; empty string if `strs` is empty  \n  \n"
+        }
+      },
+      "sortText": "120",
+      "insertText": "concat(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "mergeJson(json j2)((json|error))",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.value_  \n  \nMerges two json values.\n  \n**Params**  \n- `json` j2: json value  \n  \n**Returns** `(json|error)`   \n- the merge of `j1` with `j2` or an error if the merge fails  \n  \nThe merge of `j1` with `j2` is defined as follows:  \n- if `j1` is `()`, then the result is `j2`  \n- if `j2` is `()`, then the result is `j1`  \n- if `j1` is a mapping and `j2` is a mapping, then for each entry [k, j] in j2,  \n  set `j1[k]` to the merge of `j1[k]` with `j`  \n    - if `j1[k]` is undefined, then set `j1[k]` to `j`  \n    - if any merge fails, then the merge of `j1` with `j2` fails  \n    - otherwise, the result is `j1`.  \n- otherwise, the merge fails  \nIf the merge fails, then `j1` is unchanged.  \n  \n"
+        }
+      },
+      "sortText": "120",
+      "insertText": "mergeJson(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "clone()(anydata)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.value_  \n  \nReturns a clone of `v`.\nA clone is a deep copy that does not copy immutable subtrees.\nA clone can therefore safely be used concurrently with the original.\nIt corresponds to the Clone(v) abstract operation,\ndefined in the Ballerina Language Specification.\n  \n"
+        }
+      },
+      "sortText": "120",
+      "insertText": "clone()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "endsWith(string substr)(boolean)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.string_  \n  \nTests whether a string ends with another string.\n  \n**Params**  \n- `string` substr: the ending string  \n  \n**Returns** `boolean`   \n- true if `str` ends with `substr`; false otherwise  \n  \n"
+        }
+      },
+      "sortText": "120",
+      "insertText": "endsWith(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "toString()(string)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.value_  \n  \nPerforms a minimal conversion of a value to a string.\nThe conversion is minimal in particular in the sense\nthat the conversion applied to a value that is already\na string does nothing.  \n  \n  \n**Returns** `string`   \n- a string resulting from the conversion  \n  \nThe result of `toString(v)` is as follows:  \n  \n- if `v` is a string, then returns `v`  \n- if `v` is `()`, then returns an empty string  \n- if `v` is boolean, then the string `true` or `false`  \n- if `v` is an int, then return `v` represented as a decimal string  \n- if `v` is a float or decimal, then return `v` represented as a decimal string,  \n  with a decimal point only if necessary, but without any suffix indicating the type of `v`;  \n  return `NaN`, `Infinity` for positive infinity, and `-Infinity` for negative infinity  \n- if `v` is a list, then returns the results toString on each member of the list  \n  separated by a space character  \n- if `v` is a map, then returns key=value for each member separated by a space character  \n- if `v` is xml, then returns `v` in XML format (as if it occurred within an XML element)  \n- if `v` is table, TBD  \n- if `v` is an error, then a string consisting of the following in order  \n    1. the string `error`  \n    2. a space character  \n    3. the reason string  \n    4. if the detail record is non-empty  \n        1. a space character  \n        2. the result of calling toString on the detail record  \n- if `v` is an object, then  \n    - if `v` provides a `toString` method with a string return type and no required methods,  \n      then the result of calling that method on `v`  \n    - otherwise, `object` followed by some implementation-dependent string  \n- if `v` is any other behavioral type, then the identifier for the behavioral type  \n  (`function`, `future`, `service`, `typedesc` or `handle`)  \n  followed by some implementation-dependent string  \n  \nNote that `toString` may produce the same string for two Ballerina values  \nthat are not equal (in the sense of the `==` operator).  \n  \n"
+        }
+      },
+      "sortText": "120",
+      "insertText": "toString()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "codePointCompare(string str2)(int)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.string_  \n  \nLexicographically compares strings using their Unicode code points.\nThis orders strings in a consistent and well-defined way,\nbut the ordering will often not be consistent with cultural expectations\nfor sorted order.\n  \n**Params**  \n- `string` str2: the second string to be compared  \n  \n**Returns** `int`   \n- an int that is less than, equal to or greater than zero,  \n   according as `str1` is less than, equal to or greater than `str2`  \n  \n"
+        }
+      },
+      "sortText": "120",
+      "insertText": "codePointCompare(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "startsWith(string substr)(boolean)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.string_  \n  \nTests whether a string starts with another string.\n  \n**Params**  \n- `string` substr: the starting string  \n  \n**Returns** `boolean`   \n- true if `str` starts with `substr`; false otherwise  \n  \n"
+        }
+      },
+      "sortText": "120",
+      "insertText": "startsWith(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    }
+  ]
+}

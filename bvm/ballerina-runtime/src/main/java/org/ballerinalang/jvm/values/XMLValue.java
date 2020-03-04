@@ -20,6 +20,8 @@ import org.ballerinalang.jvm.XMLNodeType;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
+import org.ballerinalang.jvm.values.api.BMap;
+import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.jvm.values.api.BXML;
 import org.ballerinalang.jvm.values.api.BXMLQName;
 import org.ballerinalang.jvm.values.freeze.State;
@@ -69,14 +71,47 @@ public abstract class XMLValue implements RefValue, BXML, CollectionValue {
      * @param attributeName Qualified name of the attribute
      * @param value Value of the attribute
      */
+    @Deprecated
     public void setAttribute(BXMLQName attributeName, String value) {
         setAttribute(attributeName.getLocalName(), attributeName.getUri(), attributeName.getPrefix(), value);
     }
 
-    @Override
-    public MapValue<String, ?> getAttributesMap() {
-        return new MapValueImpl<>();
+    /**
+     * Set the value of a single attribute. If the attribute already exsists, then the value will be updated.
+     * Otherwise a new attribute will be added.
+     *
+     * @param attributeName Qualified name of the attribute
+     * @param value Value of the attribute
+     */
+    public void setAttribute(BXMLQName attributeName, BString value) {
+        setAttribute(attributeName.getLocalName(), attributeName.getUri(), attributeName.getPrefix(), value.getValue());
     }
+
+    /**
+     * Get attributes as a {@link MapValueImpl}.
+     * 
+     * @return Attributes as a {@link MapValueImpl}
+     */
+    public abstract MapValue<String, ?> getAttributesMap();
+
+    /**
+     * Set the attributes of the XML{@link MapValueImpl}.
+     * 
+     * @param attributes Attributes to be set.
+     */
+    public abstract void setAttributes(BMap<String, ?> attributes);
+
+    /**
+     * Get the type of the XML.
+     * 
+     * @return Type of the XML
+     */
+    public abstract XMLNodeType getNodeType();
+
+    /**
+     * Builds itself.
+     */
+    public abstract void build();
 
     /**
      * {@inheritDoc}

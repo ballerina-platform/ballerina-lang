@@ -47,6 +47,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.stream.Collectors;
@@ -97,31 +98,28 @@ public class CopyNativeLibTask implements Task {
         for (BLangPackage pkg : moduleBirMap) {
             PackageID packageID = pkg.packageID;
             BLangPackage bLangPackage = packageCache.get(packageID);
-
             if (bLangPackage == null || !buildContext.moduleDependencyPathMap.containsKey(packageID)) {
                 continue;
             }
-
             copyImportedLibs(bLangPackage.symbol.imports,
-                    buildContext.moduleDependencyPathMap.get(packageID).platformLibs,
-                    buildContext, sourceRootPath, balHomePath, alreadyImportedSet);
-
+                             buildContext.moduleDependencyPathMap.get(packageID).moduleLibs,
+                             buildContext, sourceRootPath, balHomePath, alreadyImportedSet);
             if (skipTests || !bLangPackage.hasTestablePackage()) {
                 continue;
             }
-
+            // Copy native libs imported by testable package
             for (BLangPackage testPkg : bLangPackage.getTestablePkgs()) {
                 if (!buildContext.moduleDependencyPathMap.containsKey(testPkg.packageID)) {
                     continue;
                 }
                 copyImportedLibs(testPkg.symbol.imports,
-                        buildContext.moduleDependencyPathMap.get(testPkg.packageID).platformLibs,
-                        buildContext, sourceRootPath, balHomePath, alreadyImportedSet);
+                                 buildContext.moduleDependencyPathMap.get(testPkg.packageID).testLibs,
+                                 buildContext, sourceRootPath, balHomePath, alreadyImportedSet);
             }
         }
     }
 
-    private void copyImportedLibs(List<BPackageSymbol> imports, HashSet<Path> moduleDependencySet,
+    private void copyImportedLibs(List<BPackageSymbol> imports, Set<Path> moduleDependencySet,
                                   BuildContext buildContext, Path sourceRootPath, String balHomePath,
                                   HashSet<PackageID> alreadyImportedSet) {
         for (BPackageSymbol importSymbol : imports) {
@@ -133,16 +131,16 @@ public class CopyNativeLibTask implements Task {
                     jar = new ExecutableJar();
                     buildContext.moduleDependencyPathMap.put(pkgId, jar);
                 }
-                copyImportedLib(buildContext, importSymbol, sourceRootPath, balHomePath, jar.platformLibs);
-                copyImportedLibs(importSymbol.imports, jar.platformLibs, buildContext, sourceRootPath,
+                copyImportedLib(buildContext, importSymbol, sourceRootPath, balHomePath, jar.moduleLibs);
+                copyImportedLibs(importSymbol.imports, jar.moduleLibs, buildContext, sourceRootPath,
                                  balHomePath, alreadyImportedSet);
             }
-            moduleDependencySet.addAll(jar.platformLibs);
+            moduleDependencySet.addAll(jar.moduleLibs);
         }
     }
 
     private void copyImportedLib(BuildContext buildContext, BPackageSymbol importz, Path project, String balHomePath,
-                                 HashSet<Path> moduleDependencySet) {
+                                 Set<Path> moduleDependencySet) {
         // Get the balo paths
         for (String platform : supportedPlatforms) {
             Path importJar = findImportBaloPath(buildContext, importz, project, platform);
@@ -199,7 +197,7 @@ public class CopyNativeLibTask implements Task {
         }
     }
 
-    private void copyLibsFromBalo(Path baloFilePath, HashSet<Path> moduleDependencySet) {
+    private void copyLibsFromBalo(Path baloFilePath, Set<Path> moduleDependencySet) {
 
         String fileName = baloFilePath.getFileName().toString();
         Path baloFileUnzipDirectory = Paths.get(baloFilePath.getParent().toString(),
@@ -241,7 +239,7 @@ public class CopyNativeLibTask implements Task {
     }
 
     private void copyDependenciesFromToml(BPackageSymbol importz, String balHomePath,
-                                          HashSet<Path> moduleDependencySet) {
+                                          Set<Path> moduleDependencySet) {
         // Get the jar paths
         PackageID id = importz.pkgID;
         String version = BLANG_PKG_DEFAULT_VERSION;

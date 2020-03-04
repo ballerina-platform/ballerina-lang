@@ -7,10 +7,16 @@ Creating balos
         target/balo/test_module-2019r3-any-0.1.0.balo
 
 Running tests
-    ballerinatest/test_module:0.1.0
+        ballerinatest/test_module:0.1.0
 Input : [1,2,3]
 Input : [10,20,30]
 Input : [5,6,11]
+
+        [pass] testJsonObjects
+        [pass] testAddingValues
+        [pass] testAddingValues
+        [pass] testAddingValues
+
         4 passing
         0 failing
         0 skipped

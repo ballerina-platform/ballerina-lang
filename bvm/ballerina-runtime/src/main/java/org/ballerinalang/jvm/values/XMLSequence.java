@@ -25,6 +25,7 @@ import org.ballerinalang.jvm.util.BLangConstants;
 import org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.api.BMap;
+import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.jvm.values.api.BXML;
 import org.ballerinalang.jvm.values.freeze.FreezeUtils;
 import org.ballerinalang.jvm.values.freeze.State;
@@ -449,6 +450,11 @@ public final class XMLSequence extends XMLValue {
         return BLangConstants.STRING_NULL_VALUE;
     }
 
+    @Override
+    public BString bStringValue() {
+        return null;
+    }
+
 
     /**
      * {@inheritDoc}
@@ -573,6 +579,11 @@ public final class XMLSequence extends XMLValue {
     @Override
     public IteratorValue getIterator() {
         return new IteratorValue() {
+            @Override
+            public BString bStringValue() {
+                return null;
+            }
+
             Iterator<BXML> iterator = children.iterator();
 
             @Override

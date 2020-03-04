@@ -42,6 +42,7 @@ import org.ballerinalang.jvm.values.XMLQName;
 import org.ballerinalang.jvm.values.XMLSequence;
 import org.ballerinalang.jvm.values.XMLText;
 import org.ballerinalang.jvm.values.XMLValue;
+import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.jvm.values.api.BXML;
 
 import java.io.ByteArrayInputStream;
@@ -239,6 +240,7 @@ public class XMLFactory {
      * @param defaultNsUri Default namespace URI
      * @return XMLValue Element type XMLValue
      */
+    @Deprecated
     public static XMLValue createXMLElement(XMLQName startTagName, XMLQName endTagName, String defaultNsUri) {
         if (!StringUtils.isEqual(startTagName.getLocalName(), endTagName.getLocalName()) ||
                 !StringUtils.isEqual(startTagName.getUri(), endTagName.getUri()) ||
@@ -268,14 +270,31 @@ public class XMLFactory {
         }
     }
 
+    public static XMLValue createXMLElement(XMLQName startTagName, XMLQName endTagName,
+                                               BString defaultNsUriVal) {
+        return createXMLElement(startTagName, endTagName,
+                                defaultNsUriVal == null ? XMLConstants.NULL_NS_URI : defaultNsUriVal.getValue());
+    }
+
     /**
      * Create a comment type XMLValue.
      *
      * @param content Comment content
      * @return XMLValue Comment type XMLValue
      */
+    @Deprecated
     public static XMLValue createXMLComment(String content) {
         return new XMLComment(content);
+    }
+
+    /**
+     * Create a comment type XMLValue.
+     *
+     * @param content Comment content
+     * @return XMLValue Comment type XMLValue
+     */
+    public static XMLValue createXMLComment(BString content) {
+        return createXMLComment(content.getValue());
     }
 
     /**
@@ -284,6 +303,7 @@ public class XMLFactory {
      * @param content Text content
      * @return XMLValue Text type XMLValue
      */
+    @Deprecated
     public static XMLValue createXMLText(String content) {
         // Remove carriage return on windows environments to eliminate additional &#xd; being added
         content = content.replace("\r\n", "\n");
@@ -298,21 +318,43 @@ public class XMLFactory {
     }
 
     /**
+     * Create a comment type XMLValue.
+     *
+     * @param contentVal Text content
+     * @return XMLValue Text type XMLValue
+     */
+    public static XMLValue createXMLText(BString contentVal) {
+        return createXMLText(contentVal.getValue());
+    }
+
+    /**
      * Create a processing instruction type XMLValue.
      *
      * @param tartget PI target
-     * @param data PI data
+     * @param data    PI data
      * @return XMLValue Processing instruction type XMLValue
      */
+    @Deprecated
     public static XMLValue createXMLProcessingInstruction(String tartget, String data) {
         return new XMLPi(data, tartget);
     }
 
     /**
+     * Create a processing instruction type XMLValue.
+     *
+     * @param tartget PI target
+     * @param data    PI data
+     * @return XMLValue Processing instruction type XMLValue
+     */
+    public static XMLValue createXMLProcessingInstruction(BString tartget, BString data) {
+        return createXMLProcessingInstruction(tartget.getValue(), data.getValue());
+    }
+
+    /**
      * Converts given xml object to the corresponding json.
      *
-     * @param xml XML object to get the corresponding json
-     * @param attributePrefix Prefix to use in attributes
+     * @param xml                XML object to get the corresponding json
+     * @param attributePrefix    Prefix to use in attributes
      * @param preserveNamespaces preserve the namespaces when converting
      * @return BJSON JSON representation of the given xml object
      */

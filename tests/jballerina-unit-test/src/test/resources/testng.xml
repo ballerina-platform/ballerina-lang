@@ -49,6 +49,7 @@
             <package name="org.ballerinalang.test.typedefs.*"/>
             <package name="org.ballerinalang.test.access.*"/>
             <package name="org.ballerinalang.test.structs.*"/>
+            <package name="org.ballerinalang.test.testerina.*"/>
             <package name="org.ballerinalang.test.jvm.*"/>
             <package name="org.ballerinalang.test.types.integer"/>
             <package name="org.ballerinalang.test.types.floattype"/>
@@ -60,6 +61,7 @@
             <package name="org.ballerinalang.test.types.finite.*"/>
             <package name="org.ballerinalang.test.types.map.*"/>
             <package name="org.ballerinalang.test.types.string.*"/>
+            <package name="org.ballerinalang.test.types.stream.*"/>
             <package name="org.ballerinalang.test.types.errors.*"/>
             <package name="org.ballerinalang.test.types.var.*"/>
             <package name="org.ballerinalang.test.types.uniontypes.*"/>

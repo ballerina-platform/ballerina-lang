@@ -41,8 +41,6 @@ type TerminatorGenerator object {
                            int localVarOffset, int returnVarRefIndex, bir:BType? attachedType, boolean isObserved = false) {
         if (terminator is bir:Lock) {
             self.genLockTerm(terminator, funcName, localVarOffset);
-        } else if (terminator is bir:FieldLock) {
-            self.genFieldLockTerm(terminator, funcName, localVarOffset, attachedType);
         } else if (terminator is bir:Unlock) {
             self.genUnlockTerm(terminator, funcName, attachedType);
         } else if (terminator is bir:GOTO) {
@@ -89,10 +87,12 @@ type TerminatorGenerator object {
 
     function genLockTerm(bir:Lock lockIns, string funcName, int localVarOffset) {
         jvm:Label gotoLabel = self.labelGen.getLabel(funcName + lockIns.lockBB.id.value);
-        string lockClass = "L" + LOCK_VALUE + ";";
-        var varClassName = lookupGlobalVarClassName(self.currentPackageName + lockIns.globleVar.name.value);
-        var lockName = computeLockNameFromString(lockIns.globleVar.name.value);
-        self.mv.visitFieldInsn(GETSTATIC, varClassName, lockName, lockClass);
+        string lockStore = "L" + LOCK_STORE + ";";
+        string initClassName = lookupGlobalVarClassName(self.currentPackageName + "LOCK_STORE");
+        self.mv.visitFieldInsn(GETSTATIC, initClassName, "LOCK_STORE", lockStore);
+        self.mv.visitLdcInsn("global");
+        self.mv.visitMethodInsn(INVOKEVIRTUAL, LOCK_STORE, "getLockFromMap", io:sprintf("(L%s;)L%s;", STRING_VALUE,
+            LOCK_VALUE), false);
         self.mv.visitVarInsn(ALOAD, localVarOffset);
         self.mv.visitMethodInsn(INVOKEVIRTUAL, LOCK_VALUE, "lock", io:sprintf("(L%s;)Z", STRAND), false);
         self.mv.visitInsn(POP);
@@ -101,61 +101,17 @@ type TerminatorGenerator object {
         self.mv.visitJumpInsn(GOTO, gotoLabel);
     }
 
-    function genFieldLockTerm(bir:FieldLock lockIns, string funcName, int localVarOffset, bir:BType? attachedType) {
-        jvm:Label gotoLabel = self.labelGen.getLabel(funcName + lockIns.lockBB.id.value);
-        string lockClass = "L" + LOCK_VALUE + ";";
-        var lockName = computeLockNameFromString(lockIns.field);
-        self.loadVar(lockIns.localVar);
-
-        if (attachedType is bir:BObjectType) {
-            string className = getTypeValueClassName(self.module, attachedType.name.value);
-            self.mv.visitFieldInsn(GETFIELD, className, lockName, lockClass);
-            self.mv.visitVarInsn(ALOAD, localVarOffset);
-            self.mv.visitMethodInsn(INVOKEVIRTUAL, LOCK_VALUE, "lock", io:sprintf("(L%s;)Z", STRAND), false);
-            self.mv.visitInsn(POP);
-            genYieldCheckForLock(self.mv, self.labelGen, funcName, localVarOffset);
-
-            self.mv.visitJumpInsn(GOTO, gotoLabel);
-        } else {
-            error err = error( "JVM field lock generation is not supported for type " +
-                            io:sprintf("%s", attachedType));
-            panic err;
-        }
-    }
-
     function genUnlockTerm(bir:Unlock unlockIns, string funcName, bir:BType? attachedType) {
         jvm:Label gotoLabel = self.labelGen.getLabel(funcName + unlockIns.unlockBB.id.value);
 
-        string currentPackageName = getPackageName(self.module.org.value, self.module.name.value);
-
-        string lockClass = "L" + LOCK_VALUE + ";";
         // unlocked in the same order https://yarchive.net/comp/linux/lock_ordering.html
-        foreach var globalVariable in unlockIns.globleVars {
-            bir:VariableDcl globleVar = self.cleanupVariableDecl(globalVariable);
-            var varClassName = lookupGlobalVarClassName(self.currentPackageName + globleVar.name.value);
-            var lockName = computeLockNameFromString(globleVar.name.value);
-            self.mv.visitFieldInsn(GETSTATIC, varClassName, lockName, lockClass);
-            self.mv.visitMethodInsn(INVOKEVIRTUAL, LOCK_VALUE, "unlock", "()V", false);
-        }
-
-        foreach var lockDetail in unlockIns.localLocks {
-            bir:LocalLocks localLock = self.cleanupLocalLock(lockDetail);
-
-            if (attachedType is bir:BObjectType) {
-                string className = getTypeValueClassName(self.module, attachedType.name.value);
-                foreach var fieldName in localLock.fields {
-                    var lockName = computeLockNameFromString(fieldName);
-                    self.loadVar(localLock.localVar);
-                    self.mv.visitFieldInsn(GETFIELD, className, lockName, lockClass);
-                    self.mv.visitMethodInsn(INVOKEVIRTUAL, LOCK_VALUE, "unlock", "()V", false);
-                }
-            } else {
-                error err = error( "JVM field unlock generation is not supported for type " +
-                                io:sprintf("%s", attachedType));
-                panic err;
-            }
-
-        }
+        string lockStore = "L" + LOCK_STORE + ";";
+        string initClassName = lookupGlobalVarClassName(self.currentPackageName + "LOCK_STORE");
+        self.mv.visitFieldInsn(GETSTATIC, initClassName, "LOCK_STORE", lockStore);
+        self.mv.visitLdcInsn("global");
+        self.mv.visitMethodInsn(INVOKEVIRTUAL, LOCK_STORE, "getLockFromMap", io:sprintf("(L%s;)L%s;", STRING_VALUE,
+            LOCK_VALUE), false);
+        self.mv.visitMethodInsn(INVOKEVIRTUAL, LOCK_VALUE, "unlock", "()V", false);
 
         self.mv.visitJumpInsn(GOTO, gotoLabel);
     }
@@ -552,7 +508,8 @@ type TerminatorGenerator object {
         string jvmClass = lookupFullQualifiedClassName(lookupKey);
         string cleanMethodName = cleanupFunctionName(methodName);
         boolean useBString = IS_BSTRING && orgName == "ballerina" &&
-                             (moduleName == "lang.string" || moduleName == "lang.error" ) && !cleanMethodName.endsWith("_");
+                             (moduleName == "lang.string" || moduleName == "lang.error" || moduleName == "lang.value" 
+                             || moduleName == "lang.map") && !cleanMethodName.endsWith("_");
         if (useBString) {
             cleanMethodName = nameOfBStringFunc(cleanMethodName);
         }
@@ -688,34 +645,7 @@ type TerminatorGenerator object {
         lambdas[lambdaName] = callIns;
         lambdaIndex += 1;
 
-        boolean concurrent = false;
-        // check for concurrent annotation
-        if (callIns.annotAttachments.length() > 0 ) {
-            foreach var v in callIns.annotAttachments {                
-                if (v is bir:AnnotationAttachment && 
-                    v.annotTagRef.value == "strand" && 
-                    v.moduleId.org == "ballerina" && 
-                    v.moduleId.name == "lang.annotations") {
-                        if (v.annotValues.length() > 0) {
-                            bir:AnnotationValue val = <bir:AnnotationValue> v.annotValues[0];
-                            if (val is bir:AnnotationRecordValue) {
-                                if (val.annotValueMap.hasKey("thread") && 
-                                    val.annotValueMap.get("thread")["literalValue"] == "any") {
-                                        concurrent = true;
-                                }
-
-                                if (val.annotValueMap.hasKey("name") &&
-                                    val.annotValueMap.get("name")["literalValue"] != "DEFAULT") {
-                                        panic error("Unsupported policy. Only 'DEFAULT' policy is supported by jballerina runtime.");
-                                }
-                            }
-                        }
-                    break;
-                } 
-            }
-        }
-
-        self.submitToScheduler(callIns.lhsOp, localVarOffset, concurrent);
+        self.submitToScheduler(callIns.lhsOp, localVarOffset);
     }
 
     function generateWaitIns(bir:Wait waitInst, string funcName, int localVarOffset) {
@@ -823,20 +753,7 @@ type TerminatorGenerator object {
         if (fpCall.isAsync) {
             // load function ref now
             self.loadVar(fpCall.fp.variableDcl);
-            self.mv.visitMethodInsn(INVOKESTATIC, ANNOTATION_UTILS, "isConcurrent", io:sprintf("(L%s;)Z", FUNCTION_POINTER), false);
-            jvm:Label notConcurrent = new;
-            self.mv.visitJumpInsn(IFEQ, notConcurrent);
-            jvm:Label concurrent = new;
-            self.mv.visitLabel(concurrent);
-            self.loadVar(fpCall.fp.variableDcl);
-            self.submitToScheduler(fpCall.lhsOp, localVarOffset, true);
-            jvm:Label afterSubmit = new;
-            self.mv.visitJumpInsn(GOTO, afterSubmit);
-            self.mv.visitLabel(notConcurrent);
-            self.loadVar(fpCall.fp.variableDcl);
-            self.submitToScheduler(fpCall.lhsOp, localVarOffset, false);
-            self.mv.visitLabel(afterSubmit);
-
+            self.submitToScheduler(fpCall.lhsOp, localVarOffset);
         } else {
             self.mv.visitMethodInsn(INVOKEVIRTUAL, FUNCTION_POINTER, "call", io:sprintf("(L%s;)L%s;", OBJECT, OBJECT), false);
             // store reult
@@ -928,7 +845,7 @@ type TerminatorGenerator object {
         self.storeToVar(ins.lhsOp.variableDcl);
     }
 
-    function submitToScheduler(bir:VarRef? lhsOp, int localVarOffset, boolean concurrent) {
+    function submitToScheduler(bir:VarRef? lhsOp, int localVarOffset) {
         bir:BType? futureType = lhsOp?.typeValue;
         bir:BType returnType = "any";
         if (futureType is bir:BFutureType) {
@@ -938,13 +855,8 @@ type TerminatorGenerator object {
         // load strand
         self.mv.visitVarInsn(ALOAD, localVarOffset);
         loadType(self.mv, returnType);
-        if (concurrent) {
-            self.mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, SCHEDULE_FUNCTION_METHOD,
+        self.mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, "scheduleFunction",
                 io:sprintf("([L%s;L%s;L%s;L%s;)L%s;", OBJECT, FUNCTION_POINTER, STRAND, BTYPE, FUTURE_VALUE), false);
-        } else {
-            self.mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, SCHEDULE_LOCAL_METHOD,
-                io:sprintf("([L%s;L%s;L%s;L%s;)L%s;", OBJECT, FUNCTION_POINTER, STRAND, BTYPE, FUTURE_VALUE), false);
-        }
 
         // store return
         if (lhsOp is bir:VarRef) {

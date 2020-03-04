@@ -4,6 +4,10 @@ type Person record {|
    int age;
 |};
 
+type Teacher record {|
+   string firstName;
+   string lastName;
+|};
 
 function testSimpleSelectQueryWithSimpleVariable() returns Person[]{
 
@@ -57,6 +61,24 @@ function testSimpleSelectQueryWithRecordVariableV2() returns Person[]{
                    firstName: firstName,
                    lastName: lastName,
                    age: age
+            };
+
+    return  outputPersonList;
+}
+
+function testSimpleSelectQueryWithRecordVariableV3() returns Teacher[]{
+
+    Person p1 = {firstName:"Alex", lastName: "George", age: 23};
+    Person p2 = {firstName:"Ranjan", lastName: "Fonseka", age: 30};
+    Person p3 = {firstName:"John", lastName: "David", age: 33};
+
+    Person[] personList = [p1, p2, p3];
+
+    Teacher[] outputPersonList =
+            from var { firstName, lastName, age } in personList
+            select {
+                   firstName,
+                   lastName
             };
 
     return  outputPersonList;
@@ -126,14 +148,14 @@ function testMapWithArity () returns string[] {
     map<any> m = {a:"1A", b:"2B", c:"3C", d:"4D"};
     string[] val = from var v in m
                    where <string> v == "1A"
-                   select v;
+                   select <string> v;
     return val;
 }
 
 function testJSONArrayWithArity() returns string[] {
     json[] jdata = [{ name : "bob", age : 10}, { name : "tom", age : 16}];
     string[] val = from var v in jdata
-                   select v.name;
+                   select <string> v.name;
     return val;
 }
 
@@ -143,4 +165,19 @@ function testArrayWithTuple() returns string[] {
                    where i == 3
                    select v;
     return val;
+}
+
+function testFromClauseWithStream() returns Person[]{
+    Person p1 = {firstName: "Alex", lastName: "George", age: 30};
+    Person p2 = {firstName: "Ranjan", lastName: "Fonseka", age: 40};
+    Person p3 = {firstName: "John", lastName: "David", age: 50};
+
+    Person[] personList = [p1, p2, p3];
+    stream<Person> streamedPersons = personList.toStream();
+
+    Person[] outputPersonList =
+            from var person in streamedPersons
+            where person.age == 40
+            select person;
+    return  outputPersonList;
 }

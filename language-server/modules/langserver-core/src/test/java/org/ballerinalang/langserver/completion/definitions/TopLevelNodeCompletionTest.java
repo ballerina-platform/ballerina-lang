@@ -72,6 +72,16 @@ public class TopLevelNodeCompletionTest extends CompletionTest {
                 {"statementWithMissingSemiColon2.json", "toplevel"},
                 {"statementWithMissingSemiColon3.json", "toplevel"},
                 {"statementWithMissingSemiColon4.json", "toplevel"},
+                {"topLevelTypeDesc1.json", "toplevel"},
+                {"topLevelTypeDesc2.json", "toplevel"},
+                {"topLevelTypeDesc3.json", "toplevel"},
+                {"topLevelTypeDesc4.json", "toplevel"},
+                {"topLevelTypeDesc5.json", "toplevel"},
+                {"completionWithinDocComments.json", "toplevel"},
+                {"exprFunctionBodyCompletion1.json", "toplevel"},
+                {"exprFunctionBodyCompletion2.json", "toplevel"},
+                {"exprFunctionBodyCompletion3.json", "toplevel"},
+                {"exprFunctionBodyCompletion5.json", "toplevel"},
         };
     }
 }

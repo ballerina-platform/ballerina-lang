@@ -60,30 +60,32 @@ public class ProtoUtils {
             public Message parse(InputStream stream) {
                 CodedInputStream cis = null;
                 try {
-                    int size = stream.available();
-                    if (size > 0 && size <= DEFAULT_MAX_MESSAGE_SIZE) {
-                        // buf should not be used after this method has returned.
-                        byte[] buf = bufs.get().get();
-                        if (buf == null || buf.length < size) {
-                            buf = new byte[size];
-                            bufs.set(new WeakReference<>(buf));
-                        }
-                        int remaining = size;
-                        while (remaining > 0) {
-                            int position = size - remaining;
-                            int count = stream.read(buf, position, remaining);
-                            if (count == -1) {
-                                break;
+                    if (stream instanceof KnownLength) {
+                        int size = stream.available();
+                        if (size > 0 && size <= DEFAULT_MAX_MESSAGE_SIZE) {
+                            // buf should not be used after this method has returned.
+                            byte[] buf = bufs.get().get();
+                            if (buf == null || buf.length < size) {
+                                buf = new byte[size];
+                                bufs.set(new WeakReference<>(buf));
                             }
-                            remaining -= count;
+                            int remaining = size;
+                            while (remaining > 0) {
+                                int position = size - remaining;
+                                int count = stream.read(buf, position, remaining);
+                                if (count == -1) {
+                                    break;
+                                }
+                                remaining -= count;
+                            }
+                            if (remaining != 0) {
+                                int position = size - remaining;
+                                throw new RuntimeException("size inaccurate: " + size + " != " + position);
+                            }
+                            cis = CodedInputStream.newInstance(buf, 0, size);
+                        } else if (size == 0) {
+                            return instance.getDefaultInstance();
                         }
-                        if (remaining != 0) {
-                            int position = size - remaining;
-                            throw new RuntimeException("size inaccurate: " + size + " != " + position);
-                        }
-                        cis = CodedInputStream.newInstance(buf, 0, size);
-                    } else if (size == 0) {
-                        return instance.getDefaultInstance();
                     }
                 } catch (IOException e) {
                     throw new RuntimeException(e);

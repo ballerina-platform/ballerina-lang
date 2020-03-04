@@ -44,7 +44,7 @@ public class AbstractObjectTest {
     public void testAbstractObjectNegative() {
         CompileResult negativeResult = BCompileUtil.compile("test-src/object/abstract-object-negative.bal");
         int index = 0;
-        Assert.assertEquals(negativeResult.getErrorCount(), 12);
+        Assert.assertEquals(negativeResult.getErrorCount(), 13);
         BAssertUtil.validateError(negativeResult, index++, "cannot initialize abstract object 'Person1'", 3, 18);
         BAssertUtil.validateError(negativeResult, index++, "cannot initialize abstract object 'Person2'", 4, 18);
         BAssertUtil.validateError(negativeResult, index++, "cannot initialize abstract object 'Person1'", 8, 18);
@@ -63,6 +63,8 @@ public class AbstractObjectTest {
                 "can not be declared as private", 65, 5);
         BAssertUtil.validateError(negativeResult, index++,
                                   "external function: 'getName' not allowed in abstract object 'Person7'", 78, 5);
+        BAssertUtil.validateError(negativeResult, index++,
+                                  "function 'getName' in abstract object 'Person7' cannot have a body", 78, 5);
         BAssertUtil.validateError(negativeResult, index,
                                   "fields with default values are not yet supported with abstract objects", 83, 18);
     }

@@ -23,6 +23,8 @@ import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.CompileResult;
 import org.testng.annotations.Test;
 
+import static org.testng.Assert.assertEquals;
+
 /**
  * Syntax Errors test class for ballerina filers.
  * This class test error handling for violations of grammar.
@@ -84,7 +86,18 @@ public class InvalidSyntaxParserTest {
     @Test
     public void testServiceWithoutResourceParams() {
         CompileResult result = BCompileUtil.compile("test-src/parser/service-without-resource-params-negative.bal");
-        BAssertUtil.validateError(result, 0, "mismatched input '{'. expecting '('", 9, 29);
+        int index = 0;
+        BAssertUtil.validateError(result, index++, "extraneous input '{'", 5, 26);
+        BAssertUtil.validateError(result, index++, "mismatched input ':'. expecting '='", 6, 16);
+        BAssertUtil.validateError(result, index++, "mismatched input '\"GET\"'. expecting {'service', 'function', " +
+                "'object', 'record', 'abstract', 'client', 'int', 'byte', 'float', 'decimal', 'boolean', 'string', " +
+                "'error', 'map', 'json', 'xml', 'table', 'stream', 'any', 'typedesc', 'future', 'anydata', 'handle', " +
+                "'(', '[', Identifier}", 6, 18);
+        BAssertUtil.validateError(result, index++, "mismatched input ':'. expecting '='", 7, 13);
+        BAssertUtil.validateError(result, index++, "invalid token '{'", 9, 29);
+        BAssertUtil.validateError(result, index++, "mismatched input '{'. expecting '('", 9, 29);
+        BAssertUtil.validateError(result, index++, "extraneous input '}'", 12, 1);
+        assertEquals(result.getErrorCount(), index);
     }
 
     @Test
@@ -97,6 +110,11 @@ public class InvalidSyntaxParserTest {
     public void testObjectAttachedFunctionWithInvalidSyntax() {
         CompileResult result = BCompileUtil.compile("test-src/parser/object-attached-func-with-invalid-syntax.bal");
         BAssertUtil.validateError(result, 0, "mismatched input '.'. expecting '('", 6, 17);
+        BAssertUtil.validateError(result, 1, "mismatched input '('. expecting {'[', '?', '|', Identifier}", 6, 21);
+        BAssertUtil.validateError(result, 2, "extraneous input 'a'", 6, 26);
+        BAssertUtil.validateError(result, 3, "mismatched input 'returns'. expecting {'[', '?', '|', Identifier}",
+                                  6, 29);
+        BAssertUtil.validateError(result, 4, "mismatched input ';'. expecting '='", 7, 21);
     }
 
     @Test
@@ -116,15 +134,16 @@ public class InvalidSyntaxParserTest {
     @Test
     public void testListenerDeclarationWithDefinedDifferentType() {
         CompileResult result = BCompileUtil.compile("test-src/parser/listener_declaration_type_reuse_negative.bal");
-        BAssertUtil.validateError(result, 0, "incompatible types: expected 'ballerina/http:MockListener', found " +
+        BAssertUtil.validateError(result, 0, "invalid assignment: 'listener' declaration is final", 22, 5);
+        BAssertUtil.validateError(result, 1, "incompatible types: expected 'ballerina/http:MockListener', found " +
                 "'int'", 22, 9);
-        BAssertUtil.validateError(result, 1, "incompatible types: expected 'int', found " +
+        BAssertUtil.validateError(result, 2, "incompatible types: expected 'int', found " +
                 "'ballerina/http:MockListener'", 23, 9);
-        BAssertUtil.validateError(result, 2, "incompatible types: expected 'lang.object:Listener', found 'int'", 26,
+        BAssertUtil.validateError(result, 3, "incompatible types: expected 'lang.object:Listener', found 'int'", 26,
                                   14);
-        BAssertUtil.validateError(result, 3, "incompatible types: expected 'lang.object:Listener', found 'Person'",
+        BAssertUtil.validateError(result, 4, "incompatible types: expected 'lang.object:Listener', found 'Person'",
                                   29, 24);
-        BAssertUtil.validateError(result, 4, "incompatible types: expected 'lang.object:Listener', found 'other'", 31
+        BAssertUtil.validateError(result, 5, "incompatible types: expected 'lang.object:Listener', found 'other'", 31
                 , 23);
     }
 }

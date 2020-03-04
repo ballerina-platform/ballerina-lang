@@ -32,6 +32,7 @@ import org.ballerinalang.jvm.values.XMLItem;
 import org.ballerinalang.jvm.values.XMLQName;
 import org.ballerinalang.jvm.values.XMLSequence;
 import org.ballerinalang.jvm.values.XMLValue;
+import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.jvm.values.api.BXML;
 
 import java.util.ArrayList;
@@ -131,7 +132,7 @@ public class JSONToXMLConverter {
             XMLValidator.validateXMLName(nodeName);
 
             XMLQName tagName = new XMLQName(nodeName);
-            currentRoot = (XMLItem) XMLFactory.createXMLElement(tagName, tagName, null);
+            currentRoot = (XMLItem) XMLFactory.createXMLElement(tagName, tagName, (BString) null);
         }
 
         if (json == null) {

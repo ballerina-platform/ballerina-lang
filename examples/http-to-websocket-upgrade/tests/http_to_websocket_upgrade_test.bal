@@ -9,7 +9,7 @@ function testWebSocket() {
     http:WebSocketClient wsClient = new("ws://localhost:9090/hello/ws", config = {callbackService:callback});
     error? result = wsClient->pushText(msg);
     if (result is error) {
-        log:printError("Error in sending text", err = result);
+        log:printError("Error in sending text", result);
     }
     string wsReply = <- serviceReply;
     test:assertEquals(wsReply, msg, msg = "Received message should be equal to the expected message");

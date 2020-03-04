@@ -440,6 +440,26 @@ public class SnippetGenerator {
     }
 
     /**
+     * Get Record Keyword Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getRecordKeywordSnippet() {
+        return new SnippetBlock(ItemResolverConstants.RECORD_KEYWORD, "record ", ItemResolverConstants.KEYWORD_TYPE,
+                                SnippetType.KEYWORD);
+    }
+
+    /**
+     * Get Object Keyword Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getObjectKeywordSnippet() {
+        return new SnippetBlock(ItemResolverConstants.OBJECT_KEYWORD, "object ", ItemResolverConstants.KEYWORD_TYPE,
+                                SnippetType.KEYWORD);
+    }
+
+    /**
      * Get Annotation Keyword Snippet Block.
      *
      * @return {@link SnippetBlock}     Generated Snippet Block
@@ -948,6 +968,17 @@ public class SnippetGenerator {
         String snippet = "error ${1:name} = error(\"${2:errorCode}\", message = \"${3}\");";
         return new SnippetBlock(ItemResolverConstants.ERROR, snippet, ItemResolverConstants.SNIPPET_TYPE,
                                 SnippetType.SNIPPET);
+    }
+
+    /**
+     * Get Error Constructor Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getErrorConstructorSnippet() {
+        String snippet = "error(\"${1:errorCode}\", message = \"${2}\");";
+        return new SnippetBlock(ItemResolverConstants.ERROR, snippet, ItemResolverConstants.SNIPPET_TYPE,
+                SnippetType.SNIPPET);
     }
 
     // Iterable Operations Snippets

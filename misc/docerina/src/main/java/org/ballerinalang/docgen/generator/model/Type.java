@@ -191,7 +191,7 @@ public class Type {
                 case TypeTags
                         .FINITE:
                         if (type instanceof BFiniteType) {
-                            Set<BLangExpression> valueSpace = ((BFiniteType) type).valueSpace;
+                            Set<BLangExpression> valueSpace = ((BFiniteType) type).getValueSpace();
                             if (valueSpace.size() == 1 && valueSpace.toArray()[0] instanceof BLangLiteral) {
                                 BLangLiteral literal = (BLangLiteral) valueSpace.toArray()[0];
                                 if (literal.isConstant) {

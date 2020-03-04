@@ -320,13 +320,12 @@ import javax.xml.namespace.QName;
       *
       * @return {@code XMLItem}
       */
-     // todo: who uses this? verify or delete!!!
      public static BXML createXMLItem() {
          return new XMLItem(new QName(null), new XMLSequence());
      }
 
      /**
-      * Cretae a {@code XMLItem} from a XML string.
+      * Create a {@code XMLItem} from a XML string.
       *
       * @param xmlValue A XML string
       * @return {@code XMLItem}
@@ -341,7 +340,7 @@ import javax.xml.namespace.QName;
       * @param inputStream Input Stream
       * @return {@code XMLItem}
       */
-     public static BXML ctreateXMLItem(InputStream inputStream) {
+     public static BXML createXMLItem(InputStream inputStream) {
          return XMLFactory.parse(inputStream);
      }
 

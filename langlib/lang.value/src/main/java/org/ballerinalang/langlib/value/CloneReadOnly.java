@@ -19,13 +19,11 @@
 package org.ballerinalang.langlib.value;
 
 import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.values.RefValue;
+import org.ballerinalang.jvm.values.CloneUtils;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
-
-import java.util.HashMap;
 
 /**
  * Performs a deep copy, recursively copying all structural values and their members. The copy is read-only
@@ -42,15 +40,10 @@ import java.util.HashMap;
 public class CloneReadOnly {
 
     public static Object cloneReadOnly(Strand strand, Object value) {
+        return CloneUtils.cloneReadOnly(value);
+    }
 
-        if (value == null) {
-            return null;
-        }
-
-        if (!(value instanceof RefValue)) {
-            return value;
-        }
-
-        return ((RefValue) value).frozenCopy(new HashMap<>());
+    public static Object cloneReadOnly_bstring(Strand strand, Object value) {
+        return cloneReadOnly(strand, value);
     }
 }
