@@ -1624,10 +1624,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         analyzeDef(varDefNode.var, env);
     }
 
-    public void visit(BLangLetExpression letExpression) {
-        analyzeDef(letExpression, env);
-    }
-
     public void visit(BLangRecordVariableDef varDefNode) {
         // TODO: 10/18/18 Need to support record literals as well
         if (varDefNode.var.expr.getKind() == RECORD_LITERAL_EXPR) {
