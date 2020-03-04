@@ -35,11 +35,7 @@ public type InboundJwtAuthProvider object {
     # + jwtValidatorConfig - JWT validator configurations
     public function __init(JwtValidatorConfig jwtValidatorConfig) {
         self.jwtValidatorConfig = jwtValidatorConfig;
-        cache:CacheConfig config = {
-            capacity: jwtValidatorConfig.jwtCacheConfig.capacity,
-            evictionFactor: jwtValidatorConfig.jwtCacheConfig.evictionFactor
-        };
-        self.inboundJwtCache = new(config);
+        self.inboundJwtCache = jwtValidatorConfig.jwtCache;
     }
 
     # Authenticate with a JWT token.
@@ -75,8 +71,8 @@ public type InboundJwtAuthProvider object {
 };
 
 function authenticateFromCache(cache:Cache jwtCache, string jwtToken) returns JwtPayload? {
-    var jwtCacheEntry = trap <InboundJwtCacheEntry>jwtCache.get(jwtToken);
-    if (jwtCacheEntry is InboundJwtCacheEntry) {
+    if (jwtCache.hasKey(jwtToken)) {
+        InboundJwtCacheEntry jwtCacheEntry = <InboundJwtCacheEntry>jwtCache.get(jwtToken);
         var expTime = jwtCacheEntry.expTime;
         // convert to current time and check the expiry time
         if (expTime is () || expTime > (time:currentTime().time / 1000)) {

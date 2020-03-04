@@ -14,6 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/cache;
 import ballerina/crypto;
 import ballerina/encoding;
 import ballerina/io;
@@ -28,13 +29,13 @@ import ballerina/time;
 # + audience - Expected audience
 # + clockSkewInSeconds - Clock skew in seconds
 # + trustStoreConfig - JWT trust store configurations
-# + jwtCacheConfig - Configurations for the JWT cache
+# + jwtCache - Cache used to store parsed JWT information
 public type JwtValidatorConfig record {|
     string issuer?;
     string|string[] audience?;
     int clockSkewInSeconds = 0;
     JwtTrustStoreConfig trustStoreConfig?;
-    InboundJwtCacheConfig jwtCacheConfig = {};
+    cache:Cache jwtCache = new;
 |};
 
 # Represents JWT trust store configurations.
@@ -44,15 +45,6 @@ public type JwtValidatorConfig record {|
 public type JwtTrustStoreConfig record {|
     crypto:TrustStore trustStore;
     string certificateAlias;
-|};
-
-# Represents inbound JWT cache configurations.
-#
-# + capacity - Maximum number of entries allowed
-# + evictionFactor - The factor which the entries will be evicted once the cache full
-public type InboundJwtCacheConfig record {|
-    int capacity = 900000;
-    float evictionFactor = 0.25;
 |};
 
 # Represents an entry of JWT cache.

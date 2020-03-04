@@ -247,15 +247,15 @@ public type ListenerHttp1Settings record {|
 # + scopes - An array of scopes or an array consisting of arrays of scopes. An array is used to indicate that at least one of the scopes should
 # be successfully authorized. An array consisting of arrays is used to indicate that at least one scope from the sub-arrays
 # should successfully be authorized
-# + positiveAuthzCache - The caching configurations for positive authorizations
-# + negativeAuthzCache - The caching configurations for negative authorizations
+# + positiveAuthzCache - The `cache:Cache` object for positive authorizations
+# + negativeAuthzCache - The `cache:Cache` object for negative authorizations
 # + mandateSecureSocket - Specify whether secure socket configurations are mandatory or not
 # + position - The authn/authz filter position of the filter array. The position values starts from 0 and it is set to 0 implicitly
 public type ListenerAuth record {|
     InboundAuthHandler[]|InboundAuthHandler[][] authHandlers;
     string[]|string[][] scopes?;
-    AuthzCacheConfig positiveAuthzCache = {};
-    AuthzCacheConfig negativeAuthzCache = {};
+    cache:Cache? positiveAuthzCache = new;
+    cache:Cache? negativeAuthzCache = new;
     boolean mandateSecureSocket = true;
     int position = 0;
 |};
@@ -298,18 +298,6 @@ public type ListenerSecureSocket record {|
     ListenerOcspStapling? ocspStapling = ();
 |};
 
-# Provides a set of configurations for controlling the authorization caching behaviour of the endpoint.
-#
-# + enabled - Specifies whether authorization caching is enabled. Caching is enabled by default.
-# + capacity - The capacity of the cache
-# + evictionFactor - The fraction of entries to be removed when the cache is full. The value should be
-#                    between 0 (exclusive) and 1 (inclusive).
-public type AuthzCacheConfig record {|
-    boolean enabled = true;
-    int capacity = 100;
-    float evictionFactor = 1;
-|};
-
 # Defines the possible values for the keep-alive configuration in service and client endpoints.
 public type KeepAlive KEEPALIVE_AUTO|KEEPALIVE_ALWAYS|KEEPALIVE_NEVER;
 
@@ -340,22 +328,8 @@ function addAuthFilters(ListenerConfiguration config) {
         InboundAuthHandler[]|InboundAuthHandler[][] authHandlers = auth.authHandlers;
         AuthnFilter authnFilter = new(authHandlers);
 
-        cache:Cache? positiveAuthzCache = ();
-        cache:Cache? negativeAuthzCache = ();
-        if (auth.positiveAuthzCache.enabled) {
-            cache:CacheConfig cacheConfig = {
-                capacity: auth.positiveAuthzCache.capacity,
-                evictionFactor: auth.positiveAuthzCache.evictionFactor
-            };
-            positiveAuthzCache = new(cacheConfig);
-        }
-        if (auth.negativeAuthzCache.enabled) {
-            cache:CacheConfig cacheConfig = {
-                capacity: auth.positiveAuthzCache.capacity,
-                evictionFactor: auth.positiveAuthzCache.evictionFactor
-            };
-            negativeAuthzCache = new(cacheConfig);
-        }
+        cache:Cache? positiveAuthzCache = auth.positiveAuthzCache ?: ();
+        cache:Cache? negativeAuthzCache = auth.positiveAuthzCache ?: ();
         AuthzHandler authzHandler = new(positiveAuthzCache, negativeAuthzCache);
         var scopes = auth["scopes"];
         AuthzFilter authzFilter = new(authzHandler, scopes);
