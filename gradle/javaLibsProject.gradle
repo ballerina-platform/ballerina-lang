@@ -55,6 +55,7 @@ dependencies {
     dist 'com.google.code.gson:gson:2.7'
     dist 'com.google.guava:guava:19.0'
     dist 'com.github.jknack:handlebars:4.0.6'
+    dist 'com.sun.mail:javax.mail:1.6.2'
     dist 'jaxen:jaxen:1.1.6'
     dist 'io.netty:netty-buffer:4.1.39.Final'
     dist 'io.netty:netty-codec-http2:4.1.39.Final'
@@ -94,6 +95,7 @@ dependencies {
     dist project(':ballerina-config-api')
     dist project(':ballerina-core')
     dist project(':ballerina-crypto')
+    dist project(':ballerina-email')
     dist project(':ballerina-file')
     dist project(':ballerina-filepath')
     dist project(':ballerina-grpc')
