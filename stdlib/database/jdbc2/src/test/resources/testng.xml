@@ -23,12 +23,13 @@ under the License.
     <test name="ballerina-jdbc-test" parallel="false">
         <parameter name="enableJBallerinaTests" value="true"/>
         <classes>
-                        <class name="org.ballerinalang.jdbc.connection.ConnectorInitTest"/>
-            <class name="org.ballerinalang.jdbc.query.NumericTypesQueryTest">
-<!--                <methods>-->
-<!--                    <include name="testQueryFromNullTable"/>-->
-<!--                </methods>-->
-            </class>
+            <class name="org.ballerinalang.jdbc.connection.ConnectorInitTest"/>
+            <class name="org.ballerinalang.jdbc.query.NumericTypesQueryTest"/>
+            <class name="org.ballerinalang.jdbc.query.ComplexTypesQueryTest"/>
+            <!--                <methods>-->
+            <!--                    <include name="testQueryFromNullTable"/>-->
+            <!--                </methods>-->
+
         </classes>
     </test>
 </suite>

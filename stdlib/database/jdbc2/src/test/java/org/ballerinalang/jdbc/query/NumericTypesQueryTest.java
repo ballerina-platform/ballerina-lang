@@ -46,7 +46,7 @@ import java.util.LinkedHashMap;
  */
 public class NumericTypesQueryTest {
     private CompileResult result;
-    private static final String DB_NAME = "TEST_SQL_CONNECTOR_INIT";
+    private static final String DB_NAME = "TEST_SQL_NUMERIC_SELECT";
     private static final String JDBC_URL = "jdbc:h2:file:" + SQLDBUtils.DB_DIR + DB_NAME;
     private BValue[] args = {new BString(JDBC_URL), new BString(SQLDBUtils.DB_USER),
             new BString(SQLDBUtils.DB_PASSWORD)};
@@ -56,7 +56,7 @@ public class NumericTypesQueryTest {
         result = BCompileUtil.compileOffline(SQLDBUtils.getBalFilesDir("query", "numerical-query-test.bal"));
         SQLDBUtils.deleteFiles(new File(SQLDBUtils.DB_DIR), DB_NAME);
         SQLDBUtils.initH2Database(SQLDBUtils.DB_DIR, DB_NAME,
-                SQLDBUtils.getSQLResourceDir("query", "query-test-data.sql"));
+                SQLDBUtils.getSQLResourceDir("query", "numerical-test-data.sql"));
     }
 
     @Test
