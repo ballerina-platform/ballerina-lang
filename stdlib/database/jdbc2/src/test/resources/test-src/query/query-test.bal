@@ -160,3 +160,16 @@ function testQueryNumericCustomTypeRecord(string jdbcURL, string user, string pa
     check dbClient.close();
     return numericType;
 }
+
+function testQueryFromNullTable(string jdbcURL, string user, string password) returns record{}[]|error? {
+    jdbc:Client dbClient = check new (url = jdbcURL, user = user, password = password);
+    stream<record{}, error> streamData = dbClient.query("SELECT * FROM NumericNullTypes");
+    record{}[] returnData = [];
+    int count = 0;
+    error? e = streamData.forEach(function(record{} data){
+        returnData[count] =  data;
+        count += 1;
+    });
+    check dbClient.close();
+    return returnData;
+}

@@ -18,7 +18,15 @@
 package org.ballerinalang.jdbc.query;
 
 import org.ballerinalang.jdbc.utils.SQLDBUtils;
-import org.ballerinalang.model.values.*;
+import org.ballerinalang.model.values.BBoolean;
+import org.ballerinalang.model.values.BDecimal;
+import org.ballerinalang.model.values.BError;
+import org.ballerinalang.model.values.BFloat;
+import org.ballerinalang.model.values.BInteger;
+import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BString;
+import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
@@ -171,6 +179,26 @@ public class NumericTypesQueryTest {
         DecimalFormat df = new DecimalFormat("###.###");
         Assert.assertEquals(df.format(((BFloat) result.get("float_type")).floatValue()), "1234.567");
         Assert.assertEquals(df.format(((BFloat) result.get("real_type")).floatValue()), "1234.567");
+    }
+
+    @Test
+    public void testQueryFromNullTable() {
+        BValue[] returnVal = BRunUtil.invokeFunction(result, "testQueryFromNullTable", args);
+        Assert.assertEquals(returnVal[0].getType().getTag(), TypeTags.ARRAY);
+        Assert.assertEquals(returnVal[0].size(), 2);
+        Assert.assertTrue(((BValueArray) returnVal[0]).getRefValue(1) instanceof BMap);
+        LinkedHashMap result = ((BMap) ((BValueArray) returnVal[0]).getRefValue(1)).getMap();
+        Assert.assertEquals(result.size(), 10);
+        Assert.assertEquals(result.get("ID"), new BInteger(2));
+        Assert.assertNull(result.get("INT_TYPE"));
+        Assert.assertNull(result.get("BIGINT_TYPE"));
+        Assert.assertNull(result.get("SMALLINT_TYPE"));
+        Assert.assertNull(result.get("TINYINT_TYPE"));
+        Assert.assertNull(result.get("BIT_TYPE"));
+        Assert.assertNull(result.get("DECIMAL_TYPE"));
+        Assert.assertNull(result.get("NUMERIC_TYPE"));
+        Assert.assertNull(result.get("FLOAT_TYPE"));
+        Assert.assertNull(result.get("REAL_TYPE"));
     }
 
 }
