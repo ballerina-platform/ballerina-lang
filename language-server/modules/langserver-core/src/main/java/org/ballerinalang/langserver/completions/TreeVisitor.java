@@ -62,6 +62,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
+import org.wso2.ballerinalang.compiler.tree.BLangExprFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangExternalFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
@@ -92,6 +93,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCompoundAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangContinue;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangErrorVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
@@ -435,6 +437,12 @@ public class TreeVisitor extends LSNodeVisitor {
         for (BLangAnnotationAttachment annotation : body.annAttachments) {
             this.acceptNode(annotation, symbolEnv);
         }
+    }
+
+    @Override
+    public void visit(BLangExprFunctionBody exprFuncBody) {
+        SymbolEnv exprBodyEnv = SymbolEnv.createFuncBodyEnv(exprFuncBody, symbolEnv);
+        this.acceptNode(exprFuncBody.expr, exprBodyEnv);
     }
 
     @Override
@@ -881,6 +889,12 @@ public class TreeVisitor extends LSNodeVisitor {
         }
 
         this.acceptNode(compoundAssignNode.expr, symbolEnv);
+    }
+
+    @Override
+    public void visit(BLangErrorVariableDef bLangErrorVariableDef) {
+        CursorPositionResolver cpr = CursorPositionResolvers.getResolverByClass(cursorPositionResolver);
+        cpr.isCursorBeforeNode(bLangErrorVariableDef.getPosition(), this, this.lsContext, bLangErrorVariableDef, null);
     }
 
     ///////////////////////////////////

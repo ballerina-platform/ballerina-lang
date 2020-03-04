@@ -42,7 +42,6 @@ import org.wso2.ballerinalang.compiler.bir.model.BIRNode.ConstValue;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.TaintTable;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.BinaryOp;
-import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.FieldAccess;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.Move;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.UnaryOP;
 import org.wso2.ballerinalang.compiler.bir.model.BIROperand;
@@ -107,9 +106,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr.BLangTupleLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangJSONLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangMapLiteral;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordKey;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordKeyValueField;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangStructLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
@@ -177,6 +174,7 @@ import java.util.stream.Collectors;
 import javax.xml.XMLConstants;
 
 import static org.wso2.ballerinalang.compiler.desugar.AnnotationDesugar.ANNOTATION_DATA;
+import static org.wso2.ballerinalang.compiler.util.Constants.DESUGARED_MAPPING_CONSTR_KEY;
 
 /**
  * Lower the AST to BIR.
@@ -238,7 +236,9 @@ public class BIRGen extends BLangNodeVisitor {
                 visitBuiltinFunctions(testPkg, testPkg.startFunction);
                 visitBuiltinFunctions(testPkg, testPkg.stopFunction);
                 // remove imports of the main module from testable module
-                astPkg.imports.stream().forEach(mod -> testPkg.imports.remove(mod));
+                for (BLangImportPackage mod : astPkg.imports) {
+                    testPkg.symbol.imports.remove(mod.symbol);
+                }
                 testPkg.accept(this);
                 this.birOptimizer.optimizePackage(birPkg);
                 testPkg.symbol.birPackageFile = new BIRPackageFile(new BIRBinaryWriter(birPkg).serialize());
@@ -572,6 +572,24 @@ public class BIRGen extends BLangNodeVisitor {
                 return true;
             case TYPE_CONVERSION_EXPR:
                 return isCompileTimeAnnotationValue(((BLangTypeConversionExpr) expr).expr);
+            case STATEMENT_EXPRESSION:
+                BLangStatementExpression stmtExpr = (BLangStatementExpression) expr;
+                List<BLangStatement> stmts = ((BLangBlockStmt) stmtExpr.stmt).stmts;
+
+                if (!((BLangLocalVarRef) stmtExpr.expr).varSymbol.name.value.startsWith(DESUGARED_MAPPING_CONSTR_KEY)) {
+                    return false;
+                }
+
+                for (int i = 1; i < stmts.size(); i++) {
+                    BLangAssignment assignmentStmt = (BLangAssignment) stmts.get(i);
+
+                    if (!isCompileTimeAnnotationValue(((BLangIndexBasedAccess) assignmentStmt.varRef).indexExpr) ||
+                            !isCompileTimeAnnotationValue(assignmentStmt.expr)) {
+                        return false;
+                    }
+                }
+
+                return true;
             default:
                 return false;
         }
@@ -589,6 +607,8 @@ public class BIRGen extends BLangNodeVisitor {
                 return createAnnotationArrayValue((BLangArrayLiteral) expr);
             case TYPE_CONVERSION_EXPR:
                 return createAnnotationValue(((BLangTypeConversionExpr) expr).expr);
+            case STATEMENT_EXPRESSION:
+                return createAnnotationRecordValue((BLangStatementExpression) expr);
             default:
                 // This following line will not be executed
                 throw new IllegalStateException("Invalid annotation value expression kind: " + expr.getKind());
@@ -607,6 +627,21 @@ public class BIRGen extends BLangNodeVisitor {
         }
         return new BIRNode.BIRAnnotationRecordValue(recordLiteral.type, annotValueEntryMap);
     }
+
+    private BIRNode.BIRAnnotationRecordValue createAnnotationRecordValue(BLangStatementExpression stmtExpr) {
+        Map<String, BIRAnnotationValue> annotValueEntryMap = new HashMap<>();
+
+        List<BLangStatement> stmts = ((BLangBlockStmt) stmtExpr.stmt).stmts;
+
+        for (int i = 1; i < stmts.size(); i++) {
+            BLangAssignment assignmentStmt = (BLangAssignment) stmts.get(i);
+            annotValueEntryMap.put(
+                    (String) ((BLangLiteral) ((BLangIndexBasedAccess) assignmentStmt.varRef).indexExpr).value,
+                    createAnnotationValue(assignmentStmt.expr));
+        }
+        return new BIRNode.BIRAnnotationRecordValue(stmtExpr.type, annotValueEntryMap);
+    }
+
 
     private BIRNode.BIRAnnotationArrayValue createAnnotationArrayValue(BLangArrayLiteral arrayLiteral) {
         BIRAnnotationValue[] annotValues = new BIRAnnotationValue[arrayLiteral.exprs.size()];
@@ -1255,12 +1290,13 @@ public class BIRGen extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangMapLiteral astMapLiteralExpr) {
-        generateMappingLiteral(astMapLiteralExpr);
-    }
-
-    @Override
-    public void visit(BLangJSONLiteral jsonLiteral) {
-        generateMappingLiteral(jsonLiteral);
+        BIRVariableDcl tempVarDcl =
+                new BIRVariableDcl(astMapLiteralExpr.type, this.env.nextLocalVarId(names),
+                                                       VarScope.FUNCTION, VarKind.TEMP);
+        this.env.enclFunc.localVars.add(tempVarDcl);
+        BIROperand toVarRef = new BIROperand(tempVarDcl);
+        emit(new BIRNonTerminator.NewStructure(astMapLiteralExpr.pos, astMapLiteralExpr.type, toVarRef));
+        this.env.targetOperand = toVarRef;
     }
 
     @Override
@@ -1304,21 +1340,6 @@ public class BIRGen extends BLangNodeVisitor {
         if (astStructLiteralExpr.initializer != null) {
             //TODO
         }
-
-        // Generate code the struct literal.
-        for (RecordLiteralNode.RecordField field : astStructLiteralExpr.fields) {
-            BLangRecordKeyValueField keyValue = (BLangRecordKeyValueField) field;
-            BLangRecordKey key = keyValue.key;
-            key.expr.accept(this);
-            BIROperand keyRegIndex = this.env.targetOperand;
-
-            keyValue.valueExpr.accept(this);
-            BIROperand valueRegIndex = this.env.targetOperand;
-
-            emit(new FieldAccess(astStructLiteralExpr.pos,
-                    InstructionKind.MAP_STORE, toVarRef, keyRegIndex, valueRegIndex));
-        }
-        this.env.targetOperand = toVarRef;
     }
 
     @Override
@@ -2019,32 +2040,6 @@ public class BIRGen extends BLangNodeVisitor {
         }
     }
 
-    private void generateMappingLiteral(BLangRecordLiteral mappingLiteralExpr) {
-        BIRVariableDcl tempVarDcl = new BIRVariableDcl(mappingLiteralExpr.type, this.env.nextLocalVarId(names),
-                VarScope.FUNCTION, VarKind.TEMP);
-        this.env.enclFunc.localVars.add(tempVarDcl);
-        BIROperand toVarRef = new BIROperand(tempVarDcl);
-        emit(new BIRNonTerminator.NewStructure(mappingLiteralExpr.pos, mappingLiteralExpr.type, toVarRef));
-        this.env.targetOperand = toVarRef;
-
-        // Handle Map init stuff
-        for (RecordLiteralNode.RecordField field : mappingLiteralExpr.fields) {
-            BLangRecordKeyValueField keyValue = (BLangRecordKeyValueField) field;
-            BLangExpression keyExpr = keyValue.key.expr;
-            keyExpr.accept(this);
-            BIROperand keyRegIndex = this.env.targetOperand;
-
-            BLangExpression valueExpr = keyValue.valueExpr;
-            valueExpr.accept(this);
-            BIROperand rhsOp = this.env.targetOperand;
-
-            emit(new BIRNonTerminator.FieldAccess(mappingLiteralExpr.pos, InstructionKind.MAP_STORE, toVarRef,
-                    keyRegIndex, rhsOp));
-        }
-
-        this.env.targetOperand = toVarRef;
-    }
-
     private void generateListConstructorExpr(BLangListConstructorExpr listConstructorExpr) {
         // Emit create array instruction
         BIRVariableDcl tempVarDcl = new BIRVariableDcl(listConstructorExpr.type, this.env.nextLocalVarId(names),
@@ -2055,7 +2050,7 @@ public class BIRGen extends BLangNodeVisitor {
         long size = -1L;
         if (listConstructorExpr.type.tag == TypeTags.ARRAY &&
                 ((BArrayType) listConstructorExpr.type).state != BArrayState.UNSEALED) {
-            size = (long) ((BArrayType) listConstructorExpr.type).size;
+            size = ((BArrayType) listConstructorExpr.type).size;
         } else if (listConstructorExpr.type.tag == TypeTags.TUPLE) {
             size = listConstructorExpr.exprs.size();
         }

@@ -63,6 +63,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BServiceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
@@ -432,7 +433,8 @@ public abstract class AbstractCompletionProvider implements LSCompletionProvider
                         SymbolFilters.get(DelimiterBasedContentFilter.class).filterItems(context);
                 return this.getCompletionItemList(filteredList, context);
             } else {
-                completionItems.addAll(getVarDefCompletions(context));
+                // If the assignment type is not present then the type is var.
+                completionItems.addAll(getVarDefCompletions(context, !assignmentType.isPresent()));
             }
         } catch (LSCompletionException ex) {
             // do nothing
@@ -678,9 +680,12 @@ public abstract class AbstractCompletionProvider implements LSCompletionProvider
         }
         int tokenSize = defaultTokens.size();
         int assignTokenIndex = defaultTokens.indexOf(BallerinaParser.ASSIGN);
-        if (assignTokenIndex > 0 && assignTokenIndex >= tokenSize - 3 && assignTokenIndex < tokenSize) {
-            // check added to avoid the external function definition
+        int eqlOrGTTokenIndex = defaultTokens.indexOf(BallerinaParser.EQUAL_GT);
+        if ((assignTokenIndex > 0 && assignTokenIndex >= tokenSize - 3 && assignTokenIndex < tokenSize)
+                || eqlOrGTTokenIndex > 0) {
+            // check added to avoid the external function definition and the expression function body
             // function xyz() returns int = external;
+            // function xyz() returns int => <cursor>
             return false;
         }
         if (defaultTokens.contains(BallerinaParser.RETURNS)
@@ -754,7 +759,7 @@ public abstract class AbstractCompletionProvider implements LSCompletionProvider
             }
             subRule.append(lhsTokens.get(counter).getText());
             if (lhsTokens.get(counter).getType() == BallerinaParser.ASSIGN) {
-                subRule.append("0;");
+                subRule.append("xxx;");
                 break;
             }
             counter++;
@@ -918,9 +923,10 @@ public abstract class AbstractCompletionProvider implements LSCompletionProvider
      * variable definition context properties.
      *
      * @param context Completion context
+     * @param includeErrorSnippets Whether include error snippets or not
      * @return {@link List}     List of resolved completion items
      */
-    public List<LSCompletionItem> getVarDefCompletions(LSContext context) {
+    public List<LSCompletionItem> getVarDefCompletions(LSContext context, boolean includeErrorSnippets) {
         ArrayList<LSCompletionItem> completionItems = new ArrayList<>();
         List<Scope.ScopeEntry> visibleSymbols = new ArrayList<>(context.get(CommonKeys.VISIBLE_SYMBOLS_KEY));
         // Remove the functions without a receiver symbol, bTypes not being packages and attached functions
@@ -929,7 +935,8 @@ public abstract class AbstractCompletionProvider implements LSCompletionProvider
             return (bSymbol instanceof BInvokableSymbol
                     && ((BInvokableSymbol) bSymbol).receiverSymbol != null
                     && CommonUtil.isValidInvokableSymbol(bSymbol))
-                    || (FilterUtils.isBTypeEntry(scopeEntry))
+                    || (!(includeErrorSnippets && bSymbol.type instanceof BErrorType)
+                    && FilterUtils.isBTypeEntry(scopeEntry))
                     || (bSymbol instanceof BInvokableSymbol && ((bSymbol.flags & Flags.ATTACHED) == Flags.ATTACHED));
         });
         completionItems.addAll(getCompletionItemList(visibleSymbols, context));
@@ -949,10 +956,25 @@ public abstract class AbstractCompletionProvider implements LSCompletionProvider
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_UNTAINT.get()));
         // Add But keyword item
         completionItems.add(new SnippetCompletionItem(context, Snippet.EXPR_MATCH.get()));
+        if (includeErrorSnippets) {
+            // Add Error Constructor item
+            completionItems.add(new SnippetCompletionItem(context, Snippet.EXPR_ERROR.get()));
+        }
         // Add the trap expression keyword
         completionItems.add(new SnippetCompletionItem(context, Snippet.STMT_TRAP.get()));
 
         return completionItems;
+    }
+
+    /**
+     * Get variable definition context related completion items. This will extract the completion items analyzing the
+     * variable definition context properties.
+     *
+     * @param context Completion context
+     * @return {@link List}     List of resolved completion items
+     */
+    public List<LSCompletionItem> getVarDefCompletions(LSContext context) {
+        return getVarDefCompletions(context, false);
     }
 
     /**

@@ -170,10 +170,10 @@ public class RunExecutableTask implements Task {
                 executableModule.packageID.name.value,
                 MODULE_INIT_CLASS_NAME);
         try {
-            URL[] urls = new URL[executableJar.platformLibs.size() + 1];
-            urls[0] = executableJar.moduleJar.toUri().toURL();
+            URL[] urls = new URL[executableJar.moduleLibs.size() + 1];
+            urls[0] = buildContext.getJarPathFromTargetCache(executableModule.packageID).toUri().toURL();
             int i = 1;
-            for (Path platformLib : executableJar.platformLibs) {
+            for (Path platformLib : executableJar.moduleLibs) {
                 urls[i++] = platformLib.toUri().toURL();
             }
             URLClassLoader classLoader = new URLClassLoader(urls);
@@ -201,7 +201,7 @@ public class RunExecutableTask implements Task {
         // Adds executable thin jar path.
         cp.add(this.executableJarPath.toString());
         // Adds all the dependency paths.
-        buildContext.moduleDependencyPathMap.get(executableModule.packageID).platformLibs.forEach(path ->
+        buildContext.moduleDependencyPathMap.get(executableModule.packageID).moduleLibs.forEach(path ->
                 cp.add(path.toString()));
         return cp.toString();
     }

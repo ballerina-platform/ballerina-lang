@@ -415,7 +415,7 @@ public class FunctionGenerator {
         } else if (bType instanceof BFiniteType) {
             // Check for finite set assignment
             BFiniteType bFiniteType = (BFiniteType) bType;
-            Set<BLangExpression> valueSpace = bFiniteType.valueSpace;
+            Set<BLangExpression> valueSpace = bFiniteType.getValueSpace();
             if (!valueSpace.isEmpty()) {
                 return generateReturnValue(importsAcceptor, currentPkgId, valueSpace.stream().findFirst().get(),
                         template);

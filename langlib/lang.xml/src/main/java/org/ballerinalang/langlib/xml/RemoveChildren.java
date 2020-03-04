@@ -41,7 +41,7 @@ public class RemoveChildren {
 
     private static final String OPERATION = "remove children from xml element";
 
-    public static void removeChildren(Strand strand, XMLValue<?> xml, String qname) {
+    public static void removeChildren(Strand strand, XMLValue xml, String qname) {
         try {
             xml.removeChildren(qname);
         } catch (Throwable e) {
