@@ -32,6 +32,8 @@ import static org.ballerinalang.jvm.MapUtils.checkValidFieldForRecord;
 /**
  * Extern function to remove element from the map if key exists.
  * ballerina.model.map:removeIfHasKey(string)
+ *
+ * @since 1.2.0
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "lang.map", functionName = "removeIfHasKey",
