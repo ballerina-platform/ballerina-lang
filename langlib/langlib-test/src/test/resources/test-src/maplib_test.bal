@@ -99,6 +99,30 @@ function testBasicToArray() {
     assert(<string[]>["A", "B", "C"], stringArr);
     assert(<boolean[]>[true, false, true], booleanArr);
     assert(<map<int>[]>[{"one": 1, "two": 2}, {"three": 3, "four": 4}], mapArr);
+
+    // Test modifying the resultant array
+    intArr[1] = 22;
+    intArr[9] = 10;
+    assert(<int[]>[1, 22, 3, 4, 5, 0, 0, 0, 0, 10], intArr);
+
+    floatArr[1] = 22.2;
+    floatArr[7] = 7.7;
+    assert(<float[]>[1.1, 22.2, 3.3, 4.4, 5.5, 0.0, 0.0, 7.7], floatArr);
+
+    decimalArr[2] = 33.3;
+    decimalArr[6] = 6.6;
+    assert(<decimal[]>[1.1, 2.2, 33.3, 4.4, 5.5, 0.0, 6.6], decimalArr);
+
+    stringArr[0] = "Z";
+    _ = stringArr.remove(1);
+    assert(<string[]>["Z", "C"], stringArr);
+
+    booleanArr[1] = !booleanArr[1];
+    booleanArr.push(true);
+    assert(<boolean[]>[true, true, true, true], booleanArr);
+
+    mapArr[0]["one"] = 10;
+    assert(<map<int>[]>[{"one": 10, "two": 2}, {"three": 3, "four": 4}], mapArr);
 }
 
 function testLargeMapToArray() {
