@@ -48,7 +48,6 @@ type ResultIterator object {
        }
        error? closeErrorIgnored = ();
        if(self.err is Error) {
-         closeErrorIgnored = self.close();
          return self.err;
        } else {
            record{}| Error? result =  nextResult(self);
@@ -71,7 +70,11 @@ type ResultIterator object {
     public function close() returns error? {
     if(!self.isClosed){
             if (self.err is ()){
-                return closeResult(self);
+                error? e = closeResult(self);
+                if(e is ()){
+                   self.isClosed = true;
+                }
+                return e;
             }
         }
     }

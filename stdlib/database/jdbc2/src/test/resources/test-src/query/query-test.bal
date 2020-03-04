@@ -67,6 +67,7 @@ function testQueryNumericInvalidColumnRecord(string jdbcURL, string user, string
     jdbc:Client dbClient = check new (url = jdbcURL, user = user, password = password);
     stream<NumericInvalidColumn, error> streamData = <stream<NumericInvalidColumn, error>> dbClient.query("SELECT * FROM NumericTypes", NumericInvalidColumn);
     record{| NumericInvalidColumn value; |}? data =  check streamData.next();
+    any ignore = check streamData.next(); //TODO: change to close() once it's implemented.
     check dbClient.close();
     return ();
 }
@@ -88,6 +89,7 @@ function testQueryNumericOptionalTypeRecord(string jdbcURL, string user, string 
     jdbc:Client dbClient = check new (url = jdbcURL, user = user, password = password);
     stream<NumericOptionalType, error> streamData = <stream<NumericOptionalType, error>> dbClient.query("SELECT * FROM NumericTypes", NumericOptionalType);
     record{| NumericOptionalType value; |}? data =  check streamData.next();
+    any ignore = check streamData.next(); //TODO: change to close() once it's implemented.
     NumericOptionalType? numericType = data?.value;
     check dbClient.close();
     return numericType;
@@ -110,6 +112,7 @@ function testQueryNumericUnionTypeRecord(string jdbcURL, string user, string pas
     jdbc:Client dbClient = check new (url = jdbcURL, user = user, password = password);
     stream<NumericUnionType, error> streamData = <stream<NumericUnionType, error>> dbClient.query("SELECT * FROM NumericTypes", NumericUnionType);
     record{| NumericUnionType value; |}? data =  check streamData.next();
+    any ignore = check streamData.next(); //TODO: change to close() once it's implemented.
     NumericUnionType? numericType = data?.value;
     check dbClient.close();
     return numericType;
@@ -132,6 +135,7 @@ function testQueryNumericStringTypeRecord(string jdbcURL, string user, string pa
     jdbc:Client dbClient = check new (url = jdbcURL, user = user, password = password);
     stream<NumericStringType, error> streamData = <stream<NumericStringType, error>> dbClient.query("SELECT * FROM NumericTypes", NumericStringType);
     record{| NumericStringType value; |}? data =  check streamData.next();
+    any ignore = check streamData.next(); //TODO: change to close() once it's implemented.
     NumericStringType? numericType = data?.value;
     check dbClient.close();
     return numericType;
@@ -156,6 +160,7 @@ function testQueryNumericCustomTypeRecord(string jdbcURL, string user, string pa
     jdbc:Client dbClient = check new (url = jdbcURL, user = user, password = password);
     stream<NumericCustomType, error> streamData = <stream<NumericCustomType, error>> dbClient.query("SELECT * FROM NumericTypes", NumericCustomType);
     record{| NumericCustomType value; |}? data =  check streamData.next();
+    any ignore = check streamData.next(); //TODO: change to close() once it's implemented.
     NumericCustomType? numericType = data?.value;
     check dbClient.close();
     return numericType;

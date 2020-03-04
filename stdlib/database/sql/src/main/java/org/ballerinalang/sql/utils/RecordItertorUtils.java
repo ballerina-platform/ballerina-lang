@@ -20,6 +20,7 @@ package org.ballerinalang.sql.utils;
 
 import org.ballerinalang.jvm.types.BStructureType;
 import org.ballerinalang.jvm.types.BType;
+import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.ObjectValue;
@@ -29,13 +30,7 @@ import org.ballerinalang.sql.exception.ApplicationError;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
-import java.sql.Date;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Struct;
-import java.sql.Time;
-import java.sql.Timestamp;
-import java.sql.Types;
+import java.sql.*;
 import java.util.Calendar;
 import java.util.List;
 import java.util.TimeZone;
@@ -150,6 +145,33 @@ public class RecordItertorUtils {
 
 
     public static Object closeResult(ObjectValue recordIterator) {
+        ResultSet resultSet = (ResultSet) recordIterator.getNativeData(Constants.RESULT_SET_NATIVE_DATA_FIELD);
+        Statement statement = (Statement) recordIterator.getNativeData(Constants.STATEMENT_NATIVE_DATA_FIELD);
+        Connection connection = (Connection) recordIterator.getNativeData(Constants.CONNECTION_NATIVE_DATA_FIELD);
+        if (resultSet != null) {
+            try {
+                resultSet.close();
+                recordIterator.addNativeData(Constants.RESULT_SET_NATIVE_DATA_FIELD, null);
+            } catch (SQLException e) {
+                return ErrorGenerator.getSQLDatabaseError(e, "Error while closing the result set. ");
+            }
+        }
+        if (statement != null) {
+            try {
+                statement.close();
+                recordIterator.addNativeData(Constants.STATEMENT_NATIVE_DATA_FIELD, null);
+            } catch (SQLException e) {
+                return ErrorGenerator.getSQLDatabaseError(e, "Error while closing the result set. ");
+            }
+        }
+        if (connection != null) {
+            try {
+                connection.close();
+                recordIterator.addNativeData(Constants.CONNECTION_NATIVE_DATA_FIELD, null);
+            } catch (SQLException e) {
+                return ErrorGenerator.getSQLDatabaseError(e, "Error while closing the connection. ");
+            }
+        }
         return null;
     }
 }
