@@ -220,6 +220,7 @@
             <class name="org.ballerinalang.test.service.grpc.sample.UnaryBlockingOneofFieldTestCase"/>
             <class name="org.ballerinalang.test.service.grpc.sample.Http2GatewayTestCase"/>
             <class name="org.ballerinalang.test.service.grpc.sample.UnaryAnonymousServiceTestCase"/>
+            <class name="org.ballerinalang.test.service.grpc.sample.UnaryBlockingRetryTestCase"></class>
             <class name="org.ballerinalang.test.service.grpc.tool.InvalidServiceContractTestCase"/>
             <class name="org.ballerinalang.test.service.grpc.tool.StubGeneratorTestCase"/>
             <class name="org.ballerinalang.test.service.grpc.tool.ProtoMessageTestCase"/>
