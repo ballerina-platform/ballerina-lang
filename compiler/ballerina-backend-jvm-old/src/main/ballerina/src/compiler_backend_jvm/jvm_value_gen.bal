@@ -236,7 +236,7 @@ public type ObjectGenerator object {
 
         int fieldNameRegIndex = 1;
         if(useBString) {
-            mv.visitVarInsn(ALOAD, 0);
+            mv.visitVarInsn(ALOAD, fieldNameRegIndex);
              mv.visitMethodInsn(INVOKEINTERFACE, B_STRING_VALUE, "getValue", io:sprintf("()L%s;", STRING_VALUE) , true);
              fieldNameRegIndex = 2;
              mv.visitVarInsn(ASTORE, fieldNameRegIndex);

@@ -19,6 +19,7 @@
 package org.ballerinalang.langlib.map;
 
 import org.ballerinalang.jvm.BallerinaValues;
+import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.IteratorValue;
@@ -45,6 +46,9 @@ public class Next {
     public static Object next(Strand strand, ObjectValue m) {
         IteratorValue mapIterator = (IteratorValue) m.getNativeData("&iterator&");
         MapValueImpl mapValue = (MapValueImpl) m.getMapValue("m");
+        if (mapValue == null) {
+            mapValue = (MapValueImpl) m.get(StringUtils.fromString("m"));
+        }
         if (mapIterator == null) {
             mapIterator = mapValue.getIterator();
             m.addNativeData("&iterator&", mapIterator);
@@ -53,7 +57,7 @@ public class Next {
         if (mapIterator.hasNext()) {
             ArrayValue keyValueTuple = (ArrayValue) mapIterator.next();
             return BallerinaValues.createRecord(new MapValueImpl<>(mapValue.getIteratorNextReturnType()),
-                    keyValueTuple.get(1));
+                                                keyValueTuple.get(1));
         }
 
         return null;

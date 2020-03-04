@@ -29,6 +29,7 @@ import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.DecimalValue;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
+import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.jvm.values.utils.StringUtils;
 
 import java.io.ByteArrayInputStream;
@@ -93,7 +94,7 @@ public class TableUtils {
                     case TypeTags.XML_TAG:
                     case TypeTags.JSON_TAG:
                     case TypeTags.ARRAY_TAG:
-                        prepareAndExecuteStatement(stmt, data, index, sf, type, fieldName);
+                        executeStatement(stmt, data, index, sf, type, fieldName);
                         break;
                     case TypeTags.UNION_TAG:
                         List<BType> members = ((BUnionType) sf.getFieldType()).getMemberTypes();
@@ -102,9 +103,9 @@ public class TableUtils {
                                     "Corresponding Union type in the record is not an assignable nillable type");
                         }
                         if (members.get(0).getTag() == TypeTags.NULL_TAG) {
-                            prepareAndExecuteStatement(stmt, data, index, sf, members.get(1).getTag(), fieldName);
+                            executeStatement(stmt, data, index, sf, members.get(1).getTag(), fieldName);
                         } else if (members.get(1).getTag() == TypeTags.NULL_TAG) {
-                            prepareAndExecuteStatement(stmt, data, index, sf, members.get(0).getTag(), fieldName);
+                            executeStatement(stmt, data, index, sf, members.get(0).getTag(), fieldName);
                         } else {
                             throw createTableOperationError(
                                     "Corresponding Union type in the record is not an assignable nillable type");
@@ -119,8 +120,19 @@ public class TableUtils {
         }
     }
 
+    private static void executeStatement(PreparedStatement stmt, MapValueImpl<?, ?> data, int index, BField sf,
+                                         int type, String fieldName) throws SQLException {
+        boolean useBString = System.getProperty("ballerina.bstring") != null;
+        if (useBString) {
+            prepareAndExecuteStatement(stmt, data, index, sf, type,
+                                       org.ballerinalang.jvm.StringUtils.fromString(fieldName));
+        } else {
+            prepareAndExecuteStatement(stmt, data, index, sf, type, fieldName);
+        }
+    }
+
     private static void prepareAndExecuteStatement(PreparedStatement stmt, MapValueImpl<?, ?> data, int index,
-            BField sf, int type, String fieldName) throws SQLException {
+                                                   BField sf, int type, String fieldName) throws SQLException {
         Object value = data.get(fieldName);
         switch (type) {
             case TypeTags.INT_TAG:
@@ -185,9 +197,79 @@ public class TableUtils {
         }
     }
 
+    private static void prepareAndExecuteStatement(PreparedStatement stmt, MapValueImpl<?, ?> data, int index,
+                                                   BField sf, int type, BString fieldName) throws SQLException {
+        Object value = data.get(fieldName);
+        switch (type) {
+            case TypeTags.INT_TAG:
+                if (value == null) {
+                    stmt.setNull(index, Types.BIGINT);
+                } else {
+                    stmt.setLong(index, (Long) value);
+                }
+                break;
+            case TypeTags.STRING_TAG:
+                if (value == null) {
+                    stmt.setNull(index, Types.VARCHAR);
+                } else {
+                    if (value instanceof BString) {
+                        stmt.setString(index, ((BString) value).getValue());
+                        break;
+                    }
+                    stmt.setString(index, (String) value);
+                }
+                break;
+            case TypeTags.FLOAT_TAG:
+                if (value == null) {
+                    stmt.setNull(index, Types.DOUBLE);
+                } else {
+                    stmt.setDouble(index, (Double) value);
+                }
+                break;
+            case TypeTags.DECIMAL_TAG:
+                if (value == null) {
+                    stmt.setNull(index, Types.DECIMAL);
+                } else {
+                    stmt.setBigDecimal(index, ((DecimalValue) value).decimalValue());
+                }
+                break;
+            case TypeTags.BOOLEAN_TAG:
+                if (value == null) {
+                    stmt.setNull(index, Types.BOOLEAN);
+                } else {
+                    stmt.setBoolean(index, (boolean) value);
+                }
+                break;
+            case TypeTags.XML_TAG:
+                stmt.setString(index, value.toString());
+                break;
+            case TypeTags.JSON_TAG:
+                if (value == null) {
+                    stmt.setNull(index, Types.VARCHAR);
+                } else {
+                    stmt.setString(index, StringUtils.getJsonString(value));
+                }
+                break;
+            case TypeTags.ARRAY_TAG:
+                boolean isBlobType = ((BArrayType) sf.getFieldType()).getElementType().getTag() == TypeTags.BYTE_TAG;
+                if (isBlobType) {
+                    if (value != null) {
+                        byte[] blobData = ((ArrayValue) value).getBytes();
+                        stmt.setBlob(index, new ByteArrayInputStream(blobData), blobData.length);
+                    } else {
+                        stmt.setNull(index, Types.BLOB);
+                    }
+                } else {
+                    Object[] arrayData = getArrayData((ArrayValue) value);
+                    stmt.setObject(index, arrayData);
+                }
+                break;
+        }
+    }
+
     static Object[] getArrayData(ArrayValue value) {
         if (value == null) {
-            return new Object[] {null};
+            return new Object[]{null};
         }
         int typeTag = value.getElementType().getTag();
         Object[] arrayData;

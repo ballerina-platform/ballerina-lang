@@ -26,7 +26,7 @@ import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.jvm.util.exceptions.RuntimeErrors;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValue;
-import org.ballerinalang.jvm.values.StringValue;
+import org.ballerinalang.jvm.values.api.BString;
 
 import static java.lang.String.format;
 import static org.ballerinalang.jvm.util.BLangConstants.MAP_LANG_LIB;
@@ -34,7 +34,6 @@ import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.INHERE
 import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.MAP_KEY_NOT_FOUND_ERROR;
 import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.OPERATION_NOT_SUPPORTED_IDENTIFIER;
 import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.getModulePrefixedReason;
-
 /**
  * Common utility methods used for MapValue insertion/manipulation.
  *
@@ -42,7 +41,7 @@ import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.getMod
  */
 public class MapUtils {
 
-    public static void handleMapStore(MapValue<StringValue, Object> mapValue, StringValue fieldName, Object value) {
+    public static void handleMapStore(MapValue<BString, Object> mapValue, BString fieldName, Object value) {
         BType mapType = mapValue.getType();
         switch (mapType.getTag()) {
             case TypeTags.MAP_TAG:
@@ -50,9 +49,11 @@ public class MapUtils {
                     BType expType = ((BMapType) mapType).getConstrainedType();
                     BType valuesType = TypeChecker.getType(value);
                     throw BallerinaErrors.createError(getModulePrefixedReason(MAP_LANG_LIB,
-                            INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER),
-                            BLangExceptionHelper.getErrorMessage(RuntimeErrors.INVALID_MAP_INSERTION, expType,
-                                    valuesType));
+                                                                              INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER),
+                                                      BLangExceptionHelper
+                                                              .getErrorMessage(RuntimeErrors.INVALID_MAP_INSERTION,
+                                                                               expType,
+                                                                               valuesType));
                 }
                 mapValue.put(fieldName, value);
                 break;

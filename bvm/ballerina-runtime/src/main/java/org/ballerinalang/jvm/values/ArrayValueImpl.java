@@ -510,13 +510,19 @@ public class ArrayValueImpl extends AbstractArrayValue {
                 }
                 break;
             case TypeTags.STRING_TAG:
-                for (int i = 0; i < size; i++) {
-                    sj.add(stringValues[i]);
+                if (stringValues != null) {
+                    for (int i = 0; i < size; i++) {
+                        sj.add(stringValues[i]);
+                    }
+                } else {
+                    for (int i = 0; i < size; i++) {
+                        sj.add(bStringValues[i].getValue());
+                    }
                 }
                 break;
             default:
                 for (int i = 0; i < size; i++) {
-                    sj.add(StringUtils.getStringValue(refValues[i]));
+                    sj.add(StringUtils.getBStringValue(refValues[i]).getValue());
                 }
                 break;
         }

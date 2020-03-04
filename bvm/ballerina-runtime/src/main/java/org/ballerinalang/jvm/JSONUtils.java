@@ -41,6 +41,7 @@ import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.RefValue;
 import org.ballerinalang.jvm.values.StreamingJsonValue;
 import org.ballerinalang.jvm.values.TableValue;
+import org.ballerinalang.jvm.values.api.BString;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -182,6 +183,32 @@ public class JSONUtils {
             throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.JSON_GET_ERROR, e.getMessage());
         } catch (Throwable t) {
             throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.JSON_GET_ERROR, t.getMessage());
+        }
+    }
+
+    /**
+     * Set an element in a JSON. If an element with the given name already exists,
+     * this method will update the existing element. Otherwise, a new element with
+     * the given name will be added. If the JSON is not object type, then this
+     * operation has no effect.
+     *
+     * @param json JSON object to set the element
+     * @param elementName Name of the element to be set
+     * @param element JSON element
+     */
+    public static void setElement(Object json, BString elementName, Object element) {
+        if (!isJSONObject(json)) {
+            return;
+        }
+
+        try {
+            ((MapValueImpl<BString, Object>) json).put(elementName, element);
+        } catch (ErrorValue e) {
+            throw e;
+        } catch (Throwable t) {
+            throw BLangExceptionHelper.getRuntimeException(
+                    getModulePrefixedReason(MAP_LANG_LIB, INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER),
+                    RuntimeErrors.JSON_SET_ERROR, t.getMessage());
         }
     }
 

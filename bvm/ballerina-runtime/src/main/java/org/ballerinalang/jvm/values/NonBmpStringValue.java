@@ -95,4 +95,13 @@ public class NonBmpStringValue implements StringValue {
     public int hashCode() {
         return value.hashCode();
     }
+
+    public int[] getSurrogates() {
+        return surrogates.clone();
+    }
+
+    @Override
+    public String toString() {
+        return value;
+    }
 }

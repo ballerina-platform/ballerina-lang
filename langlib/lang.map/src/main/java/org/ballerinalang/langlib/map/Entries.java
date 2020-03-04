@@ -66,4 +66,20 @@ public class Entries {
 
         return entries;
     }
+
+    public static MapValue<?, ?> entries_bstring(Strand strand, MapValue<?, ?> m) {
+        BType newFieldType = getFieldType(m.getType(), "entries()");
+        BTupleType entryType = new BTupleType(Arrays.asList(BTypes.typeString, newFieldType));
+        BMapType entryMapConstraint = new BMapType(entryType);
+        MapValue<Object, TupleValueImpl> entries = new MapValueImpl<>(entryMapConstraint);
+
+        m.entrySet().forEach(entry -> {
+            TupleValueImpl entryTuple = new TupleValueImpl(entryType);
+            entryTuple.add(0, entry.getKey());
+            entryTuple.add(1, entry.getValue());
+            entries.put(entry.getKey(), entryTuple);
+        });
+
+        return entries;
+    }
 }

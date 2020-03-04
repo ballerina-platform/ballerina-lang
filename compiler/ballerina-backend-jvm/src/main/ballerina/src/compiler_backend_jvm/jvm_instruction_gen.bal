@@ -670,8 +670,14 @@ type InstructionGenerator object {
         loadType(self.mv, tableNewIns.typeValue);
         self.loadVar(tableNewIns.keyColOp.variableDcl);
         self.loadVar(tableNewIns.dataOp.variableDcl);
-        self.mv.visitMethodInsn(INVOKESPECIAL, TABLE_VALUE, "<init>", io:sprintf("(L%s;L%s;L%s;)V", BTYPE,
+        if (IS_BSTRING) {
+            self.mv.visitInsn(ICONST_1);
+            self.mv.visitMethodInsn(INVOKESPECIAL, TABLE_VALUE, "<init>", io:sprintf("(L%s;L%s;L%s;Z)V", BTYPE,
                 ARRAY_VALUE, ARRAY_VALUE), false);
+        } else {
+            self.mv.visitMethodInsn(INVOKESPECIAL, TABLE_VALUE, "<init>", io:sprintf("(L%s;L%s;L%s;)V", BTYPE,
+                ARRAY_VALUE, ARRAY_VALUE), false);
+        }
         self.storeToVar(tableNewIns.lhsOp.variableDcl);
     }
 
@@ -690,11 +696,11 @@ type InstructionGenerator object {
 
         if (varRefType is bir:BJSONType) {
             self.mv.visitMethodInsn(INVOKESTATIC, JSON_UTILS, "setElement",
-                    io:sprintf("(L%s;L%s;L%s;)V", OBJECT, STRING_VALUE, OBJECT), false);
+                    io:sprintf("(L%s;L%s;L%s;)V", OBJECT, IS_BSTRING ? B_STRING_VALUE : STRING_VALUE, OBJECT), false);
         } else {
             self.mv.visitMethodInsn(INVOKESTATIC, MAP_UTILS, "handleMapStore",
-                                        io:sprintf("(L%s;L%s;L%s;)V",
-                                        MAP_VALUE, IS_BSTRING ? I_STRING_VALUE : STRING_VALUE, OBJECT), false);
+                                        io:sprintf("(L%s;L%s;L%s;)V", MAP_VALUE,
+                                        IS_BSTRING ? B_STRING_VALUE : STRING_VALUE, OBJECT), false);
         }
     }
 
@@ -729,7 +735,7 @@ type InstructionGenerator object {
 
         // store in the target reg
         bir:BType targetType = mapLoadIns.lhsOp.variableDcl.typeValue;
-        addUnboxInsn(self.mv, targetType, useBString);
+        addUnboxInsn(self.mv, targetType);
         self.storeToVar(mapLoadIns.lhsOp.variableDcl);
     }
 
@@ -743,7 +749,7 @@ type InstructionGenerator object {
 
         // invoke get() method, and unbox if needed
         self.mv.visitMethodInsn(INVOKEINTERFACE, OBJECT_VALUE, "get",
-                io:sprintf("(L%s;)L%s;", STRING_VALUE, OBJECT), true);
+                io:sprintf("(L%s;)L%s;", IS_BSTRING ? B_STRING_VALUE : STRING_VALUE, OBJECT), true);
         bir:BType targetType = objectLoadIns.lhsOp.variableDcl.typeValue;
         addUnboxInsn(self.mv, targetType);
 
@@ -1197,11 +1203,11 @@ function addBoxInsn(jvm:MethodVisitor mv, bir:BType? bType) {
     }
 }
 
-function addUnboxInsn(jvm:MethodVisitor mv, bir:BType? bType, boolean useBString = false) {
+function addUnboxInsn(jvm:MethodVisitor mv, bir:BType? bType) {
     if (bType is ()) {
         return;
     } else {
-        generateCast(mv, "any", bType, useBString = useBString);
+        generateCast(mv, "any", bType, IS_BSTRING);
     }
 }
 

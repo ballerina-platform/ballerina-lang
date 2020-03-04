@@ -127,7 +127,22 @@ public class TableValue implements RefValue, BTable {
         this.primaryKeys = keyColumns;
         //Insert initial data
         if (dataRows != null) {
-            insertInitialData(dataRows);
+            insertInitialData(dataRows, false);
+        }
+    }
+
+    @Deprecated
+    public TableValue(BType type, ArrayValue keyColumns, ArrayValue dataRows, boolean useBString) {
+        //Create table with given constraints.
+        BType constrainedType = ((BTableType) type).getConstrainedType();
+        this.tableProvider = TableProvider.getInstance();
+        this.tableName = tableProvider.createTable(constrainedType, keyColumns);
+        this.constraintType = (BStructureType) constrainedType;
+        this.type = new BTableType(constraintType);
+        this.primaryKeys = keyColumns;
+        //Insert initial data
+        if (dataRows != null) {
+            insertInitialData(dataRows, useBString);
         }
     }
 
@@ -270,7 +285,7 @@ public class TableValue implements RefValue, BTable {
      *
      * @param data The record to be inserted
      */
-    public void addData(MapValueImpl<String, Object> data) {
+    public void addData(MapValueImpl<?, Object> data) {
         if (data.getType() != this.constraintType) {
             throw BallerinaErrors.createError(BallerinaErrorReasons.TABLE_OPERATION_ERROR,
                     "incompatible types: record of type:" + data.getType().getName()
@@ -280,7 +295,7 @@ public class TableValue implements RefValue, BTable {
         reset();
     }
 
-    public void addData(BMap<String, Object> data) {
+    public void addData(BMap<?, Object> data) {
         addData((MapValueImpl<String, Object>) data);
     }
 
@@ -406,11 +421,12 @@ public class TableValue implements RefValue, BTable {
         return iterator.getStructType();
     }
 
+    // Todo: fix for bstring
     @Override
     public Object copy(Map<Object, Object> refs) {
         if (tableClosed) {
             throw BallerinaErrors.createError(BallerinaErrorReasons.TABLE_OPERATION_ERROR,
-                    "Trying to invoke clone built-in method over a closed table");
+                                              "Trying to invoke clone built-in method over a closed table");
         }
 
         if (isFrozen()) {
@@ -428,7 +444,7 @@ public class TableValue implements RefValue, BTable {
             while (cloneIterator.next()) {
                 data.add(cursor++, cloneIterator.generateNext());
             }
-            TableValue table = new TableValue(new BTableType(constraintType), this.primaryKeys, data);
+            TableValue table = new TableValue(new BTableType(constraintType), this.primaryKeys, data, false);
             refs.put(this, table);
             return table;
         } finally {
@@ -475,10 +491,14 @@ public class TableValue implements RefValue, BTable {
         tableProvider.dropTable(this.tableName);
     }
 
-    private void insertInitialData(ArrayValue data) {
+    private void insertInitialData(ArrayValue data, boolean useBString) {
         int count = data.size();
         for (int i = 0; i < count; i++) {
-            addData((MapValueImpl<String, Object>) data.getRefValue(i));
+            if (useBString) {
+                addData((MapValueImpl<BString, Object>) data.getRefValue(i));
+            } else {
+                addData((MapValueImpl<String, Object>) data.getRefValue(i));
+            }
         }
     }
 

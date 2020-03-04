@@ -71,13 +71,8 @@ public type ObjectGenerator object {
 
         self.createObjectInit(cw, fields, className);
         self.createCallMethod(cw, attachedFuncs, className, objectType.name.value, isService);
-        if (IS_BSTRING) {
-            self.createObjectGetMethod(cw, fields, className, true);
-            self.createObjectSetMethod(cw, fields, className, true);
-        } else {
-        self.createObjectGetMethod(cw, fields, className, false);
-        self.createObjectSetMethod(cw, fields, className, false);
-        }
+        self.createObjectGetMethod(cw, fields, className);
+        self.createObjectSetMethod(cw, fields, className);
         self.createLambdas(cw);
 
         cw.visitEnd();
@@ -207,7 +202,7 @@ public type ObjectGenerator object {
                 mv.visitLdcInsn(j);
                 mv.visitInsn(L2I);
                 mv.visitInsn(AALOAD);
-                addUnboxInsn(mv, pType, useBString);
+                addUnboxInsn(mv, pType);
                 j += 1;
             }
 
@@ -230,19 +225,18 @@ public type ObjectGenerator object {
         mv.visitEnd();
     }
 
-    private function createObjectGetMethod(jvm:ClassWriter cw, bir:BObjectField?[] fields, string className,
-                                           boolean useBString) {
+    private function createObjectGetMethod(jvm:ClassWriter cw, bir:BObjectField?[] fields, string className) {
         jvm:MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "get",
-                io:sprintf("(L%s;)L%s;", useBString ? I_STRING_VALUE : STRING_VALUE, OBJECT), (), ());
+                io:sprintf("(L%s;)L%s;", IS_BSTRING ? B_STRING_VALUE : STRING_VALUE, OBJECT), (), ());
         mv.visitCode();
 
         int fieldNameRegIndex = 1;
-        if(useBString) {
-            mv.visitVarInsn(ALOAD, 0);
-             mv.visitMethodInsn(INVOKEINTERFACE, I_STRING_VALUE, "getValue", io:sprintf("()L%s;", STRING_VALUE) , true);
-             fieldNameRegIndex = 2;
-             mv.visitVarInsn(ASTORE, fieldNameRegIndex);
-         }
+        if(IS_BSTRING) {
+            mv.visitVarInsn(ALOAD, fieldNameRegIndex);
+            mv.visitMethodInsn(INVOKEINTERFACE, B_STRING_VALUE, "getValue", io:sprintf("()L%s;", STRING_VALUE) , true);
+            fieldNameRegIndex = 2;
+            mv.visitVarInsn(ASTORE, fieldNameRegIndex);
+        }
 
         jvm:Label defaultCaseLabel = new jvm:Label();
 
@@ -261,8 +255,8 @@ public type ObjectGenerator object {
             jvm:Label targetLabel = targetLabels[i];
             mv.visitLabel(targetLabel);
             mv.visitVarInsn(ALOAD, 0);
-            mv.visitFieldInsn(GETFIELD, className, conditionalBStringName(field.name.value, useBString),
-                              getTypeDesc(field.typeValue, useBString));
+            mv.visitFieldInsn(GETFIELD, className, conditionalBStringName(field.name.value, IS_BSTRING),
+                              getTypeDesc(field.typeValue, IS_BSTRING));
             addBoxInsn(mv, field.typeValue);
             mv.visitInsn(ARETURN);
             i += 1;
@@ -273,10 +267,9 @@ public type ObjectGenerator object {
         mv.visitEnd();
     }
 
-    private function createObjectSetMethod(jvm:ClassWriter cw, bir:BObjectField?[] fields, string className,
-                                           boolean useBString) {
+    private function createObjectSetMethod(jvm:ClassWriter cw, bir:BObjectField?[] fields, string className) {
         jvm:MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "set",
-                io:sprintf("(L%s;L%s;)V", useBString ? B_STRING_VALUE : STRING_VALUE, OBJECT), (), ());
+                io:sprintf("(L%s;L%s;)V", IS_BSTRING ? B_STRING_VALUE : STRING_VALUE, OBJECT), (), ());
         mv.visitCode();
         int fieldNameRegIndex = 1;
         int valueRegIndex = 2;
@@ -285,7 +278,7 @@ public type ObjectGenerator object {
         // code gen type checking for inserted value
         mv.visitVarInsn(ALOAD, 0);
         mv.visitVarInsn(ALOAD, fieldNameRegIndex);
-        if(useBString) {
+        if(IS_BSTRING) {
             mv.visitMethodInsn(INVOKEINTERFACE, B_STRING_VALUE, "getValue", io:sprintf("()L%s;", STRING_VALUE) , true);
             mv.visitInsn(DUP);
             fieldNameRegIndex = 3;
@@ -312,12 +305,12 @@ public type ObjectGenerator object {
             mv.visitLabel(targetLabel);
             mv.visitVarInsn(ALOAD, 0);
             mv.visitVarInsn(ALOAD, valueRegIndex);
-            addUnboxInsn(mv, field.typeValue, useBString);
+            addUnboxInsn(mv, field.typeValue);
             string filedName = field.name.value;
-            if(useBString) {
+            if(IS_BSTRING) {
                 filedName = nameOfBStringFunc(filedName);
             }
-            mv.visitFieldInsn(PUTFIELD, className, filedName, getTypeDesc(field.typeValue, useBString));
+            mv.visitFieldInsn(PUTFIELD, className, filedName, getTypeDesc(field.typeValue, IS_BSTRING));
             mv.visitInsn(RETURN);
             i += 1;
         }
@@ -541,9 +534,9 @@ public type ObjectGenerator object {
 
         // cast key to java.lang.String
         mv.visitVarInsn(ALOAD, fieldNameRegIndex);
-        mv.visitTypeInsn(CHECKCAST, IS_BSTRING ? I_STRING_VALUE : STRING_VALUE);
+        mv.visitTypeInsn(CHECKCAST, IS_BSTRING ? B_STRING_VALUE : STRING_VALUE);
         if (IS_BSTRING) {
-            mv.visitMethodInsn(INVOKEINTERFACE, I_STRING_VALUE, "getValue", io:sprintf("()L%s;", STRING_VALUE) , true);
+            mv.visitMethodInsn(INVOKEINTERFACE, B_STRING_VALUE, "getValue", io:sprintf("()L%s;", STRING_VALUE) , true);
         }
         mv.visitVarInsn(ASTORE, strKeyVarIndex);
 
@@ -571,7 +564,7 @@ public type ObjectGenerator object {
 
             mv.visitVarInsn(ALOAD, 0);
             mv.visitVarInsn(ALOAD, valueRegIndex);
-            addUnboxInsn(mv, field.typeValue, IS_BSTRING);
+            addUnboxInsn(mv, field.typeValue);
             mv.visitFieldInsn(PUTFIELD, className, conditionalBStringName(fieldName, IS_BSTRING), getTypeDesc(field.typeValue, IS_BSTRING));
             // if the field is an optional-field, then also set the isPresent flag of that field to true.
             if (self.isOptionalRecordField(field)) {
@@ -585,7 +578,7 @@ public type ObjectGenerator object {
             i += 1;
         }
 
-        self.createRecordPutDefaultCase(mv, defaultCaseLabel, strKeyVarIndex, valueRegIndex);
+        self.createRecordPutDefaultCase(mv, defaultCaseLabel, fieldNameRegIndex, valueRegIndex);
         mv.visitMaxs(0, 0);
         mv.visitEnd();
     }
@@ -641,9 +634,14 @@ public type ObjectGenerator object {
 
             // field name as key
             mv.visitLdcInsn(fieldName);
+            if(IS_BSTRING) {
+                mv.visitMethodInsn(INVOKESTATIC, STRING_UTILS, "fromString",
+                                io:sprintf("(L%s;)L%s;", STRING_VALUE, B_STRING_VALUE), false);
+            }
             // field value as the map-entry value
             mv.visitVarInsn(ALOAD, 0);
-            mv.visitFieldInsn(GETFIELD, className, fieldName, getTypeDesc(field.typeValue));
+            mv.visitFieldInsn(GETFIELD, className, conditionalBStringName(fieldName, IS_BSTRING),
+                getTypeDesc(field.typeValue, IS_BSTRING));
             addBoxInsn(mv, field.typeValue);
 
             mv.visitMethodInsn(INVOKESPECIAL, MAP_SIMPLE_ENTRY, "<init>", io:sprintf("(L%s;L%s;)V", OBJECT, OBJECT),
@@ -854,6 +852,10 @@ public type ObjectGenerator object {
 
             mv.visitVarInsn(ALOAD, KeysVarIndex);
             mv.visitLdcInsn(fieldName);
+            if(IS_BSTRING) {
+                mv.visitMethodInsn(INVOKESTATIC, STRING_UTILS, "fromString",
+                                io:sprintf("(L%s;)L%s;", STRING_VALUE, B_STRING_VALUE), false);
+            }
             mv.visitMethodInsn(INVOKEINTERFACE, SET, "add", io:sprintf("(L%s;)Z", OBJECT), true);
             mv.visitInsn(POP);
             mv.visitLabel(ifNotPresent);
@@ -868,7 +870,7 @@ public type ObjectGenerator object {
         mv.visitVarInsn(ALOAD, KeysVarIndex);
         mv.visitInsn(DUP);
         mv.visitMethodInsn(INVOKEINTERFACE, SET, "size", "()I", true);
-        mv.visitTypeInsn(ANEWARRAY, STRING_VALUE);
+        mv.visitTypeInsn(ANEWARRAY, IS_BSTRING ? B_STRING_VALUE : STRING_VALUE);
         mv.visitMethodInsn(INVOKEINTERFACE, SET, "toArray", io:sprintf("([L%s;)[L%s;", OBJECT, OBJECT), true);
 
         mv.visitInsn(ARETURN);

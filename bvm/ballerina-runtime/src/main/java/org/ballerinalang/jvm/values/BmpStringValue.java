@@ -52,7 +52,7 @@ public class BmpStringValue implements StringValue {
          if (str instanceof BmpStringValue) {
              return new BmpStringValue(this.value + ((BmpStringValue) str).value);
          } else if (str instanceof NonBmpStringValue) {
-             return str.concat(this);
+             return new NonBmpStringValue(this.value + str.getValue(), ((NonBmpStringValue) str).getSurrogates());
          } else {
              throw new RuntimeException("not impl yet");
          }
@@ -63,13 +63,18 @@ public class BmpStringValue implements StringValue {
         return value;
     }
 
-    @Override
-    public BString bStringValue() {
-        return this;
-    }
+     @Override
+     public BString bStringValue() {
+         return this;
+     }
 
-    @Override
-    public int hashCode() {
-        return value.hashCode();
-    }
-}
+     @Override
+     public int hashCode() {
+         return value.hashCode();
+     }
+
+     @Override
+     public String toString() {
+         return value;
+     }
+ }

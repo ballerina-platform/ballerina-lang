@@ -227,8 +227,9 @@ type TerminatorGenerator object {
         string orgName = callIns.pkgID.org;
         string moduleName = callIns.pkgID.name;
         var callInsCopy = callIns.clone();
-        if(isBStringFunc(funcName)) {
-            callInsCopy.name.value =  nameOfBStringFunc(callIns.name.value);
+        string callInName = callIns.name.value;
+        if(isBStringFunc(funcName) && callInName != "$__init$") {
+            callInsCopy.name.value =  nameOfBStringFunc(callInName);
         }
         // invoke the function
         self.genCall(callInsCopy, orgName, moduleName, localVarOffset);
@@ -507,10 +508,10 @@ type TerminatorGenerator object {
 
         string jvmClass = lookupFullQualifiedClassName(lookupKey);
         string cleanMethodName = cleanupFunctionName(methodName);
-        boolean useBString = IS_BSTRING && orgName == "ballerina" &&
-                             (moduleName == "lang.string" || moduleName == "lang.error" || moduleName == "lang.value" 
-                             || moduleName == "lang.map") && !cleanMethodName.endsWith("_");
-        if (useBString) {
+       boolean useBString = IS_BSTRING && methodName!= "$currentModuleInit" && methodName!= "$__init$" &&
+            !cleanMethodName.endsWith("_");
+
+        if (useBString && !cleanMethodName.endsWith("$bstring")) {
             cleanMethodName = nameOfBStringFunc(cleanMethodName);
         }
         string methodDesc = lookupJavaMethodDescription(lookupKey, useBString);

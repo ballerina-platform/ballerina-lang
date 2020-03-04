@@ -22,10 +22,13 @@ import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.jvm.values.MapValue;
+import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
+
+import java.util.Arrays;
 
 /**
  * Extern function to get key arrays from the map.
@@ -42,5 +45,15 @@ public class GetKeys {
 
     public static ArrayValue keys(Strand strand, MapValue<?, ?> m) {
         return new ArrayValueImpl((String[]) m.getKeys());
+    }
+
+    public static ArrayValue keys_bstring(Strand strand, MapValue<?, ?> m) {
+        Object[] keys = m.getKeys();
+        if (keys instanceof BString[]) {
+            return new ArrayValueImpl((BString[]) keys);
+        } else {
+            BString[] strings = Arrays.copyOf(keys, keys.length, BString[].class);
+            return new ArrayValueImpl(strings);
+        }
     }
 }

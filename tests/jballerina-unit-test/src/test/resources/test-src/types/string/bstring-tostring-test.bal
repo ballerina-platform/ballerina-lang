@@ -14,18 +14,18 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerinax/java;
+// import ballerinax/java;
 
-public function testVarArgs() returns int {
-    var answer = "Good work 👍";
-    var javaList = asList("1", "2", answer);
-    return javaList.toString().length();
-}
-
-public function asList(string... values) returns handle = @java:Method {
-    name:"asList",
-    class: "java.util.Arrays"
-} external;
+// public function testVarArgs() returns int {
+    // var answer = "Good work 👍";
+    // var javaList = asList("1", "2", answer);
+    // return javaList.toString().length();
+// }
+//
+// public function asList(string... values) returns handle = @java:Method {
+    // name:"asList",
+    // class: "java.util.Arrays"
+// } external;
 
 function testDecimalToString() returns int {
     decimal res3 = 8;
@@ -61,4 +61,23 @@ function testMapToStringWithSymbol() returns int {
 function testTupleToString() returns int {
     [int, string, string] a = [10, "John🥄", "Silva"];
     return a.toString().length();
+}
+
+function testArrayToString() returns int {
+   string[] arr = ["10", "John🚰", "Silva"];
+    return arr.toString().length();
+}
+
+function testJsonToString() returns int {
+    json j9 = {"smile👍": "smile"};
+    return j9.toString().length();
+}
+
+type Person object {
+    public string name = "Riyafa";
+};
+
+function testObjectToString() returns int {
+    Person p3 = new Person();
+    return p3.toString().length();
 }

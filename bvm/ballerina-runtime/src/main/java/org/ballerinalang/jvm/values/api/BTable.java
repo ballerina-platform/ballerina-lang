@@ -74,7 +74,7 @@ public interface BTable extends BRefValue, BCollection {
      *
      * @param data The record to be inserted
      */
-    void addData(BMap<String, Object> data);
+    void addData(BMap<?, Object> data);
 
     /**
      * Remove records that cause true return from given function pointer.

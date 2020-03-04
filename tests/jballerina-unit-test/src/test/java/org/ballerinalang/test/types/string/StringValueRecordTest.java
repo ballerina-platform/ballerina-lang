@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -31,55 +31,30 @@ import org.testng.annotations.Test;
 import static org.ballerinalang.test.util.BRunUtil.IS_STRING_VALUE_PROP;
 
 /**
- * Tests for the migration of bValues' stringValue implementations.
+ * Test StringValue impl of ballerina string.
  */
-public class BStringToStringTest {
+public class StringValueRecordTest {
     private CompileResult result;
 
     @BeforeClass
     public void setup() {
         System.setProperty(IS_STRING_VALUE_PROP, "true");
-        result = BCompileUtil.compile("test-src/types/string/bstring-tostring-test.bal");
+        result = BCompileUtil.compile("test-src/types/string/string-value-record-test.bal");
     }
 
     @Test
-    public void testDecimalToString() {
-        testAndAssert("testDecimalToString", 7);
+    public void testRecordStringValue() {
+        testAndAssert("testRecordStringValue", 5);
     }
 
     @Test
-    public void testFunctionPointerToString() {
-        testAndAssert("testFunctionPointerToString", 41);
+    public void testRecordGetKeys() {
+        testAndAssert("testRecordGetKeys", 21);
     }
 
     @Test
-    public void testMapToString() {
-        testAndAssert("testMapToString", 63);
-    }
-
-    @Test
-    public void testMapToStringWithSymbol() {
-        testAndAssert("testMapToStringWithSymbol", 66);
-    }
-
-    @Test
-    public void testArrayToString() {
-        testAndAssert("testArrayToString", 14);
-    }
-
-    @Test
-    public void testTupleToString() {
-        testAndAssert("testTupleToString", 14);
-    }
-
-    @Test
-    public void testJsonToString() {
-        testAndAssert("testJsonToString", 12);
-    }
-
-    @Test
-    public void testObjectToString() {
-        testAndAssert("testObjectToString", 13);
+    public void testMapToKeys() {
+        testAndAssert("testMapToKeys", 28);
     }
 
     private void testAndAssert(String funcName, int i) {
@@ -92,4 +67,5 @@ public class BStringToStringTest {
     public void down() {
         System.clearProperty(IS_STRING_VALUE_PROP);
     }
+
 }
