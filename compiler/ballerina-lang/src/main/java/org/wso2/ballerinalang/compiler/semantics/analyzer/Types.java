@@ -235,7 +235,7 @@ public class Types {
 
     boolean isBasicNumericType(BType type) {
 
-        return type.tag < TypeTags.STRING || type.getKind() == TypeKind.INT;
+        return type.tag < TypeTags.STRING || TypeTags.isIntegerTypeTag(type.tag);
     }
 
     boolean finiteTypeContainsNumericTypeValues(BFiniteType finiteType) {
@@ -1327,7 +1327,7 @@ public class Types {
         }
 
         if (targetType.tag == TypeTags.INT
-                && (actualType.tag == TypeTags.BYTE || actualType.getKind() == TypeKind.INT)) {
+                && (actualType.tag == TypeTags.BYTE || TypeTags.isIntegerTypeTag(actualType.tag))) {
             return TypeTestResult.TRUE;
         }
         return TypeTestResult.NOT_FOUND;

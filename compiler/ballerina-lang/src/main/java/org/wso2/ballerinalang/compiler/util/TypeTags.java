@@ -56,10 +56,11 @@ public class TypeTags {
     public static final int FUTURE = TUPLE + 1;
     public static final int FINITE = FUTURE + 1;
     public static final int OBJECT = FINITE + 1;
+    public static final int SERVICE = OBJECT;
     public static final int BYTE_ARRAY = OBJECT + 1;
     public static final int FUNCTION_POINTER = BYTE_ARRAY + 1;
     public static final int HANDLE = FUNCTION_POINTER + 1;
-//    public static final int TYPE_PARAM = HANDLE + 1;
+
     // Subtypes
     public static final int SIGNED32_INT = HANDLE + 1;
     public static final int SIGNED16_INT = SIGNED32_INT + 1;
@@ -69,8 +70,23 @@ public class TypeTags {
     public static final int UNSIGNED8_INT = UNSIGNED16_INT + 1;
     public static final int CHAR_STRING = UNSIGNED8_INT + 1;
 
-    public static final int SERVICE = OBJECT;
-
     private TypeTags() {
+
+    }
+
+    public static boolean isIntegerTypeTag(int tag) {
+
+        // TODO : Fix byte type. Ideally, byte belongs to here. But we have modeled it differently.
+        switch (tag) {
+            case INT:
+            case SIGNED32_INT:
+            case SIGNED16_INT:
+            case SIGNED8_INT:
+            case UNSIGNED32_INT:
+            case UNSIGNED16_INT:
+            case UNSIGNED8_INT:
+                return true;
+        }
+        return false;
     }
 }
