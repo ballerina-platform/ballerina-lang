@@ -907,6 +907,15 @@ public class JvmTerminatorGen {
 
             String orgName = calleePkgId.orgName.value;
             String moduleName = calleePkgId.name.value;
+
+            // Check if already locked before submitting to scheduler.
+            String lockStore = "L" + LOCK_STORE + ";";
+            String initClassName = lookupGlobalVarClassName(this.currentPackageName, "LOCK_STORE");
+            mv.visitFieldInsn(GETSTATIC, initClassName, "LOCK_STORE", lockStore);
+            mv.visitLdcInsn("global");
+            mv.visitMethodInsn(INVOKEVIRTUAL, LOCK_STORE, "panicIfInLock",
+                    String.format("(L%s;)V", STRING_VALUE), false);
+
             // Load the scheduler from strand
             this.mv.visitVarInsn(ALOAD, localVarOffset);
             this.mv.visitFieldInsn(GETFIELD, STRAND, "scheduler", String.format("L%s;", SCHEDULER));
@@ -1025,6 +1034,14 @@ public class JvmTerminatorGen {
         void genFPCallIns(BIRTerminator.FPCall fpCall, String funcName, int localVarOffset) {
 
             if (fpCall.isAsync) {
+                // Check if already locked before submitting to scheduler.
+                String lockStore = "L" + LOCK_STORE + ";";
+                String initClassName = lookupGlobalVarClassName(this.currentPackageName, "LOCK_STORE");
+                mv.visitFieldInsn(GETSTATIC, initClassName, "LOCK_STORE", lockStore);
+                mv.visitLdcInsn("global");
+                mv.visitMethodInsn(INVOKEVIRTUAL, LOCK_STORE, "panicIfInLock",
+                        String.format("(L%s;)V", STRING_VALUE), false);
+
                 // Load the scheduler from strand
                 this.mv.visitVarInsn(ALOAD, localVarOffset);
                 this.mv.visitFieldInsn(GETFIELD, STRAND, "scheduler", String.format("L%s;", SCHEDULER));
