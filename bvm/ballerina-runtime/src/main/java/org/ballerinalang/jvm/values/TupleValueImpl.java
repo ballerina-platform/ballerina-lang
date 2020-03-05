@@ -152,6 +152,12 @@ public class TupleValueImpl extends AbstractArrayValue {
         return this.refValues[(int) index];
     }
 
+    @Override
+    public Object fillAndGet(long index) {
+        rangeCheckForGet(index, this.size);
+        return this.refValues[(int) index];
+    }
+
     /**
      * Get ref value in the given index.
      * 
@@ -160,6 +166,11 @@ public class TupleValueImpl extends AbstractArrayValue {
      */
     @Override
     public Object getRefValue(long index) {
+        return get(index);
+    }
+
+    @Override
+    public Object fillAndGetRefValue(long index) {
         return get(index);
     }
 
