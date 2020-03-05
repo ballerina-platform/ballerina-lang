@@ -18,7 +18,14 @@
 package org.ballerinalang.jdbc.execute;
 
 import org.ballerinalang.jdbc.utils.SQLDBUtils;
-import org.ballerinalang.model.values.*;
+import org.ballerinalang.model.values.BByte;
+import org.ballerinalang.model.values.BError;
+import org.ballerinalang.model.values.BInteger;
+import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BRefType;
+import org.ballerinalang.model.values.BString;
+import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.sql.Constants;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
@@ -44,7 +51,8 @@ public class ExecuteTest {
 
     @BeforeClass
     public void setup() {
-        result = BCompileUtil.compileOffline(SQLDBUtils.getBalFilesDir("execute", "execute-basic-test.bal"));
+        result = BCompileUtil.compileOffline(SQLDBUtils.getBalFilesDir("execute",
+                "execute-basic-test.bal"));
         SQLDBUtils.deleteFiles(new File(SQLDBUtils.DB_DIR), DB_NAME);
         SQLDBUtils.initH2Database(SQLDBUtils.DB_DIR, DB_NAME,
                 SQLDBUtils.getSQLResourceDir("execute", "execute-test-data.sql"));
@@ -87,6 +95,118 @@ public class ExecuteTest {
     }
 
     @Test
+    public void testInsertAndSelectTableWithGeneratedKeys() {
+        BValue[] returnVal = BRunUtil.invokeFunction(result, "testInsertAndSelectTableWithGeneratedKeys",
+                args);
+        Assert.assertTrue(returnVal[0] instanceof BValueArray);
+        BValueArray result = (BValueArray) returnVal[0];
+        Assert.assertEquals(result.getValues().length, 2);
+        for (BRefType aResult : result.getValues()) {
+            Assert.assertNotNull(aResult);
+        }
+        BMap executionResult = (BMap) result.getValues()[0];
+        BMap numericRecord = (BMap) result.getValues()[1];
+        long lastInsertedId = ((BInteger) executionResult.get(Constants.LAST_INSERTED_ID_FIELD)).intValue();
+        Assert.assertEquals(((BByte) executionResult.get(Constants.AFFECTED_ROW_COUNT_FIELD)).intValue(), 1);
+        Assert.assertEquals(((BInteger) numericRecord.get("id")).intValue(), lastInsertedId);
+        Assert.assertEquals(((BInteger) numericRecord.get("int_type")).intValue(), 31);
+        numericRecord.getMap().forEach(((k, v) -> {
+            String key = (String) k;
+            if (!key.equalsIgnoreCase("int_type") && !key.equalsIgnoreCase("id")) {
+                Assert.assertNull(v);
+            }
+        }));
+    }
+
+    @Test
+    public void testInsertWithAllNilAndSelectTableWithGeneratedKeys() {
+        BValue[] returnVal = BRunUtil.invokeFunction(result,
+                "testInsertWithAllNilAndSelectTableWithGeneratedKeys", args);
+        Assert.assertTrue(returnVal[0] instanceof BValueArray);
+        BValueArray result = (BValueArray) returnVal[0];
+        Assert.assertEquals(result.getValues().length, 2);
+        for (BRefType aResult : result.getValues()) {
+            Assert.assertNotNull(aResult);
+        }
+        BMap executionResult = (BMap) result.getValues()[0];
+        BMap numericRecord = (BMap) result.getValues()[1];
+        long lastInsertedId = ((BInteger) executionResult.get(Constants.LAST_INSERTED_ID_FIELD)).intValue();
+        Assert.assertEquals(((BByte) executionResult.get(Constants.AFFECTED_ROW_COUNT_FIELD)).intValue(), 1);
+        Assert.assertEquals(((BInteger) numericRecord.get("id")).intValue(), lastInsertedId);
+        numericRecord.getMap().forEach(((k, v) -> {
+            String key = (String) k;
+            if (!key.equalsIgnoreCase("id")) {
+                Assert.assertNull(v);
+            }
+        }));
+    }
+
+    @Test
+    public void testInsertWithStringAndSelectTable() {
+        BValue[] returnVal = BRunUtil.invokeFunction(result, "testInsertWithStringAndSelectTable", args);
+        Assert.assertTrue(returnVal[0] instanceof BValueArray);
+        BValueArray result = (BValueArray) returnVal[0];
+        Assert.assertEquals(result.getValues().length, 2);
+        for (BRefType aResult : result.getValues()) {
+            Assert.assertNotNull(aResult);
+        }
+        BMap executionResult = (BMap) result.getValues()[0];
+        BMap numericRecord = (BMap) result.getValues()[1];
+        Assert.assertEquals(((BByte) executionResult.get(Constants.AFFECTED_ROW_COUNT_FIELD)).intValue(), 1);
+        Assert.assertEquals(((BInteger) numericRecord.get("id")).intValue(), 25);
+        numericRecord.getMap().forEach(((k, v) -> {
+            String key = (String) k;
+            if (!key.equalsIgnoreCase("id")) {
+                Assert.assertTrue(((BString) v).stringValue().startsWith("str"));
+            }
+        }));
+    }
+
+    @Test
+    public void testInsertWithEmptyStringAndSelectTable() {
+        BValue[] returnVal = BRunUtil.invokeFunction(result, "testInsertWithEmptyStringAndSelectTable",
+                args);
+        Assert.assertTrue(returnVal[0] instanceof BValueArray);
+        BValueArray result = (BValueArray) returnVal[0];
+        Assert.assertEquals(result.getValues().length, 2);
+        for (BRefType aResult : result.getValues()) {
+            Assert.assertNotNull(aResult);
+        }
+        BMap executionResult = (BMap) result.getValues()[0];
+        BMap numericRecord = (BMap) result.getValues()[1];
+        Assert.assertEquals(((BByte) executionResult.get(Constants.AFFECTED_ROW_COUNT_FIELD)).intValue(), 1);
+        Assert.assertEquals(((BInteger) numericRecord.get("id")).intValue(), 35);
+        numericRecord.getMap().forEach(((k, v) -> {
+            String key = (String) k;
+            if (!key.equalsIgnoreCase("id")) {
+                Assert.assertTrue(((BString) v).stringValue().isEmpty());
+            }
+        }));
+    }
+
+    @Test
+    public void testInsertWithNilStringAndSelectTable() {
+        BValue[] returnVal = BRunUtil.invokeFunction(result, "testInsertWithNilStringAndSelectTable",
+                args);
+        Assert.assertTrue(returnVal[0] instanceof BValueArray);
+        BValueArray result = (BValueArray) returnVal[0];
+        Assert.assertEquals(result.getValues().length, 2);
+        for (BRefType aResult : result.getValues()) {
+            Assert.assertNotNull(aResult);
+        }
+        BMap executionResult = (BMap) result.getValues()[0];
+        BMap numericRecord = (BMap) result.getValues()[1];
+        Assert.assertEquals(((BByte) executionResult.get(Constants.AFFECTED_ROW_COUNT_FIELD)).intValue(), 1);
+        Assert.assertEquals(((BInteger) numericRecord.get("id")).intValue(), 45);
+        numericRecord.getMap().forEach(((k, v) -> {
+            String key = (String) k;
+            if (!key.equalsIgnoreCase("id")) {
+                Assert.assertNull(v);
+            }
+        }));
+    }
+
+    @Test
     public void testInsertTableWithDatabaseError() {
         BValue[] returnVal = BRunUtil.invokeFunction(result, "testInsertTableWithDatabaseError", args);
         Assert.assertTrue(returnVal[0] instanceof BError);
@@ -96,7 +216,8 @@ public class ExecuteTest {
         BMap<String, BValue> errorDetails = (BMap<String, BValue>) error.getDetails();
         Assert.assertTrue(errorDetails.get(Constants.ErrorRecordFields.MESSAGE).stringValue()
                 .contains("Table \"NUMERICTYPESNONEXISTTABLE\" not found"));
-        Assert.assertEquals(((BInteger) errorDetails.get(Constants.ErrorRecordFields.ERROR_CODE)).intValue(), 42102);
+        Assert.assertEquals(((BInteger) errorDetails.get(Constants.ErrorRecordFields.ERROR_CODE)).intValue(),
+                42102);
         Assert.assertEquals(errorDetails.get(Constants.ErrorRecordFields.SQL_STATE).stringValue(), "42S02");
     }
 
@@ -109,7 +230,8 @@ public class ExecuteTest {
         Assert.assertTrue(error.getDetails() instanceof BMap);
         BMap<String, BValue> errorDetails = (BMap<String, BValue>) error.getDetails();
         Assert.assertTrue(errorDetails.get(Constants.ErrorRecordFields.MESSAGE).stringValue()
-                .contains("Data conversion error converting \"'This is wrong type' (NUMERICTYPES: \"\"INT_TYPE\"\" INT)\""));
+                .contains("Data conversion error converting \"'This is wrong type' " +
+                        "(NUMERICTYPES: \"\"INT_TYPE\"\" INT)\""));
         Assert.assertEquals(((BInteger) errorDetails.get(Constants.ErrorRecordFields.ERROR_CODE)).intValue(), 22018);
         Assert.assertEquals(errorDetails.get(Constants.ErrorRecordFields.SQL_STATE).stringValue(), "22018");
     }
