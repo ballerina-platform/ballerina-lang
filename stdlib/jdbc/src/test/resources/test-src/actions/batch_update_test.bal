@@ -59,7 +59,7 @@ function testBatchUpdate(string jdbcURL) returns [int[], jdbc:Error?, int, int] 
     return [ret.updatedRowCount, ret.returnedError, key1, key2];
 }
 
-function testBatchUpdateSingleValParamArray(string jdbcURL) returns int[] {
+function testBatchUpdateSingleValParamArray(string jdbcURL) returns [int[], string] {
     jdbc:Client testDB = new ({
         url: jdbcURL,
         username: jdbcUserName,
@@ -76,7 +76,7 @@ function testBatchUpdateSingleValParamArray(string jdbcURL) returns int[] {
     jdbc:BatchUpdateResult ret = testDB->batchUpdate("Insert into Customers (firstName) values (?)", false, false,
                                                     ...arrayofParamArrays);
     checkpanic testDB.stop();
-    return ret.updatedRowCount;
+    return [ret.updatedRowCount, ret.generatedKeys["CUSTOMERID"].toString()];
 }
 
 type myBatchType string | int | float;

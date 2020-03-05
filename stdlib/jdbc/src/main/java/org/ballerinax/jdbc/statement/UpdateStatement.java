@@ -57,13 +57,13 @@ public class UpdateStatement extends AbstractSQLStatement {
     private boolean getGeneratedKey;
 
     public UpdateStatement(ObjectValue client, SQLDatasource datasource, String query, ArrayValue parameters,
-                           Object getGeneratedKey, Strand strand) {
+                           boolean getGeneratedKey, Strand strand) {
         super(strand);
         this.client = client;
         this.datasource = datasource;
         this.query = query;
         this.parameters = parameters;
-        this.getGeneratedKey = getGeneratedKey(getGeneratedKey);
+        this.getGeneratedKey = getGeneratedKey;
     }
 
     @Override

@@ -229,12 +229,24 @@ public class UpdateTest {
         Assert.assertEquals(((BInteger) returns[2]).intValue(), 1);
     }
 
+    /**
+     * Test for getting auto-generated key when getGeneratedKey is true and the table doesn't have auto generated key.
+     */
+    @Test(groups = UPDATE_TEST)
+    public void testGetGeneratedKey() {
+        BValue[] returns = BRunUtil.invoke(result, "testGetGeneratedKey", args);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
+        Assert.assertEquals((returns[1]).stringValue(), "");
+    }
+
     @Test(groups = UPDATE_TEST)
     public void testInsertBoolDataAsBoolAndReturnBool() {
         BValue[] returns = BRunUtil.invoke(result, "testInsertBoolDataAsBoolAndReturnBool", args);
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
         Assert.assertTrue(((BBoolean) returns[1]).booleanValue());
         Assert.assertTrue(((BBoolean) returns[2]).booleanValue());
+        // Test for getting the auto generated keys from the ResultSet When the getGeneratedKey is false.
+        Assert.assertEquals(returns[3].stringValue(), "");
     }
 
     @Test(groups = UPDATE_TEST)

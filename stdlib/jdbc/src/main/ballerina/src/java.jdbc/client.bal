@@ -59,12 +59,12 @@ public type Client client object {
     #
     # + sqlQuery - SQL statement to execute
     # + parameters - The parameters to be passed to the update query
-    # + getGeneratedKeys - Allow to retrieves auto-generated keys after a statement has been executed if value is
-    #                      `true`.It will return auto-generated keys only if supported by JDBC
+    # + getGeneratedKeys - Allow to retrieves auto-generated keys after a statement has been executed if the value is
+    #                      `true`. If it is not supported by the used JDBC driver, still it will return `nil`.
     # + return - `UpdateResult` with the updated row count and key column values,
     #             else `Error` will be returned if there is an error
-    public remote function update(@untainted string sqlQuery, boolean? getGeneratedKeys = (),
-                                  Param... parameters) returns UpdateResult|Error {
+    public remote function update(@untainted string sqlQuery, boolean getGeneratedKeys = false, Param... parameters)
+    returns UpdateResult|Error {
         if (!self.clientActive) {
             return self.handleStoppedClientInvocation();
         }
@@ -81,14 +81,14 @@ public type Client client object {
     #           used to override this behavior. When it is set to true, if there is a failure in a few commands and
     #           the JDBC driver continues with the remaining commands, the successfully executed commands in the batch
     #           also will get rolled back
-    # + getGeneratedKeys - Allow to retrieves auto-generated keys after a statement has been executed if value is
-    #                      `true`.It will return auto-generated keys only if supported by JDBC
+    # + getGeneratedKeys - Allow to retrieves auto-generated keys after a statement has been executed if the value is
+    #                      `true`. If it is not supported by the used JDBC driver, still it will return `nil`.
     # + return - A `BatchUpdateResult` with the updated row count and returned error if any. If all the commands
     #            in the batch have executed successfully, the error will be `nil`. If one or more commands have failed,
     #            the `returnedError` field will give the corresponding `Error` along with the int[] which
     #            contains updated row count or the status returned from each command in the batch
-    public remote function batchUpdate(@untainted string sqlQuery, boolean rollbackAllInFailure,
-                                       boolean? getGeneratedKeys = (), Param?[]... parameters)
+    public remote function batchUpdate(@untainted string sqlQuery, boolean rollbackAllInFailure = false,
+                                       boolean getGeneratedKeys = false, Param?[]... parameters)
                                        returns BatchUpdateResult {
         if (!self.clientActive) {
             return self.handleStoppedClientInvocationForBatchUpdate();
@@ -129,12 +129,12 @@ function nativeCall(Client jdbcClient, @untainted handle sqlQuery, typedesc<reco
     } external;
 
 function nativeUpdate(Client jdbcClient, @untainted handle sqlQuery, Param[] parameters,
-                      boolean? getGeneratedKeys = ()) returns UpdateResult|Error = @java:Method {
+                      boolean getGeneratedKeys = false) returns UpdateResult|Error = @java:Method {
         class: "org.ballerinax.jdbc.methods.ExternActions"
     } external;
 
-function nativeBatchUpdate(Client jdbcClient, @untainted handle sqlQuery, boolean rollbackAllInFailure,
-                           boolean? getGeneratedKeys = (), Param?[]... parameters)
+function nativeBatchUpdate(Client jdbcClient, @untainted handle sqlQuery, boolean rollbackAllInFailure = false,
+                           boolean getGeneratedKeys = false, Param?[]... parameters)
                            returns BatchUpdateResult = @java:Method {
         class: "org.ballerinax.jdbc.methods.ExternActions"
     } external;

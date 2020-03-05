@@ -59,7 +59,7 @@ public class BatchUpdateStatement extends AbstractSQLStatement {
     private final boolean getGeneratedKey;
 
     public BatchUpdateStatement(ObjectValue client, SQLDatasource datasource, String query,
-                                boolean rollbackAllInFailure, Strand strand, Object getGeneratedKey,
+                                boolean rollbackAllInFailure, Strand strand, boolean getGeneratedKey,
                                 ArrayValue... parameters) {
         super(strand);
         this.client = client;
@@ -67,7 +67,7 @@ public class BatchUpdateStatement extends AbstractSQLStatement {
         this.query = query;
         this.parameters = parameters;
         this.rollbackAllInFailure = rollbackAllInFailure;
-        this.getGeneratedKey = UpdateStatement.getGeneratedKey(getGeneratedKey);
+        this.getGeneratedKey = getGeneratedKey;
     }
 
     @Override

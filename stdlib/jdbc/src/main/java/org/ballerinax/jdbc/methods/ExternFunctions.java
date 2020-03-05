@@ -74,9 +74,9 @@ public class ExternFunctions {
         String dbType = url.split(":")[1].toUpperCase(Locale.getDefault());
 
         SQLDatasource.SQLDatasourceParamsBuilder builder = new SQLDatasource.SQLDatasourceParamsBuilder(dbType);
-        SQLDatasource.SQLDatasourceParams sqlDatasourceParams = builder.withPoolOptions(poolOptionsWrapper).
-                withJdbcUrl(url).withUsername(username).withPassword(password).withDbOptionsMap(dbOptions).
-                withIsGlobalDatasource(userProvidedPoolOptionsNotPresent).build();
+        SQLDatasource.SQLDatasourceParams sqlDatasourceParams = builder.withPoolOptions(poolOptionsWrapper)
+                .withJdbcUrl(url).withUsername(username).withPassword(password).withDbOptionsMap(dbOptions)
+                .withIsGlobalDatasource(userProvidedPoolOptionsNotPresent).build();
 
         SQLDatasource sqlDatasource = sqlDatasourceParams.getPoolOptionsWrapper()
                 .retrieveDatasource(sqlDatasourceParams);

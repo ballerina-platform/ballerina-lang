@@ -232,7 +232,7 @@ public type UpdateResult record {|
 # + returnedError - The `Error` returned from the remote function in case of a failure
 public type BatchUpdateResult record {|
     int[] updatedRowCount;
-    map<anydata[]>? generatedKeys;
+    map<anydata[]> generatedKeys;
     Error? returnedError;
 |};
 
