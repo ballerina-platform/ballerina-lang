@@ -88,15 +88,22 @@ public class TesterinaReport {
     public void addFunctionResult(String packageName, TesterinaResult result) {
         testReportOfPackage.computeIfAbsent(packageName, summary -> new TestSummary());
         TestSummary testSummary = testReportOfPackage.get(packageName);
+        ModuleStatus.Status status;
         if (result.isSkipped()) {
             failure = true;
+            status = ModuleStatus.Status.FAILURE;
             testSummary.skippedTests.add(result);
         } else if (result.isPassed()) {
+            status = ModuleStatus.Status.PASSED;
             testSummary.passedTests.add(result);
         } else {
+            status = ModuleStatus.Status.SKIPPED;
             failure = true;
             testSummary.failedTests.add(result);
         }
+
+        ModuleStatus.getInstance()
+                .addTestSummary(result.getTestFunctionName(), status, result.getAssertFailureMessage());
     }
 
     /**
