@@ -14,6 +14,7 @@
 // under the License.
 
 import ballerina/mysql;
+import ballerina/filepath;
 
 //TODO:Remove this and pass with functions.
 //After fixing this https://github.com/ballerina-platform/ballerina-lang/issues/21259
@@ -23,16 +24,19 @@ string password = "test123";
 string database = "SSL_CONNECT_DB";
 int port = 3305;
 
+string clientStorePath = check filepath:absolute("src/test/resources/keystore/client/client-keystore.p12");
+string turstStorePath = check filepath:absolute("src/test/resources/keystore/client/trust-keystore.p12");
+
 function testSSLVerifyCert() returns error? {
     mysql:Options options = {
         ssl: {
             mode: "VERIFY_CERT",
             clientCertKeystore: {
-                path: "../../keystore/client-keystore.p12",
+                path: clientStorePath,
                 password: "changeit"
             },
             trustCertKeystore: {
-                path: "../../keystore/trust-keystore.p12",
+                path: turstStorePath,
                 password: "changeit"
             }
         }
@@ -42,16 +46,16 @@ function testSSLVerifyCert() returns error? {
     return dbClient.close();
 }
 
-function testSSLPreffered() returns error? {
+function testSSLPreferred() returns error? {
     mysql:Options options = {
         ssl: {
             mode: "PREFERRED",
             clientCertKeystore: {
-                path: "../../keystore/client-keystore.p12",
+                path: clientStorePath,
                 password: "changeit"
             },
             trustCertKeystore: {
-                path: "../../keystore/trust-keystore.p12",
+                path: turstStorePath,
                 password: "changeit"
             }
         }
@@ -66,7 +70,7 @@ function testSSLRequiredWithClientCert() returns error? {
         ssl: {
             mode: "REQUIRED",
             clientCertKeystore: {
-                path: "../../keystore/client-keystore.p12",
+                path: clientStorePath,
                 password: "changeit"
             }
         }
@@ -79,7 +83,15 @@ function testSSLRequiredWithClientCert() returns error? {
 function testSSLVerifyIdentity() returns error? {
     mysql:Options options = {
         ssl: {
-            mode: "VERIFY_IDENTITY"
+            mode: "VERIFY_IDENTITY",
+            clientCertKeystore: {
+                path: clientStorePath,
+                password: "changeit"
+            },
+            trustCertKeystore: {
+                path: turstStorePath,
+                password: "changeit"
+            }
         }
     };
     mysql:Client dbClient = check new (user = user, password = password, database = database,

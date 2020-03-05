@@ -187,13 +187,19 @@ public class SQLDatasource {
             hikariDataSource = new HikariDataSource(config);
             Runtime.getRuntime().addShutdownHook(new Thread(this::closeConnectionPool));
         } catch (Throwable t) {
-            String message = "error in sql connector configuration: " + t.getMessage();
-            if (t.getCause() != null) {
-                message += ":" + t.getCause().getMessage();
+            StringBuilder message = new StringBuilder("error in sql connector configuration: " + t.getMessage() + "");
+            String lastCauseMessage = null;
+            int count = 0;
+            while (t.getCause() != null && count < 3) {
+                lastCauseMessage = t.getCause().getMessage();
+                message.append(" Caused by :").append(lastCauseMessage);
+                count++;
+                t = t.getCause();
             }
-            throw ErrorGenerator.getSQLApplicationError(message);
+            throw ErrorGenerator.getSQLApplicationError(message.toString());
         }
     }
+
     /**
      * This class encapsulates the parameters required for the initialization of {@code SQLDatasource} class.
      */

@@ -29,6 +29,7 @@ dependencies {
     baloImplementation project(path: ':ballerina-crypto', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-java', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-time', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-filepath', configuration: 'baloImplementation')
 
     interopImports project(':ballerina-time')
     interopImports project(':ballerina-crypto')
@@ -43,6 +44,7 @@ dependencies {
     implementation project(':ballerina-java')
     implementation project(':ballerina-crypto')
     implementation project(':ballerina-time')
+    implementation project(':ballerina-filepath')
 
     testCompile project(path: ':ballerina-test-common', configuration: 'tests')
     testCompile project(':ballerina-log-api')
@@ -52,7 +54,7 @@ dependencies {
     testCompile project(':ballerina-time')
     
     testCompile 'org.testng:testng'
-    testCompile 'ch.vorburger.mariaDB4j:mariaDB4j'
+    testCompile 'com.wix:wix-embedded-mysql'
     testRuntime 'mysql:mysql-connector-java'
 }
 

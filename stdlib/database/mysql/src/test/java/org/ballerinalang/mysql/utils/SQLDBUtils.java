@@ -17,16 +17,7 @@
  */
 package org.ballerinalang.mysql.utils;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.FileVisitOption;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Comparator;
 
 /**
  * Util class for MySQL DB Tests.
@@ -35,8 +26,6 @@ import java.util.Comparator;
  */
 public class SQLDBUtils {
 
-    public static final String DB_DIRECTORY = Paths.get(".", "target", "mysql-data").toString()
-            + File.separator;
     public static final String DB_HOST = "localhost";
     public static final int DB_PORT = 3305;
     public static final String DB_USER_NAME = "test";
@@ -46,26 +35,4 @@ public class SQLDBUtils {
 
     public static final String SQL_RESOURCE_DIR = Paths.get("datafiles", "sql").toString();
     public static final String CONNECTIONS_DIR = "connections";
-    public static final boolean ENABLE_TEST = !SQLDBUtils.isWindows();
-
-    private static final Logger log = LoggerFactory.getLogger(SQLDBUtils.class);
-
-    /**
-     * Delete the given directory along with all files and sub directories.
-     *
-     * @param directory Directory to delete.
-     */
-    public static void deleteDirectory(File directory) {
-        try {
-            Files.walk(directory.toPath(), FileVisitOption.FOLLOW_LINKS)
-                    .sorted(Comparator.reverseOrder()).map(Path::toFile).forEach(File::delete);
-        } catch (IOException e) {
-            log.error("Error while deleting database directory: ", e);
-        }
-    }
-
-    private static boolean isWindows() {
-        String os = System.getProperty("os.name").toLowerCase();
-        return os.contains("win");
-    }
 }
