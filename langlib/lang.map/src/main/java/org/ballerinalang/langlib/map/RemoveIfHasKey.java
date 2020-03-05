@@ -25,6 +25,7 @@ import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
+import org.wso2.ballerinalang.compiler.util.Constants;
 
 import static org.ballerinalang.jvm.MapUtils.checkIsMapOnlyOperation;
 import static org.ballerinalang.jvm.MapUtils.checkValidFieldForRecord;
@@ -44,7 +45,7 @@ import static org.ballerinalang.jvm.MapUtils.checkValidFieldForRecord;
 public class RemoveIfHasKey {
 
     public static Object removeIfHasKey(Strand strand, MapValue<?, ?> m, String k) {
-        String op = "removeIfHasKey()";
+        String op = Constants.REMOVE_IF_HAS_KEY;
 
         checkIsMapOnlyOperation(m.getType(), op);
         checkValidFieldForRecord(m, k, op);

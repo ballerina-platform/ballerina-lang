@@ -47,4 +47,7 @@ public class Constants {
     public static final int MAX_UNICODE = 0x10FFFF;
 
     public static final String DESUGARED_MAPPING_CONSTR_KEY = "$mapping$var$";
+
+    public static final String REMOVE_IF_HAS_KEY = "removeIfHasKey()";
+
 }
