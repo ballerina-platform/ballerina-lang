@@ -41,7 +41,7 @@ dependencies {
     interopImports project(':ballerina-time')
     interopImports project(':ballerina-log-api')
     interopImports project(':ballerina-io')
-    interopImports 'com.sun.mail:javax.mail:1.6.2'
+        interopImports 'com.sun.mail:javax.mail:1.6.2'
 
     testCompile project(':ballerina-test-utils')
     testCompile project(':ballerina-reflect')
