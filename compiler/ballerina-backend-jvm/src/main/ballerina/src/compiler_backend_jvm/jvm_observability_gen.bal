@@ -14,6 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/bir;
 import ballerina/io;
 import ballerina/jvm;
 import ballerina/stringutils;
@@ -81,4 +82,89 @@ function getFullQualifiedRemoteFunctionName(string moduleOrg, string moduleName,
         return funcName;
     }
     return moduleOrg + "/" + moduleName + "/" + funcName;
+}
+
+function genObserveStartWithTryBlockStart(jvm:MethodVisitor mv, LabelGenerator labelGen, bir:Function func,
+                                          int localVarOffset, bir:BType? attachedType,
+                                          string attachedConstructName = "") returns jvm:Label? {
+    string funcName = cleanupFunctionName(<@untainted> func.name.value);
+    jvm:Label tryStart = labelGen.getLabel(funcName + ":observe-try-start");
+    mv.visitLabel(<jvm:Label>tryStart);
+    string connectorName = attachedConstructName;
+    if attachedType is bir:BObjectType {
+        // Add module org and module name to remote spans.
+        connectorName = getFullQualifiedRemoteFunctionName(
+                        attachedType.moduleId.org, attachedType.moduleId.name, attachedType.name.value);
+    }
+    emitStartObservationInvocation(mv, localVarOffset, connectorName, funcName,
+        "startCallableObservation");
+    return tryStart;
+}
+
+function genObserveEndWithTryBlockEnd(jvm:MethodVisitor mv, LabelGenerator labelGen, BalToJVMIndexMap indexMap,
+                                      bir:Function func, jvm:Label? tryStart, int localVarOffset) {
+    string funcName = cleanupFunctionName(<@untainted> func.name.value);
+    jvm:Label tryEnd = labelGen.getLabel(funcName + ":observe-try-end");
+    jvm:Label tryCatch = labelGen.getLabel(funcName + ":observe-try-handler");
+    jvm:Label tryCatchFinally = labelGen.getLabel(funcName + ":observe-try-catch-finally");
+    jvm:Label tryFinally = labelGen.getLabel(funcName + ":observe-try-finally");
+    jvm:Label tryBlockEndLabel = labelGen.getLabel(funcName + ":observe-try-block-end");
+
+    // visitTryCatchBlock visited at the end since order of the error table matters.
+    mv.visitTryCatchBlock(<jvm:Label>tryStart, tryEnd, tryCatch, ERROR_VALUE);
+    mv.visitTryCatchBlock(<jvm:Label>tryStart, tryEnd, tryFinally, ());
+    mv.visitTryCatchBlock(tryCatch, tryCatchFinally, tryFinally, ());
+
+    bir:VariableDcl catchVarDcl = { typeValue: "any", name: { value: "$_catch_$" } };
+    int catchVarIndex = indexMap.getIndex(catchVarDcl);
+    bir:VariableDcl throwableVarDcl = { typeValue: "any", name: { value: "$_throwable_$" } };
+    int throwableVarIndex = indexMap.getIndex(throwableVarDcl);
+
+    // Try-To-Finally
+    mv.visitLabel(tryEnd);
+    mv.visitJumpInsn(GOTO, tryBlockEndLabel);
+
+    // Catch Block
+    mv.visitLabel(tryCatch);
+    mv.visitVarInsn(ASTORE, catchVarIndex);
+    emitReportErrorInvocation(mv, localVarOffset, catchVarIndex);
+
+    mv.visitLabel(tryCatchFinally);
+    emitStopObservationInvocation(mv, localVarOffset);
+    // Re-throw caught error value
+    mv.visitVarInsn(ALOAD, catchVarIndex);
+    mv.visitInsn(ATHROW);
+
+    // Finally Block
+    mv.visitLabel(tryFinally);
+    mv.visitVarInsn(ASTORE, throwableVarIndex);
+    emitStopObservationInvocation(mv, localVarOffset);
+    mv.visitVarInsn(ALOAD, throwableVarIndex);
+    mv.visitInsn(ATHROW);
+
+    mv.visitLabel(tryBlockEndLabel);
+    emitStopObservationInvocation(mv, localVarOffset);
+}
+
+function isFunctionObserved(bir:Function func) returns boolean {
+    boolean isObserved = false;
+    string funcName = cleanupFunctionName(<@untainted> func.name.value);
+    if (funcName != "__init" && funcName != "$__init$") {
+        boolean isRemote = (func.flags & bir:REMOTE) == bir:REMOTE;
+        if (isRemote) {
+            isObserved = true;
+        } else {
+            foreach var attachment in func.annotAttachments {
+                if (attachment is bir:AnnotationAttachment) {
+                    string annotationFQN = attachment.moduleId.org + "/" + attachment.moduleId.name + "/"
+                        + attachment.annotTagRef.value;
+                    if (annotationFQN == OBSERVABLE_ANOTATION) {
+                        isObserved = true;
+                        break;
+                    }
+                }
+            }
+        }
+    }
+    return isObserved;
 }
