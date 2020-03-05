@@ -22,12 +22,15 @@
 @typeParam
 public type PureType any|error;
 
+@typeParam
+public type ErrorType error;
+
 # Sets the narrowed type of the `value`.
 #
 # + td - The narrowed type to be set.
 # + val - The value of which the type being set.
 # + return - The value with the narrowed type.
-public function setNarrowType(typedesc<PureType> td, record {|PureType value;|}|error? val) returns record {|PureType value;|}|error? = external;
+public function setNarrowType(typedesc<PureType> td, record {|PureType value;|}|ErrorType? val) returns record {|PureType value;|}|ErrorType? = external;
 
 # Takes in a lambda function and returns a new stream out of it.
 #
@@ -35,10 +38,23 @@ public function setNarrowType(typedesc<PureType> td, record {|PureType value;|}|
 # + iteratorObj - An iterator object.
 # + return - New stream containing results of `iteratorObj` object's next function invocations.
 public function construct(typedesc<PureType> td, abstract object { public function next() returns
-        record {|PureType value;|}|error?;} iteratorObj) returns stream<PureType> = external;
+        record {|PureType value;|}|ErrorType?;} iteratorObj) returns stream<PureType, ErrorType> = external;
 
 # Takes a typedesc of an array, stream and returns the typedesc of the element, constraint type.
 #
 # + td - An array or stream type description.
 # + return - The typedesc of the element, constraint type.
 public function getElementType(typedesc<PureType[]> | typedesc<stream<PureType>> td) returns typedesc<PureType> = external;
+
+# Gets the saved filter function from native data.
+#
+# + iteratorObj - Object in which the filter function is saved
+# + return - filter function with parameterized function type
+public function getFilterFunc(abstract object { public function next() returns record {|PureType value;|}|ErrorType?;} iteratorObj) returns function(PureType) returns boolean = external;
+
+# Saves the filter function as native data in iterator object.
+#
+# + iteratorObj - Object in which the filter function is saved
+# + func - filter function with specific function type
+public function setFilterFunc(abstract object { public function next() returns record {|PureType value;|}|ErrorType?;} iteratorObj, function(PureType val) returns boolean func) = external;
+

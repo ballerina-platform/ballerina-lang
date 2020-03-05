@@ -170,6 +170,7 @@ type CustomErrorData record {|
 |};
 
 type CustomError error<string, CustomErrorData>;
+boolean closed = false;
 
 type IteratorWithCustomError object {
     int i = 0;
@@ -182,6 +183,10 @@ type IteratorWithCustomError object {
         } else {
             return { value: self.i };
         }
+    }
+
+    public function close() returns CustomError? {
+        closed = true;
     }
 };
 
@@ -203,7 +208,8 @@ function testIteratorWithCustomError() returns boolean {
 
     returnedVal = getRecordValue(intStreamB.next());
     testPassed = testPassed && (<int>returnedVal["value"] == 4);
-
+    error? err = intStreamB.close();
+    testPassed = testPassed && closed;
     return testPassed;
 }
 
@@ -266,6 +272,48 @@ function testIteratorWithOutError() returns boolean {
 
     returnedVal = getRecordValue(intStreamA.next());
     testPassed = testPassed && (<int>returnedVal["value"] == 3);
+
+    returnedVal = getRecordValue(intStreamB.next());
+    testPassed = testPassed && (<int>returnedVal["value"] == 4);
+
+    return testPassed;
+}
+
+type CustomError1 error<string, CustomErrorData>;
+type Error CustomError | CustomError1;
+
+type IteratorWithErrorUnion object {
+    int i = 0;
+
+    public function next() returns record {| int value; |}|Error? {
+        self.i += 1;
+        if (self.i == 2) {
+            CustomError e = error("CustomError", message = "custom error occured", accountID = 2);
+            return e;
+        } else if (self.i == 3) {
+            CustomError1 e = error("CustomError1", message = "custom error occured", accountID = 3);
+            return e;
+        } else {
+            return { value: self.i };
+        }
+    }
+};
+
+function testIteratorWithErrorUnion() returns boolean {
+    boolean testPassed = true;
+
+    IteratorWithErrorUnion numGen = new();
+    var intStreamA = new stream<int, Error>(numGen);
+    stream<int, Error> intStreamB = new(numGen);
+
+    var returnedVal = getRecordValue(intStreamA.next());
+    testPassed = testPassed && (<int>returnedVal["value"] == 1);
+
+    returnedVal = getRecordValue(intStreamB.next());
+    testPassed = testPassed && (returnedVal is ());
+
+    returnedVal = getRecordValue(intStreamA.next());
+    testPassed = testPassed && (returnedVal is ());
 
     returnedVal = getRecordValue(intStreamB.next());
     testPassed = testPassed && (<int>returnedVal["value"] == 4);

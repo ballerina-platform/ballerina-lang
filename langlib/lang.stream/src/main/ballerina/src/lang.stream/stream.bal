@@ -28,22 +28,25 @@ type PureType2 any | error;
 @typeParam
 type Type any | error;
 
+@typeParam
+type ErrorType error;
+
 # Selects the members from an array for which the `func` function returns true.
 #
 # + strm - The stream
 # + func - a predicate to apply to each member to test whether it should be selected
 # + return - new stream only containing members of `strm` for which `func` evaluates to true
-public function filter(stream<PureType1> strm, function(PureType1 val) returns boolean func) returns stream<PureType1> {
+public function filter(stream<PureType1, ErrorType> strm, function(PureType1 val) returns boolean func) returns stream<PureType1, ErrorType> {
     object {
-        public stream<PureType1> strm;
+        public stream<PureType1, ErrorType> strm;
         public function(PureType1 val) returns boolean func;
 
-        public function __init(stream<PureType1> strm, function(PureType1 val) returns boolean func) {
+        public function __init(stream<PureType1, ErrorType> strm, function(PureType1 val) returns boolean func) {
             self.strm = strm;
-            self.func = func;
+            internal:setFilterFunc(self, func);
         }
 
-        public function next() returns record {|PureType1 value;|}|error? {
+        public function next() returns record {|PureType1 value;|}|ErrorType? {
             // while loop is required to continue filtering until we find a value which matches the filter or ().
             while(true) {
                 var nextVal = next(self.strm);
@@ -71,15 +74,21 @@ public function filter(stream<PureType1> strm, function(PureType1 val) returns b
 # + strm - The stream
 # + return - If the stream has elements, return the element wrapped in a record with single field called `value`,
 #            otherwise returns ()
-public function next(stream<PureType1> strm) returns record {| PureType1 value; |}|error? {
-    var iteratorObj = getIteratorObj(strm);
-    var next = iteratorObj.next();
-    if (next is ()) {
+public function next(stream<PureType1, ErrorType> strm) returns record {| PureType1 value; |}|ErrorType? {
+    abstract object {
+            public function next() returns record {|PureType1 value;|}|ErrorType?;
+
+        } iteratorObj = <abstract object {
+                                     public function next() returns record {|PureType1 value;|}|ErrorType?;
+
+                                 }>getIteratorObj(strm);
+    var next1 = iteratorObj.next();
+    if (next1 is ()) {
         return ();
-    } else if (next is error) {
-        return next;
+    } else if (next1 is error) {
+        return next1;
     } else {
-        return internal:setNarrowType(typeof next.value, {value : next.value});
+        return internal:setNarrowType(typeof next1.value, {value : next1.value});
     }
 }
 
@@ -88,17 +97,17 @@ public function next(stream<PureType1> strm) returns record {| PureType1 value; 
 # + strm - The stream
 # + func - A function to apply to each member
 # + return - New stream containing result of applying `func` to each member of `strm` in order
-public function 'map(stream<PureType1> strm, function(PureType1 val) returns PureType2 func) returns stream<PureType2> {
+public function 'map(stream<PureType1, ErrorType> strm, function(PureType1 val) returns PureType2 func) returns stream<PureType2, ErrorType> {
     object {
-       public stream<PureType1> strm;
+       public stream<PureType1, ErrorType> strm;
        public function(PureType1 val) returns PureType2 func;
 
-       public function __init(stream<PureType1> strm, function(PureType1 val) returns PureType2 func) {
+       public function __init(stream<PureType1, ErrorType> strm, function(PureType1 val) returns PureType2 func) {
            self.strm = strm;
            self.func = func;
        }
 
-       public function next() returns record {|PureType1 value;|}|error? {
+       public function next() returns record {|PureType1 value;|}|ErrorType? {
            var nextVal = next(self.strm);
            if (nextVal is ()) {
                return ();
@@ -132,7 +141,7 @@ public function 'map(stream<PureType1> strm, function(PureType1 val) returns Pur
 # reduce([1, 2, 3].toStream(), function (int total, int n) returns int { return total + n; }, 0)
 # ```
 # is the same as `sum(1, 2, 3)`.
-public function reduce(stream<PureType1> strm, function(Type accum, PureType1 val) returns Type func, Type initial) returns Type {
+public function reduce(stream<PureType1, ErrorType> strm, function(Type accum, PureType1 val) returns Type func, Type initial) returns Type {
     any | error reducedValue = initial;
     while (true) {
         var nextVal = next(strm);
@@ -153,7 +162,7 @@ public function reduce(stream<PureType1> strm, function(Type accum, PureType1 va
 #
 # + strm - the stream
 # + func - a function to apply to each member
-public function forEach(stream<PureType1> strm, function(PureType1 val) returns () func) returns () {
+public function forEach(stream<PureType1, ErrorType> strm, function(PureType1 val) returns () func) returns () {
     var nextVal = next(strm);
     while(true) {
         if (nextVal is ()) {
@@ -174,10 +183,25 @@ public function forEach(stream<PureType1> strm, function(PureType1 val) returns 
 #
 # + strm - the stream
 # + return - a new iterator object that will iterate over the members of `strm`
-public function iterator(stream<PureType1> strm) returns abstract object {
+public function iterator(stream<PureType1, ErrorType> strm) returns abstract object {
     public function next() returns record {|
         PureType1 value;
-    |}|error?;
+    |}|ErrorType?;
 } {
     return getIteratorObj(strm);
+}
+
+# Closes a stream.
+# This releases any system resources being used by the stream.
+#
+# + stm - the stream to close
+# + return - () if the close completed successfully, otherwise an error
+public function close(stream<PureType1, ErrorType> stm) returns ErrorType? {
+    var itrObj = getIteratorObj(stm);
+    if (itrObj is abstract object {
+        public function next() returns record {|PureType1 value;|}|ErrorType?;
+        public function close() returns ErrorType?;
+    }) {
+        return itrObj.close();
+    }
 }
