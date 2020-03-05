@@ -115,3 +115,8 @@ function testSubstring(string s, int si, int ei) returns error|string {
     error|string sub = trap s.substring(si, ei);
     return sub;
 }
+
+function testEqualsIgnoreCaseAscii(string str1, string str2) returns boolean {
+    boolean isEqual = strings:equalsIgnoreCaseAscii(str1, str2);
+    return isEqual;
+}
