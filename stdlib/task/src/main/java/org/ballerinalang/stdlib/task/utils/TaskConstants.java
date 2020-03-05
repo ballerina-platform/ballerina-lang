@@ -21,7 +21,6 @@ package org.ballerinalang.stdlib.task.utils;
 import org.ballerinalang.jvm.types.BPackage;
 
 import static org.ballerinalang.jvm.util.BLangConstants.BALLERINA_BUILTIN_PKG_PREFIX;
-import static org.ballerinalang.jvm.util.BLangConstants.BALLERINA_PACKAGE_PREFIX;
 
 /**
  * Task related constants.
@@ -29,10 +28,7 @@ import static org.ballerinalang.jvm.util.BLangConstants.BALLERINA_PACKAGE_PREFIX
 public class TaskConstants {
 
     // Package related constants
-    public static final String ORGANIZATION_NAME = BALLERINA_BUILTIN_PKG_PREFIX;
     public static final String PACKAGE_NAME = "task";
-    public static final String OBJECT_NAME_LISTENER = "Listener";
-    public static final String TASK_PACKAGE_NAME = BALLERINA_PACKAGE_PREFIX + PACKAGE_NAME;
     public static final BPackage TASK_PACKAGE_ID = new BPackage(BALLERINA_BUILTIN_PKG_PREFIX, PACKAGE_NAME);
 
     // Record types used
@@ -45,9 +41,6 @@ public class TaskConstants {
 
     // Allowed resource function names
     public static final String RESOURCE_ON_TRIGGER = "onTrigger";
-
-    // Defaultable parameter names
-    public static final String PARAMETER_ATTACHMENT = "attachment";
 
     // Common field for TimerConfiguration and AppointmentConfiguration
     public static final String FIELD_NO_OF_RUNS = "noOfRecurrences";
@@ -77,17 +70,11 @@ public class TaskConstants {
     public static final String NATIVE_DATA_TASK_OBJECT = "TaskObject";
 
     // Quarts property names
-    public static final String QUARTZ_INSTANCE_NAME = "org.quartz.scheduler.instanceName";
-    public static final String QUARTZ_INSTANCE_ID = "org.quartz.scheduler.instanceId";
     public static final String QUARTZ_THREAD_COUNT = "org.quartz.threadPool.threadCount";
-    public static final String QUARTZ_THREAD_POOL_CLASS = "org.quartz.threadPool.class";
-    public static final String QUARTZ_JOB_STORE_CLASS = "org.quartz.jobStore.class";
     public static final String QUARTZ_MISFIRE_THRESHOLD = "org.quartz.jobStore.misfireThreshold";
 
     // Quartz property values
     public static final String QUARTZ_THREAD_COUNT_VALUE = "10";
     // Defines how late the trigger should be to be considered misfired
     public static final String QUARTZ_MISFIRE_THRESHOLD_VALUE = "5000";
-    public static final String QUARTZ_THREAD_POOL_CLASS_VALUE = "org.quartz.simpl.SimpleThreadPool";
-    public static final String QUARTZ_JOB_STORE_CLASS_VALUE = "org.quartz.simpl.RAMJobStore";
 }
