@@ -23,6 +23,7 @@ import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.hover.util.HoverUtil;
+import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.eclipse.lsp4j.Position;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
@@ -618,6 +619,8 @@ public class PositionTreeVisitor extends LSNodeVisitor {
                     if (bLangRecordKeyValue.valueExpr != null) {
                         this.acceptNode(bLangRecordKeyValue.valueExpr);
                     }
+                } else if (field.getKind() == NodeKind.RECORD_LITERAL_SPREAD_OP) {
+                    this.acceptNode((BLangRecordLiteral.BLangRecordSpreadOperatorField) field);
                 } else {
                     this.acceptNode((BLangRecordLiteral.BLangRecordVarNameField) field);
                 }
