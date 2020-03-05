@@ -132,9 +132,9 @@
         <classes>
             <!--<class name="org.ballerinalang.test.closures.VarMutabilityClosureTest" />-->
             <!--<class name="org.ballerinalang.test.lock.LocksInMainTest">-->
-                <!--<methods>-->
-                    <!--<include name="simpleLock"/>-->
-                <!--</methods>-->
+            <!--<methods>-->
+            <!--<include name="simpleLock"/>-->
+            <!--</methods>-->
             <!--</class>-->
             <class name="org.ballerinalang.test.lock.LocksInServicesTest">
                 <methods>

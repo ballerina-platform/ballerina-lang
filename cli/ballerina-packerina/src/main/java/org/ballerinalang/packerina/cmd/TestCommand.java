@@ -350,8 +350,7 @@ public class TestCommand implements BLauncherCmd {
                 .addTask(new CreateBirTask(), listGroups)   // create the bir
                 .addTask(new CopyNativeLibTask(skipCopyLibsFromDist), listGroups) // copy the native libs(projects only)
                 // create the jar.
-                .addTask(new CreateJarTask(this.dumpBIR, this.skipCopyLibsFromDist, this.nativeBinary, this.dumpLLVMIR,
-                                           this.noOptimizeLLVM), listGroups)
+                .addTask(new CreateJarTask(this.dumpBIR, this.skipCopyLibsFromDist), listGroups)
                 .addTask(new CopyResourcesTask(), isSingleFileBuild || listGroups)
                 .addTask(new CopyModuleJarTask(skipCopyLibsFromDist, false), listGroups)
                 // tasks to list groups or execute tests. the 'listGroups' boolean is used to decide whether to

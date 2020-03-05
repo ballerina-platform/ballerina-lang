@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.ballerinalang.langserver.client.config;
+package org.ballerinalang.langserver.compiler.config;
 
 /**
  * Represents a ballerina client config change listener.
@@ -25,5 +25,5 @@ public interface ConfigChangeListener {
      * @param oldConfig old configuration
      * @param newConfig new configuration
      */
-    void didChange(BallerinaClientConfig oldConfig, BallerinaClientConfig newConfig);
+    void didChange(LSClientConfig oldConfig, LSClientConfig newConfig);
 }

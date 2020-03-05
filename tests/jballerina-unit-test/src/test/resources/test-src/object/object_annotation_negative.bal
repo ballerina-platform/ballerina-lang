@@ -77,7 +77,7 @@ type TestConnector object {
 # PizzaService HTTP Service
 #
 # + conn - HTTP connection.
-service PizzaService on new http:Listener(9097) {
+service PizzaService on new http:Listener(9997) {
 
     # Check orderPizza resource.
     #

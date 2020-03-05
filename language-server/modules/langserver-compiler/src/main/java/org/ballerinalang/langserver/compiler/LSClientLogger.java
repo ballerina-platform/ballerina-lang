@@ -15,6 +15,7 @@
  */
 package org.ballerinalang.langserver.compiler;
 
+import org.ballerinalang.langserver.compiler.config.LSClientConfigHolder;
 import org.eclipse.lsp4j.MessageParams;
 import org.eclipse.lsp4j.MessageType;
 import org.eclipse.lsp4j.Position;
@@ -34,22 +35,17 @@ import java.nio.charset.StandardCharsets;
  */
 public class LSClientLogger {
     private static LanguageClient languageClient = null;
-    private static boolean debugEnabled = false;
-    private static boolean isInitialized = false;
-    private static boolean traceEnabled = false;
+    private static boolean isInitializedOnce = false;
+    private static final LSClientConfigHolder configHolder = LSClientConfigHolder.getInstance();
 
     /**
      * Initializes the client logger.
      *
      * @param languageClient {@link LanguageClient}
-     * @param lsDebugEnabled LS Debug Enabled
-     * @param lsTraceEnabled LS Trace Enabled
      */
-    public static void init(LanguageClient languageClient, boolean lsDebugEnabled, boolean lsTraceEnabled) {
-        LSClientLogger.debugEnabled = lsDebugEnabled;
-        LSClientLogger.traceEnabled = lsTraceEnabled;
+    public static void initialize(LanguageClient languageClient) {
         LSClientLogger.languageClient = languageClient;
-        LSClientLogger.isInitialized = true;
+        LSClientLogger.isInitializedOnce = true;
     }
 
     /**
@@ -59,7 +55,7 @@ public class LSClientLogger {
      * @param error     {@link Throwable}
      */
     public static void notifyUser(String operation, Throwable error) {
-        if (!LSClientLogger.isInitialized) {
+        if (!LSClientLogger.isInitializedOnce) {
             return;
         }
         if (languageClient != null) {
@@ -73,16 +69,16 @@ public class LSClientLogger {
      *
      * @param message      log message
      * @param error        {@link Throwable}
-     * @param textDocument text document
+     * @param identifier text document
      * @param position     position
      */
-    public static void logError(String message, Throwable error, TextDocumentIdentifier textDocument,
+    public static void logError(String message, Throwable error, TextDocumentIdentifier identifier,
                                 Position... position) {
-        if (!LSClientLogger.isInitialized) {
+        if (!LSClientLogger.isInitializedOnce) {
             return;
         }
-        String details = getErrorDetails(textDocument, error, position);
-        if (LSClientLogger.debugEnabled && LSClientLogger.languageClient != null) {
+        String details = getErrorDetails(identifier, error, position);
+        if (configHolder.getConfig().isDebugLogEnabled() && LSClientLogger.languageClient != null) {
             final Charset charset = StandardCharsets.UTF_8;
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             try {
@@ -102,38 +98,20 @@ public class LSClientLogger {
      * @param message      log message
      */
     public static void logTrace(String message) {
-        if (!LSClientLogger.isInitialized) {
+        if (!LSClientLogger.isInitializedOnce) {
             return;
         }
-        if (LSClientLogger.traceEnabled && LSClientLogger.languageClient != null) {
+        if (configHolder.getConfig().isTraceLogEnabled() && LSClientLogger.languageClient != null) {
             LSClientLogger.languageClient.logMessage(
                     new MessageParams(MessageType.Info, message));
         }
     }
 
-    /**
-     * Returns True if debug enabled.
-     *
-     * @return  True if debug enabled.
-     */
-    public static boolean isDebugEnabled() {
-        return LSClientLogger.debugEnabled;
-    }
-
-    /**
-     * Returns True if trace enabled.
-     *
-     * @return  True if trace enabled.
-     */
-    public static boolean isTraceEnabled() {
-        return LSClientLogger.traceEnabled;
-    }
-
-    private static String getErrorDetails(TextDocumentIdentifier textDocument, Throwable error, Position... position) {
+    private static String getErrorDetails(TextDocumentIdentifier identifier, Throwable error, Position... position) {
         String msg = error.getMessage();
         StringBuilder result = new StringBuilder("{");
-        if (textDocument != null) {
-            result.append("uri: '").append(textDocument.getUri().replaceFirst("file://", "")).append("'");
+        if (identifier != null) {
+            result.append("uri: '").append(identifier.getUri().replaceFirst("file://", "")).append("'");
         }
         if (position != null && position[0] != null) {
             if (position.length == 2) {

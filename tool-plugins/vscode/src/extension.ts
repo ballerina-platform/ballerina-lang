@@ -17,7 +17,7 @@
  * under the License.
  *
  */
-import { ExtensionContext, commands, window, workspace, Location, Uri } from 'vscode';
+import { ExtensionContext, commands, window, Location, Uri, workspace } from 'vscode';
 import { ballerinaExtInstance } from './core';
 import { activate as activateAPIEditor } from './api-editor';
 // import { activate as activateDiagram } from './diagram'; 
@@ -94,7 +94,7 @@ export function activate(context: ExtensionContext): Promise<any> {
 
         ballerinaExtInstance.onReady().then(() => {
             const langClient = <ExtendedLangClient>ballerinaExtInstance.langClient;
-            // Send initial configuration 
+            // Send initial configuration
             const args: DidChangeConfigurationParams = {
                 settings: workspace.getConfiguration('ballerina'),
             };

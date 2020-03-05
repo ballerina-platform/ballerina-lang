@@ -87,6 +87,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordKey;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordKeyValueField;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordSpreadOperatorField;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordVarNameField;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordVarRef.BLangRecordVarRefKeyValue;
@@ -1476,11 +1477,6 @@ class NodeCloner extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangRecordLiteral.BLangJSONLiteral jsonLiteral) {
-        // Ignore
-    }
-
-    @Override
     public void visit(BLangRecordLiteral.BLangMapLiteral mapLiteral) {
         // Ignore
     }
@@ -1707,6 +1703,17 @@ class NodeCloner extends BLangNodeVisitor {
         clone.key = newKey;
 
         clone.valueExpr = clone(source.valueExpr);
+    }
+
+
+    @Override
+    public void visit(BLangRecordSpreadOperatorField source) {
+
+        BLangRecordSpreadOperatorField clone = new BLangRecordSpreadOperatorField();
+        source.cloneRef = clone;
+        clone.pos = source.pos;
+        clone.addWS(source.getWS());
+        clone.expr = clone(source.expr);
     }
 
     @Override
