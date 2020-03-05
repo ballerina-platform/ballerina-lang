@@ -1,4 +1,4 @@
-// Copyright (c) 2018 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+// Copyright (c) 2020 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 //
 // WSO2 Inc. licenses this file to you under the Apache License,
 // Version 2.0 (the "License"); you may not use this file except
@@ -24,6 +24,15 @@ function removeRequiredOpen() {
     _ = foo.remove("a");
 }
 
+function testRemoveRequiredOpen() {
+    error? result = trap removeRequiredOpen();
+    if ((result is error) && (result.reason() == "{ballerina/lang.map}OperationNotSupported")) {
+        return;
+    } else {
+        panic error("Wrong Result");
+    }
+}
+
 type Bar record {|
     string a;
     int b?;
@@ -32,4 +41,13 @@ type Bar record {|
 function removeRequiredClosed() {
     Bar bar = {a : "a", b : 1};
     _ = bar.remove("a");
+}
+
+function testRemoveRequiredClosed() {
+    error? result = trap removeRequiredClosed();
+    if ((result is error) && (result.reason() == "{ballerina/lang.map}OperationNotSupported")) {
+        return;
+    } else {
+        panic error("Wrong Result");
+    }
 }

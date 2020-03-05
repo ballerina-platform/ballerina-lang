@@ -36,15 +36,13 @@ public class RecordRemoveNegativeTest {
         result = BCompileUtil.compile("test-src/record/negative/record_field_remove.bal");
     }
 
-    @Test(expectedExceptions = RuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*error: \\{ballerina/lang.map\\}OperationNotSupported.*")
+    @Test
     public void testOpenRecordRequiredFieldRemove() {
-        BValue[] returns = BRunUtil.invoke(result, "removeRequiredOpen");
+        BValue[] returns = BRunUtil.invoke(result, "testRemoveRequiredOpen");
     }
 
-    @Test(expectedExceptions = RuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*error: \\{ballerina/lang.map\\}OperationNotSupported.*")
+    @Test
     public void testClosedRecordRequiredFieldRemove() {
-        BValue[] returns = BRunUtil.invoke(result, "removeRequiredClosed");
+        BValue[] returns = BRunUtil.invoke(result, "testRemoveRequiredClosed");
     }
 }

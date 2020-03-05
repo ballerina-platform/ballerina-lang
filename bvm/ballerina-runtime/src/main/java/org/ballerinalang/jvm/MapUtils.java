@@ -184,12 +184,13 @@ public class MapUtils {
     }
 
     public static void validateRecord(BType type, String op) {
-        if (type.getTag() == TypeTags.RECORD_TYPE_TAG) {
-            Map<String, BField> fields = ((BRecordType) type).getFields();
-            for (String key : fields.keySet()) {
-                if (isRequiredField((BRecordType) type, key)) {
-                    throw createOpNotSupportedErrorForRecord(type, op);
-                }
+        if (type.getTag() != TypeTags.RECORD_TYPE_TAG) {
+            return;
+        }
+        Map<String, BField> fields = ((BRecordType) type).getFields();
+        for (String key : fields.keySet()) {
+            if (isRequiredField((BRecordType) type, key)) {
+                throw createOpNotSupportedErrorForRecord(type, op);
             }
         }
     }
