@@ -398,3 +398,138 @@ function testInitInvocationWithCheckAndRestParams2() returns (boolean) {
     var [s, marksBeforeChange, marksAfterChange] = testInitInvocationWithCheckAndRestParams(10, ...modules);
     return !(s is error) && marksBeforeChange == 90 && marksAfterChange == 95;
 }
+
+type Student6 object {
+    int id;
+
+    public function __init(int id = 1) {
+        self.id = id;
+    }
+
+    public function getId() returns int {
+        return self.id;
+    }
+};
+
+function testInitInvocationWithDefaultParams1() returns (boolean) {
+    Student6 student = new;
+    return student.getId() == 1;
+}
+
+type Student7 object {
+    int? id;
+
+    public function __init(int? id = 1) {
+        self.id = id;
+    }
+
+    public function getId() returns int {
+        if !(self.id is int) {
+            error err = error("ID should be an integer");
+            panic err;
+        }
+        return <int> self.id;
+    }
+};
+
+function testInitInvocationWithDefaultParams2() returns (boolean) {
+    Student7 student = new(4);
+    return student.getId() == 4;
+}
+
+public type ID int|string;
+
+type Student8 object {
+    int id;
+
+    public function __init(ID i=1) {
+        self.id = <int> i;
+    }
+
+    public function getId() returns int {
+        return self.id;
+    }
+};
+
+function testInitInvocationWithFiniteType() returns (boolean) {
+    Student8 student = new(4);
+    return student.getId() == 4;
+}
+
+type AddError object {
+    error er;
+    function __init(error simpleError = error("SimpleErrorType", message = "Simple error occurred")) {
+        self.er = simpleError;
+    }
+
+    public function getError() returns error|() {
+        return self.er;
+    }
+};
+
+function testInitInvocationWithDefaultError() returns (boolean) {
+    AddError newError = new;
+    var e = newError.getError();
+    if !(e is error) {
+        error err = error("Returned value should be an error");
+        panic err;
+    }
+    return e is error;
+}
+
+type Student9 object {
+    int fullMarks;
+
+    public function __init(int firstMark = 80, int secondMark = firstMark) {
+        self.fullMarks = firstMark + secondMark;
+    }
+
+    public function getMarks() returns int {
+        return self.fullMarks;
+    }
+};
+
+function testInitInvocationWithReferenceToDefaultValue1() returns (boolean) {
+    Student9 student = new;
+    return student.getMarks() == 160;
+}
+
+type Calculate1 object {
+    int sum;
+
+    public function __init(int a, int b, int c, int d = a + b + c*c) {
+        self.sum = d;
+    }
+
+    public function getSum() returns int {
+        return self.sum;
+    }
+};
+
+function testInitInvocationWithReferenceToDefaultValue2() returns (boolean) {
+    Calculate1 cal = new(2, 3, 4);
+    return cal.getSum() == 21;
+}
+
+type Calculate2 object {
+    int sum;
+    string op;
+
+    public function __init(string operation, int a, int b, int c, int d = a + b + c*c) returns error? {
+        self.op = check checkOperation(operation);
+        self.sum = d;
+    }
+};
+
+function checkOperation(string operation) returns string|error {
+    if (operation == "SUB") {
+        error e = error("unsupported operation", op = operation);
+        return e;
+    }
+    return operation;
+}
+
+function testErrorReturnWithInitialization() returns (boolean) {
+    Calculate2|error cal = new("SUB", 2, 3, 4);
+    return cal is error;
+}
