@@ -38,8 +38,7 @@
                     "kind": "BRACED_EXPRESSION",
                     "children": [
                         {
-                            "kind": "OPEN_PAREN_TOKEN",
-                            "text": "("
+                            "kind": "OPEN_PAREN_TOKEN"
                         },
                         {
                             "kind": "BINARY_EXPRESSION",

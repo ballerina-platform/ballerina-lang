@@ -81,7 +81,7 @@ public class ParserTestUtils {
     private static void aseertNodeKind(JsonObject json, STNode node) {
         SyntaxKind expectedNodeKind = getNodeKind(json.get(KIND_FIELD).getAsString());
         SyntaxKind actualNodeKind = node.kind;
-        Assert.assertEquals(actualNodeKind, expectedNodeKind);
+        Assert.assertEquals(actualNodeKind, expectedNodeKind, "error at node [" + node.toString() + "].");
     }
 
     private static void assertTerminalNode(JsonObject json, STNode node) {
