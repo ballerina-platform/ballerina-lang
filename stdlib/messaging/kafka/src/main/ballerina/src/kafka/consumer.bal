@@ -68,7 +68,7 @@ import ballerinax/java;
 # + excludeInternalTopics - Whether records from internal topics should be exposed to the consumer.
 # + decoupleProcessing - Decouples processing.
 # + secureSocket - Configurations related to SSL/TLS.
-public type ConsumerConfig record {|
+public type ConsumerConfiguration record {|
     string bootstrapServers;
     string groupId?;
     string offsetReset?;
@@ -160,7 +160,7 @@ public type DeserializerType DES_BYTE_ARRAY|DES_STRING|DES_INT|DES_FLOAT|DES_CUS
 public type Consumer client object {
     *'object:Listener;
 
-    public ConsumerConfig? consumerConfig = ();
+    public ConsumerConfiguration? consumerConfig = ();
     private string keyDeserializerType;
     private string valueDeserializerType;
     private Deserializer? keyDeserializer = ();
@@ -169,7 +169,7 @@ public type Consumer client object {
     # Creates a new Kafka `Consumer`.
     #
     # + config - Configurations related to consumer endpoint.
-    public function __init (ConsumerConfig config) {
+    public function __init (ConsumerConfiguration config) {
         self.consumerConfig = config;
         self.keyDeserializerType = config.keyDeserializerType;
         self.valueDeserializerType = config.valueDeserializerType;
@@ -216,7 +216,7 @@ public type Consumer client object {
     public function __detach(service s) returns error? {
     }
 
-    function init(ConsumerConfig config) returns ConsumerError? {
+    function init(ConsumerConfiguration config) returns ConsumerError? {
         checkpanic self->connect();
 
         string[]? topics = config?.topics;

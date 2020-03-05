@@ -56,7 +56,7 @@ import ballerinax/java;
 # + transactionTimeoutInMillis - Timeout for transaction status update from the producer.
 # + enableIdempotence - Exactly one copy of each message is written in the stream when enabled.
 # + secureSocket - Configurations related to SSL/TLS.
-public type ProducerConfig record {|
+public type ProducerConfiguration record {|
     string bootstrapServers;
     Producer_Acks acks = ACKS_SINGLE;
     CompressionType compressionType = COMPRESSION_NONE;
@@ -152,7 +152,7 @@ public type CompressionType COMPRESSION_NONE|COMPRESSION_GZIP|COMPRESSION_SNAPPY
 # + producerConfig - Used to store configurations related to a Kafka connection.
 public type Producer client object {
 
-    public ProducerConfig? producerConfig = ();
+    public ProducerConfiguration? producerConfig = ();
     private string keySerializerType;
     private string valueSerializerType;
     private Serializer? keySerializer = ();
@@ -161,7 +161,7 @@ public type Producer client object {
     # Creates a new Kafka `Producer`.
     #
     # + config - Configurations related to initializing a Kafka `Producer`.
-    public function __init(ProducerConfig config) {
+    public function __init(ProducerConfiguration config) {
         self.producerConfig = config;
         self.keySerializerType = config.keySerializerType;
         self.valueSerializerType = config.valueSerializerType;

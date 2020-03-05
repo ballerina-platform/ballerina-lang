@@ -22,7 +22,7 @@ const TOPIC_1 = "test-1";
 const TOPIC_2 = "test-2";
 
 function funcKafkaGetAvailableTopics() returns string[]|error {
-    kafka:ConsumerConfig consumerConfigs = {
+    kafka:ConsumerConfiguration consumerConfigs = {
         bootstrapServers: "localhost:14108",
         groupId: "get-topics-group-1",
         clientId: "available-topic-consumer-1",
@@ -34,7 +34,7 @@ function funcKafkaGetAvailableTopics() returns string[]|error {
 }
 
 function funcKafkaGetAvailableTopicsWithDuration() returns string[]|error {
-    kafka:ConsumerConfig consumerConfigs = {
+    kafka:ConsumerConfiguration consumerConfigs = {
         bootstrapServers: "localhost:14108",
         groupId: "get-topics-group-2",
         clientId: "available-topic-consumer-2",
@@ -46,7 +46,7 @@ function funcKafkaGetAvailableTopicsWithDuration() returns string[]|error {
 }
 
 function funcKafkaGetTopicPartitions() returns kafka:TopicPartition[]|error {
-    kafka:ConsumerConfig consumerConfigs = {
+    kafka:ConsumerConfiguration consumerConfigs = {
         bootstrapServers: "localhost:14108",
         groupId: "get-topics-group-4",
         clientId: "available-topic-consumer-4",
