@@ -836,45 +836,104 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     public void visit(BLangRecordLiteral recordLiteral) {
-        BType actualType = symTable.semanticError;
         int expTypeTag = expType.tag;
-        BType originalExpType = expType;
 
         if (expTypeTag == TypeTags.NONE) {
             expType = defineInferredRecordType(recordLiteral);
         } else if (expTypeTag == TypeTags.OBJECT) {
-            dlog.error(recordLiteral.pos, DiagnosticCode.INVALID_RECORD_LITERAL, originalExpType);
+            dlog.error(recordLiteral.pos, DiagnosticCode.INVALID_RECORD_LITERAL, expType);
             resultType = symTable.semanticError;
             return;
         }
 
-        List<BType> matchedTypeList = getMappingConstructorCompatibleTypes(expType, recordLiteral);
+        resultType = checkMappingConstructorCompatibility(expType, recordLiteral);
+    }
 
-        if (matchedTypeList.isEmpty()) {
-            reportIncompatibleMappingConstructorError(recordLiteral, expType);
-            recordLiteral.fields
-                    .forEach(field -> checkMappingField(field, symTable.errorType));
-        } else if (matchedTypeList.size() > 1) {
-            dlog.error(recordLiteral.pos, DiagnosticCode.AMBIGUOUS_TYPES, expType);
-            recordLiteral.fields
-                    .forEach(field -> checkMappingField(field, symTable.errorType));
-        } else {
-            recordLiteral.fields
-                    .forEach(field -> checkMappingField(field, matchedTypeList.get(0)));
-            actualType = matchedTypeList.get(0);
+    private BType checkMappingConstructorCompatibility(BType bType, BLangRecordLiteral mappingConstructor) {
+        if (bType.tag == TypeTags.UNION) {
+            BLangDiagnosticLog prevTypeCheckerDLog = this.dlog;
+            BLangDiagnosticLog prevTypesDLog = types.getDLog();
+
+            this.dlog = new ErrorCountingBLangDiagnosticLog();
+            types.setDLog(this.dlog);
+            boolean prevNonErrorLoggingCheck = this.nonErrorLoggingCheck;
+            this.nonErrorLoggingCheck = true;
+
+            List<BType> compatibleTypes = new ArrayList<>();
+            for (BType memberType : ((BUnionType) bType).getMemberTypes()) {
+                BType listCompatibleMemType = getMappingConstructorCompatibleNonUnionType(memberType);
+
+                if (listCompatibleMemType == symTable.semanticError) {
+                    continue;
+                }
+
+                BType memCompatibiltyType = checkMappingConstructorCompatibility(listCompatibleMemType,
+                                                                                 mappingConstructor);
+
+                if (memCompatibiltyType != symTable.semanticError && dlog.errorCount == 0 &&
+                        isUniqueType(compatibleTypes, memCompatibiltyType)) {
+                    compatibleTypes.add(memCompatibiltyType);
+                }
+                dlog.errorCount = 0;
+            }
+
+            this.nonErrorLoggingCheck = prevNonErrorLoggingCheck;
+            types.setDLog(prevTypesDLog);
+            this.dlog = prevTypeCheckerDLog;
+
+            if (compatibleTypes.isEmpty()) {
+                reportIncompatibleMappingConstructorError(mappingConstructor, bType);
+                for (RecordLiteralNode.RecordField field : mappingConstructor.fields) {
+                    checkMappingField(field, symTable.errorType);
+                }
+                return symTable.semanticError;
+            } else if (compatibleTypes.size() != 1) {
+                dlog.error(mappingConstructor.pos, DiagnosticCode.AMBIGUOUS_TYPES, bType);
+                for (RecordLiteralNode.RecordField field : mappingConstructor.fields) {
+                    checkMappingField(field, symTable.errorType);
+                }
+                return symTable.semanticError;
+            }
+
+            return checkMappingConstructorCompatibility(compatibleTypes.get(0), mappingConstructor);
         }
 
-        resultType = types.checkType(recordLiteral, actualType, expType);
+        BType possibleType = getMappingConstructorCompatibleNonUnionType(bType);
 
-        // If the record literal is of record type and types are validated for the fields, check if there are any
-        // required fields missing.
-        if (recordLiteral.type.tag == TypeTags.RECORD) {
-            checkMissingRequiredFields((BRecordType) recordLiteral.type, recordLiteral.fields, recordLiteral.pos);
+        switch (possibleType.tag) {
+            case TypeTags.MAP:
+                return validateSpecifiedFields(mappingConstructor, possibleType) ? possibleType :
+                        symTable.semanticError;
+            case TypeTags.RECORD:
+                boolean isSpecifiedFieldsValid = validateSpecifiedFields(mappingConstructor, possibleType);
+
+                boolean hasAllRequiredFields = validateRequiredFields((BRecordType) possibleType,
+                                                                      mappingConstructor.fields,
+                                                                      mappingConstructor.pos);
+
+                return isSpecifiedFieldsValid && hasAllRequiredFields ? possibleType : symTable.semanticError;
         }
+        reportIncompatibleMappingConstructorError(mappingConstructor, bType);
+        return symTable.semanticError;
+    }
+
+    private BType getMappingConstructorCompatibleNonUnionType(BType type) {
+        switch (type.tag) {
+            case TypeTags.MAP:
+            case TypeTags.RECORD:
+                return type;
+            case TypeTags.JSON:
+                return symTable.mapJsonType;
+            case TypeTags.ANYDATA:
+                return symTable.mapAnydataType;
+            case TypeTags.ANY:
+                return symTable.mapType;
+        }
+        return symTable.semanticError;
     }
 
     private boolean isMappingConstructorCompatibleType(BType type) {
-        return type.tag == TypeTags.RECORD || type.tag == TypeTags.MAP || type.tag == TypeTags.JSON;
+        return type.tag == TypeTags.RECORD || type.tag == TypeTags.MAP;
     }
 
     private void reportIncompatibleMappingConstructorError(BLangRecordLiteral mappingConstructorExpr, BType expType) {
@@ -890,11 +949,17 @@ public class TypeChecker extends BLangNodeVisitor {
         // Special case handling for `T?` where T is a record type. This is done to give more user friendly error
         // messages for this common scenario.
         if (memberTypes.length == 2) {
+            BRecordType recType = null;
+
             if (memberTypes[0].tag == TypeTags.RECORD && memberTypes[1].tag == TypeTags.NIL) {
-                reportMissingRecordFieldDiagnostics(mappingConstructorExpr.fields, (BRecordType) memberTypes[0]);
-                return;
+                recType = (BRecordType) memberTypes[0];
             } else if (memberTypes[1].tag == TypeTags.RECORD && memberTypes[0].tag == TypeTags.NIL) {
-                reportMissingRecordFieldDiagnostics(mappingConstructorExpr.fields, (BRecordType) memberTypes[1]);
+                recType = (BRecordType) memberTypes[1];
+            }
+
+            if (recType != null) {
+                validateSpecifiedFields(mappingConstructorExpr, recType);
+                validateRequiredFields(recType, mappingConstructorExpr.fields, mappingConstructorExpr.pos);
                 return;
             }
         }
@@ -912,135 +977,35 @@ public class TypeChecker extends BLangNodeVisitor {
         dlog.error(mappingConstructorExpr.pos, DiagnosticCode.MAPPING_CONSTRUCTOR_COMPATIBLE_TYPE_NOT_FOUND, unionType);
     }
 
-    private void reportMissingRecordFieldDiagnostics(List<RecordLiteralNode.RecordField> fields, BRecordType recType) {
-        Set<String> expFieldNames = recType.fields.stream().map(f -> f.name.value).collect(Collectors.toSet());
+    private boolean validateSpecifiedFields(BLangRecordLiteral mappingConstructor, BType possibleType) {
+        boolean isFieldsValid = true;
 
-        HashMap<String, DiagnosticPos> namesAndPos = getFieldNamesAndPos(fields);
-
-        for (String name : namesAndPos.keySet()) {
-            if (expFieldNames.contains(name)) {
-                continue;
+        for (RecordLiteralNode.RecordField field : mappingConstructor.fields) {
+            BType checkedType = checkMappingField(field, possibleType);
+            if (isFieldsValid && checkedType == symTable.semanticError) {
+                isFieldsValid = false;
             }
-
-            dlog.error(namesAndPos.get(name), DiagnosticCode.UNDEFINED_STRUCTURE_FIELD_WITH_TYPE, name, "record",
-                       recType);
         }
+
+        return isFieldsValid;
     }
 
-    private List<BType> getMappingConstructorCompatibleTypes(BType bType, BLangRecordLiteral recordLiteral) {
-        if (bType.tag == TypeTags.UNION) {
-            Set<BType> expTypes = ((BUnionType) bType).getMemberTypes();
-
-            List<BType> possibleTypes = new ArrayList<>();
-
-            for (BType possibleType : expTypes) {
-                BType currentType;
-                switch (possibleType.tag) {
-                    case TypeTags.MAP:
-                        currentType = possibleType;
-                        break;
-                    case TypeTags.RECORD:
-                        if (!((BRecordType) possibleType).sealed ||
-                                isCompatibleClosedRecordLiteral((BRecordType) possibleType, recordLiteral)) {
-                            currentType = possibleType;
-                            break;
-                        }
-                        continue;
-                    case TypeTags.JSON:
-                        currentType = symTable.mapJsonType;
-                        break;
-                    case TypeTags.ANYDATA:
-                        currentType = symTable.mapAnydataType;
-                        break;
-                    case TypeTags.ANY:
-                        currentType = symTable.mapType;
-                        break;
-                    default:
-                        continue;
-                }
-
-                if (currentType.tag == TypeTags.MAP) {
-                    boolean uniqueMapType = true;
-
-                    for (BType type : possibleTypes) {
-                        if (types.isSameType(type, currentType)) {
-                            uniqueMapType = false;
-                            break;
-                        }
-                    }
-
-                    if (uniqueMapType) {
-                        possibleTypes.add(currentType);
-                    }
-                } else if (!possibleTypes.contains(currentType)) {
-                    possibleTypes.add(currentType);
-                }
-            }
-
-            return possibleTypes;
-        }
-
-
-        switch (bType.tag) {
-            case TypeTags.MAP:
-            case TypeTags.RECORD:
-                return Collections.singletonList(bType);
-            case TypeTags.JSON:
-                return Collections.singletonList(symTable.mapJsonType);
-            case TypeTags.ANY:
-                return Collections.singletonList(symTable.mapType);
-            case TypeTags.ANYDATA:
-                return Collections.singletonList(symTable.mapAnydataType);
-            default:
-                return Collections.emptyList();
-        }
-    }
-
-    private boolean isCompatibleClosedRecordLiteral(BRecordType bRecordType, BLangRecordLiteral recordLiteral) {
-        if (!hasRequiredRecordFields(recordLiteral.getFields(), bRecordType)) {
-            return false;
-        }
-
-        HashSet<String> names = getFieldNames(recordLiteral.fields);
-
-        for (String name : names) {
-            boolean matched = false;
-            for (BField field : bRecordType.getFields()) {
-                matched = field.getName().getValue().equals(name);
-                if (matched) {
-                    break;
-                }
-            }
-            if (!matched) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    private void checkMissingRequiredFields(BRecordType type, List<RecordLiteralNode.RecordField> specifiedFields,
-                                            DiagnosticPos pos) {
+    private boolean validateRequiredFields(BRecordType type, List<RecordLiteralNode.RecordField> specifiedFields,
+                                           DiagnosticPos pos) {
         HashSet<String> specFieldNames = getFieldNames(specifiedFields);
+        boolean hasAllRequiredFields = true;
 
         for (BField field : type.fields) {
             // Check if `field` is explicitly assigned a value in the record literal
             // If a required field is missing, it's a compile error
             if (!specFieldNames.contains(field.name.value) && Symbols.isFlagOn(field.symbol.flags, Flags.REQUIRED)) {
                 dlog.error(pos, DiagnosticCode.MISSING_REQUIRED_RECORD_FIELD, field.name);
+                if (hasAllRequiredFields) {
+                    hasAllRequiredFields = false;
+                }
             }
         }
-    }
-
-    private boolean hasRequiredRecordFields(List<RecordLiteralNode.RecordField> specifiedFields,
-                                            BRecordType targetRecType) {
-        HashSet<String> fieldNames = getFieldNames(specifiedFields);
-
-        for (BField field : targetRecType.fields) {
-            if (!fieldNames.contains(field.name.value) && Symbols.isFlagOn(field.symbol.flags, Flags.REQUIRED)) {
-                return false;
-            }
-        }
-        return true;
+        return hasAllRequiredFields;
     }
 
     private HashSet<String> getFieldNames(List<RecordLiteralNode.RecordField> specifiedFields) {
@@ -3557,7 +3522,7 @@ public class TypeChecker extends BLangNodeVisitor {
         }
     }
 
-    private void checkMappingField(RecordLiteralNode.RecordField field, BType mappingType) {
+    private BType checkMappingField(RecordLiteralNode.RecordField field, BType mappingType) {
         BType fieldType = symTable.semanticError;
         boolean keyValueField = field.isKeyValueField();
         boolean spreadOpField = field.getKind() == NodeKind.RECORD_LITERAL_SPREAD_OP;
@@ -3581,14 +3546,15 @@ public class TypeChecker extends BLangNodeVisitor {
 
                     BType spreadExprType = spreadExpr.type;
                     if (spreadExprType.tag == TypeTags.MAP) {
-                        return;
+                        return symTable.noType;
                     }
 
                     if (spreadExprType.tag != TypeTags.RECORD) {
                         dlog.error(spreadExpr.pos, DiagnosticCode.INCOMPATIBLE_TYPES_SPREAD_OP, spreadExprType);
-                        return;
+                        return symTable.semanticError;
                     }
 
+                    boolean errored = false;
                     for (BField bField : ((BRecordType) spreadExprType).getFields()) {
                         BType specFieldType = bField.type;
                         BType expectedFieldType = checkRecordLiteralKeyByName(spreadExpr.pos, this.env, bField.name,
@@ -3597,9 +3563,12 @@ public class TypeChecker extends BLangNodeVisitor {
                                 !types.isAssignable(specFieldType, expectedFieldType)) {
                             dlog.error(spreadExpr.pos, DiagnosticCode.INCOMPATIBLE_TYPES_FIELD, expectedFieldType,
                                        bField.name, specFieldType);
+                            if (!errored) {
+                                errored = true;
+                            }
                         }
                     }
-                    return;
+                    return errored ? symTable.semanticError : symTable.noType;
                 } else {
                     fieldType = checkRecordLiteralKeyExpr((BLangRecordLiteral.BLangRecordVarNameField) field, false,
                                                           (BRecordType) mappingType);
@@ -3631,12 +3600,11 @@ public class TypeChecker extends BLangNodeVisitor {
                             break;
                         default:
                             dlog.error(spreadExp.pos, DiagnosticCode.INCOMPATIBLE_TYPES_SPREAD_OP, spreadOpType);
-                            return;
+                            return symTable.semanticError;
                     }
 
-                    types.checkType(spreadExp.pos, spreadOpMemberType, ((BMapType) mappingType).constraint,
-                                    DiagnosticCode.INCOMPATIBLE_TYPES);
-                    return;
+                    return types.checkType(spreadExp.pos, spreadOpMemberType, ((BMapType) mappingType).constraint,
+                                           DiagnosticCode.INCOMPATIBLE_TYPES);
                 }
 
                 boolean validMapKey;
@@ -3652,9 +3620,14 @@ public class TypeChecker extends BLangNodeVisitor {
                 break;
         }
 
-        if (valueExpr != null) {
-            checkExpr(valueExpr, this.env, fieldType);
+        BLangExpression exprToCheck = valueExpr;
+
+        if (this.nonErrorLoggingCheck) {
+            valueExpr.cloneAttempt++;
+            exprToCheck = nodeCloner.clone(valueExpr);
         }
+
+        return checkExpr(exprToCheck, this.env, fieldType);
     }
 
     private BType checkRecordLiteralKeyExpr(BLangExpression keyExpr, boolean computedKey, BRecordType recordType) {
@@ -3698,7 +3671,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
         if (recordType.sealed) {
             dlog.error(pos, DiagnosticCode.UNDEFINED_STRUCTURE_FIELD_WITH_TYPE, key,
-                       recordType.tsymbol.type.getKind().typeName(), recordType.tsymbol);
+                       recordType.tsymbol.type.getKind().typeName(), recordType);
             return symTable.semanticError;
         }
 
@@ -5039,8 +5012,15 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     private boolean isUniqueType(List<BType> typeList, BType type) {
+        boolean isRecord = type.tag == TypeTags.RECORD;
+
         for (BType bType : typeList) {
-            if (types.isSameType(type, bType)) {
+
+            if (isRecord) {
+                if (type == bType) {
+                    return false;
+                }
+            } else if (types.isSameType(type, bType)) {
                 return false;
             }
         }
