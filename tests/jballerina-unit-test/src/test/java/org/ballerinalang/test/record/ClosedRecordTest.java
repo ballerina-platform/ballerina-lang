@@ -327,15 +327,11 @@ public class ClosedRecordTest {
     @Test
     public void testOptionalRecordRemove() {
         BValue[] returns = BRunUtil.invoke(compileResult, "removeOptional");
-
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
     }
 
     @Test
     public void testRestRecordRemove() {
         BValue[] returns = BRunUtil.invoke(compileResult, "removeRest");
-
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
     }
 
     @Test

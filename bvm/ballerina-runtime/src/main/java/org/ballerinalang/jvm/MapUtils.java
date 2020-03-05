@@ -162,13 +162,11 @@ public class MapUtils {
         BType type = m.getType();
         switch (type.getTag()) {
             case TypeTags.RECORD_TYPE_TAG:
-                boolean isValid = checkField(m, k);
-                if (!isValid) {
+                if (!m.containsKey(k)) {
                     return;
                 }
-                boolean isRequired = checkForRequiredFields((BRecordType) type, k);
-                if (isRequired) {
-                    throw createOpNotSupportedError(type, op);
+                if (isRequiredField((BRecordType) type, k)) {
+                    throw createOpNotSupportedErrorForRecord(type, op);
                 }
                 return;
             default:
@@ -176,11 +174,7 @@ public class MapUtils {
         }
     }
 
-    private static boolean checkField(MapValue<?, ?> m, String k) {
-        return m.containsKey(k);
-    }
-
-    private static boolean checkForRequiredFields(BRecordType type, String k) {
+    private static boolean isRequiredField(BRecordType type, String k) {
         Map<String, BField> fields = type.getFields();
         BField field = fields.get(k);
         if (field != null && Flags.isFlagOn(field.flags, Flags.REQUIRED)) {
@@ -190,13 +184,13 @@ public class MapUtils {
     }
 
     public static void validateRecord(BType type, String op) {
-        if (type instanceof BRecordType) {
-            Map<String, BField> fields = ((BRecordType) type).getFields();
-            for (String key : fields.keySet()) {
-                boolean isRequired = checkForRequiredFields((BRecordType) type, key);
-                if (isRequired) {
-                    throw createOpNotSupportedErrorForRecord(type, op);
-                }
+        if (type.getTag() != TypeTags.RECORD_TYPE_TAG) {
+            return;
+        }
+        Map<String, BField> fields = ((BRecordType) type).getFields();
+        for (String key : fields.keySet()) {
+            if (isRequiredField((BRecordType) type, key)) {
+                throw createOpNotSupportedErrorForRecord(type, op);
             }
         }
     }
