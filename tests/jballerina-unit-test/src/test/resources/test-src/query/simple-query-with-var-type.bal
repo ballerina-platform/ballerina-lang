@@ -66,6 +66,24 @@ function testSimpleSelectQueryWithRecordVariableV2() returns Person[]{
     return  outputPersonList;
 }
 
+function testSimpleSelectQueryWithRecordVariableV3() returns Person[]{
+    Teacher p1 = {firstName:"Alex", lastName: "George", age: 23, teacherId: "XYZ01"};
+    Teacher p2 = {firstName:"Ranjan", lastName: "Fonseka", age: 30, teacherId: "ABC01"};
+    Teacher p3 = {firstName:"John", lastName: "David", age: 33, teacherId: "ABC10"};
+
+    Teacher[] teacherList = [p1, p2, p3];
+
+    var outputPersonList =
+            from var { firstName, lastName, age, teacherId} in teacherList
+            select {
+                   firstName: firstName,
+                   lastName: lastName,
+                   age: age
+            };
+
+    return  outputPersonList;
+}
+
 function testSimpleSelectQueryWithWhereClause() returns Person[]{
     Person p1 = {firstName:"Alex", lastName: "George", age: 23};
     Person p2 = {firstName:"Ranjan", lastName: "Fonseka", age: 30};
@@ -162,6 +180,40 @@ function testQueryExpressionWithVarType() returns Teacher[]{
                    firstName: person.firstName,
                    lastName: person.lastName,
                    age: person.age,
+                   teacherId: "TER1200"
+            };
+
+    return  outputPersonList;
+}
+
+function testSimpleSelectQueryWithSpreadOperator() returns Person[]{
+    Person p1 = {firstName: "Alex", lastName: "George", age: 23};
+    Person p2 = {firstName: "Ranjan", lastName: "Fonseka", age: 30};
+    Person p3 = {firstName: "John", lastName: "David", age: 33};
+
+    Person[] personList = [p1, p2, p3];
+
+    Person[] outputPersonList =
+            from var person in personList
+            select {
+                   ...person
+            };
+
+    return  outputPersonList;
+}
+
+function testQueryExpressionWithSpreadOperatorV2() returns Teacher[]{
+
+    Person p1 = {firstName: "Alex", lastName: "George", age: 23};
+    Person p2 = {firstName: "Ranjan", lastName: "Fonseka", age: 30};
+    Person p3 = {firstName: "John", lastName: "David", age: 33};
+
+    Person[] personList = [p1, p2, p3];
+
+    var outputPersonList =
+            from var person in personList
+            select {
+                   ...person,
                    teacherId: "TER1200"
             };
 

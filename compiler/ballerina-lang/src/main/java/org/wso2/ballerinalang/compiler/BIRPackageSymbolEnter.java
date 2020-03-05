@@ -334,7 +334,12 @@ public class BIRPackageSymbolEnter {
     }
 
     private void defineFunction(DataInputStream dataInStream) throws IOException {
-        skipPosition(dataInStream); // Position details are skipped
+        dataInStream.readInt(); // skip line start
+        dataInStream.readInt(); // skip line end
+        dataInStream.readInt(); // skip col start
+        dataInStream.readInt(); // skip col end
+        String source = getStringCPEntryValue(dataInStream);
+
         // Consider attached functions.. remove the first variable
         String funcName = getStringCPEntryValue(dataInStream);
         String workerName = getStringCPEntryValue(dataInStream);
@@ -343,6 +348,7 @@ public class BIRPackageSymbolEnter {
         BInvokableType funcType = (BInvokableType) readBType(dataInStream);
         BInvokableSymbol invokableSymbol = Symbols.createFunctionSymbol(flags, names.fromString(funcName),
                 this.env.pkgSymbol.pkgID, funcType, this.env.pkgSymbol, Symbols.isFlagOn(flags, Flags.NATIVE));
+        invokableSymbol.source = source;
         invokableSymbol.retType = funcType.retType;
 
         Scope scopeToDefine = this.env.pkgSymbol.scope;
@@ -1166,7 +1172,7 @@ public class BIRPackageSymbolEnter {
 
         litExpr.type = valueType;
 
-        finiteType.valueSpace.add(litExpr);
+        finiteType.addValue(litExpr);
     }
 
     private BLangLiteral createLiteralBasedOnType(BType valueType) {

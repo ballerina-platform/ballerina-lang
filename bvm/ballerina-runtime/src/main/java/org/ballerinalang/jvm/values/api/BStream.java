@@ -27,29 +27,11 @@ import org.ballerinalang.jvm.types.BType;
  *
  * @since 1.2.0
  */
-public interface BStream extends BIterator<Object>, BRefValue {
+public interface BStream extends BRefValue {
     /**
      * Returns the constrained {@code BType} of the stream.
      *
      * @return constrained type
      */
     BType getConstraintType();
-
-    /**
-     * Returns a stream which applies a filtering condition on the input stream.
-     *
-     * @param stream The input stream being filtered
-     * @param functionPointer The function pointer which represents the filtering condition
-     * @return The output stream
-     */
-    BStream filter(BStream stream, BFunctionPointer<Object, Boolean> functionPointer);
-
-    /**
-     * Returns a new stream which applies a mapping condition on the input stream.
-     *
-     * @param stream The input stream being mapped
-     * @param functionPointer The function pointer which represents the mapping condition
-     * @return The output stream
-     */
-    BStream map(BStream stream, BFunctionPointer<Object, Object> functionPointer);
 }

@@ -58,16 +58,16 @@ function test3() {
     worker
     w2
     returns
-    int
+        int
     {
         return 1;
     }
 
     _ = wait
     {
-    w1
-    ,
-    w2
+        w1
+        ,
+        w2
     }
     ;
 }

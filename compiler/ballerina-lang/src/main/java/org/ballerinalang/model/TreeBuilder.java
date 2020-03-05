@@ -23,9 +23,11 @@ import org.ballerinalang.model.clauses.SelectClauseNode;
 import org.ballerinalang.model.clauses.WhereClauseNode;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.AnnotationNode;
+import org.ballerinalang.model.tree.BlockFunctionBodyNode;
 import org.ballerinalang.model.tree.CompilationUnitNode;
 import org.ballerinalang.model.tree.EndpointNode;
 import org.ballerinalang.model.tree.ErrorVariableNode;
+import org.ballerinalang.model.tree.FunctionBodyNode;
 import org.ballerinalang.model.tree.FunctionNode;
 import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.ImportPackageNode;
@@ -53,6 +55,7 @@ import org.ballerinalang.model.tree.expressions.IntRangeExpression;
 import org.ballerinalang.model.tree.expressions.InvocationNode;
 import org.ballerinalang.model.tree.expressions.IsLikeExpressionNode;
 import org.ballerinalang.model.tree.expressions.LambdaFunctionNode;
+import org.ballerinalang.model.tree.expressions.LetExpressionNode;
 import org.ballerinalang.model.tree.expressions.ListConstructorExprNode;
 import org.ballerinalang.model.tree.expressions.LiteralNode;
 import org.ballerinalang.model.tree.expressions.MarkdownDocumentationParameterAttributeNode;
@@ -88,7 +91,7 @@ import org.ballerinalang.model.tree.expressions.XMLQuotedStringNode;
 import org.ballerinalang.model.tree.expressions.XMLTextLiteralNode;
 import org.ballerinalang.model.tree.statements.AbortNode;
 import org.ballerinalang.model.tree.statements.AssignmentNode;
-import org.ballerinalang.model.tree.statements.BlockNode;
+import org.ballerinalang.model.tree.statements.BlockStatementNode;
 import org.ballerinalang.model.tree.statements.BreakNode;
 import org.ballerinalang.model.tree.statements.CatchNode;
 import org.ballerinalang.model.tree.statements.CompoundAssignmentNode;
@@ -132,9 +135,12 @@ import org.ballerinalang.model.tree.types.UserDefinedTypeNode;
 import org.ballerinalang.model.tree.types.ValueTypeNode;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
+import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
 import org.wso2.ballerinalang.compiler.tree.BLangErrorVariable;
+import org.wso2.ballerinalang.compiler.tree.BLangExprFunctionBody;
+import org.wso2.ballerinalang.compiler.tree.BLangExternalFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
@@ -158,6 +164,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckPanickedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorVarRef;
@@ -168,6 +175,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangIntRangeExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIsLikeExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangLetExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownDocumentationLine;
@@ -247,6 +255,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangConstrainedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangErrorType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFiniteTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFunctionTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangLetVariable;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangTupleTypeNode;
@@ -293,6 +302,10 @@ public class TreeBuilder {
         return new BLangSimpleVariable();
     }
 
+    public static BLangLetVariable createLetVariableNode() {
+        return new BLangLetVariable();
+    }
+
     public static TupleVariableNode createTupleVariableNode() {
         return new BLangTupleVariable();
     }
@@ -313,7 +326,19 @@ public class TreeBuilder {
         return new BLangFunction();
     }
 
-    public static BlockNode createBlockNode() {
+    public static BlockFunctionBodyNode createBlockFunctionBodyNode() {
+        return new BLangBlockFunctionBody();
+    }
+
+    public static FunctionBodyNode createExprFunctionBodyNode() {
+        return new BLangExprFunctionBody();
+    }
+
+    public static FunctionBodyNode createExternFunctionBodyNode() {
+        return new BLangExternalFunctionBody();
+    }
+
+    public static BlockStatementNode createBlockNode() {
         return new BLangBlockStmt();
     }
 
@@ -353,6 +378,10 @@ public class TreeBuilder {
         return new BLangLiteral();
     }
 
+    public static LiteralNode createConstLiteralNode() {
+        return new BLangConstRef();
+    }
+
     public static LiteralNode createNumericLiteralExpression() {
         return new BLangNumericLiteral();
     }
@@ -367,6 +396,10 @@ public class TreeBuilder {
 
     public static RecordLiteralNode.RecordKeyValueFieldNode createRecordKeyValue() {
         return new BLangRecordLiteral.BLangRecordKeyValueField();
+    }
+
+    public static RecordLiteralNode.RecordSpreadOperatorFieldNode createRecordSpreadOperatorField() {
+        return new BLangRecordLiteral.BLangRecordSpreadOperatorField();
     }
 
     public static TableLiteralNode createTableLiteralNode() {
@@ -503,6 +536,10 @@ public class TreeBuilder {
 
     public static ListConstructorExprNode createListConstructorExpressionNode() {
         return new BLangListConstructorExpr();
+    }
+
+    public static LetExpressionNode createLetExpressionNode() {
+        return new BLangLetExpression();
     }
 
     public static ListConstructorExprNode createTupleLiteralExpressionNode() {

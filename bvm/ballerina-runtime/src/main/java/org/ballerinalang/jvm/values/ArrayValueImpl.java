@@ -130,35 +130,40 @@ public class ArrayValueImpl extends AbstractArrayValue {
         this.arrayType = type;
         BArrayType arrayType = (BArrayType) type;
         this.elementType = arrayType.getElementType();
+        initArrayValues(elementType, false);
         if (arrayType.getState() == ArrayState.CLOSED_SEALED) {
             this.size = maxSize = arrayType.getSize();
         }
-        initArrayValues(this.elementType, false);
     }
 
     private void initArrayValues(BType elementType, boolean useBString) {
+        int initialArraySize = (arrayType.getSize() != -1) ? arrayType.getSize() : DEFAULT_ARRAY_SIZE;
         switch (elementType.getTag()) {
             case TypeTags.INT_TAG:
-                this.intValues = new long[DEFAULT_ARRAY_SIZE];
+                this.intValues = new long[initialArraySize];
                 break;
             case TypeTags.FLOAT_TAG:
-                this.floatValues = new double[DEFAULT_ARRAY_SIZE];
+                this.floatValues = new double[initialArraySize];
                 break;
             case TypeTags.STRING_TAG:
                 if (useBString) {
-                    this.bStringValues = new BString[DEFAULT_ARRAY_SIZE];
+                    this.bStringValues = new BString[initialArraySize];
                 } else {
-                    this.stringValues = new String[DEFAULT_ARRAY_SIZE];
+                    this.stringValues = new String[initialArraySize];
                 }
                 break;
             case TypeTags.BOOLEAN_TAG:
-                this.booleanValues = new boolean[DEFAULT_ARRAY_SIZE];
+                this.booleanValues = new boolean[initialArraySize];
                 break;
             case TypeTags.BYTE_TAG:
-                this.byteValues = new byte[DEFAULT_ARRAY_SIZE];
+                this.byteValues = new byte[initialArraySize];
                 break;
             default:
-                this.refValues = new Object[DEFAULT_ARRAY_SIZE];
+                this.refValues = new Object[initialArraySize];
+                if (arrayType.getState() == ArrayState.CLOSED_SEALED) {
+                    fillerValueCheck(initialArraySize, initialArraySize);
+                    fillValues(initialArraySize);
+                }
         }
     }
 
@@ -166,20 +171,20 @@ public class ArrayValueImpl extends AbstractArrayValue {
     public ArrayValueImpl(BArrayType type, long size) {
         this.arrayType = type;
         this.elementType = type.getElementType();
+        initArrayValues(this.elementType, false);
         if (size != -1) {
             this.size = this.maxSize = (int) size;
         }
-        initArrayValues(this.elementType, false);
     }
 
     @Deprecated
     public ArrayValueImpl(BArrayType type, long size, boolean useBString) {
         this.arrayType = type;
         this.elementType = type.getElementType();
+        initArrayValues(this.elementType, useBString);
         if (size != -1) {
             this.size = this.maxSize = (int) size;
         }
-        initArrayValues(this.elementType, useBString);
     }
 
     // ----------------------- get methods ----------------------------------------------------
@@ -808,8 +813,9 @@ public class ArrayValueImpl extends AbstractArrayValue {
             case TypeTags.BOOLEAN_TAG:
                 return;
             default:
-                Arrays.fill(refValues, size, index, elementType.getZeroValue());
-
+                if (arrayType.hasFillerValue()) {
+                    Arrays.fill(refValues, size, index, elementType.getZeroValue());
+                }
         }
     }
 
@@ -840,17 +846,13 @@ public class ArrayValueImpl extends AbstractArrayValue {
 
     @Override
     protected void fillerValueCheck(int index, int size) {
-        // if there has been values added beyond the current index, that means filler values
-        // has already been checked. Therefore no need to check again.
-        if (this.size >= index) {
-            return;
-        }
-
         // if the elementType doesn't have an implicit initial value & if the insertion is not a consecutive append
         // to the array, then an exception will be thrown.
-        if (!TypeChecker.hasFillerValue(this.elementType) && (index > size)) {
+        if (arrayType.hasFillerValue()) {
+            return;
+        } else if (index > size) {
             throw BLangExceptionHelper.getRuntimeException(BallerinaErrorReasons.ILLEGAL_LIST_INSERTION_ERROR,
-                    RuntimeErrors.ILLEGAL_ARRAY_INSERTION, size, index + 1);
+                                                           RuntimeErrors.ILLEGAL_ARRAY_INSERTION, size, index + 1);
         }
     }
 

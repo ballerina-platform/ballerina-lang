@@ -137,7 +137,8 @@ public class XMLTest {
     public void testComplexXMLLiteral() throws IOException {
         BValue[] returns = BRunUtil.invoke(literalWithNamespacesResult, "testComplexXMLLiteral");
         Assert.assertTrue(returns[0] instanceof BXMLItem);
-        Assert.assertEquals(returns[0].stringValue(), BCompileUtil.readFileAsString("test-src/jvm/sampleXML.txt"));
+        Assert.assertEquals(returns[0].stringValue(),
+                BCompileUtil.readFileAsString("src/test/resources/test-src/jvm/sampleXML.txt"));
     }
 
     @Test

@@ -735,13 +735,13 @@ function generateBasicBlocks(jvm:MethodVisitor mv, bir:BasicBlock?[] basicBlocks
                 } else if (insKind == bir:INS_KIND_ARRAY_STORE) {
                     instGen.generateArrayStoreIns(<bir:FieldAccess> inst, useBString);
                 } else if (insKind == bir:INS_KIND_MAP_LOAD) {
-                    instGen.generateMapLoadIns(<bir:FieldAccess> inst);
+                    instGen.generateMapLoadIns(<bir:FieldAccess> inst, useBString);
                 } else if (insKind == bir:INS_KIND_ARRAY_LOAD) {
                     instGen.generateArrayValueLoad(<bir:FieldAccess> inst, useBString);
                 } else if (insKind == bir:INS_KIND_NEW_ERROR) {
                     instGen.generateNewErrorIns(<bir:NewError> inst, useBString);
                 } else {
-                    instGen.generateCastIns(<bir:TypeCast> inst);
+                    instGen.generateCastIns(<bir:TypeCast> inst, useBString);
                 }
             } else if (insKind <= bir:INS_KIND_NEW_STRING_XML_QNAME) {
                 if (insKind == bir:INS_KIND_IS_LIKE) {

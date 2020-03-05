@@ -1,6 +1,8 @@
 public type {{messageName}} record {|
     {{#fieldList}}{{fieldType}}{{#isNull defaultValue}}?{{/isNull}}{{fieldLabel}} {{{fieldName}}}{{#isNull defaultValue}} = (){{/isNull}}{{#isNotNull defaultValue}} = {{#equals fieldType "string"}}{{#if fieldLabel}}{{defaultValue}}{{else}}"{{defaultValue}}"{{/if}}{{/equals}}{{#not_equal fieldType "string"}}{{defaultValue}}{{/not_equal}}{{/isNotNull}};
-    {{/fieldList}}{{#each oneofFieldMap as |value key|}}{{camelcase @key}} {{@key}};
+    {{/fieldList ~}}
+    {{#mapList}}record {| {{fieldList.0.fieldType}} key; {{fieldList.1.fieldType}} value; |}[] {{messageName}} = [];{{/mapList ~}}
+    {{#each oneofFieldMap as |value key|}}{{camelcase @key}} {{@key}};
     {{/each}}
 |};
 {{#each oneofFieldMap}}

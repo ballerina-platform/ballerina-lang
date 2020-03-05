@@ -110,7 +110,7 @@ public class KafkaMetricsTestCase extends BaseTest {
         List<String> args = new ArrayList<>();
         args.add("--" + ObservabilityConstants.CONFIG_METRICS_ENABLED + "=true");
         args.add("--b7a.log.console.loglevel=INFO");
-        serverInstance.startServer(balFile, null, args.toArray(new String[args.size()]), new int[]{9090});
+        serverInstance.startServer(balFile, null, args.toArray(new String[args.size()]), new int[]{9898});
         return serverInstance;
     }
 
@@ -172,9 +172,9 @@ public class KafkaMetricsTestCase extends BaseTest {
     private Map<String, String> getConsumerMetrics() {
         Map<String, String> expectedMetrics = new HashMap<>();
         expectedMetrics.put("kafka_consumed_size_value{context=\"consumer\",url=\"localhost:14110\",topic=\"t1\"," +
-                                    "client_id=\"consumer_2\",}", "120.0");
+                                    "client_id=\"consumer_2\",}", "810.0");
         expectedMetrics.put("kafka_consumed_size_value{context=\"consumer\",url=\"localhost:14110\",topic=\"t2\"," +
-                                    "client_id=\"consumer_2\",}", "120.0");
+                                    "client_id=\"consumer_2\",}", "810.0");
         expectedMetrics.put("kafka_consumed_value{context=\"consumer\",url=\"localhost:14110\",topic=\"t1\"," +
                                     "client_id=\"consumer_2\",}", "10.0");
         expectedMetrics.put("kafka_consumed_value{context=\"consumer\",url=\"localhost:14110\",topic=\"t2\"," +

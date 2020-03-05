@@ -72,6 +72,7 @@ exprFunctionBody
 
 functionDefinitionBody
     :   blockFunctionBody
+    |   exprFunctionBody SEMICOLON
     |   externalFunctionBody SEMICOLON
     ;
 
@@ -85,7 +86,7 @@ anonymousFunctionExpr
     ;
 
 explicitAnonymousFunctionExpr
-    :   FUNCTION functionSignature blockFunctionBody
+    :   FUNCTION functionSignature (blockFunctionBody | exprFunctionBody)
     ;
 
 inferAnonymousFunctionExpr
@@ -357,6 +358,7 @@ staticMatchLiterals
 recordField
     :   Identifier
     |   recordKey COLON expression
+    |   ELLIPSIS expression
     ;
 
 recordKey
@@ -824,6 +826,7 @@ expression
     |   flushWorker                                                         # flushWorkerExpression
     |   typeDescExpr                                                        # typeAccessExpression
     |   queryExpr                                                           # queryExpression
+    |   letExpr                                                             # letExpression
     ;
 
 constantExpression
@@ -832,6 +835,14 @@ constantExpression
     |   constantExpression (DIV | MUL) constantExpression                   # constDivMulModExpression
     |   constantExpression (ADD | SUB) constantExpression                   # constAddSubExpression
     |   LEFT_PARENTHESIS constantExpression RIGHT_PARENTHESIS               # constGroupExpression
+    ;
+
+letExpr
+    : LET letVarDecl (COMMA letVarDecl)* IN expression
+    ;
+
+letVarDecl
+    : annotationAttachment* (typeName | VAR) bindingPattern ASSIGN expression
     ;
 
 typeDescExpr

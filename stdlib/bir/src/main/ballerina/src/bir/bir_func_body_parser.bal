@@ -542,9 +542,7 @@ public type FuncBodyParser object {
         } else if (kindTag == INS_LOCK) {
             TerminatorKind kind = TERMINATOR_LOCK;
 
-            string globleVarName = self.reader.readStringCpRef();
-            VariableDcl varDecl = self.getDecl(VAR_SCOPE_GLOBAL, globleVarName, VAR_KIND_GLOBAL);
-            Lock lockIns = {pos:pos, kind:kind, globleVar:varDecl, lockBB:self.parseBBRef()};
+            Lock lockIns = {pos:pos, kind:kind, lockBB:self.parseBBRef()};
             return lockIns;
         } else if (kindTag == INS_FIELD_LOCK) {
             TerminatorKind kind = TERMINATOR_FIELD_LOCK;
@@ -557,35 +555,7 @@ public type FuncBodyParser object {
         } else if (kindTag == INS_UNLOCK) {
             TerminatorKind kind = TERMINATOR_UNLOCK;
 
-            var globleVarCount = self.reader.readInt32();
-            VariableDcl?[] globleVars = [];
-            int i = 0;
-            while (i < globleVarCount) {
-                string varName = self.reader.readStringCpRef();
-                globleVars[i] = self.getDecl(VAR_SCOPE_GLOBAL, varName, VAR_KIND_GLOBAL);
-                i += 1;
-            }
-
-            var localLockCount = self.reader.readInt32();
-            LocalLocks?[] localLocks = [];
-            int j = 0;
-            while (j < localLockCount) {
-                string localVarName = self.reader.readStringCpRef();
-                VariableDcl varDecl = self.getDecl(VAR_SCOPE_FUNCTION, localVarName, VAR_KIND_SELF);
-                var fieldCount = self.reader.readInt32();
-                LocalLocks localLock = {localVar:varDecl, fields:[]};
-                int k = 0;
-                while (k < fieldCount) {
-                    string fieldName = self.reader.readStringCpRef();
-                    localLock.fields[k] = fieldName;
-                    k += 1;
-                }
-                localLocks[j] = localLock;
-                j += 1;
-            }
-
-            Unlock unlockIns = {pos:pos, kind:kind, globleVars:globleVars, 
-                localLocks:localLocks, unlockBB:self.parseBBRef()};
+            Unlock unlockIns = {pos:pos, kind:kind, unlockBB:self.parseBBRef()};
             return unlockIns;
         }
         error err = error("term instruction kind " + kindTag.toString() + " not impl.");

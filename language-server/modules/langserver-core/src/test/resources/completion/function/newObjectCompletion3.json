@@ -6,6 +6,42 @@
   "source": "function/source/newObjectCompletion3.bal",
   "items": [
     {
+      "label": "new(string url, http:ClientConfiguration config, http:FollowRedirects redirectConfig, http:HttpClient httpClient)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/http_  \n  \nCreate a redirect client with the given configurations.\n  \n**Params**  \n- `string` url: Target service url  \n- `http:ClientConfiguration` config: HTTP ClientConfiguration to be used for HTTP client invocation  \n- `http:FollowRedirects` redirectConfig: Configurations associated with redirect  \n- `http:HttpClient` httpClient: HTTP client for outbound HTTP requests"
+        }
+      },
+      "sortText": "120",
+      "insertText": "new(${1});",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "RedirectClient(string url, http:ClientConfiguration config, http:FollowRedirects redirectConfig, http:HttpClient httpClient)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/http_  \n  \nCreate a redirect client with the given configurations.\n  \n**Params**  \n- `string` url: Target service url  \n- `http:ClientConfiguration` config: HTTP ClientConfiguration to be used for HTTP client invocation  \n- `http:FollowRedirects` redirectConfig: Configurations associated with redirect  \n- `http:HttpClient` httpClient: HTTP client for outbound HTTP requests"
+        }
+      },
+      "sortText": "120",
+      "insertText": "RedirectClient(${1});",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
       "label": "testFunction()",
       "kind": "Function",
       "detail": "Function",
@@ -22,7 +58,7 @@
     {
       "label": "http",
       "kind": "Module",
-      "detail": "Package",
+      "detail": "Module",
       "sortText": "140",
       "insertText": "http",
       "insertTextFormat": "Snippet"
@@ -30,7 +66,7 @@
     {
       "label": "ballerinax/java.jdbc",
       "kind": "Module",
-      "detail": "Package",
+      "detail": "Module",
       "sortText": "140",
       "insertText": "jdbc",
       "insertTextFormat": "Snippet",
@@ -53,7 +89,7 @@
     {
       "label": "ballerinax/java",
       "kind": "Module",
-      "detail": "Package",
+      "detail": "Module",
       "sortText": "140",
       "insertText": "java",
       "insertTextFormat": "Snippet",
@@ -76,7 +112,7 @@
     {
       "label": "ballerina/lang.object",
       "kind": "Module",
-      "detail": "Package",
+      "detail": "Module",
       "sortText": "140",
       "insertText": "'object",
       "insertTextFormat": "Snippet",
@@ -99,7 +135,7 @@
     {
       "label": "ballerina/jwt",
       "kind": "Module",
-      "detail": "Package",
+      "detail": "Module",
       "sortText": "140",
       "insertText": "jwt",
       "insertTextFormat": "Snippet",
@@ -122,7 +158,7 @@
     {
       "label": "ballerina/lang.xml",
       "kind": "Module",
-      "detail": "Package",
+      "detail": "Module",
       "sortText": "140",
       "insertText": "'xml",
       "insertTextFormat": "Snippet",
@@ -145,7 +181,7 @@
     {
       "label": "ballerina/crypto",
       "kind": "Module",
-      "detail": "Package",
+      "detail": "Module",
       "sortText": "140",
       "insertText": "crypto",
       "insertTextFormat": "Snippet",
@@ -168,7 +204,7 @@
     {
       "label": "ballerina/lang.array",
       "kind": "Module",
-      "detail": "Package",
+      "detail": "Module",
       "sortText": "140",
       "insertText": "'array",
       "insertTextFormat": "Snippet",
@@ -191,7 +227,7 @@
     {
       "label": "ballerina/stringutils",
       "kind": "Module",
-      "detail": "Package",
+      "detail": "Module",
       "sortText": "140",
       "insertText": "stringutils",
       "insertTextFormat": "Snippet",
@@ -214,7 +250,7 @@
     {
       "label": "ballerina/cache",
       "kind": "Module",
-      "detail": "Package",
+      "detail": "Module",
       "sortText": "140",
       "insertText": "cache",
       "insertTextFormat": "Snippet",
@@ -237,7 +273,7 @@
     {
       "label": "ballerina/test",
       "kind": "Module",
-      "detail": "Package",
+      "detail": "Module",
       "sortText": "140",
       "insertText": "test",
       "insertTextFormat": "Snippet",
@@ -260,7 +296,7 @@
     {
       "label": "ballerina/file",
       "kind": "Module",
-      "detail": "Package",
+      "detail": "Module",
       "sortText": "140",
       "insertText": "file",
       "insertTextFormat": "Snippet",
@@ -283,7 +319,7 @@
     {
       "label": "ballerina/grpc",
       "kind": "Module",
-      "detail": "Package",
+      "detail": "Module",
       "sortText": "140",
       "insertText": "grpc",
       "insertTextFormat": "Snippet",
@@ -306,7 +342,7 @@
     {
       "label": "ballerina/bir",
       "kind": "Module",
-      "detail": "Package",
+      "detail": "Module",
       "sortText": "140",
       "insertText": "bir",
       "insertTextFormat": "Snippet",
@@ -329,7 +365,7 @@
     {
       "label": "ballerina/config",
       "kind": "Module",
-      "detail": "Package",
+      "detail": "Module",
       "sortText": "140",
       "insertText": "config",
       "insertTextFormat": "Snippet",
@@ -352,7 +388,7 @@
     {
       "label": "ballerina/auth",
       "kind": "Module",
-      "detail": "Package",
+      "detail": "Module",
       "sortText": "140",
       "insertText": "auth",
       "insertTextFormat": "Snippet",
@@ -375,7 +411,7 @@
     {
       "label": "ballerina/filepath",
       "kind": "Module",
-      "detail": "Package",
+      "detail": "Module",
       "sortText": "140",
       "insertText": "filepath",
       "insertTextFormat": "Snippet",
@@ -398,7 +434,7 @@
     {
       "label": "ballerina/ldap",
       "kind": "Module",
-      "detail": "Package",
+      "detail": "Module",
       "sortText": "140",
       "insertText": "ldap",
       "insertTextFormat": "Snippet",
@@ -421,7 +457,7 @@
     {
       "label": "ballerina/reflect",
       "kind": "Module",
-      "detail": "Package",
+      "detail": "Module",
       "sortText": "140",
       "insertText": "reflect",
       "insertTextFormat": "Snippet",
@@ -444,7 +480,7 @@
     {
       "label": "ballerina/lang.string",
       "kind": "Module",
-      "detail": "Package",
+      "detail": "Module",
       "sortText": "140",
       "insertText": "'string",
       "insertTextFormat": "Snippet",
@@ -467,7 +503,7 @@
     {
       "label": "ballerina/io",
       "kind": "Module",
-      "detail": "Package",
+      "detail": "Module",
       "sortText": "140",
       "insertText": "io",
       "insertTextFormat": "Snippet",
@@ -490,7 +526,7 @@
     {
       "label": "ballerina/runtime",
       "kind": "Module",
-      "detail": "Package",
+      "detail": "Module",
       "sortText": "140",
       "insertText": "runtime",
       "insertTextFormat": "Snippet",
@@ -513,7 +549,7 @@
     {
       "label": "ballerina/oauth2",
       "kind": "Module",
-      "detail": "Package",
+      "detail": "Module",
       "sortText": "140",
       "insertText": "oauth2",
       "insertTextFormat": "Snippet",
@@ -536,7 +572,7 @@
     {
       "label": "ballerina/jvm",
       "kind": "Module",
-      "detail": "Package",
+      "detail": "Module",
       "sortText": "140",
       "insertText": "jvm",
       "insertTextFormat": "Snippet",
@@ -559,7 +595,7 @@
     {
       "label": "ballerina/encoding",
       "kind": "Module",
-      "detail": "Package",
+      "detail": "Module",
       "sortText": "140",
       "insertText": "encoding",
       "insertTextFormat": "Snippet",
@@ -582,7 +618,7 @@
     {
       "label": "ballerina/rabbitmq",
       "kind": "Module",
-      "detail": "Package",
+      "detail": "Module",
       "sortText": "140",
       "insertText": "rabbitmq",
       "insertTextFormat": "Snippet",
@@ -605,7 +641,7 @@
     {
       "label": "ballerina/lang.future",
       "kind": "Module",
-      "detail": "Package",
+      "detail": "Module",
       "sortText": "140",
       "insertText": "'future",
       "insertTextFormat": "Snippet",
@@ -628,7 +664,7 @@
     {
       "label": "ballerina/lang.value",
       "kind": "Module",
-      "detail": "Package",
+      "detail": "Module",
       "sortText": "140",
       "insertText": "'value",
       "insertTextFormat": "Snippet",
@@ -651,7 +687,7 @@
     {
       "label": "ballerina/openapi",
       "kind": "Module",
-      "detail": "Package",
+      "detail": "Module",
       "sortText": "140",
       "insertText": "openapi",
       "insertTextFormat": "Snippet",
@@ -674,7 +710,7 @@
     {
       "label": "ballerina/math",
       "kind": "Module",
-      "detail": "Package",
+      "detail": "Module",
       "sortText": "140",
       "insertText": "math",
       "insertTextFormat": "Snippet",
@@ -697,7 +733,7 @@
     {
       "label": "ballerina/time",
       "kind": "Module",
-      "detail": "Package",
+      "detail": "Module",
       "sortText": "140",
       "insertText": "time",
       "insertTextFormat": "Snippet",
@@ -720,7 +756,7 @@
     {
       "label": "ballerina/observe",
       "kind": "Module",
-      "detail": "Package",
+      "detail": "Module",
       "sortText": "140",
       "insertText": "observe",
       "insertTextFormat": "Snippet",
@@ -743,7 +779,7 @@
     {
       "label": "ballerina/system",
       "kind": "Module",
-      "detail": "Package",
+      "detail": "Module",
       "sortText": "140",
       "insertText": "system",
       "insertTextFormat": "Snippet",
@@ -766,7 +802,7 @@
     {
       "label": "ballerina/lang.float",
       "kind": "Module",
-      "detail": "Package",
+      "detail": "Module",
       "sortText": "140",
       "insertText": "'float",
       "insertTextFormat": "Snippet",
@@ -789,7 +825,7 @@
     {
       "label": "ballerina/transactions",
       "kind": "Module",
-      "detail": "Package",
+      "detail": "Module",
       "sortText": "140",
       "insertText": "transactions",
       "insertTextFormat": "Snippet",
@@ -812,7 +848,7 @@
     {
       "label": "ballerina/nats",
       "kind": "Module",
-      "detail": "Package",
+      "detail": "Module",
       "sortText": "140",
       "insertText": "nats",
       "insertTextFormat": "Snippet",
@@ -835,7 +871,7 @@
     {
       "label": "ballerina/lang.decimal",
       "kind": "Module",
-      "detail": "Package",
+      "detail": "Module",
       "sortText": "140",
       "insertText": "'decimal",
       "insertTextFormat": "Snippet",
@@ -858,7 +894,7 @@
     {
       "label": "ballerina/task",
       "kind": "Module",
-      "detail": "Package",
+      "detail": "Module",
       "sortText": "140",
       "insertText": "task",
       "insertTextFormat": "Snippet",
@@ -881,7 +917,7 @@
     {
       "label": "ballerina/lang.table",
       "kind": "Module",
-      "detail": "Package",
+      "detail": "Module",
       "sortText": "140",
       "insertText": "'table",
       "insertTextFormat": "Snippet",
@@ -904,7 +940,7 @@
     {
       "label": "ballerina/log",
       "kind": "Module",
-      "detail": "Package",
+      "detail": "Module",
       "sortText": "140",
       "insertText": "log",
       "insertTextFormat": "Snippet",
@@ -927,7 +963,7 @@
     {
       "label": "ballerina/mime",
       "kind": "Module",
-      "detail": "Package",
+      "detail": "Module",
       "sortText": "140",
       "insertText": "mime",
       "insertTextFormat": "Snippet",
@@ -950,7 +986,7 @@
     {
       "label": "ballerina/lang.stream",
       "kind": "Module",
-      "detail": "Package",
+      "detail": "Module",
       "sortText": "140",
       "insertText": "'stream",
       "insertTextFormat": "Snippet",
@@ -973,7 +1009,7 @@
     {
       "label": "ballerina/lang.error",
       "kind": "Module",
-      "detail": "Package",
+      "detail": "Module",
       "sortText": "140",
       "insertText": "'error",
       "insertTextFormat": "Snippet",
@@ -996,7 +1032,7 @@
     {
       "label": "ballerina/lang.typedesc",
       "kind": "Module",
-      "detail": "Package",
+      "detail": "Module",
       "sortText": "140",
       "insertText": "'typedesc",
       "insertTextFormat": "Snippet",
@@ -1019,7 +1055,7 @@
     {
       "label": "ballerina/lang.map",
       "kind": "Module",
-      "detail": "Package",
+      "detail": "Module",
       "sortText": "140",
       "insertText": "'map",
       "insertTextFormat": "Snippet",
@@ -1042,7 +1078,7 @@
     {
       "label": "ballerina/lang.int",
       "kind": "Module",
-      "detail": "Package",
+      "detail": "Module",
       "sortText": "140",
       "insertText": "'int",
       "insertTextFormat": "Snippet",
@@ -1065,7 +1101,7 @@
     {
       "label": "ballerina/socket",
       "kind": "Module",
-      "detail": "Package",
+      "detail": "Module",
       "sortText": "140",
       "insertText": "socket",
       "insertTextFormat": "Snippet",
@@ -1150,48 +1186,12 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "new(string url, http:ClientConfiguration config, http:FollowRedirects redirectConfig, http:HttpClient httpClient)",
-      "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _ballerina/http_  \n  \nCreate a redirect client with the given configurations.\n  \n**Params**  \n- `string` url: Target service url  \n- `http:ClientConfiguration` config: HTTP ClientConfiguration to be used for HTTP client invocation  \n- `http:FollowRedirects` redirectConfig: Configurations associated with redirect  \n- `http:HttpClient` httpClient: HTTP client for outbound HTTP requests"
-        }
-      },
-      "sortText": "120",
-      "insertText": "new(${1});",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
-    },
-    {
       "label": "new",
       "kind": "Keyword",
       "detail": "Keyword",
       "sortText": "220",
       "insertText": "new ",
       "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "RedirectClient(string url, http:ClientConfiguration config, http:FollowRedirects redirectConfig, http:HttpClient httpClient)",
-      "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _ballerina/http_  \n  \nCreate a redirect client with the given configurations.\n  \n**Params**  \n- `string` url: Target service url  \n- `http:ClientConfiguration` config: HTTP ClientConfiguration to be used for HTTP client invocation  \n- `http:FollowRedirects` redirectConfig: Configurations associated with redirect  \n- `http:HttpClient` httpClient: HTTP client for outbound HTTP requests"
-        }
-      },
-      "sortText": "120",
-      "insertText": "RedirectClient(${1});",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
     }
   ]
 }

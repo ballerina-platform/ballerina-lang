@@ -105,14 +105,15 @@ public class SymbolTable {
     public final BType anydataType = new BAnydataType(TypeTags.ANYDATA, null);
     public final BType mapType = new BMapType(TypeTags.MAP, anyType, null);
     public final BType mapStringType = new BMapType(TypeTags.MAP, stringType, null);
-    public final BType mapAnydataType = new BMapType(TypeTags.MAP, anydataType, null);
     public final BType mapJsonType = new BMapType(TypeTags.MAP, jsonType, null);
+    public final BType mapAnydataType = new BMapType(TypeTags.MAP, anydataType, null);
     public final BType futureType = new BFutureType(TypeTags.FUTURE, nilType, null);
     public final BType arrayType = new BArrayType(noType);
     public final BType tupleType = new BTupleType(Lists.of(noType));
     public final BType recordType = new BRecordType(null);
     public final BType intArrayType = new BArrayType(intType);
     public final BType stringArrayType = new BArrayType(stringType);
+    public final BType jsonArrayType = new BArrayType(jsonType);
     public final BType anydataArrayType = new BArrayType(anydataType);
     public final BType anydataMapArrayType = new BArrayType(mapAnydataType);
     public final BType anyServiceType = new BServiceType(null);
@@ -125,11 +126,13 @@ public class SymbolTable {
     public BErrorType errorType;
     public BRecordType detailType;
     public BConstructorSymbol errorConstructor;
+    public BUnionType anyOrErrorType;
     public BUnionType pureType;
     public BUnionType errorOrNilType;
     public BType streamType = new BStreamType(TypeTags.STREAM, pureType, null);
     public BFiniteType trueType;
     public BObjectType intRangeType;
+    public BMapType mapAllType;
 
     public BPackageSymbol langInternalModuleSymbol;
     public BPackageSymbol langAnnotationModuleSymbol;
@@ -254,7 +257,7 @@ public class SymbolTable {
         initializeType(type, names.fromString(name));
     }
 
-    private void initializeType(BType   type, Name name) {
+    private void initializeType(BType type, Name name) {
         defineType(type, new BTypeSymbol(SymTag.TYPE, Flags.PUBLIC, name, rootPkgSymbol.pkgID, type, rootPkgSymbol));
     }
 

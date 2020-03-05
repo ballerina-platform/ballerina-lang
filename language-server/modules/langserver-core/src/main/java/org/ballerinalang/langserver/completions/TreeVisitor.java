@@ -42,6 +42,7 @@ import org.ballerinalang.model.Whitespace;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.AnnotationSymbol;
+import org.ballerinalang.model.tree.BlockNode;
 import org.ballerinalang.model.tree.Node;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
@@ -60,6 +61,9 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
+import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
+import org.wso2.ballerinalang.compiler.tree.BLangExprFunctionBody;
+import org.wso2.ballerinalang.compiler.tree.BLangExternalFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
@@ -89,6 +93,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCompoundAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangContinue;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangErrorVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
@@ -138,7 +143,7 @@ public class TreeVisitor extends LSNodeVisitor {
 
     private Deque<Node> blockOwnerStack;
 
-    private Deque<BLangBlockStmt> blockStmtStack;
+    private Deque<BlockNode> blockStmtStack;
 
     private Deque<Boolean> isCurrentNodeTransactionStack;
 
@@ -258,9 +263,8 @@ public class TreeVisitor extends LSNodeVisitor {
         List<BLangNode> functionParamsOrdered = CompletionVisitorUtil.getFunctionParamsOrdered(funcNode);
         functionParamsOrdered.forEach(param -> this.acceptNode(param, symbolEnv));
         funcNode.returnTypeAnnAttachments.forEach(annotation -> this.acceptNode(annotation, symbolEnv));
-        funcNode.externalAnnAttachments.forEach(annotation -> this.acceptNode(annotation, symbolEnv));
 
-        if (funcNode.getBody() != null) {
+        if (funcNode.hasBody()) {
             this.blockOwnerStack.push(funcNode);
             this.cursorPositionResolver = BlockStatementScopeResolver.class;
             this.acceptNode(funcNode.body, funcEnv);
@@ -399,6 +403,46 @@ public class TreeVisitor extends LSNodeVisitor {
             }
             this.blockStmtStack.pop();
         }
+    }
+
+    @Override
+    public void visit(BLangBlockFunctionBody blockFuncBody) {
+        SymbolEnv blockEnv = SymbolEnv.createFuncBodyEnv(blockFuncBody, symbolEnv);
+        List<BLangStatement> statements = blockFuncBody.stmts.stream()
+                .filter(bLangStatement -> !CommonUtil.isWorkerDereivative(bLangStatement))
+                .sorted(new CommonUtil.BLangNodeComparator())
+                .collect(Collectors.toList());
+
+        if (statements.isEmpty() && CompletionVisitorUtil
+                .isCursorWithinBlock((DiagnosticPos) (this.blockOwnerStack.peek()).getPosition(), blockEnv,
+                        this.lsContext, this)) {
+            return;
+        }
+
+        for (int i = 0; i < statements.size(); i++) {
+            this.blockStmtStack.push(blockFuncBody);
+            this.cursorPositionResolver = BlockStatementScopeResolver.class;
+            this.acceptNode(statements.get(i), blockEnv);
+            if (this.terminateVisitor && this.previousNode == null) {
+                int nodeIndex = statements.size() > 1 && i > 0 ? (i - 1) : 0;
+                this.previousNode = statements.get(nodeIndex);
+                lsContext.put(CompletionKeys.PREVIOUS_NODE_KEY, this.previousNode);
+            }
+            this.blockStmtStack.pop();
+        }
+    }
+
+    @Override
+    public void visit(BLangExternalFunctionBody body) {
+        for (BLangAnnotationAttachment annotation : body.annAttachments) {
+            this.acceptNode(annotation, symbolEnv);
+        }
+    }
+
+    @Override
+    public void visit(BLangExprFunctionBody exprFuncBody) {
+        SymbolEnv exprBodyEnv = SymbolEnv.createFuncBodyEnv(exprFuncBody, symbolEnv);
+        this.acceptNode(exprFuncBody.expr, exprBodyEnv);
     }
 
     @Override
@@ -847,6 +891,12 @@ public class TreeVisitor extends LSNodeVisitor {
         this.acceptNode(compoundAssignNode.expr, symbolEnv);
     }
 
+    @Override
+    public void visit(BLangErrorVariableDef bLangErrorVariableDef) {
+        CursorPositionResolver cpr = CursorPositionResolvers.getResolverByClass(cursorPositionResolver);
+        cpr.isCursorBeforeNode(bLangErrorVariableDef.getPosition(), this, this.lsContext, bLangErrorVariableDef, null);
+    }
+
     ///////////////////////////////////
     /////   Other Public Methods  /////
     ///////////////////////////////////
@@ -878,7 +928,7 @@ public class TreeVisitor extends LSNodeVisitor {
         return blockOwnerStack;
     }
 
-    public Deque<BLangBlockStmt> getBlockStmtStack() {
+    public Deque<BlockNode> getBlockStmtStack() {
         return blockStmtStack;
     }
 

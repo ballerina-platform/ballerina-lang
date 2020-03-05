@@ -18,7 +18,7 @@
 package org.ballerinalang.model.clauses;
 
 import org.ballerinalang.model.tree.Node;
-import org.ballerinalang.model.tree.statements.BlockNode;
+import org.ballerinalang.model.tree.statements.BlockStatementNode;
 
 /**
  * The interface with the APIs to implement the "do" clause.
@@ -27,7 +27,7 @@ import org.ballerinalang.model.tree.statements.BlockNode;
  */
 public interface DoClauseNode extends Node {
 
-    BlockNode getBody();
+    BlockStatementNode getBody();
 
-    void setBody(BlockNode body);
+    void setBody(BlockStatementNode body);
 }

@@ -3,18 +3,20 @@
     "character": 26,
     "expected": {
         "title": "Create Local Variable",
-        "edit": {
-            "range": {
-                "start": {
-                    "line": 29,
-                    "character": 4
-                },
-                "end": {
-                    "line": 29,
-                    "character": 4
-                }
-            },
-            "newText": "byte[] hashMd5 = "
-        }
-    }
+        "edits": [
+      {
+        "range": {
+          "start": {
+            "line": 29,
+            "character": 4
+          },
+          "end": {
+            "line": 29,
+            "character": 4
+          }
+        },
+        "newText": "byte[] hashMd5 = "
+      }
+    ]
+  }
 }
