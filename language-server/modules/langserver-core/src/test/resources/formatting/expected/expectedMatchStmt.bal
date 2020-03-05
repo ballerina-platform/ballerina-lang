@@ -75,7 +75,7 @@ function testStructuredMatchPatternsBasic4() returns string {
     return "Default";
 }
 
-function foo(string | int | boolean a) returns string {
+function foo(string|int|boolean a) returns string {
     match a {
         12 => {
             return "Value is '12'";
@@ -100,7 +100,7 @@ function foo(string | int | boolean a) returns string {
     return "Value is 'Default'";
 }
 
-function typeGuard1([string, int] | Foo | error | [int, boolean] | int | float x) returns string {
+function typeGuard1([string, int]|Foo|error|[int, boolean]|int|float x) returns string {
     match x {
         var [s, i] if s is string => {
             return "Matched with string : " + s + " added text with " + io:sprintf("%s", i);

@@ -19,6 +19,7 @@ package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.clauses.FromClauseNode;
+import org.ballerinalang.model.clauses.LetClauseNode;
 import org.ballerinalang.model.clauses.WhereClauseNode;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
@@ -41,6 +42,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstantSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BErrorTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BLetSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
@@ -73,6 +75,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangFromClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangLetClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWhereClause;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAccessExpression;
@@ -81,6 +84,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckPanickedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
@@ -90,6 +94,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIntRangeExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangLetExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchExpression;
@@ -129,6 +134,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQName;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQuotedString;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLTextLiteral;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
+import org.wso2.ballerinalang.compiler.tree.types.BLangLetVariable;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUnionTypeNode;
@@ -189,6 +195,7 @@ public class TypeChecker extends BLangNodeVisitor {
     private SemanticAnalyzer semanticAnalyzer;
     private boolean nonErrorLoggingCheck = false;
 
+    private int letCount = 0;
     /**
      * Expected types or inherited types.
      */
@@ -1152,6 +1159,15 @@ public class TypeChecker extends BLangNodeVisitor {
                ((BFutureType) symbol.type).workerDerivative;
     }
 
+    @Override
+    public void visit(BLangConstRef constRef) {
+        constRef.symbol = symResolver.lookupMainSpaceSymbolInPackage(constRef.pos, env,
+                names.fromIdNode(constRef.pkgAlias), names.fromIdNode(constRef.variableName));
+
+        types.setImplicitCastExpr(constRef, constRef.type, expType);
+        resultType = constRef.type;
+    }
+
     public void visit(BLangSimpleVarRef varRefExpr) {
         // Set error type as the actual type.
         BType actualType = symTable.semanticError;
@@ -1585,6 +1601,17 @@ public class TypeChecker extends BLangNodeVisitor {
             default:
                 checkInLangLib(iExpr, varRefType);
         }
+    }
+
+    public void visit(BLangLetExpression letExpression) {
+        BLetSymbol letSymbol = new BLetSymbol(SymTag.LET, Flags.asMask(new HashSet<>(Lists.of())),
+                new Name(String.format("$let_symbol_%d$", letCount++)), env.enclPkg.symbol.pkgID,
+                letExpression.type, env.scope.owner);
+        letExpression.env = SymbolEnv.createExprEnv(letExpression, env, letSymbol);
+        for (BLangLetVariable letVariable : letExpression.letVarDeclarations) {
+            semanticAnalyzer.analyzeDef((BLangNode) letVariable.definitionNode, letExpression.env);
+        }
+        checkExpr(letExpression.expr, letExpression.env);
     }
 
     private void checkInLangLib(BLangInvocation iExpr, BType varRefType) {
@@ -2548,9 +2575,13 @@ public class TypeChecker extends BLangNodeVisitor {
     public void visit(BLangQueryExpr queryExpr) {
         List<? extends FromClauseNode> fromClauseList = queryExpr.fromClauseList;
         List<? extends WhereClauseNode> whereClauseList = queryExpr.whereClauseList;
+        List<? extends LetClauseNode> letClauseList = queryExpr.letClausesList;
         SymbolEnv parentEnv = env;
         for (FromClauseNode fromClause : fromClauseList) {
             parentEnv = typeCheckFromClause((BLangFromClause) fromClause, parentEnv);
+        }
+        for (LetClauseNode letClauseNode : letClauseList) {
+            parentEnv = typeCheckLetClause((BLangLetClause) letClauseNode, parentEnv);
         }
         BLangSelectClause selectClause = queryExpr.selectClause;
         SymbolEnv whereEnv = parentEnv;
@@ -2578,6 +2609,14 @@ public class TypeChecker extends BLangNodeVisitor {
         handleFromClauseVariables(fromClause, fromClauseEnv);
 
         return fromClauseEnv;
+    }
+
+    SymbolEnv typeCheckLetClause(BLangLetClause letClause, SymbolEnv parentEnv) {
+        SymbolEnv letClauseEnv = SymbolEnv.createTypeNarrowedEnv(letClause, parentEnv);
+        for (BLangLetVariable letVariable : letClause.letVarDeclarations) {
+            semanticAnalyzer.analyzeDef((BLangNode) letVariable.definitionNode, letClauseEnv);
+        }
+        return letClauseEnv;
     }
 
     private SymbolEnv typeCheckWhereClause(BLangWhereClause whereClause, BLangSelectClause selectClause,
@@ -3002,7 +3041,8 @@ public class TypeChecker extends BLangNodeVisitor {
             return;
         }
 
-        if (iExpr.argExprs.isEmpty() && checkNoArgErrorCtorInvocation(expectedError, iExpr.name, iExpr.pos)) {
+        if (iExpr.argExprs.isEmpty() && iExpr.requiredArgs.isEmpty() && checkNoArgErrorCtorInvocation(expectedError,
+                iExpr.name, iExpr.pos)) {
             return;
         }
 
@@ -3147,8 +3187,10 @@ public class TypeChecker extends BLangNodeVisitor {
             iExpr.requiredArgs.add(reasonExpr);
             return;
         }
-        iExpr.requiredArgs.add(iExpr.argExprs.get(0));
-        iExpr.argExprs.remove(0);
+        if (!iExpr.argExprs.isEmpty()) {
+            iExpr.requiredArgs.add(iExpr.argExprs.get(0));
+            iExpr.argExprs.remove(0);
+        }
     }
 
     /**

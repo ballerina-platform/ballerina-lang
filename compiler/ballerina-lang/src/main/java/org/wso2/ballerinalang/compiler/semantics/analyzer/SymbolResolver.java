@@ -259,12 +259,18 @@ public class SymbolResolver extends BLangNodeVisitor {
         // check whether the given symbol owner is same as found symbol's owner
         if (foundSym.owner == symbol.owner) {
             return true;
+        } else if (Symbols.isFlagOn(symbol.owner.flags, Flags.LAMBDA) &&
+                ((foundSym.owner.tag & SymTag.INVOKABLE) == SymTag.INVOKABLE)) {
+            // If the symbol being defined is inside a lambda and the existing symbol is defined inside a function, both
+            // symbols are in the same block scope.
+            return true;
+        } else if (((symbol.owner.tag & SymTag.LET) == SymTag.LET) &&
+                ((foundSym.owner.tag & SymTag.INVOKABLE) == SymTag.INVOKABLE)) {
+            // If the symbol being defined is inside a let expression and the existing symbol is defined inside a
+            // function both symbols are in the same scope.
+            return  true;
         }
-
-        // If the symbol being defined is inside a lambda and the existing symbol is defined inside a function, both
-        // symbols are in the same block scope.
-        return Symbols.isFlagOn(symbol.owner.flags, Flags.LAMBDA) &&
-                ((foundSym.owner.tag & SymTag.INVOKABLE) == SymTag.INVOKABLE);
+        return  false;
     }
 
     private boolean isSymbolRedeclaredInTestPackage(BSymbol symbol, BSymbol foundSym) {

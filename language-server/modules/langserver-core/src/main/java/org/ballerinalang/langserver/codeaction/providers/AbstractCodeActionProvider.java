@@ -180,7 +180,6 @@ public abstract class AbstractCodeActionProvider implements LSCodeActionProvider
                         break;
                     } else if ((tailPrevChar == '-' && tailChar == '>')) {
                         // Break on arrow-function invocations
-                        count += 2;
                         break;
                     }
                 }

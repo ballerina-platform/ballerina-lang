@@ -503,6 +503,17 @@ public class BLangParserListener extends BallerinaParserBaseListener {
                 isClient, false);
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void exitObjectTypeNameLabel(BallerinaParser.ObjectTypeNameLabelContext ctx) {
+        if (isInErrorState) {
+            return;
+        }
+        this.pkgBuilder.addObjectTypeName(getWS(ctx));
+    }
+
     @Override
     public void exitTypeReference(BallerinaParser.TypeReferenceContext ctx) {
         if (isInErrorState) {
@@ -1019,6 +1030,18 @@ public class BLangParserListener extends BallerinaParserBaseListener {
                 getCurrentPos(ctx), false);
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void exitErrorRestBindingPattern(BallerinaParser.ErrorRestBindingPatternContext ctx) {
+        if (isInErrorState) {
+            return;
+        }
+
+        this.pkgBuilder.addWSForErrorRestBinding(getWS(ctx));
+    }
+
     @Override
     public void exitErrorBindingPattern(BallerinaParser.ErrorBindingPatternContext ctx) {
         if (isInErrorState) {
@@ -1073,6 +1096,15 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         }
 
         this.pkgBuilder.endSimpleMatchPattern(getWS(ctx));
+    }
+
+    @Override
+    public void exitRestMatchPattern(BallerinaParser.RestMatchPatternContext ctx) {
+        if (isInErrorState) {
+            return;
+        }
+
+        this.pkgBuilder.addWSForRestMatchPattern(getWS(ctx));
     }
 
     @Override
@@ -1444,6 +1476,51 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         }
         boolean argsAvailable = ctx.expressionList() != null;
         this.pkgBuilder.addListConstructorExpression(getCurrentPos(ctx), getWS(ctx), argsAvailable);
+    }
+
+    @Override
+    public void enterLetExpr(BallerinaParser.LetExprContext ctx) {
+        if (isInErrorState) {
+            return;
+        }
+
+        this.pkgBuilder.startLetVarList();
+    }
+
+    @Override
+    public void exitLetExpr(BallerinaParser.LetExprContext ctx) {
+        if (isInErrorState) {
+            return;
+        }
+
+        this.pkgBuilder.addLetExpression(getCurrentPos(ctx));
+    }
+
+    @Override
+    public void exitLetVarDecl(BallerinaParser.LetVarDeclContext ctx) {
+        if (isInErrorState) {
+            return;
+        }
+
+        boolean isDeclaredWithVar = ctx.VAR() != null;
+        boolean isExpressionAvailable = ctx.expression() != null;
+
+        int annotationAttachmentsSize = ctx.annotationAttachment().size();
+        if (ctx.bindingPattern().Identifier() != null) {
+            this.pkgBuilder.addSimpleLetVariableDefStatement(getCurrentPos(ctx), getWS(ctx),
+                    ctx.bindingPattern().Identifier().getText(),
+                    getCurrentPos(ctx.bindingPattern().Identifier()),
+                    isExpressionAvailable, isDeclaredWithVar, annotationAttachmentsSize);
+        } else if (ctx.bindingPattern().structuredBindingPattern().recordBindingPattern() != null) {
+            this.pkgBuilder.addRecordVariableLetDefStatement(getCurrentPos(ctx), getWS(ctx), isDeclaredWithVar,
+                    annotationAttachmentsSize);
+        } else if (ctx.bindingPattern().structuredBindingPattern().errorBindingPattern() != null) {
+            this.pkgBuilder.addErrorVariableLetDefStatement(getCurrentPos(ctx), getWS(ctx), isDeclaredWithVar,
+                    annotationAttachmentsSize);
+        } else if (ctx.bindingPattern().structuredBindingPattern().listBindingPattern() != null) {
+            this.pkgBuilder.addTupleVariableLetDefStatement(getCurrentPos(ctx), getWS(ctx), isDeclaredWithVar,
+                    annotationAttachmentsSize);
+        }
     }
 
     @Override
@@ -2657,6 +2734,20 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             this.pkgBuilder.createFromClauseWithTupleVariableDefStatement(getCurrentPos(ctx), getWS(ctx),
                     isDeclaredWithVar);
         }
+    }
+
+    public void enterLetClause(BallerinaParser.LetClauseContext ctx) {
+        if (isInErrorState) {
+            return;
+        }
+        this.pkgBuilder.startLetVarList();
+    }
+
+    public void exitLetClause(BallerinaParser.LetClauseContext ctx) {
+        if (isInErrorState) {
+            return;
+        }
+        this.pkgBuilder.addLetClause(getCurrentPos(ctx));
     }
 
     @Override
