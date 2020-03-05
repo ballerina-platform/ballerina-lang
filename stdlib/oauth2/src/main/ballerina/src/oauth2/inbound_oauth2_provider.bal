@@ -148,8 +148,8 @@ public function getScopes(string scopes) returns string[] {
 #
 # + url - URL of the introspection server
 # + tokenTypeHint - A hint about the type of the token submitted for introspection
-# + oauth2Cache - Cache used to store OAuth2 token and information
-# + defaultTokenExpTimeInSeconds - Expiration time of the tokens if introspection response does not contain `exp` field
+# + oauth2Cache - Cache used to store the OAuth2 token and other related information
+# + defaultTokenExpTimeInSeconds - Expiration time of the tokens if introspection response does not contain an `exp` field
 # + clientConfig - HTTP client configurations which calls the introspection server
 public type IntrospectionServerConfig record {|
     string url;

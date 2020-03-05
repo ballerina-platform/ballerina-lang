@@ -28,7 +28,7 @@ public type Detail record {
 public const CACHE_ERROR = "{ballerina/cache}Error";
 public type Error error<CACHE_ERROR, Detail>;
 
-# Log and prepare `error` as a `Error`.
+# Log and prepare the `error` as an `Error`.
 #
 # + message - Error message
 # + err - `error` instance

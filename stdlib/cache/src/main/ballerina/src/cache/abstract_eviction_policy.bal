@@ -14,45 +14,45 @@
 // specific language governing permissions and limitations
 // under the License.
 
-# Represents Ballerina `AbstractEvictionPolicy` object and cache eviction related operations
-# based on linked list data structure.
+# Represents the Ballerina `AbstractEvictionPolicy` object and cache eviction related operations
+# based on a linked list data structure.
 # Any custom cache implementation should be object-wise similar.
 public type AbstractEvictionPolicy abstract object {
 
-    # Update linked list based on get operation.
+    # Update the linked list based on the get operation.
     #
     # + list - Linked list data structure
-    # + node - Node of the linked list which is retrieved
+    # + node - Node of the linked list, which is retrieved
     public function get(LinkedList list, Node node);
 
-    # Update linked list based on put operation.
+    # Update the linked list based on the put operation.
     #
     # + list - Linked list data structure
-    # + node - Node of the linked list which is newly added
+    # + node - Node of the linked list, which is added newly
     public function put(LinkedList list, Node node);
 
-    # Update linked list based on remove operation.
+    # Update the linked list based on the remove operation.
     #
     # + list - Linked list data structure
-    # + node - Node of the linked list which is deleted
+    # + node - Node of the linked list, which is deleted
     public function remove(LinkedList list, Node node);
 
-    # Update linked list based on replace operation.
+    # Update the linked list based on the replace operation.
     #
     # + list - Linked list data structure
-    # + newNode - Node of the linked list which is replaced by
-    # + oldNode - Node of the linked list which is to be replaced
+    # + newNode - Node of the linked list, which is used for replacing
+    # + oldNode - Node of the linked list, which will be replaced
     public function replace(LinkedList list, Node newNode, Node oldNode);
 
-    # Update linked list based on clear operation.
+    # Update the linked list based on the clear operation.
     #
     # + list - Linked list data structure
     public function clear(LinkedList list);
 
-    # Update linked list based on evict operation.
+    # Update the linked list based on the evict operation.
     #
     # + list - Linked list data structure
-    # + return - The Ndde which should evict from the linked list or `()` if nothing to be evicted
+    # + return - The Node, which should evict from the linked list or `()` if nothing to be evicted
     public function evict(LinkedList list) returns Node?;
 
 };

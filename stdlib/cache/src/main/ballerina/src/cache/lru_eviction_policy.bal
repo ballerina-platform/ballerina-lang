@@ -14,58 +14,58 @@
 // specific language governing permissions and limitations
 // under the License.
 
-# Represents `LruEvictionPolicy` object which has LRU eviction algorithm related operations
-# based on linked list data structure.
+# Represents the `LruEvictionPolicy` object, which has LRU eviction algorithm related operations
+# based on a linked list data structure.
 public type LruEvictionPolicy object {
 
     *AbstractEvictionPolicy;
 
-    # Update linked list based on get operation related to LRU eviction algorithm.
+    # Update the linked list based on the get operation related to the LRU eviction algorithm.
     #
     # + list - Linked list data structure
-    # + node - Node of the linked list which is retrieved
+    # + node - Node of the linked list, which is retrieved
     public function get(LinkedList list, Node node) {
         remove(list, node);
         addFirst(list, node);
     }
 
-    # Update linked list based on put operation related to LRU eviction algorithm.
+    # Update the linked list based on the put operation related to the LRU eviction algorithm.
     #
     # + list - Linked list data structure
-    # + node - Node of the linked list which is newly added
+    # + node - Node of the linked list, which is added newly
     public function put(LinkedList list, Node node) {
         addFirst(list, node);
     }
 
-    # Update linked list based on remove operation related to LRU eviction algorithm.
+    # Update the linked list based on the remove operation related to the LRU eviction algorithm.
     #
     # + list - Linked list data structure
-    # + node - Node of the linked list which is deleted
+    # + node - Node of the linked list, which is deleted
     public function remove(LinkedList list, Node node) {
         remove(list, node);
     }
 
-    # Update linked list based on replace operation related to LRU eviction algorithm.
+    # Update the linked list based on the replace operation related to the LRU eviction algorithm.
     #
     # + list - Linked list data structure
-    # + newNode - Node of the linked list which is replaced by
-    # + oldNode - Node of the linked list which is to be replaced
+    # + newNode - Node of the linked list, which is used for replacing
+    # + oldNode - Node of the linked list, which will be replaced
     public function replace(LinkedList list, Node newNode, Node oldNode) {
         remove(list, oldNode);
         addFirst(list, newNode);
     }
 
-    # Update linked list based on clear operation related to LRU eviction algorithm.
+    # Update the linked list based on the clear operation related to the LRU eviction algorithm.
     #
     # + list - Linked list data structure
     public function clear(LinkedList list) {
         clear(list);
     }
 
-    # Update linked list based on evict operation related to LRU eviction algorithm.
+    # Update the linked list based on the evict operation related to the LRU eviction algorithm.
     #
     # + list - Linked list data structure
-    # + return - The Ndde which should evict from the linked list or `()` if nothing to be evicted
+    # + return - The Node, which should evict from the linked list or `()` if nothing to be evicted
     public function evict(LinkedList list) returns Node? {
         return removeLast(list);
     }

@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-// This is a linked list data structure implementation which is used for the eviction algorithm of the cache.
+// This is a linked list data structure implementation, which is used for the eviction algorithm of the cache.
 
 public type Node record {|
     any value;

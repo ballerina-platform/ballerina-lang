@@ -14,29 +14,29 @@
 // specific language governing permissions and limitations
 // under the License.
 
-# Represents Ballerina `AbstractCache` object and cache related operations.
+# Represents the Ballerina `AbstractCache` object and cache-related operations.
 # Any custom cache implementation should be object-wise similar.
 public type AbstractCache abstract object {
 
-    # Add the given key, value pair to the cache.
+    # Add the given key value pair to the cache.
     #
     # + key - Key of the cached value
     # + value - Value to be cached
-    # + maxAgeInSeconds - The value in seconds which the cache entry is valid. '-1' means, the entry is valid forever.
+    # + maxAgeInSeconds - The value in seconds, which the cache entry is valid. '-1' means, the entry is valid forever.
     public function put(string key, any value, int maxAgeInSeconds = -1);
 
     # Return the cached value associated with the given key.
     #
-    # + key - Key which is used to retrieve the cached value
+    # + key - Key, which is used to retrieve the cached value
     # + return - The cached value associated with the given key or
-    # `Error` if the provided cache key is not or if any error occurred while retrieving from the cache.
+    # `Error` if the provided cache key is not available or if any error occurred while retrieving from the cache.
     public function get(string key) returns any|Error;
 
     # Invalidate a cached value from the cache.
     #
     # + key - Key of the cache entry which needs to be invalidate
     # + return - `()` if successfully invalidated or
-    # `Error` if the provided cache key is not or if any error occurred while invalidating from the cache.
+    # `Error` if the provided cache key is not available or if any error occurred while invalidating from the cache.
     public function invalidate(string key) returns Error?;
 
     # Invalidate all the cached values from the cache.
@@ -48,7 +48,7 @@ public type AbstractCache abstract object {
     # Checks whether the given key has an associated cache value.
     #
     # + key - The key to be checked
-    # + return - Whether the an associated cache value is available in the cache or not
+    # + return - Whether an associated cache value is available in the cache or not
     public function hasKey(string key) returns boolean;
 
     # Returns all keys from the cache.
