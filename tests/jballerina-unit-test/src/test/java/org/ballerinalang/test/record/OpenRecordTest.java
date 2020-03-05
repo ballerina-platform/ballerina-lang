@@ -496,4 +496,14 @@ public class OpenRecordTest {
 
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
     }
+
+    @Test
+    public void removeIfHasKeyOptional() {
+        BRunUtil.invoke(compileResult, "removeIfHasKeyOptional");
+    }
+
+    @Test
+    public void removeIfHasKeyRest() {
+        BRunUtil.invoke(compileResult, "removeIfHasKeyRest");
+    }
 }

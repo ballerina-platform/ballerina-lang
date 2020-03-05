@@ -102,6 +102,11 @@ public class LangLibMapTest {
         assertEquals(map.get("us").stringValue(), "USA");
     }
 
+    @Test
+    public void testRemoveIfHasKey() {
+        BRunUtil.invoke(compileResult, "testRemoveIfHasKey");
+    }
+
     @Test(expectedExceptions = BLangRuntimeException.class,
           expectedExceptionsMessageRegExp =
                   ".*error: \\{ballerina/lang.map\\}KeyNotFound message=cannot find key 'NonExistent'.*")
