@@ -18,7 +18,7 @@
 package org.ballerinalang.jdbc.execute;
 
 import org.ballerinalang.jdbc.utils.SQLDBUtils;
-import org.ballerinalang.model.values.BInteger;
+import org.ballerinalang.model.values.BByte;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
@@ -58,9 +58,7 @@ public class ExecuteTest {
         BValue[] returnVal = BRunUtil.invokeFunction(result, "testCreateTable", args);
         Assert.assertTrue(returnVal[0] instanceof BMap);
         LinkedHashMap result = ((BMap) returnVal[0]).getMap();
-        Assert.assertEquals(((BInteger) result.get(Constants.AFFECTED_ROW_COUNT_FIELD)).intValue(), 0);
+        Assert.assertEquals(((BByte) result.get(Constants.AFFECTED_ROW_COUNT_FIELD)).intValue(), 0);
         Assert.assertNull(result.get(Constants.LAST_INSERTED_ID_FIELD));
     }
-
-
 }

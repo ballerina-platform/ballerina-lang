@@ -50,6 +50,7 @@ public final class Constants {
 
     public static final String TIMEZONE_UTC = "UTC";
 
+    public static final String EXCUTE_RESULT_RECORD = "ExecuteResult";
     public static final String AFFECTED_ROW_COUNT_FIELD = "affectedRowCount";
     public static final String LAST_INSERTED_ID_FIELD = "lastInsertId";
 

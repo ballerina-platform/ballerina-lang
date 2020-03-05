@@ -17,8 +17,7 @@
  */
 package org.ballerinalang.sql.utils;
 
-import org.ballerinalang.jvm.values.MapValue;
-import org.ballerinalang.jvm.values.MapValueImpl;
+import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.sql.Constants;
 import org.ballerinalang.sql.datasource.SQLDatasource;
@@ -31,7 +30,9 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Types;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 
 /**
  * This class holds the utility methods involved with executing the query which does not return rows.
@@ -58,10 +59,10 @@ public class ExecuteUtils {
                         lastInsertedId = getGeneratedKeys(resultSet);
                     }
                 }
-                MapValue<String, Object> updateResult = new MapValueImpl<>();
-                updateResult.put(Constants.AFFECTED_ROW_COUNT_FIELD, count);
-                updateResult.put(Constants.LAST_INSERTED_ID_FIELD, lastInsertedId);
-                return updateResult;
+                Map<String, Object> resultFields = new HashMap<>();
+                resultFields.put(Constants.AFFECTED_ROW_COUNT_FIELD, count);
+                resultFields.put(Constants.LAST_INSERTED_ID_FIELD, lastInsertedId);
+                return BallerinaValues.createRecordValue(Constants.SQL_PACKAGE_ID, Constants.EXCUTE_RESULT_RECORD, resultFields);
             } catch (SQLException e) {
                 return ErrorGenerator.getSQLDatabaseError(e,
                         "Error while executing sql query: " + sqlQuery + ". ");
