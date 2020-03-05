@@ -71,6 +71,7 @@ dependencies {
     dist 'org.wso2.carbon.messaging:org.wso2.carbon.messaging:2.3.7'
     dist 'org.wso2.carbon.metrics:org.wso2.carbon.metrics.core:2.3.7'
     dist 'com.google.protobuf:protobuf-java:3.9.1'
+    dist 'com.sun.mail:javax.mail:1.6.2'
     dist 'org.wso2.orbit.org.yaml:snakeyaml:1.16.0.wso2v1'
     dist 'org.wso2.staxon:staxon-core:1.2.0.wso2v2'
     dist 'com.rabbitmq:amqp-client:5.7.3'

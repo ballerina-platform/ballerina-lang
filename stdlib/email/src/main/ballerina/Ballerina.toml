@@ -9,6 +9,8 @@ target = "java8"
     artifactId = "java.mail"
     version = "1.6.2"
     path = "./lib/javax.mail-1.6.2.jar"
+    groupId = "javax.mail"
+    modules = ["email"]
 
     [[platform.libraries]]
     artifactId = "email"
