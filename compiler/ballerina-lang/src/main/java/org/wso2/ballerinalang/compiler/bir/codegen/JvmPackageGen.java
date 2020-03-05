@@ -481,6 +481,7 @@ public class JvmPackageGen {
         PackageID langValueModule = new PackageID(ballerinaOrgName, new Name("lang.value"), builtInVersion);
         PackageID langXmlModule = new PackageID(ballerinaOrgName, new Name("lang.xml"), builtInVersion);
         PackageID langTypedescModule = new PackageID(ballerinaOrgName, new Name("lang.typedesc"), builtInVersion);
+        PackageID langBooleanModule = new PackageID(ballerinaOrgName, new Name("lang.boolean"), builtInVersion);
 
         dependentModuleArray.add(langArrayModule);
         dependentModuleArray.add(langDecimalModule);
@@ -496,6 +497,7 @@ public class JvmPackageGen {
         dependentModuleArray.add(langValueModule);
         dependentModuleArray.add(langXmlModule);
         dependentModuleArray.add(langTypedescModule);
+        dependentModuleArray.add(langBooleanModule);
     }
 
     private static boolean isSameModule(BIRPackage moduleId, PackageID importModule) {
