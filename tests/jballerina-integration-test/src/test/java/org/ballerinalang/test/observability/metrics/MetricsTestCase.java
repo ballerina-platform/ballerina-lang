@@ -72,7 +72,7 @@ public class MetricsTestCase extends BaseTest {
         addMetrics();
     }
 
-    @Test (groups = "brokenOnJBallerina")
+    @Test
     public void testMetrics() throws Exception {
         // Test Service
         await().atMost(20, TimeUnit.SECONDS)
