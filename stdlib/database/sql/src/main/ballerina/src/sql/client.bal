@@ -107,7 +107,6 @@ function closedStreamInvocationError() returns Error {
 public function generateApplicationErrorStream (string message) returns stream<record{}, Error> {
     ApplicationError applicationErr = ApplicationError(message = message);
     ResultIterator resultIterator = new (err = applicationErr);
-    //TODO: change to Error type.
     stream<record{}, Error> errorStream = new (resultIterator);
     return errorStream;
 }

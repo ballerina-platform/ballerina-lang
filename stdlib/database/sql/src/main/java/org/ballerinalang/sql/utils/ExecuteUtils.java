@@ -62,7 +62,8 @@ public class ExecuteUtils {
                 Map<String, Object> resultFields = new HashMap<>();
                 resultFields.put(Constants.AFFECTED_ROW_COUNT_FIELD, count);
                 resultFields.put(Constants.LAST_INSERTED_ID_FIELD, lastInsertedId);
-                return BallerinaValues.createRecordValue(Constants.SQL_PACKAGE_ID, Constants.EXCUTE_RESULT_RECORD, resultFields);
+                return BallerinaValues.createRecordValue(Constants.SQL_PACKAGE_ID,
+                        Constants.EXCUTE_RESULT_RECORD, resultFields);
             } catch (SQLException e) {
                 return ErrorGenerator.getSQLDatabaseError(e,
                         "Error while executing sql query: " + sqlQuery + ". ");

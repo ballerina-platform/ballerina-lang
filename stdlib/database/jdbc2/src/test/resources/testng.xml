@@ -23,9 +23,9 @@ under the License.
     <test name="ballerina-jdbc-test" parallel="false">
         <parameter name="enableJBallerinaTests" value="true"/>
         <classes>
-            <class name="org.ballerinalang.jdbc.connection.ConnectorInitTest"/>
-            <class name="org.ballerinalang.jdbc.query.NumericTypesQueryTest"/>
-            <class name="org.ballerinalang.jdbc.query.ComplexTypesQueryTest"/>
+<!--            <class name="org.ballerinalang.jdbc.connection.ConnectorInitTest"/>-->
+<!--            <class name="org.ballerinalang.jdbc.query.NumericTypesQueryTest"/>-->
+<!--            <class name="org.ballerinalang.jdbc.query.ComplexTypesQueryTest"/>-->
             <class name="org.ballerinalang.jdbc.execute.ExecuteTest"/>
             <!--                <methods>-->
             <!--                    <include name="testQueryFromNullTable"/>-->

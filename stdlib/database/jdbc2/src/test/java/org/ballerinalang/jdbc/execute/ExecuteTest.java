@@ -18,10 +18,7 @@
 package org.ballerinalang.jdbc.execute;
 
 import org.ballerinalang.jdbc.utils.SQLDBUtils;
-import org.ballerinalang.model.values.BByte;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.*;
 import org.ballerinalang.sql.Constants;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
@@ -60,5 +57,75 @@ public class ExecuteTest {
         LinkedHashMap result = ((BMap) returnVal[0]).getMap();
         Assert.assertEquals(((BByte) result.get(Constants.AFFECTED_ROW_COUNT_FIELD)).intValue(), 0);
         Assert.assertNull(result.get(Constants.LAST_INSERTED_ID_FIELD));
+    }
+
+    @Test
+    public void testInsertTable() {
+        BValue[] returnVal = BRunUtil.invokeFunction(result, "testInsertTable", args);
+        Assert.assertTrue(returnVal[0] instanceof BMap);
+        LinkedHashMap result = ((BMap) returnVal[0]).getMap();
+        Assert.assertEquals(((BByte) result.get(Constants.AFFECTED_ROW_COUNT_FIELD)).intValue(), 1);
+        Assert.assertTrue(((BInteger) result.get(Constants.LAST_INSERTED_ID_FIELD)).intValue() > 1);
+    }
+
+    @Test
+    public void testInsertTableWithoutGeneratedKeys() {
+        BValue[] returnVal = BRunUtil.invokeFunction(result, "testInsertTableWithoutGeneratedKeys", args);
+        Assert.assertTrue(returnVal[0] instanceof BMap);
+        LinkedHashMap result = ((BMap) returnVal[0]).getMap();
+        Assert.assertEquals(((BByte) result.get(Constants.AFFECTED_ROW_COUNT_FIELD)).intValue(), 1);
+        Assert.assertNull(result.get(Constants.LAST_INSERTED_ID_FIELD));
+    }
+
+    @Test
+    public void testInsertTableWithGeneratedKeys() {
+        BValue[] returnVal = BRunUtil.invokeFunction(result, "testInsertTableWithGeneratedKeys", args);
+        Assert.assertTrue(returnVal[0] instanceof BMap);
+        LinkedHashMap result = ((BMap) returnVal[0]).getMap();
+        Assert.assertEquals(((BByte) result.get(Constants.AFFECTED_ROW_COUNT_FIELD)).intValue(), 1);
+        Assert.assertTrue(((BInteger) result.get(Constants.LAST_INSERTED_ID_FIELD)).intValue() > 1);
+    }
+
+    @Test
+    public void testInsertTableWithDatabaseError() {
+        BValue[] returnVal = BRunUtil.invokeFunction(result, "testInsertTableWithDatabaseError", args);
+        Assert.assertTrue(returnVal[0] instanceof BError);
+        BError error = (BError) returnVal[0];
+        Assert.assertEquals(error.getReason(), "{ballerina/sql}DatabaseError");
+        Assert.assertTrue(error.getDetails() instanceof BMap);
+        BMap<String, BValue> errorDetails = (BMap<String, BValue>) error.getDetails();
+        Assert.assertTrue(errorDetails.get(Constants.ErrorRecordFields.MESSAGE).stringValue()
+                .contains("Table \"NUMERICTYPESNONEXISTTABLE\" not found"));
+        Assert.assertEquals(((BInteger) errorDetails.get(Constants.ErrorRecordFields.ERROR_CODE)).intValue(), 42102);
+        Assert.assertEquals(errorDetails.get(Constants.ErrorRecordFields.SQL_STATE).stringValue(), "42S02");
+    }
+
+    @Test
+    public void testInsertTableWithDataTypeError() {
+        BValue[] returnVal = BRunUtil.invokeFunction(result, "testInsertTableWithDataTypeError", args);
+        Assert.assertTrue(returnVal[0] instanceof BError);
+        BError error = (BError) returnVal[0];
+        Assert.assertEquals(error.getReason(), "{ballerina/sql}DatabaseError");
+        Assert.assertTrue(error.getDetails() instanceof BMap);
+        BMap<String, BValue> errorDetails = (BMap<String, BValue>) error.getDetails();
+        Assert.assertTrue(errorDetails.get(Constants.ErrorRecordFields.MESSAGE).stringValue()
+                .contains("Data conversion error converting \"'This is wrong type' (NUMERICTYPES: \"\"INT_TYPE\"\" INT)\""));
+        Assert.assertEquals(((BInteger) errorDetails.get(Constants.ErrorRecordFields.ERROR_CODE)).intValue(), 22018);
+        Assert.assertEquals(errorDetails.get(Constants.ErrorRecordFields.SQL_STATE).stringValue(), "22018");
+    }
+
+    @Test
+    public void testUdateData() {
+        BValue[] returnVal = BRunUtil.invokeFunction(result, "testUdateData", args);
+        Assert.assertTrue(returnVal[0] instanceof BValueArray);
+        BValueArray result = (BValueArray) returnVal[0];
+        Assert.assertEquals(result.getValues().length, 2);
+        for (BRefType aResult : result.getValues()) {
+            Assert.assertNotNull(aResult);
+        }
+        BMap executionResult = (BMap) result.getValues()[0];
+        BMap resultCount = (BMap) result.getValues()[1];
+        Assert.assertEquals(((BByte) executionResult.get(Constants.AFFECTED_ROW_COUNT_FIELD)).intValue(), 1);
+        Assert.assertEquals(((BInteger) resultCount.get("countVal")).intValue(), 1);
     }
 }
