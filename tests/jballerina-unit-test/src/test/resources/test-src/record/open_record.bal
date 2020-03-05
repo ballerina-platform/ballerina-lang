@@ -479,25 +479,27 @@ type FooRecord record {
     int b?;
 };
 
-function removeOptional() returns boolean {
+function removeOptional() {
     FooRecord fooRecord = {a : "a", b : 1};
     _ = fooRecord.remove("b");
     int? testValue = fooRecord?.b;
     if (testValue is ()) {
-        return true;
+        return;
     } else {
-        return false;
+        typedesc<any> resultType = typeof testValue;
+        panic error("Wrong Result : expected result is null but recieved : " + resultType.toString());
     }
 }
 
-function removeRest() returns boolean {
+function removeRest() {
     FooRecord fooRecord = { a: "a", b : 1, "c" : 10};
     _ = fooRecord.remove("c");
     anydata testValue = fooRecord["c"];
     if (testValue is ()) {
-        return true;
+        return;
     } else {
-        return false;
+        typedesc<any> resultType = typeof testValue;
+        panic error("Wrong Result : expected result is null but recieved : " + resultType.toString());
     }
 }
 

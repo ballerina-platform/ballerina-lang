@@ -483,18 +483,12 @@ public class OpenRecordTest {
 
     @Test
     public void testOptionalRecordRemove() {
-        CompileResult result = BCompileUtil.compile("test-src/record/open_record.bal");
-        BValue[] returns = BRunUtil.invoke(result, "removeOptional");
-
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        BValue[] returns = BRunUtil.invoke(compileResult, "removeOptional");
     }
 
     @Test
     public void testRestRecordRemove() {
-        CompileResult result = BCompileUtil.compile("test-src/record/open_record.bal");
-        BValue[] returns = BRunUtil.invoke(result, "removeRest");
-
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        BValue[] returns = BRunUtil.invoke(compileResult, "removeRest");
     }
 
     @Test
