@@ -17,39 +17,80 @@
 import ballerina/grpc;
 import ballerina/io;
 
-int TIMEOUT = 5000;
-int requestCount = 0;
+grpc:RetryConfiguration retryConfig = {
+    retryCount: 3,
+    intervalInMillis: 2000,
+    maxIntervalInMillis: 10000,
+    backoffFactor: 2,
+    errorTypes: [grpc:UNAVAILABLE_ERROR, grpc:INTERNAL_ERROR]
+};
+grpc:ClientConfiguration clientConfig = {
+    timeoutInMillis: 1000,
+    retryConfiguration: retryConfig
+};
 
-string clientName = "";
+grpc:RetryConfiguration failingRetryConfig = {
+    retryCount: 2,
+    intervalInMillis: 2000,
+    maxIntervalInMillis: 10000,
+    backoffFactor: 2,
+    errorTypes: [grpc:UNAVAILABLE_ERROR, grpc:INTERNAL_ERROR]
+};
+grpc:ClientConfiguration failingClientConfig = {
+    timeoutInMillis: 1000,
+    retryConfiguration: failingRetryConfig
+};
 
-listener grpc:Listener retryListener = new (9111);
+RetryServiceBlockingClient retryClient = new("http://localhost:9112", clientConfig);
+RetryServiceBlockingClient failingRetryClient = new("http://localhost:9112", failingClientConfig);
 
-@grpc:ServiceDescriptor {
-    descriptor: ROOT_DESCRIPTOR_21,
-    descMap: getDescriptorMap21()
-}
-service RetryService on retryListener {
-    resource function getResult(grpc:Caller caller, string value) {
-        // Identifying the client to maintain state to track retry attempts.
-        if (clientName != value) {
-            requestCount = 0;
-            clientName = value;
-        }
-        requestCount += 1;
-        io:println(requestCount);
-        if (requestCount < 3) {
-            var sendResult = caller->sendError(13, "Mocking Internal Error");
-            // var completeResult = caller->complete();
-        } else {
-            var sendResult = caller->send("Attempts: " + requestCount.toString());
-            var completeResult = caller->complete();
-        }
+public function testRetry() returns string {
+    io:println("Sending message");
+    var result = retryClient->getResult("Hi from retry client");
+    if (result is grpc:Error) {
+        io:println(result);
+        return result.toString();
+    } else {
+        var [message, headers] = result;
+        return message;
     }
 }
 
-const string ROOT_DESCRIPTOR_21 =
+public function testRetryFailingClient() returns string {
+    io:println("Sending message");
+    var result = retryClient->getResult("Hi from retry client");
+    if (result is grpc:Error) {
+        io:println(result);
+        return result.reason();
+    } else {
+        var [message, headers] = result;
+        return message;
+    }
+}
+
+public type RetryServiceBlockingClient client object {
+
+    *grpc:AbstractClientEndpoint;
+
+    private grpc:Client grpcClient;
+
+    public function __init(string url, grpc:ClientConfiguration? config = ()) {
+        self.grpcClient = new(url, config);
+        checkpanic self.grpcClient.initStub(self, "blocking", ROOT_DESCRIPTOR_22, getDescriptorMap22());
+    }
+
+    public remote function getResult(string req, grpc:Headers? headers = ()) returns ([string, grpc:Headers]|grpc:Error) {
+        var payload = check self.grpcClient->blockingExecute("RetryService/getResult", req, headers);
+        grpc:Headers resHeaders = new;
+        anydata result = ();
+        [result, resHeaders] = payload;
+        return [result.toString(), resHeaders];
+    }
+};
+
+const string ROOT_DESCRIPTOR_22 =
 "0A14756E6172795F626C6F636B696E672E70726F746F1A1E676F6F676C652F70726F746F6275662F77726170706572732E70726F746F32570A0C52657472795365727669636512470A09676574526573756C74121C2E676F6F676C652E70726F746F6275662E537472696E6756616C75651A1C2E676F6F676C652E70726F746F6275662E537472696E6756616C7565620670726F746F33";
-function getDescriptorMap21() returns map<string> {
+function getDescriptorMap22() returns map<string> {
     return {
         "unary_blocking.proto":"0A14756E6172795F626C6F636B696E672E70726F746F1A1E676F6F676C652F70726F746F6275662F77726170706572732E70726F746F32570A0C52657472795365727669636512470A09676574526573756C74121C2E676F6F676C652E70726F746F6275662E537472696E6756616C75651A1C2E676F6F676C652E70726F746F6275662E537472696E6756616C7565620670726F746F33",
         "google/protobuf/wrappers.proto":"0A1E676F6F676C652F70726F746F6275662F77726170706572732E70726F746F120F676F6F676C652E70726F746F62756622230A0B446F75626C6556616C756512140A0576616C7565180120012801520576616C756522220A0A466C6F617456616C756512140A0576616C7565180120012802520576616C756522220A0A496E74363456616C756512140A0576616C7565180120012803520576616C756522230A0B55496E74363456616C756512140A0576616C7565180120012804520576616C756522220A0A496E74333256616C756512140A0576616C7565180120012805520576616C756522230A0B55496E74333256616C756512140A0576616C756518012001280D520576616C756522210A09426F6F6C56616C756512140A0576616C7565180120012808520576616C756522230A0B537472696E6756616C756512140A0576616C7565180120012809520576616C756522220A0A427974657356616C756512140A0576616C756518012001280C520576616C756542570A13636F6D2E676F6F676C652E70726F746F627566420D577261707065727350726F746F50015A057479706573F80101A20203475042AA021E476F6F676C652E50726F746F6275662E57656C6C4B6E6F776E5479706573620670726F746F33"

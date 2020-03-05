@@ -43,7 +43,7 @@ public class UnaryBlockingRetryTestCase extends GrpcBaseTest {
     private void setup() throws Exception {
         TestUtils.prepareBalo(this);
         Path balFilePath = Paths.get("src", "test", "resources", "grpc", "src", "clients",
-                                     "21_unary_blocking_retry_client.bal");
+                                     "22_unary_blocking_retry_client.bal");
         result = BCompileUtil.compile(balFilePath.toAbsolutePath().toString());
     }
 
