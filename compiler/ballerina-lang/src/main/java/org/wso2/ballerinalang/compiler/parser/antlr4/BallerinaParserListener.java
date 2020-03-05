@@ -2574,6 +2574,16 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 */
 	void exitWhereClause(BallerinaParser.WhereClauseContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#letClause}.
+	 * @param ctx the parse tree
+	 */
+	void enterLetClause(BallerinaParser.LetClauseContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#letClause}.
+	 * @param ctx the parse tree
+	 */
+	void exitLetClause(BallerinaParser.LetClauseContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#fromClause}.
 	 * @param ctx the parse tree
 	 */

@@ -1,4 +1,4 @@
-import ballerina/lang.'xml as xmllib;
+ import ballerina/lang.'xml as xmllib;
 
 function testXMLNavigationOnSingleElement() returns [xml, xml, xml, xml, xml] {
     xml x1 = xml `<root><child attr="attr-val"></child></root>`;

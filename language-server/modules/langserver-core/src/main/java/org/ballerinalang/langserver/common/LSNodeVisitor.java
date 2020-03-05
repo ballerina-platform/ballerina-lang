@@ -979,4 +979,9 @@ public class LSNodeVisitor extends BLangNodeVisitor {
     public void visit(BLangStreamConstructorExpr streamConstructorExpr) {
         // no implementation
     }
+
+    @Override
+    public void visit(BLangRecordLiteral.BLangRecordSpreadOperatorField spreadOperatorField) {
+        // no implementation
+    }
 }
