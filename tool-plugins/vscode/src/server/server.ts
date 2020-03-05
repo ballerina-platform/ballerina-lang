@@ -21,7 +21,35 @@ import * as path from 'path';
 import { debug } from '../utils/logger';
 import { ServerOptions, ExecutableOptions } from 'vscode-languageclient';
 
-export function getServerOptions(ballerinaCmd: string, experimental: boolean, debugLogsEnabled: boolean, traceLogsEnabled: boolean, enableStdlibDefinition: boolean) : ServerOptions {
+export function getServerOptions(ballerinaCmd: string) : ServerOptions {
+    debug(`Using Ballerina CLI command '${ballerinaCmd}' for Language server.`);
+    let cmd = ballerinaCmd;
+    let args = ["start-language-server"];
+  
+    let opt: ExecutableOptions = {};
+    opt.env = Object.assign({}, process.env);
+    if (process.env.LS_EXTENSIONS_PATH !== "") {
+        if (opt.env.BALLERINA_CLASSPATH_EXT) {
+            opt.env.BALLERINA_CLASSPATH_EXT += path.delimiter + process.env.LS_EXTENSIONS_PATH;
+        } else {
+            opt.env.BALLERINA_CLASSPATH_EXT = process.env.LS_EXTENSIONS_PATH;
+        }
+    }
+    if (process.env.LSDEBUG === "true") {
+        debug('Language Server is starting in debug mode.');
+        let debugPort = 5005;
+        opt.env.BAL_JAVA_DEBUG = debugPort;
+        opt.env.BAL_DEBUG_OPTS = "-Xdebug -Xnoagent -Djava.compiler=NONE -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=" + debugPort + ",quiet=y";
+    }
+
+    return {
+        command: cmd,
+        args,
+        options: opt
+    };
+}
+
+export function getOldCliServerOptions(ballerinaCmd: string, experimental: boolean, debugLogsEnabled: boolean, traceLogsEnabled: boolean, enableStdlibDefinition: boolean) : ServerOptions {
     debug(`Using Ballerina CLI command '${ballerinaCmd}' for Language server.`);
     let cmd = ballerinaCmd;
     let args = ["start-language-server"];

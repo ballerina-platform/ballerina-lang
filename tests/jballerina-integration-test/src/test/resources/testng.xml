@@ -145,10 +145,15 @@
     </test>
 
     <test name="ballerina-transaction-tests" parallel="false">
+        <groups>
+            <run>
+                <exclude name="brokenOnJBallerina"/>
+            </run>
+        </groups>
         <classes>
-            <class name="org.ballerinalang.test.transaction.MicroTransactionTestCase"/>
-            <class name="org.ballerinalang.test.transaction.RemoteParticipantTransactionTest"/>
-            <class name="org.ballerinalang.test.transaction.MultiModuleTransactionTestCase"/>
+<!--            <class name="org.ballerinalang.test.transaction.MicroTransactionTestCase"/>-->
+<!--            <class name="org.ballerinalang.test.transaction.RemoteParticipantTransactionTest"/>-->
+<!--            <class name="org.ballerinalang.test.transaction.MultiModuleTransactionTestCase"/>-->
         </classes>
     </test>
 
@@ -221,6 +226,7 @@
             <class name="org.ballerinalang.test.service.grpc.sample.Http2GatewayTestCase"/>
             <class name="org.ballerinalang.test.service.grpc.sample.UnaryAnonymousServiceTestCase"/>
             <class name="org.ballerinalang.test.service.grpc.sample.UnaryBlockingRetryTestCase"></class>
+            <class name="org.ballerinalang.test.service.grpc.sample.UnaryGZipEncodingTestCase"/>
             <class name="org.ballerinalang.test.service.grpc.tool.InvalidServiceContractTestCase"/>
             <class name="org.ballerinalang.test.service.grpc.tool.StubGeneratorTestCase"/>
             <class name="org.ballerinalang.test.service.grpc.tool.ProtoMessageTestCase"/>
@@ -270,6 +276,11 @@
     </test>
 
     <test name="ballerina-data-streaming-tests" parallel="false">
+        <groups>
+            <run>
+                <exclude name="brokenOnXMLChange"/>
+            </run>
+        </groups>
         <classes>
             <class name="org.ballerinalang.test.data.streaming.TableDataStreamingTestCase"/>
         </classes>
@@ -284,6 +295,11 @@
 
     <test name="ballerina-observability-tests" parallel="false">
         <parameter name="enableJBallerinaTests" value="true"/>
+        <groups>
+            <run>
+                <exclude name="brokenOnJBallerina"/>
+            </run>
+        </groups>
         <classes>
             <class name="org.ballerinalang.test.observability.tracing.TracingTestCase"/>
             <class name="org.ballerinalang.test.observability.metrics.MetricsTestCase"/>
@@ -294,9 +310,14 @@
 
     <test name="ballerina-packerina-tests" parallel="false">
         <parameter name="enableJBallerinaTests" value="true"/>
+        <groups>
+            <run>
+                <exclude name="brokenOnJBallerina"/>
+            </run>
+        </groups>
         <classes>
             <class name="org.ballerinalang.test.packaging.ModulePushTestCase"/>
-            <!--            <class name="org.ballerinalang.test.packaging.PackagingNegativeTestCase"/>-->
+            <class name="org.ballerinalang.test.packaging.PackagingNegativeTestCase"/>
             <class name="org.ballerinalang.test.packaging.PackagingTestCase"/>
             <class name="org.ballerinalang.test.packaging.LockFileTestCase"/>
             <!--            <class name="org.ballerinalang.test.packaging.NativePackagingTestCase"/>-->
@@ -347,6 +368,11 @@
 <!--    </test>-->
     <test name="ballerina-testerina-tests" parallel="false">
         <parameter name="enableJBallerinaTests" value="true" />
+        <groups>
+            <run>
+                <exclude name="brokenOnJBallerina"/>
+            </run>
+        </groups>
         <classes>
             <class name="org.ballerinalang.test.testarina.TestarinaTestCase" />
         </classes>

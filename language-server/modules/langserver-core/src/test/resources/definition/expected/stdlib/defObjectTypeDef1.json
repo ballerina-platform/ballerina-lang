@@ -3,7 +3,7 @@
     "file": "defObjectTypeDef1.bal"
   },
   "position": {
-    "line": 3,
+    "line": 4,
     "character": 13
   },
   "result": [
@@ -11,11 +11,11 @@
       "range": {
         "start": {
           "line": 23,
-          "character": 0
+          "character": 12
         },
         "end": {
-          "line": 174,
-          "character": 2
+          "line": 23,
+          "character": 18
         }
       },
       "uri": "src/http_0.0.0/http_connection.bal"

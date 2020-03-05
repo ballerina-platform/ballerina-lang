@@ -52,7 +52,7 @@ public enum DiagnosticCode {
     CANNOT_INFER_TABLE_TYPE("cannot.infer.table.type"),
     TABLE_KEY_EXPECTED("table.key.expected"),
     OBJECT_TYPE_NOT_ALLOWED("object.type.not.allowed"),
-    UNDEFINED_STRUCTURE_FIELD_WITH_TYPE("undefined.field.in.structure.with.type"), // TODO: remove Maryam
+    UNDEFINED_STRUCTURE_FIELD_WITH_TYPE("undefined.field.in.structure.with.type"),
     UNDEFINED_STRUCTURE_FIELD("undefined.field.in.structure"),
     TYPE_NOT_ALLOWED_WITH_NEW("type.not.allowed.with.new"),
     STREAM_INVALID_CONSTRAINT("stream.invalid.constraint"),
@@ -87,6 +87,8 @@ public enum DiagnosticCode {
     MISSING_REQUIRED_PARAMETER("missing.required.parameter"),
 
     INCOMPATIBLE_TYPES("incompatible.types"),
+    INCOMPATIBLE_TYPES_SPREAD_OP("incompatible.types.spread.op"),
+    INCOMPATIBLE_TYPES_FIELD("incompatible.types.field"),
     UNKNOWN_TYPE("unknown.type"),
     BINARY_OP_INCOMPATIBLE_TYPES("binary.op.incompatible.types"),
     UNARY_OP_INCOMPATIBLE_TYPES("unary.op.incompatible.types"),
@@ -178,6 +180,8 @@ public enum DiagnosticCode {
     TYPE_CAST_NOT_YET_SUPPORTED("type.cast.not.yet.supported.for.type"),
     EQUALITY_NOT_YET_SUPPORTED("equality.not.yet.supported.for.type"),
     BINDING_PATTERN_NOT_YET_SUPPORTED("binding.pattern.not.yet.supported.for.type"),
+    LET_EXPRESSION_NOT_YET_SUPPORTED_RECORD_FIELD("let.expression.not.yet.supported.record.field"),
+    LET_EXPRESSION_NOT_YET_SUPPORTED_OBJECT_FIELD("let.expression.not.yet.supported.object.field"),
 
     // Cast and conversion related codes
     INCOMPATIBLE_TYPES_CAST("incompatible.types.cast"),
@@ -262,6 +266,7 @@ public enum DiagnosticCode {
     INVALID_FIELD_IN_RECORD_BINDING_PATTERN("invalid.field.in.record.binding.pattern"),
     INVALID_RECORD_LITERAL_BINDING_PATTERN("invalid.record.literal.in.binding.pattern"),
     DUPLICATE_KEY_IN_RECORD_LITERAL("duplicate.key.in.record.literal"),
+    DUPLICATE_KEY_IN_RECORD_LITERAL_SPREAD_OP("duplicate.key.in.record.literal.spread.op"),
     INVALID_ARRAY_LITERAL("invalid.array.literal"),
     INVALID_TUPLE_LITERAL("invalid.tuple.literal"),
     INVALID_LIST_CONSTRUCTOR("invalid.list.constructor"),
@@ -462,8 +467,17 @@ public enum DiagnosticCode {
     INVALID_INVOCATION_LVALUE_COMPOUND_ASSIGNMENT("invalid.lvalue.lhs.of.compound.assignment"),
 
     IDENTIFIER_LITERAL_ONLY_SUPPORTS_ALPHANUMERICS("identifier.literal.only.supports.alphanumerics"),
-    INVALID_UNICODE("invalid.unicode")
+    INVALID_UNICODE("invalid.unicode"),
 
+    METHOD_TOO_LARGE("method.too.large"),
+    FILE_TOO_LARGE("file.too.large"),
+    CLASS_NOT_FOUND("class.not.found"),
+    METHOD_NOT_FOUND("method.not.found"),
+    CONSTRUCTOR_NOT_FOUND("constructor.not.found"),
+    FIELD_NOT_FOUND("field.not.found"),
+    OVERLOADED_METHODS("overloaded.method"),
+    UNSUPPORTED_PRIMITIVE_TYPE("unsupported.primitive.type.reason"),
+    METHOD_SIGNATURE_DOES_NOT_MATCH("method.signature.not.match")
     ;
     private String value;
 

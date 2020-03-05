@@ -99,6 +99,7 @@ FROM        : 'from' { inQueryExpression = true; } ;
 SELECT      : {inQueryExpression}? 'select' { inQueryExpression = false; } ;
 DO          : {inQueryExpression}? 'do' { inQueryExpression = false; } ;
 WHERE       : {inQueryExpression}? 'where' ;
+LET         : 'let' ;
 
 // Separators
 

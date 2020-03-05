@@ -18,6 +18,7 @@
 package org.ballerinalang.test.packaging;
 
 import org.awaitility.Duration;
+import org.ballerinalang.cli.module.util.Utils;
 import org.ballerinalang.jvm.JSONParser;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.test.BaseTest;
@@ -38,7 +39,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
-import java.net.URI;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -49,6 +49,11 @@ import java.util.Map;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.awaitility.Awaitility.given;
+import static org.ballerinalang.cli.module.util.Utils.convertToUrl;
+import static org.ballerinalang.cli.module.util.Utils.createHttpUrlConnection;
+import static org.ballerinalang.cli.module.util.Utils.initializeSsl;
+import static org.ballerinalang.cli.module.util.Utils.setRequestMethod;
+import static org.ballerinalang.test.packaging.ModulePushTestCase.REPO_TO_CENTRAL_SUCCESS_MSG;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_COMPILED_PKG_BINARY_EXT;
 
 /**
@@ -129,11 +134,11 @@ public class PackagingTestCase extends BaseTest {
                 new LogLeecher[]{clientLeecher}, projectPath.toString());
         
         // Then try to push without the flag so it builds the artifact
-        String secondMsg = orgName + "/" + moduleName + ":0.1.0 [project repo -> central]";
-        clientLeecher = new LogLeecher(secondMsg);
+        String secondMsg = orgName + "/" + moduleName + ":0.1.0" + REPO_TO_CENTRAL_SUCCESS_MSG;
+        clientLeecher = new LogLeecher(secondMsg, LeecherType.INFO);
         balClient.runMain("push", new String[]{moduleName}, envVariables, new String[]{},
                           new LogLeecher[]{clientLeecher}, projectPath.toString());
-        clientLeecher.waitForText(5000);
+        clientLeecher.waitForText(60000);
     }
 
     @Test(description = "Test pulling a package from central", dependsOnMethods = "testPush")
@@ -176,9 +181,12 @@ public class PackagingTestCase extends BaseTest {
 
     @Test(description = "Test pullCount of a package from central", dependsOnMethods = "testPull")
     public void testPullCount() throws IOException {
-        URI remoteUri = URI.create(RepoUtils.getStagingURL() + "/modules/info/" + orgName + "/" + moduleName + "/*/");
-        HttpURLConnection conn;
-        conn = (HttpURLConnection) remoteUri.toURL().openConnection();
+        initializeSsl();
+        String url = RepoUtils.getStagingURL() + "/modules/info/" + orgName + "/" + moduleName + "/*/";
+        HttpURLConnection conn = createHttpUrlConnection(convertToUrl(url), "", 0, "", "");
+        conn.setInstanceFollowRedirects(false);
+        setRequestMethod(conn, Utils.RequestMethod.GET);
+
         int statusCode = conn.getResponseCode();
         if (statusCode == 200) {
             try (BufferedReader reader = new BufferedReader(new InputStreamReader(conn.getInputStream(),
@@ -237,13 +245,14 @@ public class PackagingTestCase extends BaseTest {
         balClient.runMain("build", new String[]{"-c", "-a"}, envVariables, new String[]{},
                 new LogLeecher[]{}, projectPath.toString());
         
-        LogLeecher clientLeecherOne = new LogLeecher(orgName + "/" + firstPackage + ":0.1.0 [project repo -> central]");
-        LogLeecher clientLeecherTwo = new LogLeecher(orgName + "/" + secondPackage +
-                                                             ":0.1.0 [project repo -> central]");
+        LogLeecher clientLeecherOne = new LogLeecher(orgName + "/" + firstPackage + ":0.1.0"
+                + REPO_TO_CENTRAL_SUCCESS_MSG);
+        LogLeecher clientLeecherTwo = new LogLeecher(orgName + "/" + secondPackage + ":0.1.0"
+                + REPO_TO_CENTRAL_SUCCESS_MSG);
         balClient.runMain("push", new String[]{"-a"}, envVariables, new String[]{},
                 new LogLeecher[]{clientLeecherOne, clientLeecherTwo}, projectPath.toString());
-        clientLeecherOne.waitForText(5000);
-        clientLeecherTwo.waitForText(5000);
+        clientLeecherOne.waitForText(60000);
+        clientLeecherTwo.waitForText(60000);
     }
 
     @Test(description = "Test ballerina version")

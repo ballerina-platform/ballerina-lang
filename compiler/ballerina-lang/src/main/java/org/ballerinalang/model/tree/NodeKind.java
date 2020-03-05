@@ -40,12 +40,14 @@ public enum NodeKind {
     PACKAGE,
     PACKAGE_DECLARATION,
     RECORD_LITERAL_KEY_VALUE,
+    RECORD_LITERAL_SPREAD_OP,
     RESOURCE,
     SERVICE,
     TYPE_DEFINITION,
     TABLE,
     TABLE_COLUMN,
     VARIABLE,
+    LET_VARIABLE,
     TUPLE_VARIABLE,
     RECORD_VARIABLE,
     ERROR_VARIABLE,
@@ -113,6 +115,7 @@ public enum NodeKind {
     DOCUMENTATION_REFERENCE,
     SERVICE_CONSTRUCTOR,
     STREAM_CONSTRUCTOR,
+    LET_EXPR,
 
     /* Statements */
     ABORT,
@@ -161,6 +164,7 @@ public enum NodeKind {
     FROM,
     WHERE,
     DO,
+    LET_CLAUSE,
 
     /* Types */
     ARRAY_TYPE,

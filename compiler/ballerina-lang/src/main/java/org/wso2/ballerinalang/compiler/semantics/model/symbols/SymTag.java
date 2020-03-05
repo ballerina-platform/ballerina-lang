@@ -49,4 +49,5 @@ public class SymTag {
     public static final int CONSTANT = 1 << 24 | VARIABLE_NAME | TYPE;
     public static final int FUNCTION_TYPE = 1 << 25 | TYPE | VARIABLE_NAME;
     public static final int CONSTRUCTOR = 1 << 26 | INVOKABLE;
+    public static final int LET = 1 << 27;
 }
