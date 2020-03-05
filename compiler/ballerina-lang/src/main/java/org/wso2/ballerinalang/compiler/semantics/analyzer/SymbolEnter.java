@@ -830,7 +830,9 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
 
         BInvokableSymbol funcSymbol = Symbols.createFunctionSymbol(Flags.asMask(funcNode.flagSet),
-                getFuncSymbolName(funcNode), env.enclPkg.symbol.pkgID, null, env.scope.owner, funcNode.body != null);
+                                                                   getFuncSymbolName(funcNode),
+                                                                   env.enclPkg.symbol.pkgID, null, env.scope.owner,
+                                                                   funcNode.hasBody());
         funcSymbol.markdownDocumentation = getMarkdownDocAttachment(funcNode.markdownDocumentationAttachment);
         SymbolEnv invokableEnv = SymbolEnv.createFunctionEnv(funcNode, funcSymbol.scope, env);
         defineInvokableSymbol(funcNode, funcSymbol, invokableEnv);
@@ -1035,6 +1037,45 @@ public class SymbolEnter extends BLangNodeVisitor {
             env.scope.define(xmlnsSymbol.name, xmlnsSymbol);
             bLangXMLAttribute.symbol = xmlnsSymbol;
         }
+    }
+
+    @Override
+    public void visit(BLangRecordTypeNode recordTypeNode) {
+        SymbolEnv typeDefEnv = SymbolEnv.createTypeEnv(recordTypeNode, recordTypeNode.symbol.scope, env);
+        defineRecordTypeNode(recordTypeNode, typeDefEnv);
+    }
+
+    private void defineRecordTypeNode(BLangRecordTypeNode recordTypeNode, SymbolEnv env) {
+        BRecordType recordType = (BRecordType) recordTypeNode.symbol.type;
+        recordTypeNode.type = recordType;
+
+        // Resolve and add the fields of the referenced types to this object.
+        resolveReferencedFields(recordTypeNode, env);
+
+        // Define all the fields
+        recordType.fields =
+                Stream.concat(recordTypeNode.fields.stream(), recordTypeNode.referencedFields.stream())
+                        .peek(field -> defineNode(field, env))
+                        .filter(field -> field.symbol.type != symTable.semanticError) // filter out erroneous fields
+                        .map(field -> new BField(names.fromIdNode(field.name), field.pos, field.symbol))
+                        .collect(Collectors.toList());
+
+        recordType.sealed = recordTypeNode.sealed;
+        if (recordTypeNode.sealed && recordTypeNode.restFieldType != null) {
+            dlog.error(recordTypeNode.restFieldType.pos, DiagnosticCode.REST_FIELD_NOT_ALLOWED_IN_SEALED_RECORDS);
+            return;
+        }
+
+        if (recordTypeNode.restFieldType == null) {
+            if (recordTypeNode.sealed) {
+                recordType.restFieldType = symTable.noType;
+                return;
+            }
+            recordType.restFieldType = symTable.anydataType;
+            return;
+        }
+
+        recordType.restFieldType = symResolver.resolveTypeNode(recordTypeNode.restFieldType, env);
     }
 
     // Private methods

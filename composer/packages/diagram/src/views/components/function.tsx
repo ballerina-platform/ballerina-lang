@@ -1,6 +1,6 @@
 import {
-    ASTUtil, Function as FunctionNode, Identifier,
-    Literal, Variable, VariableDef
+    ASTKindChecker, ASTUtil, BlockFunctionBody,
+    Function as FunctionNode, Identifier, Literal, Variable, VariableDef
 } from "@ballerina/ast-model";
 import { BallerinaEndpoint } from "@ballerina/lang-service";
 import * as React from "react";
@@ -21,7 +21,8 @@ const config: DiagramConfig = DiagramUtils.getConfig();
 export const Function = (props: { model: FunctionNode }) => {
     const { model } = props;
     const viewState: FunctionViewState = model.viewState;
-    if (model.lambda || model.body === undefined) { return <g />; }
+    if (model.lambda || model.body === undefined || !ASTKindChecker.isBlockFunctionBody(model.body)) { return <g />; }
+    const blockBody = model.body as BlockFunctionBody;
     return (
         <Panel model={viewState} title={model.name.value}
             icon={viewState.icon} astModel={model}>
@@ -29,7 +30,7 @@ export const Function = (props: { model: FunctionNode }) => {
             <ClientLine model={viewState.client.bBox} />}
             <LifeLine title="Default" icon="worker" model={viewState.defaultWorker.lifeline.bBox}
                 astModel={model} />
-            {model.body!.statements.filter((statement) => ASTUtil.isWorker(statement)).map((worker) => {
+            {blockBody.statements.filter((statement) => ASTUtil.isWorker(statement)).map((worker) => {
                 const startY = viewState.defaultWorker.initHeight + viewState.defaultWorker.bBox.y
                     + config.lifeLine.header.height - config.statement.height;
                 return <Worker
@@ -72,27 +73,27 @@ export const Function = (props: { model: FunctionNode }) => {
                     }
                 />
             }
-            {model.body && <Block model={model.body} />}
+            {blockBody && <Block model={blockBody} />}
             <DiagramContext.Consumer>
                 {({ ast }) => (
                     <AddWorkerOrEndpointMenu
                         triggerPosition={viewState.menuTrigger}
                         onAddEndpoint={(epDef: BallerinaEndpoint) => {
-                            if (model.body && ast) {
-                                ASTUtil.addEndpointToBlock(model.body, ast, epDef, 0);
+                            if (blockBody && ast) {
+                                ASTUtil.addEndpointToBlock(blockBody, ast, epDef, 0);
                             }
                         }}
                         onAddWorker={() => {
-                            if (!(model.body && ast)) {
+                            if (!(blockBody && ast)) {
                                 return;
                             }
-                            let nextWorkerIndex: number = model.body.statements.length;
-                            model.body.statements.forEach((statement, i) => {
+                            let nextWorkerIndex: number = blockBody.statements.length;
+                            blockBody.statements.forEach((statement, i) => {
                                 if (ASTUtil.isWorkerFuture(statement)) {
                                     nextWorkerIndex = i + 1;
                                 }
                             });
-                            ASTUtil.addWorkerToBlock(model.body, ast, nextWorkerIndex);
+                            ASTUtil.addWorkerToBlock(blockBody, ast, nextWorkerIndex);
                         }}
                     />
                 )}

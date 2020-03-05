@@ -56,7 +56,7 @@ type Person record {
 };
 
 function testArrayOfArraysFill(int index) returns Person[][] {
-    Person p = {name:"John", age:25};
+    Person p = {name: "John", age: 25};
     Person[] personArr = [p, p];
     Person[][] ar = [];
     ar[index] = personArr;
@@ -66,6 +66,13 @@ function testArrayOfArraysFill(int index) returns Person[][] {
 function testTupleArrayFill(int index) returns [string, int][] {
     [string, int] tup = ["Hello World!", 100];
     [string, int][] ar = [];
+    ar[index] = tup;
+    return ar;
+}
+
+function testTupleSealedArrayFill(int index) returns [string, int][] {
+    [string, int] tup = ["Hello World!", 100];
+    [string, int][251] ar = []; // 251 == index + 1
     ar[index] = tup;
     return ar;
 }
@@ -119,7 +126,7 @@ function testUnionArrayFill2(int index) returns (string|string)[] {
 }
 
 function testUnionArrayFill3(int index) returns (Person|Person|())[] {
-    (Person|Person) value = {name:"John", age:25};
+    (Person|Person) value = {name: "John", age: 25};
     (Person|Person|())[] ar = [];
     ar[index] = value;
     return ar;
@@ -143,17 +150,33 @@ function testOptionalTypeArrayFill(int index) returns string?[] {
 }
 
 function testAnyArrayFill(int index) returns any[] {
-    Person p = {name:"John", age:25};
+    Person p = {name: "John", age: 25};
     any value = p;
     any[] ar = [];
     ar[index] = value;
     return ar;
 }
 
+function testAnySealedArrayFill(int index) returns any[] {
+    Person p = {name: "John", age: 25};
+    any value = p;
+    any[251] ar = []; // 251 == index + 1
+    ar[index] = value;
+    return ar;
+}
+
 function testAnydataArrayFill(int index) returns anydata[] {
-    Person p = {name:"John", age:25};
+    Person p = {name: "John", age: 25};
     anydata value = p;
     anydata[] ar = [];
+    ar[index] = value;
+    return ar;
+}
+
+function testAnydataSealedArrayFill(int index) returns anydata[] {
+    Person p = {name: "John", age: 25};
+    anydata value = p;
+    anydata[251] ar = []; // 251 == index + 1
     ar[index] = value;
     return ar;
 }
@@ -165,7 +188,7 @@ function testByteArrayFill(int index, byte value) returns byte[] {
 }
 
 function testJSONArrayFill(int index) returns json[] {
-    json value = {name:"John", age:25};
+    json value = {name: "John", age: 25};
     json[] ar = [];
     ar[index] = value;
     return ar;
@@ -236,6 +259,12 @@ function testSingletonTypeArrayFill1() returns bTrue[] {
     return bTrueAr1;
 }
 
+function testSingletonTypeArrayStaticFill() returns bTrue[] {
+    bTrue[2] bTrueAr1 = [];
+    bTrueAr1[1] = true;
+    return bTrueAr1;
+}
+
 type Student object {
     public string name;
     public int age;
@@ -279,17 +308,6 @@ function testArrayFillWithObjs() returns Obj[][] {
     multiDimObjArray[0] = objArray;
     multiDimObjArray[2] = objArray;
     return multiDimObjArray;
-}
-
-type Rec record {
-    int i?;
-    int j = 10;
-};
-
-function testRecordTypeWithOptionalFieldsArrayFill() returns Rec[] {
-    Rec[] x = [];
-    x[1] = {i: 1, j: 2};
-    return x;
 }
 
 const decimal ZERO = 0.0;

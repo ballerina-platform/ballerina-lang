@@ -1,0 +1,140 @@
+/*
+ * Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ */
+ 
+apply from: "$rootDir/gradle/javaProjectWithExtBalo.gradle"
+apply from: "$rootDir/gradle/birTestableProject.gradle"
+apply from: "$rootDir/gradle/baseNativeStdLibProject.gradle"
+
+configurations {
+    balRuntime
+}
+
+dependencies {
+    implementation 'org.slf4j:slf4j-api'
+    implementation project(':ballerina-core')
+    implementation project(':ballerina-lang')
+    implementation project(':ballerina-io')
+    implementation project(':testerina:testerina-core')
+    implementation project(':ballerina-packerina')
+    implementation project(':ballerina-logging')
+    implementation project(':ballerina-http')
+    implementation project(':ballerina-mime')
+    implementation project(':ballerina-jvm')
+    implementation project(':ballerina-bir')
+    implementation project(':ballerina-backend-jvm')
+    implementation project(':ballerina-java')
+    implementation project(':ballerina-java-arrays')
+    implementation project(':ballerina-runtime')
+    implementation project(':ballerina-jsonutils')
+    implementation project(':ballerina-xmlutils')
+
+    implementation 'com.h2database:h2'
+    implementation 'org.testng:testng'
+    testCompile 'org.awaitility:awaitility'
+    testCompile 'com.zaxxer:HikariCP'
+    testCompile 'org.slf4j:slf4j-jdk14'
+    testCompile 'org.hsqldb:hsqldb'
+    testCompile 'org.mockito:mockito-all'
+    testCompile 'io.netty:netty-transport'
+    testCompile 'io.netty:netty-codec'
+    testCompile 'org.wso2.transport.http:org.wso2.transport.http.netty'
+    testCompile 'org.wso2.carbon.messaging:org.wso2.carbon.messaging'
+    testCompile 'org.testng:testng'
+    testCompile project(path: ':ballerina-test-utils', configuration: 'shadow')
+    testCompile project(':ballerina-runtime')
+    testRuntime project(path: ':jballerina-unit-test', configuration: 'testRuntime')
+
+
+    balRuntime project(':ballerina-runtime')
+
+    birJar project(path: ':ballerina-lang:string', configuration: 'bStringBirJar')
+    baloTestImplementation project(path: ':ballerina-lang:annotations', configuration: 'baloImplementation')
+    baloTestImplementation project(path: ':ballerina-runtime-api', configuration: 'baloImplementation')
+    baloTestImplementation project(path: ':ballerina-io', configuration: 'baloImplementation')
+    baloTestImplementation project(path: ':ballerina-transactions', configuration: 'baloImplementation')
+    baloTestImplementation project(path: ':ballerina-http', configuration: 'baloImplementation')
+    baloTestImplementation project(path: ':ballerina-jdbc', configuration: 'baloImplementation')
+    baloTestImplementation project(path: ':ballerina-config-api', configuration: 'baloImplementation')
+    baloTestImplementation project(path: ':ballerina-log-api', configuration: 'baloImplementation')
+    baloTestImplementation project(path: ':ballerina-file', configuration: 'baloImplementation')
+    baloTestImplementation project(path: ':ballerina-auth', configuration: 'baloImplementation')
+    baloTestImplementation project(path: ':ballerina-mime', configuration: 'baloImplementation')
+    baloTestImplementation project(path: ':ballerina-cache', configuration: 'baloImplementation')
+    baloTestImplementation project(path: ':ballerina-time', configuration: 'baloImplementation')
+    baloTestImplementation project(path: ':ballerina-task', configuration: 'baloImplementation')
+    baloTestImplementation project(path: ':ballerina-crypto', configuration: 'baloImplementation')
+    baloTestImplementation project(path: ':ballerina-encoding', configuration: 'baloImplementation')
+    baloTestImplementation project(path: ':ballerina-math', configuration: 'baloImplementation')
+    baloTestImplementation project(path: ':ballerina-reflect', configuration: 'baloImplementation')
+    baloTestImplementation project(path: ':ballerina-java', configuration: 'baloImplementation')
+    baloTestImplementation project(path: ':ballerina-java-arrays', configuration: 'baloImplementation')
+    // baloTestImplementation project(path: ':ballerina-websub', configuration: 'baloImplementation')
+    // baloTestImplementation project(path: ':ballerina-grpc', configuration: 'baloImplementation')
+    baloTestImplementation project(path: ':ballerina-observability', configuration: 'baloImplementation')
+    baloTestImplementation project(path: ':ballerina-system', configuration: 'baloImplementation')
+    baloTestImplementation project(path: ':ballerina-xmlutils', configuration: 'baloImplementation')
+    baloTestImplementation project(path: ':ballerina-jsonutils', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-backend-jvm', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-jvm', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-bir', configuration: 'baloImplementation')
+    baloImplementation project(path: ':testerina:testerina-core', configuration: 'baloImplementation')
+}
+
+description = 'JBallerina - Unit Test Module'
+
+task createBre(type: org.gradle.api.tasks.Copy) {
+    from configurations.balRuntime
+    into "$buildDir/bre/lib"
+}
+
+test {
+    systemProperty "java.util.logging.config.file", "src/test/resources/logging.properties"
+    systemProperty "java.util.logging.manager", "org.ballerinalang.logging.BLogManager"
+    systemProperty "enableJBallerinaTests", "true"
+
+    useTestNG() {
+        suites 'src/test/resources/testng.xml'
+    }
+
+    afterSuite { suite, result ->
+        result.exception?.printStackTrace()
+    }
+
+    testLogging {
+        // this will only change --warn flag behaviour
+        warn {
+            events = ["failed", "skipped"]
+            exceptionFormat "full"
+        }
+    }
+
+    dependsOn createBre
+}
+
+configurations {
+    testCompile.exclude group: 'org.slf4j', module: 'slf4j-log4j12'
+    testCompile.exclude group: 'org.slf4j', module: 'slf4j-simple'
+    testCompile.exclude group: 'org.ops4j.pax.logging', module: 'pax-logging-api'
+    testCompile.exclude group: 'org.codehaus.woodstox', module: 'woodstox-core-asl'
+    testCompile.exclude group: 'org.codehaus.woodstox', module: 'stax2-api'
+}
+
+configurations.all {
+    resolutionStrategy.preferProjectModules()
+}

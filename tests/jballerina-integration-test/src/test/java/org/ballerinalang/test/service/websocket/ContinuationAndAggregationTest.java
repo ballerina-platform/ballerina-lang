@@ -61,8 +61,8 @@ public class ContinuationAndAggregationTest extends WebSocketTestCommons {
         String msg = "<note><to>Tove</to></note>";
         assertSuccess(client, msg, msg);
         assertFailure(client, "<note><to>Tove</to>",
-                      "ParseError at [row,col]:[1,28]\nMessage: The element type \"note\"" +
-                              " must be terminated by the matching end-tag \"</note>\".");
+                      "failed to parse xml: ParseError at [row,col]:[1,20]\n" +
+                              "Message: XML document structures must start and end within the same ...");
         client.shutDown();
     }
 

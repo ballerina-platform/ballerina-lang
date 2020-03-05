@@ -16,13 +16,13 @@
 package org.ballerinalang.langserver.codelenses.providers;
 
 import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.langserver.client.config.BallerinaClientConfigHolder;
 import org.ballerinalang.langserver.codelenses.CodeLensUtil;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.codelenses.CodeLensesProviderKeys;
 import org.ballerinalang.langserver.commons.codelenses.LSCodeLensesProviderException;
 import org.ballerinalang.langserver.commons.command.CommandArgument;
+import org.ballerinalang.langserver.compiler.config.LSClientConfigHolder;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.eclipse.lsp4j.CodeLens;
 import org.eclipse.lsp4j.Command;
@@ -44,7 +44,7 @@ import java.util.List;
 public class ServicesBasedCodeLensesProvider extends AbstractCodeLensesProvider {
     public ServicesBasedCodeLensesProvider() {
         super("services.CodeLenses");
-        BallerinaClientConfigHolder.getInstance().register((oldConfig, newConfig) -> {
+        LSClientConfigHolder.getInstance().register((oldConfig, newConfig) -> {
             isEnabled = newConfig.getCodeLens().getServices().isEnabled();
         });
     }

@@ -1,7 +1,7 @@
 {
     "position": {
-        "line": 11,
-        "character": 15
+        "line":11,
+        "character":15
     },
     "source": "function/source/matchStatementSuggestions4.bal",
     "items": [
@@ -152,7 +152,7 @@
             "documentation": {
                 "right": {
                     "kind": "markdown",
-                    "value": "Indicates that the client is only accepting responses whose freshness lifetime \u003e\u003d current age + min-fresh."
+                    "value": "Indicates that the client is only accepting responses whose freshness lifetime >= current age + min-fresh."
                 }
             },
             "sortText": "130",
@@ -958,20 +958,20 @@
             "insertTextFormat": "Snippet"
         },
         {
-          "label": "INVALID_COOKIE_ERROR",
-          "kind": "Variable",
-          "detail": "string",
-          "documentation": {
-            "right": {
-              "kind": "markdown",
-              "value": "Represents the reason string for the `http:InvalidCookieError`"
-            }
-          },
-          "sortText": "130",
-          "insertText": "INVALID_COOKIE_ERROR",
-          "insertTextFormat": "Snippet"
+            "label": "INVALID_COOKIE_ERROR",
+            "kind": "Variable",
+            "detail": "string",
+            "documentation": {
+                "right": {
+                    "kind": "markdown",
+                    "value": "Represents the reason string for the `http:InvalidCookieError`"
+                }
+            },
+            "sortText": "130",
+            "insertText": "INVALID_COOKIE_ERROR",
+            "insertTextFormat": "Snippet"
         },
-      {
+        {
             "label": "GENERIC_CLIENT_ERROR",
             "kind": "Variable",
             "detail": "string",
@@ -1055,19 +1055,19 @@
             "insertText": "SSL_ERROR",
             "insertTextFormat": "Snippet"
         },
-      {
-        "label": "COOKIE_HANDLING_ERROR",
-        "kind": "Variable",
-        "detail": "string",
-        "documentation": {
-          "right": {
-            "kind": "markdown",
-            "value": "Represents the reason string for the `http:CookieHandlingError`"
-          }
-        },
-        "sortText": "130",
-        "insertText": "COOKIE_HANDLING_ERROR",
-        "insertTextFormat": "Snippet"
+        {
+            "label": "COOKIE_HANDLING_ERROR",
+            "kind": "Variable",
+            "detail": "string",
+            "documentation": {
+                "right": {
+                    "kind": "markdown",
+                    "value": "Represents the reason string for the `http:CookieHandlingError`"
+                }
+            },
+            "sortText": "130",
+            "insertText": "COOKIE_HANDLING_ERROR",
+            "insertTextFormat": "Snippet"
         },
         {
             "label": "AGE",
@@ -2472,17 +2472,6 @@
             "insertTextFormat": "Snippet"
         },
         {
-            "label": "ClientConfiguration",
-            "kind": "Struct",
-            "detail": "Record",
-            "documentation": {
-                "left": "Provides a set of configurations for controlling the behaviours when communicating with a remote HTTP endpoint.\n"
-            },
-            "sortText": "180",
-            "insertText": "ClientConfiguration",
-            "insertTextFormat": "Snippet"
-        },
-        {
             "label": "ClientHttp1Settings",
             "kind": "Struct",
             "detail": "Record",
@@ -2531,7 +2520,7 @@
             "kind": "Struct",
             "detail": "Record",
             "documentation": {
-                "left": "Provides configurations for controlling the endpoint\u0027s behaviour in response to HTTP redirect related responses.\n"
+                "left": "Provides configurations for controlling the endpoint's behaviour in response to HTTP redirect related responses.\n"
             },
             "sortText": "180",
             "insertText": "FollowRedirects",
@@ -2603,23 +2592,23 @@
             "insertText": "CookieClient",
             "insertTextFormat": "Snippet"
         },
-      {
-        "label": "PersistentCookieHandler",
-        "kind": "Interface",
-        "detail": "Object",
-        "documentation": {
-          "left": "The representation of a persistent cookie handler for managing persistent cookies."
-        },
-        "sortText": "190",
-        "insertText": "PersistentCookieHandler",
-        "insertTextFormat": "Snippet"
+        {
+            "label": "PersistentCookieHandler",
+            "kind": "Interface",
+            "detail": "Object",
+            "documentation": {
+                "left": "The representation of a persistent cookie handler for managing persistent cookies."
+            },
+            "sortText": "190",
+            "insertText": "PersistentCookieHandler",
+            "insertTextFormat": "Snippet"
         },
         {
             "label": "HttpFuture",
             "kind": "Interface",
             "detail": "Object",
             "documentation": {
-                "left": "Represents a \u0027future\u0027 that returns as a result of an asynchronous HTTP request submission.\nThis can be used as a reference to fetch the results of the submission."
+                "left": "Represents a 'future' that returns as a result of an asynchronous HTTP request submission.\nThis can be used as a reference to fetch the results of the submission."
             },
             "sortText": "190",
             "insertText": "HttpFuture",
@@ -2751,6 +2740,17 @@
             },
             "sortText": "180",
             "insertText": "CompressionConfig",
+            "insertTextFormat": "Snippet"
+        },
+        {
+            "label": "CommonClientConfiguration",
+            "kind": "Struct",
+            "detail": "Record",
+            "documentation": {
+                "left": "Common client configurations for the next level clients.\n"
+            },
+            "sortText": "180",
+            "insertText": "CommonClientConfiguration",
             "insertTextFormat": "Snippet"
         },
         {
@@ -3028,17 +3028,17 @@
             "insertTextFormat": "Snippet"
         },
         {
-          "label": "InvalidCookieError",
-          "kind": "Event",
-          "detail": "Error",
-          "documentation": {
-            "left": "Represents a cookie error that occurred when sending cookies in the response"
-          },
-          "sortText": "200",
-          "insertText": "InvalidCookieError",
-          "insertTextFormat": "Snippet"
+            "label": "InvalidCookieError",
+            "kind": "Event",
+            "detail": "Error",
+            "documentation": {
+                "left": "Represents a cookie error that occurred when sending cookies in the response"
+            },
+            "sortText": "200",
+            "insertText": "InvalidCookieError",
+            "insertTextFormat": "Snippet"
         },
-      {
+        {
             "label": "GenericClientError",
             "kind": "Event",
             "detail": "Error",
@@ -3104,16 +3104,16 @@
             "insertText": "SslError",
             "insertTextFormat": "Snippet"
         },
-      {
-        "label": "CookieHandlingError",
-        "kind": "Event",
-        "detail": "Error",
-        "documentation": {
-          "left": "Represents a cookie error that occurred when using the cookies"
-        },
-        "sortText": "200",
-        "insertText": "CookieHandlingError",
-        "insertTextFormat": "Snippet"
+        {
+            "label": "CookieHandlingError",
+            "kind": "Event",
+            "detail": "Error",
+            "documentation": {
+                "left": "Represents a cookie error that occurred when using the cookies"
+            },
+            "sortText": "200",
+            "insertText": "CookieHandlingError",
+            "insertTextFormat": "Snippet"
         },
         {
             "label": "ResiliencyError",
@@ -3351,7 +3351,7 @@
             "kind": "Struct",
             "detail": "Record",
             "documentation": {
-                "left": "Provides a set of HTTP related configurations and failover related configurations.\n"
+                "left": "Provides a set of HTTP related configurations and failover related configurations.\n\nhttpVersion - Copied from CommonClientConfiguration\nhttp1Settings - Copied from CommonClientConfiguration\nhttp2Settings - Copied from CommonClientConfiguration\ntimeoutInMillis - Copied from CommonClientConfiguration\nforwarded - Copied from CommonClientConfiguration\nfollowRedirects - Copied from CommonClientConfiguration\npoolConfig - Copied from CommonClientConfiguration\ncache - Copied from CommonClientConfiguration\ncompression - Copied from CommonClientConfiguration\nauth - Copied from CommonClientConfiguration\ncircuitBreaker - Copied from CommonClientConfiguration\nretryConfig - Copied from CommonClientConfiguration\ncookieConfig - Copied from CommonClientConfiguration"
             },
             "sortText": "180",
             "insertText": "FailoverClientConfiguration",
@@ -3512,7 +3512,7 @@
             "kind": "Struct",
             "detail": "Record",
             "documentation": {
-                "left": "The configurations related to the load balance client endpoint.\n"
+                "left": "The configurations related to the load balance client endpoint.\n\nhttpVersion - Copied from CommonClientConfiguration\nhttp1Settings - Copied from CommonClientConfiguration\nhttp2Settings - Copied from CommonClientConfiguration\ntimeoutInMillis - Copied from CommonClientConfiguration\nforwarded - Copied from CommonClientConfiguration\nfollowRedirects - Copied from CommonClientConfiguration\npoolConfig - Copied from CommonClientConfiguration\ncache - Copied from CommonClientConfiguration\ncompression - Copied from CommonClientConfiguration\nauth - Copied from CommonClientConfiguration\ncircuitBreaker - Copied from CommonClientConfiguration\nretryConfig - Copied from CommonClientConfiguration\ncookieConfig - Copied from CommonClientConfiguration"
             },
             "sortText": "180",
             "insertText": "LoadBalanceClientConfiguration",
@@ -3639,17 +3639,17 @@
             "insertTextFormat": "Snippet"
         },
         {
-          "label": "WebSocketRetryConfig",
-          "kind": "Struct",
-          "detail": "Record",
-          "documentation": {
-            "left": "Retry configurations for WebSocket.\n"
-          },
-          "sortText": "180",
-          "insertText": "WebSocketRetryConfig",
-          "insertTextFormat": "Snippet"
+            "label": "WebSocketRetryConfig",
+            "kind": "Struct",
+            "detail": "Record",
+            "documentation": {
+                "left": "Retry configurations for WebSocket.\n"
+            },
+            "sortText": "180",
+            "insertText": "WebSocketRetryConfig",
+            "insertTextFormat": "Snippet"
         },
-      {
+        {
             "label": "WsConnectionClosureError",
             "kind": "Event",
             "detail": "Error",
@@ -3760,17 +3760,28 @@
             "insertTextFormat": "Snippet"
         },
         {
-          "label": "CsvPersistentCookieHandler",
-          "kind": "Interface",
-          "detail": "Object",
-          "documentation": {
-            "left": "Represents a default persistent cookie handler, which stores persistent cookies in a CSV file.\n"
-          },
-          "sortText": "190",
-          "insertText": "CsvPersistentCookieHandler",
-          "insertTextFormat": "Snippet"
+            "label": "ClientConfiguration",
+            "kind": "Struct",
+            "detail": "Record",
+            "documentation": {
+                "left": "Provides a set of configurations for controlling the behaviours when communicating with a remote HTTP endpoint.\n\nhttpVersion - Copied from CommonClientConfiguration\nhttp1Settings - Copied from CommonClientConfiguration\nhttp2Settings - Copied from CommonClientConfiguration\ntimeoutInMillis - Copied from CommonClientConfiguration\nforwarded - Copied from CommonClientConfiguration\nfollowRedirects - Copied from CommonClientConfiguration\npoolConfig - Copied from CommonClientConfiguration\ncache - Copied from CommonClientConfiguration\ncompression - Copied from CommonClientConfiguration\nauth - Copied from CommonClientConfiguration\ncircuitBreaker - Copied from CommonClientConfiguration\nretryConfig - Copied from CommonClientConfiguration\ncookieConfig - Copied from CommonClientConfiguration"
+            },
+            "sortText": "180",
+            "insertText": "ClientConfiguration",
+            "insertTextFormat": "Snippet"
         },
-      {
+        {
+            "label": "CsvPersistentCookieHandler",
+            "kind": "Interface",
+            "detail": "Object",
+            "documentation": {
+                "left": "Represents a default persistent cookie handler, which stores persistent cookies in a CSV file.\n"
+            },
+            "sortText": "190",
+            "insertText": "CsvPersistentCookieHandler",
+            "insertTextFormat": "Snippet"
+        },
+        {
             "label": "RequestMessage",
             "kind": "Enum",
             "detail": "Union",
@@ -3811,13 +3822,13 @@
             }
         },
         {
-          "label": "createHttpCachingClient(string url, http:ClientConfiguration config, http:CacheConfig cacheConfig)((http:HttpClient|http:FailoverAllEndpointsFailedError|http:FailoverActionFailedError|http:UpstreamServiceUnavailableError|http:AllLoadBalanceEndpointsFailedError|http:AllRetryAttemptsFailed|http:IdleTimeoutError|http:AuthenticationError|http:AuthorizationError|http:InitializingOutboundRequestError|http:WritingOutboundRequestHeadersError|http:WritingOutboundRequestBodyError|http:InitializingInboundResponseError|http:ReadingInboundResponseHeadersError|http:ReadingInboundResponseBodyError|http:UnsupportedActionError|http:Http2ClientError|http:MaximumWaitTimeExceededError|http:SslError|http:GenericClientError|http:CookieHandlingError))",
+            "label": "createHttpCachingClient(string url, http:ClientConfiguration config, http:CacheConfig cacheConfig)((http:HttpClient|http:FailoverAllEndpointsFailedError|http:FailoverActionFailedError|http:UpstreamServiceUnavailableError|http:AllLoadBalanceEndpointsFailedError|http:AllRetryAttemptsFailed|http:IdleTimeoutError|http:AuthenticationError|http:AuthorizationError|http:InitializingOutboundRequestError|http:WritingOutboundRequestHeadersError|http:WritingOutboundRequestBodyError|http:InitializingInboundResponseError|http:ReadingInboundResponseHeadersError|http:ReadingInboundResponseBodyError|http:UnsupportedActionError|http:Http2ClientError|http:MaximumWaitTimeExceededError|http:SslError|http:GenericClientError|http:CookieHandlingError))",
             "kind": "Function",
             "detail": "Function",
             "documentation": {
                 "right": {
                     "kind": "markdown",
-                  "value": "**Package:** _ballerina/http_  \n  \nCreates an HTTP client capable of caching HTTP responses.\n  \n**Params**  \n- `string` url: The URL of the HTTP endpoint to connect to  \n- `http:ClientConfiguration` config: The configurations for the client endpoint associated with the caching client  \n- `http:CacheConfig` cacheConfig: The configurations for the HTTP cache to be used with the caching client  \n  \n**Returns** `(http:HttpClient|http:FailoverAllEndpointsFailedError|http:FailoverActionFailedError|http:UpstreamServiceUnavailableError|http:AllLoadBalanceEndpointsFailedError|http:AllRetryAttemptsFailed|http:IdleTimeoutError|http:AuthenticationError|http:AuthorizationError|http:InitializingOutboundRequestError|http:WritingOutboundRequestHeadersError|http:WritingOutboundRequestBodyError|http:InitializingInboundResponseError|http:ReadingInboundResponseHeadersError|http:ReadingInboundResponseBodyError|http:UnsupportedActionError|http:Http2ClientError|http:MaximumWaitTimeExceededError|http:SslError|http:GenericClientError|http:CookieHandlingError)`   \n- An `HttpCachingClient` instance which wraps the base `Client` with a caching layer  \n  \n"
+                    "value": "**Package:** _ballerina/http_  \n  \nCreates an HTTP client capable of caching HTTP responses.\n  \n**Params**  \n- `string` url: The URL of the HTTP endpoint to connect to  \n- `http:ClientConfiguration` config: The configurations for the client endpoint associated with the caching client  \n- `http:CacheConfig` cacheConfig: The configurations for the HTTP cache to be used with the caching client  \n  \n**Returns** `(http:HttpClient|http:FailoverAllEndpointsFailedError|http:FailoverActionFailedError|http:UpstreamServiceUnavailableError|http:AllLoadBalanceEndpointsFailedError|http:AllRetryAttemptsFailed|http:IdleTimeoutError|http:AuthenticationError|http:AuthorizationError|http:InitializingOutboundRequestError|http:WritingOutboundRequestHeadersError|http:WritingOutboundRequestBodyError|http:InitializingInboundResponseError|http:ReadingInboundResponseHeadersError|http:ReadingInboundResponseBodyError|http:UnsupportedActionError|http:Http2ClientError|http:MaximumWaitTimeExceededError|http:SslError|http:GenericClientError|http:CookieHandlingError)`   \n- An `HttpCachingClient` instance which wraps the base `Client` with a caching layer  \n  \n"
                 }
             },
             "sortText": "120",
@@ -3829,13 +3840,13 @@
             }
         },
         {
-          "label": "parseHeader(string headerValue)(([string,map\u003cany\u003e]|http:FailoverAllEndpointsFailedError|http:FailoverActionFailedError|http:UpstreamServiceUnavailableError|http:AllLoadBalanceEndpointsFailedError|http:AllRetryAttemptsFailed|http:IdleTimeoutError|http:AuthenticationError|http:AuthorizationError|http:InitializingOutboundRequestError|http:WritingOutboundRequestHeadersError|http:WritingOutboundRequestBodyError|http:InitializingInboundResponseError|http:ReadingInboundResponseHeadersError|http:ReadingInboundResponseBodyError|http:UnsupportedActionError|http:Http2ClientError|http:MaximumWaitTimeExceededError|http:SslError|http:GenericClientError|http:CookieHandlingError))",
+            "label": "parseHeader(string headerValue)(([string,map<any>]|http:FailoverAllEndpointsFailedError|http:FailoverActionFailedError|http:UpstreamServiceUnavailableError|http:AllLoadBalanceEndpointsFailedError|http:AllRetryAttemptsFailed|http:IdleTimeoutError|http:AuthenticationError|http:AuthorizationError|http:InitializingOutboundRequestError|http:WritingOutboundRequestHeadersError|http:WritingOutboundRequestBodyError|http:InitializingInboundResponseError|http:ReadingInboundResponseHeadersError|http:ReadingInboundResponseBodyError|http:UnsupportedActionError|http:Http2ClientError|http:MaximumWaitTimeExceededError|http:SslError|http:GenericClientError|http:CookieHandlingError))",
             "kind": "Function",
             "detail": "Function",
             "documentation": {
                 "right": {
                     "kind": "markdown",
-                  "value": "**Package:** _ballerina/http_  \n  \nParses the given header value to extract its value and parameter map.\n  \n**Params**  \n- `string` headerValue: The header value  \n  \n**Returns** `([string,map\u003cany\u003e]|http:FailoverAllEndpointsFailedError|http:FailoverActionFailedError|http:UpstreamServiceUnavailableError|http:AllLoadBalanceEndpointsFailedError|http:AllRetryAttemptsFailed|http:IdleTimeoutError|http:AuthenticationError|http:AuthorizationError|http:InitializingOutboundRequestError|http:WritingOutboundRequestHeadersError|http:WritingOutboundRequestBodyError|http:InitializingInboundResponseError|http:ReadingInboundResponseHeadersError|http:ReadingInboundResponseBodyError|http:UnsupportedActionError|http:Http2ClientError|http:MaximumWaitTimeExceededError|http:SslError|http:GenericClientError|http:CookieHandlingError)`   \n- Returns a tuple containing the value and its parameter map  \n  \n"
+                    "value": "**Package:** _ballerina/http_  \n  \nParses the given header value to extract its value and parameter map.\n  \n**Params**  \n- `string` headerValue: The header value  \n  \n**Returns** `([string,map<any>]|http:FailoverAllEndpointsFailedError|http:FailoverActionFailedError|http:UpstreamServiceUnavailableError|http:AllLoadBalanceEndpointsFailedError|http:AllRetryAttemptsFailed|http:IdleTimeoutError|http:AuthenticationError|http:AuthorizationError|http:InitializingOutboundRequestError|http:WritingOutboundRequestHeadersError|http:WritingOutboundRequestBodyError|http:InitializingInboundResponseError|http:ReadingInboundResponseHeadersError|http:ReadingInboundResponseBodyError|http:UnsupportedActionError|http:Http2ClientError|http:MaximumWaitTimeExceededError|http:SslError|http:GenericClientError|http:CookieHandlingError)`   \n- Returns a tuple containing the value and its parameter map  \n  \n"
                 }
             },
             "sortText": "120",
@@ -3847,13 +3858,13 @@
             }
         },
         {
-          "label": "invokeEndpoint(string path, http:Request outRequest, (FORWARD|GET|POST|DELETE|OPTIONS|PUT|PATCH|HEAD|SUBMIT|NONE) requestAction, http:HttpClient httpClient, string verb)((http:Response|http:HttpFuture|http:FailoverAllEndpointsFailedError|http:FailoverActionFailedError|http:UpstreamServiceUnavailableError|http:AllLoadBalanceEndpointsFailedError|http:AllRetryAttemptsFailed|http:IdleTimeoutError|http:AuthenticationError|http:AuthorizationError|http:InitializingOutboundRequestError|http:WritingOutboundRequestHeadersError|http:WritingOutboundRequestBodyError|http:InitializingInboundResponseError|http:ReadingInboundResponseHeadersError|http:ReadingInboundResponseBodyError|http:UnsupportedActionError|http:Http2ClientError|http:MaximumWaitTimeExceededError|http:SslError|http:GenericClientError|http:CookieHandlingError))",
+            "label": "invokeEndpoint(string path, http:Request outRequest, (FORWARD|GET|POST|DELETE|OPTIONS|PUT|PATCH|HEAD|SUBMIT|NONE) requestAction, http:HttpClient httpClient, string verb)((http:Response|http:HttpFuture|http:FailoverAllEndpointsFailedError|http:FailoverActionFailedError|http:UpstreamServiceUnavailableError|http:AllLoadBalanceEndpointsFailedError|http:AllRetryAttemptsFailed|http:IdleTimeoutError|http:AuthenticationError|http:AuthorizationError|http:InitializingOutboundRequestError|http:WritingOutboundRequestHeadersError|http:WritingOutboundRequestBodyError|http:InitializingInboundResponseError|http:ReadingInboundResponseHeadersError|http:ReadingInboundResponseBodyError|http:UnsupportedActionError|http:Http2ClientError|http:MaximumWaitTimeExceededError|http:SslError|http:GenericClientError|http:CookieHandlingError))",
             "kind": "Function",
             "detail": "Function",
             "documentation": {
                 "right": {
                     "kind": "markdown",
-                  "value": "**Package:** _ballerina/http_  \n  \nThe HEAD remote function implementation of the Circuit Breaker. This wraps the `head` function of the underlying\nHTTP remote function provider.  \n**Params**  \n- `string` path: Resource path  \n- `http:Request` outRequest: A Request struct  \n- `(FORWARD|GET|POST|DELETE|OPTIONS|PUT|PATCH|HEAD|SUBMIT|NONE)` requestAction: `HttpOperation` related to the request  \n- `http:HttpClient` httpClient: HTTP client which uses to call the relevant functions  \n- `string` verb: HTTP verb used for submit method(Defaultable)  \n  \n**Returns** `(http:Response|http:HttpFuture|http:FailoverAllEndpointsFailedError|http:FailoverActionFailedError|http:UpstreamServiceUnavailableError|http:AllLoadBalanceEndpointsFailedError|http:AllRetryAttemptsFailed|http:IdleTimeoutError|http:AuthenticationError|http:AuthorizationError|http:InitializingOutboundRequestError|http:WritingOutboundRequestHeadersError|http:WritingOutboundRequestBodyError|http:InitializingInboundResponseError|http:ReadingInboundResponseHeadersError|http:ReadingInboundResponseBodyError|http:UnsupportedActionError|http:Http2ClientError|http:MaximumWaitTimeExceededError|http:SslError|http:GenericClientError|http:CookieHandlingError)`   \n- The response for the request or an `http:ClientError` if failed to establish communication with the upstream server  \n  \n"
+                    "value": "**Package:** _ballerina/http_  \n  \nThe HEAD remote function implementation of the Circuit Breaker. This wraps the `head` function of the underlying\nHTTP remote function provider.  \n**Params**  \n- `string` path: Resource path  \n- `http:Request` outRequest: A Request struct  \n- `(FORWARD|GET|POST|DELETE|OPTIONS|PUT|PATCH|HEAD|SUBMIT|NONE)` requestAction: `HttpOperation` related to the request  \n- `http:HttpClient` httpClient: HTTP client which uses to call the relevant functions  \n- `string` verb: HTTP verb used for submit method(Defaultable)  \n  \n**Returns** `(http:Response|http:HttpFuture|http:FailoverAllEndpointsFailedError|http:FailoverActionFailedError|http:UpstreamServiceUnavailableError|http:AllLoadBalanceEndpointsFailedError|http:AllRetryAttemptsFailed|http:IdleTimeoutError|http:AuthenticationError|http:AuthorizationError|http:InitializingOutboundRequestError|http:WritingOutboundRequestHeadersError|http:WritingOutboundRequestBodyError|http:InitializingInboundResponseError|http:ReadingInboundResponseHeadersError|http:ReadingInboundResponseBodyError|http:UnsupportedActionError|http:Http2ClientError|http:MaximumWaitTimeExceededError|http:SslError|http:GenericClientError|http:CookieHandlingError)`   \n- The response for the request or an `http:ClientError` if failed to establish communication with the upstream server  \n  \n"
                 }
             },
             "sortText": "120",
@@ -3865,13 +3876,13 @@
             }
         },
         {
-          "label": "createHttpSecureClient(string url, http:ClientConfiguration config)((http:HttpClient|http:FailoverAllEndpointsFailedError|http:FailoverActionFailedError|http:UpstreamServiceUnavailableError|http:AllLoadBalanceEndpointsFailedError|http:AllRetryAttemptsFailed|http:IdleTimeoutError|http:AuthenticationError|http:AuthorizationError|http:InitializingOutboundRequestError|http:WritingOutboundRequestHeadersError|http:WritingOutboundRequestBodyError|http:InitializingInboundResponseError|http:ReadingInboundResponseHeadersError|http:ReadingInboundResponseBodyError|http:UnsupportedActionError|http:Http2ClientError|http:MaximumWaitTimeExceededError|http:SslError|http:GenericClientError|http:CookieHandlingError))",
+            "label": "createHttpSecureClient(string url, http:ClientConfiguration config)((http:HttpClient|http:FailoverAllEndpointsFailedError|http:FailoverActionFailedError|http:UpstreamServiceUnavailableError|http:AllLoadBalanceEndpointsFailedError|http:AllRetryAttemptsFailed|http:IdleTimeoutError|http:AuthenticationError|http:AuthorizationError|http:InitializingOutboundRequestError|http:WritingOutboundRequestHeadersError|http:WritingOutboundRequestBodyError|http:InitializingInboundResponseError|http:ReadingInboundResponseHeadersError|http:ReadingInboundResponseBodyError|http:UnsupportedActionError|http:Http2ClientError|http:MaximumWaitTimeExceededError|http:SslError|http:GenericClientError|http:CookieHandlingError))",
             "kind": "Function",
             "detail": "Function",
             "documentation": {
                 "right": {
                     "kind": "markdown",
-                  "value": "**Package:** _ballerina/http_  \n  \nCreates an HTTP client capable of securing HTTP requests with authentication.\n  \n**Params**  \n- `string` url: Base URL  \n- `http:ClientConfiguration` config: Client endpoint configurations  \n  \n**Returns** `(http:HttpClient|http:FailoverAllEndpointsFailedError|http:FailoverActionFailedError|http:UpstreamServiceUnavailableError|http:AllLoadBalanceEndpointsFailedError|http:AllRetryAttemptsFailed|http:IdleTimeoutError|http:AuthenticationError|http:AuthorizationError|http:InitializingOutboundRequestError|http:WritingOutboundRequestHeadersError|http:WritingOutboundRequestBodyError|http:InitializingInboundResponseError|http:ReadingInboundResponseHeadersError|http:ReadingInboundResponseBodyError|http:UnsupportedActionError|http:Http2ClientError|http:MaximumWaitTimeExceededError|http:SslError|http:GenericClientError|http:CookieHandlingError)`   \n- Created secure HTTP client  \n  \n"
+                    "value": "**Package:** _ballerina/http_  \n  \nCreates an HTTP client capable of securing HTTP requests with authentication.\n  \n**Params**  \n- `string` url: Base URL  \n- `http:ClientConfiguration` config: Client endpoint configurations  \n  \n**Returns** `(http:HttpClient|http:FailoverAllEndpointsFailedError|http:FailoverActionFailedError|http:UpstreamServiceUnavailableError|http:AllLoadBalanceEndpointsFailedError|http:AllRetryAttemptsFailed|http:IdleTimeoutError|http:AuthenticationError|http:AuthorizationError|http:InitializingOutboundRequestError|http:WritingOutboundRequestHeadersError|http:WritingOutboundRequestBodyError|http:InitializingInboundResponseError|http:ReadingInboundResponseHeadersError|http:ReadingInboundResponseBodyError|http:UnsupportedActionError|http:Http2ClientError|http:MaximumWaitTimeExceededError|http:SslError|http:GenericClientError|http:CookieHandlingError)`   \n- Created secure HTTP client  \n  \n"
                 }
             },
             "sortText": "120",

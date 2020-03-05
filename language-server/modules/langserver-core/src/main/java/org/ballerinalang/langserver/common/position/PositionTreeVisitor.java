@@ -23,6 +23,7 @@ import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.hover.util.HoverUtil;
+import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.eclipse.lsp4j.Position;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
@@ -33,6 +34,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
+import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
@@ -149,7 +151,7 @@ public class PositionTreeVisitor extends LSNodeVisitor {
             this.acceptNode(funcNode.returnTypeNode);
         }
 
-        if (funcNode.body != null) {
+        if (funcNode.hasBody()) {
             this.acceptNode(funcNode.body);
         }
 
@@ -258,6 +260,12 @@ public class PositionTreeVisitor extends LSNodeVisitor {
         if (blockNode.stmts != null) {
             blockNode.stmts.forEach(this::acceptNode);
         }
+    }
+
+    @Override
+    public void visit(BLangBlockFunctionBody blockFuncBody) {
+        setPreviousNode(blockFuncBody);
+        blockFuncBody.stmts.forEach(this::acceptNode);
     }
 
     @Override
@@ -611,6 +619,8 @@ public class PositionTreeVisitor extends LSNodeVisitor {
                     if (bLangRecordKeyValue.valueExpr != null) {
                         this.acceptNode(bLangRecordKeyValue.valueExpr);
                     }
+                } else if (field.getKind() == NodeKind.RECORD_LITERAL_SPREAD_OP) {
+                    this.acceptNode((BLangRecordLiteral.BLangRecordSpreadOperatorField) field);
                 } else {
                     this.acceptNode((BLangRecordLiteral.BLangRecordVarNameField) field);
                 }

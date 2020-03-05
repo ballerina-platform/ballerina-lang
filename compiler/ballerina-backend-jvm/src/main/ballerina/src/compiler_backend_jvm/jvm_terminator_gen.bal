@@ -41,8 +41,6 @@ type TerminatorGenerator object {
                            int localVarOffset, int returnVarRefIndex, bir:BType? attachedType, boolean isObserved = false) {
         if (terminator is bir:Lock) {
             self.genLockTerm(terminator, funcName, localVarOffset);
-        } else if (terminator is bir:FieldLock) {
-            self.genFieldLockTerm(terminator, funcName, localVarOffset, attachedType);
         } else if (terminator is bir:Unlock) {
             self.genUnlockTerm(terminator, funcName, attachedType);
         } else if (terminator is bir:GOTO) {
@@ -89,10 +87,12 @@ type TerminatorGenerator object {
 
     function genLockTerm(bir:Lock lockIns, string funcName, int localVarOffset) {
         jvm:Label gotoLabel = self.labelGen.getLabel(funcName + lockIns.lockBB.id.value);
-        string lockClass = "L" + LOCK_VALUE + ";";
-        var varClassName = lookupGlobalVarClassName(self.currentPackageName + lockIns.globleVar.name.value);
-        var lockName = computeLockNameFromString(lockIns.globleVar.name.value);
-        self.mv.visitFieldInsn(GETSTATIC, varClassName, lockName, lockClass);
+        string lockStore = "L" + LOCK_STORE + ";";
+        string initClassName = lookupGlobalVarClassName(self.currentPackageName + "LOCK_STORE");
+        self.mv.visitFieldInsn(GETSTATIC, initClassName, "LOCK_STORE", lockStore);
+        self.mv.visitLdcInsn("global");
+        self.mv.visitMethodInsn(INVOKEVIRTUAL, LOCK_STORE, "getLockFromMap", io:sprintf("(L%s;)L%s;", STRING_VALUE,
+            LOCK_VALUE), false);
         self.mv.visitVarInsn(ALOAD, localVarOffset);
         self.mv.visitMethodInsn(INVOKEVIRTUAL, LOCK_VALUE, "lock", io:sprintf("(L%s;)Z", STRAND), false);
         self.mv.visitInsn(POP);
@@ -101,61 +101,17 @@ type TerminatorGenerator object {
         self.mv.visitJumpInsn(GOTO, gotoLabel);
     }
 
-    function genFieldLockTerm(bir:FieldLock lockIns, string funcName, int localVarOffset, bir:BType? attachedType) {
-        jvm:Label gotoLabel = self.labelGen.getLabel(funcName + lockIns.lockBB.id.value);
-        string lockClass = "L" + LOCK_VALUE + ";";
-        var lockName = computeLockNameFromString(lockIns.field);
-        self.loadVar(lockIns.localVar);
-
-        if (attachedType is bir:BObjectType) {
-            string className = getTypeValueClassName(self.module, attachedType.name.value);
-            self.mv.visitFieldInsn(GETFIELD, className, lockName, lockClass);
-            self.mv.visitVarInsn(ALOAD, localVarOffset);
-            self.mv.visitMethodInsn(INVOKEVIRTUAL, LOCK_VALUE, "lock", io:sprintf("(L%s;)Z", STRAND), false);
-            self.mv.visitInsn(POP);
-            genYieldCheckForLock(self.mv, self.labelGen, funcName, localVarOffset);
-
-            self.mv.visitJumpInsn(GOTO, gotoLabel);
-        } else {
-            error err = error( "JVM field lock generation is not supported for type " +
-                            io:sprintf("%s", attachedType));
-            panic err;
-        }
-    }
-
     function genUnlockTerm(bir:Unlock unlockIns, string funcName, bir:BType? attachedType) {
         jvm:Label gotoLabel = self.labelGen.getLabel(funcName + unlockIns.unlockBB.id.value);
 
-        string currentPackageName = getPackageName(self.module.org.value, self.module.name.value);
-
-        string lockClass = "L" + LOCK_VALUE + ";";
         // unlocked in the same order https://yarchive.net/comp/linux/lock_ordering.html
-        foreach var globalVariable in unlockIns.globleVars {
-            bir:VariableDcl globleVar = self.cleanupVariableDecl(globalVariable);
-            var varClassName = lookupGlobalVarClassName(self.currentPackageName + globleVar.name.value);
-            var lockName = computeLockNameFromString(globleVar.name.value);
-            self.mv.visitFieldInsn(GETSTATIC, varClassName, lockName, lockClass);
-            self.mv.visitMethodInsn(INVOKEVIRTUAL, LOCK_VALUE, "unlock", "()V", false);
-        }
-
-        foreach var lockDetail in unlockIns.localLocks {
-            bir:LocalLocks localLock = self.cleanupLocalLock(lockDetail);
-
-            if (attachedType is bir:BObjectType) {
-                string className = getTypeValueClassName(self.module, attachedType.name.value);
-                foreach var fieldName in localLock.fields {
-                    var lockName = computeLockNameFromString(fieldName);
-                    self.loadVar(localLock.localVar);
-                    self.mv.visitFieldInsn(GETFIELD, className, lockName, lockClass);
-                    self.mv.visitMethodInsn(INVOKEVIRTUAL, LOCK_VALUE, "unlock", "()V", false);
-                }
-            } else {
-                error err = error( "JVM field unlock generation is not supported for type " +
-                                io:sprintf("%s", attachedType));
-                panic err;
-            }
-
-        }
+        string lockStore = "L" + LOCK_STORE + ";";
+        string initClassName = lookupGlobalVarClassName(self.currentPackageName + "LOCK_STORE");
+        self.mv.visitFieldInsn(GETSTATIC, initClassName, "LOCK_STORE", lockStore);
+        self.mv.visitLdcInsn("global");
+        self.mv.visitMethodInsn(INVOKEVIRTUAL, LOCK_STORE, "getLockFromMap", io:sprintf("(L%s;)L%s;", STRING_VALUE,
+            LOCK_VALUE), false);
+        self.mv.visitMethodInsn(INVOKEVIRTUAL, LOCK_VALUE, "unlock", "()V", false);
 
         self.mv.visitJumpInsn(GOTO, gotoLabel);
     }
@@ -552,7 +508,8 @@ type TerminatorGenerator object {
         string jvmClass = lookupFullQualifiedClassName(lookupKey);
         string cleanMethodName = cleanupFunctionName(methodName);
         boolean useBString = IS_BSTRING && orgName == "ballerina" &&
-                             (moduleName == "lang.string" || moduleName == "lang.error" || moduleName == "lang.value") && !cleanMethodName.endsWith("_");
+                             (moduleName == "lang.string" || moduleName == "lang.error" || moduleName == "lang.value" 
+                             || moduleName == "lang.map") && !cleanMethodName.endsWith("_");
         if (useBString) {
             cleanMethodName = nameOfBStringFunc(cleanMethodName);
         }

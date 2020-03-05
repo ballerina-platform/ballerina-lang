@@ -15,17 +15,22 @@
  */
 package org.ballerinalang.langserver.codeaction.providers;
 
-import org.apache.commons.lang3.tuple.Pair;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.command.executors.CreateTestExecutor;
 import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
+import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.codeaction.CodeActionNodeType;
 import org.ballerinalang.langserver.commons.command.CommandArgument;
+import org.ballerinalang.langserver.commons.workspace.LSDocumentIdentifier;
+import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.exception.CompilationFailedException;
+import org.ballerinalang.langserver.util.references.ReferencesKeys;
+import org.ballerinalang.langserver.util.references.ReferencesUtil;
+import org.ballerinalang.langserver.util.references.SymbolReferencesModel;
 import org.ballerinalang.model.elements.Flag;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.Command;
@@ -38,8 +43,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
-import static org.ballerinalang.langserver.command.CommandUtil.getBLangNode;
 
 /**
  * Code Action provider for create variable command.
@@ -56,8 +59,8 @@ public class CreateTestCodeAction extends AbstractCodeActionProvider {
      * {@inheritDoc}
      */
     @Override
-    public List<CodeAction> getCodeActions(CodeActionNodeType nodeType, LSContext context,
-                                           List<Diagnostic> diagnostics) {
+    public List<CodeAction> getNodeBasedCodeActions(CodeActionNodeType nodeType, LSContext context,
+                                                    List<Diagnostic> allDiagnostics) {
         try {
             String docUri = context.get(DocumentServiceKeys.FILE_URI_KEY);
             List<CodeAction> actions = new ArrayList<>();
@@ -87,25 +90,37 @@ public class CreateTestCodeAction extends AbstractCodeActionProvider {
             }
             return actions;
 
-        } catch (CompilationFailedException e) {
+        } catch (CompilationFailedException | WorkspaceDocumentException e) {
             // ignore
         }
         return null;
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public List<CodeAction> getDiagBasedCodeActions(CodeActionNodeType nodeType, LSContext context,
+                                                    List<Diagnostic> diagnosticsOfRange,
+                                                    List<Diagnostic> allDiagnostics) {
+        throw new UnsupportedOperationException("Not supported");
+    }
+
     private static boolean isTopLevelNode(String uri, WorkspaceDocumentManager docManager, LSContext context,
-                                          Position position)
-            throws CompilationFailedException {
-        Pair<BLangNode, Object> bLangNode = getBLangNode(position.getLine(), position.getCharacter(), uri, docManager,
-                                                         context);
+                                          Position pos)
+            throws CompilationFailedException, WorkspaceDocumentException {
+        LSDocumentIdentifier lsDocument = docManager.getLSDocument(CommonUtil.getPathFromURI(uri).get());
+        context.put(ReferencesKeys.OFFSET_CURSOR_N_TRY_NEXT_BEST, true);
+        SymbolReferencesModel.Reference refAtCursor = ReferencesUtil.getReferenceAtCursor(context, lsDocument, pos);
+        BLangNode bLangNode = refAtCursor.getbLangNode();
 
         // Only supported for 'public' functions
-        if (bLangNode.getLeft() instanceof BLangFunction &&
-                !((BLangFunction) bLangNode.getLeft()).getFlags().contains(Flag.PUBLIC)) {
+        if (bLangNode instanceof BLangFunction &&
+                !((BLangFunction) bLangNode).getFlags().contains(Flag.PUBLIC)) {
             return false;
         }
 
         // Only supported for top-level nodes
-        return (bLangNode.getLeft() != null && bLangNode.getLeft().parent instanceof BLangPackage);
+        return (bLangNode != null && bLangNode.parent instanceof BLangPackage);
     }
 }

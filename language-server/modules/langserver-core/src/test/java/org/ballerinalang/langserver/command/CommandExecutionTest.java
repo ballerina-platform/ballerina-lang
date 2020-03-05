@@ -28,7 +28,6 @@ import org.ballerinalang.langserver.command.executors.AddDocumentationExecutor;
 import org.ballerinalang.langserver.command.executors.ChangeAbstractTypeObjExecutor;
 import org.ballerinalang.langserver.command.executors.CreateFunctionExecutor;
 import org.ballerinalang.langserver.command.executors.CreateTestExecutor;
-import org.ballerinalang.langserver.command.executors.CreateVariableExecutor;
 import org.ballerinalang.langserver.command.executors.ImportModuleExecutor;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.commons.command.CommandArgument;
@@ -137,10 +136,11 @@ public class CommandExecutionTest {
     }
 
     @Test(dataProvider = "create-function-data-provider")
-    public void testCreateFunction(String config, String source) {
+    public void testCreateFunction(String config, String source) throws IOException {
         LSContextManager.getInstance().clearAllContexts();
         String configJsonPath = "command" + File.separator + config;
         Path sourcePath = sourcesPath.resolve("source").resolve(source);
+        TestUtil.openDocument(serviceEndpoint, sourcePath);
         JsonObject configJsonObject = FileUtils.fileContentAsObject(configJsonPath);
         JsonObject expected = configJsonObject.get("expected").getAsJsonObject();
         List<Object> args = new ArrayList<>();
@@ -151,32 +151,16 @@ public class CommandExecutionTest {
         JsonObject responseJson = getCommandResponse(args, CreateFunctionExecutor.COMMAND);
         responseJson.get("result").getAsJsonObject().get("edit").getAsJsonObject().getAsJsonArray("documentChanges")
                 .forEach(element -> element.getAsJsonObject().remove("textDocument"));
+        TestUtil.closeDocument(serviceEndpoint, sourcePath);
         Assert.assertEquals(responseJson, expected, "Test Failed for: " + config);
     }
 
-    @Test(dataProvider = "create-variable-data-provider")
-    public void testCreateVariable(String config, String source) {
+    @Test(dataProvider = "change-abstract-type-data-provider", enabled = false)
+    public void testChangeAbstractTypeObj(String config, String source) throws IOException {
         LSContextManager.getInstance().clearAllContexts();
         String configJsonPath = "command" + File.separator + config;
         Path sourcePath = sourcesPath.resolve("source").resolve(source);
-        JsonObject configJsonObject = FileUtils.fileContentAsObject(configJsonPath);
-        JsonObject expected = configJsonObject.get("expected").getAsJsonObject();
-        List<Object> args = new ArrayList<>();
-        JsonObject arguments = configJsonObject.get("arguments").getAsJsonObject();
-        args.add(new CommandArgument(CommandConstants.ARG_KEY_DOC_URI, sourcePath.toUri().toString()));
-        args.add(new CommandArgument(CommandConstants.ARG_KEY_NODE_LINE, arguments.get("node.line").getAsString()));
-        args.add(new CommandArgument(CommandConstants.ARG_KEY_NODE_COLUMN, arguments.get("node.column").getAsString()));
-        JsonObject responseJson = getCommandResponse(args, CreateVariableExecutor.COMMAND);
-        responseJson.get("result").getAsJsonObject().get("edit").getAsJsonObject().getAsJsonArray("documentChanges")
-                .forEach(element -> element.getAsJsonObject().remove("textDocument"));
-        Assert.assertEquals(responseJson, expected, "Test Failed for: " + config);
-    }
-
-    @Test(dataProvider = "change-abstract-type-data-provider")
-    public void testChangeAbstractTypeObj(String config, String source) {
-        LSContextManager.getInstance().clearAllContexts();
-        String configJsonPath = "command" + File.separator + config;
-        Path sourcePath = sourcesPath.resolve("source").resolve(source);
+        TestUtil.openDocument(serviceEndpoint, sourcePath);
         JsonObject configJsonObject = FileUtils.fileContentAsObject(configJsonPath);
         JsonObject expected = configJsonObject.get("expected").getAsJsonObject();
         List<Object> args = new ArrayList<>();
@@ -187,6 +171,7 @@ public class CommandExecutionTest {
         JsonObject responseJson = getCommandResponse(args, ChangeAbstractTypeObjExecutor.COMMAND);
         responseJson.get("result").getAsJsonObject().get("edit").getAsJsonObject().getAsJsonArray("documentChanges")
                 .forEach(element -> element.getAsJsonObject().remove("textDocument"));
+        TestUtil.closeDocument(serviceEndpoint, sourcePath);
         Assert.assertEquals(responseJson, expected, "Test Failed for: " + config);
     }
 
@@ -360,16 +345,6 @@ public class CommandExecutionTest {
                 {"createUndefinedFunction5.json", "createUndefinedFunction3.bal"},
                 {"createUndefinedFunction6.json", "createUndefinedFunction4.bal"},
                 {"createUndefinedFunction7.json", "createUndefinedFunction5.bal"},
-        };
-    }
-
-    @DataProvider(name = "create-variable-data-provider")
-    public Object[][] createVariableDataProvider() {
-        log.info("Test workspace/executeCommand for command {}", CreateVariableExecutor.COMMAND);
-        return new Object[][] {
-                {"createVariable1.json", "createVariable.bal"},
-                {"createVariable2.json", "createVariable.bal"},
-                {"createVariable3.json", "createVariable.bal"},
         };
     }
 

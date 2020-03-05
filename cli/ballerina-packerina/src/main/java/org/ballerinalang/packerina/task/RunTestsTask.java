@@ -18,99 +18,201 @@
 
 package org.ballerinalang.packerina.task;
 
-import org.ballerinalang.model.elements.PackageID;
+import com.google.gson.Gson;
+import org.ballerinalang.packerina.OsUtils;
 import org.ballerinalang.packerina.buildcontext.BuildContext;
 import org.ballerinalang.packerina.buildcontext.BuildContextField;
-import org.ballerinalang.testerina.util.TestarinaClassLoader;
-import org.ballerinalang.testerina.util.TesterinaUtils;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
+import org.ballerinalang.packerina.model.ExecutableJar;
+import org.ballerinalang.test.runtime.entity.TestSuite;
+import org.ballerinalang.test.runtime.util.TesterinaConstants;
+import org.ballerinalang.testerina.core.TesterinaRegistry;
+import org.ballerinalang.tool.LauncherUtils;
+import org.ballerinalang.tool.util.BFileUtil;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
-import org.wso2.ballerinalang.compiler.tree.BLangTestablePackage;
+import org.wso2.ballerinalang.util.Lists;
+import org.wso2.ballerinalang.util.RepoUtils;
 
-import java.nio.file.Files;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
-import java.util.HashMap;
+import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
+
+import static org.ballerinalang.test.runtime.util.TesterinaConstants.TEST_RUNTIME_JAR_PREFIX;
+import static org.ballerinalang.tool.LauncherUtils.createLauncherException;
+import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_COMPILED_JAR_EXT;
 
 /**
  * Task for executing tests.
  */
 public class RunTestsTask implements Task {
 
-    @Override
-    public void execute(BuildContext buildContext) {
-        Path sourceRootPath = buildContext.get(BuildContextField.SOURCE_ROOT);
+    private final String[] args;
 
-        Map<BLangPackage, TestarinaClassLoader> programFileMap = new HashMap<>();
-        List<BLangPackage> moduleBirMap = buildContext.getModules();
-        // Only tests in packages are executed so default packages i.e. single bal files which has the package name
-        // as "." are ignored. This is to be consistent with the "ballerina test" command which only executes tests
-        // in packages.
-        for (BLangPackage bLangPackage : moduleBirMap) {
-            PackageID packageID = bLangPackage.packageID;
+    public RunTestsTask(String[] args) {
+        this.args = args;
+    }
 
-            if (!buildContext.moduleDependencyPathMap.containsKey(packageID)) {
-                continue;
-            }
-
-            // todo following is some legacy logic check if we need to do this.
-            // if (bLangPackage.containsTestablePkg()) {
-            // } else {
-            // In this package there are no tests to be executed. But we need to say to the users that
-            // there are no tests found in the package to be executed as :
-            // Running tests
-            //     <org-name>/<package-name>:<version>
-            //         No tests found
-            // }
-            Path jarPath = buildContext.getTestJarPathFromTargetCache(packageID);
-            Path modulejarPath = buildContext.getJarPathFromTargetCache(packageID);
-            // subsitute test jar if module jar if tests not exists
-            if (Files.notExists(jarPath)) {
-                jarPath = modulejarPath;
-            }
-
-            HashSet<Path> moduleDependencies = buildContext.moduleDependencyPathMap.get(packageID).platformLibs;
-            // create a new set so that original set is not affected with test dependencies
-            HashSet<Path> dependencyJarPaths = new HashSet<>(moduleDependencies);
-
-            if (bLangPackage.containsTestablePkg()) {
-                for (BLangTestablePackage testablePackage : bLangPackage.getTestablePkgs()) {
-                    // find the set of dependency jar paths for running test for this module and update
-                    updateDependencyJarPaths(testablePackage.symbol.imports, buildContext, dependencyJarPaths);
-                }
-            }
-
-            // Create a class loader to run tests.
-            TestarinaClassLoader classLoader = new TestarinaClassLoader(jarPath, dependencyJarPaths);
-            programFileMap.put(bLangPackage, classLoader);
-        }
-        if (programFileMap.size() > 0) {
-            TesterinaUtils.executeTests(sourceRootPath, programFileMap, buildContext.out(), buildContext.err());
+    public RunTestsTask(String[] args, List<String> groupList, List<String> disableGroupList) {
+        this.args = args;
+        TesterinaRegistry testerinaRegistry = TesterinaRegistry.getInstance();
+        if (disableGroupList != null) {
+            testerinaRegistry.setGroups(disableGroupList);
+            testerinaRegistry.setShouldIncludeGroups(false);
+        } else if (groupList != null) {
+            testerinaRegistry.setGroups(groupList);
+            testerinaRegistry.setShouldIncludeGroups(true);
         }
     }
 
-    private void updateDependencyJarPaths(List<BPackageSymbol> importPackageSymbols, BuildContext buildContext,
-                                          HashSet<Path> dependencyJarPaths) {
-        for (BPackageSymbol importPackageSymbol : importPackageSymbols) {
-            PackageID importPkgId = importPackageSymbol.pkgID;
-            if (!buildContext.moduleDependencyPathMap.containsKey(importPkgId)) {
+    @Override
+    public void execute(BuildContext buildContext) {
+        buildContext.out().println();
+        buildContext.out().println("Running Tests");
+        Path sourceRootPath = buildContext.get(BuildContextField.SOURCE_ROOT);
+
+        List<BLangPackage> moduleBirMap = buildContext.getModules();
+        //p Only tests in packages are executed so default packages i.e. single bal files which has the package name
+        // as "." are ignored. This is to be consistent with the "ballerina test" command which only executes tests
+        // in packages.
+        for (BLangPackage bLangPackage : moduleBirMap) {
+            TestSuite suite = TesterinaRegistry.getInstance().getTestSuites().get(bLangPackage.packageID.toString());
+            if (suite == null) {
+                buildContext.out().println();
+                buildContext.out().println("\t" + bLangPackage.packageID);
+                buildContext.out().println("\t" + "No tests found");
+                buildContext.out().println();
                 continue;
             }
-            // add imported module's dependent jar paths
-            HashSet<Path> testDependencies = buildContext.moduleDependencyPathMap.get(importPkgId).platformLibs;
-            dependencyJarPaths.addAll(testDependencies);
-
-            // add imported module's jar path
-            Path testJarPath = buildContext.getTestJarPathFromTargetCache(importPkgId);
-            Path moduleJarPath = buildContext.getJarPathFromTargetCache(importPkgId);
-            if (Files.exists(testJarPath)) {
-                dependencyJarPaths.add(testJarPath);
-            } else if (Files.exists(moduleJarPath)) {
-                dependencyJarPaths.add(moduleJarPath);
+            HashSet<Path> testDependencies = getTestDependencies(buildContext, bLangPackage);
+            Path jsonPath = buildContext.getTestJsonPathTargetCache(bLangPackage.packageID);
+            createTestJson(bLangPackage, suite, sourceRootPath, jsonPath);
+            int testResult = runTestSuit(jsonPath, buildContext, testDependencies);
+            if (testResult != 0) {
+                throw createLauncherException("there are test failures");
             }
-            updateDependencyJarPaths(importPackageSymbol.imports, buildContext, dependencyJarPaths);
         }
+    }
+
+    /**
+     * Extract data from the given bLangPackage.
+     *
+     * @param bLangPackage Ballerina package
+     * @param sourceRootPath Source root path
+     * @param jsonPath Path to the test json
+     */
+    private static void createTestJson(BLangPackage bLangPackage, TestSuite suite, Path sourceRootPath, Path jsonPath) {
+        // set data
+        suite.setInitFunctionName(bLangPackage.initFunction.name.value);
+        suite.setStartFunctionName(bLangPackage.startFunction.name.value);
+        suite.setStopFunctionName(bLangPackage.stopFunction.name.value);
+        suite.setPackageName(bLangPackage.packageID.toString());
+        suite.setSourceRootPath(sourceRootPath.toString());
+        // add module functions
+        bLangPackage.functions.forEach(function -> {
+            String functionClassName = BFileUtil.getQualifiedClassName(bLangPackage.packageID.orgName.value,
+                                                                       bLangPackage.packageID.name.value,
+                                                                       getClassName(function.pos.src.cUnitName));
+            suite.addTestUtilityFunction(function.name.value, functionClassName);
+        });
+        // add test functions
+        if (bLangPackage.containsTestablePkg()) {
+            suite.setTestInitFunctionName(bLangPackage.getTestablePkg().initFunction.name.value);
+            suite.setTestStartFunctionName(bLangPackage.getTestablePkg().startFunction.name.value);
+            suite.setTestStopFunctionName(bLangPackage.getTestablePkg().stopFunction.name.value);
+            bLangPackage.getTestablePkg().functions.forEach(function -> {
+                String functionClassName = BFileUtil.getQualifiedClassName(bLangPackage.packageID.orgName.value,
+                                                                           bLangPackage.packageID.name.value,
+                                                                           getClassName(function.pos.src.cUnitName));
+                suite.addTestUtilityFunction(function.name.value, functionClassName);
+            });
+        } else {
+            suite.setSourceFileName(bLangPackage.packageID.sourceFileName.value);
+        }
+        // write to json
+        writeToJson(suite, jsonPath);
+    }
+
+    /**
+     * return the function name.
+     *
+     * @param function String value of a function
+     * @return function name
+     */
+    private static String getClassName(String function) {
+        return function.replace(".bal", "").replace("/", ".");
+    }
+
+    /**
+     * Write the content into a json.
+     *
+     * @param testSuite Data that are parsed to the json
+     */
+    private static void writeToJson(TestSuite testSuite, Path jsonPath) {
+        Path tmpJsonPath = Paths.get(jsonPath.toString(), TesterinaConstants.TESTERINA_TEST_SUITE);
+        File jsonFile = new File(tmpJsonPath.toString());
+        try (Writer writer = new OutputStreamWriter(new FileOutputStream(jsonFile), StandardCharsets.UTF_8)) {
+            Gson gson = new Gson();
+            String json = gson.toJson(testSuite);
+            writer.write(new String(json.getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8));
+        } catch (IOException e) {
+            throw LauncherUtils.createLauncherException("couldn't read data from the Json file : " + e.toString());
+        }
+    }
+
+    private int runTestSuit(Path jsonPath, BuildContext buildContext, HashSet<Path> testDependencies) {
+        String javaCommand = System.getProperty("java.command");
+        String mainClassName = TesterinaConstants.TESTERINA_LAUNCHER_CLASS_NAME;
+        try {
+            String classPath = getClassPath(getTestRuntimeJar(buildContext), testDependencies);
+            List<String> cmdArgs = Lists.of(javaCommand, "-cp", classPath, mainClassName, jsonPath.toString());
+            cmdArgs.addAll(Arrays.asList(args));
+            ProcessBuilder processBuilder = new ProcessBuilder(cmdArgs).inheritIO();;
+            Process proc = processBuilder.start();
+           return proc.waitFor();
+        } catch (IOException | InterruptedException e) {
+            throw createLauncherException("unable to run the tests: " + e.getMessage());
+        }
+    }
+
+    private HashSet<Path> getTestDependencies(BuildContext buildContext, BLangPackage bLangPackage) {
+        Path testJarPath;
+        if (bLangPackage.containsTestablePkg()) {
+            testJarPath = buildContext.getTestJarPathFromTargetCache(bLangPackage.packageID);
+        } else {
+            // Single bal file test code will be in module jar
+            testJarPath = buildContext.getJarPathFromTargetCache(bLangPackage.packageID);
+        }
+        ExecutableJar executableJar = buildContext.moduleDependencyPathMap.get(bLangPackage.packageID);
+        HashSet<Path> testDependencies = new HashSet<>(executableJar.moduleLibs);
+        testDependencies.addAll(executableJar.testLibs);
+        testDependencies.add(testJarPath);
+        return testDependencies;
+    }
+
+    private String getClassPath(Path testRuntimeJar, HashSet<Path> testDependencies) {
+        String separator = ":";
+        StringBuilder classPath = new StringBuilder();
+        classPath.append(testRuntimeJar);
+        if (OsUtils.isWindows()) {
+            separator = ";";
+        }
+        for (Path testDependency : testDependencies) {
+            classPath.append(separator).append(testDependency);
+        }
+        return classPath.toString();
+    }
+
+    private Path getTestRuntimeJar(BuildContext buildContext) {
+        String balHomePath = buildContext.get(BuildContextField.HOME_REPO).toString();
+        String ballerinaVersion = RepoUtils.getBallerinaVersion();
+        String runtimeJarName = TEST_RUNTIME_JAR_PREFIX + ballerinaVersion + BLANG_COMPILED_JAR_EXT;
+        return Paths.get(balHomePath, "bre", "lib", runtimeJarName);
     }
 }

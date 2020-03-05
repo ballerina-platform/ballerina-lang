@@ -16,82 +16,123 @@
 
 // Int Arrays
 
-function createIntSealedArray() returns int {
+function createIntSealedArray() {
     int[5] sealedArray = [2, 15, 200, 1500, 5000];
-    return sealedArray.length();
+    assertArrayLengthPanic(5, sealedArray);
 }
 
-function createIntSealedArrayWithLabel() returns int {
+function createIntAutoFilledSealedArray() {
+    int[5] sealedArray = [2];
+    sealedArray[4] = 2;
+    assertArrayValuePanic(2, sealedArray, 4);
+    assertArrayValuePanic(2, sealedArray, 0);
+    assertArrayValuePanic(0, sealedArray, 1);
+    assertArrayValuePanic(0, sealedArray, 2);
+    assertArrayValuePanic(0, sealedArray, 2);
+    assertArrayLengthPanic(5, sealedArray);
+}
+
+function createIntSealedArrayWithLabel() {
     int[*] sealedArray = [2, 15, 200, 1500, 5000];
-    return sealedArray.length();
+    assertArrayLengthPanic(5, sealedArray);
 }
 
-function createIntDefaultSealedArray() returns [int[], int] {
+function createIntDefaultSealedArray() {
     int[5] sealedArray = [0, 0, 0, 0, 0];
-    return [sealedArray, sealedArray.length()];
+    assertArrayLengthPanic(5, sealedArray);
+    isEqualPanic("0 0 0 0 0", sealedArray);
 }
 
 // Boolean Arrays
 
-function createBoolSealedArray() returns int {
+function createBoolSealedArray() {
     boolean[5] sealedArray = [true, false, false, true, false];
-    return sealedArray.length();
+    assertArrayLengthPanic(5, sealedArray);
 }
 
-function createBoolSealedArrayWithLabel() returns int {
+function createBoolAutoFilledSealedArray() {
+    boolean[5] sealedArray = [true, false];
+    sealedArray[4] = false;
+    assertArrayValuePanic(false, sealedArray, 4);
+    assertArrayLengthPanic(5, sealedArray);
+}
+
+function createBoolSealedArrayWithLabel() {
     boolean[*] sealedArray = [true, false, false, true, false];
-    return sealedArray.length();
+    assertArrayLengthPanic(5, sealedArray);
 }
 
-function createBoolDefaultSealedArray() returns [boolean[], int] {
+function createBoolDefaultSealedArray() {
     boolean[5] sealedArray = [false, false, false, false, false];
-    return [sealedArray, sealedArray.length()];
+    assertArrayLengthPanic(5, sealedArray);
+    isEqualPanic("false false false false false", sealedArray);
 }
 
 // Float Arrays
 
-function createFloatSealedArray() returns int {
+function createFloatSealedArray() {
     float[5] sealedArray = [0.0, 15.2, 1100.0, -25.8, -10.0];
-    return sealedArray.length();
+    assertArrayLengthPanic(5, sealedArray);
 }
 
-function createFloatSealedArrayWithLabel() returns int {
+function createFloatAutoFilledSealedArray() {
+    float[5] sealedArray = [0.0, 15.2];
+    sealedArray[4] = 2.5;
+    assertArrayValuePanic(2.5, sealedArray, 4);
+    assertArrayLengthPanic(5, sealedArray);
+}
+
+function createFloatSealedArrayWithLabel() {
     float[*] sealedArray = [0.0, 15.2, 1100.0, -25.8, -10.0];
-    return sealedArray.length();
+    assertArrayLengthPanic(5, sealedArray);
 }
 
-function createFloatDefaultSealedArray() returns [float[], int] {
+function createFloatDefaultSealedArray() {
     float[5] sealedArray = [0.0, 0.0, 0.0, 0.0, 0.0];
-    return [sealedArray, sealedArray.length()];
+    assertArrayLengthPanic(5, sealedArray);
+    isEqualPanic("0.0 0.0 0.0 0.0 0.0", sealedArray);
 }
 
 // String Arrays
 
-function createStringSealedArray() returns int {
+function createStringSealedArray() {
     string[5] sealedArray = ["a", "abc", "12", "-12", "."];
-    return sealedArray.length();
+    assertArrayLengthPanic(5, sealedArray);
 }
 
-function createStringSealedArrayWithLabel() returns int {
+function createStringAutoFilledSealedArray() {
+    string[5] sealedArray = ["a"];
+    assertArrayLengthPanic(5, sealedArray);
+}
+
+function createStringSealedArrayWithLabel() {
     string[*] sealedArray = ["a", "abc", "12", "-12", "."];
-    return sealedArray.length();
+    assertArrayLengthPanic(5, sealedArray);
 }
 
-function createStringDefaultSealedArray() returns [string[], int] {
+function createStringDefaultSealedArray() {
     string[5] sealedArray = ["", "", "", "", ""];
-    return [sealedArray, sealedArray.length()];
+    isEqualPanic("", sealedArray);
+    assertArrayLengthPanic(5, sealedArray);
 }
 
 // Any Type Arrays
 
-function createAnySealedArray() returns int {
+function createAnySealedArray() {
     any[5] sealedArray = ["a", true, 12, -12.5, "."];
-    return sealedArray.length();
+    assertArrayLengthPanic(5, sealedArray);
 }
 
-function createAnySealedArrayWithLabel() returns int {
+function createAnyAutoFilledSealedArray() {
+    any[5] sealedArray = ["a"];
+    sealedArray[4] = 23;
+    sealedArray[3] = -2.5;
+    assertArrayLengthPanic(5, sealedArray);
+}
+
+function createAnySealedArrayWithLabel() {
     any[*] sealedArray = ["a", true, 12, -12.5, "."];
-    return sealedArray.length();
+    assertArrayLengthPanic(5, sealedArray);
 }
 
 // Record Type Arrays
@@ -101,57 +142,102 @@ type Person record {
     int age = 0;
 };
 
-function createRecordSealedArray() returns int {
-    Person[5] sealedArray = [{}, {}, {}, {}, {}];
-    return sealedArray.length();
+type PersonFillable record {
+    string name = "doe";
+    int age?;
+    boolean employee?;
+};
+
+function createRecordSealedArrayAutoFill() {
+    PersonFillable p = {name:"John", age:25, employee:false};
+    PersonFillable[5] sealedArray = [p];
+    sealedArray[3] = p;
+    assertEqualPanic("doe", sealedArray[2].name);
+    assertEqualPanic("John", sealedArray[3].name);
+    assertArrayLengthPanic(5, sealedArray);
 }
 
-function createRecordSealedArrayWithLabel() returns int {
+function createRecordSealedArray() {
+    Person[5] sealedArray = [{}, {}, {}, {}, {}];
+    assertArrayLengthPanic(5, sealedArray);
+}
+
+function createRecordAutoFilledSealedArray() {
+    Person[5] sealedArray = [{}];
+    assertArrayLengthPanic(5, sealedArray);
+}
+
+function createRecordSealedArrayWithLabel() {
     Person[*] sealedArray = [{}, {}, {}, {}, {}];
-    return sealedArray.length();
+    assertArrayLengthPanic(5, sealedArray);
 }
 
 // Byte Arrays
 
-function createByteSealedArray() returns int {
+function createByteSealedArray() {
     byte a = 5;
     byte[5] sealedArray = [a, a, a, a, a];
-    return sealedArray.length();
+    assertArrayLengthPanic(5, sealedArray);
 }
 
-function createByteSealedArrayWithLabel() returns int {
+function createByteAutoFilledSealedArray() {
+    byte a = 5;
+    byte[5] sealedArray = [a];
+    sealedArray[4] = a;
+    assertArrayLengthPanic(5, sealedArray);
+}
+
+function createByteSealedArrayWithLabel() {
     byte a = 7;
     byte[*] sealedArray = [a, a, a, a, a];
-    return sealedArray.length();
+    assertArrayLengthPanic(5, sealedArray);
 }
 
-function createByteDefaultSealedArray() returns [byte[], int] {
+function createByteDefaultSealedArray() {
     byte[5] sealedArray = [0, 0, 0, 0, 0];
-    return [sealedArray, sealedArray.length()];
+    isEqualPanic("0 0 0 0 0", sealedArray);
+    assertArrayLengthPanic(5, sealedArray);
 }
 
 // Tuple Arrays
 
-function createTupleSealedArray() returns int {
+function createTupleSealedArray() {
     [int, boolean][3] sealedArray = [[2, true], [3, false], [6, true]];
     sealedArray[2] = [5, false];
-    return sealedArray.length();
+    assertArrayLengthPanic(3, sealedArray);
 }
 
-function createTupleSealedArrayWithLabel() returns int {
+function createTupleAutoFilledSealedArray() {
+    [int, boolean][3] sealedArray = [[2, true]];
+    sealedArray[2] = [5, false];
+    assertArrayLengthPanic(3, sealedArray);
+}
+
+function createTupleSealedArrayWithLabel() {
     [int, boolean][*] sealedArray = [[2, true], [3, false], [6, true]];
-    return sealedArray.length();
+    assertArrayLengthPanic(3, sealedArray);
 }
 
 // Function Params and Returns
 
-function functionParametersAndReturns() returns [int, int] {
+function functionParametersAndReturns() {
     boolean[3] sealedArray = [true, false, false];
     boolean[3] returnedBoolArray = [false, false, false];
     string[2] returnedStrArray = ["", ""];
     [returnedBoolArray, returnedStrArray] = mockFunction(sealedArray);
 
-    return [returnedBoolArray.length(), returnedStrArray.length()];
+    assertArrayLengthPanic(3, returnedBoolArray);
+    assertArrayLengthPanic(2, returnedStrArray);
+}
+
+function functionParametersAndReturnsAutoFilling() {
+    boolean[3] sealedArray = [];
+    boolean[3] returnedBoolArray = [];
+    string[2] returnedStrArray = [""];
+    [returnedBoolArray, returnedStrArray] = mockFunction(sealedArray);
+
+    assertArrayLengthPanic(3, returnedBoolArray);
+    assertArrayLengthPanic(2, returnedStrArray);
 }
 
 function mockFunction(boolean[3] sealedArray) returns [boolean[3], string[2]] {
@@ -170,6 +256,63 @@ function assignedArrayInvalidIndexAccess() {
     int[3] x1 = [1, 2, 3];
     int[] x2 = x1;
     x2[4] = 10;
+}
+
+function assignedAutoFilledArrayInvalidIndexAccess() {
+    int[3] x1 = [1, 2];
+    int[] x2 = x1;
+    x2[4] = 10;
+}
+
+// Union arrays
+
+type myUnion 1 | 2 | 3 | 4 | 0;
+function createUnionAutoFillArray() {
+    myUnion[3] unionArray = [];
+    unionArray[2] = 4;
+    assertArrayValuePanic(0, unionArray, 0);
+    assertArrayValuePanic(0, unionArray, 1);
+    assertArrayValuePanic(4, unionArray, 2);
+    assertArrayLengthPanic(3, unionArray);
+}
+
+type myFloatUnion 1.2 | 3.5 | 0.0 | 3.4;
+function createUnionFloatAutoFillArray() {
+    myFloatUnion[2] unionArray = [];
+    unionArray[1] = 3.5;
+    assertArrayValuePanic(0.0, unionArray, 0);
+    assertArrayValuePanic(3.5, unionArray, 1);
+    assertArrayLengthPanic(2, unionArray);
+}
+
+type myBooleanUnion true | false;
+function createUnionBooleanAutoFillArray() {
+    myBooleanUnion[2] unionArray = [];
+    unionArray[1] = true;
+    assertArrayValuePanic(false, unionArray, 0);
+    assertArrayValuePanic(true, unionArray, 1);
+    assertArrayLengthPanic(2, unionArray);
+}
+
+type myNullableUnion 1 | 2 | 3 | 4 | ();
+function createNullableUnionAutoFillArray() {
+    myNullableUnion[3] unionArray = [];
+    unionArray[2] = 4;
+    assertArrayValuePanic((), unionArray, 0);
+    assertArrayValuePanic((), unionArray, 1);
+    assertArrayValuePanic(4, unionArray, 2);
+    assertArrayLengthPanic(3, unionArray);
+}
+
+// TODO: test code hit points
+type multiTypeUnion 1 | "hi" | 4.0 | ();
+function createNullableNonHomogeneousUnionAutoFillArray() {
+    multiTypeUnion[3] unionArray = [];
+    unionArray[2] = 4.0;
+    assertArrayValuePanic((), unionArray, 0);
+    assertArrayValuePanic((), unionArray, 1);
+    assertArrayValuePanic(4, unionArray, 2);
+    assertArrayLengthPanic(3, unionArray);
 }
 
 // Match Statments
@@ -218,14 +361,14 @@ function accessIndexOfMatchedSealedArray(int[] | int[3] x, int index) returns in
 
 // JSON Arrays
 
-function createJSONSealedArray() returns int {
+function createJSONSealedArray() {
     json[5] sealedArray = [false, "abc", "12", -12, "."];
-    return sealedArray.length();
+    assertArrayLengthPanic(5, sealedArray);
 }
 
-function createJSONSealedArrayWithLabel() returns int {
+function createJSONSealedArrayWithLabel() {
     json[*] sealedArray = [false, "abc", "12", -12, "."];
-    return sealedArray.length();
+    assertArrayLengthPanic(5, sealedArray);
 }
 
 function invalidIndexJSONArray(int index) {
@@ -239,12 +382,18 @@ function invalidIndexReferenceJSONArray() {
     x2[3] = 1.0;
 }
 
-function createJSONDefaultSealedArray() returns [json[], int] {
+function createJSONDefaultSealedArray() {
     json[5] sealedArray = [(), (), (), (), ()];
-    return [sealedArray, sealedArray.length()];
+    assertArrayLengthPanic(5, sealedArray);
 }
 
-function testSealedArrayConstrainedMap (int[3] x1, int[] x2) returns int {
+function createJSONAutoFilledSealedArray() {
+    json[5] sealedArray = [(), ()];
+    assertEqualPanic("", sealedArray[4].toString());
+    assertArrayLengthPanic(5, sealedArray);
+}
+
+function testSealedArrayConstrainedMap(int[3] x1, int[] x2) returns int {
     map<int[]> x = {};
     x["v1"] = x1;
     x["v2"] = x2;
@@ -252,8 +401,53 @@ function testSealedArrayConstrainedMap (int[3] x1, int[] x2) returns int {
     return arr[2];
 }
 
-function testSealedArrayConstrainedMapInvalidIndex (int[3] x1, int index) {
+function testSealedArrayConstrainedMapInvalidIndex(int[3] x1, int index) {
     map<int[]> x = {};
     x["v1"] = x1;
     x["v1"][index] = 4;
+}
+
+// xml arrays
+
+function createXMLAutoFilledSealedArray() {
+    xml a = xml `<name>Ballerina</name>`;
+    xml[5] sealedArray = [a, a];
+    sealedArray[3] = a;
+    assertEqualPanic("", sealedArray[4].toString());
+    assertArrayLengthPanic(5, sealedArray);
+}
+
+// helper methods
+
+function assertArrayLengthPanic(int expected, any[] arr, string message = "Array length did not match") {
+    int actual = arr.length();
+    if (expected != actual) {
+        panic error(message + " Expected : " + expected.toString() + " Actual : " + actual.toString());
+    }
+}
+
+function assertArrayValuePanic(anydata expected, anydata[] arr, int index, string message = "Array value mismatch") {
+    anydata actual = arr[index];
+    if (expected != actual) {
+        panic error(message + " Expected : " + expected.toString() + " Actual : " + actual.toString());
+    }
+}
+
+function assertEqualPanic(anydata expected, anydata actual, string message = "Value mismatch") {
+    if (expected != actual) {
+        panic error(message + " Expected : " + expected.toString() + " Actual : " + actual.toString());
+    }
+}
+
+function isEqualPanic(string expected, any[] arr, string message = "Not equal") {
+    string actual = arr.toString().trim();
+    if (expected != actual) {
+        panic error(message + " Expected : " + expected + " Actual : " + actual);
+    }
+}
+
+function assertTruePanic(boolean actual, string message = "Not equal") {
+    if (true != actual) {
+        panic error(message + " Expected : true" + " Actual : " + actual.toString());
+    }
 }

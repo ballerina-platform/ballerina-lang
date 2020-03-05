@@ -20,6 +20,7 @@ package org.wso2.ballerinalang.compiler.semantics.analyzer;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.clauses.FromClauseNode;
+import org.ballerinalang.model.clauses.LetClauseNode;
 import org.ballerinalang.model.clauses.WhereClauseNode;
 import org.ballerinalang.model.elements.AttachPoint;
 import org.ballerinalang.model.elements.Flag;
@@ -60,8 +61,11 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
+import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
 import org.wso2.ballerinalang.compiler.tree.BLangErrorVariable;
+import org.wso2.ballerinalang.compiler.tree.BLangExprFunctionBody;
+import org.wso2.ballerinalang.compiler.tree.BLangExternalFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangInvokableNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
@@ -79,6 +83,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangWorker;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangDoClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangFromClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangLetClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWhereClause;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAccessExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
@@ -308,14 +313,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             validateAnnotationAttachmentCount(funcNode.returnTypeAnnAttachments);
         }
 
-        if (Symbols.isNative(funcNode.symbol)) {
-            funcNode.externalAnnAttachments.forEach(annotationAttachment -> {
-                annotationAttachment.attachPoints.add(AttachPoint.Point.EXTERNAL);
-                this.analyzeDef(annotationAttachment, funcEnv);
-            });
-            validateAnnotationAttachmentCount(funcNode.externalAnnAttachments);
-        }
-
         for (BLangSimpleVariable param : funcNode.requiredParams) {
             symbolEnter.defineExistingVarSymbolInEnv(param.symbol, funcNode.clonedEnv);
             this.analyzeDef(param, funcNode.clonedEnv);
@@ -327,16 +324,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
         validateObjectAttachedFunction(funcNode);
 
-        // Check for native functions
-        if (Symbols.isNative(funcNode.symbol) || funcNode.interfaceFunction) {
-            if (funcNode.body != null) {
-                dlog.error(funcNode.pos, DiagnosticCode.EXTERN_FUNCTION_CANNOT_HAVE_BODY, funcNode.name);
-            }
-            return;
-        }
-
-        if (funcNode.body != null) {
-            analyzeStmt(funcNode.body, funcEnv);
+        if (funcNode.hasBody()) {
+            analyzeNode(funcNode.body, funcEnv, funcNode.returnTypeNode.type, null);
         }
 
         if (funcNode.anonForkName != null) {
@@ -349,9 +338,37 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     private void processWorkers(BLangInvokableNode invNode, SymbolEnv invEnv) {
         if (invNode.workers.size() > 0) {
             invEnv.scope.entries.putAll(invNode.body.scope.entries);
-            invNode.workers.forEach(e -> this.symbolEnter.defineNode(e, invEnv));
-            invNode.workers.forEach(e -> analyzeNode(e, invEnv));
+            for (BLangWorker worker : invNode.workers) {
+                this.symbolEnter.defineNode(worker, invEnv);
+            }
+            for (BLangWorker e : invNode.workers) {
+                analyzeNode(e, invEnv);
+            }
         }
+    }
+
+    @Override
+    public void visit(BLangBlockFunctionBody body) {
+        env = SymbolEnv.createFuncBodyEnv(body, env);
+        for (BLangStatement stmt : body.stmts) {
+            analyzeStmt(stmt, env);
+        }
+    }
+
+    @Override
+    public void visit(BLangExprFunctionBody body) {
+        env = SymbolEnv.createFuncBodyEnv(body, env);
+        typeChecker.checkExpr(body.expr, env, expType);
+    }
+
+    @Override
+    public void visit(BLangExternalFunctionBody body) {
+        // TODO: Check if a func body env is needed
+        for (BLangAnnotationAttachment annotationAttachment : body.annAttachments) {
+            annotationAttachment.attachPoints.add(AttachPoint.Point.EXTERNAL);
+            this.analyzeDef(annotationAttachment, env);
+        }
+        validateAnnotationAttachmentCount(body.annAttachments);
     }
 
     @Override
@@ -500,7 +517,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 return;
             case TypeTags.FINITE:
                 BFiniteType finiteType = (BFiniteType) reasonType;
-                for (BLangExpression expr : finiteType.valueSpace) {
+                for (BLangExpression expr : finiteType.getValueSpace()) {
                     validateModuleQualifiedReason(pos, (String) ((BLangLiteral) expr).value);
                 }
                 return;
@@ -564,11 +581,17 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
 
         int ownerSymTag = env.scope.owner.tag;
-        if ((ownerSymTag & SymTag.INVOKABLE) == SymTag.INVOKABLE) {
-            // This is a variable declared in a function, an action or a resource
+        if ((ownerSymTag & SymTag.INVOKABLE) == SymTag.INVOKABLE || (ownerSymTag & SymTag.LET) == SymTag.LET) {
+            // This is a variable declared in a function, let expression, an action or a resource
             // If the variable is parameter then the variable symbol is already defined
             if (varNode.symbol == null) {
                 symbolEnter.defineNode(varNode, env);
+
+                // When 'var' is used, the typeNode is null
+                if (varNode.typeNode != null && varNode.typeNode.getKind() == NodeKind.RECORD_TYPE) {
+                    analyzeDef(varNode.typeNode, env);
+                }
+
                 varNode.annAttachments.forEach(annotationAttachment -> {
                     annotationAttachment.attachPoints.add(AttachPoint.Point.VAR);
                     annotationAttachment.accept(this);
@@ -793,6 +816,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
         switch (variable.getKind()) {
             case VARIABLE:
+            case LET_VARIABLE:
                 if (!validateVariableDefinition(varRefExpr)) {
                     rhsType = symTable.semanticError;
                 }
@@ -813,7 +837,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 simpleVariable.type = rhsType;
 
                 int ownerSymTag = env.scope.owner.tag;
-                if ((ownerSymTag & SymTag.INVOKABLE) == SymTag.INVOKABLE) {
+                if ((ownerSymTag & SymTag.INVOKABLE) == SymTag.INVOKABLE || (ownerSymTag & SymTag.LET) == SymTag.LET) {
                     // This is a variable declared in a function, an action or a resource
                     // If the variable is parameter then the variable symbol is already defined
                     if (simpleVariable.symbol == null) {
@@ -2286,13 +2310,16 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     public void visit(BLangQueryAction queryAction) {
         List<? extends FromClauseNode> fromClauseList = queryAction.fromClauseList;
         List<? extends WhereClauseNode> whereClauseList = queryAction.whereClauseList;
+        List<? extends LetClauseNode> letClauseList = queryAction.letClauseList;
         BLangDoClause doClauseNode = queryAction.doClause;
 
         SymbolEnv parentEnv = env;
         for (FromClauseNode fromClause : fromClauseList) {
             parentEnv = typeChecker.typeCheckFromClause((BLangFromClause) fromClause, parentEnv);
         }
-
+        for (LetClauseNode letClauseNode : letClauseList) {
+            parentEnv = typeChecker.typeCheckLetClause((BLangLetClause) letClauseNode, parentEnv);
+        }
         SymbolEnv whereEnv = parentEnv;
         for (WhereClauseNode whereClauseNode : whereClauseList) {
             BLangWhereClause whereClause = (BLangWhereClause) whereClauseNode;
@@ -2834,6 +2861,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         });
     }
 
+    // TODO: Check if the below method can be removed. This doesn't seem necessary.
+    //  https://github.com/ballerina-platform/ballerina-lang/issues/20997
     /**
      * Validate functions attached to objects.
      *

@@ -40,11 +40,11 @@ import org.ballerinalang.natives.annotations.ReturnType;
 )
 public class GetChildren {
 
-    public static XMLValue<?> getChildren(Strand strand, XMLValue<?> xmlVal) {
+    public static XMLValue getChildren(Strand strand, XMLValue xmlVal) {
         if (!IsElement.isElement(strand, xmlVal)) {
             throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.XML_FUNC_TYPE_ERROR, "getChildren", "element");
         }
 
-        return xmlVal.children();
+        return (XMLValue) xmlVal.children();
     }
 }

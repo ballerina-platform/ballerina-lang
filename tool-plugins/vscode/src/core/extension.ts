@@ -30,12 +30,12 @@ import {
 import * as path from 'path';
 import * as fs from 'fs';
 import { exec, execSync } from 'child_process';
-import { LanguageClientOptions, State as LS_STATE, RevealOutputChannelOn, DidChangeConfigurationParams, ServerOptions } from "vscode-languageclient";
-import { getServerOptions, getOldServerOptions } from '../server/server';
+import { LanguageClientOptions, State as LS_STATE, RevealOutputChannelOn, ServerOptions } from "vscode-languageclient";
+import { getServerOptions, getOldServerOptions, getOldCliServerOptions } from '../server/server';
 import { ExtendedLangClient } from './extended-language-client';
 import { log, getOutputChannel } from '../utils/index';
 import { AssertionError } from "assert";
-import { OVERRIDE_BALLERINA_HOME, BALLERINA_HOME, ALLOW_EXPERIMENTAL, ENABLE_DEBUG_LOG, ENABLE_TRACE_LOG } from "./preferences";
+import { OVERRIDE_BALLERINA_HOME, BALLERINA_HOME, ALLOW_EXPERIMENTAL, ENABLE_DEBUG_LOG, ENABLE_TRACE_LOG, ENABLE_STDLIB_DEFINITION } from "./preferences";
 import TelemetryReporter from "vscode-extension-telemetry";
 import { createTelemetryReporter, TM_EVENT_ERROR_INVALID_BAL_HOME_CONFIGURED, TM_EVENT_ERROR_INVALID_BAL_HOME_DETECTED, TM_EVENT_OLD_BAL_HOME, TM_EVENT_OLD_BAL_PLUGIN, TM_EVENT_ERROR_OLD_BAL_HOME_DETECTED } from "../telemetry";
 
@@ -53,7 +53,8 @@ export class BallerinaExtension {
     public telemetryReporter: TelemetryReporter;
     public ballerinaHome: string;
     public ballerinaCmd: string;
-    public isNewCLICmdSupported: boolean = true;
+    public isNewCLICmdSupported: boolean = false;
+    public isNewConfigChangeSupported: boolean = true;
     public extension: Extension<any>;
     private clientOptions: LanguageClientOptions;
     public langClient?: ExtendedLangClient;
@@ -71,6 +72,7 @@ export class BallerinaExtension {
         this.extension = extensions.getExtension(EXTENSION_ID)!;
         this.clientOptions = {
             documentSelector: [{ scheme: 'file', language: 'ballerina' }],
+            synchronize: {configurationSection: 'ballerina'},
             outputChannel: getOutputChannel(),
             revealOutputChannelOn: RevealOutputChannelOn.Never,
         };
@@ -131,11 +133,15 @@ export class BallerinaExtension {
 
                 // versions less than 1.1.0 are incapable of handling cli commands for langserver and debug-adapter
                 this.isNewCLICmdSupported = this.compareVersions(ballerinaVersion, "1.1.0", true) >= 0;
+                // versions higher than 1.2.0 are not accepting cli commands parameters
+                this.isNewConfigChangeSupported = this.compareVersions(ballerinaVersion, "1.2.0", true) >= 0;
 
                 // if Home is found load Language Server.
                 let serverOptions:ServerOptions;
-                if (this.isNewCLICmdSupported) {
-                    serverOptions = getServerOptions(this.ballerinaCmd, this.isExperimental(), this.isDebugLogsEnabled(), this.isTraceLogsEnabled());
+                if (this.isNewConfigChangeSupported) {
+                    serverOptions = getServerOptions(this.ballerinaCmd);
+                } else if (this.isNewCLICmdSupported) {
+                    serverOptions = getOldCliServerOptions(this.ballerinaCmd, this.isExperimental(), this.isDebugLogsEnabled(), this.isTraceLogsEnabled(), this.isStdlibDefinitionEnabled());
                 } else {
                     serverOptions = getOldServerOptions(this.ballerinaHome, this.isExperimental(), this.isDebugLogsEnabled(), this.isTraceLogsEnabled());
                 }
@@ -196,17 +202,8 @@ export class BallerinaExtension {
         // We need to restart VSCode if we change plugin configurations.
         workspace.onDidChangeConfiguration((params: ConfigurationChangeEvent) => {
             if (params.affectsConfiguration(BALLERINA_HOME) ||
-                params.affectsConfiguration(OVERRIDE_BALLERINA_HOME) ||
-                params.affectsConfiguration(ALLOW_EXPERIMENTAL) ||
-                params.affectsConfiguration(ENABLE_DEBUG_LOG) ||
-                params.affectsConfiguration(ENABLE_TRACE_LOG)) {
+                params.affectsConfiguration(OVERRIDE_BALLERINA_HOME)) {
                 this.showMsgAndRestart(CONFIG_CHANGED);
-            }
-            if (params.affectsConfiguration('ballerina')) {
-                const args: DidChangeConfigurationParams = {
-                    settings: workspace.getConfiguration('ballerina'),
-                };
-                this.langClient!.sendNotification("workspace/didChangeConfiguration", args);
             }
         });
 
@@ -315,8 +312,8 @@ export class BallerinaExtension {
                 try {
                     const implVersionLine = cmdOutput.split('\n')[0];
                     const replacePrefix = implVersionLine.startsWith("jBallerina")
-                            ? /jBallerina /
-                            : /Ballerina /;
+                        ? /jBallerina /
+                        : /Ballerina /;
                     const parsedVersion = implVersionLine.replace(replacePrefix, '').replace(/[\n\t\r]/g, '');
                     resolve(parsedVersion);
                 } catch (error) {
@@ -448,6 +445,10 @@ export class BallerinaExtension {
 
     isTraceLogsEnabled(): boolean {
         return <boolean>workspace.getConfiguration().get(ENABLE_TRACE_LOG);
+    }
+
+    isStdlibDefinitionEnabled(): boolean {
+        return <boolean>workspace.getConfiguration().get(ENABLE_STDLIB_DEFINITION);
     }
 
     autoDetectBallerinaHome(): { home: string, cmd: string, isOldBallerinaDist: boolean, isBallerinaNotFound: boolean } {

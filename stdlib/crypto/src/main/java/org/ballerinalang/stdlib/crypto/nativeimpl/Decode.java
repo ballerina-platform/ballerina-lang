@@ -50,8 +50,6 @@ public class Decode {
     public static Object decodePrivateKey(Object keyStoreValue, String keyAlias, String keyPassword) {
         MapValue<String, Object> keyStore = (MapValue<String, Object>) keyStoreValue;
 
-        PrivateKey privateKey;
-
         File keyStoreFile = new File(CryptoUtils.substituteVariables(
                 keyStore.get(Constants.KEY_STORE_RECORD_PATH_FIELD).toString()));
         try (FileInputStream fileInputStream = new FileInputStream(keyStoreFile)) {
@@ -63,7 +61,10 @@ public class Decode {
                 return CryptoUtils.createError("Keystore integrity check algorithm is not found: " + e.getMessage());
             }
 
-            privateKey = (PrivateKey) keystore.getKey(keyAlias, keyPassword.toCharArray());
+            PrivateKey privateKey = (PrivateKey) keystore.getKey(keyAlias, keyPassword.toCharArray());
+            if (privateKey == null) {
+                return CryptoUtils.createError("Key cannot be recovered by using given key alias: " + keyAlias);
+            }
             //TODO: Add support for DSA/ECDSA keys and associated crypto operations
             if (privateKey.getAlgorithm().equals("RSA")) {
                 MapValue<String, Object> privateKeyRecord = BallerinaValues.
@@ -80,9 +81,6 @@ public class Decode {
             throw CryptoUtils.createError("Unable to open keystore: " + e.getMessage());
         } catch (NoSuchAlgorithmException e) {
             return CryptoUtils.createError("Algorithm for key recovery is not found: " + e.getMessage());
-        } catch (NullPointerException e) {
-            return CryptoUtils.createError("Key cannot be recovered by using given key alias: [" + keyAlias +
-                         "] and key password");
         } catch (UnrecoverableKeyException e) {
             return CryptoUtils.createError("Key cannot be recovered: " + e.getMessage());
         }
