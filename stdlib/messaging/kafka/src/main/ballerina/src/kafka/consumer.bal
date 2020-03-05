@@ -62,52 +62,54 @@ import ballerinax/java;
 # + concurrentConsumers - Number of concurrent consumers.
 # + defaultApiTimeoutInMillis - Default API timeout value for APIs with duration.
 # + autoCommit - Enables auto committing offsets.
-# + checkCRCS - Check the CRC32 of the records consumed.
+# + checkCRCS - Check the CRC32 of the records consumed. This ensures that no on-the-wire or on-disk corruption to
+#       the messages occurred. This may add some overhead, and might needed set to `false` if an extreme performance is
+#       required.
 # + excludeInternalTopics - Whether records from internal topics should be exposed to the consumer.
 # + decoupleProcessing - Decouples processing.
 # + secureSocket - Configurations related to SSL/TLS.
 public type ConsumerConfig record {|
     string bootstrapServers;
-    string? groupId = ();
-    string? offsetReset = ();
-    string? partitionAssignmentStrategy = ();
-    string? metricsRecordingLevel = ();
-    string? metricsReporterClasses = ();
-    string? clientId = ();
-    string? interceptorClasses = ();
-    string? isolationLevel = ();
+    string groupId?;
+    string offsetReset?;
+    string partitionAssignmentStrategy?;
+    string metricsRecordingLevel?;
+    string metricsReporterClasses?;
+    string clientId?;
+    string interceptorClasses?;
+    string isolationLevel?;
 
     DeserializerType keyDeserializerType = DES_BYTE_ARRAY;
     DeserializerType valueDeserializerType = DES_BYTE_ARRAY;
     Deserializer? keyDeserializer = ();
     Deserializer? valueDeserializer = ();
 
-    string[]? topics = ();
-    string[]? properties = ();
+    string[] topics?;
+    string[] properties?;
 
-    int sessionTimeoutInMillis = -1;
-    int heartBeatIntervalInMillis = -1;
-    int metadataMaxAgeInMillis = -1;
-    int autoCommitIntervalInMillis = -1;
-    int maxPartitionFetchBytes = -1;
-    int sendBuffer = -1;
-    int receiveBuffer = -1;
-    int fetchMinBytes = -1;
-    int fetchMaxBytes = -1;
-    int fetchMaxWaitTimeInMillis = -1;
-    int reconnectBackoffTimeMaxInMillis = -1;
-    int retryBackoffInMillis = -1;
-    int metricsSampleWindowInMillis = -1;
-    int metricsNumSamples = -1;
-    int requestTimeoutInMillis = 30000;
-    int connectionMaxIdleTimeInMillis = -1;
-    int maxPollRecords = -1;
-    int maxPollInterval = -1;
-    int reconnectBackoffTimeInMillis = -1;
-    int pollingTimeoutInMillis = -1;
-    int pollingIntervalInMillis = -1;
-    int concurrentConsumers = -1;
-    int defaultApiTimeoutInMillis = 30000;
+    int sessionTimeoutInMillis?;
+    int heartBeatIntervalInMillis?;
+    int metadataMaxAgeInMillis?;
+    int autoCommitIntervalInMillis?;
+    int maxPartitionFetchBytes?;
+    int sendBuffer?;
+    int receiveBuffer?;
+    int fetchMinBytes?;
+    int fetchMaxBytes?;
+    int fetchMaxWaitTimeInMillis?;
+    int reconnectBackoffTimeMaxInMillis?;
+    int retryBackoffInMillis?;
+    int metricsSampleWindowInMillis?;
+    int metricsNumSamples?;
+    int requestTimeoutInMillis?;
+    int connectionMaxIdleTimeInMillis?;
+    int maxPollRecords?;
+    int maxPollInterval?;
+    int reconnectBackoffTimeInMillis?;
+    int pollingTimeoutInMillis?;
+    int pollingIntervalInMillis?;
+    int concurrentConsumers?;
+    int defaultApiTimeoutInMillis?;
 
     boolean autoCommit = true;
     boolean checkCRCS = true;
@@ -217,7 +219,7 @@ public type Consumer client object {
     function init(ConsumerConfig config) returns ConsumerError? {
         checkpanic self->connect();
 
-        string[]? topics = config.topics;
+        string[]? topics = config?.topics;
         if (topics is string[]){
             checkpanic self->subscribe(topics);
         }

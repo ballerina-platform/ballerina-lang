@@ -57,39 +57,39 @@ import ballerinax/java;
 # + enableIdempotence - Exactly one copy of each message is written in the stream when enabled.
 # + secureSocket - Configurations related to SSL/TLS.
 public type ProducerConfig record {|
-    string? bootstrapServers = ();
+    string bootstrapServers;
     Producer_Acks acks = ACKS_SINGLE;
-    string? compressionType = ();
-    string? clientId = ();
-    string? metricsRecordingLevel = ();
-    string? metricReporterClasses = ();
-    string? partitionerClass = ();
-    string? interceptorClasses = ();
-    string? transactionalId = ();
+    CompressionType compressionType = COMPRESSION_NONE;
+    string clientId?;
+    string metricsRecordingLevel?;
+    string metricReporterClasses?;
+    string partitionerClass?;
+    string interceptorClasses?;
+    string transactionalId?;
 
     SerializerType valueSerializerType = SER_BYTE_ARRAY;
     SerializerType keySerializerType = SER_BYTE_ARRAY;
     Serializer? valueSerializer = ();
     Serializer? keySerializer = ();
 
-    int bufferMemory = -1;
-    int retryCount = -1;
-    int batchSize = -1;
-    int linger = -1;
-    int sendBuffer = -1;
-    int receiveBuffer = -1;
-    int maxRequestSize = -1;
-    int reconnectBackoffTimeInMillis = -1;
-    int reconnectBackoffMaxTimeInMillis = -1;
-    int retryBackoffTimeInMillis = -1;
-    int maxBlock = -1;
-    int requestTimeoutInMillis = 30000;
-    int metadataMaxAgeInMillis = -1;
-    int metricsSampleWindowInMillis = -1;
-    int metricsNumSamples = -1;
-    int maxInFlightRequestsPerConnection = -1;
-    int connectionsMaxIdleTimeInMillis = -1;
-    int transactionTimeoutInMillis = -1;
+    int bufferMemory?;
+    int retryCount?;
+    int batchSize?;
+    int linger?;
+    int sendBuffer?;
+    int receiveBuffer?;
+    int maxRequestSize?;
+    int reconnectBackoffTimeInMillis?;
+    int reconnectBackoffMaxTimeInMillis?;
+    int retryBackoffTimeInMillis?;
+    int maxBlock?;
+    int requestTimeoutInMillis?;
+    int metadataMaxAgeInMillis?;
+    int metricsSampleWindowInMillis?;
+    int metricsNumSamples?;
+    int maxInFlightRequestsPerConnection?;
+    int connectionsMaxIdleTimeInMillis?;
+    int transactionTimeoutInMillis?;
 
     boolean enableIdempotence = false;
 
@@ -128,6 +128,23 @@ public const SER_CUSTOM = "CUSTOM";
 
 # Kafka in-built serializer type.
 public type SerializerType SER_BYTE_ARRAY|SER_STRING|SER_INT|SER_FLOAT|SER_CUSTOM;
+
+# Kafka compression type. Value 'none'
+public const COMPRESSION_NONE = "none";
+
+# Kafka compression type. Value 'gzip'
+public const COMPRESSION_GZIP = "gzip";
+
+# Kafka compression type. Value 'snappy'
+public const COMPRESSION_SNAPPY = "snappy";
+
+# Kafka compression type. Value 'lz4'
+public const COMPRESSION_LZ4 = "lz4";
+
+# Kafka compression type. Value 'zstd'
+public const COMPRESSION_ZSTD = "zstd";
+
+public type CompressionType COMPRESSION_NONE|COMPRESSION_GZIP|COMPRESSION_SNAPPY|COMPRESSION_LZ4|COMPRESSION_ZSTD;
 
 # Represent a Kafka producer endpoint.
 #

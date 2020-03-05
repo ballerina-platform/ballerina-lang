@@ -441,9 +441,9 @@ public class KafkaUtils {
                                              MapValue<String, Object> configs,
                                              Properties configParams,
                                              String key) {
-        long value = (long) configs.get(key);
-        if (value != -1) {
-            configParams.put(paramName, Long.valueOf(value).intValue());
+        Long value = (Long) configs.get(key);
+        if (Objects.nonNull(value)) {
+            configParams.put(paramName, value.intValue());
         }
     }
 

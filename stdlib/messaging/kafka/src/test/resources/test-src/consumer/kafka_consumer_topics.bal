@@ -45,19 +45,6 @@ function funcKafkaGetAvailableTopicsWithDuration() returns string[]|error {
     return kafkaConsumer->getAvailableTopics(POSITIVE_DURATION);
 }
 
-function funcKafkaGetAvailableTopicsFromNoTimeoutConsumer() returns string[]|error {
-    kafka:ConsumerConfig consumerConfigs = {
-        bootstrapServers: "localhost:14108",
-        groupId: "get-topics-group-3",
-        clientId: "available-topic-consumer-3",
-        offsetReset: "earliest",
-        topics: [TOPIC_1, TOPIC_2],
-        defaultApiTimeoutInMillis: -1
-    };
-    kafka:Consumer kafkaConsumer = new(consumerConfigs);
-    return kafkaConsumer->getAvailableTopics();
-}
-
 function funcKafkaGetTopicPartitions() returns kafka:TopicPartition[]|error {
     kafka:ConsumerConfig consumerConfigs = {
         bootstrapServers: "localhost:14108",
