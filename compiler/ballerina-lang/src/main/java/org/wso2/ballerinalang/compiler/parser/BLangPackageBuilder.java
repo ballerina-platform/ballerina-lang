@@ -81,6 +81,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangDoClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangFromClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangLetClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWhereClause;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAccessExpression;
@@ -267,6 +268,8 @@ public class BLangPackageBuilder {
     private Stack<IfNode> ifElseStatementStack = new Stack<>();
 
     private Stack<BLangFromClause> fromClauseNodeStack = new Stack<>();
+
+    private Stack<BLangLetClause> letClauseNodeStack = new Stack<>();
 
     private Stack<BLangSelectClause> selectClauseNodeStack = new Stack<>();
 
@@ -581,6 +584,9 @@ public class BLangPackageBuilder {
         if (paramsAvail) {
             functionTypeNode.addWS(commaWsStack.pop());
             functionTypeNode.params.addAll(this.varListStack.pop());
+        } else if (restParamAvail) {
+            // VarListStack pops out the empty list added to the var list stack if no non-rest params are available
+            this.varListStack.pop();
         }
 
         if (restParamAvail) {
@@ -1488,6 +1494,13 @@ public class BLangPackageBuilder {
         recordLiteralNodes.peek().fields.add(keyValue);
     }
 
+    void addLetClause(DiagnosticPos pos) {
+        BLangLetClause letClause = (BLangLetClause) TreeBuilder.createLetClauseNode();
+        letClause.pos = pos;
+        letClause.letVarDeclarations = letVarListStack.pop();
+        letClauseNodeStack.push(letClause);
+    }
+
     void addLetExpression(DiagnosticPos pos) {
         BLangLetExpression letExpression = (BLangLetExpression) TreeBuilder.createLetExpressionNode();
         letExpression.expr = (BLangExpression) exprNodeStack.pop();
@@ -1838,6 +1851,10 @@ public class BLangPackageBuilder {
         while (fromClauseNodeStack.size() > 0) {
             queryExpr.addFromClauseNode(fromClauseNodeStack.pop());
         }
+        Collections.reverse(letClauseNodeStack);
+        while (letClauseNodeStack.size() > 0) {
+            queryExpr.addLetClause(letClauseNodeStack.pop());
+        }
         queryExpr.setSelectClauseNode(selectClauseNodeStack.pop());
         Collections.reverse(whereClauseNodeStack);
         while (whereClauseNodeStack.size() > 0) {
@@ -1942,7 +1959,10 @@ public class BLangPackageBuilder {
         while (fromClauseNodeStack.size() > 0) {
             queryAction.addFromClauseNode(fromClauseNodeStack.pop());
         }
-
+        Collections.reverse(letClauseNodeStack);
+        while (letClauseNodeStack.size() > 0) {
+            queryAction.addLetClauseNode(letClauseNodeStack.pop());
+        }
         Collections.reverse(whereClauseNodeStack);
         while (whereClauseNodeStack.size() > 0) {
             queryAction.addWhereClauseNode(whereClauseNodeStack.pop());

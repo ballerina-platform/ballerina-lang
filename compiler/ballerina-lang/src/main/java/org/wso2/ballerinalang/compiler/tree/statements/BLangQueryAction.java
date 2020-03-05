@@ -19,12 +19,14 @@ package org.wso2.ballerinalang.compiler.tree.statements;
 
 import org.ballerinalang.model.clauses.DoClauseNode;
 import org.ballerinalang.model.clauses.FromClauseNode;
+import org.ballerinalang.model.clauses.LetClauseNode;
 import org.ballerinalang.model.clauses.WhereClauseNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.statements.QueryActionNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangDoClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangFromClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangLetClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWhereClause;
 
 import java.util.ArrayList;
@@ -39,6 +41,7 @@ public class BLangQueryAction extends BLangStatement implements QueryActionNode 
 
     public List<BLangFromClause> fromClauseList = new ArrayList<>();
     public List<BLangWhereClause> whereClauseList = new ArrayList<>();
+    public List<BLangLetClause> letClauseList = new ArrayList<>();
     public BLangDoClause doClause;
 
     @Override
@@ -59,6 +62,16 @@ public class BLangQueryAction extends BLangStatement implements QueryActionNode 
     @Override
     public void addFromClauseNode(FromClauseNode fromClauseNode) {
         fromClauseList.add((BLangFromClause) fromClauseNode);
+    }
+
+    @Override
+    public List<? extends BLangLetClause> getLetClauseNode() {
+        return letClauseList;
+    }
+
+    @Override
+    public void addLetClauseNode(LetClauseNode letClauseNode) {
+        this.letClauseList.add((BLangLetClause) letClauseNode);
     }
 
     @Override
