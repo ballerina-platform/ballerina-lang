@@ -26,13 +26,13 @@ public function main() {
     // Attaching the service to the timer. This will not start the timer.
     // However, it will attach the service to the timer and also passes the
     // person object into the `onTrigger()` resource
-    var attachResult = timer.attach(service1, attachment = person);
+    var attachResult = timer.attach(service1, person);
     if (attachResult is error) {
         io:println("Error attaching the service1.");
         return;
     }
 
-    attachResult = timer.attach(service2, attachment = person);
+    attachResult = timer.attach(service2, person);
     if (attachResult is error) {
         io:println("Error attaching the service2.");
         return;

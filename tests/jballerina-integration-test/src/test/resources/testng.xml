@@ -145,10 +145,15 @@
     </test>
 
     <test name="ballerina-transaction-tests" parallel="false">
+        <groups>
+            <run>
+                <exclude name="brokenOnJBallerina"/>
+            </run>
+        </groups>
         <classes>
-            <class name="org.ballerinalang.test.transaction.MicroTransactionTestCase"/>
-            <class name="org.ballerinalang.test.transaction.RemoteParticipantTransactionTest"/>
-            <class name="org.ballerinalang.test.transaction.MultiModuleTransactionTestCase"/>
+<!--            <class name="org.ballerinalang.test.transaction.MicroTransactionTestCase"/>-->
+<!--            <class name="org.ballerinalang.test.transaction.RemoteParticipantTransactionTest"/>-->
+<!--            <class name="org.ballerinalang.test.transaction.MultiModuleTransactionTestCase"/>-->
         </classes>
     </test>
 
@@ -289,6 +294,11 @@
 
     <test name="ballerina-observability-tests" parallel="false">
         <parameter name="enableJBallerinaTests" value="true"/>
+        <groups>
+            <run>
+                <exclude name="brokenOnJBallerina"/>
+            </run>
+        </groups>
         <classes>
             <class name="org.ballerinalang.test.observability.tracing.TracingTestCase"/>
             <class name="org.ballerinalang.test.observability.metrics.MetricsTestCase"/>
@@ -299,6 +309,11 @@
 
     <test name="ballerina-packerina-tests" parallel="false">
         <parameter name="enableJBallerinaTests" value="true"/>
+        <groups>
+            <run>
+                <exclude name="brokenOnJBallerina"/>
+            </run>
+        </groups>
         <classes>
             <class name="org.ballerinalang.test.packaging.ModulePushTestCase"/>
             <class name="org.ballerinalang.test.packaging.PackagingNegativeTestCase"/>
@@ -318,6 +333,7 @@
             <class name="org.ballerinalang.test.task.TaskBaseTest"/>
             <class name="org.ballerinalang.test.task.TimerWithHttpClientTestCase"/>
             <class name="org.ballerinalang.test.task.AppointmentTest"/>
+            <class name="org.ballerinalang.test.task.MultipleAttachmentTest"/>
             <class name="org.ballerinalang.test.task.TimerTest"/>
             <class name="org.ballerinalang.test.task.TimerPauseResumeTestCase"/>
             <class name="org.ballerinalang.test.task.TimerStopTestCase"/>
@@ -352,6 +368,11 @@
 <!--    </test>-->
     <test name="ballerina-testerina-tests" parallel="false">
         <parameter name="enableJBallerinaTests" value="true" />
+        <groups>
+            <run>
+                <exclude name="brokenOnJBallerina"/>
+            </run>
+        </groups>
         <classes>
             <class name="org.ballerinalang.test.testarina.TestarinaTestCase" />
         </classes>

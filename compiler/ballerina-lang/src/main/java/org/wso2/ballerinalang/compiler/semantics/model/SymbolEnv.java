@@ -18,6 +18,7 @@
 package org.wso2.ballerinalang.compiler.semantics.model;
 
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
@@ -31,6 +32,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangWorker;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttribute;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementLiteral;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
@@ -210,6 +212,13 @@ public class SymbolEnv {
         env.copyTo(symbolEnv);
         symbolEnv.envCount = env.envCount + 1;
         symbolEnv.relativeEnvCount = env.relativeEnvCount + 1;
+        return symbolEnv;
+    }
+
+    public static SymbolEnv createExprEnv(BLangExpression expr, SymbolEnv env, BSymbol owner) {
+        Scope scope = new Scope(owner);
+        SymbolEnv symbolEnv = new SymbolEnv(expr, scope);
+        env.copyTo(symbolEnv);
         return symbolEnv;
     }
 

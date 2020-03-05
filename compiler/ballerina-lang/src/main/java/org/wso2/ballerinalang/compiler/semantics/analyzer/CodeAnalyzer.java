@@ -93,6 +93,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIntRangeExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangLetExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchExpression;
@@ -169,6 +170,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangConstrainedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangErrorType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFiniteTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFunctionTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangLetVariable;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangTupleTypeNode;
@@ -1349,6 +1351,27 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
     }
 
+    public void visit(BLangLetExpression letExpression) {
+        int ownerSymTag = this.env.scope.owner.tag;
+        if ((ownerSymTag & SymTag.RECORD) == SymTag.RECORD) {
+            dlog.error(letExpression.pos, DiagnosticCode.LET_EXPRESSION_NOT_YET_SUPPORTED_RECORD_FIELD);
+        } else if ((ownerSymTag & SymTag.OBJECT) == SymTag.OBJECT) {
+            dlog.error(letExpression.pos, DiagnosticCode.LET_EXPRESSION_NOT_YET_SUPPORTED_OBJECT_FIELD);
+        }
+
+        // This is to support when let expressions are used in return statements
+        // Since variable declarations are visited after return node, this stops false positive unreachable code error
+        boolean returnStateBefore = this.statementReturns;
+        this.statementReturns = false;
+
+        for (BLangLetVariable letVariable : letExpression.letVarDeclarations) {
+            analyzeNode((BLangNode) letVariable.definitionNode, letExpression.env);
+        }
+
+        this.statementReturns = returnStateBefore;
+        analyzeExpr(letExpression.expr, letExpression.env);
+    }
+
     public void visit(BLangSimpleVariable varNode) {
 
         analyzeTypeNode(varNode.typeNode, this.env);
@@ -2303,9 +2326,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     public void visit(BLangConstrainedType constrainedType) {
 
-        if (constrainedType.type.type.tag == TypeTags.STREAM) {
-            checkExperimentalFeatureValidity(ExperimentalFeatures.STREAMS, constrainedType.pos);
-        }
         analyzeTypeNode(constrainedType.constraint, env);
     }
 
@@ -2506,6 +2526,22 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         this.isJSONContext = false;
         parent = myParent;
         checkAccess(node);
+    }
+
+    private <E extends BLangExpression> void analyzeExpr(E node, SymbolEnv env) {
+        if (node == null) {
+            return;
+        }
+        SymbolEnv prevEnv = this.env;
+        this.env = env;
+        BLangNode myParent = parent;
+        node.parent = parent;
+        parent = node;
+        node.accept(this);
+        this.isJSONContext = false;
+        parent = myParent;
+        checkAccess(node);
+        this.env = prevEnv;
     }
 
     @Override
@@ -2883,7 +2919,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
      * @since JBallerina 1.0.0
      */
     private enum ExperimentalFeatures {
-        STREAMS("stream"),
         TRANSACTIONS("transaction"),
         LOCK("lock"),
         XML_ACCESS("xml access expression"),

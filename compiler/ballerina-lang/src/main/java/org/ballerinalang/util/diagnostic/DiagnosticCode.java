@@ -180,6 +180,8 @@ public enum DiagnosticCode {
     TYPE_CAST_NOT_YET_SUPPORTED("type.cast.not.yet.supported.for.type"),
     EQUALITY_NOT_YET_SUPPORTED("equality.not.yet.supported.for.type"),
     BINDING_PATTERN_NOT_YET_SUPPORTED("binding.pattern.not.yet.supported.for.type"),
+    LET_EXPRESSION_NOT_YET_SUPPORTED_RECORD_FIELD("let.expression.not.yet.supported.record.field"),
+    LET_EXPRESSION_NOT_YET_SUPPORTED_OBJECT_FIELD("let.expression.not.yet.supported.object.field"),
 
     // Cast and conversion related codes
     INCOMPATIBLE_TYPES_CAST("incompatible.types.cast"),
@@ -465,8 +467,17 @@ public enum DiagnosticCode {
     INVALID_INVOCATION_LVALUE_COMPOUND_ASSIGNMENT("invalid.lvalue.lhs.of.compound.assignment"),
 
     IDENTIFIER_LITERAL_ONLY_SUPPORTS_ALPHANUMERICS("identifier.literal.only.supports.alphanumerics"),
-    INVALID_UNICODE("invalid.unicode")
+    INVALID_UNICODE("invalid.unicode"),
 
+    METHOD_TOO_LARGE("method.too.large"),
+    FILE_TOO_LARGE("file.too.large"),
+    CLASS_NOT_FOUND("class.not.found"),
+    METHOD_NOT_FOUND("method.not.found"),
+    CONSTRUCTOR_NOT_FOUND("constructor.not.found"),
+    FIELD_NOT_FOUND("field.not.found"),
+    OVERLOADED_METHODS("overloaded.method"),
+    UNSUPPORTED_PRIMITIVE_TYPE("unsupported.primitive.type.reason"),
+    METHOD_SIGNATURE_DOES_NOT_MATCH("method.signature.not.match")
     ;
     private String value;
 

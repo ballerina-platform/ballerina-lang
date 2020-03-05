@@ -189,12 +189,10 @@ public class BinaryFileWriter {
 
         Path destDirPath = getPackageDirPathInProjectRepo(packageID);
         try {
-            if (this.compilerPhase == CompilerPhase.BIR_GEN) {
+            if (symbol.birPackageFile != null) {
                 addPackageBirContent(packageID, symbol.birPackageFile, compiledPackage);
-                if (symbol.packageFile != null) { //TODO remove this tempory solution
-                    addPackageBinaryContent(packageID, symbol.packageFile, compiledPackage);
-                }
-            } else {
+            }
+            if (symbol.packageFile != null) {
                 addPackageBinaryContent(packageID, symbol.packageFile, compiledPackage);
             }
             this.sourceDirectory.saveCompiledPackage(compiledPackage, destDirPath, compiledPackageFileName);

@@ -95,4 +95,35 @@ public class QueryActionTest {
         BInteger countValue = (BInteger) returnValues[0];
         Assert.assertEquals(countValue.intValue(), 6);
     }
+
+    @Test(description = "Test simple query action with let clause")
+    public void testSimpleSelectQueryWithLetClause() {
+        BValue[] returnValues = BRunUtil.invoke(result, "testSimpleSelectQueryWithLetClause");
+        Assert.assertNotNull(returnValues);
+        Assert.assertEquals(returnValues.length, 1, "Expected events are not received");
+        BMap<String, BValue> person = (BMap<String, BValue>) returnValues[0];
+
+        Assert.assertEquals(person.get("firstName").stringValue(), "Alex");
+    }
+
+    @Test(description = "Test simple query action with where clause")
+    public void testSimpleSelectQueryWithWhereClause() {
+        BValue[] returnValues = BRunUtil.invoke(result, "testSimpleSelectQueryWithWhereClause");
+        Assert.assertNotNull(returnValues);
+        Assert.assertEquals(returnValues.length, 1, "Expected events are not received");
+        BMap<String, BValue> person = (BMap<String, BValue>) returnValues[0];
+
+        Assert.assertEquals(person.get("firstName").stringValue(), "Alex");
+    }
+
+    @Test(description = "Test simple query action with multiple from clauses")
+    public void testSimpleSelectQueryWithMultipleFromClauses() {
+        BValue[] returnValues = BRunUtil.invoke(result, "testSimpleSelectQueryWithMultipleFromClauses");
+        Assert.assertNotNull(returnValues);
+        Assert.assertEquals(returnValues.length, 3, "Expected events are not received");
+        BMap<String, BValue> employee = (BMap<String, BValue>) returnValues[0];
+
+        Assert.assertEquals(employee.get("firstName").stringValue(), "Alex");
+        Assert.assertEquals(employee.get("deptAccess").stringValue(), "Human Resource");
+    }
 }

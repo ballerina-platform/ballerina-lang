@@ -74,9 +74,9 @@ type RecordA record {
     int b;
 };
 
-function testTupleUnionTypes() returns [typedesc<[string, Person]>, typedesc<int|string>] {
+function testTupleUnionTypes() returns [typedesc<[string, Person]>, typedesc<int  |  string>] {
     typedesc< [string, Person]> a = [string, Person];
-    typedesc <int|string> b = int|string;
+    typedesc <int|  string> b = int  | string;
     return [a,b];
 }
 
@@ -86,7 +86,7 @@ function testTuplesWithExpressions() returns typedesc<any> {
     return desc;
 }
 
-function testAnyToTypedesc() returns typedesc<any>|error {
+function testAnyToTypedesc() returns typedesc<any>   |error {
     any a = int;
     typedesc<any> desc = <typedesc<any>>a;
     return desc;

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -50,14 +50,14 @@ public class StringValueBasicsTest {
         Assert.assertEquals(returns[0].stringValue(), "red apple");
     }
 
-    @Test
+    @Test (groups = "brokenOnJBallerina")
     public void testNonBMPStringLength() {
         BValue[] returns = BRunUtil.invoke(result, "nonBMPLength");
         Assert.assertEquals(returns[0].getClass(), BInteger.class);
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 5);
     }
 
-    @Test
+    @Test (groups = "brokenOnJBallerina")
     public void testRecordStringValue() {
         BValue[] returns = BRunUtil.invoke(result, "recordStringValue");
         Assert.assertEquals(returns[0].getClass(), BInteger.class);
@@ -65,14 +65,14 @@ public class StringValueBasicsTest {
         //TODO assert return value has BString
     }
 
-    @Test
+    @Test (groups = "brokenOnJBallerina")
     public void testError() {
         BValue[] returns = BRunUtil.invoke(result, "testError");
         Assert.assertEquals(returns[0].getClass(), BInteger.class);
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 5);
     }
 
-    @Test
+    @Test (groups = "brokenOnJBallerina")
     public void testArrayStore() {
         BValue[] returns = BRunUtil.invoke(result, "testArrayStore");
         Assert.assertEquals(returns[0].getClass(), BInteger.class);
@@ -87,12 +87,13 @@ public class StringValueBasicsTest {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-          expectedExceptionsMessageRegExp = ".*string index out of range: index: 6, size: 6.*")
+          expectedExceptionsMessageRegExp = ".*string index out of range: index: 6, size: 6.*",
+          groups = "brokenOnJBallerina")
     public void testStringIndexAccessException() {
         BRunUtil.invoke(result, "testStringIndexAccessException");
     }
 
-    @Test
+    @Test (groups = "brokenOnJBallerina")
     public void testCastToString() {
         BValue[] returns = BRunUtil.invoke(result, "anyToStringCasting");
         Assert.assertEquals(returns[0].getClass(), BInteger.class);

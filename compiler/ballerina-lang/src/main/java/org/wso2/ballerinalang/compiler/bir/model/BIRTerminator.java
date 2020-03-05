@@ -17,8 +17,8 @@
  */
 package org.wso2.ballerinalang.compiler.bir.model;
 
-import org.ballerinalang.model.Name;
 import org.ballerinalang.model.elements.PackageID;
+import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import java.util.List;
