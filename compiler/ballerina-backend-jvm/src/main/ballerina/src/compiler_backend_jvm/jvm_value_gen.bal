@@ -359,7 +359,7 @@ public type ObjectGenerator object {
         self.createRecordGetValuesMethod(cw, fields, className);
         self.createGetSizeMethod(cw, fields, className);
         self.createRecordRemoveMethod(cw);
-        self.createRecordClearMethod(cw, fields, className);
+        self.createRecordClearMethod(cw);
         self.createRecordGetKeysMethod(cw, fields, className);
 
         self.createRecordConstructor(cw, className);
@@ -816,79 +816,15 @@ public type ObjectGenerator object {
         mv.visitEnd();
     }
 
-    function createRecordClearMethod(jvm:ClassWriter cw, bir:BRecordField?[] fields, string className) {
-        //Supports only for optional and rest fields of records.
+    function createRecordClearMethod(jvm:ClassWriter cw) {
+        // throw an UnsupportedOperationException, since remove is not supported by for records.
         jvm:MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "remove", io:sprintf("(L%s;)L%s;", OBJECT, OBJECT),
                                                 io:sprintf("(L%s;)TV;", OBJECT), ());
         mv.visitCode();
-
-        int fieldNameRegIndex = 1;
-        int strKeyVarIndex = 2;
-
-        // cast key to java.lang.String
-        mv.visitVarInsn(ALOAD, fieldNameRegIndex);
-        mv.visitTypeInsn(CHECKCAST, IS_BSTRING ? B_STRING_VALUE : STRING_VALUE);
-        if (IS_BSTRING) {
-            mv.visitMethodInsn(INVOKEINTERFACE, B_STRING_VALUE, "getValue", io:sprintf("()L%s;", STRING_VALUE) , true);
-        }
-        mv.visitVarInsn(ASTORE, strKeyVarIndex);
-
-        mv.visitVarInsn(ALOAD, 0);
-        mv.visitMethodInsn(INVOKESPECIAL, MAP_VALUE_IMPL, "validateFreezeStatus", "()V", false);
-
-        // sort the fields before generating switch case
-        NodeSorter sorter = new();
-        bir:BRecordField?[] sortedFields = fields.clone();
-        sorter.sortByHash(sortedFields);
-
-        jvm:Label defaultCaseLabel = new jvm:Label();
-        jvm:Label[] labels = createLabelsforSwitch(mv, strKeyVarIndex, sortedFields, defaultCaseLabel);
-        jvm:Label[] targetLabels = createLabelsForEqualCheck(mv, strKeyVarIndex, sortedFields, labels,
-                defaultCaseLabel);
-
-        int i = 0;
-        foreach var optionalField in sortedFields {
-            bir:BObjectField field = getObjectField(optionalField);
-            jvm:Label targetLabel = targetLabels[i];
-            mv.visitLabel(targetLabel);
-
-            //Setting isPresent as zero
-            if (self.isOptionalRecordField(field)) {
-                string fieldName = field.name.value;
-                mv.visitVarInsn(ALOAD, 0);
-                mv.visitInsn(ICONST_0);
-                mv.visitFieldInsn(PUTFIELD, className, self.getFieldIsPresentFlagName(fieldName),
-                    getTypeDesc(bir:TYPE_BOOLEAN));
-
-                // load the existing value to return
-                mv.visitVarInsn(ALOAD, 0);
-                mv.visitFieldInsn(GETFIELD, className, conditionalBStringName(fieldName, IS_BSTRING), getTypeDesc(field.typeValue, IS_BSTRING));
-                addBoxInsn(mv, field.typeValue);
-
-                // Set default value for reference types
-                if (checkIfValueIsJReferenceType(field.typeValue)) {
-                    mv.visitVarInsn(ALOAD, 0);
-                    mv.visitInsn(ACONST_NULL);
-                    mv.visitFieldInsn(PUTFIELD, className, conditionalBStringName(fieldName, IS_BSTRING), getTypeDesc(field.typeValue, IS_BSTRING));
-                }
-
-                mv.visitInsn(ARETURN);
-            } else {
-                mv.visitTypeInsn(NEW, UNSUPPORTED_OPERATION_EXCEPTION);
-                mv.visitInsn(DUP);
-                mv.visitMethodInsn(INVOKESPECIAL, UNSUPPORTED_OPERATION_EXCEPTION, "<init>", "()V", false);
-                mv.visitInsn(ATHROW);
-            }
-            i += 1;
-        }
-
-        // default case
-        mv.visitLabel(defaultCaseLabel);
-        mv.visitVarInsn(ALOAD, 0);
-        mv.visitVarInsn(ALOAD, strKeyVarIndex);
-        mv.visitMethodInsn(INVOKESPECIAL, MAP_VALUE_IMPL, "remove", io:sprintf("(L%s;)L%s;", OBJECT, OBJECT), false);
-        mv.visitInsn(ARETURN);
-
+        mv.visitTypeInsn(NEW, UNSUPPORTED_OPERATION_EXCEPTION);
+        mv.visitInsn(DUP);
+        mv.visitMethodInsn(INVOKESPECIAL, UNSUPPORTED_OPERATION_EXCEPTION, "<init>", "()V", false);
+        mv.visitInsn(ATHROW);
         mv.visitMaxs(0, 0);
         mv.visitEnd();
     }
@@ -940,14 +876,6 @@ public type ObjectGenerator object {
         mv.visitEnd();
     }
 };
-
-function checkIfValueIsJReferenceType(bir:BType bType) returns boolean {
-    if (bType is bir:BTypeInt|bir:BTypeBoolean|bir:BTypeFloat|bir:BTypeByte) {
-        return false;
-    } else {
-        return true;
-    }
-}
 
 function injectDefaultParamInitsToAttachedFuncs(bir:Package module) {
     bir:TypeDef?[] typeDefs = module.typeDefs;
