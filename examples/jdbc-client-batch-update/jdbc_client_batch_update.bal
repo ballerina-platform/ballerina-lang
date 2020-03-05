@@ -7,7 +7,6 @@ jdbc:Client testDB = new ({
     url: "jdbc:mysql://localhost:3306/testdb",
     username: "test",
     password: "test",
-    getGeneratedKeys: true,
     dbOptions: {useSSL: false}
 });
 
@@ -51,7 +50,7 @@ public function main() {
     }
     // A batch of data can be inserted using the `batchUpdate` remote function.
     jdbc:BatchUpdateResult retBatch = testDB->batchUpdate("INSERT INTO student " +
-            "(age,name) VALUES (?,?)", false, ...dataBatch);
+            "(age,name) VALUES (?,?)", false, true, ...dataBatch);
     error? e = retBatch.returnedError;
     if (e is error) {
         io:println("Batch update operation failed:", <string>e.detail()?.message);

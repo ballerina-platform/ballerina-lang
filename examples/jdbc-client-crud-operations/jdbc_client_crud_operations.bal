@@ -9,7 +9,6 @@ jdbc:Client testDB = new ({
     url: "jdbc:mysql://localhost:3306/testdb",
     username: "test",
     password: "test",
-    getGeneratedKeys: true,
     dbOptions: {useSSL: false}
 });
 
@@ -46,7 +45,7 @@ public function main() {
     // of the `java.jdbc` module.
     int age = 24;
     string name = "Anne";
-    ret = testDB->update("INSERT INTO student(age, name) values (?, ?)",
+    ret = testDB->update("INSERT INTO student(age, name) values (?, ?)", false,
         age, name);
     handleUpdate(ret, "Insert to student table with variable parameters");
 
@@ -62,18 +61,18 @@ public function main() {
         value: time:currentTime()
     };
     ret = testDB->update("INSERT INTO student(age, name, insertedTime) " +
-                         "values (?, ?, ?)", p1, p2, p3);
+                         "values (?, ?, ?)", false, p1, p2, p3);
     handleUpdate(ret, "Insert to student table with jdbc:parameter values");
 
 
     // Update data in the table using the `update` remote function.
     io:println("\nThe Update operation - Update data in a table");
-    ret = testDB->update("UPDATE student SET name = 'jane' WHERE age = ?", 23);
+    ret = testDB->update("UPDATE student SET name = 'jane' WHERE age = ?", false, 23);
     handleUpdate(ret, "Update a row in student table");
 
     // Delete data in a table using the `update` remote function.
     io:println("\nThe Update operation - Delete data from table");
-    ret = testDB->update("DELETE FROM student WHERE age = ?", 24);
+    ret = testDB->update("DELETE FROM student WHERE age = ?", false, 24);
     handleUpdate(ret, "Delete a row from student table");
 
     // The column values generated during the update can be retrieved using the
@@ -85,7 +84,7 @@ public function main() {
     // returned.
     io:println("\nThe Update operation - Inserting data");
     var retWithKey = testDB->update("INSERT INTO student " +
-                    "(age, name) values (?, ?)", 31, "Kate");
+                    "(age, name) values (?, ?)", true, 31, "Kate");
     if (retWithKey is jdbc:UpdateResult) {
         io:println("Inserted row count: ", retWithKey.updatedRowCount);
         io:println("Generated key: ",

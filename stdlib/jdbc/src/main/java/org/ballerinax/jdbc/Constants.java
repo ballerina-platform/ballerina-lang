@@ -131,7 +131,6 @@ public final class Constants {
         public static final String PASSWORD = "password";
         public static final String POOL_OPTIONS = "poolOptions";
         public static final String DB_OPTIONS = "dbOptions";
-        public static final String GET_GENERATED_KEYS = "getGeneratedKeys";
     }
 
     /**

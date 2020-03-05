@@ -60,7 +60,6 @@ public class ExternFunctions {
 
         String username = config.getStringValue(Constants.EndpointConfig.USERNAME);
         String password = config.getStringValue(Constants.EndpointConfig.PASSWORD);
-        boolean getGeneratedKeys = config.getBooleanValue(Constants.EndpointConfig.GET_GENERATED_KEYS);
         @SuppressWarnings(Constants.UNCHECKED)
         MapValue<String, Object> dbOptions = (MapValue<String, Object>) config
                 .getMapValue(Constants.EndpointConfig.DB_OPTIONS);
@@ -77,8 +76,7 @@ public class ExternFunctions {
         SQLDatasource.SQLDatasourceParamsBuilder builder = new SQLDatasource.SQLDatasourceParamsBuilder(dbType);
         SQLDatasource.SQLDatasourceParams sqlDatasourceParams = builder.withPoolOptions(poolOptionsWrapper).
                 withJdbcUrl(url).withUsername(username).withPassword(password).withDbOptionsMap(dbOptions).
-                withIsGlobalDatasource(userProvidedPoolOptionsNotPresent).withGetGeneratedKeys(getGeneratedKeys).
-                build();
+                withIsGlobalDatasource(userProvidedPoolOptionsNotPresent).build();
 
         SQLDatasource sqlDatasource = sqlDatasourceParams.getPoolOptionsWrapper()
                 .retrieveDatasource(sqlDatasourceParams);

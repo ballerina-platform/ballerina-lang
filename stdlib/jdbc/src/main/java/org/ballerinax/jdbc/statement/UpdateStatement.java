@@ -18,9 +18,12 @@
 package org.ballerinax.jdbc.statement;
 
 import org.ballerinalang.jvm.BallerinaValues;
+import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.services.ErrorHandlerUtils;
 import org.ballerinalang.jvm.types.BMapType;
 import org.ballerinalang.jvm.types.BTypes;
+import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
@@ -51,14 +54,16 @@ public class UpdateStatement extends AbstractSQLStatement {
     private final SQLDatasource datasource;
     private final String query;
     private final ArrayValue parameters;
+    private boolean getGeneratedKey;
 
     public UpdateStatement(ObjectValue client, SQLDatasource datasource, String query, ArrayValue parameters,
-                           Strand strand) {
+                           Object getGeneratedKey, Strand strand) {
         super(strand);
         this.client = client;
         this.datasource = datasource;
         this.query = query;
         this.parameters = parameters;
+        this.getGeneratedKey = getGeneratedKey(getGeneratedKey);
     }
 
     @Override
@@ -75,7 +80,7 @@ public class UpdateStatement extends AbstractSQLStatement {
             String processedQuery = createProcessedQueryString(query, generatedParams);
 
             boolean keyRetrievalSupportedStatement = isKeyRetrievalSupportedStatement();
-            if (keyRetrievalSupportedStatement) {
+            if (getGeneratedKey && keyRetrievalSupportedStatement) {
                 stmt = conn.prepareStatement(processedQuery, PreparedStatement.RETURN_GENERATED_KEYS);
             } else {
                 stmt = conn.prepareStatement(processedQuery);
@@ -85,19 +90,14 @@ public class UpdateStatement extends AbstractSQLStatement {
                     datasource.getDatabaseProductName());
             stmt = processedStatement.prepare();
             int count = stmt.executeUpdate();
-            MapValue<String, Object> generatedKeys;
-            if (keyRetrievalSupportedStatement) {
+            if (getGeneratedKey && keyRetrievalSupportedStatement) {
                 rs = stmt.getGeneratedKeys();
                 //This result set contains the auto generated keys.
                 if (rs.next()) {
-                    generatedKeys = getGeneratedKeys(rs);
-                } else {
-                    generatedKeys = new MapValueImpl<>();
+                    return createFrozenUpdateResultRecord(count, getGeneratedKeys(rs));
                 }
-            } else {
-                generatedKeys = new MapValueImpl<>();
             }
-            return createFrozenUpdateResultRecord(count, generatedKeys);
+            return createFrozenUpdateResultRecord(count, new MapValueImpl<>());
         } catch (SQLException e) {
             handleErrorOnTransaction(this.strand);
             checkAndObserveSQLError(strand, "execute update failed: " + e.getMessage());
@@ -145,7 +145,14 @@ public class UpdateStatement extends AbstractSQLStatement {
         if (datasource.isKeyRetrievalSupported()) {
             return Arrays.stream(GenKeyStmt.values()).anyMatch(stmt -> this.query.trim().toUpperCase(Locale.ENGLISH).
                     startsWith(stmt.name()));
+        } else {
+            ErrorHandlerUtils.printError("ERROR: Unable to get keys as JDBC is not supported to retrieve " +
+                    "auto-generated keys from " + datasource.getDatabaseProductName());
+            return false;
         }
-        return false;
+    }
+
+    public static boolean getGeneratedKey(Object getGeneratedKey) {
+        return (TypeChecker.getType(getGeneratedKey).getTag() == TypeTags.BOOLEAN_TAG && (Boolean) getGeneratedKey);
     }
 }

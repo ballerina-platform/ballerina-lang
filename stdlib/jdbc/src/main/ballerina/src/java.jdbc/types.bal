@@ -25,15 +25,12 @@ import ballerinax/java;
 # + poolOptions - Properties for the connection pool configuration. Refer `PoolOptions` for more details
 # + dbOptions - A map of DB specific properties. These properties will have an effect only if the dataSourceClassName is
 #               provided in poolOptions
-# + getGeneratedKeys - Allow to retrieves auto-generated keys after a statement has been executed if value is `true`.
-#                      It will return auto-generated keys only if supported by JDBC
 public type ClientConfiguration record {|
     string url = "";
     string username = "";
     string password = "";
     PoolOptions poolOptions?;
     map<anydata> dbOptions = {};
-    boolean getGeneratedKeys = false;
 |};
 
 # Represents the properties which are used to configure DB connection pool.

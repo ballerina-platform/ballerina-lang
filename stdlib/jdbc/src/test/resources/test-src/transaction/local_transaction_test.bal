@@ -34,9 +34,9 @@ function testLocalTransaction(string jdbcURL) returns @tainted [int, int, boolea
     boolean abortedBlockExecuted = false;
     transaction {
         _ = checkpanic testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country) " +
-                                "values ('James', 'Clerk', 200, 5000.75, 'USA')");
+                                "values ('James', 'Clerk', 200, 5000.75, 'USA')", false);
         _ = checkpanic testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country) " +
-                                "values ('James', 'Clerk', 200, 5000.75, 'USA')");
+                                "values ('James', 'Clerk', 200, 5000.75, 'USA')", false);
     } onretry {
         returnVal = -1;
     } committed {
@@ -219,9 +219,11 @@ function testLocalTransactionBatchUpdate(string jdbcURL) returns @tainted [int, 
 
     transaction {
         var e1 = testDB->batchUpdate("Insert into Customers " +
-        "(firstName,lastName,registrationID,creditLimit,country) values (?,?,?,?,?)", false, parameters1, parameters2);
+        "(firstName,lastName,registrationID,creditLimit,country) values (?,?,?,?,?)", false, false, parameters1,
+        parameters2);
         var e2 = testDB->batchUpdate("Insert into Customers " +
-        "(firstName,lastName,registrationID,creditLimit,country) values (?,?,?,?,?)", false, parameters1, parameters2);
+        "(firstName,lastName,registrationID,creditLimit,country) values (?,?,?,?,?)", false, false, parameters1,
+        parameters2);
     } onretry {
         returnVal = -1;
     }
@@ -261,9 +263,11 @@ function testLocalTransactionRollbackBatchUpdate(string jdbcURL) returns @tainte
 
     transaction {
         var e1 = testDB->batchUpdate("Insert into Customers " +
-        "(firstName,lastName,registrationID,creditLimit,country) values (?,?,?,?,?)", false, parameters1, parameters2);
+        "(firstName,lastName,registrationID,creditLimit,country) values (?,?,?,?,?)", false, false, parameters1,
+        parameters2);
         var e2 = testDB->batchUpdate("Insert into Customers2 " +
-        "(firstName,lastName,registrationID,creditLimit,country) values (?,?,?,?,?)", false, parameters1, parameters2);
+        "(firstName,lastName,registrationID,creditLimit,country) values (?,?,?,?,?)", false, false, parameters1,
+        parameters2);
     } onretry {
         returnVal = -1;
     }
