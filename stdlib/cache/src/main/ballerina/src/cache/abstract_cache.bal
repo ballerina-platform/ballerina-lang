@@ -32,17 +32,17 @@ public type AbstractCache abstract object {
     # `Error` if the provided cache key is not available or if any error occurred while retrieving from the cache.
     public function get(string key) returns any|Error;
 
-    # Invalidate a cached value from the cache.
+    # Discard a cached value from the cache.
     #
-    # + key - Key of the cache entry which needs to be invalidate
-    # + return - `()` if successfully invalidated or
-    # `Error` if the provided cache key is not available or if any error occurred while invalidating from the cache.
+    # + key - Key of the cache entry which needs to be discarded
+    # + return - `()` if successfully discarded or
+    # `Error` if the provided cache key is not available or if any error occurred while discarding from the cache.
     public function invalidate(string key) returns Error?;
 
-    # Invalidate all the cached values from the cache.
+    # Discard all the cached values from the cache.
     #
-    # + return - `()` if successfully invalidated all or
-    # `Error` if any error occurred while invalidating all from the cache.
+    # + return - `()` if successfully discarded all or
+    # `Error` if any error occurred while discarding all from the cache.
     public function invalidateAll() returns Error?;
 
     # Checks whether the given key has an associated cache value.

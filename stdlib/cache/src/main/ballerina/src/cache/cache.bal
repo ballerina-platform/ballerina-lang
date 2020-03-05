@@ -23,8 +23,8 @@ import ballerina/time;
 # + evictionPolicy - The policy which defines the cache eviction algorithm
 # + evictionFactor - The factor which the entries will be evicted once the cache full
 # + defaultMaxAgeInSeconds - The default value in seconds which all the cache entries are valid.
-#                            '-1' means, the entries are valid forever.
-#                            This will be overwritten by the the `maxAge` property set when inserting item to cache
+#                            '-1' means, the entries are valid forever. This will be overwritten by the the
+#                            `maxAgeInSeconds` property set when inserting item to the cache
 # + cleanupIntervalInSeconds - Interval of the timer task which clean up the cache
 public type CacheConfig record {|
     int capacity = 100;
@@ -193,11 +193,11 @@ public type Cache object {
         }
     }
 
-    # Invalidate a cached value from the cache.
+    # Discard a cached value from the cache.
     #
-    # + key - Key of the cache entry which needs to be invalidate
-    # + return - `()` if successfully invalidated or
-    # `Error` if the provided cache key is not or if any error occurred while invalidating from the cache.
+    # + key - Key of the cache entry which needs to be discarded
+    # + return - `()` if successfully discarded or
+    # `Error` if the provided cache key is not or if any error occurred while discarding from the cache.
     public function invalidate(string key) returns Error? {
         lock {
             if (!self.hasKey(key)) {
@@ -210,10 +210,10 @@ public type Cache object {
         }
     }
 
-    # Invalidate all the cached values from the cache.
+    # Discard all the cached values from the cache.
     #
-    # + return - `()` if successfully invalidated all or
-    # `Error` if any error occurred while invalidating all from the cache.
+    # + return - `()` if successfully discarded all or
+    # `Error` if any error occurred while discarding all from the cache.
     public function invalidateAll() returns Error? {
         lock {
             self.evictionPolicy.clear(self.list);
