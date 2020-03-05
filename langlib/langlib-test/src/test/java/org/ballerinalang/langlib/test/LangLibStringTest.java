@@ -125,15 +125,9 @@ public class LangLibStringTest {
         }
     }
 
-    @Test(dataProvider = "SubStringsForLastIndexOf")
-    public void testLastIndexOf(BString substr, Object expected) {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testLastIndexOf", new BValue[]{substr});
-
-        if (expected == null) {
-            assertNull(returns[0]);
-        } else {
-            assertEquals(((BInteger) returns[0]).intValue(), (long) expected, "For substring: " + substr);
-        }
+    @Test(description = "Test the lastIndexOf() method.")
+    public void testLastIndexOf() {
+        BRunUtil.invoke(compileResult, "testLastIndexOf");
     }
 
     @Test(dataProvider = "codePointCompareProvider")
@@ -191,14 +185,6 @@ public class LangLibStringTest {
     public Object[][] getSubStrings() {
         return new Object[][]{
                 {new BString("Ballerina"), 6L},
-                {new BString("Invalid"), null},
-        };
-    }
-
-    @DataProvider(name = "SubStringsForLastIndexOf")
-    public Object[][] getSubStringsForLastIndexOf() {
-        return new Object[][]{
-                {new BString("Hello"), 6L},
                 {new BString("Invalid"), null},
         };
     }
