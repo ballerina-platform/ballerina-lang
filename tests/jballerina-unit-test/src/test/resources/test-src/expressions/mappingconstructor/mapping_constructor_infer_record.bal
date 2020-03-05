@@ -259,6 +259,33 @@ function testInferredRecordTypeWithOptionalTypeFieldViaSpreadOp() {
     assertEquality((), r2?.f);
 }
 
+type FooBar "foo"|"bar";
+
+function testInferenceWithMappingConstrExprAsSpreadExpr() {
+    FooBar fb = "foo";
+
+    var x = {
+        a: 1,
+        b: 2,
+        ...{e: "hello", fb},
+        c: true
+    };
+
+    record {
+        int a;
+        int b;
+        boolean c;
+        string e;
+        FooBar fb;
+    } rec = x;
+
+    assertEquality(1, rec.a);
+    assertEquality(2, rec.b);
+    assertEquality(true, rec.c);
+    assertEquality("hello", rec.e);
+    assertEquality("foo", rec.fb);
+}
+
 function assertEquality(any|error expected, any|error actual) {
     if expected is anydata && actual is anydata && expected == actual {
         return;

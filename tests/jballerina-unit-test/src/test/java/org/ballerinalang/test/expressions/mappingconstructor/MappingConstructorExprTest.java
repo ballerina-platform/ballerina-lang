@@ -153,13 +153,16 @@ public class MappingConstructorExprTest {
     public void testSpreadOpFieldCodeAnalysisNegative() {
         CompileResult result = BCompileUtil.compile(
                 "test-src/expressions/mappingconstructor/spread_op_field_code_analysis_negative.bal");
-        Assert.assertEquals(result.getErrorCount(), 5);
+        Assert.assertEquals(result.getErrorCount(), 7);
         validateError(result, 0, "invalid usage of record literal: duplicate key 'i' via spread operator '...f'", 30,
                       31);
         validateError(result, 1, "invalid usage of record literal: duplicate key 's'", 30, 34);
         validateError(result, 2, "invalid usage of map literal: duplicate key 's' via spread operator '...b'", 31, 47);
         validateError(result, 3, "invalid usage of map literal: duplicate key 'f'", 31, 50);
         validateError(result, 4, "invalid usage of map literal: duplicate key 'i'", 31, 58);
+        validateError(result, 5, "invalid usage of map literal: duplicate key 's' via spread operator '... {s: hi,i: " +
+                "1}'", 32, 38);
+        validateError(result, 6, "invalid usage of map literal: duplicate key 'i'", 32, 63);
     }
 
     @Test
@@ -192,7 +195,10 @@ public class MappingConstructorExprTest {
                 { "testRecordRefAsSpreadOp" },
                 { "testRecordValueViaFuncAsSpreadOp" },
                 { "testSpreadOpInConstMap" },
-                { "testSpreadOpInGlobalMap" }
+                { "testSpreadOpInGlobalMap" },
+                { "testMappingConstrExprAsSpreadExpr" },
+                { "testOrderWithSpreadOp" },
+                { "testInherentTypeViolationViaSpreadOp" }
         };
     }
 
@@ -238,7 +244,8 @@ public class MappingConstructorExprTest {
                 { "testRecordInferringForMappingConstructorWithRestField3" },
                 { "testMappingConstrExprWithNoACET" },
                 { "testMappingConstrExprWithNoACET2" },
-                { "testInferredRecordTypeWithOptionalTypeFieldViaSpreadOp" }
+                { "testInferredRecordTypeWithOptionalTypeFieldViaSpreadOp" },
+                { "testInferenceWithMappingConstrExprAsSpreadExpr" }
         };
     }
 }
