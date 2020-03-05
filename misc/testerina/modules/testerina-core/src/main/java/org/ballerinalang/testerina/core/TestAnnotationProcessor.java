@@ -28,7 +28,7 @@ import org.ballerinalang.test.runtime.entity.Test;
 import org.ballerinalang.test.runtime.entity.TestSuite;
 import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.ballerinalang.util.diagnostic.DiagnosticLog;
-import org.wso2.ballerinalang.compiler.PackageLoader;
+import org.wso2.ballerinalang.compiler.PackageCache;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
@@ -44,7 +44,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
-import org.wso2.ballerinalang.compiler.util.diagnotic.BDiagnosticSource;
+import org.wso2.ballerinalang.compiler.util.Names;
 
 import java.util.List;
 import java.util.Map;
@@ -82,7 +82,9 @@ public class TestAnnotationProcessor extends AbstractCompilerPlugin {
     private DiagnosticLog diagnosticLog;
     private Types typeChecker;
     private SymbolResolver symbolResolver;
-    private BLangPackage bLangPackage;
+    private BLangPackage parent;
+    private PackageCache packageCache;
+    private Map<BPackageSymbol, SymbolEnv> packageEnvironmentMap;
 
     /**
      * this property is used as a work-around to initialize test suites only once for a package as Compiler
@@ -94,6 +96,8 @@ public class TestAnnotationProcessor extends AbstractCompilerPlugin {
         this.diagnosticLog = diagnosticLog;
         this.typeChecker = Types.getInstance(compilerContext);
         this.symbolResolver = SymbolResolver.getInstance(compilerContext);
+        this.packageEnvironmentMap = SymbolTable.getInstance(compilerContext).pkgEnvMap;
+        this.packageCache = PackageCache.getInstance(compilerContext);
 
         if (TesterinaRegistry.getInstance().isTestSuitesCompiled()) {
             enabled = false;
@@ -104,19 +108,13 @@ public class TestAnnotationProcessor extends AbstractCompilerPlugin {
     public void setCompilerContext(CompilerContext context) {
         this.compilerContext = context;
     }
-
-    private void setBlangPackage(AnnotationAttachmentNode attachmentNode) {
-        PackageLoader packageLoader = PackageLoader.getInstance(this.compilerContext);
-        Diagnostic.DiagnosticSource source = attachmentNode.getExpression().getPosition().getSource();
-        this.bLangPackage = packageLoader.loadPackage(((BDiagnosticSource) source).pkgID);
-    }
-
+    
     @Override
     public void process(FunctionNode functionNode, List<AnnotationAttachmentNode> annotations) {
         if (!enabled) {
             return;
         }
-        BLangPackage parent = (BLangPackage) ((BLangFunction) functionNode).parent;
+        parent = (BLangPackage) ((BLangFunction) functionNode).parent;
         String packageName = getPackageName(parent);
         TestSuite suite = registry.getTestSuites().get(packageName);
         // Check if the registry contains a test suite for the package
@@ -143,7 +141,6 @@ public class TestAnnotationProcessor extends AbstractCompilerPlugin {
                 suite.addAfterEachFunction(functionName);
             } else if (MOCK_ANNOTATION_NAME.equals(annotationName)) {
                 String[] vals = new String[2];
-                // If package property not present the package is .
                 // TODO: when default values are supported in annotation struct we can remove this
                 vals[0] = packageName;
                 if (attachmentNode.getExpression() instanceof BLangRecordLiteral) {
@@ -168,43 +165,39 @@ public class TestAnnotationProcessor extends AbstractCompilerPlugin {
                         String value = valueExpr.toString();
 
                         if (MODULE.equals(name)) {
+                            value = formatPackageName(value); // Formats the single module to fully qualified name
                             vals[0] = value;
                         } else if (FUNCTION.equals(name)) {
                             vals[1] = value;
                         }
                     });
-
-                    if (bLangPackage == null) {
-                        setBlangPackage(attachmentNode);
-                    }
-
-                    if (vals[0].isEmpty()) {
-                        diagnosticLog.logDiagnostic(Diagnostic.Kind.ERROR, ((BLangFunction) functionNode).pos,
-                                "Module name cannot be empty");
-                    }
-
+                    
+                    // Check if Function in annotation is empty
                     if (vals[1].isEmpty()) {
                         diagnosticLog.logDiagnostic(Diagnostic.Kind.ERROR, ((BLangFunction) functionNode).pos,
                                 "Function name cannot be empty");
                     }
 
-                    SymbolTable symbolTable = SymbolTable.getInstance(compilerContext);
-                    Map<BPackageSymbol, SymbolEnv> packageEnvironmentMap = symbolTable.pkgEnvMap;
-                    PackageID functionToMockID = getPackageID(vals[0], packageEnvironmentMap);
+                    // Find functionToMock in the packageID
+                    PackageID functionToMockID = getPackageID(vals[0]);
+                    if (functionToMockID == null) {
+                        diagnosticLog.logDiagnostic(Diagnostic.Kind.ERROR, attachmentNode.getPosition(),
+                                "Could not find module specified ");
+                    }
 
                     BType functionToMockType = getFunctionType(packageEnvironmentMap, functionToMockID, vals[1]);
-                    BType mockFunctionType = getFunctionType(packageEnvironmentMap, bLangPackage.packageID,
+                    BType mockFunctionType = getFunctionType(packageEnvironmentMap, parent.packageID,
                             ((BLangFunction) functionNode).name.toString());
 
                     if (functionToMockType != null && mockFunctionType != null) {
                         if (!typeChecker.isAssignable(mockFunctionType, functionToMockType)) {
                             diagnosticLog.logDiagnostic(Diagnostic.Kind.ERROR, ((BLangFunction) functionNode).pos,
-                                    "Function parameters and Mock function parameters do not match. Expected "
-                                            + functionToMockType.toString());
+                                    "incompatible types: expected " + mockFunctionType.toString()
+                                            + " but found " + functionToMockType.toString());
                         }
                     } else {
                         diagnosticLog.logDiagnostic(Diagnostic.Kind.ERROR, attachmentNode.getPosition(),
-                                "Could not find functions in module");
+                                "could not find functions in module");
                     }
 
                     //Creating a bLangTestablePackage to add a mock function
@@ -321,6 +314,7 @@ public class TestAnnotationProcessor extends AbstractCompilerPlugin {
      * @return Function type if found, null if not found
      */
     private BType getFunctionType(Map<BPackageSymbol, SymbolEnv> pkgEnvMap, PackageID packageID, String functionName) {
+        // Symbol resolver, Pass the acquired package Symbol from package cache
         for (Map.Entry<BPackageSymbol, SymbolEnv> entry : pkgEnvMap.entrySet()) {
             // Multiple packages may be present with same name, so all entries must be checked
             if (entry.getKey().pkgID.equals(packageID)) {
@@ -336,34 +330,40 @@ public class TestAnnotationProcessor extends AbstractCompilerPlugin {
     /**
      * Returns a PackageID for the passed moduleName.
      * @param moduleName Module name passed via function annotation
-     * @param pkgEnvMap map of BPackageSymbol and its respective SymbolEnv
      * @return Module packageID
      */
-    private PackageID getPackageID(String moduleName, Map<BPackageSymbol, SymbolEnv> pkgEnvMap) {
-        if (moduleName.equals(".")) {
-            return bLangPackage.packageID;
+    private PackageID getPackageID(String moduleName) {
+        if (packageCache.getSymbol(moduleName) != null) {
+            return packageCache.getSymbol(moduleName).pkgID;
         } else {
-            for (Map.Entry<BPackageSymbol, SymbolEnv> entry : pkgEnvMap.entrySet()) {
-                String packageModule = entry.getKey().pkgID.toString();
-                // For ballerina native packages and fully qualified packages, we do a full check
-                if (packageModule.equals(moduleName)) {
-                    return entry.getKey().pkgID;
-                } else {
-                    // For modules without the fully qualified name
-                    // We loop extract the module name from fully qualified package modules
-                    if (packageModule.contains("/") && packageModule.contains(":")) {
-                        if (moduleName.equals(packageModule.substring(packageModule.indexOf('/') + 1,
-                                packageModule.indexOf(':')))) {
-                            return entry.getKey().pkgID;
-                        }
-                    }
-                }
-            }
+            return null;
         }
-        // Return null if the above conditions don't apply
-        return null;
     }
 
+    /**
+     * Formats the package name obtained from the mock annotation.
+     * Checks for empty, '.', or single module names and replaces them.
+     * Ballerina modules and fully qualified packages are simply returned
+     * @param value
+     * @return
+     */
+    private String formatPackageName(String value) {
+        // If empty or '.' then return the current package ID
+        if (value.isEmpty() || value.equals(Names.DOT.value)) {
+            value = parent.packageID.toString();
+
+        // If value does NOT contain 'ballerina/' then it could be fully qualified
+        } else if (!value.substring(0, 9).contains(Names.BALLERINA_ORG.value + Names.ORG_NAME_SEPARATOR.value)) {
+
+            // If value is NOT fully qualified, then it is probably a SINGLE module name that needs formatting
+            if (!value.contains(Names.ORG_NAME_SEPARATOR.value) && !value.contains(Names.VERSION_SEPARATOR.value)) {
+                value = new PackageID(parent.packageID.orgName, new Name(value),
+                        parent.packageID.version).toString();
+            }
+        }
+
+        return value;
+    }
 
     /**
      * Check whether there is a common element in two Lists.
