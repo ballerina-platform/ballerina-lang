@@ -238,7 +238,7 @@ public class BallerinaParser {
                 Solution solution = recover(token, ParserRuleContext.TOP_LEVEL_NODE_WITH_MODIFIER);
 
                 // If the parser recovered by inserting a token, then try to re-parse the same
-                // rule with the inserted token token. This is done to pick the correct branch
+                // rule with the inserted token. This is done to pick the correct branch
                 // to continue the parsing.
                 if (solution.action == Action.INSERT) {
                     parseTopLevelNodeWithModifier(solution.tokenKind);
@@ -271,7 +271,7 @@ public class BallerinaParser {
                 Solution solution = recover(token, ParserRuleContext.TOP_LEVEL_NODE);
 
                 // If the parser recovered by inserting a token, then try to re-parse the same
-                // rule with the inserted token token. This is done to pick the correct branch
+                // rule with the inserted token. This is done to pick the correct branch
                 // to continue the parsing.
                 if (solution.action != Action.INSERT) {
                     break;
@@ -530,7 +530,7 @@ public class BallerinaParser {
             Solution solution = recover(token, ParserRuleContext.PARAMETER_RHS);
 
             // If the parser recovered by inserting a token, then try to re-parse the same
-            // rule with the inserted token token. This is done to pick the correct branch
+            // rule with the inserted token. This is done to pick the correct branch
             // to continue the parsing.
             if (solution.action != Action.INSERT) {
                 return;
@@ -726,7 +726,7 @@ public class BallerinaParser {
                 Solution solution = recover(token, ParserRuleContext.FUNC_BODY);
 
                 // If the parser recovered by inserting a token, then try to re-parse the same
-                // rule with the inserted token token. This is done to pick the correct branch
+                // rule with the inserted token. This is done to pick the correct branch
                 // to continue the parsing.
 
                 if (solution.action != Action.INSERT) {
@@ -1032,7 +1032,7 @@ public class BallerinaParser {
                 Solution solution = recover(token, ParserRuleContext.STATEMENT);
 
                 // If the parser recovered by inserting a token, then try to re-parse the same
-                // rule with the inserted token token. This is done to pick the correct branch
+                // rule with the inserted token. This is done to pick the correct branch
                 // to continue the parsing.
                 if (solution.action != Action.INSERT) {
                     break;
@@ -1099,7 +1099,7 @@ public class BallerinaParser {
                 Solution solution = recover(token, ParserRuleContext.VAR_DECL_STMT_RHS);
 
                 // If the parser recovered by inserting a token, then try to re-parse the same
-                // rule with the inserted token token. This is done to pick the correct branch
+                // rule with the inserted token. This is done to pick the correct branch
                 // to continue the parsing.
                 if (solution.action != Action.INSERT) {
                     break;
@@ -1148,7 +1148,7 @@ public class BallerinaParser {
                 Solution solution = recover(token, ParserRuleContext.ASSIGNMENT_OR_VAR_DECL_STMT_RHS);
 
                 // If the parser recovered by inserting a token, then try to re-parse the same
-                // rule with the inserted token token. This is done to pick the correct branch
+                // rule with the inserted token. This is done to pick the correct branch
                 // to continue the parsing.
                 if (solution.action != Action.INSERT) {
                     break;
