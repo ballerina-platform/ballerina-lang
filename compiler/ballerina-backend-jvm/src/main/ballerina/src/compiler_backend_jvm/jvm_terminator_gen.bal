@@ -508,13 +508,32 @@ type TerminatorGenerator object {
         string jvmClass = lookupFullQualifiedClassName(lookupKey);
         string cleanMethodName = cleanupFunctionName(methodName);
         boolean useBString = IS_BSTRING && orgName == "ballerina" &&
-                             (moduleName == "lang.string" || moduleName == "lang.error" || moduleName == "lang.value" 
+                             (moduleName == "lang.string" || moduleName == "lang.error" || moduleName == "lang.value"
                              || moduleName == "lang.map") && !cleanMethodName.endsWith("_");
         if (useBString) {
             cleanMethodName = nameOfBStringFunc(cleanMethodName);
         }
+
+        boolean isObserved = false;
+        jvm:Label? tryStartLabel = ();
+        BIRFunctionWrapper? functionWrapper = birFunctionMap[lookupKey];
+        if (functionWrapper is BIRFunctionWrapper) {
+            isObserved = isFunctionObserved(functionWrapper.func);
+            if (isObserved) {
+                string workerName = functionWrapper.func.workerName.value;
+                tryStartLabel = genObserveStartWithTryBlockStart(self.mv, self.labelGen, functionWrapper.func,
+                    localVarOffset, (), workerName);
+            }
+        }
+
         string methodDesc = lookupJavaMethodDescription(lookupKey, useBString);
         self.mv.visitMethodInsn(INVOKESTATIC, jvmClass, cleanMethodName, methodDesc, false);
+
+        if (isObserved) {
+            BIRFunctionWrapper fw = <BIRFunctionWrapper>functionWrapper;
+            genObserveEndWithTryBlockEnd(self.mv, self.labelGen, self.indexMap, fw.func, <jvm:Label>tryStartLabel,
+                localVarOffset);
+        }
     }
 
     private function genVirtualCall(bir:Call callIns, string orgName, string moduleName, int localVarOffset) {
@@ -563,9 +582,28 @@ type TerminatorGenerator object {
             i += 1;
         }
 
+        boolean isObserved = false;
+        jvm:Label? tryStartLabel = ();
+        string lookupKey = nameOfNonBStringFunc(getPackageName(orgName, moduleName) + callIns.name.value);
+        BIRFunctionWrapper? functionWrapper = birFunctionMap[lookupKey];
+        if (functionWrapper is BIRFunctionWrapper) {
+            isObserved = isFunctionObserved(functionWrapper.func);
+            if (isObserved) {
+                string workerName = functionWrapper.func.workerName.value;
+                tryStartLabel = genObserveStartWithTryBlockStart(self.mv, self.labelGen, functionWrapper.func, localVarOffset,
+                    selfArg.typeValue, workerName);
+            }
+        }
+
         // call method
         string methodDesc = io:sprintf("(L%s;L%s;[L%s;)L%s;", STRAND, STRING_VALUE, OBJECT, OBJECT);
         self.mv.visitMethodInsn(INVOKEINTERFACE, OBJECT_VALUE, "call", methodDesc, true);
+
+        if (isObserved) {
+            BIRFunctionWrapper fw = <BIRFunctionWrapper>functionWrapper;
+            genObserveEndWithTryBlockEnd(self.mv, self.labelGen, self.indexMap, fw.func, <jvm:Label>tryStartLabel,
+                localVarOffset);
+        }
 
         bir:BType? returnType = callIns.lhsOp?.typeValue;
         addUnboxInsn(self.mv, returnType);
@@ -756,7 +794,7 @@ type TerminatorGenerator object {
             self.submitToScheduler(fpCall.lhsOp, localVarOffset);
         } else {
             self.mv.visitMethodInsn(INVOKEVIRTUAL, FUNCTION_POINTER, "call", io:sprintf("(L%s;)L%s;", OBJECT, OBJECT), false);
-            // store reult
+            // store result
             bir:BType? lhsType = fpCall.lhsOp?.typeValue;
             if (lhsType is bir:BType) {
                 addUnboxInsn(self.mv, lhsType);
