@@ -251,6 +251,22 @@ public class LangLibStringTest {
                             "{ballerina/lang.string}StringOperationError {message:\"" + result + "\"}");
     }
 
+    @Test(dataProvider = "testEqualsIgnoreCaseDataProvider")
+    public void testEqualsIgnoreCaseAscii(String str1, String str2, boolean result) {
+        BValue[] args = {new BString(str1), new BString(str2)};
+        BValue[] returns = BRunUtil.invoke(compileResult, "testEqualsIgnoreCaseAscii", args);
+        Assert.assertEquals(((BBoolean) returns[0]).booleanValue(), result);
+    }
+
+    @DataProvider(name = "testEqualsIgnoreCaseDataProvider")
+    public Object[][] testEqualsIgnoreCaseDataProvider() {
+        return new Object[][] {
+                {"aBCdeFg", "aBCdeFg", true},
+                {"aBCdeFg", "abcdefg", true},
+                {"aBCdeFg", "abcdefh", false}
+        };
+    }
+
     @DataProvider(name = "testSubstringDataProvider")
     public Object[][] testSubstringDataProvider() {
         return new Object[][]{
