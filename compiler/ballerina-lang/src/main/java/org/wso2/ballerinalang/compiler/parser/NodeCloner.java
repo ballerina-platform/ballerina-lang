@@ -54,6 +54,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangWorker;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangDoClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangFromClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangLetClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWhereClause;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAccessExpression;
@@ -976,13 +977,7 @@ class NodeCloner extends BLangNodeVisitor {
     public void visit(BLangLetExpression source) {
         BLangLetExpression clone = new BLangLetExpression();
         source.cloneRef = clone;
-        List<BLangLetVariable> cloneDefs = new ArrayList<>();
-        for (BLangLetVariable letVarDeclaration : source.letVarDeclarations) {
-            BLangLetVariable clonedVar = new BLangLetVariable();
-            clonedVar.definitionNode = clone(letVarDeclaration.definitionNode);
-            cloneDefs.add(clonedVar);
-        }
-        clone.letVarDeclarations = cloneDefs;
+        clone.letVarDeclarations = cloneLetVarDeclarations(source.letVarDeclarations);
         clone.expr = source.expr;
     }
 
@@ -1256,6 +1251,7 @@ class NodeCloner extends BLangNodeVisitor {
         BLangQueryAction clone = new BLangQueryAction();
         source.cloneRef = clone;
         clone.fromClauseList = cloneList(source.fromClauseList);
+        clone.letClauseList = cloneList(source.letClauseList);
         clone.doClause = clone(source.doClause);
         clone.whereClauseList = cloneList(source.whereClauseList);
     }
@@ -1266,6 +1262,7 @@ class NodeCloner extends BLangNodeVisitor {
         BLangQueryExpr clone = new BLangQueryExpr();
         source.cloneRef = clone;
         clone.fromClauseList = cloneList(source.fromClauseList);
+        clone.letClausesList = cloneList(source.letClausesList);
         clone.selectClause = clone(source.selectClause);
         clone.whereClauseList = cloneList(source.whereClauseList);
     }
@@ -1281,6 +1278,23 @@ class NodeCloner extends BLangNodeVisitor {
         clone.varType = source.varType;
         clone.resultType = source.resultType;
         clone.nillableResultType = source.nillableResultType;
+    }
+
+    @Override
+    public void visit(BLangLetClause source) {
+        BLangLetClause clone = new BLangLetClause();
+        source.cloneRef = clone;
+        clone.letVarDeclarations = cloneLetVarDeclarations(source.letVarDeclarations);
+    }
+
+    private List<BLangLetVariable> cloneLetVarDeclarations (List<BLangLetVariable> letVarDeclarations) {
+        List<BLangLetVariable> cloneDefs = new ArrayList<>();
+        for (BLangLetVariable letVarDeclaration : letVarDeclarations) {
+            BLangLetVariable clonedVar = new BLangLetVariable();
+            clonedVar.definitionNode = clone(letVarDeclaration.definitionNode);
+            cloneDefs.add(clonedVar);
+        }
+        return cloneDefs;
     }
 
     @Override
