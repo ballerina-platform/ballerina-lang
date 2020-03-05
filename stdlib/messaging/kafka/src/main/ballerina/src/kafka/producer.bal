@@ -96,54 +96,13 @@ public type ProducerConfiguration record {|
     SecureSocket secureSocket?;
 |};
 
-# Producer acknowledgement type 'all'. This will gurantee that the record will not be lost as long as at least one
-# in-sync replica is alive.
-public const ACKS_ALL = "all";
-
-# Producer acknowledgement type '0'. If the acknowledgement type set to this, the producer will not wait for any
-# acknowledgement from the server.
-public const ACKS_NONE = "0";
-
-# Producer acknowledgement type '1'. If the acknowledgement type set to this, the leader will write the record to its
-# local log but will respond without awaiting full acknowledgement from all followers.
-public const ACKS_SINGLE = "1";
-
 # Kafka producer acknowledgement type.
 public type ProducerAcks ACKS_ALL|ACKS_NONE|ACKS_SINGLE;
-
-# In-built Kafka Byte Array serializer.
-public const SER_BYTE_ARRAY = "BYTE_ARRAY";
-
-# In-built Kafka string serializer.
-public const SER_STRING = "STRING";
-
-# In-built Kafka int serializer.
-public const SER_INT = "INT";
-
-# In-built Kafka float serializer.
-public const SER_FLOAT = "FLOAT";
-
-# User-defined serializer.
-public const SER_CUSTOM = "CUSTOM";
 
 # Kafka in-built serializer type.
 public type SerializerType SER_BYTE_ARRAY|SER_STRING|SER_INT|SER_FLOAT|SER_CUSTOM;
 
-# Kafka compression type. Value 'none'
-public const COMPRESSION_NONE = "none";
-
-# Kafka compression type. Value 'gzip'
-public const COMPRESSION_GZIP = "gzip";
-
-# Kafka compression type. Value 'snappy'
-public const COMPRESSION_SNAPPY = "snappy";
-
-# Kafka compression type. Value 'lz4'
-public const COMPRESSION_LZ4 = "lz4";
-
-# Kafka compression type. Value 'zstd'
-public const COMPRESSION_ZSTD = "zstd";
-
+# kafka compression type to compress the messages
 public type CompressionType COMPRESSION_NONE|COMPRESSION_GZIP|COMPRESSION_SNAPPY|COMPRESSION_LZ4|COMPRESSION_ZSTD;
 
 # Represent a Kafka producer endpoint.
@@ -185,15 +144,7 @@ public type Producer client object {
                 self.valueSerializer = valueSerializerObject;
             }
         }
-
-        checkpanic self.init();
-    }
-
-    # Initialize the producer endpoint. Panics if the initialization fails.
-    #
-    # + return - `kafka:ProducerError` if fails to initiate the `kafka:Producer`, nil otherwise.
-    function init() returns error? {
-        return producerInit(self);
+        checkpanic producerInit(self);
     }
 
     public string connectorId = system:uuid();

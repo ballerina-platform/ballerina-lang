@@ -77,7 +77,7 @@ public type ConsumerConfiguration record {|
     string metricsReporterClasses?;
     string clientId?;
     string interceptorClasses?;
-    string isolationLevel?;
+    IsolationLevel isolationLevel?;
 
     DeserializerType keyDeserializerType = DES_BYTE_ARRAY;
     DeserializerType valueDeserializerType = DES_BYTE_ARRAY;
@@ -136,23 +136,11 @@ public type ConsumerRecord record {|
     string topic;
 |};
 
-# In-built Kafka byte array deserializer.
-public const DES_BYTE_ARRAY = "BYTE_ARRAY";
-
-# In-built Kafka string deserializer.
-public const DES_STRING = "STRING";
-
-# In-built Kafka int deserializer.
-public const DES_INT = "INT";
-
-# In-built Kafka float deserializer.
-public const DES_FLOAT = "FLOAT";
-
-# User-defined deserializer.
-public const DES_CUSTOM = "CUSTOM";
-
 # Kafka in-built deserializer type.
 public type DeserializerType DES_BYTE_ARRAY|DES_STRING|DES_INT|DES_FLOAT|DES_CUSTOM;
+
+# Kafka consumer isolation level type.
+public type IsolationLevel ISOLATION_COMMITTED|ISOLATION_UNCOMMITTED;
 
 # Represent a Kafka consumer endpoint.
 #
