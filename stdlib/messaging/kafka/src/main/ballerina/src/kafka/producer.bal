@@ -58,7 +58,7 @@ import ballerinax/java;
 # + secureSocket - Configurations related to SSL/TLS.
 public type ProducerConfiguration record {|
     string bootstrapServers;
-    Producer_Acks acks = ACKS_SINGLE;
+    ProducerAcks acks = ACKS_SINGLE;
     CompressionType compressionType = COMPRESSION_NONE;
     string clientId?;
     string metricsRecordingLevel?;
@@ -109,7 +109,7 @@ public const ACKS_NONE = "0";
 public const ACKS_SINGLE = "1";
 
 # Kafka producer acknowledgement type.
-public type Producer_Acks ACKS_ALL|ACKS_NONE|ACKS_SINGLE;
+public type ProducerAcks ACKS_ALL|ACKS_NONE|ACKS_SINGLE;
 
 # In-built Kafka Byte Array serializer.
 public const SER_BYTE_ARRAY = "BYTE_ARRAY";
