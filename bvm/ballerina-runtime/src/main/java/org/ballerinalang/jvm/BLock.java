@@ -65,7 +65,7 @@ public class BLock {
         return this.current.isEmpty();
     }
 
-    private boolean lockedBySameContext(Strand ctx) {
+    public boolean lockedBySameContext(Strand ctx) {
         return this.current.getLast() == ctx;
     }
 }

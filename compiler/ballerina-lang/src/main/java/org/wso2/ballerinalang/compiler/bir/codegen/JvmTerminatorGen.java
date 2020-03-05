@@ -913,8 +913,9 @@ public class JvmTerminatorGen {
             String initClassName = lookupGlobalVarClassName(this.currentPackageName, "LOCK_STORE");
             mv.visitFieldInsn(GETSTATIC, initClassName, "LOCK_STORE", lockStore);
             mv.visitLdcInsn("global");
+            this.mv.visitVarInsn(ALOAD, localVarOffset);
             mv.visitMethodInsn(INVOKEVIRTUAL, LOCK_STORE, "panicIfInLock",
-                    String.format("(L%s;)V", STRING_VALUE), false);
+                    String.format("(L%s;L%s;)V", STRING_VALUE, STRAND), false);
 
             // Load the scheduler from strand
             this.mv.visitVarInsn(ALOAD, localVarOffset);
@@ -1039,8 +1040,9 @@ public class JvmTerminatorGen {
                 String initClassName = lookupGlobalVarClassName(this.currentPackageName, "LOCK_STORE");
                 mv.visitFieldInsn(GETSTATIC, initClassName, "LOCK_STORE", lockStore);
                 mv.visitLdcInsn("global");
+                this.mv.visitVarInsn(ALOAD, localVarOffset);
                 mv.visitMethodInsn(INVOKEVIRTUAL, LOCK_STORE, "panicIfInLock",
-                        String.format("(L%s;)V", STRING_VALUE), false);
+                        String.format("(L%s;L%s;)V", STRING_VALUE, STRAND), false);
 
                 // Load the scheduler from strand
                 this.mv.visitVarInsn(ALOAD, localVarOffset);

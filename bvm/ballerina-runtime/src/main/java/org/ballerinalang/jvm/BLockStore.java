@@ -18,6 +18,8 @@
 
 package org.ballerinalang.jvm;
 
+import org.ballerinalang.jvm.scheduling.Strand;
+
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -46,10 +48,13 @@ public class BLockStore {
         });
     }
 
-    public void panicIfInLock(String lockName) {
+    public void panicIfInLock(String lockName, Strand strand) {
         BLock lock = globalLockMap.get(lockName);
         if (lock != null) {
-            if (!lock.isLockFree()) {
+            if (lock.isLockFree()) {
+                return;
+            }
+            if (lock.lockedBySameContext(strand)) {
                 throw BallerinaErrors.createAsyncCallInsideLockError();
             }
         }

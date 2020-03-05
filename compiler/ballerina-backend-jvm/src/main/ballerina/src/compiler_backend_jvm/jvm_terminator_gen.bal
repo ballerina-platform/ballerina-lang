@@ -599,14 +599,6 @@ type TerminatorGenerator object {
     function genAsyncCallTerm(bir:AsyncCall callIns, int localVarOffset) {
         string orgName = callIns.pkgID.org;
         string moduleName = callIns.pkgID.name;
-
-        // Check if already locked before submitting to scheduler.
-        string lockStore = "L" + LOCK_STORE + ";";
-        string initClassName = lookupGlobalVarClassName(self.currentPackageName + "LOCK_STORE");
-        self.mv.visitFieldInsn(GETSTATIC, initClassName, "LOCK_STORE", lockStore);
-        self.mv.visitLdcInsn("global");
-        self.mv.visitMethodInsn(INVOKEVIRTUAL, LOCK_STORE, "panicIfInLock", io:sprintf("(L%s;)V", STRING_VALUE), false);
-
         // Load the scheduler from strand
         self.mv.visitVarInsn(ALOAD, localVarOffset);
         self.mv.visitFieldInsn(GETFIELD, STRAND, "scheduler", io:sprintf("L%s;", SCHEDULER));
@@ -719,13 +711,6 @@ type TerminatorGenerator object {
 
     function genFPCallIns(bir:FPCall fpCall, string funcName, int localVarOffset) {
         if (fpCall.isAsync) {
-            // Check if already locked before submitting to scheduler.
-            string lockStore = "L" + LOCK_STORE + ";";
-            string initClassName = lookupGlobalVarClassName(self.currentPackageName + "LOCK_STORE");
-            self.mv.visitFieldInsn(GETSTATIC, initClassName, "LOCK_STORE", lockStore);
-            self.mv.visitLdcInsn("global");
-            self.mv.visitMethodInsn(INVOKEVIRTUAL, LOCK_STORE, "panicIfInLock", io:sprintf("(L%s;)V", STRING_VALUE), false);
-
             // Load the scheduler from strand
             self.mv.visitVarInsn(ALOAD, localVarOffset);
             self.mv.visitFieldInsn(GETFIELD, STRAND, "scheduler", io:sprintf("L%s;", SCHEDULER));
