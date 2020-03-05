@@ -17,9 +17,9 @@
  */
 package org.wso2.ballerinalang.compiler.bir.model;
 
-import org.ballerinalang.model.Name;
 import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import java.util.List;
@@ -33,7 +33,7 @@ import java.util.List;
  */
 public abstract class BIRNonTerminator extends BIRAbstractInstruction implements BIRInstruction {
 
-    BIRNonTerminator(DiagnosticPos pos, InstructionKind kind) {
+    public BIRNonTerminator(DiagnosticPos pos, InstructionKind kind) {
         super(pos, kind);
     }
 

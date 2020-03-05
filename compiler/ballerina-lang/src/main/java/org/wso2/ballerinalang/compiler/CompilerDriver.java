@@ -254,11 +254,11 @@ public class CompilerDriver {
         }
 
         desugar(pkgNode);
-        if (this.stopCompilation(pkgNode, CompilerPhase.CODE_GEN)) {
+        if (this.stopCompilation(pkgNode, CompilerPhase.BIR_GEN)) {
             return;
         }
 
-        codegen(pkgNode);
+        birGen(pkgNode);
     }
 
     public BLangPackage define(BLangPackage pkgNode) {
@@ -297,7 +297,7 @@ public class CompilerDriver {
         return this.desugar.perform(pkgNode);
     }
 
-    public BLangPackage codegen(BLangPackage pkgNode) {
+    public BLangPackage birGen(BLangPackage pkgNode) {
         return this.birGenerator.genBIR(pkgNode);
     }
 
@@ -323,7 +323,7 @@ public class CompilerDriver {
             return null;
         }
 
-        return codegen(desugar(pkg)).symbol;
+        return birGen(desugar(pkg)).symbol;
     }
 
 }
