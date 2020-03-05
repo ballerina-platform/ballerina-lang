@@ -20,7 +20,7 @@ package io.ballerinalang.compiler.parser.test.expressions;
 import org.testng.annotations.Test;
 
 /**
- * Test parsing expressions.
+ * Test parsing binary expressions.
  */
 public class BinaryExpressionsTest extends AbstractExpressionsTest {
 

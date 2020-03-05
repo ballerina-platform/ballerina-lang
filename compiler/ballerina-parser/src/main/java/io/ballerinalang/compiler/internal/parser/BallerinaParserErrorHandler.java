@@ -173,7 +173,7 @@ public class BallerinaParserErrorHandler {
     private void applyFix(ParserRuleContext currentCtx, Solution fix) {
         if (fix.action == Action.REMOVE) {
             removeInvalidToken();
-            this.parser.parse(currentCtx);
+            this.parser.resumeParsing(currentCtx);
         } else {
             if (isProductionWithAlternatives(currentCtx)) {
                 // If the original issues was at a production where there are alternatives,
@@ -1091,6 +1091,8 @@ public class BallerinaParserErrorHandler {
             case PARAMETER_RHS:
             case TOP_LEVEL_NODE_WITH_MODIFIER:
             case ASSIGNMENT_OR_VAR_DECL_STMT_RHS:
+            case DEFAULTABLE_PARAM:
+            case REST_PARAM:
             default:
                 break;
         }

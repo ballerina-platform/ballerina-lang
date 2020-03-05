@@ -6,14 +6,14 @@
             "children": [
                 {
                     "kind": "IDENTIFIER_TOKEN",
-                    "text": "a"
+                    "value": "a"
                 },
                 {
                     "kind": "ASTERISK_TOKEN"
                 },
                 {
                     "kind": "IDENTIFIER_TOKEN",
-                    "text": "b"
+                    "value": "b"
                 }
             ]
         },
@@ -22,7 +22,7 @@
         },
         {
             "kind": "IDENTIFIER_TOKEN",
-            "text": "c"
+            "value": "c"
         }
     ]
 }
