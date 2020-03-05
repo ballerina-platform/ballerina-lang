@@ -40,3 +40,12 @@ function testMappingConstrWithLiteralKeysForUnionCET() {
 function testUnionsOfTypesWithoutSupportForMappingConstructors() {
     int|float x = {name: "John", age: 25};
 }
+
+function testAmbiguousMapTarget() {
+    map<int>|map<string> m1 = {};
+
+    map<int|string>|map<string|boolean> m2 = {
+        a: "hello",
+        b: "bye"
+    };
+}

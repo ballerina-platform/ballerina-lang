@@ -33,26 +33,45 @@ import static org.ballerinalang.test.util.BAssertUtil.validateError;
 public class MappingConstructorExprTest {
 
     private CompileResult result;
+    private CompileResult varNameFieldResult;
     private CompileResult inferRecordResult;
     private CompileResult spreadOpFieldResult;
 
     @BeforeClass
     public void setup() {
-         result = BCompileUtil.compile("test-src/expressions/mappingconstructor/mapping_constructor.bal");
-         inferRecordResult = BCompileUtil.compile(
-                 "test-src/expressions/mappingconstructor/mapping_constructor_infer_record.bal");
-         spreadOpFieldResult = BCompileUtil.compile("test-src/expressions/mappingconstructor/spread_op_field.bal");
+        result = BCompileUtil.compile("test-src/expressions/mappingconstructor/mapping_constructor.bal");
+        inferRecordResult = BCompileUtil.compile("test-src/expressions/mappingconstructor" +
+                                                         "/mapping_constructor_infer_record.bal");
+        varNameFieldResult = BCompileUtil.compile("test-src/expressions/mappingconstructor/var_name_field.bal");
+        spreadOpFieldResult = BCompileUtil.compile("test-src/expressions/mappingconstructor/spread_op_field.bal");
+    }
+
+    @Test(dataProvider = "mappingConstructorTests")
+    public void testMappingConstructor(String test) {
+        BRunUtil.invoke(result, test);
+    }
+
+    @DataProvider(name = "mappingConstructorTests")
+    public Object[][] mappingConstructorTests() {
+        return new Object[][] {
+                { "testMappingConstuctorWithAnyACET" },
+                { "testMappingConstuctorWithAnydataACET" },
+                { "testMappingConstuctorWithJsonACET" },
+                { "testNonAmbiguousMapUnionTarget" }
+        };
     }
 
     @Test
     public void diagnosticsTest() {
         CompileResult result = BCompileUtil.compile(
                 "test-src/expressions/mappingconstructor/mapping_constructor_negative.bal");
-        Assert.assertEquals(result.getErrorCount(), 3);
+        Assert.assertEquals(result.getErrorCount(), 5);
         validateError(result, 0, "incompatible mapping constructor expression for type '(string|Person)'", 33, 23);
         validateError(result, 1, "ambiguous type '(PersonTwo|PersonThree)'", 37, 31);
         validateError(result, 2,
                       "a type compatible with mapping constructor expressions not found in type '(int|float)'", 41, 19);
+        validateError(result, 3, "ambiguous type '(map<int>|map<string>)'", 45, 31);
+        validateError(result, 4, "ambiguous type '(map<(int|string)>|map<(string|boolean)>)'", 47, 46);
     }
 
     @Test
@@ -90,7 +109,7 @@ public class MappingConstructorExprTest {
 
     @Test(dataProvider = "varNameFieldTests")
     public void testVarNameField(String test) {
-        BRunUtil.invoke(result, test);
+        BRunUtil.invoke(varNameFieldResult, test);
     }
 
     @DataProvider(name = "varNameFieldTests")
@@ -100,10 +119,7 @@ public class MappingConstructorExprTest {
                 { "testVarNameAsMapField" },
                 { "testVarNameAsJsonField" },
                 { "testLikeModuleQualifiedVarNameAsJsonField" },
-                { "testVarNameFieldInAnnotation" }, // final test using `s` since `s` is updated
-                { "testMappingConstuctorWithAnyACET" },
-                { "testMappingConstuctorWithAnydataACET" },
-                { "testMappingConstuctorWithJsonACET" }
+                { "testVarNameFieldInAnnotation" } // final test using `s` since `s` is updated
         };
     }
 
