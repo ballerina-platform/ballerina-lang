@@ -35,7 +35,7 @@ function testAddAttributeWithQName1() returns (xml) {
         foo1
     ]
     =
-    "bar1";
+        "bar1";
     return x1;
 }
 
@@ -49,17 +49,17 @@ function testAddAttributeWithDiffQName_1() returns (xml) {
 
 function testAddAttributeWithDiffQName_2() returns (xml) {
     xml x1 =
-    xml `<root
-    xmlns:ns3=
-    "http://sample.com/wso2/f"
-    xmlns:ns4
-    ="http://sample.com/wso2/f/"
-    xmlns
-    :
-    ns5
-    =
-    "http://sample.com/wso2/f/"
-    ns4:diff="yes"></root>`
+        xml `<root
+        xmlns:ns3=
+        "http://sample.com/wso2/f"
+        xmlns:ns4
+        ="http://sample.com/wso2/f/"
+        xmlns
+        :
+        ns5
+        =
+        "http://sample.com/wso2/f/"
+        ns4:diff="yes"></root>`
     ;
     //same uri, non existant prefix
     xmlns "http://sample.com/wso2/f" as pre;

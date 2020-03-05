@@ -48,6 +48,7 @@ dependencies {
     dist project(path: ':ballerina-lang:value', configuration: 'birJar')
     dist project(path: ':ballerina-lang:xml', configuration: 'birJar')
     dist project(path: ':ballerina-observability', configuration: 'birJar')
+    dist project(path: ':metrics-extensions:ballerina-prometheus-extension', configuration: 'birJar')
 
     // Lang libs
     dist project(':ballerina-lang:internal')

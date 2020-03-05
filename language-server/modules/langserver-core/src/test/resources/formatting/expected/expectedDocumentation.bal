@@ -51,8 +51,8 @@ service serviceName1 on new http:Listener(9090) {
     # + request - request information.
     resource function newResource(http:Caller caller, http:Request request) {
         json? payload;
-        (http:Response | error | ()) clientResponse;
-        (json | error) jsonMsg = req.getJsonPayload();
+        (http:Response|error|()) clientResponse;
+        (json|error) jsonMsg = req.getJsonPayload();
         http:Response res = new;
         res.setPayload("sd");
         var d = 0;

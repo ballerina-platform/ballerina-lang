@@ -1,5 +1,5 @@
 function func1() {
-    typedesc  b  =  object  {
+    typedesc<object {}>  b  =  object  {
 public string name = "";};
 }
 
@@ -22,7 +22,7 @@ self.country = country;
 };
 
 function func2() {
-    typedesc b =object{   public string name = "";   };
+    typedesc<object {}> b =object{   public string name = "";   };
 }
 
 type RecordName2 record {

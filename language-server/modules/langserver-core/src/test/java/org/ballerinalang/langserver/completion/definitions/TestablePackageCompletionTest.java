@@ -36,6 +36,7 @@ public class TestablePackageCompletionTest extends CompletionTest {
         return new Object[][] {
                 {"topLevelCompletion.json", "testablepackage"},
                 {"blockStatementCompletion.json", "testablepackage"},
+                {"newObjectCreation1.json", "testablepackage"},
         };
     }
 }

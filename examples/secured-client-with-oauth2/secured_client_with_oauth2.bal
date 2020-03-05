@@ -6,29 +6,29 @@ import ballerina/oauth2;
 // The OAuth2 authentication with client credentials grant type is enabled by
 // creating an `oauth2:OutboundOAuth2Provider` with the relevant configurations
 // passed as a record.
-oauth2:OutboundOAuth2Provider oauth2Provider1 = new({
+oauth2:OutboundOAuth2Provider oauth2Provider1 = new ({
     tokenUrl: "<Token URL for the authorization endpoint>",
     clientId: "<Client ID for the client credentials grant authentication>",
     clientSecret: "<Client secret for the client credentials grant authentication>",
     clientConfig: {
         secureSocket: {
             trustStore: {
-                 path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
-                 password: "ballerina"
+                path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
+                password: "ballerina"
             }
         }
     }
 });
-http:BearerAuthHandler oauth2Handler1 = new(oauth2Provider1);
+http:BearerAuthHandler oauth2Handler1 = new (oauth2Provider1);
 
-http:Client clientEP1 = new("<URL of the secured endpoint>", {
+http:Client clientEP1 = new ("<URL of the secured endpoint>", {
     auth: {
         authHandler: oauth2Handler1
     },
     secureSocket: {
         trustStore: {
-             path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
-             password: "ballerina"
+            path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
+            password: "ballerina"
         }
     }
 });
@@ -39,7 +39,7 @@ http:Client clientEP1 = new("<URL of the secured endpoint>", {
 // configurations passed as a record. If the access token expires or
 // becomes invalid, then it will be automatically refreshed with the provided
 // `refreshConfig`.
-oauth2:OutboundOAuth2Provider oauth2Provider2 = new({
+oauth2:OutboundOAuth2Provider oauth2Provider2 = new ({
     tokenUrl: "<Token URL for the authorization endpoint>",
     username: "<Username for password grant authentication>",
     password: "<Password for password grant authentication>",
@@ -48,8 +48,8 @@ oauth2:OutboundOAuth2Provider oauth2Provider2 = new({
     clientConfig: {
         secureSocket: {
             trustStore: {
-                 path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
-                 password: "ballerina"
+                path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
+                password: "ballerina"
             }
         }
     },
@@ -58,16 +58,16 @@ oauth2:OutboundOAuth2Provider oauth2Provider2 = new({
         clientConfig: {
             secureSocket: {
                 trustStore: {
-                     path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
-                     password: "ballerina"
+                    path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
+                    password: "ballerina"
                 }
             }
         }
     }
 });
-http:BearerAuthHandler oauth2Handler2 = new(oauth2Provider2);
+http:BearerAuthHandler oauth2Handler2 = new (oauth2Provider2);
 
-http:Client clientEP2 = new("<URL of the secured endpoint>", {
+http:Client clientEP2 = new ("<URL of the secured endpoint>", {
     auth: {
         authHandler: oauth2Handler2
     },
@@ -84,7 +84,7 @@ http:Client clientEP2 = new("<URL of the secured endpoint>", {
 // an `oauth2:OutboundOAuth2Provider` with the relevant configurations passed
 // as a record. If the `accessToken` is invalid or not provided, it will
 // be automatically refreshed with the provided `refreshConfig`.
-oauth2:OutboundOAuth2Provider oauth2Provider3 = new({
+oauth2:OutboundOAuth2Provider oauth2Provider3 = new ({
     accessToken: "<Access token for the authorization endpoint>",
     refreshConfig: {
         clientId: "<Client ID for authentication with the authorization endpoint>",
@@ -94,16 +94,16 @@ oauth2:OutboundOAuth2Provider oauth2Provider3 = new({
         clientConfig: {
             secureSocket: {
                 trustStore: {
-                     path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
-                     password: "ballerina"
+                    path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
+                    password: "ballerina"
                 }
             }
         }
     }
 });
-http:BearerAuthHandler oauth2Handler3 = new(oauth2Provider3);
+http:BearerAuthHandler oauth2Handler3 = new (oauth2Provider3);
 
-http:Client clientEP3 = new("<URL of the secured endpoint>", {
+http:Client clientEP3 = new ("<URL of the secured endpoint>", {
     auth: {
         authHandler: oauth2Handler3
     },
@@ -149,7 +149,7 @@ public function main() {
         if (result is error) {
             log:printInfo("Failed to retrieve payload for clientEP3.");
         } else {
-            log:printInfo(<string> result.kind);
+            log:printInfo(<string>result.kind);
         }
     } else {
         log:printError("Failed to call the endpoint from clientEP3.", response3);

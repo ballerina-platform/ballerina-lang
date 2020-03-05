@@ -18,6 +18,7 @@
 package org.ballerinalang.toml.parser;
 
 import com.moandjiezana.toml.Toml;
+import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.toml.model.Settings;
 
 import java.io.FileInputStream;
@@ -51,7 +52,12 @@ public class SettingsProcessor {
      * @return The Settings object
      */
     private static Settings getSettings(InputStream inputStream) {
-        Toml toml = new Toml().read(inputStream);
+        Toml toml;
+        try {
+            toml = new Toml().read(inputStream);
+        } catch (IllegalStateException e) {
+            throw new BLangCompilerException("invalid Settings.toml due to " + e.getMessage());
+        }
         return toml.to(Settings.class);
     }
 }

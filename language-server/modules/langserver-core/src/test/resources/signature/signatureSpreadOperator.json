@@ -1,0 +1,37 @@
+{
+    "position": {
+        "line": 22,
+        "character": 41
+    },
+    "expected": {
+        "result": {
+            "signatures": [
+                {
+                    "label": "func(int a)",
+                    "documentation": {
+                        "right": {
+                            "kind": "markdown",
+                            "value": "**Description**  \nDescription"
+                        }
+                    },
+                    "parameters": [
+                        {
+                            "label": {
+                                "left": "int a"
+                            },
+                            "documentation": {
+                                "right": {
+                                    "kind": "markdown",
+                                    "value": "**Parameter**  \n**`int`a**: a Parameter Description"
+                                }
+                            }
+                        }
+                    ]
+                }
+            ],
+            "activeSignature": 0,
+            "activeParameter": 0
+        },
+        "jsonrpc": "2.0"
+    }
+}

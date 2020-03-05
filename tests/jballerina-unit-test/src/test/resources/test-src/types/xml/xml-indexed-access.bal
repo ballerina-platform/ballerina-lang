@@ -25,6 +25,7 @@ function testLengthOfXMLSequence() returns [int, int, int, int] {
     return [x1.length(), x2.length(), x2[2].length(), x3.length()];
 }
 
+// disabling as x3.* operator is not in new xml proposal.
 function testFieldBasedAccess() returns [xml, xml, xml, xml, xml, xml] {
     xml x1 = xml `<name1><fname><foo>1</foo><bar>2</bar></fname><lname1><foo>3</foo><bar>4</bar></lname1></name1>`;
     xml x2 = xml `<name2><fname><foo>5</foo><bar>6</bar></fname><lname2><foo>7</foo><bar>8</bar></lname2></name2>`;

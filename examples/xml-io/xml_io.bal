@@ -9,7 +9,7 @@ public function main() {
     // Writes the content.
     var wResult = write(x1, filePath);
     if (wResult is error) {
-        log:printError("Error occurred while writing xml: ", err = wResult);
+        log:printError("Error occurred while writing xml: ", wResult);
     } else {
         io:println("Preparing to read the content written");
         // Reads the content.
@@ -17,7 +17,7 @@ public function main() {
         if (rResult is xml) {
             io:println(rResult);
         } else {
-            log:printError("Error occurred while reading xml: ", err = rResult);
+            log:printError("Error occurred while reading xml: ", rResult);
         }
     }
 }
@@ -27,7 +27,7 @@ function write(xml content, string path) returns @tainted error? {
     // Creates a byte channel from the given path.
     io:WritableByteChannel wbc = check io:openWritableFile(path);
     // Derives the character channel from the byte channel.
-    io:WritableCharacterChannel wch = new(wbc, "UTF8");
+    io:WritableCharacterChannel wch = new (wbc, "UTF8");
     var result = wch.writeXml(content);
     // Closes the character channel once you are done with it.
     closeWc(wch);
@@ -39,7 +39,7 @@ function read(string path) returns @tainted xml|error {
     // Creates a byte channel from the given path.
     io:ReadableByteChannel rbc = check io:openReadableFile(path);
     // Derives the character channel from the byte Channel.
-    io:ReadableCharacterChannel rch = new(rbc, "UTF8");
+    io:ReadableCharacterChannel rch = new (rbc, "UTF8");
     // Reads the XML content from the character channel.
     var result = rch.readXml();
     // Closes the character channel once you are done with it.

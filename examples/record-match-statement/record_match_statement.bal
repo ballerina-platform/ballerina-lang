@@ -64,23 +64,23 @@ function matchWithTypeGuard(any matchExpr) {
     match matchExpr {
         // This pattern will only match if `var2` is of the type `string`.
         var {var1, var2} if var2 is string => {
-               io:println("Matched with string typeguard");
+            io:println("Matched with string typeguard");
         }
         // This pattern will only match if `var1` is of the type `int` and `var2` is of the type `int`.
         var {var1, var2} if (var1 is int && var2 is int) => {
-               io:println("Matched with int and int typeguard : ", var1);
+            io:println("Matched with int and int typeguard : ", var1);
         }
         // This pattern will only match if `var1` is of the type `string` and `var2` is of the type `int`.
         var {var1, var2} if (var1 is string && var2 is int) => {
-               io:println("Matched with string and int typeguard : ", var1);
+            io:println("Matched with string and int typeguard : ", var1);
         }
         // This pattern will only match if `var1` is of the type `int` and `var2` is of the type `RecordTwo`.
         var {var1, var2} if (var1 is int && var2 is RecordTwo) => {
-               io:println("Matched with int and RecordTwo typeguard : ", var1);
+            io:println("Matched with int and RecordTwo typeguard : ", var1);
         }
         // This pattern will only match if `var1` is of the type `string` and `var2` is of the type `RecordTwo`.
         var {var1, var2} if (var1 is string && var2 is RecordTwo) => {
-               io:println("Matched with string and RecordTwo typeguard : ", var2.var1);
+            io:println("Matched with string and RecordTwo typeguard : ", var2.var1);
         }
         // A pattern with a single identifier can be used as the last match pattern and all values will
         // be matched to this.

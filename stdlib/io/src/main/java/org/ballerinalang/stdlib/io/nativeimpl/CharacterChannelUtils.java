@@ -135,7 +135,7 @@ public class CharacterChannelUtils {
         return null;
     }
 
-    public static Object writeXml(ObjectValue characterChannelObj, XMLValue<?> content) {
+    public static Object writeXml(ObjectValue characterChannelObj, XMLValue content) {
         try {
             CharacterChannel characterChannel = (CharacterChannel) characterChannelObj
                     .getNativeData(CHARACTER_CHANNEL_NAME);

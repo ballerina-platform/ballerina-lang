@@ -334,7 +334,12 @@ public class BIRPackageSymbolEnter {
     }
 
     private void defineFunction(DataInputStream dataInStream) throws IOException {
-        skipPosition(dataInStream); // Position details are skipped
+        dataInStream.readInt(); // skip line start
+        dataInStream.readInt(); // skip line end
+        dataInStream.readInt(); // skip col start
+        dataInStream.readInt(); // skip col end
+        String source = getStringCPEntryValue(dataInStream);
+
         // Consider attached functions.. remove the first variable
         String funcName = getStringCPEntryValue(dataInStream);
         String workerName = getStringCPEntryValue(dataInStream);
@@ -343,6 +348,7 @@ public class BIRPackageSymbolEnter {
         BInvokableType funcType = (BInvokableType) readBType(dataInStream);
         BInvokableSymbol invokableSymbol = Symbols.createFunctionSymbol(flags, names.fromString(funcName),
                 this.env.pkgSymbol.pkgID, funcType, this.env.pkgSymbol, Symbols.isFlagOn(flags, Flags.NATIVE));
+        invokableSymbol.source = source;
         invokableSymbol.retType = funcType.retType;
 
         Scope scopeToDefine = this.env.pkgSymbol.scope;
@@ -489,8 +495,8 @@ public class BIRPackageSymbolEnter {
     }
 
     private void defineErrorConstructor(Scope scope, BTypeSymbol typeDefSymbol) {
-        BConstructorSymbol symbol = new BConstructorSymbol(SymTag.CONSTRUCTOR,
-                typeDefSymbol.flags, typeDefSymbol.name, typeDefSymbol.pkgID, typeDefSymbol.type, typeDefSymbol.owner);
+        BConstructorSymbol symbol = new BConstructorSymbol(SymTag.CONSTRUCTOR, typeDefSymbol.flags, typeDefSymbol.name,
+                typeDefSymbol.pkgID, typeDefSymbol.type, typeDefSymbol.owner);
         symbol.kind = SymbolKind.ERROR_CONSTRUCTOR;
         symbol.scope = new Scope(symbol);
         symbol.retType = typeDefSymbol.type;
@@ -899,7 +905,7 @@ public class BIRPackageSymbolEnter {
 
                     BPackageSymbol pkgSymbol = packageLoader.loadPackageSymbol(pkgId, null, null);
                     SymbolEnv pkgEnv = symTable.pkgEnvMap.get(pkgSymbol);
-                    return symbolResolver.lookupSymbol(pkgEnv, names.fromString(recordName), SymTag.TYPE).type;
+                    return symbolResolver.lookupSymbolInMainSpace(pkgEnv, names.fromString(recordName)).type;
                 case TypeTags.TYPEDESC:
                     BTypedescType typedescType = new BTypedescType(null, symTable.typeDesc.tsymbol);
                     typedescType.constraint = readTypeFromCp();
@@ -1088,7 +1094,7 @@ public class BIRPackageSymbolEnter {
 
                     pkgSymbol = packageLoader.loadPackageSymbol(pkgId, null, null);
                     pkgEnv = symTable.pkgEnvMap.get(pkgSymbol);
-                    return symbolResolver.lookupSymbol(pkgEnv, names.fromString(objName), SymTag.TYPE).type;
+                    return symbolResolver.lookupSymbolInMainSpace(pkgEnv, names.fromString(objName)).type;
                 case TypeTags.BYTE_ARRAY:
                     // TODO fix
                     break;
@@ -1166,7 +1172,7 @@ public class BIRPackageSymbolEnter {
 
         litExpr.type = valueType;
 
-        finiteType.valueSpace.add(litExpr);
+        finiteType.addValue(litExpr);
     }
 
     private BLangLiteral createLiteralBasedOnType(BType valueType) {

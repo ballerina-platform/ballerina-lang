@@ -55,6 +55,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangLetExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownParameterDocumentation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownReturnParameterDocumentation;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
@@ -147,6 +148,11 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangEndpoint endpointNode) {
+
+    }
+
+    @Override
+    public void visit(BLangLetExpression letExpression) {
 
     }
 
@@ -323,11 +329,17 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
 
         // If there is no type in the reference we need to search in the package level and the current scope only.
         if (typeName == Names.EMPTY) {
-            return symResolver.lookupSymbolInPackage(pos, env, pkgName, identifierName, tag);
+            if ((tag & SymTag.IMPORT) == SymTag.IMPORT) {
+                return symResolver.lookupPrefixSpaceSymbolInPackage(pos, env, pkgName, identifierName);
+            } else if ((tag & SymTag.ANNOTATION) == SymTag.ANNOTATION) {
+                return symResolver.lookupAnnotationSpaceSymbolInPackage(pos, env, pkgName, identifierName);
+            } else if ((tag & SymTag.MAIN) == SymTag.MAIN) {
+                return symResolver.lookupMainSpaceSymbolInPackage(pos, env, pkgName, identifierName);
+            }
         }
 
         // Check for type in the environment.
-        BSymbol typeSymbol = symResolver.lookupSymbolInPackage(pos, env, pkgName, typeName, SymTag.TYPE);
+        BSymbol typeSymbol = symResolver.lookupMainSpaceSymbolInPackage(pos, env, pkgName, typeName);
         if (typeSymbol == symTable.notFoundSymbol) {
             return symTable.notFoundSymbol;
         }

@@ -5,11 +5,11 @@ $ ballerina run webSocket_service.bal
 [ballerina/http] started HTTP/WS listener 0.0.0.0:9095
 2019-11-20 13:31:38,842 INFO  [] - WebSocket client connected wih the server. The Connection ID: 08d40cfffe258b13-00000bfd-00000001-a1eade696304c59e-7f64181e
 
-# To stop the running service, press Ctrl + C.
+# Stop the running service.
 [ballerina/http] stopped HTTP/WS listener 0.0.0.0:9095
 
 # Restart the service.
-$ ballerina run webSocket_service.bal
+$ ballerina run websocket_service.bal
 
 [ballerina/http] started HTTP/WS listener 0.0.0.0:9095
 2019-11-20 13:34:55,543 INFO  [] - WebSocket client connected wih the server. The Connection ID: 08d40cfffe258b13-0000118b-00000001-9bc9b9fb2d07c5b5-8fb73e4f

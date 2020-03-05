@@ -12,8 +12,8 @@ import ballerina/log;
 // the `cacheConfig`. Currently, there are only 2 policies:
 // `CACHE_CONTROL_AND_VALIDATORS` (the default policy) and `RFC_7234`.
 
-http:Client cachingEP = new("http://localhost:8080",
-                            { cache: { isShared: true } });
+http:Client cachingEP = new ("http://localhost:8080",
+                             {cache: {isShared: true}});
 
 @http:ServiceConfig {
     basePath: "/cache"
@@ -33,7 +33,7 @@ service cachingProxy on new http:Listener(9090) {
             // forwarded to the client through the outbound endpoint.
             var result = caller->respond(response);
             if (result is error) {
-                log:printError("Failed to respond to the caller", err = result);
+                log:printError("Failed to respond to the caller", result);
             }
         } else {
             // For failed requests, a `500` response is sent back to the
@@ -43,13 +43,13 @@ service cachingProxy on new http:Listener(9090) {
             res.setPayload(response.reason());
             var result = caller->respond(res);
             if (result is error) {
-                log:printError("Failed to respond to the caller", err = result);
+                log:printError("Failed to respond to the caller", result);
             }
         }
     }
 }
 
-json payload = { "message": "Hello, World!" };
+json payload = {"message": "Hello, World!"};
 
 // Sample backend service which serves cacheable responses.
 @http:ServiceConfig {
@@ -57,7 +57,7 @@ json payload = { "message": "Hello, World!" };
 }
 service helloWorld on new http:Listener(8080) {
 
-    @http:ResourceConfig { path: "/" }
+    @http:ResourceConfig {path: "/"}
     resource function sayHello(http:Caller caller, http:Request req) {
         http:Response res = new;
 
@@ -94,7 +94,7 @@ service helloWorld on new http:Listener(8080) {
 
         var result = caller->respond(res);
         if (result is error) {
-            log:printError("Failed to respond to the caller", err = result);
+            log:printError("Failed to respond to the caller", result);
         }
     }
 }

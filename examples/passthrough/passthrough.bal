@@ -1,7 +1,7 @@
 import ballerina/http;
 import ballerina/log;
 
-http:Client clientEP = new("http://localhost:9092/hello");
+http:Client clientEP = new ("http://localhost:9092/hello");
 
 service passthrough on new http:Listener(9090) {
 
@@ -23,7 +23,7 @@ service passthrough on new http:Listener(9090) {
             // Here, the received response is forwarded to the client through the outbound endpoint.
             var result = caller->respond(clientResponse);
             if (result is error) {
-               log:printError("Error sending response", err = result);
+                log:printError("Error sending response", result);
             }
         } else {
             // If there was an error, the 500 error response is constructed and sent back to the client.
@@ -32,7 +32,7 @@ service passthrough on new http:Listener(9090) {
             res.setPayload(<string>clientResponse.detail()?.message);
             var result = caller->respond(res);
             if (result is error) {
-               log:printError("Error sending response", err = result);
+                log:printError("Error sending response", result);
             }
         }
     }
@@ -50,7 +50,7 @@ service hello on new http:Listener(9092) {
         // Send the response back to the caller.
         var result = caller->respond("Hello World!");
         if (result is error) {
-            log:printError("Error sending response", err = result);
+            log:printError("Error sending response", result);
         }
     }
 }

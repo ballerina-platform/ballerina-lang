@@ -18,17 +18,20 @@
 package org.wso2.ballerinalang.compiler.tree.expressions;
 
 import org.ballerinalang.model.clauses.FromClauseNode;
+import org.ballerinalang.model.clauses.LetClauseNode;
 import org.ballerinalang.model.clauses.SelectClauseNode;
 import org.ballerinalang.model.clauses.WhereClauseNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.QueryExpressionNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangFromClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangLetClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWhereClause;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Implementation of {@link QueryExpressionNode}.
@@ -40,6 +43,7 @@ public class BLangQueryExpr extends BLangExpression implements QueryExpressionNo
     public List<BLangFromClause> fromClauseList = new ArrayList<>();
     public BLangSelectClause selectClause;
     public List<BLangWhereClause> whereClauseList = new ArrayList<>();
+    public List<BLangLetClause> letClausesList = new ArrayList<>();
 
     @Override
     public List<? extends FromClauseNode> getFromClauseNodes() {
@@ -72,6 +76,16 @@ public class BLangQueryExpr extends BLangExpression implements QueryExpressionNo
     }
 
     @Override
+    public List<? extends LetClauseNode> getLetClauseList() {
+        return letClausesList;
+    }
+
+    @Override
+    public void addLetClause(LetClauseNode letClauseNode) {
+        letClausesList.add((BLangLetClause) letClauseNode);
+    }
+
+    @Override
     public NodeKind getKind() {
         return NodeKind.QUERY_EXPR;
     }
@@ -81,8 +95,13 @@ public class BLangQueryExpr extends BLangExpression implements QueryExpressionNo
         visitor.visit(this);
     }
 
-/*    @Override
+    @Override
     public String toString() {
-        return String.valueOf(lhsExpr) + " " + String.valueOf(opKind) + " " + String.valueOf(rhsExpr);
-    }*/
+        return fromClauseList.stream().map(BLangFromClause::toString).collect(Collectors.joining("\n")) + "\n"
+                + letClausesList.stream().map(BLangLetClause::toString).collect(Collectors.joining("\n"))
+                + "\n" +
+                whereClauseList.stream().map(BLangWhereClause::toString).collect(Collectors.joining("\n"))
+                + "\n" +
+                selectClause.toString();
+    }
 }

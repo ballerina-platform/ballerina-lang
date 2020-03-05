@@ -1,3 +1,20 @@
+/*
+ *  Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *  http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing,
+ *  software distributed under the License is distributed on an
+ *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *  KIND, either express or implied.  See the License for the
+ *  specific language governing permissions and limitations
+ *  under the License.
+ */
 package org.ballerinalang.openapi.cmd;
 
 import org.ballerinalang.openapi.CodeGenerator;
@@ -112,6 +129,7 @@ public class OpenApiGenServiceCmd implements BLauncherCmd {
         final File openApiFile = new File(argList.get(0));
         final String openApiFilePath = openApiFile.getPath();
         Path resourcePath = Paths.get(resourcesDirectory + "/" + openApiFile.getName());
+        Path relativeResourcePath = Paths.get("resources", openApiFile.getName());
 
         //Check provided OpenApi file is a valid and existing one
         if (Files.notExists(Paths.get(openApiFilePath))) {
@@ -198,7 +216,7 @@ public class OpenApiGenServiceCmd implements BLauncherCmd {
         //Path pathRelative = basePath.relativize(absPath);
 
         try {
-            generator.generateService(executionPath, resourcePath.toString(), resourcePath.toString(),
+            generator.generateService(executionPath, resourcePath.toString(), relativeResourcePath.toString(),
                     moduleArgs.get(1), output);
         } catch (IOException | BallerinaOpenApiException e) {
             throw LauncherUtils.createLauncherException("Error occurred when generating service for openapi " +

@@ -26,16 +26,17 @@ import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
+import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
-import org.wso2.ballerinalang.compiler.tree.BLangWorker;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangSimpleVariableDef;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
@@ -43,7 +44,7 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -83,7 +84,11 @@ public class VisibleEndpointVisitor extends LSNodeVisitor {
         this.symbolEnv = pkgEnv;
 
         List<TopLevelNode> topLevelNodes = pkgNode.topLevelNodes;
-        pkgNode.getImports().forEach(importPackage -> this.packageMap.put(importPackage.symbol.pkgID, importPackage));
+        pkgNode.getImports().forEach(importPackage -> {
+            if (importPackage.symbol != null) {
+                this.packageMap.put(importPackage.symbol.pkgID, importPackage);
+            }
+        });
 
         topLevelNodes.stream()
                 .filter(CommonUtil.checkInvalidTypesDefs())
@@ -92,12 +97,15 @@ public class VisibleEndpointVisitor extends LSNodeVisitor {
 
     @Override
     public void visit(BLangFunction funcNode) {
+        if (funcNode.body == null) {
+            return;
+        }
         SymbolEnv funcEnv = SymbolEnv.createFunctionEnv(funcNode, funcNode.symbol.scope, this.symbolEnv);
-        SymbolEnv blockEnv = SymbolEnv.createBlockEnv(funcNode.getBody(), funcEnv);
+        SymbolEnv funcBodyEnv = SymbolEnv.createFuncBodyEnv(funcNode.body, funcEnv);
         // resolve visible in-scope endpoints coming from current module or other modules
-        List<SymbolMetaInfo> visibleEPSymbols = resolveVisibleEndpointSymbols(blockEnv, funcNode);
+        List<SymbolMetaInfo> visibleEPSymbols = resolveVisibleEndpointSymbols(funcBodyEnv, funcNode);
         this.visibleEPsByNode.put(funcNode.body, visibleEPSymbols);
-        this.visit(funcNode.body);
+        this.acceptNode(funcNode.body, funcBodyEnv);
     }
 
     @Override
@@ -108,82 +116,50 @@ public class VisibleEndpointVisitor extends LSNodeVisitor {
                 .forEach(bLangFunction -> this.acceptNode(bLangFunction, serviceEnv));
     }
 
-    private void acceptNode(BLangNode node, SymbolEnv env) {
-        SymbolEnv prevEnv = this.symbolEnv;
-        this.symbolEnv = env;
-        node.accept(this);
-        this.symbolEnv = prevEnv;
-    }
-
+    @Override
     public void visit(BLangBlockStmt blockNode) {
         // resolve locally declared endpoints
-        blockNode.stmts.forEach(stmt -> {
-            if (stmt instanceof  BLangSimpleVariableDef) {
-                BVarSymbol symbol = ((BLangSimpleVariableDef) stmt).var.symbol;
-                if (CommonUtil.isClientObject(symbol)) {
-                    BLangImportPackage importPackage = this.packageMap.get(symbol.type.tsymbol.pkgID);
-                    String typeName = symbol.type.tsymbol.getName().getValue();
-                    String pkgName = symbol.pkgID.getName().getValue();
-                    String orgName = symbol.pkgID.getOrgName().getValue();
-                    String alias = importPackage == null ? "" : importPackage.getAlias().getValue();
-                    SymbolMetaInfo visibleEndpoint = new SymbolMetaInfo.SymbolMetaInfoBuilder()
-                            .setName(symbol.getName().getValue())
-                            .setPkgName(pkgName)
-                            .setPkgOrgName(orgName)
-                            .setPkgAlias(alias)
-                            .setKind("VisibleEndpoint")
-                            .setCaller(false)
-                            .setTypeName(typeName)
-                            .setLocal(true)
-                            .setPos(stmt.pos)
-                            .build();
-                    if (this.visibleEPsByNode.containsKey(blockNode)) {
-                        this.visibleEPsByNode.get(blockNode).add(visibleEndpoint);
-                    } else {
-                        this.visibleEPsByNode.put(blockNode, Arrays.asList(visibleEndpoint));
-                    }
-                }
-            } else {
-                stmt.accept(this);
-            }
-        });
+        this.resolveEndpointsFromStatements(blockNode.stmts, blockNode);
+    }
+
+    @Override
+    public void visit(BLangBlockFunctionBody blockFuncBody) {
+        // resolve locally declared endpoints
+        this.resolveEndpointsFromStatements(blockFuncBody.stmts, blockFuncBody);
     }
 
     @Override
     public void visit(BLangIf ifNode) {
-        this.visit(ifNode.body);
-        if (ifNode.elseStmt instanceof  BLangBlockStmt) {
-            this.visit((BLangBlockStmt) ifNode.elseStmt);
-        }
+        this.acceptNode(ifNode.body, this.symbolEnv);
+        this.acceptNode(ifNode.elseStmt, this.symbolEnv);
     }
 
     @Override
     public void visit(BLangWhile whileNode) {
-        this.visit(whileNode.body);
-    }
-
-    @Override
-    public void visit(BLangWorker workerNode) {
-        this.visit(workerNode.body);
+        this.acceptNode(whileNode.body, this.symbolEnv);
     }
 
     @Override
     public void visit(BLangForeach foreach) {
-        this.visit(foreach.body);
+        this.acceptNode(foreach.body, this.symbolEnv);
     }
 
     @Override
     public void visit(BLangTransaction transactionNode) {
-        this.visit(transactionNode.transactionBody);
-        if (transactionNode.onRetryBody != null) {
-            this.visit(transactionNode.onRetryBody);
+        this.acceptNode(transactionNode.transactionBody, this.symbolEnv);
+        this.acceptNode(transactionNode.onRetryBody, this.symbolEnv);
+        this.acceptNode(transactionNode.committedBody, this.symbolEnv);
+        this.acceptNode(transactionNode.abortedBody, this.symbolEnv);
+    }
+    
+    private void acceptNode(BLangNode node, SymbolEnv env) {
+        if (node == null) {
+            return;
         }
-        if (transactionNode.committedBody != null) {
-            this.visit(transactionNode.committedBody);
-        }
-        if (transactionNode.abortedBody != null) {
-            this.visit(transactionNode.abortedBody);
-        }
+        SymbolEnv prevEnv = this.symbolEnv;
+        this.symbolEnv = env;
+        node.accept(this);
+        this.symbolEnv = prevEnv;
     }
 
     /**
@@ -225,5 +201,38 @@ public class VisibleEndpointVisitor extends LSNodeVisitor {
                             .build();
                 })
                 .collect(Collectors.toList());
+    }
+    
+    private void resolveEndpointsFromStatements(List<BLangStatement> statements, BLangNode owner) {
+        statements.forEach(stmt -> {
+            if (stmt instanceof  BLangSimpleVariableDef) {
+                BVarSymbol symbol = ((BLangSimpleVariableDef) stmt).var.symbol;
+                if (CommonUtil.isClientObject(symbol)) {
+                    BLangImportPackage importPackage = this.packageMap.get(symbol.type.tsymbol.pkgID);
+                    String typeName = symbol.type.tsymbol.getName().getValue();
+                    String pkgName = symbol.pkgID.getName().getValue();
+                    String orgName = symbol.pkgID.getOrgName().getValue();
+                    String alias = importPackage == null ? "" : importPackage.getAlias().getValue();
+                    SymbolMetaInfo visibleEndpoint = new SymbolMetaInfo.SymbolMetaInfoBuilder()
+                            .setName(symbol.getName().getValue())
+                            .setPkgName(pkgName)
+                            .setPkgOrgName(orgName)
+                            .setPkgAlias(alias)
+                            .setKind("VisibleEndpoint")
+                            .setCaller(false)
+                            .setTypeName(typeName)
+                            .setLocal(true)
+                            .setPos(stmt.pos)
+                            .build();
+                    if (this.visibleEPsByNode.containsKey(owner)) {
+                        this.visibleEPsByNode.get(owner).add(visibleEndpoint);
+                    } else {
+                        this.visibleEPsByNode.put(owner, Collections.singletonList(visibleEndpoint));
+                    }
+                }
+            } else {
+                stmt.accept(this);
+            }
+        });
     }
 }

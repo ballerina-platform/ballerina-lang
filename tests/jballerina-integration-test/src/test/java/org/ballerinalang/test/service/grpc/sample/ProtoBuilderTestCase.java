@@ -28,7 +28,9 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangStatementExpression;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -202,7 +204,8 @@ public class ProtoBuilderTestCase extends GrpcBaseTest {
 
     private static Descriptors.FileDescriptor getDescriptor(ExpressionNode node) {
         try {
-            BLangLiteral valueLiteral = (BLangLiteral) ((BLangRecordLiteral) node).keyValuePairs.get(0).valueExpr;
+            BLangLiteral valueLiteral = (BLangLiteral)
+                    ((BLangAssignment) ((BLangBlockStmt) ((BLangStatementExpression) node).stmt).stmts.get(1)).expr;
             if (valueLiteral == null) {
                 Assert.fail("Couldn't find the service descriptor.");
             }

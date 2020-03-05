@@ -39,7 +39,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
 )
 public class IsProcessingInstruction {
 
-    public static boolean isProcessingInstruction(Strand strand, XMLValue<?> xmlValue) {
+    public static boolean isProcessingInstruction(Strand strand, XMLValue xmlValue) {
         return xmlValue.getNodeType() == XMLNodeType.PI;
     }
 }
