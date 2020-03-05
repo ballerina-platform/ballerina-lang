@@ -9,6 +9,13 @@ type Teacher record {|
    string lastName;
 |};
 
+type Employee record {|
+   string firstName;
+   string lastName;
+   string department;
+   string company;
+|};
+
 function testSimpleSelectQueryWithSimpleVariable() returns Person[]{
 
     Person p1 = {firstName: "Alex", lastName: "George", age: 23};
@@ -180,4 +187,68 @@ function testFromClauseWithStream() returns Person[]{
             where person.age == 40
             select person;
     return  outputPersonList;
+}
+
+function testSimpleSelectQueryWithLetClause() returns Employee[] {
+
+    Person p1 = {firstName: "Alex", lastName: "George", age: 23};
+    Person p2 = {firstName: "Ranjan", lastName: "Fonseka", age: 30};
+    Person p3 = {firstName: "John", lastName: "David", age: 33};
+
+    Person[] personList = [p1, p2, p3];
+
+    Employee[] outputPersonList =
+            from var person in personList
+            let string depName = "HR", string companyName = "WSO2"
+            where person.age >= 30
+            select {
+                   firstName: person.firstName,
+                   lastName: person.lastName,
+                   department: depName,
+                   company: companyName
+            };
+    return  outputPersonList;
+}
+
+function testFunctionCallInVarDeclLetClause() returns Person[]{
+
+   Person p1 = {firstName: "Alex", lastName: "George", age: 23};
+   Person p2 = {firstName: "Ranjan", lastName: "Fonseka", age: 30};
+
+   Person[] personList = [p1, p2];
+
+    var outputPersonList =
+            from Person person in personList
+            let int twiceAge = mutiplyBy2(person.age)
+            select {
+                   firstName: person.firstName,
+                   lastName: person.lastName,
+                   age: twiceAge
+            };
+
+    return  outputPersonList;
+}
+
+function testUseOfLetInWhereClause() returns Person[]{
+
+   Person p1 = {firstName: "Alex", lastName: "George", age: 18};
+   Person p2 = {firstName: "Ranjan", lastName: "Fonseka", age: 22};
+
+   Person[] personList = [p1, p2];
+
+    var outputPersonList =
+            from var person in personList
+            let int twiceAge = mutiplyBy2(person.age)
+            where twiceAge > 40
+            select {
+                   firstName: person.firstName,
+                   lastName: person.lastName,
+                   age: twiceAge
+            };
+
+    return  outputPersonList;
+}
+
+function mutiplyBy2 (int k) returns int {
+    return k * 2;
 }
