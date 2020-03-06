@@ -30,7 +30,7 @@ import {
 import * as path from 'path';
 import * as fs from 'fs';
 import { exec, execSync } from 'child_process';
-import { LanguageClientOptions, State as LS_STATE, RevealOutputChannelOn, DidChangeConfigurationParams, ServerOptions } from "vscode-languageclient";
+import { LanguageClientOptions, State as LS_STATE, RevealOutputChannelOn, ServerOptions } from "vscode-languageclient";
 import { getServerOptions, getOldServerOptions, getOldCliServerOptions } from '../server/server';
 import { ExtendedLangClient } from './extended-language-client';
 import { log, getOutputChannel } from '../utils/index';
@@ -72,6 +72,7 @@ export class BallerinaExtension {
         this.extension = extensions.getExtension(EXTENSION_ID)!;
         this.clientOptions = {
             documentSelector: [{ scheme: 'file', language: 'ballerina' }],
+            synchronize: {configurationSection: 'ballerina'},
             outputChannel: getOutputChannel(),
             revealOutputChannelOn: RevealOutputChannelOn.Never,
         };
@@ -203,12 +204,6 @@ export class BallerinaExtension {
             if (params.affectsConfiguration(BALLERINA_HOME) ||
                 params.affectsConfiguration(OVERRIDE_BALLERINA_HOME)) {
                 this.showMsgAndRestart(CONFIG_CHANGED);
-            }
-            if (params.affectsConfiguration('ballerina')) {
-                const args: DidChangeConfigurationParams = {
-                    settings: workspace.getConfiguration('ballerina'),
-                };
-                this.langClient!.sendNotification("workspace/didChangeConfiguration", args);
             }
         });
 

@@ -81,6 +81,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangDoClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangFromClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangLetClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWhereClause;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAccessExpression;
@@ -99,6 +100,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIntRangeExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangLetExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownDocumentationLine;
@@ -178,6 +180,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangConstrainedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangErrorType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFiniteTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFunctionTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangLetVariable;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangStructureTypeNode;
@@ -230,6 +233,8 @@ public class BLangPackageBuilder {
 
     private Stack<List<BLangVariable>> varListStack = new Stack<>();
 
+    private Stack<List<BLangLetVariable>> letVarListStack = new Stack<>();
+
     private Stack<List<BLangRecordVariableKeyValue>> recordVarListStack = new Stack<>();
 
     private Stack<List<BLangRecordVarRefKeyValue>> recordVarRefListStack = new Stack<>();
@@ -263,6 +268,8 @@ public class BLangPackageBuilder {
     private Stack<IfNode> ifElseStatementStack = new Stack<>();
 
     private Stack<BLangFromClause> fromClauseNodeStack = new Stack<>();
+
+    private Stack<BLangLetClause> letClauseNodeStack = new Stack<>();
 
     private Stack<BLangSelectClause> selectClauseNodeStack = new Stack<>();
 
@@ -577,6 +584,9 @@ public class BLangPackageBuilder {
         if (paramsAvail) {
             functionTypeNode.addWS(commaWsStack.pop());
             functionTypeNode.params.addAll(this.varListStack.pop());
+        } else if (restParamAvail) {
+            // VarListStack pops out the empty list added to the var list stack if no non-rest params are available
+            this.varListStack.pop();
         }
 
         if (restParamAvail) {
@@ -600,6 +610,10 @@ public class BLangPackageBuilder {
 
     void startVarList() {
         this.varListStack.push(new ArrayList<>());
+    }
+
+    void startLetVarList() {
+        this.letVarListStack.push(new ArrayList<>());
     }
 
     void startFunctionDef(int annotCount, boolean isLambda) {
@@ -1129,8 +1143,26 @@ public class BLangPackageBuilder {
         addStmtToCurrentBlock(varDefNode);
     }
 
+    void addSimpleLetVariableDefStatement(DiagnosticPos pos, Set<Whitespace> ws, String identifier,
+                                          DiagnosticPos identifierPos, boolean isExpressionAvailable,
+                                          boolean isDeclaredWithVar, int numAnnotations) {
+        BLangSimpleVariableDef varDefNode = createSimpleVariableDef(pos, ws, identifier, identifierPos,
+                true, isExpressionAvailable, isDeclaredWithVar);
+        if (!this.bindingPatternIdentifierWS.isEmpty()) {
+            varDefNode.addWS(this.bindingPatternIdentifierWS.pop());
+        }
+        attachAnnotations(varDefNode.var, numAnnotations, false);
+        addLetVarDecl(varDefNode);
+    }
+
     void addBindingPatternNameWhitespace(Set<Whitespace> ws) {
         this.bindingPatternIdentifierWS.push(ws);
+    }
+
+    private void addLetVarDecl(VariableDefinitionNode definitionNode) {
+        BLangLetVariable letVariable = (BLangLetVariable) TreeBuilder.createLetVariableNode();
+        letVariable.definitionNode = definitionNode;
+        this.letVarListStack.peek().add(letVariable);
     }
 
     private BLangSimpleVariableDef createSimpleVariableDef(DiagnosticPos pos, Set<Whitespace> ws, String identifier,
@@ -1167,10 +1199,24 @@ public class BLangPackageBuilder {
         addStmtToCurrentBlock(varDefNode);
     }
 
+    void addTupleVariableLetDefStatement(DiagnosticPos pos, Set<Whitespace> ws, boolean isDeclaredWithVar,
+                                         int numAnnotations) {
+        BLangTupleVariableDef varDefNode = createTupleVariableDef(pos, ws, true, true, isDeclaredWithVar);
+        attachAnnotations(varDefNode.var, numAnnotations, false);
+        addLetVarDecl(varDefNode);
+    }
+
     void addErrorVariableDefStatement(DiagnosticPos pos, Set<Whitespace> ws, boolean isFinal,
                                       boolean isDeclaredWithVar) {
         BLangErrorVariableDef varDefNode = createErrorVariableDef(pos, ws, isFinal, true, isDeclaredWithVar);
         addStmtToCurrentBlock(varDefNode);
+    }
+
+    void addErrorVariableLetDefStatement(DiagnosticPos pos, Set<Whitespace> ws, boolean isDeclaredWithVar,
+                                         int numAnnotations) {
+        BLangErrorVariableDef varDefNode = createErrorVariableDef(pos, ws, true, true, isDeclaredWithVar);
+        attachAnnotations(varDefNode.errorVariable, numAnnotations, false);
+        addLetVarDecl(varDefNode);
     }
 
     private BLangTupleVariableDef createTupleVariableDef(DiagnosticPos pos, Set<Whitespace> ws, boolean isFinal,
@@ -1217,6 +1263,14 @@ public class BLangPackageBuilder {
                                        boolean isDeclaredWithVar) {
         BLangRecordVariableDef varDefNode = createRecordVariableDef(pos, ws, isFinal, true, isDeclaredWithVar);
         addStmtToCurrentBlock(varDefNode);
+    }
+
+    void addRecordVariableLetDefStatement(DiagnosticPos pos, Set<Whitespace> ws, boolean isDeclaredWithVar,
+                                          int numAnnotations) {
+        BLangRecordVariableDef varDefNode = createRecordVariableDef(pos, ws, true, true, isDeclaredWithVar);
+        attachAnnotations(varDefNode.var, numAnnotations, false);
+        addLetVarDecl(varDefNode);
+
     }
 
     private BLangRecordVariableDef createRecordVariableDef(DiagnosticPos pos, Set<Whitespace> ws, boolean isFinal,
@@ -1438,6 +1492,21 @@ public class BLangPackageBuilder {
         }
         keyValue.key.computedKey = computedKey;
         recordLiteralNodes.peek().fields.add(keyValue);
+    }
+
+    void addLetClause(DiagnosticPos pos) {
+        BLangLetClause letClause = (BLangLetClause) TreeBuilder.createLetClauseNode();
+        letClause.pos = pos;
+        letClause.letVarDeclarations = letVarListStack.pop();
+        letClauseNodeStack.push(letClause);
+    }
+
+    void addLetExpression(DiagnosticPos pos) {
+        BLangLetExpression letExpression = (BLangLetExpression) TreeBuilder.createLetExpressionNode();
+        letExpression.expr = (BLangExpression) exprNodeStack.pop();
+        letExpression.pos = pos;
+        letExpression.letVarDeclarations = letVarListStack.pop();
+        addExpressionNode(letExpression);
     }
 
     void addSpreadOpRecordField(Set<Whitespace> ws) {
@@ -1782,6 +1851,10 @@ public class BLangPackageBuilder {
         while (fromClauseNodeStack.size() > 0) {
             queryExpr.addFromClauseNode(fromClauseNodeStack.pop());
         }
+        Collections.reverse(letClauseNodeStack);
+        while (letClauseNodeStack.size() > 0) {
+            queryExpr.addLetClause(letClauseNodeStack.pop());
+        }
         queryExpr.setSelectClauseNode(selectClauseNodeStack.pop());
         Collections.reverse(whereClauseNodeStack);
         while (whereClauseNodeStack.size() > 0) {
@@ -1886,7 +1959,10 @@ public class BLangPackageBuilder {
         while (fromClauseNodeStack.size() > 0) {
             queryAction.addFromClauseNode(fromClauseNodeStack.pop());
         }
-
+        Collections.reverse(letClauseNodeStack);
+        while (letClauseNodeStack.size() > 0) {
+            queryAction.addLetClauseNode(letClauseNodeStack.pop());
+        }
         Collections.reverse(whereClauseNodeStack);
         while (whereClauseNodeStack.size() > 0) {
             queryAction.addWhereClauseNode(whereClauseNodeStack.pop());

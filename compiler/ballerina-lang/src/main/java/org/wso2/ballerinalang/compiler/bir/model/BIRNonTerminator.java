@@ -408,15 +408,12 @@ public abstract class BIRNonTerminator extends BIRAbstractInstruction implements
      */
     public static class NewXMLElement extends BIRNonTerminator {
         public BIROperand startTagOp;
-        public BIROperand endTagOp;
         public BIROperand defaultNsURIOp;
 
-        public NewXMLElement(DiagnosticPos pos, BIROperand lhsOp, BIROperand startTagOp, BIROperand endTagOp,
-                BIROperand defaultNsURIOp) {
+        public NewXMLElement(DiagnosticPos pos, BIROperand lhsOp, BIROperand startTagOp, BIROperand defaultNsURIOp) {
             super(pos, InstructionKind.NEW_XML_ELEMENT);
             this.lhsOp = lhsOp;
             this.startTagOp = startTagOp;
-            this.endTagOp = endTagOp;
             this.defaultNsURIOp = defaultNsURIOp;
         }
 

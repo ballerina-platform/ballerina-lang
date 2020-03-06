@@ -32,6 +32,8 @@ import org.ballerinalang.langserver.sourceprune.SourcePruneKeys;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -66,7 +68,7 @@ public class IfWhileConditionContextProvider extends AbstractCompletionProvider 
         visibleSymbols.removeIf(CommonUtil.invalidSymbolsPredicate());
         boolean isTypeGuardCondition = this.isTypeGuardCondition(tokenTypes);
         int invocationOrDelimiterTokenType = context.get(CompletionKeys.INVOCATION_TOKEN_TYPE_KEY);
-        
+
         if (invocationOrDelimiterTokenType > -1) {
             if (invocationOrDelimiterTokenType == BallerinaParser.COLON && isTypeGuardCondition) {
                 String pkgName = lhsDefaultTokens.get(tokenTypes.indexOf(invocationOrDelimiterTokenType) - 1).getText();
@@ -77,20 +79,27 @@ public class IfWhileConditionContextProvider extends AbstractCompletionProvider 
             return this.getCompletionItemList(items, context);
         }
         if (isTypeGuardCondition) {
-            return this.getBasicTypesItems(context, visibleSymbols);
+            List<LSCompletionItem> typeItems = this.getPackagesCompletionItems(context);
+            List<Scope.ScopeEntry> userDefinedTypes = visibleSymbols.stream()
+                    .filter(scopeEntry -> scopeEntry.symbol instanceof BTypeSymbol
+                            && !(scopeEntry.symbol instanceof BPackageSymbol))
+                    .collect(Collectors.toList());
+            typeItems.addAll(this.getCompletionItemList(userDefinedTypes, context));
+            
+            return typeItems;
         }
-        
+
         return this.getExpressionCompletions(context, visibleSymbols);
     }
-    
+
     private boolean isTypeGuardCondition(List<Integer> tokenTypes) {
         return tokenTypes.contains(BallerinaParser.IS);
     }
-    
+
     private List<LSCompletionItem> getExpressionCompletions(LSContext context, List<Scope.ScopeEntry> visibleSymbols) {
         List<LSCompletionItem> completionItems = this.getCompletionItemList(new ArrayList<>(visibleSymbols), context);
         completionItems.addAll(this.getPackagesCompletionItems(context));
-        
+
         return completionItems;
     }
 }
