@@ -109,8 +109,9 @@ public class OpenAPIValidatorPlugin extends AbstractCompilerPlugin {
                                 String sourceDir = sourceDirectoryManager.getSourceDirectory().getPath().toString();
                                 String filePath = serviceNode.getPosition().getSource().getPackageName() + separator +
                                         serviceNode.getPosition().getSource().getCompilationUnitName().replaceAll(
-                                                "\\w*.bal", "");
-                                String projectDir = sourceDir + separator + "src" + separator + filePath;
+                                                "\\w*\\.bal", "");
+                                String projectDir = filePath.contains(sourceDir) ? sourceDir :
+                                        (sourceDir + separator + "src" + separator + filePath);
                                 if (value.getValue() instanceof String) {
                                     String userUri = (String) value.getValue();
 
@@ -129,7 +130,7 @@ public class OpenAPIValidatorPlugin extends AbstractCompilerPlugin {
                                     }
                                 } else {
                                     dLog.logDiagnostic(Diagnostic.Kind.ERROR, annotation.getPosition(),
-                                            "Contract path should be applied as a string value");
+                                                       "Contract path should be applied as a string value");
                                 }
                             }
                         } else if (key.equals(Constants.TAGS)) {
@@ -143,7 +144,7 @@ public class OpenAPIValidatorPlugin extends AbstractCompilerPlugin {
                                             tags.add((String) expression.getValue());
                                         } else {
                                             dLog.logDiagnostic(Diagnostic.Kind.ERROR, annotation.getPosition(),
-                                                    "Tags should be applied as string values");
+                                                               "Tags should be applied as string values");
                                         }
                                     }
                                 }
@@ -159,7 +160,7 @@ public class OpenAPIValidatorPlugin extends AbstractCompilerPlugin {
                                             operations.add((String) expression.getValue());
                                         } else {
                                             dLog.logDiagnostic(Diagnostic.Kind.ERROR, annotation.getPosition(),
-                                                    "Operations should be applied as string values");
+                                                               "Operations should be applied as string values");
                                         }
                                     }
                                 }
@@ -175,12 +176,14 @@ public class OpenAPIValidatorPlugin extends AbstractCompilerPlugin {
                     ValidatorUtil.summarizeResources(this.resourceSummaryList, serviceNode);
                     ValidatorUtil.summarizeOpenAPI(this.openAPISummaryList, openAPI, this.openAPIComponentSummary);
                     ValidatorUtil.validateOpenApiAgainstResources(serviceNode, tags, operations,
-                            this.resourceSummaryList, this.openAPISummaryList, this.openAPIComponentSummary, dLog);
+                                                                  this.resourceSummaryList, this.openAPISummaryList,
+                                                                  this.openAPIComponentSummary, dLog);
                     ValidatorUtil.validateResourcesAgainstOpenApi(tags, operations, this.resourceSummaryList,
-                            this.openAPISummaryList, this.openAPIComponentSummary, dLog);
+                                                                  this.openAPISummaryList, this.openAPIComponentSummary,
+                                                                  dLog);
                 } catch (OpenApiValidatorException e) {
                     dLog.logDiagnostic(Diagnostic.Kind.ERROR, annotation.getPosition(),
-                            e.getMessage());
+                                       e.getMessage());
                 }
             }
         }
