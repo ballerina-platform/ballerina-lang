@@ -77,8 +77,8 @@ function getFullQualifiedRemoteFunctionName(string moduleOrg, string moduleName,
 }
 
 function genObserveStartWithTryBlockStart(jvm:MethodVisitor mv, LabelGenerator labelGen, bir:Function func,
-                                          int localVarOffset, bir:BType? attachedType,
-                                          string attachedConstructName = "") returns jvm:Label? {
+                                          int localVarOffset, bir:BType? attachedType, bir:ModuleID invocationModuleID,
+                                          bir:DiagnosticPos pos, string attachedConstructName) returns jvm:Label? {
     string funcName = cleanupFunctionName(<@untainted> func.name.value);
     jvm:Label tryStart = labelGen.getLabel(funcName + ":observe-try-start");
     mv.visitLabel(<jvm:Label>tryStart);
@@ -88,8 +88,12 @@ function genObserveStartWithTryBlockStart(jvm:MethodVisitor mv, LabelGenerator l
         connectorName = getFullQualifiedRemoteFunctionName(
                         attachedType.moduleId.org, attachedType.moduleId.name, attachedType.name.value);
     }
+    map<string> tags = {
+        "b7a.invocation_fqn": io:sprintf("%s:%s:%s:%d:%d", invocationModuleID.org, invocationModuleID.name,
+            pos.sourceFileName, pos.sLine, pos.sCol)
+    };
     emitStartObservationInvocation(mv, localVarOffset, connectorName, funcName,
-        "startCallableObservation");
+        "startCallableObservation", tags);
     return tryStart;
 }
 
