@@ -40,24 +40,17 @@ type CacheEntry record {|
     int expTime;       // exp time since epoch. calculated based on the `maxAge` parameter when inserting to map
 |};
 
-// TODO: Remove by fixing https://github.com/ballerina-platform/ballerina-lang/issues/21268
-type Attachment record {|
-    map<Node> entries;
-    LinkedList list;
-    AbstractEvictionPolicy evictionPolicy;
-|};
-
 // Cleanup service which cleans the cache entries periodically.
 boolean cleanupInProgress = false;
 
 // Cleanup service which cleans the cache entries periodically.
 service cleanupService = service {
-    resource function onTrigger(Attachment attachment) {
+    resource function onTrigger(map<Node> entries, LinkedList list, AbstractEvictionPolicy evictionPolicy) {
         // This check will skip the processes triggered while the clean up in progress.
         if (!cleanupInProgress) {
             lock {
                 cleanupInProgress = true;
-                cleanup(attachment);
+                cleanup(entries, list, evictionPolicy);
                 cleanupInProgress = false;
             }
         }
@@ -110,12 +103,8 @@ public type Cache object {
                 initialDelayInMillis: cleanupIntervalInSeconds
             };
             task:Scheduler cleanupScheduler = new(timerConfiguration);
-            Attachment attachment = {
-                entries: self.entries,
-                list: self.list,
-                evictionPolicy: self.evictionPolicy
-            };
-            task:SchedulerError? result = cleanupScheduler.attach(cleanupService, attachment = attachment);
+            task:SchedulerError? result = cleanupScheduler.attach(cleanupService, self.entries, self.list,
+                                                                  self.evictionPolicy);
             if (result is task:SchedulerError) {
                 panic prepareError("Failed to create the cache cleanup task.", result);
             }
@@ -267,11 +256,7 @@ function evict(map<Node> entries, LinkedList list, AbstractEvictionPolicy evicti
     }
 }
 
-function cleanup(Attachment attachment) {
-    map<Node> entries = attachment.entries;
-    LinkedList list = attachment.list;
-    AbstractEvictionPolicy evictionPolicy = attachment.evictionPolicy;
-
+function cleanup(map<Node> entries, LinkedList list, AbstractEvictionPolicy evictionPolicy) {
     if (entries.length() == 0) {
         return;
     }
