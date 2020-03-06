@@ -59,12 +59,15 @@ class JvmObservabilityGen {
     }
 
     private static String cleanUpServiceName(String serviceName) {
-
-        String finalString = serviceName;
-        if (serviceName.contains("$$service$")) {
-            finalString = serviceName.replace("$$service$", "_");
+        final String serviceIdentifier = "$$service$";
+        if (serviceName.contains(serviceIdentifier)) {
+            if (serviceName.contains("$anonService$")) {
+                return serviceName.replace(serviceIdentifier, "_");
+            } else {
+                return serviceName.substring(0, serviceName.lastIndexOf(serviceIdentifier));
+            }
         }
-        return finalString;
+        return serviceName;
     }
 
     static String getFullQualifiedRemoteFunctionName(String moduleOrg, String moduleName, String funcName) {
