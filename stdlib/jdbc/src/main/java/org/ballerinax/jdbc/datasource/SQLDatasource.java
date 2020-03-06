@@ -51,7 +51,6 @@ public class SQLDatasource {
     private AtomicInteger clientCounter = new AtomicInteger(0);
     private Lock mutex = new ReentrantLock();
     private boolean poolShutdown = false;
-    private boolean supportsGetGeneratedKeys = false;
 
     public SQLDatasource init(SQLDatasourceParams sqlDatasourceParams) {
         this.globalDatasource = sqlDatasourceParams.isGlobalDatasource;
@@ -65,7 +64,6 @@ public class SQLDatasource {
         try (Connection con = getSQLConnection()) {
             DatabaseMetaData metaData = con.getMetaData();
             databaseProductName = metaData.getDatabaseProductName().toLowerCase(Locale.ENGLISH);
-            this.supportsGetGeneratedKeys = metaData.supportsGetGeneratedKeys();
         } catch (SQLException e) {
             throw ErrorGenerator
                     .getSQLDatabaseError(e, "error while obtaining connection for " + Constants.CONNECTOR_NAME + ", ");
@@ -121,10 +119,6 @@ public class SQLDatasource {
 
     public boolean isPoolShutdown() {
         return poolShutdown;
-    }
-
-    public boolean isKeyRetrievalSupported() {
-        return this.supportsGetGeneratedKeys;
     }
 
     public void incrementClientCounter() {

@@ -229,13 +229,12 @@ public class UpdateTest {
         Assert.assertEquals(((BInteger) returns[2]).intValue(), 1);
     }
 
-    /**
-     * Test for getting auto-generated key when getGeneratedKey is true and the table doesn't have auto generated key.
-     */
     @Test(groups = UPDATE_TEST)
-    public void testGetGeneratedKey() {
+    public void testGetEmptyGeneratedKey() {
         BValue[] returns = BRunUtil.invoke(result, "testGetGeneratedKey", args);
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
+        //Test for getting auto-generated key when getGeneratedKey is true and the table doesn't
+        // have auto generated key.
         Assert.assertEquals((returns[1]).stringValue(), "");
     }
 

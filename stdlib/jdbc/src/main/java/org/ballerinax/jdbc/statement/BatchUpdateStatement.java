@@ -19,7 +19,6 @@ package org.ballerinax.jdbc.statement;
 
 import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.services.ErrorHandlerUtils;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.values.ArrayValue;
@@ -74,7 +73,7 @@ public class BatchUpdateStatement extends AbstractSQLStatement {
     public MapValue<String, Object> execute() {
         Connection conn = null;
         PreparedStatement stmt = null;
-        ResultSet rs;
+        ResultSet rs = null;
         MapValue<String, ArrayValue> generatedKeys = new MapValueImpl<>();
         int[] updatedCount;
         int paramArrayCount = 0;
@@ -87,8 +86,7 @@ public class BatchUpdateStatement extends AbstractSQLStatement {
         String errorMessagePrefix = "failed to execute batch update";
         try {
             conn = getDatabaseConnection(strand, client, datasource);
-            boolean keyRetrievalSupportedStatement = datasource.isKeyRetrievalSupported();
-            if (getGeneratedKey && keyRetrievalSupportedStatement) {
+            if (getGeneratedKey) {
                 stmt = conn.prepareStatement(query, PreparedStatement.RETURN_GENERATED_KEYS);
             } else {
                 stmt = conn.prepareStatement(query);
@@ -107,14 +105,9 @@ public class BatchUpdateStatement extends AbstractSQLStatement {
             }
             updatedCount = stmt.executeBatch();
             if (getGeneratedKey) {
-                if (keyRetrievalSupportedStatement) {
-                    rs = stmt.getGeneratedKeys();
-                    //This result set contains the auto generated keys.
-                    generatedKeys = getGeneratedKeysFromBatch(rs);
-                } else {
-                    ErrorHandlerUtils.printError("ERROR: Unable to get keys as JDBC is not supported to retrieve " +
-                            "auto-generated keys from " + datasource.getDatabaseProductName());
-                }
+                rs = stmt.getGeneratedKeys();
+                //This result set contains the auto generated keys.
+                generatedKeys = getGeneratedKeysFromBatch(rs);
             }
             if (!isInTransaction) {
                 conn.commit();
@@ -152,7 +145,7 @@ public class BatchUpdateStatement extends AbstractSQLStatement {
             return createFrozenBatchUpdateResultRecord(createUpdatedCountArray(null, paramArrayCount),
                     generatedKeys, ErrorGenerator.getSQLApplicationError(e, errorMessagePrefix + ": "));
         } finally {
-            cleanupResources(stmt, conn, !isInTransaction);
+            cleanupResources(rs, stmt, conn, !isInTransaction);
         }
     }
 

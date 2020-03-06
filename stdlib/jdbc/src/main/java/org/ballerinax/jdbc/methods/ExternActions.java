@@ -64,10 +64,10 @@ public class ExternActions {
         return selectStatement.execute();
     }
 
-    public static Object nativeUpdate(ObjectValue client, String query, ArrayValue parameters,
-                                      boolean getGeneratedKeys) {
+    public static Object nativeUpdate(ObjectValue client, String query, boolean getGeneratedKeys,
+                                      ArrayValue parameters) {
         SQLDatasource sqlDatasource = (SQLDatasource) client.getNativeData(Constants.JDBC_CLIENT);
-        SQLStatement updateStatement = new UpdateStatement(client, sqlDatasource, query, parameters, getGeneratedKeys,
+        SQLStatement updateStatement = new UpdateStatement(client, sqlDatasource, query, getGeneratedKeys, parameters,
                 Scheduler.getStrand());
         return updateStatement.execute();
     }

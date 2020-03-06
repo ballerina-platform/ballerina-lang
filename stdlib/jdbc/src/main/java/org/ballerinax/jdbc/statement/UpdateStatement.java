@@ -18,12 +18,9 @@
 package org.ballerinax.jdbc.statement;
 
 import org.ballerinalang.jvm.BallerinaValues;
-import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.services.ErrorHandlerUtils;
 import org.ballerinalang.jvm.types.BMapType;
 import org.ballerinalang.jvm.types.BTypes;
-import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
@@ -56,8 +53,8 @@ public class UpdateStatement extends AbstractSQLStatement {
     private final ArrayValue parameters;
     private boolean getGeneratedKey;
 
-    public UpdateStatement(ObjectValue client, SQLDatasource datasource, String query, ArrayValue parameters,
-                           boolean getGeneratedKey, Strand strand) {
+    public UpdateStatement(ObjectValue client, SQLDatasource datasource, String query, boolean getGeneratedKey,
+                           ArrayValue parameters, Strand strand) {
         super(strand);
         this.client = client;
         this.datasource = datasource;
@@ -74,13 +71,13 @@ public class UpdateStatement extends AbstractSQLStatement {
         checkAndObserveSQLAction(strand, datasource, query);
         boolean isInTransaction = strand.isInTransaction();
         String errorMessagePrefix = "failed to execute update query: ";
+        MapValue<String, Object> generatedKeys = new MapValueImpl<>();
         try {
             ArrayValue generatedParams = constructParameters(parameters);
             conn = getDatabaseConnection(strand, client, datasource);
             String processedQuery = createProcessedQueryString(query, generatedParams);
 
-            boolean keyRetrievalSupportedStatement = isKeyRetrievalSupportedStatement();
-            if (getGeneratedKey && keyRetrievalSupportedStatement) {
+            if (getGeneratedKey) {
                 stmt = conn.prepareStatement(processedQuery, PreparedStatement.RETURN_GENERATED_KEYS);
             } else {
                 stmt = conn.prepareStatement(processedQuery);
@@ -90,14 +87,21 @@ public class UpdateStatement extends AbstractSQLStatement {
                     datasource.getDatabaseProductName());
             stmt = processedStatement.prepare();
             int count = stmt.executeUpdate();
-            if (getGeneratedKey && keyRetrievalSupportedStatement) {
-                rs = stmt.getGeneratedKeys();
-                //This result set contains the auto generated keys.
-                if (rs.next()) {
-                    return createFrozenUpdateResultRecord(count, getGeneratedKeys(rs));
+            if (getGeneratedKey) {
+                if (isKeyRetrievalSupported()) {
+                    rs = stmt.getGeneratedKeys();
+                    //This result set contains the auto generated keys.
+                    if (rs.next()) {
+                        generatedKeys = getGeneratedKeys(rs);
+                    }
+                } else {
+                    handleErrorOnTransaction(this.strand);
+                    String message = "The getGeneratedKey only support INSERT, UPDATE, DELETE and MERGE operations.";
+                    checkAndObserveSQLError(strand, "execute update failed: " + message);
+                    return ErrorGenerator.getSQLApplicationError(message);
                 }
             }
-            return createFrozenUpdateResultRecord(count, new MapValueImpl<>());
+            return createFrozenUpdateResultRecord(count, generatedKeys);
         } catch (SQLException e) {
             handleErrorOnTransaction(this.strand);
             checkAndObserveSQLError(strand, "execute update failed: " + e.getMessage());
@@ -141,18 +145,8 @@ public class UpdateStatement extends AbstractSQLStatement {
     /**
      * Check if the statement is one of INSERT, DELETE, UPDATE or MERGE.
      */
-    private boolean isKeyRetrievalSupportedStatement() {
-        if (datasource.isKeyRetrievalSupported()) {
-            return Arrays.stream(GenKeyStmt.values()).anyMatch(stmt -> this.query.trim().toUpperCase(Locale.ENGLISH).
+    private boolean isKeyRetrievalSupported() {
+       return Arrays.stream(GenKeyStmt.values()).anyMatch(stmt -> this.query.trim().toUpperCase(Locale.ENGLISH).
                     startsWith(stmt.name()));
-        } else {
-            ErrorHandlerUtils.printError("ERROR: Unable to get keys as JDBC is not supported to retrieve " +
-                    "auto-generated keys from " + datasource.getDatabaseProductName());
-            return false;
-        }
-    }
-
-    public static boolean getGeneratedKey(Object getGeneratedKey) {
-        return (TypeChecker.getType(getGeneratedKey).getTag() == TypeTags.BOOLEAN_TAG && (Boolean) getGeneratedKey);
     }
 }
