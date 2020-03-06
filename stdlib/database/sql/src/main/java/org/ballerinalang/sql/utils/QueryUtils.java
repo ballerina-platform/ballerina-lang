@@ -201,7 +201,7 @@ public class QueryUtils {
     private static BType getDefaultBallerinaType(int sqlType) {
         switch (sqlType) {
             case Types.ARRAY:
-                return new BArrayType(BTypes.typeAny);
+                return new BArrayType(BTypes.typeAnydata);
             case Types.CHAR:
             case Types.VARCHAR:
             case Types.LONGVARCHAR:
@@ -240,7 +240,7 @@ public class QueryUtils {
             case Types.STRUCT:
                 return getDefaultStreamConstraint();
             default:
-                return BTypes.typeAny;
+                return BTypes.typeAnydata;
         }
     }
 }
