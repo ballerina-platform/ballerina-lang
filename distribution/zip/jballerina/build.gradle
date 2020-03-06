@@ -57,7 +57,6 @@ dependencies {
     distBal project(path: ':ballerina-grpc', configuration: 'baloImplementation')
     distBal project(path: ':ballerina-jdbc', configuration: 'baloImplementation')
     distBal project(path: ':ballerina-sql', configuration: 'baloImplementation')
-    distBal project(path: ':ballerina-jdbc2', configuration: 'baloImplementation')
     distBal project(path: ':ballerina-http', configuration: 'baloImplementation')
     distBal project(path: ':ballerina-encoding', configuration: 'baloImplementation')
     distBal project(path: ':ballerina-io', configuration: 'baloImplementation')
