@@ -284,6 +284,7 @@ public class TypeChecker extends BLangNodeVisitor {
     // Expressions
 
     public void visit(BLangLiteral literalExpr) {
+
         BType literalType = setLiteralValueAndGetType(literalExpr, expType);
         if (literalType == symTable.semanticError || literalExpr.isFiniteContext) {
             return;
@@ -338,13 +339,11 @@ public class TypeChecker extends BLangNodeVisitor {
             } else if (expType.tag == TypeTags.DECIMAL) {
                 literalType = symTable.decimalType;
                 literalExpr.value = String.valueOf(literalValue);
-            } else if (expType.tag == TypeTags.BYTE) {
-                if (!types.isByteLiteralValue((Long) literalValue)) {
-                    dlog.error(literalExpr.pos, DiagnosticCode.INCOMPATIBLE_TYPES, expType, literalType);
-                    resultType = symTable.semanticError;
-                    return resultType;
+            } else if (TypeTags.isIntegerTypeTag(expType.tag) || expType.tag == TypeTags.BYTE) {
+                literalType = getIntLiteralType(literalExpr, expType, literalType, literalValue);
+                if (literalType == symTable.semanticError) {
+                    return symTable.semanticError;
                 }
-                literalType = symTable.byteType;
             } else if (expType.tag == TypeTags.FINITE && types.isAssignableToFiniteType(expType, literalExpr)) {
                 BFiniteType finiteType = (BFiniteType) expType;
                 if (literalAssignableToFiniteType(literalExpr, finiteType, TypeTags.INT)) {
@@ -522,9 +521,14 @@ public class TypeChecker extends BLangNodeVisitor {
 
     private boolean literalAssignableToFiniteType(BLangLiteral literalExpr, BFiniteType finiteType,
                                                   int targetMemberTypeTag) {
-        return finiteType.getValueSpace().stream()
-                .anyMatch(valueExpr -> valueExpr.type.tag == targetMemberTypeTag &&
-                        types.checkLiteralAssignabilityBasedOnType((BLangLiteral) valueExpr, literalExpr));
+
+        for (BLangExpression valueExpr : finiteType.getValueSpace()) {
+            if (valueExpr.type.tag == targetMemberTypeTag &&
+                    types.checkLiteralAssignabilityBasedOnType((BLangLiteral) valueExpr, literalExpr)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private BType decimalLiteral(Object literalValue, BLangLiteral literalExpr, BType expType) {
@@ -574,9 +578,13 @@ public class TypeChecker extends BLangNodeVisitor {
         Set<BLangExpression> matchedValueSpace = new LinkedHashSet<>();
 
         for (BFiniteType finiteType : finiteTypeMembers) {
-            matchedValueSpace.addAll(finiteType.getValueSpace().stream()
-                                             .filter(expression -> expression.type.tag == tag)
-                                             .collect(Collectors.toSet()));
+            Set<BLangExpression> set = new HashSet<>();
+            for (BLangExpression expression : finiteType.getValueSpace()) {
+                if (expression.type.tag == tag) {
+                    set.add(expression);
+                }
+            }
+            matchedValueSpace.addAll(set);
         }
 
         if (matchedValueSpace.isEmpty()) {
@@ -586,7 +594,55 @@ public class TypeChecker extends BLangNodeVisitor {
         return new BFiniteType(null, matchedValueSpace);
     }
 
+    private BType getIntLiteralType(BLangLiteral literalExpr, BType expType, BType literalType, Object literalValue) {
+
+        switch (expType.tag) {
+            case TypeTags.INT:
+                return symTable.intType;
+            case TypeTags.BYTE:
+                if (types.isByteLiteralValue((Long) literalValue)) {
+                    return symTable.byteType;
+                }
+                break;
+            case TypeTags.SIGNED32_INT:
+                if (types.isSigned32LiteralValue((Long) literalValue)) {
+                    return symTable.signed32IntType;
+                }
+                break;
+            case TypeTags.SIGNED16_INT:
+                if (types.isSigned16LiteralValue((Long) literalValue)) {
+                    return symTable.signed16IntType;
+                }
+                break;
+            case TypeTags.SIGNED8_INT:
+                if (types.isSigned8LiteralValue((Long) literalValue)) {
+                    return symTable.signed8IntType;
+                }
+                break;
+            case TypeTags.UNSIGNED32_INT:
+                if (types.isUnsigned32LiteralValue((Long) literalValue)) {
+                    return symTable.unsigned32IntType;
+                }
+                break;
+            case TypeTags.UNSIGNED16_INT:
+                if (types.isUnsigned16LiteralValue((Long) literalValue)) {
+                    return symTable.unsigned16IntType;
+                }
+                break;
+            case TypeTags.UNSIGNED8_INT:
+                if (types.isUnsigned8LiteralValue((Long) literalValue)) {
+                    return symTable.unsigned8IntType;
+                }
+                break;
+            default:
+        }
+        dlog.error(literalExpr.pos, DiagnosticCode.INCOMPATIBLE_TYPES, expType, literalType);
+        resultType = symTable.semanticError;
+        return resultType;
+    }
+
     public void visit(BLangTableLiteral tableLiteral) {
+
         if (expType.tag == symTable.semanticError.tag) {
             return;
         }
