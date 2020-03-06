@@ -116,7 +116,7 @@ function testSubstring(string s, int si, int ei) returns error|string {
     return sub;
 }
 
-function testEqualsIgnoreCaseAscii(string str1, string str2) returns boolean {
+function testEqualsIgnoreCaseAscii(string str1, string str2, boolean result) returns boolean {
     boolean isEqual = strings:equalsIgnoreCaseAscii(str1, str2);
-    return isEqual;
+    if ()
 }
