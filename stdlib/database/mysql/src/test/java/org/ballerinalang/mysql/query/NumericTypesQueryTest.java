@@ -41,7 +41,7 @@ import java.text.DecimalFormat;
 import java.util.LinkedHashMap;
 
 /**
- * This test class executes the query operation test on JDBC client.
+ * This test class executes the query operation test on MySQL client.
  *
  * @since 1.2.0
  */

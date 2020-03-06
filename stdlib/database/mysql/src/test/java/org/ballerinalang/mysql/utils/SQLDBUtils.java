@@ -36,6 +36,7 @@ public class SQLDBUtils {
     public static final String SQL_RESOURCE_DIR = Paths.get("datafiles", "sql").toString();
     public static final String CONNECTIONS_DIR = "connections";
     public static final String QUERY_DIR = "query";
+    public static final String EXECUTE_DIR = "execute";
 
     public static String getBalFilesDir(String subResourceDir, String resouceFileName) {
         return Paths.get("test-src", subResourceDir, resouceFileName).toString();

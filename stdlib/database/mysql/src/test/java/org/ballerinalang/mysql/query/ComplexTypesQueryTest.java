@@ -45,7 +45,6 @@ public class ComplexTypesQueryTest {
 
     private CompileResult result;
     private static final String DB_NAME = "TEST_SQL_COMPLEX_QUERY";
-
     private static final String SQL_SCRIPT = SQLDBUtils.SQL_RESOURCE_DIR + File.separator + SQLDBUtils.QUERY_DIR +
             File.separator + "complex-test-data.sql";
 
