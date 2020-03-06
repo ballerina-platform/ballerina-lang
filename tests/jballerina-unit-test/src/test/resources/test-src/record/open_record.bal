@@ -517,19 +517,16 @@ function removeIfHasKeyOptional() {
     Student s = {id : 1, name : "Andrew"};
     string? n = <string?> s.removeIfHasKey("name");
     if (n is ()) {
-         error err = error("Returned value should be an string.");
-         panic err;
+         panic error("Returned value should be an string.");
     }
 
     if (<string>n !== "Andrew") {
-         error err = error("Returned value should equals 'Andrew'.");
-         panic err;
+         panic error("Returned value should equals 'Andrew'.");
     }
 
     var age = s.removeIfHasKey("age");
     if !(age is ()) {
-         error err = error("Returned value should be nil.");
-         panic err;
+         panic error("Returned value should be nil.");
     }
 }
 
@@ -539,20 +536,17 @@ function removeIfHasKeyRest() {
     Student s = {id : 1, name : "Andrew", "grade": g1};
     Grades? g2 = <Grades?> s.removeIfHasKey("grade");
     if (g2 is ()) {
-         error err = error("Returned value should be an string.");
-         panic err;
+         panic error("Returned value should be an string.");
     }
 
     Grades g3 = <Grades>g2;
     if !(g3.maths == g1.maths && g3.physics == g1.physics) {
-         error err = error("Returned value should be identical with expected value.");
-         panic err;
+         panic error("Returned value should be identical with expected value.");
     }
 
     var g4 = s.removeIfHasKey("grade");
     if !(g4 is ()) {
-         error err = error("Returned value should be nil.");
-         panic err;
+         panic error("Returned value should be nil.");
     }
 }
 

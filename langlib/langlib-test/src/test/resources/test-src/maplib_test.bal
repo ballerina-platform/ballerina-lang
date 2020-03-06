@@ -43,18 +43,15 @@ function testRemoveIfHasKey() {
     map<string> student = {id:"1", name:"Andrew", country:"Sri Lanka", city:"Colombo"};
     string? s = student.removeIfHasKey("name");
     if (s is ()) {
-         error err = error("Returned value should be an string.");
-         panic err;
+         panic error("Returned value should be an string.");
     }
     if (<string> s != "Andrew") {
-         error err = error("Returned value should equals 'Andrew'.");
-         panic err;
+         panic error("Returned value should equals 'Andrew'.");
     }
 
     string? age = student.removeIfHasKey("age");
     if !(age is ()) {
-        error err = error("Returned value should be nil.");
-        panic err;
+        panic error("Returned value should be nil.");
     }
 }
 
