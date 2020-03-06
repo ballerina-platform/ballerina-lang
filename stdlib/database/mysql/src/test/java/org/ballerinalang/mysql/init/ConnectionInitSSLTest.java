@@ -30,7 +30,6 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import java.io.File;
-import java.nio.file.Paths;
 
 /**
  * This test case validates the SSL connections.
@@ -39,8 +38,8 @@ import java.nio.file.Paths;
  */
 public class ConnectionInitSSLTest {
     private static final String DB_NAME = "SSL_CONNECT_DB";
-    private static final String SQL_SCRIPT = SQLDBUtils.SQL_RESOURCE_DIR + File.separator + SQLDBUtils.CONNECTIONS_DIR +
-            File.separator + "connections_test_data.sql";
+    private static final String SQL_SCRIPT = SQLDBUtils.SQL_RESOURCE_DIR + File.separator
+            + SQLDBUtils.CONNECTIONS_DIR + File.separator + "connections_test_data.sql";
     private CompileResult result;
 
     static {
@@ -49,25 +48,28 @@ public class ConnectionInitSSLTest {
 
     @BeforeClass
     public void setup() {
-        result = BCompileUtil.compile(Paths.get("test-src", "connection",
-                "connection_ssl_test.bal").toString());
+        result = BCompileUtil.compile(SQLDBUtils.getBalFilesDir(SQLDBUtils.CONNECTIONS_DIR,
+                "connection_ssl_test.bal"));
     }
 
     @Test
     public void testSSLVerifyCert() {
         BValue[] returnVal = BRunUtil.invoke(result, "testSSLVerifyCert");
+        SQLDBUtils.assertNotError(returnVal[0]);
         Assert.assertNull(returnVal[0]);
     }
 
     @Test
     public void testSSLPreferred() {
         BValue[] returnVal = BRunUtil.invoke(result, "testSSLPreferred");
+        SQLDBUtils.assertNotError(returnVal[0]);
         Assert.assertNull(returnVal[0]);
     }
 
     @Test
     public void testSSLRequiredWithClientCert() {
         BValue[] returnVal = BRunUtil.invoke(result, "testSSLRequiredWithClientCert");
+        SQLDBUtils.assertNotError(returnVal[0]);
         Assert.assertNull(returnVal[0]);
     }
 
@@ -77,8 +79,9 @@ public class ConnectionInitSSLTest {
         Assert.assertTrue(returnVal[0] instanceof BError);
         BError error = (BError) returnVal[0];
         Assert.assertEquals(error.getReason(), SQLDBUtils.SQL_APPLICATION_ERROR_REASON);
-        Assert.assertTrue(((BMap) ((BError) returnVal[0]).getDetails()).get(SQLDBUtils.SQL_ERROR_MESSAGE)
-                .stringValue().contains("The certificate Common Name 'Ballerina MySQL/Connector' " +
-                        "does not match with 'localhost'"));
+        String errMessage = ((BMap) ((BError) returnVal[0]).getDetails())
+                .get(SQLDBUtils.SQL_ERROR_MESSAGE).stringValue();
+        Assert.assertTrue(errMessage.contains("The certificate Common Name 'Ballerina MySQL/Connector' " +
+                "does not match with 'localhost'"), "Found error message: " + errMessage);
     }
 }

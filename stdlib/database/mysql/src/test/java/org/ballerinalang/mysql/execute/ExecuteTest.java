@@ -56,13 +56,14 @@ public class ExecuteTest {
 
     @BeforeClass
     public void setup() {
-        result = BCompileUtil.compileOffline(SQLDBUtils.getBalFilesDir("execute",
+        result = BCompileUtil.compileOffline(SQLDBUtils.getBalFilesDir(SQLDBUtils.EXECUTE_DIR,
                 "execute-basic-test.bal"));
     }
 
     @Test
     public void testCreateTable() {
         BValue[] returnVal = BRunUtil.invokeFunction(result, "testCreateTable");
+        SQLDBUtils.assertNotError(returnVal[0]);
         Assert.assertTrue(returnVal[0] instanceof BMap);
         LinkedHashMap result = ((BMap) returnVal[0]).getMap();
         Assert.assertEquals(((BByte) result.get(Constants.AFFECTED_ROW_COUNT_FIELD)).intValue(), 0);
@@ -72,6 +73,7 @@ public class ExecuteTest {
     @Test
     public void testInsertTable() {
         BValue[] returnVal = BRunUtil.invokeFunction(result, "testInsertTable");
+        SQLDBUtils.assertNotError(returnVal[0]);
         Assert.assertTrue(returnVal[0] instanceof BMap);
         LinkedHashMap result = ((BMap) returnVal[0]).getMap();
         Assert.assertEquals(((BByte) result.get(Constants.AFFECTED_ROW_COUNT_FIELD)).intValue(), 1);
@@ -81,6 +83,7 @@ public class ExecuteTest {
     @Test
     public void testInsertTableWithoutGeneratedKeys() {
         BValue[] returnVal = BRunUtil.invokeFunction(result, "testInsertTableWithoutGeneratedKeys");
+        SQLDBUtils.assertNotError(returnVal[0]);
         Assert.assertTrue(returnVal[0] instanceof BMap);
         LinkedHashMap result = ((BMap) returnVal[0]).getMap();
         Assert.assertEquals(((BByte) result.get(Constants.AFFECTED_ROW_COUNT_FIELD)).intValue(), 1);
@@ -90,6 +93,7 @@ public class ExecuteTest {
     @Test
     public void testInsertTableWithGeneratedKeys() {
         BValue[] returnVal = BRunUtil.invokeFunction(result, "testInsertTableWithGeneratedKeys");
+        SQLDBUtils.assertNotError(returnVal[0]);
         Assert.assertTrue(returnVal[0] instanceof BMap);
         LinkedHashMap result = ((BMap) returnVal[0]).getMap();
         Assert.assertEquals(((BByte) result.get(Constants.AFFECTED_ROW_COUNT_FIELD)).intValue(), 1);
@@ -99,6 +103,7 @@ public class ExecuteTest {
     @Test
     public void testInsertAndSelectTableWithGeneratedKeys() {
         BValue[] returnVal = BRunUtil.invokeFunction(result, "testInsertAndSelectTableWithGeneratedKeys");
+        SQLDBUtils.assertNotError(returnVal[0]);
         Assert.assertTrue(returnVal[0] instanceof BValueArray);
         BValueArray result = (BValueArray) returnVal[0];
         Assert.assertEquals(result.getValues().length, 2);
@@ -123,6 +128,7 @@ public class ExecuteTest {
     public void testInsertWithAllNilAndSelectTableWithGeneratedKeys() {
         BValue[] returnVal = BRunUtil.invokeFunction(result,
                 "testInsertWithAllNilAndSelectTableWithGeneratedKeys");
+        SQLDBUtils.assertNotError(returnVal[0]);
         Assert.assertTrue(returnVal[0] instanceof BValueArray);
         BValueArray result = (BValueArray) returnVal[0];
         Assert.assertEquals(result.getValues().length, 2);
@@ -145,6 +151,7 @@ public class ExecuteTest {
     @Test
     public void testInsertWithStringAndSelectTable() {
         BValue[] returnVal = BRunUtil.invokeFunction(result, "testInsertWithStringAndSelectTable");
+        SQLDBUtils.assertNotError(returnVal[0]);
         Assert.assertTrue(returnVal[0] instanceof BValueArray);
         BValueArray result = (BValueArray) returnVal[0];
         Assert.assertEquals(result.getValues().length, 2);
@@ -171,6 +178,7 @@ public class ExecuteTest {
     @Test
     public void testInsertWithEmptyStringAndSelectTable() {
         BValue[] returnVal = BRunUtil.invokeFunction(result, "testInsertWithEmptyStringAndSelectTable");
+        SQLDBUtils.assertNotError(returnVal[0]);
         Assert.assertTrue(returnVal[0] instanceof BValueArray);
         BValueArray result = (BValueArray) returnVal[0];
         Assert.assertEquals(result.getValues().length, 2);
@@ -192,6 +200,7 @@ public class ExecuteTest {
     @Test
     public void testInsertWithNilStringAndSelectTable() {
         BValue[] returnVal = BRunUtil.invokeFunction(result, "testInsertWithNilStringAndSelectTable");
+        SQLDBUtils.assertNotError(returnVal[0]);
         Assert.assertTrue(returnVal[0] instanceof BValueArray);
         BValueArray result = (BValueArray) returnVal[0];
         Assert.assertEquals(result.getValues().length, 2);
@@ -218,8 +227,9 @@ public class ExecuteTest {
         Assert.assertEquals(error.getReason(), "{ballerina/sql}DatabaseError");
         Assert.assertTrue(error.getDetails() instanceof BMap);
         BMap<String, BValue> errorDetails = (BMap<String, BValue>) error.getDetails();
-        Assert.assertTrue(errorDetails.get(Constants.ErrorRecordFields.MESSAGE).stringValue()
-                .contains("Table 'test_sql_excute_query.numerictypesnonexisttable' doesn't exist"));
+        String errMessage = errorDetails.get(Constants.ErrorRecordFields.MESSAGE).stringValue();
+        Assert.assertTrue(errMessage.contains("Table 'test_sql_excute_query.numerictypesnonexisttable' doesn't exist"),
+                "Found error message:" + errMessage);
         Assert.assertEquals(((BInteger) errorDetails.get(Constants.ErrorRecordFields.ERROR_CODE)).intValue(),
                 1146);
         Assert.assertEquals(errorDetails.get(Constants.ErrorRecordFields.SQL_STATE).stringValue(), "42S02");
@@ -233,8 +243,9 @@ public class ExecuteTest {
         Assert.assertEquals(error.getReason(), "{ballerina/sql}DatabaseError");
         Assert.assertTrue(error.getDetails() instanceof BMap);
         BMap<String, BValue> errorDetails = (BMap<String, BValue>) error.getDetails();
-        Assert.assertTrue(errorDetails.get(Constants.ErrorRecordFields.MESSAGE).stringValue()
-                .contains("Incorrect integer value: 'This is wrong type' for column 'int_type'"));
+        String errMessage = errorDetails.get(Constants.ErrorRecordFields.MESSAGE).stringValue();
+        Assert.assertTrue(errMessage.contains("Incorrect integer value: 'This is wrong type' for column 'int_type'"),
+                "Found error message:" + errMessage);
         Assert.assertEquals(((BInteger) errorDetails.get(Constants.ErrorRecordFields.ERROR_CODE)).intValue(), 1366);
         Assert.assertEquals(errorDetails.get(Constants.ErrorRecordFields.SQL_STATE).stringValue(), "HY000");
     }
@@ -242,6 +253,7 @@ public class ExecuteTest {
     @Test
     public void testUdateData() {
         BValue[] returnVal = BRunUtil.invokeFunction(result, "testUdateData");
+        SQLDBUtils.assertNotError(returnVal[0]);
         Assert.assertTrue(returnVal[0] instanceof BValueArray);
         BValueArray result = (BValueArray) returnVal[0];
         Assert.assertEquals(result.getValues().length, 2);

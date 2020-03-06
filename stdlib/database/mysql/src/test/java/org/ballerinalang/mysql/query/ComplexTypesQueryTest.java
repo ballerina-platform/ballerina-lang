@@ -54,20 +54,20 @@ public class ComplexTypesQueryTest {
 
     @BeforeClass
     public void setup() {
-        result = BCompileUtil.compileOffline(SQLDBUtils.getBalFilesDir("query", "complex-query-test.bal"));
+        result = BCompileUtil.compileOffline(SQLDBUtils.getBalFilesDir(SQLDBUtils.QUERY_DIR,
+                "complex-query-test.bal"));
     }
-
 
     @Test
     public void testQuery() {
         BValue[] returnVal = BRunUtil.invokeFunction(result, "testQuery");
+        SQLDBUtils.assertNotError(returnVal[0]);
         Assert.assertTrue(returnVal[0] instanceof BMap);
         LinkedHashMap result = ((BMap) returnVal[0]).getMap();
         Assert.assertEquals(result.size(), 6);
         Assert.assertEquals(((BInteger) result.get("INT_TYPE")).intValue(), 1);
         Assert.assertEquals(((BInteger) result.get("LONG_TYPE")).intValue(), 9223372036854774807L);
         DecimalFormat df = new DecimalFormat("###.##");
-
         Assert.assertEquals(df.format(((BFloat) result.get("FLOAT_TYPE")).floatValue()), "123.34");
         Assert.assertEquals(((BFloat) result.get("DOUBLE_TYPE")).floatValue(), 2139095039D);
         Assert.assertTrue(((BBoolean) result.get("BOOLEAN_TYPE")).booleanValue());

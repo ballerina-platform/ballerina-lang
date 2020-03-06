@@ -17,6 +17,12 @@
  */
 package org.ballerinalang.mysql.utils;
 
+import org.ballerinalang.model.values.BError;
+import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BValue;
+import org.testng.Assert;
+
+import java.nio.file.Path;
 import java.nio.file.Paths;
 
 /**
@@ -34,11 +40,31 @@ public class SQLDBUtils {
     public static final String SQL_ERROR_MESSAGE = "message";
 
     public static final String SQL_RESOURCE_DIR = Paths.get("datafiles", "sql").toString();
-    public static final String CONNECTIONS_DIR = "connections";
+    public static final String CONNECTIONS_DIR = "connection";
     public static final String QUERY_DIR = "query";
     public static final String EXECUTE_DIR = "execute";
+    public static final String POOL_DIR = "pool";
 
     public static String getBalFilesDir(String subResourceDir, String resouceFileName) {
         return Paths.get("test-src", subResourceDir, resouceFileName).toString();
+    }
+
+    public static Path getResourcePath(String fileName) {
+        return Paths.get("src", "test", "resources", fileName).toAbsolutePath();
+    }
+
+    public static void assertNotError(Object value) {
+        if (value instanceof BError) {
+            BError bError = (BError) value;
+            String message = "Not expecting an error. Error details: \nReason:" + bError.getReason();
+            Object details = bError.getDetails();
+            if (details instanceof BMap) {
+                BValue errMessage = ((BMap) details).get("message");
+                if (errMessage != null) {
+                    message += " , message: " + errMessage.stringValue();
+                }
+            }
+            Assert.fail(message);
+        }
     }
 }

@@ -22,6 +22,8 @@ import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.sql.datasource.SQLDatasource;
 import org.ballerinalang.sql.utils.ClientUtils;
 
+import java.util.Properties;
+
 /**
  * Native implementation for the mysql client methods.
  *
@@ -43,7 +45,16 @@ public class NativeImpl {
             url += "/" + database;
         }
         MapValue options = clientConfig.getMapValue(Constants.ClientConfiguration.OPTIONS);
-        MapValue properties = Utils.generateOptionsMap(options);
+        MapValue properties = null;
+        Properties poolProperties = null;
+        if (options != null) {
+            properties = Utils.generateOptionsMap(options);
+            Object connectTimeout = properties.get(Constants.DatabaseProps.CONNECT_TIMEOUT);
+            if (connectTimeout != null) {
+                poolProperties = new Properties();
+                poolProperties.setProperty("ConnectionTimeout", connectTimeout.toString());
+            }
+        }
 
         MapValue connectionPool = clientConfig.getMapValue(Constants.ClientConfiguration.CONNECTION_POOL_OPTIONS);
         if (connectionPool == null) {
@@ -57,7 +68,8 @@ public class NativeImpl {
 
         SQLDatasource.SQLDatasourceParams sqlDatasourceParams = new SQLDatasource.SQLDatasourceParams().
                 setUrl(url).setUser(user).setPassword(password).setDatasourceName(datasourceName).
-                setOptions(properties).setConnectionPool(connectionPool);
+                setOptions(properties).setConnectionPool(connectionPool).setPoolProperties(poolProperties);
+
         return ClientUtils.createClient(client, sqlDatasourceParams);
     }
 

@@ -27,6 +27,7 @@ import org.ballerinalang.sql.utils.ErrorGenerator;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Map;
+import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.Lock;
@@ -137,7 +138,12 @@ public class SQLDatasource {
 
     private void buildDataSource(SQLDatasourceParams sqlDatasourceParams) {
         try {
-            HikariConfig config = new HikariConfig();
+            HikariConfig config;
+            if (sqlDatasourceParams.poolProperties != null) {
+                config = new HikariConfig(sqlDatasourceParams.poolProperties);
+            } else {
+                config = new HikariConfig();
+            }
             config.setJdbcUrl(sqlDatasourceParams.url);
             config.setUsername(sqlDatasourceParams.user);
             config.setPassword(sqlDatasourceParams.password);
@@ -210,6 +216,7 @@ public class SQLDatasource {
         private String datasourceName;
         private MapValue connectionPool;
         private MapValue options;
+        private Properties poolProperties;
 
         public SQLDatasourceParams() {
         }
@@ -241,6 +248,11 @@ public class SQLDatasource {
 
         public SQLDatasourceParams setOptions(MapValue options) {
             this.options = options;
+            return this;
+        }
+
+        public SQLDatasourceParams setPoolProperties(Properties properties) {
+            this.poolProperties = properties;
             return this;
         }
     }

@@ -33,8 +33,6 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import java.io.File;
-import java.nio.file.Paths;
-
 /**
  * This test case validates the connections.
  *
@@ -52,8 +50,8 @@ public class ConnectionInitTest {
 
     @BeforeClass
     public void setup() {
-        result = BCompileUtil.compile(Paths.get("test-src", "connection",
-                "connection_init_test.bal").toString());
+        result = BCompileUtil.compile(SQLDBUtils.getBalFilesDir(SQLDBUtils.CONNECTIONS_DIR,
+                "connection_init_test.bal"));
     }
 
     @Test
@@ -69,24 +67,28 @@ public class ConnectionInitTest {
         BValue[] args = {new BString(SQLDBUtils.DB_HOST), new BString(SQLDBUtils.DB_USER_NAME),
                 new BString(SQLDBUtils.DB_USER_PW), new BString(DB_NAME), new BInteger(SQLDBUtils.DB_PORT)};
         BValue[] returnVal = BRunUtil.invoke(result, "testWithURLParams", args);
+        SQLDBUtils.assertNotError(returnVal[0]);
         Assert.assertNull(returnVal[0]);
     }
 
     @Test
     public void testWithoutHost() {
         BValue[] returnVal = BRunUtil.invoke(result, "testWithoutHost");
+        SQLDBUtils.assertNotError(returnVal[0]);
         Assert.assertNull(returnVal[0]);
     }
 
     @Test
     public void testWithOptions() {
         BValue[] returnVal = BRunUtil.invoke(result, "testWithOptions");
+        SQLDBUtils.assertNotError(returnVal[0]);
         Assert.assertNull(returnVal[0]);
     }
 
     @Test
     public void testWithConnectionPool() {
         BValue[] returnVal = BRunUtil.invoke(result, "testWithConnectionPool");
+        SQLDBUtils.assertNotError(returnVal[0]);
         Assert.assertFalse(returnVal[0] instanceof BError);
         Assert.assertTrue(returnVal[0] instanceof BMap);
         BMap connectionPool = (BMap) returnVal[0];
@@ -98,6 +100,7 @@ public class ConnectionInitTest {
     @Test
     public void testWithConnectionParams() {
         BValue[] returnVal = BRunUtil.invoke(result, "testWithConnectionParams");
+        SQLDBUtils.assertNotError(returnVal[0]);
         Assert.assertNull(returnVal[0]);
     }
 }
