@@ -115,12 +115,15 @@ public type Cache object {
         }
     }
 
-    # Add the given key, value pair to the cache.
+    # Add the given key value pair to the cache. If the cache previously contained a value associated with key, the
+    # old value is replaced by value.
     #
     # + key - Key of the cached value
     # + value - Value to be cached
-    # + maxAgeInSeconds - The value in seconds which the cache entry is valid. '-1' means, the entry is valid forever.
-    public function put(string key, any value, int maxAgeInSeconds = -1) {
+    # + maxAgeInSeconds - The value in seconds, which the cache entry is valid. '-1' means, the entry is valid forever.
+    # + return - `()` if successfully added to the cache or
+    # `Error` if any error occurred while inserting entry to the cache.
+    public function put(string key, any value, int maxAgeInSeconds = -1) returns Error? {
         lock {
             // If the current cache is full (i.e. size = capacity), evict cache.
             if (self.size() == self.capacity) {
