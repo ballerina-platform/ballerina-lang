@@ -17,7 +17,6 @@
  */
 package org.ballerinalang.test.jvm;
 
-import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.test.util.BAssertUtil;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.CompileResult;
@@ -31,25 +30,25 @@ import org.testng.annotations.Test;
 @Test
 public class CodegenErrorsTest {
 
-    @Test(expectedExceptions = BLangCompilerException.class, groups = "brokenOnJBallerina")
+    @Test
     public void testTooLargeMethod() {
         CompileResult result = BCompileUtil.compileOnly("test-src/jvm/too-large-method.bal");
         BAssertUtil.validateError(result, 0, "method is too large: 'getXML'", "too-large-method.bal", 17, 1);
     }
 
-    @Test(expectedExceptions = BLangCompilerException.class, groups = "brokenOnJBallerina")
+    @Test
     public void testTooLargeObjectMethod() {
         CompileResult result = BCompileUtil.compileOnly("test-src/jvm/too-large-object-field.bal");
         BAssertUtil.validateError(result, 0, "method is too large: '$__init$'", "too-large-object-field.bal", 18, 9);
     }
 
-    @Test(expectedExceptions = BLangCompilerException.class, groups = "brokenOnJBallerina")
+    @Test
     public void testTooLargeObjectField() {
         CompileResult result = BCompileUtil.compileOnly("test-src/jvm/too-large-object-method.bal");
         BAssertUtil.validateError(result, 0, "method is too large: 'getXML'", "too-large-object-method.bal", 18, 5);
     }
 
-    @Test(expectedExceptions = BLangCompilerException.class, groups = "brokenOnJBallerina")
+    @Test
     public void testTooLargePackageVar() {
         CompileResult result = BCompileUtil.compileOnly("test-src/jvm/too-large-package-variable.bal");
         BAssertUtil.validateError(result, 0, "method is too large: '..<init>'", ".", 1, 1);
