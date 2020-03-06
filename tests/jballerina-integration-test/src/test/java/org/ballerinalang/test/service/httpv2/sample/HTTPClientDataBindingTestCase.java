@@ -15,20 +15,18 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.test.service.http.sample;
+package org.ballerinalang.test.service.httpv2.sample;
 
-import org.ballerinalang.test.service.http.HttpBaseTest;
+import org.ballerinalang.test.service.httpv2.HttpBaseTest;
 import org.ballerinalang.test.util.HttpClientRequest;
 import org.ballerinalang.test.util.HttpResponse;
-import org.ballerinalang.test.util.TestUtils;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import java.io.IOException;
-import java.util.HashMap;
 
 /**
- * Test client data binding and error responses, Related file 47_client_data_binding.bal")
+ * Test client data binding and error responses, Related file 01_client_data_binding.bal")
  *
  * @since 1.x.0 - //TBD
  */
@@ -40,31 +38,32 @@ public class HTTPClientDataBindingTestCase extends HttpBaseTest {
     public void testAllBindingDataTypes() throws IOException {
         HttpResponse response = HttpClientRequest.doGet(serverInstance.getServiceURLHttp(servicePort, "call/allTypes"));
         Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
-        Assert.assertEquals(response.getData(), "{\"foo\":\"Trailer for chunked payload\", \"baz\":\"The second " +
-                "trailer\"}");
+        Assert.assertEquals(response.getData(), "{\"id\":\"chamil\", \"values\":{\"a\":2, \"b\":45, " +
+                "\"c\":{\"x\":\"mnb\", \"y\":\"uio\"}}} | <name>Ballerina</name> | This is my @4491*&&#$^($@ | " +
+                "BinaryPayload is textVal | chamil | wso2 | 3 | data-binding");
     }
 
     @Test(description = "Test basic client with all HTTP request methods")
     public void testDifferentMethods() throws IOException {
         HttpResponse response = HttpClientRequest.doGet(serverInstance.getServiceURLHttp(servicePort, "call/allMethods"));
         Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
-        Assert.assertEquals(response.getData(), "{\"foo\":\"Trailer for chunked payload\", \"baz\":\"The second " +
-                "trailer\"}");
+        Assert.assertEquals(response.getData(), "{\"id\":\"chamil\", \"values\":{\"a\":2, \"b\":45, " +
+                "\"c\":{\"x\":\"mnb\", \"y\":\"uio\"}}} | application/xml | This is my @4491*&&#$^($@ | BinaryPayload" +
+                " is textVal | chamil | wso2 | 3");
     }
 
     @Test(description = "Test HTTP redirect client data binding")
     public void testRedirectClientDataBinding() throws IOException {
         HttpResponse response = HttpClientRequest.doGet(serverInstance.getServiceURLHttp(servicePort, "call/redirect"));
         Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
-        Assert.assertEquals(response.getData(), "{\"foo\":\"Trailer for chunked payload\", \"baz\":\"The second " +
-                "trailer\"}");
+        Assert.assertEquals(response.getData(), "{\"id\":\"chamil\", \"values\":{\"a\":2, \"b\":45, " +
+                "\"c\":{\"x\":\"mnb\", \"y\":\"uio\"}}}");
     }
 
     @Test(description = "Test HTTP retry client data binding")
     public void testRetryClientDataBinding() throws IOException {
         HttpResponse response = HttpClientRequest.doGet(serverInstance.getServiceURLHttp(servicePort, "call/retry"));
         Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
-        Assert.assertEquals(response.getData(), "{\"foo\":\"Trailer for chunked payload\", \"baz\":\"The second " +
-                "trailer\"}");
+        Assert.assertEquals(response.getData(), "Hello World!!!");
     }
 }

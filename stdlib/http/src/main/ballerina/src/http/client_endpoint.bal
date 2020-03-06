@@ -17,7 +17,6 @@
 import ballerinax/java;
 import ballerina/crypto;
 import ballerina/time;
-import ballerina/io;
 
 ////////////////////////////////
 ///// HTTP Client Endpoint /////
@@ -601,13 +600,11 @@ function processResponse(Response|PayloadType|ClientError result, TargetType tar
     Response response = <Response> result;
     int statusCode = response.statusCode;
     if (400 <= statusCode && statusCode < 500) {
-        io:println("++++++++++++++++++++++++400 <= statusCode && statusCode < 500");
         string errorPayload = check response.getTextPayload();
         ClientRequestError err = error(CLIENT_REQUEST_ERROR, message = errorPayload, statusCode = statusCode);
         return err;
     }
     if (500 <= statusCode && statusCode < 600) {
-        io:println("++++++++++++++++500 <= statusCode && statusCode < 600");
         string errorPayload = check response.getTextPayload();
         RemoteServerError err = error(REMOTE_SERVER_ERROR, message = errorPayload, statusCode = statusCode);
         return err;
@@ -616,24 +613,17 @@ function processResponse(Response|PayloadType|ClientError result, TargetType tar
 }
 
 function performDataBinding(Response response, TargetType targetType) returns @tainted PayloadType|ClientError {
-                io:println("+++++++++++++++performDataBinding+++++++++++");
     if (targetType is typedesc<string>) {
-                io:println("++++++++++++++targetType is typedesc<string>+++++++++++");
         return response.getTextPayload();
     } else if (targetType is typedesc<xml>) {
-                io:println("++++++++++++++targetType is typedesc<xml>++++++++++++++");
         return response.getXmlPayload();
     } else if (targetType is typedesc<byte[]>) {
-                io:println("++++++++++++++targetType is typedesc<byte[]>+++++++++++");
         return response.getBinaryPayload();
     } else if (targetType is typedesc<CustomRecordType>) {
-                io:println("++++++++++++++targetType is typedesc<CustomRecordType>+++++++++++");
         return <CustomRecordType> targetType.constructFrom(check response.getJsonPayload());
     } else if (targetType is typedesc<CustomRecordType[]>) {
-                io:println("++++++++++++++targetType is typedesc<CustomRecordType[]>+++++++++++");
         return <CustomRecordType[]> targetType.constructFrom(check response.getJsonPayload());
     } else if (targetType is typedesc<json>) {
-                io:println("++++++++++++++targetType is typedesc<json>+++++++++++");
         return response.getJsonPayload();
     }
 }

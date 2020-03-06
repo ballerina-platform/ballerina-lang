@@ -18,7 +18,7 @@ import ballerina/http;
 import ballerina/lang.'string as strings;
 import ballerina/runtime;
 
-http:Client basicClient = new ("http://localhost:9260");
+http:Client basicClient = new ("http://localhost:9301");
 
 type Person record {|
     string name;
@@ -30,7 +30,7 @@ int counter = 0;
 @http:ServiceConfig {
     basePath: "/call"
 }
-service passthrough on new http:Listener(9259) {
+service passthrough on new http:Listener(9300) {
     @http:ResourceConfig {
         methods: ["GET"],
         path: "/allTypes"
@@ -110,7 +110,7 @@ service passthrough on new http:Listener(9259) {
         path: "/redirect"
     }
     resource function checkJsonDatabinding(http:Caller caller, http:Request req) {
-        http:Client redirectClient = new ("http://localhost:9261", {
+        http:Client redirectClient = new ("http://localhost:9302", {
                 followRedirects: {enabled: true, maxCount: 5}
             }
         );
@@ -124,7 +124,7 @@ service passthrough on new http:Listener(9259) {
         path: "/retry"
     }
     resource function invokeEndpoint(http:Caller caller, http:Request request) {
-        http:Client retryClient = new ("http://localhost:9260", {
+        http:Client retryClient = new ("http://localhost:9301", {
                 retryConfig: { intervalInMillis: 3000, count: 3, backOffFactor: 2.0,
                 maxWaitIntervalInMillis: 20000 },  timeoutInMillis: 2000
             }
@@ -138,7 +138,7 @@ service passthrough on new http:Listener(9259) {
 @http:ServiceConfig {
     basePath: "/backend"
 }
-service mockHelloService on new http:Listener(9260) {
+service mockHelloService on new http:Listener(9301) {
     resource function getJson(http:Caller caller, http:Request req) {
         http:Response response = new;
         response.setJsonPayload({id: "chamil", values: {a: 2, b: 45, c: {x: "mnb", y: "uio"}}});
@@ -194,12 +194,12 @@ service mockHelloService on new http:Listener(9260) {
     }
 }
 
-service redirect1 on new http:Listener(9261) {
+service redirect1 on new http:Listener(9302) {
     @http:ResourceConfig {
         path: "/"
     }
     resource function redirect1(http:Caller caller, http:Request req) {
         http:Response res = new;
-        var result = caller->redirect(res, http:REDIRECT_SEE_OTHER_303, ["http://localhost:9260/backend/getJson"]);
+        var result = caller->redirect(res, http:REDIRECT_SEE_OTHER_303, ["http://localhost:9301/backend/getJson"]);
     }
 }
