@@ -77,11 +77,20 @@ public class SymbolTable {
     private static final CompilerContext.Key<SymbolTable> SYM_TABLE_KEY =
             new CompilerContext.Key<>();
 
-    public static final PackageID TRANSACTION = new PackageID(Names.BUILTIN_ORG, Names.TRANSACTION_PACKAGE, 
-                                                              Names.EMPTY);
-    
+    public static final PackageID TRANSACTION = new PackageID(Names.BUILTIN_ORG, Names.TRANSACTION_PACKAGE,
+            Names.EMPTY);
+
     public static final Integer BBYTE_MIN_VALUE = 0;
     public static final Integer BBYTE_MAX_VALUE = 255;
+    public static final Integer SIGNED32_MAX_VALUE = 2147483647;
+    public static final Integer SIGNED32_MIN_VALUE = -2147483648;
+    public static final Integer SIGNED16_MAX_VALUE = 32767;
+    public static final Integer SIGNED16_MIN_VALUE = -32768;
+    public static final Integer SIGNED8_MAX_VALUE = 127;
+    public static final Integer SIGNED8_MIN_VALUE = -128;
+    public static final Long UNSIGNED32_MAX_VALUE = 4294967295L;
+    public static final Integer UNSIGNED16_MAX_VALUE = 65535;
+    public static final Integer UNSIGNED8_MAX_VALUE = 255;
 
     public final BLangPackage rootPkgNode;
     public final BPackageSymbol rootPkgSymbol;
@@ -300,16 +309,13 @@ public class SymbolTable {
 
     public void defineOperators() {
         // Binary arithmetic operators
+        defineIntegerArithmeticOperations();
         defineBinaryOperator(OperatorKind.ADD, xmlType, xmlType, xmlType);
         defineBinaryOperator(OperatorKind.ADD, xmlType, stringType, xmlType);
         defineBinaryOperator(OperatorKind.ADD, stringType, stringType, stringType);
         defineBinaryOperator(OperatorKind.ADD, stringType, xmlType, xmlType);
         defineBinaryOperator(OperatorKind.ADD, floatType, floatType, floatType);
         defineBinaryOperator(OperatorKind.ADD, decimalType, decimalType, decimalType);
-        defineBinaryOperator(OperatorKind.ADD, intType, intType, intType);
-        defineBinaryOperator(OperatorKind.ADD, intType, byteType, intType);
-        defineBinaryOperator(OperatorKind.ADD, byteType, intType, intType);
-        defineBinaryOperator(OperatorKind.ADD, byteType, byteType, intType);
         defineBinaryOperator(OperatorKind.ADD, intType, floatType, floatType);
         defineBinaryOperator(OperatorKind.ADD, floatType, intType, floatType);
         defineBinaryOperator(OperatorKind.ADD, intType, decimalType, decimalType);
@@ -318,10 +324,6 @@ public class SymbolTable {
         defineBinaryOperator(OperatorKind.ADD, decimalType, floatType, decimalType);
         defineBinaryOperator(OperatorKind.SUB, floatType, floatType, floatType);
         defineBinaryOperator(OperatorKind.SUB, decimalType, decimalType, decimalType);
-        defineBinaryOperator(OperatorKind.SUB, intType, intType, intType);
-        defineBinaryOperator(OperatorKind.SUB, intType, byteType, intType);
-        defineBinaryOperator(OperatorKind.SUB, byteType, intType, intType);
-        defineBinaryOperator(OperatorKind.SUB, byteType, byteType, intType);
         defineBinaryOperator(OperatorKind.SUB, floatType, intType, floatType);
         defineBinaryOperator(OperatorKind.SUB, intType, floatType, floatType);
         defineBinaryOperator(OperatorKind.SUB, decimalType, intType, decimalType);
@@ -330,10 +332,6 @@ public class SymbolTable {
         defineBinaryOperator(OperatorKind.SUB, floatType, decimalType, decimalType);
         defineBinaryOperator(OperatorKind.DIV, floatType, floatType, floatType);
         defineBinaryOperator(OperatorKind.DIV, decimalType, decimalType, decimalType);
-        defineBinaryOperator(OperatorKind.DIV, intType, intType, intType);
-        defineBinaryOperator(OperatorKind.DIV, intType, byteType, intType);
-        defineBinaryOperator(OperatorKind.DIV, byteType, intType, intType);
-        defineBinaryOperator(OperatorKind.DIV, byteType, byteType, intType);
         defineBinaryOperator(OperatorKind.DIV, intType, floatType, floatType);
         defineBinaryOperator(OperatorKind.DIV, floatType, intType, floatType);
         defineBinaryOperator(OperatorKind.DIV, intType, decimalType, decimalType);
@@ -342,10 +340,6 @@ public class SymbolTable {
         defineBinaryOperator(OperatorKind.DIV, decimalType, floatType, decimalType);
         defineBinaryOperator(OperatorKind.MUL, floatType, floatType, floatType);
         defineBinaryOperator(OperatorKind.MUL, decimalType, decimalType, decimalType);
-        defineBinaryOperator(OperatorKind.MUL, intType, intType, intType);
-        defineBinaryOperator(OperatorKind.MUL, intType, byteType, intType);
-        defineBinaryOperator(OperatorKind.MUL, byteType, intType, intType);
-        defineBinaryOperator(OperatorKind.MUL, byteType, byteType, intType);
         defineBinaryOperator(OperatorKind.MUL, floatType, intType, floatType);
         defineBinaryOperator(OperatorKind.MUL, intType, floatType, floatType);
         defineBinaryOperator(OperatorKind.MUL, decimalType, intType, decimalType);
@@ -354,10 +348,6 @@ public class SymbolTable {
         defineBinaryOperator(OperatorKind.MUL, floatType, decimalType, decimalType);
         defineBinaryOperator(OperatorKind.MOD, floatType, floatType, floatType);
         defineBinaryOperator(OperatorKind.MOD, decimalType, decimalType, decimalType);
-        defineBinaryOperator(OperatorKind.MOD, intType, intType, intType);
-        defineBinaryOperator(OperatorKind.MOD, intType, byteType, intType);
-        defineBinaryOperator(OperatorKind.MOD, byteType, intType, intType);
-        defineBinaryOperator(OperatorKind.MOD, byteType, byteType, intType);
         defineBinaryOperator(OperatorKind.MOD, floatType, intType, floatType);
         defineBinaryOperator(OperatorKind.MOD, intType, floatType, floatType);
         defineBinaryOperator(OperatorKind.MOD, decimalType, intType, decimalType);
@@ -494,10 +484,27 @@ public class SymbolTable {
 
     }
 
+    private void defineIntegerArithmeticOperations() {
+
+        BType[] intTypes = {intType, byteType, signed32IntType, signed16IntType, signed8IntType, unsigned32IntType,
+                unsigned16IntType,
+                unsigned8IntType};
+        for (BType lhs : intTypes) {
+            for (BType rhs : intTypes) {
+                defineBinaryOperator(OperatorKind.ADD, lhs, rhs, intType);
+                defineBinaryOperator(OperatorKind.SUB, lhs, rhs, intType);
+                defineBinaryOperator(OperatorKind.DIV, lhs, rhs, intType);
+                defineBinaryOperator(OperatorKind.MUL, lhs, rhs, intType);
+                defineBinaryOperator(OperatorKind.MOD, lhs, rhs, intType);
+            }
+        }
+    }
+
     public void defineBinaryOperator(OperatorKind kind,
                                      BType lhsType,
                                      BType rhsType,
                                      BType retType) {
+
         List<BType> paramTypes = Lists.of(lhsType, rhsType);
         defineOperator(names.fromString(kind.value()), paramTypes, retType);
     }

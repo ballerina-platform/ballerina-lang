@@ -90,6 +90,15 @@ import java.util.stream.Collectors;
 
 import static org.wso2.ballerinalang.compiler.semantics.model.SymbolTable.BBYTE_MAX_VALUE;
 import static org.wso2.ballerinalang.compiler.semantics.model.SymbolTable.BBYTE_MIN_VALUE;
+import static org.wso2.ballerinalang.compiler.semantics.model.SymbolTable.SIGNED16_MAX_VALUE;
+import static org.wso2.ballerinalang.compiler.semantics.model.SymbolTable.SIGNED16_MIN_VALUE;
+import static org.wso2.ballerinalang.compiler.semantics.model.SymbolTable.SIGNED32_MAX_VALUE;
+import static org.wso2.ballerinalang.compiler.semantics.model.SymbolTable.SIGNED32_MIN_VALUE;
+import static org.wso2.ballerinalang.compiler.semantics.model.SymbolTable.SIGNED8_MAX_VALUE;
+import static org.wso2.ballerinalang.compiler.semantics.model.SymbolTable.SIGNED8_MIN_VALUE;
+import static org.wso2.ballerinalang.compiler.semantics.model.SymbolTable.UNSIGNED16_MAX_VALUE;
+import static org.wso2.ballerinalang.compiler.semantics.model.SymbolTable.UNSIGNED32_MAX_VALUE;
+import static org.wso2.ballerinalang.compiler.semantics.model.SymbolTable.UNSIGNED8_MAX_VALUE;
 
 /**
  * This class consists of utility methods which operate on types.
@@ -1326,9 +1335,50 @@ public class Types {
             default:
         }
 
-        if (targetType.tag == TypeTags.INT
-                && (actualType.tag == TypeTags.BYTE || TypeTags.isIntegerTypeTag(actualType.tag))) {
+        // Validate for Integers subtypes.
+        if (TypeTags.isIntegerTypeTag(targetType.tag) && actualType.tag == targetType.tag) {
             return TypeTestResult.TRUE;
+        }
+        switch (targetType.tag) {
+            case TypeTags.INT:
+                if (actualType.tag == TypeTags.BYTE || TypeTags.isIntegerTypeTag(actualType.tag)) {
+                    return TypeTestResult.TRUE;
+                }
+                break;
+            case TypeTags.SIGNED32_INT:
+                if (actualType.tag == TypeTags.SIGNED16_INT || actualType.tag == TypeTags.SIGNED8_INT ||
+                        actualType.tag == TypeTags.UNSIGNED16_INT || actualType.tag == TypeTags.UNSIGNED8_INT ||
+                        actualType.tag == TypeTags.BYTE) {
+                    return TypeTestResult.TRUE;
+                }
+                break;
+            case TypeTags.SIGNED16_INT:
+                if (actualType.tag == TypeTags.SIGNED8_INT || actualType.tag == TypeTags.UNSIGNED8_INT ||
+                        actualType.tag == TypeTags.BYTE) {
+                    return TypeTestResult.TRUE;
+                }
+                break;
+            case TypeTags.UNSIGNED32_INT:
+                if (actualType.tag == TypeTags.UNSIGNED16_INT || actualType.tag == TypeTags.UNSIGNED8_INT ||
+                        actualType.tag == TypeTags.BYTE) {
+                    return TypeTestResult.TRUE;
+                }
+                break;
+            case TypeTags.UNSIGNED16_INT:
+                if (actualType.tag == TypeTags.UNSIGNED8_INT || actualType.tag == TypeTags.BYTE) {
+                    return TypeTestResult.TRUE;
+                }
+                break;
+            case TypeTags.BYTE:
+                if (actualType.tag == TypeTags.UNSIGNED8_INT) {
+                    return TypeTestResult.TRUE;
+                }
+                break;
+            case TypeTags.UNSIGNED8_INT:
+                if (actualType.tag == TypeTags.BYTE) {
+                    return TypeTestResult.TRUE;
+                }
+                break;
         }
         return TypeTestResult.NOT_FOUND;
     }
@@ -1971,7 +2021,38 @@ public class Types {
     }
 
     boolean isByteLiteralValue(Long longObject) {
+
         return (longObject.intValue() >= BBYTE_MIN_VALUE && longObject.intValue() <= BBYTE_MAX_VALUE);
+    }
+
+    boolean isSigned32LiteralValue(Long longObject) {
+
+        return (longObject >= SIGNED32_MIN_VALUE && longObject <= SIGNED32_MAX_VALUE);
+    }
+
+    boolean isSigned16LiteralValue(Long longObject) {
+
+        return (longObject.intValue() >= SIGNED16_MIN_VALUE && longObject.intValue() <= SIGNED16_MAX_VALUE);
+    }
+
+    boolean isSigned8LiteralValue(Long longObject) {
+
+        return (longObject.intValue() >= SIGNED8_MIN_VALUE && longObject.intValue() <= SIGNED8_MAX_VALUE);
+    }
+
+    boolean isUnsigned32LiteralValue(Long longObject) {
+
+        return (longObject >= 0 && longObject <= UNSIGNED32_MAX_VALUE);
+    }
+
+    boolean isUnsigned16LiteralValue(Long longObject) {
+
+        return (longObject.intValue() >= 0 && longObject.intValue() <= UNSIGNED16_MAX_VALUE);
+    }
+
+    boolean isUnsigned8LiteralValue(Long longObject) {
+
+        return (longObject.intValue() >= 0 && longObject.intValue() <= UNSIGNED8_MAX_VALUE);
     }
 
     /**
@@ -1980,8 +2061,8 @@ public class Types {
      *
      * @param finiteType the finite type
      * @param targetType the target type
-     * @return           a new finite type if at least one value in the value space of the specified finiteType is
-     *                      assignable to targetType (the same if all are assignable), else semanticError
+     * @return a new finite type if at least one value in the value space of the specified finiteType is
+     * assignable to targetType (the same if all are assignable), else semanticError
      */
     BType getTypeForFiniteTypeValuesAssignableToType(BFiniteType finiteType, BType targetType) {
         // finiteType - type Foo "foo";
@@ -2494,6 +2575,12 @@ public class Types {
         switch (type.tag) {
             case TypeTags.BOOLEAN:
             case TypeTags.INT:
+            case TypeTags.SIGNED32_INT:
+            case TypeTags.SIGNED16_INT:
+            case TypeTags.SIGNED8_INT:
+            case TypeTags.UNSIGNED32_INT:
+            case TypeTags.UNSIGNED16_INT:
+            case TypeTags.UNSIGNED8_INT:
             case TypeTags.BYTE:
             case TypeTags.FLOAT:
             case TypeTags.DECIMAL:
