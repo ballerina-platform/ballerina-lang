@@ -131,10 +131,10 @@ public class BallerinaParserErrorHandler {
         // Assumption: always comes here after a peek()
 
         if (nextToken.kind == SyntaxKind.EOF_TOKEN) {
-            reportMissingTokenError("missing " + currentCtx);
             SyntaxKind expectedTokenKind = getExpectedTokenKind(currentCtx);
-            this.listner.addMissingNode(expectedTokenKind);
-            return new Solution(Action.INSERT, currentCtx, expectedTokenKind, currentCtx.toString());
+            Solution fix = new Solution(Action.INSERT, currentCtx, expectedTokenKind, currentCtx.toString());
+            handleMissingToken(currentCtx, fix);
+            return fix;
         }
 
         Result bestMatch = seekMatch(currentCtx);
@@ -175,16 +175,26 @@ public class BallerinaParserErrorHandler {
             removeInvalidToken();
             this.parser.resumeParsing(currentCtx);
         } else {
-            if (isProductionWithAlternatives(currentCtx)) {
-                // If the original issues was at a production where there are alternatives,
-                // then do not report any errors. Parser will try to re-parse the best-matching
-                // alternative again. Errors will be reported at the next try.
-                return;
-            }
-
-            reportMissingTokenError("missing " + fix.ctx);
-            this.listner.addMissingNode(fix.tokenKind);
+            handleMissingToken(currentCtx, fix);
         }
+    }
+
+    /**
+     * Handle a missing token scenario.
+     * 
+     * @param currentCtx Current context
+     * @param fix Solution to recover from the missing token
+     */
+    private void handleMissingToken(ParserRuleContext currentCtx, Solution fix) {
+        if (isProductionWithAlternatives(currentCtx)) {
+            // If the original issues was at a production where there are alternatives,
+            // then do not report any errors. Parser will try to re-parse the best-matching
+            // alternative again. Errors will be reported at the next try.
+            return;
+        }
+
+        reportMissingTokenError("missing " + fix.ctx);
+        this.listner.addMissingNode(fix.tokenKind);
     }
 
     /**
@@ -1057,6 +1067,7 @@ public class BallerinaParserErrorHandler {
                 return SyntaxKind.OPEN_BRACE_TOKEN;
             case OPEN_PARENTHESIS:
                 return SyntaxKind.OPEN_PAREN_TOKEN;
+            case RETURN_TYPE_DESCRIPTOR:
             case RETURNS_KEYWORD:
                 return SyntaxKind.RETURNS_KEYWORD;
             case SEMICOLON:
@@ -1070,29 +1081,40 @@ public class BallerinaParserErrorHandler {
                 // TODO: return type token
                 // return SyntaxKind.IDENTIFIER_TOKEN;
                 return SyntaxKind.TYPE_TOKEN;
-            case ANNOTATION_ATTACHMENT:
             case ASSIGNMENT_STMT:
+                return SyntaxKind.IDENTIFIER_TOKEN;
             case BINARY_EXPR_RHS:
-            case COMP_UNIT:
+                return SyntaxKind.PLUS_TOKEN;
             case EXPRESSION:
+                return SyntaxKind.IDENTIFIER_TOKEN;
             case EXTERNAL_FUNC_BODY:
+                return SyntaxKind.EQUAL_TOKEN;
             case FUNC_BODY:
             case FUNC_BODY_BLOCK:
+                return SyntaxKind.OPEN_BRACE_TOKEN;
             case FUNC_DEFINITION:
+                return SyntaxKind.FUNCTION_KEYWORD;
             case FUNC_SIGNATURE:
+                return SyntaxKind.OPEN_PAREN_TOKEN;
             case REQUIRED_PARAM:
-            case PARAM_LIST:
-            case RETURN_TYPE_DESCRIPTOR:
-            case STATEMENT:
-            case TOP_LEVEL_NODE:
+                return SyntaxKind.TYPE_TOKEN;
             case VAR_DECL_STMT:
+                return SyntaxKind.TYPE_TOKEN;
             case VAR_DECL_STMT_RHS:
-            case VAR_DECL_STMT_RHS_VALUE:
-            case PARAMETER_RHS:
-            case TOP_LEVEL_NODE_WITH_MODIFIER:
+                return SyntaxKind.SEMICOLON_TOKEN;
             case ASSIGNMENT_OR_VAR_DECL_STMT_RHS:
+                return SyntaxKind.TYPE_TOKEN;
             case DEFAULTABLE_PARAM:
+                return SyntaxKind.TYPE_TOKEN;
             case REST_PARAM:
+                return SyntaxKind.TYPE_TOKEN;
+            case COMP_UNIT:
+            case TOP_LEVEL_NODE_WITH_MODIFIER:
+            case TOP_LEVEL_NODE:
+            case ANNOTATION_ATTACHMENT:
+            case PARAM_LIST:
+            case PARAMETER_RHS:
+            case STATEMENT:
             default:
                 break;
         }

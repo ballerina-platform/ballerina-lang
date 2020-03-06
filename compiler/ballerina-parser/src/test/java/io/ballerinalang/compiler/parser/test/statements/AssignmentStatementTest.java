@@ -24,6 +24,8 @@ import org.testng.annotations.Test;
  */
 public class AssignmentStatementTest extends AbstractStatementTest {
 
+    // Valid source tests
+
     @Test
     public void testSimpleAssignment() {
         test("a = 5;", "assignment-stmt/assignment_stmt_assert_1.json");
@@ -34,13 +36,30 @@ public class AssignmentStatementTest extends AbstractStatementTest {
         test("a = b;", "assignment-stmt/assignment_stmt_assert_2.json");
     }
 
+    // Recovery tests
+
     @Test
-    public void testSimpleAssignmentMissingSemicolon() {
+    public void testAssignmentWithMissingSemicolon() {
         test("a = 5", "assignment-stmt/assignment_stmt_assert_3.json");
     }
 
     @Test
-    public void testSimpleAssignmentMissingEqual() {
+    public void testAssignmentWithMissingEqual() {
         test("a 5;", "assignment-stmt/assignment_stmt_assert_4.json");
+    }
+
+    @Test
+    public void testAssignmentWithMissingRhsExpr() {
+        test("a =;", "assignment-stmt/assignment_stmt_assert_5.json");
+    }
+
+    @Test
+    public void testAssignmentWithMissingLhs() {
+        test("= 5;", "assignment-stmt/assignment_stmt_assert_6.json");
+    }
+
+    @Test
+    public void testAssignmentWithMissingLhsAndRhs() {
+        test("=;", "assignment-stmt/assignment_stmt_assert_7.json");
     }
 }

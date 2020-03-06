@@ -10,13 +10,6 @@
             "value": "a"
         },
         {
-            "kind": "EQUAL_TOKEN"
-        },
-        {
-            "kind": "NUMERIC_LITERAL_TOKEN",
-            "value": 5
-        },
-        {
             "kind": "SEMICOLON_TOKEN"
         }
     ]

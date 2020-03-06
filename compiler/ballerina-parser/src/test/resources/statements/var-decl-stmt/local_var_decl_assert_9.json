@@ -7,7 +7,7 @@
         },
         {
             "kind": "IDENTIFIER_TOKEN",
-            "value": "a"
+            "isMissing": true
         },
         {
             "kind": "SEMICOLON_TOKEN"

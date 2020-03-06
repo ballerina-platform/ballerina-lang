@@ -1193,7 +1193,7 @@ public class BallerinaParser {
     private void parseAssignmentOrVarDeclRhs(SyntaxKind tokenKind) {
         switch (tokenKind) {
             case IDENTIFIER_TOKEN:
-                parseVariableName(tokenKind);
+                parseVariableName();
                 parseVarDeclRhs();
                 break;
             case EQUAL_TOKEN:

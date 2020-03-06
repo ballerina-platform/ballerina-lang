@@ -10,8 +10,7 @@
             "value": "a"
         },
         {
-            "kind": "EQUAL_TOKEN",
-            "isMissing": true
+            "kind": "EQUAL_TOKEN"
         },
         {
             "kind": "NUMERIC_LITERAL_TOKEN",

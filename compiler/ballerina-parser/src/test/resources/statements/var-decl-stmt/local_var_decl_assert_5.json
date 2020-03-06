@@ -10,7 +10,8 @@
             "value": "a"
         },
         {
-            "kind": "SEMICOLON_TOKEN"
+            "kind": "SEMICOLON_TOKEN",
+            "isMissing": true
         }
     ]
 }

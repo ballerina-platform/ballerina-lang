@@ -10,7 +10,15 @@
             "value": "a"
         },
         {
-            "kind": "SEMICOLON_TOKEN"
+            "kind": "EQUAL_TOKEN"
+        },
+        {
+            "kind": "NUMERIC_LITERAL_TOKEN",
+            "value": 5
+        },
+        {
+            "kind": "SEMICOLON_TOKEN",
+            "isMissing": true
         }
     ]
 }

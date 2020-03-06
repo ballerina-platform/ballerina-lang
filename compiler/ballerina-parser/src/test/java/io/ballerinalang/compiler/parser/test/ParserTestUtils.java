@@ -74,18 +74,24 @@ public class ParserTestUtils {
 
     private static void validate(STNode node, JsonObject json) {
         aseertNodeKind(json, node);
+
+        if (isMissingToken(json)) {
+            Assert.assertTrue(node instanceof STMissingToken);
+            return;
+        }
+
+        // If the expected token is not a missing node, then validate it's content
+        Assert.assertFalse(node instanceof STMissingToken);
         if (isTerminalNode(node.kind)) {
             assertTerminalNode(json, node);
         } else {
             assertNonTerminalNode(json, node);
         }
+    }
 
+    private static boolean isMissingToken(JsonObject json) {
         JsonElement isMissing = json.get(IS_MISSING_FIELD);
-        if (isMissing != null && isMissing.getAsBoolean()) {
-            Assert.assertTrue(node instanceof STMissingToken);
-        } else {
-            Assert.assertFalse(node instanceof STMissingToken);
-        }
+        return isMissing != null && isMissing.getAsBoolean();
     }
 
     private static void aseertNodeKind(JsonObject json, STNode node) {
@@ -110,9 +116,17 @@ public class ParserTestUtils {
     private static void assertNonTerminalNode(JsonObject json, STNode tree) {
         JsonArray children = json.getAsJsonArray(CHILDREN_FIELD);
         int size = children.size();
-        Assert.assertEquals(tree.bucketCount(), size);
+        int j = 0;
+
+        // Skip the optional fields that are not present and get the next
+        // available node.
         for (int i = 0; i < size; i++) {
-            validate(tree.childInBucket(i), (JsonObject) children.get(i));
+            STNode nextChild = tree.childInBucket(j++);
+            while (nextChild == null || nextChild.kind == SyntaxKind.NONE) {
+                nextChild = tree.childInBucket(j++);
+            }
+
+            validate(nextChild, (JsonObject) children.get(i));
         }
     }
 

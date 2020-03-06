@@ -24,23 +24,52 @@ import org.testng.annotations.Test;
  */
 public class VarDeclarationTest extends AbstractStatementTest {
 
+    // Valid source tests
+
     @Test
     public void testLocalVarDeclWithBuiltinType() {
-        test("int a = 5;", "var-decl-stmt/local_var_decl_assert_1.json");
+        test("int a;", "var-decl-stmt/local_var_decl_assert_1.json");
     }
 
     @Test
     public void testLocalVarDeclWithUserdefinedType() {
-        test("Foo a = 5;", "var-decl-stmt/local_var_decl_assert_2.json");
+        test("Foo a;", "var-decl-stmt/local_var_decl_assert_2.json");
     }
+
+    @Test
+    public void testLocalVarDeclWithBuiltinTypeAndRhs() {
+        test("int a = 5;", "var-decl-stmt/local_var_decl_assert_3.json");
+    }
+
+    @Test
+    public void testLocalVarDeclWithUserdefinedTypeAndRhs() {
+        test("Foo a = 5;", "var-decl-stmt/local_var_decl_assert_4.json");
+    }
+
+    // Recovery tests
 
     @Test
     public void testLocalVarDeclWithMissingSemicolon() {
-        test("Foo a = 5", "var-decl-stmt/local_var_decl_assert_3.json");
+        test("Foo a", "var-decl-stmt/local_var_decl_assert_5.json");
     }
 
     @Test
-    public void testLocalVarDeclWithMissingEqual() {
-        test("Foo a 5;", "var-decl-stmt/local_var_decl_assert_4.json");
+    public void testLocalVarDeclWithRhsAndMissingSemicolon() {
+        test("Foo a = 5", "var-decl-stmt/local_var_decl_assert_6.json");
+    }
+
+    @Test
+    public void testLocalVarDeclWithRhsAndMissingEqual() {
+        test("Foo a 5;", "var-decl-stmt/local_var_decl_assert_7.json");
+    }
+
+    @Test
+    public void testLocalVarDeclWithBuiltinTypeAndMissingIdentifier() {
+        test("int ;", "var-decl-stmt/local_var_decl_assert_8.json");
+    }
+
+    @Test
+    public void testLocalVarDeclWithUserdefinedTypeAndMissingIdentifier() {
+        test("Foo ;", "var-decl-stmt/local_var_decl_assert_9.json");
     }
 }

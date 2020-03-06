@@ -1,13 +1,9 @@
 {
-    "kind": "LOCAL_VARIABLE_DECL",
+    "kind": "ASSIGNMENT_STATEMENT",
     "children": [
         {
-            "kind": "TYPE_TOKEN",
-            "value": "int"
-        },
-        {
             "kind": "IDENTIFIER_TOKEN",
-            "value": "a"
+            "isMissing": true
         },
         {
             "kind": "EQUAL_TOKEN"
