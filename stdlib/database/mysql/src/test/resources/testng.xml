@@ -26,6 +26,8 @@ under the License.
             <class name="org.ballerinalang.mysql.BaseTest"/>
             <class name="org.ballerinalang.mysql.init.ConnectionInitTest"/>
             <class name="org.ballerinalang.mysql.init.ConnectionInitSSLTest"/>
+            <class name="org.ballerinalang.mysql.query.NumericTypesQueryTest"/>
+            <class name="org.ballerinalang.mysql.query.ComplexTypesQueryTest"/>
         </classes>
     </test>
 </suite>
