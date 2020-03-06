@@ -177,8 +177,6 @@ task test {
                 into dis
             }
         }
-    }
-    doLast {
         def listOfItem = stdEMock + mockList
         listOfItem.each { String bbe ->
             bbe = "${bbe}_test"
@@ -194,8 +192,6 @@ task test {
                 }
             }
         }
-    }
-    doLast {
         mockList.each { String bbe ->
             def bbeOut = []
             def fileOut = []
@@ -247,8 +243,6 @@ task test {
             }
             println "Ballerina example test passed: ${balName}"
         }
-    }
-    doLast {
         stdEMock.each { String bbe ->
             def balName = bbe.replace('-', '_')
             def str = ""
