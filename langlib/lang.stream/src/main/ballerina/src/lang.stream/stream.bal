@@ -13,40 +13,44 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
+
 import ballerina/lang.__internal as internal;
 
-//TODO: stream<Type, E>, supporting E is not implemented yet.
 # A type parameter that is a subtype of `any|error`.
 # Has the special semantic that when used in a declaration
 # all uses in the declaration must refer to same type.
 @typeParam
-type PureType1 any | error;
+type Type any|error;
 
-@typeParam
-type PureType2 any | error;
-
-@typeParam
-type Type any | error;
-
+# A type parameter that is a subtype of `error`.
+# Has the special semantic that when used in a declaration
+# all uses in the declaration must refer to same type.
 @typeParam
 type ErrorType error;
 
-# Selects the members from an array for which the `func` function returns true.
-#
-# + strm - The stream
-# + func - a predicate to apply to each member to test whether it should be selected
-# + return - new stream only containing members of `strm` for which `func` evaluates to true
-public function filter(stream<PureType1, ErrorType> strm, function(PureType1 val) returns boolean func) returns stream<PureType1, ErrorType> {
-    object {
-        public stream<PureType1, ErrorType> strm;
-        public function(PureType1 val) returns boolean func;
+# A type parameter that is a subtype of `any|error`.
+# Has the special semantic that when used in a declaration
+# all uses in the declaration must refer to same type.
+@typeParam
+type Type1 any|error;
 
-        public function __init(stream<PureType1, ErrorType> strm, function(PureType1 val) returns boolean func) {
+# Selects the members from a stream for which a function returns true.
+#
+# + stm - the stream
+# + func - a predicate to apply to each member to test whether it should be selected
+# + return - new stream only containing members of `stm` for which `func` evaluates to true
+public function filter(stream<Type,ErrorType> stm, function(Type val) returns boolean func)
+   returns stream<Type,ErrorType>  {
+    object {
+        public stream<Type, ErrorType> strm;
+        public any func;
+
+        public function __init(stream<Type, ErrorType> strm, function(Type val) returns boolean func) {
             self.strm = strm;
-            internal:setFilterFunc(self, func);
+            self.func = func;
         }
 
-        public function next() returns record {|PureType1 value;|}|ErrorType? {
+        public function next() returns record {|Type value;|}|ErrorType? {
             // while loop is required to continue filtering until we find a value which matches the filter or ().
             while(true) {
                 var nextVal = next(self.strm);
@@ -57,7 +61,7 @@ public function filter(stream<PureType1, ErrorType> strm, function(PureType1 val
                     return nextVal;
                 } else {
                     var value = nextVal?.value;
-                    function(PureType1 val) returns boolean func = self.func;
+                    function(any|error) returns boolean func = <function(any|error) returns boolean>internal:getFilterFunc(self.func);
                     if (func(value)) {
                         return nextVal;
                     }
@@ -65,8 +69,8 @@ public function filter(stream<PureType1, ErrorType> strm, function(PureType1 val
             }
             return ();
         }
-    } itrObj = new(strm, func);
-    return internal:construct(internal:getElementType(typeof strm), itrObj);
+    } itrObj = new(stm, func);
+    return internal:construct(internal:getElementType(typeof stm), itrObj);
 }
 
 # Returns the next element in the stream wrapped in a record or () if the stream ends.
@@ -74,47 +78,45 @@ public function filter(stream<PureType1, ErrorType> strm, function(PureType1 val
 # + strm - The stream
 # + return - If the stream has elements, return the element wrapped in a record with single field called `value`,
 #            otherwise returns ()
-public function next(stream<PureType1, ErrorType> strm) returns record {| PureType1 value; |}|ErrorType? {
+public function next(stream<Type, ErrorType> strm) returns record {| Type value; |}|ErrorType? {
     abstract object {
-            public function next() returns record {|PureType1 value;|}|ErrorType?;
-
-        } iteratorObj = <abstract object {
-                                     public function next() returns record {|PureType1 value;|}|ErrorType?;
-
-                                 }>getIteratorObj(strm);
+        public function next() returns record {|Type value;|}|ErrorType?;
+    } iteratorObj = <abstract object {
+                            public function next() returns record {|Type value;|}|ErrorType?;
+                     }>getIteratorObj(strm);
     var next1 = iteratorObj.next();
     if (next1 is ()) {
         return ();
     } else if (next1 is error) {
         return next1;
     } else {
-        return internal:setNarrowType(typeof next1.value, {value : next1.value});
+        return internal:setNarrowType(internal:getElementType(typeof strm), {value : next1.value});
     }
 }
 
-# Applies a function to each member of a stream and returns a new stream of the results.
+# Applies a function to each member of a stream and returns a stream of the results.
 #
-# + strm - The stream
-# + func - A function to apply to each member
-# + return - New stream containing result of applying `func` to each member of `strm` in order
-public function 'map(stream<PureType1, ErrorType> strm, function(PureType1 val) returns PureType2 func) returns stream<PureType2, ErrorType> {
+# + stm - the stream
+# + func - a function to apply to each member
+# + return - new stream containing result of applying `func` to each member of `stm` in order
+public function 'map(stream<Type,ErrorType> stm, function(Type val) returns Type1 func)
+   returns stream<Type1,ErrorType> {
     object {
-       public stream<PureType1, ErrorType> strm;
-       public function(PureType1 val) returns PureType2 func;
+       public stream<Type, ErrorType> strm;
+       public function(Type val) returns Type1 func;
 
-       public function __init(stream<PureType1, ErrorType> strm, function(PureType1 val) returns PureType2 func) {
+       public function __init(stream<Type, ErrorType> strm, function(Type val) returns Type1 func) {
            self.strm = strm;
            self.func = func;
        }
 
-       public function next() returns record {|PureType1 value;|}|ErrorType? {
+       public function next() returns record {|Type value;|}|ErrorType? {
            var nextVal = next(self.strm);
            if (nextVal is ()) {
                return ();
            } else {
                function(any | error) returns any | error mappingFunc = self.func;
                if (nextVal is error) {
-                    // TODO: double check
                     return nextVal;
                } else {
                     var value = mappingFunc(nextVal.value);
@@ -122,29 +124,24 @@ public function 'map(stream<PureType1, ErrorType> strm, function(PureType1 val) 
                }
            }
        }
-    } iteratorObj = new(strm, func);
+    } iteratorObj = new(stm, func);
     //TODO:use stream constructor instead, to get the correct elementType. It is not correct at all.
-    return internal:construct(internal:getElementType(typeof strm), iteratorObj);
+    return internal:construct(internal:getElementType(typeof stm), iteratorObj);
 }
 
-# Combines the members of an stream using a combining function.
+# Combines the members of a stream using a combining function.
 # The combining function takes the combined value so far and a member of the stream,
 # and returns a new combined value.
 #
-# + strm - the stream
+# + stm - the stream
 # + func - combining function
-# + initial - initial value for the first argument of combining parameter `func`
-# + return - result of combining the members of `strm` using `func`
-#
-# For example
-# ```
-# reduce([1, 2, 3].toStream(), function (int total, int n) returns int { return total + n; }, 0)
-# ```
-# is the same as `sum(1, 2, 3)`.
-public function reduce(stream<PureType1, ErrorType> strm, function(Type accum, PureType1 val) returns Type func, Type initial) returns Type {
+# + initial - initial value for the first argument of combining function
+# + return - result of combining the members of `stm` using the combining function
+public function reduce(stream<Type,ErrorType> stm, function(Type1 accum, Type val) returns Type1 func, Type1 initial)
+   returns Type1|ErrorType {
     any | error reducedValue = initial;
     while (true) {
-        var nextVal = next(strm);
+        var nextVal = next(stm);
         if (nextVal is ()) {
             return reducedValue;
         } else if (nextVal is error) {
@@ -158,37 +155,36 @@ public function reduce(stream<PureType1, ErrorType> strm, function(Type accum, P
 }
 
 # Applies a function to each member of a stream.
-# The parameter `func` is applied to each member of stream `strm` in order.
+# The Combining function is applied to each member of stream in order.
 #
-# + strm - the stream
+# + stm - the stream
 # + func - a function to apply to each member
-public function forEach(stream<PureType1, ErrorType> strm, function(PureType1 val) returns () func) returns () {
-    var nextVal = next(strm);
+# + return - An error if iterating the stream encounters an error
+public function forEach(stream<Type,ErrorType> stm, function(Type val) returns () func) returns ErrorType? {
+    var nextVal = next(stm);
     while(true) {
         if (nextVal is ()) {
             return;
-        } else if (nextVal is error) {
-            // TODO: double check
-            return;
+        } else if (nextVal is ErrorType) {
+            return nextVal;
         } else {
             var value = nextVal?.value;
             func(value);
         }
-        nextVal = next(strm);
+        nextVal = next(stm);
     }
 }
 
 # Returns an iterator over a stream.
-# The iterator will iterate over the members of the stream.
 #
-# + strm - the stream
-# + return - a new iterator object that will iterate over the members of `strm`
-public function iterator(stream<PureType1, ErrorType> strm) returns abstract object {
+# + stm - the stream
+# + return - a new iterator object that will iterate over the members of `stm`.
+public function iterator(stream<Type,ErrorType> stm) returns abstract object {
     public function next() returns record {|
-        PureType1 value;
+        Type value;
     |}|ErrorType?;
-} {
-    return getIteratorObj(strm);
+}{
+    return getIteratorObj(stm);
 }
 
 # Closes a stream.
@@ -196,10 +192,10 @@ public function iterator(stream<PureType1, ErrorType> strm) returns abstract obj
 #
 # + stm - the stream to close
 # + return - () if the close completed successfully, otherwise an error
-public function close(stream<PureType1, ErrorType> stm) returns ErrorType? {
+public function close(stream<Type,ErrorType> stm) returns ErrorType? {
     var itrObj = getIteratorObj(stm);
     if (itrObj is abstract object {
-        public function next() returns record {|PureType1 value;|}|ErrorType?;
+        public function next() returns record {|Type value;|}|ErrorType?;
         public function close() returns ErrorType?;
     }) {
         return itrObj.close();

@@ -30,7 +30,7 @@ public type ErrorType error;
 # + td - The narrowed type to be set.
 # + val - The value of which the type being set.
 # + return - The value with the narrowed type.
-public function setNarrowType(typedesc<PureType> td, record {|PureType value;|}|ErrorType? val) returns record {|PureType value;|}|ErrorType? = external;
+public function setNarrowType(typedesc<PureType> td, record {|PureType value;|}|ErrorType? val) returns record {|PureType value;|}? = external;
 
 # Takes in a lambda function and returns a new stream out of it.
 #
@@ -48,9 +48,9 @@ public function getElementType(typedesc<PureType[]> | typedesc<stream<PureType>>
 
 # Gets the saved filter function from native data.
 #
-# + iteratorObj - Object in which the filter function is saved
+# + func - Object in which the filter function is saved
 # + return - filter function with parameterized function type
-public function getFilterFunc(abstract object { public function next() returns record {|PureType value;|}|ErrorType?;} iteratorObj) returns function(PureType) returns boolean = external;
+public function getFilterFunc(any func) returns function(PureType) returns boolean = external;
 
 # Saves the filter function as native data in iterator object.
 #
