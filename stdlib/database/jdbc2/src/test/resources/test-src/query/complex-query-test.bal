@@ -164,8 +164,8 @@ function testToJson(string jdbcURL, string user, string password) returns @taint
   jdbc:Client dbClient = check new (url = jdbcURL, user = user, password = password);
   stream<record{}, error> streamData = dbClient->query("SELECT int_type, long_type, float_type, double_type, boolean_type, string_type from DataTable WHERE row_id = 1");
   record{| record{} value; |}? data =  check streamData.next();
+  check streamData.close();
   record{}? value = data?.value;
-  any ignore = check streamData.next(); //TODO: change to close() once it's implemented.
   json|error retVal = json.constructFrom(value);
   check dbClient.close();
   return retVal;
@@ -175,19 +175,18 @@ function testToJsonComplexTypes(string jdbcURL, string user, string password) re
     jdbc:Client dbClient = check new (url = jdbcURL, user = user, password = password);
     stream<record{}, error> streamData = dbClient->query("SELECT blob_type,clob_type,binary_type from ComplexTypes where row_id = 1");
     record{| record{} value; |}? data =  check streamData.next();
+    check streamData.close();
     record{}? value = data?.value;
-    any ignore = check streamData.next(); //TODO: change to close() once it's implemented.
     check dbClient.close();
     return value;
 }
 
 function testComplexTypesNil(string jdbcURL, string user, string password) returns record{}|error? {
     jdbc:Client dbClient = check new (url = jdbcURL, user = user, password = password);
-
     stream<record{}, error> streamData = dbClient->query("SELECT blob_type,clob_type,binary_type from ComplexTypes where row_id = 2");
     record{| record{} value; |}? data =  check streamData.next();
+    check streamData.close();
     record{}? value = data?.value;
-    any ignore = check streamData.next(); //TODO: change to close() once it's implemented.
     check dbClient.close();
         return value;
 }
@@ -197,11 +196,11 @@ function testArrayRetrieval(string jdbcURL, string user, string password) return
     stream<record{}, error> streamData = dbClient->query("SELECT int_type, int_array, long_type, long_array, float_type," +
                     "float_array, double_type, boolean_type, string_type, decimal_type, double_array, boolean_array," +
                     "string_array from MixTypes where row_id =1");
-record{| record{} value; |}? data =  check streamData.next();
+    record{| record{} value; |}? data =  check streamData.next();
+    check streamData.close();
     record{}? value = data?.value;
-    any ignore = check streamData.next(); //TODO: change to close() once it's implemented.
     check dbClient.close();
-        return value;
+    return value;
 }
 
 function testComplexWithStructDef(string jdbcURL, string user, string password) returns record{}|error? {
@@ -210,10 +209,10 @@ function testComplexWithStructDef(string jdbcURL, string user, string password) 
         + "float_array, double_type, boolean_type, string_type, double_array, boolean_array, string_array "
         +"from MixTypes where row_id =1", TestTypeData);
     record{| record{} value; |}? data =  check streamData.next();
-        record{}? value = data?.value;
-        any ignore = check streamData.next(); //TODO: change to close() once it's implemented.
-        check dbClient.close();
-            return value;
+    check streamData.close();
+    record{}? value = data?.value;
+    check dbClient.close();
+    return value;
 }
 
 function testMultipleRecoredRetrieval(string jdbcURL, string user, string password) returns @tainted ResultMap[]|error? {
