@@ -14,14 +14,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "ParamOrderConfig",
-      "kind": "Property",
-      "detail": "Annotation",
-      "sortText": "110",
-      "insertText": "ParamOrderConfig",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "ServiceConfig",
       "kind": "Property",
       "detail": "Annotation",

@@ -15,69 +15,35 @@
  */
 package org.ballerinalang.langserver.hover.util;
 
-import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.common.constants.ContextConstants;
 import org.ballerinalang.langserver.common.constants.NodeContextKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.LSContext;
-import org.ballerinalang.model.Whitespace;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.MarkdownDocAttachment;
-import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.eclipse.lsp4j.Hover;
 import org.eclipse.lsp4j.MarkedString;
 import org.eclipse.lsp4j.MarkupContent;
-import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BStructureTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
-import org.wso2.ballerinalang.compiler.tree.BLangFunction;
-import org.wso2.ballerinalang.compiler.tree.BLangService;
-import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
-import org.wso2.ballerinalang.compiler.tree.types.BLangArrayType;
-import org.wso2.ballerinalang.compiler.tree.types.BLangConstrainedType;
-import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 import org.wso2.ballerinalang.compiler.util.Name;
-import org.wso2.ballerinalang.compiler.util.Names;
-import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * Utility class for Hover functionality of language server.
  */
 public class HoverUtil {
-    /**
-     * check whether given position matches the given node's position.
-     *
-     * @param nodePosition position of the current node.
-     * @param textPosition position to be matched.
-     * @return {@link Boolean} return true if position are a match else return false.
-     */
-    public static boolean isMatchingPosition(DiagnosticPos nodePosition, Position textPosition) {
-        boolean isCorrectPosition = false;
-        if (nodePosition.sLine == textPosition.getLine()
-                && nodePosition.eLine >= textPosition.getLine()
-                && nodePosition.sCol <= textPosition.getCharacter()
-                && nodePosition.eCol >= textPosition.getCharacter()) {
-            isCorrectPosition = true;
-        }
-        return isCorrectPosition;
-    }
-
     /**
      * Get Hover from documentation attachment.
      *
@@ -153,110 +119,6 @@ public class HoverUtil {
     }
 
     /**
-     * Calculate and returns identifier position of this BLangFunction.
-     *
-     * @param bLangFunction {@link BLangFunction}
-     * @return position
-     */
-    public static DiagnosticPos getIdentifierPosition(BLangFunction bLangFunction) {
-        DiagnosticPos funcPosition = bLangFunction.getPosition();
-        DiagnosticPos position = new DiagnosticPos(funcPosition.src, funcPosition.sLine, funcPosition.eLine,
-                                                   funcPosition.sCol,
-                                                   funcPosition.eCol);
-        Set<Whitespace> wsSet = bLangFunction.getWS();
-        if (wsSet != null && wsSet.size() > 4) {
-            Whitespace[] wsArray = new Whitespace[wsSet.size()];
-            wsSet.toArray(wsArray);
-            Arrays.sort(wsArray);
-            int lengthToNameStart = 0;
-            if (wsArray[0].getPrevious().equals(CommonKeys.RESOURCE_KEYWORD_KEY)) {
-                lengthToNameStart += wsArray[0].getPrevious().length()
-                        + wsArray[1].getPrevious().length() + wsArray[1].getWs().length() + wsArray[2].getWs().length();
-            } else {
-                lengthToNameStart += wsArray[0].getPrevious().length() + wsArray[1].getWs().length();
-                if (wsArray[2].getPrevious().equals("::")) {
-                    lengthToNameStart += wsArray[1].getPrevious().length() + "::".length();
-                }
-            }
-            position.sCol += lengthToNameStart;
-            position.eCol = position.sCol + bLangFunction.name.value.length();
-            if (!bLangFunction.annAttachments.isEmpty()) {
-                int lastAnnotationEndline = CommonUtil.getLastItem(bLangFunction.annAttachments).pos.eLine;
-                position.sLine = lastAnnotationEndline +
-                        wsArray[0].getWs().split(CommonUtil.LINE_SEPARATOR_SPLIT).length - 1;
-            }
-        }
-        return position;
-    }
-
-    /**
-     * Calculate and returns identifier position of this BLangService.
-     *
-     * @param serviceNode {@link BLangService}
-     * @return position
-     */
-    public static DiagnosticPos getIdentifierPosition(BLangService serviceNode) {
-        DiagnosticPos servPosition = serviceNode.getPosition();
-        DiagnosticPos position = new DiagnosticPos(servPosition.src, servPosition.sLine, servPosition.eLine,
-                                                   servPosition.sCol,
-                                                   servPosition.eCol);
-        Set<Whitespace> wsSet = serviceNode.getWS();
-        if (wsSet != null && wsSet.size() > 4) {
-            Whitespace[] wsArray = new Whitespace[wsSet.size()];
-            wsSet.toArray(wsArray);
-            Arrays.sort(wsArray);
-            int serviceKeywordLength = wsArray[0].getPrevious().length() +
-                    wsArray[1].getPrevious().length() + wsArray[1].getWs().length() +
-                    wsArray[2].getPrevious().length() + wsArray[2].getWs().length() + wsArray[3].getWs().length();
-            int serviceTypeLength = 0;
-            position.sCol += (serviceTypeLength + serviceKeywordLength);
-            position.eCol = position.sCol + serviceNode.name.value.length();
-        }
-        return position;
-    }
-
-    /**
-     * Calculate and returns identifier position of this BlangVariable.
-     *
-     * @param varNode BLangSimpleVariable
-     * @return position
-     */
-    public static DiagnosticPos getIdentifierPosition(BLangSimpleVariable varNode) {
-        DiagnosticPos position = varNode.getPosition();
-        Set<Whitespace> wsSet = varNode.getWS();
-        if (wsSet != null && wsSet.size() > 0) {
-            BLangType typeNode = varNode.getTypeNode();
-            int beforeIdentifierWSLength = getLowestIndexedWS(wsSet).getWs().length();
-            if (varNode.symbol.type != null && varNode.symbol.type.tsymbol != null) {
-                BTypeSymbol bTypeSymbol = varNode.symbol.type.tsymbol;
-                PackageID pkgID = bTypeSymbol.pkgID;
-                int packagePrefixLen = (pkgID != PackageID.DEFAULT
-                        && !pkgID.name.value.startsWith("lang.")
-                        && pkgID.name != Names.DEFAULT_PACKAGE)
-                        ? (pkgID.name.value + ":").length()
-                        : 0;
-                if (typeNode instanceof BLangConstrainedType) {
-                    int typeSpecifierSymbolLength = 2;
-                    int typeSpecifierLength = typeSpecifierSymbolLength + getTotalWhitespaceLen(typeNode.getWS());
-                    position.sCol +=
-                            packagePrefixLen + ((BLangConstrainedType) typeNode).type.type.tsymbol.name.value.length() +
-                                    ((BLangConstrainedType) typeNode).constraint.type.tsymbol.name.value.length() +
-                                    typeSpecifierLength + beforeIdentifierWSLength;
-                } else {
-                    position.sCol += packagePrefixLen + bTypeSymbol.name.value.length() + beforeIdentifierWSLength;
-                }
-            } else if (typeNode instanceof BLangArrayType && typeNode.type instanceof BArrayType) {
-                int arraySpecifierSymbolLength = 2;
-                int arraySpecifierLength = arraySpecifierSymbolLength + getTotalWhitespaceLen(typeNode.getWS());
-                position.sCol += ((BArrayType) typeNode.type).eType.tsymbol.name.value.length() + arraySpecifierLength +
-                        beforeIdentifierWSLength;
-            }
-            position.eCol = position.sCol + varNode.symbol.name.value.length();
-        }
-        return position;
-    }
-
-    /**
      * Get the markdown doc attachment for the symbol. 
      * For the variable symbol direct markdown content is empty, hence consider the type symbol.
      * 
@@ -286,30 +148,6 @@ public class HoverUtil {
         }
         
         return markdownDocAttachment;
-    }
-
-    private static int getTotalWhitespaceLen(Set<Whitespace> wsSet) {
-        Whitespace[] ws = new Whitespace[wsSet.size()];
-        wsSet.toArray(ws);
-        int length = 0;
-        for (Whitespace whitespace : ws) {
-            length += whitespace.getWs().length();
-        }
-        return length;
-    }
-
-    private static Whitespace getLowestIndexedWS(Set<Whitespace> wsSet) {
-        Whitespace[] ws = new Whitespace[wsSet.size()];
-        wsSet.toArray(ws);
-        Whitespace sWhitespace = ws[0];
-        int sIndex = sWhitespace.getIndex();
-        for (Whitespace whitespace : ws) {
-            if (sIndex > whitespace.getIndex()) {
-                sIndex = whitespace.getIndex();
-                sWhitespace = whitespace;
-            }
-        }
-        return sWhitespace;
     }
 
     /**

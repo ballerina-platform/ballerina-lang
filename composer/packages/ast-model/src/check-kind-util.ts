@@ -53,6 +53,12 @@ export class ASTKindChecker {
     return node.kind === "Block";
   }
 
+  public static isBlockFunctionBody(
+    node: Ballerina.ASTNode
+  ): node is Ballerina.BlockFunctionBody {
+    return node.kind === "BlockFunctionBody";
+  }
+
   public static isBreak(node: Ballerina.ASTNode): node is Ballerina.Break {
     return node.kind === "Break";
   }
@@ -93,6 +99,12 @@ export class ASTKindChecker {
     return node.kind === "Constant";
   }
 
+  public static isConstantRef(
+    node: Ballerina.ASTNode
+  ): node is Ballerina.ConstantRef {
+    return node.kind === "ConstantRef";
+  }
+
   public static isConstrainedType(
     node: Ballerina.ASTNode
   ): node is Ballerina.ConstrainedType {
@@ -109,6 +121,12 @@ export class ASTKindChecker {
     node: Ballerina.ASTNode
   ): node is Ballerina.DocumentationParameter {
     return node.kind === "DocumentationParameter";
+  }
+
+  public static isDocumentationReference(
+    node: Ballerina.ASTNode
+  ): node is Ballerina.DocumentationReference {
+    return node.kind === "DocumentationReference";
   }
 
   public static isElvisExpr(
@@ -141,10 +159,22 @@ export class ASTKindChecker {
     return node.kind === "ErrorVariableRef";
   }
 
+  public static isExprFunctionBody(
+    node: Ballerina.ASTNode
+  ): node is Ballerina.ExprFunctionBody {
+    return node.kind === "ExprFunctionBody";
+  }
+
   public static isExpressionStatement(
     node: Ballerina.ASTNode
   ): node is Ballerina.ExpressionStatement {
     return node.kind === "ExpressionStatement";
+  }
+
+  public static isExternFunctionBody(
+    node: Ballerina.ASTNode
+  ): node is Ballerina.ExternFunctionBody {
+    return node.kind === "ExternFunctionBody";
   }
 
   public static isFieldBasedAccessExpr(
@@ -163,14 +193,14 @@ export class ASTKindChecker {
     return node.kind === "Foreach";
   }
 
-  public static isForever(node: Ballerina.ASTNode): node is Ballerina.Forever {
-    return node.kind === "Forever";
-  }
-
   public static isForkJoin(
     node: Ballerina.ASTNode
   ): node is Ballerina.ForkJoin {
     return node.kind === "ForkJoin";
+  }
+
+  public static isFrom(node: Ballerina.ASTNode): node is Ballerina.From {
+    return node.kind === "From";
   }
 
   public static isFunction(
@@ -183,10 +213,6 @@ export class ASTKindChecker {
     node: Ballerina.ASTNode
   ): node is Ballerina.FunctionType {
     return node.kind === "FunctionType";
-  }
-
-  public static isGroupBy(node: Ballerina.ASTNode): node is Ballerina.GroupBy {
-    return node.kind === "GroupBy";
   }
 
   public static isGroupExpr(
@@ -221,18 +247,8 @@ export class ASTKindChecker {
     return node.kind === "Invocation";
   }
 
-  public static isJoinStreamingInput(
-    node: Ballerina.ASTNode
-  ): node is Ballerina.JoinStreamingInput {
-    return node.kind === "JoinStreamingInput";
-  }
-
   public static isLambda(node: Ballerina.ASTNode): node is Ballerina.Lambda {
     return node.kind === "Lambda";
-  }
-
-  public static isLimit(node: Ballerina.ASTNode): node is Ballerina.Limit {
-    return node.kind === "Limit";
   }
 
   public static isListConstructorExpr(
@@ -297,6 +313,12 @@ export class ASTKindChecker {
     return node.kind === "Panic";
   }
 
+  public static isQueryExpr(
+    node: Ballerina.ASTNode
+  ): node is Ballerina.QueryExpr {
+    return node.kind === "QueryExpr";
+  }
+
   public static isRecordDestructure(
     node: Ballerina.ASTNode
   ): node is Ballerina.RecordDestructure {
@@ -347,16 +369,8 @@ export class ASTKindChecker {
     return node.kind === "Return";
   }
 
-  public static isSelectClause(
-    node: Ballerina.ASTNode
-  ): node is Ballerina.SelectClause {
-    return node.kind === "SelectClause";
-  }
-
-  public static isSelectExpression(
-    node: Ballerina.ASTNode
-  ): node is Ballerina.SelectExpression {
-    return node.kind === "SelectExpression";
+  public static isSelect(node: Ballerina.ASTNode): node is Ballerina.Select {
+    return node.kind === "Select";
   }
 
   public static isService(node: Ballerina.ASTNode): node is Ballerina.Service {
@@ -375,24 +389,6 @@ export class ASTKindChecker {
     return node.kind === "SimpleVariableRef";
   }
 
-  public static isStreamAction(
-    node: Ballerina.ASTNode
-  ): node is Ballerina.StreamAction {
-    return node.kind === "StreamAction";
-  }
-
-  public static isStreamingInput(
-    node: Ballerina.ASTNode
-  ): node is Ballerina.StreamingInput {
-    return node.kind === "StreamingInput";
-  }
-
-  public static isStreamingQuery(
-    node: Ballerina.ASTNode
-  ): node is Ballerina.StreamingQuery {
-    return node.kind === "StreamingQuery";
-  }
-
   public static isStringTemplateLiteral(
     node: Ballerina.ASTNode
   ): node is Ballerina.StringTemplateLiteral {
@@ -407,18 +403,6 @@ export class ASTKindChecker {
     node: Ballerina.ASTNode
   ): node is Ballerina.TableColumn {
     return node.kind === "TableColumn";
-  }
-
-  public static isTableQuery(
-    node: Ballerina.ASTNode
-  ): node is Ballerina.TableQuery {
-    return node.kind === "TableQuery";
-  }
-
-  public static isTableQueryExpression(
-    node: Ballerina.ASTNode
-  ): node is Ballerina.TableQueryExpression {
-    return node.kind === "TableQueryExpression";
   }
 
   public static isTernaryExpr(
@@ -545,10 +529,6 @@ export class ASTKindChecker {
     node: Ballerina.ASTNode
   ): node is Ballerina.WaitLiteralKeyValue {
     return node.kind === "WaitLiteralKeyValue";
-  }
-
-  public static isWhere(node: Ballerina.ASTNode): node is Ballerina.Where {
-    return node.kind === "Where";
   }
 
   public static isWhile(node: Ballerina.ASTNode): node is Ballerina.While {

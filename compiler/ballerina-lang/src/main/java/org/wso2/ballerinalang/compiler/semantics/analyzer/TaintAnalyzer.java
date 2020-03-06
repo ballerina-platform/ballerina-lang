@@ -76,6 +76,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIntRangeExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangLetExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr.BLangArrayLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
@@ -106,7 +107,9 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerSyncSendExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttribute;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttributeAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLCommentLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLNavigationAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLProcInsLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQName;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQuotedString;
@@ -146,6 +149,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangArrayType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangBuiltInRefTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangConstrainedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFunctionTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangLetVariable;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangTupleTypeNode;
@@ -438,6 +442,14 @@ public class TaintAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangResource resourceNode) {
         /* ignored */
+    }
+
+    @Override
+    public void visit(BLangLetExpression letExpression) {
+        for (BLangLetVariable letVarDeclaration : letExpression.letVarDeclarations) {
+            analyzeNode((BLangNode) letVarDeclaration.definitionNode, letExpression.env);
+        }
+        analyzeNode(letExpression.expr, letExpression.env);
     }
 
     @Override
@@ -951,8 +963,10 @@ public class TaintAnalyzer extends BLangNodeVisitor {
                 }
 
                 keyValuePair.valueExpr.accept(this);
-            } else {
+            } else if (field.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
                 ((BLangRecordLiteral.BLangRecordVarNameField) field).accept(this);
+            } else {
+                ((BLangRecordLiteral.BLangRecordSpreadOperatorField) field).expr.accept(this);
             }
 
             // Used to update the variable this literal is getting assigned to.
@@ -994,17 +1008,11 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         BType varRefType = fieldAccessExpr.expr.type;
         switch (varRefType.tag) {
             case TypeTags.OBJECT:
-                fieldAccessExpr.expr.accept(this);
-                break;
             case TypeTags.RECORD:
-                fieldAccessExpr.expr.accept(this);
-                break;
             case TypeTags.MAP:
-                fieldAccessExpr.expr.accept(this);
-                break;
             case TypeTags.JSON:
+            case TypeTags.XML:
                 fieldAccessExpr.expr.accept(this);
-                break;
         }
     }
 
@@ -1156,6 +1164,24 @@ public class TaintAnalyzer extends BLangNodeVisitor {
                                                                             TaintedStatus.UNTAINTED;
         }
         getCurrentAnalysisState().taintedStatus = statusForWait;
+    }
+
+    @Override
+    public void visit(BLangXMLElementAccess xmlElementAccess) {
+        xmlElementAccess.expr.accept(this);
+    }
+
+    @Override
+    public void visit(BLangXMLNavigationAccess xmlNavigation) {
+        xmlNavigation.expr.accept(this);
+
+        if (xmlNavigation.childIndex != null) {
+            // Although we want to analyze the taintedness of xmlNavigation's index, we don't want it to affect the
+            // taintedness of return value of xml navigation expression. Hence bypassing.
+            TaintedStatus exprTaintStatus = getCurrentAnalysisState().taintedStatus;
+            xmlNavigation.childIndex.accept(this);
+            getCurrentAnalysisState().taintedStatus = exprTaintStatus;
+        }
     }
 
     @Override
@@ -1516,11 +1542,6 @@ public class TaintAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangIndexBasedAccess.BLangXMLAccessExpr xmlIndexAccessExpr) {
-        /* ignore */
-    }
-
-    @Override
-    public void visit(BLangRecordLiteral.BLangJSONLiteral jsonLiteral) {
         /* ignore */
     }
 

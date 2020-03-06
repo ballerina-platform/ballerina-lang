@@ -90,6 +90,7 @@ dependencies {
     baloImplementation project(path: ':ballerina-backend-jvm', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-jvm', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-bir', configuration: 'baloImplementation')
+    baloImplementation project(path: ':testerina:testerina-core', configuration: 'baloImplementation')
 }
 
 description = 'JBallerina - Unit Test Module'

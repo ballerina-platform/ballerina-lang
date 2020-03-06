@@ -97,7 +97,9 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerSyncSendExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttribute;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttributeAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLCommentLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLNavigationAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLProcInsLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQName;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQuotedString;
@@ -1181,6 +1183,21 @@ public class ClosureDesugar extends BLangNodeVisitor {
         result = xmlIndexAccessExpr;
     }
 
+
+    @Override
+    public void visit(BLangXMLElementAccess xmlElementAccess) {
+        xmlElementAccess.expr = rewriteExpr(xmlElementAccess.expr);
+        result = xmlElementAccess;
+    }
+
+    @Override
+    public void visit(BLangXMLNavigationAccess xmlNavigation) {
+        xmlNavigation.expr = rewriteExpr(xmlNavigation.expr);
+        xmlNavigation.childIndex = rewriteExpr(xmlNavigation.childIndex);
+        result = xmlNavigation;
+    }
+
+
     @Override
     public void visit(BLangIndexBasedAccess.BLangJSONAccessExpr jsonAccessExpr) {
         jsonAccessExpr.indexExpr = rewriteExpr(jsonAccessExpr.indexExpr);
@@ -1196,35 +1213,12 @@ public class ClosureDesugar extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangRecordLiteral.BLangJSONLiteral jsonLiteral) {
-        jsonLiteral.fields.forEach(field -> {
-            BLangRecordLiteral.BLangRecordKeyValueField bLangRecordKeyValue =
-                    (BLangRecordLiteral.BLangRecordKeyValueField) field;
-            bLangRecordKeyValue.key.expr = rewriteExpr(bLangRecordKeyValue.key.expr);
-            bLangRecordKeyValue.valueExpr = rewriteExpr(bLangRecordKeyValue.valueExpr);
-        });
-        result = jsonLiteral;
-    }
-
-    @Override
     public void visit(BLangRecordLiteral.BLangMapLiteral mapLiteral) {
-        mapLiteral.fields.forEach(field -> {
-            BLangRecordLiteral.BLangRecordKeyValueField bLangRecordKeyValue =
-                    (BLangRecordLiteral.BLangRecordKeyValueField) field;
-            bLangRecordKeyValue.key.expr = rewriteExpr(bLangRecordKeyValue.key.expr);
-            bLangRecordKeyValue.valueExpr = rewriteExpr(bLangRecordKeyValue.valueExpr);
-        });
         result = mapLiteral;
     }
 
     @Override
     public void visit(BLangRecordLiteral.BLangStructLiteral structLiteral) {
-        structLiteral.fields.forEach(field -> {
-            BLangRecordLiteral.BLangRecordKeyValueField bLangRecordKeyValue =
-                    (BLangRecordLiteral.BLangRecordKeyValueField) field;
-            bLangRecordKeyValue.key.expr = rewriteExpr(bLangRecordKeyValue.key.expr);
-            bLangRecordKeyValue.valueExpr = rewriteExpr(bLangRecordKeyValue.valueExpr);
-        });
         result = structLiteral;
     }
 

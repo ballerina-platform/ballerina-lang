@@ -17,7 +17,7 @@
  * under the License.
  *
  */
-import { ExtensionContext, commands, window } from 'vscode';
+import { ExtensionContext, commands, window, Location, Uri } from 'vscode';
 import { ballerinaExtInstance } from './core';
 import { activate as activateAPIEditor } from './api-editor';
 // import { activate as activateDiagram } from './diagram'; 
@@ -91,6 +91,16 @@ export function activate(context: ExtensionContext): Promise<any> {
         activateTreeView(ballerinaExtInstance);
         // Enable Ballerina Syntax Highlighter
         activateSyntaxHighlighter(ballerinaExtInstance);
+
+        ballerinaExtInstance.onReady().then(() => {
+            const langClient = <ExtendedLangClient>ballerinaExtInstance.langClient;
+            // Register showTextDocument listener
+            langClient.onNotification('window/showTextDocument', (location: Location) => {
+                if (location.uri !== undefined) {
+                    window.showTextDocument(Uri.parse(location.uri.toString()), {selection: location.range});
+                }
+            });
+        });
     }).catch((e) => {
         log("Failed to activate Ballerina extension. " + (e.message ? e.message : e));
         // When plugins fails to start, provide a warning upon each command execution

@@ -50,7 +50,7 @@ public class BallerinaFragmentServiceImpl implements BallerinaFragmentService {
     @Override
     public CompletableFuture<BallerinaFragmentASTResponse> ast(BallerinaFragmentASTRequest request) {
         return CompletableFuture.supplyAsync(() -> {
-            if (CommonUtil.isCachedSource(request.getSource())) {
+            if (CommonUtil.isCachedExternalSource(request.getSource())) {
                 return null;
             }
             BallerinaFragmentASTResponse response = new BallerinaFragmentASTResponse();

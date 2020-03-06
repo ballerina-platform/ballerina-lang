@@ -38,7 +38,7 @@ function testFunc() {
     test:assertEquals(outputs[6], bookName);
     test:assertEquals(outputs[7], bookName);
     test:assertEquals(outputs[8], book);
-    test:assertEquals(outputs[9], book.*);
+    test:assertEquals(outputs[9], book/*);
     test:assertEquals(outputs[10], bookName);
     test:assertEquals(outputs[11], content.strip());
     test:assertEquals(outputs[12], bookComment.copy());

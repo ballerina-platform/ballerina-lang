@@ -20,6 +20,7 @@ apply from: "$rootDir/gradle/balNativeLibProject.gradle"
 dependencies {
     implementation project(':ballerina-runtime')
     implementation project(':ballerina-lang')
+    implementation project(':ballerina-lang:internal')
     baloCreat project(':lib-creator')
     baloImplementation project(path: ':ballerina-lang:annotations', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-lang:internal', configuration: 'baloImplementation')

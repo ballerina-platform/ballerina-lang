@@ -768,7 +768,7 @@ public class EqualAndNotEqualOperationsTest {
         Assert.assertFalse(((BBoolean) returns[0]).booleanValue(), "Expected XMLs to be identified as unequal.");
     }
 
-    @Test()
+    @Test
     public void testXmlSequenceAndXmlItemEqualityPositive() {
         BValue[] returns = BRunUtil.invoke(result, "testXmlSequenceAndXmlItemEqualityPositive");
         Assert.assertEquals(returns.length, 1);
