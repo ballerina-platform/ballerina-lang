@@ -14,6 +14,7 @@
 // under the License.
 
 import ballerina/mysql;
+import ballerina/sql;
 
 public type Result record {
     int val;
@@ -22,10 +23,9 @@ public type Result record {
 string host = "localhost";
 string user = "test";
 string password = "test123";
-//string database = "TEST_SQL_CONN_POOL";
 int port = 3305;
 mysql:Options options= {
-    connectTimeoutInSeconds: 3
+    connectTimeoutInSeconds: 1
 };
 
 function testGlobalConnectionPoolSingleDestination(string database) returns @tainted (int | error)[] | error {
@@ -115,6 +115,121 @@ function testGlobalConnectionPoolSingleDestinationConcurrent(string database) re
     // All 5 clients are supposed to use the same pool. Default maximum no of connections is 10.
     // Since each select operation hold up one connection each, the last select operation should
     // return an error
+    return returnArray;
+}
+
+function testLocalSharedConnectionPoolConfigSingleDestination(string database) returns @tainted (int | error)[]| error {
+    sql:ConnectionPool pool = {maxOpenConnections: 5};
+    mysql:Client dbClient1 = check new (host, user, password, database, port, options, pool);
+    mysql:Client dbClient2 = check new (host, user, password, database, port, options, pool);
+    mysql:Client dbClient3 = check new (host, user, password, database, port, options, pool);
+    mysql:Client dbClient4 = check new (host, user, password, database, port, options, pool);
+    mysql:Client dbClient5 = check new (host, user, password, database, port, options, pool);
+    
+    (stream<record{}, error>)[] resultArray = [];
+    resultArray[0] = dbClient1->query("select count(*) as val from Customers where registrationID = 1", Result);
+    resultArray[1] = dbClient2->query("select count(*) as val from Customers where registrationID = 1", Result);
+    resultArray[2] = dbClient3->query("select count(*) as val from Customers where registrationID = 2", Result);
+    resultArray[3] = dbClient4->query("select count(*) as val from Customers where registrationID = 1", Result);
+    resultArray[4] = dbClient5->query("select count(*) as val from Customers where registrationID = 1", Result);
+    resultArray[5] = dbClient5->query("select count(*) as val from Customers where registrationID = 2", Result);
+
+    (int | error)[] returnArray = [];
+    int i = 0;
+    // Connections will be released here as we fully consume the data in the following conversion function calls
+    foreach var x in resultArray {
+        returnArray[i] = getReturnValue(x);
+        i += 1;
+    }
+
+    check dbClient1.close();
+    check dbClient2.close();
+    check dbClient3.close();
+    check dbClient4.close();
+    check dbClient5.close();
+
+    // All 5 clients are supposed to use the same pool created with the configurations given by the
+    // custom pool options. Since each select operation holds up one connection each, the last select
+    // operation should return an error
+    return returnArray;
+}
+
+function testLocalSharedConnectionPoolConfigDifferentDbOptions(string database) returns @tainted (int | error)[] | error {
+    sql:ConnectionPool pool = {maxOpenConnections: 3};
+    mysql:Client dbClient1 = check new (host, user, password, database, port, {connectTimeoutInSeconds: 2, socketTimeoutInSeconds:10}, pool);
+    mysql:Client dbClient2 = check new (host, user, password, database, port, {socketTimeoutInSeconds:10, connectTimeoutInSeconds: 2}, pool);
+    mysql:Client dbClient3 = check new (host, user, password, database, port, {connectTimeoutInSeconds: 2, socketTimeoutInSeconds:10}, pool);
+    mysql:Client dbClient4 = check new (host, user, password, database, port, {connectTimeoutInSeconds: 1}, pool);
+    mysql:Client dbClient5 = check new (host, user, password, database, port, {connectTimeoutInSeconds: 1}, pool);
+    mysql:Client dbClient6 = check new (host, user, password, database, port, {connectTimeoutInSeconds: 1}, pool);
+
+    stream<record {} , error>[] resultArray = [];
+    resultArray[0] = dbClient1->query("select count(*) as val from Customers where registrationID = 1", Result);
+    resultArray[1] = dbClient2->query("select count(*) as val from Customers where registrationID = 1", Result);
+    resultArray[2] = dbClient3->query("select count(*) as val from Customers where registrationID = 2", Result);
+    resultArray[3] = dbClient3->query("select count(*) as val from Customers where registrationID = 1", Result);
+
+    resultArray[4] = dbClient4->query("select count(*) as val from Customers where registrationID = 1", Result);
+    resultArray[5] = dbClient5->query("select count(*) as val from Customers where registrationID = 2", Result);
+    resultArray[6] = dbClient6->query("select count(*) as val from Customers where registrationID = 2", Result);
+    resultArray[7] = dbClient6->query("select count(*) as val from Customers where registrationID = 1", Result);
+
+    (int | error)[] returnArray = [];
+    int i = 0;
+    // Connections will be released here as we fully consume the data in the following conversion function calls
+    foreach var x in resultArray {
+        returnArray[i] = getReturnValue(x);
+        i += 1;
+    }
+
+    check dbClient1.close();
+    check dbClient2.close();
+    check dbClient3.close();
+    check dbClient4.close();
+    check dbClient5.close();
+    check dbClient6.close();
+
+    // Since max pool size is 3, the last select function call going through each pool should fail.
+    return returnArray;
+}
+
+
+function testLocalSharedConnectionPoolConfigMultipleDestinations(string database1, string database2) returns @tainted (int | error)[] | error {
+    sql:ConnectionPool pool = {maxOpenConnections: 3};
+    mysql:Client dbClient1 = check new (host, user, password, database1, port, options, pool);
+    mysql:Client dbClient2 = check new (host, user, password, database1, port, options, pool);
+    mysql:Client dbClient3 = check new (host, user, password, database1, port, options, pool);
+    mysql:Client dbClient4 = check new (host, user, password, database2, port, options, pool);
+    mysql:Client dbClient5 = check new (host, user, password, database2, port, options, pool);
+    mysql:Client dbClient6 = check new (host, user, password, database2, port, options, pool);
+
+    stream<record {} , error>[] resultArray = [];
+    resultArray[0] = dbClient1->query("select count(*) as val from Customers where registrationID = 1", Result);
+    resultArray[1] = dbClient2->query("select count(*) as val from Customers where registrationID = 1", Result);
+    resultArray[2] = dbClient3->query("select count(*) as val from Customers where registrationID = 2", Result);
+    resultArray[3] = dbClient3->query("select count(*) as val from Customers where registrationID = 1", Result);
+
+    resultArray[4] = dbClient4->query("select count(*) as val from Customers where registrationID = 1", Result);
+    resultArray[5] = dbClient5->query("select count(*) as val from Customers where registrationID = 2", Result);
+    resultArray[6] = dbClient6->query("select count(*) as val from Customers where registrationID = 2", Result);
+    resultArray[7] = dbClient6->query("select count(*) as val from Customers where registrationID = 1", Result);
+
+    (int | error)[] returnArray = [];
+    int i = 0;
+    // Connections will be released here as we fully consume the data in the following conversion function calls
+    foreach var x in resultArray {
+        returnArray[i] = getReturnValue(x);
+        i += 1;
+    }
+
+    check dbClient1.close();
+    check dbClient2.close();
+    check dbClient3.close();
+    check dbClient4.close();
+    check dbClient5.close();
+    check dbClient6.close();
+
+    // Since max pool size is 3, the last select function call going through each pool should fail.
     return returnArray;
 }
 

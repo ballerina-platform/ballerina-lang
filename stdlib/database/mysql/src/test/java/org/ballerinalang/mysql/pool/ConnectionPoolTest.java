@@ -83,6 +83,7 @@ public class ConnectionPoolTest {
         BValue[] args = {new BString(DB_NAME1), new BString(DB_NAME2)};
         BValue[] returns = BRunUtil.invokeFunction(result, "testGlobalConnectionPoolsMultipleDestinations"
                 , args);
+        SQLDBUtils.assertNotError(returns[0]);
         Assert.assertTrue(returns[0] instanceof BValueArray);
         Assert.assertEquals(returns[0].size(), 2);
         BValueArray returnVal1 = ((BValueArray) (((BValueArray) returns[0]).getRefValue(0)));
@@ -105,6 +106,7 @@ public class ConnectionPoolTest {
         BValue[] args = {new BString(DB_NAME1)};
         BValue[] returns = BRunUtil.invokeFunction(result,
                 "testGlobalConnectionPoolSingleDestinationConcurrent", args);
+        SQLDBUtils.assertNotError(returns[0]);
         Assert.assertTrue(returns[0] instanceof BValueArray);
         for (int i = 0; i < 5; i++) {
             BValueArray array = ((BValueArray) ((BValueArray) returns[0]).getRefValue(i));
@@ -116,5 +118,57 @@ public class ConnectionPoolTest {
         Assert.assertTrue(error.contains(CONNECTION_TIMEOUT_ERROR_STRING), "Actual Error: " + error);
     }
 
+    @Test
+    public void testLocalSharedConnectionPoolConfigSingleDestination() {
+        BValue[] args = {new BString(DB_NAME1)};
+        BValue[] returns = BRunUtil
+                .invokeFunction(result, "testLocalSharedConnectionPoolConfigSingleDestination", args);
+        SQLDBUtils.assertNotError(returns[0]);
+        Assert.assertTrue(returns[0] instanceof BValueArray);
+        for (int i = 0; i < 5; i++) {
+            Assert.assertEquals("1", (((BValueArray) returns[0])).getRefValue(i).stringValue());
+        }
+        String error = (((BValueArray) returns[0])).getRefValue(5).stringValue();
+        Assert.assertTrue(error.contains(CONNECTION_TIMEOUT_ERROR_STRING), "Actual Error: " + error);
+    }
+
+    @Test
+    public void testLocalSharedConnectionPoolConfigDifferentDbOptions() {
+        BValue[] args = {new BString(DB_NAME1)};
+        BValue[] returns = BRunUtil
+                .invokeFunction(result, "testLocalSharedConnectionPoolConfigDifferentDbOptions", args);
+        SQLDBUtils.assertNotError(returns[0]);
+        Assert.assertTrue(returns[0] instanceof BValueArray);
+        BValueArray returnArray = (BValueArray) returns[0];
+
+        for (int i = 0; i < 3; i++) {
+            Assert.assertEquals(returnArray.getRefValue(i).stringValue(), "1");
+            Assert.assertEquals(returnArray.getRefValue(i + 4).stringValue(), "1");
+        }
+        String error1 = returnArray.getRefValue(3).stringValue();
+        Assert.assertTrue(error1.contains(CONNECTION_TIMEOUT_ERROR_STRING), "Actual Error: " + error1);
+        String error2 = returnArray.getRefValue(7).stringValue();
+        Assert.assertTrue(error2.contains(CONNECTION_TIMEOUT_ERROR_STRING), "Actual Error: " + error2);
+
+    }
+
+    @Test
+    public void testLocalSharedConnectionPoolConfigMultipleDestinations() {
+        BValue[] args = {new BString(DB_NAME1), new BString(DB_NAME2)};
+        BValue[] returns = BRunUtil
+                .invokeFunction(result, "testLocalSharedConnectionPoolConfigMultipleDestinations", args);
+        SQLDBUtils.assertNotError(returns[0]);
+        Assert.assertTrue(returns[0] instanceof BValueArray);
+        BValueArray returnArray = (BValueArray) returns[0];
+
+        for (int i = 0; i < 3; i++) {
+            Assert.assertEquals(returnArray.getRefValue(i).stringValue(), "1");
+            Assert.assertEquals(returnArray.getRefValue(i + 4).stringValue(), "1");
+        }
+        String error1 = returnArray.getRefValue(3).stringValue();
+        Assert.assertTrue(error1.contains(CONNECTION_TIMEOUT_ERROR_STRING), "Actual Error: " + error1);
+        String error2 = returnArray.getRefValue(7).stringValue();
+        Assert.assertTrue(error2.contains(CONNECTION_TIMEOUT_ERROR_STRING), "Actual Error: " + error2);
+    }
 
 }
