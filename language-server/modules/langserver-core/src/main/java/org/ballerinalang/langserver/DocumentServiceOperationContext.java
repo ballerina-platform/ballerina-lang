@@ -20,12 +20,13 @@ package org.ballerinalang.langserver;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.LSOperation;
+import org.ballerinalang.langserver.commons.codeaction.CodeActionKeys;
 import org.ballerinalang.langserver.commons.completion.CompletionKeys;
-import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSContextImpl;
 import org.ballerinalang.langserver.signature.SignatureKeys;
 import org.eclipse.lsp4j.CompletionCapabilities;
+import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.SignatureHelpCapabilities;
 
 import java.util.ArrayList;
@@ -66,7 +67,7 @@ public class DocumentServiceOperationContext extends LSContextImpl {
         }
 
         ServiceOperationContextBuilder withDefinitionParams(String fileUri) {
-            this.lsContext.put(DocumentServiceKeys.COMPILE_FULL_PROJECT, !CommonUtil.isCachedSource(fileUri));
+            this.lsContext.put(DocumentServiceKeys.COMPILE_FULL_PROJECT, !CommonUtil.isCachedExternalSource(fileUri));
             return this;
         }
 
@@ -81,8 +82,9 @@ public class DocumentServiceOperationContext extends LSContextImpl {
             return this;
         }
 
-        ServiceOperationContextBuilder withCodeActionParams(WorkspaceDocumentManager documentManager) {
-            this.lsContext.put(DocumentServiceKeys.DOC_MANAGER_KEY, documentManager);
+        ServiceOperationContextBuilder withCodeActionParams(Position position) {
+            this.lsContext.put(DocumentServiceKeys.IS_CACHE_SUPPORTED, true);
+            this.lsContext.put(CodeActionKeys.POSITION_START_KEY, position);
             return this;
         }
 

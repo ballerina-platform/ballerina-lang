@@ -10,7 +10,7 @@ public function main() {
 
     string firstName;
     int personAge;
-    map<anydata | error> otherDetails = {};
+    map<anydata|error> otherDetails = {};
     {name: io:firstName, age: personAge, ...otherDetails} = getPerson();
 
     {...otherDetails} = getPerson();

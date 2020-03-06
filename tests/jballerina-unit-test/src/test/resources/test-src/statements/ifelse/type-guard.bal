@@ -1135,3 +1135,33 @@ function testNarrowedTypeResetWithNestedTypeGuards() {
     panic error(ASSERTION_ERROR_REASON, message = "expected '[1, \"hello\", \"hello\", \"hello\"]', found '" +
                                                         jarr.toJsonString() + "'");
 }
+
+type TargetType typedesc<string|xml|json>;
+
+function testType(TargetType targetType) returns string {
+    if (targetType is typedesc<json>) {
+        return "json";
+    }
+    if (targetType is typedesc<string>) {
+        return "http:Response";
+    }
+    return "null";
+}
+
+function testTypeDescTypeTest1() returns boolean {
+    string result = testType(json);
+    if (result == "json") {
+        return true;
+    }
+
+    return false;
+}
+
+function testTypeDescTypeTest2() returns boolean {
+    string result = testType(xml);
+    if (result == "null") {
+        return true;
+    }
+
+    return false;
+}

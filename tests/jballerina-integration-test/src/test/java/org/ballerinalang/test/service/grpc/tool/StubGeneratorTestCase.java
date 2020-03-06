@@ -134,6 +134,16 @@ public class StubGeneratorTestCase {
                 "Expected type definitions not found in compile results.");
     }
 
+    @Test(description = "Test stub generation for with nested maps with same name")
+    public void testUnaryHelloWorldWithMaps() throws IllegalAccessException, ClassNotFoundException,
+            InstantiationException {
+        CompileResult compileResult = getStubCompileResult("helloWorldWithMap.proto",
+                "helloWorldWithMap_pb.bal");
+        assertEquals(compileResult.getDiagnostics().length, 0);
+        assertEquals(((BLangPackage) compileResult.getAST()).typeDefinitions.size(), 7,
+                "Expected type definitions not found in compile results.");
+    }
+
     @Test(description = "Test service stub generation for service definition with reserved names")
     public void testUnaryHelloWorldWithReservedNames() throws IllegalAccessException, ClassNotFoundException,
             InstantiationException {

@@ -3,7 +3,7 @@ import ballerina/test;
 import wso2/utils;
 import ballerinax/java;
 
-function testAcceptNothingButReturnString() returns handle {
+function testAcceptNothingButReturnStringTest() returns handle {
     return utils:getString();
 }
 
@@ -27,7 +27,7 @@ function beforeFunc() {
     after: "afterFunc"
 }
 function testFunction() {
-    string result =  <string>java:toString(testAcceptNothingButReturnString());
+    string result =  <string>java:toString(testAcceptNothingButReturnStringTest());
     test:assertEquals(result, "This is a test string value !!!", msg = "Interop method call failed!");
     io:println("Tested utils getString method using interop and received: " + result);
 }

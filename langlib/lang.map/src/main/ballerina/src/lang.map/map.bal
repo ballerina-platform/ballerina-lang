@@ -124,3 +124,9 @@ public function hasKey(map<Type> m, string k) returns boolean = external;
 # + m - the map
 # + return - a new list of all keys
 public function keys(map<any|error> m) returns string[] = external;
+
+# Returns a list of all the members of a map.
+#
+# + m - the map
+# + return - an array whose members are the members of `m`
+public function toArray(map<Type> m) returns Type[] = external;

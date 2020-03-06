@@ -144,7 +144,7 @@ value > 40
     return [s1, s2];
 }
 
-function testErrorInTernary() returns int|error {
+function testErrorInTernary() returns int | error {
     int x = 8;
     var result =x > 5?decrement(x)
          :
@@ -152,10 +152,10 @@ function testErrorInTernary() returns int|error {
     return result;
 }
 
-function decrement(int i) returns error|int {
+function decrement(int i) returns error | int {
     return i - 1;
 }
 
-function increment(int i) returns error|int {
+function increment(int i) returns error | int {
     return i + 1;
 }

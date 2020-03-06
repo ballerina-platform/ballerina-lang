@@ -60,12 +60,13 @@ public class PushAndOnTextResourceTest extends WebSocketTestCommons {
         assertSuccess(msg, msg);
         assertContinuationSuccess(msg, "<note>", "<to>Tove", "</to>", "</note>");
         assertFailure("<note><to>Tove</to>",
-                      "ParseError at [row,col]:[1,28]\nMessage: The element type \"note\"" +
-                              " must be terminated by the matching end-tag \"</note>\".");
+                      "failed to parse xml: ParseError at [row,col]:[1,20]\n" +
+                          "Message: XML document structures must start and end within the same ...");
         client.shutDown();
         client = new WebSocketTestClient(url);
         client.handshake();
-        assertFailure("hey", "Invalid XML data");
+        assertFailure("hey", "failed to parse xml: ParseError at [row,col]:[1,1]\n" +
+                "Message: Content is not allowed in prolog.");
     }
 
     @Test(description = "Tests Record support for pushText and onText")

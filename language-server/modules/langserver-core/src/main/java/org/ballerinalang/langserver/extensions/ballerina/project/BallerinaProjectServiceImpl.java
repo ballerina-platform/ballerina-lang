@@ -62,7 +62,7 @@ public class BallerinaProjectServiceImpl implements BallerinaProjectService {
         return CompletableFuture.supplyAsync(() -> {
             ModulesResponse reply = new ModulesResponse();
             String sourceRoot = request.getSourceRoot();
-            if (CommonUtil.isCachedSource(sourceRoot)) {
+            if (CommonUtil.isCachedExternalSource(sourceRoot)) {
                 reply.setParseSuccess(false);
                 return reply;
             }

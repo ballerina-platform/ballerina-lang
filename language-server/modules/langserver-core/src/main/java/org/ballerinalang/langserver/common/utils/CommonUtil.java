@@ -137,10 +137,6 @@ public class CommonUtil {
 
     public static final Pattern MD_NEW_LINE_PATTERN = Pattern.compile("\\s\\s\\r\\n?|\\s\\s\\n|\\r\\n?|\\n");
 
-    public static final boolean LS_DEBUG_ENABLED;
-
-    public static final boolean LS_TRACE_ENABLED;
-
     public static final String BALLERINA_HOME;
 
     public static final String BALLERINA_CMD;
@@ -156,8 +152,6 @@ public class CommonUtil {
     public static final Path LS_STDLIB_CACHE_DIR = TEMP_DIR.resolve("ls_stdlib_cache").resolve(SDK_VERSION);
 
     static {
-        LS_DEBUG_ENABLED = Boolean.parseBoolean(System.getProperty("ballerina.debugLog"));
-        LS_TRACE_ENABLED = Boolean.parseBoolean(System.getProperty("ballerina.traceLog"));
         BALLERINA_HOME = System.getProperty("ballerina.home");
         BALLERINA_CMD = BALLERINA_HOME + File.separator + "bin" + File.separator + "ballerina" +
                 (SystemUtils.IS_OS_WINDOWS ? ".bat" : "");
@@ -1378,7 +1372,7 @@ public class CommonUtil {
      * @param fileUri file URI to evaluate
      * @return whether the file is a cached entry or not
      */
-    public static boolean isCachedSource(String fileUri) {
+    public static boolean isCachedExternalSource(String fileUri) {
         try {
             Path path = Paths.get(new URI(fileUri));
             return path.toAbsolutePath().toString().startsWith(LS_STDLIB_CACHE_DIR.toAbsolutePath().toString());
