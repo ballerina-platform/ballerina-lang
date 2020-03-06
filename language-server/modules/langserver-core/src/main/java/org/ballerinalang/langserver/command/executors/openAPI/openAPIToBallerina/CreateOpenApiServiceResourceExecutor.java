@@ -166,6 +166,9 @@ public class CreateOpenApiServiceResourceExecutor implements LSCommandExecutor {
                 List<BallerinaOpenApiPath> paths = extractOpenApiPaths(openAPI.getPaths());
                 for (BallerinaOpenApiPath path : paths) {
                     if (path.getPath().equals(resourcePath)) {
+                        path.getOperationsList().forEach((ballerinaOpenApiOperation -> {
+                            ballerinaOpenApiOperation.setRequestBody(null);
+                        }));
                         editText = getContent(path, "/openAPITemplates", "balFunction");
                     }
                 }
