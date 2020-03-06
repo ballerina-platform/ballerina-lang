@@ -562,3 +562,25 @@ function testConstRefsAsDefaultValue() returns (boolean) {
     [string , int, TYPE, TYPE ] details = s.getDetails();
     return details[0] == "Andrew" && details[1] == 11 && details[2] == "John" && details[3] == 11;
 }
+
+function getData(string n) returns string {
+    return n;
+}
+
+type Student11 object {
+    string name;
+    function __init(string n, function (string) returns string fn = (x) => "John") {
+        self.name = fn(n);
+    }
+
+    function getName() returns string {
+        return self.name;
+    }
+};
+
+function testFunctionPointerAsDefaultableParam() {
+    Student11 s1 = new("Anne", getData);
+    if (s1.getName() != "Anne") {
+        panic error("Returned string should equal 'Anne'");
+    }
+}
