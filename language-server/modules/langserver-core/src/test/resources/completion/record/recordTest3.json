@@ -112,6 +112,20 @@
       }
     },
     {
+      "label": "toArray()((any|error)[])",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.map_  \n  \nReturns a list of all the members of a map.\n  \n  \n  \n**Returns** `(any|error)[]`   \n- an array whose members are the members of `m`  \n  \n"
+        }
+      },
+      "sortText": "120",
+      "insertText": "toArray()",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "employer",
       "kind": "Variable",
       "detail": "Person",

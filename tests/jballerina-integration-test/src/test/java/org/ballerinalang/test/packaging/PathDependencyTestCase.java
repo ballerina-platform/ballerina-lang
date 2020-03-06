@@ -115,7 +115,8 @@ public class PathDependencyTestCase extends BaseTest {
      *
      * @throws BallerinaTestException Error when executing the commands.
      */
-    @Test(description = "Case2: Test path between 2 projects where 3 modules are involved and imported as a chain.")
+    @Test(groups = "brokenOnJBallerina", description = "Case2: Test path between 2 projects where 3 modules are " +
+            "involved and imported as a chain.")
     public void testBaloPathCase2() throws BallerinaTestException {
         Path caseResources = tempTestResources.resolve("case2");
         // Build bee module of TestProject1

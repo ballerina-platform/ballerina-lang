@@ -212,6 +212,9 @@ public class DefinitionTest {
                 // Covers the Mapping Constructor Expression
                 {"defMappingConstructorExpr1.json", "expression"},
                 {"defMappingConstructorExpr2.json", "expression"},
+                {"defMappingConstructorExpr3.json", "expression"},
+                {"defMappingConstructorExpr4.json", "expression"},
+                {"defMappingConstructorExpr5.json", "expression"},
                 {"defServiceConstructorExpr1.json", "expression"},
                 // Covers the String Template Expression
                 {"defStringTemplateExpr1.json", "expression"},

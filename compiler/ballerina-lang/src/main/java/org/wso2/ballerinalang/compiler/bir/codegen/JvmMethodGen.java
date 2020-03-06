@@ -528,14 +528,14 @@ public class JvmMethodGen {
                         endLabel = labelGen.getLabel(funcName + localVar.endBB.id.value + "beforeTerm");
                     }
                 }
-                String metaVarName = localVar.name.value;
-                if (!"".equals(metaVarName) &&
+                String metaVarName = localVar.metaVarName;
+                if (metaVarName != null && !"".equals(metaVarName) &&
                         // filter out compiler added vars
                         !((metaVarName.startsWith("$") && metaVarName.endsWith("$"))
                                 || (metaVarName.startsWith("$$") && metaVarName.endsWith("$$"))
                                 || metaVarName.startsWith("_$$_"))) {
                     mv.visitLocalVariable(metaVarName, getJVMTypeSign(localVar.type), null,
-                            startLabel, endLabel, indexMap.getIndex(localVar));
+                                          startLabel, endLabel, indexMap.getIndex(localVar));
                 }
             }
             k = k + 1;
