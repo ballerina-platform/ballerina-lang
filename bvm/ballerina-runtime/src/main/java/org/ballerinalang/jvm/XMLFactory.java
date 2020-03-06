@@ -248,7 +248,18 @@ public class XMLFactory {
             throw BallerinaErrors
                     .createError("start and end tag names mismatch: '" + startTagName + "' and '" + endTagName + "'");
         }
+        return createXMLElement(startTagName, defaultNsUri);
+    }
 
+    /**
+     * Create an element type XMLValue.
+     *
+     * @param startTagName Name of the start tag of the element
+     * @param defaultNsUri Default namespace URI
+     * @return XMLValue Element type XMLValue
+     */
+    @Deprecated
+    public static XMLValue createXMLElement(XMLQName startTagName, String defaultNsUri) {
         // Validate whether the tag names are XML supported qualified names, according to the XML recommendation.
         XMLValidator.validateXMLQName(startTagName);
 
@@ -270,10 +281,9 @@ public class XMLFactory {
         }
     }
 
-    public static XMLValue createXMLElement(XMLQName startTagName, XMLQName endTagName,
-                                               BString defaultNsUriVal) {
-        return createXMLElement(startTagName, endTagName,
-                                defaultNsUriVal == null ? XMLConstants.NULL_NS_URI : defaultNsUriVal.getValue());
+    public static XMLValue createXMLElement(XMLQName startTagName, BString defaultNsUriVal) {
+        return createXMLElement(startTagName,
+                defaultNsUriVal == null ? XMLConstants.NULL_NS_URI : defaultNsUriVal.getValue());
     }
 
     /**

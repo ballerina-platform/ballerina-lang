@@ -1425,11 +1425,9 @@ public class JvmInstructionGen {
 
             this.loadVar(newXMLElement.startTagOp.variableDcl);
             this.mv.visitTypeInsn(CHECKCAST, XML_QNAME);
-            this.loadVar(newXMLElement.endTagOp.variableDcl);
-            this.mv.visitTypeInsn(CHECKCAST, XML_QNAME);
             this.loadVar(newXMLElement.defaultNsURIOp.variableDcl);
             this.mv.visitMethodInsn(INVOKESTATIC, XML_FACTORY, "createXMLElement",
-                    String.format("(L%s;L%s;L%s;)L%s;", XML_QNAME, XML_QNAME, STRING_VALUE, XML_VALUE), false);
+                    String.format("(L%s;L%s;)L%s;", XML_QNAME, STRING_VALUE, XML_VALUE), false);
             this.storeToVar(newXMLElement.lhsOp.variableDcl);
         }
 

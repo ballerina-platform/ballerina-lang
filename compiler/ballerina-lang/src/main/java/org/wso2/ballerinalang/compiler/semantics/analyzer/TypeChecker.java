@@ -2586,6 +2586,13 @@ public class TypeChecker extends BLangNodeVisitor {
     public void visit(BLangXMLElementLiteral bLangXMLElementLiteral) {
         SymbolEnv xmlElementEnv = SymbolEnv.getXMLElementEnv(bLangXMLElementLiteral, env);
 
+        // Keep track of used namespace prefixes in this element and only add namespace attr for those used ones.
+        Set<String> usedPrefixes = new HashSet<>();
+        BLangIdentifier elemNamePrefix = ((BLangXMLQName) bLangXMLElementLiteral.startTagName).prefix;
+        if (elemNamePrefix != null && !elemNamePrefix.value.isEmpty()) {
+            usedPrefixes.add(elemNamePrefix.value);
+        }
+
         // Visit in-line namespace declarations and define the namespace.
         for (BLangXMLAttribute attribute : bLangXMLElementLiteral.attributes) {
             if (attribute.name.getKind() == NodeKind.XML_QNAME && isXmlNamespaceAttribute(attribute)) {
@@ -2594,6 +2601,10 @@ public class TypeChecker extends BLangNodeVisitor {
                     dlog.error(value.pos, DiagnosticCode.INVALID_XML_NS_INTERPOLATION);
                 }
                 checkExpr(attribute, xmlElementEnv, symTable.noType);
+            }
+            BLangIdentifier prefix = ((BLangXMLQName) attribute.name).prefix;
+            if (prefix != null && !prefix.value.isEmpty()) {
+                usedPrefixes.add(prefix.value);
             }
         }
 
@@ -2609,7 +2620,11 @@ public class TypeChecker extends BLangNodeVisitor {
         if (namespaces.containsKey(defaultNs)) {
             bLangXMLElementLiteral.defaultNsSymbol = namespaces.remove(defaultNs);
         }
-        bLangXMLElementLiteral.namespacesInScope.putAll(namespaces);
+        for (Map.Entry<Name, BXMLNSSymbol> nsEntry : namespaces.entrySet()) {
+            if (usedPrefixes.contains(nsEntry.getKey().value)) {
+                bLangXMLElementLiteral.namespacesInScope.put(nsEntry.getKey(), nsEntry.getValue());
+            }
+        }
 
         // Visit the tag names
         validateTags(bLangXMLElementLiteral, xmlElementEnv);

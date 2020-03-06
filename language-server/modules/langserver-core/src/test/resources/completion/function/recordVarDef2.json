@@ -6,10 +6,18 @@
   "source": "function/source/recordVarDef2.bal",
   "items": [
     {
+      "label": "...student",
+      "kind": "Variable",
+      "detail": "Person",
+      "sortText": "130",
+      "insertText": "...student",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "age",
       "kind": "Field",
       "detail": "Field",
-      "sortText": "120",
+      "sortText": "210",
       "insertText": "age: ${1:0}",
       "insertTextFormat": "Snippet"
     },
@@ -17,7 +25,7 @@
       "label": "name",
       "kind": "Field",
       "detail": "Field",
-      "sortText": "120",
+      "sortText": "210",
       "insertText": "name: \"${1}\"",
       "insertTextFormat": "Snippet"
     },
