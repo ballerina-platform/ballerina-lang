@@ -354,10 +354,28 @@ public class WorkerTest {
         BValue[] returns = BRunUtil.invoke(result, "testPanicWorkerInsideLock");
     }
 
+    @Test(expectedExceptions = BLangRuntimeException.class)
+    public void testFunctionWithWorkerInsideLockWithDepth3() {
+        BValue[] returns = BRunUtil.invoke(result, "testPanicWorkerInsideLockWithDepth3");
+    }
+
+    @Test(expectedExceptions = BLangRuntimeException.class)
+    public void testFunctionWithStartInsideLock() {
+        BValue[] returns = BRunUtil.invoke(result, "testPanicStartInsideLock");
+    }
+
+    @Test(expectedExceptions = BLangRuntimeException.class)
+    public void testFunctionWithStartInsideLockWithDepth3() {
+        BValue[] returns = BRunUtil.invoke(result, "testPanicStartInsideLockWithDepth3");
+    }
+
     @Test
     public void testWorkerInsideLock() {
         CompileResult result = BCompileUtil.compile("test-src/workers/worker-in-lock.bal");
         int index = 0;
-        BAssertUtil.validateError(result, index++, 4, 20);
+        BAssertUtil.validateError(result, index++, "cannot use a named worker inside a lock statement", 4, 20);
+        BAssertUtil.validateError(result, index++, "cannot use an async call inside a lock statement", 13, 19);
+        BAssertUtil.validateError(result, index++, "cannot use a named worker inside a lock statement", 25, 20);
+        BAssertUtil.validateError(result, index++, "cannot use a named worker inside a lock statement", 27, 28);
     }
 }

@@ -19,6 +19,7 @@
 package org.ballerinalang.jvm;
 
 import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -49,14 +50,12 @@ public class BLockStore {
     }
 
     public void panicIfInLock(String lockName, Strand strand) {
-        BLock lock = globalLockMap.get(lockName);
-        if (lock != null) {
-            if (lock.isLockFree()) {
-                return;
-            }
-            if (lock.lockedBySameContext(strand)) {
-                throw BallerinaErrors.createAsyncCallInsideLockError();
-            }
+        BLock lock = getLockFromMap(lockName);
+        if (lock.isLockFree()) {
+            return;
+        }
+        if (lock.lockedBySameContext(strand)) {
+            throw BallerinaErrors.createError(BallerinaErrorReasons.ASYNC_CALL_INSIDE_LOCK);
         }
     }
 }

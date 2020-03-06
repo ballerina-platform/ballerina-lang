@@ -2002,13 +2002,24 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
 
         if (invocationExpr.actionInvocation || invocationExpr.async) {
-            if (this.withinLockBlock) {
-                dlog.error(invocationExpr.pos, DiagnosticCode.USAGE_OF_ASYNC_CALL_WITHIN_LOCK_IS_PROHIBITED,
-                        invocationExpr.name);
+            if (invocationExpr.async && this.withinLockBlock) {
+                logAsyncCallWithinLockError(invocationExpr);
             } else {
                 validateActionInvocation(invocationExpr.pos, invocationExpr);
             }
         }
+    }
+
+    private void logAsyncCallWithinLockError(BLangInvocation invocationExpr) {
+        DiagnosticCode code;
+
+        if (invocationExpr.functionPointerInvocation) {
+            code = DiagnosticCode.USAGE_OF_WORKER_WITHIN_LOCK_IS_PROHIBITED;
+        } else {
+            code = DiagnosticCode.USAGE_OF_START_WITHIN_LOCK_IS_PROHIBITED;
+        }
+
+        dlog.error(invocationExpr.pos, code);
     }
 
     private void validateActionInvocation(DiagnosticPos pos, BLangInvocation iExpr) {
