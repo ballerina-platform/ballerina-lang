@@ -165,7 +165,7 @@ public class JvmCastGen {
 
         if (sourceType.tag == TypeTags.BYTE) {
             // do nothing
-        } else if (sourceType.tag == TypeTags.INT) {
+        } else if (TypeTags.isIntegerTypeTag(sourceType.tag)) {
             mv.visitInsn(L2I);
             mv.visitInsn(I2B);
         } else if (sourceType.tag == TypeTags.FLOAT) {
@@ -186,7 +186,7 @@ public class JvmCastGen {
 
         if (sourceType.tag == TypeTags.BYTE) {
             mv.visitInsn(I2C);
-        } else if (sourceType.tag == TypeTags.INT) {
+        } else if (TypeTags.isIntegerTypeTag(sourceType.tag)) {
             mv.visitInsn(L2I);
             mv.visitInsn(I2C);
         } else if (sourceType.tag == TypeTags.FLOAT) {
@@ -208,7 +208,7 @@ public class JvmCastGen {
 
         if (sourceType.tag == TypeTags.BYTE) {
             mv.visitInsn(I2S);
-        } else if (sourceType.tag == TypeTags.INT) {
+        } else if (TypeTags.isIntegerTypeTag(sourceType.tag)) {
             mv.visitInsn(L2I);
             mv.visitInsn(I2S);
         } else if (sourceType.tag == TypeTags.FLOAT) {
@@ -230,7 +230,7 @@ public class JvmCastGen {
 
         if (sourceType.tag == TypeTags.BYTE) {
             // do nothing
-        } else if (sourceType.tag == TypeTags.INT) {
+        } else if (TypeTags.isIntegerTypeTag(sourceType.tag)) {
             mv.visitInsn(L2I);
         } else if (sourceType.tag == TypeTags.FLOAT) {
             mv.visitInsn(D2I);
@@ -249,7 +249,7 @@ public class JvmCastGen {
 
         if (sourceType.tag == TypeTags.BYTE) {
             mv.visitInsn(I2L);
-        } else if (sourceType.tag == TypeTags.INT) {
+        } else if (TypeTags.isIntegerTypeTag(sourceType.tag)) {
             // do nothing
         } else if (sourceType.tag == TypeTags.FLOAT) {
             mv.visitInsn(D2L);
@@ -267,7 +267,7 @@ public class JvmCastGen {
 
         if (sourceType.tag == TypeTags.BYTE) {
             mv.visitInsn(I2F);
-        } else if (sourceType.tag == TypeTags.INT) {
+        } else if (TypeTags.isIntegerTypeTag(sourceType.tag)) {
             mv.visitInsn(L2F);
         } else if (sourceType.tag == TypeTags.FLOAT) {
             mv.visitInsn(D2F);
@@ -286,7 +286,7 @@ public class JvmCastGen {
 
         if (sourceType.tag == TypeTags.BYTE) {
             mv.visitInsn(I2D);
-        } else if (sourceType.tag == TypeTags.INT) {
+        } else if (TypeTags.isIntegerTypeTag(sourceType.tag)) {
             mv.visitInsn(L2D);
         } else if (sourceType.tag == TypeTags.FLOAT) {
             // do nothing
@@ -330,7 +330,7 @@ public class JvmCastGen {
     private static void generateJToBCheckCast(MethodVisitor mv, BalToJVMIndexMap indexMap, JType sourceType,
                                               BType targetType) {
 
-        if (targetType.tag == TypeTags.INT) {
+        if (TypeTags.isIntegerTypeTag(targetType.tag)) {
             generateCheckCastJToBInt(mv, sourceType);
             return;
         } else if (targetType.tag == TypeTags.FLOAT) {
@@ -658,7 +658,7 @@ public class JvmCastGen {
 
     static void generateCheckCast(MethodVisitor mv, BType sourceType, BType targetType) {
 
-        if (targetType.tag == TypeTags.INT) {
+        if (TypeTags.isIntegerTypeTag(targetType.tag)) {
             generateCheckCastToInt(mv, sourceType);
             return;
         } else if (targetType.tag == TypeTags.FLOAT) {
@@ -714,7 +714,7 @@ public class JvmCastGen {
 
     private static void generateCheckCastToInt(MethodVisitor mv, BType sourceType) {
 
-        if (sourceType.tag == TypeTags.INT) {
+        if (TypeTags.isIntegerTypeTag(sourceType.tag)) {
             // do nothing
         } else if (sourceType.tag == TypeTags.BYTE) {
             mv.visitInsn(I2B);
@@ -738,7 +738,7 @@ public class JvmCastGen {
 
         if (sourceType.tag == TypeTags.FLOAT) {
             // do nothing
-        } else if (sourceType.tag == TypeTags.INT) {
+        } else if (TypeTags.isIntegerTypeTag(sourceType.tag)) {
             mv.visitInsn(L2D);
         } else if (sourceType.tag == TypeTags.BYTE) {
             mv.visitInsn(I2D);
@@ -766,7 +766,7 @@ public class JvmCastGen {
                 sourceType.tag == TypeTags.FINITE) {
             mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "anyToDecimal",
                     String.format("(L%s;)L%s;", OBJECT, DECIMAL_VALUE), false);
-        } else if (sourceType.tag == TypeTags.INT) {
+        } else if (TypeTags.isIntegerTypeTag(sourceType.tag)) {
             mv.visitMethodInsn(INVOKESTATIC, DECIMAL_VALUE, "valueOf", String.format("(J)L%s;", DECIMAL_VALUE), false);
         } else if (sourceType.tag == TypeTags.FLOAT) {
             mv.visitMethodInsn(INVOKESTATIC, DECIMAL_VALUE, "valueOf", String.format("(D)L%s;", DECIMAL_VALUE), false);
@@ -789,7 +789,7 @@ public class JvmCastGen {
                 sourceType.tag == TypeTags.FINITE) {
             checkCast(mv, symbolTable.stringType);
             mv.visitTypeInsn(CHECKCAST, STRING_VALUE);
-        } else if (sourceType.tag == TypeTags.INT) {
+        } else if (TypeTags.isIntegerTypeTag(sourceType.tag)) {
             mv.visitMethodInsn(INVOKESTATIC, LONG_VALUE, "toString", String.format("(J)L%s;", STRING_VALUE), false);
         } else if (sourceType.tag == TypeTags.FLOAT) {
             mv.visitMethodInsn(INVOKESTATIC, DOUBLE_VALUE, "toString", String.format("(D)L%s;", STRING_VALUE), false);
@@ -822,7 +822,7 @@ public class JvmCastGen {
 
     static void generateCheckCastToByte(MethodVisitor mv, BType sourceType) {
 
-        if (sourceType.tag == TypeTags.INT) {
+        if (TypeTags.isIntegerTypeTag(sourceType.tag)) {
             mv.visitMethodInsn(INVOKESTATIC, TYPE_CONVERTER, "intToByte", "(J)I", false);
         } else if (sourceType.tag == TypeTags.FLOAT) {
             mv.visitMethodInsn(INVOKESTATIC, TYPE_CONVERTER, "floatToByte", "(D)I", false);
@@ -923,7 +923,7 @@ public class JvmCastGen {
 
     static void generateCast(MethodVisitor mv, BType sourceType, BType targetType, boolean useBString /* = false */) {
 
-        if (targetType.tag == TypeTags.INT) {
+        if (TypeTags.isIntegerTypeTag(targetType.tag)) {
             generateCastToInt(mv, sourceType);
             return;
         } else if (targetType.tag == TypeTags.FLOAT) {
@@ -962,7 +962,7 @@ public class JvmCastGen {
 
     private static void generateCastToInt(MethodVisitor mv, BType sourceType) {
 
-        if (sourceType.tag == TypeTags.INT) {
+        if (TypeTags.isIntegerTypeTag(sourceType.tag)) {
             // do nothing
         } else if (sourceType.tag == TypeTags.BYTE) {
             mv.visitInsn(I2L);
@@ -982,7 +982,7 @@ public class JvmCastGen {
 
         if (sourceType.tag == TypeTags.FLOAT) {
             // do nothing
-        } else if (sourceType.tag == TypeTags.INT) {
+        } else if (TypeTags.isIntegerTypeTag(sourceType.tag)) {
             mv.visitInsn(L2D);
         } else if (sourceType.tag == TypeTags.ANY ||
                 sourceType.tag == TypeTags.ANYDATA ||
@@ -999,7 +999,7 @@ public class JvmCastGen {
 
         if (sourceType.tag == TypeTags.STRING) {
             // do nothing
-        } else if (sourceType.tag == TypeTags.INT) {
+        } else if (TypeTags.isIntegerTypeTag(sourceType.tag)) {
             mv.visitMethodInsn(INVOKESTATIC, LONG_VALUE, "toString", String.format("(J)L%s;", STRING_VALUE), false);
         } else if (sourceType.tag == TypeTags.FLOAT) {
             mv.visitMethodInsn(INVOKESTATIC, DOUBLE_VALUE, "toString", String.format("(D)L%s;", STRING_VALUE), false);
@@ -1024,7 +1024,7 @@ public class JvmCastGen {
 
         if (sourceType.tag == TypeTags.DECIMAL) {
             // do nothing
-        } else if (sourceType.tag == TypeTags.INT) {
+        } else if (TypeTags.isIntegerTypeTag(sourceType.tag)) {
             mv.visitMethodInsn(INVOKESTATIC, DECIMAL_VALUE, "valueOf", String.format("(J)L%s;", DECIMAL_VALUE), false);
         } else if (sourceType.tag == TypeTags.FLOAT) {
             mv.visitMethodInsn(INVOKESTATIC, DECIMAL_VALUE, "valueOf", String.format("(D)L%s;", DECIMAL_VALUE), false);
@@ -1058,7 +1058,7 @@ public class JvmCastGen {
 
     private static void generateCastToByte(MethodVisitor mv, BType sourceType) {
 
-        if (sourceType.tag == TypeTags.INT) {
+        if (TypeTags.isIntegerTypeTag(sourceType.tag)) {
             mv.visitInsn(L2I);
         } else if (sourceType.tag == TypeTags.BYTE) {
             // do nothing
@@ -1074,7 +1074,7 @@ public class JvmCastGen {
 
     private static void generateCastToAny(MethodVisitor mv, BType sourceType) {
 
-        if (sourceType.tag == TypeTags.INT) {
+        if (TypeTags.isIntegerTypeTag(sourceType.tag)) {
             mv.visitMethodInsn(INVOKESTATIC, LONG_VALUE, "valueOf", String.format("(J)L%s;", LONG_VALUE), false);
         } else if (sourceType.tag == TypeTags.BYTE) {
             mv.visitMethodInsn(INVOKESTATIC, INT_VALUE, "valueOf", String.format("(I)L%s;", INT_VALUE), false);

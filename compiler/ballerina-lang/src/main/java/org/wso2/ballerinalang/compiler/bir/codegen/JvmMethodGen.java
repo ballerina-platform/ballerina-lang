@@ -564,7 +564,7 @@ public class JvmMethodGen {
             BType bType = localVar.type;
             mv.visitInsn(DUP);
 
-            if (bType.tag == TypeTags.INT) {
+            if (TypeTags.isIntegerTypeTag(bType.tag)) {
                 mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%", "_"), "J");
                 mv.visitVarInsn(LSTORE, index);
             } else if (bType.tag == TypeTags.BYTE) {
@@ -698,7 +698,7 @@ public class JvmMethodGen {
             mv.visitInsn(DUP);
 
             BType bType = localVar.type;
-            if (bType.tag == TypeTags.INT) {
+            if (TypeTags.isIntegerTypeTag(bType.tag)) {
                 mv.visitVarInsn(LLOAD, index);
                 mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%", "_"), "J");
             } else if (bType.tag == TypeTags.BYTE) {
@@ -826,7 +826,7 @@ public class JvmMethodGen {
     private static String getJVMTypeSign(BType bType) {
 
         String jvmType = "";
-        if (bType.tag == TypeTags.INT) {
+        if (TypeTags.isIntegerTypeTag(bType.tag)) {
             jvmType = "J";
         } else if (bType.tag == TypeTags.BYTE) {
             jvmType = "I";
@@ -1341,7 +1341,7 @@ public class JvmMethodGen {
 
     private static void genDefaultValue(MethodVisitor mv, BType bType, int index) {
 
-        if (bType.tag == TypeTags.INT) {
+        if (TypeTags.isIntegerTypeTag(bType.tag)) {
             mv.visitInsn(LCONST_0);
             mv.visitVarInsn(LSTORE, index);
         } else if (bType.tag == TypeTags.BYTE) {
@@ -1423,7 +1423,7 @@ public class JvmMethodGen {
 
     static void loadDefaultValue(MethodVisitor mv, BType bType) {
 
-        if (bType.tag == TypeTags.INT || bType.tag == TypeTags.BYTE) {
+        if (TypeTags.isIntegerTypeTag(bType.tag) || bType.tag == TypeTags.BYTE) {
             mv.visitInsn(LCONST_0);
         } else if (bType.tag == TypeTags.FLOAT) {
             mv.visitInsn(DCONST_0);
@@ -1528,7 +1528,7 @@ public class JvmMethodGen {
 
     private static String getArgTypeSignature(BType bType, boolean useBString /* = false */) {
 
-        if (bType.tag == TypeTags.INT) {
+        if (TypeTags.isIntegerTypeTag(bType.tag)) {
             return "J";
         } else if (bType.tag == TypeTags.BYTE) {
             return "I";
@@ -1583,7 +1583,7 @@ public class JvmMethodGen {
                 return ")V";
             }
             return String.format(")L%s;", OBJECT);
-        } else if (bType.tag == TypeTags.INT) {
+        } else if (TypeTags.isIntegerTypeTag(bType.tag)) {
             return ")J";
         } else if (bType.tag == TypeTags.BYTE) {
             return ")I";
@@ -2051,7 +2051,7 @@ public class JvmMethodGen {
     static void castFromString(BType targetType, MethodVisitor mv) {
 
         mv.visitTypeInsn(CHECKCAST, STRING_VALUE);
-        if (targetType.tag == TypeTags.INT) {
+        if (TypeTags.isIntegerTypeTag(targetType.tag)) {
             mv.visitMethodInsn(INVOKESTATIC, LONG_VALUE, "parseLong", String.format("(L%s;)J", STRING_VALUE), false);
         } else if (targetType.tag == TypeTags.BYTE) {
             mv.visitMethodInsn(INVOKESTATIC, INT_VALUE, "parseInt", String.format("(L%s;)I", STRING_VALUE), false);
@@ -2421,7 +2421,7 @@ public class JvmMethodGen {
     static void generateField(ClassWriter cw, BType bType, String fieldName, boolean isPackage) {
 
         String typeSig;
-        if (bType.tag == TypeTags.INT) {
+        if (TypeTags.isIntegerTypeTag(bType.tag)) {
             typeSig = "J";
         } else if (bType.tag == TypeTags.BYTE) {
             typeSig = "I";
@@ -2898,7 +2898,7 @@ public class JvmMethodGen {
 
             BType bType = varDcl.type;
 
-            if (bType.tag == TypeTags.INT || bType.tag == TypeTags.FLOAT) {
+            if (TypeTags.isIntegerTypeTag(bType.tag) || bType.tag == TypeTags.FLOAT) {
                 this.localVarIndex = this.localVarIndex + 2;
             } else if (bType.tag == JTypeTags.JTYPE) {
                 JType jType = (JType) bType;

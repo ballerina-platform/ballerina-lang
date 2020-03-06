@@ -958,7 +958,7 @@ class JvmTypeGen {
         String typeFieldName = "";
         if (bType == null || bType.tag == TypeTags.NIL) {
             typeFieldName = "typeNull";
-        } else if (bType.tag == TypeTags.INT) {
+        } else if (TypeTags.isIntegerTypeTag(bType.tag)) {
             typeFieldName = "typeInt";
         } else if (bType.tag == TypeTags.FLOAT) {
             typeFieldName = "typeFloat";
@@ -1293,7 +1293,7 @@ class JvmTypeGen {
 
     static String getTypeDesc(BType bType, boolean useBString /* = false */) {
 
-        if (bType.tag == TypeTags.INT) {
+        if (TypeTags.isIntegerTypeTag(bType.tag)) {
             return "J";
         } else if (bType.tag == TypeTags.BYTE) {
             return "I";
@@ -1360,7 +1360,7 @@ class JvmTypeGen {
 
             loadConstantValue(valueType, value, mv, false);
 
-            if (valueType.tag == TypeTags.INT) {
+            if (TypeTags.isIntegerTypeTag(valueType.tag)) {
                 mv.visitMethodInsn(INVOKESTATIC, LONG_VALUE, "valueOf", String.format("(J)L%s;", LONG_VALUE), false);
             } else if (valueType.tag == TypeTags.BOOLEAN) {
                 mv.visitMethodInsn(INVOKESTATIC, BOOLEAN_VALUE, "valueOf", String.format("(Z)L%s;", BOOLEAN_VALUE),
