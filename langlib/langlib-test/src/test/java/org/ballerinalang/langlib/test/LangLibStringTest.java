@@ -253,9 +253,8 @@ public class LangLibStringTest {
 
     @Test(dataProvider = "testEqualsIgnoreCaseDataProvider")
     public void testEqualsIgnoreCaseAscii(String str1, String str2, boolean result) {
-        BValue[] args = {new BString(str1), new BString(str2)};
+        BValue[] args = {new BString(str1), new BString(str2), new BBoolean(result)};
         BValue[] returns = BRunUtil.invoke(compileResult, "testEqualsIgnoreCaseAscii", args);
-        Assert.assertEquals(((BBoolean) returns[0]).booleanValue(), result);
     }
 
     @DataProvider(name = "testEqualsIgnoreCaseDataProvider")
@@ -263,7 +262,9 @@ public class LangLibStringTest {
         return new Object[][] {
                 {"aBCdeFg", "aBCdeFg", true},
                 {"aBCdeFg", "abcdefg", true},
-                {"aBCdeFg", "abcdefh", false}
+                {"aBCdeFg", "abcdefh", false},
+                {"Duල්Viන්", "duල්viන්", true},
+                {"Duන්Viල්", "duල්viන්", false}
         };
     }
 
