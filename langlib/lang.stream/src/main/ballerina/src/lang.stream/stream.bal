@@ -26,7 +26,7 @@ type Type any|error;
 # Has the special semantic that when used in a declaration
 # all uses in the declaration must refer to same type.
 @typeParam
-type ErrorType error;
+type ErrorType error?;
 
 # A type parameter that is a subtype of `any|error`.
 # Has the special semantic that when used in a declaration

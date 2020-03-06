@@ -15,10 +15,11 @@
 // under the License.
 
 @typeParam
-type PureType3 any | error;
+type ErrorType2 error?;
 
 @typeParam
-type ErrorType2 error;
+type PureType3 any | error;
+
 
 # Takes in a stream and returns the iterator object of that stream.
 #

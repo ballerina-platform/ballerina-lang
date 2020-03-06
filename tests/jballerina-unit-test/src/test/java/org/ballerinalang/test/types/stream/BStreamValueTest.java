@@ -95,13 +95,19 @@ public class BStreamValueTest {
         Assert.assertTrue(((BBoolean) values[0]).booleanValue());
     }
 
-    @Test(description = "Test negative test scenarios of stream type", enabled = false)
+    @Test(description = "Test negative test scenarios of stream type")
     public void testStreamTypeNegative() {
         int i = 0;
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'record {| int value; |}?', " +
+                "found '(record {| int value; |}|error)?'", 74, 45);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'record {| int value; |}?', " +
                 "found '(record {| int value; |}|CustomError)?'", 77, 35);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'record {| int value; |}?', " +
                 "found '(record {| int value; |}|CustomError)?'", 78, 31);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected '(record {| int value; " +
+                "|}|CustomError)?', found '(record {| int value; |}|error)?'", 105, 57);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'record {| int value; |}?', " +
+                "found '(record {| int value; |}|error)?'", 106, 45);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected '(record {| int value; " +
                 "|}|CustomError)?', found '(record {| int value; |}|error)?'", 109, 48);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected '(record {| int value; " +
