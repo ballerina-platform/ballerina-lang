@@ -17,6 +17,7 @@
 import ballerina/lang.'string as strings;
 
 string str = "Hello Ballerina!";
+string str1 = "Hello Hello Ballerina!";
 
 function testToLower() returns string {
     return str.toLowerAscii();
@@ -60,6 +61,20 @@ function testConcat() returns string {
 
 function testIndexOf(string substr) returns int? {
     return str.indexOf(substr);
+}
+
+function testLastIndexOf() {
+    int? i1 = str1.lastIndexOf("Hello");
+    if (<int>i1 != 6) {
+        error err = error("Index of the last occurrence of 'Hello' should equal 6");
+        panic err;
+    }
+
+    int? i2 = str1.lastIndexOf("Invalid");
+    if (i2 != ()) {
+        error err = error("Index of the last occurrence of 'Invalid' should be nil");
+        panic err;
+    }
 }
 
 function testEndsWith(string substr) returns boolean {
