@@ -49,7 +49,7 @@ public class BallerinaConfigurableProvider extends ConfigurableProvider {
         Configurable librariesConfigurable = new BallerinaLibrariesConfigurableProvider(myProject).createConfigurable();
         Configurable sdkConfigurable = BallerinaSdkService.getInstance(myProject).createSdkConfigurable();
         Configurable autoDetectionConfigurable = new BallerinaAutoDetectionConfigurable(myProject, false);
-        Configurable experimentalFeatureConfigurable = new BallerinaExperimentalFeatureConfigurable(false);
+        Configurable experimentalFeatureConfigurable = new BallerinaExperimentalFeatureConfigurable(myProject, false);
         Configurable lsLogConfigurable = new LangServerLogsConfigurable(myProject, false);
 
         BallerinaCompositeConfigurable configurableWithSDK = new BallerinaCompositeConfigurable(sdkConfigurable,

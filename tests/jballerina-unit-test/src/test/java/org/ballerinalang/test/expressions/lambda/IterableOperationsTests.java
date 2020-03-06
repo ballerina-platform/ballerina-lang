@@ -217,8 +217,8 @@ public class IterableOperationsTests {
         Assert.assertEquals(returns.length, 3);
         Assert.assertEquals(returns[0].stringValue(), "7");
         Assert.assertEquals(returns[1].stringValue(), "3");
-        Assert.assertEquals(returns[2].stringValue(), "<p:city xmlns:p=\"foo\" xmlns:q=\"bar\">NY</p:city>" +
-                "<q:country xmlns:q=\"bar\" xmlns:p=\"foo\">US</q:country>");
+        Assert.assertEquals(returns[2].stringValue(),
+                "<p:city xmlns:p=\"foo\">NY</p:city><q:country xmlns:q=\"bar\">US</q:country>");
     }
 
     @Test

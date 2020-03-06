@@ -36,6 +36,8 @@ import org.ballerinalang.model.tree.types.TypeNode;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.BLangCompilerConstants;
 import org.ballerinalang.util.Transactions;
+import org.wso2.ballerinalang.compiler.parser.NodeCloner;
+import org.wso2.ballerinalang.compiler.semantics.analyzer.SemanticAnalyzer;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolEnter;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.TypeParamAnalyzer;
@@ -289,6 +291,8 @@ public class Desugar extends BLangNodeVisitor {
     private Names names;
     private ServiceDesugar serviceDesugar;
     private BLangNode result;
+    private NodeCloner nodeCloner;
+    private SemanticAnalyzer semanticAnalyzer;
 
     private BLangStatementLink currentLink;
     public Stack<BLangLockStmt> enclLocks = new Stack<>();
@@ -335,11 +339,14 @@ public class Desugar extends BLangNodeVisitor {
         this.names = Names.getInstance(context);
         this.names = Names.getInstance(context);
         this.serviceDesugar = ServiceDesugar.getInstance(context);
+        this.nodeCloner = NodeCloner.getInstance(context);
+        this.semanticAnalyzer = SemanticAnalyzer.getInstance(context);
     }
 
     public BLangPackage perform(BLangPackage pkgNode) {
         // Initialize the annotation map
         annotationDesugar.initializeAnnotationMap(pkgNode);
+        SymbolEnv env = this.symTable.pkgEnvMap.get(pkgNode.symbol);
         return rewrite(pkgNode, env);
     }
 
@@ -362,7 +369,11 @@ public class Desugar extends BLangNodeVisitor {
                     continue;
                 }
 
-                objectTypeNode.generatedInitFunction = createGeneratedInitializerFunction(objectTypeNode, env);
+                BLangFunction tempGeneratedInitFunction = createGeneratedInitializerFunction(objectTypeNode, env);
+                tempGeneratedInitFunction.clonedEnv = SymbolEnv.createFunctionEnv(tempGeneratedInitFunction,
+                        tempGeneratedInitFunction.symbol.scope, env);
+                this.semanticAnalyzer.analyzeNode(tempGeneratedInitFunction, env);
+                objectTypeNode.generatedInitFunction = tempGeneratedInitFunction;
 
                 // Add generated init function to the attached function list
                 pkgNode.functions.add(objectTypeNode.generatedInitFunction);
@@ -415,9 +426,12 @@ public class Desugar extends BLangNodeVisitor {
             return;
         }
         for (BLangSimpleVariable requiredParameter : initFunction.requiredParams) {
+            // Since the expression of the requiredParam of both init functions refer to same object,
+            // expression should be cloned.
+            BLangExpression expression = this.nodeCloner.clone(requiredParameter.expr);
             BLangSimpleVariable var =
                     ASTBuilderUtil.createVariable(initFunction.pos,
-                            requiredParameter.name.getValue(), requiredParameter.type, requiredParameter.expr,
+                            requiredParameter.name.getValue(), requiredParameter.type, expression,
                             new BVarSymbol(0, names.fromString(requiredParameter.name.getValue()),
                                     requiredParameter.symbol.pkgID,
                                     requiredParameter.type, requiredParameter.symbol.owner));
@@ -559,7 +573,6 @@ public class Desugar extends BLangNodeVisitor {
             result = pkgNode;
             return;
         }
-        SymbolEnv env = this.symTable.pkgEnvMap.get(pkgNode.symbol);
         createPackageInitFunctions(pkgNode, env);
         // Adding object functions to package level.
         addAttachedFunctionsToPackageLevel(pkgNode, env);
@@ -4173,7 +4186,6 @@ public class Desugar extends BLangNodeVisitor {
             xmlns.symbol = attribute.symbol;
 
             xmlElementLiteral.inlineNamespaces.add(xmlns);
-            attributesItr.remove();
         }
 
         result = xmlElementLiteral;
@@ -6201,6 +6213,7 @@ public class Desugar extends BLangNodeVisitor {
         typeSymbol.generatedInitializerFunc = new BAttachedFunction(Names.GENERATED_INIT_SUFFIX, initFunction.symbol,
                 (BInvokableType) initFunction.type);
         structureTypeNode.generatedInitFunction = initFunction;
+        initFunction.returnTypeNode.type = symTable.nilType;
         return rewrite(initFunction, env);
     }
 

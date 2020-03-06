@@ -83,6 +83,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckPanickedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
@@ -1376,6 +1377,15 @@ public class TypeChecker extends BLangNodeVisitor {
                ((BFutureType) symbol.type).workerDerivative;
     }
 
+    @Override
+    public void visit(BLangConstRef constRef) {
+        constRef.symbol = symResolver.lookupMainSpaceSymbolInPackage(constRef.pos, env,
+                names.fromIdNode(constRef.pkgAlias), names.fromIdNode(constRef.variableName));
+
+        types.setImplicitCastExpr(constRef, constRef.type, expType);
+        resultType = constRef.type;
+    }
+
     public void visit(BLangSimpleVarRef varRefExpr) {
         // Set error type as the actual type.
         BType actualType = symTable.semanticError;
@@ -2623,6 +2633,13 @@ public class TypeChecker extends BLangNodeVisitor {
     public void visit(BLangXMLElementLiteral bLangXMLElementLiteral) {
         SymbolEnv xmlElementEnv = SymbolEnv.getXMLElementEnv(bLangXMLElementLiteral, env);
 
+        // Keep track of used namespace prefixes in this element and only add namespace attr for those used ones.
+        Set<String> usedPrefixes = new HashSet<>();
+        BLangIdentifier elemNamePrefix = ((BLangXMLQName) bLangXMLElementLiteral.startTagName).prefix;
+        if (elemNamePrefix != null && !elemNamePrefix.value.isEmpty()) {
+            usedPrefixes.add(elemNamePrefix.value);
+        }
+
         // Visit in-line namespace declarations and define the namespace.
         for (BLangXMLAttribute attribute : bLangXMLElementLiteral.attributes) {
             if (attribute.name.getKind() == NodeKind.XML_QNAME && isXmlNamespaceAttribute(attribute)) {
@@ -2631,6 +2648,10 @@ public class TypeChecker extends BLangNodeVisitor {
                     dlog.error(value.pos, DiagnosticCode.INVALID_XML_NS_INTERPOLATION);
                 }
                 checkExpr(attribute, xmlElementEnv, symTable.noType);
+            }
+            BLangIdentifier prefix = ((BLangXMLQName) attribute.name).prefix;
+            if (prefix != null && !prefix.value.isEmpty()) {
+                usedPrefixes.add(prefix.value);
             }
         }
 
@@ -2646,7 +2667,11 @@ public class TypeChecker extends BLangNodeVisitor {
         if (namespaces.containsKey(defaultNs)) {
             bLangXMLElementLiteral.defaultNsSymbol = namespaces.remove(defaultNs);
         }
-        bLangXMLElementLiteral.namespacesInScope.putAll(namespaces);
+        for (Map.Entry<Name, BXMLNSSymbol> nsEntry : namespaces.entrySet()) {
+            if (usedPrefixes.contains(nsEntry.getKey().value)) {
+                bLangXMLElementLiteral.namespacesInScope.put(nsEntry.getKey(), nsEntry.getValue());
+            }
+        }
 
         // Visit the tag names
         validateTags(bLangXMLElementLiteral, xmlElementEnv);
@@ -3249,7 +3274,8 @@ public class TypeChecker extends BLangNodeVisitor {
             return;
         }
 
-        if (iExpr.argExprs.isEmpty() && checkNoArgErrorCtorInvocation(expectedError, iExpr.name, iExpr.pos)) {
+        if (iExpr.argExprs.isEmpty() && iExpr.requiredArgs.isEmpty() && checkNoArgErrorCtorInvocation(expectedError,
+                iExpr.name, iExpr.pos)) {
             return;
         }
 
@@ -3393,8 +3419,10 @@ public class TypeChecker extends BLangNodeVisitor {
             iExpr.requiredArgs.add(reasonExpr);
             return;
         }
-        iExpr.requiredArgs.add(iExpr.argExprs.get(0));
-        iExpr.argExprs.remove(0);
+        if (!iExpr.argExprs.isEmpty()) {
+            iExpr.requiredArgs.add(iExpr.argExprs.get(0));
+            iExpr.argExprs.remove(0);
+        }
     }
 
     /**

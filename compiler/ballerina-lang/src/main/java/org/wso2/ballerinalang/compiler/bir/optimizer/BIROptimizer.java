@@ -503,7 +503,6 @@ public class BIROptimizer {
         public void visit(BIRNonTerminator.NewXMLElement newXMLElement) {
             this.optimizeNode(newXMLElement.lhsOp, this.env);
             this.optimizeNode(newXMLElement.startTagOp, this.env);
-            this.optimizeNode(newXMLElement.endTagOp, this.env);
             this.optimizeNode(newXMLElement.defaultNsURIOp, this.env);
         }
 

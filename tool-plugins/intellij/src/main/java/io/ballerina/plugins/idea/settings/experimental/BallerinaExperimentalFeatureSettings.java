@@ -20,6 +20,7 @@ import com.intellij.openapi.components.PersistentStateComponent;
 import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
+import com.intellij.openapi.project.Project;
 import com.intellij.util.xmlb.XmlSerializerUtil;
 import com.intellij.util.xmlb.annotations.Attribute;
 import org.jetbrains.annotations.Nullable;
@@ -35,8 +36,8 @@ public class BallerinaExperimentalFeatureSettings implements PersistentStateComp
     @Attribute
     private boolean allowExperimental = false;
 
-    public static BallerinaExperimentalFeatureSettings getInstance() {
-        return ServiceManager.getService(BallerinaExperimentalFeatureSettings.class);
+    public static BallerinaExperimentalFeatureSettings getInstance(Project project) {
+        return ServiceManager.getService(project, BallerinaExperimentalFeatureSettings.class);
     }
 
     @Nullable
@@ -50,7 +51,7 @@ public class BallerinaExperimentalFeatureSettings implements PersistentStateComp
         XmlSerializerUtil.copyBean(state, this);
     }
 
-    public boolean getAllowExperimental() {
+    public boolean isAllowedExperimental() {
         return allowExperimental;
     }
 
