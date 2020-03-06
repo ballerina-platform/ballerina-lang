@@ -7,7 +7,7 @@ function name2() returns int {
     return a;
 }
 
-function name3() returns byte | error {
+function name3() returns byte|error {
     var byteValue = <byte>2;
     return check byteValue;
 }

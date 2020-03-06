@@ -16,14 +16,13 @@
  * under the License.
  *
  */
-import { workspace, commands, window, Uri, ViewColumn, ExtensionContext, TextEditor, WebviewPanel, TextDocumentChangeEvent, Location } from 'vscode';
+import { workspace, commands, window, Uri, ViewColumn, ExtensionContext, TextEditor, WebviewPanel, TextDocumentChangeEvent } from 'vscode';
 import * as _ from 'lodash';
 import { render } from './renderer';
 import { ExtendedLangClient } from '../core/extended-language-client';
 import { BallerinaExtension } from '../core';
 import { WebViewRPCHandler, getCommonWebViewOptions } from '../utils';
 import { join } from "path";
-import { DidChangeConfigurationParams } from 'vscode-languageclient';
 import { TM_EVENT_OPEN_DIAGRAM, CMP_DIAGRAM_VIEW } from '../telemetry';
 
 const DEBOUNCE_WAIT = 500;
@@ -123,21 +122,5 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
 			reporter.sendTelemetryException(e, { component: CMP_DIAGRAM_VIEW });
 		});
 	});
-
-    ballerinaExtInstance.onReady().then(() => {
-		const args: DidChangeConfigurationParams = {
-            settings: workspace.getConfiguration('ballerina'),
-        };
-        langClient.sendNotification("workspace/didChangeConfiguration", args);
-        langClient.onNotification('window/showTextDocument', (location: Location) => {
-            if (location.uri !== undefined) {
-                window.showTextDocument(Uri.parse(location.uri.toString()), {selection: location.range});
-            }
-        });
-    	})
-        .catch((e) => {
-            window.showErrorMessage('Could not start openFile capability listener', e.message);
-        });
-
 	context.subscriptions.push(diagramRenderDisposable);
 }

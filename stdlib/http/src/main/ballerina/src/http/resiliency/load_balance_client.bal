@@ -337,37 +337,25 @@ function populateGenericLoadBalanceActionError(LoadBalanceActionErrorData loadBa
 
 # The configurations related to the load balance client endpoint.
 #
-# + httpVersion - The HTTP version to be used to communicate with the endpoint
-# + http1Settings - Configurations related to HTTP/1.x protocol
-# + http2Settings - Configurations related to HTTP/2 protocol
-# + timeoutInMillis - The maximum time to wait (in milli seconds) for a response before closing the connection
-# + forwarded - The choice of setting forwarded/x-forwarded header
-# + followRedirects - Redirect related options
-# + poolConfig - Configurations associated with request pooling
-# + proxy - Proxy related options
+# httpVersion - Copied from CommonClientConfiguration
+# http1Settings - Copied from CommonClientConfiguration
+# http2Settings - Copied from CommonClientConfiguration
+# timeoutInMillis - Copied from CommonClientConfiguration
+# forwarded - Copied from CommonClientConfiguration
+# followRedirects - Copied from CommonClientConfiguration
+# poolConfig - Copied from CommonClientConfiguration
+# cache - Copied from CommonClientConfiguration
+# compression - Copied from CommonClientConfiguration
+# auth - Copied from CommonClientConfiguration
+# circuitBreaker - Copied from CommonClientConfiguration
+# retryConfig - Copied from CommonClientConfiguration
+# cookieConfig - Copied from CommonClientConfiguration
 # + targets - The upstream HTTP endpoints among which the incoming HTTP traffic load should be distributed
-# + cache - The configurations for controlling the caching behaviour
-# + compression - Specifies the way of handling compression (`accept-encoding`) header
-# + auth - Configurations related to the HTTP authentication.
-# + circuitBreaker - Circuit Breaker configuration
-# + retryConfig - Retry related options
 # + lbRule - LoadBalancing rule
 # + failover - Configuration for load balancer whether to fail over in case of a failure
 public type LoadBalanceClientConfiguration record {|
-    string httpVersion = HTTP_1_1;
-    ClientHttp1Settings http1Settings = {};
-    ClientHttp2Settings http2Settings = {};
-    int timeoutInMillis = 60000;
-    string forwarded = "disable";
-    FollowRedirects? followRedirects = ();
-    ProxyConfig? proxy = ();
-    PoolConfiguration? poolConfig = ();
+    *CommonClientConfiguration;
     TargetService[] targets = [];
-    CacheConfig cache = {};
-    Compression compression = COMPRESSION_AUTO;
-    OutboundAuthConfig? auth = ();
-    CircuitBreakerConfig? circuitBreaker = ();
-    RetryConfig? retryConfig = ();
     LoadBalancerRule? lbRule = ();
     boolean failover = true;
 |};

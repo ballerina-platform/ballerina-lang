@@ -121,9 +121,9 @@ function testTypeAnnotAccess2() returns boolean {
     T1 b = {name: "John"};
     typedesc t = typeof b;
     Annot[]? annot =
-    t
-    .@
-    v2
+        t
+        .@
+        v2
     ;
     return annot is ();
 }
@@ -147,8 +147,8 @@ type T2 object {
         foo: 41
     }
     public function setName(@v6 {foo: "v61 value required"} string name,
-    @v6 {foo: "v61 value defaultable"} int id = 0,
-    @v6 {foo: "v61 value rest"} string... others) returns @v7 () {
+        @v6 {foo: "v61 value defaultable"} int id = 0,
+        @v6 {foo: "v61 value rest"} string... others) returns @v7 () {
         self.name = name;
     }
 
@@ -192,9 +192,9 @@ function testObjectTypeAnnotAccess3() returns boolean {
     T2 e = new;
     typedesc t = typeof e;
     Annot? annot =
-    t
-    .@
-    v3
+        t
+        .@
+        v3
     ;
     return annot is ();
 }
@@ -219,15 +219,122 @@ service ser on lis {
 }
 
 service serTwo = @v8 {
-    foo: "v82"
-} service {
+        foo: "v82"
+    } service {
 
-    @v5 {
-        val: "542"
-    }
-    resource function res(@v6 {
-        foo: "v642"
-    } int intVal) returns @v7 int {
-        return 1;
-    }
-};
+        @v5 {
+            val: "542"
+        }
+        resource function res(@v6 {
+                foo: "v642"
+            } int intVal) returns @v7 int {
+            return 1;
+        }
+    };
+
+service serTwo2 = @v8 {
+        foo: "v82"
+    } service {
+
+        @v5 {
+            val: "542"
+        }
+        resource function res(@v6 {
+                foo: "v642"
+            }
+            int intVal) returns
+            @v7 {
+                bar: "vfg"
+            }
+            int {
+            return 1;
+        }
+    };
+
+service serTwo3 = @v8 {
+        foo: "v82"
+    } service {
+
+        @v5 {
+            val: "542"
+        }
+        resource function res(@v6 {
+                foo: "v642"
+            } record {
+                int b = 0;
+            } intVal) returns
+            @v7 {
+                bar: "vfg"
+            } record {
+                int a = 0;
+            } {
+            return {};
+        }
+    };
+
+service serTwo4 = @v8 {
+        foo: "v82"
+    } service {
+
+        @v5 {
+            val: "542"
+        }
+        resource function res(@v6 {
+                foo: "v642"
+            }
+            record {
+                int b = 0;
+            } intVal) returns
+            @v7 {
+                bar: "vfg"
+            }
+            record {
+                int a = 0;
+            } {
+            return {};
+        }
+    };
+
+service serTwo5 = @v8 {
+        foo: "v82"
+    } service {
+
+        @v5 {
+            val: "542"
+        }
+        resource function res(@v6 {
+                foo: "v642"
+            }
+            object {
+                int b = 0;
+            } intVal) returns
+            @v7 {
+                bar: "vfg"
+            }
+            object {
+                int a = 0;
+            } {
+            return new;
+        }
+    };
+
+service serTwo6 = @v8 {
+        foo: "v82"
+    } service {
+
+        @v5 {
+            val: "542"
+        }
+        resource function res(@v6 {
+                foo: "v642"
+            } object {
+                int b = 0;
+            } intVal) returns
+            @v7 {
+                bar: "vfg"
+            } object {
+                int a = 0;
+            } {
+            return new;
+        }
+    };

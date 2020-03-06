@@ -196,3 +196,34 @@ public type CompressionConfig record {|
 type HTTPError record {
     string message = "";
 };
+
+# Common client configurations for the next level clients.
+#
+# + httpVersion - The HTTP version understood by the client
+# + http1Settings - Configurations related to HTTP/1.x protocol
+# + http2Settings - Configurations related to HTTP/2 protocol
+# + timeoutInMillis - The maximum time to wait (in milliseconds) for a response before closing the connection
+# + forwarded - The choice of setting `forwarded`/`x-forwarded` header
+# + followRedirects - Configurations associated with Redirection
+# + poolConfig - Configurations associated with request pooling
+# + cache - HTTP caching related configurations
+# + compression - Specifies the way of handling compression (`accept-encoding`) header
+# + auth - HTTP authentication-related configurations
+# + circuitBreaker - Configurations associated with the behaviour of the Circuit Breaker
+# + retryConfig - Configurations associated with retrying
+# + cookieConfig - Configurations associated with cookies
+public type CommonClientConfiguration record {|
+    string httpVersion = HTTP_1_1;
+    ClientHttp1Settings http1Settings = {};
+    ClientHttp2Settings http2Settings = {};
+    int timeoutInMillis = 60000;
+    string forwarded = "disable";
+    FollowRedirects? followRedirects = ();
+    PoolConfiguration? poolConfig = ();
+    CacheConfig cache = {};
+    Compression compression = COMPRESSION_AUTO;
+    OutboundAuthConfig? auth = ();
+    CircuitBreakerConfig? circuitBreaker = ();
+    RetryConfig? retryConfig = ();
+    CookieConfig? cookieConfig = ();
+|};

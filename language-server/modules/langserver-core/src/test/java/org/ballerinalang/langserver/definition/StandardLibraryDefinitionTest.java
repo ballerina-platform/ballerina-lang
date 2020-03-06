@@ -67,7 +67,8 @@ public class StandardLibraryDefinitionTest extends DefinitionTest {
         for (JsonElement jsonElement : expected) {
             JsonObject item = jsonElement.getAsJsonObject();
             String[] uriComponents = item.get("uri").toString().replace("\"", "").split("/");
-            Path expectedPath = Paths.get(LSStandardLibCache.getInstance().getStdlibCacheRoot().toUri());
+            Path expectedPath = Paths.get(LSStandardLibCache.getInstance().getCachedStdlibRoot(uriComponents[1])
+                    .toUri());
             for (String uriComponent : uriComponents) {
                 expectedPath = expectedPath.resolve(uriComponent);
             }
@@ -81,6 +82,8 @@ public class StandardLibraryDefinitionTest extends DefinitionTest {
         log.info("Test textDocument/definition for Basic Cases");
         return new Object[][]{
                 {"defObjectTypeDef1.json", "stdlib"},
+                {"defStdLibFunctionInvocation1.json", "stdlib"},
+                {"defStdLibActionInvocation1.json", "stdlib"},
         };
     }
 
