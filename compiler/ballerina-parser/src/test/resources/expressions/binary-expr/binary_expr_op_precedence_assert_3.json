@@ -1,0 +1,74 @@
+{
+    "kind": "BINARY_EXPRESSION",
+    "children": [
+        {
+            "kind": "BRACED_EXPRESSION",
+            "children": [
+                {
+                    "kind": "OPEN_PAREN_TOKEN"
+                },
+                {
+                    "kind": "BINARY_EXPRESSION",
+                    "children": [
+                        {
+                            "kind": "IDENTIFIER_TOKEN",
+                            "text": "a"
+                        },
+                        {
+                            "kind": "PLUS_TOKEN"
+                        },
+                        {
+                            "kind": "IDENTIFIER_TOKEN",
+                            "text": "b"
+                        }
+                    ]
+                },
+                {
+                    "kind": "CLOSE_PAREN_TOKEN"
+                }
+            ]
+        },
+        {
+            "kind": "ASTERISK_TOKEN"
+        },
+        {
+            "kind": "BINARY_EXPRESSION",
+            "children": [
+                {
+                    "kind": "BRACED_EXPRESSION",
+                    "children": [
+                        {
+                            "kind": "OPEN_PAREN_TOKEN"
+                        },
+                        {
+                            "kind": "BINARY_EXPRESSION",
+                            "children": [
+                                {
+                                    "kind": "IDENTIFIER_TOKEN",
+                                    "text": "c"
+                                },
+                                {
+                                    "kind": "MINUS_TOKEN"
+                                },
+                                {
+                                    "kind": "IDENTIFIER_TOKEN",
+                                    "text": "d"
+                                }
+                            ]
+                        },
+                        {
+                            "kind": "CLOSE_PAREN_TOKEN"
+                        }
+                    ]
+                },
+                {
+                    "kind": "SLASH_TOKEN"
+                },
+                {
+                    "kind": "IDENTIFIER_TOKEN",
+                    "text": "e"
+                }
+            ]
+        }
+    ]
+}

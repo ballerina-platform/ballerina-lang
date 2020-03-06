@@ -21,5 +21,8 @@ under the License.
 
 <suite name="ballerina-parser-test-suite">
     <test name="ballerina-parser-test" preserve-order="true" parallel="false">
+        <packages>
+            <package name="io.ballerinalang.compiler.parser.test.*" />
+        </packages>
     </test>
 </suite>

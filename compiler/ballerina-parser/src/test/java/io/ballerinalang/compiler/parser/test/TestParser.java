@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.compiler.parser.test;
+package io.ballerinalang.compiler.parser.test;
 
 import io.ballerinalang.compiler.internal.parser.BallerinaParser;
 

@@ -1,0 +1,52 @@
+{
+    "kind": "BINARY_EXPRESSION",
+    "children": [
+        {
+            "kind": "BINARY_EXPRESSION",
+            "children": [
+                {
+                    "kind": "IDENTIFIER_TOKEN",
+                    "text": "a"
+                },
+                {
+                    "kind": "PLUS_TOKEN"
+                },
+                {
+                    "kind": "IDENTIFIER_TOKEN",
+                    "text": "b"
+                }
+            ]
+        },
+        {
+            "kind": "LT_TOKEN"
+        },
+        {
+            "kind": "BINARY_EXPRESSION",
+            "children": [
+                {
+                    "kind": "IDENTIFIER_TOKEN",
+                    "text": "c"
+                },
+                {
+                    "kind": "MINUS_TOKEN"
+                },
+                {
+                    "kind": "BINARY_EXPRESSION",
+                    "children": [
+                        {
+                            "kind": "IDENTIFIER_TOKEN",
+                            "text": "d"
+                        },
+                        {
+                            "kind": "SLASH_TOKEN"
+                        },
+                        {
+                            "kind": "IDENTIFIER_TOKEN",
+                            "text": "e"
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}
