@@ -317,8 +317,8 @@ public class TypeParamAnalyzer {
                 return;
             case TypeTags.STREAM:
                 if (actualType.tag == TypeTags.STREAM) {
-                    findTypeParam(((BStreamType) expType).constraint, ((BStreamType) actualType).constraint, env,
-                                  resolvedTypes, result);
+                    findTypeParamInStream(((BStreamType) expType), ((BStreamType) actualType), env, resolvedTypes,
+                            result);
                 }
                 return;
             case TypeTags.TUPLE:
@@ -384,6 +384,13 @@ public class TypeParamAnalyzer {
         for (int i = 0; i < expType.tupleTypes.size() && i < actualType.tupleTypes.size(); i++) {
             findTypeParam(expType.tupleTypes.get(i), actualType.tupleTypes.get(i), env, resolvedTypes, result);
         }
+    }
+
+    private void findTypeParamInStream(BStreamType expType, BStreamType actualType, SymbolEnv env,
+                                       HashSet<BType> resolvedTypes, FindTypeParamResult result) {
+        findTypeParam(expType.constraint, actualType.constraint, env, resolvedTypes, result);
+        findTypeParam(expType.error, (actualType.error != null) ? actualType.error : symTable.nilType,
+                env, resolvedTypes, result);
     }
 
     private void findTypeParamInTupleForArray(BArrayType expType, BTupleType actualType, SymbolEnv env,
@@ -531,11 +538,11 @@ public class TypeParamAnalyzer {
                 return new BMapType(TypeTags.MAP, getMatchingBoundType(constraint, env, resolvedTypes),
                         symTable.mapType.tsymbol);
             case TypeTags.STREAM:
-                BType streamConstraint = ((BStreamType) expType).constraint;
-                BType streamErrorType = ((BStreamType) expType).error;
-                BErrorType streamError = (streamErrorType != null) ? (BErrorType) streamErrorType : symTable.errorType;
-                return new BStreamType(TypeTags.STREAM, getMatchingBoundType(streamConstraint, env, resolvedTypes),
-                        getMatchingErrorBoundType(streamError, env, resolvedTypes), symTable.streamType.tsymbol);
+                BType streamConstraint = getMatchingBoundType(((BStreamType) expType).constraint, env, resolvedTypes);
+                BType streamErrorType = getMatchingBoundType(((BStreamType) expType).error, env, resolvedTypes);
+//                BType streamError = (streamErrorType != null) ?
+//                        getMatchingErrorBoundType((BErrorType) streamErrorType, env, resolvedTypes) : null;
+                return new BStreamType(TypeTags.STREAM, streamConstraint, streamErrorType, symTable.streamType.tsymbol);
             case TypeTags.TUPLE:
                 return getMatchingTupleBoundType((BTupleType) expType, env, resolvedTypes);
             case TypeTags.RECORD:

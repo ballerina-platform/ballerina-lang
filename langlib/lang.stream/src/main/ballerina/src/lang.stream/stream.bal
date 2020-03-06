@@ -20,6 +20,9 @@ import ballerina/lang.__internal as internal;
 # Has the special semantic that when used in a declaration
 # all uses in the declaration must refer to same type.
 @typeParam
+type ErrorType error?;
+
+@typeParam
 type PureType1 any | error;
 
 @typeParam
@@ -27,9 +30,6 @@ type PureType2 any | error;
 
 @typeParam
 type Type any | error;
-
-@typeParam
-type ErrorType error;
 
 # Selects the members from an array for which the `func` function returns true.
 #

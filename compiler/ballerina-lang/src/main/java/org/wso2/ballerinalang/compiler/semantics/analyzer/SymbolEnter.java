@@ -743,6 +743,9 @@ public class SymbolEnter extends BLangNodeVisitor {
             if (PackageID.isLangLibPackageID(this.env.enclPkg.packageID)) {
                 typeDefSymbol.type = typeParamAnalyzer.createTypeParam(typeDefSymbol.type, typeDefSymbol.name);
                 typeDefSymbol.flags |= Flags.TYPE_PARAM;
+                if (typeDefinition.typeNode.getKind() == NodeKind.ERROR_TYPE) {
+                    typeDefSymbol.isLabel = false;
+                }
             } else {
                 dlog.error(typeDefinition.pos, DiagnosticCode.TYPE_PARAM_OUTSIDE_LANG_MODULE);
             }

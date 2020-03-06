@@ -20,17 +20,17 @@
 # Has the special semantic that when used in a declaration
 # all uses in the declaration must refer to same type.
 @typeParam
-public type PureType any|error;
+public type ErrorType error?;
 
 @typeParam
-public type ErrorType error;
+public type PureType any|error;
 
 # Sets the narrowed type of the `value`.
 #
 # + td - The narrowed type to be set.
 # + val - The value of which the type being set.
 # + return - The value with the narrowed type.
-public function setNarrowType(typedesc<PureType> td, record {|PureType value;|}|ErrorType? val) returns record {|PureType value;|}|ErrorType? = external;
+public function setNarrowType(typedesc<PureType> td, record {|PureType value;|} val) returns record {|PureType value;|} = external;
 
 # Takes in a lambda function and returns a new stream out of it.
 #
