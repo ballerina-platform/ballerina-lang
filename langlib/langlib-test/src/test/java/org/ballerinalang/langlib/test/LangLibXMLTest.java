@@ -254,4 +254,22 @@ public class LangLibXMLTest {
         Assert.assertEquals(returns[1].stringValue(), "<elemN>content</elemN><elemM>content</elemM>");
         Assert.assertEquals(returns[2].stringValue(), "<elemN>content</elemN><elemM>content</elemM>");
     }
+
+    @Test
+    public void testXMLCycleError() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testXMLCycleError");
+        Assert.assertEquals(returns[0].stringValue(),
+                "{ballerina/lang.xml}XMLOperationError " +
+                        "{message:\"Failed to set children to xml element: Cycle detected\"}");
+        Assert.assertTrue(returns[1].stringValue().contains("<CD><CD>"));
+        Assert.assertTrue(returns[1].stringValue().contains("</CD></CD>"));
+    }
+
+    @Test
+    public void testXMLCycleDueToChildrenOfChildren() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testXMLCycleDueToChildrenOfChildren");
+        Assert.assertEquals(returns[0].stringValue(),
+                "{ballerina/lang.xml}XMLOperationError " +
+                        "{message:\"Failed to set children to xml element: Cycle detected\"}");
+    }
 }
