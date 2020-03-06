@@ -33,15 +33,15 @@ service RetryService on retryListener {
         // Identifying the client to maintain state to track retry attempts.
         if (clientName != value) {
             requestCount = 0;
-            clientName = value;
+            clientName = <@untainted>value;
         }
         requestCount += 1;
-        io:println(requestCount);
-        if (requestCount < 3) {
+        io:println(clientName + ": Attetmpt No. " + requestCount.toString());
+        if (requestCount < 4) {
             var sendResult = caller->sendError(13, "Mocking Internal Error");
-            // var completeResult = caller->complete();
+            var completeResult = caller->complete();
         } else {
-            var sendResult = caller->send("Attempts: " + requestCount.toString());
+            var sendResult = caller->send("Total Attempts: " + requestCount.toString());
             var completeResult = caller->complete();
         }
     }

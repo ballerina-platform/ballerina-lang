@@ -34,7 +34,7 @@ import java.nio.file.Paths;
 /**
  * Tests the retry functionality of unary blocking client.
  */
-@Test
+@Test(groups = "grpc-test")
 public class UnaryBlockingRetryTestCase extends GrpcBaseTest {
 
     private CompileResult result;
@@ -49,7 +49,7 @@ public class UnaryBlockingRetryTestCase extends GrpcBaseTest {
 
     @Test(description = "Test client get success after two attempts")
     public void testUnaryBlockingRetry() {
-        final String serverMsg = "Attempts: 3";
+        final String serverMsg = "Total Attempts: 4";
 
         BValue[] responses = BRunUtil.invoke(result, "testRetry");
         Assert.assertEquals(responses.length, 1);
@@ -61,7 +61,7 @@ public class UnaryBlockingRetryTestCase extends GrpcBaseTest {
     public void testUnaryBlockingRetryAllAttemptsFailing() {
         final String serverMsg = "{ballerina/grpc}AllRetryAttemptsFailed";
 
-        BValue[] responses = BRunUtil.invoke(result, "testRetry");
+        BValue[] responses = BRunUtil.invoke(result, "testRetryFailingClient");
         Assert.assertEquals(responses.length, 1);
         Assert.assertTrue(responses[0] instanceof BString);
         Assert.assertEquals(responses[0].stringValue(), serverMsg);

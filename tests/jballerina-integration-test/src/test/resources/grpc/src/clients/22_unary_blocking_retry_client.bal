@@ -44,9 +44,12 @@ grpc:ClientConfiguration failingClientConfig = {
 RetryServiceBlockingClient retryClient = new("http://localhost:9112", clientConfig);
 RetryServiceBlockingClient failingRetryClient = new("http://localhost:9112", failingClientConfig);
 
+public function main() {
+    var result = testRetry();
+    io:println(result);
+}
 public function testRetry() returns string {
-    io:println("Sending message");
-    var result = retryClient->getResult("Hi from retry client");
+    var result = retryClient->getResult("RetryClient");
     if (result is grpc:Error) {
         io:println(result);
         return result.toString();
@@ -57,8 +60,7 @@ public function testRetry() returns string {
 }
 
 public function testRetryFailingClient() returns string {
-    io:println("Sending message");
-    var result = retryClient->getResult("Hi from retry client");
+    var result = failingRetryClient->getResult("FailingRetryClient");
     if (result is grpc:Error) {
         io:println(result);
         return result.reason();
