@@ -892,16 +892,11 @@ public class TypeChecker extends BLangNodeVisitor {
 
             if (compatibleTypes.isEmpty()) {
                 reportIncompatibleMappingConstructorError(mappingConstructor, bType);
-                for (RecordLiteralNode.RecordField field : mappingConstructor.fields) {
-                    checkMappingField(field, symTable.errorType);
-                }
+                validateSpecifiedFields(mappingConstructor, symTable.semanticError);
                 return symTable.semanticError;
             } else if (compatibleTypes.size() != 1) {
-                dlogHelper.error(mappingConstructor.pos,
-                                 DiagnosticCode.AMBIGUOUS_TYPES, bType);
-                for (RecordLiteralNode.RecordField field : mappingConstructor.fields) {
-                    checkMappingField(field, symTable.errorType);
-                }
+                dlogHelper.error(mappingConstructor.pos, DiagnosticCode.AMBIGUOUS_TYPES, bType);
+                validateSpecifiedFields(mappingConstructor, symTable.semanticError);
                 return symTable.semanticError;
             }
 
@@ -924,6 +919,7 @@ public class TypeChecker extends BLangNodeVisitor {
                 return isSpecifiedFieldsValid && hasAllRequiredFields ? possibleType : symTable.semanticError;
         }
         reportIncompatibleMappingConstructorError(mappingConstructor, bType);
+        validateSpecifiedFields(mappingConstructor, symTable.semanticError);
         return symTable.semanticError;
     }
 
@@ -3653,8 +3649,15 @@ public class TypeChecker extends BLangNodeVisitor {
                 break;
         }
 
-        BLangExpression exprToCheck = valueExpr;
 
+        if (spreadOpField) {
+            // If we reach this point for a spread operator it is due to the mapping type being a semantic error.
+            // In such a scenario, valueExpr would be null here, and fieldType would be symTable.semanticError.
+            // We set the spread op expression as the valueExpr here, to check it against symTable.semanticError.
+            valueExpr = ((BLangRecordLiteral.BLangRecordSpreadOperatorField) field).expr;
+        }
+
+        BLangExpression exprToCheck = valueExpr;
         if (this.nonErrorLoggingCheck) {
             valueExpr.cloneAttempt++;
             exprToCheck = nodeCloner.clone(valueExpr);

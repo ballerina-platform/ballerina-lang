@@ -49,3 +49,8 @@ function testAmbiguousMapTarget() {
         b: "bye"
     };
 }
+
+function testFieldTypeCheckingOnUnknownType() {
+    PersonThree p3 = {name: "Anne", id: 123, "salary": 100.0};
+    NoRecord x = {a: <string> p3.id, b: p3.salary, ...c};
+}
