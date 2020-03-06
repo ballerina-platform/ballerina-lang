@@ -60,7 +60,7 @@ public class ParserTestUtils {
         JsonObject assertJson = readAssertFile(RESOURCE_DIRECTORY + assertFilePath);
 
         // Validate the tree against the assertion file
-        validate(parser.getTree(), assertJson);
+        assertNode(parser.getTree(), assertJson);
     }
 
     private static JsonObject readAssertFile(String filePath) {
@@ -72,7 +72,7 @@ public class ParserTestUtils {
         }
     }
 
-    private static void validate(STNode node, JsonObject json) {
+    private static void assertNode(STNode node, JsonObject json) {
         aseertNodeKind(json, node);
 
         if (isMissingToken(json)) {
@@ -118,15 +118,16 @@ public class ParserTestUtils {
         int size = children.size();
         int j = 0;
 
-        // Skip the optional fields that are not present and get the next
-        // available node.
         for (int i = 0; i < size; i++) {
+            // Skip the optional fields that are not present and get the next
+            // available node.
             STNode nextChild = tree.childInBucket(j++);
             while (nextChild == null || nextChild.kind == SyntaxKind.NONE) {
                 nextChild = tree.childInBucket(j++);
             }
 
-            validate(nextChild, (JsonObject) children.get(i));
+            // Assert the actual child node against the expected child node.
+            assertNode(nextChild, (JsonObject) children.get(i));
         }
     }
 
@@ -216,7 +217,7 @@ public class ParserTestUtils {
 
             // Unsupported
             default:
-                throw new UnsupportedOperationException("cannot find syntax kid: " + kind);
+                throw new UnsupportedOperationException("cannot find syntax kind: " + kind);
         }
     }
 }
