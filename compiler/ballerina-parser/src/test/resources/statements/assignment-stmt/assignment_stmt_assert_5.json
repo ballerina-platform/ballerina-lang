@@ -1,16 +1,19 @@
 {
-    "kind": "BINARY_EXPRESSION",
+    "kind": "ASSIGNMENT_STATEMENT",
     "children": [
         {
             "kind": "IDENTIFIER_TOKEN",
             "value": "a"
         },
         {
-            "kind": "PLUS_TOKEN"
+            "kind": "EQUAL_TOKEN"
         },
         {
             "kind": "IDENTIFIER_TOKEN",
-            "value": "b"
+            "isMissing": true
+        },
+        {
+            "kind": "SEMICOLON_TOKEN"
         }
     ]
 }

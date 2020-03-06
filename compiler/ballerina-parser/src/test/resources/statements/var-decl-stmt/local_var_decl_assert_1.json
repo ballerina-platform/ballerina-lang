@@ -1,0 +1,16 @@
+{
+    "kind": "LOCAL_VARIABLE_DECL",
+    "children": [
+        {
+            "kind": "TYPE_TOKEN",
+            "value": "int"
+        },
+        {
+            "kind": "IDENTIFIER_TOKEN",
+            "value": "a"
+        },
+        {
+            "kind": "SEMICOLON_TOKEN"
+        }
+    ]
+}

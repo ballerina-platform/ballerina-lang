@@ -3,7 +3,7 @@
     "children": [
         {
             "kind": "IDENTIFIER_TOKEN",
-            "text": "a"
+            "value": "a"
         },
         {
             "kind": "PLUS_TOKEN"
@@ -13,14 +13,14 @@
             "children": [
                 {
                     "kind": "IDENTIFIER_TOKEN",
-                    "text": "b"
+                    "value": "b"
                 },
                 {
                     "kind": "MINUS_TOKEN"
                 },
                 {
                     "kind": "IDENTIFIER_TOKEN",
-                    "text": "c"
+                    "value": "c"
                 }
             ]
         }

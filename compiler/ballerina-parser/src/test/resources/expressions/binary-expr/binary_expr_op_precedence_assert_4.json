@@ -3,7 +3,7 @@
     "children": [
         {
             "kind": "IDENTIFIER_TOKEN",
-            "text": "a"
+            "value": "a"
         },
         {
             "kind": "PLUS_TOKEN"
@@ -16,7 +16,7 @@
                     "children": [
                         {
                             "kind": "IDENTIFIER_TOKEN",
-                            "text": "b"
+                            "value": "b"
                         },
                         {
                             "kind": "ASTERISK_TOKEN"
@@ -26,7 +26,7 @@
                             "children": [
                                 {
                                     "kind": "IDENTIFIER_TOKEN",
-                                    "text": "c"
+                                    "value": "c"
                                 },
                                 {
                                     "kind": "ASTERISK_TOKEN"
@@ -36,7 +36,7 @@
                                     "children": [
                                         {
                                             "kind": "IDENTIFIER_TOKEN",
-                                            "text": "d"
+                                            "value": "d"
                                         },
                                         {
                                             "kind": "ASTERISK_TOKEN"
@@ -46,14 +46,14 @@
                                             "children": [
                                                 {
                                                     "kind": "IDENTIFIER_TOKEN",
-                                                    "text": "g"
+                                                    "value": "g"
                                                 },
                                                 {
                                                     "kind": "ASTERISK_TOKEN"
                                                 },
                                                 {
                                                     "kind": "IDENTIFIER_TOKEN",
-                                                    "text": "h"
+                                                    "value": "h"
                                                 }
                                             ]
                                         }
@@ -71,14 +71,14 @@
                     "children": [
                         {
                             "kind": "IDENTIFIER_TOKEN",
-                            "text": "e"
+                            "value": "e"
                         },
                         {
                             "kind": "SLASH_TOKEN"
                         },
                         {
                             "kind": "IDENTIFIER_TOKEN",
-                            "text": "f"
+                            "value": "f"
                         }
                     ]
                 }

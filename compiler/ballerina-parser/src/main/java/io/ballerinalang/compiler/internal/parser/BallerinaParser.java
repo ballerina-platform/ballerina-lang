@@ -51,16 +51,19 @@ public class BallerinaParser {
         this(new BallerinaLexer(source));
     }
 
+    /**
+     * Start parsing the given input.
+     */
     public void parse() {
-        parse(ParserRuleContext.COMP_UNIT);
+        parseCompUnit();
     }
 
     /**
-     * Parse the input starting from a given context.
+     * Resume the parsing from the given context.
      * 
-     * @param context Context to start parsing
+     * @param context Context to resume parsing
      */
-    public void parse(ParserRuleContext context) {
+    public void resumeParsing(ParserRuleContext context) {
         switch (context) {
             case COMP_UNIT:
                 parseCompUnit();
@@ -157,7 +160,50 @@ public class BallerinaParser {
                 parseAssignmentOrVarDeclRhs();
                 break;
             default:
-                throw new IllegalStateException("Cannot re-parse rule:" + context);
+                throw new IllegalStateException("Cannot re-parse rule: " + context);
+        }
+    }
+
+    /**
+     * Start parsing the input from a given context. Supported starting points are:
+     * <ul>
+     * <li>Module part (a file)</li>
+     * <li>Top level node</li>
+     * <li>Statement</li>
+     * <li>Expression</li>
+     * </ul>
+     * 
+     * @param context Context to start parsing
+     */
+    public void parse(ParserRuleContext context) {
+        switch (context) {
+            case COMP_UNIT:
+                parseCompUnit();
+                break;
+            case TOP_LEVEL_NODE_WITH_MODIFIER:
+            case TOP_LEVEL_NODE:
+                startContext(ParserRuleContext.COMP_UNIT);
+                parseTopLevelNodeWithModifier();
+                break;
+            case FUNC_DEFINITION:
+                startContext(ParserRuleContext.COMP_UNIT);
+                parseFunctionDefinition();
+                break;
+            case STATEMENT:
+                startContext(ParserRuleContext.COMP_UNIT);
+                startContext(ParserRuleContext.FUNC_DEFINITION);
+                startContext(ParserRuleContext.FUNC_BODY_BLOCK);
+                parseStatement();
+                break;
+            case EXPRESSION:
+                startContext(ParserRuleContext.COMP_UNIT);
+                startContext(ParserRuleContext.FUNC_DEFINITION);
+                startContext(ParserRuleContext.FUNC_BODY_BLOCK);
+                startContext(ParserRuleContext.STATEMENT);
+                parseExpression();
+                break;
+            default:
+                throw new UnsupportedOperationException("Cannot start parsing from: " + context);
         }
     }
 
@@ -1147,7 +1193,7 @@ public class BallerinaParser {
     private void parseAssignmentOrVarDeclRhs(SyntaxKind tokenKind) {
         switch (tokenKind) {
             case IDENTIFIER_TOKEN:
-                parseVariableName(tokenKind);
+                parseVariableName();
                 parseVarDeclRhs();
                 break;
             case EQUAL_TOKEN:
