@@ -18,6 +18,7 @@
 package org.ballerinalang.mysql.pool;
 
 import org.ballerinalang.config.ConfigRegistry;
+import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueArray;
@@ -40,6 +41,7 @@ import java.util.HashMap;
  *
  * @since 1.2.0
  */
+
 public class ConnectionPoolTest {
     private CompileResult result;
     private static final String DB_NAME1 = "TEST_SQL_CONN_POOL_1";
@@ -171,4 +173,60 @@ public class ConnectionPoolTest {
         Assert.assertTrue(error2.contains(CONNECTION_TIMEOUT_ERROR_STRING), "Actual Error: " + error2);
     }
 
+    @Test
+    public void testLocalSharedConnectionPoolCreateClientAfterShutdown() {
+        BValue[] args = {new BString(DB_NAME1)};
+        BValue[] returns = BRunUtil
+                .invokeFunction(result, "testLocalSharedConnectionPoolCreateClientAfterShutdown", args);
+        SQLDBUtils.assertNotError(returns[0]);
+        Assert.assertTrue(returns[0] instanceof BValueArray);
+        BValueArray returnArray = (BValueArray) returns[0];
+
+        for (int i = 0; i < 4; i++) {
+            if (i != 2) {
+                Assert.assertEquals(returnArray.getRefValue(i).stringValue(), "1");
+            }
+        }
+        String error1 = returnArray.getRefValue(2).stringValue();
+        Assert.assertTrue(error1.contains("Client is already closed"), "Actual Error: " + error1);
+    }
+
+    @Test
+    public void testLocalSharedConnectionPoolStopInitInterleave() {
+        BValue[] args = {new BString(DB_NAME1)};
+        BValue[] returns = BRunUtil.invokeFunction(result, "testLocalSharedConnectionPoolStopInitInterleave",
+                args);
+        SQLDBUtils.assertNotError(returns[0]);
+        Assert.assertTrue(returns[0] instanceof BInteger);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
+    }
+
+    @Test
+    public void testShutDownUnsharedLocalConnectionPool() {
+        BValue[] args = {new BString(DB_NAME1)};
+        BValue[] returns = BRunUtil.invokeFunction(result, "testShutDownUnsharedLocalConnectionPool", args);
+        SQLDBUtils.assertNotError(returns[0]);
+        Assert.assertTrue(returns[0] instanceof BValueArray);
+        BValueArray returnArray = (BValueArray) returns[0];
+        Assert.assertEquals(returnArray.getRefValue(0).stringValue(), "1");
+        String error1 = returnArray.getRefValue(1).stringValue();
+        Assert.assertTrue(error1.contains("Client is already closed"), "Actual Error: " + error1);
+    }
+
+    @Test
+    public void testShutDownSharedConnectionPool() {
+        BValue[] args = {new BString(DB_NAME1)};
+        BValue[] returns = BRunUtil.invokeFunction(result, "testShutDownSharedConnectionPool", args);
+        SQLDBUtils.assertNotError(returns[0]);
+        Assert.assertTrue(returns[0] instanceof BValueArray);
+        BValueArray returnArray = (BValueArray) returns[0];
+        for (int i = 0; i < 5; i++) {
+            if (i > 2) {
+                String error1 = returnArray.getRefValue(i).stringValue();
+                Assert.assertTrue(error1.contains("Client is already closed"), "Actual Error: " + error1);
+            } else {
+                Assert.assertEquals(returnArray.getRefValue(i).stringValue(), "1");
+            }
+        }
+    }
 }
