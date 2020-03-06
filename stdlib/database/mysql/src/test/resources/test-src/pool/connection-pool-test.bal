@@ -22,17 +22,17 @@ public type Result record {
 string host = "localhost";
 string user = "test";
 string password = "test123";
-string database = "TEST_SQL_CONN_POOL";
+//string database = "TEST_SQL_CONN_POOL";
 int port = 3305;
 mysql:Options options= {
     connectTimeoutInSeconds: 3
 };
 
-function testGlobalConnectionPoolSingleDestination() returns @tainted (int | error)[] | error? {
+function testGlobalConnectionPoolSingleDestination(string database) returns @tainted (int | error)[] | error {
     return drainGlobalPool(database);
 }
 
-function drainGlobalPool(string database) returns @tainted (int | error)[]| error? {
+function drainGlobalPool(string database) returns @tainted (int | error)[]| error {
     mysql:Client dbClient1 = check new (host, user, password, database, port, options);
     mysql:Client dbClient2 = check new (host, user, password, database, port, options);
     mysql:Client dbClient3 = check new (host, user, password, database, port, options);
@@ -69,6 +69,90 @@ function drainGlobalPool(string database) returns @tainted (int | error)[]| erro
     // Since each select operation hold up one connection each, the last select operation should
     // return an error
     return returnArray;
+}
+
+function testGlobalConnectionPoolsMultipleDestinations(string database1, string database2) returns
+    @tainted [(int | error)[], (int | error)[]] | error {
+    var errorFromFristDestination = check drainGlobalPool(database1);
+    var errorFromSecondDestination = check drainGlobalPool(database2);
+    return [errorFromFristDestination, errorFromSecondDestination];
+}
+
+function testGlobalConnectionPoolSingleDestinationConcurrent(string database) returns @tainted (int | error)[][] | error {
+    worker w1 returns [stream<record{}, error>, stream<record{}, error>] | error {
+        return testGlobalConnectionPoolConcurrentHelper1(database);
+    }
+
+    worker w2 returns [stream<record{}, error>, stream<record{}, error>] | error {
+        return testGlobalConnectionPoolConcurrentHelper1(database);
+    }
+
+    worker w3 returns [stream<record{}, error>, stream<record{}, error>] | error {
+        return testGlobalConnectionPoolConcurrentHelper1(database);
+    }
+
+    worker w4 returns [stream<record{}, error>, stream<record{}, error>] | error {
+        return testGlobalConnectionPoolConcurrentHelper1(database);
+    }
+
+    record {
+        [stream<record{}, error>, stream<record{}, error>] | error w1;
+        [stream<record{}, error>, stream<record{}, error>] | error w2;
+        [stream<record{}, error>, stream<record{}, error>] | error w3;
+        [stream<record{}, error>, stream<record{}, error>] | error w4;
+    } results = wait { w1, w2, w3, w4 };
+
+    var result2 = check testGlobalConnectionPoolConcurrentHelper2(database);
+
+    (int | error)[][] returnArray = [];
+    // Connections will be released here as we fully consume the data in the following conversion function calls
+    returnArray[0] = check getCombinedReturnValue(results.w1);
+    returnArray[1] = check getCombinedReturnValue(results.w2);
+    returnArray[2] = check getCombinedReturnValue(results.w3);
+    returnArray[3] = check getCombinedReturnValue(results.w4);
+    returnArray[4] =  result2;
+
+    // All 5 clients are supposed to use the same pool. Default maximum no of connections is 10.
+    // Since each select operation hold up one connection each, the last select operation should
+    // return an error
+    return returnArray;
+}
+
+function testGlobalConnectionPoolConcurrentHelper1(string database) returns
+            @tainted [stream<record{}, error>, stream<record{}, error>] | error {
+    mysql:Client dbClient = check new (host, user, password, database, port, options);
+    var dt1 = dbClient->query("select count(*) as val from Customers where registrationID = 1", Result);
+    var dt2 = dbClient->query("select count(*) as val from Customers where registrationID = 2", Result);
+    return [dt1, dt2];
+}
+
+function testGlobalConnectionPoolConcurrentHelper2(string database) returns @tainted (int | error)[] | error {
+    mysql:Client dbClient = check new (host, user, password, database, port, options);
+    (int | error)[] returnArray = [];
+    var dt1 = dbClient->query("select count(*) as val from Customers where registrationID = 1", Result);
+    var dt2 = dbClient->query("select count(*) as val from Customers where registrationID = 2", Result);
+    var dt3 = dbClient->query("select count(*) as val from Customers where registrationID = 1", Result);
+    // Connections will be released here as we fully consume the data in the following conversion function calls
+    returnArray[0] = getReturnValue(dt1);
+    returnArray[1] = getReturnValue(dt2);
+    returnArray[2] = getReturnValue(dt3);
+
+    return returnArray;
+}
+
+function getCombinedReturnValue([stream<record{}, error>, stream<record{}, error>] | error queryResult) returns
+                        (int | error)[] | error {
+    if(queryResult is error){
+       return queryResult;
+    } else {
+        stream<record{}, error> x;
+        stream<record{}, error> y;
+        [x, y] = queryResult;
+        (int | error)[] returnArray = [];
+        returnArray[0] = getReturnValue(x);
+        returnArray[1] = getReturnValue(y);
+        return returnArray;
+    }
 }
 
 function getReturnValue(stream<record{}, error> queryResult) returns int | error {

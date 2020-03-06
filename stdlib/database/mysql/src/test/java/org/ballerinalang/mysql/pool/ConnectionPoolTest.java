@@ -18,6 +18,7 @@
 package org.ballerinalang.mysql.pool;
 
 import org.ballerinalang.config.ConfigRegistry;
+import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.mysql.BaseTest;
@@ -41,12 +42,16 @@ import java.util.HashMap;
  */
 public class ConnectionPoolTest {
     private CompileResult result;
-    private static final String DB_NAME = "TEST_SQL_CONN_POOL";
+    private static final String DB_NAME1 = "TEST_SQL_CONN_POOL_1";
+    private static final String DB_NAME2 = "TEST_SQL_CONN_POOL_2";
     private static final String SQL_SCRIPT = SQLDBUtils.SQL_RESOURCE_DIR + File.separator + SQLDBUtils.POOL_DIR +
             File.separator + "connection_pool_test_data.sql";
+    private static final String CONNECTION_TIMEOUT_ERROR_STRING =
+            "Connection is not available, request timed out after";
 
     static {
-        BaseTest.addDBSchema(DB_NAME, SQL_SCRIPT);
+        BaseTest.addDBSchema(DB_NAME1, SQL_SCRIPT);
+        BaseTest.addDBSchema(DB_NAME2, SQL_SCRIPT);
     }
 
     @BeforeClass
@@ -60,7 +65,9 @@ public class ConnectionPoolTest {
 
     @Test
     public void testGlobalConnectionPoolSingleDestination() {
-        BValue[] returnVal = BRunUtil.invokeFunction(result, "testGlobalConnectionPoolSingleDestination");
+        BValue[] args = {new BString(DB_NAME1)};
+        BValue[] returnVal = BRunUtil.invokeFunction(result, "testGlobalConnectionPoolSingleDestination",
+                args);
         SQLDBUtils.assertNotError(returnVal[0]);
         Assert.assertEquals(returnVal[0].size(), 11, "11 elements are expected as a return value");
         Assert.assertTrue(returnVal[0] instanceof BValueArray);
@@ -68,8 +75,45 @@ public class ConnectionPoolTest {
             Assert.assertEquals((((BValueArray) returnVal[0])).getRefValue(i).stringValue(), "1");
         }
         String error = (((BValueArray) returnVal[0])).getRefValue(10).stringValue();
-        Assert.assertTrue(error.contains("Connection is not available, request timed out after"),
-                "Actual Error: " + error);
+        Assert.assertTrue(error.contains(CONNECTION_TIMEOUT_ERROR_STRING), "Actual Error: " + error);
+    }
+
+    @Test
+    public void testGlobalConnectionPoolsMultipleDestinations() {
+        BValue[] args = {new BString(DB_NAME1), new BString(DB_NAME2)};
+        BValue[] returns = BRunUtil.invokeFunction(result, "testGlobalConnectionPoolsMultipleDestinations"
+                , args);
+        Assert.assertTrue(returns[0] instanceof BValueArray);
+        Assert.assertEquals(returns[0].size(), 2);
+        BValueArray returnVal1 = ((BValueArray) (((BValueArray) returns[0]).getRefValue(0)));
+        BValueArray returnVal2 = ((BValueArray) (((BValueArray) returns[0]).getRefValue(1)));
+        for (int i = 0; i < 10; i++) {
+            Assert.assertEquals("1", returnVal1.getRefValue(i).stringValue());
+        }
+        String error1 = returnVal1.getRefValue(10).stringValue();
+        Assert.assertTrue(error1.contains(CONNECTION_TIMEOUT_ERROR_STRING), "Actual Error: " + error1);
+
+        for (int i = 0; i < 10; i++) {
+            Assert.assertEquals("1", returnVal2.getRefValue(i).stringValue());
+        }
+        String error2 = returnVal2.getRefValue(10).stringValue();
+        Assert.assertTrue(error2.contains(CONNECTION_TIMEOUT_ERROR_STRING), "Actual Error: " + error2);
+    }
+
+    @Test
+    public void testGlobalConnectionPoolSingleDestinationConcurrent() {
+        BValue[] args = {new BString(DB_NAME1)};
+        BValue[] returns = BRunUtil.invokeFunction(result,
+                "testGlobalConnectionPoolSingleDestinationConcurrent", args);
+        Assert.assertTrue(returns[0] instanceof BValueArray);
+        for (int i = 0; i < 5; i++) {
+            BValueArray array = ((BValueArray) ((BValueArray) returns[0]).getRefValue(i));
+            Assert.assertEquals(array.getRefValue(0).stringValue(), "1");
+            Assert.assertEquals(array.getRefValue(1).stringValue(), "1");
+        }
+        BValueArray array = ((BValueArray) ((BValueArray) returns[0]).getRefValue(4));
+        String error = array.getRefValue(2).stringValue();
+        Assert.assertTrue(error.contains(CONNECTION_TIMEOUT_ERROR_STRING), "Actual Error: " + error);
     }
 
 
