@@ -275,7 +275,7 @@ public class JvmInstructionGen {
             return;
         }
 
-        if (bType.tag == TypeTags.INT) {
+        if (TypeTags.isIntegerTypeTag(bType.tag)) {
             mv.visitVarInsn(LLOAD, valueIndex);
         } else if (bType.tag == TypeTags.BYTE) {
             mv.visitVarInsn(ILOAD, valueIndex);
@@ -362,7 +362,7 @@ public class JvmInstructionGen {
             return;
         }
 
-        if (bType.tag == TypeTags.INT) {
+        if (TypeTags.isIntegerTypeTag(bType.tag)) {
             mv.visitVarInsn(LSTORE, valueIndex);
         } else if (bType.tag == TypeTags.BYTE) {
             mv.visitVarInsn(ISTORE, valueIndex);
@@ -579,7 +579,7 @@ public class JvmInstructionGen {
             BType lhsOpType = binaryIns.rhsOp1.variableDcl.type;
             BType rhsOpType = binaryIns.rhsOp2.variableDcl.type;
 
-            if (lhsOpType.tag == TypeTags.INT && rhsOpType.tag == TypeTags.INT) {
+            if (TypeTags.isIntegerTypeTag(lhsOpType.tag) && TypeTags.isIntegerTypeTag(rhsOpType.tag)) {
                 this.mv.visitInsn(LCMP);
                 this.mv.visitJumpInsn(opcode, label1);
             } else if (lhsOpType.tag == TypeTags.BYTE && rhsOpType.tag == TypeTags.BYTE) {
@@ -638,7 +638,7 @@ public class JvmInstructionGen {
             BType lhsOpType = binaryIns.rhsOp1.variableDcl.type;
             BType rhsOpType = binaryIns.rhsOp2.variableDcl.type;
 
-            if (lhsOpType.tag == TypeTags.INT && rhsOpType.tag == TypeTags.INT) {
+            if (TypeTags.isIntegerTypeTag(lhsOpType.tag) && TypeTags.isIntegerTypeTag(rhsOpType.tag)) {
                 this.mv.visitInsn(LCMP);
                 this.mv.visitJumpInsn(IFNE, label1);
             } else if (lhsOpType.tag == TypeTags.BYTE && rhsOpType.tag == TypeTags.BYTE) {
@@ -680,7 +680,7 @@ public class JvmInstructionGen {
             // It is assumed that both operands are of same type
             BType lhsOpType = binaryIns.rhsOp1.variableDcl.type;
             BType rhsOpType = binaryIns.rhsOp2.variableDcl.type;
-            if (lhsOpType.tag == TypeTags.INT && rhsOpType.tag == TypeTags.INT) {
+            if (TypeTags.isIntegerTypeTag(lhsOpType.tag) && TypeTags.isIntegerTypeTag(rhsOpType.tag)) {
                 this.mv.visitInsn(LCMP);
                 this.mv.visitJumpInsn(IFEQ, label1);
             } else if (lhsOpType.tag == TypeTags.BYTE && rhsOpType.tag == TypeTags.BYTE) {
@@ -719,7 +719,7 @@ public class JvmInstructionGen {
 
             BType lhsOpType = binaryIns.rhsOp1.variableDcl.type;
             BType rhsOpType = binaryIns.rhsOp2.variableDcl.type;
-            if (lhsOpType.tag == TypeTags.INT && rhsOpType.tag == TypeTags.INT) {
+            if (TypeTags.isIntegerTypeTag(lhsOpType.tag) && TypeTags.isIntegerTypeTag(rhsOpType.tag)) {
                 this.mv.visitInsn(LCMP);
                 this.mv.visitJumpInsn(IFNE, label1);
             } else if (lhsOpType.tag == TypeTags.BYTE && rhsOpType.tag == TypeTags.BYTE) {
@@ -756,7 +756,7 @@ public class JvmInstructionGen {
             // It is assumed that both operands are of same type
             BType lhsOpType = binaryIns.rhsOp1.variableDcl.type;
             BType rhsOpType = binaryIns.rhsOp2.variableDcl.type;
-            if (lhsOpType.tag == TypeTags.INT && rhsOpType.tag == TypeTags.INT) {
+            if (TypeTags.isIntegerTypeTag(lhsOpType.tag) && TypeTags.isIntegerTypeTag(rhsOpType.tag)) {
                 this.mv.visitInsn(LCMP);
                 this.mv.visitJumpInsn(IFEQ, label1);
             } else if (lhsOpType.tag == TypeTags.BYTE && rhsOpType.tag == TypeTags.BYTE) {
@@ -810,7 +810,7 @@ public class JvmInstructionGen {
 
             BType bType = binaryIns.lhsOp.variableDcl.type;
             this.generateBinaryRhsAndLhsLoad(binaryIns);
-            if (bType.tag == TypeTags.INT) {
+            if (TypeTags.isIntegerTypeTag(bType.tag)) {
                 this.mv.visitInsn(LADD);
             } else if (bType.tag == TypeTags.BYTE) {
                 this.mv.visitInsn(IADD);
@@ -842,7 +842,7 @@ public class JvmInstructionGen {
 
             BType bType = binaryIns.lhsOp.variableDcl.type;
             this.generateBinaryRhsAndLhsLoad(binaryIns);
-            if (bType.tag == TypeTags.INT) {
+            if (TypeTags.isIntegerTypeTag(bType.tag)) {
                 this.mv.visitInsn(LSUB);
             } else if (bType.tag == TypeTags.FLOAT) {
                 this.mv.visitInsn(DSUB);
@@ -860,7 +860,7 @@ public class JvmInstructionGen {
 
             BType bType = binaryIns.lhsOp.variableDcl.type;
             this.generateBinaryRhsAndLhsLoad(binaryIns);
-            if (bType.tag == TypeTags.INT) {
+            if (TypeTags.isIntegerTypeTag(bType.tag)) {
                 this.mv.visitMethodInsn(INVOKESTATIC, MATH_UTILS, "divide", "(JJ)J", false);
             } else if (bType.tag == TypeTags.FLOAT) {
                 this.mv.visitInsn(DDIV);
@@ -878,7 +878,7 @@ public class JvmInstructionGen {
 
             BType bType = binaryIns.lhsOp.variableDcl.type;
             this.generateBinaryRhsAndLhsLoad(binaryIns);
-            if (bType.tag == TypeTags.INT) {
+            if (TypeTags.isIntegerTypeTag(bType.tag)) {
                 this.mv.visitInsn(LMUL);
             } else if (bType.tag == TypeTags.FLOAT) {
                 this.mv.visitInsn(DMUL);
@@ -896,7 +896,7 @@ public class JvmInstructionGen {
 
             BType bType = binaryIns.lhsOp.variableDcl.type;
             this.generateBinaryRhsAndLhsLoad(binaryIns);
-            if (bType.tag == TypeTags.INT) {
+            if (TypeTags.isIntegerTypeTag(bType.tag)) {
                 this.mv.visitMethodInsn(INVOKESTATIC, MATH_UTILS, "remainder", "(JJ)J", false);
             } else if (bType.tag == TypeTags.FLOAT) {
                 this.mv.visitInsn(DREM);
@@ -915,7 +915,7 @@ public class JvmInstructionGen {
             BType opType1 = binaryIns.rhsOp1.variableDcl.type;
             BType opType2 = binaryIns.rhsOp2.variableDcl.type;
 
-            if (opType1.tag == TypeTags.INT && opType2.tag == TypeTags.INT) {
+            if (TypeTags.isIntegerTypeTag(opType1.tag) && TypeTags.isIntegerTypeTag(opType2.tag)) {
                 this.loadVar(binaryIns.rhsOp1.variableDcl);
                 this.loadVar(binaryIns.rhsOp2.variableDcl);
                 this.mv.visitInsn(LAND);
@@ -937,7 +937,7 @@ public class JvmInstructionGen {
             this.loadVar(binaryIns.rhsOp2.variableDcl);
 
             BType opType = binaryIns.rhsOp1.variableDcl.type;
-            if (opType.tag == TypeTags.INT) {
+            if (TypeTags.isIntegerTypeTag(opType.tag)) {
                 this.mv.visitInsn(LOR);
             } else {
                 this.mv.visitInsn(IOR);
@@ -951,7 +951,7 @@ public class JvmInstructionGen {
             this.loadVar(binaryIns.rhsOp2.variableDcl);
 
             BType opType = binaryIns.rhsOp1.variableDcl.type;
-            if (opType.tag == TypeTags.INT) {
+            if (TypeTags.isIntegerTypeTag(opType.tag)) {
                 this.mv.visitInsn(LXOR);
             } else {
                 this.mv.visitInsn(IXOR);
@@ -965,12 +965,12 @@ public class JvmInstructionGen {
             this.loadVar(binaryIns.rhsOp2.variableDcl);
 
             BType secondOpType = binaryIns.rhsOp2.variableDcl.type;
-            if (secondOpType.tag == TypeTags.INT) {
+            if (TypeTags.isIntegerTypeTag(secondOpType.tag)) {
                 this.mv.visitInsn(L2I);
             }
 
             BType firstOpType = binaryIns.rhsOp1.variableDcl.type;
-            if (firstOpType.tag == TypeTags.INT) {
+            if (TypeTags.isIntegerTypeTag(firstOpType.tag)) {
                 this.mv.visitInsn(LSHL);
             } else {
                 this.mv.visitInsn(ISHL);
@@ -986,12 +986,12 @@ public class JvmInstructionGen {
             this.loadVar(binaryIns.rhsOp2.variableDcl);
 
             BType secondOpType = binaryIns.rhsOp2.variableDcl.type;
-            if (secondOpType.tag == TypeTags.INT) {
+            if (TypeTags.isIntegerTypeTag(secondOpType.tag)) {
                 this.mv.visitInsn(L2I);
             }
 
             BType firstOpType = binaryIns.rhsOp1.variableDcl.type;
-            if (firstOpType.tag == TypeTags.INT) {
+            if (TypeTags.isIntegerTypeTag(firstOpType.tag)) {
                 this.mv.visitInsn(LSHR);
             } else {
                 this.mv.visitInsn(ISHR);
@@ -1006,12 +1006,12 @@ public class JvmInstructionGen {
             this.loadVar(binaryIns.rhsOp2.variableDcl);
 
             BType secondOpType = binaryIns.rhsOp2.variableDcl.type;
-            if (secondOpType.tag == TypeTags.INT) {
+            if (TypeTags.isIntegerTypeTag(secondOpType.tag)) {
                 this.mv.visitInsn(L2I);
             }
 
             BType firstOpType = binaryIns.rhsOp1.variableDcl.type;
-            if (firstOpType.tag == TypeTags.INT) {
+            if (TypeTags.isIntegerTypeTag(firstOpType.tag)) {
                 this.mv.visitInsn(LUSHR);
             } else {
                 this.mv.visitInsn(IUSHR);
@@ -1233,7 +1233,7 @@ public class JvmInstructionGen {
                 return;
             }
 
-            if (valueType.tag == TypeTags.INT) {
+            if (TypeTags.isIntegerTypeTag(valueType.tag)) {
                 this.mv.visitMethodInsn(INVOKEINTERFACE, ARRAY_VALUE, "add", "(JJ)V", true);
             } else if (valueType.tag == TypeTags.FLOAT) {
                 this.mv.visitMethodInsn(INVOKEINTERFACE, ARRAY_VALUE, "add", "(JD)V", true);
@@ -1265,7 +1265,7 @@ public class JvmInstructionGen {
                 this.mv.visitMethodInsn(INVOKEINTERFACE, ARRAY_VALUE, "getRefValue",
                         String.format("(J)L%s;", OBJECT), true);
                 addUnboxInsn(this.mv, bType, false);
-            } else if (bType.tag == TypeTags.INT) {
+            } else if (TypeTags.isIntegerTypeTag(bType.tag)) {
                 this.mv.visitMethodInsn(INVOKEINTERFACE, ARRAY_VALUE, "getInt", "(J)J", true);
             } else if (bType.tag == TypeTags.STRING) {
                 if (useBString) {
@@ -1597,7 +1597,7 @@ public class JvmInstructionGen {
             this.loadVar(unaryOp.rhsOp.variableDcl);
 
             BType btype = unaryOp.rhsOp.variableDcl.type;
-            if (btype.tag == TypeTags.INT) {
+            if (TypeTags.isIntegerTypeTag(btype.tag)) {
                 this.mv.visitInsn(LNEG);
             } else if (btype.tag == TypeTags.BYTE) {
                 this.mv.visitInsn(INEG);
@@ -1659,7 +1659,7 @@ public class JvmInstructionGen {
 
     static void loadConstantValue(BType bType, Object constVal, MethodVisitor mv, boolean useBString) {
 
-        if (bType.tag == TypeTags.INT) {
+        if (TypeTags.isIntegerTypeTag(bType.tag)) {
             long intValue = constVal instanceof Long ? (long) constVal : Long.parseLong(String.valueOf(constVal));
             mv.visitLdcInsn(intValue);
         } else if (bType.tag == TypeTags.BYTE) {
