@@ -165,9 +165,6 @@ public final class Constants {
         public static final String MSSQL_SERVER = "microsoft sql server";
     }
 
-    // Warning suppression
-    public static final String UNCHECKED = "unchecked";
-
     public static final String CONNECTOR_NAME = "ClientConnector";
     public static final String TIMEZONE_UTC = "UTC";
     public static final String QUESTION_MARK = "?";
@@ -191,7 +188,7 @@ public final class Constants {
     public static final String APPLICATION_ERROR_MESSAGE = "Application Error Occurred";
     public static final String DATABASE_ERROR_MESSAGE = "Database Error Occurred";
     public static final String APPLICATION_ERROR_CODE = "{ballerinax/java.jdbc}ApplicationError";
-        public static final String DATABASE_ERROR_CODE = "{ballerinax/java.jdbc}DatabaseError";
+    public static final String DATABASE_ERROR_CODE = "{ballerinax/java.jdbc}DatabaseError";
 
     public static final String PARAMETER_SQL_TYPE_FIELD = "sqlType";
     public static final String PARAMETER_VALUE_FIELD = "value";

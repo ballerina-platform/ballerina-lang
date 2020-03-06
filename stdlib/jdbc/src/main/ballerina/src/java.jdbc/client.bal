@@ -65,7 +65,7 @@ public type Client client object {
     #                         value
     # + return - `UpdateResult` with the updated row count and key column values,
     #             else `Error` will be returned if there is an error
-    public remote function update(@untainted string sqlQuery, boolean returnGeneratedKeys = false, Param... parameters)
+    public remote function update(@untainted string sqlQuery, boolean returnGeneratedKeys, Param... parameters)
     returns UpdateResult|Error {
         if (!self.clientActive) {
             return self.handleStoppedClientInvocation();

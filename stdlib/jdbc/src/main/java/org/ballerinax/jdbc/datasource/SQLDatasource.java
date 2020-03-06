@@ -26,7 +26,6 @@ import org.ballerinax.jdbc.exceptions.PanickingApplicationException;
 import org.ballerinax.jdbc.exceptions.PanickingDatabaseException;
 
 import java.sql.Connection;
-import java.sql.DatabaseMetaData;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Locale;
@@ -62,8 +61,7 @@ public class SQLDatasource {
             throw ErrorGenerator.getSQLDatabaseError(e);
         }
         try (Connection con = getSQLConnection()) {
-            DatabaseMetaData metaData = con.getMetaData();
-            databaseProductName = metaData.getDatabaseProductName().toLowerCase(Locale.ENGLISH);
+            databaseProductName = con.getMetaData().getDatabaseProductName().toLowerCase(Locale.ENGLISH);
         } catch (SQLException e) {
             throw ErrorGenerator
                     .getSQLDatabaseError(e, "error while obtaining connection for " + Constants.CONNECTOR_NAME + ", ");

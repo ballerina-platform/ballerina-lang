@@ -51,16 +51,16 @@ public class UpdateStatement extends AbstractSQLStatement {
     private final SQLDatasource datasource;
     private final String query;
     private final ArrayValue parameters;
-    private boolean getGeneratedKey;
+    private boolean returnGeneratedKeys;
 
-    public UpdateStatement(ObjectValue client, SQLDatasource datasource, String query, boolean getGeneratedKey,
+    public UpdateStatement(ObjectValue client, SQLDatasource datasource, String query, boolean returnGeneratedKeys,
                            ArrayValue parameters, Strand strand) {
         super(strand);
         this.client = client;
         this.datasource = datasource;
         this.query = query;
         this.parameters = parameters;
-        this.getGeneratedKey = getGeneratedKey;
+        this.returnGeneratedKeys = returnGeneratedKeys;
     }
 
     @Override
@@ -77,7 +77,7 @@ public class UpdateStatement extends AbstractSQLStatement {
             conn = getDatabaseConnection(strand, client, datasource);
             String processedQuery = createProcessedQueryString(query, generatedParams);
 
-            if (getGeneratedKey) {
+            if (returnGeneratedKeys) {
                 stmt = conn.prepareStatement(processedQuery, PreparedStatement.RETURN_GENERATED_KEYS);
             } else {
                 stmt = conn.prepareStatement(processedQuery);
@@ -87,7 +87,7 @@ public class UpdateStatement extends AbstractSQLStatement {
                     datasource.getDatabaseProductName());
             stmt = processedStatement.prepare();
             int count = stmt.executeUpdate();
-            if (getGeneratedKey) {
+            if (returnGeneratedKeys) {
                 if (isKeyRetrievalSupported()) {
                     rs = stmt.getGeneratedKeys();
                     //This result set contains the auto generated keys.
@@ -96,7 +96,8 @@ public class UpdateStatement extends AbstractSQLStatement {
                     }
                 } else {
                     handleErrorOnTransaction(this.strand);
-                    String message = "The getGeneratedKey only support INSERT, UPDATE, DELETE and MERGE operations.";
+                    String message = "The returnGeneratedKeys only support INSERT, UPDATE, DELETE and MERGE " +
+                            "operations.";
                     checkAndObserveSQLError(strand, "execute update failed: " + message);
                     return ErrorGenerator.getSQLApplicationError(message);
                 }
