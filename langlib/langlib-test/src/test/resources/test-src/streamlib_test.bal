@@ -134,17 +134,17 @@ function testFilterAndMapFunc() returns boolean {
 function testReduce() returns float {
     Person[] personList = getPersonList();
     stream<Person> personStream = personList.toStream();
-    float avg = personStream.reduce(function (float accum, Person person) returns float {
+    float|error avg = personStream.reduce(function (float accum, Person person) returns float {
         return accum + <float>person.age / personList.length();
     }, 0.0);
-    return avg;
+    return <float>avg;
 }
 
 function testForEach() returns float {
     Person[] personList = getPersonList();
     float avg = 0.0;
     stream<Person> personStream = personList.toStream();
-    personStream.forEach(function (Person person) {
+    error? err = personStream.forEach(function (Person person) {
         avg += <float>person.age / personList.length();
     });
     return avg;

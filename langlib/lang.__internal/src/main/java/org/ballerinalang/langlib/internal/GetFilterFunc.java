@@ -46,12 +46,15 @@ import java.util.Map;
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "lang.__internal", functionName = "getFilterFunc",
-        args = {@Argument(name = "iteratorObj", type = TypeKind.OBJECT)},
+        args = {@Argument(name = "func", type = TypeKind.ANY)},
         returnType = {@ReturnType(type = TypeKind.FUNCTION)}
 )
 public class GetFilterFunc {
 
-    public static FPValue getFilterFunc(Strand strand, ObjectValue objectValue) {
-        return (FPValue) objectValue.get("func");
+    public static FPValue getFilterFunc(Strand strand, Object obj) {
+        FPValue fpValue = (FPValue) obj;
+        BFunctionType functionType = (BFunctionType) fpValue.getType();
+        functionType.paramTypes[0] = new BUnionType(new BType[]{BTypes.typeAny, BTypes.typeError}, 0);
+        return fpValue;
     }
 }
