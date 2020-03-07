@@ -46,6 +46,7 @@ import java.util.List;
 import static org.ballerinalang.compiler.CompilerOptionName.TOOLING_COMPILATION;
 import static org.ballerinalang.model.elements.PackageID.ANNOTATIONS;
 import static org.ballerinalang.model.elements.PackageID.ARRAY;
+import static org.ballerinalang.model.elements.PackageID.BOOLEAN;
 import static org.ballerinalang.model.elements.PackageID.DECIMAL;
 import static org.ballerinalang.model.elements.PackageID.ERROR;
 import static org.ballerinalang.model.elements.PackageID.FLOAT;
@@ -152,6 +153,7 @@ public class CompilerDriver {
             symbolTable.langTypedescModuleSymbol = pkgLoader.loadPackageSymbol(TYPEDESC, null, null);
             symbolTable.langValueModuleSymbol = pkgLoader.loadPackageSymbol(VALUE, null, null);
             symbolTable.langXmlModuleSymbol = pkgLoader.loadPackageSymbol(XML, null, null);
+            symbolTable.langBooleanModuleSymbol = pkgLoader.loadPackageSymbol(BOOLEAN, null, null);
             return;
         }
 

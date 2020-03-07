@@ -108,6 +108,7 @@ public class BLangConstants {
     public static final String TABLE_LANG_LIB = "lang.table";
     public static final String INT_LANG_LIB = "lang.int";
     public static final String FLOAT_LANG_LIB = "lang.float";
+    public static final String BOOLEAN_LANG_LIB = "lang.boolean";
 
     // Zero value for string
     public static final String STRING_NULL_VALUE = null;
