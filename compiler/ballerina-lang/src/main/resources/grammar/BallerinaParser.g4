@@ -179,7 +179,7 @@ dualAttachPointIdent
     |   PARAMETER
     |   RETURN
     |   SERVICE
-    |   (OBJECT | RECORD) FIELD
+    |   (OBJECT | RECORD)? FIELD
     ;
 
 sourceOnlyAttachPoint

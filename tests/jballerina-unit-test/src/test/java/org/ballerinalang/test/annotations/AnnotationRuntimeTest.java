@@ -17,6 +17,12 @@
 package org.ballerinalang.test.annotations;
 
 import org.ballerinalang.compiler.CompilerPhase;
+import org.ballerinalang.jvm.TypeChecker;
+import org.ballerinalang.jvm.types.AnnotatableType;
+import org.ballerinalang.jvm.types.TypeTags;
+import org.ballerinalang.jvm.values.MapValueImpl;
+import org.ballerinalang.jvm.values.TupleValueImpl;
+import org.ballerinalang.jvm.values.TypedescValue;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.test.util.BCompileUtil;
@@ -32,15 +38,16 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 
 /**
- * Class to test annotation access.
+ * Class to test annotation access and availability at runtime.
  *
  * @since 1.0
  */
-public class AnnotationAccessTest {
+public class AnnotationRuntimeTest {
 
     private CompileResult resultOne;
     private CompileResult resultTwo;
     private CompileResult resultThree;
+    private CompileResult resultFour;
 
     @BeforeClass
     public void setup() {
@@ -53,6 +60,9 @@ public class AnnotationAccessTest {
         resultThree = BCompileUtil.compile("test-src/annotations/annotations_constant_propagation.bal",
                 CompilerPhase.COMPILER_PLUGIN);
         Assert.assertEquals(resultThree.getErrorCount(), 0);
+
+        resultFour = BCompileUtil.compile("test-src/annotations/annot_availability.bal");
+        Assert.assertEquals(resultFour.getErrorCount(), 0);
     }
 
     @Test(dataProvider = "annotAccessTests")
@@ -116,5 +126,46 @@ public class AnnotationAccessTest {
                 { "testAnnotAccessForAnnotWithSourceOnlyPoints5" },
                 { "testAnnotAccessForAnnotWithSourceOnlyPoints6" }
         };
+    }
+
+    @Test
+    public void testAnnotAvailabilty() {
+        Object obj = BRunUtil.invokeAndGetJVMResult(resultFour, "testStructureAnnots");
+        Assert.assertEquals(TypeChecker.getType(obj).getTag(), TypeTags.TUPLE_TAG);
+
+        TupleValueImpl tupleValue = (TupleValueImpl) obj;
+
+        AnnotatableType annotatableType = (AnnotatableType) ((TypedescValue) tupleValue.get(0)).getDescribingType();
+        Object fieldAnnots = annotatableType.getAnnotation("$field$.i");
+        Assert.assertEquals(TypeChecker.getType(fieldAnnots).getTag(), TypeTags.MAP_TAG);
+        MapValueImpl<String, Object> fieldAnnotMap = (MapValueImpl<String, Object>) fieldAnnots;
+
+        Object annotValue = fieldAnnotMap.get("Z");
+        Assert.assertEquals(TypeChecker.getType(annotValue).getTag(), TypeTags.BOOLEAN_TAG);
+        Assert.assertTrue((Boolean) annotValue);
+
+        annotValue = fieldAnnotMap.get("X");
+        Assert.assertEquals(TypeChecker.getType(annotValue).getTag(), TypeTags.MAP_TAG);
+
+        MapValueImpl<String, Object> mapValue = (MapValueImpl<String, Object>) annotValue;
+        Assert.assertEquals(mapValue.size(), 1);
+        Assert.assertEquals(mapValue.get("p"), 2L);
+
+        annotatableType = (AnnotatableType) ((TypedescValue) tupleValue.get(1)).getDescribingType();
+        fieldAnnots = annotatableType.getAnnotation("$field$.j");
+        Assert.assertEquals(TypeChecker.getType(fieldAnnots).getTag(), TypeTags.MAP_TAG);
+        fieldAnnotMap = (MapValueImpl<String, Object>) fieldAnnots;
+
+        annotValue = fieldAnnotMap.get("Z");
+        Assert.assertEquals(TypeChecker.getType(annotValue).getTag(), TypeTags.BOOLEAN_TAG);
+        Assert.assertTrue((Boolean) annotValue);
+
+        annotValue = fieldAnnotMap.get("Y");
+        Assert.assertEquals(TypeChecker.getType(annotValue).getTag(), TypeTags.MAP_TAG);
+
+        mapValue = (MapValueImpl<String, Object>) annotValue;
+        Assert.assertEquals(mapValue.size(), 2);
+        Assert.assertEquals(mapValue.get("q"), "hello");
+        Assert.assertEquals(mapValue.get("r"), "world");
     }
 }

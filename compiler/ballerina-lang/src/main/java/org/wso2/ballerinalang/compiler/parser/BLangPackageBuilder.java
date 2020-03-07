@@ -458,8 +458,6 @@ public class BLangPackageBuilder {
                                 boolean exprAvailable, int annotCount, boolean isPrivate, boolean isPublic) {
         BLangSimpleVariable field = addSimpleVar(pos, ws, identifier, identifierPos, exprAvailable, annotCount);
 
-        attachAnnotations(field, annotCount, false);
-
         if (isPublic) {
             field.flagSet.add(Flag.PUBLIC);
         } else if (isPrivate) {
