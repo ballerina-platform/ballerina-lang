@@ -290,7 +290,7 @@ public class ObjectInitializerTest {
     }
 
     @Test(description = "Test invoking '__init' function with function pointer args")
-    public void testFunctionPointerAsDefaultableParam() {
+    public void testFunctionPointerAsDefaultableParam1() {
         BRunUtil.invoke(compileResult, "testFunctionPointerAsDefaultableParam");
     }
 }

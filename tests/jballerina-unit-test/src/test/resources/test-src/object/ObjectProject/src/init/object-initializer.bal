@@ -583,4 +583,9 @@ function testFunctionPointerAsDefaultableParam() {
     if (s1.getName() != "Anne") {
         panic error("Returned string should equal 'Anne'");
     }
+
+    Student11 s2 = new("Anne");
+    if (s2.getName() != "John") {
+        panic error("Returned string should equal 'John'");
+    }
 }
