@@ -954,9 +954,9 @@ public class SymbolEnter extends BLangNodeVisitor {
                 // let's inject future symbol to all the lambdas
                 // last lambda needs to be skipped to avoid self reference
                 // lambda's form others functions also need to be skiped
-                BLangInvokableNode enclInvokable = lambdaFunction.cachedEnv.enclInvokable;
+                BLangInvokableNode enclInvokable = lambdaFunction.capturedClosureEnv.enclInvokable;
                 if (lambdaFunctions.hasNext() && enclInvokable != null && varSymbol.owner == enclInvokable.symbol) {
-                    lambdaFunction.cachedEnv.scope.define(varSymbol.name, varSymbol);
+                    lambdaFunction.capturedClosureEnv.scope.define(varSymbol.name, varSymbol);
                 }
             }
         }

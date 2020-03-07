@@ -2543,7 +2543,7 @@ public class TypeChecker extends BLangNodeVisitor {
     public void visit(BLangLambdaFunction bLangLambdaFunction) {
         bLangLambdaFunction.type = bLangLambdaFunction.function.symbol.type;
         // creating a copy of the env to visit the lambda function later
-        bLangLambdaFunction.cachedEnv = env.createClone();
+        bLangLambdaFunction.capturedClosureEnv = env.createClone();
         env.enclPkg.lambdaFunctions.add(bLangLambdaFunction);
         resultType = types.checkType(bLangLambdaFunction, bLangLambdaFunction.type, expType);
     }

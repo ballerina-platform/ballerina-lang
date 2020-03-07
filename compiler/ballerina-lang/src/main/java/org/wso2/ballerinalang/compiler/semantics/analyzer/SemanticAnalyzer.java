@@ -263,7 +263,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             BLangLambdaFunction lambdaFunction = pkgNode.lambdaFunctions.poll();
             BLangFunction function = lambdaFunction.function;
             lambdaFunction.type = function.symbol.type;
-            analyzeDef(lambdaFunction.function, lambdaFunction.cachedEnv);
+            analyzeDef(lambdaFunction.function, lambdaFunction.capturedClosureEnv);
         }
 
         pkgNode.getTestablePkgs().forEach(testablePackage -> visit((BLangPackage) testablePackage));
