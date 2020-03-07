@@ -136,6 +136,8 @@ public class AnnotationRuntimeTest {
         TupleValueImpl tupleValue = (TupleValueImpl) obj;
 
         AnnotatableType annotatableType = (AnnotatableType) ((TypedescValue) tupleValue.get(0)).getDescribingType();
+        Assert.assertEquals(annotatableType.getAnnotation("W"), true);
+
         Object fieldAnnots = annotatableType.getAnnotation("$field$.i");
         Assert.assertEquals(TypeChecker.getType(fieldAnnots).getTag(), TypeTags.MAP_TAG);
         MapValueImpl<String, Object> fieldAnnotMap = (MapValueImpl<String, Object>) fieldAnnots;
@@ -152,6 +154,7 @@ public class AnnotationRuntimeTest {
         Assert.assertEquals(mapValue.get("p"), 2L);
 
         annotatableType = (AnnotatableType) ((TypedescValue) tupleValue.get(1)).getDescribingType();
+        Assert.assertEquals(annotatableType.getAnnotation("W"), true);
         fieldAnnots = annotatableType.getAnnotation("$field$.j");
         Assert.assertEquals(TypeChecker.getType(fieldAnnots).getTag(), TypeTags.MAP_TAG);
         fieldAnnotMap = (MapValueImpl<String, Object>) fieldAnnots;

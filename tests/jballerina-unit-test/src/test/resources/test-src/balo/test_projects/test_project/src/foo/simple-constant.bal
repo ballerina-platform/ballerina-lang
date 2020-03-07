@@ -82,7 +82,7 @@ public const h = "D";
 public const string SHA1 = "SHA1";
 
 public type TestRecord record {
-    string field;
+    string 'field;
 };
 
 public type STRING_LABEL string;
