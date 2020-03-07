@@ -160,6 +160,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+
 import javax.xml.XMLConstants;
 
 import static org.wso2.ballerinalang.compiler.tree.BLangInvokableNode.DEFAULT_WORKER_NAME;
@@ -1864,7 +1865,7 @@ public class TypeChecker extends BLangNodeVisitor {
                 BStreamType actualStreamType = (BStreamType) actualType;
                 if (actualStreamType.error != null) {
                     BType error = actualStreamType.error;
-                    if (!isErrorType(error)) {
+                    if (!types.containsErrorType(error)) {
                         dlog.error(cIExpr.pos, DiagnosticCode.ERROR_TYPE_EXPECTED, error.toString());
                         resultType = symTable.semanticError;
                         return;
@@ -1919,18 +1920,6 @@ public class TypeChecker extends BLangNodeVisitor {
         }
         BType actualTypeInitType = getObjectConstructorReturnType(actualType, cIExpr.initInvocation.type);
         resultType = types.checkType(cIExpr, actualTypeInitType, expType);
-    }
-
-    private boolean isErrorType(BType type) {
-        if (type.tag == TypeTags.UNION) {
-            Set<BType> members = ((BUnionType)type).getMemberTypes();
-            for (BType member : members) {
-                if (!isErrorType(member)) {
-                    return false;
-                }
-            }
-            return true;
-        } else return type.tag == TypeTags.ERROR;
     }
 
     private BUnionType createNextReturnType(DiagnosticPos pos, BStreamType streamType) {

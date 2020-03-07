@@ -30,18 +30,18 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
- * Native implementation of lang.internal:getFilterFunc(func).
+ * Native implementation of lang.internal:getMapFunc(func).
  *
  * @since 1.2.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.__internal", functionName = "getFilterFunc",
+        orgName = "ballerina", packageName = "lang.__internal", functionName = "getMapFunc",
         args = {@Argument(name = "func", type = TypeKind.ANY)},
         returnType = {@ReturnType(type = TypeKind.FUNCTION)}
 )
-public class GetFilterFunc {
+public class GetMapFunc {
 
-    public static FPValue getFilterFunc(Strand strand, Object obj) {
+    public static FPValue getMapFunc(Strand strand, Object obj) {
         FPValue fpValue = (FPValue) obj;
         BFunctionType functionType = (BFunctionType) fpValue.getType();
         functionType.paramTypes[0] = new BUnionType(new BType[]{BTypes.typeAny, BTypes.typeError}, 0);

@@ -21,7 +21,6 @@ package org.ballerinalang.langlib.internal;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BField;
 import org.ballerinalang.jvm.types.BRecordType;
-import org.ballerinalang.jvm.types.BUnionType;
 import org.ballerinalang.jvm.util.Flags;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.MapValueImpl;

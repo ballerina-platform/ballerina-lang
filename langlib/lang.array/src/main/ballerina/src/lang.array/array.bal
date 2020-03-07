@@ -46,7 +46,7 @@ public function length((any|error)[] arr) returns int = external;
 public function iterator(Type[] arr) returns abstract object {
     public function next() returns record {|
         Type value;
-    |}|error?;
+    |}?;
 } {
     ArrayIterator arrIterator = new(arr);
     return arrIterator;

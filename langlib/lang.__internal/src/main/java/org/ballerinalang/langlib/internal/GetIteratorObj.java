@@ -16,10 +16,9 @@
  * under the License.
  */
 
-package org.ballerinalang.langlib.stream;
+package org.ballerinalang.langlib.internal;
 
 import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.StreamValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
@@ -27,12 +26,12 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
- * Native implementation of lang.stream:getGenFunc(stream&lt;Type&gt;).
+ * Native implementation of lang.stream:getIteratorObj(stream&lt;Type&gt;).
  *
  * @since 1.2.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.stream", functionName = "getIteratorObj",
+        orgName = "ballerina", packageName = "lang.__internal", functionName = "getIteratorObj",
         args = {@Argument(name = "strm", type = TypeKind.STREAM)},
         returnType = {@ReturnType(type = TypeKind.OBJECT)},
         isPublic = true

@@ -245,7 +245,7 @@ public class Types {
         return isBasicNumericType(type);
     }
 
-    private boolean containsErrorType(BType type) {
+    public boolean containsErrorType(BType type) {
         if (type.tag == TypeTags.UNION) {
             return ((BUnionType) type).getMemberTypes().stream()
                     .anyMatch(this::containsErrorType);

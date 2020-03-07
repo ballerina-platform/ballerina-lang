@@ -57,11 +57,10 @@ public function filter(stream<Type,ErrorType> stm, function(Type val) returns bo
                 if (nextVal is ()) {
                     return ();
                 } else if (nextVal is error) {
-                    // TODO: double check
                     return nextVal;
                 } else {
                     var value = nextVal?.value;
-                    function(any|error) returns boolean func = <function(any|error) returns boolean>internal:getFilterFunc(self.func);
+                    function(any|error) returns boolean func = internal:getFilterFunc(self.func);
                     if (func(value)) {
                         return nextVal;
                     }
@@ -83,7 +82,7 @@ public function next(stream<Type, ErrorType> strm) returns record {| Type value;
         public function next() returns record {|Type value;|}|ErrorType?;
     } iteratorObj = <abstract object {
                             public function next() returns record {|Type value;|}|ErrorType?;
-                     }>getIteratorObj(strm);
+                     }>internal:getIteratorObj(strm);
     var next1 = iteratorObj.next();
     if (next1 is ()) {
         return ();
@@ -103,7 +102,7 @@ public function 'map(stream<Type,ErrorType> stm, function(Type val) returns Type
    returns stream<Type1,ErrorType> {
     object {
        public stream<Type, ErrorType> strm;
-       public function(Type val) returns Type1 func;
+       public any func;
 
        public function __init(stream<Type, ErrorType> strm, function(Type val) returns Type1 func) {
            self.strm = strm;
@@ -115,7 +114,7 @@ public function 'map(stream<Type,ErrorType> stm, function(Type val) returns Type
            if (nextVal is ()) {
                return ();
            } else {
-               function(any | error) returns any | error mappingFunc = self.func;
+               function(any | error) returns any | error mappingFunc = internal:getMapFunc(self.func);
                if (nextVal is error) {
                     return nextVal;
                } else {
@@ -125,8 +124,7 @@ public function 'map(stream<Type,ErrorType> stm, function(Type val) returns Type
            }
        }
     } iteratorObj = new(stm, func);
-    //TODO:use stream constructor instead, to get the correct elementType. It is not correct at all.
-    return internal:construct(internal:getElementType(typeof stm), iteratorObj);
+    return internal:construct(internal:getReturnType(func), iteratorObj);
 }
 
 # Combines the members of a stream using a combining function.
@@ -145,7 +143,6 @@ public function reduce(stream<Type,ErrorType> stm, function(Type1 accum, Type va
         if (nextVal is ()) {
             return reducedValue;
         } else if (nextVal is error) {
-            // TODO: double check
             return reducedValue;
         } else {
             var value = nextVal?.value;
@@ -165,10 +162,10 @@ public function forEach(stream<Type,ErrorType> stm, function(Type val) returns (
     while(true) {
         if (nextVal is ()) {
             return;
-        } else if (nextVal is ErrorType) {
+        } else if (nextVal is error) {
             return nextVal;
         } else {
-            var value = nextVal?.value;
+            var value = nextVal.value;
             func(value);
         }
         nextVal = next(stm);
@@ -184,7 +181,7 @@ public function iterator(stream<Type,ErrorType> stm) returns abstract object {
         Type value;
     |}|ErrorType?;
 }{
-    return getIteratorObj(stm);
+    return internal:getIteratorObj(stm);
 }
 
 # Closes a stream.
@@ -193,7 +190,7 @@ public function iterator(stream<Type,ErrorType> stm) returns abstract object {
 # + stm - the stream to close
 # + return - () if the close completed successfully, otherwise an error
 public function close(stream<Type,ErrorType> stm) returns ErrorType? {
-    var itrObj = getIteratorObj(stm);
+    var itrObj = internal:getIteratorObj(stm);
     if (itrObj is abstract object {
         public function next() returns record {|Type value;|}|ErrorType?;
         public function close() returns ErrorType?;

@@ -19,40 +19,30 @@
 package org.ballerinalang.langlib.internal;
 
 import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.types.BField;
 import org.ballerinalang.jvm.types.BFunctionType;
-import org.ballerinalang.jvm.types.BObjectType;
-import org.ballerinalang.jvm.types.BType;
-import org.ballerinalang.jvm.types.BTypes;
-import org.ballerinalang.jvm.types.BUnionType;
 import org.ballerinalang.jvm.values.FPValue;
-import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.TypedescValue;
 import org.ballerinalang.jvm.values.api.BValueCreator;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
-import java.util.Map;
-
 /**
- * Native implementation of lang.internal:setFilterFunc(func, func).
+ * Native implementation of lang.internal:getReturnType(func).
  *
  * @since 1.2.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.__internal", functionName = "setFilterFunc",
-        args = {@Argument(name = "field", type = TypeKind.FUNCTION),
-                @Argument(name = "func", type = TypeKind.FUNCTION)},
-        returnType = {@ReturnType(type = TypeKind.NIL)}
+        orgName = "ballerina", packageName = "lang.__internal", functionName = "getReturnType",
+        args = {@Argument(name = "func", type = TypeKind.ANY)},
+        returnType = {@ReturnType(type = TypeKind.TYPEDESC)}
 )
-public class SetFilterFunc {
+public class GetReturnType {
 
-    public static void setFilterFunc(Strand strand, ObjectValue objectValue, FPValue func) {
-        BObjectType objectType = objectValue.getType();
-        BField funcField = objectType.getFields().get("func");
-        BField newFuncField = new BField(func.getType(), "func", funcField.flags);
-        objectType.getFields().put("func", newFuncField);
-        objectValue.set("func", func);
+    public static TypedescValue getReturnType(Strand strand, Object obj) {
+        FPValue fpValue = (FPValue) obj;
+        BFunctionType functionType = (BFunctionType) fpValue.getType();
+        return (TypedescValue) BValueCreator.createTypedescValue(functionType.retType);
     }
 }
