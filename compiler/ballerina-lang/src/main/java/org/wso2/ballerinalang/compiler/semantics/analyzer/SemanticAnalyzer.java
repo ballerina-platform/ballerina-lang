@@ -602,6 +602,18 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                     annotationAttachment.accept(this);
                 });
             }
+        } else if ((ownerSymTag & SymTag.OBJECT) == SymTag.OBJECT) {
+            for (BLangAnnotationAttachment annotationAttachment : varNode.annAttachments) {
+                annotationAttachment.attachPoints.add(AttachPoint.Point.OBJECT_FIELD);
+                annotationAttachment.attachPoints.add(AttachPoint.Point.FIELD);
+                annotationAttachment.accept(this);
+            }
+        } else if ((ownerSymTag & SymTag.RECORD) == SymTag.RECORD) {
+            for (BLangAnnotationAttachment annotationAttachment : varNode.annAttachments) {
+                annotationAttachment.attachPoints.add(AttachPoint.Point.RECORD_FIELD);
+                annotationAttachment.attachPoints.add(AttachPoint.Point.FIELD);
+                annotationAttachment.accept(this);
+            }
         } else {
             varNode.annAttachments.forEach(annotationAttachment -> {
                 if (Symbols.isFlagOn(varNode.symbol.flags, Flags.LISTENER)) {

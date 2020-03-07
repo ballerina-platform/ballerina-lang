@@ -66,6 +66,18 @@ public class AttachPoint {
          */
         SERVICE("service"),
         /**
+         * Indicates Field Attach point.
+         */
+        FIELD("field"),
+        /**
+         * Indicates Object Field Attach point.
+         */
+        OBJECT_FIELD("objectfield"),
+        /**
+         * Indicates Record Field Attach point.
+         */
+        RECORD_FIELD("recordfield"),
+        /**
          * Indicates Object Attach point.
          */
         LISTENER("listener"),
