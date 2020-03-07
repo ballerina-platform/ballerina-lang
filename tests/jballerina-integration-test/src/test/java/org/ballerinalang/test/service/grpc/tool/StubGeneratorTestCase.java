@@ -25,6 +25,7 @@ import org.ballerinalang.protobuf.utils.BalFileGenerationUtils;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.CompileResult;
 import org.ballerinalang.test.util.TestUtils;
+import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -84,13 +85,13 @@ public class StubGeneratorTestCase {
             InstantiationException {
         CompileResult compileResult = getStubCompileResult("helloWorldWithDependency.proto",
                 "helloWorldWithDependency_pb.bal");
-        assertEquals(compileResult.getDiagnostics().length, 8);
+        assertEquals(compileResult.getDiagnostics().length, 10);
         assertEquals(compileResult.getDiagnostics()[0].toString(),
                      "ERROR: .::helloWorldWithDependency_pb.bal:15:34:: unknown type 'HelloRequest'");
         assertEquals(compileResult.getDiagnostics()[1].toString(),
                      "ERROR: .::helloWorldWithDependency_pb.bal:15:90:: unknown type 'HelloResponse'");
         assertEquals(compileResult.getDiagnostics()[5].toString(),
-                     "ERROR: .::helloWorldWithDependency_pb.bal:33:18:: unknown type 'ByeResponse'");
+                     "ERROR: .::helloWorldWithDependency_pb.bal:26:86:: unknown type 'ByeResponse'");
     }
 
     @Test(description = "Test service stub generation for service definition with enum messages")

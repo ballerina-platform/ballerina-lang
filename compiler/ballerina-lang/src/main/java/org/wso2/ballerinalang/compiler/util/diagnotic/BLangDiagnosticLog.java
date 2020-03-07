@@ -52,6 +52,8 @@ public class BLangDiagnosticLog implements DiagnosticLog {
     protected DiagnosticListener listener;
     private PackageCache pkgCache;
 
+    // TODO: 3/6/20 Make package private.
+    @Deprecated
     public static BLangDiagnosticLog getInstance(CompilerContext context) {
         BLangDiagnosticLog dLogger = context.get(DIAGNOSTIC_LOG_KEY);
         if (dLogger == null) {

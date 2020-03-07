@@ -321,7 +321,7 @@ public class JvmPackageGen {
         if (pkgSymbol != null) {
             for (BPackageSymbol packageSymbol : pkgSymbol.imports) {
                 generateDependencyList(packageSymbol, jarFile, interopValidator);
-                if (CodeGenerator.dlog.errorCount > 0) {
+                if (CodeGenerator.dlog.getErrorCount() > 0) {
                     return;
                 }
             }
@@ -334,7 +334,7 @@ public class JvmPackageGen {
         typeOwnerClass = getModuleLevelClassName(orgName, moduleName, MODULE_INIT_CLASS_NAME);
         Map<String, JavaClass> jvmClassMap = generateClassNameMappings(module, pkgName, typeOwnerClass,
                 interopValidator, isEntry);
-        if (!isEntry || CodeGenerator.dlog.errorCount > 0) {
+        if (!isEntry || CodeGenerator.dlog.getErrorCount() > 0) {
             return;
         }
 

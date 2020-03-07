@@ -19,6 +19,7 @@ package org.wso2.ballerinalang.compiler.util.diagnotic;
 
 import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
+import org.ballerinalang.util.diagnostic.DiagnosticLog;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 /**
@@ -27,7 +28,7 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
  *
  * @since 1.2.0
  */
-public class BLangDiagnosticLogHelper {
+public class BLangDiagnosticLogHelper implements DiagnosticLog {
 
     private final BLangDiagnosticLog consoleDLog;
     private final ErrorCountingBLangDiagnosticLog nonConsoleDLog;
@@ -64,6 +65,11 @@ public class BLangDiagnosticLogHelper {
 
     public void note(DiagnosticPos pos, DiagnosticCode code, Object... args) {
         this.currentLog.note(pos, code, args);
+    }
+
+    @Override
+    public void logDiagnostic(Diagnostic.Kind kind, Diagnostic.DiagnosticPosition pos, CharSequence message) {
+        this.currentLog.reportDiagnostic(new BDiagnostic(kind, (DiagnosticPos) pos, message.toString()));
     }
 
     public BLangDiagnosticLog getCurrentLog() {
