@@ -1063,9 +1063,9 @@ public class Desugar extends BLangNodeVisitor {
         BLangLambdaFunction trxMainFunc
                 = createLambdaFunction(funcNode.pos, "$anonTrxParticipantFunc$", Collections.emptyList(),
                                        trxReturnNode, trxMainBody);
-        trxMainWrapperFunc.cachedEnv = trxMainFunc.function.clonedEnv;
-        commitFunc.cachedEnv = env.createClone();
-        abortFunc.cachedEnv = env.createClone();
+        trxMainWrapperFunc.capturedClosureEnv = trxMainFunc.function.clonedEnv;
+        commitFunc.capturedClosureEnv = env.createClone();
+        abortFunc.capturedClosureEnv = env.createClone();
         BVarSymbol wrapperSym = new BVarSymbol(0, names.fromString("$wrapper$1"), this.env.scope.owner.pkgID,
                                                trxMainWrapperFunc.type, trxMainFunc.function.symbol);
         BLangSimpleVariable wrapperFuncVar = ASTBuilderUtil.createVariable(funcNode.pos, "$wrapper$1",
@@ -3065,10 +3065,10 @@ public class Desugar extends BLangNodeVisitor {
         BLangLambdaFunction trxAbortedFunc = createLambdaFunction(pos, "$anonTrxAbortedFunc$", Collections.emptyList(),
                                                                   otherReturnNode, transactionNode.abortedBody.stmts,
                                                                   env, transactionNode.abortedBody.scope);
-        trxMainFunc.cachedEnv = env.createClone();
-        trxOnRetryFunc.cachedEnv = env.createClone();
-        trxCommittedFunc.cachedEnv = env.createClone();
-        trxAbortedFunc.cachedEnv = env.createClone();
+        trxMainFunc.capturedClosureEnv = env.createClone();
+        trxOnRetryFunc.capturedClosureEnv = env.createClone();
+        trxCommittedFunc.capturedClosureEnv = env.createClone();
+        trxAbortedFunc.capturedClosureEnv = env.createClone();
 
         // Retrive the symbol for beginTransactionInitiator function.
         PackageID packageID = new PackageID(Names.BALLERINA_ORG, Names.TRANSACTION_PACKAGE, Names.EMPTY);
@@ -4198,7 +4198,7 @@ public class Desugar extends BLangNodeVisitor {
 
         lambdaFunction.function.pos = bLangArrowFunction.pos;
         lambdaFunction.function.body.pos = bLangArrowFunction.pos;
-        lambdaFunction.cachedEnv = env;
+        lambdaFunction.capturedClosureEnv = env;
         rewrite(lambdaFunction.function, env);
         env.enclPkg.addFunction(lambdaFunction.function);
         bLangArrowFunction.function = lambdaFunction.function;
