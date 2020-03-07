@@ -127,7 +127,10 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerSyncSendExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttribute;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttributeAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLCommentLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementAccess;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementFilter;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLNavigationAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLProcInsLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQName;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQuotedString;
@@ -285,6 +288,40 @@ public class TypeChecker extends BLangNodeVisitor {
             return;
         }
         resultType = types.checkType(literalExpr, literalType, expType);
+    }
+
+    @Override
+    public void visit(BLangXMLElementAccess xmlElementAccess) {
+        // check for undeclared namespaces.
+        checkXMLNamespacePrefixes(xmlElementAccess.filters);
+        resultType = checkExpr(xmlElementAccess.expr, env, expType);
+        // todo: we may need to add some logic to constrain result type to xml @namedSubType type.
+    }
+
+    @Override
+    public void visit(BLangXMLNavigationAccess xmlNavigation) {
+        if (xmlNavigation.lhsVar) {
+            dlog.error(xmlNavigation.pos, DiagnosticCode.CANNOT_UPDATE_XML_SEQUENCE);
+        }
+        checkXMLNamespacePrefixes(xmlNavigation.filters);
+        if (xmlNavigation.childIndex != null) {
+            checkExpr(xmlNavigation.childIndex, env, symTable.intType);
+        }
+        resultType = checkExpr(xmlNavigation.expr, env, expType);
+        // todo: we may need to add some logic to constrain result type to  @namedSubType type.
+    }
+
+    private void checkXMLNamespacePrefixes(List<BLangXMLElementFilter> filters) {
+        for (BLangXMLElementFilter filter : filters) {
+            if (!filter.namespace.isEmpty()) {
+                Name nsName = names.fromString(filter.namespace);
+                BSymbol nsSymbol = symResolver.lookupSymbolInPrefixSpace(env, nsName);
+                filter.namespaceSymbol = nsSymbol;
+                if (nsSymbol == symTable.notFoundSymbol) {
+                    dlog.error(filter.nsPos, DiagnosticCode.CANNOT_FIND_XML_NAMESPACE, nsName);
+                }
+            }
+        }
     }
 
     private BType setLiteralValueAndGetType(BLangLiteral literalExpr, BType expType) {
@@ -1692,8 +1729,17 @@ public class TypeChecker extends BLangNodeVisitor {
                 fieldAccessExpr.compoundAssignmentLhsVar;
         BType varRefType = getTypeOfExprInFieldAccess(fieldAccessExpr.expr);
 
+        // Disallow `expr.ns:attrname` syntax on non xml expressions.
+        if (fieldAccessExpr instanceof BLangFieldBasedAccess.BLangNSPrefixedFieldBasedAccess
+                && fieldAccessExpr.expr.type.tag != TypeTags.XML) {
+            dlog.error(fieldAccessExpr.pos, DiagnosticCode.INVALID_FIELD_ACCESS_EXPRESSION);
+            resultType = symTable.semanticError;
+            return;
+        }
+
         BType actualType;
         // Accessing all fields using * is only supported for XML.
+        // todo: remove this, this is no longer supported, this is moved to xml.<*>
         if (fieldAccessExpr.fieldKind == FieldKind.ALL && varRefType.tag != TypeTags.XML) {
             dlog.error(fieldAccessExpr.pos, DiagnosticCode.CANNOT_GET_ALL_FIELDS, varRefType);
             actualType = symTable.semanticError;
@@ -1710,6 +1756,7 @@ public class TypeChecker extends BLangNodeVisitor {
                 actualType = checkFieldAccessExpr(fieldAccessExpr, varRefType, names.fromIdNode(fieldAccessExpr.field));
             }
         }
+
         resultType = types.checkType(fieldAccessExpr, actualType, this.expType);
     }
 
@@ -4314,6 +4361,9 @@ public class TypeChecker extends BLangNodeVisitor {
                         DiagnosticCode.OPERATION_DOES_NOT_SUPPORT_FIELD_ACCESS_FOR_ASSIGNMENT, varRefType);
                 return symTable.semanticError;
             }
+            if (fieldAccessExpr.fieldKind == FieldKind.WITH_NS) {
+                resolveXMLNamespace((BLangFieldBasedAccess.BLangNSPrefixedFieldBasedAccess) fieldAccessExpr);
+            }
             BType laxFieldAccessType = getLaxFieldAccessType(varRefType);
             actualType = BUnionType.create(null, laxFieldAccessType, symTable.errorType);
             fieldAccessExpr.originalType = laxFieldAccessType;
@@ -4328,6 +4378,8 @@ public class TypeChecker extends BLangNodeVisitor {
             if (fieldAccessExpr.lhsVar) {
                 dlog.error(fieldAccessExpr.pos, DiagnosticCode.CANNOT_UPDATE_XML_SEQUENCE);
             }
+            // todo: field access on a xml value is not attribute access, return type should be string?
+            // `_` is a special field that refer to the element name.
             actualType = symTable.xmlType;
             fieldAccessExpr.originalType = actualType;
         } else if (varRefType.tag != TypeTags.SEMANTIC_ERROR) {
@@ -4335,6 +4387,19 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         return actualType;
+    }
+
+    private void resolveXMLNamespace(BLangFieldBasedAccess.BLangNSPrefixedFieldBasedAccess fieldAccessExpr) {
+        BLangFieldBasedAccess.BLangNSPrefixedFieldBasedAccess nsPrefixedFieldAccess = fieldAccessExpr;
+        String nsPrefix = nsPrefixedFieldAccess.nsPrefix.value;
+        BSymbol nsSymbol = symResolver.lookupSymbolInPrefixSpace(env, names.fromString(nsPrefix));
+
+        if (nsSymbol == symTable.notFoundSymbol) {
+            dlog.error(nsPrefixedFieldAccess.nsPrefix.pos, DiagnosticCode.CANNOT_FIND_XML_NAMESPACE,
+                    nsPrefixedFieldAccess.nsPrefix);
+        } else {
+            nsPrefixedFieldAccess.nsSymbol = (BXMLNSSymbol) nsSymbol;
+        }
     }
 
     private boolean hasLaxOriginalType(BLangFieldBasedAccess fieldBasedAccess) {
@@ -4345,6 +4410,8 @@ public class TypeChecker extends BLangNodeVisitor {
         switch (exprType.tag) {
             case TypeTags.JSON:
                 return symTable.jsonType;
+            case TypeTags.XML:
+                return symTable.stringType;
             case TypeTags.MAP:
                 return ((BMapType) exprType).constraint;
             case TypeTags.UNION:
@@ -4392,7 +4459,7 @@ public class TypeChecker extends BLangNodeVisitor {
             fieldAccessExpr.originalType = getSafeType(actualType, fieldAccessExpr);
         } else if (types.isLax(effectiveType)) {
             BType laxFieldAccessType = getLaxFieldAccessType(effectiveType);
-            actualType = couldHoldNonMappingJson(effectiveType) ?
+            actualType = accessCouldResultInError(effectiveType) ?
                     BUnionType.create(null, laxFieldAccessType, symTable.errorType) : laxFieldAccessType;
             fieldAccessExpr.originalType = laxFieldAccessType;
             fieldAccessExpr.nilSafeNavigation = true;
@@ -4401,7 +4468,7 @@ public class TypeChecker extends BLangNodeVisitor {
                 hasLaxOriginalType(((BLangFieldBasedAccess) fieldAccessExpr.expr))) {
             BType laxFieldAccessType =
                     getLaxFieldAccessType(((BLangFieldBasedAccess) fieldAccessExpr.expr).originalType);
-            actualType = couldHoldNonMappingJson(effectiveType) ?
+            actualType = accessCouldResultInError(effectiveType) ?
                     BUnionType.create(null, laxFieldAccessType, symTable.errorType) : laxFieldAccessType;
             fieldAccessExpr.errorSafeNavigation = true;
             fieldAccessExpr.originalType = laxFieldAccessType;
@@ -4419,7 +4486,7 @@ public class TypeChecker extends BLangNodeVisitor {
         return actualType;
     }
 
-    private boolean couldHoldNonMappingJson(BType type) {
+    private boolean accessCouldResultInError(BType type) {
         if (type.tag == TypeTags.JSON) {
             return true;
         }
@@ -4428,7 +4495,15 @@ public class TypeChecker extends BLangNodeVisitor {
             return false;
         }
 
-        return ((BUnionType) type).getMemberTypes().stream().anyMatch(this::couldHoldNonMappingJson);
+        if (type.tag == TypeTags.XML) {
+            return true;
+        }
+
+        if (type.tag == TypeTags.UNION) {
+            return ((BUnionType) type).getMemberTypes().stream().anyMatch(this::accessCouldResultInError);
+        } else {
+            return false;
+        }
     }
 
     private BType checkIndexAccessExpr(BLangIndexBasedAccess indexBasedAccessExpr) {

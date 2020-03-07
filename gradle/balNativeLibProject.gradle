@@ -125,6 +125,7 @@ task createBalo(type: CreateBaloTask) {
     inputs.dir(balFiles)
     inputs.files(configurations.baloImplementation)
     outputs.dir("$buildDir/generated-balo")
+    outputs.dir("$buildDir/generated-bir-jar")
     outputs.files(interopJars)
     outputs.cacheIf { true }
 }
