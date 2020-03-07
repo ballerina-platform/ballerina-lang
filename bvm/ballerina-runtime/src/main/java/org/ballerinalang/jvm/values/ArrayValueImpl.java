@@ -243,19 +243,10 @@ public class ArrayValueImpl extends AbstractArrayValue {
 
     @Override
     public Object fillAndGetRefValue(long index) {
-        rangeCheck(index, size);
-        boolean needsFilling = index >= size;
         if (refValues != null) {
+            boolean needsFilling = index >= size;
             if (needsFilling && this.elementType.getTag() == TypeTags.ARRAY_TAG) {
-                if (TypeChecker.hasFillerValue(this.elementType)) {
-                    for (long i = size; i <= index; i++) {
-                        add(i, (Object) this.elementType.getZeroValue());
-                    }
-                } else {
-                    throw BLangExceptionHelper.getRuntimeException(
-                            getModulePrefixedReason(ARRAY_LANG_LIB, INDEX_OUT_OF_RANGE_ERROR_IDENTIFIER),
-                            RuntimeErrors.ARRAY_INDEX_OUT_OF_RANGE, index, size);
-                }
+                add(index, (Object) this.elementType.getZeroValue());
             }
             return refValues[(int) index];
         }
