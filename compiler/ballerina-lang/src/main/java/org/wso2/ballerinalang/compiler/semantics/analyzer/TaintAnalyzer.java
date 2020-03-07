@@ -106,7 +106,9 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerSyncSendExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttribute;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttributeAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLCommentLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLNavigationAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLProcInsLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQName;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQuotedString;
@@ -1005,17 +1007,11 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         BType varRefType = fieldAccessExpr.expr.type;
         switch (varRefType.tag) {
             case TypeTags.OBJECT:
-                fieldAccessExpr.expr.accept(this);
-                break;
             case TypeTags.RECORD:
-                fieldAccessExpr.expr.accept(this);
-                break;
             case TypeTags.MAP:
-                fieldAccessExpr.expr.accept(this);
-                break;
             case TypeTags.JSON:
+            case TypeTags.XML:
                 fieldAccessExpr.expr.accept(this);
-                break;
         }
     }
 
@@ -1167,6 +1163,24 @@ public class TaintAnalyzer extends BLangNodeVisitor {
                                                                             TaintedStatus.UNTAINTED;
         }
         getCurrentAnalysisState().taintedStatus = statusForWait;
+    }
+
+    @Override
+    public void visit(BLangXMLElementAccess xmlElementAccess) {
+        xmlElementAccess.expr.accept(this);
+    }
+
+    @Override
+    public void visit(BLangXMLNavigationAccess xmlNavigation) {
+        xmlNavigation.expr.accept(this);
+
+        if (xmlNavigation.childIndex != null) {
+            // Although we want to analyze the taintedness of xmlNavigation's index, we don't want it to affect the
+            // taintedness of return value of xml navigation expression. Hence bypassing.
+            TaintedStatus exprTaintStatus = getCurrentAnalysisState().taintedStatus;
+            xmlNavigation.childIndex.accept(this);
+            getCurrentAnalysisState().taintedStatus = exprTaintStatus;
+        }
     }
 
     @Override

@@ -500,6 +500,10 @@ public class TreeBuilder {
         return new BLangFieldBasedAccess();
     }
 
+    public static FieldBasedAccessNode createFieldBasedAccessWithPrefixNode() {
+        return new BLangFieldBasedAccess.BLangNSPrefixedFieldBasedAccess();
+    }
+
     public static IndexBasedAccessNode createIndexBasedAccessNode() {
         return new BLangIndexBasedAccess();
     }
@@ -815,4 +819,5 @@ public class TreeBuilder {
     public static IsLikeExpressionNode createIsLikeExpressionNode() {
         return new BLangIsLikeExpr();
     }
+
 }

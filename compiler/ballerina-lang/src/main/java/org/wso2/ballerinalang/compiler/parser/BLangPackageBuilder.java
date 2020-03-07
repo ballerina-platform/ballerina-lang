@@ -47,7 +47,9 @@ import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.model.tree.VariableNode;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.expressions.XMLAttributeNode;
+import org.ballerinalang.model.tree.expressions.XMLElementFilter;
 import org.ballerinalang.model.tree.expressions.XMLLiteralNode;
+import org.ballerinalang.model.tree.expressions.XMLNavigationAccess;
 import org.ballerinalang.model.tree.statements.BlockStatementNode;
 import org.ballerinalang.model.tree.statements.ForkJoinNode;
 import org.ballerinalang.model.tree.statements.IfNode;
@@ -135,7 +137,10 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerSyncSendExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttribute;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttributeAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLCommentLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementAccess;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementFilter;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLNavigationAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLProcInsLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQName;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQuotedString;
@@ -291,6 +296,8 @@ public class BLangPackageBuilder {
     private Stack<SimpleVariableNode> restParamStack = new Stack<>();
 
     private Deque<BLangMatch> matchStmtStack;
+
+    private Stack<XMLElementFilter> elementFilterStack = new Stack<>();
 
     private Stack<Set<Whitespace>> operatorWs = new Stack<>();
 
@@ -1741,8 +1748,18 @@ public class BLangPackageBuilder {
     }
 
     void createFieldBasedAccessNode(DiagnosticPos pos, Set<Whitespace> ws, String fieldName, DiagnosticPos fieldNamePos,
+                                    String nsPrefixName, DiagnosticPos nsPrefixPos,
                                     FieldKind fieldType, boolean optionalFieldAccess) {
-        BLangFieldBasedAccess fieldBasedAccess = (BLangFieldBasedAccess) TreeBuilder.createFieldBasedAccessNode();
+        BLangFieldBasedAccess fieldBasedAccess;
+        if (nsPrefixName != null) {
+            BLangFieldBasedAccess.BLangNSPrefixedFieldBasedAccess accessWithPrefixNode =
+                    (BLangFieldBasedAccess.BLangNSPrefixedFieldBasedAccess)
+                            TreeBuilder.createFieldBasedAccessWithPrefixNode();
+            accessWithPrefixNode.nsPrefix = createIdentifier(nsPrefixPos, nsPrefixName);
+            fieldBasedAccess = accessWithPrefixNode;
+        } else {
+            fieldBasedAccess = (BLangFieldBasedAccess) TreeBuilder.createFieldBasedAccessNode();
+        }
         fieldBasedAccess.pos = pos;
         fieldBasedAccess.addWS(ws);
         fieldBasedAccess.field = createIdentifier(fieldNamePos, fieldName, ws);
@@ -3625,5 +3642,42 @@ public class BLangPackageBuilder {
             keyValue.keyExpr = varRef;
         }
         waitCollectionStack.peek().keyValuePairs.add(keyValue);
+    }
+
+    public void addXMLElementAccessFilter(DiagnosticPos pos, Set<Whitespace> ws, String ns,
+                                          DiagnosticPos nsPos, String elementName, DiagnosticPos elemNamePos) {
+        elementFilterStack.push(new BLangXMLElementFilter(pos, ws, ns, nsPos, elementName, elemNamePos));
+    }
+
+    public void createXMLElementAccessNode(DiagnosticPos pos, Set<Whitespace> ws, int filterCount) {
+        List<BLangXMLElementFilter> filters = popFilters(filterCount);
+
+        BLangExpression expr = (BLangExpression) this.exprNodeStack.pop();
+        BLangXMLElementAccess elementAccess = new BLangXMLElementAccess(pos, ws, expr, filters);
+        addExpressionNode(elementAccess);
+    }
+
+    public void createXMLNavigationAccessNode(DiagnosticPos currentPos, Set<Whitespace> ws,
+                                              int filterCount, int starCount, boolean isIndexed) {
+        BLangExpression childIndex = null;
+        if (isIndexed) {
+            childIndex = (BLangExpression) this.exprNodeStack.pop();
+        }
+        List<BLangXMLElementFilter> filters = popFilters(filterCount);
+        BLangExpression expr = (BLangExpression) this.exprNodeStack.pop();
+        BLangXMLNavigationAccess xmlNavigationAccess =
+                new BLangXMLNavigationAccess(currentPos, ws, expr, filters,
+                        XMLNavigationAccess.NavAccessType.fromInt(starCount), childIndex);
+        addExpressionNode(xmlNavigationAccess);
+    }
+
+    private List<BLangXMLElementFilter> popFilters(int filterCount) {
+        ArrayList<BLangXMLElementFilter> filters = new ArrayList<>();
+        for (int i = 0; i < filterCount; i++) {
+            filters.add((BLangXMLElementFilter) elementFilterStack.pop());
+        }
+        // Filters were collected from right to left, hence need to reverse the order.
+        Collections.reverse(filters);
+        return filters;
     }
 }
