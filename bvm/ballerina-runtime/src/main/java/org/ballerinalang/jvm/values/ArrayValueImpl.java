@@ -874,7 +874,9 @@ public class ArrayValueImpl extends AbstractArrayValue {
                 return;
             default:
                 if (arrayType.hasFillerValue()) {
-                    Arrays.fill(refValues, size, index, elementType.getZeroValue());
+                    for (int i = size; i < index; i++) {
+                        this.refValues[i] = this.elementType.getZeroValue();
+                    }
                 }
         }
     }
