@@ -144,10 +144,90 @@ task test {
             'type-conversion',
             'record-io',
             'checkpanic',
+            'check',
             'type-cast',
             'panic',
             'http-client-endpoint',
             'async'
+    ]
+    def ignoreList = [
+            'proto-to-ballerina',
+            'swagger-to-ballerina',
+            'taint-checking',
+            'websub-hub-client-sample',
+            'websub-remote-hub-sample',
+            'config-api',
+            'testerina-function-mocks',
+            'jdbc-client-crud-operations',
+            'jdbc-client-batch-update',
+            'jdbc-client-call-procedures',
+            'streaming-big-dataset',
+            'docker-deployment',
+            'kubernetes-deployment',
+            'awslambda-deployment',
+            'openshift-deployment',
+            'grpc-server-streaming',
+            'transactions-distributed',
+            'local-transactions',
+            'local-transactions-with-participants',
+            'xa-transactions',
+            'secured-client-with-oauth2',
+            'gauge-metrics',
+            'counter-metrics',
+            'openapi-to-ballerina',
+            'kafka_message_consumer_group_service',
+            'kafka_message_consumer_simple',
+            'kafka_message_consumer_service',
+            'kafka_message_producer',
+            'kafka_message_producer_transactional',
+            'grpc-secured-unary',
+            'grpc-bidirectional-streaming',
+            'grpc-client-streaming',
+            'grpc-unary-non-blocking',
+            'grpc-unary-blocking',
+            'nats-streaming-start-position',
+            'nats-streaming-queue-group',
+            'nats-streaming-durable-subscriptions',
+            'nats-streaming-consumer-with-data-binding',
+            'nats-streaming-client',
+            'nats-basic-client',
+            'jdbc-streaming-big-dataset',
+            'testerina-guarantee-test-execution-order',
+            'testerina-data-driven-tests',
+            'testerina-before-and-after-suite',
+            'testerina-before-each-test',
+            'testerina-before-and-after-test',
+            'testerina-assertions',
+            'taint-checking',
+            'websocket-chat-application',
+            'secured-service-with-basic-auth',
+            'secured-service-with-jwt',
+            'http-caching-client',
+            'response-with-multiparts',
+            'http-data-binding',
+            'http-1.1-to-2.0-protocol-switch',
+            'websocket-basic-sample',
+            'http-to-websocket-upgrade',
+            'websocket-proxy-server',
+            'http-redirects',
+            'tracing',
+            'secured-client-with-basic-auth',
+            'secured-client-with-jwt-auth',
+            'log-api',
+            'http-2.0-server-push',
+            'the-main-function',
+            'task-scheduler-appointment',
+            'task-scheduler-timer',
+            'time',
+            'crypto',
+            'xml-functions',
+            'xml-literal',
+            'join-tables-and-streams',
+            'join-multiple-streams',
+            'temporal-aggregations-and-windows',
+            'projection',
+            'simple-filtering',
+            'streams'
     ]
     doFirst {
         exec {
@@ -302,6 +382,26 @@ task test {
                 }
             }
             println "Ballerina example test passed: ${balName}"
+        }
+    }
+    doLast {
+        def listOfItem = ignoreList + mockList + stdEMock
+        listOfItem.each { String elements ->
+            bbeList.remove("$elements")
+        }
+        bbeList.each { String bbe ->
+            bbe = "${bbe}_test"
+            if (Os.isFamily(Os.FAMILY_WINDOWS)) {
+                exec {
+                    workingDir "${buildDir}/TestProject"
+                    commandLine 'cmd', '/c', "${distPath}/bin/ballerina.bat", 'build', '--experimental', "${bbe}"
+                }
+            } else {
+                exec {
+                    workingDir "${buildDir}/TestProject"
+                    commandLine "${distPath}/bin/./ballerina", 'build', '--experimental', "${bbe}"
+                }
+            }
         }
     }
 }

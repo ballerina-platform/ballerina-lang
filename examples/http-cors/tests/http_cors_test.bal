@@ -1,8 +1,8 @@
 import ballerina/test;
 import ballerina/http;
 
-@test:Config
-function testFunc() returns error? {
+@test:Config {}
+function testFunc() returns @tainted error? {
     http:Client httpEndpoint = new("http://localhost:9092");
     json expectedJson = { "type": "middleware" };
 
