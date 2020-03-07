@@ -157,11 +157,11 @@ public class RequestNativeFunctionNegativeTest {
         String errorMessage = ((BError) returnVals[0]).getDetails().stringValue();
         String expectedMessagePattern =
                 "\\{message:\"Error occurred while retrieving the xml payload from the request\", " +
-                        "cause:\\{ballerina\\/mime\\}ParsingEntityBodyFailed " +
-                        "\\{message:\"Error occurred while extracting xml data from entity\", " +
-                        "cause:failed to create xml: Unexpected character 'b' \\(code 98\\) in prolog; expected " +
-                        "'<'(\r\n|\n)" +
-                        " at \\[row,col \\{unknown-source}]: \\[1,1] \\{\\}\\}\\}";
+                "cause:\\{ballerina\\/mime\\}ParsingEntityBodyFailed " +
+                "\\{message:\"Error occurred while extracting xml data from entity\", " +
+                "cause:failed to create xml: Unexpected character 'b' \\(code 98\\) in prolog; expected " +
+                "'<'(\r\n|\n)" +
+                " at \\[row,col \\{unknown-source}]: \\[1,1] \\{\\}\\}\\}";
         Assert.assertTrue(errorMessage.matches(expectedMessagePattern));
     }
 

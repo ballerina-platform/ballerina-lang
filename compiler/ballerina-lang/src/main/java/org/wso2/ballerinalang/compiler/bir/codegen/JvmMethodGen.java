@@ -528,14 +528,14 @@ public class JvmMethodGen {
                         endLabel = labelGen.getLabel(funcName + localVar.endBB.id.value + "beforeTerm");
                     }
                 }
-                String metaVarName = localVar.name.value;
-                if (!"".equals(metaVarName) &&
+                String metaVarName = localVar.metaVarName;
+                if (metaVarName != null && !"".equals(metaVarName) &&
                         // filter out compiler added vars
                         !((metaVarName.startsWith("$") && metaVarName.endsWith("$"))
                                 || (metaVarName.startsWith("$$") && metaVarName.endsWith("$$"))
                                 || metaVarName.startsWith("_$$_"))) {
                     mv.visitLocalVariable(metaVarName, getJVMTypeSign(localVar.type), null,
-                            startLabel, endLabel, indexMap.getIndex(localVar));
+                                          startLabel, endLabel, indexMap.getIndex(localVar));
                 }
             }
             k = k + 1;
@@ -1259,11 +1259,10 @@ public class JvmMethodGen {
             String methodDesc;
             String jvmClass;
 
+            methodDesc = getLambdaMethodDesc(paramBTypes, returnType, closureMapsCount);
             if (functionWrapper != null) {
                 jvmClass = functionWrapper.fullQualifiedClassName;
-                methodDesc = functionWrapper.jvmMethodDescription;
             } else {
-                methodDesc = getLambdaMethodDesc(paramBTypes, returnType, closureMapsCount);
                 BPackageSymbol symbol = CodeGenerator.packageCache.getSymbol(orgName + "/" + moduleName);
                 BInvokableSymbol funcSymbol =
                         (BInvokableSymbol) symbol.scope.lookup(new Name(nameOfNonBStringFunc(funcName))).symbol;

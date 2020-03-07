@@ -202,3 +202,7 @@ public function filter(xml x, function(xml|string item) returns boolean func) re
 # + s - a string in XML format
 # + return - xml value resulting from parsing `s`, or an error
 public function fromString(string s) returns xml|error = external;
+
+// lift getChildren over sequences
+// equivalent to elements(x).map(getChildren)
+public function children(xml x) returns xml = external;

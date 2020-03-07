@@ -25,7 +25,6 @@ import org.ballerinalang.protobuf.utils.BalFileGenerationUtils;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.CompileResult;
 import org.ballerinalang.test.util.TestUtils;
-import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;

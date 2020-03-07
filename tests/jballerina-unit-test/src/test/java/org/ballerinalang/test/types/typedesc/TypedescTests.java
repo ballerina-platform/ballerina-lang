@@ -129,4 +129,9 @@ public class TypedescTests {
         Assert.assertTrue(returns[0] instanceof BTypeDescValue);
         Assert.assertEquals(TypeTags.JSON_TAG, ((BTypeDescValue) returns[0]).value().getTag());
     }
+
+    @Test(description = "Test custom error typedesc")
+    public void testCustomErrorTypeDesc() {
+        BValue[] returns = BRunUtil.invoke(result, "testCustomErrorTypeDesc");
+    }
 }

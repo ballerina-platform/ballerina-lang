@@ -1746,23 +1746,12 @@ public class BIRGen extends BLangNodeVisitor {
         startTagName.accept(this);
         BIROperand startTagNameIndex = this.env.targetOperand;
 
-        // Create end tag name. If there is no end-tag name (self closing tag),
-        // then consider start tag name as the end tag name too.
-        BIROperand endTagNameIndex;
-        BLangExpression endTagName = (BLangExpression) xmlElementLiteral.getEndTagName();
-        if (endTagName == null) {
-            endTagNameIndex = startTagNameIndex;
-        } else {
-            endTagName.accept(this);
-            endTagNameIndex = this.env.targetOperand;
-        }
-
         // Create default namespace uri
         BIROperand defaultNsURIVarRef = generateNamespaceRef(xmlElementLiteral.defaultNsSymbol, xmlElementLiteral.pos);
 
         // Create xml element
         BIRNonTerminator.NewXMLElement newXMLElement = new BIRNonTerminator.NewXMLElement(xmlElementLiteral.pos,
-                toVarRef, startTagNameIndex, endTagNameIndex, defaultNsURIVarRef);
+                toVarRef, startTagNameIndex, defaultNsURIVarRef);
         emit(newXMLElement);
 
         // Populate the XML by adding namespace declarations, attributes and children
@@ -2342,6 +2331,7 @@ public class BIRGen extends BLangNodeVisitor {
         return qnameVarRef;
     }
 
+    // todo: remove/move this, we no longer support xml access like this
     private void generateXMLAccess(BLangXMLAccessExpr xmlAccessExpr, BIROperand tempVarRef,
                                    BIROperand varRefRegIndex, BIROperand keyRegIndex) {
         this.env.targetOperand = tempVarRef;
