@@ -426,18 +426,31 @@ public class Desugar extends BLangNodeVisitor {
             return;
         }
         for (BLangSimpleVariable requiredParameter : initFunction.requiredParams) {
-            // Since the expression of the requiredParam of both init functions refer to same object,
-            // expression should be cloned.
-            BLangExpression expression = this.nodeCloner.clone(requiredParameter.expr);
             BLangSimpleVariable var =
                     ASTBuilderUtil.createVariable(initFunction.pos,
-                            requiredParameter.name.getValue(), requiredParameter.type, expression,
+                            requiredParameter.name.getValue(), requiredParameter.type,
+                            createRequiredParamExpr(requiredParameter.expr),
                             new BVarSymbol(0, names.fromString(requiredParameter.name.getValue()),
                                     requiredParameter.symbol.pkgID,
                                     requiredParameter.type, requiredParameter.symbol.owner));
             generatedInitFunc.requiredParams.add(var);
             generatedInitializerFunc.symbol.params.add(var.symbol);
         }
+    }
+
+    private BLangExpression createRequiredParamExpr(BLangExpression expr) {
+        if (expr == null) {
+            return null;
+        }
+        // Since the expression of the requiredParam of both init functions refer to same object,
+        // expression should be cloned.
+        BLangExpression expression = this.nodeCloner.clone(expr);
+        if (expression.getKind() == NodeKind.ARROW_EXPR) {
+            BLangIdentifier func = (BLangIdentifier) ((BLangArrowFunction) expression).functionName;
+            ((BLangArrowFunction) expression).functionName = ASTBuilderUtil.createIdentifier(func.pos,
+                    "$" + func.getValue() + "$");
+        }
+        return expression;
     }
 
     private void addRestParamsToGeneratedInitFunction(BLangFunction initFunction, BLangFunction generatedInitFunc,
