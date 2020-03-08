@@ -47,7 +47,7 @@ function testXmlInnerElementsWithSimpleVariableWithoutType() returns string {
     output = "";
 
     int i = 0;
-    foreach var v in xdata.*.elements() {
+    foreach var v in xdata/*.elements() {
         if v is xml {
             concatIntXml(i, v);
             i += 1;
@@ -60,7 +60,7 @@ function testXmlInnerElementsWithSimpleVariableWithType() returns string {
     output = "";
 
     int i = 0;
-    foreach xml|string v in xdata.*.elements() {
+    foreach xml|string v in xdata/*.elements() {
         if v is xml {
             concatIntXml(i, v);
             i += 1;
@@ -77,7 +77,7 @@ function testEmptyXmlIteration() returns string {
     xml data = xml `ABC`;
 
     int i = 0;
-    foreach var v in data.* {
+    foreach var v in data/* {
         if v is xml {
             concatIntXml(i, v);
             i += 1;

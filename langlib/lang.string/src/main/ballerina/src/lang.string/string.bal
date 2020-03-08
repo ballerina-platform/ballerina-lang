@@ -80,6 +80,15 @@ public function 'join(string separator, string... strs) returns string = externa
 #    or `()` if there is no such occurrence
 public function indexOf(string str, string substr, int startIndex = 0) returns int? = external;
 
+# Finds the last occurrence of one string in another string.
+#
+# + str - the string in which to search
+# + substr - the string to search for
+# + startIndex - index to start searching backwards from
+# + return - index of the last occurrence of `substr` in `str` that is <= `startIndex`,
+#    or `()` if there is no such occurrence
+public function lastIndexOf(string str, string substr, int startIndex = str.length() - substr.length()) returns int? = external;
+
 # Tests whether a string starts with another string.
 #
 # + str - the string to be tested

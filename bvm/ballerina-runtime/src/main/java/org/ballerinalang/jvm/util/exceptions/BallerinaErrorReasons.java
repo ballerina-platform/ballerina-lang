@@ -56,6 +56,7 @@ public class BallerinaErrorReasons {
     public static final String CONCURRENT_MODIFICATION_ERROR = BALLERINA_PREFIX.concat("ConcurrentModification");
 
     public static final String NUMBER_PARSING_ERROR_IDENTIFIER = "NumberParsingError";
+    public static final String BOOLEAN_PARSING_ERROR_IDENTIFIER = "BooleanParsingError";
     public static final String INVALID_UPDATE_ERROR_IDENTIFIER = "InvalidUpdate";
     public static final String INDEX_OUT_OF_RANGE_ERROR_IDENTIFIER = "IndexOutOfRange";
     public static final String INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER = "InherentTypeViolation";
