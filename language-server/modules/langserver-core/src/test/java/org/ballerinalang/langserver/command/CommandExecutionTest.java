@@ -408,9 +408,9 @@ public class CommandExecutionTest {
     public Object[][] openApiCreateResourceInBallerinaDataProvider() {
         log.info("Test workspace/executeCommand for command {}", CreateOpenApiServiceResourceExecutor.COMMAND);
         return new Object[][]{
-                {"createApiCreateResourceInBallerina.json", Paths.get("openApi", "src", "module-giga",
+                {"openApiCreateResourceInBallerina.json", Paths.get("openApi", "src", "module-giga",
                                                                       "gigaclient.bal")},
-                {"createApiCreateResourceMethodInBallerina.json", Paths.get("openApi", "src", "module-giga",
+                {"openApiCreateResourceMethodInBallerina.json", Paths.get("openApi", "src", "module-giga",
                                                                             "gigaclient.bal")},
         };
     }
