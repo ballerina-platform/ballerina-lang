@@ -807,10 +807,19 @@ public class TypeChecker {
         }
 
         //If element type is a value type, then check same type
-        if (targetType.getElementType().getTag() <= TypeTags.BOOLEAN_TAG) {
-            return sourceArrayType.getElementType().getTag() == targetType.getElementType().getTag();
+        BType targetElementType = targetType.getElementType();
+        int targetElementTypeTag = targetElementType.getTag();
+
+        BType sourceElementType = sourceArrayType.getElementType();
+
+        if (targetElementTypeTag <= TypeTags.BOOLEAN_TAG) {
+            if (targetElementTypeTag == TypeTags.INT_TAG && sourceElementType.getTag() == TypeTags.BYTE_TAG) {
+                return true;
+            }
+
+            return sourceElementType.getTag() == targetElementTypeTag;
         }
-        return checkIsType(sourceArrayType.getElementType(), targetType.getElementType(), unresolvedTypes);
+        return checkIsType(sourceElementType, targetElementType, unresolvedTypes);
     }
 
     private static boolean checkIsTupleType(BType sourceType, BTupleType targetType, List<TypePair> unresolvedTypes) {
