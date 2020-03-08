@@ -49,6 +49,7 @@ public class Names {
     public static final Name FLOAT = new Name("float");
     public static final Name FUTURE = new Name("future");
     public static final Name INT = new Name("int");
+    public static final Name BOOLEAN = new Name("boolean");
     public static final Name MAP = new Name("map");
     public static final Name OBJECT = new Name("object");
     public static final Name STREAM = new Name("stream");

@@ -50,8 +50,11 @@ import org.ballerinalang.jvm.values.RefValue;
 import org.ballerinalang.jvm.values.StreamValue;
 import org.ballerinalang.jvm.values.TableValue;
 import org.ballerinalang.jvm.values.TypedescValue;
+import org.ballerinalang.jvm.values.XMLSequence;
+import org.ballerinalang.jvm.values.XMLText;
 import org.ballerinalang.jvm.values.XMLValue;
 import org.ballerinalang.jvm.values.api.BValue;
+import org.ballerinalang.jvm.values.api.BXML;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -423,11 +426,43 @@ public class TypeChecker {
             return isEqual(lhsValue, rhsValue);
         }
 
+        if (lhsType.getTag() == TypeTags.XML_TAG && rhsType.getTag() == TypeTags.XML_TAG) {
+            return isXMLValueRefEqual((XMLValue) lhsValue, (XMLValue) rhsValue);
+        }
+
         if (isHandleType(lhsType) && isHandleType(rhsType)) {
             return isHandleValueRefEqual(lhsValue, rhsValue);
         }
 
         return false;
+    }
+
+    private static boolean isXMLValueRefEqual(XMLValue lhsValue, XMLValue rhsValue) {
+        if (lhsValue.getNodeType() != rhsValue.getNodeType()) {
+            return false;
+        }
+
+        if (lhsValue.getNodeType() == XMLNodeType.SEQUENCE && rhsValue.getNodeType() == XMLNodeType.SEQUENCE) {
+            return isXMLSequenceRefEqual((XMLSequence) lhsValue, (XMLSequence) rhsValue);
+        }
+
+        if (lhsValue.getNodeType() == XMLNodeType.TEXT && rhsValue.getNodeType() == XMLNodeType.TEXT) {
+            return ((XMLText) lhsValue).equals(rhsValue);
+        }
+        return false;
+    }
+
+    private static boolean isXMLSequenceRefEqual(XMLSequence lhsValue, XMLSequence rhsValue) {
+        Iterator<BXML> lhsIter = lhsValue.getChildrenList().iterator();
+        Iterator<BXML> rhsIter = rhsValue.getChildrenList().iterator();
+        while (lhsIter.hasNext() && rhsIter.hasNext()) {
+            BXML l = lhsIter.next();
+            BXML r = rhsIter.next();
+            if (!(l == r || isXMLValueRefEqual((XMLValue) l, (XMLValue) r))) {
+                return false;
+            }
+        }
+        return !(lhsIter.hasNext() || rhsIter.hasNext());
     }
 
     /**
@@ -1756,7 +1791,7 @@ public class TypeChecker {
     }
 
     private static boolean checkFillerValue(BArrayType type) {
-        return !(type.getState() == ArrayState.CLOSED_SEALED || type.getState() == ArrayState.OPEN_SEALED);
+        return type.getState() == ArrayState.UNSEALED || hasFillerValue(type.getElementType());
     }
 
     private static boolean checkFillerValue(BObjectType type) {

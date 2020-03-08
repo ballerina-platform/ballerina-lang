@@ -220,7 +220,7 @@ function accessLengthOfNullTuple() returns (int) {
 
 function accessLengthOfNullXML() returns (int) {
     xml t =  xml `a`;
-    xml x = t.*;
+    xml x = t/*;
     int length = x.length();
     return length;
 }

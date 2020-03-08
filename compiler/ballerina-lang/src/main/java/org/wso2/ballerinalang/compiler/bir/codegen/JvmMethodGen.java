@@ -1259,11 +1259,10 @@ public class JvmMethodGen {
             String methodDesc;
             String jvmClass;
 
+            methodDesc = getLambdaMethodDesc(paramBTypes, returnType, closureMapsCount);
             if (functionWrapper != null) {
                 jvmClass = functionWrapper.fullQualifiedClassName;
-                methodDesc = functionWrapper.jvmMethodDescription;
             } else {
-                methodDesc = getLambdaMethodDesc(paramBTypes, returnType, closureMapsCount);
                 BPackageSymbol symbol = CodeGenerator.packageCache.getSymbol(orgName + "/" + moduleName);
                 BInvokableSymbol funcSymbol =
                         (BInvokableSymbol) symbol.scope.lookup(new Name(nameOfNonBStringFunc(funcName))).symbol;
