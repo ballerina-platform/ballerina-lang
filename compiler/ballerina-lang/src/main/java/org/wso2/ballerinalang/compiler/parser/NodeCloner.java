@@ -117,7 +117,10 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerSyncSendExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttribute;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttributeAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLCommentLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementAccess;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementFilter;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLNavigationAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLProcInsLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQName;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQuotedString;
@@ -182,7 +185,7 @@ import java.util.Set;
  *
  * @since 1.1
  */
-class NodeCloner extends BLangNodeVisitor {
+public class NodeCloner extends BLangNodeVisitor {
 
     private static final CompilerContext.Key<NodeCloner> NODE_CLONER_KEY = new CompilerContext.Key<>();
 
@@ -227,7 +230,7 @@ class NodeCloner extends BLangNodeVisitor {
     }
 
     @SuppressWarnings("unchecked")
-    private <T extends Node> T clone(T source) {
+    public <T extends Node> T clone(T source) {
 
         if (source == null) {
             return null;
@@ -868,7 +871,16 @@ class NodeCloner extends BLangNodeVisitor {
     @Override
     public void visit(BLangFieldBasedAccess source) {
 
-        BLangFieldBasedAccess clone = new BLangFieldBasedAccess();
+        BLangFieldBasedAccess clone;
+        if (source instanceof BLangFieldBasedAccess.BLangNSPrefixedFieldBasedAccess) {
+            BLangFieldBasedAccess.BLangNSPrefixedFieldBasedAccess fieldBasedAccess =
+                    new BLangFieldBasedAccess.BLangNSPrefixedFieldBasedAccess();
+            fieldBasedAccess.nsPrefix = ((BLangFieldBasedAccess.BLangNSPrefixedFieldBasedAccess) source).nsPrefix;
+            clone = fieldBasedAccess;
+        } else {
+            clone = new BLangFieldBasedAccess();
+        }
+
         source.cloneRef = clone;
         clone.field = source.field;
         clone.fieldKind = source.fieldKind;
@@ -897,6 +909,7 @@ class NodeCloner extends BLangNodeVisitor {
         clone.async = source.async;
         clone.flagSet = cloneSet(source.flagSet, Flag.class);
         clone.annAttachments = cloneList(source.annAttachments);
+        clone.requiredArgs = cloneList(source.requiredArgs);
 
         cloneBLangAccessExpression(source, clone);
     }
@@ -1463,7 +1476,12 @@ class NodeCloner extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangConstRef constRef) {
-        // Ignore
+        BLangConstRef clone = new BLangConstRef();
+        constRef.cloneRef = clone;
+        clone.pkgAlias = constRef.pkgAlias;
+        clone.originalValue = constRef.originalValue;
+        clone.value = constRef.value;
+        clone.variableName = constRef.variableName;
     }
 
     @Override
@@ -1756,5 +1774,39 @@ class NodeCloner extends BLangNodeVisitor {
         clone.key = source.key;
         clone.valueExpr = clone(source.valueExpr);
         clone.keyExpr = clone(source.keyExpr);
+    }
+
+    @Override
+    public void visit(BLangXMLElementFilter source) {
+        BLangXMLElementFilter clone = new BLangXMLElementFilter(
+                source.pos,
+                source.getWS(),
+                source.namespace,
+                source.nsPos,
+                source.name,
+                source.elemNamePos);
+        source.cloneRef = clone;
+    }
+
+    @Override
+    public void visit(BLangXMLElementAccess source) {
+        BLangXMLElementAccess clone = new BLangXMLElementAccess(
+                source.pos,
+                source.getWS(),
+                clone(source.expr),
+                cloneList(source.filters));
+        source.cloneRef = clone;
+    }
+
+    @Override
+    public void visit(BLangXMLNavigationAccess source) {
+        BLangXMLNavigationAccess clone = new BLangXMLNavigationAccess(
+                source.pos,
+                source.getWS(),
+                source.expr,
+                source.filters,
+                source.navAccessType,
+                clone(source.childIndex));
+        source.cloneRef = clone;
     }
 }

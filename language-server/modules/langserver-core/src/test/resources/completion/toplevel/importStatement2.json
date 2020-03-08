@@ -54,6 +54,14 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "ballerina/lang.boolean",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "120",
+      "insertText": "ballerina/lang.'boolean;",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "ballerina/lang.xml",
       "kind": "Module",
       "detail": "Module",

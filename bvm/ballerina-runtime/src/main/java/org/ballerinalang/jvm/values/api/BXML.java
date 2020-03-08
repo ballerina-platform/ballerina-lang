@@ -18,6 +18,8 @@ package org.ballerinalang.jvm.values.api;
 
 import org.ballerinalang.jvm.XMLNodeType;
 
+import java.util.List;
+
 /**
  * {@code BXML} represents an XML in Ballerina. An XML could be one of:
  * <ul>
@@ -223,12 +225,12 @@ public interface BXML extends BRefValue, BCollection {
 
     /**
      * Searches in children recursively for elements matching the name and returns a sequence containing them all.
-     * Does not search within a matched result.
+     * When a match is found, include it in returned sequence and continue the search within the matched element.
      * 
-     * @param qname Qualified name of the descendants to filter
-     * @return All the descendants that matches the given qualified name, as a sequence
+     * @param qnames Qualified names of the descendants to filter
+     * @return All the descendants that matches the given qualified names, as a sequence, in order of match
      */
-    BXML descendants(String qname);
+    BXML descendants(List<String> qnames);
 
     /**
      * Get an item from the XML sequence, at the given index.

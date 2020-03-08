@@ -150,6 +150,35 @@ function testIndexOf() returns [int?, int?] {
     return [i1, i2];
 }
 
+function testLastIndexOf() {
+    anydata[] array = [10, 10, 10, "foo", "foo", "foo", 12.34, 12.34, true, true, <map<string>>{"k":"Bar"},
+                       <map<string>>{"k":"Bar"}, [12, true], [12, true]];
+    map<string> m1 = {"k":"Bar"};
+    map<string> m2 = {"k":"Foo"};
+    anydata[] arr1 = [12, true];
+    anydata[] arr2 = [12, false];
+
+    int? i1 = array.lastIndexOf(10);
+    int? i2 = array.lastIndexOf("foo");
+    int? i3 = array.lastIndexOf(12.34);
+    int? i4 = array.lastIndexOf(true);
+    int? i5 = array.lastIndexOf(m1);
+    int? i6 = array.lastIndexOf(arr1);
+
+    int? i7 = array.lastIndexOf(11);
+    int? i8 = array.lastIndexOf("Bar");
+    int? i9 = array.lastIndexOf(12.33);
+    int? i10 = array.lastIndexOf(false);
+    int? i11 = array.lastIndexOf(m2);
+    int? i12 = array.lastIndexOf(arr2);
+
+    if (<int>i1 != 2 && <int>i2 != 5 && <int>i3 != 7 && <int>i4 != 9 && <int>i5 != 11 && <int>i6 != 13 &&
+                i7 != () && i8 != () && i9 != () && i10 != () && i11 != () && i12 != ()) {
+        error err = error("'lastIndexOf' does not return correct value");
+        panic err;
+    }
+}
+
 function testReverse() returns [int[], int[]] {
     int[] arr = [10, 20, 30, 40, 50];
     return [arr, arr.reverse()];

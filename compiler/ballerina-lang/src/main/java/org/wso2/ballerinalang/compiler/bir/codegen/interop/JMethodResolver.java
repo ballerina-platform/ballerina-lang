@@ -222,7 +222,8 @@ class JMethodResolver {
             throw new JInteropException(DiagnosticCode.METHOD_SIGNATURE_DOES_NOT_MATCH,
                     "Incompatible return type for method '" + jMethodRequest.methodName + "' in class '" +
                             jMethodRequest.declaringClass.getName() + "': Java type '" + jReturnType.getName() +
-                            "' will not be matched to ballerina type '" + bReturnType + "'");
+                            "' will not be matched to ballerina type '" +
+                            (bReturnType.tag == TypeTags.FINITE ? bReturnType.tsymbol.name.value : bReturnType) + "'");
         }
     }
 
@@ -467,7 +468,7 @@ class JMethodResolver {
         return new BType[]{
                 this.symbolTable.nilType, this.symbolTable.stringType, this.symbolTable.intType,
                 this.symbolTable.floatType, this.symbolTable.booleanType, this.symbolTable.mapJsonType,
-                this.symbolTable.jsonArrayType};
+                this.symbolTable.arrayJsonType};
     }
 
     private JMethod resolveExactMethod(Class<?> clazz, String name, JMethodKind kind,
@@ -662,7 +663,8 @@ class JMethodResolver {
                                                    Class<?> declaringClass) {
         return new JInteropException(DiagnosticCode.METHOD_SIGNATURE_DOES_NOT_MATCH,
                 "Incompatible param type for method '" + methodName + "' in class '" + declaringClass.getName() +
-                        "': Java type '" + jType.getName() + "' will not be matched to ballerina type '" + bType + "'");
+                        "': Java type '" + jType.getName() + "' will not be matched to ballerina type '" +
+                        (bType.tag == TypeTags.FINITE ? bType.tsymbol.name.value : bType) + "'");
     }
 
     private JInteropException getParamCountMismatchError(JMethodRequest jMethodRequest) {
