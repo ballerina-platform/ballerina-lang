@@ -1080,7 +1080,7 @@ public class JvmCastGen {
 
     static void generateCast(MethodVisitor mv, BType sourceType, BType targetType, boolean useBString /* = false */) {
 
-        if (targetType.tag == TypeTags.INT) {
+        if (TypeTags.isIntegerTypeTag(targetType.tag)) {
             generateCastToInt(mv, sourceType);
             return;
         } else if (targetType.tag == TypeTags.FLOAT) {

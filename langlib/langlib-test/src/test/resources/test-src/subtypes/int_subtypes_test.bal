@@ -180,14 +180,14 @@ function testTypeCastingWith32() {
     anydata ada3 = a3;
     any aa3 = a3;
 
-    assertNotError(<ints:Signed32> ia1);
-    assertNotError(<ints:Signed32> ja1);
-    assertNotError(<ints:Signed32> ada1);
-    assertNotError(<ints:Signed32> aa1);
-    assertNotError(<ints:Unsigned32> ia3);
-    assertNotError(<ints:Unsigned32> ja3);
-    assertNotError(<ints:Unsigned32> ada3);
-    assertNotError(<ints:Unsigned32> aa3);
+    assertNotError(trap <ints:Signed32> ia1);
+    assertNotError(trap <ints:Signed32> ja1);
+    assertNotError(trap <ints:Signed32> ada1);
+    assertNotError(trap <ints:Signed32> aa1);
+    assertNotError(trap <ints:Unsigned32> ia3);
+    assertNotError(trap <ints:Unsigned32> ja3);
+    assertNotError(trap <ints:Unsigned32> ada3);
+    assertNotError(trap <ints:Unsigned32> aa3);
 
     assertNotError(trap <ints:Unsigned32> a1);
     assertError(trap <ints:Unsigned32> a2);
@@ -227,14 +227,14 @@ function testTypeCastingWith16() {
     anydata adb3 = b3;
     any ab3 = b3;
 
-    assertNotError(<ints:Signed16> ib1);
-    assertNotError(<ints:Signed16> jb1);
-    assertNotError(<ints:Signed16> adb1);
-    assertNotError(<ints:Signed16> ab1);
-    assertNotError(<ints:Unsigned16> ib3);
-    assertNotError(<ints:Unsigned16> jb3);
-    assertNotError(<ints:Unsigned16> adb3);
-    assertNotError(<ints:Unsigned16> ab3);
+    assertNotError(trap <ints:Signed16> ib1);
+    assertNotError(trap <ints:Signed16> jb1);
+    assertNotError(trap <ints:Signed16> adb1);
+    assertNotError(trap <ints:Signed16> ab1);
+    assertNotError(trap <ints:Unsigned16> ib3);
+    assertNotError(trap <ints:Unsigned16> jb3);
+    assertNotError(trap <ints:Unsigned16> adb3);
+    assertNotError(trap <ints:Unsigned16> ab3);
 
     assertNotError(trap <ints:Unsigned16> b1);
     assertError(trap <ints:Unsigned16> b2);
@@ -256,8 +256,6 @@ function testTypeCastingWith8() {
     ints:Signed8 c2 = -128;
     ints:Unsigned8 c3 = 255;
     ints:Unsigned8 c4 = 0;
-    byte d1 = 255;
-    byte d2 = 0;
 
     int ic1 = c1;
     json jc1 = c1;
@@ -268,22 +266,130 @@ function testTypeCastingWith8() {
     anydata adc3 = c3;
     any ac3 = c3;
 
-    assertNotError(<ints:Signed8> ic1);
-    assertNotError(<ints:Signed8> jc1);
-    assertNotError(<ints:Signed8> adc1);
-    assertNotError(<ints:Signed8> ac1);
-    assertNotError(<ints:Unsigned8> ic3);
-    assertNotError(<ints:Unsigned8> jc3);
-    assertNotError(<ints:Unsigned8> adc3);
-    assertNotError(<ints:Unsigned8> ac3);
+    assertNotError(trap <ints:Signed8> ic1);
+    assertNotError(trap <ints:Signed8> jc1);
+    assertNotError(trap <ints:Signed8> adc1);
+    assertNotError(trap <ints:Signed8> ac1);
+    assertNotError(trap <ints:Unsigned8> ic3);
+    assertNotError(trap <ints:Unsigned8> jc3);
+    assertNotError(trap <ints:Unsigned8> adc3);
+    assertNotError(trap <ints:Unsigned8> ac3);
 
     assertNotError(trap <ints:Unsigned8> c1);
     assertError(trap <ints:Unsigned8> c2);
     assertError(trap <ints:Signed8> c3);
     assertNotError(trap <ints:Signed8> c4);
+
+    byte d1 = 255;
+    byte d2 = 0;
+    assertNotError(trap <ints:Unsigned8> d1);
+    assertNotError(trap <ints:Unsigned8> d2);
 }
 
-// Add test case for Array, Map, is fromFloat
+function testTypeCastingWithFloat() {
+
+    float f1 = 2147483648.1234;
+    float f2 = -2147483649.1234;
+    float f3 = 100.1;
+
+    assertError(trap <ints:Signed32> f1);
+    assertError(trap <ints:Signed32> f2);
+    assertNotError(trap <ints:Signed32> f3);
+
+    assertError(trap <ints:Signed16> f1);
+    assertError(trap <ints:Signed16> f2);
+    assertNotError(trap <ints:Signed16> f3);
+
+    assertError(trap <ints:Signed8> f1);
+    assertError(trap <ints:Signed8> f2);
+    assertNotError(trap <ints:Signed8> f3);
+
+    float f4 = 4294967500.2345;
+
+    assertNotError(trap <ints:Unsigned32> f1);
+    assertError(trap <ints:Unsigned32> f2);
+    assertNotError(trap <ints:Unsigned32> f3);
+    assertError(trap <ints:Unsigned32> f4);
+
+    assertError(trap <ints:Unsigned16> f1);
+    assertError(trap <ints:Unsigned16> f2);
+    assertNotError(trap <ints:Signed16> f3);
+
+    assertError(trap <ints:Unsigned8> f1);
+    assertError(trap <ints:Unsigned8> f2);
+    assertNotError(trap <ints:Signed8> f3);
+}
+
+function testTypeCastingWithDecimal() {
+
+    decimal d1 = 2147483648.1234;
+    decimal d2 = -2147483649.1234;
+    decimal d3 = 100.1;
+
+    assertError(trap <ints:Signed32> d1);
+    assertError(trap <ints:Signed32> d2);
+    assertNotError(trap <ints:Signed32> d3);
+
+    assertError(trap <ints:Signed16> d1);
+    assertError(trap <ints:Signed16> d2);
+    assertNotError(trap <ints:Signed16> d3);
+
+    assertError(trap <ints:Signed8> d1);
+    assertError(trap <ints:Signed8> d2);
+    assertNotError(trap <ints:Signed8> d3);
+
+    decimal d4 = 4294967500.2345;
+
+    assertNotError(trap <ints:Unsigned32> d1);
+    assertError(trap <ints:Unsigned32> d2);
+    assertNotError(trap <ints:Unsigned32> d3);
+    assertError(trap <ints:Unsigned32> d4);
+
+    assertError(trap <ints:Unsigned16> d1);
+    assertError(trap <ints:Unsigned16> d2);
+    assertNotError(trap <ints:Signed16> d3);
+
+    assertError(trap <ints:Unsigned8> d1);
+    assertError(trap <ints:Unsigned8> d2);
+    assertNotError(trap <ints:Signed8> d3);
+}
+
+function testTypeTest() {
+
+    // Testing int
+    int i1 = 2147483648;
+    int i2 = -2147483649;
+    int i3 = 100;
+
+    assertFalse(i1 is ints:Signed32);
+    assertFalse(i2 is ints:Signed32);
+    assertTrue(i3 is ints:Signed32);
+
+    assertFalse(i1 is ints:Signed16);
+    assertFalse(i2 is ints:Signed16);
+    assertTrue(i3 is ints:Signed16);
+
+    assertFalse(i1 is ints:Signed8);
+    assertFalse(i2 is ints:Signed8);
+    assertTrue(i3 is ints:Signed8);
+
+    int i4 = 4294967500;
+
+    assertTrue(i1 is ints:Unsigned32);
+    assertFalse(i2 is ints:Unsigned32);
+    assertTrue(i3 is ints:Unsigned32);
+    assertFalse(i4 is ints:Unsigned32);
+
+    assertFalse(i1 is ints:Unsigned16);
+    assertFalse(i2 is ints:Unsigned16);
+    assertTrue(i3 is ints:Signed16);
+
+    assertFalse(i1 is ints:Unsigned8);
+    assertFalse(i2 is ints:Unsigned8);
+    assertTrue(i3 is ints:Signed8);
+
+}
+
 
 // Test Functions
 
@@ -304,6 +410,20 @@ function assertError(anydata|error value) {
 function assertNotError(anydata|error value) {
     if (value is error) {
         error e = error("Not Error", message = "expected: Error, found: " + value.toString());
+        panic e;
+    }
+}
+
+function assertTrue(boolean value) {
+    if !(value) {
+        error e = error("Not True", message = "expected: true, found: " + value.toString());
+        panic e;
+    }
+}
+
+function assertFalse(boolean value) {
+    if (value) {
+        error e = error("Not False", message = "expected: false, found: " + value.toString());
         panic e;
     }
 }

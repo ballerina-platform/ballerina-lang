@@ -553,6 +553,12 @@ public class TypeChecker {
 
         switch (targetType.getTag()) {
             case TypeTags.BYTE_TAG:
+            case TypeTags.SIGNED32_INT_TAG:
+            case TypeTags.SIGNED16_INT_TAG:
+            case TypeTags.SIGNED8_INT_TAG:
+            case TypeTags.UNSIGNED32_INT_TAG:
+            case TypeTags.UNSIGNED16_INT_TAG:
+            case TypeTags.UNSIGNED8_INT_TAG:
             case TypeTags.FLOAT_TAG:
             case TypeTags.DECIMAL_TAG:
             case TypeTags.STRING_TAG:
@@ -565,8 +571,7 @@ public class TypeChecker {
                 return sourceType.getTag() == targetType.getTag();
             case TypeTags.INT_TAG:
                 if (sourceType.getTag() == TypeTags.FINITE_TYPE_TAG) {
-                    return ((BFiniteType) sourceType).valueSpace.stream()
-                            .allMatch(bValue -> checkIsType(bValue, targetType));
+                    return isFiniteTypeMatch((BFiniteType) sourceType, targetType);
                 }
                 return sourceType.getTag() == TypeTags.BYTE_TAG || sourceType.getTag() == TypeTags.INT_TAG;
             case TypeTags.ANY_TAG:
@@ -1058,8 +1063,8 @@ public class TypeChecker {
 
     private static boolean isMutable(Object value, BType sourceType) {
         // All the value types are immutable
-        if (value == null || sourceType.getTag() < TypeTags.JSON_TAG ||
-                sourceType.getTag() == TypeTags.FINITE_TYPE_TAG) {
+        if (value == null || sourceType.getTag() < TypeTags.JSON_TAG || TypeTags.isIntegerTypeTag(sourceType.getTag())
+                || sourceType.getTag() == TypeTags.FINITE_TYPE_TAG) {
             return false;
         }
 
@@ -1116,19 +1121,28 @@ public class TypeChecker {
                 if (TypeTags.isIntegerTypeTag(sourceType.getTag())) {
                     return isByteLiteral((Long) sourceValue);
                 }
-
                 return allowNumericConversion && TypeConverter.isConvertibleToByte(sourceValue);
             case TypeTags.INT_TAG:
                 return allowNumericConversion && TypeConverter.isConvertibleToInt(sourceValue);
+            case TypeTags.SIGNED32_INT_TAG:
+            case TypeTags.SIGNED16_INT_TAG:
+            case TypeTags.SIGNED8_INT_TAG:
+            case TypeTags.UNSIGNED32_INT_TAG:
+            case TypeTags.UNSIGNED16_INT_TAG:
+            case TypeTags.UNSIGNED8_INT_TAG:
+                if (TypeTags.isIntegerTypeTag(sourceType.getTag()) || targetType.getTag() == TypeTags.BYTE_TAG) {
+                    return TypeConverter.isConvertibleToIntSubType(sourceValue, targetType);
+                }
+                return allowNumericConversion && TypeConverter.isConvertibleToIntSubType(sourceValue, targetType);
             case TypeTags.FLOAT_TAG:
             case TypeTags.DECIMAL_TAG:
                 return allowNumericConversion && TypeConverter.isConvertibleToFloatingPointTypes(sourceValue);
             case TypeTags.RECORD_TYPE_TAG:
                 return checkIsLikeRecordType(sourceValue, (BRecordType) targetType, unresolvedValues,
-                                             allowNumericConversion);
+                        allowNumericConversion);
             case TypeTags.JSON_TAG:
                 return checkIsLikeJSONType(sourceValue, sourceType, (BJSONType) targetType, unresolvedValues,
-                                           allowNumericConversion);
+                        allowNumericConversion);
             case TypeTags.MAP_TAG:
                 return checkIsLikeMapType(sourceValue, (BMapType) targetType, unresolvedValues, allowNumericConversion);
             case TypeTags.TABLE_TAG:
