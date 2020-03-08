@@ -23,7 +23,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
 import org.wso2.ballerinalang.compiler.util.Names;
 
 /**
- * Represents Builtin Subtype of integer
+ * Represents Builtin Subtype of integer.
  *
  * @since 1.2.0
  */
