@@ -38,7 +38,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.compiler.util.Constants;
-import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
+import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLogHelper;
 
 import java.util.HashSet;
 import java.util.List;
@@ -46,6 +46,7 @@ import java.util.List;
 import static org.ballerinalang.compiler.CompilerOptionName.TOOLING_COMPILATION;
 import static org.ballerinalang.model.elements.PackageID.ANNOTATIONS;
 import static org.ballerinalang.model.elements.PackageID.ARRAY;
+import static org.ballerinalang.model.elements.PackageID.BOOLEAN;
 import static org.ballerinalang.model.elements.PackageID.DECIMAL;
 import static org.ballerinalang.model.elements.PackageID.ERROR;
 import static org.ballerinalang.model.elements.PackageID.FLOAT;
@@ -75,7 +76,7 @@ public class CompilerDriver {
             new CompilerContext.Key<>();
 
     private final CompilerOptions options;
-    private final BLangDiagnosticLog dlog;
+    private final BLangDiagnosticLogHelper dlog;
     private final PackageLoader pkgLoader;
     private final PackageCache pkgCache;
     private final SymbolTable symbolTable;
@@ -106,7 +107,7 @@ public class CompilerDriver {
         context.put(COMPILER_DRIVER_KEY, this);
 
         this.options = CompilerOptions.getInstance(context);
-        this.dlog = BLangDiagnosticLog.getInstance(context);
+        this.dlog = BLangDiagnosticLogHelper.getInstance(context);
         this.pkgLoader = PackageLoader.getInstance(context);
         this.pkgCache = PackageCache.getInstance(context);
         this.symbolTable = SymbolTable.getInstance(context);
@@ -152,6 +153,7 @@ public class CompilerDriver {
             symbolTable.langTypedescModuleSymbol = pkgLoader.loadPackageSymbol(TYPEDESC, null, null);
             symbolTable.langValueModuleSymbol = pkgLoader.loadPackageSymbol(VALUE, null, null);
             symbolTable.langXmlModuleSymbol = pkgLoader.loadPackageSymbol(XML, null, null);
+            symbolTable.langBooleanModuleSymbol = pkgLoader.loadPackageSymbol(BOOLEAN, null, null);
             return;
         }
 
@@ -253,11 +255,11 @@ public class CompilerDriver {
         }
 
         desugar(pkgNode);
-        if (this.stopCompilation(pkgNode, CompilerPhase.CODE_GEN)) {
+        if (this.stopCompilation(pkgNode, CompilerPhase.BIR_GEN)) {
             return;
         }
 
-        codegen(pkgNode);
+        birGen(pkgNode);
     }
 
     public BLangPackage define(BLangPackage pkgNode) {
@@ -296,7 +298,7 @@ public class CompilerDriver {
         return this.desugar.perform(pkgNode);
     }
 
-    public BLangPackage codegen(BLangPackage pkgNode) {
+    public BLangPackage birGen(BLangPackage pkgNode) {
         return this.birGenerator.genBIR(pkgNode);
     }
 
@@ -304,7 +306,7 @@ public class CompilerDriver {
         if (compilerPhase.compareTo(nextPhase) < 0) {
             return true;
         }
-        return (checkNextPhase(nextPhase) && dlog.errorCount > 0);
+        return (checkNextPhase(nextPhase) && dlog.getErrorCount() > 0);
     }
 
     private boolean checkNextPhase(CompilerPhase nextPhase) {
@@ -318,11 +320,11 @@ public class CompilerDriver {
 
         BLangPackage pkg = taintAnalyze(
                 documentationAnalyzer.analyze(codeAnalyze(semAnalyzer.analyze(pkgLoader.loadAndDefinePackage(modID)))));
-        if (dlog.errorCount > 0) {
+        if (dlog.getErrorCount() > 0) {
             return null;
         }
 
-        return codegen(desugar(pkg)).symbol;
+        return birGen(desugar(pkg)).symbol;
     }
 
 }

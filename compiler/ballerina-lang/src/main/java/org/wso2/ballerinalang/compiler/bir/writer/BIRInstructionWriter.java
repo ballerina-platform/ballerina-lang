@@ -473,7 +473,6 @@ public class BIRInstructionWriter extends BIRVisitor {
         buf.writeByte(newXMLElement.kind.getValue());
         newXMLElement.lhsOp.accept(this);
         newXMLElement.startTagOp.accept(this);
-        newXMLElement.endTagOp.accept(this);
         newXMLElement.defaultNsURIOp.accept(this);
     }
 

@@ -189,7 +189,7 @@ function testCopingComment() returns xml {
 
 function testForEach() returns xml {
     xml r = xmllib:concat();
-    foreach var x in catalog.* {
+    foreach var x in catalog/* {
         if (x is xml) {
             if (x.isElement()) {
                 r += x;
@@ -205,4 +205,31 @@ function testSlice() returns [xml, xml, xml] {
     xml elemM = xml `<elemM>content</elemM>`;
     xml elem = elemL + elemN + elemM;
     return [elem.slice(0, 2), elem.slice(1), xmllib:slice(elem, 1)];
+}
+
+function testXMLCycleError() returns [error|xml, error|xml] {
+     return [trap testXMLCycleErrorInner(), trap testXMLCycleInnerNonError()];
+}
+
+function testXMLCycleErrorInner() returns xml {
+    xml cat = catalog.clone();
+    cat.getChildren().strip()[0].setChildren(cat);
+    return cat;
+}
+
+function testXMLCycleInnerNonError() returns xml {
+    xml cat = catalog.clone();
+    var cds = cat.getChildren().strip();
+    cds[0].setChildren(cds[1]);
+    return cat;
+}
+
+function testXMLCycleDueToChildrenOfChildren() returns xml|error {
+    xml cat = catalog.clone();
+    xml subRoot = xml `<subRoot></subRoot>`;
+    subRoot.setChildren(cat);
+    var cds = cat.getChildren().strip();
+    error? er = trap cds[0].setChildren(subRoot);
+    check trap cds[0].setChildren(subRoot);
+    return cat;
 }

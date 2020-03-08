@@ -190,13 +190,68 @@ const x = "x";
 const y = "y";
 
 type someType [x, int];
-type anotherType [y, string, int];
+type anotherType [y, string, NoFillerObject];
 type oneMoreType [y, string];
 
 type someOtherType someType | anotherType | oneMoreType;
 
-function testAmbiguousTupleExpectedType() returns [any, any] {
-    someOtherType st = [y, "a", 1];
+function testTupleUnionExpectedType() {
+    someOtherType st = [y, "a", new(1)];
     someOtherType st1 = ["y", "str"];
-    return [st, st1];
+
+    assertEquality(true, st is anotherType);
+
+    anotherType val = <anotherType> st;
+    assertEquality(y, val[0]);
+    assertEquality("a", val[1]);
+    assertEquality(1, val[2].a);
+
+    assertEquality(true, st1 is oneMoreType);
+
+    oneMoreType val2 = <oneMoreType> st1;
+    assertEquality(y, val2[0]);
+    assertEquality("str", val2[1]);
+}
+
+type NoFillerObject object {
+    int a;
+
+    function __init(int arg) {
+        self.a = arg;
+    }
+};
+
+function testUnionRestDescriptor() {
+    [int, string|boolean...] x = [1, "hi", true];
+
+    assertEquality(3, x.length());
+    assertEquality(1, x[0]);
+    assertEquality("hi", x[1]);
+    assertEquality(true, x[2]);
+
+    x.push("after", false, "after2", true);
+
+    assertEquality(7, x.length());
+    assertEquality(1, x[0]);
+    assertEquality("hi", x[1]);
+    assertEquality(true, x[2]);
+    assertEquality("after", x[3]);
+    assertEquality(false, x[4]);
+    assertEquality("after2", x[5]);
+    assertEquality(true, x[6]);
+}
+
+const ASSERTION_ERROR_REASON = "AssertionError";
+
+function assertEquality(any|error expected, any|error actual) {
+    if expected is anydata && actual is anydata && expected == actual {
+        return;
+    }
+
+    if expected === actual {
+        return;
+    }
+
+    panic error(ASSERTION_ERROR_REASON,
+                message = "expected '" + expected.toString() + "', found '" + actual.toString () + "'");
 }

@@ -24,6 +24,11 @@ under the License.
     <!-- ballerina.test Related Test Cases. -->
     <test name="testerina-intg-tests" parallel="false">
         <parameter name="enableTesterinaTests" value="true" />
+        <groups>
+            <run>
+                <exclude name="brokenOnJBallerina"/>
+            </run>
+        </groups>
         <classes>
             <class name="org.ballerinalang.testerina.test.ProjectBasedIntegrationTest" />
             <class name="org.ballerinalang.testerina.test.negative.MissingFunctionsTestCase"/>

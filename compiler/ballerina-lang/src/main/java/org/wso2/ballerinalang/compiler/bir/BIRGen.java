@@ -49,6 +49,7 @@ import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator;
 import org.wso2.ballerinalang.compiler.bir.model.InstructionKind;
 import org.wso2.ballerinalang.compiler.bir.model.VarKind;
 import org.wso2.ballerinalang.compiler.bir.model.VarScope;
+import org.wso2.ballerinalang.compiler.bir.optimizer.BIROptimizer;
 import org.wso2.ballerinalang.compiler.bir.writer.BIRBinaryWriter;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
@@ -335,8 +336,8 @@ public class BIRGen extends BLangNodeVisitor {
                     names.fromString(DEFAULT_WORKER_NAME), 0, new TaintTable());
 
             if (funcSymbol.receiverSymbol != null) {
-                birFunc.receiver = new BIRVariableDcl(astTypeDefinition.pos, funcSymbol.receiverSymbol.type,
-                        funcSymbol.receiverSymbol.name, VarScope.FUNCTION, VarKind.SELF, null);
+                birFunc.receiver = getSelf(funcSymbol.receiverSymbol, funcSymbol.receiverSymbol.type,
+                        funcSymbol.receiverSymbol.name);
             }
 
             birFunc.setMarkdownDocAttachment(funcSymbol.markdownDocumentation);
@@ -351,6 +352,7 @@ public class BIRGen extends BLangNodeVisitor {
 
             birFunc.returnVariable = new BIRVariableDcl(astTypeDefinition.pos, funcSymbol.retType,
                     this.env.nextLocalVarId(names), VarScope.FUNCTION, VarKind.RETURN, null);
+            birFunc.localVars.add(0, birFunc.returnVariable);
 
             typeDef.attachedFuncs.add(birFunc);
         }
@@ -424,8 +426,7 @@ public class BIRGen extends BLangNodeVisitor {
         }
 
         if (astFunc.receiver != null) {
-            birFunc.receiver = new BIRVariableDcl(astFunc.pos, astFunc.receiver.type, astFunc.receiver.symbol.name,
-                    VarScope.FUNCTION, VarKind.SELF, null);
+            birFunc.receiver = getSelf(astFunc.receiver.symbol, astFunc.receiver.type, astFunc.receiver.symbol.name);
         }
 
         birFunc.setMarkdownDocAttachment(astFunc.symbol.markdownDocumentation);
@@ -460,6 +461,7 @@ public class BIRGen extends BLangNodeVisitor {
         // Special %0 location for storing return values
         birFunc.returnVariable = new BIRVariableDcl(astFunc.pos, astFunc.symbol.type.getReturnType(),
                 this.env.nextLocalVarId(names), VarScope.FUNCTION, VarKind.RETURN, null);
+        birFunc.localVars.add(0, birFunc.returnVariable);
 
         //add closure vars
         astFunc.paramClosureMap.forEach((k, v) -> addRequiredParam(birFunc, v, astFunc.pos));
@@ -502,6 +504,18 @@ public class BIRGen extends BLangNodeVisitor {
         // Rearrange error entries.
         birFunc.errorTable.sort(Comparator.comparingInt(o -> Integer.parseInt(o.trapBB.id.value.replace("bb", ""))));
         this.env.clear();
+    }
+
+    private BIRVariableDcl getSelf(BSymbol receiver, BType type, Name name) {
+        BIRVariableDcl self = this.env.symbolVarMap.get(receiver);
+        if (self == null) {
+             return new BIRVariableDcl(null, receiver.type, receiver.name,
+                                                  VarScope.FUNCTION, VarKind.SELF, null);
+        }
+        self.kind = VarKind.SELF;
+        self.name = new Name("%self");
+
+        return self;
     }
 
     @Override
@@ -777,6 +791,8 @@ public class BIRGen extends BLangNodeVisitor {
                 this.env.nextLocalVarId(names), VarScope.FUNCTION, VarKind.ARG,
                 paramSymbol.name.value, defaultValExpr != null);
 
+        birFunc.localVars.add(birVarDcl);
+
         List<BIRBasicBlock> bbsOfDefaultValueExpr = new ArrayList<>();
         if (defaultValExpr != null) {
             // Parameter has a default value expression.
@@ -805,6 +821,7 @@ public class BIRGen extends BLangNodeVisitor {
         BIRFunctionParameter birVarDcl = new BIRFunctionParameter(pos, paramSymbol.type,
                 this.env.nextLocalVarId(names), VarScope.FUNCTION, VarKind.ARG, paramSymbol.name.value, false);
         birFunc.parameters.put(birVarDcl, new ArrayList<>());
+        birFunc.localVars.add(birVarDcl);
 
         birFunc.restParam = new BIRParameter(pos, paramSymbol.name, paramSymbol.flags);
 
@@ -817,6 +834,7 @@ public class BIRGen extends BLangNodeVisitor {
         BIRFunctionParameter birVarDcl = new BIRFunctionParameter(pos, paramSymbol.type,
                 this.env.nextLocalVarId(names), VarScope.FUNCTION, VarKind.ARG, paramSymbol.name.value, false);
         birFunc.parameters.put(birVarDcl, new ArrayList<>());
+        birFunc.localVars.add(birVarDcl);
 
         BIRParameter parameter = new BIRParameter(pos, paramSymbol.name, paramSymbol.flags);
         birFunc.requiredParams.add(parameter);
@@ -1524,7 +1542,7 @@ public class BIRGen extends BLangNodeVisitor {
 
             BIRVariableDcl varDecl;
             if (isSelfVar(varSymbol)) {
-                varDecl = new BIRVariableDcl(varSymbol.type, varSymbol.name, VarScope.FUNCTION, VarKind.SELF);
+                varDecl = getSelf(varSymbol, varSymbol.type, varSymbol.name);
             } else {
                 varDecl = this.env.symbolVarMap.get(varSymbol);
             }
@@ -1728,23 +1746,12 @@ public class BIRGen extends BLangNodeVisitor {
         startTagName.accept(this);
         BIROperand startTagNameIndex = this.env.targetOperand;
 
-        // Create end tag name. If there is no end-tag name (self closing tag),
-        // then consider start tag name as the end tag name too.
-        BIROperand endTagNameIndex;
-        BLangExpression endTagName = (BLangExpression) xmlElementLiteral.getEndTagName();
-        if (endTagName == null) {
-            endTagNameIndex = startTagNameIndex;
-        } else {
-            endTagName.accept(this);
-            endTagNameIndex = this.env.targetOperand;
-        }
-
         // Create default namespace uri
         BIROperand defaultNsURIVarRef = generateNamespaceRef(xmlElementLiteral.defaultNsSymbol, xmlElementLiteral.pos);
 
         // Create xml element
         BIRNonTerminator.NewXMLElement newXMLElement = new BIRNonTerminator.NewXMLElement(xmlElementLiteral.pos,
-                toVarRef, startTagNameIndex, endTagNameIndex, defaultNsURIVarRef);
+                toVarRef, startTagNameIndex, defaultNsURIVarRef);
         emit(newXMLElement);
 
         // Populate the XML by adding namespace declarations, attributes and children
@@ -2091,7 +2098,7 @@ public class BIRGen extends BLangNodeVisitor {
 
         BLangArrayLiteral columnLiteral = new BLangArrayLiteral();
         columnLiteral.pos = tableLiteral.pos;
-        columnLiteral.type = symTable.stringArrayType;
+        columnLiteral.type = symTable.arrayStringType;
         columnLiteral.exprs = new ArrayList<>();
         tableLiteral.columns.forEach(col -> {
             BLangLiteral colLiteral = new BLangLiteral();
@@ -2105,7 +2112,7 @@ public class BIRGen extends BLangNodeVisitor {
 
         BLangArrayLiteral dataLiteral = new BLangArrayLiteral();
         dataLiteral.pos = tableLiteral.pos;
-        dataLiteral.type = symTable.anydataArrayType;
+        dataLiteral.type = symTable.arrayAnydataType;
         dataLiteral.exprs = new ArrayList<>(tableLiteral.tableDataRows);
         dataLiteral.accept(this);
         BIROperand dataOp = this.env.targetOperand;
@@ -2324,6 +2331,7 @@ public class BIRGen extends BLangNodeVisitor {
         return qnameVarRef;
     }
 
+    // todo: remove/move this, we no longer support xml access like this
     private void generateXMLAccess(BLangXMLAccessExpr xmlAccessExpr, BIROperand tempVarRef,
                                    BIROperand varRefRegIndex, BIROperand keyRegIndex) {
         this.env.targetOperand = tempVarRef;

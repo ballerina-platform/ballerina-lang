@@ -27,7 +27,7 @@ import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
  *
  * @since 0.971.0
  */
-public class BField implements Field {
+public class BField implements Field, NamedNode {
     public Name name;
     public BType type;
     public BVarSymbol symbol;

@@ -34,7 +34,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
-import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
+import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLogHelper;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -57,7 +57,7 @@ import java.util.stream.Collectors;
 public class GlobalVariableRefAnalyzer {
     private static final CompilerContext.Key<GlobalVariableRefAnalyzer> REF_ANALYZER_KEY = new CompilerContext.Key<>();
 
-    private final BLangDiagnosticLog dlog;
+    private final BLangDiagnosticLogHelper dlog;
     private BLangPackage pkgNode;
     private Map<BSymbol, Set<BSymbol>> globalNodeDependsOn;
     private final Map<BSymbol, NodeInfo> dependencyNodes;
@@ -76,7 +76,7 @@ public class GlobalVariableRefAnalyzer {
 
     private GlobalVariableRefAnalyzer(CompilerContext context) {
         context.put(REF_ANALYZER_KEY, this);
-        this.dlog = BLangDiagnosticLog.getInstance(context);
+        this.dlog = BLangDiagnosticLogHelper.getInstance(context);
 
         this.dependencyNodes = new HashMap<>();
         this.cycles = new ArrayList<>();

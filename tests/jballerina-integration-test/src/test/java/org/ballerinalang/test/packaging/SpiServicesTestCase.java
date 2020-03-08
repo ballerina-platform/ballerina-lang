@@ -61,7 +61,7 @@ public class SpiServicesTestCase extends BaseTest {
      *
      * @throws BallerinaTestException When running commands.
      */
-    @Test(description = "Test spi service are merged")
+    @Test(description = "Test spi service are merged", groups = "brokenOnJBallerina")
     public void testSpiServicesMerge() throws BallerinaTestException, IOException {
         testProjectPath = Paths.get("src", "test", "resources", "packaging", "spi", "TestProject")
                 .toAbsolutePath();
