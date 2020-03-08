@@ -122,6 +122,8 @@ public class BallerinaMetricsObserver implements BallerinaObserver {
             getInprogressGauge(connectorName, mainTagSet).decrement();
             metricRegistry.gauge(new MetricId(connectorName + "_response_time_seconds", "Response Time",
                     allTags), responseTimeStatisticConfigs).setValue(duration / 1E9);
+            metricRegistry.counter(new MetricId(connectorName + "_response_time_nanoseconds",
+                    "Response Time Total Count", allTags)).increment(duration);
             metricRegistry.counter(new MetricId(connectorName + "_requests_total",
                     "Total number of requests", allTags)).increment();
             // Check HTTP status code
