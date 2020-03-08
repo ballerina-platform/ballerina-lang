@@ -52,6 +52,7 @@ import org.ballerinalang.model.tree.types.TypeNode;
 import org.ballerinalang.openapi.utils.GeneratorConstants;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.VersionedTextDocumentIdentifier;
+import org.wso2.ballerinalang.compiler.SourceDirectoryManager;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
@@ -83,6 +84,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangUnionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.nio.file.Files;
@@ -437,6 +439,30 @@ public class CreateBallerinaServiceResourceMethodExecutor implements LSCommandEx
             }
 
             if (contractURI != null) {
+                String separator = File.separator;
+                SourceDirectoryManager sourceDirectoryManager = SourceDirectoryManager.getInstance(
+                        context.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY));
+                String sourceDir = sourceDirectoryManager.getSourceDirectory().getPath().toString();
+                String filePath = serviceNode.getPosition().getSource().getPackageName() + separator +
+                        serviceNode.getPosition().getSource().getCompilationUnitName().replaceAll(
+                                "\\w*\\.bal", "");
+                String projectDir = filePath.contains(sourceDir) ? sourceDir :
+                        (sourceDir + separator + "src" + separator + filePath);
+
+                File file = null;
+                if (contractURI.contains(projectDir)) {
+                    file = new File(contractURI);
+                } else {
+                    try {
+                        file = new File(Paths.get(projectDir, contractURI).toRealPath().toString());
+                    } catch (IOException e) {
+                        contractURI = Paths.get(contractURI).toString();
+                    }
+                }
+                if (file != null && file.exists()) {
+                    contractURI = file.getAbsolutePath();
+                }
+
                 OpenAPI openAPI = parseOpenAPIFile(contractURI);
                 Path ballerinaPath = Paths.get(documentManager.getAllFilePaths().toArray()[0].toString());
                 String balSource = readFromFile(ballerinaPath);
