@@ -96,3 +96,22 @@ service PizzaService on new http:Listener(9997) {
 #
 # + testConstd - abc description
 final string testConsts = "TestConstantDocumentation";
+
+# Docs for this record.
+# + abc - the field documented at object level. Known type `Bar`, unknown type `Baz`.
+public type Foo object {
+
+    # The field re-documented at field level.
+    # Known type `Bar`, unknown type `Baz`.
+    public string abc = "str";
+
+    // The undocumented field.
+    public int def = 1;
+
+    # The field documented at field level.
+    # Known type `Bar`, unknown type `Baz`.
+    string ghi = "str2";
+};
+
+type Bar record {
+};

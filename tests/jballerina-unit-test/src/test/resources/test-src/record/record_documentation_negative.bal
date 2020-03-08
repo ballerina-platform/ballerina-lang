@@ -91,3 +91,23 @@ service PizzaService on new http:MockListener(9090) {
         checkpanic conn->respond(res);
     }
 }
+
+# Docs for this record.
+# + abc - the field documented at record level. Known type `Bar`, unknown type `Baz`.
+public type Foo record {
+
+    # The field re-documented at field level.
+    # Known type `Bar`, unknown type `Baz`.
+    string abc;
+
+    // The undocumented field.
+    int def;
+
+    # The field documented at field level.
+    # Known type `Bar`, unknown type `Baz`.
+    string ghi;
+};
+
+type Bar record {
+};
+
