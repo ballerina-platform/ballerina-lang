@@ -127,6 +127,7 @@ public function 'map(stream<Type,ErrorType> stm, function(Type val) returns Type
     return internal:construct(internal:getReturnType(func), iteratorObj);
 }
 
+// Refer to issue https://github.com/ballerina-platform/ballerina-lang/issues/21527
 # Combines the members of a stream using a combining function.
 # The combining function takes the combined value so far and a member of the stream,
 # and returns a new combined value.
