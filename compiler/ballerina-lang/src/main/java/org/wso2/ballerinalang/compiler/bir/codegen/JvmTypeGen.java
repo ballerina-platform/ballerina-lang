@@ -958,10 +958,20 @@ class JvmTypeGen {
         String typeFieldName = "";
         if (bType == null || bType.tag == TypeTags.NIL) {
             typeFieldName = "typeNull";
-        } else if (TypeTags.isIntegerTypeTag(bType.tag)) {
+        } else if (bType.tag == TypeTags.INT) {
             typeFieldName = "typeInt";
         } else if (bType.tag == TypeTags.SIGNED32_INT) {
             typeFieldName = "typeIntSigned32";
+        } else if (bType.tag == TypeTags.SIGNED16_INT) {
+            typeFieldName = "typeIntSigned16";
+        } else if (bType.tag == TypeTags.SIGNED8_INT) {
+            typeFieldName = "typeIntSigned8";
+        } else if (bType.tag == TypeTags.UNSIGNED32_INT) {
+            typeFieldName = "typeIntUnsigned32";
+        } else if (bType.tag == TypeTags.UNSIGNED16_INT) {
+            typeFieldName = "typeIntUnsigned16";
+        } else if (bType.tag == TypeTags.UNSIGNED8_INT) {
+            typeFieldName = "typeIntUnsigned8";
         } else if (bType.tag == TypeTags.FLOAT) {
             typeFieldName = "typeFloat";
         } else if (bType.tag == TypeTags.STRING) {

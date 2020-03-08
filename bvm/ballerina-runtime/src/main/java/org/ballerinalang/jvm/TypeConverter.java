@@ -69,6 +69,12 @@ public class TypeConverter {
         BType inputType = TypeChecker.getType(inputValue);
         switch (targetType.getTag()) {
             case TypeTags.INT_TAG:
+            case TypeTags.SIGNED32_INT_TAG:
+            case TypeTags.SIGNED16_INT_TAG:
+            case TypeTags.SIGNED8_INT_TAG:
+            case TypeTags.UNSIGNED32_INT_TAG:
+            case TypeTags.UNSIGNED16_INT_TAG:
+            case TypeTags.UNSIGNED8_INT_TAG:
                 return anyToInt(inputValue, () ->
                         BallerinaErrors.createNumericConversionError(inputValue, BTypes.typeInt));
             case TypeTags.DECIMAL_TAG:
@@ -96,6 +102,12 @@ public class TypeConverter {
     public static Object castValues(BType targetType, Object inputValue) {
         switch (targetType.getTag()) {
             case TypeTags.INT_TAG:
+            case TypeTags.SIGNED32_INT_TAG:
+            case TypeTags.SIGNED16_INT_TAG:
+            case TypeTags.SIGNED8_INT_TAG:
+            case TypeTags.UNSIGNED32_INT_TAG:
+            case TypeTags.UNSIGNED16_INT_TAG:
+            case TypeTags.UNSIGNED8_INT_TAG:
                 return anyToIntCast(inputValue, () ->
                         BallerinaErrors.createTypeCastError(inputValue, BTypes.typeInt));
             case TypeTags.DECIMAL_TAG:
@@ -124,12 +136,6 @@ public class TypeConverter {
             case TypeTags.BYTE_TAG:
                 return true;
             case TypeTags.INT_TAG:
-            case TypeTags.SIGNED32_INT_TAG:
-            case TypeTags.SIGNED16_INT_TAG:
-            case TypeTags.SIGNED8_INT_TAG:
-            case TypeTags.UNSIGNED32_INT_TAG:
-            case TypeTags.UNSIGNED16_INT_TAG:
-            case TypeTags.UNSIGNED8_INT_TAG:
                 return TypeChecker.isByteLiteral((long) value);
             case TypeTags.FLOAT_TAG:
                 Double doubleValue = (Double) value;
@@ -146,12 +152,6 @@ public class TypeConverter {
         BType inputType = TypeChecker.getType(value);
         switch (inputType.getTag()) {
             case TypeTags.BYTE_TAG:
-            case TypeTags.SIGNED32_INT_TAG:
-            case TypeTags.SIGNED16_INT_TAG:
-            case TypeTags.SIGNED8_INT_TAG:
-            case TypeTags.UNSIGNED32_INT_TAG:
-            case TypeTags.UNSIGNED16_INT_TAG:
-            case TypeTags.UNSIGNED8_INT_TAG:
             case TypeTags.INT_TAG:
                 return true;
             case TypeTags.FLOAT_TAG:
@@ -163,16 +163,50 @@ public class TypeConverter {
         }
     }
 
+    static boolean isConvertibleToIntSubType(Object value, BType targetType) {
+        BType inputType = TypeChecker.getType(value);
+        long val;
+        switch (inputType.getTag()) {
+            case TypeTags.BYTE_TAG:
+            case TypeTags.INT_TAG:
+                val = ((Number) value).longValue();
+                break;
+            case TypeTags.FLOAT_TAG:
+                if (!isFloatWithinIntRange((Double) value)) {
+                    return false;
+                }
+                val = floatToInt((Double) value);
+                break;
+            case TypeTags.DECIMAL_TAG:
+                if (!isDecimalWithinIntRange((BigDecimal) value)) {
+                    return false;
+                }
+                val = ((BigDecimal) value).intValue();
+                break;
+            default:
+                return false;
+        }
+        switch (targetType.getTag()) {
+            case TypeTags.SIGNED32_INT_TAG:
+                return TypeChecker.isSigned32LiteralValue(val);
+            case TypeTags.SIGNED16_INT_TAG:
+                return TypeChecker.isSigned16LiteralValue(val);
+            case TypeTags.SIGNED8_INT_TAG:
+                return TypeChecker.isSigned8LiteralValue(val);
+            case TypeTags.UNSIGNED32_INT_TAG:
+                return TypeChecker.isUnsigned32LiteralValue(val);
+            case TypeTags.UNSIGNED16_INT_TAG:
+                return TypeChecker.isUnsigned16LiteralValue(val);
+            case TypeTags.UNSIGNED8_INT_TAG:
+                return TypeChecker.isUnsigned8LiteralValue(val);
+        }
+        return false;
+    }
+
     static boolean isConvertibleToFloatingPointTypes(Object value) {
         BType inputType = TypeChecker.getType(value);
         switch (inputType.getTag()) {
             case TypeTags.BYTE_TAG:
-            case TypeTags.SIGNED32_INT_TAG:
-            case TypeTags.SIGNED16_INT_TAG:
-            case TypeTags.SIGNED8_INT_TAG:
-            case TypeTags.UNSIGNED32_INT_TAG:
-            case TypeTags.UNSIGNED16_INT_TAG:
-            case TypeTags.UNSIGNED8_INT_TAG:
             case TypeTags.INT_TAG:
             case TypeTags.FLOAT_TAG:
             case TypeTags.DECIMAL_TAG:
