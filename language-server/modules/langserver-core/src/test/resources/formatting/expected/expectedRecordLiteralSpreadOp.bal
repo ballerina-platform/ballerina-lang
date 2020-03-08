@@ -4,7 +4,7 @@ type Foo record {|
     string s;
     int i;
     float f;
-    boolean | float...;
+    boolean|float...;
 |};
 
 type Bar record {|
@@ -14,7 +14,7 @@ type Bar record {|
 
 public function main() {
     map<float> m1 = {q: 1.0, w: 2.0};
-    map<boolean | float> m2 = {
+    map<boolean|float> m2 = {
         a: true,
         ...m1
     };    // spreads `m1`
@@ -24,7 +24,7 @@ public function main() {
         io:println("key: ", k, ", value: ", v);
     }
 
-    function () returns map<boolean | float> func = () => m2;
+    function () returns map<boolean|float> func = () => m2;
     Bar b = {s: "str", i: 1};
     Foo f = {...b, f: 123.4, ...func()};    // spreads `b` and `m2` returned by `func`
 
