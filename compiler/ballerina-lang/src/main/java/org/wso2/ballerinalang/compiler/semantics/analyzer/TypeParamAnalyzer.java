@@ -49,7 +49,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
-import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
+import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLogHelper;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
@@ -82,7 +82,7 @@ public class TypeParamAnalyzer {
     private SymbolTable symTable;
     private Types types;
     private Names names;
-    private BLangDiagnosticLog dlog;
+    private BLangDiagnosticLogHelper dlog;
 
     public static TypeParamAnalyzer getInstance(CompilerContext context) {
 
@@ -101,7 +101,7 @@ public class TypeParamAnalyzer {
         this.symTable = SymbolTable.getInstance(context);
         this.types = Types.getInstance(context);
         this.names = Names.getInstance(context);
-        this.dlog = BLangDiagnosticLog.getInstance(context);
+        this.dlog = BLangDiagnosticLogHelper.getInstance(context);
     }
 
     static boolean isTypeParam(BType expType) {
