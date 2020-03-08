@@ -960,6 +960,8 @@ class JvmTypeGen {
             typeFieldName = "typeNull";
         } else if (TypeTags.isIntegerTypeTag(bType.tag)) {
             typeFieldName = "typeInt";
+        } else if (bType.tag == TypeTags.SIGNED32_INT) {
+            typeFieldName = "typeIntSigned32";
         } else if (bType.tag == TypeTags.FLOAT) {
             typeFieldName = "typeFloat";
         } else if (bType.tag == TypeTags.STRING) {

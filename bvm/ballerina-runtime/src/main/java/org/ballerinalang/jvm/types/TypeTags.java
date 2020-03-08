@@ -61,4 +61,29 @@ public class TypeTags {
     public static final int FUNCTION_POINTER_TAG = BYTE_ARRAY_TAG + 1;
     public static final int CHANNEL_TAG = FUNCTION_POINTER_TAG + 1;
     public static final int HANDLE_TAG = FUNCTION_POINTER_TAG + 1;
+
+    // Subtypes
+    public static final int SIGNED32_INT_TAG = HANDLE_TAG + 1;
+    public static final int SIGNED16_INT_TAG = SIGNED32_INT_TAG + 1;
+    public static final int SIGNED8_INT_TAG = SIGNED16_INT_TAG + 1;
+    public static final int UNSIGNED32_INT_TAG = SIGNED8_INT_TAG + 1;
+    public static final int UNSIGNED16_INT_TAG = UNSIGNED32_INT_TAG + 1;
+    public static final int UNSIGNED8_INT_TAG = UNSIGNED16_INT_TAG + 1;
+    public static final int CHAR_STRING_TAG = UNSIGNED8_INT_TAG + 1;
+
+    public static boolean isIntegerTypeTag(int tag) {
+
+        // TODO : Fix byte type. Ideally, byte belongs to here. But we have modeled it differently.
+        switch (tag) {
+            case INT_TAG:
+            case SIGNED32_INT_TAG:
+            case SIGNED16_INT_TAG:
+            case SIGNED8_INT_TAG:
+            case UNSIGNED32_INT_TAG:
+            case UNSIGNED16_INT_TAG:
+            case UNSIGNED8_INT_TAG:
+                return true;
+        }
+        return false;
+    }
 }

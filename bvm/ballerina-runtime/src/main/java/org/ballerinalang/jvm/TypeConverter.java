@@ -44,8 +44,12 @@ import java.util.Map;
 import java.util.function.Supplier;
 
 import static org.ballerinalang.jvm.TypeChecker.checkIsLikeType;
-import static org.ballerinalang.jvm.util.BLangConstants.BBYTE_MAX_VALUE;
-import static org.ballerinalang.jvm.util.BLangConstants.BBYTE_MIN_VALUE;
+import static org.ballerinalang.jvm.TypeChecker.isSigned16LiteralValue;
+import static org.ballerinalang.jvm.TypeChecker.isSigned32LiteralValue;
+import static org.ballerinalang.jvm.TypeChecker.isSigned8LiteralValue;
+import static org.ballerinalang.jvm.TypeChecker.isUnsigned16LiteralValue;
+import static org.ballerinalang.jvm.TypeChecker.isUnsigned32LiteralValue;
+import static org.ballerinalang.jvm.TypeChecker.isUnsigned8LiteralValue;
 import static org.ballerinalang.jvm.util.BLangConstants.BINT_MAX_VALUE_DOUBLE_RANGE_MAX;
 import static org.ballerinalang.jvm.util.BLangConstants.BINT_MIN_VALUE_DOUBLE_RANGE_MIN;
 import static org.ballerinalang.jvm.values.DecimalValue.isDecimalWithinIntRange;
@@ -120,12 +124,19 @@ public class TypeConverter {
             case TypeTags.BYTE_TAG:
                 return true;
             case TypeTags.INT_TAG:
-                return isByteLiteral((long) value);
+            case TypeTags.SIGNED32_INT_TAG:
+            case TypeTags.SIGNED16_INT_TAG:
+            case TypeTags.SIGNED8_INT_TAG:
+            case TypeTags.UNSIGNED32_INT_TAG:
+            case TypeTags.UNSIGNED16_INT_TAG:
+            case TypeTags.UNSIGNED8_INT_TAG:
+                return TypeChecker.isByteLiteral((long) value);
             case TypeTags.FLOAT_TAG:
                 Double doubleValue = (Double) value;
-                return isFloatWithinIntRange(doubleValue) && isByteLiteral(doubleValue.longValue());
+                return isFloatWithinIntRange(doubleValue) && TypeChecker.isByteLiteral(doubleValue.longValue());
             case TypeTags.DECIMAL_TAG:
-                return isDecimalWithinIntRange((BigDecimal) value) && isByteLiteral(((BigDecimal) value).longValue());
+                return isDecimalWithinIntRange((BigDecimal) value)
+                        && TypeChecker.isByteLiteral(((BigDecimal) value).longValue());
             default:
                 return false;
         }
@@ -135,6 +146,12 @@ public class TypeConverter {
         BType inputType = TypeChecker.getType(value);
         switch (inputType.getTag()) {
             case TypeTags.BYTE_TAG:
+            case TypeTags.SIGNED32_INT_TAG:
+            case TypeTags.SIGNED16_INT_TAG:
+            case TypeTags.SIGNED8_INT_TAG:
+            case TypeTags.UNSIGNED32_INT_TAG:
+            case TypeTags.UNSIGNED16_INT_TAG:
+            case TypeTags.UNSIGNED8_INT_TAG:
             case TypeTags.INT_TAG:
                 return true;
             case TypeTags.FLOAT_TAG:
@@ -150,6 +167,12 @@ public class TypeConverter {
         BType inputType = TypeChecker.getType(value);
         switch (inputType.getTag()) {
             case TypeTags.BYTE_TAG:
+            case TypeTags.SIGNED32_INT_TAG:
+            case TypeTags.SIGNED16_INT_TAG:
+            case TypeTags.SIGNED8_INT_TAG:
+            case TypeTags.UNSIGNED32_INT_TAG:
+            case TypeTags.UNSIGNED16_INT_TAG:
+            case TypeTags.UNSIGNED8_INT_TAG:
             case TypeTags.INT_TAG:
             case TypeTags.FLOAT_TAG:
             case TypeTags.DECIMAL_TAG:
@@ -284,6 +307,24 @@ public class TypeConverter {
         }
     }
 
+    static long anyToIntSubTypeCast(Object sourceVal, BType type, Supplier<ErrorValue> errorFunc) {
+        long value = anyToIntCast(sourceVal, errorFunc);
+        if (type == BTypes.typeIntSigned32 && isSigned32LiteralValue(value)) {
+            return value;
+        } else if (type == BTypes.typeIntSigned16 && isSigned16LiteralValue(value)) {
+            return value;
+        } else if (type == BTypes.typeIntSigned8 && isSigned8LiteralValue(value)) {
+            return value;
+        } else if (type == BTypes.typeIntUnsigned32 && isUnsigned32LiteralValue(value)) {
+            return value;
+        } else if (type == BTypes.typeIntUnsigned16 && isUnsigned16LiteralValue(value)) {
+            return value;
+        } else if (type == BTypes.typeIntUnsigned8 && isUnsigned8LiteralValue(value)) {
+            return value;
+        }
+        throw errorFunc.get();
+    }
+
     static double anyToFloat(Object sourceVal, Supplier<ErrorValue> errorFunc) {
         if (sourceVal instanceof Long) {
             return ((Long) sourceVal).doubleValue();
@@ -353,17 +394,83 @@ public class TypeConverter {
     }
 
     public static int intToByte(long sourceVal) {
-        if (!isByteLiteral(sourceVal)) {
+        if (!TypeChecker.isByteLiteral(sourceVal)) {
             throw BallerinaErrors.createNumericConversionError(sourceVal, BTypes.typeByte);
         }
         return ((Long) sourceVal).intValue();
+    }
+
+    public static long intToSigned32(long sourceVal) {
+        if (!TypeChecker.isSigned32LiteralValue(sourceVal)) {
+            throw BallerinaErrors.createNumericConversionError(sourceVal, BTypes.typeIntSigned32);
+        }
+        return sourceVal;
+    }
+
+    public static long intToSigned16(long sourceVal) {
+        if (!isSigned16LiteralValue(sourceVal)) {
+            throw BallerinaErrors.createNumericConversionError(sourceVal, BTypes.typeIntSigned16);
+        }
+        return sourceVal;
+    }
+
+    public static long intToSigned8(long sourceVal) {
+        if (!isSigned8LiteralValue(sourceVal)) {
+            throw BallerinaErrors.createNumericConversionError(sourceVal, BTypes.typeIntSigned8);
+        }
+        return sourceVal;
+    }
+
+    public static long intToUnsigned32(long sourceVal) {
+        if (!isUnsigned32LiteralValue(sourceVal)) {
+            throw BallerinaErrors.createNumericConversionError(sourceVal, BTypes.typeIntUnsigned32);
+        }
+        return sourceVal;
+    }
+
+    public static long intToUnsigned16(long sourceVal) {
+        if (!isUnsigned16LiteralValue(sourceVal)) {
+            throw BallerinaErrors.createNumericConversionError(sourceVal, BTypes.typeIntUnsigned16);
+        }
+        return sourceVal;
+    }
+
+    public static long intToUnsigned8(long sourceVal) {
+        if (!isUnsigned8LiteralValue(sourceVal)) {
+            throw BallerinaErrors.createNumericConversionError(sourceVal, BTypes.typeIntUnsigned8);
+        }
+        return sourceVal;
+    }
+
+    public static long floatToSigned32(double sourceVal) {
+        return intToSigned32(floatToInt(sourceVal));
+    }
+
+    public static long floatToSigned16(double sourceVal) {
+        return intToSigned16(floatToInt(sourceVal));
+    }
+
+    public static long floatToSigned8(double sourceVal) {
+        return intToSigned8(floatToInt(sourceVal));
+    }
+
+    public static long floatToUnsigned32(double sourceVal) {
+        return intToUnsigned32(floatToInt(sourceVal));
+    }
+
+    public static long floatToUnsigned16(double sourceVal) {
+        return intToUnsigned16(floatToInt(sourceVal));
+    }
+
+    public static long floatToUnsigned8(double sourceVal) {
+        return intToUnsigned8(floatToInt(sourceVal));
     }
 
     public static int floatToByte(double sourceVal) {
         checkIsValidFloat(sourceVal, BTypes.typeByte);
 
         long intVal = Math.round(sourceVal);
-        if (!isByteLiteral(intVal)) {
+        if (!TypeChecker.isByteLiteral(intVal)) {
             throw BallerinaErrors.createNumericConversionError(sourceVal, BTypes.typeByte);
         }
 
@@ -566,9 +673,6 @@ public class TypeConverter {
         return (long) Math.rint(sourceVal);
     }
 
-    private static boolean isByteLiteral(long longValue) {
-        return (longValue >= BBYTE_MIN_VALUE && longValue <= BBYTE_MAX_VALUE);
-    }
 
     private static boolean isFloatWithinIntRange(double doubleValue) {
         return doubleValue < BINT_MAX_VALUE_DOUBLE_RANGE_MAX && doubleValue > BINT_MIN_VALUE_DOUBLE_RANGE_MIN;
