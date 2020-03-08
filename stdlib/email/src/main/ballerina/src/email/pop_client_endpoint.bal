@@ -14,38 +14,51 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerinax/java;
+
 # Represents a POP Client, which interacts with a POP Server.
 public type PopClient client object {
 
     # Gets invoked during object initialization.
     #
+    # + host - Host of the POP Client
+    # + username - Username of the POP Client
+    # + password - Password of the POP Client
     # + clientConfig - Configurations for the POP Client
-    # + return - An `error` if failed while creating the client
-    public function __init(PopConfig clientConfig) returns error? {
-        return initPopClientEndpoint(self, clientConfig, true);
+    # + return - An `GetStoreError` if failed while creating the client
+    public function __init(@untainted string host, @untainted string username, @untainted string password,
+            PopConfig clientConfig = {}) returns GetStoreError? {
+        return initPopClientEndpoint(self, java:fromString(host), java:fromString(username),
+            java:fromString(password), clientConfig);
     }
 
     # Used to read a message.
     #
-    # + filter - Filter parameters to read an email
-    # + return - An `error` if failed to receive the message to the recipient
-    public remote function read(Filter filter = { folder: "INBOX" }) returns Email|error? {
-        return popRead(self, filter);
+    # + folder - Folder to read emails
+    # + return - An`Email` in success and `EmailReadError` if failed to receive the message to the recipient
+    public remote function read(string folder = DEFAULT_FOLDER) returns Email|EmailReadError? {
+        return popRead(self, java:fromString(folder));
     }
 
 };
 
+function initPopClientEndpoint(PopClient clientEndpoint, handle host, handle username, handle password,
+        PopConfig config) returns GetStoreError? = @java:Method {
+    name : "initPopClientEndpoint",
+    class : "org.ballerinalang.stdlib.email.client.EmailAccessClient"
+} external;
+
+function popRead(PopClient clientEndpoint, handle folder) returns Email|EmailReadError? = @java:Method {
+    name : "readMessage",
+    class : "org.ballerinalang.stdlib.email.client.EmailAccessClient"
+} external;
+
 # Configuration of the POP Endpoint.
 #
-# + host - Host address of the POP server
 # + port - Port number of the POP server
-# + ssl - SSL enable
-# + username - Username to access the POP server
-# + password - Password to access the POP server
+# + enableSsl - If set to true, use SSL to connect and use the SSL port by default.
+#   Defaults to true for the "pop3s" protocol and false for the "pop3" protocol.
 public type PopConfig record {|
-    string host;
     int port = 995;
-    boolean ssl = true;
-    string username;
-    string password;
+    boolean enableSsl = true;
 |};

@@ -14,36 +14,50 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerinax/java;
+
 # Represents an SMTP Client, which interacts with an SMTP Server.
 public type SmtpClient client object {
 
     # Gets invoked during object initialization.
     #
+    # + host - Host of the SMTP Client
+    # + username - Username of the SMTP Client
+    # + password - Password of the SMTP Client
     # + clientConfig - Configurations for SMTP Client
-    # + return - An `error` if failed while creating the client
-    public function __init(SmtpConfig clientConfig) returns error? {
-        return initSmtpClientEndpoint(self, clientConfig);
+    public function __init(@untainted string host, @untainted string username, @untainted string password,
+            SmtpConfig clientConfig = {}) {
+        return initSmtpClientEndpoint(self, java:fromString(host), java:fromString(username),
+            java:fromString(password), clientConfig);
     }
 
     # Send a message.
     #
     # + email - String message
-    # + return - An `error` if failed to send the message to the recipient
-    public remote function send(Email email) returns error? {
+    # + return - An `EmailSendError` if failed to send the message to the recipient
+    public remote function send(Email email) returns EmailSendError? {
         return send(self, email);
     }
 
 };
 
+function initSmtpClientEndpoint(SmtpClient clientEndpoint, handle host, handle username, handle password,
+        SmtpConfig config) = @java:Method {
+    name : "initClientEndpoint",
+    class : "org.ballerinalang.stdlib.email.client.SmtpClient"
+} external;
+
+function send(SmtpClient clientEndpoint, Email email) returns EmailSendError? = @java:Method {
+    name : "sendMessage",
+    class : "org.ballerinalang.stdlib.email.client.SmtpClient"
+} external;
+
 # Configuration of the SMTP Endpoint.
 #
-# + host - Host address of the SMTP server
 # + port - Port number of the SMTP server
-# + username - Username to access the SMTP server
-# + password - Password to access the SMTP server
+# + enableSsl - If set to true, use SSL to connect and use the SSL port by default.
+#   Defaults to true for the "smtps" protocol and false for the "smtp" protocol.
 public type SmtpConfig record {|
-    string host;
-    int port = 587;
-    string username;
-    string password;
+    int port = 465;
+    boolean enableSsl = true;
 |};

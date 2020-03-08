@@ -36,52 +36,28 @@ import javax.mail.internet.MimeMessage;
 /**
  * Contains the utility functions related to the SMTP protocol.
  *
- * @since 1.1.5
+ * @since 1.2.0
  */
 public class SmtpUtil {
 
     private static final Logger log = LoggerFactory.getLogger(SmtpUtil.class);
-    private static final int MAX_PORT = 65535;
 
     /**
      * Generates the Properties object using the passed MapValue.
      *
      * @param smtpConfig MapValue with the configuration values
-     * @return Properties object
+     * @param host Host address of the SMTP server
+     * @return Properties Set of properties required to connect to an SMTP server
      */
-    public static Properties getProperties(MapValue smtpConfig) {
+    public static Properties getProperties(MapValue smtpConfig, String host) {
         Properties properties = new Properties();
-        properties.put(SmtpConstants.PROPS_SMTP_HOST, smtpConfig.getStringValue(SmtpConstants.PROPS_HOST));
-        properties.put(SmtpConstants.PROPS_SMTP_PORT,
-                extractPortValue(smtpConfig.getIntValue(SmtpConstants.PROPS_PORT)));
-        properties.put(SmtpConstants.PROPS_SMTP_AUTH, "true");
-        properties.put(SmtpConstants.PROPS_SMTP_STARTTLS, "true"); //TLS
-        properties.put(SmtpConstants.PROPS_USERNAME, smtpConfig.getStringValue(SmtpConstants.PROPS_USERNAME));
-        properties.put(SmtpConstants.PROPS_PASSWORD, smtpConfig.getStringValue(SmtpConstants.PROPS_PASSWORD));
-        if (log.isDebugEnabled()) {
-            log.debug("[SmtpUtil][getProperties] Property object created. Returning Object to SMTPClient");
-        }
+        properties.put(EmailConstants.PROPS_SMTP_HOST, host);
+        properties.put(EmailConstants.PROPS_SMTP_PORT, Long.toString(
+                smtpConfig.getIntValue(EmailConstants.PROPS_PORT)));
+        properties.put(EmailConstants.PROPS_SMTP_AUTH, "true");
+        properties.put(EmailConstants.PROPS_SMTP_STARTTLS, "true");
+        properties.put(EmailConstants.PROPS_ENABLE_SSL, smtpConfig.getBooleanValue(EmailConstants.PROPS_SSL));
         return properties;
-    }
-
-
-    /**
-     * Extracts port value and checks validity.
-     *
-     * @param longValue Port value extracted from the Config
-     * @return Port value as a string
-     */
-    private static String extractPortValue(long longValue) {
-        if (log.isDebugEnabled()) {
-            log.debug("[SmtpUtil][extractPortValue] Extracting Port value");
-        }
-        if (longValue <= 0 || longValue > MAX_PORT) {
-            log.error("Invalid port number given in configuration. Setting default port "
-                    + SmtpConstants.DEFAULT_PORT_NUMBER);
-            return SmtpConstants.DEFAULT_PORT_NUMBER;
-        } else {
-            return Long.toString(longValue);
-        }
     }
 
     /**
@@ -90,40 +66,15 @@ public class SmtpUtil {
      * @param session Session to which the message is attached
      * @param username User who sends the email
      * @param message Ballerina-typed data object
-     * @return Email message as a MIME message
+     * @return MimeMessage Email message as a MIME message
      * @throws AddressException If an error occurs related to Internet Address operations
      */
-
     public static MimeMessage generateMessage(Session session, String username, MapValue message)
-            throws AddressException {
-        MimeMessage emailMessage = new MimeMessage(session);
-        String[] toAddress = getNullCheckedStringArray(message, EmailConstants.MESSAGE_TO);
-        String[] ccAddress = getNullCheckedStringArray(message, EmailConstants.MESSAGE_CC);
-        String[] bccAddress = getNullCheckedStringArray(message, EmailConstants.MESSAGE_BCC);
-        String[] replyToAddress = getNullCheckedStringArray(message, EmailConstants.MESSAGE_REPLY_TO);
-        int toAddressArrayLength = getNullArrayLengthChecked(toAddress);
-        int ccAddressArrayLength = getNullArrayLengthChecked(ccAddress);
-        int bccAddressArrayLength = getNullArrayLengthChecked(bccAddress);
-        int replyToAddressArrayLength = getNullArrayLengthChecked(replyToAddress);
-        Address[] toAddressArray = new Address[toAddressArrayLength];
-        Address[] ccAddressArray = new Address[ccAddressArrayLength];
-        Address[] bccAddressArray = new Address[bccAddressArrayLength];
-        Address[] replyToAddressArray = new Address[replyToAddressArrayLength];
-        for (int i = 0; i < toAddressArrayLength; i++) {
-            toAddressArray[i] = new InternetAddress(toAddress[i]);
-        }
-        for (int i = 0; i < ccAddressArrayLength; i++) {
-            ccAddressArray[i] = new InternetAddress(ccAddress[i]);
-        }
-        for (int i = 0; i < bccAddressArrayLength; i++) {
-            bccAddressArray[i] = new InternetAddress(bccAddress[i]);
-        }
-        for (int i = 0; i < replyToAddressArrayLength; i++) {
-            replyToAddressArray[i] = new InternetAddress(replyToAddress[i]);
-        }
-        if (log.isDebugEnabled()) {
-            log.debug("[SmtpUtil][generateMessage] Generated TO, CC and BCC Address Arrays.");
-        }
+            throws MessagingException {
+        Address[] toAddressArray = extractAddressLists(message, EmailConstants.MESSAGE_TO);
+        Address[] ccAddressArray = extractAddressLists(message, EmailConstants.MESSAGE_CC);
+        Address[] bccAddressArray = extractAddressLists(message, EmailConstants.MESSAGE_BCC);
+        Address[] replyToAddressArray = extractAddressLists(message, EmailConstants.MESSAGE_REPLY_TO);
         String subject = message.getStringValue(EmailConstants.MESSAGE_SUBJECT);
         String messageBody = message.getStringValue(EmailConstants.MESSAGE_MESSAGE_BODY);
         String fromAddress = message.getStringValue(EmailConstants.MESSAGE_FROM);
@@ -131,31 +82,34 @@ public class SmtpUtil {
             fromAddress = username;
         }
         String senderAddress = getNullCheckedString(message.getStringValue(EmailConstants.MESSAGE_SENDER));
-        if (log.isDebugEnabled()) {
-            log.debug("[SmtpUtil][generateMessage] Generating MimeMessage");
+        MimeMessage emailMessage = new MimeMessage(session);
+        emailMessage.setRecipients(Message.RecipientType.TO, toAddressArray);
+        if (ccAddressArray.length > 0) {
+            emailMessage.setRecipients(Message.RecipientType.CC, ccAddressArray);
         }
-
-        try {
-            emailMessage.setRecipients(Message.RecipientType.TO, toAddressArray);
-            if (ccAddressArrayLength > 0) {
-                emailMessage.setRecipients(Message.RecipientType.CC, ccAddressArray);
-            }
-            if (bccAddressArrayLength > 0) {
-                emailMessage.setRecipients(Message.RecipientType.BCC, bccAddressArray);
-            }
-            if (replyToAddressArrayLength > 0) {
-                emailMessage.setReplyTo(replyToAddressArray);
-            }
-            emailMessage.setSubject(subject);
-            emailMessage.setText(messageBody);
-            emailMessage.setFrom(new InternetAddress(fromAddress));
-            if (!senderAddress.isEmpty()) {
-                emailMessage.setSender(new InternetAddress(senderAddress));
-            }
-        } catch (MessagingException e) {
-            log.error("Failed to send message : ", e);
+        if (bccAddressArray.length > 0) {
+            emailMessage.setRecipients(Message.RecipientType.BCC, bccAddressArray);
+        }
+        if (replyToAddressArray.length > 0) {
+            emailMessage.setReplyTo(replyToAddressArray);
+        }
+        emailMessage.setSubject(subject);
+        emailMessage.setText(messageBody);
+        emailMessage.setFrom(new InternetAddress(fromAddress));
+        if (!senderAddress.isEmpty()) {
+            emailMessage.setSender(new InternetAddress(senderAddress));
         }
         return emailMessage;
+    }
+
+    private static Address[] extractAddressLists(MapValue message, String addressType) throws AddressException {
+        String[] address =  getNullCheckedStringArray(message, addressType);
+        int addressArrayLength = address.length;
+        Address[] addressArray = new Address[addressArrayLength];
+        for (int i = 0; i < addressArrayLength; i++) {
+            addressArray[i] = new InternetAddress(address[i]);
+        }
+        return addressArray;
     }
 
     private static String[] getNullCheckedStringArray(MapValue mapValue, String parameter) {
@@ -167,20 +121,8 @@ public class SmtpUtil {
         }
     }
 
-    private static int getNullArrayLengthChecked(String[] addresses) {
-        if (addresses == null) {
-            return 0;
-        } else {
-            return addresses.length;
-        }
-    }
-
     private static String getNullCheckedString(String string) {
-        if (string != null) {
-            return string;
-        } else {
-            return "";
-        }
+        return string == null ? "" : string;
     }
 
 }

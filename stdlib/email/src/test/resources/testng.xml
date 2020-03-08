@@ -25,10 +25,12 @@
     </listeners>
     <test name="ballerina-lang-test-suite" preserve-order="true" parallel="false">
         <classes>
-            <class name="org.ballerinalang.stdlib.email.SmtpSimpleEmailSendTest"/>
+            <class name="org.ballerinalang.stdlib.email.SmtpSimpleSecureEmailSendTest"/>
             <class name="org.ballerinalang.stdlib.email.SmtpComplexEmailSendTest"/>
-            <class name="org.ballerinalang.stdlib.email.PopSimpleEmailReceiveTest"/>
-            <class name="org.ballerinalang.stdlib.email.ImapSimpleEmailReceiveTest"/>
+            <class name="org.ballerinalang.stdlib.email.PopSimpleSecureEmailReceiveTest"/>
+            <class name="org.ballerinalang.stdlib.email.PopComplexEmailReceiveTest"/>
+            <class name="org.ballerinalang.stdlib.email.ImapSimpleSecureEmailReceiveTest"/>
+            <class name="org.ballerinalang.stdlib.email.ImapComplexEmailReceiveTest"/>
         </classes>
     </test>
 </suite>

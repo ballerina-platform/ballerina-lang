@@ -14,38 +14,51 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerinax/java;
+
 # Represents an IMAP Client, which interacts with an IMAP Server.
 public type ImapClient client object {
 
     # Gets invoked during object initialization.
     #
+    # + host - Host of the IMAP Client
+    # + username - Username of the IMAP Client
+    # + password - Password of the IMAP Client
     # + clientConfig - Configurations for the IMAP Client
-    # + return - An `error` if failed while creating the client
-    public function __init(ImapConfig clientConfig) returns error? {
-        return initImapClientEndpoint(self, clientConfig, false);
+    # + return - An `GetStoreError` if failed while creating the client
+    public function __init(@untainted string host, @untainted string username, @untainted string password,
+            ImapConfig clientConfig = {}) returns GetStoreError? {
+        return initImapClientEndpoint(self, java:fromString(host), java:fromString(username), java:fromString(password),
+            clientConfig);
     }
 
     # Reads a message.
     #
-    # + filter - Filter parameters to read an email
-    # + return - An `error` if failed to send the message to the recipient
-    public remote function read(Filter filter = { folder: "INBOX" }) returns Email|error? {
-        return imapRead(self, filter);
+    # + folder - Folder to read emails
+    # + return - An`Email` in success and `EmailReadError` if failed to receive the message to the recipient
+    public remote function read(string folder = DEFAULT_FOLDER) returns Email|EmailReadError? {
+        return imapRead(self, java:fromString(folder));
     }
 
 };
 
+function initImapClientEndpoint(ImapClient clientEndpoint, handle host, handle username, handle password,
+        ImapConfig config) returns GetStoreError? = @java:Method {
+    name : "initImapClientEndpoint",
+    class : "org.ballerinalang.stdlib.email.client.EmailAccessClient"
+} external;
+
+function imapRead(ImapClient clientEndpoint, handle folder) returns Email|EmailReadError? = @java:Method {
+    name : "readMessage",
+    class : "org.ballerinalang.stdlib.email.client.EmailAccessClient"
+} external;
+
 # Configuration of the IMAP Endpoint.
 #
-# + host - Host address of the IMAP server
 # + port - Port number of the IMAP server
-# + ssl - SSL enable
-# + username - Username to access the IMAP server
-# + password - Password to access the IMAP server
+# + enableSsl - If set to true, use SSL to connect and use the SSL port by default.
+#   Defaults to true for the "imaps" protocol and false for the "imap" protocol.
 public type ImapConfig record {|
-    string host;
-    int port = 143;
-    boolean ssl = true;
-    string username;
-    string password;
+    int port = 993;
+    boolean enableSsl = true;
 |};

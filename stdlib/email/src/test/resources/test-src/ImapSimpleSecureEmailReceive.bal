@@ -16,22 +16,16 @@
 
 import ballerina/email;
 
-
-email:PopConfig popConfig = {
-     host: "127.0.0.1",
-     port: 3110,
-     ssl: false,
-     username: "hascode",
-     password: "abcdef123"
+email:ImapConfig imapConfig = {
+     port: 3993,
+     enableSsl: true
  };
 
-function testReceiveSimpleEmail() returns email:Email|error? {
-    email:PopClient|error popClient = new (popConfig);
-    if (popClient is email:PopClient) {
-        return popClient->read();
+function testReceiveSimpleEmail(string host, string username, string password) returns email:Email|email:Error? {
+    email:ImapClient|email:Error imapClient = new (host, username, password, imapConfig);
+    if (imapClient is email:ImapClient) {
+        return imapClient->read();
     } else {
-        return popClient;
+        return imapClient;
     }
-
 }
-

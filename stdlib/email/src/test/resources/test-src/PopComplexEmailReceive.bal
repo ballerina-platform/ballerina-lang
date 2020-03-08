@@ -14,26 +14,18 @@
 // specific language governing permissions and limitations
 // under the License.
 
-# Email message sending and receiving configurations.
-#
-# + to - TO address list
-# + cc - CC address list
-# + bcc - BCC address list
-# + subject - Subject of email
-# + body - Body of the email message
-# + from - From address
-# + sender - Sender's address
-# + replyTo - Reply To addresses
-public type Email record {|
-    string[] to;
-    string[] cc?;
-    string[] bcc?;
-    string subject;
-    string body;
-    string 'from;
-    string sender?;
-    string[] replyTo?;
-|};
+import ballerina/email;
 
-# Default email folder to read emails.
-public const DEFAULT_FOLDER = "INBOX";
+email:PopConfig popConfig = {
+     port: 3110,
+     enableSsl: false
+ };
+
+function testReceiveComplexEmail(string host, string username, string password) returns email:Email|email:Error? {
+    email:PopClient|email:Error popClient = new (host, username, password, popConfig);
+    if (popClient is email:PopClient) {
+        return popClient->read();
+    } else {
+        return popClient;
+    }
+}

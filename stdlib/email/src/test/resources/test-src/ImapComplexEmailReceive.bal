@@ -16,22 +16,16 @@
 
 import ballerina/email;
 
-
 email:ImapConfig imapConfig = {
-     host: "127.0.0.1",
      port: 3143,
-     ssl: false,
-     username: "hascode",
-     password: "abcdef123"
+     enableSsl: false
  };
 
-function testReceiveSimpleEmail() returns email:Email|error? {
-    email:ImapClient|error imapClient = new (imapConfig);
+function testReceiveComplexEmail(string host, string username, string password) returns email:Email|email:Error? {
+    email:ImapClient|email:Error imapClient = new (host, username, password, imapConfig);
     if (imapClient is email:ImapClient) {
         return imapClient->read();
     } else {
         return imapClient;
     }
-
 }
-

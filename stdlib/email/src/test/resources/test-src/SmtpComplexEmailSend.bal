@@ -17,29 +17,27 @@
 import ballerina/email;
 
 email:SmtpConfig smtpConfig = {
-    host: "127.0.0.1",
     port: 3025,
-    username: "hascode",
-    password: "abcdef123"
+    enableSsl: false
 };
 
-function testSendComplexEmail() returns error? {
-    email:SmtpClient|error smtpClient = new (smtpConfig);
+function testSendComplexEmail(string host, string username, string password, string subject, string body,
+        string fromAddress, string sender, string[] toAddresses, string[] ccAddresses, string[] bccAddresses,
+        string[] replyToAddresses) returns email:Error? {
+    email:SmtpClient|email:Error smtpClient = new (host, username,  password, smtpConfig);
     email:Email email = {
-        to: ["hascode1@localhost", "hascode2@localhost"],
-        cc: ["hascode3@localhost", "hascode4@localhost"],
-        bcc: ["hascode5@localhost", "hascode6@localhost"],
-        subject: "Test E-Mail",
-        body: "This is a test e-mail.",
-        'from: "someone@localhost.com",
-        sender: "someone@localhost.com",
-        replyTo: ["abc@cde.com", "abc@cde.com"]
+        to: toAddresses,
+        cc: ccAddresses,
+        bcc: bccAddresses,
+        subject: subject,
+        body: body,
+        'from: fromAddress,
+        sender: sender,
+        replyTo: replyToAddresses
     };
     if (smtpClient is email:SmtpClient) {
         return smtpClient->send(email);
     } else {
         return smtpClient;
     }
-
 }
-
