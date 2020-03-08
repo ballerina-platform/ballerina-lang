@@ -60,9 +60,8 @@ public type Client client object {
     # + sqlQuery - SQL statement to execute
     # + parameters - The parameters to be passed to the update query
     # + returnGeneratedKeys - Indicate that generated keys should be made available for retrieval. If the value is
-    #                         set to true, auto-generated keys are made available to retrieve when the statement
-    #                         is executed. If the underline JDBC driver does not support it, still it will return
-    #                         an `Error`
+    #                         set to `true`, auto-generated keys are made available to retrieve when the statement
+    #                         is executed. If the underline JDBC driver does not support it, it will return an `Error`.
     # + return - `UpdateResult` with the updated row count and key column values,
     #             else `Error` will be returned if there is an error
     public remote function update(@untainted string sqlQuery, boolean returnGeneratedKeys, Param... parameters)
@@ -84,13 +83,12 @@ public type Client client object {
     #           the JDBC driver continues with the remaining commands, the successfully executed commands in the batch
     #           also will get rolled back
     # + returnGeneratedKeys - Indicate that generated keys should be made available for retrieval. If the value is
-    #                         set to true, auto-generated keys are made available to retrieve when the statement
-    #                         is executed. If the underline JDBC driver does not support it, still it will return
-    #                         an `Error`
+    #                         set to `true`, auto-generated keys are made available to retrieve when the statement
+    #                         is executed. If the underline JDBC driver does not support it, it will return an `Error`.
     # + return - A `BatchUpdateResult` with the updated row count and returned error if any. If all the commands
     #            in the batch have executed successfully, the error will be `nil`. If one or more commands have failed,
     #            the `returnedError` field will give the corresponding `Error` along with the int[] which
-    #            contains updated row count or the status returned from each command in the batch
+    #            contains updated row count or the status returned from each command in the batch.
     public remote function batchUpdate(@untainted string sqlQuery, boolean rollbackAllInFailure,
                                        boolean returnGeneratedKeys, Param?[]... parameters)
                                        returns BatchUpdateResult {

@@ -11,7 +11,7 @@ public function main() {
 
     // Create a table for data insertion.
     var ret = testDB->update("CREATE TABLE Data (id INT, field1 " +
-    "VARCHAR(1024), field2 VARCHAR(1024));");
+    "VARCHAR(1024), field2 VARCHAR(1024));", false);
     handleUpdate(ret, "Create Data table");
 
     // Create the stored procedure with row_count IN parameter.
@@ -31,7 +31,7 @@ public function main() {
                        "SET count = count + 1; " +
            "END WHILE; " +
            "SELECT strDataEntry; " +
-       "END");
+       "END", false);
     handleUpdate(ret, "Stored procedure with IN param creation");
 
     // Call stored procedure. This inserts around 200MB of textual data.

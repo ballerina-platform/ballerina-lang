@@ -144,7 +144,7 @@ function testCreateTable(string jdbcURL) returns [int, int] {
         poolOptions: {maximumPoolSize: 1}
     });
 
-    var result = testDB->update("CREATE TABLE TestCreateTable(studentID int, LastName varchar(255))");
+    var result = testDB->update("CREATE TABLE TestCreateTable(studentID int, LastName varchar(255))", false);
     int updatedRowCount = 0;
     int generatedKeysMapLength = 0;
     if (result is jdbc:UpdateResult) {
@@ -182,7 +182,7 @@ function testBasicInsertDataWithoutGeneratedKey(string jdbcURL) returns [int, in
         poolOptions: {maximumPoolSize: 1}
     });
 
-    var result = testDB->update("Insert into StringTypes (id, varchar_type) values (20, 'test')");
+    var result = testDB->update("Insert into StringTypes (id, varchar_type) values (20, 'test')", true);
     int insertCount = 0;
     int generatedKeyMapLength = -1;
     if (result is jdbc:UpdateResult) {
@@ -221,7 +221,7 @@ function testBasicInsertDataWithDatabaseError(string jdbcURL) returns [boolean, 
         poolOptions: {maximumPoolSize: 1}
     });
 
-    var result = testDB->update("Insert into NumericTypesNonExistTable (int_type) values (20)");
+    var result = testDB->update("Insert into NumericTypesNonExistTable (int_type) values (20)", true);
     int insertCount = -1;
     int generatedKey = -1;
     boolean errorOccured = false;
@@ -323,7 +323,7 @@ function testUpdateTableData(string jdbcURL) returns [int, int] {
     });
 
     int updateCount = 0;
-    var result = testDB->update("Update NumericTypes set int_type = 11 where int_type = 10");
+    var result = testDB->update("Update NumericTypes set int_type = 11 where int_type = 10", false);
     if (result is jdbc:UpdateResult) {
         updateCount = result.updatedRowCount;
     }
@@ -1285,6 +1285,23 @@ function testCloseConnectionPool(string jdbcURL) returns @tainted (int) {
     int count = getTableCountValColumn(dt);
     checkpanic testDB.stop();
     return count;
+}
+
+function testReturnGeneratedKeyError(string jdbcURL) returns int | error {
+    jdbc:Client testDB = new ({
+        url: jdbcURL,
+        username: jdbcUserName,
+        password: jdbcPassword,
+        poolOptions: {maximumPoolSize: 1}
+    });
+
+    var result = testDB->update("CREATE TABLE testReturnGeneratedKey(studentID int, LastName varchar(255))", true);
+    checkpanic testDB.stop();
+    if (result is jdbc:UpdateResult) {
+        return <int>result.generatedKeys.length();
+    } else {
+        return result;
+    }
 }
 
 function getTableCountValColumn(table<record {}> | error result) returns int {

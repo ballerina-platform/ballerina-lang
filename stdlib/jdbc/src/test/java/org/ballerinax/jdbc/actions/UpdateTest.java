@@ -364,6 +364,13 @@ public class UpdateTest {
         Assert.assertEquals(retValue.intValue(), 1);
     }
 
+    @Test(groups = UPDATE_TEST)
+    public void testReturnGeneratedKeyError() {
+        BValue[] returns = BRunUtil.invoke(result, "testReturnGeneratedKeyError", args);
+        Assert.assertEquals(returns[0].stringValue(), "{ballerinax/java.jdbc}ApplicationError {message:" +
+                "\"The returnGeneratedKeys only support INSERT, UPDATE, DELETE and MERGE operations.\"}");
+    }
+
     @AfterSuite
     public void cleanup() {
         if (testDatabase != null) {
