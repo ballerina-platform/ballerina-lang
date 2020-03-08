@@ -29,6 +29,7 @@ import org.ballerinalang.langserver.command.executors.ChangeAbstractTypeObjExecu
 import org.ballerinalang.langserver.command.executors.CreateFunctionExecutor;
 import org.ballerinalang.langserver.command.executors.CreateTestExecutor;
 import org.ballerinalang.langserver.command.executors.ImportModuleExecutor;
+import org.ballerinalang.langserver.command.executors.openAPI.openAPIToBallerina.CreateOpenApiServiceResourceExecutor;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.commons.command.CommandArgument;
 import org.ballerinalang.langserver.compiler.ExtendedLSCompiler;
@@ -302,6 +303,28 @@ public class CommandExecutionTest {
         Files.deleteIfExists(testFilePath);
     }
 
+
+    @Test(dataProvider = "create-openApi-resource-in-ballerina-data-provider")
+    public void testOpenApiCreateResourceInBallerina(String config, Path source) throws IOException {
+        LSContextManager.getInstance().clearAllContexts();
+        String configJsonPath = "command" + File.separator + config;
+        Path sourcePath = sourcesPath.resolve("source").resolve(source);
+        TestUtil.openDocument(serviceEndpoint, sourcePath);
+        JsonObject configJsonObject = FileUtils.fileContentAsObject(configJsonPath);
+        JsonObject expected = configJsonObject.get("expected").getAsJsonObject();
+        List<Object> args = new ArrayList<>();
+        JsonObject arguments = configJsonObject.get("arguments").getAsJsonObject();
+        args.add(new CommandArgument(CommandConstants.ARG_KEY_DOC_URI, sourcePath.toUri().toString()));
+        args.add(new CommandArgument(CommandConstants.ARG_KEY_NODE_LINE, arguments.get("node.line").getAsString()));
+        args.add(new CommandArgument(CommandConstants.ARG_KEY_NODE_COLUMN, arguments.get("node.column").getAsString()));
+        args.add(new CommandArgument(CommandConstants.ARG_KEY_PATH, arguments.get("resource.path").getAsString()));
+        JsonObject responseJson = getCommandResponse(args, CreateOpenApiServiceResourceExecutor.COMMAND);
+        responseJson.get("result").getAsJsonObject().get("edit").getAsJsonObject().getAsJsonArray("documentChanges")
+                .forEach(element -> element.getAsJsonObject().remove("textDocument"));
+        TestUtil.closeDocument(serviceEndpoint, sourcePath);
+        Assert.assertEquals(responseJson, expected, "Test Failed for: " + config);
+    }
+
     @DataProvider(name = "package-import-data-provider")
     public Object[][] addImportDataProvider() {
         log.info("Test workspace/executeCommand for command {}", ImportModuleExecutor.COMMAND);
@@ -378,6 +401,17 @@ public class CommandExecutionTest {
     public Object[][] testGenerationAppendDataProvider() {
         return new Object[][]{
                 {"testGenerationForServicesNegative.json", Paths.get("testgen", "module2", "services.bal")},
+        };
+    }
+
+    @DataProvider(name = "create-openApi-resource-in-ballerina-data-provider")
+    public Object[][] openApiCreateResourceInBallerinaDataProvider() {
+        log.info("Test workspace/executeCommand for command {}", CreateOpenApiServiceResourceExecutor.COMMAND);
+        return new Object[][]{
+                {"createApiCreateResourceInBallerina.json", Paths.get("openApi", "src", "module-giga",
+                                                                      "gigaclient.bal")},
+                {"createApiCreateResourceMethodInBallerina.json", Paths.get("openApi", "src", "module-giga",
+                                                                            "gigaclient.bal")},
         };
     }
 
