@@ -20,6 +20,7 @@ package org.ballerinalang.langlib.test;
 
 import org.ballerinalang.test.util.BAssertUtil;
 import org.ballerinalang.test.util.BCompileUtil;
+import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -47,12 +48,24 @@ public class LangLibSubTypeTest {
     private static final String EXPECT_UNSIGNED_8 = "incompatible types: expected 'int:Unsigned8',";
     private static final String EXPECT_BYTE = "incompatible types: expected 'byte',";
 
-    private CompileResult compileResult;
 
-    @BeforeClass
-    public void setup() {
+    @Test
+    public void testIntSubType() {
+        CompileResult compileResult = BCompileUtil.compile("test-src/subtypes/int_subtypes_test.bal");
+        BRunUtil.invoke(compileResult, "testValueAssignment");
+        BRunUtil.invoke(compileResult, "testSigned32Assignment");
+        BRunUtil.invoke(compileResult, "testSigned16Assignment");
+        BRunUtil.invoke(compileResult, "testSigned8Assignment");
+        BRunUtil.invoke(compileResult, "testUnsigned32Assignment");
+        BRunUtil.invoke(compileResult, "testUnsigned16Assignment");
+        BRunUtil.invoke(compileResult, "testUnsigned8Assignment");
+        BRunUtil.invoke(compileResult, "testTypeAlias");
+        BRunUtil.invoke(compileResult, "testMathsOperators");
+        BRunUtil.invoke(compileResult, "testTypeCastingWithInt");
+        BRunUtil.invoke(compileResult, "testTypeCastingWith32");
+        BRunUtil.invoke(compileResult, "testTypeCastingWith16");
+        BRunUtil.invoke(compileResult, "testTypeCastingWith8");
     }
-
 
     @Test
     public void testNegative() {

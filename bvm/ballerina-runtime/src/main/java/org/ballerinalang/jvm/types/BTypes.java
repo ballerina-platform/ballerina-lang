@@ -24,6 +24,9 @@ import org.ballerinalang.jvm.util.Flags;
 import java.util.Arrays;
 import java.util.HashMap;
 
+import static org.ballerinalang.jvm.util.BLangConstants.BALLERINA_BUILTIN_PKG_PREFIX;
+import static org.ballerinalang.jvm.util.BLangConstants.INT_LANG_LIB;
+
 /**
  * This class contains various methods manipulate {@link BType}s in Ballerina.
  *
@@ -31,6 +34,18 @@ import java.util.HashMap;
  */
 public class BTypes {
     public static BType typeInt = new BIntegerType(TypeConstants.INT_TNAME, new BPackage(null, null, null));
+    public static BType typeIntSigned32 = new BIntegerType(TypeConstants.SIGNED32,
+            new BPackage(BALLERINA_BUILTIN_PKG_PREFIX, INT_LANG_LIB, null));
+    public static BType typeIntSigned16 = new BIntegerType(TypeConstants.SIGNED16,
+            new BPackage(BALLERINA_BUILTIN_PKG_PREFIX, INT_LANG_LIB, null));
+    public static BType typeIntSigned8 = new BIntegerType(TypeConstants.SIGNED8,
+            new BPackage(BALLERINA_BUILTIN_PKG_PREFIX, INT_LANG_LIB, null));
+    public static BType typeIntUnsigned32 = new BIntegerType(TypeConstants.UNSIGNED32,
+            new BPackage(BALLERINA_BUILTIN_PKG_PREFIX, INT_LANG_LIB, null));
+    public static BType typeIntUnsigned16 = new BIntegerType(TypeConstants.UNSIGNED16,
+            new BPackage(BALLERINA_BUILTIN_PKG_PREFIX, INT_LANG_LIB, null));
+    public static BType typeIntUnsigned8 = new BIntegerType(TypeConstants.UNSIGNED8,
+            new BPackage(BALLERINA_BUILTIN_PKG_PREFIX, INT_LANG_LIB, null));
     public static BType typeByte = new BByteType(TypeConstants.BYTE_TNAME, new BPackage(null, null, null));
     public static BType typeFloat = new BFloatType(TypeConstants.FLOAT_TNAME, new BPackage(null, null, null));
     public static BType typeDecimal = new BDecimalType(TypeConstants.DECIMAL_TNAME, new BPackage(null, null, null));

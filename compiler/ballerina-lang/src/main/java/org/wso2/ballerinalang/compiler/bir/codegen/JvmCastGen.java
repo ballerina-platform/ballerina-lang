@@ -660,8 +660,26 @@ public class JvmCastGen {
     static void generateCheckCast(MethodVisitor mv, BType sourceType, BType targetType, BalToJVMIndexMap indexMap,
                                   boolean useBString) {
 
-        if (TypeTags.isIntegerTypeTag(targetType.tag)) {
+        if (targetType.tag == TypeTags.INT) {
             generateCheckCastToInt(mv, sourceType);
+            return;
+        } else if (targetType.tag == TypeTags.SIGNED32_INT) {
+            generateCheckCastToSigned32(mv, sourceType);
+            return;
+        } else if (targetType.tag == TypeTags.SIGNED16_INT) {
+            generateCheckCastToSigned16(mv, sourceType);
+            return;
+        } else if (targetType.tag == TypeTags.SIGNED8_INT) {
+            generateCheckCastToSigned8(mv, sourceType);
+            return;
+        } else if (targetType.tag == TypeTags.UNSIGNED32_INT) {
+            generateCheckCastToUnsigned32(mv, sourceType);
+            return;
+        } else if (targetType.tag == TypeTags.UNSIGNED16_INT) {
+            generateCheckCastToUnsigned16(mv, sourceType);
+            return;
+        } else if (targetType.tag == TypeTags.UNSIGNED8_INT) {
+            generateCheckCastToUnsigned8(mv, sourceType);
             return;
         } else if (targetType.tag == TypeTags.FLOAT) {
             generateCheckCastToFloat(mv, sourceType);
@@ -733,6 +751,145 @@ public class JvmCastGen {
             mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "anyToInt", String.format("(L%s;)J", OBJECT), false);
         } else {
             throw new BLangCompilerException(String.format("Casting is not supported from '%s' to 'int'", sourceType));
+        }
+    }
+
+    private static void generateCheckCastToSigned32(MethodVisitor mv, BType sourceType) {
+
+        if (TypeTags.isIntegerTypeTag(sourceType.tag)) {
+            mv.visitMethodInsn(INVOKESTATIC, TYPE_CONVERTER, "intToSigned32", "(J)J", false);
+        } else if (sourceType.tag == TypeTags.BYTE) {
+            mv.visitInsn(I2B);
+            mv.visitMethodInsn(INVOKESTATIC, "java/lang/Byte", "toUnsignedInt", "(B)I", false);
+            mv.visitInsn(I2L);
+        } else if (sourceType.tag == TypeTags.FLOAT) {
+            mv.visitMethodInsn(INVOKESTATIC, TYPE_CONVERTER, "floatToSigned32", "(D)J", false);
+        } else if (sourceType.tag == TypeTags.ANY ||
+                sourceType.tag == TypeTags.ANYDATA ||
+                sourceType.tag == TypeTags.UNION ||
+                sourceType.tag == TypeTags.DECIMAL ||
+                sourceType.tag == TypeTags.JSON ||
+                sourceType.tag == TypeTags.FINITE) {
+            mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "anyToSigned32", String.format("(L%s;)J", OBJECT), false);
+        } else {
+            throw new BLangCompilerException(String.format("Casting is not supported from '%s' to 'int:Signed32'",
+                    sourceType));
+        }
+    }
+
+    private static void generateCheckCastToSigned16(MethodVisitor mv, BType sourceType) {
+
+        if (TypeTags.isIntegerTypeTag(sourceType.tag)) {
+            mv.visitMethodInsn(INVOKESTATIC, TYPE_CONVERTER, "intToSigned16", "(J)J", false);
+        } else if (sourceType.tag == TypeTags.BYTE) {
+            mv.visitInsn(I2B);
+            mv.visitMethodInsn(INVOKESTATIC, "java/lang/Byte", "toUnsignedInt", "(B)I", false);
+            mv.visitInsn(I2L);
+        } else if (sourceType.tag == TypeTags.FLOAT) {
+            mv.visitMethodInsn(INVOKESTATIC, TYPE_CONVERTER, "floatToSigned16", "(D)J", false);
+        } else if (sourceType.tag == TypeTags.ANY ||
+                sourceType.tag == TypeTags.ANYDATA ||
+                sourceType.tag == TypeTags.UNION ||
+                sourceType.tag == TypeTags.DECIMAL ||
+                sourceType.tag == TypeTags.JSON ||
+                sourceType.tag == TypeTags.FINITE) {
+            mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "anyToSigned16", String.format("(L%s;)J", OBJECT), false);
+        } else {
+            throw new BLangCompilerException(String.format("Casting is not supported from '%s' to 'int:Signed16'",
+                    sourceType));
+        }
+    }
+
+    private static void generateCheckCastToSigned8(MethodVisitor mv, BType sourceType) {
+
+        if (TypeTags.isIntegerTypeTag(sourceType.tag)) {
+            mv.visitMethodInsn(INVOKESTATIC, TYPE_CONVERTER, "intToSigned8", "(J)J", false);
+        } else if (sourceType.tag == TypeTags.BYTE) {
+            mv.visitInsn(I2B);
+            mv.visitMethodInsn(INVOKESTATIC, "java/lang/Byte", "toUnsignedInt", "(B)I", false);
+            mv.visitInsn(I2L);
+            mv.visitMethodInsn(INVOKESTATIC, TYPE_CONVERTER, "intToSigned8", "(J)J", false);
+        } else if (sourceType.tag == TypeTags.FLOAT) {
+            mv.visitMethodInsn(INVOKESTATIC, TYPE_CONVERTER, "floatToSigned8", "(D)J", false);
+        } else if (sourceType.tag == TypeTags.ANY ||
+                sourceType.tag == TypeTags.ANYDATA ||
+                sourceType.tag == TypeTags.UNION ||
+                sourceType.tag == TypeTags.DECIMAL ||
+                sourceType.tag == TypeTags.JSON ||
+                sourceType.tag == TypeTags.FINITE) {
+            mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "anyToSigned8", String.format("(L%s;)J", OBJECT), false);
+        } else {
+            throw new BLangCompilerException(String.format("Casting is not supported from '%s' to 'int:Signed8'",
+                    sourceType));
+        }
+    }
+
+    private static void generateCheckCastToUnsigned32(MethodVisitor mv, BType sourceType) {
+
+        if (TypeTags.isIntegerTypeTag(sourceType.tag)) {
+            mv.visitMethodInsn(INVOKESTATIC, TYPE_CONVERTER, "intToUnsigned32", "(J)J", false);
+        } else if (sourceType.tag == TypeTags.BYTE) {
+            mv.visitInsn(I2B);
+            mv.visitMethodInsn(INVOKESTATIC, "java/lang/Byte", "toUnsignedInt", "(B)I", false);
+            mv.visitInsn(I2L);
+        } else if (sourceType.tag == TypeTags.FLOAT) {
+            mv.visitMethodInsn(INVOKESTATIC, TYPE_CONVERTER, "floatToUnsigned32", "(D)J", false);
+        } else if (sourceType.tag == TypeTags.ANY ||
+                sourceType.tag == TypeTags.ANYDATA ||
+                sourceType.tag == TypeTags.UNION ||
+                sourceType.tag == TypeTags.DECIMAL ||
+                sourceType.tag == TypeTags.JSON ||
+                sourceType.tag == TypeTags.FINITE) {
+            mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "anyToUnsigned32", String.format("(L%s;)J", OBJECT), false);
+        } else {
+            throw new BLangCompilerException(String.format("Casting is not supported from '%s' to 'int:Unsigned32'",
+                    sourceType));
+        }
+    }
+
+    private static void generateCheckCastToUnsigned16(MethodVisitor mv, BType sourceType) {
+
+        if (TypeTags.isIntegerTypeTag(sourceType.tag)) {
+            mv.visitMethodInsn(INVOKESTATIC, TYPE_CONVERTER, "intToUnsigned16", "(J)J", false);
+        } else if (sourceType.tag == TypeTags.BYTE) {
+            mv.visitInsn(I2B);
+            mv.visitMethodInsn(INVOKESTATIC, "java/lang/Byte", "toUnsignedInt", "(B)I", false);
+            mv.visitInsn(I2L);
+        } else if (sourceType.tag == TypeTags.FLOAT) {
+            mv.visitMethodInsn(INVOKESTATIC, TYPE_CONVERTER, "floatToUnsigned16", "(D)J", false);
+        } else if (sourceType.tag == TypeTags.ANY ||
+                sourceType.tag == TypeTags.ANYDATA ||
+                sourceType.tag == TypeTags.UNION ||
+                sourceType.tag == TypeTags.DECIMAL ||
+                sourceType.tag == TypeTags.JSON ||
+                sourceType.tag == TypeTags.FINITE) {
+            mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "anyToUnsigned16", String.format("(L%s;)J", OBJECT), false);
+        } else {
+            throw new BLangCompilerException(String.format("Casting is not supported from '%s' to 'int:Unsigned16'",
+                    sourceType));
+        }
+    }
+
+    private static void generateCheckCastToUnsigned8(MethodVisitor mv, BType sourceType) {
+
+        if (TypeTags.isIntegerTypeTag(sourceType.tag)) {
+            mv.visitMethodInsn(INVOKESTATIC, TYPE_CONVERTER, "intToUnsigned8", "(J)J", false);
+        } else if (sourceType.tag == TypeTags.BYTE) {
+            mv.visitInsn(I2B);
+            mv.visitMethodInsn(INVOKESTATIC, "java/lang/Byte", "toUnsignedInt", "(B)I", false);
+            mv.visitInsn(I2L);
+        } else if (sourceType.tag == TypeTags.FLOAT) {
+            mv.visitMethodInsn(INVOKESTATIC, TYPE_CONVERTER, "floatToUnsigned8", "(D)J", false);
+        } else if (sourceType.tag == TypeTags.ANY ||
+                sourceType.tag == TypeTags.ANYDATA ||
+                sourceType.tag == TypeTags.UNION ||
+                sourceType.tag == TypeTags.DECIMAL ||
+                sourceType.tag == TypeTags.JSON ||
+                sourceType.tag == TypeTags.FINITE) {
+            mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "anyToUnsigned8", String.format("(L%s;)J", OBJECT), false);
+        } else {
+            throw new BLangCompilerException(String.format("Casting is not supported from '%s' to 'int:Unsigned8'",
+                    sourceType));
         }
     }
 
@@ -947,7 +1104,7 @@ public class JvmCastGen {
 
     static void generateCast(MethodVisitor mv, BType sourceType, BType targetType, boolean useBString /* = false */) {
 
-        if (TypeTags.isIntegerTypeTag(targetType.tag)) {
+        if (targetType.tag == TypeTags.INT) {
             generateCastToInt(mv, sourceType);
             return;
         } else if (targetType.tag == TypeTags.FLOAT) {
