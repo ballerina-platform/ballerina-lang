@@ -601,13 +601,6 @@ public class ArrayFillTest {
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = ".*array of length .* cannot be expanded into array of length .* " +
                     "without filler values.*")
-    public void testTwoDimensionalSealedArrayFill() {
-        BRunUtil.invokeFunction(negativeCompileResult, "testTwoDimensionalSealedArrayFill");
-    }
-
-    @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*array of length .* cannot be expanded into array of length .* " +
-                    "without filler values.*")
     public void testRecordTypeWithRequiredFieldsArrayFill() {
         BRunUtil.invokeFunction(negativeCompileResult, "testRecordTypeWithRequiredFieldsArrayFill");
     }

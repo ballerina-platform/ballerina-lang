@@ -49,7 +49,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangLetVariable;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
-import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
+import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLogHelper;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.util.Lists;
 
@@ -68,7 +68,7 @@ public class QueryDesugar extends BLangNodeVisitor {
     private final Desugar desugar;
     private final SymbolTable symTable;
     private final BLangAnonymousModelHelper anonymousModelHelper;
-    private BLangDiagnosticLog dlog;
+    private BLangDiagnosticLogHelper dlog;
     private final SymbolResolver symResolver;
     private final Names names;
     private final Types types;
@@ -81,7 +81,7 @@ public class QueryDesugar extends BLangNodeVisitor {
         this.symbolEnter = SymbolEnter.getInstance(context);
         this.names = Names.getInstance(context);
         this.types = Types.getInstance(context);
-        this.dlog = BLangDiagnosticLog.getInstance(context);
+        this.dlog = BLangDiagnosticLogHelper.getInstance(context);
         this.desugar = Desugar.getInstance(context);
         this.anonymousModelHelper = BLangAnonymousModelHelper.getInstance(context);
     }
