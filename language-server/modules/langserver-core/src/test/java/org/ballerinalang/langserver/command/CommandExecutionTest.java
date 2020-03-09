@@ -29,7 +29,9 @@ import org.ballerinalang.langserver.command.executors.ChangeAbstractTypeObjExecu
 import org.ballerinalang.langserver.command.executors.CreateFunctionExecutor;
 import org.ballerinalang.langserver.command.executors.CreateTestExecutor;
 import org.ballerinalang.langserver.command.executors.ImportModuleExecutor;
+import org.ballerinalang.langserver.command.executors.openAPI.openAPIToBallerina.AddMissingParameterInBallerinaExecutor;
 import org.ballerinalang.langserver.command.executors.openAPI.openAPIToBallerina.CreateOpenApiServiceResourceExecutor;
+import org.ballerinalang.langserver.command.executors.openAPI.openAPIToBallerina.CreateOpenApiServiceResourceMethodExecutor;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.commons.command.CommandArgument;
 import org.ballerinalang.langserver.compiler.ExtendedLSCompiler;
@@ -325,6 +327,51 @@ public class CommandExecutionTest {
         Assert.assertEquals(responseJson, expected, "Test Failed for: " + config);
     }
 
+    @Test(dataProvider = "create-openApi-resource-method-in-ballerina-data-provider")
+    public void testOpenApiCreateResourceMethodInBallerina(String config, Path source) throws IOException {
+        LSContextManager.getInstance().clearAllContexts();
+        String configJsonPath = "command" + File.separator + config;
+        Path sourcePath = sourcesPath.resolve("source").resolve(source);
+        TestUtil.openDocument(serviceEndpoint, sourcePath);
+        JsonObject configJsonObject = FileUtils.fileContentAsObject(configJsonPath);
+        JsonObject expected = configJsonObject.get("expected").getAsJsonObject();
+        List<Object> args = new ArrayList<>();
+        JsonObject arguments = configJsonObject.get("arguments").getAsJsonObject();
+        args.add(new CommandArgument(CommandConstants.ARG_KEY_DOC_URI, sourcePath.toUri().toString()));
+        args.add(new CommandArgument(CommandConstants.ARG_KEY_NODE_LINE, arguments.get("node.line").getAsString()));
+        args.add(new CommandArgument(CommandConstants.ARG_KEY_NODE_COLUMN, arguments.get("node.column").getAsString()));
+        args.add(new CommandArgument(CommandConstants.ARG_KEY_PATH, arguments.get("resource.path").getAsString()));
+        args.add(new CommandArgument(CommandConstants.ARG_KEY_METHOD, arguments.get("resource.method").getAsString()));
+        JsonObject responseJson = getCommandResponse(args, CreateOpenApiServiceResourceMethodExecutor.COMMAND);
+        responseJson.get("result").getAsJsonObject().get("edit").getAsJsonObject().getAsJsonArray("documentChanges")
+                .forEach(element -> element.getAsJsonObject().remove("textDocument"));
+        TestUtil.closeDocument(serviceEndpoint, sourcePath);
+        Assert.assertEquals(responseJson, expected, "Test Failed for: " + config);
+    }
+
+    @Test(dataProvider = "openApi-add-missing-parameter-in-ballerina-data-provider")
+    public void testOpenApiAddParameterInBallerina(String config, Path source) throws IOException {
+        LSContextManager.getInstance().clearAllContexts();
+        String configJsonPath = "command" + File.separator + config;
+        Path sourcePath = sourcesPath.resolve("source").resolve(source);
+        TestUtil.openDocument(serviceEndpoint, sourcePath);
+        JsonObject configJsonObject = FileUtils.fileContentAsObject(configJsonPath);
+        JsonObject expected = configJsonObject.get("expected").getAsJsonObject();
+        List<Object> args = new ArrayList<>();
+        JsonObject arguments = configJsonObject.get("arguments").getAsJsonObject();
+        args.add(new CommandArgument(CommandConstants.ARG_KEY_DOC_URI, sourcePath.toUri().toString()));
+        args.add(new CommandArgument(CommandConstants.ARG_KEY_NODE_LINE, arguments.get("node.line").getAsString()));
+        args.add(new CommandArgument(CommandConstants.ARG_KEY_NODE_COLUMN, arguments.get("node.column").getAsString()));
+        args.add(new CommandArgument(CommandConstants.ARG_KEY_PATH, arguments.get("resource.path").getAsString()));
+        args.add(new CommandArgument(CommandConstants.ARG_KEY_PARAMETER, arguments.get("resource.parameter").getAsString()));
+        args.add(new CommandArgument(CommandConstants.ARG_KEY_METHOD, arguments.get("resource.method").getAsString()));
+        JsonObject responseJson = getCommandResponse(args, AddMissingParameterInBallerinaExecutor.COMMAND);
+        responseJson.get("result").getAsJsonObject().get("edit").getAsJsonObject().getAsJsonArray("documentChanges")
+                .forEach(element -> element.getAsJsonObject().remove("textDocument"));
+        TestUtil.closeDocument(serviceEndpoint, sourcePath);
+        Assert.assertEquals(responseJson, expected, "Test Failed for: " + config);
+    }
+
     @DataProvider(name = "package-import-data-provider")
     public Object[][] addImportDataProvider() {
         log.info("Test workspace/executeCommand for command {}", ImportModuleExecutor.COMMAND);
@@ -414,6 +461,25 @@ public class CommandExecutionTest {
                                                                             "gigaclient.bal")},
         };
     }
+
+    @DataProvider(name = "create-openApi-resource-method-in-ballerina-data-provider")
+    public Object[][] openApiCreateResourceMethodInBallerinaDataProvider() {
+        log.info("Test workspace/executeCommand for command {}", CreateOpenApiServiceResourceExecutor.COMMAND);
+        return new Object[][]{
+                {"openApiCreateResourceMethodInBallerina.json", Paths.get("openApi", "src", "module-giga",
+                                                                            "gigaclient.bal")},
+        };
+    }
+
+    @DataProvider(name = "openApi-add-missing-parameter-in-ballerina-data-provider")
+    public Object[][] openApiAddParameterInBallerinaDataProvider() {
+        log.info("Test workspace/executeCommand for command {}", CreateOpenApiServiceResourceExecutor.COMMAND);
+        return new Object[][]{
+                {"openApiAddMissingParameterInBallerina.json", Paths.get("openApi", "src", "module-giga",
+                                                                            "gigaclient2.bal")},
+        };
+    }
+
 
     @AfterClass
     public void cleanupLanguageServer() {
