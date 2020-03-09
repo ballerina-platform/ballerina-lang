@@ -38,7 +38,7 @@ dependencies {
     dist 'org.wso2.carbon:org.wso2.carbon.core:5.1.0'
     dist 'org.wso2.securevault:org.wso2.securevault:1.0.0-wso2v2'
     dist 'org.wso2.transport.file:org.wso2.transport.local-file-system:6.0.55'
-    dist 'org.wso2.transport.http:org.wso2.transport.http.netty:6.3.3'
+    dist 'org.wso2.transport.http:org.wso2.transport.http.netty:6.3.4'
     dist 'org.bouncycastle:bcprov-jdk15on:1.61'
     dist 'org.bouncycastle:bcpkix-jdk15on:1.61'
 
@@ -98,6 +98,9 @@ dependencies {
     dist project(':ballerina-filepath')
     dist project(':ballerina-grpc')
     dist project(':ballerina-jdbc')
+    dist project(':ballerina-sql')
+    dist project(':ballerina-jdbc2')
+    dist project(':ballerina-mysql')
     dist project(':ballerina-http')
     dist project(':ballerina-openapi')
     dist project(':ballerina-encoding')
@@ -150,5 +153,6 @@ dependencies {
     dist project(':ballerina-lang:typedesc')
     dist project(':ballerina-lang:value')
     dist project(':ballerina-lang:xml')
+    dist project(':ballerina-lang:bool')
 
 }

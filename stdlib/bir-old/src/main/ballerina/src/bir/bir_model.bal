@@ -708,7 +708,6 @@ public type GOTO record {|
 public type Lock record {|
     DiagnosticPos pos;
     TerminatorKind kind;
-    VariableDcl globleVar;
     BasicBlock lockBB;
 |};
 
@@ -723,8 +722,6 @@ public type FieldLock record {|
 public type Unlock record {|
     DiagnosticPos pos;
     TerminatorKind kind;
-    VariableDcl?[] globleVars;
-    LocalLocks?[] localLocks;
     BasicBlock unlockBB;
 |};
 
@@ -760,7 +757,6 @@ public type NewXMLElement record {|
     InstructionKind kind;
     VarRef lhsOp;
     VarRef startTagOp;
-    VarRef endTagOp;
     VarRef defaultNsURIOp;
 |};
 

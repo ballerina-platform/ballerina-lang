@@ -155,7 +155,7 @@ public class CommandExecutionTest {
         Assert.assertEquals(responseJson, expected, "Test Failed for: " + config);
     }
 
-    @Test(dataProvider = "change-abstract-type-data-provider")
+    @Test(dataProvider = "change-abstract-type-data-provider", enabled = false)
     public void testChangeAbstractTypeObj(String config, String source) throws IOException {
         LSContextManager.getInstance().clearAllContexts();
         String configJsonPath = "command" + File.separator + config;

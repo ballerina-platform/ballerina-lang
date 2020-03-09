@@ -547,7 +547,7 @@ public class ServiceProtoUtils {
                 int enumFieldIndex = 0;
                 EnumField.Builder enumFieldBuilder = EnumField.newBuilder();
                 EnumField enumField;
-                for (BLangExpression bLangExpression : finiteType.valueSpace) {
+                for (BLangExpression bLangExpression : finiteType.getValueSpace()) {
                     String enumValue = String.valueOf(bLangExpression);
                     enumField = enumFieldBuilder.setIndex(enumFieldIndex++).setName(enumValue).build();
                     enumBuilder.addFieldDefinition(enumField);

@@ -157,4 +157,82 @@ public class MultipleFromClauseTest {
         Assert.assertEquals(person6.get("lastName").stringValue(), "David");
         Assert.assertEquals(person6.get("deptAccess").stringValue(), "Operations");
     }
+
+    @Test(description = "Test multiple from clauses with type stream")
+    public void testMultipleFromClausesWithStream() {
+        BValue[] returnValues = BRunUtil.invoke(result, "testMultipleFromClausesWithStream");
+        Assert.assertNotNull(returnValues);
+
+        Assert.assertEquals(returnValues.length, 6, "Expected events are not received");
+
+        BMap<String, BValue> person1 = (BMap<String, BValue>) returnValues[0];
+        BMap<String, BValue> person2 = (BMap<String, BValue>) returnValues[1];
+        BMap<String, BValue> person3 = (BMap<String, BValue>) returnValues[2];
+        BMap<String, BValue> person4 = (BMap<String, BValue>) returnValues[3];
+        BMap<String, BValue> person5 = (BMap<String, BValue>) returnValues[4];
+        BMap<String, BValue> person6 = (BMap<String, BValue>) returnValues[5];
+
+        Assert.assertEquals(person1.get("firstName").stringValue(), "Alex");
+        Assert.assertEquals(person1.get("lastName").stringValue(), "George");
+        Assert.assertEquals(person1.get("deptAccess").stringValue(), "HR");
+
+        Assert.assertEquals(person2.get("firstName").stringValue(), "Alex");
+        Assert.assertEquals(person2.get("lastName").stringValue(), "George");
+        Assert.assertEquals(person2.get("deptAccess").stringValue(), "Operations");
+
+        Assert.assertEquals(person3.get("firstName").stringValue(), "Ranjan");
+        Assert.assertEquals(person3.get("lastName").stringValue(), "Fonseka");
+        Assert.assertEquals(person3.get("deptAccess").stringValue(), "HR");
+
+        Assert.assertEquals(person4.get("firstName").stringValue(), "Ranjan");
+        Assert.assertEquals(person4.get("lastName").stringValue(), "Fonseka");
+        Assert.assertEquals(person4.get("deptAccess").stringValue(), "Operations");
+
+        Assert.assertEquals(person5.get("firstName").stringValue(), "John");
+        Assert.assertEquals(person5.get("lastName").stringValue(), "David");
+        Assert.assertEquals(person5.get("deptAccess").stringValue(), "HR");
+
+        Assert.assertEquals(person6.get("firstName").stringValue(), "John");
+        Assert.assertEquals(person6.get("lastName").stringValue(), "David");
+        Assert.assertEquals(person6.get("deptAccess").stringValue(), "Operations");
+    }
+
+    @Test(description = "Test multiple from clauses with let clause")
+    public void testMultipleFromWithLetClauses() {
+        BValue[] returnValues = BRunUtil.invoke(result, "testMultipleFromWithLetClauses");
+        Assert.assertNotNull(returnValues);
+
+        Assert.assertEquals(returnValues.length, 6, "Expected events are not received");
+
+        BMap<String, BValue> person1 = (BMap<String, BValue>) returnValues[0];
+        BMap<String, BValue> person2 = (BMap<String, BValue>) returnValues[1];
+        BMap<String, BValue> person3 = (BMap<String, BValue>) returnValues[2];
+        BMap<String, BValue> person4 = (BMap<String, BValue>) returnValues[3];
+        BMap<String, BValue> person5 = (BMap<String, BValue>) returnValues[4];
+        BMap<String, BValue> person6 = (BMap<String, BValue>) returnValues[5];
+
+        Assert.assertEquals(person1.get("firstName").stringValue(), "Alex");
+        Assert.assertEquals(person1.get("lastName").stringValue(), "George");
+        Assert.assertEquals(person1.get("deptAccess").stringValue(), "WSO2");
+
+        Assert.assertEquals(person2.get("firstName").stringValue(), "Alex");
+        Assert.assertEquals(person2.get("lastName").stringValue(), "George");
+        Assert.assertEquals(person2.get("deptAccess").stringValue(), "WSO2");
+
+        Assert.assertEquals(person3.get("firstName").stringValue(), "Ranjan");
+        Assert.assertEquals(person3.get("lastName").stringValue(), "Fonseka");
+        Assert.assertEquals(person3.get("deptAccess").stringValue(), "WSO2");
+
+        Assert.assertEquals(person4.get("firstName").stringValue(), "Ranjan");
+        Assert.assertEquals(person4.get("lastName").stringValue(), "Fonseka");
+        Assert.assertEquals(person4.get("deptAccess").stringValue(), "WSO2");
+
+        Assert.assertEquals(person5.get("firstName").stringValue(), "John");
+        Assert.assertEquals(person5.get("lastName").stringValue(), "David");
+        Assert.assertEquals(person5.get("deptAccess").stringValue(), "WSO2");
+
+        Assert.assertEquals(person6.get("firstName").stringValue(), "John");
+        Assert.assertEquals(person6.get("lastName").stringValue(), "David");
+        Assert.assertEquals(person6.get("deptAccess").stringValue(), "WSO2");
+    }
 }

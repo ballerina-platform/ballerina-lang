@@ -13,6 +13,7 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
+import ballerina/lang.__internal as internal;
 
 # A type parameter that is a subtype of `any|error`.
 # Has the special semantic that when used in a declaration
@@ -135,6 +136,16 @@ public function setLength((any|error)[] arr, int length) returns () = external;
 # + return - index of the member if found, else `()`
 public function indexOf(PureType[] arr, PureType val, int startIndex = 0) returns int? = external;
 
+# Returns the index of last member of `arr` that is equal to `val` if there is one.
+# Returns `()` if not found.
+# Equality is tested using `==`.
+#
+# + arr - the array
+# + val - member to search for
+# + startIndex - index to start searching backwards from
+# + return - index of the member if found, else `()`
+public function lastIndexOf(PureType[] arr, PureType val, int startIndex = arr.length() - 1) returns int? = external;
+
 # Reverses the order of the members of an array.
 #
 # + arr - the array to be reversed
@@ -223,6 +234,20 @@ public function toBase16(byte[] arr) returns string = external;
 public function fromBase16(string str) returns byte[]|error = external;
 
 # Returns a stream from the given array.
+#
 # + arr - The array from which the stream is created
 # + return - The stream representation of the array `arr`
-public function toStream(PureType[] arr) returns stream<PureType> = external;
+public function toStream(PureType[] arr) returns stream<PureType> {
+    int index = -1;
+    function () returns record {|PureType value;|}? func = function () returns record {|PureType value;|}? {
+        index += 1;
+        if (length(arr) > index) {
+            var value = arr[index];
+            return internal:setNarrowType(typeof value, {value : value});
+        } else {
+            return ();
+        }
+    };
+
+    return internal:construct(internal:getElementType(typeof arr), func);
+}

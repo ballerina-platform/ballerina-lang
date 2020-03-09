@@ -124,7 +124,7 @@ function xmlTest() returns [string, xml] {
     </p:person>`;
 
     int index = 0;
-    xml m = xdata.*.elements()[1].*.elements()
+    xml m = xdata/*.elements()[1]/*.elements()
                  .'map(function (xml|string x) returns (string| xml) {
                             index += 1;
                             if x is xml {

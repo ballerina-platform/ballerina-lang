@@ -108,13 +108,12 @@ public class SymbolTable {
     public final BType mapAnydataType = new BMapType(TypeTags.MAP, anydataType, null);
     public final BType mapJsonType = new BMapType(TypeTags.MAP, jsonType, null);
     public final BType futureType = new BFutureType(TypeTags.FUTURE, nilType, null);
-    public final BType arrayType = new BArrayType(noType);
+    public final BType arrayType = new BArrayType(anyType);
+    public final BArrayType arrayStringType = new BArrayType(stringType);
+    public final BArrayType arrayAnydataType = new BArrayType(anydataType);
+    public final BArrayType arrayJsonType = new BArrayType(jsonType);
     public final BType tupleType = new BTupleType(Lists.of(noType));
     public final BType recordType = new BRecordType(null);
-    public final BType intArrayType = new BArrayType(intType);
-    public final BType stringArrayType = new BArrayType(stringType);
-    public final BType anydataArrayType = new BArrayType(anydataType);
-    public final BType anydataMapArrayType = new BArrayType(mapAnydataType);
     public final BType anyServiceType = new BServiceType(null);
     public final BType handleType = new BHandleType(TypeTags.HANDLE, null);
     public final BType typeDesc;
@@ -149,6 +148,7 @@ public class SymbolTable {
     public BPackageSymbol langTypedescModuleSymbol;
     public BPackageSymbol langValueModuleSymbol;
     public BPackageSymbol langXmlModuleSymbol;
+    public BPackageSymbol langBooleanModuleSymbol;
 
     private Names names;
     public Map<BPackageSymbol, SymbolEnv> pkgEnvMap = new HashMap<>();

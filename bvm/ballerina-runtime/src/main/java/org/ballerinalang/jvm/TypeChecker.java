@@ -36,6 +36,7 @@ import org.ballerinalang.jvm.types.BStreamType;
 import org.ballerinalang.jvm.types.BTableType;
 import org.ballerinalang.jvm.types.BTupleType;
 import org.ballerinalang.jvm.types.BType;
+import org.ballerinalang.jvm.types.BTypedescType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.types.BUnionType;
 import org.ballerinalang.jvm.types.TypeTags;
@@ -49,8 +50,11 @@ import org.ballerinalang.jvm.values.RefValue;
 import org.ballerinalang.jvm.values.StreamValue;
 import org.ballerinalang.jvm.values.TableValue;
 import org.ballerinalang.jvm.values.TypedescValue;
+import org.ballerinalang.jvm.values.XMLSequence;
+import org.ballerinalang.jvm.values.XMLText;
 import org.ballerinalang.jvm.values.XMLValue;
 import org.ballerinalang.jvm.values.api.BValue;
+import org.ballerinalang.jvm.values.api.BXML;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -422,11 +426,43 @@ public class TypeChecker {
             return isEqual(lhsValue, rhsValue);
         }
 
+        if (lhsType.getTag() == TypeTags.XML_TAG && rhsType.getTag() == TypeTags.XML_TAG) {
+            return isXMLValueRefEqual((XMLValue) lhsValue, (XMLValue) rhsValue);
+        }
+
         if (isHandleType(lhsType) && isHandleType(rhsType)) {
             return isHandleValueRefEqual(lhsValue, rhsValue);
         }
 
         return false;
+    }
+
+    private static boolean isXMLValueRefEqual(XMLValue lhsValue, XMLValue rhsValue) {
+        if (lhsValue.getNodeType() != rhsValue.getNodeType()) {
+            return false;
+        }
+
+        if (lhsValue.getNodeType() == XMLNodeType.SEQUENCE && rhsValue.getNodeType() == XMLNodeType.SEQUENCE) {
+            return isXMLSequenceRefEqual((XMLSequence) lhsValue, (XMLSequence) rhsValue);
+        }
+
+        if (lhsValue.getNodeType() == XMLNodeType.TEXT && rhsValue.getNodeType() == XMLNodeType.TEXT) {
+            return ((XMLText) lhsValue).equals(rhsValue);
+        }
+        return false;
+    }
+
+    private static boolean isXMLSequenceRefEqual(XMLSequence lhsValue, XMLSequence rhsValue) {
+        Iterator<BXML> lhsIter = lhsValue.getChildrenList().iterator();
+        Iterator<BXML> rhsIter = rhsValue.getChildrenList().iterator();
+        while (lhsIter.hasNext() && rhsIter.hasNext()) {
+            BXML l = lhsIter.next();
+            BXML r = rhsIter.next();
+            if (!(l == r || isXMLValueRefEqual((XMLValue) l, (XMLValue) r))) {
+                return false;
+            }
+        }
+        return !(lhsIter.hasNext() || rhsIter.hasNext());
     }
 
     /**
@@ -510,6 +546,16 @@ public class TypeChecker {
 
     // Private methods
 
+    private static boolean checkTypeDescType(BType sourceType, BTypedescType targetType,
+            List<TypePair> unresolvedTypes) {
+        if (sourceType.getTag() != TypeTags.TYPEDESC_TAG) {
+            return false;
+        }
+
+        BTypedescType sourceTypedesc = (BTypedescType) sourceType;
+        return checkIsType(sourceTypedesc.getConstraint(), targetType.getConstraint(), unresolvedTypes);
+    }
+
     private static boolean checkIsRecursiveType(BType sourceType, BType targetType, List<TypePair> unresolvedTypes) {
         switch (targetType.getTag()) {
             case TypeTags.MAP_TAG:
@@ -538,6 +584,8 @@ public class TypeChecker {
                 return checkIsFutureType(sourceType, (BFutureType) targetType, unresolvedTypes);
             case TypeTags.ERROR_TAG:
                 return checkIsErrorType(sourceType, (BErrorType) targetType, unresolvedTypes);
+            case TypeTags.TYPEDESC_TAG:
+                return checkTypeDescType(sourceType, (BTypedescType) targetType, unresolvedTypes);
             default:
                 // other non-recursive types shouldn't reach here
                 return false;
@@ -996,7 +1044,6 @@ public class TypeChecker {
      * if fails then falls back to checking the value.
      * 
      * @param sourceValue Value to check
-     * @param sourceType Type of the value
      * @param targetType Target type
      * @param unresolvedValues Values that are unresolved so far
      * @param allowNumericConversion Flag indicating whether to perform numeric conversions
@@ -1735,7 +1782,7 @@ public class TypeChecker {
             if (Flags.isFlagOn(field.flags, Flags.OPTIONAL)) {
                 continue;
             }
-            if ((!Flags.isFlagOn(field.flags, Flags.OPTIONAL) && !Flags.isFlagOn(field.flags, Flags.REQUIRED))) {
+            if (!Flags.isFlagOn(field.flags, Flags.REQUIRED)) {
                 continue;
             }
             return false;
@@ -1744,7 +1791,7 @@ public class TypeChecker {
     }
 
     private static boolean checkFillerValue(BArrayType type) {
-        return !(type.getState() == ArrayState.CLOSED_SEALED || type.getState() == ArrayState.OPEN_SEALED);
+        return type.getState() == ArrayState.UNSEALED || hasFillerValue(type.getElementType());
     }
 
     private static boolean checkFillerValue(BObjectType type) {

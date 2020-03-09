@@ -302,38 +302,97 @@ function emitInsBinaryOp(BinaryOp ins, int tabs) returns string {
 }
  
 function emitInsNewXMLElement(NewXMLElement ins, int tabs) returns string {
-    // TODO fill this 
-    return "";
+    string str = "";
+    str += emitTabs(tabs);
+    str += emitVarRef(ins.lhsOp);
+    str += emitSpaces(1);
+    str += "=";
+    str += emitSpaces(1);
+    str += "<";
+    str += emitVarRef(ins.startTagOp);
+    str += " ns=";
+    str += emitVarRef(ins.defaultNsURIOp);
+    str += "/>";
+    return str;
 }
  
 function emitInsNewXMLQName(NewXMLQName ins, int tabs) returns string {
-    // TODO fill this 
-    return "";
+    string str = "";
+    str += emitTabs(tabs);
+    str += emitVarRef(ins.lhsOp);
+    str += emitSpaces(1);
+    str += "=";
+    str += emitSpaces(1);
+    str += "QName {";
+    str += emitVarRef(ins.nsURIOp);
+    str += "}";
+    str += emitVarRef(ins.localnameOp);
+    str += emitSpaces(1);
+    str += "prefix=";
+    str += emitVarRef(ins.prefixOp);
+    return str;
 }
  
 function emitInsNewStringXMLQName(NewStringXMLQName ins, int tabs) returns string {
-    // TODO fill this 
-    return "";
+    string str = "";
+    str += emitTabs(tabs);
+    str += emitVarRef(ins.lhsOp);
+    str += emitSpaces(1);
+    str += "=";
+    str += emitSpaces(1);
+    str += "QNameStr";
+    str += emitVarRef(ins.stringQNameOp);
+    return str;
 }
  
 function emitInsXMLAccess(XMLAccess ins, int tabs) returns string {
-    // TODO fill this 
-    return "";
+    string str = "";
+    str += emitTabs(tabs);
+    str += emitVarRef(ins.lhsOp);
+    str += emitSpaces(1);
+    str += "=";
+    str += emitSpaces(1);
+    str += "xml access ";
+    str += emitVarRef(ins.rhsOp);
+    return str;
 }
  
 function emitInsNewXMLText(NewXMLText ins, int tabs) returns string {
-    // TODO fill this 
-    return "";
+    string str = "";
+    str += emitTabs(tabs);
+    str += emitVarRef(ins.lhsOp);
+    str += emitSpaces(1);
+    str += "=";
+    str += emitSpaces(1);
+    str += "xml text ";
+    str += emitVarRef(ins.textOp);
+    return str;
 }
  
 function emitInsNewXMLComment(NewXMLComment ins, int tabs) returns string {
-    // TODO fill this 
-    return "";
+    string str = "";
+    str += emitTabs(tabs);
+    str += emitVarRef(ins.lhsOp);
+    str += emitSpaces(1);
+    str += "=";
+    str += emitSpaces(1);
+    str += "xml comment ";
+    str += emitVarRef(ins.textOp);
+    return str;
 }
  
 function emitInsNewXMLPI(NewXMLPI ins, int tabs) returns string {
-    // TODO fill this 
-    return "";
+    string str = "";
+    str += emitTabs(tabs);
+    str += emitVarRef(ins.lhsOp);
+    str += emitSpaces(1);
+    str += "=";
+    str += emitSpaces(1);
+    str += "xml pi ";
+    str += emitVarRef(ins.targetOp);
+    str += emitSpaces(1);
+    str += emitVarRef(ins.dataOp);
+    return str;
 }
  
 function emitInsUnaryOp(UnaryOp ins, int tabs) returns string {
@@ -602,8 +661,6 @@ function emitLock(Lock term, int tabs) returns string {
     str += emitTabs(tabs);
     str += "lock";
     str += emitSpaces(1);
-    str += emitName(term.globleVar.name);
-    str += emitSpaces(1);
     str += "->";
     str += emitSpaces(1);
     str += emitBasicBlockRef(term.lockBB);
@@ -633,48 +690,7 @@ function emitUnlock(Unlock term, int tabs) returns string {
     str += emitTabs(tabs);
     str += "unlock";
     str += emitSpaces(1);
-    str += "(";
-    int i = 0;
-    int argLength = term.globleVars.length();
-    foreach VariableDcl? ref in term.globleVars {
-        if ref is VariableDcl {
-            str += emitName(ref.name);
-            i += 1;
-            if i < argLength {
-                str += ",";
-                str += emitSpaces(1);
-            }
-        }
-    }
-    str += ")";
-    str += emitSpaces(1);
-    str += "(";
-    i = 0;
-    argLength = term.localLocks.length();
-    foreach LocalLocks? ref in term.localLocks {
-        if ref is LocalLocks {
-            int j = 0;
-            int length = ref.fields.length();
-            foreach string f in ref.fields {
-                str += emitName(ref.localVar.name);
-                str += "[\"";
-                str += f;
-                str += "\"]";
-                j += 1;
-                if j < length {
-                    str += ",";
-                    str += emitSpaces(1);
-                }
-            }
-            
-            i += 1;
-            if i < argLength {
-                str += ",";
-                str += emitSpaces(1);
-            }
-        }
-    }
-    str += ")";
+    str += "()";
     str += emitSpaces(1);
     str += "->";
     str += emitSpaces(1);

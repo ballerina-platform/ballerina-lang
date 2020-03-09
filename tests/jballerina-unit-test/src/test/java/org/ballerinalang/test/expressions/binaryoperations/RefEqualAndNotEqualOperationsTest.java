@@ -367,6 +367,36 @@ public class RefEqualAndNotEqualOperationsTest {
                            "Expected values to be identified as not reference equal");
     }
 
+    @Test
+    public void testXMLSequenceRefEquality() {
+        BValue[] returns = BRunUtil.invoke(result, "testXMLSequenceRefEquality");
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+    }
+
+    @Test
+    public void testXMLSequenceRefEqualityFalse() {
+        BValue[] returns = BRunUtil.invoke(result, "testXMLSequenceRefEqualityFalse");
+        Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
+    }
+
+    @Test
+    public void testXMLSequenceRefEqualityDifferentLength() {
+        BValue[] returns = BRunUtil.invoke(result, "testXMLSequenceRefEqualityDifferentLength");
+        Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
+    }
+
+    @Test
+    public void testXMLSequenceRefEqualityIncludingString() {
+        BValue[] returns = BRunUtil.invoke(result, "testXMLSequenceRefEqualityIncludingString");
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+    }
+
+    @Test
+    public void testXMLSequenceRefEqualityIncludingDifferentString() {
+        BValue[] returns = BRunUtil.invoke(result, "testXMLSequenceRefEqualityIncludingDifferentString");
+        Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
+    }
+
     @Test(description = "Test reference equal with errors")
     public void testRefEqualNegativeCases() {
         Assert.assertEquals(resultNegative.getErrorCount(), 22);

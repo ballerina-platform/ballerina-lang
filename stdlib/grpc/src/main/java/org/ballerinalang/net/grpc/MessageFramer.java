@@ -57,6 +57,12 @@ public class MessageFramer {
     private final HttpCarbonMessage carbonMessage;
     private boolean closed;
 
+    // Use 4k as our minimum buffer size.
+    private static final int MIN_BUFFER = 4096;
+
+    // Set the maximum buffer size to 1MB
+    private static final int MAX_BUFFER = 1024 * 1024;
+
     /**
      * Creates new {@link MessageFramer} instance.
      *
@@ -173,21 +179,22 @@ public class MessageFramer {
         header.put(compressed ? COMPRESSED : UNCOMPRESSED);
         int messageLength = bufferChain.readableBytes();
         header.putInt(messageLength);
-        ByteBuffer writeableHeader = ByteBuffer.allocate(HEADER_LENGTH);
-        writeableHeader.put(headerScratch, 0, header.position());
+
+        // Allocate the initial buffer chunk based on frame header + payload length.
+        if (buffer == null) {
+            buffer = ByteBuffer.allocate(header.position() + messageLength);
+        }
+        writeRaw(headerScratch, 0, header.position());
         if (messageLength == 0) {
-            buffer = writeableHeader;
             return;
         }
-        // Write content as default http content.
-        carbonMessage.addHttpContent(new DefaultHttpContent(Unpooled.wrappedBuffer(writeableHeader)));
+
         List<ByteBuffer> bufferList = bufferChain.bufferList;
-        for (ByteBuffer aBufferList : bufferList) {
-            carbonMessage.addHttpContent(new DefaultHttpContent((Unpooled.wrappedBuffer(aBufferList))));
-        }
         // Assign the current buffer to the last in the chain so it can be used
         // for future writes or written with end-of-stream=true on close.
-        buffer = bufferList.get(bufferList.size() - 1);
+        for (ByteBuffer byteBuffer : bufferList) {
+            buffer.put(byteBuffer.array(), 0, byteBuffer.limit() - 1);
+        }
     }
 
     private static int writeToOutputStream(InputStream message, OutputStream outputStream)
@@ -339,7 +346,8 @@ public class MessageFramer {
         public void write(byte[] b, int off, int len) {
             if (current == null) {
                 // InboundMessage len bytes initially from the allocator, it may give us more.
-                current = ByteBuffer.allocate(len);
+                int capacityHint = Math.min(MAX_BUFFER, Math.max(MIN_BUFFER, len));
+                current = ByteBuffer.allocate(capacityHint);
                 bufferList.add(current);
             }
             while (len > 0) {

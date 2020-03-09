@@ -18,7 +18,7 @@ public function main() {
 }
 
 function getData(json payload) returns [string, string]? {
-    map<anydata> | error data =map <anydata> . constructFrom( payload ) ;
+    map<anydata>  |  error data =map <anydata> . constructFrom( payload ) ;
     if (!(data is map<anydata>)) {
         return ();
     } else {

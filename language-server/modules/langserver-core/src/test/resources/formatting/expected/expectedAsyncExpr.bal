@@ -81,11 +81,11 @@ function infiniteFunc() {
 
 public function main() {
     future<int> f1 =
-    @v1
-    start
-    foo
-    (
-    )
+        @v1
+        start
+        foo
+        (
+        )
     ;
 
     future<int> f2 = @v1 start foo();

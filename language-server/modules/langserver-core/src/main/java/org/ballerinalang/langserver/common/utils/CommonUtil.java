@@ -36,6 +36,8 @@ import org.ballerinalang.langserver.completions.StaticCompletionItem;
 import org.ballerinalang.langserver.completions.SymbolCompletionItem;
 import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
 import org.ballerinalang.langserver.completions.util.Priority;
+import org.ballerinalang.langserver.exception.LSStdlibCacheException;
+import org.ballerinalang.langserver.util.definition.LSStandardLibCache;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
@@ -95,6 +97,7 @@ import org.wso2.ballerinalang.util.Flags;
 
 import java.io.File;
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Path;
@@ -122,6 +125,8 @@ import java.util.stream.Collectors;
 public class CommonUtil {
     private static final Logger logger = LoggerFactory.getLogger(CommonUtil.class);
 
+    private static final Path TEMP_DIR = Paths.get(System.getProperty("java.io.tmpdir"));
+
     public static final String MD_LINE_SEPARATOR = "  " + System.lineSeparator();
 
     public static final String LINE_SEPARATOR = System.lineSeparator();
@@ -132,19 +137,21 @@ public class CommonUtil {
 
     public static final Pattern MD_NEW_LINE_PATTERN = Pattern.compile("\\s\\s\\r\\n?|\\s\\s\\n|\\r\\n?|\\n");
 
-    public static final boolean LS_DEBUG_ENABLED;
-
-    public static final boolean LS_TRACE_ENABLED;
-
     public static final String BALLERINA_HOME;
 
     public static final String BALLERINA_CMD;
 
     public static final String MARKDOWN_MARKUP_KIND = "markdown";
+    
+    public static final String BALLERINA_ORG_NAME = "ballerina";
+
+    public static final String BALLERINAX_ORG_NAME = "ballerinax";
+
+    public static final String SDK_VERSION = System.getProperty("ballerina.version");
+
+    public static final Path LS_STDLIB_CACHE_DIR = TEMP_DIR.resolve("ls_stdlib_cache").resolve(SDK_VERSION);
 
     static {
-        LS_DEBUG_ENABLED = Boolean.parseBoolean(System.getProperty("ballerina.debugLog"));
-        LS_TRACE_ENABLED = Boolean.parseBoolean(System.getProperty("ballerina.traceLog"));
         BALLERINA_HOME = System.getProperty("ballerina.home");
         BALLERINA_CMD = BALLERINA_HOME + File.separator + "bin" + File.separator + "ballerina" +
                 (SystemUtils.IS_OS_WINDOWS ? ".bat" : "");
@@ -323,7 +330,7 @@ public class CommonUtil {
      * @return {@link CompletionItem} Completion item for the annotation
      */
     public static LSCompletionItem getAnnotationCompletionItem(PackageID packageID, BAnnotationSymbol annotationSymbol,
-                                                             LSContext ctx, Map<String, String> pkgAliasMap) {
+                                                               LSContext ctx, Map<String, String> pkgAliasMap) {
         return getAnnotationCompletionItem(packageID, annotationSymbol, ctx, null, pkgAliasMap);
     }
 
@@ -448,7 +455,7 @@ public class CommonUtil {
                 typeString = "new()";
                 break;
             case FINITE:
-                List<BLangExpression> valueSpace = new ArrayList<>(((BFiniteType) bType).valueSpace);
+                List<BLangExpression> valueSpace = new ArrayList<>(((BFiniteType) bType).getValueSpace());
                 String value = valueSpace.get(0).toString();
                 BType type = valueSpace.get(0).type;
                 typeString = value;
@@ -512,7 +519,7 @@ public class CommonUtil {
      * Get completion items list for struct fields.
      *
      * @param context Language server operation context
-     * @param fields List of struct fields
+     * @param fields  List of struct fields
      * @return {@link List}     List of completion items for the struct fields
      */
     public static List<LSCompletionItem> getRecordFieldCompletionItems(LSContext context, List<BField> fields) {
@@ -536,7 +543,7 @@ public class CommonUtil {
      * Get the completion item to fill all the struct fields.
      *
      * @param context Language Server Operation Context
-     * @param fields List of struct fields
+     * @param fields  List of struct fields
      * @return {@link LSCompletionItem}   Completion Item to fill all the options
      */
     public static LSCompletionItem getFillAllStructFieldsItem(LSContext context, List<BField> fields) {
@@ -564,8 +571,8 @@ public class CommonUtil {
     /**
      * Get the BType name as string.
      *
-     * @param bType BType to get the name
-     * @param ctx   LS Operation Context
+     * @param bType      BType to get the name
+     * @param ctx        LS Operation Context
      * @param doSimplify Simplifies the types eg. Errors
      * @return {@link String}   BType Name as String
      */
@@ -693,8 +700,8 @@ public class CommonUtil {
     /**
      * Get the constraint type name.
      *
-     * @param bType   BType to evaluate
-     * @param context Language server operation context
+     * @param bType      BType to evaluate
+     * @param context    Language server operation context
      * @param doSimplify
      * @return {@link StringBuilder} constraint type name
      */
@@ -843,8 +850,8 @@ public class CommonUtil {
         String relativeFilePath = ctx.get(DocumentServiceKeys.RELATIVE_FILE_PATH_KEY);
         BLangCompilationUnit filteredCUnit = pkgNode.compUnits.stream()
                 .filter(cUnit ->
-                                cUnit.getPosition().getSource().cUnitName.replace("/", FILE_SEPARATOR)
-                                        .equals(relativeFilePath))
+                        cUnit.getPosition().getSource().cUnitName.replace("/", FILE_SEPARATOR)
+                                .equals(relativeFilePath))
                 .findAny().orElse(null);
         List<TopLevelNode> topLevelNodes = filteredCUnit == null
                 ? new ArrayList<>()
@@ -1061,7 +1068,7 @@ public class CommonUtil {
     }
 
     /**
-     * Predicate to check for the invalid symbols.
+     * Predicate to check for the imports in the current file.
      *
      * @return {@link Predicate}    Predicate for the check
      */
@@ -1069,6 +1076,18 @@ public class CommonUtil {
         String currentFile = ctx.get(DocumentServiceKeys.RELATIVE_FILE_PATH_KEY);
         return importPkg -> importPkg.pos.getSource().cUnitName.replace("/", FILE_SEPARATOR).equals(currentFile)
                 && importPkg.getWS() != null;
+    }
+
+    /**
+     * Predicate to check for the standard library imports in the current file which aren't cached already.
+     *
+     * @return {@link Predicate}    Predicate for the check
+     */
+    public static Predicate<BLangImportPackage> stdLibImportsNotCachedPredicate(LSContext ctx) {
+        String currentFile = ctx.get(DocumentServiceKeys.RELATIVE_FILE_PATH_KEY);
+        return importPkg -> importPkg.pos.getSource().cUnitName.replace("/", FILE_SEPARATOR).equals(currentFile)
+                && importPkg.getWS() != null && (importPkg.orgName.value.equals(BALLERINA_ORG_NAME)
+                || importPkg.orgName.value.equals(BALLERINAX_ORG_NAME));
     }
 
     /**
@@ -1328,5 +1347,37 @@ public class CommonUtil {
             // ignore
         }
         return Optional.empty();
+    }
+
+    /**
+     * Update the standard library cache.
+     *
+     * @param context Language Server operation context
+     */
+    public static void updateStdLibCache(LSContext context) throws LSStdlibCacheException {
+        Boolean enabled = context.get(DocumentServiceKeys.ENABLE_STDLIB_DEFINITION_KEY);
+        if (enabled == null || !enabled) {
+            return;
+        }
+        List<BLangImportPackage> stdLibImports = getCurrentModuleImports(context).stream()
+                .filter(stdLibImportsNotCachedPredicate(context))
+                .collect(Collectors.toList());
+
+        LSStandardLibCache.getInstance().updateCache(stdLibImports);
+    }
+
+    /**
+     * Check whether the file is a cached file entry.
+     *
+     * @param fileUri file URI to evaluate
+     * @return whether the file is a cached entry or not
+     */
+    public static boolean isCachedExternalSource(String fileUri) {
+        try {
+            Path path = Paths.get(new URI(fileUri));
+            return path.toAbsolutePath().toString().startsWith(LS_STDLIB_CACHE_DIR.toAbsolutePath().toString());
+        } catch (URISyntaxException e) {
+            return false;
+        }
     }
 }

@@ -41,11 +41,11 @@ public class ForeachXMLTypedBindingPatternsTests {
             "        </p:address>\n" +
             "        <q:ID>1131313</q:ID>\n" +
             "    </p:person> ";
-    private String expectedXml2 = "0:<p:name xmlns:p=\"foo\" xmlns:q=\"bar\">bob</p:name> " +
-            "1:<p:address xmlns:p=\"foo\" xmlns:q=\"bar\">\n" +
+    private String expectedXml2 = "0:<p:name xmlns:p=\"foo\">bob</p:name> " +
+            "1:<p:address xmlns:p=\"foo\">\n" +
             "            <p:city>NY</p:city>\n" +
-            "            <q:country>US</q:country>\n" +
-            "        </p:address> 2:<q:ID xmlns:q=\"bar\" xmlns:p=\"foo\">1131313</q:ID> ";
+            "            <q:country xmlns:q=\"bar\">US</q:country>\n" +
+            "        </p:address> 2:<q:ID xmlns:q=\"bar\">1131313</q:ID> ";
 
     @BeforeClass
     public void setup() {

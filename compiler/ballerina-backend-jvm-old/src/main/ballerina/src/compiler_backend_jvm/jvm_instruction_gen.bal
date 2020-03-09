@@ -895,11 +895,11 @@ type InstructionGenerator object {
         self.storeToVar(newErrorIns.lhsOp.variableDcl);
     }
 
-    function generateCastIns(bir:TypeCast typeCastIns) {
+    function generateCastIns(bir:TypeCast typeCastIns, boolean useBString) {
         // load source value
         self.loadVar(typeCastIns.rhsOp.variableDcl);
         if (typeCastIns.checkType) {
-            generateCheckCast(self.mv, typeCastIns.rhsOp.typeValue, typeCastIns.castType);
+            generateCheckCast(self.mv, typeCastIns.rhsOp.typeValue, typeCastIns.castType, useBString);
         } else {
             generateCast(self.mv, typeCastIns.rhsOp.typeValue, typeCastIns.castType);
         }
@@ -998,11 +998,9 @@ type InstructionGenerator object {
     function generateNewXMLElementIns(bir:NewXMLElement newXMLElement) {
         self.loadVar(newXMLElement.startTagOp.variableDcl);
         self.mv.visitTypeInsn(CHECKCAST, XML_QNAME);
-        self.loadVar(newXMLElement.endTagOp.variableDcl);
-        self.mv.visitTypeInsn(CHECKCAST, XML_QNAME);
         self.loadVar(newXMLElement.defaultNsURIOp.variableDcl);
         self.mv.visitMethodInsn(INVOKESTATIC, XML_FACTORY, "createXMLElement",
-                io:sprintf("(L%s;L%s;L%s;)L%s;", XML_QNAME, XML_QNAME, STRING_VALUE, XML_VALUE), false);
+                io:sprintf("(L%s;L%s;)L%s;", XML_QNAME, STRING_VALUE, XML_VALUE), false);
         self.storeToVar(newXMLElement.lhsOp.variableDcl);
     }
 

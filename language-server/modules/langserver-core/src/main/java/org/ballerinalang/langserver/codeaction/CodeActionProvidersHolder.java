@@ -52,6 +52,9 @@ public class CodeActionProvidersHolder {
             if (provider.isNodeBasedSupported()) {
                 for (CodeActionNodeType nodeType : provider.getCodeActionNodeTypes()) {
                     switch (nodeType) {
+                        case IMPORTS:
+                            nodeBasedProviders.get(CodeActionNodeType.IMPORTS).add(provider);
+                            break;
                         case FUNCTION:
                             nodeBasedProviders.get(CodeActionNodeType.FUNCTION).add(provider);
                             break;

@@ -7,7 +7,6 @@ configurations {
     balx { transitive false }
     oldBirJar { transitive false }
     oldBir { transitive false }
-    nativeMap { transitive false }
 }
 
 project.ext.moduleName = files(file('src/main/ballerina/src').listFiles()).filter { File f ->
@@ -29,14 +28,6 @@ task duplicateBalSouce(type: Copy) {
     into duplicateSrcPath
 
     outputs.cacheIf { false }
-}
-
-task copyExternalMappingNextToBir(type: Copy) {
-    dependsOn compileJava
-    from "$buildDir/classes/java/main/META-INF/this.map.json"
-    into "$buildDir/generated-bir-jar"
-    rename { project.ext.moduleName + ".map.json" }
-    inputs.file "$buildDir/classes/java/main/META-INF/this.map.json"
 }
 
 task convertDuplicateSrcToProject() {
@@ -69,44 +60,43 @@ task copySelfToExternal(type: Copy) {
     rename '.*', "${project.ext.moduleName}.jar"
 }
 
-task createOldBirJar(type: Exec) {
-    dependsOn deleteBalBuildLog
-    dependsOn configurations.balo
-    dependsOn convertDuplicateSrcToProject
-    dependsOn copySelfToExternal
-    workingDir "$buildDir/duplicate-src"
-    dependsOn jar
-
-//    environment 'BALLERINA_REPO_LOOKUP_VERBOSE': 'true'
-//    environment 'BAL_JAVA_DEBUG': '5005'
-
-    doFirst {
-        if (file("$buildDir/classes/java/main/META-INF/this.map.json").exists()) {
-            environment 'BALLERINA_NATIVE_MAP': "$buildDir/classes/java/main/META-INF/this.map.json"
-        }
-        configurations.balo.each {
-            if (OperatingSystem.current().isWindows()) {
-                commandLine 'cmd.exe', '/c', new File(it, '/bin/ballerina.bat'), 'build', '--offline', '-c', '--skip-tests', project.ext.moduleName
-            } else {
-                commandLine 'sh', new File(it, '/bin/ballerina'), 'build', '--offline', '-c', '--skip-tests', project.ext.moduleName
-            }
-            println commandLine
-        }
-    }
-
-    doLast {
-        if (buildLog.exists()) {
-            println "contents of " + buildLog + " :"
-            println file(buildLog).text
-            throw new GradleException("ballerina internal error")
-        }
-    }
-
-    inputs.files configurations.balo
-    inputs.dir "src/main/ballerina/"
-    outputs.dir "build/duplicate-src/target"
-    outputs.dir balxCreationPath
-    outputs.cacheIf { true }
+task createOldBirJar() {
+//    dependsOn deleteBalBuildLog
+//    dependsOn configurations.balo
+//    dependsOn convertDuplicateSrcToProject
+//    dependsOn copySelfToExternal
+//    workingDir "$buildDir/duplicate-src"
+//    dependsOn jar
+//
+////    environment 'BALLERINA_REPO_LOOKUP_VERBOSE': 'true'
+////    environment 'BAL_JAVA_DEBUG': '5005'
+//
+//    doFirst {
+//        if (file("$buildDir/classes/java/main/META-INF/this.map.json").exists()) {
+//        }
+//        configurations.balo.each {
+//            if (OperatingSystem.current().isWindows()) {
+//                commandLine 'cmd.exe', '/c', new File(it, '/bin/ballerina.bat'), 'build', '--offline', '-c', '--skip-tests', project.ext.moduleName
+//            } else {
+//                commandLine 'sh', new File(it, '/bin/ballerina'), 'build', '--offline', '-c', '--skip-tests', project.ext.moduleName
+//            }
+//            println commandLine
+//        }
+//    }
+//
+//    doLast {
+//        if (buildLog.exists()) {
+//            println "contents of " + buildLog + " :"
+//            println file(buildLog).text
+//            throw new GradleException("ballerina internal error")
+//        }
+//    }
+//
+//    inputs.files configurations.balo
+//    inputs.dir "src/main/ballerina/"
+//    outputs.dir "build/duplicate-src/target"
+//    outputs.dir balxCreationPath
+//    outputs.cacheIf { true }
 }
 
 task copyBirJar(type: Copy){
@@ -124,8 +114,6 @@ artifacts {
     balx file(balxCreationPath), { builtBy(createOldBirJar) }
     oldBir file('build/generated-bir-jar/' + project.ext.moduleName + '.bir'), {builtBy(copyBirJar)}
     oldBirJar file('build/generated-bir-jar/' + project.ext.moduleName + '.jar'), {builtBy(copyBirJar)}
-    nativeMap file('build/generated-bir-jar/' + project.ext.moduleName + '.map.json'),
-            {builtBy(copyExternalMappingNextToBir)}
 }
 
 compileJava {

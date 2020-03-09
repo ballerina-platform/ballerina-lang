@@ -110,8 +110,8 @@ public class IterableOperationsWithVarMutabilityTests {
         BValue[] returns = BRunUtil.invoke(compileResult, "xmlTest");
         Assert.assertEquals(returns.length, 2);
         Assert.assertEquals(returns[0].stringValue(), "start-1-2-end");
-        Assert.assertEquals(returns[1].stringValue(), "<p:city xmlns:p=\"foo\" xmlns:q=\"bar\">NY</p:city>" +
-                "<q:country xmlns:q=\"bar\" xmlns:p=\"foo\">US</q:country>");
+        Assert.assertEquals(returns[1].stringValue(), "<p:city " +
+                "xmlns:p=\"foo\">NY</p:city><q:country xmlns:q=\"bar\">US</q:country>");
     }
 
     @Test

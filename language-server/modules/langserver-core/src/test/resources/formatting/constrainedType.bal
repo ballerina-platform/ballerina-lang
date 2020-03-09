@@ -44,4 +44,24 @@ public function test1() {
          >
   number
        ;
+
+   string   anotherText1=
+                    <
+                      @untainted     string
+        >
+                        text   ;
+                    int   anotherNumber2=
+      <
+                               @untainted
+            int
+                       >
+         number
+                   ;
+
+       string  anotherText2 =     <
+          @untainted
+                            string
+     >
+                         text
+          ;
 }

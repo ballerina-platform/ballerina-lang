@@ -21,6 +21,7 @@ import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.model.elements.Flag;
+import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.eclipse.lsp4j.TextDocumentPositionParams;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
@@ -33,6 +34,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangErrorVariable;
+import org.wso2.ballerinalang.compiler.tree.BLangExprFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangExternalFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
@@ -47,6 +49,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckPanickedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorVarRef;
@@ -160,7 +163,7 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
         this.pkgName = pkgName;
     }
 
-    SymbolReferenceFindingVisitor(LSContext lsContext, String pkgName) {
+    public SymbolReferenceFindingVisitor(LSContext lsContext, String pkgName) {
         this(lsContext, pkgName, false);
     }
 
@@ -244,7 +247,7 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
         this.acceptNode(funcNode.restParam);
         funcNode.returnTypeAnnAttachments.forEach(this::acceptNode);
         this.acceptNode(funcNode.returnTypeNode);
-        if (!isWorker && funcNode.body != null) {
+        if (!isWorker && funcNode.body instanceof BLangBlockFunctionBody) {
             // Fill the worker varDefs in the current function scope
             this.fillVisibleWorkerVarDefMaps(((BLangBlockFunctionBody) funcNode.body).stmts);
         }
@@ -285,6 +288,11 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
     @Override
     public void visit(BLangBlockFunctionBody blockFuncBody) {
         blockFuncBody.stmts.forEach(this::acceptNode);
+    }
+
+    @Override
+    public void visit(BLangExprFunctionBody exprFuncBody) {
+        this.acceptNode(exprFuncBody.getExpr());
     }
 
     @Override
@@ -426,6 +434,13 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
 
         // Visit the expression
         this.acceptNode(varDefNode.var.expr);
+    }
+
+    @Override
+    public void visit(BLangConstRef constRef) {
+        if (constRef.variableName != null && constRef.variableName.value.equals(this.tokenName)) {
+            this.addSymbol(constRef, constRef.symbol, false, constRef.pos);
+        }
     }
 
     @Override
@@ -584,6 +599,7 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
     public void visit(BLangRecordTypeNode recordTypeNode) {
         // Type name is handled at the BLangTypeDefinition visitor and here we visit the fields
         recordTypeNode.fields.forEach(this::acceptNode);
+        recordTypeNode.typeRefs.forEach(this::acceptNode);
         this.acceptNode(recordTypeNode.restFieldType);
     }
 
@@ -693,6 +709,8 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
                         (BLangRecordLiteral.BLangRecordKeyValueField) field;
                 this.acceptNode(bLangRecordKeyValue.key.expr);
                 this.acceptNode(bLangRecordKeyValue.valueExpr);
+            } else if (field.getKind() == NodeKind.RECORD_LITERAL_SPREAD_OP) {
+                this.acceptNode((BLangRecordLiteral.BLangRecordSpreadOperatorField) field);
             } else {
                 this.acceptNode((BLangRecordLiteral.BLangRecordVarNameField) field);
             }
@@ -841,6 +859,11 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
     public void visit(BLangErrorDestructure stmt) {
         this.acceptNode(stmt.varRef);
         this.acceptNode(stmt.expr);
+    }
+
+    @Override
+    public void visit(BLangRecordLiteral.BLangRecordSpreadOperatorField spreadOperatorField) {
+        this.acceptNode(spreadOperatorField.expr);
     }
 
     @Override
