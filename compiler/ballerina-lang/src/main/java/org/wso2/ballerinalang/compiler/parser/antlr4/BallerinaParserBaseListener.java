@@ -1,4 +1,4 @@
-// Generated from BallerinaParser.g4 by ANTLR 4.5.3
+// Generated from /home/kavindu/WSO2-GIT/ballerina-lang/compiler/ballerina-lang/src/main/resources/grammar/BallerinaParser.g4 by ANTLR 4.5.3
 package org.wso2.ballerinalang.compiler.parser.antlr4;
 
 import org.antlr.v4.runtime.ParserRuleContext;
@@ -3460,6 +3460,18 @@ public class BallerinaParserBaseListener implements BallerinaParserListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterDeprecatedAnnotationDocumentationLine(BallerinaParser.DeprecatedAnnotationDocumentationLineContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitDeprecatedAnnotationDocumentationLine(BallerinaParser.DeprecatedAnnotationDocumentationLineContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterDocumentationContent(BallerinaParser.DocumentationContentContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -3491,6 +3503,18 @@ public class BallerinaParserBaseListener implements BallerinaParserListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitReturnParameterDescriptionLine(BallerinaParser.ReturnParameterDescriptionLineContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterDeprecateAnnotationDescriptionLine(BallerinaParser.DeprecateAnnotationDescriptionLineContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitDeprecateAnnotationDescriptionLine(BallerinaParser.DeprecateAnnotationDescriptionLineContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -3551,6 +3575,18 @@ public class BallerinaParserBaseListener implements BallerinaParserListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitReturnParameterDocumentation(BallerinaParser.ReturnParameterDocumentationContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterDeprecatedAnnotationDocumentation(BallerinaParser.DeprecatedAnnotationDocumentationContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitDeprecatedAnnotationDocumentation(BallerinaParser.DeprecatedAnnotationDocumentationContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
