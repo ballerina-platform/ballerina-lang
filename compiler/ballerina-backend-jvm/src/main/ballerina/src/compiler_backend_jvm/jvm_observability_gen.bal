@@ -85,11 +85,11 @@ function getFullQualifiedRemoteFunctionName(string moduleOrg, string moduleName,
 }
 
 function genObserveStartWithTryBlockStart(jvm:MethodVisitor mv, LabelGenerator labelGen, bir:Function func,
-                                          int localVarOffset, bir:BType? attachedType, bir:ModuleID invocationModuleID,
-                                          bir:DiagnosticPos pos, string attachedConstructName) returns jvm:Label? {
+                                          int localVarOffset, bir:BType? attachedType, string orgName, string moduleName,
+                                          bir:DiagnosticPos pos, string attachedConstructName) returns jvm:Label {
     string funcName = cleanupFunctionName(<@untainted> func.name.value);
     jvm:Label tryStart = labelGen.getLabel(funcName + ":observe-try-start");
-    mv.visitLabel(<jvm:Label>tryStart);
+    mv.visitLabel(tryStart);
     string connectorName = attachedConstructName;
     if attachedType is bir:BObjectType {
         // Add module org and module name to remote spans.
@@ -97,8 +97,7 @@ function genObserveStartWithTryBlockStart(jvm:MethodVisitor mv, LabelGenerator l
                         attachedType.moduleId.org, attachedType.moduleId.name, attachedType.name.value);
     }
     map<string> tags = {
-        "b7a.invocation_fqn": io:sprintf("%s:%s:%s:%d:%d", invocationModuleID.org, invocationModuleID.name,
-            pos.sourceFileName, pos.sLine, pos.sCol)
+        "source.invocation_fqn": io:sprintf("%s:%s:%s:%d:%d", orgName, moduleName, pos.sourceFileName, pos.sLine, pos.sCol)
     };
     emitStartObservationInvocation(mv, localVarOffset, connectorName, funcName,
         "startCallableObservation", tags);
@@ -106,7 +105,7 @@ function genObserveStartWithTryBlockStart(jvm:MethodVisitor mv, LabelGenerator l
 }
 
 function genObserveEndWithTryBlockEnd(jvm:MethodVisitor mv, LabelGenerator labelGen, BalToJVMIndexMap indexMap,
-                                      bir:Function func, jvm:Label? tryStart, int localVarOffset) {
+                                      bir:Function func, jvm:Label tryStart, int localVarOffset) {
     string funcName = cleanupFunctionName(<@untainted> func.name.value);
     jvm:Label tryEnd = labelGen.getLabel(funcName + ":observe-try-end");
     jvm:Label tryCatch = labelGen.getLabel(funcName + ":observe-try-handler");
@@ -115,13 +114,13 @@ function genObserveEndWithTryBlockEnd(jvm:MethodVisitor mv, LabelGenerator label
     jvm:Label tryBlockEndLabel = labelGen.getLabel(funcName + ":observe-try-block-end");
 
     // visitTryCatchBlock visited at the end since order of the error table matters.
-    mv.visitTryCatchBlock(<jvm:Label>tryStart, tryEnd, tryCatch, ERROR_VALUE);
-    mv.visitTryCatchBlock(<jvm:Label>tryStart, tryEnd, tryFinally, ());
+    mv.visitTryCatchBlock(tryStart, tryEnd, tryCatch, ERROR_VALUE);
+    mv.visitTryCatchBlock(tryStart, tryEnd, tryFinally, ());
     mv.visitTryCatchBlock(tryCatch, tryCatchFinally, tryFinally, ());
 
-    bir:VariableDcl catchVarDcl = { typeValue: "any", name: { value: "$_catch_$" } };
+    bir:VariableDcl catchVarDcl = { typeValue: "any", name: { value: "$_observe_catch_$" } };
     int catchVarIndex = indexMap.getIndex(catchVarDcl);
-    bir:VariableDcl throwableVarDcl = { typeValue: "any", name: { value: "$_throwable_$" } };
+    bir:VariableDcl throwableVarDcl = { typeValue: "any", name: { value: "$_observe_throwable_$" } };
     int throwableVarIndex = indexMap.getIndex(throwableVarDcl);
 
     // Try-To-Finally
