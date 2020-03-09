@@ -267,6 +267,15 @@ function testFrozenXmlSetChildren() {
     x3.setChildren(x2);
 }
 
+function testFrozenXmlSetChildrenDeep() {
+    xml x1 = xml `<book><name>The Lost World</name><authors></authors></book>`;
+    xml x2 = xml `<author>Doyle</author>`;
+
+    xml x3 = x1.cloneReadOnly();
+    xml x4 = x3/<authors>;
+    x4.setChildren(x2);
+}
+
 function testFrozenMapUpdate() {
     map<anydata> m1 = { one: "1", two: 2 };
     map<anydata> m2 = { one: "21", two: 22, mapVal: m1 };
