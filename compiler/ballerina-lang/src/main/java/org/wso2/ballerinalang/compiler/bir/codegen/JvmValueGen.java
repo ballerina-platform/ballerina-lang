@@ -156,21 +156,23 @@ class JvmValueGen {
 
     private static void desugarObjectMethods(BIRPackage module, BType bType, @Nilable List<BIRFunction> attachedFuncs) {
 
-        if (attachedFuncs != null) {
-            for (BIRFunction func : attachedFuncs) {
-                if (func != null) {
-                    if (isExternFunc(func)) {
-                        JvmPackageGen.BIRFunctionWrapper extFuncWrapper = lookupBIRFunctionWrapper(module, func, bType);
-                        if (extFuncWrapper instanceof OldStyleExternalFunctionWrapper) {
-                            // Note when this support new interop, update here as well TODO
-                            desugarOldExternFuncs(module, (OldStyleExternalFunctionWrapper) extFuncWrapper, func);
-                        }
-                    } else {
-                        addDefaultableBooleanVarsToSignature(func);
-                    }
-                    enrichWithDefaultableParamInits(getFunction(func));
-                }
+        if (attachedFuncs == null) {
+            return;
+        }
+        for (BIRFunction func : attachedFuncs) {
+            if (func == null) {
+                continue;
             }
+            if (isExternFunc(func)) {
+                JvmPackageGen.BIRFunctionWrapper extFuncWrapper = lookupBIRFunctionWrapper(module, func, bType);
+                if (extFuncWrapper instanceof OldStyleExternalFunctionWrapper) {
+                    // TODO: Note when this support new interop, update here as well
+                    desugarOldExternFuncs(module, (OldStyleExternalFunctionWrapper) extFuncWrapper, func);
+                }
+            } else {
+                addDefaultableBooleanVarsToSignature(func);
+            }
+            enrichWithDefaultableParamInits(getFunction(func));
         }
     }
 
@@ -240,18 +242,19 @@ class JvmValueGen {
         List<Label> targetLabels = new ArrayList<>();
         int i = 0;
         for (NamedNode node : nodes) {
-            if (node != null) {
-                mv.visitLabel(labels.get(i));
-                mv.visitVarInsn(ALOAD, nameRegIndex);
-                mv.visitLdcInsn(getName(node));
-                mv.visitMethodInsn(INVOKEVIRTUAL, STRING_VALUE, "equals",
-                        String.format("(L%s;)Z", OBJECT), false);
-                Label targetLabel = new Label();
-                mv.visitJumpInsn(IFNE, targetLabel);
-                mv.visitJumpInsn(GOTO, defaultCaseLabel);
-                targetLabels.add(i, targetLabel);
-                i += 1;
+            if (node == null) {
+                continue;
             }
+            mv.visitLabel(labels.get(i));
+            mv.visitVarInsn(ALOAD, nameRegIndex);
+            mv.visitLdcInsn(getName(node));
+            mv.visitMethodInsn(INVOKEVIRTUAL, STRING_VALUE, "equals",
+                    String.format("(L%s;)Z", OBJECT), false);
+            Label targetLabel = new Label();
+            mv.visitJumpInsn(IFNE, targetLabel);
+            mv.visitJumpInsn(GOTO, defaultCaseLabel);
+            targetLabels.add(i, targetLabel);
+            i += 1;
         }
 
         return targetLabels;
@@ -261,9 +264,9 @@ class JvmValueGen {
 
         if (node instanceof NamedNode) {
             return ((NamedNode) node).getName().value;
-        } else {
-            throw new BLangCompilerException(String.format("Invalid node: %s", node));
         }
+
+        throw new BLangCompilerException(String.format("Invalid node: %s", node));
     }
 
     static class ObjectGenerator {
@@ -286,21 +289,22 @@ class JvmValueGen {
         private void createObjectFields(ClassWriter cw, @Nilable List<BField> fields) {
 
             for (BField field : fields) {
-                if (field != null) {
-                    if (IS_BSTRING) {
-                        FieldVisitor fvb = cw.visitField(0, nameOfBStringFunc(field.name.value),
-                                getTypeDesc(field.type, true), null, null);
-                        fvb.visitEnd();
-                    } else {
-                        FieldVisitor fv = cw.visitField(0, field.name.value, getTypeDesc(field.type, false), null,
-                                null);
-                        fv.visitEnd();
-                    }
-                    String lockClass = "L" + LOCK_VALUE + ";";
-                    FieldVisitor fv = cw.visitField(ACC_PUBLIC + ACC_FINAL, computeLockNameFromString(field.name.value),
-                            lockClass, null, null);
+                if (field == null) {
+                    continue;
+                }
+                if (IS_BSTRING) {
+                    FieldVisitor fvb = cw.visitField(0, nameOfBStringFunc(field.name.value),
+                            getTypeDesc(field.type, true), null, null);
+                    fvb.visitEnd();
+                } else {
+                    FieldVisitor fv = cw.visitField(0, field.name.value, getTypeDesc(field.type, false), null,
+                            null);
                     fv.visitEnd();
                 }
+                String lockClass = "L" + LOCK_VALUE + ";";
+                FieldVisitor fv = cw.visitField(ACC_PUBLIC + ACC_FINAL, computeLockNameFromString(field.name.value),
+                        lockClass, null, null);
+                fv.visitEnd();
             }
         }
 
@@ -308,9 +312,10 @@ class JvmValueGen {
                                          String className, String typeName) {
 
             for (BIRFunction func : attachedFuncs) {
-                if (func != null) {
-                    generateMethod(func, cw, this.module, this.currentObjectType, isService, typeName);
+                if (func == null) {
+                    continue;
                 }
+                generateMethod(func, cw, this.module, this.currentObjectType, isService, typeName);
             }
         }
 
@@ -510,11 +515,11 @@ class JvmValueGen {
 
         private static BIRFunction getFunction(@Nilable BIRFunction func) {
 
-            if (func != null) {
-                return func;
-            } else {
+            if (func == null) {
                 throw new BLangCompilerException(String.format("Invalid function: %s", func));
             }
+
+            return func;
         }
 
         private byte[] createRecordValueClass(BRecordType recordType, String className,
@@ -559,9 +564,10 @@ class JvmValueGen {
         private void createRecordMethods(ClassWriter cw, @Nilable List<BIRFunction> attachedFuncs) {
 
             for (BIRFunction func : attachedFuncs) {
-                if (func != null) {
-                    generateMethod(func, cw, this.module, null, false, "");
+                if (func == null) {
+                    continue;
                 }
+                generateMethod(func, cw, this.module, null, false, "");
             }
         }
 
@@ -631,15 +637,16 @@ class JvmValueGen {
         private void createRecordFields(ClassWriter cw, @Nilable List<BField> fields) {
 
             for (BField field : fields) {
-                if (field != null) {
-                    FieldVisitor fv = cw.visitField(0, field.name.value, getTypeDesc(field.type, false), null, null);
-                    fv.visitEnd();
+                if (field == null) {
+                    continue;
+                }
+                FieldVisitor fv = cw.visitField(0, field.name.value, getTypeDesc(field.type, false), null, null);
+                fv.visitEnd();
 
-                    if (this.isOptionalRecordField(field)) {
-                        fv = cw.visitField(0, this.getFieldIsPresentFlagName(field.name.value),
-                                getTypeDesc(symbolTable.booleanType, false), null, null);
-                        fv.visitEnd();
-                    }
+                if (this.isOptionalRecordField(field)) {
+                    fv = cw.visitField(0, this.getFieldIsPresentFlagName(field.name.value),
+                            getTypeDesc(symbolTable.booleanType, false), null, null);
+                    fv.visitEnd();
                 }
             }
         }
@@ -1120,57 +1127,6 @@ class JvmValueGen {
 
             cw.visitEnd();
             return JvmPackageGen.getBytes(cw, typeDef);
-        }
-
-    }
-
-    // --------------------- Sorting ---------------------------
-
-    static class NodeSorter {
-
-//        void sortByHash(@Nilable List<NamedNode> arr) {
-//            quickSort(arr, 0, arr.size() - 1);
-//        }
-
-        private static void quickSort(@Nilable List<NamedNode> arr, int low, int high) {
-
-            if (low < high) {
-                // pi is partitioning index, arr[pi] is now at right place
-                int pi = partition(arr, low, high);
-
-                // Recursively sort elements before partition and after partition
-                quickSort(arr, low, pi - 1);
-                quickSort(arr, pi + 1, high);
-            }
-        }
-
-        private static int partition(@Nilable List<NamedNode> arr, int begin, int end) {
-
-            int pivot = getHash(arr.get(end));
-            int i = begin - 1;
-
-            int j = begin;
-            while (j < end) {
-                if (getHash(arr.get(j)) <= pivot) {
-                    i += 1;
-                    swap(arr, i, j);
-                }
-                j += 1;
-            }
-            swap(arr, i + 1, end);
-            return i + 1;
-        }
-
-        private static int getHash(Object node) {
-
-            return getName(node).hashCode();
-        }
-
-        private static void swap(@Nilable List<NamedNode> arr, int i, int j) {
-
-            @Nilable NamedNode swapTemp = arr.get(i);
-            arr.set(i, arr.get(j));
-            arr.set(j, swapTemp);
         }
     }
 }

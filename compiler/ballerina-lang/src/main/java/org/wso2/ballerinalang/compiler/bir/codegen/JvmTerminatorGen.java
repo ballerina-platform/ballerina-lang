@@ -282,10 +282,6 @@ public class JvmTerminatorGen {
                 case LOCK:
                     this.genLockTerm((BIRTerminator.Lock) terminator, funcName, localVarOffset);
                     return;
-//                case FIELD_LOCK:
-//                    this.genFieldLockTerm((BIRTerminator.FieldLock) terminator, funcName, localVarOffset,
-//                    attachedType);
-//                    return;
                 case UNLOCK:
                     this.genUnlockTerm((BIRTerminator.Unlock) terminator, funcName, attachedType);
                     return;
@@ -366,42 +362,6 @@ public class JvmTerminatorGen {
             this.mv.visitJumpInsn(GOTO, gotoLabel);
         }
 
-//        void genLockTerm(BIRTerminator.Lock lockIns, String funcName, int localVarOffset) {
-//
-//            Label gotoLabel = this.labelGen.getLabel(funcName + lockIns.lockedBB.id.value);
-//            String lockClass = "L" + LOCK_VALUE + ";";
-//            String varClassName = lookupGlobalVarClassName(this.currentPackageName, lockIns.globalVar.name.value);
-//            String lockName = computeLockNameFromString(lockIns.globalVar.name.value);
-//            this.mv.visitFieldInsn(GETSTATIC, varClassName, lockName, lockClass);
-//            this.mv.visitVarInsn(ALOAD, localVarOffset);
-//            this.mv.visitMethodInsn(INVOKEVIRTUAL, LOCK_VALUE, "lock", String.format("(L%s;)Z", STRAND), false);
-//            this.mv.visitInsn(POP);
-//            genYieldCheckForLock(this.mv, this.labelGen, funcName, localVarOffset);
-//            this.mv.visitJumpInsn(GOTO, gotoLabel);
-//        }
-//
-//        void genFieldLockTerm(BIRTerminator.FieldLock lockIns, String funcName, int localVarOffset,
-//                              @Nilable BType attachedType) {
-//
-//            Label gotoLabel = this.labelGen.getLabel(funcName + lockIns.lockedBB.id.value);
-//            String lockClass = "L" + LOCK_VALUE + ";";
-//            String lockName = computeLockNameFromString(lockIns.field);
-//            this.loadVar(lockIns.localVar.variableDcl);
-//
-//            if (attachedType.tag == TypeTags.OBJECT) {
-//                String className = getTypeValueClassName(this.module, toNameString(attachedType));
-//                this.mv.visitFieldInsn(GETFIELD, className, lockName, lockClass);
-//                this.mv.visitVarInsn(ALOAD, localVarOffset);
-//                this.mv.visitMethodInsn(INVOKEVIRTUAL, LOCK_VALUE, "lock", String.format("(L%s;)Z", STRAND), false);
-//                this.mv.visitInsn(POP);
-//                genYieldCheckForLock(this.mv, this.labelGen, funcName, localVarOffset);
-//                this.mv.visitJumpInsn(GOTO, gotoLabel);
-//            } else {
-//                throw new BLangCompilerException("JVM field lock generation is not supported for type " +
-//                        String.format("%s", attachedType));
-//            }
-//        }
-
         public static String toNameString(BType t) {
 
             return t.tsymbol.name.value;
@@ -422,40 +382,6 @@ public class JvmTerminatorGen {
 
             this.mv.visitJumpInsn(GOTO, gotoLabel);
         }
-
-//        void genUnlockTerm(BIRTerminator.Unlock unlockIns, String funcName, @Nilable BType attachedType) {
-//
-//            Label gotoLabel = this.labelGen.getLabel(funcName + unlockIns.unlockBB.id.value);
-//
-//            String lockClass = "L" + LOCK_VALUE + ";";
-//            // unlocked in the same order https://yarchive.net/comp/linux/lock_ordering.html
-//            for (BIRNode.BIRGlobalVariableDcl globalVariable : unlockIns.globalVars) {
-//                BIRVariableDcl globleVar = this.cleanupVariableDecl(globalVariable);
-//                String varClassName = lookupGlobalVarClassName(this.currentPackageName, globleVar.name.value);
-//                String lockName = computeLockNameFromString(globleVar.name.value);
-//                this.mv.visitFieldInsn(GETSTATIC, varClassName, lockName, lockClass);
-//                this.mv.visitMethodInsn(INVOKEVIRTUAL, LOCK_VALUE, "unlock", "()V", false);
-//            }
-//
-//            for (Map.Entry<BIROperand, Set<String>> localLockDetails : unlockIns.fieldLocks.entrySet()) {
-//                if (localLockDetails != null) {
-//                    if (attachedType.tag == TypeTags.OBJECT) {
-//                        String className = getTypeValueClassName(this.module, toNameString(attachedType));
-//                        for (String fieldName : localLockDetails.getValue()) {
-//                            String lockName = computeLockNameFromString(fieldName);
-//                            this.loadVar(localLockDetails.getKey().variableDcl);
-//                            this.mv.visitFieldInsn(GETFIELD, className, lockName, lockClass);
-//                            this.mv.visitMethodInsn(INVOKEVIRTUAL, LOCK_VALUE, "unlock", "()V", false);
-//                        }
-//                    } else {
-//                        throw new BLangCompilerException("JVM field unlock generation is not supported for type " +
-//                                String.format("%s", attachedType));
-//                    }
-//                }
-//            }
-//
-//            this.mv.visitJumpInsn(GOTO, gotoLabel);
-//        }
 
         void handleErrorRetInUnion(int returnVarRefIndex, List<BIRNode.ChannelDetails> channels, BUnionType bType) {
 

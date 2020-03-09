@@ -115,35 +115,26 @@ public class JvmCastGen {
 
         if (targetType.jTag == JTypeTags.JBYTE) {
             generateCheckCastBToJByte(mv, sourceType);
-            return;
         } else if (targetType.jTag == JTypeTags.JCHAR) {
             generateCheckCastBToJChar(mv, sourceType);
-            return;
         } else if (targetType.jTag == JTypeTags.JSHORT) {
             generateCheckCastBToJShort(mv, sourceType);
-            return;
         } else if (targetType.jTag == JTypeTags.JINT) {
             generateCheckCastBToJInt(mv, sourceType);
-            return;
         } else if (targetType.jTag == JTypeTags.JLONG) {
             generateCheckCastBToJLong(mv, sourceType);
-            return;
         } else if (targetType.jTag == JTypeTags.JFLOAT) {
             generateCheckCastBToJFloat(mv, sourceType);
-            return;
         } else if (targetType.jTag == JTypeTags.JDOUBLE) {
             generateCheckCastBToJDouble(mv, sourceType);
-            return;
         } else if (targetType.jTag == JTypeTags.JREF) {
             if (((JType.JRefType) targetType).typeValue.equals(B_STRING_VALUE)) {
                 generateCheckCastBToJString(mv, sourceType);
             } else {
                 generateCheckCastBToJRef(mv, sourceType, targetType);
             }
-            return;
         } else if (targetType.jTag == JTypeTags.JARRAY) {
             generateCheckCastBToJRef(mv, sourceType, targetType);
-            return;
         } else {
             throw new BLangCompilerException(String.format("Casting is not supported from '%s' to 'java %s'",
                     sourceType, targetType));
@@ -332,25 +323,18 @@ public class JvmCastGen {
 
         if (targetType.tag == TypeTags.INT) {
             generateCheckCastJToBInt(mv, sourceType);
-            return;
         } else if (targetType.tag == TypeTags.FLOAT) {
             generateCheckCastJToBFloat(mv, sourceType);
-            return;
         } else if (targetType.tag == TypeTags.STRING) {
             generateCheckCastJToBString(mv, sourceType);
-            return;
         } else if (targetType.tag == TypeTags.DECIMAL) {
             generateCheckCastJToBDecimal(mv, sourceType);
-            return;
         } else if (targetType.tag == TypeTags.BOOLEAN) {
             generateCheckCastJToBBoolean(mv, sourceType);
-            return;
         } else if (targetType.tag == TypeTags.BYTE) {
             generateCheckCastJToBByte(mv, sourceType);
-            return;
         } else if (targetType.tag == TypeTags.NIL) {
             // Do nothing
-            return;
         } else {
             if (targetType.tag == TypeTags.UNION) {
                 generateCheckCastJToBUnionType(mv, indexMap, sourceType, (BUnionType) targetType);
@@ -378,7 +362,7 @@ public class JvmCastGen {
 
             checkCast(mv, targetType);
             @Nilable String targetTypeClass = getTargetClass(targetType);
-            if (targetTypeClass instanceof String) {
+            if (targetTypeClass != null) {
                 mv.visitTypeInsn(CHECKCAST, targetTypeClass);
             }
         }
@@ -707,7 +691,7 @@ public class JvmCastGen {
 
         // cast to the specific java class
         @Nilable String targetTypeClass = getTargetClass(targetType);
-        if (targetTypeClass instanceof String) {
+        if (targetTypeClass != null) {
             mv.visitTypeInsn(CHECKCAST, targetTypeClass);
         }
     }
@@ -955,7 +939,7 @@ public class JvmCastGen {
 
         // cast to the specific java class
         @Nilable String targetTypeClass = getTargetClass(targetType);
-        if (targetTypeClass instanceof String) {
+        if (targetTypeClass != null) {
             mv.visitTypeInsn(CHECKCAST, targetTypeClass);
         }
     }
@@ -1082,9 +1066,6 @@ public class JvmCastGen {
             mv.visitMethodInsn(INVOKESTATIC, DOUBLE_VALUE, "valueOf", String.format("(D)L%s;", DOUBLE_VALUE), false);
         } else if (sourceType.tag == TypeTags.BOOLEAN) {
             mv.visitMethodInsn(INVOKESTATIC, BOOLEAN_VALUE, "valueOf", String.format("(Z)L%s;", BOOLEAN_VALUE), false);
-        } else {
-            // do nothing
-            return;
         }
     }
 

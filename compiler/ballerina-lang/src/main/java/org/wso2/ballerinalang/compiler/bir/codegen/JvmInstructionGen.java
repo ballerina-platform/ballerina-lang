@@ -205,18 +205,14 @@ public class JvmInstructionGen {
 
     static void addBoxInsn(MethodVisitor mv, @Nilable BType bType) {
 
-        if (bType == null) {
-            return;
-        } else {
+        if (bType != null) {
             generateCast(mv, bType, symbolTable.anyType, false);
         }
     }
 
     public static void addUnboxInsn(MethodVisitor mv, @Nilable BType bType, boolean useBString /* = false */) {
 
-        if (bType == null) {
-            return;
-        } else {
+        if (bType != null) {
             generateCast(mv, symbolTable.anyType, bType, useBString);
         }
     }
@@ -1185,9 +1181,6 @@ public class JvmInstructionGen {
             this.storeToVar(stringLoadIns.lhsOp.variableDcl);
         }
 
-        //    # Generate a new instance of an array value
-//    #
-//    # + inst - the new array instruction
         void generateArrayNewIns(NewArray inst) {
 
             if (inst.type.tag == TypeTags.ARRAY) {
@@ -1209,9 +1202,6 @@ public class JvmInstructionGen {
             }
         }
 
-        //    # Generate adding a new value to an array
-//    #
-//    # + inst - array store instruction
         void generateArrayStoreIns(FieldAccess inst) {
 
             this.loadVar(inst.lhsOp.variableDcl);
@@ -1245,9 +1235,6 @@ public class JvmInstructionGen {
             }
         }
 
-        //    # Generating loading a new value from an array to the top of the stack
-//    #
-//    # + inst - field access instruction
         void generateArrayValueLoad(FieldAccess inst) {
 
             this.loadVar(inst.rhsOp.variableDcl);
@@ -1277,7 +1264,7 @@ public class JvmInstructionGen {
                 this.mv.visitMethodInsn(INVOKEINTERFACE, ARRAY_VALUE, "getRefValue",
                         String.format("(J)L%s;", OBJECT), true);
                 @Nilable String targetTypeClass = getTargetClass(bType);
-                if (targetTypeClass instanceof String) {
+                if (targetTypeClass != null) {
                     this.mv.visitTypeInsn(CHECKCAST, targetTypeClass);
                 } else {
                     addUnboxInsn(this.mv, bType, false);
@@ -1373,9 +1360,9 @@ public class JvmInstructionGen {
                 throw new BLangCompilerException("Expected BInvokableType, found " + String.format("%s", returnType));
             }
 
-            for (BIROperand v : inst.closureMaps) {
-                if (v instanceof BIROperand) {
-                    this.loadVar(v.variableDcl);
+            for (BIROperand operand : inst.closureMaps) {
+                if (operand != null) {
+                    this.loadVar(operand.variableDcl);
                 }
             }
 
@@ -1414,11 +1401,11 @@ public class JvmInstructionGen {
 
         private static String getMapsDesc(long count) {
 
-            StringBuffer buf = new StringBuffer();
+            StringBuilder builder = new StringBuilder();
             for (long i = count; i > 0; i--) {
-                buf.append("Lorg/ballerinalang/jvm/values/MapValue;");
+                builder.append("Lorg/ballerinalang/jvm/values/MapValue;");
             }
-            return buf.toString();
+            return builder.toString();
         }
 
         void generateNewXMLElementIns(NewXMLElement newXMLElement) {

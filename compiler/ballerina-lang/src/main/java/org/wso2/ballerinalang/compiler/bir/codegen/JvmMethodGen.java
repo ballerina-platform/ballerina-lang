@@ -235,7 +235,6 @@ import static org.wso2.ballerinalang.compiler.bir.model.BIRTerminator.Return;
  */
 public class JvmMethodGen {
 
-    private static List<String> generatedInitFuncs = new ArrayList<>();
     public static int nextId = -1;
     public static int nextVarId = -1;
 
@@ -518,8 +517,6 @@ public class JvmMethodGen {
             if (!tmpBoolParam && (localVar.kind == VarKind.LOCAL || localVar.kind == VarKind.ARG)) {
                 // local vars have visible range information
                 if (localVar.kind == VarKind.LOCAL) {
-//                    String startBBID = localVar.startBB.id.value;
-//                    String endBBID = localVar.endBB.id.value;
                     int insOffset = localVar.insOffset;
                     if (localVar.startBB != null) {
                         startLabel = labelGen.getLabel(funcName + localVar.startBB.id.value + "ins" + insOffset);
@@ -685,7 +682,6 @@ public class JvmMethodGen {
         } else {
             throw new BLangCompilerException("JVM generation is not supported for type " + String.format("%s", jType));
         }
-
     }
 
     private static void generateFrameClassFieldUpdate(@Nilable List<BIRVariableDcl> localVars, MethodVisitor mv,
@@ -1078,7 +1074,7 @@ public class JvmMethodGen {
             errorGen.generateTryCatch(func, funcName, bb, instGen, termGen, labelGen);
 
             BIRBasicBlock thenBB = terminator.thenBB;
-            if (thenBB instanceof BIRBasicBlock) {
+            if (thenBB != null) {
                 genYieldCheck(mv, termGen.labelGen, thenBB, funcName, localVarOffset);
             }
             j += 1;
@@ -1254,12 +1250,10 @@ public class JvmMethodGen {
             String methodDesc = String.format("(L%s;L%s;[L%s;)L%s;", STRAND, STRING_VALUE, OBJECT, OBJECT);
             mv.visitMethodInsn(INVOKEINTERFACE, OBJECT_VALUE, "call", methodDesc, true);
         } else {
+            String jvmClass;
             String lookupKey = getPackageName(orgName, moduleName) + funcName;
             JvmPackageGen.BIRFunctionWrapper functionWrapper = birFunctionMap.get(lookupKey);
-            String methodDesc;
-            String jvmClass;
-
-            methodDesc = getLambdaMethodDesc(paramBTypes, returnType, closureMapsCount);
+            String methodDesc = getLambdaMethodDesc(paramBTypes, returnType, closureMapsCount);
             if (functionWrapper != null) {
                 jvmClass = functionWrapper.fullQualifiedClassName;
             } else {
@@ -1485,44 +1479,44 @@ public class JvmMethodGen {
                                        @Nilable BType attachedType /* = () */, boolean isExtern /* = false */,
                                        boolean useBString /* = false */) {
 
-        String desc = "(Lorg/ballerinalang/jvm/scheduling/Strand;";
+        StringBuilder desc = new StringBuilder("(Lorg/ballerinalang/jvm/scheduling/Strand;");
 
-        if (attachedType instanceof BType) {
-            desc = desc + getArgTypeSignature(attachedType, useBString);
+        if (attachedType != null) {
+            desc.append(getArgTypeSignature(attachedType, useBString));
         }
 
         int i = 0;
         while (i < paramTypes.size()) {
             BType paramType = getType(paramTypes.get(i));
-            desc = desc + getArgTypeSignature(paramType, useBString);
+            desc.append(getArgTypeSignature(paramType, useBString));
             i += 1;
         }
         String returnType = generateReturnType(retType, isExtern, useBString);
-        desc = desc + returnType;
+        desc.append(returnType);
 
-        return desc;
+        return desc.toString();
     }
 
     private static String getLambdaMethodDesc(@Nilable List<BType> paramTypes, @Nilable BType retType,
                                               int closureMapsCount) {
 
-        String desc = "(Lorg/ballerinalang/jvm/scheduling/Strand;";
+        StringBuilder desc = new StringBuilder("(Lorg/ballerinalang/jvm/scheduling/Strand;");
         int j = 0;
         while (j < closureMapsCount) {
             j += 1;
-            desc = desc + "L" + MAP_VALUE + ";" + "Z";
+            desc.append("L").append(MAP_VALUE).append(";").append("Z");
         }
 
         int i = 0;
         while (i < paramTypes.size()) {
             BType paramType = getType(paramTypes.get(i));
-            desc = desc + getArgTypeSignature(paramType, false);
+            desc.append(getArgTypeSignature(paramType, false));
             i += 1;
         }
         String returnType = generateReturnType(retType, false, false);
-        desc = desc + returnType;
+        desc.append(returnType);
 
-        return desc;
+        return desc.toString();
     }
 
     private static String getArgTypeSignature(BType bType, boolean useBString /* = false */) {
@@ -1635,7 +1629,7 @@ public class JvmMethodGen {
 
         @Nilable BIRFunction userMainFunc = null;
         for (BIRFunction func : funcs) {
-            if (func instanceof BIRFunction && func.name.value.equals("main")) {
+            if (func != null && func.name.value.equals("main")) {
                 userMainFunc = func;
                 break;
             }
@@ -1682,7 +1676,7 @@ public class JvmMethodGen {
                 VarKind.ARG);
         int ignoreArgsVarIndex = indexMap.getIndex(argsVar);
 
-        boolean isVoidFunction = userMainFunc instanceof BIRFunction && userMainFunc.type.retType.tag == TypeTags.NIL;
+        boolean isVoidFunction = userMainFunc != null && userMainFunc.type.retType.tag == TypeTags.NIL;
 
         mv.visitTypeInsn(NEW, SCHEDULER);
         mv.visitInsn(DUP);
@@ -1694,13 +1688,12 @@ public class JvmMethodGen {
         mv.visitVarInsn(ASTORE, schedulerVarIndex);
 
         if (hasInitFunction(pkg)) {
-            String initFuncName = MODULE_INIT;
             mv.visitVarInsn(ALOAD, schedulerVarIndex);
             mv.visitIntInsn(BIPUSH, 1);
             mv.visitTypeInsn(ANEWARRAY, OBJECT);
 
             // schedule the init method
-            String lambdaName = String.format("$lambda$%s$", initFuncName);
+            String lambdaName = String.format("$lambda$%s$", MODULE_INIT);
 
             // create FP value
             createFunctionPointer(mv, initClass, lambdaName, 0);
@@ -1868,11 +1861,15 @@ public class JvmMethodGen {
         }
     }
 
-    //# Generate a lambda function to invoke ballerina main.
-//#
-//# + userMainFunc - ballerina main function
-//# + cw - class visitor
-//# + pkg - package
+    /**
+     * Generate a lambda function to invoke ballerina main.
+     *
+     * @param userMainFunc ballerina main function
+     * @param cw class visitor
+     * @param pkg bir package instance
+     * @param mainClass main class that contains the user main
+     * @param initClass module init class
+     */
     static void generateLambdaForMain(BIRFunction userMainFunc, ClassWriter cw, BIRPackage pkg,
                                       String mainClass, String initClass) {
 
@@ -1918,8 +1915,7 @@ public class JvmMethodGen {
         List<String> defaultableNames = new ArrayList<>();
         int defaultableIndex = 0;
         for (BIRAnnotationAttachment attachment : annotAttachments) {
-            if (attachment instanceof BIRAnnotationAttachment &&
-                    attachment.annotTagRef.value.equals(DEFAULTABLE_ARGS_ANOT_NAME)) {
+            if (attachment != null && attachment.annotTagRef.value.equals(DEFAULTABLE_ARGS_ANOT_NAME)) {
                 BIRAnnotationRecordValue annotRecValue = (BIRAnnotationRecordValue) attachment.annotValues.get(0);
                 Map<String, BIRAnnotationValue> annotFieldMap = annotRecValue.annotValueEntryMap;
                 BIRAnnotationArrayValue annotArrayValue =
@@ -1943,7 +1939,7 @@ public class JvmMethodGen {
             index += 1;
             mv.visitTypeInsn(NEW, String.format("%s$ParamInfo", RUNTIME_UTILS));
             mv.visitInsn(DUP);
-            if (param instanceof BIRFunctionParameter) {
+            if (param != null) {
                 if (param.hasDefaultExpr) {
                     mv.visitInsn(ICONST_1);
                 } else {
@@ -1972,10 +1968,15 @@ public class JvmMethodGen {
                 String.format("([L%s$ParamInfo;[L%s;Z)[L%s;", RUNTIME_UTILS, STRING_VALUE, OBJECT), false);
     }
 
-    //# Generate a lambda function to invoke ballerina main.
-    //#
-    //# + cw - class visitor
-    //# + pkg - package
+    /**
+     * Generate a lambda function to invoke ballerina main.
+     *
+     * @param cw class visitor
+     * @param pkg bir package
+     * @param mainClass mains class that conatins the user main
+     * @param initClass module init class
+     * @param depMods dependent module list
+     */
     static void generateLambdaForPackageInits(ClassWriter cw, BIRPackage pkg, String mainClass, String initClass,
                                               List<PackageID> depMods) {
         //need to generate lambda for package Init as well, if exist
@@ -2043,10 +2044,6 @@ public class JvmMethodGen {
         mv.visitEnd();
     }
 
-    //# Generate cast instruction from String to target type
-//#
-//# + targetType - target type to be casted
-//# + mv - method visitor
     static void castFromString(BType targetType, MethodVisitor mv) {
 
         mv.visitTypeInsn(CHECKCAST, STRING_VALUE);
@@ -2397,8 +2394,12 @@ public class JvmMethodGen {
         return frameClassName + cleanupFunctionName(funcName) + "Frame";
     }
 
-    //# Cleanup type name by replacing '$' with '_'.
-//# + return - cleaned name
+    /**
+     * Cleanup type name by replacing '$' with '_'.
+     *
+     * @param name name to be replaced and cleaned
+     * @return cleaned name
+     */
     static String cleanupTypeName(String name) {
 
         return name.replace("$", "_");
@@ -2504,56 +2505,56 @@ public class JvmMethodGen {
 
     public static BIRVariableDcl getVariableDcl(@Nilable BIRVariableDcl localVar) {
 
-        if (localVar instanceof BIRVariableDcl) {
-            return localVar;
-        } else {
+        if (localVar == null) {
             throw new BLangCompilerException("Invalid variable declarion");
         }
+
+        return localVar;
     }
 
     static BIRFunctionParameter getFunctionParam(@Nilable BIRFunctionParameter localVar) {
 
-        if (localVar instanceof BIRFunctionParameter) {
-            return localVar;
-        } else {
+        if (localVar == null) {
             throw new BLangCompilerException("Invalid function parameter");
         }
+
+        return localVar;
     }
 
     static BIRBasicBlock getBasicBlock(@Nilable BIRBasicBlock bb) {
 
-        if (bb instanceof BIRBasicBlock) {
-            return bb;
-        } else {
+        if (bb == null) {
             throw new BLangCompilerException("Invalid basic block");
         }
+
+        return bb;
     }
 
     static BIRFunction getFunction(@Nilable BIRFunction bfunction) {
 
-        if (bfunction instanceof BIRFunction) {
-            return bfunction;
-        } else {
+        if (bfunction == null) {
             throw new BLangCompilerException("Invalid function");
         }
+
+        return bfunction;
     }
 
     static BIRTypeDefinition getTypeDef(@Nilable BIRTypeDefinition typeDef) {
 
-        if (typeDef instanceof BIRTypeDefinition) {
-            return typeDef;
-        } else {
+        if (typeDef == null) {
             throw new BLangCompilerException("Invalid type definition");
         }
+
+        return typeDef;
     }
 
     static BField getObjectField(@Nilable BField objectField) {
 
-        if (objectField instanceof BField) {
-            return objectField;
-        } else {
+        if (objectField == null) {
             throw new BLangCompilerException("Invalid object field");
         }
+
+        return objectField;
     }
 
     static BField getRecordField(@Nilable BField recordField) {
@@ -2591,24 +2592,13 @@ public class JvmMethodGen {
     private static String getMapValueDesc(int count) {
 
         int i = count;
-        String desc = "";
+        StringBuilder desc = new StringBuilder();
         while (i > 0) {
-            desc = desc + "L" + MAP_VALUE + ";";
+            desc.append("L").append(MAP_VALUE).append(";");
             i -= 1;
         }
 
-        return desc;
-    }
-
-    static boolean isInitInvoked(String item) {
-
-        for (String listItem : generatedInitFuncs) {
-            if (listItem.equalsIgnoreCase(item)) {
-                return true;
-            }
-        }
-
-        return false;
+        return desc.toString();
     }
 
     static List<BIRFunction> getFunctions(List<BIRFunction> functions) {
@@ -2631,66 +2621,6 @@ public class JvmMethodGen {
         mv.visitInsn(ATHROW);
 
         mv.visitLabel(notCancelledLabel);
-    }
-
-    static boolean stringArrayContains(List<String> array, String item) {
-
-        for (String listItem : array) {
-            if (listItem.equalsIgnoreCase(item)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    static void logCompileError(BLangCompilerException compileError, Object src, BIRPackage currentModule) {
-//        String reason = compileError.getMessage();
-//        Map<String, anydata|BLangCompilerException > detail = compileError.detail();
-//        BLangCompilerException err;
-//        DiagnosticPos pos;
-//        String name;
-//        if (reason == ERROR_REASON_METHOD_TOO_LARGE) {
-//            name = (String) detail.get("name");
-//            @Nilable BIRFunction func = findBIRFunction(src, name);
-//            if (func == null) {
-//                throw compileError;
-//            } else {
-//                err = new BLangCompilerException(String.format("method is too large: '%s'", func.name.value));
-//                pos = func.pos;
-//            }
-//        } else if (reason == ERROR_REASON_CLASS_TOO_LARGE) {
-//            name = (String) detail.get("name");
-//            err = new BLangCompilerException(String.format("file is too large: '%s'", name));
-//            pos = null;
-//        } else {
-//            throw compileError;
-//        }
-//
-//        dlogger.logError(err, pos, currentModule);
-    }
-
-    private static @Nilable
-    BIRFunction findBIRFunction(Object src, String name) {
-
-        if (src instanceof BIRFunction) {
-            return (BIRFunction) src;
-        } else if (src instanceof BIRPackage) {
-            for (BIRFunction func : ((BIRPackage) src).functions) {
-                if (func != null && cleanupFunctionName(func.name.value).equals(name)) {
-                    return func;
-                }
-            }
-        } else {
-            @Nilable List<BIRFunction> attachedFuncs = ((BIRTypeDefinition) src).attachedFuncs;
-            if (attachedFuncs != null) {
-                for (BIRFunction func : attachedFuncs) {
-                    if (func != null && cleanupFunctionName(func.name.value).equals(name)) {
-                        return func;
-                    }
-                }
-            }
-        }
-        return null;
     }
 
     static void generateModuleInitializer(ClassWriter cw, BIRPackage module) {
@@ -2852,7 +2782,7 @@ public class JvmMethodGen {
 
         String versionProperty = "java.version";
         @Nilable String javaVersion = System.getProperty(versionProperty);
-        if (javaVersion instanceof String) {
+        if (javaVersion != null) {
             return javaVersion;
         } else {
             return "";
