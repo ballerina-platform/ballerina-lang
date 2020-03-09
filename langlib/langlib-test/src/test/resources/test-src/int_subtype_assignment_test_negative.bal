@@ -141,26 +141,6 @@ const ints:Unsigned16 cee = -10; // Error
 const ints:Unsigned8 cfe = -10; // Error
 const byte cge = -10; // Error
 
-const ints:Signed32 ca1 = 10;
-const ints:Signed16 cb1 = 10;
-const ints:Signed8 cc1 = 10;
-const ints:Unsigned32 cd1 = 10;
-const ints:Unsigned16 ce1 = 10;
-const ints:Unsigned8 cf1 = 10;
-const byte cg1 = 10;
-
-// TODO : Fix me. Following are valid, But Not supported yet.
-
-//function testConstReference() {
-//    ints:Unsigned8 a = ca1;
-//    ints:Unsigned8 b = cb1;
-//    ints:Unsigned8 c = cc1;
-//    ints:Unsigned8 d = cd1;
-//    ints:Unsigned8 e = ce1;
-//    ints:Unsigned8 f = cf1;
-//    ints:Unsigned8 g = cg1;
-//}
-
 // TODO : Fix me. Following are valid, But Not supported yet.
 //type TenOrEleven 10|11;
 //type TenOrMinusTen 10|-10;
