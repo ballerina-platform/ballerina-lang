@@ -69,6 +69,7 @@ public class LangLibSubTypeTest {
         BRunUtil.invoke(compileResult, "testTypeTest");
         BRunUtil.invoke(compileResult, "testList");
         BRunUtil.invoke(compileResult, "testMapping");
+        BRunUtil.invoke(compileResult, "testConstReference");
     }
 
     @Test
