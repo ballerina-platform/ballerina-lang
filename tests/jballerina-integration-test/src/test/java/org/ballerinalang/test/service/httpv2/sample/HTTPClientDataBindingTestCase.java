@@ -32,7 +32,7 @@ import java.io.IOException;
  */
 @Test(groups = "http-test")
 public class HTTPClientDataBindingTestCase extends HttpBaseTest {
-    private final int servicePort = 9259;
+    private final int servicePort = 9300;
 
     @Test(description = "Test HTTP basic client with all binding data types(targetTypes)")
     public void testAllBindingDataTypes() throws IOException {
@@ -65,5 +65,49 @@ public class HTTPClientDataBindingTestCase extends HttpBaseTest {
         HttpResponse response = HttpClientRequest.doGet(serverInstance.getServiceURLHttp(servicePort, "call/retry"));
         Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
         Assert.assertEquals(response.getData(), "Hello World!!!");
+    }
+
+    @Test(description = "Test cast error panic for incompatible types")
+    public void testCastError() throws IOException {
+        HttpResponse response = HttpClientRequest.doGet(serverInstance.getServiceURLHttp(servicePort, "call/cast"));
+        Assert.assertEquals(response.getResponseCode(), 500, "Response code mismatched");
+        Assert.assertEquals(response.getData(), "incompatible types: 'map<json>' cannot be cast to 'xml'");
+    }
+
+    @Test(description = "Test 500 error panic")
+    public void test5XXErrorPanic() throws IOException {
+        HttpResponse response = HttpClientRequest.doGet(serverInstance.getServiceURLHttp(servicePort, "call/500"));
+        Assert.assertEquals(response.getResponseCode(), 500, "Response code mismatched");
+        Assert.assertEquals(response.getData(),
+                            "incompatible types: 'http:RemoteServerError' cannot be cast to 'json'");
+    }
+
+    @Test(description = "Test 500 error handle")
+    public void test5XXHandleError() throws IOException {
+        HttpResponse response = HttpClientRequest.doGet(serverInstance.getServiceURLHttp(servicePort, "call/500handle"));
+        Assert.assertEquals(response.getResponseCode(), 501, "Response code mismatched");
+        Assert.assertEquals(response.getData(), "data-binding-failed-with-501");
+    }
+
+    @Test(description = "Test 404 error panic")
+    public void test4XXErrorPanic() throws IOException {
+        HttpResponse response = HttpClientRequest.doGet(serverInstance.getServiceURLHttp(servicePort, "call/404"));
+        Assert.assertEquals(response.getResponseCode(), 500, "Response code mismatched");
+        Assert.assertEquals(response.getData(),
+                            "incompatible types: 'http:ClientRequestError' cannot be cast to 'json'");
+    }
+
+    @Test(description = "Test 404 error handle")
+    public void test4XXHandleError() throws IOException {
+        HttpResponse response = HttpClientRequest.doGet(serverInstance.getServiceURLHttp(servicePort, "call/404/handle"));
+        Assert.assertEquals(response.getResponseCode(), 404, "Response code mismatched");
+        Assert.assertEquals(response.getData(), "no matching resource found for path : /backend/handle , method : POST");
+    }
+
+    @Test(description = "Test 405 error handle")
+    public void test405HandleError() throws IOException {
+        HttpResponse response = HttpClientRequest.doGet(serverInstance.getServiceURLHttp(servicePort, "call/404/get4XX"));
+        Assert.assertEquals(response.getResponseCode(), 405, "Response code mismatched");
+        Assert.assertEquals(response.getData(), "method not allowed");
     }
 }

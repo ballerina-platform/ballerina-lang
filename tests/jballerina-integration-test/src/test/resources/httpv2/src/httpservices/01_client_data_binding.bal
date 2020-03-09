@@ -133,6 +133,65 @@ service passthrough on new http:Listener(9300) {
         string r = <string>backendResponse;
         var responseToCaller = caller->respond(<@untainted>r);
     }
+
+    @http:ResourceConfig {
+        path: "/cast"
+    }
+    resource function checkCastError(http:Caller caller, http:Request request) {
+        var res = basicClient->post("/backend/getJson", "want json", targetType = json);
+        xml p = <xml>res;
+        var responseToCaller = caller->respond(<@untainted>p);
+    }
+
+    @http:ResourceConfig {
+        path: "/500"
+    }
+    resource function check500Error(http:Caller caller, http:Request request) {
+        var res = basicClient->post("/backend/get5XX", "want 500", targetType = json);
+        json p = <json>res;
+        var responseToCaller = caller->respond(<@untainted>p);
+    }
+
+    @http:ResourceConfig {
+        path: "/500handle"
+    }
+    resource function handle500Error(http:Caller caller, http:Request request) {
+        var res = basicClient->post("/backend/get5XX", "want 500", targetType = json);
+        if res is http:RemoteServerError {
+            http:Response resp = new;
+            resp.statusCode = res.detail()?.statusCode ?: 500;
+            resp.setPayload(<@untainted><string> res.detail()?.message);
+            var responseToCaller = caller->respond(<@untainted>resp);
+        } else {
+            json p = <json>res;
+            var responseToCaller = caller->respond(<@untainted>p);
+        }
+    }
+
+    @http:ResourceConfig {
+        path: "/404"
+    }
+    resource function check404Error(http:Caller caller, http:Request request) {
+        var res = basicClient->post("/backend/getIncorrectPath404", "want 500", targetType = json);
+        json p = <json>res;
+        var responseToCaller = caller->respond(<@untainted>p);
+    }
+
+    @http:ResourceConfig {
+        path: "/404/{path}"
+    }
+    resource function handle404Error(http:Caller caller, http:Request request, string path) {
+        var res = basicClient->post("/backend/" + <@untainted>path, "want 500", targetType = json);
+        if res is http:ClientRequestError {
+            http:Response resp = new;
+            resp.statusCode = res.detail()?.statusCode ?: 400;
+            resp.setPayload(<@untainted><string> res.detail()?.message);
+            var responseToCaller = caller->respond(<@untainted>resp);
+        } else {
+            json p = <json>res;
+            var responseToCaller = caller->respond(<@untainted>p);
+        }
+    }
 }
 
 @http:ServiceConfig {
@@ -191,6 +250,23 @@ service mockHelloService on new http:Listener(9301) {
         } else {
             var responseToCaller = caller->respond("Hello World!!!");
         }
+    }
+
+    resource function get5XX(http:Caller caller, http:Request req) {
+        http:Response response = new;
+        response.statusCode = 501;
+        response.setTextPayload("data-binding-failed-with-501");
+        var result = caller->respond(response);
+    }
+
+    @http:ResourceConfig {
+        methods: ["GET"]
+    }
+    resource function get4XX(http:Caller caller, http:Request req) {
+        http:Response response = new;
+        response.statusCode = 400;
+        response.setTextPayload("data-binding-failed-due-to-bad-request");
+        var result = caller->respond(response);
     }
 }
 
