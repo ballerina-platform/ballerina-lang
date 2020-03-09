@@ -390,6 +390,64 @@ function testTypeTest() {
 
 }
 
+function testList() {
+
+    ints:Signed32[] a1 = [1, 2, 3, 4, 5];
+    ints:Signed32 t1 = a1[0];
+    assertValueEqual(1, t1);
+    a1[6] = 7;
+    assertValueEqual([1,2,3,4,5,0,7], a1);
+
+    any t2 = a1;
+    assertTrue(t2 is ints:Signed32[]);
+
+    int[] t3 = a1;
+    assertError(trap insertListValue(t3, 0, 4294967295));
+
+    int[] a2 = [1, 2, 0, -1, -2];
+    ints:Signed32[] b2 = <ints:Signed32[]> a1;
+    assertError(trap <ints:Unsigned32[]> a2);
+
+    [ints:Signed32, ints:Unsigned8, int] a3 = [-100, 10,  4294967295];
+    int[] t4 = a3;
+    assertError(trap insertListValue(t4, 1, -1));
+}
+
+function insertListValue(int[] list, int pos, int value) {
+    list[pos] = value;
+}
+
+function testMapping() {
+
+    map<ints:Signed8> m1 = {};
+    m1["k1"] = 10;
+    int? t0 = m1["k1"];
+    assertValueEqual(10, t0);
+    map<ints:Signed16> t1 = m1;
+    map<int> t2 = m1;
+
+    assertError(trap <map<ints:Unsigned32>> t2);
+    assertError(trap insertMapValue(t1, "k2", 200));
+    assertError(trap insertMapValue(t2, "k2", 200));
+
+    record {
+        ints:Signed8 i;
+        ints:Unsigned8 k;
+    } rec = { i : -10, k : 10};
+    rec.i = 11;
+    assertValueEqual(11, rec.i);
+
+    record { int i; int k;} t3 = rec;
+    assertError(trap updateRecord(t3, 200));
+}
+
+function insertMapValue(map<int> m, string key, int value) {
+    m[key] = value;
+}
+
+function updateRecord(record { int i; int k;} rec, int value) {
+    rec.i = value;
+}
 
 // Test Functions
 

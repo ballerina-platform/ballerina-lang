@@ -67,6 +67,8 @@ public class LangLibSubTypeTest {
         BRunUtil.invoke(compileResult, "testTypeCastingWithFloat");
         BRunUtil.invoke(compileResult, "testTypeCastingWithDecimal");
         BRunUtil.invoke(compileResult, "testTypeTest");
+        BRunUtil.invoke(compileResult, "testList");
+        BRunUtil.invoke(compileResult, "testMapping");
     }
 
     @Test
