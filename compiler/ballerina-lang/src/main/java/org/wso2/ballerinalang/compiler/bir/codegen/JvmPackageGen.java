@@ -272,7 +272,7 @@ public class JvmPackageGen {
         if (pkgSymbol != null) {
             for (BPackageSymbol packageSymbol : pkgSymbol.imports) {
                 generateDependencyList(packageSymbol, jarFile, interopValidator);
-                if (CodeGenerator.dlog.errorCount > 0) {
+                if (CodeGenerator.dlog.getErrorCount() > 0) {
                     return;
                 }
             }
@@ -285,7 +285,7 @@ public class JvmPackageGen {
         typeOwnerClass = getModuleLevelClassName(orgName, moduleName, MODULE_INIT_CLASS_NAME);
         Map<String, JavaClass> jvmClassMap = generateClassNameMappings(module, pkgName, typeOwnerClass,
                 interopValidator, isEntry);
-        if (!isEntry || CodeGenerator.dlog.errorCount > 0) {
+        if (!isEntry || CodeGenerator.dlog.getErrorCount() > 0) {
             return;
         }
 
@@ -430,6 +430,7 @@ public class JvmPackageGen {
         PackageID langValueModule = new PackageID(ballerinaOrgName, new Name("lang.value"), builtInVersion);
         PackageID langXmlModule = new PackageID(ballerinaOrgName, new Name("lang.xml"), builtInVersion);
         PackageID langTypedescModule = new PackageID(ballerinaOrgName, new Name("lang.typedesc"), builtInVersion);
+        PackageID langBooleanModule = new PackageID(ballerinaOrgName, new Name("lang.boolean"), builtInVersion);
 
         dependentModuleArray.add(langArrayModule);
         dependentModuleArray.add(langDecimalModule);
@@ -445,6 +446,7 @@ public class JvmPackageGen {
         dependentModuleArray.add(langValueModule);
         dependentModuleArray.add(langXmlModule);
         dependentModuleArray.add(langTypedescModule);
+        dependentModuleArray.add(langBooleanModule);
     }
 
     private static boolean isSameModule(BIRPackage moduleId, PackageID importModule) {
