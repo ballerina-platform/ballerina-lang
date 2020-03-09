@@ -86,14 +86,25 @@ function authenticateFromCache(cache:Cache jwtCache, string jwtToken) returns Jw
             }
             return payload;
         } else {
-            var result = jwtCache.invalidate(jwtToken);
+            cache:Error? result = jwtCache.invalidate(jwtToken);
+            if (result is cache:Error) {
+                log:printError(function() returns string {
+                    return "Failed to invalidate JWT from the cache.";
+                });
+            }
         }
     }
 }
 
 function addToAuthenticationCache(cache:Cache jwtCache, string jwtToken, int? exp, JwtPayload payload) {
     InboundJwtCacheEntry jwtCacheEntry = {jwtPayload : payload, expTime : exp };
-    jwtCache.put(jwtToken, jwtCacheEntry);
+    cache:Error? result = jwtCache.put(jwtToken, jwtCacheEntry);
+    if (result is cache:Error) {
+        log:printError(function() returns string {
+            return "Failed to add JWT to the cache";
+        });
+        return;
+    }
     string? sub = payload?.sub;
     if (sub is string) {
         string printMsg = sub;

@@ -14,6 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/cache;
 import ballerina/log;
 import ballerina/runtime;
 import ballerina/time;
@@ -510,8 +511,18 @@ function invalidateResponses(HttpCache httpCache, Response inboundResponse, stri
     // TODO: Improve this logic in accordance with the spec
     if (isCacheableStatusCode(inboundResponse.statusCode) &&
         inboundResponse.statusCode >= 200 && inboundResponse.statusCode < 400) {
-        var result = httpCache.cache.invalidate(getCacheKey(GET, path));
+        cache:Error? result = httpCache.cache.invalidate(getCacheKey(GET, path));
+        if (result is cache:Error) {
+            log:printError(function() returns string {
+                return "Failed to remove the key: " + getCacheKey(GET, path) + " from the cache.";
+            });
+        }
         result = httpCache.cache.invalidate(getCacheKey(HEAD, path));
+        if (result is cache:Error) {
+            log:printError(function() returns string {
+                return "Failed to remove the key: " + getCacheKey(GET, path) + " from the cache.";
+            });
+        }
     }
 }
 

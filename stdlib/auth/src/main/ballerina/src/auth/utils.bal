@@ -190,12 +190,24 @@ function cacheAuthzResult(boolean authorized, string authzCacheKey, cache:Cache?
     if (authorized) {
         cache:Cache? pCache = positiveAuthzCache;
         if (pCache is cache:Cache) {
-            pCache.put(authzCacheKey, authorized);
+            cache:Error? result = pCache.put(authzCacheKey, authorized);
+            if (result is cache:Error) {
+                log:printError(function() returns string {
+                    return "Failed to add entry to positive authz cache";
+                });
+                return;
+            }
         }
     } else {
         cache:Cache? nCache = negativeAuthzCache;
          if (nCache is cache:Cache) {
-            nCache.put(authzCacheKey, authorized);
+            cache:Error? result = nCache.put(authzCacheKey, authorized);
+            if (result is cache:Error) {
+                log:printError(function() returns string {
+                    return "Failed to add entry to negative authz cache";
+                });
+                return;
+            }
          }
     }
 }

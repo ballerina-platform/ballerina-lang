@@ -564,7 +564,13 @@ function getSubcriberCallbackClient(string callback) returns http:Client {
                 return <http:Client>subscriberCallbackClientCache.get(<@untainted> callback);
             }
             subscriberCallbackClient = new http:Client(callback, hubClientConfig);
-            subscriberCallbackClientCache.put(<@untainted> callback, <@untainted> subscriberCallbackClient);
+            cache:Error? result = subscriberCallbackClientCache.put(<@untainted> callback,
+                                                              <@untainted> subscriberCallbackClient);
+            if (result is cache:Error) {
+                log:printError(function() returns string {
+                    return "Failed to add subscriber callback client with key: " + callback + " to the cache.";
+                });
+            }
             return subscriberCallbackClient;
         }
     }

@@ -152,7 +152,12 @@ public type HttpCache object {
     }
 
     function remove(string key) {
-        var result = self.cache.invalidate(key);
+        cache:Error? result = self.cache.invalidate(key);
+        if (result is cache:Error) {
+            log:printError(function() returns string {
+                return "Failed to remove the key: " + key + " from the HTTP cache.";
+            });
+        }
     }
 };
 
@@ -171,7 +176,12 @@ function addEntry(cache:Cache cache, string key, Response inboundResponse) {
         existingResponses[existingResponses.length()] = inboundResponse;
     } else {
         Response[] cachedResponses = [inboundResponse];
-        cache.put(key, cachedResponses);
+        cache:Error? result = cache.put(key, cachedResponses);
+        if (result is cache:Error) {
+            log:printError(function() returns string {
+                return "Failed to add cached response with the key: " + key + " to the HTTP cache.";
+            });
+        }
     }
 }
 

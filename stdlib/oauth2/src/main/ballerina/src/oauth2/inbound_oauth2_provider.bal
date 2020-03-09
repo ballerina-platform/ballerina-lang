@@ -113,7 +113,13 @@ public type InboundOAuth2Provider object {
 
 function addToAuthenticationCache(cache:Cache oauth2Cache, string token, string? username, string? scopes, int exp) {
     InboundOAuth2CacheEntry oauth2CacheEntry = {username: username ?: "", scopes: scopes ?: ""};
-    oauth2Cache.put(token, oauth2CacheEntry, exp);
+    cache:Error? result = oauth2Cache.put(token, oauth2CacheEntry, exp);
+    if (result is cache:Error) {
+        log:printError(function() returns string {
+            return "Failed to add JWT to the cache";
+        });
+        return;
+    }
     if (username is string) {
         string user = username;
         log:printDebug(function() returns string {
