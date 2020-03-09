@@ -1,10 +1,5 @@
 package org.ballerinalang.langserver.command.executors.openAPI.BallerinToOpenAPI;
 
-import com.github.jknack.handlebars.Handlebars;
-import com.github.jknack.handlebars.Template;
-import com.github.jknack.handlebars.helper.StringHelpers;
-import com.github.jknack.handlebars.io.ClassPathTemplateLoader;
-import com.github.jknack.handlebars.io.FileTemplateLoader;
 import com.google.gson.JsonObject;
 import io.swagger.models.Model;
 import io.swagger.models.ModelImpl;
@@ -49,7 +44,6 @@ import org.ballerinalang.model.tree.SimpleVariableNode;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
 import org.ballerinalang.model.tree.types.TypeNode;
-import org.ballerinalang.openapi.utils.GeneratorConstants;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.VersionedTextDocumentIdentifier;
 import org.wso2.ballerinalang.compiler.SourceDirectoryManager;

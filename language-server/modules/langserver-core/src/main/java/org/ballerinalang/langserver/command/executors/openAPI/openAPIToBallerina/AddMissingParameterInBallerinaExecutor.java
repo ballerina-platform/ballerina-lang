@@ -44,7 +44,6 @@ import org.eclipse.lsp4j.services.LanguageClient;
 import org.wso2.ballerinalang.compiler.SourceDirectoryManager;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
-import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
