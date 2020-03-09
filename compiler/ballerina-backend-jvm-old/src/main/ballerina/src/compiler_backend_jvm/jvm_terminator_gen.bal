@@ -519,7 +519,7 @@ type TerminatorGenerator object {
             if (isObserved) {
                 string workerName = functionWrapper.func.workerName.value;
                 tryStartLabel = genObserveStartWithTryBlockStart(self.mv, self.labelGen, functionWrapper.func,
-                    localVarOffset, (), callIns.pkgID, callIns.pos, workerName);
+                    localVarOffset, (), callIns.pkgID.org, callIns.pkgID.name, callIns.pos, workerName);
             }
         }
 
@@ -588,7 +588,7 @@ type TerminatorGenerator object {
             if (isObserved) {
                 string workerName = functionWrapper.func.workerName.value;
                 tryStartLabel = genObserveStartWithTryBlockStart(self.mv, self.labelGen, functionWrapper.func,
-                    localVarOffset, selfArg.typeValue, callIns.pkgID, callIns.pos, workerName);
+                    localVarOffset, selfArg.typeValue, callIns.pkgID.org, callIns.pkgID.name, callIns.pos, workerName);
             }
         }
 
