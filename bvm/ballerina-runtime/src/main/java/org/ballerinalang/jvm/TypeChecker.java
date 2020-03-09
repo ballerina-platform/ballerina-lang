@@ -462,7 +462,10 @@ public class TypeChecker {
                 return false;
             }
         }
-        return !(lhsIter.hasNext() || rhsIter.hasNext());
+        // lhs hasNext = false & rhs hasNext = false -> empty sequences, hence ref equal
+        // lhs hasNext = true & rhs hasNext = true would never reach here
+        // only one hasNext method returns true means requences are of different sizes, hence not ref equal
+        return lhsIter.hasNext() == rhsIter.hasNext();
     }
 
     /**
