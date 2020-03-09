@@ -256,11 +256,11 @@ public class CreateBallerinaServiceResourceMethodExecutor implements LSCommandEx
             final BLangArrayType fieldTypeNode = (BLangArrayType) node;
             ArrayProperty arr = new ArrayProperty();
             arr.setItems(mapBallerinaTypes(fieldTypeNode.getElementType()
-                                                   .type.getKind().typeName(), true));
+                                                   .type.getKind().typeName()));
             property = arr;
         } else if (node instanceof BLangBuiltInRefTypeNode) {
             final BLangBuiltInRefTypeNode fieldTypeNode = (BLangBuiltInRefTypeNode) node;
-            property = mapBallerinaTypes(fieldTypeNode.typeKind.typeName(), false);
+            property = mapBallerinaTypes(fieldTypeNode.typeKind.typeName());
         } else if (node instanceof BLangConstrainedType) {
             //TODO handle constrained types
         } else if (node instanceof BLangErrorType) {
@@ -269,7 +269,7 @@ public class CreateBallerinaServiceResourceMethodExecutor implements LSCommandEx
             final BType bErrorType = fieldTypeNode.type;
             if (bErrorType instanceof BErrorType) {
                 property = mapBallerinaTypes(((BErrorType) bErrorType)
-                                                     .getReasonType().getKind().typeName(), false);
+                                                     .getReasonType().getKind().typeName());
             }
         } else if (node instanceof BLangFiniteTypeNode) {
             //TODO handle finite types
@@ -287,15 +287,15 @@ public class CreateBallerinaServiceResourceMethodExecutor implements LSCommandEx
             //TODO handle union types
         } else if (node instanceof BLangUserDefinedType) {
             final BLangUserDefinedType fieldTypeNode = (BLangUserDefinedType) node;
-            property = mapBallerinaTypes(fieldTypeNode.getTypeName().value, false);
+            property = mapBallerinaTypes(fieldTypeNode.getTypeName().value);
         } else if (node instanceof BLangValueType) {
             final BLangValueType fieldTypeNode = (BLangValueType) node;
-            property = mapBallerinaTypes(fieldTypeNode.getTypeKind().typeName(), false);
+            property = mapBallerinaTypes(fieldTypeNode.getTypeKind().typeName());
         }
         return property;
     }
 
-    public static Property mapBallerinaTypes(String type, boolean isArray) {
+    public static Property mapBallerinaTypes(String type) {
         switch (type) {
             case "any":
                 //TODO handle any type to OpenApi

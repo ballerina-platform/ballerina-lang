@@ -201,7 +201,7 @@ public class CreateOpenApiServiceResourceMethodExecutor implements LSCommandExec
                         // remove already available methods
                         path.getOperationsList().removeIf(operation -> !operation.getOpMethod().equalsIgnoreCase(
                                 finalResourceMethod));
-                        editText = getContent(path, "/openAPITemplates", "balFunction");
+                        editText = getContent(path);
                     }
                 }
 
@@ -258,15 +258,15 @@ public class CreateOpenApiServiceResourceMethodExecutor implements LSCommandExec
         return paths;
     }
 
-    private String getContent(BallerinaOpenApiPath object, String templateDir, String templateName) throws IOException {
-        Template template = compileTemplate(templateDir, templateName);
+    private String getContent(BallerinaOpenApiPath object) throws IOException {
+        Template template = compileTemplate("/openAPITemplates");
         Context context = Context.newBuilder(object)
                 .resolver(MapValueResolver.INSTANCE, JavaBeanValueResolver.INSTANCE, FieldValueResolver.INSTANCE)
                 .build();
         return template.apply(context);
     }
 
-    private Template compileTemplate(String defaultTemplateDir, String templateName) throws IOException {
+    private Template compileTemplate(String defaultTemplateDir) throws IOException {
         defaultTemplateDir = defaultTemplateDir.replaceAll("\\\\", "/");
         String templatesDirPath = System.getProperty(GeneratorConstants.TEMPLATES_DIR_PATH_KEY, defaultTemplateDir);
         ClassPathTemplateLoader cpTemplateLoader = new ClassPathTemplateLoader((templatesDirPath));
@@ -297,7 +297,7 @@ public class CreateOpenApiServiceResourceMethodExecutor implements LSCommandExec
             return result;
         });
 
-        return handlebars.compile(templateName);
+        return handlebars.compile("balFunction");
     }
 
     /**

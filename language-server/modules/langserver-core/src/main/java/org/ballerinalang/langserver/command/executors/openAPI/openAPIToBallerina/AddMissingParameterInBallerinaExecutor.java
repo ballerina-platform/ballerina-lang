@@ -210,8 +210,8 @@ public class AddMissingParameterInBallerinaExecutor implements LSCommandExecutor
                             if (operation.getOpMethod().equalsIgnoreCase(resourceMethod)) {
                                 for (BallerinaOpenApiParameter openApiParameter : operation.getParameterList()) {
                                     if (openApiParameter.getParamName().equals(resourceParameter)) {
-                                        editText = getContent(openApiParameter, "/openAPITemplates",
-                                                              "balFunctionParameter");
+                                        editText = getContent(openApiParameter
+                                        );
                                     }
                                 }
                             }
@@ -309,16 +309,16 @@ public class AddMissingParameterInBallerinaExecutor implements LSCommandExecutor
         return paths;
     }
 
-    private String getContent(BallerinaOpenApiParameter object, String templateDir, String templateName)
+    private String getContent(BallerinaOpenApiParameter object)
             throws IOException {
-        Template template = compileTemplate(templateDir, templateName);
+        Template template = compileTemplate("/openAPITemplates");
         Context context = Context.newBuilder(object)
                 .resolver(MapValueResolver.INSTANCE, JavaBeanValueResolver.INSTANCE, FieldValueResolver.INSTANCE)
                 .build();
         return template.apply(context);
     }
 
-    private Template compileTemplate(String defaultTemplateDir, String templateName) throws IOException {
+    private Template compileTemplate(String defaultTemplateDir) throws IOException {
         defaultTemplateDir = defaultTemplateDir.replaceAll("\\\\", "/");
         String templatesDirPath = System.getProperty(GeneratorConstants.TEMPLATES_DIR_PATH_KEY, defaultTemplateDir);
         ClassPathTemplateLoader cpTemplateLoader = new ClassPathTemplateLoader((templatesDirPath));
@@ -349,7 +349,7 @@ public class AddMissingParameterInBallerinaExecutor implements LSCommandExecutor
             return result;
         });
 
-        return handlebars.compile(templateName);
+        return handlebars.compile("balFunctionParameter");
     }
 
     /**
