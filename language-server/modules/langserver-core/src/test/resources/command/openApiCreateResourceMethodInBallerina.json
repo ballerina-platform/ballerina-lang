@@ -2,7 +2,8 @@
   "arguments": {
     "node.line": 15,
     "node.column": 9,
-    "resource.path": "/pets/{petId}"
+    "resource.path": "/pets/{petId}",
+    "resource.method": "GET"
   },
   "expected": {
     "result": {
