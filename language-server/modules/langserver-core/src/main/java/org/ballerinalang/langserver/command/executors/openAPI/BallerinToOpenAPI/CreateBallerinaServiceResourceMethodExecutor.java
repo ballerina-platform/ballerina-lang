@@ -549,40 +549,6 @@ public class CreateBallerinaServiceResourceMethodExecutor implements LSCommandEx
         }
     }
 
-    private Template compileTemplate(String defaultTemplateDir, String templateName) throws IOException {
-        defaultTemplateDir = defaultTemplateDir.replaceAll("\\\\", "/");
-        String templatesDirPath = System.getProperty(GeneratorConstants.TEMPLATES_DIR_PATH_KEY, defaultTemplateDir);
-        ClassPathTemplateLoader cpTemplateLoader = new ClassPathTemplateLoader((templatesDirPath));
-        FileTemplateLoader fileTemplateLoader = new FileTemplateLoader(templatesDirPath);
-        cpTemplateLoader.setSuffix(GeneratorConstants.TEMPLATES_SUFFIX);
-        fileTemplateLoader.setSuffix(GeneratorConstants.TEMPLATES_SUFFIX);
-
-        Handlebars handlebars = new Handlebars().with(cpTemplateLoader, fileTemplateLoader);
-        handlebars.setInfiniteLoops(true); //This will allow templates to call themselves with recursion.
-        handlebars.registerHelpers(StringHelpers.class);
-        handlebars.registerHelper("equals", (object, options) -> {
-            CharSequence result;
-            Object param0 = options.param(0);
-
-            if (param0 == null) {
-                throw new IllegalArgumentException("found 'null', expected 'string'");
-            }
-            if (object != null) {
-                if (object.toString().equals(param0.toString())) {
-                    result = options.fn(options.context);
-                } else {
-                    result = options.inverse();
-                }
-            } else {
-                result = null;
-            }
-
-            return result;
-        });
-
-        return handlebars.compile(templateName);
-    }
-
     /**
      * {@inheritDoc}
      */

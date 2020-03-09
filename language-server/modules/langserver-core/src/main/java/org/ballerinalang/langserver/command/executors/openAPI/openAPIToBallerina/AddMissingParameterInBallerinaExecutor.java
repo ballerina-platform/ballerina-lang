@@ -276,23 +276,6 @@ public class AddMissingParameterInBallerinaExecutor implements LSCommandExecutor
         return null;
     }
 
-    private TextEdit addPackage(String pkgName, LSContext context) {
-        DiagnosticPos pos = null;
-        // Filter the imports except the runtime import
-        List<BLangImportPackage> imports = CommonUtil.getCurrentFileImports(context);
-        if (!imports.isEmpty()) {
-            BLangImportPackage lastImport = CommonUtil.getLastItem(imports);
-            pos = lastImport.getPosition();
-        }
-
-        int endCol = 0;
-        int endLine = pos == null ? 0 : pos.getEndLine();
-
-        String editText = "import " + pkgName + ";\n";
-        Range range = new Range(new Position(endLine, endCol), new Position(endLine, endCol));
-        return new TextEdit(range, editText);
-    }
-
     /**
      * Parse and get the {@link OpenAPI} for the given OpenAPI contract.
      *
