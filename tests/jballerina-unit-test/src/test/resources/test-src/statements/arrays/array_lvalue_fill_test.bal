@@ -72,6 +72,11 @@ function testRecordsWithoutFillerValues() {
     arr[2][1] = {name: "Pubudu"};
 }
 
+function testRecordsWithoutFillerValues2() {
+    record {| string name; |}[][2] arr = [];
+    arr[0][1] = {name: "Pubudu"};
+}
+
 type PersonObj object {
     string name = "John Doe";
 };
