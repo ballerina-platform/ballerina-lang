@@ -64,7 +64,7 @@ public type Client client object {
     #                         is executed. If the underline JDBC driver does not support it, it will return an `Error`.
     # + return - `UpdateResult` with the updated row count and key column values,
     #             else `Error` will be returned if there is an error
-    public remote function update(@untainted string sqlQuery, boolean returnGeneratedKeys, Param... parameters)
+    public remote function update(@untainted string sqlQuery, boolean returnGeneratedKeys = false, Param... parameters)
     returns UpdateResult|Error {
         if (!self.clientActive) {
             return self.handleStoppedClientInvocation();
@@ -90,7 +90,7 @@ public type Client client object {
     #            the `returnedError` field will give the corresponding `Error` along with the int[] which
     #            contains updated row count or the status returned from each command in the batch.
     public remote function batchUpdate(@untainted string sqlQuery, boolean rollbackAllInFailure,
-                                       boolean returnGeneratedKeys, Param?[]... parameters)
+                                       boolean returnGeneratedKeys = false, Param?[]... parameters)
                                        returns BatchUpdateResult {
         if (!self.clientActive) {
             return self.handleStoppedClientInvocationForBatchUpdate();

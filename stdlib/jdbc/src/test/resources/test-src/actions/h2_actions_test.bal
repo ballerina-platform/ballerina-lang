@@ -163,10 +163,10 @@ function testUpdateInMemory(string jdbcURL) returns @tainted [int, string] {
     });
 
     _ = checkpanic testDB->update("CREATE TABLE Customers2(customerId INTEGER NOT NULL IDENTITY,name  VARCHAR(300)," +
-    "creditLimit DOUBLE, country  VARCHAR(300), PRIMARY KEY (customerId))", false);
+    "creditLimit DOUBLE, country  VARCHAR(300), PRIMARY KEY (customerId))");
 
     var insertCountRet = testDB->update("insert into Customers2 (customerId, name, creditLimit, country) " +
-                                "values (15, 'Anne', 1000, 'UK')", false);
+                                "values (15, 'Anne', 1000, 'UK')");
     int insertCount = 0;
     if (insertCountRet is jdbc:UpdateResult) {
         insertCount = insertCountRet.updatedRowCount;
@@ -267,8 +267,8 @@ function testH2MemDBUpdate() returns [int, string] {
         poolOptions: {maximumPoolSize: 1}
     });
 
-    var insertCountRet = testDB->update("CREATE TABLE student(id INTEGER,  name VARCHAR(30))", false);
-    insertCountRet = testDB->update("insert into student (id, name) values (15, 'Anne')", false);
+    var insertCountRet = testDB->update("CREATE TABLE student(id INTEGER,  name VARCHAR(30))");
+    insertCountRet = testDB->update("insert into student (id, name) values (15, 'Anne')");
     var dt = testDB->select("Select * From student", ());
 
     string data = "";

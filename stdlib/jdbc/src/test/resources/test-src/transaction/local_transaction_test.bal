@@ -34,9 +34,9 @@ function testLocalTransaction(string jdbcURL) returns @tainted [int, int, boolea
     boolean abortedBlockExecuted = false;
     transaction {
         _ = checkpanic testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country) " +
-                                "values ('James', 'Clerk', 200, 5000.75, 'USA')", false);
+                                "values ('James', 'Clerk', 200, 5000.75, 'USA')");
         _ = checkpanic testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country) " +
-                                "values ('James', 'Clerk', 200, 5000.75, 'USA')", false);
+                                "values ('James', 'Clerk', 200, 5000.75, 'USA')");
     } onretry {
         returnVal = -1;
     } committed {
@@ -65,9 +65,9 @@ function testTransactionRollback(string jdbcURL) returns @tainted [int, int, boo
 
     transaction {
         var e1 = testDB->update("Insert into Customers (firstName,lastName,registrationID," +
-                "creditLimit,country) values ('James', 'Clerk', 210, 5000.75, 'USA')", false);
+                "creditLimit,country) values ('James', 'Clerk', 210, 5000.75, 'USA')");
         var e2 = testDB->update("Insert into Customers2 (firstName,lastName,registrationID," +
-                "creditLimit,country) values ('James', 'Clerk', 210, 5000.75, 'USA')", false);
+                "creditLimit,country) values ('James', 'Clerk', 210, 5000.75, 'USA')");
         stmtAfterFailureExecuted = true;
 
     } onretry {
@@ -92,11 +92,9 @@ function testLocalTransactionUpdateWithGeneratedKeys(string jdbcURL) returns @ta
     int count;
     transaction {
         var e1 = testDB->update("Insert into Customers " +
-        "(firstName,lastName,registrationID,creditLimit,country) values ('James', 'Clerk', 615, 5000.75, 'USA')",
-        false);
+        "(firstName,lastName,registrationID,creditLimit,country) values ('James', 'Clerk', 615, 5000.75, 'USA')");
         var e2 = testDB->update("Insert into Customers " +
-        "(firstName,lastName,registrationID,creditLimit,country) values ('James', 'Clerk', 615, 5000.75, 'USA')",
-        false);
+        "(firstName,lastName,registrationID,creditLimit,country) values ('James', 'Clerk', 615, 5000.75, 'USA')");
     } onretry {
         returnVal = -1;
     }
@@ -120,9 +118,9 @@ function testTransactionRollbackUpdateWithGeneratedKeys(string jdbcURL) returns 
 
     transaction {
         var e1 = testDB->update("Insert into Customers (firstName,lastName,registrationID," +
-                "creditLimit,country) values ('James', 'Clerk', 618, 5000.75, 'USA')", false);
+                "creditLimit,country) values ('James', 'Clerk', 618, 5000.75, 'USA')");
         var e2 = testDB->update("Insert into Customers2 (firstName,lastName,registrationID," +
-                "creditLimit,country) values ('James', 'Clerk', 618, 5000.75, 'USA')", false);
+                "creditLimit,country) values ('James', 'Clerk', 618, 5000.75, 'USA')");
     } onretry {
         returnVal = -1;
     }
@@ -292,10 +290,10 @@ function testTransactionAbort(string jdbcURL) returns @tainted [int, int] {
     int count;
     transaction {
         var e1 = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country) " +
-                                            "values ('James', 'Clerk', 220, 5000.75, 'USA')", false);
+                                            "values ('James', 'Clerk', 220, 5000.75, 'USA')");
 
         var e2 = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country) " +
-                                            "values ('James', 'Clerk', 220, 5000.75, 'USA')", false);
+                                            "values ('James', 'Clerk', 220, 5000.75, 'USA')");
         int i = 0;
         if (i == 0) {
             abort;
@@ -363,7 +361,7 @@ function testTransactionErrorPanicAndTrap(string jdbcURL) returns @tainted [int,
     int count;
     transaction {
         var e1 = testDB->update("Insert into Customers (firstName,lastName,registrationID," +
-                 "creditLimit,country) values ('James', 'Clerk', 250, 5000.75, 'USA')", false);
+                 "creditLimit,country) values ('James', 'Clerk', 250, 5000.75, 'USA')");
         var ret = trap testTransactionErrorPanicAndTrapHelper(0);
         if (ret is error) {
             catchValue = -1;
@@ -397,9 +395,9 @@ function testTransactionCommitted(string jdbcURL) returns @tainted [int, int] {
     int count;
     transaction {
         var e1 = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit," +
-               "country) values ('James', 'Clerk', 300, 5000.75, 'USA')", false);
+               "country) values ('James', 'Clerk', 300, 5000.75, 'USA')");
         var e2 = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit," +
-               "country) values ('James', 'Clerk', 300, 5000.75, 'USA')", false);
+               "country) values ('James', 'Clerk', 300, 5000.75, 'USA')");
     } onretry {
         returnVal = -1;
     }
@@ -423,18 +421,18 @@ function testTwoTransactions(string jdbcURL) returns @tainted [int, int, int] {
     int count;
     transaction {
         var e1 = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country) " +
-                            "values ('James', 'Clerk', 400, 5000.75, 'USA')", false);
+                            "values ('James', 'Clerk', 400, 5000.75, 'USA')");
         var e2 = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country) " +
-                            "values ('James', 'Clerk', 400, 5000.75, 'USA')", false);
+                            "values ('James', 'Clerk', 400, 5000.75, 'USA')");
     } onretry {
         returnVal1 = 0;
     }
 
     transaction {
         var e1 = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country) " +
-                            "values ('James', 'Clerk', 400, 5000.75, 'USA')", false);
+                            "values ('James', 'Clerk', 400, 5000.75, 'USA')");
         var e2 = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country) " +
-                            "values ('James', 'Clerk', 400, 5000.75, 'USA')", false);
+                            "values ('James', 'Clerk', 400, 5000.75, 'USA')");
     } onretry {
         returnVal2 = 0;
     }
@@ -455,9 +453,9 @@ function testTransactionWithoutHandlers(string jdbcURL) returns @tainted int {
 
     transaction {
         var e1 = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country) values " +
-                                           "('James', 'Clerk', 350, 5000.75, 'USA')", false);
+                                           "('James', 'Clerk', 350, 5000.75, 'USA')");
         var e2 = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country) values " +
-                                           "('James', 'Clerk', 350, 5000.75, 'USA')", false);
+                                           "('James', 'Clerk', 350, 5000.75, 'USA')");
     }
 
     int count;
@@ -536,13 +534,13 @@ function testLocalTransactionSuccessWithFailedHelper(string status, jdbc:Client 
     transaction with retries = 4 {
         a = a + " inTrx";
         var e1 = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)" +
-                                    " values ('James', 'Clerk', 222, 5000.75, 'USA')", false);
+                                    " values ('James', 'Clerk', 222, 5000.75, 'USA')");
         if (i == 2) {
             var e2 = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country) " +
-                                        "values ('Anne', 'Clerk', 222, 5000.75, 'USA')", false);
+                                        "values ('Anne', 'Clerk', 222, 5000.75, 'USA')");
         } else {
             var e3 = testDB->update("Insert into Customers2 (firstName,lastName,registrationID,creditLimit,country) " +
-                                        "values ('Anne', 'Clerk', 222, 5000.75, 'USA')", false);
+                                        "values ('Anne', 'Clerk', 222, 5000.75, 'USA')");
         }
     } onretry {
         a = a + " onRetry";
