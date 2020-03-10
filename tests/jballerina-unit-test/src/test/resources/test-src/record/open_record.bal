@@ -574,30 +574,3 @@ function removeIfHasKeyRest() {
          panic error("Returned value should be nil.");
     }
 }
-
-public type CustomDetail record {
-    string message;
-    error cause?;
-};
-
-const FOO_REASON = "FooError";
-type FooError error<FOO_REASON, CustomDetail>;
-
-const BAR_REASON = "BarError";
-type BarError error<BAR_REASON, CustomDetail>;
-
-type Error FooError|BarError;
-
-type MyRecord record {
-    typedesc<Error>[] myErrorTypes = [FooError];
-};
-
-function testCustomErrorTypeDescFieldOnRecord() {
-    MyRecord m = {};
-    typedesc<Error> e = m.myErrorTypes[0];
-    if (!(e is typedesc<FooError>)) {
-            panic error("AssertionError", message = "expected typedesc<FooError> but found: " + e.toString());
-         error err = error("Returned value should be nil.");
-         panic err;
-    }
-}

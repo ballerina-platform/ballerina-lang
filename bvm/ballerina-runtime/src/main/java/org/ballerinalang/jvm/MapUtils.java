@@ -158,10 +158,23 @@ public class MapUtils {
         }
     }
 
-    public static void validateRecord(MapValue<?, ?> m, String  k) {
+    public static void validateRequiredFieldForRecord(MapValue<?, ?> m, String  k) {
         BType type = m.getType();
         if (type.getTag() == TypeTags.RECORD_TYPE_TAG && isRequiredField((BRecordType) type, k)) {
             throw createOpNotSupportedErrorForRecord(type, k);
+        }
+    }
+
+    public static void validateRecord(MapValue<?, ?> m) {
+        BType type = m.getType();
+        if (type.getTag() != TypeTags.RECORD_TYPE_TAG) {
+            return;
+        }
+        Map<String, BField> fields = ((BRecordType) type).getFields();
+        for (String key : fields.keySet()) {
+            if (isRequiredField((BRecordType) type, key)) {
+                throw createOpNotSupportedErrorForRecord(type, key);
+            }
         }
     }
 

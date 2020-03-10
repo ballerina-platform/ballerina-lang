@@ -98,7 +98,7 @@ public class LangLibRecordTest {
 
     @Test(expectedExceptions = BLangRuntimeException.class,
           expectedExceptionsMessageRegExp =
-                  ".*OperationNotSupported message=removeAll\\(\\) not supported.*")
+                  ".*OperationNotSupported message=failed .*")
     public void testRemoveAll() {
         BRunUtil.invoke(compileResult, "testRemoveAll");
     }
