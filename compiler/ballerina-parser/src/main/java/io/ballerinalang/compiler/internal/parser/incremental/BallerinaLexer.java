@@ -17,6 +17,7 @@
  */
 package io.ballerinalang.compiler.internal.parser.incremental;
 
+import io.ballerinalang.compiler.internal.parser.CharReader;
 import io.ballerinalang.compiler.internal.parser.tree.STIdentifier;
 import io.ballerinalang.compiler.internal.parser.tree.STLiteralValueToken;
 import io.ballerinalang.compiler.internal.parser.tree.STToken;
@@ -32,9 +33,9 @@ import java.util.List;
 import static io.ballerinalang.compiler.internal.parser.tree.SyntaxKind.IDENTIFIER_TOKEN;
 
 public class BallerinaLexer {
-    private CharacterReader reader;
+    private CharReader reader;
 
-    public BallerinaLexer(CharacterReader reader) {
+    public BallerinaLexer(CharReader reader) {
         this.reader = reader;
     }
 
@@ -53,7 +54,7 @@ public class BallerinaLexer {
 
     // TODO We should be able to set the lexer state, mode etc
     public void reset(int offset) {
-        reader.setOffset(offset);
+        reader.reset(offset);
     }
 
     private STToken createToken(TokenDataHolder tokenData, List<STNode> leadingTrivia,
@@ -76,63 +77,63 @@ public class BallerinaLexer {
 
     private TokenDataHolder lexSyntaxTokenInternal() {
         TokenDataHolder tokenData = new TokenDataHolder();
-        reader.resetLexemeStart();
-        char c = reader.peekChar();
+        reader.mark();
+        char c = reader.peek();
         switch (c) {
             case ';':
-                reader.moveToNextChar();
+                reader.advance();
                 tokenData.kind = SyntaxKind.SEMICOLON_TOKEN;
                 break;
             case '{':
-                reader.moveToNextChar();
+                reader.advance();
                 tokenData.kind = SyntaxKind.OPEN_BRACE_TOKEN;
                 break;
             case '}':
-                reader.moveToNextChar();
+                reader.advance();
                 tokenData.kind = SyntaxKind.CLOSE_BRACE_TOKEN;
                 break;
             case '[':
-                reader.moveToNextChar();
+                reader.advance();
                 tokenData.kind = SyntaxKind.OPEN_BRACKET_TOKEN;
                 break;
             case ']':
-                reader.moveToNextChar();
+                reader.advance();
                 tokenData.kind = SyntaxKind.CLOSE_BRACKET_TOKEN;
                 break;
             case '(':
-                reader.moveToNextChar();
+                reader.advance();
                 tokenData.kind = SyntaxKind.OPEN_PAREN_TOKEN;
                 break;
             case ')':
-                reader.moveToNextChar();
+                reader.advance();
                 tokenData.kind = SyntaxKind.CLOSE_PAREN_TOKEN;
                 break;
             case '.':
-                reader.moveToNextChar();
+                reader.advance();
                 tokenData.kind = SyntaxKind.DOT_TOKEN;
                 break;
             case '=':
-                reader.moveToNextChar();
+                reader.advance();
                 tokenData.kind = SyntaxKind.EQUAL_TOKEN;
                 break;
             case '+':
-                reader.moveToNextChar();
+                reader.advance();
                 tokenData.kind = SyntaxKind.PLUS_TOKEN;
                 break;
             case '-':
-                reader.moveToNextChar();
+                reader.advance();
                 tokenData.kind = SyntaxKind.MINUS_TOKEN;
                 break;
             case '/':
-                reader.moveToNextChar();
+                reader.advance();
                 tokenData.kind = SyntaxKind.SLASH_TOKEN;
                 break;
             case '%':
-                reader.moveToNextChar();
+                reader.advance();
                 tokenData.kind = SyntaxKind.PERCENT_TOKEN;
                 break;
             case '*':
-                reader.moveToNextChar();
+                reader.advance();
                 tokenData.kind = SyntaxKind.ASTERISK_TOKEN;
                 break;
 
@@ -192,7 +193,7 @@ public class BallerinaLexer {
                 scanKeywordOrIdentifier(tokenData);
                 break;
             case '0':
-                reader.moveToNextChar();
+                reader.advance();
                 tokenData.kind = SyntaxKind.NUMERIC_LITERAL_TOKEN;
                 tokenData.text = "0";
                 tokenData.intValue = 0;
@@ -220,8 +221,8 @@ public class BallerinaLexer {
 
     private void lexSyntaxTrivia(List<STNode> triviaList, boolean isLeading) {
         while (true) {
-            reader.resetLexemeStart();
-            char c = reader.peekChar();
+            reader.mark();
+            char c = reader.peek();
             switch (c) {
                 case ' ':
                 case '\t':
@@ -244,12 +245,12 @@ public class BallerinaLexer {
     private SyntaxTrivia scanWhitespaces() {
         while (true) {
             boolean done = false;
-            char c = reader.peekChar();
+            char c = reader.peek();
             switch (c) {
                 case ' ':
                 case '\t':
                 case '\f':
-                    reader.moveToNextChar();
+                    reader.advance();
                     break;
                 case '\r':
                 case '\n':
@@ -260,33 +261,33 @@ public class BallerinaLexer {
             }
             if (done) {
                 // TODO use SyntaxNodeFactory to create nodes and tokens
-                return new SyntaxTrivia(SyntaxKind.WHITESPACE_TRIVIA, reader.getText());
+                return new SyntaxTrivia(SyntaxKind.WHITESPACE_TRIVIA, reader.getMarkedChars());
             }
         }
     }
 
     private SyntaxTrivia scanEndOfLine() {
-        char c = reader.peekChar();
+        char c = reader.peek();
         switch (c) {
             case '\r':
-                reader.moveToNextChar();
-                if (reader.peekChar() == '\n') {
-                    reader.moveToNextChar();
+                reader.advance();
+                if (reader.peek() == '\n') {
+                    reader.advance();
                 }
-                return new SyntaxTrivia(SyntaxKind.END_OF_LINE_TRIVIA, reader.getText());
+                return new SyntaxTrivia(SyntaxKind.END_OF_LINE_TRIVIA, reader.getMarkedChars());
             case '\n':
-                reader.moveToNextChar();
-                return new SyntaxTrivia(SyntaxKind.END_OF_LINE_TRIVIA, reader.getText());
+                reader.advance();
+                return new SyntaxTrivia(SyntaxKind.END_OF_LINE_TRIVIA, reader.getMarkedChars());
             default:
                 return null;
         }
     }
 
     private void scanKeywordOrIdentifier(TokenDataHolder tokenData) {
-        reader.moveToNextChar();
+        reader.advance();
         while (true) {
             boolean done = false;
-            char c = reader.peekChar();
+            char c = reader.peek();
             switch (c) {
                 case 'A':
                 case 'B':
@@ -351,7 +352,7 @@ public class BallerinaLexer {
                 case '7':
                 case '8':
                 case '9':
-                    reader.moveToNextChar();
+                    reader.advance();
                     break;
                 default:
                     // TODO handle unicode and other cases here..
@@ -359,7 +360,7 @@ public class BallerinaLexer {
             }
 
             if (done) {
-                tokenData.text = reader.getText();
+                tokenData.text = reader.getMarkedChars();
                 tokenData.kind = SyntaxUtils.keywordKind(tokenData.text);
                 if (tokenData.kind == SyntaxKind.NONE) {
                     tokenData.kind = IDENTIFIER_TOKEN;
@@ -370,11 +371,11 @@ public class BallerinaLexer {
     }
 
     private void scanNumber(TokenDataHolder tokenData) {
-        reader.moveToNextChar();
+        reader.advance();
 
         while (true) {
             boolean done = false;
-            char c = reader.peekChar();
+            char c = reader.peek();
             switch (c) {
                 case '0':
                 case '1':
@@ -386,14 +387,14 @@ public class BallerinaLexer {
                 case '7':
                 case '8':
                 case '9':
-                    reader.moveToNextChar();
+                    reader.advance();
                     break;
                 default: {
                     done = true;
                 }
             }
             if (done) {
-                tokenData.text = reader.getText();
+                tokenData.text = reader.getMarkedChars();
                 tokenData.kind = SyntaxKind.NUMERIC_LITERAL_TOKEN;
                 tokenData.intValue = Long.parseLong(tokenData.text);
                 return;

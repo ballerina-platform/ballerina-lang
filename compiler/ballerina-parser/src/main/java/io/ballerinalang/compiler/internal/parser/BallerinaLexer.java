@@ -26,8 +26,6 @@ import io.ballerinalang.compiler.internal.parser.tree.STTypeToken;
 import io.ballerinalang.compiler.internal.parser.tree.SyntaxKind;
 import io.ballerinalang.compiler.internal.parser.tree.SyntaxTrivia;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -38,18 +36,16 @@ import java.util.List;
  */
 public class BallerinaLexer {
 
-    private static final byte EOF = -1;
-    private final PositionTracer tracer = new PositionTracer();
-    private StringBuilder sb = new StringBuilder();
-    private InputReader reader;
+    private CharReader reader;
     private List<STNode> leadingTriviaList;
 
-    public BallerinaLexer(InputStream inputStream) {
-        this.reader = new InputReader(inputStream);
+    public BallerinaLexer(String source) {
+        // TODO remove this method
+        this.reader = CharReader.fromString(source);
     }
 
-    public BallerinaLexer(String source) {
-        this.reader = new InputReader(source);
+    public BallerinaLexer(CharReader charReader) {
+        this.reader = charReader;
     }
 
     /**
@@ -59,77 +55,94 @@ public class BallerinaLexer {
      */
     public STToken nextToken() {
         this.leadingTriviaList = new ArrayList<>(10);
-        STToken token = readToken();
-        this.tracer.markTokenEnd();
-        return token;
+        return readToken();
+    }
+
+    public void reset(int offset) {
+        reader.reset(offset);
     }
 
     private STToken readToken() {
         STToken token;
-        int startChar = consume();
-        switch (startChar) {
-            case EOF:
-                token = getSyntaxToken(SyntaxKind.EOF_TOKEN);
-                break;
-
+        reader.mark();
+        int c = reader.peek();
+        switch (c) {
             // Separators
             case LexerTerminals.COLON:
+                reader.advance();
                 token = getSyntaxToken(SyntaxKind.COLON_TOKEN);
                 break;
             case LexerTerminals.SEMICOLON:
+                reader.advance();
                 token = getSyntaxToken(SyntaxKind.SEMICOLON_TOKEN);
                 break;
             case LexerTerminals.DOT:
+                reader.advance();
                 token = parseDotOrEllipsis();
                 break;
             case LexerTerminals.COMMA:
+                reader.advance();
                 token = getSyntaxToken(SyntaxKind.COMMA_TOKEN);
                 break;
             case LexerTerminals.OPEN_PARANTHESIS:
+                reader.advance();
                 token = getSyntaxToken(SyntaxKind.OPEN_PAREN_TOKEN);
                 break;
             case LexerTerminals.CLOSE_PARANTHESIS:
+                reader.advance();
                 token = getSyntaxToken(SyntaxKind.CLOSE_PAREN_TOKEN);
                 break;
             case LexerTerminals.OPEN_BRACE:
+                reader.advance();
                 token = getSyntaxToken(SyntaxKind.OPEN_BRACE_TOKEN);
                 break;
             case LexerTerminals.CLOSE_BRACE:
+                reader.advance();
                 token = getSyntaxToken(SyntaxKind.CLOSE_BRACE_TOKEN);
                 break;
             case LexerTerminals.OPEN_BRACKET:
+                reader.advance();
                 token = getSyntaxToken(SyntaxKind.OPEN_BRACKET_TOKEN);
                 break;
             case LexerTerminals.CLOSE_BRACKET:
+                reader.advance();
                 token = getSyntaxToken(SyntaxKind.CLOSE_BRACKET_TOKEN);
                 break;
 
             // Arithmetic operators
             case LexerTerminals.EQUAL:
+                reader.advance();
                 token = processEqualOperator();
                 break;
             case LexerTerminals.ADD:
+                reader.advance();
                 token = getSyntaxToken(SyntaxKind.PLUS_TOKEN);
                 break;
             case LexerTerminals.SUB:
+                reader.advance();
                 token = getSyntaxToken(SyntaxKind.MINUS_TOKEN);
                 break;
             case LexerTerminals.MUL:
+                reader.advance();
                 token = getSyntaxToken(SyntaxKind.ASTERISK_TOKEN);
                 break;
             case LexerTerminals.DIV:
+                reader.advance();
                 if (peek() == LexerTerminals.DIV) {
                     // Process comments as trivia, and continue to next token
-                    processComment(startChar);
+                    reader.advance();
+                    processComment();
                     token = readToken();
                 } else {
                     token = getSyntaxToken(SyntaxKind.SLASH_TOKEN);
                 }
                 break;
             case LexerTerminals.MOD:
+                reader.advance();
                 token = getSyntaxToken(SyntaxKind.PERCENT_TOKEN);
                 break;
             case LexerTerminals.LT:
+                reader.advance();
                 token = getSyntaxToken(SyntaxKind.LT_TOKEN);
                 break;
             // Numbers
@@ -143,7 +156,65 @@ public class BallerinaLexer {
             case '7':
             case '8':
             case '9':
-                token = processNumericLiteral(startChar);
+                reader.advance();
+                token = processNumericLiteral(c);
+                break;
+
+            case 'A':
+            case 'B':
+            case 'C':
+            case 'D':
+            case 'E':
+            case 'F':
+            case 'G':
+            case 'H':
+            case 'I':
+            case 'J':
+            case 'K':
+            case 'L':
+            case 'M':
+            case 'N':
+            case 'O':
+            case 'P':
+            case 'Q':
+            case 'R':
+            case 'S':
+            case 'T':
+            case 'U':
+            case 'V':
+            case 'W':
+            case 'X':
+            case 'Y':
+            case 'Z':
+            case 'a':
+            case 'b':
+            case 'c':
+            case 'd':
+            case 'e':
+            case 'f':
+            case 'g':
+            case 'h':
+            case 'i':
+            case 'j':
+            case 'k':
+            case 'l':
+            case 'm':
+            case 'n':
+            case 'o':
+            case 'p':
+            case 'q':
+            case 'r':
+            case 's':
+            case 't':
+            case 'u':
+            case 'v':
+            case 'w':
+            case 'x':
+            case 'y':
+            case 'z':
+            case '_':
+                reader.advance();
+                token = processIdentifierOrKeyword();
                 break;
 
             // Other
@@ -151,24 +222,27 @@ public class BallerinaLexer {
             case 0xD:
             case 0x20:
                 // Process whitespace as trivia, and continue to next token
-                processWhiteSpace(startChar);
+                reader.advance();
+                processWhiteSpace();
                 token = readToken();
                 break;
             case LexerTerminals.NEWLINE:
+                // TODO Revisit this case block
                 // Process newline as trivia, and continue to next token
-                processNewLine(startChar);
+                reader.advance();
+                processNewLine();
                 token = readToken();
                 break;
 
             // Identifiers and keywords
             default:
-                append(startChar);
-                if (isIdentifierInitialChar(startChar)) {
-                    token = processIdentifierOrKeyword();
+                if (reader.isEOF()) {
+                    token = getSyntaxToken(SyntaxKind.EOF_TOKEN);
                     break;
                 }
 
                 // Process invalid token as trivia, and continue to next token
+                reader.advance();
                 processInvalidToken();
                 token = readToken();
                 break;
@@ -190,14 +264,14 @@ public class BallerinaLexer {
     }
 
     private void addTrivia(SyntaxKind kind) {
-        SyntaxTrivia trivia = new SyntaxTrivia(kind, getCurrentTokenText());
+        SyntaxTrivia trivia = new SyntaxTrivia(kind, getLexeme());
         this.leadingTriviaList.add(trivia);
     }
 
     private STLiteralValueToken getLiteral(SyntaxKind kind) {
         STNodeList leadingTrivia = new STNodeList(this.leadingTriviaList);
         STNodeList trailingTrivia = new STNodeList(new ArrayList<>(0));
-        return new STLiteralValueToken(kind, getCurrentTokenText(), -1, leadingTrivia, trailingTrivia);
+        return new STLiteralValueToken(kind, getLexeme(), -1, leadingTrivia, trailingTrivia);
     }
 
     private STTypeToken getTypeToken(String tokenText) {
@@ -212,12 +286,10 @@ public class BallerinaLexer {
      * @return Dot or ellipsis token
      */
     private STToken parseDotOrEllipsis() {
-        if (peek(1) == LexerTerminals.DOT && peek(2) == LexerTerminals.DOT) {
-            consume();
-            consume();
+        if (reader.peek() == LexerTerminals.DOT && reader.peek(1) == LexerTerminals.DOT) {
+            reader.advance(2);
             return getSyntaxToken(SyntaxKind.ELLIPSIS_TOKEN);
         }
-
         return getSyntaxToken(SyntaxKind.DOT_TOKEN);
     }
 
@@ -227,14 +299,10 @@ public class BallerinaLexer {
      * </p>
      * <code>Comment := // AnyCharButNewline*
      * <br/><br/>AnyCharButNewline := ^ 0xA</code>
-     * 
-     * @param commentStartChar Starting slash of the comment
      */
-    private void processComment(int commentStartChar) {
-        append(commentStartChar);
-        consumeAndAppend(); // consume and append the second '/' of the comment. This is already verified.
+    private void processComment() {
         while (peek() != LexerTerminals.NEWLINE) {
-            consumeAndAppend();
+            reader.advance();
         }
 
         addTrivia(SyntaxKind.COMMENT);
@@ -248,10 +316,10 @@ public class BallerinaLexer {
     private STToken processEqualOperator() {
         switch (peek()) { // check for the second char
             case LexerTerminals.EQUAL:
-                consume();
+                reader.advance();
                 if (peek() == LexerTerminals.EQUAL) {
                     // this is '==='
-                    consume();
+                    reader.advance();
                     return getSyntaxToken(SyntaxKind.TRIPPLE_EQUAL_TOKEN);
                 } else {
                     // this is '=='
@@ -259,7 +327,7 @@ public class BallerinaLexer {
                 }
             case LexerTerminals.GT:
                 // this is '=>'
-                consume();
+                reader.advance();
                 return getSyntaxToken(SyntaxKind.EQUAL_GT_TOKEN);
             default:
                 // this is '='
@@ -286,8 +354,6 @@ public class BallerinaLexer {
      * @return The numeric literal.
      */
     private STToken processNumericLiteral(int startChar) {
-        append(startChar);
-
         int nextChar = peek();
         if (isHexIndicator(startChar, nextChar)) {
             return processHexIntLiteral();
@@ -300,11 +366,12 @@ public class BallerinaLexer {
                 case 'e':
                 case 'E':
                     // TODO: handle float
+                    reader.advance();
                     processInvalidToken();
                     return readToken();
                 default:
                     if (isDigit(nextChar)) {
-                        consumeAndAppend();
+                        reader.advance();
                         len++;
                         nextChar = peek();
                         continue;
@@ -342,9 +409,9 @@ public class BallerinaLexer {
      * @return
      */
     private STToken processHexIntLiteral() {
-        consumeAndAppend();
+        reader.advance();
         while (isHexDigit(peek())) {
-            consumeAndAppend();
+            reader.advance();
         }
 
         // TODO: can send syntax kind as HEX_LITERAL ??
@@ -358,10 +425,10 @@ public class BallerinaLexer {
      */
     private STToken processIdentifierOrKeyword() {
         while (isIdentifierFollowingChar(peek())) {
-            consumeAndAppend();
+            reader.advance();
         }
 
-        String tokenText = getCurrentTokenText();
+        String tokenText = getLexeme();
         switch (tokenText) {
             case LexerTerminals.PUBLIC:
                 return getSyntaxToken(SyntaxKind.PUBLIC_KEYWORD);
@@ -391,7 +458,7 @@ public class BallerinaLexer {
      */
     private void processInvalidToken() {
         while (!isEndOfInvalidToken()) {
-            consumeAndAppend();
+            reader.advance();
         }
 
         addTrivia(SyntaxKind.INVALID);
@@ -400,13 +467,10 @@ public class BallerinaLexer {
     /**
      * Process whitespace.
      * <code>WhiteSpaceChar := 0x9 | 0xA | 0xD | 0x20</code>
-     * 
-     * @param startChar Starting character of the whitespace.
      */
-    private void processWhiteSpace(int startChar) {
-        append(startChar);
+    private void processWhiteSpace() {
         while (isWhiteSpace(peek())) {
-            consumeAndAppend();
+            reader.advance();
         }
 
         addTrivia(SyntaxKind.WHITESPACE_TRIVIA);
@@ -414,13 +478,9 @@ public class BallerinaLexer {
 
     /**
      * Process new line.
-     * 
-     * @param newLineChar new line character.
      */
-    private void processNewLine(int newLineChar) {
-        append(newLineChar);
+    private void processNewLine() {
         addTrivia(SyntaxKind.END_OF_LINE_TRIVIA);
-        this.tracer.markNewLine();
     }
 
     /**
@@ -548,33 +608,12 @@ public class BallerinaLexer {
     }
 
     /**
-     * Consumes and returns the next character from the reader.
-     * 
-     * @return Next character
-     */
-    private int consume() {
-        try {
-            this.tracer.length++;
-            return reader.read();
-        } catch (IOException e) {
-            // TODO: Fix this properly
-            this.tracer.length--;
-            throw new IllegalStateException(e);
-        }
-    }
-
-    /**
      * Returns the next character from the reader, without consuming the stream.
      * 
      * @return Next character
      */
     private int peek() {
-        try {
-            return this.reader.peek();
-        } catch (IOException e) {
-            // TODO: Fix this properly
-            throw new IllegalStateException(e);
-        }
+        return this.reader.peek();
     }
 
     /**
@@ -583,28 +622,7 @@ public class BallerinaLexer {
      * @return Next k-th character
      */
     private int peek(int k) {
-        try {
-            return this.reader.peek(k);
-        } catch (IOException e) {
-            // TODO: Fix this properly
-            throw new IllegalStateException(e);
-        }
-    }
-
-    /**
-     * Append a given character to the currently processing token.
-     * 
-     * @param c Character to append
-     */
-    private void append(int c) {
-        this.sb.append((char) c);
-    }
-
-    /**
-     * Consume the next character from the input and append it to the currently processing token.
-     */
-    private void consumeAndAppend() {
-        this.sb.append((char) consume());
+        return this.reader.peek(k);
     }
 
     /**
@@ -612,10 +630,7 @@ public class BallerinaLexer {
      * 
      * @return Text associated with the current token.
      */
-    private String getCurrentTokenText() {
-        String text = this.sb.toString();
-        // reset the string builder
-        this.sb = new StringBuilder();
-        return text;
+    private String getLexeme() {
+        return reader.getMarkedChars();
     }
 }

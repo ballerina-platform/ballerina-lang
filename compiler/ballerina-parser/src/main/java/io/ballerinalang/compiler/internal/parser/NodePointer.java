@@ -15,7 +15,7 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package io.ballerinalang.compiler.internal.parser.incremental;
+package io.ballerinalang.compiler.internal.parser;
 
 import io.ballerinalang.compiler.internal.parser.tree.SyntaxKind;
 import io.ballerinalang.compiler.internal.parser.tree.SyntaxUtils;
@@ -24,6 +24,11 @@ import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.Token;
 
+/**
+ * Represents a pointer to a {@code Node} in the syntax tree.
+ *
+ * @since 1.3.0
+ */
 public class NodePointer {
 
     private Node current;
@@ -69,33 +74,35 @@ public class NodePointer {
 
     private void nextSibling() {
         NonTerminalNode parent = current.getParent();
-        if (parent.bucketCount() == childBucketIndex + 1) {
-            // `current` is the last child of it's parent. We need to move the next child of current.getParent().getParent();
-            current = parent;
-            parent();
+
+        int bucketCount = parent.bucketCount();
+        for (int bucket = childBucketIndex + 1; bucket < bucketCount; bucket++) {
+            Node sibling = parent.childInBucket(bucket);
+            if (sibling.getSpanWithMinutiae().width() != 0) {
+                current = sibling;
+                childBucketIndex = bucket;
+                return;
+            }
         }
 
-        childBucketIndex++;
-        current = current.getParent().childInBucket(childBucketIndex);
+        // We need to move the next child of parent.getParent();
+        parent();
+        nextSibling();
     }
 
     private void parent() {
-        // TODO we need to find bucketIndex of the current in parent.
         NonTerminalNode parent = current.getParent();
         if (parent == null) {
             throw new UnsupportedOperationException(" Handle this condition");
         }
 
-        for (int i = 0; i < parent.bucketCount(); i++) {
-            if (current == parent.childInBucket(i)) {
+        NonTerminalNode ancestor = parent.getParent();
+        for (int i = 0; i < ancestor.bucketCount(); i++) {
+            if (parent == ancestor.childInBucket(i)) {
+                current = parent;
                 childBucketIndex = i;
                 break;
             }
-        }
-
-        if (parent.bucketCount() == childBucketIndex + 1) {
-            current = parent;
-            parent();
         }
     }
 

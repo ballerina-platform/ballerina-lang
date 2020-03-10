@@ -22,8 +22,9 @@ import io.ballerinalang.compiler.internal.parser.BallerinaParserErrorHandler.Sol
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 import io.ballerinalang.compiler.internal.parser.tree.STToken;
 import io.ballerinalang.compiler.internal.parser.tree.SyntaxKind;
-
-import java.io.InputStream;
+import io.ballerinalang.compiler.syntax.tree.SyntaxTree;
+import io.ballerinalang.compiler.text.TextDocument;
+import io.ballerinalang.compiler.text.TextDocumentChange;
 
 /**
  * A LL(k) recursive-descent parser for ballerina.
@@ -34,7 +35,7 @@ public class BallerinaParser {
 
     private final BallerinaParserListener listner = new BallerinaParserListener();
     private final BallerinaParserErrorHandler errorHandler;
-    private final TokenReader tokenReader;
+    private final AbstractNodeSupplier tokenReader;
 
     private ParserRuleContext currentParamKind = ParserRuleContext.REQUIRED_PARAM;
 
@@ -43,12 +44,18 @@ public class BallerinaParser {
         this.errorHandler = new BallerinaParserErrorHandler(tokenReader, listner, this);
     }
 
-    public BallerinaParser(InputStream inputStream) {
-        this(new BallerinaLexer(inputStream));
-    }
-
     public BallerinaParser(String source) {
         this(new BallerinaLexer(source));
+    }
+
+    public BallerinaParser(TextDocument textDocument) {
+        this.tokenReader = new TokenReader(new BallerinaLexer(textDocument.getCharacterReader()));
+        this.errorHandler = new BallerinaParserErrorHandler(tokenReader, listner, this);
+    }
+
+    public BallerinaParser(SyntaxTree oldTree, TextDocument newTextDocument, TextDocumentChange textDocumentChange) {
+        this.tokenReader = new IntermixingNodeSupplier(oldTree, newTextDocument, textDocumentChange);
+        this.errorHandler = new BallerinaParserErrorHandler(tokenReader, listner, this);
     }
 
     /**
@@ -262,7 +269,7 @@ public class BallerinaParser {
             token = peek();
         }
 
-        this.listner.exitCompUnit();
+        this.listner.exitCompUnit(consume());
         endContext();
     }
 
@@ -628,7 +635,7 @@ public class BallerinaParser {
     /**
      * Check whether the given token is an end of a parameter.
      * 
-     * @param token Next token kind
+     * @param tokenKind Next token kind
      * @return <code>true</code> if the token represents an end of a parameter. <code>false</code> otherwise
      */
     private boolean isEndOfParameter(SyntaxKind tokenKind) {
@@ -826,7 +833,7 @@ public class BallerinaParser {
     /**
      * Check whether the given token is an end of a block.
      * 
-     * @param token STToken to check
+     * @param tokenKind STToken to check
      * @return <code>true</code> if the token represents an end of a block. <code>false</code> otherwise
      */
     private boolean isEndOfBlock(SyntaxKind tokenKind) {
@@ -1381,7 +1388,7 @@ public class BallerinaParser {
     /**
      * Check whether the given token is an end of a expression.
      * 
-     * @param token Token to check
+     * @param tokenKind Token to check
      * @return <code>true</code> if the token represents an end of a block. <code>false</code> otherwise
      */
     private boolean isEndOfExpression(SyntaxKind tokenKind) {

@@ -46,6 +46,10 @@ public class InputReader {
         this.reader = new StringReader(source);
     }
 
+    InputReader(Reader reader) {
+        this.reader = reader;
+    }
+
     /**
      * Consumes the input and return the next character.
      * 

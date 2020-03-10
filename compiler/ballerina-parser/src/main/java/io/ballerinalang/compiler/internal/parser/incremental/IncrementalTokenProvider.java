@@ -17,6 +17,7 @@
  */
 package io.ballerinalang.compiler.internal.parser.incremental;
 
+import io.ballerinalang.compiler.internal.parser.NodePointer;
 import io.ballerinalang.compiler.internal.parser.tree.STToken;
 import io.ballerinalang.compiler.syntax.tree.ModulePart;
 import io.ballerinalang.compiler.syntax.tree.SyntaxTree;
