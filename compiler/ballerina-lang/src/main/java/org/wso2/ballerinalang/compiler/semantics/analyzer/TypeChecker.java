@@ -1345,6 +1345,9 @@ public class TypeChecker extends BLangNodeVisitor {
                     actualType = symTable.semanticError;
                     dlog.error(varRefExpr.pos, DiagnosticCode.CANNOT_UPDATE_CONSTANT_VALUE);
                 }
+                if (symbol.isDeprecated) {
+                    dlog.warning(varRefExpr.pos, DiagnosticCode.DEPRECATED, varName.getValue());
+                }
             } else {
                 dlog.error(varRefExpr.pos, DiagnosticCode.UNDEFINED_SYMBOL, varName.toString());
             }
@@ -3075,6 +3078,9 @@ public class TypeChecker extends BLangNodeVisitor {
         }
         if (Symbols.isFlagOn(funcSymbol.flags, Flags.RESOURCE)) {
             dlog.error(iExpr.pos, DiagnosticCode.INVALID_RESOURCE_FUNCTION_INVOCATION);
+        }
+        if (funcSymbol.isDeprecated) {
+            dlog.warning(iExpr.pos, DiagnosticCode.DEPRECATED, funcName.value);
         }
 
         if (PackageID.isLangLibPackageID(pkgSymbol.pkgID)) {

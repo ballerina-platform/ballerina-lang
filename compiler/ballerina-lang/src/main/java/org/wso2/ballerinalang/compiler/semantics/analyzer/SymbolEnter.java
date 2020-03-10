@@ -28,6 +28,7 @@ import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.model.tree.TypeDefinition;
 import org.ballerinalang.model.tree.statements.StatementNode;
+import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.PackageLoader;
 import org.wso2.ballerinalang.compiler.SourceDirectory;
@@ -168,6 +169,8 @@ public class SymbolEnter extends BLangNodeVisitor {
     private final TypeParamAnalyzer typeParamAnalyzer;
 
     private SymbolEnv env;
+
+    private static final String DEPRECATION_ANNOTATION = "deprecated";
 
     public static SymbolEnter getInstance(CompilerContext context) {
         SymbolEnter symbolEnter = context.get(SYMBOL_ENTER_KEY);
@@ -741,6 +744,21 @@ public class SymbolEnter extends BLangNodeVisitor {
         typeDefSymbol.flags &= getPublicFlagResetingMask(typeDefinition.flagSet, typeDefinition.typeNode);
         definedType.flags = typeDefSymbol.flags;
 
+        if (typeDefinition.annAttachments.stream()
+                .anyMatch(attachment -> attachment.annotationName.value.equals(Names.ANNOTATION_TYPE_PARAM.value))) {
+            // TODO : Clean this. Not a nice way to handle this.
+            //  TypeParam is built-in annotation, and limited only within lang.* modules.
+            if (PackageID.isLangLibPackageID(this.env.enclPkg.packageID)) {
+                typeDefSymbol.type = typeParamAnalyzer.createTypeParam(typeDefSymbol.type, typeDefSymbol.name);
+                typeDefSymbol.flags |= Flags.TYPE_PARAM;
+                if (typeDefinition.typeNode.getKind() == NodeKind.ERROR_TYPE) {
+                    typeDefSymbol.isLabel = false;
+                }
+            } else {
+                dlog.error(typeDefinition.pos, DiagnosticCode.TYPE_PARAM_OUTSIDE_LANG_MODULE);
+            }
+        }
+        typeDefSymbol.isDeprecated = isDeprecated(typeDefinition.annAttachments);
         typeDefinition.symbol = typeDefSymbol;
         boolean isLanglibModule = PackageID.isLangLibPackageID(this.env.enclPkg.packageID);
         if (isLanglibModule) {
@@ -860,10 +878,20 @@ public class SymbolEnter extends BLangNodeVisitor {
         SymbolEnv invokableEnv = SymbolEnv.createFunctionEnv(funcNode, funcSymbol.scope, env);
         defineInvokableSymbol(funcNode, funcSymbol, invokableEnv);
 
+        funcSymbol.isDeprecated = isDeprecated(funcNode.annAttachments);
         // Define function receiver if any.
         if (funcNode.receiver != null) {
             defineAttachedFunctions(funcNode, funcSymbol, invokableEnv, validAttachedFunc);
         }
+    }
+
+    private boolean isDeprecated(List<BLangAnnotationAttachment> annAttachments) {
+        for (BLangAnnotationAttachment annotationAttachment : annAttachments) {
+            if (annotationAttachment.annotationName.getValue().equals(DEPRECATION_ANNOTATION)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override
@@ -923,7 +951,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
 
         constantSymbol.markdownDocumentation = getMarkdownDocAttachment(constant.markdownDocumentationAttachment);
-
+        constantSymbol.isDeprecated = isDeprecated(constant.annAttachments);
         // Add the symbol to the enclosing scope.
         if (!symResolver.checkForUniqueSymbol(constant.name.pos, env, constantSymbol)) {
             return;
@@ -950,7 +978,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         // assign the type to var type node
         if (varNode.type == null) {
             if (varNode.typeNode != null) {
-                varNode.type = symResolver.resolveTypeNode(varNode.typeNode, env);
+                varNode.type = symResolver.resolveTypeNodeWithDeprecationCheck(varNode.typeNode, env);
             } else {
                 varNode.type = symTable.noType;
             }
@@ -1188,11 +1216,6 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
 
         return types.isAssignable(type, symTable.trueType);
-    }
-
-    private boolean hasAnnotation(List<BLangAnnotationAttachment> annotationAttachmentList, String expectedAnnotation) {
-        return annotationAttachmentList.stream()
-                .filter(annotation -> annotation.annotationName.value.equals(expectedAnnotation)).count() > 0;
     }
 
     /**
