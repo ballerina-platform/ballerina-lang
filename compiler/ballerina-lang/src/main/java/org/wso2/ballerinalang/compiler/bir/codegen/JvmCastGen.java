@@ -714,7 +714,7 @@ public class JvmCastGen {
         } else if (targetType.tag == TypeTags.JSON) {
             generateCheckCastToJSON(mv, sourceType);
             return;
-        } else if (sourceType.tag == TypeTags.XML && targetType.tag == TypeTags.MAP) {
+        } else if (TypeTags.isXMLTypeTag(sourceType.tag) && targetType.tag == TypeTags.MAP) {
             generateXMLToAttributesMap(mv, sourceType);
             return;
         } else if (targetType.tag == TypeTags.FINITE) {
@@ -1100,7 +1100,7 @@ public class JvmCastGen {
             targetTypeClass = OBJECT_VALUE;
         } else if (targetType.tag == TypeTags.ERROR) {
             targetTypeClass = ERROR_VALUE;
-        } else if (targetType.tag == TypeTags.XML) {
+        } else if (TypeTags.isXMLTypeTag(targetType.tag)) {
             targetTypeClass = XML_VALUE;
         } else if (targetType.tag == TypeTags.TYPEDESC) {
             targetTypeClass = TYPEDESC_VALUE;

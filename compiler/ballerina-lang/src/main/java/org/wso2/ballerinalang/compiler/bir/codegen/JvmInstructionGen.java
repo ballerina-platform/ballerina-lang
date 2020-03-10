@@ -302,7 +302,7 @@ public class JvmInstructionGen {
                 bType.tag == TypeTags.OBJECT ||
                 bType.tag == TypeTags.SERVICE ||
                 bType.tag == TypeTags.DECIMAL ||
-                bType.tag == TypeTags.XML ||
+                TypeTags.isXMLTypeTag(bType.tag) ||
                 bType.tag == TypeTags.INVOKABLE ||
                 bType.tag == TypeTags.FINITE ||
                 bType.tag == TypeTags.HANDLE ||
@@ -387,7 +387,7 @@ public class JvmInstructionGen {
                 bType.tag == TypeTags.FUTURE ||
                 bType.tag == TypeTags.OBJECT ||
                 bType.tag == TypeTags.SERVICE ||
-                bType.tag == TypeTags.XML ||
+                TypeTags.isXMLTypeTag(bType.tag) ||
                 bType.tag == TypeTags.INVOKABLE ||
                 bType.tag == TypeTags.FINITE ||
                 bType.tag == TypeTags.HANDLE ||
@@ -827,7 +827,7 @@ public class JvmInstructionGen {
                         String.format("(L%s;)L%s;", DECIMAL_VALUE, DECIMAL_VALUE), false);
             } else if (bType.tag == TypeTags.FLOAT) {
                 this.mv.visitInsn(DADD);
-            } else if (bType.tag == TypeTags.XML) {
+            } else if (TypeTags.isXMLTypeTag(bType.tag)) {
                 this.mv.visitMethodInsn(INVOKESTATIC, XML_FACTORY, "concatenate",
                         String.format("(L%s;L%s;)L%s;", XML_VALUE, XML_VALUE, XML_VALUE), false);
             } else {

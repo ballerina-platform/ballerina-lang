@@ -21,6 +21,8 @@ import org.apache.axiom.om.OMNode;
 import org.apache.axiom.om.impl.llom.CharacterDataImpl;
 import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.XMLNodeType;
+import org.ballerinalang.jvm.types.BType;
+import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.jvm.values.api.BXML;
 
@@ -133,5 +135,10 @@ public class XMLText extends XMLNonElementItem {
 
         }
         return false;
+    }
+
+    @Override
+    public BType getType() {
+        return BTypes.typeText;
     }
 }
