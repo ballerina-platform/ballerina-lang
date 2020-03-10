@@ -3384,6 +3384,24 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     }
 
     @Override
+    public void exitDeprecatedAnnotationDocumentation(BallerinaParser.DeprecatedAnnotationDocumentationContext ctx) {
+        if (isInErrorState) {
+            return;
+        }
+        String str = ctx.DeprecatedDocumentation() != null ? ctx.DeprecatedDocumentation().getText() : "";
+        this.pkgBuilder.endDeprecationAnnotationDocumentation(getCurrentPos(ctx.getParent()), getWS(ctx), str);
+    }
+
+    @Override
+    public void exitDeprecateAnnotationDescriptionLine(BallerinaParser.DeprecateAnnotationDescriptionLineContext ctx) {
+        if (isInErrorState) {
+            return;
+        }
+        String description = ctx.documentationText() != null ? ctx.documentationText().getText() : "";
+        this.pkgBuilder.endDeprecateAnnotationDocumentationDescription(getWS(ctx), description);
+    }
+
+    @Override
     public void exitTrapExpression(BallerinaParser.TrapExpressionContext ctx) {
         if (isInErrorState) {
             return;
