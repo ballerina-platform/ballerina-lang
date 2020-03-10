@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -3969,43 +3969,43 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // RestParameter | Parameter (COMMA Parameter)* (COMMA RestParameter)?
+  // (Parameter (COMMA Parameter)* (COMMA RestParameter)?) | RestParameter
   public static boolean ParameterList(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "ParameterList")) return false;
     boolean r;
     Marker m = enter_section_(b, l, _NONE_, PARAMETER_LIST, "<parameter list>");
-    r = RestParameter(b, l + 1);
-    if (!r) r = ParameterList_1(b, l + 1);
+    r = ParameterList_0(b, l + 1);
+    if (!r) r = RestParameter(b, l + 1);
     exit_section_(b, l, m, r, false, null);
     return r;
   }
 
   // Parameter (COMMA Parameter)* (COMMA RestParameter)?
-  private static boolean ParameterList_1(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "ParameterList_1")) return false;
+  private static boolean ParameterList_0(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "ParameterList_0")) return false;
     boolean r;
     Marker m = enter_section_(b);
     r = Parameter(b, l + 1);
-    r = r && ParameterList_1_1(b, l + 1);
-    r = r && ParameterList_1_2(b, l + 1);
+    r = r && ParameterList_0_1(b, l + 1);
+    r = r && ParameterList_0_2(b, l + 1);
     exit_section_(b, m, null, r);
     return r;
   }
 
   // (COMMA Parameter)*
-  private static boolean ParameterList_1_1(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "ParameterList_1_1")) return false;
+  private static boolean ParameterList_0_1(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "ParameterList_0_1")) return false;
     while (true) {
       int c = current_position_(b);
-      if (!ParameterList_1_1_0(b, l + 1)) break;
-      if (!empty_element_parsed_guard_(b, "ParameterList_1_1", c)) break;
+      if (!ParameterList_0_1_0(b, l + 1)) break;
+      if (!empty_element_parsed_guard_(b, "ParameterList_0_1", c)) break;
     }
     return true;
   }
 
   // COMMA Parameter
-  private static boolean ParameterList_1_1_0(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "ParameterList_1_1_0")) return false;
+  private static boolean ParameterList_0_1_0(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "ParameterList_0_1_0")) return false;
     boolean r;
     Marker m = enter_section_(b);
     r = consumeToken(b, COMMA);
@@ -4015,15 +4015,15 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
   }
 
   // (COMMA RestParameter)?
-  private static boolean ParameterList_1_2(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "ParameterList_1_2")) return false;
-    ParameterList_1_2_0(b, l + 1);
+  private static boolean ParameterList_0_2(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "ParameterList_0_2")) return false;
+    ParameterList_0_2_0(b, l + 1);
     return true;
   }
 
   // COMMA RestParameter
-  private static boolean ParameterList_1_2_0(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "ParameterList_1_2_0")) return false;
+  private static boolean ParameterList_0_2_0(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "ParameterList_0_2_0")) return false;
     boolean r;
     Marker m = enter_section_(b);
     r = consumeToken(b, COMMA);
@@ -6193,7 +6193,7 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // (documentationReference | backtickedBlock | documentationTextContent)+
+  // (documentationReference | referenceType | backtickedBlock | documentationTextContent)+
   public static boolean documentationText(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "documentationText")) return false;
     boolean r;
@@ -6208,11 +6208,12 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
     return r;
   }
 
-  // documentationReference | backtickedBlock | documentationTextContent
+  // documentationReference | referenceType | backtickedBlock | documentationTextContent
   private static boolean documentationText_0(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "documentationText_0")) return false;
     boolean r;
     r = documentationReference(b, l + 1);
+    if (!r) r = referenceType(b, l + 1);
     if (!r) r = backtickedBlock(b, l + 1);
     if (!r) r = documentationTextContent(b, l + 1);
     return r;

@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -58,6 +58,12 @@ public class BallerinaDocumentationTextImpl extends ASTWrapperPsiElement impleme
   @NotNull
   public List<BallerinaDocumentationTextContent> getDocumentationTextContentList() {
     return PsiTreeUtil.getChildrenOfTypeAsList(this, BallerinaDocumentationTextContent.class);
+  }
+
+  @Override
+  @NotNull
+  public List<BallerinaReferenceType> getReferenceTypeList() {
+    return PsiTreeUtil.getChildrenOfTypeAsList(this, BallerinaReferenceType.class);
   }
 
 }

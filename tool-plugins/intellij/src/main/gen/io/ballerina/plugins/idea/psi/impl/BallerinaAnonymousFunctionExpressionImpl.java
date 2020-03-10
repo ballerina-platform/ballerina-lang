@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -17,12 +17,14 @@
 // This is a generated file. Not intended for manual editing.
 package io.ballerina.plugins.idea.psi.impl;
 
+import java.util.List;
+import org.jetbrains.annotations.*;
 import com.intellij.lang.ASTNode;
+import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
-import io.ballerina.plugins.idea.psi.BallerinaAnonymousFunctionExpr;
-import io.ballerina.plugins.idea.psi.BallerinaAnonymousFunctionExpression;
-import io.ballerina.plugins.idea.psi.BallerinaVisitor;
-import org.jetbrains.annotations.NotNull;
+import com.intellij.psi.util.PsiTreeUtil;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
+import io.ballerina.plugins.idea.psi.*;
 
 public class BallerinaAnonymousFunctionExpressionImpl extends BallerinaExpressionImpl implements BallerinaAnonymousFunctionExpression {
 
