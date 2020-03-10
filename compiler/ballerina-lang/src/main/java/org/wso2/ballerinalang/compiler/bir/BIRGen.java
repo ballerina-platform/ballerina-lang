@@ -251,7 +251,7 @@ public class BIRGen extends BLangNodeVisitor {
                 testPkg.symbol.bir = testBirPkg;
                 Map<String, String> mockFunctionMap = astPkg.getTestablePkg().getMockFunctionNamesMap();
                 if (!mockFunctionMap.isEmpty()) {
-                    visitMockFunctions(testBirPkg, mockFunctionMap);
+                    replaceMockedFunctions(testBirPkg, mockFunctionMap);
                 }
             });
         }
@@ -291,7 +291,7 @@ public class BIRGen extends BLangNodeVisitor {
         }
     }
 
-    private void visitMockFunctions(BIRPackage birPkg, Map<String, String> mockFunctionMap) {
+    private void replaceMockedFunctions(BIRPackage birPkg, Map<String, String> mockFunctionMap) {
         for (BIRFunction function : birPkg.functions) {
             List<BIRBasicBlock> functionBasicBlocks = function.basicBlocks;
             for (BIRBasicBlock functionBasicBlock : functionBasicBlocks) {
@@ -310,30 +310,6 @@ public class BIRGen extends BLangNodeVisitor {
                 }
             }
         }
-    }
-
-    // Checks if the name of the CALL terminator and the function name matches
-    private boolean checkName(BIRTerminator bbTerminator, String mockFunctionName) {
-        return ((BIRTerminator.Call) bbTerminator).name.getValue().equals(mockFunctionName);
-    }
-
-    // Checks if the Callee of the CALL terminator matches that of the function
-    private boolean checkCallee(BIRTerminator bbTerminator, String mockFunctionModule) {
-        if (mockFunctionModule.equals(".")) {
-            return true;
-        }
-        return ((BIRTerminator.Call) bbTerminator).calleePkg.toString().contains(mockFunctionModule);
-    }
-
-    //&& ((BIRTerminator.Call) bbTerminator).calleePkg.toString().contains(mockInfo[0])
-
-    private Name getMockFunctionName(String name, BIRPackage birPkg) {
-        for (BIRFunction function : birPkg.functions) {
-            if (function.name.value.equals(name)) {
-                return function.name;
-            }
-        }
-        return null;
     }
 
     // Nodes

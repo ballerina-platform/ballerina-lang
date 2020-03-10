@@ -174,15 +174,16 @@ public class TestAnnotationProcessor extends AbstractCompilerPlugin {
                     
                     // Check if Function in annotation is empty
                     if (vals[1].isEmpty()) {
-                        diagnosticLog.logDiagnostic(Diagnostic.Kind.ERROR, ((BLangFunction) functionNode).pos,
-                                "Function name cannot be empty");
+                        diagnosticLog.logDiagnostic(Diagnostic.Kind.ERROR, attachmentNode.getPosition(),
+                                "function name cannot be empty");
+                        break;
                     }
 
                     // Find functionToMock in the packageID
                     PackageID functionToMockID = getPackageID(vals[0]);
                     if (functionToMockID == null) {
                         diagnosticLog.logDiagnostic(Diagnostic.Kind.ERROR, attachmentNode.getPosition(),
-                                "Could not find module specified ");
+                                "could not find module specified ");
                     }
 
                     BType functionToMockType = getFunctionType(packageEnvironmentMap, functionToMockID, vals[1]);
@@ -192,8 +193,8 @@ public class TestAnnotationProcessor extends AbstractCompilerPlugin {
                     if (functionToMockType != null && mockFunctionType != null) {
                         if (!typeChecker.isAssignable(mockFunctionType, functionToMockType)) {
                             diagnosticLog.logDiagnostic(Diagnostic.Kind.ERROR, ((BLangFunction) functionNode).pos,
-                                    "incompatible types: expected " + mockFunctionType.toString()
-                                            + " but found " + functionToMockType.toString());
+                                    "incompatible types: expected " + functionToMockType.toString()
+                                            + " but found " + mockFunctionType.toString());
                         }
                     } else {
                         diagnosticLog.logDiagnostic(Diagnostic.Kind.ERROR, attachmentNode.getPosition(),
