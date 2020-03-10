@@ -24,7 +24,14 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import java.util.LinkedList;
 import java.util.List;
 
-public class BLangMarkDownDeprecationDocumentation extends BLangExpression implements MarkDownDocumentationDeprecationAttributeNode {
+/**
+ * Represents deprecation documentation node.
+ *
+ * @since 1.2.0
+ */
+public class BLangMarkDownDeprecationDocumentation extends BLangExpression
+        implements MarkDownDocumentationDeprecationAttributeNode {
+
     public List<String> deprecationDocumentationLines;
     public String deprecationLine;
     public boolean isCorrectDeprecationLine = false;

@@ -17,6 +17,11 @@
  */
 package org.ballerinalang.model.tree.expressions;
 
+/**
+ * Represents attributes in deprecation documentation.
+ *
+ * @since 1.2.0
+ */
 public interface MarkDownDocumentationDeprecationAttributeNode extends ExpressionNode {
     void addDeprecationDocumentationLine(String text);
 
