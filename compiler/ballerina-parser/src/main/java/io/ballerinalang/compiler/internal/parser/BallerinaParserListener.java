@@ -26,6 +26,7 @@ import io.ballerinalang.compiler.internal.parser.tree.STEmptyNode;
 import io.ballerinalang.compiler.internal.parser.tree.STExternalFuncBody;
 import io.ballerinalang.compiler.internal.parser.tree.STFunctionDefinition;
 import io.ballerinalang.compiler.internal.parser.tree.STMissingToken;
+import io.ballerinalang.compiler.internal.parser.tree.STModulePart;
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 import io.ballerinalang.compiler.internal.parser.tree.STNodeList;
 import io.ballerinalang.compiler.internal.parser.tree.STRequiredParameter;
@@ -35,9 +36,9 @@ import io.ballerinalang.compiler.internal.parser.tree.STToken;
 import io.ballerinalang.compiler.internal.parser.tree.STVariableDeclaration;
 import io.ballerinalang.compiler.internal.parser.tree.SyntaxKind;
 
-import java.io.PrintStream;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Stack;
 
@@ -52,13 +53,21 @@ public class BallerinaParserListener {
     private List<STNode> statements = new ArrayList<>();
     private Stack<List<STNode>> parameters = new Stack<>();
 
-    public void exitCompUnit() {
-        PrintStream out = System.out;
-        out.println("--------------------------------------");
-        while (!this.nodesStack.isEmpty()) {
-            out.println(this.nodesStack.removeLast());
+    public void exitCompUnit(STToken eofToken) {
+        List<STNode> importDecls = new ArrayList<>();
+        List<STNode> otherDecls = new ArrayList<>();
+        for (Iterator<STNode> nodeItr = nodesStack.descendingIterator(); nodeItr.hasNext(); ) {
+            STNode member = nodeItr.next();
+            if (member.kind == SyntaxKind.IMPORT_DECLARATION) {
+                importDecls.add(member);
+            } else {
+                otherDecls.add(member);
+            }
         }
-        out.println("--------------------------------------");
+
+        STModulePart modulePart = new STModulePart(new STNodeList(importDecls),
+                new STNodeList(otherDecls), eofToken);
+        nodesStack.push(modulePart);
     }
 
     public void exitModifier(STToken modifier) {
@@ -194,8 +203,8 @@ public class BallerinaParserListener {
             expr = this.nodesStack.pop();
             assign = this.nodesStack.pop();
         } else {
-            expr = null;
-            assign = null;
+            expr = new STEmptyNode();
+            assign = new STEmptyNode();
         }
 
         STNode varName = this.nodesStack.pop();
