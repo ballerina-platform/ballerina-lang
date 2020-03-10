@@ -2295,9 +2295,9 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         boolean argsAvailable = invocation.invocationArgList() != null;
         BallerinaParser.AnyIdentifierNameContext identifierContext = invocation.anyIdentifierName();
         String invocationText = identifierContext.getText();
+        this.pkgBuilder.createGroupExpression(getCurrentPos(groupExpression), getWS(groupExpression));
         this.pkgBuilder.createInvocationNode(getCurrentPos(invocation), getWS(invocation),
                 invocationText, argsAvailable, getCurrentPos(identifierContext));
-        this.pkgBuilder.createGroupExpression(getCurrentPos(groupExpression), getWS(groupExpression));
     }
 
     @Override
