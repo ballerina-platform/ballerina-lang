@@ -51,6 +51,13 @@ type Person record {|
     string name = "Pubudu";
 |};
 
+function testRecordArrays() {
+    Person[] arr = [];
+    arr[1].name = "John Doe";
+
+    assert(<Person[]>[{name: "Pubudu"}, {name: "John Doe"}], arr);
+}
+
 function test2DRecordArrays() {
     Person[][] arr = [];
     arr[2][1] = {name: "John Doe"};
@@ -68,6 +75,12 @@ function testRecordsWithoutFillerValues() {
 type PersonObj object {
     string name = "John Doe";
 };
+
+function testObjectArrays() returns PersonObj[] {
+    PersonObj[] arr = [];
+    arr[1].name = "Pubudu";
+    return arr;
+}
 
 function test2DObjectArrays() returns PersonObj[][] {
     PersonObj[][] arr = [];
@@ -163,6 +176,13 @@ type NoDefBar 1|2;
 function testNoDefFiniteTyped2DArrays() {
     NoDefBar[][][] arr = [];
     arr[2][1][1] = 2;
+}
+
+function testMapArrayAsAnLValue() {
+    map<int>[] arr = [];
+    arr[1]["i"] = 1;
+
+    assert(<map<int>[]>[{}, {"i": 1}], arr);
 }
 
 

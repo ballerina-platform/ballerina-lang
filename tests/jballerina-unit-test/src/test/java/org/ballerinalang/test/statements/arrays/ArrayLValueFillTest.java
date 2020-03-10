@@ -49,8 +49,27 @@ public class ArrayLValueFillTest {
     }
 
     @Test
+    public void testRecordArrays() {
+        BRunUtil.invoke(compileResult, "testRecordArrays");
+    }
+
+    @Test
     public void test2DRecordArrays() {
         BRunUtil.invoke(compileResult, "test2DRecordArrays");
+    }
+
+    @Test
+    public void testObjectArrays() {
+        BValueArray arr = (BValueArray) BRunUtil.invokeFunction(compileResult, "testObjectArrays")[0];
+        assertEquals(arr.size(), 2);
+
+        BMap person = (BMap) arr.getRefValue(0);
+        assertEquals(person.getType().getName(), "PersonObj");
+        assertEquals(person.get("name").stringValue(), "John Doe");
+
+        person = (BMap) arr.getRefValue(1);
+        assertEquals(person.getType().getName(), "PersonObj");
+        assertEquals(person.get("name").stringValue(), "Pubudu");
     }
 
     @Test
@@ -136,5 +155,10 @@ public class ArrayLValueFillTest {
                   "length 0 cannot be expanded into array of length 2 without filler values.*")
     public void testNoDefFiniteTyped2DArrays() {
         BRunUtil.invoke(compileResult, "testNoDefFiniteTyped2DArrays");
+    }
+
+    @Test
+    public void testMapArrayAsAnLValue() {
+        BRunUtil.invoke(compileResult, "testMapArrayAsAnLValue");
     }
 }
