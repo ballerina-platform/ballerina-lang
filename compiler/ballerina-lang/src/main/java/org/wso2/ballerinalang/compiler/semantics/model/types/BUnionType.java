@@ -142,7 +142,7 @@ public class BUnionType extends BType implements UnionType {
      * @param type Type to be added to the union.
      */
     public void add(BType type) {
-        if (type.tag == TypeTags.UNION && !isTypeParam(type)) {
+        if (type.tag == TypeTags.UNION && !isTypeParamAvailable(type)) {
             assert type instanceof BUnionType;
             this.memberTypes.addAll(toFlatTypeSet(((BUnionType) type).memberTypes));
         } else {
@@ -218,12 +218,12 @@ public class BUnionType extends BType implements UnionType {
 
     private static LinkedHashSet<BType> toFlatTypeSet(LinkedHashSet<BType> types) {
         return types.stream()
-                .flatMap(type -> type.tag == TypeTags.UNION && !isTypeParam(type) ?
+                .flatMap(type -> type.tag == TypeTags.UNION && !isTypeParamAvailable(type) ?
                         ((BUnionType) type).memberTypes.stream() : Stream.of(type))
                 .collect(Collectors.toCollection(LinkedHashSet::new));
     }
 
-    private static boolean isTypeParam(BType type) {
+    private static boolean isTypeParamAvailable(BType type) {
         if (type.tsymbol != null && Symbols.isFlagOn(type.tsymbol.flags, Flags.TYPE_PARAM)) {
             return true;
         }

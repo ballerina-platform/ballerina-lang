@@ -397,6 +397,12 @@ public class RefEqualAndNotEqualOperationsTest {
         Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
     }
 
+    @Test
+    public void testEmptyXMLSequencesRefEquality() {
+        BValue[] returns = BRunUtil.invoke(result, "testEmptyXMLSequencesRefEquality");
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+    }
+
     @Test(description = "Test reference equal with errors")
     public void testRefEqualNegativeCases() {
         Assert.assertEquals(resultNegative.getErrorCount(), 22);

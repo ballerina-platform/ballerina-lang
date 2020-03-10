@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -46,6 +46,12 @@ public class BallerinaParameterListImpl extends ASTWrapperPsiElement implements 
   @NotNull
   public List<BallerinaParameter> getParameterList() {
     return PsiTreeUtil.getChildrenOfTypeAsList(this, BallerinaParameter.class);
+  }
+
+  @Override
+  @Nullable
+  public BallerinaRestParameter getRestParameter() {
+    return findChildByClass(BallerinaRestParameter.class);
   }
 
 }
