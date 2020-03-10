@@ -391,12 +391,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         if (isPublicInvokableNode(funcNode)) {
             analyzeNode(funcNode.returnTypeNode, invokableEnv);
         }
-        for (BLangSimpleVariable requiredParam : funcNode.requiredParams) {
-            analyzeNode(requiredParam, env);
-        }
-        for (BLangAnnotationAttachment annotationAttachment : funcNode.annAttachments) {
-            analyzeNode(annotationAttachment, env);
-        }
+
         /* the body can be null in the case of Object type function declarations */
         if (funcNode.body != null) {
             analyzeNode(funcNode.body, invokableEnv);
@@ -1476,7 +1471,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangAnnotationAttachment annAttachmentNode) {
-        analyzeNode(annAttachmentNode.expr, env);
+        /* ignore */
     }
 
     public void visit(BLangSimpleVariableDef varDefNode) {
