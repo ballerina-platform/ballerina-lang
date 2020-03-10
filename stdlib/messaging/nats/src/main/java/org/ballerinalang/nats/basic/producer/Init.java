@@ -36,6 +36,7 @@ public class Init {
     public static void producerInit(ObjectValue connectionObject) {
         // This is to add producer to the connected client list in connection object.
         ((AtomicInteger) connectionObject.getNativeData(CONNECTED_CLIENTS)).incrementAndGet();
-        NatsMetricsUtil.reportNewProducer(connectionObject.getStringValue(Constants.URL));
+        String[] urls = connectionObject.getArrayValue(Constants.URL).getStringArray();
+        NatsMetricsUtil.reportNewProducer(String.join(",", urls));
     }
 }

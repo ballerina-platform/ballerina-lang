@@ -41,7 +41,8 @@ public class CloseConnection {
         if (TypeChecker.getType(connection).getTag() == TypeTags.OBJECT_TYPE_TAG) {
             ObjectValue connectionObject = (ObjectValue) connection;
             ((AtomicInteger) connectionObject.getNativeData(Constants.CONNECTED_CLIENTS)).decrementAndGet();
-            NatsMetricsUtil.reportProducerClose(connectionObject.getStringValue(Constants.URL));
+            String[] urls = connectionObject.getArrayValue(Constants.URL).getStringArray();
+            NatsMetricsUtil.reportProducerClose(String.join(",", urls));
         }
     }
 }

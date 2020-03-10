@@ -72,7 +72,7 @@ public class NatsTracingUtil {
         Object connection = producerObject.get(Constants.CONNECTION_OBJ);
         if (TypeChecker.getType(connection).getTag() == TypeTags.OBJECT_TYPE_TAG) {
             ObjectValue connectionObject = (ObjectValue) connection;
-            String url = connectionObject.getStringValue(Constants.URL);
+            String url = String.join(",", connectionObject.getArrayValue(Constants.URL).getStringArray());
             traceResourceInvocation(strand, url, subject);
         } else {
             traceResourceInvocation(strand, NatsObservabilityConstants.UNKNOWN, subject);
@@ -86,7 +86,7 @@ public class NatsTracingUtil {
         Object connection = listenerOrProducerObject.get(Constants.CONNECTION_OBJ);
         if (TypeChecker.getType(connection).getTag() == TypeTags.OBJECT_TYPE_TAG) {
             ObjectValue connectionObject = (ObjectValue) connection;
-            String url = connectionObject.getStringValue(Constants.URL);
+            String url = String.join(",", connectionObject.getArrayValue(Constants.URL).getStringArray());
             traceResourceInvocation(strand, url);
         } else {
             traceResourceInvocation(strand, NatsObservabilityConstants.UNKNOWN);
