@@ -74,8 +74,7 @@ public class EqualsIgnoreCaseAscii {
     private static boolean isPureAscii(String  str) {
         byte byteArray[] = str.getBytes();
         try {
-            CharBuffer r = decoder.decode(ByteBuffer.wrap(byteArray));
-            r.toString();
+            decoder.decode(ByteBuffer.wrap(byteArray)).toString();
         } catch (CharacterCodingException e) {
             return false;
         }
