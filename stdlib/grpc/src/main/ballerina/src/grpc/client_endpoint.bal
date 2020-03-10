@@ -60,7 +60,7 @@ public type Client client object {
         var retryConfig = self.config.retryConfiguration;
         handle methodIdHandle = java:fromString(methodID);
         if (retryConfig is RetryConfiguration) {
-            return retryBlockingAction(self, methodIdHandle, payload, headers, retryConfig);
+            return retryBlockingExecute(self, methodIdHandle, payload, headers, retryConfig);
         }
         return externBlockingExecute(self, methodIdHandle, payload, headers);
     }
@@ -88,7 +88,7 @@ public type Client client object {
     }
 };
 
-function retryBlockingAction(Client grpcClient, handle methodIdHandle, anydata payload, Headers? headers,
+function retryBlockingExecute(Client grpcClient, handle methodIdHandle, anydata payload, Headers? headers,
     RetryConfiguration retryConfig) returns ([anydata, Headers]|Error) {
     int currentRetryCount = 0;
     int retryCount = retryConfig.retryCount;
