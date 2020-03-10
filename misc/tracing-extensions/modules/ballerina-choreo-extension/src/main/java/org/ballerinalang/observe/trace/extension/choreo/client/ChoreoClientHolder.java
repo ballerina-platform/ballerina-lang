@@ -60,9 +60,9 @@ public class ChoreoClientHolder {
             MetadataReader metadataReader;
             try {
                 metadataReader = new MetadataReader();
-                LOGGER.debug("successfully read sequence diagram symbols");
+                LOGGER.debug("Successfully read sequence diagram symbols");
             } catch (IOException e) {
-                LOGGER.error("failed to initialize Choreo client " + e.getMessage());
+                LOGGER.error("Failed to initialize Choreo client. " + e.getMessage());
                 return null;
             }
 
