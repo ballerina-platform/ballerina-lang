@@ -38,10 +38,10 @@ import org.ballerinalang.natives.annotations.ReturnType;
 )
 public class FromCodePointInt {
 
-    public static Object startsWith(Strand strand, Long codePoint) {
+    public static Object fromCodePointInt(Strand strand, long codePoint) {
         try {
             StringBuilder builder = new StringBuilder();
-            builder.appendCodePoint(codePoint.intValue());
+            builder.appendCodePoint(((Long) codePoint).intValue());
             return builder.toString();
         } catch (IllegalArgumentException e) {
             return BallerinaErrors.createError("Invalid codepoint: " + codePoint);

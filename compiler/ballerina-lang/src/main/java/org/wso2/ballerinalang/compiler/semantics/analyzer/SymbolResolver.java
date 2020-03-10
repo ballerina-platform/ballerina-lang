@@ -499,6 +499,12 @@ public class SymbolResolver extends BLangNodeVisitor {
                 bSymbol = lookupLangLibMethodInModule(symTable.langFutureModuleSymbol, name);
                 break;
             case TypeTags.INT:
+            case TypeTags.SIGNED32_INT:
+            case TypeTags.SIGNED16_INT:
+            case TypeTags.SIGNED8_INT:
+            case TypeTags.UNSIGNED32_INT:
+            case TypeTags.UNSIGNED16_INT:
+            case TypeTags.UNSIGNED8_INT:
                 bSymbol = lookupLangLibMethodInModule(symTable.langIntModuleSymbol, name);
                 break;
             case TypeTags.MAP:
@@ -512,6 +518,7 @@ public class SymbolResolver extends BLangNodeVisitor {
                 bSymbol = lookupLangLibMethodInModule(symTable.langStreamModuleSymbol, name);
                 break;
             case TypeTags.STRING:
+            case TypeTags.CHAR_STRING:
                 bSymbol = lookupLangLibMethodInModule(symTable.langStringModuleSymbol, name);
                 break;
             case TypeTags.TABLE:

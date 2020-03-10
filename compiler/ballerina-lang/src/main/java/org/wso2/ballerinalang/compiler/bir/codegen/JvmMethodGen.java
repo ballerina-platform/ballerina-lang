@@ -572,7 +572,7 @@ public class JvmMethodGen {
             } else if (bType.tag == TypeTags.FLOAT) {
                 mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%", "_"), "D");
                 mv.visitVarInsn(DSTORE, index);
-            } else if (bType.tag == TypeTags.STRING) {
+            } else if (TypeTags.isStringTypeTag(bType.tag)) {
                 mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%", "_"),
                                   String.format("L%s;", useBString ? B_STRING_VALUE : STRING_VALUE));
                 mv.visitVarInsn(ASTORE, index);
@@ -706,7 +706,7 @@ public class JvmMethodGen {
             } else if (bType.tag == TypeTags.FLOAT) {
                 mv.visitVarInsn(DLOAD, index);
                 mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%", "_"), "D");
-            } else if (bType.tag == TypeTags.STRING) {
+            } else if (TypeTags.isStringTypeTag(bType.tag)) {
                 mv.visitVarInsn(ALOAD, index);
                 mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%", "_"),
                                   String.format("L%s;", useBString ? B_STRING_VALUE : STRING_VALUE));
@@ -833,7 +833,7 @@ public class JvmMethodGen {
             jvmType = "D";
         } else if (bType.tag == TypeTags.BOOLEAN) {
             jvmType = "Z";
-        } else if (bType.tag == TypeTags.STRING) {
+        } else if (TypeTags.isStringTypeTag(bType.tag)) {
             jvmType = String.format("L%s;", STRING_VALUE);
         } else if (bType.tag == TypeTags.DECIMAL) {
             jvmType = String.format("L%s;", DECIMAL_VALUE);
@@ -1348,7 +1348,7 @@ public class JvmMethodGen {
         } else if (bType.tag == TypeTags.FLOAT) {
             mv.visitInsn(DCONST_0);
             mv.visitVarInsn(DSTORE, index);
-        } else if (bType.tag == TypeTags.STRING) {
+        } else if (TypeTags.isStringTypeTag(bType.tag)) {
             mv.visitInsn(ACONST_NULL);
             mv.visitVarInsn(ASTORE, index);
         } else if (bType.tag == TypeTags.BOOLEAN) {
@@ -1364,6 +1364,7 @@ public class JvmMethodGen {
                 bType.tag == TypeTags.ANYDATA ||
                 bType.tag == TypeTags.OBJECT ||
                 bType.tag == TypeTags.SERVICE ||
+                bType.tag == TypeTags.CHAR_STRING ||
                 bType.tag == TypeTags.DECIMAL ||
                 bType.tag == TypeTags.UNION ||
                 bType.tag == TypeTags.RECORD ||
@@ -1427,7 +1428,7 @@ public class JvmMethodGen {
             mv.visitInsn(DCONST_0);
         } else if (bType.tag == TypeTags.BOOLEAN) {
             mv.visitInsn(ICONST_0);
-        } else if (bType.tag == TypeTags.STRING ||
+        } else if (TypeTags.isStringTypeTag(bType.tag) ||
                 bType.tag == TypeTags.MAP ||
                 bType.tag == TypeTags.ARRAY ||
                 bType.tag == TypeTags.TABLE ||
@@ -1532,7 +1533,7 @@ public class JvmMethodGen {
             return "I";
         } else if (bType.tag == TypeTags.FLOAT) {
             return "D";
-        } else if (bType.tag == TypeTags.STRING) {
+        } else if (TypeTags.isStringTypeTag(bType.tag)) {
             return String.format("L%s;", useBString ? B_STRING_VALUE : STRING_VALUE);
         } else if (bType.tag == TypeTags.DECIMAL) {
             return String.format("L%s;", DECIMAL_VALUE);
@@ -1587,7 +1588,7 @@ public class JvmMethodGen {
             return ")I";
         } else if (bType.tag == TypeTags.FLOAT) {
             return ")D";
-        } else if (bType.tag == TypeTags.STRING) {
+        } else if (TypeTags.isStringTypeTag(bType.tag)) {
             return String.format(")L%s;", useBString ? B_STRING_VALUE : STRING_VALUE);
         } else if (bType.tag == TypeTags.DECIMAL) {
             return String.format(")L%s;", DECIMAL_VALUE);
@@ -2073,7 +2074,7 @@ public class JvmMethodGen {
                 targetType.tag == TypeTags.ANYDATA ||
                 targetType.tag == TypeTags.NIL ||
                 targetType.tag == TypeTags.UNION ||
-                targetType.tag == TypeTags.STRING) {
+                TypeTags.isStringTypeTag(targetType.tag)) {
             // do nothing
             return;
         } else {
@@ -2425,7 +2426,7 @@ public class JvmMethodGen {
             typeSig = "I";
         } else if (bType.tag == TypeTags.FLOAT) {
             typeSig = "D";
-        } else if (bType.tag == TypeTags.STRING) {
+        } else if (TypeTags.isStringTypeTag(bType.tag)) {
             typeSig = String.format("L%s;", isBString ? B_STRING_VALUE : STRING_VALUE);
         } else if (bType.tag == TypeTags.DECIMAL) {
             typeSig = String.format("L%s;", DECIMAL_VALUE);

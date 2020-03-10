@@ -89,4 +89,14 @@ public class TypeTags {
         }
         return false;
     }
+
+    public static boolean isStringTypeTag(int tag) {
+
+        switch (tag) {
+            case STRING:
+            case CHAR_STRING:
+                return true;
+        }
+        return false;
+    }
 }

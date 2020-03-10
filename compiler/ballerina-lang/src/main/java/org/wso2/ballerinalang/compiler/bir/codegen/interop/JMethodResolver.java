@@ -280,6 +280,7 @@ class JMethodResolver {
                 case TypeTags.DECIMAL:
                     return this.classLoader.loadClass(BDecimal.class.getCanonicalName()).isAssignableFrom(jType);
                 case TypeTags.STRING:
+                case TypeTags.CHAR_STRING:
                     return this.classLoader.loadClass(BString.class.getCanonicalName()).isAssignableFrom(jType);
                 case TypeTags.MAP:
                 case TypeTags.RECORD:
@@ -407,6 +408,7 @@ class JMethodResolver {
                 case TypeTags.DECIMAL:
                     return this.classLoader.loadClass(BDecimal.class.getCanonicalName()).isAssignableFrom(jType);
                 case TypeTags.STRING:
+                case TypeTags.CHAR_STRING:
                     return this.classLoader.loadClass(BString.class.getCanonicalName()).isAssignableFrom(jType);
                 case TypeTags.MAP:
                 case TypeTags.RECORD:

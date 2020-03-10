@@ -37,7 +37,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
 )
 public class ToCodePointInt {
 
-    public static long startsWith(Strand strand, String ch) {
+    public static long toCodePointInt(Strand strand, String ch) {
         return ch.codePointAt(0);
     }
 }

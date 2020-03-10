@@ -313,6 +313,7 @@ public class BIRInstructionWriter extends BIRVisitor {
                 buf.writeBoolean((Boolean) birConstantLoad.value);
                 break;
             case TypeTags.STRING:
+            case TypeTags.CHAR_STRING:
             case TypeTags.DECIMAL:
                 buf.writeInt(cp.addCPEntry(new StringCPEntry(birConstantLoad.value.toString())));
                 break;

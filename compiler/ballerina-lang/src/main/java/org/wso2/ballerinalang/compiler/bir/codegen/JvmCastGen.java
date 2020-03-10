@@ -153,7 +153,7 @@ public class JvmCastGen {
 
     private static void generateCheckCastBToJString(MethodVisitor mv, BType sourceType) {
 
-        if (sourceType.tag == TypeTags.STRING) {
+        if (TypeTags.isStringTypeTag(sourceType.tag)) {
             mv.visitMethodInsn(INVOKESTATIC, STRING_UTILS, "fromString",
                     String.format("(L%s;)L%s;", STRING_VALUE, B_STRING_VALUE), false);
         } else {
@@ -337,7 +337,7 @@ public class JvmCastGen {
         } else if (targetType.tag == TypeTags.FLOAT) {
             generateCheckCastJToBFloat(mv, sourceType);
             return;
-        } else if (targetType.tag == TypeTags.STRING) {
+        } else if (TypeTags.isStringTypeTag(targetType.tag)) {
             generateCheckCastJToBString(mv, sourceType);
             return;
         } else if (targetType.tag == TypeTags.DECIMAL) {
@@ -687,6 +687,9 @@ public class JvmCastGen {
         } else if (targetType.tag == TypeTags.STRING) {
             generateCheckCastToString(mv, sourceType, indexMap, useBString);
             return;
+        } else if (targetType.tag == TypeTags.CHAR_STRING) {
+            generateCheckCastToChar(mv, sourceType);
+            return;
         } else if (targetType.tag == TypeTags.DECIMAL) {
             generateCheckCastToDecimal(mv, sourceType);
             return;
@@ -940,7 +943,7 @@ public class JvmCastGen {
     private static void generateCheckCastToString(MethodVisitor mv, BType sourceType, BalToJVMIndexMap indexMap,
                                                   boolean useBString) {
 
-        if (sourceType.tag == TypeTags.STRING) {
+        if (TypeTags.isStringTypeTag(sourceType.tag)) {
             // do nothing
             return;
         } else if (sourceType.tag == TypeTags.ANY ||
@@ -983,6 +986,28 @@ public class JvmCastGen {
         mv.visitInsn(DUP);
         mv.visitVarInsn(ALOAD, tmpVarIndex);
         mv.visitMethodInsn(INVOKESPECIAL, BMP_STRING_VALUE, "<init>", String.format("(L%s;)V", STRING_VALUE), false);
+    }
+
+    private static void generateCheckCastToChar(MethodVisitor mv, BType sourceType) {
+
+        if (TypeTags.isStringTypeTag(sourceType.tag)) {
+            mv.visitMethodInsn(INVOKESTATIC, TYPE_CONVERTER, "stringToChar",
+                    String.format("(L%s;)L%s;", OBJECT, STRING_VALUE), false);
+        } else if (sourceType.tag == TypeTags.ANY ||
+                sourceType.tag == TypeTags.ANYDATA ||
+                sourceType.tag == TypeTags.UNION ||
+                sourceType.tag == TypeTags.JSON ||
+                sourceType.tag == TypeTags.FINITE ||
+                TypeTags.isIntegerTypeTag(sourceType.tag) ||
+                sourceType.tag == TypeTags.FLOAT ||
+                sourceType.tag == TypeTags.BOOLEAN ||
+                sourceType.tag == TypeTags.DECIMAL) {
+            mv.visitMethodInsn(INVOKESTATIC, TYPE_CONVERTER, "anyToChar",
+                    String.format("(L%s;)L%s;", OBJECT, STRING_VALUE), false);
+        } else {
+            throw new BLangCompilerException(String.format("Casting is not supported from '%s' to 'char'",
+                    sourceType));
+        }
     }
 
     private static void generateCheckCastToBoolean(MethodVisitor mv, BType sourceType) {
@@ -1110,7 +1135,7 @@ public class JvmCastGen {
         } else if (targetType.tag == TypeTags.FLOAT) {
             generateCastToFloat(mv, sourceType);
             return;
-        } else if (targetType.tag == TypeTags.STRING) {
+        } else if (TypeTags.isStringTypeTag(targetType.tag)) {
             generateCastToString(mv, sourceType, useBString);
             return;
         } else if (targetType.tag == TypeTags.BOOLEAN) {
@@ -1178,7 +1203,7 @@ public class JvmCastGen {
 
     private static void generateCastToString(MethodVisitor mv, BType sourceType, boolean useBString /* = false */) {
 
-        if (sourceType.tag == TypeTags.STRING) {
+        if (TypeTags.isStringTypeTag(sourceType.tag)) {
             // do nothing
         } else if (TypeTags.isIntegerTypeTag(sourceType.tag)) {
             mv.visitMethodInsn(INVOKESTATIC, LONG_VALUE, "toString", String.format("(J)L%s;", STRING_VALUE), false);

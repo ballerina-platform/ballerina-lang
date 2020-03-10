@@ -41,9 +41,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.Supplier;
 
 import static org.ballerinalang.jvm.TypeChecker.checkIsLikeType;
+import static org.ballerinalang.jvm.TypeChecker.isCharLiteralValue;
 import static org.ballerinalang.jvm.TypeChecker.isSigned16LiteralValue;
 import static org.ballerinalang.jvm.TypeChecker.isSigned32LiteralValue;
 import static org.ballerinalang.jvm.TypeChecker.isSigned8LiteralValue;
@@ -199,6 +201,14 @@ public class TypeConverter {
                 return TypeChecker.isUnsigned16LiteralValue(val);
             case TypeTags.UNSIGNED8_INT_TAG:
                 return TypeChecker.isUnsigned8LiteralValue(val);
+        }
+        return false;
+    }
+
+    static boolean isConvertibleToChar(Object value) {
+        BType inputType = TypeChecker.getType(value);
+        if (inputType.getTag() == TypeTags.STRING_TAG) {
+            return isCharLiteralValue(value);
         }
         return false;
     }
@@ -499,6 +509,19 @@ public class TypeConverter {
     public static long floatToUnsigned8(double sourceVal) {
         return intToUnsigned8(floatToInt(sourceVal));
     }
+
+    public static String stringToChar(Object sourceVal) {
+        if (!isCharLiteralValue(sourceVal)) {
+            throw BallerinaErrors.createNumericConversionError(sourceVal, BTypes.typeStringChar);
+        }
+        return Objects.toString(sourceVal);
+    }
+
+    public static String anyToChar(Object sourceVal) {
+        String value = Objects.toString(sourceVal);
+        return stringToChar(value);
+    }
+
 
     public static int floatToByte(double sourceVal) {
         checkIsValidFloat(sourceVal, BTypes.typeByte);

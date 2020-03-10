@@ -331,8 +331,13 @@ public class SymbolTable {
         defineIntegerArithmeticOperations();
         defineBinaryOperator(OperatorKind.ADD, xmlType, xmlType, xmlType);
         defineBinaryOperator(OperatorKind.ADD, xmlType, stringType, xmlType);
+        defineBinaryOperator(OperatorKind.ADD, xmlType, charStringType, xmlType);
         defineBinaryOperator(OperatorKind.ADD, stringType, stringType, stringType);
         defineBinaryOperator(OperatorKind.ADD, stringType, xmlType, xmlType);
+        defineBinaryOperator(OperatorKind.ADD, stringType, charStringType, stringType);
+        defineBinaryOperator(OperatorKind.ADD, charStringType, stringType, stringType);
+        defineBinaryOperator(OperatorKind.ADD, charStringType, charStringType, stringType);
+        defineBinaryOperator(OperatorKind.ADD, charStringType, xmlType, xmlType);
         defineBinaryOperator(OperatorKind.ADD, floatType, floatType, floatType);
         defineBinaryOperator(OperatorKind.ADD, decimalType, decimalType, decimalType);
         defineBinaryOperator(OperatorKind.ADD, intType, floatType, floatType);
