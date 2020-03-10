@@ -74,7 +74,8 @@ public enum SyntaxKind {
     COMMENT(1502),
     
     // module-level declarations
-    FUNCTION_DEFINITION(2000),
+    IMPORT_DECLARATION(2000),
+    FUNCTION_DEFINITION(2001),
 
     // Statements
     BLOCK_STATEMENT(1200),
