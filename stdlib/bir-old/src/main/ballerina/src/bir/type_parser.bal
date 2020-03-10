@@ -189,8 +189,12 @@ public type TypeParser object {
     }
 
     function parseStreamType() returns BStreamType {
-        BStreamType obj = { sConstraint:TYPE_NIL }; // Dummy constraint until actual constraint is read
+        BStreamType obj = { sConstraint:TYPE_NIL, sError:TYPE_NIL }; // Dummy constraint until actual constraint is read
         obj.sConstraint = self.parseTypeCpRef();
+        boolean hasError = self.readBoolean();
+        if (hasError) {
+            obj.sError = self.parseTypeCpRef();
+        }
         return obj;
     }
 

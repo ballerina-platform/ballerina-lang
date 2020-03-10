@@ -764,6 +764,9 @@ public class SymbolEnter extends BLangNodeVisitor {
                 BTypeSymbol typeDefSymbol = typeDefinition.symbol;
                 typeDefSymbol.type = typeParamAnalyzer.createTypeParam(typeDefSymbol.type, typeDefSymbol.name);
                 typeDefSymbol.flags |= Flags.TYPE_PARAM;
+                if (typeDefinition.typeNode.getKind() == NodeKind.ERROR_TYPE) {
+                    typeDefSymbol.isLabel = false;
+                }
                 break;
             } else if (attachment.annotationName.value.equals(Names.ANNOTATION_BUILTIN_SUBTYPE.value)) {
                 // Type is pre-defined in symbol Table.

@@ -19,31 +19,32 @@
 package org.ballerinalang.langlib.internal;
 
 import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.types.BStreamType;
-import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.jvm.values.StreamValue;
-import org.ballerinalang.jvm.values.TypedescValue;
+import org.ballerinalang.jvm.types.BFunctionType;
+import org.ballerinalang.jvm.types.BType;
+import org.ballerinalang.jvm.types.BTypes;
+import org.ballerinalang.jvm.types.BUnionType;
+import org.ballerinalang.jvm.values.FPValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
- * Native implementation of lang.internal:construct(typeDesc, iterator).
+ * Native implementation of lang.internal:getMapFunc(func).
  *
  * @since 1.2.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.__internal", functionName = "construct",
-        args = {
-                @Argument(name = "td", type = TypeKind.TYPEDESC),
-                @Argument(name = "iteratorObj", type = TypeKind.OBJECT)
-        },
-        returnType = {@ReturnType(type = TypeKind.STREAM)}
+        orgName = "ballerina", packageName = "lang.__internal", functionName = "getMapFunc",
+        args = {@Argument(name = "func", type = TypeKind.ANY)},
+        returnType = {@ReturnType(type = TypeKind.FUNCTION)}
 )
-public class Construct {
+public class GetMapFunc {
 
-    public static StreamValue construct(Strand strand, TypedescValue td, ObjectValue iteratorObj) {
-        return new StreamValue(new BStreamType(td.getDescribingType()), iteratorObj);
+    public static FPValue getMapFunc(Strand strand, Object obj) {
+        FPValue fpValue = (FPValue) obj;
+        BFunctionType functionType = (BFunctionType) fpValue.getType();
+        functionType.paramTypes[0] = new BUnionType(new BType[]{BTypes.typeAny, BTypes.typeError}, 0);
+        return fpValue;
     }
 }

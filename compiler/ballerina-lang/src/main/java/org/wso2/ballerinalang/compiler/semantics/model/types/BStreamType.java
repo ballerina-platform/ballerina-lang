@@ -18,7 +18,8 @@
 
 package org.wso2.ballerinalang.compiler.semantics.model.types;
 
-import org.ballerinalang.model.types.ConstrainedType;
+import org.ballerinalang.model.types.StreamType;
+import org.ballerinalang.model.types.Type;
 import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
@@ -28,18 +29,25 @@ import org.wso2.ballerinalang.compiler.util.TypeTags;
  *
  * @since 1.2.0
  */
-public class BStreamType extends BBuiltInRefType implements ConstrainedType {
+public class BStreamType extends BBuiltInRefType implements StreamType {
 
     public BType constraint;
+    public BType error;
 
-    public BStreamType(int tag, BType constraint, BTypeSymbol tsymbol) {
+    public BStreamType(int tag, BType constraint, BType error, BTypeSymbol tsymbol) {
         super(tag, tsymbol);
         this.constraint = constraint;
+        this.error = error;
     }
 
     @Override
     public BType getConstraint() {
         return constraint;
+    }
+
+    @Override
+    public Type getError() {
+        return error;
     }
 
     @Override

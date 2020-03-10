@@ -24,6 +24,7 @@ import org.ballerinalang.jvm.values.api.BFunctionPointer;
 import org.ballerinalang.jvm.values.api.BFuture;
 import org.ballerinalang.jvm.values.api.BMap;
 import org.ballerinalang.jvm.values.api.BObject;
+import org.ballerinalang.jvm.values.api.BStream;
 import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.jvm.values.api.BTable;
 import org.ballerinalang.jvm.values.api.BTypedesc;
@@ -333,6 +334,8 @@ class JMethodResolver {
                     return this.classLoader.loadClass(BFuture.class.getCanonicalName()).isAssignableFrom(jType);
                 case TypeTags.TYPEDESC:
                     return this.classLoader.loadClass(BTypedesc.class.getCanonicalName()).isAssignableFrom(jType);
+                case TypeTags.STREAM:
+                    return this.classLoader.loadClass(BStream.class.getCanonicalName()).isAssignableFrom(jType);
                 default:
                     return false;
             }
@@ -469,6 +472,8 @@ class JMethodResolver {
                     return this.classLoader.loadClass(BFuture.class.getCanonicalName()).isAssignableFrom(jType);
                 case TypeTags.TYPEDESC:
                     return this.classLoader.loadClass(BTypedesc.class.getCanonicalName()).isAssignableFrom(jType);
+                case TypeTags.STREAM:
+                    return this.classLoader.loadClass(BStream.class.getCanonicalName()).isAssignableFrom(jType);
                 default:
                     return false;
             }

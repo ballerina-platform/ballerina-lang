@@ -16,31 +16,35 @@
  * under the License.
  */
 
-package org.ballerinalang.langlib.stream;
+package org.ballerinalang.langlib.internal;
 
 import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.types.BFunctionType;
+import org.ballerinalang.jvm.types.BType;
+import org.ballerinalang.jvm.types.BTypes;
+import org.ballerinalang.jvm.types.BUnionType;
 import org.ballerinalang.jvm.values.FPValue;
-import org.ballerinalang.jvm.values.StreamValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
- * Native implementation of lang.stream:getGenFunc(stream&lt;Type&gt;).
+ * Native implementation of lang.internal:getFilterFunc(func).
  *
  * @since 1.2.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.stream", functionName = "getGenFunc",
-        args = {@Argument(name = "strm", type = TypeKind.STREAM)},
-        returnType = {@ReturnType(type = TypeKind.FUNCTION)},
-        isPublic = true
+        orgName = "ballerina", packageName = "lang.__internal", functionName = "getFilterFunc",
+        args = {@Argument(name = "func", type = TypeKind.ANY)},
+        returnType = {@ReturnType(type = TypeKind.FUNCTION)}
 )
-public class GetGenFunc {
+public class GetFilterFunc {
 
-    public static FPValue<Object, Object> getGenFunc(Strand strand, StreamValue strm) {
-        return strm.getGenFunc();
+    public static FPValue getFilterFunc(Strand strand, Object obj) {
+        FPValue fpValue = (FPValue) obj;
+        BFunctionType functionType = (BFunctionType) fpValue.getType();
+        functionType.paramTypes[0] = new BUnionType(new BType[]{BTypes.typeAny, BTypes.typeError}, 0);
+        return fpValue;
     }
-
 }
