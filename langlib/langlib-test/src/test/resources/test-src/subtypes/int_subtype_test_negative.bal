@@ -73,8 +73,8 @@ function testTypeAlias() {
 }
 
 
-const ints:Signed32 constS32a = 2147483647;
-const ints:Signed32 constS32b = 2147483648; // Error
+//const ints:Signed32 constS32a = 2147483647;
+//const ints:Signed32 constS32b = 2147483648; // Error // TODO : Fix this, Issue : #21542
 
 function testSigned32Assignment() {
     ints:Signed32 value = 2147483647;
@@ -136,10 +136,11 @@ function testunsigned8Assignment() {
     byte g = value;
 }
 
-const ints:Unsigned32 cde = -10;  // Error
-const ints:Unsigned16 cee = -10; // Error
-const ints:Unsigned8 cfe = -10; // Error
-const byte cge = -10; // Error
+// TODO : Fix this, Issue : #21542
+//const ints:Unsigned32 cde = -10;  // Error
+//const ints:Unsigned16 cee = -10; // Error
+//const ints:Unsigned8 cfe = -10; // Error
+//const byte cge = -10; // Error
 
 // TODO : Fix me. Following are valid, But Not supported yet.
 //type TenOrEleven 10|11;
