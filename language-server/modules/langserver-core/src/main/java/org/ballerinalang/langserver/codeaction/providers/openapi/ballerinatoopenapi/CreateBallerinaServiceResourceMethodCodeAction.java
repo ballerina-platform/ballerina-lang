@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.ballerinalang.langserver.codeaction.providers.openAPI.openAPIToBallerina;
+package org.ballerinalang.langserver.codeaction.providers.openapi.ballerinatoopenapi;
 
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.codeaction.providers.AbstractCodeActionProvider;
-import org.ballerinalang.langserver.command.executors.openAPI.openAPIToBallerina.CreateOpenApiServiceResourceExecutor;
+import org.ballerinalang.langserver.command.executors.openapi.ballerinatoopenapi.CreateBallerinaServiceResourceMethodExecutor;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.LSContext;
@@ -40,7 +40,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.regex.Matcher;
 
-import static org.ballerinalang.langserver.common.constants.CommandConstants.CREATE_SERVICE_RESOURCE;
+import static org.ballerinalang.langserver.common.constants.CommandConstants.CREATE_MISSING_METHOD_FOR_THE_PATH_IN_OPENAPI;
 
 /**
  * Code Action provider for open api service resource implement.
@@ -48,8 +48,9 @@ import static org.ballerinalang.langserver.common.constants.CommandConstants.CRE
  * @since 1.2.0
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.codeaction.spi.LSCodeActionProvider")
-public class CreateOpenApiServiceResourceForPathCodeAction extends AbstractCodeActionProvider {
-    private static final String RESOURCE_NOT_FOUND = "Couldn't find a Ballerina service resource for the path";
+public class CreateBallerinaServiceResourceMethodCodeAction extends AbstractCodeActionProvider {
+    private static final String CONTAINS_RESOURCE_NOT_DOCUMENTED =
+            "Ballerina service contains a Resource that is not documented in the OpenAPI contract.";
 
     @Override
     public List<CodeAction> getNodeBasedCodeActions(CodeActionNodeType nodeType, LSContext lsContext,
@@ -75,8 +76,10 @@ public class CreateOpenApiServiceResourceForPathCodeAction extends AbstractCodeA
             return actions;
         }
         for (Diagnostic diagnostic : diagnosticsOfRange) {
-            if (diagnostic.getMessage().startsWith(RESOURCE_NOT_FOUND)) {
-                CodeAction codeAction = getOpenApiCommand(document, diagnostic, lsContext);
+            Matcher matcher = CommandConstants.METHOD_FOR_THE_PATH_NOT_FOUND_IN_OPENAPI.matcher(
+                    diagnostic.getMessage());
+            if (matcher.find()) {
+                CodeAction codeAction = getCommand(diagnostic, lsContext);
                 if (codeAction != null) {
                     actions.add(codeAction);
                 }
@@ -85,8 +88,8 @@ public class CreateOpenApiServiceResourceForPathCodeAction extends AbstractCodeA
         return actions;
     }
 
-    private static CodeAction getOpenApiCommand(LSDocumentIdentifier document, Diagnostic diagnostic,
-                                                LSContext lsContext) {
+    private static CodeAction getCommand(Diagnostic diagnostic,
+                                         LSContext lsContext) {
         String diagnosticMessage = diagnostic.getMessage();
         Position position = diagnostic.getRange().getStart();
         int line = position.getLine();
@@ -97,16 +100,21 @@ public class CreateOpenApiServiceResourceForPathCodeAction extends AbstractCodeA
         CommandArgument uriArg = new CommandArgument(CommandConstants.ARG_KEY_DOC_URI, uri);
         List<Diagnostic> diagnostics = new ArrayList<>();
 
-        Matcher matcher = CommandConstants.RESOURCE_PATH_NOT_FOUND.matcher(diagnosticMessage);
+        Matcher matcher = CommandConstants.METHOD_FOR_THE_PATH_NOT_FOUND_IN_OPENAPI.matcher(diagnosticMessage);
         if (matcher.find() && matcher.groupCount() > 0) {
-            String path = matcher.group(1);
-            String commandTitle = String.format(CommandConstants.CREATE_SERVICE_RESOURCE, path);
+            String method = matcher.group(1);
+            String path = matcher.group(2);
+            CommandArgument methodArg = new CommandArgument(CommandConstants.ARG_KEY_METHOD, method);
             CommandArgument pathArg = new CommandArgument(CommandConstants.ARG_KEY_PATH, path);
 
-            List<Object> args = Arrays.asList(lineArg, colArg, uriArg, pathArg);
+            List<Object> args = Arrays.asList(lineArg, colArg, uriArg, methodArg, pathArg);
+            String commandTitle = String.format(CREATE_MISSING_METHOD_FOR_THE_PATH_IN_OPENAPI, method, path);
             CodeAction action = new CodeAction(commandTitle);
             action.setKind(CodeActionKind.QuickFix);
-            action.setCommand(new Command(CREATE_SERVICE_RESOURCE, CreateOpenApiServiceResourceExecutor.COMMAND, args));
+            action.setCommand(
+                    new Command(CREATE_MISSING_METHOD_FOR_THE_PATH_IN_OPENAPI,
+                                CreateBallerinaServiceResourceMethodExecutor.COMMAND,
+                                args));
             action.setDiagnostics(diagnostics);
             return action;
         }

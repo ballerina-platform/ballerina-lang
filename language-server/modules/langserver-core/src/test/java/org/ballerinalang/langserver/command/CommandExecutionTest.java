@@ -29,9 +29,9 @@ import org.ballerinalang.langserver.command.executors.ChangeAbstractTypeObjExecu
 import org.ballerinalang.langserver.command.executors.CreateFunctionExecutor;
 import org.ballerinalang.langserver.command.executors.CreateTestExecutor;
 import org.ballerinalang.langserver.command.executors.ImportModuleExecutor;
-import org.ballerinalang.langserver.command.executors.openAPI.openAPIToBallerina.AddMissingParameterInBallerinaExecutor;
-import org.ballerinalang.langserver.command.executors.openAPI.openAPIToBallerina.CreateOpenApiServiceResourceExecutor;
-import org.ballerinalang.langserver.command.executors.openAPI.openAPIToBallerina.CreateOpenApiServiceResourceMethodExecutor;
+import org.ballerinalang.langserver.command.executors.openapi.openapitoballerina.AddMissingParameterInBallerinaExecutor;
+import org.ballerinalang.langserver.command.executors.openapi.openapitoballerina.CreateOpenApiServiceResourceExecutor;
+import org.ballerinalang.langserver.command.executors.openapi.openapitoballerina.CreateOpenApiServiceResourceMethodExecutor;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.commons.command.CommandArgument;
 import org.ballerinalang.langserver.compiler.ExtendedLSCompiler;
@@ -363,7 +363,8 @@ public class CommandExecutionTest {
         args.add(new CommandArgument(CommandConstants.ARG_KEY_NODE_LINE, arguments.get("node.line").getAsString()));
         args.add(new CommandArgument(CommandConstants.ARG_KEY_NODE_COLUMN, arguments.get("node.column").getAsString()));
         args.add(new CommandArgument(CommandConstants.ARG_KEY_PATH, arguments.get("resource.path").getAsString()));
-        args.add(new CommandArgument(CommandConstants.ARG_KEY_PARAMETER, arguments.get("resource.parameter").getAsString()));
+        args.add(new CommandArgument(CommandConstants.ARG_KEY_PARAMETER,
+                                     arguments.get("resource.parameter").getAsString()));
         args.add(new CommandArgument(CommandConstants.ARG_KEY_METHOD, arguments.get("resource.method").getAsString()));
         JsonObject responseJson = getCommandResponse(args, AddMissingParameterInBallerinaExecutor.COMMAND);
         responseJson.get("result").getAsJsonObject().get("edit").getAsJsonObject().getAsJsonArray("documentChanges")

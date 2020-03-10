@@ -13,15 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.ballerinalang.langserver.codeaction.providers.openAPI.openAPIToBallerina;
+package org.ballerinalang.langserver.codeaction.providers.openapi.openapitoballerina;
 
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.codeaction.providers.AbstractCodeActionProvider;
-import org.ballerinalang.langserver.command.executors.openAPI.openAPIToBallerina.AddMissingParameterInBallerinaExecutor;
+import org.ballerinalang.langserver.command.executors.openapi.openapitoballerina.CreateOpenApiServiceResourceMethodExecutor;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
+import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.codeaction.CodeActionNodeType;
 import org.ballerinalang.langserver.commons.command.CommandArgument;
+import org.ballerinalang.langserver.commons.workspace.LSDocumentIdentifier;
+import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
+import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.CodeActionKind;
@@ -29,20 +33,24 @@ import org.eclipse.lsp4j.Command;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.Position;
 
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.regex.Matcher;
 
-import static org.ballerinalang.langserver.common.constants.CommandConstants.ADD_MISSING_PARAMETER_IN_BALLERINA;
+import static org.ballerinalang.langserver.common.constants.CommandConstants.CREATE_SERVICE_RESOURCE_METHOD;
 
 /**
- * Code Action provider for add missing parameter in ballerina file for open API contract.
+ * Code Action provider for open api service resource implement.
  *
  * @since 1.2.0
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.codeaction.spi.LSCodeActionProvider")
-public class AddMissingParameterCodeAction extends AbstractCodeActionProvider {
+public class CreateOpenApiServiceResourceForMethodCodeAction extends AbstractCodeActionProvider {
+    private static final String RESOURCE_METHOD_NOT_FOUND =
+            "Couldn't find Ballerina service resource(s) for http method(s)";
 
     @Override
     public List<CodeAction> getNodeBasedCodeActions(CodeActionNodeType nodeType, LSContext lsContext,
@@ -54,12 +62,22 @@ public class AddMissingParameterCodeAction extends AbstractCodeActionProvider {
     public List<CodeAction> getDiagBasedCodeActions(CodeActionNodeType nodeType, LSContext lsContext,
                                                     List<Diagnostic> diagnosticsOfRange,
                                                     List<Diagnostic> allDiagnostics) {
+        WorkspaceDocumentManager documentManager = lsContext.get(DocumentServiceKeys.DOC_MANAGER_KEY);
+        Optional<Path> filePath = CommonUtil.getPathFromURI(lsContext.get(DocumentServiceKeys.FILE_URI_KEY));
+        LSDocumentIdentifier document = null;
+        try {
+            document = documentManager.getLSDocument(filePath.get());
+        } catch (WorkspaceDocumentException e) {
+            // ignore
+        }
         List<CodeAction> actions = new ArrayList<>();
+
+        if (document == null) {
+            return actions;
+        }
         for (Diagnostic diagnostic : diagnosticsOfRange) {
-            Matcher matcher = CommandConstants.PARAMETER_FOR_THE_METHOD_NOT_FOUND_IN_BALLERINA.matcher(
-                    diagnostic.getMessage());
-            if (matcher.find()) {
-                CodeAction codeAction = getCommand(diagnostic, lsContext);
+            if (diagnostic.getMessage().startsWith(RESOURCE_METHOD_NOT_FOUND)) {
+                CodeAction codeAction = getCommand(document, diagnostic, lsContext);
                 if (codeAction != null) {
                     actions.add(codeAction);
                 }
@@ -68,7 +86,7 @@ public class AddMissingParameterCodeAction extends AbstractCodeActionProvider {
         return actions;
     }
 
-    private static CodeAction getCommand(Diagnostic diagnostic,
+    private static CodeAction getCommand(LSDocumentIdentifier document, Diagnostic diagnostic,
                                          LSContext lsContext) {
         String diagnosticMessage = diagnostic.getMessage();
         Position position = diagnostic.getRange().getStart();
@@ -80,22 +98,19 @@ public class AddMissingParameterCodeAction extends AbstractCodeActionProvider {
         CommandArgument uriArg = new CommandArgument(CommandConstants.ARG_KEY_DOC_URI, uri);
         List<Diagnostic> diagnostics = new ArrayList<>();
 
-        Matcher matcher = CommandConstants.PARAMETER_FOR_THE_METHOD_NOT_FOUND_IN_BALLERINA.matcher(diagnosticMessage);
+        Matcher matcher = CommandConstants.RESOURCE_METHOD_NOT_FOUND.matcher(diagnosticMessage);
         if (matcher.find() && matcher.groupCount() > 1) {
-            String parameter = matcher.group(1);
-            String method = matcher.group(2);
-            String path = matcher.group(3);
-            String commandTitle = String.format(CommandConstants.ADD_MISSING_PARAMETER_IN_BALLERINA, parameter, method,
-                                                path);
-            CommandArgument parameterArg = new CommandArgument(CommandConstants.ARG_KEY_PARAMETER, parameter);
-            CommandArgument methodArg = new CommandArgument(CommandConstants.ARG_KEY_METHOD, method);
+            String httpType = matcher.group(1);
+            String path = matcher.group(2);
+            String commandTitle = String.format(CommandConstants.CREATE_SERVICE_RESOURCE_METHOD, httpType, path);
             CommandArgument pathArg = new CommandArgument(CommandConstants.ARG_KEY_PATH, path);
+            CommandArgument methodArg = new CommandArgument(CommandConstants.ARG_KEY_METHOD, httpType);
 
-            List<Object> args = Arrays.asList(lineArg, colArg, uriArg, parameterArg, methodArg, pathArg);
+            List<Object> args = Arrays.asList(lineArg, colArg, uriArg, pathArg, methodArg);
             CodeAction action = new CodeAction(commandTitle);
             action.setKind(CodeActionKind.QuickFix);
             action.setCommand(
-                    new Command(ADD_MISSING_PARAMETER_IN_BALLERINA, AddMissingParameterInBallerinaExecutor.COMMAND,
+                    new Command(CREATE_SERVICE_RESOURCE_METHOD, CreateOpenApiServiceResourceMethodExecutor.COMMAND,
                                 args));
             action.setDiagnostics(diagnostics);
             return action;

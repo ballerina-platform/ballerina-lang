@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.ballerinalang.langserver.codeaction.providers.openAPI.openAPIToBallerina;
+package org.ballerinalang.langserver.codeaction.providers.openapi.ballerinatoopenapi;
 
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.codeaction.providers.AbstractCodeActionProvider;
-import org.ballerinalang.langserver.command.executors.openAPI.openAPIToBallerina.CreateOpenApiServiceResourceMethodExecutor;
+import org.ballerinalang.langserver.command.executors.openapi.ballerinatoopenapi.CreateBallerinaServiceResourceExecutor;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.LSContext;
@@ -48,9 +48,9 @@ import static org.ballerinalang.langserver.common.constants.CommandConstants.CRE
  * @since 1.2.0
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.codeaction.spi.LSCodeActionProvider")
-public class CreateOpenApiServiceResourceForMethodCodeAction extends AbstractCodeActionProvider {
-    private static final String RESOURCE_METHOD_NOT_FOUND =
-            "Couldn't find Ballerina service resource(s) for http method(s)";
+public class CreateBallerinaServiceResourceCodeAction extends AbstractCodeActionProvider {
+    private static final String CONTAINS_RESOURCE_NOT_DOCUMENTED =
+            "Ballerina service contains a Resource that is not documented in the OpenAPI contract.";
 
     @Override
     public List<CodeAction> getNodeBasedCodeActions(CodeActionNodeType nodeType, LSContext lsContext,
@@ -76,7 +76,7 @@ public class CreateOpenApiServiceResourceForMethodCodeAction extends AbstractCod
             return actions;
         }
         for (Diagnostic diagnostic : diagnosticsOfRange) {
-            if (diagnostic.getMessage().startsWith(RESOURCE_METHOD_NOT_FOUND)) {
+            if (diagnostic.getMessage().startsWith(CONTAINS_RESOURCE_NOT_DOCUMENTED)) {
                 CodeAction codeAction = getCommand(document, diagnostic, lsContext);
                 if (codeAction != null) {
                     actions.add(codeAction);
@@ -98,19 +98,17 @@ public class CreateOpenApiServiceResourceForMethodCodeAction extends AbstractCod
         CommandArgument uriArg = new CommandArgument(CommandConstants.ARG_KEY_DOC_URI, uri);
         List<Diagnostic> diagnostics = new ArrayList<>();
 
-        Matcher matcher = CommandConstants.RESOURCE_METHOD_NOT_FOUND.matcher(diagnosticMessage);
-        if (matcher.find() && matcher.groupCount() > 1) {
-            String httpType = matcher.group(1);
-            String path = matcher.group(2);
-            String commandTitle = String.format(CommandConstants.CREATE_SERVICE_RESOURCE_METHOD, httpType, path);
+        Matcher matcher = CommandConstants.RESOURCE_METHOD_NOT_FOUND_IN_OPENAPI.matcher(diagnosticMessage);
+        if (matcher.find() && matcher.groupCount() > 0) {
+            String path = matcher.group(1);
+            String commandTitle = String.format(CommandConstants.CREATE_SERVICE_RESOURCE_METHOD_IN_OPENAPI, path);
             CommandArgument pathArg = new CommandArgument(CommandConstants.ARG_KEY_PATH, path);
-            CommandArgument methodArg = new CommandArgument(CommandConstants.ARG_KEY_METHOD, httpType);
 
-            List<Object> args = Arrays.asList(lineArg, colArg, uriArg, pathArg, methodArg);
+            List<Object> args = Arrays.asList(lineArg, colArg, uriArg, pathArg);
             CodeAction action = new CodeAction(commandTitle);
             action.setKind(CodeActionKind.QuickFix);
             action.setCommand(
-                    new Command(CREATE_SERVICE_RESOURCE_METHOD, CreateOpenApiServiceResourceMethodExecutor.COMMAND,
+                    new Command(CREATE_SERVICE_RESOURCE_METHOD, CreateBallerinaServiceResourceExecutor.COMMAND,
                                 args));
             action.setDiagnostics(diagnostics);
             return action;

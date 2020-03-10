@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.ballerinalang.langserver.command.executors.openAPI;
+package org.ballerinalang.langserver.command.executors.openapi;
 
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.workspace.LSDocumentIdentifier;
@@ -36,6 +36,11 @@ import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import java.util.List;
 
+/**
+ * Util class for open api code action executors.
+ *
+ * @since 1.2.0
+ */
 public class OpenApiCodeActionUtil {
 
     /**
@@ -68,7 +73,8 @@ public class OpenApiCodeActionUtil {
                             for (RecordLiteralNode.RecordField field :
                                     ((BLangRecordLiteral) annAttachment.expr).fields) {
                                 DiagnosticPos fieldPosition =
-                                        ((BLangSimpleVarRef) ((BLangRecordLiteral.BLangRecordKeyValueField) field).key.expr).pos;
+                                        ((BLangSimpleVarRef) ((BLangRecordLiteral.BLangRecordKeyValueField) field)
+                                                .key.expr).pos;
                                 if (fieldPosition.sLine == position.getLine() + 1 &&
                                         fieldPosition.sCol == position.getCharacter()) {
                                     return resourceFunction;

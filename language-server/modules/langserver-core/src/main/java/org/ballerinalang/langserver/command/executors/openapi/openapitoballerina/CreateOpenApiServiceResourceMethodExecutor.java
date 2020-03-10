@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.ballerinalang.langserver.command.executors.openAPI.openAPIToBallerina;
+package org.ballerinalang.langserver.command.executors.openapi.openapitoballerina;
 
 import com.github.jknack.handlebars.Context;
 import com.github.jknack.handlebars.Handlebars;
@@ -78,14 +78,14 @@ import static org.ballerinalang.langserver.command.CommandUtil.applyWorkspaceEdi
 import static org.ballerinalang.openapi.utils.TypeExtractorUtil.extractOpenApiOperations;
 
 /**
- * Represents the command executor for creating a openAPI service resource.
+ * Represents the command executor for creating a openAPI service resource method.
  *
  * @since 1.2.0
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.command.spi.LSCommandExecutor")
-public class CreateOpenApiServiceResourceExecutor implements LSCommandExecutor {
+public class CreateOpenApiServiceResourceMethodExecutor implements LSCommandExecutor {
 
-    public static final String COMMAND = "CREATE_SERVICE_RESOURCE";
+    public static final String COMMAND = "CREATE_SERVICE_RESOURCE_METHOD";
 
     /**
      * {@inheritDoc}
@@ -95,6 +95,7 @@ public class CreateOpenApiServiceResourceExecutor implements LSCommandExecutor {
         String documentUri = null;
         VersionedTextDocumentIdentifier textDocumentIdentifier = new VersionedTextDocumentIdentifier();
         String resourcePath = null;
+        String resourceMethod = null;
         int line = -1;
         int column = -1;
 
@@ -115,6 +116,10 @@ public class CreateOpenApiServiceResourceExecutor implements LSCommandExecutor {
                     break;
                 case CommandConstants.ARG_KEY_PATH:
                     resourcePath = argVal;
+                    break;
+                case CommandConstants.ARG_KEY_METHOD:
+                    resourceMethod = argVal;
+                    break;
                 default:
             }
         }
@@ -207,9 +212,10 @@ public class CreateOpenApiServiceResourceExecutor implements LSCommandExecutor {
                 List<BallerinaOpenApiPath> paths = extractOpenApiPaths(openAPI.getPaths());
                 for (BallerinaOpenApiPath path : paths) {
                     if (path.getPath().equals(resourcePath)) {
-                        path.getOperationsList().forEach((ballerinaOpenApiOperation -> {
-                            ballerinaOpenApiOperation.setRequestBody(null);
-                        }));
+                        String finalResourceMethod = resourceMethod;
+                        // remove already available methods
+                        path.getOperationsList().removeIf(operation -> !operation.getOpMethod().equalsIgnoreCase(
+                                finalResourceMethod));
                         editText = getContent(path);
                     }
                 }
@@ -247,8 +253,8 @@ public class CreateOpenApiServiceResourceExecutor implements LSCommandExecutor {
         return null;
     }
 
-    private static List<BallerinaOpenApiPath> extractOpenApiPaths(io.swagger.v3.oas.models.Paths defPaths) throws
-                                                                                                           BallerinaOpenApiException {
+    private static List<BallerinaOpenApiPath> extractOpenApiPaths(io.swagger.v3.oas.models.Paths defPaths)
+            throws BallerinaOpenApiException {
         List<BallerinaOpenApiPath> paths = new ArrayList<>();
         final Iterator<Map.Entry<String, PathItem>> pathIterator = defPaths.entrySet().iterator();
 

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.ballerinalang.langserver.command.executors.openAPI.openAPIToBallerina;
+package org.ballerinalang.langserver.command.executors.openapi.openapitoballerina;
 
 import com.github.jknack.handlebars.Context;
 import com.github.jknack.handlebars.Handlebars;
@@ -43,10 +43,7 @@ import org.ballerinalang.langserver.compiler.exception.CompilationFailedExceptio
 import org.ballerinalang.langserver.util.references.ReferencesKeys;
 import org.ballerinalang.langserver.util.references.ReferencesUtil;
 import org.ballerinalang.langserver.util.references.SymbolReferencesModel;
-import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
 import org.ballerinalang.openapi.exception.BallerinaOpenApiException;
-import org.ballerinalang.openapi.typemodel.BallerinaOpenApiOperation;
-import org.ballerinalang.openapi.typemodel.BallerinaOpenApiParameter;
 import org.ballerinalang.openapi.typemodel.BallerinaOpenApiPath;
 import org.ballerinalang.openapi.utils.GeneratorConstants;
 import org.eclipse.lsp4j.Position;
@@ -58,11 +55,9 @@ import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.eclipse.lsp4j.services.LanguageClient;
 import org.wso2.ballerinalang.compiler.SourceDirectoryManager;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
-import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
@@ -83,14 +78,14 @@ import static org.ballerinalang.langserver.command.CommandUtil.applyWorkspaceEdi
 import static org.ballerinalang.openapi.utils.TypeExtractorUtil.extractOpenApiOperations;
 
 /**
- * Represents the command executor for creating a openAPI service resource method missing parameter.
+ * Represents the command executor for creating a openAPI service resource.
  *
  * @since 1.2.0
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.command.spi.LSCommandExecutor")
-public class AddMissingParameterInBallerinaExecutor implements LSCommandExecutor {
+public class CreateOpenApiServiceResourceExecutor implements LSCommandExecutor {
 
-    public static final String COMMAND = "ADD_MISSING_PARAMETER";
+    public static final String COMMAND = "CREATE_SERVICE_RESOURCE";
 
     /**
      * {@inheritDoc}
@@ -99,8 +94,6 @@ public class AddMissingParameterInBallerinaExecutor implements LSCommandExecutor
     public Object execute(LSContext context) throws LSCommandExecutorException {
         String documentUri = null;
         VersionedTextDocumentIdentifier textDocumentIdentifier = new VersionedTextDocumentIdentifier();
-        String resourceParameter = null;
-        String resourceMethod = null;
         String resourcePath = null;
         int line = -1;
         int column = -1;
@@ -119,12 +112,6 @@ public class AddMissingParameterInBallerinaExecutor implements LSCommandExecutor
                     break;
                 case CommandConstants.ARG_KEY_NODE_COLUMN:
                     column = Integer.parseInt(argVal);
-                    break;
-                case CommandConstants.ARG_KEY_PARAMETER:
-                    resourceParameter = argVal;
-                    break;
-                case CommandConstants.ARG_KEY_METHOD:
-                    resourceMethod = argVal;
                     break;
                 case CommandConstants.ARG_KEY_PATH:
                     resourcePath = argVal;
@@ -221,65 +208,22 @@ public class AddMissingParameterInBallerinaExecutor implements LSCommandExecutor
                 List<BallerinaOpenApiPath> paths = extractOpenApiPaths(openAPI.getPaths());
                 for (BallerinaOpenApiPath path : paths) {
                     if (path.getPath().equals(resourcePath)) {
-                        for (BallerinaOpenApiOperation operation : path.getOperationsList()) {
-                            if (operation.getOpMethod().equalsIgnoreCase(resourceMethod)) {
-                                for (BallerinaOpenApiParameter openApiParameter : operation.getParameterList()) {
-                                    if (openApiParameter.getParamName().equals(resourceParameter)) {
-                                        editText = getContent(openApiParameter
-                                        );
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-
-                BLangFunction function = null;
-                for (BLangFunction resourceFunction : serviceNode.resourceFunctions) {
-                    boolean isPathMatch = false;
-                    boolean isMethodMatch = false;
-                    for (RecordLiteralNode.RecordField field : ((BLangRecordLiteral) resourceFunction.annAttachments
-                            .get(
-                                    0).expr).fields) {
-                        BLangRecordLiteral.BLangRecordKeyValueField fieldValue =
-                                ((BLangRecordLiteral.BLangRecordKeyValueField) field);
-                        if (((BLangSimpleVarRef) fieldValue.key.expr).variableName.value
-                                .equals("path")) {
-                            if (((BLangLiteral) fieldValue.valueExpr).value
-                                    .equals(resourcePath)) {
-                                isPathMatch = true;
-                            }
-                        }
-                        if (((BLangSimpleVarRef) fieldValue.key.expr).variableName.value
-                                .equals("methods")) {
-                            if (fieldValue.valueExpr instanceof BLangListConstructorExpr &&
-                                    ((BLangLiteral) ((BLangListConstructorExpr) fieldValue.valueExpr).exprs.get(
-                                            0)).value.toString()
-                                            .equalsIgnoreCase(resourceMethod)) {
-                                isMethodMatch = true;
-                            }
-                        }
-                        if (isPathMatch && isMethodMatch) {
-                            function = resourceFunction;
-                            break;
-                        }
-                    }
-                    if (isPathMatch && isMethodMatch) {
-                        break;
+                        path.getOperationsList().forEach((ballerinaOpenApiOperation -> {
+                            ballerinaOpenApiOperation.setRequestBody(null);
+                        }));
+                        editText = getContent(path);
                     }
                 }
 
                 List<TextEdit> edits = new ArrayList<>();
-                if (function != null) {
-                    LanguageClient client = context.get(ExecuteCommandKeys.LANGUAGE_CLIENT_KEY);
-                    DiagnosticPos lastParaPos = function.requiredParams.get(function.requiredParams.size() - 1).pos;
-                    Range range = new Range(new Position(lastParaPos.eLine - 1, lastParaPos.eCol - 1),
-                                            new Position(lastParaPos.eLine - 1, lastParaPos.eCol - 1));
-                    edits.add(new TextEdit(range, editText));
-                    TextDocumentEdit textDocumentEdit = new TextDocumentEdit(textDocumentIdentifier, edits);
-                    return applyWorkspaceEdit(Collections.singletonList(Either.forLeft(textDocumentEdit)), client);
-                }
-                return null;
+
+                LanguageClient client = context.get(ExecuteCommandKeys.LANGUAGE_CLIENT_KEY);
+                DiagnosticPos serviceNodePos = serviceNode.pos;
+                Range range = new Range(new Position(serviceNodePos.eLine - 1, serviceNodePos.eCol - 2),
+                                        new Position(serviceNodePos.eLine - 1, serviceNodePos.eCol - 2));
+                edits.add(new TextEdit(range, editText));
+                TextDocumentEdit textDocumentEdit = new TextDocumentEdit(textDocumentIdentifier, edits);
+                return applyWorkspaceEdit(Collections.singletonList(Either.forLeft(textDocumentEdit)), client);
 
             }
         } catch (CompilationFailedException e) {
@@ -304,8 +248,8 @@ public class AddMissingParameterInBallerinaExecutor implements LSCommandExecutor
         return null;
     }
 
-    private static List<BallerinaOpenApiPath> extractOpenApiPaths(io.swagger.v3.oas.models.Paths defPaths) throws
-                                                                                                           BallerinaOpenApiException {
+    private static List<BallerinaOpenApiPath> extractOpenApiPaths(io.swagger.v3.oas.models.Paths defPaths)
+            throws BallerinaOpenApiException {
         List<BallerinaOpenApiPath> paths = new ArrayList<>();
         final Iterator<Map.Entry<String, PathItem>> pathIterator = defPaths.entrySet().iterator();
 
@@ -324,8 +268,7 @@ public class AddMissingParameterInBallerinaExecutor implements LSCommandExecutor
         return paths;
     }
 
-    private String getContent(BallerinaOpenApiParameter object)
-            throws IOException {
+    private String getContent(BallerinaOpenApiPath object) throws IOException {
         Template template = compileTemplate("/openAPITemplates");
         Context context = Context.newBuilder(object)
                 .resolver(MapValueResolver.INSTANCE, JavaBeanValueResolver.INSTANCE, FieldValueResolver.INSTANCE)
@@ -364,7 +307,7 @@ public class AddMissingParameterInBallerinaExecutor implements LSCommandExecutor
             return result;
         });
 
-        return handlebars.compile("balFunctionParameter");
+        return handlebars.compile("balFunction");
     }
 
     /**
