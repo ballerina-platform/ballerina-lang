@@ -758,10 +758,10 @@ public class SymbolEnter extends BLangNodeVisitor {
 
     private void handleLangLibTypes(BLangTypeDefinition typeDefinition) {
 
-        BTypeSymbol typeDefSymbol = typeDefinition.symbol;
         // As per spec 2020R3 built-in types are limited only within lang.* modules.
         for (BLangAnnotationAttachment attachment : typeDefinition.annAttachments) {
             if (attachment.annotationName.value.equals(Names.ANNOTATION_TYPE_PARAM.value)) {
+                BTypeSymbol typeDefSymbol = typeDefinition.symbol;
                 typeDefSymbol.type = typeParamAnalyzer.createTypeParam(typeDefSymbol.type, typeDefSymbol.name);
                 typeDefSymbol.flags |= Flags.TYPE_PARAM;
                 break;
@@ -776,7 +776,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             }
             throw new IllegalStateException("Not supported annotation attachment at:" + attachment.pos);
         }
-        defineSymbol(typeDefinition.name.pos, typeDefSymbol);
+        defineSymbol(typeDefinition.name.pos, typeDefinition.symbol);
     }
 
     // If this type is defined to a public type or this is a anonymous type, return int with all bits set to 1,

@@ -289,7 +289,7 @@ public class JvmInstructionGen {
         } else if (bType.tag == TypeTags.BOOLEAN) {
             mv.visitVarInsn(ILOAD, valueIndex);
         } else if (bType.tag == TypeTags.ARRAY ||
-                bType.tag == TypeTags.STRING ||
+                TypeTags.isStringTypeTag(bType.tag) ||
                 bType.tag == TypeTags.MAP ||
                 bType.tag == TypeTags.TABLE ||
                 bType.tag == TypeTags.STREAM ||
@@ -374,7 +374,7 @@ public class JvmInstructionGen {
         } else if (bType.tag == TypeTags.BOOLEAN) {
             mv.visitVarInsn(ISTORE, valueIndex);
         } else if (bType.tag == TypeTags.ARRAY ||
-                bType.tag == TypeTags.STRING ||
+                TypeTags.isStringTypeTag(bType.tag) ||
                 bType.tag == TypeTags.MAP ||
                 bType.tag == TypeTags.TABLE ||
                 bType.tag == TypeTags.STREAM ||
@@ -817,7 +817,7 @@ public class JvmInstructionGen {
                 this.mv.visitInsn(LADD);
             } else if (bType.tag == TypeTags.BYTE) {
                 this.mv.visitInsn(IADD);
-            } else if (bType.tag == TypeTags.STRING) {
+            } else if (TypeTags.isStringTypeTag(bType.tag)) {
                 if (IS_BSTRING) {
                     this.mv.visitMethodInsn(INVOKEINTERFACE, BSTRING_VALUE, "concat",
                             String.format("(L%s;)L%s;", BSTRING_VALUE, BSTRING_VALUE), true);
@@ -1232,7 +1232,7 @@ public class JvmInstructionGen {
                 this.mv.visitMethodInsn(INVOKEINTERFACE, ARRAY_VALUE, "add", "(JJ)V", true);
             } else if (valueType.tag == TypeTags.FLOAT) {
                 this.mv.visitMethodInsn(INVOKEINTERFACE, ARRAY_VALUE, "add", "(JD)V", true);
-            } else if (valueType.tag == TypeTags.STRING) {
+            } else if (TypeTags.isStringTypeTag(valueType.tag)) {
                 this.mv.visitMethodInsn(INVOKEINTERFACE, ARRAY_VALUE, "add",
                         String.format("(JL%s;)V", STRING_VALUE), true);
             } else if (valueType.tag == TypeTags.BOOLEAN) {
@@ -1262,7 +1262,7 @@ public class JvmInstructionGen {
                 addUnboxInsn(this.mv, bType, false);
             } else if (TypeTags.isIntegerTypeTag(bType.tag)) {
                 this.mv.visitMethodInsn(INVOKEINTERFACE, ARRAY_VALUE, "getInt", "(J)J", true);
-            } else if (bType.tag == TypeTags.STRING) {
+            } else if (TypeTags.isStringTypeTag(bType.tag)) {
                 this.mv.visitMethodInsn(INVOKEINTERFACE, ARRAY_VALUE, "getString",
                         String.format("(J)L%s;", STRING_VALUE),
                         true);
@@ -1534,7 +1534,7 @@ public class JvmInstructionGen {
             // visit element name/index expr
             this.loadVar(xmlLoadIns.keyOp.variableDcl);
 
-            if (xmlLoadIns.keyOp.variableDcl.type.tag == TypeTags.STRING) {
+            if (TypeTags.isStringTypeTag(xmlLoadIns.keyOp.variableDcl.type.tag)) {
                 // invoke `children(name)` method
                 this.mv.visitMethodInsn(INVOKEVIRTUAL, XML_VALUE, "children",
                         String.format("(L%s;)L%s;", STRING_VALUE, XML_VALUE), false);
@@ -1657,7 +1657,7 @@ public class JvmInstructionGen {
             boolean booleanVal = constVal instanceof Boolean ? (boolean) constVal :
                     Boolean.parseBoolean(String.valueOf(constVal));
             mv.visitLdcInsn(booleanVal);
-        } else if (bType.tag == TypeTags.STRING) {
+        } else if (TypeTags.isStringTypeTag(bType.tag)) {
             String val = String.valueOf(constVal);
             if (useBString) {
                 int[] highSurrogates = listHighSurrogates(val);

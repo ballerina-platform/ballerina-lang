@@ -152,6 +152,7 @@ public class ArrayValueImpl extends AbstractArrayValue {
                 this.floatValues = new double[initialArraySize];
                 break;
             case TypeTags.STRING_TAG:
+            case TypeTags.CHAR_STRING_TAG:
                 if (useBString) {
                     this.bStringValues = new BString[initialArraySize];
                 } else {
@@ -220,6 +221,7 @@ public class ArrayValueImpl extends AbstractArrayValue {
             case TypeTags.FLOAT_TAG:
                 return floatValues[(int) index];
             case TypeTags.STRING_TAG:
+            case TypeTags.CHAR_STRING_TAG:
                 return stringValues[(int) index];
             default:
                 return refValues[(int) index];
@@ -374,6 +376,7 @@ public class ArrayValueImpl extends AbstractArrayValue {
                 this.intValues[(int) index] = ((Long) value).longValue();
                 return;
             case TypeTags.STRING_TAG:
+            case TypeTags.CHAR_STRING_TAG:
                 prepareForAdd(index, value, type, stringValues.length);
                 this.stringValues[(int) index] = (String) value;
                 return;
@@ -534,6 +537,7 @@ public class ArrayValueImpl extends AbstractArrayValue {
                 }
                 break;
             case TypeTags.STRING_TAG:
+            case TypeTags.CHAR_STRING_TAG:
                 for (int i = 0; i < size; i++) {
                     sj.add(stringValues[i]);
                 }
@@ -598,6 +602,7 @@ public class ArrayValueImpl extends AbstractArrayValue {
                 valueArray = new ArrayValueImpl(Arrays.copyOf(floatValues, this.size));
                 break;
             case TypeTags.STRING_TAG:
+            case TypeTags.CHAR_STRING_TAG:
                 valueArray = new ArrayValueImpl(Arrays.copyOf(stringValues, this.size));
                 break;
             default:
@@ -662,6 +667,7 @@ public class ArrayValueImpl extends AbstractArrayValue {
                 System.arraycopy(floatValues, (int) startIndex, slicedArray.floatValues, 0, slicedSize);
                 break;
             case TypeTags.STRING_TAG:
+            case TypeTags.CHAR_STRING_TAG:
                 slicedArray = new ArrayValueImpl(new String[slicedSize]);
                 System.arraycopy(stringValues, (int) startIndex, slicedArray.stringValues, 0, slicedSize);
                 break;
@@ -831,6 +837,7 @@ public class ArrayValueImpl extends AbstractArrayValue {
                 floatValues = Arrays.copyOf(floatValues, newLength);
                 break;
             case TypeTags.STRING_TAG:
+            case TypeTags.CHAR_STRING_TAG:
                 stringValues = Arrays.copyOf(stringValues, newLength);
                 break;
             default:
@@ -958,6 +965,7 @@ public class ArrayValueImpl extends AbstractArrayValue {
                 addToFloatArray(vals, (int) index);
                 break;
             case TypeTags.STRING_TAG:
+            case TypeTags.CHAR_STRING_TAG:
                 addToStringArray(vals, (int) index);
                 break;
             default:
@@ -1078,6 +1086,7 @@ public class ArrayValueImpl extends AbstractArrayValue {
             case TypeTags.FLOAT_TAG:
                 return floatValues;
             case TypeTags.STRING_TAG:
+            case TypeTags.CHAR_STRING_TAG:
                 return stringValues;
             default:
                 return refValues;
@@ -1101,6 +1110,7 @@ public class ArrayValueImpl extends AbstractArrayValue {
             case TypeTags.FLOAT_TAG:
                 return floatValues.length;
             case TypeTags.STRING_TAG:
+            case TypeTags.CHAR_STRING_TAG:
                 return stringValues.length;
             default:
                 return refValues.length;

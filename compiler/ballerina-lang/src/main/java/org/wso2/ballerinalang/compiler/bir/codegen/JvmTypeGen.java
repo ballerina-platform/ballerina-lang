@@ -976,6 +976,8 @@ class JvmTypeGen {
             typeFieldName = "typeFloat";
         } else if (bType.tag == TypeTags.STRING) {
             typeFieldName = "typeString";
+        } else if (bType.tag == TypeTags.CHAR_STRING) {
+            typeFieldName = "typeStringChar";
         } else if (bType.tag == TypeTags.DECIMAL) {
             typeFieldName = "typeDecimal";
         } else if (bType.tag == TypeTags.BOOLEAN) {
@@ -1311,7 +1313,7 @@ class JvmTypeGen {
             return "I";
         } else if (bType.tag == TypeTags.FLOAT) {
             return "D";
-        } else if (bType.tag == TypeTags.STRING) {
+        } else if (TypeTags.isStringTypeTag(bType.tag)) {
             return String.format("L%s;", useBString ? I_STRING_VALUE : STRING_VALUE);
         } else if (bType.tag == TypeTags.BOOLEAN) {
             return "Z";

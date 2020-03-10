@@ -26,6 +26,7 @@ import java.util.HashMap;
 
 import static org.ballerinalang.jvm.util.BLangConstants.BALLERINA_BUILTIN_PKG_PREFIX;
 import static org.ballerinalang.jvm.util.BLangConstants.INT_LANG_LIB;
+import static org.ballerinalang.jvm.util.BLangConstants.STRING_LANG_LIB;
 
 /**
  * This class contains various methods manipulate {@link BType}s in Ballerina.
@@ -50,6 +51,8 @@ public class BTypes {
     public static BType typeFloat = new BFloatType(TypeConstants.FLOAT_TNAME, new BPackage(null, null, null));
     public static BType typeDecimal = new BDecimalType(TypeConstants.DECIMAL_TNAME, new BPackage(null, null, null));
     public static BType typeString = new BStringType(TypeConstants.STRING_TNAME, new BPackage(null, null, null));
+    public static BType typeStringChar = new BStringType(TypeConstants.CHAR,
+            new BPackage(BALLERINA_BUILTIN_PKG_PREFIX, STRING_LANG_LIB, null), TypeTags.CHAR_STRING_TAG);
     public static BType typeBoolean = new BBooleanType(TypeConstants.BOOLEAN_TNAME, new BPackage(null, null, null));
     public static BType typeXML = new BXMLType(TypeConstants.XML_TNAME, new BPackage(null, null, null));
     public static BType typeJSON = new BJSONType(TypeConstants.JSON_TNAME, new BPackage(null, null, null));

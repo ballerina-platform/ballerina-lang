@@ -3907,7 +3907,7 @@ public class Desugar extends BLangNodeVisitor {
             return;
         }
 
-        if (lhsExprTypeTag == TypeTags.STRING && binaryExpr.opKind == OperatorKind.ADD) {
+        if (TypeTags.isStringTypeTag(lhsExprTypeTag) && binaryExpr.opKind == OperatorKind.ADD) {
             // string + xml ==> (xml string) + xml
             if (rhsExprTypeTag == TypeTags.XML) {
                 binaryExpr.lhsExpr = ASTBuilderUtil.createXMLTextLiteralNode(binaryExpr, binaryExpr.lhsExpr,
@@ -3918,7 +3918,7 @@ public class Desugar extends BLangNodeVisitor {
             return;
         }
 
-        if (rhsExprTypeTag == TypeTags.STRING && binaryExpr.opKind == OperatorKind.ADD) {
+        if (TypeTags.isStringTypeTag(rhsExprTypeTag) && binaryExpr.opKind == OperatorKind.ADD) {
             // xml + string ==> xml + (xml string)
             if (lhsExprTypeTag == TypeTags.XML) {
                 binaryExpr.rhsExpr = ASTBuilderUtil.createXMLTextLiteralNode(binaryExpr, binaryExpr.rhsExpr,

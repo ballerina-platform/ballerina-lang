@@ -57,6 +57,7 @@ public class TypeConstants {
     public static final String UNSIGNED32 = "Unsigned32";
     public static final String UNSIGNED16 = "Unsigned16";
     public static final String UNSIGNED8 = "Unsigned8";
+    public static final String CHAR = "Char";
 
     // Special Types and Type fields.
     public static final String DETAIL_TYPE = "detail";

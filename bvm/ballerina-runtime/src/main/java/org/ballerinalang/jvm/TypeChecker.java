@@ -53,6 +53,7 @@ import org.ballerinalang.jvm.values.TypedescValue;
 import org.ballerinalang.jvm.values.XMLSequence;
 import org.ballerinalang.jvm.values.XMLText;
 import org.ballerinalang.jvm.values.XMLValue;
+import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.jvm.values.api.BValue;
 import org.ballerinalang.jvm.values.api.BXML;
 
@@ -562,6 +563,7 @@ public class TypeChecker {
             case TypeTags.FLOAT_TAG:
             case TypeTags.DECIMAL_TAG:
             case TypeTags.STRING_TAG:
+            case TypeTags.CHAR_STRING_TAG:
             case TypeTags.BOOLEAN_TAG:
             case TypeTags.NULL_TAG:
             case TypeTags.XML_TAG:
@@ -717,7 +719,14 @@ public class TypeChecker {
         BJSONType jsonType = (BJSONType) BTypes.typeJSON;
         switch (sourceType.getTag()) {
             case TypeTags.STRING_TAG:
+            case TypeTags.CHAR_STRING_TAG:
             case TypeTags.INT_TAG:
+            case TypeTags.SIGNED32_INT_TAG:
+            case TypeTags.SIGNED16_INT_TAG:
+            case TypeTags.SIGNED8_INT_TAG:
+            case TypeTags.UNSIGNED32_INT_TAG:
+            case TypeTags.UNSIGNED16_INT_TAG:
+            case TypeTags.UNSIGNED8_INT_TAG:
             case TypeTags.BYTE_TAG:
             case TypeTags.FLOAT_TAG:
             case TypeTags.DECIMAL_TAG:
@@ -1064,7 +1073,7 @@ public class TypeChecker {
     private static boolean isMutable(Object value, BType sourceType) {
         // All the value types are immutable
         if (value == null || sourceType.getTag() < TypeTags.JSON_TAG || TypeTags.isIntegerTypeTag(sourceType.getTag())
-                || sourceType.getTag() == TypeTags.FINITE_TYPE_TAG) {
+                || sourceType.getTag() == TypeTags.FINITE_TYPE_TAG || TypeTags.isStringTypeTag(sourceType.getTag())) {
             return false;
         }
 
@@ -1137,6 +1146,8 @@ public class TypeChecker {
             case TypeTags.FLOAT_TAG:
             case TypeTags.DECIMAL_TAG:
                 return allowNumericConversion && TypeConverter.isConvertibleToFloatingPointTypes(sourceValue);
+            case TypeTags.CHAR_STRING_TAG:
+                return TypeConverter.isConvertibleToChar(sourceValue);
             case TypeTags.RECORD_TYPE_TAG:
                 return checkIsLikeRecordType(sourceValue, (BRecordType) targetType, unresolvedValues,
                         allowNumericConversion);
@@ -1322,6 +1333,18 @@ public class TypeChecker {
     static boolean isUnsigned8LiteralValue(Long longObject) {
 
         return (longObject.intValue() >= 0 && longObject.intValue() <= UNSIGNED8_MAX_VALUE);
+    }
+
+    static boolean isCharLiteralValue(Object object) {
+        String value;
+        if (object instanceof BString) {
+            value = ((BString) object).getValue();
+        } else if (object instanceof String) {
+            value = (String) object;
+        } else {
+            return false;
+        }
+        return value.codePoints().count() == 1;
     }
 
     private static boolean checkIsLikeArrayType(Object sourceValue, BArrayType targetType,

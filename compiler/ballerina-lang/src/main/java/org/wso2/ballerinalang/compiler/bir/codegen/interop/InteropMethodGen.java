@@ -608,7 +608,7 @@ public class InteropMethodGen {
 
         if (TypeTags.isIntegerTypeTag(bElementType.tag)) {
             mv.visitMethodInsn(INVOKEINTERFACE, ARRAY_VALUE, "getInt", "(J)J", true);
-        } else if (bElementType.tag == TypeTags.STRING) {
+        } else if (TypeTags.isStringTypeTag(bElementType.tag)) {
             mv.visitMethodInsn(INVOKEINTERFACE, ARRAY_VALUE, "getString", String.format("(J)L%s;", STRING_VALUE), true);
         } else if (bElementType.tag == TypeTags.BOOLEAN) {
             mv.visitMethodInsn(INVOKEINTERFACE, ARRAY_VALUE, "getBoolean", "(J)Z", true);
