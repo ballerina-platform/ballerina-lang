@@ -100,19 +100,8 @@ public class EmailAccessUtil {
         BArray bccAddressArrayValue = getAddressBArrayList(message.getRecipients(Message.RecipientType.BCC));
         BArray replyToAddressArrayValue = getAddressBArrayList(message.getReplyTo());
         String subject = getStringNullChecked(message.getSubject());
-        String messageBody = "";
-        if (message.isMimeType("text/plain")) {
-            if (message.getContent() != null) {
-                messageBody = message.getContent().toString();
-            }
-        } else if (message.isMimeType("multipart/*")) {
-            MimeMultipart mimeMultipart = (MimeMultipart) message.getContent();
-            messageBody = getTextFromMimeMultipart(mimeMultipart);
-        }
-        String fromAddress = "";
-        if (message.getFrom() != null) {
-            fromAddress = message.getFrom()[0].toString();
-        }
+        String messageBody = extractBodyFromMessage(message);
+        String fromAddress = extractFromAddressFromMessage(message);
         String senderAddress = getSenderAddress(message);
         valueMap.put(EmailConstants.MESSAGE_TO, toAddressArrayValue);
         valueMap.put(EmailConstants.MESSAGE_CC, ccAddressArrayValue);
@@ -123,6 +112,27 @@ public class EmailAccessUtil {
         valueMap.put(EmailConstants.MESSAGE_FROM, fromAddress);
         valueMap.put(EmailConstants.MESSAGE_SENDER, senderAddress);
         return BallerinaValues.createRecordValue(EmailConstants.EMAIL_PACKAGE_ID, EmailConstants.EMAIL, valueMap);
+    }
+
+    private static String extractBodyFromMessage(Message message) throws MessagingException, IOException {
+        String messageBody = "";
+        if (message.isMimeType("text/plain")) {
+            if (message.getContent() != null) {
+                messageBody = message.getContent().toString();
+            }
+        } else if (message.isMimeType("multipart/*")) {
+            MimeMultipart mimeMultipart = (MimeMultipart) message.getContent();
+            messageBody = getTextFromMimeMultipart(mimeMultipart);
+        }
+        return messageBody;
+    }
+
+    private static String extractFromAddressFromMessage(Message message) throws MessagingException {
+        String fromAddress = "";
+        if (message.getFrom() != null) {
+            fromAddress = message.getFrom()[0].toString();
+        }
+        return fromAddress;
     }
 
     private static String getSenderAddress(Message message) throws MessagingException {

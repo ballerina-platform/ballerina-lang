@@ -24,19 +24,19 @@ public type Detail record {
 };
 
 # SMTP email send error.
-public const EMAIL_SEND_ERROR = "{ballerina/email}EmailSendError";
+public const SEND_ERROR = "{ballerina/email}SendError";
 # Represents an error that occurs when sending an email fails.
-public type EmailSendError error<EMAIL_SEND_ERROR, Detail>;
+public type SendError error<SEND_ERROR, Detail>;
 
 # Identifies an email server store access failure error.
-public const GET_STORE_ERROR = "{ballerina/email}GetStoreError";
+public const READ_CLIENT_INIT_ERROR = "{ballerina/email}ReadClientInitError";
 # Represents an error that occurs when the email store access fails.
-public type GetStoreError error<GET_STORE_ERROR, Detail>;
+public type ReadClientInitError error<READ_CLIENT_INIT_ERROR, Detail>;
 
 # Identifies email receive error.
-public const EMAIL_READ_ERROR = "{ballerina/email}EmailReadError";
+public const READ_ERROR = "{ballerina/email}ReadError";
 # Represents an error that occurs an email read operation fails.
-public type EmailReadError error<EMAIL_READ_ERROR, Detail>;
+public type ReadError error<READ_ERROR, Detail>;
 
 # Represents email related errors.
-public type Error EmailSendError | GetStoreError | EmailReadError;
+public type Error SendError | ReadClientInitError | ReadError;

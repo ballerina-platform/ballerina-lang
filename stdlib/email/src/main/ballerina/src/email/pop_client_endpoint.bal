@@ -25,9 +25,9 @@ public type PopClient client object {
     # + username - Username of the POP Client
     # + password - Password of the POP Client
     # + clientConfig - Configurations for the POP Client
-    # + return - An `GetStoreError` if failed while creating the client
+    # + return - An `Error` if failed while creating the client
     public function __init(@untainted string host, @untainted string username, @untainted string password,
-            PopConfig clientConfig = {}) returns GetStoreError? {
+            PopConfig clientConfig = {}) returns Error? {
         return initPopClientEndpoint(self, java:fromString(host), java:fromString(username),
             java:fromString(password), clientConfig);
     }
@@ -35,20 +35,20 @@ public type PopClient client object {
     # Used to read a message.
     #
     # + folder - Folder to read emails
-    # + return - An`Email` in success and `EmailReadError` if failed to receive the message to the recipient
-    public remote function read(string folder = DEFAULT_FOLDER) returns Email|EmailReadError? {
+    # + return - An`Email` in success and `Error` if failed to receive the message to the recipient
+    public remote function read(string folder = DEFAULT_FOLDER) returns Email|Error? {
         return popRead(self, java:fromString(folder));
     }
 
 };
 
 function initPopClientEndpoint(PopClient clientEndpoint, handle host, handle username, handle password,
-        PopConfig config) returns GetStoreError? = @java:Method {
+        PopConfig config) returns Error? = @java:Method {
     name : "initPopClientEndpoint",
     class : "org.ballerinalang.stdlib.email.client.EmailAccessClient"
 } external;
 
-function popRead(PopClient clientEndpoint, handle folder) returns Email|EmailReadError? = @java:Method {
+function popRead(PopClient clientEndpoint, handle folder) returns Email|Error? = @java:Method {
     name : "readMessage",
     class : "org.ballerinalang.stdlib.email.client.EmailAccessClient"
 } external;

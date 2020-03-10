@@ -48,10 +48,9 @@ public class EmailConstants {
     public static final String PROPS_HOST = "host";
     public static final String PROPS_PASSWORD = "password";
     public static final String PROPS_STORE = "store";
-    public static final String PROPS_FILTER_FOLDER = "folder";
     public static final String MAIL_STORE_PROTOCOL = "mail.store.protocol";
-    public static final String EMAIL_ACCESS_GET_STORE_ERROR = "{ballerina/email}GetStoreError";
-    public static final String EMAIL_ACCESS_READ_ERROR = "{ballerina/email}EmailReadError";
+    public static final String READ_CLIENT_INIT_ERROR = "{ballerina/email}ReadClientInitError";
+    public static final String READ_ERROR = "{ballerina/email}ReadError";
 
     // POP related constants
     public static final String POP_PROTOCOL = "pop3";
@@ -76,7 +75,7 @@ public class EmailConstants {
     public static final String PROPS_SMTP_PORT = "mail.smtp.port";
     public static final String PROPS_SMTP_AUTH = "mail.smtp.auth";
     public static final String PROPS_SMTP_STARTTLS = "mail.smtp.starttls.enable";
-    public static final String EMAIL_SEND_ERROR = "{ballerina/email}EmailSendError";
+    public static final String SEND_ERROR = "{ballerina/email}SendError";
 
     static final String EMAIL = "Email";
 

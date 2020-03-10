@@ -82,7 +82,7 @@ public class SmtpClient {
             return null;
         } catch (MessagingException e) {
             log.error("Failed to send message to SMTP server : ", e);
-            return BallerinaErrors.createError(StringUtils.fromString(EmailConstants.EMAIL_SEND_ERROR),
+            return BallerinaErrors.createError(StringUtils.fromString(EmailConstants.SEND_ERROR),
                     e.getMessage());
         }
     }

@@ -34,8 +34,8 @@ public type SmtpClient client object {
     # Send a message.
     #
     # + email - String message
-    # + return - An `EmailSendError` if failed to send the message to the recipient
-    public remote function send(Email email) returns EmailSendError? {
+    # + return - An `SendError` if failed to send the message to the recipient
+    public remote function send(Email email) returns Error? {
         return send(self, email);
     }
 
@@ -47,7 +47,7 @@ function initSmtpClientEndpoint(SmtpClient clientEndpoint, handle host, handle u
     class : "org.ballerinalang.stdlib.email.client.SmtpClient"
 } external;
 
-function send(SmtpClient clientEndpoint, Email email) returns EmailSendError? = @java:Method {
+function send(SmtpClient clientEndpoint, Email email) returns Error? = @java:Method {
     name : "sendMessage",
     class : "org.ballerinalang.stdlib.email.client.SmtpClient"
 } external;

@@ -101,7 +101,7 @@ public class SmtpSimpleSecureEmailSendTest {
         BValue[] returns = BRunUtil.invoke(compileResult, "testSendSimpleEmail", args);
         assertNotNull("No error returned when wrong password is used for sending an email.", returns[0]);
         BError error = (BError) returns[0];
-        Assert.assertEquals(error.getReason(), EmailConstants.EMAIL_SEND_ERROR);
+        Assert.assertEquals(error.getReason(), EmailConstants.SEND_ERROR);
     }
 
     @AfterClass

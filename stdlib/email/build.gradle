@@ -32,7 +32,6 @@ dependencies {
     implementation project(':ballerina-log-api')
     implementation project(':ballerina-file')
     implementation 'com.sun.mail:javax.mail:1.6.2'
-    implementation 'com.icegreen:greenmail:1.5.11'
 
     baloImplementation project(path: ':ballerina-time', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-log-api', configuration: 'baloImplementation')

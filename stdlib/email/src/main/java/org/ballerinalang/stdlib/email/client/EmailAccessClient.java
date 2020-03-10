@@ -30,12 +30,14 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.util.Properties;
 
+import javax.mail.Flags;
 import javax.mail.Folder;
 import javax.mail.Message;
 import javax.mail.MessagingException;
 import javax.mail.NoSuchProviderException;
 import javax.mail.Session;
 import javax.mail.Store;
+import javax.mail.search.FlagTerm;
 
 /**
  * Contains the functionality of email reading with POP and IMAP clients.
@@ -64,8 +66,7 @@ public class EmailAccessClient {
         Properties properties = EmailAccessUtil.getPopProperties(config, host);
         Session session = Session.getInstance(properties, null);
         try {
-            Store store;
-            store = session.getStore(EmailConstants.POP_PROTOCOL);
+            Store store = session.getStore(EmailConstants.POP_PROTOCOL);
             clientEndpoint.addNativeData(EmailConstants.PROPS_STORE, store);
             clientEndpoint.addNativeData(EmailConstants.PROPS_HOST, host);
             clientEndpoint.addNativeData(EmailConstants.PROPS_USERNAME, username);
@@ -74,7 +75,7 @@ public class EmailAccessClient {
         } catch (NoSuchProviderException e) {
             log.error("Failed initialize client properties : ", e);
             return BallerinaErrors.createError(StringUtils.fromString(
-                    EmailConstants.EMAIL_ACCESS_GET_STORE_ERROR), e.getMessage());
+                    EmailConstants.READ_CLIENT_INIT_ERROR), e.getMessage());
         }
     }
 
@@ -92,8 +93,7 @@ public class EmailAccessClient {
         Properties properties = EmailAccessUtil.getImapProperties(config, host);
         Session session = Session.getInstance(properties, null);
         try {
-            Store store;
-            store = session.getStore(EmailConstants.IMAP_PROTOCOL);
+            Store store = session.getStore(EmailConstants.IMAP_PROTOCOL);
             clientEndpoint.addNativeData(EmailConstants.PROPS_STORE, store);
             clientEndpoint.addNativeData(EmailConstants.PROPS_HOST, host);
             clientEndpoint.addNativeData(EmailConstants.PROPS_USERNAME, username);
@@ -102,7 +102,7 @@ public class EmailAccessClient {
         } catch (NoSuchProviderException e) {
             log.error("Failed initialize client properties : ", e);
             return BallerinaErrors.createError(StringUtils.fromString(
-                    EmailConstants.EMAIL_ACCESS_GET_STORE_ERROR), e.getMessage());
+                    EmailConstants.READ_CLIENT_INIT_ERROR), e.getMessage());
         }
     }
 
@@ -119,20 +119,23 @@ public class EmailAccessClient {
         try (Store store = (Store) clientConnector.getNativeData(EmailConstants.PROPS_STORE)) {
             store.connect(host, username, password);
             Folder emailFolder = store.getFolder(folder);
-            emailFolder.open(Folder.READ_ONLY);
-            Message[] messages = emailFolder.getMessages();
-            if (log.isDebugEnabled()) {
-                log.debug("[EmailAccessClient][Read] Got the messages. Email count = " + messages.length);
-            }
+            emailFolder.open(Folder.READ_WRITE);
+            Message[] messages = emailFolder.search(new FlagTerm(new Flags(Flags.Flag.SEEN), false));
             MapValue mapValue = null;
             if (messages.length > 0) {
+                Flags flags = new Flags();
+                flags.add(Flags.Flag.SEEN);
+                emailFolder.setFlags(new int[] {messages[0].getMessageNumber()}, flags, true);
                 mapValue = EmailAccessUtil.getMapValue(messages[0]);
+            }
+            if (log.isDebugEnabled()) {
+                log.debug("[EmailAccessClient][Read] Got the messages. Email count = " + messages.length);
             }
             emailFolder.close(false);
             return mapValue;
         } catch (MessagingException | IOException e) {
             log.error("Failed to read message : ", e);
-            return BallerinaErrors.createError(StringUtils.fromString(EmailConstants.EMAIL_ACCESS_READ_ERROR),
+            return BallerinaErrors.createError(StringUtils.fromString(EmailConstants.READ_ERROR),
                     e.getMessage());
         }
     }

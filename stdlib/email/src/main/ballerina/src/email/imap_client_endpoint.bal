@@ -25,9 +25,9 @@ public type ImapClient client object {
     # + username - Username of the IMAP Client
     # + password - Password of the IMAP Client
     # + clientConfig - Configurations for the IMAP Client
-    # + return - An `GetStoreError` if failed while creating the client
+    # + return - An `Error` if failed while creating the client
     public function __init(@untainted string host, @untainted string username, @untainted string password,
-            ImapConfig clientConfig = {}) returns GetStoreError? {
+            ImapConfig clientConfig = {}) returns Error? {
         return initImapClientEndpoint(self, java:fromString(host), java:fromString(username), java:fromString(password),
             clientConfig);
     }
@@ -35,20 +35,20 @@ public type ImapClient client object {
     # Reads a message.
     #
     # + folder - Folder to read emails
-    # + return - An`Email` in success and `EmailReadError` if failed to receive the message to the recipient
-    public remote function read(string folder = DEFAULT_FOLDER) returns Email|EmailReadError? {
+    # + return - An`Email` in success and `Error` if failed to receive the message to the recipient
+    public remote function read(string folder = DEFAULT_FOLDER) returns Email|Error? {
         return imapRead(self, java:fromString(folder));
     }
 
 };
 
 function initImapClientEndpoint(ImapClient clientEndpoint, handle host, handle username, handle password,
-        ImapConfig config) returns GetStoreError? = @java:Method {
+        ImapConfig config) returns Error? = @java:Method {
     name : "initImapClientEndpoint",
     class : "org.ballerinalang.stdlib.email.client.EmailAccessClient"
 } external;
 
-function imapRead(ImapClient clientEndpoint, handle folder) returns Email|EmailReadError? = @java:Method {
+function imapRead(ImapClient clientEndpoint, handle folder) returns Email|Error? = @java:Method {
     name : "readMessage",
     class : "org.ballerinalang.stdlib.email.client.EmailAccessClient"
 } external;
