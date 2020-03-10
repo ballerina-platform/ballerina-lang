@@ -104,6 +104,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLetExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkDownDeprecationDocumentation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownDocumentationLine;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownParameterDocumentation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownReturnParameterDocumentation;
@@ -2720,6 +2721,25 @@ public class BLangPackageBuilder {
         BLangMarkdownReturnParameterDocumentation returnParameter = markdownDocumentationNode.getReturnParameter();
         returnParameter.addWS(ws);
         returnParameter.addReturnParameterDocumentationLine(description);
+    }
+
+    void endDeprecationAnnotationDocumentation(DiagnosticPos pos, Set<Whitespace> ws, String description) {
+        MarkdownDocumentationNode markdownDocumentationNode = markdownDocumentationStack.peek();
+        BLangMarkDownDeprecationDocumentation deprecationAnnotationDocumentation =
+                (BLangMarkDownDeprecationDocumentation) TreeBuilder.createMarkDownDeprecationAttributeNode();
+        deprecationAnnotationDocumentation.pos = pos;
+        deprecationAnnotationDocumentation.addWS(ws);
+        deprecationAnnotationDocumentation.addDeprecationLine(description);
+        markdownDocumentationNode.setDeprecationDocumentation(deprecationAnnotationDocumentation);
+    }
+
+    void endDeprecateAnnotationDocumentationDescription(Set<Whitespace> ws, String description) {
+        MarkdownDocumentationNode markdownDocumentationNode = markdownDocumentationStack.peek();
+        BLangMarkDownDeprecationDocumentation deprecationAnnotationDocumentation =
+                markdownDocumentationNode.getDeprecationDocumentation();
+        deprecationAnnotationDocumentation.addWS(ws);
+        deprecationAnnotationDocumentation.addDeprecationDocumentationLine(description);
+//        markdownDocumentationNode.setDeprecationDocumentation(deprecationAnnotationDocumentation);
     }
 
     void startAnnotationAttachment(DiagnosticPos currentPos) {
