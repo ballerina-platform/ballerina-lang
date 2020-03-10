@@ -6,7 +6,7 @@ public function main() returns error? {
     // This creates a new cache of size 10. The eviction factor is set to 0.2,
     // which means at the time of eviction 10*0.2=2 entries get removed from
     // the cache.
-    // The default max age of cache entry is set to 2 seconds. The cache
+    // The default max age of the cache entry is set to 2 seconds. The cache
     // cleanup task runs every 3 seconds and clears all the expired entries.
     cache:Cache cache = new({
         capacity: 10,
@@ -20,7 +20,7 @@ public function main() returns error? {
     // Adds a new entry to the cache by overriding the default max age.
     _ = check cache.put("key2", "value2", 3600);
 
-    // Checked for the cached key availability.
+    // Checks for the cached key availability.
     if (cache.hasKey("key1")) {
         // Fetches the cached value.
         string value = <string> check cache.get("key1");
@@ -31,9 +31,9 @@ public function main() returns error? {
     // No execution takes place during this period.
     runtime:sleep(4000);
 
-    // During this period cache entry with the key 'key1' should be removed
-    // since the max of it is set to 2 seconds by default. But the cache
-    // entry with the key 'key2' should be exist in the cache.
+    // During this period, the cache entry with the key 'key1' should be removed
+    // since the max of it is set to 2 seconds by default. However, the cache
+    // entry with the key 'key2' should exist in the cache.
 
     // Get the keys of the cache entries.
     string[] keys = cache.keys();

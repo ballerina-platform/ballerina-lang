@@ -18,28 +18,28 @@
 # Any custom cache implementation should be object-wise similar.
 public type AbstractCache abstract object {
 
-    # Add the given key value pair to the cache. If the cache previously contained a value associated with key, the
-    # old value is replaced by value.
+    # Add the given key value pair to the cache. If the cache previously contained a value associated with the key, the
+    # old value is replaced by the new value.
     #
     # + key - Key of the cached value
     # + value - Value to be cached
-    # + maxAgeInSeconds - The value in seconds, which the cache entry is valid. '-1' means, the entry is valid forever.
+    # + maxAgeInSeconds - The time in seconds during which the cache entry is valid. '-1' means, the entry is valid forever.
     # + return - `()` if successfully added to the cache or
-    # `Error` if any error occurred while inserting entry to the cache.
+    # `Error` if any error occurred while inserting the entry to the cache.
     public function put(string key, any value, int maxAgeInSeconds = -1) returns Error?;
 
     # Return the cached value associated with the given key.
     #
     # + key - Key, which is used to retrieve the cached value
-    # + return - The cached value associated with the given key or
-    # `Error` if the provided cache key is not available or if any error occurred while retrieving from the cache.
+    # + return - The cached value associated with the given key,
+    # `Error` if the provided cache key is not available, or if any error occurred while retrieving from the cache.
     public function get(string key) returns any|Error;
 
     # Discard a cached value from the cache.
     #
-    # + key - Key of the cache entry which needs to be discarded
-    # + return - `()` if successfully discarded or
-    # `Error` if the provided cache key is not available or if any error occurred while discarding from the cache.
+    # + key - Key of the cache entry, which needs to be discarded
+    # + return - `()` if successfully discarded,
+    # `Error` if the provided cache key is not available, or if any error occurred while discarding from the cache.
     public function invalidate(string key) returns Error?;
 
     # Discard all the cached values from the cache.
