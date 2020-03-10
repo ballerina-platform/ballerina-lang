@@ -104,7 +104,7 @@ public class TypeGuardTest {
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int', found '(int|string)'", 167,
                 21);
         // TODO : Fix me : #21609
-//        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int', found '(int|boolean)'", 181,
+//      BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int', found '(int|boolean)'", 181,
 //                17);
         BAssertUtil.validateError(negativeResult, i++,
                 "incompatible types: expected 'string', found '(float|string|int|boolean)'", 183, 20);
