@@ -570,17 +570,21 @@ public class BLangPackageBuilder {
     }
 
 
-    void addStreamTypeWithTypeName(DiagnosticPos pos, Set<Whitespace> ws, boolean hasError) {
-        String typeName = "stream";
+    void addStreamTypeWithTypeName(DiagnosticPos pos, Set<Whitespace> ws, boolean hasConstraint, boolean hasError) {
+        String streamTypeName = "stream";
+        String anyTypeName = "any";
         BLangType constraint, error = null;
         if (hasError) {
             error = (BLangType) this.typeNodeStack.pop();
+        }
+        if (!hasConstraint) {
+            addValueType(pos, ws, anyTypeName);
         }
         constraint = (BLangType) this.typeNodeStack.pop();
         Set<Whitespace> refTypeWS = removeNthFromLast(ws, 2);
 
         BLangBuiltInRefTypeNode refType = (BLangBuiltInRefTypeNode) TreeBuilder.createBuiltInReferenceTypeNode();
-        refType.typeKind = TreeUtils.stringToTypeKind(typeName);
+        refType.typeKind = TreeUtils.stringToTypeKind(streamTypeName);
         refType.pos = pos;
         refType.addWS(refTypeWS);
 

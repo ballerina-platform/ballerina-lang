@@ -969,7 +969,8 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        this.pkgBuilder.addStreamTypeWithTypeName(getCurrentPos(ctx), getWS(ctx), ctx.typeName(1) != null);
+        this.pkgBuilder.addStreamTypeWithTypeName(getCurrentPos(ctx), getWS(ctx),
+                ctx.typeName(0) != null, ctx.typeName(1) != null);
     }
 
     @Override
