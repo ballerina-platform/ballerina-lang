@@ -61,6 +61,7 @@ import static org.objectweb.asm.Opcodes.DUP;
 import static org.objectweb.asm.Opcodes.DUP2;
 import static org.objectweb.asm.Opcodes.GETFIELD;
 import static org.objectweb.asm.Opcodes.GOTO;
+import static org.objectweb.asm.Opcodes.ICONST_0;
 import static org.objectweb.asm.Opcodes.ICONST_1;
 import static org.objectweb.asm.Opcodes.IFEQ;
 import static org.objectweb.asm.Opcodes.IFNE;
@@ -545,7 +546,7 @@ class JvmValueGen {
             this.createRecordGetValuesMethod(cw, fields, className);
             this.createGetSizeMethod(cw, fields, className);
             this.createRecordRemoveMethod(cw);
-            this.createRecordClearMethod(cw);
+            this.createRecordClearMethod(cw, fields, className);
             this.createRecordGetKeysMethod(cw, fields, className);
 
             this.createRecordConstructor(cw, className);
@@ -997,17 +998,90 @@ class JvmValueGen {
             mv.visitEnd();
         }
 
-        private void createRecordClearMethod(ClassWriter cw) {
+        private void createRecordClearMethod(ClassWriter cw, List<BField> fields, String className) {
             // throw an UnsupportedOperationException, since remove is not supported by for records.
             MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "remove", String.format("(L%s;)L%s;", OBJECT, OBJECT),
                     String.format("(L%s;)TV;", OBJECT), null);
             mv.visitCode();
-            mv.visitTypeInsn(NEW, UNSUPPORTED_OPERATION_EXCEPTION);
-            mv.visitInsn(DUP);
-            mv.visitMethodInsn(INVOKESPECIAL, UNSUPPORTED_OPERATION_EXCEPTION, "<init>", "()V", false);
-            mv.visitInsn(ATHROW);
+
+            int fieldNameRegIndex = 1;
+            int strKeyVarIndex = 2;
+
+            // cast key to java.lang.String
+            mv.visitVarInsn(ALOAD, fieldNameRegIndex);
+            mv.visitTypeInsn(CHECKCAST, STRING_VALUE);
+            mv.visitVarInsn(ASTORE, strKeyVarIndex);
+
+            mv.visitVarInsn(ALOAD, 0);
+            mv.visitMethodInsn(INVOKESPECIAL, MAP_VALUE_IMPL, "validateFreezeStatus", "()V", false);
+
+            // sort the fields before generating switch case
+            @Nilable List<BField> sortedFields = new ArrayList<>(fields);
+            sortedFields.sort(NAME_HASH_COMPARATOR);
+
+            Label defaultCaseLabel = new Label();
+            List<Label> labels = createLabelsForSwitch(mv, strKeyVarIndex, sortedFields, defaultCaseLabel);
+            List<Label> targetLabels = createLabelsForEqualCheck(mv, strKeyVarIndex, sortedFields, labels,
+                    defaultCaseLabel);
+
+            int i = 0;
+            for (BField optionalField : sortedFields) {
+                BField field = getObjectField(optionalField);
+                Label targetLabel = targetLabels.get(i);
+                mv.visitLabel(targetLabel);
+
+                //Setting isPresent as zero
+                if (this.isOptionalRecordField(field)) {
+                    String fieldName = field.name.value;
+                    mv.visitVarInsn(ALOAD, 0);
+                    mv.visitInsn(ICONST_0);
+                    mv.visitFieldInsn(PUTFIELD, className, this.getFieldIsPresentFlagName(fieldName),
+                            getTypeDesc(symbolTable.booleanType, false));
+
+                    // load the existing value to return
+                    mv.visitVarInsn(ALOAD, 0);
+                    mv.visitFieldInsn(GETFIELD, className, fieldName, getTypeDesc(field.type, false));
+                    addBoxInsn(mv, field.type);
+
+                    // Set default value for reference types
+                    if (checkIfValueIsJReferenceType(field.type)) {
+                        mv.visitVarInsn(ALOAD, 0);
+                        mv.visitInsn(ACONST_NULL);
+                        mv.visitFieldInsn(PUTFIELD, className, fieldName, getTypeDesc(field.type, false));
+                    }
+
+                    mv.visitInsn(ARETURN);
+                } else {
+                    mv.visitTypeInsn(NEW, UNSUPPORTED_OPERATION_EXCEPTION);
+                    mv.visitInsn(DUP);
+                    mv.visitMethodInsn(INVOKESPECIAL, UNSUPPORTED_OPERATION_EXCEPTION, "<init>", "()V", false);
+                    mv.visitInsn(ATHROW);
+                }
+                i += 1;
+            }
+
+            // default case
+            mv.visitLabel(defaultCaseLabel);
+            mv.visitVarInsn(ALOAD, 0);
+            mv.visitVarInsn(ALOAD, strKeyVarIndex);
+            mv.visitMethodInsn(INVOKESPECIAL, MAP_VALUE_IMPL, "remove",
+                    String.format("(L%s;)L%s;", OBJECT, OBJECT), false);
+            mv.visitInsn(ARETURN);
+
             mv.visitMaxs(0, 0);
             mv.visitEnd();
+        }
+
+        private boolean checkIfValueIsJReferenceType(BType bType) {
+            switch (bType.getKind()) {
+                case INT:
+                case BOOLEAN:
+                case FLOAT:
+                case BYTE:
+                    return false;
+                default:
+                    return true;
+            }
         }
 
         void createRecordGetKeysMethod(ClassWriter cw, @Nilable List<BField> fields, String className) {

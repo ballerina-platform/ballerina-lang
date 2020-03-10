@@ -22,11 +22,14 @@ import org.ballerinalang.jvm.types.BMapType;
 import org.ballerinalang.jvm.types.BRecordType;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.TypeTags;
+import org.ballerinalang.jvm.util.Flags;
 import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.jvm.util.exceptions.RuntimeErrors;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.StringValue;
+
+import java.util.Map;
 
 import static java.lang.String.format;
 import static org.ballerinalang.jvm.util.BLangConstants.MAP_LANG_LIB;
@@ -148,9 +151,43 @@ public class MapUtils {
         switch (mapType.getTag()) {
             case TypeTags.MAP_TAG:
             case TypeTags.JSON_TAG:
+            case TypeTags.RECORD_TYPE_TAG:
                 return;
             default:
                 throw createOpNotSupportedError(mapType, op);
         }
+    }
+
+    public static void validateRequiredFieldForRecord(MapValue<?, ?> m, String  k) {
+        BType type = m.getType();
+        if (type.getTag() == TypeTags.RECORD_TYPE_TAG && isRequiredField((BRecordType) type, k)) {
+            throw createOpNotSupportedErrorForRecord(type, k);
+        }
+    }
+
+    public static void validateRecord(MapValue<?, ?> m) {
+        BType type = m.getType();
+        if (type.getTag() != TypeTags.RECORD_TYPE_TAG) {
+            return;
+        }
+        Map<String, BField> fields = ((BRecordType) type).getFields();
+        for (String key : fields.keySet()) {
+            if (isRequiredField((BRecordType) type, key)) {
+                throw createOpNotSupportedErrorForRecord(type, key);
+            }
+        }
+    }
+
+    private static boolean isRequiredField(BRecordType type, String k) {
+        Map<String, BField> fields = type.getFields();
+        BField field = fields.get(k);
+
+        return (field != null && Flags.isFlagOn(field.flags, Flags.REQUIRED));
+    }
+
+    private static ErrorValue createOpNotSupportedErrorForRecord(BType type, String field) {
+        return BallerinaErrors.createError(getModulePrefixedReason(MAP_LANG_LIB,
+                OPERATION_NOT_SUPPORTED_IDENTIFIER),
+                format("failed to remove field: '%s' is a required field in '%s'", field, type.getQualifiedName()));
     }
 }
