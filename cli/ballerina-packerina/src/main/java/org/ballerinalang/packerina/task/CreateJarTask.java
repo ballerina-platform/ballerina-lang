@@ -24,7 +24,6 @@ import org.ballerinalang.packerina.buildcontext.BuildContext;
 import org.ballerinalang.packerina.buildcontext.BuildContextField;
 import org.wso2.ballerinalang.compiler.PackageCache;
 import org.wso2.ballerinalang.compiler.bir.BackendDriver;
-import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
@@ -79,8 +78,6 @@ public class CreateJarTask implements Task {
                 continue;
             }
 
-            BIRNode.BIRPackage birPackage = bLangPackage.symbol.bir;
-
             PackageID packageID = bLangPackage.packageID;
 
             HashSet<Path> moduleDependencies = buildContext.moduleDependencyPathMap.get(packageID).moduleLibs;
@@ -93,7 +90,7 @@ public class CreateJarTask implements Task {
             // get the jar path of the module.
             Path jarOutput = buildContext.getJarPathFromTargetCache(module.packageID);
             if (!Files.exists(jarOutput)) {
-                backendDriver.execute(birPackage, dumpBir, jarOutput, moduleDependencies);
+                backendDriver.execute(bLangPackage.symbol.bir, dumpBir, jarOutput, moduleDependencies);
             }
 
             // If there is a testable package we will create testable jar.
@@ -105,7 +102,7 @@ public class CreateJarTask implements Task {
                     // get the jar path of the module.
                     Path testJarOutput = buildContext.getTestJarPathFromTargetCache(testPkg.packageID);
                     if (!Files.exists(testJarOutput)) {
-                        backendDriver.execute(birPackage, dumpBir, testJarOutput, moduleDependencies);
+                        backendDriver.execute(testPkg.symbol.bir, dumpBir, testJarOutput, moduleDependencies);
                     }
                 }
             }

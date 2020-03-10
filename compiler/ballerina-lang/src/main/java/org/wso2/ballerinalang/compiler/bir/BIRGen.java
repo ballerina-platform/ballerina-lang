@@ -232,17 +232,21 @@ public class BIRGen extends BLangNodeVisitor {
         astPkg.symbol.birPackageFile = new BIRPackageFile(new BIRBinaryWriter(birPkg).serialize());
 
         if (astPkg.hasTestablePackage()) {
+            BIRPackage testBirPkg = new BIRPackage(astPkg.pos, astPkg.packageID.orgName, astPkg.packageID.name,
+                                                astPkg.packageID.version, astPkg.packageID.sourceFileName);
+            this.env = new BIRGenEnv(testBirPkg);
+            astPkg.accept(this);
             astPkg.getTestablePkgs().forEach(testPkg -> {
                 visitBuiltinFunctions(testPkg, testPkg.initFunction);
                 visitBuiltinFunctions(testPkg, testPkg.startFunction);
                 visitBuiltinFunctions(testPkg, testPkg.stopFunction);
                 // remove imports of the main module from testable module
                 for (BLangImportPackage mod : astPkg.imports) {
-                    testPkg.symbol.imports.remove(mod.symbol);
+                    testPkg.imports.remove(mod);
                 }
                 testPkg.accept(this);
-                this.birOptimizer.optimizePackage(birPkg);
-                testPkg.symbol.birPackageFile = new BIRPackageFile(new BIRBinaryWriter(birPkg).serialize());
+                this.birOptimizer.optimizePackage(testBirPkg);
+                testPkg.symbol.bir = testBirPkg;
             });
         }
 
