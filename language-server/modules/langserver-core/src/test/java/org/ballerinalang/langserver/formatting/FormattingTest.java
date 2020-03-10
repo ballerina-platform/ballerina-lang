@@ -169,6 +169,7 @@ public class FormattingTest {
                 {"expectedNegativeEOF.bal", "negativeEOF.bal"},
                 {"expectedListConstructorExpr.bal", "listConstructorExpr.bal"},
                 {"expectedRecordLiteralSpreadOp.bal", "recordLiteralSpreadOp.bal"},
+                {"expectedLetExpr.bal", "letExpr.bal"},
         };
     }
 
