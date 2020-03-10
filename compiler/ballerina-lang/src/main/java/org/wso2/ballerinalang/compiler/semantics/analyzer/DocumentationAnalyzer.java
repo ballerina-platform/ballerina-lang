@@ -162,6 +162,8 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
         validateNoParameters(constant);
         validateReturnParameter(constant, null, false);
         validateReferences(constant);
+        validateDeprecationDocumentation(constant.markdownDocumentationAttachment, constant.symbol.isDeprecated,
+                constant.pos);
     }
 
     @Override
@@ -185,6 +187,8 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
             hasReturn = ((BLangValueType) funcNode.returnTypeNode).typeKind != TypeKind.NIL;
         }
         validateReturnParameter(funcNode, funcNode, hasReturn);
+        validateDeprecationDocumentation(funcNode.markdownDocumentationAttachment, funcNode.symbol.isDeprecated,
+                funcNode.pos);
     }
 
     @Override
@@ -224,6 +228,8 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
                 validateReferences(field);
             }
         }
+        validateDeprecationDocumentation(typeDefinition.markdownDocumentationAttachment,
+                typeDefinition.symbol.isDeprecated, typeDefinition.pos);
     }
 
     @Override
@@ -235,6 +241,21 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
 
         validateReturnParameter(resourceNode, null, false);
         validateReferences(resourceNode);
+    }
+
+    private void validateDeprecationDocumentation(BLangMarkdownDocumentation documentation,
+                                                  boolean isDeprecationAnnotationAvailable, DiagnosticPos pos) {
+        boolean isDeprecationDocumentationAvailable = false;
+        if (documentation != null && documentation.deprecationDocumentation != null &&
+                documentation.deprecationDocumentation.isCorrectDeprecationLine) {
+            isDeprecationDocumentationAvailable = true;
+        }
+
+        if (isDeprecationDocumentationAvailable && !isDeprecationAnnotationAvailable) {
+            dlog.error(pos, DiagnosticCode.DEPRECATION_ANNOTATION_SHOULD_AVAILABLE);
+        } else if (!isDeprecationDocumentationAvailable && isDeprecationAnnotationAvailable) {
+            dlog.error(pos, DiagnosticCode.DEPRECATION_DOCUMENTATION_SHOULD_AVAILABLE);
+        }
     }
 
     private void validateReferences(DocumentableNode documentableNode) {
