@@ -89,7 +89,7 @@ public type Client client object {
     #            in the batch have executed successfully, the error will be `nil`. If one or more commands have failed,
     #            the `returnedError` field will give the corresponding `Error` along with the int[] which
     #            contains updated row count or the status returned from each command in the batch.
-    public remote function batchUpdate(@untainted string sqlQuery, boolean rollbackAllInFailure,
+    public remote function batchUpdate(@untainted string sqlQuery, boolean rollbackAllInFailure = false,
                                        boolean returnGeneratedKeys = false, Param?[]... parameters)
                                        returns BatchUpdateResult {
         if (!self.clientActive) {

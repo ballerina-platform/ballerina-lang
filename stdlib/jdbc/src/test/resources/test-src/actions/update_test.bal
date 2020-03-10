@@ -1287,23 +1287,6 @@ function testCloseConnectionPool(string jdbcURL) returns @tainted (int) {
     return count;
 }
 
-function testReturnGeneratedKeyError(string jdbcURL) returns int | error {
-    jdbc:Client testDB = new ({
-        url: jdbcURL,
-        username: jdbcUserName,
-        password: jdbcPassword,
-        poolOptions: {maximumPoolSize: 1}
-    });
-
-    var result = testDB->update("CREATE TABLE testReturnGeneratedKey(studentID int, LastName varchar(255))", true);
-    checkpanic testDB.stop();
-    if (result is jdbc:UpdateResult) {
-        return <int>result.generatedKeys.length();
-    } else {
-        return result;
-    }
-}
-
 function getTableCountValColumn(table<record {}> | error result) returns int {
     int count = -1;
     if (result is table<ResultCount>) {

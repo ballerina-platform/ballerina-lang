@@ -21,7 +21,7 @@ public function main() {
     // Create a table using the `update` remote function.
     io:println("The update operation - Creating table and procedures:");
     var ret = testDB->update("CREATE TABLE student(id INT AUTO_INCREMENT, " +
-        "age INT, name VARCHAR(255), PRIMARY KEY (id))", false);
+        "age INT, name VARCHAR(255), PRIMARY KEY (id))");
     handleUpdate(ret, "Create student table");
 
     // Create the stored procedure with IN parameters.
@@ -29,7 +29,7 @@ public function main() {
         "IN pName VARCHAR(255)) " +
         "BEGIN " +
         "INSERT INTO student(age, name) VALUES (pAge, pName); " +
-        "END", false);
+        "END");
     handleUpdate(ret, "Stored procedure with IN param creation");
 
     // Create the stored procedure with INOUT and OUT parameters.
@@ -39,11 +39,11 @@ public function main() {
         "SELECT id INTO pID FROM student WHERE age = pID; " +
         "SELECT COUNT(*) INTO pCount FROM student " +
         "WHERE age = 20; " +
-        "END", false);
+        "END");
     handleUpdate(ret, "Stored procedure with INOUT/OUT param creation");
 
     ret = testDB->update("CREATE PROCEDURE GETSTUDENTS() " +
-        "BEGIN SELECT * FROM student; END", false);
+        "BEGIN SELECT * FROM student; END");
     handleUpdate(ret, "Stored procedure with result set return");
 
     // The remote function `call` is used to invoke a stored procedure.
@@ -99,16 +99,16 @@ public function main() {
 
     // Drop the table and procedures.
     io:println("\nThe update operation - Drop the tables and procedures");
-    ret = testDB->update("DROP TABLE student", false);
+    ret = testDB->update("DROP TABLE student");
     handleUpdate(ret, "Drop table student");
 
-    ret = testDB->update("DROP PROCEDURE INSERTDATA", false);
+    ret = testDB->update("DROP PROCEDURE INSERTDATA");
     handleUpdate(ret, "Drop stored procedure INSERTDATA");
 
-    ret = testDB->update("DROP PROCEDURE GETCOUNT", false);
+    ret = testDB->update("DROP PROCEDURE GETCOUNT");
     handleUpdate(ret, "Drop stored procedure GETCOUNT");
 
-    ret = testDB->update("DROP PROCEDURE GETSTUDENTS", false);
+    ret = testDB->update("DROP PROCEDURE GETSTUDENTS");
     handleUpdate(ret, "Drop stored procedure GETSTUDENTS");
 }
 

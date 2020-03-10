@@ -23,7 +23,7 @@ public function main() {
     // Create a table using the `update` remote function.
     io:println("The update operation - Creating a table:");
     var ret = testDB->update("CREATE TABLE student(id INT AUTO_INCREMENT, " +
-                             "age INT, name VARCHAR(255), PRIMARY KEY (id))", false);
+                             "age INT, name VARCHAR(255), PRIMARY KEY (id))");
     handleUpdate(ret, "Create student table");
 
     // This `json` input is used as the input data.
@@ -71,7 +71,7 @@ public function main() {
     checkData();
     // Delete the tables from the database.
     io:println("\nThe update operation - Drop the student table");
-    ret = testDB->update("DROP TABLE student", false);
+    ret = testDB->update("DROP TABLE student");
     handleUpdate(ret, "Drop table student");
 }
 

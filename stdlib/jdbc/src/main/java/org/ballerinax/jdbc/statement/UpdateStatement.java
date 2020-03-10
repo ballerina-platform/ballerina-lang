@@ -37,8 +37,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
-import java.util.Arrays;
-import java.util.Locale;
 
 /**
  * Represents an Update SQL statement.
@@ -88,18 +86,10 @@ public class UpdateStatement extends AbstractSQLStatement {
             stmt = processedStatement.prepare();
             int count = stmt.executeUpdate();
             if (returnGeneratedKeys) {
-                if (isKeyRetrievalSupported()) {
-                    rs = stmt.getGeneratedKeys();
-                    //This result set contains the auto generated keys.
-                    if (rs.next()) {
-                        generatedKeys = getGeneratedKeys(rs);
-                    }
-                } else {
-                    handleErrorOnTransaction(this.strand);
-                    String message = "The returnGeneratedKeys only support INSERT, UPDATE, DELETE and MERGE " +
-                            "operations.";
-                    checkAndObserveSQLError(strand, "execute update failed: " + message);
-                    return ErrorGenerator.getSQLApplicationError(message);
+                rs = stmt.getGeneratedKeys();
+                //This result set contains the auto generated keys.
+                if (rs.next()) {
+                    generatedKeys = getGeneratedKeys(rs);
                 }
             }
             return createFrozenUpdateResultRecord(count, generatedKeys);
@@ -143,11 +133,4 @@ public class UpdateStatement extends AbstractSQLStatement {
         INSERT, DELETE, UPDATE, MERGE
     }
 
-    /**
-     * Check if the statement is one of INSERT, DELETE, UPDATE or MERGE.
-     */
-    private boolean isKeyRetrievalSupported() {
-       return Arrays.stream(GenKeyStmt.values()).anyMatch(stmt -> this.query.trim().toUpperCase(Locale.ENGLISH).
-                    startsWith(stmt.name()));
-    }
 }

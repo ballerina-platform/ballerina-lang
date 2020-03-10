@@ -27,7 +27,7 @@ public function main() {
     io:println("The update operation - Creating a table");
     var ret = testDB->update("CREATE TABLE student(id INT AUTO_INCREMENT, " +
         "age INT, name VARCHAR(255), insertedTime TIMESTAMP DEFAULT " +
-        "CURRENT_TIMESTAMP, PRIMARY KEY (id))", false);
+        "CURRENT_TIMESTAMP, PRIMARY KEY (id))");
     handleUpdate(ret, "Create student table");
 
     // Insert data to the table using the `update` remote function. If the DML
@@ -36,7 +36,7 @@ public function main() {
     // statement itself.
     io:println("\nThe update operation - Inserting data to a table");
     ret = testDB->update("INSERT INTO student(age, name) values " +
-                          "(23, 'john')", false);
+                          "(23, 'john')");
     handleUpdate(ret, "Insert to student table with no parameters");
 
     // The query parameters are given as variables for the `update` remote
@@ -113,7 +113,7 @@ public function main() {
 
     // Drop the table and procedures.
     io:println("\nThe update operation - Drop the student table");
-    ret = testDB->update("DROP TABLE student", false);
+    ret = testDB->update("DROP TABLE student");
     handleUpdate(ret, "Drop table student");
 }
 
