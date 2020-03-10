@@ -220,11 +220,14 @@ function testMultipleRecoredRetrieval(string jdbcURL, string user, string passwo
     stream<record{}, error> streamData = dbClient->query("SELECT int_array, long_array, float_array, boolean_array," +
               "string_array from ArrayTypes", ResultMap);
     ResultMap[] recordMap = [];
-    streamData.forEach(function (record{} value) {
+    error? e = streamData.forEach(function (record{} value) {
         if (value is ResultMap) {
              recordMap[recordMap.length()] = value;
             }
     });
+    if(e is error){
+      return e;
+    }
     check dbClient.close();
     return recordMap;
 }
