@@ -2107,8 +2107,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     private void validateMethodInvocationsInXMLNavigationExpression(BLangXMLNavigationAccess expression) {
         if (!expression.methodInvocationAnalyzed && expression.parent.getKind() == NodeKind.INVOCATION) {
-            dlog.error(((BLangInvocation) expression.parent).name.pos,
-                    DiagnosticCode.UNSUPPORTED_METHOD_INVOCATION_XML_NAV);
+            dlog.error(((BLangInvocation) expression.parent).pos, DiagnosticCode.UNSUPPORTED_METHOD_INVOCATION_XML_NAV);
         }
         expression.methodInvocationAnalyzed = true;
     }
