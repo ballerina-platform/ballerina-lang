@@ -488,12 +488,12 @@ public class OpenRecordTest {
 
     @Test
     public void testOptionalRecordRemove() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "removeOptional");
+        BRunUtil.invoke(compileResult, "removeOptional");
     }
 
     @Test
     public void testRestRecordRemove() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "removeRest");
+        BRunUtil.invoke(compileResult, "removeRest");
     }
 
     @Test

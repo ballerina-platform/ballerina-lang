@@ -50,4 +50,6 @@ public class Constants {
 
     public static final String REMOVE_IF_HAS_KEY = "removeIfHasKey()";
 
+    public static final String REMOVE = "remove()";
+
 }

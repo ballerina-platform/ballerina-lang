@@ -1074,11 +1074,14 @@ class JvmValueGen {
         }
 
         private boolean checkIfValueIsJReferenceType(BType bType) {
-            if ((bType.getKind() == TypeKind.INT) || (bType.getKind() == TypeKind.BOOLEAN) ||
-                    (bType.getKind() == TypeKind.FLOAT) || (bType.getKind() == TypeKind.BYTE)) {
-                return false;
-            } else {
-                return true;
+            switch (bType.getKind()) {
+                case INT:
+                case BOOLEAN:
+                case FLOAT:
+                case BYTE:
+                    return false;
+                default:
+                    return true;
             }
         }
 
