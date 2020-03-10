@@ -44,8 +44,10 @@ import static org.ballerinalang.jvm.MapUtils.validateRecord;
 )
 public class RemoveIfHasKey {
 
+    private static final String REMOVE_IF_HAS_KEY = "removeIfHasKey()";
+
     public static Object removeIfHasKey(Strand strand, MapValue<?, ?> m, String k) {
-        String op = Constants.REMOVE_IF_HAS_KEY;
+        String op = REMOVE_IF_HAS_KEY;
 
         checkIsMapOnlyOperation(m.getType(), op);
         validateRecord(m, k);
@@ -53,7 +55,7 @@ public class RemoveIfHasKey {
             return m.remove(k);
         } catch (org.ballerinalang.jvm.util.exceptions.BLangFreezeException e) {
             throw BallerinaErrors.createError(e.getMessage(),
-                    "Failed to remove element from map: " + e.getDetail());
+                    "Failed to remove element: " + e.getDetail());
         }
     }
 }

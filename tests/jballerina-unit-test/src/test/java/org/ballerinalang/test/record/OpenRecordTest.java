@@ -505,4 +505,9 @@ public class OpenRecordTest {
     public void removeIfHasKeyRest() {
         BRunUtil.invoke(compileResult, "removeIfHasKeyRest");
     }
+
+    @Test
+    public void testCustomErrorTypeDescFieldOnRecord() {
+        BRunUtil.invoke(compileResult, "testCustomErrorTypeDescFieldOnRecord");
+    }
 }
