@@ -150,6 +150,12 @@ public function fromBytes(byte[] bytes) returns string|error = external;
 # + return - an array with a code point for each character of `str`
 public function toCodePointInts(string str) returns int[] = external;
 
+# Converts a single character string to a code point.
+#
+# + ch - a single character string
+# + return - the code point of `ch`
+public function toCodePointInt(Char ch) returns int = external;
+
 # Constructs a string from an array of code points.
 # An int is a valid code point if it is in the range 0 to 0x10FFFF inclusive,
 # but not in the range 0xD800 or 0xDFFF inclusive.
@@ -158,3 +164,12 @@ public function toCodePointInts(string str) returns int[] = external;
 # + return - a string with a character for each code point in `codePoints`; or an error
 # if any member of `codePoints` is not a valid code point
 public function fromCodePointInts(int[] codePoints) returns string|error = external;
+
+# Constructs a single character string from a code point.
+# An int is a valid code point if it is in the range 0 to 0x10FFFF inclusive,
+# but not in the range 0xD800 or 0xDFFF inclusive.
+#
+# + codePoint - an int specifying a code point
+# + return - a single character string whose code point is `codePoint`; or an error
+# if `codePoint` is not a valid code point
+public function fromCodePointInt(int codePoint) returns Char|error = external;
