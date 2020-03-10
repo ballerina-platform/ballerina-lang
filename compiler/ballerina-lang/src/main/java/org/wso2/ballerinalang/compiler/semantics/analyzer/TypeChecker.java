@@ -342,7 +342,7 @@ public class TypeChecker extends BLangNodeVisitor {
                 literalType = symTable.decimalType;
                 literalExpr.value = String.valueOf(literalValue);
             } else if (TypeTags.isIntegerTypeTag(expType.tag) || expType.tag == TypeTags.BYTE) {
-                literalType = getIntLiteralType(literalExpr, expType, literalType, literalValue);
+                literalType = getIntLiteralType(literalExpr.pos, expType, literalType, literalValue);
                 if (literalType == symTable.semanticError) {
                     return symTable.semanticError;
                 }
@@ -623,7 +623,7 @@ public class TypeChecker extends BLangNodeVisitor {
         return new BFiniteType(null, matchedValueSpace);
     }
 
-    private BType getIntLiteralType(BLangLiteral literalExpr, BType expType, BType literalType, Object literalValue) {
+    private BType getIntLiteralType(DiagnosticPos pos, BType expType, BType literalType, Object literalValue) {
 
         switch (expType.tag) {
             case TypeTags.INT:
@@ -665,7 +665,7 @@ public class TypeChecker extends BLangNodeVisitor {
                 break;
             default:
         }
-        dlog.error(literalExpr.pos, DiagnosticCode.INCOMPATIBLE_TYPES, expType, literalType);
+        dlog.error(pos, DiagnosticCode.INCOMPATIBLE_TYPES, expType, literalType);
         resultType = symTable.semanticError;
         return resultType;
     }
@@ -1329,15 +1329,18 @@ public class TypeChecker extends BLangNodeVisitor {
                 actualType = new BTypedescType(symbol.type, null);
                 varRefExpr.symbol = symbol;
             } else if ((symbol.tag & SymTag.CONSTANT) == SymTag.CONSTANT) {
-                varRefExpr.symbol = symbol;
+                BConstantSymbol constSymbol = (BConstantSymbol) symbol;
+                varRefExpr.symbol = constSymbol;
                 BType symbolType = symbol.type;
                 if (symbolType != symTable.noType && expType.tag == TypeTags.FINITE ||
                         (expType.tag == TypeTags.UNION && ((BUnionType) expType).getMemberTypes().stream()
                                 .anyMatch(memType -> memType.tag == TypeTags.FINITE &&
                                         types.isAssignable(symbolType, memType)))) {
                     actualType = symbolType;
+                } else if(TypeTags.isIntegerTypeTag(symbolType.tag)) {
+                    actualType = getIntLiteralType(varRefExpr.pos, expType, constSymbol.type, constSymbol.value.value);
                 } else {
-                    actualType = ((BConstantSymbol) symbol).literalType;
+                    actualType = constSymbol.literalType;
                 }
 
                 // If the constant is on the LHS, modifications are not allowed.
