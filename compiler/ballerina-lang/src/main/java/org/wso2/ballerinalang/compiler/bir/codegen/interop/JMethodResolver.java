@@ -468,7 +468,7 @@ class JMethodResolver {
         return new BType[]{
                 this.symbolTable.nilType, this.symbolTable.stringType, this.symbolTable.intType,
                 this.symbolTable.floatType, this.symbolTable.booleanType, this.symbolTable.mapJsonType,
-                this.symbolTable.jsonArrayType};
+                this.symbolTable.arrayJsonType};
     }
 
     private JMethod resolveExactMethod(Class<?> clazz, String name, JMethodKind kind,

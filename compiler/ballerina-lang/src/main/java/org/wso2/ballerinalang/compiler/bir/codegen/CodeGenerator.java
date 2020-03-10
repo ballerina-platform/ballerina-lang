@@ -24,7 +24,7 @@ import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
-import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
+import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLogHelper;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -57,7 +57,7 @@ public class CodeGenerator {
 
     private static final CompilerContext.Key<CodeGenerator> CODE_GEN = new CompilerContext.Key<>();
 
-    public static BLangDiagnosticLog dlog;
+    public static BLangDiagnosticLogHelper dlog;
 
     //TODO: remove static
     static SymbolTable symbolTable;
@@ -70,7 +70,7 @@ public class CodeGenerator {
         context.put(CODE_GEN, this);
         symbolTable = SymbolTable.getInstance(context);
         packageCache = PackageCache.getInstance(context);
-        dlog = BLangDiagnosticLog.getInstance(context);
+        dlog = BLangDiagnosticLogHelper.getInstance(context);
     }
 
     public static CodeGenerator getInstance(CompilerContext context) {

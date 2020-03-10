@@ -19,7 +19,6 @@ package org.wso2.ballerinalang.compiler.bir.codegen;
 
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.model.elements.PackageID;
-import org.ballerinalang.model.types.TypeKind;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.Label;
@@ -1074,11 +1073,14 @@ class JvmValueGen {
         }
 
         private boolean checkIfValueIsJReferenceType(BType bType) {
-            if ((bType.getKind() == TypeKind.INT) || (bType.getKind() == TypeKind.BOOLEAN) ||
-                    (bType.getKind() == TypeKind.FLOAT) || (bType.getKind() == TypeKind.BYTE)) {
-                return false;
-            } else {
-                return true;
+            switch (bType.getKind()) {
+                case INT:
+                case BOOLEAN:
+                case FLOAT:
+                case BYTE:
+                    return false;
+                default:
+                    return true;
             }
         }
 

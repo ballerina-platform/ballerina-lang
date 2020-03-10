@@ -28,9 +28,9 @@ function testRemoveRequiredOpen() {
     error? result = trap removeRequiredOpen();
     if ((result is error) && (result.reason() == "{ballerina/lang.map}OperationNotSupported")) {
         return;
-    } else {
-        panic error("Wrong Result");
     }
+
+    panic error("AssertionError", message = "Expected {ballerina/lang.map}OperationNotSupported error.");
 }
 
 type Bar record {|
@@ -47,7 +47,7 @@ function testRemoveRequiredClosed() {
     error? result = trap removeRequiredClosed();
     if ((result is error) && (result.reason() == "{ballerina/lang.map}OperationNotSupported")) {
         return;
-    } else {
-        panic error("Wrong Result");
     }
+
+    panic error("AssertionError", message = "Expected {ballerina/lang.map}OperationNotSupported error.");
 }

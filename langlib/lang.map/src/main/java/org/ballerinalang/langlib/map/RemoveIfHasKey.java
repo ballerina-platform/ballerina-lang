@@ -25,10 +25,9 @@ import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.wso2.ballerinalang.compiler.util.Constants;
 
 import static org.ballerinalang.jvm.MapUtils.checkIsMapOnlyOperation;
-import static org.ballerinalang.jvm.MapUtils.checkValidFieldForRecord;
+import static org.ballerinalang.jvm.MapUtils.validateRequiredFieldForRecord;
 
 /**
  * Extern function to remove element from the map if key exists.
@@ -50,7 +49,7 @@ public class RemoveIfHasKey {
         String op = REMOVE_IF_HAS_KEY;
 
         checkIsMapOnlyOperation(m.getType(), op);
-        checkValidFieldForRecord(m, k, op);
+        validateRequiredFieldForRecord(m, k);
         try {
             return m.remove(k);
         } catch (org.ballerinalang.jvm.util.exceptions.BLangFreezeException e) {

@@ -158,46 +158,36 @@ public class MapUtils {
         }
     }
 
-    public static void checkValidFieldForRecord(MapValue<?, ?> m, String  k, String  op) {
+    public static void validateRequiredFieldForRecord(MapValue<?, ?> m, String  k) {
         BType type = m.getType();
-        switch (type.getTag()) {
-            case TypeTags.RECORD_TYPE_TAG:
-                if (!m.containsKey(k)) {
-                    return;
-                }
-                if (isRequiredField((BRecordType) type, k)) {
-                    throw createOpNotSupportedErrorForRecord(type, op);
-                }
-                return;
-            default:
-                return;
+        if (type.getTag() == TypeTags.RECORD_TYPE_TAG && isRequiredField((BRecordType) type, k)) {
+            throw createOpNotSupportedErrorForRecord(type, k);
         }
     }
 
-    private static boolean isRequiredField(BRecordType type, String k) {
-        Map<String, BField> fields = type.getFields();
-        BField field = fields.get(k);
-        if (field != null && Flags.isFlagOn(field.flags, Flags.REQUIRED)) {
-            return true;
-        }
-        return false;
-    }
-
-    public static void validateRecord(BType type, String op) {
+    public static void validateRecord(MapValue<?, ?> m) {
+        BType type = m.getType();
         if (type.getTag() != TypeTags.RECORD_TYPE_TAG) {
             return;
         }
         Map<String, BField> fields = ((BRecordType) type).getFields();
         for (String key : fields.keySet()) {
             if (isRequiredField((BRecordType) type, key)) {
-                throw createOpNotSupportedErrorForRecord(type, op);
+                throw createOpNotSupportedErrorForRecord(type, key);
             }
         }
     }
 
-    private static ErrorValue createOpNotSupportedErrorForRecord(BType type, String op) {
+    private static boolean isRequiredField(BRecordType type, String k) {
+        Map<String, BField> fields = type.getFields();
+        BField field = fields.get(k);
+
+        return (field != null && Flags.isFlagOn(field.flags, Flags.REQUIRED));
+    }
+
+    private static ErrorValue createOpNotSupportedErrorForRecord(BType type, String field) {
         return BallerinaErrors.createError(getModulePrefixedReason(MAP_LANG_LIB,
                 OPERATION_NOT_SUPPORTED_IDENTIFIER),
-                format("%s not supported on type '%s' since there are required fields.", op, type.getQualifiedName()));
+                format("failed to remove field: '%s' is a required field in '%s'", field, type.getQualifiedName()));
     }
 }

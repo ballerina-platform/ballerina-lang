@@ -22,11 +22,13 @@ package org.wso2.ballerinalang.compiler.util;
  * Supported Types:
  * <ul>
  * <li>SINGLE - Access a single field by name</li>
+ * <li>WITH_NS - Access xml attribute with NS prefix provided</li>
  * <li>ALL - Access all fields</li>
  * </ul>
  * @since 0.970.0
  */
 public enum FieldKind {
-    SINGLE, 
+    WITH_NS,
+    SINGLE,
     ALL;
 }
