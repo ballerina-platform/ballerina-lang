@@ -10,6 +10,8 @@ apply from: "$rootDir/gradle/birTestableProject.gradle"
 configurations {
 }
 
+project.ext.orgName = file('src/main/ballerina/Ballerina.toml').text.split("\n")[1].split("=")[1].split("\"")[1]
+
 project.ext.moduleName = files(file('src/main/ballerina/src').listFiles()).filter { File f ->
     f.isDirectory() && f.name != 'target' && f.name != '.ballerina'
 }.singleFile.name
@@ -138,13 +140,13 @@ test {
     dependsOn copySelfToBirCache
     dependsOn createBalo
 
-    classpath += files("$buildDir/generated-bir-jar/" + moduleName + ".jar")
+    classpath += files("$buildDir/generated-bir-jar/" + project.ext.orgName + '.' + moduleName + ".jar")
 }
 
 artifacts {
     bir file("$buildDir/generated-bir/"), { builtBy(createCacheEntries) }
-    birJar file("$buildDir/generated-bir-jar/" + moduleName + ".jar"), { builtBy(createBalo) }
-    bStringBirJar file('build/generated-bir-jar/' + project.ext.moduleName + "-bstring" + '.jar'), {builtBy(createBStringBalo)}
+    birJar file("$buildDir/generated-bir-jar/" + project.ext.orgName + '.' + moduleName + ".jar"), { builtBy(createBalo) }
+    bStringBirJar file('build/generated-bir-jar/' + project.ext.orgName + '.' + moduleName + "-bstring" + '.jar'), {builtBy(createBStringBalo)}
 }
 
 def getJarCreationCommand(it, generatedBirDir, mapPath, jarsToBeLoaded) {

@@ -38,7 +38,6 @@ import com.intellij.psi.PsiManager;
 import com.intellij.psi.util.PsiTreeUtil;
 import io.ballerina.plugins.idea.BallerinaConstants;
 import io.ballerina.plugins.idea.BallerinaFileType;
-import io.ballerina.plugins.idea.psi.BallerinaCallableUnitSignature;
 import io.ballerina.plugins.idea.psi.BallerinaFunctionDefinition;
 import io.ballerina.plugins.idea.psi.BallerinaServiceDefinition;
 import org.jetbrains.annotations.Contract;
@@ -155,21 +154,15 @@ public class BallerinaRunUtil {
      */
     @Contract("null -> false")
     static boolean isMainFunction(BallerinaFunctionDefinition functionDefinitionNode) {
-        BallerinaCallableUnitSignature callableUnitSignature = PsiTreeUtil.getChildOfType(functionDefinitionNode,
-                BallerinaCallableUnitSignature.class);
-        if (callableUnitSignature == null) {
-            return false;
-        }
         if (!isPublicFunction(functionDefinitionNode)) {
             return false;
         }
         // Get the function name.
-        PsiElement functionName = callableUnitSignature.getAnyIdentifierName().getIdentifier();
+        PsiElement functionName = functionDefinitionNode.getAnyIdentifierName().getIdentifier();
         // Check whether the function name is "main".
         if (functionName == null || !BallerinaConstants.MAIN.equals(functionName.getText().trim())) {
             return false;
         }
-
         return true;
     }
 

@@ -657,6 +657,7 @@ public final class XMLItem extends XMLValue {
         if (FreezeUtils.isOpenForFreeze(this.freezeStatus, freezeStatus)) {
             this.freezeStatus = freezeStatus;
         }
+        this.children.attemptFreeze(freezeStatus);
         this.attributes.attemptFreeze(freezeStatus);
     }
 
@@ -666,6 +667,7 @@ public final class XMLItem extends XMLValue {
     @Override
     public void freezeDirect() {
         this.freezeStatus.setFrozen();
+        this.children.freezeDirect();
         this.attributes.freezeDirect();
     }
 
