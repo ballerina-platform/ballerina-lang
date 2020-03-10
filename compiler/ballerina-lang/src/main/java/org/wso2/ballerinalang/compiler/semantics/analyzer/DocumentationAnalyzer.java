@@ -252,9 +252,9 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
         }
 
         if (isDeprecationDocumentationAvailable && !isDeprecationAnnotationAvailable) {
-            dlog.error(pos, DiagnosticCode.DEPRECATION_ANNOTATION_SHOULD_AVAILABLE);
+            dlog.error(pos, DiagnosticCode.DEPRECATION_ANNOTATION_SHOULD_BE_AVAILABLE);
         } else if (!isDeprecationDocumentationAvailable && isDeprecationAnnotationAvailable) {
-            dlog.error(pos, DiagnosticCode.DEPRECATION_DOCUMENTATION_SHOULD_AVAILABLE);
+            dlog.error(pos, DiagnosticCode.DEPRECATION_DOCUMENTATION_SHOULD_BE_AVAILABLE);
         }
     }
 

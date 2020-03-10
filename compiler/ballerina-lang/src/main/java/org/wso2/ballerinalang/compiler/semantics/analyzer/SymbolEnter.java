@@ -28,7 +28,6 @@ import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.model.tree.TypeDefinition;
 import org.ballerinalang.model.tree.statements.StatementNode;
-import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.PackageLoader;
 import org.wso2.ballerinalang.compiler.SourceDirectory;
