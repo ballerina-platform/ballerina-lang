@@ -48,4 +48,10 @@ public class BallerinaReturnParameterDescriptionImpl extends ASTWrapperPsiElemen
     return findChildByClass(BallerinaDocumentationText.class);
   }
 
+  @Override
+  @NotNull
+  public PsiElement getMarkdownDocumentationLineStart() {
+    return findNotNullChildByType(MARKDOWN_DOCUMENTATION_LINE_START);
+  }
+
 }

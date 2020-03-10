@@ -44,8 +44,8 @@ public class BallerinaRecordLiteralBodyImpl extends ASTWrapperPsiElement impleme
 
   @Override
   @NotNull
-  public List<BallerinaRecordKeyValue> getRecordKeyValueList() {
-    return PsiTreeUtil.getChildrenOfTypeAsList(this, BallerinaRecordKeyValue.class);
+  public List<BallerinaRecordField> getRecordFieldList() {
+    return PsiTreeUtil.getChildrenOfTypeAsList(this, BallerinaRecordField.class);
   }
 
 }

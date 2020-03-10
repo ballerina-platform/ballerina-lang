@@ -92,12 +92,6 @@ public class BallerinaStatementImpl extends ASTWrapperPsiElement implements Ball
 
   @Override
   @Nullable
-  public BallerinaForeverStatement getForeverStatement() {
-    return findChildByClass(BallerinaForeverStatement.class);
-  }
-
-  @Override
-  @Nullable
   public BallerinaForkJoinStatement getForkJoinStatement() {
     return findChildByClass(BallerinaForkJoinStatement.class);
   }
@@ -140,6 +134,12 @@ public class BallerinaStatementImpl extends ASTWrapperPsiElement implements Ball
 
   @Override
   @Nullable
+  public BallerinaQueryActionStatement getQueryActionStatement() {
+    return findChildByClass(BallerinaQueryActionStatement.class);
+  }
+
+  @Override
+  @Nullable
   public BallerinaRecordDestructuringStatement getRecordDestructuringStatement() {
     return findChildByClass(BallerinaRecordDestructuringStatement.class);
   }
@@ -154,12 +154,6 @@ public class BallerinaStatementImpl extends ASTWrapperPsiElement implements Ball
   @Nullable
   public BallerinaReturnStatement getReturnStatement() {
     return findChildByClass(BallerinaReturnStatement.class);
-  }
-
-  @Override
-  @Nullable
-  public BallerinaStreamingQueryStatement getStreamingQueryStatement() {
-    return findChildByClass(BallerinaStreamingQueryStatement.class);
   }
 
   @Override

@@ -80,8 +80,20 @@ public class BallerinaDualAttachPointIdentImpl extends ASTWrapperPsiElement impl
 
   @Override
   @Nullable
+  public PsiElement getStart() {
+    return findChildByType(START);
+  }
+
+  @Override
+  @Nullable
   public PsiElement getType() {
     return findChildByType(TYPE);
+  }
+
+  @Override
+  @Nullable
+  public PsiElement getWorker() {
+    return findChildByType(WORKER);
   }
 
 }

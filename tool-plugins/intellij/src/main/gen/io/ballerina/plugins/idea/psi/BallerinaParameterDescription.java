@@ -26,4 +26,7 @@ public interface BallerinaParameterDescription extends PsiElement {
   @Nullable
   BallerinaDocumentationText getDocumentationText();
 
+  @NotNull
+  PsiElement getMarkdownDocumentationLineStart();
+
 }

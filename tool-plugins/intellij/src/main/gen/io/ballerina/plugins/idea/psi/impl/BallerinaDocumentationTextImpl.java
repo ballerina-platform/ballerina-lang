@@ -54,4 +54,10 @@ public class BallerinaDocumentationTextImpl extends ASTWrapperPsiElement impleme
     return PsiTreeUtil.getChildrenOfTypeAsList(this, BallerinaDocumentationReference.class);
   }
 
+  @Override
+  @NotNull
+  public List<BallerinaDocumentationTextContent> getDocumentationTextContentList() {
+    return PsiTreeUtil.getChildrenOfTypeAsList(this, BallerinaDocumentationTextContent.class);
+  }
+
 }

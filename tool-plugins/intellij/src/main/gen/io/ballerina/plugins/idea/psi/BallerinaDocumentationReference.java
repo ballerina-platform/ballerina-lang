@@ -24,6 +24,12 @@ import com.intellij.psi.PsiElement;
 public interface BallerinaDocumentationReference extends PsiElement {
 
   @NotNull
-  BallerinaDocumentationDefinitionReference getDocumentationDefinitionReference();
+  BallerinaReferenceType getReferenceType();
+
+  @Nullable
+  PsiElement getSingleBacktickContent();
+
+  @Nullable
+  PsiElement getSingleBacktickMarkdownEnd();
 
 }

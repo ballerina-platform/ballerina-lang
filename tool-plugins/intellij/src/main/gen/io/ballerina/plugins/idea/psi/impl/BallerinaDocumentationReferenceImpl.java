@@ -44,8 +44,20 @@ public class BallerinaDocumentationReferenceImpl extends ASTWrapperPsiElement im
 
   @Override
   @NotNull
-  public BallerinaDocumentationDefinitionReference getDocumentationDefinitionReference() {
-    return findNotNullChildByClass(BallerinaDocumentationDefinitionReference.class);
+  public BallerinaReferenceType getReferenceType() {
+    return findNotNullChildByClass(BallerinaReferenceType.class);
+  }
+
+  @Override
+  @Nullable
+  public PsiElement getSingleBacktickContent() {
+    return findChildByType(SINGLE_BACKTICK_CONTENT);
+  }
+
+  @Override
+  @Nullable
+  public PsiElement getSingleBacktickMarkdownEnd() {
+    return findChildByType(SINGLE_BACKTICK_MARKDOWN_END);
   }
 
 }

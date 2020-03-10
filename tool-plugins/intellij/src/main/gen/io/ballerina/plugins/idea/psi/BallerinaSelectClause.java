@@ -24,16 +24,7 @@ import com.intellij.psi.PsiElement;
 public interface BallerinaSelectClause extends PsiElement {
 
   @Nullable
-  BallerinaGroupByClause getGroupByClause();
-
-  @Nullable
-  BallerinaHavingClause getHavingClause();
-
-  @Nullable
-  BallerinaSelectExpressionList getSelectExpressionList();
-
-  @Nullable
-  PsiElement getMul();
+  BallerinaExpression getExpression();
 
   @NotNull
   PsiElement getSelect();

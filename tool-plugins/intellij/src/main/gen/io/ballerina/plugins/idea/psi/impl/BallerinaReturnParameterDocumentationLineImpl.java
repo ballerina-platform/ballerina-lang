@@ -54,10 +54,4 @@ public class BallerinaReturnParameterDocumentationLineImpl extends ASTWrapperPsi
     return findNotNullChildByClass(BallerinaReturnParameterDocumentation.class);
   }
 
-  @Override
-  @NotNull
-  public PsiElement getReturnParameterDocumentationStart() {
-    return findNotNullChildByType(RETURN_PARAMETER_DOCUMENTATION_START);
-  }
-
 }

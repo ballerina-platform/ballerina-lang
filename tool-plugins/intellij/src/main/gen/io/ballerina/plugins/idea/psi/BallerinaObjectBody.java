@@ -27,7 +27,7 @@ public interface BallerinaObjectBody extends PsiElement {
   List<BallerinaObjectFieldDefinition> getObjectFieldDefinitionList();
 
   @NotNull
-  List<BallerinaObjectFunctionDefinition> getObjectFunctionDefinitionList();
+  List<BallerinaObjectMethod> getObjectMethodList();
 
   @NotNull
   List<BallerinaTypeReference> getTypeReferenceList();

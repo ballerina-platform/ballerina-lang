@@ -42,6 +42,12 @@ public interface BallerinaDualAttachPointIdent extends PsiElement {
   PsiElement getService();
 
   @Nullable
+  PsiElement getStart();
+
+  @Nullable
   PsiElement getType();
+
+  @Nullable
+  PsiElement getWorker();
 
 }

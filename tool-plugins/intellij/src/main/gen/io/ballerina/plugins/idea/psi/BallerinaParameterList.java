@@ -26,4 +26,7 @@ public interface BallerinaParameterList extends PsiElement {
   @NotNull
   List<BallerinaParameter> getParameterList();
 
+  @Nullable
+  BallerinaRestParameter getRestParameter();
+
 }

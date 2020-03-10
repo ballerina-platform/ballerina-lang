@@ -29,4 +29,7 @@ public interface BallerinaDocumentationText extends PsiElement {
   @NotNull
   List<BallerinaDocumentationReference> getDocumentationReferenceList();
 
+  @NotNull
+  List<BallerinaDocumentationTextContent> getDocumentationTextContentList();
+
 }

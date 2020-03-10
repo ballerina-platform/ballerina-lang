@@ -24,6 +24,6 @@ import com.intellij.psi.PsiElement;
 public interface BallerinaRecordLiteralBody extends PsiElement {
 
   @NotNull
-  List<BallerinaRecordKeyValue> getRecordKeyValueList();
+  List<BallerinaRecordField> getRecordFieldList();
 
 }

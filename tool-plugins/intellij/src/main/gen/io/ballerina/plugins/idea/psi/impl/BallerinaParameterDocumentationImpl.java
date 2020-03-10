@@ -56,6 +56,12 @@ public class BallerinaParameterDocumentationImpl extends ASTWrapperPsiElement im
 
   @Override
   @NotNull
+  public PsiElement getParameterDocumentationStart() {
+    return findNotNullChildByType(PARAMETER_DOCUMENTATION_START);
+  }
+
+  @Override
+  @NotNull
   public PsiElement getParameterName() {
     return findNotNullChildByType(PARAMETER_NAME);
   }

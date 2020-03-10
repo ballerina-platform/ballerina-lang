@@ -26,4 +26,7 @@ public interface BallerinaReturnParameterDocumentation extends PsiElement {
   @NotNull
   BallerinaDocParameterDescription getDocParameterDescription();
 
+  @NotNull
+  PsiElement getReturnParameterDocumentationStart();
+
 }

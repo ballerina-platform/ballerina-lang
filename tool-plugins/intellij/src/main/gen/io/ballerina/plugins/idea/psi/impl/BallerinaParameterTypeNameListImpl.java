@@ -48,4 +48,10 @@ public class BallerinaParameterTypeNameListImpl extends ASTWrapperPsiElement imp
     return PsiTreeUtil.getChildrenOfTypeAsList(this, BallerinaParameterTypeName.class);
   }
 
+  @Override
+  @Nullable
+  public BallerinaRestParameterTypeName getRestParameterTypeName() {
+    return findChildByClass(BallerinaRestParameterTypeName.class);
+  }
+
 }

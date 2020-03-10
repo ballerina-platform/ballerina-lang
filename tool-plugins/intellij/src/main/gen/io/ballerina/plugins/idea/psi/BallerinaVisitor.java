@@ -60,6 +60,14 @@ public class BallerinaVisitor extends PsiElementVisitor {
     visitTopLevelDefinition(o);
   }
 
+  public void visitAnonymousFunctionExpr(@NotNull BallerinaAnonymousFunctionExpr o) {
+    visitPsiElement(o);
+  }
+
+  public void visitAnonymousFunctionExpression(@NotNull BallerinaAnonymousFunctionExpression o) {
+    visitExpression(o);
+  }
+
   public void visitAnyDataTypeName(@NotNull BallerinaAnyDataTypeName o) {
     visitPsiElement(o);
   }
@@ -74,18 +82,6 @@ public class BallerinaVisitor extends PsiElementVisitor {
 
   public void visitArrayTypeName(@NotNull BallerinaArrayTypeName o) {
     visitTypeName(o);
-  }
-
-  public void visitArrowFunction(@NotNull BallerinaArrowFunction o) {
-    visitPsiElement(o);
-  }
-
-  public void visitArrowFunctionExpression(@NotNull BallerinaArrowFunctionExpression o) {
-    visitExpression(o);
-  }
-
-  public void visitArrowParam(@NotNull BallerinaArrowParam o) {
-    visitPsiElement(o);
   }
 
   public void visitAssignmentStatement(@NotNull BallerinaAssignmentStatement o) {
@@ -152,19 +148,15 @@ public class BallerinaVisitor extends PsiElementVisitor {
     visitPsiElement(o);
   }
 
+  public void visitBlockFunctionBody(@NotNull BallerinaBlockFunctionBody o) {
+    visitPsiElement(o);
+  }
+
   public void visitBreakStatement(@NotNull BallerinaBreakStatement o) {
     visitPsiElement(o);
   }
 
   public void visitBuiltInReferenceTypeName(@NotNull BallerinaBuiltInReferenceTypeName o) {
-    visitPsiElement(o);
-  }
-
-  public void visitCallableUnitBody(@NotNull BallerinaCallableUnitBody o) {
-    visitPsiElement(o);
-  }
-
-  public void visitCallableUnitSignature(@NotNull BallerinaCallableUnitSignature o) {
     visitPsiElement(o);
   }
 
@@ -237,6 +229,10 @@ public class BallerinaVisitor extends PsiElementVisitor {
   }
 
   public void visitDefinition(@NotNull BallerinaDefinition o) {
+    visitPsiElement(o);
+  }
+
+  public void visitDoClause(@NotNull BallerinaDoClause o) {
     visitPsiElement(o);
   }
 
@@ -324,6 +320,18 @@ public class BallerinaVisitor extends PsiElementVisitor {
     visitTypeName(o);
   }
 
+  public void visitExplicitAnonymousFunctionExpr(@NotNull BallerinaExplicitAnonymousFunctionExpr o) {
+    visitPsiElement(o);
+  }
+
+  public void visitExprFunctionBody(@NotNull BallerinaExprFunctionBody o) {
+    visitPsiElement(o);
+  }
+
+  public void visitExprFunctionBodySpec(@NotNull BallerinaExprFunctionBodySpec o) {
+    visitPsiElement(o);
+  }
+
   public void visitExpression(@NotNull BallerinaExpression o) {
     visitPsiElement(o);
   }
@@ -392,14 +400,6 @@ public class BallerinaVisitor extends PsiElementVisitor {
     visitPsiElement(o);
   }
 
-  public void visitForeverStatement(@NotNull BallerinaForeverStatement o) {
-    visitPsiElement(o);
-  }
-
-  public void visitForeverStatementBody(@NotNull BallerinaForeverStatementBody o) {
-    visitPsiElement(o);
-  }
-
   public void visitForkJoinStatement(@NotNull BallerinaForkJoinStatement o) {
     visitPsiElement(o);
   }
@@ -408,8 +408,16 @@ public class BallerinaVisitor extends PsiElementVisitor {
     visitPsiElement(o);
   }
 
+  public void visitFromClause(@NotNull BallerinaFromClause o) {
+    visitPsiElement(o);
+  }
+
   public void visitFunctionDefinition(@NotNull BallerinaFunctionDefinition o) {
     visitTopLevelDefinition(o);
+  }
+
+  public void visitFunctionDefinitionBody(@NotNull BallerinaFunctionDefinitionBody o) {
+    visitPsiElement(o);
   }
 
   public void visitFunctionInvocation(@NotNull BallerinaFunctionInvocation o) {
@@ -418,6 +426,10 @@ public class BallerinaVisitor extends PsiElementVisitor {
 
   public void visitFunctionInvocationReference(@NotNull BallerinaFunctionInvocationReference o) {
     visitVariableReference(o);
+  }
+
+  public void visitFunctionSignature(@NotNull BallerinaFunctionSignature o) {
+    visitPsiElement(o);
   }
 
   public void visitFunctionTypeName(@NotNull BallerinaFunctionTypeName o) {
@@ -432,12 +444,24 @@ public class BallerinaVisitor extends PsiElementVisitor {
     visitTopLevelDefinition(o);
   }
 
-  public void visitGroupByClause(@NotNull BallerinaGroupByClause o) {
-    visitPsiElement(o);
-  }
-
   public void visitGroupExpression(@NotNull BallerinaGroupExpression o) {
     visitExpression(o);
+  }
+
+  public void visitGroupFieldVariableReference(@NotNull BallerinaGroupFieldVariableReference o) {
+    visitVariableReference(o);
+  }
+
+  public void visitGroupInvocationReference(@NotNull BallerinaGroupInvocationReference o) {
+    visitVariableReference(o);
+  }
+
+  public void visitGroupMapArrayVariableReference(@NotNull BallerinaGroupMapArrayVariableReference o) {
+    visitVariableReference(o);
+  }
+
+  public void visitGroupStringFunctionInvocationReference(@NotNull BallerinaGroupStringFunctionInvocationReference o) {
+    visitVariableReference(o);
   }
 
   public void visitGroupTypeName(@NotNull BallerinaGroupTypeName o) {
@@ -445,10 +469,6 @@ public class BallerinaVisitor extends PsiElementVisitor {
   }
 
   public void visitHandleTypeName(@NotNull BallerinaHandleTypeName o) {
-    visitPsiElement(o);
-  }
-
-  public void visitHavingClause(@NotNull BallerinaHavingClause o) {
     visitPsiElement(o);
   }
 
@@ -472,7 +492,15 @@ public class BallerinaVisitor extends PsiElementVisitor {
     visitPsiElement(o);
   }
 
-  public void visitIntRangeExpression(@NotNull BallerinaIntRangeExpression o) {
+  public void visitInferAnonymousFunctionExpr(@NotNull BallerinaInferAnonymousFunctionExpr o) {
+    visitPsiElement(o);
+  }
+
+  public void visitInferParam(@NotNull BallerinaInferParam o) {
+    visitPsiElement(o);
+  }
+
+  public void visitInferParamList(@NotNull BallerinaInferParamList o) {
     visitPsiElement(o);
   }
 
@@ -500,31 +528,7 @@ public class BallerinaVisitor extends PsiElementVisitor {
     visitVariableReference(o);
   }
 
-  public void visitJoinStreamingInput(@NotNull BallerinaJoinStreamingInput o) {
-    visitPsiElement(o);
-  }
-
-  public void visitJoinType(@NotNull BallerinaJoinType o) {
-    visitPsiElement(o);
-  }
-
   public void visitJsonTypeName(@NotNull BallerinaJsonTypeName o) {
-    visitPsiElement(o);
-  }
-
-  public void visitLambdaFunction(@NotNull BallerinaLambdaFunction o) {
-    visitPsiElement(o);
-  }
-
-  public void visitLambdaFunctionExpression(@NotNull BallerinaLambdaFunctionExpression o) {
-    visitExpression(o);
-  }
-
-  public void visitLambdaReturnParameter(@NotNull BallerinaLambdaReturnParameter o) {
-    visitPsiElement(o);
-  }
-
-  public void visitLimitClause(@NotNull BallerinaLimitClause o) {
     visitPsiElement(o);
   }
 
@@ -576,6 +580,14 @@ public class BallerinaVisitor extends PsiElementVisitor {
     visitPsiElement(o);
   }
 
+  public void visitMethodDeclaration(@NotNull BallerinaMethodDeclaration o) {
+    visitPsiElement(o);
+  }
+
+  public void visitMethodDefinition(@NotNull BallerinaMethodDefinition o) {
+    visitPsiElement(o);
+  }
+
   public void visitNameReference(@NotNull BallerinaNameReference o) {
     visitPsiElement(o);
   }
@@ -608,7 +620,7 @@ public class BallerinaVisitor extends PsiElementVisitor {
     visitPsiElement(o);
   }
 
-  public void visitObjectFunctionDefinition(@NotNull BallerinaObjectFunctionDefinition o) {
+  public void visitObjectMethod(@NotNull BallerinaObjectMethod o) {
     visitPsiElement(o);
   }
 
@@ -624,23 +636,7 @@ public class BallerinaVisitor extends PsiElementVisitor {
     visitPsiElement(o);
   }
 
-  public void visitOrderByClause(@NotNull BallerinaOrderByClause o) {
-    visitPsiElement(o);
-  }
-
-  public void visitOrderByType(@NotNull BallerinaOrderByType o) {
-    visitPsiElement(o);
-  }
-
-  public void visitOrderByVariable(@NotNull BallerinaOrderByVariable o) {
-    visitPsiElement(o);
-  }
-
   public void visitOrgName(@NotNull BallerinaOrgName o) {
-    visitPsiElement(o);
-  }
-
-  public void visitOutputRateLimit(@NotNull BallerinaOutputRateLimit o) {
     visitPsiElement(o);
   }
 
@@ -668,23 +664,31 @@ public class BallerinaVisitor extends PsiElementVisitor {
     visitPsiElement(o);
   }
 
+  public void visitParameterTypeName(@NotNull BallerinaParameterTypeName o) {
+    visitPsiElement(o);
+  }
+
   public void visitParameterTypeNameList(@NotNull BallerinaParameterTypeNameList o) {
     visitPsiElement(o);
   }
 
-  public void visitPatternClause(@NotNull BallerinaPatternClause o) {
-    visitPsiElement(o);
-  }
-
-  public void visitPatternStreamingEdgeInput(@NotNull BallerinaPatternStreamingEdgeInput o) {
-    visitPsiElement(o);
-  }
-
-  public void visitPatternStreamingInput(@NotNull BallerinaPatternStreamingInput o) {
-    visitPsiElement(o);
-  }
-
   public void visitPeerWorker(@NotNull BallerinaPeerWorker o) {
+    visitPsiElement(o);
+  }
+
+  public void visitQueryActionStatement(@NotNull BallerinaQueryActionStatement o) {
+    visitPsiElement(o);
+  }
+
+  public void visitQueryExpr(@NotNull BallerinaQueryExpr o) {
+    visitPsiElement(o);
+  }
+
+  public void visitQueryExpression(@NotNull BallerinaQueryExpression o) {
+    visitExpression(o);
+  }
+
+  public void visitQueryPipeline(@NotNull BallerinaQueryPipeline o) {
     visitPsiElement(o);
   }
 
@@ -696,11 +700,15 @@ public class BallerinaVisitor extends PsiElementVisitor {
     visitPsiElement(o);
   }
 
+  public void visitRecordField(@NotNull BallerinaRecordField o) {
+    visitPsiElement(o);
+  }
+
   public void visitRecordKey(@NotNull BallerinaRecordKey o) {
     visitPsiElement(o);
   }
 
-  public void visitRecordKeyValue(@NotNull BallerinaRecordKeyValue o) {
+  public void visitRecordKeyValueField(@NotNull BallerinaRecordKeyValueField o) {
     visitPsiElement(o);
   }
 
@@ -721,6 +729,10 @@ public class BallerinaVisitor extends PsiElementVisitor {
   }
 
   public void visitRecordRefBindingPattern(@NotNull BallerinaRecordRefBindingPattern o) {
+    visitPsiElement(o);
+  }
+
+  public void visitRecordRestField(@NotNull BallerinaRecordRestField o) {
     visitPsiElement(o);
   }
 
@@ -752,6 +764,10 @@ public class BallerinaVisitor extends PsiElementVisitor {
     visitPsiElement(o);
   }
 
+  public void visitRestParameterTypeName(@NotNull BallerinaRestParameterTypeName o) {
+    visitPsiElement(o);
+  }
+
   public void visitRestRefBindingPattern(@NotNull BallerinaRestRefBindingPattern o) {
     visitPsiElement(o);
   }
@@ -777,14 +793,6 @@ public class BallerinaVisitor extends PsiElementVisitor {
   }
 
   public void visitSelectClause(@NotNull BallerinaSelectClause o) {
-    visitPsiElement(o);
-  }
-
-  public void visitSelectExpression(@NotNull BallerinaSelectExpression o) {
-    visitPsiElement(o);
-  }
-
-  public void visitSelectExpressionList(@NotNull BallerinaSelectExpressionList o) {
     visitPsiElement(o);
   }
 
@@ -872,19 +880,19 @@ public class BallerinaVisitor extends PsiElementVisitor {
     visitStaticMatchLiteral(o);
   }
 
+  public void visitStreamConstructorBody(@NotNull BallerinaStreamConstructorBody o) {
+    visitPsiElement(o);
+  }
+
+  public void visitStreamConstructorExpr(@NotNull BallerinaStreamConstructorExpr o) {
+    visitPsiElement(o);
+  }
+
+  public void visitStreamConstructorExpression(@NotNull BallerinaStreamConstructorExpression o) {
+    visitExpression(o);
+  }
+
   public void visitStreamTypeName(@NotNull BallerinaStreamTypeName o) {
-    visitPsiElement(o);
-  }
-
-  public void visitStreamingAction(@NotNull BallerinaStreamingAction o) {
-    visitPsiElement(o);
-  }
-
-  public void visitStreamingInput(@NotNull BallerinaStreamingInput o) {
-    visitPsiElement(o);
-  }
-
-  public void visitStreamingQueryStatement(@NotNull BallerinaStreamingQueryStatement o) {
     visitPsiElement(o);
   }
 
@@ -940,14 +948,6 @@ public class BallerinaVisitor extends PsiElementVisitor {
     visitExpression(o);
   }
 
-  public void visitTableQuery(@NotNull BallerinaTableQuery o) {
-    visitPsiElement(o);
-  }
-
-  public void visitTableQueryExpression(@NotNull BallerinaTableQueryExpression o) {
-    visitExpression(o);
-  }
-
   public void visitTableTypeName(@NotNull BallerinaTableTypeName o) {
     visitPsiElement(o);
   }
@@ -957,10 +957,6 @@ public class BallerinaVisitor extends PsiElementVisitor {
   }
 
   public void visitThrowStatement(@NotNull BallerinaThrowStatement o) {
-    visitPsiElement(o);
-  }
-
-  public void visitTimeScale(@NotNull BallerinaTimeScale o) {
     visitPsiElement(o);
   }
 
@@ -1068,10 +1064,6 @@ public class BallerinaVisitor extends PsiElementVisitor {
     visitExpression(o);
   }
 
-  public void visitVariableReferenceList(@NotNull BallerinaVariableReferenceList o) {
-    visitPsiElement(o);
-  }
-
   public void visitVersionPattern(@NotNull BallerinaVersionPattern o) {
     visitPsiElement(o);
   }
@@ -1097,14 +1089,6 @@ public class BallerinaVisitor extends PsiElementVisitor {
   }
 
   public void visitWhileStatementBody(@NotNull BallerinaWhileStatementBody o) {
-    visitPsiElement(o);
-  }
-
-  public void visitWindowClause(@NotNull BallerinaWindowClause o) {
-    visitPsiElement(o);
-  }
-
-  public void visitWithinClause(@NotNull BallerinaWithinClause o) {
     visitPsiElement(o);
   }
 
@@ -1164,19 +1148,11 @@ public class BallerinaVisitor extends PsiElementVisitor {
     visitPsiElement(o);
   }
 
-  public void visitDefinitionReferenceType(@NotNull BallerinaDefinitionReferenceType o) {
-    visitPsiElement(o);
-  }
-
   public void visitDocParameterDescription(@NotNull BallerinaDocParameterDescription o) {
     visitPsiElement(o);
   }
 
   public void visitDocumentationContent(@NotNull BallerinaDocumentationContent o) {
-    visitPsiElement(o);
-  }
-
-  public void visitDocumentationDefinitionReference(@NotNull BallerinaDocumentationDefinitionReference o) {
     visitPsiElement(o);
   }
 
@@ -1193,6 +1169,10 @@ public class BallerinaVisitor extends PsiElementVisitor {
   }
 
   public void visitDocumentationText(@NotNull BallerinaDocumentationText o) {
+    visitPsiElement(o);
+  }
+
+  public void visitDocumentationTextContent(@NotNull BallerinaDocumentationTextContent o) {
     visitPsiElement(o);
   }
 
@@ -1224,7 +1204,7 @@ public class BallerinaVisitor extends PsiElementVisitor {
     visitPsiElement(o);
   }
 
-  public void visitParameterTypeName(@NotNull BallerinaParameterTypeName o) {
+  public void visitReferenceType(@NotNull BallerinaReferenceType o) {
     visitPsiElement(o);
   }
 

@@ -30,6 +30,9 @@ public interface BallerinaParameterDocumentation extends PsiElement {
   PsiElement getDescriptionSeparator();
 
   @NotNull
+  PsiElement getParameterDocumentationStart();
+
+  @NotNull
   PsiElement getParameterName();
 
 }

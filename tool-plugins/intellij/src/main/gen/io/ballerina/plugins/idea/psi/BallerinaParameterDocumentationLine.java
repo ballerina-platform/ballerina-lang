@@ -29,7 +29,4 @@ public interface BallerinaParameterDocumentationLine extends PsiElement {
   @NotNull
   BallerinaParameterDocumentation getParameterDocumentation();
 
-  @NotNull
-  PsiElement getParameterDocumentationStart();
-
 }

@@ -33,8 +33,8 @@ public interface BallerinaFunctionNameReference extends PsiElement {
   //matching getQualifier(BallerinaFunctionNameReference, ...)
   //methods are not found in BallerinaPsiImplUtil
 
-  //WARNING: resolveType(...) is skipped
-  //matching resolveType(BallerinaFunctionNameReference, ...)
+  //WARNING: resolveTypeWhereClause(...) is skipped
+  //matching resolveTypeWhereClause(BallerinaFunctionNameReference, ...)
   //methods are not found in BallerinaPsiImplUtil
 
   boolean isInLocalPackage();

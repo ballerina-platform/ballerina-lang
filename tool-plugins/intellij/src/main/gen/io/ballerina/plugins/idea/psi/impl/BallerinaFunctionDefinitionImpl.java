@@ -44,26 +44,20 @@ public class BallerinaFunctionDefinitionImpl extends ASTWrapperPsiElement implem
 
   @Override
   @Nullable
-  public BallerinaCallableUnitBody getCallableUnitBody() {
-    return findChildByClass(BallerinaCallableUnitBody.class);
+  public BallerinaAnyIdentifierName getAnyIdentifierName() {
+    return findChildByClass(BallerinaAnyIdentifierName.class);
   }
 
   @Override
   @Nullable
-  public BallerinaCallableUnitSignature getCallableUnitSignature() {
-    return findChildByClass(BallerinaCallableUnitSignature.class);
+  public BallerinaFunctionDefinitionBody getFunctionDefinitionBody() {
+    return findChildByClass(BallerinaFunctionDefinitionBody.class);
   }
 
   @Override
   @Nullable
-  public BallerinaExternalFunctionBody getExternalFunctionBody() {
-    return findChildByClass(BallerinaExternalFunctionBody.class);
-  }
-
-  @Override
-  @Nullable
-  public PsiElement getSemicolon() {
-    return findChildByType(SEMICOLON);
+  public BallerinaFunctionSignature getFunctionSignature() {
+    return findChildByClass(BallerinaFunctionSignature.class);
   }
 
   @Override

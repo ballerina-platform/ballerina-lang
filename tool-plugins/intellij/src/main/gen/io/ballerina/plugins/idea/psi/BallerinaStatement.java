@@ -48,9 +48,6 @@ public interface BallerinaStatement extends PsiElement {
   BallerinaForeachStatement getForeachStatement();
 
   @Nullable
-  BallerinaForeverStatement getForeverStatement();
-
-  @Nullable
   BallerinaForkJoinStatement getForkJoinStatement();
 
   @Nullable
@@ -72,6 +69,9 @@ public interface BallerinaStatement extends PsiElement {
   BallerinaPanicStatement getPanicStatement();
 
   @Nullable
+  BallerinaQueryActionStatement getQueryActionStatement();
+
+  @Nullable
   BallerinaRecordDestructuringStatement getRecordDestructuringStatement();
 
   @Nullable
@@ -79,9 +79,6 @@ public interface BallerinaStatement extends PsiElement {
 
   @Nullable
   BallerinaReturnStatement getReturnStatement();
-
-  @Nullable
-  BallerinaStreamingQueryStatement getStreamingQueryStatement();
 
   @Nullable
   BallerinaThrowStatement getThrowStatement();

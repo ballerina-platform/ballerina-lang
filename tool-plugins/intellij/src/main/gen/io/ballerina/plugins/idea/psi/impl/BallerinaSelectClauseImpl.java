@@ -44,26 +44,8 @@ public class BallerinaSelectClauseImpl extends ASTWrapperPsiElement implements B
 
   @Override
   @Nullable
-  public BallerinaGroupByClause getGroupByClause() {
-    return findChildByClass(BallerinaGroupByClause.class);
-  }
-
-  @Override
-  @Nullable
-  public BallerinaHavingClause getHavingClause() {
-    return findChildByClass(BallerinaHavingClause.class);
-  }
-
-  @Override
-  @Nullable
-  public BallerinaSelectExpressionList getSelectExpressionList() {
-    return findChildByClass(BallerinaSelectExpressionList.class);
-  }
-
-  @Override
-  @Nullable
-  public PsiElement getMul() {
-    return findChildByType(MUL);
+  public BallerinaExpression getExpression() {
+    return findChildByClass(BallerinaExpression.class);
   }
 
   @Override

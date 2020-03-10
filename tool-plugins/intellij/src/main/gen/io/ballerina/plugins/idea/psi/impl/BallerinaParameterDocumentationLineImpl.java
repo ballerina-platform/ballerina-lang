@@ -54,10 +54,4 @@ public class BallerinaParameterDocumentationLineImpl extends ASTWrapperPsiElemen
     return findNotNullChildByClass(BallerinaParameterDocumentation.class);
   }
 
-  @Override
-  @NotNull
-  public PsiElement getParameterDocumentationStart() {
-    return findNotNullChildByType(PARAMETER_DOCUMENTATION_START);
-  }
-
 }
