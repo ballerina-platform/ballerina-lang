@@ -2102,6 +2102,15 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         if (xmlNavigation.childIndex != null) {
             analyzeExpr(xmlNavigation.childIndex);
         }
+        validateMethodInvocationsInXMLNavigationExpression(xmlNavigation);
+    }
+
+    private void validateMethodInvocationsInXMLNavigationExpression(BLangXMLNavigationAccess expression) {
+        if (!expression.methodInvocationAnalyzed && expression.parent.getKind() == NodeKind.INVOCATION) {
+            dlog.error(((BLangInvocation) expression.parent).name.pos,
+                    DiagnosticCode.UNSUPPORTED_METHOD_INVOCATION_XML_NAV);
+        }
+        expression.methodInvocationAnalyzed = true;
     }
 
     @Override
