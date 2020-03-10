@@ -845,22 +845,17 @@ function generateLambdaMethod(bir:AsyncCall|bir:FPLoad ins, jvm:ClassWriter cw, 
     string moduleName;
     string funcName;
     int paramIndex = 1;
-    bir:DiagnosticPos diagnosticPos;
-    BalToJVMIndexMap indexMap = new;
-    LabelGenerator labelGen = new;
     boolean isVirtual = ins is bir:AsyncCall &&  ins.isVirtual;
     if (ins is bir:AsyncCall) {
         lhsType = ins.lhsOp?.typeValue;
         orgName = ins.pkgID.org;
         moduleName = ins.pkgID.name;
         funcName = ins.name.value;
-        diagnosticPos = ins.pos;
     } else {
         lhsType = ins.lhsOp.typeValue;
         orgName = ins.pkgID.org;
         moduleName = ins.pkgID.name;
         funcName = ins.name.value;
-        diagnosticPos = ins.pos;
     }
 
     boolean isExternFunction =  isExternStaticFunctionCall(ins);
@@ -989,31 +984,6 @@ function generateLambdaMethod(bir:AsyncCall|bir:FPLoad ins, jvm:ClassWriter cw, 
         }
     }
 
-    // Reading the Strand
-    mv.visitVarInsn(ALOAD, closureMapsCount);
-    mv.visitInsn(ICONST_0);
-    mv.visitInsn(AALOAD);
-    mv.visitTypeInsn(CHECKCAST, STRAND);
-
-    // Storing the strand to be read by Observability methods
-    bir:VariableDcl strandVarDcl = { typeValue: "any", name: { value: "$_observe_strand_$" } };
-    int strandVarIndex = indexMap.getIndex(strandVarDcl);
-    mv.visitVarInsn(ASTORE, strandVarIndex);
-
-    jvm:Label? tryStartLabel = ();
-    boolean isObserved = false;
-    string lookupKey = nameOfNonBStringFunc(getPackageName(orgName, moduleName) + funcName);
-    BIRFunctionWrapper? functionWrapper = birFunctionMap[lookupKey];
-    if (functionWrapper is BIRFunctionWrapper) {
-        isObserved = isFunctionObserved(functionWrapper.func);
-        if (isObserved) {
-            string workerName = functionWrapper.func.workerName.value;
-            var test = functionWrapper.func;
-            tryStartLabel = genObserveStartWithTryBlockStart(mv, labelGen, functionWrapper.func,
-                strandVarIndex, (), orgName, moduleName, diagnosticPos, workerName);
-        }
-    }
-
     if (isVirtual) {
         string methodDesc = io:sprintf("(L%s;L%s;[L%s;)L%s;", STRAND, STRING_VALUE, OBJECT, OBJECT);
         mv.visitMethodInsn(INVOKEINTERFACE, OBJECT_VALUE, "call", methodDesc, true);
@@ -1021,12 +991,6 @@ function generateLambdaMethod(bir:AsyncCall|bir:FPLoad ins, jvm:ClassWriter cw, 
         string methodDesc = getLambdaMethodDesc(paramBTypes, returnType, closureMapsCount);
         string jvmClass = lookupFullQualifiedClassName(getPackageName(orgName, moduleName) + funcName);
         mv.visitMethodInsn(INVOKESTATIC, jvmClass, funcName, methodDesc, false);
-    }
-
-    if (isObserved) {
-        BIRFunctionWrapper fw = <BIRFunctionWrapper>functionWrapper;
-        genObserveEndWithTryBlockEnd(mv, labelGen, indexMap, fw.func, <jvm:Label>tryStartLabel,
-            strandVarIndex);
     }
 
     if (!isVirtual) {
