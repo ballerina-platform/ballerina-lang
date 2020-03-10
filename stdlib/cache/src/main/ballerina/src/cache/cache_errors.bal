@@ -25,7 +25,11 @@ public type Detail record {
     error cause?;
 };
 
+# Represents the Cache error reason.
 public const CACHE_ERROR = "{ballerina/cache}Error";
+
+# Represents the Cache error type with details. This will be returned if an error occurred while doing the cache
+# operations.
 public type Error error<CACHE_ERROR, Detail>;
 
 # Log and prepare the `error` as an `Error`.
