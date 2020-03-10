@@ -150,7 +150,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.string_  \n  \nSearches for one string in another string.\n  \n**Params**  \n- `string` substr: the string to search for  \n- `int` startIndex: index to start searching from(Defaultable)  \n  \n**Returns** `(int|())`   \n- index of the first occurrence of `substr` in `str` that is >= `startIndex`,  \n   or `()` if there is no such occurrence  \n  \n"
+          "value": "**Package:** _ballerina/lang.string_  \n  \nFinds the first occurrence of one string in another string.\n  \n**Params**  \n- `string` substr: the string to search for  \n- `int` startIndex: index to start searching from(Defaultable)  \n  \n**Returns** `(int|())`   \n- index of the first occurrence of `substr` in `str` that is >= `startIndex`,  \n   or `()` if there is no such occurrence  \n  \n"
         }
       },
       "sortText": "120",
