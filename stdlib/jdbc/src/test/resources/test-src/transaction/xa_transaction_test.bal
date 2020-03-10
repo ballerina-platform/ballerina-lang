@@ -106,7 +106,7 @@ function testXATransactionSuccessWithH2Client(string jdbcURL1, string jdbcURL2) 
     transaction {
         _ = checkpanic testDB1->update("insert into Customers (customerId, name, creditLimit, country) " +
                                 "values (11, 'Anne', 1000, 'UK')");
-        _ = checkpanic testDB2->update("insert into Salary (id, value ) values (11, 1000)";
+        _ = checkpanic testDB2->update("insert into Salary (id, value ) values (11, 1000)");
     }
 
     int count1;
