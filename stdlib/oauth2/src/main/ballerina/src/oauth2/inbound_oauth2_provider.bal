@@ -38,7 +38,7 @@ public type InboundOAuth2Provider object {
     public function __init(IntrospectionServerConfig config) {
         self.tokenTypeHint = config?.tokenTypeHint;
         self.introspectionClient = new(config.url, config.clientConfig);
-        var oauth2CacheConfig = config?.oauth2CacheConfig;
+        InboundOAuth2CacheConfig? oauth2CacheConfig = config?.oauth2CacheConfig;
         if (oauth2CacheConfig is InboundOAuth2CacheConfig) {
             self.inboundOAuth2Cache = new(oauth2CacheConfig.capacity, oauth2CacheConfig.expTimeInSeconds * 1000,
                                           oauth2CacheConfig.evictionFactor);
@@ -55,9 +55,9 @@ public type InboundOAuth2Provider object {
             return false;
         }
 
-        var oauth2Cache = self.inboundOAuth2Cache;
+        cache:Cache? oauth2Cache = self.inboundOAuth2Cache;
         if (oauth2Cache is cache:Cache && oauth2Cache.hasKey(credential)) {
-            var oauth2CacheEntry = authenticateFromCache(oauth2Cache, credential);
+            InboundOAuth2CacheEntry? oauth2CacheEntry = authenticateFromCache(oauth2Cache, credential);
             if (oauth2CacheEntry is InboundOAuth2CacheEntry) {
                 auth:setAuthenticationContext("oauth2", credential);
                 auth:setPrincipal(oauth2CacheEntry.username, oauth2CacheEntry.username,
@@ -70,12 +70,12 @@ public type InboundOAuth2Provider object {
         // Refer: https://tools.ietf.org/html/rfc7662#section-2.1
         http:Request req = new;
         string textPayload = "token=" + credential;
-        var tokenTypeHint = self.tokenTypeHint;
+        string? tokenTypeHint = self.tokenTypeHint;
         if (tokenTypeHint is string) {
             textPayload += "&token_type_hint=" + tokenTypeHint;
         }
         req.setTextPayload(textPayload, mime:APPLICATION_FORM_URLENCODED);
-        var response = self.introspectionClient->post("", req);
+        http:Response|http:ClientError response = self.introspectionClient->post("", req);
         if (response is http:Response) {
             json|error result = response.getJsonPayload();
             if (result is error) {
