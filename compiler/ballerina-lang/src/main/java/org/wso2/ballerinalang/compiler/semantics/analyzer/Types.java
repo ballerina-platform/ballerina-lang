@@ -474,6 +474,10 @@ public class Types {
             return true;
         }
 
+        if (sourceTag == TypeTags.CHAR_STRING && targetTag == TypeTags.STRING) {
+            return true;
+        }
+
         if (sourceTag == TypeTags.ERROR && targetTag == TypeTags.ERROR) {
             return isErrorTypeAssignable((BErrorType) source, (BErrorType) target, unresolvedTypes);
         } else if (sourceTag == TypeTags.ERROR && targetTag == TypeTags.ANY) {
@@ -1283,10 +1287,11 @@ public class Types {
     TypeTestResult isBuiltInTypeWidenPossible(BType actualType, BType targetType) {
 
         int targetTag = targetType.tag;
+        int actualTag = actualType.tag;
 
-        if (actualType.tag < TypeTags.JSON && targetTag < TypeTags.JSON) {
+        if (actualTag < TypeTags.JSON && targetTag < TypeTags.JSON) {
             // Fail Fast for value types.
-            switch (actualType.tag) {
+            switch (actualTag) {
                 case TypeTags.INT:
                 case TypeTags.BYTE:
                 case TypeTags.FLOAT:
@@ -1309,7 +1314,7 @@ public class Types {
                     break;
             }
         }
-        switch (actualType.tag) {
+        switch (actualTag) {
             case TypeTags.INT:
             case TypeTags.BYTE:
             case TypeTags.FLOAT:
@@ -1336,47 +1341,61 @@ public class Types {
             default:
         }
 
-        // Validate for Integers subtypes.
-        if (TypeTags.isIntegerTypeTag(targetType.tag) && actualType.tag == targetType.tag) {
+        if (TypeTags.isIntegerTypeTag(targetTag) && actualTag == targetTag) {
             return TypeTestResult.TRUE;
         }
+
+        // Validate for Integers subtypes.
+        if ((TypeTags.isIntegerTypeTag(actualTag) || actualTag == TypeTags.BYTE)
+                && (TypeTags.isIntegerTypeTag(targetTag) || targetTag == TypeTags.BYTE)) {
+            return checkBuiltInIntSubtypeWidenPossible(actualType, targetType);
+        }
+
+        if (actualTag == TypeTags.CHAR_STRING && TypeTags.STRING == targetTag) {
+            return TypeTestResult.TRUE;
+        }
+        return TypeTestResult.NOT_FOUND;
+    }
+
+    private TypeTestResult checkBuiltInIntSubtypeWidenPossible(BType actualType, BType targetType) {
+        int actualTag = actualType.tag;
         switch (targetType.tag) {
             case TypeTags.INT:
-                if (actualType.tag == TypeTags.BYTE || TypeTags.isIntegerTypeTag(actualType.tag)) {
+                if (actualTag == TypeTags.BYTE || TypeTags.isIntegerTypeTag(actualTag)) {
                     return TypeTestResult.TRUE;
                 }
                 break;
             case TypeTags.SIGNED32_INT:
-                if (actualType.tag == TypeTags.SIGNED16_INT || actualType.tag == TypeTags.SIGNED8_INT ||
-                        actualType.tag == TypeTags.UNSIGNED16_INT || actualType.tag == TypeTags.UNSIGNED8_INT ||
-                        actualType.tag == TypeTags.BYTE) {
+                if (actualTag == TypeTags.SIGNED16_INT || actualTag == TypeTags.SIGNED8_INT ||
+                        actualTag == TypeTags.UNSIGNED16_INT || actualTag == TypeTags.UNSIGNED8_INT ||
+                        actualTag == TypeTags.BYTE) {
                     return TypeTestResult.TRUE;
                 }
                 break;
             case TypeTags.SIGNED16_INT:
-                if (actualType.tag == TypeTags.SIGNED8_INT || actualType.tag == TypeTags.UNSIGNED8_INT ||
-                        actualType.tag == TypeTags.BYTE) {
+                if (actualTag == TypeTags.SIGNED8_INT || actualTag == TypeTags.UNSIGNED8_INT ||
+                        actualTag == TypeTags.BYTE) {
                     return TypeTestResult.TRUE;
                 }
                 break;
             case TypeTags.UNSIGNED32_INT:
-                if (actualType.tag == TypeTags.UNSIGNED16_INT || actualType.tag == TypeTags.UNSIGNED8_INT ||
-                        actualType.tag == TypeTags.BYTE) {
+                if (actualTag == TypeTags.UNSIGNED16_INT || actualTag == TypeTags.UNSIGNED8_INT ||
+                        actualTag == TypeTags.BYTE) {
                     return TypeTestResult.TRUE;
                 }
                 break;
             case TypeTags.UNSIGNED16_INT:
-                if (actualType.tag == TypeTags.UNSIGNED8_INT || actualType.tag == TypeTags.BYTE) {
+                if (actualTag == TypeTags.UNSIGNED8_INT || actualTag == TypeTags.BYTE) {
                     return TypeTestResult.TRUE;
                 }
                 break;
             case TypeTags.BYTE:
-                if (actualType.tag == TypeTags.UNSIGNED8_INT) {
+                if (actualTag == TypeTags.UNSIGNED8_INT) {
                     return TypeTestResult.TRUE;
                 }
                 break;
             case TypeTags.UNSIGNED8_INT:
-                if (actualType.tag == TypeTags.BYTE) {
+                if (actualTag == TypeTags.BYTE) {
                     return TypeTestResult.TRUE;
                 }
                 break;
@@ -1983,6 +2002,36 @@ public class Types {
                     return ((Number) baseValue).longValue() == ((Number) candidateValue).longValue();
                 }
                 break;
+            case TypeTags.SIGNED32_INT:
+                if (candidateTypeTag == TypeTags.INT && isSigned32LiteralValue((Long) candidateValue)) {
+                    return ((Number) baseValue).longValue() == ((Number) candidateValue).longValue();
+                }
+                break;
+            case TypeTags.SIGNED16_INT:
+                if (candidateTypeTag == TypeTags.INT && isSigned16LiteralValue((Long) candidateValue)) {
+                    return ((Number) baseValue).longValue() == ((Number) candidateValue).longValue();
+                }
+                break;
+            case TypeTags.SIGNED8_INT:
+                if (candidateTypeTag == TypeTags.INT && isSigned8LiteralValue((Long) candidateValue)) {
+                    return ((Number) baseValue).longValue() == ((Number) candidateValue).longValue();
+                }
+                break;
+            case TypeTags.UNSIGNED32_INT:
+                if (candidateTypeTag == TypeTags.INT && isUnsigned32LiteralValue((Long) candidateValue)) {
+                    return ((Number) baseValue).longValue() == ((Number) candidateValue).longValue();
+                }
+                break;
+            case TypeTags.UNSIGNED16_INT:
+                if (candidateTypeTag == TypeTags.INT && isUnsigned16LiteralValue((Long) candidateValue)) {
+                    return ((Number) baseValue).longValue() == ((Number) candidateValue).longValue();
+                }
+                break;
+            case TypeTags.UNSIGNED8_INT:
+                if (candidateTypeTag == TypeTags.INT && isUnsigned8LiteralValue((Long) candidateValue)) {
+                    return ((Number) baseValue).longValue() == ((Number) candidateValue).longValue();
+                }
+                break;
             case TypeTags.FLOAT:
                 String baseValueStr = String.valueOf(baseValue);
                 String originalValue = baseLiteral.originalValue != null ? baseLiteral.originalValue : baseValueStr;
@@ -2054,6 +2103,11 @@ public class Types {
     boolean isUnsigned8LiteralValue(Long longObject) {
 
         return (longObject.intValue() >= 0 && longObject.intValue() <= UNSIGNED8_MAX_VALUE);
+    }
+
+    boolean isCharLiteralValue(String literal) {
+
+        return (literal.codePoints().count() == 1);
     }
 
     /**
@@ -2586,6 +2640,7 @@ public class Types {
             case TypeTags.FLOAT:
             case TypeTags.DECIMAL:
             case TypeTags.STRING:
+            case TypeTags.CHAR_STRING:
             case TypeTags.NIL:
                 return true;
             case TypeTags.MAP:
@@ -2611,6 +2666,20 @@ public class Types {
                 return literalType.tag == TypeTags.FLOAT || literalType.tag == TypeTags.INT;
             case TypeTags.FLOAT:
                 return literalType.tag == TypeTags.INT;
+            case TypeTags.SIGNED32_INT:
+                return literalType.tag == TypeTags.INT && isSigned32LiteralValue((Long) literal.value);
+            case TypeTags.SIGNED16_INT:
+                return literalType.tag == TypeTags.INT && isSigned16LiteralValue((Long) literal.value);
+            case TypeTags.SIGNED8_INT:
+                return literalType.tag == TypeTags.INT && isSigned8LiteralValue((Long) literal.value);
+            case TypeTags.UNSIGNED32_INT:
+                return literalType.tag == TypeTags.INT && isUnsigned32LiteralValue((Long) literal.value);
+            case TypeTags.UNSIGNED16_INT:
+                return literalType.tag == TypeTags.INT && isUnsigned16LiteralValue((Long) literal.value);
+            case TypeTags.UNSIGNED8_INT:
+                return literalType.tag == TypeTags.INT && isUnsigned8LiteralValue((Long) literal.value);
+            case TypeTags.CHAR_STRING:
+                return literalType.tag == TypeTags.STRING && isCharLiteralValue((String) literal.value);
             default:
                 return false;
         }

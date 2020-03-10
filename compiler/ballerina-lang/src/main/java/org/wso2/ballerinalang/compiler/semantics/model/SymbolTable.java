@@ -264,6 +264,20 @@ public class SymbolTable {
                 return nilType;
             case TypeTags.ERROR:
                 return errorType;
+            case TypeTags.SIGNED32_INT:
+                return signed32IntType;
+            case TypeTags.SIGNED16_INT:
+                return signed16IntType;
+            case TypeTags.SIGNED8_INT:
+                return signed8IntType;
+            case TypeTags.UNSIGNED32_INT:
+                return unsigned32IntType;
+            case TypeTags.UNSIGNED16_INT:
+                return unsigned16IntType;
+            case TypeTags.UNSIGNED8_INT:
+                return unsigned8IntType;
+            case TypeTags.CHAR_STRING:
+                return charStringType;
             default:
                 return semanticError;
         }
