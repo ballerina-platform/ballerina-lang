@@ -232,17 +232,21 @@ public class BIRGen extends BLangNodeVisitor {
         astPkg.symbol.birPackageFile = new BIRPackageFile(new BIRBinaryWriter(birPkg).serialize());
 
         if (astPkg.hasTestablePackage()) {
+            BIRPackage testBirPkg = new BIRPackage(astPkg.pos, astPkg.packageID.orgName, astPkg.packageID.name,
+                                                astPkg.packageID.version, astPkg.packageID.sourceFileName);
+            this.env = new BIRGenEnv(testBirPkg);
+            astPkg.accept(this);
             astPkg.getTestablePkgs().forEach(testPkg -> {
                 visitBuiltinFunctions(testPkg, testPkg.initFunction);
                 visitBuiltinFunctions(testPkg, testPkg.startFunction);
                 visitBuiltinFunctions(testPkg, testPkg.stopFunction);
                 // remove imports of the main module from testable module
                 for (BLangImportPackage mod : astPkg.imports) {
-                    testPkg.symbol.imports.remove(mod.symbol);
+                    testPkg.imports.remove(mod);
                 }
                 testPkg.accept(this);
-                this.birOptimizer.optimizePackage(birPkg);
-                testPkg.symbol.birPackageFile = new BIRPackageFile(new BIRBinaryWriter(birPkg).serialize());
+                this.birOptimizer.optimizePackage(testBirPkg);
+                testPkg.symbol.bir = testBirPkg;
             });
         }
 
@@ -2098,7 +2102,7 @@ public class BIRGen extends BLangNodeVisitor {
 
         BLangArrayLiteral columnLiteral = new BLangArrayLiteral();
         columnLiteral.pos = tableLiteral.pos;
-        columnLiteral.type = symTable.stringArrayType;
+        columnLiteral.type = symTable.arrayStringType;
         columnLiteral.exprs = new ArrayList<>();
         tableLiteral.columns.forEach(col -> {
             BLangLiteral colLiteral = new BLangLiteral();
@@ -2112,7 +2116,7 @@ public class BIRGen extends BLangNodeVisitor {
 
         BLangArrayLiteral dataLiteral = new BLangArrayLiteral();
         dataLiteral.pos = tableLiteral.pos;
-        dataLiteral.type = symTable.anydataArrayType;
+        dataLiteral.type = symTable.arrayAnydataType;
         dataLiteral.exprs = new ArrayList<>(tableLiteral.tableDataRows);
         dataLiteral.accept(this);
         BIROperand dataOp = this.env.targetOperand;
@@ -2331,6 +2335,7 @@ public class BIRGen extends BLangNodeVisitor {
         return qnameVarRef;
     }
 
+    // todo: remove/move this, we no longer support xml access like this
     private void generateXMLAccess(BLangXMLAccessExpr xmlAccessExpr, BIROperand tempVarRef,
                                    BIROperand varRefRegIndex, BIROperand keyRegIndex) {
         this.env.targetOperand = tempVarRef;

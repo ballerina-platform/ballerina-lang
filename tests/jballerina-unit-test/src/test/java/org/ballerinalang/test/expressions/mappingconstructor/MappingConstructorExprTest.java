@@ -33,26 +33,52 @@ import static org.ballerinalang.test.util.BAssertUtil.validateError;
 public class MappingConstructorExprTest {
 
     private CompileResult result;
+    private CompileResult varNameFieldResult;
     private CompileResult inferRecordResult;
     private CompileResult spreadOpFieldResult;
 
     @BeforeClass
     public void setup() {
-         result = BCompileUtil.compile("test-src/expressions/mappingconstructor/mapping_constructor.bal");
-         inferRecordResult = BCompileUtil.compile(
-                 "test-src/expressions/mappingconstructor/mapping_constructor_infer_record.bal");
+        result = BCompileUtil.compile("test-src/expressions/mappingconstructor/mapping_constructor.bal");
+        inferRecordResult = BCompileUtil.compile("test-src/expressions/mappingconstructor" +
+                                                         "/mapping_constructor_infer_record.bal");
+        varNameFieldResult = BCompileUtil.compile("test-src/expressions/mappingconstructor/var_name_field.bal");
         spreadOpFieldResult = BCompileUtil.compile("test-src/expressions/mappingconstructor/spread_op_field.bal");
+    }
+
+    @Test(dataProvider = "mappingConstructorTests")
+    public void testMappingConstructor(String test) {
+        BRunUtil.invoke(result, test);
+    }
+
+    @DataProvider(name = "mappingConstructorTests")
+    public Object[][] mappingConstructorTests() {
+        return new Object[][] {
+                { "testMappingConstuctorWithAnyACET" },
+                { "testMappingConstuctorWithAnydataACET" },
+                { "testMappingConstuctorWithJsonACET" },
+                { "testNonAmbiguousMapUnionTarget" }
+        };
     }
 
     @Test
     public void diagnosticsTest() {
         CompileResult result = BCompileUtil.compile(
                 "test-src/expressions/mappingconstructor/mapping_constructor_negative.bal");
-        Assert.assertEquals(result.getErrorCount(), 3);
+        Assert.assertEquals(result.getErrorCount(), 10);
         validateError(result, 0, "incompatible mapping constructor expression for type '(string|Person)'", 33, 23);
         validateError(result, 1, "ambiguous type '(PersonTwo|PersonThree)'", 37, 31);
         validateError(result, 2,
                       "a type compatible with mapping constructor expressions not found in type '(int|float)'", 41, 19);
+        validateError(result, 3, "ambiguous type '(map<int>|map<string>)'", 45, 31);
+        validateError(result, 4, "ambiguous type '(map<(int|string)>|map<(string|boolean)>)'", 47, 46);
+        validateError(result, 5, "unknown type 'NoRecord'", 55, 5);
+        validateError(result, 6, "a type compatible with mapping constructor expressions not found in type 'other'",
+                      55, 18);
+        validateError(result, 7, "incompatible types: 'int' cannot be cast to 'string'", 55, 22);
+        validateError(result, 8, "invalid operation: type 'PersonThree' does not support field access for " +
+                "non-required field 'salary'", 55, 41);
+        validateError(result, 9, "undefined symbol 'c'", 55, 55);
     }
 
     @Test
@@ -90,7 +116,7 @@ public class MappingConstructorExprTest {
 
     @Test(dataProvider = "varNameFieldTests")
     public void testVarNameField(String test) {
-        BRunUtil.invoke(result, test);
+        BRunUtil.invoke(varNameFieldResult, test);
     }
 
     @DataProvider(name = "varNameFieldTests")
@@ -100,12 +126,7 @@ public class MappingConstructorExprTest {
                 { "testVarNameAsMapField" },
                 { "testVarNameAsJsonField" },
                 { "testLikeModuleQualifiedVarNameAsJsonField" },
-                { "testVarNameFieldInAnnotation" }, // final test using `s` since `s` is updated
-                { "testMappingConstuctorWithAnyACET" },
-                { "testMappingConstuctorWithAnydataACET" },
-                { "testMappingConstuctorWithJsonACET" },
-                { "testMappingConstrExprWithNoACET" },
-                { "testMappingConstrExprWithNoACET2" }
+                { "testVarNameFieldInAnnotation" } // final test using `s` since `s` is updated
         };
     }
 
@@ -139,13 +160,16 @@ public class MappingConstructorExprTest {
     public void testSpreadOpFieldCodeAnalysisNegative() {
         CompileResult result = BCompileUtil.compile(
                 "test-src/expressions/mappingconstructor/spread_op_field_code_analysis_negative.bal");
-        Assert.assertEquals(result.getErrorCount(), 5);
+        Assert.assertEquals(result.getErrorCount(), 7);
         validateError(result, 0, "invalid usage of record literal: duplicate key 'i' via spread operator '...f'", 30,
                       31);
         validateError(result, 1, "invalid usage of record literal: duplicate key 's'", 30, 34);
         validateError(result, 2, "invalid usage of map literal: duplicate key 's' via spread operator '...b'", 31, 47);
         validateError(result, 3, "invalid usage of map literal: duplicate key 'f'", 31, 50);
         validateError(result, 4, "invalid usage of map literal: duplicate key 'i'", 31, 58);
+        validateError(result, 5, "invalid usage of map literal: duplicate key 's' via spread operator '... {s: hi,i: " +
+                "1}'", 32, 38);
+        validateError(result, 6, "invalid usage of map literal: duplicate key 'i'", 32, 63);
     }
 
     @Test
@@ -178,7 +202,10 @@ public class MappingConstructorExprTest {
                 { "testRecordRefAsSpreadOp" },
                 { "testRecordValueViaFuncAsSpreadOp" },
                 { "testSpreadOpInConstMap" },
-                { "testSpreadOpInGlobalMap" }
+                { "testSpreadOpInGlobalMap" },
+                { "testMappingConstrExprAsSpreadExpr" },
+                { "testOrderWithSpreadOp" },
+                { "testInherentTypeViolationViaSpreadOp" }
         };
     }
 
@@ -186,7 +213,7 @@ public class MappingConstructorExprTest {
     public void testRecordInferringInSelectNegative() {
         CompileResult compileResult = BCompileUtil.compile(
                 "test-src/expressions/mappingconstructor/mapping_constructor_infer_record_negative.bal");
-        Assert.assertEquals(compileResult.getErrorCount(), 6);
+        Assert.assertEquals(compileResult.getErrorCount(), 11);
         int index = 0;
 
         validateError(compileResult, index++, "incompatible types: expected 'string[]', found 'record {| string fn; " +
@@ -197,7 +224,17 @@ public class MappingConstructorExprTest {
         validateError(compileResult, index++, "incompatible types: expected 'string', found 'int'", 70, 16);
         validateError(compileResult, index++, "invalid operation: type 'record {| int i; boolean b; int...; |}' does " +
                 "not support field access for non-required field 'key'", 71, 13);
-        validateError(compileResult, index, "incompatible types: expected 'float', found '(int|boolean)?'", 72, 15);
+        validateError(compileResult, index++, "incompatible types: expected 'float', found '(int|boolean)?'", 72, 15);
+        validateError(compileResult, index++, "incompatible types: expected 'record {| int i; |}', found 'record {| " +
+                "int a; float b; string...; |}'", 85, 12);
+        validateError(compileResult, index++, "incompatible types: expected 'int', found 'record {| int x; int y; " +
+                "|}'", 90, 13);
+        validateError(compileResult, index++, "incompatible types: expected 'record {| int...; |}', found 'record {| " +
+                "int x; int y; (string|boolean)...; |}'", 95, 30);
+        validateError(compileResult, index++, "incompatible types: expected 'boolean', found 'record {| |}'", 98, 17);
+        validateError(compileResult, index, "incompatible types: expected 'record {| int i; boolean b; decimal a; " +
+                "float f; anydata...; |}', found 'record {| (int|string) i; boolean b; decimal a; float f?; anydata.." +
+                ".; |}'", 126, 12);
     }
 
     @Test(dataProvider = "inferRecordTypeTests")
@@ -211,7 +248,11 @@ public class MappingConstructorExprTest {
                 { "testRecordInferringForMappingConstructorWithoutRestField" },
                 { "testRecordInferringForMappingConstructorWithRestField1" },
                 { "testRecordInferringForMappingConstructorWithRestField2" },
-                { "testRecordInferringForMappingConstructorWithRestField3" }
+                { "testRecordInferringForMappingConstructorWithRestField3" },
+                { "testMappingConstrExprWithNoACET" },
+                { "testMappingConstrExprWithNoACET2" },
+                { "testInferredRecordTypeWithOptionalTypeFieldViaSpreadOp" },
+                { "testInferenceWithMappingConstrExprAsSpreadExpr" }
         };
     }
 }

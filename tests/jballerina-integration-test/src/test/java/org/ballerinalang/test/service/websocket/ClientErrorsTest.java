@@ -54,7 +54,6 @@ public class ClientErrorsTest extends WebSocketTestCommons {
 
     @Test(description = "Connection refused IO error")
     public void testConnectionError() throws InterruptedException {
-
         String expectedError1 = "error {ballerina/http}WsConnectionError " +
                 "message=IO Error " +
                 "cause=error {ballerina/io}GenericError message=lmnop.ls: Name or service not known";

@@ -903,10 +903,11 @@ public class XMLNativeFunctionTest {
         BValue[] returns = BRunUtil.invoke(result, "testSelectDescendants");
         Assert.assertTrue(returns[0] instanceof BXML);
         BXMLSequence seq = (BXMLSequence) returns[0];
-        Assert.assertEquals(seq.value().size(), 2);
+        Assert.assertEquals(seq.value().size(), 3);
 
         Assert.assertEquals(seq.stringValue(),
                 "<name xmlns=\"http://ballerinalang.org/\"><name>Supun</name><lname>Setunga</lname></name>" +
+                        "<name xmlns=\"http://ballerinalang.org/\">Supun</name>" +
                         "<name xmlns=\"http://ballerinalang.org/\">John</name>");
     }
 
@@ -915,10 +916,10 @@ public class XMLNativeFunctionTest {
         BValue[] returns = BRunUtil.invoke(result, "testSelectDescendantsWithEmptyNs");
         Assert.assertTrue(returns[0] instanceof BXML);
         BXMLSequence seq = (BXMLSequence) returns[0];
-        Assert.assertEquals(seq.value().size(), 2);
+        Assert.assertEquals(seq.value().size(), 3);
 
         Assert.assertEquals(seq.stringValue(),
-                "<name><name>Supun</name><lname>Setunga</lname></name><name>John</name>");
+                "<name><name>Supun</name><lname>Setunga</lname></name><name>Supun</name><name>John</name>");
     }
 
     @Test
@@ -926,10 +927,11 @@ public class XMLNativeFunctionTest {
         BValue[] returns = BRunUtil.invoke(result, "testSelectDescendantsFromSeq");
         Assert.assertTrue(returns[0] instanceof BXML);
         BXMLSequence seq = (BXMLSequence) returns[0];
-        Assert.assertEquals(seq.value().size(), 3);
+        Assert.assertEquals(seq.value().size(), 4);
 
         Assert.assertEquals(seq.stringValue(),
                 "<name xmlns=\"http://ballerinalang.org/\"><name>Supun</name><lname>Setunga</lname></name>" +
+                        "<name xmlns=\"http://ballerinalang.org/\">Supun</name>" +
                         "<name xmlns=\"http://ballerinalang.org/\">John</name>" +
                         "<name xmlns=\"http://ballerinalang.org/\">Doe</name>");
     }

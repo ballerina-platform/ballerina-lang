@@ -124,7 +124,7 @@ public class WhileStmtTest {
         BAssertUtil.validateError(negativeCompileResult, 2, "incompatible types: expected 'boolean', found 'int'", 10,
                 8);
         BAssertUtil.validateError(negativeCompileResult, 3, "incompatible types: expected 'boolean', found " +
-                        "'(int|string)[]'", 14, 8);
+                        "'[int,string]'", 14, 8);
     }
 
     @Test(description = "Test nested while loop with break 1")

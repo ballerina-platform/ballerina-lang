@@ -28,9 +28,6 @@ configurations {
     }
 }
 project.ext.orgName = file('src/main/ballerina/Ballerina.toml').text.split("\n")[1].split("=")[1].split("\"")[1]
-project.ext.moduleName = files(file('src/main/ballerina/src').listFiles()).filter { File f ->
-    f.isDirectory() && f.name != 'target' && f.name != '.ballerina'
-}.singleFile.name
 
 project.ext.moduleName = files(file('src/main/ballerina/src').listFiles()).filter { File f ->
     f.isDirectory() && f.name != 'target' && f.name != '.ballerina'
@@ -125,6 +122,7 @@ task createBalo(type: CreateBaloTask) {
     inputs.dir(balFiles)
     inputs.files(configurations.baloImplementation)
     outputs.dir("$buildDir/generated-balo")
+    outputs.dir("$buildDir/generated-bir-jar")
     outputs.files(interopJars)
     outputs.cacheIf { true }
 }

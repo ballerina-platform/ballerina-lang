@@ -145,15 +145,10 @@
     </test>
 
     <test name="ballerina-transaction-tests" parallel="false">
-        <groups>
-            <run>
-                <exclude name="brokenOnJBallerina"/>
-            </run>
-        </groups>
         <classes>
-<!--            <class name="org.ballerinalang.test.transaction.MicroTransactionTestCase"/>-->
-<!--            <class name="org.ballerinalang.test.transaction.RemoteParticipantTransactionTest"/>-->
-<!--            <class name="org.ballerinalang.test.transaction.MultiModuleTransactionTestCase"/>-->
+            <class name="org.ballerinalang.test.transaction.MicroTransactionTestCase"/>
+            <class name="org.ballerinalang.test.transaction.RemoteParticipantTransactionTest"/>
+            <class name="org.ballerinalang.test.transaction.MultiModuleTransactionTestCase"/>
         </classes>
     </test>
 
@@ -226,6 +221,7 @@
             <class name="org.ballerinalang.test.service.grpc.sample.Http2GatewayTestCase"/>
             <class name="org.ballerinalang.test.service.grpc.sample.UnaryAnonymousServiceTestCase"/>
             <class name="org.ballerinalang.test.service.grpc.sample.UnaryGZipEncodingTestCase"/>
+            <class name="org.ballerinalang.test.service.grpc.sample.UnaryBlockingRetryTestCase" />
             <class name="org.ballerinalang.test.service.grpc.tool.InvalidServiceContractTestCase"/>
             <class name="org.ballerinalang.test.service.grpc.tool.StubGeneratorTestCase"/>
             <class name="org.ballerinalang.test.service.grpc.tool.ProtoMessageTestCase"/>

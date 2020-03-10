@@ -445,11 +445,13 @@ public final class XMLItem extends XMLValue {
      * {@inheritDoc}
      */
     @Override
-    public XMLValue descendants(String qname) {
-        if (getQName().toString().equals(qname)) {
-            return new XMLSequence(Arrays.asList(this));
+    public XMLValue descendants(List<String> qnames) {
+        if (qnames.contains(getQName().toString())) {
+            List<BXML> descendants = Arrays.asList(this);
+            addDescendants(descendants, this, qnames);
+            return new XMLSequence(descendants);
         }
-        return children.descendants(qname);
+        return children.descendants(qnames);
     }
 
     /**
@@ -655,6 +657,7 @@ public final class XMLItem extends XMLValue {
         if (FreezeUtils.isOpenForFreeze(this.freezeStatus, freezeStatus)) {
             this.freezeStatus = freezeStatus;
         }
+        this.children.attemptFreeze(freezeStatus);
         this.attributes.attemptFreeze(freezeStatus);
     }
 
@@ -664,6 +667,7 @@ public final class XMLItem extends XMLValue {
     @Override
     public void freezeDirect() {
         this.freezeStatus.setFrozen();
+        this.children.freezeDirect();
         this.attributes.freezeDirect();
     }
 

@@ -1,4 +1,4 @@
-// Generated from /home/chiran/Desktop/WSO2/Ballerina/ballerina-lang/compiler/ballerina-lang/src/main/resources/grammar/BallerinaParser.g4 by ANTLR 4.5.3
+// Generated from BallerinaParser.g4 by ANTLR 4.5.3
 package org.wso2.ballerinalang.compiler.parser.antlr4;
 import org.antlr.v4.runtime.tree.ParseTreeListener;
 
@@ -1498,6 +1498,18 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 */
 	void exitGroupMapArrayVariableReference(BallerinaParser.GroupMapArrayVariableReferenceContext ctx);
 	/**
+	 * Enter a parse tree produced by the {@code xmlStepExpressionReference}
+	 * labeled alternative in {@link BallerinaParser#variableReference}.
+	 * @param ctx the parse tree
+	 */
+	void enterXmlStepExpressionReference(BallerinaParser.XmlStepExpressionReferenceContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code xmlStepExpressionReference}
+	 * labeled alternative in {@link BallerinaParser#variableReference}.
+	 * @param ctx the parse tree
+	 */
+	void exitXmlStepExpressionReference(BallerinaParser.XmlStepExpressionReferenceContext ctx);
+	/**
 	 * Enter a parse tree produced by the {@code groupInvocationReference}
 	 * labeled alternative in {@link BallerinaParser#variableReference}.
 	 * @param ctx the parse tree
@@ -1521,6 +1533,18 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitXmlAttribVariableReference(BallerinaParser.XmlAttribVariableReferenceContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code xmlElementFilterReference}
+	 * labeled alternative in {@link BallerinaParser#variableReference}.
+	 * @param ctx the parse tree
+	 */
+	void enterXmlElementFilterReference(BallerinaParser.XmlElementFilterReferenceContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code xmlElementFilterReference}
+	 * labeled alternative in {@link BallerinaParser#variableReference}.
+	 * @param ctx the parse tree
+	 */
+	void exitXmlElementFilterReference(BallerinaParser.XmlElementFilterReferenceContext ctx);
 	/**
 	 * Enter a parse tree produced by the {@code groupFieldVariableReference}
 	 * labeled alternative in {@link BallerinaParser#variableReference}.
@@ -1651,6 +1675,46 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitField(BallerinaParser.FieldContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#xmlElementFilter}.
+	 * @param ctx the parse tree
+	 */
+	void enterXmlElementFilter(BallerinaParser.XmlElementFilterContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#xmlElementFilter}.
+	 * @param ctx the parse tree
+	 */
+	void exitXmlElementFilter(BallerinaParser.XmlElementFilterContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#xmlStepExpression}.
+	 * @param ctx the parse tree
+	 */
+	void enterXmlStepExpression(BallerinaParser.XmlStepExpressionContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#xmlStepExpression}.
+	 * @param ctx the parse tree
+	 */
+	void exitXmlStepExpression(BallerinaParser.XmlStepExpressionContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#xmlElementNames}.
+	 * @param ctx the parse tree
+	 */
+	void enterXmlElementNames(BallerinaParser.XmlElementNamesContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#xmlElementNames}.
+	 * @param ctx the parse tree
+	 */
+	void exitXmlElementNames(BallerinaParser.XmlElementNamesContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#xmlElementAccessFilter}.
+	 * @param ctx the parse tree
+	 */
+	void enterXmlElementAccessFilter(BallerinaParser.XmlElementAccessFilterContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#xmlElementAccessFilter}.
+	 * @param ctx the parse tree
+	 */
+	void exitXmlElementAccessFilter(BallerinaParser.XmlElementAccessFilterContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#index}.
 	 * @param ctx the parse tree
