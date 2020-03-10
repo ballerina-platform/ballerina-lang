@@ -87,19 +87,19 @@ public class BallerinaPsiImplUtil {
 
     @Nullable
     public static PsiElement getIdentifier(BallerinaFunctionDefinition ballerinaFunctionDefinition) {
-        //todo: fix
-//        BallerinaCallableUnitSignature callableUnitSignature = ballerinaFunctionDefinition.getCallableUnitSignature();
-//        return callableUnitSignature != null ? callableUnitSignature.getAnyIdentifierName().getIdentifier() : null;
-        return null;
+        if (ballerinaFunctionDefinition == null || ballerinaFunctionDefinition.getAnyIdentifierName() == null) {
+            return null;
+        }
+        return ballerinaFunctionDefinition.getAnyIdentifierName().getIdentifier();
     }
 
     @Nullable
     public static String getName(BallerinaFunctionDefinition ballerinaFunctionDefinition) {
-//        BallerinaCallableUnitSignature callableUnitSignature = ballerinaFunctionDefinition.getCallableUnitSignature();
-//        return callableUnitSignature != null && callableUnitSignature.getAnyIdentifierName().getIdentifier() != null ?
-//                callableUnitSignature.getAnyIdentifierName().getIdentifier().getText() :
-//                "";
-        return null;
+        if (ballerinaFunctionDefinition == null || ballerinaFunctionDefinition.getAnyIdentifierName() == null ||
+                ballerinaFunctionDefinition.getAnyIdentifierName().getIdentifier() == null) {
+            return null;
+        }
+        return ballerinaFunctionDefinition.getAnyIdentifierName().getIdentifier().getText();
     }
 
     public static boolean isInLocalPackage(@NotNull BallerinaFunctionNameReference nameReference) {
