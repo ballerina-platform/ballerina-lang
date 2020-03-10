@@ -126,6 +126,9 @@ function testMathsOperators(){
     assertValueEqual(-5000, c);
     assertValueEqual(-2, d);
     assertValueEqual(0, e);
+
+    int val = x.sum(y);
+    assertValueEqual(50, val);
 }
 
 function testTypeCastingWithInt() {
@@ -440,24 +443,25 @@ function testMapping() {
     record { int i; int k;} t3 = rec;
     assertError(trap updateRecord(t3, 200));
 }
-
-const ints:Signed32 ca1 = 10;
-const ints:Signed16 cb1 = 10;
-const ints:Signed8 cc1 = 10;
-const ints:Unsigned32 cd1 = 10;
-const ints:Unsigned16 ce1 = 10;
-const ints:Unsigned8 cf1 = 10;
+// TODO : Fix this, Issue : #21542
+//const ints:Signed32 ca1 = 10;
+//const ints:Signed16 cb1 = 10;
+//const ints:Signed8 cc1 = 10;
+//const ints:Unsigned32 cd1 = 10;
+//const ints:Unsigned16 ce1 = 10;
+//const ints:Unsigned8 cf1 = 10;
 const byte cg1 = 10;
 
-function testConstReference() {
-    ints:Unsigned8 a = ca1;
-    ints:Unsigned8 b = cb1;
-    ints:Unsigned8 c = cc1;
-    ints:Unsigned8 d = cd1;
-    ints:Unsigned8 e = ce1;
-    ints:Unsigned8 f = cf1;
-    ints:Unsigned8 g = cg1;
-}
+// TODO : Fix this, Issue : #21542
+//function testConstReference() {
+//    ints:Unsigned8 a = ca1;
+//    ints:Unsigned8 b = cb1;
+//    ints:Unsigned8 c = cc1;
+//    ints:Unsigned8 d = cd1;
+//    ints:Unsigned8 e = ce1;
+//    ints:Unsigned8 f = cf1;
+//    ints:Unsigned8 g = cg1;
+//}
 
 function insertMapValue(map<int> m, string key, int value) {
     m[key] = value;
