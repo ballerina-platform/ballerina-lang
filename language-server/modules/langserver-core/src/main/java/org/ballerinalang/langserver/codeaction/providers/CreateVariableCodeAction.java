@@ -79,7 +79,7 @@ import static org.ballerinalang.langserver.util.references.ReferencesUtil.getRef
  * @since 1.1.1
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.codeaction.spi.LSCodeActionProvider")
-public class VariableAssignmentCodeAction extends AbstractCodeActionProvider {
+public class CreateVariableCodeAction extends AbstractCodeActionProvider {
 
     /**
      * {@inheritDoc}
@@ -183,7 +183,7 @@ public class VariableAssignmentCodeAction extends AbstractCodeActionProvider {
                 }
                 // Add ignore return value code action
                 if (!hasError) {
-                    List<TextEdit> iEdits = getIgnoreCodeActionEdits(refAtCursor);
+                    List<TextEdit> iEdits = getIgnoreCodeActionEdits(position);
                     commandTitle = CommandConstants.IGNORE_RETURN_TITLE;
                     action = new CodeAction(commandTitle);
                     action.setKind(CodeActionKind.QuickFix);
@@ -333,10 +333,8 @@ public class VariableAssignmentCodeAction extends AbstractCodeActionProvider {
         return edits;
     }
 
-    private static List<TextEdit> getIgnoreCodeActionEdits(SymbolReferencesModel.Reference referenceAtCursor) {
+    private static List<TextEdit> getIgnoreCodeActionEdits(Position position) {
         String editText = "_ = ";
-        BLangNode bLangNode = referenceAtCursor.getbLangNode();
-        Position position = new Position(bLangNode.pos.sLine - 1, bLangNode.pos.sCol - 1);
         List<TextEdit> edits = new ArrayList<>();
         edits.add(new TextEdit(new Range(position, position), editText));
         return edits;
