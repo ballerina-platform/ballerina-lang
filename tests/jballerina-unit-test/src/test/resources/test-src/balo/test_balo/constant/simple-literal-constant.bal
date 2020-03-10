@@ -299,8 +299,8 @@ function testBuiltinFunctionInvocationOnArrayElement() returns boolean {
 // -----------------------------------------------------------
 
 function testBuiltinFunctionInvocationOnField() returns boolean {
-    foo:TestRecord tr = { field: foo:SHA1 };
-    return tr.field.toUpperAscii() == "SHA1";
+    foo:TestRecord tr = { 'field: foo:SHA1 };
+    return tr.'field.toUpperAscii() == "SHA1";
 }
 
 // -----------------------------------------------------------

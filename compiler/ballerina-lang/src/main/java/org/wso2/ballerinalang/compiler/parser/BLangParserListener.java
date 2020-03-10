@@ -538,8 +538,9 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         DiagnosticPos identifierPos = getCurrentPos(ctx.Identifier());
         boolean exprAvailable = ctx.expression() != null;
         boolean isOptional = ctx.QUESTION_MARK() != null;
+        boolean markdownExists = ctx.documentationString() != null;
         this.pkgBuilder.addFieldVariable(currentPos, ws, name, identifierPos, exprAvailable,
-                                         ctx.annotationAttachment().size(), false, isOptional);
+                                         ctx.annotationAttachment().size(), false, isOptional, markdownExists);
     }
 
     /**
@@ -561,9 +562,10 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
         boolean isPrivate = ctx.PRIVATE() != null;
         boolean isPublic = ctx.PUBLIC() != null;
+        boolean markdownExists = ctx.documentationString() != null;
 
         this.pkgBuilder.addObjectFieldVariable(currentPos, ws, name, identifierPos, exprAvailable, annotationCount,
-                                               isPrivate, isPublic);
+                                               isPrivate, isPublic, markdownExists);
     }
 
     /**

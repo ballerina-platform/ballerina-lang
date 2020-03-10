@@ -35,7 +35,10 @@ public class AttachPoints {
     public static final int PARAMETER = RESOURCE << 1;
     public static final int RETURN = PARAMETER << 1;
     public static final int SERVICE = RETURN << 1;
-    public static final int LISTENER = SERVICE << 1;
+    public static final int FIELD = SERVICE << 1;
+    public static final int OBJECT_FIELD = FIELD << 1;
+    public static final int RECORD_FIELD = OBJECT_FIELD << 1;
+    public static final int LISTENER = RECORD_FIELD << 1;
     public static final int ANNOTATION = LISTENER << 1;
     public static final int EXTERNAL = ANNOTATION << 1;
     public static final int VAR = EXTERNAL << 1;
@@ -69,6 +72,15 @@ public class AttachPoints {
                     break;
                 case SERVICE:
                     mask |= SERVICE;
+                    break;
+                case FIELD:
+                    mask |= FIELD;
+                    break;
+                case OBJECT_FIELD:
+                    mask |= OBJECT_FIELD;
+                    break;
+                case RECORD_FIELD:
+                    mask |= RECORD_FIELD;
                     break;
                 case LISTENER:
                     mask |= LISTENER;

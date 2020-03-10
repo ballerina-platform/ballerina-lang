@@ -550,7 +550,7 @@ public type FuncBodyParser object {
             string localVarName = self.reader.readStringCpRef();
             VariableDcl varDecl = self.getDecl(VAR_SCOPE_FUNCTION, localVarName, VAR_KIND_SELF);
             string fieldName = self.reader.readStringCpRef();
-            FieldLock lockIns = {pos:pos, kind:kind, localVar:varDecl, field:fieldName, lockBB:self.parseBBRef()};
+            FieldLock lockIns = {pos:pos, kind:kind, localVar:varDecl, 'field:fieldName, lockBB:self.parseBBRef()};
             return lockIns;
         } else if (kindTag == INS_UNLOCK) {
             TerminatorKind kind = TERMINATOR_UNLOCK;
