@@ -1373,7 +1373,7 @@ public class Types {
         }
 
         if (TypeTags.isIntegerTypeTag(targetTag) && actualTag == targetTag) {
-            return TypeTestResult.TRUE;
+            return TypeTestResult.FALSE; // No widening.
         }
 
         // Validate for Integers subtypes.
