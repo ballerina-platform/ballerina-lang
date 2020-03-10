@@ -97,12 +97,9 @@ class Utils {
             Object firstNonNullElement = result[0];
             boolean containsNull = (boolean) result[1];
 
-            if (firstNonNullElement == null) {
-                // Each element is null so a nil element array is returned
-                return new ArrayValueImpl(new BArrayType(BTypes.typeNull));
-            } else if (containsNull) {
+            if (containsNull) {
                 // If there are some null elements, return a union-type element array
-                return createAndPopulateRefValueArray(firstNonNullElement, dataArray);
+                return createAndPopulateRefValueArray(firstNonNullElement, dataArray, bType);
             } else {
                 // If there are no null elements, return a ballerina primitive-type array
                 return createAndPopulatePrimitiveValueArray(firstNonNullElement, dataArray);
@@ -176,7 +173,8 @@ class Utils {
         }
     }
 
-    private static ArrayValue createAndPopulateRefValueArray(Object firstNonNullElement, Object[] dataArray) {
+    private static ArrayValue createAndPopulateRefValueArray(Object firstNonNullElement, Object[] dataArray,
+                                                             BType bType) {
         ArrayValue refValueArray = null;
         int length = dataArray.length;
         if (firstNonNullElement instanceof String) {
@@ -213,6 +211,11 @@ class Utils {
             refValueArray = createEmptyRefValueArray(BTypes.typeDecimal);
             for (int i = 0; i < length; i++) {
                 refValueArray.add(i, dataArray[i] != null ? new DecimalValue((BigDecimal) dataArray[i]) : null);
+            }
+        } else if (firstNonNullElement == null) {
+            refValueArray = createEmptyRefValueArray(bType);
+            for (int i = 0; i < length; i++) {
+                refValueArray.add(i, firstNonNullElement);
             }
         }
         return refValueArray;
@@ -574,6 +577,10 @@ class Utils {
             case Types.BINARY:
             case Types.VARBINARY:
             case Types.LONGVARBINARY:
+                if (bType.getTag() == TypeTags.ARRAY_TAG) {
+                    int elementTypeTag = ((BArrayType) bType).getElementType().getTag();
+                    return elementTypeTag == TypeTags.BYTE_TAG;
+                }
                 return bType.getTag() == TypeTags.BYTE_ARRAY_TAG;
             case Types.STRUCT:
                 return bType.getTag() == TypeTags.RECORD_TYPE_TAG;
