@@ -19,7 +19,6 @@ package org.wso2.ballerinalang.compiler.bir.codegen;
 
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.model.elements.PackageID;
-import org.ballerinalang.model.types.TypeKind;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.Label;

@@ -42,7 +42,7 @@ public class RemoveAll {
 
     public static void removeAll(Strand strand, MapValue<?, ?> m) {
         checkIsMapOnlyOperation(m.getType(), "removeAll()");
-        validateRecord(m, "removeAll()");
+        validateRecord(m);
         try {
             m.clear();
         } catch (org.ballerinalang.jvm.util.exceptions.BLangFreezeException e) {

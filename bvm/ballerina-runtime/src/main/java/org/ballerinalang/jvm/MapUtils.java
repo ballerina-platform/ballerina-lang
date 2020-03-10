@@ -29,6 +29,7 @@ import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.StringValue;
 
+import javax.lang.model.type.TypeKind;
 import java.util.Map;
 
 import static java.lang.String.format;
@@ -158,10 +159,23 @@ public class MapUtils {
         }
     }
 
-    public static void validateRecord(MapValue<?, ?> m, String  k) {
+    public static void validateRequiredFieldForRecord(MapValue<?, ?> m, String  k) {
         BType type = m.getType();
         if (type.getTag() == TypeTags.RECORD_TYPE_TAG && isRequiredField((BRecordType) type, k)) {
             throw createOpNotSupportedErrorForRecord(type, k);
+        }
+    }
+
+    public static void validateRecord(MapValue<?, ?> m) {
+        BType type = m.getType();
+        if (type.getTag() != TypeTags.RECORD_TYPE_TAG) {
+            return;
+        }
+        Map<String, BField> fields = ((BRecordType) type).getFields();
+        for (String key : fields.keySet()) {
+            if (isRequiredField((BRecordType) type, key)) {
+                throw createOpNotSupportedErrorForRecord(type, key);
+            }
         }
     }
 
