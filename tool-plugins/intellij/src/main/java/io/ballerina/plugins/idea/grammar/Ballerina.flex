@@ -20,7 +20,7 @@ import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
     private boolean inStringTemplate = false;
     private boolean inStringTemplateExpression = false;
 
-   private boolean inQueryExepression = false;
+   private boolean inQueryExpression = false;
 
     public BallerinaLexer() {
         this((java.io.Reader)null);
@@ -140,15 +140,15 @@ RETURN_PARAMETER_DOCUMENTATION_START = {HASH} {DOCUMENTATION_SPACE}? {ADD} {DOCU
 DOCUMENTATION_SPACE = [ ]
 
 // MARKDOWN_DOCUMENTATION_MODE
-DOCTYPE = "type" {DOCUMENTATION_ESCAPED_CHARACTERS}+ {BACKTICK}
-DOCSERVICE = "service" {DOCUMENTATION_ESCAPED_CHARACTERS}+
-DOCVARIABLE = "variable" {DOCUMENTATION_ESCAPED_CHARACTERS}+ {BACKTICK}
-DOCVAR = "var" {DOCUMENTATION_ESCAPED_CHARACTERS}+ {BACKTICK}
-DOCANNOTATION = "annotation" {DOCUMENTATION_ESCAPED_CHARACTERS}+ {BACKTICK}
-DOCMODULE = "module" {DOCUMENTATION_ESCAPED_CHARACTERS}+ {BACKTICK}
-DOCFUNCTION = "function" {DOCUMENTATION_ESCAPED_CHARACTERS}+ {BACKTICK}
-DOCPARAMETER = "parameter" {DOCUMENTATION_ESCAPED_CHARACTERS}+ {BACKTICK}
-DOCCONST = "const" {DOCUMENTATION_ESCAPED_CHARACTERS}+ {BACKTICK}
+DOCTYPE = "type" {DOCUMENTATION_ESCAPED_CHARACTERS}+ {SINGLE_BACKTICK_MARKDOWN_START}
+DOCSERVICE = "service" {DOCUMENTATION_ESCAPED_CHARACTERS}+ {SINGLE_BACKTICK_MARKDOWN_START}
+DOCVARIABLE = "variable" {DOCUMENTATION_ESCAPED_CHARACTERS}+ {SINGLE_BACKTICK_MARKDOWN_START}
+DOCVAR = "var" {DOCUMENTATION_ESCAPED_CHARACTERS}+ {SINGLE_BACKTICK_MARKDOWN_START}
+DOCANNOTATION = "annotation" {DOCUMENTATION_ESCAPED_CHARACTERS}+ {SINGLE_BACKTICK_MARKDOWN_START}
+DOCMODULE = "module" {DOCUMENTATION_ESCAPED_CHARACTERS}+ {SINGLE_BACKTICK_MARKDOWN_START}
+DOCFUNCTION = "function" {DOCUMENTATION_ESCAPED_CHARACTERS}+ {SINGLE_BACKTICK_MARKDOWN_START}
+DOCPARAMETER = "parameter" {DOCUMENTATION_ESCAPED_CHARACTERS}+ {SINGLE_BACKTICK_MARKDOWN_START}
+DOCCONST = "const" {DOCUMENTATION_ESCAPED_CHARACTERS}+ {SINGLE_BACKTICK_MARKDOWN_START}
 MARKDOWN_DOCUMENTATION_TEXT = {DOCUMENTATION_TEXT_CHARACTER}+
 DOCUMENTATION_TEXT_CHARACTER =  [^`\n] | '\\' {BACKTICK}
 DOCUMENTATION_ESCAPED_CHARACTERS = {DOCUMENTATION_SPACE}
@@ -213,7 +213,6 @@ DOLLAR = \$
     "abort"                                     { return ABORT; }
     "aborted"                                   { return ABORTED; }
     "abstract"                                  { return ABSTRACT; }
-    "all"                                       { return ALL; }
     "annotation"                                { return ANNOTATION; }
     "any"                                       { return ANY; }
     "anydata"                                   { return ANYDATA; }
@@ -256,10 +255,8 @@ DOLLAR = \$
     "int"                                       { return INT; }
     "is"                                        { return IS; }
 
-    "join"                                      { return JOIN; }
     "json"                                      { return JSON; }
 
-    "limit"                                     { return LIMIT; }
     "listener"                                  { return LISTENER; }
     "lock"                                      { return LOCK; }
 
