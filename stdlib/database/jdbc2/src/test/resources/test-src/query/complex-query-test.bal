@@ -163,11 +163,14 @@ function testColumnAlias(string jdbcURL, string user, string password) returns @
            "dt1.double_type,dt1.boolean_type, dt1.string_type,dt2.int_type as dt2int_type from DataTable dt1 " +
            "left join DataTableRep dt2 on dt1.row_id = dt2.row_id WHERE dt1.row_id = 1;", ResultSetTestAlias);
     ResultSetTestAlias[] recordMap = [];
-    queryResult.forEach(function (record{} value) {
+    error? e = queryResult.forEach(function (record{} value) {
         if (value is ResultSetTestAlias) {
             recordMap[recordMap.length()] = value;
             }
         });
+    if(e is error) {
+        return e;
+        }
     check dbClient.close();
     return recordMap;
 }
