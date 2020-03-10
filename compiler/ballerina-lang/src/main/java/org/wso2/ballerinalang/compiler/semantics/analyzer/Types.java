@@ -246,7 +246,7 @@ public class Types {
         return isBasicNumericType(type);
     }
 
-    private boolean containsErrorType(BType type) {
+    public boolean containsErrorType(BType type) {
         if (type.tag == TypeTags.UNION) {
             return ((BUnionType) type).getMemberTypes().stream()
                     .anyMatch(this::containsErrorType);
@@ -1187,7 +1187,7 @@ public class Types {
         return getVarTypeFromIteratorFuncReturnType(returnType);
     }
 
-    private BUnionType getVarTypeFromIteratorFuncReturnType(BType returnType) {
+    public BUnionType getVarTypeFromIteratorFuncReturnType(BType returnType) {
         BObjectTypeSymbol objectTypeSymbol;
         if (returnType.tag != TypeTags.OBJECT) {
             return null;
@@ -1211,7 +1211,7 @@ public class Types {
 
         returnType = nextFunc.type.retType;
         // Check if the next function return type has the union type,
-        // record {|int value;|}|();
+        // record {|int value;|}|error|();
         if (checkNextFuncReturnType(returnType)) {
             return (BUnionType) returnType;
         }
@@ -1230,7 +1230,10 @@ public class Types {
             return false;
         }
 
+        types.removeIf(type -> type.tag == TypeTags.ERROR);
+
         if (types.size() != 1) {
+            //TODO: print error
             return false;
         }
 

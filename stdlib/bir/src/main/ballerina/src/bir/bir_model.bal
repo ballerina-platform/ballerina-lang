@@ -385,6 +385,7 @@ public type BTableType record {|
 public type BStreamType record {|
     STREAM_TYPE_NAME typeName = STREAM_TYPE_NAME;
     BType sConstraint;
+    BType? sError = ();
 |};
 
 

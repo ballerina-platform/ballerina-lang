@@ -71,6 +71,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangSimpleVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.TypeTags;
 
 import java.lang.reflect.Field;
 import java.net.URI;
@@ -255,8 +256,10 @@ public class SignatureHelpUtil {
             } else if (stmt instanceof BLangExpressionStmt &&
                     ((BLangExpressionStmt) stmt).expr instanceof BLangTypeInit) {
                 BLangTypeInit bLangTypeInit = (BLangTypeInit) ((BLangExpressionStmt) stmt).expr;
-                return Optional.of(addPackagePrefix(bLangTypeInit.userDefinedType.pkgAlias, context,
-                                                    bLangTypeInit.userDefinedType.typeName + INIT_SYMBOL));
+                if (bLangTypeInit.type.tag != TypeTags.STREAM) {
+                    BLangUserDefinedType type = (BLangUserDefinedType) bLangTypeInit.userDefinedType;
+                    return Optional.of(addPackagePrefix(type.pkgAlias, context, type.typeName + INIT_SYMBOL));
+                }
             }
         }
 

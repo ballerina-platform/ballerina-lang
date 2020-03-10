@@ -951,6 +951,9 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         if (ctx.errorTypeName() != null) {
             return;
         }
+        if (ctx.streamTypeName() != null) {
+            return;
+        }
 
         String typeName = ctx.getChild(0).getText();
         DiagnosticPos pos = getCurrentPos(ctx);
@@ -960,6 +963,16 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         } else {
             this.pkgBuilder.addBuiltInReferenceType(pos, getWS(ctx), typeName);
         }
+    }
+
+    @Override
+    public void exitStreamTypeName(BallerinaParser.StreamTypeNameContext ctx) {
+        if (isInErrorState) {
+            return;
+        }
+
+        this.pkgBuilder.addStreamTypeWithTypeName(getCurrentPos(ctx), getWS(ctx),
+                ctx.typeName(0) != null, ctx.typeName(1) != null);
     }
 
     @Override
@@ -1522,22 +1535,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     }
 
     @Override
-    public void enterStreamConstructorExpr(BallerinaParser.StreamConstructorExprContext ctx) {
-        if (isInErrorState) {
-            return;
-        }
-        this.pkgBuilder.startStreamConstructor(getCurrentPos(ctx), diagnosticSrc.pkgID);
-    }
-
-    @Override
-    public void exitStreamConstructorExpr(BallerinaParser.StreamConstructorExprContext ctx) {
-        if (isInErrorState) {
-            return;
-        }
-        this.pkgBuilder.endStreamConstructor(getCurrentPos(ctx), getWS(ctx));
-    }
-
-    @Override
     public void exitListConstructorExpr(BallerinaParser.ListConstructorExprContext ctx) {
         if (isInErrorState) {
             return;
@@ -1598,7 +1595,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         }
 
         String initName = ctx.NEW().getText();
-        boolean typeAvailable = ctx.userDefineTypeName() != null;
+        boolean typeAvailable = ctx.userDefineTypeName() != null || ctx.streamTypeName() != null;
         boolean argsAvailable = ctx.invocationArgList() != null;
         this.pkgBuilder.addTypeInitExpression(getCurrentPos(ctx), getWS(ctx), initName, typeAvailable, argsAvailable);
     }
