@@ -475,11 +475,12 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         this.transactionCount--;
         this.resetLastStatement();
         if (transactionNode.onRetryBody != null) {
+            boolean previousWithinRetryBlock = this.withinRetryBlock;
             this.withinRetryBlock = true;
             analyzeNode(transactionNode.onRetryBody, env);
             this.resetStatementReturns();
             this.resetLastStatement();
-            this.withinRetryBlock = false;
+            this.withinRetryBlock = previousWithinRetryBlock;
         }
 
         if (transactionNode.abortedBody != null) {
