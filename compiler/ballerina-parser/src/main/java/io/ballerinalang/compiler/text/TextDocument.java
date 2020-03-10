@@ -17,8 +17,10 @@
  */
 package io.ballerinalang.compiler.text;
 
-import io.ballerinalang.compiler.internal.parser.incremental.CharacterReader;
+import io.ballerinalang.compiler.internal.parser.CharReader;
 import io.ballerinalang.compiler.text.TextLineMap.TextLine;
+
+import java.io.Reader;
 
 /**
  * This is an abstract representation of a Ballerina source file (.bal)
@@ -42,10 +44,6 @@ public abstract class TextDocument {
 
     protected abstract TextLine[] populateTextLineMap();
 
-    public abstract CharacterReader getCharacterReader();
-
-
+    //TODO Remove this method and introduce copyOfRange to get a char array from the text document
+    public abstract CharReader getCharacterReader();
 }
-
-
-// TextPosition -> line number and offset

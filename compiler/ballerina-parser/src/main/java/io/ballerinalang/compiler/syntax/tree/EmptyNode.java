@@ -15,20 +15,12 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package io.ballerinalang.compiler.internal.parser.tree;
+package io.ballerinalang.compiler.syntax.tree;
 
-import io.ballerinalang.compiler.syntax.tree.EmptyNode;
-import io.ballerinalang.compiler.syntax.tree.Node;
-import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
+import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
-public class STEmptyNode extends STNode {
-
-    public STEmptyNode() {
-        super(SyntaxKind.NONE);
-    }
-
-    @Override
-    public Node createFacade(int position, NonTerminalNode parent) {
-        return new EmptyNode(this, position, parent);
+public class EmptyNode extends Node {
+    public EmptyNode(STNode node, int position, NonTerminalNode parent) {
+        super(node, position, parent);
     }
 }

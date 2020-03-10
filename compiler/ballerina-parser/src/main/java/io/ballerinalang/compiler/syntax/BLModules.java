@@ -17,32 +17,31 @@
  */
 package io.ballerinalang.compiler.syntax;
 
-import io.ballerinalang.compiler.internal.parser.incremental.BallerinaParser;
+import io.ballerinalang.compiler.internal.parser.BallerinaParser;
 import io.ballerinalang.compiler.internal.parser.tree.STModulePart;
+import io.ballerinalang.compiler.syntax.tree.ModulePart;
 import io.ballerinalang.compiler.syntax.tree.SyntaxTree;
 import io.ballerinalang.compiler.text.TextDocumentChange;
-import io.ballerinalang.compiler.syntax.tree.ModulePart;
 import io.ballerinalang.compiler.text.TextDocument;
 
-// TODO This is not a well thought through API.
-// TODO How about SyntaxAnalyzer?
 public class BLModules {
 
-    // TODO ModulePart is not the right abstraction here. We need another abstraction
-    // TODO How about ParseTree? Concrete Syntax Tree (CST)
     // A parseTree is required for incremental parsing..
     // that uses the ModulePart underneath.
     public static SyntaxTree parse(TextDocument textDocument) {
         BallerinaParser parser = new BallerinaParser(textDocument);
-        STModulePart modulePart = parser.parserModulePart();
-
+        parser.parse();
+        // IMO, the parse methods should return the tree..
+        STModulePart modulePart = (STModulePart) parser.getTree();
         return new SyntaxTree((ModulePart) modulePart.createFacade(0, null), textDocument);
     }
 
     public static SyntaxTree parse(SyntaxTree oldTree, TextDocumentChange textDocumentChange) {
         TextDocument newTextDocument = oldTree.getTextDocument().apply(textDocumentChange);
+        System.out.println(newTextDocument);
         BallerinaParser parser = new BallerinaParser(oldTree, newTextDocument, textDocumentChange);
-        STModulePart modulePart = parser.parserModulePart();
+        parser.parse();
+        STModulePart modulePart = (STModulePart) parser.getTree();
         return new SyntaxTree((ModulePart) modulePart.createFacade(0, null), newTextDocument);
     }
 }

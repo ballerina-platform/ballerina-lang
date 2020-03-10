@@ -22,8 +22,8 @@ import io.ballerinalang.compiler.internal.parser.tree.STNode;
 public class LocalVariableDeclaration extends Statement {
     private Token typeName;
     private Token variableName;
-//    private Token equalsToken;
-//    private ExpressionTree initializer;
+    private Token equalsToken;
+    private Node initializer;
     private Token semicolonToken;
 
     public LocalVariableDeclaration(STNode node, int position, NonTerminalNode parent) {
@@ -48,26 +48,31 @@ public class LocalVariableDeclaration extends Statement {
         return variableName;
     }
 
-//    public Token equalsToken() {
-//        if (equalsToken != null) {
-//            return equalsToken;
-//        }
-//
-//        equalsToken = createToken(2);
-//        return equalsToken;
-//    }
+    public Token equalsToken() {
+        if (equalsToken != null) {
+            return equalsToken;
+        }
 
-    // TODO expressions
-//    public ExpressionTree initializer() {
-//        return initializer;
-//    }
+        equalsToken = createToken(2);
+        return equalsToken;
+    }
+
+    public Node initializer() {
+        if (initializer != null) {
+            return initializer;
+        }
+
+        initializer = node.childInBucket(3).createFacade(getChildPosition(3), this);
+        childBuckets[3] = initializer;
+        return initializer;
+    }
 
     public Token semicolonToken() {
         if (semicolonToken != null) {
             return semicolonToken;
         }
 
-        semicolonToken = createToken(2);
+        semicolonToken = createToken(4);
         return semicolonToken;
     }
 
@@ -78,13 +83,11 @@ public class LocalVariableDeclaration extends Statement {
             case 1:
                 return variableName();
             case 2:
+                return equalsToken();
+            case 3:
+                return initializer();
+            case 4:
                 return semicolonToken();
-//            case 2:
-//                return equalsToken();
-//            case 3:
-//                return initializer();
-//            case 4:
-//                return semicolonToken();
         }
         return null;
     }

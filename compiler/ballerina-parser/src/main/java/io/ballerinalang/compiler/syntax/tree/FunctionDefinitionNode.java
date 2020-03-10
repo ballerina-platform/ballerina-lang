@@ -25,7 +25,9 @@ public class FunctionDefinitionNode extends ModuleMemberDeclaration {
     private Token functionKeyword;
     private Token functionName;
     private Token openParenToken;
+    private Node parameters;
     private Token closeParenToken;
+    private Node returnTypeDesc;
     private BlockStatement functionBody;
 
     public FunctionDefinitionNode(STNode node, int position, NonTerminalNode parent) {
@@ -68,13 +70,32 @@ public class FunctionDefinitionNode extends ModuleMemberDeclaration {
         return openParenToken;
     }
 
+    public Node parameters() {
+        if (parameters != null) {
+            return parameters;
+        }
+
+        this.parameters = createListNode(4);
+        return this.parameters;
+    }
+
     public Token closeParenToken() {
         if (closeParenToken != null) {
             return closeParenToken;
         }
 
-        closeParenToken = createToken(4);
+        closeParenToken = createToken(5);
         return closeParenToken;
+    }
+
+    public Node returnTypeDesc() {
+        if (returnTypeDesc != null) {
+            return returnTypeDesc;
+        }
+
+        returnTypeDesc = node.childInBucket(6).createFacade(getChildPosition(6), this);
+        childBuckets[6] = returnTypeDesc;
+        return returnTypeDesc;
     }
 
     public BlockStatement functionBody() {
@@ -82,8 +103,8 @@ public class FunctionDefinitionNode extends ModuleMemberDeclaration {
             return functionBody;
         }
 
-        functionBody = (BlockStatement) node.childInBucket(5).createFacade(getChildPosition(5), this);
-        childBuckets[5] = functionBody;
+        functionBody = (BlockStatement) node.childInBucket(7).createFacade(getChildPosition(7), this);
+        childBuckets[7] = functionBody;
         return functionBody;
     }
 
@@ -98,8 +119,12 @@ public class FunctionDefinitionNode extends ModuleMemberDeclaration {
             case 3:
                 return openParenToken();
             case 4:
-                return closeParenToken();
+                return parameters();
             case 5:
+                return closeParenToken();
+            case 6:
+                return returnTypeDesc();
+            case 7:
                 return functionBody();
         }
         return null;
