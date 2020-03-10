@@ -52,6 +52,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLSubType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
@@ -151,6 +152,10 @@ public class SymbolTable {
     public final BIntSubType unsigned16IntType = new BIntSubType(TypeTags.UNSIGNED16_INT, Names.UNSIGNED16);
     public final BIntSubType unsigned8IntType = new BIntSubType(TypeTags.UNSIGNED8_INT, Names.UNSIGNED8);
     public final BStringSubType charStringType = new BStringSubType(TypeTags.CHAR_STRING, Names.CHAR);
+    public final BXMLSubType xmlElementType = new BXMLSubType(TypeTags.XML_ELEMENT, Names.XML_ELEMENT);
+    public final BXMLSubType xmlPIType = new BXMLSubType(TypeTags.XML_PI, Names.XML_PI);
+    public final BXMLSubType xmlCommentType = new BXMLSubType(TypeTags.XML_COMMENT, Names.XML_COMMENT);
+    public final BXMLSubType xmlTextType = new BXMLSubType(TypeTags.XML_TEXT, Names.XML_TEXT);
 
     public BPackageSymbol langInternalModuleSymbol;
     public BPackageSymbol langAnnotationModuleSymbol;
@@ -229,6 +234,10 @@ public class SymbolTable {
         initializeTSymbol(unsigned16IntType, Names.UNSIGNED16, PackageID.INT);
         initializeTSymbol(unsigned8IntType, Names.UNSIGNED8, PackageID.INT);
         initializeTSymbol(charStringType, Names.CHAR, PackageID.STRING);
+        initializeTSymbol(xmlElementType, Names.XML_ELEMENT, PackageID.XML);
+        initializeTSymbol(xmlPIType, Names.XML_PI, PackageID.XML);
+        initializeTSymbol(xmlCommentType, Names.XML_COMMENT, PackageID.XML);
+        initializeTSymbol(xmlTextType, Names.XML_TEXT, PackageID.XML);
 
         BLangLiteral trueLiteral = new BLangLiteral();
         trueLiteral.type = this.booleanType;
@@ -260,6 +269,14 @@ public class SymbolTable {
                 return jsonType;
             case TypeTags.XML:
                 return xmlType;
+            case TypeTags.XML_COMMENT:
+                return xmlCommentType;
+            case TypeTags.XML_PI:
+                return xmlPIType;
+            case TypeTags.XML_ELEMENT:
+                return xmlElementType;
+            case TypeTags.XML_TEXT:
+                return xmlTextType;
             case TypeTags.TABLE:
                 return tableType;
             case TypeTags.STREAM:
@@ -304,6 +321,14 @@ public class SymbolTable {
                 return this.unsigned8IntType;
             case Names.STRING_CHAR:
                 return this.charStringType;
+            case Names.STRING_XML_ELEMENT:
+                return this.xmlElementType;
+            case Names.STRING_XML_PI:
+                return this.xmlPIType;
+            case Names.STRING_XML_COMMENT:
+                return this.xmlCommentType;
+            case Names.STRING_XML_TEXT:
+                return this.xmlTextType;
         }
         throw new IllegalStateException("LangLib Subtype not found: " + name);
     }

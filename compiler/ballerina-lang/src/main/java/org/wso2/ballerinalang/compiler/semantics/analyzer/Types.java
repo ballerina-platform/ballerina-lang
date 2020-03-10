@@ -197,6 +197,7 @@ public class Types {
         switch (type.tag) {
             case TypeTags.JSON:
             case TypeTags.XML:
+            case TypeTags.XML_ELEMENT:
                 return true;
             case TypeTags.MAP:
                 return isLax(((BMapType) type).constraint);
@@ -290,7 +291,10 @@ public class Types {
         if (type.tag != TypeTags.UNION) {
             return type.tag == baseTypeTag;
         }
-
+        // TODO: Recheck this
+        if (TypeTags.isXMLTypeTag(baseTypeTag)) {
+            return true;
+        }
         return ((BUnionType) type).getMemberTypes().stream().allMatch(memType -> memType.tag == baseTypeTag);
     }
 
@@ -480,6 +484,10 @@ public class Types {
         int targetTag = target.tag;
 
         if (sourceTag == TypeTags.BYTE && targetTag == TypeTags.INT) {
+            return true;
+        }
+
+        if (TypeTags.isXMLTypeTag(sourceTag) && targetTag == TypeTags.XML) {
             return true;
         }
 

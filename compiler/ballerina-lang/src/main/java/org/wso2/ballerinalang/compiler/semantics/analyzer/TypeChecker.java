@@ -4065,7 +4065,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
             BType type = expr.type;
             if (type.tag >= TypeTags.JSON) {
-                if (type != symTable.semanticError) {
+                if (type != symTable.semanticError && !TypeTags.isXMLTypeTag(type.tag)) {
                     dlog.error(expr.pos, DiagnosticCode.INCOMPATIBLE_TYPES,
                                BUnionType.create(null, symTable.intType, symTable.floatType,
                                                                 symTable.decimalType, symTable.stringType,
