@@ -30,7 +30,6 @@ import static org.objectweb.asm.Opcodes.DUP;
 import static org.objectweb.asm.Opcodes.INVOKEINTERFACE;
 import static org.objectweb.asm.Opcodes.INVOKESPECIAL;
 import static org.objectweb.asm.Opcodes.INVOKESTATIC;
-import static org.objectweb.asm.Opcodes.L2I;
 import static org.objectweb.asm.Opcodes.NEW;
 import static org.objectweb.asm.Opcodes.POP;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ERROR_VALUE;
@@ -80,7 +79,6 @@ class JvmObservabilityGen {
             mv.visitTypeInsn(NEW, "java/util/HashMap");
             mv.visitInsn(DUP);
             mv.visitLdcInsn(tags.size());
-            mv.visitInsn(L2I);
             mv.visitMethodInsn(INVOKESPECIAL, "java/util/HashMap", "<init>", "(I)V", false);
             for (Map.Entry<String, String> entry : tags.entrySet()) {
                 mv.visitInsn(DUP);

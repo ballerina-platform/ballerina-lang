@@ -896,8 +896,11 @@ public class JvmMethodGen {
                             attachedTypeObj.tsymbol.pkgID.orgName.value,
                             attachedTypeObj.tsymbol.pkgID.name.value, serviceName);
                 }
+                Map<String, String> tags = new HashMap<>();
+                tags.put("source.invocation_fqn", String.format("%s:%s:%s:%d:%d", module.org, module.name,
+                        func.pos.src.cUnitName, func.pos.sLine, func.pos.sCol));
                 emitStartObservationInvocation(mv, localVarOffset, serviceOrConnectorName, funcName,
-                        observationStartMethod);
+                        observationStartMethod, tags);
             }
 
             // generate instructions
