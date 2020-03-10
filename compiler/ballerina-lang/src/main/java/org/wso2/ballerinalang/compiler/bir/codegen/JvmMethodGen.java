@@ -292,11 +292,10 @@ public class JvmMethodGen {
         @Nilable Label tryStart = null;
         boolean isObserved = false;
         boolean isWorker = (func.flags & Flags.WORKER) == Flags.WORKER;
-        boolean isRemote = (func.flags & Flags.REMOTE) == Flags.REMOTE;
-        if ((isService || isRemote || isWorker) && !"__init".equals(funcName) && !"$__init$".equals(funcName)) {
+        if ((isService || isWorker) && !"__init".equals(funcName) && !"$__init$".equals(funcName)) {
             // create try catch block to start and stop observability.
             isObserved = true;
-            tryStart = labelGen.getLabel("try-start");
+            tryStart = labelGen.getLabel("observe-try-start");
             mv.visitLabel(tryStart);
         }
 
@@ -448,13 +447,14 @@ public class JvmMethodGen {
         Label methodEndLabel = new Label();
         // generate the try catch finally to stop observing if an error occurs.
         if (isObserved) {
-            Label tryEnd = labelGen.getLabel("try-end");
-            Label tryCatch = labelGen.getLabel("try-handler");
+            Label tryEnd = labelGen.getLabel("observe-try-end");
+            Label tryCatch = labelGen.getLabel("observe-try-handler");
+            Label tryCatchFinally = labelGen.getLabel("observe-try-catch-finally");
+            Label tryFinally = labelGen.getLabel("observe-try-finally");
+
             // visitTryCatchBlock visited at the end since order of the error table matters.
             mv.visitTryCatchBlock((Label) tryStart, tryEnd, tryCatch, ERROR_VALUE);
-            Label tryFinally = labelGen.getLabel("try-finally");
             mv.visitTryCatchBlock((Label) tryStart, tryEnd, tryFinally, null);
-            Label tryCatchFinally = labelGen.getLabel("try-catch-finally");
             mv.visitTryCatchBlock(tryCatch, tryCatchFinally, tryFinally, null);
 
             BIRVariableDcl catchVarDcl = new BIRVariableDcl(symbolTable.anyType, new Name("$_catch_$"),
@@ -466,22 +466,16 @@ public class JvmMethodGen {
 
             // Try-To-Finally
             mv.visitLabel(tryEnd);
-            // emitStopObservationInvocation(mv, localVarOffset);
-            Label tryBlock1 = labelGen.getLabel("try-block-1");
-            mv.visitLabel(tryBlock1);
             mv.visitJumpInsn(GOTO, methodEndLabel);
 
             // Catch Block
             mv.visitLabel(tryCatch);
             mv.visitVarInsn(ASTORE, catchVarIndex);
-            Label tryBlock2 = labelGen.getLabel("try-block-2");
-            mv.visitLabel(tryBlock2);
             emitReportErrorInvocation(mv, localVarOffset, catchVarIndex);
+
             mv.visitLabel(tryCatchFinally);
             emitStopObservationInvocation(mv, localVarOffset);
-            Label tryBlock3 = labelGen.getLabel("try-block-3");
-            mv.visitLabel(tryBlock3);
-            // re-throw caught error value
+            // Re-throw caught error value
             mv.visitVarInsn(ALOAD, catchVarIndex);
             mv.visitInsn(ATHROW);
 
@@ -489,8 +483,6 @@ public class JvmMethodGen {
             mv.visitLabel(tryFinally);
             mv.visitVarInsn(ASTORE, throwableVarIndex);
             emitStopObservationInvocation(mv, localVarOffset);
-            Label tryBlock4 = labelGen.getLabel("try-block-4");
-            mv.visitLabel(tryBlock4);
             mv.visitVarInsn(ALOAD, throwableVarIndex);
             mv.visitInsn(ATHROW);
         }
@@ -894,8 +886,8 @@ public class JvmMethodGen {
                 caseIndex += 1;
             }
 
-            String serviceOrConnectorName = serviceName;
             if (isObserved && j == 0) {
+                String serviceOrConnectorName = serviceName;
                 String observationStartMethod = isService ? "startResourceObservation" : "startCallableObservation";
                 if (!isService && attachedType != null && attachedType.tag == TypeTags.OBJECT) {
                     // add module org and module name to remote spans.
