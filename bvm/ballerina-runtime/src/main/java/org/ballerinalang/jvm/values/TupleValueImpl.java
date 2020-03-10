@@ -60,6 +60,7 @@ public class TupleValueImpl extends AbstractArrayValue {
     protected BTupleType tupleType;
     Object[] refValues;
     private int minSize = 0;
+    private boolean hasRestElement; // cached value for ease of access
 
     // ------------------------ Constructors -------------------------------------------------------------------
 
@@ -67,6 +68,7 @@ public class TupleValueImpl extends AbstractArrayValue {
     public TupleValueImpl(Object[] values, BTupleType type) {
         this.refValues = values;
         this.tupleType = type;
+        this.hasRestElement = this.tupleType.getRestType() != null;
 
         List<BType> memTypes = type.getTupleTypes();
         int memCount = memTypes.size();
@@ -89,6 +91,7 @@ public class TupleValueImpl extends AbstractArrayValue {
         int memTypeCount = memTypes.size();
 
         this.minSize = this.size = memTypeCount;
+        this.hasRestElement = this.tupleType.getRestType() != null;
 
         if (type.getRestType() == null) {
             this.maxSize = this.size;
@@ -116,6 +119,7 @@ public class TupleValueImpl extends AbstractArrayValue {
 
         this.size = size < memCount ? memCount : (int) size;
         this.minSize = memCount;
+        this.hasRestElement = this.tupleType.getRestType() != null;
 
         if (type.getRestType() == null) {
             this.maxSize = this.size;
@@ -165,6 +169,10 @@ public class TupleValueImpl extends AbstractArrayValue {
 
     @Override
     public Object fillAndGetRefValue(long index) {
+        // Need do a filling-read if index >= size
+        if (index >= this.size && this.hasRestElement) {
+            add(index, (Object) this.tupleType.getRestType().getZeroValue());
+        }
         return get(index);
     }
 
