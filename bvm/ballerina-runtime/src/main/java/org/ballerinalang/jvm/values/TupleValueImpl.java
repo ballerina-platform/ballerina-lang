@@ -171,7 +171,9 @@ public class TupleValueImpl extends AbstractArrayValue {
     public Object fillAndGetRefValue(long index) {
         // Need do a filling-read if index >= size
         if (index >= this.size && this.hasRestElement) {
-            add(index, (Object) this.tupleType.getRestType().getZeroValue());
+            handleFrozenArrayValue();
+            fillRead(index, refValues.length);
+            return this.refValues[(int) index];
         }
         return get(index);
     }
@@ -541,7 +543,9 @@ public class TupleValueImpl extends AbstractArrayValue {
 
         BType restType = this.tupleType.getRestType();
         if (restType != null) {
-            Arrays.fill(this.refValues, this.size, index, restType.getZeroValue());
+            for (int i = size; i < index; i++) {
+                this.refValues[i] = restType.getZeroValue();
+            }
         }
     }
 
@@ -656,12 +660,30 @@ public class TupleValueImpl extends AbstractArrayValue {
             throw BallerinaErrors.createError(
                     getModulePrefixedReason(ARRAY_LANG_LIB, INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER),
                     BLangExceptionHelper.getErrorMessage(RuntimeErrors.INCOMPATIBLE_TYPE, elemType,
-                            TypeChecker.getType(value)));
+                                                         TypeChecker.getType(value)));
         }
 
         fillerValueCheck(intIndex, size);
         ensureCapacity(intIndex + 1, currentArraySize);
         fillValues(intIndex);
+        resetSize(intIndex);
+    }
+
+    private void fillRead(long index, int currentArraySize) {
+        BType restType = this.tupleType.getRestType();
+        if (!TypeChecker.hasFillerValue(restType)) {
+            throw BLangExceptionHelper.getRuntimeException(BallerinaErrorReasons.ILLEGAL_LIST_INSERTION_ERROR,
+                                                           RuntimeErrors.ILLEGAL_TUPLE_INSERTION, size, index + 1);
+        }
+
+        int intIndex = (int) index;
+        rangeCheck(index, size);
+        ensureCapacity(intIndex + 1, currentArraySize);
+
+        for (int i = size; i <= index; i++) {
+            this.refValues[i] = restType.getZeroValue();
+        }
+
         resetSize(intIndex);
     }
 
