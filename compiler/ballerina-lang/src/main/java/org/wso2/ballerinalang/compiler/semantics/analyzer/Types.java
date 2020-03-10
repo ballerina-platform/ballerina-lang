@@ -1234,10 +1234,6 @@ public class Types {
             // return false;
         }
 
-//        if (types.size() != 1) {
-//            return false;
-//        }
-
         if (types.get(0).tag != TypeTags.RECORD) {
             return false;
         }

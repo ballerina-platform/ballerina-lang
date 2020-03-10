@@ -539,7 +539,6 @@ public class TypeParamAnalyzer {
                         symTable.mapType.tsymbol);
             case TypeTags.STREAM:
                 BType streamConstraint = getMatchingBoundType(((BStreamType) expType).constraint, env, resolvedTypes);
-//                BType streamErrorType = getMatchingBoundType(((BStreamType) expType).error, env, resolvedTypes);
                 BType streamError = (((BStreamType) expType).error != null) ? getMatchingOptionalBoundType((BUnionType)
                         ((BStreamType) expType).error, env, resolvedTypes) : null;
                 return new BStreamType(TypeTags.STREAM, streamConstraint, streamError, symTable.streamType.tsymbol);
