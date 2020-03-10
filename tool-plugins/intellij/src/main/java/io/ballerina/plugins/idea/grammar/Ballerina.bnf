@@ -282,9 +282,9 @@ SimpleTypeName ::= NULL_LITERAL
                    | AnyTypeName
                    | AnyDataTypeName
                    | HandleTypeName
-                   | TypeDescTypeName
                    | ValueTypeName
                    | ReferenceTypeName
+                   | TypeDescTypeName
                    | NilLiteral
 
 AnyTypeName ::= any
