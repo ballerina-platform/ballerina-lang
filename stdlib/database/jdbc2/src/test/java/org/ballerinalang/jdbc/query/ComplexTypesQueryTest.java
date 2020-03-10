@@ -87,9 +87,9 @@ public class ComplexTypesQueryTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertTrue(returns[0] instanceof BMap);
         LinkedHashMap result = ((BMap) returns[0]).getMap();
-        String blobString = new String(((BValueArray)result.get("BLOB_TYPE")).getBytes());
-        String clobString = ((BString)result.get("CLOB_TYPE")).stringValue();
-        String binaryString = new String(((BValueArray)result.get("BINARY_TYPE")).getBytes());
+        String blobString = new String(((BValueArray) result.get("BLOB_TYPE")).getBytes());
+        String clobString = ((BString) result.get("CLOB_TYPE")).stringValue();
+        String binaryString = new String(((BValueArray) result.get("BINARY_TYPE")).getBytes());
         Assert.assertEquals(blobString, "wso2 ballerina blob test.");
         Assert.assertEquals(clobString, "very long text");
         Assert.assertEquals(binaryString, "wso2 ballerina binary test.");
@@ -115,23 +115,23 @@ public class ComplexTypesQueryTest {
         Assert.assertEquals(((BInteger) result.get("INT_TYPE")).intValue(), 1);
 
         BValueArray intArray = (BValueArray) result.get("INT_ARRAY");
-        Assert.assertEquals(((BInteger)intArray.getBValue(0)).intValue(), 1);
-        Assert.assertEquals(((BInteger)intArray.getBValue(1)).intValue(), 2);
-        Assert.assertEquals(((BInteger)intArray.getBValue(2)).intValue(), 3);
+        Assert.assertEquals(((BInteger) intArray.getBValue(0)).intValue(), 1);
+        Assert.assertEquals(((BInteger) intArray.getBValue(1)).intValue(), 2);
+        Assert.assertEquals(((BInteger) intArray.getBValue(2)).intValue(), 3);
 
         Assert.assertEquals(((BInteger) result.get("LONG_TYPE")).stringValue(), "9223372036854774807");
 
         BValueArray longArray = (BValueArray) result.get("LONG_ARRAY");
-        Assert.assertEquals(((BInteger)longArray.getBValue(0)).intValue(), 100000000);
-        Assert.assertEquals(((BInteger)longArray.getBValue(1)).intValue(), 200000000);
-        Assert.assertEquals(((BInteger)longArray.getBValue(2)).intValue(), 300000000);
+        Assert.assertEquals(((BInteger) longArray.getBValue(0)).intValue(), 100000000);
+        Assert.assertEquals(((BInteger) longArray.getBValue(1)).intValue(), 200000000);
+        Assert.assertEquals(((BInteger) longArray.getBValue(2)).intValue(), 300000000);
 
         Assert.assertEquals(((BFloat) result.get("FLOAT_TYPE")).floatValue(), 123.34);
 
         BValueArray floatArray = (BValueArray) result.get("FLOAT_ARRAY");
-        Assert.assertEquals(((BDecimal)floatArray.getBValue(0)).floatValue(), 245.23);
-        Assert.assertEquals(((BDecimal)floatArray.getBValue(1)).floatValue(), 5559.49);
-        Assert.assertEquals(((BDecimal)floatArray.getBValue(2)).floatValue(), 8796.123);
+        Assert.assertEquals(((BDecimal) floatArray.getBValue(0)).floatValue(), 245.23);
+        Assert.assertEquals(((BDecimal) floatArray.getBValue(1)).floatValue(), 5559.49);
+        Assert.assertEquals(((BDecimal) floatArray.getBValue(2)).floatValue(), 8796.123);
 
         Assert.assertEquals(((BFloat) result.get("DOUBLE_TYPE")).floatValue(), 2.139095039E9);
         Assert.assertEquals(((BBoolean) result.get("BOOLEAN_TYPE")).booleanValue(), true);
@@ -139,20 +139,19 @@ public class ComplexTypesQueryTest {
         Assert.assertEquals(((BDecimal) result.get("DECIMAL_TYPE")).stringValue(), "342452151425.4556");
 
         BValueArray doubleArray = (BValueArray) result.get("DOUBLE_ARRAY");
-        Assert.assertEquals(((BDecimal)doubleArray.getBValue(0)).stringValue(), "245.23");
-        Assert.assertEquals(((BDecimal)doubleArray.getBValue(1)).stringValue(), "5559.49");
-        Assert.assertEquals(((BDecimal)doubleArray.getBValue(2)).stringValue(), "8796.123");
+        Assert.assertEquals(((BDecimal) doubleArray.getBValue(0)).stringValue(), "245.23");
+        Assert.assertEquals(((BDecimal) doubleArray.getBValue(1)).stringValue(), "5559.49");
+        Assert.assertEquals(((BDecimal) doubleArray.getBValue(2)).stringValue(), "8796.123");
 
         BValueArray booleanArray = (BValueArray) result.get("BOOLEAN_ARRAY");
-        Assert.assertEquals(((BBoolean)booleanArray.getBValue(0)).booleanValue(), true);
-        Assert.assertEquals(((BBoolean)booleanArray.getBValue(1)).booleanValue(), false);
-        Assert.assertEquals(((BBoolean)booleanArray.getBValue(2)).booleanValue(), true);
+        Assert.assertEquals(((BBoolean) booleanArray.getBValue(0)).booleanValue(), true);
+        Assert.assertEquals(((BBoolean) booleanArray.getBValue(1)).booleanValue(), false);
+        Assert.assertEquals(((BBoolean) booleanArray.getBValue(2)).booleanValue(), true);
 
         BValueArray stringArray = (BValueArray) result.get("STRING_ARRAY");
-        Assert.assertEquals(((BString)stringArray.getBValue(0)).stringValue(), "Hello");
-        Assert.assertEquals(((BString)stringArray.getBValue(1)).stringValue(), "Ballerina");
+        Assert.assertEquals(((BString) stringArray.getBValue(0)).stringValue(), "Hello");
+        Assert.assertEquals(((BString) stringArray.getBValue(1)).stringValue(), "Ballerina");
     }
-
 
     @Test(description = "Check complex data retrieval as a record.")
     public void testComplexWithStructDef() {
@@ -163,41 +162,41 @@ public class ComplexTypesQueryTest {
         Assert.assertEquals(((BInteger) result.get("int_type")).intValue(), 1);
 
         BValueArray intArray = (BValueArray) result.get("int_array");
-        Assert.assertEquals(((BInteger)intArray.getBValue(0)).intValue(), 1);
-        Assert.assertEquals(((BInteger)intArray.getBValue(1)).intValue(), 2);
-        Assert.assertEquals(((BInteger)intArray.getBValue(2)).intValue(), 3);
+        Assert.assertEquals(((BInteger) intArray.getBValue(0)).intValue(), 1);
+        Assert.assertEquals(((BInteger) intArray.getBValue(1)).intValue(), 2);
+        Assert.assertEquals(((BInteger) intArray.getBValue(2)).intValue(), 3);
 
         Assert.assertEquals(((BInteger) result.get("long_type")).stringValue(), "9223372036854774807");
 
         BValueArray longArray = (BValueArray) result.get("long_array");
-        Assert.assertEquals(((BInteger)longArray.getBValue(0)).intValue(), 100000000);
-        Assert.assertEquals(((BInteger)longArray.getBValue(1)).intValue(), 200000000);
-        Assert.assertEquals(((BInteger)longArray.getBValue(2)).intValue(), 300000000);
+        Assert.assertEquals(((BInteger) longArray.getBValue(0)).intValue(), 100000000);
+        Assert.assertEquals(((BInteger) longArray.getBValue(1)).intValue(), 200000000);
+        Assert.assertEquals(((BInteger) longArray.getBValue(2)).intValue(), 300000000);
 
         Assert.assertEquals(((BFloat) result.get("float_type")).floatValue(), 123.34);
 
         BValueArray floatArray = (BValueArray) result.get("float_array");
-        Assert.assertEquals(((BDecimal)floatArray.getBValue(0)).floatValue(), 245.23);
-        Assert.assertEquals(((BDecimal)floatArray.getBValue(1)).floatValue(), 5559.49);
-        Assert.assertEquals(((BDecimal)floatArray.getBValue(2)).floatValue(), 8796.123);
+        Assert.assertEquals(((BDecimal) floatArray.getBValue(0)).floatValue(), 245.23);
+        Assert.assertEquals(((BDecimal) floatArray.getBValue(1)).floatValue(), 5559.49);
+        Assert.assertEquals(((BDecimal) floatArray.getBValue(2)).floatValue(), 8796.123);
 
         Assert.assertEquals(((BFloat) result.get("double_type")).floatValue(), 2.139095039E9);
         Assert.assertEquals(((BBoolean) result.get("boolean_type")).booleanValue(), true);
         Assert.assertEquals(((BString) result.get("string_type")).stringValue(), "Hello");
 
         BValueArray doubleArray = (BValueArray) result.get("double_array");
-        Assert.assertEquals(((BDecimal)doubleArray.getBValue(0)).stringValue(), "245.23");
-        Assert.assertEquals(((BDecimal)doubleArray.getBValue(1)).stringValue(), "5559.49");
-        Assert.assertEquals(((BDecimal)doubleArray.getBValue(2)).stringValue(), "8796.123");
+        Assert.assertEquals(((BDecimal) doubleArray.getBValue(0)).stringValue(), "245.23");
+        Assert.assertEquals(((BDecimal) doubleArray.getBValue(1)).stringValue(), "5559.49");
+        Assert.assertEquals(((BDecimal) doubleArray.getBValue(2)).stringValue(), "8796.123");
 
         BValueArray booleanArray = (BValueArray) result.get("boolean_array");
-        Assert.assertEquals(((BBoolean)booleanArray.getBValue(0)).booleanValue(), true);
-        Assert.assertEquals(((BBoolean)booleanArray.getBValue(1)).booleanValue(), false);
-        Assert.assertEquals(((BBoolean)booleanArray.getBValue(2)).booleanValue(), true);
+        Assert.assertEquals(((BBoolean) booleanArray.getBValue(0)).booleanValue(), true);
+        Assert.assertEquals(((BBoolean) booleanArray.getBValue(1)).booleanValue(), false);
+        Assert.assertEquals(((BBoolean) booleanArray.getBValue(2)).booleanValue(), true);
 
         BValueArray stringArray = (BValueArray) result.get("string_array");
-        Assert.assertEquals(((BString)stringArray.getBValue(0)).stringValue(), "Hello");
-        Assert.assertEquals(((BString)stringArray.getBValue(1)).stringValue(), "Ballerina");
+        Assert.assertEquals(((BString) stringArray.getBValue(0)).stringValue(), "Hello");
+        Assert.assertEquals(((BString) stringArray.getBValue(1)).stringValue(), "Ballerina");
     }
 
     @Test(description = "Check complex data retrieval as a record.")
@@ -212,9 +211,9 @@ public class ComplexTypesQueryTest {
         LinkedHashMap resultRow4 = ((BMap) rowSet.getBValue(3)).getMap();
 
         BValueArray row1IntArray = (BValueArray) resultRow1.get("INT_ARRAY");
-        Assert.assertEquals(((BInteger)row1IntArray.getBValue(0)).intValue(), 1);
-        Assert.assertEquals(((BInteger)row1IntArray.getBValue(1)).intValue(), 2);
-        Assert.assertEquals(((BInteger)row1IntArray.getBValue(2)).intValue(), 3);
+        Assert.assertEquals(((BInteger) row1IntArray.getBValue(0)).intValue(), 1);
+        Assert.assertEquals(((BInteger) row1IntArray.getBValue(1)).intValue(), 2);
+        Assert.assertEquals(((BInteger) row1IntArray.getBValue(2)).intValue(), 3);
 
         BValueArray row2IntArray = (BValueArray) resultRow2.get("INT_ARRAY");
         Assert.assertEquals(row2IntArray.getBValue(0), null);
