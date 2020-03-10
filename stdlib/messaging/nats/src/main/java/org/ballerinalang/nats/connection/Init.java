@@ -22,6 +22,7 @@ import io.nats.client.Connection;
 import io.nats.client.ErrorListener;
 import io.nats.client.Nats;
 import io.nats.client.Options;
+import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.nats.Constants;
@@ -66,17 +67,10 @@ public class Init {
     private static final String NO_ECHO = "noEcho";
     private static final String ENABLE_ERROR_LISTENER = "enableErrorListener";
 
-    public static void externInit(ObjectValue connectionObject, String urlString, MapValue connectionConfig) {
+    public static void externInit(ObjectValue connectionObject, ArrayValueImpl urlString, MapValue connectionConfig) {
         Options.Builder opts = new Options.Builder();
-
-        // Add server endpoint urls.
-        String[] serverUrls;
-        if (urlString != null && urlString.contains(SERVER_URL_SEPARATOR)) {
-            serverUrls = urlString.split(SERVER_URL_SEPARATOR);
-        } else {
-            serverUrls = new String[]{urlString};
-        }
         try {
+            String[] serverUrls = urlString.getStringArray();
             opts.servers(serverUrls);
 
             // Add connection name.
@@ -133,7 +127,7 @@ public class Init {
             throw Utils.createNatsError(errorMsg);
         } catch (IllegalArgumentException e) {
             NatsMetricsUtil.reportError(NatsObservabilityConstants.CONTEXT_CONNECTION,
-                    NatsObservabilityConstants.ERROR_TYPE_CONNECTION);
+                                        NatsObservabilityConstants.ERROR_TYPE_CONNECTION);
             throw Utils.createNatsError(e.getMessage());
         }
     }

@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -48,9 +48,6 @@ public interface BallerinaStatement extends PsiElement {
   BallerinaForeachStatement getForeachStatement();
 
   @Nullable
-  BallerinaForeverStatement getForeverStatement();
-
-  @Nullable
   BallerinaForkJoinStatement getForkJoinStatement();
 
   @Nullable
@@ -72,6 +69,9 @@ public interface BallerinaStatement extends PsiElement {
   BallerinaPanicStatement getPanicStatement();
 
   @Nullable
+  BallerinaQueryActionStatement getQueryActionStatement();
+
+  @Nullable
   BallerinaRecordDestructuringStatement getRecordDestructuringStatement();
 
   @Nullable
@@ -79,9 +79,6 @@ public interface BallerinaStatement extends PsiElement {
 
   @Nullable
   BallerinaReturnStatement getReturnStatement();
-
-  @Nullable
-  BallerinaStreamingQueryStatement getStreamingQueryStatement();
 
   @Nullable
   BallerinaThrowStatement getThrowStatement();
