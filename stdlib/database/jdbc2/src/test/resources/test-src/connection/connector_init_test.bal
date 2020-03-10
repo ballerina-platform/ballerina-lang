@@ -84,7 +84,8 @@ function testWithConnectionPool(string jdbcURL, string user, string password) re
     sql:ConnectionPool connectionPool = {
         maxOpenConnections: 25
     };
-    jdbc:Client dbClient = check new (url = jdbcURL, user = user, password = password, connectionPool = connectionPool);
+    jdbc:Client dbClient = check new (url = jdbcURL, user = user,
+        password = password, connectionPool = connectionPool);
     error? err = dbClient.close();
     if (err is error) {
         return err;
@@ -97,9 +98,12 @@ function testWithSharedConnPool(string jdbcURL, string user, string password) re
     sql:ConnectionPool connectionPool = {
         maxOpenConnections: 25
     };
-    jdbc:Client dbClient1 = check new (url = jdbcURL, user = user, password = password, connectionPool = connectionPool);
-    jdbc:Client dbClient2 = check new (url = jdbcURL, user = user, password = password, connectionPool = connectionPool);
-    jdbc:Client dbClient3 = check new (url = jdbcURL, user = user, password = password, connectionPool = connectionPool);
+    jdbc:Client dbClient1 = check new (url = jdbcURL, user = user,
+        password = password, connectionPool = connectionPool);
+    jdbc:Client dbClient2 = check new (url = jdbcURL, user = user,
+        password = password, connectionPool = connectionPool);
+    jdbc:Client dbClient3 = check new (url = jdbcURL, user = user,
+        password = password, connectionPool = connectionPool);
 
     check dbClient1.close();
     check dbClient2.close();

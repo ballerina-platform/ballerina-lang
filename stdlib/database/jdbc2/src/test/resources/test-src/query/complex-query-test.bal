@@ -152,7 +152,8 @@ type Person record {
 
 function testGetPrimitiveTypes(string jdbcURL, string user, string password) returns record {}|error? {
     jdbc:Client dbClient = check new (url = jdbcURL, user = user, password = password);
-    stream<record{}, error> streamData = dbClient->query("SELECT int_type, long_type, float_type, double_type, boolean_type, string_type from DataTable WHERE row_id = 1");
+    stream<record{}, error> streamData = dbClient->query("SELECT int_type, long_type, float_type, double_type,"
+        + "boolean_type, string_type from DataTable WHERE row_id = 1");
     record {|record {} value;|}? data = check streamData.next();
     check streamData.close();
     record {}? value = data?.value;
@@ -162,7 +163,8 @@ function testGetPrimitiveTypes(string jdbcURL, string user, string password) ret
 
 function testToJson(string jdbcURL, string user, string password) returns @tainted json|error {
     jdbc:Client dbClient = check new (url = jdbcURL, user = user, password = password);
-  stream<record{}, error> streamData = dbClient->query("SELECT int_type, long_type, float_type, double_type, boolean_type, string_type from DataTable WHERE row_id = 1");
+  stream<record{}, error> streamData = dbClient->query("SELECT int_type, long_type, float_type, double_type,"
+        + "boolean_type, string_type from DataTable WHERE row_id = 1");
     record {|record {} value;|}? data = check streamData.next();
     check streamData.close();
     record {}? value = data?.value;
@@ -173,7 +175,8 @@ function testToJson(string jdbcURL, string user, string password) returns @taint
 
 function testToJsonComplexTypes(string jdbcURL, string user, string password) returns record {}|error? {
     jdbc:Client dbClient = check new (url = jdbcURL, user = user, password = password);
-    stream<record{}, error> streamData = dbClient->query("SELECT blob_type,clob_type,binary_type from ComplexTypes where row_id = 1");
+    stream<record{}, error> streamData = dbClient->query("SELECT blob_type,clob_type,binary_type from" +
+        " ComplexTypes where row_id = 1");
     record {|record {} value;|}? data = check streamData.next();
     check streamData.close();
     record {}? value = data?.value;
@@ -183,7 +186,8 @@ function testToJsonComplexTypes(string jdbcURL, string user, string password) re
 
 function testComplexTypesNil(string jdbcURL, string user, string password) returns record {}|error? {
     jdbc:Client dbClient = check new (url = jdbcURL, user = user, password = password);
-    stream<record{}, error> streamData = dbClient->query("SELECT blob_type,clob_type,binary_type from ComplexTypes where row_id = 2");
+    stream<record{}, error> streamData = dbClient->query("SELECT blob_type,clob_type,binary_type from " +
+        " ComplexTypes where row_id = 2");
     record {|record {} value;|}? data = check streamData.next();
     check streamData.close();
     record {}? value = data?.value;
@@ -191,10 +195,11 @@ function testComplexTypesNil(string jdbcURL, string user, string password) retur
     return value;
 }
 
-function testArrayRetrieval(string jdbcURL, string user, string password) returns record {}|error? {
+function testArrayRetrieval(string jdbcURL, string user, string password)
+returns record {}|error? {
     jdbc:Client dbClient = check new (url = jdbcURL, user = user, password = password);
-    stream<record{}, error> streamData = dbClient->query("SELECT int_type, int_array, long_type, long_array, float_type," +
-        "float_array, double_type, boolean_type, string_type, decimal_type, double_array, boolean_array," +
+    stream<record{}, error> streamData = dbClient->query("SELECT int_type, int_array, long_type, long_array, " +
+        "float_type, float_array, double_type, boolean_type, string_type, decimal_type, double_array, boolean_array," +
         "string_array from MixTypes where row_id =1");
     record {|record {} value;|}? data = check streamData.next();
     check streamData.close();
@@ -203,10 +208,11 @@ function testArrayRetrieval(string jdbcURL, string user, string password) return
     return value;
 }
 
-function testComplexWithStructDef(string jdbcURL, string user, string password) returns record {}|error? {
+function testComplexWithStructDef(string jdbcURL, string user, string password)
+returns record {}|error? {
     jdbc:Client dbClient = check new (url = jdbcURL, user = user, password = password);
-        stream<record{}, error> streamData = dbClient->query("SELECT int_type, int_array, long_type, long_array, float_type,"
-        + "float_array, double_type, boolean_type, string_type, double_array, boolean_array, string_array "
+        stream<record{}, error> streamData = dbClient->query("SELECT int_type, int_array, long_type, long_array, "
+        + "float_type, float_array, double_type, boolean_type, string_type, double_array, boolean_array, string_array "
         + "from MixTypes where row_id =1", TestTypeData);
     record {|record {} value;|}? data = check streamData.next();
     check streamData.close();
@@ -215,7 +221,8 @@ function testComplexWithStructDef(string jdbcURL, string user, string password) 
     return value;
 }
 
-function testMultipleRecoredRetrieval(string jdbcURL, string user, string password) returns @tainted ResultMap[]|error? {
+function testMultipleRecoredRetrieval(string jdbcURL, string user, string password)
+returns @tainted ResultMap[]|error? {
     jdbc:Client dbClient = check new (url = jdbcURL, user = user, password = password);
     stream<record{}, error> streamData = dbClient->query("SELECT int_array, long_array, float_array, boolean_array," +
         "string_array from ArrayTypes", ResultMap);

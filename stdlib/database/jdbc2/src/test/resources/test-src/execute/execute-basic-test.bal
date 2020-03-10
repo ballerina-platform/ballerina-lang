@@ -18,7 +18,8 @@ import ballerina/sql;
 
 function testCreateTable(string jdbcURL, string user, string password) returns sql:ExecuteResult|sql:Error? {
     jdbc:Client dbClient = check new (url = jdbcURL, user = user, password = password);
-    sql:ExecuteResult? result = check dbClient->execute("CREATE TABLE TestCreateTable(studentID int, LastName varchar(255))");
+    sql:ExecuteResult? result = check dbClient->execute("CREATE TABLE TestCreateTable(studentID int,"
+        + " LastName varchar(255))");
     check dbClient.close();
     return result;
 }
@@ -30,14 +31,17 @@ function testInsertTable(string jdbcURL, string user, string password) returns s
     return result;
 }
 
-function testInsertTableWithoutGeneratedKeys(string jdbcURL, string user, string password) returns sql:ExecuteResult|sql:Error? {
+function testInsertTableWithoutGeneratedKeys(string jdbcURL, string user, string password)
+returns sql:ExecuteResult|sql:Error? {
     jdbc:Client dbClient = check new (url = jdbcURL, user = user, password = password);
-    sql:ExecuteResult? result = check dbClient->execute("Insert into StringTypes (id, varchar_type) values (20, 'test')");
+    sql:ExecuteResult? result = check dbClient->execute("Insert into StringTypes (id, varchar_type)"
+        + " values (20, 'test')");
     check dbClient.close();
     return result;
 }
 
-function testInsertTableWithGeneratedKeys(string jdbcURL, string user, string password) returns sql:ExecuteResult|sql:Error? {
+function testInsertTableWithGeneratedKeys(string jdbcURL, string user, string password)
+returns sql:ExecuteResult|sql:Error? {
     jdbc:Client dbClient = check new (url = jdbcURL, user = user, password = password);
     sql:ExecuteResult? result = check dbClient->execute("insert into NumericTypes (int_type) values (21)");
     check dbClient.close();
@@ -57,7 +61,8 @@ type NumericType record {
     float? real_type;
 };
 
-function testInsertAndSelectTableWithGeneratedKeys(string jdbcURL, string user, string password) returns [sql:ExecuteResult?, NumericType?]|error? {
+function testInsertAndSelectTableWithGeneratedKeys(string jdbcURL, string user, string password)
+returns [sql:ExecuteResult?, NumericType?]|error? {
     jdbc:Client dbClient = check new (url = jdbcURL, user = user, password = password);
     sql:ExecuteResult? result = check dbClient->execute("insert into NumericTypes (int_type) values (31)");
 
@@ -76,11 +81,11 @@ function testInsertAndSelectTableWithGeneratedKeys(string jdbcURL, string user, 
     }
 
     check dbClient.close();
-
     return [result, insertedData];
 }
 
-function testInsertWithAllNilAndSelectTableWithGeneratedKeys(string jdbcURL, string user, string password) returns [sql:ExecuteResult?, NumericType?]|error? {
+function testInsertWithAllNilAndSelectTableWithGeneratedKeys(string jdbcURL, string user, string password)
+returns [sql:ExecuteResult?, NumericType?]|error? {
     jdbc:Client dbClient = check new (url = jdbcURL, user = user, password = password);
     sql:ExecuteResult? result = check dbClient->execute("Insert into NumericTypes (int_type, bigint_type, "
         + "smallint_type, tinyint_type, bit_type, decimal_type, numeric_type, float_type, real_type) "
@@ -101,7 +106,6 @@ function testInsertWithAllNilAndSelectTableWithGeneratedKeys(string jdbcURL, str
     }
 
     check dbClient.close();
-
     return [result, insertedData];
 }
 
@@ -117,10 +121,13 @@ type StringData record {
     string clob_type;
 };
 
-function testInsertWithStringAndSelectTable(string jdbcURL, string user, string password) returns [sql:ExecuteResult?, StringData?]|error? {
+function testInsertWithStringAndSelectTable(string jdbcURL, string user, string password)
+returns [sql:ExecuteResult?, StringData?]|error? {
     jdbc:Client dbClient = check new (url = jdbcURL, user = user, password = password);
-    int intIDVal = 25;
-    string insertQuery = string `Insert into StringTypes (id, varchar_type, charmax_type, char_type, charactermax_type, character_type, nvarcharmax_type, longvarchar_type, clob_type) values (${intIDVal},'str1','str2','str3','str4','str5','str6','str7','str8')`;
+    string intIDVal = "25";
+    string insertQuery = "Insert into StringTypes (id, varchar_type, charmax_type, char_type, charactermax_type,"
+        + "character_type, nvarcharmax_type, longvarchar_type, clob_type) values ("
+        + intIDVal + ",'str1','str2','str3','str4','str5','str6','str7','str8')";
     sql:ExecuteResult? result = check dbClient->execute(insertQuery);
 
     StringData? insertedData = ();
@@ -132,18 +139,20 @@ function testInsertWithStringAndSelectTable(string jdbcURL, string user, string 
     insertedData = data?.value;
 
     check dbClient.close();
-
     return [result, insertedData];
 }
 
-function testInsertWithEmptyStringAndSelectTable(string jdbcURL, string user, string password) returns [sql:ExecuteResult?, StringData?]|error? {
+function testInsertWithEmptyStringAndSelectTable(string jdbcURL, string user, string password)
+returns [sql:ExecuteResult?, StringData?]|error? {
     jdbc:Client dbClient = check new (url = jdbcURL, user = user, password = password);
-    int intIDVal = 35;
-    string insertQuery = string `Insert into StringTypes (id, varchar_type, charmax_type, char_type, charactermax_type, character_type, nvarcharmax_type, longvarchar_type, clob_type) values (${intIDVal},'','','','','','','','')`;
+    string intIDVal = "35";
+    string insertQuery = "Insert into StringTypes (id, varchar_type, charmax_type, char_type, charactermax_type, "
+        + "character_type, nvarcharmax_type, longvarchar_type, clob_type) values (" + intIDVal
+        + ",'','','','','','','','')";
     sql:ExecuteResult? result = check dbClient->execute(insertQuery);
 
     StringData? insertedData = ();
-    string query = string `SELECT * from StringTypes where id = ${intIDVal}`;
+    string query = "SELECT * from StringTypes where id = " + intIDVal;
     stream<record{}, error> queryResult = dbClient->query(query, StringData);
     stream<StringData, sql:Error> streamData = <stream<StringData, sql:Error>>queryResult;
     record {|StringData value;|}? data = check streamData.next();
@@ -151,7 +160,6 @@ function testInsertWithEmptyStringAndSelectTable(string jdbcURL, string user, st
     insertedData = data?.value;
 
     check dbClient.close();
-
     return [result, insertedData];
 }
 
@@ -167,14 +175,18 @@ type StringNilData record {
     string? clob_type;
 };
 
-function testInsertWithNilStringAndSelectTable(string jdbcURL, string user, string password) returns [sql:ExecuteResult?, StringNilData?]|error? {
+function testInsertWithNilStringAndSelectTable(string jdbcURL, string user, string password)
+returns [sql:ExecuteResult?, StringNilData?]|error? {
     jdbc:Client dbClient = check new (url = jdbcURL, user = user, password = password);
-    int intIDVal = 45;
-    string insertQuery = string `Insert into StringTypes (id, varchar_type, charmax_type, char_type, charactermax_type, character_type, nvarcharmax_type, longvarchar_type, clob_type) values (${intIDVal},null,null,null,null,null,null,null,null)`;
+    string intIDVal = "45";
+    string test = "Insert" + intIDVal;
+    string insertQuery = "Insert into StringTypes (id, varchar_type, charmax_type, char_type, charactermax_type,"
+        + " character_type, nvarcharmax_type, longvarchar_type, clob_type) values (" + intIDVal
+        + ",null,null,null,null,null,null,null,null)";
     sql:ExecuteResult? result = check dbClient->execute(insertQuery);
 
     StringNilData? insertedData = ();
-    string query = string `SELECT * from StringTypes where id = ${intIDVal}`;
+    string query = "SELECT * from StringTypes where id = " + intIDVal;
     stream<record{}, error> queryResult = dbClient->query(query, StringNilData);
     stream<StringNilData, sql:Error> streamData = <stream<StringNilData, sql:Error>>queryResult;
     record {|StringNilData value;|}? data = check streamData.next();
@@ -185,16 +197,19 @@ function testInsertWithNilStringAndSelectTable(string jdbcURL, string user, stri
     return [result, insertedData];
 }
 
-function testInsertTableWithDatabaseError(string jdbcURL, string user, string password) returns sql:ExecuteResult|sql:Error? {
+function testInsertTableWithDatabaseError(string jdbcURL, string user, string password)
+returns sql:ExecuteResult|sql:Error? {
     jdbc:Client dbClient = check new (url = jdbcURL, user = user, password = password);
     sql:ExecuteResult? result = check dbClient->execute("Insert into NumericTypesNonExistTable (int_type) values (20)");
     check dbClient.close();
     return result;
 }
 
-function testInsertTableWithDataTypeError(string jdbcURL, string user, string password) returns sql:ExecuteResult|sql:Error? {
+function testInsertTableWithDataTypeError(string jdbcURL, string user, string password)
+returns sql:ExecuteResult|sql:Error? {
     jdbc:Client dbClient = check new (url = jdbcURL, user = user, password = password);
-    sql:ExecuteResult? result = check dbClient->execute("Insert into NumericTypes (int_type) values ('This is wrong type')");
+    sql:ExecuteResult? result = check dbClient->execute("Insert into NumericTypes (int_type) values"
+        + " ('This is wrong type')");
     check dbClient.close();
     return result;
 }
@@ -203,12 +218,14 @@ type ResultCount record {
     int countVal;
 };
 
-function testUdateData(string jdbcURL, string user, string password) returns [sql:ExecuteResult?, ResultCount?]|error? {
+function testUdateData(string jdbcURL, string user, string password)
+returns [sql:ExecuteResult?, ResultCount?]|error? {
     jdbc:Client dbClient = check new (url = jdbcURL, user = user, password = password);
     sql:ExecuteResult? result = check dbClient->execute("Update NumericTypes set int_type = 11 where int_type = 10");
     ResultCount? resultCount = ();
 
-    stream<record{}, error> queryResult = dbClient->query("SELECT count(*) as countval from NumericTypes where int_type = 11", ResultCount);
+    stream<record{}, error> queryResult = dbClient->query("SELECT count(*) as countval from NumericTypes"
+        + " where int_type = 11", ResultCount);
     stream<ResultCount, sql:Error> streamData = <stream<ResultCount, sql:Error>>queryResult;
     record {|ResultCount value;|}? data = check streamData.next();
     check streamData.close();
@@ -217,5 +234,3 @@ function testUdateData(string jdbcURL, string user, string password) returns [sq
     check dbClient.close();
     return [result, resultCount];
 }
-
-

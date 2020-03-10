@@ -89,7 +89,8 @@ type NumericOptionalType record {
     float? real_type;
 };
 
-function testQueryNumericOptionalTypeRecord(string jdbcURL, string user, string password) returns NumericOptionalType|error? {
+function testQueryNumericOptionalTypeRecord(string jdbcURL, string user, string password)
+returns NumericOptionalType|error? {
     jdbc:Client dbClient = check new (url = jdbcURL, user = user, password = password);
     stream<record{}, error> streamResult = dbClient->query("SELECT * FROM NumericTypes", NumericOptionalType);
     stream<NumericOptionalType, sql:Error> streamData = <stream<NumericOptionalType, sql:Error>>streamResult;
@@ -113,7 +114,8 @@ type NumericUnionType record {
     decimal|float? real_type;
 };
 
-function testQueryNumericUnionTypeRecord(string jdbcURL, string user, string password) returns NumericUnionType|error? {
+function testQueryNumericUnionTypeRecord(string jdbcURL, string user, string password)
+returns NumericUnionType|error? {
     jdbc:Client dbClient = check new (url = jdbcURL, user = user, password = password);
     stream<record{}, error> streamResult = dbClient->query("SELECT * FROM NumericTypes", NumericUnionType);
     stream<NumericUnionType, sql:Error> streamData = <stream<NumericUnionType, sql:Error>>streamResult;
@@ -137,7 +139,8 @@ type NumericStringType record {
     string? real_type;
 };
 
-function testQueryNumericStringTypeRecord(string jdbcURL, string user, string password) returns NumericStringType|error? {
+function testQueryNumericStringTypeRecord(string jdbcURL, string user, string password)
+returns NumericStringType|error? {
     jdbc:Client dbClient = check new (url = jdbcURL, user = user, password = password);
     stream<record{}, error> streamResult = dbClient->query("SELECT * FROM NumericTypes", NumericStringType);
     stream<NumericStringType, sql:Error> streamData = <stream<NumericStringType, sql:Error>>streamResult;
@@ -163,7 +166,8 @@ type NumericCustomType record {
     CustomType real_type;
 };
 
-function testQueryNumericCustomTypeRecord(string jdbcURL, string user, string password) returns NumericCustomType|error? {
+function testQueryNumericCustomTypeRecord(string jdbcURL, string user, string password)
+returns NumericCustomType|error? {
     jdbc:Client dbClient = check new (url = jdbcURL, user = user, password = password);
     stream<record{}, error> streamResult = dbClient->query("SELECT * FROM NumericTypes", NumericCustomType);
     stream<NumericCustomType, sql:Error> streamData = <stream<NumericCustomType, sql:Error>>streamResult;

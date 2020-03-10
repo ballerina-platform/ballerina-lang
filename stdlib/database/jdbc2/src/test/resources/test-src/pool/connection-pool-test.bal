@@ -154,14 +154,21 @@ function testLocalSharedConnectionPoolConfigSingleDestination(string jdbcUrl) re
     return returnArray;
 }
 
-function testLocalSharedConnectionPoolConfigDifferentDbOptions(string jdbcUrl) returns @tainted (int|error)[]|error {
+function testLocalSharedConnectionPoolConfigDifferentDbOptions(string jdbcUrl)
+returns @tainted (int|error)[]|error {
     sql:ConnectionPool pool = {maxOpenConnections: 3};
-    jdbc:Client dbClient1 = check new (jdbcUrl, user, password, {properties: {"socketConnectTimeout": "2000", "maxReconnect": "3"}}, pool);
-    jdbc:Client dbClient2 = check new (jdbcUrl, user, password, {properties: {"maxReconnect": "3", "socketConnectTimeout": "2000"}}, pool);
-    jdbc:Client dbClient3 = check new (jdbcUrl, user, password, {properties: {"socketConnectTimeout": "2000", "maxReconnect": "3"}}, pool);
-    jdbc:Client dbClient4 = check new (jdbcUrl, user, password, {properties: {"socketConnectTimeout": "1000"}}, pool);
-    jdbc:Client dbClient5 = check new (jdbcUrl, user, password, {properties: {"socketConnectTimeout": "1000"}}, pool);
-    jdbc:Client dbClient6 = check new (jdbcUrl, user, password, {properties: {"socketConnectTimeout": "1000"}}, pool);
+    jdbc:Client dbClient1 = check new (jdbcUrl, user, password,
+        {properties: {"socketConnectTimeout": "2000", "maxReconnect": "3"}}, pool);
+    jdbc:Client dbClient2 = check new (jdbcUrl, user, password,
+        {properties: {"maxReconnect": "3", "socketConnectTimeout": "2000"}}, pool);
+    jdbc:Client dbClient3 = check new (jdbcUrl, user, password,
+        {properties: {"socketConnectTimeout": "2000", "maxReconnect": "3"}}, pool);
+    jdbc:Client dbClient4 = check new (jdbcUrl, user, password,
+        {properties: {"socketConnectTimeout": "1000"}}, pool);
+    jdbc:Client dbClient5 = check new (jdbcUrl, user, password,
+        {properties: {"socketConnectTimeout": "1000"}}, pool);
+    jdbc:Client dbClient6 = check new (jdbcUrl, user, password,
+        {properties: {"socketConnectTimeout": "1000"}}, pool);
 
     stream<record {} , error>[] resultArray = [];
     resultArray[0] = dbClient1->query("select count(*) as val from Customers where registrationID = 1", Result);
@@ -194,7 +201,8 @@ function testLocalSharedConnectionPoolConfigDifferentDbOptions(string jdbcUrl) r
 }
 
 
-function testLocalSharedConnectionPoolConfigMultipleDestinations(string jdbcUrl1, string jdbcUrl2) returns @tainted (int|error)[]|error {
+function testLocalSharedConnectionPoolConfigMultipleDestinations(string jdbcUrl1, string jdbcUrl2)
+returns @tainted (int|error)[]|error {
     sql:ConnectionPool pool = {maxOpenConnections: 3};
     jdbc:Client dbClient1 = check new (jdbcUrl1, user, password, options, pool);
     jdbc:Client dbClient2 = check new (jdbcUrl1, user, password, options, pool);
@@ -279,13 +287,15 @@ function testLocalSharedConnectionPoolStopInitInterleave(string jdbcUrl) returns
     return result;
 }
 
-function testLocalSharedConnectionPoolStopInitInterleaveHelper1(sql:ConnectionPool pool, string jdbcUrl) returns error? {
+function testLocalSharedConnectionPoolStopInitInterleaveHelper1(sql:ConnectionPool pool, string jdbcUrl)
+returns error? {
     jdbc:Client dbClient = check new (jdbcUrl, user, password, options, pool);
     runtime:sleep(10);
     check dbClient.close();
 }
 
-function testLocalSharedConnectionPoolStopInitInterleaveHelper2(sql:ConnectionPool pool, string jdbcUrl) returns @tainted int|error {
+function testLocalSharedConnectionPoolStopInitInterleaveHelper2(sql:ConnectionPool pool, string jdbcUrl)
+returns @tainted int|error {
     runtime:sleep(10);
     jdbc:Client dbClient = check new (jdbcUrl, user, password, options, pool);
     var dt = dbClient->query("SELECT COUNT(*) as val from Customers where registrationID = 1", Result);
@@ -303,7 +313,8 @@ function testShutDownUnsharedLocalConnectionPool(string jdbcUrl) returns @tainte
     // Pool should be shutdown as the only client using it is stopped.
     check dbClient.close();
     // This should result in an error return.
-    var resultAfterPoolShutDown = dbClient->query("select count(*) as val from Customers where registrationID = 1", Result);
+    var resultAfterPoolShutDown = dbClient->query("select count(*) as val from Customers where registrationID = 1",
+        Result);
     int|error retVal2 = getReturnValue(resultAfterPoolShutDown);
     return [retVal1, retVal2];
 }
