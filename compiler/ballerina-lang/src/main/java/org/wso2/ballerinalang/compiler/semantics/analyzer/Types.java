@@ -2661,17 +2661,19 @@ public class Types {
         switch (type.tag) {
             case TypeTags.BOOLEAN:
             case TypeTags.INT:
-            case TypeTags.SIGNED32_INT:
-            case TypeTags.SIGNED16_INT:
-            case TypeTags.SIGNED8_INT:
-            case TypeTags.UNSIGNED32_INT:
-            case TypeTags.UNSIGNED16_INT:
-            case TypeTags.UNSIGNED8_INT:
+                // TODO : Fix this, Issue : #21542
+//            case TypeTags.SIGNED32_INT:
+//            case TypeTags.SIGNED16_INT:
+//            case TypeTags.SIGNED8_INT:
+//            case TypeTags.UNSIGNED32_INT:
+//            case TypeTags.UNSIGNED16_INT:
+//            case TypeTags.UNSIGNED8_INT:
             case TypeTags.BYTE:
             case TypeTags.FLOAT:
             case TypeTags.DECIMAL:
             case TypeTags.STRING:
-            case TypeTags.CHAR_STRING:
+                // TODO : Fix this, Issue : #21542
+//            case TypeTags.CHAR_STRING:
             case TypeTags.NIL:
                 return true;
             case TypeTags.MAP:
