@@ -229,4 +229,50 @@ public class ConnectionPoolTest {
             }
         }
     }
+
+    @Test
+    public void testShutDownPoolCorrespondingToASharedPoolConfig() {
+        BValue[] args = {new BString(DB_NAME1), new BString(DB_NAME2)};
+        BValue[] returns = BRunUtil.invokeFunction(result, "testShutDownPoolCorrespondingToASharedPoolConfig", args);
+        SQLDBUtils.assertNotError(returns[0]);
+        Assert.assertTrue(returns[0] instanceof BValueArray);
+        BValueArray returnArray = (BValueArray) returns[0];
+        for (int i = 0; i < 4; i++) {
+            if (i == 3) {
+                String error1 = returnArray.getRefValue(i).stringValue();
+                Assert.assertTrue(error1.contains("Client is already closed"), "Actual Error: " + error1);
+            } else {
+                Assert.assertEquals(returnArray.getRefValue(i).stringValue(), "1");
+            }
+        }
+    }
+
+    @Test
+    public void testShutDownPootestStopClientUsingGlobalPool() {
+        BValue[] args = {new BString(DB_NAME1)};
+        BValue[] returns = BRunUtil.invokeFunction(result, "testStopClientUsingGlobalPool", args);
+        SQLDBUtils.assertNotError(returns[0]);
+        Assert.assertTrue(returns[0] instanceof BValueArray);
+        BValueArray returnArray = (BValueArray) returns[0];
+        for (int i = 0; i < 2; i++) {
+            if (i == 1) {
+                String error1 = returnArray.getRefValue(i).stringValue();
+                Assert.assertTrue(error1.contains("Client is already closed"), "Actual Error: " + error1);
+            } else {
+                Assert.assertEquals(returnArray.getRefValue(i).stringValue(), "1");
+            }
+        }
+    }
+
+    @Test
+    public void testLocalConnectionPoolShutDown() {
+        BValue[] args = {new BString(DB_NAME1), new BString(DB_NAME2)};
+        BValue[] returns = BRunUtil.invokeFunction(result, "testLocalConnectionPoolShutDown", args);
+        Assert.assertTrue(returns[0] instanceof BValueArray);
+        BValueArray returnArray = (BValueArray) returns[0];
+        String connections1 = returnArray.getRefValue(0).stringValue();
+        String connections2 = returnArray.getRefValue(1).stringValue();
+        Assert.assertTrue(connections1.equalsIgnoreCase(connections2), "Connections are not equal. Connections1: "
+                + connections1 + " , connections2: " + connections2);
+    }
 }

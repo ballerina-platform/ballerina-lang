@@ -16,6 +16,7 @@
 import ballerina/mysql;
 import ballerina/runtime;
 import ballerina/sql;
+import ballerina/lang.'int as ints;
 
 public type Result record {
     int val;
@@ -342,6 +343,71 @@ function testShutDownSharedConnectionPool(string database) returns
     return [retVal1, retVal2, retVal3, retVal4, retVal5];
 }
 
+function testShutDownPoolCorrespondingToASharedPoolConfig(string database1, string database2) returns
+            @tainted [int | error, int | error, int | error, int | error] | error {
+    sql:ConnectionPool pool = {maxOpenConnections: 1};
+    mysql:Client dbClient1 = check new (host, user, password, database1, port, options, pool);
+    mysql:Client dbClient2 = check new (host, user, password, database2, port, options, pool);
+
+    var result1 = dbClient1->query("select count(*) as val from Customers where registrationID = 1", Result);
+    int | error retVal1 = getReturnValue(result1);
+
+    var result2 = dbClient2->query("select count(*) as val from Customers where registrationID = 2", Result);
+    int | error retVal2 = getReturnValue(result2);
+
+    // This should result in stopping the pool used by this client as it was the only client using that pool.
+    check dbClient1.close();
+
+    // This should be successful as the pool belonging to this client is up.
+    var result3 = dbClient2->query("select count(*) as val from Customers where registrationID = 2", Result);
+    int | error retVal3 = getReturnValue(result3);
+
+    // This should fail because this client was stopped.
+    var result4 = dbClient1->query("select count(*) as val from Customers where registrationID = 2", Result);
+    int | error retVal4 = getReturnValue(result4);
+
+    check dbClient2.close();
+
+    return [retVal1, retVal2, retVal3, retVal4];
+}
+
+function testStopClientUsingGlobalPool(string database) returns @tainted [int | error, int | error] | error {
+    // This client doesn't have pool config specified therefore, global pool will be used.
+    mysql:Client dbClient = check new (host, user, password, database, port, options);
+
+    var result1 = dbClient->query("select count(*) as val from Customers where registrationID = 1", Result);
+    int | error retVal1 = getReturnValue(result1);
+
+    // This will merely stop this client and will not have any effect on the pool because it is the global pool.
+    check dbClient.close();
+
+    // This should fail because this client was stopped, even though the pool is up.
+    var result2 = dbClient->query("select count(*) as val from Customers where registrationID = 1", Result);
+    int | error retVal2 = getReturnValue(result2);
+
+    return [retVal1, retVal2];
+}
+
+function testLocalConnectionPoolShutDown(string database1, string database2) returns
+    @tainted [int | error, int | error] | error {
+    int | error count1 = getOpenConnectionCount(database1);
+    int | error count2 = getOpenConnectionCount(database2);
+    return [count1, count2];
+}
+
+public type Variable record {
+    string value;
+    string variable_name;
+};
+
+function getOpenConnectionCount(string database) returns @tainted (int | error) {
+    mysql:Client dbClient = check new (host, user, password, database, port, options, {maxOpenConnections: 1});
+    var dt = dbClient->query("show status where `variable_name` = 'Threads_connected'", Variable);
+    int | error count = getIntVariableValue(dt);
+    check dbClient.close();
+    return count;
+}
+
 function testGlobalConnectionPoolConcurrentHelper1(string database) returns
             @tainted [stream<record{}, error>, stream<record{}, error>] | error {
     mysql:Client dbClient = check new (host, user, password, database, port, options);
@@ -386,6 +452,19 @@ function getReturnValue(stream<record{}, error> queryResult) returns int | error
        record{} value = data.value;
        if(value is Result) {
           count = value.val;
+       }
+    }
+    check queryResult.close();
+    return count;
+}
+
+function getIntVariableValue(stream<record{}, error> queryResult) returns int | error {
+    int count = -1;
+    record{| record{} value; |}? data = check queryResult.next();
+    if(data is record{| record{} value; |})  {
+       record{} variable = data.value;
+       if(variable is Variable) {
+          return ints:fromString(variable.value);
        }
     }
     check queryResult.close();
