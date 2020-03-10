@@ -15,15 +15,14 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.ballerinalang.mysql.pool;
+package org.ballerinalang.jdbc.pool;
 
 import org.ballerinalang.config.ConfigRegistry;
+import org.ballerinalang.jdbc.utils.SQLDBUtils;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueArray;
-import org.ballerinalang.mysql.BaseTest;
-import org.ballerinalang.mysql.utils.SQLDBUtils;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
@@ -45,29 +44,33 @@ import java.util.HashMap;
 public class ConnectionPoolTest {
     private CompileResult result;
     private static final String DB_NAME1 = "TEST_SQL_CONN_POOL_1";
+    private static final String JDBC_URL1 = "jdbc:h2:file:" + SQLDBUtils.DB_DIR + DB_NAME1;
     private static final String DB_NAME2 = "TEST_SQL_CONN_POOL_2";
-    private static final String SQL_SCRIPT = SQLDBUtils.SQL_RESOURCE_DIR + File.separator + SQLDBUtils.POOL_DIR +
-            File.separator + "connection_pool_test_data.sql";
+    private static final String JDBC_URL2 = "jdbc:h2:file:" + SQLDBUtils.DB_DIR + DB_NAME2;
     private static final String CONNECTION_TIMEOUT_ERROR_STRING =
             "Connection is not available, request timed out after";
 
-    static {
-        BaseTest.addDBSchema(DB_NAME1, SQL_SCRIPT);
-        BaseTest.addDBSchema(DB_NAME2, SQL_SCRIPT);
-    }
-
     @BeforeClass
     public void setup() throws IOException {
+        String poolSubDir = "pool";
         Path ballerinaConfPath = SQLDBUtils.getResourcePath("ballerina.conf");
         ConfigRegistry registry = ConfigRegistry.getInstance();
         registry.initRegistry(new HashMap<>(), null, ballerinaConfPath);
-        result = BCompileUtil.compileOffline(SQLDBUtils.getBalFilesDir(SQLDBUtils.POOL_DIR,
+        result = BCompileUtil.compileOffline(SQLDBUtils.getBalFilesDir(poolSubDir,
                 "connection-pool-test.bal"));
+
+        SQLDBUtils.deleteFiles(new File(SQLDBUtils.DB_DIR), DB_NAME1);
+        SQLDBUtils.initH2Database(SQLDBUtils.DB_DIR, DB_NAME1,
+                SQLDBUtils.getSQLResourceDir(poolSubDir, "connection_pool_test_data.sql"));
+
+        SQLDBUtils.deleteFiles(new File(SQLDBUtils.DB_DIR), DB_NAME2);
+        SQLDBUtils.initH2Database(SQLDBUtils.DB_DIR, DB_NAME2,
+                SQLDBUtils.getSQLResourceDir(poolSubDir, "connection_pool_test_data.sql"));
     }
 
     @Test
     public void testGlobalConnectionPoolSingleDestination() {
-        BValue[] args = {new BString(DB_NAME1)};
+        BValue[] args = {new BString(JDBC_URL1)};
         BValue[] returnVal = BRunUtil.invokeFunction(result, "testGlobalConnectionPoolSingleDestination",
                 args);
         SQLDBUtils.assertNotError(returnVal[0]);
@@ -82,7 +85,7 @@ public class ConnectionPoolTest {
 
     @Test
     public void testGlobalConnectionPoolsMultipleDestinations() {
-        BValue[] args = {new BString(DB_NAME1), new BString(DB_NAME2)};
+        BValue[] args = {new BString(JDBC_URL1), new BString(JDBC_URL2)};
         BValue[] returns = BRunUtil.invokeFunction(result, "testGlobalConnectionPoolsMultipleDestinations"
                 , args);
         SQLDBUtils.assertNotError(returns[0]);
@@ -105,7 +108,7 @@ public class ConnectionPoolTest {
 
     @Test
     public void testGlobalConnectionPoolSingleDestinationConcurrent() {
-        BValue[] args = {new BString(DB_NAME1)};
+        BValue[] args = {new BString(JDBC_URL1)};
         BValue[] returns = BRunUtil.invokeFunction(result,
                 "testGlobalConnectionPoolSingleDestinationConcurrent", args);
         SQLDBUtils.assertNotError(returns[0]);
@@ -122,7 +125,7 @@ public class ConnectionPoolTest {
 
     @Test
     public void testLocalSharedConnectionPoolConfigSingleDestination() {
-        BValue[] args = {new BString(DB_NAME1)};
+        BValue[] args = {new BString(JDBC_URL1)};
         BValue[] returns = BRunUtil
                 .invokeFunction(result, "testLocalSharedConnectionPoolConfigSingleDestination", args);
         SQLDBUtils.assertNotError(returns[0]);
@@ -136,7 +139,7 @@ public class ConnectionPoolTest {
 
     @Test
     public void testLocalSharedConnectionPoolConfigDifferentDbOptions() {
-        BValue[] args = {new BString(DB_NAME1)};
+        BValue[] args = {new BString(JDBC_URL1)};
         BValue[] returns = BRunUtil
                 .invokeFunction(result, "testLocalSharedConnectionPoolConfigDifferentDbOptions", args);
         SQLDBUtils.assertNotError(returns[0]);
@@ -156,7 +159,7 @@ public class ConnectionPoolTest {
 
     @Test
     public void testLocalSharedConnectionPoolConfigMultipleDestinations() {
-        BValue[] args = {new BString(DB_NAME1), new BString(DB_NAME2)};
+        BValue[] args = {new BString(JDBC_URL1), new BString(JDBC_URL2)};
         BValue[] returns = BRunUtil
                 .invokeFunction(result, "testLocalSharedConnectionPoolConfigMultipleDestinations", args);
         SQLDBUtils.assertNotError(returns[0]);
@@ -175,7 +178,7 @@ public class ConnectionPoolTest {
 
     @Test
     public void testLocalSharedConnectionPoolCreateClientAfterShutdown() {
-        BValue[] args = {new BString(DB_NAME1)};
+        BValue[] args = {new BString(JDBC_URL1)};
         BValue[] returns = BRunUtil
                 .invokeFunction(result, "testLocalSharedConnectionPoolCreateClientAfterShutdown", args);
         SQLDBUtils.assertNotError(returns[0]);
@@ -193,7 +196,7 @@ public class ConnectionPoolTest {
 
     @Test
     public void testLocalSharedConnectionPoolStopInitInterleave() {
-        BValue[] args = {new BString(DB_NAME1)};
+        BValue[] args = {new BString(JDBC_URL1)};
         BValue[] returns = BRunUtil.invokeFunction(result, "testLocalSharedConnectionPoolStopInitInterleave",
                 args);
         SQLDBUtils.assertNotError(returns[0]);
@@ -203,7 +206,7 @@ public class ConnectionPoolTest {
 
     @Test
     public void testShutDownUnsharedLocalConnectionPool() {
-        BValue[] args = {new BString(DB_NAME1)};
+        BValue[] args = {new BString(JDBC_URL1)};
         BValue[] returns = BRunUtil.invokeFunction(result, "testShutDownUnsharedLocalConnectionPool", args);
         SQLDBUtils.assertNotError(returns[0]);
         Assert.assertTrue(returns[0] instanceof BValueArray);
@@ -215,7 +218,7 @@ public class ConnectionPoolTest {
 
     @Test
     public void testShutDownSharedConnectionPool() {
-        BValue[] args = {new BString(DB_NAME1)};
+        BValue[] args = {new BString(JDBC_URL1)};
         BValue[] returns = BRunUtil.invokeFunction(result, "testShutDownSharedConnectionPool", args);
         SQLDBUtils.assertNotError(returns[0]);
         Assert.assertTrue(returns[0] instanceof BValueArray);
@@ -232,7 +235,7 @@ public class ConnectionPoolTest {
 
     @Test
     public void testShutDownPoolCorrespondingToASharedPoolConfig() {
-        BValue[] args = {new BString(DB_NAME1), new BString(DB_NAME2)};
+        BValue[] args = {new BString(JDBC_URL1), new BString(JDBC_URL2)};
         BValue[] returns = BRunUtil.invokeFunction(result, "testShutDownPoolCorrespondingToASharedPoolConfig", args);
         SQLDBUtils.assertNotError(returns[0]);
         Assert.assertTrue(returns[0] instanceof BValueArray);
@@ -249,7 +252,7 @@ public class ConnectionPoolTest {
 
     @Test
     public void testStopClientUsingGlobalPool() {
-        BValue[] args = {new BString(DB_NAME1)};
+        BValue[] args = {new BString(JDBC_URL1)};
         BValue[] returns = BRunUtil.invokeFunction(result, "testStopClientUsingGlobalPool", args);
         SQLDBUtils.assertNotError(returns[0]);
         Assert.assertTrue(returns[0] instanceof BValueArray);
@@ -266,7 +269,7 @@ public class ConnectionPoolTest {
 
     @Test
     public void testLocalConnectionPoolShutDown() {
-        BValue[] args = {new BString(DB_NAME1), new BString(DB_NAME2)};
+        BValue[] args = {new BString(JDBC_URL1), new BString(JDBC_URL2)};
         BValue[] returns = BRunUtil.invokeFunction(result, "testLocalConnectionPoolShutDown", args);
         Assert.assertTrue(returns[0] instanceof BValueArray);
         BValueArray returnArray = (BValueArray) returns[0];
