@@ -6,16 +6,10 @@
   "source": "annotation/source/resourceAnnotation5.bal",
   "items": [
     {
-      "label": "ParamOrderConfig",
-      "kind": "Property",
-      "detail": "Annotation",
-      "insertText": "ParamOrderConfig {\n\t${1}\n}",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "ResourceConfig",
       "kind": "Property",
       "detail": "Annotation",
+      "sortText": "130",
       "insertText": "ResourceConfig {\n\t${1}\n}",
       "insertTextFormat": "Snippet"
     }

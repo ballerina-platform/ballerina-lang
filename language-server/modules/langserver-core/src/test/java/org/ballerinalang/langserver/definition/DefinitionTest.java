@@ -212,6 +212,9 @@ public class DefinitionTest {
                 // Covers the Mapping Constructor Expression
                 {"defMappingConstructorExpr1.json", "expression"},
                 {"defMappingConstructorExpr2.json", "expression"},
+                {"defMappingConstructorExpr3.json", "expression"},
+                {"defMappingConstructorExpr4.json", "expression"},
+                {"defMappingConstructorExpr5.json", "expression"},
                 {"defServiceConstructorExpr1.json", "expression"},
                 // Covers the String Template Expression
                 {"defStringTemplateExpr1.json", "expression"},
@@ -428,6 +431,12 @@ public class DefinitionTest {
                 {"defPanicStmt1.json", "panic"},
                 // Covers Return Statement
                 {"defReturnStmt1.json", "return"},
+//                // Stream Tests
+                {"defStreams1.json", "streams"},
+                {"defStreams2.json", "streams"},
+                {"defStreams3.json", "streams"},
+                {"defStreams4.json", "streams"},
+                {"defStreams5.json", "streams"},
         };
     }
     

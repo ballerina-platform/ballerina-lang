@@ -73,14 +73,6 @@ public function copy(xml x) returns xml = external;
 # + attributes - Attributes map
 public function setAttributes(xml x, map<any> attributes) = external;
 
-# Searches in children recursively for elements matching the qualified name and returns a sequence containing them
-# all. Does not search within a matched result.
-#
-# + x - The xml source
-# + qname - Qualified name of the element
-# + return - All the descendants that matches the given qualified name, as a sequence
-public function selectDescendants(xml x, string qname) returns xml = external;
-
 # Remove an attribute from an XML.
 #
 # + x - The xml source

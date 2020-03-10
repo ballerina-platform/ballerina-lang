@@ -6,8 +6,8 @@ listener http:Listener ln2 = new (9095);
 service serviceName0 on ln1, ln2 {
     resource function newResource(http:Caller caller, http:Request request) {
         json? payload;
-        (http:Response | error | ()) clientResponse;
-        (json | error) jsonMsg = request.getJsonPayload();
+        (http:Response|error|()) clientResponse;
+        (json|error) jsonMsg = request.getJsonPayload();
         http:Response res = new;
         res.setPayload("sd");
         var d = 0;
@@ -18,8 +18,8 @@ service serviceName0 on ln1, ln2 {
 service serviceName1 on new http:Listener(9090) {
     resource function newResource(http:Caller caller, http:Request request) {
         json? payload;
-        (http:Response | error | ()) clientResponse;
-        (json | error) jsonMsg = request.getJsonPayload();
+        (http:Response|error|()) clientResponse;
+        (json|error) jsonMsg = request.getJsonPayload();
         http:Response res = new;
         res.setPayload("sd");
         var d = 0;
@@ -65,7 +65,7 @@ service serviceName4 on new http:Listener(9090) {
 
         if (jsonMsg is json) {
             string nameString = jsonMsg.name.toString();
-            http:Response | error clientResponse;
+            http:Response|error clientResponse;
 
             if (nameString == "sanFrancisco") {
                 clientResponse =
@@ -81,8 +81,8 @@ service serviceName5 on
     ln2 {
     resource function newResource(http:Caller caller, http:Request request) {
         json? payload;
-        (http:Response | error | ()) clientResponse;
-        (json | error) jsonMsg = request.getJsonPayload();
+        (http:Response|error|()) clientResponse;
+        (json|error) jsonMsg = request.getJsonPayload();
         http:Response res = new;
         res.setPayload("sd");
         var d = 0;
@@ -97,8 +97,8 @@ service serviceName6 on
     Listener(9090) {
     resource function newResource(http:Caller caller, http:Request request) {
         json? payload;
-        (http:Response | error | ()) clientResponse;
-        (json | error) jsonMsg = request.getJsonPayload();
+        (http:Response|error|()) clientResponse;
+        (json|error) jsonMsg = request.getJsonPayload();
         http:Response res = new;
         res.setPayload("sd");
         var d = 0;

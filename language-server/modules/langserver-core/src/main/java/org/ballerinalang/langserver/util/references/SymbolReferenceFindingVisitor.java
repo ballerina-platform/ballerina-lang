@@ -21,6 +21,7 @@ import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.model.elements.Flag;
+import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.eclipse.lsp4j.TextDocumentPositionParams;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
@@ -43,6 +44,10 @@ import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTupleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangFromClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangLetClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangWhereClause;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
@@ -60,6 +65,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRestArgsExpression;
@@ -708,6 +714,8 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
                         (BLangRecordLiteral.BLangRecordKeyValueField) field;
                 this.acceptNode(bLangRecordKeyValue.key.expr);
                 this.acceptNode(bLangRecordKeyValue.valueExpr);
+            } else if (field.getKind() == NodeKind.RECORD_LITERAL_SPREAD_OP) {
+                this.acceptNode((BLangRecordLiteral.BLangRecordSpreadOperatorField) field);
             } else {
                 this.acceptNode((BLangRecordLiteral.BLangRecordVarNameField) field);
             }
@@ -859,11 +867,46 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
     }
 
     @Override
+    public void visit(BLangRecordLiteral.BLangRecordSpreadOperatorField spreadOperatorField) {
+        this.acceptNode(spreadOperatorField.expr);
+    }
+
+    @Override
     public void visit(BLangErrorVarRef varRefExpr) {
         this.acceptNode(varRefExpr.typeNode);
         this.acceptNode(varRefExpr.reason);
         varRefExpr.detail.forEach(bLangNamedArgsExpression -> this.acceptNode(bLangNamedArgsExpression.expr));
         this.acceptNode(varRefExpr.restVar);
+    }
+
+    @Override
+    public void visit(BLangQueryExpr queryExpr) {
+        queryExpr.fromClauseList.forEach(this::acceptNode);
+        queryExpr.letClausesList.forEach(this::acceptNode);
+        this.acceptNode(queryExpr.selectClause);
+        queryExpr.whereClauseList.forEach(this::acceptNode);
+    }
+
+    @Override
+    public void visit(BLangFromClause fromClause) {
+        this.acceptNode(fromClause.collection);
+        this.acceptNode((BLangNode) fromClause.variableDefinitionNode);
+    }
+
+    @Override
+    public void visit(BLangSelectClause selectClause) {
+        this.acceptNode(selectClause.expression);
+    }
+
+    @Override
+    public void visit(BLangWhereClause whereClause) {
+        this.acceptNode(whereClause.expression);
+    }
+
+    @Override
+    public void visit(BLangLetClause letClause) {
+        letClause.letVarDeclarations
+                .forEach(bLangLetVariable -> this.acceptNode((BLangNode) bLangLetVariable.definitionNode));
     }
 
     private void acceptNode(BLangNode node) {

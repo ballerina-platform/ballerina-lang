@@ -482,6 +482,11 @@ public class OpenRecordTest {
     }
 
     @Test
+    public void testCustomErrorTypeDescFieldOnRecord() {
+        BRunUtil.invoke(compileResult, "testCustomErrorTypeDescFieldOnRecord");
+    }
+
+    @Test
     public void testOptionalRecordRemove() {
         BValue[] returns = BRunUtil.invoke(compileResult, "removeOptional");
     }

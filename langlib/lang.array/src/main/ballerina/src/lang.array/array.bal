@@ -136,6 +136,16 @@ public function setLength((any|error)[] arr, int length) returns () = external;
 # + return - index of the member if found, else `()`
 public function indexOf(PureType[] arr, PureType val, int startIndex = 0) returns int? = external;
 
+# Returns the index of last member of `arr` that is equal to `val` if there is one.
+# Returns `()` if not found.
+# Equality is tested using `==`.
+#
+# + arr - the array
+# + val - member to search for
+# + startIndex - index to start searching backwards from
+# + return - index of the member if found, else `()`
+public function lastIndexOf(PureType[] arr, PureType val, int startIndex = arr.length() - 1) returns int? = external;
+
 # Reverses the order of the members of an array.
 #
 # + arr - the array to be reversed
