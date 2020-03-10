@@ -78,6 +78,7 @@ import org.wso2.ballerinalang.util.Lists;
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -1050,8 +1051,14 @@ public class Types {
                 BUnionType nextMethodReturnType = getVarTypeFromIterableObject((BObjectType) collectionType);
                 if (nextMethodReturnType != null) {
                     foreachNode.resultType = getRecordType(nextMethodReturnType);
+                    foreachNode.errorType = getErrorType(nextMethodReturnType);
                     foreachNode.nillableResultType = nextMethodReturnType;
-                    foreachNode.varType = ((BRecordType) foreachNode.resultType).fields.get(0).type;
+                    BType valueType = ((BRecordType) foreachNode.resultType).fields.get(0).type;
+                    if (foreachNode.errorType != null) {
+                        valueType = BUnionType.create(null,
+                                new LinkedHashSet<>(Arrays.asList(valueType, foreachNode.errorType)));
+                    }
+                    foreachNode.varType = valueType;
                     return;
                 }
                 dlogHelper.error(foreachNode.collection.pos, DiagnosticCode.INCOMPATIBLE_ITERATOR_FUNCTION_SIGNATURE);
@@ -1076,6 +1083,7 @@ public class Types {
                 (BUnionType) getResultTypeOfNextInvocation((BObjectType) iteratorSymbol.retType);
         foreachNode.varType = varType;
         foreachNode.resultType = getRecordType(nextMethodReturnType);
+        foreachNode.errorType = getErrorType(nextMethodReturnType);
         foreachNode.nillableResultType = nextMethodReturnType;
     }
 
@@ -1137,6 +1145,7 @@ public class Types {
                 BUnionType nextMethodReturnType = getVarTypeFromIterableObject((BObjectType) collectionType);
                 if (nextMethodReturnType != null) {
                     fromClause.resultType = getRecordType(nextMethodReturnType);
+                    fromClause.errorType = getErrorType(nextMethodReturnType);
                     fromClause.nillableResultType = nextMethodReturnType;
                     fromClause.varType = ((BRecordType) fromClause.resultType).fields.get(0).type;
                     return;
@@ -1146,11 +1155,13 @@ public class Types {
             case TypeTags.SEMANTIC_ERROR:
                 fromClause.varType = symTable.semanticError;
                 fromClause.resultType = symTable.semanticError;
+                fromClause.errorType = symTable.semanticError;
                 fromClause.nillableResultType = symTable.semanticError;
                 return;
             default:
                 fromClause.varType = symTable.semanticError;
                 fromClause.resultType = symTable.semanticError;
+                fromClause.errorType = symTable.semanticError;
                 fromClause.nillableResultType = symTable.semanticError;
                 dlogHelper.error(fromClause.collection.pos, DiagnosticCode.ITERABLE_NOT_SUPPORTED_COLLECTION,
                                  collectionType);
@@ -1163,6 +1174,7 @@ public class Types {
                 (BUnionType) getResultTypeOfNextInvocation((BObjectType) iteratorSymbol.retType);
         fromClause.varType = varType;
         fromClause.resultType = getRecordType(nextMethodReturnType);
+        fromClause.errorType = getErrorType(nextMethodReturnType);
         fromClause.nillableResultType = nextMethodReturnType;
     }
 
@@ -1269,6 +1281,15 @@ public class Types {
         for (BType member : type.getMemberTypes()) {
             if (member.tag == TypeTags.RECORD) {
                 return (BRecordType) member;
+            }
+        }
+        return null;
+    }
+
+    private BErrorType getErrorType(BUnionType type) {
+        for (BType member : type.getMemberTypes()) {
+            if (member.tag == TypeTags.ERROR) {
+                return (BErrorType) member;
             }
         }
         return null;
