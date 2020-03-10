@@ -1230,9 +1230,7 @@ public class Types {
             return false;
         }
 
-        if (!types.removeIf(type -> type.tag == TypeTags.ERROR)) {
-            return false;
-        }
+        types.removeIf(type -> type.tag == TypeTags.ERROR);
 
         if (types.size() != 1) {
             //TODO: print error

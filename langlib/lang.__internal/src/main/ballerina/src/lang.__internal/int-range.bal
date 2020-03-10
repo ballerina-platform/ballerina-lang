@@ -36,7 +36,7 @@ type IntRange object {
 
     public function next() returns record {|
         int value;
-    |}? {
+    |}|error? {
 
         if (self.hasNext()) {
             record {|int value;|} nextVal = {value : self.iCurrent};
@@ -47,7 +47,8 @@ type IntRange object {
         return ();
     }
 
-    public function __iterator() returns abstract object {public function next() returns record {|int value;|}?;} {
+    public function __iterator() returns abstract object {public function next() returns
+        record {|int value;|}|error?;} {
             return new IntRange(self.iStart, self.iEnd);
     }
 };
@@ -63,7 +64,7 @@ public function createIntRange(int s, int e) returns
             public function __iterator() returns
                 abstract object {
                     public function next() returns
-                        record {|int value;|}?;
+                        record {|int value;|}|error?;
                 };
         } {
     IntRange intRange = new(s, e);
