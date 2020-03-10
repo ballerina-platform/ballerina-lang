@@ -82,13 +82,12 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
-import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
+import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLogHelper;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.util.Flags;
 import org.wso2.ballerinalang.util.Lists;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -114,7 +113,7 @@ public class SymbolResolver extends BLangNodeVisitor {
 
     private SymbolTable symTable;
     private Names names;
-    private BLangDiagnosticLog dlog;
+    private BLangDiagnosticLogHelper dlog;
     private Types types;
 
     private SymbolEnv env;
@@ -137,7 +136,7 @@ public class SymbolResolver extends BLangNodeVisitor {
 
         this.symTable = SymbolTable.getInstance(context);
         this.names = Names.getInstance(context);
-        this.dlog = BLangDiagnosticLog.getInstance(context);
+        this.dlog = BLangDiagnosticLogHelper.getInstance(context);
         this.types = Types.getInstance(context);
         this.symbolEnter = SymbolEnter.getInstance(context);
         this.anonymousModelHelper = BLangAnonymousModelHelper.getInstance(context);
@@ -352,32 +351,6 @@ public class SymbolResolver extends BLangNodeVisitor {
                                          BType lhsType,
                                          BType rhsType) {
         return resolveOperator(names.fromString(opKind.value()), Lists.of(lhsType, rhsType));
-    }
-
-    public BSymbol resolveBuiltinOperator(Name method, BType... args) {
-        BType type = args[0];
-        switch (type.tag) {
-            case TypeTags.RECORD:
-                type = symTable.recordType;
-                break;
-            case TypeTags.ARRAY:
-                type = symTable.arrayType;
-                break;
-            case TypeTags.TUPLE:
-                type = symTable.tupleType;
-                break;
-            case TypeTags.ERROR:
-                type = symTable.errorType;
-                break;
-            case TypeTags.MAP:
-                type = symTable.mapType;
-                break;
-        }
-
-        List<BType> argsList = Lists.of(type);
-        List<BType> paramTypes = Arrays.asList(args).subList(1, args.length);
-        argsList.addAll(paramTypes);
-        return resolveOperator(method, argsList);
     }
 
     BSymbol createEqualityOperator(OperatorKind opKind, BType lhsType, BType rhsType) {
@@ -626,6 +599,9 @@ public class SymbolResolver extends BLangNodeVisitor {
                 break;
             case TypeTags.XML:
                 bSymbol = lookupLangLibMethodInModule(symTable.langXmlModuleSymbol, name);
+                break;
+            case TypeTags.BOOLEAN:
+                bSymbol = lookupLangLibMethodInModule(symTable.langBooleanModuleSymbol, name);
                 break;
             case TypeTags.UNION:
                 Iterator<BType> itr = ((BUnionType) type).getMemberTypes().iterator();

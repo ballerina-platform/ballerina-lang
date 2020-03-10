@@ -431,6 +431,12 @@ public class DefinitionTest {
                 {"defPanicStmt1.json", "panic"},
                 // Covers Return Statement
                 {"defReturnStmt1.json", "return"},
+//                // Stream Tests
+                {"defStreams1.json", "streams"},
+                {"defStreams2.json", "streams"},
+                {"defStreams3.json", "streams"},
+                {"defStreams4.json", "streams"},
+                {"defStreams5.json", "streams"},
         };
     }
     

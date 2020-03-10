@@ -29,4 +29,5 @@ function testDulpicateKeyWithSpreadOpField() {
     Foo f = {s: "str", i: 2};
     Bar b = {i: 1, f: 1.0, ...f, s: "hi"};
     map<string|int|float> m = {s: "hello", ...b, f: 1.0, i: "bye"};
+    map<anydata> n = {s: "hello", ...{s: "hi", i: 1}, f: 1.0, i: "bye"};
 }
