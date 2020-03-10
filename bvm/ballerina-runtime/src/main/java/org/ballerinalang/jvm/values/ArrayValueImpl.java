@@ -244,8 +244,8 @@ public class ArrayValueImpl extends AbstractArrayValue {
     @Override
     public Object fillAndGetRefValue(long index) {
         if (refValues != null) {
-            boolean needsFilling = index >= size;
-            if (needsFilling && this.elementType.getTag() == TypeTags.ARRAY_TAG) {
+            // Need do a filling-read if index >= size
+            if (index >= this.size) {
                 add(index, (Object) this.elementType.getZeroValue());
             }
             return refValues[(int) index];
