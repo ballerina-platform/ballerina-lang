@@ -144,6 +144,7 @@ test {
 artifacts {
     bir file("$buildDir/generated-bir/"), { builtBy(createCacheEntries) }
     birJar file("$buildDir/generated-bir-jar/" + moduleName + ".jar"), { builtBy(createBalo) }
+    bStringBirJar file('build/generated-bir-jar/' + project.ext.moduleName + "-bstring" + '.jar'), {builtBy(createBStringBalo)}
 }
 
 def getJarCreationCommand(it, generatedBirDir, mapPath, jarsToBeLoaded) {

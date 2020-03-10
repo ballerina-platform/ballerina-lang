@@ -29,8 +29,13 @@
     </listeners>
     <test name="jballerina-test" parallel="false">
         <parameter name="enableJBallerinaTests" value="true"/>
+        <groups>
+            <run>
+                <exclude name="brokenOnJBallerina"/>
+            </run>
+        </groups>
         <packages>
-<!--            <package name="org.ballerinalang.test.types.string.*"/>-->
+            <package name="org.ballerinalang.test.types.string.*"/>
         </packages>
 
     </test>

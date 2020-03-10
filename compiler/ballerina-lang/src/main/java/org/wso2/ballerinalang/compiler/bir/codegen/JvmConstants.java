@@ -38,6 +38,7 @@ public class JvmConstants {
     public static final String REF_VALUE = "org/ballerinalang/jvm/values/RefValue";
     public static final String ERROR_VALUE = "org/ballerinalang/jvm/values/ErrorValue";
     public static final String STRING_VALUE = "java/lang/String";
+    public static final String BMP_STRING_VALUE = "org/ballerinalang/jvm/values/BmpStringValue";
     public static final String LONG_VALUE = "java/lang/Long";
     public static final String BOOLEAN_VALUE = "java/lang/Boolean";
     public static final String DOUBLE_VALUE = "java/lang/Double";
