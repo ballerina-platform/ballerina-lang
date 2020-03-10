@@ -25,6 +25,7 @@ import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.nats.Constants;
+import org.ballerinalang.nats.Utils;
 
 import java.util.Optional;
 
@@ -72,8 +73,7 @@ public class NatsTracingUtil {
         Object connection = producerObject.get(Constants.CONNECTION_OBJ);
         if (TypeChecker.getType(connection).getTag() == TypeTags.OBJECT_TYPE_TAG) {
             ObjectValue connectionObject = (ObjectValue) connection;
-            String url = String.join(",", connectionObject.getArrayValue(Constants.URL).getStringArray());
-            traceResourceInvocation(strand, url, subject);
+            traceResourceInvocation(strand, Utils.getCommaSeparatedUrl(connectionObject), subject);
         } else {
             traceResourceInvocation(strand, NatsObservabilityConstants.UNKNOWN, subject);
         }
@@ -86,8 +86,7 @@ public class NatsTracingUtil {
         Object connection = listenerOrProducerObject.get(Constants.CONNECTION_OBJ);
         if (TypeChecker.getType(connection).getTag() == TypeTags.OBJECT_TYPE_TAG) {
             ObjectValue connectionObject = (ObjectValue) connection;
-            String url = String.join(",", connectionObject.getArrayValue(Constants.URL).getStringArray());
-            traceResourceInvocation(strand, url);
+            traceResourceInvocation(strand, Utils.getCommaSeparatedUrl(connectionObject));
         } else {
             traceResourceInvocation(strand, NatsObservabilityConstants.UNKNOWN);
         }

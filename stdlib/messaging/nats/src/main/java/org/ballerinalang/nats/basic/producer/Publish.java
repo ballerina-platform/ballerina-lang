@@ -46,7 +46,7 @@ public class Publish {
         if (TypeChecker.getType(connection).getTag() == TypeTags.OBJECT_TYPE_TAG) {
             ObjectValue connectionObject = (ObjectValue) connection;
             Connection natsConnection = (Connection) connectionObject.getNativeData(Constants.NATS_CONNECTION);
-            String url = String.join(",", connectionObject.getArrayValue(Constants.URL).getStringArray());
+            String url = Utils.getCommaSeparatedUrl(connectionObject);
             if (natsConnection == null) {
                 NatsMetricsUtil.reportProducerError(url, subject, NatsObservabilityConstants.ERROR_TYPE_PUBLISH);
                 return BallerinaErrors.createError(Constants.NATS_ERROR_CODE, Constants.PRODUCER_ERROR + subject +
