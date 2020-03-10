@@ -789,8 +789,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangTypeInit typeInitExpr) {
         typeInitExpr.argsExpr.forEach(argExpr -> analyzeNode(argExpr, env));
-        if (this.currDependentSymbol.peek() != null
-                && (typeInitExpr.type.tag != TypeTags.STREAM)) {
+        if (this.currDependentSymbol.peek() != null) {
             addDependency(this.currDependentSymbol.peek(), typeInitExpr.type.tsymbol);
         }
     }

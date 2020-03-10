@@ -1211,7 +1211,7 @@ public class Types {
 
         returnType = nextFunc.type.retType;
         // Check if the next function return type has the union type,
-        // record {|int value;|}|();
+        // record {|int value;|}|error|();
         if (checkNextFuncReturnType(returnType)) {
             return (BUnionType) returnType;
         }
@@ -1231,7 +1231,12 @@ public class Types {
         }
 
         if (!types.removeIf(type -> type.tag == TypeTags.ERROR)) {
-            // return false;
+            return false;
+        }
+
+        if (types.size() != 1) {
+            //TODO: print error
+            return false;
         }
 
         if (types.get(0).tag != TypeTags.RECORD) {

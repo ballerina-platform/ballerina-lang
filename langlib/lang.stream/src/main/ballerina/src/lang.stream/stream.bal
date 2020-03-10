@@ -83,13 +83,13 @@ public function next(stream<Type, ErrorType> strm) returns record {| Type value;
     } iteratorObj = <abstract object {
                             public function next() returns record {|Type value;|}|ErrorType?;
                      }>internal:getIteratorObj(strm);
-    var next1 = iteratorObj.next();
-    if (next1 is ()) {
+    var val = iteratorObj.next();
+    if (val is ()) {
         return ();
-    } else if (next1 is error) {
-        return next1;
+    } else if (val is error) {
+        return val;
     } else {
-        return internal:setNarrowType(internal:getElementType(typeof strm), {value : next1.value});
+        return internal:setNarrowType(internal:getElementType(typeof strm), {value : val.value});
     }
 }
 
@@ -144,7 +144,7 @@ public function reduce(stream<Type,ErrorType> stm, function(Type1 accum, Type va
         if (nextVal is ()) {
             return reducedValue;
         } else if (nextVal is error) {
-            return reducedValue;
+            return nextVal;
         } else {
             var value = nextVal?.value;
             reducedValue = func(reducedValue, value);
