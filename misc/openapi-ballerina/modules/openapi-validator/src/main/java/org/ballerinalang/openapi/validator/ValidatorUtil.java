@@ -187,7 +187,7 @@ class ValidatorUtil {
                                     BLangLiteral value = (BLangLiteral) valueExpr;
                                     if (value.getValue() instanceof String) {
                                         resourceSummary.setPath((String) value.getValue());
-                                        resourceSummary.setPathPosition(value.getPosition());
+                                        resourceSummary.setPathPosition(path.getPosition());
                                     }
                                 }
                             } else if (contractAttr.equals(Constants.METHODS)) {
@@ -198,7 +198,7 @@ class ValidatorUtil {
                                             BLangLiteral method = (BLangLiteral) methodExpr;
                                             resourceSummary.addMethod(((String) method.value)
                                                     .toLowerCase(Locale.ENGLISH));
-                                            resourceSummary.setMethodsPosition(methodSet.getPosition());
+                                            resourceSummary.setMethodsPosition(path.getPosition());
                                         }
                                     }
                                 }
