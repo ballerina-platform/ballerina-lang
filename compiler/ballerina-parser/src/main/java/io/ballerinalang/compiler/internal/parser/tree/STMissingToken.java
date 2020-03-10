@@ -25,7 +25,7 @@ public class STMissingToken extends STToken {
     public static final boolean IS_MISSING = true;
 
     public STMissingToken(SyntaxKind kind) {
-        super(kind, new STNodeList(new ArrayList<>(0)), new STNodeList(new ArrayList<>(0)));
+        super(kind, 0, new STNodeList(new ArrayList<>(0)), new STNodeList(new ArrayList<>(0)));
     }
     
     @Override
