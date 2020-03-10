@@ -2720,7 +2720,6 @@ public class BLangPackageBuilder {
                 markdownDocumentationNode.getDeprecationDocumentation();
         deprecationAnnotationDocumentation.addWS(ws);
         deprecationAnnotationDocumentation.addDeprecationDocumentationLine(description);
-//        markdownDocumentationNode.setDeprecationDocumentation(deprecationAnnotationDocumentation);
     }
 
     void startAnnotationAttachment(DiagnosticPos currentPos) {
