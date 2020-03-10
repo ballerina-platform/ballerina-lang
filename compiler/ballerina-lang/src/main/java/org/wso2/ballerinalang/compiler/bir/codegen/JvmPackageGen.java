@@ -315,15 +315,12 @@ public class JvmPackageGen {
         Set<PackageID> dependentModuleSet = new LinkedHashSet<>();
 
         addBuiltinImports(module, dependentModuleSet);
-
-        BPackageSymbol pkgSymbol = CodeGenerator.packageCache.getSymbol(getBvmAlias(orgName, moduleName));
-
-        if (pkgSymbol != null) {
-            for (BPackageSymbol packageSymbol : pkgSymbol.imports) {
-                generateDependencyList(packageSymbol, jarFile, interopValidator);
-                if (CodeGenerator.dlog.getErrorCount() > 0) {
-                    return;
-                }
+        for (BIRImportModule importModule : module.importModules) {
+            BPackageSymbol pkgSymbol = CodeGenerator.packageCache.getSymbol(getBvmAlias(importModule.org.value,
+                                                                                        importModule.name.value));
+            generateDependencyList(pkgSymbol, jarFile, interopValidator);
+            if (CodeGenerator.dlog.getErrorCount() > 0) {
+                return;
             }
         }
 
