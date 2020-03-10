@@ -76,4 +76,5 @@ public final class Constants {
     static final String MYSQL_DATASOURCE_NAME = "com.mysql.cj.jdbc.MysqlDataSource";
     static final String MYSQL_XA_DATASOURCE_NAME = "com.mysql.cj.jdbc.MysqlXADataSource";
     static final String FILE = "file:";
+    static final String POOL_CONNECT_TIMEOUT = "ConnectionTimeout";
 }

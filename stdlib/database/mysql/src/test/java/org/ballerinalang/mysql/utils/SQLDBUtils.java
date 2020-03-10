@@ -45,14 +45,32 @@ public class SQLDBUtils {
     public static final String EXECUTE_DIR = "execute";
     public static final String POOL_DIR = "pool";
 
+    /**
+     * Resolves the ballerina test source file path.
+     *
+     * @param subResourceDir The name of the subdirectory where the ballerina file belongs
+     * @param resouceFileName The name of the ballerina file
+     * @return The path of the ballerina file
+     */
     public static String getBalFilesDir(String subResourceDir, String resouceFileName) {
         return Paths.get("test-src", subResourceDir, resouceFileName).toString();
     }
 
+    /**
+     * Resolve the the path of the resource file.
+     *
+     * @param fileName Name of the resource file
+     * @return Absolute path of the resource file
+     */
     public static Path getResourcePath(String fileName) {
         return Paths.get("src", "test", "resources", fileName).toAbsolutePath();
     }
 
+    /**
+     * Validates the provided ballerina object is not an error type.
+     *
+     * @param value The object which needs to be validated.
+     */
     public static void assertNotError(Object value) {
         if (value instanceof BError) {
             BError bError = (BError) value;

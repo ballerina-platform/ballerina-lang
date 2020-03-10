@@ -52,7 +52,7 @@ public class NativeImpl {
             Object connectTimeout = properties.get(Constants.DatabaseProps.CONNECT_TIMEOUT);
             if (connectTimeout != null) {
                 poolProperties = new Properties();
-                poolProperties.setProperty("ConnectionTimeout", connectTimeout.toString());
+                poolProperties.setProperty(Constants.POOL_CONNECT_TIMEOUT, connectTimeout.toString());
             }
         }
 
