@@ -61,7 +61,7 @@ function testUpdate(string jdbcURL) returns int {
     });
 
     var insertCountRet = testDB->update("insert into Customers (customerId, name, creditLimit, country)" +
-                                "values (15, 'Anne', 1000, 'UK')", false);
+                                "values (15, 'Anne', 1000, 'UK')");
     int insertCount = 0;
     if (insertCountRet is jdbc:UpdateResult) {
         insertCount = insertCountRet.updatedRowCount;

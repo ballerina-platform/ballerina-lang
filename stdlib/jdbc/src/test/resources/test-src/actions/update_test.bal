@@ -144,7 +144,7 @@ function testCreateTable(string jdbcURL) returns [int, int] {
         poolOptions: {maximumPoolSize: 1}
     });
 
-    var result = testDB->update("CREATE TABLE TestCreateTable(studentID int, LastName varchar(255))", false);
+    var result = testDB->update("CREATE TABLE TestCreateTable(studentID int, LastName varchar(255))");
     int updatedRowCount = 0;
     int generatedKeysMapLength = 0;
     if (result is jdbc:UpdateResult) {
@@ -323,7 +323,7 @@ function testUpdateTableData(string jdbcURL) returns [int, int] {
     });
 
     int updateCount = 0;
-    var result = testDB->update("Update NumericTypes set int_type = 11 where int_type = 10", false);
+    var result = testDB->update("Update NumericTypes set int_type = 11 where int_type = 10");
     if (result is jdbc:UpdateResult) {
         updateCount = result.updatedRowCount;
     }

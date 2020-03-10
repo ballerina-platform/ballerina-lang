@@ -195,7 +195,7 @@ function testBatchUpdateWithNullParam(string jdbcURL) returns int[] {
     });
 
     jdbc:BatchUpdateResult ret = testDB->batchUpdate("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)" +
-                                     "values ('Alex','Smith',20,3400.5,'Colombo')", false, false);
+                                     "values ('Alex','Smith',20,3400.5,'Colombo')");
     int[] updateCount = ret.updatedRowCount;
     checkpanic testDB.stop();
     return updateCount;

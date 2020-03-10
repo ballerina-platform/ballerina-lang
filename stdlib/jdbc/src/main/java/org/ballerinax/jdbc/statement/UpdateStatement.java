@@ -129,8 +129,4 @@ public class UpdateStatement extends AbstractSQLStatement {
         return populatedUpdateResultRecord;
     }
 
-    private enum GenKeyStmt {
-        INSERT, DELETE, UPDATE, MERGE
-    }
-
 }
