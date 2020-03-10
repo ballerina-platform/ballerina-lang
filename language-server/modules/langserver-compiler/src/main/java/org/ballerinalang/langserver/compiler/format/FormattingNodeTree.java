@@ -7116,6 +7116,48 @@ public class FormattingNodeTree {
     }
 
     /**
+     * format Xml Element Access node.
+     *
+     * @param node {JsonObject} node as json object
+     */
+    public void formatXmlElementAccessNode(JsonObject node) {
+        if (node.has(FormattingConstants.WS) && node.has(FormattingConstants.FORMATTING_CONFIG)) {
+            JsonObject formatConfig = node.getAsJsonObject(FormattingConstants.FORMATTING_CONFIG);
+            JsonArray ws = node.getAsJsonArray(FormattingConstants.WS);
+            String indentation = this.getIndentation(formatConfig, false);
+            String indentationOfParent = this.getParentIndentation(formatConfig);
+            boolean useParentIndentation = formatConfig.get(FormattingConstants.USE_PARENT_INDENTATION).getAsBoolean();
+
+            this.preserveHeight(ws, useParentIndentation ? indentationOfParent : indentation, useParentIndentation);
+
+            for (JsonElement wsItem : ws) {
+                JsonObject currentWS = wsItem.getAsJsonObject();
+                if (this.noHeightAvailable(currentWS.get(FormattingConstants.WS).getAsString())) {
+                    currentWS.addProperty(FormattingConstants.WS, FormattingConstants.EMPTY_SPACE);
+                }
+            }
+
+            if (node.has(FormattingConstants.EXPRESSION)) {
+                JsonObject expression = node.getAsJsonObject(FormattingConstants.EXPRESSION);
+                expression.add(FormattingConstants.FORMATTING_CONFIG,
+                        this.getFormattingConfig(0,
+                                formatConfig.get(FormattingConstants.SPACE_COUNT).getAsInt(), 0, false,
+                                this.getWhiteSpaceCount(indentationOfParent), true));
+            }
+
+            if (node.has("filters")) {
+                JsonArray filters = node.getAsJsonArray("filters");
+                for (JsonElement filterItem : filters) {
+                    JsonObject filter = filterItem.getAsJsonObject();
+                    filter.add(FormattingConstants.FORMATTING_CONFIG,
+                            this.getFormattingConfig(0, 0, 0, false,
+                                    this.getWhiteSpaceCount(indentationOfParent), true));
+                }
+            }
+        }
+    }
+
+    /**
      * format XML Element Literal node.
      *
      * @param node {JsonObject} node as json object
@@ -7232,6 +7274,80 @@ public class FormattingNodeTree {
                 }
             } else if (node.has("namespaceDeclaration")) {
                 node.getAsJsonObject("namespaceDeclaration").add(FormattingConstants.FORMATTING_CONFIG, formatConfig);
+            }
+        }
+    }
+
+    /**
+     * format Xml Navigation node.
+     *
+     * @param node {JsonObject} node as json object
+     */
+    public void formatXmlNavigationNode(JsonObject node) {
+        if (node.has(FormattingConstants.WS) && node.has(FormattingConstants.FORMATTING_CONFIG)) {
+            JsonObject formatConfig = node.getAsJsonObject(FormattingConstants.FORMATTING_CONFIG);
+            JsonArray ws = node.getAsJsonArray(FormattingConstants.WS);
+            String indentation = this.getIndentation(formatConfig, false);
+            String indentationOfParent = this.getParentIndentation(formatConfig);
+            boolean useParentIndentation = formatConfig.get(FormattingConstants.USE_PARENT_INDENTATION).getAsBoolean();
+
+            this.preserveHeight(ws, useParentIndentation ? indentationOfParent : indentation, useParentIndentation);
+
+            for (JsonElement wsItem : ws) {
+                JsonObject currentWS = wsItem.getAsJsonObject();
+                if (this.noHeightAvailable(currentWS.get(FormattingConstants.WS).getAsString())) {
+                    currentWS.addProperty(FormattingConstants.WS, FormattingConstants.EMPTY_SPACE);
+                }
+            }
+
+            if (node.has(FormattingConstants.EXPRESSION)) {
+                JsonObject expression = node.getAsJsonObject(FormattingConstants.EXPRESSION);
+                expression.add(FormattingConstants.FORMATTING_CONFIG,
+                        this.getFormattingConfig(0,
+                                formatConfig.get(FormattingConstants.SPACE_COUNT).getAsInt(), 0, false,
+                                this.getWhiteSpaceCount(indentationOfParent), true));
+            }
+
+            if (node.has("childIndex")) {
+                JsonObject childIndex = node.getAsJsonObject("childIndex");
+                childIndex.add(FormattingConstants.FORMATTING_CONFIG,
+                        this.getFormattingConfig(0, 0, 0, false,
+                                this.getWhiteSpaceCount(indentationOfParent), true));
+            }
+
+            if (node.has("filters")) {
+                JsonArray filters = node.getAsJsonArray("filters");
+                for (JsonElement filterItem : filters) {
+                    JsonObject filter = filterItem.getAsJsonObject();
+                    filter.add(FormattingConstants.FORMATTING_CONFIG,
+                            this.getFormattingConfig(0, 0, 0, false,
+                                    this.getWhiteSpaceCount(indentationOfParent), true));
+                }
+            }
+        }
+    }
+
+    /**
+     * format Xml Element Filter Expr node.
+     *
+     * @param node {JsonObject} node as json object
+     */
+    public void formatXmlElementFilterExprNode(JsonObject node) {
+        if (node.has(FormattingConstants.WS) && node.has(FormattingConstants.FORMATTING_CONFIG)) {
+            JsonObject formatConfig = node.getAsJsonObject(FormattingConstants.FORMATTING_CONFIG);
+            JsonArray ws = node.getAsJsonArray(FormattingConstants.WS);
+            String indentation = this.getIndentation(formatConfig, false);
+            String indentationOfParent = this.getParentIndentation(formatConfig);
+            boolean useParentIndentation = formatConfig.get(FormattingConstants.USE_PARENT_INDENTATION).getAsBoolean();
+
+            this.preserveHeight(ws, useParentIndentation ? indentationOfParent : indentation, useParentIndentation);
+
+            for (JsonElement wsItem : ws) {
+                JsonObject currentWS = wsItem.getAsJsonObject();
+                if (this.noHeightAvailable(currentWS.get(FormattingConstants.WS).getAsString())) {
+                    currentWS.addProperty(FormattingConstants.WS, this.getWhiteSpaces(formatConfig
+                            .get(FormattingConstants.SPACE_COUNT).getAsInt()));
+                }
             }
         }
     }
