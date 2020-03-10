@@ -45,6 +45,7 @@ public final class Constants {
     public static final String CLIENT_ENABLE_SESSION_CREATION = "shareSession";
     public static final String MUTUAL_SSL_PASSED = "passed";
     public static final String MUTUAL_SSL_FAILED = "failed";
+    public static final String MUTUAL_SSL_DISABLED = "disabled";
     public static final String SSL = "ssl";
     public static final String SECURITY = "security";
 

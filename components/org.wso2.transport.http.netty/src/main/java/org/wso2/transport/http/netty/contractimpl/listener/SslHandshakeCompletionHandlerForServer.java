@@ -26,15 +26,9 @@ import io.netty.handler.ssl.SslHandshakeCompletionEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contract.Constants;
+import org.wso2.transport.http.netty.contractimpl.common.Util;
 
-import java.security.cert.Certificate;
-import java.security.cert.X509Certificate;
-import java.util.Date;
 import javax.net.ssl.SSLEngine;
-import javax.net.ssl.SSLPeerUnverifiedException;
-
-import static org.wso2.transport.http.netty.contract.Constants.MUTUAL_SSL_FAILED;
-import static org.wso2.transport.http.netty.contract.Constants.MUTUAL_SSL_PASSED;
 
 /**
  * A handler to check whether TLS handshake has been completed. Rest of the handlers will be added to the pipeline
@@ -62,16 +56,7 @@ public class SslHandshakeCompletionHandlerForServer extends ChannelInboundHandle
             SslHandshakeCompletionEvent event = (SslHandshakeCompletionEvent) evt;
 
             if (event.isSuccess()) {
-                if (sslEngine.getWantClientAuth() || sslEngine.getNeedClientAuth()) {
-                    try {
-                        Certificate[] certs = sslEngine.getSession().getPeerCertificates();
-                        X509Certificate endUserCert = (X509Certificate) certs[0];
-                        endUserCert.checkValidity(new Date());
-                        ctx.channel().attr(Constants.MUTUAL_SSL_RESULT_ATTRIBUTE).set(MUTUAL_SSL_PASSED);
-                    } catch (SSLPeerUnverifiedException e) {
-                        ctx.channel().attr(Constants.MUTUAL_SSL_RESULT_ATTRIBUTE).set(MUTUAL_SSL_FAILED);
-                    }
-                }
+                Util.setMutualSslStatus(ctx, sslEngine);
                 this.httpServerChannelInitializer.configureHttpPipeline(serverPipeline, Constants.HTTP_SCHEME);
                 ctx.pipeline().remove(this);
                 ctx.fireChannelActive();

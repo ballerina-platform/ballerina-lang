@@ -48,6 +48,7 @@ import org.wso2.transport.http.netty.contract.config.ChunkConfig;
 import org.wso2.transport.http.netty.contract.config.KeepAliveConfig;
 import org.wso2.transport.http.netty.contract.config.RequestSizeValidationConfig;
 import org.wso2.transport.http.netty.contractimpl.common.BackPressureHandler;
+import org.wso2.transport.http.netty.contractimpl.common.Util;
 import org.wso2.transport.http.netty.contractimpl.common.certificatevalidation.CertificateVerificationException;
 import org.wso2.transport.http.netty.contractimpl.common.http2.Http2ExceptionHandler;
 import org.wso2.transport.http.netty.contractimpl.common.ssl.SSLConfig;
@@ -61,6 +62,7 @@ import java.io.IOException;
 import java.security.KeyStoreException;
 import java.security.cert.CertificateException;
 import java.util.concurrent.TimeUnit;
+
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLEngine;
 
@@ -122,11 +124,13 @@ public class HttpServerChannelInitializer extends ChannelInitializer<SocketChann
                     ReferenceCountedOpenSslEngine engine = (ReferenceCountedOpenSslEngine) sslHandler.engine();
                     engine.setOcspResponse(response.getEncoded());
                     setSslHandshakeTimeOut(sslConfig, sslHandler);
-                    ch.pipeline().addLast(sslHandler, new Http2PipelineConfiguratorForServer(this));
+                    ch.pipeline()
+                            .addLast(sslHandler, new Http2PipelineConfiguratorForServer(this, sslHandler.engine()));
                 } else {
                     SslHandler sslHandler = keystoreHttp2SslContext.newHandler(ch.alloc());
                     setSslHandshakeTimeOut(sslConfig, sslHandler);
-                    serverPipeline.addLast(sslHandler, new Http2PipelineConfiguratorForServer(this));
+                    serverPipeline
+                            .addLast(sslHandler, new Http2PipelineConfiguratorForServer(this, sslHandler.engine()));
                     serverPipeline.addLast(Constants.HTTP2_EXCEPTION_HANDLER, new Http2ExceptionHandler());
                 }
             } else {
@@ -391,10 +395,12 @@ public class HttpServerChannelInitializer extends ChannelInitializer<SocketChann
     class Http2PipelineConfiguratorForServer extends ApplicationProtocolNegotiationHandler {
 
         private HttpServerChannelInitializer channelInitializer;
+        private SSLEngine sslEngine;
 
-        Http2PipelineConfiguratorForServer(HttpServerChannelInitializer channelInitializer) {
+        Http2PipelineConfiguratorForServer(HttpServerChannelInitializer channelInitializer, SSLEngine sslEngine) {
             super(ApplicationProtocolNames.HTTP_1_1);
             this.channelInitializer = channelInitializer;
+            this.sslEngine = sslEngine;
         }
 
         /**
@@ -402,6 +408,7 @@ public class HttpServerChannelInitializer extends ChannelInitializer<SocketChann
          */
         @Override
         protected void configurePipeline(ChannelHandlerContext ctx, String protocol) {
+            Util.setMutualSslStatus(ctx, sslEngine);
             if (ApplicationProtocolNames.HTTP_2.equals(protocol)) {
                 // handles pipeline for HTTP/2 requests after SSL handshake
                 ctx.pipeline().addLast(

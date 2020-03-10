@@ -121,7 +121,6 @@
             <class name="org.wso2.transport.http.netty.http2.clienttimeout.TimeoutDuringRequestWrite"/>
             <class name="org.wso2.transport.http.netty.http2.clienttimeout.TimeoutDuringResponseReceive"/>
             <class name="org.wso2.transport.http.netty.http2.Http2WithPriorKnowledgeTestCase"/>
-            <class name="org.wso2.transport.http.netty.http2.TestHttp2WithALPN"/>
             <class name="org.wso2.transport.http.netty.http2.connectionpool.H2ConnectionPoolWithALPN"/>
             <class name="org.wso2.transport.http.netty.http2.connectionpool.H2ConnectionPoolWithPriorKnowledge"/>
             <class name="org.wso2.transport.http.netty.http2.connectionpool.H2ConnectionPoolWithUpgrade"/>
@@ -163,7 +162,9 @@
             <class name="org.wso2.transport.http.netty.https.CipherSuiteswithCertsTest"/>
             <class name="org.wso2.transport.http.netty.https.OptionalMutualSSLTest"/>
             <class name="org.wso2.transport.http.netty.https.SSLProtocolsWithCertsTest"/>
-            <class name="org.wso2.transport.http.netty.http2.Http2ALPNwithCertsTest"/>
+            <class name="org.wso2.transport.http.netty.http2.ssl.Http2ALPNwithCertsTest"/>
+            <class name="org.wso2.transport.http.netty.http2.ssl.TestHttp2WithALPN"/>
+            <class name="org.wso2.transport.http.netty.http2.ssl.Http2MutualSslTest"/>
             <class name="org.wso2.transport.http.netty.disablessl.SslDisabledClientTest"/>
             <class name="org.wso2.transport.http.netty.https.ServerCloseConnectionDuringSslTest"/>
         </classes>
