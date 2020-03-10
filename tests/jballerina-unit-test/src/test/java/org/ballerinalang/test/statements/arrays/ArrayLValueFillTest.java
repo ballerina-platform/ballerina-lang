@@ -120,6 +120,13 @@ public class ArrayLValueFillTest {
         BRunUtil.invoke(compileResult, "testRecordsWithoutFillerValues");
     }
 
+    @Test(expectedExceptions = BLangRuntimeException.class,
+          expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.array\\}IllegalListInsertion message=array of " +
+                  "length 0 cannot be expanded into array of length 1 without filler values.*")
+    public void testRecordsWithoutFillerValues2() {
+        BRunUtil.invoke(compileResult, "testRecordsWithoutFillerValues2");
+    }
+
     @Test
     public void testArraysInRecordFields() {
         BRunUtil.invoke(compileResult, "testArraysInRecordFields");
