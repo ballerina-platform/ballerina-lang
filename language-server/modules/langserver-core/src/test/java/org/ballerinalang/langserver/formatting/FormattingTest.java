@@ -168,6 +168,7 @@ public class FormattingTest {
                 {"expectedTupleDestructure.bal", "tupleDestructure.bal"},
                 {"expectedNegativeEOF.bal", "negativeEOF.bal"},
                 {"expectedListConstructorExpr.bal", "listConstructorExpr.bal"},
+                {"expectedRecordLiteralSpreadOp.bal", "recordLiteralSpreadOp.bal"},
         };
     }
 
