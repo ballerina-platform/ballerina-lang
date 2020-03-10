@@ -377,5 +377,6 @@ public class WorkerTest {
         BAssertUtil.validateError(result, index++, "cannot use an async call inside a lock statement", 13, 19);
         BAssertUtil.validateError(result, index++, "cannot use a named worker inside a lock statement", 25, 20);
         BAssertUtil.validateError(result, index++, "cannot use a named worker inside a lock statement", 27, 28);
+        BAssertUtil.validateError(result, index++, "cannot use a named worker inside a lock statement", 42, 20);
     }
 }

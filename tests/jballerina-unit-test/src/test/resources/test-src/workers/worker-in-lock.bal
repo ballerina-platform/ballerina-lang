@@ -32,3 +32,16 @@ function testWorkerInsideLockDepth3() {
         }
     }
 }
+
+function testWorkerInsideNestedLocks() {
+    lock {
+        lock {
+            int i = 10;
+        }
+        fork {
+            worker w1 {
+                int j = 15;
+            }
+        }
+    }
+}

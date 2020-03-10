@@ -475,12 +475,11 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         this.transactionCount--;
         this.resetLastStatement();
         if (transactionNode.onRetryBody != null) {
-            boolean previousWithinRetryBlock = this.withinRetryBlock;
             this.withinRetryBlock = true;
             analyzeNode(transactionNode.onRetryBody, env);
             this.resetStatementReturns();
             this.resetLastStatement();
-            this.withinRetryBlock = previousWithinRetryBlock;
+            this.withinRetryBlock = false;
         }
 
         if (transactionNode.abortedBody != null) {
@@ -1237,9 +1236,10 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     public void visit(BLangLock lockNode) {
 
         this.checkStatementExecutionValidity(lockNode);
+        boolean previousWithinLockBlock = this.withinLockBlock;
         this.withinLockBlock = true;
         lockNode.body.stmts.forEach(e -> analyzeNode(e, env));
-        this.withinLockBlock = false;
+        this.withinLockBlock = previousWithinLockBlock;
     }
 
     @Override
@@ -2003,24 +2003,15 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
 
         if (invocationExpr.actionInvocation || invocationExpr.async) {
-            if (invocationExpr.async && this.withinLockBlock) {
-                logAsyncCallWithinLockError(invocationExpr);
-            } else {
+            if (invocationExpr.actionInvocation || !this.withinLockBlock) {
                 validateActionInvocation(invocationExpr.pos, invocationExpr);
+                return;
             }
+
+            dlog.error(invocationExpr.pos, invocationExpr.functionPointerInvocation ? 
+            DiagnosticCode.USAGE_OF_WORKER_WITHIN_LOCK_IS_PROHIBITED : 
+            DiagnosticCode.USAGE_OF_START_WITHIN_LOCK_IS_PROHIBITED);
         }
-    }
-
-    private void logAsyncCallWithinLockError(BLangInvocation invocationExpr) {
-        DiagnosticCode code;
-
-        if (invocationExpr.functionPointerInvocation) {
-            code = DiagnosticCode.USAGE_OF_WORKER_WITHIN_LOCK_IS_PROHIBITED;
-        } else {
-            code = DiagnosticCode.USAGE_OF_START_WITHIN_LOCK_IS_PROHIBITED;
-        }
-
-        dlog.error(invocationExpr.pos, code);
     }
 
     private void validateActionInvocation(DiagnosticPos pos, BLangInvocation iExpr) {
