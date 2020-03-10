@@ -372,28 +372,13 @@ public class SymbolTable {
         defineBinaryOperator(OperatorKind.MOD, intType, floatType, floatType);
         defineBinaryOperator(OperatorKind.MOD, decimalType, intType, decimalType);
         defineBinaryOperator(OperatorKind.MOD, intType, decimalType, decimalType);
-        defineBinaryOperator(OperatorKind.BITWISE_AND, byteType, byteType, byteType);
-        defineBinaryOperator(OperatorKind.BITWISE_AND, byteType, intType, byteType);
-        defineBinaryOperator(OperatorKind.BITWISE_AND, intType, byteType, byteType);
-        defineBinaryOperator(OperatorKind.BITWISE_AND, intType, intType, intType);
-        defineBinaryOperator(OperatorKind.BITWISE_OR, byteType, byteType, byteType);
-        defineBinaryOperator(OperatorKind.BITWISE_OR, byteType, intType, intType);
-        defineBinaryOperator(OperatorKind.BITWISE_OR, intType, byteType, intType);
-        defineBinaryOperator(OperatorKind.BITWISE_OR, intType, intType, intType);
-        defineBinaryOperator(OperatorKind.BITWISE_XOR, byteType, byteType, byteType);
-        defineBinaryOperator(OperatorKind.BITWISE_XOR, byteType, intType, intType);
-        defineBinaryOperator(OperatorKind.BITWISE_XOR, intType, byteType, intType);
-        defineBinaryOperator(OperatorKind.BITWISE_XOR, intType, intType, intType);
-        defineBinaryOperator(OperatorKind.BITWISE_LEFT_SHIFT, intType, intType, intType);
-        defineBinaryOperator(OperatorKind.BITWISE_LEFT_SHIFT, intType, byteType, intType);
-        defineBinaryOperator(OperatorKind.BITWISE_LEFT_SHIFT, byteType, byteType, intType);
-        defineBinaryOperator(OperatorKind.BITWISE_LEFT_SHIFT, byteType, intType, intType);
-        defineBinaryOperator(OperatorKind.BITWISE_RIGHT_SHIFT, intType, intType, intType);
-        defineBinaryOperator(OperatorKind.BITWISE_RIGHT_SHIFT, intType, byteType, intType);
-        defineBinaryOperator(OperatorKind.BITWISE_RIGHT_SHIFT, byteType, byteType, byteType);
-        defineBinaryOperator(OperatorKind.BITWISE_RIGHT_SHIFT, byteType, intType, byteType);
-        defineBinaryOperator(OperatorKind.BITWISE_UNSIGNED_RIGHT_SHIFT, intType, intType, intType);
-        defineBinaryOperator(OperatorKind.BITWISE_UNSIGNED_RIGHT_SHIFT, intType, byteType, intType);
+
+        defineIntegerBitwiseAndOperations();
+        defineIntegerBitwiseOrOperations(OperatorKind.BITWISE_OR);
+        defineIntegerBitwiseOrOperations(OperatorKind.BITWISE_XOR);
+        defineIntegerLeftShiftOperations();
+        defineIntegerRightShiftOperations(OperatorKind.BITWISE_RIGHT_SHIFT);
+        defineIntegerRightShiftOperations(OperatorKind.BITWISE_UNSIGNED_RIGHT_SHIFT);
 
         // Binary equality operators ==, !=
         defineBinaryOperator(OperatorKind.EQUAL, intType, intType, booleanType);
@@ -516,6 +501,95 @@ public class SymbolTable {
                 defineBinaryOperator(OperatorKind.DIV, lhs, rhs, intType);
                 defineBinaryOperator(OperatorKind.MUL, lhs, rhs, intType);
                 defineBinaryOperator(OperatorKind.MOD, lhs, rhs, intType);
+            }
+        }
+    }
+
+    private void defineIntegerBitwiseAndOperations() {
+        BType[] unsignedIntTypes = {byteType, unsigned8IntType, unsigned16IntType, unsigned32IntType};
+        BType[] signedIntTypes = {intType, signed8IntType, signed16IntType, signed32IntType};
+
+        for (BType unsigned : unsignedIntTypes) {
+            for (BType signed : signedIntTypes) {
+                defineBinaryOperator(OperatorKind.BITWISE_AND, unsigned, signed, unsigned);
+            }
+        }
+
+        for (BType unsignedLower : unsignedIntTypes) {
+            for (BType unsignedSameOrHigher : unsignedIntTypes) {
+                defineBinaryOperator(OperatorKind.BITWISE_AND, unsignedLower, unsignedSameOrHigher, unsignedLower);
+            }
+        }
+
+        for (BType signed : signedIntTypes) {
+            for (BType unsigned : unsignedIntTypes) {
+                defineBinaryOperator(OperatorKind.BITWISE_AND, signed, unsigned, unsigned);
+            }
+        }
+
+        for (BType signedLhs : signedIntTypes) {
+            for (BType signedRhs : signedIntTypes) {
+                defineBinaryOperator(OperatorKind.BITWISE_AND, signedLhs, signedRhs, intType);
+            }
+        }
+    }
+
+    private void defineIntegerBitwiseOrOperations(OperatorKind orOpKind) {
+        BType[] unsignedIntTypes = {byteType, unsigned8IntType, unsigned16IntType, unsigned32IntType};
+        BType[] signedIntTypes = {intType, signed8IntType, signed16IntType, signed32IntType};
+
+        for (BType unsigned : unsignedIntTypes) {
+            for (BType signed : signedIntTypes) {
+                defineBinaryOperator(orOpKind, unsigned, signed, intType);
+            }
+        }
+
+        for (BType unsignedLower : unsignedIntTypes) {
+            for (BType unsignedSameOrHigher : unsignedIntTypes) {
+                defineBinaryOperator(orOpKind, unsignedLower, unsignedSameOrHigher, unsignedLower);
+            }
+        }
+
+        for (BType signed : signedIntTypes) {
+            for (BType unsigned : unsignedIntTypes) {
+                defineBinaryOperator(orOpKind, signed, unsigned, intType);
+            }
+        }
+
+        for (BType signedLhs : signedIntTypes) {
+            for (BType signedRhs : signedIntTypes) {
+                defineBinaryOperator(orOpKind, signedLhs, signedRhs, intType);
+            }
+        }
+    }
+
+    private void defineIntegerLeftShiftOperations() {
+        BType[] allIntTypes = {intType, byteType, signed32IntType, signed16IntType, signed8IntType, unsigned32IntType,
+                unsigned16IntType, unsigned8IntType};
+
+        for (BType lhs : allIntTypes) {
+            for (BType rhs : allIntTypes) {
+                defineBinaryOperator(OperatorKind.BITWISE_LEFT_SHIFT, lhs, rhs, intType);
+            }
+        }
+    }
+
+    private void defineIntegerRightShiftOperations(OperatorKind rightShiftOpKind) {
+        BType[] unsignedIntTypes = {byteType, unsigned8IntType, unsigned16IntType, unsigned32IntType};
+        BType[] signedIntTypes = {intType, signed8IntType, signed16IntType, signed32IntType};
+
+        BType[] allIntTypes = {intType, byteType, signed32IntType, signed16IntType, signed8IntType, unsigned32IntType,
+                unsigned16IntType, unsigned8IntType};
+
+        for (BType unsignedLhs : unsignedIntTypes) {
+            for (BType intRhs : allIntTypes) {
+                defineBinaryOperator(rightShiftOpKind, unsignedLhs, intRhs, unsignedLhs);
+            }
+        }
+
+        for (BType signedLhs : signedIntTypes) {
+            for (BType intRhs : allIntTypes) {
+                defineBinaryOperator(rightShiftOpKind, signedLhs, intRhs, intType);
             }
         }
     }
