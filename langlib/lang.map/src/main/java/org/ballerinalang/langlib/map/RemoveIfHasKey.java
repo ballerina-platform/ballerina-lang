@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  WSO2 Inc. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
@@ -19,9 +19,7 @@
 package org.ballerinalang.langlib.map;
 
 import org.ballerinalang.jvm.BallerinaErrors;
-import org.ballerinalang.jvm.MapUtils;
 import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
@@ -29,35 +27,34 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
 import static org.ballerinalang.jvm.MapUtils.checkIsMapOnlyOperation;
-import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.MAP_KEY_NOT_FOUND_ERROR;
-import static org.wso2.ballerinalang.compiler.util.Constants.REMOVE;
+import static org.ballerinalang.jvm.MapUtils.validateRequiredFieldForRecord;
 
 /**
- * Extern function to remove element from the map.
- * ballerina.model.map:remove(string)
+ * Extern function to remove element from the map if key exists.
+ * ballerina.model.map:removeIfHasKey(string)
+ *
+ * @since 1.2.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.map", functionName = "remove",
+        orgName = "ballerina", packageName = "lang.map", functionName = "removeIfHasKey",
         args = {@Argument(name = "m", type = TypeKind.MAP), @Argument(name = "k", type = TypeKind.STRING)},
         returnType = {@ReturnType(type = TypeKind.ANY)},
         isPublic = true
 )
-public class Remove {
+public class RemoveIfHasKey {
 
-    public static Object remove(Strand strand, MapValue<?, ?> m, String k) {
-        BType type = m.getType();
+    private static final String REMOVE_IF_HAS_KEY = "removeIfHasKey()";
 
-        checkIsMapOnlyOperation(type, REMOVE);
-        MapUtils.validateRequiredFieldForRecord(m, k);
-        if (m.containsKey(k)) {
-            try {
-                return m.remove(k);
-            } catch (org.ballerinalang.jvm.util.exceptions.BLangFreezeException e) {
-                throw BallerinaErrors.createError(e.getMessage(),
-                        "Failed to remove element from map: " + e.getDetail());
-            }
+    public static Object removeIfHasKey(Strand strand, MapValue<?, ?> m, String k) {
+        String op = REMOVE_IF_HAS_KEY;
+
+        checkIsMapOnlyOperation(m.getType(), op);
+        validateRequiredFieldForRecord(m, k);
+        try {
+            return m.remove(k);
+        } catch (org.ballerinalang.jvm.util.exceptions.BLangFreezeException e) {
+            throw BallerinaErrors.createError(e.getMessage(),
+                    "Failed to remove element: " + e.getDetail());
         }
-
-        throw BallerinaErrors.createError(MAP_KEY_NOT_FOUND_ERROR, "cannot find key '" + k + "'");
     }
 }
