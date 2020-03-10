@@ -25,7 +25,7 @@ public type Client client object {
 
     # Gets called when the JDBC client is instantiated.
     public function __init(public string url, public string? user = (), public string? password = (),
-    public Options? options = (), public sql:ConnectionPool? connectionPool = ()) returns sql:Error? {
+        public Options? options = (), public sql:ConnectionPool? connectionPool = ()) returns sql:Error? {
         ClientConfiguration clientConf = {
             url: url,
             user: user,
@@ -42,11 +42,13 @@ public type Client client object {
     # + rowType - The `typedesc` of the record that should be returned as a result. If this is not provided the default
     #             column names of the query result set be used for the record attributes
     # + return - Stream of records in the type of `rowType`
-    public remote function query(@untainted string sqlQuery, typedesc<record {}>? rowType = ()) returns stream<record{}, sql:Error> {
-        if(self.clientActive){
-            return nativeQuery(self, java:fromString(sqlQuery) , rowType);
+    public remote function query(@untainted string sqlQuery, typedesc<record {}>? rowType = ())
+    returns stream<record{}, sql:Error> {
+        if (self.clientActive) {
+            return nativeQuery(self, java:fromString(sqlQuery), rowType);
         } else {
-           return sql:generateApplicationErrorStream("JDBC Client is already closed, hence further operations are not allowed");
+            return sql:generateApplicationErrorStream("JDBC Client is already closed, hence "
+                + "further operations are not allowed");
         }
     }
 
@@ -56,10 +58,11 @@ public type Client client object {
     # + return - Summary of the sql update query as `sql:ExecuteResult` or returns `sql:Error`
     #           if any error occured when executing the query
     public remote function execute(@untainted string sqlQuery) returns sql:ExecuteResult|sql:Error? {
-        if(self.clientActive){
+        if (self.clientActive) {
             return nativeExecute(self, java:fromString(sqlQuery));
         } else {
-           return sql:ApplicationError(message = "JDBC Client is already closed, hence further operations are not allowed");
+            return sql:ApplicationError(message = "JDBC Client is already closed,"
+                + " hence further operations are not allowed");
         }
     }
 
@@ -97,15 +100,17 @@ type ClientConfiguration record {|
 |};
 
 function createClient(Client jdbcClient, ClientConfiguration clientConf,
-sql:ConnectionPool globalConnPool) returns sql:Error? = @java:Method {
+    sql:ConnectionPool globalConnPool) returns sql:Error? = @java:Method {
     class: "org.ballerinalang.jdbc.NativeImpl"
 } external;
 
-function nativeQuery(Client sqlClient, @untainted handle sqlQuery, typedesc<record {}>? rowtype) returns stream<record{}, sql:Error> = @java:Method {
+function nativeQuery(Client sqlClient,@untainted handle sqlQuery, typedesc<record {}>? rowtype)
+returns stream<record{}, sql:Error> = @java:Method {
     class: "org.ballerinalang.sql.utils.QueryUtils"
 } external;
 
-function nativeExecute(Client sqlClient, @untainted handle sqlQuery) returns sql:ExecuteResult|sql:Error? = @java:Method {
+function nativeExecute(Client sqlClient,@untainted handle sqlQuery)
+returns sql:ExecuteResult|sql:Error? = @java:Method {
     class: "org.ballerinalang.sql.utils.ExecuteUtils"
 } external;
 

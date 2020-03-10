@@ -119,9 +119,9 @@ type ResultSignedInt record {
 
 type ResultComplexTypes record {
     int ROW_ID;
-    byte[] | () BLOB_TYPE;
+    byte[]|() BLOB_TYPE;
     string? CLOB_TYPE;
-    byte[] | () BINARY_TYPE;
+    byte[]|() BINARY_TYPE;
 };
 
 type TestTypeData record {
@@ -150,67 +150,67 @@ type Person record {
     string name;
 };
 
-function testGetPrimitiveTypes(string jdbcURL, string user, string password) returns record{}|error? {
+function testGetPrimitiveTypes(string jdbcURL, string user, string password) returns record {}|error? {
     jdbc:Client dbClient = check new (url = jdbcURL, user = user, password = password);
     stream<record{}, error> streamData = dbClient->query("SELECT int_type, long_type, float_type, double_type, boolean_type, string_type from DataTable WHERE row_id = 1");
-    record{| record{} value; |}? data =  check streamData.next();
+    record {|record {} value;|}? data = check streamData.next();
     check streamData.close();
-    record{}? value = data?.value;
+    record {}? value = data?.value;
     check dbClient.close();
     return value;
 }
 
-function testToJson(string jdbcURL, string user, string password) returns @tainted  json|error {
-  jdbc:Client dbClient = check new (url = jdbcURL, user = user, password = password);
+function testToJson(string jdbcURL, string user, string password) returns @tainted json|error {
+    jdbc:Client dbClient = check new (url = jdbcURL, user = user, password = password);
   stream<record{}, error> streamData = dbClient->query("SELECT int_type, long_type, float_type, double_type, boolean_type, string_type from DataTable WHERE row_id = 1");
-  record{| record{} value; |}? data =  check streamData.next();
-  check streamData.close();
-  record{}? value = data?.value;
-  json|error retVal = json.constructFrom(value);
-  check dbClient.close();
-  return retVal;
+    record {|record {} value;|}? data = check streamData.next();
+    check streamData.close();
+    record {}? value = data?.value;
+    json|error retVal = json.constructFrom(value);
+    check dbClient.close();
+    return retVal;
 }
 
-function testToJsonComplexTypes(string jdbcURL, string user, string password) returns record{}|error? {
+function testToJsonComplexTypes(string jdbcURL, string user, string password) returns record {}|error? {
     jdbc:Client dbClient = check new (url = jdbcURL, user = user, password = password);
     stream<record{}, error> streamData = dbClient->query("SELECT blob_type,clob_type,binary_type from ComplexTypes where row_id = 1");
-    record{| record{} value; |}? data =  check streamData.next();
+    record {|record {} value;|}? data = check streamData.next();
     check streamData.close();
-    record{}? value = data?.value;
+    record {}? value = data?.value;
     check dbClient.close();
     return value;
 }
 
-function testComplexTypesNil(string jdbcURL, string user, string password) returns record{}|error? {
+function testComplexTypesNil(string jdbcURL, string user, string password) returns record {}|error? {
     jdbc:Client dbClient = check new (url = jdbcURL, user = user, password = password);
     stream<record{}, error> streamData = dbClient->query("SELECT blob_type,clob_type,binary_type from ComplexTypes where row_id = 2");
-    record{| record{} value; |}? data =  check streamData.next();
+    record {|record {} value;|}? data = check streamData.next();
     check streamData.close();
-    record{}? value = data?.value;
-    check dbClient.close();
-        return value;
-}
-
-function testArrayRetrieval(string jdbcURL, string user, string password) returns record{}|error? {
-    jdbc:Client dbClient = check new (url = jdbcURL, user = user, password = password);
-    stream<record{}, error> streamData = dbClient->query("SELECT int_type, int_array, long_type, long_array, float_type," +
-                    "float_array, double_type, boolean_type, string_type, decimal_type, double_array, boolean_array," +
-                    "string_array from MixTypes where row_id =1");
-    record{| record{} value; |}? data =  check streamData.next();
-    check streamData.close();
-    record{}? value = data?.value;
+    record {}? value = data?.value;
     check dbClient.close();
     return value;
 }
 
-function testComplexWithStructDef(string jdbcURL, string user, string password) returns record{}|error? {
+function testArrayRetrieval(string jdbcURL, string user, string password) returns record {}|error? {
+    jdbc:Client dbClient = check new (url = jdbcURL, user = user, password = password);
+    stream<record{}, error> streamData = dbClient->query("SELECT int_type, int_array, long_type, long_array, float_type," +
+        "float_array, double_type, boolean_type, string_type, decimal_type, double_array, boolean_array," +
+        "string_array from MixTypes where row_id =1");
+    record {|record {} value;|}? data = check streamData.next();
+    check streamData.close();
+    record {}? value = data?.value;
+    check dbClient.close();
+    return value;
+}
+
+function testComplexWithStructDef(string jdbcURL, string user, string password) returns record {}|error? {
     jdbc:Client dbClient = check new (url = jdbcURL, user = user, password = password);
         stream<record{}, error> streamData = dbClient->query("SELECT int_type, int_array, long_type, long_array, float_type,"
         + "float_array, double_type, boolean_type, string_type, double_array, boolean_array, string_array "
-        +"from MixTypes where row_id =1", TestTypeData);
-    record{| record{} value; |}? data =  check streamData.next();
+        + "from MixTypes where row_id =1", TestTypeData);
+    record {|record {} value;|}? data = check streamData.next();
     check streamData.close();
-    record{}? value = data?.value;
+    record {}? value = data?.value;
     check dbClient.close();
     return value;
 }
@@ -218,15 +218,15 @@ function testComplexWithStructDef(string jdbcURL, string user, string password) 
 function testMultipleRecoredRetrieval(string jdbcURL, string user, string password) returns @tainted ResultMap[]|error? {
     jdbc:Client dbClient = check new (url = jdbcURL, user = user, password = password);
     stream<record{}, error> streamData = dbClient->query("SELECT int_array, long_array, float_array, boolean_array," +
-              "string_array from ArrayTypes", ResultMap);
+        "string_array from ArrayTypes", ResultMap);
     ResultMap[] recordMap = [];
-    error? e = streamData.forEach(function (record{} value) {
+    error? e = streamData.forEach(function (record {} value) {
         if (value is ResultMap) {
-             recordMap[recordMap.length()] = value;
-            }
+            recordMap[recordMap.length()] = value;
+        }
     });
-    if(e is error){
-      return e;
+    if (e is error) {
+        return e;
     }
     check dbClient.close();
     return recordMap;

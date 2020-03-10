@@ -23,8 +23,8 @@ string database = "TEST_SQL_EXCUTE_QUERY";
 int port = 3305;
 
 function testCreateTable() returns sql:ExecuteResult|sql:Error? {
-     mysql:Client dbClient = check new (host, user, password, database, port);
-     sql:ExecuteResult? result = check dbClient->execute("CREATE TABLE TestCreateTable(studentID int, LastName varchar(255))");
+    mysql:Client dbClient = check new (host, user, password, database, port);
+    sql:ExecuteResult? result = check dbClient->execute("CREATE TABLE TestCreateTable(studentID int, LastName varchar(255))");
     check dbClient.close();
     return result;
 }
@@ -63,19 +63,19 @@ type NumericType record {
     float? real_type;
 };
 
-function testInsertAndSelectTableWithGeneratedKeys() returns [sql:ExecuteResult?,NumericType?]|error? {
+function testInsertAndSelectTableWithGeneratedKeys() returns [sql:ExecuteResult?, NumericType?]|error? {
     mysql:Client dbClient = check new (host, user, password, database, port);
     sql:ExecuteResult? result = check dbClient->execute("insert into NumericTypes (int_type) values (31)");
 
     NumericType? insertedData = ();
-    if(result is sql:ExecuteResult){
+    if (result is sql:ExecuteResult) {
         string|int? insertedId = result.lastInsertId;
-        if(insertedId is int){
+        if (insertedId is int) {
             string query = string `SELECT * from NumericTypes where id = ${insertedId}`;
             stream<record{}, error> queryResult = dbClient->query(query, NumericType);
 
-            stream<NumericType, sql:Error> streamData = <stream<NumericType, sql:Error>> queryResult;
-            record{| NumericType value; |}? data =  check streamData.next();
+            stream<NumericType, sql:Error> streamData = <stream<NumericType, sql:Error>>queryResult;
+            record {|NumericType value;|}? data = check streamData.next();
             check streamData.close();
             insertedData = data?.value;
         }
@@ -83,24 +83,24 @@ function testInsertAndSelectTableWithGeneratedKeys() returns [sql:ExecuteResult?
 
     check dbClient.close();
 
-    return [result,insertedData];
+    return [result, insertedData];
 }
 
-function testInsertWithAllNilAndSelectTableWithGeneratedKeys() returns [sql:ExecuteResult?,NumericType?]|error? {
+function testInsertWithAllNilAndSelectTableWithGeneratedKeys() returns [sql:ExecuteResult?, NumericType?]|error? {
     mysql:Client dbClient = check new (host, user, password, database, port);
     sql:ExecuteResult? result = check dbClient->execute("Insert into NumericTypes (int_type, bigint_type, "
         + "smallint_type, tinyint_type, bit_type, decimal_type, numeric_type, float_type, real_type) "
-        +"values (null,null,null,null,null,null,null,null,null)");
+        + "values (null,null,null,null,null,null,null,null,null)");
 
     NumericType? insertedData = ();
-    if(result is sql:ExecuteResult){
+    if (result is sql:ExecuteResult) {
         string|int? insertedId = result.lastInsertId;
-        if(insertedId is int){
+        if (insertedId is int) {
             string query = string `SELECT * from NumericTypes where id = ${insertedId}`;
             stream<record{}, error> queryResult = dbClient->query(query, NumericType);
 
-            stream<NumericType, sql:Error> streamData = <stream<NumericType, sql:Error>> queryResult;
-            record{| NumericType value; |}? data =  check streamData.next();
+            stream<NumericType, sql:Error> streamData = <stream<NumericType, sql:Error>>queryResult;
+            record {|NumericType value;|}? data = check streamData.next();
             check streamData.close();
             insertedData = data?.value;
         }
@@ -108,7 +108,7 @@ function testInsertWithAllNilAndSelectTableWithGeneratedKeys() returns [sql:Exec
 
     check dbClient.close();
 
-    return [result,insertedData];
+    return [result, insertedData];
 }
 
 type StringData record {
@@ -123,7 +123,7 @@ type StringData record {
     string clob_type;
 };
 
-function testInsertWithStringAndSelectTable() returns [sql:ExecuteResult?,StringData?]|error? {
+function testInsertWithStringAndSelectTable() returns [sql:ExecuteResult?, StringData?]|error? {
     mysql:Client dbClient = check new (host, user, password, database, port);
     int intIDVal = 25;
     string insertQuery = string `Insert into StringTypes (id, varchar_type, charmax_type, char_type, charactermax_type, character_type, nvarcharmax_type, longvarchar_type, clob_type) values (${intIDVal},'str1','str2','s','str4','s','str6','str7','str8')`;
@@ -132,17 +132,17 @@ function testInsertWithStringAndSelectTable() returns [sql:ExecuteResult?,String
     StringData? insertedData = ();
     string query = string `SELECT * from StringTypes where id = ${intIDVal}`;
     stream<record{}, error> queryResult = dbClient->query(query, StringData);
-    stream<StringData, sql:Error> streamData = <stream<StringData, sql:Error>> queryResult;
-    record{| StringData value; |}? data =  check streamData.next();
+    stream<StringData, sql:Error> streamData = <stream<StringData, sql:Error>>queryResult;
+    record {|StringData value;|}? data = check streamData.next();
     check streamData.close();
     insertedData = data?.value;
 
     check dbClient.close();
 
-    return [result,insertedData];
+    return [result, insertedData];
 }
 
-function testInsertWithEmptyStringAndSelectTable() returns [sql:ExecuteResult?,StringData?]|error? {
+function testInsertWithEmptyStringAndSelectTable() returns [sql:ExecuteResult?, StringData?]|error? {
     mysql:Client dbClient = check new (host, user, password, database, port);
     int intIDVal = 35;
     string insertQuery = string `Insert into StringTypes (id, varchar_type, charmax_type, char_type, charactermax_type, character_type, nvarcharmax_type, longvarchar_type, clob_type) values (${intIDVal},'','','','','','','','')`;
@@ -151,14 +151,14 @@ function testInsertWithEmptyStringAndSelectTable() returns [sql:ExecuteResult?,S
     StringData? insertedData = ();
     string query = string `SELECT * from StringTypes where id = ${intIDVal}`;
     stream<record{}, error> queryResult = dbClient->query(query, StringData);
-    stream<StringData, sql:Error> streamData = <stream<StringData, sql:Error>> queryResult;
-    record{| StringData value; |}? data =  check streamData.next();
+    stream<StringData, sql:Error> streamData = <stream<StringData, sql:Error>>queryResult;
+    record {|StringData value;|}? data = check streamData.next();
     check streamData.close();
     insertedData = data?.value;
 
     check dbClient.close();
 
-    return [result,insertedData];
+    return [result, insertedData];
 }
 
 type StringNilData record {
@@ -173,7 +173,7 @@ type StringNilData record {
     string? clob_type;
 };
 
-function testInsertWithNilStringAndSelectTable() returns [sql:ExecuteResult?,StringNilData?]|error? {
+function testInsertWithNilStringAndSelectTable() returns [sql:ExecuteResult?, StringNilData?]|error? {
     mysql:Client dbClient = check new (host, user, password, database, port);
     int intIDVal = 45;
     string insertQuery = string `Insert into StringTypes (id, varchar_type, charmax_type, char_type, charactermax_type, character_type, nvarcharmax_type, longvarchar_type, clob_type) values (${intIDVal},null,null,null,null,null,null,null,null)`;
@@ -182,13 +182,13 @@ function testInsertWithNilStringAndSelectTable() returns [sql:ExecuteResult?,Str
     StringNilData? insertedData = ();
     string query = string `SELECT * from StringTypes where id = ${intIDVal}`;
     stream<record{}, error> queryResult = dbClient->query(query, StringNilData);
-    stream<StringNilData, sql:Error> streamData = <stream<StringNilData, sql:Error>> queryResult;
-    record{| StringNilData value; |}? data =  check streamData.next();
+    stream<StringNilData, sql:Error> streamData = <stream<StringNilData, sql:Error>>queryResult;
+    record {|StringNilData value;|}? data = check streamData.next();
     check streamData.close();
     insertedData = data?.value;
 
     check dbClient.close();
-    return [result,insertedData];
+    return [result, insertedData];
 }
 
 function testInsertTableWithDatabaseError() returns sql:ExecuteResult|sql:Error? {
@@ -215,8 +215,8 @@ function testUdateData() returns [sql:ExecuteResult?, ResultCount?]|error? {
     ResultCount? resultCount = ();
 
     stream<record{}, error> queryResult = dbClient->query("SELECT count(*) as countval from NumericTypes where int_type = 11", ResultCount);
-    stream<ResultCount, sql:Error> streamData = <stream<ResultCount, sql:Error>> queryResult;
-    record{| ResultCount value; |}? data =  check streamData.next();
+    stream<ResultCount, sql:Error> streamData = <stream<ResultCount, sql:Error>>queryResult;
+    record {|ResultCount value;|}? data = check streamData.next();
     check streamData.close();
     resultCount = data?.value;
 

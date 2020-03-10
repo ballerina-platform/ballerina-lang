@@ -13,8 +13,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/mysql;
 import ballerina/filepath;
+import ballerina/mysql;
 
 //TODO:Remove this and pass with functions.
 //After fixing this https://github.com/ballerina-platform/ballerina-lang/issues/21259
@@ -42,7 +42,7 @@ function testSSLVerifyCert() returns error? {
         }
     };
     mysql:Client dbClient = check new (user = user, password = password, database = database,
-    port = port, options = options);
+        port = port, options = options);
     return dbClient.close();
 }
 
@@ -61,7 +61,7 @@ function testSSLPreferred() returns error? {
         }
     };
     mysql:Client dbClient = check new (user = user, password = password, database = database,
-    port = port, options = options);
+        port = port, options = options);
     return dbClient.close();
 }
 
@@ -76,7 +76,7 @@ function testSSLRequiredWithClientCert() returns error? {
         }
     };
     mysql:Client dbClient = check new (user = user, password = password, database = database,
-    port = port, options = options);
+        port = port, options = options);
     return dbClient.close();
 }
 
@@ -95,6 +95,6 @@ function testSSLVerifyIdentity() returns error? {
         }
     };
     mysql:Client dbClient = check new (user = user, password = password, database = database,
-    port = port, options = options);
+        port = port, options = options);
     return dbClient.close();
 }

@@ -24,9 +24,9 @@ public type Client client object {
     private boolean clientActive = true;
 
     public function __init(public string host = "localhost",
-    public string? user = (), public string? password = (), public string? database = (),
-    public int port = 3306, public Options? options = (),
-    public sql:ConnectionPool? connectionPool = ()) returns sql:Error? {
+        public string? user = (), public string? password = (), public string? database = (),
+        public int port = 3306, public Options? options = (),
+        public sql:ConnectionPool? connectionPool = ()) returns sql:Error? {
         ClientConfiguration clientConfig = {
             host: host,
             port: port,
@@ -45,11 +45,13 @@ public type Client client object {
     # + rowType - The `typedesc` of the record that should be returned as a result. If this is not provided the default
     #             column names of the query result set be used for the record attributes
     # + return - Stream of records in the type of `rowType`
-    public remote function query(@untainted string sqlQuery, typedesc<record {}>? rowType = ()) returns stream<record{}, sql:Error> {
-        if(self.clientActive){
-            return nativeQuery(self, java:fromString(sqlQuery) , rowType);
+    public remote function query(@untainted string sqlQuery, typedesc<record {}>? rowType = ())
+    returns stream<record{}, sql:Error> {
+        if (self.clientActive) {
+            return nativeQuery(self, java:fromString(sqlQuery), rowType);
         } else {
-           return sql:generateApplicationErrorStream("MySQL Client is already closed, hence further operations are not allowed");
+            return sql:generateApplicationErrorStream("MySQL Client is already closed,"
+                + "hence further operations are not allowed");
         }
     }
 
@@ -58,11 +60,12 @@ public type Client client object {
     # + sqlQuery - The DML query such as INSERT, DELETE, UPDATE, etc
     # + return - Summary of the sql update query as `sql:ExecuteResult` or returns `sql:Error`
     #           if any error occured when executing the query
-    public remote function execute(@untainted string sqlQuery) returns sql:ExecuteResult|sql:Error?{
-        if(self.clientActive){
+    public remote function execute(@untainted string sqlQuery) returns sql:ExecuteResult|sql:Error? {
+        if (self.clientActive) {
             return nativeExecute(self, java:fromString(sqlQuery));
         } else {
-           return sql:ApplicationError(message = "JDBC Client is already closed, hence further operations are not allowed");
+            return sql:ApplicationError(message = "JDBC Client is already closed,"
+                + " hence further operations are not allowed");
         }
     }
 
@@ -110,7 +113,7 @@ public type Options record {|
 |};
 
 # Possible options for SSL Mode.
-public type SSLMode "PREFERRED" | "REQUIRED" | "VERIFY_CERT" | "VERIFY_IDENTITY";
+public type SSLMode "PREFERRED"|"REQUIRED"|"VERIFY_CERT"|"VERIFY_IDENTITY";
 
 # SSL Configuration to be used when connecting to mysql server.
 #
@@ -125,15 +128,17 @@ public type SSLConfig record {|
 |};
 
 function createClient(Client mysqlClient, ClientConfiguration clientConf,
-sql:ConnectionPool globalConnPool) returns sql:Error? = @java:Method {
+    sql:ConnectionPool globalConnPool) returns sql:Error? = @java:Method {
     class: "org.ballerinalang.mysql.NativeImpl"
 } external;
 
-function nativeQuery(Client sqlClient, @untainted handle sqlQuery, typedesc<record {}>? rowtype) returns stream<record{}, sql:Error> = @java:Method {
+function nativeQuery(Client sqlClient,@untainted handle sqlQuery, typedesc<record {}>? rowtype)
+returns stream<record{}, sql:Error> = @java:Method {
     class: "org.ballerinalang.sql.utils.QueryUtils"
 } external;
 
-function nativeExecute(Client sqlClient, @untainted handle sqlQuery) returns sql:ExecuteResult|sql:Error? = @java:Method {
+function nativeExecute(Client sqlClient,@untainted handle sqlQuery)
+returns sql:ExecuteResult|sql:Error? = @java:Method {
     class: "org.ballerinalang.sql.utils.ExecuteUtils"
 } external;
 

@@ -26,7 +26,8 @@ public type Client abstract client object {
     # + rowType - The `typedesc` of the record that should be returned as a result. If this is not provided the default
     #             column names of the query result set be used for the record attributes
     # + return - Stream of records in the type of `rowType`
-    public remote function query(@untainted string sqlQuery, typedesc<record {}>? rowType = ()) returns stream<record{}, Error>;
+    public remote function query(@untainted string sqlQuery, typedesc<record {}>? rowType = ())
+    returns stream<record{}, Error>;
 
     # Executes the DDL or DML sql queries provided by the user, and returns summary of the execution.
     #
@@ -48,8 +49,8 @@ public type Client abstract client object {
 #                  Typically this will be from an "auto increment" column when inserting a new row. Not all databases
 #                  support this feature, and hence it can be also nil
 public type ExecuteResult record {
-   int? affectedRowCount;
-   string|int? lastInsertId;
+    int? affectedRowCount;
+    string|int? lastInsertId;
 };
 
 type ResultIterator object {
@@ -60,37 +61,37 @@ type ResultIterator object {
         self.err = err;
     }
 
-    public function next() returns record{| record{} value; |}| Error? {
-       if(self.isClosed) {
+    public function next() returns record {|record {} value;|}|Error? {
+        if (self.isClosed) {
             return closedStreamInvocationError();
-       }
-       error? closeErrorIgnored = ();
-       if(self.err is Error) {
-         return self.err;
-       } else {
-           record{}| Error? result =  nextResult(self);
-           if(result is record{}){
+        }
+        error? closeErrorIgnored = ();
+        if (self.err is Error) {
+            return self.err;
+        } else {
+            record {}|Error? result = nextResult(self);
+            if (result is record {}) {
                 record {|
-                   record{} value;
-               |} streamRecord = { value: result };
-               return streamRecord;
-           } else if (result is Error ){
-              self.err = result;
-              closeErrorIgnored = self.close();
-              return self.err;
-           } else {
-              closeErrorIgnored = self.close();
-              return result;
-           }
-       }
+                    record {} value;
+                |} streamRecord = {value: result};
+                return streamRecord;
+            } else if (result is Error) {
+                self.err = result;
+                closeErrorIgnored = self.close();
+                return self.err;
+            } else {
+                closeErrorIgnored = self.close();
+                return result;
+            }
+        }
     }
 
     public function close() returns Error? {
-    if(!self.isClosed){
-            if (self.err is ()){
+        if (!self.isClosed) {
+            if (self.err is ()) {
                 Error? e = closeResult(self);
-                if(e is ()){
-                   self.isClosed = true;
+                if (e is ()) {
+                    self.isClosed = true;
                 }
                 return e;
             }
@@ -99,19 +100,20 @@ type ResultIterator object {
 };
 
 function closedStreamInvocationError() returns Error {
-    ApplicationError e = ApplicationError(message = "Stream is closed. Therefore, no operations are allowed further on the stream.");
+    ApplicationError e = ApplicationError(message = "Stream is closed. Therefore, "
+        + "no operations are allowed further on the stream.");
     return e;
 }
 
 
-public function generateApplicationErrorStream (string message) returns stream<record{}, Error> {
+public function generateApplicationErrorStream(string message) returns stream<record{}, Error> {
     ApplicationError applicationErr = ApplicationError(message = message);
     ResultIterator resultIterator = new (err = applicationErr);
     stream<record{}, Error> errorStream = new (resultIterator);
     return errorStream;
 }
 
-function nextResult(ResultIterator iterator) returns record{}|Error? = @java:Method {
+function nextResult(ResultIterator iterator) returns record {}|Error? = @java:Method {
     class: "org.ballerinalang.sql.utils.RecordItertorUtils"
 } external;
 

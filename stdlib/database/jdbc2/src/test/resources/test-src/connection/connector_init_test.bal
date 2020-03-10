@@ -27,7 +27,7 @@ function testConnection2(string jdbcURL, string user, string password) returns e
 }
 
 function testConnectionNoUserPassword(string jdbcURL) returns error? {
-    jdbc:Client | sql:Error dbClient = new (jdbcURL);
+    jdbc:Client|sql:Error dbClient = new (jdbcURL);
     if (dbClient is sql:Error) {
         return dbClient;
     } else {
@@ -36,7 +36,7 @@ function testConnectionNoUserPassword(string jdbcURL) returns error? {
 }
 
 function testConnectionWithValidDriver(string jdbcURL, string user, string password) returns error? {
-    jdbc:Client | sql:Error dbClient = new (jdbcURL, user, password, {datasourceName: "org.h2.jdbcx.JdbcDataSource"});
+    jdbc:Client|sql:Error dbClient = new (jdbcURL, user, password, {datasourceName: "org.h2.jdbcx.JdbcDataSource"});
     if (dbClient is sql:Error) {
         return dbClient;
     } else {
@@ -45,8 +45,8 @@ function testConnectionWithValidDriver(string jdbcURL, string user, string passw
 }
 
 function testConnectionWithInvalidDriver(string jdbcURL, string user, string password) returns error? {
-    jdbc:Client | sql:Error dbClient = new (jdbcURL, user, password,
-    {datasourceName: "org.h2.jdbcx.JdbcDataSourceInvalid"});
+    jdbc:Client|sql:Error dbClient = new (jdbcURL, user, password,
+        {datasourceName: "org.h2.jdbcx.JdbcDataSourceInvalid"});
     if (dbClient is sql:Error) {
         return dbClient;
     } else {
@@ -59,7 +59,7 @@ function testConnectionWithDatasourceOptions(string jdbcURL, string user, string
         datasourceName: "org.h2.jdbcx.JdbcDataSource",
         properties: {"loginTimeout": 5000}
     };
-    jdbc:Client | sql:Error dbClient = new (jdbcURL, user, password, options);
+    jdbc:Client|sql:Error dbClient = new (jdbcURL, user, password, options);
     if (dbClient is sql:Error) {
         return dbClient;
     } else {
@@ -72,7 +72,7 @@ function testConnectionWithDatasourceInvalidProperty(string jdbcURL, string user
         datasourceName: "org.h2.jdbcx.JdbcDataSource",
         properties: {"invalidProperty": 109}
     };
-    jdbc:Client | sql:Error dbClient = new (jdbcURL, user, password, options);
+    jdbc:Client|sql:Error dbClient = new (jdbcURL, user, password, options);
     if (dbClient is sql:Error) {
         return dbClient;
     } else {
@@ -80,7 +80,7 @@ function testConnectionWithDatasourceInvalidProperty(string jdbcURL, string user
     }
 }
 
-function testWithConnectionPool(string jdbcURL, string user, string password) returns error | sql:ConnectionPool {
+function testWithConnectionPool(string jdbcURL, string user, string password) returns error|sql:ConnectionPool {
     sql:ConnectionPool connectionPool = {
         maxOpenConnections: 25
     };

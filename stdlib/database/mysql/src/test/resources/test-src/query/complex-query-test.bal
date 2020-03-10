@@ -22,12 +22,13 @@ string database = "TEST_SQL_COMPLEX_QUERY";
 int port = 3305;
 
 
-function testQuery() returns record{}|error? {
+function testQuery() returns record {}|error? {
     mysql:Client dbClient = check new (host, user, password, database, port);
-    stream<record{}, error> streamData = dbClient->query("SELECT INT_TYPE, LONG_TYPE, FLOAT_TYPE, DOUBLE_TYPE, BOOLEAN_TYPE, STRING_TYPE from DataTable WHERE row_id = 1");
-    record{| record{} value; |}? data =  check streamData.next();
+    stream<record{}, error> streamData = dbClient->query("SELECT INT_TYPE, LONG_TYPE, FLOAT_TYPE, DOUBLE_TYPE,"
+        + " BOOLEAN_TYPE, STRING_TYPE from DataTable WHERE row_id = 1");
+    record {|record {} value;|}? data = check streamData.next();
     check streamData.close();
-    record{}? value = data?.value;
+    record {}? value = data?.value;
     check dbClient.close();
     return value;
 }

@@ -22,12 +22,12 @@ string password = "test123";
 string database = "TEST_SQL_NUMERIC_SELECT";
 int port = 3305;
 
-function testQuery() returns record{}|error? {
+function testQuery() returns record {}|error? {
     mysql:Client dbClient = check new (host, user, password, database, port);
     stream<record{}, sql:Error> streamData = dbClient->query("SELECT * FROM NumericTypes");
-    record{}? returnData = ();
-    error? e = streamData.forEach(function(record{} data){
-        returnData =  data;
+    record {}? returnData = ();
+    error? e = streamData.forEach(function(record {} data) {
+        returnData = data;
     });
     check dbClient.close();
     return returnData;
@@ -49,10 +49,10 @@ type NumericType record {
 function testQueryNumericTypeRecord() returns NumericType|error? {
     mysql:Client dbClient = check new (host, user, password, database, port);
     stream<record{}, error> streamResult = dbClient->query("SELECT * FROM NumericTypes", NumericType);
-    stream<NumericType, sql:Error> streamData = <stream<NumericType, sql:Error>> streamResult;
+    stream<NumericType, sql:Error> streamData = <stream<NumericType, sql:Error>>streamResult;
     NumericType? returnData = ();
-    error? e =  streamData.forEach(function(NumericType data){
-        returnData =  data;
+    error? e = streamData.forEach(function(NumericType data) {
+        returnData = data;
     });
     check dbClient.close();
     return returnData;
@@ -74,8 +74,8 @@ type NumericInvalidColumn record {
 function testQueryNumericInvalidColumnRecord() returns error? {
     mysql:Client dbClient = check new (host, user, password, database, port);
     stream<record{}, error> streamResult = dbClient->query("SELECT * FROM NumericTypes", NumericInvalidColumn);
-    stream<NumericInvalidColumn, sql:Error> streamData = <stream<NumericInvalidColumn, sql:Error>> streamResult;
-    record{| NumericInvalidColumn value; |}? data = check streamData.next();
+    stream<NumericInvalidColumn, sql:Error> streamData = <stream<NumericInvalidColumn, sql:Error>>streamResult;
+    record {|NumericInvalidColumn value;|}? data = check streamData.next();
     check streamData.close();
     check dbClient.close();
     return ();
@@ -97,8 +97,8 @@ type NumericOptionalType record {
 function testQueryNumericOptionalTypeRecord() returns NumericOptionalType|error? {
     mysql:Client dbClient = check new (host, user, password, database, port);
     stream<record{}, error> streamResult = dbClient->query("SELECT * FROM NumericTypes", NumericOptionalType);
-    stream<NumericOptionalType, sql:Error> streamData = <stream<NumericOptionalType, sql:Error>> streamResult;
-    record{| NumericOptionalType value; |}? data =  check streamData.next();
+    stream<NumericOptionalType, sql:Error> streamData = <stream<NumericOptionalType, sql:Error>>streamResult;
+    record {|NumericOptionalType value;|}? data = check streamData.next();
     check streamData.close();
     NumericOptionalType? numericType = data?.value;
     check dbClient.close();
@@ -120,9 +120,9 @@ type NumericUnionType record {
 
 function testQueryNumericUnionTypeRecord() returns NumericUnionType|error? {
     mysql:Client dbClient = check new (host, user, password, database, port);
-    stream<record{}, error> streamResult =  dbClient->query("SELECT * FROM NumericTypes", NumericUnionType);
-    stream<NumericUnionType, sql:Error> streamData = <stream<NumericUnionType, sql:Error>> streamResult;
-    record{| NumericUnionType value; |}? data =  check streamData.next();
+    stream<record{}, error> streamResult = dbClient->query("SELECT * FROM NumericTypes", NumericUnionType);
+    stream<NumericUnionType, sql:Error> streamData = <stream<NumericUnionType, sql:Error>>streamResult;
+    record {|NumericUnionType value;|}? data = check streamData.next();
     check streamData.close();
     NumericUnionType? numericType = data?.value;
     check dbClient.close();
@@ -145,8 +145,8 @@ type NumericStringType record {
 function testQueryNumericStringTypeRecord() returns NumericStringType|error? {
     mysql:Client dbClient = check new (host, user, password, database, port);
     stream<record{}, error> streamResult = dbClient->query("SELECT * FROM NumericTypes", NumericStringType);
-    stream<NumericStringType, sql:Error> streamData = <stream<NumericStringType, sql:Error>> streamResult;
-    record{| NumericStringType value; |}? data =  check streamData.next();
+    stream<NumericStringType, sql:Error> streamData = <stream<NumericStringType, sql:Error>>streamResult;
+    record {|NumericStringType value;|}? data = check streamData.next();
     check streamData.close();
     NumericStringType? numericType = data?.value;
     check dbClient.close();
@@ -171,21 +171,21 @@ type NumericCustomType record {
 function testQueryNumericCustomTypeRecord() returns NumericCustomType|error? {
     mysql:Client dbClient = check new (host, user, password, database, port);
     stream<record{}, error> streamResult = dbClient->query("SELECT * FROM NumericTypes", NumericCustomType);
-    stream<NumericCustomType, sql:Error> streamData = <stream<NumericCustomType, sql:Error>> streamResult;
-    record{| NumericCustomType value; |}? data =  check streamData.next();
+    stream<NumericCustomType, sql:Error> streamData = <stream<NumericCustomType, sql:Error>>streamResult;
+    record {|NumericCustomType value;|}? data = check streamData.next();
     check streamData.close();
     NumericCustomType? numericType = data?.value;
     check dbClient.close();
     return numericType;
 }
 
-function testQueryFromNullTable() returns record{}[]|error? {
+function testQueryFromNullTable() returns record {}[]|error? {
     mysql:Client dbClient = check new (host, user, password, database, port);
     stream<record{}, sql:Error> streamData = dbClient->query("SELECT * FROM NumericNullTypes");
-    record{}[] returnData = [];
+    record {}[] returnData = [];
     int count = 0;
-    error? e = streamData.forEach(function(record{} data){
-        returnData[count] =  data;
+    error? e = streamData.forEach(function(record {} data) {
+        returnData[count] = data;
         count += 1;
     });
     check dbClient.close();
