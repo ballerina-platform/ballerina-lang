@@ -33,6 +33,7 @@ dependencies {
     interopImports project(':ballerina-io')
     interopImports project(':ballerina-system')
     interopImports project(':ballerina-config-api')
+    interopImports project(':ballerina-sql')
 
     baloCreat project(':lib-creator')
     implementation project(':ballerina-lang')
