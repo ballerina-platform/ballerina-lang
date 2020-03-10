@@ -438,3 +438,11 @@ function testXMLSequenceRefEqualityIncludingDifferentString() returns boolean {
 
     return x2 === x3;
 }
+
+function testEmptyXMLSequencesRefEquality() returns boolean {
+    xml x = xml `<elem></elem>`;
+    xml y = xml `<elem></elem>`;
+    xml z = x/*;
+    xml q = y/*;
+    return z === q;
+}
