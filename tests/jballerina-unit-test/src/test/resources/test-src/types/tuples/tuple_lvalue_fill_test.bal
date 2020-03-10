@@ -62,6 +62,11 @@ function testRecordsWithoutFillerValues() {
     arr[2][1] = {name: "Pubudu"};
 }
 
+function testRecordsWithoutFillerValues2() {
+    [string, Person2[2]...] arr = [];
+    arr[2][1] = {name: "Pubudu"};
+}
+
 
 // Util functions
 
