@@ -106,7 +106,6 @@ public class IntermixingNodeSupplier extends AbstractNodeSupplier {
         lexer.reset(newTextOffset);
         STToken syntaxToken = lexer.nextToken();
         newTextOffset += syntaxToken.width();
-        System.out.println("lexed: " + syntaxToken);
         return syntaxToken;
     }
 
@@ -149,12 +148,9 @@ public class IntermixingNodeSupplier extends AbstractNodeSupplier {
         int tokenWidth = token.getSpanWithMinutiae().width();
         oldTextOffset += tokenWidth;
         if (isReusable(token)) {
-            System.out.println("Reused: " + token);
             newTextOffset += tokenWidth;
             return (STToken) token.getInternalNode();
         }
-        System.out.println("Not Reused: " + token);
-
 
         // TODO Check whether oldNode pointer is after the current text edit.
         //  if so update the oldTextOffset accordingly.
@@ -174,11 +170,9 @@ public class IntermixingNodeSupplier extends AbstractNodeSupplier {
 
         textEditRange = textEditRanges.pop();
         oldTextOffset += textEditRange.newTextLength - textEditRange.oldLength;
-
     }
 
     private STToken nextToken() {
-
         while (true) {
             // We are at the end of the old token stream
             if (oldTreeNodePointer.isAtEOF()) {
