@@ -13,8 +13,20 @@ function testXMLASMapContentInvalidKey() returns string|error? {
     return val;
 }
 
+function testXMLAttributeWithNSPrefix() returns
+    [string|error?, string|error?, string|error?, boolean, boolean] {
+    map<xml> xmap = {};
+    xmap["a"] = xml `<elem xmlns="ns-uri" attr="val" xml:attr="xml-val"></elem>`;
+    string|error val = xmap.a.'xml:attr;
+    string|error? val2 = xmap.a?.'xml:attr;
+    string|error? val3 = xmap.b?.'xml:attr;
+    string|error? val4 = xmap.a.'xml:attr2;
+    string|error? val5 = xmap.a?.'xml:attr2;
+    return [val, val2, val3, val4 is (), val5 is ()];
+}
+
 function getXMLMap() returns map<xml> {
-        map<xml> xmap = {};
-        xmap["a"] = xml `<elem attr="val"></elem>`;
-        return xmap;
+    map<xml> xmap = {};
+    xmap["a"] = xml `<elem attr="val"></elem>`;
+    return xmap;
 }
