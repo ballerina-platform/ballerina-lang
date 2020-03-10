@@ -7,3 +7,8 @@ public function testStdlibGotoDefinition() {
      var response = cl->get("/helloPath");
      io:println("Response Received");
 }
+
+public function testLangLig() {
+    string[] stringArr = [];
+    int length = stringArr.length();
+}
