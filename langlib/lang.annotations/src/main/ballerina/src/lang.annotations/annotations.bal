@@ -33,3 +33,9 @@ type ArgsData record {|
 
 # Defaultable annotation data generated at compile time. This is for internal use.
 annotation ArgsData DefaultableArgs on function;
+
+# An annotation that marks a program element as deprecated.
+#
+# The usage of a deprecated program element is not recommended due to
+# various reasons. Hence, the compiler issues a warning when such an element is used.
+public const annotation deprecated on source type, source object type, source const, source function, source object function;
