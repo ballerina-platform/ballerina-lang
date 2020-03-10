@@ -178,15 +178,19 @@ FunctionDefinition ::= (public|private)? remote? function AnyIdentifierName Func
     pin=3 methods=[getIdentifier getName]
 }
 
+FunctionDefinitionBody ::= (ExprFunctionBodySpec SEMICOLON) | (ExternalFunctionBody SEMICOLON) | BlockFunctionBody
+// bnf specific rules to add error recovery more precisely.
+ExprFunctionBodySpec ::= EQUAL_GT Expression {pin=1 recoverWhile=ExprFuncBodyRecover}
+private ExprFuncBodyRecover ::= !(SEMICOLON)
+
 ExternalFunctionBody ::= ASSIGN AnnotationAttachment* external {pin=3}
-ExprFunctionBody ::= EQUAL_GT Expression
-FunctionDefinitionBody ::= BlockFunctionBody | (ExprFunctionBody SEMICOLON) | (ExternalFunctionBody SEMICOLON)
+ExprFunctionBody ::= EQUAL_GT Expression {pin=1}
 
 AnonymousFunctionExpr ::= ExplicitAnonymousFunctionExpr | InferAnonymousFunctionExpr
 ExplicitAnonymousFunctionExpr ::= function FunctionSignature (BlockFunctionBody | ExprFunctionBody) {pin=1}
 InferAnonymousFunctionExpr ::= InferParamList ExprFunctionBody
 
-InferParamList ::= InferParam | (LEFT_PARENTHESIS (InferParam (COMMA InferParam)*)? RIGHT_PARENTHESIS)
+InferParamList ::= (LEFT_PARENTHESIS (InferParam (COMMA InferParam)*)? RIGHT_PARENTHESIS) | InferParam
 
 InferParam ::= identifier
 
@@ -378,11 +382,13 @@ variableDefinitionStatementWithAssignment ::= final? (TypeName | var) BindingPat
 
 RecordLiteral ::= LEFT_BRACE RecordLiteralBody? RIGHT_BRACE {pin(".*")=1}
 
-RecordLiteralBody ::= (RecordField (COMMA RecordField)*){pin(".*")=1}
+RecordLiteralBody ::= RecordField (COMMA RecordField)* {pin(".*")=1}
 
-RecordField ::= identifier
-                | RecordKey COLON Expression
-                | ELLIPSIS expression
+RecordField ::= RecordKeyValueField
+              | RecordRestField
+              | identifier
+RecordRestField ::= ELLIPSIS Expression {pin=1}
+RecordKeyValueField ::= RecordKey COLON Expression {pin=1}
 
 RecordKey ::= LEFT_BRACKET Expression RIGHT_BRACKET | Expression | identifier
 
@@ -763,7 +769,7 @@ ParameterTypeNameList ::= RestParameterTypeName | ParameterTypeName (COMMA Param
                               |
 ParameterTypeName ::= AnnotationAttachment* TypeName
 
-ParameterList ::=   RestParameter | Parameter (COMMA parameter)* (COMMA RestParameter)?
+ParameterList ::=  (Parameter (COMMA Parameter)* (COMMA RestParameter)?) | RestParameter
 
 Parameter ::= AnnotationAttachment* public? TypeName identifier
 
@@ -833,10 +839,10 @@ parameterDescription ::= MARKDOWN_DOCUMENTATION_LINE_START documentationText?
 
 returnParameterDescription ::= MARKDOWN_DOCUMENTATION_LINE_START documentationText?
 
-//TODO:Finalize the order of the expression
-documentationText ::= (documentationReference | documentationTextContent | referenceType | backtickedBlock)+
+//TODO: Fix documentation reference capturing.
+documentationText ::= (documentationReference | referenceType | backtickedBlock | documentationTextContent)+
 
-documentationReference ::= referenceType SINGLE_BACKTICK_CONTENT SINGLE_BACKTICK_MARKDOWN_END
+documentationReference ::= referenceType SINGLE_BACKTICK_CONTENT SINGLE_BACKTICK_MARKDOWN_END {pin=1}
 
 referenceType ::= DOCTYPE
                 | DOCSERVICE
