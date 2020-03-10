@@ -221,7 +221,7 @@ public class OpenApiResourceMapper {
      */
     private void parseResponsesAnnotationAttachment(BLangFunction resource, Operation op) {
         AnnotationAttachmentNode annotation = ConverterUtils.getAnnotationFromList("Responses", openApiAlias,
-                                                                                   resource.getAnnotationAttachments());
+                resource.getAnnotationAttachments());
 
         if (annotation != null) {
             BLangRecordLiteral bLiteral = ((BLangRecordLiteral) ((BLangAnnotationAttachment) annotation)
@@ -244,8 +244,7 @@ public class OpenApiResourceMapper {
                             Response response = new Response();
                             if (attributes.containsKey(ConverterConstants.ATTR_DESCRIPTION)) {
                                 response.setDescription(ConverterUtils
-                                                                .getStringLiteralValue(attributes
-                                                                                               .get(ConverterConstants.ATTR_DESCRIPTION)));
+                                        .getStringLiteralValue(attributes.get(ConverterConstants.ATTR_DESCRIPTION)));
                             }
                             // TODO: Parse 'response' attribute for $.paths./resource-path.responses[*]["code"].schema
                             this.createHeadersModel(attributes.get(ConverterConstants.ATTR_HEADERS), response);
@@ -283,8 +282,7 @@ public class OpenApiResourceMapper {
 
                     if (headersAttributes.containsKey(ConverterConstants.ATTR_DESCRIPTION)) {
                         property.setDescription(ConverterUtils
-                                                        .getStringLiteralValue(headersAttributes
-                                                                                       .get(ConverterConstants.ATTR_DESCRIPTION)));
+                                .getStringLiteralValue(headersAttributes.get(ConverterConstants.ATTR_DESCRIPTION)));
                     }
                     headers.put(headerName, property);
                 }
@@ -303,7 +301,7 @@ public class OpenApiResourceMapper {
         //Set Path
         AnnotationAttachmentNode annotation = ConverterUtils
                 .getAnnotationFromList(HttpConstants.ANN_NAME_RESOURCE_CONFIG, httpAlias,
-                                       resource.getAnnotationAttachments());
+                        resource.getAnnotationAttachments());
 
         if (annotation != null) {
             Map<String, BLangExpression> recordsMap =
@@ -394,13 +392,11 @@ public class OpenApiResourceMapper {
                 }
                 if (paramAttributes.containsKey(ConverterConstants.ATTR_DESCRIPTION)) {
                     param.setDescription(ConverterUtils
-                                                 .getStringLiteralValue(
-                                                         paramAttributes.get(ConverterConstants.ATTR_DESCRIPTION)));
+                            .getStringLiteralValue(paramAttributes.get(ConverterConstants.ATTR_DESCRIPTION)));
                 }
                 if (paramAttributes.containsKey(ConverterConstants.ATTR_REQUIRED)) {
                     param.setRequired(Boolean.parseBoolean(ConverterUtils
-                                                                   .getStringLiteralValue(paramAttributes
-                                                                                                  .get(ConverterConstants.ATTR_REQUIRED))));
+                            .getStringLiteralValue(paramAttributes.get(ConverterConstants.ATTR_REQUIRED))));
                 }
                 // TODO: 5/2/18 Set Param Schema Details
 
@@ -420,13 +416,13 @@ public class OpenApiResourceMapper {
     private void parseResourceInfo(BLangFunction resource, Operation operation, String httpMethod) {
         AnnotationAttachmentNode multiResourceInfoAnnotation = ConverterUtils
                 .getAnnotationFromList(ConverterConstants.ANNON_MULTI_RES_INFO, openApiAlias,
-                                       resource.getAnnotationAttachments());
+                        resource.getAnnotationAttachments());
         if (multiResourceInfoAnnotation != null) {
             parseMultiResourceInfoAnnotationAttachment(multiResourceInfoAnnotation, operation, httpMethod);
         } else {
             AnnotationAttachmentNode annotation = ConverterUtils
                     .getAnnotationFromList(ConverterConstants.ANNON_RES_INFO, openApiAlias,
-                                           resource.getAnnotationAttachments());
+                            resource.getAnnotationAttachments());
 
             if (annotation != null) {
                 BLangRecordLiteral bLiteral = ((BLangRecordLiteral) ((BLangAnnotationAttachment) annotation)
@@ -535,7 +531,7 @@ public class OpenApiResourceMapper {
     private void parseResourceConfigAnnotationAttachment(BLangFunction resource, OperationAdaptor operation) {
         AnnotationAttachmentNode annotation = ConverterUtils
                 .getAnnotationFromList(HttpConstants.ANN_NAME_RESOURCE_CONFIG, httpAlias,
-                                       resource.getAnnotationAttachments());
+                        resource.getAnnotationAttachments());
 
         if (annotation != null) {
             BLangRecordLiteral bLiteral = ((BLangRecordLiteral) ((BLangAnnotationAttachment) annotation)
@@ -600,7 +596,7 @@ public class OpenApiResourceMapper {
     private List<String> getHttpMethods(BLangFunction resource, boolean useDefaults) {
         AnnotationAttachmentNode annotation = ConverterUtils
                 .getAnnotationFromList(HttpConstants.ANN_NAME_RESOURCE_CONFIG, httpAlias,
-                                       resource.getAnnotationAttachments());
+                        resource.getAnnotationAttachments());
         Set<String> httpMethods = new LinkedHashSet<>();
 
         if (annotation != null) {
@@ -639,7 +635,7 @@ public class OpenApiResourceMapper {
         String path = "/" + resource.getName();
         AnnotationAttachmentNode annotation = ConverterUtils
                 .getAnnotationFromList(HttpConstants.ANN_NAME_RESOURCE_CONFIG, httpAlias,
-                                       resource.getAnnotationAttachments());
+                        resource.getAnnotationAttachments());
 
         if (annotation != null) {
             BLangRecordLiteral bLiteral = ((BLangRecordLiteral) ((BLangAnnotationAttachment) annotation)
@@ -670,7 +666,7 @@ public class OpenApiResourceMapper {
                 BodyParameter bParam = new BodyParameter();
                 RefModel m = new RefModel();
                 m.set$ref(ConverterUtils
-                                  .getStringLiteralValue(paramAttributes.get(ConverterConstants.ATTR_TYPE)));
+                        .getStringLiteralValue(paramAttributes.get(ConverterConstants.ATTR_TYPE)));
                 bParam.setSchema(m);
                 param = bParam;
                 break;
@@ -706,7 +702,7 @@ public class OpenApiResourceMapper {
             default:
                 PathParameter pParam = new PathParameter();
                 pParam.setType(ConverterUtils
-                                       .getStringLiteralValue(paramAttributes.get(ConverterConstants.ATTR_TYPE)));
+                        .getStringLiteralValue(paramAttributes.get(ConverterConstants.ATTR_TYPE)));
                 param = pParam;
         }
 
