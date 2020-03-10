@@ -483,7 +483,10 @@ public enum DiagnosticCode {
     FIELD_NOT_FOUND("field.not.found"),
     OVERLOADED_METHODS("overloaded.method"),
     UNSUPPORTED_PRIMITIVE_TYPE("unsupported.primitive.type.reason"),
-    METHOD_SIGNATURE_DOES_NOT_MATCH("method.signature.not.match")
+    METHOD_SIGNATURE_DOES_NOT_MATCH("method.signature.not.match"),
+    DEPRECATED("deprecated"),
+    DEPRECATION_ANNOTATION_SHOULD_AVAILABLE("deprecation.annotation.should.available"),
+    DEPRECATION_DOCUMENTATION_SHOULD_AVAILABLE("deprecation.documentation.should.available"),
     ;
     private String value;
 
