@@ -158,12 +158,18 @@ function testLocalSharedConnectionPoolConfigSingleDestination(string database) r
 
 function testLocalSharedConnectionPoolConfigDifferentDbOptions(string database) returns @tainted (int|error)[]|error {
     sql:ConnectionPool pool = {maxOpenConnections: 3};
-    mysql:Client dbClient1 = check new (host, user, password, database, port, {connectTimeoutInSeconds: 2, socketTimeoutInSeconds: 10}, pool);
-    mysql:Client dbClient2 = check new (host, user, password, database, port, {socketTimeoutInSeconds: 10, connectTimeoutInSeconds: 2}, pool);
-    mysql:Client dbClient3 = check new (host, user, password, database, port, {connectTimeoutInSeconds: 2, socketTimeoutInSeconds: 10}, pool);
-    mysql:Client dbClient4 = check new (host, user, password, database, port, {connectTimeoutInSeconds: 1}, pool);
-    mysql:Client dbClient5 = check new (host, user, password, database, port, {connectTimeoutInSeconds: 1}, pool);
-    mysql:Client dbClient6 = check new (host, user, password, database, port, {connectTimeoutInSeconds: 1}, pool);
+    mysql:Client dbClient1 = check new (host, user, password, database, port,
+        {connectTimeoutInSeconds: 2, socketTimeoutInSeconds: 10}, pool);
+    mysql:Client dbClient2 = check new (host, user, password, database, port,
+        {socketTimeoutInSeconds: 10, connectTimeoutInSeconds: 2}, pool);
+    mysql:Client dbClient3 = check new (host, user, password, database, port,
+        {connectTimeoutInSeconds: 2, socketTimeoutInSeconds: 10}, pool);
+    mysql:Client dbClient4 = check new (host, user, password, database, port,
+        {connectTimeoutInSeconds: 1}, pool);
+    mysql:Client dbClient5 = check new (host, user, password, database, port,
+        {connectTimeoutInSeconds: 1}, pool);
+    mysql:Client dbClient6 = check new (host, user, password, database, port,
+        {connectTimeoutInSeconds: 1}, pool);
 
     stream<record {} , error>[] resultArray = [];
     resultArray[0] = dbClient1->query("select count(*) as val from Customers where registrationID = 1", Result);
@@ -196,7 +202,8 @@ function testLocalSharedConnectionPoolConfigDifferentDbOptions(string database) 
 }
 
 
-function testLocalSharedConnectionPoolConfigMultipleDestinations(string database1, string database2) returns @tainted (int|error)[]|error {
+function testLocalSharedConnectionPoolConfigMultipleDestinations(string database1, string database2)
+returns @tainted (int|error)[]|error {
     sql:ConnectionPool pool = {maxOpenConnections: 3};
     mysql:Client dbClient1 = check new (host, user, password, database1, port, options, pool);
     mysql:Client dbClient2 = check new (host, user, password, database1, port, options, pool);
@@ -281,13 +288,15 @@ function testLocalSharedConnectionPoolStopInitInterleave(string database) return
     return result;
 }
 
-function testLocalSharedConnectionPoolStopInitInterleaveHelper1(sql:ConnectionPool pool, string database) returns error? {
+function testLocalSharedConnectionPoolStopInitInterleaveHelper1(sql:ConnectionPool pool, string database)
+returns error? {
     mysql:Client dbClient = check new (host, user, password, database, port, options, pool);
     runtime:sleep(10);
     check dbClient.close();
 }
 
-function testLocalSharedConnectionPoolStopInitInterleaveHelper2(sql:ConnectionPool pool, string database) returns @tainted int|error {
+function testLocalSharedConnectionPoolStopInitInterleaveHelper2(sql:ConnectionPool pool, string database)
+returns @tainted int|error {
     runtime:sleep(10);
     mysql:Client dbClient = check new (host, user, password, database, port, options, pool);
     var dt = dbClient->query("SELECT COUNT(*) as val from Customers where registrationID = 1", Result);
@@ -305,7 +314,8 @@ function testShutDownUnsharedLocalConnectionPool(string database) returns @taint
     // Pool should be shutdown as the only client using it is stopped.
     check dbClient.close();
     // This should result in an error return.
-    var resultAfterPoolShutDown = dbClient->query("select count(*) as val from Customers where registrationID = 1", Result);
+    var resultAfterPoolShutDown = dbClient->query("select count(*) as val from Customers where registrationID = 1",
+        Result);
     int|error retVal2 = getReturnValue(resultAfterPoolShutDown);
     return [retVal1, retVal2];
 }

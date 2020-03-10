@@ -24,7 +24,8 @@ int port = 3305;
 
 function testCreateTable() returns sql:ExecuteResult|sql:Error? {
     mysql:Client dbClient = check new (host, user, password, database, port);
-    sql:ExecuteResult? result = check dbClient->execute("CREATE TABLE TestCreateTable(studentID int, LastName varchar(255))");
+    sql:ExecuteResult? result = check dbClient->execute("CREATE TABLE TestCreateTable(studentID int, LastName"
+        + " varchar(255))");
     check dbClient.close();
     return result;
 }
@@ -38,7 +39,8 @@ function testInsertTable() returns sql:ExecuteResult|sql:Error? {
 
 function testInsertTableWithoutGeneratedKeys() returns sql:ExecuteResult|sql:Error? {
     mysql:Client dbClient = check new (host, user, password, database, port);
-    sql:ExecuteResult? result = check dbClient->execute("Insert into StringTypes (id, varchar_type) values (20, 'test')");
+    sql:ExecuteResult? result = check dbClient->execute("Insert into StringTypes (id, varchar_type)"
+        + " values (20, 'test')");
     check dbClient.close();
     return result;
 }
@@ -125,8 +127,10 @@ type StringData record {
 
 function testInsertWithStringAndSelectTable() returns [sql:ExecuteResult?, StringData?]|error? {
     mysql:Client dbClient = check new (host, user, password, database, port);
-    int intIDVal = 25;
-    string insertQuery = string `Insert into StringTypes (id, varchar_type, charmax_type, char_type, charactermax_type, character_type, nvarcharmax_type, longvarchar_type, clob_type) values (${intIDVal},'str1','str2','s','str4','s','str6','str7','str8')`;
+    string intIDVal = "25";
+    string insertQuery = "Insert into StringTypes (id, varchar_type, charmax_type, char_type, charactermax_type, "
+        + "character_type, nvarcharmax_type, longvarchar_type, clob_type) values ("
+        + intIDVal + ",'str1','str2','s','str4','s','str6','str7','str8')";
     sql:ExecuteResult? result = check dbClient->execute(insertQuery);
 
     StringData? insertedData = ();
@@ -144,8 +148,10 @@ function testInsertWithStringAndSelectTable() returns [sql:ExecuteResult?, Strin
 
 function testInsertWithEmptyStringAndSelectTable() returns [sql:ExecuteResult?, StringData?]|error? {
     mysql:Client dbClient = check new (host, user, password, database, port);
-    int intIDVal = 35;
-    string insertQuery = string `Insert into StringTypes (id, varchar_type, charmax_type, char_type, charactermax_type, character_type, nvarcharmax_type, longvarchar_type, clob_type) values (${intIDVal},'','','','','','','','')`;
+    string intIDVal = "35";
+    string insertQuery = "Insert into StringTypes (id, varchar_type, charmax_type, char_type, charactermax_type,"
+        + " character_type, nvarcharmax_type, longvarchar_type, clob_type) values (" + intIDVal +
+        ",'','','','','','','','')";
     sql:ExecuteResult? result = check dbClient->execute(insertQuery);
 
     StringData? insertedData = ();
@@ -175,8 +181,10 @@ type StringNilData record {
 
 function testInsertWithNilStringAndSelectTable() returns [sql:ExecuteResult?, StringNilData?]|error? {
     mysql:Client dbClient = check new (host, user, password, database, port);
-    int intIDVal = 45;
-    string insertQuery = string `Insert into StringTypes (id, varchar_type, charmax_type, char_type, charactermax_type, character_type, nvarcharmax_type, longvarchar_type, clob_type) values (${intIDVal},null,null,null,null,null,null,null,null)`;
+    string intIDVal = "45";
+    string insertQuery = "Insert into StringTypes (id, varchar_type, charmax_type, char_type, charactermax_type,"
+        + " character_type, nvarcharmax_type, longvarchar_type, clob_type) values ("
+        + intIDVal + ",null,null,null,null,null,null,null,null)";
     sql:ExecuteResult? result = check dbClient->execute(insertQuery);
 
     StringNilData? insertedData = ();
@@ -200,7 +208,8 @@ function testInsertTableWithDatabaseError() returns sql:ExecuteResult|sql:Error?
 
 function testInsertTableWithDataTypeError() returns sql:ExecuteResult|sql:Error? {
     mysql:Client dbClient = check new (host, user, password, database, port);
-    sql:ExecuteResult? result = check dbClient->execute("Insert into NumericTypes (int_type) values ('This is wrong type')");
+    sql:ExecuteResult? result = check dbClient->execute("Insert into NumericTypes (int_type) values"
+        + " ('This is wrong type')");
     check dbClient.close();
     return result;
 }
@@ -214,7 +223,8 @@ function testUdateData() returns [sql:ExecuteResult?, ResultCount?]|error? {
     sql:ExecuteResult? result = check dbClient->execute("Update NumericTypes set int_type = 11 where int_type = 10");
     ResultCount? resultCount = ();
 
-    stream<record{}, error> queryResult = dbClient->query("SELECT count(*) as countval from NumericTypes where int_type = 11", ResultCount);
+    stream<record{}, error> queryResult = dbClient->query("SELECT count(*) as countval from NumericTypes"
+        + " where int_type = 11", ResultCount);
     stream<ResultCount, sql:Error> streamData = <stream<ResultCount, sql:Error>>queryResult;
     record {|ResultCount value;|}? data = check streamData.next();
     check streamData.close();
