@@ -42,6 +42,8 @@ dependencies {
         implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.9.8'
         implementation 'com.h2database:h2:1.4.199'
         implementation 'org.hsqldb:hsqldb:2.2.7'
+        implementation 'ch.vorburger.mariaDB4j:mariaDB4j:2.4.0'
+        implementation 'mysql:mysql-connector-java:8.0.19'
         implementation 'com.github.chewiebug:gcviewer:1.35'
         implementation "com.github.jknack:handlebars:4.0.6"
         implementation 'com.google.protobuf:protobuf-java:3.9.1'

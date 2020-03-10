@@ -152,6 +152,8 @@ public class BRunUtil {
                 paramTypes[i] = Boolean.class;
             } else if (arg instanceof MapValue) {
                 paramTypes[i] = MapValue.class;
+            } else if (arg instanceof ErrorValue) {
+                paramTypes[i] = ErrorValue.class;
             } else {
                 // This is done temporarily, until blocks are added here for all possible cases.
                 throw new RuntimeException("unknown param type: " + arg.getClass());
@@ -308,17 +310,7 @@ public class BRunUtil {
     @Deprecated
     private static BValue[] invoke(CompileResult compileResult, BIRNode.BIRFunction function, String functionName,
                                    BValue[] bvmArgs) {
-        List<org.wso2.ballerinalang.compiler.semantics.model.types.BType> bvmParamTypes = new ArrayList<>();
-        for (org.wso2.ballerinalang.compiler.semantics.model.types.BType paramType : function.type.paramTypes) {
-            bvmParamTypes.add(paramType);
-            bvmParamTypes.add(
-                    new org.wso2.ballerinalang.compiler.semantics.model.types.BType(TypeTags.BOOLEAN_TAG, null));
-        }
-        if (function.type.restType != null) {
-            bvmParamTypes.add(function.type.restType);
-            bvmParamTypes.add(
-                    new org.wso2.ballerinalang.compiler.semantics.model.types.BType(TypeTags.BOOLEAN_TAG, null));
-        }
+        List<org.wso2.ballerinalang.compiler.semantics.model.types.BType> bvmParamTypes = function.type.paramTypes;
         Class<?>[] jvmParamTypes = new Class[bvmParamTypes.size() + 1];
         Object[] jvmArgs = new Object[bvmArgs.length + 1];
         jvmParamTypes[0] = Strand.class;

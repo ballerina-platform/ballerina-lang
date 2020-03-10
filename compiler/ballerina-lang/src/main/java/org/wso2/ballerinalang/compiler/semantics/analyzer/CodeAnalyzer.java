@@ -93,6 +93,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIntRangeExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangLetExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchExpression;
@@ -124,7 +125,9 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerSyncSendExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttribute;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttributeAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLCommentLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLNavigationAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLProcInsLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQName;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQuotedString;
@@ -169,6 +172,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangConstrainedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangErrorType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFiniteTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFunctionTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangLetVariable;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangTupleTypeNode;
@@ -181,7 +185,7 @@ import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
-import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
+import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLogHelper;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.programfile.WorkerDataChannelInfo;
 import org.wso2.ballerinalang.util.Flags;
@@ -229,7 +233,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     private int workerCount;
     private SymbolTable symTable;
     private Types types;
-    private BLangDiagnosticLog dlog;
+    private BLangDiagnosticLogHelper dlog;
     private TypeChecker typeChecker;
     private Stack<WorkerActionSystem> workerActionSystemStack = new Stack<>();
     private Stack<Boolean> loopWithintransactionCheckStack = new Stack<>();
@@ -256,7 +260,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         context.put(CODE_ANALYZER_KEY, this);
         this.symTable = SymbolTable.getInstance(context);
         this.types = Types.getInstance(context);
-        this.dlog = BLangDiagnosticLog.getInstance(context);
+        this.dlog = BLangDiagnosticLogHelper.getInstance(context);
         this.typeChecker = TypeChecker.getInstance(context);
         this.names = Names.getInstance(context);
         this.symResolver = SymbolResolver.getInstance(context);
@@ -1343,6 +1347,27 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
     }
 
+    public void visit(BLangLetExpression letExpression) {
+        int ownerSymTag = this.env.scope.owner.tag;
+        if ((ownerSymTag & SymTag.RECORD) == SymTag.RECORD) {
+            dlog.error(letExpression.pos, DiagnosticCode.LET_EXPRESSION_NOT_YET_SUPPORTED_RECORD_FIELD);
+        } else if ((ownerSymTag & SymTag.OBJECT) == SymTag.OBJECT) {
+            dlog.error(letExpression.pos, DiagnosticCode.LET_EXPRESSION_NOT_YET_SUPPORTED_OBJECT_FIELD);
+        }
+
+        // This is to support when let expressions are used in return statements
+        // Since variable declarations are visited after return node, this stops false positive unreachable code error
+        boolean returnStateBefore = this.statementReturns;
+        this.statementReturns = false;
+
+        for (BLangLetVariable letVariable : letExpression.letVarDeclarations) {
+            analyzeNode((BLangNode) letVariable.definitionNode, letExpression.env);
+        }
+
+        this.statementReturns = returnStateBefore;
+        analyzeExpr(letExpression.expr, letExpression.env);
+    }
+
     public void visit(BLangSimpleVariable varNode) {
 
         analyzeTypeNode(varNode.typeNode, this.env);
@@ -2067,6 +2092,19 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     @Override
+    public void visit(BLangXMLElementAccess xmlElementAccess) {
+        analyzeExpr(xmlElementAccess.expr);
+    }
+
+    @Override
+    public void visit(BLangXMLNavigationAccess xmlNavigation) {
+        analyzeExpr(xmlNavigation.expr);
+        if (xmlNavigation.childIndex != null) {
+            analyzeExpr(xmlNavigation.childIndex);
+        }
+    }
+
+    @Override
     public void visit(BLangWorkerFlushExpr workerFlushExpr) {
         // Two scenarios should be handled
         // 1) flush w1 -> Wait till all the asynchronous sends to worker w1 is completed
@@ -2497,6 +2535,22 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         this.isJSONContext = false;
         parent = myParent;
         checkAccess(node);
+    }
+
+    private <E extends BLangExpression> void analyzeExpr(E node, SymbolEnv env) {
+        if (node == null) {
+            return;
+        }
+        SymbolEnv prevEnv = this.env;
+        this.env = env;
+        BLangNode myParent = parent;
+        node.parent = parent;
+        parent = node;
+        node.accept(this);
+        this.isJSONContext = false;
+        parent = myParent;
+        checkAccess(node);
+        this.env = prevEnv;
     }
 
     @Override

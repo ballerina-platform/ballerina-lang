@@ -46,7 +46,7 @@ public class ProjectBasedIntegrationTest extends BaseTestCase {
         clientLeecher.waitForText(20000);
     }
 
-    @Test (dependsOnMethods = "testAssertTrue")
+    @Test(dependsOnMethods = "testAssertTrue")
     public void testAllExceptAssertTrue() throws BallerinaTestException {
         String msg1 = "15 passing";
         String msg2 = "39 passing";

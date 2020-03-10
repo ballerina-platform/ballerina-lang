@@ -98,7 +98,7 @@ public class TypedescTests {
     @Test(description = "Test tuples with expressions")
     public void testTuplesWithExpressions() {
         BValue[] returns = BRunUtil.invoke(result, "testTuplesWithExpressions");
-        Assert.assertEquals(returns[0].stringValue(), "[string,int,string[],string,int]");
+        Assert.assertEquals(returns[0].stringValue(), "[string,int,[string,string,string],string,int]");
     }
 
     @Test(description = "Test Record types")
@@ -128,5 +128,10 @@ public class TypedescTests {
         BValue[] returns = BRunUtil.invoke(result, "testMethodLevelTypeDesc");
         Assert.assertTrue(returns[0] instanceof BTypeDescValue);
         Assert.assertEquals(TypeTags.JSON_TAG, ((BTypeDescValue) returns[0]).value().getTag());
+    }
+
+    @Test(description = "Test custom error typedesc")
+    public void testCustomErrorTypeDesc() {
+        BValue[] returns = BRunUtil.invoke(result, "testCustomErrorTypeDesc");
     }
 }

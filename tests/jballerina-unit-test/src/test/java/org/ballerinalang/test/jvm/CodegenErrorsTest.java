@@ -17,7 +17,9 @@
  */
 package org.ballerinalang.test.jvm;
 
+import org.ballerinalang.test.util.BAssertUtil;
 import org.ballerinalang.test.util.BCompileUtil;
+import org.ballerinalang.test.util.CompileResult;
 import org.testng.annotations.Test;
 
 /**
@@ -28,29 +30,27 @@ import org.testng.annotations.Test;
 @Test
 public class CodegenErrorsTest {
 
-    @Test(expectedExceptions = RuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: .:too-large-method.bal:17:1: method is too large: 'getXML'")
+    @Test
     public void testTooLargeMethod() {
-        BCompileUtil.compileInProc("test-src/jvm/too-large-method.bal");
+        CompileResult result = BCompileUtil.compileOnly("test-src/jvm/too-large-method.bal");
+        BAssertUtil.validateError(result, 0, "method is too large: 'getXML'", "too-large-method.bal", 17, 1);
     }
 
-    @Test(expectedExceptions = RuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: .:too-large-object-field.bal:18:9: method is too large: " +
-                    "'\\$__init\\$'")
+    @Test
     public void testTooLargeObjectMethod() {
-        BCompileUtil.compileInProc("test-src/jvm/too-large-object-field.bal");
+        CompileResult result = BCompileUtil.compileOnly("test-src/jvm/too-large-object-field.bal");
+        BAssertUtil.validateError(result, 0, "method is too large: '$__init$'", "too-large-object-field.bal", 18, 9);
     }
 
-    @Test(expectedExceptions = RuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: .:too-large-object-method.bal:18:5: method is too large: " +
-                    "'getXML'")
+    @Test
     public void testTooLargeObjectField() {
-        BCompileUtil.compileInProc("test-src/jvm/too-large-object-method.bal");
+        CompileResult result = BCompileUtil.compileOnly("test-src/jvm/too-large-object-method.bal");
+        BAssertUtil.validateError(result, 0, "method is too large: 'getXML'", "too-large-object-method.bal", 18, 5);
     }
 
-    @Test(expectedExceptions = RuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: .:1:1: method is too large: '..<init>'")
+    @Test
     public void testTooLargePackageVar() {
-        BCompileUtil.compileInProc("test-src/jvm/too-large-package-variable.bal");
+        CompileResult result = BCompileUtil.compileOnly("test-src/jvm/too-large-package-variable.bal");
+        BAssertUtil.validateError(result, 0, "method is too large: '..<init>'", ".", 1, 1);
     }
 }

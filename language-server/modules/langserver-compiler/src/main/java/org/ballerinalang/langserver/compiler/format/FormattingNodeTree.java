@@ -3778,6 +3778,48 @@ public class FormattingNodeTree {
     }
 
     /**
+     * format Record Literal Spread Operation node.
+     *
+     * @param node {JsonObject} node as json object
+     */
+    public void formatRecordLiteralSpreadOpNode(JsonObject node) {
+        if (node.has(FormattingConstants.WS) && node.has(FormattingConstants.FORMATTING_CONFIG)) {
+            JsonObject formatConfig = node.getAsJsonObject(FormattingConstants.FORMATTING_CONFIG);
+            JsonArray ws = node.getAsJsonArray(FormattingConstants.WS);
+
+            String indentation = this.getIndentation(formatConfig, false);
+            String indentationOfParent = this.getParentIndentation(formatConfig);
+            boolean useParentIndentation = formatConfig.get(FormattingConstants.USE_PARENT_INDENTATION).getAsBoolean();
+
+            this.preserveHeight(ws, useParentIndentation ? indentationOfParent : indentation, useParentIndentation);
+
+            for (JsonElement wsItem : ws) {
+                JsonObject currentWS = wsItem.getAsJsonObject();
+                String text = currentWS.get(FormattingConstants.TEXT).getAsString();
+                if (this.noHeightAvailable(currentWS.get(FormattingConstants.WS).getAsString())
+                        && text.equals(Tokens.ELLIPSIS)) {
+                    if (formatConfig.get(FormattingConstants.SPACE_COUNT).getAsInt() > 0) {
+                        currentWS.addProperty(FormattingConstants.WS, this.getWhiteSpaces(formatConfig
+                                .get(FormattingConstants.SPACE_COUNT).getAsInt()));
+                    } else if (formatConfig.get(FormattingConstants.NEW_LINE_COUNT).getAsInt() > 0) {
+                        currentWS.addProperty(FormattingConstants.WS, this.getNewLines(formatConfig
+                                .get(FormattingConstants.NEW_LINE_COUNT).getAsInt()) + indentation);
+                    } else {
+                        currentWS.addProperty(FormattingConstants.WS, FormattingConstants.EMPTY_SPACE);
+                    }
+                }
+            }
+
+            if (node.has(FormattingConstants.EXPRESSION)) {
+                JsonObject expression = node.getAsJsonObject(FormattingConstants.EXPRESSION);
+                expression.add(FormattingConstants.FORMATTING_CONFIG,
+                        this.getFormattingConfig(0, 0, 0, false,
+                                this.getWhiteSpaceCount(indentationOfParent), true));
+            }
+        }
+    }
+
+    /**
      * format Record Type node.
      *
      * @param node {JsonObject} node as json object

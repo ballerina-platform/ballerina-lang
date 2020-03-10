@@ -383,7 +383,7 @@ public class TupleVariableDefinitionTest {
         BAssertUtil.validateError(resultNegative, ++i, errorMsg1, 24, 26);
         BAssertUtil.validateError(resultNegative, ++i, errorMsg2 + "'int'", 25, 34);
         BAssertUtil.validateError(resultNegative, ++i, errorMsg3, 29, 41);
-        BAssertUtil.validateError(resultNegative, ++i, errorMsg3, 30, 41);
+        BAssertUtil.validateError(resultNegative, ++i, errorMsg3, 30, 48);
         BAssertUtil.validateError(resultNegative, ++i, errorMsg4 + "'string', found 'int'", 31, 42);
         BAssertUtil.validateError(resultNegative, ++i, errorMsg4 + "'int', found 'float'", 31, 45);
         BAssertUtil.validateError(resultNegative, ++i, errorMsg4 + "'float', found 'string'", 31, 50);

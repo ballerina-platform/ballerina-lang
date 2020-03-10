@@ -50,6 +50,7 @@ jobs:
       language: java
       jdk: openjdk8
       node_js: 8
+      install: true
       before_install:
           - nvm install 8
           - nvm use 8
@@ -91,10 +92,11 @@ jobs:
         - export PATH="$PATH;$JAVA_HOME\\bin"
     - script:
         - while sleep 9m; do echo "=====[ $SECONDS seconds still running ]====="; done &
-        - ./gradlew :jballerina-integration-test:test :testerina-integration-test:test -x createJavadoc --stacktrace -scan --console=plain --no-daemon
+        - ./gradlew :jballerina-integration-test:test :testerina-integration-test:test -x createJavadoc --stacktrace -scan --console=plain --no-daemon --rerun-tasks
         # Killing background sleep loop
         - kill %1
       os: linux
+      install: true
       language: java
       jdk: openjdk8
       node_js: 8
