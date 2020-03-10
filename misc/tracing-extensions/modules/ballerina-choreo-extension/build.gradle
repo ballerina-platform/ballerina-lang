@@ -1,0 +1,63 @@
+/*
+ * Copyright (c) 2020, WSO2 Inc. (http://wso2.com) All Rights Reserved.
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+plugins {
+    id "com.google.protobuf" version "0.8.10"
+}
+
+apply from: "$rootDir/gradle/javaProject.gradle"
+
+//apply from: "$rootDir/gradle/javaProject.gradle"
+
+archivesBaseName = 'ballerina-choreo-tracing-extension'
+
+dependencies {
+    implementation project(':ballerina-lang')
+    implementation project(':ballerina-config')
+    implementation project(':ballerina-runtime')
+    implementation 'io.jaegertracing:jaeger-core'
+    implementation "io.grpc:grpc-protobuf"
+    implementation "io.grpc:grpc-stub"
+    implementation "io.grpc:grpc-netty-shaded"
+}
+
+protobuf {
+    protoc { artifact = "com.google.protobuf:protoc:${project.ext.protobufVersion}" }
+    plugins {
+        grpc { artifact = "io.grpc:protoc-gen-grpc-java:${project.ext.grpcVersion}" }
+    }
+    generateProtoTasks {
+        all()*.plugins { grpc {} }
+    }
+}
+
+// Inform IDEs like IntelliJ IDEA, Eclipse or NetBeans about the generated code.
+sourceSets {
+    main {
+        java {
+            srcDirs 'build/generated/source/proto/main/grpc'
+            srcDirs 'build/generated/source/proto/main/java'
+        }
+    }
+}
+
+checkstyleMain {
+    exclude 'org/ballerinalang/observe/trace/extension/choreo/gen/*'
+}
+
+createJavadoc {
+    enabled false
+}
