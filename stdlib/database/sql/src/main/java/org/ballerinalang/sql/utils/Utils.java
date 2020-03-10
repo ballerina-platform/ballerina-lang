@@ -50,7 +50,6 @@ import java.sql.Struct;
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.sql.Types;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
@@ -448,20 +447,24 @@ class Utils {
         }
         StringBuffer datetimeString = new StringBuffer(28);
         if (value instanceof Date) {
-            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-mm-dd");
-            datetimeString.append(dateFormat.format(calendar.getTime()));
+            //'-'? yyyy '-' mm '-' dd zzzzzz?
+            calendar.setTime(value);
+            appendDate(datetimeString, calendar);
             appendTimeZone(calendar, datetimeString);
         } else if (value instanceof Time) {
-            SimpleDateFormat dateFormat = new SimpleDateFormat("hh:mm:ss");
-            datetimeString.append(dateFormat.format(calendar.getTime()));
+            //hh ':' mm ':' ss ('.' s+)? (zzzzzz)?
+            calendar.setTimeInMillis(value.getTime());
+            appendTime(calendar, datetimeString);
             appendTimeZone(calendar, datetimeString);
         } else if (value instanceof Timestamp) {
-            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-mm-ddThh:mm:ss");
-            datetimeString.append(dateFormat.format(calendar.getTime()));
+            calendar.setTimeInMillis(value.getTime());
+            appendDate(datetimeString, calendar);
+            datetimeString.append("T");
+            appendTime(calendar, datetimeString);
             appendTimeZone(calendar, datetimeString);
         } else {
-            SimpleDateFormat dateFormat = new SimpleDateFormat("hh:mm:ss");
-            datetimeString.append(dateFormat.format(calendar.getTime()));
+            calendar.setTime(value);
+            appendTime(calendar, datetimeString);
             appendTimeZone(calendar, datetimeString);
         }
         return datetimeString.toString();
