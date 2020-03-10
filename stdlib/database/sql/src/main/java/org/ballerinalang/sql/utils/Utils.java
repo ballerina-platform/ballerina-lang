@@ -491,6 +491,53 @@ class Utils {
         dateString.append(minits);
     }
 
+    private static void appendTime(Calendar value, StringBuffer dateString) {
+        if (value.get(Calendar.HOUR_OF_DAY) < 10) {
+            dateString.append("0");
+        }
+        dateString.append(value.get(Calendar.HOUR_OF_DAY)).append(":");
+        if (value.get(Calendar.MINUTE) < 10) {
+            dateString.append("0");
+        }
+        dateString.append(value.get(Calendar.MINUTE)).append(":");
+        if (value.get(Calendar.SECOND) < 10) {
+            dateString.append("0");
+        }
+        dateString.append(value.get(Calendar.SECOND)).append(".");
+        if (value.get(Calendar.MILLISECOND) < 10) {
+            dateString.append("0");
+        }
+        if (value.get(Calendar.MILLISECOND) < 100) {
+            dateString.append("0");
+        }
+        dateString.append(value.get(Calendar.MILLISECOND));
+    }
+
+    private static void appendDate(StringBuffer dateString, Calendar calendar) {
+        int year = calendar.get(Calendar.YEAR);
+        if (year < 1000) {
+            dateString.append("0");
+        }
+        if (year < 100) {
+            dateString.append("0");
+        }
+        if (year < 10) {
+            dateString.append("0");
+        }
+        dateString.append(year).append("-");
+        // sql date month is started from 1 and calendar month is
+        // started from 0. so have to add one
+        int month = calendar.get(Calendar.MONTH) + 1;
+        if (month < 10) {
+            dateString.append("0");
+        }
+        dateString.append(month).append("-");
+        if (calendar.get(Calendar.DAY_OF_MONTH) < 10) {
+            dateString.append("0");
+        }
+        dateString.append(calendar.get(Calendar.DAY_OF_MONTH));
+    }
+
     private static void validatedInvalidFieldAssignment(int sqlType, BType bType, String sqlTypeName)
             throws ApplicationError {
         if (!isValidFieldConstraint(sqlType, bType)) {
