@@ -107,7 +107,6 @@ public class JvmDesugarPhase {
         BIRBasicBlock nextBB = insertAndGetNextBasicBlock(basicBlocks, "desugaredBB");
 
         int paramCounter = 0;
-        int paramBBCounter = 0;
         DiagnosticPos pos = currentFunc.pos;
         while (paramCounter < functionParams.size()) {
             BIRFunctionParameter funcParam = functionParams.get(paramCounter);
@@ -129,8 +128,6 @@ public class JvmDesugarPhase {
                 lastBB.terminator = new GOTO(pos, falseBB);
 
                 nextBB = falseBB;
-
-                paramBBCounter += 1;
             }
             paramCounter += 2;
         }
@@ -144,7 +141,6 @@ public class JvmDesugarPhase {
             return;
         }
 
-        int pl = currentFunc.basicBlocks.size();
         BIRBasicBlock firstBB = getBasicBlock(currentFunc.basicBlocks.get(0));
 
         nextBB.terminator = new GOTO(pos, firstBB);
@@ -152,7 +148,6 @@ public class JvmDesugarPhase {
             basicBlocks.add(bb);
         }
 
-        int nl = basicBlocks.size();
         currentFunc.basicBlocks = basicBlocks;
     }
 

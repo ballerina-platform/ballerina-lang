@@ -835,24 +835,25 @@ class JvmTypeGen {
         mv.visitTypeInsn(ANEWARRAY, ATTACHED_FUNCTION);
         int i = 0;
         for (BAttachedFunction attachedFunc : attachedFunctions) {
-            if (attachedFunc != null) {
-                // create and load attached function
-                createObjectAttachedFunction(mv, attachedFunc, objType);
-                BIRVariableDcl attachedFuncVar = new BIRVariableDcl(symbolTable.anyType,
-                        new Name(toNameString(objType) + attachedFunc.funcName.value), VarScope.FUNCTION,
-                        VarKind.LOCAL);
-                int attachedFunctionVarIndex = indexMap.getIndex(attachedFuncVar);
-                mv.visitVarInsn(ASTORE, attachedFunctionVarIndex);
-
-                mv.visitInsn(DUP);
-                mv.visitLdcInsn((long) i);
-                mv.visitInsn(L2I);
-
-                // Add the member to the array
-                mv.visitVarInsn(ALOAD, attachedFunctionVarIndex);
-                mv.visitInsn(AASTORE);
-                i += 1;
+            if (attachedFunc == null) {
+                continue;
             }
+            // create and load attached function
+            createObjectAttachedFunction(mv, attachedFunc, objType);
+            BIRVariableDcl attachedFuncVar = new BIRVariableDcl(symbolTable.anyType,
+                    new Name(toNameString(objType) + attachedFunc.funcName.value), VarScope.FUNCTION,
+                    VarKind.LOCAL);
+            int attachedFunctionVarIndex = indexMap.getIndex(attachedFuncVar);
+            mv.visitVarInsn(ASTORE, attachedFunctionVarIndex);
+
+            mv.visitInsn(DUP);
+            mv.visitLdcInsn((long) i);
+            mv.visitInsn(L2I);
+
+            // Add the member to the array
+            mv.visitVarInsn(ALOAD, attachedFunctionVarIndex);
+            mv.visitInsn(AASTORE);
+            i += 1;
         }
 
         // Set the fields of the object

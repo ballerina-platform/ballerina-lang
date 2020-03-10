@@ -299,7 +299,6 @@ public class JvmInstructionGen {
                 bType.tag == TypeTags.JSON ||
                 bType.tag == TypeTags.FUTURE ||
                 bType.tag == TypeTags.OBJECT ||
-                bType.tag == TypeTags.SERVICE ||
                 bType.tag == TypeTags.DECIMAL ||
                 bType.tag == TypeTags.XML ||
                 bType.tag == TypeTags.INVOKABLE ||
@@ -385,7 +384,6 @@ public class JvmInstructionGen {
                 bType.tag == TypeTags.JSON ||
                 bType.tag == TypeTags.FUTURE ||
                 bType.tag == TypeTags.OBJECT ||
-                bType.tag == TypeTags.SERVICE ||
                 bType.tag == TypeTags.XML ||
                 bType.tag == TypeTags.INVOKABLE ||
                 bType.tag == TypeTags.FINITE ||
@@ -1151,7 +1149,6 @@ public class JvmInstructionGen {
         void generateObjectStoreIns(FieldAccess objectStoreIns, boolean useBString) {
             // visit object_ref
             this.loadVar(objectStoreIns.lhsOp.variableDcl);
-            BType varRefType = objectStoreIns.lhsOp.variableDcl.type;
 
             // visit key_expr
             this.loadVar(objectStoreIns.keyOp.variableDcl);

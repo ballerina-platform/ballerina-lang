@@ -17,7 +17,6 @@
  */
 package org.wso2.ballerinalang.compiler.bir.codegen;
 
-import org.ballerinalang.compiler.BLangCompilerException;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmInstructionGen.InstructionGenerator;
@@ -29,11 +28,9 @@ import org.wso2.ballerinalang.compiler.bir.codegen.interop.InteropMethodGen.JErr
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRBasicBlock;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRErrorEntry;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRFunction;
-import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRPackage;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRVariableDcl;
 import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator.Panic;
 import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator.Return;
-import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import java.util.List;
 
@@ -198,20 +195,5 @@ public class JvmErrorGen {
 
             return this.indexMap.getIndex(varDcl);
         }
-    }
-
-    static class DiagnosticLog {
-
-        BLangCompilerException err;
-        DiagnosticPos pos;
-        BIRPackage module;
-
-        public DiagnosticLog(BLangCompilerException err, DiagnosticPos pos, BIRPackage module) {
-
-            this.err = err;
-            this.pos = pos;
-            this.module = module;
-        }
-
     }
 }

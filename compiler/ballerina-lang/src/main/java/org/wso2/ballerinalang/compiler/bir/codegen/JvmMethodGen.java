@@ -598,7 +598,7 @@ public class JvmMethodGen {
                 mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%", "_"),
                         String.format("L%s;", ARRAY_VALUE));
                 mv.visitVarInsn(ASTORE, index);
-            } else if (bType.tag == TypeTags.OBJECT || bType.tag == TypeTags.SERVICE) {
+            } else if (bType.tag == TypeTags.OBJECT) {
                 mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%", "_"),
                         String.format("L%s;", OBJECT_VALUE));
                 mv.visitVarInsn(ASTORE, index);
@@ -745,7 +745,7 @@ public class JvmMethodGen {
                 mv.visitTypeInsn(CHECKCAST, TYPEDESC_VALUE);
                 mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%", "_"),
                         String.format("L%s;", TYPEDESC_VALUE));
-            } else if (bType.tag == TypeTags.OBJECT || bType.tag == TypeTags.SERVICE) {
+            } else if (bType.tag == TypeTags.OBJECT) {
                 mv.visitVarInsn(ALOAD, index);
                 mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%", "_"),
                         String.format("L%s;", OBJECT_VALUE));
@@ -843,7 +843,7 @@ public class JvmMethodGen {
         } else if (bType.tag == TypeTags.ARRAY ||
                 bType.tag == TypeTags.TUPLE) {
             jvmType = String.format("L%s;", ARRAY_VALUE);
-        } else if (bType.tag == TypeTags.OBJECT || bType.tag == TypeTags.SERVICE) {
+        } else if (bType.tag == TypeTags.OBJECT) {
             jvmType = String.format("L%s;", OBJECT_VALUE);
         } else if (bType.tag == TypeTags.ERROR) {
             jvmType = String.format("L%s;", ERROR_VALUE);
@@ -1061,7 +1061,6 @@ public class JvmMethodGen {
             }
 
             // process terminator
-            boolean isTerminatorTrapped = false;
             if (!isArg || (isArg && !(terminator instanceof Return))) {
                 generateDiagnosticPos(terminator.pos, mv);
                 if (isModuleInitFunction(module, func) && terminator instanceof Return) {
@@ -1124,7 +1123,7 @@ public class JvmMethodGen {
         boolean isExternFunction = isExternStaticFunctionCall(ins);
         boolean isBuiltinModule = isBallerinaBuiltinModule(orgName, moduleName);
 
-        BType returnType = new BNilType();
+        BType returnType;
         if (lhsType.tag == TypeTags.FUTURE) {
             returnType = ((BFutureType) lhsType).constraint;
         } else if (ins instanceof FPLoad) {
@@ -1358,7 +1357,6 @@ public class JvmMethodGen {
                 bType.tag == TypeTags.ANY ||
                 bType.tag == TypeTags.ANYDATA ||
                 bType.tag == TypeTags.OBJECT ||
-                bType.tag == TypeTags.SERVICE ||
                 bType.tag == TypeTags.DECIMAL ||
                 bType.tag == TypeTags.UNION ||
                 bType.tag == TypeTags.RECORD ||
@@ -1557,7 +1555,7 @@ public class JvmMethodGen {
             return String.format("L%s;", FUNCTION_POINTER);
         } else if (bType.tag == TypeTags.TYPEDESC) {
             return String.format("L%s;", TYPEDESC_VALUE);
-        } else if (bType.tag == TypeTags.OBJECT || bType.tag == TypeTags.SERVICE) {
+        } else if (bType.tag == TypeTags.OBJECT) {
             return String.format("L%s;", OBJECT_VALUE);
         } else if (bType.tag == TypeTags.XML) {
             return String.format("L%s;", XML_VALUE);
@@ -1610,7 +1608,7 @@ public class JvmMethodGen {
                 bType.tag == TypeTags.JSON ||
                 bType.tag == TypeTags.FINITE) {
             return String.format(")L%s;", OBJECT);
-        } else if (bType.tag == TypeTags.OBJECT || bType.tag == TypeTags.SERVICE) {
+        } else if (bType.tag == TypeTags.OBJECT) {
             return String.format(")L%s;", OBJECT_VALUE);
         } else if (bType.tag == TypeTags.INVOKABLE) {
             return String.format(")L%s;", FUNCTION_POINTER);
@@ -2129,20 +2127,9 @@ public class JvmMethodGen {
         return funcName;
     }
 
-    // TODO: remove and use calculateModuleStartFuncName
-    static String getModuleStartFuncName(BIRPackage module) {
-
-        return calculateModuleStartFuncName(packageToModuleId(module));
-    }
-
     private static String calculateModuleStartFuncName(PackageID id) {
 
         return calculateModuleSpecialFuncName(id, "<start>");
-    }
-
-    static String getModuleStopFuncName(BIRPackage module) {
-
-        return calculateModuleSpecialFuncName(packageToModuleId(module), "<stop>");
     }
 
     static void addInitAndTypeInitInstructions(BIRPackage pkg, BIRFunction func) {
@@ -2252,11 +2239,8 @@ public class JvmMethodGen {
         nextBB.instructions.add(typeTest);
 
         BIRBasicBlock trueBB = addAndGetNextBasicBlock(func);
-
         BIRBasicBlock retBB = addAndGetNextBasicBlock(func);
-
         retBB.terminator = new Return(null);
-
         trueBB.terminator = new GOTO(null, retBB);
 
         BIRBasicBlock falseBB = addAndGetNextBasicBlock(func);
@@ -2276,16 +2260,6 @@ public class JvmMethodGen {
         BIRVariableDcl nextLocalVar = new BIRVariableDcl(typeVal, getNextVarId(), VarScope.FUNCTION, VarKind.LOCAL);
         func.localVars.add(nextLocalVar);
         return nextLocalVar;
-    }
-
-    static void generateParamCast(int paramIndex, BType targetType, MethodVisitor mv) {
-        // load BValue array
-        mv.visitVarInsn(ALOAD, 0);
-
-        // load value[i]
-        mv.visitLdcInsn((long) paramIndex);
-        mv.visitInsn(L2I);
-        mv.visitInsn(AALOAD);
     }
 
     private static void generateAnnotLoad(MethodVisitor mv, @Nilable List<BIRTypeDefinition> typeDefs, String pkgName) {
@@ -2447,7 +2421,7 @@ public class JvmMethodGen {
             typeSig = String.format("L%s;", ERROR_VALUE);
         } else if (bType.tag == TypeTags.FUTURE) {
             typeSig = String.format("L%s;", FUTURE_VALUE);
-        } else if (bType.tag == TypeTags.OBJECT || bType.tag == TypeTags.SERVICE) {
+        } else if (bType.tag == TypeTags.OBJECT) {
             typeSig = String.format("L%s;", OBJECT_VALUE);
         } else if (bType.tag == TypeTags.XML) {
             typeSig = String.format("L%s;", XML_VALUE);

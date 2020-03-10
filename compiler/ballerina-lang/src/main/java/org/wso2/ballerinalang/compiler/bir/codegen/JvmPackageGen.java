@@ -129,19 +129,19 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.interop.ExternalMethod
 public class JvmPackageGen {
 
     public static Map<String, BIRFunctionWrapper> birFunctionMap;
-    public static Map<String, BIRTypeDefinition> typeDefMap;
-    public static Map<String, String> globalVarClassNames;
     public static Map<String, BIRInstruction> lambdas;
-    public static Map<String, String> externalMapCache;
-    public static Map<String, PackageID> dependentModules;
     public static String currentClass;
-    public static int lambdaIndex;
     public static SymbolTable symbolTable;
 
-    public static void intiPackageGen() {
+    static int lambdaIndex;
+    static Map<String, String> externalMapCache;
+
+    private static Map<String, String> globalVarClassNames;
+    private static Map<String, PackageID> dependentModules;
+
+    static void intiPackageGen() {
 
         birFunctionMap = new HashMap<>();
-        typeDefMap = new HashMap<>();
         globalVarClassNames = new HashMap<>();
         lambdas = new HashMap<>();
         externalMapCache = new HashMap<>();
@@ -209,7 +209,6 @@ public class JvmPackageGen {
             return globalVarClassNames.get(key);
         }
     }
-
 
     private static void generateDependencyList(BPackageSymbol packageSymbol, JarFile jarFile,
                                                InteropValidator interopValidator) {
@@ -299,7 +298,7 @@ public class JvmPackageGen {
         enrichPkgWithInitializers(jvmClassMap, typeOwnerClass, module, dependentModuleArray);
 
         // generate the shutdown listener class.
-        generateShutdownSignalListener(module, typeOwnerClass, jarFile.pkgEntries);
+        generateShutdownSignalListener(typeOwnerClass, jarFile.pkgEntries);
 
         boolean serviceEPAvailable = isServiceDefAvailable(module.typeDefs);
 
@@ -582,11 +581,11 @@ public class JvmPackageGen {
      * Java Class will be generate for each source file. This method add class mappings to globalVar and filters the
      * unctions based on their source file name and then returns map of associated java class contents.
      *
-     * @param module bir module
-     * @param pkgName module name
-     * @param initClass module init class name
+     * @param module           bir module
+     * @param pkgName          module name
+     * @param initClass        module init class name
      * @param interopValidator interop validator instance
-     * @param isEntry is entry module flag
+     * @param isEntry          is entry module flag
      * @return The map of javaClass records on given source file name
      */
     private static Map<String, JavaClass> generateClassNameMappings(BIRPackage module, String pkgName, String initClass,
@@ -678,13 +677,13 @@ public class JvmPackageGen {
                 try {
                     if (isExternFunc(getFunction(birFunc))) {
                         birFuncWrapperOrError = createExternalFunctionWrapper(interopValidator, birFunc, orgName,
-                                                                              moduleName, version, birModuleClassName);
+                                moduleName, version, birModuleClassName);
                     } else {
                         if (isEntry) {
                             addDefaultableBooleanVarsToSignature(birFunc);
                         }
                         birFuncWrapperOrError = getFunctionWrapper(birFunc, orgName, moduleName, version,
-                                                                   birModuleClassName);
+                                birModuleClassName);
                     }
                 } catch (JInteropException e) {
                     CodeGenerator.dlog.error(birFunc.pos, e.getCode(), e.getMessage());
@@ -700,11 +699,6 @@ public class JvmPackageGen {
         for (BIRTypeDefinition optionalTypeDef : typeDefs) {
             BIRTypeDefinition typeDef = getTypeDef(optionalTypeDef);
             BType bType = typeDef.type;
-
-            if (bType.tag == TypeTags.OBJECT || bType.tag == TypeTags.RECORD) {
-                String key = getModuleLevelClassName(orgName, moduleName, typeDef.name.value);
-                typeDefMap.put(key, typeDef);
-            }
 
             if ((bType.tag == TypeTags.OBJECT &&
                     !Symbols.isFlagOn(((BObjectType) bType).tsymbol.flags, Flags.ABSTRACT)) ||
@@ -755,6 +749,7 @@ public class JvmPackageGen {
     }
 
     static PackageID packageToModuleId(BIRPackage mod) {
+
         return new PackageID(mod.org, mod.name, mod.version);
     }
 
@@ -764,8 +759,7 @@ public class JvmPackageGen {
         return externalMapCache.get(cleanupName(pkgName) + "/" + nameOfNonBStringFunc(functionName));
     }
 
-    private static void generateShutdownSignalListener(BIRPackage pkg, String initClass, Map<String,
-            byte[]> jarEntries) {
+    private static void generateShutdownSignalListener(String initClass, Map<String, byte[]> jarEntries) {
 
         String innerClassName = initClass + "$SignalListener";
         ClassWriter cw = new BallerinaClassWriter(COMPUTE_FRAMES);

@@ -874,7 +874,7 @@ public class JvmCastGen {
             targetTypeClass = TABLE_VALUE;
         } else if (targetType.tag == TypeTags.STREAM) {
             targetTypeClass = STREAM_VALUE;
-        } else if (targetType.tag == TypeTags.OBJECT || targetType.tag == TypeTags.SERVICE) {
+        } else if (targetType.tag == TypeTags.OBJECT) {
             targetTypeClass = OBJECT_VALUE;
         } else if (targetType.tag == TypeTags.ERROR) {
             targetTypeClass = ERROR_VALUE;

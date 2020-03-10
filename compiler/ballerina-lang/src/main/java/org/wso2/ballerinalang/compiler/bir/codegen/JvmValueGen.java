@@ -1098,7 +1098,6 @@ class JvmValueGen {
             }
         }
 
-        // Private methods
         private byte[] createObjectValueClass(BObjectType objectType, String className,
                                               BIRNode.BIRTypeDefinition typeDef, boolean isService) {
 
