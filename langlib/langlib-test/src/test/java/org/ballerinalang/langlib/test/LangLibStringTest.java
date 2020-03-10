@@ -125,6 +125,11 @@ public class LangLibStringTest {
         }
     }
 
+    @Test(description = "Test the lastIndexOf() method.")
+    public void testLastIndexOf() {
+        BRunUtil.invoke(compileResult, "testLastIndexOf");
+    }
+
     @Test(dataProvider = "codePointCompareProvider")
     public void testCodePointCompare(String st1, String st2, int expected) {
         BValue[] args = {new BString(st1), new BString(st2)};

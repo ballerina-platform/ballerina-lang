@@ -132,6 +132,8 @@ public class DefinitionTest {
                 {"defFunction10.json", "function"},
                 {"defFunction11.json", "function"},
                 {"defFunction12.json", "function"},
+                {"defFunction13.json", "function"},
+                {"defFunction14.json", "function"},
                 // Following tests covers the type descriptor and Module Type Definitions
                 // Covers Simple Type Descriptor
                 {"defTypedesc1.json", "typedescriptor"},
@@ -152,6 +154,7 @@ public class DefinitionTest {
                 {"defTypedesc14.json", "typedescriptor"},
                 {"defTypedesc15.json", "typedescriptor"},
                 {"defTypedesc16.json", "typedescriptor"},
+                {"defTypedesc53.json", "typedescriptor"},
                 // Covers Function Type Descriptor
                 {"defTypedesc17.json", "typedescriptor"},
                 {"defTypedesc18.json", "typedescriptor"},
@@ -209,6 +212,9 @@ public class DefinitionTest {
                 // Covers the Mapping Constructor Expression
                 {"defMappingConstructorExpr1.json", "expression"},
                 {"defMappingConstructorExpr2.json", "expression"},
+                {"defMappingConstructorExpr3.json", "expression"},
+                {"defMappingConstructorExpr4.json", "expression"},
+                {"defMappingConstructorExpr5.json", "expression"},
                 {"defServiceConstructorExpr1.json", "expression"},
                 // Covers the String Template Expression
                 {"defStringTemplateExpr1.json", "expression"},
@@ -425,6 +431,12 @@ public class DefinitionTest {
                 {"defPanicStmt1.json", "panic"},
                 // Covers Return Statement
                 {"defReturnStmt1.json", "return"},
+//                // Stream Tests
+                {"defStreams1.json", "streams"},
+                {"defStreams2.json", "streams"},
+                {"defStreams3.json", "streams"},
+                {"defStreams4.json", "streams"},
+                {"defStreams5.json", "streams"},
         };
     }
     

@@ -21,7 +21,6 @@ package org.ballerinalang.langlib.internal;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BField;
 import org.ballerinalang.jvm.types.BRecordType;
-import org.ballerinalang.jvm.types.BUnionType;
 import org.ballerinalang.jvm.util.Flags;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
@@ -41,12 +40,12 @@ import java.util.HashMap;
 @BallerinaFunction(
         orgName = "ballerina", packageName = "lang.__internal", functionName = "setNarrowType",
         args = {@Argument(name = "td", type = TypeKind.TYPEDESC), @Argument(name = "val", type = TypeKind.RECORD)},
-        returnType = {@ReturnType(type = TypeKind.UNION)}
+        returnType = {@ReturnType(type = TypeKind.RECORD)}
 )
 public class SetNarrowType {
 
-    public static Object setNarrowType(Strand strand, TypedescValue td, Object value) {
-        BRecordType recordType = (BRecordType) ((MapValue)value).getType();
+    public static MapValue setNarrowType(Strand strand, TypedescValue td, MapValue value) {
+        BRecordType recordType = (BRecordType) value.getType();
         BRecordType newRecordType = new BRecordType("narrowType", recordType.getPackage(), recordType.flags,
                 recordType.sealed, recordType.typeFlags);
         newRecordType.setFields(new HashMap<String, BField>() {{
@@ -54,7 +53,7 @@ public class SetNarrowType {
         }});
 
         MapValueImpl<String, Object> newRecord = new MapValueImpl<>(newRecordType);
-        newRecord.put("value", ((MapValue)value).get("value"));
+        newRecord.put("value", value.get("value"));
         return newRecord;
     }
 }

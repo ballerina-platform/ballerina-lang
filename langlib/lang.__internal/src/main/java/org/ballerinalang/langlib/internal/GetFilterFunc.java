@@ -19,25 +19,15 @@
 package org.ballerinalang.langlib.internal;
 
 import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BFunctionType;
-import org.ballerinalang.jvm.types.BStreamType;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.types.BUnionType;
-import org.ballerinalang.jvm.types.TypeFlags;
-import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.values.FPValue;
-import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.jvm.values.TypedescValue;
-import org.ballerinalang.jvm.values.api.BFunctionPointer;
-import org.ballerinalang.jvm.values.api.BValueCreator;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
-
-import java.util.Map;
 
 /**
  * Native implementation of lang.internal:getFilterFunc(func).
@@ -46,12 +36,15 @@ import java.util.Map;
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "lang.__internal", functionName = "getFilterFunc",
-        args = {@Argument(name = "iteratorObj", type = TypeKind.OBJECT)},
+        args = {@Argument(name = "func", type = TypeKind.ANY)},
         returnType = {@ReturnType(type = TypeKind.FUNCTION)}
 )
 public class GetFilterFunc {
 
-    public static FPValue getFilterFunc(Strand strand, ObjectValue objectValue) {
-        return (FPValue) objectValue.get("func");
+    public static FPValue getFilterFunc(Strand strand, Object obj) {
+        FPValue fpValue = (FPValue) obj;
+        BFunctionType functionType = (BFunctionType) fpValue.getType();
+        functionType.paramTypes[0] = new BUnionType(new BType[]{BTypes.typeAny, BTypes.typeError}, 0);
+        return fpValue;
     }
 }

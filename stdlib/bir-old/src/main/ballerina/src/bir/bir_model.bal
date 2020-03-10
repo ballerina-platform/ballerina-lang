@@ -758,7 +758,6 @@ public type NewXMLElement record {|
     InstructionKind kind;
     VarRef lhsOp;
     VarRef startTagOp;
-    VarRef endTagOp;
     VarRef defaultNsURIOp;
 |};
 

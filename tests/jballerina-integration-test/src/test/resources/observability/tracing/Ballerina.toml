@@ -7,7 +7,7 @@ version = "0.0.1"
 target = "java8"
 
   [[platform.libraries]]
-  path = "../../../../../../observability-test-utils/build/generated-bir-jar/testobserve.jar"
+  path = "../../../../../../observability-test-utils/build/generated-bir-jar/ballerina.testobserve.jar"
 
   [[platform.libraries]]
   path = "../../../../../../observability-test-utils/build/libs/observability-test-natives.jar"

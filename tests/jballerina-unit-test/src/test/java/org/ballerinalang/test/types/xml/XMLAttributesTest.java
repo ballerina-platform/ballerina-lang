@@ -54,11 +54,8 @@ public class XMLAttributesTest {
         Assert.assertEquals(returns[0].stringValue(),
                 "<root xmlns=\"http://sample.com/wso2/c1\" " +
                         "xmlns:ns4=\"http://sample.com/wso2/f\" " +
-                        "xmlns:ns0=\"http://sample.com/wso2/a1\" " +
-                        "xmlns:ns1=\"http://sample.com/wso2/b1\" " +
-                        "xmlns:ns3=\"http://sample.com/wso2/d1\" " +
-                        "xmlns:ns2=\"http://sample.com/wso2/e\" " +
-                        "foo1=\"bar1\" ns2:foo2=\"bar2\" ns4:foo3=\"bar3\"></root>");
+                        "xmlns:ns1=\"http://sample.com/wso2/e\" " +
+                        "foo1=\"bar1\" ns1:foo2=\"bar2\" ns4:foo3=\"bar3\"></root>");
     }
     
     @Test(expectedExceptions = {BLangRuntimeException.class}, 
@@ -73,9 +70,7 @@ public class XMLAttributesTest {
         Assert.assertTrue(returns[0] instanceof BXML);
         Assert.assertEquals(returns[0].stringValue(),
                 "<root xmlns=\"http://sample.com/wso2/c1\" " +
-                        "xmlns:ns3=\"http://sample.com/wso2/f\" " +
-                        "xmlns:ns0=\"http://sample.com/wso2/a1\" " +
-                        "xmlns:ns1=\"http://sample.com/wso2/b1\" foo1=\"bar\"></root>");
+                        "xmlns:ns3=\"http://sample.com/wso2/f\" foo1=\"bar\"></root>");
     }
     
     @Test
@@ -85,16 +80,13 @@ public class XMLAttributesTest {
         Assert.assertEquals(returns[0].stringValue(),
                 "<root xmlns=\"http://sample.com/wso2/c1\" " +
                         "xmlns:ns3=\"http://sample.com/wso2/f\" " +
-                        "xmlns:ns0=\"http://sample.com/wso2/a1\" " +
-                        "xmlns:ns1=\"http://sample.com/wso2/b1\" " +
                         "xmlns:ns4=\"http://wso2.com\"></root>");
         
         Assert.assertTrue(returns[1] instanceof BXML);
         Assert.assertEquals(returns[1].stringValue(),
                 "<root xmlns=\"http://ballerinalang.org/\" " +
                         "xmlns:ns3=\"http://sample.com/wso2/f\" " +
-                        "xmlns:ns0=\"http://sample.com/wso2/a1\" " +
-                        "xmlns:ns1=\"http://sample.com/wso2/b1\" att=\"http://wso2.com\"></root>");
+                        "att=\"http://wso2.com\"></root>");
     }
     
     @Test
@@ -102,9 +94,9 @@ public class XMLAttributesTest {
         BValue[] returns = BRunUtil.invoke(xmlAttrProgFile, "testAddAttributeWithQName");
         Assert.assertTrue(returns[0] instanceof BXML);
         Assert.assertEquals(returns[0].stringValue(),
-                "<root xmlns=\"http://sample.com/wso2/c1\" xmlns:ns3=\"http://sample.com/wso2/f\" " +
-                        "xmlns:ns0=\"http://sample.com/wso2/a1\" " +
-                        "xmlns:ns1=\"http://sample.com/wso2/b1\" ns0:foo1=\"bar1\"></root>");
+                "<root xmlns=\"http://sample.com/wso2/c1\" " +
+                        "xmlns:ns3=\"http://sample.com/wso2/f\" " +
+                        "xmlns:ns1=\"http://sample.com/wso2/a1\" ns1:foo1=\"bar1\"></root>");
     }
 
     @Test
@@ -113,11 +105,9 @@ public class XMLAttributesTest {
         Assert.assertTrue(returns[0] instanceof BXML);
         Assert.assertEquals(returns[0].stringValue(),
                 "<root xmlns=\"http://sample.com/wso2/c1\" " +
-                        "xmlns:ns3=\"http://sample.com/wso2/f\" " +
                         "xmlns:ns4=\"http://sample.com/wso2/f/\" " +
-                        "xmlns:ns5=\"http://sample.com/wso2/f/\" " +
-                        "xmlns:ns0=\"http://sample.com/wso2/a1\" " +
-                        "xmlns:ns1=\"http://sample.com/wso2/b1\" ns5:diff=\"yes\" ns3:foo1=\"bar1\"></root>");
+                        "xmlns:ns3=\"http://sample.com/wso2/f\" " +
+                        "xmlns:ns5=\"http://sample.com/wso2/f/\" ns5:diff=\"yes\" ns3:foo1=\"bar1\"></root>");
     }
 
     @Test
@@ -126,11 +116,9 @@ public class XMLAttributesTest {
         Assert.assertTrue(returns[0] instanceof BXML);
         Assert.assertEquals(returns[0].stringValue(),
                 "<root xmlns=\"http://sample.com/wso2/c1\" " +
-                        "xmlns:ns3=\"http://sample.com/wso2/f\" " +
                         "xmlns:ns4=\"http://sample.com/wso2/f/\" " +
-                        "xmlns:ns5=\"http://sample.com/wso2/f/\" " +
-                        "xmlns:ns0=\"http://sample.com/wso2/a1\" " +
-                        "xmlns:ns1=\"http://sample.com/wso2/b1\" ns5:diff=\"yes\" ns5:foo1=\"bar1\"></root>");
+                        "xmlns:ns3=\"http://sample.com/wso2/f\" " +
+                        "xmlns:ns5=\"http://sample.com/wso2/f/\" ns5:diff=\"yes\" ns5:foo1=\"bar1\"></root>");
     }
 
     @Test
@@ -139,11 +127,9 @@ public class XMLAttributesTest {
         Assert.assertTrue(returns[0] instanceof BXML);
         Assert.assertEquals(returns[0].stringValue(),
                 "<root xmlns=\"http://sample.com/wso2/c1\" " +
-                        "xmlns:ns3=\"http://sample.com/wso2/f\" " +
                         "xmlns:ns4=\"http://sample.com/wso2/f/\" " +
-                        "xmlns:ns5=\"http://sample.com/wso2/f/\" " +
-                        "xmlns:ns0=\"http://sample.com/wso2/a1\" " +
-                        "xmlns:ns1=\"http://sample.com/wso2/b1\" ns5:diff=\"yes\" ns5:foo1=\"bar1\"></root>");
+                        "xmlns:ns3=\"http://sample.com/wso2/f\" " +
+                        "xmlns:ns5=\"http://sample.com/wso2/f/\" ns5:diff=\"yes\" ns5:foo1=\"bar1\"></root>");
     }
 
     @Test
@@ -151,13 +137,10 @@ public class XMLAttributesTest {
         BValue[] returns = BRunUtil.invoke(xmlAttrProgFile, "testAddAttributeWithDiffQName_5");
         Assert.assertTrue(returns[0] instanceof BXML);
         Assert.assertEquals(returns[0].stringValue(),
-                "<root " +
-                        "xmlns=\"http://sample.com/wso2/c1\" " +
-                        "xmlns:ns3=\"http://sample.com/wso2/f\" " +
+                "<root xmlns=\"http://sample.com/wso2/c1\" " +
                         "xmlns:ns4=\"http://sample.com/wso2/f/\" " +
+                        "xmlns:ns3=\"http://sample.com/wso2/f\" " +
                         "xmlns:ns5=\"http://sample.com/wso2/f/\" " +
-                        "xmlns:ns0=\"http://sample.com/wso2/a1\" " +
-                        "xmlns:ns1=\"http://sample.com/wso2/b1\" " +
                         "ns5:diff=\"yes\" foo1=\"bar1\" foo2=\"bar2\" foo3=\"bar3\"></root>");
     }
     
@@ -165,10 +148,10 @@ public class XMLAttributesTest {
     public void testUpdateAttributeWithString() {
         BValue[] returns = BRunUtil.invoke(xmlAttrProgFile, "testUpdateAttributeWithString");
         Assert.assertTrue(returns[0] instanceof BXML);
-        Assert.assertEquals(returns[0].stringValue(), "<root xmlns=\"http://defaultNs/\" " +
-                "xmlns:ns0=\"http://sample.com/wso2/e\" xmlns:ns1=\"http://sample.com/wso2/b1\" " +
-                "xmlns:ns3=\"http://sample.com/wso2/d1\" foo1=\"newbar1\" ns0:foo2=\"newbar2\" foo3=\"newbar3\">" +
-                "</root>");
+        Assert.assertEquals(returns[0].stringValue(),
+                "<root xmlns=\"http://defaultNs/\" " +
+                        "xmlns:ns0=\"http://sample.com/wso2/e\" " +
+                        "foo1=\"newbar1\" ns0:foo2=\"newbar2\" foo3=\"newbar3\"></root>");
     }
 
     @Test
@@ -190,9 +173,7 @@ public class XMLAttributesTest {
         Assert.assertTrue(returns[0] instanceof BXML);
         Assert.assertEquals(returns[0].stringValue(),
                 "<root xmlns=\"http://sample.com/wso2/c1\" " +
-                        "xmlns:ns3=\"http://wso2.com\" " +
-                        "xmlns:ns0=\"http://sample.com/wso2/a1\" " +
-                        "xmlns:ns1=\"http://sample.com/wso2/b1\"></root>");
+                        "xmlns:ns3=\"http://wso2.com\"></root>");
     }
     
     @Test
@@ -203,7 +184,6 @@ public class XMLAttributesTest {
                 "<root xmlns=\"http://sample.com/wso2/c1\" " +
                         "xmlns:ns3=\"http://sample.com/wso2/f\" " +
                         "xmlns:ns0=\"http://sample.com/wso2/a1\" " +
-                        "xmlns:ns1=\"http://sample.com/wso2/b1\" " +
                         "ns0:foo1=\"newbar1\" ns3:foo2=\"newbar2\"></root>");
     }
 
@@ -216,7 +196,6 @@ public class XMLAttributesTest {
                         "xmlns:ns3=\"http://sample.com/wso2/f\" " +
                         "xmlns:ns0=\"http://sample.com/wso2/a1\" " +
                         "xmlns:ns5=\"http://sample.com/wso2/a1\" " +
-                        "xmlns:ns1=\"http://sample.com/wso2/b1\" " +
                         "ns5:foo1=\"newaddedbar1\" ns3:foo2=\"bar2\"></root>");
     }
     
@@ -284,8 +263,6 @@ public class XMLAttributesTest {
         Assert.assertEquals(returns[0].stringValue(),
                 "{\"{http://www.w3.org/2000/xmlns/}xmlns\":\"http://sample.com/wso2/c1\", " +
                         "\"{http://www.w3.org/2000/xmlns/}ns0\":\"http://sample.com/wso2/a1\", " +
-                        "\"{http://www.w3.org/2000/xmlns/}ns1\":\"http://sample.com/wso2/b1\", " +
-                        "\"{http://www.w3.org/2000/xmlns/}ns3\":\"http://sample.com/wso2/d1\", " +
                         "\"{http://sample.com/wso2/a1}foo1\":\"bar1\", " +
                         "\"{http://sample.com/wso2/c1}foo2\":\"bar2\"}");
 
@@ -293,8 +270,6 @@ public class XMLAttributesTest {
         Assert.assertEquals(returns[1].stringValue(),
                 "{\"{http://www.w3.org/2000/xmlns/}xmlns\":\"http://sample.com/default/namepsace\", " +
                         "\"{http://www.w3.org/2000/xmlns/}ns0\":\"http://sample.com/wso2/a1\", " +
-                        "\"{http://www.w3.org/2000/xmlns/}ns1\":\"http://sample.com/wso2/b1\", " +
-                        "\"{http://www.w3.org/2000/xmlns/}ns3\":\"http://sample.com/wso2/d1\", " +
                         "\"{http://sample.com/wso2/a1}foo1\":\"bar1\", " +
                         "\"{http://sample.com/default/namepsace}foo2\":\"bar2\"}");
 
@@ -312,8 +287,6 @@ public class XMLAttributesTest {
         Assert.assertEquals(returns[0].stringValue(),
                 "{\"{http://www.w3.org/2000/xmlns/}xmlns\":\"http://sample.com/wso2/c1\", " +
                         "\"{http://www.w3.org/2000/xmlns/}ns0\":\"http://sample.com/wso2/a1\", " +
-                        "\"{http://www.w3.org/2000/xmlns/}ns1\":\"http://sample.com/wso2/b1\", " +
-                        "\"{http://www.w3.org/2000/xmlns/}ns3\":\"http://sample.com/wso2/d1\", " +
                         "\"{http://sample.com/wso2/a1}foo1\":\"bar1\", " +
                         "\"{http://sample.com/wso2/c1}foo2\":\"bar2\"}");
     }
@@ -324,14 +297,11 @@ public class XMLAttributesTest {
         Assert.assertTrue(returns[0] instanceof BXML);
         Assert.assertEquals(returns[0].stringValue(),
                 "<root xmlns=\"http://sample.com/wso2/c1\" " +
-                        "xmlns:ns401=\"http://sample.com/wso2/a1\" " +
-                        "xmlns:ns402=\"http://sample.com/wso2/d2\" " +
-                        "xmlns:ns0=\"http://sample.com/wso2/a1\" " +
-                        "xmlns:ns1=\"http://sample.com/wso2/b1\" " +
-                        "xmlns:ns3=\"http://sample.com/wso2/d1\" " +
-                        "xmlns:ns2=\"http://sample.com/wso2/e3\" " +
+                        "xmlns:ns1=\"http://sample.com/wso2/a1\" " +
+                        "xmlns:ns2=\"http://sample.com/wso2/b1\" " +
+                        "xmlns:ns3=\"http://sample.com/wso2/e3\" " +
                         "xmlns:ns4=\"http://sample.com/wso2/f3\" " +
-                        "ns0:foo1=\"bar1\" ns1:foo2=\"bar2\" ns2:foo3=\"bar3\" ns4:foo4=\"bar4\"></root>");
+                        "ns1:foo1=\"bar1\" ns2:foo2=\"bar2\" ns3:foo3=\"bar3\" ns4:foo4=\"bar4\"></root>");
     }
     
     @Test
@@ -340,10 +310,9 @@ public class XMLAttributesTest {
         Assert.assertTrue(returns[0] instanceof BXML);
         Assert.assertEquals(returns[0].stringValue(),
                 "<root xmlns=\"http://sample.com/wso2/c1\" " +
-                        "xmlns:p1=\"http://wso2.com\" xmlns:p2=\"http://sample.com/wso2/a1\" " +
-                        "xmlns:ns401=\"http://sample.com/wso2/a1\" xmlns:ns0=\"http://sample.com/wso2/a1\" " +
-                        "xmlns:ns1=\"http://sample.com/wso2/b1\" xmlns:ns3=\"http://sample.com/wso2/d1\" " +
-                        "ns0:foo1=\"bar1\" p1:foo2=\"bar2\"></root>");
+                        "xmlns:p1=\"http://wso2.com\" " +
+                        "xmlns:p2=\"http://sample.com/wso2/a1\" " +
+                        "p2:foo1=\"bar1\" p1:foo2=\"bar2\"></root>");
     }
 
     @Test
@@ -354,10 +323,7 @@ public class XMLAttributesTest {
                 "<root xmlns=\"http://sample.com/wso2/c1\" " +
                         "xmlns:p1=\"http://wso2.com\" " +
                         "xmlns:p2=\"http://sample.com/wso2/a1\" " +
-                        "xmlns:ns0=\"http://sample.com/wso2/a1\" " +
-                        "xmlns:ns1=\"http://sample.com/wso2/b1\" " +
-                        "xmlns:ns3=\"http://sample.com/wso2/d1\" " +
-                        "foo1=\"bar1\" p1:foo2=\"bar2\" ns0:foo3=\"bar3\"></root>");
+                        "foo1=\"bar1\" p1:foo2=\"bar2\" p2:foo3=\"bar3\"></root>");
     }
 
     @Test
@@ -382,9 +348,6 @@ public class XMLAttributesTest {
                 "{\"{http://www.w3.org/2000/xmlns/}xmlns\":\"http://sample.com/wso2/c1\", " +
                         "\"{http://www.w3.org/2000/xmlns/}p1\":\"http://wso2.com/\", " +
                         "\"{http://www.w3.org/2000/xmlns/}p2\":\"http://sample.com/wso2/a1/\", " +
-                        "\"{http://www.w3.org/2000/xmlns/}ns0\":\"http://sample.com/wso2/a1\", " +
-                        "\"{http://www.w3.org/2000/xmlns/}ns1\":\"http://sample.com/wso2/b1\", " +
-                        "\"{http://www.w3.org/2000/xmlns/}ns3\":\"http://sample.com/wso2/d1\", " +
                         "\"{http://wso2.com/}foo\":\"bar\"}");
     }
 
@@ -394,22 +357,16 @@ public class XMLAttributesTest {
         Assert.assertTrue(returns[0] instanceof BMap);
         Assert.assertEquals(returns[0].stringValue(),
                 "{\"{http://www.w3.org/2000/xmlns/}xmlns\":\"http://sample.com/wso2/c1\", " +
-                        "\"{http://www.w3.org/2000/xmlns/}ns0\":\"http://sample.com/wso2/a1\", " +
-                        "\"{http://www.w3.org/2000/xmlns/}ns1\":\"http://sample.com/wso2/b1\", " +
-                        "\"{http://www.w3.org/2000/xmlns/}ns3\":\"http://sample.com/wso2/d1\", " +
-                        "\"{http://sample.com/wso2/c1}foo\":\"bar\", \"tracer\":\"1\"}");
+                        "\"{http://sample.com/wso2/c1}foo\":\"bar\", " +
+                        "\"tracer\":\"1\"}");
     }
 
     @Test(description = "Test map operations on xml@ value")
     public void testMapOperations() {
         BValue[] returns = BRunUtil.invoke(xmlAttrProgFile, "mapOperationsOnXmlAttribute");
-        Assert.assertEquals(returns[0].stringValue(), "5");
+        Assert.assertEquals(returns[0].stringValue(), "2");
         Assert.assertEquals(returns[1].stringValue(),
-                "[\"{http://www.w3.org/2000/xmlns/}xmlns\", " +
-                        "\"{http://www.w3.org/2000/xmlns/}ns0\", " +
-                        "\"{http://www.w3.org/2000/xmlns/}ns1\", " +
-                        "\"{http://www.w3.org/2000/xmlns/}ns3\", " +
-                        "\"{http://sample.com/wso2/c1}foo\"]");
+                "[\"{http://www.w3.org/2000/xmlns/}xmlns\", \"{http://sample.com/wso2/c1}foo\"]");
         Assert.assertTrue(((BBoolean) returns[2]).booleanValue());
     }
 
@@ -440,14 +397,10 @@ public class XMLAttributesTest {
     public void testAttribMapUpdate() {
         BValue[] returns = BRunUtil.invoke(xmlAttrProgFile, "testAttribMapUpdate");
         Assert.assertEquals(returns[0].stringValue(),
-                "<Person xmlns=\"http://sample.com/wso2/c1\" " +
-                        "xmlns:ns0=\"http://sample.com/wso2/a1\" xmlns:ns1=\"http://sample.com/wso2/b1\" " +
-                        "xmlns:ns3=\"http://sample.com/wso2/d1\" name=\"Foo\"></Person>");
+                "<Person xmlns=\"http://sample.com/wso2/c1\" name=\"Foo\"></Person>");
         Assert.assertEquals(((BMap) returns[1]).get("{http://sample.com/wso2/c1}name").stringValue(), "Foo");
         Assert.assertEquals(returns[2].stringValue(),
-                "<Person xmlns=\"http://sample.com/wso2/c1\" " +
-                        "xmlns:ns0=\"http://sample.com/wso2/a1\" xmlns:ns1=\"http://sample.com/wso2/b1\" " +
-                        "xmlns:ns3=\"http://sample.com/wso2/d1\" name=\"Bar\"></Person>");
+                "<Person xmlns=\"http://sample.com/wso2/c1\" name=\"Bar\"></Person>");
         Assert.assertEquals(((BMap) returns[3]).get("{http://sample.com/wso2/c1}name").stringValue(), "Bar");
     }
 
@@ -460,9 +413,6 @@ public class XMLAttributesTest {
             BRunUtil.invoke(xmlAttrProgFile, "testPrintAttribMap");
             Assert.assertEquals(outContent.toString(),
                     "{http://www.w3.org/2000/xmlns/}xmlns=http://sample.com/wso2/c1 " +
-                            "{http://www.w3.org/2000/xmlns/}ns0=http://sample.com/wso2/a1 " +
-                            "{http://www.w3.org/2000/xmlns/}ns1=http://sample.com/wso2/b1 " +
-                            "{http://www.w3.org/2000/xmlns/}ns3=http://sample.com/wso2/d1 " +
                             "{http://sample.com/wso2/c1}name=Foo",
                     "Invalid attribute map printed");
         } finally {

@@ -716,7 +716,7 @@ public type FieldLock record {|
     DiagnosticPos pos;
     TerminatorKind kind;
     VariableDcl localVar;
-    string field;
+    string 'field;
     BasicBlock lockBB;
 |};
 
@@ -758,7 +758,6 @@ public type NewXMLElement record {|
     InstructionKind kind;
     VarRef lhsOp;
     VarRef startTagOp;
-    VarRef endTagOp;
     VarRef defaultNsURIOp;
 |};
 

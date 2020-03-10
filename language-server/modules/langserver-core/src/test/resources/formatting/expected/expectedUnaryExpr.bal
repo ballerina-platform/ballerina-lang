@@ -10,35 +10,35 @@ function name1() {
 function name2() {
     int a = 0;
     var s1 =
-    typeof a;
+        typeof a;
     var s2 =
-    -a;
+        -a;
     var s3 =
-    +a;
+        +a;
     var s4 =
-    ~a;
+        ~a;
     var s5 =
-    !a;
+        !a;
 }
 
 function name3() {
     int a = 0;
     var s1 =
-    typeof a;
+        typeof a;
     var s2 =
-    -
-    a
+        -
+        a
     ;
     var s3 =
-    +
-    a
+        +
+        a
     ;
     var s4 =
-    ~
-    a
+        ~
+        a
     ;
     var s5 =
-    !
-    a
+        !
+        a
     ;
 }

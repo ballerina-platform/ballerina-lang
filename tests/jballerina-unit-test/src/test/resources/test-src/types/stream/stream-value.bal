@@ -94,25 +94,24 @@ function testStreamConstruct() returns boolean {
 
 function testStreamConstructWithFilter() returns boolean {
     boolean testPassed = true;
-    // TODO: enable after filter typeParam fix
-    //NumberGenerator numGen = new NumberGenerator();
-    //var intStream = new stream<int,error>(numGen);
-    //
-    //stream<int,error> oddNumberStream = intStream.filter(function (int intVal) returns boolean {
-    //    return intVal % 2 == 1;
-    //});
-    //
-    //var oddNumber = getRecordValue(oddNumberStream.next());
-    //testPassed = testPassed && (<int>oddNumber["value"] % 2 == 1);
-    //
-    //oddNumber = getRecordValue(oddNumberStream.next());
-    //testPassed = testPassed && (<int>oddNumber["value"] % 2 == 1);
-    //
-    //oddNumber = getRecordValue(oddNumberStream.next());
-    //testPassed = testPassed && (<int>oddNumber["value"] % 2 == 1);
-    //
-    //oddNumber = getRecordValue(oddNumberStream.next());
-    //testPassed = testPassed && (<int>oddNumber["value"] % 2 == 1);
+    NumberGenerator numGen = new NumberGenerator();
+    var intStream = new stream<int,error>(numGen);
+
+    stream<int,error> oddNumberStream = intStream.filter(function (int intVal) returns boolean {
+        return intVal % 2 == 1;
+    });
+
+    ResultValue? oddNumber = <ResultValue?> oddNumberStream.next();
+    testPassed = testPassed && (<int>oddNumber["value"] % 2 == 1);
+
+    oddNumber = getRecordValue(oddNumberStream.next());
+    testPassed = testPassed && (<int>oddNumber["value"] % 2 == 1);
+
+    oddNumber = getRecordValue(oddNumberStream.next());
+    testPassed = testPassed && (<int>oddNumber["value"] % 2 == 1);
+
+    oddNumber = getRecordValue(oddNumberStream.next());
+    testPassed = testPassed && (<int>oddNumber["value"] % 2 == 1);
 
     return testPassed;
 }

@@ -78,7 +78,7 @@ public class ReferencesUtil {
         context.put(DocumentServiceKeys.POSITION_KEY, pos);
         context.put(DocumentServiceKeys.FILE_URI_KEY, document.getURIString());
         context.put(DocumentServiceKeys.COMPILE_FULL_PROJECT, true);
-        List<BLangPackage> modules = ReferencesUtil.findCursorTokenAndCompileModules(context);
+        List<BLangPackage> modules = ReferencesUtil.findCursorTokenAndCompileModules(context, false);
         fillReferences(modules, context);
         context.put(DocumentServiceKeys.BLANG_PACKAGES_CONTEXT_KEY, modules);
         SymbolReferencesModel referencesModel = context.get(NodeContextKeys.REFERENCES_KEY);
@@ -97,7 +97,7 @@ public class ReferencesUtil {
      */
     public static WorkspaceEdit getRenameWorkspaceEdits(LSContext context, String newName)
             throws WorkspaceDocumentException, CompilationFailedException {
-        List<BLangPackage> modules = findCursorTokenAndCompileModules(context);
+        List<BLangPackage> modules = findCursorTokenAndCompileModules(context, false);
         SymbolReferencesModel referencesModel = context.get(NodeContextKeys.REFERENCES_KEY);
         String nodeName = context.get(NodeContextKeys.NODE_NAME_KEY);
         if (CommonKeys.NEW_KEYWORD_KEY.equals(nodeName)) {
@@ -110,7 +110,7 @@ public class ReferencesUtil {
 
     public static List<Location> getReferences(LSContext context, boolean includeDeclaration)
             throws WorkspaceDocumentException, CompilationFailedException {
-        List<BLangPackage> modules = findCursorTokenAndCompileModules(context);
+        List<BLangPackage> modules = findCursorTokenAndCompileModules(context, false);
         SymbolReferencesModel referencesModel = context.get(NodeContextKeys.REFERENCES_KEY);
         fillReferences(modules, context);
         fillAllReferences(modules, context);
@@ -135,7 +135,10 @@ public class ReferencesUtil {
      * @throws CompilationFailedException when compilation failed
      */
     public static Hover getHover(LSContext context) throws WorkspaceDocumentException, CompilationFailedException {
-        List<BLangPackage> modules = findCursorTokenAndCompileModules(context);
+        List<BLangPackage> modules = findCursorTokenAndCompileModules(context, true);
+        if (context.get(NodeContextKeys.NODE_NAME_KEY) == null) {
+            return HoverUtil.getDefaultHoverObject();
+        }
         SymbolReferencesModel referencesModel = context.get(NodeContextKeys.REFERENCES_KEY);
         fillReferences(modules, context);
         Optional<SymbolReferencesModel.Reference> symbolAtCursor = referencesModel.getReferenceAtCursor();
@@ -147,7 +150,7 @@ public class ReferencesUtil {
                 : HoverUtil.getDefaultHoverObject();
     }
 
-    public static List<BLangPackage> findCursorTokenAndCompileModules(LSContext context)
+    public static List<BLangPackage> findCursorTokenAndCompileModules(LSContext context, boolean isQuiteMode)
             throws WorkspaceDocumentException, CompilationFailedException {
         String fileUri = context.get(DocumentServiceKeys.FILE_URI_KEY);
         WorkspaceDocumentManager docManager = context.get(DocumentServiceKeys.DOC_MANAGER_KEY);
@@ -168,7 +171,7 @@ public class ReferencesUtil {
             String documentContent = docManager.getFileContent(compilationPath);
             ReferencesSubRuleParser.parseCompilationUnit(documentContent, context, position);
 
-            if (context.get(NodeContextKeys.NODE_NAME_KEY) == null) {
+            if (context.get(NodeContextKeys.NODE_NAME_KEY) == null && !isQuiteMode) {
                 throw new IllegalStateException("Couldn't find a valid identifier token at cursor!");
             }
 

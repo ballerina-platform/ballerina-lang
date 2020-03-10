@@ -40,8 +40,8 @@ public function main() {
 function toFieldsArray(record {} anydataRecord) returns anydata[] {
     anydata[] fields = [];
 
-    foreach var field in anydataRecord {
-        fields.push(field);
+    foreach var recField in anydataRecord {
+        fields.push(recField);
     }
 
     return fields;

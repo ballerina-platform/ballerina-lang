@@ -20,20 +20,15 @@ package org.ballerinalang.packerina.task;
 
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.packerina.buildcontext.BuildContext;
-import org.ballerinalang.packerina.buildcontext.BuildContextField;
-import org.ballerinalang.testerina.util.TestarinaClassLoader;
-import org.ballerinalang.testerina.util.TesterinaUtils;
+import org.ballerinalang.test.runtime.entity.Test;
+import org.ballerinalang.test.runtime.entity.TestSuite;
+import org.ballerinalang.testerina.core.TesterinaRegistry;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
-import org.wso2.ballerinalang.compiler.tree.BLangTestablePackage;
 
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.HashMap;
-import java.util.HashSet;
+import java.io.PrintStream;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-
-import static org.ballerinalang.packerina.utils.TestFileUtils.updateDependencyJarPaths;
+import java.util.stream.Collectors;
 
 /**
  * Task for listing groups defined in tests.
@@ -44,53 +39,42 @@ public class ListTestGroupsTask implements Task {
 
     @Override
     public void execute(BuildContext buildContext) {
-        Path sourceRootPath = buildContext.get(BuildContextField.SOURCE_ROOT);
-
-        Map<BLangPackage, TestarinaClassLoader> programFileMap = new HashMap<>();
-        List<BLangPackage> moduleBirMap = buildContext.getModules();
-        // Only tests in packages are executed so that the default packages (i.e. single BAL files),
-        // which have the package name as "." are ignored. This is to be consistent with the "ballerina test"
-        // command, which only executes tests in packages.
+       List<BLangPackage> moduleBirMap = buildContext.getModules();
         for (BLangPackage bLangPackage : moduleBirMap) {
             PackageID packageID = bLangPackage.packageID;
-
-            if (!buildContext.moduleDependencyPathMap.containsKey(packageID)) {
-                continue;
-            }
-
-            // todo following is some legacy logic check if we need to do this.
-            // if (bLangPackage.containsTestablePkg()) {
-            // } else {
-            // In this package there are no tests to be executed. However, we need to say to the users that
-            // there are no tests found in the package to be executed as :
-            // Running tests
-            //     <org-name>/<package-name>:<version>
-            //         No tests found
-            // }
-            Path jarPath = buildContext.getTestJarPathFromTargetCache(packageID);
-            Path modulejarPath = buildContext.getJarPathFromTargetCache(packageID);
-            // Substitute test JAR if the module JAR if tests not exists
-            if (Files.notExists(jarPath)) {
-                jarPath = modulejarPath;
-            }
-
-            HashSet<Path> moduleDependencies = buildContext.moduleDependencyPathMap.get(packageID).platformLibs;
-            // Create a new set so that the original set is not affected with the test dependencies.
-            HashSet<Path> dependencyJarPaths = new HashSet<>(moduleDependencies);
-
-            if (bLangPackage.containsTestablePkg()) {
-                for (BLangTestablePackage testablePackage : bLangPackage.getTestablePkgs()) {
-                    // Find the set of dependency JAR paths for running the test for this module and update
-                    updateDependencyJarPaths(testablePackage.symbol.imports, buildContext, dependencyJarPaths);
-                }
-            }
-
-            // Create a class loader to run the tests.
-            TestarinaClassLoader classLoader = new TestarinaClassLoader(jarPath, dependencyJarPaths);
-            programFileMap.put(bLangPackage, classLoader);
+            TestSuite suite = TesterinaRegistry.getInstance().getTestSuites().get(packageID.toString());
+            listGroups(suite, buildContext.out());
         }
-        if (programFileMap.size() > 0) {
-            TesterinaUtils.listTestGroups(sourceRootPath, programFileMap, buildContext.out(), buildContext.err());
+    }
+
+    /**
+     * lists the groups available in tests.
+     *
+     * @param testSuite testSuite
+     */
+    private void listGroups(TestSuite testSuite, PrintStream outStream) {
+        List<String> groupList = getGroupList(testSuite);
+        if (groupList.size() == 0) {
+            outStream.println("There are no groups available!");
+        } else {
+            outStream.println("Following groups are available : ");
+            outStream.println(groupList);
         }
+    }
+
+    /**
+     * Returns a distinct list of groups in test functions.
+     *
+     * @param testSuite testSuite
+     * @return a list of groups
+     */
+    private List<String> getGroupList(TestSuite testSuite) {
+        List<String> groupList = new ArrayList<>();
+        for (Test test : testSuite.getTests()) {
+            if (test.getGroups().size() > 0) {
+                groupList.addAll(test.getGroups());
+            }
+        }
+        return groupList.stream().distinct().collect(Collectors.toList());
     }
 }

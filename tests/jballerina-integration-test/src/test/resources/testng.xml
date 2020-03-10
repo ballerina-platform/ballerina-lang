@@ -221,6 +221,7 @@
             <class name="org.ballerinalang.test.service.grpc.sample.Http2GatewayTestCase"/>
             <class name="org.ballerinalang.test.service.grpc.sample.UnaryAnonymousServiceTestCase"/>
             <class name="org.ballerinalang.test.service.grpc.sample.UnaryGZipEncodingTestCase"/>
+            <class name="org.ballerinalang.test.service.grpc.sample.UnaryBlockingRetryTestCase" />
             <class name="org.ballerinalang.test.service.grpc.tool.InvalidServiceContractTestCase"/>
             <class name="org.ballerinalang.test.service.grpc.tool.StubGeneratorTestCase"/>
             <class name="org.ballerinalang.test.service.grpc.tool.ProtoMessageTestCase"/>
@@ -299,9 +300,14 @@
 
     <test name="ballerina-packerina-tests" parallel="false">
         <parameter name="enableJBallerinaTests" value="true"/>
+        <groups>
+            <run>
+                <exclude name="brokenOnJBallerina"/>
+            </run>
+        </groups>
         <classes>
             <class name="org.ballerinalang.test.packaging.ModulePushTestCase"/>
-            <!--            <class name="org.ballerinalang.test.packaging.PackagingNegativeTestCase"/>-->
+            <class name="org.ballerinalang.test.packaging.PackagingNegativeTestCase"/>
             <class name="org.ballerinalang.test.packaging.PackagingTestCase"/>
             <class name="org.ballerinalang.test.packaging.LockFileTestCase"/>
             <!--            <class name="org.ballerinalang.test.packaging.NativePackagingTestCase"/>-->
@@ -318,6 +324,7 @@
             <class name="org.ballerinalang.test.task.TaskBaseTest"/>
             <class name="org.ballerinalang.test.task.TimerWithHttpClientTestCase"/>
             <class name="org.ballerinalang.test.task.AppointmentTest"/>
+            <class name="org.ballerinalang.test.task.MultipleAttachmentTest"/>
             <class name="org.ballerinalang.test.task.TimerTest"/>
             <class name="org.ballerinalang.test.task.TimerPauseResumeTestCase"/>
             <class name="org.ballerinalang.test.task.TimerStopTestCase"/>
@@ -352,6 +359,11 @@
 <!--    </test>-->
     <test name="ballerina-testerina-tests" parallel="false">
         <parameter name="enableJBallerinaTests" value="true" />
+        <groups>
+            <run>
+                <exclude name="brokenOnJBallerina"/>
+            </run>
+        </groups>
         <classes>
             <class name="org.ballerinalang.test.testarina.TestarinaTestCase" />
         </classes>

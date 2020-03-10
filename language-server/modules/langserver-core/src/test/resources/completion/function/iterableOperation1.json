@@ -20,7 +20,7 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "toStream()(stream<(anydata|error)><(anydata|error)>)",
+      "label": "toStream()(stream<(any|error)><(any|error)>)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
@@ -154,24 +154,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "indexOf((anydata|error) val, int startIndex)((int|()))",
-      "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.array_  \n  \nReturns the index of first member of `arr` that is equal to `val` if there is one.\nReturns `()` if not found\nEquality is tested using `==`\n  \n**Params**  \n- `(anydata|error)` val: member to search for  \n- `int` startIndex: index to start the search from(Defaultable)  \n  \n**Returns** `(int|())`   \n- index of the member if found, else `()`  \n  \n"
-        }
-      },
-      "sortText": "120",
-      "insertText": "indexOf(${1})",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
-    },
-    {
       "label": "map(function ((any|error)) returns ((any|error)) func)((any|error)[])",
       "kind": "Function",
       "detail": "Function",
@@ -183,6 +165,24 @@
       },
       "sortText": "120",
       "insertText": "map(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "indexOf((any|error) val, int startIndex)((int|()))",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.array_  \n  \nReturns the index of first member of `arr` that is equal to `val` if there is one.\nReturns `()` if not found\nEquality is tested using `==`\n  \n**Params**  \n- `(any|error)` val: member to search for  \n- `int` startIndex: index to start the search from(Defaultable)  \n  \n**Returns** `(int|())`   \n- index of the member if found, else `()`  \n  \n"
+        }
+      },
+      "sortText": "120",
+      "insertText": "indexOf(${1})",
       "insertTextFormat": "Snippet",
       "command": {
         "title": "editor.action.triggerParameterHints",
@@ -343,6 +343,24 @@
       },
       "sortText": "120",
       "insertText": "filter(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "lastIndexOf((any|error) val, int startIndex)((int|()))",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.array_  \n  \nReturns the index of last member of `arr` that is equal to `val` if there is one.\nReturns `()` if not found.\nEquality is tested using `==`.\n  \n**Params**  \n- `(any|error)` val: member to search for  \n- `int` startIndex: index to start searching backwards from(Defaultable)  \n  \n**Returns** `(int|())`   \n- index of the member if found, else `()`  \n  \n"
+        }
+      },
+      "sortText": "120",
+      "insertText": "lastIndexOf(${1})",
       "insertTextFormat": "Snippet",
       "command": {
         "title": "editor.action.triggerParameterHints",

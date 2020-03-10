@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -80,8 +80,20 @@ public class BallerinaDualAttachPointIdentImpl extends ASTWrapperPsiElement impl
 
   @Override
   @Nullable
+  public PsiElement getStart() {
+    return findChildByType(START);
+  }
+
+  @Override
+  @Nullable
   public PsiElement getType() {
     return findChildByType(TYPE);
+  }
+
+  @Override
+  @Nullable
+  public PsiElement getWorker() {
+    return findChildByType(WORKER);
   }
 
 }

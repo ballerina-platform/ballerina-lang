@@ -117,3 +117,15 @@ type unionWithConst MyConst | MyIntConst ;
 function createUnionWithConstTypesSealedArray() {
     unionWithConst[2] unionArr = [];
 }
+
+function testInvalidUnionExpectedType() {
+    int|NoFillerObject[2] y = [];
+
+    NoFillerObject[3]|NoFillerObject[2] z = [];
+}
+
+type NoFillerObject object {
+    public function __init(any arg) {
+
+    }
+};

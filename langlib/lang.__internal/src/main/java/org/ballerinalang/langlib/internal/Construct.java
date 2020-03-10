@@ -29,7 +29,7 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
- * Native implementation of lang.internal:construct(typeDesc, function).
+ * Native implementation of lang.internal:construct(typeDesc, iterator).
  *
  * @since 1.2.0
  */

@@ -115,11 +115,11 @@ typeReference
     ;
 
 objectFieldDefinition
-    :   annotationAttachment* (PUBLIC | PRIVATE)? typeName Identifier (ASSIGN expression)? SEMICOLON
+    :   documentationString? annotationAttachment* (PUBLIC | PRIVATE)? typeName Identifier (ASSIGN expression)? SEMICOLON
     ;
 
 fieldDefinition
-    :   annotationAttachment* typeName Identifier QUESTION_MARK? (ASSIGN expression)? SEMICOLON
+    :   documentationString? annotationAttachment* typeName Identifier QUESTION_MARK? (ASSIGN expression)? SEMICOLON
     ;
 
 recordRestFieldDefinition
@@ -175,8 +175,7 @@ dualAttachPointIdent
     |   PARAMETER
     |   RETURN
     |   SERVICE
-    |   WORKER
-    |   START
+    |   (OBJECT | RECORD)? FIELD
     ;
 
 sourceOnlyAttachPoint
@@ -273,7 +272,7 @@ valueTypeName
 builtInReferenceTypeName
     :   TYPE_MAP LT typeName GT
     |   TYPE_FUTURE LT typeName GT
-    |   TYPE_XML
+    |   TYPE_XML (LT typeName GT)?
     |   TYPE_JSON
     |   TYPE_TABLE LT typeName GT
     |   TYPE_DESC LT typeName GT
@@ -284,7 +283,7 @@ builtInReferenceTypeName
     ;
 
 streamTypeName
-    :   TYPE_STREAM LT typeName (COMMA typeName)? GT
+    :   TYPE_STREAM (LT typeName (COMMA typeName)? GT)?
     ;
 
 functionTypeName
@@ -358,6 +357,7 @@ staticMatchLiterals
 recordField
     :   Identifier
     |   recordKey COLON expression
+    |   ELLIPSIS expression
     ;
 
 recordKey
@@ -673,6 +673,7 @@ variableReference
     |   variableReference field                                                 # fieldVariableReference
     |   variableReference ANNOTATION_ACCESS nameReference                       # annotAccessExpression
     |   variableReference xmlAttrib                                             # xmlAttribVariableReference
+    |   variableReference xmlElementFilter                                      # xmlElementFilterReference
     |   functionInvocation                                                      # functionInvocationReference
     |   LEFT_PARENTHESIS variableReference RIGHT_PARENTHESIS field              # groupFieldVariableReference
     |   LEFT_PARENTHESIS variableReference RIGHT_PARENTHESIS invocation         # groupInvocationReference
@@ -682,10 +683,29 @@ variableReference
     |   QuotedStringLiteral invocation                                          # stringFunctionInvocationReference
     |   variableReference invocation                                            # invocationReference
     |   variableReference index                                                 # mapArrayVariableReference
+    |   variableReference xmlStepExpression                                     # xmlStepExpressionReference
     ;
 
 field
-    :   (DOT | OPTIONAL_FIELD_ACCESS) (Identifier | MUL)
+    :   (DOT | OPTIONAL_FIELD_ACCESS) ((Identifier COLON)? Identifier | MUL)
+    ;
+
+xmlElementFilter
+    :   DOT xmlElementNames
+    ;
+
+xmlStepExpression
+    : DIV xmlElementNames index?
+    | DIV MUL
+    | DIV MUL MUL DIV xmlElementNames
+    ;
+
+xmlElementNames
+    :  LT xmlElementAccessFilter (PIPE xmlElementAccessFilter)*  GT
+    ;
+
+xmlElementAccessFilter
+    : (Identifier COLON)? (Identifier | MUL)
     ;
 
 index
@@ -820,6 +840,7 @@ expression
     |   flushWorker                                                         # flushWorkerExpression
     |   typeDescExpr                                                        # typeAccessExpression
     |   queryExpr                                                           # queryExpression
+    |   letExpr                                                             # letExpression
     ;
 
 constantExpression
@@ -828,6 +849,14 @@ constantExpression
     |   constantExpression (DIV | MUL) constantExpression                   # constDivMulModExpression
     |   constantExpression (ADD | SUB) constantExpression                   # constAddSubExpression
     |   LEFT_PARENTHESIS constantExpression RIGHT_PARENTHESIS               # constGroupExpression
+    ;
+
+letExpr
+    : LET letVarDecl (COMMA letVarDecl)* IN expression
+    ;
+
+letVarDecl
+    : annotationAttachment* (typeName | VAR) bindingPattern ASSIGN expression
     ;
 
 typeDescExpr
@@ -863,6 +892,10 @@ whereClause
     :   WHERE expression
     ;
 
+letClause
+    :   LET letVarDecl (COMMA letVarDecl)*
+    ;
+
 fromClause
     :   FROM (typeName | VAR) bindingPattern IN expression
     ;
@@ -872,7 +905,7 @@ doClause
     ;
 
 queryPipeline
-    :   fromClause (fromClause | whereClause)*
+    :   fromClause (fromClause | letClause | whereClause)*
     ;
 
 queryExpr
