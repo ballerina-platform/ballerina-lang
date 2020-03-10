@@ -111,7 +111,6 @@ import static org.objectweb.asm.Opcodes.INVOKESTATIC;
 import static org.objectweb.asm.Opcodes.INVOKEVIRTUAL;
 import static org.objectweb.asm.Opcodes.ISTORE;
 import static org.objectweb.asm.Opcodes.ISUB;
-import static org.objectweb.asm.Opcodes.L2I;
 import static org.objectweb.asm.Opcodes.LCONST_0;
 import static org.objectweb.asm.Opcodes.LLOAD;
 import static org.objectweb.asm.Opcodes.LSTORE;
@@ -128,7 +127,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ARRAY_VAL
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BALLERINA;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BAL_ERRORS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BAL_EXTENSION;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BOOLEAN_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BTYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BUILT_IN_PACKAGE_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CHANNEL_DETAILS;
@@ -137,7 +135,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CURRENT_M
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.DECIMAL_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.DEFAULTABLE_ARGS_ANOT_FIELD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.DEFAULTABLE_ARGS_ANOT_NAME;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.DOUBLE_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ERROR_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FUNCTION;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FUNCTION_POINTER;
@@ -145,12 +142,10 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FUTURE_VA
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.HANDLE_RETURNED_ERROR_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.HANDLE_STOP_PANIC_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.HANDLE_VALUE;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.INT_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JAVA_PACKAGE_SEPERATOR;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JAVA_RUNTIME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JAVA_THREAD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LAUNCH_UTILS;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LONG_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAP_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_INIT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_INIT_CLASS_NAME;
@@ -195,7 +190,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTerminatorGen.Termi
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTerminatorGen.cleanupObjectTypeName;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTerminatorGen.isExternStaticFunctionCall;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTerminatorGen.loadChannelDetails;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen.loadExternalOrLocalType;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen.loadLocalType;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen.loadType;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen.typeOwnerClass;
 import static org.wso2.ballerinalang.compiler.bir.codegen.interop.ExternalMethodGen.genJMethodForBExternalFunc;
@@ -1061,7 +1056,7 @@ public class JvmMethodGen {
             }
 
             // process terminator
-            if (!isArg || (isArg && !(terminator instanceof Return))) {
+            if (!isArg || (!(terminator instanceof Return))) {
                 generateDiagnosticPos(terminator.pos, mv);
                 if (isModuleInitFunction(module, func) && terminator instanceof Return) {
                     generateAnnotLoad(mv, module.typeDefs, getPackageName(module.org.value, module.name.value));
@@ -1569,7 +1564,7 @@ public class JvmMethodGen {
     private static String generateReturnType(@Nilable BType bType, boolean isExtern /* = false */,
                                              boolean useBString /* = false */) {
 
-        if (bType == null | bType.tag == TypeTags.NIL) {
+        if (bType == null || bType.tag == TypeTags.NIL) {
             if (isExtern) {
                 return ")V";
             }
@@ -1871,7 +1866,6 @@ public class JvmMethodGen {
     static void generateLambdaForMain(BIRFunction userMainFunc, ClassWriter cw, BIRPackage pkg,
                                       String mainClass, String initClass) {
 
-        String pkgName = getPackageName(pkg.org.value, pkg.name.value);
         BType returnType = userMainFunc.type.retType;
 
         MethodVisitor mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, "$lambda$main$",
@@ -1913,18 +1907,19 @@ public class JvmMethodGen {
         List<String> defaultableNames = new ArrayList<>();
         int defaultableIndex = 0;
         for (BIRAnnotationAttachment attachment : annotAttachments) {
-            if (attachment != null && attachment.annotTagRef.value.equals(DEFAULTABLE_ARGS_ANOT_NAME)) {
-                BIRAnnotationRecordValue annotRecValue = (BIRAnnotationRecordValue) attachment.annotValues.get(0);
-                Map<String, BIRAnnotationValue> annotFieldMap = annotRecValue.annotValueEntryMap;
-                BIRAnnotationArrayValue annotArrayValue =
-                        (BIRAnnotationArrayValue) annotFieldMap.get(DEFAULTABLE_ARGS_ANOT_FIELD);
-                for (BIRAnnotationValue entryOptional : annotArrayValue.annotArrayValue) {
-                    BIRAnnotationLiteralValue argValue = (BIRAnnotationLiteralValue) entryOptional;
-                    defaultableNames.add(defaultableIndex, (String) argValue.value);
-                    defaultableIndex += 1;
-                }
-                break;
+            if (attachment == null || !attachment.annotTagRef.value.equals(DEFAULTABLE_ARGS_ANOT_NAME)) {
+                continue;
             }
+            BIRAnnotationRecordValue annotRecValue = (BIRAnnotationRecordValue) attachment.annotValues.get(0);
+            Map<String, BIRAnnotationValue> annotFieldMap = annotRecValue.annotValueEntryMap;
+            BIRAnnotationArrayValue annotArrayValue =
+                    (BIRAnnotationArrayValue) annotFieldMap.get(DEFAULTABLE_ARGS_ANOT_FIELD);
+            for (BIRAnnotationValue entryOptional : annotArrayValue.annotArrayValue) {
+                BIRAnnotationLiteralValue argValue = (BIRAnnotationLiteralValue) entryOptional;
+                defaultableNames.add(defaultableIndex, (String) argValue.value);
+                defaultableIndex += 1;
+            }
+            break;
         }
         // create function info array
         mv.visitIntInsn(BIPUSH, params.size());
@@ -1978,26 +1973,27 @@ public class JvmMethodGen {
     static void generateLambdaForPackageInits(ClassWriter cw, BIRPackage pkg, String mainClass, String initClass,
                                               List<PackageID> depMods) {
         //need to generate lambda for package Init as well, if exist
-        if (hasInitFunction(pkg)) {
-            generateLambdaForModuleFunction(cw, MODULE_INIT, initClass, false);
+        if (!hasInitFunction(pkg)) {
+            return;
+        }
+        generateLambdaForModuleFunction(cw, MODULE_INIT, initClass, false);
 
-            // generate another lambda for start function as well
-            generateLambdaForModuleFunction(cw, MODULE_START, initClass, false);
+        // generate another lambda for start function as well
+        generateLambdaForModuleFunction(cw, MODULE_START, initClass, false);
 
-            String stopFuncName = "<stop>";
-            PackageID currentModId = packageToModuleId(pkg);
-            String fullFuncName = calculateModuleSpecialFuncName(currentModId, stopFuncName);
+        String stopFuncName = "<stop>";
+        PackageID currentModId = packageToModuleId(pkg);
+        String fullFuncName = calculateModuleSpecialFuncName(currentModId, stopFuncName);
 
-            generateLambdaForDepModStopFunc(cw, cleanupFunctionName(fullFuncName), initClass);
+        generateLambdaForDepModStopFunc(cw, cleanupFunctionName(fullFuncName), initClass);
 
-            for (PackageID id : depMods) {
-                fullFuncName = calculateModuleSpecialFuncName(id, stopFuncName);
-                // String lookupKey = getPackageName(id.orgName, id.name) + fullFuncName;
+        for (PackageID id : depMods) {
+            fullFuncName = calculateModuleSpecialFuncName(id, stopFuncName);
+            // String lookupKey = getPackageName(id.orgName, id.name) + fullFuncName;
 
-                // String jvmClass = lookupFullQualifiedClassName(lookupKey);
-                String jvmClass = getPackageName(id.orgName, id.name) + MODULE_INIT_CLASS_NAME;
-                generateLambdaForDepModStopFunc(cw, cleanupFunctionName(fullFuncName), jvmClass);
-            }
+            // String jvmClass = lookupFullQualifiedClassName(lookupKey);
+            String jvmClass = getPackageName(id.orgName, id.name) + MODULE_INIT_CLASS_NAME;
+            generateLambdaForDepModStopFunc(cw, cleanupFunctionName(fullFuncName), jvmClass);
         }
     }
 
@@ -2040,42 +2036,6 @@ public class JvmMethodGen {
         mv.visitInsn(ARETURN);
         mv.visitMaxs(0, 0);
         mv.visitEnd();
-    }
-
-    static void castFromString(BType targetType, MethodVisitor mv) {
-
-        mv.visitTypeInsn(CHECKCAST, STRING_VALUE);
-        if (targetType.tag == TypeTags.INT) {
-            mv.visitMethodInsn(INVOKESTATIC, LONG_VALUE, "parseLong", String.format("(L%s;)J", STRING_VALUE), false);
-        } else if (targetType.tag == TypeTags.BYTE) {
-            mv.visitMethodInsn(INVOKESTATIC, INT_VALUE, "parseInt", String.format("(L%s;)I", STRING_VALUE), false);
-        } else if (targetType.tag == TypeTags.FLOAT) {
-            mv.visitMethodInsn(INVOKESTATIC, DOUBLE_VALUE, "parseDouble", String.format("(L%s;)D", STRING_VALUE),
-                    false);
-        } else if (targetType.tag == TypeTags.BOOLEAN) {
-            mv.visitMethodInsn(INVOKESTATIC, BOOLEAN_VALUE, "parseBoolean", String.format("(L%s;)Z", STRING_VALUE),
-                    false);
-        } else if (targetType.tag == TypeTags.DECIMAL) {
-            mv.visitMethodInsn(INVOKESPECIAL, DECIMAL_VALUE, "<init>", String.format("(L%s;)V", STRING_VALUE), false);
-        } else if (targetType.tag == TypeTags.ARRAY) {
-            mv.visitTypeInsn(CHECKCAST, ARRAY_VALUE);
-        } else if (targetType.tag == TypeTags.MAP) {
-            mv.visitTypeInsn(CHECKCAST, MAP_VALUE);
-        } else if (targetType.tag == TypeTags.TABLE) {
-            mv.visitTypeInsn(CHECKCAST, TABLE_VALUE);
-        } else if (targetType.tag == TypeTags.STREAM) {
-            mv.visitTypeInsn(CHECKCAST, STREAM_VALUE);
-        } else if (targetType.tag == TypeTags.ANY ||
-                targetType.tag == TypeTags.ANYDATA ||
-                targetType.tag == TypeTags.NIL ||
-                targetType.tag == TypeTags.UNION ||
-                targetType.tag == TypeTags.STRING) {
-            // do nothing
-            return;
-        } else {
-            throw new BLangCompilerException("JVM generation is not supported for type " +
-                    String.format("%s", targetType));
-        }
     }
 
     private static boolean hasInitFunction(BIRPackage pkg) {
@@ -2127,11 +2087,6 @@ public class JvmMethodGen {
         return funcName;
     }
 
-    private static String calculateModuleStartFuncName(PackageID id) {
-
-        return calculateModuleSpecialFuncName(id, "<start>");
-    }
-
     static void addInitAndTypeInitInstructions(BIRPackage pkg, BIRFunction func) {
 
         @Nilable List<BIRBasicBlock> basicBlocks = new ArrayList<>();
@@ -2155,9 +2110,7 @@ public class JvmMethodGen {
 
         typeOwnerCreateBB.terminator = new GOTO(null, func.basicBlocks.get(0));
 
-        for (BIRBasicBlock basicBB : func.basicBlocks) {
-            basicBlocks.add(basicBB);
-        }
+        basicBlocks.addAll(func.basicBlocks);
         func.basicBlocks = basicBlocks;
     }
 
@@ -2286,7 +2239,7 @@ public class JvmMethodGen {
         String pkgClassName = pkgName.equals(".") || pkgName.equals("") ? MODULE_INIT_CLASS_NAME :
                 lookupGlobalVarClassName(pkgName, ANNOTATION_MAP_NAME);
         mv.visitFieldInsn(GETSTATIC, pkgClassName, ANNOTATION_MAP_NAME, String.format("L%s;", MAP_VALUE));
-        loadExternalOrLocalType(mv, typeDef);
+        loadLocalType(mv, typeDef);
         mv.visitMethodInsn(INVOKESTATIC, String.format("%s", ANNOTATION_UTILS), "processAnnotations",
                 String.format("(L%s;L%s;)V", MAP_VALUE, BTYPE), false);
     }

@@ -274,8 +274,6 @@ class JvmValueGen {
         private BIRPackage module;
         private @Nilable
         BObjectType currentObjectType = null;
-        private @Nilable
-        BRecordType currentRecordType = null;
 
         private void createLambdas(ClassWriter cw) {
 
@@ -1090,7 +1088,6 @@ class JvmValueGen {
                     jarEntries.put(className + ".class", bytes);
                 } else if (bType.tag == TypeTags.RECORD) {
                     BRecordType recordType = (BRecordType) bType;
-                    this.currentRecordType = recordType;
                     String className = getTypeValueClassName(this.module, typeDef.name.value);
                     byte[] bytes = this.createRecordValueClass(recordType, className, typeDef);
                     jarEntries.put(className + ".class", bytes);

@@ -144,9 +144,7 @@ public class JvmDesugarPhase {
         BIRBasicBlock firstBB = getBasicBlock(currentFunc.basicBlocks.get(0));
 
         nextBB.terminator = new GOTO(pos, firstBB);
-        for (BIRBasicBlock bb : currentFunc.basicBlocks) {
-            basicBlocks.add(bb);
-        }
+        basicBlocks.addAll(currentFunc.basicBlocks);
 
         currentFunc.basicBlocks = basicBlocks;
     }
@@ -175,10 +173,7 @@ public class JvmDesugarPhase {
         // Update the param types to add boolean variables to indicate if the previous variable contains a user
         // given value
         int size = funcParams == null ? 0 : funcParams.size();
-        while (true) {
-            if (!(counter < size)) {
-                break;
-            }
+        while (counter < size) {
             paramTypes.add(index, funcParams.get(counter));
             paramTypes.add(index + 1, symbolTable.booleanType);
             index += 2;

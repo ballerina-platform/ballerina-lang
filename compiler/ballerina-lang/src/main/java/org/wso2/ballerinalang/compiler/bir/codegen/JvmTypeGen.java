@@ -167,7 +167,7 @@ class JvmTypeGen {
     /**
      * Create static fields to hold the user defined types.
      *
-     * @param cw class writer
+     * @param cw       class writer
      * @param typeDefs array of type definitions
      */
     static void generateUserDefinedTypeFields(ClassWriter cw, @Nilable List<BIRTypeDefinition> typeDefs) {
@@ -522,9 +522,9 @@ class JvmTypeGen {
     /**
      * Create a runtime type instance for the record.
      *
-     * @param mv method visitor
+     * @param mv         method visitor
      * @param recordType record type
-     * @param typeDef record type definition
+     * @param typeDef    record type definition
      */
     private static void createRecordType(MethodVisitor mv, BRecordType recordType, BIRTypeDefinition typeDef) {
         // Create the record type
@@ -568,7 +568,7 @@ class JvmTypeGen {
      * Add the field type information of a record type. The record type is assumed
      * to be at the top of the stack.
      *
-     * @param mv method visitor
+     * @param mv     method visitor
      * @param fields record fields to be added
      */
     private static void addRecordFields(MethodVisitor mv, @Nilable List<BField> fields) {
@@ -603,7 +603,7 @@ class JvmTypeGen {
     /**
      * Create a field information for records.
      *
-     * @param mv method visitor
+     * @param mv    method visitor
      * @param field field Parameter Description
      */
     private static void createRecordField(MethodVisitor mv, BField field) {
@@ -634,7 +634,7 @@ class JvmTypeGen {
      * Add the rest field to a record type. The record type is assumed
      * to be at the top of the stack.
      *
-     * @param mv method visitor
+     * @param mv            method visitor
      * @param restFieldType type of the rest field
      */
     private static void addRecordRestField(MethodVisitor mv, BType restFieldType) {
@@ -650,9 +650,9 @@ class JvmTypeGen {
     /**
      * Create a runtime type instance for the object.
      *
-     * @param mv method visitor
+     * @param mv         method visitor
      * @param objectType object type
-     * @param typeDef object type definition.
+     * @param typeDef    object type definition.
      */
     private static void createObjectType(MethodVisitor mv, BObjectType objectType, BIRTypeDefinition typeDef) {
         // Create the object type
@@ -681,16 +681,15 @@ class JvmTypeGen {
 
         // initialize the object
         mv.visitMethodInsn(INVOKESPECIAL, OBJECT_TYPE, "<init>",
-                String.format("(L%s;L%s;I)V", STRING_VALUE, PACKAGE_TYPE),
-                false);
+                String.format("(L%s;L%s;I)V", STRING_VALUE, PACKAGE_TYPE), false);
     }
 
     /**
      * Create a runtime type instance for the service.
      *
-     * @param mv method visitor
+     * @param mv         method visitor
      * @param objectType object type
-     * @param typeDef type definition of the service
+     * @param typeDef    type definition of the service
      */
     private static void createServiceType(MethodVisitor mv, BObjectType objectType, BType typeDef) {
         // Create the object type
@@ -744,14 +743,15 @@ class JvmTypeGen {
         mv.visitTypeInsn(ANEWARRAY, ATTACHED_FUNCTION);
         int i = 0;
         for (BAttachedFunction attachedFunc : attachedFunctions) {
-            if (attachedFunc != null) {
-                mv.visitInsn(DUP);
-                mv.visitLdcInsn((long) i);
-                mv.visitInsn(L2I);
-                createObjectAttachedFunction(mv, attachedFunc, objectType);
-                mv.visitInsn(AASTORE);
-                i += 1;
+            if (attachedFunc == null) {
+                continue;
             }
+            mv.visitInsn(DUP);
+            mv.visitLdcInsn((long) i);
+            mv.visitInsn(L2I);
+            createObjectAttachedFunction(mv, attachedFunc, objectType);
+            mv.visitInsn(AASTORE);
+            i += 1;
         }
         mv.visitMethodInsn(INVOKEVIRTUAL, SERVICE_TYPE, "setAttachedFuncsAndProcessAnnots",
                 String.format("(L%s;L%s;L%s;[L%s;)V", MAP_VALUE, STRAND, SERVICE_TYPE, ATTACHED_FUNCTION), false);
@@ -761,7 +761,7 @@ class JvmTypeGen {
      * Add the field type information to an object type. The object type is assumed
      * to be at the top of the stack.
      *
-     * @param mv method visitor
+     * @param mv     method visitor
      * @param fields object fields to be added
      */
     private static void addObjectFields(MethodVisitor mv, @Nilable List<BField> fields) {
@@ -796,7 +796,7 @@ class JvmTypeGen {
     /**
      * Create a field information for objects.
      *
-     * @param mv method visitor
+     * @param mv    method visitor
      * @param field object field
      */
     private static void createObjectField(MethodVisitor mv, BField field) {
@@ -822,10 +822,10 @@ class JvmTypeGen {
      * Add the attached function information to an object type. The object type is assumed
      * to be at the top of the stack.
      *
-     * @param mv method visitor
+     * @param mv                method visitor
      * @param attachedFunctions attached functions to be added
-     * @param objType object type to be used to create attached functions
-     * @param indexMap jvm index generation map for function generation
+     * @param objType           object type to be used to create attached functions
+     * @param indexMap          jvm index generation map for function generation
      */
     private static void addObjectAttachedFunctions(MethodVisitor mv, List<BAttachedFunction> attachedFunctions,
                                                    BObjectType objType, BalToJVMIndexMap indexMap) {
@@ -886,9 +886,9 @@ class JvmTypeGen {
     /**
      * Create a attached function information for objects.
      *
-     * @param mv method visitor
+     * @param mv           method visitor
      * @param attachedFunc object attached function
-     * @param objType object type used for creating the attached function
+     * @param objType      object type used for creating the attached function
      */
     private static void createObjectAttachedFunction(MethodVisitor mv, BAttachedFunction attachedFunc,
                                                      BObjectType objType) {
@@ -920,9 +920,9 @@ class JvmTypeGen {
     /**
      * Create a runtime type instance for the error.
      *
-     * @param mv method visitor
+     * @param mv        method visitor
      * @param errorType error type
-     * @param name name of the error
+     * @param name      name of the error
      */
     private static void createErrorType(MethodVisitor mv, BErrorType errorType, String name) {
         // Create the error type
@@ -966,22 +966,16 @@ class JvmTypeGen {
         mv.visitFieldInsn(GETSTATIC, externlTypeOwner, fieldName, String.format("L%s;", BTYPE));
     }
 
-    static void loadExternalOrLocalType(MethodVisitor mv, BIRTypeDefinition typeDefinition) {
-        //TODO:rename loadLocalType
+    static void loadLocalType(MethodVisitor mv, BIRTypeDefinition typeDefinition) {
+
         loadType(mv, typeDefinition.type);
-//      BType bType = typeDefinition.type;
-//      if (bType.tag == TypeTags.SERVICE) {
-//          loadType(mv, bType);
-//      } else {
-//          loadType(mv, bType);
-//      }
     }
 
     /**
      * Generate code to load an instance of the given type
      * to the top of the stack.
      *
-     * @param mv method visitor
+     * @param mv    method visitor
      * @param bType type to load
      */
     static void loadType(MethodVisitor mv, @Nilable BType bType) {
@@ -1074,7 +1068,7 @@ class JvmTypeGen {
      * Generate code to load an instance of the given array type
      * to the top of the stack.
      *
-     * @param mv method visitor
+     * @param mv    method visitor
      * @param bType array type to load
      */
     private static void loadArrayType(MethodVisitor mv, BArrayType bType) {
@@ -1097,7 +1091,7 @@ class JvmTypeGen {
      * Generate code to load an instance of the given typedesc type
      * to the top of the stack.
      *
-     * @param mv method visitor
+     * @param mv    method visitor
      * @param bType typedesc type to load
      */
     private static void loadTypedescType(MethodVisitor mv, BTypedescType bType) {
@@ -1116,7 +1110,7 @@ class JvmTypeGen {
      * Generate code to load an instance of the given map type
      * to the top of the stack.
      *
-     * @param mv method visitor
+     * @param mv    method visitor
      * @param bType map type to load
      */
     private static void loadMapType(MethodVisitor mv, BMapType bType) {
@@ -1135,7 +1129,7 @@ class JvmTypeGen {
      * Generate code to load an instance of the given table type
      * to the top of the stack.
      *
-     * @param mv method visitor
+     * @param mv    method visitor
      * @param bType table type to load
      */
     private static void loadTableType(MethodVisitor mv, BTableType bType) {
@@ -1166,7 +1160,7 @@ class JvmTypeGen {
      * Generate code to load an instance of the given error type
      * to the top of the stack.
      *
-     * @param mv method visitor
+     * @param mv        method visitor
      * @param errorType error type to load
      */
     private static void loadErrorType(MethodVisitor mv, BErrorType errorType) {
@@ -1186,7 +1180,7 @@ class JvmTypeGen {
      * Generate code to load an instance of the given union type
      * to the top of the stack.
      *
-     * @param mv method visitor
+     * @param mv    method visitor
      * @param bType union type to load
      */
     private static void loadUnionType(MethodVisitor mv, BUnionType bType) {
@@ -1224,7 +1218,7 @@ class JvmTypeGen {
     /**
      * Load a Tuple type instance to the top of the stack.
      *
-     * @param mv method visitor
+     * @param mv    method visitor
      * @param bType tuple type to be loaded
      */
     private static void loadTupleType(MethodVisitor mv, BTupleType bType) {
@@ -1261,23 +1255,12 @@ class JvmTypeGen {
     /**
      * Load a user defined type instance to the top of the stack.
      *
-     * @param mv method visitor
+     * @param mv    method visitor
      * @param bType user defined type
      */
     private static void loadUserDefinedType(MethodVisitor mv, BType bType) {
 
         PackageID packageID = bType.tsymbol.pkgID;
-
-//        if (bType.tag == TypeTags.OBJECT) {
-//            typeOwner = getPackageName(packageID.orgName.value, packageID.name.value) + MODULE_INIT_CLASS_NAME;
-//            fieldName = getTypeFieldName(bType.name.getValue());
-//        } else if (bType.tag == TypeTags.SERVICE) {
-//            typeOwner = getPackageName(packageID.orgName.value, packageID.name.value) + MODULE_INIT_CLASS_NAME;
-//            fieldName = getTypeFieldName(bType.name.getValue());
-//        } else {
-//            typeOwner = getPackageName(packageID.orgName.value, packageID.name.value) + MODULE_INIT_CLASS_NAME;
-//            fieldName = getTypeFieldName(bType.name.getValue());
-//        }
 
         String typeOwner = getPackageName(packageID.orgName.value, packageID.name.value) + MODULE_INIT_CLASS_NAME;
         String fieldName = getTypeFieldName(toNameString(bType));
@@ -1308,7 +1291,7 @@ class JvmTypeGen {
     /**
      * Create and load an invokable type.
      *
-     * @param mv method visitor
+     * @param mv    method visitor
      * @param bType invokable type to be created
      */
     private static void loadInvokableType(MethodVisitor mv, BInvokableType bType) {

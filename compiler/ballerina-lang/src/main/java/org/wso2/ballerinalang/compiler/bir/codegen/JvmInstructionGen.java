@@ -1131,7 +1131,6 @@ public class JvmInstructionGen {
         void generateObjectLoadIns(FieldAccess objectLoadIns) {
             // visit object_ref
             this.loadVar(objectLoadIns.rhsOp.variableDcl);
-            BType varRefType = objectLoadIns.rhsOp.variableDcl.type;
 
             // visit key_expr
             this.loadVar(objectLoadIns.keyOp.variableDcl);
