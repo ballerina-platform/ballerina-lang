@@ -119,11 +119,11 @@ typeReference
     ;
 
 objectFieldDefinition
-    :   annotationAttachment* (PUBLIC | PRIVATE)? typeName Identifier (ASSIGN expression)? SEMICOLON
+    :   documentationString? annotationAttachment* (PUBLIC | PRIVATE)? typeName Identifier (ASSIGN expression)? SEMICOLON
     ;
 
 fieldDefinition
-    :   annotationAttachment* typeName Identifier QUESTION_MARK? (ASSIGN expression)? SEMICOLON
+    :   documentationString? annotationAttachment* typeName Identifier QUESTION_MARK? (ASSIGN expression)? SEMICOLON
     ;
 
 recordRestFieldDefinition
@@ -179,8 +179,7 @@ dualAttachPointIdent
     |   PARAMETER
     |   RETURN
     |   SERVICE
-    |   WORKER
-    |   START
+    |   (OBJECT | RECORD)? FIELD
     ;
 
 sourceOnlyAttachPoint

@@ -98,7 +98,6 @@ dependencies {
     //// metrics
     dist project(':metrics-extensions:ballerina-metrics-extension')
     dist project(':metrics-extensions:ballerina-prometheus-extension')
-    dist project(path: ':metrics-extensions:ballerina-prometheus-extension', configuration: 'prometheusJar')
     //// tracing
     dist project(':tracing-extensions:ballerina-jaeger-extension')
     dist 'io.jaegertracing:jaeger-core:0.31.0'

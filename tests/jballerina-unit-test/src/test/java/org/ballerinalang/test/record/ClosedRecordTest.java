@@ -223,7 +223,7 @@ public class ClosedRecordTest {
                                           "'abstract', 'client', 'int', 'byte', 'float', 'decimal', 'boolean', " +
                                           "'string', 'error', 'map', 'json', 'xml', 'table', 'stream', 'any', " +
                                           "'typedesc', 'future', 'anydata', " +
-                                          "'handle', '(', '[', '|}', '*', '@', Identifier}",
+                                          "'handle', '(', '[', '|}', '*', '@', Identifier, DocumentationLineStart}",
                                   19, 25);
         BAssertUtil.validateError(result, 5,
                                   "mismatched input '}'. expecting {'service', 'function', 'object', 'record', " +
@@ -242,7 +242,7 @@ public class ClosedRecordTest {
                                           "'abstract', 'client', 'int', 'byte', 'float', 'decimal', 'boolean', " +
                                           "'string', 'error', 'map', 'json', 'xml', 'table', 'stream', 'any', " +
                                           "'typedesc', 'future', 'anydata', " +
-                                          "'handle', '}', '(', '[', '*', '@', Identifier}",
+                                          "'handle', '}', '(', '[', '*', '@', Identifier, DocumentationLineStart}",
                                   25, 25);
         BAssertUtil.validateError(result, 9,
                                   "mismatched input '|'. expecting {'service', 'function', 'object', 'record', " +

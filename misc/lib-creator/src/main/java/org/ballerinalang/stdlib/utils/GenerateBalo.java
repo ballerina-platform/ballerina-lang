@@ -132,7 +132,8 @@ public class GenerateBalo {
             if (bStringProp != null && !"".equals(bStringProp)) {
                 suffix = "-bstring";
             }
-            Path jarOutput = Paths.get("./build/generated-bir-jar/" + pkg.packageID.name + suffix + ".jar");
+            Path jarOutput = Paths.get("./build/generated-bir-jar/" + pkg.packageID.orgName + "." + pkg.packageID.name +
+                                       suffix + ".jar");
             Path parent = jarOutput.getParent();
             if (parent != null) {
                 Files.createDirectories(parent);
