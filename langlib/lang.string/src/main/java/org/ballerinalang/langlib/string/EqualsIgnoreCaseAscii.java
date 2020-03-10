@@ -57,7 +57,7 @@ public class EqualsIgnoreCaseAscii {
 
         for (int i = 0; i <str1.length(); i++) {
             String charFromOne = Character.toString(str1.charAt(i));
-            String charAtIfromTwo = Character.toString(str2.charAt(i));
+            String charFromTwo = Character.toString(str2.charAt(i));
             if (!(isPureAscii(charAtIfromOne) && isPureAscii(charAtIfromTwo))) {
                 if (!charAtIfromOne.equals(charAtIfromTwo)) {
                     return false;
