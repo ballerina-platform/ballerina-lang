@@ -30,7 +30,7 @@ public type FileInfo object {
     #
     # + name - Name of the file
     # + size - Size of the file (in bytes)
-    # + modifiedTime - Time during which the file was modified last
+    # + modifiedTime - The last modified time of the file
     # + dir - Whether the file is a directory or not
     # + path - Absolute path of the file
     public function __init(string name, int size, time:Time modifiedTime, boolean dir, string path) {
