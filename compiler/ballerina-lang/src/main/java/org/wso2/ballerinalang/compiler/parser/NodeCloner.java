@@ -991,7 +991,7 @@ public class NodeCloner extends BLangNodeVisitor {
         BLangLetExpression clone = new BLangLetExpression();
         source.cloneRef = clone;
         clone.letVarDeclarations = cloneLetVarDeclarations(source.letVarDeclarations);
-        clone.expr = source.expr;
+        clone.expr = clone(source.expr);
     }
 
     @Override
