@@ -233,7 +233,7 @@ public class ComplexTypesQueryTest {
         Assert.assertEquals(row4IntArray.getBValue(2), null);
     }
 
-    @Test(description = "Check date time operation")
+    @Test(description = "Check date time operation", enabled = false)
     public void testDateTime() throws ParseException {
         DateFormat dfDate = new SimpleDateFormat("yyyy-MM-dd");
         Date dateType = dfDate.parse("2017-5-23");
