@@ -12,7 +12,7 @@ function isValid{{camelcase messageName}}({{messageName}} r) returns boolean {
 {{#each oneofFieldMap}}{{#each this}}
 function set{{messageName}}_{{{camelcase fieldName}}}({{messageName}} r, {{{fieldType}}} {{{fieldName}}}) {
     r.{{{fieldName}}} = {{{fieldName}}};
-    {{#each ../this}}{{#not_equal fieldName ../fieldName}}r.remove("{{fieldName}}");
+    {{#each ../this}}{{#not_equal fieldName ../fieldName}}_ = r.removeIfHasKey("{{fieldName}}");
     {{/not_equal}}{{/each}}
 }{{/each}}
 {{/each}}
