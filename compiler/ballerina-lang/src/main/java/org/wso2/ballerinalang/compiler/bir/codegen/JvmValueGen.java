@@ -109,7 +109,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmInstructionGen.addU
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmInstructionGen.isBString;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.cleanupFunctionName;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.cleanupTypeName;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.conditionalBStringName;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.generateLambdaMethod;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.generateMethod;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.getFunction;
@@ -120,7 +119,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.getRecord
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.getType;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.getTypeDef;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.isExternFunc;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.nameOfBStringFunc;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.computeLockNameFromString;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.currentClass;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.getPackageName;
@@ -290,8 +288,8 @@ class JvmValueGen {
             for (BField field : fields) {
                 if (field != null) {
                     if (isBString) {
-                        FieldVisitor fvb = cw.visitField(0, nameOfBStringFunc(field.name.value),
-                                getTypeDesc(field.type, true), null, null);
+                        FieldVisitor fvb = cw.visitField(0, field.name.value,
+                                                         getTypeDesc(field.type, true), null, null);
                         fvb.visitEnd();
                     } else {
                         FieldVisitor fv = cw.visitField(0, field.name.value, getTypeDesc(field.type, false), null,
@@ -452,8 +450,7 @@ class JvmValueGen {
                 Label targetLabel = targetLabels.get(i);
                 mv.visitLabel(targetLabel);
                 mv.visitVarInsn(ALOAD, 0);
-                mv.visitFieldInsn(GETFIELD, className, conditionalBStringName(field.name.value, useBString),
-                                  getTypeDesc(field.type, useBString));
+                mv.visitFieldInsn(GETFIELD, className, field.name.value, getTypeDesc(field.type, useBString));
                 addBoxInsn(mv, field.type);
                 mv.visitInsn(ARETURN);
                 i += 1;
@@ -507,9 +504,6 @@ class JvmValueGen {
                 mv.visitVarInsn(ALOAD, valueRegIndex);
                 addUnboxInsn(mv, field.type, useBString);
                 String filedName = field.name.value;
-                if (useBString) {
-                    filedName = nameOfBStringFunc(filedName);
-                }
                 mv.visitFieldInsn(PUTFIELD, className, filedName, getTypeDesc(field.type, useBString));
                 mv.visitInsn(RETURN);
                 i += 1;
@@ -719,8 +713,7 @@ class JvmValueGen {
                 mv.visitLabel(ifPresentLabel);
                 // return the value of the field
                 mv.visitVarInsn(ALOAD, 0);
-                mv.visitFieldInsn(GETFIELD, className, conditionalBStringName(fieldName, isBString),
-                                  getTypeDesc(field.type, isBString));
+                mv.visitFieldInsn(GETFIELD, className, fieldName, getTypeDesc(field.type, isBString));
                 addBoxInsn(mv, field.type);
                 mv.visitInsn(ARETURN);
                 i += 1;
@@ -769,15 +762,13 @@ class JvmValueGen {
                 // load the existing value to return
                 String fieldName = field.name.value;
                 mv.visitVarInsn(ALOAD, 0);
-                mv.visitFieldInsn(GETFIELD, className, conditionalBStringName(fieldName, isBString),
-                                  getTypeDesc(field.type, isBString));
+                mv.visitFieldInsn(GETFIELD, className, fieldName, getTypeDesc(field.type, isBString));
                 addBoxInsn(mv, field.type);
 
                 mv.visitVarInsn(ALOAD, 0);
                 mv.visitVarInsn(ALOAD, valueRegIndex);
                 addUnboxInsn(mv, field.type, isBString);
-                mv.visitFieldInsn(PUTFIELD, className, conditionalBStringName(fieldName, isBString),
-                                  getTypeDesc(field.type, isBString));
+                mv.visitFieldInsn(PUTFIELD, className, fieldName, getTypeDesc(field.type, isBString));
 
                 // if the field is an optional-field, then also set the isPresent flag of that field to true.
                 if (this.isOptionalRecordField(field)) {

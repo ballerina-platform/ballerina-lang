@@ -44,7 +44,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmDesugarPhase.insert
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.genJMethodForBFunc;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.getMethodDesc;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.getVariableDcl;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.nameOfNonBStringFunc;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.nextId;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.nextVarId;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.BIRFunctionWrapper;
@@ -178,7 +177,8 @@ public class ExternalMethodGen {
 
         String lookupKey;
         String currentPackageName = getPackageName(birModule.org.value, birModule.name.value);
-        String birFuncName = nameOfNonBStringFunc(birFunc.name.value);
+
+        String birFuncName = birFunc.name.value;
 
         if (attachedType == null) {
             lookupKey = currentPackageName + birFuncName;

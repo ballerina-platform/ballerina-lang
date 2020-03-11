@@ -121,11 +121,8 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.cleanupPa
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.createFunctionPointer;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.getMethodDesc;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.getVariableDcl;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.isBStringFunc;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.isExternFunc;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.loadDefaultValue;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.nameOfBStringFunc;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.nameOfNonBStringFunc;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmObservabilityGen.emitStopObservationInvocation;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.BIRFunctionWrapper;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.birFunctionMap;
@@ -514,13 +511,8 @@ public class JvmTerminatorGen {
 
             String orgName = calleePkgId.orgName.value;
             String moduleName = calleePkgId.name.value;
-            BIRTerminator.Call callInsCopy = new BIRTerminator.Call(callIns.pos, callIns.kind, callIns.isVirtual,
-                    calleePkgId, callIns.name, callIns.args, callIns.lhsOp, callIns.thenBB);
-            if (isBStringFunc(funcName)) {
-                callInsCopy.name = new Name(nameOfBStringFunc(callIns.name.value));
-            }
             // invoke the function
-            this.genCall(callInsCopy, orgName, moduleName, localVarOffset);
+            this.genCall(callIns, orgName, moduleName, localVarOffset);
 
             // store return
             this.storeReturnFromCallIns(callIns.lhsOp != null ? callIns.lhsOp.variableDcl : null);
@@ -575,8 +567,8 @@ public class JvmTerminatorGen {
             }
 
             String jClassName = callIns.jClassName;
-            String jMethodName = callIns.name;
-            String jMethodVMSig = isBStringFunc(funcName) ? callIns.jMethodVMSigBString : callIns.jMethodVMSig;
+            String jMethodName = callIns.name + (isBString ? "_bstring" : "");
+            String jMethodVMSig = isBString ? callIns.jMethodVMSigBString : callIns.jMethodVMSig;
             this.mv.visitMethodInsn(INVOKESTATIC, jClassName, jMethodName, jMethodVMSig, false);
 
             if (callIns.lhsOp != null && callIns.lhsOp.variableDcl != null) {
@@ -774,7 +766,8 @@ public class JvmTerminatorGen {
                                    String methodName, String methodLookupName) {
             // load strand
             this.mv.visitVarInsn(ALOAD, localVarOffset);
-            String lookupKey = nameOfNonBStringFunc(getPackageName(orgName, moduleName) + methodLookupName);
+
+            String lookupKey = getPackageName(orgName, moduleName) + methodLookupName;
 
             int argsCount = callIns.args.size();
             int i = 0;
@@ -789,9 +782,6 @@ public class JvmTerminatorGen {
                                  (moduleName.equals("lang.string") || moduleName.equals("lang.error") ||
                                   moduleName.equals("lang.value") || moduleName.equals("lang.map")) &&
                                  !cleanMethodName.endsWith("_");
-            if (useBString) {
-                cleanMethodName = nameOfBStringFunc(cleanMethodName);
-            }
             BIRFunctionWrapper functionWrapper = birFunctionMap.get(lookupKey);
             String methodDesc;
             String jvmClass;
@@ -800,8 +790,7 @@ public class JvmTerminatorGen {
                 methodDesc = functionWrapper.jvmMethodDescription;
             } else {
                 BPackageSymbol symbol = CodeGenerator.packageCache.getSymbol(orgName + "/" + moduleName);
-                BInvokableSymbol funcSymbol =
-                        (BInvokableSymbol) symbol.scope.lookup(new Name(nameOfNonBStringFunc(methodName))).symbol;
+                BInvokableSymbol funcSymbol = (BInvokableSymbol) symbol.scope.lookup(new Name(methodName)).symbol;
                 BInvokableType type = (BInvokableType) funcSymbol.type;
                 ArrayList<BType> params = new ArrayList<>(type.paramTypes);
                 if (type.restType != null) {

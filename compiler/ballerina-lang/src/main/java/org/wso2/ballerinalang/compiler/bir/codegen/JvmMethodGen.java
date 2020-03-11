@@ -1263,8 +1263,7 @@ public class JvmMethodGen {
                 jvmClass = functionWrapper.fullQualifiedClassName;
             } else {
                 BPackageSymbol symbol = CodeGenerator.packageCache.getSymbol(orgName + "/" + moduleName);
-                BInvokableSymbol funcSymbol =
-                        (BInvokableSymbol) symbol.scope.lookup(new Name(nameOfNonBStringFunc(funcName))).symbol;
+                BInvokableSymbol funcSymbol = (BInvokableSymbol) symbol.scope.lookup(new Name(funcName)).symbol;
                 BInvokableType type = (BInvokableType) funcSymbol.type;
                 ArrayList<BType> params = new ArrayList<>(type.paramTypes);
                 if (type.restType != null) {
@@ -2856,33 +2855,6 @@ public class JvmMethodGen {
         } else {
             return "";
         }
-    }
-
-    static boolean isBStringFunc(String funcName) {
-
-        return isBString;
-//        return funcName.endsWith("$bstring");
-    }
-
-    static String nameOfBStringFunc(String nonBStringFuncName) {
-
-        return nonBStringFuncName;
-//        return nonBStringFuncName + "$bstring";
-    }
-
-    public static String nameOfNonBStringFunc(String funcName) {
-
-//        if (isBStringFunc(funcName)) {
-//            return funcName.substring(0, funcName.length() - 8);
-//        }
-        return funcName;
-    }
-
-    static String conditionalBStringName(String nonBStringName, boolean useBString) {
-//        if(useBString) {
-//            return nameOfBStringFunc(nonBStringName);
-//        }
-        return nonBStringName;
     }
 
     /**
