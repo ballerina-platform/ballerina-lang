@@ -18,7 +18,9 @@ package org.ballerinalang.observe.trace.extension.choreo;
 import io.jaegertracing.internal.JaegerTracer;
 import io.jaegertracing.internal.samplers.ConstSampler;
 import io.opentracing.Tracer;
+import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.observability.tracer.OpenTracer;
+import org.ballerinalang.jvm.values.api.BValueCreator;
 import org.ballerinalang.observe.trace.extension.choreo.client.ChoreoClient;
 import org.ballerinalang.observe.trace.extension.choreo.client.ChoreoClientHolder;
 import org.ballerinalang.observe.trace.extension.choreo.logging.LogFactory;
@@ -39,13 +41,20 @@ public class OpenTracerExtension implements OpenTracer {
     @Override
     public void init() {
         choreoClient = ChoreoClientHolder.getChoreoClient();
+        if (Objects.isNull(choreoClient)) {
+            throw BValueCreator.createErrorValue(
+                    StringUtils.fromString("Choreo client is not initialized. Please check Ballerina configurations."),
+                    null);
+        }
         LOGGER.info("started publishing traces to Choreo");
     }
 
     @Override
     public Tracer getTracer(String tracerName, String serviceName) {
         if (Objects.isNull(choreoClient)) {
-            throw new IllegalStateException("Choreo client is not initialized");
+            throw BValueCreator.createErrorValue(
+                    StringUtils.fromString("Choreo client is not initialized. Please check Ballerina configurations."),
+                    null);
         }
 
         return new JaegerTracer.Builder(serviceName)
