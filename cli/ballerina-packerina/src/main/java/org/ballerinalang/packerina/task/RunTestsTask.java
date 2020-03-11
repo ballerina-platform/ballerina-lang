@@ -22,6 +22,7 @@ import com.google.gson.Gson;
 import org.ballerinalang.packerina.OsUtils;
 import org.ballerinalang.packerina.buildcontext.BuildContext;
 import org.ballerinalang.packerina.buildcontext.BuildContextField;
+import org.ballerinalang.packerina.buildcontext.sourcecontext.SingleFileContext;
 import org.ballerinalang.packerina.model.ExecutableJar;
 import org.ballerinalang.test.runtime.entity.ModuleCoverage;
 import org.ballerinalang.test.runtime.entity.ModuleStatus;
@@ -113,7 +114,16 @@ public class RunTestsTask implements Task {
 
         Path sourceRootPath = buildContext.get(BuildContextField.SOURCE_ROOT);
         List<BLangPackage> moduleBirMap = buildContext.getModules();
-        testReport.setProjectName(sourceRootPath.toFile().getName());
+
+        // Set projectName in test report
+        String projectName;
+        if (buildContext.get(BuildContextField.SOURCE_CONTEXT) instanceof SingleFileContext) {
+            SingleFileContext singleFileContext = buildContext.get(BuildContextField.SOURCE_CONTEXT);
+            projectName = singleFileContext.getBalFile().toFile().getName();
+        } else {
+            projectName = sourceRootPath.toFile().getName();
+        }
+        testReport.setProjectName(projectName);
         int result = 0;
 
         // Only tests in packages are executed so default packages i.e. single bal files which has the package name
@@ -302,8 +312,10 @@ public class RunTestsTask implements Task {
                         + jacocoAgentJarPath
                         + "=destfile="
                         + targetDir.resolve(TesterinaConstants.COVERAGE_DIR)
-                        .resolve(TesterinaConstants.EXEC_FILE_NAME).toString()
-                        + ",includes=" + orgName + "." + packageName + ".*";
+                        .resolve(TesterinaConstants.EXEC_FILE_NAME).toString();
+                if (!TesterinaConstants.DOT.equals(packageName)) {
+                    agentCommand += ",includes=" + orgName + "." + packageName + ".*";
+                }
                 cmdArgs.add(agentCommand);
             }
 
