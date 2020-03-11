@@ -112,6 +112,20 @@
       }
     },
     {
+      "label": "toArray()((any|error)[])",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.map_  \n  \nReturns a list of all the members of a map.\n  \n  \n  \n**Returns** `(any|error)[]`   \n- an array whose members are the members of `m`  \n  \n"
+        }
+      },
+      "sortText": "120",
+      "insertText": "toArray()",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "employer",
       "kind": "Variable",
       "detail": "Person",
@@ -126,7 +140,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.map_  \n  \nApplies a function each member of a map and returns a map of the result.\nThe resulting map will have the same keys as the argument map.\n  \n**Params**  \n- `function ((any|error)) returns ((any|error))` func: a function to apply to each member  \n  \n**Returns** `map<(any|error)>`   \n- new map containing result of applying function `func` to each member  \n  \n"
+          "value": "**Package:** _ballerina/lang.map_  \n  \nApplies a function each member of a map and returns a map of the result.\nThe resulting map will have the same keys as the argument map.\n  \n**Params**  \n- `function ((any|error)) returns ((any|error))` func: a function to apply to each member  \n  \n**Returns** `map<(any|error)>`   \n- new map containing result of applying function 'func' to each member  \n  \n"
         }
       },
       "sortText": "120",
@@ -158,7 +172,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.map_  \n  \nCombines the members of a map using a combining function.\nThe combining function takes the combined value so far and a member of the map,\nand returns a new combined value.\n  \n**Params**  \n- `function ((any|error),(any|error)) returns ((any|error))` func: combining function  \n- `(any|error)` initial: initial value for the first argument of combining function `func`  \n  \n**Returns** `(any|error)`   \n- result of combining the members of `m` using `func`  \n  \n"
+          "value": "**Package:** _ballerina/lang.map_  \n  \nCombines the members of a map using a combining function.\nThe combining function takes the combined value so far and a member of the map,\nand returns a new combined value.\n  \n**Params**  \n- `function ((any|error),(any|error)) returns ((any|error))` func: combining function  \n- `(any|error)` initial: initial value for the first argument of combining parameter `func`  \n  \n**Returns** `(any|error)`   \n- result of combining the members of `m` using `func`  \n  \n"
         }
       },
       "sortText": "120",
@@ -194,7 +208,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.map_  \n  \nApplies a function to each member of a map.\nThe function `func` is applied to each member of `m`.\n  \n**Params**  \n- `function ((any|error)) returns ()` func: a function to apply to each member"
+          "value": "**Package:** _ballerina/lang.map_  \n  \nApplies a function to each member of a map.\nThe function 'func' is applied to each member of `m`.\n  \n**Params**  \n- `function ((any|error)) returns ()` func: a function to apply to each member"
         }
       },
       "sortText": "120",
@@ -232,6 +246,24 @@
       "sortText": "120",
       "insertText": "cloneReadOnly()",
       "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "removeIfHasKey(string k)(((any|error)|()))",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.map_  \n  \nRemoves a member of a map with a given key, if the map has member with the key.\n  \n**Params**  \n- `string` k: the key  \n  \n**Returns** `((any|error)|())`   \n- the member of `m` that had key `k`, or `()` if `m` does not have a key `k`  \nIf `m` has a member with key `k`, it removes and returns it;  \notherwise it returns `()`.  \n  \n"
+        }
+      },
+      "sortText": "120",
+      "insertText": "removeIfHasKey(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "filter(function ((any|error)) returns (boolean) func)(map<(any|error)>)",

@@ -8,7 +8,7 @@
     {
       "label": "fromJsonString(str)",
       "kind": "Function",
-      "detail": "Snippet",
+      "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
@@ -22,7 +22,7 @@
     {
       "label": "getCodePoint(str,index)",
       "kind": "Function",
-      "detail": "Snippet",
+      "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
@@ -40,7 +40,7 @@
     {
       "label": "toCodePointInts(str)",
       "kind": "Function",
-      "detail": "Snippet",
+      "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
@@ -54,7 +54,7 @@
     {
       "label": "toUpperAscii(str)",
       "kind": "Function",
-      "detail": "Snippet",
+      "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
@@ -68,7 +68,7 @@
     {
       "label": "substring(str,startIndex,endIndex)",
       "kind": "Function",
-      "detail": "Snippet",
+      "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
@@ -86,7 +86,7 @@
     {
       "label": "iterator(str)",
       "kind": "Function",
-      "detail": "Snippet",
+      "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
@@ -100,7 +100,7 @@
     {
       "label": "isReadOnly(v)",
       "kind": "Function",
-      "detail": "Snippet",
+      "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
@@ -114,7 +114,7 @@
     {
       "label": "trim(str)",
       "kind": "Function",
-      "detail": "Snippet",
+      "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
@@ -128,7 +128,7 @@
     {
       "label": "join(separator)",
       "kind": "Function",
-      "detail": "Snippet",
+      "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
@@ -146,7 +146,7 @@
     {
       "label": "indexOf(str,substr,startIndex)",
       "kind": "Function",
-      "detail": "Snippet",
+      "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
@@ -164,7 +164,7 @@
     {
       "label": "toLowerAscii(str)",
       "kind": "Function",
-      "detail": "Snippet",
+      "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
@@ -178,7 +178,7 @@
     {
       "label": "toJsonString(v)",
       "kind": "Function",
-      "detail": "Snippet",
+      "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
@@ -192,7 +192,7 @@
     {
       "label": "toBytes(str)",
       "kind": "Function",
-      "detail": "Snippet",
+      "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
@@ -206,7 +206,7 @@
     {
       "label": "cloneReadOnly(v)",
       "kind": "Function",
-      "detail": "Snippet",
+      "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
@@ -220,7 +220,7 @@
     {
       "label": "length(str)",
       "kind": "Function",
-      "detail": "Snippet",
+      "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
@@ -234,7 +234,7 @@
     {
       "label": "concat()",
       "kind": "Function",
-      "detail": "Snippet",
+      "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
@@ -250,9 +250,27 @@
       }
     },
     {
+      "label": "lastIndexOf(str,substr,startIndex)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.string_  \n  \nFinds the last occurrence of one string in another string.\n  \n**Params**  \n- `string` substr: the string to search for  \n- `int` startIndex: index to start searching backwards from(Defaultable)  \n  \n**Returns** `(int|())`   \n- index of the last occurrence of `substr` in `str` that is <= `startIndex`,  \n   or `()` if there is no such occurrence  \n  \n"
+        }
+      },
+      "sortText": "120",
+      "insertText": "lastIndexOf(str,substr,startIndex) {\n${1:value} => {${2}}\n}",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
       "label": "mergeJson(j1,j2)",
       "kind": "Function",
-      "detail": "Snippet",
+      "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
@@ -270,7 +288,7 @@
     {
       "label": "clone(v)",
       "kind": "Function",
-      "detail": "Snippet",
+      "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
@@ -284,7 +302,7 @@
     {
       "label": "endsWith(str,substr)",
       "kind": "Function",
-      "detail": "Snippet",
+      "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
@@ -302,7 +320,7 @@
     {
       "label": "toString(v)",
       "kind": "Function",
-      "detail": "Snippet",
+      "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
@@ -316,7 +334,7 @@
     {
       "label": "codePointCompare(str1,str2)",
       "kind": "Function",
-      "detail": "Snippet",
+      "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
@@ -334,7 +352,7 @@
     {
       "label": "startsWith(str,substr)",
       "kind": "Function",
-      "detail": "Snippet",
+      "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",

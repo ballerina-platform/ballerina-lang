@@ -1,0 +1,25 @@
+# To start the services, navigate to the directory that contains the
+# `.bal` files and use the `ballerina run` command.
+
+$ ballerina run websocket_service.bal
+[ballerina/http] started HTTP/WS listener 0.0.0.0:9095
+$ ballerina run websocket_retry.bal
+[ballerina/http] started HTTP/WS listener 0.0.0.0:9090
+
+# Now, this service can be invoked by any WebSocket client using the URL: "ws://localhost:9090/retry/ws".
+
+# To check the sample, you can use Chrome or Firefox JavaScript console and run the following commands. <br>
+$ var ws = new WebSocket("ws://localhost:9090/retry/ws");
+$ ws.onmessage = function(frame) {console.log(frame.data)};
+
+# Send messages.
+$ ws.send("hello world");
+
+# To stop the running service, press Ctrl + C.
+# Restart the service.
+
+# Send messages.
+$ ws.send("hello world");
+
+# Close the connection.
+$ ws.close(1000, "I want to go");

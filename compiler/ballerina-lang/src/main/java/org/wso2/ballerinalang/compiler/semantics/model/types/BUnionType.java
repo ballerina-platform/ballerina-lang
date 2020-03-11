@@ -21,9 +21,11 @@ import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.types.UnionType;
 import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeDescriptor;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
+import org.wso2.ballerinalang.util.Flags;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -140,13 +142,12 @@ public class BUnionType extends BType implements UnionType {
      * @param type Type to be added to the union.
      */
     public void add(BType type) {
-        if (type.tag == TypeTags.UNION) {
+        if (type.tag == TypeTags.UNION && !isTypeParamAvailable(type)) {
             assert type instanceof BUnionType;
             this.memberTypes.addAll(toFlatTypeSet(((BUnionType) type).memberTypes));
         } else {
             this.memberTypes.add(type);
         }
-
         this.nullable = this.nullable || type.isNullable();
     }
 
@@ -217,8 +218,16 @@ public class BUnionType extends BType implements UnionType {
 
     private static LinkedHashSet<BType> toFlatTypeSet(LinkedHashSet<BType> types) {
         return types.stream()
-                .flatMap(type -> type.tag == TypeTags.UNION ?
+                .flatMap(type -> type.tag == TypeTags.UNION && !isTypeParamAvailable(type) ?
                         ((BUnionType) type).memberTypes.stream() : Stream.of(type))
                 .collect(Collectors.toCollection(LinkedHashSet::new));
     }
+
+    private static boolean isTypeParamAvailable(BType type) {
+        if (type.tsymbol != null && Symbols.isFlagOn(type.tsymbol.flags, Flags.TYPE_PARAM)) {
+            return true;
+        }
+        return false;
+    }
+
 }

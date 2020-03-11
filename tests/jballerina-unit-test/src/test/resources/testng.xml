@@ -32,7 +32,6 @@
         <groups>
             <run>
                 <exclude name="brokenOnJBallerina"/>
-                <exclude name="brokenOnLangLibChange"/>
                 <exclude name="brokenOnSpecDeviation"/>
             </run>
         </groups>
@@ -50,6 +49,7 @@
             <package name="org.ballerinalang.test.typedefs.*"/>
             <package name="org.ballerinalang.test.access.*"/>
             <package name="org.ballerinalang.test.structs.*"/>
+            <package name="org.ballerinalang.test.testerina.*"/>
             <package name="org.ballerinalang.test.jvm.*"/>
             <package name="org.ballerinalang.test.types.integer"/>
             <package name="org.ballerinalang.test.types.floattype"/>
@@ -61,6 +61,7 @@
             <package name="org.ballerinalang.test.types.finite.*"/>
             <package name="org.ballerinalang.test.types.map.*"/>
             <package name="org.ballerinalang.test.types.string.*"/>
+            <package name="org.ballerinalang.test.types.stream.*"/>
             <package name="org.ballerinalang.test.types.errors.*"/>
             <package name="org.ballerinalang.test.types.var.*"/>
             <package name="org.ballerinalang.test.types.uniontypes.*"/>
@@ -88,6 +89,7 @@
             <package name="org.ballerinalang.test.types.service.*"/>
             <package name="org.ballerinalang.test.types.globalvar.*"/>
             <package name="org.ballerinalang.test.expressions.builtinoperations.*"/>
+            <package name="org.ballerinalang.test.expressions.let.*"/>
             <package name="org.ballerinalang.test.expressions.builtinfunctions.*"/>
             <package name="org.ballerinalang.test.expressions.conversion.*"/>
             <package name="org.ballerinalang.test.expressions.unaryoperations.*"/>
@@ -101,6 +103,9 @@
             <package name="org.ballerinalang.test.expressions.stamp.*"/>
             <package name="org.ballerinalang.test.expressions.lambda.*"/>
             <package name="org.ballerinalang.test.expressions.invocations.*"/>
+            <package name="org.ballerinalang.test.expressions.mappingconstructor.*"/>
+            <package name="org.ballerinalang.test.expressions.listconstructor.*"/>
+            <package name="org.ballerinalang.test.expressions.group.*"/>
             <package name="org.ballerinalang.test.object.*" />
             <package name="org.ballerinalang.test.dataflow.analysis.*" />
             <package name="org.ballerinalang.test.documentation.*" />
@@ -122,14 +127,15 @@
             <package name="org.ballerinalang.test.functions.*"/>
             <package name="org.ballerinalang.test.javainterop.*"/>
             <package name="org.ballerinalang.test.execution.*" />
+            <package name="org.ballerinalang.test.query.*" />
         </packages>
 
         <classes>
             <!--<class name="org.ballerinalang.test.closures.VarMutabilityClosureTest" />-->
             <!--<class name="org.ballerinalang.test.lock.LocksInMainTest">-->
-                <!--<methods>-->
-                    <!--<include name="simpleLock"/>-->
-                <!--</methods>-->
+            <!--<methods>-->
+            <!--<include name="simpleLock"/>-->
+            <!--</methods>-->
             <!--</class>-->
             <class name="org.ballerinalang.test.lock.LocksInServicesTest">
                 <methods>
@@ -145,10 +151,8 @@
                     <exclude name="testLockInRecords"/>
                 </methods>
             </class>
-            <class name="org.ballerinalang.test.types.table.TableSqlQueryTest"/>
             <class name="org.ballerinalang.test.types.table.TableLiteralSyntaxTest"/>
             <!--<class name="org.ballerinalang.test.types.table.TableLiteralIterableTest"/>-->
-            <class name="org.ballerinalang.test.types.stream.BStreamValueTest"/>
             <!--<class name="org.ballerinalang.test.types.TypeUnificationTest"/>-->
             <!--<class name="org.ballerinalang.test.error.ErrorTest" />-->
             <class name="org.ballerinalang.test.expressions.async.BasicAsyncOperationsTest">

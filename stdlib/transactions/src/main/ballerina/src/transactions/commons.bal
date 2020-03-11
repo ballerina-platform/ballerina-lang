@@ -15,11 +15,12 @@
 // under the License.
 
 import ballerina/cache;
-import ballerina/log;
 import ballerina/http;
+import ballerina/log;
 import ballerina/system;
 import ballerina/task;
 import ballerina/time;
+import ballerinax/java;
 
 # ID of the local participant used when registering with the initiator.
 string localParticipantId = system:uuid();
@@ -290,7 +291,12 @@ function getInitiatorClient(string registerAtURL) returns InitiatorClientEP {
             initiatorEP = new({ registerAtURL: registerAtURL, timeoutInMillis: 15000,
                 retryConfig: { count: 2, intervalInMillis: 5000 }
             });
-            httpClientCache.put(registerAtURL, initiatorEP);
+            cache:Error? result = httpClientCache.put(registerAtURL, initiatorEP);
+            if (result is cache:Error) {
+                log:printError(function() returns string {
+                    return "Failed to add http client with key: " + registerAtURL + " to the cache.";
+                });
+            }
             return initiatorEP;
         }
     }
@@ -308,7 +314,12 @@ function getParticipant2pcClient(string participantURL) returns Participant2pcCl
             participantEP = new({ participantURL: participantURL,
                 timeoutInMillis: 15000, retryConfig: { count: 2, intervalInMillis: 5000 }
             });
-            httpClientCache.put(participantURL, participantEP);
+            cache:Error? result = httpClientCache.put(participantURL, participantEP);
+            if (result is cache:Error) {
+                log:printError(function() returns string {
+                    return "Failed to add http client with key: " + participantURL + " to the cache.";
+                });
+            }
             return participantEP;
         }
     }
@@ -371,6 +382,16 @@ function getParticipantId(string transactionBlockId) returns string {
     return participantId;
 }
 
-function getAvailablePort() returns int = external;
+function getAvailablePort() returns int = @java:Method {
+    class: "io.ballerina.transactions.Utils",
+    name: "getAvailablePort"
+} external;
 
-function getHostAddress() returns string = external;
+function getHostAddress() returns string {
+    return <string>java:toString(externGetHostAddress());
+}
+
+function externGetHostAddress() returns handle = @java:Method {
+    class: "io.ballerina.transactions.Utils",
+    name: "getHostAddress"
+} external;

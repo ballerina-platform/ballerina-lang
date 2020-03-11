@@ -18,6 +18,7 @@
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
 import org.ballerinalang.model.tree.NodeKind;
+import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
@@ -31,7 +32,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangNumericLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
-import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
+import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLogHelper;
 
 import java.util.Stack;
 
@@ -44,13 +45,13 @@ public class ConstantAnalyzer extends BLangNodeVisitor {
 
     private static final CompilerContext.Key<ConstantAnalyzer> CONSTANT_ANALYZER_KEY =
             new CompilerContext.Key<>();
-    private BLangDiagnosticLog dlog;
+    private BLangDiagnosticLogHelper dlog;
     private Stack<BLangExpression> expressions = new Stack<>();
 
     private ConstantAnalyzer(CompilerContext context) {
 
         context.put(CONSTANT_ANALYZER_KEY, this);
-        this.dlog = BLangDiagnosticLog.getInstance(context);
+        this.dlog = BLangDiagnosticLogHelper.getInstance(context);
     }
 
     public static ConstantAnalyzer getInstance(CompilerContext context) {
@@ -91,9 +92,17 @@ public class ConstantAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangRecordLiteral recordLiteral) {
 
-        for (BLangRecordLiteral.BLangRecordKeyValue keyValuePair : recordLiteral.keyValuePairs) {
-            analyzeExpr(keyValuePair.key.expr);
-            analyzeExpr(keyValuePair.valueExpr);
+        for (RecordLiteralNode.RecordField field : recordLiteral.fields) {
+            if (field.isKeyValueField()) {
+                BLangRecordLiteral.BLangRecordKeyValueField keyValuePair =
+                        (BLangRecordLiteral.BLangRecordKeyValueField) field;
+                analyzeExpr(keyValuePair.key.expr);
+                analyzeExpr(keyValuePair.valueExpr);
+            } else if (field.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
+                analyzeExpr((BLangRecordLiteral.BLangRecordVarNameField) field);
+            } else {
+                analyzeExpr(((BLangRecordLiteral.BLangRecordSpreadOperatorField) field).expr);
+            }
         }
     }
 

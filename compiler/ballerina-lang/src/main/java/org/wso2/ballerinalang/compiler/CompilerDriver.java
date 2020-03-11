@@ -21,7 +21,7 @@ import org.ballerinalang.compiler.CompilerOptionName;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.bir.BIRGen;
-import org.wso2.ballerinalang.compiler.codegen.CodeGenerator;
+import org.wso2.ballerinalang.compiler.desugar.ConstantPropagation;
 import org.wso2.ballerinalang.compiler.desugar.Desugar;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.CodeAnalyzer;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.CompilerPluginRunner;
@@ -38,7 +38,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.compiler.util.Constants;
-import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
+import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLogHelper;
 
 import java.util.HashSet;
 import java.util.List;
@@ -46,6 +46,7 @@ import java.util.List;
 import static org.ballerinalang.compiler.CompilerOptionName.TOOLING_COMPILATION;
 import static org.ballerinalang.model.elements.PackageID.ANNOTATIONS;
 import static org.ballerinalang.model.elements.PackageID.ARRAY;
+import static org.ballerinalang.model.elements.PackageID.BOOLEAN;
 import static org.ballerinalang.model.elements.PackageID.DECIMAL;
 import static org.ballerinalang.model.elements.PackageID.ERROR;
 import static org.ballerinalang.model.elements.PackageID.FLOAT;
@@ -60,7 +61,6 @@ import static org.ballerinalang.model.elements.PackageID.TABLE;
 import static org.ballerinalang.model.elements.PackageID.TYPEDESC;
 import static org.ballerinalang.model.elements.PackageID.VALUE;
 import static org.ballerinalang.model.elements.PackageID.XML;
-import static org.wso2.ballerinalang.compiler.semantics.model.SymbolTable.UTILS;
 import static org.wso2.ballerinalang.util.RepoUtils.LOAD_BUILTIN_FROM_SOURCE;
 
 /**
@@ -76,7 +76,7 @@ public class CompilerDriver {
             new CompilerContext.Key<>();
 
     private final CompilerOptions options;
-    private final BLangDiagnosticLog dlog;
+    private final BLangDiagnosticLogHelper dlog;
     private final PackageLoader pkgLoader;
     private final PackageCache pkgCache;
     private final SymbolTable symbolTable;
@@ -85,10 +85,10 @@ public class CompilerDriver {
     private final SemanticAnalyzer semAnalyzer;
     private final CodeAnalyzer codeAnalyzer;
     private final TaintAnalyzer taintAnalyzer;
+    private final ConstantPropagation constantPropagation;
     private final DocumentationAnalyzer documentationAnalyzer;
     private final CompilerPluginRunner compilerPluginRunner;
     private final Desugar desugar;
-    private final CodeGenerator codeGenerator;
     private final BIRGen birGenerator;
     private final CompilerPhase compilerPhase;
     private final DataflowAnalyzer dataflowAnalyzer;
@@ -107,7 +107,7 @@ public class CompilerDriver {
         context.put(COMPILER_DRIVER_KEY, this);
 
         this.options = CompilerOptions.getInstance(context);
-        this.dlog = BLangDiagnosticLog.getInstance(context);
+        this.dlog = BLangDiagnosticLogHelper.getInstance(context);
         this.pkgLoader = PackageLoader.getInstance(context);
         this.pkgCache = PackageCache.getInstance(context);
         this.symbolTable = SymbolTable.getInstance(context);
@@ -117,9 +117,9 @@ public class CompilerDriver {
         this.codeAnalyzer = CodeAnalyzer.getInstance(context);
         this.documentationAnalyzer = DocumentationAnalyzer.getInstance(context);
         this.taintAnalyzer = TaintAnalyzer.getInstance(context);
+        this.constantPropagation = ConstantPropagation.getInstance(context);
         this.compilerPluginRunner = CompilerPluginRunner.getInstance(context);
         this.desugar = Desugar.getInstance(context);
-        this.codeGenerator = CodeGenerator.getInstance(context);
         this.birGenerator = BIRGen.getInstance(context);
         this.compilerPhase = this.options.getCompilerPhase();
         this.dataflowAnalyzer = DataflowAnalyzer.getInstance(context);
@@ -132,16 +132,11 @@ public class CompilerDriver {
         return packageNode;
     }
 
-    void loadUtilsPackage() {
-        // Load utils package.
-        symbolTable.utilsPackageSymbol = pkgLoader.loadPackageSymbol(UTILS, null, null);
-    }
-
     void loadLangModules(List<PackageID> pkgIdList) {
         // This logic interested in loading lang modules from source. For others we can load from balo.
         if (!LOAD_BUILTIN_FROM_SOURCE) {
-            symbolTable.langInternalModuleSymbol = pkgLoader.loadPackageSymbol(INTERNAL, null, null);
             symbolTable.langAnnotationModuleSymbol = pkgLoader.loadPackageSymbol(ANNOTATIONS, null, null);
+            symbolTable.langInternalModuleSymbol = pkgLoader.loadPackageSymbol(INTERNAL, null, null);
             symResolver.reloadErrorAndDependentTypes();
             symResolver.reloadIntRangeType();
             symbolTable.langArrayModuleSymbol = pkgLoader.loadPackageSymbol(ARRAY, null, null);
@@ -158,6 +153,7 @@ public class CompilerDriver {
             symbolTable.langTypedescModuleSymbol = pkgLoader.loadPackageSymbol(TYPEDESC, null, null);
             symbolTable.langValueModuleSymbol = pkgLoader.loadPackageSymbol(VALUE, null, null);
             symbolTable.langXmlModuleSymbol = pkgLoader.loadPackageSymbol(XML, null, null);
+            symbolTable.langBooleanModuleSymbol = pkgLoader.loadPackageSymbol(BOOLEAN, null, null);
             return;
         }
 
@@ -210,9 +206,11 @@ public class CompilerDriver {
         if (testsEnabled != null && testsEnabled.equals(Constants.SKIP_TESTS)) {
             pkgNode.getTestablePkgs().forEach(testablePackage -> importPkgList.addAll(testablePackage.imports));
         }
-        importPkgList.stream()
-                .filter(pkg -> pkg.symbol != null)
-                .forEach(importPkgNode -> this.compilePackageSymbol(importPkgNode.symbol));
+        for (BLangImportPackage pkg : importPkgList) {
+            if (pkg.symbol != null) {
+                this.compilePackageSymbol(pkg.symbol);
+            }
+        }
         compile(pkgNode);
     }
 
@@ -242,6 +240,11 @@ public class CompilerDriver {
         }
 
         taintAnalyze(pkgNode);
+        if (this.stopCompilation(pkgNode, CompilerPhase.CONSTANT_PROPAGATION)) {
+            return;
+        }
+
+        propagateConstants(pkgNode);
         if (this.stopCompilation(pkgNode, CompilerPhase.COMPILER_PLUGIN)) {
             return;
         }
@@ -252,11 +255,11 @@ public class CompilerDriver {
         }
 
         desugar(pkgNode);
-        if (this.stopCompilation(pkgNode, CompilerPhase.CODE_GEN)) {
+        if (this.stopCompilation(pkgNode, CompilerPhase.BIR_GEN)) {
             return;
         }
 
-        codegen(pkgNode);
+        birGen(pkgNode);
     }
 
     public BLangPackage define(BLangPackage pkgNode) {
@@ -283,6 +286,10 @@ public class CompilerDriver {
         return this.taintAnalyzer.analyze(pkgNode);
     }
 
+    private BLangPackage propagateConstants(BLangPackage pkgNode) {
+        return this.constantPropagation.perform(pkgNode);
+    }
+
     private BLangPackage annotationProcess(BLangPackage pkgNode) {
         return this.compilerPluginRunner.runPlugins(pkgNode);
     }
@@ -291,7 +298,7 @@ public class CompilerDriver {
         return this.desugar.perform(pkgNode);
     }
 
-    public BLangPackage codegen(BLangPackage pkgNode) {
+    public BLangPackage birGen(BLangPackage pkgNode) {
         return this.birGenerator.genBIR(pkgNode);
     }
 
@@ -299,7 +306,7 @@ public class CompilerDriver {
         if (compilerPhase.compareTo(nextPhase) < 0) {
             return true;
         }
-        return (checkNextPhase(nextPhase) && dlog.errorCount > 0);
+        return (checkNextPhase(nextPhase) && dlog.getErrorCount() > 0);
     }
 
     private boolean checkNextPhase(CompilerPhase nextPhase) {
@@ -313,11 +320,11 @@ public class CompilerDriver {
 
         BLangPackage pkg = taintAnalyze(
                 documentationAnalyzer.analyze(codeAnalyze(semAnalyzer.analyze(pkgLoader.loadAndDefinePackage(modID)))));
-        if (dlog.errorCount > 0) {
+        if (dlog.getErrorCount() > 0) {
             return null;
         }
 
-        return codegen(desugar(pkg)).symbol;
+        return birGen(desugar(pkg)).symbol;
     }
 
 }

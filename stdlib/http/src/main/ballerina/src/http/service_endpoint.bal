@@ -14,6 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerinax/java;
 import ballerina/cache;
 import ballerina/crypto;
 import ballerina/lang.'object as lang;
@@ -110,31 +111,66 @@ public type Listener object {
         }
     }
 
-    public function initEndpoint() returns error? = external;
+    public function initEndpoint() returns error? {
+        return externInitEndpoint(self);
+    }
 
     # Gets invoked when attaching a service to the endpoint.
     #
     # + s - The service that needs to be attached
     # + name - Name of the service
     # + return - An `error` if an error occurred during the service attachment process or else nil
-    function register(service s, string? name) returns error? = external;
+    function register(service s, string? name) returns error? {
+        return externRegister(self, s, name);
+    }
 
     # Starts the registered service.
     #
     # + return - An `error` if an error occurred during the listener start process
-    function start() returns error? = external;
+    function start() returns error? {
+        return externStart(self);
+    }
 
     # Stops the service listener gracefully.
     #
     # + return - An `error` if an error occurred during the listener stop process
-    function gracefulStop() returns error? = external;
+    function gracefulStop() returns error? {
+        return externGracefulStop(self);
+    }
 
     # Disengage an attached service from the listener.
     #
     # + s - The service that needs to be detached
     # + return - An `error` if an error occurred during the service detachment process or else nil
-    function detach(service s) returns error? = external;
+    function detach(service s) returns error? {
+        return externDetach(self, s);
+    }
 };
+
+function externInitEndpoint(Listener listenerObj) returns error? = @java:Method {
+    class: "org.ballerinalang.net.http.serviceendpoint.InitEndpoint",
+    name: "initEndpoint"
+} external;
+
+function externRegister(Listener listenerObj, service s, string? name) returns error? = @java:Method {
+   class: "org.ballerinalang.net.http.serviceendpoint.Register",
+   name: "register"
+} external;
+
+function externStart(Listener listenerObj) returns error? = @java:Method {
+    class: "org.ballerinalang.net.http.serviceendpoint.Start",
+    name: "start"
+} external;
+
+function externGracefulStop(Listener listenerObj) returns error? = @java:Method {
+    class: "org.ballerinalang.net.http.serviceendpoint.GracefulStop",
+    name: "gracefulStop"
+} external;
+
+function externDetach(Listener listenerObj, service s) returns error? = @java:Method {
+    class: "org.ballerinalang.net.http.serviceendpoint.Detach",
+    name: "detach"
+} external;
 
 # Presents a read-only view of the remote address.
 #
@@ -211,15 +247,15 @@ public type ListenerHttp1Settings record {|
 # + scopes - An array of scopes or an array consisting of arrays of scopes. An array is used to indicate that at least one of the scopes should
 # be successfully authorized. An array consisting of arrays is used to indicate that at least one scope from the sub-arrays
 # should successfully be authorized
-# + positiveAuthzCache - The caching configurations for positive authorizations
-# + negativeAuthzCache - The caching configurations for negative authorizations
+# + positiveAuthzCache - The `cache:Cache` object for positive authorizations
+# + negativeAuthzCache - The `cache:Cache` object for negative authorizations
 # + mandateSecureSocket - Specify whether secure socket configurations are mandatory or not
 # + position - The authn/authz filter position of the filter array. The position values starts from 0 and it is set to 0 implicitly
 public type ListenerAuth record {|
     InboundAuthHandler[]|InboundAuthHandler[][] authHandlers;
     string[]|string[][] scopes?;
-    AuthzCacheConfig positiveAuthzCache = {};
-    AuthzCacheConfig negativeAuthzCache = {};
+    cache:Cache? positiveAuthzCache = new;
+    cache:Cache? negativeAuthzCache = new;
     boolean mandateSecureSocket = true;
     int position = 0;
 |};
@@ -262,20 +298,6 @@ public type ListenerSecureSocket record {|
     ListenerOcspStapling? ocspStapling = ();
 |};
 
-# Provides a set of configurations for controlling the authorization caching behaviour of the endpoint.
-#
-# + enabled - Specifies whether authorization caching is enabled. Caching is enabled by default.
-# + capacity - The capacity of the cache
-# + expiryTimeInMillis - The number of milliseconds to keep an entry in the cache
-# + evictionFactor - The fraction of entries to be removed when the cache is full. The value should be
-#                    between 0 (exclusive) and 1 (inclusive).
-public type AuthzCacheConfig record {|
-    boolean enabled = true;
-    int capacity = 100;
-    int expiryTimeInMillis = 5 * 1000; // 5 seconds;
-    float evictionFactor = 1;
-|};
-
 # Defines the possible values for the keep-alive configuration in service and client endpoints.
 public type KeepAlive KEEPALIVE_AUTO|KEEPALIVE_ALWAYS|KEEPALIVE_NEVER;
 
@@ -306,18 +328,8 @@ function addAuthFilters(ListenerConfiguration config) {
         InboundAuthHandler[]|InboundAuthHandler[][] authHandlers = auth.authHandlers;
         AuthnFilter authnFilter = new(authHandlers);
 
-        cache:Cache? positiveAuthzCache = ();
-        cache:Cache? negativeAuthzCache = ();
-        if (auth.positiveAuthzCache.enabled) {
-            positiveAuthzCache = new cache:Cache(auth.positiveAuthzCache.expiryTimeInMillis,
-                                     auth.positiveAuthzCache.capacity,
-                                     auth.positiveAuthzCache.evictionFactor);
-        }
-        if (auth.negativeAuthzCache.enabled) {
-            negativeAuthzCache = new cache:Cache(auth.negativeAuthzCache.expiryTimeInMillis,
-                                     auth.negativeAuthzCache.capacity,
-                                     auth.negativeAuthzCache.evictionFactor);
-        }
+        cache:Cache? positiveAuthzCache = auth.positiveAuthzCache ?: ();
+        cache:Cache? negativeAuthzCache = auth.positiveAuthzCache ?: ();
         AuthzHandler authzHandler = new(positiveAuthzCache, negativeAuthzCache);
         var scopes = auth["scopes"];
         AuthzFilter authzFilter = new(authzHandler, scopes);

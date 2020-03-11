@@ -13,6 +13,7 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
+import ballerina/lang.__internal as internal;
 
 # A type parameter that is a subtype of `any|error`.
 # Has the special semantic that when used in a declaration
@@ -30,7 +31,7 @@ type Type1 any|error;
 # Has the special semantic that when used in a declaration
 # all uses in the declaration must refer to same type.
 @typeParam
-type PureType anydata|error;
+type PureType any|error;
 
 # Returns the number of members of an array.
 #
@@ -67,7 +68,7 @@ public function enumerate(Type[] arr) returns [int, Type][] = external;
 public function 'map(Type[] arr, function(Type val) returns Type1 func) returns Type1[] = external;
 
 # Applies a function to each member of an array.
-# The function `func` is applied to each member of array `arr` in order.
+# The parameter `func` is applied to each member of array `arr` in order.
 #
 # + arr - the array
 # + func - a function to apply to each member
@@ -86,7 +87,7 @@ public function filter(Type[] arr, function(Type val) returns boolean func) retu
 #
 # + arr - the array
 # + func - combining function
-# + initial - initial value for the first argument of combining function `func`
+# + initial - initial value for the first argument of combining parameter `func`
 # + return - result of combining the members of `arr` using `func`
 #
 # For example
@@ -134,6 +135,16 @@ public function setLength((any|error)[] arr, int length) returns () = external;
 # + startIndex - index to start the search from
 # + return - index of the member if found, else `()`
 public function indexOf(PureType[] arr, PureType val, int startIndex = 0) returns int? = external;
+
+# Returns the index of last member of `arr` that is equal to `val` if there is one.
+# Returns `()` if not found.
+# Equality is tested using `==`.
+#
+# + arr - the array
+# + val - member to search for
+# + startIndex - index to start searching backwards from
+# + return - index of the member if found, else `()`
+public function lastIndexOf(PureType[] arr, PureType val, int startIndex = arr.length() - 1) returns int? = external;
 
 # Reverses the order of the members of an array.
 #
@@ -221,3 +232,11 @@ public function toBase16(byte[] arr) returns string = external;
 # + str - Base16 string representation
 # + return - the byte array or error
 public function fromBase16(string str) returns byte[]|error = external;
+
+# Returns a stream from the given array.
+#
+# + arr - The array from which the stream is created
+# + return - The stream representation of the array `arr`
+public function toStream(Type[] arr) returns stream<Type> {
+    return internal:construct(internal:getElementType(typeof arr), iterator(arr));
+}

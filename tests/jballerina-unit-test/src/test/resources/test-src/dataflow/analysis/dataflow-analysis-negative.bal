@@ -672,3 +672,57 @@ function testMatch8() returns int {
     }
     return k; // variable 'k' may not have been initialized
 }
+
+function testUninitializedVarWithContinueAndBreakInWhile() {
+    int a;
+    while false {
+        if true {
+            continue;
+        } else {
+            a = 1;
+        }
+        int i = a; // OK
+    }
+    int j = a; // variable 'a' may not have been initialized
+
+    int b;
+    while false {
+        if true {
+            break;
+        } else {
+            b = 1;
+        }
+        int i = b; // OK
+    }
+    int k = b; // variable 'b' may not have been initialized
+}
+
+function testUninitializedVarWithWhile1() {
+    int a;
+    string b;
+    boolean e = false;
+    while e {
+        if e {
+            a = 1;
+        } else {
+            a = 5;
+        }
+        a = 10;
+    }
+    int j = a; // variable 'a' may not have been initialized
+    string k = b; // variable 'b' is not initialized
+}
+
+function testUninitializedVarWithWhile2() {
+    int a;
+
+    while true {
+        break;
+    }
+    int j = a; // variable 'a' is not initialized
+}
+
+function testUninitializedVarWithLet() {
+   int i;
+   int b = let int x = 4 + i in 2 * x * i;
+}

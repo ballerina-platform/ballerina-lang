@@ -25,13 +25,13 @@ import com.google.gson.JsonPrimitive;
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.ballerinalang.langserver.compiler.LSContext;
+import org.ballerinalang.langserver.commons.LSContext;
+import org.ballerinalang.langserver.commons.workspace.LSDocumentIdentifier;
+import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.compiler.LSModuleCompiler;
-import org.ballerinalang.langserver.compiler.common.LSCustomErrorStrategy;
-import org.ballerinalang.langserver.compiler.common.LSDocument;
+import org.ballerinalang.langserver.compiler.common.LSDocumentIdentifierImpl;
 import org.ballerinalang.langserver.compiler.common.modal.SymbolMetaInfo;
 import org.ballerinalang.langserver.compiler.exception.CompilationFailedException;
-import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.model.Whitespace;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.symbols.SymbolKind;
@@ -55,6 +55,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangSimpleVariableDef;
+import org.wso2.ballerinalang.compiler.tree.types.BLangLetVariable;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.io.File;
@@ -90,19 +91,19 @@ public class TextDocumentFormatUtil {
      * @param documentManager Workspace document manager instance
      * @param context         Document formatting context
      * @return {@link JsonObject}   AST as a Json Object
-     * @throws JSONGenerationException when AST build fails
-     * @throws CompilationFailedException     when compilation fails
+     * @throws JSONGenerationException    when AST build fails
+     * @throws CompilationFailedException when compilation fails
      */
     public static JsonObject getAST(Path file, WorkspaceDocumentManager documentManager, LSContext context)
             throws JSONGenerationException, CompilationFailedException {
         String path = file.toAbsolutePath().toString();
-        LSDocument lsDocument = new LSDocument(file.toUri().toString());
+        LSDocumentIdentifier lsDocument = new LSDocumentIdentifierImpl(file.toUri().toString());
         String packageName = lsDocument.getOwnerModule();
         String[] breakFromPackage = path.split(Pattern.quote(packageName + File.separator));
         String relativePath = breakFromPackage[breakFromPackage.length - 1];
 
         final BLangPackage bLangPackage = LSModuleCompiler.getBLangPackage(context, documentManager,
-                                                                           LSCustomErrorStrategy.class, false, false);
+                FormatterCustomErrorStrategy.class, false, false);
         final List<Diagnostic> diagnostics = new ArrayList<>();
         JsonArray errors = new JsonArray();
         JsonObject result = new JsonObject();
@@ -300,6 +301,10 @@ public class TextDocumentFormatUtil {
                                 .getValue(), anonStructs, visibleEPsByNode));
                     } else if (listPropItem instanceof String) {
                         listPropJson.add((String) listPropItem);
+                    } else if (listPropItem instanceof BLangLetVariable) {
+                        // TODO: check with language team whether this is the correct way to handle LetVariable.
+                        BLangLetVariable variable = (BLangLetVariable) listPropItem;
+                        listPropJson.add(generateJSON(variable.definitionNode, anonStructs, visibleEPsByNode));
                     } else {
                         logger.debug("Can't serialize " + jsonName + ", has a an array of " + listPropItem);
                     }

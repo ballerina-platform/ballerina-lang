@@ -18,12 +18,16 @@
 package org.ballerinalang.jvm.values;
 
 import org.ballerinalang.jvm.BallerinaErrors;
+import org.ballerinalang.jvm.IteratorUtils;
 import org.ballerinalang.jvm.JSONGenerator;
-import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.types.BTupleType;
 import org.ballerinalang.jvm.types.BType;
+import org.ballerinalang.jvm.types.BUnionType;
+import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.util.exceptions.BLangFreezeException;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.api.BArray;
+import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.jvm.values.freeze.FreezeUtils;
 import org.ballerinalang.jvm.values.freeze.State;
 import org.ballerinalang.jvm.values.freeze.Status;
@@ -31,6 +35,8 @@ import org.ballerinalang.jvm.values.freeze.Status;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.Map;
 
 import static org.ballerinalang.jvm.util.BLangConstants.ARRAY_LANG_LIB;
@@ -58,6 +64,7 @@ public abstract class AbstractArrayValue implements ArrayValue {
     protected int maxSize = SYSTEM_ARRAY_MAX;
     protected static final int DEFAULT_ARRAY_SIZE = 100;
     protected int size = 0;
+    protected BType iteratorNextReturnType;
 
     // ----------------------- get methods ----------------------------------------------------
 
@@ -122,7 +129,17 @@ public abstract class AbstractArrayValue implements ArrayValue {
      * @return array element
      */
     @Override
+    @Deprecated
     public abstract String getString(long index);
+
+    /**
+     * Get string value in the given index.
+     *
+     * @param index array index
+     * @return array element
+     */
+    @Override
+    public abstract BString getBString(long index);
 
     // ---------------------------- add methods --------------------------------------------------
 
@@ -178,7 +195,17 @@ public abstract class AbstractArrayValue implements ArrayValue {
      * @param value value to be added
      */
     @Override
+    @Deprecated
     public abstract void add(long index, String value);
+
+    /**
+     * Add BString value to the given array index.
+     *
+     * @param index array index
+     * @param value value to be added
+     */
+    @Override
+    public abstract void add(long index, BString value);
 
     // -------------------------------------------------------------------------------------------------------------
 
@@ -220,12 +247,7 @@ public abstract class AbstractArrayValue implements ArrayValue {
     }
 
     @Override
-    public String stringValue() {
-        return stringValue(null);
-    }
-
-    @Override
-    public abstract String stringValue(Strand strand);
+    public abstract String stringValue();
 
     @Override
     public abstract BType getType();
@@ -315,6 +337,33 @@ public abstract class AbstractArrayValue implements ArrayValue {
         size = newLength;
     }
 
+    protected void initializeIteratorNextReturnType() {
+        BType type;
+        if (getType().getTag() == TypeTags.ARRAY_TAG) {
+            type = getElementType();
+        } else {
+            BTupleType tupleType = (BTupleType) getType();
+            LinkedHashSet<BType> types = new LinkedHashSet<>(tupleType.getTupleTypes());
+            if (tupleType.getRestType() != null) {
+                types.add(tupleType.getRestType());
+            }
+            if (types.size() == 1) {
+                type = types.iterator().next();
+            } else {
+                type = new BUnionType(new ArrayList<>(types));
+            }
+        }
+        iteratorNextReturnType = IteratorUtils.createIteratorNextReturnType(type);
+    }
+
+    public BType getIteratorNextReturnType() {
+        if (iteratorNextReturnType == null) {
+            initializeIteratorNextReturnType();
+        }
+
+        return iteratorNextReturnType;
+    }
+
     /*
      * helper methods that are visible to the implementation classes.
      */
@@ -343,8 +392,6 @@ public abstract class AbstractArrayValue implements ArrayValue {
             }
         }
     }
-
-    protected abstract void prepareForAdd(long index, Object value, int currentArraySize);
 
     /**
      * Same as {@code prepareForAdd}, except fillerValueCheck is not performed as we are guaranteed to add
@@ -399,6 +446,11 @@ public abstract class AbstractArrayValue implements ArrayValue {
         @Override
         public boolean hasNext() {
             return cursor < length;
+        }
+
+        @Override
+        public BString bStringValue() {
+            return null;
         }
     }
 }

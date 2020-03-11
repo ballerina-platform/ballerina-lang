@@ -16,13 +16,14 @@
 package org.ballerinalang.langserver.common.utils;
 
 import org.ballerinalang.langserver.command.testgen.TestGenerator;
+import org.ballerinalang.langserver.commons.LSContext;
+import org.ballerinalang.langserver.commons.completion.CompletionKeys;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
-import org.ballerinalang.langserver.compiler.LSContext;
-import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
@@ -40,6 +41,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
+import org.wso2.ballerinalang.compiler.tree.BLangFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
@@ -178,7 +180,7 @@ public class FunctionGenerator {
                                                 BType bType) {
         if ((bType.tsymbol == null || bType.tsymbol.name.value.isEmpty()) && bType instanceof BArrayType) {
             // Check for array assignment eg.  int[]
-            return generateTypeDefinition(importsAcceptor, currentPkgId, ((BArrayType) bType).eType.tsymbol) + "[]";
+            return generateTypeDefinition(importsAcceptor, currentPkgId, ((BArrayType) bType).eType) + "[]";
         } else if (bType instanceof BMapType && ((BMapType) bType).constraint != null) {
             // Check for constrained map assignment eg. map<Student>
             BTypeSymbol tSymbol = ((BMapType) bType).constraint.tsymbol;
@@ -357,8 +359,12 @@ public class FunctionGenerator {
     private static String generateTypeDefinition(BiConsumer<String, String> importsAcceptor,
                                                  PackageID currentPkgId, BTypeSymbol tSymbol) {
         if (tSymbol != null) {
-            String pkgPrefix = CommonUtil.getPackagePrefix(importsAcceptor, currentPkgId, tSymbol.pkgID);
-            return pkgPrefix + tSymbol.name.getValue();
+            if (tSymbol instanceof BInvokableTypeSymbol) {
+                return tSymbol.type.toString();
+            } else {
+                String pkgPrefix = CommonUtil.getPackagePrefix(importsAcceptor, currentPkgId, tSymbol.pkgID);
+                return pkgPrefix + tSymbol.name.getValue();
+            }
         }
         return "any";
     }
@@ -366,9 +372,10 @@ public class FunctionGenerator {
     private static String lookupVariableReturnType(BiConsumer<String, String> importsAcceptor,
                                                    PackageID currentPkgId,
                                                    String variableName, BLangNode parent) {
-        if (parent instanceof BLangBlockStmt) {
-            BLangBlockStmt blockStmt = (BLangBlockStmt) parent;
-            Scope scope = blockStmt.scope;
+        // Recursively find BLangBlockStmt to get scope-entries
+        if (parent instanceof BLangBlockStmt || parent instanceof BLangFunctionBody) {
+            Scope scope = parent instanceof BLangBlockStmt ? ((BLangBlockStmt) parent).scope
+                    : ((BLangFunctionBody) parent).scope;
             if (scope != null) {
                 for (Map.Entry<Name, Scope.ScopeEntry> entry : scope.entries.entrySet()) {
                     String key = entry.getKey().getValue();
@@ -398,16 +405,17 @@ public class FunctionGenerator {
                 ? lookupFunctionReturnType(functionName, parent.parent) : "any";
     }
 
-    private static String generateReturnValue(BiConsumer<String, String> importsAcceptor, PackageID currentPkgId,
+    public static String generateReturnValue(BiConsumer<String, String> importsAcceptor, PackageID currentPkgId,
                                               BType bType,
                                               String template) {
-        if (bType.tsymbol == null && bType instanceof BArrayType) {
-            return template.replace("{%1}", "[" +
-                    generateReturnValue(((BArrayType) bType).eType.tsymbol, "") + "]");
+        if (bType instanceof BArrayType) {
+            String arrDef = "[" + generateReturnValue(importsAcceptor, currentPkgId, ((BArrayType) bType).eType,
+                                                      "{%1}") + "]";
+            return template.replace("{%1}", arrDef);
         } else if (bType instanceof BFiniteType) {
             // Check for finite set assignment
             BFiniteType bFiniteType = (BFiniteType) bType;
-            Set<BLangExpression> valueSpace = bFiniteType.valueSpace;
+            Set<BLangExpression> valueSpace = bFiniteType.getValueSpace();
             if (!valueSpace.isEmpty()) {
                 return generateReturnValue(importsAcceptor, currentPkgId, valueSpace.stream().findFirst().get(),
                         template);
@@ -425,7 +433,7 @@ public class FunctionGenerator {
                 Optional<BType> type = memberTypes.stream()
                         .filter(bType1 -> !(bType1 instanceof BNilType)).findFirst();
                 if (type.isPresent()) {
-                    return generateReturnValue(importsAcceptor, currentPkgId, type.get(), "{%1}?");
+                    return generateReturnValue(importsAcceptor, currentPkgId, type.get(), template);
                 }
             }
             if (!memberTypes.isEmpty()) {
@@ -485,6 +493,9 @@ public class FunctionGenerator {
                 break;
             case "table":
                 result = "table{}";
+                break;
+            case "error":
+                result = "error(\"\")";
                 break;
             default:
                 result = "()";

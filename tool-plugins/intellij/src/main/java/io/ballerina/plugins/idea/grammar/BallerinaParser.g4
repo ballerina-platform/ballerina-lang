@@ -1,3 +1,4 @@
+
 parser grammar BallerinaParser;
 
 options {
@@ -19,7 +20,13 @@ packageName
     ;
 
 version
-    :   VERSION Identifier
+    :   VERSION versionPattern
+    ;
+
+versionPattern
+    :   DecimalIntegerLiteral
+    |   DecimalFloatingPointNumber
+    |   DecimalExtendedFloatingPointNumber
     ;
 
 importDeclaration
@@ -44,10 +51,14 @@ serviceDefinition
     ;
 
 serviceBody
-    :   LEFT_BRACE objectFunctionDefinition* RIGHT_BRACE
+    :   LEFT_BRACE objectMethod* RIGHT_BRACE
     ;
 
-callableUnitBody
+streamConstructorBody
+    :   LEFT_BRACE statement* RIGHT_BRACE
+    ;
+
+blockFunctionBody
     :   LEFT_BRACE statement* (workerDeclaration+ statement*)? RIGHT_BRACE
     ;
 
@@ -55,25 +66,44 @@ externalFunctionBody
     :   ASSIGN annotationAttachment* EXTERNAL
     ;
 
+exprFunctionBody
+    :   EQUAL_GT expression
+    ;
+
+functionDefinitionBody
+    :   blockFunctionBody
+    |   exprFunctionBody SEMICOLON
+    |   externalFunctionBody SEMICOLON
+    ;
+
 functionDefinition
-    :   (PUBLIC | PRIVATE)? REMOTE? FUNCTION callableUnitSignature (callableUnitBody | externalFunctionBody SEMICOLON)
+    :   (PUBLIC | PRIVATE)? REMOTE? FUNCTION anyIdentifierName functionSignature functionDefinitionBody
     ;
 
-lambdaFunction
-    :   FUNCTION LEFT_PARENTHESIS formalParameterList? RIGHT_PARENTHESIS (RETURNS lambdaReturnParameter)? callableUnitBody
+anonymousFunctionExpr
+    :   explicitAnonymousFunctionExpr
+    |   inferAnonymousFunctionExpr
     ;
 
-arrowFunction
-    :   arrowParam EQUAL_GT expression
-    |   LEFT_PARENTHESIS (arrowParam (COMMA arrowParam)*)? RIGHT_PARENTHESIS EQUAL_GT expression
+explicitAnonymousFunctionExpr
+    :   FUNCTION functionSignature (blockFunctionBody | exprFunctionBody)
     ;
 
-arrowParam
+inferAnonymousFunctionExpr
+    :   inferParamList exprFunctionBody
+    ;
+
+inferParamList
+    :   inferParam
+    |   LEFT_PARENTHESIS (inferParam (COMMA inferParam)*)? RIGHT_PARENTHESIS
+    ;
+
+inferParam
     :   Identifier
     ;
 
-callableUnitSignature
-    :   anyIdentifierName LEFT_PARENTHESIS formalParameterList? RIGHT_PARENTHESIS returnParameter?
+functionSignature
+    :   LEFT_PARENTHESIS formalParameterList? RIGHT_PARENTHESIS returnParameter?
     ;
 
 typeDefinition
@@ -81,7 +111,7 @@ typeDefinition
     ;
 
 objectBody
-    :   (objectFieldDefinition | objectFunctionDefinition | typeReference)*
+    :   (objectFieldDefinition | objectMethod | typeReference)*
     ;
 
 typeReference
@@ -106,9 +136,19 @@ sealedLiteral
 
 restDescriptorPredicate : {_input.get(_input.index() -1).getType() != WS}? ;
 
-objectFunctionDefinition
+objectMethod
+    :   methodDeclaration
+    |   methodDefinition
+    ;
+
+methodDeclaration
     :   documentationString? annotationAttachment* (PUBLIC | PRIVATE)? (REMOTE | RESOURCE)? FUNCTION
-    callableUnitSignature (callableUnitBody | externalFunctionBody? SEMICOLON)
+            anyIdentifierName functionSignature SEMICOLON
+    ;
+
+methodDefinition
+    :   documentationString? annotationAttachment* (PUBLIC | PRIVATE)? (REMOTE | RESOURCE)? FUNCTION
+            anyIdentifierName functionSignature functionDefinitionBody
     ;
 
 annotationDefinition
@@ -120,7 +160,7 @@ constantDefinition
     ;
 
 globalVariableDefinition
-    :   PUBLIC? LISTENER typeName Identifier ASSIGN expression SEMICOLON
+    :   PUBLIC? LISTENER typeName? Identifier ASSIGN expression SEMICOLON
     |   FINAL? (typeName | VAR) Identifier ASSIGN expression SEMICOLON
     ;
 
@@ -139,6 +179,8 @@ dualAttachPointIdent
     |   PARAMETER
     |   RETURN
     |   SERVICE
+    |   WORKER
+    |   START
     ;
 
 sourceOnlyAttachPoint
@@ -293,8 +335,7 @@ statement
     |   retryStatement
     |   lockStatement
     |   namespaceDeclarationStatement
-    |   foreverStatement
-    |   streamingQueryStatement
+    |   queryActionStatement
     ;
 
 variableDefinitionStatement
@@ -303,7 +344,7 @@ variableDefinitionStatement
     ;
 
 recordLiteral
-    :   LEFT_BRACE (recordKeyValue (COMMA recordKeyValue)*)? RIGHT_BRACE
+    :   LEFT_BRACE (recordField (COMMA recordField)*)? RIGHT_BRACE
     ;
 
 staticMatchLiterals
@@ -314,8 +355,10 @@ staticMatchLiterals
     |   staticMatchLiterals PIPE staticMatchLiterals                        # staticMatchOrExpression
     ;
 
-recordKeyValue
-    :   recordKey COLON expression
+recordField
+    :   Identifier
+    |   recordKey COLON expression
+    |   ELLIPSIS expression
     ;
 
 recordKey
@@ -351,6 +394,10 @@ tableData
 
 listConstructorExpr
     :   LEFT_BRACKET expressionList? RIGHT_BRACKET
+    ;
+
+streamConstructorExpr
+    :   TYPE_STREAM streamConstructorBody
     ;
 
 assignmentStatement
@@ -628,13 +675,18 @@ waitKeyValue
 
 variableReference
     :   nameReference                                                           # simpleVariableReference
-    |   functionInvocation                                                      # functionInvocationReference
-    |   variableReference index                                                 # mapArrayVariableReference
     |   variableReference field                                                 # fieldVariableReference
+    |   variableReference ANNOTATION_ACCESS nameReference                       # annotAccessExpression
     |   variableReference xmlAttrib                                             # xmlAttribVariableReference
-    |   variableReference invocation                                            # invocationReference
+    |   functionInvocation                                                      # functionInvocationReference
+    |   LEFT_PARENTHESIS variableReference RIGHT_PARENTHESIS field              # groupFieldVariableReference
+    |   LEFT_PARENTHESIS variableReference RIGHT_PARENTHESIS invocation         # groupInvocationReference
+    |   LEFT_PARENTHESIS variableReference RIGHT_PARENTHESIS index              # groupMapArrayVariableReference
+    |   LEFT_PARENTHESIS QuotedStringLiteral RIGHT_PARENTHESIS invocation       # groupStringFunctionInvocationReference
     |   typeDescExpr invocation                                                 # typeDescExprInvocationReference
     |   QuotedStringLiteral invocation                                          # stringFunctionInvocationReference
+    |   variableReference invocation                                            # invocationReference
+    |   variableReference index                                                 # mapArrayVariableReference
     ;
 
 field
@@ -741,39 +793,39 @@ expression
     |   recordLiteral                                                       # recordLiteralExpression
     |   xmlLiteral                                                          # xmlLiteralExpression
     |   tableLiteral                                                        # tableLiteralExpression
+    |   streamConstructorExpr                                               # streamConstructorExpression
     |   stringTemplateLiteral                                               # stringTemplateLiteralExpression
     |   (annotationAttachment* START)? variableReference                    # variableReferenceExpression
     |   actionInvocation                                                    # actionInvocationExpression
-    |   lambdaFunction                                                      # lambdaFunctionExpression
-    |   arrowFunction                                                       # arrowFunctionExpression
     |   typeInitExpr                                                        # typeInitExpression
     |   serviceConstructorExpr                                              # serviceConstructorExpression
-    |   tableQuery                                                          # tableQueryExpression
-    |   LT (annotationAttachment+ typeName? | typeName) GT expression       # typeConversionExpression
-    |   (ADD | SUB | BIT_COMPLEMENT | NOT | TYPEOF) expression              # unaryExpression
-    |   LEFT_PARENTHESIS expression RIGHT_PARENTHESIS                       # groupExpression
     |   CHECK expression                                                    # checkedExpression
     |   CHECKPANIC expression                                               # checkPanickedExpression
-    |   expression IS typeName                                              # typeTestExpression
-    |   expression (DIV | MUL | MOD) expression                             # binaryDivMulModExpression
+    |   (ADD | SUB | BIT_COMPLEMENT | NOT | TYPEOF) expression              # unaryExpression
+    |   LT (annotationAttachment+ typeName? | typeName) GT expression       # typeConversionExpression
+    |   expression (MUL | DIV | MOD) expression                             # binaryDivMulModExpression
     |   expression (ADD | SUB) expression                                   # binaryAddSubExpression
     |   expression (shiftExpression) expression                             # bitwiseShiftExpression
-    |   expression (LT_EQUAL | GT_EQUAL | GT | LT) expression               # binaryCompareExpression
+    |   expression (ELLIPSIS | HALF_OPEN_RANGE) expression                  # integerRangeExpression
+    |   expression (LT | GT | LT_EQUAL | GT_EQUAL) expression               # binaryCompareExpression
+    |   expression IS typeName                                              # typeTestExpression
     |   expression (EQUAL | NOT_EQUAL) expression                           # binaryEqualExpression
     |   expression (REF_EQUAL | REF_NOT_EQUAL) expression                   # binaryRefEqualExpression
     |   expression (BIT_AND | BIT_XOR | PIPE) expression                    # bitwiseExpression
     |   expression AND expression                                           # binaryAndExpression
     |   expression OR expression                                            # binaryOrExpression
-    |   expression (ELLIPSIS | HALF_OPEN_RANGE) expression                  # integerRangeExpression
+    |   expression ELVIS expression                                         # elvisExpression
     |   expression QUESTION_MARK expression COLON expression                # ternaryExpression
+    |   explicitAnonymousFunctionExpr                                       # explicitAnonymousFunctionExpression
+    |   inferAnonymousFunctionExpr                                          # inferAnonymousFunctionExpression
+    |   LEFT_PARENTHESIS expression RIGHT_PARENTHESIS                       # groupExpression
     |   expression SYNCRARROW peerWorker                                    # workerSendSyncExpression
     |   WAIT (waitForCollection | expression)                               # waitExpression
     |   trapExpr                                                            # trapExpression
-    |   expression ELVIS expression                                         # elvisExpression
     |   LARROW peerWorker (COMMA expression)?                               # workerReceiveExpression
     |   flushWorker                                                         # flushWorkerExpression
     |   typeDescExpr                                                        # typeAccessExpression
-    |   expression ANNOTATION_ACCESS nameReference                          # annotAccessExpression
+    |   queryExpr                                                           # queryExpression
     ;
 
 constantExpression
@@ -802,12 +854,40 @@ trapExpr
     ;
 
 shiftExpression
-    :   GT shiftExprPredicate GT
-    |   LT shiftExprPredicate LT
+    :   LT shiftExprPredicate LT
+    |   GT shiftExprPredicate GT
     |   GT shiftExprPredicate GT shiftExprPredicate GT
     ;
 
 shiftExprPredicate : {_input.get(_input.index() -1).getType() != WS}? ;
+
+selectClause
+    :   SELECT expression
+    ;
+
+whereClause
+    :   WHERE expression
+    ;
+
+fromClause
+    :   FROM (typeName | VAR) bindingPattern IN expression
+    ;
+
+doClause
+    :   DO LEFT_BRACE statement* RIGHT_BRACE
+    ;
+
+queryPipeline
+    :   fromClause (fromClause | whereClause)*
+    ;
+
+queryExpr
+    :   queryPipeline selectClause
+    ;
+
+queryActionStatement
+    :   queryPipeline doClause
+    ;
 
 //reusable productions
 
@@ -823,12 +903,9 @@ returnParameter
     :   RETURNS annotationAttachment* typeName
     ;
 
-lambdaReturnParameter
-    :   annotationAttachment* typeName
-    ;
-
 parameterTypeNameList
-    :   parameterTypeName (COMMA parameterTypeName)*
+    :   parameterTypeName (COMMA parameterTypeName)* (COMMA restParameterTypeName)?
+    |   restParameterTypeName
     ;
 
 parameterTypeName
@@ -836,7 +913,8 @@ parameterTypeName
     ;
 
 parameterList
-    :   parameter (COMMA parameter)*
+    :   parameter (COMMA parameter)* (COMMA restParameter)?
+    |   restParameter
     ;
 
 parameter
@@ -849,6 +927,10 @@ defaultableParameter
 
 restParameter
     :   annotationAttachment* typeName ELLIPSIS Identifier
+    ;
+
+restParameterTypeName
+    : typeName restDescriptorPredicate ELLIPSIS
     ;
 
 formalParameterList
@@ -986,128 +1068,6 @@ reservedWord
     |   TYPE_ERROR
     ;
 
-
-//Streams and Tables related
-tableQuery
-    :   FROM streamingInput joinStreamingInput?
-        selectClause?
-        orderByClause?
-        limitClause?
-    ;
-
-foreverStatement
-    :   FOREVER LEFT_BRACE  streamingQueryStatement+ RIGHT_BRACE
-    ;
-
-streamingQueryStatement
-    :   FROM (streamingInput (joinStreamingInput)? | patternClause)
-        selectClause?
-        orderByClause?
-        outputRateLimit?
-        streamingAction
-    ;
-
-patternClause
-    :   EVERY? patternStreamingInput withinClause?
-    ;
-
-withinClause
-    :   WITHIN DecimalIntegerLiteral timeScale
-    ;
-
-orderByClause
-    :   ORDER BY orderByVariable (COMMA orderByVariable)*
-    ;
-
-orderByVariable
-    :   variableReference orderByType?
-    ;
-
-limitClause
-    :   LIMIT DecimalIntegerLiteral
-    ;
-
-selectClause
-    :   SELECT (MUL| selectExpressionList )
-        groupByClause?
-        havingClause?
-    ;
-
-selectExpressionList
-    :   selectExpression (COMMA selectExpression)*
-    ;
-
-selectExpression
-    :   expression (AS Identifier)?
-    ;
-
-groupByClause
-    :   GROUP BY variableReferenceList
-    ;
-
-havingClause
-    :   HAVING expression
-    ;
-
-streamingAction
-    :   EQUAL_GT LEFT_PARENTHESIS parameter RIGHT_PARENTHESIS LEFT_BRACE statement* RIGHT_BRACE
-    ;
-
-streamingInput
-    :   variableReference whereClause? functionInvocation* windowClause? functionInvocation*
-        whereClause? (AS alias=Identifier)?
-    ;
-
-joinStreamingInput
-    :   (UNIDIRECTIONAL joinType | joinType UNIDIRECTIONAL | joinType) streamingInput (ON expression)?
-    ;
-
-outputRateLimit
-    :   OUTPUT (ALL | LAST | FIRST) EVERY (DecimalIntegerLiteral timeScale | DecimalIntegerLiteral EVENTS)
-    |   OUTPUT SNAPSHOT EVERY DecimalIntegerLiteral timeScale
-    ;
-
-patternStreamingInput
-    :   patternStreamingEdgeInput ( FOLLOWED BY | COMMA ) patternStreamingInput
-    |   LEFT_PARENTHESIS patternStreamingInput RIGHT_PARENTHESIS
-    |   NOT patternStreamingEdgeInput (AND patternStreamingEdgeInput | FOR DecimalIntegerLiteral timeScale)
-    |   patternStreamingEdgeInput (AND | OR ) patternStreamingEdgeInput
-    |   patternStreamingEdgeInput
-    ;
-
-patternStreamingEdgeInput
-    :   variableReference whereClause? intRangeExpression? (AS alias=Identifier)?
-    ;
-
-whereClause
-    :   WHERE expression
-    ;
-
-windowClause
-    :   WINDOW functionInvocation
-    ;
-
-orderByType
-    :   ASCENDING | DESCENDING
-    ;
-
-joinType
-    :   LEFT OUTER JOIN
-    |   RIGHT OUTER JOIN
-    |   FULL OUTER JOIN
-    |   OUTER JOIN
-    |   INNER? JOIN
-    ;
-
-timeScale
-    :   SECOND | SECONDS
-    |   MINUTE | MINUTES
-    |   HOUR | HOURS
-    |   DAY | DAYS
-    |   MONTH | MONTHS
-    |   YEAR | YEARS
-    ;
-
 // Markdown documentation
 documentationString
     :   documentationLine+ parameterDocumentationLine* returnParameterDocumentationLine?
@@ -1138,19 +1098,23 @@ returnParameterDescriptionLine
     ;
 
 documentationText
-    :   (DocumentationText | ReferenceType | VARIABLE | MODULE | documentationReference | singleBacktickedBlock | doubleBacktickedBlock | tripleBacktickedBlock | DefinitionReference)+
+    :   (documentationReference | documentationTextContent | referenceType | singleBacktickedBlock | doubleBacktickedBlock | tripleBacktickedBlock)+
     ;
 
 documentationReference
-    :   definitionReference
+    :   referenceType singleBacktickedContent SingleBacktickEnd
     ;
 
-definitionReference
-    :   definitionReferenceType singleBacktickedBlock
-    ;
-
-definitionReferenceType
-    :   DefinitionReference
+referenceType
+    :   DOCTYPE
+    |   DOCSERVICE
+    |   DOCVARIABLE
+    |   DOCVAR
+    |   DOCANNOTATION
+    |   DOCMODULE
+    |   DOCFUNCTION
+    |   DOCPARAMETER
+    |   DOCCONST
     ;
 
 parameterDocumentation
@@ -1187,4 +1151,51 @@ tripleBacktickedBlock
 
 tripleBacktickedContent
     :   TripleBacktickContent
+    ;
+
+documentationTextContent
+    :   DocumentationText
+    |   DocumentationEscapedCharacters
+    ;
+
+// Rules for parsing the content in the backticked block for documentation validation.
+documentationFullyqualifiedIdentifier
+    :   documentationIdentifierQualifier? documentationIdentifierTypename? documentationIdentifier braket?
+    ;
+
+documentationFullyqualifiedFunctionIdentifier
+    :   documentationIdentifierQualifier? documentationIdentifierTypename? documentationIdentifier braket
+    ;
+
+documentationIdentifierQualifier
+    :   Identifier COLON
+    ;
+
+documentationIdentifierTypename
+    :   Identifier DOT
+    ;
+
+documentationIdentifier
+    :   Identifier
+    |   TYPE_INT
+    |   TYPE_BYTE
+    |   TYPE_FLOAT
+    |   TYPE_DECIMAL
+    |   TYPE_BOOL
+    |   TYPE_STRING
+    |   TYPE_ERROR
+    |   TYPE_MAP
+    |   TYPE_JSON
+    |   TYPE_XML
+    |   TYPE_TABLE
+    |   TYPE_STREAM
+    |   TYPE_ANY
+    |   TYPE_DESC
+    |   TYPE_FUTURE
+    |   TYPE_ANYDATA
+    |   TYPE_HANDLE
+    ;
+
+braket
+    :   LEFT_PARENTHESIS RIGHT_PARENTHESIS
     ;

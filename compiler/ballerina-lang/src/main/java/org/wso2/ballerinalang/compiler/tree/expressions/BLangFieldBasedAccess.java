@@ -21,6 +21,7 @@ package org.wso2.ballerinalang.compiler.tree.expressions;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.FieldBasedAccessNode;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BXMLNSSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.util.FieldKind;
@@ -35,7 +36,6 @@ public class BLangFieldBasedAccess extends BLangAccessExpression implements Fiel
     public BLangIdentifier field;
     public FieldKind fieldKind;
     public BVarSymbol varSymbol;
-    public boolean except = true;
 
     @Override
     public BLangExpression getExpression() {
@@ -80,6 +80,20 @@ public class BLangFieldBasedAccess extends BLangAccessExpression implements Fiel
         @Override
         public void accept(BLangNodeVisitor visitor) {
             visitor.visit(this);
+        }
+    }
+
+    /**
+     * Extend {@link BLangFieldBasedAccess} to support xml attribute access expressions with namespace prefixes.
+     *
+     * @since 1.2.0
+     */
+    public static class BLangNSPrefixedFieldBasedAccess extends BLangFieldBasedAccess {
+        public BLangIdentifier nsPrefix;
+        public BXMLNSSymbol nsSymbol;
+
+        public String toString() {
+            return String.valueOf(expr) + "." + String.valueOf(nsPrefix) + ":" + String.valueOf(field);
         }
     }
 }

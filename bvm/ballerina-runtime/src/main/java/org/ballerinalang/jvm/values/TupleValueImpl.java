@@ -19,7 +19,6 @@ package org.ballerinalang.jvm.values;
 
 import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.TypeChecker;
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BTupleType;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
@@ -27,6 +26,7 @@ import org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.util.exceptions.RuntimeErrors;
 import org.ballerinalang.jvm.values.api.BArray;
+import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.jvm.values.freeze.FreezeUtils;
 import org.ballerinalang.jvm.values.freeze.Status;
 import org.ballerinalang.jvm.values.utils.StringUtils;
@@ -35,9 +35,9 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.Charset;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.StringJoiner;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.IntStream;
 
 import static org.ballerinalang.jvm.util.BLangConstants.ARRAY_LANG_LIB;
@@ -67,28 +67,75 @@ public class TupleValueImpl extends AbstractArrayValue {
     public TupleValueImpl(Object[] values, BTupleType type) {
         this.refValues = values;
         this.tupleType = type;
-        this.size = values.length;
-        this.minSize = type.getTupleTypes().size();
+
+        List<BType> memTypes = type.getTupleTypes();
+        int memCount = memTypes.size();
+
+        if (values.length < memCount) {
+            this.refValues = Arrays.copyOf(refValues, memCount);
+            for (int i = values.length; i < memCount; i++) {
+                refValues[i] = memTypes.get(i).getZeroValue();
+            }
+        }
+        this.minSize = memTypes.size();
+        this.size = refValues.length;
     }
 
     @Deprecated
     public TupleValueImpl(BTupleType type) {
         this.tupleType = type;
-        this.minSize = this.size = this.tupleType.getTupleTypes().size();
-        this.maxSize = (type.getRestType() != null) ? this.maxSize : this.size;
-        this.refValues = new Object[DEFAULT_ARRAY_SIZE];
-        AtomicInteger counter = new AtomicInteger(0);
-        this.tupleType.getTupleTypes()
-                .forEach(memType -> this.refValues[counter.getAndIncrement()] = memType.getEmptyValue());
+
+        List<BType> memTypes = this.tupleType.getTupleTypes();
+        int memTypeCount = memTypes.size();
+
+        this.minSize = this.size = memTypeCount;
+
+        if (type.getRestType() == null) {
+            this.maxSize = this.size;
+            this.refValues = new Object[this.size];
+        } else {
+            this.refValues = new Object[DEFAULT_ARRAY_SIZE];
+        }
+
+        for (int i = 0; i < memTypeCount; i++) {
+            BType memType = memTypes.get(i);
+            if (!TypeChecker.hasFillerValue(memType)) {
+                continue;
+            }
+
+            this.refValues[i] = memType.getZeroValue();
+        }
     }
 
     @Deprecated
     public TupleValueImpl(BTupleType type, long size) {
         this.tupleType = type;
-        this.size = (int) size;
-        this.minSize = type.getTupleTypes().size();
-        this.maxSize = (type.getRestType() != null) ? this.maxSize : (int) size;
-        this.refValues = new Object[DEFAULT_ARRAY_SIZE];
+
+        List<BType> memTypes = this.tupleType.getTupleTypes();
+        int memCount = memTypes.size();
+
+        this.size = size < memCount ? memCount : (int) size;
+        this.minSize = memCount;
+
+        if (type.getRestType() == null) {
+            this.maxSize = this.size;
+            this.refValues = new Object[this.size];
+        } else {
+            this.refValues = new Object[DEFAULT_ARRAY_SIZE];
+        }
+
+        if (size >= memCount) {
+            return;
+        }
+
+        for (int i = (int) size; i < memCount; i++) {
+            BType memType = memTypes.get(i);
+            if (!TypeChecker.hasFillerValue(memType)) {
+                continue;
+            }
+
+            this.refValues[i] = memType.getZeroValue();
+        }
     }
 
     // ----------------------- get methods ----------------------------------------------------
@@ -166,8 +213,20 @@ public class TupleValueImpl extends AbstractArrayValue {
      * @return array element
      */
     @Override
+    @Deprecated
     public String getString(long index) {
         return (String) get(index);
+    }
+
+    /**
+     * Get string value in the given index.
+     *
+     * @param index array index
+     * @return array element
+     */
+    @Override
+    public BString getBString(long index) {
+        return (BString) get(index);
     }
 
     // ---------------------------- add methods --------------------------------------------------
@@ -236,7 +295,19 @@ public class TupleValueImpl extends AbstractArrayValue {
      * @param value value to be added
      */
     @Override
+    @Deprecated
     public void add(long index, String value) {
+        add(index, (Object) value);
+    }
+
+    /**
+     * Add string value to the given array index.
+     *
+     * @param index array index
+     * @param value value to be added
+     */
+    @Override
+    public void add(long index, BString value) {
         add(index, (Object) value);
     }
 
@@ -276,12 +347,17 @@ public class TupleValueImpl extends AbstractArrayValue {
     }
 
     @Override
-    public String stringValue(Strand strand) {
+    public String stringValue() {
         StringJoiner sj = new StringJoiner(" ");
         for (int i = 0; i < this.size; i++) {
-            sj.add(StringUtils.getStringValue(strand, this.refValues[i]));
+            sj.add(StringUtils.getStringValue(this.refValues[i]));
         }
         return sj.toString();
+    }
+
+    @Override
+    public BString bStringValue() {
+        return null;
     }
 
     @Override
@@ -497,32 +573,6 @@ public class TupleValueImpl extends AbstractArrayValue {
         }
     }
 
-    @Override
-    protected void prepareForAdd(long index, Object value, int currentArraySize) {
-        int intIndex = (int) index;
-        rangeCheck(index, size);
-
-        // check types
-        BType elemType;
-        if (index >= this.minSize) {
-            elemType = this.tupleType.getRestType();
-        } else {
-            elemType = this.tupleType.getTupleTypes().get((int) index);
-        }
-
-        if (!TypeChecker.checkIsType(value, elemType)) {
-            throw BallerinaErrors.createError(
-                    getModulePrefixedReason(ARRAY_LANG_LIB, INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER),
-                    BLangExceptionHelper.getErrorMessage(RuntimeErrors.INCOMPATIBLE_TYPE, elemType,
-                            TypeChecker.getType(value)));
-        }
-
-        fillerValueCheck(intIndex, size);
-        ensureCapacity(intIndex + 1, currentArraySize);
-        fillValues(intIndex);
-        resetSize(intIndex);
-    }
-
     /**
      * Same as {@code prepareForAdd}, except fillerValueCheck is not performed as we are guaranteed to add
      * elements to consecutive positions.
@@ -576,6 +626,31 @@ public class TupleValueImpl extends AbstractArrayValue {
     }
 
     // private methods
+
+    private void prepareForAdd(long index, Object value, int currentArraySize) {
+        int intIndex = (int) index;
+        rangeCheck(index, size);
+
+        // check types
+        BType elemType;
+        if (index >= this.minSize) {
+            elemType = this.tupleType.getRestType();
+        } else {
+            elemType = this.tupleType.getTupleTypes().get((int) index);
+        }
+
+        if (!TypeChecker.checkIsType(value, elemType)) {
+            throw BallerinaErrors.createError(
+                    getModulePrefixedReason(ARRAY_LANG_LIB, INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER),
+                    BLangExceptionHelper.getErrorMessage(RuntimeErrors.INCOMPATIBLE_TYPE, elemType,
+                            TypeChecker.getType(value)));
+        }
+
+        fillerValueCheck(intIndex, size);
+        ensureCapacity(intIndex + 1, currentArraySize);
+        fillValues(intIndex);
+        resetSize(intIndex);
+    }
 
     private void shiftArray(int index) {
         int nElemsToBeMoved = this.size - 1 - index;

@@ -47,7 +47,7 @@ import org.ballerinalang.stdlib.io.utils.IOUtils;
 )
 public class WriteXml {
 
-    public static Object writeXml(Strand strand, ObjectValue characterChannelObj, XMLValue<?> content) {
+    public static Object writeXml(Strand strand, ObjectValue characterChannelObj, XMLValue content) {
         try {
             CharacterChannel characterChannel = (CharacterChannel) characterChannelObj.getNativeData(
                     IOConstants.CHARACTER_CHANNEL_NAME);

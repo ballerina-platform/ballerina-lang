@@ -20,11 +20,11 @@ package org.ballerinalang.jvm.values;
 import org.ballerinalang.jvm.JSONDataSource;
 import org.ballerinalang.jvm.JSONGenerator;
 import org.ballerinalang.jvm.JSONUtils;
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BMapType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.values.api.BStreamingJson;
+import org.ballerinalang.jvm.values.api.BString;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -141,12 +141,12 @@ public class StreamingJsonValue extends ArrayValueImpl implements BStreamingJson
     }
 
     @Override
-    public String stringValue(Strand strand) {
+    public String stringValue() {
         if (datasource.hasNext()) {
             buildDatasource();
         }
 
-        return super.stringValue(strand);
+        return super.stringValue();
     }
 
     @Override
@@ -226,6 +226,11 @@ public class StreamingJsonValue extends ArrayValueImpl implements BStreamingJson
             }
 
             return array.datasource.hasNext();
+        }
+
+        @Override
+        public BString bStringValue() {
+            return null;
         }
     }
 }

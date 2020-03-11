@@ -20,7 +20,6 @@ package org.ballerinalang.test.record;
 
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.CompileResult;
-import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import static org.ballerinalang.test.util.BAssertUtil.validateError;
@@ -48,16 +47,16 @@ public class OpenRecordNegativeTest {
 
         validateError(result, indx++, expectedErrMsg + "found 'int'", 8, 51);
         validateError(result, indx++, expectedErrMsg + "found 'boolean'", 8, 66);
-        validateError(result, indx++, "invalid usage of record literal with type 'anydata'", 17, 40);
-        validateError(result, indx++, "unknown type 'Animal'", 21, 5);
-        validateError(result, indx++, "incompatible types: expected 'anydata', found 'Bar'", 30, 21);
-        validateError(result, indx++, "incompatible types: expected 'anydata', found 'error'", 48, 17);
+        validateError(result, indx++, "ambiguous type '(anydata|json)'", 18, 40);
+        validateError(result, indx++, "unknown type 'Animal'", 22, 5);
+        validateError(result, indx++, "incompatible types: expected '(anydata|json)', found 'Bar'", 31, 21);
         validateError(result, indx++, "incompatible types: expected 'anydata', found 'error'", 49, 17);
-        validateError(result, indx++, "incompatible types: expected 'anydata', found 'error'", 52, 15);
+        validateError(result, indx++, "incompatible types: expected 'anydata', found 'error'", 50, 17);
         validateError(result, indx++, "incompatible types: expected 'anydata', found 'error'", 53, 15);
+        validateError(result, indx++, "incompatible types: expected 'anydata', found 'error'", 54, 15);
         validateError(result, indx++,
                       "invalid operation: type 'Person' does not support optional field access for field 'firstName'",
-                      58, 26);
+                      59, 26);
         assertEquals(result.getErrorCount(), indx);
     }
 
@@ -75,16 +74,6 @@ public class OpenRecordNegativeTest {
         validateError(result, 0, "invalid record rest descriptor", 5, 12);
         validateError(result, 1, "invalid record rest descriptor", 12, 14);
         validateError(result, 2, "invalid record rest descriptor", 20, 5);
-    }
-
-    @Test(description = "Test record literal with repeated keys")
-    public void testDuplicatedKeysInRecordLiteral() {
-        CompileResult compileResult = BCompileUtil.compile("test-src/record/open_record_duplicated_key.bal");
-        Assert.assertEquals(compileResult.getErrorCount(), 3);
-        String duplicateKey = "invalid usage of record literal: duplicate key ";
-        validateError(compileResult, 0, duplicateKey + "'noOfChildren'", 13, 58);
-        validateError(compileResult, 1, duplicateKey + "'x'", 14, 43);
-        validateError(compileResult, 2, duplicateKey + "'x'", 15, 57);
     }
 
     @Test(description = "Test function invocation on a nil-able function pointer")
@@ -114,18 +103,15 @@ public class OpenRecordNegativeTest {
     @Test(description = "Test ambiguity resolution")
     public void testAmbiguityResolution() {
         CompileResult result = BCompileUtil.compile("test-src/record/negative/open_record_ambiguity.bal");
-        assertEquals(result.getErrorCount(), 7);
+        assertEquals(result.getErrorCount(), 5);
         int index = 0;
-        validateError(result, index++, "ambiguous type '(InMemoryModeConfig|ServerModeConfig|EmbeddedModeConfig)'", 36,
-                      22);
         validateError(result, index++, "ambiguous type '(InMemoryModeConfig|ServerModeConfig|EmbeddedModeConfig)'", 37,
                       22);
         validateError(result, index++, "ambiguous type '(InMemoryModeConfig|ServerModeConfig|EmbeddedModeConfig)'", 38,
                       22);
-        validateError(result, index++, "ambiguous type '(A|B|C)'", 70, 25);
-        validateError(result, index++, "ambiguous type '(A|B|C)'", 71, 25);
         validateError(result, index++, "ambiguous type '(A|B|C)'", 72, 25);
         validateError(result, index++, "ambiguous type '(A|B|C)'", 73, 25);
+        validateError(result, index++, "ambiguous type '(A|B|C)'", 74, 25);
         // validateError(result, index, "unnecessary condition: expression will always evaluate to 'true'", 78, 9);
     }
 

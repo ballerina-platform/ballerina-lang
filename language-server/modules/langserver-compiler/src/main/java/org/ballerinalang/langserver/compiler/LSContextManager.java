@@ -16,12 +16,11 @@
 package org.ballerinalang.langserver.compiler;
 
 import org.ballerinalang.compiler.CompilerPhase;
-import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
+import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManagerImpl;
 import org.ballerinalang.langserver.compiler.workspace.repository.LSPathConverter;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.repository.CompiledPackage;
-import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.ballerinalang.util.diagnostic.DiagnosticListener;
 import org.wso2.ballerinalang.compiler.PackageCache;
 import org.wso2.ballerinalang.compiler.SourceDirectory;
@@ -35,7 +34,6 @@ import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -145,8 +143,7 @@ public class LSContextManager {
         options.put(PRESERVE_WHITESPACE, Boolean.toString(true));
         options.put(OFFLINE, Boolean.toString(true));
         context.put(SourceDirectory.class, new NullSourceDirectory(Paths.get(projectDir), documentManager));
-        List<Diagnostic> balDiagnostics = new ArrayList<>();
-        CollectDiagnosticListener diagnosticListener = new CollectDiagnosticListener(balDiagnostics);
+        CollectDiagnosticListener diagnosticListener = new CollectDiagnosticListener();
         context.put(DiagnosticListener.class, diagnosticListener);
         return context;
     }

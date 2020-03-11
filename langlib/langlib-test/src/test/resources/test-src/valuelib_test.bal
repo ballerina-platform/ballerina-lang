@@ -34,6 +34,8 @@ function testToJsonString() returns map<string> {
         [{ name : "anObject", value : "10", sub : "Science", intVal: 2324, boolVal: true, floatVal: 45.4, nestedMap:
         {xx: "XXStr", n: 343, nilVal: ()}}, { name : "anObject", value : "10", sub : "Science"}];
     map<string> result = {};
+    byte[] bArr = [0, 1, 255];
+    int[] iArr = bArr;
 
     result["aNil"] = aNil.toJsonString();
     result["aString"] = aString.toJsonString();
@@ -44,6 +46,7 @@ function testToJsonString() returns map<string> {
     result["aStringMap"] = aStringMap.toJsonString();
     result["anotherMap"] = anotherMap.toJsonString();
     result["aArr"] = aArr.toJsonString();
+    result["iArr"] = iArr.toJsonString();
     return result;
 }
 
@@ -308,4 +311,10 @@ function testToString() returns string[] {
             varDecimal.toString(), varJson.toString(), varXml.toString(), varArr.toString(), varErr.toString(),
             varObj.toString(), varObj2.toString(), varObjArr.toString(), p.toString(), employeeTable.toString(),
             varMap.toString()];
+}
+
+public function xmlSequenceFragmentToString() returns string {
+   xml x = xml `<abc><def>DEF</def><ghi>1</ghi></abc>`;
+
+   return (x/*).toString();
 }

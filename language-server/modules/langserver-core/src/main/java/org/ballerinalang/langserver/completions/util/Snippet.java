@@ -133,6 +133,8 @@ public enum Snippet {
 
     KW_FUNCTION(SnippetGenerator.getFunctionKeywordSnippet()),
 
+    KW_RESOURCE(SnippetGenerator.getResourceKeywordSnippet()),
+
     KW_PUBLIC(SnippetGenerator.getPublicKeywordSnippet()),
 
     KW_PRIVATE(SnippetGenerator.getPrivateKeywordSnippet()),
@@ -142,6 +144,10 @@ public enum Snippet {
     KW_CONST(SnippetGenerator.getConstKeywordSnippet()),
 
     KW_TYPE(SnippetGenerator.getTypeKeywordSnippet()),
+
+    KW_RECORD(SnippetGenerator.getRecordKeywordSnippet()),
+
+    KW_OBJECT(SnippetGenerator.getObjectKeywordSnippet()),
 
     KW_ANNOTATION(SnippetGenerator.getAnnotationKeywordSnippet()),
 
@@ -195,6 +201,9 @@ public enum Snippet {
     STMT_TRAP(SnippetGenerator.getTrapSnippet()),
 
     STMT_WHILE(SnippetGenerator.getWhileStatementSnippet()),
+
+    // Expression Snippets
+    EXPR_ERROR(SnippetGenerator.getErrorConstructorSnippet()),
 
     // Iterable Operation snippets
     ITR_FOREACH(SnippetGenerator.getIterableForeachSnippet()),

@@ -22,6 +22,7 @@ import org.ballerinalang.model.elements.MarkdownDocAttachment;
 import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.NamedNode;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
@@ -81,7 +82,7 @@ public abstract class BIRNode {
         public void accept(BIRVisitor visitor) {
             visitor.visit(this);
         }
-        
+
         public Name getSourceFileName() {
             return sourceFileName;
         }
@@ -160,7 +161,12 @@ public abstract class BIRNode {
             // Here we assume names are unique.
             return this.name.equals(otherVarDecl.name);
         }
-        
+
+        @Override
+        public int hashCode() {
+            return this.name.value.hashCode();
+        }
+
         @Override
         public String toString() {
             return name.toString();
@@ -238,7 +244,7 @@ public abstract class BIRNode {
      *
      * @since 0.980.0
      */
-    public static class BIRFunction extends BIRDocumentableNode {
+    public static class BIRFunction extends BIRDocumentableNode implements NamedNode {
 
         /**
          * Name of the function.
@@ -339,6 +345,24 @@ public abstract class BIRNode {
         public void accept(BIRVisitor visitor) {
             visitor.visit(this);
         }
+
+        public BIRFunction duplicate() {
+            BIRFunction f = new BIRFunction(pos, name, flags, type, workerName, 0, taintTable);
+            f.localVars = localVars;
+            f.parameters = parameters;
+            f.requiredParams = requiredParams;
+            f.basicBlocks = basicBlocks;
+            f.errorTable = errorTable;
+            f.workerChannels = workerChannels;
+            f.annotAttachments = annotAttachments;
+            return f;
+
+        }
+
+        @Override
+        public Name getName() {
+            return name;
+        }
     }
 
     /**
@@ -348,7 +372,7 @@ public abstract class BIRNode {
      */
     public static class BIRBasicBlock extends BIRNode {
         public Name id;
-        public List<BIRInstruction> instructions;
+        public List<BIRNonTerminator> instructions;
         public BIRTerminator terminator;
 
         public BIRBasicBlock(Name id) {
@@ -374,7 +398,7 @@ public abstract class BIRNode {
      *
      * @since 0.995.0
      */
-    public static class BIRTypeDefinition extends BIRDocumentableNode {
+    public static class BIRTypeDefinition extends BIRDocumentableNode implements NamedNode {
 
         /**
          * Name of the type definition.
@@ -410,12 +434,17 @@ public abstract class BIRNode {
 
         @Override
         public void accept(BIRVisitor visitor) {
-
+            visitor.visit(this);
         }
 
         @Override
         public String toString() {
             return String.valueOf(type) + " " + String.valueOf(name);
+        }
+
+        @Override
+        public Name getName() {
+            return name;
         }
     }
 
@@ -428,13 +457,17 @@ public abstract class BIRNode {
 
         public BIRBasicBlock trapBB;
 
+        // this is inclusive
+        public BIRBasicBlock endBB;
+
         public BIROperand errorOp;
 
         public BIRBasicBlock targetBB;
 
-        public BIRErrorEntry(BIRBasicBlock trapBB, BIROperand errorOp, BIRBasicBlock targetBB) {
+        public BIRErrorEntry(BIRBasicBlock trapBB, BIRBasicBlock endBB, BIROperand errorOp, BIRBasicBlock targetBB) {
             super(null);
             this.trapBB = trapBB;
+            this.endBB = endBB;
             this.errorOp = errorOp;
             this.targetBB = targetBB;
         }
@@ -685,13 +718,12 @@ public abstract class BIRNode {
      * @since 1.0.0
      */
     public static class BIRLockDetailsHolder {
-        public Set<BIRGlobalVariableDcl> globalLocks;
-        public Map<BIRVariableDcl, Set<String>> fieldLocks;
 
-        public BIRLockDetailsHolder(Set<BIRGlobalVariableDcl> globalLocks,
-                                    Map<BIRVariableDcl, Set<String>> fieldLocks) {
-            this.globalLocks = globalLocks;
-            this.fieldLocks = fieldLocks;
+        //This is the number of recursive locks in the current scope.
+        public long numLocks = 0;
+
+        public boolean isEmpty() {
+            return numLocks == 0;
         }
     }
 }

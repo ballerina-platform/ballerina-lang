@@ -70,11 +70,11 @@ public function entries(map<Type> m) returns map<[string, Type]> = external;
 #
 # + m - the map
 # + func - a function to apply to each member
-# + return - new map containing result of applying function `func` to each member
+# + return - new map containing result of applying function 'func' to each member
 public function 'map(map<Type> m, function(Type val) returns Type1 func) returns map<Type1> = external;
 
 # Applies a function to each member of a map.
-# The function `func` is applied to each member of `m`.
+# The function 'func' is applied to each member of `m`.
 #
 # + m - the map
 # + func - a function to apply to each member
@@ -93,7 +93,7 @@ public function filter(map<Type> m, function(Type val) returns boolean func) ret
 #
 # + m - the map
 # + func - combining function
-# + initial - initial value for the first argument of combining function `func`
+# + initial - initial value for the first argument of combining parameter `func`
 # + return - result of combining the members of `m` using `func`
 public function reduce(map<Type> m, function(Type1 accum, Type val) returns Type1 func, Type1 initial) returns Type1 = external;
 
@@ -105,6 +105,15 @@ public function reduce(map<Type> m, function(Type1 accum, Type val) returns Type
 # This removed the member of `m` with key `k` and returns it.
 # It panics if there is no such member.
 public function remove(map<Type> m, string k) returns Type = external;
+
+# Removes a member of a map with a given key, if the map has member with the key.
+#
+# + m - the map
+# + k - the key
+# + return - the member of `m` that had key `k`, or `()` if `m` does not have a key `k`
+# If `m` has a member with key `k`, it removes and returns it;
+# otherwise it returns `()`.
+public function removeIfHasKey(map<Type> m, string k) returns Type? = external;
 
 # Removes all members of a map.
 # This panics if any member cannot be removed.
@@ -124,3 +133,9 @@ public function hasKey(map<Type> m, string k) returns boolean = external;
 # + m - the map
 # + return - a new list of all keys
 public function keys(map<any|error> m) returns string[] = external;
+
+# Returns a list of all the members of a map.
+#
+# + m - the map
+# + return - an array whose members are the members of `m`
+public function toArray(map<Type> m) returns Type[] = external;

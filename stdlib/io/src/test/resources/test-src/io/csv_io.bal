@@ -128,8 +128,9 @@ function getTable(string filePath, string encoding, io:Separator fieldSeparator)
         io:ReadableCSVChannel csv = new io:ReadableCSVChannel(charChannel, fieldSeparator);
         float total = 0.0;
         var tableResult = csv.getTable(Employee);
-        if (tableResult is table<Employee>) {
-            foreach var x in tableResult {
+        if (tableResult is table<record {}>) {
+            table<Employee> tb = <table<Employee>> tableResult;
+            foreach var x in tb {
                 total = total + x.salary;
             }
             error? closeResult = byteChannel.close();
@@ -148,8 +149,9 @@ function getTableWithNill(string filePath) returns @tainted [string, string] | e
     var rCsvChannel = io:openReadableCsvFile(filePath, skipHeaders = 1);
     if (rCsvChannel is io:ReadableCSVChannel) {
         var tblResult = rCsvChannel.getTable(PerDiem);
-        if (tblResult is table<PerDiem>) {
-            foreach var rec in tblResult {
+        if (tblResult is table<record {}>) {
+            table<PerDiem> tb = <table<PerDiem>> tblResult;
+            foreach var rec in tb {
                 name = name + rec.name;
                 dep = dep + (rec.department ?: "-1");
             }
@@ -166,8 +168,9 @@ function getTableWithHeader(string filePath) returns @tainted string[] | error {
     string[] keys = [];
     if (rCsvChannel is io:ReadableCSVChannel) {
         var tblResult = rCsvChannel.getTable(CommonApp);
-        if (tblResult is table<CommonApp>) {
-            foreach var rec in tblResult {
+        if (tblResult is table<record {}>) {
+            table<CommonApp> tb = <table<CommonApp>> tblResult;
+            foreach var rec in tb {
                 keys.push(rec.appId);
             }
             error? closeResult = rCsvChannel.close();

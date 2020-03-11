@@ -372,6 +372,17 @@ public class TaintedStatusPropagationTest {
         BAssertUtil.validateError(result, 2, "tainted value passed to untainted parameter 'payload'", 22, 37);
     }
 
+
+    @Test
+    public void testHttpServiceInlineListenerDecl() {
+        CompileResult result = BCompileUtil.compile(
+                "test-src/taintchecking/propagation/http-service-in-line-listener.bal");
+        Assert.assertEquals(result.getDiagnostics().length, 3);
+        BAssertUtil.validateError(result, 0, "tainted value passed to untainted parameter 'secureIn'", 28, 24);
+        BAssertUtil.validateError(result, 1, "tainted value passed to untainted parameter 'secureIn'", 29, 24);
+        BAssertUtil.validateError(result, 2, "tainted value passed to untainted parameter 'payload'", 36, 37);
+    }
+
     @Test
     public void testCompoundAssignment() {
         CompileResult result = BCompileUtil.compile("test-src/taintchecking/propagation/compound-assignment.bal");
@@ -609,4 +620,20 @@ public class TaintedStatusPropagationTest {
         BAssertUtil.validateError(result, 1,
                 "functions returning tainted value are required to annotate return signature @tainted: 'foo'", 22, 24);
     }
+
+     @Test
+     public void testTaintLetExpr() {
+         CompileResult result = BCompileUtil.compile(
+                 "test-src/taintchecking/propagation/let.bal");
+         Assert.assertEquals(result.getDiagnostics().length, 0);
+     }
+
+     @Test
+     public void testTaintLetExprNegative() {
+         CompileResult result = BCompileUtil.compile(
+                 "test-src/taintchecking/propagation/let-negative.bal");
+         Assert.assertEquals(result.getDiagnostics().length, 2);
+         BAssertUtil.validateError(result, 0, "tainted value passed to untainted parameter 'secureIn'", 19, 20);
+         BAssertUtil.validateError(result, 1, "tainted value passed to untainted parameter 'secureIn'", 22, 20);
+     }
 }

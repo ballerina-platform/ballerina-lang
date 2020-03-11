@@ -793,7 +793,7 @@ public class JSONUtils {
         ArrayValue json = new ArrayValueImpl(new BArrayType(BTypes.typeJSON));
         for (int i = 0; i < booleanArray.size(); i++) {
             boolean value = booleanArray.getBoolean(i);
-            json.append(new Boolean(value));
+            json.append(Boolean.valueOf(value));
         }
         return json;
     }

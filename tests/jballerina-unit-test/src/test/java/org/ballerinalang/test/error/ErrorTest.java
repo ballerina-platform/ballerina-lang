@@ -168,7 +168,7 @@ public class ErrorTest {
         BValue[] returns = BRunUtil.invoke(errorTestResult, "getCallStackTest");
         Assert.assertEquals(returns[0].stringValue(), "{callableName:\"getCallStack\", " +
                                                       "moduleName:\"ballerina.runtime.errors\"," +
-                                                      " fileName:\"errors.bal\", lineNumber:33}");
+                                                      " fileName:\"errors.bal\", lineNumber:35}");
     }
 
     @Test
@@ -338,7 +338,7 @@ public class ErrorTest {
         String message = ((BLangRuntimeException) expectedException).getMessage();
         Assert.assertEquals(message,
                 "error: array index out of range: index: 4, size: 2 \n\t" +
-                        "at ballerina.lang_array:slice(array.bal:105)\n\t" +
+                        "at ballerina.lang_array:slice(array.bal:106)\n\t" +
                         "   error_test:testStackTraceInNative(error_test.bal:279)");
     }
 

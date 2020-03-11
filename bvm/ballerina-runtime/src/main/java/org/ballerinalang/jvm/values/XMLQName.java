@@ -17,9 +17,9 @@
 */
 package org.ballerinalang.jvm.values;
 
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypes;
+import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.jvm.values.api.BXMLQName;
 
 import java.util.Map;
@@ -66,14 +66,35 @@ public final class XMLQName implements RefValue, BXMLQName {
         }
     }
 
+    @Deprecated
+    public XMLQName(BString localName, BString uri, BString prefix) {
+        this.localName = localName.getValue();
+        if (uri != null) {
+            this.uri = uri.getValue();
+        }
+        if (prefix != null) {
+            this.prefix = prefix.getValue();
+        }
+    }
+
+    @Deprecated
+    public XMLQName(BString qNameStrVal) {
+        this(qNameStrVal.getValue());
+    }
+
     @Override
     public String toString() {
+        return stringValue();
+    }
+
+    @Override
+    public String stringValue() {
         return (uri == null || uri.isEmpty()) ? localName : '{' + uri + '}' + localName;
     }
 
     @Override
-    public String stringValue(Strand strand) {
-        return (uri == null || uri.isEmpty()) ? localName : '{' + uri + '}' + localName;
+    public BString bStringValue() {
+        return null;
     }
 
     @Override

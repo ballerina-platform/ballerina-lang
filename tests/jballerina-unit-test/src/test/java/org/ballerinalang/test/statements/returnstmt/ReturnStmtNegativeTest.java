@@ -46,14 +46,18 @@ public class ReturnStmtNegativeTest {
     public void testNotEnoughArgsToReturn3() {
         CompileResult result = BCompileUtil.compile("test-src/statements/returnstmt/not-enough-args-to-return-3.bal");
         Assert.assertEquals(result.getErrorCount(), 1);
-        BAssertUtil.validateError(result, 0, "invalid token ','", 2, 20);
+        BAssertUtil.validateError(result, 0, "mismatched input ','. expecting {'is', ';', '.', '[', '?', '?.', '+', " +
+                "'-', '*', '/', '%', '==', '!=', '>', '<', '>=', '<=', '&&', '||', '===', '!==', '&', '^', '@', '.." +
+                ".', '|', '?:', '->>', '..<', '.@'}", 2, 20);
     }
 
     @Test(description = "Test too many arguments to return")
     public void testTooManyArgsToReturn1() {
         CompileResult result = BCompileUtil.compile("test-src/statements/returnstmt/too-many-args-to-return-1.bal");
         Assert.assertEquals(result.getErrorCount(), 1);
-        BAssertUtil.validateError(result, 0, "invalid token ','", 2, 20);
+        BAssertUtil.validateError(result, 0, "mismatched input ','. expecting {'is', ';', '.', '[', '?', '?.', '+', " +
+                "'-', '*', '/', '%', '==', '!=', '>', '<', '>=', '<=', '&&', '||', '===', '!==', '&', '^', '@', '.." +
+                ".', '|', '?:', '->>', '..<', '.@'}", 2, 20);
     }
 
     @Test(description = "Test too many arguments to return")

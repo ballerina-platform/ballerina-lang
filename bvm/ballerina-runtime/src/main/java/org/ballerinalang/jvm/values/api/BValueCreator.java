@@ -17,10 +17,10 @@
  */
 package org.ballerinalang.jvm.values.api;
 
-import org.apache.axiom.om.OMNode;
 import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.DecimalValueKind;
 import org.ballerinalang.jvm.JSONDataSource;
+import org.ballerinalang.jvm.XMLFactory;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BErrorType;
 import org.ballerinalang.jvm.types.BFunctionType;
@@ -37,6 +37,7 @@ import org.ballerinalang.jvm.values.FPValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.StreamValue;
 import org.ballerinalang.jvm.values.StreamingJsonValue;
+import org.ballerinalang.jvm.values.StringValue;
 import org.ballerinalang.jvm.values.TableValue;
 import org.ballerinalang.jvm.values.TupleValueImpl;
 import org.ballerinalang.jvm.values.TypedescValue;
@@ -46,8 +47,12 @@ import org.ballerinalang.jvm.values.XMLSequence;
 
 import java.io.InputStream;
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
+
+import javax.xml.namespace.QName;
 
  /**
   * Helper class to create ballerina value instances.
@@ -126,6 +131,16 @@ import java.util.function.Function;
      }
 
      /**
+      * Creates a new string array.
+      *
+      * @param values initial array values
+      * @return string array
+      */
+     public static BArray createArrayValue(BString[] values) {
+         return new ArrayValueImpl(values);
+     }
+
+     /**
       * Create a new Ref value array.
       *
       * @param values initial array values
@@ -180,17 +195,6 @@ import java.util.function.Function;
      }
 
      /**
-      * Create error value with given reason and error details.
-      *
-      * @param reason error reason
-      * @param details error detail
-      * @return error value
-      */
-     public static BError createErrorValue(String reason, Object details) {
-         return new ErrorValue(reason, details);
-     }
-
-     /**
       * Create error value with given type, reason and details.
       *
       * @param type {@code BErrorType} of the error
@@ -198,8 +202,19 @@ import java.util.function.Function;
       * @param details error details
       * @return error value
       */
-     public static BError createErrorValue(BErrorType type, String reason, Object details) {
-         return new ErrorValue(type, reason, details);
+     public static BError createErrorValue(BErrorType type, BString reason, Object details) {
+         return new ErrorValue(type, (StringValue) reason, details);
+     }
+
+     /**
+      * Create error value with given reason and error details.
+      *
+      * @param reason error reason
+      * @param details error detail
+      * @return error value
+      */
+     public static BError createErrorValue(BString reason, Object details) {
+         return new ErrorValue((StringValue) reason, details);
      }
 
      /**
@@ -305,28 +320,18 @@ import java.util.function.Function;
       *
       * @return {@code XMLItem}
       */
-     public static BXml createXMLItem() {
-         return new XMLItem();
+     public static BXML createXMLItem() {
+         return new XMLItem(new QName(null), new XMLSequence());
      }
 
      /**
-      * Cretae a {@code XMLItem} from a XML string.
+      * Create a {@code XMLItem} from a XML string.
       *
       * @param xmlValue A XML string
       * @return {@code XMLItem}
       */
-     public static BXml<OMNode> createXMLItem(String xmlValue) {
-         return new XMLItem(xmlValue);
-     }
-
-     /**
-      * Create a {@code XMLItem} from a {@link org.apache.axiom.om.OMNode} object.
-      *
-      * @param value xml object
-      * @return {@code XMLItem}
-      */
-     public static BXml<OMNode> createXMLItem(OMNode value) {
-         return new XMLItem(value);
+     public static BXML createXMLItem(String xmlValue) {
+         return XMLFactory.parse(xmlValue);
      }
 
      /**
@@ -335,8 +340,8 @@ import java.util.function.Function;
       * @param inputStream Input Stream
       * @return {@code XMLItem}
       */
-     public static BXml<OMNode> ctreateXMLItem(InputStream inputStream) {
-         return new XMLItem(inputStream);
+     public static BXML createXMLItem(InputStream inputStream) {
+         return XMLFactory.parse(inputStream);
      }
 
      /**
@@ -366,7 +371,7 @@ import java.util.function.Function;
       *
       * @return xml sequence
       */
-     public static BXml createXMLSequence() {
+     public static BXML createXMLSequence() {
          return new XMLSequence();
      }
 
@@ -376,8 +381,12 @@ import java.util.function.Function;
       * @param sequence xml sequence array
       * @return xml sequence
       */
-     public static BXml createXMLSequence(ArrayValue sequence) {
-         return new XMLSequence(sequence);
+     public static BXML createXMLSequence(ArrayValue sequence) {
+         List<BXML> children = new ArrayList<>();
+         for (Object value : sequence.getValues()) {
+             children.add((BXML) value);
+         }
+         return new XMLSequence(children);
      }
 
 

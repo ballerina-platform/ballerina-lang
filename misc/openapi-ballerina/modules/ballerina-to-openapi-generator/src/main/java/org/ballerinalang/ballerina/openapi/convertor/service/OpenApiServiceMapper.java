@@ -37,14 +37,12 @@ import org.slf4j.LoggerFactory;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr.BLangArrayLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-
-import static org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordKeyValue;
 
 /**
  * OpenApiServiceMapper provides functionality for reading and writing OpenApi, either to and from ballerina service, or
@@ -127,9 +125,8 @@ public class OpenApiServiceMapper {
         if (annotation != null) {
             BLangRecordLiteral bLiteral = ((BLangRecordLiteral) ((BLangAnnotationAttachment) annotation)
                     .getExpression());
-            List<BLangRecordKeyValue> list = bLiteral.getKeyValuePairs();
 
-            Map<String, BLangExpression> attributes = ConverterUtils.listToMap(list);
+            Map<String, BLangExpression> attributes = ConverterUtils.listToMap(bLiteral.getFields());
             if (attributes.containsKey(ConverterConstants.ATTR_SERVICE_VERSION)) {
                 info.version(
                         ConverterUtils.getStringLiteralValue(attributes.get(ConverterConstants.ATTR_SERVICE_VERSION)));
@@ -165,7 +162,7 @@ public class OpenApiServiceMapper {
         if (null != annotationExpression) {
             BLangRecordLiteral orgAnnotation = (BLangRecordLiteral) annotationExpression;
             Map<String, BLangExpression> organizationAttributes =
-                    ConverterUtils.listToMap(orgAnnotation.getKeyValuePairs());
+                    ConverterUtils.listToMap(orgAnnotation.getFields());
             Organization organization = new Organization();
 
             if (organizationAttributes.containsKey(ConverterConstants.ATTR_NAME)) {
@@ -189,11 +186,11 @@ public class OpenApiServiceMapper {
     private void createTagModel(BLangExpression annotationExpression, Swagger openApi) {
         if (null != annotationExpression) {
             List<Tag> tags = new LinkedList<>();
-            BLangArrayLiteral tagArray = (BLangArrayLiteral) annotationExpression;
+            BLangListConstructorExpr tagArray = (BLangListConstructorExpr) annotationExpression;
 
             for (ExpressionNode expr : tagArray.getExpressions()) {
-                List<BLangRecordKeyValue> tagList = ((BLangRecordLiteral) expr).getKeyValuePairs();
-                Map<String, BLangExpression> tagAttributes = ConverterUtils.listToMap(tagList);
+                Map<String, BLangExpression> tagAttributes =
+                        ConverterUtils.listToMap(((BLangRecordLiteral) expr).getFields());
                 Tag tag = new Tag();
 
                 if (tagAttributes.containsKey(ConverterConstants.ATTR_NAME)) {
@@ -221,7 +218,7 @@ public class OpenApiServiceMapper {
         if (null != annotationExpression) {
             BLangRecordLiteral docAnnotation = (BLangRecordLiteral) annotationExpression;
             Map<String, BLangExpression> externalDocAttributes =
-                    ConverterUtils.listToMap(docAnnotation.getKeyValuePairs());
+                    ConverterUtils.listToMap(docAnnotation.getFields());
             ExternalDocs externalDocs = new ExternalDocs();
 
             if (externalDocAttributes.containsKey(ConverterConstants.ATTR_DESCRIPTION)) {
@@ -247,7 +244,7 @@ public class OpenApiServiceMapper {
         if (null != annotationExpression) {
             BLangRecordLiteral contactAnnotation = (BLangRecordLiteral) annotationExpression;
             Map<String, BLangExpression> contactAttributes =
-                    ConverterUtils.listToMap(contactAnnotation.getKeyValuePairs());
+                    ConverterUtils.listToMap(contactAnnotation.getFields());
             Contact contact = new Contact();
 
             if (contactAttributes.containsKey(ConverterConstants.ATTR_NAME)) {
@@ -276,7 +273,7 @@ public class OpenApiServiceMapper {
         if (null != annotationExpression) {
             BLangRecordLiteral licenseAnnotation = (BLangRecordLiteral) annotationExpression;
             Map<String, BLangExpression> licenseAttributes =
-                    ConverterUtils.listToMap(licenseAnnotation.getKeyValuePairs());
+                    ConverterUtils.listToMap(licenseAnnotation.getFields());
             License license = new License();
 
             if (licenseAttributes.containsKey(ConverterConstants.ATTR_NAME)) {
@@ -307,9 +304,8 @@ public class OpenApiServiceMapper {
         if (annotation != null) {
             BLangRecordLiteral bLiteral = ((BLangRecordLiteral) ((BLangAnnotationAttachment) annotation)
                     .getExpression());
-            List<BLangRecordKeyValue> list = bLiteral.getKeyValuePairs();
 
-            Map<String, BLangExpression> attributes = ConverterUtils.listToMap(list);
+            Map<String, BLangExpression> attributes = ConverterUtils.listToMap(bLiteral.getFields());
             if (attributes.containsKey(HttpConstants.ANN_CONFIG_ATTR_BASE_PATH)) {
                 openApi.setBasePath(
                         ConverterUtils.getStringLiteralValue(attributes.get(HttpConstants.ANN_CONFIG_ATTR_BASE_PATH)));

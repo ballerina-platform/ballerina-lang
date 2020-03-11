@@ -3,11 +3,11 @@ import ballerina/rabbitmq;
 
 public function main() {
     // Creates a ballerina RabbitMQ channel.
-    rabbitmq:Channel newChannel = new({ host: "localhost", port: 5672 });
+    rabbitmq:Channel newChannel = new ({host: "localhost", port: 5672});
 
     transaction {
         // Declares the queue.
-        var queueResult = newChannel->queueDeclare({ queueName: "MyQueue" });
+        var queueResult = newChannel->queueDeclare({queueName: "MyQueue"});
         if (queueResult is error) {
             io:println("An error occurred while creating the queue");
         } else {

@@ -28,7 +28,7 @@ public type FuncBodyParser object {
         self.receiver = receiver;
     }
 
-    public function parseBB(boolean addInterimBB) returns BasicBlock[] {
+    public function parseBB() returns BasicBlock[] {
         var id = self.reader.readStringCpRef();
         var numInstruction = self.reader.readInt32() - 1;
         Instruction?[] instructions = [];
@@ -36,16 +36,6 @@ public type FuncBodyParser object {
         while (i < numInstruction) {
             instructions[i] = self.parseInstruction();
             i += 1;
-        }
-
-        // Need to make sure terminators are at top of each switch case to avoid side effects due to reschedules.
-        if (addInterimBB) {
-            Terminator terminator = self.parseTerminator();
-            BasicBlock interimBB = {id: { value: id + "interim" }, instructions: [], terminator:terminator };
-            Terminator goto = self.createGOTO(terminator.pos, interimBB);
-            BasicBlock initialBB = { id: { value: id }, instructions: instructions, terminator: goto };
-            BasicBlock[2] bbs = [initialBB, interimBB];
-            return bbs;
         }
 
         BasicBlock[1] bb = [{ id: { value: id }, instructions: instructions, terminator: self.parseTerminator() }];
@@ -59,7 +49,7 @@ public type FuncBodyParser object {
     }
 
     public function parseEE() returns ErrorEntry {
-        return { trapBB: self.parseBBRef(), errorOp: self.parseVarRef(), targetBB: self.parseBBRef() };
+        return { trapBB: self.parseBBRef(), endBB: self.parseBBRef(), errorOp: self.parseVarRef(), targetBB: self.parseBBRef() };
     }
 
     public function parseInstruction() returns Instruction {
@@ -92,12 +82,6 @@ public type FuncBodyParser object {
             var lhsOp = self.parseVarRef();
             NewMap newMap = {pos:pos, kind:kind, lhsOp:lhsOp, typeRef:typeRef, bType:bType};
             return newMap;
-        } else if (kindTag == INS_NEW_STREAM) {
-            var bType = self.reader.readTypeCpRef();
-            kind = INS_KIND_NEW_STREAM;
-            var lhsOp = self.parseVarRef();
-            NewStream newStream = { pos: pos, kind: kind, lhsOp: lhsOp, streamType: bType };
-            return newStream;
         } else if (kindTag == INS_NEW_TABLE) {
             return self.parseNewTableInstruction(pos);
         } else if (kindTag == INS_NEW_INST) {
@@ -180,10 +164,8 @@ public type FuncBodyParser object {
             kind = INS_KIND_NEW_XML_ELEMENT;
             var lhsOp = self.parseVarRef();
             var startTagOp = self.parseVarRef();
-            var endTagOp = self.parseVarRef();
             var defaultNsURIOp = self.parseVarRef();
-            NewXMLElement newXMLElement = {pos:pos, kind:kind, lhsOp:lhsOp, startTagOp:startTagOp, endTagOp:endTagOp,
-                                           defaultNsURIOp:defaultNsURIOp};
+            NewXMLElement newXMLElement = {pos:pos, kind:kind, lhsOp:lhsOp, startTagOp:startTagOp, defaultNsURIOp:defaultNsURIOp};
             return newXMLElement;
         } else if (kindTag == INS_NEW_XML_TEXT) {
             kind = INS_KIND_NEW_XML_TEXT;
@@ -560,9 +542,7 @@ public type FuncBodyParser object {
         } else if (kindTag == INS_LOCK) {
             TerminatorKind kind = TERMINATOR_LOCK;
 
-            string globleVarName = self.reader.readStringCpRef();
-            VariableDcl varDecl = self.getDecl(VAR_SCOPE_GLOBAL, globleVarName, VAR_KIND_GLOBAL);
-            Lock lockIns = {pos:pos, kind:kind, globleVar:varDecl, lockBB:self.parseBBRef()};
+            Lock lockIns = {pos:pos, kind:kind, lockBB:self.parseBBRef()};
             return lockIns;
         } else if (kindTag == INS_FIELD_LOCK) {
             TerminatorKind kind = TERMINATOR_FIELD_LOCK;
@@ -570,40 +550,12 @@ public type FuncBodyParser object {
             string localVarName = self.reader.readStringCpRef();
             VariableDcl varDecl = self.getDecl(VAR_SCOPE_FUNCTION, localVarName, VAR_KIND_SELF);
             string fieldName = self.reader.readStringCpRef();
-            FieldLock lockIns = {pos:pos, kind:kind, localVar:varDecl, field:fieldName, lockBB:self.parseBBRef()};
+            FieldLock lockIns = {pos:pos, kind:kind, localVar:varDecl, 'field:fieldName, lockBB:self.parseBBRef()};
             return lockIns;
         } else if (kindTag == INS_UNLOCK) {
             TerminatorKind kind = TERMINATOR_UNLOCK;
 
-            var globleVarCount = self.reader.readInt32();
-            VariableDcl?[] globleVars = [];
-            int i = 0;
-            while (i < globleVarCount) {
-                string varName = self.reader.readStringCpRef();
-                globleVars[i] = self.getDecl(VAR_SCOPE_GLOBAL, varName, VAR_KIND_GLOBAL);
-                i += 1;
-            }
-
-            var localLockCount = self.reader.readInt32();
-            LocalLocks?[] localLocks = [];
-            int j = 0;
-            while (j < localLockCount) {
-                string localVarName = self.reader.readStringCpRef();
-                VariableDcl varDecl = self.getDecl(VAR_SCOPE_FUNCTION, localVarName, VAR_KIND_SELF);
-                var fieldCount = self.reader.readInt32();
-                LocalLocks localLock = {localVar:varDecl, fields:[]};
-                int k = 0;
-                while (k < fieldCount) {
-                    string fieldName = self.reader.readStringCpRef();
-                    localLock.fields[k] = fieldName;
-                    k += 1;
-                }
-                localLocks[j] = localLock;
-                j += 1;
-            }
-
-            Unlock unlockIns = {pos:pos, kind:kind, globleVars:globleVars, 
-                localLocks:localLocks, unlockBB:self.parseBBRef()};
+            Unlock unlockIns = {pos:pos, kind:kind, unlockBB:self.parseBBRef()};
             return unlockIns;
         }
         error err = error("term instruction kind " + kindTag.toString() + " not impl.");

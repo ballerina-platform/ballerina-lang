@@ -18,31 +18,21 @@
 
 package org.ballerinalang.xslt;
 
-import org.apache.axiom.om.OMDocument;
 import org.apache.axiom.om.OMElement;
-import org.apache.axiom.om.OMNode;
-import org.apache.axiom.om.impl.llom.OMDocumentImpl;
 import org.apache.axiom.om.util.AXIOMUtil;
 import org.ballerinalang.jvm.BallerinaErrors;
-import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.types.BArrayType;
-import org.ballerinalang.jvm.types.BTypes;
-import org.ballerinalang.jvm.values.ArrayValue;
-import org.ballerinalang.jvm.values.ArrayValueImpl;
+import org.ballerinalang.jvm.XMLFactory;
+import org.ballerinalang.jvm.XMLNodeType;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.XMLItem;
 import org.ballerinalang.jvm.values.XMLSequence;
 import org.ballerinalang.jvm.values.XMLValue;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.StringWriter;
-import java.util.Iterator;
 
+import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
@@ -54,14 +44,6 @@ import javax.xml.transform.stream.StreamResult;
  *
  * @since 0.995.0
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "xslt",
-        functionName = "transform",
-        args = {@Argument(name = "input", type = TypeKind.XML),
-                @Argument(name = "xsl", type = TypeKind.XML)},
-        returnType = {@ReturnType(type = TypeKind.XML)},
-        isPublic = true
-)
 public class XsltTransformer {
     
     private static final Logger log = LoggerFactory.getLogger(XsltTransformer.class);
@@ -69,9 +51,20 @@ public class XsltTransformer {
     private static final String XSLT_ERROR_CODE = "{ballerina/xslt}" + XSLT_ERROR_RECORD;
     private static final String OPERATION = "Failed to perform XSL transformation: ";
 
-    public static Object transform(Strand strand, XMLValue xmlInput, XMLValue xslInput) {
+    public static Object transform(XMLValue xmlInput, XMLValue xslInput) {
         try {
+            boolean unwrap = false;
+            if (xmlInput.getNodeType() == XMLNodeType.SEQUENCE) {
+                XMLItem wrapper = new XMLItem(new QName("root"), (XMLSequence) xmlInput);
+                xmlInput = wrapper;
+                unwrap = true;
+            }
             String input = xmlInput.toString();
+            // Remove <root></root> wrapper
+            if (unwrap) {
+                input = input.substring(6, input.length() - 7).trim();
+            }
+
             String xsl = xslInput.toString();
             OMElement omXML = AXIOMUtil.stringToOM(input);
             OMElement omXSL = AXIOMUtil.stringToOM(xsl);
@@ -110,33 +103,9 @@ public class XsltTransformer {
      *
      * @param xmlStr The string to be converted
      * @return The result BXMLSequence object
-     * @throws XMLStreamException When converting `xmlStr` to an Axiom OMElement
      */
-    @SuppressWarnings("unchecked")
     private static XMLSequence parseToXML(String xmlStr) throws XMLStreamException {
-        // Here we add a dummy enclosing tag, and send it to AXIOM to parse the XML.
-        // This is to overcome the issue of AXIOM not allowing to parse XML-comments,
-        // XML-text nodes, and PI nodes, without having a XML-element node.
-        OMElement omElement = AXIOMUtil.stringToOM("<root>" + xmlStr + "</root>");
-        Iterator<OMNode> children = omElement.getChildren();
-
-        // Here we go through the iterator and add all the children nodes to a BRefValueArray.
-        // The BRefValueArray is used to create a BXMLSequence object.
-        ArrayValue omNodeArray = new ArrayValueImpl(new BArrayType(BTypes.typeXML));
-        OMDocument omDocument;
-        OMNode omNode;
-        int omNodeIndex = 0;
-        while (children.hasNext()) {
-            omNode = children.next();
-            // Here the OMNode is detached from the dummy root, and added to a document element.
-            // This is to get the XPath working correctly.
-            children.remove();
-            omDocument = new OMDocumentImpl();
-            omDocument.addChild(omNode);
-            omNodeArray.add(omNodeIndex, new XMLItem(omNode));
-            omNodeIndex++;
-        }
-        return new XMLSequence(omNodeArray);
+        return (XMLSequence) XMLFactory.parse(xmlStr);
     }
 
     private static ErrorValue createError(String reason, String errMsg) {

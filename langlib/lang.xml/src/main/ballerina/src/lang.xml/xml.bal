@@ -177,7 +177,7 @@ public function elements(xml x) returns xml = external;
 #
 # + x - the xml value
 # + func - a function to apply to each child or `item`
-# + return - new xml value containing result of applying function `func` to each child or `item`
+# + return - new xml value containing result of applying paramter `func` to each child or `item`
 public function map(xml x, function(xml|string item) returns xml|string func) returns xml = external;
 
 # Applies a function to each item in an xml sequence.
@@ -202,3 +202,7 @@ public function filter(xml x, function(xml|string item) returns boolean func) re
 # + s - a string in XML format
 # + return - xml value resulting from parsing `s`, or an error
 public function fromString(string s) returns xml|error = external;
+
+// lift getChildren over sequences
+// equivalent to elements(x).map(getChildren)
+public function children(xml x) returns xml = external;

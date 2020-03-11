@@ -18,27 +18,22 @@
 
 package org.ballerinalang.stdlib.xmlutils;
 
-import org.apache.axiom.om.OMAbstractFactory;
-import org.apache.axiom.om.OMElement;
-import org.apache.axiom.om.OMFactory;
-import org.apache.axiom.om.OMNamespace;
-import org.apache.axiom.om.OMText;
 import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.XMLFactory;
 import org.ballerinalang.jvm.XMLValidator;
-import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BMapType;
 import org.ballerinalang.jvm.types.BType;
-import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.values.ArrayValue;
-import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.RefValue;
 import org.ballerinalang.jvm.values.XMLItem;
+import org.ballerinalang.jvm.values.XMLQName;
 import org.ballerinalang.jvm.values.XMLSequence;
 import org.ballerinalang.jvm.values.XMLValue;
+import org.ballerinalang.jvm.values.api.BString;
+import org.ballerinalang.jvm.values.api.BXML;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -53,7 +48,6 @@ import java.util.Map.Entry;
 @SuppressWarnings("unchecked")
 public class JSONToXMLConverter {
 
-    private static final OMFactory OM_FACTORY = OMAbstractFactory.getOMFactory();
     private static final String XSI_NAMESPACE = "http://www.w3.org/2001/XMLSchema-instance";
     private static final String XSI_PREFIX = "xsi";
     private static final String NIL = "nil";
@@ -66,23 +60,17 @@ public class JSONToXMLConverter {
      * @param arrayEntryTag   String used as the tag in the arrays
      * @return XMLValue XML representation of the given JSON object
      */
-    @SuppressWarnings("rawtypes")
     public static XMLValue convertToXML(Object json, String attributePrefix, String arrayEntryTag) {
         if (json == null) {
             return new XMLSequence();
         }
 
-        List<XMLValue> omElementArrayList = traverseTree(json, attributePrefix, arrayEntryTag);
-        if (omElementArrayList.size() == 1) {
-            return omElementArrayList.get(0);
+        List<XMLValue> xmlElemList = traverseTree(json, attributePrefix, arrayEntryTag);
+        if (xmlElemList.size() == 1) {
+            return xmlElemList.get(0);
         } else {
-            // There is a multi rooted node and create xml sequence from it
-            ArrayValue elementsSeq = new ArrayValueImpl(new BArrayType(BTypes.typeXML));
-            int count = omElementArrayList.size();
-            for (int i = 0; i < count; i++) {
-                elementsSeq.add(i, omElementArrayList.get(i));
-            }
-            return new XMLSequence(elementsSeq);
+            ArrayList<BXML> seq = new ArrayList<>(xmlElemList);
+            return new XMLSequence(seq);
         }
     }
 
@@ -96,7 +84,6 @@ public class JSONToXMLConverter {
      * @param arrayEntryTag   String used as the tag in the arrays
      * @return List of XML items generated during the traversal.
      */
-    @SuppressWarnings("rawtypes")
     private static List<XMLValue> traverseTree(Object json, String attributePrefix, String arrayEntryTag) {
         List<XMLValue> xmlArray = new ArrayList<>();
         if (!(json instanceof RefValue)) {
@@ -114,16 +101,16 @@ public class JSONToXMLConverter {
      * @param json               to be traversed
      * @param nodeName           name of the current traversing node
      * @param parentElement      parent element of the current node
-     * @param omElementArrayList List of XML items generated
+     * @param xmlElemList List of XML items generated
      * @param attributePrefix    String prefix used for attributes
      * @param arrayEntryTag      String used as the tag in the arrays
      * @return List of XML items generated during the traversal.
      */
     @SuppressWarnings("rawtypes")
-    private static OMElement traverseJsonNode(Object json, String nodeName, OMElement parentElement,
-                                              List<XMLValue> omElementArrayList, String attributePrefix,
+    private static XMLItem traverseJsonNode(Object json, String nodeName, XMLItem parentElement,
+                                              List<XMLValue> xmlElemList, String attributePrefix,
                                               String arrayEntryTag) {
-        OMElement currentRoot = null;
+        XMLItem currentRoot = null;
         if (nodeName != null) {
             // Extract attributes and set to the immediate parent.
             if (nodeName.startsWith(attributePrefix)) {
@@ -136,7 +123,7 @@ public class JSONToXMLConverter {
                     // recommendation.
                     XMLValidator.validateXMLName(attributeKey);
 
-                    parentElement.addAttribute(attributeKey, json.toString(), null);
+                    parentElement.setAttribute(attributeKey, null, null, json.toString());
                 }
                 return parentElement;
             }
@@ -144,12 +131,12 @@ public class JSONToXMLConverter {
             // Validate whether the tag name is an XML supported qualified name, according to the XML recommendation.
             XMLValidator.validateXMLName(nodeName);
 
-            currentRoot = OM_FACTORY.createOMElement(nodeName, null);
+            XMLQName tagName = new XMLQName(nodeName);
+            currentRoot = (XMLItem) XMLFactory.createXMLElement(tagName, (BString) null);
         }
 
         if (json == null) {
-            OMNamespace xsiNameSpace = OM_FACTORY.createOMNamespace(XSI_NAMESPACE, XSI_PREFIX);
-            currentRoot.addAttribute(NIL, "true", xsiNameSpace);
+            currentRoot.setAttribute(NIL, XSI_NAMESPACE, XSI_PREFIX, "true");
         } else {
             LinkedHashMap<String, Object> map;
 
@@ -163,9 +150,9 @@ public class JSONToXMLConverter {
                     map = (MapValueImpl) json;
                     for (Entry<String, Object> entry : map.entrySet()) {
                         currentRoot = traverseJsonNode(entry.getValue(), entry.getKey(), currentRoot,
-                                omElementArrayList, attributePrefix, arrayEntryTag);
+                                xmlElemList, attributePrefix, arrayEntryTag);
                         if (nodeName == null) { // Outermost object
-                            omElementArrayList.add(new XMLItem(currentRoot));
+                            xmlElemList.add(currentRoot);
                             currentRoot = null;
                         }
                     }
@@ -174,9 +161,9 @@ public class JSONToXMLConverter {
                     map = (MapValueImpl) json;
                     for (Entry<String, Object> entry : map.entrySet()) {
                         currentRoot = traverseJsonNode(entry.getValue(), entry.getKey(), currentRoot,
-                                omElementArrayList, attributePrefix, arrayEntryTag);
+                                xmlElemList, attributePrefix, arrayEntryTag);
                         if (nodeName == null) { // Outermost object
-                            omElementArrayList.add(new XMLItem(currentRoot));
+                            xmlElemList.add(currentRoot);
                             currentRoot = null;
                         }
                     }
@@ -185,9 +172,9 @@ public class JSONToXMLConverter {
                     ArrayValue array = (ArrayValue) json;
                     for (int i = 0; i < array.size(); i++) {
                         currentRoot = traverseJsonNode(array.getRefValue(i), arrayEntryTag, currentRoot,
-                                omElementArrayList, attributePrefix, arrayEntryTag);
+                                xmlElemList, attributePrefix, arrayEntryTag);
                         if (nodeName == null) { // Outermost array
-                            omElementArrayList.add(new XMLItem(currentRoot));
+                            xmlElemList.add(currentRoot);
                             currentRoot = null;
                         }
                     }
@@ -201,8 +188,8 @@ public class JSONToXMLConverter {
                         throw BallerinaErrors.createError("error in converting json to xml");
                     }
 
-                    OMText txt1 = OM_FACTORY.createOMText(currentRoot, json.toString());
-                    currentRoot.addChild(txt1);
+                    XMLValue text = XMLFactory.createXMLText(json.toString());
+                    addChildElem(currentRoot, text);
                     break;
                 default:
                     throw BallerinaErrors.createError("error in converting json to xml");
@@ -211,9 +198,13 @@ public class JSONToXMLConverter {
 
         // Set the current constructed root the parent element
         if (parentElement != null) {
-            parentElement.addChild(currentRoot);
+            addChildElem(parentElement, currentRoot);
             currentRoot = parentElement;
         }
         return currentRoot;
+    }
+
+    private static void addChildElem(XMLItem currentRoot, XMLValue child) {
+        currentRoot.getChildrenSeq().getChildrenList().add(child);
     }
 }

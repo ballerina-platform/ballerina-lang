@@ -16,16 +16,17 @@ function name1() returns [int, [string, int, float]] {
 
 function name2() returns [int, [string, int, float]] {
     return
-    [1
-    ,
-    [
-    "ABC"
-    ,
-    42
-    ,
-    0.023
-    ]
-    ]
+        [
+            1
+            ,
+            [
+                "ABC"
+                ,
+                42
+                ,
+                0.023
+            ]
+        ]
     ;
 }
 
@@ -35,14 +36,38 @@ function searchPeople() returns ([string, int, float]) {
 
 function testArrayToTupleAssignment3() returns [string, string[]] {
     string[3] x = ["a", "b", "c"];
-    [string, string...][i, ...j] = x;
+    [string, string...] [i, ...j] = x;
     return [i, j];
 }
 
 function testArrayToTupleAssignment4() returns [string, string[]] {
     string[3] x = ["a", "b", "c"];
-    [string, string...][i,
-    ...
-    j] = x;
+    [string, string...] [i,
+        ...
+        j] = x;
     return [i, j];
+}
+
+function tupleVariableTest1() {
+    [boolean, float] [a1, a2] = [true, 0.4];
+}
+
+function tupleVariableTest2() {
+    [
+        boolean
+        ,
+        float
+    ]
+    [
+        a1
+        ,
+        a2
+    ]
+    =
+        [
+            true
+            ,
+            0.4
+        ]
+    ;
 }

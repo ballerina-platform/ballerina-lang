@@ -190,8 +190,12 @@ public type TypeParser object {
     }
 
     function parseStreamType() returns BStreamType {
-        BStreamType obj = { sConstraint:TYPE_NIL }; // Dummy constraint until actual constraint is read
+        BStreamType obj = { sConstraint:TYPE_NIL, sError:TYPE_NIL }; // Dummy constraint until actual constraint is read
         obj.sConstraint = self.parseTypeCpRef();
+        boolean hasError = self.readBoolean();
+        if (hasError) {
+            obj.sError = self.parseTypeCpRef();
+        }
         return obj;
     }
 
@@ -218,10 +222,14 @@ public type TypeParser object {
     }
 
     function parseInvokableType() returns BInvokableType {
-        BInvokableType obj = { paramTypes:[], retType: TYPE_NIL };
-        obj.paramTypes = self.parseTypes();
-        obj.retType = self.parseTypeCpRef();
-        return obj;
+            BInvokableType obj = { paramTypes:[], retType: TYPE_NIL };
+            obj.paramTypes = self.parseTypes();
+            boolean hasRest = self.readBoolean();
+            if (hasRest) {
+                obj.restType = self.parseTypeCpRef();
+            }
+            obj.retType = self.parseTypeCpRef();
+            return obj;
     }
 
     function parseRecordType(int typeFlags) returns BRecordType {
@@ -287,10 +295,15 @@ public type TypeParser object {
             isAbstract: isAbstract,
             fields: [],
             attachedFunctions: [],
-            constructor: () };
+            constructor: (),
+            generatedConstructor: () };
         self.cp.types[self.cpI] = obj;
         obj.fields = self.parseObjectFields();
 
+        boolean generatedConstructorPresent = self.readBoolean();
+        if (generatedConstructorPresent) {
+            obj.generatedConstructor = self.readAttachFunction();
+        }
         boolean constructorPresent = self.readBoolean();
         if (constructorPresent) {
             obj.constructor = self.readAttachFunction();

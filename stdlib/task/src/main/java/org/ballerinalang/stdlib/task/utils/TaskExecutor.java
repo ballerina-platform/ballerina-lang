@@ -17,13 +17,9 @@
 */
 package org.ballerinalang.stdlib.task.utils;
 
+import org.ballerinalang.jvm.BRuntime;
 import org.ballerinalang.jvm.types.AttachedFunction;
-import org.ballerinalang.jvm.values.ErrorValue;
-import org.ballerinalang.jvm.values.connector.CallableUnitCallback;
-import org.ballerinalang.jvm.values.connector.Executor;
 import org.ballerinalang.stdlib.task.objects.ServiceInformation;
-
-import java.util.Objects;
 
 import static org.ballerinalang.stdlib.task.utils.TaskConstants.RESOURCE_ON_TRIGGER;
 
@@ -37,32 +33,22 @@ public class TaskExecutor {
         AttachedFunction onTriggerFunction = serviceInformation.getOnTriggerFunction();
         Object[] onTriggerFunctionArgs = getParameterList(onTriggerFunction, serviceInformation);
 
-        TaskNonBlockingCallback nonBlockingCallback = new TaskNonBlockingCallback();
-        Executor.submit(serviceInformation.getScheduler(),
-                serviceInformation.getService(),
-                RESOURCE_ON_TRIGGER,
-                nonBlockingCallback,
-                null,
-                onTriggerFunctionArgs);
+        BRuntime runtime = serviceInformation.getRuntime();
+        runtime.invokeMethodAsync(serviceInformation.getService(), RESOURCE_ON_TRIGGER, onTriggerFunctionArgs);
     }
 
     private static Object[] getParameterList(AttachedFunction function, ServiceInformation serviceInformation) {
-        if (function.type.paramTypes.length > 0 && Objects.nonNull(serviceInformation.getAttachment())) {
-            return new Object[]{serviceInformation.getAttachment(), Boolean.TRUE};
+        Object[] attachments = serviceInformation.getAttachment();
+        int numberOfParameters = function.type.paramTypes.length;
+        Object[] parameters = null;
+        if (numberOfParameters == attachments.length) {
+            int i = 0;
+            parameters = new Object[attachments.length * 2];
+            for (Object attachment : attachments) {
+                parameters[i++] = attachment;
+                parameters[i++] = Boolean.TRUE;
+            }
         }
-        return new Object[]{};
-    }
-
-    private static class TaskNonBlockingCallback implements CallableUnitCallback {
-
-        @Override
-        public void notifySuccess() {
-            // Do nothing
-        }
-
-        @Override
-        public void notifyFailure(ErrorValue error) {
-            // Do nothing
-        }
+        return parameters;
     }
 }

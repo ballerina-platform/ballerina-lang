@@ -16,10 +16,11 @@
 package org.ballerinalang.langserver.compiler;
 
 import org.ballerinalang.compiler.CompilerPhase;
+import org.ballerinalang.langserver.commons.LSContext;
+import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.compiler.common.modal.BallerinaFile;
 import org.ballerinalang.langserver.compiler.exception.CompilationFailedException;
 import org.ballerinalang.langserver.compiler.workspace.ExtendedWorkspaceDocumentManagerImpl;
-import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.compiler.workspace.repository.LangServerFSProgramDirectory;
 import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.ballerinalang.util.diagnostic.DiagnosticListener;
@@ -30,7 +31,7 @@ import org.wso2.ballerinalang.compiler.SourceDirectory;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
-import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
+import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLogHelper;
 
 import java.io.UnsupportedEncodingException;
 import java.nio.file.Path;
@@ -103,18 +104,16 @@ public class ExtendedLSCompiler extends LSModuleCompiler {
         context.put(SourceDirectory.class, programDirectory);
         
         CompilerOptions options = CompilerOptions.getInstance(context);
-        String phase = compilerPhase.toString().equals(CompilerPhase.COMPILER_PLUGIN.toString()) ? "annotationProcess"
-                : compilerPhase.toString();
-        options.put(COMPILER_PHASE, phase);
-        options.put(PRESERVE_WHITESPACE, Boolean.valueOf(true).toString());
+        options.put(COMPILER_PHASE, compilerPhase.toString());
+        options.put(PRESERVE_WHITESPACE, Boolean.TRUE.toString());
         options.put(TEST_ENABLED, String.valueOf(true));
         options.put(SKIP_TESTS, String.valueOf(false));
-        BLangDiagnosticLog.getInstance(context).errorCount = 0;
+        BLangDiagnosticLogHelper.getInstance(context).resetErrorCount();
         Compiler compiler = Compiler.getInstance(context);
-
-        LSServiceOperationContext lsContext = new LSServiceOperationContext(() -> "extendedCompiler/compileFile");
-        lsContext.put(DocumentServiceKeys.COMPILER_CONTEXT_KEY, context);
-        lsContext.put(DocumentServiceKeys.RELATIVE_FILE_PATH_KEY, packageName);
+        LSContext lsContext = new LSCompilerOperationContext
+                .CompilerOperationContextBuilder(CompileFileContextOperation.COMPILE_FILE)
+                .withCompileFileParams(context, packageName)
+                .build();
 
         try {
             compiler.setOutStream(new LSCompilerUtil.EmptyPrintStream());

@@ -1,52 +1,47 @@
 package org.ballerinalang.nativeimpl.llvm;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BRefType;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.model.values.BValueArray;
-
-import java.util.function.IntFunction;
+import org.ballerinalang.jvm.BallerinaValues;
+import org.ballerinalang.jvm.types.BPackage;
+import org.ballerinalang.jvm.types.BType;
+import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.MapValue;
+import org.ballerinalang.jvm.values.MapValueImpl;
+import org.bytedeco.javacpp.Pointer;
 
 /**
  * sss.
  */
 public class FFIUtil {
-//    public static final String LLVM_PKG_PATH = BALLERINA_PACKAGE_PREFIX + "llvm";
-    public static final String NATIVE_KEY = "native";
+    private static final String NATIVE_KEY = "native";
 
-    public static BMap<String, BValue> newRecord(Context context, String type) {
-//        PackageInfo packageInfo = context.getProgramFile().getPackageInfo(LLVM_PKG_PATH);
-//        if (packageInfo == null) {
-//            throw new BallerinaException("package - " + LLVM_PKG_PATH + " does not exist");
-//        }
-//        StructureTypeInfo structureInfo = packageInfo.getStructInfo(type);
-//        BStructureType structType = structureInfo.getType();
-        return new BMap<>();
+    public static MapValue<String, Object> newRecord() {
+        return new MapValueImpl<String, Object>();
     }
 
-    public static <T> T getRecodeArgumentNative(Context context, int index) {
-        return getaNative(context.getRefArgument(index));
+    public static MapValue<String, Object> newRecord(BType type) {
+        return new MapValueImpl<String, Object>(type);
     }
 
-    public static <T> T[] getRecodeArrayArgumentNative(Context context, int index, IntFunction<T[]> generator) {
-        BValueArray refArray = (BValueArray) context.getRefArgument(index);
-        T[] nativeArray = generator.apply((int) refArray.size());
-        BRefType<?>[] values = refArray.getValues();
-        for (int i = 0; i < refArray.size(); i++) {
-            BRefType<?> bRefType = values[i];
-            nativeArray[i] = getaNative(bRefType);
+    public static MapValue<String, Object> newRecord(BPackage packageObj, String structName) {
+        return BallerinaValues.createRecordValue(packageObj, structName);
+    }
+
+    public static Object getRecodeArgumentNative(MapValue<String, Object> value) {
+        return value.getNativeData(NATIVE_KEY);
+    }
+
+    public static Pointer[] getRecodeArrayArgumentNative(ArrayValue value) {
+        Pointer[] objectArray = new Pointer[value.size()];
+        for (int counter = 0; counter < value.size(); counter++) {
+            MapValue<String, Object> partition = (MapValue<String, Object>) value.getRefValue(counter);
+            Pointer object = (Pointer) partition.getNativeData(NATIVE_KEY);
+            objectArray[counter] = object;
         }
-        return nativeArray;
+        return objectArray;
     }
 
-    private static <T> T getaNative(BValue ref) {
-        return (T) ((BMap<String, BValue>) ref).getNativeData(NATIVE_KEY);
-    }
-
-
-    public static void addNativeToRecode(Object module, BMap<String, BValue> bStruct) {
-        bStruct.addNativeData(NATIVE_KEY, module);
+    public static void addNativeToRecode(Object module, MapValue<String, Object> mapValue) {
+        mapValue.addNativeData(NATIVE_KEY, module);
     }
 
 }

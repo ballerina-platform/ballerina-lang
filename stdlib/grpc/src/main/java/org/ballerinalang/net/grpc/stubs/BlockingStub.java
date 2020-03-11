@@ -25,11 +25,11 @@ import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.TupleValueImpl;
 import org.ballerinalang.net.grpc.ClientCall;
+import org.ballerinalang.net.grpc.DataContext;
 import org.ballerinalang.net.grpc.Message;
 import org.ballerinalang.net.grpc.MessageUtils;
 import org.ballerinalang.net.grpc.MethodDescriptor;
 import org.ballerinalang.net.grpc.Status;
-import org.ballerinalang.net.http.DataContext;
 import org.wso2.transport.http.netty.contract.HttpClientConnector;
 
 import java.util.Arrays;
@@ -60,7 +60,7 @@ public class BlockingStub extends AbstractStub {
     public void executeUnary(Message request, MethodDescriptor methodDescriptor,
                                            DataContext dataContext) throws Exception {
         ClientCall call = new ClientCall(getConnector(), createOutboundRequest(request
-                .getHeaders()), methodDescriptor);
+                .getHeaders()), methodDescriptor, dataContext);
         call.start(new CallBlockingListener(dataContext));
         try {
             call.sendMessage(request);

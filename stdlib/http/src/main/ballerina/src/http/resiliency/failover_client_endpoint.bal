@@ -215,8 +215,8 @@ public type FailoverClient client object {
         }
     }
 
-    # Submits an HTTP request to a service with the specified HTTP verb. The `submit()` function does not return
-    # a `Response` as the result, rather it returns an `HttpFuture` which can be used for subsequent interactions
+    # Submits an HTTP request to a service with the specified HTTP verb. The `FailoverClient.submit()` function does not
+    # return a `Response` as the result, rather it returns an `HttpFuture` which can be used for subsequent interactions
     # with the HTTP endpoint.
     #
     # + httpVerb - The HTTP verb value
@@ -434,37 +434,25 @@ function populateErrorsFromLastResponse (Response inResponse, ClientError?[] fai
 
 # Provides a set of HTTP related configurations and failover related configurations.
 #
-# + httpVersion - The HTTP version to be used to communicate with the endpoint
-# + http1Settings - Configurations related to HTTP/1.x protocol
-# + http2Settings - Configurations related to HTTP/2 protocol
-# + timeoutInMillis - The maximum time to wait (in milliseconds) for a response before closing the connection
-# + forwarded - The choice of setting `forwarded`/`x-forwarded` header
-# + followRedirects - Redirect related options
-# + poolConfig - Configurations associated with request pooling
-# + proxy - Proxy related options
+# httpVersion - Copied from CommonClientConfiguration
+# http1Settings - Copied from CommonClientConfiguration
+# http2Settings - Copied from CommonClientConfiguration
+# timeoutInMillis - Copied from CommonClientConfiguration
+# forwarded - Copied from CommonClientConfiguration
+# followRedirects - Copied from CommonClientConfiguration
+# poolConfig - Copied from CommonClientConfiguration
+# cache - Copied from CommonClientConfiguration
+# compression - Copied from CommonClientConfiguration
+# auth - Copied from CommonClientConfiguration
+# circuitBreaker - Copied from CommonClientConfiguration
+# retryConfig - Copied from CommonClientConfiguration
+# cookieConfig - Copied from CommonClientConfiguration
 # + targets - The upstream HTTP endpoints among which the incoming HTTP traffic load should be sent on failover
-# + cache - The configurations for controlling the caching behaviour
-# + compression - Specifies the way of handling compression (`accept-encoding`) header
-# + auth - HTTP authentication related configurations
-# + circuitBreaker - Circuit Breaker behaviour configurations
-# + retryConfig - Retry related options
 # + failoverCodes - Array of HTTP response status codes for which the failover behaviour should be triggered
 # + intervalInMillis - Failover delay interval in milliseconds
 public type FailoverClientConfiguration record {|
-    string httpVersion = HTTP_1_1;
-    ClientHttp1Settings http1Settings = {};
-    ClientHttp2Settings http2Settings = {};
-    int timeoutInMillis = 60000;
-    string forwarded = "disable";
-    FollowRedirects? followRedirects = ();
-    ProxyConfig? proxy = ();
-    PoolConfiguration? poolConfig = ();
+    *CommonClientConfiguration;
     TargetService[] targets = [];
-    CacheConfig cache = {};
-    Compression compression = COMPRESSION_AUTO;
-    OutboundAuthConfig? auth = ();
-    CircuitBreakerConfig? circuitBreaker = ();
-    RetryConfig? retryConfig = ();
     int[] failoverCodes = [501, 502, 503, 504];
     int intervalInMillis = 0;
 |};

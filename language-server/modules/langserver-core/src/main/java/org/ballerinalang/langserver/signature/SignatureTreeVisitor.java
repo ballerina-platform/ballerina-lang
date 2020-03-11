@@ -20,9 +20,8 @@ package org.ballerinalang.langserver.signature;
 import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.common.LSNodeVisitor;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
-import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
-import org.ballerinalang.langserver.completions.SymbolInfo;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.TopLevelNode;
@@ -33,6 +32,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
+import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
@@ -69,14 +69,14 @@ public class SignatureTreeVisitor extends LSNodeVisitor {
     private boolean terminateVisitor = false;
     private SymbolTable symTable;
     private Position cursorPosition;
-    private LSServiceOperationContext lsContext;
+    private LSContext lsContext;
     private Deque<DiagnosticPos> blockPositionStack;
 
     /**
      * Public constructor.
      * @param context    Document service context for the signature operation
      */
-    public SignatureTreeVisitor(LSServiceOperationContext context) {
+    public SignatureTreeVisitor(LSContext context) {
         blockPositionStack = new ArrayDeque<>();
         lsContext = context;
         cursorPosition = context.get(DocumentServiceKeys.POSITION_KEY).getPosition();
@@ -107,6 +107,9 @@ public class SignatureTreeVisitor extends LSNodeVisitor {
 
     @Override
     public void visit(BLangTypeDefinition typeDefinition) {
+        if (typeDefinition.annAttachments != null) {
+            typeDefinition.annAttachments.forEach(s -> acceptNode(s, symbolEnv));
+        }
         acceptNode(typeDefinition.typeNode, symbolEnv);
     }
 
@@ -169,6 +172,17 @@ public class SignatureTreeVisitor extends LSNodeVisitor {
     public void visit(BLangBlockStmt blockNode) {
         SymbolEnv blockEnv = SymbolEnv.createBlockEnv(blockNode, symbolEnv);
         blockNode.stmts.forEach(stmt -> this.acceptNode(stmt, blockEnv));
+        if (!terminateVisitor && this.isCursorWithinBlock()) {
+            Map<Name, List<Scope.ScopeEntry>> visibleSymbolEntries
+                    = symbolResolver.getAllVisibleInScopeSymbols(blockEnv);
+            this.populateSymbols(visibleSymbolEntries);
+        }
+    }
+
+    @Override
+    public void visit(BLangBlockFunctionBody blockFuncBody) {
+        SymbolEnv blockEnv = SymbolEnv.createFuncBodyEnv(blockFuncBody, symbolEnv);
+        blockFuncBody.stmts.forEach(stmt -> this.acceptNode(stmt, blockEnv));
         if (!terminateVisitor && this.isCursorWithinBlock()) {
             Map<Name, List<Scope.ScopeEntry>> visibleSymbolEntries
                     = symbolResolver.getAllVisibleInScopeSymbols(blockEnv);
@@ -288,19 +302,17 @@ public class SignatureTreeVisitor extends LSNodeVisitor {
 
     /**
      * Populate the symbols.
+     *
      * @param symbolEntries symbol entries
      */
     private void populateSymbols(Map<Name, List<Scope.ScopeEntry>> symbolEntries) {
         this.terminateVisitor = true;
-        List<SymbolInfo> visibleSymbols = new ArrayList<>();
+        List<Scope.ScopeEntry> visibleSymbols = new ArrayList<>();
 
         for (Map.Entry<Name, List<Scope.ScopeEntry>> entry : symbolEntries.entrySet()) {
-            Name name = entry.getKey();
             List<Scope.ScopeEntry> entryList = entry.getValue();
-            List<SymbolInfo> filteredSymbolInfos = entryList.stream()
-                    .map(scopeEntry -> new SymbolInfo(name.value, scopeEntry))
-                    .collect(Collectors.toList());
-            visibleSymbols.addAll(filteredSymbolInfos);
+            List<Scope.ScopeEntry> symbolCompletionItems = new ArrayList<>(entryList);
+            visibleSymbols.addAll(symbolCompletionItems);
         }
         lsContext.put(CommonKeys.VISIBLE_SYMBOLS_KEY, visibleSymbols);
     }

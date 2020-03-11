@@ -19,6 +19,8 @@ package org.ballerinalang.net.grpc;
 
 import io.netty.handler.codec.http.DefaultHttpHeaders;
 import io.netty.handler.codec.http.HttpHeaders;
+import org.ballerinalang.jvm.observability.ObserverContext;
+import org.ballerinalang.net.grpc.exception.StatusRuntimeException;
 import org.ballerinalang.net.grpc.listener.ServerCallHandler;
 import org.wso2.transport.http.netty.contract.exceptions.ServerConnectorException;
 
@@ -60,6 +62,7 @@ public final class ServerCall {
     private boolean messageSent;
     private Compressor compressor;
     private final String messageAcceptEncoding;
+    private ObserverContext context = null;
 
     private DecompressorRegistry decompressorRegistry;
     private CompressorRegistry compressorRegistry;
@@ -139,6 +142,8 @@ public final class ServerCall {
             InputStream resp = method.streamResponse(message);
             outboundMessage.sendMessage(resp);
             messageSent = true;
+        } catch (StatusRuntimeException ex) {
+            close(ex.getStatus(), new DefaultHttpHeaders());
         } catch (Exception e) {
             close(Status.fromThrowable(e), new DefaultHttpHeaders());
         }
@@ -155,6 +160,14 @@ public final class ServerCall {
             throw Status.Code.INVALID_ARGUMENT.toStatus().withDescription("Unable to find compressor by name "
                     + compressorName).asRuntimeException();
         }
+    }
+
+    void setObserverContext(ObserverContext context) {
+        this.context = context;
+    }
+
+    public ObserverContext getObserverContext() {
+        return context;
     }
 
     public void setMessageCompression(boolean enable) {
@@ -215,6 +228,8 @@ public final class ServerCall {
                 Message request = call.method.parseRequest(message);
                 request.setHeaders(call.inboundMessage.getHeaders());
                 listener.onMessage(request);
+            } catch (StatusRuntimeException ex) {
+                throw ex;
             } catch (Exception ex) {
                 throw Status.Code.CANCELLED.toStatus().withCause(ex).withDescription("Failed to dispatch inbound " +
                         "message. " + ex.getMessage()).asRuntimeException();

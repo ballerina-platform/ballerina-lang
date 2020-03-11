@@ -6,29 +6,29 @@ import ballerina/oauth2;
 // The OAuth2 authentication with client credentials grant type is enabled by
 // creating an `oauth2:OutboundOAuth2Provider` with the relevant configurations
 // passed as a record.
-oauth2:OutboundOAuth2Provider oauth2Provider1 = new({
-    tokenUrl: "https://bitbucket.org/site/oauth2/access_token",
-    clientId: "mMNWS9PLmM93V5WHjC",
-    clientSecret: "jLY6xPY3ER4bNTspaGu6fb7kahhs7kUa",
+oauth2:OutboundOAuth2Provider oauth2Provider1 = new ({
+    tokenUrl: "<Token URL for the authorization endpoint>",
+    clientId: "<Client ID for the client credentials grant authentication>",
+    clientSecret: "<Client secret for the client credentials grant authentication>",
     clientConfig: {
         secureSocket: {
             trustStore: {
-                 path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
-                 password: "ballerina"
+                path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
+                password: "ballerina"
             }
         }
     }
 });
-http:BearerAuthHandler oauth2Handler1 = new(oauth2Provider1);
+http:BearerAuthHandler oauth2Handler1 = new (oauth2Provider1);
 
-http:Client clientEP1 = new("https://api.bitbucket.org/2.0", {
+http:Client clientEP1 = new ("<URL of the secured endpoint>", {
     auth: {
         authHandler: oauth2Handler1
     },
     secureSocket: {
         trustStore: {
-             path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
-             password: "ballerina"
+            path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
+            password: "ballerina"
         }
     }
 });
@@ -39,35 +39,35 @@ http:Client clientEP1 = new("https://api.bitbucket.org/2.0", {
 // configurations passed as a record. If the access token expires or
 // becomes invalid, then it will be automatically refreshed with the provided
 // `refreshConfig`.
-oauth2:OutboundOAuth2Provider oauth2Provider2 = new({
-    tokenUrl: "https://bitbucket.org/site/oauth2/access_token",
-    username: "b7a.demo@gmail.com",
-    password: "ballerina",
-    clientId: "mMNWS9PLmM93V5WHjC",
-    clientSecret: "jLY6xPY3ER4bNTspaGu6fb7kahhs7kUa",
+oauth2:OutboundOAuth2Provider oauth2Provider2 = new ({
+    tokenUrl: "<Token URL for the authorization endpoint>",
+    username: "<Username for password grant authentication>",
+    password: "<Password for password grant authentication>",
+    clientId: "<Client ID for password grant authentication>",
+    clientSecret: "<Client secret for password grant authentication>",
     clientConfig: {
         secureSocket: {
             trustStore: {
-                 path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
-                 password: "ballerina"
+                path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
+                password: "ballerina"
             }
         }
     },
     refreshConfig: {
-        refreshUrl: "https://bitbucket.org/site/oauth2/access_token",
+        refreshUrl: "<Refresh token URL for the refresh token server>",
         clientConfig: {
             secureSocket: {
                 trustStore: {
-                     path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
-                     password: "ballerina"
+                    path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
+                    password: "ballerina"
                 }
             }
         }
     }
 });
-http:BearerAuthHandler oauth2Handler2 = new(oauth2Provider2);
+http:BearerAuthHandler oauth2Handler2 = new (oauth2Provider2);
 
-http:Client clientEP2 = new("https://api.bitbucket.org/2.0", {
+http:Client clientEP2 = new ("<URL of the secured endpoint>", {
     auth: {
         authHandler: oauth2Handler2
     },
@@ -84,26 +84,26 @@ http:Client clientEP2 = new("https://api.bitbucket.org/2.0", {
 // an `oauth2:OutboundOAuth2Provider` with the relevant configurations passed
 // as a record. If the `accessToken` is invalid or not provided, it will
 // be automatically refreshed with the provided `refreshConfig`.
-oauth2:OutboundOAuth2Provider oauth2Provider3 = new({
-    accessToken: "ya29.GlvQBkqJS0yn0zsZm4IIUUzLk3DH1rRiCMKnHiz6deycKmTFiDsuoFlFfrmXF8dCb0gyzLyXpnv3VcrIlauj3nMs61CbydaAqMl6RwVIU2r2qg1StVVvxRWT9_Or",
+oauth2:OutboundOAuth2Provider oauth2Provider3 = new ({
+    accessToken: "<Access token for the authorization endpoint>",
     refreshConfig: {
-        clientId: "506144513496-dqm5vdqfrfhdjjom10rmvafb8e3h7rtm.apps.googleusercontent.com",
-        clientSecret: "3hw2XN4MfiIRrv6mghX6m5gM",
-        refreshToken: "1/UwH3YyYccKTrH9bqj35Y7hMYTK9f3HEC3uzlrleFwPE",
-        refreshUrl: "https://www.googleapis.com/oauth2/v4/token",
+        clientId: "<Client ID for authentication with the authorization endpoint>",
+        clientSecret: "<Client secret for authentication with the authorization endpoint>",
+        refreshToken: "<Refresh token for the refresh token server>",
+        refreshUrl: "<Refresh token URL for the refresh token server>",
         clientConfig: {
             secureSocket: {
                 trustStore: {
-                     path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
-                     password: "ballerina"
+                    path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
+                    password: "ballerina"
                 }
             }
         }
     }
 });
-http:BearerAuthHandler oauth2Handler3 = new(oauth2Provider3);
+http:BearerAuthHandler oauth2Handler3 = new (oauth2Provider3);
 
-http:Client clientEP3 = new("https://www.googleapis.com/tasks/v1", {
+http:Client clientEP3 = new ("<URL of the secured endpoint>", {
     auth: {
         authHandler: oauth2Handler3
     },
@@ -117,51 +117,41 @@ http:Client clientEP3 = new("https://www.googleapis.com/tasks/v1", {
 
 public function main() {
     // Sends a `GET` request to the specified endpoint.
-    var response1 = clientEP1->get("/repositories/b7ademo");
+    var response1 = clientEP1->get("/");
     if (response1 is http:Response) {
         var result = response1.getJsonPayload();
         if (result is json) {
-            var values = result.values;
-            if (values is json[]) {
-                var uuid = values[0].uuid;
-                if (uuid is json) {
-                    log:printInfo(uuid.toJsonString());
-                }
-            }
+            log:printInfo(result.toJsonString());
         } else {
             log:printError("Failed to retrieve payload for clientEP1.");
         }
     } else {
-        log:printError("Failed to call the endpoint from clientEP1.", err = response1);
+        log:printError("Failed to call the endpoint from clientEP1.", response1);
     }
 
     // Send a `GET` request to the specified endpoint.
-    var response2 = clientEP2->get("/repositories/b7ademo");
+    var response2 = clientEP2->get("/");
     if (response2 is http:Response) {
         var result = response2.getJsonPayload();
         if (result is json) {
-            var values = result.values;
-            if (values is json[]) {
-                var uuid = values[0].uuid;
-                if (uuid is json) {
-                    log:printInfo(uuid.toJsonString());
-                }
-            }
+            log:printInfo(result.toJsonString());
         } else {
             log:printError("Failed to retrieve payload for clientEP2.");
         }
     } else {
-        log:printError("Failed to call the endpoint from clientEP2.", err = response2);
+        log:printError("Failed to call the endpoint from clientEP2.", response2);
     }
 
     // Send a `GET` request to the specified endpoint.
-    var response3 = clientEP3->get("/users/@me/lists");
+    var response3 = clientEP3->get("/");
     if (response3 is http:Response) {
         var result = response3.getJsonPayload();
-        log:printInfo((result is error) ?
-                                    "Failed to retrieve payload for clientEP3."
-                                    : <string> result.kind);
+        if (result is error) {
+            log:printInfo("Failed to retrieve payload for clientEP3.");
+        } else {
+            log:printInfo(<string>result.kind);
+        }
     } else {
-        log:printError("Failed to call the endpoint from clientEP3.", err = response3);
+        log:printError("Failed to call the endpoint from clientEP3.", response3);
     }
 }

@@ -79,7 +79,8 @@ public class LangLibValueTest {
                      "[{\"name\":\"anObject\", \"value\":\"10\", \"sub\":\"Science\", \"intVal\":2324, " +
                      "\"boolVal\":true, \"floatVal\":45.4, \"nestedMap\":{\"xx\":\"XXStr\", \"n\":343, " +
                      "\"nilVal\":null}}, {\"name\":\"anObject\", \"value\":\"10\", \"sub\":\"Science\"}]");
-        assertEquals(arr.size(), 9);
+        assertEquals(arr.get("iArr").stringValue(), "[0, 1, 255]");
+        assertEquals(arr.size(), 10);
     }
 
     @Test
@@ -162,6 +163,12 @@ public class LangLibValueTest {
     public void testMergeJson(String function) {
         BValue[] returns = BRunUtil.invoke(compileResult, function);
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+    }
+
+    @Test()
+    public void xmlSequenceFragmentToString() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "xmlSequenceFragmentToString");
+        Assert.assertEquals((returns[0]).stringValue(), "<def>DEF</def><ghi>1</ghi>");
     }
 
     @DataProvider(name = "mergeJsonFunctions")

@@ -40,6 +40,6 @@ public class BalGenerationConstants {
     public static final String PROTOC_PLUGIN_EXE_PREFIX = ".exe";
     public static final String PROTO_SUFFIX = ".proto";
     public static final String DESC_SUFFIX = ".desc";
-    public static final String PROTOC_PLUGIN_EXE_URL_SUFFIX = "http://repo1.maven.org/maven2/com/google/" +
+    public static final String PROTOC_PLUGIN_EXE_URL_SUFFIX = "https://repo1.maven.org/maven2/com/google/" +
             "protobuf/protoc/";
 }

@@ -1,11 +1,12 @@
 configurations {
+    bStringBirJar
     birJar
     bir
     birJarCompile { transitive false }
 }
 
 dependencies {
-    birJarCompile project(path: ':ballerina-bootstrapper', configuration: 'pack3')
+    birJarCompile project(path: ':ballerina-bootstrapper', configuration: 'pack4')
 }
 
 

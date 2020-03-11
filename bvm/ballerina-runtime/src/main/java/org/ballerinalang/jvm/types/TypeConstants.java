@@ -47,10 +47,14 @@ public class TypeConstants {
     public static final String ERROR = "error";
     public static final String SERVICE = "service";
     public static final String HANDLE_TNAME = "handle";
+    public static final String FINITE_TNAME = "finite";
+    public static final String FUNCTION_TNAME = "function";
 
     // Special Types and Type fields.
     public static final String DETAIL_TYPE = "detail";
     public static final String DETAIL_MESSAGE = "message";
     public static final String DETAIL_CAUSE = "cause";
 
+    // Return type of the next function in iterators
+    public static final String ITERATOR_NEXT_RETURN_TYPE = "$$returnType$$";
 }

@@ -71,8 +71,13 @@ public type ObjectGenerator object {
 
         self.createObjectInit(cw, fields, className);
         self.createCallMethod(cw, attachedFuncs, className, objectType.name.value, isService);
-        self.createObjectGetMethod(cw, fields, className);
-        self.createObjectSetMethod(cw, fields, className);
+        if (IS_BSTRING) {
+            self.createObjectGetMethod(cw, fields, className, true);
+            self.createObjectSetMethod(cw, fields, className, true);
+        } else {
+        self.createObjectGetMethod(cw, fields, className, false);
+        self.createObjectSetMethod(cw, fields, className, false);
+        }
         self.createLambdas(cw);
 
         cw.visitEnd();
@@ -95,12 +100,17 @@ public type ObjectGenerator object {
     }
 
     private function createObjectFields(jvm:ClassWriter cw, bir:BObjectField?[] fields) {
-        foreach var field in fields {
-            if (field is bir:BObjectField) {
-                jvm:FieldVisitor fv = cw.visitField(0, field.name.value, getTypeDesc(field.typeValue));
-                fv.visitEnd();
+        foreach var 'field in fields {
+            if ('field is bir:BObjectField) {
+                if(IS_BSTRING) {
+                    jvm:FieldVisitor fvb = cw.visitField(0, nameOfBStringFunc('field.name.value), getTypeDesc('field.typeValue, true));
+                    fvb.visitEnd();
+                } else {
+                    jvm:FieldVisitor fv = cw.visitField(0, 'field.name.value, getTypeDesc('field.typeValue));
+                    fv.visitEnd();
+                }
                 string lockClass = "L" + LOCK_VALUE + ";";
-                fv = cw.visitField(ACC_PUBLIC + ACC_FINAL, computeLockNameFromString(field.name.value), lockClass);
+                jvm:FieldVisitor fv = cw.visitField(ACC_PUBLIC + ACC_FINAL, computeLockNameFromString('field.name.value), lockClass);
                 fv.visitEnd();
             }
         }
@@ -127,15 +137,15 @@ public type ObjectGenerator object {
         mv.visitMethodInsn(INVOKESPECIAL, ABSTRACT_OBJECT_VALUE, "<init>", io:sprintf("(L%s;)V", OBJECT_TYPE), false);
 
         string lockClass = "L" + LOCK_VALUE + ";";
-        foreach var field in fields {
-            if (field is bir:BObjectField) {
+        foreach var 'field in fields {
+            if ('field is bir:BObjectField) {
                 jvm:Label fLabel = new;
                 mv.visitLabel(fLabel);
                 mv.visitVarInsn(ALOAD, 0);
                 mv.visitTypeInsn(NEW, LOCK_VALUE);
                 mv.visitInsn(DUP);
                 mv.visitMethodInsn(INVOKESPECIAL, LOCK_VALUE, "<init>", "()V", false);
-                mv.visitFieldInsn(PUTFIELD, className, computeLockNameFromString(field.name.value), lockClass);
+                mv.visitFieldInsn(PUTFIELD, className, computeLockNameFromString('field.name.value), lockClass);
             }
         }
 
@@ -179,7 +189,8 @@ public type ObjectGenerator object {
             string methodSig = "";
 
             // use index access, since retType can be nil.
-            methodSig = getMethodDesc(paramTypes, retType);
+            boolean useBString = IS_BSTRING;
+            methodSig = getMethodDesc(paramTypes, retType, useBString = useBString);
 
             // load self
             mv.visitVarInsn(ALOAD, 0);
@@ -196,7 +207,7 @@ public type ObjectGenerator object {
                 mv.visitLdcInsn(j);
                 mv.visitInsn(L2I);
                 mv.visitInsn(AALOAD);
-                addUnboxInsn(mv, pType);
+                addUnboxInsn(mv, pType, useBString);
                 j += 1;
             }
 
@@ -219,12 +230,20 @@ public type ObjectGenerator object {
         mv.visitEnd();
     }
 
-    private function createObjectGetMethod(jvm:ClassWriter cw, bir:BObjectField?[] fields, string className) {
+    private function createObjectGetMethod(jvm:ClassWriter cw, bir:BObjectField?[] fields, string className,
+                                           boolean useBString) {
         jvm:MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "get",
-                io:sprintf("(L%s;)L%s;", STRING_VALUE, OBJECT), (), ());
+                io:sprintf("(L%s;)L%s;", useBString ? I_STRING_VALUE : STRING_VALUE, OBJECT), (), ());
         mv.visitCode();
 
         int fieldNameRegIndex = 1;
+        if(useBString) {
+            mv.visitVarInsn(ALOAD, 0);
+             mv.visitMethodInsn(INVOKEINTERFACE, I_STRING_VALUE, "getValue", io:sprintf("()L%s;", STRING_VALUE) , true);
+             fieldNameRegIndex = 2;
+             mv.visitVarInsn(ASTORE, fieldNameRegIndex);
+         }
+
         jvm:Label defaultCaseLabel = new jvm:Label();
 
         // sort the fields before generating switch case
@@ -238,12 +257,13 @@ public type ObjectGenerator object {
 
         int i = 0;
         foreach var optionalField in sortedFields {
-            bir:BObjectField field = getObjectField(optionalField);
+            bir:BObjectField 'field = getObjectField(optionalField);
             jvm:Label targetLabel = targetLabels[i];
             mv.visitLabel(targetLabel);
             mv.visitVarInsn(ALOAD, 0);
-            mv.visitFieldInsn(GETFIELD, className, field.name.value, getTypeDesc(field.typeValue));
-            addBoxInsn(mv, field.typeValue);
+            mv.visitFieldInsn(GETFIELD, className, conditionalBStringName('field.name.value, useBString),
+                              getTypeDesc('field.typeValue, useBString));
+            addBoxInsn(mv, 'field.typeValue);
             mv.visitInsn(ARETURN);
             i += 1;
         }
@@ -253,9 +273,10 @@ public type ObjectGenerator object {
         mv.visitEnd();
     }
 
-    private function createObjectSetMethod(jvm:ClassWriter cw, bir:BObjectField?[] fields, string className) {
+    private function createObjectSetMethod(jvm:ClassWriter cw, bir:BObjectField?[] fields, string className,
+                                           boolean useBString) {
         jvm:MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "set",
-                io:sprintf("(L%s;L%s;)V", STRING_VALUE, OBJECT), (), ());
+                io:sprintf("(L%s;L%s;)V", useBString ? B_STRING_VALUE : STRING_VALUE, OBJECT), (), ());
         mv.visitCode();
         int fieldNameRegIndex = 1;
         int valueRegIndex = 2;
@@ -264,6 +285,12 @@ public type ObjectGenerator object {
         // code gen type checking for inserted value
         mv.visitVarInsn(ALOAD, 0);
         mv.visitVarInsn(ALOAD, fieldNameRegIndex);
+        if(useBString) {
+            mv.visitMethodInsn(INVOKEINTERFACE, B_STRING_VALUE, "getValue", io:sprintf("()L%s;", STRING_VALUE) , true);
+            mv.visitInsn(DUP);
+            fieldNameRegIndex = 3;
+            mv.visitVarInsn(ASTORE, fieldNameRegIndex);
+        }
         mv.visitVarInsn(ALOAD, valueRegIndex);
         mv.visitMethodInsn(INVOKEVIRTUAL, className, "checkFieldUpdate",
                 io:sprintf("(L%s;L%s;)V", STRING_VALUE, OBJECT), false);
@@ -280,13 +307,17 @@ public type ObjectGenerator object {
         // case body
         int i = 0;
         foreach var optionalField in sortedFields {
-            bir:BObjectField field = getObjectField(optionalField);
+            bir:BObjectField 'field = getObjectField(optionalField);
             jvm:Label targetLabel = targetLabels[i];
             mv.visitLabel(targetLabel);
             mv.visitVarInsn(ALOAD, 0);
             mv.visitVarInsn(ALOAD, valueRegIndex);
-            addUnboxInsn(mv, field.typeValue);
-            mv.visitFieldInsn(PUTFIELD, className, field.name.value, getTypeDesc(field.typeValue));
+            addUnboxInsn(mv, 'field.typeValue, useBString);
+            string filedName = 'field.name.value;
+            if(useBString) {
+                filedName = nameOfBStringFunc(filedName);
+            }
+            mv.visitFieldInsn(PUTFIELD, className, filedName, getTypeDesc('field.typeValue, useBString));
             mv.visitInsn(RETURN);
             i += 1;
         }
@@ -413,13 +444,18 @@ public type ObjectGenerator object {
     }
 
     private function createRecordFields(jvm:ClassWriter cw, bir:BRecordField?[] fields) {
-        foreach var field in fields {
-            if (field is bir:BRecordField) {
-                jvm:FieldVisitor fv = cw.visitField(0, field.name.value, getTypeDesc(field.typeValue));
+        foreach var 'field in fields {
+            if ('field is bir:BRecordField) {
+                jvm:FieldVisitor fv;
+                if(IS_BSTRING) {
+                    fv = cw.visitField(0, nameOfBStringFunc('field.name.value), getTypeDesc('field.typeValue, true));
+                } else {
+                    fv = cw.visitField(0, 'field.name.value, getTypeDesc('field.typeValue));
+                }
                 fv.visitEnd();
 
-                if (self.isOptionalRecordField(field)) {
-                    fv = cw.visitField(0, self.getFieldIsPresentFlagName(field.name.value), 
+                if (self.isOptionalRecordField('field)) {
+                    fv = cw.visitField(0, self.getFieldIsPresentFlagName('field.name.value),
                             getTypeDesc(bir:TYPE_BOOLEAN));
                     fv.visitEnd();
                 }
@@ -431,8 +467,8 @@ public type ObjectGenerator object {
         return io:sprintf("%s$isPresent", fieldName);
     }
 
-    private function isOptionalRecordField(bir:BRecordField field) returns boolean {
-        return (field.flags & BAL_OPTIONAL) == BAL_OPTIONAL;
+    private function isOptionalRecordField(bir:BRecordField 'field) returns boolean {
+        return ('field.flags & BAL_OPTIONAL) == BAL_OPTIONAL;
     }
 
     private function createRecordGetMethod(jvm:ClassWriter cw, bir:BRecordField?[] fields, string className) {
@@ -446,7 +482,10 @@ public type ObjectGenerator object {
 
         // cast key to java.lang.String
         mv.visitVarInsn(ALOAD, fieldNameRegIndex);
-        mv.visitTypeInsn(CHECKCAST, STRING_VALUE);
+        mv.visitTypeInsn(CHECKCAST, IS_BSTRING ? B_STRING_VALUE : STRING_VALUE);
+        if (IS_BSTRING) {
+            mv.visitMethodInsn(INVOKEINTERFACE, B_STRING_VALUE, "getValue", io:sprintf("()L%s;", STRING_VALUE) , true);
+        }
         mv.visitVarInsn(ASTORE, strKeyVarIndex);
 
         // sort the fields before generating switch case
@@ -460,14 +499,14 @@ public type ObjectGenerator object {
 
         int i = 0;
         foreach var optionalField in sortedFields {
-            bir:BRecordField field = getRecordField(optionalField);
+            bir:BRecordField 'field = getRecordField(optionalField);
             jvm:Label targetLabel = targetLabels[i];
             mv.visitLabel(targetLabel);
 
             // if the field is an optional-field, first check the 'isPresent' flag of that field.
             jvm:Label ifPresentLabel = new;
-            string fieldName = field.name.value;
-            if (self.isOptionalRecordField(field)) {
+            string fieldName = 'field.name.value;
+            if (self.isOptionalRecordField('field)) {
                 mv.visitVarInsn(ALOAD, 0);
                 mv.visitFieldInsn(GETFIELD, className, self.getFieldIsPresentFlagName(fieldName),
                                     getTypeDesc(bir:TYPE_BOOLEAN));
@@ -479,8 +518,8 @@ public type ObjectGenerator object {
             mv.visitLabel(ifPresentLabel);
             // return the value of the field
             mv.visitVarInsn(ALOAD, 0);
-            mv.visitFieldInsn(GETFIELD, className, fieldName, getTypeDesc(field.typeValue));
-            addBoxInsn(mv, field.typeValue);
+            mv.visitFieldInsn(GETFIELD, className, conditionalBStringName(fieldName, IS_BSTRING), getTypeDesc('field.typeValue, IS_BSTRING));
+            addBoxInsn(mv, 'field.typeValue);
             mv.visitInsn(ARETURN);
             i += 1;
         }
@@ -502,7 +541,10 @@ public type ObjectGenerator object {
 
         // cast key to java.lang.String
         mv.visitVarInsn(ALOAD, fieldNameRegIndex);
-        mv.visitTypeInsn(CHECKCAST, STRING_VALUE);
+        mv.visitTypeInsn(CHECKCAST, IS_BSTRING ? I_STRING_VALUE : STRING_VALUE);
+        if (IS_BSTRING) {
+            mv.visitMethodInsn(INVOKEINTERFACE, I_STRING_VALUE, "getValue", io:sprintf("()L%s;", STRING_VALUE) , true);
+        }
         mv.visitVarInsn(ASTORE, strKeyVarIndex);
 
         // sort the fields before generating switch case
@@ -517,23 +559,22 @@ public type ObjectGenerator object {
         // case body
         int i = 0;
         foreach var optionalField in sortedFields {
-            bir:BRecordField field = getRecordField(optionalField);
+            bir:BRecordField 'field = getRecordField(optionalField);
             jvm:Label targetLabel = targetLabels[i];
             mv.visitLabel(targetLabel);
 
             // load the existing value to return
-            string fieldName = field.name.value;
+            string fieldName = 'field.name.value;
             mv.visitVarInsn(ALOAD, 0);
-            mv.visitFieldInsn(GETFIELD, className, fieldName, getTypeDesc(field.typeValue));
-            addBoxInsn(mv, field.typeValue);
+            mv.visitFieldInsn(GETFIELD, className, conditionalBStringName(fieldName, IS_BSTRING), getTypeDesc('field.typeValue, IS_BSTRING));
+            addBoxInsn(mv, 'field.typeValue);
 
             mv.visitVarInsn(ALOAD, 0);
             mv.visitVarInsn(ALOAD, valueRegIndex);
-            addUnboxInsn(mv, field.typeValue);
-            mv.visitFieldInsn(PUTFIELD, className, fieldName, getTypeDesc(field.typeValue));
-
+            addUnboxInsn(mv, 'field.typeValue, IS_BSTRING);
+            mv.visitFieldInsn(PUTFIELD, className, conditionalBStringName(fieldName, IS_BSTRING), getTypeDesc('field.typeValue, IS_BSTRING));
             // if the field is an optional-field, then also set the isPresent flag of that field to true.
-            if (self.isOptionalRecordField(field)) {
+            if (self.isOptionalRecordField('field)) {
                 mv.visitVarInsn(ALOAD, 0);
                 mv.visitInsn(ICONST_1);
                 mv.visitFieldInsn(PUTFIELD, className, self.getFieldIsPresentFlagName(fieldName), 
@@ -582,12 +623,12 @@ public type ObjectGenerator object {
         mv.visitVarInsn(ASTORE, entrySetVarIndex);
 
         foreach var optionalField in fields {
-            bir:BRecordField field = getRecordField(optionalField);
+            bir:BRecordField 'field = getRecordField(optionalField);
             jvm:Label ifNotPresent = new;
 
             // If its an optional field, generate if-condition to check the presense of the field.
-            string fieldName = field.name.value;
-            if (self.isOptionalRecordField(field)) {
+            string fieldName = 'field.name.value;
+            if (self.isOptionalRecordField('field)) {
                 mv.visitVarInsn(ALOAD, 0);
                 mv.visitFieldInsn(GETFIELD, className, self.getFieldIsPresentFlagName(fieldName), 
                                     getTypeDesc(bir:TYPE_BOOLEAN));
@@ -602,8 +643,8 @@ public type ObjectGenerator object {
             mv.visitLdcInsn(fieldName);
             // field value as the map-entry value
             mv.visitVarInsn(ALOAD, 0);
-            mv.visitFieldInsn(GETFIELD, className, fieldName, getTypeDesc(field.typeValue));
-            addBoxInsn(mv, field.typeValue);
+            mv.visitFieldInsn(GETFIELD, className, fieldName, getTypeDesc('field.typeValue));
+            addBoxInsn(mv, 'field.typeValue);
 
             mv.visitMethodInsn(INVOKESPECIAL, MAP_SIMPLE_ENTRY, "<init>", io:sprintf("(L%s;L%s;)V", OBJECT, OBJECT),
                                 false);
@@ -636,7 +677,10 @@ public type ObjectGenerator object {
 
         // cast key to java.lang.String
         mv.visitVarInsn(ALOAD, fieldNameRegIndex);
-        mv.visitTypeInsn(CHECKCAST, STRING_VALUE);
+        mv.visitTypeInsn(CHECKCAST, IS_BSTRING ? B_STRING_VALUE : STRING_VALUE);
+        if (IS_BSTRING) {
+            mv.visitMethodInsn(INVOKEINTERFACE, B_STRING_VALUE, "getValue", io:sprintf("()L%s;", STRING_VALUE) , true);
+        }
         mv.visitVarInsn(ASTORE, strKeyVarIndex);
 
         // sort the fields before generating switch case
@@ -651,12 +695,12 @@ public type ObjectGenerator object {
 
         int i = 0;
         foreach var optionalField in sortedFields {
-            bir:BObjectField field = getObjectField(optionalField);
+            bir:BObjectField 'field = getObjectField(optionalField);
             jvm:Label targetLabel = targetLabels[i];
             mv.visitLabel(targetLabel);
 
-            string fieldName = field.name.value;
-            if (self.isOptionalRecordField(field)) {
+            string fieldName = 'field.name.value;
+            if (self.isOptionalRecordField('field)) {
                 // if the field is optional, then return the value is the 'isPresent' flag.
                 mv.visitVarInsn(ALOAD, 0);
                 mv.visitFieldInsn(GETFIELD, className, self.getFieldIsPresentFlagName(fieldName), 
@@ -673,7 +717,7 @@ public type ObjectGenerator object {
         // default case
         mv.visitLabel(defaultCaseLabel);
         mv.visitVarInsn(ALOAD, 0);
-        mv.visitVarInsn(ALOAD, fieldNameRegIndex);
+        mv.visitVarInsn(ALOAD, strKeyVarIndex);
         mv.visitMethodInsn(INVOKESPECIAL, MAP_VALUE_IMPL, "containsKey", io:sprintf("(L%s;)Z", OBJECT), false);
         mv.visitInsn(IRETURN);
 
@@ -693,12 +737,12 @@ public type ObjectGenerator object {
         mv.visitVarInsn(ASTORE, valuesVarIndex);
 
         foreach var optionalField in fields {
-            bir:BRecordField field = getRecordField(optionalField);
+            bir:BRecordField 'field = getRecordField(optionalField);
             jvm:Label ifNotPresent = new;
 
             // If its an optional field, generate if-condition to check the presense of the field.
-            string fieldName = field.name.value;
-            if (self.isOptionalRecordField(field)) {
+            string fieldName = 'field.name.value;
+            if (self.isOptionalRecordField('field)) {
                 mv.visitVarInsn(ALOAD, 0); // self
                 mv.visitFieldInsn(GETFIELD, className, self.getFieldIsPresentFlagName(fieldName),
                                     getTypeDesc(bir:TYPE_BOOLEAN));
@@ -707,8 +751,8 @@ public type ObjectGenerator object {
 
             mv.visitVarInsn(ALOAD, valuesVarIndex);
             mv.visitVarInsn(ALOAD, 0); // self
-            mv.visitFieldInsn(GETFIELD, className, fieldName, getTypeDesc(field.typeValue));
-            addBoxInsn(mv, field.typeValue);
+            mv.visitFieldInsn(GETFIELD, className, fieldName, getTypeDesc('field.typeValue));
+            addBoxInsn(mv, 'field.typeValue);
             mv.visitMethodInsn(INVOKEINTERFACE, LIST, "add", io:sprintf("(L%s;)Z", OBJECT), true);
             mv.visitInsn(POP);
             mv.visitLabel(ifNotPresent);
@@ -737,9 +781,9 @@ public type ObjectGenerator object {
 
         int requiredFieldsCount = 0;
         foreach var optionalField in fields {
-            bir:BObjectField field = getObjectField(optionalField);
-            string fieldName = field.name.value;
-            if (self.isOptionalRecordField(field)) {
+            bir:BObjectField 'field = getObjectField(optionalField);
+            string fieldName = 'field.name.value;
+            if (self.isOptionalRecordField('field)) {
                 mv.visitVarInsn(ALOAD, 0);
                 mv.visitFieldInsn(GETFIELD, className, self.getFieldIsPresentFlagName(fieldName),
                                     getTypeDesc(bir:TYPE_BOOLEAN));
@@ -796,12 +840,12 @@ public type ObjectGenerator object {
         mv.visitVarInsn(ASTORE, KeysVarIndex);
 
         foreach var optionalField in fields {
-            bir:BRecordField field = getRecordField(optionalField);
+            bir:BRecordField 'field = getRecordField(optionalField);
             jvm:Label ifNotPresent = new;
 
             // If its an optional field, generate if-condition to check the presense of the field.
-            string fieldName = field.name.value;
-            if (self.isOptionalRecordField(field)) {
+            string fieldName = 'field.name.value;
+            if (self.isOptionalRecordField('field)) {
                 mv.visitVarInsn(ALOAD, 0); // self
                 mv.visitFieldInsn(GETFIELD, className, self.getFieldIsPresentFlagName(fieldName),
                                     getTypeDesc(bir:TYPE_BOOLEAN));

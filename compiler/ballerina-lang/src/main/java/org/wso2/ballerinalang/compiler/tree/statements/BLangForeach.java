@@ -19,7 +19,7 @@ package org.wso2.ballerinalang.compiler.tree.statements;
 
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
-import org.ballerinalang.model.tree.statements.BlockNode;
+import org.ballerinalang.model.tree.statements.BlockStatementNode;
 import org.ballerinalang.model.tree.statements.ForeachNode;
 import org.ballerinalang.model.tree.statements.VariableDefinitionNode;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
@@ -37,8 +37,9 @@ public class BLangForeach extends BLangStatement implements ForeachNode {
     public BLangBlockStmt body;
 
     public VariableDefinitionNode variableDefinitionNode;
-    public BType varType; // T
+    public BType varType; // T || T|E
     public BType resultType; // map<T>
+    public BType errorType; // E
     public BType nillableResultType; // map<T>?
     public boolean isDeclaredWithVar;
 
@@ -53,12 +54,12 @@ public class BLangForeach extends BLangStatement implements ForeachNode {
     }
 
     @Override
-    public BlockNode getBody() {
+    public BlockStatementNode getBody() {
         return body;
     }
 
     @Override
-    public void setBody(BlockNode body) {
+    public void setBody(BlockStatementNode body) {
         this.body = (BLangBlockStmt) body;
     }
 

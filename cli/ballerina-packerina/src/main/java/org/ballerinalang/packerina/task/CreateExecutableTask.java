@@ -18,6 +18,10 @@
 
 package org.ballerinalang.packerina.task;
 
+import org.apache.commons.compress.archivers.jar.JarArchiveEntry;
+import org.apache.commons.compress.archivers.zip.ZipArchiveEntryPredicate;
+import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream;
+import org.apache.commons.compress.archivers.zip.ZipFile;
 import org.ballerinalang.packerina.buildcontext.BuildContext;
 import org.ballerinalang.packerina.buildcontext.BuildContextField;
 import org.ballerinalang.packerina.buildcontext.sourcecontext.SingleFileContext;
@@ -25,24 +29,15 @@ import org.ballerinalang.packerina.buildcontext.sourcecontext.SingleModuleContex
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.util.Lists;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.net.URI;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.FileSystem;
-import java.nio.file.FileSystems;
-import java.nio.file.FileVisitResult;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.SimpleFileVisitor;
-import java.nio.file.StandardCopyOption;
-import java.nio.file.StandardOpenOption;
-import java.nio.file.attribute.BasicFileAttributes;
-import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Optional;
 
 import static org.ballerinalang.tool.LauncherUtils.createLauncherException;
@@ -51,27 +46,26 @@ import static org.ballerinalang.tool.LauncherUtils.createLauncherException;
  * Task for creating the executable jar file.
  */
 public class CreateExecutableTask implements Task {
-    
-    private static HashSet<String> excludeExtensions =  new HashSet<>(Lists.of("DSA", "SF"));
+
+    private static HashSet<String> excludeExtensions = new HashSet<>(Lists.of("DSA", "SF"));
 
     @Override
     public void execute(BuildContext buildContext) {
         Optional<BLangPackage> modulesWithEntryPoints = buildContext.getModules().stream()
                 .filter(m -> m.symbol.entryPointExists)
                 .findAny();
-        
+
         if (modulesWithEntryPoints.isPresent()) {
             buildContext.out().println();
             buildContext.out().println("Generating executables");
             for (BLangPackage module : buildContext.getModules()) {
                 if (module.symbol.entryPointExists) {
                     Path executablePath = buildContext.getExecutablePathFromTarget(module.packageID);
-                    copyJarFromCachePath(buildContext, module, executablePath);
-                    // Copy ballerina runtime all jar
-                    URI uberJarUri = URI.create("jar:" + executablePath.toUri().toString());
-                    // Load the to jar to a file system
-                    try (FileSystem toFs = FileSystems.newFileSystem(uberJarUri, Collections.emptyMap())) {
-                        assembleExecutable(module, buildContext.moduleDependencyPathMap.get(module.packageID), toFs);
+                    Path jarFromCachePath = buildContext.getJarPathFromTargetCache(module.packageID);
+                    try (ZipArchiveOutputStream outStream = new ZipArchiveOutputStream(new BufferedOutputStream(
+                            new FileOutputStream(String.valueOf(executablePath))))) {
+                        assembleExecutable(jarFromCachePath,
+                                buildContext.moduleDependencyPathMap.get(module.packageID).moduleLibs, outStream);
                     } catch (IOException e) {
                         throw createLauncherException("unable to extract the uber jar :" + e.getMessage());
                     }
@@ -85,7 +79,7 @@ public class CreateExecutableTask implements Task {
                 case SINGLE_MODULE:
                     SingleModuleContext singleModuleContext = buildContext.get(BuildContextField.SOURCE_CONTEXT);
                     throw createLauncherException("no entry points found in '" + singleModuleContext.getModuleName() +
-                                                  "'.\n" +
+                            "'.\n" +
                             "Use `ballerina build -c` to compile the module without building executables.");
                 case ALL_MODULES:
                     throw createLauncherException("no entry points found in any of the modules.\n" +
@@ -96,94 +90,103 @@ public class CreateExecutableTask implements Task {
         }
     }
 
-    private void copyJarFromCachePath(BuildContext buildContext, BLangPackage bLangPackage, Path executablePath) {
-        Path jarFromCachePath = buildContext.getJarPathFromTargetCache(bLangPackage.packageID);
+    private void assembleExecutable(Path jarFromCachePath, HashSet<Path> dependencySet,
+                                    ZipArchiveOutputStream outStream) {
         try {
-            // Copy the jar from cache to bin directory
-            Files.copy(jarFromCachePath, executablePath, StandardCopyOption.REPLACE_EXISTING);
-        } catch (IOException e) {
-            throw createLauncherException("unable to copy the jar from cache path :" + e.getMessage());
-        }
-    }
-    
-    private void assembleExecutable(BLangPackage bLangPackage, HashSet<Path> dependencySet, FileSystem toFs) {
-        try {
-            // Check if the package has an entry point.
-            if (bLangPackage.symbol.entryPointExists) {
-                for (Path path : dependencySet) {
-                    copyFromJarToJar(path, toFs);
-                }
+            // Used to prevent adding duplicated entries during the final jar creation.
+            HashSet<String> entries = new HashSet<>();
+            // Used to process SPI related metadata entries separately. The reason is unlike the other entry types,
+            // service loader related information should be merged together in the final executable jar creation.
+            HashMap<String, StringBuilder> serviceEntries = new HashMap<>();
+            // Copy executable thin jar and the dependency jars.
+            // Executable is created at given location.
+            // If no entry point is found, we do nothing.
+            copyJarToJar(outStream, jarFromCachePath.toString(), entries, serviceEntries);
+            for (Path path : dependencySet) {
+                copyJarToJar(outStream, path.toString(), entries, serviceEntries);
             }
-            // Copy dependency jar
-            // Copy dependency libraries
-            // Executable is created at give location.
-            // If no entry point is found we do nothing.
+            // Copy merged spi services.
+            for (Map.Entry<String, StringBuilder> entry : serviceEntries.entrySet()) {
+                String s = entry.getKey();
+                StringBuilder service = entry.getValue();
+                JarArchiveEntry e = new JarArchiveEntry(s);
+                outStream.putArchiveEntry(e);
+                outStream.write(service.toString().getBytes(StandardCharsets.UTF_8));
+                outStream.closeArchiveEntry();
+            }
         } catch (IOException | NullPointerException e) {
             throw createLauncherException("unable to create the executable: " + e.getMessage());
         }
     }
 
-    private static void copyFromJarToJar(Path fromJar, FileSystem toFs) throws IOException {
-        Path to = toFs.getRootDirectories().iterator().next();
-        URI moduleJarUri = URI.create("jar:" + fromJar.toUri().toString());
-        // Load the from jar to a file system.
-        try (FileSystem fromFs = FileSystems.newFileSystem(moduleJarUri, Collections.emptyMap())) {
-            Path from = fromFs.getRootDirectories().iterator().next();
-            // Walk and copy the files.
-            Files.walkFileTree(from, new Copy(from, to));
-        }
+    /**
+     * Copies a given jar file into the executable fat jar.
+     *
+     * @param outStream     Output stream of the final uber jar.
+     * @param sourceJarFile Path of the source jar file.
+     * @param entries       Entries set will be used to ignore duplicate files.
+     * @param services      Services will be used to temporary hold merged spi files.
+     * @throws IOException If jar file copying is failed.
+     */
+    private void copyJarToJar(ZipArchiveOutputStream outStream, String sourceJarFile, HashSet<String> entries,
+                              HashMap<String, StringBuilder> services) throws IOException {
+
+        ZipFile zipFile = new ZipFile(sourceJarFile);
+        ZipArchiveEntryPredicate predicate = entry -> {
+
+            String entryName = entry.getName();
+            if (entryName.startsWith("META-INF/services")) {
+                StringBuilder s = services.get(entryName);
+                if (s == null) {
+                    s = new StringBuilder();
+                    services.put(entryName, s);
+                }
+                char c = '\n';
+                BufferedInputStream inStream = null;
+                try {
+                    int len;
+                    inStream = new BufferedInputStream(zipFile.getInputStream(entry));
+                    while ((len = inStream.read()) != -1) {
+                        c = (char) len;
+                        s.append(c);
+                    }
+                    if (c != '\n') {
+                        s.append('\n');
+                    }
+                } catch (IOException e) {
+                    throw createLauncherException(
+                            "Error occurred while creating final executable jar due to: " + e.getMessage());
+                } finally {
+                    if (inStream != null) {
+                        closeStream(inStream);
+                    }
+                }
+                // Its not required to copy SPI entries in here as we'll be adding merged SPI related entries
+                // separately. Therefore the predicate should be set as false.
+                return false;
+            }
+            // Skip already copied files or excluded extensions.
+            if (entries.contains(entryName) ||
+                    excludeExtensions.contains(entryName.substring(entryName.lastIndexOf(".") + 1))) {
+                return false;
+            }
+            // SPIs will be merged first and then put into jar separately.
+            entries.add(entryName);
+            return true;
+        };
+
+        // Transfers selected entries from this zip file to the output stream, while preserving its compression and
+        // all the other original attributes.
+        zipFile.copyRawEntries(outStream, predicate);
+        zipFile.close();
     }
 
-    static class Copy extends SimpleFileVisitor<Path> {
-        private Path fromPath;
-        private Path toPath;
-        private StandardCopyOption copyOption;
-        
-        
-        Copy(Path fromPath, Path toPath, StandardCopyOption copyOption) {
-            this.fromPath = fromPath;
-            this.toPath = toPath;
-            this.copyOption = copyOption;
+    private void closeStream(BufferedInputStream stream) {
+        try {
+            stream.close();
+        } catch (IOException e) {
+            throw createLauncherException("error: Failed to close input stream while creating the final " +
+                    "executable jar.\n" + e.getMessage());
         }
-        
-        Copy(Path fromPath, Path toPath) {
-            this(fromPath, toPath, StandardCopyOption.REPLACE_EXISTING);
-        }
-        
-        @Override
-        public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
-            Path targetPath = toPath.resolve(fromPath.relativize(dir).toString());
-            if (!Files.exists(targetPath)) {
-                Files.createDirectory(targetPath);
-            }
-            return FileVisitResult.CONTINUE;
-        }
-
-         @Override
-         public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-             Path toFile = toPath.resolve(fromPath.relativize(file).toString());
-             String fileName = toFile.getFileName().toString();
-             if ((!Files.exists(toFile) &&
-                     !excludeExtensions.contains(fileName.substring(fileName.lastIndexOf(".") + 1)))) {
-                 Files.copy(file, toFile, copyOption);
-             } else if (toFile.toString().startsWith("/META-INF/services")) {
-                 this.mergeSPIFiles(file, toFile);
-             }
-             return FileVisitResult.CONTINUE;
-         }
-
-         private void mergeSPIFiles(Path fromFilePath, Path toFilePath) throws IOException {
-             // Merge the spi implementations for each service file.
-             try (BufferedReader fromBr = new BufferedReader(new InputStreamReader(Files
-                     .newInputStream(fromFilePath), StandardCharsets.UTF_8));
-                  BufferedWriter toBw = new BufferedWriter(new OutputStreamWriter(Files
-                          .newOutputStream(toFilePath, StandardOpenOption.APPEND), StandardCharsets.UTF_8))) {
-                 String text;
-                 while ((text = fromBr.readLine()) != null) {
-                     toBw.newLine();
-                     toBw.write(text);
-                 }
-             }
-         }
-     }
+    }
 }

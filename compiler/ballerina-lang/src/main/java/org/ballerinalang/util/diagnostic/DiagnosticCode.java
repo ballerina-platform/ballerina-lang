@@ -52,7 +52,7 @@ public enum DiagnosticCode {
     CANNOT_INFER_TABLE_TYPE("cannot.infer.table.type"),
     TABLE_KEY_EXPECTED("table.key.expected"),
     OBJECT_TYPE_NOT_ALLOWED("object.type.not.allowed"),
-    UNDEFINED_STRUCTURE_FIELD_WITH_TYPE("undefined.field.in.structure.with.type"), // TODO: remove Maryam
+    UNDEFINED_STRUCTURE_FIELD_WITH_TYPE("undefined.field.in.structure.with.type"),
     UNDEFINED_STRUCTURE_FIELD("undefined.field.in.structure"),
     TYPE_NOT_ALLOWED_WITH_NEW("type.not.allowed.with.new"),
     STREAM_INVALID_CONSTRAINT("stream.invalid.constraint"),
@@ -64,7 +64,6 @@ public enum DiagnosticCode {
     ATTEMPT_EXPOSE_NON_PUBLIC_SYMBOL("attempt.expose.non.public.symbol"),
     UNDEFINED_PARAMETER("undefined.parameter"),
     ATTACHED_FUNCTIONS_MUST_HAVE_BODY("attached.functions.must.have.body"),
-    EXTERN_FUNCTION_CANNOT_HAVE_BODY("extern.function.cannot.have.body"),
     ABSTRACT_OBJECT_CONSTRUCTOR("abstract.object.constructor"),
     CANNOT_INITIALIZE_ABSTRACT_OBJECT("cannot.initialize.abstract.object"),
     INVALID_INTERFACE_ON_NON_ABSTRACT_OBJECT("invalid.interface.of.non.abstract.object"),
@@ -81,6 +80,7 @@ public enum DiagnosticCode {
     GLOBAL_VARIABLE_CYCLIC_DEFINITION("global.variable.cyclic.reference"),
     CANNOT_FIND_ERROR_TYPE("cannot.find.error.constructor.for.type"),
     INVALID_PACKAGE_NAME_QUALIFER("invalid.package.name.qualifier"),
+    INVALID_FIELD_ACCESS_EXPRESSION("invalid.char.colon.in.field.access.expr"),
 
     REQUIRED_PARAM_DEFINED_AFTER_DEFAULTABLE_PARAM("required.param.not.allowed.after.defaultable.param"),
     POSITIONAL_ARG_DEFINED_AFTER_NAMED_ARG("positional.arg.defined.after.named.arg"),
@@ -88,7 +88,8 @@ public enum DiagnosticCode {
     MISSING_REQUIRED_PARAMETER("missing.required.parameter"),
 
     INCOMPATIBLE_TYPES("incompatible.types"),
-    INCOMPATIBLE_TYPES_EXP_TUPLE("incompatible.types.exp.tuple"),
+    INCOMPATIBLE_TYPES_SPREAD_OP("incompatible.types.spread.op"),
+    INCOMPATIBLE_TYPES_FIELD("incompatible.types.field"),
     UNKNOWN_TYPE("unknown.type"),
     BINARY_OP_INCOMPATIBLE_TYPES("binary.op.incompatible.types"),
     UNARY_OP_INCOMPATIBLE_TYPES("unary.op.incompatible.types"),
@@ -100,6 +101,8 @@ public enum DiagnosticCode {
     INVALID_WORKER_TIMEOUT_RESULT_TYPE("invalid.worker.timeout.result.type"),
     INVALID_WORKER_REFERRENCE("invalid.worker.reference"),
     INCOMPATIBLE_TYPE_CONSTRAINT("incompatible.type.constraint"),
+    USAGE_OF_WORKER_WITHIN_LOCK_IS_PROHIBITED("usage.of.worker.within.lock.is.prohibited"),
+    USAGE_OF_START_WITHIN_LOCK_IS_PROHIBITED("usage.of.start.within.lock.is.prohibited"),
     WORKER_SEND_RECEIVE_PARAMETER_COUNT_MISMATCH("worker.send.receive.parameter.count.mismatch"),
     INVALID_WORKER_INTERACTION("worker.invalid.worker.interaction"),
     WORKER_INTERACTIONS_ONLY_ALLOWED_BETWEEN_PEERS("worker.interactions.only.allowed.between.peers"),
@@ -139,6 +142,7 @@ public enum DiagnosticCode {
     RETRY_CANNOT_BE_OUTSIDE_TRANSACTION_BLOCK("retry.cannot.be.outside.transaction.block"),
     BREAK_CANNOT_BE_USED_TO_EXIT_TRANSACTION("break.statement.cannot.be.used.to.exit.from.a.transaction"),
     CONTINUE_CANNOT_BE_USED_TO_EXIT_TRANSACTION("continue.statement.cannot.be.used.to.exit.from.a.transaction"),
+    CHECK_EXPRESSION_INVALID_USAGE_WITHIN_TRANSACTION_BLOCK("check.expression.invalid.usage.within.transaction.block"),
     RETURN_CANNOT_BE_USED_TO_EXIT_TRANSACTION("return.statement.cannot.be.used.to.exit.from.a.transaction"),
     DONE_CANNOT_BE_USED_TO_EXIT_TRANSACTION("done.statement.cannot.be.used.to.exit.from.a.transaction"),
     INVALID_RETRY_COUNT("invalid.retry.count"),
@@ -179,6 +183,8 @@ public enum DiagnosticCode {
     TYPE_CAST_NOT_YET_SUPPORTED("type.cast.not.yet.supported.for.type"),
     EQUALITY_NOT_YET_SUPPORTED("equality.not.yet.supported.for.type"),
     BINDING_PATTERN_NOT_YET_SUPPORTED("binding.pattern.not.yet.supported.for.type"),
+    LET_EXPRESSION_NOT_YET_SUPPORTED_RECORD_FIELD("let.expression.not.yet.supported.record.field"),
+    LET_EXPRESSION_NOT_YET_SUPPORTED_OBJECT_FIELD("let.expression.not.yet.supported.object.field"),
 
     // Cast and conversion related codes
     INCOMPATIBLE_TYPES_CAST("incompatible.types.cast"),
@@ -189,6 +195,9 @@ public enum DiagnosticCode {
     UNSAFE_CONVERSION_ATTEMPT("unsafe.conversion.attempt"),
 
     INVALID_LITERAL_FOR_TYPE("invalid.literal.for.type"),
+    INCOMPATIBLE_MAPPING_CONSTRUCTOR("incompatible.mapping.constructor.expression"),
+    MAPPING_CONSTRUCTOR_COMPATIBLE_TYPE_NOT_FOUND("mapping.constructor.compatible.type.not.found"),
+    CANNOT_INFER_TYPES_FOR_TUPLE_BINDING("cannot.infer.types.for.tuple.binding"),
     INVALID_LITERAL_FOR_MATCH_PATTERN("invalid.literal.for.match.pattern"),
     INVALID_EXPR_WITH_TYPE_GUARD_FOR_MATCH_PATTERN("invalid.expr.with.type.guard.for.match"),
     ARRAY_LITERAL_NOT_ALLOWED("array.literal.not.allowed"),
@@ -231,7 +240,7 @@ public enum DiagnosticCode {
 
     NO_NEW_VARIABLES_VAR_ASSIGNMENT("no.new.variables.var.assignment"),
     INVALID_VARIABLE_ASSIGNMENT("invalid.variable.assignment"),
-    CANNOT_ASSIGN_VALUE_READONLY("cannot.assign.value.to.readonly.field"),
+    INVALID_ASSIGNMENT_DECLARATION_FINAL("invalid.variable.assignment.declaration.final"),
     CANNOT_ASSIGN_VALUE_FINAL("cannot.assign.value.to.final.field"),
     CANNOT_ASSIGN_VALUE_FUNCTION_ARGUMENT("cannot.assign.value.to.function.argument"),
     CANNOT_ASSIGN_VALUE_ENDPOINT("cannot.assign.value.to.endpoint"),
@@ -254,18 +263,21 @@ public enum DiagnosticCode {
     INVALID_PATTERN_CLAUSES_IN_MATCH_STMT("invalid.pattern.clauses.in.match.stmt"),
     STATIC_MATCH_ONLY_SUPPORTS_ANYDATA("static.value.match.only.supports.anydata"),
     UNINITIALIZED_VARIABLE("uninitialized.variable"),
+    CONTAINS_UNINITIALIZED_FIELDS("uninitialized.object.fields"),
     INVALID_ANY_VAR_DEF("invalid.any.var.def"),
     INVALID_RECORD_LITERAL("invalid.record.literal"),
     INVALID_FIELD_IN_RECORD_BINDING_PATTERN("invalid.field.in.record.binding.pattern"),
     INVALID_RECORD_LITERAL_BINDING_PATTERN("invalid.record.literal.in.binding.pattern"),
     DUPLICATE_KEY_IN_RECORD_LITERAL("duplicate.key.in.record.literal"),
+    DUPLICATE_KEY_IN_RECORD_LITERAL_SPREAD_OP("duplicate.key.in.record.literal.spread.op"),
     INVALID_ARRAY_LITERAL("invalid.array.literal"),
     INVALID_TUPLE_LITERAL("invalid.tuple.literal"),
-    INVALID_LIST_CONSTRUCTOR("invalid.list.constructor"),
+    INVALID_LIST_CONSTRUCTOR_ELEMENT_TYPE("invalid.list.constructor.type"),
     INVALID_ARRAY_ELEMENT_TYPE("invalid.array.element.type"),
     INVALID_TUPLE_BINDING_PATTERN("invalid.tuple.binding.pattern"),
     INVALID_TYPE_FOR_TUPLE_VAR_EXPRESSION("invalid.type.for.tuple.var.expr"),
-    INVALID_TYPE_DEFINITION_FOR_TUPLE_VAR("invalid.type.definition.for.tuple.var"),
+    INVALID_TUPLE_BINDING_PATTERN_DECL("invalid.tuple.binding.pattern.decl"),
+    INVALID_TUPLE_BINDING_PATTERN_INFERENCE("invalid.tuple.binding.pattern.inference"),
     MISMATCHING_ARRAY_LITERAL_VALUES("mismatching.array.literal.values"),
     SEALED_ARRAY_TYPE_NOT_INITIALIZED("sealed.array.type.not.initialized"),
     INVALID_LIST_INDEX_EXPR("invalid.list.index.expr"),
@@ -290,7 +302,6 @@ public enum DiagnosticCode {
     INVALID_ERROR_REASON_BINDING_PATTERN("invalid.error.reason.binding.pattern"),
     INVALID_ERROR_REST_BINDING_PATTERN("invalid.error.rest.binding.pattern"),
     INVALID_TYPE_DEFINITION_FOR_ERROR_VAR("invalid.type.definition.for.error.var"),
-    INVALID_ERROR_LITERAL_BINDING_PATTERN("invalid.error.literal.in.binding.pattern"),
     INVALID_ERROR_DESTRUCTURING_NO_REASON_GIVEN("invalid.error.destructuring.reason"),
     INVALID_ERROR_MATCH_PATTERN("invalid.error.match.pattern"),
     DUPLICATE_VARIABLE_IN_BINDING_PATTERN("duplicate.variable.in.binding.pattern"),
@@ -303,6 +314,7 @@ public enum DiagnosticCode {
     INVALID_NAMESPACE_DECLARATION("invalid.namespace.declaration"),
     CANNOT_UPDATE_XML_SEQUENCE("cannot.update.xml.sequence"),
     INVALID_XML_NS_INTERPOLATION("invalid.xml.ns.interpolation"),
+    CANNOT_FIND_XML_NAMESPACE("cannot.find.xml.namespace.prefix"),
 
     UNDEFINED_ANNOTATION("undefined.annotation"),
     ANNOTATION_NOT_ALLOWED("annotation.not.allowed"),
@@ -326,6 +338,9 @@ public enum DiagnosticCode {
     VARIABLE_ALREADY_DOCUMENTED("variable.already.documented"),
     UNDOCUMENTED_RETURN_PARAMETER("undocumented.return.parameter"),
     NO_DOCUMENTABLE_RETURN_PARAMETER("no.documentable.return.parameter"),
+    INVALID_DOCUMENTATION_IDENTIFIER("invalid.documentation.identifier"),
+    INVALID_DOCUMENTATION_REFERENCE("invalid.documentation.reference"),
+    INVALID_USAGE_OF_PARAMETER_REFERENCE("invalid.use.of.parameter.reference"),
 
     NO_SUCH_DOCUMENTABLE_ATTRIBUTE("no.such.documentable.attribute"),
     INVALID_USE_OF_ENDPOINT_DOCUMENTATION_ATTRIBUTE("invalid.use.of.endpoint.documentation.attribute"),
@@ -337,6 +352,7 @@ public enum DiagnosticCode {
 
     // Error codes related to iteration.
     ITERABLE_NOT_SUPPORTED_COLLECTION("iterable.not.supported.collection"),
+    INCOMPATIBLE_ITERATOR_FUNCTION_SIGNATURE("incompatible.iterator.function.signature"),
     ITERABLE_NOT_SUPPORTED_OPERATION("iterable.not.supported.operation"),
     ITERABLE_TOO_MANY_VARIABLES("iterable.too.many.variables"),
     ITERABLE_NOT_ENOUGH_VARIABLES("iterable.not.enough.variables"),
@@ -368,7 +384,6 @@ public enum DiagnosticCode {
     // Checked expression related errors
     CHECKED_EXPR_INVALID_USAGE_NO_ERROR_TYPE_IN_RHS("checked.expr.invalid.usage.no.error.type.rhs"),
     CHECKED_EXPR_INVALID_USAGE_ALL_ERROR_TYPES_IN_RHS("checked.expr.invalid.usage.only.error.types.rhs"),
-    CHECKED_EXPR_NO_ERROR_RETURN_IN_ENCL_INVOKABLE("checked.expr.no.error.return.in.encl.invokable"),
     CHECKED_EXPR_NO_MATCHING_ERROR_RETURN_IN_ENCL_INVOKABLE("checked.expr.no.matching.error.return.in.encl.invokable"),
 
     START_REQUIRE_INVOCATION("start.require.invocation"),
@@ -385,22 +400,11 @@ public enum DiagnosticCode {
     INVALID_SHIFT_OPERATOR("invalid.shift.operator"),
 
     // Streaming related codes
-    UNDEFINED_STREAM_REFERENCE("undefined.stream.reference"),
-    UNDEFINED_STREAM_ATTRIBUTE("undefined.stream.attribute"),
-    UNDEFINED_OUTPUT_STREAM_ATTRIBUTE("undefined.output.stream.attribute"),
-    UNDEFINED_SELECT_EXPR_ALIAS("alias.not.defined"),
-    SELECT_EXPR_ALIAS_NOT_FOUND("alias.not.found"),
-    OUTPUT_FIELD_VISIBLE_IN_HAVING_ORDER_BY("output.fields.allowed.in.having.and.orderby.only"),
-    STREAM_ATTR_NOT_ALLOWED_IN_HAVING_ORDER_BY("stream.attributes.not.allowed.in.having.and.orderby"),
-    INCOMPATIBLE_FIELDS_IN_SELECT_CLAUSE("incompatible.fields.in.select.clause"),
-    INCOMPATIBLE_STREAM_ACTION_ARGUMENT("incompatible.stream.action.argument"),
-    INVALID_STREAM_ACTION_ARGUMENT_COUNT("invalid.stream.action.argument.count"),
-    INVALID_STREAM_ACTION_ARGUMENT_TYPE("invalid.stream.action.argument.type"),
-    INVALID_STREAM_ATTRIBUTE_TYPE("invalid.stream.attribute.type"),
-    STREAMING_INCOMPATIBLE_TYPES("streaming.incompatible.types"),
-    UNDEFINED_INVOCATION_ALIAS("undefined.invocation.alias"),
-    INVALID_STREAMING_MODEL_TYPE("invalid.streaming.model.type"),
-    PATTERNS_NOT_SUPPORTED("patterns.not.supported"),
+    INVALID_STREAM_CONSTRUCTOR("invalid.stream.constructor"),
+    NOT_ALLOWED_STREAM_USAGE_WITH_FROM("invalid.stream.usage.with.from"),
+    ERROR_TYPE_EXPECTED("error.type.expected"),
+    MISSING_REQUIRED_METHOD_NEXT("missing.required.method.next"),
+
 
     // Taint checking related codes
     ENTRY_POINT_PARAMETERS_CANNOT_BE_UNTAINTED("entry.point.parameters.cannot.be.untainted"),
@@ -468,8 +472,18 @@ public enum DiagnosticCode {
     INVALID_INVOCATION_LVALUE_ASSIGNMENT("invalid.lvalue.lhs.of.assignment"),
     INVALID_INVOCATION_LVALUE_COMPOUND_ASSIGNMENT("invalid.lvalue.lhs.of.compound.assignment"),
 
-    IDENTIFIER_LITERAL_ONLY_SUPPORTS_ALPHANUMERICS("identifier.literal.only.supports.alphanumerics")
+    IDENTIFIER_LITERAL_ONLY_SUPPORTS_ALPHANUMERICS("identifier.literal.only.supports.alphanumerics"),
+    INVALID_UNICODE("invalid.unicode"),
 
+    METHOD_TOO_LARGE("method.too.large"),
+    FILE_TOO_LARGE("file.too.large"),
+    CLASS_NOT_FOUND("class.not.found"),
+    METHOD_NOT_FOUND("method.not.found"),
+    CONSTRUCTOR_NOT_FOUND("constructor.not.found"),
+    FIELD_NOT_FOUND("field.not.found"),
+    OVERLOADED_METHODS("overloaded.method"),
+    UNSUPPORTED_PRIMITIVE_TYPE("unsupported.primitive.type.reason"),
+    METHOD_SIGNATURE_DOES_NOT_MATCH("method.signature.not.match")
     ;
     private String value;
 

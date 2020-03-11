@@ -1,5 +1,5 @@
 function func1() {
-    typedesc b = object {
+    typedesc<object {}> b = object {
         public string name = "";
     };
 }
@@ -14,7 +14,7 @@ type RecordName1 record {
         string state;
 
         function __init(int id, string country = "USA", string street = "",
-        string state = "") {
+            string state = "") {
             self.country = country;
             self.street = street;
             self.state = state;
@@ -27,7 +27,7 @@ type RecordName1 record {
 };
 
 function func2() {
-    typedesc b = object {public string name = "";};
+    typedesc<object {}> b = object {public string name = "";};
 }
 
 type RecordName2 record {

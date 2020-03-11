@@ -16,7 +16,7 @@ public function main() {
     Person john = {
         name: "John Doe",
         age: 25,
-        address: { city: "Colombo", country: "Sri Lanka" }
+        address: {city: "Colombo", country: "Sri Lanka"}
     };
     io:println(john);
 
@@ -26,9 +26,9 @@ public function main() {
     record {|
         string city;
         string country;
-    |} adr = { city: "London", country: "UK" };
+    |} adr = {city: "London", country: "UK"};
 
-    Person jane = { name: "Jane Doe", age: 20, address: adr };
+    Person jane = {name: "Jane Doe", age: 20, address: adr};
     io:println(jane);
 
     anydata[] fields = toFieldsArray(john);
@@ -39,11 +39,10 @@ public function main() {
 // Anonymous record types are implicitly public.
 function toFieldsArray(record {} anydataRecord) returns anydata[] {
     anydata[] fields = [];
-    int i = 0;
 
-    foreach var field in anydataRecord {
-        fields[i] = field;
-        i += 1;
+    foreach var recField in anydataRecord {
+        fields.push(recField);
     }
+
     return fields;
 }

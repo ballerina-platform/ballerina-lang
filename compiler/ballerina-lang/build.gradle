@@ -19,10 +19,15 @@ apply from: "$rootDir/gradle/javaProject.gradle"
 
 dependencies {
     implementation project(':toml-parser')
+    implementation project(':ballerina-runtime')
+    implementation project(':ballerina-cli-module')
     implementation 'com.moandjiezana.toml:toml4j'
     implementation 'org.wso2.orbit.org.antlr:antlr4-runtime'
     implementation 'org.apache.commons:commons-lang3'
     implementation 'io.netty:netty-buffer'
+    implementation 'org.ow2.asm:asm'
+    implementation 'org.ow2.asm:asm-util'
+    implementation 'org.ow2.asm:asm-tree'
     testCompile 'org.testng:testng'
 }
 

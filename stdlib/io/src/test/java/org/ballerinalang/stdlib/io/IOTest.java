@@ -43,6 +43,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.stream.Stream;
 
+import javax.xml.stream.XMLStreamException;
+
 import static org.ballerinalang.stdlib.common.CommonTestUtils.getAbsoluteFilePath;
 import static org.ballerinalang.stdlib.io.utils.IOConstants.ErrorCode.EoF;
 
@@ -59,10 +61,10 @@ public class IOTest {
 
     @BeforeClass
     public void setup() {
-        bytesInputOutputProgramFile = BCompileUtil.compile("test-src/io/bytes_io.bal");
-        characterInputOutputProgramFile = BCompileUtil.compile("test-src/io/char_io.bal");
-        recordsInputOutputProgramFile = BCompileUtil.compile("test-src/io/record_io.bal");
-        stringInputOutputProgramFile = BCompileUtil.compile("test-src/io/string_io.bal");
+        bytesInputOutputProgramFile = BCompileUtil.compileOffline("test-src/io/bytes_io.bal");
+        characterInputOutputProgramFile = BCompileUtil.compileOffline("test-src/io/char_io.bal");
+        recordsInputOutputProgramFile = BCompileUtil.compileOffline("test-src/io/record_io.bal");
+        stringInputOutputProgramFile = BCompileUtil.compileOffline("test-src/io/string_io.bal");
         currentDirectoryPath = System.getProperty("user.dir") + "/build";
     }
 
@@ -351,7 +353,7 @@ public class IOTest {
     }
 
     @Test(description = "Test 'writeXml' function in ballerina/io package")
-    public void testWriteXmlCharacters() {
+    public void testWriteXmlCharacters() throws XMLStreamException {
         String content = "<test>\n" + "\t\t<name>Foo</name>\n" + "\t</test>";
 
         String sourceToWrite = currentDirectoryPath + "/xmlCharsFile.xml";
@@ -359,7 +361,7 @@ public class IOTest {
         //Will initialize the channel
         BValue[] args = { new BString(sourceToWrite), new BString("UTF-8") };
         BRunUtil.invoke(characterInputOutputProgramFile, "initWritableChannel", args);
-        OMNode omNode = (OMNode) XMLFactory.parse(content).value();
+        OMNode omNode = (OMNode) XMLFactory.stringToOM(content);
         args = new BValue[] { new BXMLItem(omNode) };
         BValue[] result = BRunUtil.invoke(characterInputOutputProgramFile, "writeXml", args);
 

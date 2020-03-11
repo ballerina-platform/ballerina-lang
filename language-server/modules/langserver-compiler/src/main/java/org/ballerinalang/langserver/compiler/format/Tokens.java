@@ -48,6 +48,7 @@ public class Tokens {
     public static final String ADD = "+";
     public static final String DIV = "/";
     public static final String AT = "@";
+    public static final String PIPE = "|";
 
     // Keywords.
     public static final String VAR = "var";
@@ -68,40 +69,23 @@ public class Tokens {
     public static final String CHANNEL = "channel";
     public static final String OBJECT = "object";
     public static final String WAIT = "wait";
-    public static final String WHERE = "where";
-    public static final String WINDOW = "window";
     public static final String ANNOTATION = "annotation";
     public static final String ELSE = "else";
     public static final String RETURN = "return";
     public static final String ERROR = "error";
     public static final String FOREACH = "foreach";
     public static final String IN = "in";
-    public static final String FOREVER = "forever";
     public static final String REMOTE = "remote";
     public static final String RESOURCE = "resource";
     public static final String WORKER = "worker";
-    public static final String GROUP = "group";
-    public static final String BY = "by";
-    public static final String HAVING = "having";
-    public static final String LEFT = "left";
-    public static final String RIGHT = "right";
-    public static final String FULL = "full";
-    public static final String OUTER = "outer";
-    public static final String INNER = "inner";
     public static final String JOIN = "join";
     public static final String ON = "on";
-    public static final String UNIDIRECTIONAL = "unidirectional";
-    public static final String LIMIT = "limit";
     public static final String LOCK = "lock";
     public static final String MATCH = "match";
-    public static final String ORDER = "order";
-    public static final String OUTPUT = "output";
     public static final String PANIC = "panic";
     public static final String RECORD = "record";
-    public static final String SELECT = "select";
     public static final String SERVICE = "service";
     public static final String AS = "as";
-    public static final String FROM = "from";
     public static final String TABLE = "table";
     public static final String TRANSACTION = "transaction";
     public static final String ONRETRY = "onretry";
@@ -122,4 +106,5 @@ public class Tokens {
     public static final String XML_LITERAL_START = "xml `";
     public static final String COMMITTED = "committed";
     public static final String ABORTED = "aborted";
+    public static final String LET = "let";
 }

@@ -1,6 +1,6 @@
 [project]
 org-name = "ballerina"
-version = "1.0.0"
+version = "1.1.0"
 
 [platform]
 target = "java8"
@@ -17,11 +17,4 @@ target = "java8"
     version = "2.3.1"
     path = "./lib/quartz-2.3.0.jar"
     groupId = "org.quartz-scheduler"
-    modules = ["task"]
-
-    [[platform.libraries]]
-    artifactId = "HikariCP"
-    version = "3.3.1"
-    path = "./lib/HikariCP-3.3.1.jar"
-    groupId = "com.zaxxer"
     modules = ["task"]

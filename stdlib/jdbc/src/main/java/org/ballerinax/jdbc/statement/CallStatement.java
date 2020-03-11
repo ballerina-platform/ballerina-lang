@@ -246,13 +246,14 @@ public class CallStatement extends AbstractSQLStatement {
                 }
                 break;
                 case Constants.SQLDataTypes.NVARCHAR:
+                case Constants.SQLDataTypes.LONGNVARCHAR:
                 case Constants.SQLDataTypes.NCHAR: {
                     String value = stmt.getNString(index + 1);
                     paramValue.put(PARAMETER_VALUE_FIELD, value);
                 }
                 break;
                 case Constants.SQLDataTypes.CHAR:
-                case Constants.SQLDataTypes.LONGNVARCHAR:
+                case Constants.SQLDataTypes.LONGVARCHAR:
                 case Constants.SQLDataTypes.VARCHAR: {
                     String value = stmt.getString(index + 1);
                     paramValue.put(PARAMETER_VALUE_FIELD, value);
@@ -274,11 +275,7 @@ public class CallStatement extends AbstractSQLStatement {
                     paramValue.put(PARAMETER_VALUE_FIELD, value);
                 }
                 break;
-                case Constants.SQLDataTypes.TINYINT: {
-                    byte value = stmt.getByte(index + 1);
-                    paramValue.put(PARAMETER_VALUE_FIELD, value);
-                }
-                break;
+                case Constants.SQLDataTypes.TINYINT:
                 case Constants.SQLDataTypes.SMALLINT: {
                     short value = stmt.getShort(index + 1);
                     paramValue.put(PARAMETER_VALUE_FIELD, (long) value);

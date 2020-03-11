@@ -23,6 +23,15 @@
         <Package name="org.wso2.ballerinalang.compiler.codegen" />
     </Match>
     <Match>
+        <Package name="org.wso2.ballerinalang.compiler.bir.codegen" />
+    </Match>
+    <Match>
+        <Package name="org.wso2.ballerinalang.compiler.bir.codegen.interop" />
+    </Match>
+    <Match>
+        <Package name="org.wso2.ballerinalang.compiler.bir.emit" />
+    </Match>
+    <Match>
         <Package name="org.wso2.ballerinalang.compiler.desugar" />
     </Match>
     <Match>
@@ -50,10 +59,16 @@
         <Package name="org.wso2.ballerinalang.compiler.tree.expressions" />
     </Match>
     <Match>
+        <Package name="org.wso2.ballerinalang.compiler.tree.clauses" />
+    </Match>
+    <Match>
         <Package name="org.wso2.ballerinalang.compiler.tree.statements" />
     </Match>
     <Match>
         <Package name="org.wso2.ballerinalang.compiler.tree.types" />
+    </Match>
+    <Match>
+        <Package name="org.wso2.ballerinalang.compiler.packaging.converters" />
     </Match>
     <Match>
         <Package name="org.wso2.ballerinalang.programfile" />
@@ -98,9 +113,6 @@
         <Class name="org.wso2.ballerinalang.compiler.bir.BIRGen"/>
     </Match>
     <Match>
-        <Class name="org.wso2.ballerinalang.compiler.bir.BIROptimizer"/>
-    </Match>
-    <Match>
         <Class name="org.wso2.ballerinalang.compiler.bir.model.BIRTerminator"/>
     </Match>
     <Match>
@@ -132,5 +144,13 @@
     <Match>
         <Class name="org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType"/>
         <Bug pattern="BC_UNCONFIRMED_CAST"/>
+    </Match>
+    <Match>
+        <Class name="org.wso2.ballerinalang.compiler.bir.model.BIRNode$BIRAnnotationAttachment"/>
+        <Bug pattern="UWF_FIELD_NOT_INITIALIZED_IN_CONSTRUCTOR"/>
+    </Match>
+    <Match>
+        <Class name="org.wso2.ballerinalang.compiler.bir.model.BIRNode$BIRFunction"/>
+        <Bug pattern="UWF_FIELD_NOT_INITIALIZED_IN_CONSTRUCTOR"/>
     </Match>
 </FindBugsFilter>

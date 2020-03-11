@@ -20,37 +20,35 @@ package org.ballerinalang.stdlib.jsonutils;
 
 import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.XMLFactory;
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.XMLValue;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
 
 /**
  * Converts a XML to the corresponding JSON representation.
  *
  * @since 1.0
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "jsonutils", functionName = "fromXML", isPublic = true
-)
 public class FromXML {
 
     private static final String OPTIONS_ATTRIBUTE_PREFIX = "attributePrefix";
     private static final String OPTIONS_PRESERVE_NS = "preserveNamespaces";
 
-    public static Object fromXML(Strand strand, XMLValue<?> xml, MapValue<?, ?> options) {
+    public static Object fromXML(XMLValue xml, MapValue<?, ?> options) {
         try {
             String attributePrefix = (String) options.get(OPTIONS_ATTRIBUTE_PREFIX);
             boolean preserveNamespaces = ((Boolean) options.get(OPTIONS_PRESERVE_NS));
             return XMLFactory.convertToJSON(xml, attributePrefix, preserveNamespaces);
-        } catch (Throwable e) {
+        } catch (Exception e) {
             try {
                 BLangExceptionHelper.handleXMLException("{ballerina/jsonutils}Error", e);
-            } catch (Throwable ex) {
+            } catch (Exception ex) {
                 return BallerinaErrors.createError("{ballerina/jsonutils}Error", ex.getMessage());
             }
         }
         return null;
+    }
+
+    private FromXML() {
     }
 }

@@ -24,6 +24,7 @@ import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.util.BLangConstants;
 import org.ballerinalang.jvm.values.api.BDecimal;
+import org.ballerinalang.jvm.values.api.BString;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -38,7 +39,7 @@ import java.math.MathContext;
  * </p> 
  * @since 0.995.0
  */
-public class DecimalValue implements BDecimal {
+public class DecimalValue implements SimpleValue, BDecimal {
 
     private static final DecimalValue POSITIVE_INF =
             new DecimalValue("9.999999999999999999999999999999999E6144", DecimalValueKind.POSITIVE_INFINITY);
@@ -228,6 +229,11 @@ public class DecimalValue implements BDecimal {
             return this.valueKind.getValue();
         }
         return value.toString();
+    }
+
+    @Override
+    public BString bStringValue() {
+        return null;
     }
 
     /**

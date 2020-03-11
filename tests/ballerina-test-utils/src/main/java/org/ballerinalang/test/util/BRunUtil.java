@@ -17,9 +17,11 @@
  */
 package org.ballerinalang.test.util;
 
+import org.apache.axiom.om.OMNode;
 import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.DecimalValueKind;
 import org.ballerinalang.jvm.TypeChecker;
+import org.ballerinalang.jvm.XMLFactory;
 import org.ballerinalang.jvm.XMLNodeType;
 import org.ballerinalang.jvm.commons.ArrayState;
 import org.ballerinalang.jvm.scheduling.Scheduler;
@@ -40,11 +42,12 @@ import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.StreamValue;
+import org.ballerinalang.jvm.values.StringValue;
 import org.ballerinalang.jvm.values.TableValue;
 import org.ballerinalang.jvm.values.TypedescValue;
-import org.ballerinalang.jvm.values.XMLItem;
 import org.ballerinalang.jvm.values.XMLSequence;
 import org.ballerinalang.jvm.values.XMLValue;
+import org.ballerinalang.jvm.values.api.BXML;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BErrorType;
@@ -81,7 +84,6 @@ import org.ballerinalang.model.values.BTypeDescValue;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.model.values.BValueType;
-import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.model.values.BXMLItem;
 import org.ballerinalang.model.values.BXMLSequence;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
@@ -110,6 +112,8 @@ import java.util.stream.Collectors;
  * @since 0.94
  */
 public class BRunUtil {
+
+    public static final String IS_STRING_VALUE_PROP = "ballerina.bstring";
 
     /**
      * Invoke a ballerina function.
@@ -148,6 +152,8 @@ public class BRunUtil {
                 paramTypes[i] = Boolean.class;
             } else if (arg instanceof MapValue) {
                 paramTypes[i] = MapValue.class;
+            } else if (arg instanceof ErrorValue) {
+                paramTypes[i] = ErrorValue.class;
             } else {
                 // This is done temporarily, until blocks are added here for all possible cases.
                 throw new RuntimeException("unknown param type: " + arg.getClass());
@@ -304,12 +310,7 @@ public class BRunUtil {
     @Deprecated
     private static BValue[] invoke(CompileResult compileResult, BIRNode.BIRFunction function, String functionName,
                                    BValue[] bvmArgs) {
-        List<org.wso2.ballerinalang.compiler.semantics.model.types.BType> bvmParamTypes = new ArrayList<>();
-        for (org.wso2.ballerinalang.compiler.semantics.model.types.BType paramType : function.type.paramTypes) {
-            bvmParamTypes.add(paramType);
-            bvmParamTypes.add(
-                    new org.wso2.ballerinalang.compiler.semantics.model.types.BType(TypeTags.BOOLEAN_TAG, null));
-        }
+        List<org.wso2.ballerinalang.compiler.semantics.model.types.BType> bvmParamTypes = function.type.paramTypes;
         Class<?>[] jvmParamTypes = new Class[bvmParamTypes.size() + 1];
         Object[] jvmArgs = new Object[bvmArgs.length + 1];
         jvmParamTypes[0] = Strand.class;
@@ -528,12 +529,23 @@ public class BRunUtil {
                 }
                 return jvmObject;
             case TypeTags.XML_TAG:
-                BXML<?> xml = (BXML<?>) value;
-                if (xml.getNodeType() != org.ballerinalang.model.util.XMLNodeType.SEQUENCE) {
-                    return new XMLItem(((BXMLItem) xml).value());
+                org.ballerinalang.model.values.BXML xml = (org.ballerinalang.model.values.BXML) value;
+                if (xml.getNodeType() == org.ballerinalang.model.util.XMLNodeType.TEXT) {
+                    return XMLFactory.createXMLText(xml.stringValue());
                 }
-                BValueArray elements = ((BXMLSequence) xml).value();
-                return new XMLSequence((ArrayValue) getJVMValue(elements.getType(), elements));
+                if (xml.getNodeType() != org.ballerinalang.model.util.XMLNodeType.SEQUENCE) {
+                    return XMLFactory.parse(xml.stringValue());
+                } else {
+                    BValueArray elements = ((BXMLSequence) xml).value();
+                    ArrayValue arrayValue = (ArrayValue) getJVMValue(elements.getType(), elements);
+
+                    List<BXML> list = new ArrayList<>();
+                    for (Object arrayValueValue : arrayValue.getValues()) {
+                        list.add((BXML) arrayValueValue);
+                    }
+
+                    return new XMLSequence(list);
+                }
             case TypeTags.HANDLE_TAG:
                 BHandleValue handleValue = (BHandleValue) value;
                 return new HandleValue(handleValue.getValue());
@@ -637,12 +649,18 @@ public class BRunUtil {
                 }
                 return jvmObject;
             case TypeTags.XML_TAG:
-                BXML<?> xml = (BXML<?>) value;
+                org.ballerinalang.model.values.BXML xml = (org.ballerinalang.model.values.BXML) value;
                 if (xml.getNodeType() != org.ballerinalang.model.util.XMLNodeType.SEQUENCE) {
-                    return new XMLItem(((BXMLItem) xml).value());
+                    return XMLFactory.parse(xml.stringValue());
                 }
                 BValueArray elements = ((BXMLSequence) xml).value();
-                return new XMLSequence((ArrayValue) getJVMValue(elements.getType(), elements));
+                ArrayValue jvmValue = (ArrayValue) getJVMValue(elements.getType(), elements);
+                List<BXML> list = new ArrayList<>();
+                for (Object v : jvmValue.getValues()) {
+                    list.add((BXML) v);
+                }
+
+                return new XMLSequence(list);
             case TypeTags.HANDLE_TAG:
                 BHandleValue bHandleValue = (BHandleValue) value;
                 return new HandleValue(bHandleValue.getValue());
@@ -716,7 +734,7 @@ public class BRunUtil {
                 org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType finiteType =
                         (org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType) type;
                 Set<Object> valueSpace = new HashSet<>();
-                for (BLangExpression expr : finiteType.valueSpace) {
+                for (BLangExpression expr : finiteType.getValueSpace()) {
                     if (!(expr instanceof BLangLiteral)) {
                         continue;
                     }
@@ -821,7 +839,12 @@ public class BRunUtil {
                 bvmValue = new BBoolean((boolean) value);
                 break;
             case org.ballerinalang.jvm.types.TypeTags.STRING_TAG:
-                bvmValue = new BString((String) value);
+                if (value instanceof StringValue) {
+                    StringValue stringValue = (StringValue) value;
+                    bvmValue = new BString(stringValue.getValue());
+                } else {
+                    bvmValue = new BString((String) value);
+                }
                 break;
             case org.ballerinalang.jvm.types.TypeTags.DECIMAL_TAG:
                 DecimalValue decimalValue = (DecimalValue) value;
@@ -929,12 +952,28 @@ public class BRunUtil {
                 }
                 return bvmObject;
             case org.ballerinalang.jvm.types.TypeTags.XML_TAG:
-                XMLValue<?> xml = (XMLValue<?>) value;
-                if (xml.getNodeType() != XMLNodeType.SEQUENCE) {
-                    return new BXMLItem(((XMLItem) xml).value());
+                if (value instanceof XMLValue) {
+                    if (((XMLValue) value).getNodeType() != XMLNodeType.SEQUENCE) {
+                        BXMLItem bxmlItem = new BXMLItem((OMNode) ((XMLValue) value).value());
+                        bvmValue = bxmlItem;
+                        break;
+                    } else {
+                        org.ballerinalang.jvm.types.BArrayType bArrayType =
+                                new org.ballerinalang.jvm.types.BArrayType(org.ballerinalang.jvm.types.BTypes.typeXML);
+                        ArrayValue arrayValue = new ArrayValueImpl(((XMLSequence) value).getChildrenList().toArray(),
+                                bArrayType);
+
+                        bvmValue = new BXMLSequence((BValueArray) getBVMValue(arrayValue));
+                        break;
+                    }
                 }
-                ArrayValue elements = ((XMLSequence) xml).value();
-                bvmValue = new BXMLSequence((BValueArray) getBVMValue(elements, bvmValueMap));
+
+                BValueArray ar = new BValueArray(BTypes.typeXML);
+                int i = 0;
+                for (Object obj : ((ArrayValue) value).getValues()) {
+                    ar.add(i++, getBVMValue(obj, bvmValueMap));
+                }
+                bvmValue = new BXMLSequence(ar);
                 break;
             case org.ballerinalang.jvm.types.TypeTags.TYPEDESC_TAG:
                 TypedescValue typedescValue = (TypedescValue) value;
@@ -963,7 +1002,7 @@ public class BRunUtil {
         return bvmValue;
     }
 
-    private static BType getBVMType(org.ballerinalang.jvm.types.BType jvmType, 
+    private static BType getBVMType(org.ballerinalang.jvm.types.BType jvmType,
                                     Stack<org.ballerinalang.jvm.types.BField> selfTypeStack) {
         switch (jvmType.getTag()) {
             case org.ballerinalang.jvm.types.TypeTags.INT_TAG:
@@ -1076,7 +1115,11 @@ public class BRunUtil {
                     bParamTypes[i] = getBVMType(jvmBFunctionType.paramTypes[i], selfTypeStack);
                 }
                 BType bRetType = getBVMType(jvmBFunctionType.retType, selfTypeStack);
-                return new BFunctionType(bParamTypes, new BType[]{bRetType});
+                BType bRestType = null;
+                if (jvmBFunctionType.restType != null) {
+                    bRestType = getBVMType(jvmBFunctionType.restType, selfTypeStack);
+                }
+                return new BFunctionType(bParamTypes, bRestType, new BType[]{bRetType});
             case org.ballerinalang.jvm.types.TypeTags.HANDLE_TAG:
                 return BTypes.typeHandle;
             case org.ballerinalang.jvm.types.TypeTags.SERVICE_TAG:

@@ -17,6 +17,9 @@
 package org.ballerinalang.jvm;
 
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
+import org.ballerinalang.jvm.values.BmpStringValue;
+import org.ballerinalang.jvm.values.NonBmpStringValue;
+import org.ballerinalang.jvm.values.api.BString;
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
@@ -25,6 +28,8 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.ballerinalang.jvm.util.BLangConstants.STRING_LANG_LIB;
 import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.INDEX_OUT_OF_RANGE_ERROR_IDENTIFIER;
@@ -102,5 +107,39 @@ public class StringUtils {
         }
 
         return String.valueOf(s.charAt((int) index));
+    }
+
+    public static BString getStringAt(BString s, long index) {
+        if (index < 0 || index >= s.length()) {
+            throw BallerinaErrors.createError(getModulePrefixedReason(STRING_LANG_LIB,
+                                                                      INDEX_OUT_OF_RANGE_ERROR_IDENTIFIER),
+                                              "string index out of range: index: " + index + ", size: " + s.length());
+        }
+
+        return StringUtils.fromString(String.valueOf(Character.toChars(s.getCodePoint((int) index))));
+    }
+
+    public static BString fromString(String s) {
+        List<Integer> highSurrogates = null;
+        for (int i = 0; i < s.length(); i++) {
+            char c = s.charAt(i);
+            if (Character.isHighSurrogate(c)) {
+                if (highSurrogates == null) {
+                    highSurrogates = new ArrayList<>();
+                }
+                highSurrogates.add(i - highSurrogates.size());
+            }
+        }
+        if (highSurrogates == null) {
+            return new BmpStringValue(s);
+        }
+
+        int[] highSurrogatesArr = new int[highSurrogates.size()];
+
+        for (int i = 0; i < highSurrogates.size(); i++) {
+            Integer highSurrogate = highSurrogates.get(i);
+            highSurrogatesArr[i] = highSurrogate;
+        }
+        return new NonBmpStringValue(s, highSurrogatesArr);
     }
 }

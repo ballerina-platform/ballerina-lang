@@ -18,12 +18,12 @@
 
 package org.wso2.ballerinalang.compiler.packaging.converters;
 
+import org.ballerinalang.cli.module.Pull;
+import org.ballerinalang.cli.module.exeptions.CommandException;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.repository.CompilerInput;
-import org.ballerinalang.spi.EmbeddedExecutor;
 import org.ballerinalang.toml.model.Manifest;
 import org.ballerinalang.toml.model.Proxy;
-import org.ballerinalang.util.EmbeddedExecutorProvider;
 import org.wso2.ballerinalang.compiler.packaging.Patten;
 import org.wso2.ballerinalang.compiler.packaging.repo.HomeBaloRepo;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
@@ -36,7 +36,6 @@ import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Map;
-import java.util.Optional;
 import java.util.stream.Stream;
 
 import static org.wso2.ballerinalang.programfile.ProgramFileConstants.IMPLEMENTATION_VERSION;
@@ -48,7 +47,7 @@ import static org.wso2.ballerinalang.programfile.ProgramFileConstants.SUPPORTED_
 public class URIConverter implements Converter<URI> {
 
     private HomeBaloRepo homeBaloRepo;
-    private final URI base;
+    protected URI base;
     protected final Map<PackageID, Manifest> dependencyManifests;
     private boolean isBuild = true;
     private PrintStream errStream = System.err;
@@ -118,44 +117,40 @@ public class URIConverter implements Converter<URI> {
         
         // create directory path in balo cache
         createDirectory(modulePathInBaloCache);
-        
-        String modulePath = orgName + "/" + moduleName;
         Proxy proxy = TomlParserUtils.readSettings().getProxy();
-        String proxyPortAsString = proxy.getPort() == 0 ? "" : Integer.toString(proxy.getPort());
 
         String supportedVersionRange = "";
-        String nightlyBuild = String.valueOf(RepoUtils.getBallerinaVersion().contains("SNAPSHOT"));
-        EmbeddedExecutor executor = EmbeddedExecutorProvider.getInstance().getExecutor();
+        boolean nightlyBuild = RepoUtils.getBallerinaVersion().contains("SNAPSHOT");
         for (String supportedPlatform : SUPPORTED_PLATFORMS) {
-            Optional<RuntimeException> runtimeException = executor.executeMainFunction("module_pull",
-                    remoteURI.toString(), modulePathInBaloCache.toString(), modulePath, proxy.getHost(),
-                    proxyPortAsString, proxy.getUserName(), proxy.getPassword(), RepoUtils.getTerminalWidth(),
-                    supportedVersionRange, String.valueOf(this.isBuild), nightlyBuild, IMPLEMENTATION_VERSION,
-                    supportedPlatform);
-            // Check if error has occurred or not.
-            if (runtimeException.isPresent()) {
-                String errorMessage = runtimeException.get().getMessage();
-                if (null != errorMessage && !"".equals(errorMessage.trim())) {
-                    // removing the error stack
-                    if (errorMessage.contains("\n\tat")) {
-                        errorMessage = errorMessage.substring(0, errorMessage.indexOf("\n\tat"));
-                    }
-    
-                    // if module already exists in home repository
-                    if (errorMessage.contains("module already exists in the home repository") && this.isBuild) {
-                        // Need to update the version of moduleID that was resolved by remote. But since the version
-                        // cannot be returned by the call done to module_pull.bal file we need to set the version from
-                        // the downloaded balo file.
-                        Patten patten = this.homeBaloRepo.calculate(moduleID);
-                        return patten.convertToSources(this.homeBaloRepo.getConverterInstance(), moduleID);
-                    }
+            String errorMessage = "";
+            try {
+                Pull.execute(remoteURI.toString(), modulePathInBaloCache.toString(), orgName + "/" + moduleName,
+                        proxy.getHost(), proxy.getPort(), proxy.getUserName(), proxy.getPassword(),
+                        supportedVersionRange, this.isBuild, nightlyBuild, IMPLEMENTATION_VERSION, supportedPlatform);
+            } catch (CommandException e) {
+                errorMessage = e.getMessage().trim();
+            }
 
-                    // check if the message is empty or not. Empty means module not found. Else some other error.
-                    // Log if it is some other error.
-                    if (!"".equals(errorMessage.replace("error: \t", "").trim())) {
-                        this.errStream.println(errorMessage.trim());
-                        return Stream.of();
-                    }
+            if (!"".equals(errorMessage)) {
+                // removing the error stack
+                if (errorMessage.contains("\n\tat")) {
+                    errorMessage = errorMessage.substring(0, errorMessage.indexOf("\n\tat"));
+                }
+
+                // if module already exists in home repository
+                if (errorMessage.contains("module already exists in the home repository") && this.isBuild) {
+                    // Need to update the version of moduleID that was resolved by remote. But since the version
+                    // cannot be returned by the call done to module_pull.bal file we need to set the version from
+                    // the downloaded balo file.
+                    Patten patten = this.homeBaloRepo.calculate(moduleID);
+                    return patten.convertToSources(this.homeBaloRepo.getConverterInstance(), moduleID);
+                }
+
+                // check if the message is empty or not. Empty means module not found. Else some other error.
+                // Log if it is some other error.
+                if (!"".equals(errorMessage.replace("error: \t", "").trim())) {
+                    this.errStream.println(errorMessage.trim());
+                    return Stream.of();
                 }
             } else {
                 // Need to update the version of moduleID that was resolved by remote. But since the version cannot

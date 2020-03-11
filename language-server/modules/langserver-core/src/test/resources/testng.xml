@@ -19,22 +19,23 @@ under the License.
 
 <!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >
 
-<suite name="composer-workspace-service-test-suite">
-    <test name="composer-workspace-service-tests" preserve-order="true" parallel="false">
+<suite name="language-server-core-test-suite">
+    <test name="language-server-core-tests" preserve-order="true" parallel="false">
         <groups>
             <run>
                 <exclude name="broken"/>
             </run>
         </groups>
         <packages>
-            <package name="org.ballerinalang.langserver.completion.*"/> 
+            <package name="org.ballerinalang.langserver.highlighting.*"/>
             <package name="org.ballerinalang.langserver.definition.*"/>
             <package name="org.ballerinalang.langserver.docsymbol.*"/>
             <package name="org.ballerinalang.langserver.hover.*"/>
             <package name="org.ballerinalang.langserver.implementation.*"/>
             <package name="org.ballerinalang.langserver.references.*"/>
 <!--            <package name="org.ballerinalang.langserver.rename.*"/>-->
-<!--            <package name="org.ballerinalang.langserver.signature.*"/>-->
+            <package name="org.ballerinalang.langserver.completion.*"/>
+            <package name="org.ballerinalang.langserver.signature.*"/>
             <package name="org.ballerinalang.langserver.sourceprune.*"/>
             <package name="org.ballerinalang.langserver.workspace.*"/>
             <package name="org.ballerinalang.langserver.formatting.*"/>

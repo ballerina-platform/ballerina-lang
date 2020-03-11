@@ -15,6 +15,7 @@
 // under the License.
 
 import ballerina/auth;
+import ballerina/cache;
 import ballerina/log;
 import ballerina/stringutils;
 import ballerina/time;
@@ -27,12 +28,14 @@ public type InboundJwtAuthProvider object {
     *auth:InboundAuthProvider;
 
     public JwtValidatorConfig jwtValidatorConfig;
+    cache:Cache inboundJwtCache;
 
     # Provides authentication based on the provided JWT token.
     #
     # + jwtValidatorConfig - JWT validator configurations
     public function __init(JwtValidatorConfig jwtValidatorConfig) {
         self.jwtValidatorConfig = jwtValidatorConfig;
+        self.inboundJwtCache = jwtValidatorConfig.jwtCache;
     }
 
     # Authenticate with a JWT token.
@@ -45,53 +48,63 @@ public type InboundJwtAuthProvider object {
             return false;
         }
 
-        if (self.jwtValidatorConfig.jwtCache.hasKey(credential)) {
-            var payload = authenticateFromCache(self.jwtValidatorConfig, credential);
+        if (self.inboundJwtCache.hasKey(credential)) {
+            JwtPayload? payload = authenticateFromCache(self.inboundJwtCache, credential);
             if (payload is JwtPayload) {
                 auth:setAuthenticationContext("jwt", credential);
                 setPrincipal(payload);
                 return true;
-            } else {
-                return false;
             }
         }
 
-        var validationResult = validateJwt(credential, self.jwtValidatorConfig);
+        JwtPayload|Error validationResult = validateJwt(credential, self.jwtValidatorConfig);
         if (validationResult is JwtPayload) {
             auth:setAuthenticationContext("jwt", credential);
             setPrincipal(validationResult);
-            addToAuthenticationCache(self.jwtValidatorConfig, credential, <@untainted> validationResult?.exp,
+            addToAuthenticationCache(self.inboundJwtCache, credential, <@untainted> validationResult?.exp,
                 <@untainted> validationResult);
             return true;
         } else {
-            return auth:prepareError("JWT validation failed.", validationResult);
+            return prepareAuthError("JWT validation failed.", validationResult);
         }
     }
 };
 
-function authenticateFromCache(JwtValidatorConfig jwtValidatorConfig, string jwtToken) returns JwtPayload? {
-    var cachedJwt = trap <CachedJwt>jwtValidatorConfig.jwtCache.get(jwtToken);
-    if (cachedJwt is CachedJwt) {
+function authenticateFromCache(cache:Cache jwtCache, string jwtToken) returns JwtPayload? {
+    if (jwtCache.hasKey(jwtToken)) {
+        InboundJwtCacheEntry jwtCacheEntry = <InboundJwtCacheEntry>jwtCache.get(jwtToken);
+        int? expTime = jwtCacheEntry.expTime;
         // convert to current time and check the expiry time
-        if (cachedJwt.expiryTime > (time:currentTime().time / 1000)) {
-            JwtPayload payload = cachedJwt.jwtPayload;
+        if (expTime is () || expTime > (time:currentTime().time / 1000)) {
+            JwtPayload payload = jwtCacheEntry.jwtPayload;
             string? sub = payload?.sub;
             if (sub is string) {
                 string printMsg = sub;
                 log:printDebug(function() returns string {
-                    return "Authenticate user :" + printMsg + " from cache";
+                    return "Authenticate user :" + printMsg + " from the cache";
                 });
             }
             return payload;
         } else {
-            jwtValidatorConfig.jwtCache.remove(jwtToken);
+            cache:Error? result = jwtCache.invalidate(jwtToken);
+            if (result is cache:Error) {
+                log:printError(function() returns string {
+                    return "Failed to invalidate JWT from the cache.";
+                });
+            }
         }
     }
 }
 
-function addToAuthenticationCache(JwtValidatorConfig jwtValidatorConfig, string jwtToken, int? exp, JwtPayload payload) {
-    CachedJwt cachedJwt = {jwtPayload : payload, expiryTime : exp is () ? 0 : exp};
-    jwtValidatorConfig.jwtCache.put(jwtToken, cachedJwt);
+function addToAuthenticationCache(cache:Cache jwtCache, string jwtToken, int? exp, JwtPayload payload) {
+    InboundJwtCacheEntry jwtCacheEntry = {jwtPayload : payload, expTime : exp };
+    cache:Error? result = jwtCache.put(jwtToken, jwtCacheEntry);
+    if (result is cache:Error) {
+        log:printError(function() returns string {
+            return "Failed to add JWT to the cache";
+        });
+        return;
+    }
     string? sub = payload?.sub;
     if (sub is string) {
         string printMsg = sub;
@@ -112,13 +125,13 @@ function setPrincipal(JwtPayload jwtPayload) {
     if (claims is map<json>) {
         auth:setPrincipal(claims = claims);
         if (claims.hasKey(SCOPE)) {
-            var scopeString = claims[SCOPE];
+            json scopeString = claims[SCOPE];
             if (scopeString is string && scopeString != "") {
                 auth:setPrincipal(scopes = stringutils:split(scopeString, " "));
             }
         }
         if (claims.hasKey(USERNAME)) {
-            var name = claims[USERNAME];
+            json name = claims[USERNAME];
             if (name is string) {
                 auth:setPrincipal(username = name);
             }

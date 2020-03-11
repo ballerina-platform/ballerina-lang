@@ -4,14 +4,14 @@ import ballerina/log;
 
 // Creates a Basic Auth header handler with the relevant configurations.
 auth:InboundBasicAuthProvider basicAuthProvider = new;
-http:BasicAuthHandler basicAuthHandler = new(basicAuthProvider);
+http:BasicAuthHandler basicAuthHandler = new (basicAuthProvider);
 
 // The endpoint used here is the `http:Listener`, which by default tries to
 // authenticate and authorize each request. The Basic Authentication handler is
 // set to this endpoint using the `authHandlers` attribute. It is optional to
 // override the authentication and authorization at the service level and/or
 // resource level.
-listener http:Listener ep = new(9090, config = {
+listener http:Listener ep = new (9090, config = {
     auth: {
         authHandlers: [basicAuthHandler]
     },
@@ -57,7 +57,7 @@ service echo on ep {
     resource function hello(http:Caller caller, http:Request req) {
         error? result = caller->respond("Hello, World!!!");
         if (result is error) {
-            log:printError("Error in responding to caller", err = result);
+            log:printError("Error in responding to caller", result);
         }
     }
 }

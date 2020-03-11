@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  WSO2 Inc. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
@@ -18,11 +18,11 @@
 
 package org.ballerinalang.jvm.values;
 
-import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.streams.StreamSubscriptionManager;
+import org.ballerinalang.jvm.IteratorUtils;
 import org.ballerinalang.jvm.types.BStreamType;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.values.api.BStream;
+import org.ballerinalang.jvm.values.api.BString;
 
 import java.util.Map;
 import java.util.UUID;
@@ -34,15 +34,16 @@ import java.util.UUID;
  * <p>
  * <i>Note: This is an internal API and may change in future versions.</i>
  * </p>
- * 
- * @since 0.995.0
+ *
+ * @since 1.2.0
  */
 public class StreamValue implements RefValue, BStream {
 
     private BType type;
     private BType constraintType;
+    private BType iteratorNextReturnType;
+    private ObjectValue iteratorObj;
 
-    private StreamSubscriptionManager streamSubscriptionManager;
 
     /**
      * The name of the underlying broker topic representing the stream object.
@@ -51,21 +52,45 @@ public class StreamValue implements RefValue, BStream {
 
     @Deprecated
     public StreamValue(BType type) {
-        this.streamSubscriptionManager = StreamSubscriptionManager.getInstance();
         this.constraintType = ((BStreamType) type).getConstrainedType();
         this.type = new BStreamType(constraintType);
         this.streamId = UUID.randomUUID().toString();
+        this.iteratorObj = null;
+    }
+
+    public StreamValue(BType type, ObjectValue iteratorObj) {
+        this.constraintType = ((BStreamType) type).getConstrainedType();
+        this.type = new BStreamType(constraintType);
+        this.streamId = UUID.randomUUID().toString();
+        this.iteratorObj = iteratorObj;
     }
 
     public String getStreamId() {
         return streamId;
     }
 
+    public ObjectValue getIteratorObj() {
+        return iteratorObj;
+    }
+
+    public BType getIteratorNextReturnType() {
+        if (iteratorNextReturnType == null) {
+            iteratorNextReturnType = IteratorUtils.createIteratorNextReturnType(constraintType);
+        }
+
+        return iteratorNextReturnType;
+    }
+
     /**
      * {@inheritDoc}
      */
-    public String stringValue(Strand strand) {
-        return "stream " + streamId + " " + getType().toString();
+    public String stringValue() {
+        return "stream <" + getType().toString() + ">";
+    }
+
+    @Override
+    public BString bStringValue() {
+        return null;
     }
 
     @Override
@@ -82,31 +107,11 @@ public class StreamValue implements RefValue, BStream {
      * {@inheritDoc}
      */
     public Object frozenCopy(Map<Object, Object> refs) {
-            throw new UnsupportedOperationException();
+        throw new UnsupportedOperationException();
     }
 
     public BType getConstraintType() {
         return constraintType;
-    }
-
-    /**
-     * Method to publish to a topic representing the stream in the broker.
-     *
-     * @param strand the strand in which the data being published
-     * @param data the data to publish to the stream
-     */
-    public void publish(Strand strand, Object data) {
-        streamSubscriptionManager.sendMessage(this, strand, data);
-    }
-
-    /**
-     * Method to register a subscription to the underlying topic representing the stream in the broker.
-     *
-     * @param functionPointer represents the function pointer reference for the function to be invoked on receiving
-     *                        messages
-     */
-    public void subscribe(FPValue<Object[], Object> functionPointer) {
-        streamSubscriptionManager.registerMessageProcessor(this, functionPointer);
     }
 
     @Override

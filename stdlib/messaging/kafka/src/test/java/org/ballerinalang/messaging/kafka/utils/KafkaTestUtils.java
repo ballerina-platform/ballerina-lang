@@ -40,6 +40,7 @@ public class KafkaTestUtils {
     public static final String TEST_CONSUMER = "consumer";
     public static final String TEST_PRODUCER = "producer";
     public static final String TEST_SERVICES = "services";
+    public static final String TEST_SERDES = "serdes";
     public static final String TEST_COMPILER = "compiler-validation";
     public static final String TEST_SSL = "ssl";
     public static final String TEST_TRANSACTIONS = "transactions";
@@ -59,7 +60,7 @@ public class KafkaTestUtils {
     }
 
     public static KafkaCluster createKafkaCluster(File dataDir, int zkPort, int brokerPort) {
-        String timeout = "20000";
+        String timeout = "30000";
         return new KafkaCluster()
                 .usingDirectory(dataDir)
                 .deleteDataPriorToStartup(true)

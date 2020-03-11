@@ -38,7 +38,6 @@ public class BallerinaConstants {
     public static final String MAIN = "main";
     public static final String PATH = "PATH";
     public static final String MODULE_TYPE_ID = "BALLERINA_MODULE";
-    public static final String BALLERINA_ORG_NAME = "ballerina";
 
     @NonNls
     public static final String BALLERINA_EXECUTABLE_NAME = "ballerina";
@@ -79,14 +78,27 @@ public class BallerinaConstants {
     public static final String LAUNCHER_SCRIPT_PATH = "lib/tools/lang-server/launcher";
     public static final String BALLERINA_EXEC_PATH = "bin" + File.separator + BALLERINA_EXECUTABLE_NAME;
 
+    // CLI constants
+    public static final String BALLERINA_CMD = "ballerina";
+    public static final String BALLERINA_HOME_CMD = "home";
+    public static final String BALLERINA_LS_CMD = "start-language-server";
+
     // Language server launcher constants.
     public static final String BALLERINA_LS_LAUNCHER_PATH = "lib/tools/lang-server/launcher";
     public static final String BALLERINA_LS_LAUNCHER_NAME = "language-server-launcher";
     public static final String BALLERINA_COMPOSER_LIB_PATH = "lib/tools/composer-library";
 
+    public static final String SYS_PROP_EXPERIMENTAL = "ALLOW_EXPERIMETAL";
+    public static final String SYS_PROP_LS_DEBUG = "DEBUG_LOG";
+    public static final String SYS_PROP_LS_TRACE = "TRACE_LOG";
+
+    public static final String ENV_DEBUG_LOG = "BAL_DEBUG_LOG";
+    public static final String ENV_TRACE_LOG = "BAL_TRACE_LOG";
+    public static final String ENV_EXPERIMENTAL = "BAL_EXPERIMENTAL";
+    public static final String ENV_DEF_STDLIBS = "BAL_DEF_STD_LIBS";
+
     // Debug server launcher constants.
     public static final String BALLERINA_DEBUG_LAUNCHER_PATH = "lib/tools/debug-adapter/launcher";
     public static final String BALLERINA_DEBUG_LAUNCHER_NAME = "debug-adapter-launcher";
-
     public static final String BALLERINA_LS_DEBUG_LOG_PREFIX = "LS_DEBUG: ";
 }

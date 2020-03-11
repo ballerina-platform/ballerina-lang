@@ -17,10 +17,10 @@
  */
 package org.ballerinalang.jvm.values;
 
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.util.BLangConstants;
 import org.ballerinalang.jvm.values.api.BFunctionPointer;
+import org.ballerinalang.jvm.values.api.BString;
 
 import java.util.Map;
 import java.util.function.Consumer;
@@ -83,8 +83,13 @@ public class FPValue<T, R> implements BFunctionPointer<T, R>, RefValue {
     }
 
     @Override
-    public String stringValue(Strand strand) {
+    public String stringValue() {
         return "function " + type;
+    }
+
+    @Override
+    public BString bStringValue() {
+        return null;
     }
 
     @Override

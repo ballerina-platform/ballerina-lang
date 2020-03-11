@@ -41,10 +41,21 @@ public abstract class BLangNode implements Node {
     public boolean desugared;
 
     /**
+     * Indicates whether the node has already been propagated.
+     */
+    public boolean constantPropagated;
+
+    /**
      * The position of this node in the source file.
      */
     public DiagnosticPos pos;
     private Set<Whitespace> ws;
+
+    /*
+     * Following fields will be used for AST Cloning.
+     */
+    public BLangNode cloneRef;
+    public int cloneAttempt;
 
     public DiagnosticPos getPosition() {
         return pos;

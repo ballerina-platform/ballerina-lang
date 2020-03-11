@@ -15,8 +15,10 @@
  */
 package org.ballerinalang.langserver;
 
+import org.ballerinalang.jvm.util.Flags;
+import org.ballerinalang.langserver.commons.LSContext;
+import org.ballerinalang.langserver.commons.completion.AnnotationNodeKind;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
-import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.compiler.LSContextManager;
 import org.ballerinalang.langserver.compiler.LSPackageCache;
 import org.ballerinalang.langserver.compiler.LSPackageLoader;
@@ -207,7 +209,8 @@ public class LSAnnotationCache {
         List<Scope.ScopeEntry> scopeEntries = extractAnnotationDefinitions(bPackageSymbol.scope.entries);
 
         scopeEntries.forEach(annotationEntry -> {
-            if (annotationEntry.symbol instanceof BAnnotationSymbol) {
+            if (annotationEntry.symbol instanceof BAnnotationSymbol
+                    && ((annotationEntry.symbol.flags & Flags.PUBLIC) == Flags.PUBLIC)) {
                 BAnnotationSymbol annotationSymbol = ((BAnnotationSymbol) annotationEntry.symbol);
                 int attachPoints = ((BAnnotationSymbol) annotationEntry.symbol).maskedPoints;
 

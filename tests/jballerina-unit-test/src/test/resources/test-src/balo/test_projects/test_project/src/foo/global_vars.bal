@@ -82,7 +82,3 @@ public function getGlbByteArray3() returns byte[] {
     return glbByteArray3;
 }
 
-stream<int> strm = new();
-public function getStreamOfInt() returns stream<int> {
-    return strm;
-}

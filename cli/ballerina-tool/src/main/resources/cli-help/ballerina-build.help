@@ -8,10 +8,12 @@ SYNOPSIS
 
 
 DESCRIPTION
-       Build compiles Ballerina sources and produces executable jar file(s).
+       Build compiles Ballerina sources and produces executable JAR file(s). However, 
+       if the module does not contain an entry point, it will produce a non-executable
+       JAR file, which can be used in another module/program.
 
-       Building a Ballerina project or a specific module in a project the
-       executable .jar files will be created in <project-root>/target/bin directory.
+       Building a Ballerina project or a specific module in a project creates the
+       executable .jar files in the <project-root>/target/bin directory.
 
        Building a single Ballerina file will create an executable .jar file in the
        current directory. The name of the executable file will be
@@ -61,15 +63,14 @@ CONFIG PROPERTIES
 
 EXAMPLES
        Compile a Ballerina source file and create an executable jar.
-          → ballerina build hello.bal
+          $ ballerina build hello.bal
 
        Build the 'hello' module. This will generate a hello.jar file
        in the '<project-root>/target/bin' directory.
-          → ballerina build hello
-
+          $ ballerina build hello
 
        Build all the modules that have entry points in a project into
        executables. This will generate executable jar files and place
        them in the '<project-root>/target/bin' directory.
-          → ballerina build -a
+          $ ballerina build -a
 

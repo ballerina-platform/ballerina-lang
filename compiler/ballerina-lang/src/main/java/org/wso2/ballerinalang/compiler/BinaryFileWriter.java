@@ -24,7 +24,6 @@ import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.repository.CompiledPackage;
 import org.ballerinalang.repository.CompilerOutputEntry;
 import org.ballerinalang.repository.CompilerOutputEntry.Kind;
-import org.wso2.ballerinalang.compiler.codegen.CodeGenerator;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
@@ -32,7 +31,6 @@ import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 import org.wso2.ballerinalang.programfile.CompiledBinaryFile;
 import org.wso2.ballerinalang.programfile.CompiledBinaryFile.BIRPackageFile;
-import org.wso2.ballerinalang.programfile.CompiledBinaryFile.ProgramFile;
 import org.wso2.ballerinalang.programfile.PackageFileWriter;
 
 import java.io.ByteArrayInputStream;
@@ -61,7 +59,6 @@ public class BinaryFileWriter {
     private static final String JAVA_IO_TMP_DIR = "java.io.tmpdir";
     private static PrintStream outStream = System.out;
 
-    private final CodeGenerator codeGenerator;
     private final SourceDirectory sourceDirectory;
     private final CompilerPhase compilerPhase;
 
@@ -75,16 +72,11 @@ public class BinaryFileWriter {
 
     private BinaryFileWriter(CompilerContext context) {
         context.put(BINARY_FILE_WRITER_KEY, this);
-        this.codeGenerator = CodeGenerator.getInstance(context);
         this.sourceDirectory = context.get(SourceDirectory.class);
         if (this.sourceDirectory == null) {
             throw new IllegalArgumentException("source directory has not been initialized");
         }
         this.compilerPhase = CompilerOptions.getInstance(context).getCompilerPhase();
-    }
-
-    ProgramFile genExecutable(BLangPackage entryPackageNode) {
-        return this.codeGenerator.generateBALX(entryPackageNode);
     }
 
     public void write(BLangPackage packageNode) {
@@ -197,12 +189,10 @@ public class BinaryFileWriter {
 
         Path destDirPath = getPackageDirPathInProjectRepo(packageID);
         try {
-            if (this.compilerPhase == CompilerPhase.BIR_GEN) {
+            if (symbol.birPackageFile != null) {
                 addPackageBirContent(packageID, symbol.birPackageFile, compiledPackage);
-                if (symbol.packageFile != null) { //TODO remove this tempory solution
-                    addPackageBinaryContent(packageID, symbol.packageFile, compiledPackage);
-                }
-            } else {
+            }
+            if (symbol.packageFile != null) {
                 addPackageBinaryContent(packageID, symbol.packageFile, compiledPackage);
             }
             this.sourceDirectory.saveCompiledPackage(compiledPackage, destDirPath, compiledPackageFileName);

@@ -131,7 +131,8 @@ function populateTypes(jvm:ClassWriter cw, bir:TypeDef?[] typeDefs) returns stri
             mv.visitTypeInsn(CHECKCAST, OBJECT_TYPE);
             mv.visitInsn(DUP);
             addObjectFields(mv, bType.fields);
-            addObjectInitFunction(mv, bType.constructor, bType, indexMap);
+            addObjectInitFunction(mv, bType.generatedConstructor, bType, indexMap, "$__init$", "setGeneratedInitializer");
+            addObjectInitFunction(mv, bType.constructor, bType, indexMap, "__init", "setInitializer");
             addObjectAttachedFunctions(mv, bType.attachedFunctions, bType, indexMap);
         } else if (bType is bir:BServiceType) {
             mv.visitTypeInsn(CHECKCAST, OBJECT_TYPE);
@@ -316,7 +317,7 @@ function generateObjectValueCreateMethod(jvm:ClassWriter cw, bir:TypeDef?[] obje
         mv.visitVarInsn(ALOAD, tempVarIndex);
         mv.visitVarInsn(ALOAD, strandVarIndex);
 
-        mv.visitLdcInsn("__init");
+        mv.visitLdcInsn("$__init$");
         mv.visitVarInsn(ALOAD, argsIndex);
 
         string methodDesc = io:sprintf("(L%s;L%s;[L%s;)L%s;", STRAND, STRING_VALUE, OBJECT, OBJECT);
@@ -405,14 +406,14 @@ function addRecordFields(jvm:MethodVisitor mv, bir:BRecordField?[] fields) {
     mv.visitMethodInsn(INVOKESPECIAL, LINKED_HASH_MAP, "<init>", "()V", false);
 
     foreach var optionalField in fields {
-        bir:BRecordField field = getRecordField(optionalField);
+        bir:BRecordField 'field = getRecordField(optionalField);
         mv.visitInsn(DUP);
 
         // Load field name
-        mv.visitLdcInsn(field.name.value);
+        mv.visitLdcInsn('field.name.value);
 
         // create and load field type
-        createRecordField(mv, field);
+        createRecordField(mv, 'field);
 
         // Add the field to the map
         mv.visitMethodInsn(INVOKEINTERFACE, MAP, "put",
@@ -431,18 +432,18 @@ function addRecordFields(jvm:MethodVisitor mv, bir:BRecordField?[] fields) {
 #
 # + mv - method visitor
 # + field - field Parameter Description
-function createRecordField(jvm:MethodVisitor mv, bir:BRecordField field) {
+function createRecordField(jvm:MethodVisitor mv, bir:BRecordField 'field) {
     mv.visitTypeInsn(NEW, BFIELD);
     mv.visitInsn(DUP);
 
     // Load the field type
-    loadType(mv, field.typeValue);
+    loadType(mv, 'field.typeValue);
 
     // Load field name
-    mv.visitLdcInsn(field.name.value);
+    mv.visitLdcInsn('field.name.value);
 
     // Load flags
-    mv.visitLdcInsn(field.flags);
+    mv.visitLdcInsn('field.flags);
     mv.visitInsn(L2I);
 
     mv.visitMethodInsn(INVOKESPECIAL, BFIELD, "<init>",
@@ -575,14 +576,14 @@ function addObjectFields(jvm:MethodVisitor mv, bir:BObjectField?[] fields) {
     mv.visitMethodInsn(INVOKESPECIAL, LINKED_HASH_MAP, "<init>", "()V", false);
 
     foreach var optionalField in fields {
-        bir:BObjectField field = getObjectField(optionalField);
+        bir:BObjectField 'field = getObjectField(optionalField);
         mv.visitInsn(DUP);
 
         // Load field name
-        mv.visitLdcInsn(field.name.value);
+        mv.visitLdcInsn('field.name.value);
 
         // create and load field type
-        createObjectField(mv, field);
+        createObjectField(mv, 'field);
 
         // Add the field to the map
         mv.visitMethodInsn(INVOKEINTERFACE, MAP, "put",
@@ -601,18 +602,18 @@ function addObjectFields(jvm:MethodVisitor mv, bir:BObjectField?[] fields) {
 #
 # + mv - method visitor
 # + field - object field
-function createObjectField(jvm:MethodVisitor mv, bir:BObjectField field) {
+function createObjectField(jvm:MethodVisitor mv, bir:BObjectField 'field) {
     mv.visitTypeInsn(NEW, BFIELD);
     mv.visitInsn(DUP);
 
     // Load the field type
-    loadType(mv, field.typeValue);
+    loadType(mv, 'field.typeValue);
 
     // Load field name
-    mv.visitLdcInsn(field.name.value);
+    mv.visitLdcInsn('field.name.value);
 
     // Load flags
-    mv.visitLdcInsn(field.flags);
+    mv.visitLdcInsn('field.flags);
     mv.visitInsn(L2I);
 
     mv.visitMethodInsn(INVOKESPECIAL, BFIELD, "<init>",
@@ -642,15 +643,6 @@ function addObjectAttachedFunctions(jvm:MethodVisitor mv, bir:BAttachedFunction?
             int attachedFunctionVarIndex = indexMap.getIndex(attachedFuncVar);
             mv.visitVarInsn(ASTORE, attachedFunctionVarIndex);
 
-            // if this initializer function, set it to the object type
-            if (stringutils:contains(attachedFunc.name.value, "__init")) {
-                mv.visitInsn(DUP2);
-                mv.visitInsn(POP);
-                mv.visitVarInsn(ALOAD, attachedFunctionVarIndex);
-                mv.visitMethodInsn(INVOKEVIRTUAL, OBJECT_TYPE, "setInitializer",
-                                    io:sprintf("(L%s;)V", ATTACHED_FUNCTION), false);
-            }
-
             mv.visitInsn(DUP);
             mv.visitLdcInsn(i);
             mv.visitInsn(L2I);
@@ -673,8 +665,9 @@ function addObjectAttachedFunctions(jvm:MethodVisitor mv, bir:BAttachedFunction?
 # + mv - method visitor
 # + initFunction - init functions to be added
 function addObjectInitFunction(jvm:MethodVisitor mv, bir:BAttachedFunction? initFunction,
-                                    bir:BObjectType objType, BalToJVMIndexMap indexMap) {
-    if (initFunction is bir:BAttachedFunction && stringutils:contains(initFunction.name.value, "__init")) {
+                                    bir:BObjectType objType, BalToJVMIndexMap indexMap, string funcName,
+                                    string initializerFuncSetter) {
+    if (initFunction is bir:BAttachedFunction && stringutils:contains(initFunction.name.value, funcName)) {
         mv.visitInsn(DUP);
         createObjectAttachedFunction(mv, initFunction, objType);
         bir:VariableDcl attachedFuncVar = { typeValue: "any",
@@ -685,7 +678,7 @@ function addObjectInitFunction(jvm:MethodVisitor mv, bir:BAttachedFunction? init
         mv.visitVarInsn(ALOAD, attachedFunctionVarIndex);
         mv.visitInsn(DUP);
         mv.visitInsn(POP);
-        mv.visitMethodInsn(INVOKEVIRTUAL, OBJECT_TYPE, "setInitializer",
+        mv.visitMethodInsn(INVOKEVIRTUAL, OBJECT_TYPE, initializerFuncSetter,
             io:sprintf("(L%s;)V", ATTACHED_FUNCTION), false);
     }
 }
@@ -1101,14 +1094,22 @@ function loadInvokableType(jvm:MethodVisitor mv, bir:BInvokableType bType) {
         i += 1;
     }
 
+    bir:BType? restType = bType.restType;
+    if (restType is ()) {
+        mv.visitInsn(ACONST_NULL);
+    } else {
+        loadType(mv, restType);
+    }
+
     // load return type type
     loadType(mv, bType?.retType);
 
     // initialize the function type using the param types array and the return type
-    mv.visitMethodInsn(INVOKESPECIAL, FUNCTION_TYPE, "<init>", io:sprintf("([L%s;L%s;)V", BTYPE, BTYPE), false);
+    mv.visitMethodInsn(INVOKESPECIAL, FUNCTION_TYPE, "<init>", io:sprintf("([L%s;L%s;L%s;)V", BTYPE, BTYPE, BTYPE),
+     false);
 }
 
-function getTypeDesc(bir:BType bType) returns string {
+function getTypeDesc(bir:BType bType, boolean useBString = false) returns string {
     if (bType is bir:BTypeInt) {
         return "J";
     } else if (bType is bir:BTypeByte) {
@@ -1116,7 +1117,7 @@ function getTypeDesc(bir:BType bType) returns string {
     } else if (bType is bir:BTypeFloat) {
         return "D";
     } else if (bType is bir:BTypeString) {
-        return io:sprintf("L%s;", STRING_VALUE);
+        return io:sprintf("L%s;", useBString ? B_STRING_VALUE : STRING_VALUE);
     } else if (bType is bir:BTypeBoolean) {
         return "Z";
     } else if (bType is bir:BTypeNil) {

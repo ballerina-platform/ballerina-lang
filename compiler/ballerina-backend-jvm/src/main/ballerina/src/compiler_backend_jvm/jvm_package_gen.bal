@@ -27,6 +27,7 @@ type BIRFunctionWrapper record {
     bir:Function func;
     string fullQualifiedClassName;
     string jvmMethodDescription;
+    string? jvmMethodDescriptionBString = ();
 };
 
 DiagnosticLogger dlogger = new ();
@@ -76,10 +77,10 @@ function lookupTypeDef(bir:TypeDef|bir:TypeRef key) returns bir:TypeDef {
     }
 }
 
-function lookupJavaMethodDescription(string key) returns string {
+function lookupJavaMethodDescription(string key, boolean useBString) returns string {
     if (birFunctionMap.hasKey(key)) {
         BIRFunctionWrapper functionWrapper = getBIRFunctionWrapper(birFunctionMap[key]);
-        return functionWrapper.jvmMethodDescription;
+        return useBString ? ( functionWrapper.jvmMethodDescriptionBString ?: "<error>") : functionWrapper.jvmMethodDescription;
     } else {
         error err = error("cannot find jvm method description for : " + key);
         panic err;
@@ -124,6 +125,31 @@ function generateDependencyList(bir:ModuleID moduleId, @tainted JarFile jarFile,
     }
 }
 
+function injectBStringFunctions(bir:Package module) {
+
+    bir:Function?[] functions = module.functions;
+    if (functions.length() > 0) {
+        int funcSize = functions.length();
+        int count  = 3;
+
+        bir:Function[] bStringFuncs = [];
+        while (count < funcSize) {
+            bir:Function birFunc = <bir:Function>functions[count];
+            count = count + 1;
+            if (IS_BSTRING) {
+                var bStringFunc = birFunc.clone();
+                bStringFunc.name = {value: nameOfBStringFunc(birFunc.name.value)};
+                bStringFuncs.push(bStringFunc);
+            }
+        }
+
+        foreach var func in bStringFuncs {
+            functions.push(func);
+        }
+    }
+
+}
+
 public function generatePackage(bir:ModuleID moduleId, @tainted JarFile jarFile,
                                 jvm:InteropValidator interopValidator, boolean isEntry) {
     string orgName = moduleId.org;
@@ -144,6 +170,8 @@ public function generatePackage(bir:ModuleID moduleId, @tainted JarFile jarFile,
             return;
         }
     }
+
+    injectBStringFunctions(module);
 
     typeOwnerClass = getModuleLevelClassName(<@untainted> orgName, <@untainted> moduleName, MODULE_INIT_CLASS_NAME);
     map<JavaClass> jvmClassMap = generateClassNameMappings(module, pkgName, typeOwnerClass,
@@ -184,7 +212,6 @@ public function generatePackage(bir:ModuleID moduleId, @tainted JarFile jarFile,
             foreach var globalVar in module.globalVars {
                 if (globalVar is bir:GlobalVariableDcl) {
                     generatePackageVariable(globalVar, cw);
-                    generateLockForVariable(globalVar, cw);
                 }
             }
 
@@ -203,7 +230,8 @@ public function generatePackage(bir:ModuleID moduleId, @tainted JarFile jarFile,
                 generateLambdaForPackageInits(cw, module, mainClass, moduleClass, dependentModuleArray);
                 jarFile.manifestEntries["Main-Class"] = moduleClass;
             }
-            generateStaticInitializer(module.globalVars, cw, moduleClass, serviceEPAvailable);
+            generateLockForVariable(cw);
+            generateStaticInitializer(cw, moduleClass, serviceEPAvailable);
             generateCreateTypesMethod(cw, module.typeDefs);
             generateModuleInitializer(cw, module);
             generateExecutionStopMethod(cw, typeOwnerClass, module, dependentModuleArray);
@@ -247,32 +275,28 @@ function generatePackageVariable(bir:GlobalVariableDcl globalVar, jvm:ClassWrite
     generateField(cw, bType, varName, true);
 }
 
-function generateLockForVariable(bir:GlobalVariableDcl globalVar, jvm:ClassWriter cw) {
-    string lockClass = "L" + LOCK_VALUE + ";";
+function generateLockForVariable(jvm:ClassWriter cw) {
+    string lockStoreClass = "L" + LOCK_STORE + ";";
     jvm:FieldVisitor fv;
-    fv = cw.visitField(ACC_PUBLIC + ACC_FINAL + ACC_STATIC, computeLockName(globalVar), lockClass);
+    fv = cw.visitField(ACC_PUBLIC + ACC_FINAL + ACC_STATIC, "LOCK_STORE", lockStoreClass);
     fv.visitEnd();
 }
 
-function generateStaticInitializer(bir:GlobalVariableDcl?[] globalVars, jvm:ClassWriter cw, string className,
+function generateStaticInitializer(jvm:ClassWriter cw, string className,
                                     boolean serviceEPAvailable) {
-    jvm:MethodVisitor mv = cw.visitMethod(ACC_STATIC, "<clinit>", "()V", (), ());
+   jvm:MethodVisitor mv = cw.visitMethod(ACC_STATIC, "<clinit>", "()V", (), ());
 
-    string lockClass = "L" + LOCK_VALUE + ";";
-    foreach var globalVar in globalVars {
-        if (globalVar is bir:GlobalVariableDcl) {
-            mv.visitTypeInsn(NEW, LOCK_VALUE);
-            mv.visitInsn(DUP);
-            mv.visitMethodInsn(INVOKESPECIAL, LOCK_VALUE, "<init>", "()V", false);
-            mv.visitFieldInsn(PUTSTATIC, className, computeLockName(globalVar), lockClass);
-        }
-    }
+   string lockStoreClass = "L" + LOCK_STORE + ";";
+   mv.visitTypeInsn(NEW, LOCK_STORE);
+   mv.visitInsn(DUP);
+   mv.visitMethodInsn(INVOKESPECIAL, LOCK_STORE, "<init>", "()V", false);
+   mv.visitFieldInsn(PUTSTATIC, className, "LOCK_STORE", lockStoreClass);
 
-    setServiceEPAvailableField(cw, mv, serviceEPAvailable, className);
+   setServiceEPAvailableField(cw, mv, serviceEPAvailable, className);
 
-    mv.visitInsn(RETURN);
-    mv.visitMaxs(0, 0);
-    mv.visitEnd();
+   mv.visitInsn(RETURN);
+   mv.visitMaxs(0, 0);
+   mv.visitEnd();
 }
 
 function setServiceEPAvailableField(jvm:ClassWriter cw, jvm:MethodVisitor mv, boolean serviceEPAvailable,
@@ -418,6 +442,8 @@ function generateClassNameMappings(bir:Package module, string pkgName, string in
             globalVarClassNames[pkgName + globalVar.name.value] = initClass;
         }
     }
+
+    globalVarClassNames[pkgName + "LOCK_STORE"] = initClass;
     // filter out functions.
     bir:Function?[] functions = module.functions;
     if (functions.length() > 0) {
@@ -546,12 +572,15 @@ function getFunctionWrapper(bir:Function currentFunc, string orgName ,string mod
     bir:BType? attachedType = receiver is bir:VariableDcl ? receiver.typeValue : ();
     string jvmMethodDescription = getMethodDesc(functionTypeDesc.paramTypes, functionTypeDesc?.retType,
                                                 attachedType = attachedType);
+    string jvmMethodDescriptionBString = getMethodDesc(functionTypeDesc.paramTypes, functionTypeDesc?.retType,
+                                                attachedType = attachedType, useBString = true);
     return {
         orgName : orgName,
         moduleName : moduleName,
         versionValue : versionValue,
         func : currentFunc,
         fullQualifiedClassName : moduleClass,
+        jvmMethodDescriptionBString : jvmMethodDescriptionBString,
         jvmMethodDescription : jvmMethodDescription
     };
 }
@@ -591,16 +620,6 @@ function addBuiltinImports(bir:ModuleID moduleId, bir:Package module) {
     }
 
     module.importModules[module.importModules.length()] = internalModule;
-
-    bir:ImportModule utilsModule = {modOrg : {value:"ballerina"},
-                                        modName : {value:"utils"},
-                                        modVersion : {value:""}};
-
-    if (isSameModule(moduleId, utilsModule)) {
-        return;
-    }
-
-    module.importModules[module.importModules.length()] = utilsModule;
 
     bir:ImportModule langArrayModule = {modOrg : {value:"ballerina"},
                                          modName : {value:"lang.array"},
@@ -657,6 +676,11 @@ function addBuiltinImports(bir:ModuleID moduleId, bir:Package module) {
     bir:ImportModule langTypedescModule = {modOrg : {value:"ballerina"},
                                          modName : {value:"lang.typedesc"},
                                          modVersion : {value:""}};
+
+    bir:ImportModule langBooleanModule = {modOrg : {value:"ballerina"},
+                                         modName : {value:"lang.boolean"},
+                                         modVersion : {value:""}};
+
     module.importModules[module.importModules.length()] = langArrayModule;
     module.importModules[module.importModules.length()] = langDecimalModule;
     module.importModules[module.importModules.length()] = langErrorModule;
@@ -671,6 +695,7 @@ function addBuiltinImports(bir:ModuleID moduleId, bir:Package module) {
     module.importModules[module.importModules.length()] = langValueModule;
     module.importModules[module.importModules.length()] = langXmlModule;
     module.importModules[module.importModules.length()] = langTypedescModule;
+    module.importModules[module.importModules.length()] = langBooleanModule;
 }
 
 function isSameModule(bir:ModuleID moduleId, bir:ImportModule importModule) returns boolean {
@@ -694,7 +719,7 @@ function isLangModule(bir:ModuleID moduleId) returns boolean{
 function readFileFully(string path) returns byte[]  = external;
 
 public function lookupExternClassName(string pkgName, string functionName) returns string? {
-    return externalMapCache[cleanupName(pkgName) + "/" + functionName];
+    return externalMapCache[cleanupName(pkgName) + "/" + nameOfNonBStringFunc(functionName)];
 }
 
 function generateShutdownSignalListener(bir:Package pkg, string initClass, map<byte[]> jarEntries) {

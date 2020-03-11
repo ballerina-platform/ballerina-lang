@@ -1,22 +1,3 @@
-stream<Employee> globalEmployeeStream = new;
-
-type Employee record {
-    int id = 0;
-    string name = "";
-};
-
-function testRecordPublishingToStreamArray() {
-    Employee origEmployee = {};
-    stream<Employee>[] s1 = [];
-    //Initialize 1st element in the array, so 0th element will be also filled with filler value.
-    s1[1] = new;
-    s1[0].subscribe(assignGlobalEmployee);
-}
-
-function assignGlobalEmployee(Employee e) {
-
-}
-
 function mapAccessTest(int x, int y) returns (int) {
     map<any> testMap = {last: "last"};
     int xx = 0;
@@ -25,12 +6,12 @@ function mapAccessTest(int x, int y) returns (int) {
     testMap["second"] = y;
     testMap
     [
-    "third"
+        "third"
     ]
     =
-    x
-    +
-    y
+        x
+        +
+        y
     ;
     testMap["forth"] = x - y;
     xx = <int>testMap.first;
@@ -48,13 +29,13 @@ function testArrayAccessAsIndexOfMapt() returns (string) {
     string key = "";
     var a = namesMap[keys[0]];
     var b =
-    namesMap
-    [
-    keys
-    [
-    0
-    ]
-    ]
+        namesMap
+        [
+            keys
+            [
+                0
+            ]
+        ]
     ;
     key = a is string ? a : "";
     return key;
@@ -68,9 +49,9 @@ function constructString(map<any> m) returns (string) {
     while (i < len) {
         string key = keys[i];
         var a = m
-        [
-        key
-        ]
+            [
+                key
+            ]
         ;
         string val = a is string ? a : "";
         returnStr = returnStr + key + ":" + val + ", ";

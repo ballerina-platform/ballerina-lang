@@ -75,8 +75,8 @@ public class KafkaConsumerAndProducerWithSSLTest {
         //Setting the keystore and trust-store file paths
         String filePathString = Paths.get(resourceDir, configFile).toAbsolutePath().toString();
         setFilePath(filePathString, filePath, Paths.get(resourceDir,
-                keystoresAndTruststores).toAbsolutePath().toString());
-        result = BCompileUtil.compile(Paths.get(resourceDir, configFile).toAbsolutePath().toString());
+                                                        keystoresAndTruststores).toAbsolutePath().toString());
+        result = BCompileUtil.compileOffline(Paths.get(resourceDir, configFile).toAbsolutePath().toString());
     }
 
     @Test(description = "Test SSL producer and consumer")
@@ -90,7 +90,7 @@ public class KafkaConsumerAndProducerWithSSLTest {
             return ((BBoolean) returnBValues[0]).booleanValue();
         });
 
-        await().atMost(100000, TimeUnit.MILLISECONDS).until(() -> {
+        await().atMost(10000, TimeUnit.MILLISECONDS).until(() -> {
             BValue[] returnBValues = BRunUtil.invoke(result, "funcKafkaPollWithSSL");
             Assert.assertEquals(returnBValues.length, 1);
             Assert.assertTrue(returnBValues[0] instanceof BString);
@@ -104,16 +104,17 @@ public class KafkaConsumerAndProducerWithSSLTest {
         BValue[] returnBValues = BRunUtil.invoke(result, "funcKafkaSSLConnectNegative");
         Assert.assertEquals(returnBValues.length, 1);
         Assert.assertTrue(returnBValues[0] instanceof BError);
-        String errorMessage = "Failed to send data to Kafka server: Failed to update metadata after 1000 ms.";
+        String errorMessage =
+                "Failed to send data to Kafka server: Topic test-topic-ssl not present in metadata after 1000 ms.";
         Assert.assertEquals(((BMap) ((BError) returnBValues[0]).getDetails()).get("message").stringValue(),
-                errorMessage);
+                            errorMessage);
     }
 
     @AfterClass
     public void tearDown() {
         //Reverting the keystore and trust-store file paths
         setFilePath(Paths.get(resourceDir, configFile).toAbsolutePath().toString(),
-                Paths.get(resourceDir, keystoresAndTruststores).toAbsolutePath().toString(), filePath);
+                    Paths.get(resourceDir, keystoresAndTruststores).toAbsolutePath().toString(), filePath);
         if (kafkaCluster != null) {
             kafkaCluster.shutdown();
             kafkaCluster = null;

@@ -24,7 +24,8 @@ import org.apache.axiom.om.OMNode;
 import org.ballerinalang.jvm.XMLFactory;
 import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.jvm.values.XMLItem;
+import org.ballerinalang.jvm.values.XMLSequence;
+import org.ballerinalang.jvm.values.XMLValue;
 import org.ballerinalang.model.util.JsonParser;
 import org.ballerinalang.model.util.StringUtils;
 import org.ballerinalang.model.values.BMap;
@@ -526,7 +527,8 @@ public class ResponseNativeFunctionSuccessTest {
 
     @Test
     public void testSetXmlPayload() {
-        OMNode omNode = (OMNode) XMLFactory.parse("<name>Ballerina</name>").value();
+        OMNode omNode = (OMNode)
+                ((XMLSequence) XMLFactory.parse("<name>Ballerina</name>")).getChildrenList().get(0).value();
         BXMLItem value = new BXMLItem(omNode);
         BValue[] inputArg = {value};
         BValue[] returnVals = BRunUtil.invoke(result, "testSetXmlPayload", inputArg);
@@ -536,7 +538,7 @@ public class ResponseNativeFunctionSuccessTest {
         BMap<String, BValue> entity =
                 (BMap<String, BValue>) ((BMap<String, BValue>) returnVals[0]).get(RESPONSE_ENTITY_FIELD);
         Object xmlValue = TestEntityUtils.getMessageDataSource(entity);
-        Assert.assertEquals(((XMLItem) xmlValue).getTextValue(), "Ballerina", "Payload is not set properly");
+        Assert.assertEquals(((XMLValue) xmlValue).getTextValue(), "Ballerina", "Payload is not set properly");
     }
 
     @Test
@@ -546,5 +548,51 @@ public class ResponseNativeFunctionSuccessTest {
         BValue[] returns = BRunUtil.invoke(result, "testSetPayloadAndGetText", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(returns[0].stringValue(), textContent.stringValue());
+    }
+
+    @Test
+    public void testAddCookie() {
+        ObjectValue outResponse = createResponseObject();
+        String headerName = "Set-Cookie";
+        String headerValue =
+                "SID3=31d4d96e407aad42; Domain=google.com; Path=/sample; Expires=Mon, 26 Jun 2017 05:46:22 GMT; " +
+                        "Max-Age=3600; HttpOnly; Secure";
+        BValue[] returnValue = BRunUtil.invoke(result, "testAddCookie",
+                                               new Object[]{outResponse});
+        Assert.assertFalse(returnValue.length == 0 || returnValue[0] == null, "Invalid Return Values.");
+        Assert.assertTrue(returnValue[0] instanceof BMap);
+        BMap<String, BValue> entityStruct =
+                (BMap<String, BValue>) ((BMap<String, BValue>) returnValue[0]).get(RESPONSE_ENTITY_FIELD);
+        HttpHeaders returnHeaders = (HttpHeaders) entityStruct.getNativeData(ENTITY_HEADERS);
+        Assert.assertEquals(returnHeaders.get(headerName), headerValue);
+    }
+
+    @Test
+    public void testRemoveCookiesFromRemoteStore() {
+        ObjectValue outResponse = createResponseObject();
+        String headerName = "Set-Cookie";
+        String headerValue = "SID3=31d4d96e407aad42; Expires=Sat, 12 Mar 1994 08:12:22 GMT";
+        BValue[] returnValue = BRunUtil.invoke(result, "testRemoveCookiesFromRemoteStore",
+                                               new Object[]{outResponse});
+        Assert.assertFalse(returnValue.length == 0 || returnValue[0] == null, "Invalid Return Values.");
+        Assert.assertTrue(returnValue[0] instanceof BMap);
+        BMap<String, BValue> entityStruct =
+                (BMap<String, BValue>) ((BMap<String, BValue>) returnValue[0]).get(RESPONSE_ENTITY_FIELD);
+        HttpHeaders returnHeaders = (HttpHeaders) entityStruct.getNativeData(ENTITY_HEADERS);
+        Assert.assertEquals(returnHeaders.get(headerName), headerValue);
+    }
+
+    @Test
+    public void testGetCookies() {
+        ObjectValue inResponse = createResponseObject();
+        HttpCarbonMessage inResponseMsg = HttpUtil.createHttpCarbonMessage(false);
+        inResponseMsg.setHeader(HttpHeaderNames.CONTENT_TYPE.toString(), APPLICATION_FORM);
+        inResponseMsg.setHttpStatusCode(200);
+        HttpUtil.addCarbonMsg(inResponse, inResponseMsg);
+        ObjectValue entity = createEntityObject();
+        HttpUtil.populateInboundResponse(inResponse, entity, inResponseMsg);
+        BValue[] returnVals = BRunUtil.invoke(result, "testGetCookies", new Object[]{inResponse});
+        Assert.assertFalse(returnVals.length == 0 || returnVals[0] == null, "No cookie objects in the Return Values");
+        Assert.assertTrue(returnVals.length == 1);
     }
 }

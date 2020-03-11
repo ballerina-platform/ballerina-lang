@@ -17,9 +17,9 @@
  */
 package org.ballerinalang.jvm.values;
 
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BType;
-import org.ballerinalang.jvm.types.BTypes;
+import org.ballerinalang.jvm.types.BTypedescType;
+import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.jvm.values.api.BTypedesc;
 
 import java.util.Map;
@@ -45,7 +45,7 @@ public class TypedescValue implements RefValue, BTypedesc {
 
     @Deprecated
     public TypedescValue(BType describingType) {
-        this.type = BTypes.typeTypedesc;
+        this.type = new BTypedescType(describingType);
         this.describingType = describingType;
     }
 
@@ -58,8 +58,13 @@ public class TypedescValue implements RefValue, BTypedesc {
     }
 
     @Override
-    public String stringValue(Strand strand) {
+    public String stringValue() {
         return "typedesc " + describingType.toString();
+    }
+
+    @Override
+    public BString bStringValue() {
+        return null;
     }
 
     @Override

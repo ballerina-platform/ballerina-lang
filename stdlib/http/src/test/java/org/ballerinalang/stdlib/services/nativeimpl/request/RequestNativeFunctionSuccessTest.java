@@ -20,11 +20,12 @@ package org.ballerinalang.stdlib.services.nativeimpl.request;
 import io.netty.handler.codec.http.DefaultHttpHeaders;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpHeaders;
+import org.ballerinalang.jvm.XMLFactory;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.jvm.values.XMLItem;
+import org.ballerinalang.jvm.values.XMLValue;
 import org.ballerinalang.mime.util.MimeConstants;
 import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.model.util.JsonParser;
@@ -554,7 +555,7 @@ public class RequestNativeFunctionSuccessTest {
 
     @Test
     public void testSetXmlPayload() {
-        XMLItem value = new XMLItem("<name>Ballerina</name>");
+        XMLValue value = XMLFactory.parse("<name>Ballerina</name>");
         BValue[] returnVals = BRunUtil.invoke(compileResult, "testSetXmlPayload", new Object[]{ value });
 
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
@@ -562,7 +563,7 @@ public class RequestNativeFunctionSuccessTest {
         Assert.assertTrue(returnVals[0] instanceof BMap);
         BMap<String, BValue> entity =
                 (BMap<String, BValue>) ((BMap<String, BValue>) returnVals[0]).get(REQUEST_ENTITY_FIELD);
-        XMLItem xmlValue = (XMLItem) TestEntityUtils.getMessageDataSource(entity);
+        XMLValue xmlValue = (XMLValue) TestEntityUtils.getMessageDataSource(entity);
         Assert.assertEquals(xmlValue.getTextValue(), "Ballerina", "Payload is not set properly");
     }
 
@@ -716,5 +717,33 @@ public class RequestNativeFunctionSuccessTest {
         HTTPTestRequest requestMsg = MessageUtils.generateHTTPMessage("/foo/bar", "POST", headers, payload);
         HttpCarbonMessage responseMsg = Services.invoke(9093, requestMsg);
         Assert.assertEquals(ResponseReader.getReturnValue(responseMsg), "bar");
+    }
+
+    @Test
+    public void testAddCookies() {
+        String headerName = "Cookie";
+        String headerValue = "SID2=2638747623468bce72; SID1=31d4d96e407aad42; SID3=782638747668bce72";
+        ObjectValue inRequest = createRequestObject();
+        ObjectValue entity = createEntityObject();
+        inRequest.set(REQUEST_ENTITY_FIELD, entity);
+        BValue[] returnVals = BRunUtil.invoke(compileResult, "testAddCookies", new Object[]{inRequest});
+        Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
+                           "Invalid Return Values.");
+        Assert.assertTrue(returnVals[0] instanceof BMap);
+        BMap<String, BValue> entityStruct =
+                (BMap<String, BValue>) ((BMap<String, BValue>) returnVals[0]).get(REQUEST_ENTITY_FIELD);
+        HttpHeaders httpHeaders = (HttpHeaders) entityStruct.getNativeData(ENTITY_HEADERS);
+        Assert.assertEquals(httpHeaders.getAll(headerName).get(0), headerValue);
+    }
+
+    @Test
+    public void testGetCookies() {
+        ObjectValue inRequest = createRequestObject();
+        ObjectValue entity = createEntityObject();
+        inRequest.set(REQUEST_ENTITY_FIELD, entity);
+        BValue[] returnVals = BRunUtil.invoke(compileResult, "testGetCookies", new Object[]{inRequest});
+        Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
+                           "No cookie objects in the Return Values");
+        Assert.assertTrue(returnVals.length == 1);
     }
 }

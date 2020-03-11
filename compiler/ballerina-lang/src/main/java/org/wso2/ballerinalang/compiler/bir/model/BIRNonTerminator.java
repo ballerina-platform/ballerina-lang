@@ -17,9 +17,9 @@
  */
 package org.wso2.ballerinalang.compiler.bir.model;
 
-import org.ballerinalang.model.Name;
 import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import java.util.List;
@@ -33,7 +33,7 @@ import java.util.List;
  */
 public abstract class BIRNonTerminator extends BIRAbstractInstruction implements BIRInstruction {
 
-    BIRNonTerminator(DiagnosticPos pos, InstructionKind kind) {
+    public BIRNonTerminator(DiagnosticPos pos, InstructionKind kind) {
         super(pos, kind);
     }
 
@@ -408,15 +408,12 @@ public abstract class BIRNonTerminator extends BIRAbstractInstruction implements
      */
     public static class NewXMLElement extends BIRNonTerminator {
         public BIROperand startTagOp;
-        public BIROperand endTagOp;
         public BIROperand defaultNsURIOp;
 
-        public NewXMLElement(DiagnosticPos pos, BIROperand lhsOp, BIROperand startTagOp, BIROperand endTagOp,
-                BIROperand defaultNsURIOp) {
+        public NewXMLElement(DiagnosticPos pos, BIROperand lhsOp, BIROperand startTagOp, BIROperand defaultNsURIOp) {
             super(pos, InstructionKind.NEW_XML_ELEMENT);
             this.lhsOp = lhsOp;
             this.startTagOp = startTagOp;
-            this.endTagOp = endTagOp;
             this.defaultNsURIOp = defaultNsURIOp;
         }
 
@@ -649,25 +646,4 @@ public abstract class BIRNonTerminator extends BIRAbstractInstruction implements
         }
     }
 
-    /**
-     * The new stream instruction.
-     * <p>
-     * e.g. {@code stream<Employee> employeeStream = new;}
-     *
-     * @since 0.995.0
-     */
-    public static class NewStream extends BIRNonTerminator {
-        public BType type;
-
-        public NewStream(DiagnosticPos pos, BType type, BIROperand lhsOp) {
-            super(pos, InstructionKind.NEW_STREAM);
-            this.type = type;
-            this.lhsOp = lhsOp;
-        }
-
-        @Override
-        public void accept(BIRVisitor visitor) {
-            visitor.visit(this);
-        }
-    }
 }

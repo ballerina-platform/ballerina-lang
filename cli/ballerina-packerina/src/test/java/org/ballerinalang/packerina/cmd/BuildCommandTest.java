@@ -44,11 +44,15 @@ import java.nio.file.StandardCopyOption;
 import java.nio.file.StandardOpenOption;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Collections;
+import java.util.Enumeration;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
 import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 import static org.ballerinalang.packerina.utils.FileUtils.deleteDirectory;
+import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_COMPILED_JAR_EXT;
 
 /**
  * Build command tests.
@@ -82,9 +86,9 @@ public class BuildCommandTest extends CommandTest {
     
         String buildLog = readOutput(true);
         Assert.assertEquals(buildLog.replaceAll("\r", ""),
-                "ballerina: invalid Ballerina source path, it should either be a module name " +
-                                      "in a Ballerina project or a file with a '.bal' extension. Use the -a or " +
-                                      "--all flag to build or compile all modules.\n" +
+                "ballerina: invalid Ballerina source path. It should either be a name of a module " +
+                                      "in a Ballerina project or a file with a '.bal' extension. Use -a or " +
+                                      "--all to build or compile all modules.\n" +
                                       "\n" +
                                       "USAGE:\n" +
                                       "    ballerina build {<ballerina-file> | <module-name> | -a | --all}\n" +
@@ -265,13 +269,24 @@ public class BuildCommandTest extends CommandTest {
         String buildLog = readOutput(true);
         Assert.assertEquals(buildLog.replaceAll("\r", ""),
                                       "ballerina: 'build' command requires a module name or a Ballerina file to " +
-                                      "build/compile. use '-a' or '--all' flag to build/compile all the modules of " +
+                                      "build/compile. Use '-a' or '--all' to build/compile all the modules of " +
                                       "the project.\n" +
                                       "\n" +
                                       "USAGE:\n" +
                                       "    ballerina build {<ballerina-file> | <module-name> | -a | --all}\n");
     }
-    
+
+    @Test(description = "Build all modules with passing arguments")
+    public void testBuildAllWithArg() throws IOException {
+        // valid source root path
+        Path validBalFilePath = this.testResources.resolve("valid-project");
+        BuildCommand buildCommand = new BuildCommand(validBalFilePath, printStream, printStream, false, true);
+        new CommandLine(buildCommand).parse("-a", "hello2");
+        buildCommand.execute();
+        String buildLog = readOutput(true);
+        Assert.assertTrue(buildLog.contains("too many arguments.\n"));
+    }
+
     @Test(description = "Build bal file with no entry")
     public void testBuildBalFileWithNoEntry() throws IOException {
         // valid source root path
@@ -326,9 +341,9 @@ public class BuildCommandTest extends CommandTest {
         buildCommand.execute();
         String buildLog = readOutput(true);
         Assert.assertEquals(buildLog.replaceAll("\r", ""),
-                "ballerina: invalid Ballerina source path, it should either be a module name " +
-                                      "in a Ballerina project or a file with a '.bal' extension. Use the -a or --all " +
-                                      "flag to build or compile all modules.\n" +
+                "ballerina: invalid Ballerina source path. It should either be a name of a module " +
+                                      "in a Ballerina project or a file with a '.bal' extension. Use -a or --all " +
+                                      "to build or compile all modules.\n" +
                                       "\n" +
                                       "USAGE:\n" +
                                       "    ballerina build {<ballerina-file> | <module-name> | -a | --all}\n" +
@@ -444,6 +459,18 @@ public class BuildCommandTest extends CommandTest {
         readOutput(true);
     }
 
+    @Test(description = "Build a valid ballerina file with relative path")
+    public void testBuildWithRelativePath() throws IOException {
+        String buildPath = "relative" + File.separator + "testDir" + File.separator + ".." + File.separator + "testBal"
+                + File.separator + "hello_world.bal";
+        Path sourceRoot = this.testResources.resolve("valid-bal-file");
+        BuildCommand buildCommand = new BuildCommand(sourceRoot, printStream, printStream, false, true, sourceRoot);
+        new CommandLine(buildCommand).parse(buildPath);
+        buildCommand.execute();
+        Assert.assertTrue(Files.exists(sourceRoot.resolve("hello_world.jar")));
+        readOutput(true);
+    }
+
     private static void zipFile(File file, String contentFile) {
         try {
             ZipOutputStream out = new ZipOutputStream(new FileOutputStream(file));
@@ -462,12 +489,51 @@ public class BuildCommandTest extends CommandTest {
         }
     }
 
+    @Test(description = "Test Build Command in a Project which use dependency jar which include stored jar.")
+    public void testBuildCommandWithStoredJarDependency() throws IOException {
+        // Build the project
+        String[] compileArgs = {"--all", "--skip-tests"};
+        BuildCommand buildCommand = new BuildCommand(this.testResources.resolve("stored-jar-dependency-project"),
+                                                     printStream, printStream, false, true);
+        new CommandLine(buildCommand).parse(compileArgs);
+        buildCommand.execute();
+        Path target = this.testResources.resolve("stored-jar-dependency-project")
+                .resolve(ProjectDirConstants.TARGET_DIR_NAME);
+        Assert.assertTrue(Files.exists(target), "Check if target directory is created");
+        Path executablePath = target.resolve(ProjectDirConstants.BIN_DIR_NAME).resolve("mymodule.jar");
+        JarFile jarFile = new JarFile(executablePath.toFile());
+        Enumeration e = jarFile.entries();
+        while (e.hasMoreElements()) {
+            JarEntry je = (JarEntry) e.nextElement();
+            String name = je.getName();
+            int method = je.getMethod();
+            if (name.endsWith(BLANG_COMPILED_JAR_EXT)) {
+                Assert.assertEquals(method, ZipEntry.STORED);
+            }
+        }
+        readOutput(true);
+    }
+
     @Test(dependsOnMethods = {"testBuildCommand"})
-    public void testBuildOutput() {
+    public void testBuildOutput() throws IOException {
         Path bin = this.testResources.resolve("valid-project").resolve(ProjectDirConstants.TARGET_DIR_NAME)
                 .resolve(ProjectDirConstants.BIN_DIR_NAME);
         Assert.assertTrue(Files.exists(bin));
-        Assert.assertTrue(Files.exists(bin.resolve("mymodule" + ProjectDirConstants.BLANG_COMPILED_JAR_EXT)));
+        Path myModuleJar = bin.resolve("mymodule" + BLANG_COMPILED_JAR_EXT);
+        Assert.assertTrue(Files.exists(myModuleJar));
+        JarFile jar = new JarFile(myModuleJar.toFile());
+        // check resources
+        Assert.assertNotNull(jar.getJarEntry("resources/testOrg/mymodule/resource.txt"));
+        Assert.assertNotNull(jar.getJarEntry("resources/testOrg/mymodule/myresource/insideDirectory.txt"));
+    }
+    
+    @Test(dependsOnMethods = {"testBuildOutput"})
+    public void testCleanCommand() {
+        CleanCommand cleanCommand = new CleanCommand(Paths.get(System.getProperty("user.dir")), false);
+        new CommandLine(cleanCommand).parse("--sourceroot", this.testResources.resolve("valid-project").toString());
+        cleanCommand.execute();
+        Path target = this.testResources.resolve("valid-project").resolve(ProjectDirConstants.TARGET_DIR_NAME);
+        Assert.assertFalse(Files.exists(target), "Check if target directory is deleted");
     }
 
     @Test(dependsOnMethods = {"testBuildCommand"})
@@ -656,6 +722,24 @@ public class BuildCommandTest extends CommandTest {
         // check if each module has a bit in cache directory
     }
 
+    @Test(description = "Test the cleaning of target resources in the build command.",
+            dependsOnMethods = {"testBuildCommand"})
+    public void testTargetClean() {
+        // If a single module is built only the relevant module's resources should be cleaned,
+        // else the entire target will be deleted.
+        String[] compileArgs = {"mymodule", "--skip-tests"};
+        Path target = this.testResources.resolve("valid-project").resolve(ProjectDirConstants.TARGET_DIR_NAME);
+
+        BuildCommand buildCommand = new BuildCommand(this.testResources.resolve("valid-project"),
+                printStream, printStream, false, true);
+        new CommandLine(buildCommand).parse(compileArgs);
+        buildCommand.execute();
+
+        // Executable of a module that is not built.
+        Path executablePath = target.resolve(ProjectDirConstants.BIN_DIR_NAME).resolve("mytemplate.jar");
+        Assert.assertTrue(Files.exists(executablePath),
+                "Check if executables of other modules are not deleted during a single module build");
+    }
 
     @Test(description = "Test Build Command for a single file.",
             dependsOnMethods = "testBuildCommandWithoutArgs",
@@ -694,6 +778,23 @@ public class BuildCommandTest extends CommandTest {
         //Check if executable jar gets created
         Path execJar = tmpDir.resolve("sample.jar");
         Assert.assertTrue(Files.exists(execJar), "Check if jar gets created");
+    }
+
+    @Test(description = "Test the --skip-tests flag in the build command to ensure it avoids compiling tests")
+    public void testBuildWithSkipTests() throws IOException {
+        // valid source root path where the project contains test bal files with compilation errors
+        Path projectWithTestErrors = this.testResources.resolve("project-with-test-errors");
+        BuildCommand buildCommand = new BuildCommand(projectWithTestErrors, printStream, printStream, false, true);
+        new CommandLine(buildCommand).parse("--skip-tests", "-a");
+        buildCommand.execute();
+
+        String buildLog = readOutput(true);
+        Assert.assertEquals(buildLog.replaceAll("\r", ""), "Compiling source\n" +
+                "\ttestOrg/module1:0.1.0\n" +
+                "\nCreating balos\n" +
+                "\ttarget/balo/module1-2019r3-any-0.1.0.balo\n" +
+                "\nGenerating executables\n" +
+                "\ttarget/bin/module1.jar\n");
     }
     
     // Check compile command inside a module directory

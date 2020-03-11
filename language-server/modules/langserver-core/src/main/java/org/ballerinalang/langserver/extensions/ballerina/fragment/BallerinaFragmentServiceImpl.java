@@ -19,7 +19,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import org.ballerinalang.compiler.CompilerPhase;
-import org.ballerinalang.langserver.LSGlobalContext;
+import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.compiler.ExtendedLSCompiler;
 import org.ballerinalang.langserver.compiler.LSCompilerUtil;
 import org.ballerinalang.langserver.compiler.common.modal.BallerinaFile;
@@ -47,12 +47,12 @@ public class BallerinaFragmentServiceImpl implements BallerinaFragmentService {
     private static final String SYNTAX_ERRORS = "syntax_errors";
     private static final String ERROR = "error";
 
-    public BallerinaFragmentServiceImpl(LSGlobalContext lsGlobalContext) {
-    }
-
     @Override
     public CompletableFuture<BallerinaFragmentASTResponse> ast(BallerinaFragmentASTRequest request) {
         return CompletableFuture.supplyAsync(() -> {
+            if (CommonUtil.isCachedExternalSource(request.getSource())) {
+                return null;
+            }
             BallerinaFragmentASTResponse response = new BallerinaFragmentASTResponse();
             response.setAst(parseFragment(request));
             return response;

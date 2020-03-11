@@ -147,7 +147,7 @@ public class BalFileGenerationUtils {
                 fos.write(buffer, 0, length);
             }
         } catch (IOException e) {
-            String msg = "Error while downloading the file: " + file.getName();
+            String msg = "Error while downloading the file: " + file.getName() + ". " + e.getMessage();
             throw new CodeGeneratorException(msg, e);
         }
     }

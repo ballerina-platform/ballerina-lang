@@ -28,6 +28,17 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "PersistentCookieHandler",
+      "kind": "Interface",
+      "detail": "Object",
+      "documentation": {
+        "left": "The representation of a persistent cookie handler for managing persistent cookies."
+      },
+      "sortText": "190",
+      "insertText": "PersistentCookieHandler",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "RequestFilter",
       "kind": "Interface",
       "detail": "Object",

@@ -14,6 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerinax/java;
 import ballerina/mime;
 import ballerina/io;
 
@@ -188,6 +189,37 @@ type HTTPError record {
     string message = "";
 };
 
+# Common client configurations for the next level clients.
+#
+# + httpVersion - The HTTP version understood by the client
+# + http1Settings - Configurations related to HTTP/1.x protocol
+# + http2Settings - Configurations related to HTTP/2 protocol
+# + timeoutInMillis - The maximum time to wait (in milliseconds) for a response before closing the connection
+# + forwarded - The choice of setting `forwarded`/`x-forwarded` header
+# + followRedirects - Configurations associated with Redirection
+# + poolConfig - Configurations associated with request pooling
+# + cache - HTTP caching related configurations
+# + compression - Specifies the way of handling compression (`accept-encoding`) header
+# + auth - HTTP authentication-related configurations
+# + circuitBreaker - Configurations associated with the behaviour of the Circuit Breaker
+# + retryConfig - Configurations associated with retrying
+# + cookieConfig - Configurations associated with cookies
+public type CommonClientConfiguration record {|
+    string httpVersion = HTTP_1_1;
+    ClientHttp1Settings http1Settings = {};
+    ClientHttp2Settings http2Settings = {};
+    int timeoutInMillis = 60000;
+    string forwarded = "disable";
+    FollowRedirects? followRedirects = ();
+    PoolConfiguration? poolConfig = ();
+    CacheConfig cache = {};
+    Compression compression = COMPRESSION_AUTO;
+    OutboundAuthConfig? auth = ();
+    CircuitBreakerConfig? circuitBreaker = ();
+    RetryConfig? retryConfig = ();
+    CookieConfig? cookieConfig = ();
+|};
+
 //////////////////////////////
 /// Native implementations ///
 //////////////////////////////
@@ -197,7 +229,15 @@ type HTTPError record {
 # + headerValue - The header value
 # + return - Returns a tuple containing the value and its parameter map
 //TODO: Make the error nillable
-public function parseHeader(string headerValue) returns [string, map<any>]|ClientError = external;
+public function parseHeader(string headerValue) returns [string, map<any>]|ClientError {
+    return externParseHeader(java:fromString(headerValue));
+}
+
+function externParseHeader(handle headerValue) returns [string, map<any>]|ClientError =
+@java:Method {
+    class: "org.ballerinalang.net.http.nativeimpl.ParseHeader",
+    name: "parseHeader"
+} external;
 
 function buildRequest(RequestMessage message) returns Request {
     Request request = new;
@@ -211,10 +251,10 @@ function buildRequest(RequestMessage message) returns Request {
         request.setTextPayload(message);
     } else if (message is xml) {
         request.setXmlPayload(message);
-    } else if (message is json) {
-        request.setJsonPayload(message);
     } else if (message is byte[]) {
         request.setBinaryPayload(message);
+    } else if (message is json) {
+        request.setJsonPayload(message);
     } else if (message is io:ReadableByteChannel) {
         request.setByteChannel(message);
     } else {
@@ -233,10 +273,10 @@ function buildResponse(ResponseMessage message) returns Response {
         response.setTextPayload(message);
     } else if (message is xml) {
         response.setXmlPayload(message);
-    } else if (message is json) {
-        response.setJsonPayload(message);
     } else if (message is byte[]) {
         response.setBinaryPayload(message);
+    } else if (message is json) {
+        response.setJsonPayload(message);
     } else if (message is io:ReadableByteChannel) {
         response.setByteChannel(message);
     } else {
@@ -245,7 +285,7 @@ function buildResponse(ResponseMessage message) returns Response {
     return response;
 }
 
-# The HEAD remote function implementation of the Circuit Breaker. This wraps the `head()` function of the underlying
+# The HEAD remote function implementation of the Circuit Breaker. This wraps the `head` function of the underlying
 # HTTP remote function provider.
 
 # + path - Resource path
@@ -399,4 +439,17 @@ function createErrorForNoPayload(mime:Error err) returns GenericClientError {
 }
 
 //Resolve a given path against a given URI.
-function resolve(string baseUrl, string path) returns string|ClientError = external;
+function resolve(string baseUrl, string path) returns string|ClientError {
+    var result = externResolve(java:fromString(baseUrl), java:fromString(path));
+    if (result is handle) {
+        return <string>java:toString(result);
+    } else {
+        return result;
+    }
+}
+
+function externResolve(handle baseUrl, handle path) returns handle|ClientError =
+@java:Method {
+    class: "org.ballerinalang.net.uri.nativeimpl.Resolve",
+    name: "resolve"
+} external;

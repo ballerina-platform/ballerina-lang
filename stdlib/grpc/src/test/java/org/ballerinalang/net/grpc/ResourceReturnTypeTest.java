@@ -36,7 +36,7 @@ public class ResourceReturnTypeTest {
 
         Path serviceBalPath = Paths.get("src", "test", "resources", "test-src",
                 "resource_with_vaild_return_type.bal");
-        CompileResult result = BCompileUtil.compile(serviceBalPath.toAbsolutePath().toString());
+        CompileResult result = BCompileUtil.compileOffline(serviceBalPath.toAbsolutePath().toString());
         Assert.assertEquals(0, result.getErrorCount());
     }
 
@@ -45,7 +45,7 @@ public class ResourceReturnTypeTest {
 
         Path serviceBalPath = Paths.get("src", "test", "resources", "test-src",
                 "resource_with_invalid_return_type.bal");
-        CompileResult result = BCompileUtil.compile(serviceBalPath.toAbsolutePath().toString());
+        CompileResult result = BCompileUtil.compileOffline(serviceBalPath.toAbsolutePath().toString());
         Assert.assertEquals(result.getErrorCount(), 5);
         Assert.assertEquals(result.getDiagnostics().length, 5);
         Assert.assertEquals(result.getDiagnostics()[0].getMessage(), "invalid resource function return type " +

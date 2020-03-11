@@ -19,31 +19,17 @@ package org.wso2.ballerinalang.compiler.tree;
 
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS.BLangLocalXMLNS;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS.BLangPackageXMLNS;
-import org.wso2.ballerinalang.compiler.tree.clauses.BLangFunctionClause;
-import org.wso2.ballerinalang.compiler.tree.clauses.BLangGroupBy;
-import org.wso2.ballerinalang.compiler.tree.clauses.BLangHaving;
-import org.wso2.ballerinalang.compiler.tree.clauses.BLangJoinStreamingInput;
-import org.wso2.ballerinalang.compiler.tree.clauses.BLangLimit;
-import org.wso2.ballerinalang.compiler.tree.clauses.BLangOrderBy;
-import org.wso2.ballerinalang.compiler.tree.clauses.BLangOrderByVariable;
-import org.wso2.ballerinalang.compiler.tree.clauses.BLangOutputRateLimit;
-import org.wso2.ballerinalang.compiler.tree.clauses.BLangPatternClause;
-import org.wso2.ballerinalang.compiler.tree.clauses.BLangPatternStreamingEdgeInput;
-import org.wso2.ballerinalang.compiler.tree.clauses.BLangPatternStreamingInput;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangDoClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangFromClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangLetClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectClause;
-import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectExpression;
-import org.wso2.ballerinalang.compiler.tree.clauses.BLangSetAssignment;
-import org.wso2.ballerinalang.compiler.tree.clauses.BLangStreamAction;
-import org.wso2.ballerinalang.compiler.tree.clauses.BLangStreamingInput;
-import org.wso2.ballerinalang.compiler.tree.clauses.BLangTableQuery;
-import org.wso2.ballerinalang.compiler.tree.clauses.BLangWhere;
-import org.wso2.ballerinalang.compiler.tree.clauses.BLangWindow;
-import org.wso2.ballerinalang.compiler.tree.clauses.BLangWithinClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangWhereClause;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckPanickedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorVarRef;
@@ -65,6 +51,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation.BLangAct
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIsAssignableExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIsLikeExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangLetExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr.BLangArrayLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr.BLangJSONArrayLiteral;
@@ -77,17 +64,15 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchExpression.BLangMatchExprPatternClause;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNumericLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangChannelLiteral;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangJSONLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangMapLiteral;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangStreamLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangStructLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRestArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangServiceConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangConstRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangFieldVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangFunctionVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangLocalVarRef;
@@ -96,7 +81,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangT
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStatementExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableLiteral;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableQueryExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTrapExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTupleVarRef;
@@ -113,7 +97,10 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerSyncSendExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttribute;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttributeAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLCommentLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementAccess;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementFilter;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLNavigationAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLProcInsLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQName;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQuotedString;
@@ -130,7 +117,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangErrorDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangErrorVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangForever;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
@@ -140,12 +126,12 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStaticBindingPatternClause;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStructuredBindingPatternClause;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangPanic;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangQueryAction;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRetry;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangSimpleVariableDef;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangStreamingQueryStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangThrow;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTryCatchFinally;
@@ -160,8 +146,10 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangConstrainedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangErrorType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFiniteTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFunctionTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangLetVariable;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangStreamType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangTupleTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUnionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
@@ -193,6 +181,18 @@ public abstract class BLangNodeVisitor {
     }
 
     public void visit(BLangFunction funcNode) {
+        throw new AssertionError();
+    }
+
+    public void visit(BLangBlockFunctionBody blockFuncBody) {
+        throw new AssertionError();
+    }
+
+    public void visit(BLangExprFunctionBody exprFuncBody) {
+        throw new AssertionError();
+    }
+
+    public void visit(BLangExternalFunctionBody externFuncBody) {
         throw new AssertionError();
     }
 
@@ -301,6 +301,10 @@ public abstract class BLangNodeVisitor {
         throw new AssertionError();
     }
 
+    public void visit(BLangQueryAction queryAction) {
+        throw new AssertionError();
+    }
+
     public void visit(BLangMatch matchNode) {
         throw new AssertionError();
     }
@@ -310,6 +314,26 @@ public abstract class BLangNodeVisitor {
     }
 
     public void visit(BLangForeach foreach) {
+        throw new AssertionError();
+    }
+
+    public void visit(BLangFromClause fromClause) {
+        throw new AssertionError();
+    }
+
+    public void visit(BLangLetClause letClause) {
+        throw new AssertionError();
+    }
+
+    public void visit(BLangSelectClause selectClause) {
+        throw new AssertionError();
+    }
+
+    public void visit(BLangWhereClause whereClause) {
+        throw new AssertionError();
+    }
+
+    public void visit(BLangDoClause doClause) {
         throw new AssertionError();
     }
 
@@ -349,74 +373,6 @@ public abstract class BLangNodeVisitor {
         throw new AssertionError();
     }
 
-    public void visit(BLangOrderBy orderBy) {
-        throw new AssertionError();
-    }
-
-    public void visit(BLangOrderByVariable orderByVariable) {
-        throw new AssertionError();
-    }
-
-    public void visit(BLangLimit limit) {
-        throw new AssertionError();
-    }
-
-    public void visit(BLangGroupBy groupBy) {
-        throw new AssertionError();
-    }
-
-    public void visit(BLangHaving having) {
-        throw new AssertionError();
-    }
-
-    public void visit(BLangSelectExpression selectExpression) {
-        throw new AssertionError();
-    }
-
-    public void visit(BLangSelectClause selectClause) {
-        throw new AssertionError();
-    }
-
-    public void visit(BLangWhere whereClause) {
-        throw new AssertionError();
-    }
-
-    public void visit(BLangStreamingInput streamingInput) {
-        throw new AssertionError();
-    }
-
-    public void visit(BLangJoinStreamingInput joinStreamingInput) {
-        throw new AssertionError();
-    }
-
-    public void visit(BLangTableQuery tableQuery) {
-        throw new AssertionError();
-    }
-
-    public void visit(BLangStreamAction streamAction) {
-        throw new AssertionError();
-    }
-
-    public void visit(BLangFunctionClause functionClause) {
-        throw new AssertionError();
-    }
-
-    public void visit(BLangSetAssignment setAssignmentClause) {
-        throw new AssertionError();
-    }
-
-    public void visit(BLangPatternStreamingEdgeInput patternStreamingEdgeInput) {
-        throw new AssertionError();
-    }
-
-    public void visit(BLangWindow windowClause) {
-        throw new AssertionError();
-    }
-
-    public void visit(BLangPatternStreamingInput patternStreamingInput) {
-        throw new AssertionError();
-    }
-
     public void visit(BLangWorkerSend workerSendNode) {
         throw new AssertionError();
     }
@@ -425,14 +381,13 @@ public abstract class BLangNodeVisitor {
         throw new AssertionError();
     }
 
-    public void visit(BLangForever foreverStatement) {
-        throw new AssertionError();
-    }
-
-
     // Expressions
 
     public void visit(BLangLiteral literalExpr) {
+        throw new AssertionError();
+    }
+
+    public void visit(BLangConstRef constRef) {
         throw new AssertionError();
     }
 
@@ -484,10 +439,6 @@ public abstract class BLangNodeVisitor {
         throw new AssertionError();
     }
 
-    public void visit(BLangInvocation.BLangBuiltInMethodInvocation builtInMethodInvocation) {
-        throw new AssertionError();
-    }
-
     public void visit(BLangTernaryExpr ternaryExpr) {
         throw new AssertionError();
     }
@@ -509,6 +460,14 @@ public abstract class BLangNodeVisitor {
     }
 
     public void visit(BLangGroupExpr groupExpr) {
+        throw new AssertionError();
+    }
+
+    public void visit(BLangLetExpression letExpr) {
+        throw new AssertionError();
+    }
+
+    public void visit(BLangLetVariable letVariable) {
         throw new AssertionError();
     }
 
@@ -584,31 +543,11 @@ public abstract class BLangNodeVisitor {
         throw new AssertionError();
     }
 
-    public void visit(BLangTableQueryExpression tableQueryExpression) {
-        throw new AssertionError();
-    }
-
     public void visit(BLangRestArgsExpression bLangVarArgsExpression) {
         throw new AssertionError();
     }
 
     public void visit(BLangNamedArgsExpression bLangNamedArgsExpression) {
-        throw new AssertionError();
-    }
-
-    public void visit(BLangStreamingQueryStatement streamingQueryStatement) {
-        throw new AssertionError();
-    }
-
-    public void visit(BLangWithinClause withinClause) {
-        throw new AssertionError();
-    }
-
-    public void visit(BLangOutputRateLimit outputRateLimit) {
-        throw new AssertionError();
-    }
-
-    public void visit(BLangPatternClause patternClause) {
         throw new AssertionError();
     }
 
@@ -652,6 +591,10 @@ public abstract class BLangNodeVisitor {
         throw new AssertionError();
     }
 
+    public void visit(BLangQueryExpr queryExpr) {
+        throw new AssertionError();
+    }
+
     // Type nodes
 
     public void visit(BLangValueType valueType) {
@@ -667,6 +610,10 @@ public abstract class BLangNodeVisitor {
     }
 
     public void visit(BLangConstrainedType constrainedType) {
+        throw new AssertionError();
+    }
+
+    public void visit(BLangStreamType streamType) {
         throw new AssertionError();
     }
 
@@ -717,10 +664,6 @@ public abstract class BLangNodeVisitor {
         throw new AssertionError();
     }
 
-    public void visit(BLangConstRef constRef) {
-        throw new AssertionError();
-    }
-
     public void visit(BLangFunctionVarRef functionVarRef) {
         throw new AssertionError();
     }
@@ -753,19 +696,11 @@ public abstract class BLangNodeVisitor {
         throw new AssertionError();
     }
 
-    public void visit(BLangJSONLiteral jsonLiteral) {
-        throw new AssertionError();
-    }
-
     public void visit(BLangMapLiteral mapLiteral) {
         throw new AssertionError();
     }
 
     public void visit(BLangStructLiteral structLiteral) {
-        throw new AssertionError();
-    }
-
-    public void visit(BLangStreamLiteral streamLiteral) {
         throw new AssertionError();
     }
 
@@ -873,7 +808,31 @@ public abstract class BLangNodeVisitor {
         throw new AssertionError();
     }
 
-    public void visit(BLangRecordLiteral.BLangRecordKeyValue recordKeyValue) {
+    public void visit(BLangRecordLiteral.BLangRecordKeyValueField recordKeyValue) {
+        throw new AssertionError();
+    }
+
+    public void visit(BLangRecordLiteral.BLangRecordSpreadOperatorField spreadOperatorField) {
+        throw new AssertionError();
+    }
+
+    public void visit(BLangMarkdownReferenceDocumentation bLangMarkdownReferenceDocumentation) {
+        throw new AssertionError();
+    }
+
+    public void visit(BLangWaitForAllExpr.BLangWaitKeyValue waitKeyValue) {
+        throw new AssertionError();
+    }
+
+    public void visit(BLangXMLElementFilter xmlElementFilter) {
+        throw new AssertionError();
+    }
+
+    public void visit(BLangXMLElementAccess xmlElementAccess) {
+        throw new AssertionError();
+    }
+
+    public void visit(BLangXMLNavigationAccess xmlNavigation) {
         throw new AssertionError();
     }
 }

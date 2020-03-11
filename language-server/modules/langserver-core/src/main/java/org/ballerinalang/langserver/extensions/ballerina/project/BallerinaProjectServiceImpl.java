@@ -20,16 +20,16 @@ import com.google.gson.JsonObject;
 import org.ballerinalang.langserver.LSContextOperation;
 import org.ballerinalang.langserver.LSGlobalContext;
 import org.ballerinalang.langserver.LSGlobalContextKeys;
+import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.commons.LSContext;
+import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
-import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.compiler.LSModuleCompiler;
-import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.ballerinalang.langserver.compiler.common.LSCustomErrorStrategy;
 import org.ballerinalang.langserver.compiler.common.modal.SymbolMetaInfo;
 import org.ballerinalang.langserver.compiler.exception.CompilationFailedException;
 import org.ballerinalang.langserver.compiler.format.JSONGenerationException;
 import org.ballerinalang.langserver.compiler.format.TextDocumentFormatUtil;
-import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.extensions.VisibleEndpointVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
@@ -62,9 +62,15 @@ public class BallerinaProjectServiceImpl implements BallerinaProjectService {
         return CompletableFuture.supplyAsync(() -> {
             ModulesResponse reply = new ModulesResponse();
             String sourceRoot = request.getSourceRoot();
+            if (CommonUtil.isCachedExternalSource(sourceRoot)) {
+                reply.setParseSuccess(false);
+                return reply;
+            }
             try {
-                LSContext astContext = new LSServiceOperationContext(LSContextOperation.PROJ_MODULES);
-                astContext.put(DocumentServiceKeys.SOURCE_ROOT_KEY, sourceRoot);
+                LSContext astContext = new ProjectServiceOperationContext
+                        .ProjectServiceContextBuilder(LSContextOperation.PROJ_MODULES)
+                        .withModulesParams(sourceRoot, documentManager)
+                        .build();
                 List<BLangPackage> modules = LSModuleCompiler.getBLangModules(astContext, this.documentManager,
                                                                               LSCustomErrorStrategy.class, false);
                 JsonObject jsonModulesInfo = getJsonReply(astContext, modules);
@@ -96,7 +102,11 @@ public class BallerinaProjectServiceImpl implements BallerinaProjectService {
             Map<BLangNode, List<SymbolMetaInfo>> visibleEPsByNode = visibleEndpointVisitor.getVisibleEPsByNode();
 
             JsonObject jsonCUnits = new JsonObject();
-            for (BLangCompilationUnit cUnit: module.getCompilationUnits()) {
+            List<BLangCompilationUnit> compilationUnits = module.getCompilationUnits();
+            // add all cunits in testable package as well
+            module.testablePkgs.forEach(bLangTestablePackage ->
+                    compilationUnits.addAll(bLangTestablePackage.getCompilationUnits()));
+            for (BLangCompilationUnit cUnit: compilationUnits) {
                 JsonObject jsonCUnit = new JsonObject();
                 jsonCUnit.addProperty("name", cUnit.name);
                 Path sourceRoot = Paths.get(new URI(astContext.get(DocumentServiceKeys.SOURCE_ROOT_KEY)));

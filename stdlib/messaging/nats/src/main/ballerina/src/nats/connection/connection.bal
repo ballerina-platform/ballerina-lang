@@ -14,28 +14,40 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerinax/java;
+
 # Represents a single network connection to the NATS server.
 public type Connection object {
 
     private ConnectionConfig config = {};
-    private string url;
+    private string[] url;
 
     # Initializes a connection with the NATS server.
     #
-    # + url - NATS Broker URL. For a clustered use case, pass the URLs as comma-separated values.
+    # + url - NATS Broker URL. For a clustered use case, pass the URLs as a string array.
     # + config - Information necessary for the NATS client to establish a connection with the server.
-    public function __init(string url, ConnectionConfig? config = ()) {
+    public function __init(public string[] url = [DEFAULT_URL], public ConnectionConfig? config = ()) {
         self.config = config ?: {};
         self.url = url;
-        self.init(self.url, self.config);
+        externInit(self, self.url, self.config);
     }
-
-    function init(string url, ConnectionConfig config) = external;
 
     # Closes a given connection.
     #
     # + forceful - The graceful shutdown flag. If `true`, the connection closes immediately.
     # By default, this is set to false.
     # + return - Returns () or the error if unable to complete the close operation.
-    public function close(boolean? forceful = ()) returns Error? = external;
+    public function close(boolean forceful = false) returns Error? {
+        return externClose(self, forceful);
+    }
 };
+
+function externInit(Connection connection, string[] url, ConnectionConfig config) =
+@java:Method {
+    class: "org.ballerinalang.nats.connection.Init"
+} external;
+
+function externClose(Connection connection, boolean forceful = false) returns Error? =
+@java:Method {
+    class: "org.ballerinalang.nats.connection.Close"
+} external;

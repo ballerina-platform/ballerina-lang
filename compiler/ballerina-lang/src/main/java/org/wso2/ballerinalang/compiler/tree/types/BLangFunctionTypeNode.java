@@ -17,6 +17,7 @@
 */
 package org.wso2.ballerinalang.compiler.tree.types;
 
+import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.types.FunctionTypeNode;
 import org.ballerinalang.model.tree.types.UserDefinedTypeNode;
@@ -24,7 +25,9 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -35,9 +38,16 @@ import java.util.stream.Collectors;
 public class BLangFunctionTypeNode extends BLangType implements FunctionTypeNode {
 
     public List<BLangVariable> params = new ArrayList<>();
+    public BLangVariable restParam;
     public BLangType returnTypeNode;
+    public Set<Flag> flagSet = new HashSet<>();
 
     public boolean returnsKeywordExists = false;
+
+    @Override
+    public BLangVariable getRestParam() {
+        return this.restParam;
+    }
 
     @Override
     public List<BLangVariable> getParams() {

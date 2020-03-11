@@ -36,20 +36,8 @@ public class ExperimentalFeaturesTest {
         CompileResult result =
                 BCompileUtil.compileWithoutExperimentalFeatures("test-src/parser/experimental-features-negative.bal");
         int i = 0;
-        BAssertUtil.validateError(result, i++, "using experimental feature 'stream'. " +
-                "use '--experimental' flag to enable the experimental features", 8, 1);
-        BAssertUtil.validateError(result, i++, "using experimental feature 'stream'. " +
-                "use '--experimental' flag to enable the experimental features", 9, 1);
-        BAssertUtil.validateError(result, i++, "using experimental feature 'streaming queries'. " +
-                "use '--experimental' flag to enable the experimental features", 15, 5);
-        BAssertUtil.validateError(result, i++, "using experimental feature 'stream'. " +
-                "use '--experimental' flag to enable the experimental features", 32, 5);
-        BAssertUtil.validateError(result, i++, "using experimental feature 'table queries'. " +
-                "use '--experimental' flag to enable the experimental features", 43, 28);
         BAssertUtil.validateError(result, i++, "using experimental feature 'transaction'. " +
-                "use '--experimental' flag to enable the experimental features", 49, 5);
-        BAssertUtil.validateError(result, i++, "using experimental feature 'lock'. " +
-                "use '--experimental' flag to enable the experimental features", 66, 5);
+                "use '--experimental' flag to enable the experimental features", 4, 5);
         Assert.assertEquals(result.getDiagnostics().length, i,
                 "Error count mismatch" + Arrays.toString(result.getDiagnostics()));
     }

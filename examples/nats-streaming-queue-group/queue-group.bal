@@ -3,10 +3,10 @@ import ballerina/log;
 import ballerina/nats;
 
 // Creates a NATS connection.
-nats:Connection conn = new("localhost:4222");
+nats:Connection conn = new;
 
 // Initializes the NATS Streaming listeners.
-listener nats:StreamingListener lis = new(conn);
+listener nats:StreamingListener lis = new (conn);
 
 
 // Binds the consumer to listen to the messages published to the 'demo' subject.
@@ -29,7 +29,7 @@ service firstQueueGroupMember on lis {
 
     resource function onError(nats:StreamingMessage message, nats:Error errorVal) {
         error e = errorVal;
-        log:printError("Error occurred: ", err = e);
+        log:printError("Error occurred: ", e);
     }
 }
 
@@ -54,7 +54,7 @@ service secondQueueGroupMember on lis {
 
     resource function onError(nats:StreamingMessage message, nats:Error errorVal) {
         error e = errorVal;
-        log:printError("Error occurred: ", err = e);
+        log:printError("Error occurred: ", e);
     }
 }
 
@@ -79,7 +79,7 @@ service thridQueueGroupMember on lis {
 
     resource function onError(nats:StreamingMessage message, nats:Error errorVal) {
         error e = errorVal;
-        log:printError("Error occurred: ", err = e);
+        log:printError("Error occurred: ", e);
     }
 }
 

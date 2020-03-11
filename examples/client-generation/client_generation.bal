@@ -4,7 +4,7 @@ import ballerina/openapi;
 
 // Add the `@openapi:ClientEndpoint` annotation to the listener that is to be used for client generation.
 @openapi:ClientEndpoint
-listener http:Listener helloEp = new(9090);
+listener http:Listener helloEp = new (9090);
 
 // Add the `@openapi:ClientConfig {generate: true}` annotation to the service to enable client generation for it.
 @openapi:ClientConfig {
@@ -20,11 +20,9 @@ service Hello on helloEp {
         path: "/hello"
     }
     resource function hello(http:Caller caller, http:Request req) {
-        http:Response res = new;
-        res.setPayload("Hello");
-        var result = caller->respond(res);
+        var result = caller->respond("Hello");
         if (result is error) {
-            log:printError("Error when responding", err = result);
+            log:printError("Error when responding", result);
         }
     }
 }

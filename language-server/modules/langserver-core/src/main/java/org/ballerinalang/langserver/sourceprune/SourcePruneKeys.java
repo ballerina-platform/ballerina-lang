@@ -17,8 +17,9 @@
  */
 package org.ballerinalang.langserver.sourceprune;
 
+import org.antlr.v4.runtime.CommonToken;
 import org.antlr.v4.runtime.Token;
-import org.ballerinalang.langserver.compiler.LSContext;
+import org.ballerinalang.langserver.commons.LSContext;
 
 import java.util.List;
 
@@ -30,12 +31,28 @@ import java.util.List;
 public class SourcePruneKeys {
     private SourcePruneKeys() {
     }
+    public static final LSContext.Key<List<CommonToken>> LHS_TOKENS_KEY
+            = new LSContext.Key<>();
+    public static final LSContext.Key<List<CommonToken>> RHS_TOKENS_KEY
+            = new LSContext.Key<>();
+    public static final LSContext.Key<List<CommonToken>> LHS_DEFAULT_TOKENS_KEY
+            = new LSContext.Key<>();
+    public static final LSContext.Key<List<Integer>> LHS_DEFAULT_TOKEN_TYPES_KEY
+            = new LSContext.Key<>();
+    public static final LSContext.Key<List<CommonToken>> RHS_DEFAULT_TOKENS_KEY
+            = new LSContext.Key<>();
+    public static final LSContext.Key<List<Integer>> RHS_DEFAULT_TOKEN_TYPES_KEY
+            = new LSContext.Key<>();
+    public static final LSContext.Key<Boolean> FORCE_REMOVED_STATEMENT_WITH_PARENTHESIS_KEY
+            = new LSContext.Key<>();
 
     public static final LSContext.Key<Integer> LEFT_PARAN_COUNT_KEY
             = new LSContext.Key<>();
     public static final LSContext.Key<Integer> RIGHT_PARAN_COUNT_KEY
             = new LSContext.Key<>();
     public static final LSContext.Key<Integer> LEFT_BRACE_COUNT_KEY
+            = new LSContext.Key<>();
+    public static final LSContext.Key<Boolean> ADD_SEMICOLON_COUNT_KEY
             = new LSContext.Key<>();
     public static final LSContext.Key<Integer> RIGHT_BRACE_COUNT_KEY
             = new LSContext.Key<>();

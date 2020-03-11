@@ -20,7 +20,6 @@ package org.ballerinalang.stdlib.services.nativeimpl.response;
 import io.netty.handler.codec.http.DefaultHttpHeaders;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpHeaders;
-import io.netty.util.internal.StringUtil;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BMap;
@@ -137,11 +136,15 @@ public class ResponseNativeFunctionNegativeTest {
         inResponse.addNativeData(IS_BODY_BYTE_CHANNEL_ALREADY_SET, true);
         BValue[] returnVals = BRunUtil.invoke(result, "testGetXmlPayload", new Object[]{ inResponse });
         Assert.assertNotNull(returnVals[0]);
-        Assert.assertEquals(((BError) returnVals[0]).getDetails().stringValue(), "{message:\"Error occurred while " +
-                "retrieving the xml payload from the response\", cause:{ballerina/mime}ParsingEntityBodyFailed " +
-                "{message:\"Error occurred while extracting xml data from entity\", cause:Unexpected character 'b'" +
-                " (code 98) in prolog; expected '<'" + StringUtil.NEWLINE +
-                " at [row,col {unknown-source}]: [1,1] {}}}");
+        String errorMessage = ((BError) returnVals[0]).getDetails().stringValue();
+        String expectedErrorMessagePattern =
+                "\\{message:\"Error occurred while retrieving the xml payload from the response\", " +
+                        "cause:\\{ballerina\\/mime\\}ParsingEntityBodyFailed " +
+                        "\\{message:\"Error occurred while extracting xml data from entity\", " +
+                        "cause:failed to create xml: Unexpected character 'b' \\(code 98\\) in prolog; expected '<'" +
+                        "(\n|\r\n)" +
+                        " at \\[row,col \\{unknown-source}]: \\[1,1] \\{\\}\\}\\}";
+        Assert.assertTrue(errorMessage.matches(expectedErrorMessagePattern));
     }
 
     @Test(description = "Test getEntity method on a response without a entity")
@@ -193,5 +196,113 @@ public class ResponseNativeFunctionNegativeTest {
         // testInResponseGetMethod
         BAssertUtil.validateError(resultNegative, 1, "undefined field 'method' in object 'ballerina/http:Response'", 9,
                 24);
+    }
+
+    @Test
+    public void testAddCookiesWithInvalidName() {
+        ObjectValue outResponse = createResponseObject();
+        BValue[] returnVals = BRunUtil.invoke(result, "testAddCookieWithInvalidName", new Object[]{outResponse});
+        Assert.assertFalse(returnVals.length == 0 || returnVals[0] == null, "Invalid Return Values.");
+        Assert.assertTrue(returnVals[0] instanceof BMap);
+        BMap<String, BValue> entityStruct =
+                (BMap<String, BValue>) ((BMap<String, BValue>) returnVals[0]).get(RESPONSE_ENTITY_FIELD);
+        HttpHeaders returnHeaders = (HttpHeaders) entityStruct.getNativeData(ENTITY_HEADERS);
+        Assert.assertNull(returnHeaders.get("Set-Cookie"));
+    }
+
+    @Test
+    public void testAddCookiesWithInvalidValue() {
+        ObjectValue outResponse = createResponseObject();
+        BValue[] returnVals = BRunUtil.invoke(result, "testAddCookieWithInvalidValue", new Object[]{outResponse});
+        Assert.assertFalse(returnVals.length == 0 || returnVals[0] == null, "Invalid Return Values.");
+        Assert.assertTrue(returnVals[0] instanceof BMap);
+        BMap<String, BValue> entityStruct =
+                (BMap<String, BValue>) ((BMap<String, BValue>) returnVals[0]).get(RESPONSE_ENTITY_FIELD);
+        HttpHeaders returnHeaders = (HttpHeaders) entityStruct.getNativeData(ENTITY_HEADERS);
+        Assert.assertNull(returnHeaders.get("Set-Cookie"));
+    }
+
+    @Test
+    public void testAddCookiesWithInvalidPath1() {
+        ObjectValue outResponse = createResponseObject();
+        BValue[] returnVals = BRunUtil.invoke(result, "testAddCookieWithInvalidPath1", new Object[]{outResponse});
+        Assert.assertFalse(returnVals.length == 0 || returnVals[0] == null, "Invalid Return Values.");
+        Assert.assertTrue(returnVals[0] instanceof BMap);
+        BMap<String, BValue> entityStruct =
+                (BMap<String, BValue>) ((BMap<String, BValue>) returnVals[0]).get(RESPONSE_ENTITY_FIELD);
+        HttpHeaders returnHeaders = (HttpHeaders) entityStruct.getNativeData(ENTITY_HEADERS);
+        Assert.assertNull(returnHeaders.get("Set-Cookie"));
+    }
+
+    @Test
+    public void testAddCookiesWithInvalidPath2() {
+        ObjectValue outResponse = createResponseObject();
+        BValue[] returnVals = BRunUtil.invoke(result, "testAddCookieWithInvalidPath2", new Object[]{outResponse});
+        Assert.assertFalse(returnVals.length == 0 || returnVals[0] == null, "Invalid Return Values.");
+        Assert.assertTrue(returnVals[0] instanceof BMap);
+        BMap<String, BValue> entityStruct =
+                (BMap<String, BValue>) ((BMap<String, BValue>) returnVals[0]).get(RESPONSE_ENTITY_FIELD);
+        HttpHeaders returnHeaders = (HttpHeaders) entityStruct.getNativeData(ENTITY_HEADERS);
+        Assert.assertNull(returnHeaders.get("Set-Cookie"));
+    }
+
+    @Test
+    public void testAddCookiesWithInvalidPath3() {
+        ObjectValue outResponse = createResponseObject();
+        BValue[] returnVals = BRunUtil.invoke(result, "testAddCookieWithInvalidPath3", new Object[]{outResponse});
+        Assert.assertFalse(returnVals.length == 0 || returnVals[0] == null, "Invalid Return Values.");
+        Assert.assertTrue(returnVals[0] instanceof BMap);
+        BMap<String, BValue> entityStruct =
+                (BMap<String, BValue>) ((BMap<String, BValue>) returnVals[0]).get(RESPONSE_ENTITY_FIELD);
+        HttpHeaders returnHeaders = (HttpHeaders) entityStruct.getNativeData(ENTITY_HEADERS);
+        Assert.assertNull(returnHeaders.get("Set-Cookie"));
+    }
+
+    @Test
+    public void testAddCookieWithInvalidDomain() {
+        ObjectValue outResponse = createResponseObject();
+        BValue[] returnVals = BRunUtil.invoke(result, "testAddCookieWithInvalidDomain", new Object[]{outResponse});
+        Assert.assertFalse(returnVals.length == 0 || returnVals[0] == null, "Invalid Return Values.");
+        Assert.assertTrue(returnVals[0] instanceof BMap);
+        BMap<String, BValue> entityStruct =
+                (BMap<String, BValue>) ((BMap<String, BValue>) returnVals[0]).get(RESPONSE_ENTITY_FIELD);
+        HttpHeaders returnHeaders = (HttpHeaders) entityStruct.getNativeData(ENTITY_HEADERS);
+        Assert.assertNull(returnHeaders.get("Set-Cookie"));
+    }
+
+    @Test
+    public void testAddCookiesWithInvalidExpires1() {
+        ObjectValue outResponse = createResponseObject();
+        BValue[] returnVals = BRunUtil.invoke(result, "testAddCookieWithInvalidExpires1", new Object[]{outResponse});
+        Assert.assertFalse(returnVals.length == 0 || returnVals[0] == null, "Invalid Return Values.");
+        Assert.assertTrue(returnVals[0] instanceof BMap);
+        BMap<String, BValue> entityStruct =
+                (BMap<String, BValue>) ((BMap<String, BValue>) returnVals[0]).get(RESPONSE_ENTITY_FIELD);
+        HttpHeaders returnHeaders = (HttpHeaders) entityStruct.getNativeData(ENTITY_HEADERS);
+        Assert.assertNull(returnHeaders.get("Set-Cookie"));
+    }
+
+    @Test
+    public void testAddCookiesWithInvalidExpires2() {
+        ObjectValue outResponse = createResponseObject();
+        BValue[] returnVals = BRunUtil.invoke(result, "testAddCookieWithInvalidExpires2", new Object[]{outResponse});
+        Assert.assertFalse(returnVals.length == 0 || returnVals[0] == null, "Invalid Return Values.");
+        Assert.assertTrue(returnVals[0] instanceof BMap);
+        BMap<String, BValue> entityStruct =
+                (BMap<String, BValue>) ((BMap<String, BValue>) returnVals[0]).get(RESPONSE_ENTITY_FIELD);
+        HttpHeaders returnHeaders = (HttpHeaders) entityStruct.getNativeData(ENTITY_HEADERS);
+        Assert.assertNull(returnHeaders.get("Set-Cookie"));
+    }
+
+    @Test
+    public void testAddCookiesWithInvalidMaxAge() {
+        ObjectValue outResponse = createResponseObject();
+        BValue[] returnVals = BRunUtil.invoke(result, "testAddCookieWithInvalidMaxAge", new Object[]{outResponse});
+        Assert.assertFalse(returnVals.length == 0 || returnVals[0] == null, "Invalid Return Values.");
+        Assert.assertTrue(returnVals[0] instanceof BMap);
+        BMap<String, BValue> entityStruct =
+                (BMap<String, BValue>) ((BMap<String, BValue>) returnVals[0]).get(RESPONSE_ENTITY_FIELD);
+        HttpHeaders returnHeaders = (HttpHeaders) entityStruct.getNativeData(ENTITY_HEADERS);
+        Assert.assertNull(returnHeaders.get("Set-Cookie"));
     }
 }

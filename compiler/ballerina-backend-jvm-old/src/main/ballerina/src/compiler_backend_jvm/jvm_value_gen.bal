@@ -14,10 +14,10 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/io;
-import ballerina/internal;
-import ballerina/jvm;
 import ballerina/bir;
+import ballerina/io;
+import ballerina/jvm;
+import ballerina/stringutils;
 
 public type ObjectGenerator object {
 
@@ -71,10 +71,14 @@ public type ObjectGenerator object {
 
         self.createObjectInit(cw, fields, className);
         self.createCallMethod(cw, attachedFuncs, className, objectType.name.value, isService);
-        self.createObjectGetMethod(cw, fields, className);
-        self.createObjectSetMethod(cw, fields, className);
+        if (IS_BSTRING) {
+            self.createObjectGetMethod(cw, fields, className, true);
+            self.createObjectSetMethod(cw, fields, className, true);
+        }
+        self.createObjectGetMethod(cw, fields, className, false);
+        self.createObjectSetMethod(cw, fields, className, false);
         self.createLambdas(cw);
-        
+
         cw.visitEnd();
         var result = cw.toByteArray();
         if !(result is byte[]) {
@@ -99,6 +103,10 @@ public type ObjectGenerator object {
             if (field is bir:BObjectField) {
                 jvm:FieldVisitor fv = cw.visitField(0, field.name.value, getTypeDesc(field.typeValue));
                 fv.visitEnd();
+                if(IS_BSTRING) {
+                    jvm:FieldVisitor fvb = cw.visitField(0, nameOfBStringFunc(field.name.value), getTypeDesc(field.typeValue, true));
+                    fvb.visitEnd();
+                }
                 string lockClass = "L" + LOCK_VALUE + ";";
                 fv = cw.visitField(ACC_PUBLIC + ACC_FINAL, computeLockNameFromString(field.name.value), lockClass);
                 fv.visitEnd();
@@ -125,7 +133,7 @@ public type ObjectGenerator object {
         mv.visitVarInsn(ALOAD, 1);
         // invoke super(type);
         mv.visitMethodInsn(INVOKESPECIAL, ABSTRACT_OBJECT_VALUE, "<init>", io:sprintf("(L%s;)V", OBJECT_TYPE), false);
-        
+
         string lockClass = "L" + LOCK_VALUE + ";";
         foreach var field in fields {
             if (field is bir:BObjectField) {
@@ -140,7 +148,7 @@ public type ObjectGenerator object {
         }
 
         mv.visitInsn(RETURN);
-        mv.visitMaxs(0, 0);
+        mv.visitMaxs(5, 5);
         mv.visitEnd();
     }
 
@@ -179,7 +187,8 @@ public type ObjectGenerator object {
             string methodSig = "";
 
             // use index access, since retType can be nil.
-            methodSig = getMethodDesc(paramTypes, retType);
+            boolean useBString = isBStringFunc(methodName);
+            methodSig = getMethodDesc(paramTypes, retType, useBString = useBString);
 
             // load self
             mv.visitVarInsn(ALOAD, 0);
@@ -196,7 +205,7 @@ public type ObjectGenerator object {
                 mv.visitLdcInsn(j);
                 mv.visitInsn(L2I);
                 mv.visitInsn(AALOAD);
-                addUnboxInsn(mv, pType);
+                addUnboxInsn(mv, pType, useBString);
                 j += 1;
             }
 
@@ -215,16 +224,24 @@ public type ObjectGenerator object {
         }
 
         createDefaultCase(mv, defaultCaseLabel, funcNameRegIndex);
-        mv.visitMaxs(0, 0);
+        mv.visitMaxs(funcs.length() + 10, funcs.length() + 10);
         mv.visitEnd();
     }
 
-    private function createObjectGetMethod(jvm:ClassWriter cw, bir:BObjectField?[] fields, string className) {
+    private function createObjectGetMethod(jvm:ClassWriter cw, bir:BObjectField?[] fields, string className,
+                                           boolean useBString) {
         jvm:MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "get",
-                io:sprintf("(L%s;)L%s;", STRING_VALUE, OBJECT), (), ());
+                io:sprintf("(L%s;)L%s;", useBString ? B_STRING_VALUE : STRING_VALUE, OBJECT), (), ());
         mv.visitCode();
 
         int fieldNameRegIndex = 1;
+        if(useBString) {
+            mv.visitVarInsn(ALOAD, 0);
+             mv.visitMethodInsn(INVOKEINTERFACE, B_STRING_VALUE, "getValue", io:sprintf("()L%s;", STRING_VALUE) , true);
+             fieldNameRegIndex = 2;
+             mv.visitVarInsn(ASTORE, fieldNameRegIndex);
+         }
+
         jvm:Label defaultCaseLabel = new jvm:Label();
 
         // sort the fields before generating switch case
@@ -242,7 +259,8 @@ public type ObjectGenerator object {
             jvm:Label targetLabel = targetLabels[i];
             mv.visitLabel(targetLabel);
             mv.visitVarInsn(ALOAD, 0);
-            mv.visitFieldInsn(GETFIELD, className, field.name.value, getTypeDesc(field.typeValue));
+            mv.visitFieldInsn(GETFIELD, className, conditionalBStringName(field.name.value, useBString),
+                              getTypeDesc(field.typeValue, useBString));
             addBoxInsn(mv, field.typeValue);
             mv.visitInsn(ARETURN);
             i += 1;
@@ -253,9 +271,10 @@ public type ObjectGenerator object {
         mv.visitEnd();
     }
 
-    private function createObjectSetMethod(jvm:ClassWriter cw, bir:BObjectField?[] fields, string className) {
+    private function createObjectSetMethod(jvm:ClassWriter cw, bir:BObjectField?[] fields, string className,
+                                           boolean useBString) {
         jvm:MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "set",
-                io:sprintf("(L%s;L%s;)V", STRING_VALUE, OBJECT), (), ());
+                io:sprintf("(L%s;L%s;)V", useBString ? B_STRING_VALUE : STRING_VALUE, OBJECT), (), ());
         mv.visitCode();
         int fieldNameRegIndex = 1;
         int valueRegIndex = 2;
@@ -264,8 +283,14 @@ public type ObjectGenerator object {
         // code gen type checking for inserted value
         mv.visitVarInsn(ALOAD, 0);
         mv.visitVarInsn(ALOAD, fieldNameRegIndex);
+        if(useBString) {
+            mv.visitMethodInsn(INVOKEINTERFACE, B_STRING_VALUE, "getValue", io:sprintf("()L%s;", STRING_VALUE) , true);
+            mv.visitInsn(DUP);
+            fieldNameRegIndex = 3;
+            mv.visitVarInsn(ASTORE, fieldNameRegIndex);
+        }
         mv.visitVarInsn(ALOAD, valueRegIndex);
-        mv.visitMethodInsn(INVOKEVIRTUAL, className, "checkFieldUpdate", 
+        mv.visitMethodInsn(INVOKEVIRTUAL, className, "checkFieldUpdate",
                 io:sprintf("(L%s;L%s;)V", STRING_VALUE, OBJECT), false);
 
         // sort the fields before generating switch case
@@ -285,8 +310,12 @@ public type ObjectGenerator object {
             mv.visitLabel(targetLabel);
             mv.visitVarInsn(ALOAD, 0);
             mv.visitVarInsn(ALOAD, valueRegIndex);
-            addUnboxInsn(mv, field.typeValue);
-            mv.visitFieldInsn(PUTFIELD, className, field.name.value, getTypeDesc(field.typeValue));
+            addUnboxInsn(mv, field.typeValue, useBString);
+            string filedName = field.name.value;
+            if(useBString) {
+                filedName = nameOfBStringFunc(filedName);
+            }
+            mv.visitFieldInsn(PUTFIELD, className, filedName, getTypeDesc(field.typeValue, useBString));
             mv.visitInsn(RETURN);
             i += 1;
         }
@@ -311,8 +340,8 @@ public type ObjectGenerator object {
         cw.visitSource(typeDef.pos.sourceFileName);
         currentClass = <@untainted> className;
         cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, className,
-                    io:sprintf("<K:L%s;V:L%s;>L%s<TK;TV;>;L%s<TK;TV;>;", OBJECT, OBJECT, MAP_VALUE_IMPL, MAP_VALUE),
-                    MAP_VALUE_IMPL, [MAP_VALUE]);
+                io:sprintf("<K:L%s;V:L%s;>L%s<TK;TV;>;L%s<TK;TV;>;", OBJECT, OBJECT, MAP_VALUE_IMPL, MAP_VALUE),
+                MAP_VALUE_IMPL, [MAP_VALUE]);
 
         bir:Function?[]? attachedFuncs = typeDef.attachedFuncs;
         if (attachedFuncs is bir:Function?[]) {
@@ -369,7 +398,7 @@ public type ObjectGenerator object {
     }
 
     private function createRecordInitWrapper(jvm:ClassWriter cw, string className, bir:TypeDef typeDef) {
-        jvm:MethodVisitor mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, "$init", 
+        jvm:MethodVisitor mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, "$init",
                                               io:sprintf("(L%s;L%s;)V", STRAND, MAP_VALUE), (), ());
         mv.visitCode();
         // load strand
@@ -377,7 +406,7 @@ public type ObjectGenerator object {
         // load value
         mv.visitVarInsn(ALOAD, 1);
 
-        // Invoke the init-functions of referenced types. This is done to initialize the 
+        // Invoke the init-functions of referenced types. This is done to initialize the
         // defualt values of the fields coming from the referenced types.
         foreach (bir:BType? typeRef in typeDef.typeRefs) {
             if (typeRef is bir:BRecordType) {
@@ -406,14 +435,21 @@ public type ObjectGenerator object {
 
         mv.visitMethodInsn(INVOKESTATIC, valueClassName, initFuncName, 
                             io:sprintf("(L%s;L%s;)L%s;", STRAND, MAP_VALUE, OBJECT), false);
+        mv.visitInsn(POP);
         mv.visitInsn(RETURN);
         mv.visitMaxs(0, 0);
         mv.visitEnd();
     }
+
     private function createRecordFields(jvm:ClassWriter cw, bir:BRecordField?[] fields) {
         foreach var field in fields {
             if (field is bir:BRecordField) {
-                jvm:FieldVisitor fv = cw.visitField(0, field.name.value, getTypeDesc(field.typeValue));
+                jvm:FieldVisitor fv;
+                if(IS_BSTRING) {
+                    fv = cw.visitField(0, nameOfBStringFunc(field.name.value), getTypeDesc(field.typeValue, true));
+                    fv.visitEnd();
+                }
+                fv = cw.visitField(0, field.name.value, getTypeDesc(field.typeValue));
                 fv.visitEnd();
 
                 if (self.isOptionalRecordField(field)) {
@@ -617,7 +653,7 @@ public type ObjectGenerator object {
         mv.visitMethodInsn(INVOKESPECIAL, LINKED_HASH_MAP, "entrySet", io:sprintf("()L%s;", SET), false);
         mv.visitMethodInsn(INVOKEINTERFACE, SET, "addAll", io:sprintf("(L%s;)Z", COLLECTION), true);
         mv.visitInsn(POP);
-
+        
         mv.visitVarInsn(ALOAD, entrySetVarIndex);
         mv.visitInsn(ARETURN);
         mv.visitMaxs(0, 0);
@@ -628,7 +664,7 @@ public type ObjectGenerator object {
     private function createRecordContainsKeyMethod(jvm:ClassWriter cw, bir:BRecordField?[] fields, string className) {
         jvm:MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "containsKey", io:sprintf("(L%s;)Z", OBJECT), (), ());
         mv.visitCode();
-
+ 
         int fieldNameRegIndex = 1;
         int strKeyVarIndex = 2;
 
@@ -848,6 +884,7 @@ function injectDefaultParamInitsToAttachedFuncs(bir:Package module) {
 
 function desugarObjectMethods(bir:Package module, bir:BType bType, bir:Function?[]? attachedFuncs) {
     if (attachedFuncs is bir:Function?[]) {
+        bir:Function[] bStringFuncs = [];
         foreach var func in attachedFuncs {
             if (func is bir:Function) {
                 if isExternFunc(func) {
@@ -860,7 +897,15 @@ function desugarObjectMethods(bir:Package module, bir:BType bType, bir:Function?
                     addDefaultableBooleanVarsToSignature(func);
                 }
                 enrichWithDefaultableParamInits(getFunction(<@untainted> func));
+                if (IS_BSTRING) {
+                    var bStringFunc = func.clone();
+                    bStringFunc.name = {value: nameOfBStringFunc(func.name.value)};
+                    bStringFuncs.push(bStringFunc);
+                }
             }
+        }
+        foreach var func in bStringFuncs {
+            attachedFuncs.push(func);
         }
     }
 }
@@ -877,7 +922,7 @@ function createLabelsforSwitch(jvm:MethodVisitor mv, int nameRegIndex, NamedNode
     foreach var node in nodes {
         if (node is NamedNode) {
             labels[i] = new jvm:Label();
-            hashCodes[i] = internal:hashCode(getName(node));
+            hashCodes[i] = stringutils:hashCode(getName(node));
             i += 1;
         }
     }
@@ -948,9 +993,10 @@ function getName(any node) returns string {
 
 // --------------------- Sorting ---------------------------
 
-type NamedNode record {
+type NamedNode record {|
     bir:Name name = {};
-};
+    any...;
+|};
 
 type NodeSorter object {
 
@@ -958,15 +1004,15 @@ type NodeSorter object {
         self.quickSort(arr, 0, arr.length() - 1);
     }
 
-    private function quickSort(NamedNode?[] arr, int low, int high) { 
-        if (low < high) { 
+    private function quickSort(NamedNode?[] arr, int low, int high) {
+        if (low < high) {
             // pi is partitioning index, arr[pi] is now at right place
-            int pi = self.partition(arr, low, high); 
+            int pi = self.partition(arr, low, high);
 
-            // Recursively sort elements before partition and after partition 
-            self.quickSort(arr, low, pi - 1); 
-            self.quickSort(arr, pi + 1, high); 
-        } 
+            // Recursively sort elements before partition and after partition
+            self.quickSort(arr, low, pi - 1);
+            self.quickSort(arr, pi + 1, high);
+        }
     }
 
     private function partition(NamedNode?[] arr, int begin, int end) returns int {
@@ -986,7 +1032,7 @@ type NodeSorter object {
     }
 
     private function getHash(any node) returns int {
-        return internal:hashCode(getName(node));
+        return stringutils:hashCode(getName(node));
     }
 
     private function swap(NamedNode?[] arr, int i, int j) {

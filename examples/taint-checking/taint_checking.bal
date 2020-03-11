@@ -17,8 +17,8 @@ public function main(string... args) {
         url: "jdbc:mysql://localhost:3306/testdb",
         username: "root",
         password: "root",
-        poolOptions: { maximumPoolSize: 5 },
-        dbOptions: { useSSL: false }
+        poolOptions: {maximumPoolSize: 5},
+        dbOptions: {useSSL: false}
     });
 
     // Sensitive parameters of functions that are built-in to Ballerina are decorated with the `@untainted` annotation.
@@ -31,9 +31,9 @@ public function main(string... args) {
     var result = customerDBEP->
     select("SELECT firstname FROM student WHERE registration_id = " +
             args[0], ());
-    table<record { string firstname; }> dataTable;
+    table<record {string firstname;}> dataTable;
     if (result is error) {
-        error e = <error> result;
+        error e = <error>result;
         panic e;
     } else {
         dataTable = result;
@@ -45,35 +45,32 @@ public function main(string... args) {
     if (isInteger(args[0])) {
         // After performing necessary validations and/or escaping, we can use type cast expression with @untainted annotation
         // to mark the proceeding value as `trusted` and pass it to a sensitive parameter.
-        userDefinedSecureOperation(<@untainted> args[0]);
+        userDefinedSecureOperation(<@untainted>args[0]);
     } else {
         error err = error("Validation error: ID should be an integer");
         panic err;
     }
 
     while (dataTable.hasNext()) {
-        var jsonResult = dataTable.getNext();
-        if (jsonResult is Student) {
-            Student jsonData = jsonResult;
-            // The return values of certain functions built-in to Ballerina are decorated with the `@tainted` annotation to
-            // denote that the return value should be untrusted (tainted). One such example is the data read from a
-            // database.
-            //
-            // This line results in a compile error because a value derived from a database read (tainted) is passed to a
-            // sensitive parameter.
-            userDefinedSecureOperation(jsonData.firstname);
+        Student jsonData = dataTable.getNext();
+        // The return values of certain functions built-in to Ballerina are decorated with the `@tainted` annotation to
+        // denote that the return value should be untrusted (tainted). One such example is the data read from a
+        // database.
+        //
+        // This line results in a compile error because a value derived from a database read (tainted) is passed to a
+        // sensitive parameter.
+        userDefinedSecureOperation(jsonData.firstname);
 
-            string sanitizedData1 = sanitizeAndReturnTainted(jsonData.firstname);
-            // This line results in a compile error because the `sanitize` function returns a value derived from the tainted
-            // data. Therefore, the return of the `sanitize` function is also tainted.
-            userDefinedSecureOperation(sanitizedData1);
+        string sanitizedData1 = sanitizeAndReturnTainted(jsonData.firstname);
+        // This line results in a compile error because the `sanitize` function returns a value derived from the tainted
+        // data. Therefore, the return of the `sanitize` function is also tainted.
+        userDefinedSecureOperation(sanitizedData1);
 
-            string sanitizedData2 = sanitizeAndReturnUntainted(jsonData.firstname);
-            // This line successfully compiles. Although the `sanitize` function returns a value derived from tainted data,
-            // the return value is annotated with the `@untainted` annotation. This means that the return value is safe and can be
-            // trusted.
-            userDefinedSecureOperation(sanitizedData2);
-        }
+        string sanitizedData2 = sanitizeAndReturnUntainted(jsonData.firstname);
+        // This line successfully compiles. Although the `sanitize` function returns a value derived from tainted data,
+        // the return value is annotated with the `@untainted` annotation. This means that the return value is safe and can be
+        // trusted.
+        userDefinedSecureOperation(sanitizedData2);
     }
     checkpanic customerDBEP.stop();
     return;

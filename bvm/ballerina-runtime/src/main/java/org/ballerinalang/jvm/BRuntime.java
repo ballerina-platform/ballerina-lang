@@ -16,15 +16,22 @@
  */
 package org.ballerinalang.jvm;
 
+import org.ballerinalang.jvm.observability.ObservabilityConstants;
+import org.ballerinalang.jvm.observability.ObserveUtils;
+import org.ballerinalang.jvm.observability.ObserverContext;
 import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.scheduling.State;
 import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.values.ErrorValue;
+import org.ballerinalang.jvm.values.FutureValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.connector.CallableUnitCallback;
 
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Semaphore;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 
 /**
@@ -65,6 +72,20 @@ public class BRuntime {
         scheduler.schedule(new Object[1], func, null, callback);
     }
 
+    public void invokeMethodAsync(ObjectValue object, String methodName,
+                                  CallableUnitCallback callback, Map<String, Object> properties, Object... args) {
+        Function<Object[], Object> func = objects -> {
+            Strand strand = (Strand) objects[0];
+            if (ObserveUtils.isObservabilityEnabled() && properties != null &&
+                    properties.containsKey(ObservabilityConstants.KEY_OBSERVER_CONTEXT)) {
+                strand.observerContext =
+                        (ObserverContext) properties.remove(ObservabilityConstants.KEY_OBSERVER_CONTEXT);
+            }
+            return object.call(strand, methodName, args);
+        };
+        scheduler.schedule(new Object[1], func, null, callback, properties, BTypes.typeNull);
+    }
+
     public void invokeMethodSync(ObjectValue object, String methodName, Object... args) {
         Function<?, ?> func = o -> object.call((Strand) (((Object[]) o)[0]), methodName, args);
         Semaphore semaphore = new Semaphore(0);
@@ -89,6 +110,44 @@ public class BRuntime {
         if (errorValue[0] != null) {
             throw errorValue[0];
         }
+    }
+
+    /**
+     * Invoke Ballerina function and get the result.
+     *
+     * @param object     Ballerina object in which the function is defined.
+     * @param methodName Ballerina function name, to invoke.
+     * @param timeout    Timeout in milliseconds to wait until acquiring the semaphore.
+     * @param args       Ballerina function arguments.
+     * @return Ballerina function invoke result.
+     */
+    public Object getSyncMethodInvokeResult(ObjectValue object, String methodName, int timeout, Object... args) {
+        Function<?, ?> func = o -> object.call((Strand) (((Object[]) o)[0]), methodName, args);
+        Semaphore semaphore = new Semaphore(0);
+        final ErrorValue[] errorValue = new ErrorValue[1];
+        // Add 1 more element to keep null for add the strand later.
+        Object[] params = new Object[]{null, args};
+        FutureValue futureValue = scheduler.schedule(params, func, null, new CallableUnitCallback() {
+            @Override
+            public void notifySuccess() {
+                semaphore.release();
+            }
+
+            @Override
+            public void notifyFailure(ErrorValue error) {
+                errorValue[0] = error;
+                semaphore.release();
+            }
+        });
+        try {
+            semaphore.tryAcquire(timeout, TimeUnit.MILLISECONDS);
+        } catch (InterruptedException e) {
+            // Ignore
+        }
+        if (errorValue[0] != null) {
+            throw errorValue[0];
+        }
+        return futureValue.result;
     }
 
     private static class Unblocker implements java.util.function.BiConsumer<Object, Throwable> {

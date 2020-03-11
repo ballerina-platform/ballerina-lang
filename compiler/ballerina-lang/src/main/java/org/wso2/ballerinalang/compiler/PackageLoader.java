@@ -60,7 +60,7 @@ import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 import org.wso2.ballerinalang.compiler.util.ProjectDirs;
-import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
+import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLogHelper;
 import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.io.PrintStream;
@@ -114,10 +114,9 @@ public class PackageLoader {
     private final SourceDirectory sourceDirectory;
     private final PackageCache packageCache;
     private final SymbolEnter symbolEnter;
-    private final CompiledPackageSymbolEnter compiledPkgSymbolEnter;
     private final BIRPackageSymbolEnter birPackageSymbolEnter;
     private final Names names;
-    private final BLangDiagnosticLog dlog;
+    private final BLangDiagnosticLogHelper dlog;
     private static final boolean shouldReadBalo = true;
     private final CompilerPhase compilerPhase;
     
@@ -148,10 +147,9 @@ public class PackageLoader {
         this.parser = Parser.getInstance(context);
         this.packageCache = PackageCache.getInstance(context);
         this.symbolEnter = SymbolEnter.getInstance(context);
-        this.compiledPkgSymbolEnter = CompiledPackageSymbolEnter.getInstance(context);
         this.birPackageSymbolEnter = BIRPackageSymbolEnter.getInstance(context);
         this.names = Names.getInstance(context);
-        this.dlog = BLangDiagnosticLog.getInstance(context);
+        this.dlog = BLangDiagnosticLogHelper.getInstance(context);
         this.offline = Boolean.parseBoolean(options.get(OFFLINE));
         this.testEnabled = Boolean.parseBoolean(options.get(TEST_ENABLED));
         this.lockEnabled = Boolean.parseBoolean(options.get(LOCK_ENABLED));

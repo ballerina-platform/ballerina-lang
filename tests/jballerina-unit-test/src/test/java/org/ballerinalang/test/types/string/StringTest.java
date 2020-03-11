@@ -19,6 +19,8 @@ package org.ballerinalang.test.types.string;
 
 import org.apache.axiom.om.OMNode;
 import org.ballerinalang.jvm.XMLFactory;
+import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.XMLItem;
 import org.ballerinalang.model.util.JsonParser;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BFloat;
@@ -158,7 +160,7 @@ public class StringTest {
 
     @Test
     public void testXmlValueOf() {
-        OMNode omNode = (OMNode) XMLFactory.parse("<test>name</test>").value();
+        OMNode omNode = ((XMLItem) ((ArrayValue) XMLFactory.parse("<test>name</test>").value()).get(0)).value();
         BValue[] args = { new BXMLItem(omNode) };
         BValue[] returns = BRunUtil.invoke(result, "xmlValueOf", args);
         Assert.assertTrue(returns[0] instanceof BString);
@@ -203,6 +205,9 @@ public class StringTest {
         validateError(multilineLiterals, indx++, "mismatched input 's3'. expecting {'(', '[', '?', '|'}", 27, 12);
         validateError(multilineLiterals, indx++, "token recognition error at: '\"Multiple\\n'", 27, 17);
         validateError(multilineLiterals, indx++, "mismatched input 'Hello'. expecting {',', ')'}", 29, 5);
+        validateError(multilineLiterals, indx++, "mismatched input 'World'. expecting {'is', ';', '.', '[', '?', '?" +
+                ".', '+', '-', '*', '/', '%', '==', '!=', '>', '<', '>=', '<=', '&&', '||', '===', '!==', '&', '^', " +
+                "'@', '...', '|', '?:', '->>', '..<', '.@'}", 30, 5);
         validateError(multilineLiterals, indx++, "token recognition error at: '\";\\n'", 30, 11);
 
         Assert.assertEquals(multilineLiterals.getErrorCount(), indx);

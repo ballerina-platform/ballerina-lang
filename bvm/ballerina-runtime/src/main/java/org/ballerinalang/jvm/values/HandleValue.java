@@ -17,10 +17,10 @@
  */
 package org.ballerinalang.jvm.values;
 
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.values.api.BHandle;
+import org.ballerinalang.jvm.values.api.BString;
 
 import java.util.Map;
 
@@ -52,8 +52,13 @@ public class HandleValue implements BHandle, RefValue {
     }
 
     @Override
-    public String stringValue(Strand strand) {
+    public String stringValue() {
         return String.valueOf(value);
+    }
+
+    @Override
+    public BString bStringValue() {
+        return null;
     }
 
     @Override

@@ -49,7 +49,7 @@ public class TransactionUtils {
     }
 
     public static KafkaTransactionContext createKafkaTransactionContext(ObjectValue producer) {
-        KafkaProducer<byte[], byte[]> kafkaProducer = (KafkaProducer) producer.getNativeData(NATIVE_PRODUCER);
+        KafkaProducer kafkaProducer = (KafkaProducer) producer.getNativeData(NATIVE_PRODUCER);
         return new KafkaTransactionContext(kafkaProducer);
     }
 

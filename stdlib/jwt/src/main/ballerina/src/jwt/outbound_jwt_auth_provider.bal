@@ -40,15 +40,13 @@ public type OutboundJwtAuthProvider object {
     # + return - Generated token or `auth:Error` if an error occurred during the JWT issuing or validation
     public function generateToken() returns string|auth:Error {
         string authToken = "";
-        var jwtIssuerConfig = self.jwtIssuerConfig;
+        JwtIssuerConfig? jwtIssuerConfig = self.jwtIssuerConfig;
         if (jwtIssuerConfig is JwtIssuerConfig) {
-            var result = getAuthTokenForJWTAuth(jwtIssuerConfig);
-
+            string|Error result = getAuthTokenForJWTAuth(jwtIssuerConfig);
             if (result is error) {
-                return auth:Error(message = result.reason(), cause = result);
+                return prepareAuthError(result.reason(), result);
             }
-
-            authToken = <string> result;
+            authToken = <string>result;
         } else {
             runtime:AuthenticationContext? authContext = runtime:getInvocationContext()?.authenticationContext;
             if (authContext is runtime:AuthenticationContext) {
@@ -56,7 +54,7 @@ public type OutboundJwtAuthProvider object {
             }
         }
         if (authToken == "") {
-            return auth:prepareError("JWT was not used during inbound authentication. Provide JwtIssuerConfig to issue new token.");
+            return prepareAuthError("JWT was not used during inbound authentication. Provide JwtIssuerConfig to issue new token.");
         }
         return authToken;
     }

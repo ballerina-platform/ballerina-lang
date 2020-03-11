@@ -18,12 +18,16 @@ package org.ballerinalang.langserver.compiler;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import org.antlr.v4.runtime.DefaultErrorStrategy;
+import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.compiler.common.modal.BallerinaFile;
+import org.ballerinalang.util.diagnostic.Diagnostic;
+import org.ballerinalang.util.diagnostic.DiagnosticListener;
 import org.wso2.ballerinalang.compiler.SourceDirectory;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -64,10 +68,41 @@ public class LSCompilerCache {
      * @param context {@link LSContext}
      * @return {@link BallerinaFile}
      */
-    public static CacheEntry get(Key key, LSContext context) {
+    public static CacheEntry getPackage(Key key, LSContext context) {
+        return get(key, context, true);
+    }
+
+    /**
+     * Returns cached BLangPackages.
+     *
+     * @param key     unique {@link Key}
+     * @param context {@link LSContext}
+     * @return {@link BallerinaFile}
+     */
+    public static CacheEntry getPackages(Key key, LSContext context) {
+        return get(key, context, false);
+    }
+
+    /**
+     * Returns cached BLangPackages.
+     *
+     * @param key     unique {@link Key}
+     * @param context {@link LSContext}
+     * @return {@link BallerinaFile}
+     */
+    private static CacheEntry get(Key key, LSContext context, boolean isSinglePkg) {
         CacheEntry cacheEntry = packageMap.get(key);
-        if (cacheEntry == null) {
+        if (cacheEntry == null || cacheEntry.get() == null ||
+                ((isSinglePkg) ? !cacheEntry.get().isLeft() : !cacheEntry.get().isRight())) {
             return null;
+        }
+        List<Diagnostic> diagnostics = cacheEntry.diagnostics;
+        DiagnosticListener diagnosticListener = cacheEntry.compilerContext.get(DiagnosticListener.class);
+        if (diagnostics != null && diagnosticListener instanceof CollectDiagnosticListener) {
+            // Restore diagnostics, since same CompilerContext is shared between different operations
+            CollectDiagnosticListener listener = (CollectDiagnosticListener) diagnosticListener;
+            listener.clearAll();
+            diagnostics.forEach(listener::received);
         }
         context.put(DocumentServiceKeys.COMPILER_CONTEXT_KEY, cacheEntry.compilerContext);
         return cacheEntry;
@@ -76,11 +111,33 @@ public class LSCompilerCache {
     /**
      * Adds BLangPackage into cache.
      *
+     * @param key          unique {@link Key}
+     * @param bLangPackage {@link org.wso2.ballerinalang.compiler.tree.BLangPackage}
+     * @param context      {@link LSContext}
+     */
+    public static void putPackage(Key key, BLangPackage bLangPackage, LSContext context) {
+        put(key, EitherPair.forLeft(bLangPackage), context);
+    }
+
+    /**
+     * Adds BLangPackage into cache.
+     *
      * @param key           unique {@link Key}
-     * @param bLangPackages {@link org.wso2.ballerinalang.compiler.tree.BLangPackage}
+     * @param bLangPackages a list of {@link org.wso2.ballerinalang.compiler.tree.BLangPackage}
      * @param context       {@link LSContext}
      */
-    public static void put(Key key, EitherPair<BLangPackage, List<BLangPackage>> bLangPackages, LSContext context) {
+    public static void putPackages(Key key, List<BLangPackage> bLangPackages, LSContext context) {
+        put(key, EitherPair.forRight(bLangPackages), context);
+    }
+
+    /**
+     * Adds BLangPackage into cache.
+     *
+     * @param key           unique {@link Key}
+     * @param bLangPackages either a list or a single {@link org.wso2.ballerinalang.compiler.tree.BLangPackage}
+     * @param context       {@link LSContext}
+     */
+    private static void put(Key key, EitherPair<BLangPackage, List<BLangPackage>> bLangPackages, LSContext context) {
         CompilerContext compilerContext = context.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY);
         String sourceRoot = key.sourceRoot;
         packageMap.put(key, new CacheEntry(bLangPackages, compilerContext));
@@ -91,10 +148,10 @@ public class LSCompilerCache {
     /**
      * Clears all cache entries with this source root.
      *
-     * @param context   {@link LSContext}
+     * @param context    {@link LSContext}
      * @param sourceRoot source root
      */
-    public static synchronized void clear(LSServiceOperationContext context, String sourceRoot) {
+    public static synchronized void clear(LSContext context, String sourceRoot) {
         // Remove matching entries in parallel #threadSafe
         AtomicInteger count = new AtomicInteger(0);
         packageMap.keySet().stream().filter(p -> p.sourceRoot.equals(sourceRoot)).forEach(k -> {
@@ -190,12 +247,20 @@ public class LSCompilerCache {
     public static class CacheEntry {
         private EitherPair<BLangPackage, List<BLangPackage>> bLangPackages;
         private CompilerContext compilerContext;
+        private final List<Diagnostic> diagnostics;
         private boolean isOutdated = false;
 
         CacheEntry(EitherPair<BLangPackage, List<BLangPackage>> bLangPackages,
                    CompilerContext compilerContext) {
             this.bLangPackages = bLangPackages;
             this.compilerContext = compilerContext;
+            DiagnosticListener diagnosticListener = compilerContext.get(DiagnosticListener.class);
+            List<Diagnostic> diagnostics = null;
+            if (diagnosticListener instanceof CollectDiagnosticListener) {
+                CollectDiagnosticListener listener = (CollectDiagnosticListener) diagnosticListener;
+                diagnostics = new ArrayList<>(listener.getDiagnostics());
+            }
+            this.diagnostics = diagnostics;
         }
 
         /**

@@ -17,18 +17,18 @@ package org.ballerinalang.langserver.command.executors;
 
 import com.google.gson.JsonObject;
 import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.langserver.command.ExecuteCommandKeys;
-import org.ballerinalang.langserver.command.LSCommandExecutor;
-import org.ballerinalang.langserver.command.LSCommandExecutorException;
 import org.ballerinalang.langserver.command.docs.DocAttachmentInfo;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.commons.LSContext;
+import org.ballerinalang.langserver.commons.command.ExecuteCommandKeys;
+import org.ballerinalang.langserver.commons.command.LSCommandExecutorException;
+import org.ballerinalang.langserver.commons.command.spi.LSCommandExecutor;
+import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
-import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.compiler.LSModuleCompiler;
 import org.ballerinalang.langserver.compiler.common.LSCustomErrorStrategy;
 import org.ballerinalang.langserver.compiler.exception.CompilationFailedException;
-import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.eclipse.lsp4j.Range;
@@ -54,7 +54,7 @@ import static org.ballerinalang.langserver.command.docs.DocumentationGenerator.g
  *
  * @since 0.983.0
  */
-@JavaSPIService("org.ballerinalang.langserver.command.LSCommandExecutor")
+@JavaSPIService("org.ballerinalang.langserver.commons.command.spi.LSCommandExecutor")
 public class AddAllDocumentationExecutor implements LSCommandExecutor {
 
     public static final String COMMAND = "ADD_ALL_DOC";
@@ -77,7 +77,7 @@ public class AddAllDocumentationExecutor implements LSCommandExecutor {
 
         BLangPackage bLangPackage;
         try {
-            WorkspaceDocumentManager docManager = context.get(ExecuteCommandKeys.DOCUMENT_MANAGER_KEY);
+            WorkspaceDocumentManager docManager = context.get(DocumentServiceKeys.DOC_MANAGER_KEY);
             bLangPackage = LSModuleCompiler.getBLangPackage(context, docManager, LSCustomErrorStrategy.class, false,
                     false);
         } catch (CompilationFailedException e) {
@@ -119,7 +119,7 @@ public class AddAllDocumentationExecutor implements LSCommandExecutor {
         }
 
         TextDocumentEdit textDocumentEdit = new TextDocumentEdit(textDocumentIdentifier, textEdits);
-        LanguageClient languageClient = context.get(ExecuteCommandKeys.LANGUAGE_SERVER_KEY).getClient();
+        LanguageClient languageClient = context.get(ExecuteCommandKeys.LANGUAGE_CLIENT_KEY);
         return applyWorkspaceEdit(Collections.singletonList(Either.forLeft(textDocumentEdit)), languageClient);
     }
 

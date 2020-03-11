@@ -39,11 +39,15 @@ if exist %BALLERINA_HOME%\..\..\dependencies\jdk8u202-b08-jre (
 )
 
 if "%JAVA_HOME%" == "" goto noJavaHome
-if not exist "%JAVA_HOME%\bin\java.exe" goto noJavaHome
+if not exist "%JAVA_HOME%\bin\java.exe" goto invalidJavaHome
 goto checkServer
 
 :noJavaHome
 echo "You must set the JAVA_HOME variable before running Ballerina."
+goto end
+
+:invalidJavaHome
+echo "Invalid JAVA_HOME. The system cannot find the specified path." 1>&2
 goto end
 
 rem ----- set BALLERINA_HOME ----------------------------
@@ -67,6 +71,8 @@ FOR %%C in ("%BALLERINA_HOME%\bre\lib\bootstrap\*.jar") DO set BALLERINA_CLASSPA
 set BALLERINA_CLASSPATH="%JAVA_HOME%\lib\tools.jar";%BALLERINA_CLASSPATH%;
 
 set BALLERINA_CLASSPATH=!BALLERINA_CLASSPATH!;"%BALLERINA_HOME%\bre\lib\*"
+set BALLERINA_CLASSPATH=!BALLERINA_CLASSPATH!;"%BALLERINA_HOME%\lib\tools\lang-server\lib\*"
+set BALLERINA_CLASSPATH=!BALLERINA_CLASSPATH!;"%BALLERINA_HOME%\lib\tools\debug-adapter\lib\*"
 
 set BALLERINA_CLI_HEIGHT=
 set BALLERINA_CLI_WIDTH=
@@ -84,13 +90,18 @@ for %%x in (%*) do (
    set "argValue[!argCount!]=%%~x"
 )
 
-set /a counter=1
 for /l %%i in (1, 1, %argCount%) do (
-   set /a counter=!counter!+1
-   if "!argValue[%%i]!"=="--debug" call set BAL_JAVA_DEBUG=%%!counter!
+   if "!argValue[%%i]!"=="test" (
+      set /a counter=1
+      for /l %%j in (1, 1, %argCount%) do (
+         set /a counter=!counter!+1
+         if "!argValue[%%j]!"=="--debug" call set BAL_JAVA_DEBUG=%%!counter!
+      )
+   )
 )
 
 if defined BAL_JAVA_DEBUG goto commandDebug
+if defined BAL_DEBUG_OPTS goto commandDebugOpts
 
 rem ----- Process the input command -------------------------------------------
 goto doneStart
@@ -98,9 +109,13 @@ goto doneStart
 rem ----- commandDebug ---------------------------------------------------------
 :commandDebug
 if "%BAL_JAVA_DEBUG%"=="" goto noDebugPort
+:commandDebugOpts
 if not "%JAVA_OPTS%"=="" echo Warning !!!. User specified JAVA_OPTS will be ignored, once you give the BAL_JAVA_DEBUG variable.
-set JAVA_OPTS=-Xdebug -Xnoagent -Djava.compiler=NONE -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=%BAL_JAVA_DEBUG%
-echo Please start the remote debugging client to continue...
+if defined BAL_DEBUG_OPTS (
+    set JAVA_OPTS=%BAL_DEBUG_OPTS%
+) else (
+    set JAVA_OPTS=-Xdebug -Xnoagent -Djava.compiler=NONE -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=%BAL_JAVA_DEBUG%
+)
 goto runServer
 
 :noDebugPort
@@ -136,13 +151,13 @@ set CMD=%*
 
 rem ---------- Add jars to classpath ----------------
 
-set BALLERINA_CLASSPATH=.\bre\lib\bootstrap;%BALLERINA_CLASSPATH%
+set BALLERINA_CLASSPATH=.\bre\lib\bootstrap;"%BALLERINA_CLASSPATH%"
 
 rem BALLERINA_CLASSPATH_EXT is for outsiders to additionally add
 rem classpath locations, e.g. AWS Lambda function libraries.
 set BALLERINA_CLASSPATH=%BALLERINA_CLASSPATH%;%BALLERINA_CLASSPATH_EXT%
 
-set CMD_LINE_ARGS=-Xbootclasspath/a:%BALLERINA_XBOOTCLASSPATH% -Xms256m -Xmx1024m -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath="%BALLERINA_HOME%\heap-dump.hprof"  -Dcom.sun.management.jmxremote -classpath %BALLERINA_CLASSPATH% %JAVA_OPTS% -Dballerina.home="%BALLERINA_HOME%" -Dballerina.target="jvm" -Djava.command="%JAVA_HOME%\bin\java" -Djava.opts="%JAVA_OPTS%" -Denable.nonblocking=false -Dfile.encoding=UTF8 -Dballerina.version=${project.version} -Djava.util.logging.config.class="org.ballerinalang.logging.util.LogConfigReader" -Djava.util.logging.manager="org.ballerinalang.logging.BLogManager"
+set CMD_LINE_ARGS=-Xbootclasspath/a:%BALLERINA_XBOOTCLASSPATH% -Xms256m -Xmx1024m -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath="%BALLERINA_HOME%\heap-dump.hprof"  -Dcom.sun.management.jmxremote -classpath "%BALLERINA_CLASSPATH%" %JAVA_OPTS% -Dballerina.home="%BALLERINA_HOME%" -Dballerina.target="jvm" -Djava.command="%JAVA_HOME%\bin\java" -Djava.opts="%JAVA_OPTS%" -Denable.nonblocking=false -Dfile.encoding=UTF8 -Dballerina.version=${project.version} -Djava.util.logging.config.class="org.ballerinalang.logging.util.LogConfigReader" -Djava.util.logging.manager="org.ballerinalang.logging.BLogManager"
 
 set jar=%2
 if "%1" == "run" if not "%2" == "" if "%jar:~-4%" == ".jar" goto runJarFile

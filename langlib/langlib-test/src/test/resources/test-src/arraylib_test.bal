@@ -20,22 +20,22 @@ function testLength() returns int {
     return arr.length();
 }
 
-//function testIterator() returns string {
-//    string[] arr = ["Hello", "World!", "From", "Ballerina"];
-//    abstract object {
-//         public function next() returns record {| string value; |}?;
-//    } itr = arr.iterator();
-//
-//    record {| string value; |}|() elem = itr.next();
-//    string result = "";
-//
-//    while (elem is record {| string value; |}) {
-//        result += elem.value;
-//        elem = itr.next();
-//    }
-//
-//    return result;
-//}
+function testIterator() returns string {
+    string[] arr = ["Hello", "World!", "From", "Ballerina"];
+    abstract object {
+         public function next() returns record {| string value; |}?;
+    } itr = arr.iterator();
+
+    record {| string value; |}|() elem = itr.next();
+    string result = "";
+
+    while (elem is record {| string value; |}) {
+        result += elem.value;
+        elem = itr.next();
+    }
+
+    return result;
+}
 
 function testEnumerate() returns [int, string][] {
     string[] arr = ["Hello", "World!", "From", "Ballerina"];
@@ -63,12 +63,30 @@ function testForeach() returns string {
     return result;
 }
 
-function testSlice() returns [float[], float[], float[]] {
+function testSlice() returns [float[], int, float[], int, float[], int] {
     float[] arr = [12.34, 23.45, 34.56, 45.67, 56.78];
     float[] r1 = arr.slice(1, 4);
     float[] r2 = arr.slice(2);
     float[] r3 = array:slice(arr, 3);
-    return [r1, r2, r3];
+    return [r1, r1.length(), r2, r2.length(), r3, r3.length()];
+}
+
+function testPushAfterSlice() returns [int, int, float[]] {
+     float[] arr = [12.34, 23.45, 34.56, 45.67, 56.78];
+     float[] s = arr.slice(1, 4);
+     int sl = s.length();
+     s.push(20.1);
+     int slp = s.length();
+     return [sl, slp, s];
+}
+
+function testPushAfterSliceFixed() returns [int, int, int[]] {
+     int[5] arr = [1, 2, 3, 4, 5];
+     int[] s = arr.slice(3);
+     int sl = s.length();
+     s.push(88);
+     int slp = s.length();
+     return [sl, slp, s];
 }
 
 function testRemove() returns [string, string[]] {
@@ -130,6 +148,35 @@ function testIndexOf() returns [int?, int?] {
     int? i1 = arr.indexOf(m);
     int? i2 = arr.indexOf(50);
     return [i1, i2];
+}
+
+function testLastIndexOf() {
+    anydata[] array = [10, 10, 10, "foo", "foo", "foo", 12.34, 12.34, true, true, <map<string>>{"k":"Bar"},
+                       <map<string>>{"k":"Bar"}, [12, true], [12, true]];
+    map<string> m1 = {"k":"Bar"};
+    map<string> m2 = {"k":"Foo"};
+    anydata[] arr1 = [12, true];
+    anydata[] arr2 = [12, false];
+
+    int? i1 = array.lastIndexOf(10);
+    int? i2 = array.lastIndexOf("foo");
+    int? i3 = array.lastIndexOf(12.34);
+    int? i4 = array.lastIndexOf(true);
+    int? i5 = array.lastIndexOf(m1);
+    int? i6 = array.lastIndexOf(arr1);
+
+    int? i7 = array.lastIndexOf(11);
+    int? i8 = array.lastIndexOf("Bar");
+    int? i9 = array.lastIndexOf(12.33);
+    int? i10 = array.lastIndexOf(false);
+    int? i11 = array.lastIndexOf(m2);
+    int? i12 = array.lastIndexOf(arr2);
+
+    if (<int>i1 != 2 && <int>i2 != 5 && <int>i3 != 7 && <int>i4 != 9 && <int>i5 != 11 && <int>i6 != 13 &&
+                i7 != () && i8 != () && i9 != () && i10 != () && i11 != () && i12 != ()) {
+        error err = error("'lastIndexOf' does not return correct value");
+        panic err;
+    }
 }
 
 function testReverse() returns [int[], int[]] {
@@ -252,6 +299,13 @@ function testRemoveAllFixedLengthArray() returns int[] {
     int[7] ar = [1, 2, 3, 4, 5, 6, 7];
     ar.removeAll();
     return ar;
+}
+
+function testBytePush() returns boolean {
+    byte[] arr = [1, 2];
+    byte b = 255;
+    arr.push(b);
+    return arr.length() == 3 && arr[2] == <byte> 255;
 }
 
 function testTupleResize() returns [int, string] {

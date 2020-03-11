@@ -6,14 +6,8 @@ public type {{serviceName}}{{#equals stubType "blocking"}}Blocking{{/equals}}Cli
 
     public function __init(string url, grpc:ClientConfiguration? config = ()) {
         // initialize client endpoint.
-        grpc:Client c = new(url, config);
-        grpc:Error? result = c.initStub(self, "{{stubType}}", ROOT_DESCRIPTOR, getDescriptorMap());
-        if (result is grpc:Error) {
-            error err = result;
-            panic err;
-        } else {
-            self.grpcClient = c;
-        }
+        self.grpcClient = new(url, config);
+        checkpanic self.grpcClient.initStub(self, "{{stubType}}", ROOT_DESCRIPTOR, getDescriptorMap());
     }
 {{#blockingFunctions}}
     public remote function {{methodName}}({{#if inputType}}{{inputType}} req, {{/if}}grpc:Headers? headers = ()) returns ({{#if outputType}}[{{outputType}}, grpc:Headers]{{else}}grpc:Headers{{/if}}|grpc:Error) {
@@ -22,12 +16,9 @@ public type {{serviceName}}{{#equals stubType "blocking"}}Blocking{{/equals}}Cli
         grpc:Headers resHeaders = new;
         {{#if outputType}}anydata result = ();
         [result, resHeaders] = payload;
-        {{#not_equal outputType "string"}}var value = typedesc<{{outputType}}>.constructFrom(result);
-        if (value is {{outputType}}) {
-            return [value, resHeaders];
-        } else {
-            return grpc:prepareError(grpc:INTERNAL_ERROR, "Error while constructing the message", value);
-        }{{/not_equal}}{{#equals outputType "string"}}return [result.toString(), resHeaders];{{/equals}}{{else}}[_, resHeaders] = payload;
+        {{#not_equal outputType "string"}}
+        return [<{{outputType}}>result, resHeaders];
+        {{/not_equal}}{{#equals outputType "string"}}return [result.toString(), resHeaders];{{/equals}}{{else}}[_, resHeaders] = payload;
         return resHeaders;{{/if}}
     }
 {{/blockingFunctions}}{{#nonBlockingFunctions}}

@@ -32,8 +32,6 @@ function emitInstruction(Instruction ins, int tabs) returns string {
         return emitInsNewMap(ins, tabs); 
     } else if ins is NewTable {
         return emitInsNewTable(ins, tabs); 
-    } else if ins is NewStream {
-        return emitInsNewStream(ins, tabs); 
     } else if ins is NewInstance {
         return emitInsNewInstance(ins, tabs); 
     } else if ins is NewArray {
@@ -127,19 +125,6 @@ function emitInsNewTable(NewTable ins, int tabs) returns string {
     return str;
 }
  
-function emitInsNewStream(NewStream ins, int tabs) returns string {
-    string str = "";
-    str += emitTabs(tabs);
-    str += emitVarRef(ins.lhsOp); 
-    str += emitSpaces(1);
-    str += "=";
-    str += emitSpaces(1);
-    str += "stream<";
-    str += emitTypeRef(ins.streamType); 
-    str += ">;";
-    return str;
-}
- 
 function emitInsNewInstance(NewInstance ins, int tabs) returns string {
     string str = "";
     str += emitTabs(tabs);
@@ -167,6 +152,8 @@ function emitInsNewArray(NewArray ins, int tabs) returns string {
     str += emitVarRef(ins.lhsOp);
     str += emitSpaces(1);
     str += "=";
+    str += emitSpaces(1);
+    str += "newArray";
     str += emitSpaces(1);
     str += emitTypeRef(ins.typeValue);
     str += "[";
@@ -197,21 +184,43 @@ function emitInsNewError(NewError ins, int tabs) returns string {
 }
  
 function emitInsFPLoad(FPLoad ins, int tabs) returns string {
-    // TODO fill this 
-    return "";
-}
- 
-function emitInsFieldAccess(FieldAccess ins, int tabs) returns string {
     string str = "";
     str += emitTabs(tabs);
     str += emitVarRef(ins.lhsOp);
     str += emitSpaces(1);
     str += "=";
     str += emitSpaces(1);
-    str += emitVarRef(ins.rhsOp);
-    str += "[";
-    str += emitVarRef(ins.keyOp);
-    str += "]";
+    str += "fp";
+    str += emitSpaces(1);
+    str += emitModuleID(ins.pkgID);
+    str += "::";
+    str += emitName(ins.name);
+    // TODO add params and closure maps
+    str += ";";
+    return str;
+}
+ 
+function emitInsFieldAccess(FieldAccess ins, int tabs) returns string {
+    string str = "";
+    str += emitTabs(tabs);
+    str += emitVarRef(ins.lhsOp);
+    if ins.kind is INS_KIND_MAP_LOAD | INS_KIND_ARRAY_LOAD {
+        str += emitSpaces(1);
+        str += "=";
+        str += emitSpaces(1);
+        str += emitVarRef(ins.rhsOp);
+        str += "[";
+        str += emitVarRef(ins.keyOp);
+        str += "]";
+    } else if ins.kind is INS_KIND_MAP_STORE | INS_KIND_ARRAY_STORE {
+        str += "[";
+        str += emitVarRef(ins.keyOp);
+        str += "]";
+        str += emitSpaces(1);
+        str += "=";
+        str += emitSpaces(1);
+        str += emitVarRef(ins.rhsOp);
+    }
     str += ";";
     return str;
 }
@@ -223,10 +232,11 @@ function emitInsTypeCast(TypeCast ins, int tabs) returns string {
     str += emitSpaces(1);
     str += "=";
     str += emitSpaces(1);
-    str += emitVarRef(ins.rhsOp);
     str += "<";
     str += emitTypeRef(ins.castType);
     str += ">";
+    str += emitSpaces(1);
+    str += emitVarRef(ins.rhsOp);
     str += ";";
     return str;
 }
@@ -292,38 +302,97 @@ function emitInsBinaryOp(BinaryOp ins, int tabs) returns string {
 }
  
 function emitInsNewXMLElement(NewXMLElement ins, int tabs) returns string {
-    // TODO fill this 
-    return "";
+    string str = "";
+    str += emitTabs(tabs);
+    str += emitVarRef(ins.lhsOp);
+    str += emitSpaces(1);
+    str += "=";
+    str += emitSpaces(1);
+    str += "<";
+    str += emitVarRef(ins.startTagOp);
+    str += " ns=";
+    str += emitVarRef(ins.defaultNsURIOp);
+    str += "/>";
+    return str;
 }
  
 function emitInsNewXMLQName(NewXMLQName ins, int tabs) returns string {
-    // TODO fill this 
-    return "";
+    string str = "";
+    str += emitTabs(tabs);
+    str += emitVarRef(ins.lhsOp);
+    str += emitSpaces(1);
+    str += "=";
+    str += emitSpaces(1);
+    str += "QName {";
+    str += emitVarRef(ins.nsURIOp);
+    str += "}";
+    str += emitVarRef(ins.localnameOp);
+    str += emitSpaces(1);
+    str += "prefix=";
+    str += emitVarRef(ins.prefixOp);
+    return str;
 }
  
 function emitInsNewStringXMLQName(NewStringXMLQName ins, int tabs) returns string {
-    // TODO fill this 
-    return "";
+    string str = "";
+    str += emitTabs(tabs);
+    str += emitVarRef(ins.lhsOp);
+    str += emitSpaces(1);
+    str += "=";
+    str += emitSpaces(1);
+    str += "QNameStr";
+    str += emitVarRef(ins.stringQNameOp);
+    return str;
 }
  
 function emitInsXMLAccess(XMLAccess ins, int tabs) returns string {
-    // TODO fill this 
-    return "";
+    string str = "";
+    str += emitTabs(tabs);
+    str += emitVarRef(ins.lhsOp);
+    str += emitSpaces(1);
+    str += "=";
+    str += emitSpaces(1);
+    str += "xml access ";
+    str += emitVarRef(ins.rhsOp);
+    return str;
 }
  
 function emitInsNewXMLText(NewXMLText ins, int tabs) returns string {
-    // TODO fill this 
-    return "";
+    string str = "";
+    str += emitTabs(tabs);
+    str += emitVarRef(ins.lhsOp);
+    str += emitSpaces(1);
+    str += "=";
+    str += emitSpaces(1);
+    str += "xml text ";
+    str += emitVarRef(ins.textOp);
+    return str;
 }
  
 function emitInsNewXMLComment(NewXMLComment ins, int tabs) returns string {
-    // TODO fill this 
-    return "";
+    string str = "";
+    str += emitTabs(tabs);
+    str += emitVarRef(ins.lhsOp);
+    str += emitSpaces(1);
+    str += "=";
+    str += emitSpaces(1);
+    str += "xml comment ";
+    str += emitVarRef(ins.textOp);
+    return str;
 }
  
 function emitInsNewXMLPI(NewXMLPI ins, int tabs) returns string {
-    // TODO fill this 
-    return "";
+    string str = "";
+    str += emitTabs(tabs);
+    str += emitVarRef(ins.lhsOp);
+    str += emitSpaces(1);
+    str += "=";
+    str += emitSpaces(1);
+    str += "xml pi ";
+    str += emitVarRef(ins.targetOp);
+    str += emitSpaces(1);
+    str += emitVarRef(ins.dataOp);
+    return str;
 }
  
 function emitInsUnaryOp(UnaryOp ins, int tabs) returns string {
@@ -340,8 +409,17 @@ function emitInsUnaryOp(UnaryOp ins, int tabs) returns string {
 }
  
 function emitInsNewTypeDesc(NewTypeDesc ins, int tabs) returns string {
-    // TODO fill this 
-    return "";
+    string str = "";
+    str += emitTabs(tabs);
+    str += emitVarRef(ins.lhsOp);
+    str += emitSpaces(1);
+    str += "=";
+    str += emitSpaces(1);
+    str += "newType";
+    str += emitSpaces(1);
+    str += emitTypeRef(ins.typeValue);
+    str += ";";
+    return str;
 }
  
 /////////////// Emit Terminator instructions ////////////////////
@@ -382,23 +460,107 @@ function emitTerminator(Terminator term, int tabs) returns string {
 }
 
 function emitWait(Wait term, int tabs) returns string { 
-    // TODO fill this 
-    return "";
+    string str = "";
+    str += emitTabs(tabs);
+    str += emitVarRef(term.lhsOp);
+    str += emitSpaces(1);
+    str += "=";
+    str += emitSpaces(1);
+    str += "wait";
+    str += emitSpaces(1);
+    int i = 0;
+    int argLength = term.exprList.length();
+    while i < argLength {
+        VarRef? ref = term.exprList[i];
+        if ref is VarRef {
+            str += emitVarRef(ref);
+            i += 1;
+            if i < argLength {
+                str += emitSpaces(1);
+                str += "|";
+                str += emitSpaces(1);
+            }
+        }
+    }
+    str += emitSpaces(1);
+    str += "->";
+    str += emitSpaces(1);
+    str += emitBasicBlockRef(term.thenBB);
+    str += ";";
+    return str;
 }
 
 function emitFlush(Flush term, int tabs) returns string { 
-    // TODO fill this 
-    return "";
+    string str = "";
+    str += emitTabs(tabs);
+    str += emitVarRef(term.lhsOp);
+    str += emitSpaces(1);
+    str += "=";
+    str += emitSpaces(1);
+    str += "flush";
+    str += emitSpaces(1);
+    int i = 0;
+    int argLength = term.workerChannels.length();
+    while i < argLength {
+        ChannelDetail ref = term.workerChannels[i];
+        str += emitName(ref.name);
+        i += 1;
+        if i < argLength {
+            str += ",";
+            str += emitSpaces(1);
+        }
+    }
+    str += emitSpaces(1);
+    str += "->";
+    str += emitSpaces(1);
+    str += emitBasicBlockRef(term.thenBB);
+    str += ";";
+    return str;
 }
 
 function emitWorkerReceive(WorkerReceive term, int tabs) returns string { 
-    // TODO fill this 
-    return "";
+    string str = "";
+    str += emitTabs(tabs);
+    str += emitVarRef(term.lhsOp);
+    str += emitSpaces(1);
+    str += "=";
+    str += emitSpaces(1);
+    str += "<=";
+    str += emitSpaces(1);
+    str += emitName(term.channelName);
+    str += emitSpaces(1);
+    str += "->";
+    str += emitSpaces(1);
+    str += emitBasicBlockRef(term.thenBB);
+    str += ";";
+    return str;
 }
 
 function emitWorkerSend(WorkerSend term, int tabs) returns string { 
-    // TODO fill this 
-    return "";
+    string str = "";
+    str += emitTabs(tabs);
+    VarRef? lhsOp = term.lhsOp;
+    if lhsOp is VarRef {
+        str += emitVarRef(lhsOp);
+        str += emitSpaces(1);
+        str += "=";
+        str += emitSpaces(1);
+    }
+    str += emitVarRef(term.dataOp);
+    str += emitSpaces(1);
+    if term.isSync {
+        str += "=>";
+    } else {
+        str += "=>>";
+    }
+    str += emitSpaces(1);
+    str += emitName(term.channelName);
+    str += emitSpaces(1);
+    str += "->";
+    str += emitSpaces(1);
+    str += emitBasicBlockRef(term.thenBB);
+    str += ";";
+    return str;
 }
 
 function emitCall(Call term, int tabs) returns string { 
@@ -495,18 +657,46 @@ function emitGOTO(GOTO term, int tabs) returns string {
 }
 
 function emitLock(Lock term, int tabs) returns string { 
-    // TODO fill this 
-    return "";
+    string str = "";
+    str += emitTabs(tabs);
+    str += "lock";
+    str += emitSpaces(1);
+    str += "->";
+    str += emitSpaces(1);
+    str += emitBasicBlockRef(term.lockBB);
+    str += ";";
+    return str;
 }
 
 function emitFieldLock(FieldLock term, int tabs) returns string { 
-    // TODO fill this 
-    return "";
+    string str = "";
+    str += emitTabs(tabs);
+    str += "lock";
+    str += emitSpaces(1);
+    str += emitName(term.localVar.name);
+    str += "[\"";
+    str += term.'field;
+    str += "\"]";
+    str += emitSpaces(1);
+    str += "->";
+    str += emitSpaces(1);
+    str += emitBasicBlockRef(term.lockBB);
+    str += ";";
+    return str;
 }
 
 function emitUnlock(Unlock term, int tabs) returns string { 
-    // TODO fill this 
-    return "";
+    string str = "";
+    str += emitTabs(tabs);
+    str += "unlock";
+    str += emitSpaces(1);
+    str += "()";
+    str += emitSpaces(1);
+    str += "->";
+    str += emitSpaces(1);
+    str += emitBasicBlockRef(term.unlockBB);
+    str += ";";
+    return str;
 }
 
 function emitReturn(Return term, int tabs) returns string { 
@@ -528,13 +718,76 @@ function emitPanic(Panic term, int tabs) returns string {
 }
 
 function emitFPCall(FPCall term, int tabs) returns string { 
-    // TODO fill this 
-    return "";
+    string callStr = "";
+    callStr += emitTabs(tabs);
+    VarRef? lhsOp = term.lhsOp;
+    if lhsOp is VarRef {
+        callStr += emitVarRef(lhsOp);
+        callStr += emitSpaces(1);
+        callStr += "=";
+        callStr += emitSpaces(1);
+    }
+    callStr += "FPCall";
+    callStr += emitSpaces(1);
+    callStr += emitVarRef(term.fp);
+    callStr += "(";
+    int i = 0;
+    int argLength = term.args.length();
+    foreach VarRef? ref in term.args {
+        if ref is VarRef {
+            callStr += emitVarRef(ref);
+            i += 1;
+            if i < argLength {
+                callStr += ",";
+                callStr += emitSpaces(1);
+            }
+        }
+    }
+    callStr += ")";
+    callStr += emitSpaces(1);
+    callStr += "->";
+    callStr += emitSpaces(1);
+    callStr += emitBasicBlockRef(term.thenBB);
+    callStr += ";";
+    return callStr;
 }
 
 function emitWaitAll(WaitAll term, int tabs) returns string { 
-    // TODO fill this 
-    return "";
+    string str = "";
+    str += emitTabs(tabs);
+    str += emitVarRef(term.lhsOp);
+    str += emitSpaces(1);
+    str += "=";
+    str += emitSpaces(1);
+    str += "waitAll";
+    str += emitSpaces(1);
+    str += "{";
+    int i = 0;
+    int argLength = term.futures.length();
+    while i < argLength {
+        VarRef? ref = term.futures[i];
+        string key = term.keys[i];
+        if ref is VarRef {
+            str += "\"";
+            str += key;
+            str += "\"";
+            str += ":";
+            str += emitSpaces(1);
+            str += emitVarRef(ref);
+            i += 1;
+            if i < argLength {
+                str += ",";
+                str += emitSpaces(1);
+            }
+        }
+    }
+    str += "}";
+    str += emitSpaces(1);
+    str += "->";
+    str += emitSpaces(1);
+    str += emitBasicBlockRef(term.thenBB);
+    str += ";";
+    return str;
 }
 
 

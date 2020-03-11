@@ -17,19 +17,35 @@
  */
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
+import org.antlr.v4.runtime.ANTLRInputStream;
+import org.antlr.v4.runtime.CommonTokenStream;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.elements.Flag;
+import org.ballerinalang.model.tree.DocReferenceErrorType;
 import org.ballerinalang.model.tree.DocumentableNode;
+import org.ballerinalang.model.tree.DocumentationReferenceType;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.SimpleVariableNode;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
+import org.wso2.ballerinalang.compiler.parser.BLangReferenceParserListener;
+import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaLexer;
+import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
+import org.wso2.ballerinalang.compiler.parser.antlr4.ReferenceParserErrorListener;
+import org.wso2.ballerinalang.compiler.parser.antlr4.SilentParserErrorStrategy;
+import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
+import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangMarkdownDocumentation;
+import org.wso2.ballerinalang.compiler.tree.BLangMarkdownReferenceDocumentation;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
@@ -39,6 +55,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangLetExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownParameterDocumentation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownReturnParameterDocumentation;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
@@ -46,10 +63,15 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
-import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
+import org.wso2.ballerinalang.compiler.util.Name;
+import org.wso2.ballerinalang.compiler.util.Names;
+import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLogHelper;
+import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.util.Flags;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -63,7 +85,15 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
     private static final CompilerContext.Key<DocumentationAnalyzer> DOCUMENTATION_ANALYZER_KEY =
             new CompilerContext.Key<>();
 
-    private BLangDiagnosticLog dlog;
+    private BLangDiagnosticLogHelper dlog;
+    private final SymbolResolver symResolver;
+    private final SymbolTable symTable;
+    private SymbolEnv env;
+    private Names names;
+
+    // Used to parse the content inside backticks for Ballerina Flavored Markdown.
+    private BLangReferenceParserListener listener;
+    private BallerinaParser parser;
 
     public static DocumentationAnalyzer getInstance(CompilerContext context) {
         DocumentationAnalyzer documentationAnalyzer = context.get(DOCUMENTATION_ANALYZER_KEY);
@@ -75,10 +105,28 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
 
     private DocumentationAnalyzer(CompilerContext context) {
         context.put(DOCUMENTATION_ANALYZER_KEY, this);
-        this.dlog = BLangDiagnosticLog.getInstance(context);
+        this.symResolver = SymbolResolver.getInstance(context);
+        this.dlog = BLangDiagnosticLogHelper.getInstance(context);
+        this.names = Names.getInstance(context);
+        this.symTable = SymbolTable.getInstance(context);
+        setupReferenceParser();
+    }
+
+    private void setupReferenceParser() {
+        ANTLRInputStream ais = new ANTLRInputStream();
+        BallerinaLexer lexer = new BallerinaLexer(ais);
+        lexer.removeErrorListeners();
+        lexer.addErrorListener(new ReferenceParserErrorListener());
+        CommonTokenStream tokenStream = new CommonTokenStream(lexer);
+        SilentParserErrorStrategy errorStrategy = new SilentParserErrorStrategy();
+        parser = new BallerinaParser(tokenStream);
+        this.listener = new BLangReferenceParserListener();
+        parser.addParseListener(this.listener);
+        parser.setErrorHandler(errorStrategy);
     }
 
     public BLangPackage analyze(BLangPackage pkgNode) {
+        this.env = this.symTable.pkgEnvMap.get(pkgNode.symbol);
         pkgNode.topLevelNodes.forEach(topLevelNode -> analyzeNode((BLangNode) topLevelNode));
         pkgNode.completedPhases.add(CompilerPhase.CODE_ANALYZE);
         pkgNode.getTestablePkgs().forEach(this::analyze);
@@ -105,15 +153,22 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
     }
 
     @Override
+    public void visit(BLangLetExpression letExpression) {
+
+    }
+
+    @Override
     public void visit(BLangConstant constant) {
         validateNoParameters(constant);
         validateReturnParameter(constant, null, false);
+        validateReferences(constant);
     }
 
     @Override
     public void visit(BLangSimpleVariable varNode) {
         validateNoParameters(varNode);
         validateReturnParameter(varNode, null, false);
+        validateReferences(varNode);
     }
 
     @Override
@@ -122,6 +177,8 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
                 funcNode.restParam, DiagnosticCode.UNDOCUMENTED_PARAMETER,
                 DiagnosticCode.NO_SUCH_DOCUMENTABLE_PARAMETER,
                 DiagnosticCode.PARAMETER_ALREADY_DOCUMENTED);
+
+        validateReferences(funcNode);
 
         boolean hasReturn = true;
         if (funcNode.returnTypeNode.getKind() == NodeKind.VALUE_TYPE) {
@@ -139,6 +196,7 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
     public void visit(BLangService serviceNode) {
         validateNoParameters(serviceNode);
         validateReturnParameter(serviceNode, null, false);
+        validateReferences(serviceNode);
     }
 
     @Override
@@ -149,6 +207,10 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
             validateParameters(typeDefinition, fields, null, DiagnosticCode.UNDOCUMENTED_FIELD,
                     DiagnosticCode.NO_SUCH_DOCUMENTABLE_FIELD, DiagnosticCode.FIELD_ALREADY_DOCUMENTED);
             validateReturnParameter(typeDefinition, null, false);
+            validateReferences(typeDefinition);
+            for (SimpleVariableNode field : fields) {
+                validateReferences(field);
+            }
 
             ((BLangObjectTypeNode) typeDefinition.getTypeNode()).getFunctions().forEach(this::analyzeNode);
         } else if (typeDefinition.typeNode.getKind() == NodeKind.RECORD_TYPE) {
@@ -156,6 +218,11 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
             validateParameters(typeDefinition, fields, null, DiagnosticCode.UNDOCUMENTED_FIELD,
                     DiagnosticCode.NO_SUCH_DOCUMENTABLE_FIELD, DiagnosticCode.FIELD_ALREADY_DOCUMENTED);
             validateReturnParameter(typeDefinition, null, false);
+            validateReferences(typeDefinition);
+
+            for (SimpleVariableNode field : fields) {
+                validateReferences(field);
+            }
         }
     }
 
@@ -167,7 +234,169 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
                 DiagnosticCode.PARAMETER_ALREADY_DOCUMENTED);
 
         validateReturnParameter(resourceNode, null, false);
+        validateReferences(resourceNode);
     }
+
+    private void validateReferences(DocumentableNode documentableNode) {
+        BLangMarkdownDocumentation documentation = documentableNode.getMarkdownDocumentationAttachment();
+        if (documentation == null) {
+            return;
+        }
+
+        LinkedList<BLangMarkdownReferenceDocumentation> references = documentation.getReferences();
+        for (BLangMarkdownReferenceDocumentation reference : references) {
+            DocReferenceErrorType status = invokeDocumentationReferenceParser(reference);
+            if (status != DocReferenceErrorType.NO_ERROR) {
+                // Log warning only if not backticked content.
+                if (status != DocReferenceErrorType.BACKTICK_IDENTIFIER_ERROR) {
+                    dlog.warning(reference.pos, DiagnosticCode.INVALID_DOCUMENTATION_IDENTIFIER,
+                            reference.referenceName);
+                }
+                continue;
+            }
+            status = validateIdentifier(reference, documentableNode);
+            if (status != DocReferenceErrorType.NO_ERROR) {
+                if (status == DocReferenceErrorType.REFERENCE_ERROR) {
+                    dlog.warning(reference.pos, DiagnosticCode.INVALID_DOCUMENTATION_REFERENCE,
+                            reference.referenceName, reference.getType().getValue());
+                } else {
+                    dlog.warning(reference.pos, DiagnosticCode.INVALID_USAGE_OF_PARAMETER_REFERENCE,
+                            reference.referenceName);
+                }
+            }
+        }
+    }
+
+    private DocReferenceErrorType validateIdentifier(BLangMarkdownReferenceDocumentation reference,
+                                       DocumentableNode documentableNode) {
+        int tag = -1;
+        SymbolEnv env = this.env;
+        // Lookup namespace to validate the identifier.
+        switch (reference.getType()) {
+            case PARAMETER:
+                // Parameters are only available for function nodes.
+                if (documentableNode.getKind() == NodeKind.FUNCTION) {
+                    BLangFunction funcNode = (BLangFunction) documentableNode;
+                    env = SymbolEnv.createFunctionEnv(funcNode, funcNode.symbol.scope, this.env);
+                    tag = SymTag.VARIABLE;
+                    break;
+                } else {
+                     return DocReferenceErrorType.PARAMETER_REFERENCE_ERROR;
+                }
+            case SERVICE:
+                tag = SymTag.SERVICE;
+                break;
+            case TYPE:
+                tag = SymTag.TYPE;
+                break;
+            case VARIABLE:
+            case VAR:
+                tag = SymTag.VARIABLE;
+                break;
+            case ANNOTATION:
+                tag = SymTag.ANNOTATION;
+                break;
+            case MODULE:
+                tag = SymTag.IMPORT;
+                break;
+            case CONST:
+                tag = SymTag.CONSTANT;
+                break;
+            case BACKTICK_CONTENT:
+            case FUNCTION:
+                tag = SymTag.FUNCTION;
+                break;
+        }
+
+        BSymbol symbol = resolveFullyQualifiedSymbol(reference.pos, env, reference.qualifier, reference.typeName,
+                reference.identifier, tag);
+        return (symbol != symTable.notFoundSymbol) ?
+                DocReferenceErrorType.NO_ERROR : DocReferenceErrorType.REFERENCE_ERROR;
+    }
+
+    private BSymbol resolveFullyQualifiedSymbol(DiagnosticPos pos, SymbolEnv env, String packageId, String type,
+                                                String identifier, int tag) {
+        Name identifierName = names.fromString(identifier);
+        Name pkgName = names.fromString(packageId);
+        Name typeName = names.fromString(type);
+        SymbolEnv pkgEnv = env;
+
+        if (pkgName != Names.EMPTY) {
+            BSymbol pkgSymbol = symResolver.resolvePrefixSymbol(env, pkgName,
+                            names.fromString(pos.getSource().getCompilationUnitName()));
+
+            if (pkgSymbol == symTable.notFoundSymbol) {
+                return symTable.notFoundSymbol;
+            }
+
+            if (pkgSymbol.tag == SymTag.PACKAGE) {
+                BPackageSymbol symbol = (BPackageSymbol) pkgSymbol;
+                pkgEnv = symTable.pkgEnvMap.get(symbol);
+            }
+        }
+
+        // If there is no type in the reference we need to search in the package level and the current scope only.
+        if (typeName == Names.EMPTY) {
+            if ((tag & SymTag.IMPORT) == SymTag.IMPORT) {
+                return symResolver.lookupPrefixSpaceSymbolInPackage(pos, env, pkgName, identifierName);
+            } else if ((tag & SymTag.ANNOTATION) == SymTag.ANNOTATION) {
+                return symResolver.lookupAnnotationSpaceSymbolInPackage(pos, env, pkgName, identifierName);
+            } else if ((tag & SymTag.MAIN) == SymTag.MAIN) {
+                return symResolver.lookupMainSpaceSymbolInPackage(pos, env, pkgName, identifierName);
+            }
+        }
+
+        // Check for type in the environment.
+        BSymbol typeSymbol = symResolver.lookupMainSpaceSymbolInPackage(pos, env, pkgName, typeName);
+        if (typeSymbol == symTable.notFoundSymbol) {
+            return symTable.notFoundSymbol;
+        }
+
+        if (typeSymbol.tag == SymTag.OBJECT) {
+            BObjectTypeSymbol objectTypeSymbol = (BObjectTypeSymbol) typeSymbol;
+            // If the type is available at the global scope or package level then lets dive in to the scope of the type
+            // `pkgEnv` is `env` if no package was identified or else it's the package's environment
+            String functionID = typeName + "." + identifierName;
+            Name functionName = names.fromString(functionID);
+            return symResolver.lookupMemberSymbol(pos, objectTypeSymbol.methodScope, pkgEnv, functionName, tag);
+        }
+
+        return symTable.notFoundSymbol;
+    }
+
+    private DocReferenceErrorType invokeDocumentationReferenceParser(BLangMarkdownReferenceDocumentation reference) {
+        ANTLRInputStream ais = new ANTLRInputStream(reference.referenceName);
+        BallerinaLexer lexer = new BallerinaLexer(ais);
+        lexer.removeErrorListeners();
+        lexer.addErrorListener(new ReferenceParserErrorListener());
+        CommonTokenStream tokenStream = new CommonTokenStream(lexer);
+        this.listener.reset();
+        parser.setInputStream(tokenStream);
+
+        // Invoke function identifier rule for backticked block for cases such as `function()` if is Function is true.
+        if (reference.getType() == DocumentationReferenceType.BACKTICK_CONTENT) {
+            parser.documentationFullyqualifiedFunctionIdentifier();
+            if (this.listener.getState()) {
+                return DocReferenceErrorType.BACKTICK_IDENTIFIER_ERROR;
+            }
+        } else {
+            // Else the normal rule to capture type `identifier` type references.
+            parser.documentationFullyqualifiedIdentifier();
+            if (this.listener.getState()) {
+                return DocReferenceErrorType.IDENTIFIER_ERROR;
+            }
+        }
+        // If brackets are used with keywords other than function, its invalid.
+        if ((reference.getType() != DocumentationReferenceType.FUNCTION) && this.listener.hasBrackets()) {
+            return DocReferenceErrorType.IDENTIFIER_ERROR;
+        }
+        reference.qualifier = listener.getPkgName();
+        reference.typeName = listener.getTypeName();
+        reference.identifier = listener.getIdentifier();
+
+        return DocReferenceErrorType.NO_ERROR;
+    }
+
 
     private void validateParameters(DocumentableNode documentableNode,
                                     List<? extends SimpleVariableNode> actualParameters,
@@ -179,17 +408,31 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
             return;
         }
 
+        // List that holds fields that are documented at field level.
+        List<String> fieldsDocumentedAtFieldLevel = new ArrayList<>();
+
+        for (SimpleVariableNode field : actualParameters) {
+            if (field.getMarkdownDocumentationAttachment() == null) {
+                continue;
+            }
+
+            fieldsDocumentedAtFieldLevel.add(field.getName().getValue());
+        }
+
         // Create a new map to add parameter name and parameter node as key-value pairs.
         Map<String, BLangMarkdownParameterDocumentation> documentedParameterMap = new HashMap<>();
-        documentation.parameters.forEach(parameter -> {
+
+        for (BLangMarkdownParameterDocumentation parameter : documentation.parameters) {
             String parameterName = parameter.getParameterName().getValue();
             // Check for parameters which are documented multiple times.
-            if (documentedParameterMap.containsKey(parameterName)) {
+            if (documentedParameterMap.containsKey(parameterName) ||
+                    fieldsDocumentedAtFieldLevel.contains(parameterName)) {
                 dlog.warning(parameter.pos, parameterAlreadyDefined, parameterName);
-            } else {
-                documentedParameterMap.put(parameterName, parameter);
+                continue;
             }
-        });
+
+            documentedParameterMap.put(parameterName, parameter);
+        }
 
         // Iterate through actual parameters.
         actualParameters.forEach(parameter -> {
@@ -201,9 +444,10 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
                 param.setSymbol(((BLangSimpleVariable) parameter).symbol);
                 documentedParameterMap.remove(name);
             } else {
-                // Check whether the parameter is public. Otherwise it is not mandatory to document it except if it is a
-                // public function parameter.
-                if (Symbols.isFlagOn(((BLangSimpleVariable) parameter).symbol.flags, Flags.PUBLIC)) {
+                // Check whether the g is public and whether there is no field documentation.
+                // It is mandatory to document only if it is public.
+                if (Symbols.isFlagOn(((BLangSimpleVariable) parameter).symbol.flags, Flags.PUBLIC) &&
+                        ((BLangSimpleVariable) parameter).markdownDocumentationAttachment == null) {
                     // Add warnings for undocumented parameters.
                     dlog.warning(((BLangNode) parameter).pos, undocumentedParameter, name);
                 }

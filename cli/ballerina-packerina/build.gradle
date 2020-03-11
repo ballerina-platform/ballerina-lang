@@ -28,9 +28,10 @@ configurations {
 
 dependencies {
 
-    bir project(path: ':ballerina-utils',  configuration: 'bir')
     bir project(path: ':ballerina-io',  configuration: 'bir')
     bir project(path: ':testerina:testerina-core',  configuration: 'bir')
+
+    testCompile project(':ballerina-io')
 
     implementation project(':ballerina-lang')
     implementation project(':ballerina-config')
@@ -39,10 +40,14 @@ dependencies {
     implementation project(':ballerina-runtime')
     implementation project(':ballerina-tool')
     implementation project(':testerina:testerina-core')
+    implementation project(':testerina:testerina-runtime')
     implementation project(':toml-parser')
     implementation project(':docerina')
+    implementation project(':ballerina-cli-module')
     implementation 'com.moandjiezana.toml:toml4j'
     implementation 'info.picocli:picocli'
+    implementation 'org.apache.commons:commons-compress:1.18'
+
     testCompile 'org.testng:testng'
     testCompile 'com.moandjiezana.toml:toml4j'
 
@@ -54,7 +59,7 @@ dependencies {
     testRuntime project(path: ':ballerina-jvm', configuration: 'birJar')
     testRuntime project(path: ':ballerina-bir', configuration: 'birJar')
 
-    birJarCompile project(path: ':ballerina-bootstrapper', configuration: 'pack3')
+    birJarCompile project(path: ':ballerina-bootstrapper', configuration: 'pack4')
 }
 
 task createBirCache {

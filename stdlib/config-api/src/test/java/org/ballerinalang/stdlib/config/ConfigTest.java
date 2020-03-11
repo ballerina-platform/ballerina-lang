@@ -17,12 +17,15 @@
  */
 package org.ballerinalang.stdlib.config;
 
+import org.ballerinalang.config.ConfigProcessor;
 import org.ballerinalang.config.ConfigRegistry;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
+import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
@@ -30,6 +33,7 @@ import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+import org.wso2.ballerinalang.compiler.util.TypeTags;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -316,7 +320,7 @@ public class ConfigTest {
         inputArg = new BValue[]{new BString("trace.enabled")};
         returnVals = BRunUtil.invoke(compileResult, "testGetAsBoolean", inputArg);
         Assert.assertTrue(returnVals[0] instanceof BBoolean);
-        Assert.assertEquals(((BBoolean) returnVals[0]).booleanValue(), true);
+        Assert.assertTrue(((BBoolean) returnVals[0]).booleanValue());
 
         inputArg = new BValue[]{new BString("evic_factor")};
         returnVals = BRunUtil.invoke(compileResult, "testGetAsFloat", inputArg);
@@ -403,6 +407,75 @@ public class ConfigTest {
         registry.initRegistry(new HashMap<>(), null, ballerinaConfPath);
 
         BRunUtil.invoke(compileResult, "testGetAsBoolean", inputArg);
+    }
+
+    @Test(description = "Test retrieving a config value as an array")
+    public void testGetAsArray() throws IOException {
+        BString key = new BString("listenerConfig.keyStore.paths");
+        BValue[] inputArg = {key};
+        registry.initRegistry(new HashMap<>(), null, ballerinaConfPath);
+        BValue[] returnValues = BRunUtil.invoke(compileResult, "testGetAsArray", inputArg);
+        Assert.assertTrue(returnValues[0] instanceof BString);
+        Assert.assertEquals(returnValues[0].stringValue(), "/etc");
+        Assert.assertEquals(returnValues[1].stringValue(), "/tmp");
+        Assert.assertEquals(returnValues[2].stringValue(), "/usr/lib/");
+    }
+
+    @Test(description = "Test retrieving a config value as an int array")
+    public void testGetAsArray2() throws IOException {
+        BString key = new BString("listenerConfig.keyStore.ports");
+        BValue[] inputArg = {key};
+        registry.initRegistry(new HashMap<>(), null, ballerinaConfPath);
+        BValue[] returnValues = BRunUtil.invoke(compileResult, "testGetAsArray2", inputArg);
+        Assert.assertTrue(returnValues[0] instanceof BValueArray);
+        Assert.assertTrue((((BValueArray) returnValues[0]).elementType).getTag() == TypeTags.INT);
+        Assert.assertEquals((returnValues[0]).stringValue(), "[9090, 9091, 9092]");
+    }
+
+    @Test(description = "Test retrieving a config value as an array of maps")
+    public void testGetAsArray3() throws IOException {
+        BValue[] inputArg = {new BString("foo")};
+        registry.initRegistry(new HashMap<>(), null, ballerinaConfPath);
+        BValue[] returnValues = BRunUtil.invoke(compileResult, "testGetAsArray3", inputArg);
+        Assert.assertTrue(returnValues[0] instanceof BMap);
+        Assert.assertEquals((returnValues[0]).stringValue(), "{\"a\":1, \"b\":2}");
+        Assert.assertEquals((returnValues[1]).stringValue(), "{\"a\":3, \"b\":4}");
+    }
+
+    @Test(description = "Test retrieving a config value of type multidimensional array")
+    public void testGetAsArray4() throws IOException {
+        BValue[] inputArg = {new BString("array.multidimensional")};
+        registry.initRegistry(new HashMap<>(), null, ballerinaConfPath);
+        BValue[] returnValues = BRunUtil.invoke(compileResult, "testGetAsArray", inputArg);
+        Assert.assertTrue(returnValues[0] instanceof BValueArray);
+        Assert.assertEquals((returnValues[0]).stringValue(), "[1, 2]");
+        Assert.assertEquals((returnValues[1]).stringValue(), "[\"a\", \"b\", \"c\"]");
+    }
+
+    @Test(description = "Test retrieving a config value of type array of tables")
+    public void testGetAsArray5() throws IOException {
+        BValue[] inputArg = {new BString("products")};
+        registry.initRegistry(new HashMap<>(), null, ballerinaConfPath);
+        BValue[] returnValues = BRunUtil.invoke(compileResult, "testGetAsArray", inputArg);
+        Assert.assertTrue(returnValues[0] instanceof BMap);
+        Assert.assertEquals((returnValues[0]).stringValue(), "{\"name\":\"Hammer\", \"sku\":738594937}");
+        Assert.assertEquals((returnValues[1]).stringValue(), "{}");
+        Assert.assertEquals((returnValues[2]).stringValue(),
+                            "{\"color\":\"gray\", \"name\":\"Nail\", \"sku\":284758393}");
+    }
+
+    @Test(expectedExceptions = IllegalStateException.class,
+          expectedExceptionsMessageRegExp = ".*negative becomes a heterogeneous array on line 2")
+    public void testGetAsArrayNegative() throws IOException {
+        String negativeConf = Paths.get(resourceRoot, "datafiles", "array_negative.conf").toString();
+        ConfigProcessor.processConfiguration(null, negativeConf, null);
+    }
+
+    @Test(expectedExceptions = IllegalStateException.class,
+          expectedExceptionsMessageRegExp = "Duplicate table definition on line 7:.*")
+    public void testGetAsArrayNegative2() throws IOException {
+        String negativeConf = Paths.get(resourceRoot, "datafiles", "array_negative2.conf").toString();
+        ConfigProcessor.processConfiguration(null, negativeConf, null);
     }
 
     private Map<String, String> getRuntimeProperties() {

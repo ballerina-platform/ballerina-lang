@@ -27,20 +27,17 @@ import org.ballerinalang.langserver.LSContextOperation;
 import org.ballerinalang.langserver.LSGlobalContext;
 import org.ballerinalang.langserver.LSGlobalContextKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.commons.LSContext;
+import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.ExtendedLSCompiler;
-import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.compiler.LSModuleCompiler;
-import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.ballerinalang.langserver.compiler.common.LSCustomErrorStrategy;
 import org.ballerinalang.langserver.compiler.common.modal.BallerinaFile;
 import org.ballerinalang.langserver.compiler.common.modal.SymbolMetaInfo;
-import org.ballerinalang.langserver.compiler.exception.CompilationFailedException;
 import org.ballerinalang.langserver.compiler.format.JSONGenerationException;
 import org.ballerinalang.langserver.compiler.format.TextDocumentFormatUtil;
 import org.ballerinalang.langserver.compiler.sourcegen.FormattingSourceGen;
-import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentException;
-import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.extensions.OASGenerationException;
 import org.ballerinalang.langserver.extensions.VisibleEndpointVisitor;
 import org.ballerinalang.model.tree.ServiceNode;
@@ -55,8 +52,6 @@ import org.eclipse.lsp4j.TextDocumentEdit;
 import org.eclipse.lsp4j.TextEdit;
 import org.eclipse.lsp4j.WorkspaceEdit;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
@@ -79,6 +74,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.locks.Lock;
 import java.util.stream.Collectors;
 
+import static org.ballerinalang.langserver.compiler.LSClientLogger.logError;
 import static org.ballerinalang.langserver.compiler.LSCompilerUtil.getProjectDir;
 import static org.ballerinalang.langserver.compiler.LSCompilerUtil.getUntitledFilePath;
 
@@ -88,8 +84,6 @@ import static org.ballerinalang.langserver.compiler.LSCompilerUtil.getUntitledFi
  * @since 0.981.2
  */
 public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
-
-    private static final Logger logger = LoggerFactory.getLogger(BallerinaDocumentService.class);
 
     private final BallerinaLanguageServer ballerinaLanguageServer;
     private final WorkspaceDocumentManager documentManager;
@@ -115,9 +109,10 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
             String openApiDefinition = OpenApiConverterUtils
                     .generateOAS3Definitions(fileContent, request.getBallerinaService());
             reply.setBallerinaOASJson(convertToJson(openApiDefinition));
-        } catch (Exception e) {
+        } catch (Throwable e) {
             reply.isIsError(true);
-            logger.error("error: while processing service definition at converter service: " + e.getMessage(), e);
+            String msg = "Operation 'ballerinaDocument/openApiDefinition' failed!";
+            logError(msg, e, request.getBallerinaDocument(), (Position) null);
         } finally {
             lock.ifPresent(Lock::unlock);
         }
@@ -197,15 +192,17 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
                 TextEdit textEdit = new TextEdit(range, textEditContent);
                 ApplyWorkspaceEditParams applyWorkspaceEditParams = new ApplyWorkspaceEditParams();
                 TextDocumentEdit textDocumentEdit = new TextDocumentEdit(params.getDocumentIdentifier(),
-                        Collections.singletonList(textEdit));
+                                                                         Collections.singletonList(textEdit));
                 WorkspaceEdit workspaceEdit = new WorkspaceEdit(Collections
-                        .singletonList(Either.forLeft(textDocumentEdit)));
+                                                                        .singletonList(
+                                                                                Either.forLeft(textDocumentEdit)));
                 applyWorkspaceEditParams.setEdit(workspaceEdit);
 
                 ballerinaLanguageServer.getClient().applyEdit(applyWorkspaceEditParams);
             }
-        } catch (Exception ex) {
-            logger.error("error: while processing service definition at converter service: " + ex.getMessage(), ex);
+        } catch (Throwable e) {
+            String msg = "Operation 'ballerinaDocument/apiDesignDidChange' failed!";
+            logError(msg, e, params.getDocumentIdentifier(), (Position) null);
         } finally {
             lock.ifPresent(Lock::unlock);
         }
@@ -236,8 +233,8 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
 
                 List<TopLevelNode> servicePkgs = new ArrayList<>();
                 servicePkgs.addAll(compilationUnit.getTopLevelNodes().stream()
-                        .filter(topLevelNode -> topLevelNode instanceof ServiceNode)
-                        .collect(Collectors.toList()));
+                                           .filter(topLevelNode -> topLevelNode instanceof ServiceNode)
+                                           .collect(Collectors.toList()));
 
                 servicePkgs.forEach(servicepkg -> {
                     if (servicepkg instanceof ServiceNode) {
@@ -247,8 +244,9 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
                 });
             }
             reply.setServices(services.toArray(new String[0]));
-        } catch (CompilationFailedException | WorkspaceDocumentException e) {
-            logger.error("error: while processing service definition at converter service: " + e.getMessage());
+        } catch (Throwable e) {
+            String msg = "Operation 'ballerinaDocument/serviceList' failed!";
+            logError(msg, e, request.getDocumentIdentifier(), (Position) null);
         } finally {
             lock.ifPresent(Lock::unlock);
         }
@@ -267,14 +265,18 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
         Path compilationPath = getUntitledFilePath(filePath.get().toString()).orElse(filePath.get());
         Optional<Lock> lock = documentManager.lockFile(compilationPath);
         try {
-            LSContext astContext = new LSServiceOperationContext(LSContextOperation.DOC_SERVICE_AST);
-            astContext.put(DocumentServiceKeys.FILE_URI_KEY, fileUri);
+            LSContext astContext = new DocumentOperationContext
+                    .DocumentOperationContextBuilder(LSContextOperation.DOC_SERVICE_AST)
+                    .withCommonParams(null, fileUri, documentManager)
+                    .build();
             LSModuleCompiler.getBLangPackage(astContext, this.documentManager, LSCustomErrorStrategy.class, false,
-                    false);
+                                             false);
             reply.setAst(getTreeForContent(astContext));
             reply.setParseSuccess(true);
-        } catch (CompilationFailedException | JSONGenerationException e) {
+        } catch (Throwable e) {
             reply.setParseSuccess(false);
+            String msg = "Operation 'ballerinaDocument/ast' failed!";
+            logError(msg, e, request.getDocumentIdentifier(), (Position) null);
         } finally {
             lock.ifPresent(Lock::unlock);
         }
@@ -313,7 +315,7 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
             TextEdit textEdit = new TextEdit(range, textEditContent);
             ApplyWorkspaceEditParams applyWorkspaceEditParams = new ApplyWorkspaceEditParams();
             TextDocumentEdit txtDocumentEdit = new TextDocumentEdit(notification.getTextDocumentIdentifier(),
-                    Collections.singletonList(textEdit));
+                                                                    Collections.singletonList(textEdit));
 
             WorkspaceEdit workspaceEdit = new WorkspaceEdit(Collections.singletonList(Either.forLeft(txtDocumentEdit)));
             applyWorkspaceEditParams.setEdit(workspaceEdit);
@@ -321,11 +323,9 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
             // update the document
             ballerinaLanguageServer.getClient().applyEdit(applyWorkspaceEditParams);
             reply.setContent(textEditContent);
-        } catch (Exception e) {
-            if (CommonUtil.LS_DEBUG_ENABLED) {
-                String msg = e.getMessage();
-                logger.error("Error while tree modification source gen" + ((msg != null) ? ": " + msg : ""), e);
-            }
+        } catch (Throwable e) {
+            String msg = "Operation 'ballerinaDocument/astDidChange' failed!";
+            logError(msg, e, notification.getTextDocumentIdentifier(), (Position) null);
         } finally {
             lock.ifPresent(Lock::unlock);
         }
@@ -336,11 +336,16 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
     public CompletableFuture<BallerinaProject> project(BallerinaProjectParams params) {
         return CompletableFuture.supplyAsync(() -> {
             BallerinaProject project = new BallerinaProject();
-            Optional<Path> filePath = CommonUtil.getPathFromURI(params.getDocumentIdentifier().getUri());
-            if (!filePath.isPresent()) {
-                return project;
+            try {
+                Optional<Path> filePath = CommonUtil.getPathFromURI(params.getDocumentIdentifier().getUri());
+                if (!filePath.isPresent()) {
+                    return project;
+                }
+                project.setPath(getProjectDir(filePath.get()));
+            } catch (Throwable e) {
+                String msg = "Operation 'ballerinaDocument/project' failed!";
+                logError(msg, e, params.getDocumentIdentifier(), (Position) null);
             }
-            project.setPath(getProjectDir(filePath.get()));
             return project;
         });
     }

@@ -17,8 +17,11 @@
 */
 package org.ballerinalang.langserver.compiler.workspace;
 
+import org.ballerinalang.langserver.commons.workspace.LSDocumentIdentifier;
+import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
+import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.compiler.LSCompilerUtil;
-import org.ballerinalang.langserver.compiler.common.LSDocument;
+import org.ballerinalang.langserver.compiler.common.LSDocumentIdentifierImpl;
 import org.ballerinalang.langserver.compiler.workspace.repository.LangServerFSProjectDirectory;
 import org.eclipse.lsp4j.CodeLens;
 
@@ -75,7 +78,7 @@ public class WorkspaceDocumentManagerImpl implements WorkspaceDocumentManager {
             );
         }
         documentList.put(filePath, new DocumentPair(new WorkspaceDocument(filePath, content)));
-        LSDocument document = new LSDocument(filePath.toUri().toString());
+        LSDocumentIdentifier document = new LSDocumentIdentifierImpl(filePath.toUri().toString());
         if (document.isWithinProject()) {
             rescanProjectRoot(filePath);
         }
@@ -121,6 +124,19 @@ public class WorkspaceDocumentManagerImpl implements WorkspaceDocumentManager {
      * {@inheritDoc}
      */
     @Override
+    public void resetPrunedContent(Path filePath) throws WorkspaceDocumentException {
+
+        if (isFileOpen(filePath)) {
+            documentList.get(filePath).getDocument().ifPresent(WorkspaceDocument::resetPrunedContent);
+        } else {
+            throw new WorkspaceDocumentException("File " + filePath.toString() + " is not opened in document manager.");
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public void closeFile(Path filePath) throws WorkspaceDocumentException {
         if (isFileOpen(filePath)) {
             Lock lock = documentList.get(filePath).getLock();
@@ -132,7 +148,7 @@ public class WorkspaceDocumentManagerImpl implements WorkspaceDocumentManager {
                 lock.unlock();
             }
             // TODO: within the workspace document we need to keep the LSDocument
-            LSDocument document = new LSDocument(filePath.toUri().toString());
+            LSDocumentIdentifier document = new LSDocumentIdentifierImpl(filePath.toUri().toString());
             if (document.isWithinProject()) {
                 rescanProjectRoot(filePath);
             }
@@ -153,7 +169,7 @@ public class WorkspaceDocumentManagerImpl implements WorkspaceDocumentManager {
     }
 
     @Override
-    public LSDocument getLSDocument(Path filePath) throws WorkspaceDocumentException {
+    public LSDocumentIdentifier getLSDocument(Path filePath) throws WorkspaceDocumentException {
         DocumentPair documentPair = documentList.get(filePath);
         if (isFileOpen(filePath) && documentPair != null && documentPair.getDocument().isPresent()) {
             return documentPair.getDocument().get().getLSDocument();

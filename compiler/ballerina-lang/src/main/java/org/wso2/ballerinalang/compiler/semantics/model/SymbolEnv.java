@@ -18,11 +18,13 @@
 package org.wso2.ballerinalang.compiler.semantics.model;
 
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
+import org.wso2.ballerinalang.compiler.tree.BLangFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangInvokableNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
@@ -30,11 +32,11 @@ import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangWorker;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttribute;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementLiteral;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangStreamingQueryStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
@@ -199,6 +201,27 @@ public class SymbolEnv {
         return symbolEnv;
     }
 
+    public static SymbolEnv createFuncBodyEnv(BLangFunctionBody body, SymbolEnv env) {
+        Scope scope = body.scope;
+        if (scope == null) {
+            scope = new Scope(env.scope.owner);
+            body.scope = scope;
+        }
+
+        SymbolEnv symbolEnv = new SymbolEnv(body, scope);
+        env.copyTo(symbolEnv);
+        symbolEnv.envCount = env.envCount + 1;
+        symbolEnv.relativeEnvCount = env.relativeEnvCount + 1;
+        return symbolEnv;
+    }
+
+    public static SymbolEnv createExprEnv(BLangExpression expr, SymbolEnv env, BSymbol owner) {
+        Scope scope = new Scope(owner);
+        SymbolEnv symbolEnv = new SymbolEnv(expr, scope);
+        env.copyTo(symbolEnv);
+        return symbolEnv;
+    }
+
     public static SymbolEnv createVarInitEnv(BLangVariable node, SymbolEnv env, BVarSymbol enclVarSym) {
         SymbolEnv symbolEnv = new SymbolEnv(node, env.scope);
         symbolEnv.envCount = 0;
@@ -257,10 +280,6 @@ public class SymbolEnv {
         symbolEnv.envCount = 0;
         env.copyTo(symbolEnv);
         return symbolEnv;
-    }
-
-    public static SymbolEnv createStreamingQueryEnv(BLangStreamingQueryStatement node, SymbolEnv env) {
-        return createEnv(node, env);
     }
 
     public static SymbolEnv createStreamingInputEnv(BLangNode node, SymbolEnv env) {

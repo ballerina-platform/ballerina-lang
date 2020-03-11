@@ -18,20 +18,22 @@
 package org.ballerinalang.jvm.values;
 
 import org.ballerinalang.jvm.BallerinaErrors;
+import org.ballerinalang.jvm.IteratorUtils;
 import org.ballerinalang.jvm.JSONGenerator;
 import org.ballerinalang.jvm.JSONUtils;
 import org.ballerinalang.jvm.TypeChecker;
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BField;
 import org.ballerinalang.jvm.types.BMapType;
 import org.ballerinalang.jvm.types.BRecordType;
 import org.ballerinalang.jvm.types.BTupleType;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypes;
+import org.ballerinalang.jvm.types.BUnionType;
 import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.util.exceptions.BLangFreezeException;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.api.BMap;
+import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.jvm.values.freeze.FreezeUtils;
 import org.ballerinalang.jvm.values.freeze.State;
 import org.ballerinalang.jvm.values.freeze.Status;
@@ -50,6 +52,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.StringJoiner;
+import java.util.stream.Collectors;
 
 import static org.ballerinalang.jvm.JSONUtils.mergeJson;
 import static org.ballerinalang.jvm.util.BLangConstants.MAP_LANG_LIB;
@@ -78,6 +81,7 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
     private BType type;
     private volatile Status freezeStatus = new Status(State.UNFROZEN);
     private final Map<String, Object> nativeData = new HashMap<>();
+    private BType iteratorNextReturnType;
 
     public MapValueImpl(BType type) {
         super();
@@ -244,10 +248,14 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
      * Clear map entries.
      */
     public void clear() {
+        validateFreezeStatus();
+        super.clear();
+    }
+
+    protected void validateFreezeStatus() {
         if (freezeStatus.getState() != State.UNFROZEN) {
             handleInvalidUpdate(freezeStatus.getState(), MAP_LANG_LIB);
         }
-        super.clear();
     }
 
     /**
@@ -279,9 +287,7 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
      */
     @Override
     public V remove(Object key) {
-        if (freezeStatus.getState() != State.UNFROZEN) {
-            handleInvalidUpdate(freezeStatus.getState(), MAP_LANG_LIB);
-        }
+        validateFreezeStatus();
         return super.remove(key);
     }
 
@@ -362,18 +368,18 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
 
     @Override
     public String stringValue() {
-        return stringValue(null);
-    }
-
-    @Override
-    public String stringValue(Strand strand) {
         StringJoiner sj = new StringJoiner(" ");
         for (Map.Entry<K, V> kvEntry : this.entrySet()) {
             K key = kvEntry.getKey();
             V value = kvEntry.getValue();
-            sj.add(key + "=" + StringUtils.getStringValue(strand, value));
+            sj.add(key + "=" + StringUtils.getStringValue(value));
         }
         return sj.toString();
+    }
+
+    @Override
+    public StringValue bStringValue() {
+        return null;
     }
 
     @Override
@@ -475,6 +481,11 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
         public boolean hasNext() {
             return iterator.hasNext();
         }
+
+        @Override
+        public BString bStringValue() {
+            return null;
+        }
     }
 
     /**
@@ -505,6 +516,34 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
         return this.nativeData;
     }
 
+    private void initializeIteratorNextReturnType() {
+        BType type;
+        if (this.type.getTag() == BTypes.typeMap.getTag()) {
+            BMapType mapType = (BMapType) this.type;
+            type = mapType.getConstrainedType();
+        } else {
+            BRecordType recordType = (BRecordType) this.type;
+            LinkedHashSet<BType> types = recordType.getFields().values().stream().map(bField -> bField.type)
+                    .collect(Collectors.toCollection(LinkedHashSet::new));
+            if (recordType.restFieldType != null) {
+                types.add(recordType.restFieldType);
+            }
+            if (types.size() == 1) {
+                type = types.iterator().next();
+            } else {
+                type = new BUnionType(new ArrayList<>(types));
+            }
+        }
+        iteratorNextReturnType = IteratorUtils.createIteratorNextReturnType(type);
+    }
+
+    public BType getIteratorNextReturnType() {
+        if (iteratorNextReturnType == null) {
+            initializeIteratorNextReturnType();
+        }
+
+        return iteratorNextReturnType;
+    }
     /*
      * Below are a set of convenient methods that handle map related operations.
      * This makes it easier to extend the operations without affecting the

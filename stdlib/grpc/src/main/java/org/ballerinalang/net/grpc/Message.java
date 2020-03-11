@@ -25,15 +25,19 @@ import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BRecordType;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypes;
+import org.ballerinalang.jvm.types.BUnionType;
 import org.ballerinalang.jvm.types.TypeFlags;
 import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
+import org.ballerinalang.jvm.values.api.BMap;
+import org.ballerinalang.jvm.values.api.BValueCreator;
 import org.ballerinalang.jvm.values.utils.StringUtils;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 
 import static org.ballerinalang.net.grpc.builder.utils.BalGenerationUtils.toCamelCase;
@@ -57,6 +61,12 @@ public class Message {
         this.messageName = messageName;
         this.bMessage = bMessage;
         this.descriptor = MessageRegistry.getInstance().getMessageDescriptor(messageName);
+    }
+
+    public Message(Descriptors.Descriptor descriptor, Object bMessage) {
+        this.descriptor = descriptor;
+        this.bMessage = bMessage;
+        this.messageName = descriptor.getName();
     }
 
     private Message(String messageName) {
@@ -95,10 +105,75 @@ public class Message {
             Map<Integer, Descriptors.FieldDescriptor> fieldDescriptors)
             throws IOException {
         this(messageName);
-        MapValue<String, Object> bMapValue = null;
+
+        if (bType instanceof BUnionType && ((BUnionType) bType).isNullable()) {
+            List<BType> memberTypes = ((BUnionType) bType).getMemberTypes();
+            if (memberTypes.size() != 2) {
+                throw Status.Code.INTERNAL.toStatus().withDescription("Error while decoding request " +
+                        "message. Field type is not a valid optional field type : " +
+                        bType.getName()).asRuntimeException();
+            }
+            for (BType memberType : memberTypes) {
+                if (memberType.getTag() != TypeTags.NULL_TAG) {
+                    bType = memberType;
+                    break;
+                }
+            }
+        }
+
+        BMap<String, Object> bMapValue = null;
         if (bType.getTag() == TypeTags.RECORD_TYPE_TAG) {
-            bMapValue = new MapValueImpl<>(bType);
+            bMapValue = BValueCreator.createRecordValue(bType.getPackage(), bType.getName());
             bMessage = bMapValue;
+        }
+
+        if (input == null) {
+            if (bMapValue != null) {
+                for (Map.Entry<Integer, Descriptors.FieldDescriptor> entry : fieldDescriptors.entrySet()) {
+                    if (entry.getValue().getType().toProto().getNumber() ==
+                            DescriptorProtos.FieldDescriptorProto.Type.TYPE_MESSAGE_VALUE &&
+                            !entry.getValue().isRepeated()) {
+                        bMapValue.put(entry.getValue().getName(), null);
+                    } else if (entry.getValue().getType().toProto().getNumber() ==
+                            DescriptorProtos.FieldDescriptorProto.Type.TYPE_ENUM_VALUE) {
+                        bMapValue.put(entry.getValue().getName(),
+                                entry.getValue().getEnumType().findValueByNumber(0).toString());
+                    }
+                }
+            } else {
+                // Here fieldDescriptors map size should be one. Because the value can assign to one scalar field.
+                for (Map.Entry<Integer, Descriptors.FieldDescriptor> entry : fieldDescriptors.entrySet()) {
+                    switch (entry.getValue().getType().toProto().getNumber()) {
+                        case DescriptorProtos.FieldDescriptorProto.Type.TYPE_DOUBLE_VALUE:
+                        case DescriptorProtos.FieldDescriptorProto.Type.TYPE_FLOAT_VALUE: {
+                            bMessage = (double) 0;
+                            break;
+                        }
+                        case DescriptorProtos.FieldDescriptorProto.Type.TYPE_INT64_VALUE:
+                        case DescriptorProtos.FieldDescriptorProto.Type.TYPE_UINT64_VALUE:
+                        case DescriptorProtos.FieldDescriptorProto.Type.TYPE_INT32_VALUE:
+                        case DescriptorProtos.FieldDescriptorProto.Type.TYPE_FIXED64_VALUE:
+                        case DescriptorProtos.FieldDescriptorProto.Type.TYPE_FIXED32_VALUE: {
+                            bMessage = (long) 0;
+                            break;
+                        }
+                        case DescriptorProtos.FieldDescriptorProto.Type.TYPE_STRING_VALUE: {
+                            bMessage = "";
+                            break;
+                        }
+                        case DescriptorProtos.FieldDescriptorProto.Type.TYPE_BOOL_VALUE: {
+                            bMessage = Boolean.FALSE;
+                            break;
+                        }
+                        default: {
+                            throw Status.Code.INTERNAL.toStatus().withDescription("Error while decoding request " +
+                                    "message. Field type is not supported : " +
+                                    entry.getValue().getType()).asRuntimeException();
+                        }
+                    }
+                }
+            }
+            return;
         }
         boolean done = false;
         while (!done) {
@@ -320,7 +395,7 @@ public class Message {
                     case DescriptorProtos.FieldDescriptorProto.Type.TYPE_BYTES_VALUE: {
                         if (bMapValue != null) {
                              if (fieldDescriptor.getContainingOneof() != null) {
-                                Object bValue = new ArrayValueImpl(input.readByteArray());
+                                Object bValue = BValueCreator.createArrayValue(input.readByteArray());
                                 updateBMapValue(bType, bMapValue, fieldDescriptor, bValue);
                              } else {
                                  bMapValue.put(name, new ArrayValueImpl(input.readByteArray()));
@@ -372,7 +447,7 @@ public class Message {
         }
     }
 
-    private void updateBMapValue(BType bType, MapValue<String, Object> bMapValue,
+    private void updateBMapValue(BType bType, BMap<String, Object> bMapValue,
                                  Descriptors.FieldDescriptor fieldDescriptor, Object bValue) {
         MapValue<String, Object> bMsg = getOneOfBValue(bType, fieldDescriptor, bValue);
         bMapValue.put(fieldDescriptor.getContainingOneof().getName(), bMsg);
@@ -404,6 +479,13 @@ public class Message {
             return;
         }
         Descriptors.Descriptor messageDescriptor = getDescriptor();
+        if (messageDescriptor == null) {
+            throw Status.Code.INTERNAL.toStatus()
+                    .withDescription("Error while processing the message, Couldn't find message descriptor for " +
+                            "message name: " + messageName)
+                    .asRuntimeException();
+        }
+
         MapValue<String, Object> bMapValue = null;
         if (bMessage instanceof MapValue) {
             bMapValue = (MapValue) bMessage;
@@ -619,15 +701,14 @@ public class Message {
                         if (bValue instanceof ArrayValue) {
                             ArrayValue valueArray = (ArrayValue) bValue;
                             for (int i = 0; i < valueArray.size(); i++) {
-                                Message message = new Message(fieldDescriptor.getMessageType().getName(),
+                                Message message = new Message(fieldDescriptor.getMessageType(),
                                         valueArray.getRefValue(i));
                                 output.writeTag(fieldDescriptor.getNumber(), WireFormat.WIRETYPE_LENGTH_DELIMITED);
                                 output.writeUInt32NoTag(message.getSerializedSize());
                                 message.writeTo(output);
                             }
                         } else {
-                            Message message = new Message(fieldDescriptor.getMessageType().getName(),
-                                    bValue);
+                            Message message = new Message(fieldDescriptor.getMessageType(), bValue);
                             output.writeTag(fieldDescriptor.getNumber(), WireFormat.WIRETYPE_LENGTH_DELIMITED);
                             output.writeUInt32NoTag(message.getSerializedSize());
                             message.writeTo(output);
@@ -635,7 +716,7 @@ public class Message {
                     } else if (isOneofField(bMapValue, fieldDescriptor)) {
                         Object bValue = getOneofFieldMap(bMapValue, fieldDescriptor);
                         if (hasOneofFieldValue(fieldDescriptor.getName(), bValue)) {
-                            Message message = new Message(fieldDescriptor.getMessageType().getName(),
+                            Message message = new Message(fieldDescriptor.getMessageType(),
                                     ((MapValue) bValue).get(fieldDescriptor.getName()));
                             output.writeTag(fieldDescriptor.getNumber(), WireFormat.WIRETYPE_LENGTH_DELIMITED);
                             output.writeUInt32NoTag(message.getSerializedSize());
@@ -709,7 +790,8 @@ public class Message {
         Descriptors.Descriptor messageDescriptor = getDescriptor();
         if (messageDescriptor == null) {
             throw Status.Code.INTERNAL.toStatus()
-                    .withDescription("Error while processing the message, Couldn't find message descriptor.")
+                    .withDescription("Error while processing the message, Couldn't find message descriptor for " +
+                            "message name: " + messageName)
                     .asRuntimeException();
         }
         MapValue<String, Object> bMapValue = null;
@@ -952,18 +1034,18 @@ public class Message {
                             ArrayValue valueArray = (ArrayValue) bValue;
                             for (int i = 0; i < valueArray.size(); i++) {
                                 MapValue<String, Object> value = (MapValue) valueArray.getRefValue(i);
-                                Message message = new Message(fieldDescriptor.getMessageType().getName(), value);
+                                Message message = new Message(fieldDescriptor.getMessageType(), value);
                                 size += computeMessageSize(fieldDescriptor, message);
                             }
                         } else {
-                            Message message = new Message(fieldDescriptor.getMessageType().getName(),
+                            Message message = new Message(fieldDescriptor.getMessageType(),
                                     bValue);
                             size += computeMessageSize(fieldDescriptor, message);
                         }
                     } else if (isOneofField(bMapValue, fieldDescriptor)) {
                         Object bValue = getOneofFieldMap(bMapValue, fieldDescriptor);
                         if (hasOneofFieldValue(fieldDescriptor.getName(), bValue)) {
-                            Message message = new Message(fieldDescriptor.getMessageType().getName(),
+                            Message message = new Message(fieldDescriptor.getMessageType(),
                                     ((MapValue) bValue).get(fieldDescriptor.getName()));
                             size += computeMessageSize(fieldDescriptor, message);
                         }
@@ -1048,7 +1130,7 @@ public class Message {
                                 final CodedInputStream in) throws IOException {
         int length = in.readRawVarint32();
         final int oldLimit = in.pushLimit(length);
-        Message result = new MessageParser(fieldDescriptor.getMessageType().getName(), bType).parseFrom(in);
+        Message result = new MessageParser(fieldDescriptor.getMessageType(), bType).parseFrom(in);
         in.popLimit(oldLimit);
         return result;
     }

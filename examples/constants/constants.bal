@@ -3,7 +3,7 @@ import ballerina/io;
 // Constants are defined using the `const` modifier.
 const string GET = "GET";
 
-// Constants can be defined without the type using the `var` keyword. Then, the type is inferred from the right hand side.
+// Constants can be defined without the type. Then, the type is inferred from the right hand side.
 const POST = "POST";
 
 // Constants can be used to create type definitions. The type definition below specifies that a variable of the type
@@ -16,10 +16,10 @@ const int I = 125;
 // Constants of the `map` type can be defined as well. The constraint of these constant maps should be either a simple type
 // or another map type, which should eventually have a simple type constraint. `var` cannot be used to declare
 // constant maps. Therefore, the correct type should be present when declaring the constant.
-const map<string> data = {  "user": "Ballerina", "ID": "1234" };
+const map<string> data = {"user": "Ballerina", "ID": "1234"};
 
 // Constant with nested map literals.
-const map<map<string>> complexData = { "data": data, "data2": { "user": "WSO2" }};
+const map<map<string>> complexData = {"data": data, "data2": {"user": "WSO2"}};
 
 public function main() {
     // This is identical to the code line `ACTION get = "GET";`.

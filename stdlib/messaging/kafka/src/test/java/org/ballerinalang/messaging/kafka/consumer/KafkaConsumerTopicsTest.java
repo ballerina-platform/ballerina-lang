@@ -57,7 +57,8 @@ public class KafkaConsumerTopicsTest {
 
     @BeforeClass
     public void setup() throws IOException {
-        result = BCompileUtil.compile(getFilePath(Paths.get(TEST_SRC, TEST_CONSUMER, "kafka_consumer_topics.bal")));
+        result = BCompileUtil
+                .compileOffline(getFilePath(Paths.get(TEST_SRC, TEST_CONSUMER, "kafka_consumer_topics.bal")));
         dataDir = Testing.Files.createTestingDirectory("cluster-kafka-consumer-get-available-topics-test");
         kafkaCluster = createKafkaCluster(dataDir, 14008, 14108).addBrokers(1).startup();
     }
@@ -104,7 +105,6 @@ public class KafkaConsumerTopicsTest {
         Assert.assertEquals(((BValueArray) returnBValues[0]).getString(0), TOPIC_TEST_2);
         Assert.assertEquals(((BValueArray) returnBValues[0]).getString(1), TOPIC_TEST_1);
     }
-
 
     @Test(
             description = "Test functionality of getTopicPartitions() function",

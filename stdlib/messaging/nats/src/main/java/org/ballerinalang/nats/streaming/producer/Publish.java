@@ -18,14 +18,14 @@
 package org.ballerinalang.nats.streaming.producer;
 
 import io.nats.streaming.StreamingConnection;
-import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.nats.Constants;
 import org.ballerinalang.nats.Utils;
+import org.ballerinalang.nats.observability.NatsMetricsUtil;
+import org.ballerinalang.nats.observability.NatsObservabilityConstants;
+import org.ballerinalang.nats.observability.NatsTracingUtil;
 
 import java.io.IOException;
 import java.util.concurrent.TimeoutException;
@@ -35,27 +35,29 @@ import static org.ballerinalang.nats.Utils.convertDataIntoByteArray;
 /**
  * Remote function implementation for publishing a message to a NATS streaming server.
  */
-@BallerinaFunction(orgName = "ballerina",
-                   packageName = "nats",
-                   functionName = "externPublish",
-                   receiver = @Receiver(type = TypeKind.OBJECT,
-                                        structType = "StreamingProducer",
-                                        structPackage = "ballerina/nats"),
-                   isPublic = true)
 public class Publish {
 
-    public static Object externPublish(Strand strand, ObjectValue publisher, String subject, Object data) {
+    public static Object externStreamingPublish(ObjectValue publisher, String subject, Object data) {
         StreamingConnection streamingConnection = (StreamingConnection) publisher
                 .getNativeData(Constants.NATS_STREAMING_CONNECTION);
+        NatsTracingUtil.traceResourceInvocation(Scheduler.getStrand(),
+                                                streamingConnection.getNatsConnection().getConnectedUrl(), subject);
         byte[] byteData = convertDataIntoByteArray(data);
         try {
-            NonBlockingCallback nonBlockingCallback = new NonBlockingCallback(strand);
-            AckListener ackListener = new AckListener(nonBlockingCallback);
-            streamingConnection.publish(subject, byteData, ackListener);
-            return null;
+            NonBlockingCallback nonBlockingCallback = new NonBlockingCallback(Scheduler.getStrand());
+            AckListener ackListener = new AckListener(nonBlockingCallback,
+                                                      streamingConnection.getNatsConnection().getConnectedUrl(),
+                                                      subject);
+            NatsMetricsUtil.reportPublish(streamingConnection.getNatsConnection().getConnectedUrl(), subject,
+                                          byteData.length);
+            return streamingConnection.publish(subject, byteData, ackListener);
         } catch (InterruptedException e) {
+            NatsMetricsUtil.reportProducerError(streamingConnection.getNatsConnection().getConnectedUrl(), subject,
+                                                NatsObservabilityConstants.ERROR_TYPE_PUBLISH);
             return Utils.createNatsError("Failed to publish due to an internal error");
         } catch (IOException | TimeoutException e) {
+            NatsMetricsUtil.reportProducerError(streamingConnection.getNatsConnection().getConnectedUrl(), subject,
+                                                NatsObservabilityConstants.ERROR_TYPE_PUBLISH);
             return Utils.createNatsError(e.getMessage());
         }
     }

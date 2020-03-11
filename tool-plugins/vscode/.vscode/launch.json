@@ -13,7 +13,7 @@
             "--extensionDevelopmentPath=${workspaceFolder}"
         ],
         "env": {
-            "LS_CUSTOM_CLASSPATH": "",
+            "LS_EXTENSIONS_PATH":  "",
             "LSDEBUG": "false",
             "COMPOSER_DEBUG": "false",
             "COMPOSER_DEV_HOST": "http://localhost:9000"
@@ -29,6 +29,7 @@
         "request": "launch",
         "runtimeExecutable": "${execPath}",
         "env": {
+            "LS_EXTENSIONS_PATH":  "",
             "LSDEBUG": "false",
             "COMPOSER_DEBUG": "false"
         },

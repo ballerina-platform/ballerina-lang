@@ -14,6 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerinax/java;
 import ballerina/crypto;
 import ballerina/time;
 
@@ -29,22 +30,31 @@ import ballerina/time;
 # + config - The configurations associated with the client
 # + httpClient - Chain of different HTTP clients which provides the capability for initiating contact with a remote
 #                HTTP service in resilient manner
+# + cookieStore - Stores the cookies of the client
 public type Client client object {
 
     public string url;
     public ClientConfiguration config = {};
     public HttpClient httpClient;
+    public CookieStore? cookieStore = ();
 
-    # Gets invoked to initialize the client. During initialization, configurations provided through the `config`
-    # record is used to determine which type of additional behaviours are added to the endpoint (e.g: caching,
+    # Gets invoked to initialize the client. During initialization, the configurations provided through the `config`
+    # record is used to determine which type of additional behaviours are added to the endpoint (e.g., caching,
     # security, circuit breaking).
     #
     # + url - URL of the target service
     # + config - The configurations to be used when initializing the client
+    # + cookieStore - Stores the cookies of the client
     public function __init(string url, public ClientConfiguration? config = ()) {
         self.config = config ?: {};
         self.url = url;
-        var result = initialize(url, self.config);
+        var cookieConfigVal = self.config.cookieConfig;
+        if (cookieConfigVal is CookieConfig) {
+            if (cookieConfigVal.enabled) {
+                self.cookieStore = new(cookieConfigVal?.persistentCookieHandler);
+            }
+        }
+        var result = initialize(url, self.config, self.cookieStore);
         if (result is error) {
             panic result;
         } else {
@@ -52,7 +62,7 @@ public type Client client object {
         }
     }
 
-    # The `post()` function can be used to send HTTP POST requests to HTTP endpoints.
+    # The `Client.post()` function can be used to send HTTP POST requests to HTTP endpoints.
     #
     # + path - Resource path
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
@@ -63,7 +73,7 @@ public type Client client object {
         return self.httpClient->post(path, req);
     }
 
-    # The `head()` function can be used to send HTTP HEAD requests to HTTP endpoints.
+    # The `Client.head()` function can be used to send HTTP HEAD requests to HTTP endpoints.
     #
     # + path - Resource path
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
@@ -74,7 +84,7 @@ public type Client client object {
         return self.httpClient->head(path, message = req);
     }
 
-    # The `put()` function can be used to send HTTP PUT requests to HTTP endpoints.
+    # The `Client.put()` function can be used to send HTTP PUT requests to HTTP endpoints.
     #
     # + path - Resource path
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
@@ -97,7 +107,7 @@ public type Client client object {
         return self.httpClient->execute(httpVerb, path, req);
     }
 
-    # The `patch()` function can be used to send HTTP PATCH requests to HTTP endpoints.
+    # The `Client.patch()` function can be used to send HTTP PATCH requests to HTTP endpoints.
     #
     # + path - Resource path
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
@@ -108,7 +118,7 @@ public type Client client object {
         return self.httpClient->patch(path, req);
     }
 
-    # The `delete()` function can be used to send HTTP DELETE requests to HTTP endpoints.
+    # The `Client.delete()` function can be used to send HTTP DELETE requests to HTTP endpoints.
     #
     # + path - Resource path
     # + message - An optional HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
@@ -119,7 +129,7 @@ public type Client client object {
         return self.httpClient->delete(path, req);
     }
 
-    # The `get()` function can be used to send HTTP GET requests to HTTP endpoints.
+    # The `Client.get()` function can be used to send HTTP GET requests to HTTP endpoints.
     #
     # + path - Request path
     # + message - An optional HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
@@ -130,7 +140,7 @@ public type Client client object {
         return self.httpClient->get(path, message = req);
     }
 
-    # The `options()` function can be used to send HTTP OPTIONS requests to HTTP endpoints.
+    # The `Client.options()` function can be used to send HTTP OPTIONS requests to HTTP endpoints.
     #
     # + path - Request path
     # + message - An optional HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
@@ -141,7 +151,7 @@ public type Client client object {
         return self.httpClient->options(path, message = req);
     }
 
-    # The `forward()` function can be used to invoke an HTTP call with inbound request's HTTP verb
+    # The `Client.forward()` function can be used to invoke an HTTP call with inbound request's HTTP verb
     #
     # + path - Request path
     # + request - An HTTP inbound request message
@@ -151,7 +161,7 @@ public type Client client object {
     }
 
     # Submits an HTTP request to a service with the specified HTTP verb.
-    # The `submit()` function does not give out a `Response` as the result,
+    # The `Client.submit()` function does not give out a `Response` as the result,
     # rather it returns an `HttpFuture` which can be used to do further interactions with the endpoint.
     #
     # + httpVerb - The HTTP verb value
@@ -203,6 +213,13 @@ public type Client client object {
     public remote function rejectPromise(PushPromise promise) {
         return self.httpClient->rejectPromise(promise);
     }
+
+    # Retrieves the cookie store of the client.
+    #
+    # + return - The cookie store related to the client
+    public function getCookieStore() returns CookieStore? {
+        return self.cookieStore;
+    }
 };
 
 # Represents a single service and its related configurations.
@@ -216,33 +233,23 @@ public type TargetService record {|
 
 # Provides a set of configurations for controlling the behaviours when communicating with a remote HTTP endpoint.
 #
-# + httpVersion - The HTTP version understood by the client
-# + http1Settings - Configurations related to HTTP/1.x protocol
-# + http2Settings - Configurations related to HTTP/2 protocol
-# + timeoutInMillis - The maximum time to wait (in milliseconds) for a response before closing the connection
-# + forwarded - The choice of setting `forwarded`/`x-forwarded` header
-# + followRedirects - Configurations associated with Redirection
-# + poolConfig - Configurations associated with request pooling
+# httpVersion - Copied from CommonClientConfiguration
+# http1Settings - Copied from CommonClientConfiguration
+# http2Settings - Copied from CommonClientConfiguration
+# timeoutInMillis - Copied from CommonClientConfiguration
+# forwarded - Copied from CommonClientConfiguration
+# followRedirects - Copied from CommonClientConfiguration
+# poolConfig - Copied from CommonClientConfiguration
+# cache - Copied from CommonClientConfiguration
+# compression - Copied from CommonClientConfiguration
+# auth - Copied from CommonClientConfiguration
+# circuitBreaker - Copied from CommonClientConfiguration
+# retryConfig - Copied from CommonClientConfiguration
+# cookieConfig - Copied from CommonClientConfiguration
 # + secureSocket - SSL/TLS related options
-# + cache - HTTP caching related configurations
-# + compression - Specifies the way of handling compression (`accept-encoding`) header
-# + auth - HTTP authentication related configurations
-# + circuitBreaker - Configurations associated with Circuit Breaker behaviour
-# + retryConfig - Configurations associated with Retry
 public type ClientConfiguration record {|
-    string httpVersion = HTTP_1_1;
-    ClientHttp1Settings http1Settings = {};
-    ClientHttp2Settings http2Settings = {};
-    int timeoutInMillis = 60000;
-    string forwarded = "disable";
-    FollowRedirects? followRedirects = ();
-    PoolConfiguration? poolConfig = ();
+    *CommonClientConfiguration;
     ClientSecureSocket? secureSocket = ();
-    CacheConfig cache = {};
-    Compression compression = COMPRESSION_AUTO;
-    OutboundAuthConfig? auth = ();
-    CircuitBreakerConfig? circuitBreaker = ();
-    RetryConfig? retryConfig = ();
 |};
 
 # Provides settings related to HTTP/1.x protocol.
@@ -256,7 +263,10 @@ public type ClientHttp1Settings record {|
     ProxyConfig? proxy = ();
 |};
 
-function createSimpleHttpClient(HttpClient caller, PoolConfiguration globalPoolConfig) = external;
+function createSimpleHttpClient(HttpClient caller, PoolConfiguration globalPoolConfig) = @java:Method {
+   class: "org.ballerinalang.net.http.clientendpoint.CreateSimpleHttpClient",
+   name: "createSimpleHttpClient"
+} external;
 
 # Provides settings related to HTTP/2 protocol.
 #
@@ -345,7 +355,23 @@ public type OutboundAuthConfig record {|
     OutboundAuthHandler authHandler;
 |};
 
-function initialize(string serviceUrl, ClientConfiguration config) returns HttpClient|error {
+# Client configuration for cookies.
+#
+# + enabled - User agents provide users with a mechanism for disabling or enabling cookies
+# + maxCookiesPerDomain - Maximum number of cookies per domain, which is 50
+# + maxTotalCookieCount - Maximum number of total cookies allowed to be stored in cookie store, which is 3000
+# + blockThirdPartyCookies - User can block cookies from third party responses and refuse to send cookies for third party requests, if needed
+# + persistentCookieHandler - To manage persistent cookies, users are provided with a mechanism for specifying a persistent cookie store with their own mechanism
+#                             which references the persistent cookie handler or specifying the CSV persistent cookie handler. If not specified any, only the session cookies are used
+public type CookieConfig record {|
+     boolean enabled = false;
+     int maxCookiesPerDomain = 50;
+     int maxTotalCookieCount = 3000;
+     boolean blockThirdPartyCookies = true;
+     PersistentCookieHandler persistentCookieHandler?;
+|};
+
+function initialize(string serviceUrl, ClientConfiguration config, CookieStore? cookieStore) returns HttpClient|error {
     boolean httpClientRequired = false;
     string url = serviceUrl;
     if (url.endsWith("/")) {
@@ -364,47 +390,43 @@ function initialize(string serviceUrl, ClientConfiguration config) returns HttpC
     if (httpClientRequired) {
         var redirectConfigVal = config.followRedirects;
         if (redirectConfigVal is FollowRedirects) {
-            return createRedirectClient(url, config);
+            return createRedirectClient(url, config, cookieStore);
         } else {
-            return checkForRetry(url, config);
+            return checkForRetry(url, config, cookieStore);
         }
     } else {
-        return createCircuitBreakerClient(url, config);
+        return createCircuitBreakerClient(url, config, cookieStore);
     }
 }
 
-function createRedirectClient(string url, ClientConfiguration configuration) returns HttpClient|ClientError {
+function createRedirectClient(string url, ClientConfiguration configuration, CookieStore? cookieStore) returns HttpClient|ClientError {
     var redirectConfig = configuration.followRedirects;
     if (redirectConfig is FollowRedirects) {
         if (redirectConfig.enabled) {
-            var retryClient = createRetryClient(url, configuration);
+            var retryClient = createRetryClient(url, configuration, cookieStore);
             if (retryClient is HttpClient) {
                 return new RedirectClient(url, configuration, redirectConfig, retryClient);
             } else {
                 return retryClient;
             }
         } else {
-            return createRetryClient(url, configuration);
+            return createRetryClient(url, configuration, cookieStore);
         }
     } else {
-        return createRetryClient(url, configuration);
+        return createRetryClient(url, configuration, cookieStore);
     }
 }
 
-function checkForRetry(string url, ClientConfiguration config) returns HttpClient|ClientError {
+function checkForRetry(string url, ClientConfiguration config, CookieStore? cookieStore) returns HttpClient|ClientError {
     var retryConfigVal = config.retryConfig;
     if (retryConfigVal is RetryConfig) {
-        return createRetryClient(url, config);
+        return createRetryClient(url, config, cookieStore);
     } else {
-        if (config.cache.enabled) {
-            return createHttpCachingClient(url, config, config.cache);
-        } else {
-            return createHttpSecureClient(url, config);
-        }
+         return createCookieClient(url, config, cookieStore);
     }
 }
 
-function createCircuitBreakerClient(string uri, ClientConfiguration configuration) returns HttpClient|ClientError {
+function createCircuitBreakerClient(string uri, ClientConfiguration configuration, CookieStore? cookieStore) returns HttpClient|ClientError {
     HttpClient cbHttpClient;
     var cbConfig = configuration.circuitBreaker;
     if (cbConfig is CircuitBreakerConfig) {
@@ -412,14 +434,14 @@ function createCircuitBreakerClient(string uri, ClientConfiguration configuratio
         boolean[] statusCodes = populateErrorCodeIndex(cbConfig.statusCodes);
         var redirectConfig = configuration.followRedirects;
         if (redirectConfig is FollowRedirects) {
-            var redirectClient = createRedirectClient(uri, configuration);
+            var redirectClient = createRedirectClient(uri, configuration, cookieStore);
             if (redirectClient is HttpClient) {
                 cbHttpClient = redirectClient;
             } else {
                 return redirectClient;
             }
         } else {
-            var retryClient = checkForRetry(uri, configuration);
+            var retryClient = checkForRetry(uri, configuration, cookieStore);
             if (retryClient is HttpClient) {
                 cbHttpClient = retryClient;
             } else {
@@ -452,16 +474,11 @@ function createCircuitBreakerClient(string uri, ClientConfiguration configuratio
         };
         return new CircuitBreakerClient(uri, configuration, circuitBreakerInferredConfig, cbHttpClient, circuitHealth);
     } else {
-        //remove following once we can ignore
-        if (configuration.cache.enabled) {
-            return createHttpCachingClient(uri, configuration, configuration.cache);
-        } else {
-            return createHttpSecureClient(uri, configuration);
-        }
+        return createCookieClient(uri, configuration, cookieStore);
     }
 }
 
-function createRetryClient(string url, ClientConfiguration configuration) returns HttpClient|ClientError {
+function createRetryClient(string url, ClientConfiguration configuration, CookieStore? cookieStore) returns HttpClient|ClientError {
     var retryConfig = configuration.retryConfig;
     if (retryConfig is RetryConfig) {
         boolean[] statusCodes = populateErrorCodeIndex(retryConfig.statusCodes);
@@ -472,27 +489,40 @@ function createRetryClient(string url, ClientConfiguration configuration) return
             maxWaitIntervalInMillis: retryConfig.maxWaitIntervalInMillis,
             statusCodes: statusCodes
         };
+        var httpCookieClient = createCookieClient(url, configuration, cookieStore);
+        if (httpCookieClient is HttpClient) {
+            return new RetryClient(url, configuration, retryInferredConfig, httpCookieClient);
+        }
+        return httpCookieClient;
+    }
+    return createCookieClient(url, configuration, cookieStore);
+}
+
+function createCookieClient(string url, ClientConfiguration configuration, CookieStore? cookieStore) returns HttpClient|ClientError {
+    var cookieConfigVal = configuration.cookieConfig;
+    if (cookieConfigVal is CookieConfig) {
+        if (!cookieConfigVal.enabled) {
+            return createDefaultClient(url, configuration);
+        }
         if (configuration.cache.enabled) {
             var httpCachingClient = createHttpCachingClient(url, configuration, configuration.cache);
             if (httpCachingClient is HttpClient) {
-                return new RetryClient(url, configuration, retryInferredConfig, httpCachingClient);
-            } else {
-                return httpCachingClient;
+                return new CookieClient(url, configuration, cookieConfigVal, httpCachingClient, cookieStore);
             }
-        } else {
-            var httpSecureClient = createHttpSecureClient(url, configuration);
-            if (httpSecureClient is HttpClient) {
-                return new RetryClient(url, configuration, retryInferredConfig, httpSecureClient);
-            } else {
-                return httpSecureClient;
-            }
+            return httpCachingClient;
         }
-    } else {
-        //remove following once we can ignore
-        if (configuration.cache.enabled) {
-            return createHttpCachingClient(url, configuration, configuration.cache);
-        } else {
-            return createHttpSecureClient(url, configuration);
+        var httpSecureClient = createHttpSecureClient(url, configuration);
+        if (httpSecureClient is HttpClient) {
+            return new CookieClient(url, configuration, cookieConfigVal, httpSecureClient, cookieStore);
         }
+        return httpSecureClient;
     }
+    return createDefaultClient(url, configuration);
+}
+
+function createDefaultClient(string url, ClientConfiguration configuration) returns HttpClient|ClientError {
+    if (configuration.cache.enabled) {
+        return createHttpCachingClient(url, configuration, configuration.cache);
+    }
+    return createHttpSecureClient(url, configuration);
 }

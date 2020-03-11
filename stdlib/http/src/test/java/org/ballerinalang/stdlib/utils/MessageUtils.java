@@ -36,16 +36,24 @@ import java.util.Map;
 public class MessageUtils {
 
     public static HTTPTestRequest generateHTTPMessage(String path, String method) {
-        return generateHTTPMessage(path, method, null, null);
+        return generateHTTPMessage(path, method, null, null, -1);
+    }
+
+    public static HTTPTestRequest generateHTTPMessage(String path, String method, int listenerPort) {
+        return generateHTTPMessage(path, method, null, null, listenerPort);
     }
 
     public static HTTPTestRequest generateHTTPMessage(String path, String method, String payload) {
-        return generateHTTPMessage(path, method, null, payload);
+        return generateHTTPMessage(path, method, null, payload, -1);
     }
 
-    public static HTTPTestRequest generateHTTPMessage(String path, String method, HttpHeaders headers,
-            String payload) {
-        HTTPTestRequest carbonMessage = getHttpTestRequest(path, method);
+    public static HTTPTestRequest generateHTTPMessage(String path, String method, HttpHeaders headers, String payload) {
+        return generateHTTPMessage(path, method, headers, payload, -1);
+    }
+
+    public static HTTPTestRequest generateHTTPMessage(String path, String method, HttpHeaders headers, String payload
+            , int listenerPort) {
+        HTTPTestRequest carbonMessage = getHttpTestRequest(path, method, listenerPort);
         HttpHeaders httpHeaders = carbonMessage.getHeaders();
         if (headers != null) {
             for (Map.Entry<String, String> header : headers) {
@@ -63,10 +71,10 @@ public class MessageUtils {
     }
 
     public static HTTPTestRequest generateHTTPMessageForMultiparts(String path, String method) {
-        return getHttpTestRequest(path, method);
+        return getHttpTestRequest(path, method, -1);
     }
 
-    private static HTTPTestRequest getHttpTestRequest(String path, String method) {
+    private static HTTPTestRequest getHttpTestRequest(String path, String method, int listenerPort) {
         HTTPTestRequest carbonMessage = new HTTPTestRequest();
         carbonMessage.setProperty(HttpConstants.PROTOCOL,
                 HttpConstants.PROTOCOL_HTTP);
@@ -76,9 +84,10 @@ public class MessageUtils {
         carbonMessage.setProperty(HttpConstants.TO, path);
         carbonMessage.setRequestUrl(path);
         carbonMessage.setHttpMethod(method.trim().toUpperCase(Locale.getDefault()));
+        int port = listenerPort == -1 ? 9090 : listenerPort;
         carbonMessage.setProperty(HttpConstants.LOCAL_ADDRESS,
-                new InetSocketAddress(HttpConstants.HTTP_DEFAULT_HOST, 9090));
-        carbonMessage.setProperty(HttpConstants.LISTENER_PORT, 9090);
+                new InetSocketAddress(HttpConstants.HTTP_DEFAULT_HOST, port));
+        carbonMessage.setProperty(HttpConstants.LISTENER_PORT, port);
         carbonMessage.setProperty(HttpConstants.RESOURCE_ARGS, new HttpResourceArguments());
         carbonMessage.setHttpVersion(HttpConstants.HTTP_VERSION_1_1);
         return carbonMessage;

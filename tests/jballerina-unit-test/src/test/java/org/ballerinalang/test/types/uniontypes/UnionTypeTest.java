@@ -107,6 +107,11 @@ public class UnionTypeTest {
         Assert.assertEquals(((BValueArray) returns[0]).getString(1), "BAR");
     }
 
+    @Test
+    public void testUnionTypeWithMultipleRecordTypesWithLiteralKeysInLiteral() {
+        BRunUtil.invoke(result, "testUnionTypeWithMultipleRecordTypesWithLiteralKeysInLiteral");
+    }
+
     @Test(description = "Test union type LHS with float/decimal literals")
     public void testUnionLhsWithDiscriminatedFloatDecimalLiterals() {
         BValue[] returns = BRunUtil.invoke(result, "testUnionLhsWithDiscriminatedFloatDecimalLiterals");
@@ -119,11 +124,11 @@ public class UnionTypeTest {
     @Test(description = "Test negative cases")
     public void testAmbiguousAssignment() {
         int i = 0;
-        Assert.assertEquals(negativeResult.getErrorCount(), 4);
-        BAssertUtil.validateError(negativeResult, i++, "ambiguous type '(OpenBar|OpenFoo)'", 42, 26);
+        Assert.assertEquals(negativeResult.getErrorCount(), 3);
         BAssertUtil.validateError(negativeResult, i++, "ambiguous type '(ClosedBar|ClosedFoo)'", 43, 30);
         BAssertUtil.validateError(negativeResult, i++, "ambiguous type '(ClosedBar|OpenBar)'", 44, 28);
-        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'string', found 'int'", 47, 31);
+        BAssertUtil.validateError(negativeResult, i, "incompatible mapping constructor expression for type '" +
+                "(ClosedFoo|Foo2)'", 47, 25);
     }
 
     @Test(description = "Test nullable check")

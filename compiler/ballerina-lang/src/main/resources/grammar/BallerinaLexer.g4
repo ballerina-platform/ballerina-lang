@@ -2,11 +2,7 @@ lexer grammar BallerinaLexer;
 
 @members {
     boolean inStringTemplate = false;
-    boolean inStreams = false;
-    boolean inTableSqlQuery = false;
-    boolean inStreamsInsertQuery = false;
-    boolean inStreamsTimeScaleQuery = false;
-    boolean inStreamsOutputRateLimit = false;
+    boolean inQueryExpression = false;
 }
 
 // Reserved words
@@ -37,47 +33,8 @@ CLIENT      : 'client' ;
 CONST       : 'const' ;
 TYPEOF      : 'typeof';
 SOURCE      : 'source' ;
-
-FROM        : 'from' { inTableSqlQuery = true; inStreamsInsertQuery = true; inStreamsOutputRateLimit = true; } ;
 ON          : 'on' ;
-SELECT      : {inTableSqlQuery}? 'select' { inTableSqlQuery = false; } ;
-GROUP       : 'group' ;
-BY          : 'by' ;
-HAVING      : 'having' ;
-ORDER       : 'order' ;
-WHERE       : 'where' ;
-FOLLOWED    : 'followed' ;
-FOR         : 'for' { inStreamsTimeScaleQuery = true; } ;
-WINDOW      : 'window' ;
-EVENTS      : {inStreamsInsertQuery}? 'events' { inStreamsInsertQuery = false; } ;
-EVERY       : 'every' ;
-WITHIN      : 'within' { inStreamsTimeScaleQuery = true; } ;
-LAST        : {inStreamsOutputRateLimit}? 'last' { inStreamsOutputRateLimit = false; } ;
-FIRST       : {inStreamsOutputRateLimit}? 'first' { inStreamsOutputRateLimit = false; } ;
-SNAPSHOT    : 'snapshot' ;
-OUTPUT      : {inStreamsOutputRateLimit}? 'output' { inStreamsTimeScaleQuery = true; } ;
-INNER       : 'inner' ;
-OUTER       : 'outer' ;
-RIGHT       : 'right' ;
-LEFT        : 'left' ;
-FULL        : 'full' ;
-UNIDIRECTIONAL  : 'unidirectional' ;
-SECOND      : {inStreamsTimeScaleQuery}? 'second' { inStreamsTimeScaleQuery = false; } ;
-MINUTE      : {inStreamsTimeScaleQuery}? 'minute' { inStreamsTimeScaleQuery = false; } ;
-HOUR        : {inStreamsTimeScaleQuery}? 'hour' { inStreamsTimeScaleQuery = false; } ;
-DAY         : {inStreamsTimeScaleQuery}? 'day' { inStreamsTimeScaleQuery = false; } ;
-MONTH       : {inStreamsTimeScaleQuery}? 'month' { inStreamsTimeScaleQuery = false; } ;
-YEAR        : {inStreamsTimeScaleQuery}? 'year' { inStreamsTimeScaleQuery = false; } ;
-SECONDS     : {inStreamsTimeScaleQuery}? 'seconds' { inStreamsTimeScaleQuery = false; } ;
-MINUTES     : {inStreamsTimeScaleQuery}? 'minutes' { inStreamsTimeScaleQuery = false; } ;
-HOURS       : {inStreamsTimeScaleQuery}? 'hours' { inStreamsTimeScaleQuery = false; } ;
-DAYS        : {inStreamsTimeScaleQuery}? 'days' { inStreamsTimeScaleQuery = false; } ;
-MONTHS      : {inStreamsTimeScaleQuery}? 'months' { inStreamsTimeScaleQuery = false; } ;
-YEARS       : {inStreamsTimeScaleQuery}? 'years' { inStreamsTimeScaleQuery = false; } ;
-FOREVER     : 'forever' ;
-LIMIT       : 'limit' ;
-ASCENDING   : 'ascending' ;
-DESCENDING  : 'descending' ;
+FIELD       : 'field' ;
 
 TYPE_INT        : 'int' ;
 TYPE_BYTE       : 'byte' ;
@@ -139,6 +96,11 @@ IS          : 'is' ;
 FLUSH       : 'flush' ;
 WAIT        : 'wait' ;
 DEFAULT     : 'default' ;
+FROM        : 'from' { inQueryExpression = true; } ;
+SELECT      : {inQueryExpression}? 'select' { inQueryExpression = false; } ;
+DO          : {inQueryExpression}? 'do' { inQueryExpression = false; } ;
+WHERE       : {inQueryExpression}? 'where' ;
+LET         : 'let' ;
 
 // Separators
 
@@ -200,7 +162,7 @@ BIT_AND          : '&' ;
 BIT_XOR          : '^' ;
 BIT_COMPLEMENT   : '~' ;
 
-// Additional symbols 
+// Additional symbols
 
 RARROW      : '->' ;
 LARROW      : '<-' ;
@@ -361,7 +323,7 @@ BooleanLiteral
     ;
 
 // §3.10.5 String Literals
-    
+
 QuotedStringLiteral
     :   '"' StringCharacters? '"'
     ;
@@ -376,7 +338,7 @@ StringCharacter
     :   ~["\\\u000A\u000D]
     |   EscapeSequence
     ;
-    
+
 // §3.10.6 Escape Sequences for Character and String Literals
 
 fragment
@@ -387,7 +349,7 @@ EscapeSequence
 
 fragment
 UnicodeEscape
-    :   '\\' 'u' HexDigit HexDigit HexDigit HexDigit
+    :   '\\' 'u' LEFT_BRACE HexDigit+ RIGHT_BRACE
     ;
 
 // Blob Literal
@@ -541,19 +503,22 @@ LINE_COMMENT
 
 mode MARKDOWN_DOCUMENTATION;
 
-VARIABLE    : 'variable';
-MODULE      : 'module';
-
-ReferenceType
-    :   TYPE|SERVICE|VARIABLE|VAR|ANNOTATION|MODULE|FUNCTION|PARAMETER
-    ;
-
-DocumentationText
-    :   (DocumentationTextCharacter | DocumentationEscapedCharacters)+
-    ;
+DOCTYPE         :   'type' DocumentationEscapedCharacters+ '`' -> pushMode(SINGLE_BACKTICKED_DOCUMENTATION);
+DOCSERVICE      :   'service' DocumentationEscapedCharacters+ '`' -> pushMode(SINGLE_BACKTICKED_DOCUMENTATION);
+DOCVARIABLE     :   'variable' DocumentationEscapedCharacters+ '`' -> pushMode(SINGLE_BACKTICKED_DOCUMENTATION);
+DOCVAR          :   'var' DocumentationEscapedCharacters+ '`' -> pushMode(SINGLE_BACKTICKED_DOCUMENTATION);
+DOCANNOTATION   :   'annotation' DocumentationEscapedCharacters+ '`' -> pushMode(SINGLE_BACKTICKED_DOCUMENTATION);
+DOCMODULE       :   'module' DocumentationEscapedCharacters+ '`' -> pushMode(SINGLE_BACKTICKED_DOCUMENTATION);
+DOCFUNCTION     :   'function' DocumentationEscapedCharacters+ '`' -> pushMode(SINGLE_BACKTICKED_DOCUMENTATION);
+DOCPARAMETER    :   'parameter' DocumentationEscapedCharacters+ '`' -> pushMode(SINGLE_BACKTICKED_DOCUMENTATION);
+DOCCONST        :   'const' DocumentationEscapedCharacters+ '`' -> pushMode(SINGLE_BACKTICKED_DOCUMENTATION);
 
 SingleBacktickStart
     :   BACKTICK -> pushMode(SINGLE_BACKTICKED_DOCUMENTATION)
+    ;
+
+DocumentationText
+    :   DocumentationTextCharacter+
     ;
 
 DoubleBacktickStart
@@ -562,10 +527,6 @@ DoubleBacktickStart
 
 TripleBacktickStart
     :   BACKTICK BACKTICK BACKTICK -> pushMode(TRIPLE_BACKTICKED_DOCUMENTATION)
-    ;
-
-DefinitionReference
-    :   ReferenceType DocumentationSpace+
     ;
 
 fragment

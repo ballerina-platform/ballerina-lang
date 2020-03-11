@@ -24,14 +24,12 @@ import org.ballerinalang.toml.parser.ManifestProcessor;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.ProjectDirs;
-import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
-import org.wso2.ballerinalang.programfile.CompiledBinaryFile.ProgramFile;
+import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLogHelper;
 import org.wso2.ballerinalang.util.Lists;
 
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -46,7 +44,7 @@ public class Compiler {
     private final CompilerDriver compilerDriver;
     private final BinaryFileWriter binaryFileWriter;
     private final DependencyTree dependencyTree;
-    private final BLangDiagnosticLog dlog;
+    private final BLangDiagnosticLogHelper dlog;
     private final PackageLoader pkgLoader;
     private final Manifest manifest;
     private boolean langLibsLoaded;
@@ -58,7 +56,7 @@ public class Compiler {
         this.compilerDriver = CompilerDriver.getInstance(context);
         this.binaryFileWriter = BinaryFileWriter.getInstance(context);
         this.dependencyTree = DependencyTree.getInstance(context);
-        this.dlog = BLangDiagnosticLog.getInstance(context);
+        this.dlog = BLangDiagnosticLogHelper.getInstance(context);
         this.pkgLoader = PackageLoader.getInstance(context);
         this.manifest = ManifestProcessor.getInstance(context).getManifest();
         this.outStream = System.out;
@@ -129,13 +127,6 @@ public class Compiler {
         this.dependencyTree.listDependencyPackages(bLangPackage);
     }
 
-    public ProgramFile getExecutableProgram(BLangPackage entryPackageNode) {
-        if (dlog.errorCount > 0) {
-            return null;
-        }
-        return this.binaryFileWriter.genExecutable(entryPackageNode);
-    }
-
     public List<BLangPackage> compilePackages(boolean isBuild) {
         List<PackageID> pkgList = this.sourceDirectoryManager.listSourceFilesAndPackages().collect(Collectors.toList());
         if (pkgList.size() == 0) {
@@ -145,7 +136,7 @@ public class Compiler {
         this.outStream.println("Compiling source");
         List<BLangPackage> compiledPackages = compilePackages(pkgList);
         // If it is a build and dlog is not empty, compilation should fail
-        if (isBuild && this.dlog.errorCount > 0) {
+        if (isBuild && this.dlog.getErrorCount() > 0) {
             throw new BLangCompilerException("compilation contains errors");
         }
         return compiledPackages;
@@ -157,20 +148,24 @@ public class Compiler {
             this.compilerDriver.loadLangModules(pkgIdList);
             this.langLibsLoaded = true;
         }
-        this.compilerDriver.loadUtilsPackage();
 
         // 1) Load all source packages. i.e. source-code -> BLangPackageNode
         // 2) Define all package level symbols for all the packages including imported packages in the AST
-        List<BLangPackage> packages = pkgIdList.stream()
-                .map((PackageID pkgId) -> this.pkgLoader.loadEntryPackage(pkgId, null, this.outStream))
-                .filter(Objects::nonNull) // skip the packages that were not loaded properly
-                .collect(Collectors.toList());
+        List<BLangPackage> packages = new ArrayList<>();
+        for (PackageID pkgId : pkgIdList) {
+            BLangPackage bLangPackage = this.pkgLoader.loadEntryPackage(pkgId, null, this.outStream);
+            if (bLangPackage != null) {
+                // skip the packages that were not loaded properly
+                packages.add(bLangPackage);
+            }
+        }
 
         // 3) Invoke compiler phases. e.g. type_check, code_analyze, taint_analyze, desugar etc.
-        packages.stream()
-//                .filter(pkgNode -> !pkgNode.diagCollector.hasErrors())
-                .filter(pkgNode -> pkgNode.symbol != null)
-                .forEach(this.compilerDriver::compilePackage);
+        for (BLangPackage pkgNode : packages) {
+            if (pkgNode.symbol != null) {
+                this.compilerDriver.compilePackage(pkgNode);
+            }
+        }
         return packages;
     }
 

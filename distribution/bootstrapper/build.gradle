@@ -26,13 +26,20 @@ plugins {
 configurations {
     pack0 { transitive false } // clean pack from previous build
     pack1 { transitive false } // pack with build cmd
+
     pack2 { transitive false } // pack with stdlib/bir balo
     pack2birJar { transitive false }
     pack2native { transitive false }
     pack2bir { transitive false }
-    pack3 { transitive false } // pack with stdlib/jvm balo
+
+    pack3 { transitive false } // pack with stdlib/jvm + stdlib/bir balo
     pack3birJar { transitive false }
     pack3native { transitive false }
+    pack3bir { transitive false }
+
+    pack4 { transitive false }
+    pack4birJar { transitive false }
+    pack4native { transitive false }
 }
 
 apply from: "$rootDir/gradle/javaProject.gradle"
@@ -41,16 +48,16 @@ dependencies {
     pack0 group: 'org.ballerinalang', name: 'jballerina-tools', version: project.bootstrappedOn, ext: 'zip'
 
     pack2bir project(path: ':ballerina-bir-old', configuration: 'oldBir')
-    pack2bir project(path: ':ballerina-bir-old', configuration: 'nativeMap')
-    pack2bir project(path: ':ballerina-jvm-old', configuration: 'oldBir')
-    pack2bir project(path: ':ballerina-jvm-old', configuration: 'nativeMap')
 
-    pack3birJar project(path: ':ballerina-backend-jvm-old', configuration: 'oldBirJar')
-    pack3native project(path: ':ballerina-backend-jvm-old', configuration: 'default')
-    pack3native project(path: ':ballerina-bir-old', configuration: 'default')
-    pack3birJar project(path: ':ballerina-bir-old', configuration: 'oldBirJar')
-    pack3native project(path: ':ballerina-jvm-old', configuration: 'default')
-    pack3birJar project(path: ':ballerina-jvm-old', configuration: 'oldBirJar')
+    pack3bir project(path: ':ballerina-bir-old', configuration: 'oldBir')
+    pack3bir project(path: ':ballerina-jvm-old', configuration: 'oldBir')
+
+    pack4birJar project(path: ':ballerina-backend-jvm-old', configuration: 'oldBirJar')
+    pack4native project(path: ':ballerina-backend-jvm-old', configuration: 'default')
+    pack4native project(path: ':ballerina-bir-old', configuration: 'default')
+    pack4birJar project(path: ':ballerina-bir-old', configuration: 'oldBirJar')
+    pack4native project(path: ':ballerina-jvm-old', configuration: 'default')
+    pack4birJar project(path: ':ballerina-jvm-old', configuration: 'oldBirJar')
 }
 
 
@@ -94,6 +101,8 @@ task createPack1() {
     outputs.dir(bootBalHome(0))
     outputs.cacheIf { false }
 }
+
+// ------ pack 2 ------
 
 task duplicatePack1AsPack2(type: Copy) {
     dependsOn createPack1
@@ -155,16 +164,26 @@ task createPack2() {
     dependsOn createFakeBalos
 }
 
+// ------ pack 3 ------
+
 task duplicatePack2AsPack3(type: Copy) {
     dependsOn createPack2
     from bootBalHome(2)
-    exclude "**/bre/lib/compiler_backend_jvm.jar"
-    exclude "**/bre/lib/ballerina-backend-jvm*.jar"
-    exclude "**/bre/lib/bir.jar"
-    exclude "**/bre/lib/jvm.jar"
-    exclude "**/bre/lib/ballerina-bir*.jar"
-    exclude "**/bre/lib/ballerina-jvm*.jar"
     into bootBalHome(3)
+}
+
+task copyBirForPack3(type: Copy) {
+    dependsOn duplicatePack2AsPack3
+    dependsOn configurations.pack3bir
+
+    from configurations.pack3bir
+    into bootBalHome(3) + '/bir-cache/ballerina/'
+
+    eachFile { file ->
+        println file
+        def moduleName = file.name.replaceFirst(~/\..+$/, '')
+        file.path =  moduleName + '/0.0.0/' + file.name
+    }
 }
 
 task copyBirJarForPack3(type: Copy) {
@@ -184,13 +203,50 @@ task copyNativeForPack3(type: Copy) {
 }
 
 task createPack3() {
-    dependsOn copyBirJarForPack3
-    dependsOn copyNativeForPack3
+    dependsOn duplicatePack2AsPack3
+    dependsOn copyBirForPack3
+    dependsOn createFakeBalos
+}
+
+// ------ pack 4 ------
+
+task duplicatePack3AsPack4(type: Copy) {
+    dependsOn createPack3
+    from bootBalHome(3)
+    exclude "**/bre/lib/compiler_backend_jvm.jar"
+    exclude "**/bre/lib/ballerina-backend-jvm*.jar"
+    exclude "**/bre/lib/bir.jar"
+    exclude "**/bre/lib/jvm.jar"
+    exclude "**/bre/lib/ballerina-bir*.jar"
+    exclude "**/bre/lib/ballerina-jvm*.jar"
+    into bootBalHome(4)
+}
+
+task copyBirJarForPack4(type: Copy) {
+    dependsOn duplicatePack3AsPack4
+    dependsOn configurations.pack4birJar
+
+    from configurations.pack4birJar
+    into bootBalHome(4) + "/bre/lib/"
+}
+
+task copyNativeForPack4(type: Copy) {
+    dependsOn duplicatePack3AsPack4
+    dependsOn configurations.pack4native
+
+    from configurations.pack4native
+    into bootBalHome(4) + "/bre/lib/"
+}
+
+task createPack4() {
+    dependsOn copyBirJarForPack4
+    dependsOn copyNativeForPack4
 }
 
 artifacts {
     pack1 file(bootBalHome(0)), { builtBy(createPack1) }
     pack2 file(bootBalHome(2)), { builtBy(createPack2) }
     pack3 file(bootBalHome(3)), { builtBy(createPack3) }
+    pack4 file(bootBalHome(4)), { builtBy(createPack4) }
 }
 
