@@ -64,6 +64,7 @@ import java.util.stream.Collectors;
 public class BTestRunner {
 
     public static final String MODULE_INIT_CLASS_NAME = "___init";
+    private static final String FILE_NAME_PERIOD_SEPARATOR = "$$$";
 
     private PrintStream errStream;
     private PrintStream outStream;
@@ -252,9 +253,8 @@ public class BTestRunner {
         boolean hasTestablePackage = !packageName.equals(TesterinaConstants.DOT);
         if (hasTestablePackage) {
             // Load test init class
-            String testClassName = TesterinaUtils.getQualifiedClassName(suite.getOrgName(),
-                                                                        suite.getPackageID(),
-                                                                        suite.getPackageID());
+            String testClassName = TesterinaUtils.getQualifiedClassName(suite.getOrgName(), suite.getPackageID(),
+                    suite.getPackageID().replace(".", FILE_NAME_PERIOD_SEPARATOR));
             try {
                 testInitClazz = classLoader.loadClass(testClassName);
             } catch (Throwable e) {

@@ -48,6 +48,7 @@ dependencies {
         implementation 'com.google.code.gson:gson:2.8.5'
         implementation 'com.google.guava:guava:23.0'
         implementation 'com.moandjiezana.toml:toml4j:0.7.2'
+        implementation 'com.sun.mail:javax.mail:1.6.2'
         implementation 'com.squareup.okhttp3:okhttp:3.14.0'
         implementation 'com.squareup.okio:okio:2.2.2'
         implementation 'io.jaegertracing:jaeger-core:0.31.0'

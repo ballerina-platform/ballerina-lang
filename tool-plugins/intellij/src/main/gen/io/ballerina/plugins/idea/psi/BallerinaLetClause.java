@@ -21,12 +21,12 @@ import java.util.List;
 import org.jetbrains.annotations.*;
 import com.intellij.psi.PsiElement;
 
-public interface BallerinaRestParameterTypeName extends PsiElement {
+public interface BallerinaLetClause extends PsiElement {
 
   @NotNull
-  BallerinaTypeName getTypeName();
+  List<BallerinaLetVarDecl> getLetVarDeclList();
 
   @NotNull
-  PsiElement getEllipsis();
+  PsiElement getLet();
 
 }
