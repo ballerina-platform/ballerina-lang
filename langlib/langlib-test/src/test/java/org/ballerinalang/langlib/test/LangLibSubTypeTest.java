@@ -32,6 +32,7 @@ import org.testng.annotations.Test;
  */
 public class LangLibSubTypeTest {
 
+    private static final String FOUND_BYTE = " found 'byte'";
     private static final String FOUND_INT = " found 'int'";
     private static final String FOUND_SIGNED_32 = " found 'int:Signed32'";
     private static final String FOUND_SIGNED_16 = " found 'int:Signed16'";
@@ -161,6 +162,65 @@ public class LangLibSubTypeTest {
 //        BAssertUtil.validateError(result, err++, EXPECT_UNSIGNED_16 + FOUND_INT, 140, 29);
 //        BAssertUtil.validateError(result, err++, EXPECT_UNSIGNED_8 + FOUND_INT, 141, 28);
 //        BAssertUtil.validateError(result, err++, EXPECT_BYTE + FOUND_INT, 142, 18);
+
+        BAssertUtil.validateError(result, err++, EXPECT_BYTE + FOUND_INT, 188, 14);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected 'float'," + FOUND_INT, 189, 15);
+        BAssertUtil.validateError(result, err++, EXPECT_SIGNED_32 + FOUND_INT, 190, 23);
+        BAssertUtil.validateError(result, err++, EXPECT_BYTE + FOUND_INT, 191, 14);
+        BAssertUtil.validateError(result, err++, EXPECT_BYTE + FOUND_INT, 192, 14);
+        BAssertUtil.validateError(result, err++, EXPECT_UNSIGNED_8 + FOUND_INT, 193, 24);
+        BAssertUtil.validateError(result, err++, EXPECT_BYTE + FOUND_INT, 194, 14);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected 'decimal'," + FOUND_INT, 195, 17);
+
+        BAssertUtil.validateError(result, err++, EXPECT_BYTE + FOUND_INT, 209, 14);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected 'float'," + FOUND_INT, 210, 15);
+        BAssertUtil.validateError(result, err++, EXPECT_SIGNED_32 + FOUND_INT, 211, 23);
+        BAssertUtil.validateError(result, err++, EXPECT_BYTE + FOUND_INT, 212, 14);
+        BAssertUtil.validateError(result, err++, EXPECT_SIGNED_8 + FOUND_BYTE, 213, 22);
+        BAssertUtil.validateError(result, err++, EXPECT_SIGNED_8 + FOUND_UNSIGNED_8, 214, 22);
+        BAssertUtil.validateError(result, err++, EXPECT_BYTE + FOUND_UNSIGNED_16, 215, 14);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected 'decimal'," + FOUND_UNSIGNED_32, 216,
+                                  17);
+
+        BAssertUtil.validateError(result, err++, EXPECT_BYTE + FOUND_INT, 230, 14);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected 'float'," + FOUND_INT, 231, 15);
+        BAssertUtil.validateError(result, err++, EXPECT_SIGNED_32 + FOUND_INT, 232, 23);
+        BAssertUtil.validateError(result, err++, EXPECT_BYTE + FOUND_INT, 233, 14);
+        BAssertUtil.validateError(result, err++, EXPECT_SIGNED_8 + FOUND_BYTE, 234, 22);
+        BAssertUtil.validateError(result, err++, EXPECT_SIGNED_8 + FOUND_UNSIGNED_8, 235, 22);
+        BAssertUtil.validateError(result, err++, EXPECT_BYTE + FOUND_UNSIGNED_16, 236, 14);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected 'decimal'," + FOUND_UNSIGNED_32, 237,
+                                  17);
+
+        BAssertUtil.validateError(result, err++, EXPECT_BYTE + FOUND_INT, 251, 14);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected 'float'," + FOUND_INT, 252, 15);
+        BAssertUtil.validateError(result, err++, EXPECT_SIGNED_32 + FOUND_INT, 253, 23);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected 'decimal'," + FOUND_BYTE, 254, 17);
+        BAssertUtil.validateError(result, err++, EXPECT_SIGNED_8 + FOUND_UNSIGNED_8, 255, 22);
+        BAssertUtil.validateError(result, err++, EXPECT_SIGNED_16 + FOUND_UNSIGNED_16, 256, 23);
+        BAssertUtil.validateError(result, err++, EXPECT_SIGNED_8 + FOUND_UNSIGNED_8, 257, 22);
+        BAssertUtil.validateError(result, err++, EXPECT_SIGNED_8 + FOUND_UNSIGNED_32, 258, 22);
+        BAssertUtil.validateError(result, err++, EXPECT_SIGNED_8 + FOUND_UNSIGNED_8, 259, 22);
+
+        BAssertUtil.validateError(result, err++, EXPECT_BYTE + FOUND_INT, 273, 14);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected 'float'," + FOUND_INT, 274, 15);
+        BAssertUtil.validateError(result, err++, EXPECT_SIGNED_32 + FOUND_INT, 275, 23);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected 'decimal'," + FOUND_BYTE, 276, 17);
+        BAssertUtil.validateError(result, err++, EXPECT_SIGNED_8 + FOUND_UNSIGNED_8, 277, 22);
+        BAssertUtil.validateError(result, err++, EXPECT_SIGNED_16 + FOUND_UNSIGNED_16, 278, 23);
+        BAssertUtil.validateError(result, err++, EXPECT_SIGNED_8 + FOUND_UNSIGNED_8, 279, 22);
+        BAssertUtil.validateError(result, err++, EXPECT_SIGNED_8 + FOUND_INT, 280, 22);
+        BAssertUtil.validateError(result, err++, EXPECT_SIGNED_8 + FOUND_INT, 281, 22);
+
+        BAssertUtil.validateError(result, err++, EXPECT_BYTE + FOUND_INT, 295, 14);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected 'float'," + FOUND_INT, 296, 15);
+        BAssertUtil.validateError(result, err++, EXPECT_SIGNED_32 + FOUND_INT, 297, 23);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected 'decimal'," + FOUND_BYTE, 298, 17);
+        BAssertUtil.validateError(result, err++, EXPECT_SIGNED_8 + FOUND_UNSIGNED_16, 299, 22);
+        BAssertUtil.validateError(result, err++, EXPECT_SIGNED_16 + FOUND_UNSIGNED_16, 300, 23);
+        BAssertUtil.validateError(result, err++, EXPECT_SIGNED_8 + FOUND_UNSIGNED_8, 301, 22);
+        BAssertUtil.validateError(result, err++, EXPECT_SIGNED_8 + FOUND_INT, 302, 22);
+        BAssertUtil.validateError(result, err++, EXPECT_SIGNED_8 + FOUND_INT, 303, 22);
 
         Assert.assertEquals(result.getErrorCount(), err);
 
