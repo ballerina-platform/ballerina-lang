@@ -124,14 +124,14 @@ function setPrincipal(JwtPayload jwtPayload) {
     map<json>? claims = jwtPayload?.customClaims;
     if (claims is map<json>) {
         auth:setPrincipal(claims = claims);
-        if (claims.hasKey(SCOPE)) {
-            json scopeString = claims[SCOPE];
+        if (claims.hasKey("scope")) {
+            json scopeString = claims["scope"];
             if (scopeString is string && scopeString != "") {
                 auth:setPrincipal(scopes = stringutils:split(scopeString, " "));
             }
         }
-        if (claims.hasKey(USERNAME)) {
-            json name = claims[USERNAME];
+        if (claims.hasKey("name")) {
+            json name = claims["name"];
             if (name is string) {
                 auth:setPrincipal(username = name);
             }
