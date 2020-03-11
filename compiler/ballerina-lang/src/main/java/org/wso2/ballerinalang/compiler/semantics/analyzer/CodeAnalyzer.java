@@ -187,7 +187,6 @@ import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLogHelper;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
-import org.wso2.ballerinalang.programfile.WorkerDataChannelInfo;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
@@ -2668,7 +2667,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                 worker.next();
 
                 systemRunning = true;
-                String channelName = WorkerDataChannelInfo.generateChannelName(worker.workerId, otherSM.workerId);
+                String channelName = generateChannelName(worker.workerId, otherSM.workerId);
                 otherSM.node.sendsToThis.add(channelName);
 
                 worker.node.sendsToThis.add(channelName);
@@ -2937,6 +2936,11 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
 
         dlog.error(pos, DiagnosticCode.INVALID_USE_OF_EXPERIMENTAL_FEATURE, constructName.value);
+    }
+
+    public static String generateChannelName(String source, String target) {
+
+        return source + "->" + target;
     }
 
     /**

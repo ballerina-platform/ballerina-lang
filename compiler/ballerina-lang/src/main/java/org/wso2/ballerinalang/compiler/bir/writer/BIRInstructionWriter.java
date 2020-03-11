@@ -295,6 +295,12 @@ public class BIRInstructionWriter extends BIRVisitor {
         BType type = birConstantLoad.type;
         switch (type.tag) {
             case TypeTags.INT:
+            case TypeTags.SIGNED32_INT:
+            case TypeTags.SIGNED16_INT:
+            case TypeTags.SIGNED8_INT:
+            case TypeTags.UNSIGNED32_INT:
+            case TypeTags.UNSIGNED16_INT:
+            case TypeTags.UNSIGNED8_INT:
                 buf.writeInt(cp.addCPEntry(new IntegerCPEntry((Long) birConstantLoad.value)));
                 break;
             case TypeTags.BYTE:
@@ -307,6 +313,7 @@ public class BIRInstructionWriter extends BIRVisitor {
                 buf.writeBoolean((Boolean) birConstantLoad.value);
                 break;
             case TypeTags.STRING:
+            case TypeTags.CHAR_STRING:
             case TypeTags.DECIMAL:
                 buf.writeInt(cp.addCPEntry(new StringCPEntry(birConstantLoad.value.toString())));
                 break;
@@ -318,7 +325,7 @@ public class BIRInstructionWriter extends BIRVisitor {
             case TypeTags.NIL:
                 break;
             default:
-                throw new IllegalStateException("unsupported constant type: " + type.getDesc());
+                throw new IllegalStateException("unsupported constant type: " + type);
         }
     }
 

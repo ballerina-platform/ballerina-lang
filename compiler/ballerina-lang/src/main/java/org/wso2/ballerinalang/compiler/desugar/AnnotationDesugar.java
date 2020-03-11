@@ -156,6 +156,9 @@ public class AnnotationDesugar {
 
     private void defineTypeAnnotations(BLangPackage pkgNode, SymbolEnv env, BLangFunction initFunction) {
         for (BLangTypeDefinition typeDef : pkgNode.typeDefinitions) {
+            if (typeDef.isBuiltinTypeDef) {
+                continue;
+            }
             PackageID pkgID = typeDef.symbol.pkgID;
             BSymbol owner = typeDef.symbol.owner;
 

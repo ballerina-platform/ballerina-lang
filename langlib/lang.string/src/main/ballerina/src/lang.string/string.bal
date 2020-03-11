@@ -1,4 +1,4 @@
-// Copyright (c) 2017 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+// Copyright (c) 2019, 2020 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 //
 // WSO2 Inc. licenses this file to you under the Apache License,
 // Version 2.0 (the "License"); you may not use this file except
@@ -13,6 +13,10 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
+
+# Built-in subtype of string containing strings of length 1.
+@builtinSubtype
+type Char string;
 
 # Returns the length of the string.
 #
@@ -71,7 +75,7 @@ public function codePointCompare(string str1, string str2) returns int = externa
 #     with `separator` in between them
 public function 'join(string separator, string... strs) returns string = external;
 
-# Searches for one string in another string.
+# Finds the first occurrence of one string in another string.
 #
 # + str - the string in which to search
 # + substr - the string to search for
@@ -146,6 +150,12 @@ public function fromBytes(byte[] bytes) returns string|error = external;
 # + return - an array with a code point for each character of `str`
 public function toCodePointInts(string str) returns int[] = external;
 
+# Converts a single character string to a code point.
+#
+# + ch - a single character string
+# + return - the code point of `ch`
+public function toCodePointInt(Char ch) returns int = external;
+
 # Constructs a string from an array of code points.
 # An int is a valid code point if it is in the range 0 to 0x10FFFF inclusive,
 # but not in the range 0xD800 or 0xDFFF inclusive.
@@ -154,6 +164,15 @@ public function toCodePointInts(string str) returns int[] = external;
 # + return - a string with a character for each code point in `codePoints`; or an error
 # if any member of `codePoints` is not a valid code point
 public function fromCodePointInts(int[] codePoints) returns string|error = external;
+
+# Constructs a single character string from a code point.
+# An int is a valid code point if it is in the range 0 to 0x10FFFF inclusive,
+# but not in the range 0xD800 or 0xDFFF inclusive.
+#
+# + codePoint - an int specifying a code point
+# + return - a single character string whose code point is `codePoint`; or an error
+# if `codePoint` is not a valid code point
+public function fromCodePointInt(int codePoint) returns Char|error = external;
 
 # Tests whether two strings are the same, ignoring the case of ASCII characters.
 # A character in the range a-z is treated the same as the corresponding character in the range A-Z.

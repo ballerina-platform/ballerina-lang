@@ -29,7 +29,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope.ScopeEntry;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BCastOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BErrorTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
@@ -320,33 +319,6 @@ public class SymbolResolver extends BLangNodeVisitor {
         return true;
     }
 
-    public BSymbol resolveImplicitCastOp(BType sourceType,
-                                         BType targetType) {
-        BSymbol symbol = resolveOperator(Names.CAST_OP, Lists.of(sourceType, targetType));
-        if (symbol == symTable.notFoundSymbol) {
-            return symbol;
-        }
-
-        BCastOperatorSymbol castSymbol = (BCastOperatorSymbol) symbol;
-        if (castSymbol.implicit) {
-            return symbol;
-        }
-
-        return symTable.notFoundSymbol;
-    }
-
-    public BSymbol resolveConversionOperator(BType sourceType, BType targetType) {
-        return types.getConversionOperator(sourceType, targetType);
-    }
-
-    public BSymbol resolveCastOperator(BLangExpression expr, BType sourceType, BType targetType) {
-        return types.getCastOperator(expr, sourceType, targetType);
-    }
-
-    public BSymbol resolveTypeCastOperator(BLangExpression expr, BType sourceType, BType targetType) {
-        return types.getTypeCastOperator(expr, sourceType, targetType);
-    }
-
     public BSymbol resolveBinaryOperator(OperatorKind opKind,
                                          BType lhsType,
                                          BType rhsType) {
@@ -358,55 +330,6 @@ public class SymbolResolver extends BLangNodeVisitor {
         BType retType = symTable.booleanType;
         BInvokableType opType = new BInvokableType(paramTypes, retType, null);
         return new BOperatorSymbol(names.fromString(opKind.value()), null, opType, null);
-    }
-
-    BOperatorSymbol createTypeCastSymbol(BType type, BType retType) {
-        List<BType> paramTypes = Lists.of(type);
-        BInvokableType opType = new BInvokableType(paramTypes, retType, null);
-        return new BOperatorSymbol(Names.CAST_OP, null, opType, null);
-    }
-
-    BSymbol getNumericConversionOrCastSymbol(BLangExpression expr, BType sourceType,
-                                             BType targetType) {
-        if (targetType.tag == TypeTags.UNION &&
-                ((BUnionType) targetType).getMemberTypes().stream()
-                        .filter(memType -> types.isBasicNumericType(memType)).count() > 1) {
-            return symTable.notFoundSymbol;
-        }
-
-        if (types.isBasicNumericType(sourceType) && types.isBasicNumericType(targetType)) {
-            // we only reach here for different numeric types.
-            return resolveOperator(Names.CONVERSION_OP, Lists.of(sourceType, targetType));
-        } else {
-            // Target type is always a union here.
-            if (types.isBasicNumericType(sourceType)) {
-                // i.e., a conversion from a numeric type to another numeric type in a union.
-                // int|string u1 = <int|string> 1.0;
-                types.setImplicitCastExpr(expr, sourceType, symTable.anyType);
-                return createTypeCastSymbol(sourceType, targetType);
-            }
-
-            switch (sourceType.tag) {
-                case TypeTags.ANY:
-                case TypeTags.ANYDATA:
-                case TypeTags.JSON:
-                    return createTypeCastSymbol(sourceType, targetType);
-                case TypeTags.UNION:
-                    if (((BUnionType) sourceType).getMemberTypes().stream()
-                            .anyMatch(memType -> types.isBasicNumericType(memType) ||
-                                    (memType.tag == TypeTags.FINITE &&
-                                            types.finiteTypeContainsNumericTypeValues((BFiniteType) memType)))) {
-                        return createTypeCastSymbol(sourceType, targetType);
-                    }
-                    break;
-                case TypeTags.FINITE:
-                    if (types.finiteTypeContainsNumericTypeValues((BFiniteType) sourceType)) {
-                        return createTypeCastSymbol(sourceType, targetType);
-                    }
-                    break;
-            }
-        }
-        return symTable.notFoundSymbol;
     }
 
     public BSymbol resolveUnaryOperator(DiagnosticPos pos,
@@ -584,6 +507,12 @@ public class SymbolResolver extends BLangNodeVisitor {
                 bSymbol = lookupLangLibMethodInModule(symTable.langFutureModuleSymbol, name);
                 break;
             case TypeTags.INT:
+            case TypeTags.SIGNED32_INT:
+            case TypeTags.SIGNED16_INT:
+            case TypeTags.SIGNED8_INT:
+            case TypeTags.UNSIGNED32_INT:
+            case TypeTags.UNSIGNED16_INT:
+            case TypeTags.UNSIGNED8_INT:
                 bSymbol = lookupLangLibMethodInModule(symTable.langIntModuleSymbol, name);
                 break;
             case TypeTags.MAP:
@@ -597,6 +526,7 @@ public class SymbolResolver extends BLangNodeVisitor {
                 bSymbol = lookupLangLibMethodInModule(symTable.langStreamModuleSymbol, name);
                 break;
             case TypeTags.STRING:
+            case TypeTags.CHAR_STRING:
                 bSymbol = lookupLangLibMethodInModule(symTable.langStringModuleSymbol, name);
                 break;
             case TypeTags.TABLE:
