@@ -31,15 +31,15 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
+import static org.ballerinalang.observe.trace.extension.choreo.Constants.APPLICATION_ID_CONFIG;
+import static org.ballerinalang.observe.trace.extension.choreo.Constants.DEFAULT_APPLICATION_ID;
 import static org.ballerinalang.observe.trace.extension.choreo.Constants.DEFAULT_REPORTER_HOSTNAME;
 import static org.ballerinalang.observe.trace.extension.choreo.Constants.DEFAULT_REPORTER_PORT;
 import static org.ballerinalang.observe.trace.extension.choreo.Constants.DEFAULT_REPORTER_USE_SSL;
-import static org.ballerinalang.observe.trace.extension.choreo.Constants.DEFAULT_APPLICATION_ID;
 import static org.ballerinalang.observe.trace.extension.choreo.Constants.EXTENSION_NAME;
 import static org.ballerinalang.observe.trace.extension.choreo.Constants.REPORTER_HOST_NAME_CONFIG;
 import static org.ballerinalang.observe.trace.extension.choreo.Constants.REPORTER_PORT_CONFIG;
 import static org.ballerinalang.observe.trace.extension.choreo.Constants.REPORTER_USE_SSL_CONFIG;
-import static org.ballerinalang.observe.trace.extension.choreo.Constants.APPLICATION_ID_CONFIG;
 
 /**
  * Manages the Choreo Client used to communicate with the Choreo cloud.
