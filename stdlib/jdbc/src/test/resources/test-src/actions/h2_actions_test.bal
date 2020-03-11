@@ -111,7 +111,7 @@ function testGeneratedKeyOnInsert(string jdbcURL) returns string | int {
 
     string | int returnVal = "";
 
-    var x = testDB->update("insert into Customers (name, creditLimit,country) values ('Sam', 1200, 'USA')");
+    var x = testDB->update("insert into Customers (name, creditLimit,country) values ('Sam', 1200, 'USA')", true);
 
     if (x is jdbc:UpdateResult) {
         returnVal = x.updatedRowCount;
@@ -148,7 +148,8 @@ function testBatchUpdate(string jdbcURL) returns int[] {
     jdbc:Parameter para8 = {sqlType: jdbc:TYPE_VARCHAR, value: "UK"};
     jdbc:Parameter?[] parameters2 = [para5, para6, para7, para8];
 
-    jdbc:BatchUpdateResult x = testDB->batchUpdate("Insert into Customers values (?,?,?,?)", false, parameters1, parameters2);
+    jdbc:BatchUpdateResult x = testDB->batchUpdate("Insert into Customers values (?,?,?,?)", false, true, parameters1,
+    parameters2);
     checkpanic testDB.stop();
     return x.updatedRowCount;
 }

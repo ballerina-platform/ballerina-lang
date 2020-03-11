@@ -246,7 +246,7 @@ public class Types {
         return isBasicNumericType(type);
     }
 
-    private boolean containsErrorType(BType type) {
+    public boolean containsErrorType(BType type) {
         if (type.tag == TypeTags.UNION) {
             return ((BUnionType) type).getMemberTypes().stream()
                     .anyMatch(this::containsErrorType);
@@ -1050,8 +1050,13 @@ public class Types {
                 BUnionType nextMethodReturnType = getVarTypeFromIterableObject((BObjectType) collectionType);
                 if (nextMethodReturnType != null) {
                     foreachNode.resultType = getRecordType(nextMethodReturnType);
+                    foreachNode.errorType = getErrorType(nextMethodReturnType);
                     foreachNode.nillableResultType = nextMethodReturnType;
-                    foreachNode.varType = ((BRecordType) foreachNode.resultType).fields.get(0).type;
+                    BType valueType = ((BRecordType) foreachNode.resultType).fields.get(0).type;
+                    if (foreachNode.errorType != null) {
+                        valueType = BUnionType.create(null, valueType, foreachNode.errorType);
+                    }
+                    foreachNode.varType = valueType;
                     return;
                 }
                 dlogHelper.error(foreachNode.collection.pos, DiagnosticCode.INCOMPATIBLE_ITERATOR_FUNCTION_SIGNATURE);
@@ -1076,6 +1081,7 @@ public class Types {
                 (BUnionType) getResultTypeOfNextInvocation((BObjectType) iteratorSymbol.retType);
         foreachNode.varType = varType;
         foreachNode.resultType = getRecordType(nextMethodReturnType);
+        foreachNode.errorType = getErrorType(nextMethodReturnType);
         foreachNode.nillableResultType = nextMethodReturnType;
     }
 
@@ -1137,6 +1143,7 @@ public class Types {
                 BUnionType nextMethodReturnType = getVarTypeFromIterableObject((BObjectType) collectionType);
                 if (nextMethodReturnType != null) {
                     fromClause.resultType = getRecordType(nextMethodReturnType);
+                    fromClause.errorType = getErrorType(nextMethodReturnType);
                     fromClause.nillableResultType = nextMethodReturnType;
                     fromClause.varType = ((BRecordType) fromClause.resultType).fields.get(0).type;
                     return;
@@ -1146,11 +1153,13 @@ public class Types {
             case TypeTags.SEMANTIC_ERROR:
                 fromClause.varType = symTable.semanticError;
                 fromClause.resultType = symTable.semanticError;
+                fromClause.errorType = symTable.semanticError;
                 fromClause.nillableResultType = symTable.semanticError;
                 return;
             default:
                 fromClause.varType = symTable.semanticError;
                 fromClause.resultType = symTable.semanticError;
+                fromClause.errorType = symTable.semanticError;
                 fromClause.nillableResultType = symTable.semanticError;
                 dlogHelper.error(fromClause.collection.pos, DiagnosticCode.ITERABLE_NOT_SUPPORTED_COLLECTION,
                                  collectionType);
@@ -1163,6 +1172,7 @@ public class Types {
                 (BUnionType) getResultTypeOfNextInvocation((BObjectType) iteratorSymbol.retType);
         fromClause.varType = varType;
         fromClause.resultType = getRecordType(nextMethodReturnType);
+        fromClause.errorType = getErrorType(nextMethodReturnType);
         fromClause.nillableResultType = nextMethodReturnType;
     }
 
@@ -1187,7 +1197,7 @@ public class Types {
         return getVarTypeFromIteratorFuncReturnType(returnType);
     }
 
-    private BUnionType getVarTypeFromIteratorFuncReturnType(BType returnType) {
+    public BUnionType getVarTypeFromIteratorFuncReturnType(BType returnType) {
         BObjectTypeSymbol objectTypeSymbol;
         if (returnType.tag != TypeTags.OBJECT) {
             return null;
@@ -1211,7 +1221,7 @@ public class Types {
 
         returnType = nextFunc.type.retType;
         // Check if the next function return type has the union type,
-        // record {|int value;|}|();
+        // record {|int value;|}|error|();
         if (checkNextFuncReturnType(returnType)) {
             return (BUnionType) returnType;
         }
@@ -1230,7 +1240,10 @@ public class Types {
             return false;
         }
 
+        types.removeIf(type -> type.tag == TypeTags.ERROR);
+
         if (types.size() != 1) {
+            //TODO: print error
             return false;
         }
 
@@ -1266,6 +1279,15 @@ public class Types {
         for (BType member : type.getMemberTypes()) {
             if (member.tag == TypeTags.RECORD) {
                 return (BRecordType) member;
+            }
+        }
+        return null;
+    }
+
+    private BErrorType getErrorType(BUnionType type) {
+        for (BType member : type.getMemberTypes()) {
+            if (member.tag == TypeTags.ERROR) {
+                return (BErrorType) member;
             }
         }
         return null;
