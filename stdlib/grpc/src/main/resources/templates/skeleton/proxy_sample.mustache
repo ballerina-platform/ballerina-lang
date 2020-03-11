@@ -9,8 +9,8 @@ service {{serviceName}} on new http:Listener(9091) {
 {{#blockingFunctions}}{{> proxy_unary service=../serviceName}}
 {{/blockingFunctions}}{{#literal "}"}}{{/literal}}
 {{/equals}}{{/stubList}}
-public function castFunction(string? field, string fieldType) returns anydata | error {
-    string castField = field.toString();
+public function castFunction(string? fieldToCast, string fieldType) returns anydata | error {
+    string castField = fieldToCast.toString();
     match fieldType {
         "string" => { return castField; }
         "int" => { return intCaster:fromString(castField); }
@@ -25,8 +25,8 @@ public function arrayCaster (string[] fieldArray, string fieldType) returns any 
         }
         "int" => {
             int[] intArray  = [];
-            foreach var field in fieldArray {
-                int | error castedField = intCaster:fromString(field);
+            foreach var fieldToCast in fieldArray {
+                int | error castedField = intCaster:fromString(fieldToCast);
                 if castedField is int {
                     intArray.push(castedField);
                 } else {
@@ -37,8 +37,8 @@ public function arrayCaster (string[] fieldArray, string fieldType) returns any 
         }
         "float" => {
             float[] floatArray  = [];
-            foreach var field in fieldArray {
-                float | error castedField = floatCaster:fromString(field);
+            foreach var fieldToCast in fieldArray {
+                float | error castedField = floatCaster:fromString(fieldToCast);
                 if castedField is float {
                     floatArray.push(castedField);
                 } else {

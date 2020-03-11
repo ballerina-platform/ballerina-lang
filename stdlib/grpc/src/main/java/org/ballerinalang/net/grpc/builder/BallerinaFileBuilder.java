@@ -180,7 +180,7 @@ public class BallerinaFileBuilder {
                 ServiceFile.Builder sampleServiceBuilder = ServiceFile.newBuilder(serviceDescriptor.getName());
                 List<DescriptorProtos.MethodDescriptorProto> methodList = serviceDescriptor.getMethodList();
                 boolean isUnaryContains = false;
-
+                stubFileObject.setMessageList(messageList);
                 for (DescriptorProtos.MethodDescriptorProto methodDescriptorProto : methodList) {
                     String methodID;
                     if (filePackage != null && !filePackage.isEmpty()) {
@@ -189,6 +189,7 @@ public class BallerinaFileBuilder {
                     } else {
                         methodID = serviceDescriptor.getName() + "/" + methodDescriptorProto.getName();
                     }
+
                     Method method = Method.newBuilder(methodID, stubFileObject.getMessageMap())
                             .setMethodDescriptor(methodDescriptorProto).build();
                     serviceStubBuilder.addMethod(method);
@@ -230,7 +231,12 @@ public class BallerinaFileBuilder {
                             DEFAULT_SAMPLE_DIR,
                             SAMPLE_CLIENT_TEMPLATE_NAME, clientFilePath);
                 } else if (GRPC_PROXY.equals(mode)) {
-                    String proxyPath= generateOutputFile(
+                    stubFileObject.setEnumList(enumList);
+                    stubFileObject.setDescriptors(descriptors);
+                    if (!stubRootDescriptor.isEmpty()) {
+                        stubFileObject.setRootDescriptor(stubRootDescriptor);
+                    }
+                    String proxyPath = generateOutputFile(
                             this.balOutPath, filename + SAMPLE_PROXY_FILE_PREFIX);
                     writeOutputFile(stubFileObject, DEFAULT_SAMPLE_DIR, SAMPLE_PROXY_TEMPLATE_NAME,
                             proxyPath);
@@ -238,7 +244,6 @@ public class BallerinaFileBuilder {
             }
 
             if (!GRPC_SERVICE.equals(mode)) {
-                stubFileObject.setMessageList(messageList);
                 stubFileObject.setEnumList(enumList);
                 stubFileObject.setDescriptors(descriptors);
                 if (!stubRootDescriptor.isEmpty()) {
@@ -247,7 +252,6 @@ public class BallerinaFileBuilder {
                 String stubFilePath = generateOutputFile(this.balOutPath, filename + STUB_FILE_PREFIX);
                 writeOutputFile(stubFileObject, DEFAULT_SKELETON_DIR, SKELETON_TEMPLATE_NAME, stubFilePath);
             } else if (needStubFile) {
-                stubFileObject.setMessageList(messageList);
                 stubFileObject.setEnumList(enumList);
                 stubFileObject.setDescriptors(descriptors);
                 if (!stubRootDescriptor.isEmpty()) {

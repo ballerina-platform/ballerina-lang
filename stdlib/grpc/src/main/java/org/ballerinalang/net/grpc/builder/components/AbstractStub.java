@@ -84,7 +84,7 @@ public abstract class AbstractStub {
 
     public void setMessageList(List<Message> messageList) {
         Map<String, Message> messageMap = new HashMap<>();
-        for (Message messageInList : messageList){
+        for (Message messageInList : messageList) {
             messageMap.put(messageInList.getMessageName(), messageInList);
         }
         this.messageMap = messageMap;

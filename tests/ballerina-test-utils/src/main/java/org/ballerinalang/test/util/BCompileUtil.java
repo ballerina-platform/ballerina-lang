@@ -280,9 +280,9 @@ public class BCompileUtil {
      * @param init init the module or not
      * @return Semantic errors
      */
-    public static CompileResult compile(Path sourceRoot, String packageName, boolean init) {
+    public static CompileResult compile(Path sourceRoot, String packageName, boolean init, boolean withTests) {
         Path packagePath = Paths.get(packageName);
-        return getCompileResult(packageName, sourceRoot, packagePath, init);
+        return getCompileResult(packageName, sourceRoot, packagePath, init, withTests);
     }
 
     /**
