@@ -1803,8 +1803,8 @@ public class NodeCloner extends BLangNodeVisitor {
         BLangXMLNavigationAccess clone = new BLangXMLNavigationAccess(
                 source.pos,
                 source.getWS(),
-                source.expr,
-                source.filters,
+                clone(source.expr),
+                cloneList(source.filters),
                 source.navAccessType,
                 clone(source.childIndex));
         source.cloneRef = clone;
