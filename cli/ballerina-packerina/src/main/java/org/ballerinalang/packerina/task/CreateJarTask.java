@@ -97,7 +97,7 @@ public class CreateJarTask implements Task {
             collectImportModules(bLangPackage.symbol.imports, sourceRoot, buildContext, alreadyImportedModulesSet,
                                  moduleList);
 
-            // Generate jar for module and its imports
+            // Module imports will be code gen first. Hence module list will be code gen in reverse order.
             for (int i = moduleList.size(); i-- > 0; ) {
                 ModuleJar moduleJar = moduleList.get(i);
                 BPackageSymbol bImport = moduleJar.bPackageSymbol;
