@@ -21,15 +21,15 @@ import java.util.List;
 import org.jetbrains.annotations.*;
 import com.intellij.psi.PsiElement;
 
-public interface BallerinaQueryPipeline extends PsiElement {
+public interface BallerinaXmlElementNames extends PsiElement {
 
   @NotNull
-  List<BallerinaFromClause> getFromClauseList();
+  List<BallerinaXmlElementAccessFilter> getXmlElementAccessFilterList();
 
   @NotNull
-  List<BallerinaLetClause> getLetClauseList();
+  PsiElement getGt();
 
   @NotNull
-  List<BallerinaWhereClause> getWhereClauseList();
+  PsiElement getLt();
 
 }
