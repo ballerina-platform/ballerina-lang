@@ -108,7 +108,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRestArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangServiceConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangStreamConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
@@ -139,8 +138,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLTextLiteral;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.types.BLangLetVariable;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
-import org.wso2.ballerinalang.compiler.tree.types.BLangType;
-import org.wso2.ballerinalang.compiler.tree.types.BLangUnionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
 import org.wso2.ballerinalang.compiler.util.BArrayState;
 import org.wso2.ballerinalang.compiler.util.ClosureVarSymbol;
@@ -1738,9 +1735,36 @@ public class TypeChecker extends BLangNodeVisitor {
                 }
                 break;
             case TypeTags.STREAM:
-                dlog.error(cIExpr.pos, DiagnosticCode.INVALID_STREAM_CONSTRUCTOR,
-                           cIExpr.initInvocation.name);
-                resultType = symTable.semanticError;
+                if (cIExpr.initInvocation.argExprs.size() != 1) {
+                    dlog.error(cIExpr.pos, DiagnosticCode.INVALID_STREAM_CONSTRUCTOR, cIExpr.initInvocation.name);
+                    resultType = symTable.semanticError;
+                    return;
+                }
+
+                BStreamType actualStreamType = (BStreamType) actualType;
+                if (actualStreamType.error != null) {
+                    BType error = actualStreamType.error;
+                    if (!types.containsErrorType(error)) {
+                        dlog.error(cIExpr.pos, DiagnosticCode.ERROR_TYPE_EXPECTED, error.toString());
+                        resultType = symTable.semanticError;
+                        return;
+                    }
+                }
+
+                BLangExpression iteratorExpr = cIExpr.initInvocation.argExprs.get(0);
+                BType constructType = checkExpr(iteratorExpr, env, symTable.noType);
+                BUnionType nextReturnType = types.getVarTypeFromIteratorFuncReturnType(constructType);
+                BUnionType expectedReturnType = createNextReturnType(cIExpr.pos, (BStreamType) actualType);
+                if (nextReturnType == null) {
+                    dlog.error(iteratorExpr.pos, DiagnosticCode.MISSING_REQUIRED_METHOD_NEXT,
+                            constructType, expectedReturnType);
+                    resultType = symTable.semanticError;
+                    return;
+                }
+
+                types.checkType(iteratorExpr.pos, nextReturnType, expectedReturnType,
+                        DiagnosticCode.INCOMPATIBLE_TYPES);
+                resultType = actualType;
                 return;
             case TypeTags.UNION:
                 List<BType> matchingMembers = findMembersWithMatchingInitFunc(cIExpr, (BUnionType) actualType);
@@ -1775,6 +1799,36 @@ public class TypeChecker extends BLangNodeVisitor {
         }
         BType actualTypeInitType = getObjectConstructorReturnType(actualType, cIExpr.initInvocation.type);
         resultType = types.checkType(cIExpr, actualTypeInitType, expType);
+    }
+
+    private BUnionType createNextReturnType(DiagnosticPos pos, BStreamType streamType) {
+        BRecordType recordType = new BRecordType(null);
+        recordType.restFieldType = symTable.noType;
+        recordType.sealed = true;
+
+        Name fieldName = Names.VALUE;
+        BField field = new BField(fieldName, pos, new BVarSymbol(Flags.PUBLIC,
+                fieldName, env.enclPkg.packageID, streamType.constraint, env.scope.owner));
+        field.type = streamType.constraint;
+        recordType.fields.add(field);
+
+        recordType.tsymbol = Symbols.createRecordSymbol(0, Names.EMPTY, env.enclPkg.packageID,
+                recordType, env.scope.owner);
+        recordType.tsymbol.scope = new Scope(env.scope.owner);
+        recordType.tsymbol.scope.define(fieldName, field.symbol);
+
+        LinkedHashSet<BType> retTypeMembers = new LinkedHashSet<>();
+        retTypeMembers.add(recordType);
+        if (streamType.error != null) {
+            retTypeMembers.add(streamType.error);
+        }
+        retTypeMembers.add(symTable.nilType);
+
+        BUnionType unionType = BUnionType.create(null, retTypeMembers);
+        unionType.tsymbol = Symbols.createTypeSymbol(SymTag.UNION_TYPE, 0, Names.EMPTY,
+                env.enclPkg.symbol.pkgID, unionType, env.scope.owner);
+
+        return unionType;
     }
 
     private boolean isValidInitInvocation(BLangTypeInit cIExpr, BObjectType objType) {
@@ -2804,57 +2858,6 @@ public class TypeChecker extends BLangNodeVisitor {
     @Override
     public void visit(BLangServiceConstructorExpr serviceConstructorExpr) {
         resultType = serviceConstructorExpr.serviceNode.symbol.type;
-    }
-
-    @Override
-    public void visit(BLangStreamConstructorExpr streamConstructorExpr) {
-        // Create `record {| T value; |}`, and use that as the lambda return type.
-        BRecordType recordType = createStreamReturnRecordType(streamConstructorExpr.pos, (BStreamType) expType);
-        BLangRecordTypeNode recordTypeNode = createRecordTypeNode(streamConstructorExpr.pos, recordType);
-        BLangLambdaFunction lambdaFunction = streamConstructorExpr.lambdaFunction;
-
-        BType returnType = BUnionType.create(null, recordType, symTable.nilType);
-        BLangType returnTypeNode = new BLangUnionTypeNode(new ArrayList<BLangType>() {{
-            add(recordTypeNode);
-            add(new BLangValueType(TypeKind.NIL));
-        }});
-        returnTypeNode.type = returnType;
-        lambdaFunction.function.symbol.retType = returnType;
-        lambdaFunction.function.returnTypeNode = returnTypeNode;
-
-        ((BInvokableType) lambdaFunction.function.symbol.type).retType = lambdaFunction.function.symbol.retType;
-        checkExpr(streamConstructorExpr.lambdaFunction, env);
-        ((BInvokableTypeSymbol) ((BInvokableType) lambdaFunction.type).tsymbol).returnType =
-                lambdaFunction.function.symbol.retType;
-        resultType = expType;
-    }
-
-    private BRecordType createStreamReturnRecordType(DiagnosticPos pos, BStreamType streamType) {
-        BRecordType recordType = new BRecordType(null);
-        recordType.restFieldType = symTable.noType;
-        recordType.sealed = true;
-
-        Name fieldName = Names.VALUE;
-        BField field = new BField(fieldName, pos, new BVarSymbol(Flags.PUBLIC,
-                fieldName, env.enclPkg.packageID, streamType.constraint, env.scope.owner));
-        field.type = streamType.constraint;
-        recordType.fields.add(field);
-
-        recordType.tsymbol = Symbols.createRecordSymbol(0,
-                names.fromString(anonymousModelHelper.getNextAnonymousTypeKey(env.enclPkg.symbol.pkgID)),
-                env.enclPkg.packageID, recordType, env.scope.owner);
-        recordType.tsymbol.scope = new Scope(env.scope.owner);
-        recordType.tsymbol.scope.define(fieldName, field.symbol);
-        return recordType;
-    }
-
-    private BLangRecordTypeNode createRecordTypeNode(DiagnosticPos pos, BRecordType recordType) {
-        BLangRecordTypeNode recordTypeNode = TypeDefBuilderHelper.createRecordTypeNode(recordType,
-                env.enclPkg.packageID, symTable, pos);
-        recordTypeNode.initFunction = TypeDefBuilderHelper.createInitFunctionForRecordType(recordTypeNode,
-                env, names, symTable);
-        TypeDefBuilderHelper.addTypeDefinition(recordType, recordType.tsymbol, recordTypeNode, env);
-        return recordTypeNode;
     }
 
     @Override

@@ -88,6 +88,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CHANNEL_D
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ERROR_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FUNCTION_POINTER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FUTURE_VALUE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.GLOBAL_LOCK_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.HANDLE_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LIST;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LOCK_STORE;
@@ -356,7 +357,7 @@ public class JvmTerminatorGen {
             String lockStore = "L" + LOCK_STORE + ";";
             String initClassName = lookupGlobalVarClassName(this.currentPackageName, "LOCK_STORE");
             this.mv.visitFieldInsn(GETSTATIC, initClassName, "LOCK_STORE", lockStore);
-            this.mv.visitLdcInsn("global");
+            this.mv.visitLdcInsn(GLOBAL_LOCK_NAME);
             this.mv.visitMethodInsn(INVOKEVIRTUAL, LOCK_STORE, "getLockFromMap",
                     String.format("(L%s;)L%s;", STRING_VALUE, LOCK_VALUE), false);
             this.mv.visitVarInsn(ALOAD, localVarOffset);
@@ -415,7 +416,7 @@ public class JvmTerminatorGen {
             String lockStore = "L" + LOCK_STORE + ";";
             String initClassName = lookupGlobalVarClassName(this.currentPackageName, "LOCK_STORE");
             this.mv.visitFieldInsn(GETSTATIC, initClassName, "LOCK_STORE", lockStore);
-            this.mv.visitLdcInsn("global");
+            this.mv.visitLdcInsn(GLOBAL_LOCK_NAME);
             this.mv.visitMethodInsn(INVOKEVIRTUAL, LOCK_STORE, "getLockFromMap", String.format("(L%s;)L%s;",
                     STRING_VALUE, LOCK_VALUE), false);
             this.mv.visitMethodInsn(INVOKEVIRTUAL, LOCK_VALUE, "unlock", "()V", false);
@@ -907,6 +908,16 @@ public class JvmTerminatorGen {
 
             String orgName = calleePkgId.orgName.value;
             String moduleName = calleePkgId.name.value;
+
+            // Check if already locked before submitting to scheduler.
+            String lockStore = "L" + LOCK_STORE + ";";
+            String initClassName = lookupGlobalVarClassName(this.currentPackageName, "LOCK_STORE");
+            this.mv.visitFieldInsn(GETSTATIC, initClassName, "LOCK_STORE", lockStore);
+            this.mv.visitLdcInsn(GLOBAL_LOCK_NAME);
+            this.mv.visitVarInsn(ALOAD, localVarOffset);
+            this.mv.visitMethodInsn(INVOKEVIRTUAL, LOCK_STORE, "panicIfInLock",
+                    String.format("(L%s;L%s;)V", STRING_VALUE, STRAND), false);
+
             // Load the scheduler from strand
             this.mv.visitVarInsn(ALOAD, localVarOffset);
             this.mv.visitFieldInsn(GETFIELD, STRAND, "scheduler", String.format("L%s;", SCHEDULER));
@@ -1025,6 +1036,15 @@ public class JvmTerminatorGen {
         void genFPCallIns(BIRTerminator.FPCall fpCall, String funcName, int localVarOffset) {
 
             if (fpCall.isAsync) {
+                // Check if already locked before submitting to scheduler.
+                String lockStore = "L" + LOCK_STORE + ";";
+                String initClassName = lookupGlobalVarClassName(this.currentPackageName, "LOCK_STORE");
+                this.mv.visitFieldInsn(GETSTATIC, initClassName, "LOCK_STORE", lockStore);
+                this.mv.visitLdcInsn(GLOBAL_LOCK_NAME);
+                this.mv.visitVarInsn(ALOAD, localVarOffset);
+                this.mv.visitMethodInsn(INVOKEVIRTUAL, LOCK_STORE, "panicIfInLock",
+                        String.format("(L%s;L%s;)V", STRING_VALUE, STRAND), false);
+
                 // Load the scheduler from strand
                 this.mv.visitVarInsn(ALOAD, localVarOffset);
                 this.mv.visitFieldInsn(GETFIELD, STRAND, "scheduler", String.format("L%s;", SCHEDULER));

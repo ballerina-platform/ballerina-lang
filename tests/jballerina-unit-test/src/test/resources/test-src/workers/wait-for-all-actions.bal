@@ -110,7 +110,7 @@ function waitTest10() returns secondRec { // {f1: 30, f5: "hello xyz"}
 function waitTest11() returns thirdRec { // {f1: 30, f5: "hello bar"}
     future<int> f1 = start add_1(20, 10);
     future<string> f2 = start concat("bar");
-    thirdRec result = wait {f1: f1, field: f2};
+    thirdRec result = wait {f1: f1, 'field: f2};
     return result;
 }
 
@@ -335,7 +335,7 @@ type secondRec record {
 
 type thirdRec record {
     int f1 = 0;
-    string field = "third-default";
+    string 'field = "third-default";
     int f4?;
 };
 

@@ -106,4 +106,5 @@ public class Tokens {
     public static final String XML_LITERAL_START = "xml `";
     public static final String COMMITTED = "committed";
     public static final String ABORTED = "aborted";
+    public static final String LET = "let";
 }

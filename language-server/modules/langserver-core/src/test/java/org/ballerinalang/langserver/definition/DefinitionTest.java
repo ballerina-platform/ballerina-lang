@@ -293,6 +293,12 @@ public class DefinitionTest {
                 {"defErrorConstructorExpr5.json", "expression"},
                 {"defErrorConstructorExpr6.json", "expression"},
                 {"defErrorConstructorExpr7.json", "expression"},
+                // Covers Let Expression
+                {"defLetExpr1.json", "letexpression"},
+                {"defLetExpr2.json", "letexpression"},
+                {"defLetExpr3.json", "letexpression"},
+                {"defLetExpr4.json", "letexpression"},
+                {"defLetExpr5.json", "letexpression"},
                 // Covers the Start Action
                 {"defStartAction1.json", "action"},
                 {"defStartAction2.json", "action"}, // Remote method call action is also similar
@@ -431,6 +437,12 @@ public class DefinitionTest {
                 {"defPanicStmt1.json", "panic"},
                 // Covers Return Statement
                 {"defReturnStmt1.json", "return"},
+//                // Stream Tests
+                {"defStreams1.json", "streams"},
+                {"defStreams2.json", "streams"},
+                {"defStreams3.json", "streams"},
+                {"defStreams4.json", "streams"},
+                {"defStreams5.json", "streams"},
         };
     }
     
