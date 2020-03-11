@@ -64,6 +64,21 @@ public class BLangXMLNavigationAccess extends BLangAccessExpression implements X
     }
 
     @Override
+    public List<BLangXMLElementFilter> getFilters() {
+        return this.filters;
+    }
+
+    @Override
+    public BLangExpression getExpression() {
+        return this.expr;
+    }
+
+    @Override
+    public BLangExpression getChildIndex() {
+        return this.childIndex;
+    }
+
+    @Override
     public String toString() {
         switch (navAccessType) {
             case CHILDREN:

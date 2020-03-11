@@ -101,6 +101,8 @@ public enum DiagnosticCode {
     INVALID_WORKER_TIMEOUT_RESULT_TYPE("invalid.worker.timeout.result.type"),
     INVALID_WORKER_REFERRENCE("invalid.worker.reference"),
     INCOMPATIBLE_TYPE_CONSTRAINT("incompatible.type.constraint"),
+    USAGE_OF_WORKER_WITHIN_LOCK_IS_PROHIBITED("usage.of.worker.within.lock.is.prohibited"),
+    USAGE_OF_START_WITHIN_LOCK_IS_PROHIBITED("usage.of.start.within.lock.is.prohibited"),
     WORKER_SEND_RECEIVE_PARAMETER_COUNT_MISMATCH("worker.send.receive.parameter.count.mismatch"),
     INVALID_WORKER_INTERACTION("worker.invalid.worker.interaction"),
     WORKER_INTERACTIONS_ONLY_ALLOWED_BETWEEN_PEERS("worker.interactions.only.allowed.between.peers"),
@@ -400,6 +402,9 @@ public enum DiagnosticCode {
     // Streaming related codes
     INVALID_STREAM_CONSTRUCTOR("invalid.stream.constructor"),
     NOT_ALLOWED_STREAM_USAGE_WITH_FROM("invalid.stream.usage.with.from"),
+    ERROR_TYPE_EXPECTED("error.type.expected"),
+    MISSING_REQUIRED_METHOD_NEXT("missing.required.method.next"),
+
 
     // Taint checking related codes
     ENTRY_POINT_PARAMETERS_CANNOT_BE_UNTAINTED("entry.point.parameters.cannot.be.untainted"),

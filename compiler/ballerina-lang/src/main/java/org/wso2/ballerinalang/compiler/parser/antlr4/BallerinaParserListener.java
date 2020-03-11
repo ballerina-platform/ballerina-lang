@@ -98,16 +98,6 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 */
 	void exitServiceBody(BallerinaParser.ServiceBodyContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link BallerinaParser#streamConstructorBody}.
-	 * @param ctx the parse tree
-	 */
-	void enterStreamConstructorBody(BallerinaParser.StreamConstructorBodyContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link BallerinaParser#streamConstructorBody}.
-	 * @param ctx the parse tree
-	 */
-	void exitStreamConstructorBody(BallerinaParser.StreamConstructorBodyContext ctx);
-	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#blockFunctionBody}.
 	 * @param ctx the parse tree
 	 */
@@ -656,6 +646,16 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 */
 	void exitBuiltInReferenceTypeName(BallerinaParser.BuiltInReferenceTypeNameContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#streamTypeName}.
+	 * @param ctx the parse tree
+	 */
+	void enterStreamTypeName(BallerinaParser.StreamTypeNameContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#streamTypeName}.
+	 * @param ctx the parse tree
+	 */
+	void exitStreamTypeName(BallerinaParser.StreamTypeNameContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#functionTypeName}.
 	 * @param ctx the parse tree
 	 */
@@ -885,16 +885,6 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitListConstructorExpr(BallerinaParser.ListConstructorExprContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link BallerinaParser#streamConstructorExpr}.
-	 * @param ctx the parse tree
-	 */
-	void enterStreamConstructorExpr(BallerinaParser.StreamConstructorExprContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link BallerinaParser#streamConstructorExpr}.
-	 * @param ctx the parse tree
-	 */
-	void exitStreamConstructorExpr(BallerinaParser.StreamConstructorExprContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#assignmentStatement}.
 	 * @param ctx the parse tree
@@ -2221,18 +2211,6 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitBinaryDivMulModExpression(BallerinaParser.BinaryDivMulModExpressionContext ctx);
-	/**
-	 * Enter a parse tree produced by the {@code streamConstructorExpression}
-	 * labeled alternative in {@link BallerinaParser#expression}.
-	 * @param ctx the parse tree
-	 */
-	void enterStreamConstructorExpression(BallerinaParser.StreamConstructorExpressionContext ctx);
-	/**
-	 * Exit a parse tree produced by the {@code streamConstructorExpression}
-	 * labeled alternative in {@link BallerinaParser#expression}.
-	 * @param ctx the parse tree
-	 */
-	void exitStreamConstructorExpression(BallerinaParser.StreamConstructorExpressionContext ctx);
 	/**
 	 * Enter a parse tree produced by the {@code waitExpression}
 	 * labeled alternative in {@link BallerinaParser#expression}.

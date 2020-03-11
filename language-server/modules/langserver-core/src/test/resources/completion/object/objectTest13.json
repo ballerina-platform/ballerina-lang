@@ -160,6 +160,26 @@
             "insertTextFormat": "Snippet"
         },
         {
+            "label": "InboundAuthHandlers",
+            "detail": "Union",
+            "documentation": {
+                "left": "Represents inbound auth handler patterns."
+            },
+            "sortText": "110",
+            "insertText": "InboundAuthHandlers",
+            "insertTextFormat": "Snippet"
+        },
+        {
+            "label": "Scopes",
+            "detail": "Union",
+            "documentation": {
+                "left": "Represents scopes patterns."
+            },
+            "sortText": "110",
+            "insertText": "Scopes",
+            "insertTextFormat": "Snippet"
+        },
+        {
             "label": "CredentialBearer",
             "detail": "Union",
             "documentation": {

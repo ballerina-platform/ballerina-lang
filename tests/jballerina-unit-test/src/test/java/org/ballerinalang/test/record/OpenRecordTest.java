@@ -485,4 +485,24 @@ public class OpenRecordTest {
     public void testCustomErrorTypeDescFieldOnRecord() {
         BRunUtil.invoke(compileResult, "testCustomErrorTypeDescFieldOnRecord");
     }
+
+    @Test
+    public void testOptionalRecordRemove() {
+        BRunUtil.invoke(compileResult, "removeOptional");
+    }
+
+    @Test
+    public void testRestRecordRemove() {
+        BRunUtil.invoke(compileResult, "removeRest");
+    }
+
+    @Test
+    public void removeIfHasKeyOptional() {
+        BRunUtil.invoke(compileResult, "removeIfHasKeyOptional");
+    }
+
+    @Test
+    public void removeIfHasKeyRest() {
+        BRunUtil.invoke(compileResult, "removeIfHasKeyRest");
+    }
 }
