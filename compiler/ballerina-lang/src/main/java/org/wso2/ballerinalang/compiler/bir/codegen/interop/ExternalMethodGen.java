@@ -221,13 +221,11 @@ public class ExternalMethodGen {
         @Nilable BIRVariableDcl receiver = birFunc.receiver;
         @Nilable BType attachedType = receiver != null ? receiver.type : null;
         String jvmMethodDescription = getMethodDesc(functionTypeDesc.paramTypes, functionTypeDesc.retType, attachedType,
-                false, false);
+                                                    false);
         String jvmMethodDescriptionBString = getMethodDesc(functionTypeDesc.paramTypes, functionTypeDesc.retType,
-                attachedType, false, true);
-        String jMethodVMSig = getMethodDesc(jMethodPramTypes, functionTypeDesc.retType,
-                attachedType, true, false);
-        String jMethodVMSigBString = getMethodDesc(jMethodPramTypes, functionTypeDesc.retType, attachedType, true,
-                true);
+                                                           attachedType, false);
+        String jMethodVMSig = getMethodDesc(jMethodPramTypes, functionTypeDesc.retType, attachedType, true);
+        String jMethodVMSigBString = getMethodDesc(jMethodPramTypes, functionTypeDesc.retType, attachedType, true);
 
         return new OldStyleExternalFunctionWrapper(orgName, moduleName, version, birFunc, birModuleClassName,
                 jvmMethodDescription, jvmMethodDescriptionBString, jClassName, jMethodPramTypes, jMethodVMSigBString,

@@ -140,7 +140,7 @@ public class InteropMethodGen {
 
         // Generate method desc
         BIRFunction birFunc = jFieldFuncWrapper.func;
-        String desc = getMethodDesc(birFunc.type.paramTypes, birFunc.type.retType, null, false, false);
+        String desc = getMethodDesc(birFunc.type.paramTypes, birFunc.type.retType, null, false);
         int access = ACC_PUBLIC + ACC_STATIC;
 
         MethodVisitor mv = cw.visitMethod(access, birFunc.name.value, desc, null, null);
@@ -191,7 +191,7 @@ public class InteropMethodGen {
 
             @Nilable List<BIRBasicBlock> basicBlocks = birFunc.parameters.get(birFuncParam);
             generateBasicBlocks(mv, basicBlocks, labelGen, errorGen, instGen, termGen, birFunc, -1, -1,
-                    strandParamIndex, true, birModule, currentPackageName, null, false, false, null, false);
+                    strandParamIndex, true, birModule, currentPackageName, null, false, false, null);
             mv.visitLabel(paramNextLabel);
 
             birFuncParamIndex += 1;
@@ -272,7 +272,7 @@ public class InteropMethodGen {
             if (jField.getFieldType().isPrimitive() /*jFieldType instanceof JPrimitiveType*/) {
                 performWideningPrimitiveConversion(mv, retType, jFieldType);
             } else {
-                addUnboxInsn(mv, retType, false);
+                addUnboxInsn(mv, retType);
             }
         }
 

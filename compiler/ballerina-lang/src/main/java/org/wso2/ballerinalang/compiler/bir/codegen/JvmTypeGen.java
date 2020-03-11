@@ -137,6 +137,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPES_ERR
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.UNION_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.XML_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmInstructionGen.B_STRING_VALUE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmInstructionGen.isBString;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmInstructionGen.loadConstantValue;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.BalToJVMIndexMap;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.getObjectField;
@@ -1291,7 +1292,7 @@ class JvmTypeGen {
                 String.format("([L%s;L%s;L%s;)V", BTYPE, BTYPE, BTYPE), false);
     }
 
-    static String getTypeDesc(BType bType, boolean useBString /* = false */) {
+    static String getTypeDesc(BType bType) {
 
         if (bType.tag == TypeTags.INT) {
             return "J";
@@ -1300,7 +1301,7 @@ class JvmTypeGen {
         } else if (bType.tag == TypeTags.FLOAT) {
             return "D";
         } else if (bType.tag == TypeTags.STRING) {
-            return String.format("L%s;", useBString ? B_STRING_VALUE : STRING_VALUE);
+            return String.format("L%s;", isBString ? B_STRING_VALUE : STRING_VALUE);
         } else if (bType.tag == TypeTags.BOOLEAN) {
             return "Z";
         } else if (bType.tag == TypeTags.NIL) {
@@ -1358,7 +1359,7 @@ class JvmTypeGen {
             BType valueType = valueTypePair.type;
             mv.visitInsn(DUP);
 
-            loadConstantValue(valueType, value, mv, false);
+            loadConstantValue(valueType, value, mv);
 
             if (valueType.tag == TypeTags.INT) {
                 mv.visitMethodInsn(INVOKESTATIC, LONG_VALUE, "valueOf", String.format("(J)L%s;", LONG_VALUE), false);

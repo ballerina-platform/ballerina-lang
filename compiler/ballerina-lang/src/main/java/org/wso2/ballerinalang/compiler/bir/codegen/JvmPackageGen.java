@@ -210,11 +210,11 @@ public class JvmPackageGen {
         }
     }
 
-    static String lookupJavaMethodDescription(String key, boolean useBString) {
+    static String lookupJavaMethodDescription(String key) {
 
         if (birFunctionMap.containsKey(key)) {
             BIRFunctionWrapper functionWrapper = getBIRFunctionWrapper(birFunctionMap.get(key));
-            return useBString ? (functionWrapper.jvmMethodDescriptionBString != null ?
+            return isBString ? (functionWrapper.jvmMethodDescriptionBString != null ?
                     functionWrapper.jvmMethodDescriptionBString : "<error>") : functionWrapper.jvmMethodDescription;
         } else {
             throw new BLangCompilerException("cannot find jvm method description for : " + key);
@@ -890,9 +890,9 @@ public class JvmPackageGen {
         @Nilable BIRVariableDcl receiver = currentFunc.receiver;
         @Nilable BType attachedType = receiver != null ? receiver.type : null;
         String jvmMethodDescription = getMethodDesc(functionTypeDesc.paramTypes, functionTypeDesc.retType,
-                attachedType, false, false);
+                attachedType, false);
         String jvmMethodDescriptionBString = getMethodDesc(functionTypeDesc.paramTypes, functionTypeDesc.retType,
-                attachedType, false, true);
+                attachedType, false);
 
         return new BIRFunctionWrapper(orgName, moduleName, version, currentFunc, moduleClass, jvmMethodDescription,
                 jvmMethodDescriptionBString);

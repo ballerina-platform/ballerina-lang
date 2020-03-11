@@ -537,7 +537,7 @@ public class JvmTerminatorGen {
                         "Ljava/lang/Object;");
                 @Nilable BIRVariableDcl lhsOpVarDcl = callIns.lhsOp.variableDcl;
                 if (lhsOpVarDcl != null) {
-                    addUnboxInsn(this.mv, callIns.lhsOp.variableDcl.type, false); // store return
+                    addUnboxInsn(this.mv, callIns.lhsOp.variableDcl.type); // store return
                     this.storeToVar(lhsOpVarDcl);
                 }
             }
@@ -677,7 +677,7 @@ public class JvmTerminatorGen {
                 this.mv.visitVarInsn(ALOAD, localVarOffset);
                 this.mv.visitFieldInsn(GETFIELD, "org/ballerinalang/jvm/scheduling/Strand", "returnValue",
                         "Ljava/lang/Object;");
-                addUnboxInsn(this.mv, callIns.lhsOp.variableDcl.type, false);
+                addUnboxInsn(this.mv, callIns.lhsOp.variableDcl.type);
                 // store return
                 @Nilable BIRVariableDcl lhsOpVarDcl = callIns.lhsOp.variableDcl;
                 this.storeToVar(lhsOpVarDcl);
@@ -805,7 +805,7 @@ public class JvmTerminatorGen {
                 jvmClass = getModuleLevelClassName(orgName, moduleName,
                         cleanupPathSeperators(cleanupBalExt(balFileName)));
                 //TODO: add receiver:  BType attachedType = type.r != null ? receiver.type : null;
-                methodDesc = getMethodDesc(params, type.retType, null, false, isBString);
+                methodDesc = getMethodDesc(params, type.retType, null, false);
             }
             this.mv.visitMethodInsn(INVOKESTATIC, jvmClass, cleanMethodName, methodDesc, false);
         }
@@ -861,7 +861,7 @@ public class JvmTerminatorGen {
             this.mv.visitMethodInsn(INVOKEINTERFACE, OBJECT_VALUE, "call", methodDesc, true);
 
             @Nilable BType returnType = callIns.lhsOp.variableDcl.type;
-            addUnboxInsn(this.mv, returnType, false);
+            addUnboxInsn(this.mv, returnType);
         }
 
         void loadBooleanArgToIndicateUserProvidedArg(String orgName, String moduleName, boolean userProvided) {
@@ -991,7 +991,7 @@ public class JvmTerminatorGen {
             this.mv.visitVarInsn(ALOAD, resultIndex);
             this.mv.visitFieldInsn(GETFIELD, String.format("%s$WaitResult", STRAND), "result",
                     String.format("L%s;", OBJECT));
-            addUnboxInsn(this.mv, waitInst.lhsOp.variableDcl.type, false);
+            addUnboxInsn(this.mv, waitInst.lhsOp.variableDcl.type);
             this.storeToVar(waitInst.lhsOp.variableDcl);
             this.mv.visitLabel(afterIf);
         }
@@ -1082,7 +1082,7 @@ public class JvmTerminatorGen {
                 // store reult
                 @Nilable BType lhsType = fpCall.lhsOp.variableDcl.type;
                 if (lhsType != null) {
-                    addUnboxInsn(this.mv, lhsType, false);
+                    addUnboxInsn(this.mv, lhsType);
                 }
 
                 @Nilable BIRVariableDcl lhsVar = fpCall.lhsOp.variableDcl;
@@ -1157,7 +1157,7 @@ public class JvmTerminatorGen {
             Label withinReceiveSuccess = new Label();
             this.mv.visitLabel(withinReceiveSuccess);
             this.mv.visitVarInsn(ALOAD, wrkResultIndex);
-            addUnboxInsn(this.mv, ins.lhsOp.variableDcl.type, false);
+            addUnboxInsn(this.mv, ins.lhsOp.variableDcl.type);
             this.storeToVar(ins.lhsOp.variableDcl);
 
             this.mv.visitLabel(jumpAfterReceive);
