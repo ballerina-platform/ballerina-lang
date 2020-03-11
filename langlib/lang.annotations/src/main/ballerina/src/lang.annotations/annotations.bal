@@ -56,5 +56,5 @@ public type StrandData record {|
 |};
 
 # Denotes new Strand execution semantics.
-public annotation StrandData strand on worker, start;
+public const annotation StrandData strand on source worker;
 
