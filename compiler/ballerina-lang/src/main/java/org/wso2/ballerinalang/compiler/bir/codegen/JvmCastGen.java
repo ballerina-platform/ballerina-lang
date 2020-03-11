@@ -60,6 +60,7 @@ import static org.objectweb.asm.Opcodes.L2I;
 import static org.objectweb.asm.Opcodes.NEW;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ARRAY_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BHANDLE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BMP_STRING_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BOOLEAN_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BTYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.DECIMAL_VALUE;
@@ -656,7 +657,8 @@ public class JvmCastGen {
         }
     }
 
-    static void generateCheckCast(MethodVisitor mv, BType sourceType, BType targetType) {
+    static void generateCheckCast(MethodVisitor mv, BType sourceType, BType targetType, BalToJVMIndexMap indexMap,
+                                  boolean useBString) {
 
         if (targetType.tag == TypeTags.INT) {
             generateCheckCastToInt(mv, sourceType);
@@ -683,7 +685,7 @@ public class JvmCastGen {
             generateCheckCastToFloat(mv, sourceType);
             return;
         } else if (targetType.tag == TypeTags.STRING) {
-            generateCheckCastToString(mv, sourceType);
+            generateCheckCastToString(mv, sourceType, indexMap, useBString);
             return;
         } else if (targetType.tag == TypeTags.CHAR_STRING) {
             generateCheckCastToChar(mv, sourceType);
@@ -938,17 +940,24 @@ public class JvmCastGen {
         }
     }
 
-    private static void generateCheckCastToString(MethodVisitor mv, BType sourceType) {
+    private static void generateCheckCastToString(MethodVisitor mv, BType sourceType, BalToJVMIndexMap indexMap,
+                                                  boolean useBString) {
 
         if (TypeTags.isStringTypeTag(sourceType.tag)) {
             // do nothing
+            return;
         } else if (sourceType.tag == TypeTags.ANY ||
                 sourceType.tag == TypeTags.ANYDATA ||
                 sourceType.tag == TypeTags.UNION ||
                 sourceType.tag == TypeTags.JSON ||
                 sourceType.tag == TypeTags.FINITE) {
             checkCast(mv, symbolTable.stringType);
-            mv.visitTypeInsn(CHECKCAST, STRING_VALUE);
+            if (useBString) {
+                mv.visitTypeInsn(CHECKCAST, B_STRING_VALUE);
+            } else {
+                mv.visitTypeInsn(CHECKCAST, STRING_VALUE);
+            }
+            return;
         } else if (TypeTags.isIntegerTypeTag(sourceType.tag)) {
             mv.visitMethodInsn(INVOKESTATIC, LONG_VALUE, "toString", String.format("(J)L%s;", STRING_VALUE), false);
         } else if (sourceType.tag == TypeTags.FLOAT) {
@@ -962,6 +971,21 @@ public class JvmCastGen {
             throw new BLangCompilerException(String.format("Casting is not supported from '%s' to 'string'",
                     sourceType));
         }
+
+        generateNonBMPStringValue(mv, indexMap);
+    }
+
+
+    static void generateNonBMPStringValue(MethodVisitor mv, BalToJVMIndexMap indexMap) {
+        BIRVariableDcl strVar = new BIRVariableDcl(null, symbolTable.anyType,
+                                                             new Name("str"), VarScope.FUNCTION, VarKind.LOCAL, "");
+        int tmpVarIndex = indexMap.getIndex(strVar);
+
+        mv.visitVarInsn(ASTORE, tmpVarIndex);
+        mv.visitTypeInsn(NEW, BMP_STRING_VALUE);
+        mv.visitInsn(DUP);
+        mv.visitVarInsn(ALOAD, tmpVarIndex);
+        mv.visitMethodInsn(INVOKESPECIAL, BMP_STRING_VALUE, "<init>", String.format("(L%s;)V", STRING_VALUE), false);
     }
 
     private static void generateCheckCastToChar(MethodVisitor mv, BType sourceType) {
@@ -1192,7 +1216,7 @@ public class JvmCastGen {
                 sourceType.tag == TypeTags.UNION ||
                 sourceType.tag == TypeTags.JSON) {
             if (useBString) {
-                mv.visitTypeInsn(CHECKCAST, I_STRING_VALUE);
+                mv.visitTypeInsn(CHECKCAST, B_STRING_VALUE);
             } else {
                 mv.visitTypeInsn(CHECKCAST, STRING_VALUE);
             }

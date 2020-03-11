@@ -37,8 +37,9 @@ public class BLangForeach extends BLangStatement implements ForeachNode {
     public BLangBlockStmt body;
 
     public VariableDefinitionNode variableDefinitionNode;
-    public BType varType; // T
+    public BType varType; // T || T|E
     public BType resultType; // map<T>
+    public BType errorType; // E
     public BType nillableResultType; // map<T>?
     public boolean isDeclaredWithVar;
 
