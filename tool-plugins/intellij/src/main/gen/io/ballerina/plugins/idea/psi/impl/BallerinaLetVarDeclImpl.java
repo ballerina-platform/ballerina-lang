@@ -27,14 +27,14 @@ import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
 import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import io.ballerina.plugins.idea.psi.*;
 
-public class BallerinaParameterTypeNameImpl extends ASTWrapperPsiElement implements BallerinaParameterTypeName {
+public class BallerinaLetVarDeclImpl extends ASTWrapperPsiElement implements BallerinaLetVarDecl {
 
-  public BallerinaParameterTypeNameImpl(@NotNull ASTNode node) {
+  public BallerinaLetVarDeclImpl(@NotNull ASTNode node) {
     super(node);
   }
 
   public void accept(@NotNull BallerinaVisitor visitor) {
-    visitor.visitParameterTypeName(this);
+    visitor.visitLetVarDecl(this);
   }
 
   public void accept(@NotNull PsiElementVisitor visitor) {
@@ -50,14 +50,32 @@ public class BallerinaParameterTypeNameImpl extends ASTWrapperPsiElement impleme
 
   @Override
   @NotNull
-  public BallerinaTypeName getTypeName() {
-    return findNotNullChildByClass(BallerinaTypeName.class);
+  public BallerinaBindingPattern getBindingPattern() {
+    return findNotNullChildByClass(BallerinaBindingPattern.class);
+  }
+
+  @Override
+  @NotNull
+  public BallerinaExpression getExpression() {
+    return findNotNullChildByClass(BallerinaExpression.class);
   }
 
   @Override
   @Nullable
-  public PsiElement getEllipsis() {
-    return findChildByType(ELLIPSIS);
+  public BallerinaTypeName getTypeName() {
+    return findChildByClass(BallerinaTypeName.class);
+  }
+
+  @Override
+  @NotNull
+  public PsiElement getAssign() {
+    return findNotNullChildByType(ASSIGN);
+  }
+
+  @Override
+  @Nullable
+  public PsiElement getVar() {
+    return findChildByType(VAR);
   }
 
 }

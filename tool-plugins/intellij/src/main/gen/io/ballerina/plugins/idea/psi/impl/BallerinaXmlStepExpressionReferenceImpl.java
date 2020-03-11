@@ -24,17 +24,16 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.util.PsiTreeUtil;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
-import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import io.ballerina.plugins.idea.psi.*;
 
-public class BallerinaParameterTypeNameImpl extends ASTWrapperPsiElement implements BallerinaParameterTypeName {
+public class BallerinaXmlStepExpressionReferenceImpl extends BallerinaVariableReferenceImpl implements BallerinaXmlStepExpressionReference {
 
-  public BallerinaParameterTypeNameImpl(@NotNull ASTNode node) {
+  public BallerinaXmlStepExpressionReferenceImpl(@NotNull ASTNode node) {
     super(node);
   }
 
   public void accept(@NotNull BallerinaVisitor visitor) {
-    visitor.visitParameterTypeName(this);
+    visitor.visitXmlStepExpressionReference(this);
   }
 
   public void accept(@NotNull PsiElementVisitor visitor) {
@@ -44,20 +43,14 @@ public class BallerinaParameterTypeNameImpl extends ASTWrapperPsiElement impleme
 
   @Override
   @NotNull
-  public List<BallerinaAnnotationAttachment> getAnnotationAttachmentList() {
-    return PsiTreeUtil.getChildrenOfTypeAsList(this, BallerinaAnnotationAttachment.class);
+  public BallerinaVariableReference getVariableReference() {
+    return findNotNullChildByClass(BallerinaVariableReference.class);
   }
 
   @Override
   @NotNull
-  public BallerinaTypeName getTypeName() {
-    return findNotNullChildByClass(BallerinaTypeName.class);
-  }
-
-  @Override
-  @Nullable
-  public PsiElement getEllipsis() {
-    return findChildByType(ELLIPSIS);
+  public BallerinaXmlStepExpression getXmlStepExpression() {
+    return findNotNullChildByClass(BallerinaXmlStepExpression.class);
   }
 
 }
