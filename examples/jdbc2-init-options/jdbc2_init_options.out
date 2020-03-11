@@ -1,6 +1,6 @@
 # At the command line, navigate to the directory that contains the
 # `.bal` file and run the `ballerina run` command.
-$ ballerina run jdbc_init_options.bal
+$ ballerina run jdbc2_init_options.bal
 
 Simple JDBC client created.
 JDBC client with user/password created.

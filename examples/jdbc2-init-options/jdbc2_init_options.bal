@@ -3,20 +3,20 @@ import ballerina/java.jdbc;
 import ballerina/sql;
 
 function initializeClients() returns sql:Error? {
-    // Simple JDBC Client for H2 database with only mandatory
-    // field JDBC url. This client can be used with any JDBC
-    // supported database by providing the corresponding JDBC URL.
+    // Simple JDBC Client for H2 database with the mandatory
+    // field - JDBC url. This client can be used with any database
+    // by providing the corresponding JDBC URL and placing the relevant database
+    //driver jar.
     jdbc:Client jdbcClient1 = check new ("jdbc:h2:file:./target/sample1");
     io:println("Simple JDBC client created.");
 
-    //Initialize the JDBC client along with username and password
-    //when the database is secured.
+    //Initialize the JDBC client along with username and password.
     jdbc:Client jdbcClient2 = check new ("jdbc:h2:file:./target/sample2", "rootUser", "rootPass");
     io:println("JDBC client with user/password created.");
 
     //Initialize the JDBC client along with some additional
     //database properties. The database properties can differ based
-    //on the specific JDBC implementation of the database.
+    //on the specific JDBC datasource implementation of the database.
     jdbc:Options h2Options = {
         datasourceName: "org.h2.jdbcx.JdbcDataSource",
         properties: {"loginTimeout": "2000"}
@@ -46,7 +46,7 @@ function initializeClients() returns sql:Error? {
     jdbc:Client jdbcClient5 = check new (url = "jdbc:h2:file:./target/sample5", user = "rootUser",
         password = "rootPass", options = h2Options, connectionPool = connPool);
 
-    //JDBC Client with URL and connection pool only.
+    //Initialize JDBC Client with URL and connection pool only.
     jdbc:Client jdbcClient6 = check new (url = "jdbc:h2:file:./target/sample6", connectionPool = connPool);
     io:println("JDBC client with optional params created.");
 
@@ -59,6 +59,8 @@ function initializeClients() returns sql:Error? {
     check jdbcClient5.close();
     check jdbcClient6.close();
 }
+
+//Initializes JDBC clients with different options.
 public function main() {
     sql:Error? err = initializeClients();
     if (err is sql:Error) {

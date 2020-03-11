@@ -1,0 +1,5 @@
+// This example demonstrates how to use the JDBC client with DDL and DML operations.
+// Please note that, the relevant database driver jar
+//should be placed under `BALLERINA_HOME/bre/lib` folder. The sample below is based on 
+//H2 database, and the H2 database driver jar is included default into Ballerina distribution, 
+//therefore it is not required to copy the driver jar for H2 database. 

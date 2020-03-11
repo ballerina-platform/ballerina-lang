@@ -1084,27 +1084,21 @@
         ]
     },
     {
-        "title": "Lock",
-        "column": 0,
-        "category": "Preview features",
-        "samples": [{
-            "name": "Lock",
-            "url": "locks"
-        }
-        ]
-    },
-    {
         "title": "JDBC Database Connector",
-        "column": 2,
+        "column": 0,
         "category": "Preview features",
         "samples": [
             {
-                "name": "Initialization",
-                "url": "jdbc_init_options"
+                "name": "JDBC Client Initialization",
+                "url": "jdbc2-init-options"
             },
             {
-                "name": "Query Operation",
-                "url": "jdbc_query_operation"
+                "name": "Select Query Operations",
+                "url": "jdbc2-query-operation"
+            },
+            {
+                "name": "DDL and DML Operations",
+                "url": "jdbc2-execute-operation"
             }
         ]
     }
