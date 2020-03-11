@@ -33,7 +33,7 @@ import ballerinax/java;
 public type ConnectionPool record {|
     int maxOpenConnections = config:getAsInt("b7a.sql.pool.maxOpenConnections", 15);
     decimal maxConnectionLifeTimeInSeconds = <decimal>config:getAsFloat("b7a.sql.pool.maxConnectionLifeTimeInSeconds",
-    1800.0);
+        1800.0);
     int minIdleConnections = config:getAsInt("b7a.sql.pool.minIdleConnections", 15);
 |};
 
