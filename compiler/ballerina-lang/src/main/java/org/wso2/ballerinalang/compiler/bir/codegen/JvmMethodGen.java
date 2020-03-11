@@ -471,10 +471,10 @@ public class JvmMethodGen {
             // Catch Block
             mv.visitLabel(tryCatch);
             mv.visitVarInsn(ASTORE, catchVarIndex);
-            emitReportErrorInvocation(mv, localVarOffset, catchVarIndex);
+            emitReportErrorInvocation(mv, catchVarIndex);
 
             mv.visitLabel(tryCatchFinally);
-            emitStopObservationInvocation(mv, localVarOffset);
+            emitStopObservationInvocation(mv);
             // Re-throw caught error value
             mv.visitVarInsn(ALOAD, catchVarIndex);
             mv.visitInsn(ATHROW);
@@ -482,7 +482,7 @@ public class JvmMethodGen {
             // Finally Block
             mv.visitLabel(tryFinally);
             mv.visitVarInsn(ASTORE, throwableVarIndex);
-            emitStopObservationInvocation(mv, localVarOffset);
+            emitStopObservationInvocation(mv);
             mv.visitVarInsn(ALOAD, throwableVarIndex);
             mv.visitInsn(ATHROW);
         }
@@ -899,7 +899,7 @@ public class JvmMethodGen {
                 Map<String, String> tags = new HashMap<>();
                 tags.put("source.invocation_fqn", String.format("%s:%s:%s:%d:%d", module.org, module.name,
                         func.pos.src.cUnitName, func.pos.sLine, func.pos.sCol));
-                emitStartObservationInvocation(mv, localVarOffset, serviceOrConnectorName, funcName,
+                emitStartObservationInvocation(mv, serviceOrConnectorName, funcName,
                         observationStartMethod, tags);
             }
 
