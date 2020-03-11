@@ -33,7 +33,7 @@ public type WritableCSVChannel object {
 
     # Constructs a CSV channel from a CharacterChannel to read/write CSV records.
 
-    # + channel - The CharacterChannel, which will represent the content in the CSV file
+    # + characterChannel - The CharacterChannel, which will represent the content in the CSV file
     # + fs - Field separator which will separate between the records in the CSV
     public function __init(WritableCharacterChannel characterChannel, public Separator fs = ",") {
         if (fs == TAB) {
