@@ -19,10 +19,10 @@ $ ws.onmessage = function(frame) {console.log(frame.data)};
 # Send messages.
 $ ws.send("hello world");
 
-# To stop the server, where the server 9095 is running, press Ctrl + C.
+# To stop the running service, press Ctrl + C.
 
 # Send messages.
 $ ws.send("hello world");
 
-#Close the connection.
+# Close the connection.
 $ ws.close(1000, "I want to go");

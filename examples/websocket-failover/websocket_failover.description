@@ -1,1 +1,1 @@
-// Ballerina users can configure multiple backend in a given failover config. If the WebSocket client lost the connection due to server goes down or getting any IOExceptions, Ballerina automatically try to connect with remaining backends that is specified in the configuration only once.
+// Ballerina users can configure multiple backend in a given failover config. If the client lost the connection by the server being shut down or by getting any IOExceptions, Ballerina automatically try to connect with remaining backends that is specified in the configuration only once.
