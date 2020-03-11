@@ -38,7 +38,7 @@ public class Names {
     public static final String STRING_XML_ELEMENT = "Element";
     public static final String STRING_XML_PI = "ProcessingInstruction";
     public static final String STRING_XML_COMMENT = "Comment";
-    public static final String STRING_XML_TEXT= "Text";
+    public static final String STRING_XML_TEXT = "Text";
 
     public static final Name EMPTY = new Name("");
     public static final Name DOT = new Name(".");

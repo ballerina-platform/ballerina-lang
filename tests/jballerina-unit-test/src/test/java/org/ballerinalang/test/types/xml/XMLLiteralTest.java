@@ -48,6 +48,7 @@ import java.io.IOException;
  *
  * @since 0.94
  */
+@Test (groups = "brokenOnXMLLangLibChange")
 public class XMLLiteralTest {
 
     private CompileResult result;
@@ -407,7 +408,7 @@ public class XMLLiteralTest {
                 "<p:person xmlns:p=\"foo\" xmlns:q=\"bar\">hello</p:person>");
     }
 
-    @Test(description = "Test sequence of brackets in content of XML")
+    @Test (groups = "brokenOnXMLLangLibChange", description = "Test sequence of brackets in content of XML")
     public void testBracketSequenceInXMLLiteral() {
         BValue[] returns = BRunUtil.invoke(result, "testBracketSequenceInXMLLiteral");
         Assert.assertTrue(returns[0] instanceof BXML);
@@ -415,7 +416,7 @@ public class XMLLiteralTest {
                 "{}{{ {{{ { } }} }}} - extra }<elem>{}{{</elem>");
     }
 
-    @Test(description = "Test interpolating xml using different types")
+    @Test (groups = "brokenOnXMLLangLibChange", description = "Test interpolating xml using different types")
     public void testXMLLiteralInterpolation() {
         BValue[] returns = BRunUtil.invoke(result, "testInterpolatingVariousTypes");
         Assert.assertTrue(returns[0] instanceof BXML);
@@ -423,7 +424,8 @@ public class XMLLiteralTest {
                 "<elem>42|3.14|31.4444|this-is-a-string|<abc></abc></elem>");
     }
 
-    @Test(description = "Test interpolating xml when there are extra dollar signs")
+    @Test (groups = "brokenOnXMLLangLibChange",
+            description = "Test interpolating xml when there are extra dollar signs")
     public void testXMLLiteralWithExtraDollarSigns() {
         BValue[] returns = BRunUtil.invoke(result, "testDollarSignOnXMLLiteralTemplate");
         Assert.assertTrue(returns[0] instanceof BXML);

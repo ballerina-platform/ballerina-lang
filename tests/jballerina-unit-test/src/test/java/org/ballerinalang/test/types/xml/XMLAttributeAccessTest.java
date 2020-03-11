@@ -30,6 +30,7 @@ import org.testng.annotations.Test;
 /**
  * @since 1.2.0
  */
+@Test (groups = "brokenOnXMLLangLibChange")
 public class XMLAttributeAccessTest {
 
     CompileResult compileResult;

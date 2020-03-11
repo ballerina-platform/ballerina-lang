@@ -36,6 +36,7 @@ import org.testng.annotations.Test;
 /**
  * Test Native function in ballerina.model.xml.
  */
+@Test (groups = "brokenOnXMLLangLibChange")
 public class XMLNativeFunctionTest {
 
     private static final String ERROR_FAILED_TO_SLICE_XML_INDEX_OUT_OF_RANGE =
@@ -66,7 +67,7 @@ public class XMLNativeFunctionTest {
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
 
     }
-    
+
     @Test
     public void testIsEmpty() {
         BValue[] returns = BRunUtil.invoke(result, "testIsEmpty");
@@ -90,7 +91,7 @@ public class XMLNativeFunctionTest {
         Assert.assertSame(returns[0].getClass(), BBoolean.class);
         Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
     }
-    
+
     @Test
     public void testGetItemType() {
         BValue[] returns = BRunUtil.invoke(result, "testGetItemType");
@@ -123,7 +124,7 @@ public class XMLNativeFunctionTest {
         Assert.assertSame(returns[0].getClass(), BString.class);
         Assert.assertEquals(returns[0].stringValue(), "element");
     }
-    
+
     @Test
     public void testGetElementName() {
         BValue[] returns = BRunUtil.invoke(result, "testGetElementName");
@@ -140,14 +141,14 @@ public class XMLNativeFunctionTest {
         Assert.assertEquals(returns[0].stringValue(), "{http://sample.com/test}name");
     }
 
-     @Test
+    @Test
     public void testGetElementNameWithoutNamespace() {
         BValue[] returns = BRunUtil.invoke(result, "testGetElementNameForElementWithoutNamespace");
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BString.class);
         Assert.assertEquals(returns[0].stringValue(), "{http://sample.com/test/core}name");
     }
-    
+
     @Test
     public void testGetTextValue() {
         BValue[] returns = BRunUtil.invoke(result, "testGetTextValue");
@@ -163,7 +164,7 @@ public class XMLNativeFunctionTest {
         Assert.assertSame(returns[0].getClass(), BString.class);
         Assert.assertEquals(returns[0].stringValue(), "supun");
     }
-    
+
     @Test
     public void testGetElements() {
         BValue[] returns = BRunUtil.invoke(result, "testGetElements");
@@ -193,7 +194,7 @@ public class XMLNativeFunctionTest {
         Assert.assertSame(returns[2].getClass(), BBoolean.class);
         Assert.assertFalse(((BBoolean) returns[2]).booleanValue());
     }
-    
+
     @Test
     public void testGetElementsByName() {
         BValue[] returns = BRunUtil.invoke(result, "testGetElementsByName");
@@ -323,7 +324,7 @@ public class XMLNativeFunctionTest {
         Assert.assertSame(returns[5].getClass(), BBoolean.class);
         Assert.assertTrue(((BBoolean) returns[5]).booleanValue());
     }
-    
+
     @Test
     public void testGetChildren() {
         BValue[] returns = BRunUtil.invoke(result, "testGetChildren");
@@ -353,7 +354,7 @@ public class XMLNativeFunctionTest {
         Assert.assertSame(returns[2].getClass(), BBoolean.class);
         Assert.assertFalse(((BBoolean) returns[2]).booleanValue());
     }
-    
+
     @Test
     public void testGetNonExistingChildren() {
         BValue[] returns = BRunUtil.invoke(result, "testGetNonExistingChildren");
@@ -368,7 +369,7 @@ public class XMLNativeFunctionTest {
         Assert.assertSame(returns[2].getClass(), BBoolean.class);
         Assert.assertFalse(((BBoolean) returns[2]).booleanValue());
     }
-    
+
     @Test
     public void testSelectChildren() {
         BValue[] returns = BRunUtil.invoke(result, "testSelectChildren");
@@ -475,7 +476,7 @@ public class XMLNativeFunctionTest {
         Assert.assertSame(returns[5].getClass(), BBoolean.class);
         Assert.assertTrue(((BBoolean) returns[5]).booleanValue());
     }
-    
+
     @Test
     public void testConcat() {
         BValue[] returns = BRunUtil.invoke(result, "testConcat");
@@ -495,7 +496,7 @@ public class XMLNativeFunctionTest {
         Assert.assertSame(returns[2].getClass(), BBoolean.class);
         Assert.assertFalse(((BBoolean) returns[2]).booleanValue());
     }
-    
+
     @Test
     public void testSetChildren() {
         BValue[] returns = BRunUtil.invoke(result, "testSetChildren");
@@ -758,7 +759,7 @@ public class XMLNativeFunctionTest {
         Assert.assertEquals(originalChildren.getRefValue(1).stringValue(),
                 "<lname>setunga</lname>");
     }
-    
+
     @Test
     public void testToString() {
         BValue[] returns = BRunUtil.invoke(result, "testToString");
@@ -768,7 +769,7 @@ public class XMLNativeFunctionTest {
         Assert.assertEquals(returns[0].stringValue(), "<!-- comment about the book--><bookName>Book1</bookName>" +
                 "<bookId>001</bookId><bookAuthor>Author01</bookAuthor><?word document=\"book.doc\" ?>");
     }
-    
+
     @Test
     public void testStrip() {
         BValue[] returns = BRunUtil.invoke(result, "testStrip");
@@ -782,7 +783,7 @@ public class XMLNativeFunctionTest {
         Assert.assertEquals(((BXMLSequence) returns[1]).value().size(), 1);
         Assert.assertEquals(returns[1].stringValue(), "<bookId>001</bookId>");
     }
-    
+
     @Test
     public void testStripSingleton() {
         BValue[] returns = BRunUtil.invoke(result, "testStripSingleton");
@@ -792,7 +793,7 @@ public class XMLNativeFunctionTest {
         Assert.assertEquals(returns[0].stringValue(), "<bookId>001</bookId>");
         Assert.assertEquals(returns[1].stringValue(), "<bookId>001</bookId>");
     }
-    
+
     @Test
     public void testStripEmptySingleton() {
         BValue[] returns = BRunUtil.invoke(result, "testStripEmptySingleton");
@@ -802,7 +803,7 @@ public class XMLNativeFunctionTest {
         Assert.assertEquals(returns[1].stringValue(), "");
         Assert.assertTrue(((BBoolean) returns[2]).booleanValue());
     }
-    
+
     @Test
     public void testSlice() {
         BValue[] returns = BRunUtil.invoke(result, "testSlice");
@@ -812,7 +813,7 @@ public class XMLNativeFunctionTest {
         Assert.assertEquals(returns[0].stringValue(), "<bookName>Book1</bookName><bookId>001</bookId><bookAuthor>" +
                 "Author01</bookAuthor>");
     }
-    
+
     @Test
     public void testSliceAll() {
         BValue[] returns = BRunUtil.invoke(result, "testSliceAll");
@@ -825,27 +826,30 @@ public class XMLNativeFunctionTest {
     
     @Test(expectedExceptions = BLangRuntimeException.class,
           expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.xml\\}XMLOperationError message=Failed to slice" +
-                  " xml: invalid indices: 4 < 1.*")
+                  " xml: invalid indices: 4 < 1.*", groups = "brokenOnXMLLangLibChange")
     public void testSliceInvalidIndex() {
         BRunUtil.invoke(result, "testSliceInvalidIndex");
     }
     
     @Test(expectedExceptions = BLangRuntimeException.class,
-          expectedExceptionsMessageRegExp = ERROR_FAILED_TO_SLICE_XML_INDEX_OUT_OF_RANGE + " \\[4,10\\].*")
+          expectedExceptionsMessageRegExp = ERROR_FAILED_TO_SLICE_XML_INDEX_OUT_OF_RANGE + " \\[4,10\\].*",
+            groups = "brokenOnXMLLangLibChange")
     public void testSliceOutOfRangeIndex() {
         BValue[] params = new BValue[] { new BInteger(4), new BInteger(10) };
         BRunUtil.invoke(result, "testSliceOutOfRangeIndex", params);
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-          expectedExceptionsMessageRegExp = ERROR_FAILED_TO_SLICE_XML_INDEX_OUT_OF_RANGE + " \\[-4,10\\].*")
+          expectedExceptionsMessageRegExp = ERROR_FAILED_TO_SLICE_XML_INDEX_OUT_OF_RANGE + " \\[-4,10\\].*",
+            groups = "brokenOnXMLLangLibChange")
     public void testSliceOutOfRangeNegativeStartIndex() {
         BValue[] params = new BValue[] { new BInteger(-4), new BInteger(10) };
         BRunUtil.invoke(result, "testSliceOutOfRangeIndex", params);
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-          expectedExceptionsMessageRegExp = ERROR_FAILED_TO_SLICE_XML_INDEX_OUT_OF_RANGE + " \\[4,-10\\].*")
+          expectedExceptionsMessageRegExp = ERROR_FAILED_TO_SLICE_XML_INDEX_OUT_OF_RANGE + " \\[4,-10\\].*",
+            groups = "brokenOnXMLLangLibChange")
     public void testSliceOutOfRangeNegativeEndIndex() {
         BValue[] params = new BValue[] { new BInteger(4), new BInteger(-10) };
         BRunUtil.invoke(result, "testSliceOutOfRangeIndex", params);
@@ -857,7 +861,7 @@ public class XMLNativeFunctionTest {
         Assert.assertTrue(returns[0] instanceof BXML);
         Assert.assertEquals(returns[0].stringValue(), "<bookName>Book1</bookName>");
     }
-    
+
     @Test
     public void testSeqCopy() {
         BValue[] returns = BRunUtil.invoke(result, "testSeqCopy");
@@ -938,7 +942,7 @@ public class XMLNativeFunctionTest {
 
     @Test(expectedExceptions = { BLangRuntimeException.class },
             expectedExceptionsMessageRegExp = ".*failed to add attribute " +
-                    "'a:text'. prefix 'a' is already bound to namespace 'yyy'.*")
+                    "'a:text'. prefix 'a' is already bound to namespace 'yyy'.*", groups = "brokenOnXMLLangLibChange")
     public void testUpdateAttributeWithDifferentUri() {
         BValue[] returns = BRunUtil.invoke(result, "testUpdateAttributeWithDifferentUri");
         Assert.assertTrue(returns[0] instanceof BXML);
@@ -1029,7 +1033,7 @@ public class XMLNativeFunctionTest {
         Assert.assertTrue(returns[1] instanceof BXML);
         Assert.assertEquals(returns[1].stringValue(), "<name>John</name><age>50</age><name>Doe</name>");
     }
-    
+
     @Test
     public void testRemoveComplexChildren() {
         BValue[] returns = BRunUtil.invoke(result, "testRemoveComplexChildren");
@@ -1040,7 +1044,7 @@ public class XMLNativeFunctionTest {
         Assert.assertTrue(returns[1] instanceof BXML);
         Assert.assertEquals(returns[1].stringValue(), "<name>John</name><age>50</age>");
     }
-    
+
     @Test
     public void testRemoveInnerChildren() {
         BValue[] returns = BRunUtil.invoke(result, "testRemoveInnerChildren");

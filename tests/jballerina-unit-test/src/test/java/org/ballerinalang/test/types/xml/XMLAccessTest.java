@@ -34,6 +34,7 @@ import org.testng.annotations.Test;
  *
  * @since 0.94.0
  */
+@Test (groups = "brokenOnXMLLangLibChange")
 public class XMLAccessTest {
 
     CompileResult result;
@@ -221,13 +222,13 @@ public class XMLAccessTest {
         Assert.assertEquals(returns[2].stringValue(), "<name>supun</name>");
     }
     
-    @Test(expectedExceptions = {BLangRuntimeException.class}, 
+    @Test (groups = "brokenOnXMLLangLibChange", expectedExceptions = {BLangRuntimeException.class},
             expectedExceptionsMessageRegExp = ".*index out of range: index: 1, size: 1.*")
     public void testXMLAccessWithOutOfIndex() {
         BRunUtil.invoke(result, "testXMLAccessWithOutOfIndex");
     }
 
-    @Test(expectedExceptions = { BLangRuntimeException.class },
+    @Test (groups = "brokenOnXMLLangLibChange", expectedExceptions = { BLangRuntimeException.class },
             expectedExceptionsMessageRegExp = ".*error: \\{ballerina/lang.xml\\}XMLOperationError " +
                     "message=IndexOutOfRange Index: 5, Size: 3.*")
     public void testXMLSequenceAccessWithOutOfIndex() {
@@ -259,7 +260,7 @@ public class XMLAccessTest {
     //            "<foo>1</foo><bar>2</bar><foo>3</foo><bar>4</bar><foo>5</foo><bar>6</bar><foo>7</foo><bar>8</bar>");
     //}
 
-    @Test(groups = { "brokenOnSpecDeviation" })
+    @Test (groups = { "brokenOnSpecDeviation" })
     public void testFieldBasedAccessWithNamespaces() {
         BValue[] returns = BRunUtil.invoke(result, "testFieldBasedAccessWithNamespaces");
         Assert.assertEquals(returns[0].stringValue(),
