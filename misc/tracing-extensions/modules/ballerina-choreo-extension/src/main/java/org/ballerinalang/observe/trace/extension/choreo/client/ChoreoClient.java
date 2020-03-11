@@ -51,10 +51,11 @@ public class ChoreoClient implements AutoCloseable {
         telemetryClient = TelemetryGrpc.newBlockingStub(channel);
     }
 
-    public String register(final MetadataReader metadataReader, String instanceId) {
+    public String register(final MetadataReader metadataReader, String instanceId, String appId) {
         HandshakeRequest handshakeRequest = HandshakeRequest.newBuilder()
                 .setProgramHash(metadataReader.getAstHash())
                 .setUserId(instanceId)
+                .setApplicationId(appId)
                 .build();
         HandshakeResponse handshakeResponse = negotiator.handshake(handshakeRequest);
         this.id = handshakeResponse.getId();
