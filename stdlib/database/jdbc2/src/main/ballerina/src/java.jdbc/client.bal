@@ -52,9 +52,9 @@ public type Client client object {
         }
     }
 
-    # Executes the DML sql queries provided by the user, and returns summary of the execution.
+    # Executes the DDL or DML sql queries provided by the user, and returns summary of the execution.
     #
-    # + sqlQuery - The DML query such as INSERT, DELETE, UPDATE, etc
+    # + sqlQuery - The DDL or DML query such as INSERT, DELETE, UPDATE, etc
     # + return - Summary of the sql update query as `sql:ExecuteResult` or returns `sql:Error`
     #           if any error occured when executing the query
     public remote function execute(@untainted string sqlQuery) returns sql:ExecuteResult|sql:Error? {

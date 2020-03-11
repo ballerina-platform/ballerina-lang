@@ -30,7 +30,7 @@ string turstStorePath = check filepath:absolute("src/test/resources/keystore/cli
 function testSSLVerifyCert() returns error? {
     mysql:Options options = {
         ssl: {
-            mode: "VERIFY_CERT",
+            mode: mysql:SSL_VERIFY_CERT,
             clientCertKeystore: {
                 path: clientStorePath,
                 password: "changeit"
@@ -49,7 +49,7 @@ function testSSLVerifyCert() returns error? {
 function testSSLPreferred() returns error? {
     mysql:Options options = {
         ssl: {
-            mode: "PREFERRED",
+            mode:  mysql:SSL_PREFERRED,
             clientCertKeystore: {
                 path: clientStorePath,
                 password: "changeit"
@@ -68,7 +68,7 @@ function testSSLPreferred() returns error? {
 function testSSLRequiredWithClientCert() returns error? {
     mysql:Options options = {
         ssl: {
-            mode: "REQUIRED",
+            mode:  mysql:SSL_REQUIRED,
             clientCertKeystore: {
                 path: clientStorePath,
                 password: "changeit"
@@ -83,7 +83,7 @@ function testSSLRequiredWithClientCert() returns error? {
 function testSSLVerifyIdentity() returns error? {
     mysql:Options options = {
         ssl: {
-            mode: "VERIFY_IDENTITY",
+            mode:  mysql:SSL_VERIFY_IDENTITY,
             clientCertKeystore: {
                 path: clientStorePath,
                 password: "changeit"

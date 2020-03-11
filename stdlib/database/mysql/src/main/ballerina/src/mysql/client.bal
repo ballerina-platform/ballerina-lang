@@ -55,9 +55,9 @@ public type Client client object {
         }
     }
 
-    # Executes the DML sql queries provided by the user, and returns summary of the execution.
+    # Executes the DDL or DML sql queries provided by the user, and returns summary of the execution.
     #
-    # + sqlQuery - The DML query such as INSERT, DELETE, UPDATE, etc
+    # + sqlQuery - The DDL or DML query such as INSERT, DELETE, UPDATE, etc
     # + return - Summary of the sql update query as `sql:ExecuteResult` or returns `sql:Error`
     #           if any error occured when executing the query
     public remote function execute(@untainted string sqlQuery) returns sql:ExecuteResult|sql:Error? {
@@ -113,7 +113,13 @@ public type Options record {|
 |};
 
 # Possible options for SSL Mode.
-public type SSLMode "PREFERRED"|"REQUIRED"|"VERIFY_CERT"|"VERIFY_IDENTITY";
+public const SSL_PREFERRED = "PREFERRED";
+public const SSL_REQUIRED = "REQUIRED";
+public const SSL_VERIFY_CERT = "VERIFY_CERT";
+public const SSL_VERIFY_IDENTITY = "VERIFY_IDENTITY";
+
+# SSLMode as a union of available ssl modes.
+public type SSLMode SSL_PREFERRED | SSL_REQUIRED| SSL_VERIFY_CERT | SSL_VERIFY_IDENTITY;
 
 # SSL Configuration to be used when connecting to mysql server.
 #
@@ -122,7 +128,7 @@ public type SSLMode "PREFERRED"|"REQUIRED"|"VERIFY_CERT"|"VERIFY_IDENTITY";
 # + trustCertKeystore - Keystore configurtion of the trust certificates
 #
 public type SSLConfig record {|
-    SSLMode mode = "PREFERRED";
+    SSLMode mode = SSL_PREFERRED;
     crypto:KeyStore clientCertKeystore?;
     crypto:KeyStore trustCertKeystore?;
 |};
