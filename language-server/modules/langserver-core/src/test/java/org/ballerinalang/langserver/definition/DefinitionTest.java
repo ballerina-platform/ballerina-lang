@@ -443,6 +443,7 @@ public class DefinitionTest {
                 {"defStreams3.json", "streams"},
                 {"defStreams4.json", "streams"},
                 {"defStreams5.json", "streams"},
+                {"defStreams6.json", "streams"},
         };
     }
     
