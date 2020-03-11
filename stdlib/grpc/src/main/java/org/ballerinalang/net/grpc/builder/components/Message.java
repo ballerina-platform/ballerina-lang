@@ -125,9 +125,6 @@ public class Message {
             for (DescriptorProtos.FieldDescriptorProto fieldDescriptorProto : messageDescriptor.getFieldList()) {
                 Field field = Field.newBuilder(fieldDescriptorProto).build();
                 if (fieldDescriptorProto.hasOneofIndex()) {
-                    List<Field> tempList = new ArrayList<>(1);
-                    tempList.add(field);
-                    tempList.add(Field.newBuilder(fieldDescriptorProto).build());
                     String oneofField = messageDescriptor.getOneofDecl(fieldDescriptorProto.getOneofIndex()).getName();
                     List<Field> oneofMessageList = oneofFieldMap.computeIfAbsent(oneofField, k -> new ArrayList<>());
                     oneofMessageList.add(field);
