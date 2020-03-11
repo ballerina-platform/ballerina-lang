@@ -28,10 +28,10 @@ public class Constants {
     public static final String EXTENSION_NAME = "choreo";
 
     public static final String REPORTER_HOST_NAME_CONFIG = "reporter.hostname";
-    public static final String DEFAULT_REPORTER_HOSTNAME = "localhost";
+    public static final String DEFAULT_REPORTER_HOSTNAME = "periscope.development.choreo.dev";
 
     public static final String REPORTER_PORT_CONFIG = "reporter.port";
-    public static final int DEFAULT_REPORTER_PORT = 9411;
+    public static final int DEFAULT_REPORTER_PORT = 443;
 
     public static final String REPORTER_USE_SSL_CONFIG = "reporter.useSSL";
     public static final boolean DEFAULT_REPORTER_USE_SSL = true;
