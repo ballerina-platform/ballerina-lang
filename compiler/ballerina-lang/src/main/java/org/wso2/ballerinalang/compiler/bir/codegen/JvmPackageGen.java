@@ -107,7 +107,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.getMainFu
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.getMethodDesc;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.getTypeDef;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.isExternFunc;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.nameOfBStringFunc;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.nameOfNonBStringFunc;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTerminatorGen.TerminatorGenerator.toNameString;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen.generateCreateTypesMethod;
@@ -232,29 +231,6 @@ public class JvmPackageGen {
         if (!dependentModules.containsKey(pkgName)) {
             dependentModules.put(pkgName, moduleId);
         }
-    }
-
-    private static void injectBStringFunctions(BIRPackage module) {
-
-        @Nilable List<BIRFunction> functions = module.functions;
-        if (functions.size() > 0) {
-            int funcSize = functions.size();
-            int count = 3;
-
-            List<BIRFunction> bStringFuncs = new ArrayList<>();
-            while (count < funcSize) {
-                BIRFunction birFunc = functions.get(count);
-                count = count + 1;
-                if (isBString) {
-                    BIRFunction bStringFunc = birFunc.duplicate();
-                    bStringFunc.name = new Name(nameOfBStringFunc(birFunc.name.value));
-                    bStringFuncs.add(bStringFunc);
-                }
-            }
-
-            functions.addAll(bStringFuncs);
-        }
-
     }
 
     static void generatePackage(BIRNode.BIRPackage module, JarFile jarFile, InteropValidator interopValidator,
