@@ -315,6 +315,7 @@ public enum DiagnosticCode {
     CANNOT_UPDATE_XML_SEQUENCE("cannot.update.xml.sequence"),
     INVALID_XML_NS_INTERPOLATION("invalid.xml.ns.interpolation"),
     CANNOT_FIND_XML_NAMESPACE("cannot.find.xml.namespace.prefix"),
+    UNSUPPORTED_METHOD_INVOCATION_XML_NAV("method.invocation.in.xml.navigation.expressions.not.supported"),
 
     UNDEFINED_ANNOTATION("undefined.annotation"),
     ANNOTATION_NOT_ALLOWED("annotation.not.allowed"),

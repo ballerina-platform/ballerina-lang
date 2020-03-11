@@ -40,6 +40,7 @@ public class XMLAccessTest {
     CompileResult elementAccess;
     CompileResult navigation;
     CompileResult negativeResult;
+    CompileResult navigationNegative;
 
     @BeforeClass
     public void setup() {
@@ -47,6 +48,7 @@ public class XMLAccessTest {
         elementAccess = BCompileUtil.compile("test-src/types/xml/xml-element-access.bal");
         navigation = BCompileUtil.compile("test-src/types/xml/xml-navigation-access.bal");
         negativeResult = BCompileUtil.compile("test-src/types/xml/xml-indexed-access-negative.bal");
+        navigationNegative = BCompileUtil.compile("test-src/types/xml/xml-nav-access-negative.bal");
     }
 
     @Test
@@ -267,5 +269,18 @@ public class XMLAccessTest {
         Assert.assertTrue(((BXML<?>) returns[2]).isEmpty().booleanValue());
         Assert.assertEquals(returns[3].stringValue(),
                 "<ns0:fname xmlns:ns0=\"http://test.com\" xmlns=\"http://test.com/default\">John</ns0:fname>");
+    }
+
+    @Test
+    public void testXMLNavExpressionMethodInvocationNegative() {
+        String message = "method invocations are not yet supported within XML navigation expressions, " +
+                "use a grouping expression (parenthesis) " +
+                "if you intend to invoke the method on the result of the navigation expression.";
+        Assert.assertEquals(navigationNegative.getErrorCount(), 5);
+        BAssertUtil.validateError(navigationNegative, 0, message, 3, 14);
+        BAssertUtil.validateError(navigationNegative, 1, message, 4, 14);
+        BAssertUtil.validateError(navigationNegative, 2, message, 5, 14);
+        BAssertUtil.validateError(navigationNegative, 3, message, 6, 14);
+        BAssertUtil.validateError(navigationNegative, 4, message, 7, 14);
     }
 }
