@@ -174,6 +174,133 @@ function testMathsOperations(){
     int x = a + b;
 }
 
+function testInvalidLeftShiftType() {
+    ints:Signed8 a = 1;
+    ints:Signed16 b = -1567;
+    ints:Signed32 c = 139058;
+    int d = 6429485;
 
+    byte e = 23;
+    ints:Unsigned8 f = 12;
+    ints:Unsigned16 g = 2345;
+    ints:Unsigned32 h = 5739412;
+
+    byte s = a << 1;
+    float t = b << e;
+    ints:Signed32 u = c << b;
+    byte v = d << a;
+    byte w = e << 3;
+    ints:Unsigned8 x = f << e;
+    byte y = g << 2;
+    decimal z = h << g;
+}
+
+function testInvalidRightShiftType() {
+    ints:Signed8 a = 1;
+    ints:Signed16 b = -1567;
+    ints:Signed32 c = 139058;
+    int d = 6429485;
+
+    byte e = 23;
+    ints:Unsigned8 f = 12;
+    ints:Unsigned16 g = 2345;
+    ints:Unsigned32 h = 5739412;
+
+    byte s = a >> 1;
+    float t = b >> e;
+    ints:Signed32 u = c >> b;
+    byte v = d >> a;
+    ints:Signed8 w = e >> 3;
+    ints:Signed8 x = f >> e;
+    byte y = g >> 2;
+    decimal z = h >> g;
+}
+
+function testInvalidUnsignedRightShiftType() {
+    ints:Signed8 a = 1;
+    ints:Signed16 b = -1567;
+    ints:Signed32 c = 139058;
+    int d = 6429485;
+
+    byte e = 23;
+    ints:Unsigned8 f = 12;
+    ints:Unsigned16 g = 2345;
+    ints:Unsigned32 h = 5739412;
+
+    byte s = a >>> 1;
+    float t = b >>> e;
+    ints:Signed32 u = c >>> b;
+    byte v = d >>> a;
+    ints:Signed8 w = e >>> 3;
+    ints:Signed8 x = f >>> e;
+    byte y = g >>> 2;
+    decimal z = h >>> g;
+}
+
+function testInvalidBitwiseAndType() {
+    ints:Signed8 a = 1;
+    ints:Signed16 b = -1567;
+    ints:Signed32 c = 139058;
+    int d = 6429485;
+
+    byte e = 23;
+    ints:Unsigned8 f = 12;
+    ints:Unsigned16 g = 2345;
+    ints:Unsigned32 h = 5739412;
+
+    byte r = a & 1;
+    float s = b & c;
+    ints:Signed32 t = d & 2;
+    decimal u = e & e;
+    ints:Signed8 v = f & f;
+    ints:Signed16 w = g & h;
+    ints:Signed8 x = h & f;
+    ints:Signed8 y = a & h;
+    ints:Signed8 z = f & b;
+}
+
+function testInvalidBitwiseOrType() {
+    ints:Signed8 a = 1;
+    ints:Signed16 b = -1567;
+    ints:Signed32 c = 139058;
+    int d = 6429485;
+
+    byte e = 23;
+    ints:Unsigned8 f = 12;
+    ints:Unsigned16 g = 2345;
+    ints:Unsigned32 h = 5739412;
+
+    byte r = a | 1;
+    float s = b | c;
+    ints:Signed32 t = d | 2;
+    decimal u = e | e;
+    ints:Signed8 v = f | f;
+    ints:Signed16 w = g | h;
+    ints:Signed8 x = h | f;
+    ints:Signed8 y = a | h;
+    ints:Signed8 z = f | d;
+}
+
+function testInvalidBitwiseXorType() {
+    ints:Signed8 a = 1;
+    ints:Signed16 b = -1567;
+    ints:Signed32 c = 139058;
+    int d = 6429485;
+
+    byte e = 23;
+    ints:Unsigned8 f = 12;
+    ints:Unsigned16 g = 2345;
+    ints:Unsigned32 h = 5739412;
+
+    byte r = a ^ 1;
+    float s = b ^ c;
+    ints:Signed32 t = d ^ 2;
+    decimal u = e ^ e;
+    ints:Signed8 v = g ^ g;
+    ints:Signed16 w = g ^ h;
+    ints:Signed8 x = h ^ f;
+    ints:Signed8 y = a ^ h;
+    ints:Signed8 z = f ^ d;
+}
 
 // TODO : Add more test cases.
