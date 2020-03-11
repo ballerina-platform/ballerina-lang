@@ -18,6 +18,8 @@ package org.ballerinalang.jvm.values.api;
 
 import org.ballerinalang.jvm.XMLNodeType;
 
+import java.util.List;
+
 /**
  * {@code BXML} represents an XML in Ballerina. An XML could be one of:
  * <ul>
@@ -30,11 +32,30 @@ import org.ballerinalang.jvm.XMLNodeType;
  * <p>
  * <i>Note: This is an internal API and may change in future versions.</i>
  * </p>
- * 
- * @param <T> Type of the underlying impl
+ *
  * @since 1.1.0
  */
-public interface BXML<T> extends BRefValue, BCollection {
+public interface BXML extends BRefValue, BCollection {
+
+    /**
+     * Start of a XML comment.
+     */
+    String COMMENT_START = "<!--";
+
+    /**
+     * End of a XML Comment.
+     */
+    String COMMENT_END = "-->";
+
+    /**
+     * Start of a XML processing instruction.
+     */
+    String PI_START = "<?";
+
+    /**
+     * End of a XML processing instruction.
+     */
+    String PI_END = "?>";
 
     /**
      * Check whether the XML sequence is empty.
@@ -137,7 +158,7 @@ public interface BXML<T> extends BRefValue, BCollection {
      * 
      * @return All the elements-type items, in the given sequence
      */
-    BXML<?> elements();
+    BXML elements();
 
     /**
      * Get all the elements-type items in the given sequence, that matches a given qualified name.
@@ -145,14 +166,14 @@ public interface BXML<T> extends BRefValue, BCollection {
      * @param qname qualified name of the element
      * @return All the elements-type items, that matches a given qualified name, from the this sequence.
      */
-    BXML<?> elements(String qname);
+    BXML elements(String qname);
 
     /**
      * Selects and concatenate all the children sequences of the elements in this sequence.
      * 
      * @return All the children sequences of the elements in this sequence
      */
-    BXML<?> children();
+    BXML children();
 
     /**
      * Selects and concatenate all the children sequences that matches the given qualified name,
@@ -162,28 +183,29 @@ public interface BXML<T> extends BRefValue, BCollection {
      * @param qname qualified name of the children to filter
      * @return All the children that matches the given qualified name, as a sequence
      */
-    BXML<?> children(String qname);
+    BXML children(String qname);
 
     /**
      * Set the children of this XML. Any existing children will be removed.
      * 
      * @param seq XML Sequence to be set as the children
      */
-    void setChildren(BXML<?> seq);
+    void setChildren(BXML seq);
 
     /**
      * Add a XMl sequence to this XML as children.
      * 
      * @param seq XML Sequence to be added as the children
      */
-    void addChildren(BXML<?> seq);
+    @Deprecated // XML sequences are immutable
+    void addChildren(BXML seq);
 
     /**
      * Strips any text items from the XML that are all whitespace.
      *
      * @return striped xml
      */
-    BXML<?> strip();
+    BXML strip();
 
     /**
      * Get the type of the XML.
@@ -199,16 +221,16 @@ public interface BXML<T> extends BRefValue, BCollection {
      * @param endIndex To slice
      * @return sliced sequence
      */
-    BXML<?> slice(long startIndex, long endIndex);
+    BXML slice(long startIndex, long endIndex);
 
     /**
      * Searches in children recursively for elements matching the name and returns a sequence containing them all.
-     * Does not search within a matched result.
+     * When a match is found, include it in returned sequence and continue the search within the matched element.
      * 
-     * @param qname Qualified name of the descendants to filter
-     * @return All the descendants that matches the given qualified name, as a sequence
+     * @param qnames Qualified names of the descendants to filter
+     * @return All the descendants that matches the given qualified names, as a sequence, in order of match
      */
-    BXML<?> descendants(String qname);
+    BXML descendants(List<String> qnames);
 
     /**
      * Get an item from the XML sequence, at the given index.
@@ -216,7 +238,7 @@ public interface BXML<T> extends BRefValue, BCollection {
      * @param index Index of the item to retrieve
      * @return Item at the given index in the sequence
      */
-    BXML<?> getItem(int index);
+    BXML getItem(int index);
 
     /**
      * Get the length of this XML sequence.
@@ -243,6 +265,7 @@ public interface BXML<T> extends BRefValue, BCollection {
      * 
      * @param qname Namespace qualified name of the children to be removed.
      */
+    @Deprecated
     void removeChildren(String qname);
 
     /**
@@ -250,5 +273,5 @@ public interface BXML<T> extends BRefValue, BCollection {
      *
      * @return underlying implementation type.
      */
-    T value();
+    Object value();
 }

@@ -19,9 +19,9 @@ import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.command.executors.ChangeAbstractTypeObjExecutor;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.commons.LSContext;
-import org.ballerinalang.langserver.commons.codeaction.CodeActionKeys;
 import org.ballerinalang.langserver.commons.codeaction.CodeActionNodeType;
 import org.ballerinalang.langserver.commons.command.CommandArgument;
+import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.CodeActionKind;
 import org.eclipse.lsp4j.Command;
@@ -50,11 +50,12 @@ public class ChangeAbstractTypeObjCodeAction extends AbstractCodeActionProvider 
      * {@inheritDoc}
      */
     @Override
-    public List<CodeAction> getCodeActions(CodeActionNodeType nodeType, LSContext lsContext,
-                                                             List<org.eclipse.lsp4j.Diagnostic> diagnostics) {
+    public List<CodeAction> getDiagBasedCodeActions(CodeActionNodeType nodeType, LSContext lsContext,
+                                                    List<Diagnostic> diagnosticsOfRange,
+                                                    List<Diagnostic> allDiagnostics) {
         List<CodeAction> actions = new ArrayList<>();
 
-        for (Diagnostic diagnostic : diagnostics) {
+        for (Diagnostic diagnostic : diagnosticsOfRange) {
             if (diagnostic.getMessage().contains(ABSTRACT_OBJECT)) {
                 CodeAction codeAction = getChangeAbstractTypeCommand(diagnostic, lsContext);
                 if (codeAction != null) {
@@ -65,7 +66,7 @@ public class ChangeAbstractTypeObjCodeAction extends AbstractCodeActionProvider 
 
         // Remove overlapping diagnostics of NO_IMPL_FOUND_FOR_FUNCTION
         Map<Range, Diagnostic> rangeToDiagnostics = new HashMap<>();
-        diagnostics.stream()
+        diagnosticsOfRange.stream()
                 .filter(diagnostic -> (diagnostic.getMessage().startsWith(NO_IMPL_FOUND_FOR_FUNCTION)))
                 .forEach(diagnostic -> rangeToDiagnostics.put(diagnostic.getRange(), diagnostic));
 
@@ -79,12 +80,21 @@ public class ChangeAbstractTypeObjCodeAction extends AbstractCodeActionProvider 
         return actions;
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public List<CodeAction> getNodeBasedCodeActions(CodeActionNodeType nodeType, LSContext lsContext,
+                                                    List<Diagnostic> allDiagnostics) {
+        throw new UnsupportedOperationException("Not supported");
+    }
+
     private static CodeAction getChangeAbstractTypeCommand(Diagnostic diagnostic, LSContext context) {
         String diagnosticMessage = diagnostic.getMessage();
         Position position = diagnostic.getRange().getStart();
         int line = position.getLine();
         int column = position.getCharacter();
-        String uri = context.get(CodeActionKeys.FILE_URI_KEY);
+        String uri = context.get(DocumentServiceKeys.FILE_URI_KEY);
         CommandArgument lineArg = new CommandArgument(CommandConstants.ARG_KEY_NODE_LINE, "" + line);
         CommandArgument colArg = new CommandArgument(CommandConstants.ARG_KEY_NODE_COLUMN, "" + column);
         CommandArgument uriArg = new CommandArgument(CommandConstants.ARG_KEY_DOC_URI, uri);
@@ -112,7 +122,7 @@ public class ChangeAbstractTypeObjCodeAction extends AbstractCodeActionProvider 
         Position position = diagnostic.getRange().getStart();
         int line = position.getLine();
         int column = position.getCharacter();
-        String uri = context.get(CodeActionKeys.FILE_URI_KEY);
+        String uri = context.get(DocumentServiceKeys.FILE_URI_KEY);
         CommandArgument lineArg = new CommandArgument(CommandConstants.ARG_KEY_NODE_LINE, "" + line);
         CommandArgument colArg = new CommandArgument(CommandConstants.ARG_KEY_NODE_COLUMN, "" + column);
         CommandArgument uriArg = new CommandArgument(CommandConstants.ARG_KEY_DOC_URI, uri);

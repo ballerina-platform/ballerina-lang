@@ -1,0 +1,33 @@
+{
+  "position": {
+    "line": 20,
+    "character": 31
+  },
+  "source": "record/source/recordTest20.bal",
+  "items": [
+    {
+      "label": "...b",
+      "kind": "Variable",
+      "detail": "Bar",
+      "sortText": "130",
+      "insertText": ".b",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "...m1",
+      "kind": "Variable",
+      "detail": "map<float>",
+      "sortText": "130",
+      "insertText": ".m1",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "...f",
+      "kind": "Variable",
+      "detail": "Foo",
+      "sortText": "130",
+      "insertText": ".f",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

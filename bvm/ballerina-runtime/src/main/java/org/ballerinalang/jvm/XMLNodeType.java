@@ -29,7 +29,7 @@ public enum XMLNodeType {
     TEXT("text"),
     COMMENT("comment"),
     PI("pi");
-    
+
     String nodeType;
 
     XMLNodeType(String value) {

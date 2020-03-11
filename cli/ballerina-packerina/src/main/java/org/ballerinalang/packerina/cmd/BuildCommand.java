@@ -51,6 +51,7 @@ import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.HashMap;
 import java.util.List;
 
 import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
@@ -157,6 +158,9 @@ public class BuildCommand implements BLauncherCmd {
     private static final String buildCmd = "ballerina build [-o <output>] [--sourceroot] [--offline] [--skip-tests]\n" +
             "                    [--skip-lock] {<ballerina-file | module-name> | -a | --all} [--] [(--key=value)...]";
 
+    @CommandLine.Option(names = "--code-coverage", description = "enable code coverage")
+    private boolean coverage;
+
     public void execute() {
         if (this.helpFlag) {
             String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(BUILD_COMMAND);
@@ -164,11 +168,18 @@ public class BuildCommand implements BLauncherCmd {
             return;
         }
 
-        String[] args = LaunchUtils
-                .initConfigurations(this.argList == null ? new String[0] : this.argList.toArray(new String[0]));
+        String[] args;
+        if (this.argList == null) {
+            args = new String[0];
+        } else if (this.buildAll) {
+            args = this.argList.toArray(new String[0]);
+        } else {
+            args = argList.subList(1, argList.size()).toArray(new String[0]);
+        }
 
-        // Check if there are too many arguments.
-        if (args.length > 1) {
+        String[] userArgs = LaunchUtils.getUserArgs(args, new HashMap<>());
+        // check if there are too many arguments.
+        if (userArgs.length > 0) {
             CommandUtil.printError(this.errStream, "too many arguments.", buildCmd, false);
             CommandUtil.exitError(this.exitWhenFinish);
             return;
@@ -223,12 +234,13 @@ public class BuildCommand implements BLauncherCmd {
         
             targetPath = this.sourceRootPath.resolve(ProjectDirConstants.TARGET_DIR_NAME);
 
-            if (args.length > 0) {
-                CommandUtil.printError(this.errStream, "too many arguments.", buildCmd, false);
-                CommandUtil.exitError(this.exitWhenFinish);
-                return;
-            }
         } else if (this.argList.get(0).endsWith(BLangConstants.BLANG_SRC_FILE_SUFFIX)) {
+            // TODO: remove this once code cov is implemented to support single bal file
+            if (coverage) {
+                coverage = false;
+                this.outStream.println("Code coverage is not yet supported with single bal files. Ignoring the flag " +
+                        "and continuing the test run...");
+            }
             // when a single bal file is provided.
             if (this.compile) {
                 CommandUtil.printError(this.errStream,
@@ -376,11 +388,10 @@ public class BuildCommand implements BLauncherCmd {
                 .addTask(new CreateBirTask())   // create the bir
                 .addTask(new CopyNativeLibTask(skipCopyLibsFromDist))    // copy the native libs(projects only)
                 // create the jar.
-                .addTask(new CreateJarTask(this.dumpBIR, skipCopyLibsFromDist, this.nativeBinary, this.dumpLLVMIR,
-                        this.noOptimizeLlvm))
+                .addTask(new CreateJarTask(this.dumpBIR, skipCopyLibsFromDist))
                 .addTask(new CopyResourcesTask(), isSingleFileBuild)
-                .addTask(new CopyModuleJarTask(skipCopyLibsFromDist))
-                .addTask(new RunTestsTask(), this.skipTests || isSingleFileBuild) // run tests
+                .addTask(new CopyModuleJarTask(skipCopyLibsFromDist, skipTests))
+                .addTask(new RunTestsTask(coverage, args), this.skipTests || isSingleFileBuild) // run tests
                                                                                                 // (projects only)
                 .addTask(new CreateExecutableTask(), this.compile)  // create the executable.jar
                                                                                         // file
@@ -391,7 +402,6 @@ public class BuildCommand implements BLauncherCmd {
                 .build();
         
         taskExecutor.executeTasks(buildContext);
-        
         if (this.exitWhenFinish) {
             Runtime.getRuntime().exit(0);
         }

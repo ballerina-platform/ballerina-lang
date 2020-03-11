@@ -21,6 +21,7 @@ apply from: "$rootDir/gradle/baseNativeStdLibProject.gradle"
 dependencies {
     baloCreat project(':lib-creator')
     implementation project(':ballerina-core')
+    implementation project(':testerina:testerina-runtime')
     implementation project(':ballerina-lang')
     implementation project(':ballerina-auth')
     implementation project(':ballerina-runtime')
@@ -28,6 +29,7 @@ dependencies {
     implementation project(':ballerina-config-api')
     implementation project(':ballerina-crypto')
     implementation project(':ballerina-jdbc')
+    implementation project(':ballerina-email')
     implementation project(':ballerina-file')
     // implementation project(':ballerina-grpc')
     implementation project(':ballerina-http')

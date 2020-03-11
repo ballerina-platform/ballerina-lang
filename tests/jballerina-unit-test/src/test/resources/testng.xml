@@ -49,6 +49,7 @@
             <package name="org.ballerinalang.test.typedefs.*"/>
             <package name="org.ballerinalang.test.access.*"/>
             <package name="org.ballerinalang.test.structs.*"/>
+            <package name="org.ballerinalang.test.testerina.*"/>
             <package name="org.ballerinalang.test.jvm.*"/>
             <package name="org.ballerinalang.test.types.integer"/>
             <package name="org.ballerinalang.test.types.floattype"/>
@@ -88,6 +89,7 @@
             <package name="org.ballerinalang.test.types.service.*"/>
             <package name="org.ballerinalang.test.types.globalvar.*"/>
             <package name="org.ballerinalang.test.expressions.builtinoperations.*"/>
+            <package name="org.ballerinalang.test.expressions.let.*"/>
             <package name="org.ballerinalang.test.expressions.builtinfunctions.*"/>
             <package name="org.ballerinalang.test.expressions.conversion.*"/>
             <package name="org.ballerinalang.test.expressions.unaryoperations.*"/>
@@ -131,9 +133,9 @@
         <classes>
             <!--<class name="org.ballerinalang.test.closures.VarMutabilityClosureTest" />-->
             <!--<class name="org.ballerinalang.test.lock.LocksInMainTest">-->
-                <!--<methods>-->
-                    <!--<include name="simpleLock"/>-->
-                <!--</methods>-->
+            <!--<methods>-->
+            <!--<include name="simpleLock"/>-->
+            <!--</methods>-->
             <!--</class>-->
             <class name="org.ballerinalang.test.lock.LocksInServicesTest">
                 <methods>

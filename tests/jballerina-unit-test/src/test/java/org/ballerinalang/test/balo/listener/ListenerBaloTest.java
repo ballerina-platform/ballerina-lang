@@ -36,6 +36,7 @@ public class ListenerBaloTest {
 
     @BeforeClass
     public void setup() {
+        BaloCreator.cleanCacheDirectories();
         BaloCreator.createAndSetupBalo("test-src/balo/test_projects/test_listener", "listenerProject", "bee");
         compileResult = BCompileUtil.compile("test-src/balo/test_balo/listener/external_listener_access.bal");
     }

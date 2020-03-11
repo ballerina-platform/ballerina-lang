@@ -78,7 +78,7 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
-import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
+import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLogHelper;
 import org.wso2.ballerinalang.programfile.CompiledBinaryFile;
 import org.wso2.ballerinalang.programfile.CompiledBinaryFile.BIRPackageFile;
 import org.wso2.ballerinalang.util.Flags;
@@ -114,7 +114,7 @@ public class BIRPackageSymbolEnter {
     private final SymbolTable symTable;
     private final Names names;
     private final TypeParamAnalyzer typeParamAnalyzer;
-    private final BLangDiagnosticLog dlog;
+    private final BLangDiagnosticLogHelper dlog;
     private BIRTypeReader typeReader;
 
     private BIRPackageSymbolEnv env;
@@ -142,7 +142,7 @@ public class BIRPackageSymbolEnter {
         this.symTable = SymbolTable.getInstance(context);
         this.names = Names.getInstance(context);
         this.typeParamAnalyzer = TypeParamAnalyzer.getInstance(context);
-        this.dlog = BLangDiagnosticLog.getInstance(context);
+        this.dlog = BLangDiagnosticLogHelper.getInstance(context);
     }
 
     public BPackageSymbol definePackage(PackageID packageId,
@@ -334,7 +334,12 @@ public class BIRPackageSymbolEnter {
     }
 
     private void defineFunction(DataInputStream dataInStream) throws IOException {
-        skipPosition(dataInStream); // Position details are skipped
+        dataInStream.readInt(); // skip line start
+        dataInStream.readInt(); // skip line end
+        dataInStream.readInt(); // skip col start
+        dataInStream.readInt(); // skip col end
+        String source = getStringCPEntryValue(dataInStream);
+
         // Consider attached functions.. remove the first variable
         String funcName = getStringCPEntryValue(dataInStream);
         String workerName = getStringCPEntryValue(dataInStream);
@@ -343,6 +348,7 @@ public class BIRPackageSymbolEnter {
         BInvokableType funcType = (BInvokableType) readBType(dataInStream);
         BInvokableSymbol invokableSymbol = Symbols.createFunctionSymbol(flags, names.fromString(funcName),
                 this.env.pkgSymbol.pkgID, funcType, this.env.pkgSymbol, Symbols.isFlagOn(flags, Flags.NATIVE));
+        invokableSymbol.source = source;
         invokableSymbol.retType = funcType.retType;
 
         Scope scopeToDefine = this.env.pkgSymbol.scope;
@@ -905,8 +911,12 @@ public class BIRPackageSymbolEnter {
                     typedescType.constraint = readTypeFromCp();
                     return typedescType;
                 case TypeTags.STREAM:
-                    BStreamType bStreamType = new BStreamType(TypeTags.STREAM, null, symTable.streamType.tsymbol);
+                    BStreamType bStreamType = new BStreamType(TypeTags.STREAM, null, null, symTable.streamType.tsymbol);
                     bStreamType.constraint = readTypeFromCp();
+                    boolean hasError = inputStream.readByte() == 1;
+                    if (hasError) {
+                        bStreamType.error = readTypeFromCp();
+                    }
                     return bStreamType;
                 case TypeTags.MAP:
                     BMapType bMapType = new BMapType(TypeTags.MAP, null, symTable.mapType.tsymbol);
@@ -1166,7 +1176,7 @@ public class BIRPackageSymbolEnter {
 
         litExpr.type = valueType;
 
-        finiteType.valueSpace.add(litExpr);
+        finiteType.addValue(litExpr);
     }
 
     private BLangLiteral createLiteralBasedOnType(BType valueType) {

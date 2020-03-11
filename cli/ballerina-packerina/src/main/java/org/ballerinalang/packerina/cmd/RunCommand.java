@@ -273,9 +273,9 @@ public class RunCommand implements BLauncherCmd {
                 .addTask(new CreateBirTask())   // create the bir
                 .addTask(new CopyNativeLibTask())    // copy the native libs(projects only)
                 // create the jar.
-                .addTask(new CreateJarTask(this.dumpBIR, this.nativeBinary, this.dumpLLVMIR, this.noOptimizeLLVM))
+                .addTask(new CreateJarTask(this.dumpBIR))
                 .addTask(new CopyResourcesTask(), isSingleFileBuild)
-                .addTask(new CopyModuleJarTask())
+                .addTask(new CopyModuleJarTask(false, true))
                 .addTask(new PrintExecutablePathTask(), isSingleFileBuild)   // print the location of the executable
                 .addTask(new PrintRunningExecutableTask(!isSingleFileBuild))   // print running executables
                 .addTask(new RunExecutableTask(programArgs, isInDebugMode))

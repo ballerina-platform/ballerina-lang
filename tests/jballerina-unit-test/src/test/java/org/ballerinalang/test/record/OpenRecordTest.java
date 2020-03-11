@@ -480,4 +480,29 @@ public class OpenRecordTest {
         BAssertUtil.validateError(result, 2, "invalid key 's2': identifiers cannot be used as rest field keys, " +
                 "expected a string literal or an expression", 28, 26);
     }
+
+    @Test
+    public void testCustomErrorTypeDescFieldOnRecord() {
+        BRunUtil.invoke(compileResult, "testCustomErrorTypeDescFieldOnRecord");
+    }
+
+    @Test
+    public void testOptionalRecordRemove() {
+        BRunUtil.invoke(compileResult, "removeOptional");
+    }
+
+    @Test
+    public void testRestRecordRemove() {
+        BRunUtil.invoke(compileResult, "removeRest");
+    }
+
+    @Test
+    public void removeIfHasKeyOptional() {
+        BRunUtil.invoke(compileResult, "removeIfHasKeyOptional");
+    }
+
+    @Test
+    public void removeIfHasKeyRest() {
+        BRunUtil.invoke(compileResult, "removeIfHasKeyRest");
+    }
 }

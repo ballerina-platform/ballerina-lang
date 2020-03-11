@@ -47,6 +47,7 @@ import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.HashMap;
 import java.util.List;
 
 import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
@@ -138,18 +139,27 @@ public class TestCommand implements BLauncherCmd {
     @CommandLine.Option(names = "--disable-groups", split = ",", description = "test groups to be disabled")
     private List<String> disableGroupList;
 
+    @CommandLine.Option(names = "--code-coverage", description = "enable code coverage")
+    private boolean coverage;
+
     public void execute() {
         if (this.helpFlag) {
             String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(TEST_COMMAND);
             this.errStream.println(commandUsageInfo);
             return;
         }
-
-        String[] args = LaunchUtils
-                .initConfigurations(this.argList == null ? new String[0] : this.argList.toArray(new String[0]));
+        String[] args;
+        if (this.argList == null) {
+            args = new String[0];
+        } else if (this.buildAll) {
+            args = this.argList.toArray(new String[0]);
+        } else {
+            args = argList.subList(1, argList.size()).toArray(new String[0]);
+        }
+        String[] userArgs = LaunchUtils.getUserArgs(args, new HashMap<>());
 
         // check if there are too many arguments.
-        if (args.length > 1) {
+        if (userArgs.length > 0) {
             CommandUtil.printError(this.errStream,
                     "too many arguments.",
                     "ballerina test [--offline] [--sourceroot <path>] [--experimental] [--skip-lock]\n" +
@@ -213,6 +223,12 @@ public class TestCommand implements BLauncherCmd {
                 this.sourceRootPath = findRoot;
             }
         } else if (this.argList.get(0).endsWith(BLangConstants.BLANG_SRC_FILE_SUFFIX)) {
+            // TODO: remove this once code cov is implemented to support single bal file
+            if (coverage) {
+                coverage = false;
+                this.outStream.println("Code coverage is not yet supported with single bal files. Ignoring the flag " +
+                        "and continuing the test run...");
+            }
             // when a single bal file is provided
             // Check if path given is an absolute path. Update the root accordingly
             sourcePath = (Paths.get(this.argList.get(0)).isAbsolute()) ?
@@ -338,18 +354,18 @@ public class TestCommand implements BLauncherCmd {
                 .addTask(new CleanTargetDirTask(), isSingleFileBuild)   // clean the target directory(projects only)
                 .addTask(new CreateTargetDirTask()) // create target directory.
                 .addTask(new CompileTask()) // compile the modules
-                .addTask(new CreateBaloTask(), isSingleFileBuild)   // create the balos for modules(projects only)
-                .addTask(new CreateBirTask())   // create the bir
-                .addTask(new CopyNativeLibTask(skipCopyLibsFromDist))    // copy the native libs(projects only)
+                .addTask(new CreateBaloTask(), isSingleFileBuild || listGroups) // create the balos for modules
+                // (projects only)
+                .addTask(new CreateBirTask(), listGroups)   // create the bir
+                .addTask(new CopyNativeLibTask(skipCopyLibsFromDist), listGroups) // copy the native libs(projects only)
                 // create the jar.
-                .addTask(new CreateJarTask(this.dumpBIR, this.skipCopyLibsFromDist, this.nativeBinary, this.dumpLLVMIR,
-                        this.noOptimizeLLVM))
-                .addTask(new CopyResourcesTask(), isSingleFileBuild)
-                .addTask(new CopyModuleJarTask(skipCopyLibsFromDist))
+                .addTask(new CreateJarTask(this.dumpBIR, this.skipCopyLibsFromDist), listGroups)
+                .addTask(new CopyResourcesTask(), isSingleFileBuild || listGroups)
+                .addTask(new CopyModuleJarTask(skipCopyLibsFromDist, false), listGroups)
                 // tasks to list groups or execute tests. the 'listGroups' boolean is used to decide whether to
                 // skip the task or to execute
                 .addTask(new ListTestGroupsTask(), !listGroups) // list the available test groups
-                .addTask(new RunTestsTask(groupList, disableGroupList), listGroups) // run tests
+                .addTask(new RunTestsTask(coverage, args, groupList, disableGroupList), listGroups) // run tests
                 .build();
 
         taskExecutor.executeTasks(buildContext);

@@ -170,6 +170,26 @@
             "insertTextFormat": "Snippet"
         },
         {
+            "label": "InboundAuthHandlers",
+            "detail": "Union",
+            "documentation": {
+                "left": "Represents inbound auth handler patterns."
+            },
+            "sortText": "110",
+            "insertText": "InboundAuthHandlers",
+            "insertTextFormat": "Snippet"
+        },
+        {
+            "label": "Scopes",
+            "detail": "Union",
+            "documentation": {
+                "left": "Represents scopes patterns."
+            },
+            "sortText": "110",
+            "insertText": "Scopes",
+            "insertTextFormat": "Snippet"
+        },
+        {
             "label": "RequestCacheControl",
             "kind": "Interface",
             "detail": "Object",
@@ -257,17 +277,6 @@
             "insertTextFormat": "Snippet"
         },
         {
-            "label": "ClientConfiguration",
-            "kind": "Struct",
-            "detail": "Record",
-            "documentation": {
-                "left": "Provides a set of configurations for controlling the behaviours when communicating with a remote HTTP endpoint.\n"
-            },
-            "sortText": "180",
-            "insertText": "ClientConfiguration",
-            "insertTextFormat": "Snippet"
-        },
-        {
             "label": "ClientHttp1Settings",
             "kind": "Struct",
             "detail": "Record",
@@ -316,7 +325,7 @@
             "kind": "Struct",
             "detail": "Record",
             "documentation": {
-                "left": "Provides configurations for controlling the endpoint\u0027s behaviour in response to HTTP redirect related responses.\n"
+                "left": "Provides configurations for controlling the endpoint's behaviour in response to HTTP redirect related responses.\n"
             },
             "sortText": "180",
             "insertText": "FollowRedirects",
@@ -378,14 +387,14 @@
             "insertTextFormat": "Snippet"
         },
         {
-          "label": "myCookie",
-          "kind": "Struct",
-          "detail": "Record",
-          "sortText": "180",
-          "insertText": "myCookie",
-          "insertTextFormat": "Snippet"
+            "label": "myCookie",
+            "kind": "Struct",
+            "detail": "Record",
+            "sortText": "180",
+            "insertText": "myCookie",
+            "insertTextFormat": "Snippet"
         },
-      {
+        {
             "label": "CookieClient",
             "kind": "Interface",
             "detail": "Object",
@@ -395,24 +404,24 @@
             "sortText": "190",
             "insertText": "CookieClient",
             "insertTextFormat": "Snippet"
-      },
-      {
-        "label": "PersistentCookieHandler",
-        "kind": "Interface",
-        "detail": "Object",
-        "documentation": {
-          "left": "The representation of a persistent cookie handler for managing persistent cookies."
         },
-        "sortText": "190",
-        "insertText": "PersistentCookieHandler",
-        "insertTextFormat": "Snippet"
+        {
+            "label": "PersistentCookieHandler",
+            "kind": "Interface",
+            "detail": "Object",
+            "documentation": {
+                "left": "The representation of a persistent cookie handler for managing persistent cookies."
+            },
+            "sortText": "190",
+            "insertText": "PersistentCookieHandler",
+            "insertTextFormat": "Snippet"
         },
         {
             "label": "HttpFuture",
             "kind": "Interface",
             "detail": "Object",
             "documentation": {
-                "left": "Represents a \u0027future\u0027 that returns as a result of an asynchronous HTTP request submission.\nThis can be used as a reference to fetch the results of the submission."
+                "left": "Represents a 'future' that returns as a result of an asynchronous HTTP request submission.\nThis can be used as a reference to fetch the results of the submission."
             },
             "sortText": "190",
             "insertText": "HttpFuture",
@@ -560,6 +569,17 @@
             "detail": "Record",
             "sortText": "180",
             "insertText": "HTTPError",
+            "insertTextFormat": "Snippet"
+        },
+        {
+            "label": "CommonClientConfiguration",
+            "kind": "Struct",
+            "detail": "Record",
+            "documentation": {
+                "left": "Common client configurations for the next level clients.\n"
+            },
+            "sortText": "180",
+            "insertText": "CommonClientConfiguration",
             "insertTextFormat": "Snippet"
         },
         {
@@ -830,7 +850,7 @@
             "kind": "Struct",
             "detail": "Record",
             "documentation": {
-                "left": "Provides a set of HTTP related configurations and failover related configurations.\n"
+                "left": "Provides a set of HTTP related configurations and failover related configurations.\n\nhttpVersion - Copied from CommonClientConfiguration\nhttp1Settings - Copied from CommonClientConfiguration\nhttp2Settings - Copied from CommonClientConfiguration\ntimeoutInMillis - Copied from CommonClientConfiguration\nforwarded - Copied from CommonClientConfiguration\nfollowRedirects - Copied from CommonClientConfiguration\npoolConfig - Copied from CommonClientConfiguration\ncache - Copied from CommonClientConfiguration\ncompression - Copied from CommonClientConfiguration\nauth - Copied from CommonClientConfiguration\ncircuitBreaker - Copied from CommonClientConfiguration\nretryConfig - Copied from CommonClientConfiguration\ncookieConfig - Copied from CommonClientConfiguration"
             },
             "sortText": "180",
             "insertText": "FailoverClientConfiguration",
@@ -983,7 +1003,7 @@
             "kind": "Struct",
             "detail": "Record",
             "documentation": {
-                "left": "The configurations related to the load balance client endpoint.\n"
+                "left": "The configurations related to the load balance client endpoint.\n\nhttpVersion - Copied from CommonClientConfiguration\nhttp1Settings - Copied from CommonClientConfiguration\nhttp2Settings - Copied from CommonClientConfiguration\ntimeoutInMillis - Copied from CommonClientConfiguration\nforwarded - Copied from CommonClientConfiguration\nfollowRedirects - Copied from CommonClientConfiguration\npoolConfig - Copied from CommonClientConfiguration\ncache - Copied from CommonClientConfiguration\ncompression - Copied from CommonClientConfiguration\nauth - Copied from CommonClientConfiguration\ncircuitBreaker - Copied from CommonClientConfiguration\nretryConfig - Copied from CommonClientConfiguration\ncookieConfig - Copied from CommonClientConfiguration"
             },
             "sortText": "180",
             "insertText": "LoadBalanceClientConfiguration",
@@ -1067,17 +1087,6 @@
             "insertTextFormat": "Snippet"
         },
         {
-            "label": "AuthzCacheConfig",
-            "kind": "Struct",
-            "detail": "Record",
-            "documentation": {
-                "left": "Provides a set of configurations for controlling the authorization caching behaviour of the endpoint.\n"
-            },
-            "sortText": "180",
-            "insertText": "AuthzCacheConfig",
-            "insertTextFormat": "Snippet"
-        },
-        {
             "label": "KeepAlive",
             "detail": "Union",
             "documentation": {
@@ -1129,17 +1138,17 @@
             "insertTextFormat": "Snippet"
         },
         {
-          "label": "WebSocketRetryConfig",
-          "kind": "Struct",
-          "detail": "Record",
-          "documentation": {
-            "left": "Retry configurations for WebSocket.\n"
-          },
-          "sortText": "180",
-          "insertText": "WebSocketRetryConfig",
-          "insertTextFormat": "Snippet"
+            "label": "WebSocketRetryConfig",
+            "kind": "Struct",
+            "detail": "Record",
+            "documentation": {
+                "left": "Retry configurations for WebSocket.\n"
+            },
+            "sortText": "180",
+            "insertText": "WebSocketRetryConfig",
+            "insertTextFormat": "Snippet"
         },
-      {
+        {
             "label": "WebSocketConnector",
             "kind": "Interface",
             "detail": "Object",
@@ -1183,16 +1192,27 @@
             "insertText": "BearerAuthHandler",
             "insertTextFormat": "Snippet"
         },
-      {
-        "label": "CsvPersistentCookieHandler",
-        "kind": "Interface",
-        "detail": "Object",
-        "documentation": {
-          "left": "Represents a default persistent cookie handler, which stores persistent cookies in a CSV file.\n"
+        {
+            "label": "ClientConfiguration",
+            "kind": "Struct",
+            "detail": "Record",
+            "documentation": {
+                "left": "Provides a set of configurations for controlling the behaviours when communicating with a remote HTTP endpoint.\n\nhttpVersion - Copied from CommonClientConfiguration\nhttp1Settings - Copied from CommonClientConfiguration\nhttp2Settings - Copied from CommonClientConfiguration\ntimeoutInMillis - Copied from CommonClientConfiguration\nforwarded - Copied from CommonClientConfiguration\nfollowRedirects - Copied from CommonClientConfiguration\npoolConfig - Copied from CommonClientConfiguration\ncache - Copied from CommonClientConfiguration\ncompression - Copied from CommonClientConfiguration\nauth - Copied from CommonClientConfiguration\ncircuitBreaker - Copied from CommonClientConfiguration\nretryConfig - Copied from CommonClientConfiguration\ncookieConfig - Copied from CommonClientConfiguration"
+            },
+            "sortText": "180",
+            "insertText": "ClientConfiguration",
+            "insertTextFormat": "Snippet"
         },
-        "sortText": "190",
-        "insertText": "CsvPersistentCookieHandler",
-        "insertTextFormat": "Snippet"
+        {
+            "label": "CsvPersistentCookieHandler",
+            "kind": "Interface",
+            "detail": "Object",
+            "documentation": {
+                "left": "Represents a default persistent cookie handler, which stores persistent cookies in a CSV file.\n"
+            },
+            "sortText": "190",
+            "insertText": "CsvPersistentCookieHandler",
+            "insertTextFormat": "Snippet"
         },
         {
             "label": "RequestMessage",

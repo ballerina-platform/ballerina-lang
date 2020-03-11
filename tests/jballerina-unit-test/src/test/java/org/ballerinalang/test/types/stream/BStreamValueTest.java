@@ -59,22 +59,105 @@ public class BStreamValueTest {
         Assert.assertTrue(((BBoolean) values[0]).booleanValue());
     }
 
-    @Test(description = "Test stream return type")
-    public void testStreamReturnType() {
-        BValue[] values = BRunUtil.invoke(result, "testStreamReturnType", new BValue[]{});
+    @Test(description = "Test stream explicit return type")
+    public void testStreamReturnTypeExplicit() {
+        BValue[] values = BRunUtil.invoke(result, "testStreamReturnTypeExplicit", new BValue[]{});
+        Assert.assertTrue(((BBoolean) values[0]).booleanValue());
+    }
+
+    @Test(description = "Test stream implicit return type")
+    public void testStreamReturnTypeImplicit() {
+        BValue[] values = BRunUtil.invoke(result, "testStreamReturnTypeImplicit", new BValue[]{});
+        Assert.assertTrue(((BBoolean) values[0]).booleanValue());
+    }
+
+    @Test(description = "Test Iterator With Custom Error")
+    public void testIteratorWithCustomError() {
+        BValue[] values = BRunUtil.invoke(result, "testIteratorWithCustomError", new BValue[]{});
+        Assert.assertTrue(((BBoolean) values[0]).booleanValue());
+    }
+
+    @Test(description = "Test Iterator with generic error")
+    public void testIteratorWithGenericError() {
+        BValue[] values = BRunUtil.invoke(result, "testIteratorWithGenericError", new BValue[]{});
+        Assert.assertTrue(((BBoolean) values[0]).booleanValue());
+    }
+
+    @Test(description = "Test Iterator with withOut error")
+    public void testIteratorWithOutError() {
+        BValue[] values = BRunUtil.invoke(result, "testIteratorWithOutError", new BValue[]{});
+        Assert.assertTrue(((BBoolean) values[0]).booleanValue());
+    }
+
+    @Test(description = "Test Iterator with error union")
+    public void testIteratorWithErrorUnion() {
+        BValue[] values = BRunUtil.invoke(result, "testIteratorWithErrorUnion", new BValue[]{});
         Assert.assertTrue(((BBoolean) values[0]).booleanValue());
     }
 
     @Test(description = "Test negative test scenarios of stream type")
     public void testStreamTypeNegative() {
         int i = 0;
-        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'record {| int value; |}', found" +
-                " 'int'", 26, 12);
-        BAssertUtil.validateError(negativeResult, i++, "undefined field 'val' in record '$anonType$2'", 31, 14);
-        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int', found 'string'", 35, 21);
-        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int', found 'boolean'", 39, 21);
-        BAssertUtil.validateError(negativeResult, i, "incompatible types: expected 'record {| int value; |}', found '" +
-                "()'", 43, 12);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'record {| int value; |}?', " +
+                "found '(record {| int value; |}|error)?'", 74, 45);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'record {| int value; |}?', " +
+                "found '(record {| int value; |}|CustomError)?'", 77, 35);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'record {| int value; |}?', " +
+                "found '(record {| int value; |}|CustomError)?'", 78, 31);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected '(record {| int value; " +
+                "|}|CustomError)?', found '(record {| int value; |}|error)?'", 105, 57);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'record {| int value; |}?', " +
+                "found '(record {| int value; |}|error)?'", 106, 45);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected '(record {| int value; " +
+                "|}|CustomError)?', found '(record {| int value; |}|error)?'", 109, 48);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected '(record {| int value; " +
+                "|}|CustomError)?', found '(record {| int value; |}|error)?'", 110, 44);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'record {| int value; |}?', " +
+                "found '(record {| int value; |}|error)?'", 113, 35);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'record {| int value; |}?', " +
+                "found '(record {| int value; |}|error)?'", 114, 31);
+        BAssertUtil.validateError(negativeResult, i++, "'IteratorWithOutNext' must implement 'public function next() " +
+                "returns record {| int value; |}?'.", 159, 35);
+        BAssertUtil.validateError(negativeResult, i++, "'IteratorWithOutNext' must implement 'public function next() " +
+                "returns record {| int value; |}?'.", 160, 31);
+        BAssertUtil.validateError(negativeResult, i++, "'IteratorWithOutNext' must implement 'public function next() " +
+                "returns (record {| int value; |}|error)?'.", 161, 42);
+        BAssertUtil.validateError(negativeResult, i++, "'IteratorWithOutNext' must implement 'public function next() " +
+                "returns (record {| int value; |}|error)?'.", 162, 38);
+        BAssertUtil.validateError(negativeResult, i++, "'IteratorWithOutNext' must implement 'public function next() " +
+                "returns (record {| int value; |}|CustomError)?'.", 163, 48);
+        BAssertUtil.validateError(negativeResult, i++, "'IteratorWithOutNext' must implement 'public function next() " +
+                "returns (record {| int value; |}|CustomError)?'.", 164, 44);
+        BAssertUtil.validateError(negativeResult, i++, "'IteratorWithMismatchedNextA' must implement 'public function" +
+                " next() returns record {| int value; |}?'.", 178, 35);
+        BAssertUtil.validateError(negativeResult, i++, "'IteratorWithMismatchedNextA' must implement 'public function" +
+                " next() returns record {| int value; |}?'.", 179, 31);
+        BAssertUtil.validateError(negativeResult, i++, "'IteratorWithMismatchedNextA' must implement 'public function" +
+                " next() returns (record {| int value; |}|error)?'.", 180, 42);
+        BAssertUtil.validateError(negativeResult, i++, "'IteratorWithMismatchedNextA' must implement 'public function" +
+                " next() returns (record {| int value; |}|error)?'.", 181, 38);
+        BAssertUtil.validateError(negativeResult, i++, "'IteratorWithMismatchedNextA' must implement 'public function" +
+                " next() returns (record {| int value; |}|CustomError)?'.", 182, 48);
+        BAssertUtil.validateError(negativeResult, i++, "'IteratorWithMismatchedNextA' must implement 'public function" +
+                " next() returns (record {| int value; |}|CustomError)?'.", 183, 44);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible mapping constructor expression for type '(record" +
+                " {| int val; |}|CustomError)?'", 191, 16);
+        BAssertUtil.validateError(negativeResult, i++, "'IteratorWithMismatchedNextC' must implement 'public function" +
+                " next() returns (record {| int value; |}|error)?'.", 198, 42);
+        BAssertUtil.validateError(negativeResult, i++, "'IteratorWithMismatchedNextC' must implement 'public function" +
+                " next() returns (record {| int value; |}|error)?'.", 199, 38);
+        BAssertUtil.validateError(negativeResult, i++, "'IteratorWithMismatchedNextC' must implement 'public function" +
+                " next() returns (record {| string value; |}|error)?'.", 202, 45);
+        BAssertUtil.validateError(negativeResult, i++, "'IteratorWithMismatchedNextC' must implement 'public function" +
+                " next() returns (record {| string value; |}|error)?'.", 203, 41);
+        BAssertUtil.validateError(negativeResult, i++, "'IteratorWithMismatchedNextC' must implement 'public function" +
+                " next() returns (record {| string value; |}|CustomError)?'.", 204, 51);
+        BAssertUtil.validateError(negativeResult, i++, "'IteratorWithMismatchedNextC' must implement 'public function" +
+                " next() returns (record {| string value; |}|CustomError)?'.", 205, 47);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected '(record {| string value; " +
+                "|}|CustomError1)?', found '(record {| int value; |}|CustomError)?'", 227, 52);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected '(record {| string value; " +
+                "|}|CustomError1)?', found '(record {| int value; |}|CustomError)?'", 228, 48);
     }
 
 }

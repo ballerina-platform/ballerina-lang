@@ -24,7 +24,6 @@ string BSTRING_VALUE = runtime:getProperty("ballerina.bstring") == "" ? STRING_V
 
 const string B_STRING_VALUE = "org/ballerinalang/jvm/values/api/BString";
 const string I_STRING_VALUE = "org/ballerinalang/jvm/values/StringValue";
-const string BMP_STRING_VALUE = "org/ballerinalang/jvm/values/BmpStringValue";
 const string NON_BMP_STRING_VALUE = "org/ballerinalang/jvm/values/NonBmpStringValue";
 
 type InstructionGenerator object {
@@ -901,11 +900,11 @@ type InstructionGenerator object {
         self.storeToVar(newErrorIns.lhsOp.variableDcl);
     }
 
-    function generateCastIns(bir:TypeCast typeCastIns) {
+    function generateCastIns(bir:TypeCast typeCastIns, boolean useBString) {
         // load source value
         self.loadVar(typeCastIns.rhsOp.variableDcl);
         if (typeCastIns.checkType) {
-            generateCheckCast(self.mv, typeCastIns.rhsOp.typeValue, typeCastIns.castType);
+            generateCheckCast(self.mv, typeCastIns.rhsOp.typeValue, typeCastIns.castType, self.indexMap, useBString);
         } else {
             generateCast(self.mv, typeCastIns.rhsOp.typeValue, typeCastIns.castType);
         }
@@ -1004,11 +1003,9 @@ type InstructionGenerator object {
     function generateNewXMLElementIns(bir:NewXMLElement newXMLElement, boolean useBString) {
         self.loadVar(newXMLElement.startTagOp.variableDcl);
         self.mv.visitTypeInsn(CHECKCAST, XML_QNAME);
-        self.loadVar(newXMLElement.endTagOp.variableDcl);
-        self.mv.visitTypeInsn(CHECKCAST, XML_QNAME);
         self.loadVar(newXMLElement.defaultNsURIOp.variableDcl);
         self.mv.visitMethodInsn(INVOKESTATIC, XML_FACTORY, "createXMLElement",
-                io:sprintf("(L%s;L%s;L%s;)L%s;", XML_QNAME, XML_QNAME, useBString ? B_STRING_VALUE : STRING_VALUE,
+                io:sprintf("(L%s;L%s;)L%s;", XML_QNAME, useBString ? B_STRING_VALUE : STRING_VALUE,
                 XML_VALUE), false);
         self.storeToVar(newXMLElement.lhsOp.variableDcl);
     }

@@ -23,6 +23,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.exception.LSStdlibCacheException;
 import org.ballerinalang.langserver.util.FileUtils;
 import org.ballerinalang.langserver.util.TestUtil;
 import org.eclipse.lsp4j.Position;
@@ -45,8 +46,8 @@ import java.nio.file.Paths;
  * Test goto definition language server feature.
  */
 public class DefinitionTest {
-    private Path configRoot;
-    private Path sourceRoot;
+    protected Path configRoot;
+    protected Path sourceRoot;
     private Path projectPath = FileUtils.RES_DIR.resolve("referencesProject");
     protected Gson gson = new Gson();
     protected JsonParser parser = new JsonParser();
@@ -61,7 +62,7 @@ public class DefinitionTest {
     }
 
     @Test(description = "Test goto definitions", dataProvider = "testDataProvider")
-    public void test(String configPath, String configDir) throws IOException {
+    public void test(String configPath, String configDir) throws IOException, LSStdlibCacheException {
         JsonObject configObject = FileUtils.fileContentAsObject(configRoot.resolve(configDir)
                 .resolve(configPath).toString());
         JsonObject source = configObject.getAsJsonObject("source");
@@ -71,7 +72,7 @@ public class DefinitionTest {
     }
 
     @Test(description = "Test Go to definition between two files in same module", enabled = false)
-    public void testDifferentFiles() throws IOException {
+    public void testDifferentFiles() throws IOException, LSStdlibCacheException {
         log.info("Test textDocument/definition for Two Files in same module");
         JsonObject configObject = FileUtils.fileContentAsObject(configRoot.resolve("multifile")
                 .resolve("defMultiFile1.json").toString());
@@ -83,7 +84,7 @@ public class DefinitionTest {
     }
 
     @Test(description = "Test Go to definition between two modules", enabled = false)
-    public void testDifferentModule() throws IOException {
+    public void testDifferentModule() throws IOException, LSStdlibCacheException {
         log.info("Test textDocument/definition for two modules");
         JsonObject configObject = FileUtils.fileContentAsObject(configRoot.resolve("multipkg")
                 .resolve("defMultiPkg1.json").toString());
@@ -94,8 +95,8 @@ public class DefinitionTest {
         this.compareResults(sourcePath, position, configObject, projectPath);
     }
 
-    private void compareResults(Path sourcePath, Position position, JsonObject configObject, Path root)
-            throws IOException {
+    protected void compareResults(Path sourcePath, Position position, JsonObject configObject, Path root)
+            throws IOException, LSStdlibCacheException {
         TestUtil.openDocument(serviceEndpoint, sourcePath);
         String actualStr = TestUtil.getDefinitionResponse(sourcePath.toString(), position, serviceEndpoint);
         TestUtil.closeDocument(serviceEndpoint, sourcePath);
@@ -108,7 +109,7 @@ public class DefinitionTest {
     }
 
     @DataProvider
-    public Object[][] testDataProvider() throws IOException {
+    private Object[][] testDataProvider() throws IOException {
         log.info("Test textDocument/definition for Basic Cases");
         return new Object[][]{
                 // Note: Variable Reference Expressions will be addressed in almost all the test cases
@@ -131,6 +132,8 @@ public class DefinitionTest {
                 {"defFunction10.json", "function"},
                 {"defFunction11.json", "function"},
                 {"defFunction12.json", "function"},
+                {"defFunction13.json", "function"},
+                {"defFunction14.json", "function"},
                 // Following tests covers the type descriptor and Module Type Definitions
                 // Covers Simple Type Descriptor
                 {"defTypedesc1.json", "typedescriptor"},
@@ -151,6 +154,7 @@ public class DefinitionTest {
                 {"defTypedesc14.json", "typedescriptor"},
                 {"defTypedesc15.json", "typedescriptor"},
                 {"defTypedesc16.json", "typedescriptor"},
+                {"defTypedesc53.json", "typedescriptor"},
                 // Covers Function Type Descriptor
                 {"defTypedesc17.json", "typedescriptor"},
                 {"defTypedesc18.json", "typedescriptor"},
@@ -208,6 +212,9 @@ public class DefinitionTest {
                 // Covers the Mapping Constructor Expression
                 {"defMappingConstructorExpr1.json", "expression"},
                 {"defMappingConstructorExpr2.json", "expression"},
+                {"defMappingConstructorExpr3.json", "expression"},
+                {"defMappingConstructorExpr4.json", "expression"},
+                {"defMappingConstructorExpr5.json", "expression"},
                 {"defServiceConstructorExpr1.json", "expression"},
                 // Covers the String Template Expression
                 {"defStringTemplateExpr1.json", "expression"},
@@ -286,6 +293,12 @@ public class DefinitionTest {
                 {"defErrorConstructorExpr5.json", "expression"},
                 {"defErrorConstructorExpr6.json", "expression"},
                 {"defErrorConstructorExpr7.json", "expression"},
+                // Covers Let Expression
+                {"defLetExpr1.json", "letexpression"},
+                {"defLetExpr2.json", "letexpression"},
+                {"defLetExpr3.json", "letexpression"},
+                {"defLetExpr4.json", "letexpression"},
+                {"defLetExpr5.json", "letexpression"},
                 // Covers the Start Action
                 {"defStartAction1.json", "action"},
                 {"defStartAction2.json", "action"}, // Remote method call action is also similar
@@ -424,6 +437,13 @@ public class DefinitionTest {
                 {"defPanicStmt1.json", "panic"},
                 // Covers Return Statement
                 {"defReturnStmt1.json", "return"},
+//                // Stream Tests
+                {"defStreams1.json", "streams"},
+                {"defStreams2.json", "streams"},
+                {"defStreams3.json", "streams"},
+                {"defStreams4.json", "streams"},
+                {"defStreams5.json", "streams"},
+                {"defStreams6.json", "streams"},
         };
     }
     
@@ -432,7 +452,7 @@ public class DefinitionTest {
         TestUtil.shutdownLanguageServer(this.serviceEndpoint);
     }
 
-    private void alterExpectedUri(JsonArray expected, Path root) throws IOException {
+    protected void alterExpectedUri(JsonArray expected, Path root) throws IOException, LSStdlibCacheException {
         for (JsonElement jsonElement : expected) {
             JsonObject item = jsonElement.getAsJsonObject();
             String[] uriComponents = item.get("uri").toString().replace("\"", "").split("/");
@@ -445,7 +465,7 @@ public class DefinitionTest {
         }
     }
 
-    private void alterActualUri(JsonArray actual) throws IOException {
+    protected void alterActualUri(JsonArray actual) throws IOException {
         for (JsonElement jsonElement : actual) {
             JsonObject item = jsonElement.getAsJsonObject();
             String uri = item.get("uri").toString().replace("\"", "");

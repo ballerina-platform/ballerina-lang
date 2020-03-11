@@ -52,6 +52,7 @@ dependencies {
     implementation project(':ballerina-jdbc')
     implementation project(':ballerina-java')
     implementation project(':ballerina-encoding')
+    implementation project(':ballerina-email')
     implementation project(':ballerina-file')
     implementation project(':ballerina-filepath')
     implementation project(':ballerina-grpc')
@@ -98,6 +99,7 @@ dependencies {
     baloImplementation project(path: ':ballerina-jdbc', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-java', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-encoding', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-email', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-file', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-filepath', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-grpc', configuration: 'baloImplementation')
@@ -175,6 +177,7 @@ createJavadoc {
 test {
     systemProperty "ballerina.home", "$buildDir/ballerina-home/main/"
     systemProperty "experimental", "true"
+    systemProperty "ballerina.version", project.version
     useTestNG() {
         suites 'src/test/resources/testng.xml'
     }

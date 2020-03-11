@@ -71,6 +71,7 @@ public class ServiceStub {
     public static class Builder {
         String serviceName;
         List<Method> methodList = new ArrayList<>();
+        StubType stubType;
 
         private Builder(String serviceName) {
             this.serviceName = serviceName;

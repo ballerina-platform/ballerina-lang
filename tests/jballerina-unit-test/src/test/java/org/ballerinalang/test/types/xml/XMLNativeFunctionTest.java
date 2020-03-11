@@ -454,10 +454,10 @@ public class XMLNativeFunctionTest {
         BValue[] returns = BRunUtil.invoke(result, "testSelectChildrenWithDifferentNamespaces");
         Assert.assertEquals(returns.length, 6);
         Assert.assertTrue(returns[0] instanceof BXML);
-        Assert.assertEquals(((BXMLSequence) returns[0]).value().size(), 1);
+        Assert.assertEquals((returns[0]).size(), 1);
 
         Assert.assertTrue(returns[1] instanceof BXML);
-        Assert.assertEquals(((BXMLSequence) returns[1]).value().size(), 1);
+        Assert.assertEquals((returns[1]).size(), 1);
 
         // is children seq one is empty?
         Assert.assertSame(returns[2].getClass(), BBoolean.class);
@@ -560,9 +560,12 @@ public class XMLNativeFunctionTest {
         BValue[] returns = BRunUtil.invoke(result, "testSetChildrenWithDifferentNamespaceForAttribute");
         Assert.assertEquals(returns.length, 4);
         Assert.assertTrue(returns[0] instanceof BXML);
-        Assert.assertEquals(returns[0].stringValue(), "<name xmlns=\"http://sample.com/test\">" +
-                "<fname>supun</fname><lname>setunga</lname><residency xmlns:nsncdom=\"http://sample.com/test/code\" " +
-                "citizen=\"true\">true</residency></name>");
+        Assert.assertEquals(returns[0].stringValue(),
+                "<name xmlns=\"http://sample.com/test\">" +
+                        "<fname>supun</fname>" +
+                        "<lname>setunga</lname>" +
+                        "<residency xmlns:nsncdom=\"http://sample.com/test/code\" citizen=\"true\">true</residency>" +
+                        "</name>");
 
         // is children seq is empty?
         Assert.assertSame(returns[1].getClass(), BBoolean.class);
@@ -677,10 +680,11 @@ public class XMLNativeFunctionTest {
         Assert.assertEquals(returns.length, 4);
         Assert.assertTrue(returns[0] instanceof BXML);
 
-        Assert.assertEquals(returns[0].stringValue(), "<ns0:name xmlns:ns0=\"http://sample.com/test\" " +
-                "xmlns:pre=\"http://sample.com/test/code\">" +
-                "<ns0:fname>supun</ns0:fname><ns0:lname>setunga</ns0:lname>" +
-                "<ns0:residency pre:citizen=\"yes\">true</ns0:residency></ns0:name>");
+        Assert.assertEquals(returns[0].stringValue(),
+                "<ns0:name xmlns:ns0=\"http://sample.com/test\"><ns0:fname>supun</ns0:fname>" +
+                        "<ns0:lname>setunga</ns0:lname>" +
+                        "<ns0:residency xmlns:pre=\"http://sample.com/test/code\" pre:citizen=\"yes\">" +
+                        "true</ns0:residency></ns0:name>");
 
         // is children seq is empty?
         Assert.assertSame(returns[1].getClass(), BBoolean.class);
@@ -701,9 +705,11 @@ public class XMLNativeFunctionTest {
         Assert.assertEquals(returns.length, 4);
         Assert.assertTrue(returns[0] instanceof BXML);
 
-        Assert.assertEquals(returns[0].stringValue(), "<ns0:name xmlns:ns0=\"http://sample.com/test\" " +
-                "xmlns:pre=\"http://sample.com/test/code\"><ns0:fname>supun</ns0:fname><ns0:lname>setunga</ns0:lname>" +
-                "<pre:residency ns0:citizen=\"yes\">true</pre:residency></ns0:name>");
+        Assert.assertEquals(returns[0].stringValue(),
+                "<ns0:name xmlns:ns0=\"http://sample.com/test\">" +
+                        "<ns0:fname>supun</ns0:fname><ns0:lname>setunga</ns0:lname>" +
+                        "<pre:residency xmlns:pre=\"http://sample.com/test/code\" ns0:citizen=\"yes\">" +
+                        "true</pre:residency></ns0:name>");
 
         // is children seq is empty?
         Assert.assertSame(returns[1].getClass(), BBoolean.class);
@@ -748,9 +754,9 @@ public class XMLNativeFunctionTest {
         BValueArray originalChildren = ((BXMLSequence) returns[3]).value();
         Assert.assertEquals(originalChildren.size(), 2);
         Assert.assertEquals(originalChildren.getRefValue(0).stringValue(),
-                "<fname xmlns:ns0=\"http://sample.com/test\">supun</fname>");
+                "<fname>supun</fname>");
         Assert.assertEquals(originalChildren.getRefValue(1).stringValue(),
-                "<lname xmlns:ns0=\"http://sample.com/test\">setunga</lname>");
+                "<lname>setunga</lname>");
     }
     
     @Test
@@ -773,9 +779,8 @@ public class XMLNativeFunctionTest {
         Assert.assertEquals(returns[0].stringValue(), "<!-- comment about the book-->     <bookId>001</bookId> " +
                 "<?word document=\"book.doc\" ?>");
         
-        Assert.assertEquals(((BXMLSequence) returns[1]).value().size(), 3);
-        Assert.assertEquals(returns[1].stringValue(), "<!-- comment about the book--><bookId>001</bookId>" +
-                "<?word document=\"book.doc\" ?>");
+        Assert.assertEquals(((BXMLSequence) returns[1]).value().size(), 1);
+        Assert.assertEquals(returns[1].stringValue(), "<bookId>001</bookId>");
     }
     
     @Test
@@ -898,11 +903,12 @@ public class XMLNativeFunctionTest {
         BValue[] returns = BRunUtil.invoke(result, "testSelectDescendants");
         Assert.assertTrue(returns[0] instanceof BXML);
         BXMLSequence seq = (BXMLSequence) returns[0];
-        Assert.assertEquals(seq.value().size(), 2);
+        Assert.assertEquals(seq.value().size(), 3);
 
-        Assert.assertEquals(seq.stringValue(), "<name xmlns=\"http://ballerinalang.org/\" "
-                + "xmlns:ns0=\"http://ballerinalang.org/aaa\"><name>Supun</name><lname>Setunga</lname></name>"
-                + "<name xmlns=\"http://ballerinalang.org/\" xmlns:ns0=\"http://ballerinalang.org/aaa\">John</name>");
+        Assert.assertEquals(seq.stringValue(),
+                "<name xmlns=\"http://ballerinalang.org/\"><name>Supun</name><lname>Setunga</lname></name>" +
+                        "<name xmlns=\"http://ballerinalang.org/\">Supun</name>" +
+                        "<name xmlns=\"http://ballerinalang.org/\">John</name>");
     }
 
     @Test
@@ -910,10 +916,10 @@ public class XMLNativeFunctionTest {
         BValue[] returns = BRunUtil.invoke(result, "testSelectDescendantsWithEmptyNs");
         Assert.assertTrue(returns[0] instanceof BXML);
         BXMLSequence seq = (BXMLSequence) returns[0];
-        Assert.assertEquals(seq.value().size(), 2);
+        Assert.assertEquals(seq.value().size(), 3);
 
-        Assert.assertEquals(seq.stringValue(), "<name xmlns:ns0=\"http://ballerinalang.org/aaa\"><name>Supun</name>"
-                + "<lname>Setunga</lname></name><name xmlns:ns0=\"http://ballerinalang.org/aaa\">John</name>");
+        Assert.assertEquals(seq.stringValue(),
+                "<name><name>Supun</name><lname>Setunga</lname></name><name>Supun</name><name>John</name>");
     }
 
     @Test
@@ -921,12 +927,13 @@ public class XMLNativeFunctionTest {
         BValue[] returns = BRunUtil.invoke(result, "testSelectDescendantsFromSeq");
         Assert.assertTrue(returns[0] instanceof BXML);
         BXMLSequence seq = (BXMLSequence) returns[0];
-        Assert.assertEquals(seq.value().size(), 3);
+        Assert.assertEquals(seq.value().size(), 4);
 
-        Assert.assertEquals(seq.stringValue(), "<name xmlns=\"http://ballerinalang.org/\" "
-                + "xmlns:ns0=\"http://ballerinalang.org/aaa\"><name>Supun</name><lname>Setunga</lname></name>"
-                + "<name xmlns=\"http://ballerinalang.org/\" xmlns:ns0=\"http://ballerinalang.org/aaa\">John</name>"
-                + "<name xmlns=\"http://ballerinalang.org/\" xmlns:ns0=\"http://ballerinalang.org/aaa\">Doe</name>");
+        Assert.assertEquals(seq.stringValue(),
+                "<name xmlns=\"http://ballerinalang.org/\"><name>Supun</name><lname>Setunga</lname></name>" +
+                        "<name xmlns=\"http://ballerinalang.org/\">Supun</name>" +
+                        "<name xmlns=\"http://ballerinalang.org/\">John</name>" +
+                        "<name xmlns=\"http://ballerinalang.org/\">Doe</name>");
     }
 
     @Test(expectedExceptions = { BLangRuntimeException.class },
@@ -943,8 +950,9 @@ public class XMLNativeFunctionTest {
         BValue[] returns = BRunUtil.invoke(result, "testRemoveAttributeUsingStringName");
         Assert.assertTrue(returns[0] instanceof BXML);
         Assert.assertEquals(returns[0].stringValue(),
-                "<root xmlns:ns1=\"http://ballerina.com/bbb\" xmlns:ns0=\"http://ballerina.com/aaa\" "
-                        + "foo1=\"bar1\" ns1:foo1=\"bar3\" ns0:foo2=\"bar4\"> hello world!</root>");
+                "<root xmlns:ns1=\"http://ballerina.com/bbb\" " +
+                        "xmlns:ns0=\"http://ballerina.com/aaa\" " +
+                        "foo1=\"bar1\" ns1:foo1=\"bar3\" ns0:foo2=\"bar4\"> hello world!</root>");
     }
 
     @Test
@@ -952,8 +960,8 @@ public class XMLNativeFunctionTest {
         BValue[] returns = BRunUtil.invoke(result, "testRemoveAttributeUsinQName");
         Assert.assertTrue(returns[0] instanceof BXML);
         Assert.assertEquals(returns[0].stringValue(),
-                "<root xmlns:ns1=\"http://ballerina.com/bbb\" xmlns:ns0=\"http://ballerina.com/aaa\" "
-                        + "foo1=\"bar1\" ns1:foo1=\"bar3\" ns0:foo2=\"bar4\"> hello world!</root>");
+                "<root xmlns:ns1=\"http://ballerina.com/bbb\" xmlns:ns0=\"http://ballerina.com/aaa\" " +
+                        "foo1=\"bar1\" ns1:foo1=\"bar3\" ns0:foo2=\"bar4\"> hello world!</root>");
     }
 
     @Test
@@ -961,11 +969,12 @@ public class XMLNativeFunctionTest {
         BValue[] returns = BRunUtil.invoke(result, "testRemoveNonExistingAttribute");
         Assert.assertTrue(returns[0] instanceof BXML);
         Assert.assertEquals(returns[0].stringValue(),
-                "<root xmlns:ns1=\"http://ballerina.com/bbb\" xmlns:ns0=\"http://ballerina.com/aaa\" "
-                        + "foo1=\"bar1\" ns0:foo1=\"bar2\" ns1:foo1=\"bar3\" ns0:foo2=\"bar4\"> hello world!</root>");
+                "<root xmlns:ns1=\"http://ballerina.com/bbb\" " +
+                        "xmlns:ns0=\"http://ballerina.com/aaa\" foo1=\"bar1\" " +
+                        "ns0:foo1=\"bar2\" ns1:foo1=\"bar3\" ns0:foo2=\"bar4\"> hello world!</root>");
     }
 
-    @Test
+    @Test(enabled = false)
     public void testGetChildrenOfSequence() {
         BValue[] returns = BRunUtil.invoke(result, "testGetChildrenOfSequence");
         Assert.assertEquals(returns.length, 2);
@@ -1015,12 +1024,10 @@ public class XMLNativeFunctionTest {
         BValue[] returns = BRunUtil.invoke(result, "testRemoveChildrenWithNamesapces");
         Assert.assertEquals(returns.length, 2);
         Assert.assertTrue(returns[0] instanceof BXML);
-        Assert.assertEquals(returns[0].stringValue(), "<name xmlns:ns0=\"http://wso2.com\">John</name>" +
-                "<ns0:name xmlns:ns0=\"http://wso2.com\">Foo</ns0:name><age xmlns:ns0=\"http://wso2.com\">50</age>" +
-                "<name xmlns:ns0=\"http://wso2.com\">Doe</name>");
+        Assert.assertEquals(returns[0].stringValue(),
+                "<name>John</name><ns0:name xmlns:ns0=\"http://wso2.com\">Foo</ns0:name><age>50</age><name>Doe</name>");
         Assert.assertTrue(returns[1] instanceof BXML);
-        Assert.assertEquals(returns[1].stringValue(), "<name xmlns:ns0=\"http://wso2.com\">John</name>" +
-                "<age xmlns:ns0=\"http://wso2.com\">50</age><name xmlns:ns0=\"http://wso2.com\">Doe</name>");
+        Assert.assertEquals(returns[1].stringValue(), "<name>John</name><age>50</age><name>Doe</name>");
     }
     
     @Test
@@ -1049,9 +1056,9 @@ public class XMLNativeFunctionTest {
     @Test
     public void testXMLCharacterLiteralLength() {
         BValue[] returns = BRunUtil.invoke(result, "testXMLLength");
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 7);
-        Assert.assertEquals(((BInteger) returns[1]).intValue(), 4);
-        Assert.assertEquals(((BInteger) returns[2]).intValue(), 2);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 2);
+        Assert.assertEquals(((BInteger) returns[1]).intValue(), 1);
+        Assert.assertEquals(((BInteger) returns[2]).intValue(), 1);
         Assert.assertEquals(((BInteger) returns[3]).intValue(), 1);
     }
 }
