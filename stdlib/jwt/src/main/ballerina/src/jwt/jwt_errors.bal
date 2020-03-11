@@ -23,7 +23,7 @@ public type Detail record {
     error cause?;
 };
 
-# Represents the JWT error reason.
+# Represents the reason of the JWT error.
 public const JWT_ERROR = "{ballerina/jwt}Error";
 
 # Represents the JWT error type with details. This will be returned if an error occurred while issuing/validating a
