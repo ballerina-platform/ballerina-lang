@@ -20,10 +20,10 @@ function testXML() returns [xml, any, any, xml, xml, xml] {
     xmlns "http://wso2.com/" as ns0;
 
     xml x = xml `<ns0:foo a="hello world" xmlns:ns1="http://ballerinalang.org/"><ns1:bar1>hello1</ns1:bar1><bar2>hello2</bar2></ns0:foo>`;
-
-    x@[ns0:b] = "active";
+    map<string> attrMap = x.getAttributes();
+    attrMap[ns0:b] = "active";
     xml x2 = x["{http://ballerinalang.org/}bar1"];
-    return [x, x@, x@[ns0:b], x.*, x2, x2[0]];
+    return [x, xgetAttributes(), x.ns0:b, x.*, x2, x2[0]];
 }
 
 function testFieldBasedAccess() returns [xml, xml, xml, xml, xml, xml] {
