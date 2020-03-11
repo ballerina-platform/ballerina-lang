@@ -34,9 +34,9 @@ import org.wso2.ballerinalang.util.RepoUtils;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
-import java.util.Stack;
 
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_COMPILED_JAR_EXT;
 
@@ -73,9 +73,10 @@ public class CreateJarTask implements Task {
         BackendDriver backendDriver = BackendDriver.getInstance(context);
         Set<PackageID> alreadyImportedModulesSet = new HashSet<>();
         List<BLangPackage> moduleBirMap = buildContext.getModules();
-        Stack<ModuleJar> moduleStack = new Stack<>();
+
         // Collect imported modules as flat stack.
         for (BLangPackage module : moduleBirMap) {
+            List<ModuleJar> moduleList = new LinkedList<>();
             BLangPackage bLangPackage = packageCache.get(module.packageID);
             if (bLangPackage == null) {
                 continue;
@@ -85,19 +86,20 @@ public class CreateJarTask implements Task {
                 for (BLangPackage testPkg : bLangPackage.getTestablePkgs()) {
                     // write its child imports jar file to cache
                     Path testJarOutput = buildContext.getTestJarPathFromTargetCache(testPkg.packageID);
-                    moduleStack.push(new ModuleJar(testPkg.symbol, testJarOutput));
+                    moduleList.add(new ModuleJar(testPkg.symbol, testJarOutput));
                     collectImportModules(testPkg.symbol.imports, sourceRoot, buildContext, alreadyImportedModulesSet,
-                                         moduleStack);
+                                         moduleList);
                 }
             }
             alreadyImportedModulesSet.add(module.packageID);
             Path jarOutput = buildContext.getJarPathFromTargetCache(module.packageID);
-            moduleStack.push(new ModuleJar(bLangPackage.symbol, jarOutput));
+            moduleList.add(new ModuleJar(bLangPackage.symbol, jarOutput));
             collectImportModules(bLangPackage.symbol.imports, sourceRoot, buildContext, alreadyImportedModulesSet,
-                                 moduleStack);
+                                 moduleList);
 
-            while (!moduleStack.empty()) {
-                ModuleJar moduleJar = moduleStack.pop();
+            // Generate jar for module and its imports
+            for (int i = moduleList.size(); i-- > 0; ) {
+                ModuleJar moduleJar = moduleList.get(i);
                 BPackageSymbol bImport = moduleJar.bPackageSymbol;
                 if (bImport.bir != null) {
                     HashSet<Path> moduleDependencySet =
@@ -113,7 +115,7 @@ public class CreateJarTask implements Task {
     }
 
     private void collectImportModules(List<BPackageSymbol> imports, Path sourceRoot, BuildContext buildContext,
-                                      Set<PackageID> alreadyImportedModulesSet , Stack< ModuleJar> moduleStack) {
+                                      Set<PackageID> alreadyImportedModulesSet , List< ModuleJar> moduleList) {
         for (BPackageSymbol bimport : imports) {
             PackageID id = bimport.pkgID;
             // skip ballerina and ballerinax
@@ -131,8 +133,8 @@ public class CreateJarTask implements Task {
                 jarFilePath = buildContext.getJarPathFromHomeCache(id);
             }
             alreadyImportedModulesSet.add(id);
-            moduleStack.push(new ModuleJar(bimport, jarFilePath));
-            collectImportModules(bimport.imports, sourceRoot, buildContext, alreadyImportedModulesSet, moduleStack);
+            moduleList.add(new ModuleJar(bimport, jarFilePath));
+            collectImportModules(bimport.imports, sourceRoot, buildContext, alreadyImportedModulesSet, moduleList);
         }
     }
 
