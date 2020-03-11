@@ -26,12 +26,10 @@ import org.ballerinalang.jvm.types.BRecordType;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.types.BUnionType;
-import org.ballerinalang.jvm.types.TypeFlags;
 import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.jvm.values.MapValue;
-import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.api.BMap;
 import org.ballerinalang.jvm.values.api.BValueCreator;
 import org.ballerinalang.jvm.values.utils.StringUtils;
@@ -39,8 +37,6 @@ import org.ballerinalang.jvm.values.utils.StringUtils;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
-
-import static org.ballerinalang.net.grpc.builder.utils.BalGenerationUtils.toCamelCase;
 
 /**
  * Generic Proto3 Message.
