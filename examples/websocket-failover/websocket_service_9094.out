@@ -1,6 +1,6 @@
 # To start the service, navigate to the directory that contains the
-# `.bal` file, and use the `ballerina run` command.
+# `.bal` file, and run the `ballerina run` command.
 $ ballerina run websocket_service_9094.bal
 
 [ballerina/http] started HTTP/WS listener 0.0.0.0:9094
-2019-11-20 14:05:09,596 INFO  [] - WebSocket client connect wih the server 9094. The Connection ID: 08d40cfffe258b13-00003526-00000001-c69a4c7eb8c373f5-76217d0a
+2019-11-20 14:05:09,596 INFO  [] - WebSocket client connects wih the server 9094. The Connection ID: 08d40cfffe258b13-00003526-00000001-c69a4c7eb8c373f5-76217d0a

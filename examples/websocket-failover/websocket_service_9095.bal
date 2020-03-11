@@ -1,7 +1,6 @@
 import ballerina/http;
 import ballerina/log;
 
-// Annotations specifying the webSocket service.
 @http:WebSocketServiceConfig {
     path: "/failover/ws"
 }
@@ -11,10 +10,10 @@ service server on new http:Listener(9095) {
 
     // This resource gets invoked when a new client connects.
     // Since messages to the server are not read by the service until the execution of the `onOpen`
-    // resource finishes, operations which should happen before reading messages should be done in
+    // resource finishes, operations, which should happen before reading messages should be done in
     // the `onOpen` resource.
     resource function onOpen(http:WebSocketCaller caller) {
-        log:printInfo("WebSocket client connect wih the server 9095. The Connection ID: "
+        log:printInfo("WebSocket client connects wih the server 9095. The Connection ID: "
         + caller.getConnectionId());
     }
 

@@ -24,8 +24,8 @@ service failoverProxyService on new http:Listener(9090) {
             "ws://localhost:9094/failover/ws"],
             // Failover interval in milliseconds.
             failoverIntervalInMillis: 2000,
-            // When creating client endpoint, if `readyOnConnect` flag is set to
-            // `false` client endpoint does not start reading frames automatically.
+            // When creating the client endpoint, if the `readyOnConnect` flag is set to
+            // `false` the client endpoint does not start reading frames automatically.
             readyOnConnect: false
         });
 
@@ -33,8 +33,8 @@ service failoverProxyService on new http:Listener(9090) {
         wsClientEp.setAttribute(ASSOCIATED_CONNECTION, caller);
         caller.setAttribute(ASSOCIATED_CONNECTION, wsClientEp);
 
-        // Once the client is ready to receive frames the remote function `ready`
-        // of the client need to be called separately.
+        // Once the client is ready to receive frames the remote `ready` function
+        // of the client needs to be called separately.
         var err = wsClientEp->ready();
         if (err is http:WebSocketError) {
             log:printError("Error calling ready on client", err);
@@ -113,7 +113,7 @@ service failoverClientService = @http:WebSocketServiceConfig {} service {
     }
 };
 
-// Function to retrieve associated client for a particular caller.
+// Function to retrieve the associated client for a particular caller.
 function getAssociatedClientEndpoint(http:WebSocketCaller ep) returns (http:WebSocketFailoverClient) {
     http:WebSocketFailoverClient wsClient = <http:WebSocketFailoverClient>ep.
     getAttribute(ASSOCIATED_CONNECTION);

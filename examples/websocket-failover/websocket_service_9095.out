@@ -2,5 +2,5 @@
 # `.bal` file, and use the `ballerina run` command.
 $ ballerina run websocket_service_9095.bal
 [ballerina/http] started HTTP/WS listener 0.0.0.0:9095
-2019-11-20 14:04:20,515 INFO  [] - WebSocket client connect wih the server 9095. The Connection ID: 08d40cfffe258b13-00003366-00000001-0cf944d788c2b464-774dc3ff
+2019-11-20 14:04:20,515 INFO  [] - WebSocket client connects wih the server 9095. The Connection ID: 08d40cfffe258b13-00003366-00000001-0cf944d788c2b464-774dc3ff
 [ballerina/http] stopped HTTP/WS listener 0.0.0.0:9095
