@@ -11,6 +11,9 @@ service Handshake {
 
     rpc publishProgram (PublishProgramRequest)
             returns (google.protobuf.Empty);
+
+    rpc linkApplication (LinkApplicationRequest)
+            returns (google.protobuf.Empty);
 }
 
 message HandshakeRequest {
@@ -30,3 +33,7 @@ message PublishProgramRequest {
     string programJson = 2;
 }
 
+message LinkApplicationRequest {
+    string id = 1;
+    string applicationId = 2;
+}
