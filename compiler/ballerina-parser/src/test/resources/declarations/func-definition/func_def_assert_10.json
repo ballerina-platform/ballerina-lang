@@ -1,0 +1,39 @@
+{
+    "kind": "FUNCTION_DEFINITION",
+    "children": [
+        {
+            "kind": "FUNCTION_KEYWORD"
+        },
+        {
+            "kind": "IDENTIFIER_TOKEN",
+            "value": "foo"
+        },
+        {
+            "kind": "OPEN_PAREN_TOKEN"
+        },
+        {
+            "kind": "LIST",
+            "children": [
+            ]
+        },
+        {
+            "kind": "CLOSE_PAREN_TOKEN"
+        },
+        {
+            "kind": "EXTERNAL_FUNCTION_BODY",
+            "children": [
+                {
+                    "kind": "EQUAL_TOKEN",
+                    "isMissing": true
+                },
+                {
+                    "kind": "EXTERNAL_KEYWORD"
+                },
+                {
+                    "kind": "SEMICOLON_TOKEN",
+                    "isMissing": true
+                }
+            ]
+        }
+    ]
+}

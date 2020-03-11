@@ -1,0 +1,111 @@
+{
+    "kind": "FUNCTION_DEFINITION",
+    "children": [
+        {
+            "kind": "FUNCTION_KEYWORD"
+        },
+        {
+            "kind": "IDENTIFIER_TOKEN",
+            "value": "foo"
+        },
+        {
+            "kind": "OPEN_PAREN_TOKEN"
+        },
+        {
+            "kind": "LIST",
+            "children": [
+                {
+                    "kind": "PARAMETER",
+                    "children": [
+                        {
+                            "kind": "TYPE_TOKEN",
+                            "value": "int"
+                        },
+                        {
+                            "kind": "IDENTIFIER_TOKEN",
+                            "value": "a"
+                        }
+                    ]
+                },
+                {
+                    "kind": "PARAMETER",
+                    "children": [
+                        {
+                            "kind": "COMMA_TOKEN",
+                            "isMissing": true
+                        },
+                        {
+                            "kind": "TYPE_TOKEN",
+                            "value": "int"
+                        },
+                        {
+                            "kind": "IDENTIFIER_TOKEN",
+                            "value": "b"
+                        },
+                        {
+                            "kind": "EQUAL_TOKEN"
+                        },
+                        {
+                            "kind": "NUMERIC_LITERAL_TOKEN",
+                            "value": 7
+                        }
+                    ]
+                },
+                {
+                    "kind": "PARAMETER",
+                    "children": [
+                        {
+                            "kind": "COMMA_TOKEN"
+                        },
+                        {
+                            "kind": "TYPE_TOKEN",
+                            "value": "int"
+                        },
+                        {
+                            "kind": "IDENTIFIER_TOKEN",
+                            "value": "c"
+                        }
+                    ]
+                },
+                {
+                    "kind": "PARAMETER",
+                    "children": [
+                        {
+                            "kind": "COMMA_TOKEN"
+                        },
+                        {
+                            "kind": "TYPE_TOKEN",
+                            "value": "string"
+                        },
+                        {
+                            "kind": "ELLIPSIS_TOKEN"
+                        },
+                        {
+                            "kind": "IDENTIFIER_TOKEN",
+                            "value": "d"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "kind": "CLOSE_PAREN_TOKEN"
+        },
+        {
+            "kind": "BLOCK_STATEMENT",
+            "children": [
+                {
+                    "kind": "OPEN_BRACE_TOKEN"
+                },
+                {
+                    "kind": "LIST",
+                    "children": [
+                    ]
+                },
+                {
+                    "kind": "CLOSE_BRACE_TOKEN"
+                }
+            ]
+        }
+    ]
+}

@@ -56,7 +56,7 @@ public class BallerinaParserListener {
     public void exitCompUnit(STToken eofToken) {
         List<STNode> importDecls = new ArrayList<>();
         List<STNode> otherDecls = new ArrayList<>();
-        for (Iterator<STNode> nodeItr = nodesStack.descendingIterator(); nodeItr.hasNext(); ) {
+        for (Iterator<STNode> nodeItr = nodesStack.descendingIterator(); nodeItr.hasNext();) {
             STNode member = nodeItr.next();
             if (member.kind == SyntaxKind.IMPORT_DECLARATION) {
                 importDecls.add(member);
@@ -65,8 +65,7 @@ public class BallerinaParserListener {
             }
         }
 
-        STModulePart modulePart = new STModulePart(new STNodeList(importDecls),
-                new STNodeList(otherDecls), eofToken);
+        STModulePart modulePart = new STModulePart(new STNodeList(importDecls), new STNodeList(otherDecls), eofToken);
         nodesStack.push(modulePart);
     }
 
@@ -157,8 +156,12 @@ public class BallerinaParserListener {
         STNode paramName = this.nodesStack.pop();
         STNode type = this.nodesStack.pop();
         STNode leadingComma = this.nodesStack.pop();
+
         // TODO: add access modifier
-        STRequiredParameter param = new STRequiredParameter(SyntaxKind.PARAMETER, leadingComma, null, type, paramName);
+        STNode accessModifier = new STEmptyNode();
+
+        STRequiredParameter param =
+                new STRequiredParameter(SyntaxKind.PARAMETER, leadingComma, accessModifier, type, paramName);
         this.parameters.peek().add(param);
     }
 
@@ -168,8 +171,12 @@ public class BallerinaParserListener {
         STNode paramName = this.nodesStack.pop();
         STNode type = this.nodesStack.pop();
         STNode leadingComma = this.nodesStack.pop();
-        STDefaultableParameter param =
-                new STDefaultableParameter(SyntaxKind.PARAMETER, leadingComma, null, type, paramName, equal, expr);
+
+        // TODO: add access modifier
+        STNode accessModifier = new STEmptyNode();
+
+        STDefaultableParameter param = new STDefaultableParameter(SyntaxKind.PARAMETER, leadingComma, accessModifier,
+                type, paramName, equal, expr);
         this.parameters.peek().add(param);
     }
 
