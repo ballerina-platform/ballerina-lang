@@ -1662,13 +1662,14 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     private boolean isXmlAccess(BLangFieldBasedAccess fieldAccessExpr) {
-        if (fieldAccessExpr.expr.type.tag == TypeTags.XML) {
+        if (fieldAccessExpr.expr.type.tag == TypeTags.XML || fieldAccessExpr.expr.type.tag == TypeTags.XML_ELEMENT) {
             return true;
         }
 
         if ((fieldAccessExpr.expr.getKind() == NodeKind.FIELD_BASED_ACCESS_EXPR
                 && hasLaxOriginalType((BLangFieldBasedAccess) fieldAccessExpr.expr)
-                && ((BUnionType) fieldAccessExpr.expr.type).getMemberTypes().contains(symTable.xmlType))) {
+                && (((BUnionType) fieldAccessExpr.expr.type).getMemberTypes().contains(symTable.xmlType))
+                    || ((BUnionType) fieldAccessExpr.expr.type).getMemberTypes().contains(symTable.xmlElementType))) {
             return true;
         }
 
