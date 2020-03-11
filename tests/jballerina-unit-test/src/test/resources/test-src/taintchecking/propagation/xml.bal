@@ -14,7 +14,6 @@ public function main (string... args) {
     secureFunction(x3@[ns0:count], x3@[ns0:count]);
 
     var x4 = xml `<root xmlns:ns4="http://sample.com/wso2/f"></root>`;
-    x4@["foo1"] = "foo";
     secureFunction(x4, x4);
 
     if ("tests" == "test") {
