@@ -1044,6 +1044,9 @@ public class Types {
                     break;
                 }
                 varType = streamType.constraint;
+                if (streamType.error != null) {
+                    varType = BUnionType.create(null, streamType.constraint, streamType.error);
+                }
                 break;
             case TypeTags.OBJECT:
                 // check for iterable objects
@@ -1288,6 +1291,11 @@ public class Types {
         for (BType member : type.getMemberTypes()) {
             if (member.tag == TypeTags.ERROR) {
                 return (BErrorType) member;
+            } else if (member.tag == TypeTags.UNION) {
+                BErrorType e = getErrorType((BUnionType) member);
+                if (e != null) {
+                    return e;
+                }
             }
         }
         return null;
