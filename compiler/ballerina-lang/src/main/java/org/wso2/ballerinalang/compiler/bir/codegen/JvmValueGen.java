@@ -61,6 +61,7 @@ import static org.objectweb.asm.Opcodes.DUP;
 import static org.objectweb.asm.Opcodes.DUP2;
 import static org.objectweb.asm.Opcodes.GETFIELD;
 import static org.objectweb.asm.Opcodes.GOTO;
+import static org.objectweb.asm.Opcodes.ICONST_0;
 import static org.objectweb.asm.Opcodes.ICONST_1;
 import static org.objectweb.asm.Opcodes.IFEQ;
 import static org.objectweb.asm.Opcodes.IFNE;
@@ -102,12 +103,14 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_VA
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.UNSUPPORTED_OPERATION_EXCEPTION;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmDesugarPhase.addDefaultableBooleanVarsToSignature;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmDesugarPhase.enrichWithDefaultableParamInits;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmInstructionGen.IS_BSTRING;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmInstructionGen.B_STRING_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmInstructionGen.I_STRING_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmInstructionGen.addBoxInsn;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmInstructionGen.addUnboxInsn;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmInstructionGen.isBString;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.cleanupFunctionName;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.cleanupTypeName;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.conditionalBStringName;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.generateLambdaMethod;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.generateMethod;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.getFunction;
@@ -287,7 +290,7 @@ class JvmValueGen {
 
             for (BField field : fields) {
                 if (field != null) {
-                    if (IS_BSTRING) {
+                    if (isBString) {
                         FieldVisitor fvb = cw.visitField(0, nameOfBStringFunc(field.name.value),
                                 getTypeDesc(field.type, true), null, null);
                         fvb.visitEnd();
@@ -378,7 +381,7 @@ class JvmValueGen {
                 String methodSig = "";
 
                 // use index access, since retType can be nil.
-                boolean useBString = IS_BSTRING;
+                boolean useBString = isBString;
                 methodSig = getMethodDesc(paramTypes, retType, null, useBString, false);
 
                 // load self
@@ -419,13 +422,21 @@ class JvmValueGen {
             mv.visitEnd();
         }
 
-        private void createObjectGetMethod(ClassWriter cw, @Nilable List<BField> fields, String className) {
+        private void createObjectGetMethod(ClassWriter cw, @Nilable List<BField> fields, String className,
+                                           boolean useBString) {
 
-            MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "get",
-                    String.format("(L%s;)L%s;", STRING_VALUE, OBJECT), null, null);
+            String signature = String.format("(L%s;)L%s;", useBString ? I_STRING_VALUE : STRING_VALUE, OBJECT);
+            MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "get", signature, null, null);
             mv.visitCode();
 
             int fieldNameRegIndex = 1;
+            if (useBString) {
+                mv.visitVarInsn(ALOAD, 0);
+                mv.visitMethodInsn(INVOKEINTERFACE, I_STRING_VALUE, "getValue",
+                                   String.format("()L%s;", STRING_VALUE), true);
+                fieldNameRegIndex = 2;
+                mv.visitVarInsn(ASTORE, fieldNameRegIndex);
+            }
             Label defaultCaseLabel = new Label();
 
             // sort the fields before generating switch case
@@ -442,7 +453,8 @@ class JvmValueGen {
                 Label targetLabel = targetLabels.get(i);
                 mv.visitLabel(targetLabel);
                 mv.visitVarInsn(ALOAD, 0);
-                mv.visitFieldInsn(GETFIELD, className, field.name.value, getTypeDesc(field.type, false));
+                mv.visitFieldInsn(GETFIELD, className, conditionalBStringName(field.name.value, useBString),
+                                  getTypeDesc(field.type, useBString));
                 addBoxInsn(mv, field.type);
                 mv.visitInsn(ARETURN);
                 i += 1;
@@ -457,7 +469,8 @@ class JvmValueGen {
                                            boolean useBString) {
 
             MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "set",
-                    String.format("(L%s;L%s;)V", useBString ? I_STRING_VALUE : STRING_VALUE, OBJECT), null, null);
+                                              String.format("(L%s;L%s;)V", useBString ? B_STRING_VALUE : STRING_VALUE,
+                                                            OBJECT), null, null);
             mv.visitCode();
             int fieldNameRegIndex = 1;
             int valueRegIndex = 2;
@@ -467,8 +480,8 @@ class JvmValueGen {
             mv.visitVarInsn(ALOAD, 0);
             mv.visitVarInsn(ALOAD, fieldNameRegIndex);
             if (useBString) {
-                mv.visitMethodInsn(INVOKEINTERFACE, I_STRING_VALUE, "getValue", String.format("()L%s;", STRING_VALUE),
-                        true);
+                mv.visitMethodInsn(INVOKEINTERFACE, B_STRING_VALUE, "getValue", String.format("()L%s;", STRING_VALUE),
+                                   true);
                 mv.visitInsn(DUP);
                 fieldNameRegIndex = 3;
                 mv.visitVarInsn(ASTORE, fieldNameRegIndex);
@@ -545,7 +558,7 @@ class JvmValueGen {
             this.createRecordGetValuesMethod(cw, fields, className);
             this.createGetSizeMethod(cw, fields, className);
             this.createRecordRemoveMethod(cw);
-            this.createRecordClearMethod(cw);
+            this.createRecordClearMethod(cw, fields, className);
             this.createRecordGetKeysMethod(cw, fields, className);
 
             this.createRecordConstructor(cw, className);
@@ -632,7 +645,12 @@ class JvmValueGen {
 
             for (BField field : fields) {
                 if (field != null) {
-                    FieldVisitor fv = cw.visitField(0, field.name.value, getTypeDesc(field.type, false), null, null);
+                    FieldVisitor fv;
+                    if (isBString) {
+                        fv = cw.visitField(0, field.name.value, getTypeDesc(field.type, true), null, null);
+                    } else {
+                        fv = cw.visitField(0, field.name.value, getTypeDesc(field.type, false), null, null);
+                    }
                     fv.visitEnd();
 
                     if (this.isOptionalRecordField(field)) {
@@ -666,7 +684,11 @@ class JvmValueGen {
 
             // cast key to java.lang.String
             mv.visitVarInsn(ALOAD, fieldNameRegIndex);
-            mv.visitTypeInsn(CHECKCAST, STRING_VALUE);
+            mv.visitTypeInsn(CHECKCAST, isBString ? B_STRING_VALUE : STRING_VALUE);
+            if (isBString) {
+                mv.visitMethodInsn(INVOKEINTERFACE, B_STRING_VALUE, "getValue", String.format("()L%s;", STRING_VALUE),
+                                   true);
+            }
             mv.visitVarInsn(ASTORE, strKeyVarIndex);
 
             // sort the fields before generating switch case
@@ -698,7 +720,8 @@ class JvmValueGen {
                 mv.visitLabel(ifPresentLabel);
                 // return the value of the field
                 mv.visitVarInsn(ALOAD, 0);
-                mv.visitFieldInsn(GETFIELD, className, fieldName, getTypeDesc(field.type, false));
+                mv.visitFieldInsn(GETFIELD, className, conditionalBStringName(fieldName, isBString),
+                                  getTypeDesc(field.type, isBString));
                 addBoxInsn(mv, field.type);
                 mv.visitInsn(ARETURN);
                 i += 1;
@@ -722,7 +745,11 @@ class JvmValueGen {
 
             // cast key to java.lang.String
             mv.visitVarInsn(ALOAD, fieldNameRegIndex);
-            mv.visitTypeInsn(CHECKCAST, STRING_VALUE);
+            mv.visitTypeInsn(CHECKCAST, isBString ? I_STRING_VALUE : STRING_VALUE);
+            if (isBString) {
+                mv.visitMethodInsn(INVOKEINTERFACE, I_STRING_VALUE, "getValue", String.format("()L%s;", STRING_VALUE),
+                                   true);
+            }
             mv.visitVarInsn(ASTORE, strKeyVarIndex);
 
             // sort the fields before generating switch case
@@ -743,13 +770,15 @@ class JvmValueGen {
                 // load the existing value to return
                 String fieldName = field.name.value;
                 mv.visitVarInsn(ALOAD, 0);
-                mv.visitFieldInsn(GETFIELD, className, fieldName, getTypeDesc(field.type, false));
+                mv.visitFieldInsn(GETFIELD, className, conditionalBStringName(fieldName, isBString),
+                                  getTypeDesc(field.type, isBString));
                 addBoxInsn(mv, field.type);
 
                 mv.visitVarInsn(ALOAD, 0);
                 mv.visitVarInsn(ALOAD, valueRegIndex);
-                addUnboxInsn(mv, field.type, false);
-                mv.visitFieldInsn(PUTFIELD, className, fieldName, getTypeDesc(field.type, false));
+                addUnboxInsn(mv, field.type, isBString);
+                mv.visitFieldInsn(PUTFIELD, className, conditionalBStringName(fieldName, isBString),
+                                  getTypeDesc(field.type, isBString));
 
                 // if the field is an optional-field, then also set the isPresent flag of that field to true.
                 if (this.isOptionalRecordField(field)) {
@@ -860,7 +889,11 @@ class JvmValueGen {
 
             // cast key to java.lang.String
             mv.visitVarInsn(ALOAD, fieldNameRegIndex);
-            mv.visitTypeInsn(CHECKCAST, STRING_VALUE);
+            mv.visitTypeInsn(CHECKCAST, isBString ? B_STRING_VALUE : STRING_VALUE);
+            if (isBString) {
+                mv.visitMethodInsn(INVOKEINTERFACE, B_STRING_VALUE, "getValue", String.format("()L%s;", STRING_VALUE),
+                                   true);
+            }
             mv.visitVarInsn(ASTORE, strKeyVarIndex);
 
             // sort the fields before generating switch case
@@ -896,7 +929,7 @@ class JvmValueGen {
             // default case
             mv.visitLabel(defaultCaseLabel);
             mv.visitVarInsn(ALOAD, 0);
-            mv.visitVarInsn(ALOAD, fieldNameRegIndex);
+            mv.visitVarInsn(ALOAD, strKeyVarIndex);
             mv.visitMethodInsn(INVOKESPECIAL, MAP_VALUE_IMPL, "containsKey", String.format("(L%s;)Z", OBJECT), false);
             mv.visitInsn(IRETURN);
 
@@ -997,17 +1030,90 @@ class JvmValueGen {
             mv.visitEnd();
         }
 
-        private void createRecordClearMethod(ClassWriter cw) {
+        private void createRecordClearMethod(ClassWriter cw, List<BField> fields, String className) {
             // throw an UnsupportedOperationException, since remove is not supported by for records.
             MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "remove", String.format("(L%s;)L%s;", OBJECT, OBJECT),
                     String.format("(L%s;)TV;", OBJECT), null);
             mv.visitCode();
-            mv.visitTypeInsn(NEW, UNSUPPORTED_OPERATION_EXCEPTION);
-            mv.visitInsn(DUP);
-            mv.visitMethodInsn(INVOKESPECIAL, UNSUPPORTED_OPERATION_EXCEPTION, "<init>", "()V", false);
-            mv.visitInsn(ATHROW);
+
+            int fieldNameRegIndex = 1;
+            int strKeyVarIndex = 2;
+
+            // cast key to java.lang.String
+            mv.visitVarInsn(ALOAD, fieldNameRegIndex);
+            mv.visitTypeInsn(CHECKCAST, STRING_VALUE);
+            mv.visitVarInsn(ASTORE, strKeyVarIndex);
+
+            mv.visitVarInsn(ALOAD, 0);
+            mv.visitMethodInsn(INVOKESPECIAL, MAP_VALUE_IMPL, "validateFreezeStatus", "()V", false);
+
+            // sort the fields before generating switch case
+            @Nilable List<BField> sortedFields = new ArrayList<>(fields);
+            sortedFields.sort(NAME_HASH_COMPARATOR);
+
+            Label defaultCaseLabel = new Label();
+            List<Label> labels = createLabelsForSwitch(mv, strKeyVarIndex, sortedFields, defaultCaseLabel);
+            List<Label> targetLabels = createLabelsForEqualCheck(mv, strKeyVarIndex, sortedFields, labels,
+                    defaultCaseLabel);
+
+            int i = 0;
+            for (BField optionalField : sortedFields) {
+                BField field = getObjectField(optionalField);
+                Label targetLabel = targetLabels.get(i);
+                mv.visitLabel(targetLabel);
+
+                //Setting isPresent as zero
+                if (this.isOptionalRecordField(field)) {
+                    String fieldName = field.name.value;
+                    mv.visitVarInsn(ALOAD, 0);
+                    mv.visitInsn(ICONST_0);
+                    mv.visitFieldInsn(PUTFIELD, className, this.getFieldIsPresentFlagName(fieldName),
+                            getTypeDesc(symbolTable.booleanType, false));
+
+                    // load the existing value to return
+                    mv.visitVarInsn(ALOAD, 0);
+                    mv.visitFieldInsn(GETFIELD, className, fieldName, getTypeDesc(field.type, false));
+                    addBoxInsn(mv, field.type);
+
+                    // Set default value for reference types
+                    if (checkIfValueIsJReferenceType(field.type)) {
+                        mv.visitVarInsn(ALOAD, 0);
+                        mv.visitInsn(ACONST_NULL);
+                        mv.visitFieldInsn(PUTFIELD, className, fieldName, getTypeDesc(field.type, false));
+                    }
+
+                    mv.visitInsn(ARETURN);
+                } else {
+                    mv.visitTypeInsn(NEW, UNSUPPORTED_OPERATION_EXCEPTION);
+                    mv.visitInsn(DUP);
+                    mv.visitMethodInsn(INVOKESPECIAL, UNSUPPORTED_OPERATION_EXCEPTION, "<init>", "()V", false);
+                    mv.visitInsn(ATHROW);
+                }
+                i += 1;
+            }
+
+            // default case
+            mv.visitLabel(defaultCaseLabel);
+            mv.visitVarInsn(ALOAD, 0);
+            mv.visitVarInsn(ALOAD, strKeyVarIndex);
+            mv.visitMethodInsn(INVOKESPECIAL, MAP_VALUE_IMPL, "remove",
+                    String.format("(L%s;)L%s;", OBJECT, OBJECT), false);
+            mv.visitInsn(ARETURN);
+
             mv.visitMaxs(0, 0);
             mv.visitEnd();
+        }
+
+        private boolean checkIfValueIsJReferenceType(BType bType) {
+            switch (bType.getKind()) {
+                case INT:
+                case BOOLEAN:
+                case FLOAT:
+                case BYTE:
+                    return false;
+                default:
+                    return true;
+            }
         }
 
         void createRecordGetKeysMethod(ClassWriter cw, @Nilable List<BField> fields, String className) {
@@ -1110,10 +1216,11 @@ class JvmValueGen {
 
             this.createObjectInit(cw, fields, className);
             this.createCallMethod(cw, attachedFuncs, className, toNameString(objectType), isService);
-            this.createObjectGetMethod(cw, fields, className);
-            if (IS_BSTRING) {
+            if (isBString) {
+                this.createObjectGetMethod(cw, fields, className, true);
                 this.createObjectSetMethod(cw, fields, className, true);
             } else {
+                this.createObjectGetMethod(cw, fields, className, false);
                 this.createObjectSetMethod(cw, fields, className, false);
             }
             this.createLambdas(cw);

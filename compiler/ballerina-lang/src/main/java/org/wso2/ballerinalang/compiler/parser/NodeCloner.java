@@ -1282,6 +1282,7 @@ public class NodeCloner extends BLangNodeVisitor {
         clone.isDeclaredWithVar = source.isDeclaredWithVar;
         clone.varType = source.varType;
         clone.resultType = source.resultType;
+        clone.errorType = source.errorType;
         clone.nillableResultType = source.nillableResultType;
     }
 
@@ -1806,8 +1807,8 @@ public class NodeCloner extends BLangNodeVisitor {
         BLangXMLNavigationAccess clone = new BLangXMLNavigationAccess(
                 source.pos,
                 source.getWS(),
-                source.expr,
-                source.filters,
+                clone(source.expr),
+                cloneList(source.filters),
                 source.navAccessType,
                 clone(source.childIndex));
         source.cloneRef = clone;

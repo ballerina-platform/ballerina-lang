@@ -69,6 +69,8 @@ public class BatchUpdateTest {
         BValueArray retValue = (BValueArray) returns[0];
         Assert.assertEquals(retValue.getInt(0), 1);
         Assert.assertEquals(retValue.getInt(1), 1);
+        // Test for getting the auto generated keys from the ResultSet When the getGeneratedKey is false.
+        Assert.assertEquals(returns[1].stringValue(), "");
     }
 
     @Test(groups = BATCH_UPDATE_TEST)

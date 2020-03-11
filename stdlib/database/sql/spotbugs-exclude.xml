@@ -16,4 +16,8 @@
   ~ under the License.
   -->
 <FindBugsFilter>
+    <Match>
+        <class name="org.ballerinalang.sql.utils.Utils"/>
+        <Bug pattern="NP_LOAD_OF_KNOWN_NULL_VALUE"/>
+    </Match>
 </FindBugsFilter>
