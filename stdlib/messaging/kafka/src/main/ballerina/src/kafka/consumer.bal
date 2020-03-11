@@ -205,7 +205,7 @@ public type Consumer client object {
 
     # Starts the registered service.
     #
-    # + return - Returns an error if encounters an error while starting the server, returns nil otherwise.
+    # + return - An `error` if encounters an error while starting the server, returns nil otherwise.
     public function __start() returns error? {
         return start(self);
     }
@@ -228,7 +228,7 @@ public type Consumer client object {
     #
     # + s - The type of the service to be registered.
     # + name - Name of the service.
-    # + return - Returns an error if encounters an error while attaching the service, returns nil otherwise.
+    # + return - An `error` if encounters an error while attaching the service, returns nil otherwise.
     public function __attach(service s, string? name = ()) returns error? {
         return register(self, s, name);
     }
@@ -236,7 +236,7 @@ public type Consumer client object {
     # Detaches a consumer service from the listener.
     #
     # + s - The service to be detached
-    # + return - error if occurred during detaching of a service or `nil`
+    # + return - An `error` if an error occurred during detaching a service or `nil`
     public function __detach(service s) returns error? {
     }
 
