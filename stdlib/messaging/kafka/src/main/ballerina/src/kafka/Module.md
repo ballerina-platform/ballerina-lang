@@ -13,7 +13,7 @@ import ballerina/io;
 import ballerina/kafka;
 import ballerina/lang. 'string;
 
-kafka:ConsumerConfig consumerConfigs = {
+kafka:ConsumerConfiguration consumerConfigs = {
     bootstrapServers:"localhost:9092",
     groupId:"group-id",
     topics:["test-kafka-topic"],
@@ -54,7 +54,7 @@ Following is a simple program which publishes a message to 'test-kafka-topic' to
 ```ballerina
 import ballerina/kafka;
 
-kafka:ProducerConfig producerConfigs = {
+kafka:ProducerConfiguration producerConfigs = {
     // Here we create a producer configs with optional parameters 
     // client.id - used for broker side logging.
     // acks - number of acknowledgments for request complete,

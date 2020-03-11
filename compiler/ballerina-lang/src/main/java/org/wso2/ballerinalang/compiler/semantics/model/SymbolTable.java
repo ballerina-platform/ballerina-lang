@@ -21,13 +21,12 @@ import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.types.TypeKind;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BCastOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstructorSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConversionOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BXMLNSSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BAnyType;
@@ -37,6 +36,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BHandleType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BIntSubType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BJSONType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
@@ -44,9 +44,9 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNoType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BSemanticErrorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BServiceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BStringSubType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
@@ -78,11 +78,20 @@ public class SymbolTable {
     private static final CompilerContext.Key<SymbolTable> SYM_TABLE_KEY =
             new CompilerContext.Key<>();
 
-    public static final PackageID TRANSACTION = new PackageID(Names.BUILTIN_ORG, Names.TRANSACTION_PACKAGE, 
-                                                              Names.EMPTY);
-    
+    public static final PackageID TRANSACTION = new PackageID(Names.BUILTIN_ORG, Names.TRANSACTION_PACKAGE,
+            Names.EMPTY);
+
     public static final Integer BBYTE_MIN_VALUE = 0;
     public static final Integer BBYTE_MAX_VALUE = 255;
+    public static final Integer SIGNED32_MAX_VALUE = 2147483647;
+    public static final Integer SIGNED32_MIN_VALUE = -2147483648;
+    public static final Integer SIGNED16_MAX_VALUE = 32767;
+    public static final Integer SIGNED16_MIN_VALUE = -32768;
+    public static final Integer SIGNED8_MAX_VALUE = 127;
+    public static final Integer SIGNED8_MIN_VALUE = -128;
+    public static final Long UNSIGNED32_MAX_VALUE = 4294967295L;
+    public static final Integer UNSIGNED16_MAX_VALUE = 65535;
+    public static final Integer UNSIGNED8_MAX_VALUE = 255;
 
     public final BLangPackage rootPkgNode;
     public final BPackageSymbol rootPkgSymbol;
@@ -116,10 +125,9 @@ public class SymbolTable {
     public final BType recordType = new BRecordType(null);
     public final BType anyServiceType = new BServiceType(null);
     public final BType handleType = new BHandleType(TypeTags.HANDLE, null);
-    public final BType typeDesc;
+    public final BType typeDesc = new BTypedescType(this.anyType, null);
 
-    public final BTypeSymbol semanticErrSymbol;
-    public final BType semanticError;
+    public final BType semanticError = new BType(TypeTags.SEMANTIC_ERROR, null);
 
     public BType streamType = new BStreamType(TypeTags.STREAM, anydataType, null, null);
     public BErrorType errorType;
@@ -131,6 +139,15 @@ public class SymbolTable {
     public BFiniteType trueType;
     public BObjectType intRangeType;
     public BMapType mapAllType;
+
+    // builtin subtypes
+    public final BIntSubType signed32IntType = new BIntSubType(TypeTags.SIGNED32_INT, Names.SIGNED32);
+    public final BIntSubType signed16IntType = new BIntSubType(TypeTags.SIGNED16_INT, Names.SIGNED16);
+    public final BIntSubType signed8IntType = new BIntSubType(TypeTags.SIGNED8_INT, Names.SIGNED8);
+    public final BIntSubType unsigned32IntType = new BIntSubType(TypeTags.UNSIGNED32_INT, Names.UNSIGNED32);
+    public final BIntSubType unsigned16IntType = new BIntSubType(TypeTags.UNSIGNED16_INT, Names.UNSIGNED16);
+    public final BIntSubType unsigned8IntType = new BIntSubType(TypeTags.UNSIGNED8_INT, Names.UNSIGNED8);
+    public final BStringSubType charStringType = new BStringSubType(TypeTags.CHAR_STRING, Names.CHAR);
 
     public BPackageSymbol langInternalModuleSymbol;
     public BPackageSymbol langAnnotationModuleSymbol;
@@ -199,26 +216,27 @@ public class SymbolTable {
         initializeType(nilType, TypeKind.NIL.typeName());
         initializeType(anyServiceType, TypeKind.SERVICE.typeName());
         initializeType(handleType, TypeKind.HANDLE.typeName());
-
-
-        // Initialize semantic error type;
-        this.semanticError = new BSemanticErrorType(null);
-        this.semanticErrSymbol = new BTypeSymbol(SymTag.SEMANTIC_ERROR, Flags.PUBLIC, Names.INVALID,
-                rootPkgSymbol.pkgID, semanticError, rootPkgSymbol);
-        defineType(semanticError, semanticErrSymbol);
-
-        this.typeDesc = new BTypedescType(this.anyType, null);
         initializeType(typeDesc, TypeKind.TYPEDESC.typeName());
 
+        // Define subtypes
+        initializeTSymbol(signed32IntType, Names.SIGNED32, PackageID.INT);
+        initializeTSymbol(signed16IntType, Names.SIGNED16, PackageID.INT);
+        initializeTSymbol(signed8IntType, Names.SIGNED8, PackageID.INT);
+        initializeTSymbol(unsigned32IntType, Names.UNSIGNED32, PackageID.INT);
+        initializeTSymbol(unsigned16IntType, Names.UNSIGNED16, PackageID.INT);
+        initializeTSymbol(unsigned8IntType, Names.UNSIGNED8, PackageID.INT);
+        initializeTSymbol(charStringType, Names.CHAR, PackageID.STRING);
 
         BLangLiteral trueLiteral = new BLangLiteral();
         trueLiteral.type = this.booleanType;
         trueLiteral.value = Boolean.TRUE;
 
         BTypeSymbol finiteTypeSymbol = Symbols.createTypeSymbol(SymTag.FINITE_TYPE, Flags.PUBLIC,
-                                                                names.fromString("$anonType$TRUE"),
-                                                                rootPkgNode.packageID, null, rootPkgNode.symbol.owner);
-        this.trueType = new BFiniteType(finiteTypeSymbol, new HashSet<BLangExpression>() {{ add(trueLiteral); }});
+                names.fromString("$anonType$TRUE"),
+                rootPkgNode.packageID, null, rootPkgNode.symbol.owner);
+        this.trueType = new BFiniteType(finiteTypeSymbol, new HashSet<BLangExpression>() {{
+            add(trueLiteral);
+        }});
     }
 
     public BType getTypeFromTag(int tag) {
@@ -247,9 +265,44 @@ public class SymbolTable {
                 return nilType;
             case TypeTags.ERROR:
                 return errorType;
+            case TypeTags.SIGNED32_INT:
+                return signed32IntType;
+            case TypeTags.SIGNED16_INT:
+                return signed16IntType;
+            case TypeTags.SIGNED8_INT:
+                return signed8IntType;
+            case TypeTags.UNSIGNED32_INT:
+                return unsigned32IntType;
+            case TypeTags.UNSIGNED16_INT:
+                return unsigned16IntType;
+            case TypeTags.UNSIGNED8_INT:
+                return unsigned8IntType;
+            case TypeTags.CHAR_STRING:
+                return charStringType;
             default:
                 return semanticError;
         }
+    }
+
+    public BType getLangLibSubType(String name) {
+        // Assuming subtype names are unique across LangLib
+        switch (name) {
+            case Names.STRING_SIGNED32:
+                return this.signed32IntType;
+            case Names.STRING_SIGNED16:
+                return this.signed16IntType;
+            case Names.STRING_SIGNED8:
+                return this.signed8IntType;
+            case Names.STRING_UNSIGNED32:
+                return this.unsigned32IntType;
+            case Names.STRING_UNSIGNED16:
+                return this.unsigned16IntType;
+            case Names.STRING_UNSIGNED8:
+                return this.unsigned8IntType;
+            case Names.STRING_CHAR:
+                return this.charStringType;
+        }
+        throw new IllegalStateException("LangLib Subtype not found: " + name);
     }
 
     private void initializeType(BType type, String name) {
@@ -260,6 +313,11 @@ public class SymbolTable {
         defineType(type, new BTypeSymbol(SymTag.TYPE, Flags.PUBLIC, name, rootPkgSymbol.pkgID, type, rootPkgSymbol));
     }
 
+    private void initializeTSymbol(BType type, Name name, PackageID packageID) {
+
+        type.tsymbol = new BTypeSymbol(SymTag.TYPE, Flags.PUBLIC, name, packageID, type, rootPkgSymbol);
+    }
+
     private void defineType(BType type, BTypeSymbol tSymbol) {
         type.tsymbol = tSymbol;
         rootScope.define(tSymbol.name, tSymbol);
@@ -267,16 +325,18 @@ public class SymbolTable {
 
     public void defineOperators() {
         // Binary arithmetic operators
+        defineIntegerArithmeticOperations();
         defineBinaryOperator(OperatorKind.ADD, xmlType, xmlType, xmlType);
         defineBinaryOperator(OperatorKind.ADD, xmlType, stringType, xmlType);
+        defineBinaryOperator(OperatorKind.ADD, xmlType, charStringType, xmlType);
         defineBinaryOperator(OperatorKind.ADD, stringType, stringType, stringType);
         defineBinaryOperator(OperatorKind.ADD, stringType, xmlType, xmlType);
+        defineBinaryOperator(OperatorKind.ADD, stringType, charStringType, stringType);
+        defineBinaryOperator(OperatorKind.ADD, charStringType, stringType, stringType);
+        defineBinaryOperator(OperatorKind.ADD, charStringType, charStringType, stringType);
+        defineBinaryOperator(OperatorKind.ADD, charStringType, xmlType, xmlType);
         defineBinaryOperator(OperatorKind.ADD, floatType, floatType, floatType);
         defineBinaryOperator(OperatorKind.ADD, decimalType, decimalType, decimalType);
-        defineBinaryOperator(OperatorKind.ADD, intType, intType, intType);
-        defineBinaryOperator(OperatorKind.ADD, intType, byteType, intType);
-        defineBinaryOperator(OperatorKind.ADD, byteType, intType, intType);
-        defineBinaryOperator(OperatorKind.ADD, byteType, byteType, intType);
         defineBinaryOperator(OperatorKind.ADD, intType, floatType, floatType);
         defineBinaryOperator(OperatorKind.ADD, floatType, intType, floatType);
         defineBinaryOperator(OperatorKind.ADD, intType, decimalType, decimalType);
@@ -285,10 +345,6 @@ public class SymbolTable {
         defineBinaryOperator(OperatorKind.ADD, decimalType, floatType, decimalType);
         defineBinaryOperator(OperatorKind.SUB, floatType, floatType, floatType);
         defineBinaryOperator(OperatorKind.SUB, decimalType, decimalType, decimalType);
-        defineBinaryOperator(OperatorKind.SUB, intType, intType, intType);
-        defineBinaryOperator(OperatorKind.SUB, intType, byteType, intType);
-        defineBinaryOperator(OperatorKind.SUB, byteType, intType, intType);
-        defineBinaryOperator(OperatorKind.SUB, byteType, byteType, intType);
         defineBinaryOperator(OperatorKind.SUB, floatType, intType, floatType);
         defineBinaryOperator(OperatorKind.SUB, intType, floatType, floatType);
         defineBinaryOperator(OperatorKind.SUB, decimalType, intType, decimalType);
@@ -297,10 +353,6 @@ public class SymbolTable {
         defineBinaryOperator(OperatorKind.SUB, floatType, decimalType, decimalType);
         defineBinaryOperator(OperatorKind.DIV, floatType, floatType, floatType);
         defineBinaryOperator(OperatorKind.DIV, decimalType, decimalType, decimalType);
-        defineBinaryOperator(OperatorKind.DIV, intType, intType, intType);
-        defineBinaryOperator(OperatorKind.DIV, intType, byteType, intType);
-        defineBinaryOperator(OperatorKind.DIV, byteType, intType, intType);
-        defineBinaryOperator(OperatorKind.DIV, byteType, byteType, intType);
         defineBinaryOperator(OperatorKind.DIV, intType, floatType, floatType);
         defineBinaryOperator(OperatorKind.DIV, floatType, intType, floatType);
         defineBinaryOperator(OperatorKind.DIV, intType, decimalType, decimalType);
@@ -309,10 +361,6 @@ public class SymbolTable {
         defineBinaryOperator(OperatorKind.DIV, decimalType, floatType, decimalType);
         defineBinaryOperator(OperatorKind.MUL, floatType, floatType, floatType);
         defineBinaryOperator(OperatorKind.MUL, decimalType, decimalType, decimalType);
-        defineBinaryOperator(OperatorKind.MUL, intType, intType, intType);
-        defineBinaryOperator(OperatorKind.MUL, intType, byteType, intType);
-        defineBinaryOperator(OperatorKind.MUL, byteType, intType, intType);
-        defineBinaryOperator(OperatorKind.MUL, byteType, byteType, intType);
         defineBinaryOperator(OperatorKind.MUL, floatType, intType, floatType);
         defineBinaryOperator(OperatorKind.MUL, intType, floatType, floatType);
         defineBinaryOperator(OperatorKind.MUL, decimalType, intType, decimalType);
@@ -321,36 +369,17 @@ public class SymbolTable {
         defineBinaryOperator(OperatorKind.MUL, floatType, decimalType, decimalType);
         defineBinaryOperator(OperatorKind.MOD, floatType, floatType, floatType);
         defineBinaryOperator(OperatorKind.MOD, decimalType, decimalType, decimalType);
-        defineBinaryOperator(OperatorKind.MOD, intType, intType, intType);
-        defineBinaryOperator(OperatorKind.MOD, intType, byteType, intType);
-        defineBinaryOperator(OperatorKind.MOD, byteType, intType, intType);
-        defineBinaryOperator(OperatorKind.MOD, byteType, byteType, intType);
         defineBinaryOperator(OperatorKind.MOD, floatType, intType, floatType);
         defineBinaryOperator(OperatorKind.MOD, intType, floatType, floatType);
         defineBinaryOperator(OperatorKind.MOD, decimalType, intType, decimalType);
         defineBinaryOperator(OperatorKind.MOD, intType, decimalType, decimalType);
-        defineBinaryOperator(OperatorKind.BITWISE_AND, byteType, byteType, byteType);
-        defineBinaryOperator(OperatorKind.BITWISE_AND, byteType, intType, byteType);
-        defineBinaryOperator(OperatorKind.BITWISE_AND, intType, byteType, byteType);
-        defineBinaryOperator(OperatorKind.BITWISE_AND, intType, intType, intType);
-        defineBinaryOperator(OperatorKind.BITWISE_OR, byteType, byteType, byteType);
-        defineBinaryOperator(OperatorKind.BITWISE_OR, byteType, intType, intType);
-        defineBinaryOperator(OperatorKind.BITWISE_OR, intType, byteType, intType);
-        defineBinaryOperator(OperatorKind.BITWISE_OR, intType, intType, intType);
-        defineBinaryOperator(OperatorKind.BITWISE_XOR, byteType, byteType, byteType);
-        defineBinaryOperator(OperatorKind.BITWISE_XOR, byteType, intType, intType);
-        defineBinaryOperator(OperatorKind.BITWISE_XOR, intType, byteType, intType);
-        defineBinaryOperator(OperatorKind.BITWISE_XOR, intType, intType, intType);
-        defineBinaryOperator(OperatorKind.BITWISE_LEFT_SHIFT, intType, intType, intType);
-        defineBinaryOperator(OperatorKind.BITWISE_LEFT_SHIFT, intType, byteType, intType);
-        defineBinaryOperator(OperatorKind.BITWISE_LEFT_SHIFT, byteType, byteType, intType);
-        defineBinaryOperator(OperatorKind.BITWISE_LEFT_SHIFT, byteType, intType, intType);
-        defineBinaryOperator(OperatorKind.BITWISE_RIGHT_SHIFT, intType, intType, intType);
-        defineBinaryOperator(OperatorKind.BITWISE_RIGHT_SHIFT, intType, byteType, intType);
-        defineBinaryOperator(OperatorKind.BITWISE_RIGHT_SHIFT, byteType, byteType, byteType);
-        defineBinaryOperator(OperatorKind.BITWISE_RIGHT_SHIFT, byteType, intType, byteType);
-        defineBinaryOperator(OperatorKind.BITWISE_UNSIGNED_RIGHT_SHIFT, intType, intType, intType);
-        defineBinaryOperator(OperatorKind.BITWISE_UNSIGNED_RIGHT_SHIFT, intType, byteType, intType);
+
+        defineIntegerBitwiseAndOperations();
+        defineIntegerBitwiseOrOperations(OperatorKind.BITWISE_OR);
+        defineIntegerBitwiseOrOperations(OperatorKind.BITWISE_XOR);
+        defineIntegerLeftShiftOperations();
+        defineIntegerRightShiftOperations(OperatorKind.BITWISE_RIGHT_SHIFT);
+        defineIntegerRightShiftOperations(OperatorKind.BITWISE_UNSIGNED_RIGHT_SHIFT);
 
         // Binary equality operators ==, !=
         defineBinaryOperator(OperatorKind.EQUAL, intType, intType, booleanType);
@@ -459,117 +488,124 @@ public class SymbolTable {
         defineUnaryOperator(OperatorKind.BITWISE_COMPLEMENT, byteType, byteType);
         defineUnaryOperator(OperatorKind.BITWISE_COMPLEMENT, intType, intType);
 
-        defineConversionOperators();
-
     }
 
-    private void defineConversionOperators() {
-        // Define both implicit and explicit conversion operators
-        defineImplicitCastOperator(intType, jsonType, true);
-        defineImplicitCastOperator(intType, anyType, true);
-        defineImplicitCastOperator(byteType, jsonType, true);
-        defineImplicitCastOperator(byteType, anyType, true);
-        defineImplicitCastOperator(floatType, jsonType, true);
-        defineImplicitCastOperator(floatType, anyType, true);
-        defineImplicitCastOperator(decimalType, jsonType, true);
-        defineImplicitCastOperator(decimalType, anyType, true);
-        defineImplicitCastOperator(stringType, jsonType, true);
-        defineImplicitCastOperator(stringType, anyType, true);
-        defineImplicitCastOperator(booleanType, jsonType, true);
-        defineImplicitCastOperator(booleanType, anyType, true);
-        defineImplicitCastOperator(typeDesc, anyType, true);
-        defineImplicitCastOperator(intType, anydataType, true);
-        defineImplicitCastOperator(byteType, anydataType, true);
-        defineImplicitCastOperator(floatType, anydataType, true);
-        defineImplicitCastOperator(decimalType, anydataType, true);
-        defineImplicitCastOperator(stringType, anydataType, true);
-        defineImplicitCastOperator(booleanType, anydataType, true);
+    private void defineIntegerArithmeticOperations() {
 
-        // Define explicit conversion operators
-        defineCastOperator(anyType, intType, false);
-        defineCastOperator(anyType, byteType, false);
-        defineCastOperator(anyType, floatType, false);
-        defineCastOperator(anyType, decimalType, false);
-        defineCastOperator(anyType, stringType, false);
-        defineCastOperator(anyType, booleanType, false);
-        defineCastOperator(anyType, typeDesc, false);
-        defineCastOperator(anyType, jsonType, false);
-        defineCastOperator(anyType, xmlType, false);
-        defineCastOperator(anyType, mapType, false);
-        defineCastOperator(anyType, tableType, false);
-        defineCastOperator(anyType, streamType, false);
-        defineCastOperator(anyType, handleType, false);
-        defineCastOperator(anydataType, intType, false);
-        defineCastOperator(anydataType, byteType, false);
-        defineCastOperator(anydataType, floatType, false);
-        defineCastOperator(anydataType, decimalType, false);
-        defineCastOperator(anydataType, stringType, false);
-        defineCastOperator(anydataType, booleanType, false);
-        defineCastOperator(anydataType, jsonType, false);
-        defineCastOperator(anydataType, xmlType, false);
-        defineCastOperator(anydataType, tableType, false);
+        BType[] intTypes = {intType, byteType, signed32IntType, signed16IntType, signed8IntType, unsigned32IntType,
+                unsigned16IntType,
+                unsigned8IntType};
+        for (BType lhs : intTypes) {
+            for (BType rhs : intTypes) {
+                defineBinaryOperator(OperatorKind.ADD, lhs, rhs, intType);
+                defineBinaryOperator(OperatorKind.SUB, lhs, rhs, intType);
+                defineBinaryOperator(OperatorKind.DIV, lhs, rhs, intType);
+                defineBinaryOperator(OperatorKind.MUL, lhs, rhs, intType);
+                defineBinaryOperator(OperatorKind.MOD, lhs, rhs, intType);
+            }
+        }
+    }
 
-        defineCastOperator(jsonType, intType, false);
-        defineCastOperator(jsonType, floatType, false);
-        defineCastOperator(jsonType, decimalType, false);
-        defineCastOperator(jsonType, stringType, false);
-        defineCastOperator(jsonType, booleanType, false);
+    private void defineIntegerBitwiseAndOperations() {
+        BType[] unsignedIntTypes = {byteType, unsigned8IntType, unsigned16IntType, unsigned32IntType};
+        BType[] signedIntTypes = {intType, signed8IntType, signed16IntType, signed32IntType};
 
-        // Define conversion operators
+        for (BType unsigned : unsignedIntTypes) {
+            for (BType signed : signedIntTypes) {
+                defineBinaryOperator(OperatorKind.BITWISE_AND, unsigned, signed, unsigned);
+            }
+        }
 
-        defineConversionOperator(anyType, intType, false);
-        defineConversionOperator(anyType, byteType, false);
-        defineConversionOperator(anyType, floatType, false);
-        defineConversionOperator(anyType, decimalType, false);
-        defineConversionOperator(anyType, stringType, true);
-        defineConversionOperator(anyType, booleanType, false);
-        defineConversionOperator(anydataType, intType, false);
-        defineConversionOperator(anydataType, byteType, false);
-        defineConversionOperator(anydataType, floatType, false);
-        defineConversionOperator(anydataType, decimalType, false);
-        defineConversionOperator(anydataType, stringType, true);
-        defineConversionOperator(anydataType, booleanType, false);
-        defineConversionOperator(jsonType, intType, false);
-        defineConversionOperator(jsonType, floatType, false);
-        defineConversionOperator(jsonType, decimalType, false);
-        defineConversionOperator(jsonType, stringType, false);
-        defineConversionOperator(jsonType, booleanType, false);
+        for (int i = 0; i < unsignedIntTypes.length; i++) {
+            for (int j = 0; j < unsignedIntTypes.length; j++) {
+                BType unsignedIntTypeLhs = unsignedIntTypes[i];
+                BType unsignedIntTypeRhs = unsignedIntTypes[j];
+                defineBinaryOperator(OperatorKind.BITWISE_AND, unsignedIntTypeLhs, unsignedIntTypeRhs,
+                                     i <= j ? unsignedIntTypeLhs : unsignedIntTypeRhs);
+            }
+        }
 
-        defineConversionOperator(intType, floatType, true);
-        defineConversionOperator(intType, decimalType, true);
-        defineConversionOperator(intType, booleanType, true);
-        defineConversionOperator(intType, stringType, true);
-        defineConversionOperator(intType, byteType, false);
-        defineConversionOperator(floatType, intType, false);
-        defineConversionOperator(floatType, decimalType, true);
-        defineConversionOperator(floatType, booleanType, true);
-        defineConversionOperator(floatType, stringType, true);
-        defineConversionOperator(floatType, byteType, true);
-        defineConversionOperator(decimalType, intType, false);
-        defineConversionOperator(decimalType, floatType, true);
-        defineConversionOperator(decimalType, booleanType, true);
-        defineConversionOperator(decimalType, stringType, true);
-        defineConversionOperator(decimalType, byteType, true);
-        defineConversionOperator(byteType, intType, true);
-        defineConversionOperator(byteType, floatType, true);
-        defineConversionOperator(byteType, decimalType, true);
-        defineConversionOperator(stringType, floatType, false);
-        defineConversionOperator(stringType, decimalType, false);
-        defineConversionOperator(stringType, intType, false);
-        defineConversionOperator(stringType, booleanType, true);
-        defineConversionOperator(booleanType, stringType, true);
-        defineConversionOperator(booleanType, intType, true);
-        defineConversionOperator(booleanType, floatType, true);
-        defineConversionOperator(booleanType, decimalType, true);
-        defineConversionOperator(tableType, xmlType, false);
-        defineConversionOperator(tableType, jsonType, false);
-        defineConversionOperator(xmlType, stringType, true);
+        for (BType signed : signedIntTypes) {
+            for (BType unsigned : unsignedIntTypes) {
+                defineBinaryOperator(OperatorKind.BITWISE_AND, signed, unsigned, unsigned);
+            }
+        }
+
+        for (BType signedLhs : signedIntTypes) {
+            for (BType signedRhs : signedIntTypes) {
+                defineBinaryOperator(OperatorKind.BITWISE_AND, signedLhs, signedRhs, intType);
+            }
+        }
+    }
+
+    private void defineIntegerBitwiseOrOperations(OperatorKind orOpKind) {
+        BType[] unsignedIntTypes = {byteType, unsigned8IntType, unsigned16IntType, unsigned32IntType};
+        BType[] signedIntTypes = {intType, signed8IntType, signed16IntType, signed32IntType};
+
+        for (BType unsigned : unsignedIntTypes) {
+            for (BType signed : signedIntTypes) {
+                defineBinaryOperator(orOpKind, unsigned, signed, intType);
+            }
+        }
+
+        for (int i = 0; i < unsignedIntTypes.length; i++) {
+            for (int j = 0; j < unsignedIntTypes.length; j++) {
+                BType unsignedIntTypeLhs = unsignedIntTypes[i];
+                BType unsignedIntTypeRhs = unsignedIntTypes[j];
+                defineBinaryOperator(orOpKind, unsignedIntTypeLhs, unsignedIntTypeRhs,
+                                     i <= j ? unsignedIntTypeLhs : unsignedIntTypeRhs);
+            }
+        }
+
+        for (BType signed : signedIntTypes) {
+            for (BType unsigned : unsignedIntTypes) {
+                defineBinaryOperator(orOpKind, signed, unsigned, intType);
+            }
+        }
+
+        for (BType signedLhs : signedIntTypes) {
+            for (BType signedRhs : signedIntTypes) {
+                defineBinaryOperator(orOpKind, signedLhs, signedRhs, intType);
+            }
+        }
+    }
+
+    private void defineIntegerLeftShiftOperations() {
+        BType[] allIntTypes = {intType, byteType, signed32IntType, signed16IntType, signed8IntType, unsigned32IntType,
+                unsigned16IntType, unsigned8IntType};
+
+        for (BType lhs : allIntTypes) {
+            for (BType rhs : allIntTypes) {
+                defineBinaryOperator(OperatorKind.BITWISE_LEFT_SHIFT, lhs, rhs, intType);
+            }
+        }
+    }
+
+    private void defineIntegerRightShiftOperations(OperatorKind rightShiftOpKind) {
+        BType[] unsignedIntTypes = {byteType, unsigned8IntType, unsigned16IntType, unsigned32IntType};
+        BType[] signedIntTypes = {intType, signed8IntType, signed16IntType, signed32IntType};
+
+        BType[] allIntTypes = {intType, byteType, signed32IntType, signed16IntType, signed8IntType, unsigned32IntType,
+                unsigned16IntType, unsigned8IntType};
+
+        for (BType unsignedLhs : unsignedIntTypes) {
+            for (BType intRhs : allIntTypes) {
+                defineBinaryOperator(rightShiftOpKind, unsignedLhs, intRhs, unsignedLhs);
+            }
+        }
+
+        for (BType signedLhs : signedIntTypes) {
+            for (BType intRhs : allIntTypes) {
+                defineBinaryOperator(rightShiftOpKind, signedLhs, intRhs, intType);
+            }
+        }
     }
 
     public void defineBinaryOperator(OperatorKind kind,
                                      BType lhsType,
                                      BType rhsType,
                                      BType retType) {
+
         List<BType> paramTypes = Lists.of(lhsType, rhsType);
         defineOperator(names.fromString(kind.value()), paramTypes, retType);
     }
@@ -581,70 +617,16 @@ public class SymbolTable {
         defineOperator(names.fromString(kind.value()), paramTypes, retType);
     }
 
-    private void defineImplicitCastOperator(BType sourceType,
-                                            BType targetType,
-                                            boolean safe) {
-
-        defineCastOperator(sourceType, targetType, true, safe);
-    }
-
-    private void defineCastOperator(BType sourceType,
-                                    BType targetType,
-                                    boolean safe) {
-
-        defineCastOperator(sourceType, targetType, false, safe);
-    }
-
-    private void defineConversionOperator(BType sourceType,
-                                          BType targetType,
-                                          boolean safe) {
-        List<BType> paramTypes = Lists.of(sourceType, targetType);
-        BType retType;
-        if (safe) {
-            retType = targetType;
-        } else {
-            if (targetType.tag == TypeTags.UNION) {
-                BUnionType unionType = (BUnionType) targetType;
-                unionType.add(this.errorType);
-                retType = targetType;
-            } else {
-                retType = BUnionType.create(null, targetType, errorType);
-            }
-        }
-        BInvokableType opType = new BInvokableType(paramTypes, retType, null);
-        BConversionOperatorSymbol symbol = new BConversionOperatorSymbol(this.rootPkgSymbol.pkgID, opType, sourceType,
-                this.rootPkgSymbol, safe);
-        rootScope.define(symbol.name, symbol);
-    }
-
-    private void defineCastOperator(BType sourceType,
-                                    BType targetType,
-                                    boolean implicit,
-                                    boolean safe) {
-        List<BType> paramTypes = Lists.of(sourceType, targetType);
-        BType retType;
-        if (safe) {
-            retType = targetType;
-        } else {
-            if (targetType.tag == TypeTags.UNION) {
-                BUnionType unionType = (BUnionType) targetType;
-                unionType.add(this.errorType);
-                retType = targetType;
-            } else {
-                retType = BUnionType.create(null, targetType, errorType);
-            }
-        }
-        BInvokableType opType = new BInvokableType(paramTypes, retType, null);
-        BCastOperatorSymbol symbol = new BCastOperatorSymbol(this.rootPkgSymbol.pkgID, opType, sourceType,
-                this.rootPkgSymbol, implicit, safe);
-        rootScope.define(symbol.name, symbol);
-    }
-
     private void defineOperator(Name name,
                                 List<BType> paramTypes,
                                 BType retType) {
         BInvokableType opType = new BInvokableType(paramTypes, retType, null);
         BOperatorSymbol symbol = new BOperatorSymbol(name, rootPkgSymbol.pkgID, opType, rootPkgSymbol);
         rootScope.define(name, symbol);
+    }
+
+    public void loadDefaultXMLNamespace() {
+        rootPkgSymbol.scope.define(Names.XML, new BXMLNSSymbol(Names.XML, "http://www.w3.org/XML/1998/namespace",
+                this.rootPkgSymbol.pkgID, this.rootPkgSymbol));
     }
 }

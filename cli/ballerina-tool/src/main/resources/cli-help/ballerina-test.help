@@ -57,6 +57,11 @@ OPTIONS
            executions will be relative to the path provided for
            sourceroot.
 
+       --code-coverage
+           Enable code coverage. This will analyze the line coverage of
+           source .bal files and add a section to the testerina report with
+           coverage details.
+
        --experimental
            Enable experimental language features.
 
@@ -90,3 +95,6 @@ EXAMPLES
 
         Run tests in single bal file.
            $ ballerina test main_test.bal
+
+        Run tests with code coverage.
+           $ ballerina test --code-coverage --all

@@ -288,4 +288,14 @@ public class ObjectInitializerTest {
         BValue[] returns = BRunUtil.invoke(compileResult, "testConstRefsAsDefaultValue");
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue(), "Expected booleans to be identified as equal");
     }
+
+    @Test(description = "Test invoking '__init' function with function pointer args")
+    public void testFunctionPointerAsDefaultableParam1() {
+        BRunUtil.invoke(compileResult, "testFunctionPointerAsDefaultableParam1");
+    }
+
+    @Test(description = "Test invoking '__init' function with lambda function args")
+    public void testFunctionPointerAsDefaultableParam2() {
+        BRunUtil.invoke(compileResult, "testFunctionPointerAsDefaultableParam2");
+    }
 }

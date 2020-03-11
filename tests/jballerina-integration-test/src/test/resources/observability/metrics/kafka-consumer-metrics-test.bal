@@ -20,7 +20,7 @@ import ballerina/kafka;
 import ballerina/log;
 import ballerina/lang.'string as strings;
 
-kafka:ConsumerConfig consumerConfigs = {
+kafka:ConsumerConfiguration consumerConfigs = {
     bootstrapServers: "localhost:14110",
     groupId: "group-id",
     clientId: "consumer_2",
