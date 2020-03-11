@@ -753,7 +753,9 @@ public class SymbolEnter extends BLangNodeVisitor {
                 dlog.error(typeDefinition.pos, DiagnosticCode.TYPE_PARAM_OUTSIDE_LANG_MODULE);
             }
         }
-        typeDefSymbol.isDeprecated = isDeprecated(typeDefinition.annAttachments);
+        if (isDeprecated(typeDefinition.annAttachments)) {
+            typeDefSymbol.flags |= Flags.DEPRECATED;
+        }
         typeDefinition.symbol = typeDefSymbol;
         defineSymbol(typeDefinition.name.pos, typeDefSymbol);
 
@@ -844,7 +846,9 @@ public class SymbolEnter extends BLangNodeVisitor {
         SymbolEnv invokableEnv = SymbolEnv.createFunctionEnv(funcNode, funcSymbol.scope, env);
         defineInvokableSymbol(funcNode, funcSymbol, invokableEnv);
 
-        funcSymbol.isDeprecated = isDeprecated(funcNode.annAttachments);
+        if (isDeprecated(funcNode.annAttachments)) {
+            funcSymbol.flags |= Flags.DEPRECATED;
+        }
         // Define function receiver if any.
         if (funcNode.receiver != null) {
             defineAttachedFunctions(funcNode, funcSymbol, invokableEnv, validAttachedFunc);
@@ -917,7 +921,9 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
 
         constantSymbol.markdownDocumentation = getMarkdownDocAttachment(constant.markdownDocumentationAttachment);
-        constantSymbol.isDeprecated = isDeprecated(constant.annAttachments);
+        if (isDeprecated(constant.annAttachments)) {
+            constantSymbol.flags |= Flags.DEPRECATED;
+        }
         // Add the symbol to the enclosing scope.
         if (!symResolver.checkForUniqueSymbol(constant.name.pos, env, constantSymbol)) {
             return;

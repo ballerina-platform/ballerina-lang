@@ -1993,15 +1993,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         analyzeExprs(invocationExpr.requiredArgs);
         analyzeExprs(invocationExpr.restArgs);
 
-        // Null check is to ignore Negative path where symbol does not get resolved at TypeChecker.
-        if ((invocationExpr.symbol != null) && invocationExpr.symbol.kind == SymbolKind.FUNCTION) {
-            BSymbol funcSymbol = invocationExpr.symbol;
-            if (Symbols.isFlagOn(funcSymbol.flags, Flags.DEPRECATED)) {
-                dlog.warning(invocationExpr.pos, DiagnosticCode.USAGE_OF_DEPRECATED_FUNCTION,
-                        names.fromIdNode(invocationExpr.name));
-            }
-        }
-
         if (invocationExpr.actionInvocation || invocationExpr.async) {
             if (invocationExpr.actionInvocation || !this.withinLockBlock) {
                 validateActionInvocation(invocationExpr.pos, invocationExpr);

@@ -483,8 +483,8 @@ public class SymbolResolver extends BLangNodeVisitor {
 
     public BType resolveTypeNodeWithDeprecationCheck(BLangType typeNode, SymbolEnv env) {
         BType type = resolveTypeNode(typeNode, env);
-        if (type.tsymbol != null && type.tsymbol.isDeprecated) {
-            dlog.warning(typeNode.pos, DiagnosticCode.DEPRECATED, type.tsymbol.name.value);
+        if (type.tsymbol != null && Symbols.isFlagOn(type.tsymbol.flags, Flags.DEPRECATED)) {
+            dlog.warning(typeNode.pos, DiagnosticCode.USAGE_OF_DEPRECATED_CONSTRUCT, type.tsymbol.name.value);
         }
         return type;
     }

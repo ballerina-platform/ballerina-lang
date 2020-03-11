@@ -46,7 +46,6 @@ public class BSymbol implements Symbol {
     public boolean tainted;
     public boolean closure;
     public MarkdownDocAttachment markdownDocumentation;
-    public boolean isDeprecated;
 
     /**
      * If a symbol has child symbols, then the scope will not be null.

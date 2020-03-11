@@ -346,7 +346,7 @@ public enum DiagnosticCode {
     INVALID_USE_OF_ENDPOINT_DOCUMENTATION_ATTRIBUTE("invalid.use.of.endpoint.documentation.attribute"),
     DUPLICATE_DOCUMENTED_ATTRIBUTE("duplicate.documented.attribute"),
     UNDEFINED_DOCUMENTATION_PUBLIC_FUNCTION("undefined.documentation.public.function"),
-    USAGE_OF_DEPRECATED_FUNCTION("usage.of.deprecated.function"),
+    USAGE_OF_DEPRECATED_CONSTRUCT("usage.of.deprecated.construct"),
     OPERATOR_NOT_SUPPORTED("operator.not.supported"),
     OPERATOR_NOT_ALLOWED_VARIABLE("operator.not.allowed.variable"),
 
@@ -484,8 +484,7 @@ public enum DiagnosticCode {
     OVERLOADED_METHODS("overloaded.method"),
     UNSUPPORTED_PRIMITIVE_TYPE("unsupported.primitive.type.reason"),
     METHOD_SIGNATURE_DOES_NOT_MATCH("method.signature.not.match"),
-    DEPRECATED("deprecated"),
-    DEPRECATION_ANNOTATION_SHOULD_BE_AVAILABLE("deprecation.annotation.should.available"),
+    INVALID_DEPRECATION_DOCUMENTATION("invalid.deprecation.documentation"),
     DEPRECATION_DOCUMENTATION_SHOULD_BE_AVAILABLE("deprecation.documentation.should.available"),
     ;
     private String value;
