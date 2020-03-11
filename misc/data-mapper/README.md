@@ -1,2 +1,2 @@
-# choreo-ai-data-mapper-vscode-plugin
-VS code plugin for AI-based data mapper
+# ballerina_data_mapper
+Data mapping extension for Ballerina language server
