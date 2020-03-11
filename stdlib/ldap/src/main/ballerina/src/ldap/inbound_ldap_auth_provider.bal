@@ -38,7 +38,7 @@ public type InboundLdapAuthProvider object {
     public function __init(LdapConnectionConfig ldapConnectionConfig, string instanceId) {
         self.instanceId = instanceId;
         self.ldapConnectionConfig = ldapConnectionConfig;
-        var ldapConnection = initLdapConnectionContext(self.ldapConnectionConfig, instanceId);
+        LdapConnection|Error ldapConnection = initLdapConnectionContext(self.ldapConnectionConfig, instanceId);
         if (ldapConnection is LdapConnection) {
             self.ldapConnection = ldapConnection;
         } else {
@@ -54,12 +54,10 @@ public type InboundLdapAuthProvider object {
         if (credential == "") {
             return false;
         }
-        string username;
-        string password;
+        [string, string] [username, password] = check auth:extractUsernameAndPassword(credential);
+        boolean|Error authenticated = doAuthenticate(self.ldapConnection, username, password);
+        string[]|Error groups = getGroups(self.ldapConnection, username);
         string[] scopes;
-        [username, password] = check auth:extractUsernameAndPassword(credential);
-        var authenticated = doAuthenticate(self.ldapConnection, username, password);
-        var groups = getGroups(self.ldapConnection, username);
         if (groups is string[]) {
             scopes = groups;
         } else {

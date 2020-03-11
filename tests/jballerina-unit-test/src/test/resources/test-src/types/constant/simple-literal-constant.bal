@@ -364,12 +364,12 @@ function testBuiltinFunctionInvocationOnArrayElement() returns boolean {
 // -----------------------------------------------------------
 
 type TestRecord record {
-    string field;
+    string 'field;
 };
 
 function testBuiltinFunctionInvocationOnField() returns boolean {
-    TestRecord tr = { field: SHA1 };
-    return strings:startsWith(tr.field, "SH");
+    TestRecord tr = { 'field: SHA1 };
+    return strings:startsWith(tr.'field, "SH");
 }
 // -----------------------------------------------------------
 

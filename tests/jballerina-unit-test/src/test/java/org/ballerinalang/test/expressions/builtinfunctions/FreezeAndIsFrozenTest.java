@@ -267,6 +267,14 @@ public class FreezeAndIsFrozenTest {
         BRunUtil.invoke(result, "testFrozenXmlSetChildren", new BValue[0]);
     }
 
+
+    @Test(expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.xml\\}XMLOperationError message=Failed to set" +
+                    " children to xml element: modification not allowed on readonly value.*")
+    public void testFrozenXmlSetChildrenDeep() {
+        BRunUtil.invoke(result, "testFrozenXmlSetChildrenDeep", new BValue[0]);
+    }
+
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.map\\}InvalidUpdate message=Invalid map " +
                     "insertion: modification not allowed on readonly value.*")

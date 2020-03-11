@@ -69,7 +69,7 @@ public class Utils {
 
             MapValue clientCertKeystore = sslConfig.getMapValue(Constants.SSLConfig.CLIENT_CERT_KEYSTORE);
             if (clientCertKeystore != null) {
-                options.put(Constants.DatabaseProps.CLIENT_KEYSTORE_URL, clientCertKeystore
+                options.put(Constants.DatabaseProps.CLIENT_KEYSTORE_URL, Constants.FILE + clientCertKeystore
                         .getStringValue(org.ballerinalang.stdlib.crypto.Constants.KEY_STORE_RECORD_PATH_FIELD));
                 options.put(Constants.DatabaseProps.CLIENT_KEYSTORE_PASSWORD, clientCertKeystore
                         .getStringValue(org.ballerinalang.stdlib.crypto.Constants.KEY_STORE_RECORD_PASSWORD_FIELD));
@@ -78,7 +78,7 @@ public class Utils {
 
             MapValue trustCertKeystore = sslConfig.getMapValue(Constants.SSLConfig.TRUST_CERT_KEYSTORE);
             if (trustCertKeystore != null) {
-                options.put(Constants.DatabaseProps.TRUST_KEYSTORE_URL, trustCertKeystore
+                options.put(Constants.DatabaseProps.TRUST_KEYSTORE_URL, Constants.FILE + trustCertKeystore
                         .getStringValue(org.ballerinalang.stdlib.crypto.Constants.KEY_STORE_RECORD_PATH_FIELD));
                 options.put(Constants.DatabaseProps.TRUST_KEYSTORE_PASSWORD, trustCertKeystore
                         .getStringValue(org.ballerinalang.stdlib.crypto.Constants.KEY_STORE_RECORD_PASSWORD_FIELD));
