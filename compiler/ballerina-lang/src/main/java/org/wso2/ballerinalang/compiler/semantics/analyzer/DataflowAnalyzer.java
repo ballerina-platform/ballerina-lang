@@ -778,7 +778,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
      * @param provider object which provides a value.
      */
     private void addDependency(BSymbol dependent, BSymbol provider) {
-        if (provider == null || dependent == null ||dependent.pkgID != provider.pkgID) {
+        if (provider == null || dependent == null || dependent.pkgID != provider.pkgID) {
             return;
         }
         Set<BSymbol> providers = globalNodeDependsOn.computeIfAbsent(dependent, s -> new LinkedHashSet<>());
