@@ -778,16 +778,13 @@ public class JvmTerminatorGen {
                 i += 1;
             }
             String cleanMethodName = cleanupFunctionName(methodName);
-            boolean useBString = isBString && orgName.equals("ballerina") &&
-                                 (moduleName.equals("lang.string") || moduleName.equals("lang.error") ||
-                                  moduleName.equals("lang.value") || moduleName.equals("lang.map")) &&
-                                 !cleanMethodName.endsWith("_");
             BIRFunctionWrapper functionWrapper = birFunctionMap.get(lookupKey);
             String methodDesc;
             String jvmClass;
             if (functionWrapper != null) {
                 jvmClass = functionWrapper.fullQualifiedClassName;
-                methodDesc = functionWrapper.jvmMethodDescription;
+                methodDesc = isBString ? functionWrapper.jvmMethodDescriptionBString :
+                             functionWrapper.jvmMethodDescription;
             } else {
                 BPackageSymbol symbol = CodeGenerator.packageCache.getSymbol(orgName + "/" + moduleName);
                 BInvokableSymbol funcSymbol = (BInvokableSymbol) symbol.scope.lookup(new Name(methodName)).symbol;
@@ -808,7 +805,7 @@ public class JvmTerminatorGen {
                 jvmClass = getModuleLevelClassName(orgName, moduleName,
                         cleanupPathSeperators(cleanupBalExt(balFileName)));
                 //TODO: add receiver:  BType attachedType = type.r != null ? receiver.type : null;
-                methodDesc = getMethodDesc(params, type.retType, null, false, useBString);
+                methodDesc = getMethodDesc(params, type.retType, null, false, isBString);
             }
             this.mv.visitMethodInsn(INVOKESTATIC, jvmClass, cleanMethodName, methodDesc, false);
         }
