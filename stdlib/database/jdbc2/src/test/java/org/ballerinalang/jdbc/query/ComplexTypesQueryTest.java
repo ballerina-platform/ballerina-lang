@@ -235,7 +235,7 @@ public class ComplexTypesQueryTest {
         Assert.assertEquals(row4IntArray.getBValue(2), null);
     }
 
-    @Test(description = "Check date time operation", enabled = false)
+    @Test(description = "Check date time operation")
     public void testDateTime() throws ParseException {
         Date dateInserted = new SimpleDateFormat("yyyy-MM-dd").parse("2017-05-23");
         Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
