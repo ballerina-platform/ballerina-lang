@@ -41,6 +41,9 @@ public const DES_FLOAT = "FLOAT";
 # User-defined deserializer.
 public const DES_CUSTOM = "CUSTOM";
 
+# Apache Avro deserializer.
+public const DES_AVRO = "AVRO";
+
 // Isolation levels
 # Consumer isolation level value 'read_committed'
 public const ISOLATION_COMMITTED = "read_committed";
@@ -77,6 +80,9 @@ public const SER_FLOAT = "FLOAT";
 
 # User-defined serializer.
 public const SER_CUSTOM = "CUSTOM";
+
+# Apache avro serializer.
+public const SER_AVRO = "AVRO";
 
 // Compression types
 # Kafka compression type. Value 'none'

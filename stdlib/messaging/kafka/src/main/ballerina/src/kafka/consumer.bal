@@ -36,6 +36,8 @@ import ballerinax/java;
 #       `kafka:Deserializer` object.
 # + valueDeserializer - Custom deserializer object to deserialize kafka values. This should implement the
 #       `kafka:Deserializer` object.
+# + schemaRegistryUrl - Avro schema registry url. Use this field to specify schema registry url, if Avro serializer
+#       is used.
 # + topics - Topics to be subscribed by the consumer.
 # + properties - Additional properties if required.
 # + sessionTimeoutInMillis - Timeout used to detect consumer failures when heartbeat threshold is reached.
@@ -81,8 +83,9 @@ public type ConsumerConfiguration record {|
 
     DeserializerType keyDeserializerType = DES_BYTE_ARRAY;
     DeserializerType valueDeserializerType = DES_BYTE_ARRAY;
-    Deserializer? keyDeserializer = ();
-    Deserializer? valueDeserializer = ();
+    Deserializer keyDeserializer?;
+    Deserializer valueDeserializer?;
+    string schemaRegistryUrl?;
 
     string[] topics?;
     string[] properties?;
@@ -137,7 +140,7 @@ public type ConsumerRecord record {|
 |};
 
 # Kafka in-built deserializer type.
-public type DeserializerType DES_BYTE_ARRAY|DES_STRING|DES_INT|DES_FLOAT|DES_CUSTOM;
+public type DeserializerType DES_BYTE_ARRAY|DES_STRING|DES_INT|DES_FLOAT|DES_AVRO|DES_CUSTOM;
 
 # Kafka consumer isolation level type.
 public type IsolationLevel ISOLATION_COMMITTED|ISOLATION_UNCOMMITTED;
@@ -163,7 +166,7 @@ public type Consumer client object {
         self.valueDeserializerType = config.valueDeserializerType;
 
         if (self.keyDeserializerType == DES_CUSTOM) {
-            var keyDeserializerObject = config.keyDeserializer;
+            var keyDeserializerObject = config?.keyDeserializer;
             if (keyDeserializerObject is ()) {
                 panic error(CONSUMER_ERROR, message = "Invalid keyDeserializer config: Please Provide a " +
                                         "valid custom deserializer for the keyDeserializer");
@@ -171,9 +174,17 @@ public type Consumer client object {
                 self.keyDeserializer = keyDeserializerObject;
             }
         }
+        if (self.keyDeserializerType == DES_AVRO) {
+            panic error(CONSUMER_ERROR, message = "Key deserialization using Avro is not yet supported.");
+            //var schemaRegistryUrl = config.schemaRegistryUrl;
+            //if (schemaRegistryUrl is ()) {
+            //    panic error(PRODUCER_ERROR, message = "Missing schema registry URL for the Avro serializer. Please " +
+            //                "provide 'schemaRegistryUrl' configuration in 'kafka:ProducerConfiguration'.");
+            //}
+        }
 
         if (self.valueDeserializerType == DES_CUSTOM) {
-            var valueDeserializerObject = config.valueDeserializer;
+            var valueDeserializerObject = config?.valueDeserializer;
             if (valueDeserializerObject is ()) {
                 panic error(CONSUMER_ERROR, message = "Invalid valueDeserializer config: Please Provide a" +
                                         " valid custom deserializer for the valueDeserializer");
@@ -181,26 +192,51 @@ public type Consumer client object {
                 self.valueDeserializer = valueDeserializerObject;
             }
         }
+        if (self.valueDeserializerType == DES_AVRO) {
+            var schemaRegistryUrl = config?.schemaRegistryUrl;
+            if (schemaRegistryUrl is ()) {
+                panic error(CONSUMER_ERROR, message = "Missing schema registry URL for the Avro deserializer. Please " +
+                            "provide 'schemaRegistryUrl' configuration in 'kafka:ConsumerConfiguration'.");
+            }
+        }
 
         checkpanic self.init(config);
     }
 
+    # Starts the registered service.
+    #
+    # + return - Returns an error if encounters an error while starting the server, returns nil otherwise.
     public function __start() returns error? {
         return start(self);
     }
 
+    # Stops the kafka listener.
+    #
+    # + return - An `error` if an error occurred during the listener stopping process
     public function __gracefulStop() returns error? {
-        return ();
+        return stop(self);
     }
 
+    # Stops the kafka listener.
+    #
+    # + return - An `error` if an error occurred during the listener stopping process
     public function __immediateStop() returns error? {
         return stop(self);
     }
 
+    # Gets called every time a service attaches itself to this listener.
+    #
+    # + s - The type of the service to be registered.
+    # + name - Name of the service.
+    # + return - Returns an error if encounters an error while attaching the service, returns nil otherwise.
     public function __attach(service s, string? name = ()) returns error? {
         return register(self, s, name);
     }
 
+    # Detaches a consumer service from the listener.
+    #
+    # + s - The service to be detached
+    # + return - error if occurred during detaching of a service or `nil`
     public function __detach(service s) returns error? {
     }
 

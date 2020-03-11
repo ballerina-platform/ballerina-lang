@@ -73,6 +73,7 @@ import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.PRODUCER_VA
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.PROPERTIES_ARRAY;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.PROTOCOL_CONFIG;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.SECURE_SOCKET;
+import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.SERDES_AVRO;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.SERDES_CUSTOM;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.TRUSTSTORE_CONFIG;
 
@@ -141,8 +142,12 @@ public class KafkaUtils {
                                CONSUMER_KEY_DESERIALIZER_TYPE_CONFIG);
         addDeserializerConfigs(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, configurations, properties,
                                KafkaConstants.CONSUMER_VALUE_DESERIALIZER_TYPE_CONFIG);
-        addCustomKeyDeserializer(properties, configurations);
-        addCustomValueDeserializer(properties, configurations);
+        addCustomDeserializer(CONSUMER_KEY_DESERIALIZER_CONFIG, CONSUMER_KEY_DESERIALIZER_TYPE_CONFIG, properties,
+                              configurations);
+        addCustomDeserializer(CONSUMER_VALUE_DESERIALIZER_CONFIG, CONSUMER_VALUE_DESERIALIZER_TYPE_CONFIG, properties,
+                              configurations);
+        addStringParamIfPresent(KafkaConstants.SCHEMA_REGISTRY_URL, configurations, properties,
+                                KafkaConstants.CONSUMER_SCHEMA_REGISTRY_URL);
 
         addStringArrayParamIfPresent(ALIAS_TOPICS, configurations, properties,
                                      ALIAS_TOPICS);
@@ -206,6 +211,10 @@ public class KafkaUtils {
         if (Objects.nonNull(configurations.get(SECURE_SOCKET))) {
             processSSLProperties(configurations, properties);
         }
+        if (SERDES_AVRO.equals(configurations.get(CONSUMER_VALUE_DESERIALIZER_CONFIG)) ||
+                SERDES_AVRO.equals(configurations.get(CONSUMER_VALUE_DESERIALIZER_CONFIG))) {
+            properties.put(KafkaConstants.SPECIFIC_AVRO_READER, true);
+        }
         return properties;
     }
 
@@ -229,6 +238,8 @@ public class KafkaUtils {
                                 properties, KafkaConstants.PRODUCER_INTERCEPTOR_CLASSES_CONFIG);
         addStringParamIfPresent(ProducerConfig.TRANSACTIONAL_ID_CONFIG, configurations,
                                 properties, KafkaConstants.PRODUCER_TRANSACTIONAL_ID_CONFIG);
+        addStringParamIfPresent(KafkaConstants.SCHEMA_REGISTRY_URL, configurations, properties,
+                                KafkaConstants.PRODUCER_SCHEMA_REGISTRY_URL);
 
         addSerializerTypeConfigs(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, configurations,
                                  properties, PRODUCER_KEY_SERIALIZER_TYPE_CONFIG);
@@ -362,20 +373,12 @@ public class KafkaUtils {
         }
     }
 
-    private static void addCustomKeyDeserializer(Properties properties, MapValue<String, Object> configurations) {
-        Object deserializer = configurations.get(CONSUMER_KEY_DESERIALIZER_CONFIG);
-        String deserializerType = configurations.getStringValue(CONSUMER_KEY_DESERIALIZER_TYPE_CONFIG);
+    private static void addCustomDeserializer(String configParam, String typeConfig, Properties properties,
+                                              MapValue<String, Object> configurations) {
+        Object deserializer = configurations.get(configParam);
+        String deserializerType = configurations.getStringValue(typeConfig);
         if (Objects.nonNull(deserializer) && SERDES_CUSTOM.equals(deserializerType)) {
-            properties.put(CONSUMER_KEY_DESERIALIZER_CONFIG, configurations.get(CONSUMER_KEY_DESERIALIZER_CONFIG));
-            properties.put(BALLERINA_STRAND, BRuntime.getCurrentRuntime());
-        }
-    }
-
-    private static void addCustomValueDeserializer(Properties properties, MapValue<String, Object> configurations) {
-        Object deserializer = configurations.get(CONSUMER_VALUE_DESERIALIZER_CONFIG);
-        String deserializerType = configurations.getStringValue(CONSUMER_VALUE_DESERIALIZER_TYPE_CONFIG);
-        if (Objects.nonNull(deserializer) && SERDES_CUSTOM.equals(deserializerType)) {
-            properties.put(CONSUMER_VALUE_DESERIALIZER_CONFIG, configurations.get(CONSUMER_VALUE_DESERIALIZER_CONFIG));
+            properties.put(configParam, configurations.get(configParam));
             properties.put(BALLERINA_STRAND, BRuntime.getCurrentRuntime());
         }
     }
@@ -391,6 +394,8 @@ public class KafkaUtils {
                 return KafkaConstants.INT_SERIALIZER;
             case KafkaConstants.SERDES_FLOAT:
                 return KafkaConstants.FLOAT_SERIALIZER;
+            case KafkaConstants.SERDES_AVRO:
+                return KafkaConstants.AVRO_SERIALIZER;
             case SERDES_CUSTOM:
                 return KafkaConstants.CUSTOM_SERIALIZER;
             default:
@@ -550,7 +555,7 @@ public class KafkaUtils {
             } else {
                 throw new BLangRuntimeException("Invalid type - expected: float");
             }
-        } else if (SERDES_CUSTOM.equals(type)) {
+        } else if (SERDES_CUSTOM.equals(type) || SERDES_AVRO.equals(type)) {
             return value;
         }
         throw createKafkaError("Unexpected type found for consumer record");
