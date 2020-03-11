@@ -36,6 +36,11 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+import static io.ballerinalang.compiler.parser.test.ParserTestConstants.CHILDREN_FIELD;
+import static io.ballerinalang.compiler.parser.test.ParserTestConstants.IS_MISSING_FIELD;
+import static io.ballerinalang.compiler.parser.test.ParserTestConstants.KIND_FIELD;
+import static io.ballerinalang.compiler.parser.test.ParserTestConstants.VALUE_FIELD;
+
 /**
  * Convenient methods for testing the parser.
  * 
@@ -44,10 +49,6 @@ import java.nio.file.Paths;
 public class ParserTestUtils {
 
     private static final Path RESOURCE_DIRECTORY = Paths.get("src/test/resources/");
-    private static final String KIND_FIELD = "kind";
-    private static final String CHILDREN_FIELD = "children";
-    private static final String VALUE_FIELD = "value";
-    private static final String IS_MISSING_FIELD = "isMissing";
 
     /**
      * Test parsing a valid source.
@@ -169,11 +170,11 @@ public class ParserTestUtils {
         return count;
     }
 
-    private static boolean isTerminalNode(SyntaxKind syntaxKind) {
-        return SyntaxKind.FUNCTION_DEFINITION.compareTo(syntaxKind) > 0;
+    public static boolean isTerminalNode(SyntaxKind syntaxKind) {
+        return SyntaxKind.IMPORT_DECLARATION.compareTo(syntaxKind) > 0;
     }
 
-    private static boolean isSyntaxToken(SyntaxKind syntaxKind) {
+    public static boolean isSyntaxToken(SyntaxKind syntaxKind) {
         return SyntaxKind.IDENTIFIER_TOKEN.compareTo(syntaxKind) > 0;
     }
 

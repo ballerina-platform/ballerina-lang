@@ -34,6 +34,8 @@ public enum SyntaxKind {
     RETURNS_KEYWORD(200, "returns"),
     RETURN_KEYWORD(201, "return"),
     EXTERNAL_KEYWORD(202, "external"),
+    TRUE_KEYWORD(203, "true"),
+    FALSE_KEYWORD(204, "false"),
 
     // Separators
     OPEN_BRACE_TOKEN(500, "{"),
