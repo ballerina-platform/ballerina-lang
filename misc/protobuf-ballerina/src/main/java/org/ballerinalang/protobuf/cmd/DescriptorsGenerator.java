@@ -35,7 +35,8 @@ import java.util.Set;
 
 import static org.ballerinalang.net.grpc.proto.ServiceProtoConstants.TMP_DIRECTORY_PATH;
 import static org.ballerinalang.protobuf.BalGenerationConstants.DESC_SUFFIX;
-import static org.ballerinalang.protobuf.BalGenerationConstants.GOOGLE_STANDARD_LIB;
+import static org.ballerinalang.protobuf.BalGenerationConstants.GOOGLE_STANDARD_LIB_API;
+import static org.ballerinalang.protobuf.BalGenerationConstants.GOOGLE_STANDARD_LIB_PROTOBUF;
 import static org.ballerinalang.protobuf.BalGenerationConstants.PROTO_SUFFIX;
 import static org.ballerinalang.protobuf.utils.BalFileGenerationUtils.generateDescriptor;
 import static org.ballerinalang.protobuf.utils.BalFileGenerationUtils.isWindows;
@@ -81,7 +82,8 @@ public class DescriptorsGenerator {
                 //Derive proto file path of the dependent library.
                 String protoPath;
                 String protoFolderPath;
-                if (!dependentFilePath.contains(GOOGLE_STANDARD_LIB)) {
+                if (!dependentFilePath.contains(GOOGLE_STANDARD_LIB_PROTOBUF) &&
+                        !dependentFilePath.contains(GOOGLE_STANDARD_LIB_API)) {
                     protoFolderPath = resolveProtoFolderPath(rootProtoPath);
                     protoPath = new File(protoFolderPath, dependentFilePath).getAbsolutePath();
                 } else {

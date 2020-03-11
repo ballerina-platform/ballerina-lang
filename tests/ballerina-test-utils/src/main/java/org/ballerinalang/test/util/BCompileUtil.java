@@ -249,6 +249,19 @@ public class BCompileUtil {
     /**
      * Compile and return the semantic errors.
      *
+     * @param sourceRoot  root path of the modules as a Path object
+     * @param packageName name of the module to compile
+     * @param init init the module or not
+     * @return Semantic errors
+     */
+    public static CompileResult compile(Path sourceRoot, String packageName, boolean init) {
+        Path packagePath = Paths.get(packageName);
+        return getCompileResult(packageName, sourceRoot, packagePath, init);
+    }
+
+    /**
+     * Compile and return the semantic errors.
+     *
      * @param obj this is to find the original callers location.
      * @param sourceRoot  root path of the modules
      * @param packageName name of the module to compile

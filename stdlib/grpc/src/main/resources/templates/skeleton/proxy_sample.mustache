@@ -1,0 +1,82 @@
+import ballerina/http;
+import ballerina/lang.'int as intCaster;
+import ballerina/lang.'float as floatCaster;
+import ballerina/log;
+{{#stubList}}{{#equals stubType "blocking"}}
+{{serviceName}}BlockingClient {{serviceName}}BlockingEp = new("http://localhost:9090");
+
+service {{serviceName}} on new http:Listener(9091) {
+{{#blockingFunctions}}{{> proxy_unary service=../serviceName}}
+{{/blockingFunctions}}{{#literal "}"}}{{/literal}}
+{{/equals}}{{/stubList}}
+public function castFunction(string? field, string fieldType) returns anydata | error {
+    string castField = field.toString();
+    match fieldType {
+        "string" => { return castField; }
+        "int" => { return intCaster:fromString(castField); }
+        "float" => { return floatCaster:fromString(castField); }
+    }
+}
+
+public function arrayCaster (string[] fieldArray, string fieldType) returns any | error {
+    match fieldType {
+        "string" => {
+            return fieldArray;
+        }
+        "int" => {
+            int[] intArray  = [];
+            foreach var field in fieldArray {
+                int | error castedField = intCaster:fromString(field);
+                if castedField is int {
+                    intArray.push(castedField);
+                } else {
+                    return castedField;
+                }
+            }
+            return intArray;
+        }
+        "float" => {
+            float[] floatArray  = [];
+            foreach var field in fieldArray {
+                float | error castedField = floatCaster:fromString(field);
+                if castedField is float {
+                    floatArray.push(castedField);
+                } else {
+                    return castedField;
+                }
+            }
+            return floatArray;
+        }
+    }
+    return ();
+}
+
+public function sendResponse (http:Caller caller, any | error responseData) {
+    match responseData {
+        var [response, header] => {
+            if response is anydata {
+                json | error responseJson = json.constructFrom(response);
+                if responseJson is json {
+                http:Response res = new;
+                res.statusCode = 200;
+                res.setJsonPayload(responseJson);
+                var sent = caller->respond(res);
+                if sent is error {
+                    log:printInfo("Error when responding : " + sent.reason());
+                }
+            }
+        }
+    }
+        var noPayload => {
+            if noPayload is error {
+                http:Response res = new;
+                res.statusCode = 500;
+                res.setPayload(noPayload.reason());
+                var sent = caller->respond(res);
+                if sent is error {
+                    log:printInfo("Error when responding : " + sent.reason());
+                }
+            }
+        }
+    }
+}

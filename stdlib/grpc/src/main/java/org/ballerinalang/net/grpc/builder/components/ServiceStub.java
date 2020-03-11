@@ -71,7 +71,6 @@ public class ServiceStub {
     public static class Builder {
         String serviceName;
         List<Method> methodList = new ArrayList<>();
-        StubType stubType;
 
         private Builder(String serviceName) {
             this.serviceName = serviceName;
@@ -82,12 +81,7 @@ public class ServiceStub {
             return this;
         }
 
-        public Builder setType(StubType stubType) {
-            this.stubType = stubType;
-            return this;
-        }
-
-        public ServiceStub build() throws CodeBuilderException {
+        public ServiceStub build(StubType stubType) throws CodeBuilderException {
             ServiceStub serviceStub = new ServiceStub(serviceName, stubType.getType());
             for (Method method : methodList) {
                 switch (method.getMethodType()) {

@@ -50,6 +50,7 @@ import static org.ballerinalang.protobuf.BalGenerationConstants.NEW_LINE_CHARACT
 import static org.ballerinalang.protobuf.BalGenerationConstants.PROTOC_PLUGIN_EXE_PREFIX;
 import static org.ballerinalang.protobuf.BalGenerationConstants.PROTOC_PLUGIN_EXE_URL_SUFFIX;
 import static org.ballerinalang.protobuf.BalGenerationConstants.PROTO_SUFFIX;
+import static org.ballerinalang.protobuf.BalGenerationConstants.TEMP_API_DIRECTORY;
 import static org.ballerinalang.protobuf.BalGenerationConstants.TEMP_COMPILER_DIRECTORY;
 import static org.ballerinalang.protobuf.BalGenerationConstants.TEMP_GOOGLE_DIRECTORY;
 import static org.ballerinalang.protobuf.BalGenerationConstants.TEMP_PROTOBUF_DIRECTORY;
@@ -218,6 +219,9 @@ public class GrpcCmd implements BLauncherCmd {
         createTempDirectory(protobufHome);
         File compilerHome = new File(protobufHome, TEMP_COMPILER_DIRECTORY);
         createTempDirectory(compilerHome);
+        File apiHome = new File(googleHome, TEMP_API_DIRECTORY);
+        createTempDirectory(protobufHome);
+        createTempDirectory(apiHome);
         return new File(metadataHome, getProtoFileName() + "-descriptor.desc");
     }
 
@@ -234,8 +238,7 @@ public class GrpcCmd implements BLauncherCmd {
      */
     private static void exportResource(String resourceName, ClassLoader classLoader) throws CodeGeneratorException {
         try (InputStream initialStream = classLoader.getResourceAsStream(resourceName);
-             OutputStream resStreamOut = new FileOutputStream(new File(TMP_DIRECTORY_PATH, resourceName.replace
-                     ("stdlib", "protobuf")))) {
+             OutputStream resStreamOut = new FileOutputStream(new File(TMP_DIRECTORY_PATH, resourceName))) {
             if (initialStream == null) {
                 throw new CodeGeneratorException("Cannot get resource \"" + resourceName + "\" from Jar file.");
             }

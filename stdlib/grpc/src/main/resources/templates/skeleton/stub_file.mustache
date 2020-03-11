@@ -1,7 +1,7 @@
 {{#if stubList}}import ballerina/grpc;
 {{/if}}{{#stubList}}
 {{> stub}}
-{{/stubList}}{{#each messageList}}
+{{/stubList}}{{#each messageMap}}
 {{> message}}{{/each}}
 {{#enumList}}
 {{> enum}}{{/enumList}}{{#if rootDescriptor}}

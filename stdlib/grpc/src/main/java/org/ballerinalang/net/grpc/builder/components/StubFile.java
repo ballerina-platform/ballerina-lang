@@ -18,7 +18,9 @@
 package org.ballerinalang.net.grpc.builder.components;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -35,7 +37,7 @@ public class StubFile {
         }
         return 1;
     });
-    private List<Message> messageList = new ArrayList<>();
+    private Map<String, Message> messageMap = new HashMap<>();
     private List<EnumMessage> enumList = new ArrayList<>();
     private List<ServiceStub> stubList = new ArrayList<>();
     private String fileName;
@@ -64,23 +66,21 @@ public class StubFile {
     }
 
     public void addMessage(Message message) {
-        messageList.add(message);
+        messageMap.put(message.getMessageName(), message);
     }
 
     public boolean messageExists(String messageName) {
         if (messageName == null) {
             return false;
         }
-        for (Message message : messageList) {
-            if (messageName.equals(message.getMessageName())) {
-                return true;
-            }
+        if (messageMap.containsKey(messageName)) {
+            return true;
         }
         return false;
     }
 
-    public List<Message> getMessageList() {
-        return messageList;
+    public Map<String, Message> getMessageMap() {
+        return messageMap;
     }
 
     public void addEnumMessage(EnumMessage message) {

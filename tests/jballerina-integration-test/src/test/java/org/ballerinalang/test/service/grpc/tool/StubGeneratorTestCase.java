@@ -19,6 +19,7 @@ package org.ballerinalang.test.service.grpc.tool;
 
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.model.elements.Flag;
+import org.ballerinalang.packerina.cmd.CommandUtil;
 import org.ballerinalang.protobuf.cmd.GrpcCmd;
 import org.ballerinalang.protobuf.cmd.OSDetector;
 import org.ballerinalang.protobuf.utils.BalFileGenerationUtils;
@@ -53,12 +54,18 @@ public class StubGeneratorTestCase {
     private static String protoExeName = "protoc-" + OSDetector.getDetectedClassifier() + ".exe";
     private Path resourceDir;
     private Path outputDirPath;
+    private Path proxyServiceDirPath;
 
     @BeforeClass
     private void setup() throws Exception {
         TestUtils.prepareBalo(this);
         resourceDir = Paths.get("src", "test", "resources", "grpc", "src", "tool").toAbsolutePath();
         outputDirPath = Paths.get(TMP_DIRECTORY_PATH, "grpc");
+        BalFileGenerationUtils.delete(outputDirPath.toFile());
+        Path projectDirPath = Paths.get(TMP_DIRECTORY_PATH, "grpc", "proxyservice");
+        Files.createDirectories(projectDirPath);
+        CommandUtil.initProject(projectDirPath);
+        proxyServiceDirPath = Paths.get(TMP_DIRECTORY_PATH, "grpc", "proxyservice");
     }
 
     @Test
@@ -333,6 +340,124 @@ public class StubGeneratorTestCase {
                 "Expected imports not found in compile results.");
     }
 
+    @Test(description = "Test gateway proxy with only path and query parameters")
+    public void testHelloWorldGateway() throws IllegalAccessException, ClassNotFoundException,
+            InstantiationException {
+        CompileResult compileResult = getProxyCompileResult("helloWorldGateway.proto",
+                "helloWorldGateway");
+        assertEquals(compileResult.getDiagnostics().length, 0);
+        assertEquals(((BLangPackage) compileResult.getAST()).getCompilationUnits().size(), 4,
+                "Expected compilation units not found in compile results.");
+        assertEquals(((BLangPackage) compileResult.getAST()).typeDefinitions.size(), 18,
+                "Expected type definitions not found in compile results.");
+        assertEquals(((BLangPackage) compileResult.getAST()).functions.size(), 30,
+                "Expected functions not found in compile results.");
+        assertEquals(((BLangPackage) compileResult.getAST()).globalVars.size(), 4,
+                "Expected global variables not found in compile results.");
+        assertEquals(((BLangPackage) compileResult.getAST()).imports.size(), 5,
+                "Expected imports not found in compile results.");
+        validateAttachedResources(compileResult, 2);
+//        Stream<Path> walk = Files.walk(Paths.get("src", "test", "resources", "grpc", "src", "proxyservices"));
+//        walk.forEach(file -> {
+//            BalFileGenerationUtils.delete(file.toFile());
+//        });
+    }
+
+    @Test(description = "Test gateway proxy including mapping from the body")
+    public void testHelloWorldGatewayWithBody() throws IllegalAccessException, ClassNotFoundException,
+            InstantiationException {
+        CompileResult compileResult = getProxyCompileResult("helloWorldGatewayWithBody.proto",
+                "helloWorldGatewayWithBody");
+        assertEquals(compileResult.getDiagnostics().length, 0);
+        assertEquals(((BLangPackage) compileResult.getAST()).getCompilationUnits().size(), 4,
+                "Expected compilation units not found in compile results.");
+        assertEquals(((BLangPackage) compileResult.getAST()).typeDefinitions.size(), 19,
+                "Expected type definitions not found in compile results.");
+        assertEquals(((BLangPackage) compileResult.getAST()).functions.size(), 31,
+                "Expected functions not found in compile results.");
+        assertEquals(((BLangPackage) compileResult.getAST()).globalVars.size(), 4,
+                "Expected global variables not found in compile results.");
+        assertEquals(((BLangPackage) compileResult.getAST()).imports.size(), 5,
+                "Expected imports not found in compile results.");
+        validateAttachedResources(compileResult, 2);
+    }
+
+    @Test(description = "Test gateway proxy including Empty input")
+    public void testHelloWorldGatewayWithEmptyInput() throws IllegalAccessException, ClassNotFoundException,
+            InstantiationException {
+        CompileResult compileResult = getProxyCompileResult("helloWorldGatewayWithEmptyInput.proto",
+                "helloWorldGatewayWithEmptyInput");
+        assertEquals(compileResult.getDiagnostics().length, 0);
+        assertEquals(((BLangPackage) compileResult.getAST()).getCompilationUnits().size(), 4,
+                "Expected compilation units not found in compile results.");
+        assertEquals(((BLangPackage) compileResult.getAST()).typeDefinitions.size(), 16,
+                "Expected type definitions not found in compile results.");
+        assertEquals(((BLangPackage) compileResult.getAST()).functions.size(), 24,
+                "Expected functions not found in compile results.");
+        assertEquals(((BLangPackage) compileResult.getAST()).globalVars.size(), 4,
+                "Expected global variables not found in compile results.");
+        assertEquals(((BLangPackage) compileResult.getAST()).imports.size(), 5,
+                "Expected imports not found in compile results.");
+        validateAttachedResources(compileResult, 1);
+    }
+
+    @Test(description = "Test gateway proxy with primitive type input")
+    public void testHelloWorldGatewayWithPrimitiveInput() throws IllegalAccessException, ClassNotFoundException,
+            InstantiationException {
+        CompileResult compileResult = getProxyCompileResult("helloWorldGatewayWithPrimitiveInput.proto",
+                "helloWorldGatewayWithPrimitiveInput");
+        assertEquals(compileResult.getDiagnostics().length, 0);
+        assertEquals(((BLangPackage) compileResult.getAST()).getCompilationUnits().size(), 4,
+                "Expected compilation units not found in compile results.");
+        assertEquals(((BLangPackage) compileResult.getAST()).typeDefinitions.size(), 14,
+                "Expected type definitions not found in compile results.");
+        assertEquals(((BLangPackage) compileResult.getAST()).functions.size(), 26,
+                "Expected functions not found in compile results.");
+        assertEquals(((BLangPackage) compileResult.getAST()).globalVars.size(), 4,
+                "Expected global variables not found in compile results.");
+        assertEquals(((BLangPackage) compileResult.getAST()).imports.size(), 5,
+                "Expected imports not found in compile results.");
+        validateAttachedResources(compileResult, 2);
+    }
+
+    @Test(description = "Test gateway proxy with a repeated field in the input")
+    public void testHelloWorldGatewayWithRepeatedField() throws IllegalAccessException, ClassNotFoundException,
+            InstantiationException {
+        CompileResult compileResult = getProxyCompileResult("helloWorldGatewayWithRepeatedField.proto",
+                "helloWorldGatewayWithRepeatedField");
+        assertEquals(compileResult.getDiagnostics().length, 0);
+        assertEquals(((BLangPackage) compileResult.getAST()).getCompilationUnits().size(), 4,
+                "Expected compilation units not found in compile results.");
+        assertEquals(((BLangPackage) compileResult.getAST()).typeDefinitions.size(), 19,
+                "Expected type definitions not found in compile results.");
+        assertEquals(((BLangPackage) compileResult.getAST()).functions.size(), 31,
+                "Expected functions not found in compile results.");
+        assertEquals(((BLangPackage) compileResult.getAST()).globalVars.size(), 4,
+                "Expected global variables not found in compile results.");
+        assertEquals(((BLangPackage) compileResult.getAST()).imports.size(), 5,
+                "Expected imports not found in compile results.");
+        validateAttachedResources(compileResult, 2);
+    }
+
+    @Test(description = "Test gateway proxy without a http method definition")
+    public void testHelloWorldGatewayWithoutPath() throws IllegalAccessException, ClassNotFoundException,
+            InstantiationException {
+        CompileResult compileResult = getProxyCompileResult("helloWorldGatewayWithoutPath.proto",
+                "helloWorldGatewayWithoutPath");
+        assertEquals(compileResult.getDiagnostics().length, 0);
+        assertEquals(((BLangPackage) compileResult.getAST()).getCompilationUnits().size(), 4,
+                "Expected compilation units not found in compile results.");
+        assertEquals(((BLangPackage) compileResult.getAST()).typeDefinitions.size(), 17,
+                "Expected type definitions not found in compile results.");
+        assertEquals(((BLangPackage) compileResult.getAST()).functions.size(), 23,
+                "Expected functions not found in compile results.");
+        assertEquals(((BLangPackage) compileResult.getAST()).globalVars.size(), 4,
+                "Expected global variables not found in compile results.");
+        assertEquals(((BLangPackage) compileResult.getAST()).imports.size(), 5,
+                "Expected imports not found in compile results.");
+        validateAttachedResources(compileResult, 0);
+    }
+
     private void validatePublicAttachedFunctions(CompileResult compileResult) {
         for (BLangFunction function : ((BLangPackage) compileResult.getAST()).functions) {
             if (function.attachedFunction) {
@@ -340,6 +465,16 @@ public class StubGeneratorTestCase {
                         " not public");
             }
         }
+    }
+
+    private void validateAttachedResources(CompileResult compileResult, int resourceCount) {
+        int attachedResourceCount = 0;
+        for (BLangFunction function : ((BLangPackage) compileResult.getAST()).functions) {
+            if (function.attachedFunction && function.getFlags().contains(Flag.RESOURCE)) {
+                attachedResourceCount += 1;
+            }
+        }
+        assertEquals(attachedResourceCount, resourceCount );
     }
 
     private void validateEnumNode(CompileResult compileResult) {
@@ -376,10 +511,23 @@ public class StubGeneratorTestCase {
         return BCompileUtil.compile(outputFilePath.toString());
     }
 
+    private CompileResult getProxyCompileResult(String protoFilename, String testName)
+            throws ClassNotFoundException, InstantiationException, IllegalAccessException {
+        Class<?> grpcCmd = Class.forName("org.ballerinalang.protobuf.cmd.GrpcCmd");
+        GrpcCmd grpcCmd1 = (GrpcCmd) grpcCmd.newInstance();
+        Path protoFilePath = resourceDir.resolve(protoFilename);
+        grpcCmd1.setProtoPath(protoFilePath.toAbsolutePath().toString());
+        grpcCmd1.setMode("proxy");
+        Path proxyOutputDirPath = proxyServiceDirPath.resolve("src/"+testName);
+        grpcCmd1.setBalOutPath(proxyOutputDirPath.toAbsolutePath().toString());
+        grpcCmd1.execute();
+        return BCompileUtil.compile(proxyServiceDirPath, testName, false);
+        //return BCompileUtil.compile(proxyServiceDirPath.toString(), testName, false);
+    }
+
     @AfterClass
     public void clean() {
         BalFileGenerationUtils.delete(new File(TMP_DIRECTORY_PATH, protoExeName));
         BalFileGenerationUtils.delete(outputDirPath.toFile());
     }
-
 }

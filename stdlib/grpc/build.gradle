@@ -49,6 +49,7 @@ dependencies {
     interopImports project(':ballerina-io')
 
     implementation 'org.apache.commons:commons-lang3'
+    implementation 'com.google.api.grpc:proto-google-common-protos:1.17.0'
     implementation 'com.google.protobuf:protobuf-java'
     implementation 'com.github.jknack:handlebars'
     implementation 'io.netty:netty-codec-http'
