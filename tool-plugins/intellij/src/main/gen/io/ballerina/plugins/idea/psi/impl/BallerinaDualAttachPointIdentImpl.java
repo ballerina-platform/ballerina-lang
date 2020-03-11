@@ -44,6 +44,12 @@ public class BallerinaDualAttachPointIdentImpl extends ASTWrapperPsiElement impl
 
   @Override
   @Nullable
+  public PsiElement getTypeField() {
+    return findChildByType(TYPE_FIELD);
+  }
+
+  @Override
+  @Nullable
   public PsiElement getTypeParameter() {
     return findChildByType(TYPE_PARAMETER);
   }
@@ -58,6 +64,12 @@ public class BallerinaDualAttachPointIdentImpl extends ASTWrapperPsiElement impl
   @Nullable
   public PsiElement getObject() {
     return findChildByType(OBJECT);
+  }
+
+  @Override
+  @Nullable
+  public PsiElement getRecord() {
+    return findChildByType(RECORD);
   }
 
   @Override
@@ -80,20 +92,8 @@ public class BallerinaDualAttachPointIdentImpl extends ASTWrapperPsiElement impl
 
   @Override
   @Nullable
-  public PsiElement getStart() {
-    return findChildByType(START);
-  }
-
-  @Override
-  @Nullable
   public PsiElement getType() {
     return findChildByType(TYPE);
-  }
-
-  @Override
-  @Nullable
-  public PsiElement getWorker() {
-    return findChildByType(WORKER);
   }
 
 }
