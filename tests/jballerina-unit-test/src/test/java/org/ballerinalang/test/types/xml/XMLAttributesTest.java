@@ -340,8 +340,7 @@ public class XMLAttributesTest {
         Assert.assertEquals(returns[0].stringValue(), "5");
     }
 
-    @Test (groups = "brokenOnXMLLangLibChange",
-            description = "Test getting a xml attributes as a map using xmlElement@ syntax")
+    @Test (groups = "brokenOnXMLLangLibChange", description = "Test getting a xml attributes as a map using xmlElement@ syntax")
     public void testGetAttributeMap() {
         BValue[] returns = BRunUtil.invoke(xmlAttrProgFile, "testGetAttributeMap");
         Assert.assertTrue(returns[0] instanceof BMap);

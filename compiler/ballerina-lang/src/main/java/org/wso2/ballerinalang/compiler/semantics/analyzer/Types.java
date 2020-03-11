@@ -253,15 +253,6 @@ public class Types {
         return finiteType.getValueSpace().stream().anyMatch(valueExpr -> isBasicNumericType(valueExpr.type));
     }
 
-    private boolean containsNumericType(BType type) {
-        if (type.tag == TypeTags.UNION) {
-            return ((BUnionType) type).getMemberTypes().stream()
-                    .anyMatch(this::containsNumericType);
-        }
-
-        return isBasicNumericType(type);
-    }
-
     public boolean containsErrorType(BType type) {
         if (type.tag == TypeTags.UNION) {
             return ((BUnionType) type).getMemberTypes().stream()
@@ -484,6 +475,14 @@ public class Types {
         int targetTag = target.tag;
 
         if (sourceTag == TypeTags.BYTE && targetTag == TypeTags.INT) {
+            return true;
+        }
+
+        if (TypeTags.isXMLTypeTag(sourceTag) && targetTag == TypeTags.XML) {
+            return true;
+        }
+
+        if (sourceTag == TypeTags.CHAR_STRING && targetTag == TypeTags.STRING) {
             return true;
         }
 

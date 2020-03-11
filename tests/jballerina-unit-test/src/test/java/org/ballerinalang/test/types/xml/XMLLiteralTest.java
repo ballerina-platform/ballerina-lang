@@ -62,7 +62,7 @@ public class XMLLiteralTest {
         negativeResult = BCompileUtil.compile("test-src/types/xml/xml-literals-negative.bal");
     }
 
-    @Test
+    @Test (groups = "brokenOnXMLLangLibChange")
     public void testXMLNegativeSemantics() {
         int index = 0;
         BAssertUtil.validateError(negativeResult, index++, "invalid namespace prefix 'xmlns'", 5, 19);
@@ -114,7 +114,7 @@ public class XMLLiteralTest {
         Assert.assertEquals(index, negativeResult.getErrorCount());
     }
 
-    @Test
+    @Test (groups = "brokenOnXMLLangLibChange")
     public void testXMLTextLiteral() {
         BValue[] returns = BRunUtil.invoke(result, "testXMLTextLiteral");
         Assert.assertTrue(returns[0] instanceof BXML);
@@ -136,7 +136,7 @@ public class XMLLiteralTest {
         Assert.assertEquals(returns[5].stringValue(), " ");
     }
 
-    @Test
+    @Test (groups = "brokenOnXMLLangLibChange")
     public void testXMLCommentLiteral() {
         BValue[] returns = BRunUtil.invoke(result, "testXMLCommentLiteral");
         Assert.assertTrue(returns[0] instanceof BXML);
@@ -158,7 +158,7 @@ public class XMLLiteralTest {
         Assert.assertEquals(returns[5].stringValue(), "<!---->");
     }
 
-    @Test
+    @Test (groups = "brokenOnXMLLangLibChange")
     public void testXMLPILiteral() {
         BValue[] returns = BRunUtil.invoke(result, "testXMLPILiteral");
         Assert.assertTrue(returns[0] instanceof BXML);
@@ -177,7 +177,7 @@ public class XMLLiteralTest {
         Assert.assertEquals(returns[4].stringValue(), "<?foo  ?a?aa11b${bb22c}cc{d{}e}{f{?>");
     }
 
-    @Test
+    @Test (groups = "brokenOnXMLLangLibChange")
     public void testExpressionAsAttributeValue() {
         BValue[] returns = BRunUtil.invoke(result, "testExpressionAsAttributeValue");
         Assert.assertTrue(returns[0] instanceof BXML);
@@ -197,7 +197,7 @@ public class XMLLiteralTest {
         Assert.assertEquals(returns[4].stringValue(), "<foo bar=\"\"></foo>");
     }
 
-    @Test
+    @Test (groups = "brokenOnXMLLangLibChange")
     public void testElementLiteralWithTemplateChildren() {
         BValue[] returns = BRunUtil.invoke(result, "testElementLiteralWithTemplateChildren");
         Assert.assertTrue(returns[0] instanceof BXML);
@@ -213,7 +213,7 @@ public class XMLLiteralTest {
         Assert.assertEquals(items.size(), 7);
     }
 
-    @Test
+    @Test (groups = "brokenOnXMLLangLibChange")
     public void testXMLStartTag() {
         BValue[] returns = BRunUtil.invoke(result, "testXMLStartTag");
         Assert.assertTrue(returns[0] instanceof BXML);
@@ -229,7 +229,7 @@ public class XMLLiteralTest {
         Assert.assertEquals(returns[3].stringValue(), "<_-foo id=\"hello 5\">hello</_-foo>");
     }
 
-    @Test
+    @Test (groups = "brokenOnXMLLangLibChange")
     public void testXMLLiteralWithEscapeSequence() {
         BValue[] returns = BRunUtil.invoke(result, "testXMLLiteralWithEscapeSequence");
         Assert.assertTrue(returns[0] instanceof BXML);
@@ -250,7 +250,7 @@ public class XMLLiteralTest {
         return builder.toString();
     }
 
-    @Test
+    @Test (groups = "brokenOnXMLLangLibChange")
     public void testElementLiteralWithNamespaces() {
         BValue[] returns =
                 BRunUtil.invoke(literalWithNamespacesResult, "testElementLiteralWithNamespaces");
@@ -273,7 +273,7 @@ public class XMLLiteralTest {
         Assert.assertEquals(items.size(), 2);
     }
 
-    @Test
+    @Test (groups = "brokenOnXMLLangLibChange")
     public void testElementWithQualifiedName() {
         BValue[] returns = BRunUtil.invoke(literalWithNamespacesResult, "testElementWithQualifiedName");
         Assert.assertTrue(returns[0] instanceof BXML);
@@ -288,7 +288,7 @@ public class XMLLiteralTest {
                 "<ns1:root xmlns:ns1=\"http://ballerina.com/b\" xmlns=\"http://ballerina.com/\">hello</ns1:root>");
     }
 
-    @Test
+    @Test (groups = "brokenOnXMLLangLibChange")
     public void testDefineInlineNamespace() {
         BValue[] returns = BRunUtil.invoke(literalWithNamespacesResult, "testDefineInlineNamespace");
         Assert.assertTrue(returns[0] instanceof BXML);
@@ -296,7 +296,7 @@ public class XMLLiteralTest {
                 "<nsx:foo xmlns:nsx=\"http://wso2.com\" nsx:id=\"123\">hello</nsx:foo>");
     }
 
-    @Test
+    @Test (groups = "brokenOnXMLLangLibChange")
     public void testDefineInlineDefaultNamespace() {
         BValue[] returns =
                 BRunUtil.invoke(literalWithNamespacesResult, "testDefineInlineDefaultNamespace");
@@ -309,7 +309,7 @@ public class XMLLiteralTest {
                 "<foo xmlns=\"http://wso2.com\" xmlns:nsx=\"http://wso2.com/aaa\">hello</foo>");
     }
 
-    @Test
+    @Test (groups = "brokenOnXMLLangLibChange")
     public void testTextWithValidMultiTypeExpressions() {
         BValue[] returns = BRunUtil.invoke(result, "testTextWithValidMultiTypeExpressions");
         Assert.assertTrue(returns[0] instanceof BXMLItem);
@@ -317,7 +317,7 @@ public class XMLLiteralTest {
         Assert.assertEquals(returns[0].stringValue(), "hello 11 world. How 1.35 are you true?");
     }
 
-    @Test
+    @Test (groups = "brokenOnXMLLangLibChange")
     public void testArithmaticExpreesionInXMLTemplate() {
         BValue[] returns = BRunUtil.invoke(result, "testArithmaticExpreesionInXMLTemplate");
         Assert.assertTrue(returns[0] instanceof BXMLItem);
@@ -325,7 +325,7 @@ public class XMLLiteralTest {
         Assert.assertEquals(returns[0].stringValue(), "<foo id=\"hello 5\">hello</foo>");
     }
 
-    @Test
+    @Test (groups = "brokenOnXMLLangLibChange")
     public void testFunctionCallInXMLTemplate() {
         BValue[] returns = BRunUtil.invoke(result, "testFunctionCallInXMLTemplate");
         Assert.assertTrue(returns[0] instanceof BXMLItem);
@@ -333,7 +333,7 @@ public class XMLLiteralTest {
         Assert.assertEquals(returns[0].stringValue(), "<foo>&lt;--&gt;returned from a function</foo>");
     }
 
-    @Test
+    @Test (groups = "brokenOnXMLLangLibChange")
     public void testUsingNamespcesOfParent() {
         BValue[] returns = BRunUtil.invoke(literalWithNamespacesResult, "testUsingNamespcesOfParent");
         Assert.assertTrue(returns[0] instanceof BXMLItem);
@@ -350,7 +350,7 @@ public class XMLLiteralTest {
                 BCompileUtil.readFileAsString("test-src/types/xml/sampleXML.txt"));
     }
 
-    @Test
+    @Test (groups = "brokenOnXMLLangLibChange")
     public void testNamespaceDclr() {
         BValue[] returns = BRunUtil.invoke(literalWithNamespacesResult, "testNamespaceDclr");
         Assert.assertTrue(returns[0] instanceof BString);
@@ -363,7 +363,7 @@ public class XMLLiteralTest {
         Assert.assertEquals(returns[2].stringValue(), "{http://sample.com/wso2/d2}foo");
     }
 
-    @Test
+    @Test (groups = "brokenOnXMLLangLibChange")
     public void testInnerScopeNamespaceDclr() {
         BValue[] returns = BRunUtil.invoke(literalWithNamespacesResult, "testInnerScopeNamespaceDclr");
         Assert.assertTrue(returns[0] instanceof BString);
@@ -376,7 +376,7 @@ public class XMLLiteralTest {
         Assert.assertEquals(returns[2].stringValue(), "{http://ballerina.com/b}foo");
     }
 
-    @Test
+    @Test (groups = "brokenOnXMLLangLibChange")
     public void testPackageLevelXML() {
         CompileResult result = BCompileUtil.compile("test-src/types/xml/package_level_xml_literals.bal");
         BValue[] returns = BRunUtil.invoke(result, "testPackageLevelXML");
@@ -400,7 +400,7 @@ public class XMLLiteralTest {
         Assert.assertTrue(xml.stringValue().contains("<line2>Sigiriya</line2>"));
     }
 
-    @Test
+    @Test (groups = "brokenOnXMLLangLibChange")
     public void testObjectLevelXML() {
         BValue[] returns = BRunUtil.invoke(literalWithNamespacesResult, "testObjectLevelXML");
         Assert.assertTrue(returns[0] instanceof BXML);
@@ -424,8 +424,7 @@ public class XMLLiteralTest {
                 "<elem>42|3.14|31.4444|this-is-a-string|<abc></abc></elem>");
     }
 
-    @Test (groups = "brokenOnXMLLangLibChange",
-            description = "Test interpolating xml when there are extra dollar signs")
+    @Test (groups = "brokenOnXMLLangLibChange", description = "Test interpolating xml when there are extra dollar signs")
     public void testXMLLiteralWithExtraDollarSigns() {
         BValue[] returns = BRunUtil.invoke(result, "testDollarSignOnXMLLiteralTemplate");
         Assert.assertTrue(returns[0] instanceof BXML);
@@ -434,7 +433,7 @@ public class XMLLiteralTest {
         Assert.assertEquals(returns[2].stringValue(), "<foo id=\"hello $$ 5\">$$ hello</foo>");
     }
 
-    @Test
+    @Test (groups = "brokenOnXMLLangLibChange")
     public void testXMLSerialize() {
         BValue[] returns = BRunUtil.invoke(literalWithNamespacesResult, "getXML");
         Assert.assertTrue(returns[0] instanceof BXML);
@@ -446,7 +445,7 @@ public class XMLLiteralTest {
                 "<foo xmlns=\"http://wso2.com/\">hello</foo>");
     }
 
-    @Test
+    @Test (groups = "brokenOnXMLLangLibChange")
     public void testXMLToString() {
         XMLValue xml = XMLFactory.parse("<?xml version=\"1.0\" encoding=\"UTF-8\"?>" +
                 "<!DOCTYPE foo [<!ELEMENT foo ANY ><!ENTITY data \"Example\" >]><foo>&data;</foo>");

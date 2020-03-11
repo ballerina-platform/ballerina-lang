@@ -1662,13 +1662,14 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     private boolean isXmlAccess(BLangFieldBasedAccess fieldAccessExpr) {
-        if (fieldAccessExpr.expr.type.tag == TypeTags.XML) {
+        if (fieldAccessExpr.expr.type.tag == TypeTags.XML || fieldAccessExpr.expr.type.tag == TypeTags.XML_ELEMENT) {
             return true;
         }
 
         if ((fieldAccessExpr.expr.getKind() == NodeKind.FIELD_BASED_ACCESS_EXPR
                 && hasLaxOriginalType((BLangFieldBasedAccess) fieldAccessExpr.expr)
-                && ((BUnionType) fieldAccessExpr.expr.type).getMemberTypes().contains(symTable.xmlType))) {
+                && (((BUnionType) fieldAccessExpr.expr.type).getMemberTypes().contains(symTable.xmlType))
+                    || ((BUnionType) fieldAccessExpr.expr.type).getMemberTypes().contains(symTable.xmlElementType))) {
             return true;
         }
 
@@ -2687,36 +2688,9 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     public void visit(BLangXMLAttributeAccess xmlAttributeAccessExpr) {
-        BType actualType = symTable.semanticError;
-
-        // First analyze the variable reference expression.
-        checkExpr(xmlAttributeAccessExpr.expr, env, symTable.xmlType);
-
-        // Then analyze the index expression.
-        BLangExpression indexExpr = xmlAttributeAccessExpr.indexExpr;
-        if (indexExpr == null) {
-            if (xmlAttributeAccessExpr.lhsVar) {
-                dlog.error(xmlAttributeAccessExpr.pos,
-                           DiagnosticCode.XML_ATTRIBUTE_MAP_UPDATE_NOT_ALLOWED);
-            } else {
-                actualType = BUnionType.create(null, symTable.mapStringType, symTable.nilType);
-            }
-            resultType = types.checkType(xmlAttributeAccessExpr, actualType, expType);
-            return;
-        }
-
-        checkExpr(indexExpr, env, symTable.stringType);
-
-        if (indexExpr.type.tag == TypeTags.STRING) {
-            if (xmlAttributeAccessExpr.lhsVar) {
-                actualType = symTable.stringType;
-            } else {
-                actualType = BUnionType.create(null, symTable.stringType, symTable.nilType);
-            }
-        }
-
-        xmlAttributeAccessExpr.namespaces.putAll(symResolver.resolveAllNamespaces(env));
-        resultType = types.checkType(xmlAttributeAccessExpr, actualType, expType);
+        dlog.error(xmlAttributeAccessExpr.pos,
+                           DiagnosticCode.DEPRECATED_XML_ATTRIBUTE_ACCESS);
+        resultType = symTable.semanticError;
     }
 
     public void visit(BLangStringTemplateLiteral stringTemplateLiteral) {
@@ -2862,8 +2836,7 @@ public class TypeChecker extends BLangNodeVisitor {
         }
         // Log an error and define a symbol with the node's type to avoid undeclared symbol errors.
         if (typeNodeType != symTable.semanticError) {
-            dlog.error(variableNode.typeNode.pos, DiagnosticCode.INCOMPATIBLE_TYPES, fromClause.varType,
-                   typeNodeType);
+            dlog.error(variableNode.typeNode.pos, DiagnosticCode.INCOMPATIBLE_TYPES, fromClause.varType, typeNodeType);
         }
         semanticAnalyzer.handleDeclaredVarInForeach(variableNode, typeNodeType, blockEnv);
     }
@@ -4335,7 +4308,7 @@ public class TypeChecker extends BLangNodeVisitor {
             actualType = BUnionType.create(null, laxFieldAccessType, symTable.errorType);
             fieldAccessExpr.errorSafeNavigation = true;
             fieldAccessExpr.originalType = laxFieldAccessType;
-        } else if (varRefType.tag == TypeTags.XML) {
+        } else if (TypeTags.isXMLTypeTag(varRefType.tag)) {
             if (fieldAccessExpr.lhsVar) {
                 dlog.error(fieldAccessExpr.pos, DiagnosticCode.CANNOT_UPDATE_XML_SEQUENCE);
             }
@@ -4373,6 +4346,7 @@ public class TypeChecker extends BLangNodeVisitor {
             case TypeTags.JSON:
                 return symTable.jsonType;
             case TypeTags.XML:
+            case TypeTags.XML_ELEMENT:
                 return symTable.stringType;
             case TypeTags.MAP:
                 return ((BMapType) exprType).constraint;
