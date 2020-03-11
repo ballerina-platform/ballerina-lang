@@ -37,8 +37,8 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAP;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBSERVABLE_ANNOTATION;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBSERVE_UTILS;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_VALUE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.cleanupFunctionName;
 
 /**
  * BIR observability model to JVM byte code generation class.
@@ -47,31 +47,18 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_VA
  */
 class JvmObservabilityGen {
 
-    static void emitStopObservationInvocation(MethodVisitor mv, int strandIndex) {
-
-        mv.visitVarInsn(ALOAD, strandIndex);
-        mv.visitMethodInsn(INVOKESTATIC, OBSERVE_UTILS, "stopObservation",
-                String.format("(L%s;)V", STRAND), false);
+    static void emitStopObservationInvocation(MethodVisitor mv) {
+        mv.visitMethodInsn(INVOKESTATIC, OBSERVE_UTILS, "stopObservation", "()V", false);
     }
 
-    static void emitReportErrorInvocation(MethodVisitor mv, int strandIndex, int errorIndex) {
-
-        mv.visitVarInsn(ALOAD, strandIndex);
+    static void emitReportErrorInvocation(MethodVisitor mv, int errorIndex) {
         mv.visitVarInsn(ALOAD, errorIndex);
-        mv.visitMethodInsn(INVOKESTATIC, OBSERVE_UTILS, "reportError",
-                String.format("(L%s;L%s;)V", STRAND, ERROR_VALUE), false);
+        mv.visitMethodInsn(INVOKESTATIC, OBSERVE_UTILS, "reportError", String.format("(L%s;)V", ERROR_VALUE), false);
     }
 
-    static void emitStartObservationInvocation(MethodVisitor mv, int strandIndex, String serviceOrConnectorName,
-                                               String resourceOrActionName, String observationStartMethod) {
-        emitStartObservationInvocation(mv, strandIndex, serviceOrConnectorName, resourceOrActionName,
-                observationStartMethod, null);
-    }
-
-    static void emitStartObservationInvocation(MethodVisitor mv, int strandIndex, String serviceOrConnectorName,
+    static void emitStartObservationInvocation(MethodVisitor mv, String serviceOrConnectorName,
                                                String resourceOrActionName, String observationStartMethod,
                                                Map<String, String> tags) {
-        mv.visitVarInsn(ALOAD, strandIndex);
         mv.visitLdcInsn(cleanUpServiceName(serviceOrConnectorName));
         mv.visitLdcInsn(resourceOrActionName);
 
@@ -94,7 +81,7 @@ class JvmObservabilityGen {
         }
 
         mv.visitMethodInsn(INVOKESTATIC, OBSERVE_UTILS, observationStartMethod,
-                String.format("(L%s;L%s;L%s;L%s;)V", STRAND, STRING_VALUE, STRING_VALUE, MAP), false);
+                String.format("(L%s;L%s;L%s;)V", STRING_VALUE, STRING_VALUE, MAP), false);
     }
 
     private static String cleanUpServiceName(String serviceName) {
@@ -119,7 +106,7 @@ class JvmObservabilityGen {
 
     static boolean isFunctionObserved(BIRFunction func) {
         boolean isObserved = false;
-        String funcName = JvmMethodGen.cleanupFunctionName(func.name.value);
+        String funcName = cleanupFunctionName(func.name.value);
         if (!Objects.equals(funcName, "__init") && !Objects.equals(funcName, "$__init$")) {
             boolean isRemote = (func.flags & Flags.REMOTE) == Flags.REMOTE;
             if (isRemote) {
