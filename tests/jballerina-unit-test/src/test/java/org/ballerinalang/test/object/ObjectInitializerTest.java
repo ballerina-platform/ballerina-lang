@@ -291,6 +291,11 @@ public class ObjectInitializerTest {
 
     @Test(description = "Test invoking '__init' function with function pointer args")
     public void testFunctionPointerAsDefaultableParam1() {
-        BRunUtil.invoke(compileResult, "testFunctionPointerAsDefaultableParam");
+        BRunUtil.invoke(compileResult, "testFunctionPointerAsDefaultableParam1");
+    }
+
+    @Test(description = "Test invoking '__init' function with lambda function args")
+    public void testFunctionPointerAsDefaultableParam2() {
+        BRunUtil.invoke(compileResult, "testFunctionPointerAsDefaultableParam2");
     }
 }

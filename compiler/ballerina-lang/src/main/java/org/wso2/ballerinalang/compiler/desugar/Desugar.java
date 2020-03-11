@@ -442,6 +442,10 @@ public class Desugar extends BLangNodeVisitor {
         if (expr == null) {
             return null;
         }
+        if (expr.getKind() == NodeKind.LAMBDA) {
+            BLangFunction func = ((BLangLambdaFunction) expr).function;
+            return createLambdaFunction(func.pos, func.name.value, func.requiredParams, func.returnTypeNode, func.body);
+        }
         // Since the expression of the requiredParam of both init functions refer to same object,
         // expression should be cloned.
         BLangExpression expression = this.nodeCloner.clone(expr);
@@ -4198,6 +4202,7 @@ public class Desugar extends BLangNodeVisitor {
 
         lambdaFunction.function.pos = bLangArrowFunction.pos;
         lambdaFunction.function.body.pos = bLangArrowFunction.pos;
+        // At this phase lambda function is semantically correct. Therefore simply env can be assigned.
         lambdaFunction.capturedClosureEnv = env;
         rewrite(lambdaFunction.function, env);
         env.enclPkg.addFunction(lambdaFunction.function);
