@@ -70,6 +70,7 @@ import static org.wso2.transport.http.netty.contract.Constants.INBOUND_REQUEST;
 import static org.wso2.transport.http.netty.contract.Constants.LISTENER_INTERFACE_ID;
 import static org.wso2.transport.http.netty.contract.Constants.LISTENER_PORT;
 import static org.wso2.transport.http.netty.contract.Constants.LOCAL_ADDRESS;
+import static org.wso2.transport.http.netty.contract.Constants.MUTUAL_SSL_HANDSHAKE_RESULT;
 import static org.wso2.transport.http.netty.contract.Constants.POOLED_BYTE_BUFFER_FACTORY;
 import static org.wso2.transport.http.netty.contract.Constants.PROMISED_STREAM_REJECTED_ERROR;
 import static org.wso2.transport.http.netty.contract.Constants.PROTOCOL;
@@ -144,6 +145,8 @@ public class Http2StateUtil {
         sourceReqCMsg.setProperty(LISTENER_PORT, localAddress != null ? localAddress.getPort() : null);
         sourceReqCMsg.setProperty(LISTENER_INTERFACE_ID, http2SourceHandler.getInterfaceId());
         sourceReqCMsg.setProperty(PROTOCOL, HTTP_SCHEME);
+        sourceReqCMsg.setProperty(MUTUAL_SSL_HANDSHAKE_RESULT,
+                ctx.channel().attr(Constants.MUTUAL_SSL_RESULT_ATTRIBUTE).get());
         String uri = httpRequest.uri();
         sourceReqCMsg.setRequestUrl(uri);
         sourceReqCMsg.setProperty(TO, uri);

@@ -82,8 +82,13 @@ import org.wso2.transport.http.netty.message.PooledDataStreamerFactory;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.channels.ClosedChannelException;
+import java.security.cert.Certificate;
+import java.security.cert.CertificateExpiredException;
+import java.security.cert.CertificateNotYetValidException;
+import java.security.cert.X509Certificate;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Date;
 import java.util.Map;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
@@ -92,6 +97,7 @@ import java.util.regex.Pattern;
 import javax.net.ssl.SSLEngine;
 import javax.net.ssl.SSLException;
 import javax.net.ssl.SSLParameters;
+import javax.net.ssl.SSLPeerUnverifiedException;
 
 import static io.netty.handler.codec.http.HttpHeaderNames.TRAILER;
 import static org.wso2.transport.http.netty.contract.Constants.COLON;
@@ -100,7 +106,10 @@ import static org.wso2.transport.http.netty.contract.Constants.HTTP_HOST;
 import static org.wso2.transport.http.netty.contract.Constants.HTTP_PORT;
 import static org.wso2.transport.http.netty.contract.Constants.HTTP_SCHEME;
 import static org.wso2.transport.http.netty.contract.Constants.IS_PROXY_ENABLED;
+import static org.wso2.transport.http.netty.contract.Constants.MUTUAL_SSL_DISABLED;
+import static org.wso2.transport.http.netty.contract.Constants.MUTUAL_SSL_FAILED;
 import static org.wso2.transport.http.netty.contract.Constants.MUTUAL_SSL_HANDSHAKE_RESULT;
+import static org.wso2.transport.http.netty.contract.Constants.MUTUAL_SSL_PASSED;
 import static org.wso2.transport.http.netty.contract.Constants.OK_200;
 import static org.wso2.transport.http.netty.contract.Constants.PROTOCOL;
 import static org.wso2.transport.http.netty.contract.Constants
@@ -1044,5 +1053,23 @@ public class Util {
         }
         LOG.warn("Both Forwarded and X-Forwarded-- headers are present. Hence updating only the forwarded header");
         headerUpdater.setForwardedHeader();
+    }
+
+    public static void setMutualSslStatus(ChannelHandlerContext ctx, SSLEngine sslEngine) {
+        if (sslEngine.getWantClientAuth() || sslEngine.getNeedClientAuth()) {
+            try {
+                // When retrieving certificates, if the client hasn't provided any certificates, it will throw the
+                // SSLPeerUnverifiedException exception. That means mutual ssl has failed. Only 1-way ssl has
+                // succeeded.
+                Certificate[] certs = sslEngine.getSession().getPeerCertificates();
+                X509Certificate endUserCert = (X509Certificate) certs[0];
+                endUserCert.checkValidity(new Date());
+                ctx.channel().attr(Constants.MUTUAL_SSL_RESULT_ATTRIBUTE).set(MUTUAL_SSL_PASSED);
+            } catch (SSLPeerUnverifiedException | CertificateExpiredException | CertificateNotYetValidException e) {
+                ctx.channel().attr(Constants.MUTUAL_SSL_RESULT_ATTRIBUTE).set(MUTUAL_SSL_FAILED);
+            }
+        } else {
+            ctx.channel().attr(Constants.MUTUAL_SSL_RESULT_ATTRIBUTE).set(MUTUAL_SSL_DISABLED);
+        }
     }
 }
