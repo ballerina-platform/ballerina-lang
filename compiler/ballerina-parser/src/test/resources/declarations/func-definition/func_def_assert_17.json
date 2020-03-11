@@ -1,0 +1,64 @@
+{
+    "kind": "FUNCTION_DEFINITION",
+    "children": [
+        {
+            "kind": "FUNCTION_KEYWORD"
+        },
+        {
+            "kind": "IDENTIFIER_TOKEN",
+            "value": "foo"
+        },
+        {
+            "kind": "OPEN_PAREN_TOKEN",
+            "isMissing": true
+        },
+        {
+            "kind": "LIST",
+            "children": [
+            ]
+        },
+        {
+            "kind": "CLOSE_PAREN_TOKEN"
+        },
+        {
+            "kind": "BLOCK_STATEMENT",
+            "children": [
+                {
+                    "kind": "OPEN_BRACE_TOKEN",
+                    "isMissing": true
+                },
+                {
+                    "kind": "LIST",
+                    "children": [
+                        {
+                            "kind": "LOCAL_VARIABLE_DECL",
+                            "children": [
+                                {
+                                    "kind": "TYPE_TOKEN",
+                                    "value": "int"
+                                },
+                                {
+                                    "kind": "IDENTIFIER_TOKEN",
+                                    "value": "x"
+                                },
+                                {
+                                    "kind": "EQUAL_TOKEN"
+                                },
+                                {
+                                    "kind": "IDENTIFIER_TOKEN",
+                                    "value": "hello"
+                                },
+                                {
+                                    "kind": "SEMICOLON_TOKEN"
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "kind": "CLOSE_BRACE_TOKEN"
+                }
+            ]
+        }
+    ]
+}

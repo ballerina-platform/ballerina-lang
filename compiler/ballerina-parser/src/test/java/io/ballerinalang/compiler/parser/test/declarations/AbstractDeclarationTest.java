@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package io.ballerinalang.compiler.parser.test.expressions;
+package io.ballerinalang.compiler.parser.test.declarations;
 
 import io.ballerinalang.compiler.internal.parser.ParserRuleContext;
 import io.ballerinalang.compiler.parser.test.ParserTestUtils;
@@ -25,9 +25,10 @@ import java.nio.file.Paths;
 /**
  * Test parsing expressions.
  */
-public class AbstractExpressionsTest {
+public class AbstractDeclarationTest {
 
-    void test(String source, String filePath) {
-        ParserTestUtils.test(source, ParserRuleContext.EXPRESSION, Paths.get("expressions", filePath));
+    void test(String sourceFilePath, String filePath) {
+        ParserTestUtils.test(Paths.get("declarations/", sourceFilePath), ParserRuleContext.TOP_LEVEL_NODE_WITH_MODIFIER,
+                Paths.get("declarations/", filePath));
     }
 }

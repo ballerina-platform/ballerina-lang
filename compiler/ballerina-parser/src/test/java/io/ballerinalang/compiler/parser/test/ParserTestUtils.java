@@ -30,6 +30,11 @@ import io.ballerinalang.compiler.internal.parser.tree.SyntaxKind;
 import org.testng.Assert;
 
 import java.io.FileReader;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 /**
  * Convenient methods for testing the parser.
@@ -38,7 +43,7 @@ import java.io.FileReader;
  */
 public class ParserTestUtils {
 
-    private static final String RESOURCE_DIRECTORY = "src/test/resources/";
+    private static final Path RESOURCE_DIRECTORY = Paths.get("src/test/resources/");
     private static final String KIND_FIELD = "kind";
     private static final String CHILDREN_FIELD = "children";
     private static final String VALUE_FIELD = "value";
@@ -47,26 +52,43 @@ public class ParserTestUtils {
     /**
      * Test parsing a valid source.
      * 
-     * @param source Input source that represent a valid ballerina code
+     * @param sourceFilePath Path to the ballerina file
      * @param context Context to start parsing the given source
      * @param assertFilePath File to assert the resulting tree after parsing
      */
-    public static void test(String source, ParserRuleContext context, String assertFilePath) {
+    public static void test(Path sourceFilePath, ParserRuleContext context, Path assertFilePath) {
+        try {
+            String content =
+                    new String(Files.readAllBytes(RESOURCE_DIRECTORY.resolve(sourceFilePath)), StandardCharsets.UTF_8);
+            test(content, context, assertFilePath);
+        } catch (IOException e) {
+            Assert.fail();
+        }
+    }
+
+    /**
+     * Test parsing a valid source.
+     * 
+     * @param source Input source that represent a ballerina code
+     * @param context Context to start parsing the given source
+     * @param assertFilePath File to assert the resulting tree after parsing
+     */
+    public static void test(String source, ParserRuleContext context, Path assertFilePath) {
         // Parse the source
         BallerinaParser parser = new BallerinaParser(source);
         parser.parse(context);
 
         // Read the assertion file
-        JsonObject assertJson = readAssertFile(RESOURCE_DIRECTORY + assertFilePath);
+        JsonObject assertJson = readAssertFile(RESOURCE_DIRECTORY.resolve(assertFilePath));
 
         // Validate the tree against the assertion file
         assertNode(parser.getTree(), assertJson);
     }
 
-    private static JsonObject readAssertFile(String filePath) {
+    private static JsonObject readAssertFile(Path filePath) {
         Gson gson = new Gson();
         try {
-            return gson.fromJson(new FileReader(filePath), JsonObject.class);
+            return gson.fromJson(new FileReader(filePath.toFile()), JsonObject.class);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -76,7 +98,8 @@ public class ParserTestUtils {
         aseertNodeKind(json, node);
 
         if (isMissingToken(json)) {
-            Assert.assertTrue(node instanceof STMissingToken);
+            Assert.assertTrue(node instanceof STMissingToken,
+                    "'" + node.toString().trim() + "' expected to be a STMissingToken, but found '" + node.kind + "'.");
             return;
         }
 
@@ -118,17 +141,32 @@ public class ParserTestUtils {
         int size = children.size();
         int j = 0;
 
+        Assert.assertEquals(getNonEmptyChildCount(tree), size, "mismatching child count for '" + tree.toString() + "'");
+
         for (int i = 0; i < size; i++) {
             // Skip the optional fields that are not present and get the next
             // available node.
             STNode nextChild = tree.childInBucket(j++);
-            while (nextChild == null || nextChild.kind == SyntaxKind.NONE) {
+            while (nextChild.kind == SyntaxKind.NONE) {
                 nextChild = tree.childInBucket(j++);
             }
 
             // Assert the actual child node against the expected child node.
             assertNode(nextChild, (JsonObject) children.get(i));
         }
+    }
+
+    private static int getNonEmptyChildCount(STNode tree) {
+        int count = 0;
+        for (int i = 0; i < tree.bucketCount(); i++) {
+            STNode nextChild = tree.childInBucket(i);
+            if (nextChild.kind == SyntaxKind.NONE) {
+                continue;
+            }
+            count++;
+        }
+
+        return count;
     }
 
     private static boolean isTerminalNode(SyntaxKind syntaxKind) {
@@ -141,6 +179,25 @@ public class ParserTestUtils {
 
     private static SyntaxKind getNodeKind(String kind) {
         switch (kind) {
+            case "FUNCTION_DEFINITION":
+                return SyntaxKind.FUNCTION_DEFINITION;
+            case "PUBLIC_KEYWORD":
+                return SyntaxKind.PUBLIC_KEYWORD;
+            case "FUNCTION_KEYWORD":
+                return SyntaxKind.FUNCTION_KEYWORD;
+            case "LIST":
+                return SyntaxKind.LIST;
+            case "RETURN_TYPE_DESCRIPTOR":
+                return SyntaxKind.RETURN_TYPE_DESCRIPTOR;
+            case "RETURNS_KEYWORD":
+                return SyntaxKind.RETURNS_KEYWORD;
+            case "EXTERNAL_FUNCTION_BODY":
+                return SyntaxKind.EXTERNAL_FUNCTION_BODY;
+            case "EXTERNAL_KEYWORD":
+                return SyntaxKind.EXTERNAL_KEYWORD;
+            case "PARAMETER":
+                return SyntaxKind.PARAMETER;
+
             // Operators
             case "PLUS_TOKEN":
                 return SyntaxKind.PLUS_TOKEN;

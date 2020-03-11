@@ -225,6 +225,7 @@ public class BallerinaParserErrorHandler {
             case BINARY_EXPR_RHS:
             case PARAMETER_RHS:
             case ASSIGNMENT_OR_VAR_DECL_STMT_RHS:
+            case AFTER_PARAMETER_TYPE:
                 return true;
             default:
                 return false;
@@ -562,13 +563,18 @@ public class BallerinaParserErrorHandler {
             currentMatches++;
             nextToken = this.tokenReader.peek(lookahead);
             ParserRuleContext nextContext;
+
+            // TODO: there can be more ways an expression can end. Add those here
             if (isEndOfExpression(nextToken)) {
-                // Here we assume the end of an expression is always a semicolon
-                // TODO: add other types of expression-end
                 ParserRuleContext parentCtx = getParentContext();
+
+                // Expression in a parameter-rhs can be terminated by a comma or a the closing parenthesis.
                 if (isParameter(parentCtx)) {
-                    nextContext = ParserRuleContext.COMMA;
-                } else if (isStatement(parentCtx)) {
+                    ParserRuleContext[] next = { ParserRuleContext.COMMA, ParserRuleContext.CLOSE_PARENTHESIS };
+                    return seekInAlternativesPaths(lookahead, currentDepth, currentMatches, next);
+                }
+
+                if (isStatement(parentCtx)) {
                     nextContext = ParserRuleContext.SEMICOLON;
                 } else {
                     throw new IllegalStateException();
@@ -967,6 +973,15 @@ public class BallerinaParserErrorHandler {
                 }
             case FOLLOW_UP_PARAM:
                 return ParserRuleContext.COMMA;
+            case AFTER_PARAMETER_TYPE:
+                parentCtx = getParentContext();
+                if (parentCtx == ParserRuleContext.REQUIRED_PARAM || parentCtx == ParserRuleContext.DEFAULTABLE_PARAM) {
+                    return ParserRuleContext.VARIABLE_NAME;
+                } else if (parentCtx == ParserRuleContext.REST_PARAM) {
+                    return ParserRuleContext.ELLIPSIS;
+                } else {
+                    throw new IllegalStateException();
+                }
             case ANNOTATION_ATTACHMENT:
             default:
                 throw new IllegalStateException("cannot find the next rule for: " + currentCtx);

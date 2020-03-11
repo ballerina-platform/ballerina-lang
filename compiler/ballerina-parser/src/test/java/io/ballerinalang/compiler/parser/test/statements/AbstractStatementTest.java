@@ -20,12 +20,14 @@ package io.ballerinalang.compiler.parser.test.statements;
 import io.ballerinalang.compiler.internal.parser.ParserRuleContext;
 import io.ballerinalang.compiler.parser.test.ParserTestUtils;
 
+import java.nio.file.Paths;
+
 /**
  * Test parsing expressions.
  */
 public class AbstractStatementTest {
 
     void test(String source, String filePath) {
-        ParserTestUtils.test(source, ParserRuleContext.STATEMENT, "statements/" + filePath);
+        ParserTestUtils.test(source, ParserRuleContext.STATEMENT, Paths.get("statements/", filePath));
     }
 }

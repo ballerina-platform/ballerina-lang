@@ -151,6 +151,9 @@ public class BallerinaParser {
             case VAR_DECL_STMT_RHS:
                 parseVarDeclRhs();
                 break;
+            case AFTER_PARAMETER_TYPE:
+                parseAfterParamType();
+                break;
             case PARAMETER_RHS:
                 parseParameterRhs();
                 break;
@@ -526,22 +529,42 @@ public class BallerinaParser {
         }
 
         parseTypeDescriptor(token.kind);
-
-        // Rest Parameter
-        token = peek();
-        if (token.kind == SyntaxKind.ELLIPSIS_TOKEN) {
-            this.currentParamKind = ParserRuleContext.REST_PARAM;
-            switchContext(ParserRuleContext.REST_PARAM);
-            parseSyntaxNode(); // parse '...'
-            parseVariableName();
-            this.listner.exitRestParameter();
-            endContext();
-            return;
-        }
-
-        parseVariableName(token.kind);
-        parseParameterRhs();
+        parseAfterParamType();
         endContext();
+    }
+
+    private void parseAfterParamType() {
+        STToken token = peek();
+        parseAfterParamType(token.kind);
+    }
+
+    private void parseAfterParamType(SyntaxKind tokenKind) {
+        switch (tokenKind) {
+            case ELLIPSIS_TOKEN:
+                this.currentParamKind = ParserRuleContext.REST_PARAM;
+                switchContext(ParserRuleContext.REST_PARAM);
+                parseSyntaxNode(); // parse '...'
+                parseVariableName();
+                this.listner.exitRestParameter();
+                break;
+            case IDENTIFIER_TOKEN:
+                parseVariableName();
+                parseParameterRhs();
+                break;
+            default:
+                STToken token = peek();
+                Solution solution = recover(token, ParserRuleContext.AFTER_PARAMETER_TYPE);
+
+                // If the parser recovered by inserting a token, then try to re-parse the same
+                // rule with the inserted token. This is done to pick the correct branch
+                // to continue the parsing.
+                if (solution.action != Action.INSERT) {
+                    return;
+                }
+
+                parseAfterParamType(solution.tokenKind);
+                break;
+        }
     }
 
     /**

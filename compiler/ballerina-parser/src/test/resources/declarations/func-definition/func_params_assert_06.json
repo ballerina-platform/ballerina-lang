@@ -1,0 +1,124 @@
+{
+    "kind": "FUNCTION_DEFINITION",
+    "children": [
+        {
+            "kind": "FUNCTION_KEYWORD"
+        },
+        {
+            "kind": "IDENTIFIER_TOKEN",
+            "value": "foo"
+        },
+        {
+            "kind": "OPEN_PAREN_TOKEN"
+        },
+        {
+            "kind": "LIST",
+            "children": [
+                {
+                    "kind": "PARAMETER",
+                    "children": [
+                        {
+                            "kind": "TYPE_TOKEN",
+                            "value": "int"
+                        },
+                        {
+                            "kind": "IDENTIFIER_TOKEN",
+                            "value": "a"
+                        }
+                    ]
+                },
+                {
+                    "kind": "PARAMETER",
+                    "children": [
+                        {
+                            "kind": "COMMA_TOKEN"
+                        },
+                        {
+                            "kind": "TYPE_TOKEN",
+                            "value": "int"
+                        },
+                        {
+                            "kind": "IDENTIFIER_TOKEN",
+                            "value": "b"
+                        },
+                        {
+                            "kind": "EQUAL_TOKEN"
+                        },
+                        {
+                            "kind": "BINARY_EXPRESSION",
+                            "children": [
+                                {
+                                    "kind": "NUMERIC_LITERAL_TOKEN",
+                                    "value": "7"
+                                },
+                                {
+                                    "kind": "PLUS_TOKEN",
+                                    "isMissing": true
+                                },
+                                {
+                                    "kind": "NUMERIC_LITERAL_TOKEN",
+                                    "value": "8"
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "kind": "PARAMETER",
+                    "children": [
+                        {
+                            "kind": "COMMA_TOKEN"
+                        },
+                        {
+                            "kind": "TYPE_TOKEN",
+                            "value": "int"
+                        },
+                        {
+                            "kind": "IDENTIFIER_TOKEN",
+                            "value": "c"
+                        },
+                        {
+                            "kind": "EQUAL_TOKEN"
+                        },
+                        {
+                            "kind": "BINARY_EXPRESSION",
+                            "children": [
+                                {
+                                    "kind": "IDENTIFIER_TOKEN",
+                                    "value": "a"
+                                },
+                                {
+                                    "kind": "PLUS_TOKEN",
+                                    "isMissing": true
+                                },
+                                {
+                                    "kind": "IDENTIFIER_TOKEN",
+                                    "value": "b"
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "kind": "CLOSE_PAREN_TOKEN"
+        },
+        {
+            "kind": "BLOCK_STATEMENT",
+            "children": [
+                {
+                    "kind": "OPEN_BRACE_TOKEN"
+                },
+                {
+                    "kind": "LIST",
+                    "children": [
+                    ]
+                },
+                {
+                    "kind": "CLOSE_BRACE_TOKEN"
+                }
+            ]
+        }
+    ]
+}

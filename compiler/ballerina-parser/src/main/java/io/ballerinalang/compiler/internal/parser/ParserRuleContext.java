@@ -35,6 +35,7 @@ public enum ParserRuleContext {
     REQUIRED_PARAM("parameter"),
     DEFAULTABLE_PARAM("defaultable-parameter"),
     REST_PARAM("rest-parameter"),
+    AFTER_PARAMETER_TYPE("after-parameter-type"),
     PARAMETER_RHS("parameter-rhs"),
     FOLLOW_UP_PARAM("follow-up-param"),
     ANNOTATION_ATTACHMENT("annotation"),
@@ -65,6 +66,7 @@ public enum ParserRuleContext {
     VARIABLE_NAME("variable"),
     BINARY_OPERATOR("binary-operator"),
     COMMA(","),
+    ELLIPSIS("..."),
 
     // expressions
     EXPRESSION("expression"),
