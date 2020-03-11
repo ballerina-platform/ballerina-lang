@@ -162,8 +162,8 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
         validateNoParameters(constant);
         validateReturnParameter(constant, null, false);
         validateReferences(constant);
-        validateDeprecationDocumentation(constant.markdownDocumentationAttachment, constant.symbol.isDeprecated,
-                constant.pos);
+        validateDeprecationDocumentation(constant.markdownDocumentationAttachment,
+                Symbols.isFlagOn(constant.symbol.flags, Flags.DEPRECATED), constant.pos);
     }
 
     @Override
@@ -187,8 +187,8 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
             hasReturn = ((BLangValueType) funcNode.returnTypeNode).typeKind != TypeKind.NIL;
         }
         validateReturnParameter(funcNode, funcNode, hasReturn);
-        validateDeprecationDocumentation(funcNode.markdownDocumentationAttachment, funcNode.symbol.isDeprecated,
-                funcNode.pos);
+        validateDeprecationDocumentation(funcNode.markdownDocumentationAttachment,
+                Symbols.isFlagOn(funcNode.symbol.flags, Flags.DEPRECATED), funcNode.pos);
     }
 
     @Override
@@ -229,7 +229,7 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
             }
         }
         validateDeprecationDocumentation(typeDefinition.markdownDocumentationAttachment,
-                typeDefinition.symbol.isDeprecated, typeDefinition.pos);
+                Symbols.isFlagOn(typeDefinition.symbol.flags, Flags.DEPRECATED), typeDefinition.pos);
     }
 
     @Override
@@ -252,7 +252,7 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
         }
 
         if (isDeprecationDocumentationAvailable && !isDeprecationAnnotationAvailable) {
-            dlog.error(pos, DiagnosticCode.DEPRECATION_ANNOTATION_SHOULD_BE_AVAILABLE);
+            dlog.error(pos, DiagnosticCode.INVALID_DEPRECATION_DOCUMENTATION);
         } else if (!isDeprecationDocumentationAvailable && isDeprecationAnnotationAvailable) {
             dlog.error(pos, DiagnosticCode.DEPRECATION_DOCUMENTATION_SHOULD_BE_AVAILABLE);
         }

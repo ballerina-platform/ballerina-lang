@@ -1345,8 +1345,8 @@ public class TypeChecker extends BLangNodeVisitor {
                     actualType = symTable.semanticError;
                     dlog.error(varRefExpr.pos, DiagnosticCode.CANNOT_UPDATE_CONSTANT_VALUE);
                 }
-                if (symbol.isDeprecated) {
-                    dlog.warning(varRefExpr.pos, DiagnosticCode.DEPRECATED, varName.getValue());
+                if (Symbols.isFlagOn(symbol.flags, Flags.DEPRECATED)) {
+                    dlog.warning(varRefExpr.pos, DiagnosticCode.USAGE_OF_DEPRECATED_CONSTRUCT, varName.getValue());
                 }
             } else {
                 dlog.error(varRefExpr.pos, DiagnosticCode.UNDEFINED_SYMBOL, varName.toString());
@@ -3079,8 +3079,8 @@ public class TypeChecker extends BLangNodeVisitor {
         if (Symbols.isFlagOn(funcSymbol.flags, Flags.RESOURCE)) {
             dlog.error(iExpr.pos, DiagnosticCode.INVALID_RESOURCE_FUNCTION_INVOCATION);
         }
-        if (funcSymbol.isDeprecated) {
-            dlog.warning(iExpr.pos, DiagnosticCode.DEPRECATED, funcName.value);
+        if (Symbols.isFlagOn(funcSymbol.flags, Flags.DEPRECATED)) {
+            dlog.warning(iExpr.pos, DiagnosticCode.USAGE_OF_DEPRECATED_CONSTRUCT, funcName.value);
         }
 
         if (PackageID.isLangLibPackageID(pkgSymbol.pkgID)) {
@@ -3437,6 +3437,10 @@ public class TypeChecker extends BLangNodeVisitor {
             }
         } else {
             iExpr.symbol = funcSymbol;
+        }
+
+        if (Symbols.isFlagOn(funcSymbol.flags, Flags.DEPRECATED)) {
+            dlog.warning(iExpr.pos, DiagnosticCode.USAGE_OF_DEPRECATED_CONSTRUCT, funcName.value);
         }
 
         // __init method can be called in a method-call-expr only when the expression
