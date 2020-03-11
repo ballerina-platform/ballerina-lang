@@ -121,6 +121,18 @@ public const COMPRESSION_ALWAYS = "ALWAYS";
 # Never set accept-encoding/content-encoding header in outbound request/response.
 public const COMPRESSION_NEVER = "NEVER";
 
+# Constant for telemetry tag http.url
+public const HTTP_URL = "http.url";
+
+# Constant for telemetry tag http.method
+public const HTTP_METHOD = "http.method";
+
+# Constant for telemetry tag http.status_code
+public const HTTP_STATUS_CODE = "http.status_code";
+
+# Constant for status code range suffix
+public const STATUS_CODE_RANGE_SUFFIX = "xx";
+
 # The types of messages that are accepted by HTTP `client` when sending out the outbound request.
 public type RequestMessage Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|();
 
@@ -433,9 +445,19 @@ function getInvalidTypeError() returns ClientError {
     return invalidTypeError;
 }
 
+function getObservabilityError() returns ClientError {
+    string message = "Failed to add tags to active span";
+    ObservabilityError observabilityError = error(OBSERVABILITY_ERROR, message = message);
+    return observabilityError;
+}
+
 function createErrorForNoPayload(mime:Error err) returns GenericClientError {
     string message = "No payload";
     return getGenericClientError(message, err);
+}
+
+function getStatusCodeRange(int statusCode) returns string {
+    return statusCode.toString().substring(0,1) + STATUS_CODE_RANGE_SUFFIX;
 }
 
 //Resolve a given path against a given URI.
