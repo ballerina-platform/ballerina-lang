@@ -115,7 +115,7 @@ public class CreateJarTask implements Task {
     }
 
     private void collectImportModules(List<BPackageSymbol> imports, Path sourceRoot, BuildContext buildContext,
-                                      Set<PackageID> alreadyImportedModulesSet , List< ModuleJar> moduleList) {
+                                      Set<PackageID> alreadyImportedModulesSet, List<ModuleJar> moduleList) {
         for (BPackageSymbol bimport : imports) {
             PackageID id = bimport.pkgID;
             // skip ballerina and ballerinax

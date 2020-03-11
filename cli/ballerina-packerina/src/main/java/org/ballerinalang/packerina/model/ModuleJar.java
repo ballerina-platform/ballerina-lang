@@ -19,7 +19,6 @@ package org.ballerinalang.packerina.model;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 
 import java.nio.file.Path;
-import java.util.HashSet;
 
 /**
  * Class for holding contents of module jar.
