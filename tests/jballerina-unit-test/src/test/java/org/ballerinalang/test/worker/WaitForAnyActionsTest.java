@@ -196,7 +196,8 @@ public class WaitForAnyActionsTest {
         BRunUtil.invoke(result, "waitTest21", new BValue[0]);
     }
 
-    @Test
+    @Test(expectedExceptions = {BLangRuntimeException.class},
+            expectedExceptionsMessageRegExp = "error: err from panic .*")
     public void waitTest22() {
         BValue[] vals = BRunUtil.invoke(result, "waitTest22", new BValue[0]);
         Assert.assertEquals(vals.length, 1);
