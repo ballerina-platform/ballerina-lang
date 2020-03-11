@@ -312,3 +312,9 @@ function testToString() returns string[] {
             varObj.toString(), varObj2.toString(), varObjArr.toString(), p.toString(), employeeTable.toString(),
             varMap.toString()];
 }
+
+public function xmlSequenceFragmentToString() returns string {
+   xml x = xml `<abc><def>DEF</def><ghi>1</ghi></abc>`;
+
+   return (x/*).toString();
+}
