@@ -201,6 +201,8 @@ public class BIRGen extends BLangNodeVisitor {
     // This is a global variable cache
     public Map<BSymbol, BIRGlobalVariableDcl> globalVarMap = new HashMap<>();
 
+    // Required variables for Mock function implementation
+    private static final String MOCK_ANNOTATION_DELIMITER = "#";
 
     public static BIRGen getInstance(CompilerContext context) {
         BIRGen birGen = context.get(BIR_GEN);
@@ -247,6 +249,10 @@ public class BIRGen extends BLangNodeVisitor {
                 testPkg.accept(this);
                 this.birOptimizer.optimizePackage(testBirPkg);
                 testPkg.symbol.bir = testBirPkg;
+                Map<String, String> mockFunctionMap = astPkg.getTestablePkg().getMockFunctionNamesMap();
+                if (!mockFunctionMap.isEmpty()) {
+                    replaceMockedFunctions(testBirPkg, mockFunctionMap);
+                }
             });
         }
 
@@ -282,6 +288,27 @@ public class BIRGen extends BLangNodeVisitor {
             function.name.setValue(modifiedFuncName);
             function.originalFuncSymbol.name.value = modifiedFuncName;
             function.symbol.name.value = modifiedFuncName;
+        }
+    }
+
+    private void replaceMockedFunctions(BIRPackage birPkg, Map<String, String> mockFunctionMap) {
+        for (BIRFunction function : birPkg.functions) {
+            List<BIRBasicBlock> functionBasicBlocks = function.basicBlocks;
+            for (BIRBasicBlock functionBasicBlock : functionBasicBlocks) {
+                BIRTerminator bbTerminator = functionBasicBlock.terminator;
+                if (bbTerminator.kind.equals(InstructionKind.CALL)) {
+                    //We get the callee and the name and generate 'calleepackage#name'
+                    BIRTerminator.Call callTerminator = (BIRTerminator.Call) bbTerminator;
+                    String functionKey = callTerminator.calleePkg.toString() + MOCK_ANNOTATION_DELIMITER
+                            + callTerminator.name.toString();
+                    if (mockFunctionMap.get(functionKey) != null) {
+                        // Just "get" the reference. If this doesnt work then it doesnt exist
+                        String mockfunctionName = mockFunctionMap.get(functionKey);
+                        callTerminator.name = new Name(mockfunctionName);
+                        callTerminator.calleePkg = function.pos.src.pkgID;
+                    }
+                }
+            }
         }
     }
 

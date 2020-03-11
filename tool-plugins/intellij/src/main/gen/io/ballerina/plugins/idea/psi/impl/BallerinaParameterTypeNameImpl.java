@@ -54,4 +54,10 @@ public class BallerinaParameterTypeNameImpl extends ASTWrapperPsiElement impleme
     return findNotNullChildByClass(BallerinaTypeName.class);
   }
 
+  @Override
+  @Nullable
+  public PsiElement getEllipsis() {
+    return findChildByType(ELLIPSIS);
+  }
+
 }

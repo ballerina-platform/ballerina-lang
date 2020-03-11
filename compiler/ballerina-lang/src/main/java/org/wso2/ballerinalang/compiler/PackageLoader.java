@@ -382,7 +382,7 @@ public class PackageLoader {
         return packageNode;
     }
 
-    private BLangPackage loadPackage(PackageID pkgId) {
+    public BLangPackage loadPackage(PackageID pkgId) {
         // TODO Remove this method()
         BLangPackage bLangPackage = packageCache.get(pkgId);
         if (bLangPackage != null) {
