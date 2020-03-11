@@ -90,9 +90,9 @@ public class RecordDocumentationTest {
 
     @Test(description = "Test doc negative cases.")
     public void testDocumentationNegative() {
-        CompileResult compileResult = BCompileUtil.compile("test-src/record/record_annotation_negative.bal");
+        CompileResult compileResult = BCompileUtil.compile("test-src/record/record_documentation_negative.bal");
         Assert.assertEquals(compileResult.getErrorCount(), 0, getErrorString(compileResult.getDiagnostics()));
-        Assert.assertEquals(compileResult.getWarnCount(), 15);
+        Assert.assertEquals(compileResult.getWarnCount(), 20);
         int i = 0;
         BAssertUtil.validateWarning(compileResult, i++, "field 'a' already documented", 6, 5);
         BAssertUtil.validateWarning(compileResult, i++, "no such documentable field 'c'", 8, 5);
@@ -108,7 +108,15 @@ public class RecordDocumentationTest {
         BAssertUtil.validateWarning(compileResult, i++, "no such documentable field 'urls'", 72, 5);
         BAssertUtil.validateWarning(compileResult, i++, "no such documentable parameter 'conn'", 79, 5);
         BAssertUtil.validateWarning(compileResult, i++, "parameter 'req' already documented", 85, 9);
-        BAssertUtil.validateWarning(compileResult, i, "no such documentable parameter 'reqest'", 86, 9);
+        BAssertUtil.validateWarning(compileResult, i++, "no such documentable parameter 'reqest'", 86, 9);
+        BAssertUtil.validateWarning(compileResult, i++, "field 'abc' already documented", 96, 5);
+        BAssertUtil.validateWarning(compileResult, i++, "invalid reference in documentation 'Baz' for type 'type'", 96,
+                                    75);
+        BAssertUtil.validateWarning(compileResult, i++, "invalid reference in documentation 'Baz' for type 'type'", 100,
+                                    33);
+        BAssertUtil.validateWarning(compileResult, i++, "undocumented field 'def'", 104, 5);
+        BAssertUtil.validateWarning(compileResult, i, "invalid reference in documentation 'Baz' for type 'type'", 107,
+                                    33);
     }
 
     private String getErrorString(Diagnostic[] diagnostics) {

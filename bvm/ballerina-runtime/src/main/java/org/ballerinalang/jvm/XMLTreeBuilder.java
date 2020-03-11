@@ -22,6 +22,7 @@ import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.XMLComment;
 import org.ballerinalang.jvm.values.XMLItem;
 import org.ballerinalang.jvm.values.XMLPi;
+import org.ballerinalang.jvm.values.XMLQName;
 import org.ballerinalang.jvm.values.XMLSequence;
 import org.ballerinalang.jvm.values.XMLValue;
 import org.ballerinalang.jvm.values.api.BXML;
@@ -138,8 +139,8 @@ public class XMLTreeBuilder {
     }
 
     private void readPI(XMLStreamReader xmlStreamReader) {
-        XMLPi xmlItem = new XMLPi(
-                xmlStreamReader.getPIData(), xmlStreamReader.getPITarget());
+        XMLPi xmlItem = (XMLPi) XMLFactory.createXMLProcessingInstruction(xmlStreamReader.getPITarget(),
+                xmlStreamReader.getPIData());
         siblingDeque.peek().add(xmlItem);
     }
 
@@ -148,7 +149,8 @@ public class XMLTreeBuilder {
     }
 
     private void readComment(XMLStreamReader xmlStreamReader) {
-        siblingDeque.peek().add(new XMLComment(xmlStreamReader.getText()));
+        XMLComment xmlComment = (XMLComment) XMLFactory.createXMLComment(xmlStreamReader.getText());
+        siblingDeque.peek().add(xmlComment);
     }
 
     private XMLValue buildDocument() {
@@ -163,16 +165,15 @@ public class XMLTreeBuilder {
 
     private void readElement(XMLStreamReader xmlStreamReader) {
         QName elemName = xmlStreamReader.getName();
-        ArrayList<BXML> children = new ArrayList<>();
+        XMLQName name = new XMLQName(elemName.getLocalPart(),
+                elemName.getNamespaceURI(), elemName.getPrefix());
+        XMLItem xmlItem = (XMLItem) XMLFactory.createXMLElement(name, name, (String) null);
 
-        XMLSequence seq = new XMLSequence(children);
-        XMLItem xmlItem = new XMLItem(elemName, seq);
-
-        seqDeque.push(seq);
+        seqDeque.push(xmlItem.getChildrenSeq());
 
         siblingDeque.peek().add(xmlItem);
         populateAttributeMap(xmlStreamReader, xmlItem, elemName);
-        siblingDeque.push(children);
+        siblingDeque.push(xmlItem.getChildrenSeq().getChildrenList());
     }
     // need to duplicate the same in xmlItem.setAttribute
 

@@ -811,3 +811,30 @@ future<()> fn =
     val: "v13"
 }
 start funcWithWorker();
+
+public annotation v16 on field;
+annotation map<int> v17 on object field;
+const annotation v18 on source record field;
+
+@v16 int glob = 1;
+
+@v16
+@v17 {}
+@v18
+function func2() {
+
+}
+
+@v16
+@v17 {i: 1}
+@v18
+type Foo record {
+    @v17 {} int i;
+};
+
+@v16
+@v17 {i: 1}
+@v18
+type Bar object {
+    @v18 string s = "str";
+};

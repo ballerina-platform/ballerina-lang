@@ -27,7 +27,6 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
 import io.ballerina.plugins.idea.psi.BallerinaAlias;
-import io.ballerina.plugins.idea.psi.BallerinaCallableUnitSignature;
 import io.ballerina.plugins.idea.psi.BallerinaFunctionDefinition;
 import io.ballerina.plugins.idea.psi.BallerinaFunctionNameReference;
 import io.ballerina.plugins.idea.psi.BallerinaOrgName;
@@ -88,16 +87,19 @@ public class BallerinaPsiImplUtil {
 
     @Nullable
     public static PsiElement getIdentifier(BallerinaFunctionDefinition ballerinaFunctionDefinition) {
-        BallerinaCallableUnitSignature callableUnitSignature = ballerinaFunctionDefinition.getCallableUnitSignature();
-        return callableUnitSignature != null ? callableUnitSignature.getAnyIdentifierName().getIdentifier() : null;
+        if (ballerinaFunctionDefinition == null || ballerinaFunctionDefinition.getAnyIdentifierName() == null) {
+            return null;
+        }
+        return ballerinaFunctionDefinition.getAnyIdentifierName().getIdentifier();
     }
 
     @Nullable
     public static String getName(BallerinaFunctionDefinition ballerinaFunctionDefinition) {
-        BallerinaCallableUnitSignature callableUnitSignature = ballerinaFunctionDefinition.getCallableUnitSignature();
-        return callableUnitSignature != null && callableUnitSignature.getAnyIdentifierName().getIdentifier() != null ?
-                callableUnitSignature.getAnyIdentifierName().getIdentifier().getText() :
-                "";
+        if (ballerinaFunctionDefinition == null || ballerinaFunctionDefinition.getAnyIdentifierName() == null ||
+                ballerinaFunctionDefinition.getAnyIdentifierName().getIdentifier() == null) {
+            return null;
+        }
+        return ballerinaFunctionDefinition.getAnyIdentifierName().getIdentifier().getText();
     }
 
     public static boolean isInLocalPackage(@NotNull BallerinaFunctionNameReference nameReference) {

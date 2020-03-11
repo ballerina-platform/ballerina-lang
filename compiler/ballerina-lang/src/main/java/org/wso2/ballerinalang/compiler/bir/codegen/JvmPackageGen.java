@@ -26,6 +26,7 @@ import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.MethodTooLargeException;
 import org.objectweb.asm.MethodVisitor;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmValueGen.ObjectGenerator;
+import org.wso2.ballerinalang.compiler.bir.codegen.interop.ExternalMethodGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.InteropValidator;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.JInteropException;
 import org.wso2.ballerinalang.compiler.bir.model.BIRInstruction;
@@ -85,7 +86,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.VALUE_CREATOR;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmDesugarPhase.addDefaultableBooleanVarsToSignature;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmDesugarPhase.rewriteRecordInits;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmInstructionGen.IS_BSTRING;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmInstructionGen.isBString;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.addInitAndTypeInitInstructions;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.cleanupBalExt;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.cleanupPathSeperators;
@@ -117,7 +118,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen.typeOwnerCl
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmValueGen.getTypeValueClassName;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmValueGen.injectDefaultParamInitsToAttachedFuncs;
 import static org.wso2.ballerinalang.compiler.bir.codegen.interop.ExternalMethodGen.createExternalFunctionWrapper;
-import static org.wso2.ballerinalang.compiler.bir.codegen.interop.ExternalMethodGen.createOldStyleExternalFunctionWrapper;
 import static org.wso2.ballerinalang.compiler.bir.codegen.interop.ExternalMethodGen.injectDefaultParamInits;
 import static org.wso2.ballerinalang.compiler.bir.codegen.interop.ExternalMethodGen.isBallerinaBuiltinModule;
 
@@ -149,6 +149,8 @@ public class JvmPackageGen {
         currentClass = "";
         lambdaIndex = 0;
         symbolTable = null;
+        String bStringProp = System.getProperty("ballerina.bstring");
+        isBString = (bStringProp != null && !"".equals(bStringProp));
     }
 
     static class JarFile {
@@ -243,7 +245,7 @@ public class JvmPackageGen {
             while (count < funcSize) {
                 BIRFunction birFunc = functions.get(count);
                 count = count + 1;
-                if (IS_BSTRING) {
+                if (isBString) {
                     BIRFunction bStringFunc = birFunc.duplicate();
                     bStringFunc.name = new Name(nameOfBStringFunc(birFunc.name.value));
                     bStringFuncs.add(bStringFunc);
@@ -265,20 +267,13 @@ public class JvmPackageGen {
         Set<PackageID> dependentModuleSet = new LinkedHashSet<>();
 
         addBuiltinImports(module, dependentModuleSet);
-
-        BPackageSymbol pkgSymbol = CodeGenerator.packageCache.getSymbol(getBvmAlias(orgName, moduleName));
-
-        if (pkgSymbol != null) {
-            for (BPackageSymbol packageSymbol : pkgSymbol.imports) {
-                generateDependencyList(packageSymbol, jarFile, interopValidator);
-                if (CodeGenerator.dlog.getErrorCount() > 0) {
-                    return;
-                }
+        for (BIRNode.BIRImportModule importModule : module.importModules) {
+            BPackageSymbol pkgSymbol = CodeGenerator.packageCache.getSymbol(getBvmAlias(importModule.org.value,
+                                                                                        importModule.name.value));
+            generateDependencyList(pkgSymbol, jarFile, interopValidator);
+            if (CodeGenerator.dlog.getErrorCount() > 0) {
+                return;
             }
-        }
-
-        if (isEntry) {
-            injectBStringFunctions(module);
         }
 
         typeOwnerClass = getModuleLevelClassName(orgName, moduleName, MODULE_INIT_CLASS_NAME);
@@ -721,8 +716,12 @@ public class JvmPackageGen {
 
                     String jClassName = lookupExternClassName(cleanupPackageName(pkgName), lookupKey);
                     if (jClassName != null) {
-                        birFunctionMap.put(pkgName + lookupKey, createOldStyleExternalFunctionWrapper(currentFunc,
-                                orgName, moduleName, version, jClassName, jClassName, isEntry));
+                        ExternalMethodGen.OldStyleExternalFunctionWrapper wrapper =
+                                ExternalMethodGen.createOldStyleExternalFunctionWrapper(currentFunc, orgName,
+                                                                                        moduleName, version,
+                                                                                        jClassName, jClassName,
+                                                                                        isEntry);
+                        birFunctionMap.put(pkgName + lookupKey, wrapper);
                     } else {
                         throw new BLangCompilerException("native function not available: " +
                                 pkgName + lookupKey);
