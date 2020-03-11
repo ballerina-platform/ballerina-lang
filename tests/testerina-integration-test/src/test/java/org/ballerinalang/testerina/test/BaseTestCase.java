@@ -37,6 +37,7 @@ public class BaseTestCase {
     public static BalServer balServer;
     protected static Path singleFilesProjectPath;
     static Path multiModulesProjectPath;
+    static Path mockProjectPath;
 
     @BeforeSuite(alwaysRun = true)
     public void initialize() throws BallerinaTestException, IOException {
@@ -44,7 +45,8 @@ public class BaseTestCase {
         Path tempProjectDirectory = Files.createTempDirectory("bal-test-integration-testerina-project-");
 
         // copy TestProjects to a temp
-        Path originalSingleFilesProj = Paths.get("src", "test", "resources", "single-file-tests").toAbsolutePath();
+        Path originalSingleFilesProj = Paths.get("src", "test", "resources", "single-file-tests")
+                .toAbsolutePath();
         singleFilesProjectPath = tempProjectDirectory.resolve("single-file-tests");
         FileUtils.copyFolder(originalSingleFilesProj, singleFilesProjectPath);
 
@@ -52,6 +54,10 @@ public class BaseTestCase {
                 .toAbsolutePath();
         multiModulesProjectPath = tempProjectDirectory.resolve("tests-project");
         FileUtils.copyFolder(originalMultiModulesProj, multiModulesProjectPath);
+
+        Path originalMockProj = Paths.get("src", "test", "resources", "mock-tests").toAbsolutePath();
+        mockProjectPath = tempProjectDirectory.resolve("mock-tests");
+        FileUtils.copyFolder(originalMockProj, mockProjectPath);
     }
 
     @AfterSuite(alwaysRun = true)
