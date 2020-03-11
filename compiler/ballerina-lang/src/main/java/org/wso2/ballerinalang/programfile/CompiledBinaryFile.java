@@ -17,122 +17,16 @@
  */
 package org.wso2.ballerinalang.programfile;
 
-import org.wso2.ballerinalang.programfile.attributes.AttributeInfo;
-import org.wso2.ballerinalang.programfile.attributes.AttributeInfoPool;
-import org.wso2.ballerinalang.programfile.cpentries.ConstantPool;
-import org.wso2.ballerinalang.programfile.cpentries.ConstantPoolEntry;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-
 import static org.wso2.ballerinalang.programfile.ProgramFileConstants.BIR_VERSION_NUMBER;
 import static org.wso2.ballerinalang.programfile.ProgramFileConstants.VERSION_NUMBER;
 
 /**
- * {@code CompiledBinaryFile} is the super class of {@link ProgramFile} and {@link PackageFile}.
+ * {@code CompiledBinaryFile} is the super class of {@link BIRPackageFile} and {@link PackageFile}.
  *
  * @since 0.963.0
  */
 @Deprecated
-public class CompiledBinaryFile implements ConstantPool, AttributeInfoPool {
-
-    private List<ConstantPoolEntry> constPool = new ArrayList<>();
-    private Map<AttributeInfo.Kind, AttributeInfo> attributeInfoMap = new HashMap<>();
-    private boolean mainFucAvailable = false;
-    private boolean servicesAvailable = false;
-
-    public boolean isMainEPAvailable() {
-        return mainFucAvailable;
-    }
-
-    public void setMainEPAvailable(boolean mainFuncAvailable) {
-        this.mainFucAvailable = mainFuncAvailable;
-    }
-
-    public boolean isServiceEPAvailable() {
-        return servicesAvailable;
-    }
-
-    public void setServiceEPAvailable(boolean servicesAvailable) {
-        this.servicesAvailable = servicesAvailable;
-    }
-
-    // ConstantPool interface methods
-
-    @Override
-    public int addCPEntry(ConstantPoolEntry cpEntry) {
-        if (constPool.contains(cpEntry)) {
-            return constPool.indexOf(cpEntry);
-        }
-
-        constPool.add(cpEntry);
-        return constPool.size() - 1;
-    }
-
-    @Override
-    public ConstantPoolEntry getCPEntry(int index) {
-        return constPool.get(index);
-    }
-
-    @Override
-    public int getCPEntryIndex(ConstantPoolEntry cpEntry) {
-        return constPool.indexOf(cpEntry);
-    }
-
-    @Override
-    public ConstantPoolEntry[] getConstPoolEntries() {
-        return constPool.toArray(new ConstantPoolEntry[0]);
-    }
-
-    // AttributeInfoPool interface methods
-
-    @Override
-    public AttributeInfo getAttributeInfo(AttributeInfo.Kind attributeKind) {
-        return attributeInfoMap.get(attributeKind);
-    }
-
-    @Override
-    public void addAttributeInfo(AttributeInfo.Kind attributeKind, AttributeInfo attributeInfo) {
-        attributeInfoMap.put(attributeKind, attributeInfo);
-    }
-
-    @Override
-    public AttributeInfo[] getAttributeInfoEntries() {
-        return attributeInfoMap.values().toArray(new AttributeInfo[0]);
-    }
-
-    /**
-     * {@code ProgramFile} is the runtime representation of a compiled Ballerina program (BALX).
-     *
-     * @since 0.87
-     */
-    public static class ProgramFile extends CompiledBinaryFile {
-        // Entry point flags
-        public static final int EP_MAIN_FLAG = 1;
-        public static final int EP_SERVICE_FLAG = 2;
-
-        // TODO Finalize the version number;
-        private short version = VERSION_NUMBER;
-
-        public Map<String, PackageFile> packageFileMap = new LinkedHashMap<>();
-
-        public int entryPkgCPIndex;
-
-        public int getMagicValue() {
-            return ProgramFileConstants.MAGIC_NUMBER;
-        }
-
-        public short getVersion() {
-            return version;
-        }
-
-        public void setVersion(short version) {
-            this.version = version;
-        }
-    }
+public class CompiledBinaryFile {
 
     /**
      * {@code PackageFile} is the representation of a compiled Ballerina package (BALO).

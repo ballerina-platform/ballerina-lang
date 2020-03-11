@@ -104,6 +104,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLetExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkDownDeprecationDocumentation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownDocumentationLine;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownParameterDocumentation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownReturnParameterDocumentation;
@@ -308,6 +309,7 @@ public class BLangPackageBuilder {
     private Stack<Set<Whitespace>> workerDefinitionWSStack = new Stack<>();
 
     private Stack<Set<Whitespace>> bindingPatternIdentifierWS = new Stack<>();
+    private Stack<Set<Whitespace>> letBindingPatternIdentifierWS = new Stack<>();
 
     private Stack<Set<Whitespace>> errorMatchPatternWS = new Stack<>();
     private Stack<Set<Whitespace>> simpleMatchPatternWS = new Stack<>();
@@ -946,8 +948,12 @@ public class BLangPackageBuilder {
         simpleVariableNode.name = this.createIdentifier(pos, bindingVarName, null);
         simpleVariableNode.name.pos = pos;
         simpleVariableNode.pos = pos;
-        if (!this.bindingPatternIdentifierWS.isEmpty()) {
+        if (letVarListStack.isEmpty() && !this.bindingPatternIdentifierWS.isEmpty()) {
             Set<Whitespace> ws = this.bindingPatternIdentifierWS.pop();
+            simpleVariableNode.name.addWS(ws);
+            simpleVariableNode.addWS(ws);
+        } else if (!this.letBindingPatternIdentifierWS.isEmpty()) {
+            Set<Whitespace> ws = this.letBindingPatternIdentifierWS.pop();
             simpleVariableNode.name.addWS(ws);
             simpleVariableNode.addWS(ws);
         }
@@ -959,9 +965,12 @@ public class BLangPackageBuilder {
         BLangTupleVariable tupleVariable = (BLangTupleVariable) TreeBuilder.createTupleVariableNode();
         tupleVariable.pos = pos;
         tupleVariable.addWS(ws);
-        if (!this.bindingPatternIdentifierWS.isEmpty()) {
+        if (letVarListStack.isEmpty() && !this.bindingPatternIdentifierWS.isEmpty()) {
             tupleVariable.addWS(this.bindingPatternIdentifierWS.pop());
+        } else if (!this.letBindingPatternIdentifierWS.isEmpty()) {
+            tupleVariable.addWS(this.letBindingPatternIdentifierWS.pop());
         }
+
         if (restBindingAvailable) {
             tupleVariable.restVariable = this.varStack.pop();
         }
@@ -1029,8 +1038,10 @@ public class BLangPackageBuilder {
         }
         recordKeyValue.valueBindingPattern = this.varStack.pop();
         recordKeyValue.valueBindingPattern.addWS(ws);
-        if (!this.bindingPatternIdentifierWS.isEmpty()) {
+        if (letVarListStack.isEmpty() && !this.bindingPatternIdentifierWS.isEmpty()) {
             recordKeyValue.valueBindingPattern.addWS(this.bindingPatternIdentifierWS.pop());
+        } else if (!this.letBindingPatternIdentifierWS.isEmpty()) {
+            recordKeyValue.valueBindingPattern.addWS(this.letBindingPatternIdentifierWS.pop());
         }
         this.recordVarListStack.peek().add(recordKeyValue);
     }
@@ -1178,8 +1189,10 @@ public class BLangPackageBuilder {
                                        boolean isDeclaredWithVar) {
         BLangSimpleVariableDef varDefNode = createSimpleVariableDef(pos, ws, identifier, identifierPos, isFinal,
                 isExpressionAvailable, isDeclaredWithVar);
-        if (!this.bindingPatternIdentifierWS.isEmpty()) {
+        if (letVarListStack.isEmpty() && !this.bindingPatternIdentifierWS.isEmpty()) {
             varDefNode.addWS(this.bindingPatternIdentifierWS.pop());
+        } else if (!this.letBindingPatternIdentifierWS.isEmpty()) {
+            varDefNode.addWS(this.letBindingPatternIdentifierWS.pop());
         }
         addStmtToCurrentBlock(varDefNode);
     }
@@ -1189,15 +1202,21 @@ public class BLangPackageBuilder {
                                           boolean isDeclaredWithVar, int numAnnotations) {
         BLangSimpleVariableDef varDefNode = createSimpleVariableDef(pos, ws, identifier, identifierPos,
                 true, isExpressionAvailable, isDeclaredWithVar);
-        if (!this.bindingPatternIdentifierWS.isEmpty()) {
+        if (letVarListStack.isEmpty() && !this.bindingPatternIdentifierWS.isEmpty()) {
             varDefNode.addWS(this.bindingPatternIdentifierWS.pop());
+        } else if (!this.letBindingPatternIdentifierWS.isEmpty()) {
+            varDefNode.addWS(this.letBindingPatternIdentifierWS.pop());
         }
         attachAnnotations(varDefNode.var, numAnnotations, false);
         addLetVarDecl(varDefNode);
     }
 
     void addBindingPatternNameWhitespace(Set<Whitespace> ws) {
-        this.bindingPatternIdentifierWS.push(ws);
+        if (letVarListStack.isEmpty()) {
+            this.bindingPatternIdentifierWS.push(ws);
+        } else {
+            this.letBindingPatternIdentifierWS.push(ws);
+        }
     }
 
     private void addLetVarDecl(VariableDefinitionNode definitionNode) {
@@ -1542,9 +1561,10 @@ public class BLangPackageBuilder {
         letClauseNodeStack.push(letClause);
     }
 
-    void addLetExpression(DiagnosticPos pos) {
+    void addLetExpression(DiagnosticPos pos, Set<Whitespace> ws) {
         BLangLetExpression letExpression = (BLangLetExpression) TreeBuilder.createLetExpressionNode();
         letExpression.expr = (BLangExpression) exprNodeStack.pop();
+        letExpression.addWS(ws);
         letExpression.pos = pos;
         letExpression.letVarDeclarations = letVarListStack.pop();
         addExpressionNode(letExpression);
@@ -2701,6 +2721,24 @@ public class BLangPackageBuilder {
         BLangMarkdownReturnParameterDocumentation returnParameter = markdownDocumentationNode.getReturnParameter();
         returnParameter.addWS(ws);
         returnParameter.addReturnParameterDocumentationLine(description);
+    }
+
+    void endDeprecationAnnotationDocumentation(DiagnosticPos pos, Set<Whitespace> ws, String description) {
+        MarkdownDocumentationNode markdownDocumentationNode = markdownDocumentationStack.peek();
+        BLangMarkDownDeprecationDocumentation deprecationAnnotationDocumentation =
+                (BLangMarkDownDeprecationDocumentation) TreeBuilder.createMarkDownDeprecationAttributeNode();
+        deprecationAnnotationDocumentation.pos = pos;
+        deprecationAnnotationDocumentation.addWS(ws);
+        deprecationAnnotationDocumentation.addDeprecationLine(description);
+        markdownDocumentationNode.setDeprecationDocumentation(deprecationAnnotationDocumentation);
+    }
+
+    void endDeprecateAnnotationDocumentationDescription(Set<Whitespace> ws, String description) {
+        MarkdownDocumentationNode markdownDocumentationNode = markdownDocumentationStack.peek();
+        BLangMarkDownDeprecationDocumentation deprecationAnnotationDocumentation =
+                markdownDocumentationNode.getDeprecationDocumentation();
+        deprecationAnnotationDocumentation.addWS(ws);
+        deprecationAnnotationDocumentation.addDeprecationDocumentationLine(description);
     }
 
     void startAnnotationAttachment(DiagnosticPos currentPos) {

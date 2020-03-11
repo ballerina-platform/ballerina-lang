@@ -39,6 +39,22 @@ function testRemoveAll() returns map<string> {
     return countriesDup;
 }
 
+function testRemoveIfHasKey() {
+    map<string> student = {id:"1", name:"Andrew", country:"Sri Lanka", city:"Colombo"};
+    string? s = student.removeIfHasKey("name");
+    if (s is ()) {
+         panic error("Returned value should be an string.");
+    }
+    if (<string> s != "Andrew") {
+         panic error("Returned value should equals 'Andrew'.");
+    }
+
+    string? age = student.removeIfHasKey("age");
+    if !(age is ()) {
+        panic error("Returned value should be nil.");
+    }
+}
+
 function testHasKey(string key) returns boolean {
     return countries.hasKey(key);
 }

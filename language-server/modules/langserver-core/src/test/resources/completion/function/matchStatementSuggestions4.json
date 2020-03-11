@@ -2385,6 +2385,26 @@
             "insertTextFormat": "Snippet"
         },
         {
+            "label": "InboundAuthHandlers",
+            "detail": "Union",
+            "documentation": {
+                "left": "Represents inbound auth handler patterns."
+            },
+            "sortText": "110",
+            "insertText": "InboundAuthHandlers",
+            "insertTextFormat": "Snippet"
+        },
+        {
+            "label": "Scopes",
+            "detail": "Union",
+            "documentation": {
+                "left": "Represents scopes patterns."
+            },
+            "sortText": "110",
+            "insertText": "Scopes",
+            "insertTextFormat": "Snippet"
+        },
+        {
             "label": "RequestCacheControl",
             "kind": "Interface",
             "detail": "Object",
@@ -3593,17 +3613,6 @@
             },
             "sortText": "180",
             "insertText": "ListenerSecureSocket",
-            "insertTextFormat": "Snippet"
-        },
-        {
-            "label": "AuthzCacheConfig",
-            "kind": "Struct",
-            "detail": "Record",
-            "documentation": {
-                "left": "Provides a set of configurations for controlling the authorization caching behaviour of the endpoint.\n"
-            },
-            "sortText": "180",
-            "insertText": "AuthzCacheConfig",
             "insertTextFormat": "Snippet"
         },
         {

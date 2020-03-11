@@ -107,12 +107,12 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.WD_CHANNE
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.WORKER_DATA_CHANNEL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.WORKER_UTILS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmErrorGen.ErrorHandlerGenerator;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmInstructionGen.IS_BSTRING;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmInstructionGen.addBoxInsn;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmInstructionGen.addJUnboxInsn;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmInstructionGen.addUnboxInsn;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmInstructionGen.generateVarLoad;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmInstructionGen.generateVarStore;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmInstructionGen.isBString;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmLabelGen.LabelGenerator;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.BalToJVMIndexMap;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.cleanupBalExt;
@@ -785,8 +785,10 @@ public class JvmTerminatorGen {
                 i += 1;
             }
             String cleanMethodName = cleanupFunctionName(methodName);
-            boolean useBString = IS_BSTRING && orgName.equals("ballerina") &&
-                    moduleName.equals("lang.string") && !cleanMethodName.endsWith("_");
+            boolean useBString = isBString && orgName.equals("ballerina") &&
+                                 (moduleName.equals("lang.string") || moduleName.equals("lang.error") ||
+                                  moduleName.equals("lang.value") || moduleName.equals("lang.map")) &&
+                                 !cleanMethodName.endsWith("_");
             if (useBString) {
                 cleanMethodName = nameOfBStringFunc(cleanMethodName);
             }
@@ -1232,7 +1234,7 @@ public class JvmTerminatorGen {
             if (bType.tag == TypeTags.NIL) {
                 this.mv.visitVarInsn(ALOAD, returnVarRefIndex);
                 this.mv.visitInsn(ARETURN);
-            } else if (bType.tag == TypeTags.INT) {
+            } else if (TypeTags.isIntegerTypeTag(bType.tag)) {
                 this.mv.visitVarInsn(LLOAD, returnVarRefIndex);
                 this.mv.visitInsn(LRETURN);
             } else if (bType.tag == TypeTags.BYTE) {
@@ -1241,7 +1243,7 @@ public class JvmTerminatorGen {
             } else if (bType.tag == TypeTags.FLOAT) {
                 this.mv.visitVarInsn(DLOAD, returnVarRefIndex);
                 this.mv.visitInsn(DRETURN);
-            } else if (bType.tag == TypeTags.STRING) {
+            } else if (TypeTags.isStringTypeTag(bType.tag)) {
                 this.mv.visitVarInsn(ALOAD, returnVarRefIndex);
                 this.mv.visitInsn(ARETURN);
             } else if (bType.tag == TypeTags.BOOLEAN) {

@@ -1021,9 +1021,6 @@ public class BIRPackageSymbolEnter {
                     BFutureType bFutureType = new BFutureType(TypeTags.FUTURE, null, symTable.futureType.tsymbol);
                     bFutureType.constraint = readTypeFromCp();
                     return bFutureType;
-                case TypeTags.INTERMEDIATE_COLLECTION:
-                    // TODO fix
-                    break;
                 case TypeTags.FINITE:
                     String finiteTypeName = getStringCPEntryValue(inputStream);
                     int finiteTypeFlags = inputStream.readInt();
@@ -1107,10 +1104,20 @@ public class BIRPackageSymbolEnter {
                     break;
                 case SERVICE_TYPE_TAG:
                     return symTable.anyServiceType;
-//                case TypeTags.CHANNEL:
-
-//                case TypeTags.SERVICE:
-
+                case TypeTags.SIGNED32_INT:
+                    return symTable.signed32IntType;
+                case TypeTags.SIGNED16_INT:
+                    return symTable.signed16IntType;
+                case TypeTags.SIGNED8_INT:
+                    return symTable.signed8IntType;
+                case TypeTags.UNSIGNED32_INT:
+                    return symTable.unsigned32IntType;
+                case TypeTags.UNSIGNED16_INT:
+                    return symTable.unsigned16IntType;
+                case TypeTags.UNSIGNED8_INT:
+                    return symTable.unsigned8IntType;
+                case TypeTags.CHAR_STRING:
+                    return symTable.charStringType;
             }
             return null;
         }

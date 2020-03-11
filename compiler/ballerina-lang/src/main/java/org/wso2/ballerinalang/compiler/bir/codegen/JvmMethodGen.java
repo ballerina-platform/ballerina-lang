@@ -172,12 +172,11 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPEDESC_
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.VALUE_CREATOR;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.WINDOWS_PATH_SEPERATOR;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.XML_VALUE;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmInstructionGen.BSTRING_VALUE;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmInstructionGen.IS_BSTRING;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmInstructionGen.I_STRING_VALUE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmInstructionGen.B_STRING_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmInstructionGen.InstructionGenerator.visitInvokeDyn;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmInstructionGen.addBoxInsn;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmInstructionGen.addUnboxInsn;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmInstructionGen.isBString;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmObservabilityGen.emitReportErrorInvocation;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmObservabilityGen.emitStartObservationInvocation;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmObservabilityGen.emitStopObservationInvocation;
@@ -266,7 +265,7 @@ public class JvmMethodGen {
         String currentPackageName = getPackageName(module.org.value, module.name.value);
         BalToJVMIndexMap indexMap = new BalToJVMIndexMap();
         String funcName = cleanupFunctionName(func.name.value);
-        boolean useBString = IS_BSTRING;
+        boolean useBString = isBString;
         int returnVarRefIndex = -1;
 
         BIRVariableDcl strandVar = new BIRVariableDcl(symbolTable.stringType, new Name("strand"),
@@ -564,7 +563,7 @@ public class JvmMethodGen {
             BType bType = localVar.type;
             mv.visitInsn(DUP);
 
-            if (bType.tag == TypeTags.INT) {
+            if (TypeTags.isIntegerTypeTag(bType.tag)) {
                 mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%", "_"), "J");
                 mv.visitVarInsn(LSTORE, index);
             } else if (bType.tag == TypeTags.BYTE) {
@@ -573,9 +572,9 @@ public class JvmMethodGen {
             } else if (bType.tag == TypeTags.FLOAT) {
                 mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%", "_"), "D");
                 mv.visitVarInsn(DSTORE, index);
-            } else if (bType.tag == TypeTags.STRING) {
+            } else if (TypeTags.isStringTypeTag(bType.tag)) {
                 mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%", "_"),
-                        String.format("L%s;", useBString ? I_STRING_VALUE : STRING_VALUE));
+                                  String.format("L%s;", useBString ? B_STRING_VALUE : STRING_VALUE));
                 mv.visitVarInsn(ASTORE, index);
             } else if (bType.tag == TypeTags.DECIMAL) {
                 mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%", "_"),
@@ -698,7 +697,7 @@ public class JvmMethodGen {
             mv.visitInsn(DUP);
 
             BType bType = localVar.type;
-            if (bType.tag == TypeTags.INT) {
+            if (TypeTags.isIntegerTypeTag(bType.tag)) {
                 mv.visitVarInsn(LLOAD, index);
                 mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%", "_"), "J");
             } else if (bType.tag == TypeTags.BYTE) {
@@ -707,10 +706,10 @@ public class JvmMethodGen {
             } else if (bType.tag == TypeTags.FLOAT) {
                 mv.visitVarInsn(DLOAD, index);
                 mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%", "_"), "D");
-            } else if (bType.tag == TypeTags.STRING) {
+            } else if (TypeTags.isStringTypeTag(bType.tag)) {
                 mv.visitVarInsn(ALOAD, index);
                 mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%", "_"),
-                        String.format("L%s;", useBString ? I_STRING_VALUE : STRING_VALUE));
+                                  String.format("L%s;", useBString ? B_STRING_VALUE : STRING_VALUE));
             } else if (bType.tag == TypeTags.DECIMAL) {
                 mv.visitVarInsn(ALOAD, index);
                 mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%", "_"),
@@ -826,7 +825,7 @@ public class JvmMethodGen {
     private static String getJVMTypeSign(BType bType) {
 
         String jvmType = "";
-        if (bType.tag == TypeTags.INT) {
+        if (TypeTags.isIntegerTypeTag(bType.tag)) {
             jvmType = "J";
         } else if (bType.tag == TypeTags.BYTE) {
             jvmType = "I";
@@ -834,7 +833,7 @@ public class JvmMethodGen {
             jvmType = "D";
         } else if (bType.tag == TypeTags.BOOLEAN) {
             jvmType = "Z";
-        } else if (bType.tag == TypeTags.STRING) {
+        } else if (TypeTags.isStringTypeTag(bType.tag)) {
             jvmType = String.format("L%s;", STRING_VALUE);
         } else if (bType.tag == TypeTags.DECIMAL) {
             jvmType = String.format("L%s;", DECIMAL_VALUE);
@@ -956,22 +955,22 @@ public class JvmMethodGen {
                             instGen.generateMapStoreIns((FieldAccess) inst);
                             break;
                         case NEW_ARRAY:
-                            instGen.generateArrayNewIns((NewArray) inst);
+                            instGen.generateArrayNewIns((NewArray) inst, useBString);
                             break;
                         case ARRAY_STORE:
-                            instGen.generateArrayStoreIns((FieldAccess) inst);
+                            instGen.generateArrayStoreIns((FieldAccess) inst, useBString);
                             break;
                         case MAP_LOAD:
-                            instGen.generateMapLoadIns((FieldAccess) inst);
+                            instGen.generateMapLoadIns((FieldAccess) inst, useBString);
                             break;
                         case ARRAY_LOAD:
-                            instGen.generateArrayValueLoad((FieldAccess) inst);
+                            instGen.generateArrayValueLoad((FieldAccess) inst, useBString);
                             break;
                         case NEW_ERROR:
-                            instGen.generateNewErrorIns((NewError) inst);
+                            instGen.generateNewErrorIns((NewError) inst, useBString);
                             break;
                         case TYPE_CAST:
-                            instGen.generateCastIns((TypeCast) inst);
+                            instGen.generateCastIns((TypeCast) inst, useBString);
                             break;
                         case IS_LIKE:
                             instGen.generateIsLikeIns((IsLike) inst);
@@ -986,19 +985,19 @@ public class JvmMethodGen {
                             instGen.generateObjectLoadIns((FieldAccess) inst);
                             break;
                         case NEW_XML_ELEMENT:
-                            instGen.generateNewXMLElementIns((NewXMLElement) inst);
+                            instGen.generateNewXMLElementIns((NewXMLElement) inst, useBString);
                             break;
                         case NEW_XML_TEXT:
-                            instGen.generateNewXMLTextIns((NewXMLText) inst);
+                            instGen.generateNewXMLTextIns((NewXMLText) inst, useBString);
                             break;
                         case NEW_XML_COMMENT:
-                            instGen.generateNewXMLCommentIns((NewXMLComment) inst);
+                            instGen.generateNewXMLCommentIns((NewXMLComment) inst, useBString);
                             break;
                         case NEW_XML_PI:
-                            instGen.generateNewXMLProcIns((NewXMLProcIns) inst);
+                            instGen.generateNewXMLProcIns((NewXMLProcIns) inst, useBString);
                             break;
                         case NEW_XML_QNAME:
-                            instGen.generateNewXMLQNameIns((NewXMLQName) inst);
+                            instGen.generateNewXMLQNameIns((NewXMLQName) inst, useBString);
                             break;
                         case NEW_STRING_XML_QNAME:
                             instGen.generateNewStringXMLQNameIns((NewStringXMLQName) inst);
@@ -1016,7 +1015,7 @@ public class JvmMethodGen {
                             instGen.generateXMLLoadAllIns((XMLAccess) inst);
                             break;
                         case XML_ATTRIBUTE_STORE:
-                            instGen.generateXMLAttrStoreIns((FieldAccess) inst);
+                            instGen.generateXMLAttrStoreIns((FieldAccess) inst, useBString);
                             break;
                         case XML_ATTRIBUTE_LOAD:
                             instGen.generateXMLAttrLoadIns((FieldAccess) inst);
@@ -1025,7 +1024,7 @@ public class JvmMethodGen {
                             instGen.generateFPLoadIns((FPLoad) inst);
                             break;
                         case STRING_LOAD:
-                            instGen.generateStringLoadIns((FieldAccess) inst);
+                            instGen.generateStringLoadIns((FieldAccess) inst, useBString);
                             break;
                         case NEW_TABLE:
                             instGen.generateTableNewIns((NewTable) inst);
@@ -1340,7 +1339,7 @@ public class JvmMethodGen {
 
     private static void genDefaultValue(MethodVisitor mv, BType bType, int index) {
 
-        if (bType.tag == TypeTags.INT) {
+        if (TypeTags.isIntegerTypeTag(bType.tag)) {
             mv.visitInsn(LCONST_0);
             mv.visitVarInsn(LSTORE, index);
         } else if (bType.tag == TypeTags.BYTE) {
@@ -1349,7 +1348,7 @@ public class JvmMethodGen {
         } else if (bType.tag == TypeTags.FLOAT) {
             mv.visitInsn(DCONST_0);
             mv.visitVarInsn(DSTORE, index);
-        } else if (bType.tag == TypeTags.STRING) {
+        } else if (TypeTags.isStringTypeTag(bType.tag)) {
             mv.visitInsn(ACONST_NULL);
             mv.visitVarInsn(ASTORE, index);
         } else if (bType.tag == TypeTags.BOOLEAN) {
@@ -1365,6 +1364,7 @@ public class JvmMethodGen {
                 bType.tag == TypeTags.ANYDATA ||
                 bType.tag == TypeTags.OBJECT ||
                 bType.tag == TypeTags.SERVICE ||
+                bType.tag == TypeTags.CHAR_STRING ||
                 bType.tag == TypeTags.DECIMAL ||
                 bType.tag == TypeTags.UNION ||
                 bType.tag == TypeTags.RECORD ||
@@ -1422,13 +1422,13 @@ public class JvmMethodGen {
 
     static void loadDefaultValue(MethodVisitor mv, BType bType) {
 
-        if (bType.tag == TypeTags.INT || bType.tag == TypeTags.BYTE) {
+        if (TypeTags.isIntegerTypeTag(bType.tag) || bType.tag == TypeTags.BYTE) {
             mv.visitInsn(LCONST_0);
         } else if (bType.tag == TypeTags.FLOAT) {
             mv.visitInsn(DCONST_0);
         } else if (bType.tag == TypeTags.BOOLEAN) {
             mv.visitInsn(ICONST_0);
-        } else if (bType.tag == TypeTags.STRING ||
+        } else if (TypeTags.isStringTypeTag(bType.tag) ||
                 bType.tag == TypeTags.MAP ||
                 bType.tag == TypeTags.ARRAY ||
                 bType.tag == TypeTags.TABLE ||
@@ -1527,14 +1527,14 @@ public class JvmMethodGen {
 
     private static String getArgTypeSignature(BType bType, boolean useBString /* = false */) {
 
-        if (bType.tag == TypeTags.INT) {
+        if (TypeTags.isIntegerTypeTag(bType.tag)) {
             return "J";
         } else if (bType.tag == TypeTags.BYTE) {
             return "I";
         } else if (bType.tag == TypeTags.FLOAT) {
             return "D";
-        } else if (bType.tag == TypeTags.STRING) {
-            return String.format("L%s;", useBString ? I_STRING_VALUE : STRING_VALUE);
+        } else if (TypeTags.isStringTypeTag(bType.tag)) {
+            return String.format("L%s;", useBString ? B_STRING_VALUE : STRING_VALUE);
         } else if (bType.tag == TypeTags.DECIMAL) {
             return String.format("L%s;", DECIMAL_VALUE);
         } else if (bType.tag == TypeTags.BOOLEAN) {
@@ -1582,14 +1582,14 @@ public class JvmMethodGen {
                 return ")V";
             }
             return String.format(")L%s;", OBJECT);
-        } else if (bType.tag == TypeTags.INT) {
+        } else if (TypeTags.isIntegerTypeTag(bType.tag)) {
             return ")J";
         } else if (bType.tag == TypeTags.BYTE) {
             return ")I";
         } else if (bType.tag == TypeTags.FLOAT) {
             return ")D";
-        } else if (bType.tag == TypeTags.STRING) {
-            return String.format(")L%s;", useBString ? I_STRING_VALUE : STRING_VALUE);
+        } else if (TypeTags.isStringTypeTag(bType.tag)) {
+            return String.format(")L%s;", useBString ? B_STRING_VALUE : STRING_VALUE);
         } else if (bType.tag == TypeTags.DECIMAL) {
             return String.format(")L%s;", DECIMAL_VALUE);
         } else if (bType.tag == TypeTags.BOOLEAN) {
@@ -2050,7 +2050,7 @@ public class JvmMethodGen {
     static void castFromString(BType targetType, MethodVisitor mv) {
 
         mv.visitTypeInsn(CHECKCAST, STRING_VALUE);
-        if (targetType.tag == TypeTags.INT) {
+        if (TypeTags.isIntegerTypeTag(targetType.tag)) {
             mv.visitMethodInsn(INVOKESTATIC, LONG_VALUE, "parseLong", String.format("(L%s;)J", STRING_VALUE), false);
         } else if (targetType.tag == TypeTags.BYTE) {
             mv.visitMethodInsn(INVOKESTATIC, INT_VALUE, "parseInt", String.format("(L%s;)I", STRING_VALUE), false);
@@ -2074,7 +2074,7 @@ public class JvmMethodGen {
                 targetType.tag == TypeTags.ANYDATA ||
                 targetType.tag == TypeTags.NIL ||
                 targetType.tag == TypeTags.UNION ||
-                targetType.tag == TypeTags.STRING) {
+                TypeTags.isStringTypeTag(targetType.tag)) {
             // do nothing
             return;
         } else {
@@ -2299,6 +2299,9 @@ public class JvmMethodGen {
         }
 
         for (BIRTypeDefinition optionalTypeDef : typeDefs) {
+            if (optionalTypeDef.isBuiltin) {
+                continue;
+            }
             BIRTypeDefinition typeDef = getTypeDef(optionalTypeDef);
             BType bType = typeDef.type;
 
@@ -2417,14 +2420,14 @@ public class JvmMethodGen {
     static void generateField(ClassWriter cw, BType bType, String fieldName, boolean isPackage) {
 
         String typeSig;
-        if (bType.tag == TypeTags.INT) {
+        if (TypeTags.isIntegerTypeTag(bType.tag)) {
             typeSig = "J";
         } else if (bType.tag == TypeTags.BYTE) {
             typeSig = "I";
         } else if (bType.tag == TypeTags.FLOAT) {
             typeSig = "D";
-        } else if (bType.tag == TypeTags.STRING) {
-            typeSig = String.format("L%s;", BSTRING_VALUE);
+        } else if (TypeTags.isStringTypeTag(bType.tag)) {
+            typeSig = String.format("L%s;", isBString ? B_STRING_VALUE : STRING_VALUE);
         } else if (bType.tag == TypeTags.DECIMAL) {
             typeSig = String.format("L%s;", DECIMAL_VALUE);
         } else if (bType.tag == TypeTags.BOOLEAN) {
@@ -2861,20 +2864,29 @@ public class JvmMethodGen {
 
     static boolean isBStringFunc(String funcName) {
 
-        return funcName.endsWith("$bstring");
+        return isBString;
+//        return funcName.endsWith("$bstring");
     }
 
     static String nameOfBStringFunc(String nonBStringFuncName) {
 
-        return nonBStringFuncName + "$bstring";
+        return nonBStringFuncName;
+//        return nonBStringFuncName + "$bstring";
     }
 
     public static String nameOfNonBStringFunc(String funcName) {
 
-        if (isBStringFunc(funcName)) {
-            return funcName.substring(0, funcName.length() - 8);
-        }
+//        if (isBStringFunc(funcName)) {
+//            return funcName.substring(0, funcName.length() - 8);
+//        }
         return funcName;
+    }
+
+    static String conditionalBStringName(String nonBStringName, boolean useBString) {
+//        if(useBString) {
+//            return nameOfBStringFunc(nonBStringName);
+//        }
+        return nonBStringName;
     }
 
     /**
@@ -2894,7 +2906,7 @@ public class JvmMethodGen {
 
             BType bType = varDcl.type;
 
-            if (bType.tag == TypeTags.INT || bType.tag == TypeTags.FLOAT) {
+            if (TypeTags.isIntegerTypeTag(bType.tag) || bType.tag == TypeTags.FLOAT) {
                 this.localVarIndex = this.localVarIndex + 2;
             } else if (bType.tag == JTypeTags.JTYPE) {
                 JType jType = (JType) bType;

@@ -743,7 +743,7 @@ function testRemoveComplexChildren() returns [xml, xml] {
 function testRemoveInnerChildren() returns [xml, xml] {
     xml x1 = xml `<person><name>John</name><address><street>Palm Grove</street><city>Colombo 03</city><country><name>Sri Lanka</name><code>LK</code></country></address><age>50</age></person>`;
     xml children = x1/*;
-    x1/<address>/<country>.removeChildren("code");
+    (x1/<address>/<country>).removeChildren("code");
     return [children, x1/*];
 }
 

@@ -61,9 +61,9 @@ public class BallerinaRestParameterImpl extends ASTWrapperPsiElement implements 
   }
 
   @Override
-  @Nullable
+  @NotNull
   public PsiElement getIdentifier() {
-    return findChildByType(IDENTIFIER);
+    return findNotNullChildByType(IDENTIFIER);
   }
 
 }

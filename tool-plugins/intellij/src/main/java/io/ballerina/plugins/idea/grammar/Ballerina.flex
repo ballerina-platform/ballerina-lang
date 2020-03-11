@@ -257,6 +257,7 @@ DOLLAR = \$
 
     "json"                                      { return JSON; }
 
+    "let"                                       { return LET; }
     "listener"                                  { return LISTENER; }
     "lock"                                      { return LOCK; }
 

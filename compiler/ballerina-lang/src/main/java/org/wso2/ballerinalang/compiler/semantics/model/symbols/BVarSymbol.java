@@ -21,7 +21,6 @@ import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.VariableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.Name;
-import org.wso2.ballerinalang.programfile.Instruction.RegIndex;
 
 import static org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag.VARIABLE;
 
@@ -35,10 +34,6 @@ public class BVarSymbol extends BSymbol implements VariableSymbol {
     // Only used for type-narrowing. Cache of the original symbol.
     public BVarSymbol originalSymbol;
 
-    /**
-     * Represent the index of the variable in a memory block of the VM.
-     */
-    public RegIndex varIndex;
 
     /**
      * This indicate the indicated (by programmer) taintedness of a variable.
