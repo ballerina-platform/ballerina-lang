@@ -29,7 +29,7 @@ public class StringValueXmlTest {
         testAndAssert("testXmlComment", 12);
     }
 
-    @Test
+    @Test (groups = "brokenOnJBallerina")
     public void testXmlQName() {
         testAndAssert("testXmlQName", 13);
     }
