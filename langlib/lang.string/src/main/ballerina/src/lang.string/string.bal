@@ -182,3 +182,12 @@ public function equalsIgnoreCaseAscii(string str1, string str2) returns boolean 
 # + return - a single character string whose code point is `codePoint`; or an error
 # if `codePoint` is not a valid code point
 public function fromCodePointInt(int codePoint) returns Char|error = external;
+
+# Tests whether two strings are the same, ignoring the case of ASCII characters.
+# A character in the range a-z is treated the same as the corresponding character in the range A-Z.
+#
+# + str1 - the first string to be compared
+# + str2 - the second string to be compared
+# + return - true if `str1` is the same as `str2`, treating upper-case and lower-case
+# ASCII letters as the same; false, otherwise
+public function equalsIgnoreCaseAscii(string str1, string str2) returns boolean = external;

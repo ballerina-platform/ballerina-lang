@@ -112,29 +112,29 @@ function testBasicMap2() returns [int, string, map<string>] {
     return [count, str, modified];
 }
 
-//function xmlTest() returns [string, xml] {
-//    string str = "start";
-//    xml xdata = xml `<p:person xmlns:p="foo" xmlns:q="bar">
-//        <p:name>bob</p:name>
-//        <p:address>
-//            <p:city>NY</p:city>
-//            <q:country>US</q:country>
-//        </p:address>
-//        <q:ID>1131313</q:ID>
-//    </p:person>`;
-//
-//    int index = 0;
-//    xml m = xdata/*.elements()[1]/*.elements()
-//                 .'map(function (xml|string x) returns (string| xml) {
-//                            index += 1;
-//                            if x is xml {
-//                                str = str + "-" + index.toString();
-//                            }
-//                            return x;
-//                      });
-//    str = str + "-end";
-//    return [str, m];
-//}
+function xmlTest() returns [string, xml] {
+    string str = "start";
+    xml xdata = xml `<p:person xmlns:p="foo" xmlns:q="bar">
+        <p:name>bob</p:name>
+        <p:address>
+            <p:city>NY</p:city>
+            <q:country>US</q:country>
+        </p:address>
+        <q:ID>1131313</q:ID>
+    </p:person>`;
+
+    int index = 0;
+    xml m = ((xdata/*).elements()[1]/*).elements()
+                 .'map(function (xml|string x) returns (string| xml) {
+                            index += 1;
+                            if x is xml {
+                                str = str + "-" + index.toString();
+                            }
+                            return x;
+                      });
+    str = str + "-end";
+    return [str, m];
+}
 
 // RECORD WITH NESTED ITERABLE OPERATIONS
 
