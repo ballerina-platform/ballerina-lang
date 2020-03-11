@@ -49,7 +49,7 @@ public type InboundJwtAuthProvider object {
         }
 
         if (self.inboundJwtCache.hasKey(credential)) {
-            var payload = authenticateFromCache(self.inboundJwtCache, credential);
+            JwtPayload? payload = authenticateFromCache(self.inboundJwtCache, credential);
             if (payload is JwtPayload) {
                 auth:setAuthenticationContext("jwt", credential);
                 setPrincipal(payload);
@@ -57,7 +57,7 @@ public type InboundJwtAuthProvider object {
             }
         }
 
-        var validationResult = validateJwt(credential, self.jwtValidatorConfig);
+        JwtPayload|Error validationResult = validateJwt(credential, self.jwtValidatorConfig);
         if (validationResult is JwtPayload) {
             auth:setAuthenticationContext("jwt", credential);
             setPrincipal(validationResult);
@@ -73,7 +73,7 @@ public type InboundJwtAuthProvider object {
 function authenticateFromCache(cache:Cache jwtCache, string jwtToken) returns JwtPayload? {
     if (jwtCache.hasKey(jwtToken)) {
         InboundJwtCacheEntry jwtCacheEntry = <InboundJwtCacheEntry>jwtCache.get(jwtToken);
-        var expTime = jwtCacheEntry.expTime;
+        int? expTime = jwtCacheEntry.expTime;
         // convert to current time and check the expiry time
         if (expTime is () || expTime > (time:currentTime().time / 1000)) {
             JwtPayload payload = jwtCacheEntry.jwtPayload;
@@ -81,7 +81,7 @@ function authenticateFromCache(cache:Cache jwtCache, string jwtToken) returns Jw
             if (sub is string) {
                 string printMsg = sub;
                 log:printDebug(function() returns string {
-                    return "Authenticate user :" + printMsg + " from cache";
+                    return "Authenticate user :" + printMsg + " from the cache";
                 });
             }
             return payload;
@@ -125,13 +125,13 @@ function setPrincipal(JwtPayload jwtPayload) {
     if (claims is map<json>) {
         auth:setPrincipal(claims = claims);
         if (claims.hasKey(SCOPE)) {
-            var scopeString = claims[SCOPE];
+            json scopeString = claims[SCOPE];
             if (scopeString is string && scopeString != "") {
                 auth:setPrincipal(scopes = stringutils:split(scopeString, " "));
             }
         }
         if (claims.hasKey(USERNAME)) {
-            var name = claims[USERNAME];
+            json name = claims[USERNAME];
             if (name is string) {
                 auth:setPrincipal(username = name);
             }

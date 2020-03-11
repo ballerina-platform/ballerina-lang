@@ -147,7 +147,7 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
-import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
+import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLogHelper;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.util.AttachPoints;
 import org.wso2.ballerinalang.util.Flags;
@@ -190,7 +190,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     private SymbolResolver symResolver;
     private TypeChecker typeChecker;
     private Types types;
-    private BLangDiagnosticLog dlog;
+    private BLangDiagnosticLogHelper dlog;
     private TypeNarrower typeNarrower;
     private ConstantAnalyzer constantAnalyzer;
     private ConstantValueResolver constantValueResolver;
@@ -223,7 +223,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         this.symResolver = SymbolResolver.getInstance(context);
         this.typeChecker = TypeChecker.getInstance(context);
         this.types = Types.getInstance(context);
-        this.dlog = BLangDiagnosticLog.getInstance(context);
+        this.dlog = BLangDiagnosticLogHelper.getInstance(context);
         this.typeNarrower = TypeNarrower.getInstance(context);
         this.constantAnalyzer = ConstantAnalyzer.getInstance(context);
         this.constantValueResolver = ConstantValueResolver.getInstance(context);
@@ -601,6 +601,18 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                     annotationAttachment.attachPoints.add(AttachPoint.Point.PARAMETER);
                     annotationAttachment.accept(this);
                 });
+            }
+        } else if ((ownerSymTag & SymTag.OBJECT) == SymTag.OBJECT) {
+            for (BLangAnnotationAttachment annotationAttachment : varNode.annAttachments) {
+                annotationAttachment.attachPoints.add(AttachPoint.Point.OBJECT_FIELD);
+                annotationAttachment.attachPoints.add(AttachPoint.Point.FIELD);
+                annotationAttachment.accept(this);
+            }
+        } else if ((ownerSymTag & SymTag.RECORD) == SymTag.RECORD) {
+            for (BLangAnnotationAttachment annotationAttachment : varNode.annAttachments) {
+                annotationAttachment.attachPoints.add(AttachPoint.Point.RECORD_FIELD);
+                annotationAttachment.attachPoints.add(AttachPoint.Point.FIELD);
+                annotationAttachment.accept(this);
             }
         } else {
             varNode.annAttachments.forEach(annotationAttachment -> {

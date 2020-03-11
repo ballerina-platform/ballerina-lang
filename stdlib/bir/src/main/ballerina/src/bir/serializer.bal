@@ -76,9 +76,9 @@ function serializeTypes(BType?[] bTypes, string delimiter) returns string {
 function serializeFields(BObjectField?[] fields) returns string {
     var result = "";
     var delimiter = "; ";
-    foreach var field in fields {
-        if (field is BObjectField) {
-            result = result + serialize(field.typeValue) + " " + field.name.value + delimiter;
+    foreach var 'field in fields {
+        if ('field is BObjectField) {
+            result = result + serialize('field.typeValue) + " " + 'field.name.value + delimiter;
         }
     }
     return <@untainted> result;
@@ -87,9 +87,9 @@ function serializeFields(BObjectField?[] fields) returns string {
 function serializeRecordFields(BRecordField?[] fields) returns string {
     var result = "";
     var delimiter = "; ";
-    foreach var field in fields {
-        if (field is BRecordField) {
-            result = result + serialize(field.typeValue) + " " + field.name.value + delimiter;
+    foreach var 'field in fields {
+        if ('field is BRecordField) {
+            result = result + serialize('field.typeValue) + " " + 'field.name.value + delimiter;
         }
     }
     return result;

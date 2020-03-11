@@ -273,17 +273,17 @@ function testDynamicIndexAccessWithSingleType() returns int {
     string[] index = ["fieldOne", "fieldTwo", "fieldThree"];
     int marks = 0;
 
-    int? field = q[index[0]];
-    if field is int {
-        marks += (field * 2);
+    int? 'field = q[index[0]];
+    if 'field is int {
+        marks += ('field * 2);
     }
-    field = q[index[1]];
-    if field is int {
-        marks += (field * 2);
+    'field = q[index[1]];
+    if 'field is int {
+        marks += ('field * 2);
     }
-    field = q[index[2]];
-    if field is int {
-        marks += (field * 2);
+    'field = q[index[2]];
+    if 'field is int {
+        marks += ('field * 2);
     }
     return marks;
 }

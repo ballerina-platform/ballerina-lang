@@ -71,6 +71,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangFiniteTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFunctionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangStreamType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangTupleTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUnionTypeNode;
@@ -81,13 +82,12 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
-import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
+import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLogHelper;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.util.Flags;
 import org.wso2.ballerinalang.util.Lists;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -113,7 +113,7 @@ public class SymbolResolver extends BLangNodeVisitor {
 
     private SymbolTable symTable;
     private Names names;
-    private BLangDiagnosticLog dlog;
+    private BLangDiagnosticLogHelper dlog;
     private Types types;
 
     private SymbolEnv env;
@@ -136,7 +136,7 @@ public class SymbolResolver extends BLangNodeVisitor {
 
         this.symTable = SymbolTable.getInstance(context);
         this.names = Names.getInstance(context);
-        this.dlog = BLangDiagnosticLog.getInstance(context);
+        this.dlog = BLangDiagnosticLogHelper.getInstance(context);
         this.types = Types.getInstance(context);
         this.symbolEnter = SymbolEnter.getInstance(context);
         this.anonymousModelHelper = BLangAnonymousModelHelper.getInstance(context);
@@ -351,32 +351,6 @@ public class SymbolResolver extends BLangNodeVisitor {
                                          BType lhsType,
                                          BType rhsType) {
         return resolveOperator(names.fromString(opKind.value()), Lists.of(lhsType, rhsType));
-    }
-
-    public BSymbol resolveBuiltinOperator(Name method, BType... args) {
-        BType type = args[0];
-        switch (type.tag) {
-            case TypeTags.RECORD:
-                type = symTable.recordType;
-                break;
-            case TypeTags.ARRAY:
-                type = symTable.arrayType;
-                break;
-            case TypeTags.TUPLE:
-                type = symTable.tupleType;
-                break;
-            case TypeTags.ERROR:
-                type = symTable.errorType;
-                break;
-            case TypeTags.MAP:
-                type = symTable.mapType;
-                break;
-        }
-
-        List<BType> argsList = Lists.of(type);
-        List<BType> paramTypes = Arrays.asList(args).subList(1, args.length);
-        argsList.addAll(paramTypes);
-        return resolveOperator(method, argsList);
     }
 
     BSymbol createEqualityOperator(OperatorKind opKind, BType lhsType, BType rhsType) {
@@ -626,6 +600,9 @@ public class SymbolResolver extends BLangNodeVisitor {
             case TypeTags.XML:
                 bSymbol = lookupLangLibMethodInModule(symTable.langXmlModuleSymbol, name);
                 break;
+            case TypeTags.BOOLEAN:
+                bSymbol = lookupLangLibMethodInModule(symTable.langBooleanModuleSymbol, name);
+                break;
             case TypeTags.UNION:
                 Iterator<BType> itr = ((BUnionType) type).getMemberTypes().iterator();
 
@@ -843,7 +820,7 @@ public class SymbolResolver extends BLangNodeVisitor {
             symTable.errorConstructor = ((BErrorTypeSymbol) symTable.errorType.tsymbol).ctorSymbol;
             symTable.pureType = BUnionType.create(null, symTable.anydataType, this.symTable.errorType);
             symTable.detailType.restFieldType = symTable.pureType;
-            symTable.streamType = new BStreamType(TypeTags.STREAM, symTable.pureType, null);
+            symTable.streamType = new BStreamType(TypeTags.STREAM, symTable.pureType, null, null);
             symTable.defineOperators(); // Define all operators e.g. binary, unary, cast and conversion
             symTable.pureType = BUnionType.create(null, symTable.anydataType, symTable.errorType);
             symTable.errorOrNilType = BUnionType.create(null, symTable.errorType, symTable.nilType);
@@ -910,7 +887,7 @@ public class SymbolResolver extends BLangNodeVisitor {
         LinkedHashSet<BType> memberTypes = unionTypeNode.memberTypeNodes.stream()
                 .map(memTypeNode -> resolveTypeNode(memTypeNode, env))
                 .flatMap(memBType ->
-                        memBType.tag == TypeTags.UNION ?
+                        memBType.tag == TypeTags.UNION && !Symbols.isFlagOn(memBType.tsymbol.flags, Flags.TYPE_PARAM) ?
                                 ((BUnionType) memBType).getMemberTypes().stream() :
                                 Stream.of(memBType))
                 .collect(Collectors.toCollection(LinkedHashSet::new));
@@ -1063,14 +1040,6 @@ public class SymbolResolver extends BLangNodeVisitor {
             // TODO: Fix to set type symbol with specified constraint, as with other constrained types.
             resultType = new BTableType(TypeTags.TABLE, constraintType, type.tsymbol);
             return;
-        } else if (type.tag == TypeTags.STREAM) {
-            if (!constraintType.isPureType()) {
-                dlog.error(constrainedTypeNode.constraint.pos, DiagnosticCode.STREAM_INVALID_CONSTRAINT,
-                           constraintType);
-                resultType = symTable.semanticError;
-                return;
-            }
-            constrainedType = new BStreamType(TypeTags.STREAM, constraintType, null);
         } else if (type.tag == TypeTags.FUTURE) {
             constrainedType = new BFutureType(TypeTags.FUTURE, constraintType, null);
         } else if (type.tag == TypeTags.MAP) {
@@ -1085,6 +1054,23 @@ public class SymbolResolver extends BLangNodeVisitor {
         constrainedType.tsymbol = Symbols.createTypeSymbol(typeSymbol.tag, typeSymbol.flags, typeSymbol.name,
                                                            typeSymbol.pkgID, constrainedType, typeSymbol.owner);
         resultType = constrainedType;
+    }
+
+    public void visit(BLangStreamType streamTypeNode) {
+        BType type = resolveTypeNode(streamTypeNode.type, env);
+        BType constraintType = resolveTypeNode(streamTypeNode.constraint, env);
+        BType error = streamTypeNode.error != null ? resolveTypeNode(streamTypeNode.error, env) : null;
+        // If the constrained type is undefined, return noType as the type.
+        if (constraintType == symTable.noType) {
+            resultType = symTable.noType;
+            return;
+        }
+
+        BType streamType = new BStreamType(TypeTags.STREAM, constraintType, error, null);
+        BTypeSymbol typeSymbol = type.tsymbol;
+        streamType.tsymbol = Symbols.createTypeSymbol(typeSymbol.tag, typeSymbol.flags, typeSymbol.name,
+                typeSymbol.pkgID, streamType, typeSymbol.owner);
+        resultType = streamType;
     }
 
     public void visit(BLangUserDefinedType userDefinedTypeNode) {

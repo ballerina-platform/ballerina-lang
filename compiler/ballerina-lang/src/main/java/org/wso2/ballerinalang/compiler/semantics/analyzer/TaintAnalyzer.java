@@ -88,7 +88,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangRestArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangServiceConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStatementExpression;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangStreamConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
@@ -161,7 +160,7 @@ import org.wso2.ballerinalang.compiler.util.CompilerUtils;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
-import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
+import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLogHelper;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.util.Flags;
 import org.wso2.ballerinalang.util.Lists;
@@ -201,7 +200,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
     private SymbolEnv currPkgEnv;
     private Names names;
     private SymbolTable symTable;
-    private BLangDiagnosticLog dlog;
+    private BLangDiagnosticLogHelper dlog;
     private Types types;
 
     private boolean overridingAnalysis = true;
@@ -245,7 +244,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
     public TaintAnalyzer(CompilerContext context) {
         context.put(TAINT_ANALYZER_KEY, this);
         names = Names.getInstance(context);
-        dlog = BLangDiagnosticLog.getInstance(context);
+        dlog = BLangDiagnosticLogHelper.getInstance(context);
         symTable = SymbolTable.getInstance(context);
         types = Types.getInstance(context);
     }
@@ -1429,11 +1428,6 @@ public class TaintAnalyzer extends BLangNodeVisitor {
             setTaintedStatus(serviceConstructorExpr.type.tsymbol, TaintedStatus.TAINTED);
         }
         getCurrentAnalysisState().taintedStatus = TaintedStatus.UNTAINTED;
-    }
-
-    @Override
-    public void visit(BLangStreamConstructorExpr streamConstructorExpr) {
-        streamConstructorExpr.lambdaFunction.accept(this);
     }
 
     @Override

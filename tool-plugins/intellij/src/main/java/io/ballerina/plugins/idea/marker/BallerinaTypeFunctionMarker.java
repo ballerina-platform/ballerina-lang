@@ -31,15 +31,15 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiReference;
 import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.util.FunctionUtil;
-import com.intellij.util.containers.ContainerUtil;
-import io.ballerina.plugins.idea.psi.BallerinaCallableUnitSignature;
 import io.ballerina.plugins.idea.psi.BallerinaFunctionDefinition;
+import io.ballerina.plugins.idea.psi.BallerinaFunctionSignature;
 import io.ballerina.plugins.idea.psi.BallerinaIdentifier;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.awt.event.MouseEvent;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -57,7 +57,7 @@ public class BallerinaTypeFunctionMarker extends LineMarkerProviderDescriptor {
     @Override
     public void collectSlowLineMarkers(@NotNull List<PsiElement> elements, @NotNull Collection<LineMarkerInfo> result) {
         // This is used to prevent adding multiple line markers to the same line.
-        Set<Integer> lines = ContainerUtil.newHashSet();
+        Set<Integer> lines = new HashSet<>();
         for (PsiElement implementation : elements) {
 
             if (!(implementation instanceof BallerinaIdentifier)) {
@@ -65,7 +65,7 @@ public class BallerinaTypeFunctionMarker extends LineMarkerProviderDescriptor {
             }
 
             PsiElement parent = implementation.getParent();
-            if (parent instanceof BallerinaCallableUnitSignature) {
+            if (parent instanceof BallerinaFunctionSignature) {
                 BallerinaFunctionDefinition ballerinaFunctionDefinition = PsiTreeUtil.getParentOfType(parent,
                         BallerinaFunctionDefinition.class);
                 if (ballerinaFunctionDefinition == null) {
@@ -81,7 +81,6 @@ public class BallerinaTypeFunctionMarker extends LineMarkerProviderDescriptor {
                     continue;
                 }
                 addMarker(result, lines, definition, implementation);
-
             }
         }
     }
@@ -127,7 +126,7 @@ public class BallerinaTypeFunctionMarker extends LineMarkerProviderDescriptor {
                     FunctionUtil.constant("Implemented function"),
                     (e, elt) -> navigateToOverridingMethod(e, ((NavigatablePsiElement) implementation)),
                     GutterIconRenderer.Alignment.RIGHT
-            );
+                 );
         }
     }
 
@@ -141,7 +140,7 @@ public class BallerinaTypeFunctionMarker extends LineMarkerProviderDescriptor {
                     FunctionUtil.constant("Implementing function"),
                     (e, elt) -> navigateToOverridingMethod(e, ((NavigatablePsiElement) definition)),
                     GutterIconRenderer.Alignment.RIGHT
-            );
+                 );
         }
     }
 

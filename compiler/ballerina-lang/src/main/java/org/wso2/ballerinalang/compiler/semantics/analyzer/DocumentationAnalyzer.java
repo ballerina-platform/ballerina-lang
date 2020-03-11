@@ -65,10 +65,11 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
-import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
+import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLogHelper;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.util.Flags;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -84,7 +85,7 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
     private static final CompilerContext.Key<DocumentationAnalyzer> DOCUMENTATION_ANALYZER_KEY =
             new CompilerContext.Key<>();
 
-    private BLangDiagnosticLog dlog;
+    private BLangDiagnosticLogHelper dlog;
     private final SymbolResolver symResolver;
     private final SymbolTable symTable;
     private SymbolEnv env;
@@ -105,7 +106,7 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
     private DocumentationAnalyzer(CompilerContext context) {
         context.put(DOCUMENTATION_ANALYZER_KEY, this);
         this.symResolver = SymbolResolver.getInstance(context);
-        this.dlog = BLangDiagnosticLog.getInstance(context);
+        this.dlog = BLangDiagnosticLogHelper.getInstance(context);
         this.names = Names.getInstance(context);
         this.symTable = SymbolTable.getInstance(context);
         setupReferenceParser();
@@ -207,6 +208,9 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
                     DiagnosticCode.NO_SUCH_DOCUMENTABLE_FIELD, DiagnosticCode.FIELD_ALREADY_DOCUMENTED);
             validateReturnParameter(typeDefinition, null, false);
             validateReferences(typeDefinition);
+            for (SimpleVariableNode field : fields) {
+                validateReferences(field);
+            }
 
             ((BLangObjectTypeNode) typeDefinition.getTypeNode()).getFunctions().forEach(this::analyzeNode);
         } else if (typeDefinition.typeNode.getKind() == NodeKind.RECORD_TYPE) {
@@ -215,6 +219,10 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
                     DiagnosticCode.NO_SUCH_DOCUMENTABLE_FIELD, DiagnosticCode.FIELD_ALREADY_DOCUMENTED);
             validateReturnParameter(typeDefinition, null, false);
             validateReferences(typeDefinition);
+
+            for (SimpleVariableNode field : fields) {
+                validateReferences(field);
+            }
         }
     }
 
@@ -400,17 +408,31 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
             return;
         }
 
+        // List that holds fields that are documented at field level.
+        List<String> fieldsDocumentedAtFieldLevel = new ArrayList<>();
+
+        for (SimpleVariableNode field : actualParameters) {
+            if (field.getMarkdownDocumentationAttachment() == null) {
+                continue;
+            }
+
+            fieldsDocumentedAtFieldLevel.add(field.getName().getValue());
+        }
+
         // Create a new map to add parameter name and parameter node as key-value pairs.
         Map<String, BLangMarkdownParameterDocumentation> documentedParameterMap = new HashMap<>();
-        documentation.parameters.forEach(parameter -> {
+
+        for (BLangMarkdownParameterDocumentation parameter : documentation.parameters) {
             String parameterName = parameter.getParameterName().getValue();
             // Check for parameters which are documented multiple times.
-            if (documentedParameterMap.containsKey(parameterName)) {
+            if (documentedParameterMap.containsKey(parameterName) ||
+                    fieldsDocumentedAtFieldLevel.contains(parameterName)) {
                 dlog.warning(parameter.pos, parameterAlreadyDefined, parameterName);
-            } else {
-                documentedParameterMap.put(parameterName, parameter);
+                continue;
             }
-        });
+
+            documentedParameterMap.put(parameterName, parameter);
+        }
 
         // Iterate through actual parameters.
         actualParameters.forEach(parameter -> {
@@ -422,9 +444,10 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
                 param.setSymbol(((BLangSimpleVariable) parameter).symbol);
                 documentedParameterMap.remove(name);
             } else {
-                // Check whether the parameter is public. Otherwise it is not mandatory to document it except if it is a
-                // public function parameter.
-                if (Symbols.isFlagOn(((BLangSimpleVariable) parameter).symbol.flags, Flags.PUBLIC)) {
+                // Check whether the g is public and whether there is no field documentation.
+                // It is mandatory to document only if it is public.
+                if (Symbols.isFlagOn(((BLangSimpleVariable) parameter).symbol.flags, Flags.PUBLIC) &&
+                        ((BLangSimpleVariable) parameter).markdownDocumentationAttachment == null) {
                     // Add warnings for undocumented parameters.
                     dlog.warning(((BLangNode) parameter).pos, undocumentedParameter, name);
                 }

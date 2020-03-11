@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -44,8 +44,20 @@ public class BallerinaDocumentationReferenceImpl extends ASTWrapperPsiElement im
 
   @Override
   @NotNull
-  public BallerinaDocumentationDefinitionReference getDocumentationDefinitionReference() {
-    return findNotNullChildByClass(BallerinaDocumentationDefinitionReference.class);
+  public BallerinaReferenceType getReferenceType() {
+    return findNotNullChildByClass(BallerinaReferenceType.class);
+  }
+
+  @Override
+  @Nullable
+  public PsiElement getSingleBacktickContent() {
+    return findChildByType(SINGLE_BACKTICK_CONTENT);
+  }
+
+  @Override
+  @Nullable
+  public PsiElement getSingleBacktickMarkdownEnd() {
+    return findChildByType(SINGLE_BACKTICK_MARKDOWN_END);
   }
 
 }

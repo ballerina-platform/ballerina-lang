@@ -52,7 +52,7 @@ public type AuthzHandler object {
     #
     # + scopes - Array of scopes or Array of arrays of scopes of the listener or resource or service
     # + return - `true` if authorization check is a success, else `false`
-    function process(string[]|string[][] scopes) returns boolean {
+    function process(Scopes scopes) returns boolean {
         // since different resources can have different scopes,
         // cache key is <username>-<service>-<resource>-<http-method>-<scopes-separated-by-comma>
         string serviceName = runtime:getInvocationContext().attributes[SERVICE_NAME].toString();
@@ -91,8 +91,8 @@ function generateAuthzCacheKey(string username, string[] userScopes, string serv
     string authzCacheKey = username + "-" + serviceName + "-" + resourceName + "-" + requestMethod;
     if (userScopes.length() > 0) {
         authzCacheKey += "-";
-        foreach var userScope in userScopes {
-            authzCacheKey += userScope + ",";
+        foreach string userScope in userScopes {
+            authzCacheKey += userScope.trim() + ",";
         }
     }
     return authzCacheKey;

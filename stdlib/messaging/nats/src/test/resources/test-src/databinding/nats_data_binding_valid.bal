@@ -23,7 +23,7 @@ type Entry record {
     string name;
 };
 
-nats:Connection conn = new("localhost:4222");
+nats:Connection conn = new;
 
 listener nats:StreamingListener lis = new(conn);
 

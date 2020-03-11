@@ -38,7 +38,7 @@ import io.ballerina.plugins.idea.psi.BallerinaGlobalVariableDefinition;
 import io.ballerina.plugins.idea.psi.BallerinaIntegerLiteral;
 import io.ballerina.plugins.idea.psi.BallerinaInvocation;
 import io.ballerina.plugins.idea.psi.BallerinaNameReference;
-import io.ballerina.plugins.idea.psi.BallerinaObjectFunctionDefinition;
+import io.ballerina.plugins.idea.psi.BallerinaObjectMethod;
 import io.ballerina.plugins.idea.psi.BallerinaPackageReference;
 import io.ballerina.plugins.idea.psi.BallerinaRecordKey;
 import io.ballerina.plugins.idea.psi.BallerinaServiceDefinition;
@@ -196,8 +196,8 @@ public class BallerinaAnnotator implements Annotator {
                     }
                     // Highlights "self" keyword only inside object type contexts.
                 } else if ("self".equals(element.getText())) {
-                    BallerinaObjectFunctionDefinition objectContext = PsiTreeUtil
-                            .getParentOfType(element, BallerinaObjectFunctionDefinition.class);
+                    BallerinaObjectMethod objectContext = PsiTreeUtil
+                            .getParentOfType(element, BallerinaObjectMethod.class);
                     if (objectContext != null) {
                         Annotation annotation = holder.createInfoAnnotation(element, null);
                         annotation.setTextAttributes(BallerinaSyntaxHighlightingColors.KEYWORD);

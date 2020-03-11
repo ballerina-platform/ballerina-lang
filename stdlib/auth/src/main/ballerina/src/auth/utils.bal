@@ -50,25 +50,21 @@ const string CONFIG_USER_SECTION = "b7a.users";
 # + credential - The credential values.
 # + return - A `string` tuple with the extracted username and password or `Error` occurred while extracting credentials
 public function extractUsernameAndPassword(string credential) returns [string, string]|Error {
-    string decodedHeaderValue = "";
-
     byte[]|error result = arrays:fromBase64(credential);
     if (result is error) {
         return prepareError(result.reason(), result);
-    } else {
-        string|error fromBytesResults = strings:fromBytes(result);
-        if (fromBytesResults is string) {
-            decodedHeaderValue = fromBytesResults;
-        } else {
-            return prepareError(fromBytesResults.reason(), fromBytesResults);
-        }
     }
 
-    string[] decodedCredentials = stringutils:split(decodedHeaderValue, ":");
-    if (decodedCredentials.length() != 2) {
-        return prepareError("Incorrect credential format. Format should be username:password");
+    string|error fromBytesResults = strings:fromBytes(<byte[]>result);
+    if (fromBytesResults is string) {
+        string[] decodedCredentials = stringutils:split(fromBytesResults, ":");
+        if (decodedCredentials.length() != 2) {
+            return prepareError("Incorrect credential format. Format should be username:password");
+        } else {
+            return [decodedCredentials[0], decodedCredentials[1]];
+        }
     } else {
-        return [decodedCredentials[0], decodedCredentials[1]];
+        return prepareError(fromBytesResults.reason(), fromBytesResults);
     }
 }
 
@@ -133,22 +129,21 @@ public function setPrincipal(public string? userId = (), public string? username
 # + return - true if there is a match between resource and user scopes, else false
 public function checkForScopeMatch(string[]|string[][] resourceScopes, string[] userScopes, string authzCacheKey,
                                    cache:Cache? positiveAuthzCache, cache:Cache? negativeAuthzCache) returns boolean {
-    var authorizedFromCache = authorizeFromCache(authzCacheKey, positiveAuthzCache, negativeAuthzCache);
+    boolean? authorizedFromCache = authorizeFromCache(authzCacheKey, positiveAuthzCache, negativeAuthzCache);
     if (authorizedFromCache is boolean) {
         return authorizedFromCache;
-    } else {
-        if (userScopes.length() > 0) {
-            boolean authorized = true;
-            if (resourceScopes is string[]) {
-                authorized = matchScopes(resourceScopes, userScopes);
-            } else {
-                foreach string[] resourceScope in resourceScopes {
-                    authorized = authorized && matchScopes(resourceScope, userScopes);
-                }
+    }
+    if (userScopes.length() > 0) {
+        boolean authorized = true;
+        if (resourceScopes is string[]) {
+            authorized = matchScopes(resourceScopes, userScopes);
+        } else {
+            foreach string[] resourceScope in resourceScopes {
+                authorized = authorized && matchScopes(resourceScope, userScopes);
             }
-            cacheAuthzResult(authorized, authzCacheKey, positiveAuthzCache, negativeAuthzCache);
-            return authorized;
         }
+        cacheAuthzResult(authorized, authzCacheKey, positiveAuthzCache, negativeAuthzCache);
+        return authorized;
     }
     return false;
 }
@@ -163,7 +158,7 @@ function authorizeFromCache(string authzCacheKey, cache:Cache? positiveAuthzCach
                             cache:Cache? negativeAuthzCache) returns boolean? {
     cache:Cache? pCache = positiveAuthzCache;
     if (pCache is cache:Cache) {
-        var positiveCacheResponse = pCache.get(authzCacheKey);
+        any|cache:Error positiveCacheResponse = pCache.get(authzCacheKey);
         if (positiveCacheResponse is boolean) {
             return true;
         }
@@ -171,7 +166,7 @@ function authorizeFromCache(string authzCacheKey, cache:Cache? positiveAuthzCach
 
     cache:Cache? nCache = negativeAuthzCache;
     if (nCache is cache:Cache) {
-        var negativeCacheResponse = nCache.get(authzCacheKey);
+        any|cache:Error negativeCacheResponse = nCache.get(authzCacheKey);
         if (negativeCacheResponse is boolean) {
             return false;
         }
@@ -200,7 +195,7 @@ function cacheAuthzResult(boolean authorized, string authzCacheKey, cache:Cache?
         }
     } else {
         cache:Cache? nCache = negativeAuthzCache;
-         if (nCache is cache:Cache) {
+        if (nCache is cache:Cache) {
             cache:Error? result = nCache.put(authzCacheKey, authorized);
             if (result is cache:Error) {
                 log:printError(function() returns string {
@@ -218,8 +213,8 @@ function cacheAuthzResult(boolean authorized, string authzCacheKey, cache:Cache?
 # + userScopes - Scopes of the user
 # + return - true if one of the resourceScopes can be found at userScopes, else false
 function matchScopes(string[] resourceScopes, string[] userScopes) returns boolean {
-    foreach var resourceScope in resourceScopes {
-        foreach var userScope in userScopes {
+    foreach string resourceScope in resourceScopes {
+        foreach string userScope in userScopes {
             if (resourceScope == userScope) {
                 return true;
             }

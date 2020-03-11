@@ -29,6 +29,7 @@ import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.nats.Constants;
+import org.ballerinalang.nats.Utils;
 import org.ballerinalang.nats.observability.NatsMetricsUtil;
 import org.ballerinalang.nats.observability.NatsObservabilityConstants;
 import org.ballerinalang.nats.observability.NatsTracingUtil;
@@ -77,7 +78,10 @@ public class Request {
                         Constants.NATS_MESSAGE_OBJ_NAME, reply.getSubject(), msgData, reply.getReplyTo());
                 msgObj.addNativeData(Constants.NATS_MSG, reply);
                 return msgObj;
-            } catch (IllegalArgumentException | IllegalStateException | ExecutionException | TimeoutException ex) {
+            } catch (TimeoutException ex) {
+                NatsMetricsUtil.reportProducerError(url, subject, NatsObservabilityConstants.ERROR_TYPE_REQUEST);
+                return Utils.createNatsError("Request to subject " + subject + " timed out while waiting for a reply");
+            } catch (IllegalArgumentException | IllegalStateException | ExecutionException ex) {
                 NatsMetricsUtil.reportProducerError(url, subject, NatsObservabilityConstants.ERROR_TYPE_REQUEST);
                 return BallerinaErrors.createError(Constants.NATS_ERROR_CODE, "Error while requesting message to " +
                         "subject " + subject + ". " + ex.getMessage());
