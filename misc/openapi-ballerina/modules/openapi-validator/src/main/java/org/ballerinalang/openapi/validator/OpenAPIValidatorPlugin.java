@@ -35,6 +35,7 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
@@ -103,15 +104,18 @@ public class OpenAPIValidatorPlugin extends AbstractCompilerPlugin {
                         if (key.equals(Constants.CONTRACT)) {
                             if (valueExpr instanceof BLangLiteral) {
                                 BLangLiteral value = (BLangLiteral) valueExpr;
-                                String separator = File.separator;
                                 SourceDirectoryManager sourceDirectoryManager = SourceDirectoryManager.getInstance(
                                         compilerContext);
-                                String sourceDir = sourceDirectoryManager.getSourceDirectory().getPath().toString();
-                                String filePath = serviceNode.getPosition().getSource().getPackageName() + separator +
-                                        serviceNode.getPosition().getSource().getCompilationUnitName().replaceAll(
-                                                "\\w*\\.bal", "");
-                                String projectDir = filePath.contains(sourceDir) ? sourceDir :
-                                        (sourceDir + separator + "src" + separator + filePath);
+                                Path sourceDir = sourceDirectoryManager.getSourceDirectory().getPath();
+                                Path pkg = Paths.get(serviceNode.getPosition().getSource().getPackageName());
+                                Path filePath = Paths.get((pkg.toString().equals(".") ? "" : pkg.toString()),
+                                      serviceNode.getPosition().getSource().getCompilationUnitName().replaceAll(
+                                              "\\w*\\.bal", "").replaceAll("^/+", ""));
+
+                                String projectDir = filePath.toString().
+                                        contains(sourceDir.toString().replaceAll("^/+", "")) ?
+                                        sourceDir.toString() :
+                                        Paths.get(sourceDir.toString(), "src", filePath.toString()).toString();
                                 if (value.getValue() instanceof String) {
                                     String userUri = (String) value.getValue();
 
