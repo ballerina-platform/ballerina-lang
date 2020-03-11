@@ -169,6 +169,8 @@ public class SymbolEnter extends BLangNodeVisitor {
 
     private SymbolEnv env;
 
+    private static final String DEPRECATION_ANNOTATION = "deprecated";
+
     public static SymbolEnter getInstance(CompilerContext context) {
         SymbolEnter symbolEnter = context.get(SYMBOL_ENTER_KEY);
         if (symbolEnter == null) {
@@ -751,6 +753,9 @@ public class SymbolEnter extends BLangNodeVisitor {
                 dlog.error(typeDefinition.pos, DiagnosticCode.TYPE_PARAM_OUTSIDE_LANG_MODULE);
             }
         }
+        if (isDeprecated(typeDefinition.annAttachments)) {
+            typeDefSymbol.flags |= Flags.DEPRECATED;
+        }
         typeDefinition.symbol = typeDefSymbol;
         defineSymbol(typeDefinition.name.pos, typeDefSymbol);
 
@@ -841,10 +846,22 @@ public class SymbolEnter extends BLangNodeVisitor {
         SymbolEnv invokableEnv = SymbolEnv.createFunctionEnv(funcNode, funcSymbol.scope, env);
         defineInvokableSymbol(funcNode, funcSymbol, invokableEnv);
 
+        if (isDeprecated(funcNode.annAttachments)) {
+            funcSymbol.flags |= Flags.DEPRECATED;
+        }
         // Define function receiver if any.
         if (funcNode.receiver != null) {
             defineAttachedFunctions(funcNode, funcSymbol, invokableEnv, validAttachedFunc);
         }
+    }
+
+    private boolean isDeprecated(List<BLangAnnotationAttachment> annAttachments) {
+        for (BLangAnnotationAttachment annotationAttachment : annAttachments) {
+            if (annotationAttachment.annotationName.getValue().equals(DEPRECATION_ANNOTATION)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override
@@ -904,7 +921,9 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
 
         constantSymbol.markdownDocumentation = getMarkdownDocAttachment(constant.markdownDocumentationAttachment);
-
+        if (isDeprecated(constant.annAttachments)) {
+            constantSymbol.flags |= Flags.DEPRECATED;
+        }
         // Add the symbol to the enclosing scope.
         if (!symResolver.checkForUniqueSymbol(constant.name.pos, env, constantSymbol)) {
             return;
@@ -931,7 +950,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         // assign the type to var type node
         if (varNode.type == null) {
             if (varNode.typeNode != null) {
-                varNode.type = symResolver.resolveTypeNode(varNode.typeNode, env);
+                varNode.type = symResolver.resolveTypeNodeWithDeprecationCheck(varNode.typeNode, env);
             } else {
                 varNode.type = symTable.noType;
             }
@@ -1169,11 +1188,6 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
 
         return types.isAssignable(type, symTable.trueType);
-    }
-
-    private boolean hasAnnotation(List<BLangAnnotationAttachment> annotationAttachmentList, String expectedAnnotation) {
-        return annotationAttachmentList.stream()
-                .filter(annotation -> annotation.annotationName.value.equals(expectedAnnotation)).count() > 0;
     }
 
     /**

@@ -481,6 +481,14 @@ public class SymbolResolver extends BLangNodeVisitor {
         return lookupMemberSymbol(pos, objectSymbol.methodScope, env, fieldName, SymTag.VARIABLE);
     }
 
+    public BType resolveTypeNodeWithDeprecationCheck(BLangType typeNode, SymbolEnv env) {
+        BType type = resolveTypeNode(typeNode, env);
+        if (type.tsymbol != null && Symbols.isFlagOn(type.tsymbol.flags, Flags.DEPRECATED)) {
+            dlog.warning(typeNode.pos, DiagnosticCode.USAGE_OF_DEPRECATED_CONSTRUCT, type.tsymbol.name.value);
+        }
+        return type;
+    }
+
     public BType resolveTypeNode(BLangType typeNode, SymbolEnv env) {
         return resolveTypeNode(typeNode, env, DiagnosticCode.UNKNOWN_TYPE);
     }
