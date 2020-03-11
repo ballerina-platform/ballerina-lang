@@ -449,20 +449,7 @@ public class Message {
 
     private void updateBMapValue(BType bType, BMap<String, Object> bMapValue,
                                  Descriptors.FieldDescriptor fieldDescriptor, Object bValue) {
-        MapValue<String, Object> bMsg = getOneOfBValue(bType, fieldDescriptor, bValue);
-        bMapValue.put(fieldDescriptor.getContainingOneof().getName(), bMsg);
-    }
-
-    private MapValue<String, Object> getOneOfBValue(BType bType, Descriptors.FieldDescriptor fieldDescriptor,
-                                                    Object bValue) {
-        Descriptors.OneofDescriptor oneofDescriptor = fieldDescriptor.getContainingOneof();
-        String msgType = oneofDescriptor.getContainingType().getName() + "_" + toCamelCase
-                (fieldDescriptor.getName());
-        int typeFlags = TypeFlags.asMask(TypeFlags.ANYDATA, TypeFlags.PURETYPE);
-        MapValue<String, Object> bMsg =
-                new MapValueImpl<>(new BRecordType(msgType, bType.getPackage(), 0, true, typeFlags));
-        bMsg.put(fieldDescriptor.getName(), bValue);
-        return bMsg;
+        bMapValue.put(fieldDescriptor.getName(), bValue);
     }
 
     public com.google.protobuf.Descriptors.Descriptor getDescriptor() {
