@@ -2825,14 +2825,13 @@ public class Desugar extends BLangNodeVisitor {
                 foreach.nillableResultType, this.env.scope.owner);
 
         // Note - map<T>? $result$ = $iterator$.next();
-        BLangSimpleVariableDef resultVariableDefinition =
-                getIteratorNextVariableDefinition(foreach, iteratorSymbol, resultSymbol);
+        BLangSimpleVariableDef resultVariableDefinition = getIteratorNextVariableDefinition(foreach, iteratorSymbol,
+                resultSymbol);
 
         // Note - $result$ != ()
         BLangType userDefineType;
         if (foreach.errorType != null) {
-            userDefineType = getUserDefineTypeNode(BUnionType.create(null,
-                    new LinkedHashSet<>(Arrays.asList(foreach.resultType, foreach.errorType))));
+            userDefineType = getUserDefineTypeNode(BUnionType.create(null, foreach.resultType, foreach.errorType));
         } else {
             userDefineType = getUserDefineTypeNode(foreach.resultType);
         }

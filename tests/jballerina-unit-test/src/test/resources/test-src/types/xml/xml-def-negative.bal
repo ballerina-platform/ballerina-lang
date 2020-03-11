@@ -1,4 +1,4 @@
-// Copyright (c) 2019 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+// Copyright (c) 2020 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 //
 // WSO2 Inc. licenses this file to you under the Apache License,
 // Version 2.0 (the "License"); you may not use this file except
@@ -14,18 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-# Record type to hold the details of an error.
-#
-# + message - Specific error message of the error.
-# + cause - Any other error, which causes this error.
-public type Detail record {
-    string message;
-    error cause?;
-};
+public function main(xml x) {
 
-# Represents the reason of the JWT error.
-public const JWT_ERROR = "{ballerina/jwt}Error";
-
-# Represents the JWT error type with details. This will be returned if an error occurred while issuing/validating a
-# JWT or any operation related to JWT.
-public type Error error<JWT_ERROR, Detail>;
+}
