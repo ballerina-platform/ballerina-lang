@@ -1,5 +1,5 @@
 # To run this sample, navigate to the directory that contains the
 # `.bal` file, and execute the `ballerina run` command.
 $ ballerina run cache.bal
-Name: Ballerina
-Name:
+key1: value1
+keys: [key2]

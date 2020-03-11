@@ -315,6 +315,7 @@ public enum DiagnosticCode {
     CANNOT_UPDATE_XML_SEQUENCE("cannot.update.xml.sequence"),
     INVALID_XML_NS_INTERPOLATION("invalid.xml.ns.interpolation"),
     CANNOT_FIND_XML_NAMESPACE("cannot.find.xml.namespace.prefix"),
+    UNSUPPORTED_METHOD_INVOCATION_XML_NAV("method.invocation.in.xml.navigation.expressions.not.supported"),
     DEPRECATED_XML_ATTRIBUTE_ACCESS("deprecated.xml.attribute.access.expression"),
 
     UNDEFINED_ANNOTATION("undefined.annotation"),
@@ -347,7 +348,7 @@ public enum DiagnosticCode {
     INVALID_USE_OF_ENDPOINT_DOCUMENTATION_ATTRIBUTE("invalid.use.of.endpoint.documentation.attribute"),
     DUPLICATE_DOCUMENTED_ATTRIBUTE("duplicate.documented.attribute"),
     UNDEFINED_DOCUMENTATION_PUBLIC_FUNCTION("undefined.documentation.public.function"),
-    USAGE_OF_DEPRECATED_FUNCTION("usage.of.deprecated.function"),
+    USAGE_OF_DEPRECATED_CONSTRUCT("usage.of.deprecated.construct"),
     OPERATOR_NOT_SUPPORTED("operator.not.supported"),
     OPERATOR_NOT_ALLOWED_VARIABLE("operator.not.allowed.variable"),
 
@@ -485,7 +486,9 @@ public enum DiagnosticCode {
     FIELD_NOT_FOUND("field.not.found"),
     OVERLOADED_METHODS("overloaded.method"),
     UNSUPPORTED_PRIMITIVE_TYPE("unsupported.primitive.type.reason"),
-    METHOD_SIGNATURE_DOES_NOT_MATCH("method.signature.not.match")
+    METHOD_SIGNATURE_DOES_NOT_MATCH("method.signature.not.match"),
+    INVALID_DEPRECATION_DOCUMENTATION("invalid.deprecation.documentation"),
+    DEPRECATION_DOCUMENTATION_SHOULD_BE_AVAILABLE("deprecation.documentation.should.available"),
     ;
     private String value;
 

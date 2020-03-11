@@ -338,6 +338,24 @@
       }
     },
     {
+      "label": "toCodePointInt(Char ch)(int)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.string_  \n  \nConverts a single character string to a code point.\n  \n**Params**  \n- `Char` ch: a single character string  \n  \n**Returns** `int`   \n- the code point of `ch`  \n  \n"
+        }
+      },
+      "sortText": "120",
+      "insertText": "toCodePointInt(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
       "label": "fromCodePointInts(int[] codePoints)((string|error))",
       "kind": "Function",
       "detail": "Function",
@@ -367,6 +385,24 @@
       },
       "sortText": "120",
       "insertText": "fromCodePointInt(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "equalsIgnoreCaseAscii(string str1, string str2)(boolean)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.string_  \n  \nTests whether two strings are the same, ignoring the case of ASCII characters.\nA character in the range a-z is treated the same as the corresponding character in the range A-Z.\n  \n**Params**  \n- `string` str1: the first string to be compared  \n- `string` str2: the second string to be compared  \n  \n**Returns** `boolean`   \n- true if `str1` is the same as `str2`, treating upper-case and lower-case  \nASCII letters as the same; false, otherwise  \n  \n"
+        }
+      },
+      "sortText": "120",
+      "insertText": "equalsIgnoreCaseAscii(${1})",
       "insertTextFormat": "Snippet",
       "command": {
         "title": "editor.action.triggerParameterHints",

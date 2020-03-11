@@ -1262,8 +1262,13 @@ public class JvmInstructionGen {
 
             BType varRefType = inst.rhsOp.variableDcl.type;
             if (varRefType.tag == TypeTags.TUPLE) {
-                this.mv.visitMethodInsn(INVOKEINTERFACE, ARRAY_VALUE, "getRefValue",
-                        String.format("(J)L%s;", OBJECT), true);
+                if (inst.fillingRead) {
+                    this.mv.visitMethodInsn(INVOKEINTERFACE, ARRAY_VALUE, "fillAndGetRefValue",
+                                            String.format("(J)L%s;", OBJECT), true);
+                } else {
+                    this.mv.visitMethodInsn(INVOKEINTERFACE, ARRAY_VALUE, "getRefValue",
+                                            String.format("(J)L%s;", OBJECT), true);
+                }
                 addUnboxInsn(this.mv, bType, false);
             } else if (TypeTags.isIntegerTypeTag(bType.tag)) {
                 this.mv.visitMethodInsn(INVOKEINTERFACE, ARRAY_VALUE, "getInt", "(J)J", true);
@@ -1283,8 +1288,13 @@ public class JvmInstructionGen {
             } else if (bType.tag == TypeTags.FLOAT) {
                 this.mv.visitMethodInsn(INVOKEINTERFACE, ARRAY_VALUE, "getFloat", "(J)D", true);
             } else {
-                this.mv.visitMethodInsn(INVOKEINTERFACE, ARRAY_VALUE, "getRefValue",
-                        String.format("(J)L%s;", OBJECT), true);
+                if (inst.fillingRead) {
+                    this.mv.visitMethodInsn(INVOKEINTERFACE, ARRAY_VALUE, "fillAndGetRefValue",
+                                            String.format("(J)L%s;", OBJECT), true);
+                } else {
+                    this.mv.visitMethodInsn(INVOKEINTERFACE, ARRAY_VALUE, "getRefValue",
+                                            String.format("(J)L%s;", OBJECT), true);
+                }
                 @Nilable String targetTypeClass = getTargetClass(bType);
                 if (targetTypeClass instanceof String) {
                     this.mv.visitTypeInsn(CHECKCAST, targetTypeClass);

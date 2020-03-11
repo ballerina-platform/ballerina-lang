@@ -1345,6 +1345,9 @@ public class TypeChecker extends BLangNodeVisitor {
                     actualType = symTable.semanticError;
                     dlog.error(varRefExpr.pos, DiagnosticCode.CANNOT_UPDATE_CONSTANT_VALUE);
                 }
+                if (Symbols.isFlagOn(symbol.flags, Flags.DEPRECATED)) {
+                    dlog.warning(varRefExpr.pos, DiagnosticCode.USAGE_OF_DEPRECATED_CONSTRUCT, varName.getValue());
+                }
             } else {
                 dlog.error(varRefExpr.pos, DiagnosticCode.UNDEFINED_SYMBOL, varName.toString());
             }
@@ -1628,8 +1631,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
         // Disallow `expr.ns:attrname` syntax on non xml expressions.
         if (fieldAccessExpr instanceof BLangFieldBasedAccess.BLangNSPrefixedFieldBasedAccess
-                && !(fieldAccessExpr.expr.type.tag == TypeTags.XML
-                    || fieldAccessExpr.expr.type.tag == TypeTags.XML_ELEMENT)) {
+                && !isXmlAccess(fieldAccessExpr)) {
             dlog.error(fieldAccessExpr.pos, DiagnosticCode.INVALID_FIELD_ACCESS_EXPRESSION);
             resultType = symTable.semanticError;
             return;
@@ -1657,6 +1659,20 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         resultType = types.checkType(fieldAccessExpr, actualType, this.expType);
+    }
+
+    private boolean isXmlAccess(BLangFieldBasedAccess fieldAccessExpr) {
+        if (fieldAccessExpr.expr.type.tag == TypeTags.XML) {
+            return true;
+        }
+
+        if ((fieldAccessExpr.expr.getKind() == NodeKind.FIELD_BASED_ACCESS_EXPR
+                && hasLaxOriginalType((BLangFieldBasedAccess) fieldAccessExpr.expr)
+                && ((BUnionType) fieldAccessExpr.expr.type).getMemberTypes().contains(symTable.xmlType))) {
+            return true;
+        }
+
+        return false;
     }
 
     public void visit(BLangIndexBasedAccess indexBasedAccessExpr) {
@@ -2502,7 +2518,7 @@ public class TypeChecker extends BLangNodeVisitor {
     public void visit(BLangLambdaFunction bLangLambdaFunction) {
         bLangLambdaFunction.type = bLangLambdaFunction.function.symbol.type;
         // creating a copy of the env to visit the lambda function later
-        bLangLambdaFunction.cachedEnv = env.createClone();
+        bLangLambdaFunction.capturedClosureEnv = env.createClone();
         env.enclPkg.lambdaFunctions.add(bLangLambdaFunction);
         resultType = types.checkType(bLangLambdaFunction, bLangLambdaFunction.type, expType);
     }
@@ -3035,6 +3051,9 @@ public class TypeChecker extends BLangNodeVisitor {
         if (Symbols.isFlagOn(funcSymbol.flags, Flags.RESOURCE)) {
             dlog.error(iExpr.pos, DiagnosticCode.INVALID_RESOURCE_FUNCTION_INVOCATION);
         }
+        if (Symbols.isFlagOn(funcSymbol.flags, Flags.DEPRECATED)) {
+            dlog.warning(iExpr.pos, DiagnosticCode.USAGE_OF_DEPRECATED_CONSTRUCT, funcName.value);
+        }
 
         if (PackageID.isLangLibPackageID(pkgSymbol.pkgID)) {
             // This will enable, type param support, if the function is called directly.
@@ -3390,6 +3409,10 @@ public class TypeChecker extends BLangNodeVisitor {
             }
         } else {
             iExpr.symbol = funcSymbol;
+        }
+
+        if (Symbols.isFlagOn(funcSymbol.flags, Flags.DEPRECATED)) {
+            dlog.warning(iExpr.pos, DiagnosticCode.USAGE_OF_DEPRECATED_CONSTRUCT, funcName.value);
         }
 
         // __init method can be called in a method-call-expr only when the expression
@@ -4278,6 +4301,9 @@ public class TypeChecker extends BLangNodeVisitor {
                 hasLaxOriginalType(((BLangFieldBasedAccess) fieldAccessExpr.expr))) {
             BType laxFieldAccessType =
                     getLaxFieldAccessType(((BLangFieldBasedAccess) fieldAccessExpr.expr).originalType);
+            if (fieldAccessExpr.fieldKind == FieldKind.WITH_NS) {
+                resolveXMLNamespace((BLangFieldBasedAccess.BLangNSPrefixedFieldBasedAccess) fieldAccessExpr);
+            }
             actualType = BUnionType.create(null, laxFieldAccessType, symTable.errorType);
             fieldAccessExpr.errorSafeNavigation = true;
             fieldAccessExpr.originalType = laxFieldAccessType;
@@ -4370,6 +4396,9 @@ public class TypeChecker extends BLangNodeVisitor {
             BType laxFieldAccessType = getLaxFieldAccessType(effectiveType);
             actualType = accessCouldResultInError(effectiveType) ?
                     BUnionType.create(null, laxFieldAccessType, symTable.errorType) : laxFieldAccessType;
+            if (fieldAccessExpr.fieldKind == FieldKind.WITH_NS) {
+                resolveXMLNamespace((BLangFieldBasedAccess.BLangNSPrefixedFieldBasedAccess) fieldAccessExpr);
+            }
             fieldAccessExpr.originalType = laxFieldAccessType;
             fieldAccessExpr.nilSafeNavigation = true;
             nillableExprType = true;
@@ -4379,6 +4408,9 @@ public class TypeChecker extends BLangNodeVisitor {
                     getLaxFieldAccessType(((BLangFieldBasedAccess) fieldAccessExpr.expr).originalType);
             actualType = accessCouldResultInError(effectiveType) ?
                     BUnionType.create(null, laxFieldAccessType, symTable.errorType) : laxFieldAccessType;
+            if (fieldAccessExpr.fieldKind == FieldKind.WITH_NS) {
+                resolveXMLNamespace((BLangFieldBasedAccess.BLangNSPrefixedFieldBasedAccess) fieldAccessExpr);
+            }
             fieldAccessExpr.errorSafeNavigation = true;
             fieldAccessExpr.originalType = laxFieldAccessType;
             fieldAccessExpr.nilSafeNavigation = true;

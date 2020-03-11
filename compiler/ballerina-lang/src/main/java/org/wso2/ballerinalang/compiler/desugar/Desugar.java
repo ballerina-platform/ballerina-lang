@@ -426,18 +426,35 @@ public class Desugar extends BLangNodeVisitor {
             return;
         }
         for (BLangSimpleVariable requiredParameter : initFunction.requiredParams) {
-            // Since the expression of the requiredParam of both init functions refer to same object,
-            // expression should be cloned.
-            BLangExpression expression = this.nodeCloner.clone(requiredParameter.expr);
             BLangSimpleVariable var =
                     ASTBuilderUtil.createVariable(initFunction.pos,
-                            requiredParameter.name.getValue(), requiredParameter.type, expression,
+                            requiredParameter.name.getValue(), requiredParameter.type,
+                            createRequiredParamExpr(requiredParameter.expr),
                             new BVarSymbol(0, names.fromString(requiredParameter.name.getValue()),
                                     requiredParameter.symbol.pkgID,
                                     requiredParameter.type, requiredParameter.symbol.owner));
             generatedInitFunc.requiredParams.add(var);
             generatedInitializerFunc.symbol.params.add(var.symbol);
         }
+    }
+
+    private BLangExpression createRequiredParamExpr(BLangExpression expr) {
+        if (expr == null) {
+            return null;
+        }
+        if (expr.getKind() == NodeKind.LAMBDA) {
+            BLangFunction func = ((BLangLambdaFunction) expr).function;
+            return createLambdaFunction(func.pos, func.name.value, func.requiredParams, func.returnTypeNode, func.body);
+        }
+        // Since the expression of the requiredParam of both init functions refer to same object,
+        // expression should be cloned.
+        BLangExpression expression = this.nodeCloner.clone(expr);
+        if (expression.getKind() == NodeKind.ARROW_EXPR) {
+            BLangIdentifier func = (BLangIdentifier) ((BLangArrowFunction) expression).functionName;
+            ((BLangArrowFunction) expression).functionName = ASTBuilderUtil.createIdentifier(func.pos,
+                    "$" + func.getValue() + "$");
+        }
+        return expression;
     }
 
     private void addRestParamsToGeneratedInitFunction(BLangFunction initFunction, BLangFunction generatedInitFunc,
@@ -1050,9 +1067,9 @@ public class Desugar extends BLangNodeVisitor {
         BLangLambdaFunction trxMainFunc
                 = createLambdaFunction(funcNode.pos, "$anonTrxParticipantFunc$", Collections.emptyList(),
                                        trxReturnNode, trxMainBody);
-        trxMainWrapperFunc.cachedEnv = trxMainFunc.function.clonedEnv;
-        commitFunc.cachedEnv = env.createClone();
-        abortFunc.cachedEnv = env.createClone();
+        trxMainWrapperFunc.capturedClosureEnv = trxMainFunc.function.clonedEnv;
+        commitFunc.capturedClosureEnv = env.createClone();
+        abortFunc.capturedClosureEnv = env.createClone();
         BVarSymbol wrapperSym = new BVarSymbol(0, names.fromString("$wrapper$1"), this.env.scope.owner.pkgID,
                                                trxMainWrapperFunc.type, trxMainFunc.function.symbol);
         BLangSimpleVariable wrapperFuncVar = ASTBuilderUtil.createVariable(funcNode.pos, "$wrapper$1",
@@ -3052,10 +3069,10 @@ public class Desugar extends BLangNodeVisitor {
         BLangLambdaFunction trxAbortedFunc = createLambdaFunction(pos, "$anonTrxAbortedFunc$", Collections.emptyList(),
                                                                   otherReturnNode, transactionNode.abortedBody.stmts,
                                                                   env, transactionNode.abortedBody.scope);
-        trxMainFunc.cachedEnv = env.createClone();
-        trxOnRetryFunc.cachedEnv = env.createClone();
-        trxCommittedFunc.cachedEnv = env.createClone();
-        trxAbortedFunc.cachedEnv = env.createClone();
+        trxMainFunc.capturedClosureEnv = env.createClone();
+        trxOnRetryFunc.capturedClosureEnv = env.createClone();
+        trxCommittedFunc.capturedClosureEnv = env.createClone();
+        trxAbortedFunc.capturedClosureEnv = env.createClone();
 
         // Retrive the symbol for beginTransactionInitiator function.
         PackageID packageID = new PackageID(Names.BALLERINA_ORG, Names.TRANSACTION_PACKAGE, Names.EMPTY);
@@ -4185,6 +4202,8 @@ public class Desugar extends BLangNodeVisitor {
 
         lambdaFunction.function.pos = bLangArrowFunction.pos;
         lambdaFunction.function.body.pos = bLangArrowFunction.pos;
+        // At this phase lambda function is semantically correct. Therefore simply env can be assigned.
+        lambdaFunction.capturedClosureEnv = env;
         rewrite(lambdaFunction.function, env);
         env.enclPkg.addFunction(lambdaFunction.function);
         bLangArrowFunction.function = lambdaFunction.function;

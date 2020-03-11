@@ -486,6 +486,14 @@ public class Types {
             return true;
         }
 
+        if (TypeTags.isXMLTypeTag(sourceTag) && targetTag == TypeTags.XML) {
+            return true;
+        }
+
+        if (sourceTag == TypeTags.CHAR_STRING && targetTag == TypeTags.STRING) {
+            return true;
+        }
+
         if (sourceTag == TypeTags.ERROR && targetTag == TypeTags.ERROR) {
             return isErrorTypeAssignable((BErrorType) source, (BErrorType) target, unresolvedTypes);
         } else if (sourceTag == TypeTags.ERROR && targetTag == TypeTags.ANY) {
@@ -1517,6 +1525,87 @@ public class Types {
         }
 
         return false;
+    }
+
+    boolean isNumericConversionPossible(BLangExpression expr, BType sourceType,
+                                        BType targetType) {
+
+        final boolean isSourceNumericType = isBasicNumericType(sourceType);
+        final boolean isTargetNumericType = isBasicNumericType(targetType);
+        if (isSourceNumericType && isTargetNumericType) {
+            // We only reach here for different numeric types.
+            // 2019R3 Spec defines numeric conversion between each type.
+            return true;
+        }
+        if (targetType.tag == TypeTags.UNION) {
+            HashSet<Integer> typeTags = new HashSet<>();
+            for (BType bType : ((BUnionType) targetType).getMemberTypes()) {
+                if (isBasicNumericType(bType)) {
+                    typeTags.add(bType.tag);
+                    if (typeTags.size() > 1) {
+                        // Multiple Basic numeric types found in the union.
+                        return false;
+                    }
+                }
+            }
+        }
+
+        if (!isTargetNumericType && targetType.tag != TypeTags.UNION) {
+            return false;
+        }
+
+        // Target type has at least one numeric type member.
+
+        if (isSourceNumericType) {
+            // i.e., a conversion from a numeric type to another numeric type in a union.
+            // int|string u1 = <int|string> 1.0;
+            // TODO : Fix me. This doesn't belong here.
+            setImplicitCastExpr(expr, sourceType, symTable.anyType);
+            return true;
+        }
+
+        // TODO : Do we need this? This doesn't belong here.
+        switch (sourceType.tag) {
+            case TypeTags.ANY:
+            case TypeTags.ANYDATA:
+            case TypeTags.JSON:
+                // This
+                return true;
+            case TypeTags.UNION:
+                for (BType memType : ((BUnionType) sourceType).getMemberTypes()) {
+                    if (isBasicNumericType(memType) ||
+                            (memType.tag == TypeTags.FINITE &&
+                                    finiteTypeContainsNumericTypeValues((BFiniteType) memType))) {
+                        return true;
+                    }
+                }
+                break;
+            case TypeTags.FINITE:
+                if (finiteTypeContainsNumericTypeValues((BFiniteType) sourceType)) {
+                    return true;
+                }
+                break;
+        }
+        return false;
+    }
+
+    private boolean isAllErrorMembers(BUnionType actualType) {
+
+        return actualType.getMemberTypes().stream().allMatch(t -> isAssignable(t, symTable.errorType));
+    }
+
+    public void setImplicitCastExpr(BLangExpression expr, BType actualType, BType expType) {
+
+        if (!isImplicityCastable(actualType, expType)) {
+            return;
+        }
+        BLangTypeConversionExpr implicitConversionExpr =
+                (BLangTypeConversionExpr) TreeBuilder.createTypeConversionNode();
+        implicitConversionExpr.pos = expr.pos;
+        implicitConversionExpr.expr = expr.impConversionExpr == null ? expr : expr.impConversionExpr;
+        implicitConversionExpr.type = expType;
+        implicitConversionExpr.targetType = expType;
+        expr.impConversionExpr = implicitConversionExpr;
     }
 
     boolean isNumericConversionPossible(BLangExpression expr, BType sourceType,

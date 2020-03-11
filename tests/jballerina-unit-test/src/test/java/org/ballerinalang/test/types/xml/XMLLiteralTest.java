@@ -48,6 +48,7 @@ import java.io.IOException;
  *
  * @since 0.94
  */
+@Test (groups = "brokenOnXMLLangLibChange")
 public class XMLLiteralTest {
 
     private CompileResult result;

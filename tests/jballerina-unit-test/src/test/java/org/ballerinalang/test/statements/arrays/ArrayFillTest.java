@@ -295,8 +295,7 @@ public class ArrayFillTest {
         assertEquals(unionArr.getBValue(index).stringValue(), "{name:\"John\", age:25}");
     }
 
-    // TODO: 2/14/19 disabled due to https://github.com/ballerina-platform/ballerina-lang/issues/13612
-    @Test(enabled = false)
+    @Test
     public void testUnionArrayFill4() {
         BValue[] args = new BValue[]{new BInteger(index)};
         BValue[] returns = BRunUtil.invokeFunction(compileResult, "testUnionArrayFill4", args);
@@ -366,8 +365,7 @@ public class ArrayFillTest {
         assertEquals(((BBoolean) unionArr.getBValue(index)).booleanValue(), true);
     }
 
-    // disabled due to https://github.com/ballerina-platform/ballerina-lang/issues/13612
-    @Test(enabled = false)
+    @Test
     public void testFiniteTypeArrayFill5() {
         BValue[] args = new BValue[]{new BInteger(index)};
         BValue[] returns = BRunUtil.invokeFunction(compileResult, "testFiniteTypeArrayFill5", args);
@@ -375,10 +373,10 @@ public class ArrayFillTest {
         assertEquals(unionArr.size(), index + 1);
 
         for (int i = 0; i < index; i++) {
-            assertEquals(((BDecimal) unionArr.getBValue(i)).decimalValue(), 0.0);
+            assertEquals(((BDecimal) unionArr.getBValue(i)).decimalValue(), new BigDecimal("0.0"));
         }
 
-        assertEquals(((BDecimal) unionArr.getBValue(index)).decimalValue(), 1.2);
+        assertEquals(((BDecimal) unionArr.getBValue(index)).decimalValue(), new BigDecimal("1.2"));
     }
 
     @Test

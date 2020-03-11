@@ -61,7 +61,7 @@ public class TypeConstants {
     public static final String XML_ELEMENT = "Element";
     public static final String XML_PI = "ProcessingInstruction";
     public static final String XML_COMMENT = "Comment";
-    public static final String XML_TEXT= "Text";
+    public static final String XML_TEXT = "Text";
 
     // Special Types and Type fields.
     public static final String DETAIL_TYPE = "detail";

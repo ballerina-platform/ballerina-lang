@@ -29,4 +29,7 @@ public interface BallerinaParameterTypeName extends PsiElement {
   @NotNull
   BallerinaTypeName getTypeName();
 
+  @Nullable
+  PsiElement getEllipsis();
+
 }

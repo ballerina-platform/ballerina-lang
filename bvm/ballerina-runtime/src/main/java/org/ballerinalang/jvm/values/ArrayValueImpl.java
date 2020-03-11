@@ -243,9 +243,22 @@ public class ArrayValueImpl extends AbstractArrayValue {
         return get(index);
     }
 
+    @Override
+    public Object fillAndGetRefValue(long index) {
+        if (refValues != null) {
+            // Need do a filling-read if index >= size
+            if (index >= this.size) {
+                handleFrozenArrayValue();
+                fillRead(index, refValues.length);
+            }
+            return refValues[(int) index];
+        }
+        return get(index);
+    }
+
     /**
      * Get int value in the given index.
-     * 
+     *
      * @param index array index
      * @return array element
      */
@@ -869,7 +882,9 @@ public class ArrayValueImpl extends AbstractArrayValue {
                 return;
             default:
                 if (arrayType.hasFillerValue()) {
-                    Arrays.fill(refValues, size, index, elementType.getZeroValue());
+                    for (int i = size; i < index; i++) {
+                        this.refValues[i] = this.elementType.getZeroValue();
+                    }
                 }
         }
     }
@@ -989,6 +1004,34 @@ public class ArrayValueImpl extends AbstractArrayValue {
         fillerValueCheck(intIndex, size);
         ensureCapacity(intIndex + 1, currentArraySize);
         fillValues(intIndex);
+        resetSize(intIndex);
+    }
+
+    private void fillRead(long index, int currentArraySize) {
+        if (!arrayType.hasFillerValue()) {
+            throw BLangExceptionHelper.getRuntimeException(BallerinaErrorReasons.ILLEGAL_LIST_INSERTION_ERROR,
+                                                           RuntimeErrors.ILLEGAL_ARRAY_INSERTION, size, index + 1);
+        }
+
+        int intIndex = (int) index;
+        rangeCheck(index, size);
+        ensureCapacity(intIndex + 1, currentArraySize);
+
+        switch (this.elementType.getTag()) {
+            case TypeTags.INT_TAG:
+            case TypeTags.BYTE_TAG:
+            case TypeTags.FLOAT_TAG:
+            case TypeTags.BOOLEAN_TAG:
+                break;
+            case TypeTags.STRING_TAG:
+                Arrays.fill(stringValues, size, intIndex, BLangConstants.STRING_EMPTY_VALUE);
+                break;
+            default:
+                for (int i = size; i <= index; i++) {
+                    this.refValues[i] = this.elementType.getZeroValue();
+                }
+        }
+
         resetSize(intIndex);
     }
 

@@ -33,7 +33,7 @@ public interface BArray extends BRefValue, BCollection {
      * @param index array index
      * @return array value
      */
-   Object get(long index);
+    Object get(long index);
 
     /**
      * Get ref value in the given index.
@@ -41,6 +41,14 @@ public interface BArray extends BRefValue, BCollection {
      * @return array value
      */
     Object getRefValue(long index);
+
+    /**
+     * Get ref value in the given index. Do a filling-read if required.
+     *
+     * @param index array index
+     * @return array value
+     */
+    Object fillAndGetRefValue(long index);
 
     /**
      * Get int value in the given index.
