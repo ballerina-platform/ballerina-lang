@@ -471,6 +471,153 @@ function updateRecord(record { int i; int k;} rec, int value) {
     rec.i = value;
 }
 
+function testLeftShift() {
+    'testSigned8LeftShift();
+    'testSigned16LeftShift();
+    'testSigned32LeftShift();
+    testIntLeftShift();
+    testByteLeftShift();
+    'testUnsigned8LeftShift();
+    'testUnsigned16LeftShift();
+    'testUnsigned32LeftShift();
+}
+
+function 'testSigned8LeftShift() {
+    ints:Signed8 i1 = 127;
+    int j = 2;
+    int k = i1 << j;
+    assertValueEqual(508, k);
+
+    ints:Signed8 i2 = -128;
+    k = i2 << j;
+    assertValueEqual(-512, k);
+
+    ints:Signed8 i3 = 0;
+    k = i3 << j;
+    assertValueEqual(0, k);
+
+    ints:Signed8 i4 = 1;
+    k = i4 << j;
+    assertValueEqual(4, k);
+}
+
+function 'testSigned16LeftShift() {
+    ints:Signed16 i1 = 32767;
+    int j = 2;
+    int k = i1 << j;
+    assertValueEqual(131068, k);
+
+    ints:Signed16 i2 = -32768;
+    k = i2 << j;
+    assertValueEqual(-131072, k);
+
+    ints:Signed16 i3 = 0;
+    k = i3 << j;
+    assertValueEqual(0, k);
+
+    ints:Signed16 i4 = 1;
+    k = i4 << j;
+    assertValueEqual(4, k);
+}
+
+function 'testSigned32LeftShift() {
+    ints:Signed32 i1 = 2147483647;
+    int j = 2;
+    int k = i1 << j;
+    assertValueEqual(8589934588, k);
+
+    ints:Signed32 i2 = -2147483648;
+    k = i2 << j;
+    assertValueEqual(-8589934592, k);
+
+    ints:Signed32 i3 = 0;
+    k = i3 << j;
+    assertValueEqual(0, k);
+
+    ints:Signed32 i4 = 1;
+    k = i4 << j;
+    assertValueEqual(4, k);
+}
+
+function testIntLeftShift() {
+    int i1 = 9223372036854775807;
+    int j = 2;
+    int k = i1 << j;
+    assertValueEqual(-4, k);
+
+    int i2 = -9223372036854775808;
+    k = i2 << j;
+    assertValueEqual(0, k);
+
+    int i3 = 0;
+    k = i3 << j;
+    assertValueEqual(0, k);
+
+    int i4 = 1;
+    k = i4 << j;
+    assertValueEqual(4, k);
+}
+
+function testByteLeftShift() {
+    byte i1 = 255;
+    int j = 2;
+    int k = i1 << j;
+    assertValueEqual(1020, k);
+
+    byte i2 = 0;
+    k = i2 << j;
+    assertValueEqual(0, k);
+
+    byte i3 = 1;
+    k = i3 << j;
+    assertValueEqual(4, k);
+}
+
+function 'testUnsigned8LeftShift() {
+    ints:Unsigned8 i1 = 255;
+    int j = 2;
+    int k = i1 << j;
+    assertValueEqual(1020, k);
+
+    ints:Unsigned8 i2 = 0;
+    k = i2 << j;
+    assertValueEqual(0, k);
+
+    ints:Unsigned8 i3 = 1;
+    k = i3 << j;
+    assertValueEqual(4, k);
+}
+
+function 'testUnsigned16LeftShift() {
+    ints:Unsigned16 i1 = 65535;
+    int j = 2;
+    int k = i1 << j;
+    assertValueEqual(262140, k);
+
+    ints:Unsigned16 i2 = 0;
+    k = i2 << j;
+    assertValueEqual(0, k);
+
+    ints:Unsigned16 i3 = 1;
+    k = i3 << j;
+    assertValueEqual(4, k);
+}
+
+function 'testUnsigned32LeftShift() {
+    ints:Unsigned32 i1 = 65535;
+    int j = 2;
+    int k = i1 << j;
+    assertValueEqual(262140, k);
+
+    ints:Unsigned32 i2 = 0;
+    k = i2 << j;
+    assertValueEqual(0, k);
+
+    ints:Unsigned32 i3 = 1;
+    k = i3 << j;
+    assertValueEqual(4, k);
+}
+
 // Test Functions
 
 function assertValueEqual(anydata expected, anydata actual) {
