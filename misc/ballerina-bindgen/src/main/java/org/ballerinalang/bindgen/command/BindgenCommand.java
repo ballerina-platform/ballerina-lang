@@ -24,17 +24,14 @@ import org.slf4j.LoggerFactory;
 import picocli.CommandLine;
 
 import java.io.PrintStream;
-import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
 
 import static org.ballerinalang.bindgen.utils.BindgenConstants.COMPONENT_IDENTIFIER;
 
 /**
- * Class to implement "bindgen" command for Ballerina.
- * Ex: ballerina bindgen --jar (jar-file-path) -pn=(package-name)... -a=(alias-for-package)... [--output (path)]
- * ballerina bindgen --mvn=(groupId:artifactId:version) [--output (path)]
- * ballerina bindgen -cn|--class-name=(class-name)... [--output (path)]
+ * This class represents the "ballerina bindgen" command.
+ *
+ * @since 1.20
  */
 @CommandLine.Command(
         name = "bindgen",
@@ -50,36 +47,22 @@ public class BindgenCommand implements BLauncherCmd {
     @CommandLine.Option(names = {"-h", "--help"}, hidden = true)
     private boolean helpFlag;
 
-    @CommandLine.Option(names = {"--jar"},
-            description = "Path to the jar file from which the interop code is to be generated.")
-    private String jarPath;
-
-    @CommandLine.Option(names = {"-pn", "--package-name"},
-            description = "Comma-delimited FQNs of packages for which the bridge code is to be generated.")
-    private String packages;
-
-    @CommandLine.Option(names = {"-a", "--alias"},
-            description = "Comma-delimited aliases for the package names."
-    )
-    private String aliases;
-
-    @CommandLine.Option(names = {"-cn", "--class-name"},
-            description = "Comma-delimited FQNs of Java classes for which the bridge code is to be generated.")
-    private String classes;
-
-    @CommandLine.Option(names = {"-d", "--dependency"},
-            description = "Direct and transitive dependencies required for loading the jar file."
-    )
-    private String dependencies;
+    @CommandLine.Option(names = {"-cp", "--classpath"},
+            description = "One or more comma-delimited classpaths for obtaining the jar files required for\n" +
+                    "generating the Ballerina bindings.")
+    private String classPath;
 
     @CommandLine.Option(names = {"-o", "--output"},
-            description = "Location for generated jBallerina bridge code."
+            description = "Location of the generated Ballerina bridge code."
     )
     private String outputPath;
 
-    private static final String BINDGEN_CMD = "ballerina bindgen [--jar <path-to-jar>] [-o|--output <output-path>]";
+    @CommandLine.Parameters
+    private List<String> classNames;
 
-    private String[] packageList;
+    private static final String BINDGEN_CMD = "ballerina bindgen [(-cp|--classpath) <classpath>...]\n" +
+            "                         [(-o|--output) <output>]\n" +
+            "                         (<class-name>...|<package-name>...)";
 
     @Override
     public void execute() {
@@ -91,9 +74,9 @@ public class BindgenCommand implements BLauncherCmd {
             return;
         }
 
-        if (jarPath == null && classes == null) {
-            outError.println("Invalid arguments provided.");
-            outError.println("USAGE:\n\t" + BINDGEN_CMD);
+        if (classNames == null) {
+            outError.println("One or more class names for bindings generation should be specified.");
+            outStream.println(BINDGEN_CMD);
             return;
         }
 
@@ -103,35 +86,16 @@ public class BindgenCommand implements BLauncherCmd {
         }
 
         String splitCommaRegex = "\\s*,\\s*";
-        if (this.dependencies != null) {
-            String[] dependencyList = this.dependencies.split(splitCommaRegex);
+        if (this.classPath != null) {
+            String[] dependencyList = this.classPath.split(splitCommaRegex);
             bindingsGenerator.setDependentJars(dependencyList);
         }
-        if (this.packages != null) {
-            this.packageList = this.packages.split(splitCommaRegex);
-            bindingsGenerator.setPackageNames(this.packageList);
-        }
-        if (this.classes != null) {
-            String[] classList = this.classes.split(splitCommaRegex);
-            bindingsGenerator.setClassNames(classList);
-        }
-        if (this.aliases != null) {
-            String[] aliasList = this.aliases.split(splitCommaRegex);
-            if (aliasList.length != this.packageList.length) {
-                outError.println("Number of aliases provided does not match with the number of packages.");
-                return;
-            }
-            bindingsGenerator.setPackageNames(aliasList);
-        }
+
+        bindingsGenerator.setClassNames(this.classNames);
         try {
-            if (this.jarPath != null) {
-                bindingsGenerator.bindingsFromJar(this.jarPath);
-            } else {
-                List<String> classList = Arrays.asList(this.classes.split(splitCommaRegex));
-                bindingsGenerator.stdJavaBindings(new HashSet<>(classList));
-            }
+            bindingsGenerator.generateJavaBindings();
         } catch (BindgenException e) {
-            LOG.error(e.getMessage());
+            outError.println("Error while generating Ballerina bindings: " + e);
         }
     }
 

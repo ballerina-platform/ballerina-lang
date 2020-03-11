@@ -1,50 +1,41 @@
 NAME
-       ballerina-bindgen - A tool for generating Ballerina bindings to Java APIs.
+       ballerina-bindgen - A CLI tool for generating Ballerina bindings for Java APIs.
 
 SYNOPSIS
-       ballerina bindgen --jar <jar-file-path> [--output <path>]
-       ballerina bindgen <-cn|--class-name>=<class-name>... [--output <path>]
+       ballerina bindgen [(-cp|--classpath) <classpath>...]
+                         [(-o|--output) <output>]
+                         (<class-name>...)
 
 
 DESCRIPTION
        A CLI tool for generating Ballerina bridge code for Java APIs.
 
-       Ballerina bindings could be generated for jars and standard Java classes.
+       Ballerina bindings could be generated for Java classes residing inside Java libraries
+       or standard Java classes. Here the Java classes will be mapped onto Ballerina
+       objects, making the developer experience of Ballerina Java interoperability seamless.
 
-       A jar file could be pointed using the --jar option.
-
-       If the bridge code is to be generated for standard Java classes, the
-       --class-name option could be used.
+       The directly dependent Java classes and other required resources will be automatically
+       generated apart from the specified Java classes.
 
 
 OPTIONS
-       --jar <jar-file-path>
-           Path to the jar file from which the bridge code is to be generated.
+       (-cp|--classpath) <classpath>...
+           One or more comma-delimited classpaths for obtaining the jar files required for
+           generating the Ballerina bindings. This is not needed if the Ballerina bridge code
+           is to be generated for standard Java classes.
 
-       <-pn|--package-name>=<package-name>...
-           Provide one or more comma-delimited fully qualified names of packages
-           for which the bridge code is to be generated.
+       (-o|--output) <output>
+           Location of the generated Ballerina bridge code. If this path is not
+           specified, the output will be written onto the same directory from where the command is run.
 
-       <-a|--alias>=<alias>...
-           Provide one or more comma-delimited aliases to represent the fully qualified
-           packages specified in the previous command.
-
-       <-d|--dependency>=<dependency>...
-           Provide one or more comma-delimited direct and transitive dependencies
-           required for loading the jar file for which the bridge code is to be generated.
-
-       <-cn|--class-name>=<class-name>...
-           Provide one or more comma-delimited fully qualified names of Java
-           standard library classes for which the bridge code is to be generated.
-
-       --output <path>
-           Location for generated Ballerina bridge code. If this path is not
-           specified, the output will be written in the same directory the command is run.
+       <class-name>...
+           One or more fully qualified Java class names for which the bridge code is to be generated.
 
 
 EXAMPLES
-       Generating the Ballerina bridge code for a Java based library.
-           $ ballerina bindgen --jar lib/snakeyaml-1.25.jar
+       Generating the Ballerina bridge code for a standard Java class.
+           $ ballerina bindgen java.utils.ArrayDeque
 
-       Generating Ballerina bridge code for standard Java classes.
-           $ ballerina bindgen --class-name=java.util.Collection,java.util.HashSet
+       Generating Ballerina bridge code for library Java classes.
+           $ ballerina bindgen --classpath javalibs/snakeyaml-1.25.jar --output ./src/sample
+           org.yaml.snakeyaml.Yaml java.io.FileInputStream

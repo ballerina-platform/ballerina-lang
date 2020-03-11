@@ -22,6 +22,7 @@ package org.ballerinalang.bindgen.utils;
  */
 public class BindgenConstants {
 
+    public static final String BALLERINA_BINDINGS_DIR = "ballerina_bindings";
     public static final String ACCESS_FIELD = "access";
     public static final String ACCESS_FIELD_INTEROP_TYPE = "@java:FieldGet";
     public static final String BAL_FILE_EXTENSION = ".bal";

@@ -37,8 +37,14 @@ import java.io.PrintWriter;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.nio.file.FileSystems;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -284,5 +290,21 @@ public class BindgenUtils {
             default:
                 return HANDLE;
         }
+    }
+
+    public static URLClassLoader getClassLoader(Set<String> jarPaths, ClassLoader parent) throws BindgenException {
+
+        URLClassLoader classLoader;
+        List<URL> urls = new ArrayList<>();
+        try {
+            for (String path : jarPaths) {
+                urls.add(FileSystems.getDefault().getPath(path).toFile().toURI().toURL());
+            }
+            classLoader = (URLClassLoader) AccessController.doPrivileged((PrivilegedAction) ()
+                    -> new URLClassLoader(urls.toArray(new URL[urls.size()]), parent));
+        } catch (Exception e) {
+            throw new BindgenException("Error while processing the classpaths.", e);
+        }
+        return classLoader;
     }
 }
