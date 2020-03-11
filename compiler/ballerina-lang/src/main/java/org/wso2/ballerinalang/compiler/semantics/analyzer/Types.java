@@ -1055,8 +1055,7 @@ public class Types {
                     foreachNode.nillableResultType = nextMethodReturnType;
                     BType valueType = ((BRecordType) foreachNode.resultType).fields.get(0).type;
                     if (foreachNode.errorType != null) {
-                        valueType = BUnionType.create(null,
-                                new LinkedHashSet<>(Arrays.asList(valueType, foreachNode.errorType)));
+                        valueType = BUnionType.create(null, valueType, foreachNode.errorType);
                     }
                     foreachNode.varType = valueType;
                     return;
