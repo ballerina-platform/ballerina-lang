@@ -1,4 +1,5 @@
 configurations {
+    bStringBirJar
     birJar
     bir
     birJarCompile { transitive false }

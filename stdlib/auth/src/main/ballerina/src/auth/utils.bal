@@ -158,7 +158,7 @@ function authorizeFromCache(string authzCacheKey, cache:Cache? positiveAuthzCach
                             cache:Cache? negativeAuthzCache) returns boolean? {
     cache:Cache? pCache = positiveAuthzCache;
     if (pCache is cache:Cache) {
-        any? positiveCacheResponse = pCache.get(authzCacheKey);
+        any|cache:Error positiveCacheResponse = pCache.get(authzCacheKey);
         if (positiveCacheResponse is boolean) {
             return true;
         }
@@ -166,7 +166,7 @@ function authorizeFromCache(string authzCacheKey, cache:Cache? positiveAuthzCach
 
     cache:Cache? nCache = negativeAuthzCache;
     if (nCache is cache:Cache) {
-        any? negativeCacheResponse = nCache.get(authzCacheKey);
+        any|cache:Error negativeCacheResponse = nCache.get(authzCacheKey);
         if (negativeCacheResponse is boolean) {
             return false;
         }
@@ -185,13 +185,25 @@ function cacheAuthzResult(boolean authorized, string authzCacheKey, cache:Cache?
     if (authorized) {
         cache:Cache? pCache = positiveAuthzCache;
         if (pCache is cache:Cache) {
-            pCache.put(authzCacheKey, authorized);
+            cache:Error? result = pCache.put(authzCacheKey, authorized);
+            if (result is cache:Error) {
+                log:printError(function() returns string {
+                    return "Failed to add entry to positive authz cache";
+                });
+                return;
+            }
         }
     } else {
         cache:Cache? nCache = negativeAuthzCache;
         if (nCache is cache:Cache) {
-            nCache.put(authzCacheKey, authorized);
-        }
+            cache:Error? result = nCache.put(authzCacheKey, authorized);
+            if (result is cache:Error) {
+                log:printError(function() returns string {
+                    return "Failed to add entry to negative authz cache";
+                });
+                return;
+            }
+         }
     }
 }
 

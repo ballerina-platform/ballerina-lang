@@ -25,7 +25,7 @@ string database = "CONNECT_DB";
 int port = 3305;
 
 function testConnectionWithNoFields() returns error? {
-    mysql:Client | sql:Error dbClient = new ();
+    mysql:Client|sql:Error dbClient = new ();
     if (dbClient is sql:Error) {
         return dbClient;
     } else {
@@ -49,16 +49,16 @@ function testWithOptions() returns error? {
         connectTimeoutInSeconds: 60
     };
     mysql:Client dbClient = check new (user = user, password = password, database = database,
-    port = port, options = options);
+        port = port, options = options);
     return dbClient.close();
 }
 
-function testWithConnectionPool() returns error | sql:ConnectionPool {
+function testWithConnectionPool() returns error|sql:ConnectionPool {
     sql:ConnectionPool connectionPool = {
         maxOpenConnections: 25
     };
     mysql:Client dbClient = check new (user = user, password = password, database = database,
-    port = port, connectionPool = connectionPool);
+        port = port, connectionPool = connectionPool);
     error? err = dbClient.close();
     if (err is error) {
         return err;
