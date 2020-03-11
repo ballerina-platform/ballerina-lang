@@ -183,6 +183,7 @@ public class CompilerDriver {
         symbolTable.langInternalModuleSymbol = pkgLoader.loadPackageSymbol(INTERNAL, null, null);
 
         symResolver.reloadIntRangeType();
+        symbolTable.loadDefaultXMLNamespace();
 
         // Now load each module.
         getLangModuleFromSource(langLib);
