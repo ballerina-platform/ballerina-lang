@@ -128,29 +128,29 @@ function concatString([string, string] v) returns string {
     return v1 + v2;
 }
 
-function xmlTest() returns [int, int, xml] {
-    xml xdata = xml `<p:person xmlns:p="foo" xmlns:q="bar">
-        <p:name>bob</p:name>
-        <p:address>
-            <p:city>NY</p:city>
-            <q:country>US</q:country>
-        </p:address>
-        <q:ID>1131313</q:ID>
-    </p:person>`;
-    int nodeCount = xdata/*.length();
-    int elementCount = xdata/*.elements().length();
-
-    index = -1;
-    xml m = xdata.getChildren().elements()[1].getChildren().elements()
-                 .'map(function (xml|string x) returns xml|string {
-                            index += 1;
-                            if x is xml {
-                                return x;
-                            }
-                            return "*ws*";
-                      });
-    return [nodeCount, elementCount, m];
-}
+//function xmlTest() returns [int, int, xml] {
+//    xml xdata = xml `<p:person xmlns:p="foo" xmlns:q="bar">
+//        <p:name>bob</p:name>
+//        <p:address>
+//            <p:city>NY</p:city>
+//            <q:country>US</q:country>
+//        </p:address>
+//        <q:ID>1131313</q:ID>
+//    </p:person>`;
+//    int nodeCount = xdata/*.length();
+//    int elementCount = xdata/*.elements().length();
+//
+//    index = -1;
+//    xml m = xdata.getChildren().elements()[1].getChildren().elements()
+//                 .'map(function (xml|string x) returns xml|string {
+//                            index += 1;
+//                            if x is xml {
+//                                return x;
+//                            }
+//                            return "*ws*";
+//                      });
+//    return [nodeCount, elementCount, m];
+//}
 
 type person record {
     string name;
