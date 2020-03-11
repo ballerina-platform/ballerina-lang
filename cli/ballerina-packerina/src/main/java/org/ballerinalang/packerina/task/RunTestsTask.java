@@ -19,6 +19,7 @@
 package org.ballerinalang.packerina.task;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import org.ballerinalang.packerina.OsUtils;
 import org.ballerinalang.packerina.buildcontext.BuildContext;
 import org.ballerinalang.packerina.buildcontext.BuildContextField;
@@ -56,6 +57,9 @@ import java.util.List;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.TEST_RESULTS_FILE;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.TEST_RUNTIME_JAR_PREFIX;
 import static org.ballerinalang.tool.LauncherUtils.createLauncherException;
+import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BALLERINA_HOME;
+import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BALLERINA_HOME_BRE;
+import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BALLERINA_HOME_LIB;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_COMPILED_JAR_EXT;
 
 /**
@@ -67,8 +71,10 @@ public class RunTestsTask implements Task {
     private Path testJarPath;
     TestReport testReport;
 
-    public RunTestsTask(String[] args) {
+    public RunTestsTask(boolean coverage, String[] args) {
+        this.coverage = coverage;
         this.args = args;
+        testReport = new TestReport();
     }
 
     public RunTestsTask(boolean coverage, String[] args, List<String> groupList, List<String> disableGroupList) {
@@ -101,7 +107,6 @@ public class RunTestsTask implements Task {
         buildContext.out().println();
 
         Path sourceRootPath = buildContext.get(BuildContextField.SOURCE_ROOT);
-
         List<BLangPackage> moduleBirMap = buildContext.getModules();
         testReport.setProjectName(sourceRootPath.toFile().getName());
 
@@ -146,6 +151,7 @@ public class RunTestsTask implements Task {
                 }
             }
         }
+        testReport.finalizeTestResults(coverage);
         writeReportToJson(buildContext.out(), testReport, targetDir);
     }
 
@@ -221,12 +227,17 @@ public class RunTestsTask implements Task {
      * @param out PrintStream object to print messages to console
      * @param testReport Data that are parsed to the json
      */
-    private static void writeReportToJson(PrintStream out, TestReport testReport, Path jsonPath) {
+    private void writeReportToJson(PrintStream out, TestReport testReport, Path jsonPath) {
         out.println();
         out.println("Generating Test Report");
         File jsonFile = new File(jsonPath.resolve(TEST_RESULTS_FILE).toString());
         try (Writer writer = new OutputStreamWriter(new FileOutputStream(jsonFile), StandardCharsets.UTF_8)) {
-            Gson gson = new Gson();
+            Gson gson;
+            if (this.coverage) {
+                 gson = new Gson();
+            } else {
+                gson = new GsonBuilder().setExclusionStrategies(new TestReport.ReportExclusionStrategy()).create();
+            }
             String json = gson.toJson(testReport);
             writer.write(new String(json.getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8));
             out.println("\t" + Paths.get("").toAbsolutePath().relativize(jsonFile.toPath()));
@@ -243,10 +254,13 @@ public class RunTestsTask implements Task {
         Path targetDir = Paths.get(buildContext.get(BuildContextField.TARGET_DIR).toString());
         String orgName = String.valueOf(bLangPackage.packageID.orgName);
         String packageName = String.valueOf(bLangPackage.packageID.name);
+
+        String jacocoAgentJarPath = Paths.get(System.getProperty(BALLERINA_HOME)).resolve(BALLERINA_HOME_BRE)
+                .resolve(BALLERINA_HOME_LIB).resolve(TesterinaConstants.AGENT_FILE_NAME).toString();
         try {
             if (coverage) {
                 String agentCommand = "-javaagent:"
-                        + CodeCoverageUtils.extractJacocoAgent(targetDir).toString()
+                        + jacocoAgentJarPath
                         + "=destfile="
                         + targetDir.resolve(TesterinaConstants.COVERAGE_DIR)
                         .resolve(TesterinaConstants.EXEC_FILE_NAME).toString()

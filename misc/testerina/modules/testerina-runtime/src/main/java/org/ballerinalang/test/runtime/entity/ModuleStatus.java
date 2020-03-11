@@ -49,6 +49,18 @@ public class ModuleStatus {
         }
     }
 
+    public int getPassed() {
+        return passed;
+    }
+
+    public int getFailed() {
+        return failed;
+    }
+
+    public int getSkipped() {
+        return skipped;
+    }
+
     /**
      * Inner class for individual Test object.
      */

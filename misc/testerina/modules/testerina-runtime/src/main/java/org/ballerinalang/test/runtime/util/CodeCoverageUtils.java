@@ -106,19 +106,4 @@ public class CodeCoverageUtils {
         }
         Files.deleteIfExists(dir.toPath());
     }
-
-    /**
-     * Util method to extract the jacoco agent for generating the code coverage binary file.
-     *
-     * @param targetPath  path to extract
-     * @return path of extracted jacoco agent jar file
-     * @throws IOException if extraction fails
-     */
-    public static Path extractJacocoAgent(Path targetPath) throws IOException {
-        InputStream inputStream = CodeCoverageUtils.class
-                .getResourceAsStream("/" + TesterinaConstants.AGENT_FILE_NAME);
-        Files.copy(inputStream, targetPath.resolve(TesterinaConstants.AGENT_FILE_NAME),
-                StandardCopyOption.REPLACE_EXISTING);
-        return targetPath.resolve(TesterinaConstants.AGENT_FILE_NAME);
-    }
 }

@@ -223,6 +223,12 @@ public class TestCommand implements BLauncherCmd {
                 this.sourceRootPath = findRoot;
             }
         } else if (this.argList.get(0).endsWith(BLangConstants.BLANG_SRC_FILE_SUFFIX)) {
+            // TODO: remove this once code cov is implemented to support single bal file
+            if (coverage) {
+                coverage = false;
+                this.outStream.println("Code coverage is not yet supported with single bal files. Ignoring the flag " +
+                        "and continuing the test run...");
+            }
             // when a single bal file is provided
             // Check if path given is an absolute path. Update the root accordingly
             sourcePath = (Paths.get(this.argList.get(0)).isAbsolute()) ?

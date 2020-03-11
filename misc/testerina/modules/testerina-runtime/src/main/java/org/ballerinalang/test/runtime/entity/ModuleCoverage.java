@@ -28,6 +28,7 @@ import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
 
 /**
  * Coverage analysis of a specific module used to generate the Json object.
@@ -73,6 +74,14 @@ public class ModuleCoverage {
         return coveragePercentage;
     }
 
+    public int getCoveredLines() {
+        return coveredLines;
+    }
+
+    public int getMissedLines() {
+        return missedLines;
+    }
+
     /**
      * Inner class for the SourceFile in Json.
      */
@@ -95,35 +104,30 @@ public class ModuleCoverage {
 
         private void setSourceCode(String moduleName, String fileName) {
             Path sourceFile = Paths.get(TesterinaConstants.SRC_DIR).resolve(moduleName).resolve(fileName);
-            StringBuilder stringBuilder = new StringBuilder("<ol>");
-
-            try {
-                final List<String> allLines = Files.readAllLines(sourceFile, StandardCharsets.UTF_8);
-                int i = 1;
-                String color = "";
-                for (String line: allLines) {
-                    if (this.coveredLines.contains(i)) {
-                        color = TesterinaConstants.GREEN;
-                    } else if (this.missedLines.contains(i)) {
-                        color = TesterinaConstants.RED;
-                    }
-                    stringBuilder.append("<li class \"").append(color).append("\">").append(line).append("</li>\n");
-                    i++;
-                }
-                stringBuilder.append("</ol>");
+            StringBuilder contentBuilder = new StringBuilder();
+            try (Stream<String> stream = Files.lines(sourceFile, StandardCharsets.UTF_8)) {
+                stream.forEach(s -> contentBuilder.append(s).append("\n"));
             } catch (IOException e) {
-                errStream.println("error while analyzing code coverage" + e.getMessage());
+                errStream.println("error while analyzing code coverage" + e);
                 Runtime.getRuntime().exit(1);
             }
-            this.sourceCode = stringBuilder.toString();
+            this.sourceCode = contentBuilder.toString();
         }
 
         public float getCoveragePercentage() {
-            return coveragePercentage;
+            return this.coveragePercentage;
         }
 
         public String getSourceCode() {
-            return sourceCode;
+            return this.sourceCode;
+        }
+
+        public List<Integer> getCoveredLines() {
+            return this.coveredLines;
+        }
+
+        public List<Integer> getMissedLines() {
+            return this.missedLines;
         }
     }
 }
