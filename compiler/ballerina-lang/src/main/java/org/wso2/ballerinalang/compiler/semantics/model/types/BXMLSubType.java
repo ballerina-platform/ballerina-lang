@@ -67,4 +67,8 @@ public class BXMLSubType extends BType {
         return Names.BALLERINA_ORG.value + Names.ORG_NAME_SEPARATOR.value
                 + Names.LANG.value + Names.DOT.value + Names.XML.value + Names.ALIAS_SEPARATOR + name;
     }
+
+    public boolean isAnydata() {
+        return true;
+    }
 }
