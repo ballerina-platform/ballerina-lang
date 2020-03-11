@@ -578,7 +578,7 @@ type Student11 object {
     }
 };
 
-function testFunctionPointerAsDefaultableParam() {
+function testFunctionPointerAsDefaultableParam1() {
     Student11 s1 = new("Anne", getData);
     if (s1.getName() != "Anne") {
         panic error("Returned string should equal 'Anne'");
@@ -587,5 +587,33 @@ function testFunctionPointerAsDefaultableParam() {
     Student11 s2 = new("Anne");
     if (s2.getName() != "John") {
         panic error("Returned string should equal 'John'");
+    }
+}
+
+function getTotalMarks(int a, int b) returns int {
+    return a + b + 10;
+}
+
+type Student12 object {
+    int marks;
+    function __init(int x, int y, function (int, int) returns int fn =
+                                                        function(int a, int b) returns int {return 100;}) {
+        self.marks = fn(x, y);
+    }
+
+    function getMarks() returns int {
+        return self.marks;
+    }
+};
+
+function testFunctionPointerAsDefaultableParam2() {
+    Student12 s1 = new(10, 20, getTotalMarks);
+    if (s1.getMarks() != 40) {
+        panic error("Returned string should equal '40'");
+    }
+
+    Student12 s2 = new(10, 20);
+    if (s2.getMarks() != 100) {
+        panic error("Returned string should equal '100'");
     }
 }
