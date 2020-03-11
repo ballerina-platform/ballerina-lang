@@ -20,7 +20,7 @@ import ballerina/http;
 const string DEFAULT_HOST = "0.0.0.0";
 const int DEFAULT_LEASE_SECONDS_VALUE = 86400; //one day
 const string DEFAULT_SIGNATURE_METHOD = "SHA256";
-const int DEFAULT_CACHE_EXPIRY_MILLIS = 172800000;
+const int DEFAULT_CACHE_EXPIRY_SECONDS = 172800; //two days
 
 string hubBasePath = "/";
 string hubSubscriptionResourcePath = "/";

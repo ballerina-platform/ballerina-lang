@@ -35,4 +35,7 @@ public final class Constants {
         static final String OPTIONS = "options";
         static final String PROPERTIES = "properties";
     }
+
+    public static final String CONNECT_TIMEOUT = ".*(connect).*(timeout).*";
+    public static final String POOL_CONNECTION_TIMEOUT = "ConnectionTimeout";
 }

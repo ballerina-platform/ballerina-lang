@@ -79,7 +79,7 @@ public class StringValueBasicsTest {
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 10);
     }
 
-    @Test
+    @Test (groups = "brokenOnJBallerina")
     public void testStringIndexAccess() {
         BValue[] returns = BRunUtil.invoke(result, "testStringIndexAccess");
         Assert.assertEquals(returns[0].getClass(), BInteger.class);

@@ -79,6 +79,7 @@ public class TesterinaReport {
         outStream.println("\t" + passed + " passing");
         outStream.println("\t" + failed + " failing");
         outStream.println("\t" + skipped + " skipped");
+        outStream.println();
     }
 
     public void addPackageReport(String packageName) {
