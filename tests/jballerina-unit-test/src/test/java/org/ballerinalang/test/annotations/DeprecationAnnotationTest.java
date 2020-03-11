@@ -37,11 +37,11 @@ public class DeprecationAnnotationTest {
         Assert.assertEquals(compileResult.getWarnCount(), 6);
 
         int i = 0;
-        BAssertUtil.validateWarning(compileResult, i++, "'Foo' is deprecated", 24, 5);
-        BAssertUtil.validateWarning(compileResult, i++, "'CONST1' is deprecated", 24, 15);
-        BAssertUtil.validateWarning(compileResult, i++, "'DummyObject' is deprecated", 42, 5);
-        BAssertUtil.validateWarning(compileResult, i++, "'DummyObject' is deprecated", 45, 23);
-        BAssertUtil.validateWarning(compileResult, i++, "'Foo' is deprecated", 45, 40);
-        BAssertUtil.validateWarning(compileResult, i, "'CONST1' is deprecated", 45, 62);
+        BAssertUtil.validateWarning(compileResult, i++, "usage of construct 'Foo' is deprecated", 24, 5);
+        BAssertUtil.validateWarning(compileResult, i++, "usage of construct 'CONST1' is deprecated", 24, 15);
+        BAssertUtil.validateWarning(compileResult, i++, "usage of construct 'DummyObject' is deprecated", 42, 5);
+        BAssertUtil.validateWarning(compileResult, i++, "usage of construct 'DummyObject' is deprecated", 45, 23);
+        BAssertUtil.validateWarning(compileResult, i++, "usage of construct 'Foo' is deprecated", 45, 40);
+        BAssertUtil.validateWarning(compileResult, i, "usage of construct 'CONST1' is deprecated", 45, 62);
     }
 }
