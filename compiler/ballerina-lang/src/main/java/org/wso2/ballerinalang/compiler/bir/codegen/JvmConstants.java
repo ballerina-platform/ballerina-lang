@@ -169,7 +169,15 @@ public class JvmConstants {
 
     // scheduler related constants
     public static final String SCHEDULE_FUNCTION_METHOD = "scheduleFunction";
+    public static final String SCHEDULE_LOCAL_METHOD = "scheduleLocal";
     public static final String SCHEDULER_START_METHOD = "start";
+
+    // strand data related constants
+    public static final String STRAND_ANNOTATION = "strand";
+    public static final String STRAND_THREAD = "thread";
+    public static final String STRAND_DATA_NAME = "name";
+    public static final String STRAND_VALUE_ANY = "any";
+    public static final String DEFAULT_STRAND_DISPATCHER = "DEFAULT";
 
     // observability related constants
     public static final String OBSERVER_CONTEXT = "org/ballerinalang/jvm/observability/ObserverContext";
