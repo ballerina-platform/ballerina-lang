@@ -302,38 +302,97 @@ function emitInsBinaryOp(BinaryOp ins, int tabs) returns string {
 }
  
 function emitInsNewXMLElement(NewXMLElement ins, int tabs) returns string {
-    // TODO fill this 
-    return "";
+    string str = "";
+    str += emitTabs(tabs);
+    str += emitVarRef(ins.lhsOp);
+    str += emitSpaces(1);
+    str += "=";
+    str += emitSpaces(1);
+    str += "<";
+    str += emitVarRef(ins.startTagOp);
+    str += " ns=";
+    str += emitVarRef(ins.defaultNsURIOp);
+    str += "/>";
+    return str;
 }
  
 function emitInsNewXMLQName(NewXMLQName ins, int tabs) returns string {
-    // TODO fill this 
-    return "";
+    string str = "";
+    str += emitTabs(tabs);
+    str += emitVarRef(ins.lhsOp);
+    str += emitSpaces(1);
+    str += "=";
+    str += emitSpaces(1);
+    str += "QName {";
+    str += emitVarRef(ins.nsURIOp);
+    str += "}";
+    str += emitVarRef(ins.localnameOp);
+    str += emitSpaces(1);
+    str += "prefix=";
+    str += emitVarRef(ins.prefixOp);
+    return str;
 }
  
 function emitInsNewStringXMLQName(NewStringXMLQName ins, int tabs) returns string {
-    // TODO fill this 
-    return "";
+    string str = "";
+    str += emitTabs(tabs);
+    str += emitVarRef(ins.lhsOp);
+    str += emitSpaces(1);
+    str += "=";
+    str += emitSpaces(1);
+    str += "QNameStr";
+    str += emitVarRef(ins.stringQNameOp);
+    return str;
 }
  
 function emitInsXMLAccess(XMLAccess ins, int tabs) returns string {
-    // TODO fill this 
-    return "";
+    string str = "";
+    str += emitTabs(tabs);
+    str += emitVarRef(ins.lhsOp);
+    str += emitSpaces(1);
+    str += "=";
+    str += emitSpaces(1);
+    str += "xml access ";
+    str += emitVarRef(ins.rhsOp);
+    return str;
 }
  
 function emitInsNewXMLText(NewXMLText ins, int tabs) returns string {
-    // TODO fill this 
-    return "";
+    string str = "";
+    str += emitTabs(tabs);
+    str += emitVarRef(ins.lhsOp);
+    str += emitSpaces(1);
+    str += "=";
+    str += emitSpaces(1);
+    str += "xml text ";
+    str += emitVarRef(ins.textOp);
+    return str;
 }
  
 function emitInsNewXMLComment(NewXMLComment ins, int tabs) returns string {
-    // TODO fill this 
-    return "";
+    string str = "";
+    str += emitTabs(tabs);
+    str += emitVarRef(ins.lhsOp);
+    str += emitSpaces(1);
+    str += "=";
+    str += emitSpaces(1);
+    str += "xml comment ";
+    str += emitVarRef(ins.textOp);
+    return str;
 }
  
 function emitInsNewXMLPI(NewXMLPI ins, int tabs) returns string {
-    // TODO fill this 
-    return "";
+    string str = "";
+    str += emitTabs(tabs);
+    str += emitVarRef(ins.lhsOp);
+    str += emitSpaces(1);
+    str += "=";
+    str += emitSpaces(1);
+    str += "xml pi ";
+    str += emitVarRef(ins.targetOp);
+    str += emitSpaces(1);
+    str += emitVarRef(ins.dataOp);
+    return str;
 }
  
 function emitInsUnaryOp(UnaryOp ins, int tabs) returns string {
@@ -616,7 +675,7 @@ function emitFieldLock(FieldLock term, int tabs) returns string {
     str += emitSpaces(1);
     str += emitName(term.localVar.name);
     str += "[\"";
-    str += term.field;
+    str += term.'field;
     str += "\"]";
     str += emitSpaces(1);
     str += "->";

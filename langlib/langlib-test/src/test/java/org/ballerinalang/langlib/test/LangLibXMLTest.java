@@ -65,7 +65,7 @@ public class LangLibXMLTest {
         return new Object[][]{
                 {returns[0], 1},
                 {returns[1], 1},
-                {returns[2], 12}
+                {returns[2], 1}
         };
     }
 
@@ -87,8 +87,8 @@ public class LangLibXMLTest {
     public void testConcat() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testConcat");
         assertTrue(((BXML<?>) returns[0]).getNodeType() == XMLNodeType.SEQUENCE);
-        assertEquals(((BXML<?>) returns[0]).size(), 21);
-        assertEquals(((BXML<?>) returns[0]).stringValue(),
+        assertEquals(returns[0].size(), 5);
+        assertEquals(returns[0].stringValue(),
                 "<hello>xml content</hello><TITLE>Empire Burlesque</TITLE><TITLE>Hide your heart</TITLE>" +
                         "<TITLE>Greatest Hits</TITLE>hello from String");
     }
@@ -253,5 +253,23 @@ public class LangLibXMLTest {
         Assert.assertEquals(returns[0].stringValue(), "<elemL>content</elemL><elemN>content</elemN>");
         Assert.assertEquals(returns[1].stringValue(), "<elemN>content</elemN><elemM>content</elemM>");
         Assert.assertEquals(returns[2].stringValue(), "<elemN>content</elemN><elemM>content</elemM>");
+    }
+
+    @Test
+    public void testXMLCycleError() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testXMLCycleError");
+        Assert.assertEquals(returns[0].stringValue(),
+                "{ballerina/lang.xml}XMLOperationError " +
+                        "{message:\"Failed to set children to xml element: Cycle detected\"}");
+        Assert.assertTrue(returns[1].stringValue().contains("<CD><CD>"));
+        Assert.assertTrue(returns[1].stringValue().contains("</CD></CD>"));
+    }
+
+    @Test
+    public void testXMLCycleDueToChildrenOfChildren() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testXMLCycleDueToChildrenOfChildren");
+        Assert.assertEquals(returns[0].stringValue(),
+                "{ballerina/lang.xml}XMLOperationError " +
+                        "{message:\"Failed to set children to xml element: Cycle detected\"}");
     }
 }

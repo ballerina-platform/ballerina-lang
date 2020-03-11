@@ -93,6 +93,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIntRangeExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangLetExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchExpression;
@@ -104,7 +105,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRestArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangServiceConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangStreamConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
@@ -124,7 +124,9 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerSyncSendExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttribute;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttributeAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLCommentLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLNavigationAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLProcInsLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQName;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQuotedString;
@@ -169,8 +171,10 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangConstrainedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangErrorType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFiniteTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFunctionTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangLetVariable;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangStreamType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangTupleTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUnionTypeNode;
@@ -181,7 +185,7 @@ import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
-import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
+import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLogHelper;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.programfile.WorkerDataChannelInfo;
 import org.wso2.ballerinalang.util.Flags;
@@ -226,10 +230,11 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     private boolean statementReturns;
     private boolean lastStatement;
     private boolean withinRetryBlock;
+    private boolean withinLockBlock;
     private int workerCount;
     private SymbolTable symTable;
     private Types types;
-    private BLangDiagnosticLog dlog;
+    private BLangDiagnosticLogHelper dlog;
     private TypeChecker typeChecker;
     private Stack<WorkerActionSystem> workerActionSystemStack = new Stack<>();
     private Stack<Boolean> loopWithintransactionCheckStack = new Stack<>();
@@ -256,7 +261,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         context.put(CODE_ANALYZER_KEY, this);
         this.symTable = SymbolTable.getInstance(context);
         this.types = Types.getInstance(context);
-        this.dlog = BLangDiagnosticLog.getInstance(context);
+        this.dlog = BLangDiagnosticLogHelper.getInstance(context);
         this.typeChecker = TypeChecker.getInstance(context);
         this.names = Names.getInstance(context);
         this.symResolver = SymbolResolver.getInstance(context);
@@ -1230,9 +1235,11 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangLock lockNode) {
 
-        checkExperimentalFeatureValidity(ExperimentalFeatures.LOCK, lockNode.pos);
         this.checkStatementExecutionValidity(lockNode);
+        boolean previousWithinLockBlock = this.withinLockBlock;
+        this.withinLockBlock = true;
         lockNode.body.stmts.forEach(e -> analyzeNode(e, env));
+        this.withinLockBlock = previousWithinLockBlock;
     }
 
     @Override
@@ -1341,6 +1348,27 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         if (!Symbols.isPublic(symbol)) {
             dlog.error(pos, DiagnosticCode.ATTEMPT_EXPOSE_NON_PUBLIC_SYMBOL, symbol.name);
         }
+    }
+
+    public void visit(BLangLetExpression letExpression) {
+        int ownerSymTag = this.env.scope.owner.tag;
+        if ((ownerSymTag & SymTag.RECORD) == SymTag.RECORD) {
+            dlog.error(letExpression.pos, DiagnosticCode.LET_EXPRESSION_NOT_YET_SUPPORTED_RECORD_FIELD);
+        } else if ((ownerSymTag & SymTag.OBJECT) == SymTag.OBJECT) {
+            dlog.error(letExpression.pos, DiagnosticCode.LET_EXPRESSION_NOT_YET_SUPPORTED_OBJECT_FIELD);
+        }
+
+        // This is to support when let expressions are used in return statements
+        // Since variable declarations are visited after return node, this stops false positive unreachable code error
+        boolean returnStateBefore = this.statementReturns;
+        this.statementReturns = false;
+
+        for (BLangLetVariable letVariable : letExpression.letVarDeclarations) {
+            analyzeNode((BLangNode) letVariable.definitionNode, letExpression.env);
+        }
+
+        this.statementReturns = returnStateBefore;
+        analyzeExpr(letExpression.expr, letExpression.env);
     }
 
     public void visit(BLangSimpleVariable varNode) {
@@ -1845,8 +1873,10 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         for (RecordLiteralNode.RecordField field : fields) {
             if (field.isKeyValueField()) {
                 analyzeExpr(((BLangRecordKeyValueField) field).valueExpr);
-            } else {
+            } else if (field.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
                 analyzeExpr((BLangRecordLiteral.BLangRecordVarNameField) field);
+            } else {
+                analyzeExpr(((BLangRecordLiteral.BLangRecordSpreadOperatorField) field).expr);
             }
         }
 
@@ -1856,40 +1886,65 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         for (RecordLiteralNode.RecordField field : fields) {
 
             BLangExpression keyExpr;
-            if (field.isKeyValueField()) {
-                BLangRecordLiteral.BLangRecordKey key = ((BLangRecordKeyValueField) field).key;
-                keyExpr = key.expr;
-                if (key.computedKey) {
-                    analyzeExpr(keyExpr);
+
+            if (field.getKind() == NodeKind.RECORD_LITERAL_SPREAD_OP) {
+                BLangRecordLiteral.BLangRecordSpreadOperatorField spreadOpField =
+                        (BLangRecordLiteral.BLangRecordSpreadOperatorField) field;
+                BLangExpression spreadOpExpr = spreadOpField.expr;
+
+                analyzeExpr(spreadOpExpr);
+                if (spreadOpExpr.type.tag != TypeTags.RECORD) {
                     continue;
                 }
+
+                for (BField bField : ((BRecordType) spreadOpExpr.type).fields) {
+                    if (Symbols.isOptional(bField.symbol)) {
+                        continue;
+                    }
+
+                    String name = bField.name.value;
+                    if (names.contains(name)) {
+                        this.dlog.error(spreadOpExpr.pos, DiagnosticCode.DUPLICATE_KEY_IN_RECORD_LITERAL_SPREAD_OP,
+                                        recordLiteral.expectedType.getKind().typeName(), name, spreadOpField);
+                    }
+                    names.add(name);
+                }
+
             } else {
-                keyExpr = (BLangRecordLiteral.BLangRecordVarNameField) field;
-            }
-
-            if (keyExpr.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
-                BLangSimpleVarRef keyRef = (BLangSimpleVarRef) keyExpr;
-                String fieldName = keyRef.variableName.value;
-
-                if (names.contains(fieldName)) {
-                    String assigneeType = recordLiteral.expectedType.getKind().typeName();
-                    this.dlog.error(keyExpr.pos, DiagnosticCode.DUPLICATE_KEY_IN_RECORD_LITERAL, assigneeType, keyRef);
+                if (field.isKeyValueField()) {
+                    BLangRecordLiteral.BLangRecordKey key = ((BLangRecordKeyValueField) field).key;
+                    keyExpr = key.expr;
+                    if (key.computedKey) {
+                        analyzeExpr(keyExpr);
+                        continue;
+                    }
+                } else {
+                    keyExpr = (BLangRecordLiteral.BLangRecordVarNameField) field;
                 }
 
-                if (isOpenRecord && ((BRecordType) type).fields.stream()
-                        .noneMatch(recField -> fieldName.equals(recField.name.value))) {
-                    dlog.error(keyExpr.pos, DiagnosticCode.INVALID_RECORD_LITERAL_IDENTIFIER_KEY, fieldName);
-                }
+                if (keyExpr.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
+                    String name = ((BLangSimpleVarRef) keyExpr).variableName.value;
 
-                names.add(fieldName);
-            } else if (keyExpr.getKind() == NodeKind.LITERAL || keyExpr.getKind() == NodeKind.NUMERIC_LITERAL) {
-                BLangLiteral keyLiteral = (BLangLiteral) keyExpr;
-                if (names.contains(keyLiteral.value)) {
-                    String assigneeType = recordLiteral.parent.type.getKind().typeName();
-                    this.dlog.error(keyExpr.pos, DiagnosticCode.DUPLICATE_KEY_IN_RECORD_LITERAL, assigneeType,
-                                    keyLiteral);
+                    if (names.contains(name)) {
+                        this.dlog.error(keyExpr.pos, DiagnosticCode.DUPLICATE_KEY_IN_RECORD_LITERAL,
+                                        recordLiteral.expectedType.getKind().typeName(), name);
+                    }
+
+                    if (isOpenRecord && ((BRecordType) type).fields.stream()
+                            .noneMatch(recField -> name.equals(recField.name.value))) {
+                        dlog.error(keyExpr.pos, DiagnosticCode.INVALID_RECORD_LITERAL_IDENTIFIER_KEY, name);
+                    }
+
+                    names.add(name);
+                } else if (keyExpr.getKind() == NodeKind.LITERAL || keyExpr.getKind() == NodeKind.NUMERIC_LITERAL) {
+                    Object name = ((BLangLiteral) keyExpr).value;
+                    if (names.contains(name)) {
+                        this.dlog.error(keyExpr.pos, DiagnosticCode.DUPLICATE_KEY_IN_RECORD_LITERAL,
+                                        recordLiteral.parent.type.getKind().typeName(),
+                                        name);
+                    }
+                    names.add(name);
                 }
-                names.add(keyLiteral.value);
             }
         }
     }
@@ -1948,7 +2003,14 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
 
         if (invocationExpr.actionInvocation || invocationExpr.async) {
-            validateActionInvocation(invocationExpr.pos, invocationExpr);
+            if (invocationExpr.actionInvocation || !this.withinLockBlock) {
+                validateActionInvocation(invocationExpr.pos, invocationExpr);
+                return;
+            }
+
+            dlog.error(invocationExpr.pos, invocationExpr.functionPointerInvocation ? 
+            DiagnosticCode.USAGE_OF_WORKER_WITHIN_LOCK_IS_PROHIBITED : 
+            DiagnosticCode.USAGE_OF_START_WITHIN_LOCK_IS_PROHIBITED);
         }
     }
 
@@ -2037,6 +2099,19 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             BLangExpression expr = keyValue.valueExpr != null ? keyValue.valueExpr : keyValue.keyExpr;
             analyzeExpr(expr);
         });
+    }
+
+    @Override
+    public void visit(BLangXMLElementAccess xmlElementAccess) {
+        analyzeExpr(xmlElementAccess.expr);
+    }
+
+    @Override
+    public void visit(BLangXMLNavigationAccess xmlNavigation) {
+        analyzeExpr(xmlNavigation.expr);
+        if (xmlNavigation.childIndex != null) {
+            analyzeExpr(xmlNavigation.childIndex);
+        }
     }
 
     @Override
@@ -2270,10 +2345,13 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     public void visit(BLangConstrainedType constrainedType) {
 
-        if (constrainedType.type.type.tag == TypeTags.STREAM) {
-            checkExperimentalFeatureValidity(ExperimentalFeatures.STREAMS, constrainedType.pos);
-        }
         analyzeTypeNode(constrainedType.constraint, env);
+    }
+
+    public void visit(BLangStreamType streamType) {
+
+        analyzeTypeNode(streamType.constraint, env);
+        analyzeTypeNode(streamType.error, env);
     }
 
     public void visit(BLangErrorType errorType) {
@@ -2399,11 +2477,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangStreamConstructorExpr streamConstructorExpr) {
-        /* Ignore */
-    }
-
-    @Override
     public void visit(BLangTypeTestExpr typeTestExpr) {
         analyzeNode(typeTestExpr.expr, env);
         if (typeTestExpr.typeNode.type == symTable.semanticError || typeTestExpr.expr.type == symTable.semanticError) {
@@ -2473,6 +2546,22 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         this.isJSONContext = false;
         parent = myParent;
         checkAccess(node);
+    }
+
+    private <E extends BLangExpression> void analyzeExpr(E node, SymbolEnv env) {
+        if (node == null) {
+            return;
+        }
+        SymbolEnv prevEnv = this.env;
+        this.env = env;
+        BLangNode myParent = parent;
+        node.parent = parent;
+        parent = node;
+        node.accept(this);
+        this.isJSONContext = false;
+        parent = myParent;
+        checkAccess(node);
+        this.env = prevEnv;
     }
 
     @Override
@@ -2850,7 +2939,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
      * @since JBallerina 1.0.0
      */
     private enum ExperimentalFeatures {
-        STREAMS("stream"),
         TRANSACTIONS("transaction"),
         LOCK("lock"),
         XML_ACCESS("xml access expression"),

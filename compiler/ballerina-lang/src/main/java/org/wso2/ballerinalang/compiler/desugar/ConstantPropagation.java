@@ -22,6 +22,7 @@ import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
+import org.ballerinalang.model.tree.statements.VariableDefinitionNode;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstantSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
@@ -60,6 +61,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangIntRangeExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIsLikeExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangLetExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
@@ -71,7 +73,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangRestArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangServiceConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStatementExpression;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangStreamConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
@@ -90,7 +91,10 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerSyncSendExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttribute;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttributeAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLCommentLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementAccess;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementFilter;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLNavigationAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLProcInsLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLTextLiteral;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAbort;
@@ -122,6 +126,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerSend;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangXMLNSStatement;
 import org.wso2.ballerinalang.compiler.tree.types.BLangErrorType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFiniteTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangLetVariable;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
@@ -684,6 +689,22 @@ public class ConstantPropagation extends BLangNodeVisitor {
     }
 
     @Override
+    public void visit(BLangXMLElementFilter xmlElementFilter) {
+        result = xmlElementFilter;
+    }
+
+    @Override
+    public void visit(BLangXMLElementAccess xmlElementAccess) {
+        result = xmlElementAccess;
+    }
+
+    @Override
+    public void visit(BLangXMLNavigationAccess xmlNavigation) {
+        xmlNavigation.childIndex = rewrite(xmlNavigation.childIndex);
+        result = xmlNavigation;
+    }
+
+    @Override
     public void visit(BLangXMLNS xmlnsNode) {
         result = xmlnsNode;
     }
@@ -790,12 +811,6 @@ public class ConstantPropagation extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangStreamConstructorExpr streamConstructorExpr) {
-        streamConstructorExpr.lambdaFunction = rewrite(streamConstructorExpr.lambdaFunction);
-        result = streamConstructorExpr;
-    }
-
-    @Override
     public void visit(BLangDoClause doClause) {
         doClause.body = rewrite(doClause.body);
         result = doClause;
@@ -817,6 +832,15 @@ public class ConstantPropagation extends BLangNodeVisitor {
     public void visit(BLangExprFunctionBody exprFuncBody) {
         exprFuncBody.expr = rewrite(exprFuncBody.expr);
         result = exprFuncBody;
+    }
+
+    @Override
+    public void visit(BLangLetExpression letExpr) {
+        letExpr.expr = rewrite(letExpr.expr);
+        for (BLangLetVariable var : letExpr.letVarDeclarations) {
+            var.definitionNode = (VariableDefinitionNode) rewrite((BLangNode) var.definitionNode);
+        }
+        result = letExpr;
     }
 
     @Override

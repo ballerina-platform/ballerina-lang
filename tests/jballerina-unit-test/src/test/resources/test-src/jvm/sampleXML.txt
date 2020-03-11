@@ -1,10 +1,10 @@
-<cre:InputParameters xmlns:cre="http://xmlns.oracle.com/apps/ozf/soaprovider/plsql/ozf_sd_request_pub/create_sd_request/" xmlns:ore="http://xmlns.oracle.com/apps/ozf/soaprovider/plsql/ozf_sd_request_pub/create_sd_request/" xmlns:pre="http://xmlns.oracle.com/apps/ozf/soaprovider/plsql/ozf_sd_request_pub/create_sd_request/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ns1="http://ballerina.com/b">
+<cre:InputParameters xmlns:cre="http://xmlns.oracle.com/apps/ozf/soaprovider/plsql/ozf_sd_request_pub/create_sd_request/" xmlns:ore="http://xmlns.oracle.com/apps/ozf/soaprovider/plsql/ozf_sd_request_pub/create_sd_request/" xmlns:pre="http://xmlns.oracle.com/apps/ozf/soaprovider/plsql/ozf_sd_request_pub/create_sd_request/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
    <cre:P_API_VERSION_NUMBER>1.0</cre:P_API_VERSION_NUMBER>
    <cre:P_INIT_MSG_LIST>T</cre:P_INIT_MSG_LIST>
    <cre:P_COMMIT>F</cre:P_COMMIT>
    <cre:P_VALIDATION_LEVEL>100</cre:P_VALIDATION_LEVEL>
    <cre:P_SDR_LINES_TBL>
-      <pre:P_SDR_LINES_TBL_ITEM pre:line="true" ore:tested="yes">
+      <pre:P_SDR_LINES_TBL_ITEM pre:line="true" pre:tested="yes">
          <pre:PRODUCT_CONTEXT>PRODUCT</pre:PRODUCT_CONTEXT>
          <ore:INVENTORY_ITEM_ID>2155</ore:INVENTORY_ITEM_ID>
          <cre:ITEM_UOM>Ea</cre:ITEM_UOM>

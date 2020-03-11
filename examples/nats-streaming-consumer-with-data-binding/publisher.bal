@@ -10,7 +10,7 @@ public function main() {
     string message = "";
     string subject = io:readln("Subject : ");
 
-    nats:Connection conn = new ("localhost:4222");
+    nats:Connection conn = new;
 
     nats:StreamingProducer publisher = new (conn, "p0", "test-cluster");
 

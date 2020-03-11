@@ -17,6 +17,7 @@
 package io.ballerina.plugins.idea.preloading;
 
 import com.intellij.openapi.diagnostic.Logger;
+import io.ballerina.plugins.idea.BallerinaConstants;
 
 /**
  * Launcher terminator Interface.
@@ -25,8 +26,9 @@ abstract class Terminator {
 
     static final Logger LOGGER = Logger.getInstance(Terminator.class);
 
-    static final String LS_PROCESS_ID = "org.ballerinalang.langserver.launchers.stdio.Main";
-    static final String DEBUG_PROCESS_ID = "org.ballerinalang.debugadapter.launcher.Launcher";
+    static final String LS_SCRIPT_PROCESS_ID = "org.ballerinalang.langserver.launchers.stdio.Main";
+    static final String LS_CMD_PROCESS_ID = BallerinaConstants.BALLERINA_LS_CMD;
+    static final String DEBUG_SCRIPT_PROCESS_ID = "org.ballerinalang.debugadapter.launcher.Launcher";
 
     abstract void terminate();
 }

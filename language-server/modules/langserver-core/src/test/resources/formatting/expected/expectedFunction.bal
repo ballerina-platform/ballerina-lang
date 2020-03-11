@@ -56,7 +56,7 @@ function name16(int i, string name = "john", int id = 0, string... rest) {
 }
 
 function name17(int i, string name = "john",
-int id = 0, string... rest) {
+    int id = 0, string... rest) {
 
 }
 
@@ -79,7 +79,7 @@ public function main2() {
     _
     =
     start
-    foo();
+        foo();
 }
 
 function toEmployee1(Person p) returns Employee => {
@@ -87,7 +87,7 @@ function toEmployee1(Person p) returns Employee => {
 };
 
 function toEmployee2(Person p) returns Employee
-=>
+    =>
 {
     name: p.fname + " " + p.lname + " " + x.toString()
 };

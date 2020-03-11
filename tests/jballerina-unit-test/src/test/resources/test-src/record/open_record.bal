@@ -473,3 +473,104 @@ function addStringToMapValue(string s) returns string {
     mapValue = mapValue + s;
     return mapValue;
 }
+
+public type CustomDetail record {
+    string message;
+    error cause?;
+};
+
+const FOO_REASON = "FooError";
+type FooError error<FOO_REASON, CustomDetail>;
+
+const BAR_REASON = "BarError";
+type BarError error<BAR_REASON, CustomDetail>;
+
+type Error FooError|BarError;
+
+type MyRecord record {
+    typedesc<Error>[] myErrorTypes = [FooError];
+};
+
+function testCustomErrorTypeDescFieldOnRecord() {
+    MyRecord m = {};
+    typedesc<Error> e = m.myErrorTypes[0];
+    if (!(e is typedesc<FooError>)) {
+            panic error("AssertionError", message = "expected typedesc<FooError> but found: " + e.toString());
+    }
+}
+
+type FooRecord record {
+    string a;
+    int b?;
+};
+
+function removeOptional() {
+    FooRecord fooRecord = {a : "a", b : 1};
+    _ = fooRecord.remove("b");
+    int? testValue = fooRecord?.b;
+    if (testValue is ()) {
+        return;
+    } else {
+        typedesc<any> resultType = typeof testValue;
+        panic error("Wrong Result : expected result is null but recieved : " + resultType.toString());
+    }
+}
+
+function removeRest() {
+    FooRecord fooRecord = { a: "a", b : 1, "c" : 10};
+    _ = fooRecord.remove("c");
+    anydata testValue = fooRecord["c"];
+    if (testValue is ()) {
+        return;
+    } else {
+        typedesc<any> resultType = typeof testValue;
+        panic error("Wrong Result : expected result is null but recieved : " + resultType.toString());
+    }
+}
+
+type Student record {
+    int id;
+    string name?;
+};
+
+type Grades record {
+    int maths;
+    int physics;
+};
+
+function removeIfHasKeyOptional() {
+    Student s = {id : 1, name : "Andrew"};
+    string? n = <string?> s.removeIfHasKey("name");
+    if (n is ()) {
+         panic error("Returned value should be an string.");
+    }
+
+    if (<string>n !== "Andrew") {
+         panic error("Returned value should equals 'Andrew'.");
+    }
+
+    var age = s.removeIfHasKey("age");
+    if !(age is ()) {
+         panic error("Returned value should be nil.");
+    }
+}
+
+
+function removeIfHasKeyRest() {
+    Grades g1 = {maths: 80, physics:75};
+    Student s = {id : 1, name : "Andrew", "grade": g1};
+    Grades? g2 = <Grades?> s.removeIfHasKey("grade");
+    if (g2 is ()) {
+         panic error("Returned value should be an string.");
+    }
+
+    Grades g3 = <Grades>g2;
+    if !(g3.maths == g1.maths && g3.physics == g1.physics) {
+         panic error("Returned value should be identical with expected value.");
+    }
+
+    var g4 = s.removeIfHasKey("grade");
+    if !(g4 is ()) {
+         panic error("Returned value should be nil.");
+    }
+}

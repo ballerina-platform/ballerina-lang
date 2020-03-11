@@ -248,10 +248,14 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
      * Clear map entries.
      */
     public void clear() {
+        validateFreezeStatus();
+        super.clear();
+    }
+
+    protected void validateFreezeStatus() {
         if (freezeStatus.getState() != State.UNFROZEN) {
             handleInvalidUpdate(freezeStatus.getState(), MAP_LANG_LIB);
         }
-        super.clear();
     }
 
     /**
@@ -283,9 +287,7 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
      */
     @Override
     public V remove(Object key) {
-        if (freezeStatus.getState() != State.UNFROZEN) {
-            handleInvalidUpdate(freezeStatus.getState(), MAP_LANG_LIB);
-        }
+        validateFreezeStatus();
         return super.remove(key);
     }
 

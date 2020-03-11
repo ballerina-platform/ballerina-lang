@@ -70,7 +70,7 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.NumericLiteralSupport;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
-import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
+import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLogHelper;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.util.Flags;
 import org.wso2.ballerinalang.util.Lists;
@@ -107,7 +107,7 @@ public class Types {
 
     private SymbolTable symTable;
     private SymbolResolver symResolver;
-    private BLangDiagnosticLog dlog;
+    private BLangDiagnosticLogHelper dlogHelper;
     private Names names;
     private int finiteTypeCount = 0;
 
@@ -125,7 +125,7 @@ public class Types {
 
         this.symTable = SymbolTable.getInstance(context);
         this.symResolver = SymbolResolver.getInstance(context);
-        this.dlog = BLangDiagnosticLog.getInstance(context);
+        this.dlogHelper = BLangDiagnosticLogHelper.getInstance(context);
         this.names = Names.getInstance(context);
     }
 
@@ -175,7 +175,7 @@ public class Types {
         }
 
         // e.g. incompatible types: expected 'int', found 'string'
-        dlog.error(pos, diagCode, expType, actualType);
+        dlogHelper.error(pos, diagCode, expType, actualType);
         return symTable.semanticError;
     }
 
@@ -189,6 +189,7 @@ public class Types {
     public boolean isLax(BType type) {
         switch (type.tag) {
             case TypeTags.JSON:
+            case TypeTags.XML:
                 return true;
             case TypeTags.MAP:
                 return isLax(((BMapType) type).constraint);
@@ -245,7 +246,7 @@ public class Types {
         return isBasicNumericType(type);
     }
 
-    private boolean containsErrorType(BType type) {
+    public boolean containsErrorType(BType type) {
         if (type.tag == TypeTags.UNION) {
             return ((BUnionType) type).getMemberTypes().stream()
                     .anyMatch(this::containsErrorType);
@@ -882,19 +883,19 @@ public class Types {
     }
 
     public boolean checkArrayEquality(BType source, BType target, Set<TypePair> unresolvedTypes) {
-        if (target.tag == TypeTags.ARRAY && source.tag == TypeTags.ARRAY) {
-            // Both types are array types
-            BArrayType lhsArrayType = (BArrayType) target;
-            BArrayType rhsArrayType = (BArrayType) source;
-            if (lhsArrayType.state == BArrayState.UNSEALED) {
-                return checkArrayEquality(lhsArrayType.eType, rhsArrayType.eType, unresolvedTypes);
-            }
-            return checkSealedArraySizeEquality(rhsArrayType, lhsArrayType)
-                    && isArrayTypesAssignable(rhsArrayType.eType, lhsArrayType.eType, unresolvedTypes);
+        if (target.tag != TypeTags.ARRAY || source.tag != TypeTags.ARRAY) {
+            return false;
         }
 
-        // Now one or both types are not array types and they have to be equal
-        return isSameType(source, target);
+        BArrayType lhsArrayType = (BArrayType) target;
+        BArrayType rhsArrayType = (BArrayType) source;
+        if (lhsArrayType.state == BArrayState.UNSEALED) {
+            return rhsArrayType.state == BArrayState.UNSEALED &&
+                    isSameType(lhsArrayType.eType, rhsArrayType.eType, unresolvedTypes);
+        }
+
+        return checkSealedArraySizeEquality(rhsArrayType, lhsArrayType)
+                && isSameType(lhsArrayType.eType, rhsArrayType.eType, unresolvedTypes);
     }
 
     public boolean checkSealedArraySizeEquality(BArrayType rhsArrayType, BArrayType lhsArrayType) {
@@ -1049,11 +1050,16 @@ public class Types {
                 BUnionType nextMethodReturnType = getVarTypeFromIterableObject((BObjectType) collectionType);
                 if (nextMethodReturnType != null) {
                     foreachNode.resultType = getRecordType(nextMethodReturnType);
+                    foreachNode.errorType = getErrorType(nextMethodReturnType);
                     foreachNode.nillableResultType = nextMethodReturnType;
-                    foreachNode.varType = ((BRecordType) foreachNode.resultType).fields.get(0).type;
+                    BType valueType = ((BRecordType) foreachNode.resultType).fields.get(0).type;
+                    if (foreachNode.errorType != null) {
+                        valueType = BUnionType.create(null, valueType, foreachNode.errorType);
+                    }
+                    foreachNode.varType = valueType;
                     return;
                 }
-                dlog.error(foreachNode.collection.pos, DiagnosticCode.INCOMPATIBLE_ITERATOR_FUNCTION_SIGNATURE);
+                dlogHelper.error(foreachNode.collection.pos, DiagnosticCode.INCOMPATIBLE_ITERATOR_FUNCTION_SIGNATURE);
                 // fallthrough
             case TypeTags.SEMANTIC_ERROR:
                 foreachNode.varType = symTable.semanticError;
@@ -1064,8 +1070,8 @@ public class Types {
                 foreachNode.varType = symTable.semanticError;
                 foreachNode.resultType = symTable.semanticError;
                 foreachNode.nillableResultType = symTable.semanticError;
-                dlog.error(foreachNode.collection.pos, DiagnosticCode.ITERABLE_NOT_SUPPORTED_COLLECTION,
-                        collectionType);
+                dlogHelper.error(foreachNode.collection.pos, DiagnosticCode.ITERABLE_NOT_SUPPORTED_COLLECTION,
+                                 collectionType);
                 return;
         }
 
@@ -1075,6 +1081,7 @@ public class Types {
                 (BUnionType) getResultTypeOfNextInvocation((BObjectType) iteratorSymbol.retType);
         foreachNode.varType = varType;
         foreachNode.resultType = getRecordType(nextMethodReturnType);
+        foreachNode.errorType = getErrorType(nextMethodReturnType);
         foreachNode.nillableResultType = nextMethodReturnType;
     }
 
@@ -1136,23 +1143,26 @@ public class Types {
                 BUnionType nextMethodReturnType = getVarTypeFromIterableObject((BObjectType) collectionType);
                 if (nextMethodReturnType != null) {
                     fromClause.resultType = getRecordType(nextMethodReturnType);
+                    fromClause.errorType = getErrorType(nextMethodReturnType);
                     fromClause.nillableResultType = nextMethodReturnType;
                     fromClause.varType = ((BRecordType) fromClause.resultType).fields.get(0).type;
                     return;
                 }
-                dlog.error(fromClause.collection.pos, DiagnosticCode.INCOMPATIBLE_ITERATOR_FUNCTION_SIGNATURE);
+                dlogHelper.error(fromClause.collection.pos, DiagnosticCode.INCOMPATIBLE_ITERATOR_FUNCTION_SIGNATURE);
                 // fallthrough
             case TypeTags.SEMANTIC_ERROR:
                 fromClause.varType = symTable.semanticError;
                 fromClause.resultType = symTable.semanticError;
+                fromClause.errorType = symTable.semanticError;
                 fromClause.nillableResultType = symTable.semanticError;
                 return;
             default:
                 fromClause.varType = symTable.semanticError;
                 fromClause.resultType = symTable.semanticError;
+                fromClause.errorType = symTable.semanticError;
                 fromClause.nillableResultType = symTable.semanticError;
-                dlog.error(fromClause.collection.pos, DiagnosticCode.ITERABLE_NOT_SUPPORTED_COLLECTION,
-                        collectionType);
+                dlogHelper.error(fromClause.collection.pos, DiagnosticCode.ITERABLE_NOT_SUPPORTED_COLLECTION,
+                                 collectionType);
                 return;
         }
 
@@ -1162,6 +1172,7 @@ public class Types {
                 (BUnionType) getResultTypeOfNextInvocation((BObjectType) iteratorSymbol.retType);
         fromClause.varType = varType;
         fromClause.resultType = getRecordType(nextMethodReturnType);
+        fromClause.errorType = getErrorType(nextMethodReturnType);
         fromClause.nillableResultType = nextMethodReturnType;
     }
 
@@ -1186,7 +1197,7 @@ public class Types {
         return getVarTypeFromIteratorFuncReturnType(returnType);
     }
 
-    private BUnionType getVarTypeFromIteratorFuncReturnType(BType returnType) {
+    public BUnionType getVarTypeFromIteratorFuncReturnType(BType returnType) {
         BObjectTypeSymbol objectTypeSymbol;
         if (returnType.tag != TypeTags.OBJECT) {
             return null;
@@ -1210,7 +1221,7 @@ public class Types {
 
         returnType = nextFunc.type.retType;
         // Check if the next function return type has the union type,
-        // record {|int value;|}|();
+        // record {|int value;|}|error|();
         if (checkNextFuncReturnType(returnType)) {
             return (BUnionType) returnType;
         }
@@ -1229,7 +1240,10 @@ public class Types {
             return false;
         }
 
+        types.removeIf(type -> type.tag == TypeTags.ERROR);
+
         if (types.size() != 1) {
+            //TODO: print error
             return false;
         }
 
@@ -1265,6 +1279,15 @@ public class Types {
         for (BType member : type.getMemberTypes()) {
             if (member.tag == TypeTags.RECORD) {
                 return (BRecordType) member;
+            }
+        }
+        return null;
+    }
+
+    private BErrorType getErrorType(BUnionType type) {
+        for (BType member : type.getMemberTypes()) {
+            if (member.tag == TypeTags.ERROR) {
+                return (BErrorType) member;
             }
         }
         return null;
@@ -2523,7 +2546,7 @@ public class Types {
             }
         }
 
-        dlog.error(function.returnTypeNode.pos, diagnosticCode, function.returnTypeNode.type.toString());
+        dlogHelper.error(function.returnTypeNode.pos, diagnosticCode, function.returnTypeNode.type.toString());
     }
 
     /**

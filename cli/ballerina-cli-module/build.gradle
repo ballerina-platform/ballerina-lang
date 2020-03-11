@@ -1,0 +1,93 @@
+/*
+ * Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+
+apply from: "$rootDir/gradle/javaProject.gradle"
+
+configurations {
+    birJar
+    bir
+    birJarCompile { transitive false }
+    testCompile.exclude group: 'org.slf4j', module: 'slf4j-log4j12'
+    testCompile.exclude group: 'org.slf4j', module: 'slf4j-simple'
+    testCompile.exclude group: 'org.ops4j.pax.logging', module: 'pax-logging-api'
+}
+
+dependencies {
+
+    bir project(path: ':ballerina-io',  configuration: 'bir')
+    bir project(path: ':testerina:testerina-core',  configuration: 'bir')
+
+    implementation project(':ballerina-runtime')
+    implementation project(':toml-parser')
+    implementation 'com.moandjiezana.toml:toml4j'
+    implementation 'info.picocli:picocli'
+    implementation 'org.apache.commons:commons-compress:1.18'
+    implementation 'me.tongfei:progressbar:0.7.4'
+    implementation 'org.jline:jline:3.11.0'
+    implementation 'javax.ws.rs:javax.ws.rs-api'
+
+    testCompile 'org.testng:testng'
+    testCompile 'com.moandjiezana.toml:toml4j'
+
+    testRuntime project(':ballerina-jvm')
+    testRuntime project(':ballerina-bir')
+    testRuntime project(':ballerina-backend-jvm')
+
+    testRuntime project(path: ':ballerina-backend-jvm', configuration: 'birJar')
+    testRuntime project(path: ':ballerina-jvm', configuration: 'birJar')
+    testRuntime project(path: ':ballerina-bir', configuration: 'birJar')
+
+    birJarCompile project(path: ':ballerina-bootstrapper', configuration: 'pack4')
+}
+
+task createBirCache {
+    dependsOn configurations.bir
+
+    doLast {
+        configurations.bir.each { artifact ->
+            copy {
+                from artifact
+                into "$buildDir/bir-cache/"
+            }
+        }
+    }
+
+    inputs.files configurations.bir
+    outputs.dir "$buildDir/bir-cache"
+    outputs.cacheIf { false }
+}
+
+checkstyleMain {
+    exclude 'org/ballerinalang/packerina/model/BaloToml.java'
+}
+
+test {
+    dependsOn createBirCache
+    dependsOn configurations.birJar
+    dependsOn configurations.birJarCompile
+
+    systemProperty "java.util.logging.manager", "org.ballerinalang.logging.BLogManager"
+    useTestNG() {
+        suites 'src/test/resources/testng.xml'
+    }
+    doFirst {
+//        systemProperty "ballerina.bootstrap.home", files(configurations.birJarCompile).singleFile
+    }
+}
+
+description = 'Ballerina - CLI Module'
+

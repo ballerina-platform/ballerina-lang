@@ -91,14 +91,14 @@ public class LangLibRecordTest {
 
     @Test(expectedExceptions = BLangRuntimeException.class,
           expectedExceptionsMessageRegExp =
-                  ".*OperationNotSupported message=remove\\(\\) not supported.*")
+                  ".*OperationNotSupported message=failed .*")
     public void testRemove() {
         BRunUtil.invoke(compileResult, "testRemove", new BValue[]{new BString("name")});
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
           expectedExceptionsMessageRegExp =
-                  ".*OperationNotSupported message=removeAll\\(\\) not supported.*")
+                  ".*OperationNotSupported message=failed .*")
     public void testRemoveAll() {
         BRunUtil.invoke(compileResult, "testRemoveAll");
     }

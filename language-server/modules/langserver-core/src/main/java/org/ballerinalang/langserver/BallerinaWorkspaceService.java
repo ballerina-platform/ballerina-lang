@@ -17,8 +17,6 @@ package org.ballerinalang.langserver;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
-import org.ballerinalang.langserver.client.config.BallerinaClientConfig;
-import org.ballerinalang.langserver.client.config.BallerinaClientConfigHolder;
 import org.ballerinalang.langserver.command.LSCommandExecutorProvidersHolder;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.capability.LSClientCapabilities;
@@ -29,6 +27,8 @@ import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSCompilerUtil;
 import org.ballerinalang.langserver.compiler.LSModuleCompiler;
 import org.ballerinalang.langserver.compiler.common.LSCustomErrorStrategy;
+import org.ballerinalang.langserver.compiler.config.LSClientConfig;
+import org.ballerinalang.langserver.compiler.config.LSClientConfigHolder;
 import org.ballerinalang.langserver.exception.UserErrorException;
 import org.ballerinalang.langserver.symbols.SymbolFindingVisitor;
 import org.eclipse.lsp4j.DidChangeConfigurationParams;
@@ -63,7 +63,7 @@ public class BallerinaWorkspaceService implements WorkspaceService {
     private BallerinaLanguageServer languageServer;
     private WorkspaceDocumentManager workspaceDocumentManager;
     private static final Gson GSON = new Gson();
-    private BallerinaClientConfigHolder configHolder = BallerinaClientConfigHolder.getInstance();
+    private LSClientConfigHolder configHolder = LSClientConfigHolder.getInstance();
     private LSClientCapabilities clientCapabilities;
 
     BallerinaWorkspaceService(LSGlobalContext globalContext) {
@@ -131,7 +131,8 @@ public class BallerinaWorkspaceService implements WorkspaceService {
         if (!(params.getSettings() instanceof JsonObject)) {
             return;
         }
-        configHolder.updateConfig(GSON.fromJson((JsonObject) params.getSettings(), BallerinaClientConfig.class));
+        configHolder.updateConfig(GSON.fromJson(((JsonObject) params.getSettings()).get("ballerina"),
+                                                LSClientConfig.class));
     }
 
     @Override
