@@ -1628,7 +1628,8 @@ public class TypeChecker extends BLangNodeVisitor {
 
         // Disallow `expr.ns:attrname` syntax on non xml expressions.
         if (fieldAccessExpr instanceof BLangFieldBasedAccess.BLangNSPrefixedFieldBasedAccess
-                && fieldAccessExpr.expr.type.tag != TypeTags.XML) {
+                && !(fieldAccessExpr.expr.type.tag == TypeTags.XML
+                    || fieldAccessExpr.expr.type.tag == TypeTags.XML_ELEMENT)) {
             dlog.error(fieldAccessExpr.pos, DiagnosticCode.INVALID_FIELD_ACCESS_EXPRESSION);
             resultType = symTable.semanticError;
             return;
@@ -4280,7 +4281,7 @@ public class TypeChecker extends BLangNodeVisitor {
             actualType = BUnionType.create(null, laxFieldAccessType, symTable.errorType);
             fieldAccessExpr.errorSafeNavigation = true;
             fieldAccessExpr.originalType = laxFieldAccessType;
-        } else if (varRefType.tag == TypeTags.XML) {
+        } else if (TypeTags.isXMLTypeTag(varRefType.tag)) {
             if (fieldAccessExpr.lhsVar) {
                 dlog.error(fieldAccessExpr.pos, DiagnosticCode.CANNOT_UPDATE_XML_SEQUENCE);
             }
@@ -4318,6 +4319,7 @@ public class TypeChecker extends BLangNodeVisitor {
             case TypeTags.JSON:
                 return symTable.jsonType;
             case TypeTags.XML:
+            case TypeTags.XML_ELEMENT:
                 return symTable.stringType;
             case TypeTags.MAP:
                 return ((BMapType) exprType).constraint;

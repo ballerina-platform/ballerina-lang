@@ -89,8 +89,8 @@ public class DataflowAnalysisTest {
         BAssertUtil.validateError(result, i++, "variable 'a' may not have been initialized", 708, 13);
         BAssertUtil.validateError(result, i++, "variable 'b' is not initialized", 709, 16);
         BAssertUtil.validateError(result, i++, "variable 'a' is not initialized", 718, 13);
-        BAssertUtil.validateError(result, i++, "variable 'i' is not initialized", 727, 28);
-        BAssertUtil.validateError(result, i++, "variable 'i' is not initialized", 727, 41);
+        BAssertUtil.validateError(result, i++, "variable 'i' is not initialized", 723, 28);
+        BAssertUtil.validateError(result, i++, "variable 'i' is not initialized", 723, 41);
         Assert.assertEquals(result.getErrorCount(), i);
     }
 }
