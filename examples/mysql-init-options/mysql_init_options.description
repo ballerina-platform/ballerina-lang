@@ -1,5 +1,4 @@
-// This example demonstrates how to initialize the JDBC client with different
-//initialization options. Please note that, the relevant database driver jar
-//should be placed under `BALLERINA_HOME/bre/lib` folder. The sample below is based on
-//H2 database, and the H2 database driver jar is included default into Ballerina distribution,
-//therefore it is not required to copy the driver jar for H2 database.
+// This example demonstrates how to initialize the MySQL client with different
+//initialization options. Please note that, the MySQL database driver jar
+//should be placed under `BALLERINA_HOME/bre/lib`. The MySQL connector uses some database properties
+//from MySQL version 8.0.x onwards, therefore it is encouraged to use MySQL driver version greater than 8.0.x.

@@ -1,10 +1,12 @@
 # At the command line, navigate to the directory that contains the
 # `.bal` file and run the `ballerina run` command.
-$ ballerina run jdbc2_init_options.bal
+$ ballerina run mysql_init_options.bal
 
-Simple JDBC client created.
-JDBC client with user/password created.
-JDBC client with database options created.
-JDBC client with connection pool created.
-JDBC client with optional params created.
+Error when initializing MySQL client without any params
+error {ballerina/sql}ApplicationError message=error in sql connector configuration: Failed to initialize pool: Access denied for user ''@'localhost' (using password: NO) Caused by :Access denied for user ''@'localhost' (using password: NO)
+MySQL client with user and password created.
+MySQL client with user and password created with default host.
+MySQL client with host, user, password, database and port created.
+MySQL client with database options created.
+MySQL client with connection pool created.
 Successfully completed initialization!

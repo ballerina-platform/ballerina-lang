@@ -1093,12 +1093,31 @@
                 "url": "jdbc2-init-options"
             },
             {
-                "name": "Select Query Operations",
+                "name": "JDBC Select Query Operations",
                 "url": "jdbc2-query-operation"
             },
             {
-                "name": "DDL and DML Operations",
+                "name": "JDBC DDL and DML Operations",
                 "url": "jdbc2-execute-operation"
+            }
+        ]
+    },
+    {
+        "title": "MySQL Database Connector",
+        "column": 1,
+        "category": "Preview features",
+        "samples": [
+            {
+                "name": "MySQL Client Initialization",
+                "url": "mysql-init-options"
+            },
+            {
+                "name": "MySQL Select Query Operations",
+                "url": "mysql-query-operation"
+            },
+            {
+                "name": "MySQL DDL and DML Operations",
+                "url": "mysql-execute-operation"
             }
         ]
     }

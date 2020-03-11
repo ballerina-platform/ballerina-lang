@@ -1,0 +1,20 @@
+# At the command line, navigate to the directory that contains the
+# `.bal` file and run the `ballerina run` command.
+$ ballerina run mysql_query_operation.bal
+
+------ Start Simple Query -------
+customerId=1 FirstName=Peter LastName=Stuart RegistrationID=1 CreditLimit=5000.75 Country=USA
+Customer first name: Peter
+Customer last name: Stuart
+customerId=2 FirstName=Dan LastName=Brown RegistrationID=2 CreditLimit=10000.0 Country=UK
+Customer first name: Dan
+Customer last name: Brown
+------ End Simple Query -------
+------ Start Count Total Rows -------
+Total rows in customer table : 2
+------ End Count Total Rows -------
+------ Start Query With Type Description -------
+customerId=1 firstName=Peter lastName=Stuart registrationId=1 creditLimit=5000.75 country=USA
+customerId=2 firstName=Dan lastName=Brown registrationId=2 creditLimit=10000.0 country=UK
+------ End Query With Type Description -------
+Successfully queried the database!
