@@ -52,6 +52,24 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "equalsIgnoreCaseAscii(string str2)(boolean)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.string_  \n  \nTests whether two strings are the same, ignoring the case of ASCII characters.\nA character in the range a-z is treated the same as the corresponding character in the range A-Z.\n  \n**Params**  \n- `string` str2: the second string to be compared  \n  \n**Returns** `boolean`   \n- true if `str1` is the same as `str2`, treating upper-case and lower-case  \nASCII letters as the same; false, otherwise  \n  \n"
+        }
+      },
+      "sortText": "120",
+      "insertText": "equalsIgnoreCaseAscii(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
       "label": "toUpperAscii()(string)",
       "kind": "Function",
       "detail": "Function",
