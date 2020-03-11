@@ -50,7 +50,6 @@ import java.sql.Struct;
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.sql.Types;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
@@ -448,20 +447,24 @@ class Utils {
         }
         StringBuffer datetimeString = new StringBuffer(28);
         if (value instanceof Date) {
-            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-mm-dd");
-            datetimeString.append(dateFormat.format(calendar.getTime()));
+            //'-'? yyyy '-' mm '-' dd zzzzzz?
+            calendar.setTime(value);
+            appendDate(datetimeString, calendar);
             appendTimeZone(calendar, datetimeString);
         } else if (value instanceof Time) {
-            SimpleDateFormat dateFormat = new SimpleDateFormat("hh:mm:ss");
-            datetimeString.append(dateFormat.format(calendar.getTime()));
+            //hh ':' mm ':' ss ('.' s+)? (zzzzzz)?
+            calendar.setTimeInMillis(value.getTime());
+            appendTime(calendar, datetimeString);
             appendTimeZone(calendar, datetimeString);
         } else if (value instanceof Timestamp) {
-            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-mm-ddThh:mm:ss");
-            datetimeString.append(dateFormat.format(calendar.getTime()));
+            calendar.setTimeInMillis(value.getTime());
+            appendDate(datetimeString, calendar);
+            datetimeString.append("T");
+            appendTime(calendar, datetimeString);
             appendTimeZone(calendar, datetimeString);
         } else {
-            SimpleDateFormat dateFormat = new SimpleDateFormat("hh:mm:ss");
-            datetimeString.append(dateFormat.format(calendar.getTime()));
+            calendar.setTime(value);
+            appendTime(calendar, datetimeString);
             appendTimeZone(calendar, datetimeString);
         }
         return datetimeString.toString();
@@ -486,6 +489,53 @@ class Utils {
             dateString.append("0");
         }
         dateString.append(minits);
+    }
+
+    private static void appendTime(Calendar value, StringBuffer dateString) {
+        if (value.get(Calendar.HOUR_OF_DAY) < 10) {
+            dateString.append("0");
+        }
+        dateString.append(value.get(Calendar.HOUR_OF_DAY)).append(":");
+        if (value.get(Calendar.MINUTE) < 10) {
+            dateString.append("0");
+        }
+        dateString.append(value.get(Calendar.MINUTE)).append(":");
+        if (value.get(Calendar.SECOND) < 10) {
+            dateString.append("0");
+        }
+        dateString.append(value.get(Calendar.SECOND)).append(".");
+        if (value.get(Calendar.MILLISECOND) < 10) {
+            dateString.append("0");
+        }
+        if (value.get(Calendar.MILLISECOND) < 100) {
+            dateString.append("0");
+        }
+        dateString.append(value.get(Calendar.MILLISECOND));
+    }
+
+    private static void appendDate(StringBuffer dateString, Calendar calendar) {
+        int year = calendar.get(Calendar.YEAR);
+        if (year < 1000) {
+            dateString.append("0");
+        }
+        if (year < 100) {
+            dateString.append("0");
+        }
+        if (year < 10) {
+            dateString.append("0");
+        }
+        dateString.append(year).append("-");
+        // sql date month is started from 1 and calendar month is
+        // started from 0. so have to add one
+        int month = calendar.get(Calendar.MONTH) + 1;
+        if (month < 10) {
+            dateString.append("0");
+        }
+        dateString.append(month).append("-");
+        if (calendar.get(Calendar.DAY_OF_MONTH) < 10) {
+            dateString.append("0");
+        }
+        dateString.append(calendar.get(Calendar.DAY_OF_MONTH));
     }
 
     private static void validatedInvalidFieldAssignment(int sqlType, BType bType, String sqlTypeName)

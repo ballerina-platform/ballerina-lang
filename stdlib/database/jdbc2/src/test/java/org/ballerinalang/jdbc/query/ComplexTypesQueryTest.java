@@ -34,6 +34,10 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import java.io.File;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.LinkedHashMap;
 
 /**
@@ -227,5 +231,61 @@ public class ComplexTypesQueryTest {
         Assert.assertEquals(row4IntArray.getBValue(0), null);
         Assert.assertEquals(row4IntArray.getBValue(1), null);
         Assert.assertEquals(row4IntArray.getBValue(2), null);
+    }
+
+    @Test(description = "Check date time operation", enabled = false)
+    public void testDateTime() throws ParseException {
+        DateFormat dfDate = new SimpleDateFormat("yyyy-MM-dd");
+        Date dateType = dfDate.parse("2017-5-23");
+
+        //time added in UTC
+        DateFormat dfTime = new SimpleDateFormat("hh:mm:ss");
+        Date timeType = dfTime.parse("19:45:23");
+
+        DateFormat dfDateTime = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+        Date dateTimeType = dfDateTime.parse("2017-01-25 22:03:55");
+
+        BValue[] returns = BRunUtil.invoke(result, "testDateTime", args);
+        Assert.assertEquals(returns.length, 1);
+        LinkedHashMap result = ((BMap) returns[0]).getMap();
+        Assert.assertEquals(result.size(), 4);
+        assertDateStringValues(result, dateType, timeType, dateTimeType);
+    }
+
+    @Test(description = "Check values retrieved with column alias.")
+    public void testColumnAlias() {
+        BValue[] returns = BRunUtil.invoke(result, "testColumnAlias", args);
+        Assert.assertEquals(returns.length, 1);
+        LinkedHashMap result = ((BMap) returns[0]).getMap();
+        Assert.assertEquals(result.size(), 7);
+        Assert.assertEquals(((BInteger) result.get("INT_TYPE")).intValue(), 1);
+        Assert.assertEquals(((BFloat) result.get("FLOAT_TYPE")).floatValue(), 123.34);
+        Assert.assertEquals(((BInteger) result.get("DT2INT_TYPE")).intValue(), 100);
+    }
+
+    private void assertDateStringValues(LinkedHashMap returns, Date dateInserted, Date timeInserted,
+                                        Date timestampInserted) {
+        try {
+            DateFormat dfDate = new SimpleDateFormat("yyyy-MM-dd");
+            String dateReturned = returns.get("DATE_TYPE").toString();
+            long dateReturnedEpoch = dfDate.parse(dateReturned).getTime();
+            Assert.assertEquals(dateReturnedEpoch, dateInserted.getTime());
+
+            DateFormat dfTime = new SimpleDateFormat("HH:mm:ss");
+            String timeReturned = returns.get("TIME_TYPE").toString();
+            long timeReturnedEpoch = dfTime.parse(timeReturned).getTime();
+            Assert.assertEquals(timeReturnedEpoch, timeInserted.getTime());
+
+            DateFormat dfTimestamp = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+            String timestampReturned = returns.get("TIMESTAMP_TYPE").toString();
+            long timestampReturnedEpoch = dfTimestamp.parse(timestampReturned).getTime();
+            Assert.assertEquals(timestampReturnedEpoch, timestampInserted.getTime());
+
+            String datetimeReturned = returns.get("DATETIME_TYPE").toString();
+            long datetimeReturnedEpoch = dfTimestamp.parse(datetimeReturned).getTime();
+            Assert.assertEquals(datetimeReturnedEpoch, timestampInserted.getTime());
+        } catch (ParseException e) {
+            Assert.fail("Parsing the returned date/time/timestamp value has failed", e);
+        }
     }
 }

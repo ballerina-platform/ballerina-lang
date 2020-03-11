@@ -38,6 +38,7 @@ import org.testng.annotations.Test;
 import java.io.File;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
+import java.util.Locale;
 
 /**
  * This test class includes the basic test cases related to the execute operation of mysql client.
@@ -228,7 +229,8 @@ public class ExecuteTest {
         Assert.assertTrue(error.getDetails() instanceof BMap);
         BMap<String, BValue> errorDetails = (BMap<String, BValue>) error.getDetails();
         String errMessage = errorDetails.get(Constants.ErrorRecordFields.MESSAGE).stringValue();
-        Assert.assertTrue(errMessage.contains("Table 'test_sql_excute_query.numerictypesnonexisttable' doesn't exist"),
+        String expectedError = "Table 'test_sql_excute_query.numerictypesnonexisttable' doesn't exist";
+        Assert.assertTrue(errMessage.toLowerCase(Locale.ENGLISH).contains(expectedError.toLowerCase(Locale.ENGLISH)),
                 "Found error message:" + errMessage);
         Assert.assertEquals(((BInteger) errorDetails.get(Constants.ErrorRecordFields.ERROR_CODE)).intValue(),
                 1146);
