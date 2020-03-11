@@ -78,7 +78,6 @@ import org.wso2.ballerinalang.util.Lists;
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -1055,8 +1054,7 @@ public class Types {
                     foreachNode.nillableResultType = nextMethodReturnType;
                     BType valueType = ((BRecordType) foreachNode.resultType).fields.get(0).type;
                     if (foreachNode.errorType != null) {
-                        valueType = BUnionType.create(null,
-                                new LinkedHashSet<>(Arrays.asList(valueType, foreachNode.errorType)));
+                        valueType = BUnionType.create(null, valueType, foreachNode.errorType);
                     }
                     foreachNode.varType = valueType;
                     return;
