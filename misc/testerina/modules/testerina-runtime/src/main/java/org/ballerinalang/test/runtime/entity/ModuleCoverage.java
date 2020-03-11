@@ -115,8 +115,13 @@ public class ModuleCoverage {
             this.coveragePercentage = (float) coveredLines.size() / (coveredLines.size() + missedLines.size()) * 100;
         }
 
-        public void setSourceCode(String moduleName) {
-            Path sourceFile = Paths.get(TesterinaConstants.SRC_DIR).resolve(moduleName).resolve(this.name);
+        public void setSourceCode(String moduleName, String fileName) {
+            Path sourceFile;
+            if (TesterinaConstants.DOT.equals(moduleName)) {
+                sourceFile = Paths.get(fileName);
+            } else {
+                sourceFile = Paths.get(TesterinaConstants.SRC_DIR).resolve(moduleName).resolve(fileName);
+            }
             StringBuilder contentBuilder = new StringBuilder();
             try (Stream<String> stream = Files.lines(sourceFile, StandardCharsets.UTF_8)) {
                 stream.forEach(s -> contentBuilder.append(s).append("\n"));

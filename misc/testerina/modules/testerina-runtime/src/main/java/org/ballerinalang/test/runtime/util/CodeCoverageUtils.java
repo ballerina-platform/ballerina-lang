@@ -44,13 +44,13 @@ public class CodeCoverageUtils {
      * @param moduleName name of the module being executed
      */
     public static void unzipCompiledSource(Path source, Path destination, String orgName, String moduleName) {
-        String destDir = destination.resolve(source.getFileName()).toString();
+        String destJarDir = destination.resolve(source.getFileName()).toString();
 
         try (JarFile jarFile = new JarFile(source.toFile())) {
             Enumeration<JarEntry> enu = jarFile.entries();
             while (enu.hasMoreElements()) {
                 JarEntry entry = enu.nextElement();
-                File file = new File(destDir, entry.getName());
+                File file = new File(destJarDir, entry.getName());
                 if (isRequiredFile(entry.getName(), orgName, moduleName)) {
                     if (!file.exists()) {
                         Files.createDirectories(file.getParentFile().toPath());
@@ -63,17 +63,30 @@ public class CodeCoverageUtils {
                 }
 
             }
-            Path extractedPath = Paths.get(destDir).resolve(orgName).resolve(moduleName);
-            Path binPath = destination.resolve(TesterinaConstants.BIN_DIR);
-            if (binPath.toFile().exists()) {
-                deleteDirectory(binPath.toFile());
-            }
-            Files.createDirectory(binPath);
-            Files.move(extractedPath, binPath.resolve(moduleName), StandardCopyOption.REPLACE_EXISTING);
-            deleteDirectory(new File(destDir));
+            copyClassFilesToBinPath(destination, destJarDir, orgName, moduleName);
+            deleteDirectory(new File(destJarDir));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    private static void copyClassFilesToBinPath(Path destination, String destJarDir, String orgName,
+                                                String moduleName) throws IOException {
+        Path extractedPath;
+        Path binClassDirPath;
+        if (TesterinaConstants.DOT.equals(moduleName)) {
+            extractedPath = Paths.get(destJarDir);
+            binClassDirPath = destination.resolve(TesterinaConstants.BIN_DIR);
+        } else {
+            extractedPath = Paths.get(destJarDir).resolve(orgName).resolve(moduleName);
+            binClassDirPath = destination.resolve(TesterinaConstants.BIN_DIR).resolve(moduleName);
+        }
+
+        if (binClassDirPath.toFile().exists()) {
+            deleteDirectory(binClassDirPath.toFile());
+        }
+        Files.createDirectories(binClassDirPath);
+        Files.move(extractedPath, binClassDirPath, StandardCopyOption.REPLACE_EXISTING);
     }
 
     private static boolean isRequiredFile(String path, String orgName, String moduleName) {
