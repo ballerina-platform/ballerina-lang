@@ -28,6 +28,9 @@ public type Caller client object {
 
     private int instanceId = -1;
 
+    # Returns the unique identification of the caller.
+    #
+    # + return - caller ID
     public function getId() returns int {
         return self.instanceId;
     }
