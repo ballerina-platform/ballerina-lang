@@ -757,7 +757,9 @@ public class JvmPackageGen {
             String functionName = initFunc.name.value;
             JavaClass klass = new JavaClass(initFunc.pos.src.cUnitName, initClass);
             klass.functions.add(0, initFunc);
-            addInitAndTypeInitInstructions(module, initFunc);
+            if (isEntry) {
+                addInitAndTypeInitInstructions(module, initFunc);
+            }
             jvmClassMap.put(initClass, klass);
             birFunctionMap.put(pkgName + functionName, getFunctionWrapper(initFunc, orgName, moduleName,
                     version, initClass));
