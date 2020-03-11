@@ -105,7 +105,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRestArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangServiceConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangStreamConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
@@ -175,6 +174,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangFunctionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangLetVariable;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangStreamType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangTupleTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUnionTypeNode;
@@ -230,6 +230,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     private boolean statementReturns;
     private boolean lastStatement;
     private boolean withinRetryBlock;
+    private boolean withinLockBlock;
     private int workerCount;
     private SymbolTable symTable;
     private Types types;
@@ -1235,9 +1236,11 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangLock lockNode) {
 
-        checkExperimentalFeatureValidity(ExperimentalFeatures.LOCK, lockNode.pos);
         this.checkStatementExecutionValidity(lockNode);
+        boolean previousWithinLockBlock = this.withinLockBlock;
+        this.withinLockBlock = true;
         lockNode.body.stmts.forEach(e -> analyzeNode(e, env));
+        this.withinLockBlock = previousWithinLockBlock;
     }
 
     @Override
@@ -2001,7 +2004,14 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
 
         if (invocationExpr.actionInvocation || invocationExpr.async) {
-            validateActionInvocation(invocationExpr.pos, invocationExpr);
+            if (invocationExpr.actionInvocation || !this.withinLockBlock) {
+                validateActionInvocation(invocationExpr.pos, invocationExpr);
+                return;
+            }
+
+            dlog.error(invocationExpr.pos, invocationExpr.functionPointerInvocation ? 
+            DiagnosticCode.USAGE_OF_WORKER_WITHIN_LOCK_IS_PROHIBITED : 
+            DiagnosticCode.USAGE_OF_START_WITHIN_LOCK_IS_PROHIBITED);
         }
     }
 
@@ -2339,6 +2349,12 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         analyzeTypeNode(constrainedType.constraint, env);
     }
 
+    public void visit(BLangStreamType streamType) {
+
+        analyzeTypeNode(streamType.constraint, env);
+        analyzeTypeNode(streamType.error, env);
+    }
+
     public void visit(BLangErrorType errorType) {
 
         analyzeTypeNode(errorType.reasonType, env);
@@ -2459,11 +2475,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangDoClause doClause) {
         analyzeNode(doClause.body, env);
-    }
-
-    @Override
-    public void visit(BLangStreamConstructorExpr streamConstructorExpr) {
-        /* Ignore */
     }
 
     @Override

@@ -148,7 +148,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangL
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangPackageVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangTypeLoad;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStatementExpression;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangStreamConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
@@ -219,6 +218,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangFunctionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangLetVariable;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangStreamType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangTupleTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUnionTypeNode;
@@ -805,6 +805,13 @@ public class Desugar extends BLangNodeVisitor {
     public void visit(BLangConstrainedType constrainedType) {
         constrainedType.constraint = rewrite(constrainedType.constraint, env);
         result = constrainedType;
+    }
+
+    @Override
+    public void visit(BLangStreamType streamType) {
+        streamType.constraint = rewrite(streamType.constraint, env);
+        streamType.error = rewrite(streamType.error, env);
+        result = streamType;
     }
 
     @Override
@@ -2798,7 +2805,7 @@ public class Desugar extends BLangNodeVisitor {
         // abstract object {public function next() returns record {|int value;|}? $iterator$ = $data$.iterator();
         // record {|int value;|}? $result$ = $iterator$.next();
         //
-        // while $result$ is record {|int value;|} {
+        // while $result$ is record {|int value;|}|error {
         //     int i = $result$.value;
         //     $result$ = $iterator$.next();
         //     ....
@@ -2822,32 +2829,68 @@ public class Desugar extends BLangNodeVisitor {
                 getIteratorNextVariableDefinition(foreach, iteratorSymbol, resultSymbol);
 
         // Note - $result$ != ()
+        BLangType userDefineType;
+        if (foreach.errorType != null) {
+            userDefineType = getUserDefineTypeNode(BUnionType.create(null,
+                    new LinkedHashSet<>(Arrays.asList(foreach.resultType, foreach.errorType))));
+        } else {
+            userDefineType = getUserDefineTypeNode(foreach.resultType);
+        }
         BLangSimpleVarRef resultReferenceInWhile = ASTBuilderUtil.createVariableRef(foreach.pos, resultSymbol);
         BLangTypeTestExpr typeTestExpr = ASTBuilderUtil
-                .createTypeTestExpr(foreach.pos, resultReferenceInWhile, getUserDefineTypeNode(foreach.resultType));
+                .createTypeTestExpr(foreach.pos, resultReferenceInWhile, userDefineType);
         // create while loop: while ($result$ != ())
         BLangWhile whileNode = (BLangWhile) TreeBuilder.createWhileNode();
         whileNode.pos = foreach.pos;
         whileNode.expr = typeTestExpr;
         whileNode.body = foreach.body;
 
-        // Generate $result$.value
-        // However, we are within the while loop. hence the $result$ can never be nil. Therefore
-        // cast $result$ to non-nilable  type.
-        BLangFieldBasedAccess valueAccessExpr = getValueAccessExpression(foreach, resultSymbol);
-        valueAccessExpr.expr =
-                addConversionExprIfRequired(valueAccessExpr.expr, types.getSafeType(valueAccessExpr.expr.type,
-                                                                                    true, false));
-
+        // Note - $result$ = $iterator$.next(); < this should go after initial assignment of `item`
+        BLangAssignment resultAssignment = getIteratorNextAssignment(foreach, iteratorSymbol, resultSymbol);
         VariableDefinitionNode variableDefinitionNode = foreach.variableDefinitionNode;
-        variableDefinitionNode.getVariable()
-                .setInitialExpression(addConversionExprIfRequired(valueAccessExpr, foreach.varType));
-        whileNode.body.stmts.add(0, (BLangStatement) variableDefinitionNode);
+        if (foreach.errorType != null) {
+            // (int|error) item;
+            whileNode.body.stmts.add(0, (BLangStatement) variableDefinitionNode);
+            BLangSimpleVarRef valVarRef = ASTBuilderUtil.createVariableRef(foreach.pos,
+                    ((BLangSimpleVariableDef) variableDefinitionNode).var.symbol);
+            BLangTypeTestExpr errorTypeTestExpr = ASTBuilderUtil.createTypeTestExpr(foreach.pos,
+                    resultReferenceInWhile, getErrorTypeNode());
 
-        // Note - $result$ = $iterator$.next();
-        BLangAssignment resultAssignment =
-                getIteratorNextAssignment(foreach, iteratorSymbol, resultSymbol);
-        whileNode.body.stmts.add(1, resultAssignment);
+            // if ($result$ is error) {
+            //      item = <error> $result$;
+            // }
+            BLangBlockStmt ifBlock = ASTBuilderUtil.createBlockStmt(foreach.pos);
+            BLangAssignment errorAssignment = ASTBuilderUtil.createAssignmentStmt(foreach.pos, valVarRef,
+                    resultReferenceInWhile);
+            ifBlock.stmts.add(errorAssignment);
+
+            // else {
+            //      item = (<record {|int value;|}> $result$).value;
+            // }
+            BLangBlockStmt elseBlock = ASTBuilderUtil.createBlockStmt(foreach.pos);
+            BLangFieldBasedAccess valueAccessExpr = getValueAccessExpression(foreach, resultSymbol);
+            valueAccessExpr.expr = addConversionExprIfRequired(valueAccessExpr.expr,
+                    types.getSafeType(foreach.resultType, true, false));
+            BLangAssignment valAssignment = ASTBuilderUtil.createAssignmentStmt(foreach.pos, valVarRef,
+                    valueAccessExpr);
+            elseBlock.stmts.add(valAssignment);
+
+            // if () {...} else {...};
+            BLangIf ifElse = ASTBuilderUtil.createIfElseStmt(foreach.pos, errorTypeTestExpr, ifBlock, elseBlock);
+            whileNode.body.stmts.add(1, ifElse);
+            whileNode.body.stmts.add(2, resultAssignment);
+        } else {
+            // Generate $result$.value
+            // However, we are within the while loop. hence the $result$ can never be nil nor error.
+            // Therefore cast $result$ to non-nilable type. i.e `int item = <>$result$.value;`
+            BLangFieldBasedAccess valueAccessExpr = getValueAccessExpression(foreach, resultSymbol);
+            valueAccessExpr.expr = addConversionExprIfRequired(valueAccessExpr.expr,
+                    types.getSafeType(valueAccessExpr.expr.type, true, false));
+            variableDefinitionNode.getVariable()
+                    .setInitialExpression(addConversionExprIfRequired(valueAccessExpr, foreach.varType));
+            whileNode.body.stmts.add(0, (BLangStatement) variableDefinitionNode);
+            whileNode.body.stmts.add(1, resultAssignment);
+        }
 
         // Create a new block statement node.
         BLangBlockStmt blockNode = ASTBuilderUtil.createBlockStmt(foreach.pos);
@@ -3665,7 +3708,11 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     public void visit(BLangTypeInit typeInitExpr) {
-        result = rewrite(desugarObjectTypeInit(typeInitExpr), env);
+        if (typeInitExpr.type.tag == TypeTags.STREAM) {
+            result = rewriteExpr(desugarStreamTypeInit(typeInitExpr));
+        } else {
+            result = rewrite(desugarObjectTypeInit(typeInitExpr), env);
+        }
     }
 
     private BLangStatementExpression desugarObjectTypeInit(BLangTypeInit typeInitExpr) {
@@ -3738,6 +3785,24 @@ public class Desugar extends BLangNodeVisitor {
         BLangStatementExpression stmtExpr = createStatementExpression(blockStmt, resultVarRef);
         stmtExpr.type = resultVarRef.symbol.type;
         return stmtExpr;
+    }
+
+    private BLangInvocation desugarStreamTypeInit(BLangTypeInit typeInitExpr) {
+        BInvokableSymbol symbol = (BInvokableSymbol) symTable.langInternalModuleSymbol.scope
+                .lookup(Names.CONSTRUCT_STREAM).symbol;
+        BType targetType = ((BStreamType) typeInitExpr.type).constraint;
+        BType errorType = ((BStreamType) typeInitExpr.type).error;
+        BType typedescType = new BTypedescType(targetType, symTable.typeDesc.tsymbol);
+        BLangTypedescExpr typedescExpr = new BLangTypedescExpr();
+        typedescExpr.resolvedType = targetType;
+        typedescExpr.type = typedescType;
+        BLangExpression iteratorObj = typeInitExpr.argsExpr.get(0);
+
+        BLangInvocation streamConstructInvocation = ASTBuilderUtil.createInvocationExprForMethod(
+                typeInitExpr.pos, symbol, new ArrayList<>(Lists.of(typedescExpr, iteratorObj)),
+                symResolver);
+        streamConstructInvocation.type = new BStreamType(TypeTags.STREAM, targetType, errorType, null);
+        return streamConstructInvocation;
     }
 
     private BLangSimpleVariableDef createVarDef(String name, BType type, BLangExpression expr, DiagnosticPos pos) {
@@ -4601,30 +4666,6 @@ public class Desugar extends BLangNodeVisitor {
                 serviceConstructorExpr.serviceNode.serviceTypeDefinition.symbol.type);
         serviceConstructorExpr.serviceNode.annAttachments.forEach(attachment ->  rewrite(attachment, env));
         result = rewriteExpr(typeInit);
-    }
-
-    @Override
-    public void visit(BLangStreamConstructorExpr streamConstructorExpr) {
-        BLangInvocation streamConstructInvocation = streamConstructInvocation(streamConstructorExpr);
-        result = rewriteExpr(streamConstructInvocation);
-    }
-
-    private BLangInvocation streamConstructInvocation(BLangStreamConstructorExpr streamConstructorExpr) {
-        BLangLambdaFunction lambdaFunction = streamConstructorExpr.lambdaFunction;
-        BInvokableSymbol symbol = (BInvokableSymbol) symTable.langInternalModuleSymbol.scope
-                .lookup(Names.CONSTRUCT_STREAM).symbol;
-
-        BType targetType = ((BStreamType) streamConstructorExpr.type).constraint;
-        BType typedescType = new BTypedescType(targetType, symTable.typeDesc.tsymbol);
-        BLangTypedescExpr typedescExpr = new BLangTypedescExpr();
-        typedescExpr.resolvedType = targetType;
-        typedescExpr.type = typedescType;
-
-        BLangInvocation streamConstructInvocation = ASTBuilderUtil.createInvocationExprForMethod(
-                streamConstructorExpr.pos, symbol, new ArrayList<>(Lists.of(typedescExpr, lambdaFunction)),
-                symResolver);
-        streamConstructInvocation.type = new BStreamType(TypeTags.STREAM, targetType, null);
-        return streamConstructInvocation;
     }
 
     @Override

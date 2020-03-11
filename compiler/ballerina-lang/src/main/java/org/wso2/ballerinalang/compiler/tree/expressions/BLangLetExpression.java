@@ -41,6 +41,16 @@ public class BLangLetExpression extends BLangExpression implements LetExpression
     public SymbolEnv env;
 
     @Override
+    public BLangExpression getExpression() {
+        return this.expr;
+    }
+
+    @Override
+    public List<BLangLetVariable> getVariableDeclarations() {
+        return this.letVarDeclarations;
+    }
+
+    @Override
     public void accept(BLangNodeVisitor visitor) {
         visitor.visit(this);
     }

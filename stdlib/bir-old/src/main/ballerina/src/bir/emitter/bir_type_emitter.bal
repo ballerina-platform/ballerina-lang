@@ -316,7 +316,7 @@ function emitBTypeHandle(BTypeHandle bType, int tabs) returns string {
 }
 
 function emitBStreamType(BStreamType bType, int tabs) returns string {
-    string str = "table";
+    string str = "stream";
     str += "<";
     str += emitTypeRef(bType.sConstraint);
     str += ">";
