@@ -739,6 +739,10 @@
             {
                 "name": "Chat Application",
                 "url": "websocket-chat-application"
+            },
+            {
+                "name": "Failover",
+                "url": "websocket-failover"
             }
         ]
     },
