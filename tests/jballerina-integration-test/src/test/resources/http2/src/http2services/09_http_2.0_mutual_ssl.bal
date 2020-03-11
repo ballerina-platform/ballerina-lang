@@ -49,7 +49,11 @@ service http2Service on http2Listener {
     }
     resource function sayHello(http:Caller caller, http:Request req) {
         http:Response res = new;
-        res.setTextPayload("hello world");
+        if (req.mutualSslHandshake["status"] == "passed") {
+            res.setTextPayload("Passed");
+        } else {
+            res.setTextPayload("Failed");
+        }
         checkpanic caller->respond(res);
         io:println("successful");
     }
