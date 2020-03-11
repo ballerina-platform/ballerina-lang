@@ -154,3 +154,12 @@ public function toCodePointInts(string str) returns int[] = external;
 # + return - a string with a character for each code point in `codePoints`; or an error
 # if any member of `codePoints` is not a valid code point
 public function fromCodePointInts(int[] codePoints) returns string|error = external;
+
+# Tests whether two strings are the same, ignoring the case of ASCII characters.
+# A character in the range a-z is treated the same as the corresponding character in the range A-Z.
+#
+# + str1 - the first string to be compared
+# + str2 - the second string to be compared
+# + return - true if `str1` is the same as `str2`, treating upper-case and lower-case
+# ASCII letters as the same; false, otherwise
+public function equalsIgnoreCaseAscii(string str1, string str2) returns boolean = external;
