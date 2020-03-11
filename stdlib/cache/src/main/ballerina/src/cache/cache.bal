@@ -57,7 +57,8 @@ service cleanupService = service {
     }
 };
 
-# Represents Ballerina `Cache` object and cache related operations.
+# Represents the Ballerina `Cache` object and cache-related operations. It is not recommended to insert `()` as the
+# value of the cache since it doesn't make any sense to cache a nil.
 public type Cache object {
 
     *AbstractCache;
@@ -119,12 +120,14 @@ public type Cache object {
     # old value is replaced by value.
     #
     # + key - Key of the cached value
-    # + value - Value to be cached
+    # + value - Value to be cached. Value should not be `()`
     # + maxAgeInSeconds - The value in seconds, which the cache entry is valid. '-1' means, the entry is valid forever.
-    # + return - `()` if successfully added to the cache or
-    # `Error` if any error occurred while inserting entry to the cache.
+    # + return - `()` if successfully added to the cache or `Error` if a `()` value is inserted to the cache.
     public function put(string key, any value, int maxAgeInSeconds = -1) returns Error? {
         lock {
+            if (value is ()) {
+                return prepareError("Unsupported cache value '()' for the key: " + key + ".");
+            }
             // If the current cache is full (i.e. size = capacity), evict cache.
             if (self.size() == self.capacity) {
                 evict(self.entries, self.list, self.evictionPolicy, self.capacity, self.evictionFactor);

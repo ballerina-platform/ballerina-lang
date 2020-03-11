@@ -28,7 +28,7 @@ public type AbstractEvictionPolicy abstract object {
 };
 ```
 
-The Ballerina Cache module provides a `Cache` object, which is a map data structure based implementation of the `AbstractCache` object. Also, it provides the `LruEvictionPolicy` object, which is based on the LRU eviction algorithm.
+The Ballerina Cache module provides a `Cache` object, which is a map data structure based implementation of the `AbstractCache` object. It is not recommended to insert `()` as the value of the cache since it doesn't make any sense to cache a nil. Also, it provides the `LruEvictionPolicy` object, which is based on the LRU eviction algorithm.
 
 While initializing the `Cache`, the developer has to pass the following parameters as the cache configurations.
 - `capacity` - Max number of entries allowed for the cache
