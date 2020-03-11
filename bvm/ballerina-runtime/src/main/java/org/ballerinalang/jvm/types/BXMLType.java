@@ -59,4 +59,9 @@ public class BXMLType extends BType {
     public int getTag() {
         return this.tag;
     }
+
+    @Override
+    public boolean isAnydata() {
+        return true;
+    }
 }
