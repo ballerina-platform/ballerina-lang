@@ -18,6 +18,7 @@
 
 package org.ballerinalang.packerina.task;
 
+import com.sun.scenario.effect.impl.sw.sse.SSEBlend_SRC_OUTPeer;
 import org.ballerinalang.config.ConfigRegistry;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.packerina.buildcontext.BuildContext;
@@ -35,6 +36,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_COMPILED_JAR_EXT;
 
@@ -71,6 +73,7 @@ public class CreateJarTask implements Task {
         BackendDriver backendDriver = BackendDriver.getInstance(context);
 
         List<BLangPackage> moduleBirMap = buildContext.getModules();
+        Set<PackageID> alreadyImportedModuleSet = new HashSet<>();
         for (BLangPackage module : moduleBirMap) {
 
             BLangPackage bLangPackage = packageCache.get(module.packageID);
@@ -85,7 +88,8 @@ public class CreateJarTask implements Task {
                 moduleDependencies.add(runtimeJar);
             }
             // write module child imports jars
-            writeImportJar(backendDriver, bLangPackage.symbol.imports, sourceRoot, buildContext, runtimeJar);
+            writeImportJar(backendDriver, bLangPackage.symbol.imports, sourceRoot, buildContext, runtimeJar,
+                           alreadyImportedModuleSet);
 
             // get the jar path of the module.
             Path jarOutput = buildContext.getJarPathFromTargetCache(module.packageID);
@@ -97,7 +101,8 @@ public class CreateJarTask implements Task {
             if (!buildContext.skipTests() && bLangPackage.hasTestablePackage()) {
                 for (BLangPackage testPkg : bLangPackage.getTestablePkgs()) {
                     // write its child imports jar file to cache
-                    writeImportJar(backendDriver, testPkg.symbol.imports, sourceRoot, buildContext, runtimeJar);
+                    writeImportJar(backendDriver, testPkg.symbol.imports, sourceRoot, buildContext,
+                                   runtimeJar, alreadyImportedModuleSet);
 
                     // get the jar path of the module.
                     Path testJarOutput = buildContext.getTestJarPathFromTargetCache(testPkg.packageID);
@@ -111,13 +116,14 @@ public class CreateJarTask implements Task {
     }
 
     private void writeImportJar(BackendDriver backendDriver, List<BPackageSymbol> imports, Path sourceRoot,
-                                BuildContext buildContext, Path runtimeJar) {
-
+                                BuildContext buildContext, Path runtimeJar, Set<PackageID> alreadyImportedModuleSet) {
         for (BPackageSymbol bimport : imports) {
             PackageID id = bimport.pkgID;
-            if (id.orgName.value.equals("ballerina") || id.orgName.value.equals("ballerinax")) {
+            if (alreadyImportedModuleSet.contains(id) || id.orgName.value.equals("ballerina") ||
+                    id.orgName.value.equals("ballerinax")) {
                 continue;
             }
+            alreadyImportedModuleSet.add(id);
             Path jarFilePath;
             // If the module is part of the project write it to project jar cache check if file exist
             // If not write it to home jar cache
@@ -128,14 +134,15 @@ public class CreateJarTask implements Task {
             } else {
                 jarFilePath = buildContext.getJarPathFromHomeCache(id);
             }
-            if (!Files.exists(jarFilePath) && buildContext.moduleDependencyPathMap.containsKey(id)) {
+            writeImportJar(backendDriver, bimport.imports, sourceRoot,
+                           buildContext, runtimeJar, alreadyImportedModuleSet);
+            if (bimport.bir != null && buildContext.moduleDependencyPathMap.containsKey(id)) {
                 HashSet<Path> moduleDependencySet = buildContext.moduleDependencyPathMap.get(id).moduleLibs;
                 if (!skipCopyLibsFromDist) {
                     moduleDependencySet.add(runtimeJar);
                 }
                 backendDriver.execute(bimport.bir, dumpBir, jarFilePath, moduleDependencySet);
             }
-            writeImportJar(backendDriver, bimport.imports, sourceRoot, buildContext, runtimeJar);
         }
     }
 
