@@ -519,9 +519,12 @@ public class SymbolTable {
             }
         }
 
-        for (BType unsignedLower : unsignedIntTypes) {
-            for (BType unsignedSameOrHigher : unsignedIntTypes) {
-                defineBinaryOperator(OperatorKind.BITWISE_AND, unsignedLower, unsignedSameOrHigher, unsignedLower);
+        for (int i = 0; i < unsignedIntTypes.length; i++) {
+            for (int j = 0; j < unsignedIntTypes.length; j++) {
+                BType unsignedIntTypeLhs = unsignedIntTypes[i];
+                BType unsignedIntTypeRhs = unsignedIntTypes[j];
+                defineBinaryOperator(OperatorKind.BITWISE_AND, unsignedIntTypeLhs, unsignedIntTypeRhs,
+                                     i <= j ? unsignedIntTypeLhs : unsignedIntTypeRhs);
             }
         }
 
@@ -548,9 +551,12 @@ public class SymbolTable {
             }
         }
 
-        for (BType unsignedLower : unsignedIntTypes) {
-            for (BType unsignedSameOrHigher : unsignedIntTypes) {
-                defineBinaryOperator(orOpKind, unsignedLower, unsignedSameOrHigher, unsignedLower);
+        for (int i = 0; i < unsignedIntTypes.length; i++) {
+            for (int j = 0; j < unsignedIntTypes.length; j++) {
+                BType unsignedIntTypeLhs = unsignedIntTypes[i];
+                BType unsignedIntTypeRhs = unsignedIntTypes[j];
+                defineBinaryOperator(orOpKind, unsignedIntTypeLhs, unsignedIntTypeRhs,
+                                     i <= j ? unsignedIntTypeLhs : unsignedIntTypeRhs);
             }
         }
 
