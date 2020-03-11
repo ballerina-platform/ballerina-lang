@@ -787,19 +787,20 @@ PackageReference ::= identifier COLON {
 
 ReturnParameter ::= returns AnnotationAttachment* TypeName {pin=1}
 
-ParameterTypeNameList ::= RestParameterTypeName | ParameterTypeName (COMMA ParameterTypeName)* (COMMA RestParameterTypeName)?
-                              |
-ParameterTypeName ::= AnnotationAttachment* TypeName
+ParameterTypeNameList ::= ParameterTypeName (COMMA ParameterTypeName)*
+
+// Merged rules "ParameterTypeName" and "RestParameterTypeName" to fix capturing rest parameters properly.
+// Todo - Alternatives?
+ParameterTypeName ::= AnnotationAttachment* TypeName ELLIPSIS?
 
 ParameterList ::=  (Parameter (COMMA Parameter)* (COMMA RestParameter)?) | RestParameter
 
-Parameter ::= AnnotationAttachment* public? TypeName identifier
+Parameter ::= AnnotationAttachment* public? TypeName identifier {pin=4}
 
 DefaultableParameter ::= Parameter ASSIGN Expression
 
-RestParameter ::= AnnotationAttachment* TypeName ELLIPSIS identifier {pin=3}
-
-RestParameterTypeName ::= TypeName <<restDescriptorPredicate>> ELLIPSIS
+// do not pin on ELLIPSIS as it will mess up with the parameter type name rules
+RestParameter ::= AnnotationAttachment* TypeName ELLIPSIS identifier {pin=4}
 
 FormalParameterList ::= (DefaultableParameter | Parameter) (COMMA (DefaultableParameter | Parameter))* (COMMA RestParameter)? | RestParameter {pin=1 recoverWhile=FormalParameterListRecover}
 
