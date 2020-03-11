@@ -119,7 +119,7 @@ public const SSL_VERIFY_CERT = "VERIFY_CERT";
 public const SSL_VERIFY_IDENTITY = "VERIFY_IDENTITY";
 
 # SSLMode as a union of available ssl modes.
-public type SSLMode SSL_PREFERRED | SSL_REQUIRED| SSL_VERIFY_CERT | SSL_VERIFY_IDENTITY;
+public type SSLMode SSL_PREFERRED|SSL_REQUIRED|SSL_VERIFY_CERT|SSL_VERIFY_IDENTITY;
 
 # SSL Configuration to be used when connecting to mysql server.
 #
