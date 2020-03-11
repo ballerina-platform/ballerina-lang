@@ -108,10 +108,10 @@ function initializeTable() returns sql:Error? {
     result = check mysqlClient->execute("CREATE TABLE IF NOT EXISTS MYSQL_BBE.Customers(customerId INTEGER " +
         "NOT NULL AUTO_INCREMENT, FirstName  VARCHAR(300), LastName  VARCHAR(300), RegistrationID INTEGER," +
         "CreditLimit DOUBLE, Country  VARCHAR(300), PRIMARY KEY (CustomerId))");
-    result = check mysqlClient->execute("INSERT INTO MYSQL_BBE.Customers (FirstName,LastName,RegistrationID,CreditLimit,Country)" +
-        "VALUES ('Peter', 'Stuart', 1, 5000.75, 'USA')");
-    result = check mysqlClient->execute("INSERT INTO MYSQL_BBE.Customers (FirstName,LastName,RegistrationID,CreditLimit,Country)" +
-        "VALUES ('Dan', 'Brown', 2, 10000, 'UK')");
+    result = check mysqlClient->execute("INSERT INTO MYSQL_BBE.Customers (FirstName,LastName,RegistrationID," +
+        "CreditLimit,Country) VALUES ('Peter', 'Stuart', 1, 5000.75, 'USA')");
+    result = check mysqlClient->execute("INSERT INTO MYSQL_BBE.Customers (FirstName,LastName,RegistrationID," +
+        "CreditLimit,Country) VALUES ('Dan', 'Brown', 2, 10000, 'UK')");
     check mysqlClient.close();
 }
 

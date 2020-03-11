@@ -12,7 +12,7 @@ function initializeDatabase() returns sql:Error? {
     //Initialize client without any database to create the database.
     mysql:Client mysqlClient = check new (user = dbUser, password = dbPassword);
     //Create database if it is not exists. If any error occurred the error will be returned.
-    sql:ExecuteResult? result = check mysqlClient->execute("CREATE DATABASE IF NOT EXISTS "+ dbName);
+    sql:ExecuteResult? result = check mysqlClient->execute("CREATE DATABASE IF NOT EXISTS " + dbName);
     io:println("Database created");
     //Close this MySQL client.
     check mysqlClient.close();
@@ -34,8 +34,8 @@ function initializeTable(mysql:Client mysqlClient) returns int|string|sql:Error?
 
     //Insert sample data into the table. The result will have `affectedRowCount` and `lastInsertedId`
     //with the auto generated id of the last row.
-    result = check mysqlClient->execute("INSERT INTO Customers (firstName,lastName,registrationID,creditLimit,country)" +
-        "VALUES ('Peter', 'Stuart', 1, 5000.75, 'USA')");
+    result = check mysqlClient->execute("INSERT INTO Customers (firstName,lastName,registrationID,creditLimit," +
+        "country) VALUES ('Peter', 'Stuart', 1, 5000.75, 'USA')");
     int|string? generatedId = ();
 
     if (result is sql:ExecuteResult) {
@@ -47,7 +47,6 @@ function initializeTable(mysql:Client mysqlClient) returns int|string|sql:Error?
     }
     return generatedId;
 }
-
 
 function updateRecord(mysql:Client mysqlClient, int generatedId) {
     //Update the record with the auto generated ID.
@@ -82,9 +81,9 @@ function deleteRecord(mysql:Client mysqlClient, int generatedId) {
 public function main() {
     //Initialize the database.
     sql:Error? err = initializeDatabase();
-    if(err is ()){
+    if (err is ()) {
         //Initialize the MySQL client to be used for the rest of DDL and DML operations.
-        mysql:Client|sql:Error mysqlClient = new (user=dbUser, password=dbPassword, database=dbName);
+        mysql:Client|sql:Error mysqlClient = new (user = dbUser, password = dbPassword, database = dbName);
         if (mysqlClient is mysql:Client) {
             // Initialize table and insert data.
             int|string|sql:Error? initResult = initializeTable(mysqlClient);
@@ -101,9 +100,9 @@ public function main() {
             //Close the MySQL client.
             sql:Error? e = mysqlClient.close();
         } else {
-                  io:println("Table initialization failed!!");
-                  io:println(mysqlClient);
-              }
+            io:println("Table initialization failed!!");
+            io:println(mysqlClient);
+        }
     } else {
         io:println("Database initialization failed!!");
         io:println(err);
