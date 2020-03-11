@@ -650,10 +650,7 @@ public class SymbolTable {
     }
 
     public void loadDefaultXMLNamespace() {
-        Scope.ScopeEntry entry = rootScope.lookup(Names.XML);
-        if (entry == Scope.NOT_FOUND_ENTRY) {
-            rootScope.define(Names.XML, new BXMLNSSymbol(Names.XML, "http://www.w3.org/XML/1998/namespace",
-                    this.rootPkgSymbol.pkgID, this.rootPkgSymbol));
-        }
+        rootPkgSymbol.scope.define(Names.XML, new BXMLNSSymbol(Names.XML, "http://www.w3.org/XML/1998/namespace",
+                this.rootPkgSymbol.pkgID, this.rootPkgSymbol));
     }
 }
