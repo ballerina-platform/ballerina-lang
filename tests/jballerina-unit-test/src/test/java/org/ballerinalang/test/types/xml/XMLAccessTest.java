@@ -273,7 +273,7 @@ public class XMLAccessTest {
 
     @Test
     public void testXMLNavExpressionMethodInvocationNegative() {
-        String message = "method invocations are not yet supported within XML navigation expressions yet, " +
+        String message = "method invocations are not yet supported within XML navigation expressions, " +
                 "use a grouping expression (parenthesis) " +
                 "if you intend to invoke the method on the result of the navigation expression.";
         Assert.assertEquals(navigationNegative.getErrorCount(), 5);
