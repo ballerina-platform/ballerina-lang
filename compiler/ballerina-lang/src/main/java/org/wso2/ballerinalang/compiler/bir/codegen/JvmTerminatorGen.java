@@ -1220,7 +1220,7 @@ public class JvmTerminatorGen {
             if (bType.tag == TypeTags.NIL) {
                 this.mv.visitVarInsn(ALOAD, returnVarRefIndex);
                 this.mv.visitInsn(ARETURN);
-            } else if (bType.tag == TypeTags.INT) {
+            } else if (TypeTags.isIntegerTypeTag(bType.tag)) {
                 this.mv.visitVarInsn(LLOAD, returnVarRefIndex);
                 this.mv.visitInsn(LRETURN);
             } else if (bType.tag == TypeTags.BYTE) {
@@ -1229,7 +1229,7 @@ public class JvmTerminatorGen {
             } else if (bType.tag == TypeTags.FLOAT) {
                 this.mv.visitVarInsn(DLOAD, returnVarRefIndex);
                 this.mv.visitInsn(DRETURN);
-            } else if (bType.tag == TypeTags.STRING) {
+            } else if (TypeTags.isStringTypeTag(bType.tag)) {
                 this.mv.visitVarInsn(ALOAD, returnVarRefIndex);
                 this.mv.visitInsn(ARETURN);
             } else if (bType.tag == TypeTags.BOOLEAN) {

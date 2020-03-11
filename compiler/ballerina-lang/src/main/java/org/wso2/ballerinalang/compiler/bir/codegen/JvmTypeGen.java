@@ -961,10 +961,24 @@ class JvmTypeGen {
             typeFieldName = "typeNull";
         } else if (bType.tag == TypeTags.INT) {
             typeFieldName = "typeInt";
+        } else if (bType.tag == TypeTags.SIGNED32_INT) {
+            typeFieldName = "typeIntSigned32";
+        } else if (bType.tag == TypeTags.SIGNED16_INT) {
+            typeFieldName = "typeIntSigned16";
+        } else if (bType.tag == TypeTags.SIGNED8_INT) {
+            typeFieldName = "typeIntSigned8";
+        } else if (bType.tag == TypeTags.UNSIGNED32_INT) {
+            typeFieldName = "typeIntUnsigned32";
+        } else if (bType.tag == TypeTags.UNSIGNED16_INT) {
+            typeFieldName = "typeIntUnsigned16";
+        } else if (bType.tag == TypeTags.UNSIGNED8_INT) {
+            typeFieldName = "typeIntUnsigned8";
         } else if (bType.tag == TypeTags.FLOAT) {
             typeFieldName = "typeFloat";
         } else if (bType.tag == TypeTags.STRING) {
             typeFieldName = "typeString";
+        } else if (bType.tag == TypeTags.CHAR_STRING) {
+            typeFieldName = "typeStringChar";
         } else if (bType.tag == TypeTags.DECIMAL) {
             typeFieldName = "typeDecimal";
         } else if (bType.tag == TypeTags.BOOLEAN) {
@@ -1294,13 +1308,13 @@ class JvmTypeGen {
 
     static String getTypeDesc(BType bType) {
 
-        if (bType.tag == TypeTags.INT) {
+        if (TypeTags.isIntegerTypeTag(bType.tag)) {
             return "J";
         } else if (bType.tag == TypeTags.BYTE) {
             return "I";
         } else if (bType.tag == TypeTags.FLOAT) {
             return "D";
-        } else if (bType.tag == TypeTags.STRING) {
+        } else if (TypeTags.isStringTypeTag(bType.tag)) {
             return String.format("L%s;", isBString ? B_STRING_VALUE : STRING_VALUE);
         } else if (bType.tag == TypeTags.BOOLEAN) {
             return "Z";
@@ -1361,7 +1375,7 @@ class JvmTypeGen {
 
             loadConstantValue(valueType, value, mv);
 
-            if (valueType.tag == TypeTags.INT) {
+            if (TypeTags.isIntegerTypeTag(valueType.tag)) {
                 mv.visitMethodInsn(INVOKESTATIC, LONG_VALUE, "valueOf", String.format("(J)L%s;", LONG_VALUE), false);
             } else if (valueType.tag == TypeTags.BOOLEAN) {
                 mv.visitMethodInsn(INVOKESTATIC, BOOLEAN_VALUE, "valueOf", String.format("(Z)L%s;", BOOLEAN_VALUE),

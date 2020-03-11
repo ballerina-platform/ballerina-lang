@@ -47,6 +47,7 @@ import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.DURATION_UN
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.KAFKA_SERVERS;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.NATIVE_CONSUMER;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.NATIVE_CONSUMER_CONFIG;
+import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.UNCHECKED;
 import static org.ballerinalang.messaging.kafka.utils.KafkaUtils.createKafkaError;
 import static org.ballerinalang.messaging.kafka.utils.KafkaUtils.getClientIdFromProperties;
 import static org.ballerinalang.messaging.kafka.utils.KafkaUtils.getDefaultApiTimeout;
@@ -98,6 +99,7 @@ public class BrokerConnection {
      * @param consumerObject Kafka consumer object from ballerina.
      * @return {@code ErrorValue}, if there's an error, null otherwise.
      */
+    @SuppressWarnings(UNCHECKED)
     public static Object connect(ObjectValue consumerObject) {
         // Check whether already native consumer is attached to the struct.
         // This can be happen either from Kafka service or via programmatically.
@@ -107,7 +109,7 @@ public class BrokerConnection {
                     "Kafka consumer is already connected to external broker. Please close it before re-connecting " +
                             "the external broker again.", CONSUMER_ERROR);
         }
-        MapValue<String, Object> configs = (MapValue<String, Object>) consumerObject.get(CONSUMER_CONFIG_FIELD_NAME);
+        MapValue<String, Object> configs = consumerObject.getMapValue(CONSUMER_CONFIG_FIELD_NAME);
         Properties consumerProperties = processKafkaConsumerConfig(configs);
         try {
             KafkaConsumer kafkaConsumer = new KafkaConsumer<>(consumerProperties);

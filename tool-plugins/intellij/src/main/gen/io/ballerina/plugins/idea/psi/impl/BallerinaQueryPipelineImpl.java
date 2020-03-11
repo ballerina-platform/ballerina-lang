@@ -50,6 +50,12 @@ public class BallerinaQueryPipelineImpl extends ASTWrapperPsiElement implements 
 
   @Override
   @NotNull
+  public List<BallerinaLetClause> getLetClauseList() {
+    return PsiTreeUtil.getChildrenOfTypeAsList(this, BallerinaLetClause.class);
+  }
+
+  @Override
+  @NotNull
   public List<BallerinaWhereClause> getWhereClauseList() {
     return PsiTreeUtil.getChildrenOfTypeAsList(this, BallerinaWhereClause.class);
   }
