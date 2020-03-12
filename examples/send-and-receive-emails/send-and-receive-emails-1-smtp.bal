@@ -29,7 +29,7 @@ public function main() {
     email:Error? response = smtpClient->send(email);
     // If the email send failed, the error is handled.
     if (response is email:Error) {
-        io:println("Error while sending the email: " + response.toString());
+        io:println("Error while sending the email: " + <string> response.detail()["message"]);
     }
 
 }

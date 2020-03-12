@@ -19,10 +19,10 @@ public function main() {
             io:println("There are no emails in the INBOX.");
         // Print the error when an error occurred during the email receive operation.
         } else {
-            io:println("Error while getting getting response: " + emailResponse.toString());
+            io:println("Error while getting getting response: " + <string> emailResponse.detail()["message"]);
         }
     // Print the error when an error occurred while creating the client.
     } else {
-        io:println("Error while creating client: " + popClient.toString());
+        io:println("Error while creating client: " + <string> popClient.detail()["message"]);
     }
 }
