@@ -208,7 +208,7 @@ public class ClosureDesugar extends BLangNodeVisitor {
 
         while (pkgNode.lambdaFunctions.peek() != null) {
             BLangLambdaFunction lambdaFunction = pkgNode.lambdaFunctions.poll();
-            lambdaFunction.function = rewrite(lambdaFunction.function, lambdaFunction.cachedEnv);
+            lambdaFunction.function = rewrite(lambdaFunction.function, lambdaFunction.capturedClosureEnv);
         }
 
         // Update function parameters.
@@ -819,8 +819,8 @@ public class ClosureDesugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangLambdaFunction bLangLambdaFunction) {
-        bLangLambdaFunction.cachedEnv = env.createClone();
-        bLangLambdaFunction.enclMapSymbols = collectClosureMapSymbols(bLangLambdaFunction.cachedEnv,
+        bLangLambdaFunction.capturedClosureEnv = env.createClone();
+        bLangLambdaFunction.enclMapSymbols = collectClosureMapSymbols(bLangLambdaFunction.capturedClosureEnv,
                 bLangLambdaFunction);
         result = bLangLambdaFunction;
     }
@@ -832,7 +832,7 @@ public class ClosureDesugar extends BLangNodeVisitor {
 
         // Recursively iterate back to the encl invokable and get all map symbols visited.
         TreeMap<Integer, BVarSymbol> enclMapSymbols = new TreeMap<>();
-        while (symbolEnv != null && symbolEnv.enclInvokable == bLangLambdaFunction.cachedEnv.enclInvokable) {
+        while (symbolEnv != null && symbolEnv.enclInvokable == bLangLambdaFunction.capturedClosureEnv.enclInvokable) {
             BVarSymbol mapSym = getMapSymbol(symbolEnv.node);
 
             // Skip non-block bodies

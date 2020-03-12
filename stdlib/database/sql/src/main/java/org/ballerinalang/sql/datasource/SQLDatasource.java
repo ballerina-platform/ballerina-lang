@@ -27,6 +27,7 @@ import org.ballerinalang.sql.utils.ErrorGenerator;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Map;
+import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.Lock;
@@ -100,7 +101,7 @@ public class SQLDatasource {
     }
 
 
-    private Connection getSQLConnection() throws SQLException {
+    public Connection getSQLConnection() throws SQLException {
         return hikariDataSource.getConnection();
     }
 
@@ -137,7 +138,12 @@ public class SQLDatasource {
 
     private void buildDataSource(SQLDatasourceParams sqlDatasourceParams) {
         try {
-            HikariConfig config = new HikariConfig();
+            HikariConfig config;
+            if (sqlDatasourceParams.poolProperties != null) {
+                config = new HikariConfig(sqlDatasourceParams.poolProperties);
+            } else {
+                config = new HikariConfig();
+            }
             config.setJdbcUrl(sqlDatasourceParams.url);
             config.setUsername(sqlDatasourceParams.user);
             config.setPassword(sqlDatasourceParams.password);
@@ -187,13 +193,19 @@ public class SQLDatasource {
             hikariDataSource = new HikariDataSource(config);
             Runtime.getRuntime().addShutdownHook(new Thread(this::closeConnectionPool));
         } catch (Throwable t) {
-            String message = "error in sql connector configuration: " + t.getMessage();
-            if (t.getCause() != null) {
-                message += ":" + t.getCause().getMessage();
+            StringBuilder message = new StringBuilder("error in sql connector configuration: " + t.getMessage() + "");
+            String lastCauseMessage = null;
+            int count = 0;
+            while (t.getCause() != null && count < 3) {
+                lastCauseMessage = t.getCause().getMessage();
+                message.append(" Caused by :").append(lastCauseMessage);
+                count++;
+                t = t.getCause();
             }
-            throw ErrorGenerator.getSQLApplicationError(message);
+            throw ErrorGenerator.getSQLApplicationError(message.toString());
         }
     }
+
     /**
      * This class encapsulates the parameters required for the initialization of {@code SQLDatasource} class.
      */
@@ -204,6 +216,7 @@ public class SQLDatasource {
         private String datasourceName;
         private MapValue connectionPool;
         private MapValue options;
+        private Properties poolProperties;
 
         public SQLDatasourceParams() {
         }
@@ -235,6 +248,11 @@ public class SQLDatasource {
 
         public SQLDatasourceParams setOptions(MapValue options) {
             this.options = options;
+            return this;
+        }
+
+        public SQLDatasourceParams setPoolProperties(Properties properties) {
+            this.poolProperties = properties;
             return this;
         }
     }

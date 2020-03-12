@@ -20,6 +20,14 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "http",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "140",
+      "insertText": "http",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "ballerinax/java.jdbc",
       "kind": "Module",
       "detail": "Module",
@@ -30,11 +38,11 @@
         {
           "range": {
             "start": {
-              "line": 0,
+              "line": 1,
               "character": 0
             },
             "end": {
-              "line": 0,
+              "line": 1,
               "character": 0
             }
           },
@@ -53,11 +61,11 @@
         {
           "range": {
             "start": {
-              "line": 0,
+              "line": 1,
               "character": 0
             },
             "end": {
-              "line": 0,
+              "line": 1,
               "character": 0
             }
           },
@@ -76,11 +84,11 @@
         {
           "range": {
             "start": {
-              "line": 0,
+              "line": 1,
               "character": 0
             },
             "end": {
-              "line": 0,
+              "line": 1,
               "character": 0
             }
           },
@@ -99,11 +107,11 @@
         {
           "range": {
             "start": {
-              "line": 0,
+              "line": 1,
               "character": 0
             },
             "end": {
-              "line": 0,
+              "line": 1,
               "character": 0
             }
           },
@@ -122,11 +130,11 @@
         {
           "range": {
             "start": {
-              "line": 0,
+              "line": 1,
               "character": 0
             },
             "end": {
-              "line": 0,
+              "line": 1,
               "character": 0
             }
           },
@@ -145,11 +153,11 @@
         {
           "range": {
             "start": {
-              "line": 0,
+              "line": 1,
               "character": 0
             },
             "end": {
-              "line": 0,
+              "line": 1,
               "character": 0
             }
           },
@@ -168,11 +176,11 @@
         {
           "range": {
             "start": {
-              "line": 0,
+              "line": 1,
               "character": 0
             },
             "end": {
-              "line": 0,
+              "line": 1,
               "character": 0
             }
           },
@@ -191,11 +199,11 @@
         {
           "range": {
             "start": {
-              "line": 0,
+              "line": 1,
               "character": 0
             },
             "end": {
-              "line": 0,
+              "line": 1,
               "character": 0
             }
           },
@@ -214,11 +222,11 @@
         {
           "range": {
             "start": {
-              "line": 0,
+              "line": 1,
               "character": 0
             },
             "end": {
-              "line": 0,
+              "line": 1,
               "character": 0
             }
           },
@@ -237,11 +245,11 @@
         {
           "range": {
             "start": {
-              "line": 0,
+              "line": 1,
               "character": 0
             },
             "end": {
-              "line": 0,
+              "line": 1,
               "character": 0
             }
           },
@@ -260,11 +268,11 @@
         {
           "range": {
             "start": {
-              "line": 0,
+              "line": 1,
               "character": 0
             },
             "end": {
-              "line": 0,
+              "line": 1,
               "character": 0
             }
           },
@@ -283,11 +291,11 @@
         {
           "range": {
             "start": {
-              "line": 0,
+              "line": 1,
               "character": 0
             },
             "end": {
-              "line": 0,
+              "line": 1,
               "character": 0
             }
           },
@@ -306,11 +314,11 @@
         {
           "range": {
             "start": {
-              "line": 0,
+              "line": 1,
               "character": 0
             },
             "end": {
-              "line": 0,
+              "line": 1,
               "character": 0
             }
           },
@@ -329,11 +337,11 @@
         {
           "range": {
             "start": {
-              "line": 0,
+              "line": 1,
               "character": 0
             },
             "end": {
-              "line": 0,
+              "line": 1,
               "character": 0
             }
           },
@@ -352,11 +360,11 @@
         {
           "range": {
             "start": {
-              "line": 0,
+              "line": 1,
               "character": 0
             },
             "end": {
-              "line": 0,
+              "line": 1,
               "character": 0
             }
           },
@@ -375,11 +383,11 @@
         {
           "range": {
             "start": {
-              "line": 0,
+              "line": 1,
               "character": 0
             },
             "end": {
-              "line": 0,
+              "line": 1,
               "character": 0
             }
           },
@@ -398,11 +406,11 @@
         {
           "range": {
             "start": {
-              "line": 0,
+              "line": 1,
               "character": 0
             },
             "end": {
-              "line": 0,
+              "line": 1,
               "character": 0
             }
           },
@@ -421,11 +429,11 @@
         {
           "range": {
             "start": {
-              "line": 0,
+              "line": 1,
               "character": 0
             },
             "end": {
-              "line": 0,
+              "line": 1,
               "character": 0
             }
           },
@@ -444,11 +452,11 @@
         {
           "range": {
             "start": {
-              "line": 0,
+              "line": 1,
               "character": 0
             },
             "end": {
-              "line": 0,
+              "line": 1,
               "character": 0
             }
           },
@@ -467,11 +475,11 @@
         {
           "range": {
             "start": {
-              "line": 0,
+              "line": 1,
               "character": 0
             },
             "end": {
-              "line": 0,
+              "line": 1,
               "character": 0
             }
           },
@@ -490,11 +498,11 @@
         {
           "range": {
             "start": {
-              "line": 0,
+              "line": 1,
               "character": 0
             },
             "end": {
-              "line": 0,
+              "line": 1,
               "character": 0
             }
           },
@@ -513,11 +521,11 @@
         {
           "range": {
             "start": {
-              "line": 0,
+              "line": 1,
               "character": 0
             },
             "end": {
-              "line": 0,
+              "line": 1,
               "character": 0
             }
           },
@@ -536,11 +544,11 @@
         {
           "range": {
             "start": {
-              "line": 0,
+              "line": 1,
               "character": 0
             },
             "end": {
-              "line": 0,
+              "line": 1,
               "character": 0
             }
           },
@@ -559,11 +567,11 @@
         {
           "range": {
             "start": {
-              "line": 0,
+              "line": 1,
               "character": 0
             },
             "end": {
-              "line": 0,
+              "line": 1,
               "character": 0
             }
           },
@@ -582,11 +590,11 @@
         {
           "range": {
             "start": {
-              "line": 0,
+              "line": 1,
               "character": 0
             },
             "end": {
-              "line": 0,
+              "line": 1,
               "character": 0
             }
           },
@@ -605,11 +613,11 @@
         {
           "range": {
             "start": {
-              "line": 0,
+              "line": 1,
               "character": 0
             },
             "end": {
-              "line": 0,
+              "line": 1,
               "character": 0
             }
           },
@@ -628,11 +636,11 @@
         {
           "range": {
             "start": {
-              "line": 0,
+              "line": 1,
               "character": 0
             },
             "end": {
-              "line": 0,
+              "line": 1,
               "character": 0
             }
           },
@@ -651,11 +659,11 @@
         {
           "range": {
             "start": {
-              "line": 0,
+              "line": 1,
               "character": 0
             },
             "end": {
-              "line": 0,
+              "line": 1,
               "character": 0
             }
           },
@@ -674,11 +682,11 @@
         {
           "range": {
             "start": {
-              "line": 0,
+              "line": 1,
               "character": 0
             },
             "end": {
-              "line": 0,
+              "line": 1,
               "character": 0
             }
           },
@@ -697,11 +705,11 @@
         {
           "range": {
             "start": {
-              "line": 0,
+              "line": 1,
               "character": 0
             },
             "end": {
-              "line": 0,
+              "line": 1,
               "character": 0
             }
           },
@@ -720,11 +728,11 @@
         {
           "range": {
             "start": {
-              "line": 0,
+              "line": 1,
               "character": 0
             },
             "end": {
-              "line": 0,
+              "line": 1,
               "character": 0
             }
           },
@@ -743,11 +751,11 @@
         {
           "range": {
             "start": {
-              "line": 0,
+              "line": 1,
               "character": 0
             },
             "end": {
-              "line": 0,
+              "line": 1,
               "character": 0
             }
           },
@@ -766,11 +774,11 @@
         {
           "range": {
             "start": {
-              "line": 0,
+              "line": 1,
               "character": 0
             },
             "end": {
-              "line": 0,
+              "line": 1,
               "character": 0
             }
           },
@@ -789,11 +797,11 @@
         {
           "range": {
             "start": {
-              "line": 0,
+              "line": 1,
               "character": 0
             },
             "end": {
-              "line": 0,
+              "line": 1,
               "character": 0
             }
           },
@@ -812,11 +820,11 @@
         {
           "range": {
             "start": {
-              "line": 0,
+              "line": 1,
               "character": 0
             },
             "end": {
-              "line": 0,
+              "line": 1,
               "character": 0
             }
           },
@@ -835,11 +843,11 @@
         {
           "range": {
             "start": {
-              "line": 0,
+              "line": 1,
               "character": 0
             },
             "end": {
-              "line": 0,
+              "line": 1,
               "character": 0
             }
           },
@@ -858,38 +866,15 @@
         {
           "range": {
             "start": {
-              "line": 0,
+              "line": 1,
               "character": 0
             },
             "end": {
-              "line": 0,
+              "line": 1,
               "character": 0
             }
           },
           "newText": "import ballerina/lang.'decimal;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/http",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "140",
-      "insertText": "http",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/http;\n"
         }
       ]
     },
@@ -904,11 +889,11 @@
         {
           "range": {
             "start": {
-              "line": 0,
+              "line": 1,
               "character": 0
             },
             "end": {
-              "line": 0,
+              "line": 1,
               "character": 0
             }
           },
@@ -927,11 +912,11 @@
         {
           "range": {
             "start": {
-              "line": 0,
+              "line": 1,
               "character": 0
             },
             "end": {
-              "line": 0,
+              "line": 1,
               "character": 0
             }
           },
@@ -950,11 +935,11 @@
         {
           "range": {
             "start": {
-              "line": 0,
+              "line": 1,
               "character": 0
             },
             "end": {
-              "line": 0,
+              "line": 1,
               "character": 0
             }
           },
@@ -973,11 +958,11 @@
         {
           "range": {
             "start": {
-              "line": 0,
+              "line": 1,
               "character": 0
             },
             "end": {
-              "line": 0,
+              "line": 1,
               "character": 0
             }
           },
@@ -996,11 +981,11 @@
         {
           "range": {
             "start": {
-              "line": 0,
+              "line": 1,
               "character": 0
             },
             "end": {
-              "line": 0,
+              "line": 1,
               "character": 0
             }
           },
@@ -1019,11 +1004,11 @@
         {
           "range": {
             "start": {
-              "line": 0,
+              "line": 1,
               "character": 0
             },
             "end": {
-              "line": 0,
+              "line": 1,
               "character": 0
             }
           },
@@ -1042,11 +1027,11 @@
         {
           "range": {
             "start": {
-              "line": 0,
+              "line": 1,
               "character": 0
             },
             "end": {
-              "line": 0,
+              "line": 1,
               "character": 0
             }
           },
@@ -1065,15 +1050,38 @@
         {
           "range": {
             "start": {
-              "line": 0,
+              "line": 1,
               "character": 0
             },
             "end": {
-              "line": 0,
+              "line": 1,
               "character": 0
             }
           },
           "newText": "import ballerina/lang.'map;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/email",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "140",
+      "insertText": "email",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 1,
+              "character": 0
+            },
+            "end": {
+              "line": 1,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/email;\n"
         }
       ]
     },
@@ -1088,11 +1096,11 @@
         {
           "range": {
             "start": {
-              "line": 0,
+              "line": 1,
               "character": 0
             },
             "end": {
-              "line": 0,
+              "line": 1,
               "character": 0
             }
           },
@@ -1111,11 +1119,11 @@
         {
           "range": {
             "start": {
-              "line": 0,
+              "line": 1,
               "character": 0
             },
             "end": {
-              "line": 0,
+              "line": 1,
               "character": 0
             }
           },
@@ -1188,11 +1196,11 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "function (string param1, >< param2, >< param3, >< param4) returns (><) ",
+      "label": "function (string param1, other param2, other param3, other param4) returns (other) ",
       "kind": "Snippet",
       "detail": "Snippet",
       "sortText": "240",
-      "insertText": "function (string ${1:param1}, >< ${2:param2}, >< ${3:param3}, >< ${4:param4}) returns (><) {\n\treturn ();\n};",
+      "insertText": "function (string ${1:param1}, other ${2:param2}, other ${3:param3}, other ${4:param4}) returns (other) {\n\treturn ();\n};",
       "insertTextFormat": "Snippet"
     },
     {

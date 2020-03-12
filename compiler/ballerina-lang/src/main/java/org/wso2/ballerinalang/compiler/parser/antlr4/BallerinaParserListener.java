@@ -3022,6 +3022,16 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 */
 	void exitReturnParameterDocumentationLine(BallerinaParser.ReturnParameterDocumentationLineContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#deprecatedAnnotationDocumentationLine}.
+	 * @param ctx the parse tree
+	 */
+	void enterDeprecatedAnnotationDocumentationLine(BallerinaParser.DeprecatedAnnotationDocumentationLineContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#deprecatedAnnotationDocumentationLine}.
+	 * @param ctx the parse tree
+	 */
+	void exitDeprecatedAnnotationDocumentationLine(BallerinaParser.DeprecatedAnnotationDocumentationLineContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#documentationContent}.
 	 * @param ctx the parse tree
 	 */
@@ -3051,6 +3061,16 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitReturnParameterDescriptionLine(BallerinaParser.ReturnParameterDescriptionLineContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#deprecateAnnotationDescriptionLine}.
+	 * @param ctx the parse tree
+	 */
+	void enterDeprecateAnnotationDescriptionLine(BallerinaParser.DeprecateAnnotationDescriptionLineContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#deprecateAnnotationDescriptionLine}.
+	 * @param ctx the parse tree
+	 */
+	void exitDeprecateAnnotationDescriptionLine(BallerinaParser.DeprecateAnnotationDescriptionLineContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#documentationText}.
 	 * @param ctx the parse tree
@@ -3101,6 +3121,16 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitReturnParameterDocumentation(BallerinaParser.ReturnParameterDocumentationContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#deprecatedAnnotationDocumentation}.
+	 * @param ctx the parse tree
+	 */
+	void enterDeprecatedAnnotationDocumentation(BallerinaParser.DeprecatedAnnotationDocumentationContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#deprecatedAnnotationDocumentation}.
+	 * @param ctx the parse tree
+	 */
+	void exitDeprecatedAnnotationDocumentation(BallerinaParser.DeprecatedAnnotationDocumentationContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#docParameterName}.
 	 * @param ctx the parse tree

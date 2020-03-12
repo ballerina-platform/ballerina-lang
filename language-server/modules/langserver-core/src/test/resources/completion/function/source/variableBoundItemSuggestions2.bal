@@ -1,4 +1,4 @@
-import ballerina/io;
+import ballerina/http;
 
 function testFunction () {
     string sampleString = "Hello World";

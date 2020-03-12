@@ -1,7 +1,7 @@
 import ballerina/kafka;
 import ballerina/log;
 
-kafka:ProducerConfig producerConfigs = {
+kafka:ProducerConfiguration producerConfigs = {
     // Here, we create the configs of a producer with optional parameters.
     // client.id - used for broker-side logging.
     // `acks` - number of acknowledgments to complete the request.

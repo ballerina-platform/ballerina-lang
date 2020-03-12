@@ -33,6 +33,9 @@ public interface BallerinaObjectFieldDefinition extends PsiElement {
   BallerinaTypeName getTypeName();
 
   @Nullable
+  BallerinaDocumentationString getDocumentationString();
+
+  @Nullable
   PsiElement getAssign();
 
   @Nullable
@@ -41,7 +44,7 @@ public interface BallerinaObjectFieldDefinition extends PsiElement {
   @Nullable
   PsiElement getSemicolon();
 
-  @NotNull
+  @Nullable
   PsiElement getIdentifier();
 
   @Nullable
