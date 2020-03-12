@@ -26,6 +26,7 @@ import org.ballerinalang.jvm.XMLFactory;
 import org.ballerinalang.jvm.XMLNodeType;
 import org.ballerinalang.jvm.XMLValidator;
 import org.ballerinalang.jvm.types.BMapType;
+import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
@@ -739,5 +740,10 @@ public final class XMLItem extends XMLValue {
             }
         }
         return false;
+    }
+
+    @Override
+    public BType getType() {
+        return BTypes.typeElement;
     }
 }

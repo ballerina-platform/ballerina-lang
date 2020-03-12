@@ -165,15 +165,6 @@ public function toCodePointInt(Char ch) returns int = external;
 # if any member of `codePoints` is not a valid code point
 public function fromCodePointInts(int[] codePoints) returns string|error = external;
 
-# Constructs a single character string from a code point.
-# An int is a valid code point if it is in the range 0 to 0x10FFFF inclusive,
-# but not in the range 0xD800 or 0xDFFF inclusive.
-#
-# + codePoint - an int specifying a code point
-# + return - a single character string whose code point is `codePoint`; or an error
-# if `codePoint` is not a valid code point
-public function fromCodePointInt(int codePoint) returns Char|error = external;
-
 # Tests whether two strings are the same, ignoring the case of ASCII characters.
 # A character in the range a-z is treated the same as the corresponding character in the range A-Z.
 #
@@ -182,3 +173,12 @@ public function fromCodePointInt(int codePoint) returns Char|error = external;
 # + return - true if `str1` is the same as `str2`, treating upper-case and lower-case
 # ASCII letters as the same; false, otherwise
 public function equalsIgnoreCaseAscii(string str1, string str2) returns boolean = external;
+
+# Constructs a single character string from a code point.
+# An int is a valid code point if it is in the range 0 to 0x10FFFF inclusive,
+# but not in the range 0xD800 or 0xDFFF inclusive.
+#
+# + codePoint - an int specifying a code point
+# + return - a single character string whose code point is `codePoint`; or an error
+# if `codePoint` is not a valid code point
+public function fromCodePointInt(int codePoint) returns Char|error = external;
