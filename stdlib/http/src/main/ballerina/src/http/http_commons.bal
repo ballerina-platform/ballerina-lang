@@ -128,7 +128,7 @@ public const HTTP_URL = "http.url";
 public const HTTP_METHOD = "http.method";
 
 # Constant for telemetry tag http.status_code
-public const HTTP_STATUS_CODE = "http.status_code";
+public const HTTP_STATUS_CODE_GROUP = "http.status_code_group";
 
 # Constant for status code range suffix
 public const STATUS_CODE_RANGE_SUFFIX = "xx";
