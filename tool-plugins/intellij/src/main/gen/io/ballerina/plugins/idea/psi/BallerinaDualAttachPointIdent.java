@@ -24,6 +24,9 @@ import com.intellij.psi.PsiElement;
 public interface BallerinaDualAttachPointIdent extends PsiElement {
 
   @Nullable
+  PsiElement getTypeField();
+
+  @Nullable
   PsiElement getTypeParameter();
 
   @Nullable
@@ -31,6 +34,9 @@ public interface BallerinaDualAttachPointIdent extends PsiElement {
 
   @Nullable
   PsiElement getObject();
+
+  @Nullable
+  PsiElement getRecord();
 
   @Nullable
   PsiElement getResource();
@@ -42,12 +48,6 @@ public interface BallerinaDualAttachPointIdent extends PsiElement {
   PsiElement getService();
 
   @Nullable
-  PsiElement getStart();
-
-  @Nullable
   PsiElement getType();
-
-  @Nullable
-  PsiElement getWorker();
 
 }
