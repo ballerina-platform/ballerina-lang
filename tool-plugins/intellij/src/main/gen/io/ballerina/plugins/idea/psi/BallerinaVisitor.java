@@ -888,18 +888,6 @@ public class BallerinaVisitor extends PsiElementVisitor {
     visitStaticMatchLiteral(o);
   }
 
-  public void visitStreamConstructorBody(@NotNull BallerinaStreamConstructorBody o) {
-    visitPsiElement(o);
-  }
-
-  public void visitStreamConstructorExpr(@NotNull BallerinaStreamConstructorExpr o) {
-    visitPsiElement(o);
-  }
-
-  public void visitStreamConstructorExpression(@NotNull BallerinaStreamConstructorExpression o) {
-    visitExpression(o);
-  }
-
   public void visitStreamTypeName(@NotNull BallerinaStreamTypeName o) {
     visitPsiElement(o);
   }

@@ -34,6 +34,7 @@ CONST       : 'const' ;
 TYPEOF      : 'typeof';
 SOURCE      : 'source' ;
 ON          : 'on' ;
+FIELD       : 'field' ;
 
 TYPE_INT        : 'int' ;
 TYPE_BYTE       : 'byte' ;
