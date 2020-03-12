@@ -1,0 +1,5 @@
+// This example demonstrates how to use the MySQL client with complex data types such as
+// binary, blobs, and date/time fields.
+//Please note that, the MySQL database driver jar should be placed under `BALLERINA_HOME/bre/lib`.
+//The MySQL connector uses some database properties from MySQL version 8.0.x onwards, therefore it is
+//encouraged to use MySQL driver version greater than 8.0.x.

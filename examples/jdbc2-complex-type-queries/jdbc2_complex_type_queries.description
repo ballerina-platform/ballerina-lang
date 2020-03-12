@@ -1,0 +1,6 @@
+// This example demonstrates how to use the JDBC client with complex data types such as arrays,
+// binary, blobs, clob, and date/time fields.
+// Please note that, the relevant database driver jar
+//should be placed under `BALLERINA_HOME/bre/lib` folder. However this sample is based on
+//H2 database, and the H2 database driver jar is included by default into Ballerina distribution,
+//therefore it is not required to copy the driver jar for H2 database. 
