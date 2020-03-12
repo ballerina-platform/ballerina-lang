@@ -14,4 +14,4 @@
 // specific language governing permissions and limitations
 // under the License.
 
-public annotation Observable on function;
+public const annotation Observable on source function;
