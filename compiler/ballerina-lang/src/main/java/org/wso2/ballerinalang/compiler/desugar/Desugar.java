@@ -4147,6 +4147,7 @@ public class Desugar extends BLangNodeVisitor {
             result = rewriteExpr(conversionExpr.expr);
             return;
         }
+        conversionExpr.typeNode = rewrite(conversionExpr.typeNode, env);
         conversionExpr.expr = rewriteExpr(conversionExpr.expr);
         result = conversionExpr;
     }
