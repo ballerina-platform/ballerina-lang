@@ -1,0 +1,11 @@
+# To run this sample, navigate to the directory that contains the
+# `.bal` file, and execute the `ballerina run` command.
+$ ballerina run deprecation.bal
+usage of construct 'Foo' is deprecated
+usage of construct 'CONST1' is deprecated
+usage of construct 'DummyObject' is deprecated
+usage of construct 'DummyObject.doThatOnObject' is deprecated
+usage of construct 'DummyObject' is deprecated
+usage of construct 'Foo' is deprecated
+usage of construct 'CONST1' is deprecated
+usage of construct 'objectInitializer' is deprecated
