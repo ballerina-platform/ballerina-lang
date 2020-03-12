@@ -988,6 +988,8 @@ public class SymbolResolver extends BLangNodeVisitor {
             constrainedType = new BMapType(TypeTags.MAP, constraintType, null);
         } else if (type.tag == TypeTags.TYPEDESC) {
             constrainedType = new BTypedescType(constraintType, null);
+        } else if (type.tag == TypeTags.XML) {
+            constrainedType = symTable.xmlType;
         } else {
             return;
         }

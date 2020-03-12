@@ -57,6 +57,19 @@ type ItemType Element|Comment|ProcessingInstruction|Text;
 @typeParam
 type XmlType xml;
 
+# Returns an iterator over the xml items of `x`
+#
+# + x - xml item to iterate
+# + return - iterator object
+# A character item is represented by a string of length 1.
+# Other items are represented by xml singletons.
+public function iterator(xml<ItemType> x) returns abstract object {
+    public function next() returns record {| (xml|string) value; |}?;
+} {
+    XMLIterator xmlIterator = new(x);
+    return xmlIterator;
+}
+
 # Concatenates xml and string values.
 #
 # + xs - xml or string items to concatenate
