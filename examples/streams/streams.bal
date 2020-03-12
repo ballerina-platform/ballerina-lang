@@ -97,7 +97,7 @@ public function main() {
 
     io:println("Use foreach method to loop through the rest of the stream: ");
 
-    //If there is any error during the eiteration of the
+    //If there is any error during the iteration of the
     // studentList2 stream, the result stream will terminate and return the error.
     error? e = studentStream2.forEach(function (Student student) {
         io:println("Student ", student.firstName, " has a score of ", student.score);

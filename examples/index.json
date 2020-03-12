@@ -1100,7 +1100,7 @@
     {
         "title": "Streams",
         "column": 0,
-        "category": "Experimental features",
+        "category": "Preview features",
         "samples": [
             {
                 "name": "Streams",
