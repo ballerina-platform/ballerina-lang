@@ -131,8 +131,13 @@ public class BallerinaWorkspaceService implements WorkspaceService {
         if (!(params.getSettings() instanceof JsonObject)) {
             return;
         }
-        configHolder.updateConfig(GSON.fromJson(((JsonObject) params.getSettings()).get("ballerina"),
-                                                LSClientConfig.class));
+        if (((JsonObject) params.getSettings()).get("ballerina") != null) {
+            configHolder.updateConfig(GSON.fromJson(((JsonObject) params.getSettings()).get("ballerina"),
+                                                    LSClientConfig.class));
+        } else {
+            // To support old plugins versions
+            configHolder.updateConfig(GSON.fromJson(((JsonObject) params.getSettings()), LSClientConfig.class));
+        }
     }
 
     @Override
