@@ -154,7 +154,7 @@ public type HttpCache object {
     function remove(string key) {
         cache:Error? result = self.cache.invalidate(key);
         if (result is cache:Error) {
-            log:printError(function() returns string {
+            log:printDebug(function() returns string {
                 return "Failed to remove the key: " + key + " from the HTTP cache.";
             });
         }
@@ -178,7 +178,7 @@ function addEntry(cache:Cache cache, string key, Response inboundResponse) {
         Response[] cachedResponses = [inboundResponse];
         cache:Error? result = cache.put(key, cachedResponses);
         if (result is cache:Error) {
-            log:printError(function() returns string {
+            log:printDebug(function() returns string {
                 return "Failed to add cached response with the key: " + key + " to the HTTP cache.";
             });
         }
