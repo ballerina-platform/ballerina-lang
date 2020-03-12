@@ -216,7 +216,7 @@ public type Client client object {
     public remote function forward(@untainted string path, Request request) returns Response|ClientError {
         Response|ClientError response = self.httpClient->forward(path, request);
         if (response is Response) {
-            error? x = addObservabilityInformation(path, HTTP_FORWARD, response.statusCode);
+            error? x = addObservabilityInformation(path, request.method, response.statusCode);
             if (x is error) {
                 return getObservabilityError();
             }
@@ -277,7 +277,7 @@ public type Client client object {
     public remote function getPromisedResponse(PushPromise promise) returns Response|ClientError {
         Response|ClientError response = self.httpClient->getPromisedResponse(promise);
         if (response is Response) {
-            error? x = observe:addTagToSpan(HTTP_STATUS_CODE_GROUP, getStatusCodeRange(response.statusCode));
+            error? x = addObservabilityInformation(promise.path, promise.method, response.statusCode);
             if (x is error) {
                 return getObservabilityError();
             }
