@@ -21,6 +21,7 @@ package org.ballerinalang.stdlib.config;
 import org.ballerinalang.config.ConfigRegistry;
 import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.types.BArrayType;
+import org.ballerinalang.jvm.types.BMapType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
@@ -64,7 +65,7 @@ public class GetConfig {
 
     @SuppressWarnings("unchecked")
     private static MapValue buildMapValue(Map<String, Object> section) {
-        MapValue map = new MapValueImpl<String, Object>();
+        MapValue map = new MapValueImpl<String, Object>(new BMapType(BTypes.typeAnydata));
         for (Map.Entry<String, Object> entry : section.entrySet()) {
             map.put(entry.getKey(), getConvertedValue(entry.getValue()));
         }
