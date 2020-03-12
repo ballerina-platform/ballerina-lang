@@ -144,14 +144,6 @@ public class ExternalMethodGen {
             args.add(argRef);
         }
 
-//        int birFuncParamIndex = 0;
-//        while (birFuncParamIndex < birFuncParams.size()) {
-//            BIRNode.BIRFunctionParameter birFuncParam = (BIRFunctionParam) birFuncParams.get(birFuncParamIndex);
-//            BIROperand argRef = new BIROperand(variableDcl:birFuncParam, type:birFuncParam.type);
-//            args.add(argRef);
-//            birFuncParamIndex += 1;
-//        }
-
         String jMethodName = birFunc.name.value;
         beginBB.terminator = new JavaMethodCall(birFunc.pos, InstructionKind.PLATFORM, args, retRef,
                 extFuncWrapper.jClassName,

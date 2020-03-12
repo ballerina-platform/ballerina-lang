@@ -99,9 +99,9 @@
         DECIMAL_INTEGER_LITERAL = "regexp:\d+"
   ]
 
-    extends("(FunctionInvocation|SimpleVariable|MapArrayVariable|FieldVariable|XmlAttribVariable|Invocation|AnnotationAccess|TypeDescExprInvocation|StringFunctionInvocation|Group(FieldVariable|Invocation|MapArrayVariable|StringFunctionInvocation))Reference") =VariableReference
+    extends("(FunctionInvocation|SimpleVariable|MapArrayVariable|FieldVariable|XmlAttribVariable|XmlElementFilter|XmlStepExpression|Invocation|AnnotationAccess|TypeDescExprInvocation|StringFunctionInvocation|Group(FieldVariable|Invocation|MapArrayVariable|StringFunctionInvocation))Reference") =VariableReference
 
-    extends("((Simple|Record|Xml|StringTemplate)Literal|(ValueType|BuiltInReferenceType)Type|VariableReference|Type(Init|Conversion|Desc|Test)|Group|Wait|WorkerSendSync|WorkerReceive|FlushWorker|Checked|CheckPanic|TableLiteral|Elvis|ActionInvocation|IntegerRange|ArrowFunction|ServiceConstructor|ListConstructor|BinaryRefEqual|Trap|AnnotationAction|StreamConstructor|Query|AnonymousFunction)Expression") = Expression
+    extends("((Simple|Record|Xml|StringTemplate)Literal|(ValueType|BuiltInReferenceType)Type|VariableReference|Type(Init|Conversion|Desc|Test)|Group|Wait|WorkerSendSync|WorkerReceive|FlushWorker|Checked|CheckPanic|TableLiteral|Elvis|ActionInvocation|IntegerRange|ArrowFunction|ServiceConstructor|ListConstructor|BinaryRefEqual|Trap|AnnotationAction|StreamConstructor|Query|AnonymousFunction|Let)Expression") = Expression
     extends("(Unary|Binary|Ternary|Bitwise|BitwiseShift)Expression") = Expression
 
     extends("Binary(DivMulMod|AddSub|Compare|Equal|And|Or)Expression") = BinaryExpression
@@ -164,8 +164,6 @@ private TopLevelDefinitionRecover ::= !(MARKDOWN_DOCUMENTATION_LINE_START|PARAME
 ServiceDefinition ::= service identifier? on ExpressionList ServiceBody {pin=3}
 ServiceBody ::= LEFT_BRACE ObjectMethod* RIGHT_BRACE
 
-StreamConstructorBody ::= LEFT_BRACE Statement* RIGHT_BRACE
-
 // Pin to make sure BlockFunctionBody is identified correctly
 BlockFunctionBody ::= LEFT_BRACE (RIGHT_BRACE | Statement* WorkerWithStatementsBlock+ RIGHT_BRACE | Statement+ RIGHT_BRACE ) {pin=1}
 
@@ -204,9 +202,9 @@ ObjectBody ::=  (ObjectFieldDefinition | ObjectMethod | TypeReference)*
 
 TypeReference ::= MUL SimpleTypeName SEMICOLON {pin=1}
 
-ObjectFieldDefinition ::= AnnotationAttachment* (public | private)? TypeName identifier (ASSIGN Expression)? (COMMA | SEMICOLON) {pin=4}
+ObjectFieldDefinition ::= documentationString? AnnotationAttachment* (public | private)? TypeName identifier (ASSIGN Expression)? (COMMA | SEMICOLON) {pin=4}
 
-FieldDefinition ::= AnnotationAttachment* TypeName identifier QUESTION_MARK? (ASSIGN Expression)? SEMICOLON {pin=3}
+FieldDefinition ::= documentationString? AnnotationAttachment* TypeName identifier QUESTION_MARK? (ASSIGN Expression)? SEMICOLON {pin=3}
 
 RecordRestFieldDefinition ::= TypeName <<restDescriptorPredicate>> ELLIPSIS SEMICOLON
 
@@ -246,8 +244,7 @@ DualAttachPointIdent ::= object? type
                        | TYPE_PARAMETER
                        | return
                        | service
-                       | worker
-                       | start
+                       | (object | record)? TYPE_FIELD // cannot use "field" instead, since already used.
 
 SourceOnlyAttachPoint ::= source SourceOnlyAttachPointIdent {pin=1}
 
@@ -282,9 +279,9 @@ SimpleTypeName ::= NULL_LITERAL
                    | AnyTypeName
                    | AnyDataTypeName
                    | HandleTypeName
-                   | TypeDescTypeName
                    | ValueTypeName
                    | ReferenceTypeName
+                   | TypeDescTypeName
                    | NilLiteral
 
 AnyTypeName ::= any
@@ -325,11 +322,11 @@ BuiltInReferenceTypeName ::= MapTypeName
 
 MapTypeName ::= map LT TypeName GT {pin=1}
 FutureTypeName ::= future LT TypeName GT {pin=1}
-XmlTypeName ::= xml
+XmlTypeName ::= xml (LT TypeName GT)? {pin=1}
 JsonTypeName ::= json
 TableTypeName ::= table LT TypeName GT {pin=1}
 ErrorTypeName ::= error (LT TypeName (COMMA TypeName)? GT)? {pin=1}
-StreamTypeName ::= stream LT TypeName GT {pin=1}
+StreamTypeName ::= stream (LT TypeName (COMMA TypeName)? GT)? {pin=1}
 FunctionTypeName ::= function LEFT_PARENTHESIS (ParameterList | ParameterTypeNameList)? RIGHT_PARENTHESIS ReturnParameter? {pin=3}
 ServiceTypeName ::= service
 TypeDescReferenceTypeName ::=  typedesc LT TypeName GT {pin=2}
@@ -405,8 +402,6 @@ TableDataList ::=  TableData (COMMA TableData)* | ExpressionList
 TableData ::= LEFT_BRACE ExpressionList RIGHT_BRACE
 
 ListConstructorExpr ::= LEFT_BRACKET ExpressionList? RIGHT_BRACKET
-
-StreamConstructorExpr ::= stream StreamConstructorBody {pin=1}
 
 AssignmentStatement ::= VariableReference ASSIGN Expression SEMICOLON {pin=2}
 
@@ -570,6 +565,7 @@ VariableReference ::= MapArrayVariableReference
                       | InvocationReference
                       | FieldVariableReference
                       | XmlAttribVariableReference
+                      | XmlElementFilterReference
                       | FunctionInvocationReference
                       | SimpleVariableReference
                       | TypeDescExprInvocationReference
@@ -578,11 +574,13 @@ VariableReference ::= MapArrayVariableReference
                       | GroupInvocationReference
                       | GroupMapArrayVariableReference
                       | GroupStringFunctionInvocationReference
+                      | XmlStepExpressionReference
 
 InvocationReference ::= VariableReference Invocation
 MapArrayVariableReference ::= VariableReference Index
 FieldVariableReference ::= VariableReference Field
 XmlAttribVariableReference ::= VariableReference XmlAttrib
+XmlElementFilterReference ::= VariableReference xmlElementFilter
 FunctionInvocationReference ::= FunctionInvocation
 SimpleVariableReference ::=  NameReference
 TypeDescExprInvocationReference ::=  TypeDescExpression Invocation
@@ -592,11 +590,23 @@ GroupFieldVariableReference ::= LEFT_PARENTHESIS VariableReference RIGHT_PARENTH
 GroupInvocationReference::= LEFT_PARENTHESIS VariableReference RIGHT_PARENTHESIS Invocation
 GroupMapArrayVariableReference ::= LEFT_PARENTHESIS VariableReference RIGHT_PARENTHESIS Index
 GroupStringFunctionInvocationReference ::= LEFT_PARENTHESIS QUOTED_STRING_LITERAL RIGHT_PARENTHESIS Invocation
+XmlStepExpressionReference ::=  VariableReference XmlStepExpression
 
 // Todo - Adding pin will mess function invocation.
 Invocation ::= DOT AnyIdentifierName LEFT_PARENTHESIS InvocationArgList? RIGHT_PARENTHESIS
 Index ::= LEFT_BRACKET Expression RIGHT_BRACKET /*{pin=1}*/
-Field ::= (DOT | OPTIONAL_FIELD_ACCESS) (identifier | MUL) /*{pin=1}*/
+Field ::= (DOT | OPTIONAL_FIELD_ACCESS) ((identifier COLON)? identifier | MUL) /*{pin=1}*/
+
+xmlElementFilter ::= DOT XmlElementNames
+
+XmlStepExpression ::= DIV XmlElementNames Index?
+                    | DIV MUL
+                    | DIV MUL MUL DIV XmlElementNames
+
+XmlElementNames ::= LT XmlElementAccessFilter (PIPE XmlElementAccessFilter)* GT
+
+XmlElementAccessFilter ::= (identifier COLON)? (identifier | MUL)
+
 XmlAttrib ::= AT (LEFT_BRACKET Expression RIGHT_BRACKET)? {pin=1}
 
 // Todo - Need to pin?
@@ -654,7 +664,6 @@ Expression
     |   StringTemplateLiteralExpression
     |   XmlLiteralExpression
     |   TableLiteralExpression
-    |   StreamConstructorExpression
     |   RecordLiteralExpression
     |   GroupExpression
     |   TernaryExpression
@@ -687,6 +696,7 @@ Expression
     |   TypeDescExpression
     |   AnnotationActionExpression
     |   QueryExpression
+    |   LetExpression
     {recoverWhile=ExpressionRecover}
 
 TypeDescExpression ::= TypeName
@@ -696,7 +706,6 @@ BinaryRefEqualExpression ::= Expression (REF_EQUAL | REF_NOT_EQUAL) Expression
 ActionInvocationExpression::= ActionInvocation
 ElvisExpression::= Expression ELVIS Expression
 TableLiteralExpression ::= TableLiteral
-StreamConstructorExpression ::= StreamConstructorExpr
 QueryExpression ::= QueryExpr
 AnnotationActionExpression ::= Expression ANNOTATION_ACCESS NameReference
 private ExpressionRecover ::= !(NULL_LITERAL|int|string|float|boolean|byte|any|map|table|typeof|function|stream|'}'|';'|var|while|match|foreach|continue|break|fork|try|throw|return|abort|aborted|committed|fail|lock|xmlns|transaction|if|forever|object|trap|wait|flush|error|check|checkpanic)
@@ -733,9 +742,12 @@ BitwiseExpression ::= Expression (BITAND | PIPE | BITXOR) Expression
 BitwiseShiftExpression ::= Expression (ShiftExpression) Expression
 ServiceConstructorExpression ::= AnnotationAttachment* service ServiceBody {pin=2}
 TernaryExpression ::= Expression (QUESTION_MARK Expression COLON Expression) {pin(".*")=1}
+LetExpression ::= let LetVarDecl (COMMA LetVarDecl)* IN Expression {pin=1}
+
+LetVarDecl ::= AnnotationAttachment* (TypeName | var) BindingPattern ASSIGN Expression
 
 TypeInitExpression ::= initWithType | initWithoutType
-initWithType ::= new UserDefineTypeName LEFT_PARENTHESIS InvocationArgList? RIGHT_PARENTHESIS {pin=3}
+initWithType ::= new (UserDefineTypeName | StreamTypeName) LEFT_PARENTHESIS InvocationArgList? RIGHT_PARENTHESIS {pin=3}
 initWithoutType ::= new (LEFT_PARENTHESIS InvocationArgList? RIGHT_PARENTHESIS)?
 
 TrapExpression ::= trap Expression {pin=1}
@@ -748,8 +760,11 @@ SelectClause ::= SELECT Expression {pin=1}
 WhereClause ::= WHERE Expression{pin=1}
 FromClause ::= FROM (TypeName | var) BindingPattern IN Expression {pin=1}
 DoClause ::= DO LEFT_BRACE Statement* RIGHT_BRACE {pin=1}
+LetClause ::= let LetVarDecl (COMMA LetVarDecl)* {pin=1}
 
-QueryPipeline ::= FromClause (FromClause | WhereClause)*
+
+
+QueryPipeline ::= FromClause (FromClause | LetClause | WhereClause)*
 QueryExpr ::= QueryPipeline SelectClause
 QueryActionStatement ::= QueryPipeline DoClause
 
@@ -765,19 +780,20 @@ PackageReference ::= identifier COLON {
 
 ReturnParameter ::= returns AnnotationAttachment* TypeName {pin=1}
 
-ParameterTypeNameList ::= RestParameterTypeName | ParameterTypeName (COMMA ParameterTypeName)* (COMMA RestParameterTypeName)?
-                              |
-ParameterTypeName ::= AnnotationAttachment* TypeName
+ParameterTypeNameList ::= ParameterTypeName (COMMA ParameterTypeName)*
+
+// Merged rules "ParameterTypeName" and "RestParameterTypeName" to fix capturing rest parameters properly.
+// Todo - Alternatives?
+ParameterTypeName ::= AnnotationAttachment* TypeName ELLIPSIS?
 
 ParameterList ::=  (Parameter (COMMA Parameter)* (COMMA RestParameter)?) | RestParameter
 
-Parameter ::= AnnotationAttachment* public? TypeName identifier
+Parameter ::= AnnotationAttachment* public? TypeName identifier {pin=4}
 
 DefaultableParameter ::= Parameter ASSIGN Expression
 
-RestParameter ::= AnnotationAttachment* TypeName ELLIPSIS identifier {pin=3}
-
-RestParameterTypeName ::= TypeName <<restDescriptorPredicate>> ELLIPSIS
+// do not pin on ELLIPSIS as it will mess up with the parameter type name rules
+RestParameter ::= AnnotationAttachment* TypeName ELLIPSIS identifier {pin=4}
 
 FormalParameterList ::= (DefaultableParameter | Parameter) (COMMA (DefaultableParameter | Parameter))* (COMMA RestParameter)? | RestParameter {pin=1 recoverWhile=FormalParameterListRecover}
 

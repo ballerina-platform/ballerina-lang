@@ -25,6 +25,8 @@ package org.ballerinalang.jvm.types;
 @SuppressWarnings("unchecked")
 public class BIntegerType extends BType {
 
+    private final int tag;
+
     /**
      * Create a {@code BIntegerType} which represents the boolean type.
      *
@@ -32,6 +34,12 @@ public class BIntegerType extends BType {
      */
     BIntegerType(String typeName, BPackage pkg) {
         super(typeName, pkg, Long.class);
+        tag = TypeTags.INT_TAG;
+    }
+
+    protected BIntegerType(String typeName, BPackage pkg, int tag) {
+        super(typeName, pkg, Long.class);
+        this.tag = tag;
     }
 
     @Override
@@ -46,6 +54,6 @@ public class BIntegerType extends BType {
 
     @Override
     public int getTag() {
-        return TypeTags.INT_TAG;
+        return tag;
     }
 }

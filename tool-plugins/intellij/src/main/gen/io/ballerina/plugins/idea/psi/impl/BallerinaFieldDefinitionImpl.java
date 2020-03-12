@@ -62,6 +62,12 @@ public class BallerinaFieldDefinitionImpl extends ASTWrapperPsiElement implement
 
   @Override
   @Nullable
+  public BallerinaDocumentationString getDocumentationString() {
+    return findChildByClass(BallerinaDocumentationString.class);
+  }
+
+  @Override
+  @Nullable
   public PsiElement getAssign() {
     return findChildByType(ASSIGN);
   }
@@ -79,9 +85,9 @@ public class BallerinaFieldDefinitionImpl extends ASTWrapperPsiElement implement
   }
 
   @Override
-  @NotNull
+  @Nullable
   public PsiElement getIdentifier() {
-    return findNotNullChildByType(IDENTIFIER);
+    return findChildByType(IDENTIFIER);
   }
 
 }

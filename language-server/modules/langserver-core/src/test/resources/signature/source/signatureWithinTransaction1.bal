@@ -1,4 +1,4 @@
-import ballerina/io;
+import ballerina/http;
 
 function initiateNestedTransactionInRemote(string nestingMethod) returns string {
    http:Client remoteEp = new("http://localhost:8889");
