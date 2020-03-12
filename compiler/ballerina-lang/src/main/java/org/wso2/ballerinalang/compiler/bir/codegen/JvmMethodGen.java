@@ -2090,7 +2090,7 @@ public class JvmMethodGen {
         basicBlocks.add(typeOwnerCreateBB);
 
         nextBB.terminator = new Call(null, InstructionKind.CALL, false, modID, new Name(CURRENT_MODULE_INIT),
-                new ArrayList<>(), null, typeOwnerCreateBB);
+                new ArrayList<>(), null, typeOwnerCreateBB, Collections.emptyList(), Collections.emptySet());
 
         if (func.basicBlocks.size() == 0) {
             typeOwnerCreateBB.terminator = new Return(func.pos);
@@ -2172,11 +2172,12 @@ public class JvmMethodGen {
         // TODO remove once lang.annotation is fixed
         if (modId.orgName.value.equals(BALLERINA) && modId.name.value.equals(BUILT_IN_PACKAGE_NAME)) {
             lastBB.terminator = new Call(null, InstructionKind.CALL, false, modId,
-                    new Name(initFuncName), Collections.emptyList(), null, nextBB);
+                    new Name(initFuncName), Collections.emptyList(), null, nextBB, Collections.emptyList(),
+                    Collections.emptySet());
             return nextBB;
         }
         lastBB.terminator = new Call(null, InstructionKind.CALL, false, modId, new Name(initFuncName),
-                Collections.emptyList(), retVar, nextBB);
+                Collections.emptyList(), retVar, nextBB, Collections.emptyList(), Collections.emptySet());
 
         TypeTest typeTest = new TypeTest(null, symbolTable.errorType, boolRef, retVar);
         nextBB.instructions.add(typeTest);
