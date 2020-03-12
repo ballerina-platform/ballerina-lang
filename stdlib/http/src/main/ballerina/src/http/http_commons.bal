@@ -17,6 +17,7 @@
 import ballerinax/java;
 import ballerina/mime;
 import ballerina/io;
+import ballerina/observe;
 
 # Represents HTTP/1.0 protocol
 const string HTTP_1_0 = "1.0";
@@ -458,6 +459,12 @@ function createErrorForNoPayload(mime:Error err) returns GenericClientError {
 
 function getStatusCodeRange(int statusCode) returns string {
     return statusCode.toString().substring(0,1) + STATUS_CODE_RANGE_SUFFIX;
+}
+
+function addObservabilityInformation(string path, string method, int statusCode) returns error? {
+    check observe:addTagToSpan(HTTP_URL, path);
+    check observe:addTagToSpan(HTTP_METHOD, method);
+    check observe:addTagToSpan(HTTP_STATUS_CODE_GROUP, getStatusCodeRange(statusCode));
 }
 
 //Resolve a given path against a given URI.
