@@ -42,18 +42,4 @@ public function main() {
               degree: degreeName
        };
     io:println(reportList);
-
-    io:println("\nIterating record list and map it another record type:");
-    FullName[] nameList = [];
-    //Like query-expression, query-action can be used with any iterable value.
-    //Query action has a `do` clause instead of the `select` clause.
-    //The result of the query-action is the termination value of the iterator.
-    from var student in studentList
-    //The block inside the `do` clause is executed for each iteration.
-      do {
-            FullName fullName = {firstName: student.firstName, lastName: student.lastName};
-            nameList[nameList.length()] = fullName;
-      }
-
-    io:println(nameList);
 }

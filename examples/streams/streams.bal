@@ -52,12 +52,12 @@ public function main() {
             }, 0.0);
             return avg;
 
-     io:println(avg);
+     io:println("Average: ", avg);
 
     //A stream can be iterated over at most once. Hence, creating another stream from the record list
     Student[] studentList2 = [s1, s2, s3];
 
-     io:println("Call next method manually and get the next iteration value: ");
+     io:println("Calls next method manually and get the next iteration value: ");
     record {|Student value;|}? student1 = studentList2.next();
 
     io:println(filteredStudent);

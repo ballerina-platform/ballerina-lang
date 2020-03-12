@@ -1,4 +1,4 @@
-//A `query expression` is just a list comprehension which can be used with a value iterable with any error type.
+//A `query expression` is a list comprehension which can be used with a value iterable with any error type.
 //It consists of four kinds of clauses: `from`, `let`, `where` and `select`.
 //The first clause must be a `from` clause and the last clause must be a `select`.
 //The result of the query expression is a list.

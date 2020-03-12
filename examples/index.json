@@ -1100,19 +1100,27 @@
     {
         "title": "Streams",
         "column": 0,
-        "category": "Preview features",
-        "samples": [{
-            "name": "Streams",
-            "url": "streams"
-        }]
+        "category": "Experimental features",
+        "samples": [
+            {
+                "name": "Streams",
+                "url": "streams"
+            }
+        ]
     },
     {
         "title": "Query",
         "column": 0,
         "category": "Language concepts",
-        "samples": [{
-            "name": "Query",
-            "url": "query"
-        }]
+        "samples": [
+            {
+                "name": "Query Expression",
+                "url": "query-expression"
+            },
+            {
+                "name": "Query Action",
+                "url": "query-action"
+            }
+        ]
     }
 ]
