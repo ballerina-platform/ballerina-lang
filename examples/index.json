@@ -1097,12 +1097,12 @@
                 "url": "jdbc2-query-operation"
             },
             {
-                "name": "JDBC DDL and DML Operations",
-                "url": "jdbc2-execute-operation"
+                "name": "JDBC Query with Complex Types",
+                "url": "jdbc2-complex-type-queries"
             },
             {
-                "name": "JDBC Query with Complex Datatypes",
-                "url": "jdbc2-complex-type-queries"
+                "name": "JDBC DDL and DML Operations",
+                "url": "jdbc2-execute-operation"
             }
         ]
     },
@@ -1120,12 +1120,12 @@
                 "url": "mysql-query-operation"
             },
             {
-                "name": "MySQL DDL and DML Operations",
-                "url": "mysql-execute-operation"
+                "name": "MySQL Query with Complex Types",
+                "url": "mysql-complex-type-queries"
             },
             {
-                "name": "MySQL Query with Complex Datatypes",
-                "url": "mysql-complex-type-queries"
+                "name": "MySQL DDL and DML Operations",
+                "url": "mysql-execute-operation"
             }
         ]
     }
