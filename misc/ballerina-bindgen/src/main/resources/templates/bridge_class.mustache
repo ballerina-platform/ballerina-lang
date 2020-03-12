@@ -13,10 +13,17 @@ public type {{shortClassName}} object {
     }{{#methodList}}{{#isInstance}}
 
     public function {{#reservedWord}}{{#controlChars methodName ""}}{{/controlChars}}{{/reservedWord}}{{#noReservedWord}}{{methodName}}{{/noReservedWord}}({{#parameters}}{{#if isPrimitiveArray}}{{#getType type ""}}{{/getType}}{{else}}{{shortTypeName}}{{/if}} {{fieldName}}{{#notLast}}, {{/notLast}}{{/parameters}}) {{#hasReturn}}returns {{returnType}}{{#if isStringReturn}}?{{/if}}{{#exceptionTypes}}|error{{/exceptionTypes}} {{/hasReturn}}{{#noReturn}}{{#if exceptionTypes}}returns error? {{else if hasPrimitiveParam}}returns error? {{/if}}{{/noReturn}}{
-    {{#if objectReturn}}
-        {{returnType}} obj = new({{#exceptionTypes}}check {{/exceptionTypes}}{{#if isStringReturn}}java:toString({{else if isArrayReturn}}<{{returnType}}>getArrayFromHandle({{/if}}{{prefix}}_{{methodName}}(self.jObj{{#noParams}}, {{/noParams}}{{#parameters}}{{#if isPrimitiveArray}}check getHandleFromArray({{fieldName}}, "{{componentType}}"){{#notLast}}, {{/notLast}}{{else if isString}}java:fromString({{fieldName}}){{#notLast}}, {{/notLast}}{{else}}{{fieldName}}{{#isObj}}.jObj{{/isObj}}{{#notLast}}, {{/notLast}}{{/if}}{{/parameters}}){{#if isStringReturn}}){{else if isArrayReturn}}){{/if}});
+    {{#if objectReturn}}{{#if isArrayReturn}}
+        {{returnType}} obj = [];
+        handle[] handleObj = <handle[]>getArrayFromHandle({{#exceptionTypes}}check {{/exceptionTypes}}{{prefix}}_{{methodName}}(self.jObj{{#noParams}}, {{/noParams}}{{#parameters}}{{#if isPrimitiveArray}}check getHandleFromArray({{fieldName}}, "{{componentType}}"){{#notLast}}, {{/notLast}}{{else if isString}}java:fromString({{fieldName}}){{#notLast}}, {{/notLast}}{{else}}{{fieldName}}{{#isObj}}.jObj{{/isObj}}{{#notLast}}, {{/notLast}}{{/if}}{{/parameters}}));
+        int count = handleObj.length();
+        foreach int i in 0 ... count-1 {
+            obj[i].jObj = handleObj[i];
+        }
         return obj;{{else}}
-        {{#hasReturn}}return {{/hasReturn}}{{#noReturn}}_ = {{/noReturn}}{{#exceptionTypes}}check {{/exceptionTypes}}{{#if isStringReturn}}java:toString({{else if isArrayReturn}}<{{returnType}}>getArrayFromHandle({{/if}}{{prefix}}_{{methodName}}(self.jObj{{#noParams}}, {{/noParams}}{{#parameters}}{{#if isPrimitiveArray}}check getHandleFromArray({{fieldName}}, "{{componentType}}"){{#notLast}}, {{/notLast}}{{else if isString}}java:fromString({{fieldName}}){{#notLast}}, {{/notLast}}{{else}}{{fieldName}}{{#isObj}}.jObj{{/isObj}}{{#notLast}}, {{/notLast}}{{/if}}{{/parameters}}){{#if isStringReturn}}){{else if isArrayReturn}}){{/if}};{{/if}}
+        {{returnType}} obj = new({{#exceptionTypes}}check {{/exceptionTypes}}{{#if isStringReturn}}java:toString({{/if}}{{prefix}}_{{methodName}}(self.jObj{{#noParams}}, {{/noParams}}{{#parameters}}{{#if isPrimitiveArray}}check getHandleFromArray({{fieldName}}, "{{componentType}}"){{#notLast}}, {{/notLast}}{{else if isString}}java:fromString({{fieldName}}){{#notLast}}, {{/notLast}}{{else}}{{fieldName}}{{#isObj}}.jObj{{/isObj}}{{#notLast}}, {{/notLast}}{{/if}}{{/parameters}}){{#if isStringReturn}}){{/if}});
+        return obj;{{/if}}{{else}}
+        {{#hasReturn}}return {{/hasReturn}}{{#noReturn}}_ = {{/noReturn}}{{#if isStringReturn}}java:toString({{else if isArrayReturn}}<{{returnType}}>getArrayFromHandle({{/if}}{{#exceptionTypes}}check {{/exceptionTypes}}{{prefix}}_{{methodName}}(self.jObj{{#noParams}}, {{/noParams}}{{#parameters}}{{#if isPrimitiveArray}}check getHandleFromArray({{fieldName}}, "{{componentType}}"){{#notLast}}, {{/notLast}}{{else if isString}}java:fromString({{fieldName}}){{#notLast}}, {{/notLast}}{{else}}{{fieldName}}{{#isObj}}.jObj{{/isObj}}{{#notLast}}, {{/notLast}}{{/if}}{{/parameters}}){{#if isStringReturn}}){{else if isArrayReturn}}){{/if}};{{/if}}
     }{{/isInstance}}{{/methodList}}
 };
 {{#initFunctionList}}

@@ -33,12 +33,13 @@ import java.util.Set;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.ARRAY_UTILS_FILE_NAME;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.ARRAY_UTILS_TEMPLATE_NAME;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.BALLERINA_BINDINGS_DIR;
-import static org.ballerinalang.bindgen.utils.BindgenConstants.BAL_FILE_EXTENSION;
+import static org.ballerinalang.bindgen.utils.BindgenConstants.BAL_EXTENSION;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.BBGEN_CLASS_TEMPLATE_NAME;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.CONSTANTS_FILE_NAME;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.CONSTANTS_TEMPLATE_NAME;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.DEFAULT_TEMPLATE_DIR;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.DEPENDENCIES_DIR_NAME;
+import static org.ballerinalang.bindgen.utils.BindgenConstants.EMPTY_OBJECT_TEMPLATE_NAME;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.JOBJECT_FILE_NAME;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.JOBJECT_TEMPLATE_NAME;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.USER_DIR;
@@ -66,6 +67,7 @@ public class BindingsGenerator {
     public static Set<String> allClasses = new HashSet<>();
     public static Set<String> classListForLooping = new HashSet<>();
     public static Set<String> allJavaClasses = new HashSet<>();
+    public static Set<String> failedClassGens = new HashSet<>();
 
     void generateJavaBindings() throws BindgenException {
 
@@ -106,6 +108,15 @@ public class BindingsGenerator {
             Set<String> names = new HashSet<>(allClasses);
             writeOutputFile(names, DEFAULT_TEMPLATE_DIR, CONSTANTS_TEMPLATE_NAME,
                     Paths.get(modulePath.toString() + UTILS_DIR, CONSTANTS_FILE_NAME).toString());
+            if (failedClassGens != null) {
+                errStream.println("\nBindings for the following classes could not be generated.");
+                for (String className : failedClassGens) {
+                    String simpleClassName = className.substring(className.lastIndexOf('.') + 1);
+                    outStream.println("\t" + className);
+                    writeOutputFile(simpleClassName, DEFAULT_TEMPLATE_DIR, EMPTY_OBJECT_TEMPLATE_NAME,
+                            Paths.get(modulePath.toString(), simpleClassName + BAL_EXTENSION).toString());
+                }
+            }
             if (classLoader instanceof URLClassLoader) {
                 try {
                     ((URLClassLoader) classLoader).close();
@@ -142,13 +153,13 @@ public class BindingsGenerator {
                         JClass jClass = new JClass(classInstance);
                         String outputFile = Paths.get(modulePath.toString(), jClass.packageName).toString();
                         createDirectory(outputFile);
-                        String filePath = Paths.get(outputFile, jClass.shortClassName + BAL_FILE_EXTENSION).toString();
+                        String filePath = Paths.get(outputFile, jClass.shortClassName + BAL_EXTENSION).toString();
                         writeOutputFile(jClass, DEFAULT_TEMPLATE_DIR, BBGEN_CLASS_TEMPLATE_NAME, filePath);
                         outStream.println("\t" + c);
                     }
                 }
             } catch (ClassNotFoundException | NoClassDefFoundError e) {
-                errStream.println("Bindings for class " + c + " could not be created.");
+                failedClassGens.add(c);
             } catch (BindgenException e) {
                 throw new BindgenException("Error while generating Ballerina bridge code: " + e);
             }

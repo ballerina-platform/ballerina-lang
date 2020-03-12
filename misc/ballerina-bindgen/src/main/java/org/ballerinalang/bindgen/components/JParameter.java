@@ -43,50 +43,50 @@ public class JParameter {
 
     Boolean isPrimitiveArray = false;
 
-    JParameter(Parameter p) {
+    JParameter(Parameter parameter) {
 
-        Class paramType = p.getType();
-        if (paramType.getName().equals("java.lang.String")) {
-            this.type = paramType.getName();
+        Class parameterClass = parameter.getType();
+        if (parameterClass.getName().equals("java.lang.String")) {
+            this.type = parameterClass.getName();
             this.isString = true;
             this.externalType = "handle";
             this.shortTypeName = "string";
-        } else if (paramType.getName().equals("[Ljava.lang.String;")) {
-            this.type = paramType.getName();
+        } else if (parameterClass.getName().equals("[Ljava.lang.String;")) {
+            this.type = parameterClass.getName();
             this.isString = true;
             this.isStringArray = true;
             this.externalType = HANDLE;
             this.shortTypeName = BALLERINA_STRING_ARRAY;
         } else {
-            this.type = paramType.getName();
-            if (paramType.getClassLoader() == "".getClass().getClassLoader() && !paramType.isPrimitive()) {
-                if (paramType.isArray()) {
-                    Class component = p.getType().getComponentType();
+            this.type = parameterClass.getName();
+            if (!parameterClass.isPrimitive()) {
+                if (parameterClass.isArray()) {
+                    Class component = parameterClass.getComponentType();
                     this.componentType = component.getTypeName();
-                    if (!paramType.getComponentType().isPrimitive()) {
-                        if (!paramType.getComponentType().isEnum() && !allJavaClasses.contains(paramType
+                    if (!parameterClass.getComponentType().isPrimitive()) {
+                        if (!parameterClass.getComponentType().isEnum() && !allJavaClasses.contains(parameterClass
                                 .getComponentType().getName())) {
-                            classListForLooping.add(paramType.getComponentType().getName());
+                            classListForLooping.add(parameterClass.getComponentType().getName());
                         }
                     } else {
                         this.isPrimitiveArray = true;
                     }
 
                 } else {
-                    if (!paramType.isEnum() && !allJavaClasses.contains(paramType.getCanonicalName())) {
-                        classListForLooping.add(paramType.getCanonicalName());
+                    if (!parameterClass.isEnum() && !allJavaClasses.contains(parameterClass.getCanonicalName())) {
+                        classListForLooping.add(parameterClass.getCanonicalName());
                     }
                 }
             }
-            this.externalType = balType(p.getType().getSimpleName());
-            if (p.getType().isPrimitive()) {
-                this.shortTypeName = balType(p.getType().getSimpleName());
+            this.externalType = balType(parameterClass.getSimpleName());
+            if (parameterClass.isPrimitive()) {
+                this.shortTypeName = balType(parameterClass.getSimpleName());
             } else {
                 this.isObj = true;
-                this.shortTypeName = p.getType().getSimpleName();
+                this.shortTypeName = parameterClass.getSimpleName();
             }
         }
-        this.fieldName = p.getName();
+        this.fieldName = parameter.getName();
     }
 
     void setLastParam() {
