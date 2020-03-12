@@ -34,7 +34,7 @@ public class DeprecationAnnotationTest {
     @Test(description = "Test the deprecation annotation")
     public void testDeprecationAnnotation() {
         CompileResult compileResult = BCompileUtil.compile("test-src/annotations/deprecation_annotation.bal");
-        Assert.assertEquals(compileResult.getWarnCount(), 6);
+        Assert.assertEquals(compileResult.getWarnCount(), 8);
 
         int i = 0;
         BAssertUtil.validateWarning(compileResult, i++, "usage of construct 'Foo' is deprecated", 24, 5);
@@ -42,6 +42,8 @@ public class DeprecationAnnotationTest {
         BAssertUtil.validateWarning(compileResult, i++, "usage of construct 'DummyObject' is deprecated", 42, 5);
         BAssertUtil.validateWarning(compileResult, i++, "usage of construct 'DummyObject' is deprecated", 45, 23);
         BAssertUtil.validateWarning(compileResult, i++, "usage of construct 'Foo' is deprecated", 45, 40);
-        BAssertUtil.validateWarning(compileResult, i, "usage of construct 'CONST1' is deprecated", 45, 62);
+        BAssertUtil.validateWarning(compileResult, i++, "usage of construct 'CONST1' is deprecated", 45, 62);
+        BAssertUtil.validateWarning(compileResult, i++, "usage of construct 'func1' is deprecated", 46, 5);
+        BAssertUtil.validateWarning(compileResult, i, "usage of construct 'func3' is deprecated", 54, 5);
     }
 }
