@@ -157,6 +157,9 @@ public class Generator {
             Type detailType = errorType.detailType != null ? Type.fromTypeNode(errorType.detailType, module.id) : null;
             module.errors.add(new Error(errorType.type.tsymbol.name.value, description(typeDefinition), detailType));
             added = true;
+        } else if (kind == NodeKind.FUNCTION_TYPE) {
+            // TODO: handle function type nodes
+            added = true;
         }
         if (!added) {
             throw new UnsupportedOperationException("Type def not supported for " + kind);

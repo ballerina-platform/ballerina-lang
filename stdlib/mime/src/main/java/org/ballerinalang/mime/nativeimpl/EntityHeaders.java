@@ -56,7 +56,7 @@ public class EntityHeaders {
         if (httpHeaders == null) {
             throw BallerinaErrors.createError(HEADER_NOT_FOUND, "Http header does not exist");
         }
-        if (httpHeaders.get(headerName) != null && !httpHeaders.get(headerName).isEmpty()) {
+        if (httpHeaders.get(headerName) != null) {
             return httpHeaders.get(headerName);
         } else {
             throw BallerinaErrors.createError(HEADER_NOT_FOUND, "Http header does not exist");

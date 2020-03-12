@@ -6,6 +6,208 @@
   "source": "function/source/aliasedModuleContentSuggestion1.bal",
   "items": [
     {
+      "label": "MAX_VALUE",
+      "kind": "Variable",
+      "detail": "int",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "Maximum value of type `int`."
+        }
+      },
+      "sortText": "130",
+      "insertText": "MAX_VALUE",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "MIN_VALUE",
+      "kind": "Variable",
+      "detail": "int",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "Minimum value of type `int`."
+        }
+      },
+      "sortText": "130",
+      "insertText": "MIN_VALUE",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "SIGNED32_MAX_VALUE",
+      "kind": "Variable",
+      "detail": "int",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "Maximum value of type `Signed32`."
+        }
+      },
+      "sortText": "130",
+      "insertText": "SIGNED32_MAX_VALUE",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "SIGNED32_MIN_VALUE",
+      "kind": "Variable",
+      "detail": "int",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "Minimum value of type `Signed32`."
+        }
+      },
+      "sortText": "130",
+      "insertText": "SIGNED32_MIN_VALUE",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "SIGNED16_MAX_VALUE",
+      "kind": "Variable",
+      "detail": "int",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "Maximum value of type `Signed16`."
+        }
+      },
+      "sortText": "130",
+      "insertText": "SIGNED16_MAX_VALUE",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "SIGNED16_MIN_VALUE",
+      "kind": "Variable",
+      "detail": "int",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "Minimum value of type `Signed16`."
+        }
+      },
+      "sortText": "130",
+      "insertText": "SIGNED16_MIN_VALUE",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "SIGNED8_MAX_VALUE",
+      "kind": "Variable",
+      "detail": "int",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "Maximum value of type `Signed8`."
+        }
+      },
+      "sortText": "130",
+      "insertText": "SIGNED8_MAX_VALUE",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "SIGNED8_MIN_VALUE",
+      "kind": "Variable",
+      "detail": "int",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "Minimum value of type `Signed8`."
+        }
+      },
+      "sortText": "130",
+      "insertText": "SIGNED8_MIN_VALUE",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "UNSIGNED32_MAX_VALUE",
+      "kind": "Variable",
+      "detail": "int",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "Maximum value of type `Unsigned32`."
+        }
+      },
+      "sortText": "130",
+      "insertText": "UNSIGNED32_MAX_VALUE",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "UNSIGNED16_MAX_VALUE",
+      "kind": "Variable",
+      "detail": "int",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "Maximum value of type `Unsigned16`."
+        }
+      },
+      "sortText": "130",
+      "insertText": "UNSIGNED16_MAX_VALUE",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "UNSIGNED8_MAX_VALUE",
+      "kind": "Variable",
+      "detail": "int",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "Maximum value of type `Unsigned8`."
+        }
+      },
+      "sortText": "130",
+      "insertText": "UNSIGNED8_MAX_VALUE",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Signed32",
+      "kind": "Unit",
+      "detail": "Int",
+      "sortText": "230",
+      "insertText": "Signed32",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Signed16",
+      "kind": "Unit",
+      "detail": "Int",
+      "sortText": "230",
+      "insertText": "Signed16",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Signed8",
+      "kind": "Unit",
+      "detail": "Int",
+      "sortText": "230",
+      "insertText": "Signed8",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Unsigned32",
+      "kind": "Unit",
+      "detail": "Int",
+      "sortText": "230",
+      "insertText": "Unsigned32",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Unsigned16",
+      "kind": "Unit",
+      "detail": "Int",
+      "sortText": "230",
+      "insertText": "Unsigned16",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Unsigned8",
+      "kind": "Unit",
+      "detail": "Int",
+      "sortText": "230",
+      "insertText": "Unsigned8",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "abs(int n)(int)",
       "kind": "Function",
       "detail": "Function",

@@ -137,8 +137,8 @@ function xmlTest() returns [int, int, xml] {
         </p:address>
         <q:ID>1131313</q:ID>
     </p:person>`;
-    int nodeCount = xdata/*.length();
-    int elementCount = xdata/*.elements().length();
+    int nodeCount = (xdata/*).length();
+    int elementCount = (xdata/*).elements().length();
 
     index = -1;
     xml m = xdata.getChildren().elements()[1].getChildren().elements()

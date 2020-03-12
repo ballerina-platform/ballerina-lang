@@ -4,7 +4,7 @@ import ballerina/lang.'string as strings;
 import ballerina/log;
 
 // `bootstrapServers` is the list of remote server endpoints of the Kafka brokers.
-kafka:ConsumerConfig consumerConfigs = {
+kafka:ConsumerConfiguration consumerConfigs = {
     bootstrapServers: "localhost:9092",
     groupId: "group-id",
     topics: ["test-kafka-topic"],

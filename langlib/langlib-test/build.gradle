@@ -26,20 +26,6 @@ configurations {
     balRuntime
 }
 
-// Copied from balNativeLibProject, may have to update as required.
-if (project.name != "ballerina-jvm" && project.name != "ballerina-backend-jvm" && project.name != "ballerina-bir") {
-
-    dependencies {
-        testRuntime project(':ballerina-jvm')
-        testRuntime project(':ballerina-bir')
-        testRuntime project(':ballerina-backend-jvm')
-
-        testRuntime project(path: ':ballerina-backend-jvm', configuration: 'birJar')
-        testRuntime project(path: ':ballerina-jvm', configuration: 'birJar')
-        testRuntime project(path: ':ballerina-bir', configuration: 'birJar')
-    }
-}
-
 dependencies {
     implementation project(':ballerina-core')
     implementation project(':ballerina-lang')

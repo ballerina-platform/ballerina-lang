@@ -43,9 +43,15 @@ public class BallerinaStreamTypeNameImpl extends ASTWrapperPsiElement implements
   }
 
   @Override
+  @NotNull
+  public List<BallerinaTypeName> getTypeNameList() {
+    return PsiTreeUtil.getChildrenOfTypeAsList(this, BallerinaTypeName.class);
+  }
+
+  @Override
   @Nullable
-  public BallerinaTypeName getTypeName() {
-    return findChildByClass(BallerinaTypeName.class);
+  public PsiElement getComma() {
+    return findChildByType(COMMA);
   }
 
   @Override

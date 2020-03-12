@@ -32,18 +32,17 @@ public type InboundOAuth2Provider object {
 
     public http:Client introspectionClient;
     public string? tokenTypeHint;
-    cache:Cache? inboundOAuth2Cache = ();
-    int? defaultTokenExpTimeInSeconds = ();
+    cache:Cache? inboundOAuth2Cache;
+    int defaultTokenExpTimeInSeconds;
 
+    # Provides authentication based on the provided introspection configuration.
+    #
+    # + config - OAuth2 introspection configurations
     public function __init(IntrospectionServerConfig config) {
         self.tokenTypeHint = config?.tokenTypeHint;
         self.introspectionClient = new(config.url, config.clientConfig);
-        var oauth2CacheConfig = config?.oauth2CacheConfig;
-        if (oauth2CacheConfig is InboundOAuth2CacheConfig) {
-            self.inboundOAuth2Cache = new(oauth2CacheConfig.capacity, oauth2CacheConfig.expTimeInSeconds * 1000,
-                                          oauth2CacheConfig.evictionFactor);
-            self.defaultTokenExpTimeInSeconds = oauth2CacheConfig.defaultTokenExpTimeInSeconds;
-        }
+        self.inboundOAuth2Cache = config?.oauth2Cache;
+        self.defaultTokenExpTimeInSeconds = config.defaultTokenExpTimeInSeconds;
     }
 
     # Attempts to authenticate with credential.
@@ -55,9 +54,9 @@ public type InboundOAuth2Provider object {
             return false;
         }
 
-        var oauth2Cache = self.inboundOAuth2Cache;
+        cache:Cache? oauth2Cache = self.inboundOAuth2Cache;
         if (oauth2Cache is cache:Cache && oauth2Cache.hasKey(credential)) {
-            var oauth2CacheEntry = authenticateFromCache(oauth2Cache, credential);
+            InboundOAuth2CacheEntry? oauth2CacheEntry = authenticateFromCache(oauth2Cache, credential);
             if (oauth2CacheEntry is InboundOAuth2CacheEntry) {
                 auth:setAuthenticationContext("oauth2", credential);
                 auth:setPrincipal(oauth2CacheEntry.username, oauth2CacheEntry.username,
@@ -70,12 +69,12 @@ public type InboundOAuth2Provider object {
         // Refer: https://tools.ietf.org/html/rfc7662#section-2.1
         http:Request req = new;
         string textPayload = "token=" + credential;
-        var tokenTypeHint = self.tokenTypeHint;
+        string? tokenTypeHint = self.tokenTypeHint;
         if (tokenTypeHint is string) {
             textPayload += "&token_type_hint=" + tokenTypeHint;
         }
         req.setTextPayload(textPayload, mime:APPLICATION_FORM_URLENCODED);
-        var response = self.introspectionClient->post("", req);
+        http:Response|http:ClientError response = self.introspectionClient->post("", req);
         if (response is http:Response) {
             json|error result = response.getJsonPayload();
             if (result is error) {
@@ -87,7 +86,7 @@ public type InboundOAuth2Provider object {
             if (active) {
                 string? username = ();
                 string? scopes = ();
-                int? exp = ();
+                int exp;
 
                 if (payload.username is string) {
                     username = <@untainted> <string>payload.username;
@@ -98,10 +97,7 @@ public type InboundOAuth2Provider object {
                 if (payload.exp is int) {
                     exp = <@untainted> <int>payload.exp;
                 } else {
-                    int? defaultTokenExpTimeInSeconds = self.defaultTokenExpTimeInSeconds;
-                    if (defaultTokenExpTimeInSeconds is int) {
-                        exp = defaultTokenExpTimeInSeconds +  (time:currentTime().time / 1000);
-                    }
+                    exp = self.defaultTokenExpTimeInSeconds +  (time:currentTime().time / 1000);
                 }
 
                 if (oauth2Cache is cache:Cache) {
@@ -118,9 +114,15 @@ public type InboundOAuth2Provider object {
     }
 };
 
-function addToAuthenticationCache(cache:Cache oauth2Cache, string token, string? username, string? scopes, int? exp) {
-    InboundOAuth2CacheEntry oauth2CacheEntry = {username: username ?: "", scopes: scopes ?: "", expTime: exp ?: 0};
-    oauth2Cache.put(token, oauth2CacheEntry);
+function addToAuthenticationCache(cache:Cache oauth2Cache, string token, string? username, string? scopes, int exp) {
+    InboundOAuth2CacheEntry oauth2CacheEntry = {username: username ?: "", scopes: scopes ?: ""};
+    cache:Error? result = oauth2Cache.put(token, oauth2CacheEntry, exp);
+    if (result is cache:Error) {
+        log:printError(function() returns string {
+            return "Failed to add JWT to the cache";
+        });
+        return;
+    }
     if (username is string) {
         string user = username;
         log:printDebug(function() returns string {
@@ -130,14 +132,12 @@ function addToAuthenticationCache(cache:Cache oauth2Cache, string token, string?
 }
 
 function authenticateFromCache(cache:Cache oauth2Cache, string token) returns InboundOAuth2CacheEntry? {
-    InboundOAuth2CacheEntry oauth2CacheEntry = <InboundOAuth2CacheEntry>oauth2Cache.get(token);
-    if (oauth2CacheEntry.expTime > (time:currentTime().time / 1000)) {
+    if (oauth2Cache.hasKey(token)) {
+        InboundOAuth2CacheEntry oauth2CacheEntry = <InboundOAuth2CacheEntry>oauth2Cache.get(token);
         log:printDebug(function() returns string {
             return "Get authenticated user: " + oauth2CacheEntry.username + " from the cache.";
         });
         return oauth2CacheEntry;
-    } else {
-        oauth2Cache.remove(token);
     }
 }
 
@@ -157,35 +157,22 @@ public function getScopes(string scopes) returns string[] {
 #
 # + url - URL of the introspection server
 # + tokenTypeHint - A hint about the type of the token submitted for introspection
-# + oauth2CacheConfig - Configurations for the OAuth2 cache
+# + oauth2Cache - Cache used to store the OAuth2 token and other related information
+# + defaultTokenExpTimeInSeconds - Expiration time of the tokens if introspection response does not contain an `exp` field
 # + clientConfig - HTTP client configurations which calls the introspection server
 public type IntrospectionServerConfig record {|
     string url;
     string tokenTypeHint?;
-    InboundOAuth2CacheConfig oauth2CacheConfig?;
-    http:ClientConfiguration clientConfig = {};
-|};
-
-# Represents inbound OAuth2 cache configurations.
-#
-# + capacity - Maximum number of entries allowed
-# + expTimeInSeconds - Time since its last access in which the cache will be expired
-# + evictionFactor - The factor which the entries will be evicted once the cache full
-# + defaultTokenExpTimeInSeconds - Expiration time of the tokens if introspection response does not contain `exp` field
-public type InboundOAuth2CacheConfig record {|
-    int capacity;
-    int expTimeInSeconds;
-    float evictionFactor;
+    cache:Cache oauth2Cache?;
     int defaultTokenExpTimeInSeconds = 3600;
+    http:ClientConfiguration clientConfig = {};
 |};
 
 # Represents cached OAuth2 information.
 #
 # + username - Username of the OAuth2 validated user
 # + scopes - Scopes of the OAuth2 validated user
-# + expTime - Expiration time, identifies the expiration time on or after which the OAuth2 token must not be accepted
 public type InboundOAuth2CacheEntry record {|
     string username;
     string scopes;
-    int expTime;
 |};

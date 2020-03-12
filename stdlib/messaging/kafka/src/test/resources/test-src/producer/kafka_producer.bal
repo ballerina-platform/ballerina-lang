@@ -18,7 +18,7 @@ import ballerina/kafka;
 
 string topic = "producer-test-topic";
 
-kafka:ProducerConfig producerConfigs = {
+kafka:ProducerConfiguration producerConfigs = {
     bootstrapServers: "localhost:14109",
     clientId: "basic-producer",
     acks: kafka:ACKS_ALL,

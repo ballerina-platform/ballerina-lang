@@ -9,5 +9,5 @@ public function main() {
                     </author>
                     <!--Price: $10-->
                     </book>`;
-    xml name = bookXML["name"].
+    xml allContent = bookXML/<author>.*.
 }

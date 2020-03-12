@@ -32,7 +32,7 @@ public class Http2MutualSslTestCase extends Http2BaseTest {
 
     @Test(description = "Test mutual ssl with http2 prior knowledge")
     public void testMutualSSL() throws Exception {
-        String serverResponse = "hello world";
+        String serverResponse = "Passed";
 
         String balFile = new File("src" + File.separator + "test" + File.separator + "resources"
                 + File.separator + "mutualSSL" + File.separator + "http2_mutual_ssl_client.bal").getAbsolutePath();

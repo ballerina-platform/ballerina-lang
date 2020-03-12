@@ -238,6 +238,7 @@ DOLLAR = \$
     "error"                                     { return ERROR; }
     "external"                                  { return EXTERNAL; }
 
+    "field"                                     { return TYPE_FIELD; }
     "final"                                     { return FINAL; }
     "finally"                                   { return FINALLY; }
     "float"                                     { return FLOAT; }
@@ -257,6 +258,7 @@ DOLLAR = \$
 
     "json"                                      { return JSON; }
 
+    "let"                                       { return LET; }
     "listener"                                  { return LISTENER; }
     "lock"                                      { return LOCK; }
 

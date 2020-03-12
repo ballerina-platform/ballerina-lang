@@ -60,8 +60,10 @@ public class ExternFunctions {
 
         String username = config.getStringValue(Constants.EndpointConfig.USERNAME);
         String password = config.getStringValue(Constants.EndpointConfig.PASSWORD);
+        @SuppressWarnings("unchecked")
         MapValue<String, Object> dbOptions = (MapValue<String, Object>) config
                 .getMapValue(Constants.EndpointConfig.DB_OPTIONS);
+        @SuppressWarnings("unchecked")
         MapValue<String, Object> poolOptions = (MapValue<String, Object>) config
                 .getMapValue(Constants.EndpointConfig.POOL_OPTIONS);
         boolean userProvidedPoolOptionsNotPresent = poolOptions == null;

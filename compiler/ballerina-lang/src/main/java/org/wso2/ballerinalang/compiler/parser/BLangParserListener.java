@@ -951,6 +951,9 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         if (ctx.errorTypeName() != null) {
             return;
         }
+        if (ctx.streamTypeName() != null) {
+            return;
+        }
 
         String typeName = ctx.getChild(0).getText();
         DiagnosticPos pos = getCurrentPos(ctx);
@@ -960,6 +963,16 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         } else {
             this.pkgBuilder.addBuiltInReferenceType(pos, getWS(ctx), typeName);
         }
+    }
+
+    @Override
+    public void exitStreamTypeName(BallerinaParser.StreamTypeNameContext ctx) {
+        if (isInErrorState) {
+            return;
+        }
+
+        this.pkgBuilder.addStreamTypeWithTypeName(getCurrentPos(ctx), getWS(ctx),
+                ctx.typeName(0) != null, ctx.typeName(1) != null);
     }
 
     @Override
@@ -1522,22 +1535,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     }
 
     @Override
-    public void enterStreamConstructorExpr(BallerinaParser.StreamConstructorExprContext ctx) {
-        if (isInErrorState) {
-            return;
-        }
-        this.pkgBuilder.startStreamConstructor(getCurrentPos(ctx), diagnosticSrc.pkgID);
-    }
-
-    @Override
-    public void exitStreamConstructorExpr(BallerinaParser.StreamConstructorExprContext ctx) {
-        if (isInErrorState) {
-            return;
-        }
-        this.pkgBuilder.endStreamConstructor(getCurrentPos(ctx), getWS(ctx));
-    }
-
-    @Override
     public void exitListConstructorExpr(BallerinaParser.ListConstructorExprContext ctx) {
         if (isInErrorState) {
             return;
@@ -1561,7 +1558,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        this.pkgBuilder.addLetExpression(getCurrentPos(ctx));
+        this.pkgBuilder.addLetExpression(getCurrentPos(ctx), getWS(ctx));
     }
 
     @Override
@@ -1598,7 +1595,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         }
 
         String initName = ctx.NEW().getText();
-        boolean typeAvailable = ctx.userDefineTypeName() != null;
+        boolean typeAvailable = ctx.userDefineTypeName() != null || ctx.streamTypeName() != null;
         boolean argsAvailable = ctx.invocationArgList() != null;
         this.pkgBuilder.addTypeInitExpression(getCurrentPos(ctx), getWS(ctx), initName, typeAvailable, argsAvailable);
     }
@@ -2297,9 +2294,9 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         boolean argsAvailable = invocation.invocationArgList() != null;
         BallerinaParser.AnyIdentifierNameContext identifierContext = invocation.anyIdentifierName();
         String invocationText = identifierContext.getText();
+        this.pkgBuilder.createGroupExpression(getCurrentPos(groupExpression), getWS(groupExpression));
         this.pkgBuilder.createInvocationNode(getCurrentPos(invocation), getWS(invocation),
                 invocationText, argsAvailable, getCurrentPos(identifierContext));
-        this.pkgBuilder.createGroupExpression(getCurrentPos(groupExpression), getWS(groupExpression));
     }
 
     @Override
@@ -3384,6 +3381,24 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         }
         String description = ctx.documentationText() != null ? ctx.documentationText().getText() : "";
         this.pkgBuilder.endReturnParameterDocumentationDescription(getWS(ctx), description);
+    }
+
+    @Override
+    public void exitDeprecatedAnnotationDocumentation(BallerinaParser.DeprecatedAnnotationDocumentationContext ctx) {
+        if (isInErrorState) {
+            return;
+        }
+        String str = ctx.DeprecatedDocumentation() != null ? ctx.DeprecatedDocumentation().getText() : "";
+        this.pkgBuilder.endDeprecationAnnotationDocumentation(getCurrentPos(ctx.getParent()), getWS(ctx), str);
+    }
+
+    @Override
+    public void exitDeprecateAnnotationDescriptionLine(BallerinaParser.DeprecateAnnotationDescriptionLineContext ctx) {
+        if (isInErrorState) {
+            return;
+        }
+        String description = ctx.documentationText() != null ? ctx.documentationText().getText() : "";
+        this.pkgBuilder.endDeprecateAnnotationDocumentationDescription(getWS(ctx), description);
     }
 
     @Override

@@ -71,7 +71,6 @@ public class TesterinaUtils {
             if (testRunner.getTesterinaReport().isFailure()) {
                 Runtime.getRuntime().exit(1);
             }
-            Runtime.getRuntime().exit(0);
         } catch (Throwable e) {
             errStream.println("error: " + e.getMessage());
             Runtime.getRuntime().exit(1);
