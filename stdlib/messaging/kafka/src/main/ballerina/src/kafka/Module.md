@@ -217,7 +217,7 @@ public function main() {
         dataRecord: person
     };
 
-    var result = producer->send(avroRecord, "add-person");
+    kafka:ProducerError? result = producer->send(avroRecord, "add-person");
     if (result is kafka:ProducerError) {
         io:println(result);    
     }
@@ -250,7 +250,7 @@ service KafkaService on consumer {
     resource function onMessage(kafka:Consumer consumer, kafka:ConsumerRecord[] records) {
         io:println("Records received");
         foreach var kafkaRecord in records {
-            var value = kafkaRecord.value;
+            anydata value = kafkaRecord.value;
             if (value is kafka:AvroGenericRecord) {
                 io:println(value);
             } else {

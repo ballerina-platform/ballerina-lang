@@ -526,8 +526,11 @@ public class KafkaUtils {
         }
 
         Object key = null;
-        Object value = getBValues(record.value(), valueType);
+        if (Objects.nonNull(record.key())) {
+            key = getBValues(record.key(), keyType);
+        }
 
+        Object value = getBValues(record.value(), valueType);
         return createRecord(getConsumerRecord(), key, value, record.offset(), record.partition(), record.timestamp(),
                             record.topic());
     }
