@@ -43,11 +43,13 @@ public class FPValue<T, R> implements BFunctionPointer<T, R>, RefValue {
 
     final BType type;
     Function<T, R> function;
+    public boolean isConcurrent;
 
     @Deprecated
-    public FPValue(Function<T, R> function, BType type) {
+    public FPValue(Function<T, R> function, BType type, boolean isConcurrent) {
         this.function = function;
         this.type = type;
+        this.isConcurrent = isConcurrent;
     }
 
     public R call(T t) {

@@ -20,7 +20,6 @@ package org.ballerinalang.jvm;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.AnnotatableType;
 import org.ballerinalang.jvm.types.AttachedFunction;
-import org.ballerinalang.jvm.types.BFunctionType;
 import org.ballerinalang.jvm.types.BObjectType;
 import org.ballerinalang.jvm.types.BServiceType;
 import org.ballerinalang.jvm.types.BType;
@@ -101,11 +100,6 @@ public class AnnotationUtils {
      * @return true if should run concurrently
      */
     public static boolean isConcurrent(FPValue fpValue) {
-        Object value = ((BFunctionType) fpValue.getType()).getAnnotation("ballerina/lang" +
-                ".annotations", "strand");
-        if (value != null) {
-            return ((MapValue) value).get("thread") == "any";
-        }
-        return false;
+        return fpValue.isConcurrent;
     }
 }
