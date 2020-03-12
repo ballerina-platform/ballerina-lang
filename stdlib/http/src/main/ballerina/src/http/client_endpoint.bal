@@ -72,12 +72,11 @@ public type Client client object {
     public remote function post(@untainted string path, RequestMessage message) returns Response|ClientError {
         Request req = buildRequest(message);
         Response|ClientError response = self.httpClient->post(path, req);
-        string sample = "sample";
         if (response is Response) {
             map<string> tagsMap = {};
             tagsMap[HTTP_URL] = path;
             tagsMap[HTTP_METHOD] = HTTP_POST;
-            tagsMap[HTTP_STATUS_CODE] = getStatusCodeRange(response.statusCode);
+            tagsMap[HTTP_STATUS_CODE_GROUP] = getStatusCodeRange(response.statusCode);
             _ = tagsMap.entries().map(function ([string, string] pair) returns ClientError?{
                 var [key, value] = pair;
                 error? x = observe:addTagToSpan(key, value);
@@ -102,7 +101,7 @@ public type Client client object {
             map<string> tagsMap = {};
             tagsMap[HTTP_URL] = path;
             tagsMap[HTTP_METHOD] = HTTP_HEAD;
-            tagsMap[HTTP_STATUS_CODE] = getStatusCodeRange(response.statusCode);
+            tagsMap[HTTP_STATUS_CODE_GROUP] = getStatusCodeRange(response.statusCode);
             _ = tagsMap.entries().map(function ([string, string] pair) returns ClientError?{
                 var [key, value] = pair;
                 error? x = observe:addTagToSpan(key, value);
@@ -127,7 +126,7 @@ public type Client client object {
             map<string> tagsMap = {};
             tagsMap[HTTP_URL] = path;
             tagsMap[HTTP_METHOD] = HTTP_PUT;
-            tagsMap[HTTP_STATUS_CODE] = getStatusCodeRange(response.statusCode);
+            tagsMap[HTTP_STATUS_CODE_GROUP] = getStatusCodeRange(response.statusCode);
             _ = tagsMap.entries().map(function ([string, string] pair) returns ClientError?{
                 var [key, value] = pair;
                 error? x = observe:addTagToSpan(key, value);
@@ -153,7 +152,7 @@ public type Client client object {
             map<string> tagsMap = {};
             tagsMap[HTTP_URL] = path;
             tagsMap[HTTP_METHOD] = httpVerb;
-            tagsMap[HTTP_STATUS_CODE] = getStatusCodeRange(response.statusCode);
+            tagsMap[HTTP_STATUS_CODE_GROUP] = getStatusCodeRange(response.statusCode);
             _ = tagsMap.entries().map(function ([string, string] pair) returns ClientError?{
                 var [key, value] = pair;
                 error? x = observe:addTagToSpan(key, value);
@@ -178,7 +177,7 @@ public type Client client object {
             map<string> tagsMap = {};
             tagsMap[HTTP_URL] = path;
             tagsMap[HTTP_METHOD] = HTTP_PATCH;
-            tagsMap[HTTP_STATUS_CODE] = getStatusCodeRange(response.statusCode);
+            tagsMap[HTTP_STATUS_CODE_GROUP] = getStatusCodeRange(response.statusCode);
             _ = tagsMap.entries().map(function ([string, string] pair) returns ClientError?{
                 var [key, value] = pair;
                 error? x = observe:addTagToSpan(key, value);
@@ -203,7 +202,7 @@ public type Client client object {
             map<string> tagsMap = {};
             tagsMap[HTTP_URL] = path;
             tagsMap[HTTP_METHOD] = HTTP_DELETE;
-            tagsMap[HTTP_STATUS_CODE] = getStatusCodeRange(response.statusCode);
+            tagsMap[HTTP_STATUS_CODE_GROUP] = getStatusCodeRange(response.statusCode);
             _ = tagsMap.entries().map(function ([string, string] pair) returns ClientError?{
                 var [key, value] = pair;
                 error? x = observe:addTagToSpan(key, value);
@@ -228,7 +227,7 @@ public type Client client object {
             map<string> tagsMap = {};
             tagsMap[HTTP_URL] = path;
             tagsMap[HTTP_METHOD] = HTTP_GET;
-            tagsMap[HTTP_STATUS_CODE] = getStatusCodeRange(response.statusCode);
+            tagsMap[HTTP_STATUS_CODE_GROUP] = getStatusCodeRange(response.statusCode);
             _ = tagsMap.entries().map(function ([string, string] pair) returns ClientError?{
                 var [key, value] = pair;
                 error? x = observe:addTagToSpan(key, value);
@@ -253,7 +252,7 @@ public type Client client object {
             map<string> tagsMap = {};
             tagsMap[HTTP_URL] = path;
             tagsMap[HTTP_METHOD] = HTTP_OPTIONS;
-            tagsMap[HTTP_STATUS_CODE] = getStatusCodeRange(response.statusCode);
+            tagsMap[HTTP_STATUS_CODE_GROUP] = getStatusCodeRange(response.statusCode);
             _ = tagsMap.entries().map(function ([string, string] pair) returns ClientError?{
                 var [key, value] = pair;
                 error? x = observe:addTagToSpan(key, value);
@@ -276,7 +275,7 @@ public type Client client object {
             map<string> tagsMap = {};
             tagsMap[HTTP_URL] = path;
             tagsMap[HTTP_METHOD] = HTTP_FORWARD;
-            tagsMap[HTTP_STATUS_CODE] = getStatusCodeRange(response.statusCode);
+            tagsMap[HTTP_STATUS_CODE_GROUP] = getStatusCodeRange(response.statusCode);
             _ = tagsMap.entries().map(function ([string, string] pair) returns ClientError?{
                 var [key, value] = pair;
                 error? x = observe:addTagToSpan(key, value);
@@ -310,7 +309,7 @@ public type Client client object {
     public remote function getResponse(HttpFuture httpFuture) returns Response|ClientError {
         Response|ClientError response = self.httpClient->getResponse(httpFuture);
         if (response is Response) {
-            error? x = observe:addTagToSpan(HTTP_STATUS_CODE, response.statusCode.toString());
+            error? x = observe:addTagToSpan(HTTP_STATUS_CODE_GROUP, response.statusCode.toString());
             if (x is error) {
                 return getObservabilityError();
             }
@@ -341,7 +340,7 @@ public type Client client object {
     public remote function getPromisedResponse(PushPromise promise) returns Response|ClientError {
         Response|ClientError response = self.httpClient->getPromisedResponse(promise);
         if (response is Response) {
-            error? x = observe:addTagToSpan(HTTP_STATUS_CODE, response.statusCode.toString());
+            error? x = observe:addTagToSpan(HTTP_STATUS_CODE_GROUP, response.statusCode.toString());
             if (x is error) {
                 return getObservabilityError();
             }
