@@ -1746,13 +1746,14 @@ public class TypeChecker extends BLangNodeVisitor {
 
     public void visit(BLangLetExpression letExpression) {
         BLetSymbol letSymbol = new BLetSymbol(SymTag.LET, Flags.asMask(new HashSet<>(Lists.of())),
-                new Name(String.format("$let_symbol_%d$", letCount++)), env.enclPkg.symbol.pkgID,
-                letExpression.type, env.scope.owner);
+                                              new Name(String.format("$let_symbol_%d$", letCount++)),
+                                              env.enclPkg.symbol.pkgID, letExpression.type, env.scope.owner);
         letExpression.env = SymbolEnv.createExprEnv(letExpression, env, letSymbol);
         for (BLangLetVariable letVariable : letExpression.letVarDeclarations) {
             semanticAnalyzer.analyzeDef((BLangNode) letVariable.definitionNode, letExpression.env);
         }
-        checkExpr(letExpression.expr, letExpression.env);
+        BType exprType = checkExpr(letExpression.expr, letExpression.env);
+        types.checkType(letExpression, exprType, this.expType);
     }
 
     private void checkInLangLib(BLangInvocation iExpr, BType varRefType) {
