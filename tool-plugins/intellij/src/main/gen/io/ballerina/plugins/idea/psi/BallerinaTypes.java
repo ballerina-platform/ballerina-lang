@@ -259,9 +259,6 @@ public interface BallerinaTypes {
   IElementType STATIC_MATCH_PATTERN_CLAUSE = new BallerinaCompositeElementType("STATIC_MATCH_PATTERN_CLAUSE");
   IElementType STATIC_MATCH_RECORD_LITERAL = new BallerinaCompositeElementType("STATIC_MATCH_RECORD_LITERAL");
   IElementType STATIC_MATCH_SIMPLE_LITERAL = new BallerinaCompositeElementType("STATIC_MATCH_SIMPLE_LITERAL");
-  IElementType STREAM_CONSTRUCTOR_BODY = new BallerinaCompositeElementType("STREAM_CONSTRUCTOR_BODY");
-  IElementType STREAM_CONSTRUCTOR_EXPR = new BallerinaCompositeElementType("STREAM_CONSTRUCTOR_EXPR");
-  IElementType STREAM_CONSTRUCTOR_EXPRESSION = new BallerinaCompositeElementType("STREAM_CONSTRUCTOR_EXPRESSION");
   IElementType STREAM_TYPE_NAME = new BallerinaCompositeElementType("STREAM_TYPE_NAME");
   IElementType STRING_FUNCTION_INVOCATION_REFERENCE = new BallerinaCompositeElementType("STRING_FUNCTION_INVOCATION_REFERENCE");
   IElementType STRING_TEMPLATE_CONTENT = new BallerinaCompositeElementType("STRING_TEMPLATE_CONTENT");
@@ -517,6 +514,7 @@ public interface BallerinaTypes {
   IElementType TYPE = new BallerinaTokenType("type");
   IElementType TYPEDESC = new BallerinaTokenType("typedesc");
   IElementType TYPEOF = new BallerinaTokenType("typeof");
+  IElementType TYPE_FIELD = new BallerinaTokenType("TYPE_FIELD");
   IElementType TYPE_PARAMETER = new BallerinaTokenType("TYPE_PARAMETER");
   IElementType VAR = new BallerinaTokenType("var");
   IElementType VERSION = new BallerinaTokenType("version");
@@ -1232,15 +1230,6 @@ public interface BallerinaTypes {
       }
       else if (type == STATIC_MATCH_SIMPLE_LITERAL) {
         return new BallerinaStaticMatchSimpleLiteralImpl(node);
-      }
-      else if (type == STREAM_CONSTRUCTOR_BODY) {
-        return new BallerinaStreamConstructorBodyImpl(node);
-      }
-      else if (type == STREAM_CONSTRUCTOR_EXPR) {
-        return new BallerinaStreamConstructorExprImpl(node);
-      }
-      else if (type == STREAM_CONSTRUCTOR_EXPRESSION) {
-        return new BallerinaStreamConstructorExpressionImpl(node);
       }
       else if (type == STREAM_TYPE_NAME) {
         return new BallerinaStreamTypeNameImpl(node);

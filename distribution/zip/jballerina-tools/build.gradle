@@ -101,6 +101,7 @@ dependencies {
 
     dist project(':testerina:testerina-core')
     dist project(':ballerina-formatter')
+    dist project(':ballerina-bindgen')
     dist project(':ballerina-backend-jvm')
     birJar project(path: ':ballerina-backend-jvm', configuration: 'birJar')
     dist project(':language-server:language-server-compiler')
@@ -170,6 +171,7 @@ def copyBaloSpec = {
     path -> copySpec {
         from configurations.distBal
         into(path + 'lib')
+        fileMode 0644
     }
 }
 

@@ -35,6 +35,10 @@ public class Names {
     public static final String STRING_UNSIGNED16 = "Unsigned16";
     public static final String STRING_UNSIGNED8 = "Unsigned8";
     public static final String STRING_CHAR = "Char";
+    public static final String STRING_XML_ELEMENT = "Element";
+    public static final String STRING_XML_PI = "ProcessingInstruction";
+    public static final String STRING_XML_COMMENT = "Comment";
+    public static final String STRING_XML_TEXT = "Text";
 
     public static final Name EMPTY = new Name("");
     public static final Name DOT = new Name(".");
@@ -98,6 +102,10 @@ public class Names {
     public static final Name UNSIGNED16 = new Name(STRING_UNSIGNED16);
     public static final Name UNSIGNED8 = new Name(STRING_UNSIGNED8);
     public static final Name CHAR = new Name(STRING_CHAR);
+    public static final Name XML_ELEMENT = new Name(STRING_XML_ELEMENT);
+    public static final Name XML_PI = new Name(STRING_XML_PI);
+    public static final Name XML_COMMENT = new Name(STRING_XML_COMMENT);
+    public static final Name XML_TEXT = new Name(STRING_XML_TEXT);
 
     // Names related to transactions.
     public static final Name TRANSACTION_PACKAGE = new Name("transactions");

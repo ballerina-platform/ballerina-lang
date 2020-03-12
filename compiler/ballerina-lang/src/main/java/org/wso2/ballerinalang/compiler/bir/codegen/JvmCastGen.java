@@ -88,6 +88,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.XML_VALUE
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmInstructionGen.B_STRING_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmInstructionGen.I_STRING_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmInstructionGen.addBoxInsn;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmInstructionGen.isBString;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmLabelGen.LabelGenerator;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.symbolTable;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen.loadType;
@@ -116,35 +117,26 @@ public class JvmCastGen {
 
         if (targetType.jTag == JTypeTags.JBYTE) {
             generateCheckCastBToJByte(mv, sourceType);
-            return;
         } else if (targetType.jTag == JTypeTags.JCHAR) {
             generateCheckCastBToJChar(mv, sourceType);
-            return;
         } else if (targetType.jTag == JTypeTags.JSHORT) {
             generateCheckCastBToJShort(mv, sourceType);
-            return;
         } else if (targetType.jTag == JTypeTags.JINT) {
             generateCheckCastBToJInt(mv, sourceType);
-            return;
         } else if (targetType.jTag == JTypeTags.JLONG) {
             generateCheckCastBToJLong(mv, sourceType);
-            return;
         } else if (targetType.jTag == JTypeTags.JFLOAT) {
             generateCheckCastBToJFloat(mv, sourceType);
-            return;
         } else if (targetType.jTag == JTypeTags.JDOUBLE) {
             generateCheckCastBToJDouble(mv, sourceType);
-            return;
         } else if (targetType.jTag == JTypeTags.JREF) {
             if (((JType.JRefType) targetType).typeValue.equals(B_STRING_VALUE)) {
                 generateCheckCastBToJString(mv, sourceType);
             } else {
                 generateCheckCastBToJRef(mv, sourceType, targetType);
             }
-            return;
         } else if (targetType.jTag == JTypeTags.JARRAY) {
             generateCheckCastBToJRef(mv, sourceType, targetType);
-            return;
         } else {
             throw new BLangCompilerException(String.format("Casting is not supported from '%s' to 'java %s'",
                     sourceType, targetType));
@@ -333,25 +325,18 @@ public class JvmCastGen {
 
         if (TypeTags.isIntegerTypeTag(targetType.tag)) {
             generateCheckCastJToBInt(mv, sourceType);
-            return;
         } else if (targetType.tag == TypeTags.FLOAT) {
             generateCheckCastJToBFloat(mv, sourceType);
-            return;
         } else if (TypeTags.isStringTypeTag(targetType.tag)) {
             generateCheckCastJToBString(mv, sourceType);
-            return;
         } else if (targetType.tag == TypeTags.DECIMAL) {
             generateCheckCastJToBDecimal(mv, sourceType);
-            return;
         } else if (targetType.tag == TypeTags.BOOLEAN) {
             generateCheckCastJToBBoolean(mv, sourceType);
-            return;
         } else if (targetType.tag == TypeTags.BYTE) {
             generateCheckCastJToBByte(mv, sourceType);
-            return;
         } else if (targetType.tag == TypeTags.NIL) {
             // Do nothing
-            return;
         } else {
             if (targetType.tag == TypeTags.UNION) {
                 generateCheckCastJToBUnionType(mv, indexMap, sourceType, (BUnionType) targetType);
@@ -379,7 +364,7 @@ public class JvmCastGen {
 
             checkCast(mv, targetType);
             @Nilable String targetTypeClass = getTargetClass(targetType);
-            if (targetTypeClass instanceof String) {
+            if (targetTypeClass != null) {
                 mv.visitTypeInsn(CHECKCAST, targetTypeClass);
             }
         }
@@ -657,8 +642,7 @@ public class JvmCastGen {
         }
     }
 
-    static void generateCheckCast(MethodVisitor mv, BType sourceType, BType targetType, BalToJVMIndexMap indexMap,
-                                  boolean useBString) {
+    static void generateCheckCast(MethodVisitor mv, BType sourceType, BType targetType, BalToJVMIndexMap indexMap) {
 
         if (targetType.tag == TypeTags.INT) {
             generateCheckCastToInt(mv, sourceType);
@@ -685,7 +669,7 @@ public class JvmCastGen {
             generateCheckCastToFloat(mv, sourceType);
             return;
         } else if (targetType.tag == TypeTags.STRING) {
-            generateCheckCastToString(mv, sourceType, indexMap, useBString);
+            generateCheckCastToString(mv, sourceType, indexMap);
             return;
         } else if (targetType.tag == TypeTags.CHAR_STRING) {
             generateCheckCastToChar(mv, sourceType);
@@ -714,7 +698,7 @@ public class JvmCastGen {
         } else if (targetType.tag == TypeTags.JSON) {
             generateCheckCastToJSON(mv, sourceType);
             return;
-        } else if (sourceType.tag == TypeTags.XML && targetType.tag == TypeTags.MAP) {
+        } else if (TypeTags.isXMLTypeTag(sourceType.tag) && targetType.tag == TypeTags.MAP) {
             generateXMLToAttributesMap(mv, sourceType);
             return;
         } else if (targetType.tag == TypeTags.FINITE) {
@@ -730,7 +714,7 @@ public class JvmCastGen {
 
         // cast to the specific java class
         @Nilable String targetTypeClass = getTargetClass(targetType);
-        if (targetTypeClass instanceof String) {
+        if (targetTypeClass != null) {
             mv.visitTypeInsn(CHECKCAST, targetTypeClass);
         }
     }
@@ -940,8 +924,7 @@ public class JvmCastGen {
         }
     }
 
-    private static void generateCheckCastToString(MethodVisitor mv, BType sourceType, BalToJVMIndexMap indexMap,
-                                                  boolean useBString) {
+    private static void generateCheckCastToString(MethodVisitor mv, BType sourceType, BalToJVMIndexMap indexMap) {
 
         if (TypeTags.isStringTypeTag(sourceType.tag)) {
             // do nothing
@@ -952,7 +935,7 @@ public class JvmCastGen {
                 sourceType.tag == TypeTags.JSON ||
                 sourceType.tag == TypeTags.FINITE) {
             checkCast(mv, symbolTable.stringType);
-            if (useBString) {
+            if (isBString) {
                 mv.visitTypeInsn(CHECKCAST, B_STRING_VALUE);
             } else {
                 mv.visitTypeInsn(CHECKCAST, STRING_VALUE);
@@ -1096,11 +1079,11 @@ public class JvmCastGen {
             targetTypeClass = TABLE_VALUE;
         } else if (targetType.tag == TypeTags.STREAM) {
             targetTypeClass = STREAM_VALUE;
-        } else if (targetType.tag == TypeTags.OBJECT || targetType.tag == TypeTags.SERVICE) {
+        } else if (targetType.tag == TypeTags.OBJECT) {
             targetTypeClass = OBJECT_VALUE;
         } else if (targetType.tag == TypeTags.ERROR) {
             targetTypeClass = ERROR_VALUE;
-        } else if (targetType.tag == TypeTags.XML) {
+        } else if (TypeTags.isXMLTypeTag(targetType.tag)) {
             targetTypeClass = XML_VALUE;
         } else if (targetType.tag == TypeTags.TYPEDESC) {
             targetTypeClass = TYPEDESC_VALUE;
@@ -1127,7 +1110,7 @@ public class JvmCastGen {
     //   Generate Cast Methods - Performs cast without type checking
     // ------------------------------------------------------------------
 
-    static void generateCast(MethodVisitor mv, BType sourceType, BType targetType, boolean useBString /* = false */) {
+    static void generateCast(MethodVisitor mv, BType sourceType, BType targetType) {
 
         if (TypeTags.isIntegerTypeTag(targetType.tag)) {
             generateCastToInt(mv, sourceType);
@@ -1136,7 +1119,7 @@ public class JvmCastGen {
             generateCastToFloat(mv, sourceType);
             return;
         } else if (TypeTags.isStringTypeTag(targetType.tag)) {
-            generateCastToString(mv, sourceType, useBString);
+            generateCastToString(mv, sourceType);
             return;
         } else if (targetType.tag == TypeTags.BOOLEAN) {
             generateCastToBoolean(mv, sourceType);
@@ -1161,7 +1144,7 @@ public class JvmCastGen {
 
         // cast to the specific java class
         @Nilable String targetTypeClass = getTargetClass(targetType);
-        if (targetTypeClass instanceof String) {
+        if (targetTypeClass != null) {
             mv.visitTypeInsn(CHECKCAST, targetTypeClass);
         }
     }
@@ -1201,7 +1184,7 @@ public class JvmCastGen {
         }
     }
 
-    private static void generateCastToString(MethodVisitor mv, BType sourceType, boolean useBString /* = false */) {
+    private static void generateCastToString(MethodVisitor mv, BType sourceType) {
 
         if (TypeTags.isStringTypeTag(sourceType.tag)) {
             // do nothing
@@ -1215,7 +1198,7 @@ public class JvmCastGen {
                 sourceType.tag == TypeTags.ANYDATA ||
                 sourceType.tag == TypeTags.UNION ||
                 sourceType.tag == TypeTags.JSON) {
-            if (useBString) {
+            if (isBString) {
                 mv.visitTypeInsn(CHECKCAST, B_STRING_VALUE);
             } else {
                 mv.visitTypeInsn(CHECKCAST, STRING_VALUE);
@@ -1288,9 +1271,6 @@ public class JvmCastGen {
             mv.visitMethodInsn(INVOKESTATIC, DOUBLE_VALUE, "valueOf", String.format("(D)L%s;", DOUBLE_VALUE), false);
         } else if (sourceType.tag == TypeTags.BOOLEAN) {
             mv.visitMethodInsn(INVOKESTATIC, BOOLEAN_VALUE, "valueOf", String.format("(Z)L%s;", BOOLEAN_VALUE), false);
-        } else {
-            // do nothing
-            return;
         }
     }
 
