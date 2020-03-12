@@ -154,7 +154,7 @@ To do so, download the necessary dependencies and put them inside the `resources
      groupId = "com.fasterxml.jackson.core"
 ```
 
-Now, the directory structure will look like follows:
+Now, the directory structure will look like follows. (Some of the files ignored)
 
 ```shell script
 ├── Ballerina.toml
