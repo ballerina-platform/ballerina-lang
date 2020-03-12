@@ -114,7 +114,6 @@ include(':ballerina-cli-module')
 include(':ballerina-jsonutils')
 include(':testerina:testerina-runtime')
 include(':testerina-integration-test')
-
 include(':examples-test')
 // TODO: enable at 'dependsOn' of tools-intergration-tests
 // and 'mustRunAfter' of vs-code-pluggin

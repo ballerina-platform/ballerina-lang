@@ -58,6 +58,7 @@ task test {
     patternSet.exclude("**/Ballerina.lock");
     patternSet.exclude("**/ballerina-internal.log")
     inputs.files(files("${distPath}/examples").asFileTree.matching(patternSet))
+    //Cannot test with Tool nor build with test
     def ignoreList = [
             'proto-to-ballerina',
             'swagger-to-ballerina',
@@ -130,34 +131,17 @@ task test {
             'crypto',
             'xml-functions',
             'xml-literal',
-            'tuple-typed-binding-pattern',
             'xml-access',
-            'xml-namespaces',
-            'xml-attributes',
-            'xml',
-            'tuple-match-statement',
-            'ballerina-to-openapi',
-            'http-timeout',
-            'http-retry',
-            'http-failover',
-            'http-load-balancer',
-            'http-circuit-breaker',
-            'content-based-routing',
             'header-based-routing',
-            'http-filters',
-            'http-compression',
-            'http-100-continue',
-            'http-access-logs',
-            'http-cors',
-            'request-with-multiparts',
             'mutual-ssl',
+            'tuple-match-statement',
             'basic-https-listener-client',
             'https-listener',
-            'http-disable-chunking',
-            'base-path-and-path',
-            'hello-world-service',
-            'tuple-match-statement'
+            'json-csv',
+            'checkpanic',
+            'http-client-endpoint'
     ]
+    // Contains mock functions and can be check with tool
     def mockList = [
             'strings',
             'math-functions',
@@ -229,8 +213,13 @@ task test {
             'variables',
             'modules',
             'hello-world-client',
-            'hello-world'
+            'hello-world',
+            'tuple-typed-binding-pattern',
+            'xml-namespaces',
+            'xml-attributes',
+            'xml'
     ]
+    //Contains mock functions. Some BBEs' execute concurrently while others output Error messages.
     def stdEMock = [
             'worker-interaction',
             'workers',
@@ -240,10 +229,8 @@ task test {
             'type-conversion',
             'filepath',
             'record-io',
-            'checkpanic',
             'type-cast',
             'panic',
-            'http-client-endpoint',
             'async'
     ]
     doFirst {
@@ -272,7 +259,6 @@ task test {
             from(src)
             into dis
         }
-
     }
     doLast {
         def ListOfItem = stdEMock + mockList
@@ -423,4 +409,3 @@ task test {
 build {
     dependsOn test
 }
-
