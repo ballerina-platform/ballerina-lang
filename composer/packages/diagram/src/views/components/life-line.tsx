@@ -28,8 +28,8 @@ export const LifeLine: React.StatelessComponent<{
         const topLabel = { x: 0, y: 0 };
         const topIcon = { x: 0, y: 0, className: "life-line-icon" };
         const bottomLabel = { x: 0, y: 0 };
-        const topBox = { x: 0, y: 0 , width: 300, height: 50, rx: 12, ry: 12};
-        const bottomBox = { x: 0, y: 0 , width: 300, height: 50, rx: 10, ry: 10};
+        const topBox = { x: 0, y: 0 , width: 0, height: 0, rx: 12, ry: 12};
+        const bottomBox = { x: 0, y: 0 , width: 0, height: 0, rx: 10, ry: 10};
         const lifeLine = { x1: 0 , y1: 0 , x2: 0, y2: 0 };
         const circle = {cx: 0, cy: 0, r: 13 };
 
