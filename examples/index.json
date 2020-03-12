@@ -1099,8 +1099,8 @@
     },
     {
         "title": "Streams",
-        "column": 2,
-        "category": "Language concepts",
+        "column": 0,
+        "category": "Preview features",
         "samples": [{
             "name": "Streams",
             "url": "streams"
@@ -1108,7 +1108,7 @@
     },
     {
         "title": "Query",
-        "column": 2,
+        "column": 0,
         "category": "Language concepts",
         "samples": [{
             "name": "Query",

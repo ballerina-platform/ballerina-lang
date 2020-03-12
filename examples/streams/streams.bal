@@ -67,32 +67,3 @@ public function main() {
                 io:println("Student " + student.firstName +" has a score of "+ student.score + " .")
             });
 }
-
-    //function testIterator() returns boolean {
-    //    boolean testPassed = true;
-    //    Person[] personList = getPersonList();
-    //
-    //    stream<Person> personStream = personList.toStream();
-    //    var iterator = personStream.iterator();
-    //
-    //    record {|Person value;|}? filteredPerson = iterator.next();
-    //    testPassed = testPassed && filteredPerson?.value == personList[0];
-    //
-    //    filteredPerson = iterator.next();
-    //    testPassed = testPassed && filteredPerson?.value == personList[1];
-    //
-    //    filteredPerson = iterator.next();
-    //    testPassed = testPassed && filteredPerson?.value == personList[2];
-    //
-    //    filteredPerson = iterator.next();
-    //    testPassed = testPassed && filteredPerson?.value == personList[3];
-    //
-    //    filteredPerson = iterator.next();
-    //    testPassed = testPassed && filteredPerson?.value == personList[4];
-    //
-    //    filteredPerson = iterator.next();
-    //    testPassed = testPassed && filteredPerson == ();
-    //
-    //    return testPassed;
-    //}
-
