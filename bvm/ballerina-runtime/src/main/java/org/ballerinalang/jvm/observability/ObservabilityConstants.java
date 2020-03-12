@@ -66,6 +66,7 @@ public class ObservabilityConstants {
 
     // Observability Configs
     public static final String CONFIG_OBSERVABILITY_ENABLED = CONFIG_TABLE_OBSERVABILITY + ".enabled";
+    public static final String CONFIG_OBSERVABILITY_PROVIDER = CONFIG_TABLE_OBSERVABILITY + ".provider";
 
     // Metrics Configs
     public static final String CONFIG_METRICS_ENABLED = CONFIG_TABLE_METRICS + ".enabled";
