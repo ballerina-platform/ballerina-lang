@@ -121,11 +121,8 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.cleanupPa
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.createFunctionPointer;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.getMethodDesc;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.getVariableDcl;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.isBStringFunc;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.isExternFunc;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.loadDefaultValue;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.nameOfBStringFunc;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.nameOfNonBStringFunc;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmObservabilityGen.emitStopObservationInvocation;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.BIRFunctionWrapper;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.birFunctionMap;
@@ -432,13 +429,8 @@ public class JvmTerminatorGen {
 
             String orgName = calleePkgId.orgName.value;
             String moduleName = calleePkgId.name.value;
-            BIRTerminator.Call callInsCopy = new BIRTerminator.Call(callIns.pos, callIns.kind, callIns.isVirtual,
-                    calleePkgId, callIns.name, callIns.args, callIns.lhsOp, callIns.thenBB);
-            if (isBStringFunc(funcName)) {
-                callInsCopy.name = new Name(nameOfBStringFunc(callIns.name.value));
-            }
             // invoke the function
-            this.genCall(callInsCopy, orgName, moduleName, localVarOffset);
+            this.genCall(callIns, orgName, moduleName, localVarOffset);
 
             // store return
             this.storeReturnFromCallIns(callIns.lhsOp != null ? callIns.lhsOp.variableDcl : null);
@@ -463,7 +455,7 @@ public class JvmTerminatorGen {
                         "Ljava/lang/Object;");
                 @Nilable BIRVariableDcl lhsOpVarDcl = callIns.lhsOp.variableDcl;
                 if (lhsOpVarDcl != null) {
-                    addUnboxInsn(this.mv, callIns.lhsOp.variableDcl.type, false); // store return
+                    addUnboxInsn(this.mv, callIns.lhsOp.variableDcl.type); // store return
                     this.storeToVar(lhsOpVarDcl);
                 }
             }
@@ -493,8 +485,8 @@ public class JvmTerminatorGen {
             }
 
             String jClassName = callIns.jClassName;
-            String jMethodName = callIns.name;
-            String jMethodVMSig = isBStringFunc(funcName) ? callIns.jMethodVMSigBString : callIns.jMethodVMSig;
+            String jMethodName = callIns.name + (isBString ? "_bstring" : "");
+            String jMethodVMSig = isBString ? callIns.jMethodVMSigBString : callIns.jMethodVMSig;
             this.mv.visitMethodInsn(INVOKESTATIC, jClassName, jMethodName, jMethodVMSig, false);
 
             if (callIns.lhsOp != null && callIns.lhsOp.variableDcl != null) {
@@ -603,7 +595,7 @@ public class JvmTerminatorGen {
                 this.mv.visitVarInsn(ALOAD, localVarOffset);
                 this.mv.visitFieldInsn(GETFIELD, "org/ballerinalang/jvm/scheduling/Strand", "returnValue",
                         "Ljava/lang/Object;");
-                addUnboxInsn(this.mv, callIns.lhsOp.variableDcl.type, false);
+                addUnboxInsn(this.mv, callIns.lhsOp.variableDcl.type);
                 // store return
                 @Nilable BIRVariableDcl lhsOpVarDcl = callIns.lhsOp.variableDcl;
                 this.storeToVar(lhsOpVarDcl);
@@ -684,7 +676,8 @@ public class JvmTerminatorGen {
                                    String methodName, String methodLookupName) {
             // load strand
             this.mv.visitVarInsn(ALOAD, localVarOffset);
-            String lookupKey = nameOfNonBStringFunc(getPackageName(orgName, moduleName) + methodLookupName);
+
+            String lookupKey = getPackageName(orgName, moduleName) + methodLookupName;
 
             int argsCount = callIns.args.size();
             int i = 0;
@@ -695,23 +688,16 @@ public class JvmTerminatorGen {
                 i += 1;
             }
             String cleanMethodName = cleanupFunctionName(methodName);
-            boolean useBString = isBString && orgName.equals("ballerina") &&
-                                 (moduleName.equals("lang.string") || moduleName.equals("lang.error") ||
-                                  moduleName.equals("lang.value") || moduleName.equals("lang.map")) &&
-                                 !cleanMethodName.endsWith("_");
-            if (useBString) {
-                cleanMethodName = nameOfBStringFunc(cleanMethodName);
-            }
             BIRFunctionWrapper functionWrapper = birFunctionMap.get(lookupKey);
             String methodDesc;
             String jvmClass;
             if (functionWrapper != null) {
                 jvmClass = functionWrapper.fullQualifiedClassName;
-                methodDesc = functionWrapper.jvmMethodDescription;
+                methodDesc = isBString ? functionWrapper.jvmMethodDescriptionBString :
+                             functionWrapper.jvmMethodDescription;
             } else {
                 BPackageSymbol symbol = CodeGenerator.packageCache.getSymbol(orgName + "/" + moduleName);
-                BInvokableSymbol funcSymbol =
-                        (BInvokableSymbol) symbol.scope.lookup(new Name(nameOfNonBStringFunc(methodName))).symbol;
+                BInvokableSymbol funcSymbol = (BInvokableSymbol) symbol.scope.lookup(new Name(methodName)).symbol;
                 BInvokableType type = (BInvokableType) funcSymbol.type;
                 ArrayList<BType> params = new ArrayList<>(type.paramTypes);
                 if (type.restType != null) {
@@ -729,7 +715,7 @@ public class JvmTerminatorGen {
                 jvmClass = getModuleLevelClassName(orgName, moduleName,
                         cleanupPathSeperators(cleanupBalExt(balFileName)));
                 //TODO: add receiver:  BType attachedType = type.r != null ? receiver.type : null;
-                methodDesc = getMethodDesc(params, type.retType, null, false, useBString);
+                methodDesc = getMethodDesc(params, type.retType, null, false);
             }
             this.mv.visitMethodInsn(INVOKESTATIC, jvmClass, cleanMethodName, methodDesc, false);
         }
@@ -785,7 +771,7 @@ public class JvmTerminatorGen {
             this.mv.visitMethodInsn(INVOKEINTERFACE, OBJECT_VALUE, "call", methodDesc, true);
 
             @Nilable BType returnType = callIns.lhsOp.variableDcl.type;
-            addUnboxInsn(this.mv, returnType, false);
+            addUnboxInsn(this.mv, returnType);
         }
 
         void loadBooleanArgToIndicateUserProvidedArg(String orgName, String moduleName, boolean userProvided) {
@@ -908,7 +894,7 @@ public class JvmTerminatorGen {
             this.mv.visitVarInsn(ALOAD, resultIndex);
             this.mv.visitFieldInsn(GETFIELD, String.format("%s$WaitResult", STRAND), "result",
                     String.format("L%s;", OBJECT));
-            addUnboxInsn(this.mv, waitInst.lhsOp.variableDcl.type, false);
+            addUnboxInsn(this.mv, waitInst.lhsOp.variableDcl.type);
             this.storeToVar(waitInst.lhsOp.variableDcl);
             this.mv.visitLabel(afterIf);
         }
@@ -998,7 +984,7 @@ public class JvmTerminatorGen {
                 // store reult
                 @Nilable BType lhsType = fpCall.lhsOp.variableDcl.type;
                 if (lhsType != null) {
-                    addUnboxInsn(this.mv, lhsType, false);
+                    addUnboxInsn(this.mv, lhsType);
                 }
 
                 @Nilable BIRVariableDcl lhsVar = fpCall.lhsOp.variableDcl;
@@ -1073,7 +1059,7 @@ public class JvmTerminatorGen {
             Label withinReceiveSuccess = new Label();
             this.mv.visitLabel(withinReceiveSuccess);
             this.mv.visitVarInsn(ALOAD, wrkResultIndex);
-            addUnboxInsn(this.mv, ins.lhsOp.variableDcl.type, false);
+            addUnboxInsn(this.mv, ins.lhsOp.variableDcl.type);
             this.storeToVar(ins.lhsOp.variableDcl);
 
             this.mv.visitLabel(jumpAfterReceive);
