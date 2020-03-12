@@ -30,6 +30,8 @@ public enum SyntaxKind {
     XMLNS_KEYWORD(105, "xmlns"),
     ANNOTATION_KEYWORD(106, "annotation"),
     TYPE_KEYWORD(107, "type"),
+    RECORD_KEYWORD(108, "record"),
+    OBJECT_KEYWORD(109, "object"),
 
     RETURNS_KEYWORD(200, "returns"),
     RETURN_KEYWORD(201, "return"),
@@ -49,6 +51,8 @@ public enum SyntaxKind {
     COLON_TOKEN(508, ":"),
     COMMA_TOKEN(509, ","),
     ELLIPSIS_TOKEN(510, "..."),
+    OPEN_BRACE_PIPE_TOKEN(511, "{|"),
+    CLOSE_BRACE_PIPE_TOKEN(511, "|}"),
 
     // Operators
     EQUAL_TOKEN(550, "="),
@@ -63,12 +67,13 @@ public enum SyntaxKind {
     EQUAL_LT_TOKEN(558, "<="),
     GT_TOKEN(559, "<"),
     EQUAL_GT_TOKEN(560, "=>"),
+    QUESTION_MARK_TOKEN(561, "?"),
+    PIPE_TOKEN(562, "|"),
     
     IDENTIFIER_TOKEN(1000),
     STRING_LITERAL_TOKEN(1001),
     NUMERIC_LITERAL_TOKEN(1002),
     TYPE_TOKEN(1003),
-
 
     // Trivia
     WHITESPACE_TRIVIA(1500),
@@ -78,6 +83,7 @@ public enum SyntaxKind {
     // module-level declarations
     IMPORT_DECLARATION(2000),
     FUNCTION_DEFINITION(2001),
+    TYPE_DEFINITION(2001),
 
     // Statements
     BLOCK_STATEMENT(1200),
@@ -88,11 +94,18 @@ public enum SyntaxKind {
     BINARY_EXPRESSION(1300),
     BRACED_EXPRESSION(1301),
 
+    // Type descriptors
+    RECORD_TYPE_DESCRIPTOR(2000),
+
     // Other
     RETURN_TYPE_DESCRIPTOR(3000),
     PARAMETER(3001),
     EXTERNAL_FUNCTION_BODY(3002),
-    
+    RECORD_FIELD(3003),
+    RECORD_FIELD_WITH_DEFAULT_VALUE(3004),
+    RECORD_TYPE_REFERENCE(3005),
+    RECORD_REST_TYPE(3006),
+
     INVALID(4),
     MODULE_PART(3),
     EOF_TOKEN(2),

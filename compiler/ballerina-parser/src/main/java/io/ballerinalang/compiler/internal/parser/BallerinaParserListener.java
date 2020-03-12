@@ -27,8 +27,14 @@ import io.ballerinalang.compiler.internal.parser.tree.STExternalFuncBody;
 import io.ballerinalang.compiler.internal.parser.tree.STFunctionDefinition;
 import io.ballerinalang.compiler.internal.parser.tree.STMissingToken;
 import io.ballerinalang.compiler.internal.parser.tree.STModulePart;
+import io.ballerinalang.compiler.internal.parser.tree.STModuleTypeDefinition;
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 import io.ballerinalang.compiler.internal.parser.tree.STNodeList;
+import io.ballerinalang.compiler.internal.parser.tree.STRecordField;
+import io.ballerinalang.compiler.internal.parser.tree.STRecordFieldWithDefaultValue;
+import io.ballerinalang.compiler.internal.parser.tree.STRecordRestDescriptor;
+import io.ballerinalang.compiler.internal.parser.tree.STRecordTypeDescriptor;
+import io.ballerinalang.compiler.internal.parser.tree.STRecordTypeReference;
 import io.ballerinalang.compiler.internal.parser.tree.STRequiredParameter;
 import io.ballerinalang.compiler.internal.parser.tree.STRestParameter;
 import io.ballerinalang.compiler.internal.parser.tree.STReturnTypeDescriptor;
@@ -52,6 +58,7 @@ public class BallerinaParserListener {
     private final ArrayDeque<STNode> nodesStack = new ArrayDeque<>();
     private List<STNode> statements = new ArrayList<>();
     private Stack<List<STNode>> parameters = new Stack<>();
+    private Stack<List<STNode>> recordFields = new Stack<>();
 
     public void exitCompUnit(STToken eofToken) {
         List<STNode> importDecls = new ArrayList<>();
@@ -264,5 +271,75 @@ public class BallerinaParserListener {
         }
 
         return nodesStack.peek();
+    }
+
+    public void exitModuleTypeDefinition() {
+        STNode comma = this.nodesStack.pop();
+        STNode typeDescriptor = this.nodesStack.pop();
+        STNode typeName = this.nodesStack.pop();
+        STNode typeKeyword = this.nodesStack.pop();
+        STNode modifier = this.nodesStack.pop();
+        STModuleTypeDefinition typeDef =
+                new STModuleTypeDefinition(modifier, typeKeyword, typeName, typeDescriptor, comma);
+        this.nodesStack.push(typeDef);
+
+        System.out.println("--------------------------------------------------");
+        System.out.println(typeDef);
+    }
+
+    public void exitRecordTypeDescriptor() {
+        STNode bodyEndDelimiter = this.nodesStack.pop();
+        STNode fields = this.nodesStack.pop();
+        STNode restDescriptor = this.nodesStack.pop();
+        STNode bodyStartDelimiter = this.nodesStack.pop();
+        STNode recordKeyword = this.nodesStack.pop();
+        STRecordTypeDescriptor recordTypeDesc =
+                new STRecordTypeDescriptor(recordKeyword, bodyStartDelimiter, fields, restDescriptor, bodyEndDelimiter);
+        this.nodesStack.push(recordTypeDesc);
+    }
+
+    public void startFieldDescriptors() {
+        this.recordFields.add(new ArrayList<>());
+    }
+
+    public void exitFieldDescriptors() {
+        STNode params = new STNodeList(this.recordFields.pop());
+        this.nodesStack.push(params);
+    }
+
+    public void exitRecordField() {
+        STNode semicolonToken = this.nodesStack.pop();
+        STNode questionMarkToken = this.nodesStack.pop();
+        STNode fieldName = this.nodesStack.pop();
+        STNode type = this.nodesStack.pop();
+        STRecordField recordField = new STRecordField(type, fieldName, questionMarkToken, semicolonToken);
+        this.recordFields.peek().add(recordField);
+    }
+
+    public void exitRecordFieldWithDefaultValue() {
+        STNode semicolonToken = this.nodesStack.pop();
+        STNode equalsToken = this.nodesStack.pop();
+        STNode expression = this.nodesStack.pop();
+        STNode fieldName = this.nodesStack.pop();
+        STNode type = this.nodesStack.pop();
+        STRecordFieldWithDefaultValue recordField =
+                new STRecordFieldWithDefaultValue(type, fieldName, equalsToken, expression, semicolonToken);
+        this.recordFields.peek().add(recordField);
+    }
+
+    public void exitRecordRestDescriptor() {
+        STNode semicolonToken = this.nodesStack.pop();
+        STNode ellipsis = this.nodesStack.pop();
+        STNode type = this.nodesStack.pop();
+        STRecordRestDescriptor restDesc = new STRecordRestDescriptor(type, ellipsis, semicolonToken);
+        this.nodesStack.push(restDesc);
+    }
+
+    public void exitRecordTypeReference() {
+        STNode semicolonToken = this.nodesStack.pop();
+        STNode type = this.nodesStack.pop();
+        STNode asterisk = this.nodesStack.pop();
+        STRecordTypeReference typeRef = new STRecordTypeReference(asterisk, type, semicolonToken);
+        this.recordFields.peek().add(typeRef);
     }
 }

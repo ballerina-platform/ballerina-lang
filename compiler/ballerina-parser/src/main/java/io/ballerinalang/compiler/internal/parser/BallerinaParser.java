@@ -26,6 +26,8 @@ import io.ballerinalang.compiler.syntax.tree.SyntaxTree;
 import io.ballerinalang.compiler.text.TextDocument;
 import io.ballerinalang.compiler.text.TextDocumentChange;
 
+import java.util.ArrayDeque;
+
 /**
  * A LL(k) recursive-descent parser for ballerina.
  * 
@@ -38,6 +40,7 @@ public class BallerinaParser {
     private final AbstractNodeSupplier tokenReader;
 
     private ParserRuleContext currentParamKind = ParserRuleContext.REQUIRED_PARAM;
+    private ArrayDeque<ParserRuleContext> currentFieldKindStack = new ArrayDeque<>();
 
     public BallerinaParser(BallerinaLexer lexer) {
         this.tokenReader = new TokenReader(lexer);
@@ -122,7 +125,7 @@ public class BallerinaParser {
                 parseFunctionBodyBlock();
                 break;
             case SEMICOLON:
-                parseStatementEnd();
+                parseSemicolon();
                 break;
             case CLOSE_PARENTHESIS:
                 parseCloseParenthesis();
@@ -296,6 +299,7 @@ public class BallerinaParser {
                 parseTopLevelNode();
                 return;
             case FUNCTION_KEYWORD:
+            case TYPE_KEYWORD:
                 this.listner.addEmptyModifier();
                 parseTopLevelNode(tokenKind);
                 return;
@@ -331,6 +335,9 @@ public class BallerinaParser {
         switch (tokenKind) {
             case FUNCTION_KEYWORD:
                 parseFunctionDefinition();
+                break;
+            case TYPE_KEYWORD:
+                parseModuleTypeDefinition();
                 break;
             default:
                 STToken token = peek();
@@ -543,7 +550,7 @@ public class BallerinaParser {
             case ELLIPSIS_TOKEN:
                 this.currentParamKind = ParserRuleContext.REST_PARAM;
                 switchContext(ParserRuleContext.REST_PARAM);
-                parseSyntaxNode(); // parse '...'
+                parseEllipsis();
                 parseVariableName();
                 this.listner.exitRestParameter();
                 break;
@@ -564,6 +571,18 @@ public class BallerinaParser {
 
                 parseAfterParamType(solution.tokenKind);
                 break;
+        }
+    }
+
+    /**
+     * Parse ellipsis.
+     */
+    private void parseEllipsis() {
+        STToken token = peek();
+        if (token.kind == SyntaxKind.ELLIPSIS_TOKEN) {
+            parseSyntaxNode(); // parse '...'
+        } else {
+            recover(token, ParserRuleContext.ELLIPSIS);
         }
     }
 
@@ -762,7 +781,12 @@ public class BallerinaParser {
         switch (tokenKind) {
             case TYPE_TOKEN:
             case IDENTIFIER_TOKEN:
+                // simple type descriptor
                 this.listner.exitTypeDescriptor(consume()); // type descriptor
+                break;
+            case RECORD_KEYWORD:
+                // Record type descriptor
+                parseRecordTypeDescriptor();
                 break;
             default:
                 recover(peek(), ParserRuleContext.TYPE_DESCRIPTOR);
@@ -865,6 +889,7 @@ public class BallerinaParser {
             case PUBLIC_KEYWORD:
             case FUNCTION_KEYWORD:
             case EOF_TOKEN:
+            case CLOSE_BRACE_PIPE_TOKEN:
                 return true;
             default:
                 return false;
@@ -941,7 +966,7 @@ public class BallerinaParser {
         parseAssignOp();
         parseAnnotations();
         parseExternalKeyword();
-        parseStatementEnd();
+        parseSemicolon();
         this.listner.exitExternalFunctionBody();
         endContext();
     }
@@ -949,7 +974,7 @@ public class BallerinaParser {
     /**
      * Parse semicolon.
      */
-    private void parseStatementEnd() {
+    private void parseSemicolon() {
         STToken token = peek();
         if (token.kind == SyntaxKind.SEMICOLON_TOKEN) {
             parseSyntaxNode();
@@ -1065,6 +1090,352 @@ public class BallerinaParser {
         }
     }
 
+    /**
+     * <p>
+     * Parse a module type definition.
+     * </p>
+     * <code>module-type-defn := metadata [public] type identifier type-descriptor ;</code>
+     */
+    private void parseModuleTypeDefinition() {
+        startContext(ParserRuleContext.TYPE_DEFINITION);
+        parseTypeKeyword();
+        parseTypeName();
+        parseTypeDescriptor();
+        parseSemicolon();
+        this.listner.exitModuleTypeDefinition();
+        endContext();
+    }
+
+    /**
+     * Parse type keyword.
+     */
+    private void parseTypeKeyword() {
+        STToken token = peek();
+        if (token.kind == SyntaxKind.TYPE_KEYWORD) {
+            this.listner.exitSyntaxNode(consume()); // 'type' keyword
+        } else {
+            recover(token, ParserRuleContext.FUNC_NAME);
+        }
+    }
+
+    /**
+     * Parse type name.
+     */
+    private void parseTypeName() {
+        STToken token = peek();
+        if (token.kind == SyntaxKind.IDENTIFIER_TOKEN) {
+            this.listner.exitIdentifier(consume()); // type name
+        } else {
+            recover(token, ParserRuleContext.FUNC_NAME);
+        }
+    }
+
+    /**
+     * <p>
+     * Parse record type descriptor. A record type descriptor body has the following structure.
+     * </p>
+     * 
+     * <code>record-type-descriptor := inclusive-record-type-descriptor | exclusive-record-type-descriptor
+     * <br/><br/>inclusive-record-type-descriptor := record { field-descriptor* }
+     * <br/><br/>exclusive-record-type-descriptor := record {| field-descriptor* [record-rest-descriptor] |}
+     * </code>
+     */
+    private void parseRecordTypeDescriptor() {
+        parseRecordKeyword();
+        parseRecordBodyStartDelimiter();
+        parseFieldDescriptors();
+        parseRecordBodyCloseDelimiter();
+        this.listner.exitRecordTypeDescriptor();
+    }
+
+    /**
+     * 
+     */
+    private void parseRecordBodyStartDelimiter() {
+        STToken token = peek();
+        parseRecordBodyStartDelimiter(token.kind);
+    }
+
+    private void parseRecordBodyStartDelimiter(SyntaxKind kind) {
+        switch (kind) {
+            case OPEN_BRACE_PIPE_TOKEN:
+                parseClosedRecordBodyStart();
+                break;
+            case OPEN_BRACE_TOKEN:
+                parseOpenBrace();
+                break;
+            default:
+                STToken token = peek();
+                Solution solution = recover(token, ParserRuleContext.RECORD_BODY_START);
+
+                // If the parser recovered by inserting a token, then try to re-parse the same
+                // rule with the inserted token. This is done to pick the correct branch
+                // to continue the parsing.
+                if (solution.action != Action.INSERT) {
+                    break;
+                }
+
+                parseRecordBodyStartDelimiter(solution.tokenKind);
+                return;
+        }
+    }
+
+    /**
+     * 
+     */
+    private void parseClosedRecordBodyStart() {
+        STToken token = peek();
+        if (token.kind == SyntaxKind.OPEN_BRACE_PIPE_TOKEN) {
+            parseSyntaxNode();
+        } else {
+            recover(token, ParserRuleContext.CLOSED_RECORD_BODY_START);
+        }
+    }
+
+    /**
+     * 
+     */
+    private void parseRecordBodyCloseDelimiter() {
+        STToken token = peek();
+        parseRecordBodyCloseDelimiter(token.kind);
+    }
+
+    /**
+     * 
+     */
+    private void parseRecordBodyCloseDelimiter(SyntaxKind kind) {
+        switch (kind) {
+            case CLOSE_BRACE_PIPE_TOKEN:
+                parseClosedRecordBodyEnd();
+                break;
+            case CLOSE_BRACE_TOKEN:
+                parseCloseBrace();
+                break;
+            default:
+                STToken token = peek();
+                Solution solution = recover(token, ParserRuleContext.RECORD_BODY_END);
+
+                // If the parser recovered by inserting a token, then try to re-parse the same
+                // rule with the inserted token. This is done to pick the correct branch
+                // to continue the parsing.
+                if (solution.action != Action.INSERT) {
+                    break;
+                }
+
+                parseRecordBodyStartDelimiter(solution.tokenKind);
+                return;
+        }
+    }
+
+    /**
+     * 
+     */
+    private void parseClosedRecordBodyEnd() {
+        STToken token = peek();
+        if (token.kind == SyntaxKind.CLOSE_BRACE_PIPE_TOKEN) {
+            parseSyntaxNode();
+        } else {
+            recover(token, ParserRuleContext.CLOSED_RECORD_BODY_END);
+        }
+    }
+
+    /**
+     * Parse record keyword.
+     */
+    private void parseRecordKeyword() {
+        STToken token = peek();
+        if (token.kind == SyntaxKind.RECORD_KEYWORD) {
+            this.listner.exitSyntaxNode(consume()); // 'record' keyword
+        } else {
+            recover(token, ParserRuleContext.RECORD_KEYWORD);
+        }
+    }
+
+    /**
+     * <p>
+     * Parse field descriptors.
+     * </p>
+     */
+    private void parseFieldDescriptors() {
+        this.listner.startFieldDescriptors();
+
+        STToken token = peek();
+        ParserRuleContext currentFieldKind = ParserRuleContext.RECORD_FIELD;
+        this.currentFieldKindStack.push(currentFieldKind);
+
+        while (!isEndOfBlock(token.kind) && currentFieldKind == ParserRuleContext.RECORD_FIELD) {
+            parseFieldOrRestDescriptor();
+            token = peek();
+            currentFieldKind = this.currentFieldKindStack.peek();
+        }
+
+        if (currentFieldKind == ParserRuleContext.RECORD_FIELD) {
+            // Last processed field is a record-field. That means no rest-field exists.
+            // Therefore add an empty node.
+            this.listner.addEmptyNode();
+        } else {
+            // Else, record rest-field is processed. Then there cannot be anymore record-fields.
+            // If there's any, then process them normally, but log an error.
+            while (!isEndOfBlock(token.kind)) {
+                parseFieldOrRestDescriptor();
+                this.errorHandler.reportInvalidNode(token, "cannot have more fields after the rest type descriptor");
+                // TODO: discard the last processed field
+                token = peek();
+            }
+        }
+
+        this.currentFieldKindStack.pop();
+        this.listner.exitFieldDescriptors();
+    }
+
+    /**
+     * <p>
+     * Parse field descriptor or rest descriptor.
+     * </p>
+     * 
+     * <code>
+     * <br/><br/>field-descriptor := individual-field-descriptor | record-type-reference
+     * <br/><br/><br/>individual-field-descriptor := metadata type-descriptor field-name [? | default-value] ;
+     * <br/><br/>field-name := identifier
+     * <br/><br/>default-value := = expression
+     * <br/><br/>record-type-reference := * type-reference ;
+     * <br/><br/>record-rest-descriptor := type-descriptor ... ;
+     * </code>
+     */
+    private void parseFieldOrRestDescriptor() {
+        STToken token = peek();
+        // record-type-reference
+        if (token.kind == SyntaxKind.ASTERISK_TOKEN) {
+            this.listner.exitSyntaxNode(consume()); // '*' token
+            parseTypeDescriptor();
+            parseSemicolon();
+            this.listner.exitRecordTypeReference();
+            return;
+        }
+
+        // individual-field-descriptor
+        parseTypeDescriptor();
+        parseFieldOrRestDescriptorRhs();
+    }
+
+    /**
+     * 
+     */
+    private void parseFieldOrRestDescriptorRhs() {
+        STToken token = peek();
+        parseFieldOrRestDescriptorRhs(token.kind);
+    }
+
+    /**
+     * 
+     */
+    private void parseFieldOrRestDescriptorRhs(SyntaxKind kind) {
+        switch (kind) {
+            case ELLIPSIS_TOKEN:
+                parseEllipsis();
+                parseSemicolon();
+                this.listner.exitRecordRestDescriptor();
+                this.currentFieldKindStack.pop();
+                this.currentFieldKindStack.push(ParserRuleContext.RECORD_REST_FIELD);
+                break;
+            case IDENTIFIER_TOKEN:
+                parseVariableName();
+                parseFieldDescriptorRhs();
+                break;
+            default:
+                STToken token = peek();
+                Solution solution = recover(token, ParserRuleContext.FIELD_OR_REST_DESCIPTOR_RHS);
+
+                // If the parser recovered by inserting a token, then try to re-parse the same
+                // rule with the inserted token. This is done to pick the correct branch
+                // to continue the parsing.
+                if (solution.action != Action.INSERT) {
+                    break;
+                }
+
+                parseFieldOrRestDescriptorRhs(solution.tokenKind);
+                return;
+        }
+    }
+
+    /**
+     * <p>
+     * Parse field descriptor rhs.
+     * </p>
+     */
+    private void parseFieldDescriptorRhs() {
+        STToken token = peek();
+        parseFieldDescriptorRhs(token.kind);
+    }
+
+    /**
+     * <p>
+     * Parse field descriptor rhs.
+     * </p>
+     * 
+     * <code>
+     * field-descriptor := [? | default-value] ;
+     * <br/>default-value := = expression
+     * </code>
+     */
+    private void parseFieldDescriptorRhs(SyntaxKind kind) {
+        switch (kind) {
+            case SEMICOLON_TOKEN:
+                this.listner.addEmptyNode();
+                parseSemicolon();
+                this.listner.exitRecordField();
+                break;
+            case QUESTION_MARK_TOKEN:
+                parseQuestionMark();
+                parseSemicolon();
+                this.listner.exitRecordField();
+                break;
+            case EQUAL_TOKEN:
+                parseRecordDefaultValue();
+                this.listner.exitRecordFieldWithDefaultValue();
+                break;
+            default:
+                STToken token = peek();
+                Solution solution = recover(token, ParserRuleContext.FIELD_DESCRIPTOR_RHS);
+
+                // If the parser recovered by inserting a token, then try to re-parse the same
+                // rule with the inserted token. This is done to pick the correct branch
+                // to continue the parsing.
+                if (solution.action != Action.INSERT) {
+                    break;
+                }
+
+                parseFieldDescriptorRhs(solution.tokenKind);
+                break;
+        }
+    }
+
+    /**
+     * Parse question mark.
+     */
+    private void parseQuestionMark() {
+        STToken token = peek();
+        if (token.kind == SyntaxKind.QUESTION_MARK_TOKEN) {
+            this.listner.exitSyntaxNode(consume()); // '?' token
+        } else {
+            recover(token, ParserRuleContext.QUESTION_MARK);
+        }
+    }
+
+    /**
+     * <p>
+     * Parse record field default value.
+     * </p>
+     * 
+     * <code>
+     * <br/>default-value := = expression
+     * </code>
+     */
+    private void parseRecordDefaultValue() {
+        parseAssignOp();
+        parseExpression();
+    }
+
     /*
      * Statements
      */
@@ -1173,11 +1544,11 @@ public class BallerinaParser {
             case EQUAL_TOKEN:
                 parseAssignOp();
                 parseExpression();
-                parseStatementEnd();
+                parseSemicolon();
                 this.listner.exitVarDefStmt(true);
                 break;
             case SEMICOLON_TOKEN:
-                parseStatementEnd();
+                parseSemicolon();
                 this.listner.exitVarDefStmt(false);
                 break;
             default:
@@ -1267,7 +1638,7 @@ public class BallerinaParser {
     private void parseAssignmentStmtRhs() {
         parseAssignOp();
         parseExpression();
-        parseStatementEnd();
+        parseSemicolon();
         this.listner.exitAssignmentStmt();
     }
 

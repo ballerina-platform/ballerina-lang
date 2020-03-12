@@ -94,7 +94,12 @@ public class BallerinaLexer {
                 break;
             case LexerTerminals.OPEN_BRACE:
                 reader.advance();
-                token = getSyntaxToken(SyntaxKind.OPEN_BRACE_TOKEN);
+                if (peek() == LexerTerminals.PIPE) {
+                    reader.advance();
+                    token = getSyntaxToken(SyntaxKind.OPEN_BRACE_PIPE_TOKEN);
+                } else {
+                    token = getSyntaxToken(SyntaxKind.OPEN_BRACE_TOKEN);
+                }
                 break;
             case LexerTerminals.CLOSE_BRACE:
                 reader.advance();
@@ -107,6 +112,15 @@ public class BallerinaLexer {
             case LexerTerminals.CLOSE_BRACKET:
                 reader.advance();
                 token = getSyntaxToken(SyntaxKind.CLOSE_BRACKET_TOKEN);
+                break;
+            case LexerTerminals.PIPE:
+                reader.advance();
+                if (peek() == LexerTerminals.CLOSE_BRACE) {
+                    reader.advance();
+                    token = getSyntaxToken(SyntaxKind.CLOSE_BRACE_PIPE_TOKEN);
+                } else {
+                    token = getSyntaxToken(SyntaxKind.PIPE_TOKEN);
+                }
                 break;
 
             // Arithmetic operators
@@ -445,6 +459,12 @@ public class BallerinaLexer {
                 return getSyntaxToken(SyntaxKind.RETURNS_KEYWORD);
             case LexerTerminals.EXTERNAL:
                 return getSyntaxToken(SyntaxKind.EXTERNAL_KEYWORD);
+            case LexerTerminals.TYPE:
+                return getSyntaxToken(SyntaxKind.TYPE_KEYWORD);
+            case LexerTerminals.RECORD:
+                return getSyntaxToken(SyntaxKind.RECORD_KEYWORD);
+            case LexerTerminals.OBJECT:
+                return getSyntaxToken(SyntaxKind.OBJECT_KEYWORD);
             default:
                 return getIdentifierToken(tokenText);
         }

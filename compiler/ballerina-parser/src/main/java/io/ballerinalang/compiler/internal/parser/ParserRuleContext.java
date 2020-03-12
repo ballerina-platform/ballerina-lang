@@ -49,7 +49,16 @@ public enum ParserRuleContext {
     VAR_DECL_STMT_RHS("var-decl-rhs"),
     TYPE_OR_VAR_NAME("type-or-var-name"),
     ASSIGNMENT_OR_VAR_DECL_STMT_RHS("assign-or-var-decl-rhs"),
-
+    TYPE_DEFINITION("type-definition"),
+    FIELD_OR_REST_DESCIPTOR_RHS("field-or-rest-descriptor-rhs"),
+    FIELD_DESCRIPTOR_RHS("field-descriptor-rhs"),
+    RECORD_BODY_START("record-body-start"),
+    RECORD_BODY_END("record-body-end"),
+    CLOSED_RECORD_BODY_START("closed-record-body-start"),
+    CLOSED_RECORD_BODY_END("closed-record-body-end"),
+    RECORD_FIELD("record-field"),
+    RECORD_REST_FIELD("record-rest-field"),
+    
     // terminals
     PUBLIC("public"),
     FUNCTION_KEYWORD("function"),
@@ -67,6 +76,8 @@ public enum ParserRuleContext {
     BINARY_OPERATOR("binary-operator"),
     COMMA(","),
     ELLIPSIS("..."),
+    RECORD_KEYWORD("record"),
+    QUESTION_MARK("?"),
 
     // expressions
     EXPRESSION("expression"),

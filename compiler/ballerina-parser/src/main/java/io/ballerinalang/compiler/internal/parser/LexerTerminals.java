@@ -30,6 +30,9 @@ public class LexerTerminals {
     public static final String RETURN = "return";
     public static final String RETURNS = "returns";
     public static final String EXTERNAL = "external";
+    public static final String TYPE = "type";
+    public static final String RECORD = "record";
+    public static final String OBJECT = "object";
 
     // Types
     public static final String INT = "int";
@@ -46,8 +49,9 @@ public class LexerTerminals {
     public static final char CLOSE_PARANTHESIS = ')';
     public static final char OPEN_BRACE = '{';
     public static final char CLOSE_BRACE = '}';
-    public static final int OPEN_BRACKET = '[';
-    public static final int CLOSE_BRACKET = ']';
+    public static final char OPEN_BRACKET = '[';
+    public static final char CLOSE_BRACKET = ']';
+    public static final char PIPE = '|';
 
     // Arithmetic operators
     public static final char EQUAL = '=';
