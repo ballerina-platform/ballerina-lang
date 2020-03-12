@@ -205,6 +205,11 @@ export class BallerinaExtension {
                 params.affectsConfiguration(OVERRIDE_BALLERINA_HOME)) {
                 this.showMsgAndRestart(CONFIG_CHANGED);
             }
+            // If it is older SDK less than 1.2.0, needs a server restart
+            if ((!ballerinaExtInstance.isNewConfigChangeSupported) && (params.affectsConfiguration(ALLOW_EXPERIMENTAL) 
+                || params.affectsConfiguration(ENABLE_DEBUG_LOG) || params.affectsConfiguration(ENABLE_TRACE_LOG))) {
+                this.showMsgAndRestart(CONFIG_CHANGED);
+            }
         });
 
         languages.setLanguageConfiguration('ballerina', {
