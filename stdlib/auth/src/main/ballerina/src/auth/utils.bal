@@ -68,22 +68,6 @@ public function extractUsernameAndPassword(string credential) returns [string, s
     }
 }
 
-# Log and prepare `error` as a `Error`.
-#
-# + message - Error message
-# + err - `error` instance
-# + return - Prepared `Error` instance
-function prepareError(string message, error? err = ()) returns Error {
-    log:printError(message, err);
-    Error authError;
-    if (err is error) {
-        authError = error(AUTH_ERROR, message = message, cause = err);
-    } else {
-        authError = error(AUTH_ERROR, message = message);
-    }
-    return authError;
-}
-
 # Set the authentication related values (scheme, auth token) to the authentication context of the invocation context.
 #
 # + scheme - Auth scheme (JWT, LDAP, OAuth2, Basic etc.)

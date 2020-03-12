@@ -424,7 +424,8 @@ public class XMLLiteralTest {
                 "<elem>42|3.14|31.4444|this-is-a-string|<abc></abc></elem>");
     }
 
-    @Test (groups = "brokenOnXMLLangLibChange", description = "Test interpolating xml when there are extra dollar signs")
+    @Test (groups = "brokenOnXMLLangLibChange",
+            description = "Test interpolating xml when there are extra dollar signs")
     public void testXMLLiteralWithExtraDollarSigns() {
         BValue[] returns = BRunUtil.invoke(result, "testDollarSignOnXMLLiteralTemplate");
         Assert.assertTrue(returns[0] instanceof BXML);

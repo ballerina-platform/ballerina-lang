@@ -28,6 +28,7 @@ import org.ballerinalang.stdlib.utils.HTTPTestRequest;
 import org.ballerinalang.stdlib.utils.ResponseReader;
 import org.ballerinalang.stdlib.utils.Services;
 import org.ballerinalang.test.util.BCompileUtil;
+import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -64,7 +65,10 @@ public class MultipartFormDataDecoderTest {
     @BeforeClass
     public void setup() {
         String sourceFilePath = "test-src/multipart/multipart-request.bal";
-        BCompileUtil.compile(sourceFilePath);
+        CompileResult result = BCompileUtil.compile(sourceFilePath);
+        if (result.getErrorCount() > 0) {
+            Assert.fail("Compilation errors");
+        }
     }
 
     @Test(description = "Test sending a multipart request with a text body part which is kept in memory")

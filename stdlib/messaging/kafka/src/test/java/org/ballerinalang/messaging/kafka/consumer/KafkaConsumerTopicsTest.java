@@ -91,22 +91,6 @@ public class KafkaConsumerTopicsTest {
     }
 
     @Test(
-            description = "Test functionality of getAvailableTopics() function",
-            dependsOnMethods = "testKafkaGetAvailableTopicsWithDuration"
-    )
-    public void testKafkaConsumerGetAvailableTopicsFromNoTimeoutConsumer () {
-        produceToKafkaCluster(kafkaCluster, TOPIC_TEST_1, TEST_MESSAGE);
-        produceToKafkaCluster(kafkaCluster, TOPIC_TEST_2, TEST_MESSAGE);
-        BValue[] returnBValues = BRunUtil.invoke(result,
-                "funcKafkaGetAvailableTopicsFromNoTimeoutConsumer");
-        Assert.assertEquals(returnBValues.length, 1);
-        Assert.assertTrue(returnBValues[0] instanceof BValueArray);
-        Assert.assertEquals((returnBValues[0]).size(), 2);
-        Assert.assertEquals(((BValueArray) returnBValues[0]).getString(0), TOPIC_TEST_2);
-        Assert.assertEquals(((BValueArray) returnBValues[0]).getString(1), TOPIC_TEST_1);
-    }
-
-    @Test(
             description = "Test functionality of getTopicPartitions() function",
             dependsOnMethods = "testKafkaGetAvailableTopicsWithDuration"
     )

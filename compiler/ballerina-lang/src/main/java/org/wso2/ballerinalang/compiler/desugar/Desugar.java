@@ -1818,12 +1818,13 @@ public class Desugar extends BLangNodeVisitor {
                 continue;
             }
 
+            BType binaryExprType =
+                    TypeTags.isXMLTypeTag(concatExpr.type.tag) || TypeTags.isXMLTypeTag(currentExpr.type.tag)
+                            ? symTable.xmlType
+                            : symTable.stringType;
             concatExpr =
                     ASTBuilderUtil.createBinaryExpr(concatExpr.pos, concatExpr, currentExpr,
-                                                    TypeTags.isXMLTypeTag(concatExpr.type.tag) ||
-                                                            TypeTags.isXMLTypeTag(currentExpr.type.tag)?
-                                                            symTable.xmlType : symTable.stringType,
-                                                    OperatorKind.ADD, null);
+                            binaryExprType, OperatorKind.ADD, null);
         }
         return concatExpr;
     }
@@ -3546,7 +3547,7 @@ public class Desugar extends BLangNodeVisitor {
 
         // Handle element name access.
         if (fieldName.equals("_")) {
-            return createLanglibXMLInvocation(fieldAccessExpr.pos,  "getElementName", fieldAccessExpr.expr,
+            return createLanglibXMLInvocation(fieldAccessExpr.pos,  "getElementNameNilLifting", fieldAccessExpr.expr,
                     new ArrayList<>(), new ArrayList<>());
         }
 

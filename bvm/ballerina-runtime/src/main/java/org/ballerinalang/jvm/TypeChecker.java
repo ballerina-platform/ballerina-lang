@@ -234,6 +234,13 @@ public class TypeChecker {
             return true;
         }
 
+        if (sourceType.getTag() == TypeTags.XML_TAG) {
+            XMLValue val = (XMLValue) sourceVal;
+            if (val.getNodeType() == XMLNodeType.SEQUENCE) {
+                return checkIsLikeOnValue(sourceVal, sourceType, targetType, new ArrayList<>(), false);
+            }
+        }
+
         if (isMutable(sourceVal, sourceType)) {
             return false;
         }
@@ -569,6 +576,10 @@ public class TypeChecker {
             case TypeTags.CHAR_STRING_TAG:
             case TypeTags.BOOLEAN_TAG:
             case TypeTags.NULL_TAG:
+                if (sourceType.getTag() == TypeTags.FINITE_TYPE_TAG) {
+                    return isFiniteTypeMatch((BFiniteType) sourceType, targetType);
+                }
+                return sourceType.getTag() == targetType.getTag();
             case TypeTags.XML_TAG:
                 if (sourceType.getTag() == TypeTags.FINITE_TYPE_TAG) {
                     return isFiniteTypeMatch((BFiniteType) sourceType, targetType);
@@ -1185,6 +1196,19 @@ public class TypeChecker {
                 return checkIsLikeAnydataType(sourceValue, sourceType, unresolvedValues, allowNumericConversion);
             case TypeTags.FINITE_TYPE_TAG:
                 return checkFiniteTypeAssignable(sourceValue, sourceType, (BFiniteType) targetType);
+            case TypeTags.XML_ELEMENT_TAG:
+                if (sourceType.getTag() == TypeTags.XML_TAG) {
+                    XMLValue xmlSource = (XMLValue) sourceValue;
+                    return xmlSource.isSingleton();
+                }
+                return false;
+            case TypeTags.XML_COMMENT_TAG:
+            case TypeTags.XML_PI_TAG:
+            case TypeTags.XML_TEXT_TAG:
+                if (sourceType.getTag() == TypeTags.XML_TAG) {
+                    return matchXMLType((XMLValue) sourceValue, targetType);
+                }
+                return false;
             case TypeTags.UNION_TAG:
                 if (allowNumericConversion) {
                     List<BType> compatibleTypesWithNumConversion = new ArrayList<>();
@@ -1215,6 +1239,33 @@ public class TypeChecker {
             default:
                 return false;
         }
+    }
+
+    private static boolean matchXMLType(XMLValue xmlSource, BType targetType) {
+        XMLNodeType nodeType = null;
+        switch (targetType.getTag()) {
+            case TypeTags.XML_COMMENT_TAG:
+                nodeType = XMLNodeType.COMMENT;
+                break;
+            case TypeTags.XML_PI_TAG:
+                nodeType = XMLNodeType.PI;
+                break;
+            case TypeTags.XML_TEXT_TAG:
+                nodeType = XMLNodeType.TEXT;
+                break;
+            default:
+                return false;
+        }
+
+        if (xmlSource.getNodeType() == nodeType) {
+            return true;
+        }
+
+        if (xmlSource.getNodeType() == XMLNodeType.SEQUENCE) {
+            XMLSequence seq = (XMLSequence) xmlSource;
+            return seq.size() == 1 && seq.getChildrenList().get(0).getNodeType() == nodeType;
+        }
+        return false;
     }
 
     public static boolean isNumericType(BType type) {

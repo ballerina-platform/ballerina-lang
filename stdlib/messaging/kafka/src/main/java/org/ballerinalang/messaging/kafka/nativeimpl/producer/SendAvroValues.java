@@ -1,19 +1,19 @@
 /*
- * Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2020 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- * WSO2 Inc. licenses this file to you under the Apache License,
- * Version 2.0 (the "License"); you may not use this file except
- * in compliance with the License.
- * You may obtain a copy of the License at
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *  http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied. See the License for the
- * specific language governing permissions and limitations
- * under the License.
+ *  Unless required by applicable law or agreed to in writing,
+ *  software distributed under the License is distributed on an
+ *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *  KIND, either express or implied.  See the License for the
+ *  specific language governing permissions and limitations
+ *  under the License.
  */
 
 package org.ballerinalang.messaging.kafka.nativeimpl.producer;
@@ -30,18 +30,12 @@ import static org.ballerinalang.messaging.kafka.utils.KafkaUtils.getIntValue;
 import static org.ballerinalang.messaging.kafka.utils.KafkaUtils.getLongValue;
 
 /**
- * Native methods to send {@code any} values and with different types of keys to Kafka broker from ballerina kafka
- * producer.
+ * Sends Avro values from Ballerina Kafka producers.
  */
-public class SendAnyValues {
-    // TODO: This class should be merged with "Send" when #20918 is fixed.
-    private static final Logger logger = LoggerFactory.getLogger(SendAnyValues.class);
+public class SendAvroValues {
+    private static final Logger logger = LoggerFactory.getLogger(SendAvroValues.class);
 
-    /* *********************************************************************** *
-     *          Send records with value of type any (custom)                   *
-     *       The value is considered first since key can be null               *
-     ************************************************************************* */
-    // ballerina any
+    // ballerina avro
     public static Object send(ObjectValue producer, Object value, String topic, Object partition, Object timestamp) {
         Integer partitionValue = getIntValue(partition, ALIAS_PARTITION, logger);
         Long timestampValue = getLongValue(timestamp);
@@ -50,7 +44,7 @@ public class SendAnyValues {
         return sendKafkaRecord(kafkaRecord, producer);
     }
 
-    // ballerina any and String
+    // ballerina avro and String
     public static Object send(ObjectValue producer, Object value, String topic, String key, Object partition,
                               Object timestamp) {
         Integer partitionValue = getIntValue(partition, ALIAS_PARTITION, logger);
@@ -60,7 +54,7 @@ public class SendAnyValues {
         return sendKafkaRecord(kafkaRecord, producer);
     }
 
-    // ballerina any and ballerina int
+    // ballerina avro and ballerina int
     public static Object send(ObjectValue producer, Object value, String topic, long key, Object partition,
                               Object timestamp) {
         Integer partitionValue = getIntValue(partition, ALIAS_PARTITION, logger);
@@ -70,7 +64,7 @@ public class SendAnyValues {
         return sendKafkaRecord(kafkaRecord, producer);
     }
 
-    // ballerina any and ballerina float
+    // ballerina avro and ballerina float
     public static Object send(ObjectValue producer, Object value, String topic, double key, Object partition,
                               Object timestamp) {
         Integer partitionValue = getIntValue(partition, ALIAS_PARTITION, logger);
@@ -80,13 +74,23 @@ public class SendAnyValues {
         return sendKafkaRecord(kafkaRecord, producer);
     }
 
-    // ballerina any and ballerina byte[]
+    // ballerina avro and ballerina byte[]
     public static Object send(ObjectValue producer, Object value, String topic, BArray key, Object partition,
                               Object timestamp) {
         Integer partitionValue = getIntValue(partition, ALIAS_PARTITION, logger);
         Long timestampValue = getLongValue(timestamp);
         ProducerRecord<byte[], Object> kafkaRecord = new ProducerRecord<>(topic, partitionValue, timestampValue,
                                                                           key.getBytes(), value);
+        return sendKafkaRecord(kafkaRecord, producer);
+    }
+
+    // ballerina avro and ballerina any
+    public static Object sendAvroAny(ObjectValue producer, Object value, String topic, Object key, Object partition,
+                              Object timestamp) {
+        Integer partitionValue = getIntValue(partition, ALIAS_PARTITION, logger);
+        Long timestampValue = getLongValue(timestamp);
+        ProducerRecord<Object, Object> kafkaRecord = new ProducerRecord<>(topic, partitionValue, timestampValue,
+                                                                          key, value);
         return sendKafkaRecord(kafkaRecord, producer);
     }
 }

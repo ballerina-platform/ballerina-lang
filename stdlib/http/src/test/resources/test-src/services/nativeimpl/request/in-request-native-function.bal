@@ -355,7 +355,7 @@ service hello on mockEP {
             res.setTextPayload("Error occurred");
             res.statusCode = 500;
         } else {
-            var name = <@untainted string> returnResult.toString();
+            var name = <@untainted string> (returnResult/*).toString();
             res.setJsonPayload({ lang: name });
         }
         checkpanic caller->respond(res);

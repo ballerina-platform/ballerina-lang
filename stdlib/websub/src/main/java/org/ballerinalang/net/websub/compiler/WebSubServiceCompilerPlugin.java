@@ -88,10 +88,10 @@ public class WebSubServiceCompilerPlugin extends AbstractCompilerPlugin {
                             ANN_NAME_WEBSUB_SPECIFIC_SUBSCRIBER.equals(annotation.getAnnotationName().getValue()))) {
                 return;
             }
-        } else if (listenerType.tsymbol != null &&
-                listenerType.tsymbol.pkgID.orgName.value.equals(BALLERINA) &&
-                listenerType.tsymbol.pkgID.name.value.equals(WEBSUB) &&
-                listenerType.tsymbol.name.value.equals(WEBSUB_SERVICE_LISTENER)) {
+        } else if (listenerType.tsymbol == null ||
+                !listenerType.tsymbol.pkgID.orgName.value.equals(BALLERINA) ||
+                !listenerType.tsymbol.pkgID.name.value.equals(WEBSUB) ||
+                !listenerType.tsymbol.name.value.equals(WEBSUB_SERVICE_LISTENER)) {
             return;
         }
 
