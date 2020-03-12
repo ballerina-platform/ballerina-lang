@@ -124,12 +124,11 @@ function xmlTest() returns [string, xml] {
     </p:person>`;
 
     int index = 0;
-    xml m = ((xdata/*).elements()[1]/*).elements()
-                 .'map(function (xml|string x) returns (string| xml) {
+    xml m = (xdata/<*>[1]/<*>).'map(function (xml x) returns (xml) {
                             index += 1;
-                            if x is xml {
+                            //if x is xml {
                                 str = str + "-" + index.toString();
-                            }
+                            //}
                             return x;
                       });
     str = str + "-end";

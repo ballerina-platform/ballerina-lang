@@ -117,6 +117,7 @@ public class Types {
     private BLangDiagnosticLogHelper dlogHelper;
     private Names names;
     private int finiteTypeCount = 0;
+    private BUnionType expandedXMLBuiltinSubtypes;
 
     public static Types getInstance(CompilerContext context) {
         Types types = context.get(TYPES_KEY);
@@ -134,6 +135,8 @@ public class Types {
         this.symResolver = SymbolResolver.getInstance(context);
         this.dlogHelper = BLangDiagnosticLogHelper.getInstance(context);
         this.names = Names.getInstance(context);
+        this.expandedXMLBuiltinSubtypes = BUnionType.create(null,
+                symTable.xmlElementType, symTable.xmlCommentType, symTable.xmlPIType, symTable.xmlTextType);
     }
 
     public List<BType> checkTypes(BLangExpression node,
@@ -1962,9 +1965,10 @@ public class Types {
         }
 
         return sourceTypes.stream()
-                .allMatch(s -> (targetTypes.stream()
-                                        .anyMatch(t -> isAssignable(s, t, unresolvedTypes))) ||
-                        (s.tag == TypeTags.FINITE  && isAssignable(s, target, unresolvedTypes)));
+                .allMatch(s -> (targetTypes.stream().anyMatch(t -> isAssignable(s, t, unresolvedTypes)))
+                        || (s.tag == TypeTags.FINITE  && isAssignable(s, target, unresolvedTypes))
+                        || (s.tag == TypeTags.XML
+                            && isAssignableToUnionType(expandedXMLBuiltinSubtypes, target, unresolvedTypes)));
     }
 
     private boolean isFiniteTypeAssignable(BFiniteType finiteType, BType targetType, Set<TypePair> unresolvedTypes) {
