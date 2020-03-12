@@ -166,7 +166,6 @@ public class JvmTerminatorGen {
         mv.visitTypeInsn(ANEWARRAY, CHANNEL_DETAILS);
         int index = 0;
         for (BIRNode.ChannelDetails ch : channels) {
-            // generating array[i] = new ChannelDetails(name, onSameStrand, isSend);
             mv.visitInsn(DUP);
             mv.visitIntInsn(BIPUSH, index);
             index += 1;
@@ -206,9 +205,6 @@ public class JvmTerminatorGen {
     static boolean isExternStaticFunctionCall(BIRInstruction callIns) {
 
         String methodName;
-        String orgName;
-        String moduleName;
-
         InstructionKind kind = callIns.getKind();
 
         PackageID packageID;
@@ -233,10 +229,7 @@ public class JvmTerminatorGen {
                     String.format("%s", callIns));
         }
 
-        orgName = packageID.orgName.value;
-        moduleName = packageID.name.value;
-
-        String key = getPackageName(orgName, moduleName) + methodName;
+        String key = getPackageName(packageID.orgName.value, packageID.name.value) + methodName;
 
         if (birFunctionMap.containsKey(key)) {
             BIRFunctionWrapper functionWrapper = getBIRFunctionWrapper(birFunctionMap.get(key));
@@ -259,7 +252,6 @@ public class JvmTerminatorGen {
         ErrorHandlerGenerator errorGen;
         BIRPackage module;
         String currentPackageName;
-        int kl = 0;
 
         public TerminatorGenerator(MethodVisitor mv, BalToJVMIndexMap indexMap, LabelGenerator labelGen,
                                    ErrorHandlerGenerator errorGen, BIRPackage module) {
@@ -280,10 +272,6 @@ public class JvmTerminatorGen {
                 case LOCK:
                     this.genLockTerm((BIRTerminator.Lock) terminator, funcName, localVarOffset);
                     return;
-//                case FIELD_LOCK:
-//                    this.genFieldLockTerm((BIRTerminator.FieldLock) terminator, funcName, localVarOffset,
-//                    attachedType);
-//                    return;
                 case UNLOCK:
                     this.genUnlockTerm((BIRTerminator.Unlock) terminator, funcName, attachedType);
                     return;
@@ -364,42 +352,6 @@ public class JvmTerminatorGen {
             this.mv.visitJumpInsn(GOTO, gotoLabel);
         }
 
-//        void genLockTerm(BIRTerminator.Lock lockIns, String funcName, int localVarOffset) {
-//
-//            Label gotoLabel = this.labelGen.getLabel(funcName + lockIns.lockedBB.id.value);
-//            String lockClass = "L" + LOCK_VALUE + ";";
-//            String varClassName = lookupGlobalVarClassName(this.currentPackageName, lockIns.globalVar.name.value);
-//            String lockName = computeLockNameFromString(lockIns.globalVar.name.value);
-//            this.mv.visitFieldInsn(GETSTATIC, varClassName, lockName, lockClass);
-//            this.mv.visitVarInsn(ALOAD, localVarOffset);
-//            this.mv.visitMethodInsn(INVOKEVIRTUAL, LOCK_VALUE, "lock", String.format("(L%s;)Z", STRAND), false);
-//            this.mv.visitInsn(POP);
-//            genYieldCheckForLock(this.mv, this.labelGen, funcName, localVarOffset);
-//            this.mv.visitJumpInsn(GOTO, gotoLabel);
-//        }
-//
-//        void genFieldLockTerm(BIRTerminator.FieldLock lockIns, String funcName, int localVarOffset,
-//                              @Nilable BType attachedType) {
-//
-//            Label gotoLabel = this.labelGen.getLabel(funcName + lockIns.lockedBB.id.value);
-//            String lockClass = "L" + LOCK_VALUE + ";";
-//            String lockName = computeLockNameFromString(lockIns.field);
-//            this.loadVar(lockIns.localVar.variableDcl);
-//
-//            if (attachedType.tag == TypeTags.OBJECT) {
-//                String className = getTypeValueClassName(this.module, toNameString(attachedType));
-//                this.mv.visitFieldInsn(GETFIELD, className, lockName, lockClass);
-//                this.mv.visitVarInsn(ALOAD, localVarOffset);
-//                this.mv.visitMethodInsn(INVOKEVIRTUAL, LOCK_VALUE, "lock", String.format("(L%s;)Z", STRAND), false);
-//                this.mv.visitInsn(POP);
-//                genYieldCheckForLock(this.mv, this.labelGen, funcName, localVarOffset);
-//                this.mv.visitJumpInsn(GOTO, gotoLabel);
-//            } else {
-//                throw new BLangCompilerException("JVM field lock generation is not supported for type " +
-//                        String.format("%s", attachedType));
-//            }
-//        }
-
         public static String toNameString(BType t) {
 
             return t.tsymbol.name.value;
@@ -420,40 +372,6 @@ public class JvmTerminatorGen {
 
             this.mv.visitJumpInsn(GOTO, gotoLabel);
         }
-
-//        void genUnlockTerm(BIRTerminator.Unlock unlockIns, String funcName, @Nilable BType attachedType) {
-//
-//            Label gotoLabel = this.labelGen.getLabel(funcName + unlockIns.unlockBB.id.value);
-//
-//            String lockClass = "L" + LOCK_VALUE + ";";
-//            // unlocked in the same order https://yarchive.net/comp/linux/lock_ordering.html
-//            for (BIRNode.BIRGlobalVariableDcl globalVariable : unlockIns.globalVars) {
-//                BIRVariableDcl globleVar = this.cleanupVariableDecl(globalVariable);
-//                String varClassName = lookupGlobalVarClassName(this.currentPackageName, globleVar.name.value);
-//                String lockName = computeLockNameFromString(globleVar.name.value);
-//                this.mv.visitFieldInsn(GETSTATIC, varClassName, lockName, lockClass);
-//                this.mv.visitMethodInsn(INVOKEVIRTUAL, LOCK_VALUE, "unlock", "()V", false);
-//            }
-//
-//            for (Map.Entry<BIROperand, Set<String>> localLockDetails : unlockIns.fieldLocks.entrySet()) {
-//                if (localLockDetails != null) {
-//                    if (attachedType.tag == TypeTags.OBJECT) {
-//                        String className = getTypeValueClassName(this.module, toNameString(attachedType));
-//                        for (String fieldName : localLockDetails.getValue()) {
-//                            String lockName = computeLockNameFromString(fieldName);
-//                            this.loadVar(localLockDetails.getKey().variableDcl);
-//                            this.mv.visitFieldInsn(GETFIELD, className, lockName, lockClass);
-//                            this.mv.visitMethodInsn(INVOKEVIRTUAL, LOCK_VALUE, "unlock", "()V", false);
-//                        }
-//                    } else {
-//                        throw new BLangCompilerException("JVM field unlock generation is not supported for type " +
-//                                String.format("%s", attachedType));
-//                    }
-//                }
-//            }
-//
-//            this.mv.visitJumpInsn(GOTO, gotoLabel);
-//        }
 
         void handleErrorRetInUnion(int returnVarRefIndex, List<BIRNode.ChannelDetails> channels, BUnionType bType) {
 
@@ -713,14 +631,6 @@ public class JvmTerminatorGen {
             this.mv.visitLabel(notBlockedOnExternLabel);
         }
 
-        private BIRVariableDcl cleanupVariableDecl(@Nilable BIRVariableDcl varDecl) {
-
-            if (varDecl != null) {
-                return varDecl;
-            }
-            throw new BLangCompilerException("Invalid variable declaration");
-        }
-
         private void storeReturnFromCallIns(@Nilable BIRVariableDcl lhsOpVarDcl) {
 
             if (lhsOpVarDcl != null) {
@@ -940,13 +850,6 @@ public class JvmTerminatorGen {
             }
             String funcName = callIns.name.value;
             String lambdaName = "$" + funcName + "$lambda$" + lambdaIndex + "$";
-            String currentPackageName = getPackageName(this.module.org.value, this.module.name.value);
-
-            @Nilable BType futureType = callIns.lhsOp.variableDcl.type;
-            BType returnType = symbolTable.nilType;
-            if (futureType.tag == TypeTags.FUTURE) {
-                returnType = ((BFutureType) futureType).constraint;
-            }
 
             createFunctionPointer(this.mv, currentClass, lambdaName, 0);
             lambdas.put(lambdaName, callIns);
@@ -1070,7 +973,6 @@ public class JvmTerminatorGen {
             }
 
             // if async, we submit this to sceduler (worker scenario)
-            BType returnType = fpCall.fp.variableDcl.type;
 
             if (fpCall.isAsync) {
                 // load function ref now
