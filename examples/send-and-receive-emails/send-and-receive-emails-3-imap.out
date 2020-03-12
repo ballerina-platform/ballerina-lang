@@ -2,4 +2,4 @@
 # `.bal` file, and execute the `ballerina run` command.
 $ ballerina run receive_email.bal
 
-# Subject and the content body of the email would be printed.
+# Subject and the content body of the email will be printed.

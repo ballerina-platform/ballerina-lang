@@ -2,4 +2,4 @@
 # `.bal` file, and execute the `ballerina run` command.
 $ ballerina run send_email.bal
 
-# Check the inbox to see the email.
+# Check the inbox to view the email.

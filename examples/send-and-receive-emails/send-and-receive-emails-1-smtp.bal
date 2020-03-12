@@ -2,10 +2,10 @@ import ballerina/email;
 import ballerina/io;
 
 public function main() {
-    // Creates an SMTP client with connection parameters, host, username and password.
+    // Creates an SMTP client with the connection parameters, host, username, and password.
     email:SmtpClient smtpClient = new ("smtp.email.com", "sender@email.com", "pass123");
 
-    // Defines the email that is required to be sent.
+    // Define the email that is required to be sent.
     email:Email email = {
         // "TO" address list is added as follows.
         to: ["receiver1@email.com", "receiver2@email.com"],
@@ -27,7 +27,7 @@ public function main() {
 
     // Send the email with the client.
     email:Error? response = smtpClient->send(email);
-    // If the email send failed, the error is handled.
+    // Handle the error if email sending failed.
     if (response is email:Error) {
         io:println("Error while sending the email: " + <string> response.detail()["message"]);
     }
