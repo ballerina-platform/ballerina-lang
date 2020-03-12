@@ -3,12 +3,12 @@ import ballerina/mysql;
 import ballerina/sql;
 import ballerina/time;
 
-//Username and password of MySQL database. This is used in below examples when initializing the
-//MySQL connector. Please change these based on your setup if you want to try locally.
+// Username and password of MySQL database. This is used in below examples when initializing the
+// MySQL connector. Please change these based on your setup if you want to try locally.
 string dbUser = "root";
 string dbPassword = "Test@123";
 
-//Define some record types to be used in the below examples.
+// Define some record types to be used in the below examples.
 type BinaryType record {|
     int row_id;
     byte[] blob_type;
@@ -25,27 +25,27 @@ type DateTimeType record {
 
 function queryBinaryType(mysql:Client mysqlClient) {
     io:println("------ Query Binary Type -------");
-    //Select the rows with binary data types.
-    //The name and type of the attributes within record from the `resultStream` will be automatically
-    //identified based on the column name and type of the query result.
+    // Select the rows with binary data types.
+    // The name and type of the attributes within record from the `resultStream` will be automatically
+    // identified based on the column name and type of the query result.
     stream<record{}, error> resultStream = mysqlClient->query("Select * from BINARY_TYPES");
 
     io:println("Result 1:");
-    //If there is any error during the execution of the sql query or iteration of the
-    // result stream, the result stream will terminate and return the error.
+    // If there is any error during the execution of the sql query or iteration of the
+    //  result stream, the result stream will terminate and return the error.
     error? e = resultStream.forEach(function(record {} result) {
         io:println(result);
     });
     if (e is error) {
         io:println(e);
     }
-    //Since the `rowType` is provided as `BinaryType`, the `resultStream` will
-    //be having records in `BinaryType`.
+    // Since the `rowType` is provided as `BinaryType`, the `resultStream` will
+    // be having records in `BinaryType`.
     resultStream = mysqlClient->query("Select * from BINARY_TYPES", BinaryType);
     stream<BinaryType, sql:Error> binaryResultStream = <stream<BinaryType, sql:Error>>resultStream;
 
     io:println("Result 2:");
-    //Iterate through the `binaryResultStream`.
+    // Iterate through the `binaryResultStream`.
     e = binaryResultStream.forEach(function(BinaryType result) {
         io:println(result);
     });
@@ -57,28 +57,28 @@ function queryBinaryType(mysql:Client mysqlClient) {
 
 function queryDateTimeType(mysql:Client mysqlClient) {
     io:println("------ Query Date Time Type -------");
-    //Select the rows with date/time data types.
-    //The name and type of the attributes within record from the `resultStream` will be automatically
-    //identified based on the column name and type of the query result.
+    // Select the rows with date/time data types.
+    // The name and type of the attributes within record from the `resultStream` will be automatically
+    // identified based on the column name and type of the query result.
     stream<record{}, error> resultStream = mysqlClient->query("Select * from DATE_TIME_TYPES");
 
     io:println("Result 1:");
-    //If there is any error during the execution of the sql query or iteration of the
-    // result stream, the result stream will terminate and return the error.
+    // If there is any error during the execution of the sql query or iteration of the
+    //  result stream, the result stream will terminate and return the error.
     error? e = resultStream.forEach(function(record {} result) {
         io:println(result);
     });
     if (e is error) {
         io:println(e);
     }
-    //Since the `rowType` is provided as `DateTimeType`, the `resultStream` will
-    //be having records in `DateTimeType`. The Date/Time/DateTime/Timestamp fields of the database table
-    //can be mapped to time:Time, string and int types in ballerina.
+    // Since the `rowType` is provided as `DateTimeType`, the `resultStream` will
+    // be having records in `DateTimeType`. The Date/Time/DateTime/Timestamp fields of the database table
+    // can be mapped to time:Time, string and int types in ballerina.
     resultStream = mysqlClient->query("Select * from DATE_TIME_TYPES", DateTimeType);
     stream<DateTimeType, sql:Error> dateResultStream = <stream<DateTimeType, sql:Error>>resultStream;
 
     io:println("Result 2:");
-    //Iterate through the `dateResultStream`.
+    // Iterate through the `dateResultStream`.
     e = dateResultStream.forEach(function(DateTimeType result) {
         io:println(result);
     });
@@ -88,7 +88,7 @@ function queryDateTimeType(mysql:Client mysqlClient) {
     io:println("------ ********* -------");
 }
 
-//Initialize the database table with sample data.
+// Initialize the database table with sample data.
 function initializeTable() returns sql:Error? {
     mysql:Client mysqlClient = check new (user = dbUser, password = dbPassword);
     sql:ExecuteResult? result = check mysqlClient->execute("CREATE DATABASE IF NOT EXISTS MYSQL_BBE");
@@ -110,7 +110,7 @@ function initializeTable() returns sql:Error? {
 }
 
 public function main() {
-    //Initialize the MySQL client
+    // Initialize the MySQL client
     sql:Error? err = initializeTable();
     if (err is sql:Error) {
         io:println("Sample data initialization failed!");
@@ -118,12 +118,12 @@ public function main() {
     } else {
         mysql:Client|sql:Error mysqlClient = new (user = dbUser, password = dbPassword, database = "MYSQL_BBE");
         if (mysqlClient is mysql:Client) {
-            //Executes the complex data type queries.
+            // Executes the complex data type queries.
             queryBinaryType(mysqlClient);
             queryDateTimeType(mysqlClient);
             io:println("Successfully executed the sample!");
 
-            //Close the MySQL client.
+            // Close the MySQL client.
             sql:Error? e = mysqlClient.close();
         } else {
             io:println("MySQL Client initialization for querying data failed!!");

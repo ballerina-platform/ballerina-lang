@@ -30,13 +30,13 @@ type DateTimeType record {
 
 function queryBinaryType(jdbc:Client jdbcClient) {
     io:println("------ Query Binary Type -------");
-    //Select the rows with binary data types.
-    //The name and type of the attributes within record from the `resultStream` will be automatically
-    //identified based on the column name and type of the query result.
+    // Select the rows with binary data types.
+    // The name and type of the attributes within record from the `resultStream` will be automatically
+    // identified based on the column name and type of the query result.
     stream<record{}, error> resultStream = jdbcClient->query("Select * from BINARY_TYPES");
 
     io:println("Result 1:");
-    //If there is any error during the execution of the sql query or iteration of the
+    // If there is any error during the execution of the sql query or iteration of the
     // result stream, the result stream will terminate and return the error.
     error? e = resultStream.forEach(function(record {} result) {
         io:println(result);
@@ -44,13 +44,13 @@ function queryBinaryType(jdbc:Client jdbcClient) {
     if (e is error) {
         io:println(e);
     }
-    //Since the `rowType` is provided as `BinaryType`, the `resultStream` will
-    //be having records in `BinaryType`.
+    // Since the `rowType` is provided as `BinaryType`, the `resultStream` will
+    // be having records in `BinaryType`.
     resultStream = jdbcClient->query("Select * from BINARY_TYPES", BinaryType);
     stream<BinaryType, sql:Error> binaryResultStream = <stream<BinaryType, sql:Error>>resultStream;
 
     io:println("Result 2:");
-    //Iterate through the `binaryResultStream`.
+    // Iterate through the `binaryResultStream`.
     e = binaryResultStream.forEach(function(BinaryType result) {
         io:println(result);
     });
@@ -63,27 +63,27 @@ function queryBinaryType(jdbc:Client jdbcClient) {
 
 function queryArrayType(jdbc:Client jdbcClient) {
     io:println("------ Query Array Type -------");
-    //Select the rows with array data types.
-    //The name and type of the attributes within record from the `resultStream` will be automatically
-    //identified based on the column name and type of the query result.
+    // Select the rows with array data types.
+    // The name and type of the attributes within record from the `resultStream` will be automatically
+    // identified based on the column name and type of the query result.
     stream<record{}, error> resultStream = jdbcClient->query("Select * from ARRAY_TYPES");
 
     io:println("Result 1:");
-    //If there is any error during the execution of the sql query or iteration of the
-    // result stream, the result stream will terminate and return the error.
+    // If there is any error during the execution of the sql query or iteration of the
+    //  result stream, the result stream will terminate and return the error.
     error? e = resultStream.forEach(function(record {} result) {
         io:println(result);
     });
     if (e is error) {
         io:println(e);
     }
-    //Since the `rowType` is provided as `ArrayType`, the `resultStream` will
-    //be having records in `ArrayType`.
+    // Since the `rowType` is provided as `ArrayType`, the `resultStream` will
+    // be having records in `ArrayType`.
     resultStream = jdbcClient->query("Select * from ARRAY_TYPES", ArrayType);
     stream<ArrayType, sql:Error> arrayResultStream = <stream<ArrayType, sql:Error>>resultStream;
 
     io:println("Result 2:");
-    //Iterate through the `arrayResultStream`.
+    // Iterate through the `arrayResultStream`.
     e = arrayResultStream.forEach(function(ArrayType result) {
         io:println(result);
     });
@@ -95,13 +95,13 @@ function queryArrayType(jdbc:Client jdbcClient) {
 
 function queryDateTimeType(jdbc:Client jdbcClient) {
     io:println("------ Query Date Time Type -------");
-    //Select the rows with date/time data types.
-    //The name and type of the attributes within record from the `resultStream` will be automatically
-    //identified based on the column name and type of the query result.
+    // Select the rows with date/time data types.
+    // The name and type of the attributes within record from the `resultStream` will be automatically
+    // identified based on the column name and type of the query result.
     stream<record{}, error> resultStream = jdbcClient->query("Select * from DATE_TIME_TYPES");
 
     io:println("Result 1:");
-    //If there is any error during the execution of the sql query or iteration of the
+    // If there is any error during the execution of the sql query or iteration of the
     // result stream, the result stream will terminate and return the error.
     error? e = resultStream.forEach(function(record {} result) {
         io:println(result);
@@ -109,14 +109,14 @@ function queryDateTimeType(jdbc:Client jdbcClient) {
     if (e is error) {
         io:println(e);
     }
-    //Since the `rowType` is provided as `DateTimeType`, the `resultStream` will
-    //be having records in `DateTimeType`. The Date/Time/DateTime/Timestamp fields of the database table
-    //can be mapped to time:Time, string and int types in ballerina.
+    // Since the `rowType` is provided as `DateTimeType`, the `resultStream` will
+    // be having records in `DateTimeType`. The Date/Time/DateTime/Timestamp fields of the database table
+    // can be mapped to time:Time, string and int types in ballerina.
     resultStream = jdbcClient->query("Select * from DATE_TIME_TYPES", DateTimeType);
     stream<DateTimeType, sql:Error> dateResultStream = <stream<DateTimeType, sql:Error>>resultStream;
 
     io:println("Result 2:");
-    //Iterate through the `dateResultStream`.
+    // Iterate through the `dateResultStream`.
     e = dateResultStream.forEach(function(DateTimeType result) {
         io:println(result);
     });
@@ -151,7 +151,7 @@ function initializeTable(jdbc:Client jdbcClient) returns sql:Error? {
 }
 
 public function main() {
-    //Initialize the JDBC client
+    // Initialize the JDBC client
     jdbc:Client|sql:Error jdbcClient = new ("jdbc:h2:file:./target/DATA_TYPES", "rootUser", "rootPass");
     if (jdbcClient is jdbc:Client) {
         sql:Error? err = initializeTable(jdbcClient);
@@ -159,13 +159,13 @@ public function main() {
             io:println("Sample data table initialization failed!");
             io:println(err);
         } else {
-            //Executes the complex data type queries.
+            // Executes the complex data type queries.
             queryBinaryType(jdbcClient);
             queryArrayType(jdbcClient);
             queryDateTimeType(jdbcClient);
             io:println("Successfully executed the sample!");
         }
-        //Close the JDBC client.
+        // Close the JDBC client.
         sql:Error? e = jdbcClient.close();
     } else {
         io:println("Initialization failed!!");
