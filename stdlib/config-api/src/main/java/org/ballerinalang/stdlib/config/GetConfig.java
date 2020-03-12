@@ -39,6 +39,8 @@ import java.util.Map;
 public class GetConfig {
     private static final ConfigRegistry configRegistry = ConfigRegistry.getInstance();
     private static final String LOOKUP_ERROR_REASON = "{ballerina/config}LookupError";
+    private static final BMapType mapType = new BMapType(BTypes.typeAnydata);
+    private static final BArrayType arrayType = new BArrayType(BTypes.typeAnydata);
 
     public static Object get(String configKey, String type) {
         try {
@@ -65,7 +67,7 @@ public class GetConfig {
 
     @SuppressWarnings("unchecked")
     private static MapValue buildMapValue(Map<String, Object> section) {
-        MapValue map = new MapValueImpl<String, Object>(new BMapType(BTypes.typeAnydata));
+        MapValue map = new MapValueImpl<String, Object>(mapType);
         for (Map.Entry<String, Object> entry : section.entrySet()) {
             map.put(entry.getKey(), getConvertedValue(entry.getValue()));
         }
@@ -77,7 +79,7 @@ public class GetConfig {
         for (Object entry : value) {
             convertedValues[value.indexOf(entry)] = getConvertedValue(entry);
         }
-        return BValueCreator.createArrayValue(convertedValues, new BArrayType(BTypes.typeAnydata));
+        return BValueCreator.createArrayValue(convertedValues, arrayType);
     }
 
     @SuppressWarnings("unchecked")
