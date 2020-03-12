@@ -24,7 +24,7 @@ const BYTE_ARRAY = "byte[]";
 const AVRO_RECORD = "kafka:AvroRecord";
 const ANY = "anydata";
 
-// Consumer related constants
+// Consumer-related constants.
 
 // Deserializer types
 # In-built Kafka byte array deserializer.

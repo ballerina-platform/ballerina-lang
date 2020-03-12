@@ -252,7 +252,7 @@ public type Producer client object {
             }
             panic getValueTypeMismatchError(BYTE_ARRAY);
         }
-        // Handle Avro serializer
+        // Handle Avro serializer.
         if (self.valueSerializerType == SER_AVRO) {
             if (value is AvroRecord) {
                 return sendAvroValues(self, value, topicHandle, key, partition, timestamp, self.keySerializerType);
@@ -740,7 +740,7 @@ function producerSendByteArrayAny(Producer producer, byte[] value, handle topic,
                 "java.lang.String", "java.lang.Object", "java.lang.Object", "java.lang.Object"]
 } external;
 
-// Send avro values with different types of keys
+// Sends Avro values with different types of keys
 function producerSendAvro(Producer producer, AvroRecord value, handle topic, int? partition = (), int? timestamp = ())
 returns ProducerError? =
 @java:Method {

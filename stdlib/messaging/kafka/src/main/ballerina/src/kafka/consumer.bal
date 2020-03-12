@@ -139,9 +139,9 @@ public type ConsumerRecord record {|
     string topic;
 |};
 
-# Represents an Avro generic record. This is the type of the value returned from an Avro deserializer consumer.
+# Represents a generic Avro record. This is the type of the value returned from an Avro deserializer consumer.
 public type AvroGenericRecord record {
-    // Intentionally left blank
+    // Left blank intentionally.
 };
 
 # Kafka in-built deserializer type.

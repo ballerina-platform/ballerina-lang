@@ -78,11 +78,11 @@ function main () {
 ```
 
 ### Send Data Using Avro
-Ballerina Kafka supports Avro serialization and deserialization.
+The Ballerina Kafka module supports Avro serialization and deserialization.
 
-To try this, let's create a new ballerina project and two modules inside it.
+To try this, let's create a new Ballerina project and two modules inside it.
 
-To do this, first enter the following command:
+Execute the below commands to do this.
 ```shell script
 ballerina new kafka_avro_sample
 cd kafka_avro_sample
@@ -91,9 +91,10 @@ ballerina add consumer
 ```
 
  #### Dependencies
- To use Avro, you need to create a ballerina project and add necessary dependencies.Following is a sample `Ballerina
- .toml` file for a Kafka avro project. To do so, download the necessary dependencies and put them inside `resources
- ` directory. Then add the following dependencies to `Ballerina.toml` file.
+ To use Avro, you need to add the necessary dependencies to the Ballerina project you created. 
+To do so, download the necessary dependencies and put them inside the `resources
+ ` directory. Also, add those dependencies to the `Ballerina.toml` file of your project.
+ The following is a sample `Ballerina.toml` file with the dependencies.
  
  ```toml
      [[platform.libraries]]
@@ -153,7 +154,7 @@ ballerina add consumer
      groupId = "com.fasterxml.jackson.core"
 ```
 
-Now the directory structure will look like following:
+Now, the directory structure will look like follows:
 
 ```shell script
 ├── Ballerina.toml
@@ -174,9 +175,9 @@ Now the directory structure will look like following:
 ```
 
 #### Avro Producer
-We can configure `kafka:Proucer` to send data using Avro, by providing the following configurations.
+The `kafka:Proucer` can be configured to send data using Avro by providing the following configurations.
 
- - `schemaString`: This is the schema string which used to define the avro schema.
+ - `schemaString`: This is the schema string, which is used to define the Avro schema.
  - `dataRecord`: The data record you want to send through Kafka.
 
 src/producer/main.bal:
@@ -225,10 +226,10 @@ public function main() {
 ```
 
 #### Avro Consumer
-Ballerina Kafka currently supports avro deserialization for generic records only.
-Consumer will return `kafka:AvroGenericRecord` with the data when received from Avro.
+The Kafka implementation of Ballerina currently supports Avro deserialization only for generic records.
+The Consumer will return `kafka:AvroGenericRecord` with the data received from Avro.
 
-Following is a sample consumer
+The following is a sample consumer.
 
 src/producer/main.bal:
 ```ballerina
@@ -261,11 +262,11 @@ service KafkaService on consumer {
 }
 ```
 
-Now run consumer first using the following command:
+Now, execute the below command to run the consumer:
 ```shell script
 ballerina run consumer
 ```
-This will start the kafka service to listen. You can verify it by the following messages on screen.
+This will start the Kafka service to listen. You can verify it by the following messages, which will be displayed on the screen.
 
 ```shell script
 [ballerina/kafka] kafka servers: <KAFKA_BROKER_HOST_AND_PORT>
@@ -273,12 +274,12 @@ This will start the kafka service to listen. You can verify it by the following 
 [ballerina/kafka] started kafka listener
 ```
 
-Then open another terminal and run the producer using the following command:
+Then, open another terminal and execute the below command to run the producer:
 ```shell script
 ballerina run producer
 ```
 
-Now the consumer will receive the data and prints in the console:
+Now, the consumer will receive the data and the received data will be printed on the Console as follows.
 
 ```shell script
 Records received
