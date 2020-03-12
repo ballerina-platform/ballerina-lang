@@ -1,4 +1,5 @@
-//The `stream` type represents a sequence that may be constructed lazily and is iterable a sequence of values of type T with error type E.
+//The `stream` type represents a sequence that may be constructed lazily
+//and is able to iterate a sequence of values of type T with error type E.
 //stream<T> is short for stream<T,never>.
 //A stream can be iterated over at most once.
 //A stream has a next() method; a stream's iterator works by calling this method.

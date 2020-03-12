@@ -1,13 +1,14 @@
 # To run this sample, navigate to the directory that contains the
 # `.bal` file, and execute the `ballerina run` command.
 $ ballerina run streams.bal
-Filter records and map them to a different type
-firstName=Alex lastName=George score=1.5 degree=Bachelor of Medicine
-firstName=John lastName=David score=1.2 degree=Bachelor of Medicine
+Creating a stream using stream constructor:
+Retrieved odd number: 3
+Filter records and map them to a different type :
+Calculate the average score of the subscribed students:
 Average: 0.8999999999999999
 Calls next method manually and get the next iteration value:
-value=firstName=Alex lastName=George score=1.5
-Use foreach method to loop through the stream:
+firstName=Alex lastName=George score=1.5
+Use foreach method to loop through the rest of the stream:
 Student Ranjan has a score of 0.9
 Student John has a score of 1.2
-
+firstName=Alex lastName=George score=1.5
