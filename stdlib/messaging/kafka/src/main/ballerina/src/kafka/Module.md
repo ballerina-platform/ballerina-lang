@@ -77,4 +77,210 @@ function main () {
 }
 ```
 
->**Note:** The default thread pool size used in Ballerina is number of processors available * 2. You can configure the thread pool size by using the `BALLERINA_MAX_POOL_SIZE` environment variable.
+### Send Data Using Avro
+Ballerina Kafka supports Avro serialization and deserialization.
+
+To try this, let's create a new ballerina project and two modules inside it.
+
+To do this, first enter the following command:
+```shell script
+ballerina new kafka_avro_sample
+cd kafka_avro_sample
+ballerina add producer
+ballerina add consumer
+```
+
+ #### Dependencies
+ To use Avro, you need to create a ballerina project and add necessary dependencies.Following is a sample `Ballerina
+ .toml` file for a Kafka avro project. To do so, download the necessary dependencies and put them inside `resources
+ ` directory. Then add the following dependencies to `Ballerina.toml` file.
+ 
+ ```toml
+     [[platform.libraries]]
+     module = "producer"
+     path = "./resources/kafka-avro-serializer-5.4.1.jar"
+     artifactId = "kafka-avro-serializer"
+     version = "5.4.1"
+     groupId = "io.confluent"
+ 
+     [[platform.libraries]]
+     module = "producer"
+     path = "./resources/kafka-schema-registry-client-5.4.1.jar"
+     artifactId = "kafka-schema-registry-client"
+     version = "5.4.1"
+     groupId = "io.confluent"
+ 
+     [[platform.libraries]]
+     module = "producer"
+     path = "./resources/common-config-5.4.1.jar"
+     artifactId = "common-config"
+     version = "5.4.1"
+     groupId = "io.confluent"
+ 
+     [[platform.libraries]]
+     module = "producer"
+     path = "./resources/common-utils-5.4.1.jar"
+     artifactId = "common-utils"
+     version = "5.4.1"
+     groupId = "io.confluent"
+ 
+     [[platform.libraries]]
+     module = "producer"
+     path = "./resources/avro-1.9.2.jar"
+     artifactId = "avro"
+     version = "1.9.2"
+     groupId = "org.apache.avro"
+ 
+     [[platform.libraries]]
+     module = "producer"
+     path = "./resources/jackson-core-2.10.3.jar"
+     artifactId = "jackson-core"
+     version = "1.9.2"
+     groupId = "com.fasterxml.jackson.core"
+ 
+     [[platform.libraries]]
+     module = "producer"
+     path = "./resources/jackson-databind-2.10.3.jar"
+     artifactId = "jackson-databind"
+     version = "2.10.3"
+     groupId = "com.fasterxml.jackson.core"
+ 
+     [[platform.libraries]]
+     module = "producer"
+     path = "./resources/jackson-annotations-2.10.3.jar"
+     artifactId = "jackson-annotations"
+     version = "2.10.3"
+     groupId = "com.fasterxml.jackson.core"
+```
+
+Now the directory structure will look like following:
+
+```shell script
+├── Ballerina.toml
+├── resources
+│   ├── avro-1.9.2.jar
+│   ├── common-config-5.4.1.jar
+│   ├── common-utils-5.4.1.jar
+│   ├── jackson-annotations-2.10.3.jar
+│   ├── jackson-core-2.10.3.jar
+│   ├── jackson-databind-2.10.3.jar
+│   ├── kafka-avro-serializer-5.4.1.jar
+│   └── kafka-schema-registry-client-5.4.1.jar
+└── src
+    ├── consumer
+    │   └── main.bal
+    └── producer
+        └── main.bal
+```
+
+#### Avro Producer
+We can configure `kafka:Proucer` to send data using Avro, by providing the following configurations.
+
+ - `schemaString`: This is the schema string which used to define the avro schema.
+ - `dataRecord`: The data record you want to send through Kafka.
+
+src/producer/main.bal:
+```ballerina
+import ballerina/io;
+import ballerina/kafka;
+
+public type Person record {
+    string name;
+    int age;
+};
+
+kafka:ProducerConfiguration configs = {
+    bootstrapServers: "<KAFKA_BROKER_HOST_AND_PORT>",
+    // Other configurations
+    valueSerializerType: kafka:SER_AVRO,
+    schemaRegistryUrl: "<SCHEMA_REGISTRY_URL>"
+};
+
+string schema = "{\"type\" : \"record\"," +
+                  "\"namespace\" : \"Thisaru\"," +
+                  "\"name\" : \"person\"," +
+                  "\"fields\" : [" + 
+                    "{ \"name\" : \"name\", \"type\" : \"string\" }," +
+                    "{ \"name\" : \"age\", \"type\" : \"int\" }" +
+                  "]}";
+
+public function main() {
+    kafka:Producer producer = new(configs);
+
+    Person person = {
+        name: "Lahiru Perera",
+        age: 28
+    };
+
+    kafka:AvroRecord avroRecord = {
+        schemaString: schema,
+        dataRecord: person
+    };
+
+    var result = producer->send(avroRecord, "add-person");
+    if (result is kafka:ProducerError) {
+        io:println(result);    
+    }
+}
+```
+
+#### Avro Consumer
+Ballerina Kafka currently supports avro deserialization for generic records only.
+Consumer will return `kafka:AvroGenericRecord` with the data when received from Avro.
+
+Following is a sample consumer
+
+src/producer/main.bal:
+```ballerina
+import ballerina/io;
+import ballerina/kafka;
+
+kafka:ConsumerConfiguration configs = {
+    bootstrapServers: "<KAFKA_BROKER_HOST_AND_PORT>",
+    groupId: "test-group",
+    // Other configurations
+    topics: ["add-person"],
+    valueDeserializerType: kafka:DES_AVRO,
+    schemaRegistryUrl: "<SCHEMA_REGISTRY_URL>"
+};
+
+listener kafka:Consumer consumer = new(configs);
+
+service KafkaService on consumer {
+    resource function onMessage(kafka:Consumer consumer, kafka:ConsumerRecord[] records) {
+        io:println("Records received");
+        foreach var kafkaRecord in records {
+            var value = kafkaRecord.value;
+            if (value is kafka:AvroGenericRecord) {
+                io:println(value);
+            } else {
+                io:println("Invalid record type");
+            }
+        }
+    }
+}
+```
+
+Now run consumer first using the following command:
+```shell script
+ballerina run consumer
+```
+This will start the kafka service to listen. You can verify it by the following messages on screen.
+
+```shell script
+[ballerina/kafka] kafka servers: <KAFKA_BROKER_HOST_AND_PORT>
+[ballerina/kafka] subscribed topics: add-person
+[ballerina/kafka] started kafka listener
+```
+
+Then open another terminal and run the producer using the following command:
+```shell script
+ballerina run producer
+```
+
+Now the consumer will receive the data and prints in the console:
+
+```shell script
+Records received
+name=Lahiru Perera age=28
+```

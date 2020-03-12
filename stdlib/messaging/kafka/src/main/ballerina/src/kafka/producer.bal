@@ -99,10 +99,10 @@ public type ProducerConfiguration record {|
     SecureSocket secureSocket?;
 |};
 
-public type AvroRecord record {
+public type AvroRecord record {|
     string schemaString;
     anydata dataRecord;
-};
+|};
 
 # Kafka producer acknowledgement type.
 public type ProducerAcks ACKS_ALL|ACKS_NONE|ACKS_SINGLE;
