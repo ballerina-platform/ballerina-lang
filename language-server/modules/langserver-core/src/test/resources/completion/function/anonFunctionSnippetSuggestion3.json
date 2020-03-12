@@ -1211,11 +1211,11 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "function () returns (><) ",
+      "label": "function () returns (other) ",
       "kind": "Snippet",
       "detail": "Snippet",
       "sortText": "240",
-      "insertText": "function () returns (><) {\n\treturn ();\n};",
+      "insertText": "function () returns (other) {\n\treturn ();\n};",
       "insertTextFormat": "Snippet"
     },
     {

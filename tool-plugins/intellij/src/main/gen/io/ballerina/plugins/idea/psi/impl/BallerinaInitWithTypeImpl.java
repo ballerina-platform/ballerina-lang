@@ -49,9 +49,15 @@ public class BallerinaInitWithTypeImpl extends ASTWrapperPsiElement implements B
   }
 
   @Override
-  @NotNull
+  @Nullable
+  public BallerinaStreamTypeName getStreamTypeName() {
+    return findChildByClass(BallerinaStreamTypeName.class);
+  }
+
+  @Override
+  @Nullable
   public BallerinaUserDefineTypeName getUserDefineTypeName() {
-    return findNotNullChildByClass(BallerinaUserDefineTypeName.class);
+    return findChildByClass(BallerinaUserDefineTypeName.class);
   }
 
   @Override

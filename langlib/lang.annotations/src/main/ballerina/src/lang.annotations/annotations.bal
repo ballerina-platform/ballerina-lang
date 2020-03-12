@@ -24,6 +24,9 @@ public const annotation untainted on return, parameter, source type, source list
 # Denotes annotated type is a parametric type.
 public const annotation typeParam on source type;
 
+# Denotes annotated type is a builtin sub type.
+public const annotation builtinSubtype on source type;
+
 # Defaultable argument names. This is for internal use.
 #
 # + args - Defaultable argument names are set at compile time.
@@ -33,6 +36,12 @@ type ArgsData record {|
 
 # Defaultable annotation data generated at compile time. This is for internal use.
 annotation ArgsData DefaultableArgs on function;
+
+# An annotation that marks a program element as deprecated.
+#
+# The usage of a deprecated program element is not recommended due to
+# various reasons. Hence, the compiler issues a warning when such an element is used.
+public const annotation deprecated on source type, source object type, source const, source function, source object function;
 
 //# Defines a disptcher to be used for concurrent execution of strands.
 //#

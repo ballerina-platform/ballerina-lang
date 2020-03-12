@@ -21,7 +21,7 @@ package org.ballerinalang.stdlib.email;
 import com.icegreen.greenmail.user.GreenMailUser;
 import com.icegreen.greenmail.util.DummySSLSocketFactory;
 import com.icegreen.greenmail.util.GreenMail;
-import com.icegreen.greenmail.util.ServerSetupTest;
+import com.icegreen.greenmail.util.ServerSetup;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
@@ -59,6 +59,7 @@ public class PopSimpleSecureEmailReceiveTest {
     private GreenMailUser user;
     private CompileResult compiledResult;
     private static final String HOST_NAME = "127.0.0.1";
+    private static final int PORT_NUMBER = 3995;
     private static final String USER_PASSWORD = "abcdef123";
     private static final String USER_NAME = "hascode";
     private static final String EMAIL_USER_ADDRESS = "hascode@localhost";
@@ -66,6 +67,7 @@ public class PopSimpleSecureEmailReceiveTest {
     private static final String EMAIL_SUBJECT = "Test E-Mail";
     private static final String EMAIL_TEXT = "This is a test e-mail.";
     private static final String SSL_SOCKET_FACTORY_PROVIDER = "ssl.SocketFactory.provider";
+    private static final int SERVER_TIMEOUT = 5000;
     private GreenMail mailServer;
 
     @BeforeClass
@@ -130,7 +132,9 @@ public class PopSimpleSecureEmailReceiveTest {
 
     private void startServer() {
         Security.setProperty(SSL_SOCKET_FACTORY_PROVIDER, DummySSLSocketFactory.class.getName());
-        mailServer = new GreenMail(ServerSetupTest.POP3S);
+        ServerSetup setup = new ServerSetup(PORT_NUMBER, null, ServerSetup.PROTOCOL_POP3S);
+        setup.setServerStartupTimeout(SERVER_TIMEOUT);
+        mailServer = new GreenMail(setup);
         mailServer.start();
         user = mailServer.setUser(EMAIL_USER_ADDRESS, USER_NAME, USER_PASSWORD);
         mailServer.setUser(EMAIL_USER_ADDRESS, USER_NAME, USER_PASSWORD);

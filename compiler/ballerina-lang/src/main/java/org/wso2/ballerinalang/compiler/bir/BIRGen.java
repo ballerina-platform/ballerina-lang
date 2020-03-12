@@ -332,11 +332,12 @@ public class BIRGen extends BLangNodeVisitor {
     @Override
     public void visit(BLangTypeDefinition astTypeDefinition) {
         BIRTypeDefinition typeDef = new BIRTypeDefinition(astTypeDefinition.pos,
-                                                          astTypeDefinition.symbol.name,
-                                                          astTypeDefinition.symbol.flags,
-                                                          astTypeDefinition.symbol.isLabel,
-                                                          astTypeDefinition.typeNode.type,
-                                                          new ArrayList<>());
+                astTypeDefinition.symbol.name,
+                astTypeDefinition.symbol.flags,
+                astTypeDefinition.symbol.isLabel,
+                astTypeDefinition.isBuiltinTypeDef,
+                astTypeDefinition.typeNode.type,
+                new ArrayList<>());
         typeDefs.put(astTypeDefinition.symbol, typeDef);
         this.env.enclPkg.typeDefs.add(typeDef);
         typeDef.index = this.env.enclPkg.typeDefs.size() - 1;
@@ -2182,7 +2183,8 @@ public class BIRGen extends BLangNodeVisitor {
         BIROperand tempVarRef = new BIROperand(tempVarDcl);
 
         emit(new BIRNonTerminator.FieldAccess(astArrayAccessExpr.pos, InstructionKind.ARRAY_LOAD, tempVarRef,
-                keyRegIndex, varRefRegIndex));
+                                              keyRegIndex, varRefRegIndex, false,
+                                              astArrayAccessExpr.lhsVar && !astArrayAccessExpr.leafNode));
         this.env.targetOperand = tempVarRef;
 
         this.varAssignment = variableStore;
