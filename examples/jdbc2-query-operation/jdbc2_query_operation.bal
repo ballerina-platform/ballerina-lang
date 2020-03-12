@@ -78,20 +78,20 @@ function typedQuery(jdbc:Client jdbcClient) {
     //Cast to the generic record type to the Customer stream type.
     stream<Customer, sql:Error> customerStream = <stream<Customer, sql:Error>>resultStream;
 
-    //Access customer information directly by using the defined record.
-    error? e = customerStream.forEach(function(Customer customer) {
-        io:println(customer);
-    });
+    //Define getFullName function to be used in the querying the stream
+    function (string, string) returns string getFullName = (fName, lName) => fName + " " + lName;
 
-    //Check and handle the error during the query execution
-    //or iteration of the result.
-    if (e is error) {
-        io:println("ForEach operation on the stream failed!");
-        io:println(e);
-    }
+    //Query the customer stream to filter the customers who has creditLimit more than 10000, and generate their
+    //fullName and other details as `highCreditCustomers` stream.
+    var highCreditCustomers = from Customer customer in customerStream
+                  let
+                  where customer.creditLimit >= 10000
+                  select {fullName, id: customer.customerId, creditLimit: customer.creditLimit};
+
+    io:println(highCreditCustomers);
 
     //Close the stream.
-    e = resultStream.close();
+    error? e = resultStream.close();
     io:println("------ End Query With Type Description -------");
 }
 
