@@ -74,6 +74,8 @@ public class LangLibSubTypeTest {
         BRunUtil.invoke(compileResult, "testMapping");
 //        BRunUtil.invoke(compileResult, "testConstReference");
         BRunUtil.invoke(compileResult, "testLeftShift");
+        BRunUtil.invoke(compileResult, "testRightShift");
+        BRunUtil.invoke(compileResult, "testUnsignedRightShift");
     }
 
     @Test
