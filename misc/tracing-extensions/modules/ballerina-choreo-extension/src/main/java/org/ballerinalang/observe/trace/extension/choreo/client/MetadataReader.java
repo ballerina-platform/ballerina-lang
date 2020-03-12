@@ -39,18 +39,15 @@ public class MetadataReader {
     private static final String AST_META_FILE_PATH = "ast/meta.properties";
     public static final String PROGRAM_HASH_KEY = "PROGRAM_HASH";
 
-    private final InputStream astDataInputStream;
     private String astData = null;
     private Properties props = new Properties();
 
     public MetadataReader() throws IOException {
-        InputStream inputStream = BallerinaPackageResourceReader.getResourceAsStream(AST_DATA_FILE_PATH);
-        if (Objects.isNull(inputStream)) {
-            throw new FileNotFoundException("Sequence diagram information cannot be found in the binary");
-        }
-        this.astDataInputStream = inputStream;
-
         try (InputStream metaFileStream = BallerinaPackageResourceReader.getResourceAsStream(AST_META_FILE_PATH)) {
+            if (Objects.isNull(metaFileStream)) {
+                throw new FileNotFoundException("Sequence diagram information cannot be found in the binary");
+            }
+
             props.load(metaFileStream);
         }
     }
@@ -58,9 +55,11 @@ public class MetadataReader {
     public String getAstData() {
         if (Objects.isNull(astData)) {
             synchronized (this) {
-                try {
-                    astData = readString(astDataInputStream);
-                    astDataInputStream.close();
+                try (InputStream inputStream = BallerinaPackageResourceReader.getResourceAsStream(AST_DATA_FILE_PATH)) {
+                    if (Objects.isNull(inputStream)) {
+                        throw new FileNotFoundException("Sequence diagram information cannot be found in the binary");
+                    }
+                    astData = readString(inputStream);
                 } catch (IOException e) {
                     LOGGER.error("Error reading AST data: " + e.getMessage());
                 }
