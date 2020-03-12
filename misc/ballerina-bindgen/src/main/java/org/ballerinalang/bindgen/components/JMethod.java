@@ -114,7 +114,7 @@ public class JMethod {
             this.noReservedWord = false;
         }
         if (objectReturn && !isArrayReturn && !allJavaClasses.contains(m.getReturnType().getName())) {
-            classListForLooping.add(m.getReturnType().getName());
+            classListForLooping.add(m.getReturnType().getCanonicalName());
         }
     }
 }
