@@ -315,7 +315,23 @@
                         &.life-line-worker {
                             stroke:  ~"@{@{color}-diagram-life-line-worker-stroke-color}";
                             color: ~"@{@{color}-diagram-life-line-worker-stroke-color}";
+                            stroke-width: 2px;
 
+                            .life-line-wrapper {
+                                stroke: ~"@{@{color}-diagram-life-line-worker-stroke-color}";
+                                stroke-width: 2px;
+                                fill:#fff;
+                            }
+                            .source-linked-label {
+                                font-size: 1.2rem;
+                            }
+                            .icon-wrapper {
+                                fill: ~"@{@{color}-diagram-life-line-worker-stroke-color}";
+                                stroke: none;
+                            }
+                            .life-line-icon {
+                                fill: #fff;
+                            }
                             rect {
                                 fill: ~"@{@{color}-diagram-life-line-worker-stroke-color}";
                             }
@@ -326,7 +342,23 @@
                         &.life-line-endpoint {
                             stroke: ~"@{@{color}-diagram-life-line-endpoint-stroke-color}";
                             color: ~"@{@{color}-diagram-life-line-endpoint-stroke-color}";
+                            stroke-width: 2px;
 
+                            .life-line-wrapper {
+                                stroke: ~"@{@{color}-diagram-life-line-endpoint-stroke-color}";
+                                stroke-width: 2px;
+                                fill:#fff;
+                            }
+                            .source-linked-label {
+                                font-size: 1.2rem;
+                            }
+                            .icon-wrapper {
+                                fill: ~"@{@{color}-diagram-life-line-endpoint-stroke-color}";
+                                stroke: none;
+                            }
+                            .life-line-icon {
+                                fill: #fff;
+                            }
                             rect {
                                 fill: ~"@{@{color}-diagram-life-line-endpoint-stroke-color}";
                             }
@@ -359,13 +391,13 @@
                     }
                     .action-invocation {
                         line {
-                            stroke: ~"@{@{color}-diagram-arrow-head-color}";
-                            stroke-width: 1px;
+                            stroke: ~"@{@{color}-diagram-life-line-endpoint-stroke-color}";
+                            stroke-width: 2px;
                         }
                         fill: ~"@{@{color}-diagram-arrow-head-color}";
                         .invoke-line {
-                            stroke:#aaa;
-                            stroke-width: 0.5;
+                            stroke:~"@{@{color}-diagram-life-line-endpoint-stroke-color}";
+                            stroke-width: 2px;
                         }
                         .invoke-arrowhead {
                             stroke:#aaa;
@@ -376,7 +408,7 @@
                     .start-invocation {
                         line {
                             stroke: ~"@{@{color}-diagram-arrow-head-color}";
-                            stroke-width: 1px;
+                            stroke-width: 2px;
                         }
                     }
                     .condition {
