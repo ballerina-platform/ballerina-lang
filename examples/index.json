@@ -1072,7 +1072,7 @@
     {
         "title": "Lock",
         "column": 0,
-        "category": "Experimental features",
+        "category": "Language concepts",
         "samples": [{
             "name": "Lock",
             "url": "locks"
@@ -1081,7 +1081,7 @@
     },
     {
         "title": "Transactions",
-        "column": 2,
+        "column": 0,
         "category": "Experimental features",
         "samples": [{
                 "name": "Local Transactions",
