@@ -122,6 +122,10 @@ public class BallerinaLexer {
                     token = getSyntaxToken(SyntaxKind.PIPE_TOKEN);
                 }
                 break;
+            case LexerTerminals.QUESTION_MARK:
+                reader.advance();
+                token = getSyntaxToken(SyntaxKind.QUESTION_MARK_TOKEN);
+                break;
 
             // Arithmetic operators
             case LexerTerminals.EQUAL:

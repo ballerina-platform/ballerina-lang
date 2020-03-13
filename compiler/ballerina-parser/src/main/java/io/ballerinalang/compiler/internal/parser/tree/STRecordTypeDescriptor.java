@@ -41,7 +41,7 @@ public class STRecordTypeDescriptor extends STNode {
 //        this.restDescriptor = restDescriptor;
         this.bodyEndDelimiter = bodyEndDelimiter;
 
-        this.bucketCount = 5;
+        this.bucketCount = 4;
         this.childBuckets = new STNode[this.bucketCount];
         this.addChildNode(recordKeyword, 0);
         this.addChildNode(bodyStartDelimiter, 1);
