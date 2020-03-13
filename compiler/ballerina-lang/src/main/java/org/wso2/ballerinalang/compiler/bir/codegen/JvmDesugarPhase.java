@@ -17,17 +17,26 @@
  */
 package org.wso2.ballerinalang.compiler.bir.codegen;
 
+import org.ballerinalang.model.elements.Flag;
+import org.wso2.ballerinalang.compiler.bir.codegen.interop.InteropMethodGen.JIMethodCall;
+import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRBasicBlock;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRFunction;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRFunctionParameter;
+import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRPackage;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRTypeDefinition;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRVariableDcl;
+import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator;
+import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.ConstantLoad;
+import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewStructure;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.UnaryOP;
 import org.wso2.ballerinalang.compiler.bir.model.BIROperand;
+import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator;
 import org.wso2.ballerinalang.compiler.bir.model.InstructionKind;
 import org.wso2.ballerinalang.compiler.bir.model.VarKind;
 import org.wso2.ballerinalang.compiler.bir.model.VarScope;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.Name;
@@ -35,9 +44,17 @@ import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+import static org.objectweb.asm.Opcodes.INVOKESTATIC;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAP_VALUE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBSERVABLE_ANNOTATION;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBSERVE_UTILS;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.cleanupFunctionName;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.getBasicBlock;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.getFunction;
@@ -157,6 +174,13 @@ public class JvmDesugarPhase {
         return nextbb;
     }
 
+    public static BIRBasicBlock insertAndGetNextBasicBlock(List<BIRBasicBlock> basicBlocks, int insertIndex,
+                                                           String prefix) {
+        BIRBasicBlock newBasicBlock = new BIRBasicBlock(getNextDesugarBBId(prefix));
+        basicBlocks.add(insertIndex, newBasicBlock);
+        return newBasicBlock;
+    }
+
     public static Name getNextDesugarBBId(String prefix) {
 
         nextId += 1;
@@ -234,5 +258,132 @@ public class JvmDesugarPhase {
             index += 1;
         }
         func.localVars = updatedLocalVars;
+    }
+
+    public static void rewriteObservableFunctionInvocations(BIRPackage pkg) {
+        for (BIRFunction func : pkg.functions) {
+            rewriteObservableFunctionInvocations(func.basicBlocks, func.localVars, pkg);
+        }
+        for (BIRTypeDefinition typeDef : pkg.typeDefs) {
+            for (BIRFunction attachedFunc : typeDef.attachedFuncs) {
+                rewriteObservableFunctionInvocations(attachedFunc.basicBlocks, attachedFunc.localVars, pkg);
+            }
+        }
+    }
+
+    public static void rewriteObservableFunctionInvocations(List<BIRBasicBlock> basicBlocks,
+                                                            List<BIRVariableDcl> scopeVarList, BIRPackage pkg) {
+        int i = 0;
+        while (i < basicBlocks.size()) {
+            BIRBasicBlock currentBB = basicBlocks.get(i);
+            BIRTerminator currentTerminator = currentBB.terminator;
+            if (currentTerminator.kind == InstructionKind.CALL) {
+                BIRTerminator.Call callIns = (BIRTerminator.Call) currentTerminator;
+                boolean isRemote = callIns.calleeFlags.contains(Flag.REMOTE);
+                boolean isObservableAnnotationPresent = false;
+                for (BIRNode.BIRAnnotationAttachment annot : callIns.calleeAnnotAttachments) {
+                    if (OBSERVABLE_ANNOTATION.equals(annot.packageID.orgName.value + "/"
+                            + annot.packageID.name.value + "/" + annot.annotTagRef.value)) {
+                        isObservableAnnotationPresent = true;
+                        break;
+                    }
+                }
+                if (isRemote || isObservableAnnotationPresent) {
+                    String action = cleanupFunctionName(callIns.name.value);
+                    String connectorName;
+                    if (callIns.isVirtual) {
+                        BIRVariableDcl selfArg = getVariableDcl(callIns.args.get(0).variableDcl);
+                        connectorName = selfArg.type.tsymbol.name.value;
+                    } else {
+                        connectorName = "";
+                    }
+                    JIMethodCall observeStartCallTerminator;
+                    {
+                        BIROperand connectorNameOperand = generateConstantOperand(
+                                String.format("%s_connector", currentBB.id.value), connectorName, scopeVarList,
+                                currentBB);
+                        BIROperand actionNameOperand = generateConstantOperand(
+                                String.format("%s_action", currentBB.id.value), action, scopeVarList,
+                                currentBB);
+                        Map<String, String> tags = new HashMap<>();
+                        tags.put("source.invocation_fqn", String.format("%s:%s:%s:%s:%d:%d", pkg.org.value,
+                                pkg.name.value, pkg.version.value, callIns.pos.src.cUnitName, callIns.pos.sLine,
+                                callIns.pos.sCol));
+                        if (isRemote) {
+                            tags.put("source.remote", "true");
+                        }
+                        BIROperand tagsMapOperand = generateMapOperand(
+                                String.format("%s_tags", currentBB.id.value), tags, scopeVarList,
+                                currentBB);
+
+                        observeStartCallTerminator = new JIMethodCall(
+                                new DiagnosticPos(null, -1, -1, -1, -1));
+                        observeStartCallTerminator.invocationType = INVOKESTATIC;
+                        observeStartCallTerminator.jClassName = OBSERVE_UTILS;
+                        observeStartCallTerminator.jMethodVMSig = String.format("(L%s;L%s;L%s;)V", STRING_VALUE,
+                                STRING_VALUE, MAP_VALUE);
+                        observeStartCallTerminator.name = "startCallableObservation";
+                        observeStartCallTerminator.args = Arrays.asList(connectorNameOperand, actionNameOperand,
+                                tagsMapOperand);
+                    }
+
+                    JIMethodCall observeEndCallTerminator = new JIMethodCall(
+                            new DiagnosticPos(null, -1, -1, -1, -1));
+                    observeEndCallTerminator.invocationType = INVOKESTATIC;
+                    observeEndCallTerminator.jClassName = OBSERVE_UTILS;
+                    observeEndCallTerminator.jMethodVMSig = "()V";
+                    observeEndCallTerminator.name = "stopObservation";
+                    observeEndCallTerminator.args = Collections.emptyList();
+
+                    BIRBasicBlock newCurrentBB = insertAndGetNextBasicBlock(basicBlocks, i + 1, "desugaredBB");
+                    BIRBasicBlock observeEndBB = insertAndGetNextBasicBlock(basicBlocks, i + 2, "desugaredBB");
+                    newCurrentBB.terminator = currentBB.terminator;
+                    currentBB.terminator = observeStartCallTerminator;
+                    observeEndBB.terminator = observeEndCallTerminator;
+
+                    observeEndBB.terminator.thenBB = currentBB.terminator.thenBB;
+                    newCurrentBB.terminator.thenBB = observeEndBB;
+                    currentBB.terminator.thenBB = newCurrentBB;
+                    i += 2;
+                }
+            }
+            i++;
+        }
+    }
+
+    public static BIROperand generateConstantOperand(String uniqueId, String constantValue,
+                                                     List<BIRVariableDcl> scopeVarList, BIRBasicBlock basicBlock) {
+        BIRVariableDcl variableDcl = new BIRVariableDcl(symbolTable.stringType,
+                new Name(String.format("$_%s_const_$", uniqueId)), VarScope.FUNCTION, VarKind.LOCAL);
+        scopeVarList.add(variableDcl);
+        BIROperand operand = new BIROperand(variableDcl);
+        BIRNonTerminator instruction = new ConstantLoad(null, constantValue, symbolTable.stringType, operand);
+        basicBlock.instructions.add(instruction);
+        return operand;
+    }
+
+    public static BIROperand generateMapOperand(String uniqueId, Map<String, String> map,
+                                                List<BIRVariableDcl> scopeVarList, BIRBasicBlock basicBlock) {
+        BIRVariableDcl variableDcl = new BIRVariableDcl(symbolTable.mapType,
+                new Name(String.format("$_%s_map_$", uniqueId)), VarScope.FUNCTION, VarKind.LOCAL);
+        scopeVarList.add(variableDcl);
+        BIROperand tagsMapOperand = new BIROperand(variableDcl);
+
+        NewStructure bMapNewInstruction = new NewStructure(null,
+                new BMapType(TypeTags.MAP, symbolTable.stringType, null), tagsMapOperand);
+        basicBlock.instructions.add(bMapNewInstruction);
+
+        int entryIndex = 0;
+        for (Map.Entry<String, String> tagEntry: map.entrySet()) {
+            BIROperand keyOperand = generateConstantOperand(String.format("%s_map_%d_key", uniqueId, entryIndex),
+                    tagEntry.getKey(), scopeVarList, basicBlock);
+            BIROperand valueOperand = generateConstantOperand(String.format("%s_map_%d_value", uniqueId,
+                    entryIndex), tagEntry.getValue(), scopeVarList, basicBlock);
+            BIRNonTerminator.FieldAccess fieldAccessIns = new BIRNonTerminator.FieldAccess(null,
+                    InstructionKind.MAP_STORE, tagsMapOperand, keyOperand, valueOperand);
+            basicBlock.instructions.add(fieldAccessIns);
+            entryIndex++;
+        }
+        return tagsMapOperand;
     }
 }

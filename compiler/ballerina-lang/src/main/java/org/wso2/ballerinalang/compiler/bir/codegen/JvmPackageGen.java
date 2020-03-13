@@ -85,6 +85,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_ST
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.VALUE_CREATOR;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmDesugarPhase.addDefaultableBooleanVarsToSignature;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmDesugarPhase.rewriteObservableFunctionInvocations;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmDesugarPhase.rewriteRecordInits;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmInstructionGen.isBString;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.addInitAndTypeInitInstructions;
@@ -274,6 +275,9 @@ public class JvmPackageGen {
 
         // Desugar the record init function
         rewriteRecordInits(module.typeDefs);
+
+        // Desugar Call Terminators to include Observe start and end calls surrounding them
+        rewriteObservableFunctionInvocations(module);
 
         // generate object/record value classes
         ObjectGenerator objGen = new ObjectGenerator(module);
