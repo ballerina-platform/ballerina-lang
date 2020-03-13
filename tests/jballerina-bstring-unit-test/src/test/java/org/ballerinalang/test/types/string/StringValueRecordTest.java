@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -31,55 +31,30 @@ import org.testng.annotations.Test;
 import static org.ballerinalang.test.util.BRunUtil.IS_STRING_VALUE_PROP;
 
 /**
- * Tests for the generateNewXML* functions for StringValue.
+ * Test StringValue impl of ballerina string.
  */
-public class StringValueXmlTest {
+public class StringValueRecordTest {
     private CompileResult result;
 
     @BeforeClass
     public void setup() {
         System.setProperty(IS_STRING_VALUE_PROP, "true");
-        result = BCompileUtil.compile("test-src/types/string/string-value-xml-test.bal");
+        result = BCompileUtil.compile("test-src/types/string/string-value-record-test.bal");
     }
 
     @Test
-    public void testXmlComment() {
-        testAndAssert("testXmlComment", 12);
+    public void testRecordStringValue() {
+        testAndAssert("testRecordStringValue", 5);
     }
 
     @Test
-    public void testXmlQName() {
-        testAndAssert("testXmlQName", 13);
+    public void testRecordGetKeys() {
+        testAndAssert("testRecordGetKeys", 21);
     }
 
     @Test
-    public void testXmlText() {
-        testAndAssert("testXmlText", 19);
-    }
-
-    @Test
-    public void testXmlProcessingIns() {
-        testAndAssert("testXmlProcessingIns", 12);
-    }
-
-    @Test
-    public void testXmlStr() {
-        testAndAssert("testXmlStr", 8);
-    }
-
-    @Test
-    public void testComplexXml() {
-        testAndAssert("testComplexXml", 202);
-    }
-
-    @Test
-    public void testXmlNamespace() {
-        testAndAssert("testXmlNamespace", 334);
-    }
-
-    @Test
-    public void testXmlInterpolation() {
-        testAndAssert("testXmlInterpolation", 249);
+    public void testMapToKeys() {
+        testAndAssert("testMapToKeys", 28);
     }
 
     private void testAndAssert(String funcName, int i) {
@@ -92,4 +67,5 @@ public class StringValueXmlTest {
     public void down() {
         System.clearProperty(IS_STRING_VALUE_PROP);
     }
+
 }
