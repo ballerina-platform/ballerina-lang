@@ -30,7 +30,6 @@ public function main() {
 
     // Send the email with the client.
     email:Error? response = smtpClient->send(email);
-    // Handle the error if email sending failed.
     if (response is email:Error) {
         io:println("Error while sending the email: " + <string> response.detail()["message"]);
     }
