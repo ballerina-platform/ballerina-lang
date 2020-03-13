@@ -13,7 +13,7 @@ public function main() {
     io:println(sum);
 
     // Anonymous functions can have expression bodies as well.
-    // Here we use an expression bodied anonymous function to easily map a
+    // Here, an expression bodied anonymous function is used to easily map a
     // record to another record type.
     var toEmployee = function (Person p, string pos) returns Employee => {
         name: p.fname + " " + p.lname,
