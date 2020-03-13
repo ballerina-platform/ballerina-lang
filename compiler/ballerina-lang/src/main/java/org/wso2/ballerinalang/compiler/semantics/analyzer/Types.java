@@ -1020,18 +1020,26 @@ public class Types {
                     break;
                 }
                 varType = streamType.constraint;
+                if (streamType.error != null) {
+                    BType actualType = BUnionType.create(null, varType, streamType.error);
+                    dlogHelper.error(foreachNode.collection.pos, DiagnosticCode.INCOMPATIBLE_TYPES,
+                            varType, actualType);
+                }
                 break;
             case TypeTags.OBJECT:
                 // check for iterable objects
                 BUnionType nextMethodReturnType = getVarTypeFromIterableObject((BObjectType) collectionType);
                 if (nextMethodReturnType != null) {
                     foreachNode.resultType = getRecordType(nextMethodReturnType);
-                    foreachNode.errorType = getErrorType(nextMethodReturnType);
-                    foreachNode.nillableResultType = nextMethodReturnType;
-                    BType valueType = ((BRecordType) foreachNode.resultType).fields.get(0).type;
-                    if (foreachNode.errorType != null) {
-                        valueType = BUnionType.create(null, valueType, foreachNode.errorType);
+                    BType valueType = (foreachNode.resultType != null)
+                            ? ((BRecordType) foreachNode.resultType).fields.get(0).type : null;
+                    BType errorType = getErrorType(nextMethodReturnType);
+                    if (errorType != null) {
+                        BType actualType = BUnionType.create(null, valueType, errorType);
+                        dlogHelper.error(foreachNode.collection.pos, DiagnosticCode.INCOMPATIBLE_TYPES,
+                                valueType, actualType);
                     }
+                    foreachNode.nillableResultType = nextMethodReturnType;
                     foreachNode.varType = valueType;
                     return;
                 }
@@ -1057,7 +1065,6 @@ public class Types {
                 (BUnionType) getResultTypeOfNextInvocation((BObjectType) iteratorSymbol.retType);
         foreachNode.varType = varType;
         foreachNode.resultType = getRecordType(nextMethodReturnType);
-        foreachNode.errorType = getErrorType(nextMethodReturnType);
         foreachNode.nillableResultType = nextMethodReturnType;
     }
 
@@ -1119,7 +1126,6 @@ public class Types {
                 BUnionType nextMethodReturnType = getVarTypeFromIterableObject((BObjectType) collectionType);
                 if (nextMethodReturnType != null) {
                     fromClause.resultType = getRecordType(nextMethodReturnType);
-                    fromClause.errorType = getErrorType(nextMethodReturnType);
                     fromClause.nillableResultType = nextMethodReturnType;
                     fromClause.varType = ((BRecordType) fromClause.resultType).fields.get(0).type;
                     return;
@@ -1129,13 +1135,11 @@ public class Types {
             case TypeTags.SEMANTIC_ERROR:
                 fromClause.varType = symTable.semanticError;
                 fromClause.resultType = symTable.semanticError;
-                fromClause.errorType = symTable.semanticError;
                 fromClause.nillableResultType = symTable.semanticError;
                 return;
             default:
                 fromClause.varType = symTable.semanticError;
                 fromClause.resultType = symTable.semanticError;
-                fromClause.errorType = symTable.semanticError;
                 fromClause.nillableResultType = symTable.semanticError;
                 dlogHelper.error(fromClause.collection.pos, DiagnosticCode.ITERABLE_NOT_SUPPORTED_COLLECTION,
                                  collectionType);
@@ -1148,11 +1152,10 @@ public class Types {
                 (BUnionType) getResultTypeOfNextInvocation((BObjectType) iteratorSymbol.retType);
         fromClause.varType = varType;
         fromClause.resultType = getRecordType(nextMethodReturnType);
-        fromClause.errorType = getErrorType(nextMethodReturnType);
         fromClause.nillableResultType = nextMethodReturnType;
     }
 
-    private BUnionType getVarTypeFromIterableObject(BObjectType collectionType) {
+    public BUnionType getVarTypeFromIterableObject(BObjectType collectionType) {
         BObjectTypeSymbol objectTypeSymbol = (BObjectTypeSymbol) collectionType.tsymbol;
         for (BAttachedFunction func : objectTypeSymbol.attachedFuncs) {
             if (func.funcName.value.equals(BLangCompilerConstants.ITERABLE_OBJECT_ITERATOR_FUNC)) {
@@ -1260,10 +1263,15 @@ public class Types {
         return null;
     }
 
-    private BErrorType getErrorType(BUnionType type) {
+    public BErrorType getErrorType(BUnionType type) {
         for (BType member : type.getMemberTypes()) {
             if (member.tag == TypeTags.ERROR) {
                 return (BErrorType) member;
+            } else if (member.tag == TypeTags.UNION) {
+                BErrorType e = getErrorType((BUnionType) member);
+                if (e != null) {
+                    return e;
+                }
             }
         }
         return null;
