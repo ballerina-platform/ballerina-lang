@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.jvm.observability.metrics;
 
+import org.apache.commons.lang3.StringUtils;
 import org.ballerinalang.jvm.observability.BallerinaObserver;
 import org.ballerinalang.jvm.observability.ObserverContext;
 
@@ -77,8 +78,14 @@ public class BallerinaMetricsObserver implements BallerinaObserver {
             // Do not collect metrics if the observation hasn't started
             return;
         }
-        String[] mainTags = {TAG_KEY_SERVICE, observerContext.getServiceName(), TAG_KEY_RESOURCE,
-                observerContext.getResourceName(), TAG_KEY_CONNECTOR_NAME, observerContext.getConnectorName()};
+        String[] mainTags;
+        if (StringUtils.isEmpty(observerContext.getActionName())) {
+            mainTags = new String[]{TAG_KEY_SERVICE, observerContext.getServiceName(), TAG_KEY_RESOURCE,
+                    observerContext.getResourceName()};
+        } else {
+            mainTags = new String[]{TAG_KEY_SERVICE, observerContext.getServiceName(), TAG_KEY_RESOURCE,
+                    observerContext.getResourceName(), TAG_KEY_CONNECTOR_NAME, observerContext.getConnectorName()};
+        }
         stopObservation(observerContext, mainTags);
     }
 
@@ -88,8 +95,11 @@ public class BallerinaMetricsObserver implements BallerinaObserver {
             // Do not collect metrics if the observation hasn't started
             return;
         }
-        String[] mainTags = {TAG_KEY_ACTION, observerContext.getActionName(),
-                TAG_KEY_CONNECTOR_NAME, observerContext.getConnectorName()};
+        String[] mainTags = new String[0];
+        if (!StringUtils.isEmpty(observerContext.getActionName())) {
+            mainTags = new String[]{TAG_KEY_ACTION, observerContext.getActionName(),
+                    TAG_KEY_CONNECTOR_NAME, observerContext.getConnectorName()};
+        }
         stopObservation(observerContext, mainTags);
     }
 
@@ -127,14 +137,6 @@ public class BallerinaMetricsObserver implements BallerinaObserver {
                     "Response Time Total Count", allTags)).increment(duration);
             metricRegistry.counter(new MetricId("requests_total",
                     "Total number of requests", allTags)).increment();
-            // Check HTTP status code
-//            String statusCode = tags.get(TAG_KEY_HTTP_STATUS_CODE_GROUP);
-//            if (statusCode != null) {
-//                int httpStatusCode = Integer.parseInt(statusCode);
-//                if (httpStatusCode > 0) {
-//                    incrementHttpStatusCodeCounters(httpStatusCode, connectorName, mainTagSet);
-//                }
-//            }
             Boolean error = (Boolean) observerContext.getProperty(PROPERTY_ERROR);
             if (error != null && error) {
                 metricRegistry.counter(new MetricId(connectorName + "_failed_requests_total",
@@ -149,38 +151,6 @@ public class BallerinaMetricsObserver implements BallerinaObserver {
         return metricRegistry.gauge(new MetricId(connectorName + "_inprogress_requests",
                 "Inprogress Requests", tags));
     }
-
-//    private void incrementHttpStatusCodeCounters(int statusCode, String connectorName, Set<Tag> tags) {
-//        metricRegistry.counter(new MetricId("1XX_requests_total",
-//                "Total number of requests that resulted in HTTP 1xx informational responses", tags)).register();
-//        metricRegistry.counter(new MetricId("2XX_requests_total",
-//                "Total number of requests that resulted in HTTP 2xx successful responses", tags)).register();
-//        metricRegistry.counter(new MetricId("3XX_requests_total",
-//                "Total number of requests that resulted in HTTP 3xx redirections", tags)).register();
-//        metricRegistry.counter(new MetricId("4XX_requests_total",
-//                "Total number of requests that resulted in HTTP 4xx client errors", tags)).register();
-//        metricRegistry.counter(new MetricId("5XX_requests_total",
-//                "Total number of requests that resulted in HTTP 5xx server errors", tags)).register();
-//
-//        if (statusCode >= 100 && statusCode < 200) {
-//            metricRegistry.counter(new MetricId( "1XX_requests_total",
-//                    "Total number of requests that resulted in HTTP 1xx informational responses", tags))
-//                    .increment();
-//        } else if (statusCode < 300) {
-//            metricRegistry.counter(new MetricId("2XX_requests_total",
-//                    "Total number of requests that resulted in HTTP 2xx successful responses", tags))
-//                    .increment();
-//        } else if (statusCode < 400) {
-//            metricRegistry.counter(new MetricId("3XX_requests_total",
-//                    "Total number of requests that resulted in HTTP 3xx redirections", tags)).increment();
-//        } else if (statusCode < 500) {
-//            metricRegistry.counter(new MetricId("4XX_requests_total",
-//                    "Total number of requests that resulted in HTTP 4xx client errors", tags)).increment();
-//        } else if (statusCode < 600) {
-//            metricRegistry.counter(new MetricId("5XX_requests_total",
-//                    "Total number of requests that resulted in HTTP 5xx server errors", tags)).increment();
-//        }
-//    }
 
     private void handleError(String connectorName, Set<Tag> tags, RuntimeException e) {
         // Metric Provider may throw exceptions if there is a mismatch in tags.
