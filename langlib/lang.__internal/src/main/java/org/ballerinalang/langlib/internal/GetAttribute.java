@@ -54,6 +54,10 @@ public class GetAttribute {
                     "Invalid xml attribute access on xml " + xmlVal.getNodeType().value());
         }
         XMLQName qname = new XMLQName(attrName);
-        return xmlVal.getAttribute(qname.getLocalName(), qname.getUri());
+        String attrVal = xmlVal.getAttribute(qname.getLocalName(), qname.getUri());
+        if (attrVal == null) {
+            return createError(XML_OPERATION_ERROR, "attribute '" + attrName + "' not found");
+        }
+        return attrVal;
     }
 }
