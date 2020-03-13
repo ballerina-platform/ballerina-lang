@@ -20,6 +20,10 @@ package org.ballerinalang.jvm.types;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
 
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
+
 /**
  * {@code AnnotatableType} represents a type description which contains annotations.
  *
@@ -45,5 +49,10 @@ public abstract class AnnotatableType extends BType {
 
     public Object getAnnotation(String pkg, String annotName) {
         return this.annotations.get(pkg + ":" + annotName);
+    }
+
+    public List<String> getParamAnnotationKeys() {
+        return Arrays.stream(this.annotations.getKeys()).filter(key -> key.startsWith("$param$")).collect(
+                Collectors.toList());
     }
 }

@@ -171,11 +171,11 @@ type HttpParamOrderConfig record {|
 # The annotation which is used to configure an path param order.
 annotation HttpParamOrderConfig ParamOrderConfig on resource function;
 
-# The annotation which is used to configure an path param order.
-annotation PathParam on parameter;
+# The annotation which is used to configure an path parameter.
+public annotation PathParam on parameter;
 
-# The annotation which is used to configure an path param order.
-annotation QueryParam on parameter;
+# The annotation which is used to configure an Query parameter.
+public annotation QueryParam on parameter;
 
-# The annotation which is used to configure an path param order.
-annotation BodyParam on parameter;
+# The annotation which is used to configure an body parameter.
+public annotation BodyParam on parameter;
