@@ -60,6 +60,7 @@ public class ObservabilityConstants {
     public static final String PROPERTY_BSTRUCT_ERROR = "bstruct_error";
 
     public static final String STATUS_CODE_GROUP_SUFFIX = "xx";
+    public static final String INTERNAL_SERVER_ERROR_STATUS_CODE_GROUP = "5xx";
 
     // TOML Configs
     public static final String CONFIG_TABLE_OBSERVABILITY = "b7a.observability";
