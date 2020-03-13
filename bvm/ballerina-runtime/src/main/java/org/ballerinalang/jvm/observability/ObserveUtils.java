@@ -23,6 +23,7 @@ import org.ballerinalang.jvm.observability.tracer.BSpan;
 import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ErrorValue;
+import org.ballerinalang.jvm.values.MapValue;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -71,7 +72,8 @@ public class ObserveUtils {
      * @param resourceName name of the resource being invoked.
      * @param tags tags to be used in the observation
      */
-    public static void startResourceObservation(String serviceName, String resourceName, Map<String, String> tags) {
+    public static void startResourceObservation(String serviceName, String resourceName,
+                                                MapValue<String, String> tags) {
         Strand strand = Scheduler.getStrand();
         if (!enabled) {
             return;
@@ -141,7 +143,8 @@ public class ObserveUtils {
      * @param actionName name of the action/function being invoked.
      * @param tags tags to be used in the observation
      */
-    public static void startCallableObservation(String connectorName, String actionName, Map<String, String> tags) {
+    public static void startCallableObservation(String connectorName, String actionName,
+                                                MapValue<String, String> tags) {
         Strand strand = Scheduler.getStrand();
         if (!enabled) {
             return;

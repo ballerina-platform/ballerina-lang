@@ -897,8 +897,12 @@ public class JvmMethodGen {
                             attachedTypeObj.tsymbol.pkgID.name.value, serviceName);
                 }
                 Map<String, String> tags = new HashMap<>();
-                tags.put("source.invocation_fqn", String.format("%s:%s:%s:%d:%d", module.org, module.name,
-                        func.pos.src.cUnitName, func.pos.sLine, func.pos.sCol));
+                tags.put("source.invocation_fqn", String.format("%s:%s:%s:%s:%d:%d", module.org.value,
+                        module.name.value, module.version.value, func.pos.src.cUnitName, func.pos.sLine,
+                        func.pos.sCol));
+                if (isService) {
+                    tags.put("source.service", "true");
+                }
                 emitStartObservationInvocation(mv, serviceOrConnectorName, funcName,
                         observationStartMethod, tags);
             }
