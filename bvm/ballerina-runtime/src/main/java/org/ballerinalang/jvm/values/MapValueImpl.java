@@ -299,7 +299,10 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
     @SuppressWarnings("unchecked")
     public K[] getKeys() {
         Set<K> keys = super.keySet();
-        return (K[]) keys.toArray(new String[keys.size()]);
+        String bStringProp = System.getProperty("ballerina.bstring");
+        boolean isBString = (bStringProp != null && !"".equals(bStringProp));
+        int size = keys.size();
+        return (K[]) (isBString ? keys.toArray(new BString[size]) : keys.toArray(new String[size]));
     }
 
     /**
