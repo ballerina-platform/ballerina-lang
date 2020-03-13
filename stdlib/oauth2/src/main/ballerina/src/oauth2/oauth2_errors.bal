@@ -14,6 +14,9 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/auth;
+import ballerina/log;
+
 # Record type to hold the details of an error.
 #
 # + message - Specific error message of the error.
@@ -28,3 +31,35 @@ public const OAUTH2_ERROR = "{ballerina/oauth2}Error";
 
 # Represents the OAuth2 error type with details.
 public type Error error<OAUTH2_ERROR, Detail>;
+
+# Log and prepare `error` as a `Error`.
+#
+# + message - Error message
+# + err - `error` instance
+# + return - Prepared `Error` instance
+function prepareError(string message, error? err = ()) returns Error {
+    log:printError(message, err);
+    Error oauth2Error;
+    if (err is error) {
+        oauth2Error = error(OAUTH2_ERROR, message = message, cause = err);
+    } else {
+        oauth2Error = error(OAUTH2_ERROR, message = message);
+    }
+    return oauth2Error;
+}
+
+# Log and prepare `error` as a `auth:Error`.
+#
+# + message - Error message
+# + err - `error` instance
+# + return - Prepared `auth:Error` instance
+function prepareAuthError(string message, error? err = ()) returns auth:Error {
+    log:printError(message, err);
+    auth:Error authError;
+    if (err is error) {
+        authError = error(auth:AUTH_ERROR, message = message, cause = err);
+    } else {
+        authError = error(auth:AUTH_ERROR, message = message);
+    }
+    return authError;
+}

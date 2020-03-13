@@ -107,11 +107,10 @@ public class JvmDesugarPhase {
         BIRBasicBlock nextBB = insertAndGetNextBasicBlock(basicBlocks, "desugaredBB");
 
         int paramCounter = 0;
-        int paramBBCounter = 0;
         DiagnosticPos pos = currentFunc.pos;
         while (paramCounter < functionParams.size()) {
             BIRFunctionParameter funcParam = functionParams.get(paramCounter);
-            if (funcParam instanceof BIRFunctionParameter && funcParam.hasDefaultExpr) {
+            if (funcParam != null && funcParam.hasDefaultExpr) {
                 int boolParam = paramCounter + 1;
                 BIRFunctionParameter funcBooleanParam = getFunctionParam(functionParams.get(boolParam));
                 BIROperand boolRef = new BIROperand(funcBooleanParam);
@@ -123,16 +122,12 @@ public class JvmDesugarPhase {
                     basicBlocks.add(getBasicBlock(defaultBB));
                 }
                 BIRBasicBlock falseBB = insertAndGetNextBasicBlock(basicBlocks, "desugaredBB");
-                Branch branch = new Branch(pos, boolRef, trueBB, falseBB);
-                nextBB.terminator = branch;
+                nextBB.terminator = new Branch(pos, boolRef, trueBB, falseBB);
 
                 BIRBasicBlock lastBB = getBasicBlock(bbArray.get(bbArray.size() - 1));
-                GOTO gotoRet = new GOTO(pos, falseBB);
-                lastBB.terminator = gotoRet;
+                lastBB.terminator = new GOTO(pos, falseBB);
 
                 nextBB = falseBB;
-
-                paramBBCounter += 1;
             }
             paramCounter += 2;
         }
@@ -146,16 +141,11 @@ public class JvmDesugarPhase {
             return;
         }
 
-        int pl = currentFunc.basicBlocks.size();
         BIRBasicBlock firstBB = getBasicBlock(currentFunc.basicBlocks.get(0));
 
-        GOTO gotoRet = new GOTO(pos, firstBB);
-        nextBB.terminator = gotoRet;
-        for (BIRBasicBlock bb : currentFunc.basicBlocks) {
-            basicBlocks.add(bb);
-        }
+        nextBB.terminator = new GOTO(pos, firstBB);
+        basicBlocks.addAll(currentFunc.basicBlocks);
 
-        int nl = basicBlocks.size();
         currentFunc.basicBlocks = basicBlocks;
     }
 
@@ -169,9 +159,8 @@ public class JvmDesugarPhase {
 
     public static Name getNextDesugarBBId(String prefix) {
 
-        String bbIdPrefix = prefix;
         nextId += 1;
-        return new Name(bbIdPrefix + nextId);
+        return new Name(prefix + nextId);
     }
 
     private static @Nilable
@@ -184,10 +173,7 @@ public class JvmDesugarPhase {
         // Update the param types to add boolean variables to indicate if the previous variable contains a user
         // given value
         int size = funcParams == null ? 0 : funcParams.size();
-        while (true) {
-            if (!(counter < size)) {
-                break;
-            }
+        while (counter < size) {
             paramTypes.add(index, funcParams.get(counter));
             paramTypes.add(index + 1, symbolTable.booleanType);
             index += 2;
@@ -204,18 +190,19 @@ public class JvmDesugarPhase {
 
         for (@Nilable BIRTypeDefinition typeDef : typeDefs) {
             @Nilable BType recordType = typeDef.type;
-            if (recordType.tag == TypeTags.RECORD) {
-                @Nilable List<BIRFunction> attachFuncs = typeDef.attachedFuncs;
-                for (BIRFunction func : attachFuncs) {
-                    rewriteRecordInitFunction(func, (BRecordType) recordType);
-                }
+            if (recordType.tag != TypeTags.RECORD) {
+                continue;
+            }
+            @Nilable List<BIRFunction> attachFuncs = typeDef.attachedFuncs;
+            for (BIRFunction func : attachFuncs) {
+                rewriteRecordInitFunction(func, (BRecordType) recordType);
             }
         }
     }
 
     private static void rewriteRecordInitFunction(BIRFunction func, BRecordType recordType) {
 
-        BIRVariableDcl receiver = (BIRVariableDcl) func.receiver;
+        BIRVariableDcl receiver = func.receiver;
 
         // Rename the function name by appending the record name to it.
         // This done to avoid frame class name overlappings.

@@ -16,7 +16,7 @@
 
 import ballerina/kafka;
 
-kafka:ConsumerConfig consumerConfigs = {
+kafka:ConsumerConfiguration consumerConfigs = {
     bootstrapServers: "localhost:14103",
     groupId: "test-group",
     clientId: "pause-consumer",

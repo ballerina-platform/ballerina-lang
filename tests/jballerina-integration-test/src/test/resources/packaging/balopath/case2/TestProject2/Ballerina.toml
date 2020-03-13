@@ -3,4 +3,4 @@ org-name = "org2"
 version = "2.0.0"
 
 [dependencies]
-"baz/bee" = { path = "../TestProject1/target/balo/bee-2019r3-any-1.2.0.balo"}
+"baz/bee" = { path = "../TestProject1/target/balo/bee-2020r1-any-1.2.0.balo"}

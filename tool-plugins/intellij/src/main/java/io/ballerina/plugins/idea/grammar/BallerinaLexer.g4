@@ -34,6 +34,7 @@ CONST       : 'const' ;
 TYPEOF      : 'typeof';
 SOURCE      : 'source' ;
 ON          : 'on' ;
+FIELD       : 'field' ;
 
 TYPE_INT        : 'int' ;
 TYPE_BYTE       : 'byte' ;
@@ -99,6 +100,7 @@ FROM        : 'from' { inQueryExpression = true; } ;
 SELECT      : {inQueryExpression}? 'select' { inQueryExpression = false; } ;
 DO          : {inQueryExpression}? 'do' { inQueryExpression = false; } ;
 WHERE       : {inQueryExpression}? 'where' ;
+LET         : 'let' ;
 
 // Separators
 

@@ -79,6 +79,7 @@ import static io.ballerina.plugins.idea.psi.BallerinaTypes.INT;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.IS;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.JSON;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.LARROW;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.LET;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.LINE_COMMENT;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.LISTENER;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.LOCK;
@@ -118,6 +119,8 @@ import static io.ballerina.plugins.idea.psi.BallerinaTypes.TRY;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.TYPE;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.TYPEDESC;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.TYPEOF;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.TYPE_FIELD;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.TYPE_PARAMETER;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.VAR;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.VERSION;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.WAIT;
@@ -145,11 +148,12 @@ public class BallerinaParserDefinition implements ParserDefinition {
     public static final TokenSet KEYWORDS = TokenSet
             .create(ABORT, ABORTED, ABSTRACT, ANNOTATION, ANY, ANYDATA, BOOLEAN, BREAK, BYTE, CATCH, CHANNEL,
                     CHECK, CHECKPANIC, CLIENT, COMMITTED, CONST, CONTINUE, DECIMAL, ELSE, ERROR, EXTERNAL,
-                    FAIL, FINAL, FINALLY, FLOAT, FLUSH, FORK, FUNCTION, FUTURE, HANDLE, IF, IMPORT, IN, INT, IS,
-                    JSON, LISTENER, LOCK, MATCH, NEW, OBJECT, OBJECT_INIT, ONRETRY, PARAMETER, PANIC, PRIVATE, PUBLIC,
+                    FAIL, FINAL, FINALLY, FLOAT, FLUSH, FORK, FUNCTION, FUTURE, HANDLE, IF, IMPORT, IN, INT, IS, JSON,
+                    LET, LISTENER, LOCK, MATCH, NEW, OBJECT, OBJECT_INIT, ONRETRY, PARAMETER, PANIC, PRIVATE, PUBLIC,
                     RECORD, REMOTE, RESOURCE, RETRIES, RETRY, RETURN, RETURNS, SERVICE, SOURCE, START, STREAM, STRING,
-                    TABLE, TRANSACTION, TRY, TYPE, TYPEDESC, TYPEOF, TRAP, THROW, WAIT, WHILE, WITH, WORKER, VAR,
-                    VERSION, XML, XMLNS, BOOLEAN_LITERAL, NULL_LITERAL, FROM, ON, SELECT, FOREVER);
+                    TABLE, TRANSACTION, TRY, TYPE, TYPE_FIELD, TYPE_PARAMETER, TYPEDESC, TYPEOF, TRAP, THROW, WAIT,
+                    WHILE, WITH, WORKER, VAR, VERSION, XML, XMLNS, BOOLEAN_LITERAL, NULL_LITERAL, FROM, ON, SELECT,
+                    FOREVER);
 
     public static final TokenSet OPERATORS = TokenSet.create(ELVIS, EQUAL_GT, LARROW, RARROW, SYNCRARROW);
 

@@ -24,6 +24,9 @@ import com.intellij.psi.PsiElement;
 public interface BallerinaField extends PsiElement {
 
   @Nullable
+  PsiElement getColon();
+
+  @Nullable
   PsiElement getDot();
 
   @Nullable
@@ -31,8 +34,5 @@ public interface BallerinaField extends PsiElement {
 
   @Nullable
   PsiElement getOptionalFieldAccess();
-
-  @Nullable
-  PsiElement getIdentifier();
 
 }

@@ -140,7 +140,7 @@ public class InteropMethodGen {
 
         // Generate method desc
         BIRFunction birFunc = jFieldFuncWrapper.func;
-        String desc = getMethodDesc(birFunc.type.paramTypes, birFunc.type.retType, null, false, false);
+        String desc = getMethodDesc(birFunc.type.paramTypes, birFunc.type.retType, null, false);
         int access = ACC_PUBLIC + ACC_STATIC;
 
         MethodVisitor mv = cw.visitMethod(access, birFunc.name.value, desc, null, null);
@@ -191,7 +191,7 @@ public class InteropMethodGen {
 
             @Nilable List<BIRBasicBlock> basicBlocks = birFunc.parameters.get(birFuncParam);
             generateBasicBlocks(mv, basicBlocks, labelGen, errorGen, instGen, termGen, birFunc, -1, -1,
-                    strandParamIndex, true, birModule, currentPackageName, null, false, false, null, false);
+                    strandParamIndex, true, birModule, currentPackageName, null, false, false, null);
             mv.visitLabel(paramNextLabel);
 
             birFuncParamIndex += 1;
@@ -272,7 +272,7 @@ public class InteropMethodGen {
             if (jField.getFieldType().isPrimitive() /*jFieldType instanceof JPrimitiveType*/) {
                 performWideningPrimitiveConversion(mv, retType, jFieldType);
             } else {
-                addUnboxInsn(mv, retType, false);
+                addUnboxInsn(mv, retType);
             }
         }
 
@@ -437,7 +437,7 @@ public class InteropMethodGen {
 
     private static boolean isMatchingBAndJType(BType sourceTypes, JType targetType) {
 
-        if ((sourceTypes.tag == TypeTags.INT && targetType.jTag == JTypeTags.JLONG) ||
+        if ((TypeTags.isIntegerTypeTag(sourceTypes.tag) && targetType.jTag == JTypeTags.JLONG) ||
                 (sourceTypes.tag == TypeTags.FLOAT && targetType.jTag == JTypeTags.JDOUBLE) ||
                 (sourceTypes.tag == TypeTags.BOOLEAN && targetType.jTag == JTypeTags.JBOOLEAN)) {
             return true;
@@ -449,11 +449,11 @@ public class InteropMethodGen {
     // here. We can improve following logic with a type lattice.
     private static void performWideningPrimitiveConversion(MethodVisitor mv, BType bType, JType jType) {
 
-        if (bType.tag == TypeTags.INT && jType.jTag == JTypeTags.JLONG) {
+        if (TypeTags.isIntegerTypeTag(bType.tag) && jType.jTag == JTypeTags.JLONG) {
             return; // NOP
         } else if (bType.tag == TypeTags.FLOAT && jType.jTag == JTypeTags.JDOUBLE) {
             return; // NOP
-        } else if (bType.tag == TypeTags.INT) {
+        } else if (TypeTags.isIntegerTypeTag(bType.tag)) {
             mv.visitInsn(I2L);
         } else if (bType.tag == TypeTags.FLOAT) {
             if (jType.jTag == JTypeTags.JLONG) {
@@ -606,9 +606,9 @@ public class InteropMethodGen {
         mv.visitVarInsn(ILOAD, indexVarIndex);
         mv.visitInsn(I2L);
 
-        if (bElementType.tag == TypeTags.INT) {
+        if (TypeTags.isIntegerTypeTag(bElementType.tag)) {
             mv.visitMethodInsn(INVOKEINTERFACE, ARRAY_VALUE, "getInt", "(J)J", true);
-        } else if (bElementType.tag == TypeTags.STRING) {
+        } else if (TypeTags.isStringTypeTag(bElementType.tag)) {
             mv.visitMethodInsn(INVOKEINTERFACE, ARRAY_VALUE, "getString", String.format("(J)L%s;", STRING_VALUE), true);
         } else if (bElementType.tag == TypeTags.BOOLEAN) {
             mv.visitMethodInsn(INVOKEINTERFACE, ARRAY_VALUE, "getBoolean", "(J)Z", true);

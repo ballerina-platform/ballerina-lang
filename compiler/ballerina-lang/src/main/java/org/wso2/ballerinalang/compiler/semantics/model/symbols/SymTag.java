@@ -36,7 +36,6 @@ public class SymTag {
     public static final int LISTENER = 1 << 11 | MAIN;
     public static final int PACKAGE = 1 << 12 | IMPORT;
     public static final int XMLNS = 1 << 13 | IMPORT;
-    public static final int SEMANTIC_ERROR = 1 << 14 | MAIN;
     public static final int ENDPOINT = 1 << 15 | VARIABLE;
     public static final int TYPE_DEF = 1 << 16 | TYPE | VARIABLE_NAME;
     public static final int OBJECT = 1 << 17 | TYPE_DEF | STRUCT;

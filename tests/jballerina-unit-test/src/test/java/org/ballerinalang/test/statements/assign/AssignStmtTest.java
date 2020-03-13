@@ -213,16 +213,17 @@ public class AssignStmtTest {
     @Test(description = "Test negative assignment statement with cast and conversion with var.")
     public void testCastAndConversionWithVar() {
         CompileResult result = BCompileUtil.compile("test-src/statements/assign/var-negative.bal");
-
-        Assert.assertEquals(result.getErrorCount(), 27);
+        Assert.assertEquals(result.getErrorCount(), 31);
         int i = 0;
         BAssertUtil.validateError(result, i++, "unknown type 'Foo'", 4, 5);
         BAssertUtil.validateError(result, i++, "unknown type 'Foo'", 4, 20);
         BAssertUtil.validateError(result, i++, "undefined symbol 'bar'", 4, 25);
         BAssertUtil.validateError(result, i++, "unknown type 'Foo'", 5, 13);
+        BAssertUtil.validateError(result, i++, "operator '+' not defined for 'error' and 'error'", 8, 26);
         BAssertUtil.validateError(result, i++, "unknown type 'Float'", 14, 5);
         BAssertUtil.validateError(result, i++, "unknown type 'Float'", 14, 22);
         BAssertUtil.validateError(result, i++, "unknown type 'Float'", 15, 13);
+        BAssertUtil.validateError(result, i++, "operator '+' not defined for 'error' and 'error'", 18, 26);
         BAssertUtil.validateError(result, i++, "undefined symbol 'foo'", 23, 31);
         BAssertUtil.validateError(result, i++, "operator '+' not defined for 'string' and 'error'", 25, 26);
         BAssertUtil.validateError(result, i++, "operator '+' not defined for 'error' and 'error'", 27, 26);
@@ -230,9 +231,11 @@ public class AssignStmtTest {
         BAssertUtil.validateError(result, i++, "unknown type 'Foo'", 32, 20);
         BAssertUtil.validateError(result, i++, "undefined symbol 'bar'", 32, 25);
         BAssertUtil.validateError(result, i++, "unknown type 'Foo'", 33, 13);
+        BAssertUtil.validateError(result, i++, "operator '+' not defined for 'error' and 'error'", 36, 26);
         BAssertUtil.validateError(result, i++, "unknown type 'Float'", 42, 5);
         BAssertUtil.validateError(result, i++, "unknown type 'Float'", 42, 22);
         BAssertUtil.validateError(result, i++, "unknown type 'Float'", 43, 13);
+        BAssertUtil.validateError(result, i++, "operator '+' not defined for 'error' and 'error'", 46, 26);
         BAssertUtil.validateError(result, i++, "undefined symbol 'foo'", 51, 31);
         BAssertUtil.validateError(result, i++, "operator '+' not defined for 'string' and 'error'", 53, 26);
         BAssertUtil.validateError(result, i++, "operator '+' not defined for 'error' and 'error'", 55, 26);
