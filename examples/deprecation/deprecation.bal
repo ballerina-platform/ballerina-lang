@@ -10,50 +10,50 @@ const string COUNTRY = "Sri Lanka";
 @deprecated
 public type Address CITY|COUNTRY;
 
-// The object `Data` is marked as deprecated using `@deprecated` annotation and the markdown documentation `# # Deprecated`.
-# The `Data` is a user-defined object.
+// The object `Person` is marked as deprecated using `@deprecated` annotation and the markdown documentation `# # Deprecated`.
+# The `Person` is a user-defined object.
 #
-# + firstName - This is the description of the `Data`'s `firstName` field.
-# + lastName - This is the description of the `Data`'s `lastName` field.
+# + firstName - The first name of the person.
+# + lastName - The last name of the person.
 # # Deprecated
 # This object is deprecated as information representation is changed.
 # Users of this object should instead use the object `StudentData`.
 @deprecated
-public type Data object {
+public type Person object {
     public string firstName = "Andrew";
     public string lastName = "John";
-    // Usage of deprecated type 'Address' and deprecated constant 'CITY'
+    // Usage of deprecated type 'Address' and deprecated constant `CITY`.
     Address addr = CITY;
 
-    // The object function 'updateFirstName' is deprecated using '@deprecation' annotation
+    // The object function `updateFirstName` is deprecated using `@deprecation` annotation.
     @deprecated
     public function updateFirstName(string name) {
         self.firstName = name;
     }
 };
 
-// Usage of the deprecated `Data` object, `Address` type, and constant `CITY` constant as parameters.
-public function dataInitializer(Data data, Address addr, string city = CITY) {
+// Usage of the deprecated `Person` object, `Address` type, and constant `CITY` constant as parameters.
+public function initializer(Person person, Address addr, string city = CITY) {
     // Usage of deprecated object function `updateFirstName`.
-    data.updateFirstName("");
+    person.updateFirstName("");
 }
 
-// The object `Data` is marked as deprecated using `@deprecated` annotation and the markdown documentation `# # Deprecated`.
-# This function updates the object `Data`.
+// The object `Person` is marked as deprecated using `@deprecated` annotation and the markdown documentation `# # Deprecated`.
+# This function updates the object `Person`.
 #
 # # Deprecated
 # This function is deprecated as affected object is deprecated.
 @deprecated
-public function updateData() {
-    // Usage of deprecate object `Data`.
-    Data data = new;
+public function updatePerson() {
+    // Usage of deprecate object `Person`.
+    Person person = new;
     // Usage of deprecated type `Address`.
     Address addr = COUNTRY;
-    // Usage of the deprecated `dataInitializer` function.
-    dataInitializer(data, addr);
+    // Usage of the deprecated `initializer` function.
+    initializer(person, addr);
 }
 
 public function main() {
-    // Usage of deprecated function `updateData`.
-    updateData();
+    // Usage of deprecated function `updatePerson`.
+    updatePerson();
 }
