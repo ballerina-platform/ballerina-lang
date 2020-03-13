@@ -1,2 +1,2 @@
 // The Email Connector is used to send (with SMTP) and receive (with POP3 or IMAP4) emails using the SSL or STARTTLS protocols.
-// This sample includes sending and receiving emails over SSL with client objects.
+// This sample includes sending and receiving emails with default configurations over SSL using default ports.
