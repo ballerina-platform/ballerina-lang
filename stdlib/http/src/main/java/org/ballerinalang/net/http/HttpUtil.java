@@ -108,7 +108,7 @@ import static io.netty.handler.codec.http.HttpHeaderNames.CACHE_CONTROL;
 import static org.ballerinalang.jvm.observability.ObservabilityConstants.PROPERTY_HTTP_HOST;
 import static org.ballerinalang.jvm.observability.ObservabilityConstants.PROPERTY_HTTP_PORT;
 import static org.ballerinalang.jvm.observability.ObservabilityConstants.TAG_KEY_HTTP_METHOD;
-import static org.ballerinalang.jvm.observability.ObservabilityConstants.TAG_KEY_HTTP_STATUS_CODE;
+import static org.ballerinalang.jvm.observability.ObservabilityConstants.TAG_KEY_HTTP_STATUS_CODE_GROUP;
 import static org.ballerinalang.jvm.observability.ObservabilityConstants.TAG_KEY_HTTP_URL;
 import static org.ballerinalang.jvm.observability.ObservabilityConstants.TAG_KEY_PEER_ADDRESS;
 import static org.ballerinalang.jvm.runtime.RuntimeConstants.BALLERINA_VERSION;
@@ -1129,7 +1129,7 @@ public class HttpUtil {
             // some value to HTTP Status Code to make sure that tags will not change depending on various
             // circumstances.
             // HTTP Status code must be a number.
-            strand.observerContext.addTag(TAG_KEY_HTTP_STATUS_CODE, Integer.toString(0));
+            strand.observerContext.addTag(TAG_KEY_HTTP_STATUS_CODE_GROUP, Integer.toString(0));
         });
     }
 
