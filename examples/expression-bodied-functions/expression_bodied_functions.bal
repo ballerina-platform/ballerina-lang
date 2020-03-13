@@ -1,8 +1,9 @@
 import ballerina/io;
 
-// Note the syntactic difference in the function body from a regular block function body.
-// This is equivalent to `function add(int a, int b) returns int { return a + b; }`.
-// The static type of the expression should either be the same or a subtype of the return type
+// Note the syntactic difference in the function body of an expression-bodied function
+// compared to a regular block function body. This is equivalent to
+// `function add(int a, int b) returns int { return a + b; }`. The static type of
+// the expression should either be the same or a subtype of the return type
 // of the function.
 function add(int a, int b) returns int => a + b;
 
