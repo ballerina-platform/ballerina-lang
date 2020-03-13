@@ -19,12 +19,12 @@ export const ActionInvocation: React.StatelessComponent<{
         const actionProps = { x: 0, y: 0 };
 
         sendLine.x1 = model.bBox.x;
-        sendLine.y1 = sendLine.y2 = model.bBox.y + config.statement.height;
+        sendLine.y1 = sendLine.y2 = model.bBox.y + config.statement.height ;
         sendLine.x2 = model.endpoint.bBox.x + (model.endpoint.bBox.w / 2) - 3;
 
         receiveLine.x1 = sendLine.x1;
         receiveLine.x2 = sendLine.x2;
-        receiveLine.y1 = receiveLine.y2 = sendLine.y1 + (config.statement.height / 2);
+        receiveLine.y1 = receiveLine.y2 = sendLine.y1 + config.statement.height;
 
         actionProps.x = model.bBox.x + config.statement.padding.left;
         actionProps.y = model.bBox.y + (config.statement.height / 2);
@@ -37,7 +37,7 @@ export const ActionInvocation: React.StatelessComponent<{
                 <ArrowHead direction="right" x={sendLine.x2} y={sendLine.y2} className="invoke-arrowhead" />
                 <line {...receiveLine} strokeDasharray={5} className="invoke-line" />
                 <ArrowHead direction="left" x={receiveLine.x1} y={receiveLine.y1} className="invoke-arrowhead"/>
-                <rect x={sendLine.x2} y={sendLine.y2} width="6" height={(config.statement.height / 2)}
+                <rect x={sendLine.x2} y={sendLine.y2} width="6" rx="3" ry="3" height={(config.statement.height)}
                     className="life-line-endpoint-activity" />
                 <Popup
                     trigger={

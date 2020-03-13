@@ -273,9 +273,9 @@
                     pointer-events: all;
                 }
                 .hidden-block {
-                    stroke: gray;
-                    stroke-width: 1px;
-                    fill: aliceblue;
+                    stroke: ~"@{@{color}-diagram-life-line-worker-stroke-color}";
+                    stroke-width: 2px;
+                    fill:@diagram-base-light-color;
                     cursor: pointer;
                 }
                 .panel-header {
@@ -391,7 +391,7 @@
                     }
                     .action-invocation {
                         line {
-                            stroke: ~"@{@{color}-diagram-life-line-endpoint-stroke-color}";
+                            stroke:  ~"@{@{color}-diagram-life-line-endpoint-stroke-color}";
                             stroke-width: 2px;
                         }
                         fill: ~"@{@{color}-diagram-arrow-head-color}";
@@ -400,8 +400,8 @@
                             stroke-width: 2px;
                         }
                         .invoke-arrowhead {
-                            stroke:#aaa;
-                            fill: #aaa;
+                            stroke: ~"@{@{color}-diagram-life-line-endpoint-stroke-color}";
+                            fill: ~"@{@{color}-diagram-life-line-endpoint-stroke-color}";
                             stroke-width: 0;
                         }
                     }
@@ -423,7 +423,7 @@
                         }
                         polyline {
                             fill: ~"@{@{color}-diagram-condition-background-color}";
-                            stroke: ~"@{@{color}-diagram-condition-stroke-color}";
+                            stroke: @purple;
                             stroke-width: @diagram-condition-stroke-width;
                         }
                     }
@@ -452,7 +452,7 @@
                         .collapser {
                             cursor: pointer;
                             fill: ~"@{@{color}-diagram-collapse-func-color}";
-                            font-size: 10px;
+                            font-size: 12px;
                         }
                         .life-line {
                             stroke: ~"@{@{color}-diagram-condition-line-stroke-color}";
@@ -461,13 +461,16 @@
                     }
                     .expanded-hidden-block {
                         .frame {
-                            stroke: ~"@{@{color}-diagram-expanded-func-frame-color}";
+                            stroke: #b3b3b3;
                             fill: none;
+                            stroke-width: 1.5;
                         }
                         .collapser {
                             stroke: ~"@{@{color}-diagram-collapse-func-color}";
+                            stroke-width: 0;
                             cursor: pointer;
                             fill: ~"@{@{color}-diagram-collapse-func-color}";
+                            font-size: 12px;
                         }
                     }
                 }
