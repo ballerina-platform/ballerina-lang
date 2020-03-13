@@ -17,6 +17,8 @@
  */
 package io.ballerinalang.compiler.internal.parser;
 
+import io.ballerinalang.compiler.internal.parser.tree.STMissingToken;
+import io.ballerinalang.compiler.internal.parser.tree.STNode;
 import io.ballerinalang.compiler.internal.parser.tree.STToken;
 import io.ballerinalang.compiler.internal.parser.tree.SyntaxKind;
 
@@ -52,7 +54,6 @@ import java.util.List;
 public class BallerinaParserErrorHandler {
 
     private final AbstractNodeSupplier tokenReader;
-    private final BallerinaParserListener listner;
     private final BallerinaParserErrorListener errorListener;
     private final BallerinaParser parser;
 
@@ -75,7 +76,7 @@ public class BallerinaParserErrorHandler {
             new ParserRuleContext[] { ParserRuleContext.PUBLIC, ParserRuleContext.FUNC_DEFINITION };
 
     private static final ParserRuleContext[] TYPE_OR_VAR_NAME =
-            { ParserRuleContext.TYPE_DESCRIPTOR, ParserRuleContext.VARIABLE_NAME };
+            { ParserRuleContext.SIMPLE_TYPE_DESCRIPTOR, ParserRuleContext.VARIABLE_NAME };
 
     private static final ParserRuleContext[] ASSIGNMENT_OR_VAR_DECL_SECOND_TOKEN =
             { ParserRuleContext.ASSIGN_OP, ParserRuleContext.VARIABLE_NAME };
@@ -85,10 +86,8 @@ public class BallerinaParserErrorHandler {
      */
     private static final int LOOKAHEAD_LIMIT = 5;
 
-    public BallerinaParserErrorHandler(AbstractNodeSupplier tokenReader, BallerinaParserListener listner,
-            BallerinaParser parser) {
+    public BallerinaParserErrorHandler(AbstractNodeSupplier tokenReader, BallerinaParser parser) {
         this.tokenReader = tokenReader;
-        this.listner = listner;
         this.parser = parser;
         this.errorListener = new BallerinaParserErrorListener();
     }
@@ -127,20 +126,20 @@ public class BallerinaParserErrorHandler {
      * @param currentCtx Current parser context
      * @return The action needs to be taken for the next token, in order to recover
      */
-    public Solution recover(ParserRuleContext currentCtx, STToken nextToken) {
+    public Solution recover(ParserRuleContext currentCtx, STToken nextToken, STNode... parsedNodes) {
         // Assumption: always comes here after a peek()
 
         if (nextToken.kind == SyntaxKind.EOF_TOKEN) {
             SyntaxKind expectedTokenKind = getExpectedTokenKind(currentCtx);
             Solution fix = new Solution(Action.INSERT, currentCtx, expectedTokenKind, currentCtx.toString());
-            handleMissingToken(currentCtx, fix);
+            applyFix(currentCtx, fix, parsedNodes);
             return fix;
         }
 
         Result bestMatch = seekMatch(currentCtx);
         if (bestMatch.matches > 0) {
             Solution fix = bestMatch.fixes.pop();
-            applyFix(currentCtx, fix);
+            applyFix(currentCtx, fix, parsedNodes);
             return fix;
         } else {
             // Fail safe. This means we can't find a path to recover.
@@ -160,8 +159,6 @@ public class BallerinaParserErrorHandler {
         this.errorListener.reportInvalidToken(invalidToken);
 
         // TODO: add this error node to the tree
-
-        // this.listner.exitErrorNode(nextToken.text);
     }
 
     /**
@@ -170,12 +167,12 @@ public class BallerinaParserErrorHandler {
      * @param currentCtx Current context
      * @param fix Fix to apply
      */
-    private void applyFix(ParserRuleContext currentCtx, Solution fix) {
+    private void applyFix(ParserRuleContext currentCtx, Solution fix, STNode... parsedNodes) {
         if (fix.action == Action.REMOVE) {
             removeInvalidToken();
-            this.parser.resumeParsing(currentCtx);
+            fix.recoveredNode = this.parser.resumeParsing(currentCtx, parsedNodes);
         } else {
-            handleMissingToken(currentCtx, fix);
+            fix.recoveredNode = handleMissingToken(currentCtx, fix);
         }
     }
 
@@ -185,16 +182,15 @@ public class BallerinaParserErrorHandler {
      * @param currentCtx Current context
      * @param fix Solution to recover from the missing token
      */
-    private void handleMissingToken(ParserRuleContext currentCtx, Solution fix) {
-        if (isProductionWithAlternatives(currentCtx)) {
-            // If the original issues was at a production where there are alternatives,
-            // then do not report any errors. Parser will try to re-parse the best-matching
-            // alternative again. Errors will be reported at the next try.
-            return;
+    private STNode handleMissingToken(ParserRuleContext currentCtx, Solution fix) {
+        // If the original issues was at a production where there are alternatives,
+        // then do not report any errors. Parser will try to re-parse the best-matching
+        // alternative again. Errors will be reported at the next try.
+        if (!isProductionWithAlternatives(currentCtx)) {
+            reportMissingTokenError("missing " + fix.ctx);
         }
 
-        reportMissingTokenError("missing " + fix.ctx);
-        this.listner.addMissingNode(fix.tokenKind);
+        return new STMissingToken(fix.tokenKind);
     }
 
     /**
@@ -387,7 +383,7 @@ public class BallerinaParserErrorHandler {
                         skipRule = true;
                     }
                     break;
-                case TYPE_DESCRIPTOR:
+                case SIMPLE_TYPE_DESCRIPTOR:
                     hasMatch = nextToken.kind == SyntaxKind.TYPE_TOKEN || nextToken.kind == SyntaxKind.IDENTIFIER_TOKEN;
                     break;
                 case FUNC_BODY:
@@ -459,7 +455,6 @@ public class BallerinaParserErrorHandler {
                 // productions
                 case COMP_UNIT:
                 case FUNC_DEFINITION:
-                case FUNC_SIGNATURE:
                 case RETURN_TYPE_DESCRIPTOR:
                 case EXTERNAL_FUNC_BODY:
                 case FUNC_BODY_BLOCK:
@@ -763,7 +758,6 @@ public class BallerinaParserErrorHandler {
         switch (currentCtx) {
             case COMP_UNIT:
             case FUNC_DEFINITION:
-            case FUNC_SIGNATURE:
             case RETURN_TYPE_DESCRIPTOR:
             case EXTERNAL_FUNC_BODY:
             case FUNC_BODY_BLOCK:
@@ -789,8 +783,6 @@ public class BallerinaParserErrorHandler {
                 return ParserRuleContext.TOP_LEVEL_NODE;
             case FUNC_DEFINITION:
                 return ParserRuleContext.FUNCTION_KEYWORD;
-            case FUNC_SIGNATURE:
-                return ParserRuleContext.OPEN_PARENTHESIS;
             case RETURN_TYPE_DESCRIPTOR:
                 return ParserRuleContext.RETURNS_KEYWORD;
             case EXTERNAL_FUNC_BODY:
@@ -849,7 +841,7 @@ public class BallerinaParserErrorHandler {
             case FUNCTION_KEYWORD:
                 return ParserRuleContext.FUNC_NAME;
             case FUNC_NAME:
-                return ParserRuleContext.FUNC_SIGNATURE;
+                return ParserRuleContext.OPEN_PARENTHESIS;
             case OPEN_BRACE:
                 // If an error occurs in the function definition signature, then only search
                 // within the function signature. Do not search within the function body.
@@ -877,7 +869,7 @@ public class BallerinaParserErrorHandler {
                     // next immediate rule without changing the state
                     return ParserRuleContext.FUNC_BODY;
                 }
-                return ParserRuleContext.TYPE_DESCRIPTOR;
+                return ParserRuleContext.SIMPLE_TYPE_DESCRIPTOR;
             case SEMICOLON:
                 parentCtx = getParentContext();
                 if (parentCtx == ParserRuleContext.EXTERNAL_FUNC_BODY) {
@@ -899,7 +891,7 @@ public class BallerinaParserErrorHandler {
                 } else {
                     throw new IllegalStateException();
                 }
-            case TYPE_DESCRIPTOR:
+            case SIMPLE_TYPE_DESCRIPTOR:
                 parentCtx = getParentContext();
                 if (isStatement(parentCtx) || isParameter(parentCtx)) {
                     return ParserRuleContext.VARIABLE_NAME;
@@ -950,11 +942,11 @@ public class BallerinaParserErrorHandler {
                     endContext();
                     return ParserRuleContext.CLOSE_PARENTHESIS;
                 }
-                return ParserRuleContext.TYPE_DESCRIPTOR;
+                return ParserRuleContext.SIMPLE_TYPE_DESCRIPTOR;
             case ASSIGNMENT_STMT:
                 return ParserRuleContext.VARIABLE_NAME;
             case VAR_DECL_STMT:
-                return ParserRuleContext.TYPE_DESCRIPTOR;
+                return ParserRuleContext.SIMPLE_TYPE_DESCRIPTOR;
             case BINARY_EXPR_RHS:
                 return ParserRuleContext.BINARY_OPERATOR;
             case BINARY_OPERATOR:
@@ -1092,7 +1084,7 @@ public class BallerinaParserErrorHandler {
                 return SyntaxKind.IDENTIFIER_TOKEN;
             case PUBLIC:
                 return SyntaxKind.PUBLIC_KEYWORD;
-            case TYPE_DESCRIPTOR:
+            case SIMPLE_TYPE_DESCRIPTOR:
                 // TODO: return type token
                 // return SyntaxKind.IDENTIFIER_TOKEN;
                 return SyntaxKind.TYPE_TOKEN;
@@ -1109,8 +1101,6 @@ public class BallerinaParserErrorHandler {
                 return SyntaxKind.OPEN_BRACE_TOKEN;
             case FUNC_DEFINITION:
                 return SyntaxKind.FUNCTION_KEYWORD;
-            case FUNC_SIGNATURE:
-                return SyntaxKind.OPEN_PAREN_TOKEN;
             case REQUIRED_PARAM:
                 return SyntaxKind.TYPE_TOKEN;
             case VAR_DECL_STMT:
@@ -1150,6 +1140,7 @@ public class BallerinaParserErrorHandler {
         public Action action;
         public String token;
         public SyntaxKind tokenKind;
+        public STNode recoveredNode;
 
         public Solution(Action action, ParserRuleContext ctx, SyntaxKind tokenKind, String tokenText) {
             this.action = action;

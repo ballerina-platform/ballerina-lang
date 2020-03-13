@@ -71,8 +71,7 @@ public class SyntaxTreeJSONGenerator {
 
     private static STNode getParserTree(String source, ParserRuleContext context) {
         BallerinaParser parser = new BallerinaParser(source);
-        parser.parse(context);
-        return parser.getTree();
+        return parser.parse(context);
     }
 
     private static JsonElement getJSON(STNode treeNode) {

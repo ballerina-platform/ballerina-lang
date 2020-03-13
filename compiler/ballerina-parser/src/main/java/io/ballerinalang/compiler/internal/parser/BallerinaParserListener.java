@@ -290,11 +290,11 @@ public class BallerinaParserListener {
     public void exitRecordTypeDescriptor() {
         STNode bodyEndDelimiter = this.nodesStack.pop();
         STNode fields = this.nodesStack.pop();
-        STNode restDescriptor = this.nodesStack.pop();
+//        STNode restDescriptor = this.nodesStack.pop();
         STNode bodyStartDelimiter = this.nodesStack.pop();
         STNode recordKeyword = this.nodesStack.pop();
         STRecordTypeDescriptor recordTypeDesc =
-                new STRecordTypeDescriptor(recordKeyword, bodyStartDelimiter, fields, restDescriptor, bodyEndDelimiter);
+                new STRecordTypeDescriptor(recordKeyword, bodyStartDelimiter, fields, bodyEndDelimiter);
         this.nodesStack.push(recordTypeDesc);
     }
 

@@ -77,13 +77,13 @@ public class ParserTestUtils {
     public static void test(String source, ParserRuleContext context, Path assertFilePath) {
         // Parse the source
         BallerinaParser parser = new BallerinaParser(source);
-        parser.parse(context);
+        STNode syntaxTree = parser.parse(context);
 
         // Read the assertion file
         JsonObject assertJson = readAssertFile(RESOURCE_DIRECTORY.resolve(assertFilePath));
 
         // Validate the tree against the assertion file
-        assertNode(parser.getTree(), assertJson);
+        assertNode(syntaxTree, assertJson);
     }
 
     private static JsonObject readAssertFile(Path filePath) {
