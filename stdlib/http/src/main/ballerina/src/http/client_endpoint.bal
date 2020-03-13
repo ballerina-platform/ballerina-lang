@@ -73,10 +73,7 @@ public type Client client object {
         Request req = buildRequest(message);
         Response|ClientError response = self.httpClient->post(path, req);
         if (response is Response) {
-            error? x = addObservabilityInformation(path, HTTP_POST, response.statusCode);
-            if (x is error) {
-                return getObservabilityError();
-            }
+            addObservabilityInformation(path, HTTP_POST, response.statusCode);
         }
         return response;
     }
@@ -91,10 +88,7 @@ public type Client client object {
         Request req = buildRequest(message);
         Response|ClientError response = self.httpClient->head(path, message = req);
         if (response is Response) {
-            error? x = addObservabilityInformation(path, HTTP_HEAD, response.statusCode);
-            if (x is error) {
-                return getObservabilityError();
-            }
+            addObservabilityInformation(path, HTTP_HEAD, response.statusCode);
         }
         return response;
     }
@@ -109,10 +103,7 @@ public type Client client object {
         Request req = buildRequest(message);
         Response|ClientError response = self.httpClient->put(path, req);
         if (response is Response) {
-            error? x = addObservabilityInformation(path, HTTP_PUT, response.statusCode);
-            if (x is error) {
-                return getObservabilityError();
-            }
+            addObservabilityInformation(path, HTTP_PUT, response.statusCode);
         }
         return response;
     }
@@ -128,10 +119,7 @@ public type Client client object {
         Request req = buildRequest(message);
         Response|ClientError response = self.httpClient->execute(httpVerb, path, req);
         if (response is Response) {
-            error? x = addObservabilityInformation(path, httpVerb, response.statusCode);
-            if (x is error) {
-                return getObservabilityError();
-            }
+            addObservabilityInformation(path, httpVerb, response.statusCode);
         }
         return response;
     }
@@ -146,10 +134,7 @@ public type Client client object {
         Request req = buildRequest(message);
         Response|ClientError response = self.httpClient->patch(path, req);
         if (response is Response) {
-            error? x = addObservabilityInformation(path, HTTP_PATCH, response.statusCode);
-            if (x is error) {
-                return getObservabilityError();
-            }
+            addObservabilityInformation(path, HTTP_PATCH, response.statusCode);
         }
         return response;
     }
@@ -164,10 +149,7 @@ public type Client client object {
         Request req = buildRequest(message);
         Response|ClientError response = self.httpClient->delete(path, req);
         if (response is Response) {
-            error? x = addObservabilityInformation(path, HTTP_DELETE, response.statusCode);
-            if (x is error) {
-                return getObservabilityError();
-            }
+            addObservabilityInformation(path, HTTP_DELETE, response.statusCode);
         }
         return response;
     }
@@ -182,10 +164,7 @@ public type Client client object {
         Request req = buildRequest(message);
         Response|ClientError response = self.httpClient->get(path, message = req);
         if (response is Response) {
-            error? x = addObservabilityInformation(path, HTTP_GET, response.statusCode);
-            if (x is error) {
-                return getObservabilityError();
-            }
+            addObservabilityInformation(path, HTTP_GET, response.statusCode);
         }
         return response;
     }
@@ -200,10 +179,7 @@ public type Client client object {
         Request req = buildRequest(message);
         Response|ClientError response = self.httpClient->options(path, message = req);
         if (response is Response) {
-            error? x = addObservabilityInformation(path, HTTP_OPTIONS, response.statusCode);
-            if (x is error) {
-                return getObservabilityError();
-            }
+            addObservabilityInformation(path, HTTP_OPTIONS, response.statusCode);
         }
         return response;
     }
@@ -216,10 +192,7 @@ public type Client client object {
     public remote function forward(@untainted string path, Request request) returns Response|ClientError {
         Response|ClientError response = self.httpClient->forward(path, request);
         if (response is Response) {
-            error? x = addObservabilityInformation(path, request.method, response.statusCode);
-            if (x is error) {
-                return getObservabilityError();
-            }
+            addObservabilityInformation(path, request.method, response.statusCode);
         }
         return response;
     }
@@ -246,10 +219,7 @@ public type Client client object {
     public remote function getResponse(HttpFuture httpFuture) returns Response|ClientError {
         Response|ClientError response = self.httpClient->getResponse(httpFuture);
         if (response is Response) {
-            error? x = observe:addTagToSpan(HTTP_STATUS_CODE_GROUP, getStatusCodeRange(response.statusCode));
-            if (x is error) {
-                return getObservabilityError();
-            }
+            error? err = observe:addTagToSpan(HTTP_STATUS_CODE_GROUP, getStatusCodeRange(response.statusCode));
         }
         return response;
     }
@@ -277,10 +247,7 @@ public type Client client object {
     public remote function getPromisedResponse(PushPromise promise) returns Response|ClientError {
         Response|ClientError response = self.httpClient->getPromisedResponse(promise);
         if (response is Response) {
-            error? x = addObservabilityInformation(promise.path, promise.method, response.statusCode);
-            if (x is error) {
-                return getObservabilityError();
-            }
+            addObservabilityInformation(promise.path, promise.method, response.statusCode);
         }
         return response;
     }

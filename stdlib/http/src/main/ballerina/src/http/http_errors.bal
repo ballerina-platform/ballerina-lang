@@ -183,11 +183,6 @@ public const COOKIE_HANDLING_ERROR = "{ballerina/http}CookieHandlingError";
 # Represents a cookie error that occurred when using the cookies
 public type CookieHandlingError error<COOKIE_HANDLING_ERROR, Detail>;
 
-# Represents the reason string for the `http:ObservabilityError`
-public const OBSERVABILITY_ERROR = "{ballerina/http}ObservabilityError";
-# Represents a observability error that occurred while adding tags to spans
-public type ObservabilityError error<OBSERVABILITY_ERROR, Detail>;
-
 // Ballerina HTTP Union Errors
 # Defines the resiliency error types that returned from client
 public type ResiliencyError FailoverAllEndpointsFailedError | FailoverActionFailedError |
@@ -217,8 +212,7 @@ public type OutboundResponseError InitializingOutboundResponseError|WritingOutbo
 # Defines the possible client error types
 public type ClientError ResiliencyError|ClientAuthError|OutboundRequestError|
                             InboundResponseError|UnsupportedActionError|Http2ClientError|
-                            MaximumWaitTimeExceededError|SslError|GenericClientError|CookieHandlingError|
-                            ObservabilityError;
+                            MaximumWaitTimeExceededError|SslError|GenericClientError|CookieHandlingError;
 
 # Defines the possible listener error types
 public type ListenerError GenericListenerError|InboundRequestError|OutboundResponseError;

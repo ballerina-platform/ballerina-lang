@@ -116,7 +116,7 @@ before_cache:
   - rm -fr $HOME/.gradle/caches/*/scripts/
 cache:
   directories:
-#    - $HOME/.gradle/caches/
+    - $HOME/.gradle/caches/
     - $HOME/.gradle/wrapper/
     - $HOME/.m2
 
