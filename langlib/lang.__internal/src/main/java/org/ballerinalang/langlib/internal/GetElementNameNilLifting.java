@@ -34,14 +34,14 @@ import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.XML_OP
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "lang.__internal",
-        functionName = "__getElementNameNilLifting",
+        functionName = "getElementNameNilLifting",
         args = {@Argument(name = "xmlValue", type = TypeKind.XML)},
         returnType = {@ReturnType(type = TypeKind.UNION)},
         isPublic = true
 )
 public class GetElementNameNilLifting {
 
-    public static Object __getElementNameNilLifting(Strand strand, XMLValue xmlVal, String attrName) {
+    public static Object getElementNameNilLifting(Strand strand, XMLValue xmlVal, String attrName) {
         if (IsElement.isElement(xmlVal)) {
             String elementName = xmlVal.getElementName();
             if (elementName.equals("")) {

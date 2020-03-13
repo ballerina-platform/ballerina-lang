@@ -37,7 +37,7 @@ import java.util.ArrayList;
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "lang.__internal",
-        functionName = "__getElements",
+        functionName = "getElements",
         args = {@Argument(name = "xmlValue", type = TypeKind.XML),
                 @Argument(name = "elemNames", type = TypeKind.ARRAY)},
         returnType = {@ReturnType(type = TypeKind.XML)},
@@ -58,7 +58,7 @@ public class GetElements {
      * @param elemNames element names to select
      * @return sequence of elements matching given element names
      */
-    public static XMLValue __getElements(Strand strand, XMLValue xmlVal, ArrayValue elemNames) {
+    public static XMLValue getElements(Strand strand, XMLValue xmlVal, ArrayValue elemNames) {
 
         ArrayList<String> nsList = new ArrayList<>();
         ArrayList<String> localNameList = new ArrayList<>();

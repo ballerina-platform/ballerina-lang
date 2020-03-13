@@ -41,7 +41,7 @@ import java.util.List;
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "lang.__internal",
-        functionName = "__getFilteredChildrenFlat",
+        functionName = "getFilteredChildrenFlat",
         args = {@Argument(name = "xmlValue", type = TypeKind.XML),
                 @Argument(name = "index", type = TypeKind.INT),
                 @Argument(name = "elemNames", type = TypeKind.ARRAY)},
@@ -51,7 +51,7 @@ import java.util.List;
 public class GetFilteredChildrenFlat {
 
 
-    public static XMLValue __getFilteredChildrenFlat(Strand strand, XMLValue xmlVal, long index, ArrayValue elemNames) {
+    public static XMLValue getFilteredChildrenFlat(Strand strand, XMLValue xmlVal, long index, ArrayValue elemNames) {
         if (xmlVal.getNodeType() == XMLNodeType.ELEMENT) {
             XMLItem element = (XMLItem) xmlVal;
             return new XMLSequence(filterElementChildren(strand, index, elemNames, element));
@@ -70,7 +70,7 @@ public class GetFilteredChildrenFlat {
     }
 
     private static List<BXML> filterElementChildren(Strand strand, long index, ArrayValue elemNames, XMLItem element) {
-        XMLSequence elements = (XMLSequence) GetElements.__getElements(strand, element.getChildrenSeq(), elemNames);
+        XMLSequence elements = (XMLSequence) GetElements.getElements(strand, element.getChildrenSeq(), elemNames);
         if (index < 0) {
             // Return all elements
             return elements.getChildrenList();

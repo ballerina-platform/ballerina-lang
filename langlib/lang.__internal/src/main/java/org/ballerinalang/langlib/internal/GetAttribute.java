@@ -37,7 +37,7 @@ import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.XML_OP
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "lang.__internal",
-        functionName = "__getAttribute",
+        functionName = "getAttribute",
         args = {@Argument(name = "xmlValue", type = TypeKind.XML),
                 @Argument(name = "attrName", type = TypeKind.STRING)},
         returnType = {@ReturnType(type = TypeKind.UNION)},
@@ -45,7 +45,7 @@ import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.XML_OP
 )
 public class GetAttribute {
 
-    public static Object __getAttribute(Strand strand, XMLValue xmlVal, String attrName, boolean optionalFiledAccess) {
+    public static Object getAttribute(Strand strand, XMLValue xmlVal, String attrName, boolean optionalFiledAccess) {
         if (xmlVal.getNodeType() == XMLNodeType.SEQUENCE && ((XMLSequence) xmlVal).size() == 0) {
             return null;
         }

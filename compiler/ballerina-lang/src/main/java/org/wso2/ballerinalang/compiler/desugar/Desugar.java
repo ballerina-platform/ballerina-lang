@@ -281,12 +281,12 @@ public class Desugar extends BLangNodeVisitor {
     private static final String LENGTH_FUNCTION_NAME = "length";
     private static final String ERROR_REASON_NULL_REFERENCE_ERROR = "NullReferenceException";
     private static final String CONSTRUCT_FROM = "constructFrom";
-    public static final String XML_INTERNAL_SELECT_DESCENDANTS = "__selectDescendants";
-    public static final String XML_INTERNAL_CHILDREN = "__children";
-    public static final String XML_INTERNAL_GET_FILTERED_CHILDREN_FLAT = "__getFilteredChildrenFlat";
-    public static final String XML_INTERNAL_GET_ELEMENT_NAME_NIL_LIFTING = "__getElementNameNilLifting";
-    public static final String XML_INTERNAL_GET_ATTRIBUTE = "__getAttribute";
-    public static final String XML_INTERNAL_GET_ELEMENTS = "__getElements";
+    public static final String XML_INTERNAL_SELECT_DESCENDANTS = "selectDescendants";
+    public static final String XML_INTERNAL_CHILDREN = "children";
+    public static final String XML_INTERNAL_GET_FILTERED_CHILDREN_FLAT = "getFilteredChildrenFlat";
+    public static final String XML_INTERNAL_GET_ELEMENT_NAME_NIL_LIFTING = "getElementNameNilLifting";
+    public static final String XML_INTERNAL_GET_ATTRIBUTE = "getAttribute";
+    public static final String XML_INTERNAL_GET_ELEMENTS = "getElements";
 
     private SymbolTable symTable;
     private SymbolResolver symResolver;

@@ -37,14 +37,14 @@ import java.util.ArrayList;
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "lang.__internal",
-        functionName = "__children",
+        functionName = "children",
         args = {@Argument(name = "xmlValue", type = TypeKind.XML)},
         returnType = {@ReturnType(type = TypeKind.XML)},
         isPublic = true
 )
 public class Children {
 
-    public static XMLValue __children(Strand strand, XMLValue xmlVal) {
+    public static XMLValue children(Strand strand, XMLValue xmlVal) {
         if (xmlVal.getNodeType() == XMLNodeType.ELEMENT) {
             return ((XMLItem) xmlVal).children();
         } else if (xmlVal.getNodeType() == XMLNodeType.SEQUENCE) {

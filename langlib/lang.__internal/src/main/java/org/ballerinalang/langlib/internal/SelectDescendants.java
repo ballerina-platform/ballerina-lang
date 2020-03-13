@@ -37,7 +37,7 @@ import java.util.List;
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "lang.__internal",
-        functionName = "__selectDescendants",
+        functionName = "selectDescendants",
         args = {@Argument(name = "qname", type = TypeKind.ARRAY)},
         returnType = {@ReturnType(type = TypeKind.XML)},
         isPublic = true
@@ -46,7 +46,7 @@ public class SelectDescendants {
 
     private static final String OPERATION = "select descendants from xml";
 
-    public static XMLValue __selectDescendants(Strand strand, XMLValue xml, ArrayValue qnames) {
+    public static XMLValue selectDescendants(Strand strand, XMLValue xml, ArrayValue qnames) {
         try {
             List<String> qnameList = new ArrayList<>();
             int size = qnames.size();
