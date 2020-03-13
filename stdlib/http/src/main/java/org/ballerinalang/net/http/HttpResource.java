@@ -208,7 +208,7 @@ public class HttpResource {
                     .setTransactionInfectable(resourceConfigAnnotation.getBooleanValue(TRANSACTION_INFECTABLE_FIELD));
 
             processResourceCors(httpResource, httpService);
-            httpResource.prepareAndValidateSignatureParams();
+            httpResource.populateAndValidateSignatureParams();
             return httpResource;
         }
 
@@ -216,7 +216,7 @@ public class HttpResource {
             log.debug("resourceConfig not specified in the Resource instance, using default sub path");
         }
         httpResource.setPath(resource.getName());
-        httpResource.prepareAndValidateSignatureParams();
+        httpResource.populateAndValidateSignatureParams();
         return httpResource;
     }
 
@@ -282,8 +282,8 @@ public class HttpResource {
         corsHeaders.setAllowMethods(DispatcherUtil.addAllMethods());
     }
 
-    private void prepareAndValidateSignatureParams() {
-        signatureParams = new SignatureParams(this);
+    private void populateAndValidateSignatureParams() {
+        signatureParams = new SignatureParams(this.getParamTypes(), this.balResource);
         signatureParams.validate();
     }
 

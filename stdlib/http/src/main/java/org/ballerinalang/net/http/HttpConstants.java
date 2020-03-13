@@ -137,9 +137,14 @@ public class HttpConstants {
     public static final String ANNOTATION_METHOD_DELETE = HTTP_METHOD_DELETE;
     public static final String ANNOTATION_METHOD_OPTIONS = HTTP_METHOD_OPTIONS;
     public static final String ANN_NAME_PARAM_ORDER_CONFIG = "ParamOrderConfig";
+    public static final String ANN_NAME_PATH_PARAM = "PathParam";
+    public static final String ANN_NAME_QUERY_PARAM = "QueryParam";
+    public static final String ANN_NAME_BODY_PARAM = "BodyParam";
     public static final String ANN_FIELD_PATH_PARAM_ORDER = "pathParamOrder";
-    public static final String DIRTY_RESPONSE = "dirtyResponse";
+    public static final String ANN_FIELD_QUERY_PARAM_ORDER = "queryParamOrder";
+    public static final String ANN_FIELD_BODY_PARAM_ORDER = "bodyParamOrder";
 
+    public static final String DIRTY_RESPONSE = "dirtyResponse";
     public static final String VALUE_ATTRIBUTE = "value";
 
     public static final String COOKIE_HEADER = "Cookie";
