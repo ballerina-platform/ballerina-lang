@@ -104,6 +104,7 @@ public class ExprBodiedFunctionTest {
 //                {"testReturningXML"}, @Test (groups = "brokenOnXMLLangLibChange")
                 {"testReturningStringTemplate"},
                 {"testReturningServiceConstructors"},
+                {"testLetExprAsExprBody"},
         };
     }
 }
