@@ -15,7 +15,7 @@ service Telemetry {
 }
 
 message MetricsPublishRequest {
-    string id = 1;  // ID received in the handshake
+    string observabilityId = 1;  // ID received in the handshake
     string instanceId = 2;
     repeated Metric metrics = 3;
 }
@@ -28,7 +28,7 @@ message Metric {
 }
 
 message TracesPublishRequest {
-    string id = 1;  // ID received in the handshake
+    string observabilityId = 1;  // ID received in the handshake
     string instanceId = 2;
     repeated TraceSpan spans = 3;
 }

@@ -58,14 +58,14 @@ public class ChoreoClient implements AutoCloseable {
                 .setApplicationId(appId)
                 .build();
         HandshakeResponse handshakeResponse = negotiator.handshake(handshakeRequest);
-        this.id = handshakeResponse.getId();
+        this.id = handshakeResponse.getObservabilityId();
         boolean sendProgramJson = handshakeResponse.getSendProgramJson();
 
         if (sendProgramJson) {
             uploadingThread = new Thread(() -> {
                 PublishProgramRequest programRequest = PublishProgramRequest.newBuilder()
                         .setProgramJson(metadataReader.getAstData())
-                        .setId(id)
+                        .setObservabilityId(id)
                         .build();
                 negotiator.withCompression("gzip").publishProgram(programRequest);
                 // TODO add debug log to indicate success
@@ -88,7 +88,7 @@ public class ChoreoClient implements AutoCloseable {
                     .putAllTags(metric.getTags())
                     .build());
         }
-        telemetryClient.publishMetrics(requestBuilder.setId(id)
+        telemetryClient.publishMetrics(requestBuilder.setObservabilityId(id)
                 .setInstanceId(instanceId)
                 .build());
     }
@@ -115,7 +115,7 @@ public class ChoreoClient implements AutoCloseable {
             }
             requestBuilder.addSpans(traceSpanBuilder.build());
         }
-        telemetryClient.publishTraces(requestBuilder.setId(id)
+        telemetryClient.publishTraces(requestBuilder.setObservabilityId(id)
                 .setInstanceId(instanceId)
                 .build());
     }
