@@ -9,7 +9,7 @@ public function main() {
         // Read the first unseen email received by the POP3 server. Nil is returned when there are no new unseen emails.
         // In error cases an error is returned.
         email:Email|email:Error? emailResponse = popClient->read();
-        if(emailResponse is email:Email) {
+        if (emailResponse is email:Email) {
             io:println("Email Subject: ", emailResponse.subject);
             io:println("Email Body: ", emailResponse.body);
         // When no emails are available in the server, nil is returned.
