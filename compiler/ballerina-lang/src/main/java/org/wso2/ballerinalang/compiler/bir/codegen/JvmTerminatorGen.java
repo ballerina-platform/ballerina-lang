@@ -886,7 +886,7 @@ public class JvmTerminatorGen {
                         if (recordValue.annotValueEntryMap.containsKey(STRAND_THREAD)) {
                             BIRNode.BIRAnnotationValue mapVal = recordValue.annotValueEntryMap.get(STRAND_THREAD);
                             if (mapVal instanceof BIRNode.BIRAnnotationLiteralValue &&
-                                    ((BIRNode.BIRAnnotationLiteralValue) mapVal).value == STRAND_VALUE_ANY) {
+                                STRAND_VALUE_ANY.equals(((BIRNode.BIRAnnotationLiteralValue) mapVal).value)) {
                                 concurrent = true;
                             }
                         }
@@ -894,7 +894,7 @@ public class JvmTerminatorGen {
                         if (recordValue.annotValueEntryMap.containsKey(STRAND_DATA_NAME)) {
                             BIRNode.BIRAnnotationValue mapVal = recordValue.annotValueEntryMap.get(STRAND_DATA_NAME);
                             if (mapVal instanceof BIRNode.BIRAnnotationLiteralValue &&
-                                    ((BIRNode.BIRAnnotationLiteralValue) mapVal).value != DEFAULT_STRAND_DISPATCHER) {
+                                !DEFAULT_STRAND_DISPATCHER.equals(((BIRNode.BIRAnnotationLiteralValue) mapVal).value)) {
                                 throw new BLangCompilerException("Unsupported policy. Only 'DEFAULT' policy is " +
                                         "supported by jBallerina runtime.");
                             }
