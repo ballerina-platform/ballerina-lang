@@ -872,6 +872,7 @@ public class Desugar extends BLangNodeVisitor {
         List<BLangType> rewrittenMembers = new ArrayList<>();
         tupleTypeNode.memberTypeNodes.forEach(member -> rewrittenMembers.add(rewrite(member, env)));
         tupleTypeNode.memberTypeNodes = rewrittenMembers;
+        tupleTypeNode.restParamType = rewrite(tupleTypeNode.restParamType, env);
         result = tupleTypeNode;
     }
 
@@ -4147,6 +4148,7 @@ public class Desugar extends BLangNodeVisitor {
             result = rewriteExpr(conversionExpr.expr);
             return;
         }
+        conversionExpr.typeNode = rewrite(conversionExpr.typeNode, env);
         conversionExpr.expr = rewriteExpr(conversionExpr.expr);
         result = conversionExpr;
     }
