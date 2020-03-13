@@ -1818,12 +1818,13 @@ public class Desugar extends BLangNodeVisitor {
                 continue;
             }
 
+            BType binaryExprType =
+                    TypeTags.isXMLTypeTag(concatExpr.type.tag) || TypeTags.isXMLTypeTag(currentExpr.type.tag)
+                            ? symTable.xmlType
+                            : symTable.stringType;
             concatExpr =
                     ASTBuilderUtil.createBinaryExpr(concatExpr.pos, concatExpr, currentExpr,
-                                                    concatExpr.type.tag == TypeTags.XML ||
-                                                            currentExpr.type.tag == TypeTags.XML ?
-                                                            symTable.xmlType : symTable.stringType,
-                                                    OperatorKind.ADD, null);
+                            binaryExprType, OperatorKind.ADD, null);
         }
         return concatExpr;
     }
@@ -3399,8 +3400,8 @@ public class Desugar extends BLangNodeVisitor {
                         (BVarSymbol) fieldAccessExpr.symbol, false);
             }
         } else if (types.isLax(varRefType)) {
-            if (varRefType.tag != TypeTags.XML) {
-                if (varRefType.tag == TypeTags.MAP && ((BMapType) varRefType).constraint.tag == TypeTags.XML) {
+            if (!(varRefType.tag == TypeTags.XML || varRefType.tag == TypeTags.XML_ELEMENT)) {
+                if (varRefType.tag == TypeTags.MAP && TypeTags.isXMLTypeTag(((BMapType) varRefType).constraint.tag)) {
                     result = rewriteExpr(rewriteLaxMapAccess(fieldAccessExpr));
                     return;
                 }
@@ -3414,7 +3415,7 @@ public class Desugar extends BLangNodeVisitor {
         } else if (varRefTypeTag == TypeTags.MAP) {
             // TODO: 7/1/19 remove once foreach field access usage is removed.
             targetVarRef = new BLangMapAccessExpr(fieldAccessExpr.pos, fieldAccessExpr.expr, stringLit);
-        } else if (varRefTypeTag == TypeTags.XML) {
+        } else if (TypeTags.isXMLTypeTag(varRefTypeTag)) {
             targetVarRef = new BLangXMLAccessExpr(fieldAccessExpr.pos, fieldAccessExpr.expr, stringLit,
                     fieldAccessExpr.fieldKind);
         }
@@ -3509,7 +3510,7 @@ public class Desugar extends BLangNodeVisitor {
 
         // Handle element name access.
         if (fieldName.equals("_")) {
-            return createLanglibXMLInvocation(fieldAccessExpr.pos,  "getElementName", fieldAccessExpr.expr,
+            return createLanglibXMLInvocation(fieldAccessExpr.pos,  "getElementNameNilLifting", fieldAccessExpr.expr,
                     new ArrayList<>(), new ArrayList<>());
         }
 
@@ -3554,7 +3555,7 @@ public class Desugar extends BLangNodeVisitor {
             indexAccessExpr.expr = addConversionExprIfRequired(indexAccessExpr.expr, symTable.stringType);
             targetVarRef = new BLangStringAccessExpr(indexAccessExpr.pos, indexAccessExpr.expr,
                                                      indexAccessExpr.indexExpr);
-        } else if (varRefType.tag == TypeTags.XML) {
+        } else if (TypeTags.isXMLTypeTag(varRefType.tag)) {
             targetVarRef = new BLangXMLAccessExpr(indexAccessExpr.pos, indexAccessExpr.expr,
                     indexAccessExpr.indexExpr);
         }
@@ -3953,7 +3954,7 @@ public class Desugar extends BLangNodeVisitor {
 
         if (TypeTags.isStringTypeTag(lhsExprTypeTag) && binaryExpr.opKind == OperatorKind.ADD) {
             // string + xml ==> (xml string) + xml
-            if (rhsExprTypeTag == TypeTags.XML) {
+            if (TypeTags.isXMLTypeTag(rhsExprTypeTag)) {
                 binaryExpr.lhsExpr = ASTBuilderUtil.createXMLTextLiteralNode(binaryExpr, binaryExpr.lhsExpr,
                         binaryExpr.lhsExpr.pos, symTable.xmlType);
                 return;
@@ -3964,7 +3965,7 @@ public class Desugar extends BLangNodeVisitor {
 
         if (TypeTags.isStringTypeTag(rhsExprTypeTag) && binaryExpr.opKind == OperatorKind.ADD) {
             // xml + string ==> xml + (xml string)
-            if (lhsExprTypeTag == TypeTags.XML) {
+            if (TypeTags.isXMLTypeTag(lhsExprTypeTag)) {
                 binaryExpr.rhsExpr = ASTBuilderUtil.createXMLTextLiteralNode(binaryExpr, binaryExpr.rhsExpr,
                         binaryExpr.rhsExpr.pos, symTable.xmlType);
                 return;
@@ -5821,7 +5822,7 @@ public class Desugar extends BLangNodeVisitor {
 
         if (!(accessExpr.errorSafeNavigation || accessExpr.nilSafeNavigation)) {
             BType originalType = accessExpr.originalType;
-            if (originalType.tag == TypeTags.XML) {
+            if (TypeTags.isXMLTypeTag(originalType.tag)) {
                 accessExpr.type = BUnionType.create(null, originalType, symTable.errorType);
             } else {
                 accessExpr.type = originalType;
@@ -5956,7 +5957,7 @@ public class Desugar extends BLangNodeVisitor {
         // Type of the field access expression should be always taken from the child type.
         // Because the type assigned to expression contains the inherited error/nil types,
         // and may not reflect the actual type of the child/field expr.
-        if (accessExpr.expr.type.tag == TypeTags.XML) {
+        if (TypeTags.isXMLTypeTag(accessExpr.expr.type.tag)) {
             // todo: add discription why this is special here
             accessExpr.type = BUnionType.create(null, accessExpr.originalType, symTable.errorType, symTable.nilType);
         } else {

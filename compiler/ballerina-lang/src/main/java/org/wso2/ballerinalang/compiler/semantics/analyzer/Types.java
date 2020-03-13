@@ -117,6 +117,7 @@ public class Types {
     private BLangDiagnosticLogHelper dlogHelper;
     private Names names;
     private int finiteTypeCount = 0;
+    private BUnionType expandedXMLBuiltinSubtypes;
 
     public static Types getInstance(CompilerContext context) {
         Types types = context.get(TYPES_KEY);
@@ -134,6 +135,8 @@ public class Types {
         this.symResolver = SymbolResolver.getInstance(context);
         this.dlogHelper = BLangDiagnosticLogHelper.getInstance(context);
         this.names = Names.getInstance(context);
+        this.expandedXMLBuiltinSubtypes = BUnionType.create(null,
+                symTable.xmlElementType, symTable.xmlCommentType, symTable.xmlPIType, symTable.xmlTextType);
     }
 
     public List<BType> checkTypes(BLangExpression node,
@@ -197,6 +200,7 @@ public class Types {
         switch (type.tag) {
             case TypeTags.JSON:
             case TypeTags.XML:
+            case TypeTags.XML_ELEMENT:
                 return true;
             case TypeTags.MAP:
                 return isLax(((BMapType) type).constraint);
@@ -281,7 +285,10 @@ public class Types {
         if (type.tag != TypeTags.UNION) {
             return type.tag == baseTypeTag;
         }
-
+        // TODO: Recheck this
+        if (TypeTags.isXMLTypeTag(baseTypeTag)) {
+            return true;
+        }
         return ((BUnionType) type).getMemberTypes().stream().allMatch(memType -> memType.tag == baseTypeTag);
     }
 
@@ -471,6 +478,18 @@ public class Types {
         int targetTag = target.tag;
 
         if (sourceTag == TypeTags.BYTE && targetTag == TypeTags.INT) {
+            return true;
+        }
+
+        if (TypeTags.isXMLTypeTag(sourceTag) && targetTag == TypeTags.XML) {
+            return true;
+        }
+
+        if (sourceTag == TypeTags.CHAR_STRING && targetTag == TypeTags.STRING) {
+            return true;
+        }
+
+        if (TypeTags.isXMLTypeTag(sourceTag) && targetTag == TypeTags.XML) {
             return true;
         }
 
@@ -1954,9 +1973,10 @@ public class Types {
         }
 
         return sourceTypes.stream()
-                .allMatch(s -> (targetTypes.stream()
-                                        .anyMatch(t -> isAssignable(s, t, unresolvedTypes))) ||
-                        (s.tag == TypeTags.FINITE  && isAssignable(s, target, unresolvedTypes)));
+                .allMatch(s -> (targetTypes.stream().anyMatch(t -> isAssignable(s, t, unresolvedTypes)))
+                        || (s.tag == TypeTags.FINITE  && isAssignable(s, target, unresolvedTypes))
+                        || (s.tag == TypeTags.XML
+                            && isAssignableToUnionType(expandedXMLBuiltinSubtypes, target, unresolvedTypes)));
     }
 
     private boolean isFiniteTypeAssignable(BFiniteType finiteType, BType targetType, Set<TypePair> unresolvedTypes) {

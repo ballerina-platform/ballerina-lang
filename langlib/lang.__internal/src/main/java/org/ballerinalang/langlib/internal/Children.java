@@ -17,39 +17,44 @@
  */
 package org.ballerinalang.langlib.internal;
 
+import org.ballerinalang.jvm.XMLNodeType;
 import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.values.XMLItem;
+import org.ballerinalang.jvm.values.XMLSequence;
 import org.ballerinalang.jvm.values.XMLValue;
+import org.ballerinalang.jvm.values.api.BXML;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
-import static org.ballerinalang.jvm.BallerinaErrors.createError;
-import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.XML_OPERATION_ERROR;
+import java.util.ArrayList;
 
 /**
- * Return name of the element if `x` is a element or nil if element name is not set, else error.
+ * Return lift getChildren over sequences.
  *
- * @since 1.2.0
+ * @since 1.2
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "lang.__internal",
-        functionName = "getElementNameNilLifting",
+        functionName = "children",
         args = {@Argument(name = "xmlValue", type = TypeKind.XML)},
-        returnType = {@ReturnType(type = TypeKind.UNION)},
+        returnType = {@ReturnType(type = TypeKind.XML)},
         isPublic = true
 )
-public class GetElementName {
+public class Children {
 
-    public static Object getElementNameNilLifting(Strand strand, XMLValue xmlVal, String attrName) {
-        if (IsElement.isElement(xmlVal)) {
-            String elementName = xmlVal.getElementName();
-            if (elementName.equals("")) {
-                return null;
+    public static XMLValue children(Strand strand, XMLValue xmlVal) {
+        if (xmlVal.getNodeType() == XMLNodeType.ELEMENT) {
+            return ((XMLItem) xmlVal).children();
+        } else if (xmlVal.getNodeType() == XMLNodeType.SEQUENCE) {
+            ArrayList<BXML> liftedChildren = new ArrayList<>();
+            XMLSequence sequence = (XMLSequence) xmlVal.elements();
+            for (BXML bxml : sequence.getChildrenList()) {
+                liftedChildren.addAll(((XMLItem) bxml).getChildrenSeq().getChildrenList());
             }
-            return elementName;
+            return new XMLSequence(liftedChildren);
         }
-        String nodeTypeName = xmlVal.getNodeType().value();
-        return createError(XML_OPERATION_ERROR, "XML " + nodeTypeName + " does not contain element name");
+        return new XMLSequence();
     }
 }
