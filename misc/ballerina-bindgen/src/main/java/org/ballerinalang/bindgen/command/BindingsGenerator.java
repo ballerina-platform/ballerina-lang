@@ -46,7 +46,9 @@ import static org.ballerinalang.bindgen.utils.BindgenConstants.USER_DIR;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.UTILS_DIR;
 import static org.ballerinalang.bindgen.utils.BindgenUtils.createDirectory;
 import static org.ballerinalang.bindgen.utils.BindgenUtils.getClassLoader;
+import static org.ballerinalang.bindgen.utils.BindgenUtils.getUpdatedConstantsList;
 import static org.ballerinalang.bindgen.utils.BindgenUtils.isPublicClass;
+import static org.ballerinalang.bindgen.utils.BindgenUtils.notifyExistingDependencies;
 import static org.ballerinalang.bindgen.utils.BindgenUtils.writeOutputFile;
 
 /**
@@ -57,13 +59,13 @@ public class BindingsGenerator {
     private String outputPath;
     private Path modulePath;
     private Path dependenciesPath;
-    public static boolean directJavaClass = true;
     private Set<String> classPaths = new HashSet<>();
     private Set<String> classNames = new HashSet<>();
     private static final PrintStream errStream = System.err;
     private static final PrintStream outStream = System.out;
     private static Path userDir = Paths.get(System.getProperty(USER_DIR));
 
+    public static boolean directJavaClass = true;
     public static Set<String> allClasses = new HashSet<>();
     public static Set<String> classListForLooping = new HashSet<>();
     public static Set<String> allJavaClasses = new HashSet<>();
@@ -90,31 +92,45 @@ public class BindingsGenerator {
                 this.dependenciesPath = Paths.get(outputPath, BALLERINA_BINDINGS_DIR, DEPENDENCIES_DIR_NAME);
             }
             outStream.println("Generating bindings for: ");
+            String modulePathString = modulePath.toString();
+            String utilsDirPath = Paths.get(modulePathString, DEPENDENCIES_DIR_NAME, UTILS_DIR).toString();
             generateBindings(classNames, classLoader, modulePath);
-            createDirectory(Paths.get(modulePath.toString(), UTILS_DIR).toString());
-            writeOutputFile(null, DEFAULT_TEMPLATE_DIR, JOBJECT_TEMPLATE_NAME,
-                    Paths.get(modulePath.toString() + UTILS_DIR, JOBJECT_FILE_NAME).toString());
-            writeOutputFile(null, DEFAULT_TEMPLATE_DIR, ARRAY_UTILS_TEMPLATE_NAME,
-                    Paths.get(modulePath.toString() + UTILS_DIR, ARRAY_UTILS_FILE_NAME).toString());
 
-            outStream.println("\nGenerating dependency bindings for: ");
+            if (!classListForLooping.isEmpty()) {
+                outStream.println("\nGenerating dependency bindings for: ");
+            }
+            createDirectory(dependenciesPath.toString());
+            directJavaClass = false;
             while (!classListForLooping.isEmpty()) {
                 Set<String> newSet = new HashSet<>(classListForLooping);
                 allJavaClasses.addAll(newSet);
                 classListForLooping.clear();
                 generateBindings(newSet, classLoader, dependenciesPath);
-                directJavaClass = false;
             }
+            createDirectory(utilsDirPath);
+            writeOutputFile(null, DEFAULT_TEMPLATE_DIR, JOBJECT_TEMPLATE_NAME,
+                    Paths.get(utilsDirPath, JOBJECT_FILE_NAME).toString(), false);
+            writeOutputFile(null, DEFAULT_TEMPLATE_DIR, ARRAY_UTILS_TEMPLATE_NAME,
+                    Paths.get(utilsDirPath, ARRAY_UTILS_FILE_NAME).toString(), false);
+
+            Path constantsPath = Paths.get(utilsDirPath, CONSTANTS_FILE_NAME);
             Set<String> names = new HashSet<>(allClasses);
-            writeOutputFile(names, DEFAULT_TEMPLATE_DIR, CONSTANTS_TEMPLATE_NAME,
-                    Paths.get(modulePath.toString() + UTILS_DIR, CONSTANTS_FILE_NAME).toString());
+            if (constantsPath.toFile().exists()) {
+                getUpdatedConstantsList(constantsPath, names);
+                notifyExistingDependencies(classNames, dependenciesPath.toFile());
+            }
+            writeOutputFile(names, DEFAULT_TEMPLATE_DIR, CONSTANTS_TEMPLATE_NAME, constantsPath.toString(), true);
+
             if (failedClassGens != null) {
-                errStream.println("\nBindings for the following classes could not be generated.");
+                errStream.print("\n");
                 for (String className : failedClassGens) {
+                    if (classNames.contains(className)) {
+                        errStream.println("Bindings for '" + className + "' class could not be generated.");
+                    }
                     String simpleClassName = className.substring(className.lastIndexOf('.') + 1);
-                    outStream.println("\t" + className);
-                    writeOutputFile(simpleClassName, DEFAULT_TEMPLATE_DIR, EMPTY_OBJECT_TEMPLATE_NAME,
-                            Paths.get(modulePath.toString(), simpleClassName + BAL_EXTENSION).toString());
+                    writeOutputFile(className, DEFAULT_TEMPLATE_DIR, EMPTY_OBJECT_TEMPLATE_NAME,
+                            Paths.get(modulePathString, DEPENDENCIES_DIR_NAME,
+                                    simpleClassName + BAL_EXTENSION).toString(), false);
                 }
             }
             if (classLoader instanceof URLClassLoader) {
@@ -149,12 +165,12 @@ public class BindingsGenerator {
             try {
                 if (classLoader != null) {
                     Class classInstance = classLoader.loadClass(c);
-                    if (classInstance != null && isPublicClass(classInstance) && !classInstance.isEnum()) {
+                    if (classInstance != null && isPublicClass(classInstance)) {
                         JClass jClass = new JClass(classInstance);
                         String outputFile = Paths.get(modulePath.toString(), jClass.packageName).toString();
                         createDirectory(outputFile);
                         String filePath = Paths.get(outputFile, jClass.shortClassName + BAL_EXTENSION).toString();
-                        writeOutputFile(jClass, DEFAULT_TEMPLATE_DIR, BBGEN_CLASS_TEMPLATE_NAME, filePath);
+                        writeOutputFile(jClass, DEFAULT_TEMPLATE_DIR, BBGEN_CLASS_TEMPLATE_NAME, filePath, false);
                         outStream.println("\t" + c);
                     }
                 }
