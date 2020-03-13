@@ -79,6 +79,10 @@
                 "url": "closures"
             },
             {
+                "name": "Expression-bodied Functions",
+                "url": "expression-bodied-functions"
+            },
+            {
                 "name": "Functional Iteration",
                 "url": "functional-iteration"
             },
