@@ -41,7 +41,8 @@ import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 import java.util.Optional;
 
-import static org.ballerinalang.jvm.observability.ObservabilityConstants.TAG_KEY_HTTP_STATUS_CODE;
+import static org.ballerinalang.jvm.observability.ObservabilityConstants.STATUS_CODE_GROUP_SUFFIX;
+import static org.ballerinalang.jvm.observability.ObservabilityConstants.TAG_KEY_HTTP_STATUS_CODE_GROUP;
 import static org.ballerinalang.net.http.HttpConstants.RESPONSE_CACHE_CONTROL_FIELD;
 import static org.ballerinalang.net.http.HttpConstants.RESPONSE_STATUS_CODE_FIELD;
 import static org.ballerinalang.net.http.nativeimpl.pipelining.PipeliningHandler.executePipeliningLogic;
@@ -91,8 +92,8 @@ public class Respond extends ConnectionAction {
         }
 
         Optional<ObserverContext> observerContext = ObserveUtils.getObserverContextOfCurrentFrame(strand);
-        observerContext.ifPresent(ctx -> ctx.addTag(TAG_KEY_HTTP_STATUS_CODE, String.valueOf
-                (outboundResponseObj.get(RESPONSE_STATUS_CODE_FIELD))));
+        observerContext.ifPresent(ctx -> ctx.addTag(TAG_KEY_HTTP_STATUS_CODE_GROUP, String.valueOf
+                (outboundResponseObj.get(RESPONSE_STATUS_CODE_FIELD)).charAt(0) + STATUS_CODE_GROUP_SUFFIX));
         try {
             if (pipeliningRequired(inboundRequestMsg)) {
                 if (log.isDebugEnabled()) {

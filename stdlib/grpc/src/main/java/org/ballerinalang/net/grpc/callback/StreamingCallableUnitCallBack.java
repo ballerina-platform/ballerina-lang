@@ -22,7 +22,8 @@ import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.net.grpc.Status;
 import org.ballerinalang.net.grpc.StreamObserver;
 
-import static org.ballerinalang.jvm.observability.ObservabilityConstants.TAG_KEY_HTTP_STATUS_CODE;
+import static org.ballerinalang.jvm.observability.ObservabilityConstants.STATUS_CODE_GROUP_SUFFIX;
+import static org.ballerinalang.jvm.observability.ObservabilityConstants.TAG_KEY_HTTP_STATUS_CODE_GROUP;
 import static org.ballerinalang.net.grpc.MessageUtils.getMappingHttpStatusCode;
 
 /**
@@ -40,20 +41,21 @@ public class StreamingCallableUnitCallBack extends AbstractCallableUnitCallBack 
         this.responseSender = responseSender;
         this.observerContext = context;
     }
-    
+
     @Override
     public void notifySuccess() {
         super.notifySuccess();
     }
-    
+
     @Override
     public void notifyFailure(ErrorValue error) {
         if (responseSender != null) {
             handleFailure(responseSender, error);
         }
         if (observerContext != null) {
-            observerContext.addTag(TAG_KEY_HTTP_STATUS_CODE,
-                    String.valueOf(getMappingHttpStatusCode(Status.Code.INTERNAL.value())));
+            observerContext.addTag(TAG_KEY_HTTP_STATUS_CODE_GROUP,
+                    String.valueOf(getMappingHttpStatusCode(Status.Code.INTERNAL.value())).charAt(0) +
+                            STATUS_CODE_GROUP_SUFFIX);
         }
         super.notifyFailure(error);
     }
