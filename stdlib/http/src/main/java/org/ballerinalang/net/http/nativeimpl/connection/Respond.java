@@ -92,8 +92,8 @@ public class Respond extends ConnectionAction {
         }
 
         Optional<ObserverContext> observerContext = ObserveUtils.getObserverContextOfCurrentFrame(strand);
-        observerContext.ifPresent(ctx -> ctx.addTag(TAG_KEY_HTTP_STATUS_CODE_GROUP, String.valueOf
-                (outboundResponseObj.get(RESPONSE_STATUS_CODE_FIELD)).charAt(0) + STATUS_CODE_GROUP_SUFFIX));
+        observerContext.ifPresent(ctx -> ctx.addTag(TAG_KEY_HTTP_STATUS_CODE_GROUP,
+                outboundResponseObj.getIntValue(RESPONSE_STATUS_CODE_FIELD) / 100 + STATUS_CODE_GROUP_SUFFIX));
         try {
             if (pipeliningRequired(inboundRequestMsg)) {
                 if (log.isDebugEnabled()) {

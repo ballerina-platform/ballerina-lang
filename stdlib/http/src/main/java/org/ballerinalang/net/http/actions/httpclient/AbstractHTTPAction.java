@@ -83,7 +83,7 @@ public abstract class AbstractHTTPAction {
         CACHE_BALLERINA_VERSION = System.getProperty(BALLERINA_VERSION);
     }
 
-    protected static HttpCarbonMessage createOutboundRequestMsg(Strand strand, String serviceUri, MapValue config, 
+    protected static HttpCarbonMessage createOutboundRequestMsg(Strand strand, String serviceUri, MapValue config,
                                                                 String path, ObjectValue request) {
         if (request == null) {
             request = ValueCreatorUtils.createRequestObject();
@@ -499,7 +499,7 @@ public abstract class AbstractHTTPAction {
             Optional<ObserverContext> observerContext =
                     ObserveUtils.getObserverContextOfCurrentFrame(context.getStrand());
             observerContext.ifPresent(ctx -> ctx.addTag(ObservabilityConstants.TAG_KEY_HTTP_STATUS_CODE_GROUP,
-                    String.valueOf(statusCode).charAt(0) + STATUS_CODE_GROUP_SUFFIX));
+                    statusCode / 100 + STATUS_CODE_GROUP_SUFFIX));
         }
     }
 }
