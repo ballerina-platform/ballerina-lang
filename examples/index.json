@@ -1026,12 +1026,12 @@
         "column": 3,
         "category": "Working over the network",
         "samples": [{
-                "name": "Secured Service with JWT",
-                "url": "secured-service-with-jwt"
-            },
-            {
                 "name": "Secured Service with Basic Auth",
                 "url": "secured-service-with-basic-auth"
+            },
+            {
+                "name": "Secured Service with JWT",
+                "url": "secured-service-with-jwt"
             },
             {
                 "name": "Secured Service with OAuth2",
