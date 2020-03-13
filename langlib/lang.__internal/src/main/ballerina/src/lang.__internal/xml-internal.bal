@@ -19,7 +19,7 @@
 # + x - The xml source
 # + elemNames - ualified name of the elements to filter
 # + return - All elements that match elemNames
-public function getElements(xml x, string... elemNames) returns xml = external;
+public function __getElements(xml x, string... elemNames) returns xml = external;
 
 # Get childElements matching `elemNames` and childIndex for each children sequence.
 # xml x = xml `<a><a0>x</a0><a0>y</a0></a><b><a0>j</a0><a0>k</a0></b>`;
@@ -30,7 +30,7 @@ public function getElements(xml x, string... elemNames) returns xml = external;
 # + index - child index to select from each child sequence, -1 to select all elements
 # + elemNames - Qualified name of the elements to filter,
 # + return - All child elements matching `index` condition and  `elemNames` condition.
-public function getFilteredChildrenFlat(xml x, int index, string... elemNames) returns xml = external;
+public function __getFilteredChildrenFlat(xml x, int index, string... elemNames) returns xml = external;
 
 # Searches in children recursively for elements matching the qualified name and returns a sequence containing them
 # all. Does not search within a matched result.
@@ -38,24 +38,25 @@ public function getFilteredChildrenFlat(xml x, int index, string... elemNames) r
 # + x - The xml source
 # + qname - Qualified name of the element
 # + return - All the descendants that matches the given qualified name, as a sequence
-public function selectDescendants(xml x, string... qname) returns xml = external;
+public function __selectDescendants(xml x, string... qname) returns xml = external;
 
 # Return attribute matching expanded attribute name
 #
 # + x - The xml value
 # + attributeName - Attribute name in expanded from
+# + isOptionalAccess - Is this a optoinal access expression or not
 # + return - Attribute value
-public function getAttribute(xml x, string attributeName) returns string|error? = external;
+public function __getAttribute(xml x, string attributeName, boolean isOptionalAccess) returns string|error? = external;
 
 # Return name of the element if `x` is a element or nil if element name is not set, else error.
 #
 # + x - The xml value
 # + return - Element name
-public function getElementNameNilLifting(xml x) returns string|error? = external;
+public function __getElementNameNilLifting(xml x) returns string|error? = external;
 
 # lift getChildren over sequences
 # equivalent to elements(x).map(getChildren)
 #
 # + x - The xml value
 # + return - children of elements lifted over the sequence
-public function children(xml x) returns xml = external;
+public function __children(xml x) returns xml = external;
