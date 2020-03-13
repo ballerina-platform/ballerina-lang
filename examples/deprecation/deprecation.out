@@ -1,11 +1,12 @@
 # To run this sample, navigate to the directory that contains the
-# `.bal` file, and execute the `ballerina run` command.
+# `.bal` file and execute the `ballerina run` command.
 $ ballerina run deprecation.bal
-usage of construct 'Foo' is deprecated
-usage of construct 'DummyObject' is deprecated
-usage of construct 'Foo' is deprecated
-usage of construct 'CONST1' is deprecated
-usage of construct 'DummyObject' is deprecated
-usage of construct 'DummyObject.doThatOnObject' is deprecated
-usage of construct 'CONST1' is deprecated
-usage of construct 'objectInitializer' is deprecated
+warning: .::deprecation.bal:26:5: usage of construct 'Address' is deprecated
+warning: .::deprecation.bal:36:33: usage of construct 'Data' is deprecated
+warning: .::deprecation.bal:36:44: usage of construct 'Address' is deprecated
+warning: .::deprecation.bal:26:20: usage of construct 'CITY' is deprecated
+warning: .::deprecation.bal:36:72: usage of construct 'CITY' is deprecated
+warning: .::deprecation.bal:38:5: usage of construct 'Data.updateFirstName' is deprecated
+warning: .::deprecation.bal:49:5: usage of construct 'Data' is deprecated
+warning: .::deprecation.bal:51:5: usage of construct 'Address' is deprecated
+warning: .::deprecation.bal:58:5: usage of construct 'updateData' is deprecated

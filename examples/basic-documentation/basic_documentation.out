@@ -1,4 +1,4 @@
 # To run this sample, navigate to the directory that contains the
 # `.bal` file, and execute the `ballerina run` command.
-$ ballerina run basic_documentations.bal
+$ ballerina run basic_documentation.bal
 Documentation attachments are non executable constructs.
