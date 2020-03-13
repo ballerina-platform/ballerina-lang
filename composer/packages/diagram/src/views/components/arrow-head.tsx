@@ -1,7 +1,7 @@
 import classNames from "classnames";
 import * as React from "react";
 
-const ARROW_SIZE = 3;
+const ARROW_SIZE = 6;
 
 export const ArrowHead: React.StatelessComponent<{
         x: number, y: number, direction: "left" | "right", className?: string
@@ -9,8 +9,8 @@ export const ArrowHead: React.StatelessComponent<{
         x, y, direction, className
     }) => {
         const p1 = { x, y};
-        const p2 = { x: 0, y: 0};
-        const p3 = { x: 0, y: 0};
+        const p2 = { x: 0, y: 0, rx: 12, ry: 12};
+        const p3 = { x: 0, y: 0, rx: 12, ry: 12};
 
         p2.x = (direction === "left") ? (x + 6) : (x - 6);
         p3.x = p2.x;
