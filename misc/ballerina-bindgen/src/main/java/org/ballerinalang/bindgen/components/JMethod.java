@@ -97,6 +97,9 @@ public class JMethod {
             if (parameter.isPrimitiveArray) {
                 this.hasPrimitiveParam = true;
             }
+            if (parameter.isObjArrayParam()) {
+                this.exceptionTypes = true;
+            }
         }
         if (m.getExceptionTypes().length > 0) {
             this.exceptionTypes = true;
@@ -113,8 +116,12 @@ public class JMethod {
             this.reservedWord = true;
             this.noReservedWord = false;
         }
-        if (objectReturn && !isArrayReturn && !allJavaClasses.contains(m.getReturnType().getName())) {
-            classListForLooping.add(m.getReturnType().getCanonicalName());
+        if (objectReturn && !allJavaClasses.contains(m.getReturnType().getName())) {
+            if (isArrayReturn) {
+                classListForLooping.add(m.getReturnType().getComponentType().getCanonicalName());
+            } else {
+                classListForLooping.add(m.getReturnType().getCanonicalName());
+            }
         }
     }
 }

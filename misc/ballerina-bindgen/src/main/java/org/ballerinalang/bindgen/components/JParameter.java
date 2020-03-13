@@ -39,6 +39,7 @@ public class JParameter {
     private Boolean isObj = false;
     private Boolean notLast = true;
     private Boolean isString = false;
+    private Boolean isObjArray = false;
     private Boolean isStringArray = false;
 
     Boolean isPrimitiveArray = false;
@@ -46,6 +47,12 @@ public class JParameter {
     JParameter(Parameter parameter) {
 
         Class parameterClass = parameter.getType();
+        if (parameterClass.isPrimitive()) {
+            this.shortTypeName = balType(parameterClass.getSimpleName());
+        } else {
+            this.isObj = true;
+            this.shortTypeName = parameterClass.getSimpleName();
+        }
         if (parameterClass.getName().equals("java.lang.String")) {
             this.type = parameterClass.getName();
             this.isString = true;
@@ -64,27 +71,24 @@ public class JParameter {
                     Class component = parameterClass.getComponentType();
                     this.componentType = component.getTypeName();
                     if (!parameterClass.getComponentType().isPrimitive()) {
-                        if (!parameterClass.getComponentType().isEnum() && !allJavaClasses.contains(parameterClass
-                                .getComponentType().getName())) {
-                            classListForLooping.add(parameterClass.getComponentType().getName());
+                        this.isObjArray = true;
+                        this.isObj = false;
+                        String componentType = parameterClass.getComponentType().getName();
+                        if (!allJavaClasses.contains(componentType)) {
+                            classListForLooping.add(componentType);
                         }
                     } else {
                         this.isPrimitiveArray = true;
                     }
 
                 } else {
-                    if (!parameterClass.isEnum() && !allJavaClasses.contains(parameterClass.getCanonicalName())) {
-                        classListForLooping.add(parameterClass.getCanonicalName());
+                    String paramType = parameterClass.getCanonicalName();
+                    if (!allJavaClasses.contains(paramType)) {
+                        classListForLooping.add(paramType);
                     }
                 }
             }
             this.externalType = balType(parameterClass.getSimpleName());
-            if (parameterClass.isPrimitive()) {
-                this.shortTypeName = balType(parameterClass.getSimpleName());
-            } else {
-                this.isObj = true;
-                this.shortTypeName = parameterClass.getSimpleName();
-            }
         }
         this.fieldName = parameter.getName();
     }
@@ -92,5 +96,10 @@ public class JParameter {
     void setLastParam() {
 
         this.notLast = false;
+    }
+
+    public Boolean isObjArrayParam() {
+
+        return this.isObjArray;
     }
 }
