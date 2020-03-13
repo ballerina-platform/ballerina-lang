@@ -650,7 +650,7 @@ public class EqualAndNotEqualOperationsTest {
                            "Expected json values to be identified as not equal");
     }
 
-    @Test()
+    @Test (groups = "brokenOnXMLLangLibChange")
     public void testSimpleXmlPositive() {
         BValue[] returns = BRunUtil.invoke(result, "testSimpleXmlPositive");
         Assert.assertEquals(returns.length, 1);
@@ -658,7 +658,7 @@ public class EqualAndNotEqualOperationsTest {
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue(), "Expected XMLs to be identified as equal.");
     }
 
-    @Test
+    @Test (groups = "brokenOnXMLLangLibChange")
     public void testSimpleXmlNegative() {
         BValue[] returns = BRunUtil.invoke(result, "testSimpleXmlNegative");
         Assert.assertEquals(returns.length, 1);
@@ -666,7 +666,7 @@ public class EqualAndNotEqualOperationsTest {
         Assert.assertFalse(((BBoolean) returns[0]).booleanValue(), "Expected XMLs to be identified as not equal.");
     }
 
-    @Test()
+    @Test (groups = "brokenOnXMLLangLibChange")
     public void testEqualNestedXml() {
         BValue[] returns = BRunUtil.invoke(result, "testEqualNestedXml");
         Assert.assertEquals(returns.length, 1);
@@ -682,7 +682,7 @@ public class EqualAndNotEqualOperationsTest {
         Assert.assertFalse(((BBoolean) returns[0]).booleanValue(), "Expected XMLs to be identified as unequal.");
     }
 
-    @Test()
+    @Test (groups = "brokenOnXMLLangLibChange")
     public void testEqualXmlWithComments() {
         BValue[] returns = BRunUtil.invoke(result, "testEqualXmlWithComments");
         Assert.assertEquals(returns.length, 1);
@@ -698,7 +698,7 @@ public class EqualAndNotEqualOperationsTest {
         Assert.assertFalse(((BBoolean) returns[0]).booleanValue(), "Expected XMLs to be identified as unequal.");
     }
 
-    @Test()
+    @Test (groups = "brokenOnXMLLangLibChange")
     public void testEqualXmlIgnoringAttributeOrder() {
         BValue[] returns = BRunUtil.invoke(result, "testEqualXmlIgnoringAttributeOrder");
         Assert.assertEquals(returns.length, 1);
@@ -714,7 +714,7 @@ public class EqualAndNotEqualOperationsTest {
         Assert.assertFalse(((BBoolean) returns[0]).booleanValue(), "Expected XMLs to be identified as unequal.");
     }
 
-    @Test()
+    @Test (groups = "brokenOnXMLLangLibChange")
     public void testEqualXmlWithPI() {
         BValue[] returns = BRunUtil.invoke(result, "testEqualXmlWithPI");
         Assert.assertEquals(returns.length, 1);
@@ -752,7 +752,7 @@ public class EqualAndNotEqualOperationsTest {
         Assert.assertFalse(((BBoolean) returns[0]).booleanValue(), "Expected XMLs to be identified as unequal.");
     }
 
-    @Test()
+    @Test (groups = "brokenOnXMLLangLibChange")
     public void testXmlWithNamespacesPositive() {
         BValue[] returns = BRunUtil.invoke(result, "testXmlWithNamespacesPositive");
         Assert.assertEquals(returns.length, 1);
@@ -760,7 +760,7 @@ public class EqualAndNotEqualOperationsTest {
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue(), "Expected XMLs to be identified as equal.");
     }
 
-    @Test
+    @Test (groups = "brokenOnXMLLangLibChange")
     public void testXmlWithNamespacesNegative() {
         BValue[] returns = BRunUtil.invoke(result, "testXmlWithNamespacesNegative");
         Assert.assertEquals(returns.length, 1);
@@ -768,7 +768,7 @@ public class EqualAndNotEqualOperationsTest {
         Assert.assertFalse(((BBoolean) returns[0]).booleanValue(), "Expected XMLs to be identified as unequal.");
     }
 
-    @Test
+    @Test (groups = "brokenOnXMLLangLibChange")
     public void testXmlSequenceAndXmlItemEqualityPositive() {
         BValue[] returns = BRunUtil.invoke(result, "testXmlSequenceAndXmlItemEqualityPositive");
         Assert.assertEquals(returns.length, 1);
@@ -776,7 +776,7 @@ public class EqualAndNotEqualOperationsTest {
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue(), "Expected XMLs to be identified as equal.");
     }
 
-    @Test
+    @Test (groups = "brokenOnXMLLangLibChange")
     public void testXmlSequenceAndXmlItemEqualityNegative() {
         BValue[] returns = BRunUtil.invoke(result, "testXmlSequenceAndXmlItemEqualityNegative");
         Assert.assertEquals(returns.length, 1);

@@ -1,5 +1,6 @@
 import ballerina/http;
 import ballerina/lang.'string as strings;
+import ballerina/lang.'xml as xmllib;
 
 listener http:MockListener testEP = new(9090);
 
@@ -50,8 +51,9 @@ service echo on testEP {
         body: "person"
     }
     resource function body4(http:Caller caller, http:Request req, xml person) {
-        string name = <@untainted string> person.getElementName();
-        string team = <@untainted string> person.getTextValue();
+        xmllib:Element elem = <xmllib:Element> person;
+        string name = <@untainted string> elem.getName();
+        string team = <@untainted string> (person/*).toString();
         checkpanic caller->respond({ Key: name, Team: team });
     }
 

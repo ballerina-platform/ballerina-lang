@@ -97,7 +97,7 @@ public final class XMLSequence extends XMLValue {
      */
     @Override
     public boolean isSingleton() {
-        return children.size() == 1;
+        return children.size() == 1 && children.get(0).isSingleton();
     }
 
     /**
