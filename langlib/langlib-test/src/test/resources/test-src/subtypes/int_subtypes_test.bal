@@ -709,8 +709,7 @@ function testByteRightShift() {
     byte i1 = 255;
     int j = 3;
     byte k = i1 >> j;
-    // assertValueEqual(255, k);
-    assertValueEqual(31, k); // incorrect
+    assertValueEqual(255, k);
 
     byte i2 = 0;
     k = i2 >> j;
@@ -725,8 +724,7 @@ function 'testUnsigned8RightShift() {
     ints:Unsigned8 i1 = 255;
     int j = 3;
     ints:Unsigned8 k = i1 >> j;
-    // assertValueEqual(255, k);
-    assertValueEqual(31, k); // incorrect
+    assertValueEqual(255, k);
 
     ints:Unsigned8 i2 = 0;
     k = i2 >> j;
@@ -741,8 +739,7 @@ function 'testUnsigned16RightShift() {
     ints:Unsigned16 i1 = 65535;
     int j = 3;
     ints:Unsigned16 k = i1 >> j;
-    // assertValueEqual(65535, k);
-    assertValueEqual(8191, k); // incorrect
+    assertValueEqual(65535, k);
 
     ints:Unsigned16 i2 = 0;
     k = i2 >> j;
@@ -757,8 +754,7 @@ function 'testUnsigned32RightShift() {
     ints:Unsigned32 i1 = 4294967295;
     int j = 3;
     ints:Unsigned32 k = i1 >> j;
-    // assertValueEqual(4294967295, k);
-    assertValueEqual(536870911, k); // incorrect
+    assertValueEqual(4294967295, k);
 
     ints:Unsigned32 i2 = 0;
     k = i2 >> j;
@@ -788,8 +784,7 @@ function 'testSigned8UnsignedRightShift() {
 
     ints:Signed8 i2 = -128;
     k = i2 >>> j;
-    // assertValueEqual(16, k);
-    assertValueEqual(2305843009213693936, k); // incorrect
+    assertValueEqual(16, k);
 
     ints:Signed8 i3 = 0;
     k = i3 >>> j;
@@ -808,8 +803,7 @@ function 'testSigned16UnsignedRightShift() {
 
     ints:Signed16 i2 = -32768;
     k = i2 >>> j;
-    // assertValueEqual(4096, k);
-    assertValueEqual(2305843009213689856, k); // incorrect
+    assertValueEqual(4096, k);
 
     ints:Signed16 i3 = 0;
     k = i3 >>> j;
@@ -828,8 +822,7 @@ function 'testSigned32UnsignedRightShift() {
 
     ints:Signed32 i2 = -2147483648;
     k = i2 >>> j;
-    // assertValueEqual(268435456, k);
-    assertValueEqual(2305843008945258496, k); // incorrect
+    assertValueEqual(268435456, k);
 
     ints:Signed32 i3 = 0;
     k = i3 >>> j;
