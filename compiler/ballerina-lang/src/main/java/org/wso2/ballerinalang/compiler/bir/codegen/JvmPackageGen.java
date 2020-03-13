@@ -107,7 +107,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.getMainFu
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.getMethodDesc;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.getTypeDef;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.isExternFunc;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.nameOfNonBStringFunc;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTerminatorGen.TerminatorGenerator.toNameString;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen.generateCreateTypesMethod;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen.generateUserDefinedTypeFields;
@@ -715,9 +714,9 @@ public class JvmPackageGen {
         @Nilable BIRVariableDcl receiver = currentFunc.receiver;
         @Nilable BType attachedType = receiver != null ? receiver.type : null;
         String jvmMethodDescription = getMethodDesc(functionTypeDesc.paramTypes, functionTypeDesc.retType,
-                attachedType, false, false);
+                attachedType, false);
         String jvmMethodDescriptionBString = getMethodDesc(functionTypeDesc.paramTypes, functionTypeDesc.retType,
-                attachedType, false, true);
+                attachedType, false);
 
         return new BIRFunctionWrapper(orgName, moduleName, version, currentFunc, moduleClass, jvmMethodDescription,
                 jvmMethodDescriptionBString);
@@ -730,8 +729,7 @@ public class JvmPackageGen {
 
     public static @Nilable
     String lookupExternClassName(String pkgName, String functionName) {
-
-        return externalMapCache.get(cleanupName(pkgName) + "/" + nameOfNonBStringFunc(functionName));
+        return externalMapCache.get(cleanupName(pkgName) + "/" + functionName);
     }
 
     private static void generateShutdownSignalListener(String initClass, Map<String, byte[]> jarEntries) {

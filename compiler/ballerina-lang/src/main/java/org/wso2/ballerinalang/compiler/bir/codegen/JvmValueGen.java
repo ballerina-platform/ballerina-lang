@@ -104,13 +104,11 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.UNSUPPORT
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmDesugarPhase.addDefaultableBooleanVarsToSignature;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmDesugarPhase.enrichWithDefaultableParamInits;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmInstructionGen.B_STRING_VALUE;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmInstructionGen.I_STRING_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmInstructionGen.addBoxInsn;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmInstructionGen.addUnboxInsn;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmInstructionGen.isBString;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.cleanupFunctionName;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.cleanupTypeName;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.conditionalBStringName;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.generateLambdaMethod;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.generateMethod;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.getFunction;
@@ -121,7 +119,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.getRecord
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.getType;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.getTypeDef;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.isExternFunc;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.nameOfBStringFunc;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.computeLockNameFromString;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.currentClass;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.getPackageName;
@@ -293,15 +290,8 @@ class JvmValueGen {
                 if (field == null) {
                     continue;
                 }
-                if (isBString) {
-                    FieldVisitor fvb = cw.visitField(0, nameOfBStringFunc(field.name.value),
-                            getTypeDesc(field.type, true), null, null);
-                    fvb.visitEnd();
-                } else {
-                    FieldVisitor fv = cw.visitField(0, field.name.value, getTypeDesc(field.type, false), null,
-                            null);
-                    fv.visitEnd();
-                }
+                FieldVisitor fvb = cw.visitField(0, field.name.value, getTypeDesc(field.type), null, null);
+                fvb.visitEnd();
                 String lockClass = "L" + LOCK_VALUE + ";";
                 FieldVisitor fv = cw.visitField(ACC_PUBLIC + ACC_FINAL, computeLockNameFromString(field.name.value),
                         lockClass, null, null);
@@ -384,8 +374,7 @@ class JvmValueGen {
                 String methodSig = "";
 
                 // use index access, since retType can be nil.
-                boolean useBString = isBString;
-                methodSig = getMethodDesc(paramTypes, retType, null, useBString, false);
+                methodSig = getMethodDesc(paramTypes, retType, null, false);
 
                 // load self
                 mv.visitVarInsn(ALOAD, 0);
@@ -402,7 +391,7 @@ class JvmValueGen {
                     mv.visitLdcInsn((long) j);
                     mv.visitInsn(L2I);
                     mv.visitInsn(AALOAD);
-                    addUnboxInsn(mv, pType, useBString);
+                    addUnboxInsn(mv, pType);
                     j += 1;
                 }
 
@@ -425,18 +414,17 @@ class JvmValueGen {
             mv.visitEnd();
         }
 
-        private void createObjectGetMethod(ClassWriter cw, @Nilable List<BField> fields, String className,
-                                           boolean useBString) {
+        private void createObjectGetMethod(ClassWriter cw, @Nilable List<BField> fields, String className) {
 
-            String signature = String.format("(L%s;)L%s;", useBString ? I_STRING_VALUE : STRING_VALUE, OBJECT);
+            String signature = String.format("(L%s;)L%s;", isBString ? B_STRING_VALUE : STRING_VALUE, OBJECT);
             MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "get", signature, null, null);
             mv.visitCode();
 
             int fieldNameRegIndex = 1;
-            if (useBString) {
-                mv.visitVarInsn(ALOAD, 0);
-                mv.visitMethodInsn(INVOKEINTERFACE, I_STRING_VALUE, "getValue",
-                                   String.format("()L%s;", STRING_VALUE), true);
+            if (isBString) {
+                mv.visitVarInsn(ALOAD, fieldNameRegIndex);
+                mv.visitMethodInsn(INVOKEINTERFACE, B_STRING_VALUE, "getValue",
+                        String.format("()L%s;", STRING_VALUE), true);
                 fieldNameRegIndex = 2;
                 mv.visitVarInsn(ASTORE, fieldNameRegIndex);
             }
@@ -456,8 +444,7 @@ class JvmValueGen {
                 Label targetLabel = targetLabels.get(i);
                 mv.visitLabel(targetLabel);
                 mv.visitVarInsn(ALOAD, 0);
-                mv.visitFieldInsn(GETFIELD, className, conditionalBStringName(field.name.value, useBString),
-                                  getTypeDesc(field.type, useBString));
+                mv.visitFieldInsn(GETFIELD, className, field.name.value, getTypeDesc(field.type));
                 addBoxInsn(mv, field.type);
                 mv.visitInsn(ARETURN);
                 i += 1;
@@ -468,11 +455,10 @@ class JvmValueGen {
             mv.visitEnd();
         }
 
-        private void createObjectSetMethod(ClassWriter cw, @Nilable List<BField> fields, String className,
-                                           boolean useBString) {
+        private void createObjectSetMethod(ClassWriter cw, @Nilable List<BField> fields, String className) {
 
             MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "set",
-                                              String.format("(L%s;L%s;)V", useBString ? B_STRING_VALUE : STRING_VALUE,
+                                              String.format("(L%s;L%s;)V", isBString ? B_STRING_VALUE : STRING_VALUE,
                                                             OBJECT), null, null);
             mv.visitCode();
             int fieldNameRegIndex = 1;
@@ -482,7 +468,7 @@ class JvmValueGen {
             // code gen type checking for inserted value
             mv.visitVarInsn(ALOAD, 0);
             mv.visitVarInsn(ALOAD, fieldNameRegIndex);
-            if (useBString) {
+            if (isBString) {
                 mv.visitMethodInsn(INVOKEINTERFACE, B_STRING_VALUE, "getValue", String.format("()L%s;", STRING_VALUE),
                                    true);
                 mv.visitInsn(DUP);
@@ -509,12 +495,9 @@ class JvmValueGen {
                 mv.visitLabel(targetLabel);
                 mv.visitVarInsn(ALOAD, 0);
                 mv.visitVarInsn(ALOAD, valueRegIndex);
-                addUnboxInsn(mv, field.type, useBString);
+                addUnboxInsn(mv, field.type);
                 String filedName = field.name.value;
-                if (useBString) {
-                    filedName = nameOfBStringFunc(filedName);
-                }
-                mv.visitFieldInsn(PUTFIELD, className, filedName, getTypeDesc(field.type, useBString));
+                mv.visitFieldInsn(PUTFIELD, className, filedName, getTypeDesc(field.type));
                 mv.visitInsn(RETURN);
                 i += 1;
             }
@@ -646,22 +629,16 @@ class JvmValueGen {
         }
 
         private void createRecordFields(ClassWriter cw, @Nilable List<BField> fields) {
-
             for (BField field : fields) {
                 if (field == null) {
                     continue;
                 }
-                FieldVisitor fv;
-                if (isBString) {
-                    fv = cw.visitField(0, field.name.value, getTypeDesc(field.type, true), null, null);
-                } else {
-                    fv = cw.visitField(0, field.name.value, getTypeDesc(field.type, false), null, null);
-                }
+                FieldVisitor fv = cw.visitField(0, field.name.value, getTypeDesc(field.type), null, null);
                 fv.visitEnd();
 
                 if (this.isOptionalRecordField(field)) {
                     fv = cw.visitField(0, this.getFieldIsPresentFlagName(field.name.value),
-                            getTypeDesc(symbolTable.booleanType, false), null, null);
+                                       getTypeDesc(symbolTable.booleanType), null, null);
                     fv.visitEnd();
                 }
             }
@@ -716,7 +693,7 @@ class JvmValueGen {
                 if (this.isOptionalRecordField(field)) {
                     mv.visitVarInsn(ALOAD, 0);
                     mv.visitFieldInsn(GETFIELD, className, this.getFieldIsPresentFlagName(fieldName),
-                            getTypeDesc(symbolTable.booleanType, false));
+                            getTypeDesc(symbolTable.booleanType));
                     mv.visitJumpInsn(IFNE, ifPresentLabel);
                     mv.visitInsn(ACONST_NULL);
                     mv.visitInsn(ARETURN);
@@ -725,8 +702,7 @@ class JvmValueGen {
                 mv.visitLabel(ifPresentLabel);
                 // return the value of the field
                 mv.visitVarInsn(ALOAD, 0);
-                mv.visitFieldInsn(GETFIELD, className, conditionalBStringName(fieldName, isBString),
-                                  getTypeDesc(field.type, isBString));
+                mv.visitFieldInsn(GETFIELD, className, fieldName, getTypeDesc(field.type));
                 addBoxInsn(mv, field.type);
                 mv.visitInsn(ARETURN);
                 i += 1;
@@ -750,10 +726,10 @@ class JvmValueGen {
 
             // cast key to java.lang.String
             mv.visitVarInsn(ALOAD, fieldNameRegIndex);
-            mv.visitTypeInsn(CHECKCAST, isBString ? I_STRING_VALUE : STRING_VALUE);
+            mv.visitTypeInsn(CHECKCAST, isBString ? B_STRING_VALUE : STRING_VALUE);
             if (isBString) {
-                mv.visitMethodInsn(INVOKEINTERFACE, I_STRING_VALUE, "getValue", String.format("()L%s;", STRING_VALUE),
-                                   true);
+                mv.visitMethodInsn(INVOKEINTERFACE, B_STRING_VALUE, "getValue", String.format("()L%s;", STRING_VALUE),
+                        true);
             }
             mv.visitVarInsn(ASTORE, strKeyVarIndex);
 
@@ -775,22 +751,20 @@ class JvmValueGen {
                 // load the existing value to return
                 String fieldName = field.name.value;
                 mv.visitVarInsn(ALOAD, 0);
-                mv.visitFieldInsn(GETFIELD, className, conditionalBStringName(fieldName, isBString),
-                                  getTypeDesc(field.type, isBString));
+                mv.visitFieldInsn(GETFIELD, className, fieldName, getTypeDesc(field.type));
                 addBoxInsn(mv, field.type);
 
                 mv.visitVarInsn(ALOAD, 0);
                 mv.visitVarInsn(ALOAD, valueRegIndex);
-                addUnboxInsn(mv, field.type, isBString);
-                mv.visitFieldInsn(PUTFIELD, className, conditionalBStringName(fieldName, isBString),
-                                  getTypeDesc(field.type, isBString));
+                addUnboxInsn(mv, field.type);
+                mv.visitFieldInsn(PUTFIELD, className, fieldName, getTypeDesc(field.type));
 
                 // if the field is an optional-field, then also set the isPresent flag of that field to true.
                 if (this.isOptionalRecordField(field)) {
                     mv.visitVarInsn(ALOAD, 0);
                     mv.visitInsn(ICONST_1);
                     mv.visitFieldInsn(PUTFIELD, className, this.getFieldIsPresentFlagName(fieldName),
-                            getTypeDesc(symbolTable.booleanType, false));
+                            getTypeDesc(symbolTable.booleanType));
                 }
 
                 mv.visitInsn(ARETURN);
@@ -847,7 +821,7 @@ class JvmValueGen {
                 if (this.isOptionalRecordField(field)) {
                     mv.visitVarInsn(ALOAD, 0);
                     mv.visitFieldInsn(GETFIELD, className, this.getFieldIsPresentFlagName(fieldName),
-                            getTypeDesc(symbolTable.booleanType, false));
+                            getTypeDesc(symbolTable.booleanType));
                     mv.visitJumpInsn(IFEQ, ifNotPresent);
                 }
 
@@ -857,9 +831,13 @@ class JvmValueGen {
 
                 // field name as key
                 mv.visitLdcInsn(fieldName);
+                if (isBString) {
+                    mv.visitMethodInsn(INVOKESTATIC, JvmConstants.STRING_UTILS, "fromString",
+                            String.format("(L%s;)L%s;", STRING_VALUE, B_STRING_VALUE), false);
+                }
                 // field value as the map-entry value
                 mv.visitVarInsn(ALOAD, 0);
-                mv.visitFieldInsn(GETFIELD, className, fieldName, getTypeDesc(field.type, false));
+                mv.visitFieldInsn(GETFIELD, className, fieldName, getTypeDesc(field.type));
                 addBoxInsn(mv, field.type);
 
                 mv.visitMethodInsn(INVOKESPECIAL, MAP_SIMPLE_ENTRY, "<init>", String.format("(L%s;L%s;)V", OBJECT,
@@ -921,7 +899,7 @@ class JvmValueGen {
                     // if the field is optional, then return the value is the 'isPresent' flag.
                     mv.visitVarInsn(ALOAD, 0);
                     mv.visitFieldInsn(GETFIELD, className, this.getFieldIsPresentFlagName(fieldName),
-                            getTypeDesc(symbolTable.booleanType, false));
+                            getTypeDesc(symbolTable.booleanType));
                 } else {
                     // else always return true.
                     mv.visitLdcInsn(true);
@@ -963,13 +941,13 @@ class JvmValueGen {
                 if (this.isOptionalRecordField(field)) {
                     mv.visitVarInsn(ALOAD, 0); // this
                     mv.visitFieldInsn(GETFIELD, className, this.getFieldIsPresentFlagName(fieldName),
-                            getTypeDesc(symbolTable.booleanType, false));
+                            getTypeDesc(symbolTable.booleanType));
                     mv.visitJumpInsn(IFEQ, ifNotPresent);
                 }
 
                 mv.visitVarInsn(ALOAD, valuesVarIndex);
                 mv.visitVarInsn(ALOAD, 0); // this
-                mv.visitFieldInsn(GETFIELD, className, fieldName, getTypeDesc(field.type, false));
+                mv.visitFieldInsn(GETFIELD, className, fieldName, getTypeDesc(field.type));
                 addBoxInsn(mv, field.type);
                 mv.visitMethodInsn(INVOKEINTERFACE, LIST, "add", String.format("(L%s;)Z", OBJECT), true);
                 mv.visitInsn(POP);
@@ -1005,7 +983,7 @@ class JvmValueGen {
                 if (this.isOptionalRecordField(field)) {
                     mv.visitVarInsn(ALOAD, 0);
                     mv.visitFieldInsn(GETFIELD, className, this.getFieldIsPresentFlagName(fieldName),
-                            getTypeDesc(symbolTable.booleanType, false));
+                            getTypeDesc(symbolTable.booleanType));
                     Label l3 = new Label();
                     mv.visitJumpInsn(IFEQ, l3);
                     mv.visitIincInsn(sizeVarIndex, 1);
@@ -1073,18 +1051,18 @@ class JvmValueGen {
                     mv.visitVarInsn(ALOAD, 0);
                     mv.visitInsn(ICONST_0);
                     mv.visitFieldInsn(PUTFIELD, className, this.getFieldIsPresentFlagName(fieldName),
-                            getTypeDesc(symbolTable.booleanType, false));
+                            getTypeDesc(symbolTable.booleanType));
 
                     // load the existing value to return
                     mv.visitVarInsn(ALOAD, 0);
-                    mv.visitFieldInsn(GETFIELD, className, fieldName, getTypeDesc(field.type, false));
+                    mv.visitFieldInsn(GETFIELD, className, fieldName, getTypeDesc(field.type));
                     addBoxInsn(mv, field.type);
 
                     // Set default value for reference types
                     if (checkIfValueIsJReferenceType(field.type)) {
                         mv.visitVarInsn(ALOAD, 0);
                         mv.visitInsn(ACONST_NULL);
-                        mv.visitFieldInsn(PUTFIELD, className, fieldName, getTypeDesc(field.type, false));
+                        mv.visitFieldInsn(PUTFIELD, className, fieldName, getTypeDesc(field.type));
                     }
 
                     mv.visitInsn(ARETURN);
@@ -1141,12 +1119,16 @@ class JvmValueGen {
                 if (this.isOptionalRecordField(field)) {
                     mv.visitVarInsn(ALOAD, 0); // this
                     mv.visitFieldInsn(GETFIELD, className, this.getFieldIsPresentFlagName(fieldName),
-                            getTypeDesc(symbolTable.booleanType, false));
+                            getTypeDesc(symbolTable.booleanType));
                     mv.visitJumpInsn(IFEQ, ifNotPresent);
                 }
 
                 mv.visitVarInsn(ALOAD, keysVarIndex);
                 mv.visitLdcInsn(fieldName);
+                if (isBString) {
+                    mv.visitMethodInsn(INVOKESTATIC, JvmConstants.STRING_UTILS, "fromString",
+                            String.format("(L%s;)L%s;", STRING_VALUE, B_STRING_VALUE), false);
+                }
                 mv.visitMethodInsn(INVOKEINTERFACE, SET, "add", String.format("(L%s;)Z", OBJECT), true);
                 mv.visitInsn(POP);
                 mv.visitLabel(ifNotPresent);
@@ -1161,7 +1143,7 @@ class JvmValueGen {
             mv.visitVarInsn(ALOAD, keysVarIndex);
             mv.visitInsn(DUP);
             mv.visitMethodInsn(INVOKEINTERFACE, SET, "size", "()I", true);
-            mv.visitTypeInsn(ANEWARRAY, STRING_VALUE);
+            mv.visitTypeInsn(ANEWARRAY, isBString ? B_STRING_VALUE : STRING_VALUE);
             mv.visitMethodInsn(INVOKEINTERFACE, SET, "toArray", String.format("([L%s;)[L%s;", OBJECT, OBJECT), true);
 
             mv.visitInsn(ARETURN);
@@ -1219,13 +1201,8 @@ class JvmValueGen {
 
             this.createObjectInit(cw, fields, className);
             this.createCallMethod(cw, attachedFuncs, className, toNameString(objectType), isService);
-            if (isBString) {
-                this.createObjectGetMethod(cw, fields, className, true);
-                this.createObjectSetMethod(cw, fields, className, true);
-            } else {
-                this.createObjectGetMethod(cw, fields, className, false);
-                this.createObjectSetMethod(cw, fields, className, false);
-            }
+            this.createObjectGetMethod(cw, fields, className);
+            this.createObjectSetMethod(cw, fields, className);
             this.createLambdas(cw);
 
             cw.visitEnd();
