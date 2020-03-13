@@ -1052,6 +1052,16 @@
         ]
     },
     {
+        "title": "Email",
+        "column": 2,
+        "category": "Working over the network",
+        "samples": [{
+                "name": "Send and Receive Emails",
+                "url": "send-and-receive-emails"
+            }
+        ]
+    },
+    {
         "title": "Lock",
         "column": 0,
         "category": "Experimental features",
