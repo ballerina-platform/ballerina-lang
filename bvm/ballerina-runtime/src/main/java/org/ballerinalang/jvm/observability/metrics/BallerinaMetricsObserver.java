@@ -17,7 +17,6 @@
  */
 package org.ballerinalang.jvm.observability.metrics;
 
-import org.apache.commons.lang3.StringUtils;
 import org.ballerinalang.jvm.observability.BallerinaObserver;
 import org.ballerinalang.jvm.observability.ObserverContext;
 
@@ -78,14 +77,8 @@ public class BallerinaMetricsObserver implements BallerinaObserver {
             // Do not collect metrics if the observation hasn't started
             return;
         }
-        String[] mainTags;
-        if (StringUtils.isEmpty(observerContext.getActionName())) {
-            mainTags = new String[]{TAG_KEY_SERVICE, observerContext.getServiceName(), TAG_KEY_RESOURCE,
-                    observerContext.getResourceName()};
-        } else {
-            mainTags = new String[]{TAG_KEY_SERVICE, observerContext.getServiceName(), TAG_KEY_RESOURCE,
+        String[] mainTags = {TAG_KEY_SERVICE, observerContext.getServiceName(), TAG_KEY_RESOURCE,
                     observerContext.getResourceName(), TAG_KEY_CONNECTOR_NAME, observerContext.getConnectorName()};
-        }
         stopObservation(observerContext, mainTags);
     }
 
@@ -95,11 +88,8 @@ public class BallerinaMetricsObserver implements BallerinaObserver {
             // Do not collect metrics if the observation hasn't started
             return;
         }
-        String[] mainTags = new String[0];
-        if (!StringUtils.isEmpty(observerContext.getActionName())) {
-            mainTags = new String[]{TAG_KEY_ACTION, observerContext.getActionName(),
+        String[] mainTags = {TAG_KEY_ACTION, observerContext.getActionName(),
                     TAG_KEY_CONNECTOR_NAME, observerContext.getConnectorName()};
-        }
         stopObservation(observerContext, mainTags);
     }
 
