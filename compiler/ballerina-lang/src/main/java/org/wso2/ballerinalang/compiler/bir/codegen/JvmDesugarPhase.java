@@ -62,6 +62,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.getFuncti
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.getVariableDcl;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.nextId;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.nextVarId;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.getPackageName;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.symbolTable;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTerminatorGen.TerminatorGenerator.toNameString;
 import static org.wso2.ballerinalang.compiler.bir.model.BIRTerminator.Branch;
@@ -289,11 +290,18 @@ public class JvmDesugarPhase {
                     }
                 }
                 if (isRemote || isObservableAnnotationPresent) {
-                    String action = cleanupFunctionName(callIns.name.value);
+                    String action;
+                    if (callIns.name.value.contains(".")) {
+                        String[] split = callIns.name.value.split("\\.");
+                        action = split[1];
+                    } else {
+                        action = callIns.name.value;
+                    }
                     String connectorName;
                     if (callIns.isVirtual) {
                         BIRVariableDcl selfArg = getVariableDcl(callIns.args.get(0).variableDcl);
-                        connectorName = selfArg.type.tsymbol.name.value;
+                        connectorName = getPackageName(selfArg.type.tsymbol.pkgID.orgName,
+                                selfArg.type.tsymbol.pkgID.name) + "/" + selfArg.type.tsymbol.name.value;
                     } else {
                         connectorName = "";
                     }
