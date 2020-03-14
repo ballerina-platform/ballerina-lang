@@ -35,9 +35,13 @@ public type HttpCache object {
     #
     # + config - The configurations for the HTTP cache
     public function __init(CacheConfig cacheConfig) {
-            self.cache = new cache:Cache(cacheConfig.expiryTimeInMillis, cacheConfig.capacity, cacheConfig.evictionFactor);
-            self.policy = cacheConfig.policy;
-            self.isShared = cacheConfig.isShared;
+        cache:CacheConfig config = {
+            capacity: cacheConfig.capacity,
+            evictionFactor: cacheConfig.evictionFactor
+        };
+        self.cache = new cache:Cache(config);
+        self.policy = cacheConfig.policy;
+        self.isShared = cacheConfig.isShared;
     }
 
     function isAllowedToCache(Response response) returns boolean {
@@ -147,8 +151,13 @@ public type HttpCache object {
         return matchingResponses;
     }
 
-    function remove (string key) {
-        self.cache.remove(key);
+    function remove(string key) {
+        cache:Error? result = self.cache.invalidate(key);
+        if (result is cache:Error) {
+            log:printError(function() returns string {
+                return "Failed to remove the key: " + key + " from the HTTP cache.";
+            });
+        }
     }
 };
 
@@ -162,12 +171,17 @@ function isCacheableStatusCode(int statusCode) returns boolean {
 }
 
 function addEntry(cache:Cache cache, string key, Response inboundResponse) {
-    var existingResponses = cache.get(key);
-    if (existingResponses is Response[]) {
+    if (cache.hasKey(key)) {
+        Response[] existingResponses = <Response[]>cache.get(key);
         existingResponses[existingResponses.length()] = inboundResponse;
-    } else if (existingResponses is ()) {
+    } else {
         Response[] cachedResponses = [inboundResponse];
-        cache.put(key, cachedResponses);
+        cache:Error? result = cache.put(key, cachedResponses);
+        if (result is cache:Error) {
+            log:printError(function() returns string {
+                return "Failed to add cached response with the key: " + key + " to the HTTP cache.";
+            });
+        }
     }
 }
 

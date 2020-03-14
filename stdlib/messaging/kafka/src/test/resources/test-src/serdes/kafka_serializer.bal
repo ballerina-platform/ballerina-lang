@@ -63,7 +63,7 @@ public type PersonDeserializer object {
 PersonSerializer personSerializer = new;
 PersonDeserializer personDeserializer = new;
 
-kafka:ProducerConfig producerConfigs = {
+kafka:ProducerConfiguration producerConfigs = {
     bootstrapServers: "localhost:14113",
     clientId: "basic-producer",
     acks: kafka:ACKS_ALL,
@@ -74,7 +74,7 @@ kafka:ProducerConfig producerConfigs = {
 };
 kafka:Producer producer = new (producerConfigs);
 
-kafka:ConsumerConfig consumerConfigs = {
+kafka:ConsumerConfiguration consumerConfigs = {
     bootstrapServers: "localhost:14113",
     groupId: "test-group",
     clientId: "person-consumer",

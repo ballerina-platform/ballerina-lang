@@ -17,7 +17,7 @@
 */
 package org.ballerinalang.model.tree.expressions;
 
-import org.ballerinalang.model.tree.types.UserDefinedTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 
 import java.util.List;
 
@@ -26,7 +26,7 @@ import java.util.List;
  */
 public interface TypeInitNode extends ExpressionNode {
 
-    UserDefinedTypeNode getType();
+    BLangType getType();
 
     List<? extends ExpressionNode> getExpressions();
 

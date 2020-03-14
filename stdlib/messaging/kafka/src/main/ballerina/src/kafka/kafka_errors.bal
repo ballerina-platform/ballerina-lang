@@ -23,14 +23,16 @@ public type Detail record {
     error cause?;
 };
 
+# Defines a Kafka consumer related error
 public const CONSUMER_ERROR = "{ballerina/kafka}ConsumerError";
 
-# Kafka Consumer related errors
+# Represents a Kafka consumer related error
 public type ConsumerError error<CONSUMER_ERROR, Detail>;
 
+# Represents a Kafka producer related error
 public const PRODUCER_ERROR = "{ballerina/kafka}ProducerError";
 
-# Kafka Producer related errors
+# Represents a Kafka producer related error
 public type ProducerError error<PRODUCER_ERROR, Detail>;
 
 function getValueTypeMismatchError(string expectedType) returns ProducerError {

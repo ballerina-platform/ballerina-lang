@@ -42,7 +42,7 @@ dependencies {
         implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.9.8'
         implementation 'com.h2database:h2:1.4.199'
         implementation 'org.hsqldb:hsqldb:2.2.7'
-        implementation 'ch.vorburger.mariaDB4j:mariaDB4j:2.4.0'
+        implementation 'com.wix:wix-embedded-mysql:4.6.1'
         implementation 'mysql:mysql-connector-java:8.0.19'
         implementation 'com.github.chewiebug:gcviewer:1.35'
         implementation "com.github.jknack:handlebars:4.0.6"
@@ -51,6 +51,7 @@ dependencies {
         implementation 'com.google.code.gson:gson:2.8.5'
         implementation 'com.google.guava:guava:23.0'
         implementation 'com.moandjiezana.toml:toml4j:0.7.2'
+        implementation 'com.sun.mail:javax.mail:1.6.2'
         implementation 'com.squareup.okhttp3:okhttp:3.14.0'
         implementation 'com.squareup.okio:okio:2.2.2'
         implementation 'io.jaegertracing:jaeger-core:0.31.0'

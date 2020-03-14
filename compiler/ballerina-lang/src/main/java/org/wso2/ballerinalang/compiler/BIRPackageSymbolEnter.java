@@ -911,8 +911,12 @@ public class BIRPackageSymbolEnter {
                     typedescType.constraint = readTypeFromCp();
                     return typedescType;
                 case TypeTags.STREAM:
-                    BStreamType bStreamType = new BStreamType(TypeTags.STREAM, null, symTable.streamType.tsymbol);
+                    BStreamType bStreamType = new BStreamType(TypeTags.STREAM, null, null, symTable.streamType.tsymbol);
                     bStreamType.constraint = readTypeFromCp();
+                    boolean hasError = inputStream.readByte() == 1;
+                    if (hasError) {
+                        bStreamType.error = readTypeFromCp();
+                    }
                     return bStreamType;
                 case TypeTags.MAP:
                     BMapType bMapType = new BMapType(TypeTags.MAP, null, symTable.mapType.tsymbol);
@@ -1017,9 +1021,6 @@ public class BIRPackageSymbolEnter {
                     BFutureType bFutureType = new BFutureType(TypeTags.FUTURE, null, symTable.futureType.tsymbol);
                     bFutureType.constraint = readTypeFromCp();
                     return bFutureType;
-                case TypeTags.INTERMEDIATE_COLLECTION:
-                    // TODO fix
-                    break;
                 case TypeTags.FINITE:
                     String finiteTypeName = getStringCPEntryValue(inputStream);
                     int finiteTypeFlags = inputStream.readInt();
@@ -1103,10 +1104,20 @@ public class BIRPackageSymbolEnter {
                     break;
                 case SERVICE_TYPE_TAG:
                     return symTable.anyServiceType;
-//                case TypeTags.CHANNEL:
-
-//                case TypeTags.SERVICE:
-
+                case TypeTags.SIGNED32_INT:
+                    return symTable.signed32IntType;
+                case TypeTags.SIGNED16_INT:
+                    return symTable.signed16IntType;
+                case TypeTags.SIGNED8_INT:
+                    return symTable.signed8IntType;
+                case TypeTags.UNSIGNED32_INT:
+                    return symTable.unsigned32IntType;
+                case TypeTags.UNSIGNED16_INT:
+                    return symTable.unsigned16IntType;
+                case TypeTags.UNSIGNED8_INT:
+                    return symTable.unsigned8IntType;
+                case TypeTags.CHAR_STRING:
+                    return symTable.charStringType;
             }
             return null;
         }

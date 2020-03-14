@@ -69,6 +69,7 @@ import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLogHelper;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.util.Flags;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -161,6 +162,8 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
         validateNoParameters(constant);
         validateReturnParameter(constant, null, false);
         validateReferences(constant);
+        validateDeprecationDocumentation(constant.markdownDocumentationAttachment,
+                Symbols.isFlagOn(constant.symbol.flags, Flags.DEPRECATED), constant.pos);
     }
 
     @Override
@@ -184,6 +187,8 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
             hasReturn = ((BLangValueType) funcNode.returnTypeNode).typeKind != TypeKind.NIL;
         }
         validateReturnParameter(funcNode, funcNode, hasReturn);
+        validateDeprecationDocumentation(funcNode.markdownDocumentationAttachment,
+                Symbols.isFlagOn(funcNode.symbol.flags, Flags.DEPRECATED), funcNode.pos);
     }
 
     @Override
@@ -207,6 +212,9 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
                     DiagnosticCode.NO_SUCH_DOCUMENTABLE_FIELD, DiagnosticCode.FIELD_ALREADY_DOCUMENTED);
             validateReturnParameter(typeDefinition, null, false);
             validateReferences(typeDefinition);
+            for (SimpleVariableNode field : fields) {
+                validateReferences(field);
+            }
 
             ((BLangObjectTypeNode) typeDefinition.getTypeNode()).getFunctions().forEach(this::analyzeNode);
         } else if (typeDefinition.typeNode.getKind() == NodeKind.RECORD_TYPE) {
@@ -215,7 +223,13 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
                     DiagnosticCode.NO_SUCH_DOCUMENTABLE_FIELD, DiagnosticCode.FIELD_ALREADY_DOCUMENTED);
             validateReturnParameter(typeDefinition, null, false);
             validateReferences(typeDefinition);
+
+            for (SimpleVariableNode field : fields) {
+                validateReferences(field);
+            }
         }
+        validateDeprecationDocumentation(typeDefinition.markdownDocumentationAttachment,
+                Symbols.isFlagOn(typeDefinition.symbol.flags, Flags.DEPRECATED), typeDefinition.pos);
     }
 
     @Override
@@ -227,6 +241,21 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
 
         validateReturnParameter(resourceNode, null, false);
         validateReferences(resourceNode);
+    }
+
+    private void validateDeprecationDocumentation(BLangMarkdownDocumentation documentation,
+                                                  boolean isDeprecationAnnotationAvailable, DiagnosticPos pos) {
+        boolean isDeprecationDocumentationAvailable = false;
+        if (documentation != null && documentation.deprecationDocumentation != null &&
+                documentation.deprecationDocumentation.isCorrectDeprecationLine) {
+            isDeprecationDocumentationAvailable = true;
+        }
+
+        if (isDeprecationDocumentationAvailable && !isDeprecationAnnotationAvailable) {
+            dlog.error(pos, DiagnosticCode.INVALID_DEPRECATION_DOCUMENTATION);
+        } else if (!isDeprecationDocumentationAvailable && isDeprecationAnnotationAvailable) {
+            dlog.error(pos, DiagnosticCode.DEPRECATION_DOCUMENTATION_SHOULD_BE_AVAILABLE);
+        }
     }
 
     private void validateReferences(DocumentableNode documentableNode) {
@@ -400,17 +429,31 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
             return;
         }
 
+        // List that holds fields that are documented at field level.
+        List<String> fieldsDocumentedAtFieldLevel = new ArrayList<>();
+
+        for (SimpleVariableNode field : actualParameters) {
+            if (field.getMarkdownDocumentationAttachment() == null) {
+                continue;
+            }
+
+            fieldsDocumentedAtFieldLevel.add(field.getName().getValue());
+        }
+
         // Create a new map to add parameter name and parameter node as key-value pairs.
         Map<String, BLangMarkdownParameterDocumentation> documentedParameterMap = new HashMap<>();
-        documentation.parameters.forEach(parameter -> {
+
+        for (BLangMarkdownParameterDocumentation parameter : documentation.parameters) {
             String parameterName = parameter.getParameterName().getValue();
             // Check for parameters which are documented multiple times.
-            if (documentedParameterMap.containsKey(parameterName)) {
+            if (documentedParameterMap.containsKey(parameterName) ||
+                    fieldsDocumentedAtFieldLevel.contains(parameterName)) {
                 dlog.warning(parameter.pos, parameterAlreadyDefined, parameterName);
-            } else {
-                documentedParameterMap.put(parameterName, parameter);
+                continue;
             }
-        });
+
+            documentedParameterMap.put(parameterName, parameter);
+        }
 
         // Iterate through actual parameters.
         actualParameters.forEach(parameter -> {
@@ -422,9 +465,10 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
                 param.setSymbol(((BLangSimpleVariable) parameter).symbol);
                 documentedParameterMap.remove(name);
             } else {
-                // Check whether the parameter is public. Otherwise it is not mandatory to document it except if it is a
-                // public function parameter.
-                if (Symbols.isFlagOn(((BLangSimpleVariable) parameter).symbol.flags, Flags.PUBLIC)) {
+                // Check whether the g is public and whether there is no field documentation.
+                // It is mandatory to document only if it is public.
+                if (Symbols.isFlagOn(((BLangSimpleVariable) parameter).symbol.flags, Flags.PUBLIC) &&
+                        ((BLangSimpleVariable) parameter).markdownDocumentationAttachment == null) {
                     // Add warnings for undocumented parameters.
                     dlog.warning(((BLangNode) parameter).pos, undocumentedParameter, name);
                 }

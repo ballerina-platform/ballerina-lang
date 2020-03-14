@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -33,6 +33,9 @@ public interface BallerinaObjectFieldDefinition extends PsiElement {
   BallerinaTypeName getTypeName();
 
   @Nullable
+  BallerinaDocumentationString getDocumentationString();
+
+  @Nullable
   PsiElement getAssign();
 
   @Nullable
@@ -41,7 +44,7 @@ public interface BallerinaObjectFieldDefinition extends PsiElement {
   @Nullable
   PsiElement getSemicolon();
 
-  @NotNull
+  @Nullable
   PsiElement getIdentifier();
 
   @Nullable

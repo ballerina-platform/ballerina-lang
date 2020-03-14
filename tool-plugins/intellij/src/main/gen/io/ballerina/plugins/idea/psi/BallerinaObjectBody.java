@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -27,7 +27,7 @@ public interface BallerinaObjectBody extends PsiElement {
   List<BallerinaObjectFieldDefinition> getObjectFieldDefinitionList();
 
   @NotNull
-  List<BallerinaObjectFunctionDefinition> getObjectFunctionDefinitionList();
+  List<BallerinaObjectMethod> getObjectMethodList();
 
   @NotNull
   List<BallerinaTypeReference> getTypeReferenceList();

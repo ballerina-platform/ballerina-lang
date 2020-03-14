@@ -1,4 +1,4 @@
-// test with the return type having package alias
+import ballerina/http;
 
 function testAnonFunction() {
     function (string, http:Response, TestAnonRecord, TestAnonObject) returns (http:Response) anonFunction = 

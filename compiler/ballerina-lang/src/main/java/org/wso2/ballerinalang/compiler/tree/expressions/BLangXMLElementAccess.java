@@ -50,4 +50,14 @@ public class BLangXMLElementAccess extends BLangAccessExpression implements XMLE
     public NodeKind getKind() {
         return NodeKind.XML_ELEMENT_ACCESS;
     }
+
+    @Override
+    public List<BLangXMLElementFilter> getFilters() {
+        return this.filters;
+    }
+
+    @Override
+    public BLangExpression getExpression() {
+        return this.expr;
+    }
 }
