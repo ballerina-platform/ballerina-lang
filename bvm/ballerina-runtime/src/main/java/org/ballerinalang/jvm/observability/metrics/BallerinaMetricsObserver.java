@@ -133,8 +133,7 @@ public class BallerinaMetricsObserver implements BallerinaObserver {
     }
 
     private Gauge getInprogressGauge(Set<Tag> tags) {
-        return metricRegistry.gauge(new MetricId("inprogress_requests",
-                "Inprogress Requests", tags), StatisticConfig.DEFAULT);
+        return metricRegistry.gauge(new MetricId("inprogress_requests", "Inprogress Requests", tags));
     }
 
     private void handleError(String connectorName, Set<Tag> tags, RuntimeException e) {
