@@ -64,8 +64,8 @@
         "category": "Language concepts",
         "samples": [
             {
-                "name": "Basic documentations",
-                "url": "basic-documentations"
+                "name": "Basic documentation",
+                "url": "basic-documentation"
             },
             {
                 "name": "Deprecation",

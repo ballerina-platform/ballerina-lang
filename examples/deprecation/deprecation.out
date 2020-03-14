@@ -1,12 +1,12 @@
 # To run this sample, navigate to the directory that contains the
 # `.bal` file and execute the `ballerina run` command.
 $ ballerina run deprecation.bal
-warning: .::deprecation.bal:26:5: usage of construct 'Address' is deprecated
-warning: .::deprecation.bal:36:29: usage of construct 'Person' is deprecated
-warning: .::deprecation.bal:36:44: usage of construct 'Address' is deprecated
-warning: .::deprecation.bal:26:20: usage of construct 'CITY' is deprecated
-warning: .::deprecation.bal:36:72: usage of construct 'CITY' is deprecated
-warning: .::deprecation.bal:38:5: usage of construct 'Person.updateFirstName' is deprecated
-warning: .::deprecation.bal:49:5: usage of construct 'Person' is deprecated
-warning: .::deprecation.bal:51:5: usage of construct 'Address' is deprecated
-warning: .::deprecation.bal:58:5: usage of construct 'updatePerson' is deprecated
+warning: .::deprecation.bal:29:5: usage of construct 'Address' is deprecated
+warning: .::deprecation.bal:40:29: usage of construct 'Person' is deprecated
+warning: .::deprecation.bal:40:44: usage of construct 'Address' is deprecated
+warning: .::deprecation.bal:29:20: usage of construct 'CITY' is deprecated
+warning: .::deprecation.bal:40:72: usage of construct 'CITY' is deprecated
+warning: .::deprecation.bal:43:5: usage of construct 'Person.updateFirstName' is deprecated
+warning: .::deprecation.bal:56:5: usage of construct 'Person' is deprecated
+warning: .::deprecation.bal:59:5: usage of construct 'Address' is deprecated
+warning: .::deprecation.bal:66:5: usage of construct 'updatePerson' is deprecated
