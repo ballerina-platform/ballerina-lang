@@ -977,6 +977,142 @@ function testBitwiseAnd() {
     assertValueEqual(0, z);
 }
 
+function testBitwiseOr() {
+    ints:Signed8 a = 1;
+    ints:Signed16 b = -1567;
+    ints:Signed32 c = 139058;
+    int d = 6429485;
+
+    byte e = 23;
+    ints:Unsigned8 f = 12;
+    ints:Unsigned16 g = 2345;
+    ints:Unsigned32 h = 5739412;
+
+    ints:Signed8 i = -100;
+    ints:Signed16 j = 31267;
+    ints:Signed32 k = -2137483647;
+    int l = -9223372036854775808;
+
+    ints:Signed8 s81 = -1;
+    int res = s81 | s81;
+    assertValueEqual(-1, res);
+
+    byte v1 = 128;
+    ints:Signed16 v2 = 384;
+    int res2 = v1 | v2;
+    assertValueEqual(384, res2);
+
+    res2 = v2 | v1;
+    assertValueEqual(384, res2);
+
+    int n = c | i;
+    assertValueEqual(-66, n);
+
+    int o = j | b;
+    assertValueEqual(-1053, o);
+
+    int p = k | a;
+    assertValueEqual(-2137483647, p);
+
+    int q = b | l;
+    assertValueEqual(-1567, q);
+
+    int r = a | 1;
+    assertValueEqual(1, r);
+
+    int s = b | c;
+    assertValueEqual(-13, s);
+
+    int t = d | 2;
+    assertValueEqual(6429487, t);
+
+    byte u = e | e;
+    assertValueEqual(23, u);
+
+    int v = f | d;
+    assertValueEqual(6429485, v);
+
+    ints:Unsigned16 w = g | h;
+    assertValueEqual(39869, w);
+
+    ints:Unsigned8 x = h | f;
+    assertValueEqual(156, x);
+
+    int y = a | h;
+    assertValueEqual(5739413, y);
+
+    int z = f | b;
+    assertValueEqual(-1555, z);
+}
+
+function testBitwiseXor() {
+    ints:Signed8 a = 1;
+    ints:Signed16 b = -1567;
+    ints:Signed32 c = 139058;
+    int d = 6429485;
+
+    byte e = 23;
+    ints:Unsigned8 f = 12;
+    ints:Unsigned16 g = 2345;
+    ints:Unsigned32 h = 5739412;
+
+    ints:Signed8 i = -100;
+    ints:Signed16 j = 31267;
+    ints:Signed32 k = -2137483647;
+    int l = -9223372036854775808;
+
+    ints:Signed8 s81 = -1;
+    int res = s81 ^ s81;
+    assertValueEqual(0, res);
+
+    byte v1 = 128;
+    ints:Signed16 v2 = 384;
+    int res2 = v1 ^ v2;
+    assertValueEqual(256, res2);
+
+    res2 = v2 ^ v1;
+    assertValueEqual(256, res2);
+
+    int n = c ^ i;
+    assertValueEqual(-139090, n);
+
+    int o = j ^ b;
+    assertValueEqual(-31806, o);
+
+    int p = k ^ a;
+    assertValueEqual(-2137483648, p);
+
+    int q = b ^ l;
+    assertValueEqual(9223372036854774241, q);
+
+    int r = a ^ 1;
+    assertValueEqual(0, r);
+
+    int s = b ^ c;
+    assertValueEqual(-137517, s);
+
+    int t = d ^ 2;
+    assertValueEqual(6429487, t);
+
+    byte u = e ^ e;
+    assertValueEqual(0, u);
+
+    int v = f ^ d;
+    assertValueEqual(6429473, v);
+
+    ints:Unsigned16 w = g ^ h;
+    assertValueEqual(39613, w);
+
+    ints:Unsigned8 x = h ^ f;
+    assertValueEqual(152, x);
+
+    int y = a ^ h;
+    assertValueEqual(5739413, y);
+
+    int z = f ^ b;
+    assertValueEqual(-1555, z);
+}
+
 // Test Functions
 
 function assertValueEqual(anydata expected, anydata actual) {

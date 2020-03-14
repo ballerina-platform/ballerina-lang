@@ -94,6 +94,18 @@ public class TypeTags {
         return false;
     }
 
+    public static boolean isSignedIntegerTypeTag(int tag) {
+
+        switch (tag) {
+            case INT:
+            case SIGNED32_INT:
+            case SIGNED16_INT:
+            case SIGNED8_INT:
+                return true;
+        }
+        return false;
+    }
+
     public static boolean isXMLTypeTag(int tag) {
         switch (tag) {
             case XML:

@@ -66,6 +66,7 @@ import static org.objectweb.asm.Opcodes.GETSTATIC;
 import static org.objectweb.asm.Opcodes.GOTO;
 import static org.objectweb.asm.Opcodes.I2B;
 import static org.objectweb.asm.Opcodes.I2L;
+import static org.objectweb.asm.Opcodes.I2S;
 import static org.objectweb.asm.Opcodes.IADD;
 import static org.objectweb.asm.Opcodes.IAND;
 import static org.objectweb.asm.Opcodes.IASTORE;
@@ -125,6 +126,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ARRAY_VAL
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ARRAY_VALUE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BTYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BXML_QNAME;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BYTE_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.DECIMAL_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ERROR_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FUNCTION;
@@ -141,6 +143,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SHIFT_UTILS;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SHORT_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_UTILS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_VALUE;
@@ -948,29 +951,57 @@ public class JvmInstructionGen {
 
         void generateBitwiseOrIns(BinaryOp binaryIns) {
 
-            this.loadVar(binaryIns.rhsOp1.variableDcl);
-            this.loadVar(binaryIns.rhsOp2.variableDcl);
+            BType opType1 = binaryIns.rhsOp1.variableDcl.type;
+            BType opType2 = binaryIns.rhsOp2.variableDcl.type;
 
-            BType opType = binaryIns.rhsOp1.variableDcl.type;
-            if (TypeTags.isIntegerTypeTag(opType.tag)) {
-                this.mv.visitInsn(LOR);
-            } else {
+            if (opType1.tag == TypeTags.BYTE && opType2.tag == TypeTags.BYTE) {
+                this.loadVar(binaryIns.rhsOp1.variableDcl);
+                this.loadVar(binaryIns.rhsOp2.variableDcl);
                 this.mv.visitInsn(IOR);
+                this.storeToVar(binaryIns.lhsOp.variableDcl);
+                return;
             }
+
+            this.loadVar(binaryIns.rhsOp1.variableDcl);
+            generateCheckCast(this.mv, opType1, symbolTable.intType, this.indexMap);
+
+            this.loadVar(binaryIns.rhsOp2.variableDcl);
+            generateCheckCast(this.mv, opType2, symbolTable.intType, this.indexMap);
+
+            this.mv.visitInsn(LOR);
+
+            if (!TypeTags.isSignedIntegerTypeTag(opType1.tag) && !TypeTags.isSignedIntegerTypeTag(opType2.tag)) {
+                generateIntToUnsignedIntConversion(this.mv, getSmallerUnsignedIntSubType(opType1, opType2));
+            }
+
             this.storeToVar(binaryIns.lhsOp.variableDcl);
         }
 
         void generateBitwiseXorIns(BinaryOp binaryIns) {
 
-            this.loadVar(binaryIns.rhsOp1.variableDcl);
-            this.loadVar(binaryIns.rhsOp2.variableDcl);
+            BType opType1 = binaryIns.rhsOp1.variableDcl.type;
+            BType opType2 = binaryIns.rhsOp2.variableDcl.type;
 
-            BType opType = binaryIns.rhsOp1.variableDcl.type;
-            if (TypeTags.isIntegerTypeTag(opType.tag)) {
-                this.mv.visitInsn(LXOR);
-            } else {
+            if (opType1.tag == TypeTags.BYTE && opType2.tag == TypeTags.BYTE) {
+                this.loadVar(binaryIns.rhsOp1.variableDcl);
+                this.loadVar(binaryIns.rhsOp2.variableDcl);
                 this.mv.visitInsn(IXOR);
+                this.storeToVar(binaryIns.lhsOp.variableDcl);
+                return;
             }
+
+            this.loadVar(binaryIns.rhsOp1.variableDcl);
+            generateCheckCast(this.mv, opType1, symbolTable.intType, this.indexMap);
+
+            this.loadVar(binaryIns.rhsOp2.variableDcl);
+            generateCheckCast(this.mv, opType2, symbolTable.intType, this.indexMap);
+
+            this.mv.visitInsn(LXOR);
+
+            if (!TypeTags.isSignedIntegerTypeTag(opType1.tag) && !TypeTags.isSignedIntegerTypeTag(opType2.tag)) {
+                generateIntToUnsignedIntConversion(this.mv, getSmallerUnsignedIntSubType(opType1, opType2));
+            }
+
             this.storeToVar(binaryIns.lhsOp.variableDcl);
         }
 
@@ -1735,5 +1766,45 @@ public class JvmInstructionGen {
             throw new BLangCompilerException("JVM generation is not supported for type : " +
                     String.format("%s", bType));
         }
+    }
+
+    private static void generateIntToUnsignedIntConversion(MethodVisitor mv, BType targetType) {
+        switch (targetType.tag) {
+            case TypeTags.BYTE: // Wouldn't reach here for int atm.
+            case TypeTags.UNSIGNED8_INT:
+                mv.visitInsn(L2I);
+                mv.visitInsn(I2B);
+                mv.visitMethodInsn(INVOKESTATIC, BYTE_VALUE, "toUnsignedLong", "(B)J", false);
+                return;
+            case TypeTags.UNSIGNED16_INT:
+                mv.visitInsn(L2I);
+                mv.visitInsn(I2S);
+                mv.visitMethodInsn(INVOKESTATIC, SHORT_VALUE, "toUnsignedLong", "(S)J", false);
+                return;
+            case TypeTags.UNSIGNED32_INT:
+                mv.visitInsn(L2I);
+                mv.visitMethodInsn(INVOKESTATIC, INT_VALUE, "toUnsignedLong", "(I)J", false);
+        }
+    }
+
+    private static BType getSmallerUnsignedIntSubType(BType lhsType, BType rhsType) {
+        if (TypeTags.isSignedIntegerTypeTag(lhsType.tag) || TypeTags.isSignedIntegerTypeTag(rhsType.tag)) {
+            throw new BLangCompilerException("expected two unsigned int subtypes, found '" + lhsType + "' and '" +
+                                                     rhsType + "'");
+        }
+
+        if (lhsType.tag == TypeTags.BYTE || rhsType.tag == TypeTags.BYTE) {
+            return symbolTable.unsigned8IntType;
+        }
+
+        if (lhsType.tag == TypeTags.UNSIGNED8_INT || rhsType.tag == TypeTags.UNSIGNED8_INT) {
+            return symbolTable.unsigned8IntType;
+        }
+
+        if (lhsType.tag == TypeTags.UNSIGNED16_INT || rhsType.tag == TypeTags.UNSIGNED16_INT) {
+            return symbolTable.unsigned16IntType;
+        }
+
+        return symbolTable.unsigned32IntType;
     }
 }
