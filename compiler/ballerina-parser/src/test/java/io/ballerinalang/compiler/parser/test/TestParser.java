@@ -18,6 +18,7 @@
 package io.ballerinalang.compiler.parser.test;
 
 import io.ballerinalang.compiler.internal.parser.BallerinaParser;
+import io.ballerinalang.compiler.internal.parser.ParserFactory;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -44,7 +45,7 @@ public class TestParser {
 
     private static void testParser(String content) throws FileNotFoundException {
         long sTime = System.currentTimeMillis();
-        BallerinaParser parser = new BallerinaParser(content);
+        BallerinaParser parser = ParserFactory.getParser(content);
         parser.parse();
         OUT.println("Time: " + (System.currentTimeMillis() - sTime) / 1000.0);
     }

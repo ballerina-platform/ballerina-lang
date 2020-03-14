@@ -20,31 +20,33 @@ package io.ballerinalang.compiler.internal.parser.tree;
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.Token;
 
+/**
+ * Contains utility methods works with both internal and external syntax trees.
+ *
+ * @since 1.3.0
+ */
 public class SyntaxUtils {
 
     private SyntaxUtils() {
     }
 
-    public static SyntaxKind keywordKind(String value) {
-        switch (value) {
-            case "import":
-                return SyntaxKind.IMPORT_KEYWORD;
-            case "public":
-                return SyntaxKind.PUBLIC_KEYWORD;
-            case "function":
-                return SyntaxKind.FUNCTION_KEYWORD;
-            case "returns":
-                return SyntaxKind.RETURNS_KEYWORD;
-            case "return":
-                return SyntaxKind.RETURN_KEYWORD;
-            default:
-                return SyntaxKind.NONE;
-        }
-    }
-
-
     public static boolean isToken(Node blNode) {
         // TODO find a syntaxKind based approach to check
         return blNode instanceof Token;
+    }
+
+    public static boolean isNonTerminalNode(Node node) {
+        // TODO find a syntaxKind based approach to check
+        return !(node instanceof Token);
+    }
+
+    public static boolean isToken(STNode stNode) {
+        // TODO find a syntaxKind based approach to check
+        return stNode instanceof STToken;
+    }
+
+    public static boolean isNonTerminalNode(STNode node) {
+        // TODO find a syntaxKind based approach to check
+        return !isToken(node);
     }
 }

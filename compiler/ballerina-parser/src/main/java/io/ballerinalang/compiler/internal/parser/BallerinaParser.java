@@ -19,12 +19,10 @@ package io.ballerinalang.compiler.internal.parser;
 
 import io.ballerinalang.compiler.internal.parser.BallerinaParserErrorHandler.Action;
 import io.ballerinalang.compiler.internal.parser.BallerinaParserErrorHandler.Solution;
+import io.ballerinalang.compiler.internal.parser.incremental.UnmodifiedSubtreeSupplier;
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 import io.ballerinalang.compiler.internal.parser.tree.STToken;
 import io.ballerinalang.compiler.internal.parser.tree.SyntaxKind;
-import io.ballerinalang.compiler.syntax.tree.SyntaxTree;
-import io.ballerinalang.compiler.text.TextDocument;
-import io.ballerinalang.compiler.text.TextDocumentChange;
 
 /**
  * A LL(k) recursive-descent parser for ballerina.
@@ -35,27 +33,21 @@ public class BallerinaParser {
 
     private final BallerinaParserListener listner = new BallerinaParserListener();
     private final BallerinaParserErrorHandler errorHandler;
-    private final AbstractNodeSupplier tokenReader;
+    private final AbstractTokeReader tokenReader;
+    private final UnmodifiedSubtreeSupplier subtreeReader;
+    private final boolean isIncremental;
 
     private ParserRuleContext currentParamKind = ParserRuleContext.REQUIRED_PARAM;
 
-    public BallerinaParser(BallerinaLexer lexer) {
-        this.tokenReader = new TokenReader(lexer);
+    BallerinaParser(AbstractTokeReader tokenReader, UnmodifiedSubtreeSupplier subtreeReader) {
+        this.tokenReader = tokenReader;
         this.errorHandler = new BallerinaParserErrorHandler(tokenReader, listner, this);
+        this.subtreeReader = subtreeReader;
+        this.isIncremental = this.subtreeReader != null;
     }
 
-    public BallerinaParser(String source) {
-        this(new BallerinaLexer(source));
-    }
-
-    public BallerinaParser(TextDocument textDocument) {
-        this.tokenReader = new TokenReader(new BallerinaLexer(textDocument.getCharacterReader()));
-        this.errorHandler = new BallerinaParserErrorHandler(tokenReader, listner, this);
-    }
-
-    public BallerinaParser(SyntaxTree oldTree, TextDocument newTextDocument, TextDocumentChange textDocumentChange) {
-        this.tokenReader = new IntermixingNodeSupplier(oldTree, newTextDocument, textDocumentChange);
-        this.errorHandler = new BallerinaParserErrorHandler(tokenReader, listner, this);
+    BallerinaParser(AbstractTokeReader tokenReader) {
+        this(tokenReader, null);
     }
 
     /**
