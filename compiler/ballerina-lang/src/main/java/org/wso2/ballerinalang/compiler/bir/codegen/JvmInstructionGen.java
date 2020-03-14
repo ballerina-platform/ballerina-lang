@@ -129,6 +129,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.DECIMAL_V
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ERROR_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FUNCTION;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FUNCTION_POINTER;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.INT_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JSON_UTILS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LONG_STREAM;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAP_UTILS;
@@ -910,11 +911,10 @@ public class JvmInstructionGen {
             BType opType1 = binaryIns.rhsOp1.variableDcl.type;
             BType opType2 = binaryIns.rhsOp2.variableDcl.type;
 
-            if (TypeTags.isIntegerTypeTag(opType1.tag) && TypeTags.isIntegerTypeTag(opType2.tag)) {
-                this.loadVar(binaryIns.rhsOp1.variableDcl);
-                this.loadVar(binaryIns.rhsOp2.variableDcl);
-                this.mv.visitInsn(LAND);
-            } else {
+            int opType1Tag = opType1.tag;
+            int opType2Tag = opType2.tag;
+
+            if (opType1Tag == TypeTags.BYTE && opType2Tag == TypeTags.BYTE) {
                 this.loadVar(binaryIns.rhsOp1.variableDcl);
                 generateCheckCastToByte(this.mv, opType1);
 
@@ -922,7 +922,27 @@ public class JvmInstructionGen {
                 generateCheckCastToByte(this.mv, opType2);
 
                 this.mv.visitInsn(IAND);
+            } else {
+                boolean byteResult = false;
+
+                this.loadVar(binaryIns.rhsOp1.variableDcl);
+                if (opType1Tag == TypeTags.BYTE) {
+                    this.mv.visitMethodInsn(INVOKESTATIC, INT_VALUE, "toUnsignedLong", "(I)J", false);
+                    byteResult = true;
+                }
+
+                this.loadVar(binaryIns.rhsOp2.variableDcl);
+                if (opType2Tag == TypeTags.BYTE) {
+                    this.mv.visitMethodInsn(INVOKESTATIC, INT_VALUE, "toUnsignedLong", "(I)J", false);
+                    byteResult = true;
+                }
+
+                this.mv.visitInsn(LAND);
+                if (byteResult) {
+                    generateCheckCastToByte(this.mv, symbolTable.intType);
+                }
             }
+
             this.storeToVar(binaryIns.lhsOp.variableDcl);
         }
 

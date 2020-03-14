@@ -912,6 +912,71 @@ function 'testUnsigned32UnsignedRightShift() {
     assertValueEqual(1, k);
 }
 
+function testBitwiseAnd() {
+    ints:Signed8 a = 1;
+    ints:Signed16 b = -1567;
+    ints:Signed32 c = 139058;
+    int d = 6429485;
+
+    byte e = 23;
+    ints:Unsigned8 f = 12;
+    ints:Unsigned16 g = 2345;
+    ints:Unsigned32 h = 5739412;
+
+    ints:Signed8 i = -100;
+    ints:Signed16 j = 31267;
+    ints:Signed32 k = -2137483647;
+    int l = -9223372036854775808;
+
+    ints:Signed8 s81 = -1;
+    int res = s81 & s81;
+    assertValueEqual(-1, res);
+
+    byte v1 = 128;
+    ints:Signed16 v2 = 384;
+    byte res2 = v1 & v2;
+    assertValueEqual(128, res2);
+
+    int n = c & i;
+    assertValueEqual(139024, n);
+
+    int o = j & b;
+    assertValueEqual(30753, o);
+
+    int p = k & a;
+    assertValueEqual(1, p);
+
+    int q = b & l;
+    assertValueEqual(-9223372036854775808, q);
+
+    int r = a & 1;
+    assertValueEqual(1, r);
+
+    int s = b & c;
+    assertValueEqual(137504, s);
+
+    int t = d & 2;
+    assertValueEqual(0, t);
+
+    byte u = e & e;
+    assertValueEqual(23, u);
+
+    ints:Unsigned8 v = f & d;
+    assertValueEqual(12, v);
+
+    ints:Unsigned16 w = g & h;
+    assertValueEqual(256, w);
+
+    ints:Unsigned8 x = h & f;
+    assertValueEqual(4, x);
+
+    ints:Unsigned32 y = a & h;
+    assertValueEqual(0, y);
+
+    ints:Unsigned8 z = f & b;
+    assertValueEqual(0, z);
+}
+
 // Test Functions
 
 function assertValueEqual(anydata expected, anydata actual) {

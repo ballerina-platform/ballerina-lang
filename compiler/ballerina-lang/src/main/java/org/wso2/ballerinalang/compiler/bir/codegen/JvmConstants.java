@@ -40,6 +40,8 @@ public class JvmConstants {
     public static final String STRING_VALUE = "java/lang/String";
     public static final String BMP_STRING_VALUE = "org/ballerinalang/jvm/values/BmpStringValue";
     public static final String LONG_VALUE = "java/lang/Long";
+    public static final String BYTE_VALUE = "java/lang/Byte";
+    public static final String SHORT_VALUE = "java/lang/Short";
     public static final String BOOLEAN_VALUE = "java/lang/Boolean";
     public static final String DOUBLE_VALUE = "java/lang/Double";
     public static final String DECIMAL_VALUE = "org/ballerinalang/jvm/values/DecimalValue";
