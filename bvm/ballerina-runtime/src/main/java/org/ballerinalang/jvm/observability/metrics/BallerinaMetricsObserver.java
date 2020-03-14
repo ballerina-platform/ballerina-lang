@@ -69,7 +69,8 @@ public class BallerinaMetricsObserver implements BallerinaObserver {
     public void startClientObservation(ObserverContext observerContext) {
         observerContext.addMainTag(TAG_KEY_ACTION, observerContext.getActionName());
         observerContext.addMainTag(TAG_KEY_CONNECTOR_NAME, observerContext.getConnectorName());
-        if (!UNKNOWN_SERVICE.equals(observerContext.getServiceName())) {// If service is present, resource should be too
+        if (!UNKNOWN_SERVICE.equals(observerContext.getServiceName())) {
+            // If service is present, resource should be too
             observerContext.addMainTag(TAG_KEY_SERVICE, observerContext.getServiceName());
             observerContext.addMainTag(TAG_KEY_RESOURCE, observerContext.getResourceName());
         }
@@ -116,7 +117,7 @@ public class BallerinaMetricsObserver implements BallerinaObserver {
             getInprogressGauge(mainTags).decrement();
             metricRegistry.gauge(new MetricId("response_time_seconds", "Response Time",
                     allTags), responseTimeStatisticConfigs).setValue(duration / 1E9);
-            metricRegistry.counter(new MetricId("response_time_nanoseconds",
+            metricRegistry.counter(new MetricId("response_time_nanoseconds_total",
                     "Response Time Total Count", allTags)).increment(duration);
             metricRegistry.counter(new MetricId("requests_total",
                     "Total number of requests", allTags)).increment();
