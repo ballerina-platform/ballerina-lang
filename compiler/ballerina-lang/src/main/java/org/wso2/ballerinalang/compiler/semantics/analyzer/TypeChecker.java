@@ -309,7 +309,7 @@ public class TypeChecker extends BLangNodeVisitor {
         if (xmlNavigation.childIndex != null) {
             checkExpr(xmlNavigation.childIndex, env, symTable.intType);
         }
-        resultType = checkExpr(xmlNavigation.expr, env, expType);
+        resultType = checkExpr(xmlNavigation.expr, env, symTable.xmlType);
         // todo: we may need to add some logic to constrain result type to  @namedSubType type.
     }
 
@@ -1673,7 +1673,7 @@ public class TypeChecker extends BLangNodeVisitor {
                 && exprType.tag == TypeTags.UNION) {
             Set<BType> memberTypes = ((BUnionType) exprType).getMemberTypes();
             return memberTypes.contains(symTable.xmlType) || memberTypes.contains(symTable.xmlElementType);
-        }
+          }
 
         return false;
     }
