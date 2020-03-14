@@ -19,12 +19,6 @@
 package org.ballerinalang.nats.observability;
 
 import org.ballerinalang.jvm.observability.ObserverContext;
-import org.ballerinalang.jvm.observability.metrics.Tag;
-import org.ballerinalang.jvm.observability.metrics.Tags;
-
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
 
 /**
  * Extension of ObserverContext for NATS.
@@ -50,13 +44,6 @@ public class NatsObserverContext extends ObserverContext {
     public NatsObserverContext(String context, String url, String subject) {
         this(context, url);
         addTag(NatsObservabilityConstants.TAG_SUBJECT, subject);
-    }
-
-    Set<Tag> getAllTags() {
-        Map<String, String> tags = getTags();
-        Set<Tag> allTags = new HashSet<>(tags.size());
-        Tags.tags(allTags, tags);
-        return allTags;
     }
 
 }

@@ -20,13 +20,7 @@ package org.ballerinalang.net.http.websocket.observability;
 
 import org.ballerinalang.jvm.observability.ObservabilityConstants;
 import org.ballerinalang.jvm.observability.ObserverContext;
-import org.ballerinalang.jvm.observability.metrics.Tag;
-import org.ballerinalang.jvm.observability.metrics.Tags;
 import org.ballerinalang.net.http.websocket.server.WebSocketConnectionInfo;
-
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
 
 /**
  * Extension of ObserverContext for WebSockets.
@@ -57,9 +51,14 @@ public class WebSocketObserverContext extends ObserverContext {
      * @param connectionInfo  information regarding connection.
      */
     public void setTags(WebSocketConnectionInfo connectionInfo) {
-        addTag(WebSocketObservabilityConstants.TAG_CONTEXT,
-                    WebSocketObservabilityUtil.getClientOrServerContext(connectionInfo));
-        addTag(WebSocketObservabilityConstants.TAG_SERVICE, servicePathOrClientUrl);
+        String clientOrServerContext = WebSocketObservabilityUtil.getClientOrServerContext(connectionInfo);
+        if (WebSocketObservabilityConstants.CONTEXT_SERVER.equals(clientOrServerContext)) {
+            addMainTag(WebSocketObservabilityConstants.TAG_CONTEXT, clientOrServerContext);
+            addMainTag(WebSocketObservabilityConstants.TAG_SERVICE, servicePathOrClientUrl);
+        } else {
+            addTag(WebSocketObservabilityConstants.TAG_CONTEXT, clientOrServerContext);
+            addTag(WebSocketObservabilityConstants.TAG_SERVICE, servicePathOrClientUrl);
+        }
     }
 
     String getConnectionId() {
@@ -70,10 +69,4 @@ public class WebSocketObserverContext extends ObserverContext {
         return servicePathOrClientUrl;
     }
 
-    Set<Tag> getAllTags() {
-        Map<String, String> tags = getTags();
-        Set<Tag> allTags = new HashSet<>(tags.size());
-        Tags.tags(allTags, tags);
-        return allTags;
-    }
 }
