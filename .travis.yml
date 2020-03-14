@@ -20,6 +20,11 @@ sudo: required
 
 git:
   quiet: true
+  submodules: false
+
+before_install:
+  - sed -i 's/git@github.com:/https:\/\/github.com\//' .gitmodules
+  - git submodule update --init --recursive
 
 services:
   - docker
@@ -116,7 +121,7 @@ before_cache:
   - rm -fr $HOME/.gradle/caches/*/scripts/
 cache:
   directories:
-#    - $HOME/.gradle/caches/
+    - $HOME/.gradle/caches/
     - $HOME/.gradle/wrapper/
     - $HOME/.m2
 

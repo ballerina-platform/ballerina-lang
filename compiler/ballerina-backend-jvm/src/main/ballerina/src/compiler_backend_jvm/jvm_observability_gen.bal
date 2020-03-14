@@ -14,6 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/bir;
 import ballerina/io;
 import ballerina/jvm;
 import ballerina/stringutils;
@@ -81,4 +82,27 @@ function getFullQualifiedRemoteFunctionName(string moduleOrg, string moduleName,
         return funcName;
     }
     return moduleOrg + "/" + moduleName + "/" + funcName;
+}
+
+function isFunctionObserved(bir:Function func) returns boolean {
+    boolean isObserved = false;
+    string funcName = cleanupFunctionName(<@untainted> func.name.value);
+    if (funcName != "__init" && funcName != "$__init$") {
+        boolean isRemote = (func.flags & bir:REMOTE) == bir:REMOTE;
+        if (isRemote) {
+            isObserved = true;
+        } else {
+            foreach var attachment in func.annotAttachments {
+                if (attachment is bir:AnnotationAttachment) {
+                    string annotationFQN = attachment.moduleId.org + "/" + attachment.moduleId.name + "/"
+                        + attachment.annotTagRef.value;
+                    if (annotationFQN == OBSERVABLE_ANOTATION) {
+                        isObserved = true;
+                        break;
+                    }
+                }
+            }
+        }
+    }
+    return isObserved;
 }

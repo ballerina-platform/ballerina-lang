@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.jvm.observability;
 
+import org.apache.commons.lang3.StringUtils;
 import org.ballerinalang.jvm.observability.tracer.BSpan;
 import org.ballerinalang.jvm.values.ErrorValue;
 
@@ -56,7 +57,7 @@ public class TracingUtils {
                 observerContext.getServiceName() : ObservabilityConstants.UNKNOWN_SERVICE);
 
         if (isClient) {
-            span.setActionName(observerContext.getConnectorName() != null ?
+            span.setActionName(StringUtils.isNotEmpty(observerContext.getConnectorName()) ?
                     observerContext.getConnectorName() + SEPARATOR + observerContext.getActionName()
                     : observerContext.getActionName());
             observerContext.addProperty(PROPERTY_TRACE_PROPERTIES, span.getProperties());

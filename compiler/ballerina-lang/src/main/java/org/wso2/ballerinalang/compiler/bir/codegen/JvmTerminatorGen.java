@@ -981,7 +981,7 @@ public class JvmTerminatorGen {
             } else {
                 this.mv.visitMethodInsn(INVOKEVIRTUAL, FUNCTION_POINTER, "call",
                         String.format("(L%s;)L%s;", OBJECT, OBJECT), false);
-                // store reult
+                // store result
                 @Nilable BType lhsType = fpCall.lhsOp.variableDcl.type;
                 if (lhsType != null) {
                     addUnboxInsn(this.mv, lhsType);
@@ -1116,7 +1116,7 @@ public class JvmTerminatorGen {
                                   boolean isObserved /* = false */, int localVarOffset /* = -1 */) {
 
             if (isObserved) {
-                emitStopObservationInvocation(this.mv, localVarOffset);
+                emitStopObservationInvocation(this.mv);
             }
             BType bType = func.type.retType;
             if (bType.tag == TypeTags.NIL) {
