@@ -41,8 +41,8 @@ public class ObserverContext {
      * {@link Map} of values (with tag as map's key and tag value as map's value),
      * which is required to pass to observers.
      *
-     * {@link Map} is used here to stop {@link Set} objects being instantiated every-time tags are taken from
-     * the observer context to generate metrics.
+     * {@link Map} is used here to stop {@link Set} and @{link Tag} objects being instantiated
+     * every-time tags are taken from the observer context to generate metrics.
      *
      * These tags are updated before the a service resource function is hit in the runtime.
      * After that point only additional tags should be used.
