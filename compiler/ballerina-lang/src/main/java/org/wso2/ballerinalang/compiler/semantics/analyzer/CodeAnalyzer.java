@@ -2459,6 +2459,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
 
         analyzeNode(queryAction.doClause, env);
+        validateActionParentNode(queryAction.pos, queryAction);
     }
 
     @Override
