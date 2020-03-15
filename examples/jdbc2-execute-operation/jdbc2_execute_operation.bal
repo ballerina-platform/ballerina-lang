@@ -66,7 +66,7 @@ public function main() {
     // Initialize the JDBC client.
     jdbc:Client|sql:Error jdbcClient = new ("jdbc:h2:file:./target/customers", "rootUser", "rootPass");
     if (jdbcClient is jdbc:Client) {
-        // Initialize table and insert sample data.
+        // Initialize a table and insert sample data.
         int|string|sql:Error? initResult = initializeTable(jdbcClient);
         if (initResult is int) {
             // Update a record.
