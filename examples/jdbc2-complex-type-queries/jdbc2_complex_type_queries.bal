@@ -36,7 +36,7 @@ function queryBinaryType(jdbc:Client jdbcClient) {
     stream<record{}, error> resultStream = jdbcClient->query("Select * from BINARY_TYPES");
 
     io:println("Result 1:");
-    // If there is any error during the execution of the sql query or iteration of the
+    // If there is any error during the execution of the SQL query or iteration of the
     // result stream, the result stream will terminate and return the error.
     error? e = resultStream.forEach(function(record {} result) {
         io:println(result);
