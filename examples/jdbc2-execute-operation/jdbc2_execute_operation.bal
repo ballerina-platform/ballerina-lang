@@ -63,7 +63,7 @@ function deleteRecord(jdbc:Client jdbcClient, int generatedId) {
 }
 
 public function main() {
-    // Initialize the JDBC client
+    // Initialize the JDBC client.
     jdbc:Client|sql:Error jdbcClient = new ("jdbc:h2:file:./target/customers", "rootUser", "rootPass");
     if (jdbcClient is jdbc:Client) {
         // Initialize table and insert sample data.
