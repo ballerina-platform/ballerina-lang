@@ -31,7 +31,7 @@ type DateTimeType record {
 function queryBinaryType(jdbc:Client jdbcClient) {
     io:println("------ Query Binary Type -------");
     // Select the rows with binary data types.
-    // The name and type of the attributes within record from the `resultStream` will be automatically
+    // The name and type of the attributes within the record from the `resultStream` will be automatically
     // identified based on the column name and type of the query result.
     stream<record{}, error> resultStream = jdbcClient->query("Select * from BINARY_TYPES");
 
