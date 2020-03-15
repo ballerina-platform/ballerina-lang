@@ -3,7 +3,7 @@ import ballerina/java.jdbc;
 import ballerina/sql;
 
 function initializeTable(jdbc:Client jdbcClient) returns int|string|sql:Error? {
-    // Execute drop table. The sql:ExecuteResult is returned during the successful execution.
+    // Execute dropping the table. The `sql:ExecuteResult` is returned upon successful execution.
     // And error whill be returned in case of failure.
     sql:ExecuteResult? result = check jdbcClient->execute("DROP TABLE IF EXISTS Customers");
     if (result is sql:ExecuteResult) {
