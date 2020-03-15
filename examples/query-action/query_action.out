@@ -1,9 +1,8 @@
 # To run this sample, navigate to the directory that contains the
-# `.bal` file, and execute the `ballerina run` command.
+# `.bal` file and execute the `ballerina run` command.
 $ ballerina run query-action.bal
 
 Iterate record list and map it to another record type:
 firstName=Alex lastName=George
 firstName=Ranjan lastName=Fonseka
 firstName=John lastName=David
-
