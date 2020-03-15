@@ -50,7 +50,7 @@ function queryBinaryType(jdbc:Client jdbcClient) {
     stream<BinaryType, sql:Error> binaryResultStream = <stream<BinaryType, sql:Error>>resultStream;
 
     io:println("Result 2:");
-    // Iterate through the `binaryResultStream`.
+    // Iterate the `binaryResultStream`.
     e = binaryResultStream.forEach(function(BinaryType result) {
         io:println(result);
     });
