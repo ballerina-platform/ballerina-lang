@@ -11,7 +11,7 @@ function initializeTable(jdbc:Client jdbcClient) returns int|string|sql:Error? {
         io:println(result);
     }
     // Similarly, to drop a table, the `create` table query is executed. Here, the `customerId`
-    // is a auto generated column.
+    // is an auto-generated column.
     result = check jdbcClient->execute("CREATE TABLE IF NOT EXISTS Customers(customerId INTEGER " +
         "NOT NULL IDENTITY, firstName  VARCHAR(300),lastName  VARCHAR(300), registrationID INTEGER," +
         "creditLimit DOUBLE, country  VARCHAR(300), PRIMARY KEY (customerId))");
