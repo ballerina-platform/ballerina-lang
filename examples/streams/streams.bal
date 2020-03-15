@@ -57,7 +57,7 @@ public function main() {
 
     Student[] studentList = [s1, s2, s3];
 
-    //Iterable types can be converted to a stream
+    //Iterable types can be converted to a stream.
     stream<Student> studentStream = studentList.toStream();
 
     //`filter` and `map` functions return streams and work lazily
