@@ -64,7 +64,7 @@ function queryBinaryType(jdbc:Client jdbcClient) {
 function queryArrayType(jdbc:Client jdbcClient) {
     io:println("------ Query Array Type -------");
     // Select the rows with array data types.
-    // The name and type of the attributes within record from the `resultStream` will be automatically
+    // The name and type of the attributes within the record from the `resultStream` will be automatically
     // identified based on the column name and type of the query result.
     stream<record{}, error> resultStream = jdbcClient->query("Select * from ARRAY_TYPES");
 
