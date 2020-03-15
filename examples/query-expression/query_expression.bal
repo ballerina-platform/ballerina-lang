@@ -14,7 +14,7 @@ type Report record {
 };
 
 public function main() {
-    io:println("Iterating a record list and filtering students with score greater than 1:");
+    io:println("Iterating a record list and filtering students with a score greater than 1:");
 
     Student s1 = {firstName: "Alex", lastName: "George", intakeYear: 2020, score: 1.5};
     Student s2 = {firstName: "Ranjan", lastName: "Fonseka", intakeYear: 2020, score: 0.9};
