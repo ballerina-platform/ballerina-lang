@@ -33,7 +33,7 @@ function initializeTable(jdbc:Client jdbcClient) returns int|string|sql:Error? {
 }
 
 function updateRecord(jdbc:Client jdbcClient, int generatedId) {
-    // Update the record with the auto generated ID.
+    // Update the record with the auto-generated ID.
     string query = string `Update Customers set creditLimit = 15000.5 where customerId = ${generatedId}`;
     sql:ExecuteResult|sql:Error? result = jdbcClient->execute(query);
     if (result is sql:ExecuteResult) {
