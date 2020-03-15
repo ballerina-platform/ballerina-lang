@@ -409,7 +409,7 @@ public class XMLLiteralTest {
                 "{}{{ {{{ { } }} }}} - extra }<elem>{}{{</elem>");
     }
 
-    @Test ( description = "Test interpolating xml using different types")
+    @Test (description = "Test interpolating xml using different types")
     public void testXMLLiteralInterpolation() {
         BValue[] returns = BRunUtil.invoke(result, "testInterpolatingVariousTypes");
         Assert.assertTrue(returns[0] instanceof BXML);
