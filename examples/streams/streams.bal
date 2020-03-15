@@ -38,7 +38,7 @@ type Subscription record {|
 
 public function main() {
     io:println("Creating a stream using stream constructor: ");
-    OddNumberGenerator oddGen = new ();
+    OddNumberGenerator oddGen = new;
 
     //Construct a stream passing an OddNumberGenerator object
     var oddNumberStream = new stream<int,error>(oddGen);
