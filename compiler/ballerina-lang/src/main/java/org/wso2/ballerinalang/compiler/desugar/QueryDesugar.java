@@ -187,7 +187,7 @@ public class QueryDesugar extends BLangNodeVisitor {
         blockNode.stmts.add(parentForeach);
 
         BLangStatementExpression stmtExpr = ASTBuilderUtil.createStatementExpression(blockNode, outputVarRef);
-        stmtExpr.type = symTable.nilType;
+        stmtExpr.type = symTable.errorOrNilType;
         return stmtExpr;
     }
 
