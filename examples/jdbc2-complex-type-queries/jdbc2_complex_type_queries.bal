@@ -45,7 +45,7 @@ function queryBinaryType(jdbc:Client jdbcClient) {
         io:println(e);
     }
     // Since the `rowType` is provided as `BinaryType`, the `resultStream` will
-    // be having records in `BinaryType`.
+    // have `BinaryType` records.
     resultStream = jdbcClient->query("Select * from BINARY_TYPES", BinaryType);
     stream<BinaryType, sql:Error> binaryResultStream = <stream<BinaryType, sql:Error>>resultStream;
 
