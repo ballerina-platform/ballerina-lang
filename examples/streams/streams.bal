@@ -41,7 +41,7 @@ public function main() {
     OddNumberGenerator oddGen = new;
 
     //Construct a stream passing an OddNumberGenerator object
-    var oddNumberStream = new stream<int,error>(oddGen);
+    var oddNumberStream = new stream<int, error>(oddGen);
 
     record {|int value;|}|error? oddNumber = oddNumberStream.next();
 
