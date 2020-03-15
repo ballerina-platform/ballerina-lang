@@ -6,7 +6,7 @@ echo "Download complete"
 cd ballerina-lang/
 
 echo $PWD
-./gradlew clean build
+./gradlew clean build -x test -x check
 ./gradlew publishToMavenLocal
 cd ..
 
