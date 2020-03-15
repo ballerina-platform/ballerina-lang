@@ -73,9 +73,10 @@ public class JClass {
 
         Class sClass = c.getSuperclass();
         while (sClass != null) {
+            String simpleClassName = c.getSimpleName().replace("$", "");
             if (sClass.getName().equals(JAVA_OBJECT_CLASS_NAME)) {
-                superClasses.add(c.getSimpleName().replace("$", ""));
-                allClasses.add(c.getSimpleName().replace("$", ""));
+                superClasses.add(simpleClassName);
+                allClasses.add(simpleClassName);
                 break;
             }
             sClass = sClass.getSuperclass();
