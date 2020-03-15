@@ -2,5 +2,5 @@
 // binary, blobs, clob, and date/time fields.
 // Please note that, the relevant database driver jar
 //should be placed under `BALLERINA_HOME/bre/lib` folder. However this sample is based on
-//H2 database, and the H2 database driver jar is included by default into Ballerina distribution,
+//H2 database and the H2 database driver JAR is included by default in the Ballerina distribution.
 //therefore it is not required to copy the driver jar for H2 database. 
