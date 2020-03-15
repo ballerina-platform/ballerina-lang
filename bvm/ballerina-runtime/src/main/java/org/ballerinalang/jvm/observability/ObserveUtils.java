@@ -35,6 +35,7 @@ import java.util.function.Supplier;
 
 import static org.ballerinalang.jvm.observability.ObservabilityConstants.CONFIG_METRICS_ENABLED;
 import static org.ballerinalang.jvm.observability.ObservabilityConstants.CONFIG_TRACING_ENABLED;
+import static org.ballerinalang.jvm.observability.ObservabilityConstants.UNKNOWN_RESOURCE;
 import static org.ballerinalang.jvm.observability.ObservabilityConstants.UNKNOWN_SERVICE;
 import static org.ballerinalang.jvm.observability.tracer.TraceConstants.KEY_SPAN;
 
@@ -95,7 +96,7 @@ public class ObserveUtils {
         observerContext.setServer();
         observerContext.setStarted();
         for (Map.Entry<String, String> tagEntry : tags.entrySet()) {
-            observerContext.addTag(tagEntry.getKey(), tagEntry.getValue());
+            observerContext.addMainTag(tagEntry.getKey(), tagEntry.getValue());
         }
         observers.forEach(observer -> observer.startServerObservation(strand.observerContext));
         strand.setProperty(ObservabilityConstants.SERVICE_NAME, serviceName);
@@ -156,10 +157,11 @@ public class ObserveUtils {
         newObContext.setParent(observerCtx);
         newObContext.setStarted();
         newObContext.setServiceName(observerCtx == null ? UNKNOWN_SERVICE : observerCtx.getServiceName());
+        newObContext.setResourceName(observerCtx == null ? UNKNOWN_RESOURCE : observerCtx.getResourceName());
         newObContext.setConnectorName(connectorName);
         newObContext.setActionName(actionName);
         for (Map.Entry<String, String> tagEntry : tags.entrySet()) {
-            newObContext.addTag(tagEntry.getKey(), tagEntry.getValue());
+            newObContext.addMainTag(tagEntry.getKey(), tagEntry.getValue());
         }
         strand.observerContext = newObContext;
         observers.forEach(observer -> observer.startClientObservation(newObContext));

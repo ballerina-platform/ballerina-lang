@@ -21,12 +21,6 @@ package org.ballerinalang.messaging.rabbitmq.observability;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import org.ballerinalang.jvm.observability.ObserverContext;
-import org.ballerinalang.jvm.observability.metrics.Tag;
-import org.ballerinalang.jvm.observability.metrics.Tags;
-
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
 
 /**
  * Extension of ObserverContext for RabbitMQ.
@@ -49,10 +43,4 @@ public class RabbitMQObserverContext extends ObserverContext {
         addTag(RabbitMQObservabilityConstants.TAG_CHANNEL, channel.toString());
     }
 
-    Set<Tag> getAllTags() {
-        Map<String, String> tags = getTags();
-        Set<Tag> allTags = new HashSet<>(tags.size());
-        Tags.tags(allTags, tags);
-        return allTags;
-    }
 }
