@@ -17,7 +17,7 @@ function initializeTable(jdbc:Client jdbcClient) returns int|string|sql:Error? {
         "creditLimit DOUBLE, country  VARCHAR(300), PRIMARY KEY (customerId))");
 
     // Insert sample data into the table. The result will have `affectedRowCount` and `lastInsertedId`
-    // with the auto generated id of the last row.
+    // with the auto-generated ID of the last row.
     result = check jdbcClient->execute("INSERT INTO Customers (firstName,lastName,registrationID,creditLimit,country)" +
         "VALUES ('Peter', 'Stuart', 1, 5000.75, 'USA')");
     int|string? generatedId = ();
