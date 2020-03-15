@@ -301,7 +301,7 @@ public class JvmDesugarPhase {
                     if (callIns.isVirtual) {
                         BIRVariableDcl selfArg = getVariableDcl(callIns.args.get(0).variableDcl);
                         connectorName = getPackageName(selfArg.type.tsymbol.pkgID.orgName,
-                                selfArg.type.tsymbol.pkgID.name) + "/" + selfArg.type.tsymbol.name.value;
+                                selfArg.type.tsymbol.pkgID.name) + selfArg.type.tsymbol.name.value;
                     } else {
                         connectorName = "";
                     }
