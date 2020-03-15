@@ -23,7 +23,7 @@ public function main() {
         //`query-action` works similarly to a `foreach` statement.
         //It can be used to iterate through any iterable value.
         from var student in studentList
-        //The block inside the `do` clause is executed for each iteration.
+        // The block inside the `do` clause is executed for each iteration.
           do {
                 FullName fullName = {firstName: student.firstName, lastName: student.lastName};
                 nameList[nameList.length()] = fullName;
