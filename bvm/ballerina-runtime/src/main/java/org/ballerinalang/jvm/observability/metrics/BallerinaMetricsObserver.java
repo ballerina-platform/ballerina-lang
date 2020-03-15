@@ -22,6 +22,7 @@ import org.ballerinalang.jvm.observability.ObserverContext;
 
 import java.io.PrintStream;
 import java.time.Duration;
+import java.util.HashSet;
 import java.util.Set;
 
 import static org.ballerinalang.jvm.observability.ObservabilityConstants.PROPERTY_ERROR;
@@ -111,6 +112,11 @@ public class BallerinaMetricsObserver implements BallerinaObserver {
         // the combination of name and tags.
         Set<Tag> mainTags = observerContext.getMainTags();
         Set<Tag> allTags = observerContext.getAllTags();
+
+        Set<Tag> allTagsForCounts = new HashSet<>(allTags.size() + 1);
+        Tags.tags(allTagsForCounts, allTags);
+        Boolean error = (Boolean) observerContext.getProperty(PROPERTY_ERROR);
+        Tags.tag(allTagsForCounts, "error", String.valueOf(error != null && error));
         try {
             Long startTime = (Long) observerContext.getProperty(PROPERTY_START_TIME);
             long duration = System.nanoTime() - startTime;
@@ -120,12 +126,7 @@ public class BallerinaMetricsObserver implements BallerinaObserver {
             metricRegistry.counter(new MetricId("response_time_nanoseconds_total",
                     "Response Time Total Count", allTags)).increment(duration);
             metricRegistry.counter(new MetricId("requests_total",
-                    "Total number of requests", allTags)).increment();
-            Boolean error = (Boolean) observerContext.getProperty(PROPERTY_ERROR);
-            if (error != null && error) {
-                metricRegistry.counter(new MetricId("failed_requests_total",
-                        "Total number of failed requests", allTags)).increment();
-            }
+                    "Total number of requests", allTagsForCounts)).increment();
         } catch (RuntimeException e) {
             String connectorName = observerContext.getConnectorName();
             handleError(connectorName, allTags, e);
