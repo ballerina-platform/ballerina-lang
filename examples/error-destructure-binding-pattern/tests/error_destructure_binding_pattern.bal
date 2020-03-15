@@ -1,4 +1,3 @@
-import ballerina/io;
 import ballerina/test;
 
 any[] outputs = [];
@@ -10,18 +9,26 @@ int counter = 0;
     functionName: "println"
 }
 public function mockPrint(any... s) {
-    outputs[counter] = s[0];
-    counter += 1;
+    foreach var entry in s {
+        outputs[counter] = entry;
+        counter += 1;
+    }
 }
 
-@test:Config
+@test:Config {}
 function testFunc() {
     // Invoking the main function
     main();
     test:assertEquals(outputs[0], "Reason String: Sample Error");
-    test:assertEquals(outputs[1], "Detail Mapping: {\"detail\":\"Detail Msg\", \"fatal\":true}");
-    test:assertEquals(outputs[2], "Reason String: Sample Error");
-    test:assertEquals(outputs[3], "Detail Mapping Field One: Detail Msg");
-    test:assertEquals(outputs[4], "Detail Mapping Field Two: true");
-    test:assertEquals(outputs[5], "Detail Mapping: {detailMsg:\"Failed Message\", isFatal:true}");
+    test:assertEquals(outputs[1], "Info: ");
+    test:assertEquals(outputs[2], "Detail Info");
+    test:assertEquals(outputs[3], "Fatal: ");
+    test:assertEquals(outputs[4], true);
+    test:assertEquals(outputs[5], "Reason String: ");
+    test:assertEquals(outputs[6], "Sample Error");
+    test:assertEquals(outputs[7], "Detail Map: ");
+    test:assertEquals(outputs[8].toString(), "info=Detail Info fatal=true");
+    test:assertEquals(outputs[9], "Detail Message: ");
+    test:assertEquals(outputs[10], "Failed Message");
+
 }

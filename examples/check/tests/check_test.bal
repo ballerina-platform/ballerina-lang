@@ -1,5 +1,4 @@
 import ballerina/test;
-import ballerina/io;
 
 (any|error)[] outputs = [];
 int counter = 0;
@@ -13,7 +12,7 @@ public function mockPrint(any|error... s) {
 
     foreach any|error a in s {
         if (a is error) {
-            outputs[counter] = a.detail().message;
+            outputs[counter] = a;
         } else {
             outputs[counter] = a;
         }
@@ -21,12 +20,12 @@ public function mockPrint(any|error... s) {
     }
 }
 
-@test:Config
+@test:Config {}
 function testFunc() {
     // call the main function
     main();
     test:assertEquals(outputs[0], 12);
-    test:assertEquals(outputs[1], "incompatible convert operation: 'string' value 'invalid' cannot be converted as 'int'");
+    test:assertEquals(outputs[1].toString(), "error {ballerina/lang.int}NumberParsingError message='string' value 'invalid' cannot be converted to 'int'");
     test:assertEquals(outputs[2], 120);
-    test:assertEquals(outputs[3], "incompatible convert operation: 'string' value 'Invalid' cannot be converted as 'int'");
+    test:assertEquals(outputs[3].toString(), "error {ballerina/lang.int}NumberParsingError message='string' value 'Invalid' cannot be converted to 'int'");
 }

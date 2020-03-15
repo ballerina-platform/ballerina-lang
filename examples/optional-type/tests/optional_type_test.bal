@@ -10,16 +10,18 @@ int counter = 0;
     functionName: "println"
 }
 public function mockPrint(any... s) {
-    outputs[counter] = s[0];
+    string outstr = "";
+    foreach var str in s {
+        outstr = outstr + str.toString();
+    }
+    outputs[counter] = outstr;
     counter += 1;
 }
 
-@test:Config
+@test:Config {}
 function testFunc() {
     // Invoking the main function
     main();
-    test:assertEquals(outputs[1], ());
-    test:assertEquals(io:sprintf("%s", outputs[2]),
-        "{line01:\"No. 61\", line02:\"Brandon street\", city:\"Santa Clara\", state:\"CA\", zipcode:\"95134\"}"
-    );
+    test:assertEquals(outputs[0], "Length of the string: 11");
+    test:assertEquals(io:sprintf("%s", outputs[1]), "s is ()");
 }
