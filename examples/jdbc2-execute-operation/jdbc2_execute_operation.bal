@@ -20,16 +20,12 @@ function initializeTable(jdbc:Client jdbcClient) returns int|string|sql:Error? {
     // with the auto-generated ID of the last row.
     result = check jdbcClient->execute("INSERT INTO Customers (firstName,lastName,registrationID,creditLimit,country)" +
         "VALUES ('Peter', 'Stuart', 1, 5000.75, 'USA')");
-    int|string? generatedId = ();
 
     if (result is sql:ExecuteResult) {
-        io:print("Rows affected: ");
-        io:println(result.affectedRowCount);
-        io:print("Generated Customer ID: ");
-        io:println(result.lastInsertId);
-        generatedId = result.lastInsertId;
+        io:print("Rows affected: ", result.affectedRowCount);
+        io:print("Generated Customer ID: ", result.lastInsertId);
+        return result.lastInsertId;
     }
-    return generatedId;
 }
 
 function updateRecord(jdbc:Client jdbcClient, int generatedId) {
@@ -40,7 +36,7 @@ function updateRecord(jdbc:Client jdbcClient, int generatedId) {
         io:print("Updated Row count: ");
         io:println(result?.affectedRowCount);
     } else if (result is sql:Error) {
-        io:println("Error occured: ");
+        io:println("Error occurred: ");
         io:println(result);
     } else {
         io:println("Empty result");

@@ -1,5 +1,5 @@
-# At the command line, navigate to the directory that contains the
-# `.bal` file and run the `ballerina run` command.
+#  To run this sample, navigate to the directory that contains the
+# `.bal` file and execute the `ballerina run` command.
 $ ballerina run mysql-complex-type-queries.bal
 
 ------ Query Binary Type -------
@@ -14,4 +14,4 @@ row_id=1 date_type=2017-05-23+05:30 time_type=19:45:23.000+05:30 timestamp_type=
 Result 2:
 row_id=1 date_type=2017-05-23+05:30 time_type=51323000 timestamp_type=time=1485362035000 zone=id=UTC offset=0 datetime_type=2017-01-25T22:03:55.000+05:30
 ------ ********* -------
-Successfully executed the sample!
+Sample executed successfully!

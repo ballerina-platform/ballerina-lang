@@ -2,19 +2,19 @@ import ballerina/io;
 import ballerina/mysql;
 import ballerina/sql;
 
-//Username and password of MySQL database. This is used in below examples when initializing the
-//MySQL connector. Please change these based on your setup if you want to try locally.
+//Username and password of the MySQL database. This is used in the below examples when initializing the
+//MySQL connector. You need to change these based on your setup to try locally.
 string dbUser = "root";
 string dbPassword = "Test@123";
 
 function simpleQuery(mysql:Client mysqlClient) {
     io:println("------ Start Simple Query -------");
-    // Select the rows in the database table via query remote operation.
-    // The result is returned as a stream, and the elements of the stream can
-    // be either record or error.
+    // Select the rows in the database table via the query remote operation.
+    // The result is returned as a stream and the elements of the stream can
+    // be either a record or an error.
     stream<record{}, error> resultStream = mysqlClient->query("Select * from Customers");
 
-    // If there is any error during the execution of the sql query or iteration of the
+    // If there is any error during the execution of the SQL query or iteration of the
     //  result stream, the result stream will terminate and return the error.
     error? e = resultStream.forEach(function(record {} result) {
         io:println(result);
@@ -24,7 +24,7 @@ function simpleQuery(mysql:Client mysqlClient) {
         io:println(result["LastName"]);
     });
 
-    // Check and handle the error during the sql query
+    // Check and handle the error during the SQL query
     // or iteration of the result stream.
     if (e is error) {
         io:println("ForEach operation on the stream failed!");
@@ -40,10 +40,10 @@ function simpleQuery(mysql:Client mysqlClient) {
 
 function countRows(mysql:Client mysqlClient) {
     io:println("------ Start Count Total Rows -------");
-    // The result of the count operation is provided as record stream.
+    // The result of the count operation is provided as a record stream.
     stream<record{}, error> resultStream = mysqlClient->query("Select count(*) as Total from Customers");
 
-    // Since the above count query will return only single row, next() operation is sufficient
+    // Since the above count query will return only a single row, the `next()` operation is sufficient
     // to retrieve the data.
     record {|record {} value;|}|error? result = resultStream.next();
 
@@ -62,10 +62,10 @@ function countRows(mysql:Client mysqlClient) {
     io:println("------ End Count Total Rows -------");
 }
 
-//Define a record to load the query result schema as shown in function 'typedQuery' below.
-//In this example, all columns of the customer table will be loaded,
-//therefore creating `Customer` record with all columns. The result's column name
-//and the defined field name of the record will be matched with case insensitively.
+//Define a record to load the query result schema as shown in the below 'typedQuery' function.
+//In this example, all columns of the customer table will be loaded.
+//Therefore, a `Customer` record will be created with all the columns. The name of the result column
+//and the defined field name of the record will be matched case insensitively.
 type Customer record {
     int customerId;
     string lastName;
@@ -77,14 +77,14 @@ type Customer record {
 
 function typedQuery(mysql:Client mysqlClient) {
     io:println("------ Start Query With Type Description -------");
-    // The result is returned as a Customer record stream, and the elements
-    // of the stream can be either Customer record or error.
+    // The result is returned as a Customer record stream and the elements
+    // of the stream can be either a Customer record or an error.
     stream<record{}, error> resultStream = mysqlClient->query("Select * from Customers", Customer);
 
-    // Cast to the generic record type to the Customer stream type.
+    // Cast the generic record type to the Customer stream type.
     stream<Customer, sql:Error> customerStream = <stream<Customer, sql:Error>>resultStream;
 
-    // Iterate through the customer stream.
+    // Iterate the customer stream.
     error? e = customerStream.forEach(function(Customer customer) {
         io:println(customer);
     });
@@ -114,7 +114,7 @@ function initializeTable() returns sql:Error? {
 }
 
 public function main() {
-    // Initialize the MySQL client
+    // Initialize the MySQL client.
     sql:Error? err = initializeTable();
     if (err is sql:Error) {
         io:println("Sample data initialization failed!");
@@ -122,7 +122,7 @@ public function main() {
     } else {
         mysql:Client|sql:Error mysqlClient = new (user = dbUser, password = dbPassword, database = "MYSQL_BBE");
         if (mysqlClient is mysql:Client) {
-            // Executes the select queries in different options.
+            // Execute the `select` queries in different options.
             simpleQuery(mysqlClient);
             countRows(mysqlClient);
             typedQuery(mysqlClient);

@@ -1,4 +1,4 @@
-// This example demonstrates how to use the JDBC client select query operations with stream return type.
-//Please note that, the MySQL database driver jar should be placed under `BALLERINA_HOME/bre/lib`.
-//The MySQL connector uses some database properties from MySQL version 8.0.x onwards, therefore it is
-//encouraged to use MySQL driver version greater than 8.0.x.
+// This example demonstrates how to use the JDBC client select query operations with the stream return type.
+//Note that the MySQL database driver JAR should be placed in the `BALLERINA_HOME/bre/lib` directory.
+//The MySQL connector uses database properties from MySQL version 8.0.x onwards. Therefore, it is
+//recommended to use a MySQL driver version greater than 8.0.x.

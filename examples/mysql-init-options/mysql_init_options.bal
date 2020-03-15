@@ -2,13 +2,13 @@ import ballerina/io;
 import ballerina/mysql;
 import ballerina/sql;
 
-//Username and password of MySQL database. This is used in below examples when initializing the
-//MySQL connector. Please change these based on your setup if you want to try locally.
+//Username and password of the MySQL database. This is used in the below examples when initializing the
+//MySQL connector. You need to change these based on your setup to try locally.
 string dbUser = "root";
 string dbPassword = "Test@123";
 
 function initializeClients() returns sql:Error? {
-    // Initialize MySQL Client without any parameters. In that case all parameters
+    // Initialize the MySQL Client without any parameters. In that case, all parameters
     // will be using the default values:`localhost` for host, `3306` for port,
     // and `()` for user, password, and database.
     mysql:Client|sql:Error mysqlClient1 = new ();
@@ -20,38 +20,38 @@ function initializeClients() returns sql:Error? {
         check mysqlClient1.close();
     }
 
-    // Initialize the MySQL client along with username and password.
+    // Initialize the MySQL client by providing the username and password.
     mysql:Client mysqlClient2 = check new ("localhost", dbUser, dbPassword);
     io:println("MySQL client with user and password created.");
 
-    // Initialize the MySQL client along with username and password with default host.
+    // Initialize the MySQL client by providing the username, password, and default host.
     mysql:Client mysqlClient3 = check new (user = dbUser, password = dbPassword);
     io:println("MySQL client with user and password created with default host.");
 
-    // Initialize the MySQL client along with host, user, password, database and port.
+    // Initialize the MySQL client by providing the host, username, password, database, and port.
     mysql:Client mysqlClient4 = check new ("localhost", dbUser, dbPassword, "information_schema", 3306);
     io:println("MySQL client with host, user, password, database and port created.");
 
-    // Initialize the MySQL client along with some additional
-    // mysql database properties.
+    // Initialize the MySQL client by providing additional
+    // MySQL database properties.
     mysql:Options mysqlOptions = {
-        // SSL is enabled by default, and default mode is `sql:SSL_PREFERRED`.
+        // SSL is enabled by default and the default mode is `sql:SSL_PREFERRED`.
         // SSL will be disabled, if `ssl` is assigned to `()`.
         ssl: {
             // Possible options for mode are `sql:SSL_PREFERRED`, `sql:SSL_REQUIRED`,
-            // `sql:SSL_VERIFY_CERT` and `sql:SSL_VERIFY_IDENTITY`. Understand each mode by referring to
-            // MySQL reference (https://dev.mysql.com/doc/refman/8.0/en/using-encrypted-connections.html).
+            // `sql:SSL_VERIFY_CERT`, and `sql:SSL_VERIFY_IDENTITY`. For details on each mode, go to 
+            // the MySQL reference (https://dev.mysql.com/doc/refman/8.0/en/using-encrypted-connections.html).
             mode: mysql:SSL_PREFERRED
         },
         connectTimeoutInSeconds: 10
     };
-    // Initialize MySQL client with mysql database options.
+    // Initialize the MySQL client with MySQL database options.
     mysql:Client mysqlClient5 = check new (user = dbUser, password = dbPassword, options = mysqlOptions);
     io:println("MySQL client with database options created.");
 
-    // Connection pool is used to share use the connections efficiently to the database.
-    // In the above samples, the global connection pool is created, and shared
-    // among all database clients since the `connectionPool` property is not set.
+    // Connection pool is used to share and use the database connections efficiently.
+    // In the above samples, the global connection pool is created and shared
+    // among all the database clients since the `connectionPool` property is not set.
     sql:ConnectionPool connPool = {
         // Default max number of open connections in the connection pool is 15.
         maxOpenConnections: 5,
@@ -67,17 +67,17 @@ function initializeClients() returns sql:Error? {
         connectionPool = connPool);
     io:println("MySQL client with connection pool created.");
 
-    // Initialize the MySQL client with all parameters.
+    // Initialize the MySQL client with all the parameters.
     mysql:Client mysqlClient7 = check new ("localhost", dbUser, dbPassword, "information_schema", 3306,
         mysqlOptions, connPool);
 
     // All properties are optional.
-    // And hence named attributes can be used to specifically assign the attributes.
+    // Hence, named attributes can be used specifically to assign the attributes.
     mysql:Client mysqlClient8 = check new (host = "localhost", user = dbUser, password = dbPassword,
         database = "information_schema", port = 3306, options = mysqlOptions, connectionPool = connPool);
 
     // Close the clients to release the resource
-    // and destroy the underneath connection pool.
+    // and destroy the connection pool.
     check mysqlClient2.close();
     check mysqlClient3.close();
     check mysqlClient4.close();
