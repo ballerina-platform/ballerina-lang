@@ -48,7 +48,7 @@ function updateRecord(jdbc:Client jdbcClient, int generatedId) {
 }
 
 function deleteRecord(jdbc:Client jdbcClient, int generatedId) {
-    // Delete the record with the auto generated ID.
+    // Delete the record with the auto-generated ID.
     string query = string `Delete from Customers where customerId = ${generatedId}`;
     sql:ExecuteResult|sql:Error? result = jdbcClient->execute(query);
     if (result is sql:ExecuteResult) {
