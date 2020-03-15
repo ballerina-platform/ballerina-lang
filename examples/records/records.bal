@@ -28,12 +28,21 @@ type Grades record {|
 
 
 public function main() {
+
+    int age = 17;
+
     // This creates a `Student` record. Since all the fields are required and none of the fields
     // have explicit default values assigned to them, values must be specified for all the fields
     // when creating the record.
     Student john = {
+        // A field can be specified as a key-value pair.
         name: "John Doe",
-        age: 17,
+        // A variable reference can also be used to define a field.
+        // The name of the variable will be used as the key, while
+        // the variable reference itself will be used as the value
+        // expression.
+        // This is equivalent to `age: age`.
+        age,
         grades: {
             maths: 80,
             physics: 75,
