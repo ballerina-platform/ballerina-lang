@@ -2809,11 +2809,10 @@ public class TypeChecker extends BLangNodeVisitor {
         SymbolEnv blockEnv = SymbolEnv.createBlockEnv(doClauseNode.body, whereEnv);
         // Analyze foreach node's statements.
         semanticAnalyzer.analyzeStmt(doClauseNode.body, blockEnv);
+        BType actualType = BUnionType.create(null, symTable.errorType, symTable.nilType);
 
-        BType returnType = types.checkType(doClauseNode.pos, symTable.nilType, expType,
+        resultType = types.checkType(doClauseNode.pos, actualType, expType,
                 DiagnosticCode.INCOMPATIBLE_TYPES);
-
-        resultType = returnType == symTable.semanticError ? returnType : symTable.nilType;
     }
 
     private SymbolEnv typeCheckFromClause(BLangFromClause fromClause, SymbolEnv parentEnv) {

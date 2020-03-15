@@ -171,9 +171,9 @@ public class QueryDesugar extends BLangNodeVisitor {
 
         BLangExpression nilExpression = ASTBuilderUtil.createLiteral(pos, symTable.nilType, Names.NIL_VALUE);
         BVarSymbol outputVarSymbol = new BVarSymbol(0, new Name("$outputVar$"),
-                env.scope.owner.pkgID, symTable.nilType, env.scope.owner);
+                env.scope.owner.pkgID, symTable.errorOrNilType, env.scope.owner);
         BLangSimpleVariable outputVariable =
-                ASTBuilderUtil.createVariable(pos, "$outputVar$", symTable.nilType,
+                ASTBuilderUtil.createVariable(pos, "$outputVar$", symTable.errorOrNilType,
                         nilExpression, outputVarSymbol);
         BLangSimpleVariableDef outputVariableDef =
                 ASTBuilderUtil.createVariableDef(pos, outputVariable);
