@@ -34,6 +34,7 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
 import java.util.regex.Matcher;
 
@@ -91,14 +92,13 @@ public class AIDataMapperCodeAction extends AbstractCodeActionProvider {
     public static CodeAction getAIDataMapperCommand(LSDocumentIdentifier document, Diagnostic diagnostic,
                                                     LSContext context) {
         /* TODO: Complete the command and code action */
-        Position position = diagnostic.getRange().getStart();
-        String diagnosedContent = getDiagnosedContent(diagnostic, context, document);
+        Position startingPosition = diagnostic.getRange().getStart();
+        Position endingPosition = diagnostic.getRange().getEnd();
 
         try {
-            Position afterAliasPos = offsetInvocation(diagnosedContent, position);
+            Position afterAliasPos = new Position(startingPosition.getLine(), (startingPosition.getCharacter() + endingPosition.getCharacter()) / 2);
             SymbolReferencesModel.Reference refAtCursor = getReferenceAtCursor(context, document, afterAliasPos);
             int symbolAtCursorTag = refAtCursor.getSymbol().type.tag;
-//            int  = symbolAtCursor.type.tag;
 
             if (symbolAtCursorTag == 12) { // tag 12 is user defined records or non-primitive types (?)
                 String commandTitle = "AI Data Mapper";
@@ -107,13 +107,17 @@ public class AIDataMapperCodeAction extends AbstractCodeActionProvider {
                 action.setKind(CodeActionKind.QuickFix);
 
                 String uri = context.get(DocumentServiceKeys.FILE_URI_KEY);
-                List<TextEdit> fEdits = getAIDataMapperCodeActionEdits(document, context,refAtCursor, diagnostic);
-                action.setEdit(new WorkspaceEdit(Collections.singletonList(Either.forLeft(
-                        new TextDocumentEdit(new VersionedTextDocumentIdentifier(uri, null), fEdits)))));
+                List<TextEdit> fEdits = getAIDataMapperCodeActionEdits(document, context, refAtCursor, diagnostic);
+                if (fEdits.size() == 0) {
+                    return null;
+                } else {
+                    action.setEdit(new WorkspaceEdit(Collections.singletonList(Either.forLeft(
+                            new TextDocumentEdit(new VersionedTextDocumentIdentifier(uri, null), fEdits)))));
 
-                List<Diagnostic> diagnostics = new ArrayList<>();
-                action.setDiagnostics(diagnostics);
-                return action;
+                    List<Diagnostic> diagnostics = new ArrayList<>();
+                    action.setDiagnostics(diagnostics);
+                    return action;
+                }
             } else {
                 return null;
             }
@@ -124,7 +128,7 @@ public class AIDataMapperCodeAction extends AbstractCodeActionProvider {
         return null;
     }
 
-    private static List<TextEdit> getAIDataMapperCodeActionEdits(LSDocumentIdentifier document, LSContext context, SymbolReferencesModel.Reference refAtCursor, Diagnostic diagnostic){
+    private static List<TextEdit> getAIDataMapperCodeActionEdits(LSDocumentIdentifier document, LSContext context, SymbolReferencesModel.Reference refAtCursor, Diagnostic diagnostic) {
         List<TextEdit> fEdits = new ArrayList<>();
 
         String diagnosticMessage = diagnostic.getMessage();
@@ -150,7 +154,8 @@ public class AIDataMapperCodeAction extends AbstractCodeActionProvider {
 
                 // Insert function declaration at the bottom of the file
                 WorkspaceDocumentManager docManager = context.get(DocumentServiceKeys.DOC_MANAGER_KEY);
-                String fileContent = docManager.getFileContent(docManager.getAllFilePaths().iterator().next());
+                Optional<Path> filePath = CommonUtil.getPathFromURI(context.get(DocumentServiceKeys.FILE_URI_KEY));
+                String fileContent = docManager.getFileContent(Paths.get(String.valueOf(filePath.get())));
                 String functionName = String.format("map%sTo%s (%s", foundTypeRight, foundTypeLeft, foundTypeRight);
                 int indexOfFunctionName = fileContent.indexOf(functionName);
                 if (indexOfFunctionName == -1) {
@@ -160,10 +165,13 @@ public class AIDataMapperCodeAction extends AbstractCodeActionProvider {
                     Range newFunctionRange = new Range(startPosOfLastLine, endPosOfLastLine);
 
                     String generatedRecordMappingFunction = getGeneratedRecordMappingFunction(bLangNode, document, context, diagnostic, symbolAtCursor, docManager, foundTypeLeft, foundTypeRight);
-                    TextEdit functionEdit = new TextEdit(newFunctionRange, generatedRecordMappingFunction);
-                    fEdits.add(functionEdit);
+                    if (generatedRecordMappingFunction.equals("serverError")) {
+                        fEdits = new ArrayList<>();  // In case of server error no code action will be shown shown
+                    } else {
+                        TextEdit functionEdit = new TextEdit(newFunctionRange, generatedRecordMappingFunction);
+                        fEdits.add(functionEdit);
+                    }
                 }
-
             } catch (WorkspaceDocumentException e) {
                 // ignore
             }
@@ -171,7 +179,7 @@ public class AIDataMapperCodeAction extends AbstractCodeActionProvider {
         return fEdits;
     }
 
-    private static String getGeneratedRecordMappingFunction(BLangNode bLangNode, LSDocumentIdentifier document, LSContext context, Diagnostic diagnostic, BSymbol symbolAtCursor, WorkspaceDocumentManager docManager, String foundTypeLeft, String foundTypeRight){
+    private static String getGeneratedRecordMappingFunction(BLangNode bLangNode, LSDocumentIdentifier document, LSContext context, Diagnostic diagnostic, BSymbol symbolAtCursor, WorkspaceDocumentManager docManager, String foundTypeLeft, String foundTypeRight) {
         String generatedRecordMappingFunction = "";
         // Schema 1
         BType variableTypeMappingFrom = symbolAtCursor.type;
@@ -200,8 +208,8 @@ public class AIDataMapperCodeAction extends AbstractCodeActionProvider {
             schemas.add(rightRecordJSON);
 
             String schemasToSend = schemas.toString();
-            URL url = new URL ("http://127.0.0.1:5000/uploader");
-            HttpURLConnection con = (HttpURLConnection)url.openConnection();
+            URL url = new URL("http://127.0.0.1:5000/uploader");
+            HttpURLConnection con = (HttpURLConnection) url.openConnection();
             con.setRequestMethod("POST");
             con.setRequestProperty("Content-Type", "application/json; utf-8");
             con.setRequestProperty("Accept", "application/json");
@@ -214,26 +222,29 @@ public class AIDataMapperCodeAction extends AbstractCodeActionProvider {
             InputStream in = new BufferedInputStream(con.getInputStream());
             String result = org.apache.commons.io.IOUtils.toString(in, "UTF-8");
             generatedRecordMappingFunction = result;
+            return generatedRecordMappingFunction;
 
         } catch (MalformedURLException e) {
             e.printStackTrace();
+            return "serverError";
         } catch (IOException e) {
             e.printStackTrace();
+            return "serverError";
         }
-        return generatedRecordMappingFunction;
+
     }
 
-    private static JsonElement recordToJSON(List<BField> schemaFields){
+    private static JsonElement recordToJSON(List<BField> schemaFields) {
         JsonObject properties = new JsonObject();
-        for (BField attribute: schemaFields){
+        for (BField attribute : schemaFields) {
             JsonObject fieldDetails = new JsonObject();
             fieldDetails.addProperty("id", "dummy_id");
 //            fieldDetails.addProperty("type", String.valueOf(attribute.type));
 
             /* TODO: Do we need to go to lower levels? */
-            if (attribute.type.tag == 12){
+            if (attribute.type.tag == 12) {
                 fieldDetails.addProperty("type", "ballerina_type");
-                fieldDetails.add("properties", recordToJSON(((BRecordType)attribute.type).fields));
+                fieldDetails.add("properties", recordToJSON(((BRecordType) attribute.type).fields));
             } else {
 //                fieldDetails.addProperty("id", "dummy_id");
                 fieldDetails.addProperty("type", String.valueOf(attribute.type));
