@@ -16,7 +16,7 @@
 
 import ballerina/http;
 
-http:Client cachingEP1 = new("http://localhost:9243", { cache: { isShared: true } });
+http:Client cachingEP1 = new("http://localhost:9243", { cache: { enabled: true, isShared: true } });
 
 @http:ServiceConfig {
     basePath: "/nocache"
