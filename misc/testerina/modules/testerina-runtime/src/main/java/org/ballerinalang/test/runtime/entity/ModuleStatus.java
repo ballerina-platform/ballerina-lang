@@ -93,6 +93,10 @@ public class ModuleStatus {
         public String getFailureMessage() {
             return failureMessage;
         }
+
+        public String getName() {
+            return name;
+        }
     }
 
     /**
