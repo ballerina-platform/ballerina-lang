@@ -51,7 +51,7 @@ import java.util.List;
  */
 public class BallerinaParserErrorHandler {
 
-    private final AbstractNodeSupplier tokenReader;
+    private final AbstractTokeReader tokenReader;
     private final BallerinaParserListener listner;
     private final BallerinaParserErrorListener errorListener;
     private final BallerinaParser parser;
@@ -85,8 +85,8 @@ public class BallerinaParserErrorHandler {
      */
     private static final int LOOKAHEAD_LIMIT = 5;
 
-    public BallerinaParserErrorHandler(AbstractNodeSupplier tokenReader, BallerinaParserListener listner,
-            BallerinaParser parser) {
+    public BallerinaParserErrorHandler(AbstractTokeReader tokenReader, BallerinaParserListener listner,
+                                       BallerinaParser parser) {
         this.tokenReader = tokenReader;
         this.listner = listner;
         this.parser = parser;

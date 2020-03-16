@@ -25,7 +25,7 @@ import io.ballerinalang.compiler.internal.parser.tree.STToken;
  * 
  * @since 1.2.0
  */
-public class TokenReader extends AbstractNodeSupplier {
+public class TokenReader extends AbstractTokeReader {
 
     private static final int BUFFER_SIZE = 20;
 
