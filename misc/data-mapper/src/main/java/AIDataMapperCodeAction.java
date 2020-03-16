@@ -140,9 +140,8 @@ public class AIDataMapperCodeAction extends AbstractCodeActionProvider {
         Matcher matcher = CommandConstants.INCOMPATIBLE_TYPE_PATTERN.matcher(diagnosticMessage);
 
         if (matcher.find() && matcher.groupCount() > 1) {
-            String foundTypeLeft = matcher.group(1);  // variable at left side of the equal sign
-            String foundTypeRight = matcher.group(2);  // variable at right side of the equal sign
-
+            String foundTypeLeft = matcher.group(1).replaceAll(refAtCursor.getSymbol().type.tsymbol.pkgID.toString()+":","");  // variable at left side of the equal sign
+            String foundTypeRight = matcher.group(2).replaceAll(refAtCursor.getSymbol().type.tsymbol.pkgID.toString()+":","");  // variable at right side of the equal sign
             try {
                 // Insert function call in the code where error is found
                 BLangNode bLangNode = refAtCursor.getbLangNode();
