@@ -40,6 +40,8 @@ public class JvmConstants {
     public static final String STRING_VALUE = "java/lang/String";
     public static final String BMP_STRING_VALUE = "org/ballerinalang/jvm/values/BmpStringValue";
     public static final String LONG_VALUE = "java/lang/Long";
+    public static final String BYTE_VALUE = "java/lang/Byte";
+    public static final String SHORT_VALUE = "java/lang/Short";
     public static final String BOOLEAN_VALUE = "java/lang/Boolean";
     public static final String DOUBLE_VALUE = "java/lang/Double";
     public static final String DECIMAL_VALUE = "org/ballerinalang/jvm/values/DecimalValue";
@@ -85,7 +87,6 @@ public class JvmConstants {
     public static final String JSON_UTILS = "org/ballerinalang/jvm/JSONUtils";
     public static final String STRAND = "org/ballerinalang/jvm/scheduling/Strand";
     public static final String TYPE_CONVERTER = "org/ballerinalang/jvm/TypeConverter";
-    public static final String SHIFT_UTILS = "org/ballerinalang/jvm/ShiftUtils";
     public static final String LIST_UTILS = "org/ballerinalang/jvm/Lists";
     public static final String STRAND_STATE = "org/ballerinalang/jvm/scheduling/State";
     public static final String VALUE_CREATOR = "org/ballerinalang/jvm/values/ValueCreator";
