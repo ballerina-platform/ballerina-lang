@@ -3,7 +3,8 @@ import ballerina/lang.'int;
 
 public function main() {
     int a = 1;
-    // `<<` performs a left shift. The bits shifted in on the right are `0`.
+    // `<<` performs a left shift. The bits shifted in on the right, in place
+    // of the bits shifted to the left, are `0`.
     // The type of the result of a left shift is always `int`.
     int res1 = a << 2;
     io:println("`int` 1 << 2: ", res1);
@@ -12,8 +13,8 @@ public function main() {
     int res2 = b << 3;
     io:println("`int:Unsigned8` 128 << 3: ", res2);
 
-    // `>>` performs a signed right shift. The bits shifted in on the left
-    // are the same as the most significant bit.
+    // `>>` performs a signed right shift. The bits shifted in on the left, in place
+    // of the bits shifted to the right, are the same as the most significant bit.
     // If the value to be shifted is of a signed subtype of `int`, the type of
     // the result of the signed right shift is `int`.
     'int:Signed16 c = -32700;
@@ -27,7 +28,8 @@ public function main() {
     'int:Unsigned8 res4 = d >> e;
     io:println("`int:Unsigned8` 255 >> 4: ", res4);
 
-    // `>>>` performs an unsigned right shift. The bits shifted in on the left are `0`.
+    // `>>>` performs an unsigned right shift. The bits shifted in on the left, in place
+    // of the bits shifted to the right, are `0`.
     // If the value to be shifted is of a signed subtype of `int`, the type of
     // the result of the signed right shift is `int`.
     'int:Signed32 f = 123167;
