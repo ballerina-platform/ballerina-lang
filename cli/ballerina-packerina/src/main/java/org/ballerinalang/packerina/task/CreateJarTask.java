@@ -38,6 +38,8 @@ import java.util.List;
 import java.util.Set;
 
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_COMPILED_JAR_EXT;
+import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_PKG_DEFAULT_VERSION;
+import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.DIST_BIR_CACHE_DIR_NAME;
 
 /**
  * Task for creating jar file.
@@ -64,6 +66,7 @@ public class CreateJarTask implements Task {
         // This will avoid initializing Config registry during jar creation.
         ConfigRegistry.getInstance().setInitialized(true);
         Path sourceRoot = buildContext.get(BuildContextField.SOURCE_ROOT);
+        String balHomePath = buildContext.get(BuildContextField.HOME_REPO).toString();
         Path runtimeJar = getRuntimeAllJar(buildContext);
 
         CompilerContext context = buildContext.get(BuildContextField.COMPILER_CONTEXT);
@@ -88,7 +91,7 @@ public class CreateJarTask implements Task {
             }
             // write module child imports jars
             writeImportJar(backendDriver, bLangPackage.symbol.imports, sourceRoot, buildContext, runtimeJar,
-                           alreadyImportedModuleSet);
+                           alreadyImportedModuleSet, balHomePath);
 
             // get the jar path of the module.
             Path jarOutput = buildContext.getJarPathFromTargetCache(module.packageID);
@@ -101,7 +104,7 @@ public class CreateJarTask implements Task {
                 for (BLangPackage testPkg : bLangPackage.getTestablePkgs()) {
                     // write its child imports jar file to cache
                     writeImportJar(backendDriver, testPkg.symbol.imports, sourceRoot, buildContext,
-                                   runtimeJar, alreadyImportedModuleSet);
+                                   runtimeJar, alreadyImportedModuleSet, balHomePath);
 
                     // get the jar path of the module.
                     Path testJarOutput = buildContext.getTestJarPathFromTargetCache(testPkg.packageID);
@@ -115,11 +118,18 @@ public class CreateJarTask implements Task {
     }
 
     private void writeImportJar(BackendDriver backendDriver, List<BPackageSymbol> imports, Path sourceRoot,
-                                BuildContext buildContext, Path runtimeJar, Set<PackageID> alreadyImportedModuleSet) {
+                                BuildContext buildContext, Path runtimeJar, Set<PackageID> alreadyImportedModuleSet,
+                                String balHomePath) {
         for (BPackageSymbol bimport : imports) {
             PackageID id = bimport.pkgID;
-            if (alreadyImportedModuleSet.contains(id) || id.orgName.value.equals("ballerina") ||
-                    id.orgName.value.equals("ballerinax")) {
+            String version = BLANG_PKG_DEFAULT_VERSION;
+            if (!id.version.value.equals("")) {
+                version = id.version.value;
+            }
+            // Skip ballerina and ballerinax for cached modules
+            if (alreadyImportedModuleSet.contains(id) ||
+                    Paths.get(balHomePath, DIST_BIR_CACHE_DIR_NAME, id.orgName.value,
+                              id.name.value, version).toFile().exists()) {
                 continue;
             }
             alreadyImportedModuleSet.add(id);
@@ -134,7 +144,7 @@ public class CreateJarTask implements Task {
                 jarFilePath = buildContext.getJarPathFromHomeCache(id);
             }
             writeImportJar(backendDriver, bimport.imports, sourceRoot,
-                           buildContext, runtimeJar, alreadyImportedModuleSet);
+                           buildContext, runtimeJar, alreadyImportedModuleSet, balHomePath);
             if (bimport.bir != null && buildContext.moduleDependencyPathMap.containsKey(id)) {
                 HashSet<Path> moduleDependencySet = buildContext.moduleDependencyPathMap.get(id).moduleLibs;
                 if (!skipCopyLibsFromDist) {
