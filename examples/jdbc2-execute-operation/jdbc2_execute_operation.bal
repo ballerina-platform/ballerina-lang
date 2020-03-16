@@ -72,7 +72,7 @@ public function main() {
             updateRecord(jdbcClient, initResult);
             // Delete a record.
             deleteRecord(jdbcClient, initResult);
-            io:println("Successfully completed!");
+            io:println("Sample executed successfully!");
         } else if (initResult is sql:Error) {
             io:println("Customer table initialization failed: ", initResult);
         }

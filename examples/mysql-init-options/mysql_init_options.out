@@ -9,4 +9,4 @@ MySQL client with user and password created with default host.
 MySQL client with host, user, password, database and port created.
 MySQL client with database options created.
 MySQL client with connection pool created.
-Successfully completed initialization!
+Sample executed successfully!

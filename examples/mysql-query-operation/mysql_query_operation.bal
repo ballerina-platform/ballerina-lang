@@ -135,7 +135,7 @@ public function main() {
             simpleQuery(mysqlClient);
             countRows(mysqlClient);
             typedQuery(mysqlClient);
-            io:println("Successfully queried the database!");
+            io:println("Queried the database successfully!");
 
             // Close the MySQL client.
             sql:Error? e = mysqlClient.close();

@@ -186,7 +186,7 @@ public function main() {
             queryBinaryType(jdbcClient);
             queryArrayType(jdbcClient);
             queryDateTimeType(jdbcClient);
-            io:println("Successfully executed the sample!");
+            io:println("Sample executed successfully!");
         }
         // Close the JDBC client.
         sql:Error? e = jdbcClient.close();

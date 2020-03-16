@@ -17,4 +17,4 @@ Total rows in customer table : 2
 customerId=1 firstName=Peter lastName=Stuart registrationId=1 creditLimit=5000.75 country=USA
 customerId=2 firstName=Dan lastName=Brown registrationId=2 creditLimit=10000.0 country=UK
 ------ End Query With Type Description -------
-Successfully queried the database!
+Queried the database successfully!

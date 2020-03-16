@@ -98,7 +98,7 @@ public function main() {
                 updateRecord(mysqlClient, initResult);
                 // Delete a record.
                 deleteRecord(mysqlClient, initResult);
-                io:println("Successfully completed!");
+                io:println("Sample executed successfully!");
             } else if (initResult is sql:Error) {
                 io:println("Customer table initialization failed!", initResult);
             }

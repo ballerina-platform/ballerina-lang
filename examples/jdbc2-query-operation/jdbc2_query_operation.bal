@@ -123,7 +123,7 @@ public function main() {
             simpleQuery(jdbcClient);
             countRows(jdbcClient);
             typedQuery(jdbcClient);
-            io:println("Successfully queried the database!");
+            io:println("Queried the database successfully!");
         }
         // Close the JDBC client.
         sql:Error? e = jdbcClient.close();

@@ -141,7 +141,7 @@ public function main() {
             // Executes the complex data type queries.
             queryBinaryType(mysqlClient);
             queryDateTimeType(mysqlClient);
-            io:println("Successfully executed the sample!");
+            io:println("Sample executed successfully!");
 
             // Close the MySQL client.
             sql:Error? e = mysqlClient.close();

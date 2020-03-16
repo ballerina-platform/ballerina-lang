@@ -107,6 +107,6 @@ public function main() {
     if (err is sql:Error) {
         io:println("Error occured, initialization failed! ", err);
     } else {
-        io:println("Successfully completed initialization!");
+        io:println("Sample executed successfully!");
     }
 }
