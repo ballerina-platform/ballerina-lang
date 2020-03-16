@@ -2,7 +2,6 @@
 # `.bal` file and execute the `ballerina run` command.
 $ ballerina run query-action.bal
 
-Iterate the record list and map it to another record type:
 firstName=Alex lastName=George
 firstName=Ranjan lastName=Fonseka
 firstName=John lastName=David

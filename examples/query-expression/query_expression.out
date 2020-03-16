@@ -1,6 +1,6 @@
 # To run this sample, navigate to the directory that contains the
 # `.bal` file and execute the `ballerina run` command.
 $ ballerina run query_expression.bal
-Iterating a record list and filtering students with a score greater than 1:
+
 name=Alex degree=Bachelor of Medicine expectedGradYear=2025
 name=John degree=Bachelor of Medicine expectedGradYear=2027

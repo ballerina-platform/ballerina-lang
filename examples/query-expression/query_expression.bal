@@ -14,7 +14,6 @@ type Report record {
 };
 
 public function main() {
-    io:println("Iterating a record list and filtering students with a score greater than 1:");
 
     Student s1 = {firstName: "Alex", lastName: "George", intakeYear: 2020, score: 1.5};
     Student s2 = {firstName: "Ranjan", lastName: "Fonseka", intakeYear: 2020, score: 0.9};
@@ -31,7 +30,8 @@ public function main() {
     //When the where condition evaluates to false, the iteration skips following clauses.
     where student.score >= 1
     //The `let` clause binds variables.
-    let string degreeName = "Bachelor of Medicine", int graduationYear = calGraduationYear(student.intakeYear)
+    let string degreeName = "Bachelor of Medicine",
+    int graduationYear = calGraduationYear(student.intakeYear)
     //The `select` clause is evaluated for each iteration;
     //the result of the query expression is a list(`reportList`) whose members are the result of the select clause.
        select {

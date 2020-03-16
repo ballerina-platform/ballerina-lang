@@ -18,7 +18,6 @@ public function main() {
 
     Student[] studentList = [s1, s2, s3];
 
-    io:println("\nIterate record list and map it to another record type:");
     FullName[] nameList = [];
     //`query-action` works similarly to a `foreach` statement.
     //It can be used to iterate through any iterable value.
