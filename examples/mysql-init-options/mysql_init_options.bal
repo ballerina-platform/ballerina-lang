@@ -14,8 +14,8 @@ function initializeClients() returns sql:Error? {
     // `3306` for port, and `()` for user, password, and database.
     mysql:Client|sql:Error mysqlClient1 = new ();
     if (mysqlClient1 is sql:Error) {
-        io:println("Error when initializing MySQL client without any params");
-        io:println(mysqlClient1);
+        io:println("Error when initializing the MySQL client without any " +
+        "params", mysqlClient1);
     } else {
         io:println("Simple MySQL client created successfully");
         check mysqlClient1.close();
