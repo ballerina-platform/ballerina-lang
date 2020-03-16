@@ -1,4 +1,4 @@
-// This is the client implementation for the secured connection (HTTPS) scenario.
+// This is the client implementation of the secured connection (HTTPS) scenario.
 import ballerina/config;
 import ballerina/grpc;
 import ballerina/io;
