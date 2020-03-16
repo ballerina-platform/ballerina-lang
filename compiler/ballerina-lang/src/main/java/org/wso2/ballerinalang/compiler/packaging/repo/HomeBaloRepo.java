@@ -82,10 +82,7 @@ public class HomeBaloRepo implements Repo<Path> {
                         Path latestVersionDirectoryName = latestVersionPath.get().getFileName();
                         if (null != latestVersionDirectoryName) {
                             versionStr = latestVersionDirectoryName.toString();
-                            String baloFileName = pkgName + "-" + IMPLEMENTATION_VERSION + "-" + platform + "-" +
-                                                  versionStr + ".balo";
-                            baloFilePath = this.repoLocation.resolve(orgName).resolve(pkgName).resolve(versionStr).
-                                    resolve(baloFileName);
+                            baloFilePath = findBaloPath(this.repoLocation, orgName, pkgName, platform, versionStr);
                         } else {
                             return Patten.NULL;
                         }
@@ -94,10 +91,7 @@ public class HomeBaloRepo implements Repo<Path> {
                     }
                 } else {
                     // Get the existing balo file.
-                    String baloFileName = pkgName + "-" + IMPLEMENTATION_VERSION + "-" + platform + "-" + versionStr +
-                                          ".balo";
-                    baloFilePath = this.repoLocation.resolve(orgName).resolve(pkgName).resolve(versionStr)
-                            .resolve(baloFileName);
+                    baloFilePath = findBaloPath(this.repoLocation, orgName, pkgName, platform, versionStr);
                 }
                 
                 // return Patten only if balo file exists.
@@ -153,5 +147,22 @@ public class HomeBaloRepo implements Repo<Path> {
     @Override
     public String toString() {
         return "{t:'HomeBaloRepo', c:'" + this.zipConverter + "'}";
+    }
+
+
+    private Path findBaloPath(Path repoLocation, String orgName, String pkgName, String platform, String versionStr)
+            throws IOException {
+        Path baloFilePath = this.repoLocation.resolve(orgName).resolve(pkgName).resolve(versionStr);
+        Stream<Path> list = Files.list(baloFilePath).sorted();
+        String baloFileName = pkgName + "-" + IMPLEMENTATION_VERSION + "-" + platform + "-" + versionStr +
+                ".balo";
+        Path last = baloFilePath.resolve(baloFileName);
+        for (Path file : (Iterable<Path>) list::iterator) {
+            if (file.toString().contains(baloFileName)) {
+                return file;
+            }
+            last = file;
+        }
+        return last;
     }
 }
