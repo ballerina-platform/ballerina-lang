@@ -39,14 +39,15 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
-import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.awaitility.Awaitility.given;
 import static org.ballerinalang.test.packaging.ModulePushTestCase.REPO_TO_CENTRAL_SUCCESS_MSG;
 import static org.ballerinalang.test.packaging.PackerinaTestUtils.deleteFiles;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_COMPILED_JAR_EXT;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_COMPILED_PKG_BINARY_EXT;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_SOURCE_EXT;
+
+import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
+import static java.util.concurrent.TimeUnit.SECONDS;
 
 /**
  * Test cases related to solving dependencies using paths in Ballerina.toml.
@@ -524,6 +525,34 @@ public class PathDependencyTestCase extends BaseTest {
         balClient.runMain("run", new String[]{bazBuildMsg}, envVariables, new String[0],
                           new LogLeecher[]{bazRunLeecher}, caseResources.resolve("TestProject2").toString());
         bazRunLeecher.waitForText(10000);
+    }
+
+    /**
+     * Case10: Build and run TestProject1 which imports module with "ballerina" org name via balo path.
+     *
+     * @throws BallerinaTestException Error when executing the commands.
+     */
+    @Test(description = "Case10: Test build and run project which imports module with \"ballerina\" org name via" +
+            " balo path.")
+    public void testBaloPathCase10() throws BallerinaTestException {
+        Path caseResources = tempTestResources.resolve("case10");
+        String printBarLog = "Bar";
+        String buildLog = "target/bin/mod1.jar";
+        LogLeecher testLogeecher = new LogLeecher(printBarLog);
+        LogLeecher buildLogLeecher = new LogLeecher(buildLog);
+
+        // Build TestProject1 with tests
+        balClient.runMain("build", new String[]{"-a"}, envVariables, new String[]{},
+                          new LogLeecher[]{testLogeecher, buildLogLeecher},
+                          caseResources.resolve("TestProject1").toString());
+        testLogeecher.waitForText(5000);
+        buildLogLeecher.waitForText(5000);
+
+        // Run TestProject1
+        LogLeecher runLogLeecher = new LogLeecher(printBarLog);
+        balClient.runMain("run", new String[]{"mod1"}, envVariables, new String[]{},
+                          new LogLeecher[]{runLogLeecher}, caseResources.resolve("TestProject1").toString());
+        runLogLeecher.waitForText(5000);
     }
 
     /**
