@@ -98,7 +98,7 @@ public function main() {
     io:println("\nThe select operation - Select data from a table");
     var selectRet = testDB->select("SELECT * FROM student where age < ?",
                                     Student, 35);
-    if (selectRet is table<Student>) {
+    if (selectRet is table<record{}>) {
         // `table` can be converted to either `json` or `xml`. The actual
         // conversion happens on-demand. When a service client makes a request,
         // the result is streamed to the service instead of building the full
