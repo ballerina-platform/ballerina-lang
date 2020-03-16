@@ -1,3 +1,4 @@
+import ballerina/lang.'xml;
 
 function getElementAttrBasic() returns string|error? {
     xml x = xml `<root attr="attr-val"><a></a><b></b></root>`;
@@ -20,6 +21,6 @@ function getElementAttrWithNSPrefix() returns string|error? {
 }
 
 function usePredefinedXMLNamespace() returns string|error? {
-    xml x = xml `<root xmlns="the-url" attr="the attr" xml:attr="xml attr"></root>`;
+    xml x = xml `<root xmlns="the-url" attr="the attr" xml:space="preserve"></root>`;
     return x.'xml:attr;
 }

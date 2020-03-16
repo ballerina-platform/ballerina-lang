@@ -30,7 +30,6 @@ import org.testng.annotations.Test;
 /**
  * @since 1.2.0
  */
-@Test (groups = "brokenOnXMLLangLibChange")
 public class XMLAttributeAccessTest {
 
     CompileResult compileResult;
@@ -69,7 +68,7 @@ public class XMLAttributeAccessTest {
         BAssertUtil.validateError(negative, 1, "invalid character ':' in field access expression", 10, 13);
     }
 
-    @Test (groups = "brokenOnXMLLangLibChange")
+    @Test
     public void testXMLAsMapContent() {
         BValue[] result = BRunUtil.invoke(lexCompileRes, "testXMLAsMapContent");
         Assert.assertEquals(result[0].stringValue(), "val");
@@ -80,14 +79,12 @@ public class XMLAttributeAccessTest {
     @Test
     public void testXMLAttributeWithNSPrefix() {
         BValue[] result = BRunUtil.invoke(lexCompileRes, "testXMLAttributeWithNSPrefix");
-        Assert.assertEquals(result[0].stringValue(), "xml-val");
-        Assert.assertEquals(result[1].stringValue(), "xml-val");
+        Assert.assertEquals(result[0].stringValue(), "preserve");
+        Assert.assertEquals(result[1].stringValue(), "preserve");
         Assert.assertEquals(result[2].stringValue(), "{lang.map}InvalidKey {key:\"b\"}");
-        Assert.assertTrue(((BBoolean) result[3]).booleanValue());
-        Assert.assertTrue(((BBoolean) result[4]).booleanValue());
     }
 
-    @Test (groups = "brokenOnXMLLangLibChange")
+    @Test
     public void testXMLASMapContentInvalidKey() {
         BValue[] result = BRunUtil.invoke(lexCompileRes, "testXMLASMapContentInvalidKey");
         Assert.assertEquals(result[0].stringValue(), "{lang.map}InvalidKey {key:\"b\"}");
