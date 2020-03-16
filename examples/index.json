@@ -262,6 +262,10 @@
         "category": "Language concepts",
         "samples": [
             {
+                "name": "Shift Expressions",
+                "url": "shift-expressions"
+            },
+            {
                 "name": "Compound Assignment Operators",
                 "url": "compound-assignment-operators"
             },
