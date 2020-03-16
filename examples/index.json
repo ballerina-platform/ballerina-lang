@@ -79,6 +79,10 @@
                 "url": "closures"
             },
             {
+                "name": "Expression-bodied Functions",
+                "url": "expression-bodied-functions"
+            },
+            {
                 "name": "Functional Iteration",
                 "url": "functional-iteration"
             },
@@ -1048,6 +1052,16 @@
             {
                 "name": "Secured Client with OAuth2",
                 "url": "secured-client-with-oauth2"
+            }
+        ]
+    },
+    {
+        "title": "Email",
+        "column": 2,
+        "category": "Working over the network",
+        "samples": [{
+                "name": "Send and Receive Emails",
+                "url": "send-and-receive-emails"
             }
         ]
     },

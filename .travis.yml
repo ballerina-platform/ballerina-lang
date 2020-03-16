@@ -59,7 +59,7 @@ jobs:
       name: "Run Build + tests (without integration) - Linux"
       script:
         - while sleep 9m; do echo "=====[ $SECONDS seconds still running ]====="; done &
-        - ./gradlew build -x :jballerina-integration-test:test -x :testerina-integration-test:test -x createJavadoc --stacktrace -scan --console=plain --no-daemon
+        - ./gradlew build -x :jballerina-integration-test:test -x :examples-test:test -x :testerina-integration-test:test -x createJavadoc --stacktrace -scan --console=plain --no-daemon
         # Killing background sleep loop
         - kill %1
       os: linux
@@ -79,7 +79,7 @@ jobs:
     - script:
         - while sleep 9m; do echo "=====[ $SECONDS seconds still running ]====="; done &
         # TODO enable tests for all projects
-        - ./gradlew.bat build -Dorg.gradle.parallel=false -x :ballerina-packerina:test -x :ballerina-lang:test -x :ballerina-file:test -x :ballerina-socket:test -x :jballerina-unit-test:test -x :jballerina-integration-test:test -x :plugin-vscode:test -x createJavadoc --stacktrace -scan --console=plain --no-daemon
+        - ./gradlew.bat build -Dorg.gradle.parallel=false -x :examples-test:test -x :ballerina-packerina:test -x :ballerina-lang:test -x :ballerina-file:test -x :ballerina-socket:test -x :jballerina-unit-test:test -x :jballerina-integration-test:test -x :plugin-vscode:test -x createJavadoc --stacktrace -scan --console=plain --no-daemon
         # Killing background sleep loop
         - kill %1
       name:  "Tests - windows"
@@ -92,7 +92,7 @@ jobs:
         - export PATH="$PATH;$JAVA_HOME\\bin"
     - script:
         - while sleep 9m; do echo "=====[ $SECONDS seconds still running ]====="; done &
-        - ./gradlew :jballerina-integration-test:test :testerina-integration-test:test -x createJavadoc --stacktrace -scan --console=plain --no-daemon --rerun-tasks
+        - ./gradlew :jballerina-integration-test:test -x :examples-test:test :testerina-integration-test:test -x createJavadoc --stacktrace -scan --console=plain --no-daemon --rerun-tasks
         # Killing background sleep loop
         - kill %1
       os: linux
@@ -126,4 +126,5 @@ branches:
     - packerina-dev
     - next-release
     - release-stage
+    - stage
     - /^ballerina-\d*[.]\d*[.]x$/

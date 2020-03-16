@@ -93,18 +93,18 @@ public function cloneString() returns [string, string, string] {
     return [a, x, y];
 }
 
-public function cloneXML() returns [xml, xml, xml] {
-    xml a = xml `<root><name>Alex</name><id>123</id><age>21</age></root>`;
-    xml newName = xml `<name>Charlos</name>`;
-    xml newId = xml `<id>5000</id>`;
-    xml x = a.clone();
-    xml y = a.clone();
-    a.removeChildren("name");
-    a.appendChildren(newName);
-    y.removeChildren("id");
-    y.appendChildren(newId);
-    return [a, x, y];
-}
+//public function cloneXML() returns [xml, xml, xml] {
+//    xml a = xml `<root><name>Alex</name><id>123</id><age>21</age></root>`;
+//    xml newName = xml `<name>Charlos</name>`;
+//    xml newId = xml `<id>5000</id>`;
+//    xml x = a.clone();
+//    xml y = a.clone();
+//    a.removeChildren("name");
+//    a.appendChildren(newName);
+//    y.removeChildren("id");
+//    y.appendChildren(newId);
+//    return [a, x, y];
+//}
 
 public function cloneMap() returns [map<any>, map<any>, map<any>] {
 
