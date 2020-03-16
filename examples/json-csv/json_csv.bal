@@ -5,8 +5,8 @@ import ballerina/log;
 // Return the result as a tuple, which contains the headers and fields.
 function getFields(map<json> rec) returns [string[], string[]] {
     string[] fields = [];
-    foreach var field in rec {
-        fields[fields.length()] = field.toString();
+    foreach var recordField in rec {
+        fields[fields.length()] = recordField.toString();
     }
     return [rec.keys(), fields];
 }
