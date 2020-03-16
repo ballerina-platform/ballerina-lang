@@ -1,4 +1,4 @@
-# To start the services, navigate to the directory that contains the
+# To start the service, navigate to the directory that contains the
 # `.bal` files and use the `ballerina run` command.
 
 $ ballerina run websocket_service.bal
@@ -11,6 +11,7 @@ $ ballerina run websocket_retry.bal
 # To check the sample, you can use Chrome or Firefox JavaScript console and run the following commands. <br>
 $ var ws = new WebSocket("ws://localhost:9090/retry/ws");
 $ ws.onmessage = function(frame) {console.log(frame.data)};
+$ ws.onclose = function(frame) {console.log(frame)};
 
 # Send messages.
 $ ws.send("hello world");

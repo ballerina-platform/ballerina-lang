@@ -1,7 +1,5 @@
 # To start the service, navigate to the directory that contains the
-# `.bal` file and execute the `ballerina build` command.
-$ ballerina build websocket_client.bal
+# `.bal` files and use the `ballerina run` command.
+$ ballerina run websocket_client.bal
 
-# Run the sample using the `run` command on the generated .jar file:
-$ ballerina run websocket_client-executable.jar
 Hello World!

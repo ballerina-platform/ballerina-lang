@@ -1,9 +1,6 @@
 # To start the service, navigate to the directory that contains the
-# `.bal` file and use the `ballerina build` command.
-$ ballerina build http_to_websocket_upgrade.bal
-
-# Run the sample using the `run` command on the jar file generated:
-$ ballerina run http_to_websocket_upgrade-executable.jar
+# `.bal` files and use the `ballerina run` command.
+$ ballerina run http_to_websocket_upgrade.bal
 
 # To check the sample, use the Chrome or Firefox JavaScript console and run the commands given below. <br>
 # Change "xml" to another sub protocol to observe the behavior of the WebSocket server.
