@@ -2594,49 +2594,50 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         if (xmlnsSymbol.getKind() == SymbolKind.PACKAGE) {
-            xmlnsSymbol = getXmlNsSymbolFromPkgSymbol(bLangXMLQName.localname.value, bLangXMLQName.prefix.value,
-                    xmlnsSymbol, bLangXMLQName.pos);
+            xmlnsSymbol = findXMLNamespaceFromPackageConst(bLangXMLQName.localname.value, bLangXMLQName.prefix.value,
+                    (BPackageSymbol) xmlnsSymbol, bLangXMLQName.pos);
         }
-        if (xmlnsSymbol != null && xmlnsSymbol.getKind() == SymbolKind.XMLNS) {
-            bLangXMLQName.namespaceURI = ((BXMLNSSymbol) xmlnsSymbol).namespaceURI;
-            bLangXMLQName.nsSymbol = (BXMLNSSymbol) xmlnsSymbol;
-        } else {
+
+        if (xmlnsSymbol == null || xmlnsSymbol.getKind() != SymbolKind.XMLNS) {
             resultType = symTable.semanticError;
             return;
         }
+
+        bLangXMLQName.nsSymbol = (BXMLNSSymbol) xmlnsSymbol;
+        bLangXMLQName.namespaceURI = bLangXMLQName.nsSymbol.namespaceURI;
     }
 
-    private BSymbol getXmlNsSymbolFromPkgSymbol(String localname, String prefix, BSymbol xmlnsSymbol, DiagnosticPos pos) {
-        BPackageSymbol pkgSymbol = (BPackageSymbol) xmlnsSymbol;
+    private BSymbol findXMLNamespaceFromPackageConst(String localname, String prefix,
+                                                     BPackageSymbol pkgSymbol, DiagnosticPos pos) {
+        // Resolve a const from module scope.
         BSymbol constSymbol = symResolver.lookupMemberSymbol(pos, pkgSymbol.scope, env,
                 names.fromString(localname), SymTag.CONSTANT);
-        if (constSymbol != symTable.notFoundSymbol) {
-            BConstantSymbol constantSymbol = (BConstantSymbol) constSymbol;
-            if (constantSymbol.literalType.tag != TypeTags.STRING) {
-                dlog.error(pos, DiagnosticCode.INCOMPATIBLE_TYPES,
-                        symTable.stringType, constantSymbol.literalType);
-                resultType = symTable.semanticError;
-                return null;
-            } else {
-                String constVal = (String) constantSymbol.value.value;
-                int s = constVal.indexOf('{');
-                int e = constVal.lastIndexOf('}');
-                if (e > s) {
-                    String nsURI = constVal.substring(s + 1, e);
-                    xmlnsSymbol = new BXMLNSSymbol(names.fromString(constVal.substring(e)), nsURI,
-                            constantSymbol.pkgID, constantSymbol.owner);
-                    pkgSymbol.isUsed = true;
-                    return xmlnsSymbol;
-                }
-                dlog.error(pos, DiagnosticCode.INVALID_ATTRIBUTE_REFERENCE, prefix + ":" + localname);
-                resultType = symTable.semanticError;
-                return null;
-            }
-        } else {
+        if (constSymbol == symTable.notFoundSymbol) {
             dlog.error(pos, DiagnosticCode.UNDEFINED_SYMBOL, prefix + ":" + localname);
-            resultType = symTable.semanticError;
             return null;
         }
+
+        // If Resolved const is not a string, it is an error.
+        BConstantSymbol constantSymbol = (BConstantSymbol) constSymbol;
+        if (constantSymbol.literalType.tag != TypeTags.STRING) {
+            dlog.error(pos, DiagnosticCode.INCOMPATIBLE_TYPES, symTable.stringType, constantSymbol.literalType);
+            return null;
+        }
+
+        // If resolve const contain a string in {namespace url}local form extract namespace uri and local part.
+        String constVal = (String) constantSymbol.value.value;
+        int s = constVal.indexOf('{');
+        int e = constVal.lastIndexOf('}');
+        if (e > s + 1) {
+            pkgSymbol.isUsed = true;
+            String nsURI = constVal.substring(s + 1, e);
+            String local = constVal.substring(e);
+            return new BXMLNSSymbol(names.fromString(local), nsURI, constantSymbol.pkgID, constantSymbol.owner);
+        }
+
+        // Resolved const string is not in valid format.
+        dlog.error(pos, DiagnosticCode.INVALID_ATTRIBUTE_REFERENCE, prefix + ":" + localname);
+        return null;
     }
 
     public void visit(BLangXMLAttribute bLangXMLAttribute) {
@@ -4377,9 +4378,9 @@ public class TypeChecker extends BLangNodeVisitor {
             dlog.error(nsPrefixedFieldAccess.nsPrefix.pos, DiagnosticCode.CANNOT_FIND_XML_NAMESPACE,
                     nsPrefixedFieldAccess.nsPrefix);
         } else if (nsSymbol.getKind() == SymbolKind.PACKAGE) {
-            nsPrefixedFieldAccess.nsSymbol = (BXMLNSSymbol) getXmlNsSymbolFromPkgSymbol(
+            nsPrefixedFieldAccess.nsSymbol = (BXMLNSSymbol) findXMLNamespaceFromPackageConst(
                     nsPrefixedFieldAccess.field.value, nsPrefixedFieldAccess.nsPrefix.value,
-                    nsSymbol, fieldAccessExpr.pos);
+                    (BPackageSymbol) nsSymbol, fieldAccessExpr.pos);
         } else {
             nsPrefixedFieldAccess.nsSymbol = (BXMLNSSymbol) nsSymbol;
         }
