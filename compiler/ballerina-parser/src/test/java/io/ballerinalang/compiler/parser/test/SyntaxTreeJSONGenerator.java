@@ -21,6 +21,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import io.ballerinalang.compiler.internal.parser.BallerinaParser;
+import io.ballerinalang.compiler.internal.parser.ParserFactory;
 import io.ballerinalang.compiler.internal.parser.ParserRuleContext;
 import io.ballerinalang.compiler.internal.parser.tree.STMissingToken;
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
@@ -70,9 +71,8 @@ public class SyntaxTreeJSONGenerator {
     }
 
     private static STNode getParserTree(String source, ParserRuleContext context) {
-        BallerinaParser parser = new BallerinaParser(source);
-        parser.parse(context);
-        return parser.getTree();
+        BallerinaParser parser = ParserFactory.getParser(source);
+        return parser.parse(context);
     }
 
     private static JsonElement getJSON(STNode treeNode) {

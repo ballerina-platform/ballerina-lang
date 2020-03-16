@@ -20,7 +20,7 @@ package io.ballerinalang.compiler.syntax.tree;
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
 public class LocalVariableDeclaration extends Statement {
-    private Token typeName;
+    private Node typeName;
     private Token variableName;
     private Token equalsToken;
     private Node initializer;
@@ -30,12 +30,13 @@ public class LocalVariableDeclaration extends Statement {
         super(node, position, parent);
     }
 
-    public Token typeName() {
+    public Node typeName() {
         if (typeName != null) {
             return typeName;
         }
 
-        typeName = createToken(0);
+        typeName = node.childInBucket(0).createFacade(getChildPosition(0), this);
+        childBuckets[0] = typeName;
         return typeName;
     }
 

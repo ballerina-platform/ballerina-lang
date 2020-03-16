@@ -31,20 +31,15 @@ public class BLModules {
     // that uses the ModulePart underneath.
     public static SyntaxTree parse(TextDocument textDocument) {
         BallerinaParser parser = ParserFactory.getParser(textDocument);
-        parser.parse();
         // IMO, the parse methods should return the tree..
-        STModulePart modulePart = (STModulePart) parser.getTree();
+        STModulePart modulePart = (STModulePart) parser.parse();
         return new SyntaxTree((ModulePart) modulePart.createFacade(0, null), textDocument);
     }
 
     public static SyntaxTree parse(SyntaxTree oldTree, TextDocumentChange textDocumentChange) {
         TextDocument newTextDocument = oldTree.getTextDocument().apply(textDocumentChange);
         BallerinaParser parser = ParserFactory.getParser(oldTree, newTextDocument, textDocumentChange);
-        parser.parse();
-        STModulePart modulePart = (STModulePart) parser.getTree();
+        STModulePart modulePart = (STModulePart) parser.parse();
         return new SyntaxTree((ModulePart) modulePart.createFacade(0, null), newTextDocument);
     }
 }
-
-
-

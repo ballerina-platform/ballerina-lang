@@ -45,7 +45,7 @@ public class ParserFactory {
      */
     public static BallerinaParser getParser(String text) {
         TextDocument textDocument = TextDocuments.from(text);
-        AbstractTokeReader tokenReader = new TokenReader(getLexer(textDocument));
+        AbstractTokenReader tokenReader = new TokenReader(getLexer(textDocument));
         return new BallerinaParser(tokenReader);
     }
 
@@ -56,7 +56,7 @@ public class ParserFactory {
      * @return a {@code BallerinaParser} instance
      */
     public static BallerinaParser getParser(TextDocument textDocument) {
-        AbstractTokeReader tokenReader = new TokenReader(getLexer(textDocument));
+        AbstractTokenReader tokenReader = new TokenReader(getLexer(textDocument));
         return new BallerinaParser(tokenReader);
     }
 
@@ -74,7 +74,7 @@ public class ParserFactory {
                                             TextDocumentChange textDocumentChange) {
         HybridNodeStorage hybridNodeStorage = new HybridNodeStorage(oldTree,
                 getLexer(newTextDocument), textDocumentChange);
-        AbstractTokeReader tokeReader = new HybridTokenReader(hybridNodeStorage);
+        AbstractTokenReader tokeReader = new HybridTokenReader(hybridNodeStorage);
         UnmodifiedSubtreeSupplier subtreeReader = new UnmodifiedSubtreeSupplier(hybridNodeStorage);
         return new BallerinaParser(tokeReader, subtreeReader);
     }

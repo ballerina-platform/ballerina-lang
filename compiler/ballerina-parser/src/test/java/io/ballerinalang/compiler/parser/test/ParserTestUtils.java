@@ -64,7 +64,7 @@ public class ParserTestUtils {
                     new String(Files.readAllBytes(RESOURCE_DIRECTORY.resolve(sourceFilePath)), StandardCharsets.UTF_8);
             test(content, context, assertFilePath);
         } catch (IOException e) {
-            Assert.fail();
+            throw new RuntimeException(e);
         }
     }
 
@@ -78,13 +78,13 @@ public class ParserTestUtils {
     public static void test(String source, ParserRuleContext context, Path assertFilePath) {
         // Parse the source
         BallerinaParser parser = ParserFactory.getParser(source);
-        parser.parse(context);
+        STNode syntaxTree = parser.parse(context);
 
         // Read the assertion file
         JsonObject assertJson = readAssertFile(RESOURCE_DIRECTORY.resolve(assertFilePath));
 
         // Validate the tree against the assertion file
-        assertNode(parser.getTree(), assertJson);
+        assertNode(syntaxTree, assertJson);
     }
 
     private static JsonObject readAssertFile(Path filePath) {
@@ -181,24 +181,42 @@ public class ParserTestUtils {
 
     private static SyntaxKind getNodeKind(String kind) {
         switch (kind) {
+            case "TYPE_DEFINITION":
+                return SyntaxKind.TYPE_DEFINITION;
             case "FUNCTION_DEFINITION":
                 return SyntaxKind.FUNCTION_DEFINITION;
+
             case "PUBLIC_KEYWORD":
                 return SyntaxKind.PUBLIC_KEYWORD;
             case "FUNCTION_KEYWORD":
                 return SyntaxKind.FUNCTION_KEYWORD;
+            case "TYPE_KEYWORD":
+                return SyntaxKind.TYPE_KEYWORD;
+            case "EXTERNAL_KEYWORD":
+                return SyntaxKind.EXTERNAL_KEYWORD;
+            case "RETURNS_KEYWORD":
+                return SyntaxKind.RETURNS_KEYWORD;
+            case "RECORD_KEYWORD":
+                return SyntaxKind.RECORD_KEYWORD;
+
             case "LIST":
                 return SyntaxKind.LIST;
             case "RETURN_TYPE_DESCRIPTOR":
                 return SyntaxKind.RETURN_TYPE_DESCRIPTOR;
-            case "RETURNS_KEYWORD":
-                return SyntaxKind.RETURNS_KEYWORD;
             case "EXTERNAL_FUNCTION_BODY":
                 return SyntaxKind.EXTERNAL_FUNCTION_BODY;
-            case "EXTERNAL_KEYWORD":
-                return SyntaxKind.EXTERNAL_KEYWORD;
             case "PARAMETER":
                 return SyntaxKind.PARAMETER;
+            case "RECORD_TYPE_DESCRIPTOR":
+                return SyntaxKind.RECORD_TYPE_DESCRIPTOR;
+            case "RECORD_FIELD":
+                return SyntaxKind.RECORD_FIELD;
+            case "RECORD_FIELD_WITH_DEFAULT_VALUE":
+                return SyntaxKind.RECORD_FIELD_WITH_DEFAULT_VALUE;
+            case "RECORD_TYPE_REFERENCE":
+                return SyntaxKind.RECORD_TYPE_REFERENCE;
+            case "RECORD_REST_TYPE":
+                return SyntaxKind.RECORD_REST_TYPE;
 
             // Operators
             case "PLUS_TOKEN":
@@ -225,6 +243,8 @@ public class ParserTestUtils {
                 return SyntaxKind.GT_TOKEN;
             case "EQUAL_GT_TOKEN":
                 return SyntaxKind.EQUAL_GT_TOKEN;
+            case "QUESTION_MARK_TOKEN":
+                return SyntaxKind.QUESTION_MARK_TOKEN;
 
             // Separators
             case "OPEN_BRACE_TOKEN":
@@ -249,6 +269,10 @@ public class ParserTestUtils {
                 return SyntaxKind.COMMA_TOKEN;
             case "ELLIPSIS_TOKEN":
                 return SyntaxKind.ELLIPSIS_TOKEN;
+            case "OPEN_BRACE_PIPE_TOKEN":
+                return SyntaxKind.OPEN_BRACE_PIPE_TOKEN;
+            case "CLOSE_BRACE_PIPE_TOKEN":
+                return SyntaxKind.CLOSE_BRACE_PIPE_TOKEN;
 
             // Expressions
             case "IDENTIFIER_TOKEN":
