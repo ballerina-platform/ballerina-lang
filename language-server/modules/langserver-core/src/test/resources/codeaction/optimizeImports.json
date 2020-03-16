@@ -1,5 +1,5 @@
 {
-    "line": 1,
+    "line": 4,
     "character": 1,
     "expected": {
         "title": "Optimize All Imports",
@@ -7,11 +7,11 @@
             {
                 "range": {
                     "start": {
-                        "line": 0,
+                        "line": 3,
                         "character": 0
                     },
                     "end": {
-                        "line": 3,
+                        "line": 6,
                         "character": 35
                     }
                 },

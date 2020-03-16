@@ -304,4 +304,9 @@ public class FunctionPointersTest {
         BValue[] returns = BRunUtil.invoke(fpProgram, "testVoidFunctionAsUnionReturnFunction");
         Assert.assertEquals(returns[0].stringValue(), "value - updated through lambda");
     }
+
+    @Test(description = "Test function pointers defaultable params")
+    public void testDefaultParams() {
+        BRunUtil.invoke(fpProgram, "testDefaultParams");
+    }
 }

@@ -79,6 +79,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLetExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkDownDeprecationDocumentation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownDocumentationLine;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownParameterDocumentation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownReturnParameterDocumentation;
@@ -1618,6 +1619,15 @@ public class NodeCloner extends BLangNodeVisitor {
     }
 
     @Override
+    public void visit(BLangMarkDownDeprecationDocumentation source) {
+        BLangMarkDownDeprecationDocumentation clone = new BLangMarkDownDeprecationDocumentation();
+        source.cloneRef = clone;
+        clone.deprecationLine = source.deprecationLine;
+        clone.deprecationDocumentationLines = source.deprecationDocumentationLines;
+        clone.isCorrectDeprecationLine = source.isCorrectDeprecationLine;
+    }
+
+    @Override
     public void visit(BLangMarkdownDocumentation source) {
 
         BLangMarkdownDocumentation clone = new BLangMarkdownDocumentation();
@@ -1626,6 +1636,7 @@ public class NodeCloner extends BLangNodeVisitor {
         clone.parameters.addAll(cloneList(source.parameters));
         clone.references.addAll(cloneList(source.references));
         clone.returnParameter = clone(source.returnParameter);
+        clone.deprecationDocumentation = clone(source.deprecationDocumentation);
     }
 
     @Override
@@ -1806,8 +1817,8 @@ public class NodeCloner extends BLangNodeVisitor {
         BLangXMLNavigationAccess clone = new BLangXMLNavigationAccess(
                 source.pos,
                 source.getWS(),
-                source.expr,
-                source.filters,
+                clone(source.expr),
+                cloneList(source.filters),
                 source.navAccessType,
                 clone(source.childIndex));
         source.cloneRef = clone;

@@ -31,10 +31,8 @@ import org.ballerinalang.jvm.values.freeze.FreezeUtils;
 import org.ballerinalang.jvm.values.freeze.State;
 import org.ballerinalang.jvm.values.freeze.Status;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -99,7 +97,7 @@ public final class XMLSequence extends XMLValue {
      */
     @Override
     public boolean isSingleton() {
-        return children.size() == 1;
+        return children.size() == 1 && children.get(0).isSingleton();
     }
 
     /**
@@ -441,13 +439,11 @@ public final class XMLSequence extends XMLValue {
     @Override
     public String stringValue() {
         try {
-            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-            BallerinaXMLSerializer serializer = new BallerinaXMLSerializer(outputStream);
-            serializer.write(this);
-            serializer.flush();
-            String str = new String(outputStream.toByteArray(), StandardCharsets.UTF_8);
-            serializer.close();
-            return str;
+            StringBuilder sb = new StringBuilder();
+            for (BXML child : children) {
+                sb.append(child.stringValue());
+            }
+            return sb.toString();
         } catch (Throwable t) {
             handleXmlException("failed to get xml as string: ", t);
         }

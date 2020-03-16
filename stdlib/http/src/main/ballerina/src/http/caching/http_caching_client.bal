@@ -14,6 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/cache;
 import ballerina/log;
 import ballerina/runtime;
 import ballerina/time;
@@ -52,7 +53,6 @@ public const RFC_7234 = "RFC_7234";
 #
 # + enabled - Specifies whether HTTP caching is enabled. Caching is enabled by default.
 # + isShared - Specifies whether the HTTP caching layer should behave as a public cache or a private cache
-# + expiryTimeInMillis - The number of milliseconds to keep an entry in the cache
 # + capacity - The capacity of the cache
 # + evictionFactor - The fraction of entries to be removed when the cache is full. The value should be
 #                    between 0 (exclusive) and 1 (inclusive).
@@ -62,7 +62,6 @@ public const RFC_7234 = "RFC_7234";
 public type CacheConfig record {|
     boolean enabled = true;
     boolean isShared = false;
-    int expiryTimeInMillis = 86400;
     int capacity = 8388608; // 8MB
     float evictionFactor = 0.2;
     CachingPolicy policy = CACHE_CONTROL_AND_VALIDATORS;
@@ -512,8 +511,18 @@ function invalidateResponses(HttpCache httpCache, Response inboundResponse, stri
     // TODO: Improve this logic in accordance with the spec
     if (isCacheableStatusCode(inboundResponse.statusCode) &&
         inboundResponse.statusCode >= 200 && inboundResponse.statusCode < 400) {
-        httpCache.cache.remove(getCacheKey(GET, path));
-        httpCache.cache.remove(getCacheKey(HEAD, path));
+        cache:Error? result = httpCache.cache.invalidate(getCacheKey(GET, path));
+        if (result is cache:Error) {
+            log:printDebug(function() returns string {
+                return "Failed to remove the key: " + getCacheKey(GET, path) + " from the cache.";
+            });
+        }
+        result = httpCache.cache.invalidate(getCacheKey(HEAD, path));
+        if (result is cache:Error) {
+            log:printDebug(function() returns string {
+                return "Failed to remove the key: " + getCacheKey(GET, path) + " from the cache.";
+            });
+        }
     }
 }
 

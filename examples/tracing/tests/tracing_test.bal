@@ -1,5 +1,4 @@
 import ballerina/test;
-import ballerina/io;
 import ballerina/http;
 
 @test:Config { }

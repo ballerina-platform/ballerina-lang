@@ -101,6 +101,7 @@ dependencies {
 
     dist project(':testerina:testerina-core')
     dist project(':ballerina-formatter')
+    dist project(':ballerina-bindgen')
     dist project(':ballerina-backend-jvm')
     birJar project(path: ':ballerina-backend-jvm', configuration: 'birJar')
     dist project(':language-server:language-server-compiler')
@@ -159,7 +160,6 @@ task configured {
 
 }
 
-
 def copyJarSpec = {
     base -> copySpec {
         from configurations.dist
@@ -171,6 +171,7 @@ def copyBaloSpec = {
     path -> copySpec {
         from configurations.distBal
         into(path + 'lib')
+        fileMode 0644
     }
 }
 
@@ -227,6 +228,13 @@ def copyBinSpec = {
 def copyKraalLib = {
     path -> copySpec {
         from('lib')
+        into("$path/bre/lib")
+    }
+}
+
+def copyJaCoCoAgent = {
+    path -> copySpec {
+        from('jacoco/jacocoagent.jar')
         into("$path/bre/lib")
     }
 }
@@ -381,6 +389,7 @@ task createZip(type: Zip) {
     with copyResourceSpec(basePath)
 //    with copySrcBaloSpec(basePath)
     with copyKraalLib(basePath)
+    with copyJaCoCoAgent(basePath)
 }
 
 task updateBalHome(type: Copy) {
@@ -403,6 +412,7 @@ task updateBalHome(type: Copy) {
     with copyStaticSpec(installDir)
     with copyResourceSpec(installDir)
     with copyKraalLib(installDir)
+    with copyJaCoCoAgent(installDir)
 //    with copySrcBaloSpec(installDir)
     into System.getenv('BAL_HOME')
 }
@@ -430,6 +440,7 @@ task createDistribution(type: Copy) {
     with copyResourceSpec("")
 //    with copySrcBaloSpec("")
     with copyKraalLib("")
+    with copyJaCoCoAgent("")
     destinationDir=file(filePath)
 }
 

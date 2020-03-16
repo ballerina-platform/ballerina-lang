@@ -29,9 +29,19 @@ public class TesterinaConstants {
     public static final String TESTERINA_TEMP_DIR = ".testerina";
     public static final String TESTERINA_TEST_SUITE = "test_suit.json";
     public static final String TESTERINA_LAUNCHER_CLASS_NAME = "org.ballerinalang.test.runtime.Main";
+    public static final String CODE_COV_GENERATOR_CLASS_NAME = "org.ballerinalang.test.runtime.CoverageMain";
     public static final String TEST_RUNTIME_JAR_PREFIX = "testerina-runtime-";
 
     public static final String DOT = ".";
     public static final String ANON_ORG = "$anon";
 
+    //Coverage constants
+    public static final String BIN_DIR = "bin";
+    public static final String SRC_DIR = "src";
+    public static final String EXEC_FILE_NAME = "ballerina.exec";
+    public static final String AGENT_FILE_NAME = "jacocoagent.jar";
+    public static final String COVERAGE_DIR = "coverage";
+    public static final String STATUS_FILE = "module_status.json";
+    public static final String COVERAGE_FILE = "module_coverage.json";
+    public static final String TEST_RESULTS_FILE = "test_results.json";
 }

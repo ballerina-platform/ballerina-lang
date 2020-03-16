@@ -79,6 +79,10 @@
                 "url": "closures"
             },
             {
+                "name": "Expression-bodied Functions",
+                "url": "expression-bodied-functions"
+            },
+            {
                 "name": "Functional Iteration",
                 "url": "functional-iteration"
             },
@@ -509,7 +513,7 @@
                 "url": "time"
             },
             {
-                "name": "Caching",
+                "name": "Cache",
                 "url": "cache"
             },
             {
@@ -1026,12 +1030,12 @@
         "column": 3,
         "category": "Working over the network",
         "samples": [{
-                "name": "Secured Service with JWT",
-                "url": "secured-service-with-jwt"
-            },
-            {
                 "name": "Secured Service with Basic Auth",
                 "url": "secured-service-with-basic-auth"
+            },
+            {
+                "name": "Secured Service with JWT",
+                "url": "secured-service-with-jwt"
             },
             {
                 "name": "Secured Service with OAuth2",
@@ -1048,6 +1052,16 @@
             {
                 "name": "Secured Client with OAuth2",
                 "url": "secured-client-with-oauth2"
+            }
+        ]
+    },
+    {
+        "title": "Email",
+        "column": 2,
+        "category": "Working over the network",
+        "samples": [{
+                "name": "Send and Receive Emails",
+                "url": "send-and-receive-emails"
             }
         ]
     },

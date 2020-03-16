@@ -244,13 +244,19 @@ class JMethodResolver {
                 case TypeTags.NIL:
                     return jTypeName.equals(J_VOID_TNAME);
                 case TypeTags.INT:
+                case TypeTags.SIGNED32_INT:
+                case TypeTags.SIGNED16_INT:
+                case TypeTags.SIGNED8_INT:
+                case TypeTags.UNSIGNED32_INT:
+                case TypeTags.UNSIGNED16_INT:
+                case TypeTags.UNSIGNED8_INT:
                 case TypeTags.BYTE:
                 case TypeTags.FLOAT:
                     if (jTypeName.equals(J_OBJECT_TNAME)) {
                         return true;
                     }
 
-                    if (bType.tag == TypeTags.INT && jTypeName.equals(J_LONG_OBJ_TNAME)) {
+                    if (TypeTags.isIntegerTypeTag(bType.tag) && jTypeName.equals(J_LONG_OBJ_TNAME)) {
                         return true;
                     }
 
@@ -274,6 +280,7 @@ class JMethodResolver {
                 case TypeTags.DECIMAL:
                     return this.classLoader.loadClass(BDecimal.class.getCanonicalName()).isAssignableFrom(jType);
                 case TypeTags.STRING:
+                case TypeTags.CHAR_STRING:
                     return this.classLoader.loadClass(BString.class.getCanonicalName()).isAssignableFrom(jType);
                 case TypeTags.MAP:
                 case TypeTags.RECORD:
@@ -287,6 +294,10 @@ class JMethodResolver {
                 case TypeTags.TABLE:
                     return this.classLoader.loadClass(BTable.class.getCanonicalName()).isAssignableFrom(jType);
                 case TypeTags.XML:
+                case TypeTags.XML_ELEMENT:
+                case TypeTags.XML_PI:
+                case TypeTags.XML_COMMENT:
+                case TypeTags.XML_TEXT:
                     return this.classLoader.loadClass(BXML.class.getCanonicalName()).isAssignableFrom(jType);
                 case TypeTags.TUPLE:
                 case TypeTags.ARRAY:
@@ -353,6 +364,12 @@ class JMethodResolver {
                 case TypeTags.NIL:
                     return jTypeName.equals(J_VOID_TNAME);
                 case TypeTags.INT:
+                case TypeTags.SIGNED32_INT:
+                case TypeTags.SIGNED16_INT:
+                case TypeTags.SIGNED8_INT:
+                case TypeTags.UNSIGNED32_INT:
+                case TypeTags.UNSIGNED16_INT:
+                case TypeTags.UNSIGNED8_INT:
                     if (jTypeName.equals(J_OBJECT_TNAME)) {
                         return true;
                     }
@@ -395,6 +412,7 @@ class JMethodResolver {
                 case TypeTags.DECIMAL:
                     return this.classLoader.loadClass(BDecimal.class.getCanonicalName()).isAssignableFrom(jType);
                 case TypeTags.STRING:
+                case TypeTags.CHAR_STRING:
                     return this.classLoader.loadClass(BString.class.getCanonicalName()).isAssignableFrom(jType);
                 case TypeTags.MAP:
                 case TypeTags.RECORD:
@@ -418,6 +436,10 @@ class JMethodResolver {
                 case TypeTags.TABLE:
                     return this.classLoader.loadClass(BTable.class.getCanonicalName()).isAssignableFrom(jType);
                 case TypeTags.XML:
+                case TypeTags.XML_ELEMENT:
+                case TypeTags.XML_PI:
+                case TypeTags.XML_COMMENT:
+                case TypeTags.XML_TEXT:
                     return this.classLoader.loadClass(BXML.class.getCanonicalName()).isAssignableFrom(jType);
                 case TypeTags.TUPLE:
                 case TypeTags.ARRAY:

@@ -90,22 +90,19 @@ public type Listener object {
     # + c - Configurations for HTTP service endpoints
     public function init(ListenerConfiguration c) {
         self.config = c;
-        var auth = self.config["auth"];
+        ListenerAuth? auth = self.config["auth"];
         if (auth is ListenerAuth) {
             if (auth.mandateSecureSocket) {
-                var secureSocket = self.config.secureSocket;
-                if (secureSocket is ListenerSecureSocket) {
-                    addAuthFilters(self.config);
-                } else {
+                ListenerSecureSocket? secureSocket = self.config.secureSocket;
+                if (secureSocket is ()) {
                     error err = error("Secure sockets have not been cofigured in order to enable auth providers.");
                     panic err;
                 }
-            } else {
-                addAuthFilters(self.config);
             }
+            addAuthFilters(self.config);
         }
         addAttributeFilter(self.config);
-        var err = self.initEndpoint();
+        error? err = self.initEndpoint();
         if (err is error) {
             panic err;
         }
@@ -247,15 +244,15 @@ public type ListenerHttp1Settings record {|
 # + scopes - An array of scopes or an array consisting of arrays of scopes. An array is used to indicate that at least one of the scopes should
 # be successfully authorized. An array consisting of arrays is used to indicate that at least one scope from the sub-arrays
 # should successfully be authorized
-# + positiveAuthzCache - The caching configurations for positive authorizations
-# + negativeAuthzCache - The caching configurations for negative authorizations
+# + positiveAuthzCache - The `cache:Cache` object for positive authorizations
+# + negativeAuthzCache - The `cache:Cache` object for negative authorizations
 # + mandateSecureSocket - Specify whether secure socket configurations are mandatory or not
 # + position - The authn/authz filter position of the filter array. The position values starts from 0 and it is set to 0 implicitly
 public type ListenerAuth record {|
-    InboundAuthHandler[]|InboundAuthHandler[][] authHandlers;
-    string[]|string[][] scopes?;
-    AuthzCacheConfig positiveAuthzCache = {};
-    AuthzCacheConfig negativeAuthzCache = {};
+    InboundAuthHandlers authHandlers;
+    Scopes scopes?;
+    cache:Cache? positiveAuthzCache = new;
+    cache:Cache? negativeAuthzCache = new;
     boolean mandateSecureSocket = true;
     int position = 0;
 |};
@@ -298,20 +295,6 @@ public type ListenerSecureSocket record {|
     ListenerOcspStapling? ocspStapling = ();
 |};
 
-# Provides a set of configurations for controlling the authorization caching behaviour of the endpoint.
-#
-# + enabled - Specifies whether authorization caching is enabled. Caching is enabled by default.
-# + capacity - The capacity of the cache
-# + expiryTimeInMillis - The number of milliseconds to keep an entry in the cache
-# + evictionFactor - The fraction of entries to be removed when the cache is full. The value should be
-#                    between 0 (exclusive) and 1 (inclusive).
-public type AuthzCacheConfig record {|
-    boolean enabled = true;
-    int capacity = 100;
-    int expiryTimeInMillis = 5 * 1000; // 5 seconds;
-    float evictionFactor = 1;
-|};
-
 # Defines the possible values for the keep-alive configuration in service and client endpoints.
 public type KeepAlive KEEPALIVE_AUTO|KEEPALIVE_ALWAYS|KEEPALIVE_NEVER;
 
@@ -337,25 +320,15 @@ function addAuthFilters(ListenerConfiguration config) {
     // the auth filter position is specified as 0. If there are any filters specified, the authentication and
     // authorization filters should be added into the position specified.
 
-    var auth = config["auth"];
+    ListenerAuth? auth = config["auth"];
     if (auth is ListenerAuth) {
-        InboundAuthHandler[]|InboundAuthHandler[][] authHandlers = auth.authHandlers;
+        InboundAuthHandlers authHandlers = auth.authHandlers;
         AuthnFilter authnFilter = new(authHandlers);
 
-        cache:Cache? positiveAuthzCache = ();
-        cache:Cache? negativeAuthzCache = ();
-        if (auth.positiveAuthzCache.enabled) {
-            positiveAuthzCache = new cache:Cache(auth.positiveAuthzCache.expiryTimeInMillis,
-                                     auth.positiveAuthzCache.capacity,
-                                     auth.positiveAuthzCache.evictionFactor);
-        }
-        if (auth.negativeAuthzCache.enabled) {
-            negativeAuthzCache = new cache:Cache(auth.negativeAuthzCache.expiryTimeInMillis,
-                                     auth.negativeAuthzCache.capacity,
-                                     auth.negativeAuthzCache.evictionFactor);
-        }
+        cache:Cache? positiveAuthzCache = auth.positiveAuthzCache ?: ();
+        cache:Cache? negativeAuthzCache = auth.positiveAuthzCache ?: ();
         AuthzHandler authzHandler = new(positiveAuthzCache, negativeAuthzCache);
-        var scopes = auth["scopes"];
+        Scopes? scopes = auth["scopes"];
         AuthzFilter authzFilter = new(authzHandler, scopes);
 
         if (auth.position == 0) {
@@ -385,7 +358,7 @@ type AttributeFilter object {
     *RequestFilter;
 
     public function filterRequest(Caller caller, Request request, FilterContext context) returns boolean {
-        var ctx = runtime:getInvocationContext();
+        runtime:InvocationContext ctx = runtime:getInvocationContext();
         ctx.attributes[SERVICE_NAME] = context.getServiceName();
         ctx.attributes[RESOURCE_NAME] = context.getResourceName();
         ctx.attributes[REQUEST_METHOD] = request.method;

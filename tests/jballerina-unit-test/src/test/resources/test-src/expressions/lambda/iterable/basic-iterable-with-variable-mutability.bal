@@ -124,12 +124,11 @@ function xmlTest() returns [string, xml] {
     </p:person>`;
 
     int index = 0;
-    xml m = xdata/*.elements()[1]/*.elements()
-                 .'map(function (xml|string x) returns (string| xml) {
+    xml m = (xdata/<*>[1]/<*>).'map(function (xml x) returns (xml) {
                             index += 1;
-                            if x is xml {
+                            //if x is xml {
                                 str = str + "-" + index.toString();
-                            }
+                            //}
                             return x;
                       });
     str = str + "-end";
@@ -303,51 +302,51 @@ function testWithComplexJson() returns json[] {
     return filteredResults;
 }
 
-function testWithComplexXML() returns ([int, string][]) {
-    xml bookstore = xml `<bookstore>
-                        <book category="cooking">
-                            <title lang="en">Everyday Italian</title>
-                            <author>Giada De Laurentiis</author>
-                            <year>2005</year>
-                            <price>30.00</price>
-                        </book>
-                        <book category="children">
-                            <title lang="en">Harry Potter</title>
-                            <author>J. K. Rowling</author>
-                            <year>2005</year>
-                            <price>29.99</price>
-                        </book>
-                        <book category="web">
-                            <title lang="en">XQuery Kick Start</title>
-                            <author>James McGovern</author>
-                            <author>Per Bothner</author>
-                            <author>Kurt Cagle</author>
-                            <author>James Linn</author>
-                            <author>Vaidyanathan Nagarajan</author>
-                            <year>2003</year>
-                            <price>49.99</price>
-                        </book>
-                        <book category="web" cover="paperback">
-                            <title lang="en">Learning XML</title>
-                            <author>Erik T. Ray</author>
-                            <year>2003</year>
-                            <price>39.95</price>
-                        </book>
-                    </bookstore>`;
-
-    [int, string][] titles = [];
-    int count = 0;
-
-    bookstore["book"].forEach(function (xml|string ent) {
-            // If the element is an xml.
-            if (ent is xml) {
-                titles[count] = [count, ent["title"].getTextValue()];
-                count += 1;
-            }
-    });
-
-    return titles;
-}
+//function testWithComplexXML() returns ([int, string][]) {
+//    xml bookstore = xml `<bookstore>
+//                        <book category="cooking">
+//                            <title lang="en">Everyday Italian</title>
+//                            <author>Giada De Laurentiis</author>
+//                            <year>2005</year>
+//                            <price>30.00</price>
+//                        </book>
+//                        <book category="children">
+//                            <title lang="en">Harry Potter</title>
+//                            <author>J. K. Rowling</author>
+//                            <year>2005</year>
+//                            <price>29.99</price>
+//                        </book>
+//                        <book category="web">
+//                            <title lang="en">XQuery Kick Start</title>
+//                            <author>James McGovern</author>
+//                            <author>Per Bothner</author>
+//                            <author>Kurt Cagle</author>
+//                            <author>James Linn</author>
+//                            <author>Vaidyanathan Nagarajan</author>
+//                            <year>2003</year>
+//                            <price>49.99</price>
+//                        </book>
+//                        <book category="web" cover="paperback">
+//                            <title lang="en">Learning XML</title>
+//                            <author>Erik T. Ray</author>
+//                            <year>2003</year>
+//                            <price>39.95</price>
+//                        </book>
+//                    </bookstore>`;
+//
+//    [int, string][] titles = [];
+//    int count = 0;
+//
+//    bookstore["book"].forEach(function (xml|string ent) {
+//            // If the element is an xml.
+//            if (ent is xml) {
+//                titles[count] = [count, ent["title"].getTextValue()];
+//                count += 1;
+//            }
+//    });
+//
+//    return titles;
+//}
 
 type Balance record {
     string asset;

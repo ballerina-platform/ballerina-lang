@@ -18,7 +18,7 @@ import ballerina/kafka;
 
 string topic = "service-invalid-return-type-test";
 
-kafka:ConsumerConfig consumerConfigs = {
+kafka:ConsumerConfiguration consumerConfigs = {
     bootstrapServers: "localhost:9094",
     groupId: "service-test-invalid-return-type-group",
     clientId: "service-invalid-return-consumer",

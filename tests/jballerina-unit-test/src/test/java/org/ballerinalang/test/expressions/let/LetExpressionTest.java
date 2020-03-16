@@ -52,7 +52,9 @@ public class LetExpressionTest {
         BAssertUtil.validateError(negativeResult, i++, "redeclared symbol 'x'", 19, 21);
         BAssertUtil.validateError(negativeResult, i++, "undefined symbol 'y'", 23, 27);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int', found 'string'", 27, 25);
-        BAssertUtil.validateError(negativeResult, i, "incompatible types: expected 'string', found 'int'", 29, 28);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int', found 'string'", 28, 13);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'string', found 'int'", 29, 28);
+        BAssertUtil.validateError(negativeResult, i, "incompatible types: expected 'string', found 'int'", 30, 16);
     }
 
     @Test(description = "Test cases for scenarios where let expression is not yet supported")

@@ -52,6 +52,7 @@ dependencies {
     distBal project(path: ':ballerina-cache', configuration: 'baloImplementation')
     distBal project(path: ':ballerina-config-api', configuration: 'baloImplementation')
     distBal project(path: ':ballerina-crypto', configuration: 'baloImplementation')
+    distBal project(path: ':ballerina-email', configuration: 'baloImplementation')
     distBal project(path: ':ballerina-file', configuration: 'baloImplementation')
     distBal project(path: ':ballerina-filepath', configuration: 'baloImplementation')
     distBal project(path: ':ballerina-grpc', configuration: 'baloImplementation')
@@ -86,7 +87,6 @@ dependencies {
     distBal project(path: ':ballerina-ldap', configuration: 'baloImplementation')
     distBal project(path: ':ballerina-oauth2', configuration: 'baloImplementation')
     distBal project(path: ':ballerina-xmlutils', configuration: 'baloImplementation')
-    distBal project(path: ':ballerina-llvm', configuration: 'baloImplementation')
     distBal project(path: ':ballerina-jsonutils', configuration: 'baloImplementation')
 
     // Lang libs
@@ -112,6 +112,7 @@ dependencies {
     balSource project(path: ':ballerina-cache', configuration: 'balSource')
     balSource project(path: ':ballerina-config-api', configuration: 'balSource')
     balSource project(path: ':ballerina-crypto', configuration: 'balSource')
+    balSource project(path: ':ballerina-email', configuration: 'balSource')
     balSource project(path: ':ballerina-file', configuration: 'balSource')
     balSource project(path: ':ballerina-filepath', configuration: 'balSource')
     balSource project(path: ':ballerina-grpc', configuration: 'balSource')
@@ -140,7 +141,6 @@ dependencies {
     balSource project(path: ':ballerina-ldap', configuration: 'balSource')
     balSource project(path: ':ballerina-oauth2', configuration: 'balSource')
     balSource project(path: ':ballerina-xmlutils', configuration: 'balSource')
-    balSource project(path: ':ballerina-llvm', configuration: 'balSource')
     balSource project(path: ':ballerina-jsonutils', configuration: 'balSource')
 
     // Lang Libs

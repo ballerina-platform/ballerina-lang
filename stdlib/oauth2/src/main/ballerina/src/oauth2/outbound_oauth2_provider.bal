@@ -21,6 +21,9 @@ import ballerina/mime;
 import ballerina/runtime;
 import ballerina/time;
 
+# Represents the grant type configs supported for OAuth2.
+type GrantTypeConfig ClientCredentialsGrantConfig|PasswordGrantConfig|DirectTokenConfig;
+
 # Represents outbound OAuth2 provider.
 #
 # + oauth2ProviderConfig - Outbound OAuth2 provider configurations
@@ -29,13 +32,13 @@ public type OutboundOAuth2Provider object {
 
     *auth:OutboundAuthProvider;
 
-    public ClientCredentialsGrantConfig|PasswordGrantConfig|DirectTokenConfig? oauth2ProviderConfig;
+    public GrantTypeConfig? oauth2ProviderConfig;
     public OutboundOAuth2CacheEntry oauth2CacheEntry;
 
     # Provides authentication based on the provided OAuth2 configuration.
     #
-    # + outboundJwtAuthConfig - Outbound OAuth2 authentication configurations
-    public function __init(ClientCredentialsGrantConfig|PasswordGrantConfig|DirectTokenConfig? oauth2ProviderConfig = ()) {
+    # + oauth2ProviderConfig - Outbound OAuth2 authentication configurations
+    public function __init(GrantTypeConfig? oauth2ProviderConfig = ()) {
         self.oauth2ProviderConfig = oauth2ProviderConfig;
         self.oauth2CacheEntry = {
             accessToken: "",
@@ -48,7 +51,7 @@ public type OutboundOAuth2Provider object {
     #
     # + return - Generated token or `auth:Error` if an error occurred
     public function generateToken() returns @tainted (string|auth:Error) {
-        var oauth2ProviderConfig = self.oauth2ProviderConfig;
+        GrantTypeConfig? oauth2ProviderConfig = self.oauth2ProviderConfig;
         if (oauth2ProviderConfig is ()) {
             runtime:AuthenticationContext? authContext = runtime:getInvocationContext()?.authenticationContext;
             if (authContext is runtime:AuthenticationContext) {
@@ -59,7 +62,7 @@ public type OutboundOAuth2Provider object {
             }
             return prepareAuthError("Failed to generate OAuth2 token since OAuth2 provider config is not defined and auth token is not defined in the authentication context at invocation context.");
         } else {
-            var authToken = generateAuthTokenForOAuth2(oauth2ProviderConfig, self.oauth2CacheEntry);
+            string|Error authToken = generateAuthTokenForOAuth2(oauth2ProviderConfig, self.oauth2CacheEntry);
             if (authToken is string) {
                 return authToken;
             } else {
@@ -73,12 +76,12 @@ public type OutboundOAuth2Provider object {
     # + data - Map of data which is extracted from the HTTP response
     # + return - String token, or `auth:Error` occurred when generating token or `()` if nothing to be returned
     public function inspect(map<anydata> data) returns @tainted (string|auth:Error?) {
-        var oauth2ProviderConfig = self.oauth2ProviderConfig;
+        GrantTypeConfig? oauth2ProviderConfig = self.oauth2ProviderConfig;
         if (oauth2ProviderConfig is ()) {
             return ();
         } else {
             if (data[http:STATUS_CODE] == http:STATUS_UNAUTHORIZED) {
-                var authToken = inspectAuthTokenForOAuth2(oauth2ProviderConfig, self.oauth2CacheEntry);
+                string|Error authToken = inspectAuthTokenForOAuth2(oauth2ProviderConfig, self.oauth2CacheEntry);
                 if (authToken is string) {
                     return authToken;
                 } else {
@@ -218,8 +221,7 @@ type RequestConfig record {|
 # + authConfig - OAuth2 configurations
 # + oauth2CacheEntry - OAuth2 cache entry
 # + return - Auth token or `Error` if the validation fails
-function generateAuthTokenForOAuth2(ClientCredentialsGrantConfig|PasswordGrantConfig|DirectTokenConfig authConfig,
-                                    @tainted OutboundOAuth2CacheEntry oauth2CacheEntry)
+function generateAuthTokenForOAuth2(GrantTypeConfig authConfig, @tainted OutboundOAuth2CacheEntry oauth2CacheEntry)
                                     returns @tainted (string|Error) {
     if (authConfig is PasswordGrantConfig) {
         return getAuthTokenForOAuth2PasswordGrant(authConfig, oauth2CacheEntry);
@@ -235,8 +237,8 @@ function generateAuthTokenForOAuth2(ClientCredentialsGrantConfig|PasswordGrantCo
 # + authConfig - OAuth2 configurations
 # + oauth2CacheEntry - OAuth2 cache entry
 # + return - Auth token or `Error` if the validation fails
-function inspectAuthTokenForOAuth2(ClientCredentialsGrantConfig|PasswordGrantConfig|DirectTokenConfig authConfig,
-                                   @tainted OutboundOAuth2CacheEntry oauth2CacheEntry) returns @tainted (string|Error) {
+function inspectAuthTokenForOAuth2(GrantTypeConfig authConfig, @tainted OutboundOAuth2CacheEntry oauth2CacheEntry)
+                                   returns @tainted (string|Error) {
     if (authConfig is PasswordGrantConfig) {
         if (authConfig.retryRequest) {
             return getAuthTokenForOAuth2PasswordGrant(authConfig, oauth2CacheEntry);
@@ -346,7 +348,7 @@ function getAuthTokenForOAuth2DirectTokenMode(DirectTokenConfig grantTypeConfig,
                                               returns @tainted (string|Error) {
     string cachedAccessToken = oauth2CacheEntry.accessToken;
     if (cachedAccessToken == "") {
-        var directAccessToken = grantTypeConfig?.accessToken;
+        string? directAccessToken = grantTypeConfig?.accessToken;
         if (directAccessToken is string && directAccessToken != "") {
             log:printDebug(function () returns string {
                 return "OAuth2 direct token mode; Access token received from user given request. Cache is empty.";
@@ -482,7 +484,7 @@ function getAccessTokenFromRefreshRequest(PasswordGrantConfig|DirectTokenConfig 
     http:ClientConfiguration clientConfig;
 
     if (config is PasswordGrantConfig) {
-        var refreshConfig = config?.refreshConfig;
+        RefreshConfig? refreshConfig = config?.refreshConfig;
         if (refreshConfig is RefreshConfig) {
             string? clientId = config?.clientId;
             string? clientSecret = config?.clientSecret;
@@ -507,7 +509,7 @@ function getAccessTokenFromRefreshRequest(PasswordGrantConfig|DirectTokenConfig 
         }
         clockSkewInSeconds = config.clockSkewInSeconds;
     } else {
-        var refreshConfig = config?.refreshConfig;
+        DirectTokenRefreshConfig? refreshConfig = config?.refreshConfig;
         if (refreshConfig is DirectTokenRefreshConfig) {
             if (refreshConfig.clientId == "" || refreshConfig.clientSecret == "") {
                 return prepareError("Client id or client secret cannot be empty.");
@@ -543,7 +545,7 @@ function doRequest(string url, http:Request request, http:ClientConfiguration cl
                    @tainted OutboundOAuth2CacheEntry oauth2CacheEntry, int clockSkewInSeconds)
                    returns @tainted (string|Error) {
     http:Client clientEP = new(url, clientConfig);
-    var response = clientEP->post("", request);
+    http:Response|http:ClientError response = clientEP->post("", request);
     if (response is http:Response) {
         log:printDebug(function () returns string {
             return "Request sent successfully to URL: " + url;
@@ -564,7 +566,7 @@ function prepareRequest(RequestConfig config) returns http:Request|Error {
     string scopeString = "";
     string[]? scopes = config.scopes;
     if (scopes is string[]) {
-        foreach var requestScope in scopes {
+        foreach string requestScope in scopes {
             string trimmedRequestScope = requestScope.trim();
             if (trimmedRequestScope != "") {
                 scopeString = scopeString + " " + trimmedRequestScope;
@@ -604,7 +606,7 @@ function prepareRequest(RequestConfig config) returns http:Request|Error {
 function extractAccessTokenFromResponse(http:Response response, @tainted OutboundOAuth2CacheEntry oauth2CacheEntry,
                                         int clockSkewInSeconds) returns @tainted (string|Error) {
     if (response.statusCode == http:STATUS_OK) {
-        var payload = response.getJsonPayload();
+        json|http:ClientError payload = response.getJsonPayload();
         if (payload is json) {
             log:printDebug(function () returns string {
                 return "Received an valid response. Extracting access token from the payload.";
@@ -615,7 +617,7 @@ function extractAccessTokenFromResponse(http:Response response, @tainted Outboun
             return prepareError("Failed to retrieve access token since the response payload is not a JSON.", payload);
         }
     } else {
-        var payload = response.getTextPayload();
+        string|http:ClientError payload = response.getTextPayload();
         if (payload is string) {
             return prepareError("Received an invalid response with status-code: " + response.statusCode.toString() + "; and payload: " + payload);
         } else {
@@ -634,7 +636,7 @@ function updateOAuth2CacheEntry(json responsePayload, OutboundOAuth2CacheEntry o
     int issueTime = time:currentTime().time;
     string accessToken = responsePayload.access_token.toString();
     oauth2CacheEntry.accessToken = accessToken;
-    var expiresIn = responsePayload.expires_in;
+    json|error expiresIn = responsePayload?.expires_in;
     if (expiresIn is int) {
         oauth2CacheEntry.expTime = issueTime + (expiresIn - clockSkewInSeconds) * 1000;
     }

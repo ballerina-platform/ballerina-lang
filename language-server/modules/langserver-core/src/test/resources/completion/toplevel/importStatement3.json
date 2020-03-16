@@ -358,6 +358,14 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "email",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "110",
+      "insertText": "email",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "lang.int",
       "kind": "Module",
       "detail": "Module",

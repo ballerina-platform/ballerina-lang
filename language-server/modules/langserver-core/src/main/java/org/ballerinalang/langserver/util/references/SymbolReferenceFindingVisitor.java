@@ -62,6 +62,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangGroupExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangLetExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
@@ -115,6 +116,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangFiniteTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFunctionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangStreamType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangTupleTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUnionTypeNode;
@@ -907,6 +909,19 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
     public void visit(BLangLetClause letClause) {
         letClause.letVarDeclarations
                 .forEach(bLangLetVariable -> this.acceptNode((BLangNode) bLangLetVariable.definitionNode));
+    }
+
+    @Override
+    public void visit(BLangLetExpression letExpr) {
+        letExpr.letVarDeclarations
+                .forEach(bLangLetVariable -> this.acceptNode((BLangNode) bLangLetVariable.definitionNode));
+        this.acceptNode(letExpr.expr);
+    }
+
+    @Override
+    public void visit(BLangStreamType streamType) {
+        this.acceptNode(streamType.constraint);
+        this.acceptNode(streamType.error);
     }
 
     private void acceptNode(BLangNode node) {

@@ -14,7 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-
 ///////////////////////////
 /// Service Annotations ///
 ///////////////////////////
@@ -139,8 +138,8 @@ public type WebSocketUpgradeConfig record {|
 # should be successfully authorized.
 public type ServiceAuth record {|
     boolean enabled = true;
-    InboundAuthHandler[]|InboundAuthHandler[][] authHandlers?;
-    string[]|string[][] scopes?;
+    InboundAuthHandlers authHandlers?;
+    Scopes scopes?;
 |};
 
 # Configures the authentication scheme for a resource.
@@ -154,8 +153,8 @@ public type ServiceAuth record {|
 # should be successfully authorized.
 public type ResourceAuth record {|
     boolean enabled?;
-    InboundAuthHandler[]|InboundAuthHandler[][] authHandlers?;
-    string[]|string[][] scopes?;
+    InboundAuthHandlers authHandlers?;
+    Scopes scopes?;
 |};
 
 # The annotation which is used to configure an HTTP resource.
