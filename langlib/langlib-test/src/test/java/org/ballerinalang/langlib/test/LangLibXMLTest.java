@@ -184,37 +184,37 @@ public class LangLibXMLTest {
         assertEquals((returns[0]).stringValue(), "<!--This text should be wraped in xml comment-->");
     }
 
-//    @Test
-//    public void testForEach() {
-//        BValue[] returns = BRunUtil.invoke(compileResult, "testForEach");
-//        Assert.assertEquals((returns[0]).size(), 3);
-//    }
+    @Test
+    public void testForEach() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testForEach");
+        assertEquals((returns[0]).size(), 3);
+    }
 
-//    @Test
-//    public void testSlice() {
-//        BValue[] returns = BRunUtil.invoke(compileResult, "testSlice");
-//        Assert.assertEquals(returns[0].stringValue(), "<elemL>content</elemL><elemN>content</elemN>");
-//        Assert.assertEquals(returns[1].stringValue(), "<elemN>content</elemN><elemM>content</elemM>");
-//        Assert.assertEquals(returns[2].stringValue(), "<elemN>content</elemN><elemM>content</elemM>");
-//    }
-//
-//    @Test
-//    public void testXMLCycleError() {
-//        BValue[] returns = BRunUtil.invoke(compileResult, "testXMLCycleError");
-//        Assert.assertEquals(returns[0].stringValue(),
-//                "{ballerina/lang.xml}XMLOperationError " +
-//                        "{message:\"Failed to set children to xml element: Cycle detected\"}");
-//        Assert.assertTrue(returns[1].stringValue().contains("<CD><CD>"));
-//        Assert.assertTrue(returns[1].stringValue().contains("</CD></CD>"));
-//    }
-//
-//    @Test
-//    public void testXMLCycleDueToChildrenOfChildren() {
-//        BValue[] returns = BRunUtil.invoke(compileResult, "testXMLCycleDueToChildrenOfChildren");
-//        Assert.assertEquals(returns[0].stringValue(),
-//                "{ballerina/lang.xml}XMLOperationError " +
-//                        "{message:\"Failed to set children to xml element: Cycle detected\"}");
-//    }
+    @Test
+    public void testSlice() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testSlice");
+        assertEquals(returns[0].stringValue(), "<elemL>content</elemL><elemN>content</elemN>");
+        assertEquals(returns[1].stringValue(), "<elemN>content</elemN><elemM>content</elemM>");
+        assertEquals(returns[2].stringValue(), "<elemN>content</elemN><elemM>content</elemM>");
+    }
+
+    @Test
+    public void testXMLCycleError() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testXMLCycleError");
+        assertEquals(returns[0].stringValue(),
+                "{ballerina/lang.xml}XMLOperationError " +
+                        "{message:\"Failed to set children to xml element: Cycle detected\"}");
+        assertTrue(returns[1].stringValue().contains("<CD><CD>"));
+        assertTrue(returns[1].stringValue().contains("</CD></CD>"));
+    }
+
+    @Test
+    public void testXMLCycleDueToChildrenOfChildren() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testXMLCycleDueToChildrenOfChildren");
+        assertEquals(returns[0].stringValue(),
+                "{ballerina/lang.xml}XMLOperationError " +
+                        "{message:\"Failed to set children to xml element: Cycle detected\"}");
+    }
 
     @Test
     public void testNegativeCases() {
