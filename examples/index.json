@@ -53,12 +53,23 @@
                 "url": "functions-with-rest-parameter"
             },
             {
-                "name": "Documentation",
-                "url": "documentation"
-            },
-            {
                 "name": "Quoted Identifiers",
                 "url": "quoted-identifiers"
+            }
+        ]
+    },
+    {
+        "title": "Documentation",
+        "column": 0,
+        "category": "Language concepts",
+        "samples": [
+            {
+                "name": "Basic documentation",
+                "url": "basic-documentation"
+            },
+            {
+                "name": "Deprecation",
+                "url": "deprecation"
             }
         ]
     },
