@@ -92,7 +92,7 @@ public class XMLPi extends XMLNonElementItem {
 
     @Override
     public String stringValue() {
-        return "<?" + data + " " + target + "?>";
+        return "<?" + target + " " + data + "?>";
     }
 
     @Override
