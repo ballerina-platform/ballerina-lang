@@ -109,6 +109,7 @@ public class RunTestsTask implements Task {
         Path sourceRootPath = buildContext.get(BuildContextField.SOURCE_ROOT);
         List<BLangPackage> moduleBirMap = buildContext.getModules();
         testReport.setProjectName(sourceRootPath.toFile().getName());
+        int result = 0;
 
         // Only tests in packages are executed so default packages i.e. single bal files which has the package name
         // as "." are ignored. This is to be consistent with the "ballerina test" command which only executes tests
@@ -126,9 +127,10 @@ public class RunTestsTask implements Task {
             Path jsonPath = buildContext.getTestJsonPathTargetCache(bLangPackage.packageID);
             createTestJson(bLangPackage, suite, sourceRootPath, jsonPath);
             int testResult = runTestSuit(jsonPath, buildContext, testDependencies, bLangPackage);
-            if (testResult != 0) {
-                throw createLauncherException("there are test failures");
+            if (result == 0) {
+                result = testResult;
             }
+
             Path statusJsonPath = jsonPath.resolve(TesterinaConstants.STATUS_FILE);
             try {
                 ModuleStatus moduleStatus = loadModuleStatusFromFile(statusJsonPath);
@@ -140,7 +142,7 @@ public class RunTestsTask implements Task {
             if (coverage) {
                 int coverageResult = generateCoverageReport(buildContext, testDependencies, bLangPackage);
                 if (coverageResult != 0) {
-                    throw createLauncherException("there are test failures");
+                    throw createLauncherException("error while generating test report");
                 }
                 Path coverageJsonPath = jsonPath.resolve(TesterinaConstants.COVERAGE_FILE);
                 try {
@@ -153,6 +155,9 @@ public class RunTestsTask implements Task {
         }
         testReport.finalizeTestResults(coverage);
         writeReportToJson(buildContext.out(), testReport, targetDir);
+        if (result != 0) {
+            throw createLauncherException("there are test failures");
+        }
     }
 
     /**
@@ -232,12 +237,7 @@ public class RunTestsTask implements Task {
         out.println("Generating Test Report");
         File jsonFile = new File(jsonPath.resolve(TEST_RESULTS_FILE).toString());
         try (Writer writer = new OutputStreamWriter(new FileOutputStream(jsonFile), StandardCharsets.UTF_8)) {
-            Gson gson;
-            if (this.coverage) {
-                 gson = new Gson();
-            } else {
-                gson = new GsonBuilder().setExclusionStrategies(new TestReport.ReportExclusionStrategy()).create();
-            }
+            Gson gson = new Gson();
             String json = gson.toJson(testReport);
             writer.write(new String(json.getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8));
             out.println("\t" + Paths.get("").toAbsolutePath().relativize(jsonFile.toPath()));
