@@ -2,8 +2,7 @@
 # `.bal` file and execute the `ballerina run` command.
 $ ballerina run jdbc2_execute_operation.bal
 
-Drop table executed
-affectedRowCount=0 lastInsertId=
+Drop table executed. affectedRowCount=0 lastInsertId=
 Rows affected: 1
 Generated Customer ID: 1
 Updated Row count: 1

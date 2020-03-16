@@ -2,11 +2,11 @@
 # `.bal` file and execute the `ballerina run` command.
 $ ballerina run mysql_init_options.bal
 
-Error when initializing the MySQL client without any params.
+Error when initializing MySQL client without any params
 error {ballerina/sql}ApplicationError message=error in sql connector configuration: Failed to initialize pool: Access denied for user ''@'localhost' (using password: NO) Caused by :Access denied for user ''@'localhost' (using password: NO)
 MySQL client with user and password created.
 MySQL client with user and password created with default host.
 MySQL client with host, user, password, database and port created.
 MySQL client with database options created.
 MySQL client with connection pool created.
-Initialization completed successfully!
+Successfully completed initialization!

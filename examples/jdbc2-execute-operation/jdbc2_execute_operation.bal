@@ -9,8 +9,7 @@ returns int|string|sql:Error? {
     sql:ExecuteResult? result =
         check jdbcClient->execute("DROP TABLE IF EXISTS Customers");
     if (result is sql:ExecuteResult) {
-        io:println("Drop table executed");
-        io:println(result);
+        io:println("Drop table executed. ", result);
     }
     // Similarly, to drop a table, the `create` table query is executed.
     // Here, the `customerId` is an auto-generated column.
