@@ -31,7 +31,7 @@ public function main() {
     };
     io:println(addrMap);
 
-    // Retrieve a value using member access.
+    // Member access can be used to retrieve a value from a map.
     // Member access returns the value if a field exists in the map with the
     // specified key. Else, it returns `()` if a field does not exist with the specified key.
     // Thus, the type of a member access expression for a map is the union of
@@ -47,7 +47,7 @@ public function main() {
     // Retrieve a value using the `.get()` method.
     // If the map has a field with the specified key, `.get()` returns the value.
     // Else, it panics if the map does not have a field with the specified key.
-    // Thus, the type for `.get()` on a map is the map's constraint type.
+    // Thus, the return type of `.get()` when invoked on a map is the map's constraint type.
     string line2Value = addrMap.get("line2");
     io:println(line2Value);
 
@@ -55,8 +55,8 @@ public function main() {
     boolean hasPostalCode = addrMap.hasKey("postalCode");
     io:println(hasPostalCode);
 
-    // Member access lvalue expressions can be used to add fields to a map
-    // or update an already-existing field in the map.
+    // Member access expressions can be used on the left hand side of an assignment
+    // to add fields to a map or update an already-existing field in the map.
     addrMap["postalCode"] = "00300";
     io:println(addrMap);
 
@@ -77,8 +77,8 @@ public function main() {
 
     map<int> marks = {sam: 50, jon: 60};
 
-    // Calling the `.entries()` method on a map will return the key (`string`)
-    // and the value pairs as tuples.
+    // Calling the `.entries()` method on a map will return the key-value pairs as
+    // an array of tuples.
     map<int> modifiedMarks = marks.entries().map(function ([string, int] pair)
         returns int {
             var [name, score] = pair;
