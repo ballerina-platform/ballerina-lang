@@ -36,7 +36,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.channels.Channels;
 import java.nio.channels.ClosedChannelException;
@@ -126,6 +128,14 @@ public class ByteChannelUtils extends AbstractNativeChannel {
 
     public static Object openReadableFile(String pathUrl) {
         Object channel;
+        if (pathUrl.startsWith("b7a:")) {
+            String path = pathUrl.replace("b7a:", "");
+            try {
+                return getResources(path);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
         try {
             channel = createChannel(inFlow(pathUrl));
         } catch (BallerinaIOException e) {
@@ -134,6 +144,18 @@ public class ByteChannelUtils extends AbstractNativeChannel {
             return e;
         }
         return channel;
+    }
+
+    public static Object getResources(String pathUrl) throws IOException {
+        String[] str = Thread.currentThread().getStackTrace()[5].getClassName().split("\\.");
+        String path = "resources" + File.separator+ str[0] + File.separator + str[1] + File.separator + pathUrl;
+        InputStream resourceAsStream = ByteChannelUtils.class.getClassLoader().getResourceAsStream(path);
+        byte[] targetArray = new byte[resourceAsStream.available()];
+        resourceAsStream.read(targetArray);
+        ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(targetArray);
+        ReadableByteChannel readableByteChannel = Channels.newChannel(byteArrayInputStream);
+        Channel channel1 = new BlobIOChannel(new BlobChannel(readableByteChannel));
+        return createChannel(channel1);
     }
 
     public static Object openWritableFile(String pathUrl, boolean accessMode) {

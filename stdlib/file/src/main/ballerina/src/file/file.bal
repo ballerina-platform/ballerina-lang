@@ -166,3 +166,21 @@ function externCopy(handle path, handle destinationPath, boolean replaceExisting
     class: "org.ballerinalang.stdlib.file.nativeimpl.Utils",
     name: "copy"
 } external;
+
+public function getResourceFileInfo(@untainted string path) returns FileInfo|Error {
+    return externGetResourceFileInfo(java:fromString(path));
+}
+
+function externGetResourceFileInfo(handle path) returns FileInfo|Error = @java:Method {
+    class: "org.ballerinalang.stdlib.file.nativeimpl.Utils",
+    name: "getResourceFileInfo"
+} external;
+
+public function readResourceDir(@untainted string path, int maxDepth = -1) returns FileInfo[]|Error {
+    return externReadResourceDir(java:fromString(path), maxDepth);
+}
+
+function externReadResourceDir(handle path, int maxDepth) returns FileInfo[]|Error = @java:Method {
+    class: "org.ballerinalang.stdlib.file.nativeimpl.Utils",
+    name: "readResourceDir"
+} external;

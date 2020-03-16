@@ -89,3 +89,12 @@ public function openWritableCsvFile(@untainted string path,
     WritableCharacterChannel charChannel = new(byteChannel, charset);
     return new WritableCSVChannel(charChannel, fieldSeparator);
 }
+
+public function getResources(@untainted string path) returns @tainted ReadableByteChannel|Error {
+    return getResourcesExtern(java:fromString(path));
+}
+
+function getResourcesExtern(@untainted handle path) returns @tainted ReadableByteChannel|Error = @java:Method {
+    name: "getResources",
+    class: "org.ballerinalang.stdlib.io.nativeimpl.ByteChannelUtils"
+} external;

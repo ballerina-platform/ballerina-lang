@@ -39,7 +39,11 @@ import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.stream.Stream;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 
 import static java.nio.file.FileVisitResult.CONTINUE;
 import static java.nio.file.FileVisitResult.SKIP_SUBTREE;
@@ -144,6 +148,14 @@ public class Utils {
     }
 
     public static Object getFileInfo(String path) {
+        if (path.startsWith("b7a:")) {
+            String pathUrl = path.replace("b7a:", "");
+            try {
+                return getResourceFileInfo(pathUrl);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
         File inputFile = Paths.get(path).toAbsolutePath().toFile();
         if (!inputFile.exists()) {
             return FileUtils.getBallerinaError(FileConstants.FILE_NOT_FOUND_ERROR, "File not found: " + path);
@@ -154,6 +166,20 @@ public class Utils {
             log.error("IO error while creating the file " + path, e);
             return FileUtils.getBallerinaError(FileConstants.FILE_SYSTEM_ERROR, e);
         }
+    }
+
+    public static Object getResourceFileInfo(String resource) throws IOException {
+        String[] str = Thread.currentThread().getStackTrace()[5].getClassName().split("\\.");
+        String path = "target" + File.separator + "bin" + File.separator + str[1] + ".jar";
+        String resourcePath = "resources" + File.separator+ str[0] + File.separator + str[1] + File.separator + resource;
+        ZipFile zip = new ZipFile(path);
+        for (Enumeration e = zip.entries(); e.hasMoreElements(); ) {
+            ZipEntry entry = (ZipEntry) e.nextElement();
+            if (entry.getName().startsWith(resourcePath)) {
+                    return FileUtils.getFileInfo(entry);
+            }
+        }
+        return FileUtils.getBallerinaError(FileConstants.FILE_NOT_FOUND_ERROR, "File not found: " + path);
     }
 
     public static Object remove(String path, boolean recursive) {
@@ -204,6 +230,14 @@ public class Utils {
     }
 
     public static Object readDir(String path, long maxDepth) {
+        if (path.startsWith("b7a:")) {
+            String pathUrl = path.replace("b7a:", "");
+            try {
+                return readResourceDir(pathUrl, maxDepth);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
         File inputFile = Paths.get(path).toAbsolutePath().toFile();
 
         if (!inputFile.exists()) {
@@ -228,9 +262,50 @@ public class Utils {
         }
     }
 
+    public static Object readResourceDir(String resource, long maxDepth) throws IOException {
+        ArrayList<ObjectValue> list = new ArrayList<>();
+        String[] str = Thread.currentThread().getStackTrace()[5].getClassName().split("\\.");
+        String path = "target" + File.separator + "bin" + File.separator + str[1] + ".jar";
+        String resourcePath = "resources" + File.separator + str[0] + File.separator + str[1] + File.separator + resource;
+        ZipFile zip = new ZipFile(path);
+
+        for (Enumeration e = zip.entries(); e.hasMoreElements(); ) {
+            ZipEntry entry = (ZipEntry) e.nextElement();
+            if (entry.getName().startsWith(resourcePath)) {
+                fileInfoType = FileUtils.getFileInfo(entry).getType();
+                list.add(FileUtils.getFileInfo(entry));
+            }
+        }
+        ObjectValue[] results = new ObjectValue[list.size()];
+        for (int i = 0; i < list.size(); i++) {
+            results[i] = list.get(i);
+        }
+        return new ArrayValueImpl(results, new BArrayType(fileInfoType));
+    }
+
     private static Object readFileTree(File inputFile, int maxDepth) {
         ObjectValue[] results;
         try (Stream<Path> walk = Files.walk(inputFile.toPath(), maxDepth)) {
+            results = walk.map(x -> {
+                try {
+                    ObjectValue objectValue = FileUtils.getFileInfo(x.toFile());
+                    fileInfoType = objectValue.getType();
+                    return objectValue;
+                } catch (IOException e) {
+                    throw new BallerinaException("Error while accessing file info", e);
+                }
+            }).skip(1).toArray(ObjectValue[]::new);
+            return new ArrayValueImpl(results, new BArrayType(fileInfoType));
+        } catch (IOException | BallerinaException ex) {
+            return FileUtils.getBallerinaError(FileConstants.FILE_SYSTEM_ERROR, ex);
+        } catch (SecurityException ex) {
+            return FileUtils.getBallerinaError(FileConstants.PERMISSION_ERROR, ex);
+        }
+    }
+
+    private static Object readFileTree(ZipEntry entry, int maxDepth) {
+        ObjectValue[] results;
+        try (Stream<Path> walk = Files.walk(Paths.get(entry.getName()), maxDepth)) {
             results = walk.map(x -> {
                 try {
                     ObjectValue objectValue = FileUtils.getFileInfo(x.toFile());
