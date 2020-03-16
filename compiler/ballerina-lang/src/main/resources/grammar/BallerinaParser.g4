@@ -334,7 +334,6 @@ statement
     |   retryStatement
     |   lockStatement
     |   namespaceDeclarationStatement
-    |   queryActionStatement
     ;
 
 variableDefinitionStatement
@@ -840,6 +839,7 @@ expression
     |   flushWorker                                                         # flushWorkerExpression
     |   typeDescExpr                                                        # typeAccessExpression
     |   queryExpr                                                           # queryExpression
+    |   queryAction                                                         # queryActionExpression
     |   letExpr                                                             # letExpression
     ;
 
@@ -912,7 +912,7 @@ queryExpr
     :   queryPipeline selectClause
     ;
 
-queryActionStatement
+queryAction
     :   queryPipeline doClause
     ;
 
