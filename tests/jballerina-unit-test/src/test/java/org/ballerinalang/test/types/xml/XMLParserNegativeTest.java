@@ -18,10 +18,7 @@
 package org.ballerinalang.test.types.xml;
 
 import org.ballerinalang.jvm.XMLFactory;
-import org.ballerinalang.test.util.BCompileUtil;
-import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
-import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
@@ -32,16 +29,8 @@ import org.testng.annotations.Test;
  */
 public class XMLParserNegativeTest {
 
-    private CompileResult result;
-
-    @BeforeClass
-    public void setup() {
-        result = BCompileUtil.compile("test-src/types/xml/xml-def-negative.bal");
-    }
-
     @Test(dataProvider = "xmlValues")
     public void testXmlArg(String xmlValue, String expectedErrorMessage) {
-        result = BCompileUtil.compile("test-src/types/xml/xml-def-negative.bal");
         try {
             XMLFactory.parse(xmlValue);
             Assert.fail("Negative test failed for: `" + xmlValue + "'. Expected exception with message: " +

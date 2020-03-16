@@ -1,0 +1,2 @@
+// A function body can be a single expression. Such a function is called an expression-bodied function and the
+// expression function body takes the form `=> E`. This is equivalent to the block function body `{ return E; }`.

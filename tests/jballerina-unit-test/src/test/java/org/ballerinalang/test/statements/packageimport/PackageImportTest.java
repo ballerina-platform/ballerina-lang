@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.test.statements.packageimport;
 
+import org.ballerinalang.test.balo.BaloCreator;
 import org.ballerinalang.test.util.BAssertUtil;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
@@ -99,6 +100,7 @@ public class PackageImportTest {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         System.setOut(new PrintStream(baos));
 
+        BaloCreator.cleanCacheDirectories();
         CompileResult result = BCompileUtil.compile("test-src/statements/package/sample-project-2", "foo");
         BRunUtil.invoke(result, "runFoo");
 
