@@ -3,10 +3,10 @@
 $ ballerina run jdbc2_query_operation.bal
 
 ------ Start Simple Query -------
-CUSTOMERID=1 FIRSTNAME=Peter LASTNAME=Stuart REGISTRATIONID=1 CREDITLIMIT=5000.75 COUNTRY=USA
+Full Customer details: CUSTOMERID=1 FIRSTNAME=Peter LASTNAME=Stuart REGISTRATIONID=1 CREDITLIMIT=5000.75 COUNTRY=USA
 Customer first name: Peter
 Customer last name: Stuart
-CUSTOMERID=2 FIRSTNAME=Dan LASTNAME=Brown REGISTRATIONID=2 CREDITLIMIT=10000.0 COUNTRY=UK
+Full Customer details: CUSTOMERID=2 FIRSTNAME=Dan LASTNAME=Brown REGISTRATIONID=2 CREDITLIMIT=10000.0 COUNTRY=UK
 Customer first name: Dan
 Customer last name: Brown
 ------ End Simple Query -------
@@ -17,4 +17,4 @@ Total rows in customer table : 2
 customerId=1 firstName=Peter lastName=Stuart registrationId=1 creditLimit=5000.75 country=USA
 customerId=2 firstName=Dan lastName=Brown registrationId=2 creditLimit=10000.0 country=UK
 ------ End Query With Type Description -------
-Queried the database successfully!
+Successfully queried the database!

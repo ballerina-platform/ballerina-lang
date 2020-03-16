@@ -7,4 +7,4 @@ JDBC client with user/password created.
 JDBC client with database options created.
 JDBC client with connection pool created.
 JDBC client with optional params created.
- Initialization completed successfully!
+Successfully completed initialization!
