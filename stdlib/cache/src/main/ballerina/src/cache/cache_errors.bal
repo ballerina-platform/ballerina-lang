@@ -47,3 +47,19 @@ function prepareError(string message, error? err = ()) returns Error {
     }
     return cacheError;
 }
+
+# Prepare the `error` as an `Error`.
+#
+# + message - Error message
+# + err - `error` instance
+# + return - Prepared `Error` instance
+function prepareErrorWithDebugLog(string message, error? err = ()) returns Error {
+    log:printDebug(message, err);
+    Error cacheError;
+    if (err is error) {
+        cacheError = error(CACHE_ERROR, message = message, cause = err);
+    } else {
+        cacheError = error(CACHE_ERROR, message = message);
+    }
+    return cacheError;
+}
