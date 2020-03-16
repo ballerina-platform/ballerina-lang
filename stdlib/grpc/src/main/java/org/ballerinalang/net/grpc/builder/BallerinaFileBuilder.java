@@ -180,7 +180,7 @@ public class BallerinaFileBuilder {
                 ServiceFile.Builder sampleServiceBuilder = ServiceFile.newBuilder(serviceDescriptor.getName());
                 List<DescriptorProtos.MethodDescriptorProto> methodList = serviceDescriptor.getMethodList();
                 boolean isUnaryContains = false;
-                stubFileObject.setMessageList(messageList);
+                stubFileObject.setMessageMap(messageList);
                 for (DescriptorProtos.MethodDescriptorProto methodDescriptorProto : methodList) {
                     String methodID;
                     if (filePackage != null && !filePackage.isEmpty()) {
@@ -211,7 +211,7 @@ public class BallerinaFileBuilder {
                 if (GRPC_SERVICE.equals(mode)) {
                     serviceFile = sampleServiceBuilder.build();
                     if (!needStubFile) {
-                        serviceFile.setMessageList(messageList);
+                        serviceFile.setMessageMap(messageList);
                         serviceFile.setEnumList(enumList);
                         serviceFile.setDescriptors(descriptors);
                         if (!stubRootDescriptor.isEmpty()) {

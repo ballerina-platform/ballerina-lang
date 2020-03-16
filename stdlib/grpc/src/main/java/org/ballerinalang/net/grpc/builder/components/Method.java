@@ -180,10 +180,9 @@ public class Method {
             if (httpMethod.equals(HTTP_PATTERN_NOT_SET) || inputType == null) {
                return new ArrayList<>();
             }
-            String httpPath = resolveHttpPath(httpExtension);
             String httpBody = httpExtension.getBody();
             String parentName = INITIAL_PARENT_PREFIX + inputType;
-            List<String> pathParamList = getPathParamList(httpPath);
+            List<String> pathParamList = getPathParamList(resolveHttpPath(httpExtension));
             Message inputMessage = messageMap.get(inputType);
             if (inputMessage == null) {
                 String paramSource = QUERY_PARAMETER;

@@ -368,10 +368,6 @@ public class StubGeneratorTestCase {
         assertEquals(((BLangPackage) compileResult.getAST()).imports.size(), 5,
                 "Expected imports not found in compile results.");
         validateAttachedResources(compileResult, 2);
-//        Stream<Path> walk = Files.walk(Paths.get("src", "test", "resources", "grpc", "src", "proxyservices"));
-//        walk.forEach(file -> {
-//            BalFileGenerationUtils.delete(file.toFile());
-//        });
     }
 
     @Test(description = "Test gateway proxy including mapping from the body")
