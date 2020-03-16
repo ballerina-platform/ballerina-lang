@@ -17,13 +17,13 @@ public function main() {
     // You can access child XML items using xml step expressions.
     io:println(bookXML/<author>/<fname>);
 
-    // Accessing a non-existing child will return empty xml sequence.
+    // Accessing a non-existing child will return an empty `xml` sequence.
     io:println(bookXML/<ISBN>/<code>);
 
     // You can also retrieve attributes of the resulting child XML.
     io:println(bookXML/<author>/<fname>.title);
 
-    // You can match descendent elements using following steping access syntax.
+    // You can match descendant elements using the following stepping access syntax.
     io:println(bookXML/**/<fname>);
 
     // Select all children using bellow syntax.
@@ -32,12 +32,12 @@ public function main() {
     // And select all children elements using bellow syntax.
     io:println(bookXML/<*>);
 
-    // Select all children belong to specific namespace.
+    // Select all the children belonging to a specific namespace.
     xmlns "http://ballerina.com/a" as bar;
     io:println(bookXML/<bar:*>/*);
 
     xml seq = bookXML/*;
-    // You can filter a xml sequence using xml filter expressions.
+    // XML sequences can be filtered using XML filter expressions.
     io:println(seq.<name>);
     io:println(seq.<bar:year>);
 }
