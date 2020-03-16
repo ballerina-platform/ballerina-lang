@@ -17,7 +17,7 @@
  */
 package io.ballerinalang.compiler.internal.parser.incremental;
 
-import io.ballerinalang.compiler.internal.parser.AbstractTokeReader;
+import io.ballerinalang.compiler.internal.parser.AbstractTokenReader;
 import io.ballerinalang.compiler.internal.parser.tree.STToken;
 
 /**
@@ -34,7 +34,7 @@ import io.ballerinalang.compiler.internal.parser.tree.STToken;
  *
  * @since 1.3.0
  */
-public class HybridTokenReader extends AbstractTokeReader {
+public class HybridTokenReader extends AbstractTokenReader {
     private final HybridNodeStorage hybridNodeStorage;
 
     public HybridTokenReader(HybridNodeStorage hybridNodeStorage) {

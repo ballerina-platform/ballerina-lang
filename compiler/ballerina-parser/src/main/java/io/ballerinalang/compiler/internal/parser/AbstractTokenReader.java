@@ -25,7 +25,7 @@ import io.ballerinalang.compiler.internal.parser.tree.STToken;
  * @since 1.3.0
  */
 // TODO can we make this an interface?
-public abstract class AbstractTokeReader {
+public abstract class AbstractTokenReader {
 
     /**
      * Consumes the input and return the next token.

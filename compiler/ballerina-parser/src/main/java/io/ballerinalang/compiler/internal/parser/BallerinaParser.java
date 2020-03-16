@@ -56,20 +56,20 @@ import java.util.List;
 public class BallerinaParser {
 
     private final BallerinaParserErrorHandler errorHandler;
-    private final AbstractTokeReader tokenReader;
+    private final AbstractTokenReader tokenReader;
     private final UnmodifiedSubtreeSupplier subtreeReader;
     private final boolean isIncremental;
 
     private ParserRuleContext currentParamKind = ParserRuleContext.REQUIRED_PARAM;
 
-    BallerinaParser(AbstractTokeReader tokenReader, UnmodifiedSubtreeSupplier subtreeReader) {
+    BallerinaParser(AbstractTokenReader tokenReader, UnmodifiedSubtreeSupplier subtreeReader) {
         this.tokenReader = tokenReader;
         this.errorHandler = new BallerinaParserErrorHandler(tokenReader, this);
         this.subtreeReader = subtreeReader;
         this.isIncremental = this.subtreeReader != null;
     }
 
-    BallerinaParser(AbstractTokeReader tokenReader) {
+    BallerinaParser(AbstractTokenReader tokenReader) {
         this(tokenReader, null);
     }
 
