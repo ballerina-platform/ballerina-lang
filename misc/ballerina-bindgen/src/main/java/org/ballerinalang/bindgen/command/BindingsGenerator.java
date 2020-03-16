@@ -103,6 +103,7 @@ public class BindingsGenerator {
             directJavaClass = false;
             while (!classListForLooping.isEmpty()) {
                 Set<String> newSet = new HashSet<>(classListForLooping);
+                newSet.removeAll(classNames);
                 allJavaClasses.addAll(newSet);
                 classListForLooping.clear();
                 generateBindings(newSet, classLoader, dependenciesPath);
@@ -115,12 +116,11 @@ public class BindingsGenerator {
 
             Path constantsPath = Paths.get(utilsDirPath, CONSTANTS_FILE_NAME);
             Set<String> names = new HashSet<>(allClasses);
-            Set<String> constNames = new HashSet<>();
             if (constantsPath.toFile().exists()) {
-                constNames = new HashSet<>(getUpdatedConstantsList(constantsPath, names));
+                getUpdatedConstantsList(constantsPath, names);
                 notifyExistingDependencies(classNames, dependenciesPath.toFile());
             }
-            writeOutputFile(constNames, DEFAULT_TEMPLATE_DIR, CONSTANTS_TEMPLATE_NAME, constantsPath.toString(), true);
+            writeOutputFile(names, DEFAULT_TEMPLATE_DIR, CONSTANTS_TEMPLATE_NAME, constantsPath.toString(), true);
 
             if (failedClassGens != null) {
                 errStream.print("\n");

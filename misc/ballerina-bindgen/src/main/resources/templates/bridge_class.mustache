@@ -28,9 +28,9 @@ public type {{shortClassName}} object {
             obj[i].jObj = handleObj[i];
         }
         return obj;{{else}}
-        {{returnType}} obj = new({{#exceptionTypes}}check {{/exceptionTypes}}{{#if isStringReturn}}java:toString({{/if}}{{prefix}}_{{methodName}}(self.jObj{{#noParams}}, {{/noParams}}{{#parameters}}{{#if isObjArray}}check getHandleFromObjectArray({{fieldName}}, "{{componentType}}"){{#notLast}}, {{/notLast}}{{else if isPrimitiveArray}}check getHandleFromArray({{fieldName}}, "{{componentType}}"){{#notLast}}, {{/notLast}}{{else if isString}}java:fromString({{fieldName}}){{#notLast}}, {{/notLast}}{{else}}{{fieldName}}{{#isObj}}.jObj{{/isObj}}{{#notLast}}, {{/notLast}}{{/if}}{{/parameters}}){{#if isStringReturn}}){{/if}});
+        {{returnType}} obj = new({{#handleException}}check {{/handleException}}{{#if isStringReturn}}java:toString({{/if}}{{prefix}}_{{methodName}}(self.jObj{{#noParams}}, {{/noParams}}{{#parameters}}{{#if isObjArray}}check getHandleFromObjectArray({{fieldName}}, "{{componentType}}"){{#notLast}}, {{/notLast}}{{else if isPrimitiveArray}}check getHandleFromArray({{fieldName}}, "{{componentType}}"){{#notLast}}, {{/notLast}}{{else if isString}}java:fromString({{fieldName}}){{#notLast}}, {{/notLast}}{{else}}{{fieldName}}{{#isObj}}.jObj{{/isObj}}{{#notLast}}, {{/notLast}}{{/if}}{{/parameters}}){{#if isStringReturn}}){{/if}});
         return obj;{{/if}}{{else}}
-        {{#hasReturn}}return {{/hasReturn}}{{#noReturn}}_ = {{/noReturn}}{{#if isStringReturn}}java:toString({{else if isArrayReturn}}<{{returnType}}>getArrayFromHandle({{/if}}{{#exceptionTypes}}check {{/exceptionTypes}}{{prefix}}_{{methodName}}(self.jObj{{#noParams}}, {{/noParams}}{{#parameters}}{{#if isObjArray}}check getHandleFromObjectArray({{fieldName}}, "{{componentType}}"){{#notLast}}, {{/notLast}}{{else if isPrimitiveArray}}check getHandleFromArray({{fieldName}}, "{{componentType}}"){{#notLast}}, {{/notLast}}{{else if isString}}java:fromString({{fieldName}}){{#notLast}}, {{/notLast}}{{else}}{{fieldName}}{{#isObj}}.jObj{{/isObj}}{{#notLast}}, {{/notLast}}{{/if}}{{/parameters}}){{#if isStringReturn}}){{else if isArrayReturn}}){{/if}};{{/if}}
+        {{#hasReturn}}return {{/hasReturn}}{{#noReturn}}_ = {{/noReturn}}{{#if isStringReturn}}java:toString({{else if isArrayReturn}}<{{returnType}}>getArrayFromHandle({{/if}}{{#handleException}}check {{/handleException}}{{prefix}}_{{methodName}}(self.jObj{{#noParams}}, {{/noParams}}{{#parameters}}{{#if isObjArray}}check getHandleFromObjectArray({{fieldName}}, "{{componentType}}"){{#notLast}}, {{/notLast}}{{else if isPrimitiveArray}}check getHandleFromArray({{fieldName}}, "{{componentType}}"){{#notLast}}, {{/notLast}}{{else if isString}}java:fromString({{fieldName}}){{#notLast}}, {{/notLast}}{{else}}{{fieldName}}{{#isObj}}.jObj{{/isObj}}{{#notLast}}, {{/notLast}}{{/if}}{{/parameters}}){{#if isStringReturn}}){{else if isArrayReturn}}){{/if}};{{/if}}
     }{{/isInstance}}{{/methodList}}
 };
 {{#initFunctionList}}
@@ -43,13 +43,28 @@ public function {{shortClassName}}{{constructorName}}({{#parameters}}{{shortType
         return obj;
     }{{/exceptionTypes}}
 }
-{{/initFunctionList}}{{#methodList}}{{#isStatic}}{{/isStatic}}{{/methodList}}{{#fieldList}}{{#isStatic}}{{/isStatic}}{{/fieldList}}{{#constructorList}}
+{{/initFunctionList}}
+{{#methodList}}{{#isStatic}}
+public function {{methodPrefix}}_{{methodName}}({{#parameters}}{{#if isPrimitiveArray}}{{#getType type ""}}{{/getType}}{{else}}{{shortTypeName}}{{/if}} {{fieldName}}{{#notLast}}, {{/notLast}}{{/parameters}}) {{#hasReturn}}returns {{returnType}}{{#if isStringReturn}}?{{/if}}{{#exceptionTypes}}|error{{/exceptionTypes}} {{/hasReturn}}{{#noReturn}}{{#if exceptionTypes}}returns error? {{else if hasPrimitiveParam}}returns error? {{/if}}{{/noReturn}}{
+{{#if objectReturn}}{{#if isArrayReturn}}
+    {{returnType}} obj = [];
+    handle[] handleObj = <handle[]>getArrayFromHandle({{#handleException}}check {{/handleException}}{{prefix}}_{{methodName}}({{#parameters}}{{#if isObjArray}}check getHandleFromObjectArray({{fieldName}}, "{{componentType}}"){{#notLast}}, {{/notLast}}{{else if isPrimitiveArray}}check getHandleFromArray({{fieldName}}, "{{componentType}}"){{#notLast}}, {{/notLast}}{{else if isString}}java:fromString({{fieldName}}){{#notLast}}, {{/notLast}}{{else}}{{fieldName}}{{#isObj}}.jObj{{/isObj}}{{#notLast}}, {{/notLast}}{{/if}}{{/parameters}}));
+    int count = handleObj.length();
+    foreach int i in 0 ... count-1 {
+        obj[i].jObj = handleObj[i];
+    }
+    return obj;{{else}}
+    {{returnType}} obj = new({{#handleException}}check {{/handleException}}{{#if isStringReturn}}java:toString({{/if}}{{prefix}}_{{methodName}}({{#parameters}}{{#if isObjArray}}check getHandleFromObjectArray({{fieldName}}, "{{componentType}}"){{#notLast}}, {{/notLast}}{{else if isPrimitiveArray}}check getHandleFromArray({{fieldName}}, "{{componentType}}"){{#notLast}}, {{/notLast}}{{else if isString}}java:fromString({{fieldName}}){{#notLast}}, {{/notLast}}{{else}}{{fieldName}}{{#isObj}}.jObj{{/isObj}}{{#notLast}}, {{/notLast}}{{/if}}{{/parameters}}){{#if isStringReturn}}){{/if}});
+    return obj;{{/if}}{{else}}
+    {{#hasReturn}}return {{/hasReturn}}{{#noReturn}}_ = {{/noReturn}}{{#if isStringReturn}}java:toString({{else if isArrayReturn}}<{{returnType}}>getArrayFromHandle({{/if}}{{#handleException}}check {{/handleException}}{{prefix}}_{{methodName}}({{#parameters}}{{#if isObjArray}}check getHandleFromObjectArray({{fieldName}}, "{{componentType}}"){{#notLast}}, {{/notLast}}{{else if isPrimitiveArray}}check getHandleFromArray({{fieldName}}, "{{componentType}}"){{#notLast}}, {{/notLast}}{{else if isString}}java:fromString({{fieldName}}){{#notLast}}, {{/notLast}}{{else}}{{fieldName}}{{#isObj}}.jObj{{/isObj}}{{#notLast}}, {{/notLast}}{{/if}}{{/parameters}}){{#if isStringReturn}}){{else if isArrayReturn}}){{/if}};{{/if}}
+}
+{{/isStatic}}{{/methodList}}{{#fieldList}}{{#isStatic}}{{/isStatic}}{{/fieldList}}{{#constructorList}}
 function {{prefix}}_{{constructorName}}({{#parameters}}{{externalType}} {{fieldName}}{{#notLast}}, {{/notLast}}{{/parameters}}) returns handle{{#exceptionTypes}}|error{{/exceptionTypes}} = {{interopType}} {
     class: "{{className}}",
     paramTypes: [{{#parameters}}"{{type}}"{{#notLast}}, {{/notLast}}{{/parameters}}]
 } external;
 {{/constructorList}}{{#methodList}}
-function {{prefix}}_{{methodName}}({{#isInstance}}handle receiver{{#noParams}}, {{/noParams}}{{/isInstance}}{{#parameters}}{{externalType}} {{fieldName}}{{#notLast}}, {{/notLast}}{{/parameters}}){{#hasReturn}} returns {{externalType}}{{#exceptionTypes}}|error{{/exceptionTypes}}{{/hasReturn}}{{#noReturn}}{{#exceptionTypes}} returns error?{{/exceptionTypes}}{{/noReturn}} = {{interopType}} {
+function {{prefix}}_{{methodName}}({{#isInstance}}handle receiver{{#noParams}}, {{/noParams}}{{/isInstance}}{{#parameters}}{{externalType}} {{fieldName}}{{#notLast}}, {{/notLast}}{{/parameters}}){{#hasReturn}} returns {{externalType}}{{#exceptionTypes}}|error{{/exceptionTypes}}{{/hasReturn}}{{#noReturn}}{{#handleException}} returns error?{{/handleException}}{{/noReturn}} = {{interopType}} {
     name: "{{javaMethodName}}",
     class: "{{className}}"{{#params}},
     paramTypes: [{{#parameters}}"{{type}}"{{#notLast}}, {{/notLast}}{{/parameters}}]{{/params}}

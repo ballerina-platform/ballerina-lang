@@ -51,9 +51,11 @@ public class JMethod {
     private Boolean isArrayReturn = false;
     private Boolean noReservedWord = true;
     private Boolean exceptionTypes = false;
+    private Boolean handleException = false;
     private Boolean isStringReturn = false;
     private Boolean hasPrimitiveParam = false;
 
+    private String methodPrefix;
     private String returnType;
     private String interopType;
     private String externalType;
@@ -65,7 +67,7 @@ public class JMethod {
 
         this.javaMethodName = m.getName();
         this.methodName = m.getName();
-
+        this.methodPrefix = m.getDeclaringClass().getSimpleName();
         if (!m.getReturnType().equals(Void.TYPE)) {
             if (m.getReturnType().isArray()) {
                 this.isArrayReturn = true;
@@ -103,6 +105,7 @@ public class JMethod {
         }
         if (m.getExceptionTypes().length > 0) {
             this.exceptionTypes = true;
+            handleException = true;
         }
         if (!this.parameters.isEmpty()) {
             JParameter lastParam = this.parameters.get(this.parameters.size() - 1);

@@ -93,9 +93,6 @@ public class JClass {
             populateConstructors(c.getConstructors());
             populateInitFunctions();
             populateMethods(getMethods(c));
-            for (Class superClass : superClassObjects) {
-                populateMethods(getMethods(superClass));
-            }
             handleOverloadedMethods(methodList);
             populateFields(c.getFields());
         }
