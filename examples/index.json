@@ -440,6 +440,16 @@
         ]
     },
     {
+        "title": "Lock",
+        "column": 2,
+        "category": "Language concepts",
+        "samples": [{
+            "name": "Lock",
+            "url": "locks"
+        }
+        ]
+    },
+    {
         "title": "I/O",
         "column": 3,
         "category": "Language concepts",
@@ -1070,18 +1080,8 @@
         ]
     },
     {
-        "title": "Lock",
-        "column": 0,
-        "category": "Experimental features",
-        "samples": [{
-            "name": "Lock",
-            "url": "locks"
-        }
-        ]
-    },
-    {
         "title": "Transactions",
-        "column": 2,
+        "column": 0,
         "category": "Experimental features",
         "samples": [{
                 "name": "Local Transactions",
