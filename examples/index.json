@@ -440,6 +440,16 @@
         ]
     },
     {
+        "title": "Lock",
+        "column": 2,
+        "category": "Language concepts",
+        "samples": [{
+            "name": "Lock",
+            "url": "locks"
+        }
+        ]
+    },
+    {
         "title": "I/O",
         "column": 3,
         "category": "Language concepts",
@@ -1067,16 +1077,6 @@
                 "name": "Send and Receive Emails",
                 "url": "send-and-receive-emails"
             }
-        ]
-    },
-    {
-        "title": "Lock",
-        "column": 0,
-        "category": "Language concepts",
-        "samples": [{
-            "name": "Lock",
-            "url": "locks"
-        }
         ]
     },
     {
