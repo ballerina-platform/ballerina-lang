@@ -132,6 +132,9 @@ task test {
             'xml-functions',
             'xml-literal',
             'xml-access',
+            'xml-namespaces',
+            'xml-attributes',
+            'xml',
             'header-based-routing',
             'mutual-ssl',
             'tuple-match-statement',
@@ -139,7 +142,8 @@ task test {
             'https-listener',
             'json-csv',
             'checkpanic',
-            'http-client-endpoint'
+            'http-client-endpoint',
+            'send-and-receive-emails'
     ]
     // Contains mock functions and can be check with tool
     def mockList = [
@@ -215,9 +219,6 @@ task test {
             'hello-world-client',
             'hello-world',
             'tuple-typed-binding-pattern',
-            'xml-namespaces',
-            'xml-attributes',
-            'xml'
     ]
     //Contains mock functions. Some BBEs' execute concurrently while others output Error messages.
     def stdEMock = [
