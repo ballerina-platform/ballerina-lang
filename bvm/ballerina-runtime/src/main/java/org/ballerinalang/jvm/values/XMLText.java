@@ -107,11 +107,6 @@ public class XMLText extends XMLNonElementItem {
             }
 
             @Override
-            public BString bStringValue() {
-                return null;
-            }
-
-            @Override
             public Object next() {
                 if (!read) {
                     this.read = true;

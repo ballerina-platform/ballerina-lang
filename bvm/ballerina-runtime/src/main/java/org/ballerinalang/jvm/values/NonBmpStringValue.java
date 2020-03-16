@@ -88,7 +88,7 @@ public class NonBmpStringValue implements StringValue {
 
     @Override
     public BString bStringValue() {
-        return null;
+        return this;
     }
 
     @Override

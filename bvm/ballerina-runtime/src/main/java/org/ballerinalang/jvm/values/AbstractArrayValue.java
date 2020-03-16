@@ -447,10 +447,5 @@ public abstract class AbstractArrayValue implements ArrayValue {
         public boolean hasNext() {
             return cursor < length;
         }
-
-        @Override
-        public BString bStringValue() {
-            return null;
-        }
     }
 }
