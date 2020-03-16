@@ -43,7 +43,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BHandleType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BIntermediateCollectionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BJSONType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
@@ -150,11 +149,6 @@ public class BIRTypeWriter implements TypeVisitor {
     }
 
     @Override
-    public void visit(BIntermediateCollectionType bIntermediateCollectionType) {
-        throwUnimplementedError(bIntermediateCollectionType);
-    }
-
-    @Override
     public void visit(BInvokableType bInvokableType) {
         buff.writeInt(bInvokableType.paramTypes.size());
         for (BType params : bInvokableType.paramTypes) {
@@ -187,6 +181,12 @@ public class BIRTypeWriter implements TypeVisitor {
     @Override
     public void visit(BStreamType bStreamType) {
         writeTypeCpIndex(bStreamType.constraint);
+        if (bStreamType.error != null) {
+            buff.writeBoolean(true);
+            writeTypeCpIndex(bStreamType.error);
+        } else {
+            buff.writeBoolean(false);
+        }
     }
 
     @Override
@@ -419,6 +419,12 @@ public class BIRTypeWriter implements TypeVisitor {
     private void writeValue(Object value, BType typeOfValue) {
         switch (typeOfValue.tag) {
             case TypeTags.INT:
+            case TypeTags.SIGNED32_INT:
+            case TypeTags.SIGNED16_INT:
+            case TypeTags.SIGNED8_INT:
+            case TypeTags.UNSIGNED32_INT:
+            case TypeTags.UNSIGNED16_INT:
+            case TypeTags.UNSIGNED8_INT:
                 buff.writeInt(addIntCPEntry((Long) value));
                 break;
             case TypeTags.BYTE:
@@ -432,6 +438,7 @@ public class BIRTypeWriter implements TypeVisitor {
                 buff.writeInt(addFloatCPEntry(doubleVal));
                 break;
             case TypeTags.STRING:
+            case TypeTags.CHAR_STRING:
             case TypeTags.DECIMAL:
                 buff.writeInt(addStringCPEntry(String.valueOf(value)));
                 break;

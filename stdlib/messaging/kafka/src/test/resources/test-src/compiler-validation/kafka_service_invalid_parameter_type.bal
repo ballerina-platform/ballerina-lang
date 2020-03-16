@@ -18,7 +18,7 @@ import ballerina/kafka;
 
 string topic = "service-invalid-resource-name-test";
 
-kafka:ConsumerConfig consumerConfigs = {
+kafka:ConsumerConfiguration consumerConfigs = {
     bootstrapServers: "localhost:9094",
     groupId: "service-invalid-resource-name-test-group",
     clientId: "service-invalid-resource-name-consumer",
@@ -29,7 +29,7 @@ kafka:ConsumerConfig consumerConfigs = {
 listener kafka:Consumer kafkaConsumer = new(consumerConfigs);
 
 service kafkaTestService on kafkaConsumer {
-    resource function onMessage(kafka:Consumer consumer, kafka:ConsumerConfig config) {
+    resource function onMessage(kafka:Consumer consumer, kafka:ConsumerConfiguration config) {
         // Nothing
     }
 }

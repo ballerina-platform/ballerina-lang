@@ -406,14 +406,14 @@ function addRecordFields(jvm:MethodVisitor mv, bir:BRecordField?[] fields) {
     mv.visitMethodInsn(INVOKESPECIAL, LINKED_HASH_MAP, "<init>", "()V", false);
 
     foreach var optionalField in fields {
-        bir:BRecordField field = getRecordField(optionalField);
+        bir:BRecordField 'field = getRecordField(optionalField);
         mv.visitInsn(DUP);
 
         // Load field name
-        mv.visitLdcInsn(field.name.value);
+        mv.visitLdcInsn('field.name.value);
 
         // create and load field type
-        createRecordField(mv, field);
+        createRecordField(mv, 'field);
 
         // Add the field to the map
         mv.visitMethodInsn(INVOKEINTERFACE, MAP, "put",
@@ -432,18 +432,18 @@ function addRecordFields(jvm:MethodVisitor mv, bir:BRecordField?[] fields) {
 #
 # + mv - method visitor
 # + field - field Parameter Description
-function createRecordField(jvm:MethodVisitor mv, bir:BRecordField field) {
+function createRecordField(jvm:MethodVisitor mv, bir:BRecordField 'field) {
     mv.visitTypeInsn(NEW, BFIELD);
     mv.visitInsn(DUP);
 
     // Load the field type
-    loadType(mv, field.typeValue);
+    loadType(mv, 'field.typeValue);
 
     // Load field name
-    mv.visitLdcInsn(field.name.value);
+    mv.visitLdcInsn('field.name.value);
 
     // Load flags
-    mv.visitLdcInsn(field.flags);
+    mv.visitLdcInsn('field.flags);
     mv.visitInsn(L2I);
 
     mv.visitMethodInsn(INVOKESPECIAL, BFIELD, "<init>",
@@ -576,14 +576,14 @@ function addObjectFields(jvm:MethodVisitor mv, bir:BObjectField?[] fields) {
     mv.visitMethodInsn(INVOKESPECIAL, LINKED_HASH_MAP, "<init>", "()V", false);
 
     foreach var optionalField in fields {
-        bir:BObjectField field = getObjectField(optionalField);
+        bir:BObjectField 'field = getObjectField(optionalField);
         mv.visitInsn(DUP);
 
         // Load field name
-        mv.visitLdcInsn(field.name.value);
+        mv.visitLdcInsn('field.name.value);
 
         // create and load field type
-        createObjectField(mv, field);
+        createObjectField(mv, 'field);
 
         // Add the field to the map
         mv.visitMethodInsn(INVOKEINTERFACE, MAP, "put",
@@ -602,18 +602,18 @@ function addObjectFields(jvm:MethodVisitor mv, bir:BObjectField?[] fields) {
 #
 # + mv - method visitor
 # + field - object field
-function createObjectField(jvm:MethodVisitor mv, bir:BObjectField field) {
+function createObjectField(jvm:MethodVisitor mv, bir:BObjectField 'field) {
     mv.visitTypeInsn(NEW, BFIELD);
     mv.visitInsn(DUP);
 
     // Load the field type
-    loadType(mv, field.typeValue);
+    loadType(mv, 'field.typeValue);
 
     // Load field name
-    mv.visitLdcInsn(field.name.value);
+    mv.visitLdcInsn('field.name.value);
 
     // Load flags
-    mv.visitLdcInsn(field.flags);
+    mv.visitLdcInsn('field.flags);
     mv.visitInsn(L2I);
 
     mv.visitMethodInsn(INVOKESPECIAL, BFIELD, "<init>",

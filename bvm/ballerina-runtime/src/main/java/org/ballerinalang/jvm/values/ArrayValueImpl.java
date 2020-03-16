@@ -128,7 +128,7 @@ public class ArrayValueImpl extends AbstractArrayValue {
     @Deprecated
     public ArrayValueImpl(BArrayType type) {
         this.arrayType = type;
-        BArrayType arrayType = (BArrayType) type;
+        BArrayType arrayType = type;
         this.elementType = arrayType.getElementType();
         initArrayValues(elementType, false);
         if (arrayType.getState() == ArrayState.CLOSED_SEALED) {
@@ -140,12 +140,19 @@ public class ArrayValueImpl extends AbstractArrayValue {
         int initialArraySize = (arrayType.getSize() != -1) ? arrayType.getSize() : DEFAULT_ARRAY_SIZE;
         switch (elementType.getTag()) {
             case TypeTags.INT_TAG:
+            case TypeTags.SIGNED32_INT_TAG:
+            case TypeTags.SIGNED16_INT_TAG:
+            case TypeTags.SIGNED8_INT_TAG:
+            case TypeTags.UNSIGNED32_INT_TAG:
+            case TypeTags.UNSIGNED16_INT_TAG:
+            case TypeTags.UNSIGNED8_INT_TAG:
                 this.intValues = new long[initialArraySize];
                 break;
             case TypeTags.FLOAT_TAG:
                 this.floatValues = new double[initialArraySize];
                 break;
             case TypeTags.STRING_TAG:
+            case TypeTags.CHAR_STRING_TAG:
                 if (useBString) {
                     this.bStringValues = new BString[initialArraySize];
                 } else {
@@ -200,6 +207,12 @@ public class ArrayValueImpl extends AbstractArrayValue {
         rangeCheckForGet(index, size);
         switch (this.elementType.getTag()) {
             case TypeTags.INT_TAG:
+            case TypeTags.SIGNED32_INT_TAG:
+            case TypeTags.SIGNED16_INT_TAG:
+            case TypeTags.SIGNED8_INT_TAG:
+            case TypeTags.UNSIGNED32_INT_TAG:
+            case TypeTags.UNSIGNED16_INT_TAG:
+            case TypeTags.UNSIGNED8_INT_TAG:
                 return intValues[(int) index];
             case TypeTags.BOOLEAN_TAG:
                 return booleanValues[(int) index];
@@ -208,6 +221,7 @@ public class ArrayValueImpl extends AbstractArrayValue {
             case TypeTags.FLOAT_TAG:
                 return floatValues[(int) index];
             case TypeTags.STRING_TAG:
+            case TypeTags.CHAR_STRING_TAG:
                 return stringValues[(int) index];
             default:
                 return refValues[(int) index];
@@ -229,9 +243,22 @@ public class ArrayValueImpl extends AbstractArrayValue {
         return get(index);
     }
 
+    @Override
+    public Object fillAndGetRefValue(long index) {
+        if (refValues != null) {
+            // Need do a filling-read if index >= size
+            if (index >= this.size) {
+                handleFrozenArrayValue();
+                fillRead(index, refValues.length);
+            }
+            return refValues[(int) index];
+        }
+        return get(index);
+    }
+
     /**
      * Get int value in the given index.
-     * 
+     *
      * @param index array index
      * @return array element
      */
@@ -341,21 +368,28 @@ public class ArrayValueImpl extends AbstractArrayValue {
         switch (this.elementType.getTag()) {
             case TypeTags.BOOLEAN_TAG:
                 prepareForAdd(index, value, type, booleanValues.length);
-                this.booleanValues[(int) index] = ((Boolean) value).booleanValue();
+                this.booleanValues[(int) index] = (Boolean) value;
                 return;
             case TypeTags.FLOAT_TAG:
                 prepareForAdd(index, value, type, floatValues.length);
-                this.floatValues[(int) index] = ((Double) value).doubleValue();
+                this.floatValues[(int) index] = (Double) value;
                 return;
             case TypeTags.BYTE_TAG:
                 prepareForAdd(index, value, type, byteValues.length);
                 this.byteValues[(int) index] = ((Number) value).byteValue();
                 return;
             case TypeTags.INT_TAG:
+            case TypeTags.SIGNED32_INT_TAG:
+            case TypeTags.SIGNED16_INT_TAG:
+            case TypeTags.SIGNED8_INT_TAG:
+            case TypeTags.UNSIGNED32_INT_TAG:
+            case TypeTags.UNSIGNED16_INT_TAG:
+            case TypeTags.UNSIGNED8_INT_TAG:
                 prepareForAdd(index, value, type, intValues.length);
                 this.intValues[(int) index] = ((Long) value).longValue();
                 return;
             case TypeTags.STRING_TAG:
+            case TypeTags.CHAR_STRING_TAG:
                 prepareForAdd(index, value, type, stringValues.length);
                 this.stringValues[(int) index] = (String) value;
                 return;
@@ -490,6 +524,12 @@ public class ArrayValueImpl extends AbstractArrayValue {
         StringJoiner sj = new StringJoiner(" ");
         switch (this.elementType.getTag()) {
             case TypeTags.INT_TAG:
+            case TypeTags.SIGNED32_INT_TAG:
+            case TypeTags.SIGNED16_INT_TAG:
+            case TypeTags.SIGNED8_INT_TAG:
+            case TypeTags.UNSIGNED32_INT_TAG:
+            case TypeTags.UNSIGNED16_INT_TAG:
+            case TypeTags.UNSIGNED8_INT_TAG:
                 for (int i = 0; i < size; i++) {
                     sj.add(Long.toString(intValues[i]));
                 }
@@ -510,8 +550,15 @@ public class ArrayValueImpl extends AbstractArrayValue {
                 }
                 break;
             case TypeTags.STRING_TAG:
-                for (int i = 0; i < size; i++) {
-                    sj.add(stringValues[i]);
+            case TypeTags.CHAR_STRING_TAG:
+                if (stringValues != null) {
+                    for (int i = 0; i < size; i++) {
+                        sj.add(stringValues[i]);
+                    }
+                } else {
+                    for (int i = 0; i < size; i++) {
+                        sj.add(bStringValues[i].getValue());
+                    }
                 }
                 break;
             default:
@@ -556,6 +603,12 @@ public class ArrayValueImpl extends AbstractArrayValue {
         ArrayValue valueArray = null;
         switch (this.elementType.getTag()) {
             case TypeTags.INT_TAG:
+            case TypeTags.SIGNED32_INT_TAG:
+            case TypeTags.SIGNED16_INT_TAG:
+            case TypeTags.SIGNED8_INT_TAG:
+            case TypeTags.UNSIGNED32_INT_TAG:
+            case TypeTags.UNSIGNED16_INT_TAG:
+            case TypeTags.UNSIGNED8_INT_TAG:
                 valueArray = new ArrayValueImpl(Arrays.copyOf(intValues, this.size));
                 break;
             case TypeTags.BOOLEAN_TAG:
@@ -568,6 +621,7 @@ public class ArrayValueImpl extends AbstractArrayValue {
                 valueArray = new ArrayValueImpl(Arrays.copyOf(floatValues, this.size));
                 break;
             case TypeTags.STRING_TAG:
+            case TypeTags.CHAR_STRING_TAG:
                 valueArray = new ArrayValueImpl(Arrays.copyOf(stringValues, this.size));
                 break;
             default:
@@ -610,6 +664,12 @@ public class ArrayValueImpl extends AbstractArrayValue {
         int slicedSize = (int) (endIndex - startIndex);
         switch (this.elementType.getTag()) {
             case TypeTags.INT_TAG:
+            case TypeTags.SIGNED32_INT_TAG:
+            case TypeTags.SIGNED16_INT_TAG:
+            case TypeTags.SIGNED8_INT_TAG:
+            case TypeTags.UNSIGNED32_INT_TAG:
+            case TypeTags.UNSIGNED16_INT_TAG:
+            case TypeTags.UNSIGNED8_INT_TAG:
                 slicedArray = new ArrayValueImpl(new long[slicedSize]);
                 System.arraycopy(intValues, (int) startIndex, slicedArray.intValues, 0, slicedSize);
                 break;
@@ -626,6 +686,7 @@ public class ArrayValueImpl extends AbstractArrayValue {
                 System.arraycopy(floatValues, (int) startIndex, slicedArray.floatValues, 0, slicedSize);
                 break;
             case TypeTags.STRING_TAG:
+            case TypeTags.CHAR_STRING_TAG:
                 slicedArray = new ArrayValueImpl(new String[slicedSize]);
                 System.arraycopy(stringValues, (int) startIndex, slicedArray.stringValues, 0, slicedSize);
                 break;
@@ -777,6 +838,12 @@ public class ArrayValueImpl extends AbstractArrayValue {
     protected void resizeInternalArray(int newLength) {
         switch (this.elementType.getTag()) {
             case TypeTags.INT_TAG:
+            case TypeTags.SIGNED32_INT_TAG:
+            case TypeTags.SIGNED16_INT_TAG:
+            case TypeTags.SIGNED8_INT_TAG:
+            case TypeTags.UNSIGNED32_INT_TAG:
+            case TypeTags.UNSIGNED16_INT_TAG:
+            case TypeTags.UNSIGNED8_INT_TAG:
                 intValues = Arrays.copyOf(intValues, newLength);
                 break;
             case TypeTags.BOOLEAN_TAG:
@@ -789,6 +856,7 @@ public class ArrayValueImpl extends AbstractArrayValue {
                 floatValues = Arrays.copyOf(floatValues, newLength);
                 break;
             case TypeTags.STRING_TAG:
+            case TypeTags.CHAR_STRING_TAG:
                 stringValues = Arrays.copyOf(stringValues, newLength);
                 break;
             default:
@@ -808,13 +876,21 @@ public class ArrayValueImpl extends AbstractArrayValue {
                 Arrays.fill(stringValues, size, index, BLangConstants.STRING_EMPTY_VALUE);
                 return;
             case TypeTags.INT_TAG:
+            case TypeTags.SIGNED32_INT_TAG:
+            case TypeTags.SIGNED16_INT_TAG:
+            case TypeTags.SIGNED8_INT_TAG:
+            case TypeTags.UNSIGNED32_INT_TAG:
+            case TypeTags.UNSIGNED16_INT_TAG:
+            case TypeTags.UNSIGNED8_INT_TAG:
             case TypeTags.BYTE_TAG:
             case TypeTags.FLOAT_TAG:
             case TypeTags.BOOLEAN_TAG:
                 return;
             default:
                 if (arrayType.hasFillerValue()) {
-                    Arrays.fill(refValues, size, index, elementType.getZeroValue());
+                    for (int i = size; i < index; i++) {
+                        this.refValues[i] = this.elementType.getZeroValue();
+                    }
                 }
         }
     }
@@ -892,6 +968,12 @@ public class ArrayValueImpl extends AbstractArrayValue {
         unshiftArray(index, vals.size(), getCurrentArrayLength());
         switch (this.elementType.getTag()) {
             case TypeTags.INT_TAG:
+            case TypeTags.SIGNED32_INT_TAG:
+            case TypeTags.SIGNED16_INT_TAG:
+            case TypeTags.SIGNED8_INT_TAG:
+            case TypeTags.UNSIGNED32_INT_TAG:
+            case TypeTags.UNSIGNED16_INT_TAG:
+            case TypeTags.UNSIGNED8_INT_TAG:
                 addToIntArray(vals, (int) index);
                 break;
             case TypeTags.BOOLEAN_TAG:
@@ -904,6 +986,7 @@ public class ArrayValueImpl extends AbstractArrayValue {
                 addToFloatArray(vals, (int) index);
                 break;
             case TypeTags.STRING_TAG:
+            case TypeTags.CHAR_STRING_TAG:
                 addToStringArray(vals, (int) index);
                 break;
             default:
@@ -927,6 +1010,34 @@ public class ArrayValueImpl extends AbstractArrayValue {
         fillerValueCheck(intIndex, size);
         ensureCapacity(intIndex + 1, currentArraySize);
         fillValues(intIndex);
+        resetSize(intIndex);
+    }
+
+    private void fillRead(long index, int currentArraySize) {
+        if (!arrayType.hasFillerValue()) {
+            throw BLangExceptionHelper.getRuntimeException(BallerinaErrorReasons.ILLEGAL_LIST_INSERTION_ERROR,
+                                                           RuntimeErrors.ILLEGAL_ARRAY_INSERTION, size, index + 1);
+        }
+
+        int intIndex = (int) index;
+        rangeCheck(index, size);
+        ensureCapacity(intIndex + 1, currentArraySize);
+
+        switch (this.elementType.getTag()) {
+            case TypeTags.INT_TAG:
+            case TypeTags.BYTE_TAG:
+            case TypeTags.FLOAT_TAG:
+            case TypeTags.BOOLEAN_TAG:
+                break;
+            case TypeTags.STRING_TAG:
+                Arrays.fill(stringValues, size, intIndex, BLangConstants.STRING_EMPTY_VALUE);
+                break;
+            default:
+                for (int i = size; i <= index; i++) {
+                    this.refValues[i] = this.elementType.getZeroValue();
+                }
+        }
+
         resetSize(intIndex);
     }
 
@@ -1010,6 +1121,12 @@ public class ArrayValueImpl extends AbstractArrayValue {
     private Object getArrayFromType(int typeTag) {
         switch (typeTag) {
             case TypeTags.INT_TAG:
+            case TypeTags.SIGNED32_INT_TAG:
+            case TypeTags.SIGNED16_INT_TAG:
+            case TypeTags.SIGNED8_INT_TAG:
+            case TypeTags.UNSIGNED32_INT_TAG:
+            case TypeTags.UNSIGNED16_INT_TAG:
+            case TypeTags.UNSIGNED8_INT_TAG:
                 return intValues;
             case TypeTags.BOOLEAN_TAG:
                 return booleanValues;
@@ -1018,6 +1135,7 @@ public class ArrayValueImpl extends AbstractArrayValue {
             case TypeTags.FLOAT_TAG:
                 return floatValues;
             case TypeTags.STRING_TAG:
+            case TypeTags.CHAR_STRING_TAG:
                 return stringValues;
             default:
                 return refValues;
@@ -1027,6 +1145,12 @@ public class ArrayValueImpl extends AbstractArrayValue {
     private int getCurrentArrayLength() {
         switch (elementType.getTag()) {
             case TypeTags.INT_TAG:
+            case TypeTags.SIGNED32_INT_TAG:
+            case TypeTags.SIGNED16_INT_TAG:
+            case TypeTags.SIGNED8_INT_TAG:
+            case TypeTags.UNSIGNED32_INT_TAG:
+            case TypeTags.UNSIGNED16_INT_TAG:
+            case TypeTags.UNSIGNED8_INT_TAG:
                 return intValues.length;
             case TypeTags.BOOLEAN_TAG:
                 return booleanValues.length;
@@ -1035,6 +1159,7 @@ public class ArrayValueImpl extends AbstractArrayValue {
             case TypeTags.FLOAT_TAG:
                 return floatValues.length;
             case TypeTags.STRING_TAG:
+            case TypeTags.CHAR_STRING_TAG:
                 return stringValues.length;
             default:
                 return refValues.length;

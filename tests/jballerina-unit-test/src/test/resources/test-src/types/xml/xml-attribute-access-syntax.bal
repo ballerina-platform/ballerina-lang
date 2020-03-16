@@ -18,3 +18,8 @@ function getElementAttrWithNSPrefix() returns string|error? {
     string|error? val = x.ns:attr;
     return val;
 }
+
+function usePredefinedXMLNamespace() returns string|error? {
+    xml x = xml `<root xmlns="the-url" attr="the attr" xml:attr="xml attr"></root>`;
+    return x.'xml:attr;
+}

@@ -20,8 +20,10 @@ package org.ballerinalang.jvm.observability;
 
 import org.ballerinalang.config.ConfigRegistry;
 import org.ballerinalang.jvm.observability.tracer.BSpan;
+import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ErrorValue;
+import org.ballerinalang.jvm.values.MapValue;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -33,6 +35,7 @@ import java.util.function.Supplier;
 
 import static org.ballerinalang.jvm.observability.ObservabilityConstants.CONFIG_METRICS_ENABLED;
 import static org.ballerinalang.jvm.observability.ObservabilityConstants.CONFIG_TRACING_ENABLED;
+import static org.ballerinalang.jvm.observability.ObservabilityConstants.UNKNOWN_RESOURCE;
 import static org.ballerinalang.jvm.observability.ObservabilityConstants.UNKNOWN_SERVICE;
 import static org.ballerinalang.jvm.observability.tracer.TraceConstants.KEY_SPAN;
 
@@ -66,13 +69,13 @@ public class ObserveUtils {
     /**
      * Start observation of a resource invocation.
      *
-     * @param strand which holds the observer context being started.
      * @param serviceName name of the service to which the observer context belongs.
      * @param resourceName name of the resource being invoked.
      * @param tags tags to be used in the observation
      */
-    public static void startResourceObservation(Strand strand, String serviceName, String resourceName,
-                                                Map<String, String> tags) {
+    public static void startResourceObservation(String serviceName, String resourceName,
+                                                MapValue<String, String> tags) {
+        Strand strand = Scheduler.getStrand();
         if (!enabled) {
             return;
         }
@@ -93,7 +96,7 @@ public class ObserveUtils {
         observerContext.setServer();
         observerContext.setStarted();
         for (Map.Entry<String, String> tagEntry : tags.entrySet()) {
-            observerContext.addTag(tagEntry.getKey(), tagEntry.getValue());
+            observerContext.addMainTag(tagEntry.getKey(), tagEntry.getValue());
         }
         observers.forEach(observer -> observer.startServerObservation(strand.observerContext));
         strand.setProperty(ObservabilityConstants.SERVICE_NAME, serviceName);
@@ -101,10 +104,9 @@ public class ObserveUtils {
 
     /**
      * Stop observation of an observer context.
-     *
-     * @param strand which holds the observer context.
      */
-    public static void stopObservation(Strand strand) {
+    public static void stopObservation() {
+        Strand strand = Scheduler.getStrand();
         if (!enabled || strand.observerContext == null) {
             return;
         }
@@ -121,10 +123,10 @@ public class ObserveUtils {
     /**
      * Report an error to an observer context.
      *
-     * @param strand which holds the observer context.
      * @param errorValue the error value to be attached to the observer context.
      */
-    public static void reportError(Strand strand, ErrorValue errorValue) {
+    public static void reportError(ErrorValue errorValue) {
+        Strand strand = Scheduler.getStrand();
         if (!enabled || strand.observerContext == null) {
             return;
         }
@@ -138,13 +140,13 @@ public class ObserveUtils {
     /**
      * Start observability for the synchronous function/action invocations.
      *
-     * @param strand which holds the observer context being started.
      * @param connectorName name of the connector to which the observer context belongs.
      * @param actionName name of the action/function being invoked.
      * @param tags tags to be used in the observation
      */
-    public static void startCallableObservation(Strand strand, String connectorName, String actionName,
-                                                Map<String, String> tags) {
+    public static void startCallableObservation(String connectorName, String actionName,
+                                                MapValue<String, String> tags) {
+        Strand strand = Scheduler.getStrand();
         if (!enabled) {
             return;
         }
@@ -155,10 +157,11 @@ public class ObserveUtils {
         newObContext.setParent(observerCtx);
         newObContext.setStarted();
         newObContext.setServiceName(observerCtx == null ? UNKNOWN_SERVICE : observerCtx.getServiceName());
+        newObContext.setResourceName(observerCtx == null ? UNKNOWN_RESOURCE : observerCtx.getResourceName());
         newObContext.setConnectorName(connectorName);
         newObContext.setActionName(actionName);
         for (Map.Entry<String, String> tagEntry : tags.entrySet()) {
-            newObContext.addTag(tagEntry.getKey(), tagEntry.getValue());
+            newObContext.addMainTag(tagEntry.getKey(), tagEntry.getValue());
         }
         strand.observerContext = newObContext;
         observers.forEach(observer -> observer.startClientObservation(newObContext));
@@ -181,13 +184,13 @@ public class ObserveUtils {
     /**
      * Log the provided message to the active span.
      *
-     * @param strand    current context
      * @param logLevel   log level
      * @param logMessage message to be logged
      * @param isError    if its an error or not
      */
-    public static void logMessageToActiveSpan(Strand strand, String logLevel, Supplier<String> logMessage,
+    public static void logMessageToActiveSpan(String logLevel, Supplier<String> logMessage,
                                               boolean isError) {
+        Strand strand = Scheduler.getStrand();
         if (!tracingEnabled) {
             return;
         }

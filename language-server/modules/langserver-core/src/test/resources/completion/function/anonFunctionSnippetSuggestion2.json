@@ -1078,6 +1078,29 @@
       ]
     },
     {
+      "label": "ballerina/email",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "140",
+      "insertText": "email",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/email;\n"
+        }
+      ]
+    },
+    {
       "label": "ballerina/lang.int",
       "kind": "Module",
       "detail": "Module",
@@ -1188,11 +1211,11 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "function (string param1, >< param2, >< param3, >< param4) ",
+      "label": "function (string param1, other param2, other param3, other param4) ",
       "kind": "Snippet",
       "detail": "Snippet",
       "sortText": "240",
-      "insertText": "function (string ${1:param1}, >< ${2:param2}, >< ${3:param3}, >< ${4:param4}) {\n\t${5}\n};",
+      "insertText": "function (string ${1:param1}, other ${2:param2}, other ${3:param3}, other ${4:param4}) {\n\t${5}\n};",
       "insertTextFormat": "Snippet"
     },
     {

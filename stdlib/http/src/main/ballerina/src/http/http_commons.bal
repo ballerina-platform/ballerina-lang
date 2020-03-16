@@ -446,12 +446,6 @@ function getInvalidTypeError() returns ClientError {
     return invalidTypeError;
 }
 
-function getObservabilityError() returns ClientError {
-    string message = "Failed to add tags to active span";
-    ObservabilityError observabilityError = error(OBSERVABILITY_ERROR, message = message);
-    return observabilityError;
-}
-
 function createErrorForNoPayload(mime:Error err) returns GenericClientError {
     string message = "No payload";
     return getGenericClientError(message, err);
@@ -461,10 +455,10 @@ function getStatusCodeRange(int statusCode) returns string {
     return statusCode.toString().substring(0,1) + STATUS_CODE_RANGE_SUFFIX;
 }
 
-function addObservabilityInformation(string path, string method, int statusCode) returns error? {
-    check observe:addTagToSpan(HTTP_URL, path);
-    check observe:addTagToSpan(HTTP_METHOD, method);
-    check observe:addTagToSpan(HTTP_STATUS_CODE_GROUP, getStatusCodeRange(statusCode));
+function addObservabilityInformation(string path, string method, int statusCode) {
+    error? err = observe:addTagToSpan(HTTP_URL, path);
+    err = observe:addTagToSpan(HTTP_METHOD, method);
+    err = observe:addTagToSpan(HTTP_STATUS_CODE_GROUP, getStatusCodeRange(statusCode));
 }
 
 //Resolve a given path against a given URI.

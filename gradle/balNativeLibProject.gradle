@@ -21,16 +21,12 @@ configurations {
     balSource {
         transitive false
     }
-    bStringBirJar
 
     interopImports {
         transitive(true)
     }
 }
 project.ext.orgName = file('src/main/ballerina/Ballerina.toml').text.split("\n")[1].split("=")[1].split("\"")[1]
-project.ext.moduleName = files(file('src/main/ballerina/src').listFiles()).filter { File f ->
-    f.isDirectory() && f.name != 'target' && f.name != '.ballerina'
-}.singleFile.name
 
 project.ext.moduleName = files(file('src/main/ballerina/src').listFiles()).filter { File f ->
     f.isDirectory() && f.name != 'target' && f.name != '.ballerina'
@@ -132,24 +128,38 @@ task createBalo(type: CreateBaloTask) {
 
 task createBStringBalo(type: CreateBaloTask) {
     dependsOn createBalHome
+    dependsOn jar
     dependsOn configurations.baloImplementation
     dependsOn copyExternalMappingNextToBir
+    dependsOn configurations.interopImports
+    File interopJars = new File("$buildDir/interopJars.txt")
 
     systemProperty "ballerina.bstring", true
-    classpath = sourceSets.main.runtimeClasspath
-    classpath += project.configurations.baloCreat
+    doFirst {
+        interopJars.write ""
+
+        project.configurations.interopImports.each { interopJars << it << '\n' }
+
+        interopJars << jar.archivePath
+    }
+
+    classpath = project.configurations.baloCreat
+    classpath += files(jar.archivePath)
+
     environment 'BALLERINA_NATIVE_MAP', "./build/classes/java/main/META-INF/this.map.json"
     def balFiles = file("src/main/ballerina/")
     inputs.dir(balFiles)
     inputs.files(configurations.baloImplementation)
     outputs.dir("$buildDir/generated-balo")
+    outputs.dir("$buildDir/generated-bir-jar")
+    outputs.files(interopJars)
     outputs.cacheIf { true }
+    
 }
 
 artifacts {
     baloImplementation file("$buildDir/generated-balo/"), { builtBy(createBalo) }
     balSource file("src/main/ballerina/")
-    bStringBirJar file('build/generated-bir-jar/' + project.ext.moduleName + "-bstring" + '.jar'), {builtBy(createBStringBalo)}
 }
 
 task copySelfToTestBalHome(type: Copy) {

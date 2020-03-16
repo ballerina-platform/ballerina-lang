@@ -19,11 +19,20 @@ package org.wso2.ballerinalang.compiler.bir.codegen;
 
 import org.objectweb.asm.MethodVisitor;
 
+import java.util.Map;
+
 import static org.objectweb.asm.Opcodes.ALOAD;
+import static org.objectweb.asm.Opcodes.DUP;
+import static org.objectweb.asm.Opcodes.INVOKEINTERFACE;
+import static org.objectweb.asm.Opcodes.INVOKESPECIAL;
 import static org.objectweb.asm.Opcodes.INVOKESTATIC;
+import static org.objectweb.asm.Opcodes.NEW;
+import static org.objectweb.asm.Opcodes.POP;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ERROR_VALUE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAP_VALUE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAP_VALUE_IMPL;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBSERVE_UTILS;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_VALUE;
 
 /**
@@ -33,29 +42,35 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_VA
  */
 class JvmObservabilityGen {
 
-    static void emitStopObservationInvocation(MethodVisitor mv, int strandIndex) {
-
-        mv.visitVarInsn(ALOAD, strandIndex);
-        mv.visitMethodInsn(INVOKESTATIC, OBSERVE_UTILS, "stopObservation",
-                String.format("(L%s;)V", STRAND), false);
+    static void emitStopObservationInvocation(MethodVisitor mv) {
+        mv.visitMethodInsn(INVOKESTATIC, OBSERVE_UTILS, "stopObservation", "()V", false);
     }
 
-    static void emitReportErrorInvocation(MethodVisitor mv, int strandIndex, int errorIndex) {
-
-        mv.visitVarInsn(ALOAD, strandIndex);
+    static void emitReportErrorInvocation(MethodVisitor mv, int errorIndex) {
         mv.visitVarInsn(ALOAD, errorIndex);
-        mv.visitMethodInsn(INVOKESTATIC, OBSERVE_UTILS, "reportError",
-                String.format("(L%s;L%s;)V", STRAND, ERROR_VALUE), false);
+        mv.visitMethodInsn(INVOKESTATIC, OBSERVE_UTILS, "reportError", String.format("(L%s;)V", ERROR_VALUE), false);
     }
 
-    static void emitStartObservationInvocation(MethodVisitor mv, int strandIndex, String serviceOrConnectorName,
-                                               String resourceOrActionName, String observationStartMethod) {
-
-        mv.visitVarInsn(ALOAD, strandIndex);
+    static void emitStartObservationInvocation(MethodVisitor mv, String serviceOrConnectorName,
+                                               String resourceOrActionName, String observationStartMethod,
+                                               Map<String, String> tags) {
         mv.visitLdcInsn(cleanUpServiceName(serviceOrConnectorName));
         mv.visitLdcInsn(resourceOrActionName);
+
+        mv.visitTypeInsn(NEW, MAP_VALUE_IMPL);
+        mv.visitInsn(DUP);
+        mv.visitMethodInsn(INVOKESPECIAL, MAP_VALUE_IMPL, "<init>", "()V", false);
+        for (Map.Entry<String, String> entry : tags.entrySet()) {
+            mv.visitInsn(DUP);
+            mv.visitLdcInsn(entry.getKey());
+            mv.visitLdcInsn(entry.getValue());
+            mv.visitMethodInsn(INVOKEINTERFACE, MAP_VALUE, "put",
+                    String.format("(L%s;L%s;)L%s;", OBJECT, OBJECT, OBJECT), true);
+            mv.visitInsn(POP);
+        }
+
         mv.visitMethodInsn(INVOKESTATIC, OBSERVE_UTILS, observationStartMethod,
-                String.format("(L%s;L%s;L%s;)V", STRAND, STRING_VALUE, STRING_VALUE), false);
+                String.format("(L%s;L%s;L%s;)V", STRING_VALUE, STRING_VALUE, MAP_VALUE), false);
     }
 
     private static String cleanUpServiceName(String serviceName) {

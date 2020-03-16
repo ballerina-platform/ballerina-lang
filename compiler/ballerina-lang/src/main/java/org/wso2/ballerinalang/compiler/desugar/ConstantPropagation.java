@@ -73,7 +73,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangRestArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangServiceConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStatementExpression;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangStreamConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
@@ -812,12 +811,6 @@ public class ConstantPropagation extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangStreamConstructorExpr streamConstructorExpr) {
-        streamConstructorExpr.lambdaFunction = rewrite(streamConstructorExpr.lambdaFunction);
-        result = streamConstructorExpr;
-    }
-
-    @Override
     public void visit(BLangDoClause doClause) {
         doClause.body = rewrite(doClause.body);
         result = doClause;
@@ -880,7 +873,6 @@ public class ConstantPropagation extends BLangNodeVisitor {
                     implConversionExpr.pos = varRefExpr.impConversionExpr.pos;
                     implConversionExpr.type = varRefExpr.impConversionExpr.type;
                     implConversionExpr.targetType = varRefExpr.impConversionExpr.targetType;
-                    implConversionExpr.conversionSymbol = varRefExpr.impConversionExpr.conversionSymbol;
                     constRef.impConversionExpr = implConversionExpr;
                 } else {
                     types.setImplicitCastExpr(constRef, constRef.type, varRefExpr.type);

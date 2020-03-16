@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -24,6 +24,9 @@ import com.intellij.psi.PsiElement;
 public interface BallerinaField extends PsiElement {
 
   @Nullable
+  PsiElement getColon();
+
+  @Nullable
   PsiElement getDot();
 
   @Nullable
@@ -31,8 +34,5 @@ public interface BallerinaField extends PsiElement {
 
   @Nullable
   PsiElement getOptionalFieldAccess();
-
-  @Nullable
-  PsiElement getIdentifier();
 
 }

@@ -2232,6 +2232,62 @@
             "insertTextFormat": "Snippet"
         },
         {
+            "label": "HTTP_URL",
+            "kind": "Variable",
+            "detail": "string",
+            "documentation": {
+                "right": {
+                    "kind": "markdown",
+                    "value": "Constant for telemetry tag http.url"
+                }
+            },
+            "sortText": "130",
+            "insertText": "HTTP_URL",
+            "insertTextFormat": "Snippet"
+        },
+        {
+            "label": "HTTP_METHOD",
+            "kind": "Variable",
+            "detail": "string",
+            "documentation": {
+                "right": {
+                    "kind": "markdown",
+                    "value": "Constant for telemetry tag http.method"
+                }
+            },
+            "sortText": "130",
+            "insertText": "HTTP_METHOD",
+            "insertTextFormat": "Snippet"
+        },
+        {
+            "label": "HTTP_STATUS_CODE_GROUP",
+            "kind": "Variable",
+            "detail": "string",
+            "documentation": {
+                "right": {
+                    "kind": "markdown",
+                    "value": "Constant for telemetry tag http.status_code"
+                }
+            },
+            "sortText": "130",
+            "insertText": "HTTP_STATUS_CODE_GROUP",
+            "insertTextFormat": "Snippet"
+        },
+        {
+            "label": "STATUS_CODE_RANGE_SUFFIX",
+            "kind": "Variable",
+            "detail": "string",
+            "documentation": {
+                "right": {
+                    "kind": "markdown",
+                    "value": "Constant for status code range suffix"
+                }
+            },
+            "sortText": "130",
+            "insertText": "STATUS_CODE_RANGE_SUFFIX",
+            "insertTextFormat": "Snippet"
+        },
+        {
             "label": "HttpServiceConfig",
             "kind": "Struct",
             "detail": "Record",
@@ -2382,6 +2438,26 @@
             },
             "sortText": "120",
             "insertText": "CredentialBearer",
+            "insertTextFormat": "Snippet"
+        },
+        {
+            "label": "InboundAuthHandlers",
+            "detail": "Union",
+            "documentation": {
+                "left": "Represents inbound auth handler patterns."
+            },
+            "sortText": "120",
+            "insertText": "InboundAuthHandlers",
+            "insertTextFormat": "Snippet"
+        },
+        {
+            "label": "Scopes",
+            "detail": "Union",
+            "documentation": {
+                "left": "Represents scopes patterns."
+            },
+            "sortText": "120",
+            "insertText": "Scopes",
             "insertTextFormat": "Snippet"
         },
         {
@@ -3593,17 +3669,6 @@
             },
             "sortText": "120",
             "insertText": "ListenerSecureSocket",
-            "insertTextFormat": "Snippet"
-        },
-        {
-            "label": "AuthzCacheConfig",
-            "kind": "Struct",
-            "detail": "Record",
-            "documentation": {
-                "left": "Provides a set of configurations for controlling the authorization caching behaviour of the endpoint.\n"
-            },
-            "sortText": "120",
-            "insertText": "AuthzCacheConfig",
             "insertTextFormat": "Snippet"
         },
         {

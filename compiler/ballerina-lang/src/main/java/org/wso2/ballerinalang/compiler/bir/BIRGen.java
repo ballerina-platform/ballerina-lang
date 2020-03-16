@@ -201,6 +201,8 @@ public class BIRGen extends BLangNodeVisitor {
     // This is a global variable cache
     public Map<BSymbol, BIRGlobalVariableDcl> globalVarMap = new HashMap<>();
 
+    // Required variables for Mock function implementation
+    private static final String MOCK_ANNOTATION_DELIMITER = "#";
 
     public static BIRGen getInstance(CompilerContext context) {
         BIRGen birGen = context.get(BIR_GEN);
@@ -247,6 +249,10 @@ public class BIRGen extends BLangNodeVisitor {
                 testPkg.accept(this);
                 this.birOptimizer.optimizePackage(testBirPkg);
                 testPkg.symbol.bir = testBirPkg;
+                Map<String, String> mockFunctionMap = astPkg.getTestablePkg().getMockFunctionNamesMap();
+                if (!mockFunctionMap.isEmpty()) {
+                    replaceMockedFunctions(testBirPkg, mockFunctionMap);
+                }
             });
         }
 
@@ -285,6 +291,27 @@ public class BIRGen extends BLangNodeVisitor {
         }
     }
 
+    private void replaceMockedFunctions(BIRPackage birPkg, Map<String, String> mockFunctionMap) {
+        for (BIRFunction function : birPkg.functions) {
+            List<BIRBasicBlock> functionBasicBlocks = function.basicBlocks;
+            for (BIRBasicBlock functionBasicBlock : functionBasicBlocks) {
+                BIRTerminator bbTerminator = functionBasicBlock.terminator;
+                if (bbTerminator.kind.equals(InstructionKind.CALL)) {
+                    //We get the callee and the name and generate 'calleepackage#name'
+                    BIRTerminator.Call callTerminator = (BIRTerminator.Call) bbTerminator;
+                    String functionKey = callTerminator.calleePkg.toString() + MOCK_ANNOTATION_DELIMITER
+                            + callTerminator.name.toString();
+                    if (mockFunctionMap.get(functionKey) != null) {
+                        // Just "get" the reference. If this doesnt work then it doesnt exist
+                        String mockfunctionName = mockFunctionMap.get(functionKey);
+                        callTerminator.name = new Name(mockfunctionName);
+                        callTerminator.calleePkg = function.pos.src.pkgID;
+                    }
+                }
+            }
+        }
+    }
+
     // Nodes
 
     @Override
@@ -305,11 +332,12 @@ public class BIRGen extends BLangNodeVisitor {
     @Override
     public void visit(BLangTypeDefinition astTypeDefinition) {
         BIRTypeDefinition typeDef = new BIRTypeDefinition(astTypeDefinition.pos,
-                                                          astTypeDefinition.symbol.name,
-                                                          astTypeDefinition.symbol.flags,
-                                                          astTypeDefinition.symbol.isLabel,
-                                                          astTypeDefinition.typeNode.type,
-                                                          new ArrayList<>());
+                astTypeDefinition.symbol.name,
+                astTypeDefinition.symbol.flags,
+                astTypeDefinition.symbol.isLabel,
+                astTypeDefinition.isBuiltinTypeDef,
+                astTypeDefinition.typeNode.type,
+                new ArrayList<>());
         typeDefs.put(astTypeDefinition.symbol, typeDef);
         this.env.enclPkg.typeDefs.add(typeDef);
         typeDef.index = this.env.enclPkg.typeDefs.size() - 1;
@@ -900,7 +928,7 @@ public class BIRGen extends BLangNodeVisitor {
                                                                   names.fromString(name), VarScope.GLOBAL,
                                                                   VarKind.GLOBAL, varNode.name.value);
         birVarDcl.setMarkdownDocAttachment(varNode.symbol.markdownDocumentation);
-        
+
         this.env.enclPkg.globalVars.add(birVarDcl);
 
         this.globalVarMap.put(varNode.symbol, birVarDcl);
@@ -1126,14 +1154,22 @@ public class BIRGen extends BLangNodeVisitor {
             this.env.enclBB.terminator = new BIRTerminator.FPCall(invocationExpr.pos, InstructionKind.FP_CALL,
                     fp, args, lhsOp, invocationExpr.async, thenBB);
         } else if (invocationExpr.async) {
+            BInvokableSymbol bInvokableSymbol = (BInvokableSymbol) invocationExpr.symbol;
+            List<BIRAnnotationAttachment> calleeAnnots = getStatementAnnotations(bInvokableSymbol.annAttachments,
+                    this.env);
+
             List<BIRAnnotationAttachment> annots = getStatementAnnotations(invocationExpr.annAttachments, this.env);
             this.env.enclBB.terminator = new BIRTerminator.AsyncCall(invocationExpr.pos, InstructionKind.ASYNC_CALL,
                     isVirtual, invocationExpr.symbol.pkgID, getFuncName((BInvokableSymbol) invocationExpr.symbol),
-                    args, lhsOp, thenBB, annots);
+                    args, lhsOp, thenBB, annots, calleeAnnots, bInvokableSymbol.getFlags());
         } else {
+            BInvokableSymbol bInvokableSymbol = (BInvokableSymbol) invocationExpr.symbol;
+            List<BIRAnnotationAttachment> calleeAnnots = getStatementAnnotations(bInvokableSymbol.annAttachments,
+                    this.env);
+
             this.env.enclBB.terminator = new BIRTerminator.Call(invocationExpr.pos, InstructionKind.CALL, isVirtual,
                     invocationExpr.symbol.pkgID, getFuncName((BInvokableSymbol) invocationExpr.symbol), args, lhsOp,
-                    thenBB);
+                    thenBB, calleeAnnots, bInvokableSymbol.getFlags());
         }
 
         this.env.enclBB = thenBB;
@@ -2155,7 +2191,8 @@ public class BIRGen extends BLangNodeVisitor {
         BIROperand tempVarRef = new BIROperand(tempVarDcl);
 
         emit(new BIRNonTerminator.FieldAccess(astArrayAccessExpr.pos, InstructionKind.ARRAY_LOAD, tempVarRef,
-                keyRegIndex, varRefRegIndex));
+                                              keyRegIndex, varRefRegIndex, false,
+                                              astArrayAccessExpr.lhsVar && !astArrayAccessExpr.leafNode));
         this.env.targetOperand = tempVarRef;
 
         this.varAssignment = variableStore;
@@ -2276,7 +2313,7 @@ public class BIRGen extends BLangNodeVisitor {
             return generateStringLiteral(null);
         }
 
-        // global-level, object-level, record-level namespace declarations will not have 
+        // global-level, object-level, record-level namespace declarations will not have
         // any interpolated content. hence the namespace URI is statically known.
         int ownerTag = nsSymbol.owner.tag;
         if ((ownerTag & SymTag.PACKAGE) == SymTag.PACKAGE ||

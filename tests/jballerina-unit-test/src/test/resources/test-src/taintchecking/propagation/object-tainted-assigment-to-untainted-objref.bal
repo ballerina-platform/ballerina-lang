@@ -15,24 +15,24 @@
 // under the License.
 
 type TestObject object {
-    string? field;
+    string? 'field;
 
     function __init() {
-        self.field = ();
+        self.'field = ();
     }
 
     function test2(@untainted TestObject o) returns string {
-        o.field = self.field;
-        secureFunction(<string> o.field, <string> self.field);
-        return <string> o.field;
+        o.'field = self.'field;
+        secureFunction(<string> o.'field, <string> self.'field);
+        return <string> o.'field;
     }
 
     function testFunction (string input) returns string {
-        return input + <string>self.field;
+        return input + <string>self.'field;
     }
 
     function setField(string f) {
-        self.field = f;
+        self.'field = f;
     }
 };
 
@@ -46,15 +46,15 @@ function getTaintedString() returns @tainted string {
 
 public function main (string... args) {
     TestObject o = new();
-    o.field = getTaintedString();
+    o.'field = getTaintedString();
 
     TestObject o2 = new();
     var as2 = o.test2(o2);
 
     TestObject o3 = new();
     o3.setField(getTaintedString());
-    secureFunction(<string> o3.field, "");
+    secureFunction(<string> o3.'field, "");
 
     var assig = o.testFunction("a");
-    o.field = getTaintedString();
+    o.'field = getTaintedString();
 }

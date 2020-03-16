@@ -27,7 +27,6 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
 import io.ballerina.plugins.idea.psi.BallerinaAlias;
-import io.ballerina.plugins.idea.psi.BallerinaCallableUnitSignature;
 import io.ballerina.plugins.idea.psi.BallerinaFunctionDefinition;
 import io.ballerina.plugins.idea.psi.BallerinaFunctionNameReference;
 import io.ballerina.plugins.idea.psi.BallerinaOrgName;
@@ -36,33 +35,12 @@ import io.ballerina.plugins.idea.sdk.BallerinaSdkUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.File;
-import java.util.LinkedList;
-import java.util.List;
-
 import static io.ballerina.plugins.idea.BallerinaConstants.BALLERINA_SRC_DIR_NAME;
 
 /**
  * Util class which contains methods related to PSI manipulation.
  */
 public class BallerinaPsiImplUtil {
-
-    private static final List<String> BUILTIN_DIRECTORIES = new LinkedList<>();
-
-    private static final List<String> BUILTIN_VARIABLE_TYPES = new LinkedList<>();
-
-    static {
-        BUILTIN_DIRECTORIES.add(File.separator + "builtin");
-
-        BUILTIN_VARIABLE_TYPES.add("future"); //async
-        BUILTIN_VARIABLE_TYPES.add("blob");
-        BUILTIN_VARIABLE_TYPES.add("json");
-        BUILTIN_VARIABLE_TYPES.add("map");
-        BUILTIN_VARIABLE_TYPES.add("stream");
-        BUILTIN_VARIABLE_TYPES.add("string");
-        BUILTIN_VARIABLE_TYPES.add("table");
-        BUILTIN_VARIABLE_TYPES.add("xml");
-    }
 
     // Since instances of "com.intellij.openapi.project.Project" returns system-independant paths for project directory
     // File.seperator should not be used
@@ -88,16 +66,19 @@ public class BallerinaPsiImplUtil {
 
     @Nullable
     public static PsiElement getIdentifier(BallerinaFunctionDefinition ballerinaFunctionDefinition) {
-        BallerinaCallableUnitSignature callableUnitSignature = ballerinaFunctionDefinition.getCallableUnitSignature();
-        return callableUnitSignature != null ? callableUnitSignature.getAnyIdentifierName().getIdentifier() : null;
+        if (ballerinaFunctionDefinition == null || ballerinaFunctionDefinition.getAnyIdentifierName() == null) {
+            return null;
+        }
+        return ballerinaFunctionDefinition.getAnyIdentifierName().getIdentifier();
     }
 
     @Nullable
     public static String getName(BallerinaFunctionDefinition ballerinaFunctionDefinition) {
-        BallerinaCallableUnitSignature callableUnitSignature = ballerinaFunctionDefinition.getCallableUnitSignature();
-        return callableUnitSignature != null && callableUnitSignature.getAnyIdentifierName().getIdentifier() != null ?
-                callableUnitSignature.getAnyIdentifierName().getIdentifier().getText() :
-                "";
+        if (ballerinaFunctionDefinition == null || ballerinaFunctionDefinition.getAnyIdentifierName() == null ||
+                ballerinaFunctionDefinition.getAnyIdentifierName().getIdentifier() == null) {
+            return null;
+        }
+        return ballerinaFunctionDefinition.getAnyIdentifierName().getIdentifier().getText();
     }
 
     public static boolean isInLocalPackage(@NotNull BallerinaFunctionNameReference nameReference) {

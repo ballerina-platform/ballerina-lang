@@ -321,6 +321,7 @@ class JMethodResolver {
                     return this.classLoader.loadClass(BFuture.class.getCanonicalName()).isAssignableFrom(jType);
                 case TypeTags.TYPEDESC_TAG:
                     return this.classLoader.loadClass(BTypedesc.class.getCanonicalName()).isAssignableFrom(jType);
+
                 default:
                     return false;
             }

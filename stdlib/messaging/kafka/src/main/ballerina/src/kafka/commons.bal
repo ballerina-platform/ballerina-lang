@@ -100,9 +100,3 @@ public type Protocols record {|
     string sslProtocol = ""; // SSL_PROTOCOL_CONFIG 2
     string sslProtocolVersions = ""; // SSL_ENABLED_PROTOCOLS_CONFIG 3
 |};
-
-const STRING = "string";
-const INT = "int";
-const FLOAT = "float";
-const BYTE_ARRAY = "byte[]";
-const ANY = "any";

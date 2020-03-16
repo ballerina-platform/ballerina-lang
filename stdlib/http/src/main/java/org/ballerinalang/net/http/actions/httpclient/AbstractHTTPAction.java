@@ -62,6 +62,7 @@ import java.net.URL;
 import java.util.Optional;
 
 import static io.netty.handler.codec.http.HttpHeaderNames.ACCEPT_ENCODING;
+import static org.ballerinalang.jvm.observability.ObservabilityConstants.STATUS_CODE_GROUP_SUFFIX;
 import static org.ballerinalang.jvm.runtime.RuntimeConstants.BALLERINA_VERSION;
 import static org.ballerinalang.net.http.HttpConstants.ANN_CONFIG_ATTR_COMPRESSION;
 import static org.ballerinalang.net.http.HttpUtil.extractEntity;
@@ -82,7 +83,7 @@ public abstract class AbstractHTTPAction {
         CACHE_BALLERINA_VERSION = System.getProperty(BALLERINA_VERSION);
     }
 
-    protected static HttpCarbonMessage createOutboundRequestMsg(Strand strand, String serviceUri, MapValue config, 
+    protected static HttpCarbonMessage createOutboundRequestMsg(Strand strand, String serviceUri, MapValue config,
                                                                 String path, ObjectValue request) {
         if (request == null) {
             request = ValueCreatorUtils.createRequestObject();
@@ -497,8 +498,8 @@ public abstract class AbstractHTTPAction {
         private void addHttpStatusCode(int statusCode) {
             Optional<ObserverContext> observerContext =
                     ObserveUtils.getObserverContextOfCurrentFrame(context.getStrand());
-            observerContext.ifPresent(ctx -> ctx.addTag(ObservabilityConstants.TAG_KEY_HTTP_STATUS_CODE,
-                    String.valueOf(statusCode)));
+            observerContext.ifPresent(ctx -> ctx.addTag(ObservabilityConstants.TAG_KEY_HTTP_STATUS_CODE_GROUP,
+                    statusCode / 100 + STATUS_CODE_GROUP_SUFFIX));
         }
     }
 }

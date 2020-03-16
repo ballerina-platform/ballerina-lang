@@ -108,7 +108,7 @@ import static io.netty.handler.codec.http.HttpHeaderNames.CACHE_CONTROL;
 import static org.ballerinalang.jvm.observability.ObservabilityConstants.PROPERTY_HTTP_HOST;
 import static org.ballerinalang.jvm.observability.ObservabilityConstants.PROPERTY_HTTP_PORT;
 import static org.ballerinalang.jvm.observability.ObservabilityConstants.TAG_KEY_HTTP_METHOD;
-import static org.ballerinalang.jvm.observability.ObservabilityConstants.TAG_KEY_HTTP_STATUS_CODE;
+import static org.ballerinalang.jvm.observability.ObservabilityConstants.TAG_KEY_HTTP_STATUS_CODE_GROUP;
 import static org.ballerinalang.jvm.observability.ObservabilityConstants.TAG_KEY_HTTP_URL;
 import static org.ballerinalang.jvm.observability.ObservabilityConstants.TAG_KEY_PEER_ADDRESS;
 import static org.ballerinalang.jvm.runtime.RuntimeConstants.BALLERINA_VERSION;
@@ -650,12 +650,10 @@ public class HttpUtil {
         inboundRequest.addNativeData(TRANSPORT_MESSAGE, inboundRequestMsg);
         inboundRequest.addNativeData(REQUEST, true);
 
-        if (inboundRequestMsg.getProperty(HttpConstants.MUTUAL_SSL_RESULT) != null) {
-            MapValue mutualSslRecord = ValueCreatorUtils.createHTTPRecordValue(MUTUAL_SSL_HANDSHAKE_RECORD);
-            mutualSslRecord.put(REQUEST_MUTUAL_SSL_HANDSHAKE_STATUS,
-                                inboundRequestMsg.getProperty(HttpConstants.MUTUAL_SSL_RESULT));
-            inboundRequest.set(REQUEST_MUTUAL_SSL_HANDSHAKE_FIELD, mutualSslRecord);
-        }
+        MapValue mutualSslRecord = ValueCreatorUtils.createHTTPRecordValue(MUTUAL_SSL_HANDSHAKE_RECORD);
+        mutualSslRecord.put(REQUEST_MUTUAL_SSL_HANDSHAKE_STATUS,
+                inboundRequestMsg.getProperty(HttpConstants.MUTUAL_SSL_RESULT));
+        inboundRequest.set(REQUEST_MUTUAL_SSL_HANDSHAKE_FIELD, mutualSslRecord);
 
         enrichWithInboundRequestInfo(inboundRequest, inboundRequestMsg);
         enrichWithInboundRequestHeaders(inboundRequest, inboundRequestMsg);
@@ -1121,17 +1119,17 @@ public class HttpUtil {
     public static void checkAndObserveHttpRequest(Strand strand, HttpCarbonMessage message) {
         Optional<ObserverContext> observerContext = ObserveUtils.getObserverContextOfCurrentFrame(strand);
         observerContext.ifPresent(ctx -> {
-            HttpUtil.injectHeaders(message, ObserveUtils.getContextProperties(strand.observerContext));
-            strand.observerContext.addTag(TAG_KEY_HTTP_METHOD, message.getHttpMethod());
-            strand.observerContext.addTag(TAG_KEY_HTTP_URL, String.valueOf(message.getProperty(HttpConstants.TO)));
-            strand.observerContext.addTag(TAG_KEY_PEER_ADDRESS,
+            HttpUtil.injectHeaders(message, ObserveUtils.getContextProperties(ctx));
+            ctx.addTag(TAG_KEY_HTTP_METHOD, message.getHttpMethod());
+            ctx.addTag(TAG_KEY_HTTP_URL, String.valueOf(message.getProperty(HttpConstants.TO)));
+            ctx.addTag(TAG_KEY_PEER_ADDRESS,
                        message.getProperty(PROPERTY_HTTP_HOST) + ":" + message.getProperty(PROPERTY_HTTP_PORT));
             // Add HTTP Status Code tag. The HTTP status code will be set using the response message.
             // Sometimes the HTTP status code will not be set due to errors etc. Therefore, it's very important to set
             // some value to HTTP Status Code to make sure that tags will not change depending on various
             // circumstances.
             // HTTP Status code must be a number.
-            strand.observerContext.addTag(TAG_KEY_HTTP_STATUS_CODE, Integer.toString(0));
+            ctx.addTag(TAG_KEY_HTTP_STATUS_CODE_GROUP, Integer.toString(0));
         });
     }
 

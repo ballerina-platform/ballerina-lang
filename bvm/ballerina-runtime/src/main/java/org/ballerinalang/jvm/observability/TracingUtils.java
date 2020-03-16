@@ -17,11 +17,14 @@
  */
 package org.ballerinalang.jvm.observability;
 
+import org.apache.commons.lang3.StringUtils;
+import org.ballerinalang.jvm.observability.metrics.Tag;
 import org.ballerinalang.jvm.observability.tracer.BSpan;
 import org.ballerinalang.jvm.values.ErrorValue;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import static org.ballerinalang.jvm.observability.ObservabilityConstants.PROPERTY_BSTRUCT_ERROR;
 import static org.ballerinalang.jvm.observability.ObservabilityConstants.PROPERTY_ERROR;
@@ -56,7 +59,7 @@ public class TracingUtils {
                 observerContext.getServiceName() : ObservabilityConstants.UNKNOWN_SERVICE);
 
         if (isClient) {
-            span.setActionName(observerContext.getConnectorName() != null ?
+            span.setActionName(StringUtils.isNotEmpty(observerContext.getConnectorName()) ?
                     observerContext.getConnectorName() + SEPARATOR + observerContext.getActionName()
                     : observerContext.getActionName());
             observerContext.addProperty(PROPERTY_TRACE_PROPERTIES, span.getProperties());
@@ -104,7 +107,9 @@ public class TracingUtils {
                 logProps.put(LOG_KEY_MESSAGE, errorMessageBuilder.toString());
                 span.logError(logProps);
             }
-            span.addTags(observerContext.getTags());
+            span.addTags(observerContext.getAllTags()
+                    .stream()
+                    .collect(Collectors.toMap(Tag::getKey, Tag::getValue)));
             span.finishSpan();
         }
     }

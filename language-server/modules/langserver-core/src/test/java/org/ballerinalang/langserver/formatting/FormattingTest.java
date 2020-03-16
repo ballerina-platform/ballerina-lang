@@ -159,7 +159,7 @@ public class FormattingTest {
                 {"expectedXMLTextLiteral.bal", "xmlTextLiteral.bal"},
                 {"expectedXMLCommentLiteral.bal", "xmlCommentLiteral.bal"},
                 {"expectedXMLPILiteral.bal", "xmlPILiteral.bal"},
-                //{"expectedXMLElementLiteral.bal", "xmlElementLiteral.bal"},
+                {"expectedXMLElementLiteral.bal", "xmlElementLiteral.bal"},
                 {"expectedXMLAttribute.bal", "xmlAttribute.bal"},
                 {"expectedXMLAttributeAccessExpr.bal", "xmlAttributeAccessExpr.bal"},
                 {"expectedXMLQName.bal", "xmlQName.bal"},
@@ -169,6 +169,7 @@ public class FormattingTest {
                 {"expectedNegativeEOF.bal", "negativeEOF.bal"},
                 {"expectedListConstructorExpr.bal", "listConstructorExpr.bal"},
                 {"expectedRecordLiteralSpreadOp.bal", "recordLiteralSpreadOp.bal"},
+                {"expectedLetExpr.bal", "letExpr.bal"},
         };
     }
 

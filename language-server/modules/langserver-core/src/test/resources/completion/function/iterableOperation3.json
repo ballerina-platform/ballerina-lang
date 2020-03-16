@@ -222,6 +222,20 @@
       }
     },
     {
+      "label": "children()(xml)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.xml_  \n  \n  \n  \n  \n**Returns** `xml`   \n  \n"
+        }
+      },
+      "sortText": "120",
+      "insertText": "children()",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "copy()(xml)",
       "kind": "Function",
       "detail": "Function",
@@ -284,24 +298,6 @@
       "sortText": "120",
       "insertText": "isText()",
       "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "selectDescendants(string qname)(xml)",
-      "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.xml_  \n  \nSearches in children recursively for elements matching the qualified name and returns a sequence containing them\nall. Does not search within a matched result.\n  \n**Params**  \n- `string` qname: Qualified name of the element  \n  \n**Returns** `xml`   \n- All the descendants that matches the given qualified name, as a sequence  \n  \n"
-        }
-      },
-      "sortText": "120",
-      "insertText": "selectDescendants(${1})",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
     },
     {
       "label": "isProcessingInstruction()(boolean)",

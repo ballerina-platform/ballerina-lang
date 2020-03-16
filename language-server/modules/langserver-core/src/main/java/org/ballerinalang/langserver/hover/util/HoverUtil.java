@@ -32,8 +32,8 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BStructureTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.Name;
+import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -200,7 +200,7 @@ public class HoverUtil {
      */
     private static String getDocAttributes(List<MarkdownDocAttachment.Parameter> parameters, BSymbol symbol,
                                            LSContext ctx) {
-        Map<String, BType> types = new HashMap<>();
+        Map<String, BSymbol> paramSymbols = new HashMap<>();
         if (symbol instanceof BVarSymbol && !(symbol instanceof BInvokableSymbol)) {
             symbol = ((BVarSymbol) symbol).type.tsymbol;
         }
@@ -217,7 +217,7 @@ public class HoverUtil {
                     continue;
                 }
                 BVarSymbol param = params.get(i);
-                types.put(param.name.value, param.type);
+                paramSymbols.put(param.name.value, param);
             }
         } else if (symbol instanceof BStructureTypeSymbol || symbol instanceof BAnnotationSymbol) {
             Map<Name, Scope.ScopeEntry> entries;
@@ -231,7 +231,7 @@ public class HoverUtil {
             entries.values()
                     .stream()
                     .filter(s -> s.symbol instanceof BVarSymbol && s.symbol.getFlags().contains(Flag.PUBLIC))
-                    .forEach(s -> types.put(s.symbol.name.value, s.symbol.type));
+                    .forEach(s -> paramSymbols.put(s.symbol.name.value, s.symbol));
         }
         StringBuilder value = new StringBuilder();
         for (int i = 0; i < parameters.size(); i++) {
@@ -239,12 +239,17 @@ public class HoverUtil {
                 continue;
             }
             MarkdownDocAttachment.Parameter parameter = parameters.get(i);
+            boolean isOptional = false;
             String type = "";
-            if (!types.isEmpty() && types.get(parameter.name) != null) {
-                type = "`" + CommonUtil.getBTypeName(types.get(parameter.name), ctx, false) + "` ";
+            if (!paramSymbols.isEmpty() && paramSymbols.get(parameter.name) != null) {
+                isOptional = ((paramSymbols.get(parameter.name).flags & Flags.OPTIONAL) == Flags.OPTIONAL);
+                type = "`" + CommonUtil.getBTypeName(paramSymbols.get(parameter.name).type, ctx, false) + "` ";
             }
             value.append("- ")
-                    .append(type).append("**").append(parameter.name.trim()).append("**")
+                    .append(type).append("**")
+                    .append(parameter.name.trim())
+                    .append(isOptional ? "?" : "")
+                    .append("**")
                     .append(": ")
                     .append(parameter.description.trim()).append(CommonUtil.MD_LINE_SEPARATOR);
         }

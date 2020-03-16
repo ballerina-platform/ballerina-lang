@@ -111,8 +111,7 @@ public class MetricsReporterExtension implements MetricReporter, AutoCloseable {
                     long value = counter.getValue();
                     counter.reset();
                     tags.put("timeWindow", String.valueOf(currentTimestamp - lastCounterResetTimestamp));
-                    ChoreoMetric counterMetric = new ChoreoMetric(currentTimestamp, metricName + "_count",
-                            value, tags);
+                    ChoreoMetric counterMetric = new ChoreoMetric(currentTimestamp, metricName, value, tags);
                     choreoMetrics.add(counterMetric);
                 } else if (metric instanceof Gauge) {
                     for (Snapshot snapshot : ((Gauge) metric).getSnapshots()) {

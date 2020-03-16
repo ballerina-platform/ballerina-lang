@@ -103,25 +103,41 @@ public const DATA_LOSS_ERROR = "{ballerina/grpc}DataLossError";
 # Represents unrecoverable data loss or corruption erros.
 public type DataLossError error<DATA_LOSS_ERROR, Detail>;
 
+# Identifies all the retry attempts failed scenario.
+public const ALL_RETRY_ATTEMPTS_FAILED = "{ballerina/grpc}AllRetryAttemptsFailed";
+# Represents error scenario where the maximum retry attempts are done and still received an error.
+public type AllRetryAttemptsFailed error<ALL_RETRY_ATTEMPTS_FAILED, Detail>;
+
+# Represents all the resiliency-related error reasons.
+public type ResiliencyErrorType ALL_RETRY_ATTEMPTS_FAILED;
+# Represents all the resiliency-related errors.
+public type ResiliencyError AllRetryAttemptsFailed;
+
 # Represents gRPC related error types.
 public type ErrorType CANCELLED_ERROR | UNKNOWN_ERROR | INVALID_ARGUMENT_ERROR | DEADLINE_EXCEEDED_ERROR
 | NOT_FOUND_ERROR | ALREADY_EXISTS_ERROR | PERMISSION_DENIED_ERROR | UNAUTHENTICATED_ERROR | RESOURCE_EXHAUSTED_ERROR
 | FAILED_PRECONDITION_ERROR | ABORTED_ERROR | OUT_OF_RANGE_ERROR | UNIMPLEMENTED_ERROR |
-INTERNAL_ERROR|UNAVAILABLE_ERROR | DATA_LOSS_ERROR;
+INTERNAL_ERROR|UNAVAILABLE_ERROR | DATA_LOSS_ERROR | ResiliencyErrorType;
 
 # Represents gRPC related errors.
 public type Error CancelledError | UnKnownError | InvalidArgumentError | DeadlineExceededError | NotFoundError
 | AleadyExistsError | PermissionDeniedError | UnauthenticatedError | ResourceExhaustedError | FailedPreconditionError
-| AbortedError | OutOfRangeError | UnimplementedError | InternalError | UnavailableError | DataLossError;
+| AbortedError | OutOfRangeError | UnimplementedError | InternalError | UnavailableError | DataLossError
+| ResiliencyError;
 
 
 # Prepare the `error` as gRPC specific `Error`.
 #
 # + errorType - the error type.
 # + message - the error message.
-# + other - the `error` instance.
+# + cause - the `error` instance.
 # + return - prepared `grpc:Error` instance.
-public function prepareError(ErrorType errorType, string message, error other) returns Error {
-    error err = error(errorType, message = message, cause = other);
-    return <Error> err;
+public function prepareError(ErrorType errorType, string message, error? cause) returns Error {
+    if (cause is error) {
+        error err = error(errorType, message = message, cause = cause);
+        return <Error> err;
+    } else {
+        error err = error(errorType, message = message);
+        return <Error> err;
+    }
 }

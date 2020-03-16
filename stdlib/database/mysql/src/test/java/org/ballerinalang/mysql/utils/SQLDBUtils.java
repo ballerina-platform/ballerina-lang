@@ -17,16 +17,13 @@
  */
 package org.ballerinalang.mysql.utils;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.ballerinalang.model.values.BError;
+import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BValue;
+import org.testng.Assert;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.FileVisitOption;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Comparator;
 
 /**
  * Util class for MySQL DB Tests.
@@ -35,8 +32,6 @@ import java.util.Comparator;
  */
 public class SQLDBUtils {
 
-    public static final String DB_DIRECTORY = Paths.get(".", "target", "mysql-data").toString()
-            + File.separator;
     public static final String DB_HOST = "localhost";
     public static final int DB_PORT = 3305;
     public static final String DB_USER_NAME = "test";
@@ -45,27 +40,49 @@ public class SQLDBUtils {
     public static final String SQL_ERROR_MESSAGE = "message";
 
     public static final String SQL_RESOURCE_DIR = Paths.get("datafiles", "sql").toString();
-    public static final String CONNECTIONS_DIR = "connections";
-    public static final boolean ENABLE_TEST = !SQLDBUtils.isWindows();
-
-    private static final Logger log = LoggerFactory.getLogger(SQLDBUtils.class);
+    public static final String CONNECTIONS_DIR = "connection";
+    public static final String QUERY_DIR = "query";
+    public static final String EXECUTE_DIR = "execute";
+    public static final String POOL_DIR = "pool";
 
     /**
-     * Delete the given directory along with all files and sub directories.
+     * Resolves the ballerina test source file path.
      *
-     * @param directory Directory to delete.
+     * @param subResourceDir The name of the subdirectory where the ballerina file belongs
+     * @param resouceFileName The name of the ballerina file
+     * @return The path of the ballerina file
      */
-    public static void deleteDirectory(File directory) {
-        try {
-            Files.walk(directory.toPath(), FileVisitOption.FOLLOW_LINKS)
-                    .sorted(Comparator.reverseOrder()).map(Path::toFile).forEach(File::delete);
-        } catch (IOException e) {
-            log.error("Error while deleting database directory: ", e);
-        }
+    public static String getBalFilesDir(String subResourceDir, String resouceFileName) {
+        return Paths.get("test-src", subResourceDir, resouceFileName).toString();
     }
 
-    private static boolean isWindows() {
-        String os = System.getProperty("os.name").toLowerCase();
-        return os.contains("win");
+    /**
+     * Resolve the the path of the resource file.
+     *
+     * @param fileName Name of the resource file
+     * @return Absolute path of the resource file
+     */
+    public static Path getResourcePath(String fileName) {
+        return Paths.get("src", "test", "resources", fileName).toAbsolutePath();
+    }
+
+    /**
+     * Validates the provided ballerina object is not an error type.
+     *
+     * @param value The object which needs to be validated.
+     */
+    public static void assertNotError(Object value) {
+        if (value instanceof BError) {
+            BError bError = (BError) value;
+            String message = "Not expecting an error. Error details: \nReason:" + bError.getReason();
+            Object details = bError.getDetails();
+            if (details instanceof BMap) {
+                BValue errMessage = ((BMap) details).get("message");
+                if (errMessage != null) {
+                    message += " , message: " + errMessage.stringValue();
+                }
+            }
+            Assert.fail(message);
+        }
     }
 }

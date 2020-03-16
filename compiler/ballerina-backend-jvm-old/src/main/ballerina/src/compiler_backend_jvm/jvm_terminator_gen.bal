@@ -511,7 +511,6 @@ type TerminatorGenerator object {
         string cleanMethodName = cleanupFunctionName(methodName);
         boolean useBString = isBStringFunc(methodLookupName);
         string methodDesc = lookupJavaMethodDescription(lookupKey, useBString);
-
         self.mv.visitMethodInsn(INVOKESTATIC, jvmClass, cleanupFunctionName(methodName), methodDesc, false);
     }
 
@@ -754,7 +753,7 @@ type TerminatorGenerator object {
             self.submitToScheduler(fpCall.lhsOp, localVarOffset);
         } else {
             self.mv.visitMethodInsn(INVOKEVIRTUAL, FUNCTION_POINTER, "call", io:sprintf("(L%s;)L%s;", OBJECT, OBJECT), false);
-            // store reult
+            // store result
             bir:BType? lhsType = fpCall.lhsOp?.typeValue;
             if (lhsType is bir:BType) {
                 addUnboxInsn(self.mv, lhsType);

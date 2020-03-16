@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.test.types.xml;
 
+import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.test.util.BAssertUtil;
 import org.ballerinalang.test.util.BCompileUtil;
@@ -73,6 +74,16 @@ public class XMLAttributeAccessTest {
         Assert.assertEquals(result[0].stringValue(), "val");
         Assert.assertEquals(result[1].stringValue(), "val");
         Assert.assertEquals(result[2].stringValue(), "true");
+    }
+
+    @Test
+    public void testXMLAttributeWithNSPrefix() {
+        BValue[] result = BRunUtil.invoke(lexCompileRes, "testXMLAttributeWithNSPrefix");
+        Assert.assertEquals(result[0].stringValue(), "xml-val");
+        Assert.assertEquals(result[1].stringValue(), "xml-val");
+        Assert.assertEquals(result[2].stringValue(), "{lang.map}InvalidKey {key:\"b\"}");
+        Assert.assertTrue(((BBoolean) result[3]).booleanValue());
+        Assert.assertTrue(((BBoolean) result[4]).booleanValue());
     }
 
     @Test
