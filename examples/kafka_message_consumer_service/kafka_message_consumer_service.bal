@@ -17,7 +17,7 @@ listener kafka:Consumer consumer = new (consumerConfigs);
 service kafkaService on consumer {
 
     resource function onMessage(kafka:Consumer kafkaConsumer,
-        kafka:ConsumerRecord[] records) {
+            kafka:ConsumerRecord[] records) {
         // The set of Kafka records dispatched to the service processed one by one.
         foreach var kafkaRecord in records {
             processKafkaRecord(kafkaRecord);
