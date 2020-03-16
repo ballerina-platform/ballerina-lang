@@ -18,6 +18,9 @@
 
 package org.ballerinalang.messaging.kafka.utils;
 
+import org.apache.avro.Schema;
+import org.apache.avro.generic.GenericRecord;
+import org.apache.avro.util.Utf8;
 import org.apache.kafka.clients.CommonClientConfigs;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
@@ -213,7 +216,7 @@ public class KafkaUtils {
         }
         if (SERDES_AVRO.equals(configurations.get(CONSUMER_VALUE_DESERIALIZER_CONFIG)) ||
                 SERDES_AVRO.equals(configurations.get(CONSUMER_VALUE_DESERIALIZER_CONFIG))) {
-            properties.put(KafkaConstants.SPECIFIC_AVRO_READER, true);
+            properties.put(KafkaConstants.SPECIFIC_AVRO_READER, false);
         }
         return properties;
     }
@@ -414,6 +417,8 @@ public class KafkaUtils {
                 return KafkaConstants.INT_DESERIALIZER;
             case KafkaConstants.SERDES_FLOAT:
                 return KafkaConstants.FLOAT_DESERIALIZER;
+            case SERDES_AVRO:
+                return KafkaConstants.AVRO_DESERIALIZER;
             case SERDES_CUSTOM:
                 return KafkaConstants.CUSTOM_DESERIALIZER;
             default:
@@ -524,8 +529,8 @@ public class KafkaUtils {
         if (Objects.nonNull(record.key())) {
             key = getBValues(record.key(), keyType);
         }
-        Object value = getBValues(record.value(), valueType);
 
+        Object value = getBValues(record.value(), valueType);
         return createRecord(getConsumerRecord(), key, value, record.offset(), record.partition(), record.timestamp(),
                             record.topic());
     }
@@ -555,14 +560,35 @@ public class KafkaUtils {
             } else {
                 throw new BLangRuntimeException("Invalid type - expected: float");
             }
-        } else if (SERDES_CUSTOM.equals(type) || SERDES_AVRO.equals(type)) {
+        } else if (SERDES_AVRO.equals(type)) {
+            if (value instanceof GenericRecord) {
+                return populateGenericAvroRecord((GenericRecord) value);
+            }
+        } else if (SERDES_CUSTOM.equals(type)) {
             return value;
         }
         throw createKafkaError("Unexpected type found for consumer record");
     }
 
+    private static Object populateGenericAvroRecord(GenericRecord record) {
+        List<Schema.Field> fields = record.getSchema().getFields();
+        MapValue valueRecord = getAvroGenericRecord();
+        for (Schema.Field field : fields) {
+            if (record.get(field.name()) instanceof Utf8) {
+                valueRecord.put(field.name(), record.get(field.name()).toString());
+            } else {
+                valueRecord.put(field.name(), record.get(field.name()));
+            }
+        }
+        return valueRecord;
+    }
+
     public static MapValue<String, Object> getConsumerRecord() {
         return createKafkaRecord(KafkaConstants.CONSUMER_RECORD_STRUCT_NAME);
+    }
+
+    public static MapValue<String, Object> getAvroGenericRecord() {
+        return createKafkaRecord(KafkaConstants.AVRO_GENERIC_RECORD_NAME);
     }
 
     public static MapValue<String, Object> getPartitionOffsetRecord() {
