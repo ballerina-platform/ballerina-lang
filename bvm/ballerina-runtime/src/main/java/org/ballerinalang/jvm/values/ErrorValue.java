@@ -88,31 +88,20 @@ public class ErrorValue extends BError implements RefValue {
     @Override
     @Deprecated
     public String stringValue() {
-        String detailsString;
         if (details == null) {
-            detailsString = "";
-        } else {
-            detailsString = org.ballerinalang.jvm.values.utils.StringUtils.getStringValue(details);
-        }
-        if (detailsString.trim().isEmpty()) {
             return "error " + reason.getValue();
         }
-        return "error " + reason.getValue() + " " + detailsString;
+        return "error " + reason.getValue() + " " + org.ballerinalang.jvm.values.utils.StringUtils.getStringValue(
+                details);
     }
 
     @Override
     public BString bStringValue() {
-        BString detailsString;
         if (details == null) {
-            detailsString = StringUtils.fromString("");
-        } else {
-            detailsString = org.ballerinalang.jvm.values.utils.StringUtils.getBStringValue(details);
-        }
-        if (detailsString.toString().trim().isEmpty()) {
             return StringUtils.fromString("error ").concat(reason);
         }
         return StringUtils.fromString("error ").concat(reason).concat(StringUtils.fromString(" ")).concat(
-                detailsString);
+                org.ballerinalang.jvm.values.utils.StringUtils.getBStringValue(details));
     }
 
     @Override
