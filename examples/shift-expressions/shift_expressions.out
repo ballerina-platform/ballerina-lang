@@ -2,8 +2,8 @@
 # `.bal` file, and execute the `ballerina run` command.
 $ ballerina run shift_expressions.bal
 `int` 1 << 2: 4
-`ints:Unsigned8` 128 << 3: 1024
+`int:Unsigned8` 128 << 3: 1024
 `int:Signed16` -32700 >> 2: -8175
-`ints:Unsigned8` 255 >> 4: 15
+`int:Unsigned8` 255 >> 4: 15
 `int:Signed32` 123167 >>> 3: 15395
-`ints:Unsigned16` 32001 >>> 2: 8000
+`int:Unsigned16` 32001 >>> 2: 8000
