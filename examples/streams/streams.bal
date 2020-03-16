@@ -1,7 +1,7 @@
 import ballerina/io;
 
 //Defines an object called `OddNumberGenerator`. Each object has its own next() method,
-//which gets invoked when the stream's next() gets called.
+//which gets invoked when the stream's `next()` function gets called.
 type OddNumberGenerator object {
     int i = 1;
     
