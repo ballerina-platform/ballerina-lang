@@ -1066,6 +1066,32 @@
         ]
     },
     {
+        "title": "Streams",
+        "column": 0,
+        "category": "Preview features",
+        "samples": [
+            {
+                "name": "Streams",
+                "url": "streams"
+            }
+        ]
+    },
+    {
+        "title": "Query",
+        "column": 1,
+        "category": "Preview features",
+        "samples": [
+            {
+                "name": "Query Expression",
+                "url": "query-expression"
+            },
+            {
+                "name": "Query Action",
+                "url": "query-action"
+            }
+        ]
+    },
+    {
         "title": "Lock",
         "column": 0,
         "category": "Experimental features",
@@ -1094,32 +1120,6 @@
             {
                 "name": "Distributed Transactions",
                 "url": "transactions-distributed"
-            }
-        ]
-    },
-    {
-        "title": "Streams",
-        "column": 0,
-        "category": "Preview features",
-        "samples": [
-            {
-                "name": "Streams",
-                "url": "streams"
-            }
-        ]
-    },
-    {
-        "title": "Query",
-        "column": 0,
-        "category": "Language concepts",
-        "samples": [
-            {
-                "name": "Query Expression",
-                "url": "query-expression"
-            },
-            {
-                "name": "Query Action",
-                "url": "query-action"
             }
         ]
     }

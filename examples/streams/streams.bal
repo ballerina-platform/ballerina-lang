@@ -37,10 +37,9 @@ type Subscription record {|
 |};
 
 public function main() {
-    io:println("Creating a stream using stream constructor: ");
     OddNumberGenerator oddGen = new;
 
-    //Construct a stream passing an OddNumberGenerator object
+    //Creating a stream passing an OddNumberGenerator object to the stream constructor
     var oddNumberStream = new stream<int, error>(oddGen);
 
     record {|int value;|}|error? oddNumber = oddNumberStream.next();
@@ -61,11 +60,9 @@ public function main() {
     stream<Student> studentStream = studentList.toStream();
 
     //`filter` and `map` functions return streams and work lazily
-        stream<Subscription> subscriptionStream = studentStream
-        . filter(function (Student student) returns boolean {
+    stream<Subscription> subscriptionStream = studentStream.filter(function (Student student) returns boolean {
         return student.score > 1;
-    })
-        . 'map(function (Student student) returns Subscription {
+    }).'map(function (Student student) returns Subscription {
         Subscription subscription = {
             firstName: student.firstName,
             lastName: student.lastName,

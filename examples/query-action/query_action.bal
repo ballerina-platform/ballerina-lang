@@ -20,14 +20,16 @@ public function main() {
 
     io:println("\nIterate record list and map it to another record type:");
     FullName[] nameList = [];
-        //`query-action` works similarly to a `foreach` statement.
-        //It can be used to iterate through any iterable value.
-        from var student in studentList
-        // The block inside the `do` clause is executed for each iteration.
-          do {
-                FullName fullName = {firstName: student.firstName, lastName: student.lastName};
-                nameList[nameList.length()] = fullName;
-          }
+    //`query-action` works similarly to a `foreach` statement.
+    //It can be used to iterate through any iterable value.
+    //The result of the query-action is the termination value of the iterable value.
+    //It can be either an error or ().
+    var e = from var student in studentList
+    // The block inside the `do` clause is executed for each iteration.
+    do {
+        FullName fullName = {firstName: student.firstName, lastName: student.lastName};
+        nameList[nameList.length()] = fullName;
+        }
 
     foreach var name in nameList {
         io:println(name);
