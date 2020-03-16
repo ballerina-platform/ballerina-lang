@@ -97,7 +97,12 @@ public class AIDataMapperCodeAction extends AbstractCodeActionProvider {
 
         try {
             Position afterAliasPos = new Position(startingPosition.getLine(), (startingPosition.getCharacter() + endingPosition.getCharacter()) / 2);
-            SymbolReferencesModel.Reference refAtCursor = getReferenceAtCursor(context, document, afterAliasPos);
+            SymbolReferencesModel.Reference refAtCursor;
+            if (endingPosition.getCharacter() - startingPosition.getCharacter() > 1){
+                refAtCursor = getReferenceAtCursor(context, document, afterAliasPos);
+            } else {
+                refAtCursor = getReferenceAtCursor(context, document, endingPosition);
+            }
             int symbolAtCursorTag = refAtCursor.getSymbol().type.tag;
 
             if (symbolAtCursorTag == 12) { // tag 12 is user defined records or non-primitive types (?)
