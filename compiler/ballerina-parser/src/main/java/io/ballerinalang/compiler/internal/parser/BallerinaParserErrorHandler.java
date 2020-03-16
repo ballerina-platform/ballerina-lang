@@ -53,7 +53,7 @@ import java.util.List;
  */
 public class BallerinaParserErrorHandler {
 
-    private final AbstractNodeSupplier tokenReader;
+    private final AbstractTokeReader tokenReader;
     private final BallerinaParserErrorListener errorListener;
     private final BallerinaParser parser;
 
@@ -104,7 +104,7 @@ public class BallerinaParserErrorHandler {
      */
     private static final int LOOKAHEAD_LIMIT = 5;
 
-    public BallerinaParserErrorHandler(AbstractNodeSupplier tokenReader, BallerinaParser parser) {
+    public BallerinaParserErrorHandler(AbstractTokeReader tokenReader, BallerinaParser parser) {
         this.tokenReader = tokenReader;
         this.parser = parser;
         this.errorListener = new BallerinaParserErrorListener();
@@ -891,7 +891,7 @@ public class BallerinaParserErrorHandler {
                     endContext(); // end parameter
                     endContext(); // end parameter-list
                 }
-//                endContext(); // end func signature
+                // endContext(); // end func signature
                 return ParserRuleContext.FUNC_BODY;
             case EXPRESSION:
                 nextToken = this.tokenReader.peek(nextLookahead);
