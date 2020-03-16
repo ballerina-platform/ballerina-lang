@@ -1,5 +1,5 @@
 # To start the service, navigate to the directory that contains the
-# `.bal` files and use the `ballerina run` command.
+# `.bal` file and use the `ballerina run` command.
 $ ballerina run websocket_proxy_server.bal
 
 # Now, this service can be invoked by any WebSocket client using the url "ws://localhost:9090/proxy/ws"

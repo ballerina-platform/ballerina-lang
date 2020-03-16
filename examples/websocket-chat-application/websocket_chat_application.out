@@ -1,5 +1,5 @@
 # To start the service, navigate to the directory that contains the
-# `.bal` files and use the `ballerina run` command.
+# `.bal` file and use the `ballerina run` command.
 $ ballerina run websocket_chat_application.bal
 
 # To check the sample, use the Chrome or Firefox JavaScript console and run the following commands. <br>

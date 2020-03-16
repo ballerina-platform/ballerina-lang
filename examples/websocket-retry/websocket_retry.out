@@ -1,5 +1,5 @@
 # To start the service, navigate to the directory that contains the
-# `.bal` files and use the `ballerina run` command.
+# `.bal` file and use the `ballerina run` command.
 
 $ ballerina run websocket_service.bal
 [ballerina/http] started HTTP/WS listener 0.0.0.0:9095
