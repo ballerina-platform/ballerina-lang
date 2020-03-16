@@ -127,6 +127,7 @@ public class RunTestsTask implements Task {
             createTestJson(bLangPackage, suite, sourceRootPath, jsonPath);
             int testResult = runTestSuit(jsonPath, buildContext, testDependencies, bLangPackage);
             if (testResult != 0) {
+                System.exit(1);
                 throw createLauncherException("there are test failures");
             }
             Path statusJsonPath = jsonPath.resolve(TesterinaConstants.STATUS_FILE);
