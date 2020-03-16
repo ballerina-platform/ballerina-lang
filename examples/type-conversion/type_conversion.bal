@@ -48,7 +48,7 @@ function createNumericValues() {
     string s3 = "12.3";
     string s4 = "8";
 
-    // The `fromString()` method in the ballerina/lang.int module returns the integer value represented by a
+    // The `fromString()` method in the `ballerina/lang.int` module returns the integer value represented by a
     // given string if there is a valid representation, else returns an `error`.
     int|error res1 = 'int:fromString(s1);
     if (res1 is int) {
@@ -64,7 +64,7 @@ function createNumericValues() {
         io:println("error: ", res1.detail());
     }
 
-    // The `fromString()` method in the ballerina/lang.float module returns the float value represented by a given
+    // The `fromString()` method in the `ballerina/lang.float` module returns the float value represented by a given
     // string if there is a valid representation, else returns an `error`.
     float|error res2 = 'float:fromString(s3);
     if (res2 is float) {
@@ -73,7 +73,7 @@ function createNumericValues() {
         io:println("error: ", res2.detail());
     }
 
-    // The `fromString()` method in the ballerina/lang.decimal module returns the decimal value represented by a given
+    // The `fromString()` method in the `ballerina/lang.decimal` module returns the decimal value represented by a given
     // string if there is a valid representation, else returns an `error`.
     decimal|error res3 = 'decimal:fromString(s4);
     if (res3 is decimal) {
