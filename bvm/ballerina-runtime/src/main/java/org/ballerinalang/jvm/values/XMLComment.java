@@ -21,6 +21,8 @@ import org.apache.axiom.om.OMNode;
 import org.apache.axiom.om.impl.llom.OMCommentImpl;
 import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.XMLNodeType;
+import org.ballerinalang.jvm.types.BType;
+import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.values.api.BString;
 
 /**
@@ -80,5 +82,10 @@ public class XMLComment extends XMLNonElementItem {
 
         }
         return false;
+    }
+
+    @Override
+    public BType getType() {
+        return BTypes.typeComment;
     }
 }

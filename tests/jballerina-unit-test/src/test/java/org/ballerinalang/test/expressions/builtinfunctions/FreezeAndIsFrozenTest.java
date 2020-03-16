@@ -233,34 +233,6 @@ public class FreezeAndIsFrozenTest {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.xml\\}XMLOperationError message=Failed to add" +
-                    " children to xml element: modification not allowed on readonly value.*")
-    public void testFrozenXmlAppendChildren() {
-        BRunUtil.invoke(result, "testFrozenXmlAppendChildren", new BValue[0]);
-    }
-
-    @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.xml\\}XMLOperationError message=Failed to " +
-                    "remove children from xml element: modification not allowed on readonly value.*")
-    public void testFrozenXmlRemoveChildren() {
-        BRunUtil.invoke(result, "testFrozenXmlRemoveChildren", new BValue[0]);
-    }
-
-    @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.xml\\}XMLOperationError message=Failed to " +
-                    "remove attribute: modification not allowed on readonly value.*")
-    public void testFrozenXmlRemoveAttribute() {
-        BRunUtil.invoke(result, "testFrozenXmlRemoveAttribute", new BValue[0]);
-    }
-
-    @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.xml\\}XMLOperationError message=Failed to set" +
-                    " attributes: modification not allowed on readonly value.*")
-    public void testFrozenXmlSetAttributes() {
-        BRunUtil.invoke(result, "testFrozenXmlSetAttributes", new BValue[0]);
-    }
-
-    @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.xml\\}XMLOperationError message=Failed to set" +
                     " children to xml element: modification not allowed on readonly value.*")
     public void testFrozenXmlSetChildren() {

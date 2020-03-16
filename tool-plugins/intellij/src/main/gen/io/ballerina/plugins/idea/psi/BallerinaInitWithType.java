@@ -26,7 +26,10 @@ public interface BallerinaInitWithType extends PsiElement {
   @Nullable
   BallerinaInvocationArgList getInvocationArgList();
 
-  @NotNull
+  @Nullable
+  BallerinaStreamTypeName getStreamTypeName();
+
+  @Nullable
   BallerinaUserDefineTypeName getUserDefineTypeName();
 
   @NotNull

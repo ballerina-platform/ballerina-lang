@@ -506,3 +506,8 @@ type Employee record {
     int id;
     string name;
 };
+
+
+function testAnonRecordInCast() returns record {| string name; |} {
+    return <record {| string name; |}>{ name: "Pubudu" };
+}

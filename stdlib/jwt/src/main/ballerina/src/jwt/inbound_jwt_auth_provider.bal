@@ -88,7 +88,7 @@ function authenticateFromCache(cache:Cache jwtCache, string jwtToken) returns Jw
         } else {
             cache:Error? result = jwtCache.invalidate(jwtToken);
             if (result is cache:Error) {
-                log:printError(function() returns string {
+                log:printDebug(function() returns string {
                     return "Failed to invalidate JWT from the cache.";
                 });
             }
@@ -100,7 +100,7 @@ function addToAuthenticationCache(cache:Cache jwtCache, string jwtToken, int? ex
     InboundJwtCacheEntry jwtCacheEntry = {jwtPayload : payload, expTime : exp };
     cache:Error? result = jwtCache.put(jwtToken, jwtCacheEntry);
     if (result is cache:Error) {
-        log:printError(function() returns string {
+        log:printDebug(function() returns string {
             return "Failed to add JWT to the cache";
         });
         return;

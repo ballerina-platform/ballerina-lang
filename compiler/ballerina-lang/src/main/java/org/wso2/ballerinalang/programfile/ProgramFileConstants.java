@@ -30,7 +30,7 @@ public class ProgramFileConstants {
     public static final short MAX_SUPPORTED_VERSION = 51;
 
     // todo move this to a proper place
-    public static final String IMPLEMENTATION_VERSION = "2019r3";
+    public static final String IMPLEMENTATION_VERSION = "2020r1";
     public static final String[] SUPPORTED_PLATFORMS = {"java8"};
     public static final String ANY_PLATFORM = "any";
 }

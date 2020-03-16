@@ -21,6 +21,8 @@ import org.apache.axiom.om.OMNode;
 import org.apache.axiom.om.impl.llom.OMProcessingInstructionImpl;
 import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.XMLNodeType;
+import org.ballerinalang.jvm.types.BType;
+import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.values.api.BString;
 
 /**
@@ -91,5 +93,10 @@ public class XMLPi extends XMLNonElementItem {
     @Override
     public BString bStringValue() {
         return StringUtils.fromString(stringValue());
+    }
+
+    @Override
+    public BType getType() {
+        return BTypes.typeProcessingInstruction;
     }
 }
