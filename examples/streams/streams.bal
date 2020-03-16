@@ -103,8 +103,7 @@ public function main() {
 
     //Check and handle the error during the iteration of the stream.
     if (e is error) {
-        io:println("ForEach operation on the stream failed!");
-        io:println(e);
+        io:println("ForEach operation on the stream failed: ", e);
     }
 
     stream<Student> studentStream3 = studentList.toStream();
