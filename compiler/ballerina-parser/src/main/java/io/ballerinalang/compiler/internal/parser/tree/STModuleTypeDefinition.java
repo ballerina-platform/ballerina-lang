@@ -19,6 +19,7 @@ package io.ballerinalang.compiler.internal.parser.tree;
 
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
+import io.ballerinalang.compiler.syntax.tree.TypeDefinitionNode;
 
 public class STModuleTypeDefinition extends STNode {
     // TODO metadata goes here
@@ -52,7 +53,6 @@ public class STModuleTypeDefinition extends STNode {
 
     @Override
     public Node createFacade(int position, NonTerminalNode parent) {
-        // TODO:
-        return null;
+        return new TypeDefinitionNode(this, position, parent);
     }
 }

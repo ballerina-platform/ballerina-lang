@@ -17,28 +17,25 @@
  */
 package io.ballerinalang.compiler.internal.parser.tree;
 
-import io.ballerinalang.compiler.syntax.tree.LocalVariableDeclaration;
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
+import io.ballerinalang.compiler.syntax.tree.RecordTypeDescriptorNode;
 
 public class STRecordTypeDescriptor extends STNode {
 
     public final STNode recordKeyword;
     public final STNode bodyStartDelimiter;
     public final STNode fields;
-//    public final STNode restDescriptor;
     public final STNode bodyEndDelimiter;
 
     public STRecordTypeDescriptor(STNode recordKeyword,
                                   STNode bodyStartDelimiter,
                                   STNode fields,
-//                                  STNode restDescriptor,
                                   STNode bodyEndDelimiter) {
         super(SyntaxKind.RECORD_TYPE_DESCRIPTOR);
         this.recordKeyword = recordKeyword;
         this.bodyStartDelimiter = bodyStartDelimiter;
         this.fields = fields;
-//        this.restDescriptor = restDescriptor;
         this.bodyEndDelimiter = bodyEndDelimiter;
 
         this.bucketCount = 4;
@@ -46,12 +43,11 @@ public class STRecordTypeDescriptor extends STNode {
         this.addChildNode(recordKeyword, 0);
         this.addChildNode(bodyStartDelimiter, 1);
         this.addChildNode(fields, 2);
-//        this.addChildNode(restDescriptor, 3);
         this.addChildNode(bodyEndDelimiter, 3);
     }
 
     @Override
     public Node createFacade(int position, NonTerminalNode parent) {
-        return new LocalVariableDeclaration(this, position, parent);
+        return new RecordTypeDescriptorNode(this, position, parent);
     }
 }

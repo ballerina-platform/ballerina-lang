@@ -19,6 +19,7 @@ package io.ballerinalang.compiler.internal.parser.tree;
 
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
+import io.ballerinalang.compiler.syntax.tree.RecordRestDescriptorNode;
 
 public class STRecordRestDescriptor extends STNode {
 
@@ -43,7 +44,6 @@ public class STRecordRestDescriptor extends STNode {
 
     @Override
     public Node createFacade(int position, NonTerminalNode parent) {
-        // TODO
-        return null;
+        return new RecordRestDescriptorNode(this, position, parent);
     }
 }

@@ -30,7 +30,6 @@ public enum ParserRuleContext {
     TOP_LEVEL_NODE_WITH_MODIFIER("top-level-node-with-modifier"),
     TOP_LEVEL_NODE("top-level-node"),
     FUNC_DEFINITION("func-definition"),
-//    FUNC_SIGNATURE("func-signature"),
     PARAM_LIST("parameters"),
     REQUIRED_PARAM("parameter"),
     DEFAULTABLE_PARAM("defaultable-parameter"),

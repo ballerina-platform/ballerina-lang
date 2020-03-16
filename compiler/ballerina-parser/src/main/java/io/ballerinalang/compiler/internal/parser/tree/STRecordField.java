@@ -19,6 +19,7 @@ package io.ballerinalang.compiler.internal.parser.tree;
 
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
+import io.ballerinalang.compiler.syntax.tree.RecordFieldNode;
 
 public class STRecordField extends STNode {
 
@@ -47,7 +48,6 @@ public class STRecordField extends STNode {
 
     @Override
     public Node createFacade(int position, NonTerminalNode parent) {
-        // TODO
-        return null;
+        return new RecordFieldNode(this, position, parent);
     }
 }
