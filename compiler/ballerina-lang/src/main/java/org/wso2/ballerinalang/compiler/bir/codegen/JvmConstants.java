@@ -85,6 +85,7 @@ public class JvmConstants {
     public static final String JSON_UTILS = "org/ballerinalang/jvm/JSONUtils";
     public static final String STRAND = "org/ballerinalang/jvm/scheduling/Strand";
     public static final String TYPE_CONVERTER = "org/ballerinalang/jvm/TypeConverter";
+    public static final String SHIFT_UTILS = "org/ballerinalang/jvm/ShiftUtils";
     public static final String LIST_UTILS = "org/ballerinalang/jvm/Lists";
     public static final String STRAND_STATE = "org/ballerinalang/jvm/scheduling/State";
     public static final String VALUE_CREATOR = "org/ballerinalang/jvm/values/ValueCreator";

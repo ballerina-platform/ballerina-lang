@@ -92,7 +92,6 @@ import static org.objectweb.asm.Opcodes.INVOKESTATIC;
 import static org.objectweb.asm.Opcodes.INVOKEVIRTUAL;
 import static org.objectweb.asm.Opcodes.IOR;
 import static org.objectweb.asm.Opcodes.ISHL;
-import static org.objectweb.asm.Opcodes.ISHR;
 import static org.objectweb.asm.Opcodes.ISTORE;
 import static org.objectweb.asm.Opcodes.IUSHR;
 import static org.objectweb.asm.Opcodes.IXOR;
@@ -141,6 +140,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_IN
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT_VALUE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SHIFT_UTILS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_UTILS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_VALUE;
@@ -298,7 +298,7 @@ public class JvmInstructionGen {
                 bType.tag == TypeTags.FUTURE ||
                 bType.tag == TypeTags.OBJECT ||
                 bType.tag == TypeTags.DECIMAL ||
-                bType.tag == TypeTags.XML ||
+                TypeTags.isXMLTypeTag(bType.tag) ||
                 bType.tag == TypeTags.INVOKABLE ||
                 bType.tag == TypeTags.FINITE ||
                 bType.tag == TypeTags.HANDLE ||
@@ -382,7 +382,8 @@ public class JvmInstructionGen {
                 bType.tag == TypeTags.JSON ||
                 bType.tag == TypeTags.FUTURE ||
                 bType.tag == TypeTags.OBJECT ||
-                bType.tag == TypeTags.XML ||
+                bType.tag == TypeTags.SERVICE ||
+                TypeTags.isXMLTypeTag(bType.tag) ||
                 bType.tag == TypeTags.INVOKABLE ||
                 bType.tag == TypeTags.FINITE ||
                 bType.tag == TypeTags.HANDLE ||
@@ -822,7 +823,7 @@ public class JvmInstructionGen {
                         String.format("(L%s;)L%s;", DECIMAL_VALUE, DECIMAL_VALUE), false);
             } else if (bType.tag == TypeTags.FLOAT) {
                 this.mv.visitInsn(DADD);
-            } else if (bType.tag == TypeTags.XML) {
+            } else if (TypeTags.isXMLTypeTag(bType.tag)) {
                 this.mv.visitMethodInsn(INVOKESTATIC, XML_FACTORY, "concatenate",
                         String.format("(L%s;L%s;)L%s;", XML_VALUE, XML_VALUE, XML_VALUE), false);
             } else {
@@ -986,10 +987,17 @@ public class JvmInstructionGen {
             }
 
             BType firstOpType = binaryIns.rhsOp1.variableDcl.type;
-            if (TypeTags.isIntegerTypeTag(firstOpType.tag)) {
-                this.mv.visitInsn(LSHR);
+            int firstOpTypeTag = firstOpType.tag;
+            if (firstOpTypeTag == TypeTags.BYTE) {
+                this.mv.visitMethodInsn(INVOKESTATIC, SHIFT_UTILS, "byteRightShift", "(II)I", false);
+            } else if (firstOpTypeTag == TypeTags.UNSIGNED8_INT) {
+                this.mv.visitMethodInsn(INVOKESTATIC, SHIFT_UTILS, "unsigned8RightShift", "(JI)J", false);
+            } else if (firstOpTypeTag == TypeTags.UNSIGNED16_INT) {
+                this.mv.visitMethodInsn(INVOKESTATIC, SHIFT_UTILS, "unsigned16RightShift", "(JI)J", false);
+            } else if (firstOpTypeTag == TypeTags.UNSIGNED32_INT) {
+                this.mv.visitMethodInsn(INVOKESTATIC, SHIFT_UTILS, "unsigned32RightShift", "(JI)J", false);
             } else {
-                this.mv.visitInsn(ISHR);
+                this.mv.visitInsn(LSHR);
             }
 
             this.storeToVar(binaryIns.lhsOp.variableDcl);
@@ -1006,7 +1014,14 @@ public class JvmInstructionGen {
             }
 
             BType firstOpType = binaryIns.rhsOp1.variableDcl.type;
-            if (TypeTags.isIntegerTypeTag(firstOpType.tag)) {
+            int firstOpTypeTag = firstOpType.tag;
+            if (firstOpTypeTag == TypeTags.SIGNED8_INT) {
+                this.mv.visitMethodInsn(INVOKESTATIC, SHIFT_UTILS, "signed8UnsignedRightShift", "(JI)J", false);
+            } else if (firstOpTypeTag == TypeTags.SIGNED16_INT) {
+                this.mv.visitMethodInsn(INVOKESTATIC, SHIFT_UTILS, "signed16UnsignedRightShift", "(JI)J", false);
+            } else if (firstOpTypeTag == TypeTags.SIGNED32_INT) {
+                this.mv.visitMethodInsn(INVOKESTATIC, SHIFT_UTILS, "signed32UnsignedRightShift", "(JI)J", false);
+            } else if (TypeTags.isIntegerTypeTag(firstOpTypeTag)) {
                 this.mv.visitInsn(LUSHR);
             } else {
                 this.mv.visitInsn(IUSHR);

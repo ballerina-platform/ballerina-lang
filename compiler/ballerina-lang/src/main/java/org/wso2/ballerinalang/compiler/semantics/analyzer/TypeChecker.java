@@ -1662,13 +1662,14 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     private boolean isXmlAccess(BLangFieldBasedAccess fieldAccessExpr) {
-        if (fieldAccessExpr.expr.type.tag == TypeTags.XML) {
+        if (fieldAccessExpr.expr.type.tag == TypeTags.XML || fieldAccessExpr.expr.type.tag == TypeTags.XML_ELEMENT) {
             return true;
         }
 
         if ((fieldAccessExpr.expr.getKind() == NodeKind.FIELD_BASED_ACCESS_EXPR
                 && hasLaxOriginalType((BLangFieldBasedAccess) fieldAccessExpr.expr)
-                && ((BUnionType) fieldAccessExpr.expr.type).getMemberTypes().contains(symTable.xmlType))) {
+                && (((BUnionType) fieldAccessExpr.expr.type).getMemberTypes().contains(symTable.xmlType))
+                    || ((BUnionType) fieldAccessExpr.expr.type).getMemberTypes().contains(symTable.xmlElementType))) {
             return true;
         }
 
@@ -1746,13 +1747,14 @@ public class TypeChecker extends BLangNodeVisitor {
 
     public void visit(BLangLetExpression letExpression) {
         BLetSymbol letSymbol = new BLetSymbol(SymTag.LET, Flags.asMask(new HashSet<>(Lists.of())),
-                new Name(String.format("$let_symbol_%d$", letCount++)), env.enclPkg.symbol.pkgID,
-                letExpression.type, env.scope.owner);
+                                              new Name(String.format("$let_symbol_%d$", letCount++)),
+                                              env.enclPkg.symbol.pkgID, letExpression.type, env.scope.owner);
         letExpression.env = SymbolEnv.createExprEnv(letExpression, env, letSymbol);
         for (BLangLetVariable letVariable : letExpression.letVarDeclarations) {
             semanticAnalyzer.analyzeDef((BLangNode) letVariable.definitionNode, letExpression.env);
         }
-        checkExpr(letExpression.expr, letExpression.env);
+        BType exprType = checkExpr(letExpression.expr, letExpression.env);
+        types.checkType(letExpression, exprType, this.expType);
     }
 
     private void checkInLangLib(BLangInvocation iExpr, BType varRefType) {
@@ -2687,36 +2689,9 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     public void visit(BLangXMLAttributeAccess xmlAttributeAccessExpr) {
-        BType actualType = symTable.semanticError;
-
-        // First analyze the variable reference expression.
-        checkExpr(xmlAttributeAccessExpr.expr, env, symTable.xmlType);
-
-        // Then analyze the index expression.
-        BLangExpression indexExpr = xmlAttributeAccessExpr.indexExpr;
-        if (indexExpr == null) {
-            if (xmlAttributeAccessExpr.lhsVar) {
-                dlog.error(xmlAttributeAccessExpr.pos,
-                           DiagnosticCode.XML_ATTRIBUTE_MAP_UPDATE_NOT_ALLOWED);
-            } else {
-                actualType = BUnionType.create(null, symTable.mapStringType, symTable.nilType);
-            }
-            resultType = types.checkType(xmlAttributeAccessExpr, actualType, expType);
-            return;
-        }
-
-        checkExpr(indexExpr, env, symTable.stringType);
-
-        if (indexExpr.type.tag == TypeTags.STRING) {
-            if (xmlAttributeAccessExpr.lhsVar) {
-                actualType = symTable.stringType;
-            } else {
-                actualType = BUnionType.create(null, symTable.stringType, symTable.nilType);
-            }
-        }
-
-        xmlAttributeAccessExpr.namespaces.putAll(symResolver.resolveAllNamespaces(env));
-        resultType = types.checkType(xmlAttributeAccessExpr, actualType, expType);
+        dlog.error(xmlAttributeAccessExpr.pos,
+                           DiagnosticCode.DEPRECATED_XML_ATTRIBUTE_ACCESS);
+        resultType = symTable.semanticError;
     }
 
     public void visit(BLangStringTemplateLiteral stringTemplateLiteral) {
@@ -4064,7 +4039,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
             BType type = expr.type;
             if (type.tag >= TypeTags.JSON) {
-                if (type != symTable.semanticError) {
+                if (type != symTable.semanticError && !TypeTags.isXMLTypeTag(type.tag)) {
                     dlog.error(expr.pos, DiagnosticCode.INCOMPATIBLE_TYPES,
                                BUnionType.create(null, symTable.intType, symTable.floatType,
                                                                 symTable.decimalType, symTable.stringType,
@@ -4334,7 +4309,7 @@ public class TypeChecker extends BLangNodeVisitor {
             actualType = BUnionType.create(null, laxFieldAccessType, symTable.errorType);
             fieldAccessExpr.errorSafeNavigation = true;
             fieldAccessExpr.originalType = laxFieldAccessType;
-        } else if (varRefType.tag == TypeTags.XML) {
+        } else if (TypeTags.isXMLTypeTag(varRefType.tag)) {
             if (fieldAccessExpr.lhsVar) {
                 dlog.error(fieldAccessExpr.pos, DiagnosticCode.CANNOT_UPDATE_XML_SEQUENCE);
             }
@@ -4372,6 +4347,7 @@ public class TypeChecker extends BLangNodeVisitor {
             case TypeTags.JSON:
                 return symTable.jsonType;
             case TypeTags.XML:
+            case TypeTags.XML_ELEMENT:
                 return symTable.stringType;
             case TypeTags.MAP:
                 return ((BMapType) exprType).constraint;

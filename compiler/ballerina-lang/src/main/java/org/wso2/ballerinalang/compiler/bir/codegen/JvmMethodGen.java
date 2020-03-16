@@ -620,7 +620,7 @@ public class JvmMethodGen {
                 mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%", "_"),
                         String.format("L%s;", OBJECT));
                 mv.visitVarInsn(ASTORE, index);
-            } else if (bType.tag == TypeTags.XML) {
+            } else if (TypeTags.isXMLTypeTag(bType.tag)) {
                 mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%", "_"),
                         String.format("L%s;", XML_VALUE));
                 mv.visitVarInsn(ASTORE, index);
@@ -755,7 +755,7 @@ public class JvmMethodGen {
                 mv.visitVarInsn(ALOAD, index);
                 mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%", "_"),
                         String.format("L%s;", OBJECT));
-            } else if (bType.tag == TypeTags.XML) {
+            } else if (TypeTags.isXMLTypeTag(bType.tag)) {
                 mv.visitVarInsn(ALOAD, index);
                 mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%", "_"),
                         String.format("L%s;", XML_VALUE));
@@ -857,7 +857,7 @@ public class JvmMethodGen {
             jvmType = String.format("L%s;", OBJECT);
         } else if (bType.tag == JTypeTags.JTYPE) {
             jvmType = getJTypeSignature((JType) bType);
-        } else if (bType.tag == TypeTags.XML) {
+        } else if (TypeTags.isXMLTypeTag(bType.tag)) {
             jvmType = String.format("L%s;", XML_VALUE);
         } else {
             throw new BLangCompilerException("JVM code generation is not supported for type " +
@@ -1355,7 +1355,7 @@ public class JvmMethodGen {
                 bType.tag == TypeTags.TUPLE ||
                 bType.tag == TypeTags.FUTURE ||
                 bType.tag == TypeTags.JSON ||
-                bType.tag == TypeTags.XML ||
+                TypeTags.isXMLTypeTag(bType.tag) ||
                 bType.tag == TypeTags.INVOKABLE ||
                 bType.tag == TypeTags.FINITE ||
                 bType.tag == TypeTags.HANDLE ||
@@ -1426,7 +1426,7 @@ public class JvmMethodGen {
                 bType.tag == TypeTags.TUPLE ||
                 bType.tag == TypeTags.FUTURE ||
                 bType.tag == TypeTags.JSON ||
-                bType.tag == TypeTags.XML ||
+                TypeTags.isXMLTypeTag(bType.tag) ||
                 bType.tag == TypeTags.INVOKABLE ||
                 bType.tag == TypeTags.FINITE ||
                 bType.tag == TypeTags.HANDLE ||
@@ -1548,7 +1548,7 @@ public class JvmMethodGen {
             return String.format("L%s;", TYPEDESC_VALUE);
         } else if (bType.tag == TypeTags.OBJECT) {
             return String.format("L%s;", OBJECT_VALUE);
-        } else if (bType.tag == TypeTags.XML) {
+        } else if (TypeTags.isXMLTypeTag(bType.tag)) {
             return String.format("L%s;", XML_VALUE);
         } else if (bType.tag == TypeTags.HANDLE) {
             return String.format("L%s;", HANDLE_VALUE);
@@ -1602,7 +1602,7 @@ public class JvmMethodGen {
             return String.format(")L%s;", OBJECT_VALUE);
         } else if (bType.tag == TypeTags.INVOKABLE) {
             return String.format(")L%s;", FUNCTION_POINTER);
-        } else if (bType.tag == TypeTags.XML) {
+        } else if (TypeTags.isXMLTypeTag(bType.tag)) {
             return String.format(")L%s;", XML_VALUE);
         } else if (bType.tag == TypeTags.HANDLE) {
             return String.format(")L%s;", HANDLE_VALUE);
@@ -2374,7 +2374,7 @@ public class JvmMethodGen {
             typeSig = String.format("L%s;", FUTURE_VALUE);
         } else if (bType.tag == TypeTags.OBJECT) {
             typeSig = String.format("L%s;", OBJECT_VALUE);
-        } else if (bType.tag == TypeTags.XML) {
+        } else if (TypeTags.isXMLTypeTag(bType.tag)) {
             typeSig = String.format("L%s;", XML_VALUE);
         } else if (bType.tag == TypeTags.TYPEDESC) {
             typeSig = String.format("L%s;", TYPEDESC_VALUE);

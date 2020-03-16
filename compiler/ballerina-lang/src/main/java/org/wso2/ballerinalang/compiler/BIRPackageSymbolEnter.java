@@ -1118,6 +1118,14 @@ public class BIRPackageSymbolEnter {
                     return symTable.unsigned8IntType;
                 case TypeTags.CHAR_STRING:
                     return symTable.charStringType;
+                case TypeTags.XML_ELEMENT:
+                    return symTable.xmlElementType;
+                case TypeTags.XML_PI:
+                    return symTable.xmlPIType;
+                case TypeTags.XML_COMMENT:
+                    return symTable.xmlCommentType;
+                case TypeTags.XML_TEXT:
+                    return symTable.xmlTextType;
             }
             return null;
         }

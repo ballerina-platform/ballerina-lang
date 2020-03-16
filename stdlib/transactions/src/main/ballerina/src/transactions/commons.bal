@@ -293,7 +293,7 @@ function getInitiatorClient(string registerAtURL) returns InitiatorClientEP {
             });
             cache:Error? result = httpClientCache.put(registerAtURL, initiatorEP);
             if (result is cache:Error) {
-                log:printError(function() returns string {
+                log:printDebug(function() returns string {
                     return "Failed to add http client with key: " + registerAtURL + " to the cache.";
                 });
             }
@@ -316,7 +316,7 @@ function getParticipant2pcClient(string participantURL) returns Participant2pcCl
             });
             cache:Error? result = httpClientCache.put(participantURL, participantEP);
             if (result is cache:Error) {
-                log:printError(function() returns string {
+                log:printDebug(function() returns string {
                     return "Failed to add http client with key: " + participantURL + " to the cache.";
                 });
             }

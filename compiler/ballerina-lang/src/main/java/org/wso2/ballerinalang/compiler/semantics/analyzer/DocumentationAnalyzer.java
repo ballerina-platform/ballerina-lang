@@ -245,8 +245,12 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
 
     private void validateDeprecationDocumentation(BLangMarkdownDocumentation documentation,
                                                   boolean isDeprecationAnnotationAvailable, DiagnosticPos pos) {
+        if (documentation == null) {
+            return;
+        }
+
         boolean isDeprecationDocumentationAvailable = false;
-        if (documentation != null && documentation.deprecationDocumentation != null &&
+        if (documentation.deprecationDocumentation != null &&
                 documentation.deprecationDocumentation.isCorrectDeprecationLine) {
             isDeprecationDocumentationAvailable = true;
         }
