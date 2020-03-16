@@ -35,6 +35,7 @@ import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.UnaryOP;
 import org.wso2.ballerinalang.compiler.bir.model.BIROperand;
 import org.wso2.ballerinalang.compiler.bir.model.InstructionKind;
 import org.wso2.ballerinalang.compiler.bir.model.VarKind;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.SchedulerPolicy;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BJSONType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
@@ -1399,8 +1400,13 @@ public class JvmInstructionGen {
 
             visitInvokeDyn(mv, currentClass, lambdaName, inst.closureMaps.size());
             loadType(this.mv, returnType);
+            if (inst.schedulerPolicy == SchedulerPolicy.ANY) {
+                mv.visitInsn(ICONST_1);
+            } else {
+                mv.visitInsn(ICONST_0);
+            }
             this.mv.visitMethodInsn(INVOKESPECIAL, FUNCTION_POINTER, "<init>",
-                    String.format("(L%s;L%s;)V", FUNCTION, BTYPE), false);
+                                    String.format("(L%s;L%s;Z)V", FUNCTION, BTYPE), false);
 
             // Set annotations if available.
             this.mv.visitInsn(DUP);
