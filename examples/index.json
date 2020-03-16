@@ -1034,8 +1034,8 @@
                 "url": "secured-service-with-basic-auth"
             },
             {
-                "name": "Secured Service with JWT",
-                "url": "secured-service-with-jwt"
+                "name": "Secured Service with JWT Auth",
+                "url": "secured-service-with-jwt-auth"
             },
             {
                 "name": "Secured Service with OAuth2",

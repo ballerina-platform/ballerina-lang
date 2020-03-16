@@ -13,13 +13,13 @@
 //
 //      [b7a.users]
 //
-//      [b7a.users.tom]
+//      [b7a.users.alice]
 //      password="password1"
-//      scopes="scope2,scope3"
-//
-//      [b7a.users.dick]
-//      password="password2"
 //      scopes="scope1"
 //
-// There are two users defined - Tom and Dick. Each user has a password and
+//      [b7a.users.bob]
+//      password="password2"
+//      scopes="scope2,scope3"
+//
+// There are two users defined - Alice and Bob. Each user has a password and
 // assigned scopes.
