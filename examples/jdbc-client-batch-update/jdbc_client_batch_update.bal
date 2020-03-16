@@ -87,7 +87,7 @@ function handleUpdate(jdbc:UpdateResult|jdbc:Error returned, string message) {
 // Select data from the table and print.
 function checkData() {
     var dtReturned = testDB->select("SELECT * FROM student", Student);
-    if (dtReturned is table<Student>) {
+    if (dtReturned is table<record{}>) {
         // Iterating data.
         io:println("Data in students table:");
         foreach var row in dtReturned {
