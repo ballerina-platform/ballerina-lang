@@ -311,7 +311,7 @@ public class TypeChecker extends BLangNodeVisitor {
         if (xmlNavigation.childIndex != null) {
             checkExpr(xmlNavigation.childIndex, env, symTable.intType);
         }
-        resultType = checkExpr(xmlNavigation.expr, env, expType);
+        resultType = checkExpr(xmlNavigation.expr, env, symTable.xmlType);
         // todo: we may need to add some logic to constrain result type to  @namedSubType type.
     }
 
@@ -1664,16 +1664,18 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     private boolean isXmlAccess(BLangFieldBasedAccess fieldAccessExpr) {
-        if (fieldAccessExpr.expr.type.tag == TypeTags.XML || fieldAccessExpr.expr.type.tag == TypeTags.XML_ELEMENT) {
+        BLangExpression expr = fieldAccessExpr.expr;
+        BType exprType = expr.type;
+
+        if (exprType.tag == TypeTags.XML || exprType.tag == TypeTags.XML_ELEMENT) {
             return true;
         }
 
-        if ((fieldAccessExpr.expr.getKind() == NodeKind.FIELD_BASED_ACCESS_EXPR
-                && hasLaxOriginalType((BLangFieldBasedAccess) fieldAccessExpr.expr)
-                && (((BUnionType) fieldAccessExpr.expr.type).getMemberTypes().contains(symTable.xmlType))
-                    || ((BUnionType) fieldAccessExpr.expr.type).getMemberTypes().contains(symTable.xmlElementType))) {
-            return true;
-        }
+        if (expr.getKind() == NodeKind.FIELD_BASED_ACCESS_EXPR  && hasLaxOriginalType((BLangFieldBasedAccess) expr)
+                && exprType.tag == TypeTags.UNION) {
+            Set<BType> memberTypes = ((BUnionType) exprType).getMemberTypes();
+            return memberTypes.contains(symTable.xmlType) || memberTypes.contains(symTable.xmlElementType);
+          }
 
         return false;
     }

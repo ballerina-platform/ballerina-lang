@@ -51,6 +51,7 @@ public class BallerinaXMLSerializer extends OutputStream {
     private static final String XMLNS = "xmlns";
     private static final String EMPTY_STR = "";
     public static final String PARSE_XML_OP = "parse xml";
+    public static final String XML = "xml";
     private XMLStreamWriter xmlStreamWriter;
     private Deque<Set<String>> parentNSSet;
     private int nsNumber;
@@ -300,6 +301,9 @@ public class BallerinaXMLSerializer extends OutputStream {
             if (key.startsWith(XMLItem.XMLNS_URL_PREFIX)) {
                 int closingCurly = key.indexOf('}');
                 String prefix = key.substring(closingCurly + 1);
+                if (prefix.equals(XML)) {
+                    continue;
+                }
                 nsPrefixMap.put(prefix, attributeEntry.getValue());
             } else {
                 attributeMap.put(key, attributeEntry.getValue());
@@ -319,6 +323,8 @@ public class BallerinaXMLSerializer extends OutputStream {
                 nsPrefixMap.remove(prefix);
             }
         }
+
+        nsPrefixMap.remove(XMLNS);
     }
 
     private void writeSeq(XMLSequence xmlValue) {

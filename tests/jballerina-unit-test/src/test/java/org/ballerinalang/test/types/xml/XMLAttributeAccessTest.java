@@ -30,7 +30,6 @@ import org.testng.annotations.Test;
 /**
  * @since 1.2.0
  */
-@Test (groups = "brokenOnXMLLangLibChange")
 public class XMLAttributeAccessTest {
 
     CompileResult compileResult;
@@ -42,26 +41,26 @@ public class XMLAttributeAccessTest {
         lexCompileRes = BCompileUtil.compile("test-src/types/xml/xml-attribute-access-lax-behavior.bal");
     }
 
-    @Test (groups = "brokenOnXMLLangLibChange")
+    @Test
     public void testBasicAttributeAccessSyntax() {
         BValue[] result = BRunUtil.invoke(compileResult, "getElementAttrBasic");
         Assert.assertEquals(result[0].stringValue(), "attr-val");
     }
 
-    @Test (groups = "brokenOnXMLLangLibChange")
+    @Test
     public void testAttributeAccessSyntaxWithNS() {
         BValue[] result = BRunUtil.invoke(compileResult, "getElementAttrWithNSPrefix");
         Assert.assertEquals(result[0].stringValue(), "attr-with-ns-val");
     }
 
-    @Test (groups = "brokenOnXMLLangLibChange")
+    @Test
     public void testGetAttrOfASequence() {
         BValue[] result = BRunUtil.invoke(compileResult, "getAttrOfASequence");
         Assert.assertEquals(result[0].stringValue(),
                 "{ballerina/lang.xml}XMLOperationError {message:\"Invalid xml attribute access on xml sequence\"}");
     }
 
-    @Test (groups = "brokenOnXMLLangLibChange")
+    @Test
     public void testXMLAttributeAccessNegative() {
         CompileResult negative = BCompileUtil.compile("test-src/types/xml/xml-attribute-access-syntax-neg.bal");
         Assert.assertEquals(negative.getErrorCount(), 2);
@@ -69,7 +68,7 @@ public class XMLAttributeAccessTest {
         BAssertUtil.validateError(negative, 1, "invalid character ':' in field access expression", 10, 13);
     }
 
-    @Test (groups = "brokenOnXMLLangLibChange")
+    @Test
     public void testXMLAsMapContent() {
         BValue[] result = BRunUtil.invoke(lexCompileRes, "testXMLAsMapContent");
         Assert.assertEquals(result[0].stringValue(), "val");
@@ -87,10 +86,19 @@ public class XMLAttributeAccessTest {
         Assert.assertTrue(((BBoolean) result[4]).booleanValue());
     }
 
-    @Test (groups = "brokenOnXMLLangLibChange")
+    @Test
     public void testXMLASMapContentInvalidKey() {
         BValue[] result = BRunUtil.invoke(lexCompileRes, "testXMLASMapContentInvalidKey");
         Assert.assertEquals(result[0].stringValue(), "{lang.map}InvalidKey {key:\"b\"}");
+    }
+
+    @Test
+    public void testXMLDirectAttributeAccess() {
+        BValue[] result = BRunUtil.invoke(lexCompileRes, "testXMLDirectAttributeAccess");
+        Assert.assertTrue(((BBoolean) result[0]).booleanValue());
+        Assert.assertTrue(((BBoolean) result[0]).booleanValue());
+        Assert.assertTrue(((BBoolean) result[0]).booleanValue());
+        Assert.assertTrue(((BBoolean) result[0]).booleanValue());
     }
 
 }
