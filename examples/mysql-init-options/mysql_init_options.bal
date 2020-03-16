@@ -15,7 +15,7 @@ function initializeClients() returns sql:Error? {
     mysql:Client|sql:Error mysqlClient1 = new ();
     if (mysqlClient1 is sql:Error) {
         io:println("Error when initializing the MySQL client without any " +
-        "params", mysqlClient1);
+            "params. ", mysqlClient1);
     } else {
         io:println("Simple MySQL client created successfully");
         check mysqlClient1.close();
@@ -56,7 +56,7 @@ function initializeClients() returns sql:Error? {
     };
     // Initialize the MySQL client with MySQL database options.
     mysql:Client mysqlClient5 = check new (user = dbUser, password = dbPassword,
-    options = mysqlOptions);
+        options = mysqlOptions);
     io:println("MySQL client with database options created.");
 
     // Connection pool is used to share and use the database connections

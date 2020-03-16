@@ -16,7 +16,7 @@ function initializeDatabase() returns sql:Error? {
     // the error will be returned.
     sql:ExecuteResult? result =
         check mysqlClient->execute("CREATE DATABASE IF NOT EXISTS " + dbName);
-    io:println("Database created");
+    io:println("Database created. ");
     // Close the MySQL client.
     check mysqlClient.close();
 }

@@ -2,7 +2,7 @@
 # `.bal` file and execute the `ballerina run` command.
 $ ballerina run mysql_execute_operation.bal
 
-Database created
+Database created.
 Drop table executed. affectedRowCount=0 lastInsertId=
 Rows affected: 1
 Generated Customer ID: 1
