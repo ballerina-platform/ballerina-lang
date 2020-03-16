@@ -87,4 +87,13 @@ public function main() {
         }
     );
     io:println(modifiedMarks);
+
+    // A mapping constructor expression can also include a spread field,
+    // referring to another mapping value. When a spread field is specified,
+    // all the fields of the relevant mapping value are added to the new
+    // mapping value being created.
+    // A spread field is used with `modifiedMarks` to include all the entries
+    // in `modifiedMarks` when creating `allMarks`.
+    map<int> allMarks = {jane: 100, ...modifiedMarks, amy: 75};
+    io:println(allMarks);
 }

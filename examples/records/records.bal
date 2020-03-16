@@ -82,7 +82,8 @@ public function main() {
 
     // Member access can be used to assign to fields that are not defined in the record type descriptor.
     // An attempt to add additional fields to a closed record results in compile errors.
-    peter["address"] = <Address>{city: "Colombo", country: "Sri Lanka"};
+    Address address = {city: "Colombo", country: "Sri Lanka"};
+    peter["address"] = address;
     io:println(peter);
 
     // Create a `Grades` record adding additional fields for the `int`-typed rest field.
@@ -98,4 +99,33 @@ public function main() {
     // record, else `()` is returned.
     int? english = grades["english"];
     io:println(english);
+
+    // A mapping constructor expression used when creating a record value
+    // can also include a spread field, referring to another mapping value.
+    // When a spread field is specified, all the fields of the relevant
+    // mapping value are added to the new record value being created.
+    // A spread field is used with `address` to include the individual address
+    // entries in `address` when creating `anne`.
+    Student anne = {
+        name: "Anne",
+        age: 18,
+        grades: {
+            maths: 70,
+            physics: 80,
+            chemistry: 55
+        },
+        ...address
+    };
+    io:println(anne);
+
+    // Using a mapping constructor expression with `var` (i.e., no contextually expected
+    // type) results in a mapping value where the inferred type is a record type based
+    // on the fields specified in the mapping constructor expression.
+    var rec = {name: "Amy", age: 18, ...address};
+    io:println(rec);
+
+    // The record type inferred for `rec` is
+    // `record {| string name; int age; string city; string country; |}`
+    // Thus, field access can be used to access the fields.
+    io:println(rec.name);
 }
