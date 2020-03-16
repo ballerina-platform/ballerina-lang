@@ -18,7 +18,7 @@ public function main() {
     [string, int]|[boolean, int]|[int, boolean]|int|float b1 = ["Hello", 45];
     [string, int]|[float, boolean]|[int, boolean]|int|float b2 = [4.5, true];
     [float, boolean]|[boolean, int]|[int, boolean]|int|float b3 = [false, 4];
-    [string, int]|[float, boolean]|[int, boolean]|int|float b4 = [455, true];
+    [string, int]|[int, boolean]|int|float b4 = [455, true];
     [float, boolean]|[boolean, int]|[int, boolean]|float b5 = 5.6;
 
     matchWithMatchGuard(b1);
