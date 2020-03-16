@@ -15,7 +15,7 @@
                     "kind": "RECORD_KEYWORD"
                 },
                 {
-                    "kind": "OPEN_BRACE_TOKEN"
+                    "kind": "OPEN_BRACE_PIPE_TOKEN"
                 },
                 {
                     "kind": "LIST",
@@ -69,8 +69,36 @@
                                     "kind": "EQUAL_TOKEN"
                                 },
                                 {
-                                    "kind": "NUMERIC_LITERAL_TOKEN",
-                                    "value": "0"
+                                    "kind": "BINARY_EXPRESSION",
+                                    "children": [
+                                        {
+                                            "kind": "NUMERIC_LITERAL_TOKEN",
+                                            "value": "0"
+                                        },
+                                        {
+                                            "kind": "ASTERISK_TOKEN"
+                                        },
+                                        {
+                                            "kind": "IDENTIFIER_TOKEN",
+                                            "value": "A"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "kind": "SEMICOLON_TOKEN",
+                                    "isMissing": true
+                                }
+                            ]
+                        },
+                        {
+                            "kind": "RECORD_REST_TYPE",
+                            "children": [
+                                {
+                                    "kind": "TYPE_TOKEN",
+                                    "value": "string"
+                                },
+                                {
+                                    "kind": "ELLIPSIS_TOKEN"
                                 },
                                 {
                                     "kind": "SEMICOLON_TOKEN",
@@ -81,7 +109,7 @@
                     ]
                 },
                 {
-                    "kind": "CLOSE_BRACE_TOKEN"
+                    "kind": "CLOSE_BRACE_PIPE_TOKEN"
                 }
             ]
         },

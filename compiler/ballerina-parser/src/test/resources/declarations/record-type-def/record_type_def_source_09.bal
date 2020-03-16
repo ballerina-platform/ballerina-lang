@@ -1,4 +1,4 @@
-type Student record {
+type Student {|
     string name;
     int age;
-};
+|};

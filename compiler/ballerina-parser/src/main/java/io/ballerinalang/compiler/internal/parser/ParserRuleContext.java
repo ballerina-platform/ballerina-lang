@@ -54,14 +54,11 @@ public enum ParserRuleContext {
     FIELD_DESCRIPTOR_RHS("field-descriptor-rhs"),
     RECORD_BODY_START("record-body-start"),
     RECORD_BODY_END("record-body-end"),
-    CLOSED_RECORD_BODY_START("closed-record-body-start"),
-    CLOSED_RECORD_BODY_END("closed-record-body-end"),
     RECORD_FIELD("record-field"),
     TYPE_DESCRIPTOR("type-descriptor"),
     RECORD_TYPE_DESCRIPTOR("record-type-desc"),
     TYPE_REFERENCE("type-reference"),
-//    RECORD_REST_FIELD("record-rest-field"),
-    
+
     // terminals
     PUBLIC("public"),
     FUNCTION_KEYWORD("function"),
@@ -84,6 +81,8 @@ public enum ParserRuleContext {
     QUESTION_MARK("?"),
     TYPE_NAME("type-name"),
     ASTERISK("*"),
+    CLOSED_RECORD_BODY_START("{|"),
+    CLOSED_RECORD_BODY_END("|}"),
 
     // expressions
     EXPRESSION("expression"),

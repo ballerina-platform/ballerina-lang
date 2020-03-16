@@ -46,6 +46,26 @@ public class RecordTypeDefinitionTest extends AbstractDeclarationTest {
         test("record-type-def/record_type_def_source_04.bal", "record-type-def/record_type_def_assert_04.json");
     }
 
+    @Test
+    public void testNestedRecordTypeDefs() {
+        test("record-type-def/record_type_def_source_11.bal", "record-type-def/record_type_def_assert_11.json");
+    }
+
+    @Test
+    public void testInlineRecordTypeDefsInFunctions() {
+        test("record-type-def/record_type_def_source_13.bal", "record-type-def/record_type_def_assert_13.json");
+    }
+
+    @Test
+    public void testInlineRecordTypeDefsInFuncParams() {
+        test("record-type-def/record_type_def_source_14.bal", "record-type-def/record_type_def_assert_14.json");
+    }
+
+    @Test
+    public void testInlineRecordTypeDefsInFuncReturn() {
+        test("record-type-def/record_type_def_source_15.bal", "record-type-def/record_type_def_assert_15.json");
+    }
+
     // Recovery tests
 
     @Test
@@ -56,5 +76,30 @@ public class RecordTypeDefinitionTest extends AbstractDeclarationTest {
     @Test
     public void testRecordFieldsWithMissingSemicolon() {
         test("record-type-def/record_type_def_source_06.bal", "record-type-def/record_type_def_assert_06.json");
+    }
+
+    @Test
+    public void testMissingTypeReference() {
+        test("record-type-def/record_type_def_source_07.bal", "record-type-def/record_type_def_assert_07.json");
+    }
+
+    @Test
+    public void testRecordTypeDefWithoutName() {
+        test("record-type-def/record_type_def_source_08.bal", "record-type-def/record_type_def_assert_08.json");
+    }
+
+    @Test
+    public void testRecordTypeDefWithoutRecordKeyword() {
+        test("record-type-def/record_type_def_source_09.bal", "record-type-def/record_type_def_assert_09.json");
+    }
+
+    @Test
+    public void testRecordTypeDefWithoutRecordKeywordAndName() {
+        test("record-type-def/record_type_def_source_10.bal", "record-type-def/record_type_def_assert_10.json");
+    }
+
+    @Test
+    public void testNestedRecordTypeDefErrorRecovery() {
+        test("record-type-def/record_type_def_source_12.bal", "record-type-def/record_type_def_assert_12.json");
     }
 }

@@ -1,0 +1,256 @@
+{
+    "kind": "FUNCTION_DEFINITION",
+    "children": [
+        {
+            "kind": "FUNCTION_KEYWORD"
+        },
+        {
+            "kind": "IDENTIFIER_TOKEN",
+            "value": "foo"
+        },
+        {
+            "kind": "OPEN_PAREN_TOKEN"
+        },
+        {
+            "kind": "LIST",
+            "children": [
+            ]
+        },
+        {
+            "kind": "CLOSE_PAREN_TOKEN"
+        },
+        {
+            "kind": "BLOCK_STATEMENT",
+            "children": [
+                {
+                    "kind": "OPEN_BRACE_TOKEN"
+                },
+                {
+                    "kind": "LIST",
+                    "children": [
+                        {
+                            "kind": "LOCAL_VARIABLE_DECL",
+                            "children": [
+                                {
+                                    "kind": "RECORD_TYPE_DESCRIPTOR",
+                                    "children": [
+                                        {
+                                            "kind": "RECORD_KEYWORD"
+                                        },
+                                        {
+                                            "kind": "OPEN_BRACE_PIPE_TOKEN"
+                                        },
+                                        {
+                                            "kind": "LIST",
+                                            "children": [
+                                                {
+                                                    "kind": "RECORD_FIELD",
+                                                    "children": [
+                                                        {
+                                                            "kind": "TYPE_TOKEN",
+                                                            "value": "string"
+                                                        },
+                                                        {
+                                                            "kind": "IDENTIFIER_TOKEN",
+                                                            "value": "name"
+                                                        },
+                                                        {
+                                                            "kind": "SEMICOLON_TOKEN"
+                                                        }
+                                                    ]
+                                                },
+                                                {
+                                                    "kind": "RECORD_FIELD_WITH_DEFAULT_VALUE",
+                                                    "children": [
+                                                        {
+                                                            "kind": "TYPE_TOKEN",
+                                                            "value": "float"
+                                                        },
+                                                        {
+                                                            "kind": "IDENTIFIER_TOKEN",
+                                                            "value": "gpa"
+                                                        },
+                                                        {
+                                                            "kind": "EQUAL_TOKEN"
+                                                        },
+                                                        {
+                                                            "kind": "NUMERIC_LITERAL_TOKEN",
+                                                            "value": "0"
+                                                        },
+                                                        {
+                                                            "kind": "SEMICOLON_TOKEN"
+                                                        }
+                                                    ]
+                                                },
+                                                {
+                                                    "kind": "RECORD_FIELD",
+                                                    "children": [
+                                                        {
+                                                            "kind": "TYPE_TOKEN",
+                                                            "value": "int"
+                                                        },
+                                                        {
+                                                            "kind": "IDENTIFIER_TOKEN",
+                                                            "value": "age"
+                                                        },
+                                                        {
+                                                            "kind": "SEMICOLON_TOKEN"
+                                                        }
+                                                    ]
+                                                },
+                                                {
+                                                    "kind": "RECORD_FIELD",
+                                                    "children": [
+                                                        {
+                                                            "kind": "RECORD_TYPE_DESCRIPTOR",
+                                                            "children": [
+                                                                {
+                                                                    "kind": "RECORD_KEYWORD"
+                                                                },
+                                                                {
+                                                                    "kind": "OPEN_BRACE_TOKEN"
+                                                                },
+                                                                {
+                                                                    "kind": "LIST",
+                                                                    "children": [
+                                                                        {
+                                                                            "kind": "RECORD_FIELD",
+                                                                            "children": [
+                                                                                {
+                                                                                    "kind": "TYPE_TOKEN",
+                                                                                    "value": "string"
+                                                                                },
+                                                                                {
+                                                                                    "kind": "IDENTIFIER_TOKEN",
+                                                                                    "value": "name"
+                                                                                },
+                                                                                {
+                                                                                    "kind": "SEMICOLON_TOKEN"
+                                                                                }
+                                                                            ]
+                                                                        },
+                                                                        {
+                                                                            "kind": "RECORD_FIELD_WITH_DEFAULT_VALUE",
+                                                                            "children": [
+                                                                                {
+                                                                                    "kind": "TYPE_TOKEN",
+                                                                                    "value": "int"
+                                                                                },
+                                                                                {
+                                                                                    "kind": "IDENTIFIER_TOKEN",
+                                                                                    "value": "age"
+                                                                                },
+                                                                                {
+                                                                                    "kind": "EQUAL_TOKEN"
+                                                                                },
+                                                                                {
+                                                                                    "kind": "NUMERIC_LITERAL_TOKEN",
+                                                                                    "value": "50"
+                                                                                },
+                                                                                {
+                                                                                    "kind": "SEMICOLON_TOKEN"
+                                                                                }
+                                                                            ]
+                                                                        },
+                                                                        {
+                                                                            "kind": "RECORD_TYPE_REFERENCE",
+                                                                            "children": [
+                                                                                {
+                                                                                    "kind": "ASTERISK_TOKEN"
+                                                                                },
+                                                                                {
+                                                                                    "kind": "IDENTIFIER_TOKEN",
+                                                                                    "value": "B"
+                                                                                },
+                                                                                {
+                                                                                    "kind": "SEMICOLON_TOKEN"
+                                                                                }
+                                                                            ]
+                                                                        }
+                                                                    ]
+                                                                },
+                                                                {
+                                                                    "kind": "CLOSE_BRACE_TOKEN"
+                                                                }
+                                                            ]
+                                                        },
+                                                        {
+                                                            "kind": "IDENTIFIER_TOKEN",
+                                                            "value": "parent"
+                                                        },
+                                                        {
+                                                            "kind": "SEMICOLON_TOKEN"
+                                                        }
+                                                    ]
+                                                },
+                                                {
+                                                    "kind": "RECORD_TYPE_REFERENCE",
+                                                    "children": [
+                                                        {
+                                                            "kind": "ASTERISK_TOKEN"
+                                                        },
+                                                        {
+                                                            "kind": "IDENTIFIER_TOKEN",
+                                                            "value": "A"
+                                                        },
+                                                        {
+                                                            "kind": "SEMICOLON_TOKEN"
+                                                        }
+                                                    ]
+                                                },
+                                                {
+                                                    "kind": "RECORD_REST_TYPE",
+                                                    "children": [
+                                                        {
+                                                            "kind": "TYPE_TOKEN",
+                                                            "value": "string"
+                                                        },
+                                                        {
+                                                            "kind": "ELLIPSIS_TOKEN"
+                                                        },
+                                                        {
+                                                            "kind": "SEMICOLON_TOKEN"
+                                                        }
+                                                    ]
+                                                }
+                                            ]
+                                        },
+                                        {
+                                            "kind": "CLOSE_BRACE_PIPE_TOKEN"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "kind": "IDENTIFIER_TOKEN",
+                                    "value": "student"
+                                },
+                                {
+                                    "kind": "SEMICOLON_TOKEN"
+                                }
+                            ]
+                        },
+                        {
+                            "kind": "LOCAL_VARIABLE_DECL",
+                            "children": [
+                                {
+                                    "kind": "TYPE_TOKEN",
+                                    "value": "int"
+                                },
+                                {
+                                    "kind": "IDENTIFIER_TOKEN",
+                                    "value": "status"
+                                },
+                                {
+                                    "kind": "SEMICOLON_TOKEN"
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "kind": "CLOSE_BRACE_TOKEN"
+                }
+            ]
+        }
+    ]
+}

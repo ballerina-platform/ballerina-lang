@@ -140,7 +140,7 @@ public class BallerinaParser {
             case ASSIGNMENT_STMT:
                 return parseAssignmentStmt();
             case BINARY_EXPR_RHS:
-                return parseBinaryExprRhs();
+                return parseBinaryExprRhs(parsedNodes[0]);
             case FOLLOW_UP_PARAM:
                 return parseFollowUpParameter();
             case AFTER_PARAMETER_TYPE:
@@ -159,6 +159,8 @@ public class BallerinaParser {
                 return parseAssignmentOrVarDeclRhs(parsedNodes[0]);
             case TYPE_REFERENCE:
                 return parseTypeReference();
+            case FIELD_DESCRIPTOR_RHS:
+                return parseFieldDescriptorRhs(parsedNodes[0], parsedNodes[1]);
             case FUNC_DEFINITION:
             case REQUIRED_PARAM:
             default:
@@ -1392,6 +1394,7 @@ public class BallerinaParser {
             STNode asterisk = consume();
             STNode type = parseTypeReference();
             STNode semicolonToken = parseSemicolon();
+            endContext();
             return new STRecordTypeReference(asterisk, type, semicolonToken);
         }
 
@@ -1399,7 +1402,8 @@ public class BallerinaParser {
         STNode type = parseTypeDescriptor();
         STNode fieldOrRestDesc;
         if (isInclusive) {
-            fieldOrRestDesc = parseFieldDescriptorRhs(type);
+            STNode fieldName = parseVariableName();
+            fieldOrRestDesc = parseFieldDescriptorRhs(type, fieldName);
         } else {
             fieldOrRestDesc = parseFieldOrRestDescriptorRhs(type);
         }
@@ -1435,7 +1439,8 @@ public class BallerinaParser {
                 STNode semicolonToken = parseSemicolon();
                 return new STRecordRestDescriptor(type, ellipsis, semicolonToken);
             case IDENTIFIER_TOKEN:
-                return parseFieldDescriptorRhs(type);
+                STNode fieldName = parseVariableName();
+                return parseFieldDescriptorRhs(type, fieldName);
             default:
                 STToken token = peek();
                 Solution solution = recover(token, ParserRuleContext.FIELD_OR_REST_DESCIPTOR_RHS, type);
@@ -1458,8 +1463,8 @@ public class BallerinaParser {
      * 
      * @return Parsed node
      */
-    private STNode parseFieldDescriptorRhs(STNode type) {
-        STNode fieldName = parseVariableName();
+    private STNode parseFieldDescriptorRhs(STNode type, STNode fieldName) {
+
         STToken token = peek();
         return parseFieldDescriptorRhs(token.kind, type, fieldName);
     }
@@ -1562,8 +1567,10 @@ public class BallerinaParser {
      */
     private STNode parseStatement(SyntaxKind tokenKind) {
         switch (tokenKind) {
+            // TODO: add all 'type starting tokens' here. should be same as 'parseTypeDescriptor(...)'
             case TYPE_TOKEN:
-                // If the statement starts with a built-in type, then its a var declaration.
+            case RECORD_KEYWORD:
+                // If the statement starts with a type, then its a var declaration.
                 // This is an optimization since if we know the next token is a type, then
                 // we can parse the var-def faster.
                 return parseVariableDeclStmt();
@@ -1809,9 +1816,8 @@ public class BallerinaParser {
      * 
      * @return Parsed node
      */
-    private STNode parseBinaryExprRhs() {
-        throw new IllegalStateException();
-        // return parseBinaryExprRhs(OperatorPrecedence.BINARY_COMPARE);
+    private STNode parseBinaryExprRhs(STNode lhsExpr) {
+        return parseBinaryExprRhs(OperatorPrecedence.BINARY_COMPARE, lhsExpr);
     }
 
     /**
@@ -1843,7 +1849,7 @@ public class BallerinaParser {
 
         if (!isBinaryOperator(tokenKind)) {
             STToken token = peek();
-            Solution solution = recover(token, ParserRuleContext.BINARY_EXPR_RHS);
+            Solution solution = recover(token, ParserRuleContext.BINARY_EXPR_RHS, lhsExpr);
 
             // If the current rule was recovered by removing a token,
             // then this entire rule is already parsed while recovering.
