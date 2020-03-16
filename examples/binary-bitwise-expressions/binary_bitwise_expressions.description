@@ -1,0 +1,3 @@
+// Ballerina supports three bitwise binary expressions; AND, OR, and XOR.
+// Both operands should have static types that are subtypes of the `int` type.
+// All bitwise binary operations are based on the 64-bit representations of the values.

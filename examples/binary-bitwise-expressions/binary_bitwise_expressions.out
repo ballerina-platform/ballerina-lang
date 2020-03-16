@@ -1,0 +1,9 @@
+# To run this sample, navigate to the directory that contains the
+# `.bal` file, and execute the `ballerina run` command.
+$ ballerina run binary_bitwise_expressions.bal
+`int` 385 & `ints:Unsigned8` 128: 128
+`ints:Signed16` -32700 & `int` 249: 64
+`ints:Unsigned8` 254 | `ints:Unsigned16` 511: 255
+`ints:Unsigned8` 254 ^ `ints:Unsigned16` 511: 1
+`int` 12345678 | `ints:Signed8` -127: -49
+`int` 12345678 ^ `ints:Signed8` -127: -12345649

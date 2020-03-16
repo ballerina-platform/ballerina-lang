@@ -266,6 +266,10 @@
                 "url": "shift-expressions"
             },
             {
+                "name": "Binary Bitwise Expressions",
+                "url": "binary-bitwise-expressions"
+            },
+            {
                 "name": "Compound Assignment Operators",
                 "url": "compound-assignment-operators"
             },
