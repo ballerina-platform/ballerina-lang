@@ -21,19 +21,19 @@ public function main() {
 
     Student[] studentList = [s1, s2, s3];
 
-    //`from` clause works similarly to a `foreach` statement.
-    //It can be used to iterate through any iterable value.
-    //`outputStudentList` is the result of the `query` expression
+    //The `from` clause works similarly to a `foreach` statement.
+    //It can be used to iterate any iterable value.
+    //The `outputStudentList` is the result of the `query` expression.
     Report[] reportList = from var student in studentList
-    //The `where` clause provides a way to perform conditional execution and works similarly to a `if` condition.
+    //The `where` clause provides a way to perform conditional execution and works similarly to an `if` condition.
     //It can refer to variables bound by the from clause.
-    //When the where condition evaluates to false, the iteration skips following clauses.
+    //When the `where` condition evaluates to false, the iteration skips following the clauses.
     where student.score >= 1
-    //The `let` clause binds variables.
+    //The `let` clause binds the variables.
     let string degreeName = "Bachelor of Medicine",
     int graduationYear = calGraduationYear(student.intakeYear)
-    //The `select` clause is evaluated for each iteration;
-    //the result of the query expression is a list(`reportList`) whose members are the result of the select clause.
+    //The `select` clause is evaluated for each iteration.
+    //The result of the query expression is a list(`reportList`) whose members are the result of the `select` clause.
        select {
               name: student.firstName,
               degree: degreeName,
