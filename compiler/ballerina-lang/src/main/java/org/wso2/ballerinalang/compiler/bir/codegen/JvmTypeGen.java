@@ -137,6 +137,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPES_ERR
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.UNION_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.XML_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmInstructionGen.B_STRING_VALUE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmInstructionGen.isBString;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmInstructionGen.loadConstantValue;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.BalToJVMIndexMap;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.getObjectField;
@@ -1017,6 +1018,14 @@ class JvmTypeGen {
             typeFieldName = "typeJSON";
         } else if (bType.tag == TypeTags.XML) {
             typeFieldName = "typeXML";
+        } else if (bType.tag == TypeTags.XML_ELEMENT) {
+            typeFieldName = "typeElement";
+        } else if (bType.tag == TypeTags.XML_PI) {
+            typeFieldName = "typeProcessingInstruction";
+        } else if (bType.tag == TypeTags.XML_COMMENT) {
+            typeFieldName = "typeComment";
+        } else if (bType.tag == TypeTags.XML_TEXT) {
+            typeFieldName = "typeText";
         } else if (bType.tag == TypeTags.TYPEDESC) {
             loadTypedescType(mv, (BTypedescType) bType);
             return;
@@ -1346,7 +1355,7 @@ class JvmTypeGen {
                 String.format("([L%s;L%s;L%s;)V", BTYPE, BTYPE, BTYPE), false);
     }
 
-    static String getTypeDesc(BType bType, boolean useBString /* = false */) {
+    static String getTypeDesc(BType bType) {
 
         if (TypeTags.isIntegerTypeTag(bType.tag)) {
             return "J";
@@ -1355,7 +1364,7 @@ class JvmTypeGen {
         } else if (bType.tag == TypeTags.FLOAT) {
             return "D";
         } else if (TypeTags.isStringTypeTag(bType.tag)) {
-            return String.format("L%s;", useBString ? B_STRING_VALUE : STRING_VALUE);
+            return String.format("L%s;", isBString ? B_STRING_VALUE : STRING_VALUE);
         } else if (bType.tag == TypeTags.BOOLEAN) {
             return "Z";
         } else if (bType.tag == TypeTags.NIL) {
@@ -1378,7 +1387,7 @@ class JvmTypeGen {
             return String.format("L%s;", DECIMAL_VALUE);
         } else if (bType.tag == TypeTags.OBJECT) {
             return String.format("L%s;", OBJECT_VALUE);
-        } else if (bType.tag == TypeTags.XML) {
+        } else if (TypeTags.isXMLTypeTag(bType.tag)) {
             return String.format("L%s;", XML_VALUE);
         } else if (bType.tag == TypeTags.HANDLE) {
             return String.format("L%s;", HANDLE_VALUE);
@@ -1413,7 +1422,7 @@ class JvmTypeGen {
             BType valueType = valueTypePair.type;
             mv.visitInsn(DUP);
 
-            loadConstantValue(valueType, value, mv, false);
+            loadConstantValue(valueType, value, mv);
 
             if (TypeTags.isIntegerTypeTag(valueType.tag)) {
                 mv.visitMethodInsn(INVOKESTATIC, LONG_VALUE, "valueOf", String.format("(J)L%s;", LONG_VALUE), false);

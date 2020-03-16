@@ -51,6 +51,9 @@ public class DataBindingTest {
     @BeforeClass
     public void setup() {
         CompileResult result = BCompileUtil.compile("test-src/services/dispatching/data-binding-test.bal");
+        if (result.getErrorCount() > 0) {
+            Assert.fail("Compilation errors");
+        }
     }
 
     @Test(description = "Test data binding with string payload")

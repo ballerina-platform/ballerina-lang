@@ -1283,7 +1283,6 @@ public class NodeCloner extends BLangNodeVisitor {
         clone.isDeclaredWithVar = source.isDeclaredWithVar;
         clone.varType = source.varType;
         clone.resultType = source.resultType;
-        clone.errorType = source.errorType;
         clone.nillableResultType = source.nillableResultType;
     }
 
