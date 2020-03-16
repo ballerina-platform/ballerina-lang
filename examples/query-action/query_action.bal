@@ -27,8 +27,8 @@ public function main() {
     // The block inside the `do` clause is executed for each iteration.
     do {
         FullName fullName = {firstName: student.firstName, lastName: student.lastName};
-        nameList[nameList.length()] = fullName;
-        }
+        nameList.push(fullName);
+    }
 
     foreach var name in nameList {
         io:println(name);
