@@ -62,18 +62,18 @@ public class TesterinaUtils {
      * @param sourceRootPath source root path
      * @param testSuite test meta data
      */
-    public static void executeTests(Path sourceRootPath, TestSuite testSuite) {
+    public static void executeTests(Path sourceRootPath, TestSuite testSuite) throws RuntimeException {
         try {
             BTestRunner testRunner = new BTestRunner(outStream, errStream);
             // Run the tests
             testRunner.runTest(testSuite);
             cleanUpDir(sourceRootPath.resolve(TesterinaConstants.TESTERINA_TEMP_DIR));
             if (testRunner.getTesterinaReport().isFailure()) {
-                Runtime.getRuntime().exit(1);
+                throw new RuntimeException("there are test failures");
             }
         } catch (Throwable e) {
             errStream.println("error: " + e.getMessage());
-            Runtime.getRuntime().exit(1);
+            throw e;
         }
     }
 
