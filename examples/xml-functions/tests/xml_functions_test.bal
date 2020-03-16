@@ -14,7 +14,7 @@ public function mockPrint(any... s) {
 
 @test:Config
 function testFunc() {
-    // Invoking the main function
+    // Invoking the main function.
     main();
 
     string nameOfElem = "name";

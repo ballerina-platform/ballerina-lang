@@ -14,7 +14,7 @@ public function main() {
                 <!--Price: $10-->
                 </book>`;
     
-    // You can access child XML items using xml step expressions.
+    // You can access child XML items using XML step expressions.
     io:println(bookXML/<author>/<fname>);
 
     // Accessing a non-existing child will return an empty `xml` sequence.
@@ -26,10 +26,10 @@ public function main() {
     // You can match descendant elements using the following stepping access syntax.
     io:println(bookXML/**/<fname>);
 
-    // Select all children using bellow syntax.
+    // Select all children using the bellow syntax.
     io:println(bookXML/*);
 
-    // And select all children elements using bellow syntax.
+    // Select all children elements using the bellow syntax.
     io:println(bookXML/<*>);
 
     // Select all the children belonging to a specific namespace.

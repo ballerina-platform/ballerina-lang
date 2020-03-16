@@ -19,7 +19,7 @@ public function main() {
     string|error count2 = x1.count2;
     io:println(count2 is error);
 
-    // It is possible to get all the attributes of a `xml` element.
+    // It is possible to get all the attributes of an `xml` element.
     map<string> attributeMap = x1.getAttributes();
     io:println(attributeMap);
 
@@ -27,7 +27,7 @@ public function main() {
     string? s = attributeMap["{http://ballerina.com/aa}status"];
     io:println(s);
 
-    // Updates an attribute by updating the attribute map of a `xml` element.
+    // Update an attribute by updating the attribute map of an `xml` element.
     attributeMap[ns0:status] = "Not Available";
     io:println(x1.ns0:status);
 }
