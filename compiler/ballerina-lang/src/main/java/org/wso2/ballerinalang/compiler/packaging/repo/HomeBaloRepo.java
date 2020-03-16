@@ -31,6 +31,7 @@ import org.wso2.ballerinalang.util.RepoUtils;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.PathMatcher;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
@@ -153,16 +154,21 @@ public class HomeBaloRepo implements Repo<Path> {
     private Path findBaloPath(Path repoLocation, String orgName, String pkgName, String platform, String versionStr)
             throws IOException {
         Path baloFilePath = this.repoLocation.resolve(orgName).resolve(pkgName).resolve(versionStr);
-        Stream<Path> list = Files.list(baloFilePath).sorted();
+        // try to find a compatible balo file
+        if (Files.exists(baloFilePath)) {
+            Stream<Path> list = Files.list(baloFilePath);
+            PathMatcher pathMatcher = baloFilePath.getFileSystem()
+                    .getPathMatcher("glob:**/" + pkgName + "-*-" +
+                            platform + "-" + versionStr + ".balo");
+            for (Path file : (Iterable<Path>) list::iterator) {
+                if (pathMatcher.matches(file)) {
+                    return file;
+                }
+            }
+        }
+        // if a similar file is not found assume the default balo name
         String baloFileName = pkgName + "-" + IMPLEMENTATION_VERSION + "-" + platform + "-" + versionStr +
                 ".balo";
-        Path last = baloFilePath.resolve(baloFileName);
-        for (Path file : (Iterable<Path>) list::iterator) {
-            if (file.toString().contains(baloFileName)) {
-                return file;
-            }
-            last = file;
-        }
-        return last;
+        return baloFilePath.resolve(baloFileName);
     }
 }
