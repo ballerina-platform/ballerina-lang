@@ -498,7 +498,7 @@ public class StubGeneratorTestCase {
                 attachedResourceCount += 1;
             }
         }
-        assertEquals(attachedResourceCount, resourceCount );
+        assertEquals(attachedResourceCount, resourceCount);
     }
 
     private void validateEnumNode(CompileResult compileResult) {
@@ -542,7 +542,7 @@ public class StubGeneratorTestCase {
         Path protoFilePath = resourceDir.resolve(protoFilename);
         grpcCmd1.setProtoPath(protoFilePath.toAbsolutePath().toString());
         grpcCmd1.setMode("proxy");
-        Path proxyOutputDirPath = proxyServiceDirPath.resolve("src/"+testName);
+        Path proxyOutputDirPath = proxyServiceDirPath.resolve("src/" + testName);
         grpcCmd1.setBalOutPath(proxyOutputDirPath.toAbsolutePath().toString());
         grpcCmd1.execute();
         return BCompileUtil.compile(proxyServiceDirPath, testName, false, true);
