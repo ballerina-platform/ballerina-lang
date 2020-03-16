@@ -2,12 +2,24 @@
 # `.bal` file, and execute the `ballerina run` command.
 $ ballerina run xml-access.bal
 <fname title="Sir">Arthur</fname>
+
+Sir
 <fname title="Sir">Arthur</fname>
 
+                <name>Sherlock Holmes</name>
+                <author>
+                    <fname title="Sir">Arthur</fname>
+                    <mname>Conan</mname>
+                    <lname>Doyle</lname>
+                </author>
+                <bar:year xmlns:bar="http://ballerina.com/a">2019</bar:year>
+                <!--Price: $10-->
 
-Arthur
-Arthur
-Sir
-Sir
+<name>Sherlock Holmes</name><author>
+                    <fname title="Sir">Arthur</fname>
+                    <mname>Conan</mname>
+                    <lname>Doyle</lname>
+                </author><bar:year xmlns:bar="http://ballerina.com/a">2019</bar:year>
 2019
-2019
+<name>Sherlock Holmes</name>
+<bar:year xmlns:bar="http://ballerina.com/a">2019</bar:year>
