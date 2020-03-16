@@ -54,7 +54,9 @@ function prepareError(string message, error? err = ()) returns Error {
 # + err - `error` instance
 # + return - Prepared `Error` instance
 function prepareErrorWithDebugLog(string message, error? err = ()) returns Error {
-    log:printDebug(message, err);
+    log:printDebug(function() returns string {
+        return message;
+    });
     Error cacheError;
     if (err is error) {
         cacheError = error(CACHE_ERROR, message = message, cause = err);
