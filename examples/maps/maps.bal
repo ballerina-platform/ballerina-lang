@@ -14,7 +14,7 @@ public function main() {
         // A field can be specified as a key-value pair.
         line1: "No. 20",
         line2: "Palm Grove",
-        // The value in a key-value pair can be any expression that evaluates
+        // The value in a key-value pair can be any expression, which evaluates
         // to a value of a type that belongs to the constraint type of the map.
         city: "Colombo 03",
         // A field can also be just a variable reference, which would result
@@ -33,8 +33,8 @@ public function main() {
 
     // Retrieve a value using member access.
     // Member access returns the value if a field exists in the map with the
-    // specified key, or `()` if a field does not exist with the specified key.
-    // The type of a member access expression for a map is thus the union of
+    // specified key. Else, it returns `()` if a field does not exist with the specified key.
+    // Thus, the type of a member access expression for a map is the union of
     // the constraint type and the nil type.
     string? countryValue = addrMap["country"];
 
@@ -45,8 +45,8 @@ public function main() {
     }
 
     // Retrieve a value using the `.get()` method.
-    // If the map has a field with the specified key, `.get()` returns the value,
-    // or panics if the map does not have a field with the specified key.
+    // If the map has a field with the specified key, `.get()` returns the value.
+    // Else, it panics if the map does not have a field with the specified key.
     // Thus, the type for `.get()` on a map is the map's constraint type.
     string line2Value = addrMap.get("line2");
     io:println(line2Value);
@@ -56,7 +56,7 @@ public function main() {
     io:println(hasPostalCode);
 
     // Member access lvalue expressions can be used to add fields to a map
-    // or update an already existing field in the map.
+    // or update an already-existing field in the map.
     addrMap["postalCode"] = "00300";
     io:println(addrMap);
 
@@ -88,7 +88,7 @@ public function main() {
     );
     io:println(modifiedMarks);
 
-    // A mapping constructor expression can also include a spread field,
+    // A mapping constructor expression can also include a spread field
     // referring to another mapping value. When a spread field is specified,
     // all the fields of the relevant mapping value are added to the new
     // mapping value being created.

@@ -38,7 +38,7 @@ public function main() {
         // A field can be specified as a key-value pair.
         name: "John Doe",
         // A variable reference can also be used to define a field.
-        // The name of the variable will be used as the key, while
+        // The name of the variable will be used as the key while
         // the variable reference itself will be used as the value
         // expression.
         // This is equivalent to `age: age`.
@@ -101,7 +101,7 @@ public function main() {
     io:println(english);
 
     // A mapping constructor expression used when creating a record value
-    // can also include a spread field, referring to another mapping value.
+    // can also include a spread field referring to another mapping value.
     // When a spread field is specified, all the fields of the relevant
     // mapping value are added to the new record value being created.
     // A spread field is used with `address` to include the individual address
@@ -118,14 +118,14 @@ public function main() {
     };
     io:println(anne);
 
-    // Using a mapping constructor expression with `var` (i.e., no contextually expected
-    // type) results in a mapping value where the inferred type is a record type based
+    // Using a mapping constructor expression with `var` (i.e., no contextually-expected
+    // type) results in a mapping value, where the inferred type is a record type based
     // on the fields specified in the mapping constructor expression.
     var rec = {name: "Amy", age: 18, ...address};
     io:println(rec);
 
     // The record type inferred for `rec` is
-    // `record {| string name; int age; string city; string country; |}`
+    // `record {| string name; int age; string city; string country; |}`.
     // Thus, field access can be used to access the fields.
     io:println(rec.name);
 }
