@@ -20,7 +20,7 @@ package org.ballerinalang.stdlib.email;
 
 import com.icegreen.greenmail.util.DummySSLSocketFactory;
 import com.icegreen.greenmail.util.GreenMail;
-import com.icegreen.greenmail.util.ServerSetupTest;
+import com.icegreen.greenmail.util.ServerSetup;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
@@ -56,6 +56,7 @@ public class SmtpSimpleSecureEmailSendTest {
     private CompileResult compileResult;
 
     private static final String HOST_NAME = "127.0.0.1";
+    private static final int PORT_NUMBER = 3465;
     private static final String USER_PASSWORD = "abcdef123";
     private static final String USER_NAME = "hascode";
     private static final String EMAIL_USER_ADDRESS = "hascode@localhost";
@@ -63,12 +64,15 @@ public class SmtpSimpleSecureEmailSendTest {
     private static final String EMAIL_SUBJECT = "Test E-Mail";
     private static final String EMAIL_TEXT = "This is a test e-mail.";
     private static final String SSL_SOCKET_FACTORY_PROVIDER = "ssl.SocketFactory.provider";
+    private static final int SERVER_TIMEOUT = 5000;
     private GreenMail mailServer;
 
     @BeforeClass
     public void setup() {
         Security.setProperty(SSL_SOCKET_FACTORY_PROVIDER, DummySSLSocketFactory.class.getName());
-        mailServer = new GreenMail(ServerSetupTest.SMTPS);
+        ServerSetup setup = new ServerSetup(PORT_NUMBER, null, ServerSetup.PROTOCOL_SMTPS);
+        setup.setServerStartupTimeout(SERVER_TIMEOUT);
+        mailServer = new GreenMail(setup);
         mailServer.start();
         mailServer.setUser(EMAIL_USER_ADDRESS, USER_NAME, USER_PASSWORD);
         Path sourceFilePath = Paths.get("src", "test", "resources", "test-src",

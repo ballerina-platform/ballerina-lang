@@ -54,10 +54,6 @@ serviceBody
     :   LEFT_BRACE objectMethod* RIGHT_BRACE
     ;
 
-streamConstructorBody
-    :   LEFT_BRACE statement* RIGHT_BRACE
-    ;
-
 blockFunctionBody
     :   LEFT_BRACE statement* (workerDeclaration+ statement*)? RIGHT_BRACE
     ;
@@ -119,11 +115,11 @@ typeReference
     ;
 
 objectFieldDefinition
-    :   annotationAttachment* (PUBLIC | PRIVATE)? typeName Identifier (ASSIGN expression)? SEMICOLON
+    :   documentationString? annotationAttachment* (PUBLIC | PRIVATE)? typeName Identifier (ASSIGN expression)? SEMICOLON
     ;
 
 fieldDefinition
-    :   annotationAttachment* typeName Identifier QUESTION_MARK? (ASSIGN expression)? SEMICOLON
+    :   documentationString? annotationAttachment* typeName Identifier QUESTION_MARK? (ASSIGN expression)? SEMICOLON
     ;
 
 recordRestFieldDefinition
@@ -179,8 +175,7 @@ dualAttachPointIdent
     |   PARAMETER
     |   RETURN
     |   SERVICE
-    |   WORKER
-    |   START
+    |   (OBJECT | RECORD)? FIELD
     ;
 
 sourceOnlyAttachPoint
@@ -280,11 +275,15 @@ builtInReferenceTypeName
     |   TYPE_XML (LT typeName GT)?
     |   TYPE_JSON
     |   TYPE_TABLE LT typeName GT
-    |   TYPE_STREAM LT typeName GT
     |   TYPE_DESC LT typeName GT
     |   SERVICE
     |   errorTypeName
+    |   streamTypeName
     |   functionTypeName
+    ;
+
+streamTypeName
+    :   TYPE_STREAM (LT typeName (COMMA typeName)? GT)?
     ;
 
 functionTypeName
@@ -394,10 +393,6 @@ tableData
 
 listConstructorExpr
     :   LEFT_BRACKET expressionList? RIGHT_BRACKET
-    ;
-
-streamConstructorExpr
-    :   TYPE_STREAM streamConstructorBody
     ;
 
 assignmentStatement
@@ -813,7 +808,6 @@ expression
     |   recordLiteral                                                       # recordLiteralExpression
     |   xmlLiteral                                                          # xmlLiteralExpression
     |   tableLiteral                                                        # tableLiteralExpression
-    |   streamConstructorExpr                                               # streamConstructorExpression
     |   stringTemplateLiteral                                               # stringTemplateLiteralExpression
     |   (annotationAttachment* START)? variableReference                    # variableReferenceExpression
     |   actionInvocation                                                    # actionInvocationExpression
@@ -871,7 +865,7 @@ typeDescExpr
 
 typeInitExpr
     :   NEW (LEFT_PARENTHESIS invocationArgList? RIGHT_PARENTHESIS)?
-    |   NEW userDefineTypeName LEFT_PARENTHESIS invocationArgList? RIGHT_PARENTHESIS
+    |   NEW (userDefineTypeName | streamTypeName) LEFT_PARENTHESIS invocationArgList? RIGHT_PARENTHESIS
     ;
 
 serviceConstructorExpr

@@ -31,7 +31,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BIntermediateCollectionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
@@ -226,29 +225,6 @@ public class FunctionGenerator {
             return "[" + String.join(", ", list) + "]";
         } else if (bType instanceof BNilType) {
             return "()";
-        } else if (bType instanceof BIntermediateCollectionType) {
-            // TODO: 29/11/2018 fix this. A hack to infer type definition
-            // We assume;
-            // 1. Tuple of <key(string), value(string)> as a map(though it can be a record as well)
-            // 2. Tuple of <index(int), value(string)> as an array
-            BIntermediateCollectionType collectionType = (BIntermediateCollectionType) bType;
-            List<String> list = new ArrayList<>();
-            List<BType> tupleTypes = collectionType.tupleType.tupleTypes;
-            if (tupleTypes.size() == 2) {
-                BType leftType = tupleTypes.get(0);
-                BType rightType = tupleTypes.get(1);
-                switch (leftType.tsymbol.name.value) {
-                    case "int":
-                        return generateTypeDefinition(importsAcceptor, currentPkgId, rightType) + "[]";
-                    case "string":
-                    default:
-                        return "map<" + generateTypeDefinition(importsAcceptor, currentPkgId, rightType) + ">";
-                }
-            }
-            for (BType memberType : tupleTypes) {
-                list.add(generateTypeDefinition(importsAcceptor, currentPkgId, memberType));
-            }
-            return "[" + String.join(", ", list) + "][]";
         } else if (bType instanceof BTableType) {
             return "table<record {}>";
         }

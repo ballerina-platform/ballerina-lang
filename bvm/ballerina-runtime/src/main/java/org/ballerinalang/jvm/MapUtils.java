@@ -27,7 +27,7 @@ import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.jvm.util.exceptions.RuntimeErrors;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValue;
-import org.ballerinalang.jvm.values.StringValue;
+import org.ballerinalang.jvm.values.api.BString;
 
 import java.util.Map;
 
@@ -45,7 +45,7 @@ import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.getMod
  */
 public class MapUtils {
 
-    public static void handleMapStore(MapValue<StringValue, Object> mapValue, StringValue fieldName, Object value) {
+    public static void handleMapStore(MapValue<BString, Object> mapValue, BString fieldName, Object value) {
         BType mapType = mapValue.getType();
         switch (mapType.getTag()) {
             case TypeTags.MAP_TAG:
@@ -158,7 +158,7 @@ public class MapUtils {
         }
     }
 
-    public static void validateRequiredFieldForRecord(MapValue<?, ?> m, String  k) {
+    public static void validateRequiredFieldForRecord(MapValue<?, ?> m, String k) {
         BType type = m.getType();
         if (type.getTag() == TypeTags.RECORD_TYPE_TAG && isRequiredField((BRecordType) type, k)) {
             throw createOpNotSupportedErrorForRecord(type, k);

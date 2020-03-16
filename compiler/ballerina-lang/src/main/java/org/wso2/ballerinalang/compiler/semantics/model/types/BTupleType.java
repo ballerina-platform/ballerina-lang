@@ -20,7 +20,6 @@ import org.ballerinalang.model.types.TupleType;
 import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
-import org.wso2.ballerinalang.compiler.util.TypeDescriptor;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 
 import java.util.List;
@@ -72,16 +71,6 @@ public class BTupleType extends BType implements TupleType {
     public String toString() {
         return "[" + tupleTypes.stream().map(BType::toString).collect(Collectors.joining(","))
                 + ((restType != null) ? (tupleTypes.size() > 0 ? "," : "") + restType.toString() + "...]" : "]");
-    }
-
-    @Override
-    public String getDesc() {
-        if (tupleTypes.size() > 1) {
-            StringBuilder sig = new StringBuilder(TypeDescriptor.SIG_TUPLE + tupleTypes.size() + ";");
-            tupleTypes.forEach(memberType -> sig.append(memberType.getDesc()));
-            return sig.toString();
-        }
-        return tupleTypes.get(0).getDesc();
     }
 
     @Override
