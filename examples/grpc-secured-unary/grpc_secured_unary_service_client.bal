@@ -1,4 +1,5 @@
 // This is the client implementation for the secured connection (HTTPS) scenario.
+import ballerina/config;
 import ballerina/grpc;
 import ballerina/io;
 
@@ -7,7 +8,7 @@ public function main() {
     HelloWorldBlockingClient helloWorldBlockingEp = new ("https://localhost:9090", {
             secureSocket: {
                 trustStore: {
-                    path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
+                    path: config:getAsString("b7a.home") + "/bre/security/ballerinaTruststore.p12",
                     password: "ballerina"
                 }
             }

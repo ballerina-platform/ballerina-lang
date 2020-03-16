@@ -7,5 +7,5 @@
 # Execute the following command to build the 'service' module.
 $ ballerina build service
 
-# Run the service using the following command.
-$ ballerina run target/bin/service.jar
+# Run the service using the following command and passing Ballerina home path as system property.
+$ ballerina run target/bin/service.jar --b7a.home=<ballerina_home_path>
