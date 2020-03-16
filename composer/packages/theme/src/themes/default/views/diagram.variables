@@ -55,6 +55,8 @@
 @dark-diagram-panel-body-background-color: @dark-diagram-background-color;
 @light-diagram-expanded-func-frame-color: @purple;
 @dark-diagram-expanded-func-frame-color: @purple;
+@light-diagram-expanded-hidden-block-frame-color: @light-gray;
+@dark-diagram-expanded-hidden-block-frame-color: @light-gray;
 @light-diagram-collapse-func-color: #aaa;
 @dark-diagram-collapse-func-color: #aaa;
 
