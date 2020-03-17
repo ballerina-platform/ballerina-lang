@@ -17,6 +17,8 @@
  */
 package org.ballerinalang.test.runtime.util;
 
+import org.ballerinalang.jvm.util.RuntimeUtils;
+import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.test.runtime.BTestRunner;
 import org.ballerinalang.test.runtime.entity.TestSuite;
 
@@ -71,9 +73,12 @@ public class TesterinaUtils {
             if (testRunner.getTesterinaReport().isFailure()) {
                 throw new RuntimeException("there are test failures");
             }
-        } catch (Throwable e) {
+        } catch (BallerinaException e) {
             errStream.println("error: " + e.getMessage());
             throw e;
+        } catch (Throwable e) {
+            RuntimeUtils.silentlyLogBadSad(e);
+            throw new RuntimeException("test execution failed due to runtime exception");
         }
     }
 
