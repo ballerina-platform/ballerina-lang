@@ -52,11 +52,13 @@ public class SyntaxTreeJSONGenerator {
 
     public static void main(String[] args) throws IOException {
         // Using a string source as input
-        // generateJSON("a 7", ParserRuleContext.EXPRESSION);
+        byte[] bytes = Files.readAllBytes(RESOURCE_DIRECTORY.resolve("test1.bal"));
+        String content = new String(bytes, StandardCharsets.UTF_8);
+         generateJSON(content, ParserRuleContext.STATEMENT);
 
         // Using a file source as input
-        String path = "test1.bal";
-        generateJSON(Paths.get(path));
+//        String path = "test1.bal";
+//        generateJSON(Paths.get(path));
     }
 
     private static void generateJSON(Path sourceFilePath) throws IOException {

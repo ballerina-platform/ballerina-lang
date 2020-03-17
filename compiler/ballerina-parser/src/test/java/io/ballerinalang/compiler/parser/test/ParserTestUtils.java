@@ -285,6 +285,14 @@ public class ParserTestUtils {
                 return SyntaxKind.STRING_LITERAL_TOKEN;
             case "NUMERIC_LITERAL_TOKEN":
                 return SyntaxKind.NUMERIC_LITERAL_TOKEN;
+            case "FUNCTION_CALL":
+                return SyntaxKind.FUNCTION_CALL;
+            case "POSITIONAL_ARG":
+                return SyntaxKind.POSITIONAL_ARG;
+            case "NAMED_ARG":
+                return SyntaxKind.NAMED_ARG;
+            case "REST_ARG":
+                return SyntaxKind.REST_ARG;
 
             // Statements
             case "BLOCK_STATEMENT":
