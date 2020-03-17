@@ -647,8 +647,8 @@ public class Desugar extends BLangNodeVisitor {
 
         pkgNode.functions = rewrite(pkgNode.functions, env);
 
-        serviceDesugar.rewriteListeners(pkgNode.globalVars, env);
-        serviceDesugar.rewriteServiceAttachments(serviceAttachments, env);
+        serviceDesugar.rewriteListeners(pkgNode.globalVars, env, pkgNode.startFunction, pkgNode.stopFunction);
+        ASTBuilderUtil.appendStatements(serviceAttachments, (BLangBlockFunctionBody) pkgNode.initFunction.body);
 
         addNilReturnStatement((BLangBlockFunctionBody) pkgNode.startFunction.body);
         addNilReturnStatement((BLangBlockFunctionBody) pkgNode.stopFunction.body);
