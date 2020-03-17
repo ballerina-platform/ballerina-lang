@@ -146,7 +146,7 @@ public class GenerateBalo {
 
     private static void printErrors(boolean reportWarnings, CompileResult.CompileResultDiagnosticListener diagListner,
                                     List<Diagnostic> diagnostics) {
-        if (diagListner.getErrorCount() > 0 || (reportWarnings && diagListner.getWarnCount() > 0)) {
+        if (diagListner.getErrorCount() > 0) {
             StringJoiner sj = new StringJoiner("\n  ");
             diagnostics.forEach(e -> sj.add(e.toString()));
             String warnMsg = reportWarnings ? " and " + diagListner.getWarnCount() + " warning(s)" : "";
