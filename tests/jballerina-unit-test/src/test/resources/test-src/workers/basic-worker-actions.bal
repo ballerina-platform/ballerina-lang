@@ -1,6 +1,6 @@
 import ballerina/io;
 import ballerina/runtime;
-import ballerinax/java;
+import ballerina/java;
 
 function workerDeclTest() {
      int a = 20;
