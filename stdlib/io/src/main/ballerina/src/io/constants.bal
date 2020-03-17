@@ -14,32 +14,32 @@
 // specific language governing permissions and limitations
 // under the License.
 
-# Format which will be used to represent the CSV.
+# The format, which will be used to represent the CSV.
 #
-# DEFAULT - Would default to the format specified by CSVChannel. Precedence will be given to field
+# DEFAULT - The default value is the format specified by the CSVChannel. Precedence will be given to the field
 #           separator and record separator.
 #
-# CSV - Field separator would be "," and the record separator would be new line.
+# CSV - Field separator will be "," and the record separator will be a new line.
 #
-# TDF - Field separator will be tab and record separator will be new line.
+# TDF - Field separator will be a tab and record separator will be a new line.
 public type Format DEFAULT|CSV|TDF;
 
-#  Would default to the format specified by CSVChannel. Precedence will be given to field separator and record separator.
+#  Default value is the format specified by the CSVChannel. Precedence will be given to the field separator and record separator.
 public const DEFAULT = "default";
 
-# Field separator would be "," and the record separator would be new line.
+# Field separator will be "," and the record separator will be a new line.
 public const CSV = "csv";
 
-# Field separator will be tab and record separator will be new line.
+# Field separator will be a tab and the record separator will be a new line.
 public const TDF = "tdf";
 
-# Field separators which are supported by DelimitedTextRecordChannel.
+# Field separators, which are supported by the `DelimitedTextRecordChannel`.
 #
-# COMMA - Delimited text records would be separated using a comma.
+# COMMA - Delimited text records will be separated using a comma.
 #
-# TAB - Delimited text records would be separated using a tab.
+# TAB - Delimited text records will be separated using a tab.
 #
-# COLON - Delimited text records would be separated using a colon(:).
+# COLON - Delimited text records will be separated using a colon(:).
 public type Separator COMMA|TAB|COLON|string;
 
 # Comma (,) will be used as the field separator.
