@@ -21,7 +21,10 @@ apply from: "$rootDir/gradle/baseNativeStdLibProject.gradle"
 configurations.all {
     resolutionStrategy.preferProjectModules()
 }
-
+test{
+	exclude "org/ballerinalang/mysql/init/ConnectionInitSSLTest.class"
+	exclude "org/ballerinalang/mysql/init/ConnectionInitTest.class"
+}
 dependencies {
     baloImplementation project(path: ':ballerina-lang:annotations', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-config-api', configuration: 'baloImplementation')

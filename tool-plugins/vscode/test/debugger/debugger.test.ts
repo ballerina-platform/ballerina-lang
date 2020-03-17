@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  *
- */
+ //@
 
 // The module 'assert' provides assertion methods from node
 
@@ -222,3 +222,4 @@ suite('Ballerina Debug Adapter', () => {
     });
 
 });
+*/

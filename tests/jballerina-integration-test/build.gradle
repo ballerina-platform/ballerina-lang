@@ -162,6 +162,8 @@ task createBre(type: org.gradle.api.tasks.Copy) {
 }
 
 test {
+	exclude "org/ballerinalang/test/service/resiliency/HttpResiliencyTest.java"
+	exclude "org/ballerinalang/test/service/http/sample/RedirectTestCase.class"
     // make sure ballerina zip is built before test run
     dependsOn ':jballerina-tools:build'
     systemProperty 'enableJBallerinaTests', 'true'

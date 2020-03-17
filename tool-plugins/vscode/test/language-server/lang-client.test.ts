@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  *
- */
+ //@
 
 import { expect } from 'chai';
 import * as path from 'path';
@@ -86,4 +86,5 @@ suite("Language Server Tests", function () {
         });
     });
 });
+*/
 

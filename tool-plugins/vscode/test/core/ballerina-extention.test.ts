@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  *
- */
+ //@
 
 // The module 'assert' provides assertion methods from node
 import * as assert from 'assert';
@@ -66,3 +66,4 @@ suite("Ballerina Extension Core Tests", function () {
         assert(ballerinaExtInstance.compareVersions("0.100.0", "1.100-r1") < 0);
     });
 });
+*/
