@@ -1,0 +1,30 @@
+# To run this sample, navigate to the directory that contains the
+# `.bal` file, and execute the `ballerina run` command.
+$ ballerina run threads-and-strands.bal
+--- case 1 ---
+Before the wait action
+Multiplying 1 * 2
+After the wait action
+
+--- case 2 ---
+Multiplying 1 * 2
+Before the wait action
+After the wait action
+
+--- case 3 ---
+Multiplying 1 * 2
+Multiplying 4 * 5
+Before the wait action
+After the wait action
+
+--- case 4 ---
+Multiplying 1 * 2
+Before the wait action
+Multiplying 4 * 5
+After the wait action
+
+--- case 5 ---
+Before the wait action
+Multiplying 4 * 5
+Multiplying 1 * 2
+After the wait action

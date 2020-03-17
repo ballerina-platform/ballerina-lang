@@ -40,7 +40,7 @@ service cachingProxy on new http:Listener(9090) {
             // caller.
             http:Response res = new;
             res.statusCode = 500;
-            res.setPayload(response.reason());
+            res.setPayload(<string>response.detail()?.message);
             var result = caller->respond(res);
             if (result is error) {
                 log:printError("Failed to respond to the caller", result);

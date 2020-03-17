@@ -1,9 +1,9 @@
-# Since resource configuration has overridden the required scopes to denote that
+# Since the resource configuration has overridden the required scopes to denote that
 # `scope2` is required to invoke `sayHello` resource, the invocation will fail
-# authorization.
-$ curl -k -u generalUser1:password https://localhost:9090/hello/sayHello
+# during authorization.
+$ curl -k -u alice:password1 https://localhost:9090/hello/sayHello
 Authorization failure
 
-# Since `generalUser2` has `scope2` the invocation will succeeded.
-$ curl -k -u generalUser2:password https://localhost:9090/hello/sayHello
+# Since `bob` has `scope2`, the invocation will succeed.
+$ curl -k -u bob:password2 https://localhost:9090/hello/sayHello
 Hello, World!!!

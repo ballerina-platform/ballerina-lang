@@ -53,12 +53,23 @@
                 "url": "functions-with-rest-parameter"
             },
             {
-                "name": "Documentation",
-                "url": "documentation"
-            },
-            {
                 "name": "Quoted Identifiers",
                 "url": "quoted-identifiers"
+            }
+        ]
+    },
+    {
+        "title": "Documentation",
+        "column": 0,
+        "category": "Language concepts",
+        "samples": [
+            {
+                "name": "Basic documentation",
+                "url": "basic-documentation"
+            },
+            {
+                "name": "Deprecation",
+                "url": "deprecation"
             }
         ]
     },
@@ -193,6 +204,10 @@
             {
                 "name": "String Template Literal",
                 "url": "string-template"
+            },
+            {
+                "name": "Let Expression",
+                "url": "let-expression"
             }
         ]
     },
@@ -440,7 +455,21 @@
             {
                 "name": "Async",
                 "url": "async"
+            },
+            {
+                "name": "Threads and Strands",
+                "url": "threads-and-strands"
             }
+        ]
+    },
+    {
+        "title": "Lock",
+        "column": 2,
+        "category": "Language concepts",
+        "samples": [{
+            "name": "Lock",
+            "url": "locks"
+        }
         ]
     },
     {
@@ -1046,8 +1075,8 @@
                 "url": "secured-service-with-basic-auth"
             },
             {
-                "name": "Secured Service with JWT",
-                "url": "secured-service-with-jwt"
+                "name": "Secured Service with JWT Auth",
+                "url": "secured-service-with-jwt-auth"
             },
             {
                 "name": "Secured Service with OAuth2",
@@ -1078,44 +1107,8 @@
         ]
     },
     {
-        "title": "Streams",
-        "column": 0,
-        "category": "Preview features",
-        "samples": [
-            {
-                "name": "Streams",
-                "url": "streams"
-            }
-        ]
-    },
-    {
-        "title": "Query",
-        "column": 1,
-        "category": "Preview features",
-        "samples": [
-            {
-                "name": "Query Expression",
-                "url": "query-expression"
-            },
-            {
-                "name": "Query Action",
-                "url": "query-action"
-            }
-        ]
-    },
-    {
-        "title": "Lock",
-        "column": 0,
-        "category": "Experimental features",
-        "samples": [{
-            "name": "Lock",
-            "url": "locks"
-        }
-        ]
-    },
-    {
         "title": "Transactions",
-        "column": 2,
+        "column": 0,
         "category": "Experimental features",
         "samples": [{
                 "name": "Local Transactions",
@@ -1132,6 +1125,52 @@
             {
                 "name": "Distributed Transactions",
                 "url": "transactions-distributed"
+            }
+        ]
+    },
+    {
+        "title": "JDBC Database Connector",
+        "column": 0,
+        "category": "Preview features",
+        "samples": [
+            {
+                "name": "JDBC Client Initialization",
+                "url": "jdbc2-init-options"
+            },
+            {
+                "name": "JDBC Select Query Operations",
+                "url": "jdbc2-query-operation"
+            },
+            {
+                "name": "JDBC Query with Complex Types",
+                "url": "jdbc2-complex-type-queries"
+            },
+            {
+                "name": "JDBC DDL and DML Operations",
+                "url": "jdbc2-execute-operation"
+            }
+        ]
+    },
+    {
+        "title": "MySQL Database Connector",
+        "column": 1,
+        "category": "Preview features",
+        "samples": [
+            {
+                "name": "MySQL Client Initialization",
+                "url": "mysql-init-options"
+            },
+            {
+                "name": "MySQL Select Query Operations",
+                "url": "mysql-query-operation"
+            },
+            {
+                "name": "MySQL Query with Complex Types",
+                "url": "mysql-complex-type-queries"
+            },
+            {
+                "name": "MySQL DDL and DML Operations",
+                "url": "mysql-execute-operation"
             }
         ]
     }

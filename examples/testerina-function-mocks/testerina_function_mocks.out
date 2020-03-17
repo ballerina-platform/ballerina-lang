@@ -2,14 +2,19 @@
 # `.bal` file, and execute the `ballerina test` command.
 # Note that you need to have the ballerina-tools distribution
 # installed in order to run this command.
-$ ballerina test testerina_function_mocks.bal
-Compiling tests
-    testerina_function_mocks.bal
+# Function mocking is not supported for testing single BAL files.
+$ ballerina test test_module
+Compiling source
+    ballerinatest/test_module:0.1.0
+
+Creating balos
+    target/balo/test_module-2020r1-any-0.1.0.balo
 
 Running tests
-    testerina_function_mocks.bal
+    ballerinatest/test_module:0.1.0
 I'm the mock function!
 Function mocking test
+
         [pass] testAssertIntEquals
 
         1 passing

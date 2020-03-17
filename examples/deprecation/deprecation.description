@@ -1,0 +1,4 @@
+// In Ballerina, type definitions, functions, object methods, and constants can be deprecated using the `@deprecated` annotation.
+// The compiler will generate warnings if a user uses a deprecated construct. If the deprecated construct contains documentation,
+// the user has to add some additional documentation called `Deprecated` documentation.
+// The `Deprecated` documentation should ideally include details on why the construct was deprecated and suitable alternate options, which should be used instead.

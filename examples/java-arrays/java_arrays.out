@@ -3,4 +3,3 @@
 $ ballerina run java_arrays.bal
 2
 world
-
