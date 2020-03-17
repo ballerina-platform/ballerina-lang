@@ -16,7 +16,7 @@ public function case1() {
     io:println("After the wait action\n");
 }
 
-// This function creates a new strand, and it should be in a separate thread from the current strand.
+// This function creates a new strand and it should be in a separate thread from the current strand.
 // The usage of the `@strand` annotation with the `thread` field value "any" enforces this behavior.
 public function case2() {
     // This new strand does not belong to the thread executing the current strand.
