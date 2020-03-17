@@ -1,6 +1,6 @@
 import ballerina/io;
 
-// This function creates a new strand that belongs to the same
+// This function creates a new strand, which belongs to the same
 // thread as the current strand.
 public function case1() {
     // Execution of the `start` action causes the creation of a new strand here, and
