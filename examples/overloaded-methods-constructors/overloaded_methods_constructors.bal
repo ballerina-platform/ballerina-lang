@@ -1,5 +1,5 @@
 import ballerina/io;
-import ballerinax/java;
+import ballerina/java;
 
 // This Ballerina function invokes the `java.lang.StringBuffer` constructor that takes a
 // `java.lang.String` as an argument. The `java.lang.StringBuffer` class has other overloaded

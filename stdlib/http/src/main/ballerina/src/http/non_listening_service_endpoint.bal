@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerinax/java;
+import ballerina/java;
 import ballerina/lang.'object as lang;
 
 # Mock server endpoint which does not open a listening port.

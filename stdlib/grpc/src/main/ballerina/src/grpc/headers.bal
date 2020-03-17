@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerinax/java;
+import ballerina/java;
 
 # Provides actions to read/write header values in gRPC request/response message.
 public type Headers object {
