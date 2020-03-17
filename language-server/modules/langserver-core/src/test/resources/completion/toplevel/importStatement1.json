@@ -22,11 +22,11 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "ballerina/java",
+      "label": "ballerinax/java",
       "kind": "Module",
       "detail": "Module",
       "sortText": "120",
-      "insertText": "ballerina/java",
+      "insertText": "ballerinax/java",
       "insertTextFormat": "Snippet"
     },
     {
