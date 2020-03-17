@@ -55,6 +55,7 @@ import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BALLERINA
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_COMPILED_JAR_EXT;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_COMPILED_PKG_BINARY_EXT;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_COMPILED_PKG_BIR_EXT;
+import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.DIST_BIR_CACHE_DIR_NAME;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.TARGET_DIR_NAME;
 import static org.wso2.ballerinalang.util.RepoUtils.BALLERINA_INSTALL_DIR_PROP;
 
@@ -272,7 +273,7 @@ public class BuildContext extends HashMap<BuildContextField, Object> {
     }
     
     public Path getSystemRepoBirCache() {
-        return Paths.get(System.getProperty(BALLERINA_INSTALL_DIR_PROP)).resolve("bir-cache");
+        return Paths.get(System.getProperty(BALLERINA_INSTALL_DIR_PROP)).resolve(DIST_BIR_CACHE_DIR_NAME);
     }
     
     public Path getHomeRepoDir() {

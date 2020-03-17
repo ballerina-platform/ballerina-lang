@@ -22,7 +22,7 @@ string password = "test123";
 string database = "TEST_SQL_NUMERIC_SELECT";
 int port = 3305;
 
-function testQuery() returns record {}|error? {
+function testQuery() returns @tainted record {}|error? {
     mysql:Client dbClient = check new (host, user, password, database, port);
     stream<record{}, sql:Error> streamData = dbClient->query("SELECT * FROM NumericTypes");
     record {}? returnData = ();
@@ -46,7 +46,7 @@ type NumericType record {
     float real_type;
 };
 
-function testQueryNumericTypeRecord() returns NumericType|error? {
+function testQueryNumericTypeRecord() returns @tainted NumericType|error? {
     mysql:Client dbClient = check new (host, user, password, database, port);
     stream<record{}, error> streamResult = dbClient->query("SELECT * FROM NumericTypes", NumericType);
     stream<NumericType, sql:Error> streamData = <stream<NumericType, sql:Error>>streamResult;
@@ -71,7 +71,7 @@ type NumericInvalidColumn record {
     float real_type;
 };
 
-function testQueryNumericInvalidColumnRecord() returns error? {
+function testQueryNumericInvalidColumnRecord() returns @tainted error? {
     mysql:Client dbClient = check new (host, user, password, database, port);
     stream<record{}, error> streamResult = dbClient->query("SELECT * FROM NumericTypes", NumericInvalidColumn);
     stream<NumericInvalidColumn, sql:Error> streamData = <stream<NumericInvalidColumn, sql:Error>>streamResult;
@@ -94,7 +94,7 @@ type NumericOptionalType record {
     float? real_type;
 };
 
-function testQueryNumericOptionalTypeRecord() returns NumericOptionalType|error? {
+function testQueryNumericOptionalTypeRecord() returns @tainted NumericOptionalType|error? {
     mysql:Client dbClient = check new (host, user, password, database, port);
     stream<record{}, error> streamResult = dbClient->query("SELECT * FROM NumericTypes", NumericOptionalType);
     stream<NumericOptionalType, sql:Error> streamData = <stream<NumericOptionalType, sql:Error>>streamResult;
@@ -118,7 +118,7 @@ type NumericUnionType record {
     decimal|float? real_type;
 };
 
-function testQueryNumericUnionTypeRecord() returns NumericUnionType|error? {
+function testQueryNumericUnionTypeRecord() returns @tainted NumericUnionType|error? {
     mysql:Client dbClient = check new (host, user, password, database, port);
     stream<record{}, error> streamResult = dbClient->query("SELECT * FROM NumericTypes", NumericUnionType);
     stream<NumericUnionType, sql:Error> streamData = <stream<NumericUnionType, sql:Error>>streamResult;
@@ -142,7 +142,7 @@ type NumericStringType record {
     string? real_type;
 };
 
-function testQueryNumericStringTypeRecord() returns NumericStringType|error? {
+function testQueryNumericStringTypeRecord() returns @tainted NumericStringType|error? {
     mysql:Client dbClient = check new (host, user, password, database, port);
     stream<record{}, error> streamResult = dbClient->query("SELECT * FROM NumericTypes", NumericStringType);
     stream<NumericStringType, sql:Error> streamData = <stream<NumericStringType, sql:Error>>streamResult;
@@ -168,7 +168,7 @@ type NumericCustomType record {
     CustomType real_type;
 };
 
-function testQueryNumericCustomTypeRecord() returns NumericCustomType|error? {
+function testQueryNumericCustomTypeRecord() returns @tainted NumericCustomType|error? {
     mysql:Client dbClient = check new (host, user, password, database, port);
     stream<record{}, error> streamResult = dbClient->query("SELECT * FROM NumericTypes", NumericCustomType);
     stream<NumericCustomType, sql:Error> streamData = <stream<NumericCustomType, sql:Error>>streamResult;
@@ -179,7 +179,7 @@ function testQueryNumericCustomTypeRecord() returns NumericCustomType|error? {
     return numericType;
 }
 
-function testQueryFromNullTable() returns record {}[]|error? {
+function testQueryFromNullTable() returns @tainted record {}[]|error? {
     mysql:Client dbClient = check new (host, user, password, database, port);
     stream<record{}, sql:Error> streamData = dbClient->query("SELECT * FROM NumericNullTypes");
     record {}[] returnData = [];

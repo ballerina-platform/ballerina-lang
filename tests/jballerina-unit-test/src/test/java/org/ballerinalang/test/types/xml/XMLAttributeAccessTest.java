@@ -41,26 +41,26 @@ public class XMLAttributeAccessTest {
         lexCompileRes = BCompileUtil.compile("test-src/types/xml/xml-attribute-access-lax-behavior.bal");
     }
 
-    @Test (groups = "brokenOnXMLLangLibChange")
+    @Test
     public void testBasicAttributeAccessSyntax() {
         BValue[] result = BRunUtil.invoke(compileResult, "getElementAttrBasic");
         Assert.assertEquals(result[0].stringValue(), "attr-val");
     }
 
-    @Test (groups = "brokenOnXMLLangLibChange")
+    @Test
     public void testAttributeAccessSyntaxWithNS() {
         BValue[] result = BRunUtil.invoke(compileResult, "getElementAttrWithNSPrefix");
         Assert.assertEquals(result[0].stringValue(), "attr-with-ns-val");
     }
 
-    @Test (groups = "brokenOnXMLLangLibChange")
+    @Test
     public void testGetAttrOfASequence() {
         BValue[] result = BRunUtil.invoke(compileResult, "getAttrOfASequence");
         Assert.assertEquals(result[0].stringValue(),
                 "{ballerina/lang.xml}XMLOperationError {message:\"Invalid xml attribute access on xml sequence\"}");
     }
 
-    @Test (groups = "brokenOnXMLLangLibChange")
+    @Test
     public void testXMLAttributeAccessNegative() {
         CompileResult negative = BCompileUtil.compile("test-src/types/xml/xml-attribute-access-syntax-neg.bal");
         Assert.assertEquals(negative.getErrorCount(), 2);
@@ -88,6 +88,15 @@ public class XMLAttributeAccessTest {
     public void testXMLASMapContentInvalidKey() {
         BValue[] result = BRunUtil.invoke(lexCompileRes, "testXMLASMapContentInvalidKey");
         Assert.assertEquals(result[0].stringValue(), "{lang.map}InvalidKey {key:\"b\"}");
+    }
+
+    @Test
+    public void testXMLDirectAttributeAccess() {
+        BValue[] result = BRunUtil.invoke(lexCompileRes, "testXMLDirectAttributeAccess");
+        Assert.assertTrue(((BBoolean) result[0]).booleanValue());
+        Assert.assertTrue(((BBoolean) result[0]).booleanValue());
+        Assert.assertTrue(((BBoolean) result[0]).booleanValue());
+        Assert.assertTrue(((BBoolean) result[0]).booleanValue());
     }
 
 }

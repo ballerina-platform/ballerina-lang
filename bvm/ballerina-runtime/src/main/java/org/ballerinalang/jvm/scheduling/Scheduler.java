@@ -31,14 +31,16 @@ import org.ballerinalang.jvm.values.connector.CallableUnitCallback;
 import java.io.PrintStream;
 import java.util.Map;
 import java.util.Set;
+import java.util.Stack;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.Semaphore;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
-import static org.ballerinalang.jvm.scheduling.SchedulerItem.POISON_PILL;
+import static org.ballerinalang.jvm.scheduling.ItemGroup.POISON_PILL;
 
 /**
  * Strand scheduler for JBallerina.
@@ -56,7 +58,7 @@ public class Scheduler {
     /**
      * Strands that are ready for execution.
      */
-    private BlockingQueue<SchedulerItem> runnableList = new LinkedBlockingDeque<>();
+    private BlockingQueue<ItemGroup> runnableList = new LinkedBlockingDeque<>();
 
     private static final ThreadLocal<StrandHolder> strandHolder = ThreadLocal.withInitial(StrandHolder::new);
 
@@ -101,8 +103,40 @@ public class Scheduler {
         return strand;
     }
 
+    /**
+     * Schedules given function by creating a new strand group.
+     *
+     * @param params parameters to underlying function.
+     * @param fp function ponter to be executed.
+     * @param parent parent of the new Strand that get created here.
+     * @param returnType return type of the function.
+     * @return {@link FutureValue} reference to the given function pointer invocation.
+     */
     public FutureValue scheduleFunction(Object[] params, FPValue<?, ?> fp, Strand parent, BType returnType) {
         return schedule(params, fp.getFunction(), parent, null, null, returnType);
+    }
+
+    /**
+     * Schedules given function to the callers strand group.
+     *
+     * @param params parameters to underlying function.
+     * @param fp function to be executed.
+     * @param parent parent of the new Strand that get created here.
+     * @param returnType return type of the function.
+     * @return {@link FutureValue} reference to the given function invocation.
+     */
+    public FutureValue scheduleLocal(Object[] params, FPValue<?, ?> fp, Strand parent, BType returnType) {
+        FutureValue future = createFuture(parent, null, null, returnType);
+        params[0] = future.strand;
+        SchedulerItem item = new SchedulerItem(fp.getFunction(), params, future);
+        future.strand.schedulerItem = item;
+        totalStrands.incrementAndGet();
+        future.strand.strandGroup = parent.strandGroup;
+        parent.strandGroup.add(item);
+        if (parent.strandGroup.scheduled.compareAndSet(false, true)) {
+            runnableList.add(future.strand.strandGroup);
+        }
+        return future;
     }
 
     @Deprecated
@@ -146,7 +180,10 @@ public class Scheduler {
         SchedulerItem item = new SchedulerItem(function, params, future);
         future.strand.schedulerItem = item;
         totalStrands.incrementAndGet();
-        runnableList.add(item);
+        ItemGroup group = new ItemGroup(item);
+        future.strand.strandGroup = group;
+        group.scheduled.set(true);
+        runnableList.add(group);
         return future;
     }
 
@@ -166,7 +203,10 @@ public class Scheduler {
         SchedulerItem item = new SchedulerItem(consumer, params, future);
         future.strand.schedulerItem = item;
         totalStrands.incrementAndGet();
-        runnableList.add(item);
+        ItemGroup group = new ItemGroup(item);
+        future.strand.strandGroup = group;
+        group.scheduled.set(true);
+        runnableList.add(group);
         return future;
     }
 
@@ -200,117 +240,131 @@ public class Scheduler {
     private void run() {
         while (true) {
             SchedulerItem item;
+            ItemGroup group;
             try {
-                item = runnableList.take();
+                group = runnableList.take();
             } catch (InterruptedException ignored) {
                 continue;
             }
 
-            if (item == POISON_PILL) {
+            if (group == POISON_PILL) {
                 this.mainBlockSem.release();
                 break;
             }
 
-            Object result = null;
-            Throwable panic = null;
-            try {
-                strandHolder.get().strand = item.future.strand;
-                result = item.execute();
-            } catch (Throwable e) {
-                panic = createError(e);
-                notifyChannels(item, panic);
-              
-                if (!(panic instanceof ErrorValue)) {
-                    RuntimeUtils.printCrashLog(panic);
-                }
-                // Please refer #18763.
-                // This logs cases where errors have occurred while strand is blocked.
-                if (item.isYielded()) {
-                    RuntimeUtils.printCrashLog(panic);
-                }
-            } finally {
-                strandHolder.get().strand = null;
-            }
+            while (!group.items.empty()) {
+                Object result = null;
+                Throwable panic = null;
 
-            switch (item.getState()) {
-                case BLOCK_AND_YIELD:
-                    item.future.strand.lock();
-                    // need to recheck due to concurrency, unblockStrand() may have changed state
-                    if (item.getState().getStatus() == State.YIELD.getStatus()) {
-                        reschedule(item);
-                        item.future.strand.unlock();
-                        break;
+                item = group.get();
+
+                try {
+                    strandHolder.get().strand = item.future.strand;
+                    result = item.execute();
+                } catch (Throwable e) {
+                    panic = createError(e);
+                    notifyChannels(item, panic);
+
+                    if (!(panic instanceof ErrorValue)) {
+                        RuntimeUtils.printCrashLog(panic);
                     }
-                    item.parked = true;
+                    // Please refer #18763.
+                    // This logs cases where errors have occurred while strand is blocked.
+                    if (item.isYielded()) {
+                        RuntimeUtils.printCrashLog(panic);
+                    }
+                } finally {
+                    strandHolder.get().strand = null;
+                }
+
+                postProcess(item, result, panic);
+            }
+            group.scheduled.set(false);
+        }
+    }
+
+    /**
+     * Processes the item after executing for notifying blocked items etc.
+     */
+    private void postProcess(SchedulerItem item, Object result, Throwable panic) {
+        switch (item.getState()) {
+            case BLOCK_AND_YIELD:
+                item.future.strand.lock();
+                // need to recheck due to concurrency, unblockStrand() may have changed state
+                if (item.getState().getStatus() == State.YIELD.getStatus()) {
+                    reschedule(item);
                     item.future.strand.unlock();
                     break;
-                case BLOCK_ON_AND_YIELD:
-                    WaitContext waitContext = item.future.strand.waitContext;
-                    waitContext.lock();
-                    waitContext.intermediate = false;
-                    if (waitContext.runnable) {
-                        waitContext.completed = true;
-                        reschedule(item);
-                    }
-                    waitContext.unLock();
-                    break;
-                case YIELD:
+                }
+                item.parked = true;
+                item.future.strand.unlock();
+                break;
+            case BLOCK_ON_AND_YIELD:
+                WaitContext waitContext = item.future.strand.waitContext;
+                waitContext.lock();
+                waitContext.intermediate = false;
+                if (waitContext.runnable) {
+                    waitContext.completed = true;
                     reschedule(item);
-                    break;
-                case RUNNABLE:
-                    item.future.result = result;
-                    item.future.isDone = true;
-                    item.future.panic = panic;
-                    // TODO clean, better move it to future value itself
-                    if (item.future.callback != null) {
-                        if (item.future.panic != null) {
-                            item.future.callback.notifyFailure(BallerinaErrors.createError(panic));
-                            if (item.future.strand.transactionLocalContext != null) {
-                                item.future.strand.transactionLocalContext.notifyLocalRemoteParticipantFailure();
-                            }
-                        } else {
-                            item.future.callback.notifySuccess();
+                }
+                waitContext.unLock();
+                break;
+            case YIELD:
+                reschedule(item);
+                break;
+            case RUNNABLE:
+                item.future.result = result;
+                item.future.isDone = true;
+                item.future.panic = panic;
+                // TODO clean, better move it to future value itself
+                if (item.future.callback != null) {
+                    if (item.future.panic != null) {
+                        item.future.callback.notifyFailure(BallerinaErrors.createError(panic));
+                        if (item.future.strand.transactionLocalContext != null) {
+                            item.future.strand.transactionLocalContext.notifyLocalRemoteParticipantFailure();
                         }
+                    } else {
+                        item.future.callback.notifySuccess();
                     }
+                }
 
-                    Strand justCompleted = item.future.strand;
-                    assert !justCompleted.getState().equals(State.DONE) : "Can't be completed twice";
+                Strand justCompleted = item.future.strand;
+                assert !justCompleted.getState().equals(State.DONE) : "Can't be completed twice";
 
-                    justCompleted.setState(State.DONE);
+                justCompleted.setState(State.DONE);
 
 
-                    for (WaitContext ctx : justCompleted.waitingContexts) {
-                        ctx.lock();
-                        if (!ctx.completed) {
-                            if ((item.future.panic != null && ctx.handlePanic()) || ctx.waitCompleted(result)) {
-                                if (ctx.intermediate) {
-                                    ctx.runnable = true;
-                                } else {
-                                    ctx.completed = true;
-                                    reschedule(ctx.schedulerItem);
-                                }
-                            }
-                        }
-                        ctx.unLock();
-                    }
-
-                    cleanUp(justCompleted);
-
-                    int strandsLeft = totalStrands.decrementAndGet();
-                    if (strandsLeft == 0) {
-                        // (number of started stands - finished stands) = 0, all the work is done
-                        assert runnableList.size() == 0;
-
-                        if (!immortal) {
-                            for (int i = 0; i < numThreads; i++) {
-                                runnableList.add(POISON_PILL);
+                for (WaitContext ctx : justCompleted.waitingContexts) {
+                    ctx.lock();
+                    if (!ctx.completed) {
+                        if ((item.future.panic != null && ctx.handlePanic()) || ctx.waitCompleted(result)) {
+                            if (ctx.intermediate) {
+                                ctx.runnable = true;
+                            } else {
+                                ctx.completed = true;
+                                reschedule(ctx.schedulerItem);
                             }
                         }
                     }
-                    break;
-                default:
-                    assert false : "illegal strand state during execute " + item.getState();
-            }
+                    ctx.unLock();
+                }
+
+                cleanUp(justCompleted);
+
+                int strandsLeft = totalStrands.decrementAndGet();
+                if (strandsLeft == 0) {
+                    // (number of started stands - finished stands) = 0, all the work is done
+                    assert runnableList.size() == 0;
+
+                    if (!immortal) {
+                        for (int i = 0; i < numThreads; i++) {
+                            runnableList.add(POISON_PILL);
+                        }
+                    }
+                }
+                break;
+            default:
+                assert false : "illegal strand state during execute " + item.getState();
         }
     }
 
@@ -364,11 +418,19 @@ public class Scheduler {
     }
 
     private void reschedule(SchedulerItem item) {
-            if (!item.getState().equals(State.RUNNABLE)) {
-                // release if the same strand is waiting for others as well (wait multiple)
-                item.setState(State.RUNNABLE);
-                runnableList.add(item);
+        if (!item.getState().equals(State.RUNNABLE)) {
+            ItemGroup group = item.future.strand.strandGroup;
+            item.setState(State.RUNNABLE);
+            group.add(item);
+
+            // Group maybe not picked by any thread at the moment because,
+            //  1) All items are blocked.
+            //  2) All others have finished
+            // In this case we need to put it back in the runnable list.
+            if (group.scheduled.compareAndSet(false, true)) {
+                runnableList.add(group);
             }
+        }
     }
 
     private FutureValue createFuture(Strand parent, CallableUnitCallback callback, Map<String, Object> properties,
@@ -400,8 +462,6 @@ class SchedulerItem {
     final FutureValue future;
     boolean parked;
 
-    public static final SchedulerItem POISON_PILL = new SchedulerItem();
-
     public SchedulerItem(Function function, Object[] params, FutureValue future) {
         this.future = future;
         this.function = function;
@@ -416,10 +476,6 @@ class SchedulerItem {
             return null;
         };
         this.params = params;
-    }
-
-    private SchedulerItem() {
-        future = null;
     }
 
     public Object execute() {
@@ -441,5 +497,40 @@ class SchedulerItem {
     @Override
     public String toString() {
         return future == null ? "POISON_PILL" : String.valueOf(future.strand.hashCode());
+    }
+}
+
+/**
+ * Represents a group of {@link SchedulerItem} that should run on same thread.
+ */
+class ItemGroup {
+
+    /**
+     * Keep the list of items that should run on same thread.
+     * Using a stack to get advantage of the locality.
+     */
+    Stack<SchedulerItem> items = new Stack();
+
+    /**
+     * Indicates this item is already in runnable list/executing or not.
+     */
+    AtomicBoolean scheduled = new AtomicBoolean(false);
+
+    public static final ItemGroup POISON_PILL = new ItemGroup();
+
+    public ItemGroup(SchedulerItem item) {
+        items.push(item);
+    }
+
+    private ItemGroup() {
+        items = null;
+    }
+
+    public void add(SchedulerItem item) {
+        items.push(item);
+    }
+
+    public SchedulerItem get() {
+        return items.pop();
     }
 }

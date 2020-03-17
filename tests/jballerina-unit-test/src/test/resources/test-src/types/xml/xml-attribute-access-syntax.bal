@@ -22,5 +22,5 @@ function getElementAttrWithNSPrefix() returns string|error? {
 
 function usePredefinedXMLNamespace() returns string|error? {
     xml x = xml `<root xmlns="the-url" attr="the attr" xml:space="preserve"></root>`;
-    return x.'xml:attr;
+    return x.'xml:space;
 }

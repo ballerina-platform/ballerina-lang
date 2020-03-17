@@ -24,6 +24,11 @@ function testXMLAttributeWithNSPrefix() returns
     return [val, val2, val3];
 }
 
+function testXMLDirectAttributeAccess() returns [boolean, boolean, boolean, boolean] {
+    xml x = xml `<elem xmlns="ns-uri" attr="val" xml:space="default"></elem>`;
+    return [x.attr is string, x?.attr is string, x.attrNon is error, x?.attrNon is ()];
+}
+
 function getXMLMap() returns map<xml> {
     map<xml> xmap = {};
     xmap["a"] = xml `<elem attr="val"></elem>`;
