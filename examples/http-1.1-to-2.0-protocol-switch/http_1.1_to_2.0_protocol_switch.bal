@@ -25,7 +25,7 @@ service http11Service on new http:Listener(9090) {
             // Handle the errors that are returned when invoking the
             // `forward` function.
             response.statusCode = 500;
-            response.setPayload(<string>clientResponse.reason());
+            response.setPayload(<string>clientResponse.detail()?.message);
         }
         // Send the response back to the caller.
         var result = caller->respond(response);
