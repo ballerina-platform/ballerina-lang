@@ -28,6 +28,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 
 import java.io.BufferedInputStream;
@@ -73,22 +74,25 @@ public class AIDataMapperCodeAction extends AbstractCodeActionProvider {
             }
             int symbolAtCursorTag = refAtCursor.getSymbol().type.tag;
 
-            if (symbolAtCursorTag == 12) { // tag 12 is user defined records or non-primitive types (?)
-                String commandTitle = "AI Data Mapper";
-                CodeAction action = new CodeAction(commandTitle);
-                action.setKind(CodeActionKind.QuickFix);
-
-                String uri = context.get(DocumentServiceKeys.FILE_URI_KEY);
-                List<TextEdit> fEdits = getAIDataMapperCodeActionEdits(document, context, refAtCursor, diagnostic);
-                action.setEdit(new WorkspaceEdit(Collections.singletonList(Either.forLeft(
-                        new TextDocumentEdit(new VersionedTextDocumentIdentifier(uri, null), fEdits)))));
-                List<Diagnostic> diagnostics = new ArrayList<>();
-                action.setDiagnostics(diagnostics);
-                return action;
-            } else {
+            if (refAtCursor.getbLangNode().parent instanceof BLangFieldBasedAccess){
                 return null;
-            }
+            } else {
+                if (symbolAtCursorTag == 12) { // tag 12 is user defined records or non-primitive types (?)
+                    String commandTitle = "AI Data Mapper";
+                    CodeAction action = new CodeAction(commandTitle);
+                    action.setKind(CodeActionKind.QuickFix);
 
+                    String uri = context.get(DocumentServiceKeys.FILE_URI_KEY);
+                    List<TextEdit> fEdits = getAIDataMapperCodeActionEdits(document, context, refAtCursor, diagnostic);
+                    action.setEdit(new WorkspaceEdit(Collections.singletonList(Either.forLeft(
+                            new TextDocumentEdit(new VersionedTextDocumentIdentifier(uri, null), fEdits)))));
+                    List<Diagnostic> diagnostics = new ArrayList<>();
+                    action.setDiagnostics(diagnostics);
+                    return action;
+                } else {
+                    return null;
+                }
+            }
         } catch (CompilationFailedException | WorkspaceDocumentException | IOException e) { // | IOException e) {
             // ignore
         }
