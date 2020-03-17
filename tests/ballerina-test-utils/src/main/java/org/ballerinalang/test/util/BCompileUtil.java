@@ -275,9 +275,10 @@ public class BCompileUtil {
     /**
      * Compile and return the semantic errors.
      *
-     * @param sourceRoot  root path of the modules as a Path object
+     * @param sourceRoot  root path of the modules as a path object
      * @param packageName name of the module to compile
      * @param init init the module or not
+     * @param withTests compile with tests or not
      * @return Semantic errors
      */
     public static CompileResult compile(Path sourceRoot, String packageName, boolean init, boolean withTests) {
