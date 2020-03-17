@@ -16,17 +16,21 @@
 
 import ballerinax/java;
 
-# Represents a channel which will allow to write records through a given WritableCharacterChannel.
+# Represents a channel, which will allow to write records through a given WritableCharacterChannel.
 public type WritableTextRecordChannel object {
     private WritableCharacterChannel characterChannel;
-    private string rs;
     private string fs;
+    private string rs;
 
     # Constructs a DelimitedTextRecordChannel from a given WritableCharacterChannel.
 
-    # + channel - WritableCharacterChannel which will point to the input/output resource
-    # + rs - Record separator (this could be a regex)
+    # + characterChannel - WritableCharacterChannel, which will point to the input/output resource
     # + fs - Field separator (this could be a regex)
+    # + rs - Record separator (this could be a regex)
+    # + fmt - The format, which will be used to represent the CSV (this could be "DEFAULT" (the format specified by the CSVChannel), 
+    # "CSV" (Field separator would be "," and record separator would be a new line), 
+    # or TDF (Field separator will be a tab and record separator will be a new line).
+    # 
     public function __init(WritableCharacterChannel characterChannel, public string fs = "", public string rs = "",
                            public string fmt = "default") {
         self.characterChannel = characterChannel;
