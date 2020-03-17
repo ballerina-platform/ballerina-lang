@@ -25,6 +25,7 @@ import ballerinax/java;
 # + poolOptions - Properties for the connection pool configuration. Refer `PoolOptions` for more details
 # + dbOptions - A map of DB specific properties. These properties will have an effect only if the dataSourceClassName is
 #               provided in poolOptions
+#
 # # Deprecated
 # New experimental jdbc2 module is introduced in 1.2 release and it will be fully supported with in 1.3 release
 # This record type will be removed from 1.3 release.
@@ -74,6 +75,7 @@ public type ClientConfiguration record {|
 # + validationTimeoutInMillis - The maximum duration of time that a connection will be tested for aliveness. Default
 #                       value is 5000 (5 seconds) and it can be changed through the configuration API with the key
 #                       `b7a.jdbc.pool.validationTimeoutInMillis`.  Lowest acceptable validation timeout is 250 ms.
+#
 # # Deprecated
 # New experimental jdbc2 module is introduced in 1.2 release and it will be fully supported with in 1.3 release
 # This record type will be removed from 1.3 release.
@@ -156,6 +158,7 @@ final GlobalPoolConfigContainer globalPoolConfigContainer = new;
 # `ARRAY` - Composite data value that consists of zero or more elements of a specified data type
 # `STRUCT` - User-defined structured type, consists of one or more attributes
 # `REFCURSOR` - Cursor value
+#
 # # Deprecated
 # New experimental jdbc2 module is introduced in 1.2 release and it will be fully supported with in 1.3 release
 # This type will be removed from 1.3 release.
@@ -201,6 +204,7 @@ public const TYPE_REFCURSOR = "REFCURSOR";
 # `IN` - IN parameters are used to send values to stored procedures
 # `OUT` - OUT parameters are used to get values from stored procedures
 # `INOUT` - INOUT parameters are used to send values and get values from stored procedures
+#
 # # Deprecated
 # New experimental jdbc2 module is introduced in 1.2 release and it will be fully supported with in 1.3 release
 # This type will be removed from 1.3 release.
@@ -219,6 +223,7 @@ public const DIRECTION_INOUT = "INOUT";
 # + direction - Direction of the SQL Parameter IN, OUT, or INOUT - Default value is IN
 # + recordType - In case of OUT direction, if the sqlType is REFCURSOR, this represents the record type to map a
 #                result row
+#
 # # Deprecated
 # New experimental jdbc2 module is introduced in 1.2 release and it will be fully supported with in 1.3 release
 # This record type will be removed from 1.3 release.
@@ -234,6 +239,7 @@ public type Parameter record {|
 #
 # + updatedRowCount - The updated row count during the sql statement exectuion
 # + generatedKeys - A map of auto generated key values during the sql statement execution
+#
 # # Deprecated
 # New experimental jdbc2 module is introduced in 1.2 release and it will be fully supported with in 1.3 release
 # This record type will be removed from 1.3 release.
@@ -266,6 +272,7 @@ public type BatchUpdateResult record {|
 |};
 
 # The parameter passed into the operations.
+#
 # # Deprecated
 # New experimental jdbc2 module is introduced in 1.2 release and it will be fully supported with in 1.3 release
 # This type will be removed from 1.3 release.
