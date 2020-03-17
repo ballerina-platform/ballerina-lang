@@ -18,8 +18,12 @@
 package org.ballerina.jdbc.statement;
 
 import org.ballerina.jdbc.Constants;
+import org.ballerina.jdbc.datasource.SQLDatasource;
+import org.ballerina.jdbc.exceptions.ApplicationException;
+import org.ballerina.jdbc.exceptions.ErrorGenerator;
 import org.ballerina.jdbc.table.BCursorTable;
 import org.ballerina.jdbc.table.SQLDataIterator;
+import org.ballerina.jdbc.transaction.SQLTransactionContext;
 import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.ColumnDefinition;
 import org.ballerinalang.jvm.TableResourceManager;
@@ -46,10 +50,6 @@ import org.ballerinalang.jvm.values.DecimalValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.TableValue;
-import org.ballerina.jdbc.datasource.SQLDatasource;
-import org.ballerina.jdbc.exceptions.ApplicationException;
-import org.ballerina.jdbc.exceptions.ErrorGenerator;
-import org.ballerina.jdbc.transaction.SQLTransactionContext;
 
 import java.math.BigDecimal;
 import java.sql.Connection;

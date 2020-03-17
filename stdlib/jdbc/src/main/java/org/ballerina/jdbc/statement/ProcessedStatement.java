@@ -18,6 +18,7 @@
 package org.ballerina.jdbc.statement;
 
 import org.ballerina.jdbc.Constants;
+import org.ballerina.jdbc.exceptions.ApplicationException;
 import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BField;
@@ -27,7 +28,6 @@ import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.DecimalValue;
 import org.ballerinalang.jvm.values.MapValue;
-import org.ballerina.jdbc.exceptions.ApplicationException;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;

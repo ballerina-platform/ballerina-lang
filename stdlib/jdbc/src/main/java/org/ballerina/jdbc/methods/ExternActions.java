@@ -17,11 +17,6 @@
  */
 package org.ballerina.jdbc.methods;
 
-import org.ballerinalang.jvm.scheduling.Scheduler;
-import org.ballerinalang.jvm.values.ArrayValue;
-import org.ballerinalang.jvm.values.MapValue;
-import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.jvm.values.TypedescValue;
 import org.ballerina.jdbc.Constants;
 import org.ballerina.jdbc.datasource.SQLDatasource;
 import org.ballerina.jdbc.statement.BatchUpdateStatement;
@@ -29,6 +24,11 @@ import org.ballerina.jdbc.statement.CallStatement;
 import org.ballerina.jdbc.statement.SQLStatement;
 import org.ballerina.jdbc.statement.SelectStatement;
 import org.ballerina.jdbc.statement.UpdateStatement;
+import org.ballerinalang.jvm.scheduling.Scheduler;
+import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.MapValue;
+import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.TypedescValue;
 
 /**
  * External remote method implementations of the JDBC client.

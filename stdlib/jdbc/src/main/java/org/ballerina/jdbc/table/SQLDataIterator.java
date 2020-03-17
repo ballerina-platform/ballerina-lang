@@ -17,6 +17,10 @@
  */
 package org.ballerina.jdbc.table;
 
+import org.ballerina.jdbc.Constants;
+import org.ballerina.jdbc.datasource.SQLDatasourceUtils;
+import org.ballerina.jdbc.exceptions.ErrorGenerator;
+import org.ballerina.jdbc.exceptions.PanickingApplicationException;
 import org.ballerinalang.jvm.ColumnDefinition;
 import org.ballerinalang.jvm.TableResourceManager;
 import org.ballerinalang.jvm.types.BArrayType;
@@ -35,10 +39,6 @@ import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.RefValue;
 import org.ballerinalang.jvm.values.TableIterator;
 import org.ballerinalang.stdlib.time.util.TimeUtils;
-import org.ballerina.jdbc.Constants;
-import org.ballerina.jdbc.datasource.SQLDatasourceUtils;
-import org.ballerina.jdbc.exceptions.ErrorGenerator;
-import org.ballerina.jdbc.exceptions.PanickingApplicationException;
 
 import java.io.IOException;
 import java.math.BigDecimal;

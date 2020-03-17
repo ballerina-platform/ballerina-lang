@@ -20,10 +20,10 @@ package org.ballerina.jdbc.datasource;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import org.ballerina.jdbc.Constants;
-import org.ballerinalang.jvm.values.MapValue;
 import org.ballerina.jdbc.exceptions.ErrorGenerator;
 import org.ballerina.jdbc.exceptions.PanickingApplicationException;
 import org.ballerina.jdbc.exceptions.PanickingDatabaseException;
+import org.ballerinalang.jvm.values.MapValue;
 
 import java.sql.Connection;
 import java.sql.DriverManager;

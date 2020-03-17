@@ -17,6 +17,10 @@
  */
 package org.ballerina.jdbc.statement;
 
+import org.ballerina.jdbc.Constants;
+import org.ballerina.jdbc.datasource.SQLDatasource;
+import org.ballerina.jdbc.exceptions.ApplicationException;
+import org.ballerina.jdbc.exceptions.ErrorGenerator;
 import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BMapType;
@@ -27,10 +31,6 @@ import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.freeze.State;
 import org.ballerinalang.jvm.values.freeze.Status;
-import org.ballerina.jdbc.Constants;
-import org.ballerina.jdbc.datasource.SQLDatasource;
-import org.ballerina.jdbc.exceptions.ApplicationException;
-import org.ballerina.jdbc.exceptions.ErrorGenerator;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;

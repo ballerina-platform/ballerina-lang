@@ -19,6 +19,9 @@ package org.ballerina.jdbc.statement;
 
 import org.ballerina.jdbc.Constants;
 import org.ballerina.jdbc.datasource.SQLDatasource;
+import org.ballerina.jdbc.datasource.SQLDatasourceUtils;
+import org.ballerina.jdbc.exceptions.ApplicationException;
+import org.ballerina.jdbc.exceptions.ErrorGenerator;
 import org.ballerinalang.jvm.ColumnDefinition;
 import org.ballerinalang.jvm.TableResourceManager;
 import org.ballerinalang.jvm.TypeChecker;
@@ -37,9 +40,6 @@ import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.TableValue;
 import org.ballerinalang.jvm.values.TypedescValue;
-import org.ballerina.jdbc.datasource.SQLDatasourceUtils;
-import org.ballerina.jdbc.exceptions.ApplicationException;
-import org.ballerina.jdbc.exceptions.ErrorGenerator;
 
 import java.io.IOException;
 import java.math.BigDecimal;
