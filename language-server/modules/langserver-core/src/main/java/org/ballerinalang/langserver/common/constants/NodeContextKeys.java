@@ -16,7 +16,6 @@
 package org.ballerinalang.langserver.common.constants;
 
 import org.ballerinalang.langserver.commons.LSContext;
-import org.ballerinalang.langserver.util.references.SymbolReferencesModel;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 
 import java.util.Stack;
@@ -32,8 +31,6 @@ public class NodeContextKeys {
     public static final LSContext.Key<Stack<BLangNode>> NODE_STACK_KEY
             = new LSContext.Key<>();
     public static final LSContext.Key<String> NODE_NAME_KEY
-            = new LSContext.Key<>();
-    public static final LSContext.Key<SymbolReferencesModel> REFERENCES_KEY
             = new LSContext.Key<>();
     public static final LSContext.Key<Integer> INVOCATION_TOKEN_TYPE_KEY
             = new LSContext.Key<>();
