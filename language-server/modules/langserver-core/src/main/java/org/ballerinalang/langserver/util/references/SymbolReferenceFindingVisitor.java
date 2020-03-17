@@ -139,15 +139,15 @@ import java.util.stream.Collectors;
  */
 public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
 
-    private LSContext lsContext;
+    protected LSContext lsContext;
     protected SymbolReferencesModel symbolReferences;
-    private String tokenName;
+    protected String tokenName;
     protected int cursorLine;
     protected int cursorCol;
     protected boolean currentCUnitMode;
-    private String pkgName;
-    private boolean doNotSkipNullSymbols = false;
-    private List<TopLevelNode> topLevelNodes = new ArrayList<>();
+    protected String pkgName;
+    protected boolean doNotSkipNullSymbols = false;
+    protected List<TopLevelNode> topLevelNodes = new ArrayList<>();
     private List<BLangFunction> workerLambdas = new ArrayList<>();
     private List<BLangTypeDefinition> anonTypeDefinitions = new ArrayList<>();
     private HashMap<BSymbol, DiagnosticPos> workerVarDefMap = new HashMap<>();
@@ -924,7 +924,7 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
         this.acceptNode(streamType.error);
     }
 
-    private void acceptNode(BLangNode node) {
+    protected void acceptNode(BLangNode node) {
         if (node == null) {
             return;
         }
