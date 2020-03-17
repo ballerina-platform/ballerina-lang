@@ -88,9 +88,8 @@ public function main() {
                     <string>retCall.detail()?.message);
 
     } else if retCall is table<record {}>[] {
-        table<Student> studentTable = retCall[0];
         io:println("Data in students table:");
-        foreach var row in studentTable {
+        foreach var row in retCall[0] {
             io:println(row);
         }
     } else {

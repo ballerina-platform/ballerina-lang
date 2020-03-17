@@ -45,7 +45,7 @@ public function main() {
     // of the `java.jdbc` module.
     int age = 24;
     string name = "Anne";
-    ret = testDB->update("INSERT INTO student(age, name) values (?, ?)", false,
+    ret = testDB->update("INSERT INTO student(age, name) values (?, ?)",
         age, name);
     handleUpdate(ret, "Insert to student table with variable parameters");
 
@@ -61,18 +61,18 @@ public function main() {
         value: time:currentTime()
     };
     ret = testDB->update("INSERT INTO student(age, name, insertedTime) " +
-                         "values (?, ?, ?)", false, p1, p2, p3);
+                         "values (?, ?, ?)", p1, p2, p3);
     handleUpdate(ret, "Insert to student table with jdbc:parameter values");
 
 
     // Update data in the table using the `update` remote function.
     io:println("\nThe Update operation - Update data in a table");
-    ret = testDB->update("UPDATE student SET name = 'jane' WHERE age = ?", false, 23);
+    ret = testDB->update("UPDATE student SET name = 'jane' WHERE age = ?", 23);
     handleUpdate(ret, "Update a row in student table");
 
     // Delete data in a table using the `update` remote function.
     io:println("\nThe Update operation - Delete data from table");
-    ret = testDB->update("DELETE FROM student WHERE age = ?", false, 24);
+    ret = testDB->update("DELETE FROM student WHERE age = ?", 24);
     handleUpdate(ret, "Delete a row from student table");
 
     // The column values generated during the update can be retrieved using the
@@ -84,7 +84,7 @@ public function main() {
     // returned.
     io:println("\nThe Update operation - Inserting data");
     var retWithKey = testDB->update("INSERT INTO student " +
-                    "(age, name) values (?, ?)", true, 31, "Kate");
+                    "(age, name) values (?, ?)", 31, "Kate");
     if (retWithKey is jdbc:UpdateResult) {
         io:println("Inserted row count: ", retWithKey.updatedRowCount);
         io:println("Generated key: ",
@@ -98,7 +98,7 @@ public function main() {
     io:println("\nThe select operation - Select data from a table");
     var selectRet = testDB->select("SELECT * FROM student where age < ?",
                                     Student, 35);
-    if (selectRet is table<Student>) {
+    if (selectRet is table<record{}>) {
         // `table` can be converted to either `json` or `xml`. The actual
         // conversion happens on-demand. When a service client makes a request,
         // the result is streamed to the service instead of building the full

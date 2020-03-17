@@ -1,5 +1,5 @@
 import ballerina/java;
-import ballerinax/java.arrays as jarrays;
+import ballerina/java.arrays as jarrays;
 
 
 public function testPassingJavaIntArray(handle arrayValue) returns handle {

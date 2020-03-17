@@ -38,7 +38,6 @@ import org.ballerinalang.jvm.values.freeze.State;
 import org.ballerinalang.jvm.values.freeze.Status;
 
 import java.io.ByteArrayOutputStream;
-import java.io.OutputStream;
 import java.lang.ref.WeakReference;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -453,22 +452,6 @@ public final class XMLItem extends XMLValue {
             return new XMLSequence(descendants);
         }
         return children.descendants(qnames);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void serialize(OutputStream outputStream) {
-        try {
-            if (outputStream instanceof BallerinaXMLSerializer) {
-                ((BallerinaXMLSerializer) outputStream).write(this);
-            } else {
-                (new BallerinaXMLSerializer(outputStream)).write(this);
-            }
-        } catch (Throwable t) {
-            handleXmlException("error occurred during writing the message to the output stream: ", t);
-        }
     }
 
     /**

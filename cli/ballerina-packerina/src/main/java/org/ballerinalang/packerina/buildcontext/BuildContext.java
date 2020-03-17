@@ -44,12 +44,14 @@ import java.io.PrintStream;
 import java.io.UnsupportedEncodingException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.PathMatcher;
 import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BALLERINA_HOME;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_COMPILED_JAR_EXT;
@@ -351,7 +353,21 @@ public class BuildContext extends HashMap<BuildContextField, Object> {
                                   + platform + "-"
                                   + moduleID.version.value
                                   + BLANG_COMPILED_PKG_BINARY_EXT;
-            return moduleBaloCacheDir.resolve(baloFileName);
+            Path baloPath = moduleBaloCacheDir.resolve(baloFileName);
+            // check if file exists
+            // if not try to load other spec versions
+            if (!Files.exists(baloPath) && Files.exists(moduleBaloCacheDir)) {
+                Stream<Path> list = Files.list(moduleBaloCacheDir);
+                PathMatcher pathMatcher = moduleBaloCacheDir.getFileSystem()
+                        .getPathMatcher("glob:**/" + moduleID.name.value + "-*-" +
+                                platform + "-" + moduleID.version.value + ".balo");
+                for (Path file : (Iterable<Path>) list::iterator) {
+                    if (pathMatcher.matches(file)) {
+                        return file;
+                    }
+                }
+            }
+            return baloPath;
         } catch (IOException e) {
             throw new BLangCompilerException("error resolving balo_cache dir for module: " + moduleID);
         }

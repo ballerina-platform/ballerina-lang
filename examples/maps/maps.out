@@ -1,19 +1,20 @@
 # To run this sample, navigate to the directory that contains the
 # `.bal` file, and execute the `ballerina run` command.
 $ ballerina run maps.bal
-line1=No. 20 line2=Palm Grove city=Colombo 03 country=Sri Lanka
+line1=No. 20 line2=Palm Grove city=Colombo 03 country=Sri Lanka code=00300
 Sri Lanka
 Palm Grove
 false
+line1=No. 20 line2=Palm Grove city=Colombo 03 country=Sri Lanka code=00300 postalCode=00300
+line1 line2 city country code postalCode
+6
 line1=No. 20 line2=Palm Grove city=Colombo 03 country=Sri Lanka postalCode=00300
-line1 line2 city country postalCode
-5
-line1=No. 20 line2=Palm Grove city=Colombo 03 country=Sri Lanka
 No. 20
 Palm Grove
 Colombo 03
 Sri Lanka
+00300
 sam scored: 50
 jon scored: 60
 sam=60 jon=70
-100892N
+jane=100 sam=60 jon=70 amy=75

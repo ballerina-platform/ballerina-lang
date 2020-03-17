@@ -15,26 +15,26 @@
 // under the License.
 
 
-# Represents record separator of the CSV file.
+# Represents the record separator of the CSV file.
 public const string CSV_RECORD_SEPARATOR = "\n";
 
 
-# Represents colon separator which should be used to identify colon separated files.
+# Represents the colon separator, which should be used to identify colon-separated files.
 public const string FS_COLON = ":";
 
 
-# Represents minimum number of headers which will be included in CSV.
+# Represents the minimum number of headers, which will be included in the CSV.
 public const int MINIMUM_HEADER_COUNT = 0;
 
 
-# Represents a WritableCSVChannel which could be used to write records from CSV file.
+# Represents a WritableCSVChannel, which could be used to write records from the CSV file.
 public type WritableCSVChannel object {
     private WritableTextRecordChannel? dc;
 
     # Constructs a CSV channel from a CharacterChannel to read/write CSV records.
 
-    # + channel - The CharacterChannel, which will represent the content in the CSV file
-    # + fs - Field separator which will separate between the records in the CSV
+    # + CharacterChannel - The CharacterChannel, which will represent the content in the CSV file
+    # + fs - Field separator, which will separate between the records in the CSV
     public function __init(WritableCharacterChannel characterChannel, public Separator fs = ",") {
         if (fs == TAB) {
             self.dc = new WritableTextRecordChannel(characterChannel, fmt = "TDF");
@@ -47,7 +47,7 @@ public type WritableCSVChannel object {
         }
     }
 
-    # Writes record to a given CSV file.
+    # Writes the record to a given CSV file.
 
     # + csvRecord - A record to be written to the channel
     # + return - Returns an `Error` if the record could not be written properly

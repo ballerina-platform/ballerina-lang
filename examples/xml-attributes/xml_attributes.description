@@ -1,7 +1,7 @@
 // XML elements may have any number of attributes and any number
 // of namespace declarations that apply for that element. 
 // In Ballerina, both of these types are treated the same. 
-// XML attribute access in ballerina is lax typed similar
+// XML attribute access in Ballerina is lax-typed similar
 // to `json`, we can use field access expression (`.`) and
-// optional field access expressions (``?.`) to access teh
-// field of a xml value.
+// optional field access expressions (``?.`) to access the
+// attribute of an XML value.
