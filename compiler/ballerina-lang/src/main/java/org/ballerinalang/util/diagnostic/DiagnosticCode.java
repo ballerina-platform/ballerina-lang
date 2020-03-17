@@ -489,6 +489,7 @@ public enum DiagnosticCode {
     METHOD_SIGNATURE_DOES_NOT_MATCH("method.signature.not.match"),
     INVALID_DEPRECATION_DOCUMENTATION("invalid.deprecation.documentation"),
     DEPRECATION_DOCUMENTATION_SHOULD_BE_AVAILABLE("deprecation.documentation.should.available"),
+    INVALID_ATTRIBUTE_REFERENCE("invalid.attribute.reference"),
     ;
     private String value;
 
