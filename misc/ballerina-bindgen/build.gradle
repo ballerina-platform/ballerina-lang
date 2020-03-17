@@ -19,6 +19,7 @@ apply from: "$rootDir/gradle/javaProject.gradle"
 
 dependencies {
     implementation 'info.picocli:picocli'
+    implementation 'commons-io:commons-io'
     implementation 'org.slf4j:slf4j-simple'
     implementation 'com.github.jknack:handlebars'
     implementation 'org.apache.commons:commons-lang3'
