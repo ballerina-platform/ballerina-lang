@@ -1,7 +1,3 @@
-/*
-
- */
-
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -39,7 +35,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -58,6 +53,8 @@ import static org.ballerinalang.langserver.util.references.ReferencesUtil.getRef
 
 @JavaSPIService("org.ballerinalang.langserver.commons.codeaction.spi.LSCodeActionProvider")
 public class AIDataMapperCodeAction extends AbstractCodeActionProvider {
+
+    private final static String AI_END_POINT_URL = "http://127.0.0.1:5000/uploader";
 
     public static CodeAction getAIDataMapperCommand(LSDocumentIdentifier document, Diagnostic diagnostic,
                                                     LSContext context) {
@@ -83,20 +80,16 @@ public class AIDataMapperCodeAction extends AbstractCodeActionProvider {
 
                 String uri = context.get(DocumentServiceKeys.FILE_URI_KEY);
                 List<TextEdit> fEdits = getAIDataMapperCodeActionEdits(document, context, refAtCursor, diagnostic);
-                if (fEdits.size() == 0) {
-                    return null;
-                } else {
-                    action.setEdit(new WorkspaceEdit(Collections.singletonList(Either.forLeft(
-                            new TextDocumentEdit(new VersionedTextDocumentIdentifier(uri, null), fEdits)))));
-                    List<Diagnostic> diagnostics = new ArrayList<>();
-                    action.setDiagnostics(diagnostics);
-                    return action;
-                }
+                action.setEdit(new WorkspaceEdit(Collections.singletonList(Either.forLeft(
+                        new TextDocumentEdit(new VersionedTextDocumentIdentifier(uri, null), fEdits)))));
+                List<Diagnostic> diagnostics = new ArrayList<>();
+                action.setDiagnostics(diagnostics);
+                return action;
             } else {
                 return null;
             }
 
-        } catch (CompilationFailedException | WorkspaceDocumentException e) { // | IOException e) {
+        } catch (CompilationFailedException | WorkspaceDocumentException | IOException e) { // | IOException e) {
             // ignore
         }
         return null;
@@ -104,7 +97,8 @@ public class AIDataMapperCodeAction extends AbstractCodeActionProvider {
 
     private static List<TextEdit> getAIDataMapperCodeActionEdits(LSDocumentIdentifier document, LSContext context,
                                                                  SymbolReferencesModel.Reference refAtCursor,
-                                                                 Diagnostic diagnostic) {
+                                                                 Diagnostic diagnostic)
+            throws IOException, WorkspaceDocumentException {
 
         List<TextEdit> fEdits = new ArrayList<>();
         String diagnosticMessage = diagnostic.getMessage();
@@ -117,45 +111,37 @@ public class AIDataMapperCodeAction extends AbstractCodeActionProvider {
             String foundTypeRight = matcher.group(2)
                     .replaceAll(refAtCursor.getSymbol().type.tsymbol.pkgID.toString() + ":",
                             "");  // variable at right side of the equal sign
-            try {
-                // Insert function call in the code where error is found
-                BLangNode bLangNode = refAtCursor.getbLangNode();
-                Position startPos = new Position(bLangNode.pos.sLine - 1, bLangNode.pos.sCol - 1);
-                Position endPosWithSemiColon = new Position(bLangNode.pos.eLine - 1, bLangNode.pos.eCol);
-                Range newTextRange = new Range(startPos, endPosWithSemiColon);
 
-                BSymbol symbolAtCursor = refAtCursor.getSymbol();
-                String variableAtCursor = symbolAtCursor.name.value;
-                String generatedFunctionName =
-                        String.format("map%sTo%s(%s);", foundTypeRight, foundTypeLeft, variableAtCursor);
+            // Insert function call in the code where error is found
+            BLangNode bLangNode = refAtCursor.getbLangNode();
+            Position startPos = new Position(bLangNode.pos.sLine - 1, bLangNode.pos.sCol - 1);
+            Position endPosWithSemiColon = new Position(bLangNode.pos.eLine - 1, bLangNode.pos.eCol);
+            Range newTextRange = new Range(startPos, endPosWithSemiColon);
 
-                TextEdit functionNameEdit = new TextEdit(newTextRange, generatedFunctionName);
-                fEdits.add(functionNameEdit);
+            BSymbol symbolAtCursor = refAtCursor.getSymbol();
+            String variableAtCursor = symbolAtCursor.name.value;
+            String generatedFunctionName =
+                    String.format("map%sTo%s(%s);", foundTypeRight, foundTypeLeft, variableAtCursor);
 
-                // Insert function declaration at the bottom of the file
-                WorkspaceDocumentManager docManager = context.get(DocumentServiceKeys.DOC_MANAGER_KEY);
-                Optional<Path> filePath = CommonUtil.getPathFromURI(context.get(DocumentServiceKeys.FILE_URI_KEY));
-                String fileContent = docManager.getFileContent(Paths.get(String.valueOf(filePath.get())));
-                String functionName = String.format("map%sTo%s (%s", foundTypeRight, foundTypeLeft, foundTypeRight);
-                int indexOfFunctionName = fileContent.indexOf(functionName);
-                if (indexOfFunctionName == -1) {
-                    int numberOfLinesInFile = fileContent.split("\n").length;
-                    Position startPosOfLastLine = new Position(numberOfLinesInFile + 3, 0);
-                    Position endPosOfLastLine = new Position(numberOfLinesInFile + 3, 1);
-                    Range newFunctionRange = new Range(startPosOfLastLine, endPosOfLastLine);
+            TextEdit functionNameEdit = new TextEdit(newTextRange, generatedFunctionName);
+            fEdits.add(functionNameEdit);
 
-                    String generatedRecordMappingFunction =
-                            getGeneratedRecordMappingFunction(bLangNode, document, context, diagnostic, symbolAtCursor,
-                                    docManager, foundTypeLeft, foundTypeRight);
-                    if (generatedRecordMappingFunction.equals("serverError")) {
-                        fEdits = new ArrayList<>();  // In case of server error no code action will be shown shown
-                    } else {
-                        TextEdit functionEdit = new TextEdit(newFunctionRange, generatedRecordMappingFunction);
-                        fEdits.add(functionEdit);
-                    }
-                }
-            } catch (WorkspaceDocumentException e) {
-                // ignore
+            // Insert function declaration at the bottom of the file
+            WorkspaceDocumentManager docManager = context.get(DocumentServiceKeys.DOC_MANAGER_KEY);
+            Optional<Path> filePath = CommonUtil.getPathFromURI(context.get(DocumentServiceKeys.FILE_URI_KEY));
+            String fileContent = docManager.getFileContent(Paths.get(String.valueOf(filePath.get())));
+            String functionName = String.format("map%sTo%s (%s", foundTypeRight, foundTypeLeft, foundTypeRight);
+            int indexOfFunctionName = fileContent.indexOf(functionName);
+            if (indexOfFunctionName == -1) {
+                int numberOfLinesInFile = fileContent.split("\n").length;
+                Position startPosOfLastLine = new Position(numberOfLinesInFile + 3, 0);
+                Position endPosOfLastLine = new Position(numberOfLinesInFile + 3, 1);
+                Range newFunctionRange = new Range(startPosOfLastLine, endPosOfLastLine);
+                String generatedRecordMappingFunction =
+                        getGeneratedRecordMappingFunction(bLangNode, document, context, diagnostic, symbolAtCursor,
+                                docManager, foundTypeLeft, foundTypeRight);
+                TextEdit functionEdit = new TextEdit(newFunctionRange, generatedRecordMappingFunction);
+                fEdits.add(functionEdit);
             }
         }
         return fEdits;
@@ -164,8 +150,8 @@ public class AIDataMapperCodeAction extends AbstractCodeActionProvider {
     private static String getGeneratedRecordMappingFunction(BLangNode bLangNode, LSDocumentIdentifier document,
                                                             LSContext context, Diagnostic diagnostic,
                                                             BSymbol symbolAtCursor, WorkspaceDocumentManager docManager,
-                                                            String foundTypeLeft, String foundTypeRight) {
-        String generatedRecordMappingFunction = "";
+                                                            String foundTypeLeft, String foundTypeRight)
+            throws IOException {
         // Schema 1
         BType variableTypeMappingFrom = symbolAtCursor.type;
         List<BField> rightSchemaFields = ((BRecordType) variableTypeMappingFrom).fields;
@@ -176,45 +162,38 @@ public class AIDataMapperCodeAction extends AbstractCodeActionProvider {
         rightRecordJSON.addProperty("type", "object");
         rightRecordJSON.add("properties", rightSchema);
         // Schema 2
-        try {
-            List<BField> leftSchemaFields = ((BRecordType) ((BLangSimpleVarRef) bLangNode).expectedType).fields;
-            JsonObject leftSchema = (JsonObject) recordToJSON(leftSchemaFields);
 
-            JsonObject leftRecordJSON = new JsonObject();
-            leftRecordJSON.addProperty("schema", foundTypeLeft);
-            leftRecordJSON.addProperty("id", "dummy_id");
-            leftRecordJSON.addProperty("type", "object");
-            leftRecordJSON.add("properties", leftSchema);
+        List<BField> leftSchemaFields = ((BRecordType) ((BLangSimpleVarRef) bLangNode).expectedType).fields;
+        JsonObject leftSchema = (JsonObject) recordToJSON(leftSchemaFields);
 
-            JsonArray schemas = new JsonArray();
-            schemas.add(leftRecordJSON);
-            schemas.add(rightRecordJSON);
+        JsonObject leftRecordJSON = new JsonObject();
+        leftRecordJSON.addProperty("schema", foundTypeLeft);
+        leftRecordJSON.addProperty("id", "dummy_id");
+        leftRecordJSON.addProperty("type", "object");
+        leftRecordJSON.add("properties", leftSchema);
 
-            String schemasToSend = schemas.toString();
-            URL url = new URL("http://127.0.0.1:5000/uploader");
-            HttpURLConnection con = (HttpURLConnection) url.openConnection();
-            con.setRequestMethod("POST");
-            con.setRequestProperty("Content-Type", "application/json; utf-8");
-            con.setRequestProperty("Accept", "application/json");
-            con.setDoOutput(true);
+        JsonArray schemas = new JsonArray();
+        schemas.add(leftRecordJSON);
+        schemas.add(rightRecordJSON);
 
-            OutputStream os = con.getOutputStream();
-            os.write(schemasToSend.getBytes("UTF-8"));
-            os.close();
-            InputStream in = new BufferedInputStream(con.getInputStream());
-            String result = org.apache.commons.io.IOUtils.toString(in, "UTF-8");
-            generatedRecordMappingFunction = result;
-            return generatedRecordMappingFunction;
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
-            return "serverError";
-        } catch (IOException e) {
-            e.printStackTrace();
-            return "serverError";
+        String schemasToSend = schemas.toString();
+        URL url = new URL(AI_END_POINT_URL);
+
+        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+        connection.setRequestMethod("POST");
+        connection.setRequestProperty("Content-Type", "application/json; utf-8");
+        connection.setRequestProperty("Accept", "application/json");
+        connection.setDoOutput(true);
+        try (OutputStream outputStream = connection.getOutputStream()) {
+            outputStream.write(schemasToSend.getBytes("UTF-8"));
+            try (InputStream in = new BufferedInputStream(connection.getInputStream())) {
+                return org.apache.commons.io.IOUtils.toString(in, "UTF-8");
+            }
         }
     }
 
     private static JsonElement recordToJSON(List<BField> schemaFields) {
+
         JsonObject properties = new JsonObject();
         for (BField attribute : schemaFields) {
             JsonObject fieldDetails = new JsonObject();
@@ -262,12 +241,14 @@ public class AIDataMapperCodeAction extends AbstractCodeActionProvider {
         }
         return actions;
     }
+
     /**
      * {@inheritDoc}
      */
     @Override
     public List<CodeAction> getNodeBasedCodeActions(CodeActionNodeType nodeType, LSContext lsContext,
                                                     List<Diagnostic> allDiagnostics) {
+
         throw new UnsupportedOperationException("Not supported");
     }
 }
