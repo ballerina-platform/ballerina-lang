@@ -1,4 +1,4 @@
-import ballerinax/java;
+import ballerina/java;
 
 // Interop function that returns a Ballerina boolean for a Java boolean
 function testReturningBBooleanJBoolean(handle receiver, handle strValue) returns boolean {

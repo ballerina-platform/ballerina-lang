@@ -17,7 +17,7 @@
 import ballerina/io;
 import ballerina/jvm;
 import ballerina/bir;
-import ballerinax/java;
+import ballerina/java;
 
 type ErrorHandlerGenerator object {
     jvm:MethodVisitor mv;

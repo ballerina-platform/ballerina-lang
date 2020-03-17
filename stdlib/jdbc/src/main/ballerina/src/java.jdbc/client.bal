@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerinax/java;
+import ballerina/java;
 
 # Represents a JDBC client endpoint.
 #
@@ -59,17 +59,14 @@ public type Client client object {
     #
     # + sqlQuery - SQL statement to execute
     # + parameters - The parameters to be passed to the update query
-    # + returnGeneratedKeys - Indicate that generated keys should be made available for retrieval. If the value is
-    #                         set to `true`, auto-generated keys are made available to retrieve when the statement
-    #                         is executed. If the underline JDBC driver does not support it, it will return an `Error`.
     # + return - `UpdateResult` with the updated row count and key column values,
     #             else `Error` will be returned if there is an error
-    public remote function update(@untainted string sqlQuery, boolean returnGeneratedKeys = false, Param... parameters)
-    returns UpdateResult|Error {
+    public remote function update(@untainted string sqlQuery, Param... parameters)
+                                  returns UpdateResult|Error {
         if (!self.clientActive) {
             return self.handleStoppedClientInvocation();
         }
-        return nativeUpdate(self, java:fromString(sqlQuery), returnGeneratedKeys, parameters);
+        return nativeUpdate(self, java:fromString(sqlQuery), parameters);
     }
 
     # The batchUpdate remote function implementation for JDBC Client to execute batch operations.
@@ -81,22 +78,18 @@ public type Client client object {
     #           may or may not continue to process the remaining commands in the batch. This property can be
     #           used to override this behavior. When it is set to true, if there is a failure in a few commands and
     #           the JDBC driver continues with the remaining commands, the successfully executed commands in the batch
-    #           also will get rolled back
-    # + returnGeneratedKeys - Indicate that generated keys should be made available for retrieval. If the value is
-    #                         set to `true`, auto-generated keys are made available to retrieve when the statement
-    #                         is executed. If the underline JDBC driver does not support it, it will return an `Error`.
+    #           also will get rolled back.
     # + return - A `BatchUpdateResult` with the updated row count and returned error if any. If all the commands
     #            in the batch have executed successfully, the error will be `nil`. If one or more commands have failed,
     #            the `returnedError` field will give the corresponding `Error` along with the int[] which
     #            contains updated row count or the status returned from each command in the batch.
-    public remote function batchUpdate(@untainted string sqlQuery, boolean rollbackAllInFailure = false,
-                                       boolean returnGeneratedKeys = false, Param?[]... parameters)
+    public remote function batchUpdate(@untainted string sqlQuery, boolean rollbackAllInFailure,
+                                       Param?[]... parameters)
                                        returns BatchUpdateResult {
         if (!self.clientActive) {
             return self.handleStoppedClientInvocationForBatchUpdate();
         }
-        return nativeBatchUpdate(self, java:fromString(sqlQuery), rollbackAllInFailure, returnGeneratedKeys,
-                                 ...parameters);
+        return nativeBatchUpdate(self, java:fromString(sqlQuery), rollbackAllInFailure, ...parameters);
     }
 
     # Stops the JDBC client.
@@ -130,14 +123,13 @@ function nativeCall(Client jdbcClient, @untainted handle sqlQuery, typedesc<reco
        class: "org.ballerinax.jdbc.methods.ExternActions"
     } external;
 
-function nativeUpdate(Client jdbcClient, @untainted handle sqlQuery, boolean returnGeneratedKeys, Param[] parameters)
-                      returns UpdateResult|Error = @java:Method {
+function nativeUpdate(Client jdbcClient, @untainted handle sqlQuery, Param[] parameters)
+    returns UpdateResult|Error = @java:Method {
         class: "org.ballerinax.jdbc.methods.ExternActions"
     } external;
 
 function nativeBatchUpdate(Client jdbcClient, @untainted handle sqlQuery, boolean rollbackAllInFailure,
-                           boolean returnGeneratedKeys, Param?[]... parameters)
-                           returns BatchUpdateResult = @java:Method {
+    Param?[]... parameters) returns BatchUpdateResult = @java:Method {
         class: "org.ballerinax.jdbc.methods.ExternActions"
     } external;
 

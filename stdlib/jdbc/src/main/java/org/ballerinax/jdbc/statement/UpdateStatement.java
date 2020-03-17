@@ -37,6 +37,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
+import java.util.Arrays;
+import java.util.Locale;
 
 /**
  * Represents an Update SQL statement.
@@ -49,16 +51,16 @@ public class UpdateStatement extends AbstractSQLStatement {
     private final SQLDatasource datasource;
     private final String query;
     private final ArrayValue parameters;
-    private boolean returnGeneratedKeys;
+    private final boolean isKeyRetrievalSupported;
 
-    public UpdateStatement(ObjectValue client, SQLDatasource datasource, String query, boolean returnGeneratedKeys,
-                           ArrayValue parameters, Strand strand) {
+    public UpdateStatement(ObjectValue client, SQLDatasource datasource, String query, ArrayValue parameters,
+                           Strand strand) {
         super(strand);
         this.client = client;
         this.datasource = datasource;
         this.query = query;
         this.parameters = parameters;
-        this.returnGeneratedKeys = returnGeneratedKeys;
+        this.isKeyRetrievalSupported = isKeyRetrievalSupportedStatement();
     }
 
     @Override
@@ -69,28 +71,30 @@ public class UpdateStatement extends AbstractSQLStatement {
         checkAndObserveSQLAction(strand, datasource, query);
         boolean isInTransaction = strand.isInTransaction();
         String errorMessagePrefix = "failed to execute update query: ";
-        MapValue<String, Object> generatedKeys = new MapValueImpl<>();
         try {
             ArrayValue generatedParams = constructParameters(parameters);
             conn = getDatabaseConnection(strand, client, datasource);
             String processedQuery = createProcessedQueryString(query, generatedParams);
-
-            if (returnGeneratedKeys) {
+            if (isKeyRetrievalSupported) {
                 stmt = conn.prepareStatement(processedQuery, PreparedStatement.RETURN_GENERATED_KEYS);
             } else {
                 stmt = conn.prepareStatement(processedQuery);
             }
-
             ProcessedStatement processedStatement = new ProcessedStatement(conn, stmt, generatedParams,
                     datasource.getDatabaseProductName());
             stmt = processedStatement.prepare();
             int count = stmt.executeUpdate();
-            if (returnGeneratedKeys) {
+            MapValue<String, Object> generatedKeys;
+            if (isKeyRetrievalSupported) {
                 rs = stmt.getGeneratedKeys();
                 //This result set contains the auto generated keys.
                 if (rs.next()) {
                     generatedKeys = getGeneratedKeys(rs);
+                } else {
+                    generatedKeys = new MapValueImpl<>();
                 }
+            } else {
+                generatedKeys = new MapValueImpl<>();
             }
             return createFrozenUpdateResultRecord(count, generatedKeys);
         } catch (SQLException e) {
@@ -129,4 +133,21 @@ public class UpdateStatement extends AbstractSQLStatement {
         return populatedUpdateResultRecord;
     }
 
+    private enum GenKeyStmt {
+        INSERT, DELETE, UPDATE, MERGE
+    }
+
+    /**
+     * Check if the statement is one of INSERT, DELETE, UPDATE or MERGE.
+     * Oracle support INSERT only but does not throw exception on others
+     * IBM supports all
+     * HANA DB throws exception to all but can be guarded by supportsGetGeneratedKeys
+     */
+    private boolean isKeyRetrievalSupportedStatement() {
+        if (!datasource.supportsGetGeneratedKeys()) {
+            return false;
+        }
+        String query = this.query.trim().toUpperCase(Locale.ENGLISH);
+        return Arrays.stream(GenKeyStmt.values()).anyMatch(stmt -> query.startsWith(stmt.name()));
+    }
 }

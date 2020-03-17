@@ -19,7 +19,6 @@
 package org.ballerinalang.packerina.task;
 
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import org.ballerinalang.packerina.OsUtils;
 import org.ballerinalang.packerina.buildcontext.BuildContext;
 import org.ballerinalang.packerina.buildcontext.BuildContextField;
@@ -42,6 +41,8 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.PrintStream;
 import java.io.Writer;
@@ -54,6 +55,8 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 
+import static org.ballerinalang.test.runtime.util.TesterinaConstants.FILE_PROTOCOL;
+import static org.ballerinalang.test.runtime.util.TesterinaConstants.HTML_RESOURCE_FILE;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.TEST_RESULTS_FILE;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.TEST_RUNTIME_JAR_PREFIX;
 import static org.ballerinalang.tool.LauncherUtils.createLauncherException;
@@ -109,6 +112,7 @@ public class RunTestsTask implements Task {
         Path sourceRootPath = buildContext.get(BuildContextField.SOURCE_ROOT);
         List<BLangPackage> moduleBirMap = buildContext.getModules();
         testReport.setProjectName(sourceRootPath.toFile().getName());
+        int result = 0;
 
         // Only tests in packages are executed so default packages i.e. single bal files which has the package name
         // as "." are ignored. This is to be consistent with the "ballerina test" command which only executes tests
@@ -126,9 +130,10 @@ public class RunTestsTask implements Task {
             Path jsonPath = buildContext.getTestJsonPathTargetCache(bLangPackage.packageID);
             createTestJson(bLangPackage, suite, sourceRootPath, jsonPath);
             int testResult = runTestSuit(jsonPath, buildContext, testDependencies, bLangPackage);
-            if (testResult != 0) {
-                throw createLauncherException("there are test failures");
+            if (result == 0) {
+                result = testResult;
             }
+
             Path statusJsonPath = jsonPath.resolve(TesterinaConstants.STATUS_FILE);
             try {
                 ModuleStatus moduleStatus = loadModuleStatusFromFile(statusJsonPath);
@@ -140,7 +145,7 @@ public class RunTestsTask implements Task {
             if (coverage) {
                 int coverageResult = generateCoverageReport(buildContext, testDependencies, bLangPackage);
                 if (coverageResult != 0) {
-                    throw createLauncherException("there are test failures");
+                    throw createLauncherException("error while generating test report");
                 }
                 Path coverageJsonPath = jsonPath.resolve(TesterinaConstants.COVERAGE_FILE);
                 try {
@@ -152,7 +157,10 @@ public class RunTestsTask implements Task {
             }
         }
         testReport.finalizeTestResults(coverage);
-        writeReportToJson(buildContext.out(), testReport, targetDir);
+        generateHtmlReport(buildContext.out(), testReport, targetDir);
+        if (result != 0) {
+            throw createLauncherException("there are test failures");
+        }
     }
 
     /**
@@ -227,23 +235,41 @@ public class RunTestsTask implements Task {
      * @param out PrintStream object to print messages to console
      * @param testReport Data that are parsed to the json
      */
-    private void writeReportToJson(PrintStream out, TestReport testReport, Path jsonPath) {
+    private void generateHtmlReport(PrintStream out, TestReport testReport, Path jsonPath) {
         out.println();
         out.println("Generating Test Report");
+
+        Gson gson = new Gson();
+        String json = gson.toJson(testReport).replaceAll("\\\\\\(", "(");
         File jsonFile = new File(jsonPath.resolve(TEST_RESULTS_FILE).toString());
+        String content;
+
+        try (InputStream in = getClass().getClassLoader().getResourceAsStream(HTML_RESOURCE_FILE)) {
+                content = readFromInputStream(in);
+                content = content.replaceAll("__data__", "'" + json + "'");
+                content = content.replace("\"'", "'").replace("'\"", "'");
+        } catch (IOException e) {
+            throw LauncherUtils.createLauncherException("couldn't read content from the html file : " + e.toString());
+        }
         try (Writer writer = new OutputStreamWriter(new FileOutputStream(jsonFile), StandardCharsets.UTF_8)) {
-            Gson gson;
-            if (this.coverage) {
-                 gson = new Gson();
-            } else {
-                gson = new GsonBuilder().setExclusionStrategies(new TestReport.ReportExclusionStrategy()).create();
-            }
-            String json = gson.toJson(testReport);
-            writer.write(new String(json.getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8));
-            out.println("\t" + Paths.get("").toAbsolutePath().relativize(jsonFile.toPath()));
+            writer.write(new String(content.getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8));
+            out.println("\tView the test report at: " + FILE_PROTOCOL + jsonFile.getAbsolutePath());
         } catch (IOException e) {
             throw LauncherUtils.createLauncherException("couldn't read data from the Json file : " + e.toString());
         }
+    }
+
+    private String readFromInputStream(InputStream inputStream)
+            throws IOException {
+        StringBuilder resultStringBuilder = new StringBuilder();
+        try (BufferedReader br
+                     = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                resultStringBuilder.append(line).append("\n");
+            }
+        }
+        return resultStringBuilder.toString();
     }
 
     private int runTestSuit(Path jsonPath, BuildContext buildContext, HashSet<Path> testDependencies,

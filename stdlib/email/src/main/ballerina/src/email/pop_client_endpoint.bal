@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerinax/java;
+import ballerina/java;
 
 # Represents a POP Client, which interacts with a POP Server.
 public type PopClient client object {

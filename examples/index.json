@@ -629,6 +629,10 @@
             {
                 "name": "AWS Lambda Deployment",
                 "url": "awslambda-deployment"
+            },
+            {
+                "name": "Knative Deployment",
+                "url": "knative-deployment"
             }
         ]
     },
@@ -1070,6 +1074,32 @@
         "samples": [{
                 "name": "Send and Receive Emails",
                 "url": "send-and-receive-emails"
+            }
+        ]
+    },
+    {
+        "title": "Streams",
+        "column": 0,
+        "category": "Preview features",
+        "samples": [
+            {
+                "name": "Streams",
+                "url": "streams"
+            }
+        ]
+    },
+    {
+        "title": "Query",
+        "column": 1,
+        "category": "Preview features",
+        "samples": [
+            {
+                "name": "Query Expression",
+                "url": "query-expression"
+            },
+            {
+                "name": "Query Action",
+                "url": "query-action"
             }
         ]
     },

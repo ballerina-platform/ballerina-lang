@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerinax/java;
+import ballerina/java;
 
 # WritableByteChannel represents an output resource (i.e file). which could be used to sink bytes.
 public type WritableByteChannel object {

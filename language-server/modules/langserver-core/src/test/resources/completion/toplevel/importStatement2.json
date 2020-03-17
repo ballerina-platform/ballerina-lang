@@ -22,14 +22,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "ballerinax/java",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "120",
-      "insertText": "ballerinax/java",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "ballerina/lang.object",
       "kind": "Module",
       "detail": "Module",
@@ -219,6 +211,14 @@
       "detail": "Module",
       "sortText": "120",
       "insertText": "ballerina/encoding",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ballerina/java",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "120",
+      "insertText": "ballerina/java",
       "insertTextFormat": "Snippet"
     },
     {

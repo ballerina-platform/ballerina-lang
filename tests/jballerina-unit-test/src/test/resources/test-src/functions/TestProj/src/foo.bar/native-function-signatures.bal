@@ -1,4 +1,4 @@
-import ballerinax/java;
+import ballerina/java;
 
 handle h1 = java:fromString("John");
 handle h2 = java:fromString("Doe");

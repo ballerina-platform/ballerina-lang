@@ -6,7 +6,7 @@
 //
 // E.g. $ ballerina bindgen {{className}}
 
-{{/unless}}{{#if directClass}}import ballerinax/java;
+{{/unless}}{{#if directClass}}import ballerina/java;
 
 {{/if}}{{#isInterface}}// Java Interface{{/isInterface}}{{#isAbstractClass}}// Java Abstract Class{{/isAbstractClass}}
 public type {{shortClassName}} object {
