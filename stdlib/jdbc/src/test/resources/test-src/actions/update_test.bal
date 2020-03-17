@@ -14,7 +14,7 @@
 // under the License.
 
 import ballerina/time;
-import ballerinax/java.jdbc;
+import ballerina/java.jdbc;
 
 string jdbcUserName = "SA";
 string jdbcPassword = "";

@@ -1,5 +1,5 @@
 import ballerina/io;
-import ballerinax/java.jdbc;
+import ballerina/java.jdbc;
 
 // JDBC Client for the first H2 database. Since this `Client`
 // participates in a distributed transaction, the `isXA` property should be true.

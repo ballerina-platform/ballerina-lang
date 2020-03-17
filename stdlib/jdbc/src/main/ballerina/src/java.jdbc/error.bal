@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-public const DATABASE_ERROR_REASON = "{ballerinax/java.jdbc}DatabaseError";
+public const DATABASE_ERROR_REASON = "{ballerina/java.jdbc}DatabaseError";
 
 # Represents the properties belonging to a `DatabaseError`
 #
@@ -42,7 +42,7 @@ public type ApplicationErrorData record {|
 # database resource clean-up, and other similar scenarios.
 public type DatabaseError error<DATABASE_ERROR_REASON, DatabaseErrorData>;
 
-public const APPLICATION_ERROR_REASON = "{ballerinax/java.jdbc}ApplicationError";
+public const APPLICATION_ERROR_REASON = "{ballerina/java.jdbc}ApplicationError";
 
 # Represents an error originating from application-level causes.
 public type ApplicationError error<APPLICATION_ERROR_REASON, ApplicationErrorData>;

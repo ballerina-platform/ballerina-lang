@@ -17,11 +17,11 @@
   -->
 <FindBugsFilter>
     <Match>
-        <Package name="org.ballerinax.jdbc.statement"/>
+        <Package name="org.ballerina.jdbc.statement"/>
         <Bug pattern="SQL_PREPARED_STATEMENT_GENERATED_FROM_NONCONSTANT_STRING"/>
     </Match>
     <Match>
-        <Package name="org.ballerinax.jdbc.statement"/>
+        <Package name="org.ballerina.jdbc.statement"/>
         <Bug pattern="OBL_UNSATISFIED_OBLIGATION"/>
     </Match>
 </FindBugsFilter>

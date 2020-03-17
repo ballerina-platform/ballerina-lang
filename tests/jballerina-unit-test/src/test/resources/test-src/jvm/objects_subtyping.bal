@@ -15,7 +15,7 @@
 // under the License.
 
 import testorg/subtyping;
-import ballerinax/java.jdbc;
+import ballerina/java.jdbc;
 
 type Person1 object {
     public string name = "sample name";

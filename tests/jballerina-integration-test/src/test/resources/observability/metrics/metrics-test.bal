@@ -15,7 +15,7 @@
 // under the License.
 
 import ballerina/http;
-import ballerinax/java.jdbc;
+import ballerina/java.jdbc;
 import ballerina/jsonutils;
 
 jdbc:Client testDB = new({

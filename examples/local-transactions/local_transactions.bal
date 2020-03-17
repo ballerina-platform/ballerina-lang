@@ -1,5 +1,5 @@
 import ballerina/io;
-import ballerinax/java.jdbc;
+import ballerina/java.jdbc;
 
 // JDBC Client for H2 database.
 jdbc:Client testDB = new ({

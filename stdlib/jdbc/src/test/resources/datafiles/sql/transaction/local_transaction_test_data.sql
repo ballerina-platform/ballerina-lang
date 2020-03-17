@@ -37,7 +37,7 @@ INSERT INTO CustomersTrx (firstName,lastName,registrationID,creditLimit,country)
 INSERT INTO CustomersTrx2 (customerId,firstName,lastName,registrationID,creditLimit,country)
   values (1, 'Peter', 'Stuart', 1, 5000.75, 'USA');
 /
-CREATE ALIAS InsertPersonDataSuccessful FOR "org.ballerinax.jdbc.transaction.LocalTransactionsTest.insertPersonDataSuccessful";
+CREATE ALIAS InsertPersonDataSuccessful FOR "LocalTransactionsTest.insertPersonDataSuccessful";
 /
-CREATE ALIAS InsertPersonDataFailure FOR "org.ballerinax.jdbc.transaction.LocalTransactionsTest.insertPersonDataFailure";
+CREATE ALIAS InsertPersonDataFailure FOR "LocalTransactionsTest.insertPersonDataFailure";
 /

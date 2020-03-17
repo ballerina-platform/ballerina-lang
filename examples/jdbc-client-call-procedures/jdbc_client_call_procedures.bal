@@ -1,5 +1,5 @@
 import ballerina/io;
-import ballerinax/java.jdbc;
+import ballerina/java.jdbc;
 
 // Client for MySQL database. This client can be used with any JDBC
 // supported database by providing the corresponding JDBC URL.

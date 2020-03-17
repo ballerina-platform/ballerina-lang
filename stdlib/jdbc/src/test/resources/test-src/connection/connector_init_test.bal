@@ -13,7 +13,7 @@
 // specific language governing permissions and limitations
 // under the License.
 import ballerina/jsonutils;
-import ballerinax/java.jdbc;
+import ballerina/java.jdbc;
 
 jdbc:PoolOptions properties = {
     maximumPoolSize: 1,

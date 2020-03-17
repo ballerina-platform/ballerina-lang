@@ -16,7 +16,7 @@
 
 import ballerina/http;
 import ballerina/io;
-import ballerinax/java.jdbc;
+import ballerina/java.jdbc;
 import ballerina/system;
 import ballerina/transactions;
 import ballerina/log;

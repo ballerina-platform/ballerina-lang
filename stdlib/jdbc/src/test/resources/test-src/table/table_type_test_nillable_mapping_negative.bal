@@ -15,7 +15,7 @@
 // under the License.
 
 import ballerina/time;
-import ballerinax/java.jdbc;
+import ballerina/java.jdbc;
 
 type NonNillableInt record {
     int val;

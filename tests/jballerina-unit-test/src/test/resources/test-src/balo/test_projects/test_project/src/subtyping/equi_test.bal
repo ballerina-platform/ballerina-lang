@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerinax/java.jdbc;
+import ballerina/java.jdbc;
 
 public function getClient() returns jdbc:Client {
     jdbc:Client dbClient = new({

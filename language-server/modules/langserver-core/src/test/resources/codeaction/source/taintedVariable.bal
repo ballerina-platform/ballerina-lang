@@ -1,4 +1,4 @@
-import ballerinax/java.jdbc;
+import ballerina/java.jdbc;
 
 // The `@untainted` annotation can be used with parameters of user-defined functions. This allow users to restrict
 // passing untrusted (tainted) data into a security sensitive parameter.

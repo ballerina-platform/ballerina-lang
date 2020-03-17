@@ -14,7 +14,7 @@
 // under the License.
 
 import ballerina/transactions;
-import ballerinax/java.jdbc;
+import ballerina/java.jdbc;
 
 type ResultCount record {
     int COUNTVAL;

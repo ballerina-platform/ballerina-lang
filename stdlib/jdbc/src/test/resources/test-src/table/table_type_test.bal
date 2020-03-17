@@ -18,7 +18,7 @@ import ballerina/io;
 import ballerina/time;
 import ballerina/xmlutils;
 import ballerina/jsonutils;
-import ballerinax/java.jdbc;
+import ballerina/java.jdbc;
 
 type ResultPrimitive record {
     int INT_TYPE;

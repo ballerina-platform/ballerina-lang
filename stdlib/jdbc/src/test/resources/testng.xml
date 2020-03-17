@@ -23,23 +23,23 @@ under the License.
     <test name="ballerina-jdbc-test" parallel="false">
         <parameter name="enableJBallerinaTests" value="true"/>
         <classes >
-            <class name="org.ballerinax.jdbc.actions.UpdateTest"/>
-            <class name="org.ballerinax.jdbc.actions.SelectTest"/>
-            <class name="org.ballerinax.jdbc.actions.BatchUpdateTest"/>
-            <class name="org.ballerinax.jdbc.actions.CallTest"/>
-            <class name="org.ballerinax.jdbc.actions.H2ActionsTest"/>
+            <class name="org.ballerina.jdbc.actions.UpdateTest"/>
+            <class name="org.ballerina.jdbc.actions.SelectTest"/>
+            <class name="org.ballerina.jdbc.actions.BatchUpdateTest"/>
+            <class name="org.ballerina.jdbc.actions.CallTest"/>
+            <class name="org.ballerina.jdbc.actions.H2ActionsTest"/>
 
-            <class name="org.ballerinax.jdbc.table.TableTypeTest"/>
-            <class name="org.ballerinax.jdbc.table.TableTypeNegativeTest"/>
-            <class name="org.ballerinax.jdbc.table.TableTypeNillableMappingTest"/>
+            <class name="org.ballerina.jdbc.table.TableTypeTest"/>
+            <class name="org.ballerina.jdbc.table.TableTypeNegativeTest"/>
+            <class name="org.ballerina.jdbc.table.TableTypeNillableMappingTest"/>
 
-            <class name="org.ballerinax.jdbc.connection.ConnectionPoolTest"/>
-            <class name="org.ballerinax.jdbc.connection.ConnectorInitTest"/>
+            <class name="org.ballerina.jdbc.connection.ConnectionPoolTest"/>
+            <class name="org.ballerina.jdbc.connection.ConnectorInitTest"/>
 
-            <class name="org.ballerinax.jdbc.transaction.LocalTransactionsTest"/>
-            <class name="org.ballerinax.jdbc.transaction.XATransactionsTest"/>
+            <class name="org.ballerina.jdbc.transaction.LocalTransactionsTest"/>
+            <class name="org.ballerina.jdbc.transaction.XATransactionsTest"/>
 
-            <!--<class name="org.ballerinax.jdbc.table.TableIterationTest"/> TODO:#16805-->
+            <!--<class name="TableIterationTest"/> TODO:#16805-->
         </classes>
     </test>
 </suite>

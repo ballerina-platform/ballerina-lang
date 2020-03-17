@@ -13,7 +13,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerinax/java.jdbc;
+import ballerina/java.jdbc;
 
 type ResultCount record {
     int COUNTVAL;

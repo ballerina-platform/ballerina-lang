@@ -1,4 +1,4 @@
-import ballerinax/java.jdbc;
+import ballerina/java.jdbc;
 
 type Person object {
     string name = "";

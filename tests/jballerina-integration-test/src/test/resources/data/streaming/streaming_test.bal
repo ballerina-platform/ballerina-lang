@@ -17,7 +17,7 @@ import ballerina/http;
 import ballerina/log;
 import ballerina/jsonutils;
 import ballerina/xmlutils;
-import ballerinax/java.jdbc;
+import ballerina/java.jdbc;
 
 jdbc:Client testDB = new({
         url: "jdbc:h2:file:../../tempdb/STREAMING_TEST_DB",

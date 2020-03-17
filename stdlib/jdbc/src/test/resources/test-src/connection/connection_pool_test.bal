@@ -14,7 +14,7 @@
 // under the License.
 
 import ballerina/runtime;
-import ballerinax/java.jdbc;
+import ballerina/java.jdbc;
 
 type Info record {
     string firstName;
