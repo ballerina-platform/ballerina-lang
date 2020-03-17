@@ -17,9 +17,9 @@
  */
 package io.ballerinalang.compiler.internal.parser.tree;
 
-import io.ballerinalang.compiler.syntax.tree.LocalVariableDeclaration;
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
+import io.ballerinalang.compiler.syntax.tree.PositionalArgumentNode;
 
 public class STPositionalArg extends STNode {
 
@@ -40,6 +40,6 @@ public class STPositionalArg extends STNode {
 
     @Override
     public Node createFacade(int position, NonTerminalNode parent) {
-        return new LocalVariableDeclaration(this, position, parent);
+        return new PositionalArgumentNode(this, position, parent);
     }
 }

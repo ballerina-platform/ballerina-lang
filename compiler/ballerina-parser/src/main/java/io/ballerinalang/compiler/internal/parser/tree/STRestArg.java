@@ -19,6 +19,7 @@ package io.ballerinalang.compiler.internal.parser.tree;
 
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
+import io.ballerinalang.compiler.syntax.tree.PositionalArgumentNode;
 
 public class STRestArg extends STNode {
 
@@ -43,6 +44,6 @@ public class STRestArg extends STNode {
 
     @Override
     public Node createFacade(int position, NonTerminalNode parent) {
-        return null;
+        return new PositionalArgumentNode(this, position, parent);
     }
 }

@@ -19,7 +19,7 @@ package io.ballerinalang.compiler.syntax.tree;
 
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
-public class RecordTypeDescriptorNode extends ModuleMemberDeclaration {
+public class RecordTypeDescriptorNode extends NonTerminalNode {
 
     private Token recordKeyword;
     private Token bodyStartDelimiter;
