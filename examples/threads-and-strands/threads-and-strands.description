@@ -1,5 +1,5 @@
 // A strand is a lightweight thread construct. There are two situations where the Ballerina runtime creates a new strand:
-// (1) To execute statements in a named `worker` declaration,
+// (1) To execute statements in a named `worker` declaration
 // (2) To execute the function or method in the `start` action.  By default,
 // these new strands will be part of the same thread as the current strand.
 // Strands belong to the same thread share following characteristics. Only one strand can run simultaneously.
