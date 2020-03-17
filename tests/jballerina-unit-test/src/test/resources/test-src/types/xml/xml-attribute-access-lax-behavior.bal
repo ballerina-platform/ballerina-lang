@@ -1,3 +1,4 @@
+import ballerina/lang.'xml;
 
 function testXMLAsMapContent() returns [string|error?, string|error?, boolean] {
     map<xml> xmap = getXMLMap();
@@ -16,17 +17,15 @@ function testXMLASMapContentInvalidKey() returns string|error? {
 function testXMLAttributeWithNSPrefix() returns
     [string|error?, string|error?, string|error?, boolean, boolean] {
     map<xml> xmap = {};
-    xmap["a"] = xml `<elem xmlns="ns-uri" attr="val" xml:attr="xml-val"></elem>`;
-    string|error val = xmap.a.'xml:attr;
-    string|error? val2 = xmap.a?.'xml:attr;
-    string|error? val3 = xmap.b?.'xml:attr;
-    string|error? val4 = xmap.a.'xml:attr2;
-    string|error? val5 = xmap.a?.'xml:attr2;
-    return [val, val2, val3, val4 is error, val5 is ()];
+    xmap["a"] = xml `<elem xmlns="ns-uri" attr="val" xml:space="preserve"></elem>`;
+    string|error val = xmap.a.'xml:space;
+    string|error? val2 = xmap.a?.'xml:space;
+    string|error? val3 = xmap.b?.'xml:space;
+    return [val, val2, val3];
 }
 
 function testXMLDirectAttributeAccess() returns [boolean, boolean, boolean, boolean] {
-    xml x = xml `<elem xmlns="ns-uri" attr="val" xml:attr="xml-val"></elem>`;
+    xml x = xml `<elem xmlns="ns-uri" attr="val" xml:space="default"></elem>`;
     return [x.attr is string, x?.attr is string, x.attrNon is error, x?.attrNon is ()];
 }
 
