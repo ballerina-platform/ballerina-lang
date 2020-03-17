@@ -1,7 +1,7 @@
 import ballerina/io;
 
 // In Ballerina, each function consists of one or more workers, which are 
-// independent parallel execution paths called strands. If explicit workers are
+// independent execution paths called strands. If explicit workers are
 // not mentioned within worker blocks, the function code will belong to a
 // single implicit default worker. The default worker in each function wil be
 // executed in the same strand as the caller function.
@@ -19,6 +19,12 @@ public function main() {
         io:println("sum of first ", n, " positive numbers = ", sum);
     }
 
+    // By default workers run on the same physical thread of the parent strand.
+    // By adding `@strand` annotation, this worker's strand is allowed to run
+    // on any available physical thread.
+    @strand {
+        thread:"any"
+    }
     // This block belongs to the worker `w2`.
     worker w2 {
         // Calculates the sum(n^2).

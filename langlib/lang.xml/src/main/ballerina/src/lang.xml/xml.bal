@@ -153,7 +153,7 @@ public function createComment(string content) returns Comment = external;
 # + startIndex - start index, inclusive
 # + endIndex - end index, exclusive
 # + return - a subsequence of `x` consisting of items with index >= startIndex and < endIndex
-public function slice(xml<ItemType> x, int startIndex, int endIndex)
+public function slice(xml<ItemType> x, int startIndex, int endIndex = x.length())
     returns xml<ItemType> = external;
 
 # Strips the insignificant parts of the an xml value.

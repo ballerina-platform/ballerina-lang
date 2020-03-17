@@ -79,12 +79,16 @@ import static org.objectweb.asm.Opcodes.LRETURN;
 import static org.objectweb.asm.Opcodes.NEW;
 import static org.objectweb.asm.Opcodes.POP;
 import static org.objectweb.asm.Opcodes.PUTFIELD;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ANNOTATION_UTILS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ARRAY_LIST;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BALLERINA;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BAL_ERROR_REASONS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BAL_EXTENSION;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BLANG_EXCEPTION_HELPER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BTYPE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BUILT_IN_PACKAGE_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CHANNEL_DETAILS;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.DEFAULT_STRAND_DISPATCHER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ERROR_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FUNCTION_POINTER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FUTURE_VALUE;
@@ -101,7 +105,13 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT_VA
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.REF_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.RUNTIME_ERRORS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SCHEDULER;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SCHEDULE_FUNCTION_METHOD;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SCHEDULE_LOCAL_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND_ANNOTATION;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND_DATA_NAME;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND_THREAD;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND_VALUE_ANY;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.WD_CHANNELS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.WORKER_DATA_CHANNEL;
@@ -855,7 +865,46 @@ public class JvmTerminatorGen {
             lambdas.put(lambdaName, callIns);
             lambdaIndex += 1;
 
-            this.submitToScheduler(callIns.lhsOp, localVarOffset);
+            boolean concurrent = false;
+            // check for concurrent annotation
+            if (callIns.annotAttachments.size() > 0) {
+                for (BIRNode.BIRAnnotationAttachment annotationAttachment : callIns.annotAttachments) {
+                    if (annotationAttachment == null ||
+                            !STRAND_ANNOTATION.equals(annotationAttachment.annotTagRef.value) ||
+                            !BALLERINA.equals(annotationAttachment.packageID.orgName.value) ||
+                            !BUILT_IN_PACKAGE_NAME.equals(annotationAttachment.packageID.name.value)) {
+                        continue;
+                    }
+
+                    if (annotationAttachment.annotValues.size() == 0) {
+                        break;
+                    }
+
+                    BIRNode.BIRAnnotationValue strandAnnot = annotationAttachment.annotValues.get(0);
+                    if (strandAnnot instanceof BIRNode.BIRAnnotationRecordValue) {
+                        BIRNode.BIRAnnotationRecordValue recordValue = (BIRNode.BIRAnnotationRecordValue) strandAnnot;
+                        if (recordValue.annotValueEntryMap.containsKey(STRAND_THREAD)) {
+                            BIRNode.BIRAnnotationValue mapVal = recordValue.annotValueEntryMap.get(STRAND_THREAD);
+                            if (mapVal instanceof BIRNode.BIRAnnotationLiteralValue &&
+                                STRAND_VALUE_ANY.equals(((BIRNode.BIRAnnotationLiteralValue) mapVal).value)) {
+                                concurrent = true;
+                            }
+                        }
+
+                        if (recordValue.annotValueEntryMap.containsKey(STRAND_DATA_NAME)) {
+                            BIRNode.BIRAnnotationValue mapVal = recordValue.annotValueEntryMap.get(STRAND_DATA_NAME);
+                            if (mapVal instanceof BIRNode.BIRAnnotationLiteralValue &&
+                                !DEFAULT_STRAND_DISPATCHER.equals(((BIRNode.BIRAnnotationLiteralValue) mapVal).value)) {
+                                throw new BLangCompilerException("Unsupported policy. Only 'DEFAULT' policy is " +
+                                        "supported by jBallerina runtime.");
+                            }
+                        }
+                    }
+                    break;
+                }
+            }
+
+            this.submitToScheduler(callIns.lhsOp, localVarOffset, concurrent);
         }
 
         void generateWaitIns(BIRTerminator.Wait waitInst, String funcName, int localVarOffset) {
@@ -977,7 +1026,20 @@ public class JvmTerminatorGen {
             if (fpCall.isAsync) {
                 // load function ref now
                 this.loadVar(fpCall.fp.variableDcl);
-                this.submitToScheduler(fpCall.lhsOp, localVarOffset);
+                this.mv.visitMethodInsn(INVOKESTATIC, ANNOTATION_UTILS, "isConcurrent", String.format("(L%s;)Z",
+                        FUNCTION_POINTER), false);
+                Label notConcurrent = new Label();
+                this.mv.visitJumpInsn(IFEQ, notConcurrent);
+                Label concurrent = new Label();
+                this.mv.visitLabel(concurrent);
+                this.loadVar(fpCall.fp.variableDcl);
+                this.submitToScheduler(fpCall.lhsOp, localVarOffset, true);
+                Label afterSubmit = new Label();
+                this.mv.visitJumpInsn(GOTO, afterSubmit);
+                this.mv.visitLabel(notConcurrent);
+                this.loadVar(fpCall.fp.variableDcl);
+                this.submitToScheduler(fpCall.lhsOp, localVarOffset, false);
+                this.mv.visitLabel(afterSubmit);
             } else {
                 this.mv.visitMethodInsn(INVOKEVIRTUAL, FUNCTION_POINTER, "call",
                         String.format("(L%s;)L%s;", OBJECT, OBJECT), false);
@@ -1074,7 +1136,7 @@ public class JvmTerminatorGen {
             this.storeToVar(ins.lhsOp.variableDcl);
         }
 
-        void submitToScheduler(@Nilable BIROperand lhsOp, int localVarOffset) {
+        void submitToScheduler(@Nilable BIROperand lhsOp, int localVarOffset, boolean concurrent) {
 
             @Nilable BType futureType = lhsOp.variableDcl.type;
             BType returnType = symbolTable.anyType;
@@ -1085,9 +1147,15 @@ public class JvmTerminatorGen {
             // load strand
             this.mv.visitVarInsn(ALOAD, localVarOffset);
             loadType(this.mv, returnType);
-            this.mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, "scheduleFunction",
-                    String.format("([L%s;L%s;L%s;L%s;)L%s;", OBJECT, FUNCTION_POINTER, STRAND, BTYPE, FUTURE_VALUE),
-                    false);
+            if (concurrent) {
+                this.mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, SCHEDULE_FUNCTION_METHOD,
+                        String.format("([L%s;L%s;L%s;L%s;)L%s;", OBJECT, FUNCTION_POINTER, STRAND, BTYPE, FUTURE_VALUE),
+                        false);
+            } else {
+                this.mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, SCHEDULE_LOCAL_METHOD,
+                        String.format("([L%s;L%s;L%s;L%s;)L%s;", OBJECT, FUNCTION_POINTER, STRAND, BTYPE, FUTURE_VALUE),
+                        false);
+            }
 
             // store return
             if (lhsOp.variableDcl != null) {

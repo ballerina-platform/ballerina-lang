@@ -22,7 +22,12 @@ function testXMLAttributeWithNSPrefix() returns
     string|error? val3 = xmap.b?.'xml:attr;
     string|error? val4 = xmap.a.'xml:attr2;
     string|error? val5 = xmap.a?.'xml:attr2;
-    return [val, val2, val3, val4 is (), val5 is ()];
+    return [val, val2, val3, val4 is error, val5 is ()];
+}
+
+function testXMLDirectAttributeAccess() returns [boolean, boolean, boolean, boolean] {
+    xml x = xml `<elem xmlns="ns-uri" attr="val" xml:attr="xml-val"></elem>`;
+    return [x.attr is string, x?.attr is string, x.attrNon is error, x?.attrNon is ()];
 }
 
 function getXMLMap() returns map<xml> {

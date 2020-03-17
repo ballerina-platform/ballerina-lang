@@ -18,12 +18,14 @@ package org.wso2.ballerinalang.compiler.desugar;
 
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.AttachPoint;
+import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.AnnotatableNode;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.BlockNode;
 import org.ballerinalang.model.tree.NodeKind;
+import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
 import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
@@ -36,6 +38,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BStructureTypeSym
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.SchedulerPolicy;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
@@ -60,6 +63,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangServiceConstructorExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
@@ -210,6 +214,10 @@ public class AnnotationDesugar {
                 addVarArgsAnnotation(function);
             }
 
+            if (function.flagSet.contains(Flag.WORKER)) {
+                attachSchedulerPolicy(function);
+            }
+
             BLangLambdaFunction lambdaFunction = defineAnnotations(function, pkgNode, env, pkgID, owner);
             if (lambdaFunction != null) {
                 // Add the lambda/invocation in a temporary block.
@@ -229,6 +237,39 @@ public class AnnotationDesugar {
                 // Add the annotation assignment for resources to immediately before the service init.
                 for (BLangStatement stmt : target.stmts) {
                     initFnBody.stmts.add(index++, stmt);
+                }
+            }
+        }
+    }
+
+    private void attachSchedulerPolicy(BLangFunction function) {
+        for (BLangAnnotationAttachment annotation : function.annAttachments) {
+            if (!annotation.annotationName.value.equals("strand")) {
+                continue;
+            }
+            List<RecordLiteralNode.RecordField> fields = ((BLangRecordLiteral) annotation.expr).fields;
+            for (RecordLiteralNode.RecordField field : fields) {
+                if (field.getKind() != NodeKind.RECORD_LITERAL_KEY_VALUE) {
+                    continue;
+                }
+                BLangRecordLiteral.BLangRecordKeyValueField keyValue =
+                        (BLangRecordLiteral.BLangRecordKeyValueField) field;
+                BLangExpression expr = keyValue.key.expr;
+                if (expr.getKind() != NodeKind.SIMPLE_VARIABLE_REF) {
+                    continue;
+                }
+                BLangIdentifier variableName = ((BLangSimpleVarRef) expr).variableName;
+                if (!variableName.value.equals("thread")) {
+                    continue;
+                }
+                if (keyValue.valueExpr.getKind() != NodeKind.LITERAL) {
+                    continue;
+                }
+                Object value = ((BLangLiteral) keyValue.valueExpr).value;
+
+                if ("any".equals(value)) {
+                    function.symbol.schedulerPolicy = SchedulerPolicy.ANY;
+                    return;
                 }
             }
         }

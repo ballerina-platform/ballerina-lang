@@ -1,0 +1,4 @@
+// A shift expression performs a bitwise shift. Both the value to be shifted (left hand operand) and the shift amount
+// (right hand operand) should have static types that are subtypes of the `int` type.
+// All except the bottom 6 bits of the shift amount are masked out.
+// All shift operations are based on the 64-bit representations of the values.

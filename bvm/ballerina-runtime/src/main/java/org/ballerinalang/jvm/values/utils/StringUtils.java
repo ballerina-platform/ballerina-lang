@@ -88,7 +88,7 @@ public class StringUtils {
         }
 
         RefValue refValue = (RefValue) value;
-            return refValue.stringValue();
+        return refValue.stringValue();
     }
 
     public static BString getBStringValue(Object value) {

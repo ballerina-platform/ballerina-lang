@@ -43,7 +43,7 @@ public type Client client object {
     #             column names of the query result set be used for the record attributes
     # + return - Stream of records in the type of `rowType`
     public remote function query(@untainted string sqlQuery, typedesc<record {}>? rowType = ())
-    returns stream<record{}, sql:Error> {
+    returns @tainted stream<record{}, sql:Error> {
         if (self.clientActive) {
             return nativeQuery(self, java:fromString(sqlQuery), rowType);
         } else {

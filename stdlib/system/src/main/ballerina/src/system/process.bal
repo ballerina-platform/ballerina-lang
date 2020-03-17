@@ -71,7 +71,7 @@ public type Process object {
     public function pipe(Process process) returns Process {
         io:ReadableByteChannel input = self.stdout();
         io:WritableByteChannel output = process.stdin();
-        _ = start self.doPipe(input, output);
+        _ = @strand {thread: "any"} start self.doPipe(input, output);
         return process;
     }
 

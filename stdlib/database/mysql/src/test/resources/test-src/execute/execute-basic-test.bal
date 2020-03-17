@@ -65,7 +65,7 @@ type NumericType record {
     float? real_type;
 };
 
-function testInsertAndSelectTableWithGeneratedKeys() returns [sql:ExecuteResult?, NumericType?]|error? {
+function testInsertAndSelectTableWithGeneratedKeys() returns @tainted [sql:ExecuteResult?, NumericType?]|error? {
     mysql:Client dbClient = check new (host, user, password, database, port);
     sql:ExecuteResult? result = check dbClient->execute("insert into NumericTypes (int_type) values (31)");
 
@@ -88,7 +88,7 @@ function testInsertAndSelectTableWithGeneratedKeys() returns [sql:ExecuteResult?
     return [result, insertedData];
 }
 
-function testInsertWithAllNilAndSelectTableWithGeneratedKeys() returns [sql:ExecuteResult?, NumericType?]|error? {
+function testInsertWithAllNilAndSelectTableWithGeneratedKeys() returns @tainted [sql:ExecuteResult?, NumericType?]|error? {
     mysql:Client dbClient = check new (host, user, password, database, port);
     sql:ExecuteResult? result = check dbClient->execute("Insert into NumericTypes (int_type, bigint_type, "
         + "smallint_type, tinyint_type, bit_type, decimal_type, numeric_type, float_type, real_type) "
@@ -125,7 +125,7 @@ type StringData record {
     string clob_type;
 };
 
-function testInsertWithStringAndSelectTable() returns [sql:ExecuteResult?, StringData?]|error? {
+function testInsertWithStringAndSelectTable() returns @tainted [sql:ExecuteResult?, StringData?]|error? {
     mysql:Client dbClient = check new (host, user, password, database, port);
     string intIDVal = "25";
     string insertQuery = "Insert into StringTypes (id, varchar_type, charmax_type, char_type, charactermax_type, "
@@ -146,7 +146,7 @@ function testInsertWithStringAndSelectTable() returns [sql:ExecuteResult?, Strin
     return [result, insertedData];
 }
 
-function testInsertWithEmptyStringAndSelectTable() returns [sql:ExecuteResult?, StringData?]|error? {
+function testInsertWithEmptyStringAndSelectTable() returns @tainted [sql:ExecuteResult?, StringData?]|error? {
     mysql:Client dbClient = check new (host, user, password, database, port);
     string intIDVal = "35";
     string insertQuery = "Insert into StringTypes (id, varchar_type, charmax_type, char_type, charactermax_type,"
@@ -179,7 +179,7 @@ type StringNilData record {
     string? clob_type;
 };
 
-function testInsertWithNilStringAndSelectTable() returns [sql:ExecuteResult?, StringNilData?]|error? {
+function testInsertWithNilStringAndSelectTable() returns @tainted [sql:ExecuteResult?, StringNilData?]|error? {
     mysql:Client dbClient = check new (host, user, password, database, port);
     string intIDVal = "45";
     string insertQuery = "Insert into StringTypes (id, varchar_type, charmax_type, char_type, charactermax_type,"
@@ -218,7 +218,7 @@ type ResultCount record {
     int countVal;
 };
 
-function testUdateData() returns [sql:ExecuteResult?, ResultCount?]|error? {
+function testUdateData() returns @tainted [sql:ExecuteResult?, ResultCount?]|error? {
     mysql:Client dbClient = check new (host, user, password, database, port);
     sql:ExecuteResult? result = check dbClient->execute("Update NumericTypes set int_type = 11 where int_type = 10");
     ResultCount? resultCount = ();
