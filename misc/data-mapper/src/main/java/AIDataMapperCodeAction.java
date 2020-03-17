@@ -55,7 +55,16 @@ import static org.ballerinalang.langserver.util.references.ReferencesUtil.getRef
 @JavaSPIService("org.ballerinalang.langserver.commons.codeaction.spi.LSCodeActionProvider")
 public class AIDataMapperCodeAction extends AbstractCodeActionProvider {
 
-    private final static String AI_END_POINT_URL = "http://127.0.0.1:5000/uploader";
+    private final static String LOCAL_HOST_URL = "http://127.0.0.1:5000/uploader";
+    private final static String REMOTE_AI_SERVICE_URL_ENV = "REMOTE_AI_SERVICE_URL";
+    private static String AI_SERVICE_URL;
+
+    public AIDataMapperCodeAction() {
+
+        super();
+        String remoteURL = System.getenv(REMOTE_AI_SERVICE_URL_ENV);
+        AI_SERVICE_URL = remoteURL != null ? remoteURL : LOCAL_HOST_URL;
+    }
 
     public static CodeAction getAIDataMapperCommand(LSDocumentIdentifier document, Diagnostic diagnostic,
                                                     LSContext context) {
@@ -74,7 +83,7 @@ public class AIDataMapperCodeAction extends AbstractCodeActionProvider {
             }
             int symbolAtCursorTag = refAtCursor.getSymbol().type.tag;
 
-            if (refAtCursor.getbLangNode().parent instanceof BLangFieldBasedAccess){
+            if (refAtCursor.getbLangNode().parent instanceof BLangFieldBasedAccess) {
                 return null;
             } else {
                 if (symbolAtCursorTag == 12) { // tag 12 is user defined records or non-primitive types (?)
@@ -181,7 +190,7 @@ public class AIDataMapperCodeAction extends AbstractCodeActionProvider {
         schemas.add(rightRecordJSON);
 
         String schemasToSend = schemas.toString();
-        URL url = new URL(AI_END_POINT_URL);
+        URL url = new URL(AI_SERVICE_URL);
 
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
         connection.setRequestMethod("POST");
