@@ -101,7 +101,7 @@ function initializeClients() returns sql:Error? {
     check mysqlClient8.close();
 }
 
-//Initializes MySQL clients with different options.
+//Initialize MySQL clients with different options.
 public function main() {
     sql:Error? err = initializeClients();
     if (err is sql:Error) {

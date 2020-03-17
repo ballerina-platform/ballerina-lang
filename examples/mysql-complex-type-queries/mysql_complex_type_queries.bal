@@ -43,7 +43,7 @@ function queryBinaryType(mysql:Client mysqlClient) {
     if (e is error) {
         io:println(e);
     }
-    // Since the `rowType` is provided as `BinaryType`, the `resultStream` will
+    // Since the `rowType` is provided as a `BinaryType`, the `resultStream` will
     // have `BinaryType` records.
     resultStream = mysqlClient->query("Select * from BINARY_TYPES", BinaryType);
     stream<BinaryType, sql:Error> binaryResultStream =
@@ -79,7 +79,7 @@ function queryDateTimeType(mysql:Client mysqlClient) {
     if (e is error) {
         io:println(e);
     }
-    // Since the `rowType` is provided as `DateTimeType`, the `resultStream`
+    // Since the `rowType` is provided as a `DateTimeType`, the `resultStream`
     // will have `DateTimeType` records. The Date, Time, DateTime, and
     // Timestamp fields of the database table can be mapped to time:Time,
     // string and int types in Ballerina.
@@ -138,7 +138,7 @@ public function main() {
         mysql:Client|sql:Error mysqlClient = new (user = dbUser,
             password = dbPassword, database = "MYSQL_BBE");
         if (mysqlClient is mysql:Client) {
-            // Executes the complex data type queries.
+            // Execute the complex data type queries.
             queryBinaryType(mysqlClient);
             queryDateTimeType(mysqlClient);
             io:println("Sample executed successfully!");

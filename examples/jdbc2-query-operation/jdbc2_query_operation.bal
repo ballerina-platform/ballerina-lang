@@ -40,7 +40,7 @@ function countRows(jdbc:Client jdbcClient) {
         jdbcClient->query("Select count(*) as total from Customers");
 
     // Since the above count query will return only a single row,
-    // the next() operation is sufficient to retrieve the data.
+    // the `next()` operation is sufficient to retrieve the data.
     record {|record {} value;|}|error? result = resultStream.next();
 
     // Check the result and retrieve the value for total.
@@ -119,7 +119,7 @@ public function main() {
         if (err is sql:Error) {
             io:println("Customer table initialization failed!", err);
         } else {
-            // Executes the select queries in different options.
+            // Execute the select queries in different options.
             simpleQuery(jdbcClient);
             countRows(jdbcClient);
             typedQuery(jdbcClient);

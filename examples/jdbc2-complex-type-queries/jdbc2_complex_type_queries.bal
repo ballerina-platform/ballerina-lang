@@ -47,7 +47,7 @@ function queryBinaryType(jdbc:Client jdbcClient) {
     if (e is error) {
         io:println(e);
     }
-    // Since the `rowType` is provided as `BinaryType`, the `resultStream` will
+    // Since the `rowType` is provided as a `BinaryType`, the `resultStream` will
     // have `BinaryType` records.
     resultStream = jdbcClient->query("Select * from BINARY_TYPES", BinaryType);
     stream<BinaryType, sql:Error> binaryResultStream
@@ -84,7 +84,7 @@ function queryArrayType(jdbc:Client jdbcClient) {
     if (e is error) {
         io:println(e);
     }
-    // Since the `rowType` is provided as `ArrayType`, the `resultStream` will
+    // Since the `rowType` is provided as an `ArrayType`, the `resultStream` will
     // have `ArrayType` records.
     resultStream = jdbcClient->query("Select * from ARRAY_TYPES", ArrayType);
     stream<ArrayType, sql:Error> arrayResultStream =
@@ -120,9 +120,9 @@ function queryDateTimeType(jdbc:Client jdbcClient) {
     if (e is error) {
         io:println(e);
     }
-    // Since the `rowType` is provided as `DateTimeType`, the `resultStream`
+    // Since the `rowType` is provided as a `DateTimeType`, the `resultStream`
     // will have `DateTimeType` records. The Date, Time, DateTime, and
-    // Timestamp fields of the database tabl can be mapped to time:Time,
+    // Timestamp fields of the database table can be mapped to time:Time,
     // string, and int types in Ballerina.
     resultStream = jdbcClient->query("Select * from DATE_TIME_TYPES",
         DateTimeType);

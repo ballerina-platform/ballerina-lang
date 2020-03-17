@@ -104,7 +104,7 @@ public function main() {
     // can also include a spread field referring to another mapping value.
     // When a spread field is specified, all the fields of the relevant
     // mapping value are added to the new record value being created.
-    // A spread field is used with `address` to include the individual address
+    // A spread field is used with the `address` to include the individual address
     // entries in `address` when creating `anne`.
     Student anne = {
         name: "Anne",
@@ -119,7 +119,7 @@ public function main() {
     io:println(anne);
 
     // Using a mapping constructor expression with `var` (i.e., no contextually-expected
-    // type) results in a mapping value, where the inferred type is a record type based
+    // type) results in a mapping value where the inferred type is a record type based
     // on the fields specified in the mapping constructor expression.
     var rec = {name: "Amy", age: 18, ...address};
     io:println(rec);
