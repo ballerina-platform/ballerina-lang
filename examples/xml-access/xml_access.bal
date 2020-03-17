@@ -26,7 +26,7 @@ public function main() {
     // You can match descendant elements using the following stepping access syntax.
     io:println(bookXML/**/<fname>);
 
-    // Select all children using the bellow syntax.
+    // Select all the children elements using the below syntax.
     io:println(bookXML/*);
 
     // Select all children elements using the bellow syntax.
