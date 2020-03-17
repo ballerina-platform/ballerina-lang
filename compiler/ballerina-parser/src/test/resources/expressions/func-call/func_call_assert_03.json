@@ -1,0 +1,41 @@
+{
+    "kind": "FUNCTION_CALL",
+    "children": [
+        {
+            "kind": "IDENTIFIER_TOKEN",
+            "value": "foo"
+        },
+        {
+            "kind": "OPEN_PAREN_TOKEN"
+        },
+        {
+            "kind": "LIST",
+            "children": [
+                {
+                    "kind": "POSITIONAL_ARG",
+                    "children": [
+                        {
+                            "kind": "NUMERIC_LITERAL_TOKEN",
+                            "value": "5"
+                        }
+                    ]
+                },
+                {
+                    "kind": "POSITIONAL_ARG",
+                    "children": [
+                        {
+                            "kind": "COMMA_TOKEN"
+                        },
+                        {
+                            "kind": "IDENTIFIER_TOKEN",
+                            "value": "true"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "kind": "CLOSE_PAREN_TOKEN"
+        }
+    ]
+}

@@ -26,19 +26,23 @@ import io.ballerinalang.compiler.internal.parser.tree.STBracedExpression;
 import io.ballerinalang.compiler.internal.parser.tree.STDefaultableParameter;
 import io.ballerinalang.compiler.internal.parser.tree.STEmptyNode;
 import io.ballerinalang.compiler.internal.parser.tree.STExternalFuncBody;
+import io.ballerinalang.compiler.internal.parser.tree.STFunctionCallExpression;
 import io.ballerinalang.compiler.internal.parser.tree.STFunctionDefinition;
 import io.ballerinalang.compiler.internal.parser.tree.STMissingToken;
 import io.ballerinalang.compiler.internal.parser.tree.STModulePart;
 import io.ballerinalang.compiler.internal.parser.tree.STModuleTypeDefinition;
+import io.ballerinalang.compiler.internal.parser.tree.STNamedArg;
 import io.ballerinalang.compiler.internal.parser.incremental.UnmodifiedSubtreeSupplier;
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 import io.ballerinalang.compiler.internal.parser.tree.STNodeList;
+import io.ballerinalang.compiler.internal.parser.tree.STPositionalArg;
 import io.ballerinalang.compiler.internal.parser.tree.STRecordField;
 import io.ballerinalang.compiler.internal.parser.tree.STRecordFieldWithDefaultValue;
 import io.ballerinalang.compiler.internal.parser.tree.STRecordRestDescriptor;
 import io.ballerinalang.compiler.internal.parser.tree.STRecordTypeDescriptor;
 import io.ballerinalang.compiler.internal.parser.tree.STRecordTypeReference;
 import io.ballerinalang.compiler.internal.parser.tree.STRequiredParameter;
+import io.ballerinalang.compiler.internal.parser.tree.STRestArg;
 import io.ballerinalang.compiler.internal.parser.tree.STRestParameter;
 import io.ballerinalang.compiler.internal.parser.tree.STReturnTypeDescriptor;
 import io.ballerinalang.compiler.internal.parser.tree.STToken;
@@ -60,6 +64,7 @@ public class BallerinaParser {
     private final UnmodifiedSubtreeSupplier subtreeReader;
     private final boolean isIncremental;
 
+    // TODO: Remove this.
     private ParserRuleContext currentParamKind = ParserRuleContext.REQUIRED_PARAM;
 
     BallerinaParser(AbstractTokenReader tokenReader, UnmodifiedSubtreeSupplier subtreeReader) {
@@ -133,8 +138,6 @@ public class BallerinaParser {
                 return parseAssignmentStmt();
             case BINARY_EXPR_RHS:
                 return parseBinaryExprRhs(parsedNodes[0]);
-            case FOLLOW_UP_PARAM:
-                return parseFollowUpParameter();
             case AFTER_PARAMETER_TYPE:
                 return parseAfterParamType(parsedNodes[0], parsedNodes[1]);
             case PARAMETER_RHS:
@@ -153,6 +156,8 @@ public class BallerinaParser {
                 return parseTypeReference();
             case FIELD_DESCRIPTOR_RHS:
                 return parseFieldDescriptorRhs(parsedNodes[0], parsedNodes[1]);
+            case NAMED_OR_POSITIONAL_ARG_RHS:
+                return parseNamedOrPositionalArg(parsedNodes[0]);
             case FUNC_DEFINITION:
             case REQUIRED_PARAM:
             default:
@@ -202,6 +207,10 @@ public class BallerinaParser {
 
     private STToken peek() {
         return this.tokenReader.peek();
+    }
+
+    private STToken peek(int k) {
+        return this.tokenReader.peek(k);
     }
 
     private STToken consume() {
@@ -462,23 +471,27 @@ public class BallerinaParser {
      */
     private STNode parseParamList() {
         startContext(ParserRuleContext.PARAM_LIST);
-
         ArrayList<STNode> paramsList = new ArrayList<>();
 
         STToken token = peek();
-        if (!isEndOfParametersList(token.kind)) {
-            // comma precedes the first parameter, which doesn't exist
-            STEmptyNode startingComma = new STEmptyNode();
-            this.currentParamKind = ParserRuleContext.REQUIRED_PARAM;
-            paramsList.add(parseParameter(startingComma));
+        if (isEndOfParametersList(token.kind)) {
+            STNode params = new STNodeList(paramsList);
+            endContext();
+            return params;
         }
 
-        while (true) {
-            STNode param = parseFollowUpParameter();
-            if (param == null) {
-                break;
-            }
+        // Parse the first parameter. Comma precedes the first parameter doesn't exist.
+        STEmptyNode startingComma = new STEmptyNode();
+        this.currentParamKind = ParserRuleContext.REQUIRED_PARAM;
+        paramsList.add(parseParameter(startingComma));
+
+        // Parse follow-up parameters.
+        token = peek();
+        while (!isEndOfParametersList(token.kind)) {
+            STNode leadingComma = parseComma();
+            STNode param = parseParameter(leadingComma);
             paramsList.add(param);
+            token = peek();
         }
 
         STNode params = new STNodeList(paramsList);
@@ -490,7 +503,7 @@ public class BallerinaParser {
      * Parse a single parameter. Parameter can be a required parameter, a defaultable
      * parameter, or a rest parameter.
      * 
-     * @param leadingComma Comma the occurs before the param
+     * @param leadingComma Comma that occurs before the param
      * @return Parsed node
      */
     private STNode parseParameter(STNode leadingComma) {
@@ -629,25 +642,6 @@ public class BallerinaParser {
 
             return parseParameterRhs(solution.tokenKind, leadingComma, type, paramName);
         }
-    }
-
-    private STNode parseFollowUpParameter() {
-        STToken token = peek();
-        return parseFollowUpParameter(token.kind);
-    }
-
-    /**
-     * Parse a parameter that follows another parameter.
-     * 
-     * @return Parsed node
-     */
-    private STNode parseFollowUpParameter(SyntaxKind kind) {
-        if (isEndOfParametersList(kind)) {
-            return null;
-        }
-
-        STNode leadingComma = parseComma();
-        return parseParameter(leadingComma);
     }
 
     /**
@@ -1354,6 +1348,7 @@ public class BallerinaParser {
         // Try to parse them and mark as invalid.
         while (!isEndOfBlock(token.kind)) {
             parseFieldOrRestDescriptor(isInclusive);
+            // TODO: Mark these nodes as error/invalid nodes.
             this.errorHandler.reportInvalidNode(token, "cannot have more fields after the rest type descriptor");
             token = peek();
         }
@@ -1790,16 +1785,30 @@ public class BallerinaParser {
      */
     private STNode parseTerminalExpression() {
         STToken token = peek();
-        switch (token.kind) {
+        return parseTerminalExpression(token.kind);
+    }
+
+    private STNode parseTerminalExpression(SyntaxKind kind) {
+        // TODO: Whenever a new expression start is added, make sure to
+        // add it to all the other places as well.
+        switch (kind) {
             case NUMERIC_LITERAL_TOKEN:
                 return parseLiteral();
             case IDENTIFIER_TOKEN:
-                return parseVariableName();
+                return parseVarRefOrFuncRefExpressions();
             case OPEN_PAREN_TOKEN:
                 return parseBracedExpression();
             default:
-                Solution sol = recover(token, ParserRuleContext.EXPRESSION);
-                return sol.recoveredNode;
+                Solution solution = recover(peek(), ParserRuleContext.EXPRESSION);
+
+                // If the parser recovered by inserting a token, then try to re-parse the same
+                // rule with the inserted token. This is done to pick the correct branch
+                // to continue the parsing.
+                if (solution.action == Action.REMOVE) {
+                    return solution.recoveredNode;
+                }
+
+                return parseTerminalExpression(solution.tokenKind);
         }
     }
 
@@ -1830,11 +1839,11 @@ public class BallerinaParser {
     /**
      * Parse the right hand side of a binary expression given the next token kind.
      * 
-     * @param precedenceLevel Precedence level of the expression that is being parsed currently
+     * @param currentPrecedenceLevel Precedence level of the expression that is being parsed currently
      * @param tokenKind Next token kind
      * @return Parsed node
      */
-    private STNode parseBinaryExprRhs(OperatorPrecedence precedenceLevel, SyntaxKind tokenKind, STNode lhsExpr) {
+    private STNode parseBinaryExprRhs(OperatorPrecedence currentPrecedenceLevel, SyntaxKind tokenKind, STNode lhsExpr) {
         if (isEndOfExpression(tokenKind)) {
             return lhsExpr;
         }
@@ -1857,18 +1866,18 @@ public class BallerinaParser {
             if (solution.ctx == ParserRuleContext.BINARY_OPERATOR) {
                 // We come here if the operator is missing. Treat this as injecting an operator
                 // that matches to the current operator precedence level, and continue.
-                SyntaxKind binaryOpKind = getOperatorKindToInsert(precedenceLevel);
-                return parseBinaryExprRhs(precedenceLevel, binaryOpKind, lhsExpr);
+                SyntaxKind binaryOpKind = getOperatorKindToInsert(currentPrecedenceLevel);
+                return parseBinaryExprRhs(currentPrecedenceLevel, binaryOpKind, lhsExpr);
             } else {
-                return parseBinaryExprRhs(precedenceLevel, solution.tokenKind, lhsExpr);
+                return parseBinaryExprRhs(currentPrecedenceLevel, solution.tokenKind, lhsExpr);
             }
         }
 
         // If the precedence level of the operator that was being parsed is higher than
         // the newly found (next) operator, then return and finish the previous expr,
         // because it has a higher precedence.
-        OperatorPrecedence operatorPrecedence = getOpPrecedence(tokenKind);
-        if (precedenceLevel.isHigherThan(operatorPrecedence)) {
+        OperatorPrecedence nextOperatorPrecedence = getOpPrecedence(tokenKind);
+        if (currentPrecedenceLevel.isHigherThan(nextOperatorPrecedence)) {
             return lhsExpr;
         }
 
@@ -1880,13 +1889,13 @@ public class BallerinaParser {
         // binary expr. If a an operator with higher precedence level is reached,
         // then complete that binary-expr, come back here and finish the current
         // expr.
-        STNode rhsExpr = parseExpression(operatorPrecedence);
+        STNode rhsExpr = parseExpression(nextOperatorPrecedence);
 
         STBinaryExpression binaryExpr =
                 new STBinaryExpression(SyntaxKind.BINARY_EXPRESSION, lhsExpr, operator, rhsExpr);
 
         // Then continue the operators with the same precedence level.
-        return parseBinaryExprRhs(precedenceLevel, binaryExpr);
+        return parseBinaryExprRhs(currentPrecedenceLevel, binaryExpr);
     }
 
     /**
@@ -1927,11 +1936,202 @@ public class BallerinaParser {
     }
 
     /**
-     * Parse a literal expression.
+     * Parse expressions that references variable or functions at the start of the expression.
      * 
      * @return Parsed node
      */
     private STNode parseLiteral() {
         return consume();
+    }
+
+    /**
+     * Parse expressions that starts with a variable reference or function reference.
+     * 
+     * @return Parsed expression
+     */
+    private STNode parseVarRefOrFuncRefExpressions() {
+        STNode varOrFuncName = parseVariableName();
+        STToken token = peek();
+        switch (token.kind) {
+            case DOT_TOKEN:
+                throw new UnsupportedOperationException("field based access is not supported yet");
+            case OPEN_BRACKET_TOKEN:
+                throw new UnsupportedOperationException("index based access is not supported yet");
+            case OPEN_PAREN_TOKEN:
+                // function invocation
+                STNode openParen = parseOpenParenthesis();
+                STNode args = parseArgsList();
+                STNode closeParen = parseCloseParenthesis();
+                return new STFunctionCallExpression(varOrFuncName, openParen, args, closeParen);
+            default:
+                return varOrFuncName;
+
+        }
+    }
+
+    /**
+     * Parse function call argument list.
+     * 
+     * @return Parsed agrs list
+     */
+    private STNode parseArgsList() {
+        startContext(ParserRuleContext.ARG_LIST);
+        ArrayList<STNode> argsList = new ArrayList<>();
+
+        STToken token = peek();
+        if (isEndOfParametersList(token.kind)) {
+            STNode args = new STNodeList(argsList);
+            endContext();
+            return args;
+        }
+
+        SyntaxKind lastProcessedArgKind = parseFirstArg(argsList);
+        parseFollowUpArg(argsList, lastProcessedArgKind);
+
+        STNode args = new STNodeList(argsList);
+        endContext();
+        return args;
+    }
+
+    /**
+     * Parse the first argument of a function call.
+     * 
+     * @param argsList Arguments list to which the parsed argument must be added
+     * @return Kind of the argument first argument.
+     */
+    private SyntaxKind parseFirstArg(ArrayList<STNode> argsList) {
+        startContext(ParserRuleContext.ARG);
+
+        // Comma precedes the first argument is an empty node, since it doesn't exist.
+        STNode leadingComma = new STEmptyNode();
+        STNode arg = parseArg(leadingComma);
+        endContext();
+
+        if (SyntaxKind.POSITIONAL_ARG.ordinal() <= arg.kind.ordinal()) {
+            argsList.add(arg);
+            return arg.kind;
+        } else {
+            reportInvalidOrderOfArgs(peek(), SyntaxKind.POSITIONAL_ARG, arg.kind);
+            return SyntaxKind.POSITIONAL_ARG;
+        }
+    }
+
+    /**
+     * Parse follow up arguments.
+     * 
+     * @param argsList Arguments list to which the parsed argument must be added
+     * @param lastProcessedArgKind Kind of the argument processed prior to this
+     */
+    private void parseFollowUpArg(ArrayList<STNode> argsList, SyntaxKind lastProcessedArgKind) {
+        STToken nextToken = peek();
+        while (!isEndOfParametersList(nextToken.kind)) {
+            startContext(ParserRuleContext.ARG);
+
+            STNode leadingComma = parseComma();
+
+            // If there's an extra comma at the end of arguments list, remove it.
+            // Then stop the argument parsing.
+            nextToken = peek();
+            if (isEndOfParametersList(nextToken.kind)) {
+                this.errorHandler.reportInvalidNode((STToken) leadingComma, "invalid token " + leadingComma);
+                endContext();
+                break;
+            }
+
+            STNode arg = parseArg(nextToken.kind, leadingComma);
+            if (lastProcessedArgKind.ordinal() <= arg.kind.ordinal()) {
+                if (lastProcessedArgKind == SyntaxKind.REST_ARG && arg.kind == SyntaxKind.REST_ARG) {
+                    this.errorHandler.reportInvalidNode(nextToken, "cannot more than one rest arg");
+                } else {
+                    argsList.add(arg);
+                    lastProcessedArgKind = arg.kind;
+                }
+            } else {
+                reportInvalidOrderOfArgs(nextToken, lastProcessedArgKind, arg.kind);
+            }
+
+            nextToken = peek();
+            endContext();
+        }
+    }
+
+    /**
+     * Report invalid order of args.
+     * 
+     * @param token Staring token of the arg.
+     * @param lastArgKind Kind of the previously processed arg
+     * @param arg Current arg
+     */
+    private void reportInvalidOrderOfArgs(STToken token, SyntaxKind lastArgKind, SyntaxKind argKind) {
+        this.errorHandler.reportInvalidNode(token, "cannot have a " + argKind + " after the " + lastArgKind);
+    }
+
+    /**
+     * Parse function call argument.
+     * 
+     * @param leadingComma Comma that occurs before the param
+     * @return Parsed argument node
+     */
+    private STNode parseArg(STNode leadingComma) {
+        STToken token = peek();
+        return parseArg(token.kind, leadingComma);
+    }
+
+    private STNode parseArg(SyntaxKind kind, STNode leadingComma) {
+        STNode arg;
+        switch (kind) {
+            case ELLIPSIS_TOKEN:
+                STToken ellipsis = consume();
+                STNode expr = parseExpression();
+                arg = new STRestArg(leadingComma, ellipsis, expr);
+                break;
+
+            // Identifier can means two things: either its a named-arg, or just an expression.
+            case IDENTIFIER_TOKEN:
+                // TODO: Handle package-qualified var-refs (i.e: qualified-identifier).
+                arg = parseNamedOrPositionalArg(leadingComma);
+                break;
+
+            // Any other expression goes here
+            case NUMERIC_LITERAL_TOKEN:
+            case OPEN_PAREN_TOKEN:
+            default:
+                expr = parseExpression();
+                arg = new STPositionalArg(leadingComma, expr);
+                break;
+        }
+
+        return arg;
+    }
+
+    /**
+     * Parse positional or named arg. This method assumed peek()/peek(1)
+     * is always an identifier.
+     * 
+     * @param leadingComma Comma that occurs before the param
+     * @return Parsed argument node
+     */
+    private STNode parseNamedOrPositionalArg(STNode leadingComma) {
+        STToken secondToken = peek(2);
+        switch (secondToken.kind) {
+            case EQUAL_TOKEN:
+                STNode argNameOrVarRef = consume();
+                STNode equal = parseAssignOp();
+                STNode expr = parseExpression();
+                return new STNamedArg(leadingComma, argNameOrVarRef, equal, expr);
+            case COMMA_TOKEN:
+            case CLOSE_PAREN_TOKEN:
+                argNameOrVarRef = consume();
+                return new STPositionalArg(leadingComma, argNameOrVarRef);
+
+            // Treat everything else as a single expression. If something is missing,
+            // expression-parsing will recover it.
+            case NUMERIC_LITERAL_TOKEN:
+            case IDENTIFIER_TOKEN:
+            case OPEN_PAREN_TOKEN:
+            default:
+                expr = parseExpression();
+                return new STPositionalArg(leadingComma, expr);
+        }
     }
 }

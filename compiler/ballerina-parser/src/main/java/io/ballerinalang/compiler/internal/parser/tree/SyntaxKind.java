@@ -93,6 +93,7 @@ public enum SyntaxKind {
     // Expressions
     BINARY_EXPRESSION(1300),
     BRACED_EXPRESSION(1301),
+    FUNCTION_CALL(1302),
 
     // Type descriptors
     RECORD_TYPE_DESCRIPTOR(2000),
@@ -105,6 +106,9 @@ public enum SyntaxKind {
     RECORD_FIELD_WITH_DEFAULT_VALUE(3004),
     RECORD_TYPE_REFERENCE(3005),
     RECORD_REST_TYPE(3006),
+    POSITIONAL_ARG(3007),
+    NAMED_ARG(3007),
+    REST_ARG(3009),
 
     INVALID(4),
     MODULE_PART(3),

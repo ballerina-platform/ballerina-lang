@@ -36,7 +36,6 @@ public enum ParserRuleContext {
     REST_PARAM("rest-parameter"),
     AFTER_PARAMETER_TYPE("after-parameter-type"),
     PARAMETER_RHS("parameter-rhs"),
-    FOLLOW_UP_PARAM("follow-up-param"),
     ANNOTATION_ATTACHMENT("annotation"),
     RETURN_TYPE_DESCRIPTOR("return-type-desc"),
     FUNC_BODY("func-body"),
@@ -57,6 +56,9 @@ public enum ParserRuleContext {
     TYPE_DESCRIPTOR("type-descriptor"),
     RECORD_TYPE_DESCRIPTOR("record-type-desc"),
     TYPE_REFERENCE("type-reference"),
+    ARG_LIST("arguments"),
+    ARG("argument"),
+    NAMED_OR_POSITIONAL_ARG_RHS("named-or-positional-arg"),
 
     // terminals
     PUBLIC("public"),
@@ -86,6 +88,8 @@ public enum ParserRuleContext {
     // expressions
     EXPRESSION("expression"),
     BINARY_EXPR_RHS("expression-rhs"),
+    FUNC_CALL("func-call"),
+    EXPRESSION_END("expr-end"),
     ;
 
     private String value;
