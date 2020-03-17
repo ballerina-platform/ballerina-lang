@@ -1,4 +1,4 @@
-import ballerinax/java;
+import ballerina/java;
 
 public type Person object {
     int age = 9;

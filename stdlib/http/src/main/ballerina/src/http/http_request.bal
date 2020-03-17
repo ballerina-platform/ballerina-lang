@@ -17,7 +17,7 @@
 import ballerina/io;
 import ballerina/mime;
 import ballerina/stringutils;
-import ballerinax/java;
+import ballerina/java;
 import ballerina/time;
 
 # Represents an HTTP request.

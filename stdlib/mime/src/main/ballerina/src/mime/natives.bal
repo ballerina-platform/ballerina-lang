@@ -15,7 +15,7 @@
 // under the License.
 
 import ballerina/io;
-import ballerinax/java;
+import ballerina/java;
 import ballerina/lang.'int as langint;
 
 # Key name for `boundary` parameter in MediaType. This is needed for composite type media types.

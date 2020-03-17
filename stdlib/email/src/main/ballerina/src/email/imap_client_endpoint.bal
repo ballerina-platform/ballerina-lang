@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerinax/java;
+import ballerina/java;
 
 # Represents an IMAP Client, which interacts with an IMAP Server.
 public type ImapClient client object {

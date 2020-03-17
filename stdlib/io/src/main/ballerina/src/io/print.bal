@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerinax/java;
+import ballerina/java;
 
 # Prints `any` or `error` value(s) to the STDOUT.
 # + values - The value(s) to be printed.

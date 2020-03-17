@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerinax/java;
+import ballerina/java;
 
 # Represents a channel which will allow to write records through a given WritableCharacterChannel.
 public type WritableTextRecordChannel object {
