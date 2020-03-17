@@ -33,6 +33,7 @@ import java.util.Iterator;
 import java.util.ServiceLoader;
 
 import static org.ballerinalang.jvm.observability.ObservabilityConstants.CONFIG_METRICS_ENABLED;
+import static org.ballerinalang.jvm.observability.ObservabilityConstants.CONFIG_OBSERVABILITY_PROVIDER;
 import static org.ballerinalang.jvm.observability.ObservabilityConstants.CONFIG_TABLE_METRICS;
 
 /**
@@ -99,7 +100,9 @@ public class MetricsLaunchListener implements LaunchListener {
     }
 
     private MetricReporter loadMetricReporter(ConfigRegistry configRegistry) {
-        String reporterName = configRegistry.getConfigOrDefault(METRIC_REPORTER_NAME, DEFAULT_METRIC_REPORTER_NAME);
+        String defaultReporterName = configRegistry
+                .getConfigOrDefault(CONFIG_OBSERVABILITY_PROVIDER, DEFAULT_METRIC_REPORTER_NAME);
+        String reporterName = configRegistry.getConfigOrDefault(METRIC_REPORTER_NAME, defaultReporterName);
         // Look for MetricProvider implementations
         Iterator<MetricReporter> metricReporters = ServiceLoader.load(MetricReporter.class).iterator();
         while (metricReporters.hasNext()) {

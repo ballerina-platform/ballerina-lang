@@ -508,7 +508,7 @@ type TerminatorGenerator object {
         string jvmClass = lookupFullQualifiedClassName(lookupKey);
         string cleanMethodName = cleanupFunctionName(methodName);
         boolean useBString = IS_BSTRING && orgName == "ballerina" &&
-                             (moduleName == "lang.string" || moduleName == "lang.error" || moduleName == "lang.value" 
+                             (moduleName == "lang.string" || moduleName == "lang.error" || moduleName == "lang.value"
                              || moduleName == "lang.map") && !cleanMethodName.endsWith("_");
         if (useBString) {
             cleanMethodName = nameOfBStringFunc(cleanMethodName);
@@ -756,7 +756,7 @@ type TerminatorGenerator object {
             self.submitToScheduler(fpCall.lhsOp, localVarOffset);
         } else {
             self.mv.visitMethodInsn(INVOKEVIRTUAL, FUNCTION_POINTER, "call", io:sprintf("(L%s;)L%s;", OBJECT, OBJECT), false);
-            // store reult
+            // store result
             bir:BType? lhsType = fpCall.lhsOp?.typeValue;
             if (lhsType is bir:BType) {
                 addUnboxInsn(self.mv, lhsType);

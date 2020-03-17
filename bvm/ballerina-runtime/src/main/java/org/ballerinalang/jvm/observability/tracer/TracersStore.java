@@ -26,6 +26,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.ServiceLoader;
 
+import static org.ballerinalang.jvm.observability.ObservabilityConstants.CONFIG_OBSERVABILITY_PROVIDER;
 import static org.ballerinalang.jvm.observability.ObservabilityConstants.CONFIG_TRACING_ENABLED;
 import static org.ballerinalang.jvm.observability.tracer.TraceConstants.JAEGER;
 import static org.ballerinalang.jvm.observability.tracer.TraceConstants.TRACER_NAME_CONFIG;
@@ -57,7 +58,8 @@ public class TracersStore {
             HashMap<String, OpenTracer> tracerMap = new HashMap<>();
             openTracers.forEach(t -> tracerMap.put(t.getName().toLowerCase(), t));
 
-            String tracerName = configRegistry.getConfigOrDefault(TRACER_NAME_CONFIG, JAEGER);
+            String defaultReporterName = configRegistry.getConfigOrDefault(CONFIG_OBSERVABILITY_PROVIDER, JAEGER);
+            String tracerName = configRegistry.getConfigOrDefault(TRACER_NAME_CONFIG, defaultReporterName);
 
             OpenTracer openTracer = tracerMap.get(tracerName.toLowerCase());
             if (openTracer != null) {

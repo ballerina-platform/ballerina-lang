@@ -324,6 +324,7 @@ const string ANNOTATION_UTILS = "org/ballerinalang/jvm/AnnotationUtils";
 const string ANNOTATION_MAP_NAME = "$annotation_data";
 const string DEFAULTABLE_ARGS_ANOT_NAME = "DefaultableArgs";
 const string DEFAULTABLE_ARGS_ANOT_FIELD = "args";
+const string OBSERVABLE_ANOTATION = "ballerina/observe/Observable";
 
 // types related constants
 const string TYPES_ERROR =  "typeError";

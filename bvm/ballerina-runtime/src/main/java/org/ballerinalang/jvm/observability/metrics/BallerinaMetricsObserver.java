@@ -23,11 +23,10 @@ import org.ballerinalang.jvm.observability.ObserverContext;
 import java.io.PrintStream;
 import java.time.Duration;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 
 import static org.ballerinalang.jvm.observability.ObservabilityConstants.PROPERTY_ERROR;
-import static org.ballerinalang.jvm.observability.ObservabilityConstants.TAG_KEY_HTTP_STATUS_CODE;
+import static org.ballerinalang.jvm.observability.ObservabilityConstants.UNKNOWN_SERVICE;
 
 /**
  * Observe the runtime and collect measurements.
@@ -38,6 +37,7 @@ public class BallerinaMetricsObserver implements BallerinaObserver {
     private static final String TAG_KEY_SERVICE = "service";
     private static final String TAG_KEY_RESOURCE = "resource";
     private static final String TAG_KEY_ACTION = "action";
+    private static final String TAG_KEY_CONNECTOR_NAME = "connector_name";
 
     private static final PrintStream consoleError = System.err;
 
@@ -60,15 +60,22 @@ public class BallerinaMetricsObserver implements BallerinaObserver {
 
     @Override
     public void startServerObservation(ObserverContext observerContext) {
-        String[] mainTags = {TAG_KEY_SERVICE, observerContext.getServiceName(), TAG_KEY_RESOURCE,
-                observerContext.getResourceName()};
-        startObservation(observerContext, mainTags);
+        observerContext.addMainTag(TAG_KEY_SERVICE, observerContext.getServiceName());
+        observerContext.addMainTag(TAG_KEY_RESOURCE, observerContext.getResourceName());
+        observerContext.addMainTag(TAG_KEY_CONNECTOR_NAME, observerContext.getConnectorName());
+        startObservation(observerContext);
     }
 
     @Override
     public void startClientObservation(ObserverContext observerContext) {
-        String[] mainTags = {TAG_KEY_ACTION, observerContext.getActionName()};
-        startObservation(observerContext, mainTags);
+        observerContext.addMainTag(TAG_KEY_ACTION, observerContext.getActionName());
+        observerContext.addMainTag(TAG_KEY_CONNECTOR_NAME, observerContext.getConnectorName());
+        if (!UNKNOWN_SERVICE.equals(observerContext.getServiceName())) {
+            // If service is present, resource should be too
+            observerContext.addMainTag(TAG_KEY_SERVICE, observerContext.getServiceName());
+            observerContext.addMainTag(TAG_KEY_RESOURCE, observerContext.getResourceName());
+        }
+        startObservation(observerContext);
     }
 
     @Override
@@ -77,9 +84,7 @@ public class BallerinaMetricsObserver implements BallerinaObserver {
             // Do not collect metrics if the observation hasn't started
             return;
         }
-        String[] mainTags = {TAG_KEY_SERVICE, observerContext.getServiceName(), TAG_KEY_RESOURCE,
-                observerContext.getResourceName()};
-        stopObservation(observerContext, mainTags);
+        stopObservation(observerContext);
     }
 
     @Override
@@ -88,95 +93,48 @@ public class BallerinaMetricsObserver implements BallerinaObserver {
             // Do not collect metrics if the observation hasn't started
             return;
         }
-        String[] mainTags = {TAG_KEY_ACTION, observerContext.getActionName()};
-        stopObservation(observerContext, mainTags);
+        stopObservation(observerContext);
     }
 
-    private void startObservation(ObserverContext observerContext, String[] mainTags) {
+    private void startObservation(ObserverContext observerContext) {
         observerContext.addProperty(PROPERTY_START_TIME, System.nanoTime());
-        String connectorName = observerContext.getConnectorName();
-        Set<Tag> mainTagSet = new HashSet<>(mainTags.length);
+        Set<Tag> mainTags = observerContext.getMainTags();
         try {
-            // Tags are validated (both key and value should not be null)
-            Tags.tags(mainTagSet, mainTags);
-            getInprogressGauge(connectorName, mainTagSet).increment();
+            getInprogressGauge(mainTags).increment();
         } catch (RuntimeException e) {
-            handleError(connectorName, mainTagSet, e);
+            String connectorName = observerContext.getConnectorName();
+            handleError(connectorName, mainTags, e);
         }
     }
 
-    private void stopObservation(ObserverContext observerContext, String[] mainTags) {
+    private void stopObservation(ObserverContext observerContext) {
         // Connector name must be a part of the metric name to make sure that every metric is unique with
         // the combination of name and tags.
-        String connectorName = observerContext.getConnectorName();
-        Map<String, String> tags = observerContext.getTags();
-        Set<Tag> allTags = new HashSet<>(tags.size() + mainTags.length);
+        Set<Tag> mainTags = observerContext.getMainTags();
+        Set<Tag> allTags = observerContext.getAllTags();
+
+        Set<Tag> allTagsForCounts = new HashSet<>(allTags.size() + 1);
+        Tags.tags(allTagsForCounts, allTags);
+        Boolean error = (Boolean) observerContext.getProperty(PROPERTY_ERROR);
+        Tags.tag(allTagsForCounts, "error", String.valueOf(error != null && error));
         try {
-            // Tags are validated (both key and value should not be null)
-            Tags.tags(allTags, observerContext.getTags());
-            Tags.tags(allTags, mainTags);
-            Set<Tag> mainTagSet = new HashSet<>(mainTags.length);
-            Tags.tags(mainTagSet, mainTags);
             Long startTime = (Long) observerContext.getProperty(PROPERTY_START_TIME);
             long duration = System.nanoTime() - startTime;
-            getInprogressGauge(connectorName, mainTagSet).decrement();
-            metricRegistry.gauge(new MetricId(connectorName + "_response_time_seconds", "Response Time",
+            getInprogressGauge(mainTags).decrement();
+            metricRegistry.gauge(new MetricId("response_time_seconds", "Response Time",
                     allTags), responseTimeStatisticConfigs).setValue(duration / 1E9);
-            metricRegistry.counter(new MetricId(connectorName + "_requests_total",
-                    "Total number of requests", allTags)).increment();
-            // Check HTTP status code
-            String statusCode = tags.get(TAG_KEY_HTTP_STATUS_CODE);
-            if (statusCode != null) {
-                int httpStatusCode = Integer.parseInt(statusCode);
-                if (httpStatusCode > 0) {
-                    incrementHttpStatusCodeCounters(httpStatusCode, connectorName, mainTagSet);
-                }
-            }
-            Boolean error = (Boolean) observerContext.getProperty(PROPERTY_ERROR);
-            if (error != null && error) {
-                metricRegistry.counter(new MetricId(connectorName + "_failed_requests_total",
-                        "Total number of failed requests", allTags)).increment();
-            }
+            metricRegistry.counter(new MetricId("response_time_nanoseconds_total",
+                    "Response Time Total Count", allTags)).increment(duration);
+            metricRegistry.counter(new MetricId("requests_total",
+                    "Total number of requests", allTagsForCounts)).increment();
         } catch (RuntimeException e) {
+            String connectorName = observerContext.getConnectorName();
             handleError(connectorName, allTags, e);
         }
     }
 
-    private Gauge getInprogressGauge(String connectorName, Set<Tag> tags) {
-        return metricRegistry.gauge(new MetricId(connectorName + "_inprogress_requests",
-                "Inprogress Requests", tags));
-    }
-
-    private void incrementHttpStatusCodeCounters(int statusCode, String connectorName, Set<Tag> tags) {
-        metricRegistry.counter(new MetricId(connectorName + "_1XX_requests_total",
-                "Total number of requests that resulted in HTTP 1xx informational responses", tags)).register();
-        metricRegistry.counter(new MetricId(connectorName + "_2XX_requests_total",
-                "Total number of requests that resulted in HTTP 2xx successful responses", tags)).register();
-        metricRegistry.counter(new MetricId(connectorName + "_3XX_requests_total",
-                "Total number of requests that resulted in HTTP 3xx redirections", tags)).register();
-        metricRegistry.counter(new MetricId(connectorName + "_4XX_requests_total",
-                "Total number of requests that resulted in HTTP 4xx client errors", tags)).register();
-        metricRegistry.counter(new MetricId(connectorName + "_5XX_requests_total",
-                "Total number of requests that resulted in HTTP 5xx server errors", tags)).register();
-
-        if (statusCode >= 100 && statusCode < 200) {
-            metricRegistry.counter(new MetricId(connectorName + "_1XX_requests_total",
-                    "Total number of requests that resulted in HTTP 1xx informational responses", tags))
-                    .increment();
-        } else if (statusCode < 300) {
-            metricRegistry.counter(new MetricId(connectorName + "_2XX_requests_total",
-                    "Total number of requests that resulted in HTTP 2xx successful responses", tags))
-                    .increment();
-        } else if (statusCode < 400) {
-            metricRegistry.counter(new MetricId(connectorName + "_3XX_requests_total",
-                    "Total number of requests that resulted in HTTP 3xx redirections", tags)).increment();
-        } else if (statusCode < 500) {
-            metricRegistry.counter(new MetricId(connectorName + "_4XX_requests_total",
-                    "Total number of requests that resulted in HTTP 4xx client errors", tags)).increment();
-        } else if (statusCode < 600) {
-            metricRegistry.counter(new MetricId(connectorName + "_5XX_requests_total",
-                    "Total number of requests that resulted in HTTP 5xx server errors", tags)).increment();
-        }
+    private Gauge getInprogressGauge(Set<Tag> tags) {
+        return metricRegistry.gauge(new MetricId("inprogress_requests", "Inprogress Requests", tags));
     }
 
     private void handleError(String connectorName, Set<Tag> tags, RuntimeException e) {

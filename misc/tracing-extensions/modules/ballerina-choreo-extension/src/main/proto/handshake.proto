@@ -1,0 +1,39 @@
+syntax = "proto3";
+
+option java_package = "org.ballerinalang.observe.trace.extension.choreo.gen";
+
+import "google/protobuf/empty.proto";
+import "google/protobuf/wrappers.proto";
+
+service Handshake {
+	rpc handshake (HandshakeRequest)
+			returns (HandshakeResponse);
+
+    rpc publishProgram (PublishProgramRequest)
+            returns (google.protobuf.Empty);
+
+    rpc linkApplication (LinkApplicationRequest)
+            returns (google.protobuf.Empty);
+}
+
+message HandshakeRequest {
+    string programHash = 1;
+    string userId = 2;
+    string applicationId = 3;
+}
+
+message HandshakeResponse {
+    string observabilityId = 1;
+    string url = 2;
+    bool sendProgramJson = 3;
+}
+
+message PublishProgramRequest {
+    string observabilityId = 1;
+    string programJson = 2;
+}
+
+message LinkApplicationRequest {
+    string observabilityId = 1;
+    string applicationId = 2;
+}
