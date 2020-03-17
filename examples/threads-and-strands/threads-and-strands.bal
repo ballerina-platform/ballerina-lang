@@ -5,7 +5,7 @@ import ballerina/io;
 public function case1() {
     // Execution of the `start` action causes the creation of a new strand and
     // it will be part of the thread executing the current strand.
-    // But the Ballerina runtime will not execute the new strand until the current strand yields.
+    // However, the Ballerina runtime will not execute the new strand until the current strand yields.
     io:println("--- case 1 ---");
     future<int> f1 = start multiply(1, 2);
 
