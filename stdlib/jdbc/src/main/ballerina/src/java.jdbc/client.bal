@@ -18,6 +18,10 @@ import ballerinax/java;
 
 # Represents a JDBC client endpoint.
 #
+# # Deprecated
+# New experimental jdbc2 module is introduced in 1.2 release and it will be fully supported with in 1.3 release
+# This jdbc client object will be removed from 1.3 release.
+@deprecated
 public type Client client object {
     private boolean clientActive = true;
 
@@ -37,7 +41,7 @@ public type Client client object {
     # # Deprecated
     # New experimental jdbc2 module is introduced in 1.2 release and it will be fully supported with in 1.3 release
     # This function will be removed from 1.3 release.
-    @deprecated {}
+    @deprecated
     public remote function call(@untainted string sqlQuery, typedesc<record {}>[]? recordType, Param... parameters)
                                 returns @tainted table<record {}>[]|()|Error {
         if (!self.clientActive) {
@@ -56,7 +60,7 @@ public type Client client object {
     # # Deprecated
     # New experimental jdbc2 module is introduced in 1.2 release and it will be fully supported with in 1.3 release
     # This function will be removed from 1.3 release.
-    @deprecated {}
+    @deprecated
     public remote function select(@untainted string sqlQuery, typedesc<record{}>? recordType, Param... parameters)
                                   returns @tainted table<record {}>|Error {
         if (!self.clientActive) {
@@ -78,7 +82,7 @@ public type Client client object {
     # # Deprecated
     # New experimental jdbc2 module is introduced in 1.2 release and it will be fully supported with in 1.3 release
     # This function will be removed from 1.3 release.
-    @deprecated {}
+    @deprecated
     public remote function update(@untainted string sqlQuery, boolean returnGeneratedKeys = false, Param... parameters)
     returns UpdateResult|Error {
         if (!self.clientActive) {
@@ -108,7 +112,7 @@ public type Client client object {
     # # Deprecated
     # New experimental jdbc2 module is introduced in 1.2 release and it will be fully supported with in 1.3 release
     # This function will be removed from 1.3 release.
-    @deprecated {}
+    @deprecated
     public remote function batchUpdate(@untainted string sqlQuery, boolean rollbackAllInFailure = false,
                                        boolean returnGeneratedKeys = false, Param?[]... parameters)
                                        returns BatchUpdateResult {
@@ -126,7 +130,7 @@ public type Client client object {
     # # Deprecated
     # New experimental jdbc2 module is introduced in 1.2 release and it will be fully supported with in 1.3 release
     # This function will be removed from 1.3 release.
-    @deprecated {}
+    @deprecated
     public function stop() returns error? {
         self.clientActive = false;
         return close(self);
