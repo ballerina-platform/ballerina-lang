@@ -15,7 +15,7 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.wso2.ballerinalang.compiler.tree.statements;
+package org.wso2.ballerinalang.compiler.tree.expressions;
 
 import org.ballerinalang.model.clauses.DoClauseNode;
 import org.ballerinalang.model.clauses.FromClauseNode;
@@ -33,11 +33,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * {@code BLangQueryAction} represents the do action statement in Ballerina.
+ * {@code BLangQueryAction} represents the do action  in Ballerina.
  *
  * @since 1.2.0
  */
-public class BLangQueryAction extends BLangStatement implements QueryActionNode {
+public class BLangQueryAction extends BLangExpression implements QueryActionNode {
 
     public List<BLangFromClause> fromClauseList = new ArrayList<>();
     public List<BLangWhereClause> whereClauseList = new ArrayList<>();

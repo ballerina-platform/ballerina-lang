@@ -154,7 +154,6 @@ public class CompilerDriver {
             symbolTable.langValueModuleSymbol = pkgLoader.loadPackageSymbol(VALUE, null, null);
             symbolTable.langXmlModuleSymbol = pkgLoader.loadPackageSymbol(XML, null, null);
             symbolTable.langBooleanModuleSymbol = pkgLoader.loadPackageSymbol(BOOLEAN, null, null);
-            symbolTable.loadDefaultXMLNamespace();
             return;
         }
 
@@ -183,7 +182,6 @@ public class CompilerDriver {
         symbolTable.langInternalModuleSymbol = pkgLoader.loadPackageSymbol(INTERNAL, null, null);
 
         symResolver.reloadIntRangeType();
-        symbolTable.loadDefaultXMLNamespace();
 
         // Now load each module.
         getLangModuleFromSource(langLib);

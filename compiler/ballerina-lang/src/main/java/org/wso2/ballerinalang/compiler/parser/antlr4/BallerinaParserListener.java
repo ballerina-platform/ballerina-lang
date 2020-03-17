@@ -2332,6 +2332,18 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 */
 	void exitActionInvocationExpression(BallerinaParser.ActionInvocationExpressionContext ctx);
 	/**
+	 * Enter a parse tree produced by the {@code queryActionExpression}
+	 * labeled alternative in {@link BallerinaParser#expression}.
+	 * @param ctx the parse tree
+	 */
+	void enterQueryActionExpression(BallerinaParser.QueryActionExpressionContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code queryActionExpression}
+	 * labeled alternative in {@link BallerinaParser#expression}.
+	 * @param ctx the parse tree
+	 */
+	void exitQueryActionExpression(BallerinaParser.QueryActionExpressionContext ctx);
+	/**
 	 * Enter a parse tree produced by the {@code binaryCompareExpression}
 	 * labeled alternative in {@link BallerinaParser#expression}.
 	 * @param ctx the parse tree
@@ -2602,15 +2614,15 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 */
 	void exitQueryExpr(BallerinaParser.QueryExprContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link BallerinaParser#queryActionStatement}.
+	 * Enter a parse tree produced by {@link BallerinaParser#queryAction}.
 	 * @param ctx the parse tree
 	 */
-	void enterQueryActionStatement(BallerinaParser.QueryActionStatementContext ctx);
+	void enterQueryAction(BallerinaParser.QueryActionContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link BallerinaParser#queryActionStatement}.
+	 * Exit a parse tree produced by {@link BallerinaParser#queryAction}.
 	 * @param ctx the parse tree
 	 */
-	void exitQueryActionStatement(BallerinaParser.QueryActionStatementContext ctx);
+	void exitQueryAction(BallerinaParser.QueryActionContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#nameReference}.
 	 * @param ctx the parse tree
