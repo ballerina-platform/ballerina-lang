@@ -2,11 +2,11 @@
 // be satisfied for objects to be structurally equivalent. The following are the general equivalency rules
 // that are applicable for objects.
 //
-// - Both objects should have the same access modifier (i.e., either both should be public or both should be private).
-// - If both objects are private, they should be in the same package.
-// - The right hand side (RHS) object type should at least have all the fields as well as the methods of the left hand side (LHS) type.
-// - If the objects are public object types, all the fields and methods must be public as well.
-// - The field types of the RHS object should be assignable to the field types of the LHS object.
-// - The method signatures of the RHS object type should match the method signatures of the LHS object type.
-// - The parameters and return types of the RHS object type should also be the same types or subtypes of
+// 1. Both objects should have the same access modifier (i.e., either both should be public or both should be private).
+// 2. If both objects are private, they should be in the same package.
+// 3. The right hand side (RHS) object type should at least have all the fields as well as the methods of the left hand side (LHS) type.
+// 4. If the objects are public object types, all the fields and methods must be public as well.
+// 5. The field types of the RHS object should be assignable to the field types of the LHS object.
+// 6. The method signatures of the RHS object type should match the method signatures of the LHS object type.
+// 7. The parameters and return types of the RHS object type should also be the same types or subtypes of
 // the corresponding parameters and return types of the LHS object type.

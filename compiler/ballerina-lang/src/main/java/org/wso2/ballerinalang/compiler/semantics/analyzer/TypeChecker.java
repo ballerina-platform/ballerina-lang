@@ -74,6 +74,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangDoClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangFromClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangLetClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectClause;
@@ -100,6 +101,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchExpression.BLangMatchExprPatternClause;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryAction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordKey;
@@ -309,7 +311,7 @@ public class TypeChecker extends BLangNodeVisitor {
         if (xmlNavigation.childIndex != null) {
             checkExpr(xmlNavigation.childIndex, env, symTable.intType);
         }
-        resultType = checkExpr(xmlNavigation.expr, env, expType);
+        resultType = checkExpr(xmlNavigation.expr, env, symTable.xmlType);
         // todo: we may need to add some logic to constrain result type to  @namedSubType type.
     }
 
@@ -1662,16 +1664,18 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     private boolean isXmlAccess(BLangFieldBasedAccess fieldAccessExpr) {
-        if (fieldAccessExpr.expr.type.tag == TypeTags.XML || fieldAccessExpr.expr.type.tag == TypeTags.XML_ELEMENT) {
+        BLangExpression expr = fieldAccessExpr.expr;
+        BType exprType = expr.type;
+
+        if (exprType.tag == TypeTags.XML || exprType.tag == TypeTags.XML_ELEMENT) {
             return true;
         }
 
-        if ((fieldAccessExpr.expr.getKind() == NodeKind.FIELD_BASED_ACCESS_EXPR
-                && hasLaxOriginalType((BLangFieldBasedAccess) fieldAccessExpr.expr)
-                && (((BUnionType) fieldAccessExpr.expr.type).getMemberTypes().contains(symTable.xmlType))
-                    || ((BUnionType) fieldAccessExpr.expr.type).getMemberTypes().contains(symTable.xmlElementType))) {
-            return true;
-        }
+        if (expr.getKind() == NodeKind.FIELD_BASED_ACCESS_EXPR  && hasLaxOriginalType((BLangFieldBasedAccess) expr)
+                && exprType.tag == TypeTags.UNION) {
+            Set<BType> memberTypes = ((BUnionType) exprType).getMemberTypes();
+            return memberTypes.contains(symTable.xmlType) || memberTypes.contains(symTable.xmlElementType);
+          }
 
         return false;
     }
@@ -2779,11 +2783,41 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         BType selectType = checkExpr(selectClause.expression, whereEnv, expSelectType);
-
         resultType = selectType == symTable.semanticError ? selectType : new BArrayType(selectType);
     }
 
-    SymbolEnv typeCheckFromClause(BLangFromClause fromClause, SymbolEnv parentEnv) {
+    @Override
+    public void visit(BLangQueryAction queryAction) {
+        List<? extends FromClauseNode> fromClauseList = queryAction.fromClauseList;
+        List<? extends WhereClauseNode> whereClauseList = queryAction.whereClauseList;
+        List<? extends LetClauseNode> letClauseList = queryAction.letClauseList;
+        BLangDoClause doClauseNode = queryAction.doClause;
+
+        SymbolEnv parentEnv = env;
+        for (FromClauseNode fromClause : fromClauseList) {
+            parentEnv = typeCheckFromClause((BLangFromClause) fromClause, parentEnv);
+        }
+        for (LetClauseNode letClauseNode : letClauseList) {
+            parentEnv = typeCheckLetClause((BLangLetClause) letClauseNode, parentEnv);
+        }
+
+        SymbolEnv whereEnv = parentEnv;
+        for (WhereClauseNode whereClauseNode : whereClauseList) {
+            BLangWhereClause whereClause = (BLangWhereClause) whereClauseNode;
+            checkExpr(whereClause.expression, parentEnv);
+            whereEnv = typeNarrower.evaluateTruth(whereClause.expression, doClauseNode, parentEnv);
+        }
+
+        SymbolEnv blockEnv = SymbolEnv.createBlockEnv(doClauseNode.body, whereEnv);
+        // Analyze foreach node's statements.
+        semanticAnalyzer.analyzeStmt(doClauseNode.body, blockEnv);
+        BType actualType = BUnionType.create(null, symTable.errorType, symTable.nilType);
+
+        resultType = types.checkType(doClauseNode.pos, actualType, expType,
+                DiagnosticCode.INCOMPATIBLE_TYPES);
+    }
+
+    private SymbolEnv typeCheckFromClause(BLangFromClause fromClause, SymbolEnv parentEnv) {
         checkExpr(fromClause.collection, parentEnv);
 
         // Set the type of the foreach node's type node.
@@ -2795,7 +2829,7 @@ public class TypeChecker extends BLangNodeVisitor {
         return fromClauseEnv;
     }
 
-    SymbolEnv typeCheckLetClause(BLangLetClause letClause, SymbolEnv parentEnv) {
+    private SymbolEnv typeCheckLetClause(BLangLetClause letClause, SymbolEnv parentEnv) {
         SymbolEnv letClauseEnv = SymbolEnv.createTypeNarrowedEnv(letClause, parentEnv);
         for (BLangLetVariable letVariable : letClause.letVarDeclarations) {
             semanticAnalyzer.analyzeDef((BLangNode) letVariable.definitionNode, letClauseEnv);

@@ -110,6 +110,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownParameterDo
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownReturnParameterDocumentation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNumericLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryAction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordKey;
@@ -164,7 +165,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStaticBindingPatternClause;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStructuredBindingPatternClause;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangPanic;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangQueryAction;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRetry;
@@ -2006,7 +2006,7 @@ public class BLangPackageBuilder {
         whereClauseNodeStack.push(whereClause);
     }
 
-    void startDoActionStatement() {
+    void startDoActionBlock() {
         startBlock();
     }
 
@@ -2021,8 +2021,8 @@ public class BLangPackageBuilder {
         doClauseNodeStack.push(doClause);
     }
 
-    void createQueryActionStatement(DiagnosticPos pos, Set<Whitespace> ws) {
-        BLangQueryAction queryAction = (BLangQueryAction) TreeBuilder.createQueryActionStatementNode();
+    void createQueryActionExpr(DiagnosticPos pos, Set<Whitespace> ws) {
+        BLangQueryAction queryAction = (BLangQueryAction) TreeBuilder.createQueryActionNode();
         queryAction.pos = pos;
         queryAction.addWS(ws);
 
@@ -2040,7 +2040,7 @@ public class BLangPackageBuilder {
         }
 
         queryAction.setDoClauseNode(doClauseNodeStack.pop());
-        addStmtToCurrentBlock(queryAction);
+        addExpressionNode(queryAction);
     }
 
     void endFunctionDefinition(DiagnosticPos pos, Set<Whitespace> ws, String funcName, DiagnosticPos funcNamePos,

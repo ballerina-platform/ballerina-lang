@@ -49,6 +49,6 @@ public class QueryNegativeTests {
         validateError(compileResult, index++, "incompatible types: 'int' is not an iterable collection", 77, 32);
         validateError(compileResult, index++, "incompatible types: expected 'boolean', found 'int'", 78, 19);
         validateError(compileResult, index++, "incompatible types: expected 'Person', found 'int'", 79, 20);
-        validateError(compileResult, index, "cannot assign a value to final 'person'", 94, 13);
+        validateError(compileResult, index, "cannot assign a value to final 'person'", 94, 17);
     }
 }

@@ -527,6 +527,34 @@ public class PathDependencyTestCase extends BaseTest {
     }
 
     /**
+     * Case10: Build and run TestProject1 which imports module with "ballerina" org name via balo path.
+     *
+     * @throws BallerinaTestException Error when executing the commands.
+     */
+    @Test(description = "Case10: Test build and run project which imports module with \"ballerina\" org name via" +
+            " balo path.")
+    public void testBaloPathCase10() throws BallerinaTestException {
+        Path caseResources = tempTestResources.resolve("case10");
+        String printBarLog = "Bar";
+        String buildLog = "target/bin/mod1.jar";
+        LogLeecher testLogeecher = new LogLeecher(printBarLog);
+        LogLeecher buildLogLeecher = new LogLeecher(buildLog);
+
+        // Build TestProject1 with tests
+        balClient.runMain("build", new String[]{"-a"}, envVariables, new String[]{},
+                          new LogLeecher[]{testLogeecher, buildLogLeecher},
+                          caseResources.resolve("TestProject1").toString());
+        testLogeecher.waitForText(5000);
+        buildLogLeecher.waitForText(5000);
+
+        // Run TestProject1
+        LogLeecher runLogLeecher = new LogLeecher(printBarLog);
+        balClient.runMain("run", new String[]{"mod1"}, envVariables, new String[]{},
+                          new LogLeecher[]{runLogLeecher}, caseResources.resolve("TestProject1").toString());
+        runLogLeecher.waitForText(5000);
+    }
+
+    /**
      * Build TestProject1. TestProject1 will fail as the given platform dependency does not have a valid path.
      *
      * @throws BallerinaTestException Error when executing the commands.
