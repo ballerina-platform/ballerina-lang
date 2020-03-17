@@ -8,6 +8,5 @@
 // As you can see, all the strands created in a particular execution of a Ballerina program will be executed
 // sequentially by a single thread. In some situations, it would be desirable to assign strands to different threads.
 // The @strand annotation helps you to achieve this.
-// You can annotate the named worker declarations and start actions with the @strand annotation to instruct
+// You can annotate the named worker declarations and start actions with the `@strand` annotation to instruct
 // the Ballerina runtime to put new strands in a separate thread from the current strand.
-
