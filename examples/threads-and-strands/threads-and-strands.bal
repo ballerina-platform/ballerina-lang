@@ -3,7 +3,7 @@ import ballerina/io;
 // This function creates a new strand, which belongs to the same
 // thread as the current strand.
 public function case1() {
-    // Execution of the `start` action causes the creation of a new strand here, and
+    // Execution of the `start` action causes the creation of a new strand and
     // it will be part of the thread executing the current strand.
     // But the Ballerina runtime will not execute the new strand until the current strand yields.
     io:println("--- case 1 ---");
