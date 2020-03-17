@@ -32,7 +32,7 @@ public function case2() {
 // Create two new strands and assign them to separate threads from the thread executing the current strand.
 public function case3() {
     io:println("--- case 3 ---");
-    // Creates a new strand
+    // Create a new strand.
     future<int> f1 = @strand {thread: "any"} start multiply(1, 2);
     future<int> f2 = @strand {thread: "any"} start multiply(4, 5);
 
@@ -41,11 +41,11 @@ public function case3() {
     io:println("After the wait action\n");
 }
 
-// Create two new strands. Ballerina runtime assigns the first one to separate thread and assigns
+// Create two new strands. Ballerina runtime assigns the first one to a separate thread and assigns
 // the second one to the same thread executing the current strand.
 public function case4() {
     io:println("--- case 4 ---");
-    // Creates a new strand
+    // Create a new strand.
     future<int> f1 = @strand {thread: "any"} start multiply(1, 2);
     future<int> f2 = start multiply(4, 5);
 
@@ -54,10 +54,10 @@ public function case4() {
     io:println("After the wait action\n");
 }
 
-// Create two new strands. Ballerina runtime assigns both strands to the same thread executing the current strand.
+// Create two new strands. The Ballerina runtime assigns both strands to the same thread executing the current strand.
 public function case5() {
     io:println("--- case 5 ---");
-    // Creates a new strand
+    // Create a new strand.
     future<int> f1 = start multiply(1, 2);
     future<int> f2 = start multiply(4, 5);
 
