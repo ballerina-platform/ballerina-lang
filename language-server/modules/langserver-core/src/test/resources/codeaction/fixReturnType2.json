@@ -2,7 +2,7 @@
     "line": 5,
     "character": 14,
     "expected": {
-        "title": "Change Return Type to '(int|string)[]'",
+        "title": "Change Return Type to '[int,string]'",
         "edits": [
             {
                 "range": {
@@ -15,7 +15,7 @@
                         "character": 49
                     }
                 },
-                "newText": "(int|string)[]"
+                "newText": "[int,string]"
             }
         ]
     }
