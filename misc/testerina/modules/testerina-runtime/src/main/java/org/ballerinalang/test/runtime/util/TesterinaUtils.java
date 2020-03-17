@@ -72,6 +72,7 @@ public class TesterinaUtils {
                 throw new RuntimeException("there are test failures");
             }
         } catch (Throwable e) {
+            errStream.println("error: " + e.getMessage());
             throw e;
         }
     }
