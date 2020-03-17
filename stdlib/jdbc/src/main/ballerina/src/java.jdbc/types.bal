@@ -27,7 +27,8 @@ import ballerinax/java;
 #               provided in poolOptions
 #
 # # Deprecated
-# A new experimental JDBC2 module is introduced in the Ballerina 1.2 release and it will be fully supported by the 1.3 release.
+# A new experimental JDBC2 module is introduced in the Ballerina 1.2 release and
+# it will be fully supported by the 1.3 release.
 # This record type will be removed later in the 1.3 release.
 @deprecated
 public type ClientConfiguration record {|
@@ -77,7 +78,8 @@ public type ClientConfiguration record {|
 #                       `b7a.jdbc.pool.validationTimeoutInMillis`.  Lowest acceptable validation timeout is 250 ms.
 #
 # # Deprecated
-# A new experimental JDBC2 module is introduced in the Ballerina 1.2 release and it will be fully supported by the 1.3 release.
+# A new experimental JDBC2 module is introduced in the Ballerina 1.2 release and
+# it will be fully supported by the 1.3 release.
 # This record type will be removed later in the  1.3 release.
 @deprecated
 public type PoolOptions record {|
@@ -160,7 +162,8 @@ final GlobalPoolConfigContainer globalPoolConfigContainer = new;
 # `REFCURSOR` - Cursor value
 #
 # # Deprecated
-# A new experimental JDBC2 module is introduced in the Ballerina 1.2 release and it will be fully supported by the 1.3 release.
+# A new experimental JDBC2 module is introduced in the Ballerina 1.2 release and
+# it will be fully supported by the 1.3 release.
 # This type will be removed later in the 1.3 release.
 @deprecated
 public type SQLType TYPE_VARCHAR|TYPE_CHAR|TYPE_LONGVARCHAR|TYPE_NCHAR|TYPE_LONGNVARCHAR|TYPE_NVARCHAR|TYPE_BIT|
@@ -206,7 +209,8 @@ public const TYPE_REFCURSOR = "REFCURSOR";
 # `INOUT` - INOUT parameters are used to send values and get values from stored procedures
 #
 # # Deprecated
-# A new experimental JDBC2 module is introduced in the Ballerina 1.2 release and it will be fully supported by the 1.3 release.
+# A new experimental JDBC2 module is introduced in the Ballerina 1.2 release and
+# it will be fully supported by the 1.3 release.
 # This type will be removed later in the 1.3 release.
 @deprecated
 public type Direction DIRECTION_IN|DIRECTION_OUT|DIRECTION_INOUT;
@@ -225,7 +229,8 @@ public const DIRECTION_INOUT = "INOUT";
 #                result row
 #
 # # Deprecated
-# A new experimental JDBC2 module is introduced in the Ballerina 1.2 release and it will be fully supported by the  1.3 release.
+# A new experimental JDBC2 module is introduced in the Ballerina 1.2 release and
+# it will be fully supported by the  1.3 release.
 # This record type will be removed later in the 1.3 release.
 @deprecated
 public type Parameter record {|
@@ -241,7 +246,8 @@ public type Parameter record {|
 # + generatedKeys - A map of auto generated key values during the sql statement execution
 #
 # # Deprecated
-# A new experimental JDBC2 module is introduced in the Ballerina 1.2 release and it will be fully supported by the 1.3 release.
+# A new experimental JDBC2 module is introduced in the Ballerina 1.2 release and
+# it will be fully supported by the 1.3 release.
 # This record type will be removed later in the 1.3 release.
 @deprecated
 public type UpdateResult record {|
@@ -262,7 +268,8 @@ public type UpdateResult record {|
 # + returnedError - The `Error` returned from the remote function in case of a failure
 #
 # # Deprecated
-# A new experimental JDBC2 module is introduced in the Ballerina 1.2 release and it will be fully supported by the 1.3 release.
+# A new experimental JDBC2 module is introduced in the Ballerina 1.2 release and
+# it will be fully supported by the 1.3 release.
 # This record type will be removed later in the 1.3 release.
 @deprecated
 public type BatchUpdateResult record {|
@@ -274,7 +281,8 @@ public type BatchUpdateResult record {|
 # The parameter passed into the operations.
 #
 # # Deprecated
-# A new experimental JDBC2 module is introduced in the Ballerina 1.2 release and it will be fully supported by the 1.3 release.
+# A new experimental JDBC2 module is introduced in the Ballerina 1.2 release and
+# it will be fully supported by the 1.3 release.
 # This type will be removed later in the 1.3 release.
 @deprecated
 public type Param string|int|boolean|float|decimal|byte[]|Parameter;
