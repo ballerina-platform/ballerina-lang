@@ -7,5 +7,5 @@
 # Execute the following command to build the 'client' module.
 $ ballerina build client
 
-# Run the client using the following command and passing Ballerina home path as system property.
+# To run the client, execute the below command by passing the path to the Ballerina home directory using the --`b7a.home` parameter.
 $ ballerina run target/bin/client.jar --b7a.home=<ballerina_home_path>
