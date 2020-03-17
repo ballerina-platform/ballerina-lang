@@ -19,8 +19,8 @@ import ballerinax/java;
 # Represents a JDBC client endpoint.
 #
 # # Deprecated
-# New experimental jdbc2 module is introduced in 1.2 release and it will be fully supported with in 1.3 release
-# This jdbc client object will be removed from 1.3 release.
+# A new experimental JDBC2 module is introduced in the Ballerina 1.2 release and it will be fully supported by the 1.3 release.
+# This JDBC client object will be removed later in the 1.3 release.
 @deprecated
 public type Client client object {
     private boolean clientActive = true;
@@ -34,13 +34,13 @@ public type Client client object {
     #
     # + sqlQuery - The SQL stored procedure to execute
     # + recordType - Array of record types of the returned tables if there is any
-    # + parameters - The parameters to be passed to the procedure/function call
-    # + return - A `table[]` if there are tables returned by the call remote function and else nil,
+    # + parameters - The parameters to be passed to the `procedure/function` call
+    # + return - A `table[]` if there are tables returned by the call remote function and else nil.
     #            `Error` will be returned if there is any error
     #
     # # Deprecated
-    # New experimental jdbc2 module is introduced in 1.2 release and it will be fully supported with in 1.3 release
-    # This function will be removed from 1.3 release.
+    # A new experimental JDBC2 module is introduced in the Ballerina 1.2 release and it will be fully supported by the 1.3 release.
+    # This function will be removed later in the 1.3 release.
     @deprecated
     public remote function call(@untainted string sqlQuery, typedesc<record {}>[]? recordType, Param... parameters)
                                 returns @tainted table<record {}>[]|()|Error {
@@ -55,11 +55,11 @@ public type Client client object {
     # + sqlQuery - SQL query to execute
     # + recordType - Type of the returned table
     # + parameters - The parameters to be passed to the select query
-    # + return - A `table` returned by the SQL query statement else `Error` will be returned if there is an error
+    # + return - A `table` returned by the SQL query statement or else `Error` will be returned if there is an error
     #
     # # Deprecated
-    # New experimental jdbc2 module is introduced in 1.2 release and it will be fully supported with in 1.3 release
-    # This function will be removed from 1.3 release.
+    # A new experimental JDBC2 module is introduced in the Ballerina 1.2 release and it will be fully supported by the 1.3 release.
+    # This function will be removed later in the 1.3 release.
     @deprecated
     public remote function select(@untainted string sqlQuery, typedesc<record{}>? recordType, Param... parameters)
                                   returns @tainted table<record {}>|Error {
@@ -75,13 +75,13 @@ public type Client client object {
     # + parameters - The parameters to be passed to the update query
     # + returnGeneratedKeys - Indicate that generated keys should be made available for retrieval. If the value is
     #                         set to `true`, auto-generated keys are made available to retrieve when the statement
-    #                         is executed. If the underline JDBC driver does not support it, it will return an `Error`.
-    # + return - `UpdateResult` with the updated row count and key column values,
+    #                         is executed. If the underlying JDBC driver does not support it, it will return an `Error`.
+    # + return - `UpdateResult` with the updated row count and key column values or
     #             else `Error` will be returned if there is an error
     #
     # # Deprecated
-    # New experimental jdbc2 module is introduced in 1.2 release and it will be fully supported with in 1.3 release
-    # This function will be removed from 1.3 release.
+    # A new experimental JDBC2 module is introduced in the Ballerina 1.2 release and it will be fully supported by the 1.3 release.
+    # This function will be removed later in the 1.3 release.
     @deprecated
     public remote function update(@untainted string sqlQuery, boolean returnGeneratedKeys = false, Param... parameters)
     returns UpdateResult|Error {
@@ -105,13 +105,13 @@ public type Client client object {
     #                         set to `true`, auto-generated keys are made available to retrieve when the statement
     #                         is executed. If the underline JDBC driver does not support it, it will return an `Error`.
     # + return - A `BatchUpdateResult` with the updated row count and returned error if any. If all the commands
-    #            in the batch have executed successfully, the error will be `nil`. If one or more commands have failed,
-    #            the `returnedError` field will give the corresponding `Error` along with the int[] which
+    #            if the batch have executed successfully, the error will be `nil`. If one or more commands have failed,
+    #            the `returnedError` field will give the corresponding `Error` along with the int[], which
     #            contains updated row count or the status returned from each command in the batch.
     #
     # # Deprecated
-    # New experimental jdbc2 module is introduced in 1.2 release and it will be fully supported with in 1.3 release
-    # This function will be removed from 1.3 release.
+    # A new experimental JDBC2 module is introduced in the Ballerina 1.2 release and it will be fully supported by the 1.3 release.
+    # This function will be removed later in the 1.3 release.
     @deprecated
     public remote function batchUpdate(@untainted string sqlQuery, boolean rollbackAllInFailure = false,
                                        boolean returnGeneratedKeys = false, Param?[]... parameters)
@@ -128,8 +128,8 @@ public type Client client object {
     # + return - Possible error during closing the client
     #
     # # Deprecated
-    # New experimental jdbc2 module is introduced in 1.2 release and it will be fully supported with in 1.3 release
-    # This function will be removed from 1.3 release.
+    # A new experimentalJDBC2 module is introduced in the Ballerina 1.2 release and it will be fully supported by the 1.3 release.
+    # This function will be removed later in the 1.3 release.
     @deprecated
     public function stop() returns error? {
         self.clientActive = false;

@@ -15,12 +15,12 @@
 // under the License.
 
 # # Deprecated
-# New experimental jdbc2 module is introduced in 1.2 release and it will be fully supported with in 1.3 release
-# This constant will be removed from 1.3 release.
+# A new experimental JDBC2 module is introduced in the Ballerina 1.2 release and it will be fully supported by the 1.3 release.
+# This constant will be removed later in the 1.3 release.
 @deprecated
 public const DATABASE_ERROR_REASON = "{ballerinax/java.jdbc}DatabaseError";
 
-# Represents the properties belonging to a `DatabaseError`
+# Represents the properties belonging to a `DatabaseError`.
 #
 # + message - Error message
 # + sqlErrorCode - SQL error code
