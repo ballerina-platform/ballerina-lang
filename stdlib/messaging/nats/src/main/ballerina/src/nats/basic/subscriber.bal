@@ -15,7 +15,7 @@
 // under the License.
 
 import ballerina/lang.'object as lang;
-import ballerinax/java;
+import ballerina/java;
 
 # Represents a connection which will be used for subscription.
 public type Listener object {

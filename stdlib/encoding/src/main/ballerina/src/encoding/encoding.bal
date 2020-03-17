@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerinax/java;
+import ballerina/java;
 
 # Returns the Base64 URL encoded `string` value of the given byte array.
 #

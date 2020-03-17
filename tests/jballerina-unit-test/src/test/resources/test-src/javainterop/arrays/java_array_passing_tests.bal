@@ -1,4 +1,4 @@
-import ballerinax/java;
+import ballerina/java;
 import ballerinax/java.arrays as jarrays;
 
 

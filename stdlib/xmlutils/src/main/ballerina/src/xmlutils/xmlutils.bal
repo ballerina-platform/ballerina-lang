@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerinax/java;
+import ballerina/java;
 
 # Record to provide configurations for the JSON to XML conversion.
 #

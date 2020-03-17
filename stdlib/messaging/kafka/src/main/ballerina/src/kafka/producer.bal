@@ -15,7 +15,7 @@
 // under the License.
 
 import ballerina/system;
-import ballerinax/java;
+import ballerina/java;
 
 # Struct which represents Kafka Producer configuration.
 #

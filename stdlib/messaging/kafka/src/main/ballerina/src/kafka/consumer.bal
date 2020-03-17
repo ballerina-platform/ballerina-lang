@@ -15,7 +15,7 @@
 // under the License.
 
 import ballerina/lang.'object;
-import ballerinax/java;
+import ballerina/java;
 
 # Configuration related to consumer endpoint.
 #
