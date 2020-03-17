@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerinax/java;
+import ballerina/java;
 
 # Specifies the time format defined by the RFC-1123
 public const TIME_FORMAT_RFC_1123 = "RFC_1123";

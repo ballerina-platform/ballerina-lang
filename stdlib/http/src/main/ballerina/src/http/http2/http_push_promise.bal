@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerinax/java;
+import ballerina/java;
 
 # Represents an HTTP/2 `PUSH_PROMISE` frame.
 #

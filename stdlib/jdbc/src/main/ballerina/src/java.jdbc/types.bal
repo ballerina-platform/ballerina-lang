@@ -15,7 +15,7 @@
 // under the License.
 
 import ballerina/config;
-import ballerinax/java;
+import ballerina/java;
 
 # Provides a set of configurations for the JDBC Client.
 #

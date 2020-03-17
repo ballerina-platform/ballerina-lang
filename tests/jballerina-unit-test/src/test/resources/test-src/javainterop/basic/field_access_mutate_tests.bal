@@ -1,4 +1,4 @@
-import ballerinax/java;
+import ballerina/java;
 
 function testStaticFieldAccess() returns handle {
     return getContractId();

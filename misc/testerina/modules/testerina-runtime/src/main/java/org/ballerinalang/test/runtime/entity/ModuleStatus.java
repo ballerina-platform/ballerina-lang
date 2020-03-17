@@ -17,8 +17,8 @@
  */
 package org.ballerinalang.test.runtime.entity;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Status of a specific module used to generate the Json object based on the test results.
@@ -26,10 +26,12 @@ import java.util.Map;
  * @since 1.2.0
  */
 public class ModuleStatus {
+    private String name;
+    private int totalTests;
     private int passed;
     private int failed;
     private int skipped;
-    private Map<String, Test> tests = new HashMap<>();
+    private List<Test> tests = new ArrayList<>();
 
     private static ModuleStatus instance = new ModuleStatus();
 
@@ -38,8 +40,9 @@ public class ModuleStatus {
     }
 
     public void addTestSummary(String testName, Status status, String failureMessage) {
-        Test test = new Test(status, failureMessage);
-        this.tests.put(testName, test);
+        Test test = new Test(testName, status, failureMessage);
+        this.tests.add(test);
+        totalTests++;
         if (test.status.equals(Status.PASSED)) {
             this.passed++;
         } else if (test.status.equals(Status.FAILURE)) {
@@ -61,20 +64,38 @@ public class ModuleStatus {
         return skipped;
     }
 
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public int getTotalTests() {
+        return totalTests;
+    }
+
     /**
      * Inner class for individual Test object.
      */
     private static class Test {
+        private String name;
         private Status status;
-        private String failureMessage;
+        private String failureMessage = "";
 
-        public Test(Status status, String failureMessage) {
+        public Test(String name, Status status, String failureMessage) {
+            this.name = name;
             this.status = status;
             this.failureMessage = failureMessage;
         }
 
         public String getFailureMessage() {
             return failureMessage;
+        }
+
+        public String getName() {
+            return name;
         }
     }
 

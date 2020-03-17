@@ -1,5 +1,5 @@
 import ballerina/io;
-import ballerinax/java;
+import ballerina/java;
 
 
 // Interop functions

@@ -1,4 +1,4 @@
-import ballerinax/java;
+import ballerina/java;
 
 public function interopWithArrayAndMap() returns int[] {
     map<int> mapVal = { "keyVal":8};
