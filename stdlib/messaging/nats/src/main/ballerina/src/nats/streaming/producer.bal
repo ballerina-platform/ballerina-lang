@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerinax/java;
+import ballerina/java;
 
 # NATS `StreamingProducer` would act as a client allowing to publish messages to the
 # NATS streaming server. `StreamingProducer` needs the NATS `Connection` to be initialized.

@@ -19,7 +19,7 @@ import ballerina/http;
 import ballerina/lang.'object as lang;
 import ballerina/log;
 
-import ballerinax/java;
+import ballerina/java;
 
 //////////////////////////////////////////
 /// WebSub Subscriber Service Endpoint ///

@@ -39,7 +39,7 @@ import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.XML_OP
         returnType = {@ReturnType(type = TypeKind.UNION)},
         isPublic = true
 )
-public class GetElementName {
+public class GetElementNameNilLifting {
 
     public static Object getElementNameNilLifting(Strand strand, XMLValue xmlVal, String attrName) {
         if (IsElement.isElement(xmlVal)) {

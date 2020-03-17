@@ -155,49 +155,52 @@ function testCreateComment() returns xml {
     return xmllib:createComment("This text should be wraped in xml comment");
 }
 
-//function testForEach() returns xml {
-//    xml r = xmllib:concat();
-//    foreach var x in catalog/* {
-//        if (x is xml) {
-//            if (x.isElement()) {
-//                r += x;
-//            }
-//        }
-//    }
-//    return r;
-//}
+function testForEach() returns xml {
+    xml r = xmllib:concat();
+    foreach var x in catalog/* {
+        if (x is xml) {
+            if (x is xmllib:Element) {
+                r = xmllib:concat(r, x);
+            }
+        }
+    }
+    return r;
+}
 
-//function testSlice() returns [xml, xml, xml] {
-//    xmllib:Element elemL = <xmllib:Element> xml `<elemL>content</elemL>`;
-//    xmllib:Element elemN = <xmllib:Element> xml `<elemN>content</elemN>`;
-//    xmllib:Element elemM = <xmllib:Element> xml `<elemM>content</elemM>`;
-//    xml elem = xmllib:concat(elemL, elemN, elemM);
-//    return [elem.slice(0, 2), elem.slice(1), xmllib:slice(elem, 1)];
-//}
-//
-//function testXMLCycleError() returns [error|xml, error|xml] {
-//     return [trap testXMLCycleErrorInner(), trap testXMLCycleInnerNonError()];
-//}
-//
-//function testXMLCycleErrorInner() returns xml {
-//    xml cat = catalog.clone();
-//    cat.getChildren().strip()[0].setChildren(cat);
-//    return cat;
-//}
-//
-//function testXMLCycleInnerNonError() returns xml {
-//    xml cat = catalog.clone();
-//    var cds = cat.getChildren().strip();
-//    cds[0].setChildren(cds[1]);
-//    return cat;
-//}
-//
-//function testXMLCycleDueToChildrenOfChildren() returns xml|error {
-//    xml cat = catalog.clone();
-//    xml subRoot = xml `<subRoot></subRoot>`;
-//    subRoot.setChildren(cat);
-//    var cds = cat.getChildren().strip();
-//    error? er = trap cds[0].setChildren(subRoot);
-//    check trap cds[0].setChildren(subRoot);
-//    return cat;
-//}
+function testSlice() returns [xml, xml, xml] {
+    xmllib:Element elemL = <xmllib:Element> xml `<elemL>content</elemL>`;
+    xmllib:Element elemN = <xmllib:Element> xml `<elemN>content</elemN>`;
+    xmllib:Element elemM = <xmllib:Element> xml `<elemM>content</elemM>`;
+    xml elem = xmllib:concat(elemL, elemN, elemM);
+    return [elem.slice(0, 2), elem.slice(1), xmllib:slice(elem, 1)];
+}
+
+function testXMLCycleError() returns [error|xml, error|xml] {
+     return [trap testXMLCycleErrorInner(), trap testXMLCycleInnerNonError()];
+}
+
+function testXMLCycleErrorInner() returns xml {
+    xmllib:Element cat = <xmllib:Element> catalog.clone();
+    xmllib:Element fc = <xmllib:Element> cat.getChildren().strip()[0];
+    fc.setChildren(cat);
+    return cat;
+}
+
+function testXMLCycleInnerNonError() returns xml {
+    xmllib:Element cat = <xmllib:Element> catalog.clone();
+    var cds = cat.getChildren().strip();
+    xmllib:Element fc = <xmllib:Element> cds[0];
+    fc.setChildren(cds[1]);
+    return cat;
+}
+
+function testXMLCycleDueToChildrenOfChildren() returns xml|error {
+    xmllib:Element cat = <xmllib:Element> catalog.clone();
+    xmllib:Element subRoot = <xmllib:Element> xml `<subRoot></subRoot>`;
+    subRoot.setChildren(cat);
+    var cds = cat.getChildren().strip();
+    xmllib:Element fc = <xmllib:Element> cds[0];
+    error? er = trap fc.setChildren(subRoot);
+    check trap fc.setChildren(subRoot);
+    return cat;
+}

@@ -101,13 +101,12 @@ This plugin will be useful to check and validate a grammar rule you wrote. For i
     - Wrap the body at 72 characters
     - Use the body to explain what and why vs. how
 
-For more information, go to [How to Write a Git Commit Message](https://chris.beams.io/posts/git-commit/).
+    For more information, go to [How to Write a Git Commit Message](https://chris.beams.io/posts/git-commit/).
+4. Accept the Contributor License Agreement (CLA)
+    
+    You need to Accept the Ballerina Contributor License Agreement (CLA) when prompted by a GitHub email notification after sending your first Pull Request (PR). Subsequent PRs will not require CLA acceptance.
 
-## Accept the Contributor License Agreement 
-
-You need to Accept the Ballerina Contributor License Agreement (CLA) here when prompted by GitHub while sending your first Pull Request (PR). Subsequent PRs will not require CLA acceptance.
-
-If the CLA gets changed for some (unlikely) reason, you will be presented with the new CLA text when sending your first PR after the change.
+    If the CLA gets changed for some (unlikely) reason, you will be presented with the new CLA text after sending your first PR after the change.
 
 ## Propose changes to Ballerina
 

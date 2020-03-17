@@ -14,8 +14,17 @@
 // specific language governing permissions and limitations
 // under the License.
 
-const string XML_NAMESPACE_URI = "http://www.w3.org/XML/1998/namespace";
-const string XMLNS_NAMESPACE_URI = "http://www.w3.org/2000/xmlns/";
+# The namespace URI bound to the `xml` prefix.
+public const string XML_NAMESPACE_URI = "http://www.w3.org/XML/1998/namespace";
+# The namespace URI bound to the `xmlns` prefix.
+public const string XMLNS_NAMESPACE_URI = "http://www.w3.org/2000/xmlns/";
+
+# The expanded name of the `xml:space` attribute.
+public const string space = "{http://www.w3.org/XML/1998/namespace}space";
+# The expanded name of the `xml:lang` attribute.
+public const string lang = "{http://www.w3.org/XML/1998/namespace}lang";
+# The expanded name of the `xml:base` attribute.
+public const string base = "{http://www.w3.org/XML/1998/namespace}base";
 
 # Type for singleton elements.
 # Built-in subtype of xml.
@@ -153,7 +162,7 @@ public function createComment(string content) returns Comment = external;
 # + startIndex - start index, inclusive
 # + endIndex - end index, exclusive
 # + return - a subsequence of `x` consisting of items with index >= startIndex and < endIndex
-public function slice(xml<ItemType> x, int startIndex, int endIndex)
+public function slice(xml<ItemType> x, int startIndex, int endIndex = x.length())
     returns xml<ItemType> = external;
 
 # Strips the insignificant parts of the an xml value.

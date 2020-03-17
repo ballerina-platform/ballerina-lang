@@ -25,6 +25,7 @@ import com.github.jknack.handlebars.context.JavaBeanValueResolver;
 import com.github.jknack.handlebars.context.MapValueResolver;
 import com.github.jknack.handlebars.io.ClassPathTemplateLoader;
 import com.github.jknack.handlebars.io.FileTemplateLoader;
+import org.apache.commons.io.output.FileWriterWithEncoding;
 import org.ballerinalang.bindgen.components.JMethod;
 import org.ballerinalang.bindgen.exceptions.BindgenException;
 
@@ -39,7 +40,9 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystems;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.AccessController;
@@ -53,9 +56,9 @@ import java.util.Set;
 import java.util.jar.JarEntry;
 import java.util.jar.JarInputStream;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.BALLERINA_STRING;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.BALLERINA_STRING_ARRAY;
+import static org.ballerinalang.bindgen.utils.BindgenConstants.BAL_EXTENSION;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.BOOLEAN;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.BYTE;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.CHAR;
@@ -80,24 +83,35 @@ public class BindgenUtils {
     }
 
     private static final PrintStream errStream = System.err;
+    private static final PrintStream outStream = System.out;
 
-    public static void writeOutputFile(Object object, String templateDir, String templateName, String outPath)
-            throws BindgenException {
+    public static void writeOutputFile(Object object, String templateDir, String templateName, String outPath,
+                                       Boolean append) throws BindgenException {
 
         PrintWriter writer = null;
+        FileWriterWithEncoding fileWriter = null;
         try {
             Template template = compileTemplate(templateDir, templateName);
             Context context = Context.newBuilder(object).resolver(
                     MapValueResolver.INSTANCE,
                     JavaBeanValueResolver.INSTANCE,
                     FieldValueResolver.INSTANCE).build();
-            writer = new PrintWriter(outPath, UTF_8.name());
+            fileWriter = new FileWriterWithEncoding(outPath, StandardCharsets.UTF_8, append);
+            writer = new PrintWriter(fileWriter);
             writer.println(template.apply(context));
+            fileWriter.close();
         } catch (IOException e) {
-            throw new BindgenException("IO error while writing output to Ballerina file. " + e.getMessage(), e);
+            throw new BindgenException("IOException while writing to the Ballerina file. " + e.getMessage(), e);
         } finally {
             if (writer != null) {
                 writer.close();
+            }
+            if (fileWriter != null) {
+                try {
+                    fileWriter.close();
+                } catch (IOException ignored) {
+
+                }
             }
         }
     }
@@ -116,6 +130,13 @@ public class BindgenUtils {
                 return "\'" + object;
             }
             return "";
+        });
+        handlebars.registerHelper("getSimpleName", (object, options) -> {
+            if (object instanceof String) {
+                String className = (String) object;
+                return className.substring(className.lastIndexOf('.') + 1);
+            }
+            return object;
         });
         handlebars.registerHelper("getType", (object, options) -> {
             if (object.equals("[C") || object.equals("[S") || object.equals("[J")) {
@@ -141,6 +162,57 @@ public class BindgenUtils {
         } catch (IOException e) {
             throw new BindgenException("IO error while compiling the template file. " + e.getMessage(), e);
         }
+    }
+
+    private static void listAllFiles(String directoryName, List<File> files) {
+
+        File directory = new File(directoryName);
+        File[] fileList = directory.listFiles();
+        if (fileList != null) {
+            for (File file : fileList) {
+                if (file.isFile()) {
+                    files.add(file);
+                } else if (file.isDirectory()) {
+                    listAllFiles(file.getAbsolutePath(), files);
+                }
+            }
+        }
+    }
+
+    public static void notifyExistingDependencies(Set<String> classList, File dependencyPath) {
+
+        if (dependencyPath.isDirectory()) {
+            List<File> listOfFiles = new ArrayList<>();
+            listAllFiles(dependencyPath.toString(), listOfFiles);
+            if (listOfFiles.size() > 1) {
+                for (String className : classList) {
+                    for (File file : listOfFiles) {
+                        String fileName = className.substring(className.lastIndexOf('.') + 1) + BAL_EXTENSION;
+                        if (file.getName().equals(fileName)) {
+                            outStream.println("\nPlease delete the existing dependency: " + file.getPath());
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    public static Set<String> getUpdatedConstantsList(Path existingPath, Set<String> classList) {
+
+        try {
+            List<String> allLines = Files.readAllLines(Paths.get(existingPath.toString()));
+            for (String className : classList) {
+                for (String line : allLines) {
+                    if (line.contains("\"" + className + "\"")) {
+                        classList.remove(className);
+                        break;
+                    }
+                }
+            }
+        } catch (IOException e) {
+            errStream.println("Error while accessing the existing constants file. " + e);
+        }
+        return classList;
     }
 
     public static void createDirectory(String path) throws BindgenException {

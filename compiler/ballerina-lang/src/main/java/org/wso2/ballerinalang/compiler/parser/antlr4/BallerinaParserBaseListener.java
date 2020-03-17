@@ -2656,6 +2656,18 @@ public class BallerinaParserBaseListener implements BallerinaParserListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterQueryActionExpression(BallerinaParser.QueryActionExpressionContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitQueryActionExpression(BallerinaParser.QueryActionExpressionContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterBinaryCompareExpression(BallerinaParser.BinaryCompareExpressionContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -2956,13 +2968,13 @@ public class BallerinaParserBaseListener implements BallerinaParserListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterQueryActionStatement(BallerinaParser.QueryActionStatementContext ctx) { }
+	@Override public void enterQueryAction(BallerinaParser.QueryActionContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitQueryActionStatement(BallerinaParser.QueryActionStatementContext ctx) { }
+	@Override public void exitQueryAction(BallerinaParser.QueryActionContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

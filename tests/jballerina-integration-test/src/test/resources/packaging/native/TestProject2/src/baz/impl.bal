@@ -1,5 +1,5 @@
 import ballerina/io;
-import ballerinax/java;
+import ballerina/java;
 import bcintegrationtest/MODULE_1;
 
 public function main() {

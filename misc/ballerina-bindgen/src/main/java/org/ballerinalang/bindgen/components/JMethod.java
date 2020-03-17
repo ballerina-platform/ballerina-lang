@@ -51,9 +51,11 @@ public class JMethod {
     private Boolean isArrayReturn = false;
     private Boolean noReservedWord = true;
     private Boolean exceptionTypes = false;
+    private Boolean handleException = false;
     private Boolean isStringReturn = false;
     private Boolean hasPrimitiveParam = false;
 
+    private String methodPrefix;
     private String returnType;
     private String interopType;
     private String externalType;
@@ -65,7 +67,7 @@ public class JMethod {
 
         this.javaMethodName = m.getName();
         this.methodName = m.getName();
-
+        this.methodPrefix = m.getDeclaringClass().getSimpleName();
         if (!m.getReturnType().equals(Void.TYPE)) {
             if (m.getReturnType().isArray()) {
                 this.isArrayReturn = true;
@@ -97,9 +99,13 @@ public class JMethod {
             if (parameter.isPrimitiveArray) {
                 this.hasPrimitiveParam = true;
             }
+            if (parameter.isObjArrayParam()) {
+                this.exceptionTypes = true;
+            }
         }
         if (m.getExceptionTypes().length > 0) {
             this.exceptionTypes = true;
+            handleException = true;
         }
         if (!this.parameters.isEmpty()) {
             JParameter lastParam = this.parameters.get(this.parameters.size() - 1);
@@ -113,8 +119,12 @@ public class JMethod {
             this.reservedWord = true;
             this.noReservedWord = false;
         }
-        if (objectReturn && !isArrayReturn && !allJavaClasses.contains(m.getReturnType().getName())) {
-            classListForLooping.add(m.getReturnType().getName());
+        if (objectReturn && !allJavaClasses.contains(m.getReturnType().getName())) {
+            if (isArrayReturn) {
+                classListForLooping.add(m.getReturnType().getComponentType().getCanonicalName());
+            } else {
+                classListForLooping.add(m.getReturnType().getCanonicalName());
+            }
         }
     }
 }

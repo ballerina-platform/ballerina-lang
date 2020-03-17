@@ -91,6 +91,11 @@ public class XMLPi extends XMLNonElementItem {
     }
 
     @Override
+    public String stringValue() {
+        return "<?" + target + " " + data + "?>";
+    }
+
+    @Override
     public BString bStringValue() {
         return StringUtils.fromString(stringValue());
     }

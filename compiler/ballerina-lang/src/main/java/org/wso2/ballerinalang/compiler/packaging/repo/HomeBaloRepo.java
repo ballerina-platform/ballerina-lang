@@ -31,6 +31,7 @@ import org.wso2.ballerinalang.util.RepoUtils;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.PathMatcher;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
@@ -82,10 +83,7 @@ public class HomeBaloRepo implements Repo<Path> {
                         Path latestVersionDirectoryName = latestVersionPath.get().getFileName();
                         if (null != latestVersionDirectoryName) {
                             versionStr = latestVersionDirectoryName.toString();
-                            String baloFileName = pkgName + "-" + IMPLEMENTATION_VERSION + "-" + platform + "-" +
-                                                  versionStr + ".balo";
-                            baloFilePath = this.repoLocation.resolve(orgName).resolve(pkgName).resolve(versionStr).
-                                    resolve(baloFileName);
+                            baloFilePath = findBaloPath(this.repoLocation, orgName, pkgName, platform, versionStr);
                         } else {
                             return Patten.NULL;
                         }
@@ -94,10 +92,7 @@ public class HomeBaloRepo implements Repo<Path> {
                     }
                 } else {
                     // Get the existing balo file.
-                    String baloFileName = pkgName + "-" + IMPLEMENTATION_VERSION + "-" + platform + "-" + versionStr +
-                                          ".balo";
-                    baloFilePath = this.repoLocation.resolve(orgName).resolve(pkgName).resolve(versionStr)
-                            .resolve(baloFileName);
+                    baloFilePath = findBaloPath(this.repoLocation, orgName, pkgName, platform, versionStr);
                 }
                 
                 // return Patten only if balo file exists.
@@ -153,5 +148,27 @@ public class HomeBaloRepo implements Repo<Path> {
     @Override
     public String toString() {
         return "{t:'HomeBaloRepo', c:'" + this.zipConverter + "'}";
+    }
+
+
+    private Path findBaloPath(Path repoLocation, String orgName, String pkgName, String platform, String versionStr)
+            throws IOException {
+        Path baloFilePath = this.repoLocation.resolve(orgName).resolve(pkgName).resolve(versionStr);
+        // try to find a compatible balo file
+        if (Files.exists(baloFilePath)) {
+            Stream<Path> list = Files.list(baloFilePath);
+            PathMatcher pathMatcher = baloFilePath.getFileSystem()
+                    .getPathMatcher("glob:**/" + pkgName + "-*-" +
+                            platform + "-" + versionStr + ".balo");
+            for (Path file : (Iterable<Path>) list::iterator) {
+                if (pathMatcher.matches(file)) {
+                    return file;
+                }
+            }
+        }
+        // if a similar file is not found assume the default balo name
+        String baloFileName = pkgName + "-" + IMPLEMENTATION_VERSION + "-" + platform + "-" + versionStr +
+                ".balo";
+        return baloFilePath.resolve(baloFileName);
     }
 }

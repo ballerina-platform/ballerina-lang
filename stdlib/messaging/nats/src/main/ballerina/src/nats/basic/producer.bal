@@ -15,7 +15,7 @@
 // under the License.
 
 import ballerina/log;
-import ballerinax/java;
+import ballerina/java;
 
 # NATS `Producer` would act as a basic client allowing to publish messages to the NATS server.
 # Producer needs the NATS `Connection` to be initialized.

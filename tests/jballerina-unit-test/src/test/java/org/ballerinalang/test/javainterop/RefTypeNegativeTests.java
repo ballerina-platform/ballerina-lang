@@ -39,12 +39,12 @@ public class RefTypeNegativeTests {
         Assert.assertNotNull(diagnostics);
         Assert.assertEquals(diagnostics.length, 2);
         BAssertUtil.validateError(compileResult, 0,
-                "{ballerinax/java}METHOD_SIGNATURE_DOES_NOT_MATCH 'Incompatible return type for method " +
+                "{ballerina/java}METHOD_SIGNATURE_DOES_NOT_MATCH 'Incompatible return type for method " +
                         "'getAllFloats' in class 'org.ballerinalang.test.javainterop.RefTypeNegativeTests': " +
                         "Java type 'float' will not be matched to ballerina type 'ALL_INT''",
                 "ballerina_ref_types_as_interop_negative.bal", 13, 1);
         BAssertUtil.validateError(compileResult, 1,
-                "{ballerinax/java}METHOD_SIGNATURE_DOES_NOT_MATCH 'Incompatible param type for method " +
+                "{ballerina/java}METHOD_SIGNATURE_DOES_NOT_MATCH 'Incompatible param type for method " +
                         "'acceptAllInts' in class 'org.ballerinalang.test.javainterop.RefTypeNegativeTests': " +
                         "Java type 'int' will not be matched to ballerina type 'MIX_TYPE''",
                 "ballerina_ref_types_as_interop_negative.bal", 28, 1);

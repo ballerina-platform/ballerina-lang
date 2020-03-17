@@ -19,9 +19,6 @@ package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.TreeBuilder;
-import org.ballerinalang.model.clauses.FromClauseNode;
-import org.ballerinalang.model.clauses.LetClauseNode;
-import org.ballerinalang.model.clauses.WhereClauseNode;
 import org.ballerinalang.model.elements.AttachPoint;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
@@ -81,10 +78,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangWorker;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
-import org.wso2.ballerinalang.compiler.tree.clauses.BLangDoClause;
-import org.wso2.ballerinalang.compiler.tree.clauses.BLangFromClause;
-import org.wso2.ballerinalang.compiler.tree.clauses.BLangLetClause;
-import org.wso2.ballerinalang.compiler.tree.clauses.BLangWhereClause;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAccessExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
@@ -123,7 +116,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStaticBindingPatternClause;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStructuredBindingPatternClause;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangPanic;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangQueryAction;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRetry;
@@ -2317,32 +2309,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         handleForeachVariables(foreach, blockEnv);
         // Analyze foreach node's statements.
         analyzeStmt(foreach.body, blockEnv);
-    }
-
-    @Override
-    public void visit(BLangQueryAction queryAction) {
-        List<? extends FromClauseNode> fromClauseList = queryAction.fromClauseList;
-        List<? extends WhereClauseNode> whereClauseList = queryAction.whereClauseList;
-        List<? extends LetClauseNode> letClauseList = queryAction.letClauseList;
-        BLangDoClause doClauseNode = queryAction.doClause;
-
-        SymbolEnv parentEnv = env;
-        for (FromClauseNode fromClause : fromClauseList) {
-            parentEnv = typeChecker.typeCheckFromClause((BLangFromClause) fromClause, parentEnv);
-        }
-        for (LetClauseNode letClauseNode : letClauseList) {
-            parentEnv = typeChecker.typeCheckLetClause((BLangLetClause) letClauseNode, parentEnv);
-        }
-        SymbolEnv whereEnv = parentEnv;
-        for (WhereClauseNode whereClauseNode : whereClauseList) {
-            BLangWhereClause whereClause = (BLangWhereClause) whereClauseNode;
-            typeChecker.checkExpr(whereClause.expression, parentEnv);
-            whereEnv = typeNarrower.evaluateTruth(whereClause.expression, doClauseNode, parentEnv);
-        }
-
-        SymbolEnv blockEnv = SymbolEnv.createBlockEnv(doClauseNode.body, whereEnv);
-        // Analyze foreach node's statements.
-        analyzeStmt(doClauseNode.body, blockEnv);
     }
 
     @Override

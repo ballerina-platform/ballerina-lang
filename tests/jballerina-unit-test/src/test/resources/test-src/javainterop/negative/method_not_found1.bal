@@ -1,4 +1,4 @@
-import ballerinax/java;
+import ballerina/java;
 
 public function interopWithErrorReturn() returns string {
     error e = acceptStringOrErrorReturn("example error with given reason");

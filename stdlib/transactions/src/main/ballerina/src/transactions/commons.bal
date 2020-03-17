@@ -20,7 +20,7 @@ import ballerina/log;
 import ballerina/system;
 import ballerina/task;
 import ballerina/time;
-import ballerinax/java;
+import ballerina/java;
 
 # ID of the local participant used when registering with the initiator.
 string localParticipantId = system:uuid();

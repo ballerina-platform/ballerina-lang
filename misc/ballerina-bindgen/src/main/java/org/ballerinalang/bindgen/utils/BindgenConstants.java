@@ -25,11 +25,12 @@ public class BindgenConstants {
     public static final String BALLERINA_BINDINGS_DIR = "ballerina_bindings";
     public static final String ACCESS_FIELD = "access";
     public static final String ACCESS_FIELD_INTEROP_TYPE = "@java:FieldGet";
-    public static final String BAL_FILE_EXTENSION = ".bal";
+    public static final String BAL_EXTENSION = ".bal";
     public static final String BBGEN_CLASS_TEMPLATE_NAME = "bridge_class";
     public static final String ARRAY_UTILS_TEMPLATE_NAME = "array_utils";
     public static final String CONSTANTS_TEMPLATE_NAME = "constants";
     public static final String JOBJECT_TEMPLATE_NAME = "jobject";
+    public static final String EMPTY_OBJECT_TEMPLATE_NAME = "empty_object";
     public static final String COMPONENT_IDENTIFIER = "bindgen";
     public static final String CONSTRUCTOR_INTEROP_TYPE = "@java:Constructor";
     public static final String METHOD_INTEROP_TYPE = "@java:Method";

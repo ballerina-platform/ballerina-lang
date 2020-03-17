@@ -37,8 +37,10 @@ import java.io.File;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.LinkedHashMap;
+import java.util.TimeZone;
 
 /**
  * This test class handles the complex sql types to ballerina type conversion for query operation.
@@ -233,23 +235,30 @@ public class ComplexTypesQueryTest {
         Assert.assertEquals(row4IntArray.getBValue(2), null);
     }
 
-    @Test(description = "Check date time operation", enabled = false)
+    @Test(description = "Check date time operation")
     public void testDateTime() throws ParseException {
-        DateFormat dfDate = new SimpleDateFormat("yyyy-MM-dd");
-        Date dateType = dfDate.parse("2017-5-23");
+        Date dateInserted = new SimpleDateFormat("yyyy-MM-dd").parse("2017-05-23");
+        Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+        calendar.clear();
+        calendar.set(Calendar.HOUR_OF_DAY, 14);
+        calendar.set(Calendar.MINUTE, 15);
+        calendar.set(Calendar.SECOND, 23);
+        Date timeInserted = calendar.getTime();
 
-        //time added in UTC
-        DateFormat dfTime = new SimpleDateFormat("hh:mm:ss");
-        Date timeType = dfTime.parse("19:45:23");
-
-        DateFormat dfDateTime = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
-        Date dateTimeType = dfDateTime.parse("2017-01-25 22:03:55");
+        calendar.clear();
+        calendar.set(Calendar.HOUR_OF_DAY, 16);
+        calendar.set(Calendar.MINUTE, 33);
+        calendar.set(Calendar.SECOND, 55);
+        calendar.set(Calendar.YEAR, 2017);
+        calendar.set(Calendar.MONTH, 0);
+        calendar.set(Calendar.DAY_OF_MONTH, 25);
+        Date timestampInserted = calendar.getTime();
 
         BValue[] returns = BRunUtil.invoke(result, "testDateTime", args);
         Assert.assertEquals(returns.length, 1);
         LinkedHashMap result = ((BMap) returns[0]).getMap();
         Assert.assertEquals(result.size(), 4);
-        assertDateStringValues(result, dateType, timeType, dateTimeType);
+        assertDateStringValues(result, dateInserted, timeInserted, timestampInserted);
     }
 
     @Test(description = "Check values retrieved with column alias.")
@@ -267,23 +276,23 @@ public class ComplexTypesQueryTest {
                                         Date timestampInserted) {
         try {
             DateFormat dfDate = new SimpleDateFormat("yyyy-MM-dd");
-            String dateReturned = returns.get("DATE_TYPE").toString();
-            long dateReturnedEpoch = dfDate.parse(dateReturned).getTime();
-            Assert.assertEquals(dateReturnedEpoch, dateInserted.getTime());
+            String dateReturnedStr = returns.get("DATE_TYPE").toString();
+            Date dateReturned = dfDate.parse(dateReturnedStr);
+            Assert.assertTrue(dateInserted.compareTo(dateReturned) == 0);
 
             DateFormat dfTime = new SimpleDateFormat("HH:mm:ss");
-            String timeReturned = returns.get("TIME_TYPE").toString();
-            long timeReturnedEpoch = dfTime.parse(timeReturned).getTime();
-            Assert.assertEquals(timeReturnedEpoch, timeInserted.getTime());
+            String timeReturnedStr = returns.get("TIME_TYPE").toString();
+            Date timeReturned = dfTime.parse(timeReturnedStr);
+            Assert.assertTrue(timeInserted.compareTo(timeReturned) == 0);
 
             DateFormat dfTimestamp = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
-            String timestampReturned = returns.get("TIMESTAMP_TYPE").toString();
-            long timestampReturnedEpoch = dfTimestamp.parse(timestampReturned).getTime();
-            Assert.assertEquals(timestampReturnedEpoch, timestampInserted.getTime());
+            String timestampReturnedStr = returns.get("TIMESTAMP_TYPE").toString();
+            Date timestampReturned = dfTimestamp.parse(timestampReturnedStr);
+            Assert.assertTrue(timestampInserted.compareTo(timestampReturned) == 0);
 
-            String datetimeReturned = returns.get("DATETIME_TYPE").toString();
-            long datetimeReturnedEpoch = dfTimestamp.parse(datetimeReturned).getTime();
-            Assert.assertEquals(datetimeReturnedEpoch, timestampInserted.getTime());
+            String datetimeReturnedStr = returns.get("DATETIME_TYPE").toString();
+            Date datetimeReturned = dfTimestamp.parse(datetimeReturnedStr);
+            Assert.assertTrue(timestampInserted.compareTo(datetimeReturned) == 0);
         } catch (ParseException e) {
             Assert.fail("Parsing the returned date/time/timestamp value has failed", e);
         }

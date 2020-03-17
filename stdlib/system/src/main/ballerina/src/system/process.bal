@@ -15,7 +15,7 @@
 // under the License.
 
 import ballerina/io;
-import ballerinax/java;
+import ballerina/java;
 
 # This object contains information on a process being created from Ballerina.
 # This is returned from the `exec` function in the `system` module.
@@ -71,7 +71,7 @@ public type Process object {
     public function pipe(Process process) returns Process {
         io:ReadableByteChannel input = self.stdout();
         io:WritableByteChannel output = process.stdin();
-        _ = start self.doPipe(input, output);
+        _ = @strand {thread: "any"} start self.doPipe(input, output);
         return process;
     }
 

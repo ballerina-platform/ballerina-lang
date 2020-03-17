@@ -1,8 +1,8 @@
 import ballerina/http;
 import ballerina/log;
 
-// HTTP caching is enabled by default for client endpoints. Caching can be
-// disabled by setting `enabled=false` in the `cache` config of the client
+// HTTP caching is disabled by default for client endpoints. Caching can be
+// enabled by setting `enabled=true` in the `cache` config of the client
 // endpoint. In this example, the `isShared` field of the `cacheConfig` is set
 // to true, as the cache will be a public cache in this particular scenario.
 //
@@ -13,7 +13,7 @@ import ballerina/log;
 // `CACHE_CONTROL_AND_VALIDATORS` (the default policy) and `RFC_7234`.
 
 http:Client cachingEP = new ("http://localhost:8080",
-                             {cache: {isShared: true}});
+                             {cache: {enabled: true, isShared: true}});
 
 @http:ServiceConfig {
     basePath: "/cache"

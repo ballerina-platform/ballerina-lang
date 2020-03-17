@@ -92,4 +92,14 @@ public class AnnotationUtils {
             type.setAnnotations((MapValue<String, Object>) globalAnnotMap.get(name));
         }
     }
+
+    /**
+     * Returns true if given {@link FPValue} is annotated to be run concurrently.
+     *
+     * @param fpValue function pointer to be invoked
+     * @return true if should run concurrently
+     */
+    public static boolean isConcurrent(FPValue fpValue) {
+        return fpValue.isConcurrent;
+    }
 }

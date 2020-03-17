@@ -16,7 +16,7 @@
 
 import ballerina/runtime;
 import ballerina/crypto;
-import ballerinax/java;
+import ballerina/java;
 
 # The gRPC client endpoint provides the capability for initiating contact with a remote gRPC service. The API it
 # provides includes functions to send request/error messages.

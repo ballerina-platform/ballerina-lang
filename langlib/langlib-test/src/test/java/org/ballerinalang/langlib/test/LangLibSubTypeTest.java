@@ -76,6 +76,9 @@ public class LangLibSubTypeTest {
         BRunUtil.invoke(compileResult, "testLeftShift");
         BRunUtil.invoke(compileResult, "testRightShift");
         BRunUtil.invoke(compileResult, "testUnsignedRightShift");
+        BRunUtil.invoke(compileResult, "testBitwiseAnd");
+        BRunUtil.invoke(compileResult, "testBitwiseOr");
+        BRunUtil.invoke(compileResult, "testBitwiseXor");
     }
 
     @Test
