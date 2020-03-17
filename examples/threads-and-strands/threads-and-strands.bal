@@ -20,7 +20,7 @@ public function case1() {
 // The usage of the `@strand` annotation with the `thread` field value "any" enforces this behavior.
 public function case2() {
     // This new strand does not belong to the thread executing the current strand.
-    // Ballerina runtime assigns this new strand to a separate thread in the runtime thread pool.
+    // The Ballerina runtime assigns this new strand to a separate thread in the runtime thread pool.
     io:println("--- case 2 ---");
     future<int> f1 = @strand {thread: "any"} start multiply(1, 2);
 
