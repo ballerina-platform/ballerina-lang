@@ -27,6 +27,10 @@ import org.ballerinalang.langserver.commons.LSContext;
 public class ReferencesKeys {
     public static final LSContext.Key<Boolean> OFFSET_CURSOR_N_TRY_NEXT_BEST
             = new LSContext.Key<>();
+    public static final LSContext.Key<Boolean> ENABLE_FIND_LITERALS
+            = new LSContext.Key<>();
     public static final LSContext.Key<Boolean> DO_NOT_SKIP_NULL_SYMBOLS
+            = new LSContext.Key<>();
+    public static final LSContext.Key<SymbolReferencesModel> REFERENCES_KEY
             = new LSContext.Key<>();
 }

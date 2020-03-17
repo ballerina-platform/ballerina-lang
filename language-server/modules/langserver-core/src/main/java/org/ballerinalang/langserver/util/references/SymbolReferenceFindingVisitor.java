@@ -158,7 +158,7 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
         Boolean bDoNotSkipNullSymbols = lsContext.get(ReferencesKeys.DO_NOT_SKIP_NULL_SYMBOLS);
         this.doNotSkipNullSymbols = (bDoNotSkipNullSymbols == null) ? false : bDoNotSkipNullSymbols;
 
-        this.symbolReferences = lsContext.get(NodeContextKeys.REFERENCES_KEY);
+        this.symbolReferences = lsContext.get(ReferencesKeys.REFERENCES_KEY);
         this.tokenName = lsContext.get(NodeContextKeys.NODE_NAME_KEY);
         TextDocumentPositionParams position = lsContext.get(DocumentServiceKeys.POSITION_KEY);
         if (position == null) {
