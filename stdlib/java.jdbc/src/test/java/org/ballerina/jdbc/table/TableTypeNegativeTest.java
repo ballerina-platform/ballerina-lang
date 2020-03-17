@@ -16,16 +16,16 @@
  */
 package org.ballerina.jdbc.table;
 
+import org.ballerina.jdbc.utils.SQLDBUtils;
+import org.ballerina.jdbc.utils.SQLDBUtils.DBType;
+import org.ballerina.jdbc.utils.SQLDBUtils.FileBasedTestDatabase;
+import org.ballerina.jdbc.utils.SQLDBUtils.TestDatabase;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
-import org.ballerina.jdbc.utils.SQLDBUtils;
-import org.ballerina.jdbc.utils.SQLDBUtils.DBType;
-import org.ballerina.jdbc.utils.SQLDBUtils.FileBasedTestDatabase;
-import org.ballerina.jdbc.utils.SQLDBUtils.TestDatabase;
 import org.testng.Assert;
 import org.testng.annotations.AfterSuite;
 import org.testng.annotations.BeforeClass;

@@ -47,8 +47,8 @@ public class TableIterationTest {
     @BeforeClass
     public void setup() {
         result = BCompileUtil.compile(Paths.get("test-src", "table", "table_iteration_test.bal").toString());
-        testDatabase = new SQLDBUtils.FileBasedTestDatabase(SQLDBUtils.DBType.H2,
-                                                            Paths.get("datafiles", "sql", "table", "table_iteration_test_data.sql").toString(),
+        String dbScript = Paths.get("datafiles", "sql", "table", "table_iteration_test_data.sql").toString();
+        testDatabase = new SQLDBUtils.FileBasedTestDatabase(SQLDBUtils.DBType.H2, dbScript,
                                                             SQLDBUtils.DB_DIRECTORY, DB_NAME);
     }
 

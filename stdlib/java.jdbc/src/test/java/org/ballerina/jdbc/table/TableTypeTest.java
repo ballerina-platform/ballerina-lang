@@ -59,8 +59,8 @@ public class TableTypeTest {
 
     @BeforeClass
     public void setup() {
-        testDatabase = new SQLDBUtils.FileBasedTestDatabase(SQLDBUtils.DBType.H2,
-                                                            Paths.get("datafiles", "sql", "table", "table_type_test_data.sql").toString(), SQLDBUtils.DB_DIRECTORY,
+        String dbScript = Paths.get("datafiles", "sql", "table", "table_type_test_data.sql").toString();
+        testDatabase = new SQLDBUtils.FileBasedTestDatabase(SQLDBUtils.DBType.H2, dbScript, SQLDBUtils.DB_DIRECTORY,
                                                             DB_NAME_H2);
         result = BCompileUtil.compile(Paths.get("test-src", "table", "table_type_test.bal").toString());
     }

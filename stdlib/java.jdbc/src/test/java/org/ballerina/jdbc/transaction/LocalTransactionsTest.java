@@ -50,9 +50,9 @@ public class LocalTransactionsTest {
     public void setup() {
         result = BCompileUtil.compileOffline(
                 Paths.get("test-src", "transaction", "local_transaction_test.bal").toString());
-        testDatabase = new SQLDBUtils.FileBasedTestDatabase(SQLDBUtils.DBType.H2,
-                                                            Paths.get("datafiles", "sql", "transaction", "local_transaction_test_data.sql").toString(),
-                                                            SQLDBUtils.DB_DIRECTORY, DB_NAME);
+        String dbScript = Paths.get("datafiles", "sql", "transaction", "local_transaction_test_data.sql").toString();
+        testDatabase = new SQLDBUtils.FileBasedTestDatabase(SQLDBUtils.DBType.H2, dbScript, SQLDBUtils.DB_DIRECTORY,
+                                                            DB_NAME);
     }
 
     @Test(groups = TRANSACTION_TEST_GROUP)

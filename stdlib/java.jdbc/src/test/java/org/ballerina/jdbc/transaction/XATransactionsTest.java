@@ -49,11 +49,11 @@ public class XATransactionsTest {
     public void setup() {
         result = BCompileUtil.compileOffline(
                 Paths.get("test-src", "transaction", "xa_transaction_test.bal").toString());
-        testDatabase1 = new SQLDBUtils.FileBasedTestDatabase(SQLDBUtils.DBType.H2,
-                                                             Paths.get("datafiles", "sql", "transaction", "xa_transaction_test_data_1.sql").toString(),
+        String dbScript1 = Paths.get("datafiles", "sql", "transaction", "xa_transaction_test_data_1.sql").toString();
+        String dbScript2 = Paths.get("datafiles", "sql", "transaction", "xa_transaction_test_data_2.sql").toString();
+        testDatabase1 = new SQLDBUtils.FileBasedTestDatabase(SQLDBUtils.DBType.H2, dbScript1,
                                                              SQLDBUtils.DB_DIRECTORY_H2_1, DB_NAME1);
-        testDatabase2 = new SQLDBUtils.FileBasedTestDatabase(SQLDBUtils.DBType.H2,
-                                                             Paths.get("datafiles", "sql", "transaction", "xa_transaction_test_data_2.sql").toString(),
+        testDatabase2 = new SQLDBUtils.FileBasedTestDatabase(SQLDBUtils.DBType.H2, dbScript2,
                                                              SQLDBUtils.DB_DIRECTORY_H2_2, DB_NAME2);
     }
 
