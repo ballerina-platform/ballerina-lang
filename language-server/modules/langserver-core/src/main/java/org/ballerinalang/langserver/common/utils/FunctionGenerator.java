@@ -335,8 +335,29 @@ public class FunctionGenerator {
     private static String generateTypeDefinition(BiConsumer<String, String> importsAcceptor,
                                                  PackageID currentPkgId, BTypeSymbol tSymbol) {
         if (tSymbol != null) {
+            // Generate function type text
             if (tSymbol instanceof BInvokableTypeSymbol) {
-                return tSymbol.type.toString();
+                BInvokableTypeSymbol invokableTypeSymbol = (BInvokableTypeSymbol) tSymbol;
+                StringJoiner params = new StringJoiner(", ");
+                int argCounter = 1;
+                Set<String> argNames = new HashSet<>(); // To avoid name duplications
+                for (BVarSymbol param : invokableTypeSymbol.params) {
+                    BType bType = param.type;
+                    String argName = CommonUtil.generateName(argCounter++, argNames);
+                    String argType = generateTypeDefinition(importsAcceptor, currentPkgId, bType);
+                    params.add(argType + " " + argName);
+                    argNames.add(argName);
+                }
+                BVarSymbol restParam = invokableTypeSymbol.restParam;
+                if (restParam != null && (restParam.type instanceof BArrayType)) {
+                    BArrayType type = (BArrayType) restParam.type;
+                    params.add(generateTypeDefinition(importsAcceptor, type.eType.tsymbol.pkgID, type.eType) + "... "
+                                       + restParam.getName().getValue());
+                }
+                String returnType = (invokableTypeSymbol.returnType != null)
+                        ? generateTypeDefinition(importsAcceptor, currentPkgId, invokableTypeSymbol.returnType)
+                        : "";
+                return "function (" + params.toString() + ")" + (returnType.isEmpty() ? "" : " returns " + returnType);
             } else {
                 String pkgPrefix = CommonUtil.getPackagePrefix(importsAcceptor, currentPkgId, tSymbol.pkgID);
                 return pkgPrefix + tSymbol.name.getValue();
