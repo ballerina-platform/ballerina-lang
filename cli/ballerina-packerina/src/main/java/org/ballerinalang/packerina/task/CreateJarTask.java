@@ -97,6 +97,7 @@ public class CreateJarTask implements Task {
             Path jarOutput = buildContext.getJarPathFromTargetCache(module.packageID);
             if (!Files.exists(jarOutput)) {
                 backendDriver.execute(bLangPackage.symbol.bir, dumpBir, jarOutput, moduleDependencies);
+                alreadyImportedModuleSet.add(module.packageID);
             }
 
             // If there is a testable package we will create testable jar.
@@ -110,6 +111,7 @@ public class CreateJarTask implements Task {
                     Path testJarOutput = buildContext.getTestJarPathFromTargetCache(testPkg.packageID);
                     if (!Files.exists(testJarOutput)) {
                         backendDriver.execute(testPkg.symbol.bir, dumpBir, testJarOutput, moduleDependencies);
+                        alreadyImportedModuleSet.add(testPkg.packageID);
                     }
                 }
             }

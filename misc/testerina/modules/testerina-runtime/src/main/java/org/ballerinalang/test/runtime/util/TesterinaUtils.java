@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.test.runtime.util;
 
+import org.ballerinalang.jvm.util.RuntimeUtils;
 import org.ballerinalang.test.runtime.BTestRunner;
 import org.ballerinalang.test.runtime.entity.TestSuite;
 
@@ -72,7 +73,7 @@ public class TesterinaUtils {
                 Runtime.getRuntime().exit(1);
             }
         } catch (Throwable e) {
-            errStream.println("error: " + e.getMessage());
+            RuntimeUtils.silentlyLogBadSad(e);
             Runtime.getRuntime().exit(1);
         }
     }
