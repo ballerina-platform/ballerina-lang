@@ -37,6 +37,9 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.Arrays;
+import java.util.Locale;
 
 /**
  * Represents an Update SQL statement.
@@ -49,16 +52,14 @@ public class UpdateStatement extends AbstractSQLStatement {
     private final SQLDatasource datasource;
     private final String query;
     private final ArrayValue parameters;
-    private boolean returnGeneratedKeys;
 
-    public UpdateStatement(ObjectValue client, SQLDatasource datasource, String query, boolean returnGeneratedKeys,
-                           ArrayValue parameters, Strand strand) {
+    public UpdateStatement(ObjectValue client, SQLDatasource datasource, String query, ArrayValue parameters,
+                           Strand strand) {
         super(strand);
         this.client = client;
         this.datasource = datasource;
         this.query = query;
         this.parameters = parameters;
-        this.returnGeneratedKeys = returnGeneratedKeys;
     }
 
     @Override
@@ -69,28 +70,26 @@ public class UpdateStatement extends AbstractSQLStatement {
         checkAndObserveSQLAction(strand, datasource, query);
         boolean isInTransaction = strand.isInTransaction();
         String errorMessagePrefix = "failed to execute update query: ";
-        MapValue<String, Object> generatedKeys = new MapValueImpl<>();
         try {
             ArrayValue generatedParams = constructParameters(parameters);
             conn = getDatabaseConnection(strand, client, datasource);
             String processedQuery = createProcessedQueryString(query, generatedParams);
-
-            if (returnGeneratedKeys) {
-                stmt = conn.prepareStatement(processedQuery, PreparedStatement.RETURN_GENERATED_KEYS);
-            } else {
-                stmt = conn.prepareStatement(processedQuery);
-            }
-
+            stmt = conn.prepareStatement(processedQuery, Statement.RETURN_GENERATED_KEYS);
             ProcessedStatement processedStatement = new ProcessedStatement(conn, stmt, generatedParams,
                     datasource.getDatabaseProductName());
             stmt = processedStatement.prepare();
             int count = stmt.executeUpdate();
-            if (returnGeneratedKeys) {
+            MapValue<String, Object> generatedKeys;
+            if (!isDdlStatement()) {
                 rs = stmt.getGeneratedKeys();
                 //This result set contains the auto generated keys.
                 if (rs.next()) {
                     generatedKeys = getGeneratedKeys(rs);
+                } else {
+                    generatedKeys = new MapValueImpl<>();
                 }
+            } else {
+                generatedKeys = new MapValueImpl<>();
             }
             return createFrozenUpdateResultRecord(count, generatedKeys);
         } catch (SQLException e) {
@@ -104,6 +103,11 @@ public class UpdateStatement extends AbstractSQLStatement {
         } finally {
             cleanupResources(rs, stmt, conn, !isInTransaction);
         }
+    }
+
+    private boolean isDdlStatement() {
+        String query = this.query.trim().toUpperCase(Locale.ENGLISH);
+        return Arrays.stream(DdlKeyword.values()).anyMatch(ddlKeyword -> query.startsWith(ddlKeyword.name()));
     }
 
     private MapValue<String, Object> getGeneratedKeys(ResultSet rs) throws SQLException {
@@ -129,4 +133,7 @@ public class UpdateStatement extends AbstractSQLStatement {
         return populatedUpdateResultRecord;
     }
 
+    private enum DdlKeyword {
+        CREATE, ALTER, DROP, TRUNCATE, COMMENT, RENAME
+    }
 }
