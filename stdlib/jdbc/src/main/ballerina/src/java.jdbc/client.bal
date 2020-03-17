@@ -18,6 +18,11 @@ import ballerina/java;
 
 # Represents a JDBC client endpoint.
 #
+# # Deprecated
+# A new experimental JDBC2 module is introduced in the Ballerina 1.2 release and
+# it will be fully supported by the 1.3 release.
+# This JDBC client object will be removed later in the 1.3 release.
+@deprecated
 public type Client client object {
     private boolean clientActive = true;
 
@@ -30,9 +35,15 @@ public type Client client object {
     #
     # + sqlQuery - The SQL stored procedure to execute
     # + recordType - Array of record types of the returned tables if there is any
-    # + parameters - The parameters to be passed to the procedure/function call
-    # + return - A `table[]` if there are tables returned by the call remote function and else nil,
+    # + parameters - The parameters to be passed to the `procedure/function` call
+    # + return - A `table[]` if there are tables returned by the call remote function and else nil.
     #            `Error` will be returned if there is any error
+    #
+    # # Deprecated
+    # A new experimental JDBC2 module is introduced in the Ballerina 1.2 release and
+    # it will be fully supported by the; 1.3 release.
+    # This function will be removed later in the 1.3 release.
+    @deprecated
     public remote function call(@untainted string sqlQuery, typedesc<record {}>[]? recordType, Param... parameters)
                                 returns @tainted table<record {}>[]|()|Error {
         if (!self.clientActive) {
@@ -46,7 +57,13 @@ public type Client client object {
     # + sqlQuery - SQL query to execute
     # + recordType - Type of the returned table
     # + parameters - The parameters to be passed to the select query
-    # + return - A `table` returned by the SQL query statement else `Error` will be returned if there is an error
+    # + return - A `table` returned by the SQL query statement or else `Error` will be returned if there is an error
+    #
+    # # Deprecated
+    # A new experimental JDBC2 module is introduced in the Ballerina 1.2 release and
+    # it will be fully supported by the; 1.3 release.
+    # This function will be removed later in the 1.3 release.
+    @deprecated
     public remote function select(@untainted string sqlQuery, typedesc<record{}>? recordType, Param... parameters)
                                   returns @tainted table<record {}>|Error {
         if (!self.clientActive) {
@@ -61,6 +78,12 @@ public type Client client object {
     # + parameters - The parameters to be passed to the update query
     # + return - `UpdateResult` with the updated row count and key column values,
     #             else `Error` will be returned if there is an error
+    #
+    # # Deprecated
+    # A new experimental JDBC2 module is introduced in the Ballerina 1.2 release and
+    # it will be fully supported by the; 1.3 release.
+    # This function will be removed later in the 1.3 release.
+    @deprecated
     public remote function update(@untainted string sqlQuery, Param... parameters)
                                   returns UpdateResult|Error {
         if (!self.clientActive) {
@@ -83,6 +106,12 @@ public type Client client object {
     #            in the batch have executed successfully, the error will be `nil`. If one or more commands have failed,
     #            the `returnedError` field will give the corresponding `Error` along with the int[] which
     #            contains updated row count or the status returned from each command in the batch.
+    #
+    # # Deprecated
+    # A new experimental JDBC2 module is introduced in the Ballerina 1.2 release and
+    # it will be fully supported by the; 1.3 release.
+    # This function will be removed later in the 1.3 release.
+    @deprecated
     public remote function batchUpdate(@untainted string sqlQuery, boolean rollbackAllInFailure,
                                        Param?[]... parameters)
                                        returns BatchUpdateResult {
@@ -95,6 +124,12 @@ public type Client client object {
     # Stops the JDBC client.
     #
     # + return - Possible error during closing the client
+    #
+    # # Deprecated
+    # A new experimental JDBC2 module is introduced in the Ballerina 1.2 release and
+    # it will be fully supported by the; 1.3 release.
+    # This function will be removed later in the 1.3 release.
+    @deprecated
     public function stop() returns error? {
         self.clientActive = false;
         return close(self);
