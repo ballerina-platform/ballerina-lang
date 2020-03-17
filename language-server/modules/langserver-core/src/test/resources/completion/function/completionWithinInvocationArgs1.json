@@ -245,7 +245,7 @@
       ]
     },
     {
-      "label": "ballerinax/java",
+      "label": "ballerina/java",
       "kind": "Module",
       "detail": "Module",
       "sortText": "140",
@@ -263,7 +263,7 @@
               "character": 0
             }
           },
-          "newText": "import ballerinax/java;\n"
+          "newText": "import ballerina/java;\n"
         }
       ]
     },
