@@ -157,7 +157,7 @@ public class BallerinaParser {
             case FIELD_DESCRIPTOR_RHS:
                 return parseFieldDescriptorRhs(parsedNodes[0], parsedNodes[1]);
             case NAMED_OR_POSITIONAL_ARG_RHS:
-                return parseNamedOrPositionalArgRhs(parsedNodes[0]);
+                return parseNamedOrPositionalArg(parsedNodes[0]);
             case FUNC_DEFINITION:
             case REQUIRED_PARAM:
             default:
@@ -1944,6 +1944,11 @@ public class BallerinaParser {
         return consume();
     }
 
+    /**
+     * Parse expressions that starts with a variable reference or function reference.
+     * 
+     * @return Parsed expression
+     */
     private STNode parseVarRefOrFuncRefExpressions() {
         STNode varOrFuncName = parseVariableName();
         STToken token = peek();
@@ -1989,8 +1994,9 @@ public class BallerinaParser {
     }
 
     /**
-     * @param argsList Arguments list to which the parsed argument must be added
+     * Parse the first argument of a function call.
      * 
+     * @param argsList Arguments list to which the parsed argument must be added
      * @return Kind of the argument first argument.
      */
     private SyntaxKind parseFirstArg(ArrayList<STNode> argsList) {
@@ -2079,11 +2085,14 @@ public class BallerinaParser {
                 STNode expr = parseExpression();
                 arg = new STRestArg(leadingComma, ellipsis, expr);
                 break;
+
+            // Identifier can means two things: either its a named-arg, or just an expression.
             case IDENTIFIER_TOKEN:
-                // This token is already verified to be an identifier.
                 // TODO: Handle package-qualified var-refs (i.e: qualified-identifier).
-                arg = parseNamedOrPositionalArgRhs(leadingComma);
+                arg = parseNamedOrPositionalArg(leadingComma);
                 break;
+
+            // Any other expression goes here
             case NUMERIC_LITERAL_TOKEN:
             case OPEN_PAREN_TOKEN:
             default:
@@ -2095,7 +2104,14 @@ public class BallerinaParser {
         return arg;
     }
 
-    private STNode parseNamedOrPositionalArgRhs(STNode leadingComma) {
+    /**
+     * Parse positional or named arg. This method assumed peek()/peek(1)
+     * is always an identifier.
+     * 
+     * @param leadingComma Comma that occurs before the param
+     * @return Parsed argument node
+     */
+    private STNode parseNamedOrPositionalArg(STNode leadingComma) {
         STToken secondToken = peek(2);
         switch (secondToken.kind) {
             case EQUAL_TOKEN:
@@ -2107,6 +2123,9 @@ public class BallerinaParser {
             case CLOSE_PAREN_TOKEN:
                 argNameOrVarRef = consume();
                 return new STPositionalArg(leadingComma, argNameOrVarRef);
+
+            // Treat everything else as a single expression. If something is missing,
+            // expression-parsing will recover it.
             case NUMERIC_LITERAL_TOKEN:
             case IDENTIFIER_TOKEN:
             case OPEN_PAREN_TOKEN:

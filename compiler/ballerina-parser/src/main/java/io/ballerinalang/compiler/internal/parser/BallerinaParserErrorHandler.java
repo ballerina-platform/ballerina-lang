@@ -527,6 +527,8 @@ public class BallerinaParserErrorHandler {
                 case NAMED_OR_POSITIONAL_ARG_RHS:
                     return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount,
                             NAMED_OR_POSITIONAL_ARG_RHS);
+                case EXPRESSION_END:
+                    return seekMatchInExpressionEnd(nextToken, lookahead, currentDepth, matchingRulesCount);
 
                 // productions
                 case COMP_UNIT:
@@ -619,43 +621,36 @@ public class BallerinaParserErrorHandler {
     private Result seekInExpression(ParserRuleContext currentCtx, int lookahead, int currentDepth, int currentMatches) {
         STToken nextToken = this.tokenReader.peek(lookahead);
         currentDepth++;
+        ParserRuleContext nextContext;
         switch (nextToken.kind) {
             case NUMERIC_LITERAL_TOKEN:
-                return seekMatchInExpressionEnd(nextToken, ++lookahead, currentDepth, ++currentMatches);
+                nextContext = ParserRuleContext.EXPRESSION_END;
+                break;
             // case OPEN_PAREN_TOKEN:
             // Result result = seekMatch(ParserRuleContext.EXPRESSION, ++lookahead, currentDepth);
             // return getFinalResult(++currentMatches, result);
             case IDENTIFIER_TOKEN:
-                return seekInVarOrFuncRef(++lookahead, currentDepth, ++currentMatches);
+                STToken nextNextToken = this.tokenReader.peek(lookahead);
+                switch (nextNextToken.kind) {
+                    case OPEN_PAREN_TOKEN:
+                        nextContext = ParserRuleContext.OPEN_PARENTHESIS;
+                        break;
+                    case DOT_TOKEN:
+                        // TODO:
+                    case OPEN_BRACKET_TOKEN:
+                        // TODO:
+                    default:
+                        nextContext = ParserRuleContext.EXPRESSION_END;
+                        break;
+                }
+                break;
             default:
                 Result fixedPathResult = fixAndContinue(currentCtx, lookahead, currentDepth);
                 return getFinalResult(currentMatches, fixedPathResult);
         }
-    }
 
-    /**
-     * @param lookahead
-     * @param currentDepth
-     * @param currentMatches
-     * @return
-     */
-    private Result seekInVarOrFuncRef(int lookahead, int currentDepth, int currentMatches) {
-        STToken nextToken = this.tokenReader.peek(lookahead);
-        ParserRuleContext nextContext;
-        switch (nextToken.kind) {
-            case OPEN_PAREN_TOKEN:
-                // TODO: add the remaining
-                nextContext = ParserRuleContext.OPEN_PARENTHESIS;
-                break;
-            case DOT_TOKEN:
-                // TODO:
-            case OPEN_BRACKET_TOKEN:
-                // TODO:
-            default:
-                // Assume we reach here if its an end of an expression
-                return seekMatchInExpressionEnd(nextToken, lookahead, currentDepth, currentMatches);
-        }
-
+        currentMatches++;
+        lookahead++;
         Result result = seekMatch(nextContext, lookahead, currentDepth);
         return getFinalResult(currentMatches, result);
     }
@@ -941,21 +936,7 @@ public class BallerinaParserErrorHandler {
                 // endContext(); // end func signature
                 return ParserRuleContext.FUNC_BODY;
             case EXPRESSION:
-                nextToken = this.tokenReader.peek(nextLookahead);
-                if (isEndOfExpression(nextToken)) {
-                    parentCtx = getParentContext();
-                    if (isParameter(parentCtx) || parentCtx == ParserRuleContext.ARG) {
-                        return ParserRuleContext.COMMA;
-                    } else if (isStatement(parentCtx) || parentCtx == ParserRuleContext.RECORD_FIELD) {
-                        return ParserRuleContext.SEMICOLON;
-                    } else {
-                        throw new IllegalStateException();
-                    }
-                } if (nextToken.kind == SyntaxKind.OPEN_PAREN_TOKEN) {
-                    return ParserRuleContext.ARG;
-                } else {
-                    return ParserRuleContext.BINARY_EXPR_RHS;
-                }
+                return ParserRuleContext.EXPRESSION_END;
             case EXTERNAL_KEYWORD:
                 return ParserRuleContext.SEMICOLON;
             case FUNCTION_KEYWORD:

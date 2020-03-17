@@ -89,6 +89,7 @@ public enum ParserRuleContext {
     EXPRESSION("expression"),
     BINARY_EXPR_RHS("expression-rhs"),
     FUNC_CALL("func-call"),
+    EXPRESSION_END("expr-end"),
     ;
 
     private String value;
