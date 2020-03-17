@@ -1,0 +1,22 @@
+{
+    "line": 4,
+    "character": 4,
+    "expected": {
+        "title": "Create Local Variable",
+        "edits": [
+            {
+                "range": {
+                    "start": {
+                        "line": 4,
+                        "character": 4
+                    },
+                    "end": {
+                        "line": 4,
+                        "character": 4
+                    }
+                },
+                "newText": "xml xmlResult = "
+            }
+        ]
+    }
+}

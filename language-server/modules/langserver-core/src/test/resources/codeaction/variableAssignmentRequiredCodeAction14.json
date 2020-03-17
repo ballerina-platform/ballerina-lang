@@ -1,0 +1,22 @@
+{
+    "line": 5,
+    "character": 4,
+    "expected": {
+        "title": "Create Local Variable with 'record {| string a; string b; |}'",
+        "edits": [
+            {
+                "range": {
+                    "start": {
+                        "line": 5,
+                        "character": 4
+                    },
+                    "end": {
+                        "line": 5,
+                        "character": 4
+                    }
+                },
+                "newText": "record {| string a; string b; |} a = "
+            }
+        ]
+    }
+}

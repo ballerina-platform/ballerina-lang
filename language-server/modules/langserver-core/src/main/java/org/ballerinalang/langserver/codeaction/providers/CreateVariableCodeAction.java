@@ -16,6 +16,8 @@
 package org.ballerinalang.langserver.codeaction.providers;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.command.CommandUtil;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
@@ -29,9 +31,10 @@ import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.exception.CompilationFailedException;
 import org.ballerinalang.langserver.util.references.ReferencesKeys;
-import org.ballerinalang.langserver.util.references.SymbolReferencesModel;
+import org.ballerinalang.langserver.util.references.SymbolReferencesModel.Reference;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.expressions.IndexBasedAccessNode;
+import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.CodeActionKind;
 import org.eclipse.lsp4j.Diagnostic;
@@ -53,6 +56,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.util.Flags;
@@ -65,13 +69,13 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.Set;
+import java.util.StringJoiner;
 import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import static org.ballerinalang.langserver.codeaction.CodeActionUtil.getSymbolAtCursor;
 import static org.ballerinalang.langserver.common.utils.CommonUtil.LINE_SEPARATOR;
-import static org.ballerinalang.langserver.common.utils.CommonUtil.createVariableDeclaration;
-import static org.ballerinalang.langserver.util.references.ReferencesUtil.getReferenceAtCursor;
 
 /**
  * Code Action provider for variable assignment.
@@ -128,8 +132,10 @@ public class CreateVariableCodeAction extends AbstractCodeActionProvider {
 
         try {
             context.put(ReferencesKeys.OFFSET_CURSOR_N_TRY_NEXT_BEST, true);
+            context.put(ReferencesKeys.ENABLE_FIND_LITERALS, true);
             Position afterAliasPos = offsetInvocation(diagnosedContent, position);
-            SymbolReferencesModel.Reference refAtCursor = getReferenceAtCursor(context, document, afterAliasPos);
+            Reference refAtCursor = getSymbolAtCursor(context, document, afterAliasPos);
+
             BSymbol symbolAtCursor = refAtCursor.getSymbol();
 
             boolean isInvocation = symbolAtCursor instanceof BInvokableSymbol;
@@ -144,15 +150,9 @@ public class CreateVariableCodeAction extends AbstractCodeActionProvider {
             }
             boolean isInitInvocation = hasDefaultInitFunction || hasCustomInitFunction;
 
-            String commandTitle = CommandConstants.CREATE_VARIABLE_TITLE;
-            CodeAction action = new CodeAction(commandTitle);
-            List<TextEdit> edits = getCreateVariableCodeActionEdits(context, uri, refAtCursor, position,
-                                                                    hasDefaultInitFunction, hasCustomInitFunction);
-            action.setKind(CodeActionKind.QuickFix);
-            action.setEdit(new WorkspaceEdit(Collections.singletonList(Either.forLeft(
-                    new TextDocumentEdit(new VersionedTextDocumentIdentifier(uri, null), edits)))));
-            action.setDiagnostics(diagnostics);
-            actions.add(action);
+            actions.addAll(getCreateVariableCodeActions(context, uri, diagnostics, position, refAtCursor,
+                                                        hasDefaultInitFunction, hasCustomInitFunction));
+            String commandTitle;
 
             if (isInvocation || isInitInvocation) {
                 BType returnType;
@@ -173,7 +173,7 @@ public class CreateVariableCodeAction extends AbstractCodeActionProvider {
                         // Add type guard code action
                         commandTitle = String.format(CommandConstants.TYPE_GUARD_TITLE, symbolAtCursor.name);
                         List<TextEdit> tEdits = getTypeGuardCodeActionEdits(context, uri, refAtCursor, unionType);
-                        action = new CodeAction(commandTitle);
+                        CodeAction action = new CodeAction(commandTitle);
                         action.setKind(CodeActionKind.QuickFix);
                         action.setEdit(new WorkspaceEdit(Collections.singletonList(Either.forLeft(
                                 new TextDocumentEdit(new VersionedTextDocumentIdentifier(uri, null), tEdits)))));
@@ -185,7 +185,7 @@ public class CreateVariableCodeAction extends AbstractCodeActionProvider {
                 if (!hasError) {
                     List<TextEdit> iEdits = getIgnoreCodeActionEdits(position);
                     commandTitle = CommandConstants.IGNORE_RETURN_TITLE;
-                    action = new CodeAction(commandTitle);
+                    CodeAction action = new CodeAction(commandTitle);
                     action.setKind(CodeActionKind.QuickFix);
                     action.setEdit(new WorkspaceEdit(Collections.singletonList(Either.forLeft(
                             new TextDocumentEdit(new VersionedTextDocumentIdentifier(uri, null), iEdits)))));
@@ -199,16 +199,53 @@ public class CreateVariableCodeAction extends AbstractCodeActionProvider {
         return actions;
     }
 
-    private static List<TextEdit> getCreateVariableCodeActionEdits(LSContext context, String uri,
-                                                                   SymbolReferencesModel.Reference referenceAtCursor,
-                                                                   Position position,
-                                                                   boolean hasDefaultInitFunction,
-                                                                   boolean hasCustomInitFunction) {
-        BLangNode bLangNode = referenceAtCursor.getbLangNode();
-        List<TextEdit> edits = new ArrayList<>();
-        CompilerContext compilerContext = context.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY);
-        Set<String> nameEntries = CommonUtil.getAllNameEntries(bLangNode, compilerContext);
+    private static List<CodeAction> getCreateVariableCodeActions(LSContext context, String uri,
+                                                                 List<Diagnostic> diagnostics, Position position,
+                                                                 Reference referenceAtCursor,
+                                                                 boolean hasDefaultInitFunction,
+                                                                 boolean hasCustomInitFunction) {
+        List<CodeAction> actions = new ArrayList<>();
 
+
+        BLangNode bLangNode = referenceAtCursor.getbLangNode();
+        CompilerContext compilerContext = context.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY);
+
+
+        List<TextEdit> edits = new ArrayList<>();
+        Pair<List<String>, List<String>> typesAndNames = getPossibleTypesAndNames(context, referenceAtCursor,
+                                                                                  hasDefaultInitFunction,
+                                                                                  hasCustomInitFunction, bLangNode,
+                                                                                  edits, compilerContext);
+
+        List<String> types = typesAndNames.getLeft();
+        List<String> names = typesAndNames.getRight();
+
+        for (int i = 0; i < types.size(); i++) {
+            String type = types.get(i);
+            String name = names.get(i);
+            String title = CommandConstants.CREATE_VARIABLE_TITLE;
+            if (types.size() > 1) {
+                title = String.format(CommandConstants.CREATE_VARIABLE_TITLE + " with '%s'", type);
+            }
+            CodeAction action = new CodeAction(title);
+            Position insertPos = new Position(position.getLine(), position.getCharacter());
+            edits = Collections.singletonList(new TextEdit(new Range(insertPos, insertPos), type + " " + name + " = "));
+            action.setKind(CodeActionKind.QuickFix);
+            action.setEdit(new WorkspaceEdit(Collections.singletonList(Either.forLeft(
+                    new TextDocumentEdit(new VersionedTextDocumentIdentifier(uri, null), edits)))));
+            action.setDiagnostics(diagnostics);
+            actions.add(action);
+        }
+        return actions;
+    }
+
+    private static Pair<List<String>, List<String>> getPossibleTypesAndNames(LSContext context,
+                                                                             Reference referenceAtCursor,
+                                                                             boolean hasDefaultInitFunction,
+                                                                             boolean hasCustomInitFunction,
+                                                                             BLangNode bLangNode, List<TextEdit> edits,
+                                                                             CompilerContext compilerContext) {
+        Set<String> nameEntries = CommonUtil.getAllNameEntries(bLangNode, compilerContext);
         PackageID currentPkgId = bLangNode.pos.src.pkgID;
         BiConsumer<String, String> importsAcceptor = (orgName, alias) -> {
             boolean notFound = CommonUtil.getCurrentModuleImports(context).stream().noneMatch(
@@ -219,41 +256,90 @@ public class CreateVariableCodeAction extends AbstractCodeActionProvider {
                 edits.add(createImportTextEdit(pkgName, context));
             }
         };
-        String variableType;
-        String variableName;
+
+        List<String> types = new ArrayList<>();
+        List<String> names = new ArrayList<>();
         if (hasDefaultInitFunction) {
             BType bType = referenceAtCursor.getSymbol().type;
-            variableType = FunctionGenerator.generateTypeDefinition(importsAcceptor, currentPkgId, bType);
-            variableName = CommonUtil.generateVariableName(bType, nameEntries);
+            String variableType = FunctionGenerator.generateTypeDefinition(importsAcceptor, currentPkgId, bType);
+            String variableName = CommonUtil.generateVariableName(bType, nameEntries);
+            types.add(variableType);
+            names.add(variableName);
         } else if (hasCustomInitFunction) {
             BType bType = referenceAtCursor.getSymbol().owner.type;
-            variableType = FunctionGenerator.generateTypeDefinition(importsAcceptor, currentPkgId, bType);
-            variableName = CommonUtil.generateVariableName(bType, nameEntries);
+            String variableType = FunctionGenerator.generateTypeDefinition(importsAcceptor, currentPkgId, bType);
+            String variableName = CommonUtil.generateVariableName(bType, nameEntries);
+            types.add(variableType);
+            names.add(variableName);
         } else {
             // Recursively find parent, when it is an indexBasedAccessNode
             while (bLangNode.parent instanceof IndexBasedAccessNode) {
                 bLangNode = bLangNode.parent;
             }
+            String variableType = FunctionGenerator.generateTypeDefinition(importsAcceptor, currentPkgId,
+                                                                           bLangNode.type);
             if (bLangNode instanceof BLangInvocation) {
-                variableName = CommonUtil.generateVariableName(bLangNode, nameEntries);
+                String variableName = CommonUtil.generateVariableName(bLangNode, nameEntries);
+                types.add(variableType);
+                names.add(variableName);
             } else if (bLangNode instanceof BLangFieldBasedAccess) {
-                variableName = CommonUtil.generateVariableName(((BLangFieldBasedAccess) bLangNode).expr.type,
-                                                               nameEntries);
+                String variableName = CommonUtil.generateVariableName(((BLangFieldBasedAccess) bLangNode).expr.type,
+                                                                      nameEntries);
+                types.add(variableType);
+                names.add(variableName);
+            } else if (bLangNode instanceof BLangRecordLiteral) {
+                // JSON
+                String variableName = CommonUtil.generateName(1, nameEntries);
+                types.add("json");
+                names.add(variableName);
+
+                // Record
+                BType prevType = null;
+                boolean isConstrainedMap = true;
+                StringJoiner joiner = new StringJoiner(" ");
+                BLangRecordLiteral recordLiteral = (BLangRecordLiteral) bLangNode;
+                for (RecordLiteralNode.RecordField recordField : recordLiteral.fields) {
+                    if (recordField instanceof BLangRecordLiteral.BLangRecordKeyValueField) {
+                        BLangRecordLiteral.BLangRecordKeyValueField kvField =
+                                (BLangRecordLiteral.BLangRecordKeyValueField) recordField;
+                        BType type = kvField.valueExpr.type;
+                        if (prevType != null && !prevType.tsymbol.name.getValue().equals(
+                                type.tsymbol.name.getValue())) {
+                            isConstrainedMap = false;
+                        }
+                        prevType = type;
+                        String rcKey = FunctionGenerator.generateTypeDefinition(importsAcceptor, currentPkgId, type);
+                        String rcVal = kvField.key.toString();
+                        joiner.add(rcKey + " " + rcVal + ";");
+                    }
+                }
+
+                types.add((recordLiteral.fields.size() > 0) ? "record {| " + joiner.toString() + " |}" : "record {}");
+                names.add(variableName);
+
+                // Map
+                if (isConstrainedMap && prevType != null) {
+                    String type = FunctionGenerator.generateTypeDefinition(importsAcceptor, currentPkgId, prevType);
+                    types.add("map<" + type + ">");
+                    names.add(variableName);
+                } else {
+                    types.add("map<any>");
+                    names.add(variableName);
+                }
             } else {
-                variableName = CommonUtil.generateVariableName(bLangNode.type, nameEntries);
+                String variableName = CommonUtil.generateVariableName(bLangNode.type, nameEntries);
+                types.add(variableType);
+                names.add(variableName);
             }
-            variableType = FunctionGenerator.generateTypeDefinition(importsAcceptor, currentPkgId, bLangNode.type);
         }
+
         // Remove brackets of the unions
-        variableType = variableType.replaceAll("^\\((.*)\\)$", "$1");
-        String editText = createVariableDeclaration(variableName, variableType);
-        Position insertPos = new Position(position.getLine(), position.getCharacter());
-        edits.add(new TextEdit(new Range(insertPos, insertPos), editText));
-        return edits;
+        types = types.stream().map(v -> v.replaceAll("^\\((.*)\\)$", "$1")).collect(Collectors.toList());
+        return new ImmutablePair<>(types, names);
     }
 
     private static List<TextEdit> getTypeGuardCodeActionEdits(LSContext context, String uri,
-                                                              SymbolReferencesModel.Reference referenceAtCursor,
+                                                              Reference referenceAtCursor,
                                                               BUnionType unionType)
             throws WorkspaceDocumentException, IOException {
         WorkspaceDocumentManager docManager = context.get(DocumentServiceKeys.DOC_MANAGER_KEY);

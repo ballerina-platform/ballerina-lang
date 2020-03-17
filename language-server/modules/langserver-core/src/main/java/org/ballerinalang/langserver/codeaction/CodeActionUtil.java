@@ -15,16 +15,23 @@
  */
 package org.ballerinalang.langserver.codeaction;
 
+import org.ballerinalang.langserver.common.constants.NodeContextKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.codeaction.CodeActionKeys;
 import org.ballerinalang.langserver.commons.codeaction.CodeActionNodeType;
+import org.ballerinalang.langserver.commons.workspace.LSDocumentIdentifier;
+import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.compiler.CollectDiagnosticListener;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSModuleCompiler;
 import org.ballerinalang.langserver.compiler.common.LSCustomErrorStrategy;
 import org.ballerinalang.langserver.compiler.exception.CompilationFailedException;
+import org.ballerinalang.langserver.exception.UserErrorException;
+import org.ballerinalang.langserver.util.references.ReferencesKeys;
+import org.ballerinalang.langserver.util.references.ReferencesUtil;
+import org.ballerinalang.langserver.util.references.SymbolReferencesModel;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.ballerinalang.util.diagnostic.DiagnosticListener;
@@ -32,6 +39,7 @@ import org.eclipse.lsp4j.DiagnosticSeverity;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextDocumentIdentifier;
+import org.eclipse.lsp4j.TextDocumentPositionParams;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
@@ -168,7 +176,7 @@ public class CodeActionUtil {
             org.eclipse.lsp4j.Diagnostic lsDiagnostic = new org.eclipse.lsp4j.Diagnostic();
             lsDiagnostic.setSeverity(DiagnosticSeverity.Error);
             lsDiagnostic.setMessage(diagnostic.getMessage());
-            Range r = new Range();
+            Range range = new Range();
 
             int startLine = diagnostic.getPosition().getStartLine() - 1; // LSP diagnostics range is 0 based
             int startChar = diagnostic.getPosition().getStartColumn() - 1;
@@ -183,13 +191,71 @@ public class CodeActionUtil {
                 endChar = startChar + 1;
             }
 
-            r.setStart(new Position(startLine, startChar));
-            r.setEnd(new Position(endLine, endChar));
-            lsDiagnostic.setRange(r);
+            range.setStart(new Position(startLine, startChar));
+            range.setEnd(new Position(endLine, endChar));
+            lsDiagnostic.setRange(range);
 
             lsDiagnostics.add(lsDiagnostic);
         });
 
         return lsDiagnostics;
+    }
+
+    /**
+     * Get the Symbol at the Cursor.
+     *
+     * @param context  LS Operation Context
+     * @param document LS Document
+     * @param position Cursor Position
+     * @return Symbol reference at cursor
+     * @throws WorkspaceDocumentException when couldn't find file for uri
+     * @throws CompilationFailedException when compilation failed
+     */
+    public static SymbolReferencesModel.Reference getSymbolAtCursor(LSContext context, LSDocumentIdentifier document,
+                                                                    Position position)
+            throws WorkspaceDocumentException, CompilationFailedException {
+        TextDocumentIdentifier textDocIdentifier = new TextDocumentIdentifier(document.getURIString());
+        TextDocumentPositionParams pos = new TextDocumentPositionParams(textDocIdentifier, position);
+        context.put(DocumentServiceKeys.POSITION_KEY, pos);
+        context.put(DocumentServiceKeys.FILE_URI_KEY, document.getURIString());
+        context.put(DocumentServiceKeys.COMPILE_FULL_PROJECT, true);
+        List<BLangPackage> modules = ReferencesUtil.findCursorTokenAndCompileModules(context, false);
+        Optional<SymbolReferencesModel.Reference> symbolAtCursor = findSymbol(modules, context);
+        context.put(DocumentServiceKeys.BLANG_PACKAGES_CONTEXT_KEY, modules);
+        return symbolAtCursor.orElse(null);
+    }
+
+    private static Optional<SymbolReferencesModel.Reference> findSymbol(List<BLangPackage> modules, LSContext context) {
+        String currentPkgName = context.get(DocumentServiceKeys.CURRENT_PKG_NAME_KEY);
+        /*
+        In windows platform, relative file path key components are separated with "\" while antlr always uses "/"
+         */
+        String relativePath = context.get(DocumentServiceKeys.RELATIVE_FILE_PATH_KEY);
+        String currentCUnitName = relativePath.replace("\\", "/");
+        Optional<BLangPackage> currentPkg = modules.stream()
+                .filter(pkg -> pkg.symbol.getName().getValue().equals(currentPkgName))
+                .findAny();
+
+        if (!currentPkg.isPresent()) {
+            throw new UserErrorException("Not supported due to compilation failures!");
+        }
+
+        BLangPackage sourceOwnerPkg = CommonUtil.getSourceOwnerBLangPackage(relativePath, currentPkg.get());
+
+        Optional<BLangCompilationUnit> currentCUnit = sourceOwnerPkg.getCompilationUnits().stream()
+                .filter(cUnit -> cUnit.name.equals(currentCUnitName))
+                .findAny();
+
+        CursorSymbolFindingVisitor refVisitor = new CursorSymbolFindingVisitor(context, currentPkgName, true);
+        refVisitor.visit(currentCUnit.get());
+
+        // Prune the found symbol references
+        SymbolReferencesModel symbolReferencesModel = context.get(ReferencesKeys.REFERENCES_KEY);
+        if (!symbolReferencesModel.getReferenceAtCursor().isPresent()) {
+            String nodeName = context.get(NodeContextKeys.NODE_NAME_KEY);
+            throw new IllegalStateException("Symbol at cursor '" + nodeName + "' not supported or could not find!");
+        }
+
+        return symbolReferencesModel.getReferenceAtCursor();
     }
 }
