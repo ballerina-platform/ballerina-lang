@@ -46,4 +46,12 @@ public class DeprecationAnnotationTest {
         BAssertUtil.validateWarning(compileResult, i++, "usage of construct 'func1' is deprecated", 46, 5);
         BAssertUtil.validateWarning(compileResult, i, "usage of construct 'func3' is deprecated", 54, 5);
     }
+
+    @Test(description = "Test the deprecation annotation")
+    public void testDeprecationAnnotationWithCRLF() {
+        CompileResult compileResult = BCompileUtil.compile("test-src/annotations/deprecation_annotation_crlf.bal");
+        Assert.assertEquals(compileResult.getWarnCount(), 1);
+
+        BAssertUtil.validateWarning(compileResult, 0, "usage of construct 'CONST1' is deprecated", 10, 30);
+    }
 }

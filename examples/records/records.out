@@ -10,3 +10,6 @@ name=John Doe age=17 grades=maths=80 physics=75 chemistry=65
 name=Peter age=16 grades=maths=40 physics=35 chemistry=35 address=city=Colombo country=Sri Lanka
 maths=80 physics=75 chemistry=65 english=90
 90
+name=Anne age=18 grades=maths=70 physics=80 chemistry=55 city=Colombo country=Sri Lanka
+name=Amy age=18 city=Colombo country=Sri Lanka
+Amy

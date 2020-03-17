@@ -1,43 +1,73 @@
 import ballerina/io;
 
 public function main() {
-    // Declares a `map` constrained by the type `string`.
+    // Declare a `map` constrained by the type `string`.
     map<string> m;
 
-    // You can also declare and initialize a `map` with a map literal.
+    string city = "Colombo";
+    string country = "Sri Lanka";
+    string codeLiteral = "code";
+
+    // You can also declare and initialize a `map` with a mapping constructor
+    // expression.
     map<string> addrMap = {
+        // A field can be specified as a key-value pair.
         line1: "No. 20",
         line2: "Palm Grove",
+        // The value in a key-value pair can be any expression, which evaluates
+        // to a value of a type that belongs to the constraint type of the map.
         city: "Colombo 03",
-        country: "Sri Lanka"
+        // A field can also be just a variable reference, which would result
+        // in the variable name being the field name and the variable itself
+        // being the value expression.
+        // This is equivalent to saying `country: country`.
+        country,
+        // The key in a key-value pair can also be a computed key.
+        // A computed key is defined by specifying the key expression within
+        // brackets. The key expression must belong to type `string`.
+        // For a computed key, the key expression is evaluated at runtime and
+        // the resulting value is used as the key.
+        [codeLiteral]: "00300"
     };
     io:println(addrMap);
 
-    // Retrieves a value using member access.
-    string country = <string>addrMap["country"];
-    io:println(country);
+    // Member access can be used to retrieve a value from a map.
+    // Member access returns the value if a field exists in the map with the
+    // specified key. Else, it returns `()` if a field does not exist with the specified key.
+    // Thus, the type of a member access expression for a map is the union of
+    // the constraint type and the nil type.
+    string? countryValue = addrMap["country"];
 
-    // Retrieves a value using the `.get()` method.
-    // Panics if the map does not have a member with the specified key.
-    string line2 = addrMap.get("line2");
-    io:println(line2);
+    if (countryValue is string) {
+        io:println(countryValue);
+    } else {
+        io:println("key 'country' not found");
+    }
 
-    // The `.hasKey()` function checks if a map contains a specified key.
+    // Retrieve a value using the `.get()` method.
+    // If the map has a field with the specified key, `.get()` returns the value.
+    // Else, it panics if the map does not have a field with the specified key.
+    // Thus, the return type of `.get()` when invoked on a map is the map's constraint type.
+    string line2Value = addrMap.get("line2");
+    io:println(line2Value);
+
+    // The `.hasKey()` function checks if a map contains the specified key.
     boolean hasPostalCode = addrMap.hasKey("postalCode");
     io:println(hasPostalCode);
 
-    // Adds or updates the value of a key.
+    // Member access expressions can be used on the left hand side of an assignment
+    // to add fields to a map or update an already-existing field in the map.
     addrMap["postalCode"] = "00300";
     io:println(addrMap);
 
-    // The `keys()` method returns the keys of the map as an array.
+    // The `.keys()` method returns the keys of the map as an array.
     io:println(addrMap.keys());
 
-    // Prints the number of mappings in the `map`.
+    // Print the number of fields in the map.
     io:println(addrMap.length());
 
-    // Mappings can be removed using the `.remove()` method.
-    string removedElement = addrMap.remove("postalCode");
+    // Fields can be removed using the `.remove()` method.
+    string removedElement = addrMap.remove("code");
     io:println(addrMap);
 
     // Maps support functional iteration.
@@ -46,8 +76,9 @@ public function main() {
     });
 
     map<int> marks = {sam: 50, jon: 60};
-    // Calling the `.entries()` method on a map will return the key (`string`)
-    // and the value as a tuple variable.
+
+    // Calling the `.entries()` method on a map will return the key-value pairs as
+    // an array of tuples.
     map<int> modifiedMarks = marks.entries().map(function ([string, int] pair)
         returns int {
             var [name, score] = pair;
@@ -56,15 +87,13 @@ public function main() {
         }
     );
     io:println(modifiedMarks);
-    
-    // Maps can only contain values of the type specified by the constraint type descriptor.
-    map<string> stringMap = {};
-    stringMap["index"] = "100892N";
 
-    // The return type of member access will be `T?` where `T` is the constraint type of the map.
-    // If the key does not exist, nil (`()`) is returned.
-    // The Elvis operator `?:` is a conditional operator that handles `()`.
-    // If the given expression evaluates to nil, the second expression is evaluated and its value is returned.
-    string index2 = stringMap["index"] ?: "";
-    io:println(index2);
+    // A mapping constructor expression can also include a spread field
+    // referring to another mapping value. When a spread field is specified,
+    // all the fields of the relevant mapping value are added to the new
+    // mapping value being created.
+    // A spread field is used with `modifiedMarks` to include all the entries
+    // in `modifiedMarks` when creating `allMarks`.
+    map<int> allMarks = {jane: 100, ...modifiedMarks, amy: 75};
+    io:println(allMarks);
 }

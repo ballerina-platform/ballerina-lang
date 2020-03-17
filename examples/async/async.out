@@ -3,7 +3,7 @@
 $ ballerina run async.bal
 SQ + CB = 737100
 Counting done in one second: 0
-args=test=123 headers=x-forwarded-proto=https host=postman-echo.com user-agent=ballerina/1.0.0 x-forwarded-port=80 url=https://postman-echo.com/get?test=123
+args=test=123 headers=x-forwarded-proto=https host=postman-echo.com user-agent=ballerina/1.2.0 x-forwarded-port=80 url=https://postman-echo.com/get?test=123
 400
 first_field=100 second_field=27 third_field=Hello Moose!!
 first field of record --> 100

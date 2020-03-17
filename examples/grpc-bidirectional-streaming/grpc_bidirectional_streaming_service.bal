@@ -5,7 +5,7 @@ import ballerina/log;
 map<grpc:Caller> consMap = {};
 
 @grpc:ServiceConfig {
-    name: "chat",
+    name: "Chat",
     clientStreaming: true,
     serverStreaming: true
 }

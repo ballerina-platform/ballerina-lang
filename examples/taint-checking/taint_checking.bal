@@ -1,4 +1,4 @@
-import ballerina/lang.'int as ints;
+import ballerina/lang.'int;
 import ballerinax/java.jdbc;
 
 // The `@untainted` annotation can be used with the parameters of user-defined functions. This allow users to restrict
@@ -10,7 +10,6 @@ function userDefinedSecureOperation(@untainted string secureParameter) {
 type Student record {
     string firstname;
 };
-
 
 public function main(string... args) {
     jdbc:Client customerDBEP = new ({
@@ -29,15 +28,14 @@ public function main(string... args) {
     //
     // This line results in a compile error because the query is appended with a user-provided argument.
     var result = customerDBEP->
-    select("SELECT firstname FROM student WHERE registration_id = " +
-            args[0], ());
-    table<record {string firstname;}> dataTable;
+                               select("SELECT firstname FROM student WHERE" +
+                                      " registration_id = " + args[0], ());
+
     if (result is error) {
-        error e = <error>result;
-        panic e;
-    } else {
-        dataTable = result;
+        panic result;
     }
+
+    table<Student> dataTable = <table<Student>>result;
 
     // This line results in a compiler error because a user-provided argument is passed to a sensitive parameter.
     userDefinedSecureOperation(args[0]);
@@ -89,7 +87,7 @@ function sanitizeAndReturnUntainted(string input) returns @untainted string {
 }
 
 function isInteger(string input) returns boolean {
-    var intVal = ints:fromString(input);
+    var intVal = 'int:fromString(input);
     if (intVal is error) {
         return false;
     } else {

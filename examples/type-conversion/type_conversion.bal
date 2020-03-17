@@ -1,7 +1,7 @@
 import ballerina/io;
-import ballerina/lang.'decimal as decimals;
-import ballerina/lang.'float as floats;
-import ballerina/lang.'int as ints;
+import ballerina/lang.'decimal;
+import ballerina/lang.'float;
+import ballerina/lang.'int;
 
 type Person record {
     string name;
@@ -48,34 +48,34 @@ function createNumericValues() {
     string s3 = "12.3";
     string s4 = "8";
 
-    // The `fromString()` method in the ballerina/lang.int module returns the integer value represented by a
+    // The `fromString()` method in the `ballerina/lang.int` module returns the integer value represented by a
     // given string if there is a valid representation, else returns an `error`.
-    int|error res1 = ints:fromString(s1);
+    int|error res1 = 'int:fromString(s1);
     if (res1 is int) {
         io:println("int value: ", res1);
     } else {
         io:println("error: ", res1.detail());
     }
 
-    res1 = ints:fromString(s2);
+    res1 = 'int:fromString(s2);
     if (res1 is int) {
         io:println("int value: ", res1);
     } else {
         io:println("error: ", res1.detail());
     }
 
-    // The `fromString()` method in the ballerina/lang.float module returns the float value represented by a given
+    // The `fromString()` method in the `ballerina/lang.float` module returns the float value represented by a given
     // string if there is a valid representation, else returns an `error`.
-    float|error res2 = floats:fromString(s3);
+    float|error res2 = 'float:fromString(s3);
     if (res2 is float) {
         io:println("float value: ", res2);
     } else {
         io:println("error: ", res2.detail());
     }
 
-    // The `fromString()` method in the ballerina/lang.decimal module returns the decimal value represented by a given
+    // The `fromString()` method in the `ballerina/lang.decimal` module returns the decimal value represented by a given
     // string if there is a valid representation, else returns an `error`.
-    decimal|error res3 = decimals:fromString(s4);
+    decimal|error res3 = 'decimal:fromString(s4);
     if (res3 is decimal) {
         io:println("decimal value: ", res3);
     } else {

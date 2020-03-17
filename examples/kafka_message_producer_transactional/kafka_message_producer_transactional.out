@@ -1,3 +1,3 @@
 # To run this sample, navigate to the directory that contains the
 # `.bal` file, and execute the `ballerina run` command.
-$ ballerina run --experimental kafka-message-producer-transaction.bal
+$ ballerina run --experimental kafka_message_producer_transactional.bal
