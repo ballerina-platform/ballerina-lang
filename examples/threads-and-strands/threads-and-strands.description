@@ -2,7 +2,7 @@
 // (1) To execute statements in a named `worker` declaration
 // (2) To execute the function or method in the `start` action.  By default,
 // these new strands will be part of the same thread as the current strand.
-// Strands belong to the same thread share following characteristics. Only one strand can run simultaneously.
+// Strands that belong to the same thread share the following characteristics. Only one strand can run simultaneously.
 // The currently-running strand should yield to switch its thread to execute another strand.
 // Therefore, strands belonging to a particular thread are cooperatively multitasked.
 // All the strands created in a particular execution of a Ballerina program will be executed
