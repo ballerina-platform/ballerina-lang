@@ -49,6 +49,7 @@ import static org.ballerinalang.compiler.CompilerOptionName.EXPERIMENTAL_FEATURE
 import static org.ballerinalang.compiler.CompilerOptionName.OFFLINE;
 import static org.ballerinalang.compiler.CompilerOptionName.PROJECT_DIR;
 import static org.ballerinalang.compiler.CompilerOptionName.SKIP_TESTS;
+import static org.ballerinalang.util.diagnostic.DiagnosticCode.USAGE_OF_DEPRECATED_CONSTRUCT;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_COMPILED_PKG_EXT;
 import static org.wso2.ballerinalang.util.RepoUtils.BALLERINA_INSTALL_DIR_PROP;
 import static org.wso2.ballerinalang.util.RepoUtils.COMPILE_BALLERINA_ORG_PROP;
@@ -146,7 +147,16 @@ public class GenerateBalo {
 
     private static void printErrors(boolean reportWarnings, CompileResult.CompileResultDiagnosticListener diagListner,
                                     List<Diagnostic> diagnostics) {
-        if (diagListner.getErrorCount() > 0 || (reportWarnings && diagListner.getWarnCount() > 0)) {
+        int deprecatedWarnCount = 0;
+        if (reportWarnings && diagListner.getWarnCount() > 0) {
+            for (Diagnostic diagnostic : diagListner.getDiagnostics()) {
+                if (diagnostic.getCode() == USAGE_OF_DEPRECATED_CONSTRUCT) {
+                    deprecatedWarnCount++;
+                }
+            }
+        }
+        if (diagListner.getErrorCount() > 0 ||
+                (reportWarnings && (diagListner.getWarnCount() - deprecatedWarnCount) > 0)) {
             StringJoiner sj = new StringJoiner("\n  ");
             diagnostics.forEach(e -> sj.add(e.toString()));
             String warnMsg = reportWarnings ? " and " + diagListner.getWarnCount() + " warning(s)" : "";

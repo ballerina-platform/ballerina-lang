@@ -25,6 +25,12 @@ import ballerina/java;
 # + poolOptions - Properties for the connection pool configuration. Refer `PoolOptions` for more details
 # + dbOptions - A map of DB specific properties. These properties will have an effect only if the dataSourceClassName is
 #               provided in poolOptions
+#
+# # Deprecated
+# A new experimental JDBC2 module is introduced in the Ballerina 1.2 release and
+# it will be fully supported by the 1.3 release.
+# This record type will be removed later in the 1.3 release.
+@deprecated
 public type ClientConfiguration record {|
     string url = "";
     string username = "";
@@ -70,6 +76,12 @@ public type ClientConfiguration record {|
 # + validationTimeoutInMillis - The maximum duration of time that a connection will be tested for aliveness. Default
 #                       value is 5000 (5 seconds) and it can be changed through the configuration API with the key
 #                       `b7a.jdbc.pool.validationTimeoutInMillis`.  Lowest acceptable validation timeout is 250 ms.
+#
+# # Deprecated
+# A new experimental JDBC2 module is introduced in the Ballerina 1.2 release and
+# it will be fully supported by the 1.3 release.
+# This record type will be removed later in the  1.3 release.
+@deprecated
 public type PoolOptions record {|
     string connectionInitSql = config:getAsString("b7a.jdbc.pool.connectionInitSql", "");
     string dataSourceClassName = config:getAsString("b7a.jdbc.pool.dataSourceClassName", "");
@@ -148,6 +160,12 @@ final GlobalPoolConfigContainer globalPoolConfigContainer = new;
 # `ARRAY` - Composite data value that consists of zero or more elements of a specified data type
 # `STRUCT` - User-defined structured type, consists of one or more attributes
 # `REFCURSOR` - Cursor value
+#
+# # Deprecated
+# A new experimental JDBC2 module is introduced in the Ballerina 1.2 release and
+# it will be fully supported by the 1.3 release.
+# This type will be removed later in the 1.3 release.
+@deprecated
 public type SQLType TYPE_VARCHAR|TYPE_CHAR|TYPE_LONGVARCHAR|TYPE_NCHAR|TYPE_LONGNVARCHAR|TYPE_NVARCHAR|TYPE_BIT|
 TYPE_BOOLEAN|TYPE_TINYINT|TYPE_SMALLINT|TYPE_INTEGER|TYPE_BIGINT|TYPE_NUMERIC|TYPE_DECIMAL|TYPE_REAL|TYPE_FLOAT|
 TYPE_DOUBLE|TYPE_BINARY|TYPE_BLOB|TYPE_LONGVARBINARY|TYPE_VARBINARY|TYPE_CLOB|TYPE_NCLOB|TYPE_DATE|TYPE_TIME|
@@ -189,6 +207,12 @@ public const TYPE_REFCURSOR = "REFCURSOR";
 # `IN` - IN parameters are used to send values to stored procedures
 # `OUT` - OUT parameters are used to get values from stored procedures
 # `INOUT` - INOUT parameters are used to send values and get values from stored procedures
+#
+# # Deprecated
+# A new experimental JDBC2 module is introduced in the Ballerina 1.2 release and
+# it will be fully supported by the 1.3 release.
+# This type will be removed later in the 1.3 release.
+@deprecated
 public type Direction DIRECTION_IN|DIRECTION_OUT|DIRECTION_INOUT;
 
 public const DIRECTION_IN = "IN";
@@ -203,6 +227,12 @@ public const DIRECTION_INOUT = "INOUT";
 # + direction - Direction of the SQL Parameter IN, OUT, or INOUT - Default value is IN
 # + recordType - In case of OUT direction, if the sqlType is REFCURSOR, this represents the record type to map a
 #                result row
+#
+# # Deprecated
+# A new experimental JDBC2 module is introduced in the Ballerina 1.2 release and
+# it will be fully supported by the  1.3 release.
+# This record type will be removed later in the 1.3 release.
+@deprecated
 public type Parameter record {|
     SQLType sqlType;
     anydata value = ();
@@ -214,6 +244,12 @@ public type Parameter record {|
 #
 # + updatedRowCount - The updated row count during the sql statement exectuion
 # + generatedKeys - A map of auto generated key values during the sql statement execution
+#
+# # Deprecated
+# A new experimental JDBC2 module is introduced in the Ballerina 1.2 release and
+# it will be fully supported by the 1.3 release.
+# This record type will be removed later in the 1.3 release.
+@deprecated
 public type UpdateResult record {|
     int updatedRowCount;
     map<anydata> generatedKeys;
@@ -230,6 +266,12 @@ public type UpdateResult record {|
 #                            continues to process remaining commands after a command fails
 # + generatedKeys - A map of auto generated key values during the batch update execution
 # + returnedError - The `Error` returned from the remote function in case of a failure
+#
+# # Deprecated
+# A new experimental JDBC2 module is introduced in the Ballerina 1.2 release and
+# it will be fully supported by the 1.3 release.
+# This record type will be removed later in the 1.3 release.
+@deprecated
 public type BatchUpdateResult record {|
     int[] updatedRowCount;
     map<anydata[]> generatedKeys;
@@ -237,4 +279,10 @@ public type BatchUpdateResult record {|
 |};
 
 # The parameter passed into the operations.
+#
+# # Deprecated
+# A new experimental JDBC2 module is introduced in the Ballerina 1.2 release and
+# it will be fully supported by the 1.3 release.
+# This type will be removed later in the 1.3 release.
+@deprecated
 public type Param string|int|boolean|float|decimal|byte[]|Parameter;
