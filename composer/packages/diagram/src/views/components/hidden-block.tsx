@@ -48,7 +48,8 @@ export const HiddenBlock: React.StatelessComponent<{
                                 x={bBox.x - viewState.bBox.leftMargin}
                                 y={bBox.y + config.statement.expanded.topMargin}
                                 width={bBox.w + viewState.bBox.leftMargin - config.statement.expanded.rightMargin}
-                                height={bBox.h - (2 * config.statement.expanded.bottomMargin)}/>
+                                height={bBox.h - (2 * config.statement.expanded.bottomMargin)
+                                + (config.statement.height / 2)}/>
                             <text className="collapser"
                                 x={bBox.x + bBox.w - config.statement.expanded.collapserWidth
                                     - config.statement.expanded.rightMargin}
