@@ -128,7 +128,7 @@ public class ArrayValueImpl extends AbstractArrayValue {
     @Deprecated
     public ArrayValueImpl(BArrayType type) {
         this.arrayType = type;
-        BArrayType arrayType = (BArrayType) type;
+        BArrayType arrayType = type;
         this.elementType = arrayType.getElementType();
         initArrayValues(elementType, false);
         if (arrayType.getState() == ArrayState.CLOSED_SEALED) {
@@ -368,11 +368,11 @@ public class ArrayValueImpl extends AbstractArrayValue {
         switch (this.elementType.getTag()) {
             case TypeTags.BOOLEAN_TAG:
                 prepareForAdd(index, value, type, booleanValues.length);
-                this.booleanValues[(int) index] = ((Boolean) value).booleanValue();
+                this.booleanValues[(int) index] = (Boolean) value;
                 return;
             case TypeTags.FLOAT_TAG:
                 prepareForAdd(index, value, type, floatValues.length);
-                this.floatValues[(int) index] = ((Double) value).doubleValue();
+                this.floatValues[(int) index] = (Double) value;
                 return;
             case TypeTags.BYTE_TAG:
                 prepareForAdd(index, value, type, byteValues.length);
@@ -551,8 +551,14 @@ public class ArrayValueImpl extends AbstractArrayValue {
                 break;
             case TypeTags.STRING_TAG:
             case TypeTags.CHAR_STRING_TAG:
-                for (int i = 0; i < size; i++) {
-                    sj.add(stringValues[i]);
+                if (stringValues != null) {
+                    for (int i = 0; i < size; i++) {
+                        sj.add(stringValues[i]);
+                    }
+                } else {
+                    for (int i = 0; i < size; i++) {
+                        sj.add(bStringValues[i].getValue());
+                    }
                 }
                 break;
             default:

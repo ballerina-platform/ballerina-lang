@@ -1097,10 +1097,11 @@ public class JvmInstructionGen {
 
             if (varRefType.tag == TypeTags.JSON) {
                 this.mv.visitMethodInsn(INVOKESTATIC, JSON_UTILS, "setElement",
-                        String.format("(L%s;L%s;L%s;)V", OBJECT, STRING_VALUE, OBJECT), false);
+                        String.format("(L%s;L%s;L%s;)V", OBJECT, isBString ? B_STRING_VALUE : STRING_VALUE, OBJECT),
+                        false);
             } else {
                 String signature = String.format("(L%s;L%s;L%s;)V",
-                                                 MAP_VALUE, isBString ? I_STRING_VALUE : STRING_VALUE, OBJECT);
+                        MAP_VALUE, isBString ? B_STRING_VALUE : STRING_VALUE, OBJECT);
                 this.mv.visitMethodInsn(INVOKESTATIC, MAP_UTILS, "handleMapStore", signature, false);
             }
         }
@@ -1149,7 +1150,7 @@ public class JvmInstructionGen {
 
             // invoke get() method, and unbox if needed
             this.mv.visitMethodInsn(INVOKEINTERFACE, OBJECT_VALUE, "get",
-                    String.format("(L%s;)L%s;", STRING_VALUE, OBJECT), true);
+                    String.format("(L%s;)L%s;", isBString ? B_STRING_VALUE : STRING_VALUE, OBJECT), true);
             BType targetType = objectLoadIns.lhsOp.variableDcl.type;
             addUnboxInsn(this.mv, targetType);
 

@@ -28,58 +28,31 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import static org.ballerinalang.test.util.BRunUtil.IS_STRING_VALUE_PROP;
-
 /**
- * Tests for the generateNewXML* functions for StringValue.
+ * Test BString support in Object.
  */
-public class StringValueXmlTest {
+public class BStringObjectTest {
     private CompileResult result;
 
     @BeforeClass
     public void setup() {
-        System.setProperty(IS_STRING_VALUE_PROP, "true");
-        result = BCompileUtil.compile("test-src/types/string/string-value-xml-test.bal");
+        System.setProperty(BRunUtil.IS_STRING_VALUE_PROP, "true");
+        result = BCompileUtil.compile("test-src/types/string/bstring-object-test.bal");
     }
 
     @Test
-    public void testXmlComment() {
-        testAndAssert("testXmlComment", 12);
+    public void testObjectAccess() {
+        testAndAssert("testObjectAccess", 12);
     }
 
     @Test
-    public void testXmlQName() {
-        testAndAssert("testXmlQName", 13);
+    public void testObjectInitialization() {
+        testAndAssert("testObjectInitialization", 11);
     }
 
     @Test
-    public void testXmlText() {
-        testAndAssert("testXmlText", 19);
-    }
-
-    @Test
-    public void testXmlProcessingIns() {
-        testAndAssert("testXmlProcessingIns", 12);
-    }
-
-    @Test
-    public void testXmlStr() {
-        testAndAssert("testXmlStr", 8);
-    }
-
-    @Test
-    public void testComplexXml() {
-        testAndAssert("testComplexXml", 202);
-    }
-
-    @Test
-    public void testXmlNamespace() {
-        testAndAssert("testXmlNamespace", 334);
-    }
-
-    @Test
-    public void testXmlInterpolation() {
-        testAndAssert("testXmlInterpolation", 249);
+    public void testObjectSet() {
+        testAndAssert("testObjectSet", 8);
     }
 
     private void testAndAssert(String funcName, int i) {
@@ -90,6 +63,7 @@ public class StringValueXmlTest {
 
     @AfterClass
     public void down() {
-        System.clearProperty(IS_STRING_VALUE_PROP);
+        System.clearProperty(BRunUtil.IS_STRING_VALUE_PROP);
     }
+
 }
