@@ -24,7 +24,7 @@
         <!-- Consumer-Related tests -->
         <classes>
             <class name="org.ballerinalang.messaging.kafka.consumer.KafkaConsumerAssignTest" />
-            <class name="org.ballerinalang.messaging.kafka.consumer.KafkaConsumerTopicsTest" />
+            <!--<class name="org.ballerinalang.messaging.kafka.consumer.KafkaConsumerTopicsTest" />-->
             <!--<class name="org.ballerinalang.messaging.kafka.consumer.KafkaConsumerTest" />-->
             <class name="org.ballerinalang.messaging.kafka.consumer.KafkaConsumerManualCommitTest" />
             <class name="org.ballerinalang.messaging.kafka.consumer.KafkaConsumerPauseResumeTest" />
