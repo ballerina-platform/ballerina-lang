@@ -39,7 +39,6 @@ public class Http2GatewayTestCase extends GrpcBaseTest {
     @BeforeClass
     private void setup() throws Exception {
         TestUtils.prepareBalo(this);
-        System.setProperty("ballerina.home", serverInstance.getServerHome());
     }
 
     @Test(description = "Test bidirectional streaming client")

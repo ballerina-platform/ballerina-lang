@@ -130,9 +130,9 @@ public class WebSocketTestClient {
             throws NoSuchAlgorithmException, KeyStoreException, KeyManagementException, IOException,
                    CertificateException {
         TrustManager[] trustManagers;
-        KeyStore tks = TestUtils.getKeyStore(new File(
-                "src" + File.separator + "test" + File.separator + "resources" + File.separator + "security" +
-                        File.separator + "keystore" + File.separator + "ballerinaTruststore.p12"));
+        KeyStore tks = TestUtils.getKeyStore(new File("src" + File.separator + "test" + File.separator + "resources" +
+                                                              File.separator + "certsAndKeys" + File.separator +
+                                                              "ballerinaTruststore.p12"));
         TrustManagerFactory tmf = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
         tmf.init(tks);
         trustManagers = tmf.getTrustManagers();
@@ -273,6 +273,7 @@ public class WebSocketTestClient {
         }
         channel.writeAndFlush(new CloseWebSocketFrame()).sync();
     }
+
     /**
      * @return the text received from the server.
      */
