@@ -21,7 +21,7 @@
        Diagram Globals 
 ----------------------------*/
 
-@diagram-base-light-color: @offWhite;
+@diagram-base-light-color: #F6F5FA;
 @diagram-base-dark-color: @black;
 
 @diagram-font: @fontName;
@@ -53,8 +53,10 @@
 @dark-diagram-panel-header-text-color: @dark-diagram-base-text-color;
 @light-diagram-panel-body-background-color: @light-diagram-background-color;
 @dark-diagram-panel-body-background-color: @dark-diagram-background-color;
-@light-diagram-expanded-func-frame-color: #bbb;
-@dark-diagram-expanded-func-frame-color: #bbb;
+@light-diagram-expanded-func-frame-color: @purple;
+@dark-diagram-expanded-func-frame-color: @purple;
+@light-diagram-expanded-hidden-block-frame-color: @light-gray;
+@dark-diagram-expanded-hidden-block-frame-color: @light-gray;
 @light-diagram-collapse-func-color: #aaa;
 @dark-diagram-collapse-func-color: #aaa;
 
@@ -63,13 +65,13 @@
        Stroke 
 --------------------*/
 
-@light-diagram-arrow-head-color: @light-diagram-stroke-color;
-@dark-diagram-arrow-head-color: @dark-diagram-stroke-color;
+@light-diagram-arrow-head-color: @teal;
+@dark-diagram-arrow-head-color: @teal;
 
 @light-diagram-stroke-color: @light-diagram-base-text-color;
 @dark-diagram-stroke-color: @dark-diagram-base-text-color;
 
-@diagram-stroke-width: 1px;
+@diagram-stroke-width: 2px;
 
 /*-------------------
        Statement
@@ -97,8 +99,8 @@
 @light-diagram-life-line-head-text-color: @light-diagram-base-text-color;
 @dark-diagram-life-line-head-text-color: @dark-diagram-base-text-color;
 
-@light-diagram-life-line-worker-stroke-color: @blue;
-@dark-diagram-life-line-worker-stroke-color: @blue;
+@light-diagram-life-line-worker-stroke-color: @purple;
+@dark-diagram-life-line-worker-stroke-color: @purple;
 @light-diagram-life-line-endpoint-stroke-color: @teal;
 @dark-diagram-life-line-endpoint-stroke-color: @teal;
 @light-diagram-life-line-endpoint-stroke-activity-color: @light-diagram-life-line-endpoint-stroke-color;
