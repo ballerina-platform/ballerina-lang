@@ -598,7 +598,6 @@ public class Desugar extends BLangNodeVisitor {
             result = pkgNode;
             return;
         }
-//        SymbolEnv env = this.symTable.pkgEnvMap.get(pkgNode.symbol);
         createPackageInitFunctions(pkgNode, env);
         // Adding object functions to package level.
         addAttachedFunctionsToPackageLevel(pkgNode, env);
@@ -662,6 +661,7 @@ public class Desugar extends BLangNodeVisitor {
 
         // Invoke closure desugar.
         closureDesugar.visit(pkgNode);
+
         for (BLangTestablePackage testablePkg : pkgNode.getTestablePkgs()) {
             rewrite(testablePkg, this.symTable.pkgEnvMap.get(testablePkg.symbol));
         }
