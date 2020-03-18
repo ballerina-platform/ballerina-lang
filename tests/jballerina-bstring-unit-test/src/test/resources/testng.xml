@@ -25,7 +25,6 @@
     <listeners>
         <listener class-name="org.ballerinalang.test.utils.BLogInitializer"/>
         <listener class-name="org.ballerinalang.test.listener.JBallerinaTestInitializer"/>
-        <!--<listener class-name="org.ballerinalang.test.utils.TestNGListener"/>-->
     </listeners>
     <test name="jballerina-test" parallel="false">
         <parameter name="enableJBallerinaTests" value="true"/>

@@ -131,6 +131,21 @@ public class TableValue implements RefValue, BTable {
         }
     }
 
+    @Deprecated
+    public TableValue(BType type, ArrayValue keyColumns, ArrayValue dataRows, boolean isBString) {
+        //Create table with given constraints.
+        BType constrainedType = ((BTableType) type).getConstrainedType();
+        this.tableProvider = TableProvider.getInstance();
+        this.tableName = tableProvider.createTable(constrainedType, keyColumns);
+        this.constraintType = (BStructureType) constrainedType;
+        this.type = new BTableType(constraintType);
+        this.primaryKeys = keyColumns;
+        //Insert initial data
+        if (dataRows != null) {
+            insertInitialData_bstring(dataRows);
+        }
+    }
+
     @Override
     public String toString() {
         return stringValue();
@@ -277,6 +292,15 @@ public class TableValue implements RefValue, BTable {
                             + " cannot be added to a table with type:" + this.constraintType.getName());
         }
         tableProvider.insertData(tableName, data);
+        reset();
+    }
+    public void addData_bstring(MapValueImpl<BString, Object> data) {
+        if (data.getType() != this.constraintType) {
+            throw BallerinaErrors.createError(BallerinaErrorReasons.TABLE_OPERATION_ERROR,
+                    "incompatible types: record of type:" + data.getType().getName()
+                            + " cannot be added to a table with type:" + this.constraintType.getName());
+        }
+        tableProvider.insertData_bstring(tableName, data);
         reset();
     }
 
@@ -481,7 +505,12 @@ public class TableValue implements RefValue, BTable {
             addData((MapValueImpl<String, Object>) data.getRefValue(i));
         }
     }
-
+    private void insertInitialData_bstring(ArrayValue data) {
+        int count = data.size();
+        for (int i = 0; i < count; i++) {
+            addData_bstring((MapValueImpl<BString, Object>) data.getRefValue(i));
+        }
+    }
     /**
      * Returns a flag indicating whether this table is an in-memory one.
      * TODO: This is a hack to get the table to JSON conversion works
