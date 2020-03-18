@@ -26,13 +26,13 @@ public type FileInfo object {
     boolean dir;
     string path;
 
-# Creates a FileInfo object.
-#
-# + name - Name of the file
-# + size - Size of the file (in bytes)
-# + modifiedTime - The last modified time of the file
-# + dir - Whether the file is a directory or not
-# + path - Absolute path of the file
+    # Creates a FileInfo object.
+    #
+    # + name - Name of the file
+    # + size - Size of the file (in bytes)
+    # + modifiedTime - The last modified time of the file
+    # + dir - Whether the file is a directory or not
+    # + path - Absolute path of the file
     public function __init(string name, int size, time:Time modifiedTime, boolean dir, string path) {
         self.name = name;
         self.size = size;
