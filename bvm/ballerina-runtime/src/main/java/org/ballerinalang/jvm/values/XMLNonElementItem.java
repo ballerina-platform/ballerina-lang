@@ -26,7 +26,6 @@ import org.ballerinalang.jvm.values.api.BXML;
 import org.ballerinalang.jvm.values.freeze.Status;
 
 import java.io.ByteArrayOutputStream;
-import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
@@ -172,20 +171,6 @@ public abstract class XMLNonElementItem extends XMLValue {
 
     @Override
     public abstract OMNode value();
-
-
-    @Override
-    public void serialize(OutputStream outputStream) {
-        try {
-            if (outputStream instanceof BallerinaXMLSerializer) {
-                ((BallerinaXMLSerializer) outputStream).write(this);
-            } else {
-                (new BallerinaXMLSerializer(outputStream)).write(this);
-            }
-        } catch (Throwable t) {
-            handleXmlException("error occurred during writing the message to the output stream: ", t);
-        }
-    }
 
     @Override
     public IteratorValue getIterator() {

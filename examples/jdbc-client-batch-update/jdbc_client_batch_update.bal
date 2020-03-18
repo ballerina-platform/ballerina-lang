@@ -50,7 +50,7 @@ public function main() {
     }
     // A batch of data can be inserted using the `batchUpdate` remote function.
     jdbc:BatchUpdateResult retBatch = testDB->batchUpdate("INSERT INTO student " +
-            "(age,name) VALUES (?,?)", false, true, ...dataBatch);
+            "(age,name) VALUES (?,?)", false, ...dataBatch);
     error? e = retBatch.returnedError;
     if (e is error) {
         io:println("Batch update operation failed:", <string>e.detail()?.message);

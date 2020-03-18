@@ -17,6 +17,8 @@
  */
 package org.ballerinalang.test.runtime.util;
 
+import org.ballerinalang.jvm.util.RuntimeUtils;
+import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.test.runtime.BTestRunner;
 import org.ballerinalang.test.runtime.entity.TestSuite;
 
@@ -62,18 +64,21 @@ public class TesterinaUtils {
      * @param sourceRootPath source root path
      * @param testSuite test meta data
      */
-    public static void executeTests(Path sourceRootPath, TestSuite testSuite) {
+    public static void executeTests(Path sourceRootPath, TestSuite testSuite) throws RuntimeException {
         try {
             BTestRunner testRunner = new BTestRunner(outStream, errStream);
             // Run the tests
             testRunner.runTest(testSuite);
             cleanUpDir(sourceRootPath.resolve(TesterinaConstants.TESTERINA_TEMP_DIR));
             if (testRunner.getTesterinaReport().isFailure()) {
-                Runtime.getRuntime().exit(1);
+                throw new RuntimeException("there are test failures");
             }
-        } catch (Throwable e) {
+        } catch (BallerinaException e) {
             errStream.println("error: " + e.getMessage());
-            Runtime.getRuntime().exit(1);
+            throw e;
+        } catch (Throwable e) {
+            RuntimeUtils.silentlyLogBadSad(e);
+            throw new RuntimeException("test execution failed due to runtime exception");
         }
     }
 

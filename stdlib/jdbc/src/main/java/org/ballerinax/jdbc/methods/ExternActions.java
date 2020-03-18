@@ -40,11 +40,10 @@ public class ExternActions {
     private ExternActions() {}
 
     public static MapValue<String, Object> nativeBatchUpdate(ObjectValue client, String sqlQuery,
-                                                             boolean rollbackAllInFailure, boolean returnGeneratedKeys,
-                                                             ArrayValue... parameters) {
+                                                             boolean rollbackAllInFailure, ArrayValue... parameters) {
         SQLDatasource datasource = (SQLDatasource) client.getNativeData(Constants.JDBC_CLIENT);
         SQLStatement batchUpdateStatement = new BatchUpdateStatement(client, datasource, sqlQuery,
-                rollbackAllInFailure, Scheduler.getStrand(), returnGeneratedKeys, parameters);
+                rollbackAllInFailure, Scheduler.getStrand(), parameters);
         return (MapValue<String, Object>) batchUpdateStatement.execute();
     }
 
@@ -64,11 +63,10 @@ public class ExternActions {
         return selectStatement.execute();
     }
 
-    public static Object nativeUpdate(ObjectValue client, String query, boolean returnGeneratedKeys,
-                                      ArrayValue parameters) {
+    public static Object nativeUpdate(ObjectValue client, String query, ArrayValue parameters) {
         SQLDatasource sqlDatasource = (SQLDatasource) client.getNativeData(Constants.JDBC_CLIENT);
-        SQLStatement updateStatement = new UpdateStatement(client, sqlDatasource, query, returnGeneratedKeys,
-                parameters, Scheduler.getStrand());
+        SQLStatement updateStatement = new UpdateStatement(client, sqlDatasource, query, parameters,
+                Scheduler.getStrand());
         return updateStatement.execute();
     }
 }
