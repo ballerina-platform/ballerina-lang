@@ -88,6 +88,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangRecordVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangRecordVariable.BLangRecordVariableKeyValue;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
+import org.wso2.ballerinalang.compiler.tree.BLangTestablePackage;
 import org.wso2.ballerinalang.compiler.tree.BLangTupleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
@@ -597,6 +598,7 @@ public class Desugar extends BLangNodeVisitor {
             result = pkgNode;
             return;
         }
+//        SymbolEnv env = this.symTable.pkgEnvMap.get(pkgNode.symbol);
         createPackageInitFunctions(pkgNode, env);
         // Adding object functions to package level.
         addAttachedFunctionsToPackageLevel(pkgNode, env);
@@ -660,8 +662,9 @@ public class Desugar extends BLangNodeVisitor {
 
         // Invoke closure desugar.
         closureDesugar.visit(pkgNode);
-
-        pkgNode.getTestablePkgs().forEach(testablePackage -> visit((BLangPackage) testablePackage));
+        for (BLangTestablePackage testablePkg : pkgNode.getTestablePkgs()) {
+            rewrite(testablePkg, this.symTable.pkgEnvMap.get(testablePkg.symbol));
+        }
         pkgNode.completedPhases.add(CompilerPhase.DESUGAR);
         initFuncIndex = 0;
         result = pkgNode;
