@@ -2266,11 +2266,25 @@
             "documentation": {
                 "right": {
                     "kind": "markdown",
-                    "value": "Constant for telemetry tag http.status_code"
+                    "value": "Constant for telemetry tag http.status_code_group"
                 }
             },
             "sortText": "130",
             "insertText": "HTTP_STATUS_CODE_GROUP",
+            "insertTextFormat": "Snippet"
+        },
+        {
+            "label": "HTTP_BASE_URL",
+            "kind": "Variable",
+            "detail": "string",
+            "documentation": {
+                "right": {
+                    "kind": "markdown",
+                    "value": "Constant for telemetry tag http.base_url"
+                }
+            },
+            "sortText": "130",
+            "insertText": "HTTP_BASE_URL",
             "insertTextFormat": "Snippet"
         },
         {
