@@ -49,3 +49,4 @@ BALLERINA COMMANDS
         grpc            Generate Ballerina sources for the given protobuf definition
         openapi         Generate Ballerina sources for the given OpenAPI definition and vice versa.
         version         Print Ballerina version
+        bindgen         Generate Ballerina bindings for Java APIs
