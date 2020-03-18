@@ -73,7 +73,7 @@ public type Client client object {
         Request req = buildRequest(message);
         Response|ClientError response = self.httpClient->post(path, req);
         if (response is Response) {
-            addObservabilityInformation(path, HTTP_POST, response.statusCode);
+            self.addObservabilityInformation(path, HTTP_POST, response.statusCode);
         }
         return response;
     }
@@ -88,7 +88,7 @@ public type Client client object {
         Request req = buildRequest(message);
         Response|ClientError response = self.httpClient->head(path, message = req);
         if (response is Response) {
-            addObservabilityInformation(path, HTTP_HEAD, response.statusCode);
+            self.addObservabilityInformation(path, HTTP_HEAD, response.statusCode);
         }
         return response;
     }
@@ -103,7 +103,7 @@ public type Client client object {
         Request req = buildRequest(message);
         Response|ClientError response = self.httpClient->put(path, req);
         if (response is Response) {
-            addObservabilityInformation(path, HTTP_PUT, response.statusCode);
+            self.addObservabilityInformation(path, HTTP_PUT, response.statusCode);
         }
         return response;
     }
@@ -119,7 +119,7 @@ public type Client client object {
         Request req = buildRequest(message);
         Response|ClientError response = self.httpClient->execute(httpVerb, path, req);
         if (response is Response) {
-            addObservabilityInformation(path, httpVerb, response.statusCode);
+            self.addObservabilityInformation(path, httpVerb, response.statusCode);
         }
         return response;
     }
@@ -134,7 +134,7 @@ public type Client client object {
         Request req = buildRequest(message);
         Response|ClientError response = self.httpClient->patch(path, req);
         if (response is Response) {
-            addObservabilityInformation(path, HTTP_PATCH, response.statusCode);
+            self.addObservabilityInformation(path, HTTP_PATCH, response.statusCode);
         }
         return response;
     }
@@ -149,7 +149,7 @@ public type Client client object {
         Request req = buildRequest(message);
         Response|ClientError response = self.httpClient->delete(path, req);
         if (response is Response) {
-            addObservabilityInformation(path, HTTP_DELETE, response.statusCode);
+            self.addObservabilityInformation(path, HTTP_DELETE, response.statusCode);
         }
         return response;
     }
@@ -164,7 +164,7 @@ public type Client client object {
         Request req = buildRequest(message);
         Response|ClientError response = self.httpClient->get(path, message = req);
         if (response is Response) {
-            addObservabilityInformation(path, HTTP_GET, response.statusCode);
+            self.addObservabilityInformation(path, HTTP_GET, response.statusCode);
         }
         return response;
     }
@@ -179,7 +179,7 @@ public type Client client object {
         Request req = buildRequest(message);
         Response|ClientError response = self.httpClient->options(path, message = req);
         if (response is Response) {
-            addObservabilityInformation(path, HTTP_OPTIONS, response.statusCode);
+            self.addObservabilityInformation(path, HTTP_OPTIONS, response.statusCode);
         }
         return response;
     }
@@ -192,7 +192,7 @@ public type Client client object {
     public remote function forward(@untainted string path, Request request) returns Response|ClientError {
         Response|ClientError response = self.httpClient->forward(path, request);
         if (response is Response) {
-            addObservabilityInformation(path, request.method, response.statusCode);
+            self.addObservabilityInformation(path, request.method, response.statusCode);
         }
         return response;
     }
@@ -247,7 +247,7 @@ public type Client client object {
     public remote function getPromisedResponse(PushPromise promise) returns Response|ClientError {
         Response|ClientError response = self.httpClient->getPromisedResponse(promise);
         if (response is Response) {
-            addObservabilityInformation(promise.path, promise.method, response.statusCode);
+            self.addObservabilityInformation(promise.path, promise.method, response.statusCode);
         }
         return response;
     }
@@ -264,6 +264,18 @@ public type Client client object {
     # + return - The cookie store related to the client
     public function getCookieStore() returns CookieStore? {
         return self.cookieStore;
+    }
+
+    # Add observability information as tags
+    #
+    # + path - Resource path
+    # + method - http method of the request
+    # + statusCode - status code of the response
+    private function addObservabilityInformation(string path, string method, int statusCode) {
+        error? err = observe:addTagToSpan(HTTP_URL, path);
+        err = observe:addTagToSpan(HTTP_METHOD, method);
+        err = observe:addTagToSpan(HTTP_STATUS_CODE_GROUP, getStatusCodeRange(statusCode));
+        err = observe:addTagToSpan(HTTP_BASE_URL, self.url);
     }
 };
 

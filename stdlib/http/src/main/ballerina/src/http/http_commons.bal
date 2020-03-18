@@ -17,7 +17,6 @@
 import ballerinax/java;
 import ballerina/mime;
 import ballerina/io;
-import ballerina/observe;
 
 # Represents HTTP/1.0 protocol
 const string HTTP_1_0 = "1.0";
@@ -128,8 +127,11 @@ public const HTTP_URL = "http.url";
 # Constant for telemetry tag http.method
 public const HTTP_METHOD = "http.method";
 
-# Constant for telemetry tag http.status_code
+# Constant for telemetry tag http.status_code_group
 public const HTTP_STATUS_CODE_GROUP = "http.status_code_group";
+
+# Constant for telemetry tag http.base_url
+public const HTTP_BASE_URL = "http.base_url";
 
 # Constant for status code range suffix
 public const STATUS_CODE_RANGE_SUFFIX = "xx";
@@ -453,12 +455,6 @@ function createErrorForNoPayload(mime:Error err) returns GenericClientError {
 
 function getStatusCodeRange(int statusCode) returns string {
     return statusCode.toString().substring(0,1) + STATUS_CODE_RANGE_SUFFIX;
-}
-
-function addObservabilityInformation(string path, string method, int statusCode) {
-    error? err = observe:addTagToSpan(HTTP_URL, path);
-    err = observe:addTagToSpan(HTTP_METHOD, method);
-    err = observe:addTagToSpan(HTTP_STATUS_CODE_GROUP, getStatusCodeRange(statusCode));
 }
 
 //Resolve a given path against a given URI.
