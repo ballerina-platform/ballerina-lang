@@ -128,8 +128,11 @@ public const HTTP_URL = "http.url";
 # Constant for telemetry tag http.method
 public const HTTP_METHOD = "http.method";
 
-# Constant for telemetry tag http.status_code
+# Constant for telemetry tag http.status_code_group
 public const HTTP_STATUS_CODE_GROUP = "http.status_code_group";
+
+# Constant for telemetry tag http.base_url
+public const HTTP_BASE_URL = "http.base_url";
 
 # Constant for status code range suffix
 public const STATUS_CODE_RANGE_SUFFIX = "xx";
@@ -455,10 +458,16 @@ function getStatusCodeRange(int statusCode) returns string {
     return statusCode.toString().substring(0,1) + STATUS_CODE_RANGE_SUFFIX;
 }
 
-function addObservabilityInformation(string path, string method, int statusCode) {
+# Add observability information as tags
+#
+# + path - Resource path
+# + method - http method of the request
+# + statusCode - status code of the response
+function addObservabilityInformation(string path, string method, int statusCode, string url) {
     error? err = observe:addTagToSpan(HTTP_URL, path);
     err = observe:addTagToSpan(HTTP_METHOD, method);
     err = observe:addTagToSpan(HTTP_STATUS_CODE_GROUP, getStatusCodeRange(statusCode));
+    err = observe:addTagToSpan(HTTP_BASE_URL, url);
 }
 
 //Resolve a given path against a given URI.
