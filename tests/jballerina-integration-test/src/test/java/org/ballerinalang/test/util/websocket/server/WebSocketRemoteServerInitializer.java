@@ -79,9 +79,9 @@ public class WebSocketRemoteServerInitializer extends ChannelInitializer<SocketC
             throws NoSuchAlgorithmException, UnrecoverableKeyException, KeyStoreException, IOException,
                    KeyManagementException, CertificateException {
         KeyManager[] keyManagers = null;
-        KeyStore ks = TestUtils.getKeyStore(new File(
-                "src" + File.separator + "test" + File.separator + "resources" + File.separator + "security" +
-                                 File.separator + "keystore" + File.separator + "ballerinaKeystore.p12"));
+        KeyStore ks = TestUtils.getKeyStore(new File("src" + File.separator + "test" + File.separator + "resources" +
+                                                             File.separator + "certsAndKeys" + File.separator +
+                                                             "ballerinaKeystore.p12"));
         // Set up key manager factory to use our key store
         KeyManagerFactory kmf = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
         if (ks != null) {

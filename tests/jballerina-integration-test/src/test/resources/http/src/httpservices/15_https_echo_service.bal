@@ -14,6 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/config;
 import ballerina/http;
 
 listener http:Listener echoDummyEP = new(9109);
@@ -23,8 +24,8 @@ listener http:Listener echoHttpEP = new(9110);
 http:ListenerConfiguration echoEP2Config = {
     secureSocket: {
         keyStore: {
-            path:"${ballerina.home}/bre/security/ballerinaKeystore.p12",
-            password:"ballerina"
+            path: config:getAsString("keystore"),
+            password: "ballerina"
         }
     }
 };

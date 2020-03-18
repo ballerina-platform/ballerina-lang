@@ -15,6 +15,7 @@
 // under the License.
 // This is client implementation for bidirectional streaming scenario
 
+import ballerina/config;
 import ballerina/grpc;
 import ballerina/io;
 import ballerina/runtime;
@@ -33,9 +34,9 @@ public function testBidiStreaming() returns string {
     grpc:StreamingClient ep = new;
     ChatClient chatEp = new ("https://localhost:9093", {
         secureSocket: {
-            trustStore:{
-                path:"${ballerina.home}/bre/security/ballerinaTruststore.p12",
-                password:"ballerina"
+            trustStore: {
+                path: config:getAsString("truststore"),
+                password: "ballerina"
             }
         }
     });

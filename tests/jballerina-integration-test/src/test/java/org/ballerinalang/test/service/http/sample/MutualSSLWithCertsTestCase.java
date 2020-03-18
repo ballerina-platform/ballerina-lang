@@ -24,13 +24,14 @@ import org.ballerinalang.test.context.BMainInstance;
 import org.ballerinalang.test.context.LogLeecher;
 import org.testng.annotations.Test;
 
+import java.io.File;
 import java.nio.file.Paths;
 
 /**
  * Test mutual ssl with certificates and keys.
  */
 @Test(groups = "http-test")
-public class MutualSSLWithCerts extends BaseTest {
+public class MutualSSLWithCertsTestCase extends BaseTest {
 
     @Test(description = "Test mutual ssl")
     public void testMutualSSLWithCerts() throws Exception {
@@ -40,14 +41,13 @@ public class MutualSSLWithCerts extends BaseTest {
         String publicCert = StringEscapeUtils.escapeJava(Paths.get("src", "test", "resources", "certsAndKeys",
                                                                    "public.crt").toAbsolutePath().toString());
 
-        String balFile = Paths.get("src", "test", "resources", "mutualSSL", "ssl_client.bal").toAbsolutePath()
-                .toString();
-
-        String[] flags = { "--certificate.key=" + privateKey, "--public.cert=" + publicCert };
+        String balFile = new File("src" + File.separator + "test" + File.separator + "resources" + File.separator +
+                                          "ssl" + File.separator + "mutual_ssl_client_with_cert.bal").getAbsolutePath();
+        String[] flags = {"--certificate.key=" + privateKey, "--public.cert=" + publicCert};
 
         BMainInstance ballerinaClient = new BMainInstance(balServer);
         LogLeecher clientLeecher = new LogLeecher(serverResponse);
-        ballerinaClient.runMain(balFile, flags, null, null, new String[]{}, new LogLeecher[]{clientLeecher});
+        ballerinaClient.runMain(balFile, flags, null, new LogLeecher[]{clientLeecher});
         clientLeecher.waitForText(20000);
     }
 }

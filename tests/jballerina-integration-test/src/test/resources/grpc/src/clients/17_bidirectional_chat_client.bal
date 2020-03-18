@@ -15,6 +15,7 @@
 // under the License.
 // This is client implementation for bidirectional streaming scenario
 
+import ballerina/config;
 import ballerina/grpc;
 import ballerina/io;
 import ballerina/runtime;
@@ -26,16 +27,14 @@ const string RESP_MSG_FORMAT = "Failed: Invalid Response, expected %s, but recei
 public function testBidiStreaming() returns string {
 
     //Client endpoint configuration.
-    ChatClient chatEp = new("https://localhost:9107",
-    { 
+    ChatClient chatEp = new("https://localhost:9107", {
         secureSocket: {
-            trustStore:{
-                path:"${ballerina.home}/bre/security/ballerinaTruststore.p12",
-                password:"ballerina"
+            trustStore: {
+                path: config:getAsString("truststore"),
+                password: "ballerina"
             }
         }
-    }
-    );
+    });
 
     grpc:StreamingClient ep;
     // Executes unary non-blocking call registering server message listener.

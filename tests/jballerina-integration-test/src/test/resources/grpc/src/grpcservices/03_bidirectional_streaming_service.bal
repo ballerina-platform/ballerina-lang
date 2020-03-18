@@ -14,6 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 // This is server implementation for bidirectional streaming scenario
+import ballerina/config;
 import ballerina/grpc;
 import ballerina/io;
 import ballerina/runtime;
@@ -23,11 +24,11 @@ listener grpc:Listener ep3 = new (9093, {
       host: "localhost",
       secureSocket: {
           trustStore: {
-              path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
+              path: config:getAsString("truststore"),
               password: "ballerina"
           },
           keyStore: {
-              path: "${ballerina.home}/bre/security/ballerinaKeystore.p12",
+              path: config:getAsString("keystore"),
               password: "ballerina"
           }
       }
