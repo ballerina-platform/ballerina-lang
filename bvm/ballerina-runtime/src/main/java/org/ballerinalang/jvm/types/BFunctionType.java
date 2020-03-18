@@ -18,6 +18,8 @@
 package org.ballerinalang.jvm.types;
 
 import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * {@code {@link BFunctionType }} represents a function type in ballerina.
@@ -118,5 +120,10 @@ public class BFunctionType extends AnnotatableType {
     @Override
     public String getAnnotationKey() {
         return this.typeName;
+    }
+
+    public List<String> getParamAnnotationKeys() {
+        return Arrays.stream(this.annotations.getKeys()).filter(key -> key.startsWith("$param$")).collect(
+                Collectors.toList());
     }
 }

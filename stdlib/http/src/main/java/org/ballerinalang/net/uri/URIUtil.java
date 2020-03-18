@@ -19,9 +19,9 @@
 package org.ballerinalang.net.uri;
 
 import org.ballerinalang.jvm.util.exceptions.BallerinaConnectorException;
-import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
+import org.ballerinalang.jvm.values.api.BValueCreator;
 import org.ballerinalang.net.http.HttpConstants;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
@@ -78,7 +78,8 @@ public class URIUtil {
 
         for (Map.Entry entry : tempParamMap.entrySet()) {
             List<String> entryValue = (List<String>) entry.getValue();
-            queryParamsMap.put(entry.getKey().toString(), new ArrayValueImpl(entryValue.toArray(new String[0])));
+            queryParamsMap.put(entry.getKey().toString(),
+                               BValueCreator.createArrayValue(entryValue.toArray(new String[0])));
         }
     }
 

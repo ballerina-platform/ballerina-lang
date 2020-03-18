@@ -52,11 +52,11 @@ public class SignatureParams {
     private String bodyParamName = null;
     private int bodyParamOrderIndex = -1;
     private static final String PARAM = "$param$"; //TODO move this
-    private MapValue<String, Object> queryParams;
 
     SignatureParams(List<BType> paramTypes, AttachedFunction resource) {
         this.signatureParamTypes = paramTypes;
-        List<String> paramAnnotationKeys = resource.getParamAnnotationKeys(); //TODO make sure all params are annotated
+        List<String> paramAnnotationKeys = resource.getParamAnnotationKeys(); //TODO make sure all
+        // params annotated
         int paramIndex = COMPULSORY_PARAM_COUNT;
         for (String paramName : paramAnnotationKeys) {
             String paramType = ((MapValue) resource.getAnnotation(paramName)).getKeys()[0].toString();
@@ -188,11 +188,8 @@ public class SignatureParams {
      * @return a map of query params
      */
     MapValue<String, Object> getQueryParams(Object rawQueryString) {
-        if (queryParams != null) {
-            return queryParams;
-        }
         BMapType mapType = new BMapType(new BArrayType(BTypes.typeString));
-        queryParams = new MapValueImpl<>(mapType);
+        MapValue<String, Object> queryParams = new MapValueImpl<>(mapType);
 
         if (rawQueryString != null) {
             try {
