@@ -26,6 +26,7 @@ import io.ballerina.plugins.idea.sdk.BallerinaSdkService;
 import io.ballerina.plugins.idea.settings.autodetect.BallerinaAutoDetectionConfigurable;
 import io.ballerina.plugins.idea.settings.experimental.BallerinaExperimentalFeatureConfigurable;
 import io.ballerina.plugins.idea.settings.langserverlogs.LangServerLogsConfigurable;
+import io.ballerina.plugins.idea.settings.soucenavigation.BallerinaSourceNavigationConfigurable;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -51,13 +52,14 @@ public class BallerinaConfigurableProvider extends ConfigurableProvider {
         Configurable autoDetectionConfigurable = new BallerinaAutoDetectionConfigurable(myProject, false);
         Configurable experimentalFeatureConfigurable = new BallerinaExperimentalFeatureConfigurable(myProject, false);
         Configurable lsLogConfigurable = new LangServerLogsConfigurable(myProject, false);
+        Configurable sourceNavigationConfigurable = new BallerinaSourceNavigationConfigurable(myProject, false);
 
         BallerinaCompositeConfigurable configurableWithSDK = new BallerinaCompositeConfigurable(sdkConfigurable,
                 librariesConfigurable, autoDetectionConfigurable, experimentalFeatureConfigurable,
-                lsLogConfigurable);
+                lsLogConfigurable, sourceNavigationConfigurable);
         BallerinaCompositeConfigurable configurableWithoutSDK = new BallerinaCompositeConfigurable(
                 librariesConfigurable, autoDetectionConfigurable, experimentalFeatureConfigurable,
-                lsLogConfigurable);
+                lsLogConfigurable, sourceNavigationConfigurable);
 
         return sdkConfigurable != null ? configurableWithSDK : configurableWithoutSDK;
     }

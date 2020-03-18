@@ -196,6 +196,8 @@
                 serviceImplementation="io.ballerina.plugins.idea.settings.autodetect.BallerinaAutoDetectionSettings"/>
         <projectService
                 serviceImplementation="io.ballerina.plugins.idea.settings.langserverlogs.LangServerLogsSettings"/>
+        <projectService
+                serviceImplementation="io.ballerina.plugins.idea.settings.soucenavigation.BallerinaSourceNavigationSettings"/>
         <preloadingActivity
                 implementation="io.ballerina.plugins.idea.preloading.BallerinaPreloadingActivity"
                 id="io.ballerina.plugins.idea.preloading.BallerinaPreloadingActivity"/>
