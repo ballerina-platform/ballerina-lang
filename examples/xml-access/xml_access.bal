@@ -14,25 +14,30 @@ public function main() {
                 <!--Price: $10-->
                 </book>`;
     
-    // You can access child XML items using the field-based or index-based access expressions.
-    io:println(bookXML.author.fname);
-    io:println(bookXML["author"]["fname"]);
+    // You can access child XML items using xml step expressions.
+    io:println(bookXML/<author>/<fname>);
 
-    // Accessing a non-existing child will return `nil`.
-    io:println(bookXML.ISBN.code);
-    io:println(bookXML["ISBN"]["code"]);
-
-    // The result of the above field-based or index-based access is another XML. 
-    // Any XML function can be invoked on top of the resulting XML.
-    io:println(bookXML.author.fname.getTextValue());
-    io:println(bookXML["author"]["fname"].getTextValue());
+    // Accessing a non-existing child will return empty xml sequence.
+    io:println(bookXML/<ISBN>/<code>);
 
     // You can also retrieve attributes of the resulting child XML.
-    io:println(bookXML.author.fname@["title"]);
-    io:println(bookXML["author"]["fname"]@["title"]);
+    io:println(bookXML/<author>/<fname>.title);
 
-    // You can access the elements by their namespace-qualified (fully-qualified) name.
-    io:println(bookXML["{http://ballerina.com/a}year"].getTextValue());
-    xmlns "http://ballerina.com/a" as foo;
-    io:println(bookXML[foo:year].getTextValue());
+    // You can match descendent elements using following steping access syntax.
+    io:println(bookXML/**/<fname>);
+
+    // Select all children using bellow syntax.
+    io:println(bookXML/*);
+
+    // And select all children elements using bellow syntax.
+    io:println(bookXML/<*>);
+
+    // Select all children belong to specific namespace.
+    xmlns "http://ballerina.com/a" as bar;
+    io:println(bookXML/<bar:*>/*);
+
+    xml seq = bookXML/*;
+    // You can filter a xml sequence using xml filter expressions.
+    io:println(seq.<name>);
+    io:println(seq.<bar:year>);
 }

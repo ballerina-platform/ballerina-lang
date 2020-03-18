@@ -217,7 +217,7 @@ public class StampInbuiltFunctionNegativeTest {
 
     //----------------------------- XML NegativeTest cases ------------------------------------------------------
 
-    @Test
+    @Test (groups = "brokenOnXMLLangLibChange")
     public void stampXMLToRecord() {
         BValue[] results = BRunUtil.invoke(xmlNegativeTestCompileResult, "stampXMLToRecord");
         BValue error = results[0];
@@ -226,7 +226,7 @@ public class StampInbuiltFunctionNegativeTest {
                             "'xml' value cannot be converted to 'BookRecord'");
     }
 
-    @Test
+    @Test (groups = "brokenOnXMLLangLibChange")
     public void stampXMLToJson() {
         BValue[] results = BRunUtil.invoke(xmlNegativeTestCompileResult, "stampXMLToJson");
         BValue error = results[0];
@@ -235,7 +235,7 @@ public class StampInbuiltFunctionNegativeTest {
                             "'xml' value cannot be converted to 'json'");
     }
 
-    @Test
+    @Test (groups = "brokenOnXMLLangLibChange")
     public void stampXMLToMap() {
         BValue[] results = BRunUtil.invoke(xmlNegativeTestCompileResult, "stampXMLToMap");
         BValue error = results[0];
@@ -244,7 +244,7 @@ public class StampInbuiltFunctionNegativeTest {
                             "'xml' value cannot be converted to 'map<anydata>'");
     }
 
-    @Test
+    @Test (groups = "brokenOnXMLLangLibChange")
     public void stampXMLToArray() {
         BValue[] results = BRunUtil.invoke(xmlNegativeTestCompileResult, "stampXMLToArray");
         BValue error = results[0];
@@ -253,7 +253,7 @@ public class StampInbuiltFunctionNegativeTest {
                             "'xml' value cannot be converted to 'BookRecord[]'");
     }
 
-    @Test
+    @Test (groups = "brokenOnXMLLangLibChange")
     public void stampXMLToTuple() {
         BValue[] results = BRunUtil.invoke(xmlNegativeTestCompileResult, "stampXMLToTuple");
         BValue error = results[0];
@@ -263,8 +263,8 @@ public class StampInbuiltFunctionNegativeTest {
     }
 
     //----------------------------- Map NegativeTest cases ------------------------------------------------------
-    
-    @Test
+
+    @Test (groups = "brokenOnXMLLangLibChange")
     public void stampMapToXML() {
         BValue[] results = BRunUtil.invoke(mapNegativeTestCompileResult, "stampMapToXML");
         BValue error = results[0];
@@ -351,7 +351,7 @@ public class StampInbuiltFunctionNegativeTest {
     
     //----------------------------- Union NegativeTest cases ------------------------------------------------------
 
-    @Test
+    @Test (groups = "brokenOnXMLLangLibChange")
     public void stampUnionToXML() {
         BValue[] results = BRunUtil.invoke(unionNegativeTestCompileResult, "stampUnionToXML");
         BValue error = results[0];

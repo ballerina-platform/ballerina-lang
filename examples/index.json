@@ -79,6 +79,10 @@
                 "url": "closures"
             },
             {
+                "name": "Expression-bodied Functions",
+                "url": "expression-bodied-functions"
+            },
+            {
                 "name": "Functional Iteration",
                 "url": "functional-iteration"
             },
@@ -1026,12 +1030,12 @@
         "column": 3,
         "category": "Working over the network",
         "samples": [{
-                "name": "Secured Service with JWT",
-                "url": "secured-service-with-jwt"
-            },
-            {
                 "name": "Secured Service with Basic Auth",
                 "url": "secured-service-with-basic-auth"
+            },
+            {
+                "name": "Secured Service with JWT",
+                "url": "secured-service-with-jwt"
             },
             {
                 "name": "Secured Service with OAuth2",
@@ -1048,6 +1052,16 @@
             {
                 "name": "Secured Client with OAuth2",
                 "url": "secured-client-with-oauth2"
+            }
+        ]
+    },
+    {
+        "title": "Email",
+        "column": 2,
+        "category": "Working over the network",
+        "samples": [{
+                "name": "Send and Receive Emails",
+                "url": "send-and-receive-emails"
             }
         ]
     },
@@ -1080,6 +1094,52 @@
             {
                 "name": "Distributed Transactions",
                 "url": "transactions-distributed"
+            }
+        ]
+    },
+    {
+        "title": "JDBC Database Connector",
+        "column": 0,
+        "category": "Preview features",
+        "samples": [
+            {
+                "name": "JDBC Client Initialization",
+                "url": "jdbc2-init-options"
+            },
+            {
+                "name": "JDBC Select Query Operations",
+                "url": "jdbc2-query-operation"
+            },
+            {
+                "name": "JDBC Query with Complex Types",
+                "url": "jdbc2-complex-type-queries"
+            },
+            {
+                "name": "JDBC DDL and DML Operations",
+                "url": "jdbc2-execute-operation"
+            }
+        ]
+    },
+    {
+        "title": "MySQL Database Connector",
+        "column": 1,
+        "category": "Preview features",
+        "samples": [
+            {
+                "name": "MySQL Client Initialization",
+                "url": "mysql-init-options"
+            },
+            {
+                "name": "MySQL Select Query Operations",
+                "url": "mysql-query-operation"
+            },
+            {
+                "name": "MySQL Query with Complex Types",
+                "url": "mysql-complex-type-queries"
+            },
+            {
+                "name": "MySQL DDL and DML Operations",
+                "url": "mysql-execute-operation"
             }
         ]
     }

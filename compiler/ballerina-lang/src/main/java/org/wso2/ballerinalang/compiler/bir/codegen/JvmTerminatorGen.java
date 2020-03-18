@@ -1149,7 +1149,7 @@ public class JvmTerminatorGen {
                     bType.tag == TypeTags.TUPLE ||
                     bType.tag == TypeTags.JSON ||
                     bType.tag == TypeTags.FUTURE ||
-                    bType.tag == TypeTags.XML ||
+                    TypeTags.isXMLTypeTag(bType.tag) ||
                     bType.tag == TypeTags.INVOKABLE ||
                     bType.tag == TypeTags.HANDLE ||
                     bType.tag == TypeTags.FINITE ||

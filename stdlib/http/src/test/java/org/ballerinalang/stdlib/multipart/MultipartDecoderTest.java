@@ -64,7 +64,10 @@ public class MultipartDecoderTest {
     @BeforeClass
     public void setup() {
         String sourceFilePath = "test-src/multipart/multipart-request.bal";
-        BCompileUtil.compile(sourceFilePath);
+        CompileResult result = BCompileUtil.compile(sourceFilePath);
+        if (result.getErrorCount() > 0) {
+            Assert.fail("Compilation errors");
+        }
         channelResult = BCompileUtil.compile("test-src/multipart/bytechannel-base64.bal");
     }
 

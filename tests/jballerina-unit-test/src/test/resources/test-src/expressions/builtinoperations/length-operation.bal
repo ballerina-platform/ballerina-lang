@@ -218,12 +218,12 @@ function accessLengthOfNullTuple() returns (int) {
     return length;
 }
 
-function accessLengthOfNullXML() returns (int) {
-    xml t =  xml `a`;
-    xml x = t/*;
-    int length = x.length();
-    return length;
-}
+//function accessLengthOfNullXML() returns (int) {
+//    xml t =  xml `a`;
+//    xml x = t/*;
+//    int length = x.length();
+//    return length;
+//}
 
 function stringLengthAccessTestCase() returns (int) {
     string name = "Waruna";

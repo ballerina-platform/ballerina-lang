@@ -115,7 +115,7 @@ include(':ballerina-cli-module')
 include(':ballerina-jsonutils')
 include(':testerina:testerina-runtime')
 include(':testerina-integration-test')
-// include(':examples-test')
+//include(':examples-test')
 // TODO: enable at 'dependsOn' of tools-intergration-tests
 // and 'mustRunAfter' of vs-code-pluggin
 
@@ -240,7 +240,7 @@ project(':observability-test-utils').projectDir = file('tests/observability-test
 project(':jballerina-integration-test').projectDir = file('tests/jballerina-integration-test')
 // project(':composer-integration-test').projectDir = file('tests/composer-integration-test')
 // project(':ballerina-tools-integration-test').projectDir = file('tests/ballerina-tools-integration-test')
-// project(':examples-test').projectDir = file('tests/ballerina-examples-test')
+//project(':examples-test').projectDir = file('tests/ballerina-examples-test')
 project(':ballerina-stringutils').projectDir = file('stdlib/stringutils')
 project(':plugin-vscode').projectDir = file('tool-plugins/vscode')
 project(':ballerina-kafka').projectDir = file('stdlib/messaging/kafka')
