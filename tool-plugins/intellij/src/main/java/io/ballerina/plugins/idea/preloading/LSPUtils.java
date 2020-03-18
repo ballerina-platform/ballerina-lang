@@ -76,7 +76,7 @@ public class LSPUtils {
      */
     public static boolean notifyConfigChanges(Project project) {
 
-        Pair<String, Boolean> balSdk = getOrDetectBalSdkHome(project);
+        Pair<String, Boolean> balSdk = getOrDetectBalSdkHome(project, false);
         String balSdkPath = balSdk.first;
 
         String version = BallerinaSdkUtils.retrieveBallerinaVersion(balSdkPath);
@@ -120,7 +120,7 @@ public class LSPUtils {
 
     static boolean registerServerDefinition(Project project) {
 
-        Pair<String, Boolean> balSdk = getOrDetectBalSdkHome(project);
+        Pair<String, Boolean> balSdk = getOrDetectBalSdkHome(project, true);
         String balSdkPath = balSdk.first;
         boolean autoDetected = balSdk.second;
 
@@ -162,7 +162,7 @@ public class LSPUtils {
      * @param project Project instance.
      * @return SDK location path string and a flag which indicates whether the location is auto detected.
      */
-    public static Pair<String, Boolean> getOrDetectBalSdkHome(Project project) {
+    public static Pair<String, Boolean> getOrDetectBalSdkHome(Project project, boolean verboseMode) {
 
         //If the project does not have a ballerina SDK attached, ballerinaSdkPath will be null.
         BallerinaSdk balSdk = BallerinaSdkUtils.getBallerinaSdkFor(project);
@@ -171,8 +171,10 @@ public class LSPUtils {
         if (balSdkPath != null) {
             return new Pair<>(balSdkPath, false);
         } else if (BallerinaAutoDetectionSettings.getInstance(project).isAutoDetectionEnabled()) {
-            showInIdeaEventLog(project, String.format("No ballerina SDK is found for project: %s\n " +
-                    "Trying to Auto detect Ballerina Home...", project.getBasePath()));
+            if (verboseMode) {
+                showInIdeaEventLog(project, String.format("No ballerina SDK is found for project: %s\n " +
+                        "Trying to Auto detect Ballerina Home...", project.getBasePath()));
+            }
             // If a ballerina SDK is not configured for the project, Plugin tries to auto detect the ballerina SDK.
             balSdkPath = BallerinaSdkUtils.autoDetectSdk(project);
             return new Pair<>(balSdkPath, true);
