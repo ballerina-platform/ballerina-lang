@@ -164,7 +164,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.array_  \n  \nReturns the index of first member of `arr` that is equal to `val` if there is one.\nReturns `()` if not found\nEquality is tested using `==`\n  \n**Params**  \n- `(any|error)` val: member to search for  \n- `int` startIndex: index to start the search from(Defaultable)  \n  \n**Returns** `(int|())`   \n- index of the member if found, else `()`  \n  \n"
+          "value": "**Package:** _ballerina/lang.array_  \n  \nReturns the index of first member of `arr` that is equal to `val` if there is one.\nReturns `()` if not found.\nEquality is tested using `==`.\n  \n**Params**  \n- `(any|error)` val: member to search for  \n- `int` startIndex: index to start the search from(Defaultable)  \n  \n**Returns** `(int|())`   \n- index of the member if found, else `()`  \n  \n"
         }
       },
       "sortText": "120",
