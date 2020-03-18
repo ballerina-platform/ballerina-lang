@@ -1,4 +1,5 @@
 import ballerina/http;
+import ballerina/config;
 import ballerina/log;
 import ballerina/oauth2;
 
@@ -13,7 +14,8 @@ oauth2:OutboundOAuth2Provider oauth2Provider1 = new ({
     clientConfig: {
         secureSocket: {
             trustStore: {
-                path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
+                path: config:getAsString("b7a.home") +
+                      "bre/security/ballerinaTruststore.p12",
                 password: "ballerina"
             }
         }
@@ -27,7 +29,8 @@ http:Client clientEP1 = new ("<URL of the secured endpoint>", {
     },
     secureSocket: {
         trustStore: {
-            path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
+            path: config:getAsString("b7a.home") +
+                  "bre/security/ballerinaTruststore.p12",
             password: "ballerina"
         }
     }
@@ -48,7 +51,8 @@ oauth2:OutboundOAuth2Provider oauth2Provider2 = new ({
     clientConfig: {
         secureSocket: {
             trustStore: {
-                path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
+                path: config:getAsString("b7a.home") +
+                      "bre/security/ballerinaTruststore.p12",
                 password: "ballerina"
             }
         }
@@ -58,7 +62,8 @@ oauth2:OutboundOAuth2Provider oauth2Provider2 = new ({
         clientConfig: {
             secureSocket: {
                 trustStore: {
-                    path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
+                    path: config:getAsString("b7a.home") +
+                          "bre/security/ballerinaTruststore.p12",
                     password: "ballerina"
                 }
             }
@@ -73,7 +78,8 @@ http:Client clientEP2 = new ("<URL of the secured endpoint>", {
     },
     secureSocket: {
         trustStore: {
-            path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
+            path: config:getAsString("b7a.home") +
+                  "bre/security/ballerinaTruststore.p12",
             password: "ballerina"
         }
     }
@@ -94,7 +100,8 @@ oauth2:OutboundOAuth2Provider oauth2Provider3 = new ({
         clientConfig: {
             secureSocket: {
                 trustStore: {
-                    path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
+                    path: config:getAsString("b7a.home") +
+                          "bre/security/ballerinaTruststore.p12",
                     password: "ballerina"
                 }
             }
@@ -109,7 +116,8 @@ http:Client clientEP3 = new ("<URL of the secured endpoint>", {
     },
     secureSocket: {
         trustStore: {
-            path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
+            path: config:getAsString("b7a.home") +
+                  "bre/security/ballerinaTruststore.p12",
             password: "ballerina"
         }
     }
@@ -146,10 +154,10 @@ public function main() {
     var response3 = clientEP3->get("/");
     if (response3 is http:Response) {
         var result = response3.getJsonPayload();
-        if (result is error) {
-            log:printInfo("Failed to retrieve payload for clientEP3.");
+        if (result is json) {
+            log:printInfo(result.toJsonString());
         } else {
-            log:printInfo(<string>result.kind);
+            log:printError("Failed to retrieve payload for clientEP2.");
         }
     } else {
         log:printError("Failed to call the endpoint from clientEP3.", response3);

@@ -1,4 +1,5 @@
 import ballerina/http;
+import ballerina/config;
 import ballerina/jwt;
 import ballerina/log;
 
@@ -10,7 +11,7 @@ jwt:InboundJwtAuthProvider jwtAuthProvider = new ({
     trustStoreConfig: {
         certificateAlias: "ballerina",
         trustStore: {
-            path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
+            path: config:getAsString("b7a.home") + "bre/security/ballerinaTruststore.p12",
             password: "ballerina"
         }
     }
@@ -30,7 +31,7 @@ listener http:Listener ep = new (9090, config = {
     // The secure hello world sample uses HTTPS.
     secureSocket: {
         keyStore: {
-            path: "${ballerina.home}/bre/security/ballerinaKeystore.p12",
+            path: config:getAsString("b7a.home") + "bre/security/ballerinaKeystore.p12",
             password: "ballerina"
         }
     }

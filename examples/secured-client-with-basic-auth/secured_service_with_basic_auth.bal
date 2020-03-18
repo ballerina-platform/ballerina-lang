@@ -1,4 +1,5 @@
 import ballerina/auth;
+import ballerina/config;
 import ballerina/http;
 import ballerina/log;
 
@@ -14,7 +15,7 @@ listener http:Listener ep = new (9090, config = {
     },
     secureSocket: {
         keyStore: {
-            path: "${ballerina.home}/bre/security/ballerinaKeystore.p12",
+            path: config:getAsString("b7a.home") + "bre/security/ballerinaKeystore.p12",
             password: "ballerina"
         }
     }
