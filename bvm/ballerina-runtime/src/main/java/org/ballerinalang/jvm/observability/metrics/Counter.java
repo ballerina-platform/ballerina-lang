@@ -136,11 +136,4 @@ public interface Counter extends Metric {
      */
     long getValue();
 
-    /**
-     * Returns the counter's current value and then resets.
-     *
-     * @return the counter's current value.
-     */
-    long getValueThenReset();
-
 }

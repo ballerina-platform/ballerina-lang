@@ -151,10 +151,10 @@ public class ServerConnectorListener implements HttpConnectorListener {
         Map<String, String> httpHeaders = new HashMap<>();
         inboundMessage.getHeaders().forEach(entry -> httpHeaders.put(entry.getKey(), entry.getValue()));
         observerContext.addProperty(PROPERTY_TRACE_PROPERTIES, httpHeaders);
-        observerContext.addMainTag(TAG_KEY_HTTP_METHOD,
+        observerContext.addTag(TAG_KEY_HTTP_METHOD,
                 (String) inboundMessage.getProperty(HttpConstants.HTTP_REQUEST_METHOD));
-        observerContext.addMainTag(TAG_KEY_PROTOCOL, (String) inboundMessage.getProperty(HttpConstants.PROTOCOL));
-        observerContext.addMainTag(TAG_KEY_HTTP_URL, inboundMessage.getPath());
+        observerContext.addTag(TAG_KEY_PROTOCOL, (String) inboundMessage.getProperty(HttpConstants.PROTOCOL));
+        observerContext.addTag(TAG_KEY_HTTP_URL, inboundMessage.getPath());
         return observerContext;
     }
 

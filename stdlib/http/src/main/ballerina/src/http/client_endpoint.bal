@@ -17,7 +17,6 @@
 import ballerinax/java;
 import ballerina/crypto;
 import ballerina/time;
-import ballerina/observe;
 
 ////////////////////////////////
 ///// HTTP Client Endpoint /////
@@ -71,11 +70,7 @@ public type Client client object {
     # + return - The response for the request or an `http:ClientError` if failed to establish communication with the upstream server
     public remote function post(@untainted string path, RequestMessage message) returns Response|ClientError {
         Request req = buildRequest(message);
-        Response|ClientError response = self.httpClient->post(path, req);
-        if (response is Response) {
-            addObservabilityInformation(path, HTTP_POST, response.statusCode);
-        }
-        return response;
+        return self.httpClient->post(path, req);
     }
 
     # The `Client.head()` function can be used to send HTTP HEAD requests to HTTP endpoints.
@@ -86,11 +81,7 @@ public type Client client object {
     # + return - The response for the request or an `http:ClientError` if failed to establish communication with the upstream server
     public remote function head(@untainted string path, public RequestMessage message = ()) returns Response|ClientError {
         Request req = buildRequest(message);
-        Response|ClientError response = self.httpClient->head(path, message = req);
-        if (response is Response) {
-            addObservabilityInformation(path, HTTP_HEAD, response.statusCode);
-        }
-        return response;
+        return self.httpClient->head(path, message = req);
     }
 
     # The `Client.put()` function can be used to send HTTP PUT requests to HTTP endpoints.
@@ -101,11 +92,7 @@ public type Client client object {
     # + return - The response for the request or an `http:ClientError` if failed to establish communication with the upstream server
     public remote function put(@untainted string path, RequestMessage message) returns Response|ClientError {
         Request req = buildRequest(message);
-        Response|ClientError response = self.httpClient->put(path, req);
-        if (response is Response) {
-            addObservabilityInformation(path, HTTP_PUT, response.statusCode);
-        }
-        return response;
+        return self.httpClient->put(path, req);
     }
 
     # Invokes an HTTP call with the specified HTTP verb.
@@ -117,11 +104,7 @@ public type Client client object {
     # + return - The response for the request or an `http:ClientError` if failed to establish communication with the upstream server
     public remote function execute(@untainted string httpVerb, @untainted string path, RequestMessage message) returns Response|ClientError {
         Request req = buildRequest(message);
-        Response|ClientError response = self.httpClient->execute(httpVerb, path, req);
-        if (response is Response) {
-            addObservabilityInformation(path, httpVerb, response.statusCode);
-        }
-        return response;
+        return self.httpClient->execute(httpVerb, path, req);
     }
 
     # The `Client.patch()` function can be used to send HTTP PATCH requests to HTTP endpoints.
@@ -132,11 +115,7 @@ public type Client client object {
     # + return - The response for the request or an `http:ClientError` if failed to establish communication with the upstream server
     public remote function patch(@untainted string path, RequestMessage message) returns Response|ClientError {
         Request req = buildRequest(message);
-        Response|ClientError response = self.httpClient->patch(path, req);
-        if (response is Response) {
-            addObservabilityInformation(path, HTTP_PATCH, response.statusCode);
-        }
-        return response;
+        return self.httpClient->patch(path, req);
     }
 
     # The `Client.delete()` function can be used to send HTTP DELETE requests to HTTP endpoints.
@@ -147,11 +126,7 @@ public type Client client object {
     # + return - The response for the request or an `http:ClientError` if failed to establish communication with the upstream server
     public remote function delete(@untainted string path, public RequestMessage message = ()) returns Response|ClientError {
         Request req = buildRequest(message);
-        Response|ClientError response = self.httpClient->delete(path, req);
-        if (response is Response) {
-            addObservabilityInformation(path, HTTP_DELETE, response.statusCode);
-        }
-        return response;
+        return self.httpClient->delete(path, req);
     }
 
     # The `Client.get()` function can be used to send HTTP GET requests to HTTP endpoints.
@@ -162,11 +137,7 @@ public type Client client object {
     # + return - The response for the request or an `http:ClientError` if failed to establish communication with the upstream server
     public remote function get(@untainted string path, public RequestMessage message = ()) returns Response|ClientError {
         Request req = buildRequest(message);
-        Response|ClientError response = self.httpClient->get(path, message = req);
-        if (response is Response) {
-            addObservabilityInformation(path, HTTP_GET, response.statusCode);
-        }
-        return response;
+        return self.httpClient->get(path, message = req);
     }
 
     # The `Client.options()` function can be used to send HTTP OPTIONS requests to HTTP endpoints.
@@ -177,11 +148,7 @@ public type Client client object {
     # + return - The response for the request or an `http:ClientError` if failed to establish communication with the upstream server
     public remote function options(@untainted string path, public RequestMessage message = ()) returns Response|ClientError {
         Request req = buildRequest(message);
-        Response|ClientError response = self.httpClient->options(path, message = req);
-        if (response is Response) {
-            addObservabilityInformation(path, HTTP_OPTIONS, response.statusCode);
-        }
-        return response;
+        return self.httpClient->options(path, message = req);
     }
 
     # The `Client.forward()` function can be used to invoke an HTTP call with inbound request's HTTP verb
@@ -190,11 +157,7 @@ public type Client client object {
     # + request - An HTTP inbound request message
     # + return - The response for the request or an `http:ClientError` if failed to establish communication with the upstream server
     public remote function forward(@untainted string path, Request request) returns Response|ClientError {
-        Response|ClientError response = self.httpClient->forward(path, request);
-        if (response is Response) {
-            addObservabilityInformation(path, request.method, response.statusCode);
-        }
-        return response;
+        return self.httpClient->forward(path, request);
     }
 
     # Submits an HTTP request to a service with the specified HTTP verb.
@@ -217,11 +180,7 @@ public type Client client object {
     # + httpFuture - The `HttpFuture` relates to a previous asynchronous invocation
     # + return - An HTTP response message, or an error if the invocation fails
     public remote function getResponse(HttpFuture httpFuture) returns Response|ClientError {
-        Response|ClientError response = self.httpClient->getResponse(httpFuture);
-        if (response is Response) {
-            error? err = observe:addTagToSpan(HTTP_STATUS_CODE_GROUP, getStatusCodeRange(response.statusCode));
-        }
-        return response;
+        return self.httpClient->getResponse(httpFuture);
     }
 
     # This just pass the request to actual network call.
@@ -245,11 +204,7 @@ public type Client client object {
     # + promise - The related `PushPromise`
     # + return - A promised HTTP `Response` message, or an error if the invocation fails
     public remote function getPromisedResponse(PushPromise promise) returns Response|ClientError {
-        Response|ClientError response = self.httpClient->getPromisedResponse(promise);
-        if (response is Response) {
-            addObservabilityInformation(promise.path, promise.method, response.statusCode);
-        }
-        return response;
+        return self.httpClient->getPromisedResponse(promise);
     }
 
     # This just pass the request to actual network call.

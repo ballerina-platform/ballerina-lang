@@ -22,9 +22,6 @@ apply plugin: 'jacoco'
 
 apply from: "$rootDir/gradle/repositories.gradle"
 
-ext.setProperty("grpcVersion", "1.27.2")
-ext.setProperty("protobufVersion", "3.11.0")
-
 dependencies {
     checkstyle project(':build-config:checkstyle')
     checkstyle 'com.puppycrawl.tools:checkstyle:8.18'
@@ -57,9 +54,6 @@ dependencies {
         implementation 'io.jaegertracing:jaeger-core:0.31.0'
         implementation 'io.jaegertracing:jaeger-thrift:0.31.0'
         implementation 'com.zaxxer:HikariCP:3.3.1'
-        implementation "io.grpc:grpc-protobuf:${project.ext.grpcVersion}"
-        implementation "io.grpc:grpc-stub:${project.ext.grpcVersion}"
-        implementation "io.grpc:grpc-netty-shaded:${project.ext.grpcVersion}"
 
         implementation 'org.apache.commons:commons-lang3:3.8.1'
         implementation 'org.apache.commons:commons-text:1.7'

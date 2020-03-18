@@ -22,7 +22,6 @@ import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.InvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
-import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.util.Name;
 
 import java.util.ArrayList;
@@ -47,8 +46,6 @@ public class BInvokableSymbol extends BVarSymbol implements InvokableSymbol {
     public String enclForkName;
     public String source;
 
-    public List<BLangAnnotationAttachment> annAttachments;
-
     public BInvokableSymbol(int tag,
                             int flags,
                             Name name,
@@ -58,7 +55,6 @@ public class BInvokableSymbol extends BVarSymbol implements InvokableSymbol {
         super(flags, name, pkgID, type, owner);
         this.tag = tag;
         this.params = new ArrayList<>();
-        this.annAttachments = new ArrayList<>();
     }
 
     @Override

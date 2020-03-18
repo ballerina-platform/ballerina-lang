@@ -44,9 +44,4 @@ public class NoOpCounter extends AbstractMetric implements Counter {
     public long getValue() {
         return 0;
     }
-
-    @Override
-    public long getValueThenReset() {
-        return 0;
-    }
 }

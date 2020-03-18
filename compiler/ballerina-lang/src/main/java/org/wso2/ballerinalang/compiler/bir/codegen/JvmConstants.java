@@ -133,7 +133,6 @@ public class JvmConstants {
     public static final String ANNOTATION_MAP_NAME = "$annotation_data";
     public static final String DEFAULTABLE_ARGS_ANOT_NAME = "DefaultableArgs";
     public static final String DEFAULTABLE_ARGS_ANOT_FIELD = "args";
-    public static final String OBSERVABLE_ANNOTATION = "ballerina/observe/Observable";
 
     // types related constants
     public static final String TYPES_ERROR = "typeError";

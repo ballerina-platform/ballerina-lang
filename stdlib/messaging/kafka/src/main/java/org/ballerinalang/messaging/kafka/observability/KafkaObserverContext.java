@@ -19,6 +19,12 @@
 package org.ballerinalang.messaging.kafka.observability;
 
 import org.ballerinalang.jvm.observability.ObserverContext;
+import org.ballerinalang.jvm.observability.metrics.Tag;
+import org.ballerinalang.jvm.observability.metrics.Tags;
+
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Extension of ObserverContext for Kafka.
@@ -48,4 +54,10 @@ public class KafkaObserverContext extends ObserverContext {
         addTag(KafkaObservabilityConstants.TAG_TOPIC, topic);
     }
 
+    Set<Tag> getAllTags() {
+        Map<String, String> tags = getTags();
+        Set<Tag> allTags = new HashSet<>(tags.size());
+        Tags.tags(allTags, tags);
+        return allTags;
+    }
 }

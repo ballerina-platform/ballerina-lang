@@ -100,10 +100,11 @@ function genJMethodForBFunc(bir:Function func,
     jvm:Label? tryStart = ();
     boolean isObserved = false;
     boolean isWorker = (func.flags & bir:WORKER) == bir:WORKER;
-    if ((isService || isWorker) && funcName != "__init" && funcName != "$__init$") {
+    boolean isRemote = (func.flags & bir:REMOTE) == bir:REMOTE;
+    if ((isService || isRemote || isWorker) && funcName != "__init" && funcName != "$__init$") {
         // create try catch block to start and stop observability.
         isObserved = true;
-        tryStart = labelGen.getLabel("observe-try-start");
+        tryStart = labelGen.getLabel("try-start");
         mv.visitLabel(<jvm:Label>tryStart);
     }
 
@@ -257,14 +258,13 @@ function genJMethodForBFunc(bir:Function func,
     jvm:Label methodEndLabel = new;
     // generate the try catch finally to stop observing if an error occurs.
     if (isObserved) {
-        jvm:Label tryEnd = labelGen.getLabel("observe-try-end");
-        jvm:Label tryCatch = labelGen.getLabel("observe-try-handler");
-        jvm:Label tryCatchFinally = labelGen.getLabel("observe-try-catch-finally");
-        jvm:Label tryFinally = labelGen.getLabel("observe-try-finally");
-
+        jvm:Label tryEnd = labelGen.getLabel("try-end");
+        jvm:Label tryCatch = labelGen.getLabel("try-handler");
         // visitTryCatchBlock visited at the end since order of the error table matters.
         mv.visitTryCatchBlock(<jvm:Label>tryStart, tryEnd, tryCatch, ERROR_VALUE);
+        jvm:Label tryFinally = labelGen.getLabel("try-finally");
         mv.visitTryCatchBlock(<jvm:Label>tryStart, tryEnd, tryFinally, ());
+        jvm:Label tryCatchFinally = labelGen.getLabel("try-catch-finally");
         mv.visitTryCatchBlock(tryCatch, tryCatchFinally, tryFinally, ());
 
         bir:VariableDcl catchVarDcl = { typeValue: "any", name: { value: "$_catch_$" } };
@@ -274,16 +274,22 @@ function genJMethodForBFunc(bir:Function func,
 
         // Try-To-Finally
         mv.visitLabel(tryEnd);
+        // emitStopObservationInvocation(mv, localVarOffset);
+        jvm:Label tryBlock1 = labelGen.getLabel("try-block-1");
+        mv.visitLabel(tryBlock1);
         mv.visitJumpInsn(GOTO, methodEndLabel);
 
         // Catch Block
         mv.visitLabel(tryCatch);
         mv.visitVarInsn(ASTORE, catchVarIndex);
+        jvm:Label tryBlock2 = labelGen.getLabel("try-block-2");
+        mv.visitLabel(tryBlock2);
         emitReportErrorInvocation(mv, localVarOffset, catchVarIndex);
-
         mv.visitLabel(tryCatchFinally);
         emitStopObservationInvocation(mv, localVarOffset);
-        // Re-throw caught error value
+        jvm:Label tryBlock3 = labelGen.getLabel("try-block-3");
+        mv.visitLabel(tryBlock3);
+        // re-throw caught error value
         mv.visitVarInsn(ALOAD, catchVarIndex);
         mv.visitInsn(ATHROW);
 
@@ -291,6 +297,8 @@ function genJMethodForBFunc(bir:Function func,
         mv.visitLabel(tryFinally);
         mv.visitVarInsn(ASTORE, throwableVarIndex);
         emitStopObservationInvocation(mv, localVarOffset);
+        jvm:Label tryBlock4 = labelGen.getLabel("try-block-4");
+        mv.visitLabel(tryBlock4);
         mv.visitVarInsn(ALOAD, throwableVarIndex);
         mv.visitInsn(ATHROW);
     }
@@ -682,9 +690,9 @@ function generateBasicBlocks(jvm:MethodVisitor mv, bir:BasicBlock?[] basicBlocks
             caseIndex += 1;
         }
 
+        string serviceOrConnectorName = serviceName;
         if (isObserved && j == 0) {
             string observationStartMethod = isService ? "startResourceObservation" : "startCallableObservation";
-            string serviceOrConnectorName = serviceName;
             if !isService && attachedType is bir:BObjectType {
                 // add module org and module name to remote spans.
                 serviceOrConnectorName = getFullQualifiedRemoteFunctionName(
@@ -756,7 +764,7 @@ function generateBasicBlocks(jvm:MethodVisitor mv, bir:BasicBlock?[] basicBlocks
                     instGen.generateNewXMLQNameIns(<bir:NewXMLQName> inst);
                 } else {
                     instGen.generateNewStringXMLQNameIns(<bir:NewStringXMLQName> inst);
-                }
+                } 
             } else if (insKind <= bir:INS_KIND_NEW_TABLE) {
                 if (insKind == bir:INS_KIND_XML_SEQ_STORE) {
                     instGen.generateXMLStoreIns(<bir:XMLAccess> inst);
@@ -786,7 +794,7 @@ function generateBasicBlocks(jvm:MethodVisitor mv, bir:BasicBlock?[] basicBlocks
                     instGen.generateNewTypedescIns(<bir:NewTypeDesc> inst);
                 } else {
                     instGen.generateNegateIns(<bir:UnaryOp> inst);
-                }
+                } 
             } else if (insKind == bir:INS_KIND_PLATFORM) {
                 instGen.generatePlatformIns(<JInstruction>inst);
             } else {
@@ -2528,7 +2536,7 @@ function scheduleStopMethod(jvm:MethodVisitor mv, string initClass, string stopF
 
 function generateJavaCompatibilityCheck(jvm:MethodVisitor mv) {
     mv.visitLdcInsn(getJavaVersion());
-    mv.visitMethodInsn(INVOKESTATIC, COMPATIBILITY_CHECKER, "verifyJavaCompatibility",
+    mv.visitMethodInsn(INVOKESTATIC, COMPATIBILITY_CHECKER, "verifyJavaCompatibility", 
                         io:sprintf("(L%s;)V", STRING_VALUE), false);
 }
 

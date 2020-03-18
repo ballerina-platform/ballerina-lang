@@ -17,7 +17,6 @@
 import ballerina/http;
 import ballerinax/java.jdbc;
 import ballerina/jsonutils;
-import ballerina/observe;
 
 jdbc:Client testDB = new({
         url: "jdbc:h2:file:../../tempdb/TEST_DB",
@@ -40,7 +39,7 @@ service metricsTest on new http:Listener(9898) {
         path: "/"
     }
     resource function getProduct (http:Caller caller, http:Request req) {
-        var dbResult = testDB->select(getQuery(), Product);
+        var dbResult = testDB->select("SELECT * FROM Products", Product);
         if (dbResult is table<Product>) {
             var jData = jsonutils:fromTable(dbResult);
             string result = jData.toString();
@@ -52,9 +51,4 @@ service metricsTest on new http:Listener(9898) {
             panic err;
         }
     }
-}
-
-@observe:Observable
-public function getQuery() returns string {
-    return "SELECT * FROM Products";
 }

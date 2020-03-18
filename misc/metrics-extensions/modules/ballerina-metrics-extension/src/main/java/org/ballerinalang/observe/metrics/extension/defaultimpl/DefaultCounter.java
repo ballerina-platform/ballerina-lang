@@ -56,9 +56,4 @@ public class DefaultCounter extends AbstractMetric implements Counter {
     public long getValue() {
         return count.sum();
     }
-
-    @Override
-    public long getValueThenReset() {
-        return count.sumThenReset();
-    }
 }

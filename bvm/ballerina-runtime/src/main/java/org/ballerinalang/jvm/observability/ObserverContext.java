@@ -17,15 +17,10 @@
  */
 package org.ballerinalang.jvm.observability;
 
-import org.ballerinalang.jvm.observability.metrics.Tag;
-import org.ballerinalang.jvm.observability.metrics.Tags;
-
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Set;
 
 /**
  * Context object used for observation purposes.
@@ -33,27 +28,14 @@ import java.util.Set;
 public class ObserverContext {
 
     /**
-     * {@link Map} of properties, which is used to represent additional information required for observers.
+     * {@link Map} of properties, which is used to represent addition information required for observers.
      */
     private Map<String, Object> properties;
 
     /**
-     * {@link Map} of values (with tag as map's key and tag value as map's value),
-     * which is required to pass to observers.
-     *
-     * {@link Map} is used here to stop {@link Set} and @{link Tag} objects being instantiated
-     * every-time tags are taken from the observer context to generate metrics.
-     *
-     * These tags are updated before the a service resource function is hit in the runtime.
-     * After that point only additional tags should be used.
+     * {@link Map} of tags, which is required to pass to observers.
      */
-    private Map<Tag, String> mainTags;
-
-    /**
-     * This is similar to the mainTags.
-     * However, this map contains all the tags added after a service resource function is hit in the runtime.
-     */
-    private Map<Tag, String> additionalTags;
+    private Map<String, String> tags;
 
     private String serviceName;
 
@@ -75,8 +57,7 @@ public class ObserverContext {
 
     public ObserverContext() {
         this.properties = new HashMap<>();
-        this.mainTags = new HashMap<>();
-        this.additionalTags = new HashMap<>();
+        this.tags = new HashMap<>();
     }
 
     public void addProperty(String key, Object value) {
@@ -87,51 +68,12 @@ public class ObserverContext {
         return properties.get(key);
     }
 
-    /**
-     * Add a main tag.
-     * This method should only be invoked before a service resource function is hit in the runtime.
-     *
-     * @param key The tag key
-     * @param value The tag value
-     */
-    public void addMainTag(String key, String value) {
-        addTag(mainTags, key, value);
-    }
-
-    /**
-     * Add an additional tag.
-     * This method should only be invoked after a service resource function is hit in the runtime.
-     *
-     * @param key The tag key
-     * @param value The tag value
-     */
     public void addTag(String key, String value) {
-        addTag(additionalTags, key, value);
+        tags.put(key, value != null ? value : "");
     }
 
-    private void addTag(Map<Tag, String> tagsValueMap, String key, String value) {
-        String sanitizedValue = value != null ? value : "";
-        Tag tag = Tag.of(key, sanitizedValue);
-        String oldValue = tagsValueMap.get(tag);
-        if (oldValue != null) {
-            if (oldValue.equals(sanitizedValue)) {
-                return;
-            } else {
-                tagsValueMap.remove(tag);
-            }
-        }
-        tagsValueMap.put(tag, sanitizedValue);
-    }
-
-    public Set<Tag> getMainTags() {
-        return Collections.unmodifiableSet(mainTags.keySet());
-    }
-
-    public Set<Tag> getAllTags() {
-        Set<Tag> allTags = new HashSet<>(mainTags.size() + additionalTags.size());
-        Tags.tags(allTags, mainTags.keySet());
-        Tags.tags(allTags, additionalTags.keySet());
-        return Collections.unmodifiableSet(allTags);
+    public Map<String, String> getTags() {
+        return Collections.unmodifiableMap(tags);
     }
 
     public String getServiceName() {

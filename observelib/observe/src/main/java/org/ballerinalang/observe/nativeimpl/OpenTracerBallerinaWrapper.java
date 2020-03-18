@@ -33,7 +33,6 @@ import java.util.Optional;
 import java.util.concurrent.atomic.AtomicLong;
 
 import static org.ballerinalang.jvm.observability.ObservabilityConstants.CONFIG_TRACING_ENABLED;
-import static org.ballerinalang.jvm.observability.ObservabilityConstants.UNKNOWN_RESOURCE;
 import static org.ballerinalang.jvm.observability.ObservabilityConstants.UNKNOWN_SERVICE;
 
 /**
@@ -84,10 +83,6 @@ public class OpenTracerBallerinaWrapper {
             return -1;
         }
 
-        Optional<ObserverContext> observerContextOfCurrentFrame = ObserveUtils.getObserverContextOfCurrentFrame(strand);
-        if (serviceName == null && observerContextOfCurrentFrame.isPresent()) {
-            serviceName = observerContextOfCurrentFrame.get().getServiceName();
-        }
         if (serviceName == null) {
             serviceName = UNKNOWN_SERVICE;
         }
@@ -99,14 +94,12 @@ public class OpenTracerBallerinaWrapper {
 
         ObserverContext observerContext = new ObserverContext();
         observerContext.setServiceName(serviceName);
-        observerContext.setResourceName(observerContextOfCurrentFrame.isPresent()
-                ? observerContextOfCurrentFrame.get().getResourceName()
-                : UNKNOWN_RESOURCE);
+        observerContext.setResourceName(spanName);
         tags.forEach((observerContext::addTag));
 
         if (parentSpanId == SYSTEM_TRACE_INDICATOR) {
             observerContext.setSystemSpan(true);
-            observerContextOfCurrentFrame.ifPresent(observerContext::setParent);
+            ObserveUtils.getObserverContextOfCurrentFrame(strand).ifPresent(observerContext::setParent);
             ObserveUtils.setObserverContextToCurrentFrame(strand, observerContext);
             return startSpan(observerContext, true, spanName);
         } else if (parentSpanId != ROOT_SPAN_INDICATOR) {
@@ -146,7 +139,7 @@ public class OpenTracerBallerinaWrapper {
             return false;
         }
     }
-
+    
     /**
      * Method to add tags to an existing span.
      *

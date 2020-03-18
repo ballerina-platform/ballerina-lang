@@ -273,9 +273,9 @@
                     pointer-events: all;
                 }
                 .hidden-block {
-                    stroke: ~"@{@{color}-diagram-life-line-worker-stroke-color}";
-                    stroke-width: 2px;
-                    fill:@diagram-base-light-color;
+                    stroke: gray;
+                    stroke-width: 1px;
+                    fill: aliceblue;
                     cursor: pointer;
                 }
                 .panel-header {
@@ -315,23 +315,7 @@
                         &.life-line-worker {
                             stroke:  ~"@{@{color}-diagram-life-line-worker-stroke-color}";
                             color: ~"@{@{color}-diagram-life-line-worker-stroke-color}";
-                            stroke-width: 2px;
 
-                            .life-line-wrapper {
-                                stroke: ~"@{@{color}-diagram-life-line-worker-stroke-color}";
-                                stroke-width: 2px;
-                                fill:#fff;
-                            }
-                            .source-linked-label {
-                                font-size: 1.2rem;
-                            }
-                            .icon-wrapper {
-                                fill: ~"@{@{color}-diagram-life-line-worker-stroke-color}";
-                                stroke: none;
-                            }
-                            .life-line-icon {
-                                fill: #fff;
-                            }
                             rect {
                                 fill: ~"@{@{color}-diagram-life-line-worker-stroke-color}";
                             }
@@ -342,23 +326,7 @@
                         &.life-line-endpoint {
                             stroke: ~"@{@{color}-diagram-life-line-endpoint-stroke-color}";
                             color: ~"@{@{color}-diagram-life-line-endpoint-stroke-color}";
-                            stroke-width: 2px;
 
-                            .life-line-wrapper {
-                                stroke: ~"@{@{color}-diagram-life-line-endpoint-stroke-color}";
-                                stroke-width: 2px;
-                                fill:#fff;
-                            }
-                            .source-linked-label {
-                                font-size: 1.2rem;
-                            }
-                            .icon-wrapper {
-                                fill: ~"@{@{color}-diagram-life-line-endpoint-stroke-color}";
-                                stroke: none;
-                            }
-                            .life-line-icon {
-                                fill: #fff;
-                            }
                             rect {
                                 fill: ~"@{@{color}-diagram-life-line-endpoint-stroke-color}";
                             }
@@ -391,24 +359,24 @@
                     }
                     .action-invocation {
                         line {
-                            stroke:  ~"@{@{color}-diagram-life-line-endpoint-stroke-color}";
-                            stroke-width: 2px;
+                            stroke: ~"@{@{color}-diagram-arrow-head-color}";
+                            stroke-width: 1px;
                         }
                         fill: ~"@{@{color}-diagram-arrow-head-color}";
                         .invoke-line {
-                            stroke:~"@{@{color}-diagram-life-line-endpoint-stroke-color}";
-                            stroke-width: 2px;
+                            stroke:#aaa;
+                            stroke-width: 0.5;
                         }
                         .invoke-arrowhead {
-                            stroke: ~"@{@{color}-diagram-life-line-endpoint-stroke-color}";
-                            fill: ~"@{@{color}-diagram-life-line-endpoint-stroke-color}";
+                            stroke:#aaa;
+                            fill: #aaa;
                             stroke-width: 0;
                         }
                     }
                     .start-invocation {
                         line {
                             stroke: ~"@{@{color}-diagram-arrow-head-color}";
-                            stroke-width: 2px;
+                            stroke-width: 1px;
                         }
                     }
                     .condition {
@@ -423,7 +391,7 @@
                         }
                         polyline {
                             fill: ~"@{@{color}-diagram-condition-background-color}";
-                            stroke: @purple;
+                            stroke: ~"@{@{color}-diagram-condition-stroke-color}";
                             stroke-width: @diagram-condition-stroke-width;
                         }
                     }
@@ -452,7 +420,7 @@
                         .collapser {
                             cursor: pointer;
                             fill: ~"@{@{color}-diagram-collapse-func-color}";
-                            font-size: 12px;
+                            font-size: 10px;
                         }
                         .life-line {
                             stroke: ~"@{@{color}-diagram-condition-line-stroke-color}";
@@ -461,16 +429,13 @@
                     }
                     .expanded-hidden-block {
                         .frame {
-                            stroke: ~"@{@{color}-diagram-expanded-hidden-block-frame-color}";
+                            stroke: ~"@{@{color}-diagram-expanded-func-frame-color}";
                             fill: none;
-                            stroke-width: 1.5;
                         }
                         .collapser {
                             stroke: ~"@{@{color}-diagram-collapse-func-color}";
-                            stroke-width: 0;
                             cursor: pointer;
                             fill: ~"@{@{color}-diagram-collapse-func-color}";
-                            font-size: 12px;
                         }
                     }
                 }

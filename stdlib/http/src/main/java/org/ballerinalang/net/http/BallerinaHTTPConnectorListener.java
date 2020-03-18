@@ -106,9 +106,9 @@ public class BallerinaHTTPConnectorListener implements HttpConnectorListener {
             Map<String, String> httpHeaders = new HashMap<>();
             inboundMessage.getHeaders().forEach(entry -> httpHeaders.put(entry.getKey(), entry.getValue()));
             observerContext.addProperty(PROPERTY_TRACE_PROPERTIES, httpHeaders);
-            observerContext.addMainTag(TAG_KEY_HTTP_METHOD, inboundMessage.getHttpMethod());
-            observerContext.addMainTag(TAG_KEY_PROTOCOL, (String) inboundMessage.getProperty(HttpConstants.PROTOCOL));
-            observerContext.addMainTag(TAG_KEY_HTTP_URL, inboundMessage.getRequestUrl());
+            observerContext.addTag(TAG_KEY_HTTP_METHOD, inboundMessage.getHttpMethod());
+            observerContext.addTag(TAG_KEY_PROTOCOL, (String) inboundMessage.getProperty(HttpConstants.PROTOCOL));
+            observerContext.addTag(TAG_KEY_HTTP_URL, inboundMessage.getRequestUrl());
             properties.put(ObservabilityConstants.KEY_OBSERVER_CONTEXT, observerContext);
         }
         CallableUnitCallback callback = new HttpCallableUnitCallback(inboundMessage);
