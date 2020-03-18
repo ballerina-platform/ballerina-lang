@@ -21,18 +21,12 @@ import java.util.List;
 import org.jetbrains.annotations.*;
 import com.intellij.psi.PsiElement;
 
-public interface BallerinaDoClause extends PsiElement {
-
-  @NotNull
-  List<BallerinaStatement> getStatementList();
+public interface BallerinaDeprecateAnnotationDescriptionLin extends PsiElement {
 
   @Nullable
-  PsiElement getLeftBrace();
-
-  @Nullable
-  PsiElement getRightBrace();
+  BallerinaDocumentationText getDocumentationText();
 
   @NotNull
-  PsiElement getDo();
+  PsiElement getMarkdownDocumentationLineStart();
 
 }

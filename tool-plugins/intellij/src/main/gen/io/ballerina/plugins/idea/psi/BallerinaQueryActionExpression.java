@@ -21,7 +21,7 @@ import java.util.List;
 import org.jetbrains.annotations.*;
 import com.intellij.psi.PsiElement;
 
-public interface BallerinaQueryActionStatement extends PsiElement {
+public interface BallerinaQueryActionExpression extends BallerinaExpression {
 
   @NotNull
   BallerinaDoClause getDoClause();

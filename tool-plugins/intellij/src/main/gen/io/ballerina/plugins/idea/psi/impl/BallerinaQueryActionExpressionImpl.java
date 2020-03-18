@@ -24,17 +24,16 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.util.PsiTreeUtil;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
-import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import io.ballerina.plugins.idea.psi.*;
 
-public class BallerinaQueryActionStatementImpl extends ASTWrapperPsiElement implements BallerinaQueryActionStatement {
+public class BallerinaQueryActionExpressionImpl extends BallerinaExpressionImpl implements BallerinaQueryActionExpression {
 
-  public BallerinaQueryActionStatementImpl(@NotNull ASTNode node) {
+  public BallerinaQueryActionExpressionImpl(@NotNull ASTNode node) {
     super(node);
   }
 
   public void accept(@NotNull BallerinaVisitor visitor) {
-    visitor.visitQueryActionStatement(this);
+    visitor.visitQueryActionExpression(this);
   }
 
   public void accept(@NotNull PsiElementVisitor visitor) {

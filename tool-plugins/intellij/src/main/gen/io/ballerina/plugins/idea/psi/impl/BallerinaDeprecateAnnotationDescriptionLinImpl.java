@@ -27,14 +27,14 @@ import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
 import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import io.ballerina.plugins.idea.psi.*;
 
-public class BallerinaDoClauseImpl extends ASTWrapperPsiElement implements BallerinaDoClause {
+public class BallerinaDeprecateAnnotationDescriptionLinImpl extends ASTWrapperPsiElement implements BallerinaDeprecateAnnotationDescriptionLin {
 
-  public BallerinaDoClauseImpl(@NotNull ASTNode node) {
+  public BallerinaDeprecateAnnotationDescriptionLinImpl(@NotNull ASTNode node) {
     super(node);
   }
 
   public void accept(@NotNull BallerinaVisitor visitor) {
-    visitor.visitDoClause(this);
+    visitor.visitDeprecateAnnotationDescriptionLin(this);
   }
 
   public void accept(@NotNull PsiElementVisitor visitor) {
@@ -43,27 +43,15 @@ public class BallerinaDoClauseImpl extends ASTWrapperPsiElement implements Balle
   }
 
   @Override
-  @NotNull
-  public List<BallerinaStatement> getStatementList() {
-    return PsiTreeUtil.getChildrenOfTypeAsList(this, BallerinaStatement.class);
-  }
-
-  @Override
   @Nullable
-  public PsiElement getLeftBrace() {
-    return findChildByType(LEFT_BRACE);
-  }
-
-  @Override
-  @Nullable
-  public PsiElement getRightBrace() {
-    return findChildByType(RIGHT_BRACE);
+  public BallerinaDocumentationText getDocumentationText() {
+    return findChildByClass(BallerinaDocumentationText.class);
   }
 
   @Override
   @NotNull
-  public PsiElement getDo() {
-    return findNotNullChildByType(DO);
+  public PsiElement getMarkdownDocumentationLineStart() {
+    return findNotNullChildByType(MARKDOWN_DOCUMENTATION_LINE_START);
   }
 
 }

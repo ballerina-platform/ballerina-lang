@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,12 +14,13 @@
  * limitations under the License.
  */
 
-package io.ballerina.plugins.idea.settings.autodetect;
+package io.ballerina.plugins.idea.settings.soucenavigation;
 
 import com.intellij.openapi.options.SearchableConfigurable;
 import com.intellij.openapi.project.Project;
 import com.intellij.util.ui.FormBuilder;
 import com.intellij.util.ui.UIUtil;
+import io.ballerina.plugins.idea.preloading.LSPUtils;
 import io.ballerina.plugins.idea.sdk.BallerinaSdkUtils;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
@@ -33,17 +34,17 @@ import javax.swing.JComponent;
 import javax.swing.JPanel;
 
 /**
- * Adds enabling/disabling Ballerina home auto detection in settings.
+ * Adds capability of enabling/disabling source navigation support.
  */
-public class BallerinaAutoDetectionConfigurable implements SearchableConfigurable {
+public class BallerinaSourceNavigationConfigurable implements SearchableConfigurable {
 
+    private final BallerinaSourceNavigationSettings ballerinaSourceNavigationSettings;
     private Project project;
-    private JCheckBox myAutoDetectionCb;
-    private final BallerinaAutoDetectionSettings myBalHomeAutoDetectionSettings;
+    private JCheckBox myCbEnableStdlibGotoDef;
     private final boolean myIsDialog;
 
-    public BallerinaAutoDetectionConfigurable(@NotNull Project project, boolean dialogMode) {
-        myBalHomeAutoDetectionSettings = BallerinaAutoDetectionSettings.getInstance(project);
+    public BallerinaSourceNavigationConfigurable(Project project, boolean dialogMode) {
+        ballerinaSourceNavigationSettings = BallerinaSourceNavigationSettings.getInstance(project);
         this.project = project;
         this.myIsDialog = dialogMode;
     }
@@ -51,10 +52,9 @@ public class BallerinaAutoDetectionConfigurable implements SearchableConfigurabl
     @Nullable
     @Override
     public JComponent createComponent() {
-
         FormBuilder builder = FormBuilder.createFormBuilder();
-        myAutoDetectionCb = new JCheckBox("Auto-detect ballerina SDK location");
-        builder.addComponent(myAutoDetectionCb);
+        myCbEnableStdlibGotoDef = new JCheckBox("Enable goto definition support for ballerina standard libraries");
+        builder.addComponent(myCbEnableStdlibGotoDef);
         JPanel result = new JPanel(new BorderLayout());
         result.add(builder.getPanel(), BorderLayout.NORTH);
         if (myIsDialog) {
@@ -65,24 +65,28 @@ public class BallerinaAutoDetectionConfigurable implements SearchableConfigurabl
 
     @Override
     public boolean isModified() {
-        return myBalHomeAutoDetectionSettings.isAutoDetectionEnabled() != myAutoDetectionCb.isSelected();
+        return ballerinaSourceNavigationSettings.isEnableStdlibGotoDef() != myCbEnableStdlibGotoDef.isSelected();
     }
 
     @Override
     public void apply() {
-        myBalHomeAutoDetectionSettings.setIsAutoDetectionEnabled(myAutoDetectionCb.isSelected());
-        BallerinaSdkUtils.showRestartDialog(project);
+        ballerinaSourceNavigationSettings.setEnableStdlibGotoDef(myCbEnableStdlibGotoDef.isSelected());
+        // Tries to notify the setting changes to the language server and if failed, requests to reload the project.
+        boolean success = LSPUtils.notifyConfigChanges(project);
+        if (!success) {
+            BallerinaSdkUtils.showRestartDialog(project);
+        }
     }
 
     @Override
     public void reset() {
-        myAutoDetectionCb.setSelected(myBalHomeAutoDetectionSettings.isAutoDetectionEnabled());
+        myCbEnableStdlibGotoDef.setSelected(ballerinaSourceNavigationSettings.isEnableStdlibGotoDef());
     }
 
     @NotNull
     @Override
     public String getId() {
-        return "ballerina.autodetect";
+        return "ballerina.sourcenavigation";
     }
 
     @Nullable
@@ -94,7 +98,7 @@ public class BallerinaAutoDetectionConfigurable implements SearchableConfigurabl
     @Nls
     @Override
     public String getDisplayName() {
-        return "Ballerina Home Auto Detection";
+        return "Source Navigation";
     }
 
     @Nullable
@@ -105,7 +109,7 @@ public class BallerinaAutoDetectionConfigurable implements SearchableConfigurabl
 
     @Override
     public void disposeUIResources() {
-        UIUtil.dispose(myAutoDetectionCb);
-        myAutoDetectionCb = null;
+        UIUtil.dispose(myCbEnableStdlibGotoDef);
+        myCbEnableStdlibGotoDef = null;
     }
 }

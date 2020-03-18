@@ -61,15 +61,15 @@ public class BallerinaFromClauseImpl extends ASTWrapperPsiElement implements Bal
   }
 
   @Override
-  @NotNull
-  public PsiElement getFrom() {
-    return findNotNullChildByType(FROM);
-  }
-
-  @Override
   @Nullable
   public PsiElement getIn() {
     return findChildByType(IN);
+  }
+
+  @Override
+  @NotNull
+  public PsiElement getFrom() {
+    return findNotNullChildByType(FROM);
   }
 
   @Override
