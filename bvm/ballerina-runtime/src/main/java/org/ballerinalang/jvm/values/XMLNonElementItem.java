@@ -134,7 +134,10 @@ public abstract class XMLNonElementItem extends XMLValue {
 
     @Override
     public XMLValue getItem(int index) {
-        return null;
+        if (index == 0) {
+            return this;
+        }
+        return new XMLSequence();
     }
 
     @Override

@@ -126,6 +126,9 @@ public class XMLAccessTest {
         Assert.assertEquals(returns[2].stringValue(), "<child xmlns=\"foo\"></child>");
         Assert.assertEquals(returns[3].stringValue(), "<child xmlns=\"foo\"></child>");
         Assert.assertEquals(returns[4].stringValue(), "<child xmlns=\"foo\"></child>");
+        Assert.assertEquals(returns[5].stringValue(), "<child xmlns=\"foo\"></child>");
+        Assert.assertEquals(returns[6].stringValue(), "0");
+        Assert.assertEquals(returns[7].stringValue(), "<child xmlns=\"foo\"></child>");
     }
 
     @Test
