@@ -99,6 +99,11 @@ public type ProducerConfiguration record {|
     SecureSocket secureSocket?;
 |};
 
+public type AvroRecord record {|
+    string schemaString;
+    anydata dataRecord;
+|};
+
 # Kafka producer acknowledgement type.
 public type ProducerAcks ACKS_ALL|ACKS_NONE|ACKS_SINGLE;
 
@@ -247,9 +252,12 @@ public type Producer client object {
             }
             panic getValueTypeMismatchError(BYTE_ARRAY);
         }
-        // Handle Avro serializer
+        // Handle Avro serializer.
         if (self.valueSerializerType == SER_AVRO) {
-            return sendAvroValues(self, value, topicHandle, key, partition, timestamp, self.keySerializerType);
+            if (value is AvroRecord) {
+                return sendAvroValues(self, value, topicHandle, key, partition, timestamp, self.keySerializerType);
+            }
+            panic getValueTypeMismatchError(AVRO_RECORD);
         }
         // Handle custom values
         if (self.valueSerializerType == SER_CUSTOM) {
@@ -399,7 +407,7 @@ function sendByteArrayValues(Producer producer, byte[] value, handle topic, anyd
     }
 }
 
-function sendAvroValues(Producer producer, anydata value, handle topic, anydata? key, int? partition, int? timestamp,
+function sendAvroValues(Producer producer, AvroRecord value, handle topic, anydata? key, int? partition, int? timestamp,
     string keySerializerType) returns ProducerError? {
     if (key is ()) {
         return producerSendAvro(producer, value, topic, partition, timestamp);
@@ -732,59 +740,59 @@ function producerSendByteArrayAny(Producer producer, byte[] value, handle topic,
                 "java.lang.String", "java.lang.Object", "java.lang.Object", "java.lang.Object"]
 } external;
 
-// Send avro values with different types of keys
-function producerSendAvro(Producer producer, anydata value, handle topic, int? partition = (), int? timestamp = ())
+// Sends Avro values with different types of keys
+function producerSendAvro(Producer producer, AvroRecord value, handle topic, int? partition = (), int? timestamp = ())
 returns ProducerError? =
 @java:Method {
     name: "send",
     class: "org.ballerinalang.messaging.kafka.nativeimpl.producer.SendAvroValues",
-    paramTypes: ["org.ballerinalang.jvm.values.ObjectValue", "java.lang.Object", "java.lang.String", "java.lang.Object",
-                 "java.lang.Object"]
+    paramTypes: ["org.ballerinalang.jvm.values.ObjectValue", "org.ballerinalang.jvm.values.MapValue",
+                 "java.lang.String", "java.lang.Object", "java.lang.Object"]
 } external;
 
-function producerSendAvroString(Producer producer, anydata value, handle topic, handle key, int? partition = (),
+function producerSendAvroString(Producer producer, AvroRecord value, handle topic, handle key, int? partition = (),
     int? timestamp = ()) returns ProducerError? =
 @java:Method {
     name: "send",
     class: "org.ballerinalang.messaging.kafka.nativeimpl.producer.SendAvroValues",
-    paramTypes: ["org.ballerinalang.jvm.values.ObjectValue", "java.lang.Object", "java.lang.String", "java.lang.String",
-                 "java.lang.Object", "java.lang.Object"]
+    paramTypes: ["org.ballerinalang.jvm.values.ObjectValue", "org.ballerinalang.jvm.values.MapValue",
+                 "java.lang.String", "java.lang.String", "java.lang.Object", "java.lang.Object"]
 } external;
 
-function producerSendAvroInt(Producer producer, anydata value, handle topic, int key, int? partition = (),
+function producerSendAvroInt(Producer producer, AvroRecord value, handle topic, int key, int? partition = (),
     int? timestamp = ()) returns ProducerError? =
 @java:Method {
     name: "send",
     class: "org.ballerinalang.messaging.kafka.nativeimpl.producer.SendAvroValues",
-    paramTypes: ["org.ballerinalang.jvm.values.ObjectValue", "java.lang.Object", "java.lang.String", "long",
-                 "java.lang.Object", "java.lang.Object"]
+    paramTypes: ["org.ballerinalang.jvm.values.ObjectValue", "org.ballerinalang.jvm.values.MapValue",
+                 "java.lang.String", "long", "java.lang.Object", "java.lang.Object"]
 } external;
 
-function producerSendAvroFloat(Producer producer, anydata value, handle topic, float key, int? partition = (),
+function producerSendAvroFloat(Producer producer, AvroRecord value, handle topic, float key, int? partition = (),
     int? timestamp = ()) returns ProducerError? =
 @java:Method {
     name: "send",
     class: "org.ballerinalang.messaging.kafka.nativeimpl.producer.SendAvroValues",
-    paramTypes: ["org.ballerinalang.jvm.values.ObjectValue", "java.lang.Object", "java.lang.String", "double",
-                 "java.lang.Object", "java.lang.Object"]
+    paramTypes: ["org.ballerinalang.jvm.values.ObjectValue", "org.ballerinalang.jvm.values.MapValue",
+                 "java.lang.String", "double", "java.lang.Object", "java.lang.Object"]
 } external;
 
-function producerSendAvroByteArray(Producer producer, anydata value, handle topic, byte[] key, int? partition = (),
+function producerSendAvroByteArray(Producer producer, AvroRecord value, handle topic, byte[] key, int? partition = (),
     int? timestamp = ()) returns ProducerError? =
 @java:Method {
     name: "send",
     class: "org.ballerinalang.messaging.kafka.nativeimpl.producer.SendAvroValues",
-    paramTypes: ["org.ballerinalang.jvm.values.ObjectValue", "java.lang.Object", "java.lang.String",
-                 "org.ballerinalang.jvm.values.ArrayValue", "java.lang.Object", "java.lang.Object"]
+    paramTypes: ["org.ballerinalang.jvm.values.ObjectValue", "org.ballerinalang.jvm.values.MapValue",
+                 "java.lang.String", "org.ballerinalang.jvm.values.ArrayValue", "java.lang.Object", "java.lang.Object"]
 } external;
 
-function producerSendAvroAny(Producer producer, anydata value, handle topic, any key, int? partition = (),
+function producerSendAvroAny(Producer producer, AvroRecord value, handle topic, any key, int? partition = (),
     int? timestamp = ()) returns ProducerError? =
 @java:Method {
     name: "sendAvroAny",
     class: "org.ballerinalang.messaging.kafka.nativeimpl.producer.SendAvroValues",
-    paramTypes: ["org.ballerinalang.jvm.values.ObjectValue", "java.lang.Object", "java.lang.String", "java.lang.Object",
-                 "java.lang.Object", "java.lang.Object"]
+    paramTypes: ["org.ballerinalang.jvm.values.ObjectValue", "org.ballerinalang.jvm.values.MapValue",
+                 "java.lang.String", "java.lang.Object", "java.lang.Object", "java.lang.Object"]
 } external;
 
 // Send custom type values with different types of keys

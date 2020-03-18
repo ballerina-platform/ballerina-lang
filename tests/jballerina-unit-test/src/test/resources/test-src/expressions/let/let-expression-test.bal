@@ -138,13 +138,12 @@ function testLetExprInArrowFunction() {
    assertTrue(a == 58, "a == 58");
 }
 
-function testLetExprInJSON() {
+function testLetExprInJSON() returns error? {
     json j = {fname:"Jhon", lname:"Doe", age:let int x = 4 in 2 * x * globalVar};
     assertTrue(j.age == 16, "j.age == 16");
 
-    json k = {fname:"Jhon", lname:"Doe", age:let json x = {age: 16} in x.age};
+    json k = {fname:"Jhon", lname:"Doe", age:check let json x = {age: 16} in x.age};
     assertTrue(k.age == 16, "k.age == 16");
-
 }
 
 function testLetExpresionInArrays() {
@@ -220,7 +219,7 @@ function testLetExpressionErrorBindingSimple() {
 }
 
 function testLetExpressionErrorBindingVar() {
-    boolean k = let var error(reasonTwo, ...params) = getSampleError() in params["fatal"];
+    boolean k = <boolean>let var error(reasonTwo, ...params) = getSampleError() in params["fatal"];
     assertTrue(k, "k == true");
 }
 

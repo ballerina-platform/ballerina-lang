@@ -29,7 +29,7 @@ public const CONSUMER_ERROR = "{ballerina/kafka}ConsumerError";
 # Represents a Kafka consumer related error
 public type ConsumerError error<CONSUMER_ERROR, Detail>;
 
-# Represents a Kafka producer related error
+# Defines a Kafka producer related error
 public const PRODUCER_ERROR = "{ballerina/kafka}ProducerError";
 
 # Represents a Kafka producer related error

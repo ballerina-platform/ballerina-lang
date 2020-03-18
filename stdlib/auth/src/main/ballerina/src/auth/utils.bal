@@ -171,7 +171,7 @@ function cacheAuthzResult(boolean authorized, string authzCacheKey, cache:Cache?
         if (pCache is cache:Cache) {
             cache:Error? result = pCache.put(authzCacheKey, authorized);
             if (result is cache:Error) {
-                log:printError(function() returns string {
+                log:printDebug(function() returns string {
                     return "Failed to add entry to positive authz cache";
                 });
                 return;
@@ -182,7 +182,7 @@ function cacheAuthzResult(boolean authorized, string authzCacheKey, cache:Cache?
         if (nCache is cache:Cache) {
             cache:Error? result = nCache.put(authzCacheKey, authorized);
             if (result is cache:Error) {
-                log:printError(function() returns string {
+                log:printDebug(function() returns string {
                     return "Failed to add entry to negative authz cache";
                 });
                 return;
