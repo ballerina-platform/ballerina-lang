@@ -26,7 +26,7 @@ http:ClientConfiguration mutualSslCertClientConf = {
     }
 };
 
-public function main (string... args) {
+public function main() {
     http:Client clientEP = new("https://localhost:9217", mutualSslCertClientConf );
     http:Request req = new;
     var resp = clientEP->get("/echo/");
