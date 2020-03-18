@@ -37,7 +37,7 @@ public function main() {
               in personAge;
     io:println("age: ", age);
 
-    boolean fatal = let var error(reason, ...params) = getSampleError()
+    var fatal = let var error(reason, ...params) = getSampleError()
                     in params["fatal"];
     io:println("fatal: ", fatal);
 }
