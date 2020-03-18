@@ -132,8 +132,8 @@ public class ManifestProcessorTest {
         Path baloPath = tmpDir.resolve("string_utils.balo");
         Files.createFile(baloPath);
 
-        String tomlData = this.validProjectBlock + "[dependencies] \n " +
-                "string-utils = { path = \"" + baloPath.toString().replace("\\", "/") + "\", version = \"1.1.5\" } \n ";
+        String tomlData = this.validProjectBlock + "[dependencies] \n string-utils = { path = \""
+                + baloPath.toString().replace("\\", "/") + "\", version = \"1.1.5\" } \n ";
 
         Manifest manifest = ManifestProcessor.parseTomlContentFromString(tomlData);
         Assert.assertEquals(manifest.getDependencies().get(0).getModuleID(), "string-utils");
@@ -157,9 +157,9 @@ public class ManifestProcessorTest {
         Path baloPath = tmpDir.resolve("string_utils.balo");
         Files.createFile(baloPath);
 
-        String tomlData = this.validProjectBlock + "[dependencies] \n " +
-                "string-utils = { path = \"" + baloPath.toString().replace("\\", "/") + "\", version = \"1.0.5\" } \n " +
-                "jquery = { version = \"2.2.3\" } \n";
+        String tomlData = this.validProjectBlock + "[dependencies] \n string-utils = { path = \""
+                + baloPath.toString().replace("\\", "/") + "\", version = \"1.0.5\" } \n "
+                + "jquery = { version = \"2.2.3\" } \n";
 
         Manifest manifest = ManifestProcessor.parseTomlContentFromString(tomlData);
         Assert.assertEquals(manifest.getDependencies().get(0).getModuleID(), "string-utils");
