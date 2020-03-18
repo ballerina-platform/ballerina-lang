@@ -1,4 +1,4 @@
 # To start the service, navigate to the directory that contains the
 # `.bal` file and execute the `ballerina run` command.
-$ ballerina run ssl_client.bal
+$ ballerina run ssl_client.bal --b7a.home=<ballerina_home_path>
 INFO  [] - Successful
