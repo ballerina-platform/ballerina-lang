@@ -218,7 +218,7 @@ public class DefinitionUtil {
             // TODO: Handle XML Namespace Declarations
             case ANNOTATION:
                 BLangAnnotation annotationNode = (BLangAnnotation) topLevelNode;
-                return annotationNode.name.pos;
+                return CommonUtil.toZeroBasedPosition(annotationNode.name.pos);
             default:
                 throw new LSStdlibCacheException("Could not find Position for Node" + topLevelNode.getKind().name());
         }
