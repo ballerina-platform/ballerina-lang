@@ -31,11 +31,11 @@ under the License.
         </groups>
         <classes>
             <class name="org.ballerinalang.testerina.test.ProjectBasedIntegrationTest" />
-            <class name="org.ballerinalang.testerina.test.negative.MissingFunctionsTestCase"/>
+            <!--<class name="org.ballerinalang.testerina.test.negative.MissingFunctionsTestCase"/>
             <class name="org.ballerinalang.testerina.test.GroupingTest" />
             <class name="org.ballerinalang.testerina.test.negative.SkipTestsTestCase" />
             <class name="org.ballerinalang.testerina.test.negative.InvalidDataProviderTestCase" />
-            <class name="org.ballerinalang.testerina.test.DisableTestsTestCase" />
+            <class name="org.ballerinalang.testerina.test.DisableTestsTestCase" />-->
         </classes>
     </test>
 </suite>

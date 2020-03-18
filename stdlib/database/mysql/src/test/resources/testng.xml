@@ -22,9 +22,9 @@ under the License.
 <suite name="ballerina-mysql-test-suite">
     <test name="ballerina-mysql-test" parallel="false">
         <parameter name="enableJBallerinaTests" value="true"/>
-        <classes >
+        <!--<classes >
             <class name="org.ballerinalang.mysql.init.ConnectionInitTest"/>
             <class name="org.ballerinalang.mysql.init.ConnectionInitSSLTest"/>
-        </classes>
+        </classes>-->
     </test>
 </suite>

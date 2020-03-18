@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
+/*
 package org.ballerinalang.stdlib.resiliency;
 
 import org.ballerinalang.model.util.StringUtils;
@@ -38,10 +38,10 @@ import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 
 import static org.ballerinalang.jvm.util.BLangConstants.ERROR_MESSAGE_FIELD_NAME;
-
+*/
 /**
  * Test cases for the Circuit Breaker.
- */
+ 
 public class CircuitBreakerTest {
 
     private static final String CB_ERROR_MSG = "Upstream service unavailable.";
@@ -65,7 +65,7 @@ public class CircuitBreakerTest {
 
     /**
      * Test case for a typical scenario where an upstream service may become unavailable temporarily.
-     */
+     
     @Test
     public void testCircuitBreaker() {
         // Expected HTTP status codes from circuit breaker responses.
@@ -102,7 +102,7 @@ public class CircuitBreakerTest {
      * - Requests afterwards are immediately failed, with a 503 response.
      * - After the reset timeout expires, the circuit goes to HALF_OPEN state and a trial request is sent.
      * - The backend service is not available and therefore, the request fails again and the circuit goes back to OPEN.
-     */
+     
     @Test
     public void testTrialRunFailure() {
         // Expected HTTP status codes from circuit breaker responses.
@@ -142,7 +142,7 @@ public class CircuitBreakerTest {
      * - After the reset timeout expires, the circuit goes to HALF_OPEN state and a trial request is sent.
      * - The backend service is not available and therefore, the request fails again and the
      * circuit goes back to OPEN.
-     */
+     
     @Test(description = "Test case for Circuit Breaker HTTP status codes.")
     public void testHttpStatusCodeFailure() {
         // Expected HTTP status codes from circuit breaker responses.
@@ -161,7 +161,7 @@ public class CircuitBreakerTest {
      * - Initially the circuit is healthy and functioning normally.
      * - during the middle of execution circuit will be force fully opened.
      * - Afterward requests should immediately fail.
-     */
+     
     @Test(description = "Verify the functionality of circuit breaker force open implementation")
     public void testCBForceOpenScenario() {
         // Expected HTTP status codes from circuit breaker responses.
@@ -181,7 +181,7 @@ public class CircuitBreakerTest {
      * - Backend service becomes unavailable and eventually, the failure threshold is exceeded.
      * - After that circuit will be force fully closed.
      * - Afterward success responses should received.
-     */
+    
     @Test(description = "Verify the functionality of circuit breaker force close implementation")
     public void testCBForceCloseScenario() {
         // Expected HTTP status codes from circuit breaker responses.
@@ -202,7 +202,7 @@ public class CircuitBreakerTest {
      * Test case scenario:
      * - Circuit Breaker configured with requestVolumeThreshold.
      * - Circuit Breaker shouldn't interact with circuit state until the configured threshold exceeded.
-     */
+     
     @Test(description = "Verify the functionality of circuit breaker request volume threshold implementation")
     public void testCBRequestVolumeThresholdSuccessResponseScenario() {
         // Expected HTTP status codes from circuit breaker responses.
@@ -223,7 +223,7 @@ public class CircuitBreakerTest {
      * Test case scenario:
      * - Circuit Breaker configured with requestVolumeThreshold.
      * - Circuit Breaker shouldn't interact with circuit state until the configured threshold exceeded.
-     */
+     
     @Test(description = "Verify the functionality of circuit breaker request volume threshold implementation")
     public void testCBRequestVolumeThresholdFailureResponseScenario() {
         // Expected HTTP status codes from circuit breaker responses.
@@ -273,4 +273,4 @@ public class CircuitBreakerTest {
             }
         }
     }
-}
+}*/

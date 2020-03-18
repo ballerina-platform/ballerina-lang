@@ -1,4 +1,4 @@
-'use strict';
+/*'use strict';
 /**
  * Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  *
- */
+ *@@
 
 import { expect } from 'chai';
 import * as path from 'path';
@@ -85,5 +85,5 @@ suite("Language Server Tests", function () {
             done(new Error("Language Server stop failed"));
         });
     });
-});
+});*/
 

@@ -1,4 +1,4 @@
-'use strict';
+/*'use strict';
 /**
  * Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  *
- */
+ *@@
 
 // The module 'assert' provides assertion methods from node
 
@@ -221,4 +221,4 @@ suite('Ballerina Debug Adapter', () => {
         // }).timeout(15000);
     });
 
-});
+});*/

@@ -25,11 +25,10 @@
         <classes>
             <class name="org.ballerinalang.messaging.kafka.consumer.KafkaConsumerAssignTest" />
             <class name="org.ballerinalang.messaging.kafka.consumer.KafkaConsumerTopicsTest" />
-            <class name="org.ballerinalang.messaging.kafka.consumer.KafkaConsumerTest" />
+            <!--<class name="org.ballerinalang.messaging.kafka.consumer.KafkaConsumerTest" />-->
             <class name="org.ballerinalang.messaging.kafka.consumer.KafkaConsumerManualCommitTest" />
             <class name="org.ballerinalang.messaging.kafka.consumer.KafkaConsumerPauseResumeTest" />
-            <class name="org.ballerinalang.messaging.kafka.consumer.KafkaConsumerSubscribePartitionRebalanceTest" />
-            <class name="org.ballerinalang.messaging.kafka.consumer.KafkaConsumerSubscribeToPatternTest" />
+            <!--<class name="org.ballerinalang.messaging.kafka.consumer.KafkaConsumerSubscribeToPatternTest" />-->
             <class name="org.ballerinalang.messaging.kafka.consumer.KafkaConsumerSeekTest" />
         </classes>
     </test>
@@ -53,8 +52,8 @@
     </test>
     <test name="ballerina-kafka-transactions-test">
         <classes>
-            <!-- Transactions-Related tests -->
-            <class name="org.ballerinalang.messaging.kafka.transactions.KafkaProducerTransactionsTest" />
+            <!-- Transactions-Related tests 
+            <class name="org.ballerinalang.messaging.kafka.transactions.KafkaProducerTransactionsTest" />-->
         </classes>
     </test>
     <test name="ballerina-kafka-ssl-tests">
