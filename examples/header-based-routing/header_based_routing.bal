@@ -1,3 +1,4 @@
+import ballerina/config;
 import ballerina/http;
 import ballerina/log;
 
@@ -5,7 +6,8 @@ http:ClientConfiguration weatherEPConfig = {
     followRedirects: {enabled: true, maxCount: 5},
     secureSocket: {
         trustStore: {
-            path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
+            path: config:getAsString("b7a.home") +
+                        "/bre/security/ballerinaTruststore.p12",
             password: "ballerina"
         }
     }
@@ -26,7 +28,7 @@ service headerBasedRouting on new http:Listener(9090) {
 
     resource function hbrResource(http:Caller caller, http:Request req) {
         http:Client weatherEP = new ("http://samples.openweathermap.org",
-                                    weatherEPConfig);
+                                     weatherEPConfig);
         http:Client locationEP = new ("http://www.mocky.io");
         // Create a new outbound request to handle client call.
         http:Request newRequest = new;

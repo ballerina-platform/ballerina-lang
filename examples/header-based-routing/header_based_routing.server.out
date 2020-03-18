@@ -1,4 +1,5 @@
 # To start the service, navigate to the directory that contains the
-# `.bal` file and use the `ballerina run` command.
-$ ballerina run header_based_routing.bal
+# `.bal` file and execute the `ballerina run` command along with the
+# Ballerina home path as a system property.
+$ ballerina run header_based_routing.bal --b7a.home=<ballerina_home_path>
 [ballerina/http] started HTTP/WS listener 0.0.0.0:9090
