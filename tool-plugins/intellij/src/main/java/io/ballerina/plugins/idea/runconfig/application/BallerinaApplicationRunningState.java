@@ -28,7 +28,6 @@ import com.intellij.openapi.module.ModuleUtilCore;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiFile;
-import io.ballerina.plugins.idea.preloading.BallerinaCmdException;
 import io.ballerina.plugins.idea.psi.impl.BallerinaPsiImplUtil;
 import io.ballerina.plugins.idea.runconfig.BallerinaRunningState;
 import io.ballerina.plugins.idea.sdk.BallerinaSdkService;
@@ -148,12 +147,7 @@ public class BallerinaApplicationRunningState extends BallerinaRunningState<Ball
             // If any sdk is not found and user has chosen to auto detect ballerina home.
             if (Strings.isNullOrEmpty(balSdkPath) && BallerinaAutoDetectionSettings.getInstance(project).
                     isAutoDetectionEnabled()) {
-                try {
-                    balSdkPath = BallerinaSdkUtils.autoDetectSdk(project);
-                } catch (BallerinaCmdException e) {
-                    throw new ExecutionException(String.format("cannot find ballerina SDK/auto-detected ballerina " +
-                            "home to run the file '%s'", file.getVirtualFile().getPath()));
-                }
+                balSdkPath = BallerinaSdkUtils.autoDetectSdk(project);
             }
             ballerinaExecutor.withBallerinaPath(balSdkPath);
 
@@ -180,12 +174,7 @@ public class BallerinaApplicationRunningState extends BallerinaRunningState<Ball
             // If any sdk is not found and user has chosen to auto detect ballerina home.
             if (Strings.isNullOrEmpty(balSdkPath) && BallerinaAutoDetectionSettings.getInstance(project)
                     .isAutoDetectionEnabled()) {
-                try {
-                    balSdkPath = BallerinaSdkUtils.autoDetectSdk(project);
-                } catch (BallerinaCmdException e) {
-                    throw new ExecutionException(String.format("cannot find ballerina SDK/auto-detected ballerina " +
-                            "home to run the file '%s'", file.getVirtualFile().getPath()));
-                }
+                balSdkPath = BallerinaSdkUtils.autoDetectSdk(project);
             }
             ballerinaExecutor.withBallerinaPath(balSdkPath);
 

@@ -28,7 +28,6 @@ import com.intellij.ui.EditorNotificationPanel;
 import com.intellij.ui.EditorNotifications;
 import icons.BallerinaIcons;
 import io.ballerina.plugins.idea.BallerinaFileType;
-import io.ballerina.plugins.idea.preloading.BallerinaCmdException;
 import io.ballerina.plugins.idea.sdk.BallerinaSdkService;
 import io.ballerina.plugins.idea.sdk.BallerinaSdkUtils;
 import org.jetbrains.annotations.NotNull;
@@ -72,16 +71,11 @@ public class VersionMismatchNotificationProvider extends EditorNotifications.Pro
             // Compares the major and minor version numbers between the ballerina sdk and the plugin.
             if (!getMajorVersion(sdkVersion).equals(getMajorVersion(pluginVersion))
                     || !getMinorVersion(sdkVersion).equals(getMinorVersion(pluginVersion))) {
-                return createPanel(module, sdkVersion, pluginVersion, false);
+                return createPanel(module, sdkVersion, pluginVersion, true);
             }
         } else if (Strings.isNullOrEmpty(sdkVersion)) {
             // Compares auto-detected ballerina version with the plugin version.
-            String autoDetectedBalHome = "";
-            try {
-                autoDetectedBalHome = BallerinaSdkUtils.autoDetectSdk(myProject);
-            } catch (BallerinaCmdException e) {
-                // no operation.
-            }
+            String autoDetectedBalHome = BallerinaSdkUtils.autoDetectSdk(myProject);
             sdkVersion = BallerinaSdkUtils.retrieveBallerinaVersion(autoDetectedBalHome);
             if (!Strings.isNullOrEmpty(sdkVersion) && !Strings.isNullOrEmpty(pluginVersion)) {
                 // Compares the major and minor version numbers between the auto detected ballerina version and

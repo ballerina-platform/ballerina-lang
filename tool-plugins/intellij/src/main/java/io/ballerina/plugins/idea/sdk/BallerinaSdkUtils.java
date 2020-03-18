@@ -47,7 +47,6 @@ import com.intellij.util.Function;
 import com.intellij.util.ObjectUtils;
 import com.intellij.util.containers.ContainerUtil;
 import io.ballerina.plugins.idea.BallerinaConstants;
-import io.ballerina.plugins.idea.preloading.BallerinaCmdException;
 import io.ballerina.plugins.idea.preloading.OSUtils;
 import io.ballerina.plugins.idea.project.BallerinaApplicationLibrariesService;
 import io.ballerina.plugins.idea.project.BallerinaLibrariesService;
@@ -263,14 +262,14 @@ public class BallerinaSdkUtils {
     /**
      * @return an empty string if it fails to auto-detect the ballerina home automatically.
      */
-    public static String autoDetectSdk(Project project) throws BallerinaCmdException {
+    public static String autoDetectSdk(Project project) {
 
         // Checks for the user-configured auto detection settings.
         if (!BallerinaAutoDetectionSettings.getInstance(project).isAutoDetectionEnabled()) {
             return "";
         }
 
-        String ballerinaPath = execBalHomeCmd(String.format("%s %s", BALLERINA_CMD, BALLERINA_HOME_CMD));
+        String ballerinaPath = getByCommand(String.format("%s %s", BALLERINA_CMD, BALLERINA_HOME_CMD));
         if (ballerinaPath.isEmpty()) {
             // Todo - Verify
             // Tries for default installer based locations since "ballerina" commands might not work
@@ -278,40 +277,34 @@ public class BallerinaSdkUtils {
             // runtime.
             String routerScriptPath = getByDefaultPath();
             if (OSUtils.isWindows()) {
-                ballerinaPath = execBalHomeCmd(String.format("\"%s\" %s", routerScriptPath, BALLERINA_HOME_CMD));
+                ballerinaPath = getByCommand(String.format("\"%s\" %s", routerScriptPath, BALLERINA_HOME_CMD));
             } else {
-                ballerinaPath = execBalHomeCmd(String.format("%s %s", routerScriptPath, BALLERINA_HOME_CMD));
+                ballerinaPath = getByCommand(String.format("%s %s", routerScriptPath, BALLERINA_HOME_CMD));
             }
         }
 
         return ballerinaPath;
     }
 
-    /**
-     * Executes ballerina home command and returns the result.
-     *
-     * @param cmd command to be executed.
-     * @return ballerina distribution location.
-     */
-    public static String execBalHomeCmd(String cmd) throws BallerinaCmdException {
+    public static String getByCommand(String cmd) {
         java.util.Scanner s;
-        // This may returns a symlink which links to the real path.
         try {
+            // This may returns a symlink which links to the real path.
             s = new java.util.Scanner(Runtime.getRuntime().exec(cmd).getInputStream()).useDelimiter("\\A");
-
             String path = s.hasNext() ? s.next().trim().replace(System.lineSeparator(), "").trim() : "";
-            LOG.info(String.format("%s command returned: %s", cmd, path));
+            LOG.info(cmd + "command returned: " + path);
 
             // Todo - verify
             // Since errors might be coming from the input stream when retrieving ballerina distribution path, we need
             // an additional check.
             if (!new File(path).exists()) {
-                throw new BallerinaCmdException(String.format("unexpected output received by \"%s\" command. " +
-                        "received output: %s", cmd, path));
+                LOG.warn(String.format("Invalid result received by \"%s\" command. Received Output: %s", cmd, path));
+                return "";
             }
             return path;
-        } catch (IOException e) {
-            throw new BallerinaCmdException("Unexpected error occurred when executing ballerina command: " + cmd, e);
+        } catch (Exception e) {
+            LOG.warn("Unexpected error occurred when executing ballerina command: " + cmd, e);
+            return "";
         }
     }
 
