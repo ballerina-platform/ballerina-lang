@@ -1,4 +1,4 @@
-# To start the service, navigate to the directory that contains the
-# `.bal` file and execute the `ballerina run` command.
-$ ballerina run secured_service_with_oauth2.bal
+# To run the service, execute the below command by passing Ballerina home path
+# as a system property.
+$ ballerina run secured_service_with_oauth2.bal --b7a.home=<ballerina_home_path>
 [ballerina/http] started HTTPS/WSS listener 0.0.0.0:9090

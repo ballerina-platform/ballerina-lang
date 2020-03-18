@@ -10,8 +10,7 @@ scopes="scope1"
 password="password2"
 scopes="scope2,scope3"' > sample-users.toml
 
-# Specify the configuration file name using the
-# `--b7a.config.file=<path to configuration file>` property and run the program
-# using the `ballerina run` command.
-$ ballerina run secured_service_with_basic_auth.bal --b7a.config.file=sample-users.toml
+# To run the service, execute the below command by specifying the configuration
+# file name and passing Ballerina home path as a system property.
+$ ballerina run secured_service_with_basic_auth.bal --b7a.config.file=sample-users.toml --b7a.home=<ballerina_home_path>
 [ballerina/http] started HTTPS/WSS listener 0.0.0.0:9090
