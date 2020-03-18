@@ -26,7 +26,7 @@ public type FileInfo object {
     boolean dir;
     string path;
 
-    # Creates a FileInfo object.
+# Creates a FileInfo object.
 #
 # + name - Name of the file
 # + size - Size of the file (in bytes)
