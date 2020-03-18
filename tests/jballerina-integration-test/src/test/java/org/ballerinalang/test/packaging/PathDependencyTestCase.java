@@ -594,6 +594,12 @@ public class PathDependencyTestCase extends BaseTest {
         balClient.runMain("build", new String[]{"-a"}, envVariables, new String[]{}, new LogLeecher[]{buildLogLeecher},
                 caseResources.toString());
         buildLogLeecher.waitForText(10000);
+
+        // Test ballerina test command with single module which has dependencies.
+        buildLogLeecher = new LogLeecher(msg);
+        balClient.runMain("test", new String[]{"bar"}, envVariables, new String[]{}, new LogLeecher[]{buildLogLeecher},
+                          caseResources.toString());
+        buildLogLeecher.waitForText(10000);
     }
 
     /**
