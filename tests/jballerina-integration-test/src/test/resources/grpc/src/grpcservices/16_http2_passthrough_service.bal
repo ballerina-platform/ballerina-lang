@@ -14,17 +14,18 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/config;
 import ballerina/http;
 import ballerina/log;
 
 http:ListenerConfiguration helloWorldEPConfig = {
     secureSocket: {
         trustStore: {
-            path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
+            path: config:getAsString("truststore"),
             password: "ballerina"
         },
         keyStore: {
-            path: "${ballerina.home}/bre/security/ballerinaKeystore.p12",
+            path: config:getAsString("keystore"),
             password: "ballerina"
         }
     },
@@ -35,7 +36,7 @@ http:ListenerConfiguration helloWorldEPConfig = {
 http:ClientConfiguration endpointConfig = {
     secureSocket: {
         trustStore: {
-            path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
+            path: config:getAsString("truststore"),
             password: "ballerina"
         }
     },

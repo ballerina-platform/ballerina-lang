@@ -14,6 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.package http2;
 
+import ballerina/config;
 import ballerina/http;
 
 listener http:Listener serviceEndpointWithoutSSL = new(9095, { httpVersion: "2.0" });
@@ -22,7 +23,7 @@ listener http:Listener serviceEndpointWithSSL = new(9096, {
     httpVersion: "2.0",
     secureSocket: {
         keyStore: {
-            path: "${ballerina.home}/bre/security/ballerinaKeystore.p12",
+            path: config:getAsString("keystore"),
             password: "ballerina"
         }
     }

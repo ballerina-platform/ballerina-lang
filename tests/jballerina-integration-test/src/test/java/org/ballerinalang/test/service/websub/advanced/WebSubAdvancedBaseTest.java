@@ -44,10 +44,14 @@ public class WebSubAdvancedBaseTest extends BaseTest {
         publisherServerInstance = new BServerInstance(balServer);
         String confPath = new File("src/test/resources/websub/publisher/src/advanced_services/sample-users.toml")
                 .getAbsolutePath();
+        String keyStore = StringEscapeUtils.escapeJava(
+                Paths.get("src", "test", "resources", "certsAndKeys", "ballerinaKeystore.p12").toAbsolutePath()
+                        .toString());
         String trustStore = StringEscapeUtils.escapeJava(
                 Paths.get("src", "test", "resources", "certsAndKeys", "ballerinaTruststore.p12").toAbsolutePath()
                         .toString());
-        String[] publisherArgs = { "--b7a.config.file=" + confPath, "--truststore=" + trustStore };
+        String[] publisherArgs = { "--b7a.config.file=" + confPath, "--keystore=" + keyStore,
+                "--truststore=" + trustStore };
         publisherServerInstance.startServer(balFile, "advanced_services", null, publisherArgs, new int[]{23080});
     }
 
