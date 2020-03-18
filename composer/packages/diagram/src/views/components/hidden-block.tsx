@@ -21,8 +21,6 @@ export const HiddenBlock: React.StatelessComponent<{
         const blockProps = {
             className: "hidden-block",
             height: 10,
-            rx: (config.lifeLine.radius.rx / 2),
-            ry: (config.lifeLine.radius.ry / 2),
             width: boxWidth,
             x: viewState.bBox.x - (boxWidth / 2),
             y: viewState.bBox.y + (viewState.bBox.h / 2),
@@ -43,8 +41,6 @@ export const HiddenBlock: React.StatelessComponent<{
                     if (viewState.hiddenBlockContext && viewState.hiddenBlockContext.expanded) {
                         return (<g className="expanded-hidden-block">
                             <rect className="frame"
-                                rx= {config.lifeLine.radius.rx / 2}
-                                ry= {config.lifeLine.radius.ry / 2}
                                 x={bBox.x - viewState.bBox.leftMargin}
                                 y={bBox.y + config.statement.expanded.topMargin}
                                 width={bBox.w + viewState.bBox.leftMargin - config.statement.expanded.rightMargin}

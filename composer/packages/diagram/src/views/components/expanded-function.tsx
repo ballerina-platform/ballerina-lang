@@ -101,8 +101,8 @@ export const ExpandedFunction: React.SFC<ExpandedFunctionProps> = ({ model, docU
                         <g className="start-invocation">
                             <line x1={bBox.x}
                                 x2={expandedFnBbox.x}
-                                y1={expandedFnBbox.y + 10}
-                                y2={expandedFnBbox.y + 40} />
+                                y1={expandedFnBbox.y}
+                                y2={expandedFnBbox.y} />
                             <ArrowHead direction="right" x={expandedFnBbox.x} y={expandedFnBbox.y} />
                         </g>
                         { /* Override the docUri context value and always disable editing */ }
@@ -119,8 +119,7 @@ export const ExpandedFunction: React.SFC<ExpandedFunctionProps> = ({ model, docU
                                     client={client} />;
                             })}
                             <LifeLine model={model.viewState.defaultWorker.lifeline.bBox}
-                                title="Default" icon={"worker"}>
-                                </LifeLine>
+                                title="Default" icon={"worker"}></LifeLine>
                             <Block model={model.body} />
                             {model.body.VisibleEndpoints && model.body.VisibleEndpoints
                                 .filter((element) => element.viewState.visible)
