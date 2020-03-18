@@ -688,8 +688,8 @@ public class BallerinaVisitor extends PsiElementVisitor {
     visitPsiElement(o);
   }
 
-  public void visitQueryActionStatement(@NotNull BallerinaQueryActionStatement o) {
-    visitPsiElement(o);
+  public void visitQueryActionExpression(@NotNull BallerinaQueryActionExpression o) {
+    visitExpression(o);
   }
 
   public void visitQueryExpr(@NotNull BallerinaQueryExpr o) {
@@ -1161,6 +1161,18 @@ public class BallerinaVisitor extends PsiElementVisitor {
   }
 
   public void visitBacktickedBlock(@NotNull BallerinaBacktickedBlock o) {
+    visitPsiElement(o);
+  }
+
+  public void visitDeprecateAnnotationDescriptionLin(@NotNull BallerinaDeprecateAnnotationDescriptionLin o) {
+    visitPsiElement(o);
+  }
+
+  public void visitDeprecatedAnnotationDocumentation(@NotNull BallerinaDeprecatedAnnotationDocumentation o) {
+    visitPsiElement(o);
+  }
+
+  public void visitDeprecatedAnnotationDocumentationLine(@NotNull BallerinaDeprecatedAnnotationDocumentationLine o) {
     visitPsiElement(o);
   }
 

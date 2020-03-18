@@ -27,14 +27,14 @@ import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
 import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import io.ballerina.plugins.idea.psi.*;
 
-public class BallerinaDoClauseImpl extends ASTWrapperPsiElement implements BallerinaDoClause {
+public class BallerinaDeprecatedAnnotationDocumentationLineImpl extends ASTWrapperPsiElement implements BallerinaDeprecatedAnnotationDocumentationLine {
 
-  public BallerinaDoClauseImpl(@NotNull ASTNode node) {
+  public BallerinaDeprecatedAnnotationDocumentationLineImpl(@NotNull ASTNode node) {
     super(node);
   }
 
   public void accept(@NotNull BallerinaVisitor visitor) {
-    visitor.visitDoClause(this);
+    visitor.visitDeprecatedAnnotationDocumentationLine(this);
   }
 
   public void accept(@NotNull PsiElementVisitor visitor) {
@@ -44,26 +44,8 @@ public class BallerinaDoClauseImpl extends ASTWrapperPsiElement implements Balle
 
   @Override
   @NotNull
-  public List<BallerinaStatement> getStatementList() {
-    return PsiTreeUtil.getChildrenOfTypeAsList(this, BallerinaStatement.class);
-  }
-
-  @Override
-  @Nullable
-  public PsiElement getLeftBrace() {
-    return findChildByType(LEFT_BRACE);
-  }
-
-  @Override
-  @Nullable
-  public PsiElement getRightBrace() {
-    return findChildByType(RIGHT_BRACE);
-  }
-
-  @Override
-  @NotNull
-  public PsiElement getDo() {
-    return findNotNullChildByType(DO);
+  public BallerinaDeprecatedAnnotationDocumentation getDeprecatedAnnotationDocumentation() {
+    return findNotNullChildByClass(BallerinaDeprecatedAnnotationDocumentation.class);
   }
 
 }
