@@ -28,7 +28,7 @@ public function main() {
     do {
         FullName fullName = {firstName: student.firstName, lastName: student.lastName};
         nameList.push(fullName);
-    }
+    };
 
     foreach var name in nameList {
         io:println(name);
