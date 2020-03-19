@@ -17,6 +17,11 @@ public type {{shortClassName}} object {
     {{/each}}
     public function __init(handle obj) {
         self.jObj = obj;
+    }
+
+    public function toString() returns string {
+
+        return jObjToString(self.jObj);
     }{{#methodList}}{{#isInstance}}
 
     public function {{#reservedWord}}{{#controlChars methodName ""}}{{/controlChars}}{{/reservedWord}}{{#noReservedWord}}{{methodName}}{{/noReservedWord}}({{#parameters}}{{#if isPrimitiveArray}}{{#getType type ""}}{{/getType}}{{else}}{{shortTypeName}}{{/if}} {{fieldName}}{{#notLast}}, {{/notLast}}{{/parameters}}) {{#hasReturn}}returns {{returnType}}{{#if isStringReturn}}?{{/if}}{{#if exceptionTypes}}|error{{/if}} {{/hasReturn}}{{#noReturn}}{{#if exceptionTypes}}returns error? {{else if hasPrimitiveParam}}returns error? {{/if}}{{/noReturn}}{

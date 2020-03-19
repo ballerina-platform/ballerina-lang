@@ -103,7 +103,7 @@ public class JClass {
         Method[] declaredMethods = classObject.getDeclaredMethods();
         List<Method> classMethods = new ArrayList<>();
         for (Method m : declaredMethods) {
-            if (!m.isSynthetic()) {
+            if (!m.isSynthetic() && (!m.getName().equals("toString"))) {
                 classMethods.add(m);
             }
         }
