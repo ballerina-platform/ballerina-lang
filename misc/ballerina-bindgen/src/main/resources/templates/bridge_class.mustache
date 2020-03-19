@@ -34,7 +34,7 @@ public type {{shortClassName}} object {
     }{{/isInstance}}{{/methodList}}
 };
 {{#initFunctionList}}
-public function {{shortClassName}}{{constructorName}}({{#parameters}}{{shortTypeName}} {{fieldName}}{{#notLast}}, {{/notLast}}{{/parameters}}) returns {{shortClassName}}{{#exceptionTypes}}|error{{/exceptionTypes}} {
+public function new{{shortClassName}}{{constructorName}}({{#parameters}}{{shortTypeName}} {{fieldName}}{{#notLast}}, {{/notLast}}{{/parameters}}) returns {{shortClassName}}{{#exceptionTypes}}|error{{/exceptionTypes}} {
     handle{{#exceptionTypes}}|error{{/exceptionTypes}} obj = {{prefix}}_{{externalFunctionName}}({{#parameters}}{{#if isPrimitiveArray}}check getHandleFromArray({{fieldName}}, "{{componentType}}"){{#notLast}}, {{/notLast}}{{else if isString}}java:fromString({{fieldName}}){{#notLast}}, {{/notLast}}{{else}}{{fieldName}}{{#isObj}}.jObj{{/isObj}}{{#notLast}}, {{/notLast}}{{/if}}{{/parameters}});
     {{#exceptionTypes}}if (obj is handle) {
         {{/exceptionTypes}}{{shortClassName}} {{initObjectName}} = new(obj);
