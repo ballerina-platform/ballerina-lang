@@ -1,3 +1,5 @@
+import org.gradle.internal.os.OperatingSystem;
+
 plugins {
     id 'base'
     id 'com.gradle.build-scan' version '2.1'
@@ -69,3 +71,20 @@ dependencies {
         //implementation 'org.springframework:spring-web:5.0.2.RELEASE'
     }
 }
+
+task init_Submodules {
+	doLast{
+		if (OperatingSystem.current().isLinux()){
+			print("Hi, I worked!!")
+			def c1 = ['sh', '-c', 'git submodule init'].execute()
+			c1.waitFor()
+			println(c1.text.trim())
+			def c2=['sh', '-c', 'git submodule update'].execute()
+			c2.waitFor()
+			println(c2.text.trim())}
+		else{
+			println("Please manually initialize and update git submodules using \"git submodules init;git submodules update\"")}
+	}
+}
+
+build.dependsOn init_Submodules
