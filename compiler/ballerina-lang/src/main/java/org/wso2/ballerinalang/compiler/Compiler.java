@@ -173,7 +173,7 @@ public class Compiler {
         List<BLangPackage> compiledPackages = compilePackages(Lists.of(packageID));
         // TODO: this should check for dlog.errorCount > 0. But currently some errors are
         // not getting added to dlog, hence cannot check for error count. Issue #10454.
-        if (compiledPackages.isEmpty()) {
+        if (compiledPackages.isEmpty() || this.dlog.getErrorCount() > 0) {
             throw new BLangCompilerException("compilation contains errors");
         }
         return compiledPackages.get(0);
