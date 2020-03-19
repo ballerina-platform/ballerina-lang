@@ -18,6 +18,7 @@ package org.ballerinalang.jvm.values;
 
 import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.BallerinaXMLSerializer;
+import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.XMLNodeType;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BTypes;
@@ -452,7 +453,7 @@ public final class XMLSequence extends XMLValue {
 
     @Override
     public BString bStringValue() {
-        return null;
+        return StringUtils.fromString(stringValue());
     }
 
 
@@ -579,11 +580,6 @@ public final class XMLSequence extends XMLValue {
     @Override
     public IteratorValue getIterator() {
         return new IteratorValue() {
-            @Override
-            public BString bStringValue() {
-                return null;
-            }
-
             Iterator<BXML> iterator = children.iterator();
 
             @Override

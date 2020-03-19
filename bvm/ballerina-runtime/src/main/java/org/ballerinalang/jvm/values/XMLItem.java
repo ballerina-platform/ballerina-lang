@@ -690,11 +690,6 @@ public final class XMLItem extends XMLValue {
     public IteratorValue getIterator() {
         XMLItem that = this;
         return new IteratorValue() {
-            @Override
-            public BString bStringValue() {
-                return that.bStringValue();
-            }
-
             boolean read = false;
 
             @Override
@@ -735,9 +730,7 @@ public final class XMLItem extends XMLValue {
         }
         if (obj instanceof XMLSequence) {
             XMLSequence other = (XMLSequence) obj;
-            if (other.children.size() == 1 && this.equals(other.children.get(0))) {
-                return true;
-            }
+            return other.children.size() == 1 && this.equals(other.children.get(0));
         }
         return false;
     }

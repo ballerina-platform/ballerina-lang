@@ -142,10 +142,5 @@ public class StackTrace {
         public boolean isFrozen() {
             return true;
         }
-
-        @Override
-        public BString bStringValue() {
-            return null;
-        }
     }
 }
