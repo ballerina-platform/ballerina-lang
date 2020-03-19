@@ -33,7 +33,6 @@ import org.apache.kafka.common.config.SslConfigs;
 import org.ballerinalang.jvm.BRuntime;
 import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.BallerinaValues;
-import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.util.exceptions.BLangRuntimeException;
@@ -544,7 +543,9 @@ public class KafkaUtils {
             }
         } else if (KafkaConstants.SERDES_STRING.equals(type)) {
             if (value instanceof String) {
-                return StringUtils.fromString((String) value);
+                // TODO: Workaround until #20644 is fixed
+                return value;
+                // return StringUtils.fromString((String) value);
             } else {
                 throw new BLangRuntimeException("Invalid type - expected: string");
             }

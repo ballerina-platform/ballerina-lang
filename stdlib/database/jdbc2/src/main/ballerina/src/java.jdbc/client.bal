@@ -15,7 +15,7 @@
 // under the License.
 
 import ballerina/sql;
-import ballerinax/java;
+import ballerina/java;
 
 # Represents a JDBC client.
 #

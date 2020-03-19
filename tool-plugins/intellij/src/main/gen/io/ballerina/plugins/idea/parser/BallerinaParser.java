@@ -68,11 +68,11 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
       BINARY_OR_EXPRESSION, BINARY_REF_EQUAL_EXPRESSION, BITWISE_EXPRESSION, BITWISE_SHIFT_EXPRESSION,
       CHECKED_EXPRESSION, CHECK_PANIC_EXPRESSION, ELVIS_EXPRESSION, EXPRESSION,
       FLUSH_WORKER_EXPRESSION, GROUP_EXPRESSION, INTEGER_RANGE_EXPRESSION, LET_EXPRESSION,
-      LIST_CONSTRUCTOR_EXPRESSION, QUERY_EXPRESSION, RECORD_LITERAL_EXPRESSION, SERVICE_CONSTRUCTOR_EXPRESSION,
-      SIMPLE_LITERAL_EXPRESSION, STRING_TEMPLATE_LITERAL_EXPRESSION, TABLE_LITERAL_EXPRESSION, TERNARY_EXPRESSION,
-      TRAP_EXPRESSION, TYPE_CONVERSION_EXPRESSION, TYPE_DESC_EXPRESSION, TYPE_INIT_EXPRESSION,
-      TYPE_TEST_EXPRESSION, UNARY_EXPRESSION, VARIABLE_REFERENCE_EXPRESSION, WAIT_EXPRESSION,
-      WORKER_RECEIVE_EXPRESSION, WORKER_SEND_SYNC_EXPRESSION, XML_LITERAL_EXPRESSION),
+      LIST_CONSTRUCTOR_EXPRESSION, QUERY_ACTION_EXPRESSION, QUERY_EXPRESSION, RECORD_LITERAL_EXPRESSION,
+      SERVICE_CONSTRUCTOR_EXPRESSION, SIMPLE_LITERAL_EXPRESSION, STRING_TEMPLATE_LITERAL_EXPRESSION, TABLE_LITERAL_EXPRESSION,
+      TERNARY_EXPRESSION, TRAP_EXPRESSION, TYPE_CONVERSION_EXPRESSION, TYPE_DESC_EXPRESSION,
+      TYPE_INIT_EXPRESSION, TYPE_TEST_EXPRESSION, UNARY_EXPRESSION, VARIABLE_REFERENCE_EXPRESSION,
+      WAIT_EXPRESSION, WORKER_RECEIVE_EXPRESSION, WORKER_SEND_SYNC_EXPRESSION, XML_LITERAL_EXPRESSION),
   };
 
   /* ********************************************************** */
@@ -1027,7 +1027,7 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // DO LEFT_BRACE Statement* RIGHT_BRACE
+  // do LEFT_BRACE Statement* RIGHT_BRACE
   public static boolean DoClause(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "DoClause")) return false;
     if (!nextTokenIs(b, DO)) return false;
@@ -2725,7 +2725,7 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // FROM (TypeName | var) BindingPattern IN Expression
+  // from (TypeName | var) BindingPattern IN Expression
   public static boolean FromClause(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "FromClause")) return false;
     if (!nextTokenIs(b, FROM)) return false;
@@ -4254,19 +4254,6 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // QueryPipeline DoClause
-  public static boolean QueryActionStatement(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "QueryActionStatement")) return false;
-    if (!nextTokenIs(b, FROM)) return false;
-    boolean r;
-    Marker m = enter_section_(b);
-    r = QueryPipeline(b, l + 1);
-    r = r && DoClause(b, l + 1);
-    exit_section_(b, m, QUERY_ACTION_STATEMENT, r);
-    return r;
-  }
-
-  /* ********************************************************** */
   // QueryPipeline SelectClause
   public static boolean QueryExpr(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "QueryExpr")) return false;
@@ -4700,7 +4687,7 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // SELECT Expression
+  // select Expression
   public static boolean SelectClause(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "SelectClause")) return false;
     if (!nextTokenIs(b, SELECT)) return false;
@@ -4970,7 +4957,6 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
   //     |   CompoundAssignmentStatement
   //     |   ExpressionStmt
   //     |   ErrorDestructuringStatement
-  //     |   QueryActionStatement
   public static boolean Statement(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "Statement")) return false;
     boolean r;
@@ -4999,7 +4985,6 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
     if (!r) r = CompoundAssignmentStatement(b, l + 1);
     if (!r) r = ExpressionStmt(b, l + 1);
     if (!r) r = ErrorDestructuringStatement(b, l + 1);
-    if (!r) r = QueryActionStatement(b, l + 1);
     exit_section_(b, l, m, r, false, StatementRecover_parser_);
     return r;
   }
@@ -5936,7 +5921,7 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // WHERE Expression
+  // where Expression
   public static boolean WhereClause(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "WhereClause")) return false;
     if (!nextTokenIs(b, WHERE)) return false;
@@ -6346,6 +6331,62 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
+  // MARKDOWN_DOCUMENTATION_LINE_START documentationText?
+  public static boolean deprecateAnnotationDescriptionLin(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "deprecateAnnotationDescriptionLin")) return false;
+    if (!nextTokenIs(b, MARKDOWN_DOCUMENTATION_LINE_START)) return false;
+    boolean r;
+    Marker m = enter_section_(b);
+    r = consumeToken(b, MARKDOWN_DOCUMENTATION_LINE_START);
+    r = r && deprecateAnnotationDescriptionLin_1(b, l + 1);
+    exit_section_(b, m, DEPRECATE_ANNOTATION_DESCRIPTION_LIN, r);
+    return r;
+  }
+
+  // documentationText?
+  private static boolean deprecateAnnotationDescriptionLin_1(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "deprecateAnnotationDescriptionLin_1")) return false;
+    documentationText(b, l + 1);
+    return true;
+  }
+
+  /* ********************************************************** */
+  // DEPRECATED_DOCUMENTATION
+  public static boolean deprecatedAnnotationDocumentation(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "deprecatedAnnotationDocumentation")) return false;
+    if (!nextTokenIs(b, DEPRECATED_DOCUMENTATION)) return false;
+    boolean r;
+    Marker m = enter_section_(b);
+    r = consumeToken(b, DEPRECATED_DOCUMENTATION);
+    exit_section_(b, m, DEPRECATED_ANNOTATION_DOCUMENTATION, r);
+    return r;
+  }
+
+  /* ********************************************************** */
+  // deprecatedAnnotationDocumentation deprecateAnnotationDescriptionLine*
+  public static boolean deprecatedAnnotationDocumentationLine(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "deprecatedAnnotationDocumentationLine")) return false;
+    if (!nextTokenIs(b, DEPRECATED_DOCUMENTATION)) return false;
+    boolean r;
+    Marker m = enter_section_(b);
+    r = deprecatedAnnotationDocumentation(b, l + 1);
+    r = r && deprecatedAnnotationDocumentationLine_1(b, l + 1);
+    exit_section_(b, m, DEPRECATED_ANNOTATION_DOCUMENTATION_LINE, r);
+    return r;
+  }
+
+  // deprecateAnnotationDescriptionLine*
+  private static boolean deprecatedAnnotationDocumentationLine_1(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "deprecatedAnnotationDocumentationLine_1")) return false;
+    while (true) {
+      int c = current_position_(b);
+      if (!consumeToken(b, DEPRECATEANNOTATIONDESCRIPTIONLINE)) break;
+      if (!empty_element_parsed_guard_(b, "deprecatedAnnotationDocumentationLine_1", c)) break;
+    }
+    return true;
+  }
+
+  /* ********************************************************** */
   // documentationText?
   public static boolean docParameterDescription(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "docParameterDescription")) return false;
@@ -6393,7 +6434,7 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // documentationLine+ parameterDocumentationLine* returnParameterDocumentationLine?
+  // documentationLine+ parameterDocumentationLine* returnParameterDocumentationLine? deprecatedAnnotationDocumentationLine?
   public static boolean documentationString(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "documentationString")) return false;
     if (!nextTokenIs(b, MARKDOWN_DOCUMENTATION_LINE_START)) return false;
@@ -6402,6 +6443,7 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
     r = documentationString_0(b, l + 1);
     r = r && documentationString_1(b, l + 1);
     r = r && documentationString_2(b, l + 1);
+    r = r && documentationString_3(b, l + 1);
     exit_section_(b, m, DOCUMENTATION_STRING, r);
     return r;
   }
@@ -6436,6 +6478,13 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
   private static boolean documentationString_2(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "documentationString_2")) return false;
     returnParameterDocumentationLine(b, l + 1);
+    return true;
+  }
+
+  // deprecatedAnnotationDocumentationLine?
+  private static boolean documentationString_3(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "documentationString_3")) return false;
+    deprecatedAnnotationDocumentationLine(b, l + 1);
     return true;
   }
 
@@ -7086,7 +7135,8 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
   // 34: ATOM(TypeDescExpression)
   // 35: POSTFIX(AnnotationActionExpression)
   // 36: ATOM(QueryExpression)
-  // 37: ATOM(LetExpression)
+  // 37: ATOM(QueryActionExpression)
+  // 38: ATOM(LetExpression)
   public static boolean Expression(PsiBuilder b, int l, int g) {
     if (!recursion_guard_(b, l, "Expression")) return false;
     addVariant(b, "<expression>");
@@ -7114,6 +7164,7 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
     if (!r) r = TrapExpression(b, l + 1);
     if (!r) r = TypeDescExpression(b, l + 1);
     if (!r) r = QueryExpression(b, l + 1);
+    if (!r) r = QueryActionExpression(b, l + 1);
     if (!r) r = LetExpression(b, l + 1);
     p = r;
     r = r && Expression_0(b, l + 1, g);
@@ -7701,6 +7752,18 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
     Marker m = enter_section_(b);
     r = QueryExpr(b, l + 1);
     exit_section_(b, m, QUERY_EXPRESSION, r);
+    return r;
+  }
+
+  // QueryPipeline DoClause
+  public static boolean QueryActionExpression(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "QueryActionExpression")) return false;
+    if (!nextTokenIsSmart(b, FROM)) return false;
+    boolean r;
+    Marker m = enter_section_(b);
+    r = QueryPipeline(b, l + 1);
+    r = r && DoClause(b, l + 1);
+    exit_section_(b, m, QUERY_ACTION_EXPRESSION, r);
     return r;
   }
 

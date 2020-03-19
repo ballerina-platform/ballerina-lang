@@ -1,9 +1,9 @@
 import ballerina/io;
-import ballerina/lang.'int as ints;
+import ballerina/lang.'int;
 
 // The `parse()` function takes a `string` argument and attempts to convert it to an `int`.
 function parse(string num) returns int|error {
-    return ints:fromString(num);
+    return 'int:fromString(num);
 }
 
 function scale(string num) returns int|error {

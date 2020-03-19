@@ -79,11 +79,9 @@ public class XMLAttributeAccessTest {
     @Test
     public void testXMLAttributeWithNSPrefix() {
         BValue[] result = BRunUtil.invoke(lexCompileRes, "testXMLAttributeWithNSPrefix");
-        Assert.assertEquals(result[0].stringValue(), "xml-val");
-        Assert.assertEquals(result[1].stringValue(), "xml-val");
+        Assert.assertEquals(result[0].stringValue(), "preserve");
+        Assert.assertEquals(result[1].stringValue(), "preserve");
         Assert.assertEquals(result[2].stringValue(), "{lang.map}InvalidKey {key:\"b\"}");
-        Assert.assertTrue(((BBoolean) result[3]).booleanValue());
-        Assert.assertTrue(((BBoolean) result[4]).booleanValue());
     }
 
     @Test

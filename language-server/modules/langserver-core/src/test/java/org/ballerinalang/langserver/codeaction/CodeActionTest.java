@@ -244,7 +244,7 @@ public class CodeActionTest {
                 {"markUntaintedCodeAction2.json", "taintedVariable.bal"},
                 {"variableAssignmentRequiredCodeAction1.json", "createVariable.bal"},
                 {"variableAssignmentRequiredCodeAction2.json", "createVariable.bal"},
-                {"variableAssignmentRequiredCodeAction3.json", "createVariable.bal"},
+//                {"variableAssignmentRequiredCodeAction3.json", "createVariable.bal"},
                 {"variableAssignmentRequiredCodeAction4.json", "createVariable.bal"},
                 {"variableAssignmentRequiredCodeAction5.json", "createVariable2.bal"},
                 {"variableAssignmentRequiredCodeAction6.json", "createVariable2.bal"},

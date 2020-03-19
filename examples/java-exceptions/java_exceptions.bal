@@ -1,5 +1,5 @@
 import ballerina/io;
-import ballerinax/java;
+import ballerina/java;
 
 // Let's create a Ballerina function to load Java classes by linking with the `forName` method of
 // the `java.lang.Class`. It throws a checked exception `java.lang.ClassNotFoundException`.
@@ -27,7 +27,7 @@ public function main() {
         io:println(classOrError);
     }
 
-    // Here we are sending a null element to `offer` function. The `createNull` function in `ballerinax/java`
+    // Here we are sending a null element to `offer` function. The `createNull` function in `ballerina/java`
     // module creates a handle value that refers to Java null.
     var arrayDeque = newArrayDeque();
     boolean|error e = trap offer(arrayDeque, java:createNull());

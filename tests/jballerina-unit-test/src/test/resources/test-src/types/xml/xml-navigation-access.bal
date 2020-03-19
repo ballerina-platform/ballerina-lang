@@ -25,7 +25,8 @@ function testXMLNavigationOnSingleElementWithNamespaces() returns [xml, xml, xml
 }
 
 
-function testXMLNavigationOnSingleElementReferToDefaultNS() returns [xml, xml, xml, xml, xml] {
+function testXMLNavigationOnSingleElementReferToDefaultNS()
+        returns [xml, xml, xml, xml, xml, xml, int, xml] {
     xmlns "foo";
     xmlns "bar" as k;
     xml x1 = xml `<root><child></child></root>`;
@@ -34,8 +35,11 @@ function testXMLNavigationOnSingleElementReferToDefaultNS() returns [xml, xml, x
     xml x4 = x1/<*>;
     xml x5 = x1/**/<child>;
     xml x6 = x1/<child>[0];
+    xml x7 = (x1/*)[0];
+    xml x8 = (x1/*)[1];
+    xml x9 = (x1/**/<child>)[0];
 
-    return [x2, x3, x4, x5, x6];
+    return [x2, x3, x4, x5, x6, x7, x8.length(), x9];
 }
 
 

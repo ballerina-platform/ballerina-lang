@@ -37,6 +37,7 @@ under the License.
             <class name="org.ballerinalang.testerina.test.negative.InvalidDataProviderTestCase" />
             <class name="org.ballerinalang.testerina.test.DisableTestsTestCase" />
             <class name="org.ballerinalang.testerina.test.MockTest" />
+            <class name="org.ballerinalang.testerina.test.ServicesTest" />
         </classes>
     </test>
 </suite>

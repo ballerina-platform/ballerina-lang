@@ -16,7 +16,7 @@
 
 import ballerina/crypto;
 import ballerina/sql;
-import ballerinax/java;
+import ballerina/java;
 
 # Represents a MySQL database client.
 public type Client client object {

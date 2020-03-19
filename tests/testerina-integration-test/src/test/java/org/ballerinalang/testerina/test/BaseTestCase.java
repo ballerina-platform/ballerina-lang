@@ -35,14 +35,16 @@ import java.nio.file.Paths;
 public class BaseTestCase {
 
     public static BalServer balServer;
+    Path tempProjectDirectory;
     protected static Path singleFilesProjectPath;
     static Path multiModulesProjectPath;
     static Path mockProjectPath;
+    static Path serviceProjectBuildPath;
 
     @BeforeSuite(alwaysRun = true)
     public void initialize() throws BallerinaTestException, IOException {
         balServer = new BalServer();
-        Path tempProjectDirectory = Files.createTempDirectory("bal-test-integration-testerina-project-");
+        tempProjectDirectory = Files.createTempDirectory("bal-test-integration-testerina-project-");
 
         // copy TestProjects to a temp
         Path originalSingleFilesProj = Paths.get("src", "test", "resources", "single-file-tests")
@@ -58,6 +60,10 @@ public class BaseTestCase {
         Path originalMockProj = Paths.get("src", "test", "resources", "mock-tests").toAbsolutePath();
         mockProjectPath = tempProjectDirectory.resolve("mock-tests");
         FileUtils.copyFolder(originalMockProj, mockProjectPath);
+
+        Path serviceProjectPath = Paths.get("src", "test", "resources", "services-tests").toAbsolutePath();
+        serviceProjectBuildPath = tempProjectDirectory.resolve("services-tests");
+        FileUtils.copyFolder(serviceProjectPath, serviceProjectBuildPath);
     }
 
     @AfterSuite(alwaysRun = true)

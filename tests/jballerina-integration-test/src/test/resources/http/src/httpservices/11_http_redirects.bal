@@ -25,7 +25,7 @@ listener http:Listener serviceEndpoint3 = new(9103);
 http:ListenerConfiguration httpsEPConfig = {
     secureSocket: {
         keyStore: {
-            path: "${ballerina.home}/bre/security/ballerinaKeystore.p12",
+            path: config:getAsString("keystore"),
             password: "ballerina"
         }
     }

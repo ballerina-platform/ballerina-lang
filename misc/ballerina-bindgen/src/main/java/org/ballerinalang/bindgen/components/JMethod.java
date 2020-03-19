@@ -98,6 +98,7 @@ public class JMethod {
             this.parameters.add(parameter);
             if (parameter.isPrimitiveArray) {
                 this.hasPrimitiveParam = true;
+                this.exceptionTypes = true;
             }
             if (parameter.isObjArrayParam()) {
                 this.exceptionTypes = true;

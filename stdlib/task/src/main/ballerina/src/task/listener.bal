@@ -15,7 +15,7 @@
 // under the License.
 
 import ballerina/lang.'object;
-import ballerinax/java;
+import ballerina/java;
 
 # Represents a ballerina task listener, which can be used to schedule and execute tasks periodically.
 public type Listener object {

@@ -217,6 +217,16 @@ public class LangLibXMLTest {
     }
 
     @Test
+    public void testGet() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testGet");
+        assertEquals(returns[0].stringValue(), "<elem/>");
+        assertEquals(returns[1].stringValue(), "xml sequence index out of range. Length: '1' requested: '3' {}");
+        assertEquals(returns[2].stringValue(), "<!--Comment content-->");
+        assertEquals(returns[3].stringValue(), "<?PITarget VAL-0?>");
+        assertEquals(returns[4].stringValue(), "xml sequence index out of range. Length: '3' requested: '-1' {}");
+    }
+
+    @Test
     public void testNegativeCases() {
         int i = 0;
         validateError(negativeResult, i++, "incompatible types: expected 'xml:Element', found 'xml'", 21, 12);
