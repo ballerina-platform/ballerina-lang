@@ -33,6 +33,7 @@ import org.apache.kafka.common.config.SslConfigs;
 import org.ballerinalang.jvm.BRuntime;
 import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.BallerinaValues;
+import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.util.exceptions.BLangRuntimeException;
@@ -40,6 +41,7 @@ import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.api.BArray;
+import org.ballerinalang.jvm.values.api.BError;
 import org.ballerinalang.jvm.values.api.BValueCreator;
 import org.ballerinalang.messaging.kafka.observability.KafkaMetricsUtil;
 import org.ballerinalang.messaging.kafka.observability.KafkaObservabilityConstants;
@@ -600,20 +602,25 @@ public class KafkaUtils {
         return createKafkaRecord(KafkaConstants.TOPIC_PARTITION_STRUCT_NAME);
     }
 
-    public static ErrorValue createKafkaError(String message) {
+    public static BError createKafkaError(String message) {
         return createKafkaError(message, KafkaConstants.CONSUMER_ERROR);
     }
 
-    public static ErrorValue createKafkaError(String message, String reason) {
+    public static BError createKafkaError(String message, String reason) {
         MapValue<String, Object> detail = createKafkaDetailRecord(message);
-        return BallerinaErrors.createError(reason, detail);
+        return BValueCreator.createErrorValue(StringUtils.fromString(reason), detail);
+    }
+
+    public static BError createKafkaError(String message, String reason, BError cause) {
+        MapValue<String, Object> detail = createKafkaDetailRecord(message, cause);
+        return BValueCreator.createErrorValue(StringUtils.fromString(reason), detail);
     }
 
     private static MapValue<String, Object> createKafkaDetailRecord(String message) {
         return createKafkaDetailRecord(message, null);
     }
 
-    private static MapValue<String, Object> createKafkaDetailRecord(String message, ErrorValue cause) {
+    private static MapValue<String, Object> createKafkaDetailRecord(String message, BError cause) {
         MapValue<String, Object> detail = createKafkaRecord(KafkaConstants.DETAIL_RECORD_NAME);
         return BallerinaValues.createRecord(detail, message, cause);
     }
