@@ -1,21 +1,21 @@
 {
-    "line": 5,
-    "character": 14,
+    "line": 4,
+    "character": 4,
     "expected": {
-        "title": "Change Return Type to '[int,string]'",
+        "title": "Create Local Variable",
         "edits": [
             {
                 "range": {
                     "start": {
                         "line": 4,
-                        "character": 47
+                        "character": 4
                     },
                     "end": {
                         "line": 4,
-                        "character": 49
+                        "character": 4
                     }
                 },
-                "newText": "[int,string]"
+                "newText": "xml xmlResult = "
             }
         ]
     }
