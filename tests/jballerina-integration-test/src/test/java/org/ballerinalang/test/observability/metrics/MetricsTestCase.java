@@ -145,9 +145,9 @@ public class MetricsTestCase extends BaseTest {
                 "source_invocation_fqn=\"_anon:.:0.0.0:metrics_test.bal:43:24\"," +
                 "peer_address=\"jdbc:h2:file:../../tempdb/TEST_DB\",db_statement=\"SELECT * FROM Products\"," +
                 "resource=\"getProduct\",service=\"metricsTest\",action=\"select\",source_remote=\"true\"," +
-                "connector_name=\"ballerinax/java_jdbc/Client\",} 45286966.0", regexNumber);
+                "connector_name=\"ballerinax/java_jdbc/Client\",}", regexNumber);
         expectedMetrics.put("response_time_nanoseconds_total_value{action=\"getQuery\"," +
                 "source_invocation_fqn=\"_anon:.:0.0.0:metrics_test.bal:43:39\",connector_name=\"\"," +
-                "resource=\"getProduct\",service=\"metricsTest\",} 1743459.0", regexNumber);
+                "resource=\"getProduct\",service=\"metricsTest\",}", regexNumber);
     }
 }
