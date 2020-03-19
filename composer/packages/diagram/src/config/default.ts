@@ -21,6 +21,7 @@ export class DiagramConfig {
             footer: 10,
             header: 40,
             labelGutter: 2,
+            leftMargin: 10,
             margin: 20,
             offset: 60,
             rightMargin: 30,
