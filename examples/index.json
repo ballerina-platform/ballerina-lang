@@ -150,16 +150,6 @@
         ]
     },
     {
-        "title": "Streams",
-        "column": 0,
-        "category": "Language concepts",
-        "samples": [{
-            "name": "Streams",
-            "url": "streams"
-        }
-        ]
-    },
-    {
         "title": "Query",
         "column": 0,
         "category": "Language concepts",
@@ -340,6 +330,16 @@
                 "name": "Type Conversion",
                 "url": "type-conversion"
             }
+        ]
+    },
+     {
+        "title": "Streams",
+        "column": 1,
+        "category": "Language concepts",
+        "samples": [{
+            "name": "Streams",
+            "url": "streams"
+        }
         ]
     },
     {
