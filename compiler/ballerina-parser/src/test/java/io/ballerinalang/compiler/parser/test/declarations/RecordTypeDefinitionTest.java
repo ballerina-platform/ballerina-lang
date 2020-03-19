@@ -102,4 +102,9 @@ public class RecordTypeDefinitionTest extends AbstractDeclarationTest {
     public void testNestedRecordTypeDefErrorRecovery() {
         test("record-type-def/record_type_def_source_12.bal", "record-type-def/record_type_def_assert_12.json");
     }
+
+    @Test
+    public void testNestedRecordTypeDefMissingCloseBrace() {
+        test("record-type-def/record_type_def_source_16.bal", "record-type-def/record_type_def_assert_16.json");
+    }
 }

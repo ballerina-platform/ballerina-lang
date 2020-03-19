@@ -1,0 +1,65 @@
+{
+    "kind": "TYPE_DEFINITION",
+    "children": [
+        {
+            "kind": "TYPE_KEYWORD"
+        },
+        {
+            "kind": "IDENTIFIER_TOKEN",
+            "value": "Foo"
+        },
+        {
+            "kind": "OBJECT_TYPE_DESCRIPTOR",
+            "children": [
+                {
+                    "kind": "OBJECT_KEYWORD"
+                },
+                {
+                    "kind": "OPEN_BRACE_TOKEN"
+                },
+                {
+                    "kind": "LIST",
+                    "children": [
+                        {
+                            "kind": "TYPE_REFERENCE",
+                            "children": [
+                                {
+                                    "kind": "ASTERISK_TOKEN"
+                                },
+                                {
+                                    "kind": "IDENTIFIER_TOKEN",
+                                    "isMissing": true
+                                },
+                                {
+                                    "kind": "SEMICOLON_TOKEN"
+                                }
+                            ]
+                        },
+                        {
+                            "kind": "OBJECT_FIELD",
+                            "children": [
+                                {
+                                    "kind": "SIMPLE_TYPE",
+                                    "value": "string"
+                                },
+                                {
+                                    "kind": "IDENTIFIER_TOKEN",
+                                    "value": "name"
+                                },
+                                {
+                                    "kind": "SEMICOLON_TOKEN"
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "kind": "CLOSE_BRACE_TOKEN"
+                }
+            ]
+        },
+        {
+            "kind": "SEMICOLON_TOKEN"
+        }
+    ]
+}

@@ -1,0 +1,58 @@
+{
+    "kind": "TYPE_DEFINITION",
+    "children": [
+        {
+            "kind": "TYPE_KEYWORD"
+        },
+        {
+            "kind": "IDENTIFIER_TOKEN",
+            "value": "Student"
+        },
+        {
+            "kind": "OBJECT_TYPE_DESCRIPTOR",
+            "children": [
+                {
+                    "kind": "OBJECT_KEYWORD"
+                },
+                {
+                    "kind": "OPEN_BRACE_TOKEN"
+                },
+                {
+                    "kind": "LIST",
+                    "children": [
+                        {
+                            "kind": "OBJECT_FIELD",
+                            "children": [
+                                {
+                                    "kind": "SIMPLE_TYPE",
+                                    "value": "int"
+                                },
+                                {
+                                    "kind": "IDENTIFIER_TOKEN",
+                                    "value": "b"
+                                },
+                                {
+                                    "kind": "EQUAL_TOKEN",
+                                    "isMissing": true
+                                },
+                                {
+                                    "kind": "NUMERIC_LITERAL_TOKEN",
+                                    "value": "7"
+                                },
+                                {
+                                    "kind": "SEMICOLON_TOKEN"
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "kind": "CLOSE_BRACE_TOKEN"
+                }
+            ]
+        },
+        {
+            "kind": "SEMICOLON_TOKEN"
+        }
+    ]
+}

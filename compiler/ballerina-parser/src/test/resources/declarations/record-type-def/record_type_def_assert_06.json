@@ -24,7 +24,7 @@
                             "kind": "RECORD_FIELD",
                             "children": [
                                 {
-                                    "kind": "TYPE_TOKEN",
+                                    "kind": "SIMPLE_TYPE",
                                     "value": "string"
                                 },
                                 {
@@ -41,7 +41,7 @@
                             "kind": "RECORD_FIELD",
                             "children": [
                                 {
-                                    "kind": "TYPE_TOKEN",
+                                    "kind": "SIMPLE_TYPE",
                                     "value": "int"
                                 },
                                 {
@@ -58,7 +58,7 @@
                             "kind": "RECORD_FIELD_WITH_DEFAULT_VALUE",
                             "children": [
                                 {
-                                    "kind": "TYPE_TOKEN",
+                                    "kind": "SIMPLE_TYPE",
                                     "value": "float"
                                 },
                                 {
@@ -94,7 +94,7 @@
                             "kind": "RECORD_REST_TYPE",
                             "children": [
                                 {
-                                    "kind": "TYPE_TOKEN",
+                                    "kind": "SIMPLE_TYPE",
                                     "value": "string"
                                 },
                                 {

@@ -1,0 +1,130 @@
+{
+    "kind": "TYPE_DEFINITION",
+    "children": [
+        {
+            "kind": "TYPE_KEYWORD"
+        },
+        {
+            "kind": "IDENTIFIER_TOKEN",
+            "value": "Foo"
+        },
+        {
+            "kind": "OBJECT_TYPE_DESCRIPTOR",
+            "children": [
+                {
+                    "kind": "OBJECT_KEYWORD"
+                },
+                {
+                    "kind": "OPEN_BRACE_TOKEN"
+                },
+                {
+                    "kind": "LIST",
+                    "children": [
+                        {
+                            "kind": "OBJECT_FIELD",
+                            "children": [
+                                {
+                                    "kind": "SIMPLE_TYPE",
+                                    "value": "int"
+                                },
+                                {
+                                    "kind": "IDENTIFIER_TOKEN",
+                                    "value": "age"
+                                },
+                                {
+                                    "kind": "EQUAL_TOKEN"
+                                },
+                                {
+                                    "kind": "BINARY_EXPRESSION",
+                                    "children": [
+                                        {
+                                            "kind": "NUMERIC_LITERAL_TOKEN",
+                                            "value": "10"
+                                        },
+                                        {
+                                            "kind": "ASTERISK_TOKEN"
+                                        },
+                                        {
+                                            "kind": "NUMERIC_LITERAL_TOKEN",
+                                            "value": "2"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "kind": "SEMICOLON_TOKEN"
+                                }
+                            ]
+                        },
+                        {
+                            "kind": "OBJECT_FIELD",
+                            "children": [
+                                {
+                                    "kind": "SIMPLE_TYPE",
+                                    "value": "string"
+                                },
+                                {
+                                    "kind": "IDENTIFIER_TOKEN",
+                                    "value": "name"
+                                },
+                                {
+                                    "kind": "SEMICOLON_TOKEN"
+                                }
+                            ]
+                        },
+                        {
+                            "kind": "OBJECT_FIELD",
+                            "children": [
+                                {
+                                    "kind": "PUBLIC_KEYWORD"
+                                },
+                                {
+                                    "kind": "SIMPLE_TYPE",
+                                    "value": "int"
+                                },
+                                {
+                                    "kind": "IDENTIFIER_TOKEN",
+                                    "value": "status"
+                                },
+                                {
+                                    "kind": "EQUAL_TOKEN"
+                                },
+                                {
+                                    "kind": "NUMERIC_LITERAL_TOKEN",
+                                    "value": "0"
+                                },
+                                {
+                                    "kind": "SEMICOLON_TOKEN"
+                                }
+                            ]
+                        },
+                        {
+                            "kind": "OBJECT_FIELD",
+                            "children": [
+                                {
+                                    "kind": "PRIVATE_KEYWORD"
+                                },
+                                {
+                                    "kind": "SIMPLE_TYPE",
+                                    "value": "float"
+                                },
+                                {
+                                    "kind": "IDENTIFIER_TOKEN",
+                                    "value": "score"
+                                },
+                                {
+                                    "kind": "SEMICOLON_TOKEN"
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "kind": "CLOSE_BRACE_TOKEN"
+                }
+            ]
+        },
+        {
+            "kind": "SEMICOLON_TOKEN"
+        }
+    ]
+}

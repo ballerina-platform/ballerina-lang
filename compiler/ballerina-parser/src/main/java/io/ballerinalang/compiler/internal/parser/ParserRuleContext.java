@@ -27,6 +27,7 @@ public enum ParserRuleContext {
 
     // productions
     COMP_UNIT("comp-unit"),
+    EOF("eof"),
     TOP_LEVEL_NODE_WITH_MODIFIER("top-level-node-with-modifier"),
     TOP_LEVEL_NODE("top-level-node"),
     FUNC_DEFINITION("func-definition"),
@@ -59,9 +60,17 @@ public enum ParserRuleContext {
     ARG_LIST("arguments"),
     ARG("argument"),
     NAMED_OR_POSITIONAL_ARG_RHS("named-or-positional-arg"),
+    OBJECT_TYPE_DESCRIPTOR("object-type-desc"),
+    OBJECT_MEMBER("object-member"),
+    OBJECT_FUNC_OR_FIELD("object-func-or-field"),
+    OBJECT_FUNC_OR_FIELD_WITHOUT_VISIBILITY("object-func-or-field-without-visibility"),
+    OBJECT_METHOD_START("object-method-start"),
+    OBJECT_FIELD_RHS("object-field-rhs"),
 
     // terminals
-    PUBLIC("public"),
+    PUBLIC_KEYWORD("public"),
+    PRIVATE_KEYWORD("private"),
+    REMOTE_KEYWORD("remote"),
     FUNCTION_KEYWORD("function"),
     FUNC_NAME("function-name"),
     OPEN_PARENTHESIS("("),
@@ -79,6 +88,7 @@ public enum ParserRuleContext {
     COMMA(","),
     ELLIPSIS("..."),
     RECORD_KEYWORD("record"),
+    OBJECT_KEYWORD("object"),
     QUESTION_MARK("?"),
     TYPE_NAME("type-name"),
     ASTERISK("*"),

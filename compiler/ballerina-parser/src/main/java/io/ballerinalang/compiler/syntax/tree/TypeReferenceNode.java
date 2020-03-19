@@ -19,13 +19,13 @@ package io.ballerinalang.compiler.syntax.tree;
 
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
-public class RecordTypeReferenceNode extends NonTerminalNode {
+public class TypeReferenceNode extends NonTerminalNode {
 
     private Token asterisk;
     private Node type;
     private Token semicolon;
 
-    public RecordTypeReferenceNode(STNode node, int position, NonTerminalNode parent) {
+    public TypeReferenceNode(STNode node, int position, NonTerminalNode parent) {
         super(node, position, parent);
     }
 

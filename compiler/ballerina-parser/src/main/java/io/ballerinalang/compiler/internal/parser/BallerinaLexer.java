@@ -295,7 +295,7 @@ public class BallerinaLexer {
     private STTypeToken getTypeToken(String tokenText) {
         STNodeList leadingTrivia = new STNodeList(this.leadingTriviaList);
         STNodeList trailingTrivia = new STNodeList(new ArrayList<>(0));
-        return new STTypeToken(SyntaxKind.TYPE_TOKEN, tokenText, leadingTrivia, trailingTrivia);
+        return new STTypeToken(SyntaxKind.SIMPLE_TYPE, tokenText, leadingTrivia, trailingTrivia);
     }
 
     /**
@@ -450,6 +450,8 @@ public class BallerinaLexer {
         switch (tokenText) {
             case LexerTerminals.PUBLIC:
                 return getSyntaxToken(SyntaxKind.PUBLIC_KEYWORD);
+            case LexerTerminals.PRIVATE:
+                return getSyntaxToken(SyntaxKind.PRIVATE_KEYWORD);
             case LexerTerminals.FUNCTION:
                 return getSyntaxToken(SyntaxKind.FUNCTION_KEYWORD);
             case LexerTerminals.INT:
@@ -469,6 +471,8 @@ public class BallerinaLexer {
                 return getSyntaxToken(SyntaxKind.RECORD_KEYWORD);
             case LexerTerminals.OBJECT:
                 return getSyntaxToken(SyntaxKind.OBJECT_KEYWORD);
+            case LexerTerminals.REMOTE:
+                return getSyntaxToken(SyntaxKind.REMOTE_KEYWORD);
             default:
                 return getIdentifierToken(tokenText);
         }

@@ -19,8 +19,9 @@ package io.ballerinalang.compiler.internal.parser.tree;
 
 public enum SyntaxKind {
 
-    PUBLIC_KEYWORD(100, "public"),
-    PRIVATE_KEYWORD(101, "private"),
+    PUBLIC_KEYWORD(50, "public"),
+    PRIVATE_KEYWORD(51, "private"),
+    REMOTE_KEYWORD(52, "remote"),
 
     IMPORT_KEYWORD(100, "import"),
     FUNCTION_KEYWORD(101, "function"),
@@ -73,7 +74,7 @@ public enum SyntaxKind {
     IDENTIFIER_TOKEN(1000),
     STRING_LITERAL_TOKEN(1001),
     NUMERIC_LITERAL_TOKEN(1002),
-    TYPE_TOKEN(1003),
+    SIMPLE_TYPE(1003),
 
     // Trivia
     WHITESPACE_TRIVIA(1500),
@@ -97,6 +98,7 @@ public enum SyntaxKind {
 
     // Type descriptors
     RECORD_TYPE_DESCRIPTOR(2000),
+    OBJECT_TYPE_DESCRIPTOR(2001),
 
     // Other
     RETURN_TYPE_DESCRIPTOR(3000),
@@ -104,11 +106,12 @@ public enum SyntaxKind {
     EXTERNAL_FUNCTION_BODY(3002),
     RECORD_FIELD(3003),
     RECORD_FIELD_WITH_DEFAULT_VALUE(3004),
-    RECORD_TYPE_REFERENCE(3005),
+    TYPE_REFERENCE(3005),
     RECORD_REST_TYPE(3006),
     POSITIONAL_ARG(3007),
     NAMED_ARG(3007),
     REST_ARG(3009),
+    OBJECT_FIELD(3010),
 
     INVALID(4),
     MODULE_PART(3),

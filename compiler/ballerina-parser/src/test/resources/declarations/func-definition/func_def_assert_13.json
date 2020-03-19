@@ -29,7 +29,7 @@
                     "kind": "RETURNS_KEYWORD"
                 },
                 {
-                    "kind": "TYPE_TOKEN",
+                    "kind": "SIMPLE_TYPE",
                     "value": "int"
                 }
             ]
@@ -47,7 +47,7 @@
                             "kind": "LOCAL_VARIABLE_DECL",
                             "children": [
                                 {
-                                    "kind": "TYPE_TOKEN",
+                                    "kind": "SIMPLE_TYPE",
                                     "value": "int"
                                 },
                                 {

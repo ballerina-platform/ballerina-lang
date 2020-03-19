@@ -106,7 +106,7 @@ public class ParserTestUtils {
         }
 
         // If the expected token is not a missing node, then validate it's content
-        Assert.assertFalse(node instanceof STMissingToken);
+        Assert.assertFalse(node instanceof STMissingToken, "Expected:" + json + ", but found: " + node);
         if (isTerminalNode(node.kind)) {
             assertTerminalNode(json, node);
         } else {
@@ -186,8 +186,11 @@ public class ParserTestUtils {
             case "FUNCTION_DEFINITION":
                 return SyntaxKind.FUNCTION_DEFINITION;
 
+            // Keywords
             case "PUBLIC_KEYWORD":
                 return SyntaxKind.PUBLIC_KEYWORD;
+            case "PRIVATE_KEYWORD":
+                return SyntaxKind.PRIVATE_KEYWORD;
             case "FUNCTION_KEYWORD":
                 return SyntaxKind.FUNCTION_KEYWORD;
             case "TYPE_KEYWORD":
@@ -198,25 +201,10 @@ public class ParserTestUtils {
                 return SyntaxKind.RETURNS_KEYWORD;
             case "RECORD_KEYWORD":
                 return SyntaxKind.RECORD_KEYWORD;
-
-            case "LIST":
-                return SyntaxKind.LIST;
-            case "RETURN_TYPE_DESCRIPTOR":
-                return SyntaxKind.RETURN_TYPE_DESCRIPTOR;
-            case "EXTERNAL_FUNCTION_BODY":
-                return SyntaxKind.EXTERNAL_FUNCTION_BODY;
-            case "PARAMETER":
-                return SyntaxKind.PARAMETER;
-            case "RECORD_TYPE_DESCRIPTOR":
-                return SyntaxKind.RECORD_TYPE_DESCRIPTOR;
-            case "RECORD_FIELD":
-                return SyntaxKind.RECORD_FIELD;
-            case "RECORD_FIELD_WITH_DEFAULT_VALUE":
-                return SyntaxKind.RECORD_FIELD_WITH_DEFAULT_VALUE;
-            case "RECORD_TYPE_REFERENCE":
-                return SyntaxKind.RECORD_TYPE_REFERENCE;
-            case "RECORD_REST_TYPE":
-                return SyntaxKind.RECORD_REST_TYPE;
+            case "OBJECT_KEYWORD":
+                return SyntaxKind.OBJECT_KEYWORD;
+            case "REMOTE_KEYWORD":
+                return SyntaxKind.REMOTE_KEYWORD;
 
             // Operators
             case "PLUS_TOKEN":
@@ -303,8 +291,30 @@ public class ParserTestUtils {
                 return SyntaxKind.ASSIGNMENT_STATEMENT;
 
             // Others
-            case "TYPE_TOKEN":
-                return SyntaxKind.TYPE_TOKEN;
+            case "SIMPLE_TYPE":
+                return SyntaxKind.SIMPLE_TYPE;
+            case "LIST":
+                return SyntaxKind.LIST;
+            case "RETURN_TYPE_DESCRIPTOR":
+                return SyntaxKind.RETURN_TYPE_DESCRIPTOR;
+            case "EXTERNAL_FUNCTION_BODY":
+                return SyntaxKind.EXTERNAL_FUNCTION_BODY;
+            case "PARAMETER":
+                return SyntaxKind.PARAMETER;
+            case "RECORD_TYPE_DESCRIPTOR":
+                return SyntaxKind.RECORD_TYPE_DESCRIPTOR;
+            case "RECORD_FIELD":
+                return SyntaxKind.RECORD_FIELD;
+            case "RECORD_FIELD_WITH_DEFAULT_VALUE":
+                return SyntaxKind.RECORD_FIELD_WITH_DEFAULT_VALUE;
+            case "TYPE_REFERENCE":
+                return SyntaxKind.TYPE_REFERENCE;
+            case "RECORD_REST_TYPE":
+                return SyntaxKind.RECORD_REST_TYPE;
+            case "OBJECT_FIELD":
+                return SyntaxKind.OBJECT_FIELD;
+            case "OBJECT_TYPE_DESCRIPTOR":
+                return SyntaxKind.OBJECT_TYPE_DESCRIPTOR;
 
             // Unsupported
             default:
