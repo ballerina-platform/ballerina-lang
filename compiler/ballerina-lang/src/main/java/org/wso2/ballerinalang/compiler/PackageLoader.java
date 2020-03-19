@@ -177,7 +177,8 @@ public class PackageLoader {
         Path ballerinaHome = Paths.get(System.getProperty(ProjectDirConstants.BALLERINA_HOME));
         Repo systemBirRepo = new BirRepo(ballerinaHome);
         Repo systemZipRepo = new BinaryRepo(RepoUtils.getLibDir(), compilerPhase);
-        Repo remoteRepo = new RemoteRepo(URI.create(RepoUtils.getRemoteRepoURL()), this.dependencyManifests, ballerinaHome);
+        Repo remoteRepo = new RemoteRepo(URI.create(RepoUtils.getRemoteRepoURL()),
+                                         this.dependencyManifests, ballerinaHome);
         Repo remoteDryRepo = new RemoteRepo(new URIDryConverter(URI.create(RepoUtils.getRemoteRepoURL()),
                 this.dependencyManifests), ballerinaHome);
         Repo homeBaloCache = new HomeBaloRepo(this.dependencyManifests);

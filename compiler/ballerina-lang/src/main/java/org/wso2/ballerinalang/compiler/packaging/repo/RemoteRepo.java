@@ -28,7 +28,6 @@ import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 
 import java.net.URI;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Map;
 
 import static org.wso2.ballerinalang.util.RepoUtils.COMPILE_BALLERINA_ORG;
@@ -50,8 +49,7 @@ public class RemoteRepo extends NonSysRepo<URI> {
         this(new URIConverter(base, dependencyManifests), ballerinaHome);
     }
 
-    public RemoteRepo(URI base, Map<PackageID, Manifest> dependencyManifests,
-                      boolean isBuild, Path ballerinaHome) {
+    public RemoteRepo(URI base, Map<PackageID, Manifest> dependencyManifests, boolean isBuild, Path ballerinaHome) {
         this(new URIConverter(base, dependencyManifests, isBuild), ballerinaHome);
     }
 
