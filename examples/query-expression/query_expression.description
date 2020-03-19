@@ -2,3 +2,4 @@
 // It consists of four kinds of clauses: `from`, `let`, `where`, and `select`.
 // The first clause must be a `from` clause and the last clause must be a `select`.
 // The result of the query expression is a list.
+// This is a preview feature.
