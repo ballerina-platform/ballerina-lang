@@ -1319,7 +1319,10 @@ public class TypeChecker extends BLangNodeVisitor {
                 symbol = symResolver.resolveStructField(varRefExpr.pos, env, objFuncName,
                         env.enclType.type.tsymbol);
             }
-            if ((symbol.tag & SymTag.VARIABLE) == SymTag.VARIABLE) {
+
+            // TODO: call to isInLocallyDefinedRecord() is a temporary fix done to disallow local var references in
+            //  locally defined record type defs. This check should be removed once local var referencing is supported.
+            if (((symbol.tag & SymTag.VARIABLE) == SymTag.VARIABLE) && !isInLocallyDefinedRecord(symbol, env)) {
                 BVarSymbol varSym = (BVarSymbol) symbol;
                 checkSefReferences(varRefExpr.pos, env, varSym);
                 varRefExpr.symbol = varSym;
@@ -3074,6 +3077,11 @@ public class TypeChecker extends BLangNodeVisitor {
         if (env.enclVarSym == varSymbol) {
             dlog.error(pos, DiagnosticCode.SELF_REFERENCE_VAR, varSymbol.name);
         }
+    }
+
+    private boolean isInLocallyDefinedRecord(BSymbol symbol, SymbolEnv env) {
+        return ((symbol.owner.tag & SymTag.PACKAGE) != SymTag.PACKAGE) &&
+                (env.enclType != null && env.enclType.getKind() == NodeKind.RECORD_TYPE);
     }
 
     public List<BType> getListWithErrorTypes(int count) {
