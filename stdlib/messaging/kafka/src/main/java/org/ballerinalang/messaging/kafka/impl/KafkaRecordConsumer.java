@@ -18,7 +18,6 @@
 
 package org.ballerinalang.messaging.kafka.impl;
 
-import org.apache.avro.AvroRuntimeException;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
@@ -111,7 +110,7 @@ public class KafkaRecordConsumer {
                                      + this.consumerId + " has received " + recordsRetrieved.count() + " records.");
             }
             processRetrievedRecords(recordsRetrieved);
-        } catch (KafkaException | IllegalStateException | IllegalArgumentException | AvroRuntimeException e) {
+        } catch (KafkaException | IllegalStateException | IllegalArgumentException e) {
             this.kafkaListener.onError(e);
             // When un-recoverable exception is thrown we stop scheduling task to the executor.
             // Later at stopConsume() on KafkaRecordConsumer we close the consumer.

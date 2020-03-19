@@ -18,7 +18,6 @@
 
 package org.ballerinalang.messaging.kafka.nativeimpl.producer;
 
-import org.apache.avro.AvroRuntimeException;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.KafkaException;
@@ -26,7 +25,6 @@ import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.api.BArray;
-import org.ballerinalang.jvm.values.api.BError;
 import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
 import org.ballerinalang.messaging.kafka.observability.KafkaMetricsUtil;
 import org.ballerinalang.messaging.kafka.observability.KafkaObservabilityConstants;
@@ -37,7 +35,6 @@ import org.slf4j.LoggerFactory;
 import java.util.Objects;
 
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.ALIAS_PARTITION;
-import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.AVRO_ERROR;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.NATIVE_PRODUCER;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.PRODUCER_ERROR;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.UNCHECKED;
@@ -295,12 +292,6 @@ public class Send {
                                                     PRODUCER_ERROR));
             callback.notifySuccess();
 
-        } catch (AvroRuntimeException e) {
-            KafkaMetricsUtil.reportProducerError(producerObject, KafkaObservabilityConstants.ERROR_TYPE_PUBLISH);
-            BError avroError = createKafkaError("Failed to send the avro record: " + e.getMessage(), AVRO_ERROR);
-            callback.setReturnValues(createKafkaError("Failed to send data to Kafka server: " + e.getMessage(),
-                                                      PRODUCER_ERROR, avroError));
-            callback.notifySuccess();
         }
         return null;
     }

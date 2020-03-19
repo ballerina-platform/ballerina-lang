@@ -18,7 +18,6 @@
 
 package org.ballerinalang.messaging.kafka.nativeimpl.consumer;
 
-import org.apache.avro.AvroRuntimeException;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
@@ -29,7 +28,6 @@ import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.api.BArray;
-import org.ballerinalang.jvm.values.api.BError;
 import org.ballerinalang.jvm.values.api.BValueCreator;
 import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
 import org.ballerinalang.messaging.kafka.observability.KafkaMetricsUtil;
@@ -38,7 +36,6 @@ import org.ballerinalang.messaging.kafka.observability.KafkaTracingUtil;
 
 import java.time.Duration;
 
-import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.AVRO_ERROR;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.CONSUMER_ERROR;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.CONSUMER_KEY_DESERIALIZER_TYPE_CONFIG;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.CONSUMER_VALUE_DESERIALIZER_TYPE_CONFIG;
@@ -84,11 +81,6 @@ public class Poll {
             KafkaMetricsUtil.reportConsumerError(consumerObject, KafkaObservabilityConstants.ERROR_TYPE_POLL);
             callback.notifyFailure(createKafkaError("Failed to poll from the Kafka server: " + e.getMessage(),
                                                     CONSUMER_ERROR));
-        } catch (AvroRuntimeException e) {
-            KafkaMetricsUtil.reportConsumerError(consumerObject, KafkaObservabilityConstants.ERROR_TYPE_POLL);
-            BError avroError = createKafkaError("Failed to deserialize avro record: " + e.getMessage(), AVRO_ERROR);
-            callback.notifyFailure(createKafkaError("Failed to poll from the Kafka server: " + e.getMessage(),
-                                                    CONSUMER_ERROR, avroError));
         }
         callback.notifySuccess();
         return null;
