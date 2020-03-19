@@ -18,27 +18,21 @@
 
 package org.ballerinalang.test.types.string;
 
-import org.ballerinalang.test.util.BCompileUtil;
-import org.testng.annotations.BeforeClass;
-import org.testng.annotations.Test;
+import org.ballerinalang.model.values.BInteger;
+import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.test.util.BRunUtil;
+import org.ballerinalang.test.util.CompileResult;
+import org.testng.Assert;
 
 /**
- * Test BString support in Object.
+ * Has utility functions related to the tests.
  */
-public class BStringTableValueTest extends BStringTestCommons {
+public class BStringTestCommons {
+    protected CompileResult result;
 
-    @BeforeClass
-    public void setup() {
-        result = BCompileUtil.compile("test-src/types/string/bstring-table-test.bal");
-    }
-
-    @Test
-    public void testTableGeneration() {
-        testAndAssert("testTableGeneration", 84);
-    }
-
-    @Test
-    public void testTableWithArrayGeneration() {
-        testAndAssert("testTableWithArrayGeneration", 37);
+    protected void testAndAssert(String funcName, int length) {
+        BValue[] returns = BRunUtil.invoke(result, funcName);
+        Assert.assertEquals(returns[0].getClass(), BInteger.class);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), length);
     }
 }

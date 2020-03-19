@@ -18,27 +18,17 @@
 
 package org.ballerinalang.test.types.string;
 
-import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.test.util.BCompileUtil;
-import org.ballerinalang.test.util.BRunUtil;
-import org.ballerinalang.test.util.CompileResult;
-import org.testng.Assert;
-import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-
-import static org.ballerinalang.test.util.BRunUtil.IS_STRING_VALUE_PROP;
 
 /**
  * Tests for the migration of bValues' stringValue implementations.
  */
-public class BStringToStringTest {
-    private CompileResult result;
+public class BStringToStringTest extends BStringTestCommons {
 
     @BeforeClass
     public void setup() {
-        System.setProperty(IS_STRING_VALUE_PROP, "true");
         result = BCompileUtil.compile("test-src/types/string/bstring-tostring-test.bal");
     }
 
@@ -85,16 +75,5 @@ public class BStringToStringTest {
     @Test
     public void testArrayValueToString() {
         testAndAssert("testArrayValueToString", 22);
-    }
-
-    private void testAndAssert(String funcName, int i) {
-        BValue[] returns = BRunUtil.invoke(result, funcName);
-        Assert.assertEquals(returns[0].getClass(), BInteger.class);
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), i);
-    }
-
-    @AfterClass
-    public void down() {
-        System.clearProperty(IS_STRING_VALUE_PROP);
     }
 }
