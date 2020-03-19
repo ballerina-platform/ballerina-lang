@@ -63,6 +63,7 @@ import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.ALIAS_TOPIC
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.ALIAS_TOPICS;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.BALLERINA_STRAND;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.CONSUMER_CONFIG_FIELD_NAME;
+import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.CONSUMER_ERROR;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.CONSUMER_KEY_DESERIALIZER_CONFIG;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.CONSUMER_KEY_DESERIALIZER_TYPE_CONFIG;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.CONSUMER_VALUE_DESERIALIZER_CONFIG;
@@ -568,7 +569,7 @@ public class KafkaUtils {
         } else if (SERDES_CUSTOM.equals(type)) {
             return value;
         }
-        throw createKafkaError("Unexpected type found for consumer record");
+        throw createKafkaError("Unexpected type found for consumer record", CONSUMER_ERROR);
     }
 
     private static Object populateGenericAvroRecord(GenericRecord record) {
@@ -598,10 +599,6 @@ public class KafkaUtils {
 
     public static MapValue<String, Object> getTopicPartitionRecord() {
         return createKafkaRecord(KafkaConstants.TOPIC_PARTITION_STRUCT_NAME);
-    }
-
-    public static BError createKafkaError(String message) {
-        return createKafkaError(message, KafkaConstants.CONSUMER_ERROR);
     }
 
     public static BError createKafkaError(String message, String reason) {
