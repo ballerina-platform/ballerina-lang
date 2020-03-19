@@ -76,5 +76,4 @@ public class Tags {
     public static void tags(Set<Tag> tags, Map<String, String> tagsMap) {
         tagsMap.forEach((key, value) -> tags.add(Tag.of(key, value)));
     }
-
 }
