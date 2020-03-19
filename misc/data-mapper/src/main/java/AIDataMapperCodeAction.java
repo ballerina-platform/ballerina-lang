@@ -64,7 +64,7 @@ public class AIDataMapperCodeAction extends AbstractCodeActionProvider {
 
         super();
         String customURL = System.getenv(REMOTE_AI_SERVICE_URL_ENV);
-        AI_SERVICE_URL = customURL.length() == 0 ? REMOTE_URL : customURL;
+        AI_SERVICE_URL = (customURL == null || customURL.length() == 0) ? REMOTE_URL : customURL;
     }
 
     public static CodeAction getAIDataMapperCommand(LSDocumentIdentifier document, Diagnostic diagnostic,
