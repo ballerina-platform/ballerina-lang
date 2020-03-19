@@ -43,7 +43,8 @@ public class TesterinaConstants {
     public static final String COVERAGE_DIR = "coverage";
     public static final String STATUS_FILE = "module_status.json";
     public static final String COVERAGE_FILE = "module_coverage.json";
-    public static final String TEST_RESULTS_FILE = "test_results.html";
+    public static final String RESULTS_JSON_FILE = "test_results.json";
+    public static final String RESULTS_HTML_FILE = "test_results.html";
     public static final String HTML_RESOURCE_FILE = "production.html";
     public static final String FILE_PROTOCOL = "file://";
 }
