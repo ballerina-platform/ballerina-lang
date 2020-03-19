@@ -58,11 +58,13 @@ public class BaseTestCase {
         basicTestsProjectPath = tempProjectDirectory.resolve("basic-tests");
         FileUtils.copyFolder(originalMultiModulesProj, basicTestsProjectPath);
 
-        Path originalMockProj = Paths.get("src", "test", "resources", "project-based-tests/mock-tests").toAbsolutePath();
+        Path originalMockProj =
+                Paths.get("src", "test", "resources", "project-based-tests/mock-tests").toAbsolutePath();
         mockProjectPath = tempProjectDirectory.resolve("mock-tests");
         FileUtils.copyFolder(originalMockProj, mockProjectPath);
 
-        Path serviceProjectPath = Paths.get("src", "test", "resources", "project-based-tests/services-tests").toAbsolutePath();
+        Path serviceProjectPath =
+                Paths.get("src", "test", "resources", "project-based-tests/services-tests").toAbsolutePath();
         serviceProjectBuildPath = tempProjectDirectory.resolve("services-tests");
         FileUtils.copyFolder(serviceProjectPath, serviceProjectBuildPath);
 

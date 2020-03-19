@@ -18,14 +18,12 @@
 package org.ballerinalang.testerina.test;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import org.ballerinalang.test.context.BMainInstance;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.context.LogLeecher;
-import org.eclipse.core.runtime.AssertionFailedException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -35,7 +33,6 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Arrays;
 
 /**
@@ -62,7 +59,7 @@ public class TestReportTest extends BaseTestCase {
         validateCoverage();
     }
 
-    @Test
+    @Test (enabled = false)
     public void testWithoutCoverage() throws BallerinaTestException, IOException {
         runCommand(false);
         validateStatuses();
@@ -124,37 +121,38 @@ public class TestReportTest extends BaseTestCase {
     private void validateCoverage() {
         JsonParser parser = new JsonParser();
         // service module
-        int[] serviceMainCovered = new int[]{10,19,20,23,24}, serviceMainMissed = new int[]{21};
+        int[] serviceMainCovered = new int[]{10, 19, 20, 23, 24}, serviceMainMissed = new int[]{21};
         float serviceMainPercentage =
-                (float) (serviceMainCovered.length)/(serviceMainCovered.length + serviceMainMissed.length)*100;
+                (float) (serviceMainCovered.length) / (serviceMainCovered.length + serviceMainMissed.length) * 100;
 
         int serviceCovered = serviceMainCovered.length, serviceMissed = serviceMainMissed.length;
         //math module
-        int[] mathAddCovered = new int[] {6,7,8,10,13,15}, mathAddMissed = new int[] {11};
-        float mathAddPercentage = (float) (mathAddCovered.length)/(mathAddCovered.length + mathAddMissed.length)*100;
-        int[] mathDivideCovered = new int[] {6,7,9,10,14}, mathDivideMissed = new int[] {12};
-        float mathDividePercentage = (float) (mathDivideCovered.length)/
-                (mathDivideCovered.length + mathDivideMissed.length)*100;
+        int[] mathAddCovered = new int[] {6, 7, 8, 10, 13, 15}, mathAddMissed = new int[] {11};
+        float mathAddPercentage =
+                (float) (mathAddCovered.length) / (mathAddCovered.length + mathAddMissed.length) * 100;
+        int[] mathDivideCovered = new int[] {6, 7, 9, 10, 14}, mathDivideMissed = new int[] {12};
+        float mathDividePercentage =
+                (float) (mathDivideCovered.length) / (mathDivideCovered.length + mathDivideMissed.length) * 100;
 
         int mathCovered = mathAddCovered.length + mathDivideCovered.length,
                 mathMissed = mathAddMissed.length + mathDivideMissed.length;
-        float mathPercentage = (float) mathCovered / (mathCovered + mathMissed)*100;
+        float mathPercentage = (float) mathCovered / (mathCovered + mathMissed) * 100;
 
         //foo module
-        int[] fooMainCovered = new int[] {9,10,11,16,17,23,24}, fooMainMissed = new int[] {13};
-        float fooMainPercentage = (float) (fooMainCovered.length)/(fooMainCovered.length + fooMainMissed.length)*100;
+        int[] fooMainCovered = new int[] {9, 10, 11, 16, 17, 23, 24}, fooMainMissed = new int[] {13};
+        float fooMainPercentage =
+                (float) (fooMainCovered.length) / (fooMainCovered.length + fooMainMissed.length) * 100;
 
         int fooCovered = fooMainCovered.length, fooMissed = fooMainMissed.length;
 
         // project
         int totalCovered = serviceCovered + mathCovered + fooCovered;
         int totalMissed =  serviceMissed + mathMissed + fooMissed;
-        float coveragePercentage = (float) (totalCovered)/(totalCovered + totalMissed)*100;
+        float coveragePercentage = (float) (totalCovered) / (totalCovered + totalMissed) * 100;
 
         // Verify module level coverage
         for (JsonElement element : resultObj.get("moduleCoverage").getAsJsonArray()) {
             JsonObject moduleObj = ((JsonObject) element);
-            System.out.println();
             if ("myService".equals(moduleObj.get("name").getAsString())) {
                 // Verify coverage of source file
                 JsonObject fileObj = (JsonObject) moduleObj.get("sourceFiles").getAsJsonArray().get(0);
