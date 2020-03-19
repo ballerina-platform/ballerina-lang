@@ -64,6 +64,7 @@ public class BindgenCommand implements BLauncherCmd {
     @Override
     public void execute() {
 
+        outStream.println("\nNote: This is an experimental tool.\n");
         //Help flag check
         if (helpFlag) {
             String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(getName());
@@ -74,6 +75,7 @@ public class BindgenCommand implements BLauncherCmd {
         if (classNames == null) {
             outError.println("One or more class names for bindings generation should be specified.");
             outStream.println(BINDGEN_CMD);
+            outStream.println("\nUse 'ballerina bindgen --help' for more information on the command.");
             return;
         }
 
