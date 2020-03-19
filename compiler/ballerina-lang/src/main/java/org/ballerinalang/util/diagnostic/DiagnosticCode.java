@@ -317,6 +317,7 @@ public enum DiagnosticCode {
     CANNOT_FIND_XML_NAMESPACE("cannot.find.xml.namespace.prefix"),
     UNSUPPORTED_METHOD_INVOCATION_XML_NAV("method.invocation.in.xml.navigation.expressions.not.supported"),
     DEPRECATED_XML_ATTRIBUTE_ACCESS("deprecated.xml.attribute.access.expression"),
+    UNSUPPORTED_INDEX_IN_XML_NAVIGATION("indexing.within.xml.navigation.expression.not.supported"),
 
     UNDEFINED_ANNOTATION("undefined.annotation"),
     ANNOTATION_NOT_ALLOWED("annotation.not.allowed"),

@@ -555,7 +555,7 @@ public final class XMLItem extends XMLValue {
     @Override
     public XMLValue getItem(int index) {
         if (index != 0) {
-            throw BallerinaErrors.createError("index out of range: index: " + index + ", size: 1");
+            return new XMLSequence();
         }
 
         return this;

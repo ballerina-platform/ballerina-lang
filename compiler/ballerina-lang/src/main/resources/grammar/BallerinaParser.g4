@@ -695,8 +695,8 @@ xmlElementFilter
 
 xmlStepExpression
     : DIV xmlElementNames index?
-    | DIV MUL
-    | DIV MUL MUL DIV xmlElementNames
+    | DIV MUL index?
+    | DIV MUL MUL DIV xmlElementNames index?
     ;
 
 xmlElementNames

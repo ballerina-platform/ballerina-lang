@@ -472,10 +472,10 @@ public final class XMLSequence extends XMLValue {
     @Override
     public XMLValue getItem(int index) {
         try {
+            if (index >= this.children.size()) {
+                return new XMLSequence();
+            }
             return (XMLValue) this.children.get(index);
-        } catch (IndexOutOfBoundsException e) {
-            throw BallerinaErrors.createError(BallerinaErrorReasons.XML_OPERATION_ERROR,
-                    "IndexOutOfRange " + e.getMessage());
         } catch (Exception e) {
             throw BallerinaErrors.createError(BallerinaErrorReasons.XML_OPERATION_ERROR, e.getMessage());
         }
