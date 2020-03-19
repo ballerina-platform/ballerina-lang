@@ -55,9 +55,11 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 
+import static org.ballerinalang.test.runtime.util.TesterinaConstants.DOT;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.FILE_PROTOCOL;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.HTML_RESOURCE_FILE;
-import static org.ballerinalang.test.runtime.util.TesterinaConstants.TEST_RESULTS_FILE;
+import static org.ballerinalang.test.runtime.util.TesterinaConstants.RESULTS_HTML_FILE;
+import static org.ballerinalang.test.runtime.util.TesterinaConstants.RESULTS_JSON_FILE;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.TEST_RUNTIME_JAR_PREFIX;
 import static org.ballerinalang.tool.LauncherUtils.createLauncherException;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BALLERINA_HOME;
@@ -121,7 +123,9 @@ public class RunTestsTask implements Task {
             TestSuite suite = TesterinaRegistry.getInstance().getTestSuites().get(bLangPackage.packageID.toString());
             if (suite == null) {
                 buildContext.out().println();
-                buildContext.out().println("\t" + bLangPackage.packageID);
+                if (!DOT.equals(bLangPackage.packageID.toString())) {
+                    buildContext.out().println("\t" + bLangPackage.packageID);
+                }
                 buildContext.out().println("\t" + "No tests found");
                 buildContext.out().println();
                 continue;
@@ -241,7 +245,16 @@ public class RunTestsTask implements Task {
 
         Gson gson = new Gson();
         String json = gson.toJson(testReport).replaceAll("\\\\\\(", "(");
-        File jsonFile = new File(jsonPath.resolve(TEST_RESULTS_FILE).toString());
+
+        File jsonFile = new File(jsonPath.resolve(RESULTS_JSON_FILE).toString());
+        try (Writer writer = new OutputStreamWriter(new FileOutputStream(jsonFile), StandardCharsets.UTF_8)) {
+            writer.write(new String(json.getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8));
+            out.println("\t" + Paths.get("").toAbsolutePath().relativize(jsonFile.toPath()) + "\n");
+        } catch (IOException e) {
+            throw LauncherUtils.createLauncherException("couldn't read data from the Json file : " + e.toString());
+        }
+
+        File htmlFile = new File(jsonPath.resolve(RESULTS_HTML_FILE).toString());
         String content;
 
         try (InputStream in = getClass().getClassLoader().getResourceAsStream(HTML_RESOURCE_FILE)) {
@@ -251,9 +264,9 @@ public class RunTestsTask implements Task {
         } catch (IOException e) {
             throw LauncherUtils.createLauncherException("couldn't read content from the html file : " + e.toString());
         }
-        try (Writer writer = new OutputStreamWriter(new FileOutputStream(jsonFile), StandardCharsets.UTF_8)) {
+        try (Writer writer = new OutputStreamWriter(new FileOutputStream(htmlFile), StandardCharsets.UTF_8)) {
             writer.write(new String(content.getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8));
-            out.println("\tView the test report at: " + FILE_PROTOCOL + jsonFile.getAbsolutePath());
+            out.println("\tView the test report at: " + FILE_PROTOCOL + htmlFile.getAbsolutePath());
         } catch (IOException e) {
             throw LauncherUtils.createLauncherException("couldn't read data from the Json file : " + e.toString());
         }
