@@ -118,36 +118,39 @@ public class MetricsTestCase extends BaseTest {
     private void addMetrics() {
         final Pattern regexNumber = Pattern.compile("[-+]?\\d*\\.?\\d+([eE][-+]?\\d+)?");
         expectedMetrics.put("response_time_seconds_value{" +
-                "source_invocation_fqn=\"_anon:.:0.0.0:metrics_test.bal:49:24\",resource=\"getProduct\"," +
-                "service=\"metricsTest\",action=\"respond\",source_remote=\"true\"," +
-                "connector_name=\"ballerina/http/Caller\",http_status_code_group=\"2xx\",}", regexNumber);
+                "service=\"metricsTest\",http_status_code_group=\"2xx\"," +
+                "source_invocation_fqn=\"_anon:.:0.0.0:metrics_test.bal:49:24\",source_remote=\"true\"," +
+                "action=\"respond\",resource=\"getProduct\",connector_name=\"ballerina/http/Caller\",}", regexNumber);
         expectedMetrics.put("response_time_seconds_value{" +
-                "source_invocation_fqn=\"_anon:.:0.0.0:metrics_test.bal:39:5\",resource=\"getProduct\"," +
-                "service=\"metricsTest\",http_url=\"/test\",source_service=\"true\",http_method=\"GET\"," +
-                "protocol=\"http\",connector_name=\"http\",}", regexNumber);
-        expectedMetrics.put("response_time_seconds_value{db_instance=\"h2\",db_type=\"sql\"," +
-                "source_invocation_fqn=\"_anon:.:0.0.0:metrics_test.bal:43:24\"," +
-                "peer_address=\"jdbc:h2:file:../../tempdb/TEST_DB\",db_statement=\"SELECT * FROM Products\"," +
-                "resource=\"getProduct\",service=\"metricsTest\",action=\"select\",source_remote=\"true\"," +
-                "connector_name=\"ballerinax/java_jdbc/Client\",}", regexNumber);
-        expectedMetrics.put("response_time_seconds_value{action=\"getQuery\"," +
-                "source_invocation_fqn=\"_anon:.:0.0.0:metrics_test.bal:43:39\",connector_name=\"\"," +
-                "resource=\"getProduct\",service=\"metricsTest\",}", regexNumber);
+                "service=\"metricsTest\",connector_name=\"http\"," +
+                "source_invocation_fqn=\"_anon:.:0.0.0:metrics_test.bal:39:5\",source_service=\"true\"," +
+                "protocol=\"http\",resource=\"getProduct\",http_url=\"/test\",http_method=\"GET\",}", regexNumber);
+        expectedMetrics.put("response_time_seconds_value{" +
+                "service=\"metricsTest\",source_invocation_fqn=\"_anon:.:0.0.0:metrics_test.bal:43:24\"," +
+                "db_type=\"sql\",source_remote=\"true\",action=\"select\"," +
+                "db_instance=\"h2\",peer_address=\"jdbc:h2:file:../../tempdb/TEST_DB\",resource=\"getProduct\"," +
+                "connector_name=\"ballerinax/java_jdbc/Client\"," +
+                "db_statement=\"SELECT * FROM Products\",}", regexNumber);
+        expectedMetrics.put("response_time_seconds_value{service=\"metricsTest\",action=\"getQuery\"," +
+                "resource=\"getProduct\",source_invocation_fqn=\"_anon:.:0.0.0:metrics_test.bal:43:39\"," +
+                "connector_name=\"\",}", regexNumber);
         expectedMetrics.put("response_time_nanoseconds_total_value{" +
-                "source_invocation_fqn=\"_anon:.:0.0.0:metrics_test.bal:49:24\",resource=\"getProduct\"," +
-                "service=\"metricsTest\",action=\"respond\",source_remote=\"true\"," +
-                "connector_name=\"ballerina/http/Caller\",http_status_code_group=\"2xx\",}", regexNumber);
+                "service=\"metricsTest\",http_status_code_group=\"2xx\"," +
+                "source_invocation_fqn=\"_anon:.:0.0.0:metrics_test.bal:49:24\",source_remote=\"true\"," +
+                "action=\"respond\",resource=\"getProduct\",connector_name=\"ballerina/http/Caller\",}", regexNumber);
         expectedMetrics.put("response_time_nanoseconds_total_value{" +
-                "source_invocation_fqn=\"_anon:.:0.0.0:metrics_test.bal:39:5\",resource=\"getProduct\"," +
-                "service=\"metricsTest\",http_url=\"/test\",source_service=\"true\",http_method=\"GET\"," +
-                "protocol=\"http\",connector_name=\"http\",}", regexNumber);
-        expectedMetrics.put("response_time_nanoseconds_total_value{db_instance=\"h2\",db_type=\"sql\"," +
-                "source_invocation_fqn=\"_anon:.:0.0.0:metrics_test.bal:43:24\"," +
-                "peer_address=\"jdbc:h2:file:../../tempdb/TEST_DB\",db_statement=\"SELECT * FROM Products\"," +
-                "resource=\"getProduct\",service=\"metricsTest\",action=\"select\",source_remote=\"true\"," +
-                "connector_name=\"ballerinax/java_jdbc/Client\",} 45286966.0", regexNumber);
-        expectedMetrics.put("response_time_nanoseconds_total_value{action=\"getQuery\"," +
-                "source_invocation_fqn=\"_anon:.:0.0.0:metrics_test.bal:43:39\",connector_name=\"\"," +
-                "resource=\"getProduct\",service=\"metricsTest\",} 1743459.0", regexNumber);
+                "service=\"metricsTest\",connector_name=\"http\"," +
+                "source_invocation_fqn=\"_anon:.:0.0.0:metrics_test.bal:39:5\",source_service=\"true\"," +
+                "protocol=\"http\",resource=\"getProduct\",http_url=\"/test\",http_method=\"GET\",}", regexNumber);
+        expectedMetrics.put("response_time_nanoseconds_total_value{" +
+                "service=\"metricsTest\",source_invocation_fqn=\"_anon:.:0.0.0:metrics_test.bal:43:24\"," +
+                "db_type=\"sql\",source_remote=\"true\",action=\"select\",db_instance=\"h2\"," +
+                "peer_address=\"jdbc:h2:file:../../tempdb/TEST_DB\",resource=\"getProduct\"," +
+                "connector_name=\"ballerinax/java_jdbc/Client\"," +
+                "db_statement=\"SELECT * FROM Products\",}", regexNumber);
+        expectedMetrics.put("response_time_nanoseconds_total_value{" +
+                "service=\"metricsTest\",action=\"getQuery\",resource=\"getProduct\"," +
+                "source_invocation_fqn=\"_anon:.:0.0.0:metrics_test.bal:43:39\"," +
+                "connector_name=\"\",}", regexNumber);
     }
 }

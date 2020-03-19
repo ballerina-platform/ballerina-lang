@@ -47,13 +47,13 @@ public class ObserverContext {
      * These tags are updated before the a service resource function is hit in the runtime.
      * After that point only additional tags should be used.
      */
-    private Map<Tag, String> mainTags;
+    private Map<String, Tag> mainTags;
 
     /**
      * This is similar to the mainTags.
      * However, this map contains all the tags added after a service resource function is hit in the runtime.
      */
-    private Map<Tag, String> additionalTags;
+    private Map<String, Tag> additionalTags;
 
     private String serviceName;
 
@@ -109,28 +109,22 @@ public class ObserverContext {
         addTag(additionalTags, key, value);
     }
 
-    private void addTag(Map<Tag, String> tagsValueMap, String key, String value) {
+    private void addTag(Map<String, Tag> tagsValueMap, String key, String value) {
         String sanitizedValue = value != null ? value : "";
         Tag tag = Tag.of(key, sanitizedValue);
-        String oldValue = tagsValueMap.get(tag);
-        if (oldValue != null) {
-            if (oldValue.equals(sanitizedValue)) {
-                return;
-            } else {
-                tagsValueMap.remove(tag);
-            }
-        }
-        tagsValueMap.put(tag, sanitizedValue);
+        tagsValueMap.put(key, tag);
     }
 
     public Set<Tag> getMainTags() {
-        return Collections.unmodifiableSet(mainTags.keySet());
+        Set<Tag> tagSet = new HashSet<>(mainTags.size());
+        tagSet.addAll(mainTags.values());
+        return Collections.unmodifiableSet(tagSet);
     }
 
     public Set<Tag> getAllTags() {
         Set<Tag> allTags = new HashSet<>(mainTags.size() + additionalTags.size());
-        Tags.tags(allTags, mainTags.keySet());
-        Tags.tags(allTags, additionalTags.keySet());
+        Tags.tags(allTags, mainTags.values());
+        Tags.tags(allTags, additionalTags.values());
         return Collections.unmodifiableSet(allTags);
     }
 
