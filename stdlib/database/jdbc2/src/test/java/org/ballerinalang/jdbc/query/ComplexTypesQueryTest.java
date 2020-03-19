@@ -81,6 +81,7 @@ public class ComplexTypesQueryTest {
     public void testToJson() {
         BValue[] returns = BRunUtil.invokeFunction(result, "testToJson", args);
         Assert.assertEquals(returns.length, 1);
+        SQLDBUtils.assertNotError(returns[0]);
         Assert.assertTrue(returns[0] instanceof BMap);
         String expected = "{\"INT_TYPE\":1, \"LONG_TYPE\":9223372036854774807, \"FLOAT_TYPE\":123.34, "
                 + "\"DOUBLE_TYPE\":2.139095039E9, \"BOOLEAN_TYPE\":true, \"STRING_TYPE\":\"Hello\"}";
