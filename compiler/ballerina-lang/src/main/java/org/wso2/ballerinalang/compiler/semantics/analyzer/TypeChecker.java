@@ -3080,7 +3080,13 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     private boolean isInLocallyDefinedRecord(BSymbol symbol, SymbolEnv env) {
-        return ((symbol.owner.tag & SymTag.PACKAGE) != SymTag.PACKAGE) &&
+        boolean isLocalSym = (symbol.owner.tag & SymTag.PACKAGE) != SymTag.PACKAGE;
+        boolean isInLetExpr = (symbol.owner.tag & SymTag.LET) == SymTag.LET;
+
+        // Skipping let expressions here since they're not allowed as record fields' default values currently and the
+        // error message related to that gets logged at a later stage. If we don't skip it here, the error message
+        // about let expressions not being allowed will not be logged.
+        return isLocalSym && !isInLetExpr &&
                 (env.enclType != null && env.enclType.getKind() == NodeKind.RECORD_TYPE);
     }
 
