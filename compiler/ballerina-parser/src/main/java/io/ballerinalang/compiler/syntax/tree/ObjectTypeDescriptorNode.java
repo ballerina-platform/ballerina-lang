@@ -21,6 +21,7 @@ import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
 public class ObjectTypeDescriptorNode extends NonTerminalNode {
 
+    private Node qualifiers;
     private Token objectKeyword;
     private Token openBrace;
     private Node members;
@@ -30,12 +31,21 @@ public class ObjectTypeDescriptorNode extends NonTerminalNode {
         super(node, position, parent);
     }
 
+    public Node qualifiers() {
+        if (qualifiers != null) {
+            return qualifiers;
+        }
+
+        qualifiers = createListNode(0);
+        return qualifiers;
+    }
+
     public Token objectKeyword() {
         if (objectKeyword != null) {
             return objectKeyword;
         }
 
-        objectKeyword = createToken(0);
+        objectKeyword = createToken(1);
         return objectKeyword;
     }
 
@@ -44,7 +54,7 @@ public class ObjectTypeDescriptorNode extends NonTerminalNode {
             return openBrace;
         }
 
-        openBrace = createToken(1);
+        openBrace = createToken(2);
         return openBrace;
     }
 
@@ -53,7 +63,7 @@ public class ObjectTypeDescriptorNode extends NonTerminalNode {
             return members;
         }
 
-        members = createListNode(2);
+        members = createListNode(3);
         return members;
     }
 
@@ -62,19 +72,21 @@ public class ObjectTypeDescriptorNode extends NonTerminalNode {
             return closeBrace;
         }
 
-        closeBrace = createToken(3);
+        closeBrace = createToken(4);
         return closeBrace;
     }
 
     public Node childInBucket(int bucket) {
         switch (bucket) {
             case 0:
-                return objectKeyword();
+                return qualifiers();
             case 1:
-                return openBrace();
+                return objectKeyword();
             case 2:
-                return members();
+                return openBrace();
             case 3:
+                return members();
+            case 4:
                 return closeBrace();
         }
         return null;

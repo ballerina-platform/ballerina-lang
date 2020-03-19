@@ -22,6 +22,8 @@ public enum SyntaxKind {
     PUBLIC_KEYWORD(50, "public"),
     PRIVATE_KEYWORD(51, "private"),
     REMOTE_KEYWORD(52, "remote"),
+    ABSTRACT_KEYWORD(52, "abstract"),
+    CLIENT_KEYWORD(52, "client"),
 
     IMPORT_KEYWORD(100, "import"),
     FUNCTION_KEYWORD(101, "function"),

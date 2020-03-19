@@ -125,6 +125,9 @@ public class BallerinaParserErrorHandler {
     private static final ParserRuleContext[] OBJECT_METHOD_START =
             { ParserRuleContext.REMOTE_KEYWORD, ParserRuleContext.FUNCTION_KEYWORD };
 
+    private static final ParserRuleContext[] OBJECT_TYPE_DESCRIPTOR_START =
+            { ParserRuleContext.OBJECT_TYPE_FIRST_QUALIFIER, ParserRuleContext.OBJECT_KEYWORD };
+
     /**
      * Limit for the distance to travel, to determine a successful lookahead.
      */
@@ -182,13 +185,15 @@ public class BallerinaParserErrorHandler {
 
         Result bestMatch = seekMatch(currentCtx);
         if (bestMatch.matches > 0) {
-            Solution fix = bestMatch.fixes.pop();
-            applyFix(currentCtx, fix, parsedNodes);
-            return fix;
+            Solution sol = bestMatch.fixes.pop();
+            applyFix(currentCtx, sol, parsedNodes);
+            return sol;
         } else {
             // Fail safe. This means we can't find a path to recover.
             removeInvalidToken();
-            return new Solution(Action.REMOVE, currentCtx, nextToken.kind, nextToken.toString());
+            Solution sol = new Solution(Action.REMOVE, currentCtx, nextToken.kind, nextToken.toString());
+            sol.recoveredNode = this.parser.resumeParsing(currentCtx, parsedNodes);
+            return sol;
         }
     }
 
@@ -275,6 +280,8 @@ public class BallerinaParserErrorHandler {
             case OBJECT_FIELD_RHS:
             case OBJECT_FUNC_OR_FIELD_WITHOUT_VISIBILITY:
             case OBJECT_MEMBER:
+            case OBJECT_TYPE_FIRST_QUALIFIER:
+            case OBJECT_TYPE_SECOND_QUALIFIER:
                 return true;
             default:
                 return false;
@@ -461,7 +468,8 @@ public class BallerinaParserErrorHandler {
                     }
                     break;
                 case SIMPLE_TYPE_DESCRIPTOR:
-                    hasMatch = nextToken.kind == SyntaxKind.SIMPLE_TYPE || nextToken.kind == SyntaxKind.IDENTIFIER_TOKEN;
+                    hasMatch =
+                            nextToken.kind == SyntaxKind.SIMPLE_TYPE || nextToken.kind == SyntaxKind.IDENTIFIER_TOKEN;
                     break;
                 case FUNC_BODY:
                     return seekInFuncBodies(lookahead, currentDepth, matchingRulesCount);
@@ -570,7 +578,6 @@ public class BallerinaParserErrorHandler {
                             NAMED_OR_POSITIONAL_ARG_RHS);
                 case EXPRESSION_END:
                     return seekMatchInExpressionEnd(nextToken, lookahead, currentDepth, matchingRulesCount);
-
                 case OBJECT_MEMBER:
                     return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount, OBJECT_MEMBER_START);
                 case OBJECT_FIELD_RHS:
@@ -585,6 +592,28 @@ public class BallerinaParserErrorHandler {
                 case OBJECT_FUNC_OR_FIELD_WITHOUT_VISIBILITY:
                     return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount,
                             OBJECT_FUNC_OR_FIELD_WITHOUT_VISIBILITY);
+                case OBJECT_TYPE_DESCRIPTOR_START:
+                    return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount,
+                            OBJECT_TYPE_DESCRIPTOR_START);
+                case OBJECT_TYPE_FIRST_QUALIFIER:
+                case OBJECT_TYPE_SECOND_QUALIFIER:
+                    // If currentDepth == 0 means its the very next token after the error. If that erroneous
+                    // token is a correct match, then that means we have reached here because of a duplicate
+                    // modifier. Therefore treat it as a mismatch.
+                    if (currentDepth == 0) {
+                        hasMatch = false;
+                        break;
+                    }
+
+                    hasMatch = nextToken.kind == SyntaxKind.ABSTRACT_KEYWORD ||
+                            nextToken.kind == SyntaxKind.CLIENT_KEYWORD;
+                    break;
+                case ABSTRACT_KEYWORD:
+                    hasMatch = nextToken.kind == SyntaxKind.ABSTRACT_KEYWORD;
+                    break;
+                case CLIENT_KEYWORD:
+                    hasMatch = nextToken.kind == SyntaxKind.CLIENT_KEYWORD;
+                    break;
 
                 // productions
                 case COMP_UNIT:
@@ -602,9 +631,8 @@ public class BallerinaParserErrorHandler {
                 case ARG_LIST:
                 case ASTERISK:
                 case FUNC_CALL:
-
-                case OBJECT_TYPE_DESCRIPTOR:
                 case RECORD_TYPE_DESCRIPTOR:
+                case OBJECT_TYPE_DESCRIPTOR:
                 default:
                     // Stay at the same place
                     skipRule = true;
@@ -1203,8 +1231,13 @@ public class BallerinaParserErrorHandler {
             case REMOTE_KEYWORD:
                 return ParserRuleContext.FUNCTION_KEYWORD;
             case OBJECT_TYPE_DESCRIPTOR:
+                return ParserRuleContext.OBJECT_TYPE_DESCRIPTOR_START;
+            case OBJECT_TYPE_FIRST_QUALIFIER:
+            case OBJECT_TYPE_SECOND_QUALIFIER:
                 return ParserRuleContext.OBJECT_KEYWORD;
-
+            case ABSTRACT_KEYWORD:
+            case CLIENT_KEYWORD:
+                return ParserRuleContext.OBJECT_KEYWORD;
             case OBJECT_FUNC_OR_FIELD:
             case OBJECT_METHOD_START:
             case OBJECT_FUNC_OR_FIELD_WITHOUT_VISIBILITY:
@@ -1281,7 +1314,7 @@ public class BallerinaParserErrorHandler {
     /**
      * Get the expected token kind at the given parser rule context. If the parser rule is a terminal,
      * then the corresponding terminal token kind is returned. If the parser rule is a production,
-     * then {@link SyntaxKind#OTHER} is returned.
+     * then {@link SyntaxKind#NONE} is returned.
      * 
      * @param ctx Parser rule context
      * @return Token kind expected at the given parser rule
@@ -1378,6 +1411,13 @@ public class BallerinaParserErrorHandler {
                 return SyntaxKind.REMOTE_KEYWORD;
             case OBJECT_FIELD_RHS:
                 return SyntaxKind.SEMICOLON_TOKEN;
+            case ABSTRACT_KEYWORD:
+                return SyntaxKind.ABSTRACT_KEYWORD;
+            case CLIENT_KEYWORD:
+                return SyntaxKind.CLIENT_KEYWORD;
+            case OBJECT_TYPE_FIRST_QUALIFIER:
+            case OBJECT_TYPE_SECOND_QUALIFIER:
+                return SyntaxKind.OBJECT_KEYWORD;
 
             // TODO:
             case COMP_UNIT:

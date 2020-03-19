@@ -205,6 +205,10 @@ public class ParserTestUtils {
                 return SyntaxKind.OBJECT_KEYWORD;
             case "REMOTE_KEYWORD":
                 return SyntaxKind.REMOTE_KEYWORD;
+            case "CLIENT_KEYWORD":
+                return SyntaxKind.CLIENT_KEYWORD;
+            case "ABSTRACT_KEYWORD":
+                return SyntaxKind.ABSTRACT_KEYWORD;
 
             // Operators
             case "PLUS_TOKEN":

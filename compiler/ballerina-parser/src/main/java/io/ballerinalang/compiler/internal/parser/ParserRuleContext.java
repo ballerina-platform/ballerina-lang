@@ -66,6 +66,9 @@ public enum ParserRuleContext {
     OBJECT_FUNC_OR_FIELD_WITHOUT_VISIBILITY("object-func-or-field-without-visibility"),
     OBJECT_METHOD_START("object-method-start"),
     OBJECT_FIELD_RHS("object-field-rhs"),
+    OBJECT_TYPE_FIRST_QUALIFIER("object-type-qualifier"),
+    OBJECT_TYPE_SECOND_QUALIFIER("object-type-second-qualifier"),
+    OBJECT_TYPE_DESCRIPTOR_START("object-type-desc-start"),
 
     // terminals
     PUBLIC_KEYWORD("public"),
@@ -89,6 +92,8 @@ public enum ParserRuleContext {
     ELLIPSIS("..."),
     RECORD_KEYWORD("record"),
     OBJECT_KEYWORD("object"),
+    ABSTRACT_KEYWORD("abstract"),
+    CLIENT_KEYWORD("client"),
     QUESTION_MARK("?"),
     TYPE_NAME("type-name"),
     ASTERISK("*"),

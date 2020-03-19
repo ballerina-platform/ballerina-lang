@@ -14,6 +14,9 @@
                 {
                     "kind": "LIST",
                     "children": [
+                        {
+                            "kind": "CLIENT_KEYWORD"
+                        }
                     ]
                 },
                 {
@@ -30,27 +33,11 @@
                             "children": [
                                 {
                                     "kind": "SIMPLE_TYPE",
-                                    "value": "int"
+                                    "value": "string"
                                 },
                                 {
                                     "kind": "IDENTIFIER_TOKEN",
-                                    "value": "a"
-                                },
-                                {
-                                    "kind": "SEMICOLON_TOKEN"
-                                }
-                            ]
-                        },
-                        {
-                            "kind": "OBJECT_FIELD",
-                            "children": [
-                                {
-                                    "kind": "SIMPLE_TYPE",
-                                    "isMissing": true
-                                },
-                                {
-                                    "kind": "IDENTIFIER_TOKEN",
-                                    "isMissing": true
+                                    "value": "name"
                                 },
                                 {
                                     "kind": "SEMICOLON_TOKEN"
@@ -60,14 +47,12 @@
                     ]
                 },
                 {
-                    "kind": "CLOSE_BRACE_TOKEN",
-                    "isMissing": true
+                    "kind": "CLOSE_BRACE_TOKEN"
                 }
             ]
         },
         {
-            "kind": "SEMICOLON_TOKEN",
-            "isMissing": true
+            "kind": "SEMICOLON_TOKEN"
         }
     ]
 }

@@ -58,6 +58,28 @@ public class ObjectTypeDefinitionTest extends AbstractDeclarationTest {
         test("object-type-def/object_type_def_source_12.bal", "object-type-def/object_type_def_assert_12.json");
     }
 
+    // Test object type qualifiers
+
+    @Test
+    public void testClientQualifierOnly() {
+        test("object-type-def/object_type_def_source_14.bal", "object-type-def/object_type_def_assert_14.json");
+    }
+
+    @Test
+    public void testAbstractQualifierOnly() {
+        test("object-type-def/object_type_def_source_15.bal", "object-type-def/object_type_def_assert_15.json");
+    }
+
+    @Test
+    public void testClientAndAbstractQualifiers() {
+        test("object-type-def/object_type_def_source_16.bal", "object-type-def/object_type_def_assert_16.json");
+    }
+
+    @Test
+    public void testAbstractAndClientQualifiers() {
+        test("object-type-def/object_type_def_source_17.bal", "object-type-def/object_type_def_assert_17.json");
+    }
+
     // Recovery tests
 
     @Test
@@ -93,5 +115,25 @@ public class ObjectTypeDefinitionTest extends AbstractDeclarationTest {
     @Test
     public void testMissingTypeReference() {
         test("object-type-def/object_type_def_source_13.bal", "object-type-def/object_type_def_assert_13.json");
+    }
+
+    @Test
+    public void testDuplicateClientQualifier() {
+        test("object-type-def/object_type_def_source_18.bal", "object-type-def/object_type_def_assert_18.json");
+    }
+
+    @Test
+    public void testDuplicateAbstractQualifier() {
+        test("object-type-def/object_type_def_source_19.bal", "object-type-def/object_type_def_assert_19.json");
+    }
+
+    @Test
+    public void testAdditionalQualifier() {
+        test("object-type-def/object_type_def_source_20.bal", "object-type-def/object_type_def_assert_20.json");
+    }
+
+    @Test
+    public void testAdditionalTokenBetweenQualifiers() {
+        test("object-type-def/object_type_def_source_21.bal", "object-type-def/object_type_def_assert_21.json");
     }
 }

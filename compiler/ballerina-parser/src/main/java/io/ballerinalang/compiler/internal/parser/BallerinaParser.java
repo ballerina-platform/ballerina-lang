@@ -172,6 +172,12 @@ public class BallerinaParser {
                 return parseObjectMethodOrField(parsedNodes[0]);
             case OBJECT_FIELD_RHS:
                 return parseObjectFieldRhs(parsedNodes[0], parsedNodes[1], parsedNodes[2]);
+            case OBJECT_TYPE_FIRST_QUALIFIER:
+                return parseObjectTypeQualifiers();
+            case OBJECT_TYPE_SECOND_QUALIFIER:
+                return parseObjectTypeSecondQualifier(parsedNodes[0]);
+            case OBJECT_KEYWORD:
+                return parseObjectKeyword();
             case FUNC_DEFINITION:
             case REQUIRED_PARAM:
             default:
@@ -791,6 +797,8 @@ public class BallerinaParser {
                 // Record type descriptor
                 return parseRecordTypeDescriptor();
             case OBJECT_KEYWORD:
+            case ABSTRACT_KEYWORD:
+            case CLIENT_KEYWORD:
                 // Object type descriptor
                 return parseObjectTypeDescriptor();
             default:
@@ -1600,6 +1608,8 @@ public class BallerinaParser {
             case SIMPLE_TYPE:
             case RECORD_KEYWORD:
             case OBJECT_KEYWORD:
+            case ABSTRACT_KEYWORD:
+            case CLIENT_KEYWORD:
                 // If the statement starts with a type, then its a var declaration.
                 // This is an optimization since if we know the next token is a type, then
                 // we can parse the var-def faster.
@@ -2183,17 +2193,120 @@ public class BallerinaParser {
      */
     private STNode parseObjectTypeDescriptor() {
         startContext(ParserRuleContext.OBJECT_TYPE_DESCRIPTOR);
+        STNode objectTypeQualifiers = parseObjectTypeQualifiers();
         STNode objectKeyword = parseObjectKeyword();
         STNode openBrace = parseOpenBrace();
         STNode objectMembers = parseObjectMembers();
         STNode closeBrace = parseCloseBrace();
         endContext();
 
-        return new STObjectTypeDescriptor(objectKeyword, openBrace, objectMembers, closeBrace);
+        return new STObjectTypeDescriptor(objectTypeQualifiers, objectKeyword, openBrace, objectMembers, closeBrace);
     }
 
     /**
      * @return
+     */
+    private STNode parseObjectTypeQualifiers() {
+        STToken nextToken = peek();
+        return parseObjectTypeQualifiers(nextToken.kind);
+    }
+
+    private STNode parseObjectTypeQualifiers(SyntaxKind kind) {
+        List<STNode> qualifiers = new ArrayList<>();
+        STNode firstQualifier;
+        switch (kind) {
+            case CLIENT_KEYWORD:
+                STNode clientKeyword = parseClientKeyword();
+                firstQualifier = clientKeyword;
+                break;
+            case ABSTRACT_KEYWORD:
+                STNode abstractKeyword = parseAbstractKeyword();
+                firstQualifier = abstractKeyword;
+                break;
+            case OBJECT_KEYWORD:
+                return new STNodeList(qualifiers);
+            default:
+                Solution solution = recover(peek(), ParserRuleContext.OBJECT_TYPE_FIRST_QUALIFIER);
+
+                // If the parser recovered by inserting a token, then try to re-parse the same
+                // rule with the inserted token. This is done to pick the correct branch
+                // to continue the parsing.
+                if (solution.action == Action.REMOVE) {
+                    return solution.recoveredNode;
+                }
+
+                return parseObjectTypeQualifiers(solution.tokenKind);
+        }
+
+        // Parse the second qualifier if available.
+        STNode secondQualifier = parseObjectTypeSecondQualifier(firstQualifier);
+
+        qualifiers.add(firstQualifier);
+        if (secondQualifier != null) {
+            qualifiers.add(secondQualifier);
+        }
+        return new STNodeList(qualifiers);
+    }
+
+    private STNode parseObjectTypeSecondQualifier(STNode firstQualifier) {
+        STToken nextToken = peek();
+        return parseObjectTypeSecondQualifier(nextToken.kind, firstQualifier);
+    }
+
+    private STNode parseObjectTypeSecondQualifier(SyntaxKind kind, STNode firstQualifier) {
+        if (firstQualifier.kind != kind) {
+            switch (kind) {
+                case CLIENT_KEYWORD:
+                    return parseClientKeyword();
+                case ABSTRACT_KEYWORD:
+                    return parseAbstractKeyword();
+                case OBJECT_KEYWORD:
+                    return null;
+                default:
+                    break;
+            }
+        }
+
+        Solution solution = recover(peek(), ParserRuleContext.OBJECT_TYPE_SECOND_QUALIFIER, firstQualifier);
+
+        // If the parser recovered by inserting a token, then try to re-parse the same
+        // rule with the inserted token. This is done to pick the correct branch
+        // to continue the parsing.
+        if (solution.action == Action.REMOVE) {
+            return solution.recoveredNode;
+        }
+
+        return parseObjectTypeSecondQualifier(solution.tokenKind, firstQualifier);
+    }
+
+    /**
+     * @return Parsed node
+     */
+    private STNode parseClientKeyword() {
+        STToken token = peek();
+        if (token.kind == SyntaxKind.CLIENT_KEYWORD) {
+            return consume();
+        } else {
+            Solution sol = recover(token, ParserRuleContext.CLIENT_KEYWORD);
+            return sol.recoveredNode;
+        }
+    }
+
+    /**
+     * @return Parsed node
+     */
+    private STNode parseAbstractKeyword() {
+        STToken token = peek();
+        if (token.kind == SyntaxKind.ABSTRACT_KEYWORD) {
+            return consume();
+        } else {
+            Solution sol = recover(token, ParserRuleContext.ABSTRACT_KEYWORD);
+            return sol.recoveredNode;
+        }
+    }
+
+    /**
+     * @return Parsed node
      */
     private STNode parseObjectKeyword() {
         STToken token = peek();
@@ -2206,7 +2319,7 @@ public class BallerinaParser {
     }
 
     /**
-     * @return
+     * @return Parsed node
      */
     private STNode parseObjectMembers() {
         ArrayList<STNode> objectMembers = new ArrayList<>();
@@ -2252,11 +2365,14 @@ public class BallerinaParser {
             case FUNCTION_KEYWORD:
                 member = parseObjectMethod(new STEmptyNode());
                 break;
-            // All type descriptor starting tokens should goes here
+
+            // All 'type starting tokens' here. should be same as 'parseTypeDescriptor(...)'
             case IDENTIFIER_TOKEN:
             case SIMPLE_TYPE:
             case RECORD_KEYWORD:
             case OBJECT_KEYWORD:
+            case ABSTRACT_KEYWORD:
+            case CLIENT_KEYWORD:
                 member = parseObjectField(new STEmptyNode());
                 break;
             default:
@@ -2306,11 +2422,14 @@ public class BallerinaParser {
                 return parseObjectMethod(new STNodeList(methodQualifiers));
             case FUNCTION_KEYWORD:
                 return parseObjectMethod(visibilityQualifiers);
-            // All type descriptor starting tokens should goes here
+
+            // All 'type starting tokens' here. should be same as 'parseTypeDescriptor(...)'
             case IDENTIFIER_TOKEN:
             case SIMPLE_TYPE:
             case RECORD_KEYWORD:
             case OBJECT_KEYWORD:
+            case ABSTRACT_KEYWORD:
+            case CLIENT_KEYWORD:
                 // Here we try to catch the common user error of missing the function keyword.
                 // In such cases, lookahead for the open-parenthesis and figure out whether
                 // this is an object-method with missing name. If yes, then try to recover.

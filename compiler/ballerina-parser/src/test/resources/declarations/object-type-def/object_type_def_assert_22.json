@@ -1,24 +1,27 @@
 {
-    "kind": "TYPE_DEFINITION",
+    "kind": "FUNCTION_DEFINITION",
     "children": [
         {
-            "kind": "TYPE_KEYWORD"
+            "kind": "FUNCTION_KEYWORD"
         },
         {
             "kind": "IDENTIFIER_TOKEN",
-            "value": "Student"
+            "value": "foo"
         },
         {
-            "kind": "OBJECT_TYPE_DESCRIPTOR",
+            "kind": "OPEN_PAREN_TOKEN"
+        },
+        {
+            "kind": "LIST",
             "children": [
-                {
-                    "kind": "LIST",
-                    "children": [
-                    ]
-                },
-                {
-                    "kind": "OBJECT_KEYWORD"
-                },
+            ]
+        },
+        {
+            "kind": "CLOSE_PAREN_TOKEN"
+        },
+        {
+            "kind": "BLOCK_STATEMENT",
+            "children": [
                 {
                     "kind": "OPEN_BRACE_TOKEN"
                 },
@@ -26,26 +29,7 @@
                     "kind": "LIST",
                     "children": [
                         {
-                            "kind": "OBJECT_FIELD",
-                            "children": [
-                                {
-                                    "kind": "PUBLIC_KEYWORD"
-                                },
-                                {
-                                    "kind": "SIMPLE_TYPE",
-                                    "value": "int"
-                                },
-                                {
-                                    "kind": "IDENTIFIER_TOKEN",
-                                    "value": "a"
-                                },
-                                {
-                                    "kind": "SEMICOLON_TOKEN"
-                                }
-                            ]
-                        },
-                        {
-                            "kind": "OBJECT_FIELD",
+                            "kind": "LOCAL_VARIABLE_DECL",
                             "children": [
                                 {
                                     "kind": "OBJECT_TYPE_DESCRIPTOR",
@@ -53,6 +37,9 @@
                                         {
                                             "kind": "LIST",
                                             "children": [
+                                                {
+                                                    "kind": "ABSTRACT_KEYWORD"
+                                                }
                                             ]
                                         },
                                         {
@@ -76,8 +63,7 @@
                                                             "value": "a"
                                                         },
                                                         {
-                                                            "kind": "SEMICOLON_TOKEN",
-                                                            "isMissing": true
+                                                            "kind": "SEMICOLON_TOKEN"
                                                         }
                                                     ]
                                                 },
@@ -89,7 +75,7 @@
                                                         },
                                                         {
                                                             "kind": "IDENTIFIER_TOKEN",
-                                                            "isMissing": true
+                                                            "value": "getName"
                                                         },
                                                         {
                                                             "kind": "OPEN_PAREN_TOKEN"
@@ -106,8 +92,7 @@
                                                             "kind": "BLOCK_STATEMENT",
                                                             "children": [
                                                                 {
-                                                                    "kind": "OPEN_BRACE_TOKEN",
-                                                                    "isMissing": true
+                                                                    "kind": "OPEN_BRACE_TOKEN"
                                                                 },
                                                                 {
                                                                     "kind": "LIST",
@@ -120,6 +105,22 @@
                                                             ]
                                                         }
                                                     ]
+                                                },
+                                                {
+                                                    "kind": "OBJECT_FIELD",
+                                                    "children": [
+                                                        {
+                                                            "kind": "SIMPLE_TYPE",
+                                                            "value": "int"
+                                                        },
+                                                        {
+                                                            "kind": "IDENTIFIER_TOKEN",
+                                                            "value": "b"
+                                                        },
+                                                        {
+                                                            "kind": "SEMICOLON_TOKEN"
+                                                        }
+                                                    ]
                                                 }
                                             ]
                                         },
@@ -130,50 +131,10 @@
                                 },
                                 {
                                     "kind": "IDENTIFIER_TOKEN",
-                                    "value": "parent"
+                                    "value": "person"
                                 },
                                 {
-                                    "kind": "SEMICOLON_TOKEN",
-                                    "isMissing": true
-                                }
-                            ]
-                        },
-                        {
-                            "kind": "FUNCTION_DEFINITION",
-                            "children": [
-                                {
-                                    "kind": "FUNCTION_KEYWORD"
-                                },
-                                {
-                                    "kind": "IDENTIFIER_TOKEN",
-                                    "value": "foo"
-                                },
-                                {
-                                    "kind": "OPEN_PAREN_TOKEN"
-                                },
-                                {
-                                    "kind": "LIST",
-                                    "children": [
-                                    ]
-                                },
-                                {
-                                    "kind": "CLOSE_PAREN_TOKEN"
-                                },
-                                {
-                                    "kind": "BLOCK_STATEMENT",
-                                    "children": [
-                                        {
-                                            "kind": "OPEN_BRACE_TOKEN"
-                                        },
-                                        {
-                                            "kind": "LIST",
-                                            "children": [
-                                            ]
-                                        },
-                                        {
-                                            "kind": "CLOSE_BRACE_TOKEN"
-                                        }
-                                    ]
+                                    "kind": "SEMICOLON_TOKEN"
                                 }
                             ]
                         }
@@ -183,9 +144,6 @@
                     "kind": "CLOSE_BRACE_TOKEN"
                 }
             ]
-        },
-        {
-            "kind": "SEMICOLON_TOKEN"
         }
     ]
 }

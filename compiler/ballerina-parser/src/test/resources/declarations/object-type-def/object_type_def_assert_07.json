@@ -12,6 +12,11 @@
             "kind": "OBJECT_TYPE_DESCRIPTOR",
             "children": [
                 {
+                    "kind": "LIST",
+                    "children": [
+                    ]
+                },
+                {
                     "kind": "OBJECT_KEYWORD",
                     "isMissing": true
                 },

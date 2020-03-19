@@ -473,6 +473,10 @@ public class BallerinaLexer {
                 return getSyntaxToken(SyntaxKind.OBJECT_KEYWORD);
             case LexerTerminals.REMOTE:
                 return getSyntaxToken(SyntaxKind.REMOTE_KEYWORD);
+            case LexerTerminals.ABSTRACT:
+                return getSyntaxToken(SyntaxKind.ABSTRACT_KEYWORD);
+            case LexerTerminals.CLIENT:
+                return getSyntaxToken(SyntaxKind.CLIENT_KEYWORD);
             default:
                 return getIdentifierToken(tokenText);
         }
