@@ -75,7 +75,7 @@ dependencies {
 task init_Submodules {
 	doLast{
 		if (OperatingSystem.current().isLinux()){
-			print("Hi, I worked!!")
+			print("Running git submodule init;git submodule update")
 			def c1 = ['sh', '-c', 'git submodule init'].execute()
 			c1.waitFor()
 			println(c1.text.trim())
