@@ -35,6 +35,12 @@ public const PRODUCER_ERROR = "{ballerina/kafka}ProducerError";
 # Represents a Kafka producer related error
 public type ProducerError error<PRODUCER_ERROR, Detail>;
 
+# Defines an Avro serialization / deserialization error
+public const AVRO_ERROR = "{ballerina/kafka}AvroError";
+
+# Represents a Kafka Avro related error
+public type AvroError error<AVRO_ERROR, Detail>;
+
 function getValueTypeMismatchError(string expectedType) returns ProducerError {
     string message = "Invalid type found for Kafka value. Expected value type: '" + expectedType + "'.";
     return createProducerError(message);
