@@ -53,7 +53,7 @@ public class HttpPayloadTestCase extends HttpBaseTest {
         Assert.assertEquals(response.getData(),
                             "Error occurred while extracting xml data from entity: " +
                                     "error failed to create xml: ParseError at [row,col]:[1,1]Message: " +
-                                    "Content is not allowed in prolog. ",
+                                    "Content is not allowed in prolog.",
                             "Message content mismatched");
     }
 }

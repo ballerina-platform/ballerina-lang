@@ -26,7 +26,7 @@ import org.testng.annotations.Test;
 /**
  * Test class to test positive scenarios of testerina using a ballerina project.
  */
-public class ProjectBasedIntegrationTest extends BaseTestCase {
+public class BasicCasesTest extends BaseTestCase {
 
     private BMainInstance balClient;
     private String projectPath;
@@ -34,7 +34,7 @@ public class ProjectBasedIntegrationTest extends BaseTestCase {
     @BeforeClass
     public void setup() throws BallerinaTestException {
         balClient = new BMainInstance(balServer);
-        projectPath = multiModulesProjectPath.toString();
+        projectPath = basicTestsProjectPath.toString();
     }
 
     @Test

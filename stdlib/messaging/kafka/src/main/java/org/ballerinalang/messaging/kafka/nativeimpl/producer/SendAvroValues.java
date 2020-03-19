@@ -23,7 +23,6 @@ import org.apache.avro.generic.GenericData;
 import org.apache.avro.generic.GenericRecord;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.ballerinalang.jvm.values.MapValue;
-import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.api.BArray;
 import org.ballerinalang.messaging.kafka.utils.KafkaConstants;
@@ -47,8 +46,7 @@ public class SendAvroValues {
     @SuppressWarnings(UNCHECKED)
     public static Object send(ObjectValue producer, MapValue value, String topic, Object partition,
                               Object timestamp) {
-        GenericRecord genericRecord = createRecord(value);
-        populateAvroRecord(genericRecord, value);
+        GenericRecord genericRecord = createGenericRecord(value);
         Integer partitionValue = getIntValue(partition, ALIAS_PARTITION, logger);
         Long timestampValue = getLongValue(timestamp);
         ProducerRecord<?, Object> kafkaRecord = new ProducerRecord<>(topic, partitionValue, timestampValue, null,
@@ -59,8 +57,7 @@ public class SendAvroValues {
     // ballerina avro and String
     public static Object send(ObjectValue producer, MapValue value, String topic, String key, Object partition,
                               Object timestamp) {
-        GenericRecord genericRecord = createRecord(value);
-        populateAvroRecord(genericRecord, value);
+        GenericRecord genericRecord = createGenericRecord(value);
         Integer partitionValue = getIntValue(partition, ALIAS_PARTITION, logger);
         Long timestampValue = getLongValue(timestamp);
         ProducerRecord<String, GenericRecord> kafkaRecord = new ProducerRecord<>(topic, partitionValue, timestampValue,
@@ -71,8 +68,7 @@ public class SendAvroValues {
     // ballerina avro and ballerina int
     public static Object send(ObjectValue producer, MapValue value, String topic, long key, Object partition,
                               Object timestamp) {
-        GenericRecord genericRecord = createRecord(value);
-        populateAvroRecord(genericRecord, value);
+        GenericRecord genericRecord = createGenericRecord(value);
         Integer partitionValue = getIntValue(partition, ALIAS_PARTITION, logger);
         Long timestampValue = getLongValue(timestamp);
         ProducerRecord<Long, GenericRecord> kafkaRecord = new ProducerRecord<>(topic, partitionValue, timestampValue,
@@ -83,8 +79,7 @@ public class SendAvroValues {
     // ballerina avro and ballerina float
     public static Object send(ObjectValue producer, MapValue value, String topic, double key, Object partition,
                               Object timestamp) {
-        GenericRecord genericRecord = createRecord(value);
-        populateAvroRecord(genericRecord, value);
+        GenericRecord genericRecord = createGenericRecord(value);
         Integer partitionValue = getIntValue(partition, ALIAS_PARTITION, logger);
         Long timestampValue = getLongValue(timestamp);
         ProducerRecord<Double, GenericRecord> kafkaRecord = new ProducerRecord<>(topic, partitionValue, timestampValue,
@@ -95,8 +90,7 @@ public class SendAvroValues {
     // ballerina avro and ballerina byte[]
     public static Object send(ObjectValue producer, MapValue value, String topic, BArray key, Object partition,
                               Object timestamp) {
-        GenericRecord genericRecord = createRecord(value);
-        populateAvroRecord(genericRecord, value);
+        GenericRecord genericRecord = createGenericRecord(value);
         Integer partitionValue = getIntValue(partition, ALIAS_PARTITION, logger);
         Long timestampValue = getLongValue(timestamp);
         ProducerRecord<byte[], GenericRecord> kafkaRecord = new ProducerRecord<>(topic, partitionValue, timestampValue,
@@ -107,8 +101,7 @@ public class SendAvroValues {
     // ballerina avro and ballerina any
     public static Object sendAvroAny(ObjectValue producer, MapValue value, String topic, Object key, Object partition,
                                      Object timestamp) {
-        GenericRecord genericRecord = createRecord(value);
-        populateAvroRecord(genericRecord, value);
+        GenericRecord genericRecord = createGenericRecord(value);
         Integer partitionValue = getIntValue(partition, ALIAS_PARTITION, logger);
         Long timestampValue = getLongValue(timestamp);
         ProducerRecord<Object, GenericRecord> kafkaRecord = new ProducerRecord<>(topic, partitionValue, timestampValue,
@@ -116,22 +109,40 @@ public class SendAvroValues {
         return sendKafkaRecord(kafkaRecord, producer);
     }
 
-    private static GenericRecord populateAvroRecord(GenericRecord record, MapValue mapValue) {
-        MapValue<String, Object> data = mapValue.getMapValue(KafkaConstants.AVRO_DATA_RECORD_NAME);
+    private static GenericRecord createGenericRecord(MapValue<String, Object> value) {
+        GenericRecord genericRecord = createRecord(value);
+        MapValue data = value.getMapValue(KafkaConstants.AVRO_DATA_RECORD_NAME);
+        populateAvroRecord(genericRecord, data);
+        return genericRecord;
+    }
+
+    private static void populateAvroRecord(GenericRecord record, MapValue<String, Object> data) {
         String[] keys = data.getKeys();
         for (String key : keys) {
             Object value = data.get(key);
-            if (value instanceof String || value instanceof Integer || value instanceof Long ||
-                    value instanceof Double || value instanceof Float || value == null) {
+            if (value instanceof String || value instanceof Number || value == null) {
                 record.put(key, value);
             } else if (value instanceof MapValue) {
-                populateAvroRecord(record, (MapValueImpl) value);
+                Schema childSchema = record.getSchema().getField(key).schema();
+                GenericRecord subRecord = new GenericData.Record(childSchema);
+                populateAvroRecord(subRecord, (MapValue<String, Object>) value);
+                record.put(key, subRecord);
+            } else if (value instanceof BArray) {
+                Schema childSchema = record.getSchema().getField(key).schema().getElementType();
+                GenericRecord subRecord = new GenericData.Record(childSchema);
+                populateAvroRecordArray(subRecord, (BArray) value);
+                record.put(key, subRecord);
             } else {
                 throw KafkaUtils.createKafkaError("Invalid data type received for avro data",
                                                   KafkaConstants.AVRO_ERROR);
             }
         }
-        return record;
+    }
+
+    private static void populateAvroRecordArray(GenericRecord record, BArray bArray) {
+        for (int i = 0; i < bArray.size(); i++) {
+            record.put(i, bArray.get(i));
+        }
     }
 
     private static GenericRecord createRecord(MapValue value) {

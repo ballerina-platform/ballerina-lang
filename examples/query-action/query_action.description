@@ -1,3 +1,4 @@
 // Like a query-expression, a query-action can be used with a value that is iterable with any error type.
 // The result of the query-action is the termination value of the iterator.
 // Thus, if the source type is infallibly iterable, the result will be () and can be ignored.
+// This is a preview feature.
