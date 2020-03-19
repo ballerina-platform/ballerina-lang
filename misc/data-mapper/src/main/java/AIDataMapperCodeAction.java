@@ -37,6 +37,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -55,15 +56,15 @@ import static org.ballerinalang.langserver.util.references.ReferencesUtil.getRef
 @JavaSPIService("org.ballerinalang.langserver.commons.codeaction.spi.LSCodeActionProvider")
 public class AIDataMapperCodeAction extends AbstractCodeActionProvider {
 
-    private final static String LOCAL_HOST_URL = "http://127.0.0.1:5000/uploader";
+    private final static String REMOTE_URL = "https://ai-data-mapper.development.choreo.dev/uploader";
     private final static String REMOTE_AI_SERVICE_URL_ENV = "REMOTE_AI_SERVICE_URL";
     private static String AI_SERVICE_URL;
 
     public AIDataMapperCodeAction() {
 
         super();
-        String remoteURL = System.getenv(REMOTE_AI_SERVICE_URL_ENV);
-        AI_SERVICE_URL = remoteURL != null ? remoteURL : LOCAL_HOST_URL;
+        String customURL = System.getenv(REMOTE_AI_SERVICE_URL_ENV);
+        AI_SERVICE_URL = customURL.length() == 0 ? REMOTE_URL : customURL;
     }
 
     public static CodeAction getAIDataMapperCommand(LSDocumentIdentifier document, Diagnostic diagnostic,
@@ -198,9 +199,9 @@ public class AIDataMapperCodeAction extends AbstractCodeActionProvider {
         connection.setRequestProperty("Accept", "application/json");
         connection.setDoOutput(true);
         try (OutputStream outputStream = connection.getOutputStream()) {
-            outputStream.write(schemasToSend.getBytes("UTF-8"));
+            outputStream.write(schemasToSend.getBytes(StandardCharsets.UTF_8));
             try (InputStream in = new BufferedInputStream(connection.getInputStream())) {
-                return org.apache.commons.io.IOUtils.toString(in, "UTF-8");
+                return org.apache.commons.io.IOUtils.toString(in, StandardCharsets.UTF_8);
             }
         }
     }
