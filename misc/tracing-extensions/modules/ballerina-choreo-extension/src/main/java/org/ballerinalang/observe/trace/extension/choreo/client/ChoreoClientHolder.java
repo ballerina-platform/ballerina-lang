@@ -139,7 +139,7 @@ public class ChoreoClientHolder {
                                                  MetadataReader metadataReader, String instanceId, String appId) {
         choreoClient = new ChoreoClient(hostname, port, useSSL);
         String observabilityUrl = choreoClient.register(metadataReader, instanceId, appId);
-        LOGGER.info("visit " + observabilityUrl + " to access observability data");
+        LOGGER.info("visit " + observabilityUrl.replaceAll("%", "%%") + " to access observability data");
     }
 
     public static String getFullQualifiedConfig(String configName) {
