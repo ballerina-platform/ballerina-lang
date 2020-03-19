@@ -115,3 +115,16 @@ function testXMLElementAccessNavigationAccessComposition() returns [xml, xml, xm
     xml i = x/<person>/**/<fname>;
     return [c, d, e, f, g, h, i];
 }
+
+function testXMLNavigationExpressionWithQuotedIdentifiers() returns [xml, xml] {
+    xml x = xml `<jobInfo xmlns="http://www.force.com/2009/06/asyncapi/dataload">
+        <id>750k2v101000N25bjbAc</id>
+        <operation>insert</operation>
+        <object>Account</object>
+    </jobInfo>`;
+
+    xmlns "http://www.force.com/2009/06/asyncapi/dataload";
+    xmlns "http://www.force.com/2009/06/asyncapi/dataload" as ns0;
+
+    return [x/<'object>, x/<ns0:'object>];
+}
