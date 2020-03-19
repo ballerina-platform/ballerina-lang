@@ -1,7 +1,7 @@
 # To run this sample, navigate to the directory that contains the
 # `.bal` file, and execute the `ballerina run` command.
 $ ballerina run xml_functions.bal
-# Type of XML element.
+
 name
 Hello, World!<name>Book1</name><!--some comment-->
 true
