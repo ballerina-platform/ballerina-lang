@@ -4405,7 +4405,7 @@ public class Desugar extends BLangNodeVisitor {
 
     private ArrayList<BLangExpression> expandFilters(List<BLangXMLElementFilter> filters) {
         Map<Name, BXMLNSSymbol> nameBXMLNSSymbolMap = symResolver.resolveAllNamespaces(env);
-        BXMLNSSymbol defaultNSSymbol = nameBXMLNSSymbolMap.get(XMLConstants.DEFAULT_NS_PREFIX);
+        BXMLNSSymbol defaultNSSymbol = nameBXMLNSSymbolMap.get(names.fromString(XMLConstants.DEFAULT_NS_PREFIX));
         String defaultNS = defaultNSSymbol != null ? defaultNSSymbol.namespaceURI : null;
 
         ArrayList<BLangExpression> args = new ArrayList<>();
