@@ -70,11 +70,11 @@ public function entries(map<Type> m) returns map<[string, Type]> = external;
 #
 # + m - the map
 # + func - a function to apply to each member
-# + return - new map containing result of applying function 'func' to each member
+# + return - new map containing result of applying parameter `func` to each member
 public function 'map(map<Type> m, function(Type val) returns Type1 func) returns map<Type1> = external;
 
 # Applies a function to each member of a map.
-# The function 'func' is applied to each member of `m`.
+# The parameter `func` is applied to each member of `m`.
 #
 # + m - the map
 # + func - a function to apply to each member
