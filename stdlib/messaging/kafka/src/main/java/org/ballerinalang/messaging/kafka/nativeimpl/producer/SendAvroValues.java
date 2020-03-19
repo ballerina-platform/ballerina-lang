@@ -23,7 +23,6 @@ import org.apache.avro.generic.GenericData;
 import org.apache.avro.generic.GenericRecord;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.ballerinalang.jvm.values.MapValue;
-import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.api.BArray;
 import org.ballerinalang.messaging.kafka.utils.KafkaConstants;
@@ -121,12 +120,28 @@ public class SendAvroValues {
         String[] keys = data.getKeys();
         for (String key : keys) {
             Object value = data.get(key);
-            if (value instanceof String || value instanceof Number || value instanceof MapValue || value == null) {
+            if (value instanceof String || value instanceof Number || value == null) {
                 record.put(key, value);
+            } else if (value instanceof MapValue) {
+                Schema childSchema = record.getSchema().getField(key).schema();
+                GenericRecord subRecord = new GenericData.Record(childSchema);
+                populateAvroRecord(subRecord, (MapValue<String, Object>) value);
+                record.put(key, subRecord);
+            } else if (value instanceof BArray) {
+                Schema childSchema = record.getSchema().getField(key).schema().getElementType();
+                GenericRecord subRecord = new GenericData.Record(childSchema);
+                populateAvroRecordArray(subRecord, (BArray) value);
+                record.put(key, subRecord);
             } else {
                 throw KafkaUtils.createKafkaError("Invalid data type received for avro data",
                                                   KafkaConstants.AVRO_ERROR);
             }
+        }
+    }
+
+    private static void populateAvroRecordArray(GenericRecord record, BArray bArray) {
+        for (int i = 0; i < bArray.size(); i++) {
+            record.put(i, bArray.get(i));
         }
     }
 
