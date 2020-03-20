@@ -101,6 +101,10 @@ public class PullModuleCodeAction extends AbstractCodeActionProvider {
     private static String getVersion(LSContext context, String pkgName, Matcher matcher) {
         CompilerContext compilerContext = context.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY);
         String version = matcher.groupCount() > 1 && matcher.group(2) != null ? ":" + matcher.group(2) : "";
+        int aliasIndex = version.indexOf(" as ");
+        if (aliasIndex > 0) {
+            version = version.substring(0, aliasIndex);
+        }
         if (compilerContext != null && version.isEmpty()) {
             // If no version in source, try reading Ballerina.toml dependencies
             ManifestProcessor manifestProcessor = ManifestProcessor.getInstance(compilerContext);
