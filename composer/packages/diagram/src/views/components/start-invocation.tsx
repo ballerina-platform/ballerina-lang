@@ -4,6 +4,7 @@ import _ from "lodash";
 import * as React from "react";
 import { DiagramConfig } from "../../config/default";
 import { DiagramUtils } from "../../diagram/diagram-utils";
+// import { getCodePoint } from "../../utils";
 import { ViewState } from "../../view-model/index";
 import { ArrowHead } from "./arrow-head";
 
@@ -15,10 +16,12 @@ export const StartInvocation: React.StatelessComponent<{
     client, worker, y, label, model
 }) => {
         const startLine = { x1: 0, y1: 0, x2: 0, y2: 0 };
-        const labelProps = {x: 0, y: 0};
+        const labelProps = {x: 0, y: 0 };
         const statusRect = { x: 0, y: 0 , width: 55, height: 20, rx: 5, ry: 5 };
-        const succesText = { x: 0, y: 0 , width: 0, height: 0 };
-        const errorText = { x: 0, y: 0 , width: 0, height: 0 };
+        const succesText = { x: 0, y: 0 , width: 0, height: 0};
+        const errorText = { x: 0, y: 0 , width: 0, height: 0};
+        const succesIcon = { x: 0, y: 0 , width: 0, height: 0, className: "check"};
+        const errorIcon = { x: 0, y: 0 , width: 0, height: 0, className: "alert" };
         const msText = { x: 0, y: 0 , width: 0, height: 0 };
 
         startLine.x1 = client.bBox.x + (client.bBox.w / 2);
@@ -33,8 +36,14 @@ export const StartInvocation: React.StatelessComponent<{
 
         succesText.y = statusRect.y + (config.statement.height / 2);
         succesText.x = statusRect.x + 5;
+        succesIcon.y = succesText.y;
+        succesIcon.x = succesText.x;
+
         errorText.y = statusRect.y + (config.statement.height / 2);
         errorText.x = succesText.x + config.statement.expanded.rightMargin - 5;
+        errorIcon.y = errorText.y;
+        errorIcon.x = errorText.x;
+
         msText.y = errorText.y ;
         msText.x = errorText.x + (config.statement.expanded.leftMargin * 3);
 
