@@ -172,13 +172,10 @@ public class QueryDesugar extends BLangNodeVisitor {
         BLangIndexBasedAccess indexAccessExpr = ASTBuilderUtil.createIndexAccessExpr(tempArrayVarRef, lengthInvocation);
         indexAccessExpr.type = selectClause.expression.type;
 
-        // TODO: 2020-03-20 check where
-//        buildWhereClauseBlock(whereClauseList, letClauseList, leafForeach, whileIsValBody, selectClause.pos);
-
         // Set the indexed based access expression statement as foreach body
         BLangAssignment tempVarAssignment = ASTBuilderUtil.createAssignmentStmt(pos, indexAccessExpr,
                 selectClause.expression);
-        elseBlock.stmts.add(1,tempVarAssignment);
+        buildWhereClauseBlock(whereClauseList, letClauseList, elseBlock, tempVarAssignment, selectClause.pos);
 
         BLangTypeTestExpr typeNullExpr = ASTBuilderUtil
                 .createTypeTestExpr(fromClause.pos, outputVarRef, desugar.getNillTypeNode());
@@ -192,10 +189,7 @@ public class QueryDesugar extends BLangNodeVisitor {
 
         parentBlock.addStatement(nullCheckIf);
 
-        // Create block statement with temp variable definition statement & foreach statement
-//        BLangBlockStmt blockStmt = ASTBuilderUtil.createBlockStmt(pos);
-//        blockStmt.addStatement(outputVariableDef);
-//        blockStmt.addStatement(parentForeach);
+        // Create statement with temp variable definition statements & while statement
         BLangStatementExpression stmtExpr = ASTBuilderUtil.createStatementExpression(parentBlock, outputVarRef);
 
         stmtExpr.type = outputArrayType;
@@ -226,7 +220,7 @@ public class QueryDesugar extends BLangNodeVisitor {
 
         BLangForeach leafForeach = buildFromClauseBlock(fromClauseList);
         BLangBlockStmt foreachBody = ASTBuilderUtil.createBlockStmt(pos);
-        buildWhereClauseBlock(whereClauseList, letClauseList, leafForeach, foreachBody, doClause.pos);
+        buildWhereClauseBlock(whereClauseList, letClauseList, null, null, doClause.pos);
         foreachBody.addStatement(doClause.body);
         blockNode.stmts.add(parentForeach);
         return blockNode;
@@ -242,7 +236,6 @@ public class QueryDesugar extends BLangNodeVisitor {
             }
         }
     }
-
 
 /*    Person[]|error? outputList = ();
     Person[] tempList = [];
@@ -343,8 +336,7 @@ public class QueryDesugar extends BLangNodeVisitor {
             BLangFieldBasedAccess valueAccessExpr = getValueAccessExpression(fromClause, resultSymbol);
             valueAccessExpr.expr = desugar.addConversionExprIfRequired(valueAccessExpr.expr,
                     types.getSafeType(valueAccessExpr.expr.type, true, false));
-            ((BLangSimpleVariableDef)fromClause.variableDefinitionNode)
-                    .var.setInitialExpression(desugar.addConversionExprIfRequired(valueAccessExpr, fromClause.varType));
+            variableDefinitionNode.getVariable().setInitialExpression(desugar.addConversionExprIfRequired(valueAccessExpr, fromClause.varType));
 
             elseBody.stmts.add(0, (BLangStatement) variableDefinitionNode);
             erroCheckIf.elseStmt = elseBody;
@@ -397,7 +389,8 @@ public class QueryDesugar extends BLangNodeVisitor {
     }
 
     private void buildWhereClauseBlock(List<BLangWhereClause> whereClauseList, List<BLangLetClause> letClauseList,
-                                       BLangForeach leafForEach, BLangBlockStmt foreachBody, DiagnosticPos pos) {
+                                       BLangBlockStmt elseBlock, BLangAssignment selectAssignment, DiagnosticPos pos) {
+        BLangBlockStmt stmtBlock = ASTBuilderUtil.createBlockStmt(pos);
         if (whereClauseList.size() > 0) {
             // Create If Statement with Where expression and foreach body
             BLangIf outerIf = null;
@@ -415,15 +408,17 @@ public class QueryDesugar extends BLangNodeVisitor {
                 }
                 innerIf = bLangIf;
             }
-            innerIf.setBody(foreachBody);
-            BLangBlockStmt bLangBlockStmt = ASTBuilderUtil.createBlockStmt(pos);
-            buildLetClauseBlock(letClauseList, bLangBlockStmt);
-            bLangBlockStmt.addStatement(outerIf);
-            leafForEach.setBody(bLangBlockStmt);
+            BLangBlockStmt innerIfBlock = ASTBuilderUtil.createBlockStmt(pos);
+            innerIfBlock.addStatement(selectAssignment);
+            innerIf.setBody(innerIfBlock);
+
+            buildLetClauseBlock(letClauseList, stmtBlock);
+            stmtBlock.addStatement(outerIf);
         } else {
-            buildLetClauseBlock(letClauseList, foreachBody);
-            leafForEach.setBody(foreachBody);
+            buildLetClauseBlock(letClauseList, stmtBlock);
+            stmtBlock.addStatement(selectAssignment);
         }
+        elseBlock.getStatements().addAll(stmtBlock.getStatements());
     }
 
     private BLangInvocation createLengthInvocation(DiagnosticPos pos, BVarSymbol collectionSymbol) {
