@@ -17,7 +17,6 @@
  */
 package io.ballerinalang.compiler.internal.parser.tree;
 
-import io.ballerinalang.compiler.syntax.tree.FunctionCallNode;
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 
@@ -56,6 +55,6 @@ public class STMethodCallExpression extends STExpression {
 
     @Override
     public Node createFacade(int position, NonTerminalNode parent) {
-        return new FunctionCallNode(this, position, parent);
+        return null;
     }
 }

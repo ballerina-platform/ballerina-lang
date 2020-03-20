@@ -156,6 +156,11 @@ public class BallerinaParserErrorHandler {
         this.errorListener.reportInvalidNodeError(startingToken, message);
     }
 
+    public void reportMissingTokenError(String message) {
+        STToken currentToken = this.tokenReader.head();
+        this.errorListener.reportMissingTokenError(currentToken, message);
+    }
+
     private ParserRuleContext getParentContext() {
         return this.ctxStack.peek();
     }
@@ -255,11 +260,6 @@ public class BallerinaParserErrorHandler {
         return this.ctxStack.clone();
     }
 
-    private void reportMissingTokenError(String message) {
-        STToken currentToken = this.tokenReader.head();
-        this.errorListener.reportMissingTokenError(currentToken, message);
-    }
-
     private boolean isProductionWithAlternatives(ParserRuleContext currentCtx) {
         switch (currentCtx) {
             case TOP_LEVEL_NODE:
@@ -352,7 +352,7 @@ public class BallerinaParserErrorHandler {
                 return false;
         }
     }
-    
+
     private boolean isEndOfObjectTypeNode(int nextLookahead) {
         STToken nextToken = this.tokenReader.peek(nextLookahead);
         switch (nextToken.kind) {
@@ -374,7 +374,7 @@ public class BallerinaParserErrorHandler {
                 }
         }
     }
-    
+
     /**
      * TODO: This is a duplicate method. Same as {@link BallerinaParser#isEndOfExpression}.
      * 
@@ -647,7 +647,7 @@ public class BallerinaParserErrorHandler {
                 case DOT:
                     hasMatch = nextToken.kind == SyntaxKind.DOT_TOKEN;
                     break;
-                    
+
                 // productions
                 case COMP_UNIT:
                 case FUNC_DEFINITION:

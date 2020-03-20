@@ -31,6 +31,7 @@ import io.ballerinalang.compiler.internal.parser.tree.STExternalFuncBody;
 import io.ballerinalang.compiler.internal.parser.tree.STFieldAccessExpression;
 import io.ballerinalang.compiler.internal.parser.tree.STFunctionCallExpression;
 import io.ballerinalang.compiler.internal.parser.tree.STFunctionDefinition;
+import io.ballerinalang.compiler.internal.parser.tree.STMemberAccessExpression;
 import io.ballerinalang.compiler.internal.parser.tree.STMethodCallExpression;
 import io.ballerinalang.compiler.internal.parser.tree.STMissingToken;
 import io.ballerinalang.compiler.internal.parser.tree.STModulePart;
@@ -182,6 +183,8 @@ public class BallerinaParser {
                 return parseObjectTypeSecondQualifier(parsedNodes[0]);
             case OBJECT_KEYWORD:
                 return parseObjectKeyword();
+            case TYPE_NAME:
+                return parseTypeName();
             case FUNC_DEFINITION:
             case REQUIRED_PARAM:
             default:
@@ -1947,7 +1950,8 @@ public class BallerinaParser {
         STNode newLhsExpr;
         switch (tokenKind) {
             case OPEN_BRACKET_TOKEN:
-                throw new UnsupportedOperationException("member access is not supported yet");
+                newLhsExpr = parseMemberAccessExpr(lhsExpr);
+                break;
             case DOT_TOKEN:
                 if (peek(2).kind == SyntaxKind.IDENTIFIER_TOKEN) {
                     newLhsExpr = parseFieldAccessOrMethodCall(lhsExpr);
@@ -1973,12 +1977,49 @@ public class BallerinaParser {
     }
 
     /**
+     * Parse member access expression.
+     * 
+     * @param lhsExpr Container expression
+     * @return Member access expression
+     */
+    private STNode parseMemberAccessExpr(STNode lhsExpr) {
+        // Next token is already validated before coming here. Hence just consume.
+        STNode openBracket = consume();
+
+        STNode keyExpr;
+        if (peek().kind == SyntaxKind.CLOSE_BRACKET_TOKEN) {
+            this.errorHandler.reportMissingTokenError("missing expression");
+            keyExpr = new STMissingToken(SyntaxKind.IDENTIFIER_TOKEN);
+        } else {
+            keyExpr = parseExpression();
+        }
+        STNode closeBracket = parseCloseBracket();
+        return new STMemberAccessExpression(lhsExpr, openBracket, keyExpr, closeBracket);
+    }
+
+    /**
+     * Parse close bracket.
+     * 
+     * @return Parsed node
+     */
+    private STNode parseCloseBracket() {
+        STToken token = peek();
+        if (token.kind == SyntaxKind.CLOSE_BRACKET_TOKEN) {
+            return consume();
+        } else {
+            Solution sol = recover(token, ParserRuleContext.CLOSE_BRACKET);
+            return sol.recoveredNode;
+        }
+    }
+
+    /**
      * Parse field access expression and method call expression.
      * 
+     * @param lhsExpr Preceding expression of the field access or method call
      * @return One of <code>field-access-expression</code> or <code>method-call-expression</code>.
      */
     private STNode parseFieldAccessOrMethodCall(STNode lhsExpr) {
-        // Below two tokens are already validated before coming here.
+        // Next two tokens are already validated before coming here.
         // Hence just consume.
         STNode dotToken = consume();
         STNode fieldOrMethodName = consume();

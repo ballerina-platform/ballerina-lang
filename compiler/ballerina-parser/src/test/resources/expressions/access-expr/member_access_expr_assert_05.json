@@ -1,0 +1,69 @@
+{
+    "kind": "MEMBER_ACCESS",
+    "children": [
+        {
+            "kind": "IDENTIFIER_TOKEN",
+            "value": "x"
+        },
+        {
+            "kind": "OPEN_BRACKET_TOKEN"
+        },
+        {
+            "kind": "MEMBER_ACCESS",
+            "children": [
+                {
+                    "kind": "METHOD_CALL",
+                    "children": [
+                        {
+                            "kind": "MEMBER_ACCESS",
+                            "children": [
+                                {
+                                    "kind": "IDENTIFIER_TOKEN",
+                                    "value": "y"
+                                },
+                                {
+                                    "kind": "OPEN_BRACKET_TOKEN"
+                                },
+                                {
+                                    "kind": "IDENTIFIER_TOKEN",
+                                    "value": "z"
+                                },
+                                {
+                                    "kind": "CLOSE_BRACKET_TOKEN"
+                                }
+                            ]
+                        },
+                        {
+                            "kind": "DOT_TOKEN"
+                        },
+                        {
+                            "kind": "IDENTIFIER_TOKEN",
+                            "value": "call"
+                        },
+                        {
+                            "kind": "OPEN_PAREN_TOKEN"
+                        },
+                        {
+                            "kind": "LIST",
+                            "children": [
+                            ]
+                        },
+                        {
+                            "kind": "CLOSE_PAREN_TOKEN"
+                        }
+                    ]
+                },
+                {
+                    "kind": "OPEN_BRACKET_TOKEN"
+                },
+                {
+                    "kind": "NUMERIC_LITERAL_TOKEN",
+                    "value": "3"
+                },
+                {
+                    "kind": "CLOSE_BRACKET_TOKEN"
+                }
+            ]
+        }
+    ]
+}

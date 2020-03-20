@@ -291,6 +291,8 @@ public class ParserTestUtils {
                 return SyntaxKind.FIELD_ACCESS;
             case "METHOD_CALL":
                 return SyntaxKind.METHOD_CALL;
+            case "MEMBER_ACCESS":
+                return SyntaxKind.MEMBER_ACCESS;
 
             // Statements
             case "BLOCK_STATEMENT":

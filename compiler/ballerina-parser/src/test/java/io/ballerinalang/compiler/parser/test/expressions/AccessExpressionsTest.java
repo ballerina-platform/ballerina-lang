@@ -39,6 +39,21 @@ public class AccessExpressionsTest extends AbstractExpressionsTest {
         test("x + a.b(p.q(s.t()) + r).c.d() + y", "access-expr/field_access_expr_assert_03.json");
     }
 
+    @Test
+    public void testSimpleMemberAccessExpression() {
+        test("a[b]", "access-expr/member_access_expr_assert_01.json");
+    }
+
+    @Test
+    public void testFieldAccessInMemberAccess() {
+        test("x.y.z[a.b.c]", "access-expr/member_access_expr_assert_02.json");
+    }
+
+    @Test
+    public void testComplexMemberAccessExpression() {
+        test("x[y[z]].call()[3]", "access-expr/member_access_expr_assert_04.json");
+    }
+
     // Recovery tests
 
     @Test
@@ -51,4 +66,13 @@ public class AccessExpressionsTest extends AbstractExpressionsTest {
         test("x + a b() c. d", "access-expr/field_access_expr_assert_05.json");
     }
 
+    @Test
+    public void testMissingKeyExprInMemberAccess() {
+        test("x[].y", "access-expr/member_access_expr_assert_03.json");
+    }
+
+    @Test
+    public void testMissingCloseBracketInMemberAccess() {
+        test("x[y[z].call()[3]", "access-expr/member_access_expr_assert_05.json");
+    }
 }

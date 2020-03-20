@@ -1,0 +1,31 @@
+{
+    "kind": "FIELD_ACCESS",
+    "children": [
+        {
+            "kind": "MEMBER_ACCESS",
+            "children": [
+                {
+                    "kind": "IDENTIFIER_TOKEN",
+                    "value": "x"
+                },
+                {
+                    "kind": "OPEN_BRACKET_TOKEN"
+                },
+                {
+                    "kind": "IDENTIFIER_TOKEN",
+                    "isMissing": true
+                },
+                {
+                    "kind": "CLOSE_BRACKET_TOKEN"
+                }
+            ]
+        },
+        {
+            "kind": "DOT_TOKEN"
+        },
+        {
+            "kind": "IDENTIFIER_TOKEN",
+            "value": "y"
+        }
+    ]
+}
