@@ -6,8 +6,6 @@ During each release, we execute various automated performance test scenarios and
 | --- | --- |
 | Passthrough HTTP service (h1c -> h1c) | An HTTP Service, which forwards all requests to an HTTP back-end service. |
 | Passthrough HTTPS service (h1 -> h1) | An HTTPS Service, which forwards all requests to an HTTPS back-end service. |
-| JSON to XML transformation HTTP service | An HTTP Service, which transforms JSON requests to XML and then forwards all requests to an HTTP back-end service. |
-| JSON to XML transformation HTTPS service | An HTTPS Service, which transforms JSON requests to XML and then forwards all requests to an HTTPS back-end service. |
 | Passthrough HTTP/2(over TLS) service (h2 -> h2) | An HTTPS Service exposed over HTTP/2 protocol, which forwards all requests to an HTTP/2(over TLS) back-end service. |
 | Passthrough HTTP/2(over TLS) service (h2 -> h1) | An HTTPS Service exposed over HTTP/2 protocol, which forwards all requests to an HTTPS back-end service. |
 | Passthrough HTTP/2(over TLS) service (h2 -> h1c) | An HTTPS Service exposed over HTTP/2 protocol, which forwards all requests to an HTTP back-end service. |
@@ -67,24 +65,12 @@ The following is the summary of performance test results collected for the measu
 |  Passthrough HTTP service (h1c -> h1c) | 300 | 1024 | 0 | 0 | 19637.32 | 15.22 | 14.17 | 34 | 99.04 | 19.963 |
 |  Passthrough HTTP service (h1c -> h1c) | 1000 | 50 | 0 | 0 | 19212.12 | 51.98 | 16.71 | 100 | 97.33 | 19.932 |
 |  Passthrough HTTP service (h1c -> h1c) | 1000 | 1024 | 0 | 0 | 18350.34 | 54.42 | 16.53 | 102 | 97.54 | 19.923 |
-|  JSON to XML transformation HTTP service | 100 | 50 | 0 | 100 | 246.12 | 398 | 3277.72 | 30079 | 98.07 | 394.554 |
-|  JSON to XML transformation HTTP service | 100 | 1024 | 0 | 100 | 231.01 | 425.94 | 2528.12 | 7039 | 52.24 | 1475.345 |
-|  JSON to XML transformation HTTP service | 300 | 50 | 0 | 100 | 513.3 | 560.74 | 1305.25 | 1343 | 97.11 | 410.309 |
-|  JSON to XML transformation HTTP service | 300 | 1024 | 0 | 100 | 604.07 | 488.42 | 773.08 | 4079 | 55.41 | 1395.719 |
-|  JSON to XML transformation HTTP service | 1000 | 50 | 0 | 100 | 938.45 | 1063.25 | 395.92 | 1759 | 96.4 | 370.57 |
-|  JSON to XML transformation HTTP service | 1000 | 1024 | 0 | 100 | 37465.18 | 23.27 | 25.04 | 126 | 6.02 | 1825.024 |
 |  Passthrough HTTPS service (h1 -> h1) | 100 | 50 | 0 | 0 | 16906.15 | 5.87 | 3.1 | 14 | 99.35 | 23.746 |
 |  Passthrough HTTPS service (h1 -> h1) | 100 | 1024 | 0 | 0 | 12105.28 | 8.21 | 11.7 | 18 | 99.56 | 23.951 |
 |  Passthrough HTTPS service (h1 -> h1) | 300 | 50 | 0 | 0 | 17208.55 | 17.37 | 7.13 | 37 | 99.02 | 24.345 |
 |  Passthrough HTTPS service (h1 -> h1) | 300 | 1024 | 0 | 0 | 12464.81 | 24 | 8.82 | 49 | 99.14 | 24.791 |
 |  Passthrough HTTPS service (h1 -> h1) | 1000 | 50 | 0 | 0 | 15426.84 | 64.74 | 19.43 | 120 | 97.47 | 24.676 |
 |  Passthrough HTTPS service (h1 -> h1) | 1000 | 1024 | 0 | 0 | 11763.06 | 84.92 | 24.15 | 151 | 97.67 | 24.849 |
-|  JSON to XML transformation HTTPS service | 100 | 50 | 0 | 100 | 40.61 | 2452.61 | 306.32 | 3551 | 98.18 | 148.512 |
-|  JSON to XML transformation HTTPS service | 100 | 1024 | 0 | 100 | 40.56 | 2455.36 | 309.92 | 3583 | 98.17 | 255.091 |
-|  JSON to XML transformation HTTPS service | 300 | 50 | 0 | 100 | 39.05 | 7585.19 | 362.38 | 8767 | 97.79 | 183.662 |
-|  JSON to XML transformation HTTPS service | 300 | 1024 | 0 | 100 | 40.32 | 7346.72 | 387.75 | 8703 | 97.95 | 350.988 |
-|  JSON to XML transformation HTTPS service | 1000 | 50 | 0 | 100 | 36.84 | 26015.69 | 704.34 | 28159 | 98.22 | 397.062 |
-|  JSON to XML transformation HTTPS service | 1000 | 1024 | 0 | 100 | 36.36 | 26362.84 | 990.22 | 28671 | 96.43 | 653.166 |
 |  Passthrough HTTP/2(over TLS) service (h2 -> h1c) | 100 | 50 | 0 | 0 | 15187.75 | 6.38 | 3.21 | 15 | 99.47 | 23.837 |
 |  Passthrough HTTP/2(over TLS) service (h2 -> h1c) | 100 | 1024 | 0 | 0 | 14548.27 | 6.56 | 3.16 | 15 | 99.53 | 23.821 |
 |  Passthrough HTTP/2(over TLS) service (h2 -> h1c) | 300 | 50 | 0 | 0 | 15685.86 | 18.67 | 7.71 | 40 | 99.03 | 24.269 |
