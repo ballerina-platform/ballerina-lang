@@ -24,7 +24,7 @@ package io.ballerinalang.compiler.internal.parser;
  */
 public enum OperatorPrecedence {
 
-    FIELD_ACCESS(0),
+    MEMBER_ACCESS(0),
     UNARY(1),           //  (+x), (-x), (~x), (!x), (<T>x), (typeof x)
     MULTIPLICATIVE(2),  //  (x * y), (x / y), (x % y)
     ADDITIVE(3),        //  (x + y), (x - y)

@@ -1,0 +1,19 @@
+{
+    "kind": "MEMBER_ACCESS",
+    "children": [
+        {
+            "kind": "IDENTIFIER_TOKEN",
+            "value": "a"
+        },
+        {
+            "kind": "OPEN_BRACKET_TOKEN"
+        },
+        {
+            "kind": "IDENTIFIER_TOKEN",
+            "value": "b"
+        },
+        {
+            "kind": "CLOSE_BRACKET_TOKEN"
+        }
+    ]
+}

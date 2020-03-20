@@ -40,22 +40,6 @@
                                     "kind": "SEMICOLON_TOKEN"
                                 }
                             ]
-                        },
-                        {
-                            "kind": "OBJECT_FIELD",
-                            "children": [
-                                {
-                                    "kind": "SIMPLE_TYPE",
-                                    "isMissing": true
-                                },
-                                {
-                                    "kind": "IDENTIFIER_TOKEN",
-                                    "isMissing": true
-                                },
-                                {
-                                    "kind": "SEMICOLON_TOKEN"
-                                }
-                            ]
                         }
                     ]
                 },
@@ -66,8 +50,7 @@
             ]
         },
         {
-            "kind": "SEMICOLON_TOKEN",
-            "isMissing": true
+            "kind": "SEMICOLON_TOKEN"
         }
     ]
 }

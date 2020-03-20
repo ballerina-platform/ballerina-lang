@@ -285,6 +285,14 @@ public class ParserTestUtils {
                 return SyntaxKind.NAMED_ARG;
             case "REST_ARG":
                 return SyntaxKind.REST_ARG;
+            case "QUALIFIED_IDENTIFIER":
+                return SyntaxKind.QUALIFIED_IDENTIFIER;
+            case "FIELD_ACCESS":
+                return SyntaxKind.FIELD_ACCESS;
+            case "METHOD_CALL":
+                return SyntaxKind.METHOD_CALL;
+            case "MEMBER_ACCESS":
+                return SyntaxKind.MEMBER_ACCESS;
 
             // Statements
             case "BLOCK_STATEMENT":
