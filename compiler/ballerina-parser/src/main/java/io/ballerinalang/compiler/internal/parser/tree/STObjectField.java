@@ -19,31 +19,43 @@ package io.ballerinalang.compiler.internal.parser.tree;
 
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
-import io.ballerinalang.compiler.syntax.tree.RecordTypeReferenceNode;
+import io.ballerinalang.compiler.syntax.tree.ObjectFieldNode;
 
-public class STRecordTypeReference extends STNode {
+public class STObjectField extends STNode {
 
-    public final STNode asterisk;
+    public final STNode visibilityQualifier;
     public final STNode type;
+    public final STNode fieldName;
+    public final STNode equalsToken;
+    public final STNode expression;
     public final STNode semicolonToken;
 
-    public STRecordTypeReference(STNode asterisk,
-                                  STNode type,
-                                  STNode semicolonToken) {
-        super(SyntaxKind.RECORD_TYPE_REFERENCE);
-        this.asterisk = asterisk;
+    public STObjectField(STNode visibilityQualifier,
+                         STNode type,
+                         STNode fieldName,
+                         STNode equalsToken,
+                         STNode expression,
+                         STNode semicolonToken) {
+        super(SyntaxKind.OBJECT_FIELD);
+        this.visibilityQualifier = visibilityQualifier;
         this.type = type;
+        this.fieldName = fieldName;
+        this.equalsToken = equalsToken;
+        this.expression = expression;
         this.semicolonToken = semicolonToken;
 
-        this.bucketCount = 3;
+        this.bucketCount = 6;
         this.childBuckets = new STNode[this.bucketCount];
-        this.addChildNode(asterisk, 0);
+        this.addChildNode(visibilityQualifier, 0);
         this.addChildNode(type, 1);
-        this.addChildNode(semicolonToken, 2);
+        this.addChildNode(fieldName, 2);
+        this.addChildNode(equalsToken, 3);
+        this.addChildNode(expression, 4);
+        this.addChildNode(semicolonToken, 5);
     }
 
     @Override
     public Node createFacade(int position, NonTerminalNode parent) {
-        return new RecordTypeReferenceNode(this, position, parent);
+        return new ObjectFieldNode(this, position, parent);
     }
 }

@@ -9,11 +9,12 @@
             "value": "Student"
         },
         {
-            "kind": "TYPE_TOKEN",
+            "kind": "SIMPLE_TYPE",
             "value": "int"
         },
         {
-            "kind": "SEMICOLON_TOKEN"
+            "kind": "SEMICOLON_TOKEN",
+            "isMissing": true
         }
     ]
 }

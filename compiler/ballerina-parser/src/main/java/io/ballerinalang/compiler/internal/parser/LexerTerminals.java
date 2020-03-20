@@ -26,6 +26,7 @@ public class LexerTerminals {
 
     // Keywords
     public static final String PUBLIC = "public";
+    public static final String PRIVATE = "private";
     public static final String FUNCTION = "function";
     public static final String RETURN = "return";
     public static final String RETURNS = "returns";
@@ -33,6 +34,9 @@ public class LexerTerminals {
     public static final String TYPE = "type";
     public static final String RECORD = "record";
     public static final String OBJECT = "object";
+    public static final String REMOTE = "remote";
+    public static final String ABSTRACT = "abstract";
+    public static final String CLIENT = "client";
 
     // Types
     public static final String INT = "int";

@@ -18,7 +18,7 @@
                     "kind": "PARAMETER",
                     "children": [
                         {
-                            "kind": "TYPE_TOKEN",
+                            "kind": "SIMPLE_TYPE",
                             "value": "string"
                         },
                         {
@@ -37,7 +37,7 @@
                             "kind": "COMMA_TOKEN"
                         },
                         {
-                            "kind": "TYPE_TOKEN",
+                            "kind": "SIMPLE_TYPE",
                             "value": "int"
                         },
                         {
@@ -61,7 +61,7 @@
                             "kind": "COMMA_TOKEN"
                         },
                         {
-                            "kind": "TYPE_TOKEN",
+                            "kind": "SIMPLE_TYPE",
                             "value": "int"
                         },
                         {
