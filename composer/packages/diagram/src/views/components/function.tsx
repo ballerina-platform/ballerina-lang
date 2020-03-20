@@ -38,6 +38,7 @@ export const Function = (props: { model: FunctionNode }) => {
             })}
             {model.resource ?
                 <StartInvocation
+                    model={model}
                     client={viewState.client}
                     worker={viewState.defaultWorker.lifeline}
                     y={viewState.defaultWorker.bBox.y + config.lifeLine.header.height}
@@ -53,6 +54,7 @@ export const Function = (props: { model: FunctionNode }) => {
                 />
             :
                 <StartInvocation
+                    model={model}
                     client={viewState.client}
                     worker={viewState.defaultWorker.lifeline}
                     y={viewState.defaultWorker.bBox.y + config.lifeLine.header.height}

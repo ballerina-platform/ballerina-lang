@@ -18,7 +18,7 @@ export const Worker: React.SFC<WorkerProps> = ({ model, startY, client }) => {
     const lambda: Lambda = variable.initialExpression as Lambda;
     const functionNode = lambda.functionNode;
     return <g>
-        <StartInvocation client={client} worker={workerViewState.lifeline}
+        <StartInvocation model={model} client={client} worker={workerViewState.lifeline}
             y={startY}/>
         <LifeLine title={workerViewState.name} icon="worker"
             model={workerViewState.lifeline.bBox} astModel={model} />

@@ -1,4 +1,5 @@
 import { ASTNode, ASTUtil } from "@ballerina/ast-model";
+import _ from "lodash";
 import * as React from "react";
 import { Popup } from "semantic-ui-react";
 import { DiagramConfig } from "../../config/default";
@@ -48,14 +49,33 @@ export const ActionInvocation: React.StatelessComponent<{
         msText.y = errorText.y + config.statement.height + (config.statement.expanded.topMargin / 2) ;
         msText.x = errorText.x - config.statement.expanded.leftMargin - 5;
 
+        const metrics = _.get(astModel, "variable.inititalExpression.metrics");
+
+        const renderMetrics = () => {
+            if (!metrics) {
+                return (<g/>);
+            } else {
+                const { meanExecSuccessCount = 0, meanExecFailCount = 0, meanExecTime = 0 } = metrics;
+                const totalCount = meanExecSuccessCount + meanExecFailCount;
+                const successRate = (meanExecSuccessCount / totalCount) * 100;
+                const errorRate = (meanExecFailCount / totalCount) * 100;
+                const meanTimeMS = (meanExecTime * 1000).toFixed(2);
+                return (
+                   <React.Fragment>
+                        <rect className = {"action-status"} {...statusRect} />
+                        <text className= {"action-status-text-sucess"} {...succesText}>${successRate}%</text>
+                        <text className= {"action-status-text-error"}  {...errorText}>${errorRate}%</text>
+                        <text className= {"action-status-text-ms"}  {...msText}>${meanTimeMS}ms</text>
+                   </React.Fragment>
+                );
+            }
+        };
+
         const fullExpression = (astModel) ? ASTUtil.genSource(astModel) : action;
 
         return (
             <g className="action-invocation">
-                <rect className = {"action-status"} {...statusRect} />
-                <text className= {"action-status-text-sucess"} {...succesText}>75%</text>
-                <text className= {"action-status-text-error"}  {...errorText}>25%</text>
-                <text className= {"action-status-text-ms"}  {...msText}>20ms</text>
+                {metrics && renderMetrics()}
                 <line {...sendLine} className="invoke-line" />
                 <ArrowHead direction="right" x={sendLine.x2} y={sendLine.y2} className="invoke-arrowhead" />
                 <line {...receiveLine} strokeDasharray={5} className="invoke-line" />
