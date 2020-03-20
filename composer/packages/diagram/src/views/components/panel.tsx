@@ -45,7 +45,7 @@ export const Panel: React.StatelessComponent<{
                     />
                     <text
                         x={header.x + config.panelHeading.padding.left}
-                        y={headerCenter}
+                        y={headerCenter - (config.lifeLine.header.height / 3)}
                         className="panel-icon"
                     >
                         {getCodePoint(icon)}
@@ -66,7 +66,8 @@ export const Panel: React.StatelessComponent<{
                                 />}
                                 {(!editingEnabled && astModel) && <SourceLinkedLabel
                                                 x={titleTextBBox.x}
-                                                y={titleTextBBox.y + titleTextBBox.h / 2}
+                                                y={titleTextBBox.y - (config.lifeLine.header.height / 3)
+                                                    + (titleTextBBox.h / 2)}
                                                 className="panel-title"
                                                 target={astModel}
                                                 text={title}

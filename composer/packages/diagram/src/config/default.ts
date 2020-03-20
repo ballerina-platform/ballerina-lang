@@ -100,15 +100,21 @@ export class DiagramConfig {
         leftMargin: 120 / 2,
         line: {
             height: 135,
+            margin : {
+                bottom: 5,
+                left: 5,
+                right: 5,
+                top: 5,
+            }
         },
         radius: {
-            rx: 12,
-            ry: 12,
+            rx: 10,
+            ry: 10,
         },
         topbox: {
             height: 40,
         },
-        width: 120,
+        width: 100,
     };
 
     public clientLine = {

@@ -78,6 +78,8 @@
 --------------------*/
 
 @diagram-statement-font-size: @diagram-font-size;
+@light-diagram-statement-color: @gray;
+@dark-diagram-statement-color: @gray;
 
 
 
