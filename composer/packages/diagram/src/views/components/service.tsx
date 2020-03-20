@@ -22,13 +22,13 @@ export const Service: React.StatelessComponent<{
 
         const viewState: ViewState = model.viewState;
 
-        serviceTitle.y = serviceIcon.y = viewState.bBox.y + (config.panelHeading.height / 3);
+        serviceTitle.y = serviceIcon.y = viewState.bBox.y + (config.panelHeading.height / 2);
         serviceTitle.x = viewState.bBox.x + config.panelGroup.title.margin.left;
         serviceIcon.x = viewState.bBox.x;
 
         const editableTitle = new SimpleBBox();
         editableTitle.x = serviceTitle.x;
-        editableTitle.y = viewState.bBox.y + 30;
+        editableTitle.y = viewState.bBox.y;
         editableTitle.w = DiagramUtils.getTextWidth(model.name.value).w;
         editableTitle.h = config.panelHeading.height;
 

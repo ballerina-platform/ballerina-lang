@@ -2,21 +2,24 @@
 import * as React from "react";
 import { DiagramConfig } from "../../config/default";
 import { DiagramUtils } from "../../diagram/diagram-utils";
+// import { getCodePoint } from "../../utils";
 import { ViewState } from "../../view-model/index";
 import { ArrowHead } from "./arrow-head";
 
 const config: DiagramConfig = DiagramUtils.getConfig();
 
 export const StartInvocation: React.StatelessComponent<{
-    client: ViewState, worker: ViewState, y: number, label?: string
+    client: ViewState, icon?: string, worker: ViewState, y: number, label?: string
 }> = ({
-    client, worker, y, label
+    client, worker, y, label, icon
 }) => {
         const startLine = { x1: 0, y1: 0, x2: 0, y2: 0 };
-        const labelProps = {x: 0, y: 0};
+        const labelProps = {x: 0, y: 0 };
         const statusRect = { x: 0, y: 0 , width: 55, height: 20, rx: 5, ry: 5 };
-        const succesText = { x: 0, y: 0 , width: 0, height: 0 };
-        const errorText = { x: 0, y: 0 , width: 0, height: 0 };
+        const succesText = { x: 0, y: 0 , width: 0, height: 0};
+        const errorText = { x: 0, y: 0 , width: 0, height: 0};
+        const succesIcon = { x: 0, y: 0 , width: 0, height: 0, className: "check"};
+        const errorIcon = { x: 0, y: 0 , width: 0, height: 0, className: "alert" };
         const msText = { x: 0, y: 0 , width: 0, height: 0 };
 
         startLine.x1 = client.bBox.x + (client.bBox.w / 2);
@@ -31,14 +34,20 @@ export const StartInvocation: React.StatelessComponent<{
 
         succesText.y = statusRect.y + (config.statement.height / 2);
         succesText.x = statusRect.x + 5;
+        succesIcon.y = succesText.y;
+        succesIcon.x = succesText.x;
+
         errorText.y = statusRect.y + (config.statement.height / 2);
         errorText.x = succesText.x + config.statement.expanded.rightMargin - 5;
+        errorIcon.y = errorText.y;
+        errorIcon.x = errorText.x;
+
         msText.y = errorText.y ;
         msText.x = errorText.x + (config.statement.expanded.leftMargin * 3);
         return (
             <g className="start-invocation">
-                <rect className = {"action-status"} {...statusRect} />
-                <text className= {"action-status-text-sucess"} {...succesText}>75%</text>
+                <rect className = {"action-status"}{...statusRect} />
+                <text className= {"action-status-text-sucess" } {...succesText}>75%</text>
                 <text className= {"action-status-text-error"}  {...errorText}>25%</text>
                 <text className= {"action-status-text-ms"}  {...msText}>20ms</text>
                 <line {...startLine} />

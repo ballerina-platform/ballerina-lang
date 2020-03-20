@@ -86,7 +86,7 @@ export class DiagramConfig {
 
     public lifeLine = {
         bottombox: {
-            height: 40,
+            height: 38,
         },
         footer: {
             height: 30,
@@ -112,7 +112,7 @@ export class DiagramConfig {
             ry: 10,
         },
         topbox: {
-            height: 40,
+            height: 38,
         },
         width: 100,
     };
