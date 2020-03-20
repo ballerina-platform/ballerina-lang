@@ -160,7 +160,7 @@ public class Generator {
         } else if (kind == NodeKind.FUNCTION_TYPE) {
             // TODO: handle function type nodes
             added = true;
-        } else if (kind == NodeKind.BUILT_IN_REF_TYPE){
+        } else if (kind == NodeKind.BUILT_IN_REF_TYPE) {
             // TODO: handle built in ref type
             added = true;
         }
