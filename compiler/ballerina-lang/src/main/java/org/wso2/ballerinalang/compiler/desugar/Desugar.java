@@ -2810,7 +2810,7 @@ public class Desugar extends BLangNodeVisitor {
         return function.symbol;
     }
 
-    private BInvokableSymbol getLangLibIteratorInvokableSymbol(BVarSymbol collectionSymbol) {
+    BInvokableSymbol getLangLibIteratorInvokableSymbol(BVarSymbol collectionSymbol) {
         return (BInvokableSymbol) symResolver.lookupLangLibMethod(collectionSymbol.type,
                 names.fromString(BLangCompilerConstants.ITERABLE_COLLECTION_ITERATOR_FUNC));
     }
@@ -2868,7 +2868,7 @@ public class Desugar extends BLangNodeVisitor {
         whileNode.body = foreach.body;
 
         // Note - $result$ = $iterator$.next(); < this should go after initial assignment of `item`
-        BLangAssignment resultAssignment = getIteratorNextAssignment(foreach, iteratorSymbol, resultSymbol);
+        BLangAssignment resultAssignment = getIteratorNextAssignment(foreach.pos, iteratorSymbol, resultSymbol);
         VariableDefinitionNode variableDefinitionNode = foreach.variableDefinitionNode;
 
         // Generate $result$.value
@@ -3841,7 +3841,7 @@ public class Desugar extends BLangNodeVisitor {
         throw new IllegalStateException("None object type '" + type.toString() + "' found in object init context");
     }
 
-    private BLangErrorType getErrorTypeNode() {
+    BLangErrorType getErrorTypeNode() {
         BLangErrorType errorTypeNode = (BLangErrorType) TreeBuilder.createErrorTypeNode();
         errorTypeNode.type = symTable.errorType;
         return errorTypeNode;
@@ -4762,7 +4762,7 @@ public class Desugar extends BLangNodeVisitor {
     // private functions
 
     // Foreach desugar helper method.
-    private BLangSimpleVariableDef getIteratorVariableDefinition(DiagnosticPos pos, BVarSymbol collectionSymbol,
+    BLangSimpleVariableDef getIteratorVariableDefinition(DiagnosticPos pos, BVarSymbol collectionSymbol,
                                                                  BInvokableSymbol iteratorInvokableSymbol,
                                                                  boolean isIteratorFuncFromLangLib) {
 
@@ -4789,35 +4789,35 @@ public class Desugar extends BLangNodeVisitor {
     private BLangSimpleVariableDef getIteratorNextVariableDefinition(BLangForeach foreach,
                                                                      BVarSymbol iteratorSymbol,
                                                                      BVarSymbol resultSymbol) {
-        BLangInvocation nextInvocation = createIteratorNextInvocation(foreach, iteratorSymbol);
+        BLangInvocation nextInvocation = createIteratorNextInvocation(foreach.pos, iteratorSymbol);
         BLangSimpleVariable resultVariable = ASTBuilderUtil.createVariable(foreach.pos, "$result$",
                 foreach.nillableResultType, nextInvocation, resultSymbol);
         return ASTBuilderUtil.createVariableDef(foreach.pos, resultVariable);
     }
 
     // Foreach desugar helper method.
-    private BLangAssignment getIteratorNextAssignment(BLangForeach foreach,
+    BLangAssignment getIteratorNextAssignment(DiagnosticPos pos,
                                                       BVarSymbol iteratorSymbol, BVarSymbol resultSymbol) {
-        BLangSimpleVarRef resultReferenceInAssignment = ASTBuilderUtil.createVariableRef(foreach.pos, resultSymbol);
+        BLangSimpleVarRef resultReferenceInAssignment = ASTBuilderUtil.createVariableRef(pos, resultSymbol);
 
         // Note - $iterator$.next();
-        BLangInvocation nextInvocation = createIteratorNextInvocation(foreach, iteratorSymbol);
+        BLangInvocation nextInvocation = createIteratorNextInvocation(pos, iteratorSymbol);
 
         // we are inside the while loop. hence the iterator cannot be nil. hence remove nil from iterator's type
         nextInvocation.expr.type = types.getSafeType(nextInvocation.expr.type, true, false);
 
-        return ASTBuilderUtil.createAssignmentStmt(foreach.pos, resultReferenceInAssignment, nextInvocation, false);
+        return ASTBuilderUtil.createAssignmentStmt(pos, resultReferenceInAssignment, nextInvocation, false);
     }
 
-    private BLangInvocation createIteratorNextInvocation(BLangForeach foreach, BVarSymbol iteratorSymbol) {
-        BLangIdentifier nextIdentifier = ASTBuilderUtil.createIdentifier(foreach.pos, "next");
-        BLangSimpleVarRef iteratorReferenceInNext = ASTBuilderUtil.createVariableRef(foreach.pos, iteratorSymbol);
+    BLangInvocation createIteratorNextInvocation(DiagnosticPos pos, BVarSymbol iteratorSymbol) {
+        BLangIdentifier nextIdentifier = ASTBuilderUtil.createIdentifier(pos, "next");
+        BLangSimpleVarRef iteratorReferenceInNext = ASTBuilderUtil.createVariableRef(pos, iteratorSymbol);
         BInvokableSymbol nextFuncSymbol = getNextFunc((BObjectType) iteratorSymbol.type).symbol;
         BLangInvocation nextInvocation = (BLangInvocation) TreeBuilder.createInvocationNode();
-        nextInvocation.pos = foreach.pos;
+        nextInvocation.pos = pos;
         nextInvocation.name = nextIdentifier;
         nextInvocation.expr = iteratorReferenceInNext;
-        nextInvocation.requiredArgs = Lists.of(ASTBuilderUtil.createVariableRef(foreach.pos, iteratorSymbol));
+        nextInvocation.requiredArgs = Lists.of(ASTBuilderUtil.createVariableRef(pos, iteratorSymbol));
         nextInvocation.argExprs = nextInvocation.requiredArgs;
         nextInvocation.symbol = nextFuncSymbol;
         nextInvocation.type = nextFuncSymbol.retType;
@@ -5639,7 +5639,7 @@ public class Desugar extends BLangNodeVisitor {
         return new BAttachedFunction(Names.INIT_FUNCTION_SUFFIX, initFuncSymbol, bInvokableType);
     }
 
-    private BLangErrorType createErrorTypeNode(BErrorType errorType) {
+    BLangErrorType createErrorTypeNode(BErrorType errorType) {
         BLangErrorType errorTypeNode = (BLangErrorType) TreeBuilder.createErrorTypeNode();
         errorTypeNode.type = errorType;
         return errorTypeNode;
@@ -6128,7 +6128,7 @@ public class Desugar extends BLangNodeVisitor {
         accessExprStack.push(expr);
     }
 
-    private BLangValueType getNillTypeNode() {
+    BLangValueType getNillTypeNode() {
         BLangValueType nillTypeNode = (BLangValueType) TreeBuilder.createValueTypeNode();
         nillTypeNode.typeKind = TypeKind.NIL;
         nillTypeNode.type = symTable.nilType;
