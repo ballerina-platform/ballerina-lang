@@ -28,14 +28,14 @@ export const LifeLine: React.StatelessComponent<{
         const topLabel = { x: 0, y: 0 };
         const topIcon = { x: 0, y: 0, className: "life-line-icon" };
         const bottomLabel = { x: 0, y: 0 };
-        const topBox = { x: 0, y: 0 , width: 0, height: 0, rx: 12, ry: 12};
+        const topBox = { x: 0, y: 0 , width: 0, height: 0, rx: 10, ry: 10};
         const bottomBox = { x: 0, y: 0 , width: 0, height: 0, rx: 10, ry: 10};
         const lifeLine = { x1: 0 , y1: 0 , x2: 0, y2: 0 };
         const circle = {cx: 0, cy: 0, r: 13 };
 
         // Position the labels
         topLabel.x = topIcon.x = bottomLabel.x = model.x + (model.w / 2);
-        topLabel.y = topIcon.y = model.y + (config.lifeLine.topbox.height / 4);
+        topLabel.y = topIcon.y = model.y + (config.lifeLine.topbox.height / 4) - 2;
         bottomLabel.y = model.y + model.h - (config.lifeLine.footer.height / 4);
         // Position the Boxes
         topBox.x = bottomBox.x = model.x ;
@@ -49,7 +49,7 @@ export const LifeLine: React.StatelessComponent<{
         topBox.width = model.w;
         bottomBox.width = model.w;
         lifeLine.x1 = lifeLine.x2 = model.x + (model.w / 2);
-        lifeLine.y1 = model.y + config.lifeLine.header.height;
+        lifeLine.y1 = model.y + config.lifeLine.header.height - 5;
         lifeLine.y2 = model.y + model.h - config.lifeLine.footer.height;
         topIcon.y -= config.statement.height;
         circle.cx = topIcon.x = bottomLabel.x = model.x + (model.w / 2);
