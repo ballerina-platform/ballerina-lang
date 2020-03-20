@@ -3696,7 +3696,18 @@ public class BLangPackageBuilder {
 
     public void addXMLElementAccessFilter(DiagnosticPos pos, Set<Whitespace> ws, String ns,
                                           DiagnosticPos nsPos, String elementName, DiagnosticPos elemNamePos) {
+        // Escape names starting with '.
+        if (stringStartsWithSingleQuote(ns)) {
+            ns = ns.substring(1);
+        }
+        if (stringStartsWithSingleQuote(elementName)) {
+            elementName = elementName.substring(1);
+        }
         elementFilterStack.push(new BLangXMLElementFilter(pos, ws, ns, nsPos, elementName, elemNamePos));
+    }
+
+    private boolean stringStartsWithSingleQuote(String ns) {
+        return ns != null && ns.length() > 0 && ns.charAt(0) == '\'';
     }
 
     public void createXMLElementAccessNode(DiagnosticPos pos, Set<Whitespace> ws, int filterCount) {

@@ -203,6 +203,15 @@ public class XMLAccessTest {
     }
 
     @Test
+    public void testXMLNavigationExpressionWithQuotedIdentifiers() {
+        BValue[] returns = BRunUtil.invoke(navigation, "testXMLNavigationExpressionWithQuotedIdentifiers");
+        Assert.assertEquals(returns[0].stringValue(),
+                "<object xmlns=\"http://www.force.com/2009/06/asyncapi/dataload\">Account</object>");
+        Assert.assertEquals(returns[1].stringValue(),
+                "<object xmlns=\"http://www.force.com/2009/06/asyncapi/dataload\">Account</object>");
+    }
+
+    @Test
     public void testInvalidXMLAccessWithIndex() {
         BAssertUtil.validateError(negativeResult, 0, "cannot update an xml sequence", 5, 5);
 
