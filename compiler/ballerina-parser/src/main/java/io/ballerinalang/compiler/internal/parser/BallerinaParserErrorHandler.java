@@ -1463,6 +1463,14 @@ public class BallerinaParserErrorHandler {
             case OBJECT_TYPE_FIRST_QUALIFIER:
             case OBJECT_TYPE_SECOND_QUALIFIER:
                 return SyntaxKind.OBJECT_KEYWORD;
+            case CLOSE_BRACKET:
+                return SyntaxKind.CLOSE_BRACKET_TOKEN;
+            case DOT:
+                return SyntaxKind.DOT_TOKEN;
+            case FIELD_OR_FUNC_NAME:
+                return SyntaxKind.IDENTIFIER_TOKEN;
+            case OPEN_BRACKET:
+                return SyntaxKind.OPEN_BRACKET_TOKEN;
 
             // TODO:
             case COMP_UNIT:
@@ -1489,6 +1497,7 @@ public class BallerinaParserErrorHandler {
             case OBJECT_MEMBER:
             case OBJECT_METHOD_START:
             case OBJECT_TYPE_DESCRIPTOR:
+            case OBJECT_TYPE_DESCRIPTOR_START:
             default:
                 break;
         }
