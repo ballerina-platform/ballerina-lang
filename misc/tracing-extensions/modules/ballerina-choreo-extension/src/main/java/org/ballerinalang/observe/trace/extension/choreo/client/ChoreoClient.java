@@ -18,10 +18,10 @@ package org.ballerinalang.observe.trace.extension.choreo.client;
 
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
-import org.ballerinalang.observe.trace.extension.choreo.gen.HandshakeGrpc;
-import org.ballerinalang.observe.trace.extension.choreo.gen.HandshakeOuterClass.HandshakeRequest;
-import org.ballerinalang.observe.trace.extension.choreo.gen.HandshakeOuterClass.HandshakeResponse;
-import org.ballerinalang.observe.trace.extension.choreo.gen.HandshakeOuterClass.PublishProgramRequest;
+import org.ballerinalang.observe.trace.extension.choreo.gen.NegotiatorGrpc;
+import org.ballerinalang.observe.trace.extension.choreo.gen.NegotiatorOuterClass.HandshakeRequest;
+import org.ballerinalang.observe.trace.extension.choreo.gen.NegotiatorOuterClass.HandshakeResponse;
+import org.ballerinalang.observe.trace.extension.choreo.gen.NegotiatorOuterClass.PublishProgramRequest;
 import org.ballerinalang.observe.trace.extension.choreo.gen.TelemetryGrpc;
 import org.ballerinalang.observe.trace.extension.choreo.gen.TelemetryOuterClass;
 import org.ballerinalang.observe.trace.extension.choreo.model.ChoreoMetric;
@@ -37,7 +37,7 @@ public class ChoreoClient implements AutoCloseable {
     private String id;      // ID received from the handshake
     private String instanceId;
     private ManagedChannel channel;
-    private HandshakeGrpc.HandshakeBlockingStub negotiator;
+    private NegotiatorGrpc.NegotiatorBlockingStub negotiator;
     private TelemetryGrpc.TelemetryBlockingStub telemetryClient;
     private Thread uploadingThread;
 
@@ -47,7 +47,7 @@ public class ChoreoClient implements AutoCloseable {
             channelBuilder.usePlaintext();
         }
         channel = channelBuilder.build();
-        negotiator = HandshakeGrpc.newBlockingStub(channel);
+        negotiator = NegotiatorGrpc.newBlockingStub(channel);
         telemetryClient = TelemetryGrpc.newBlockingStub(channel);
     }
 
