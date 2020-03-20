@@ -156,7 +156,7 @@ public class QueryDesugar extends BLangNodeVisitor {
         parentBlock.addStatement(outputVariableDef);
         parentBlock.addStatement(tempArrayVariableDef);
 
-        BLangBlockStmt elseBlock = buildFromClauseBlockStmt(fromClauseList, outputVarRef);
+        BLangBlockStmt leafElseBlock = buildFromClauseBlockStmt(fromClauseList, outputVarRef);
 //        $tempDataArray$[$tempDataArray$.length()] = value;
 
 
@@ -175,7 +175,7 @@ public class QueryDesugar extends BLangNodeVisitor {
         // Set the indexed based access expression statement as foreach body
         BLangAssignment tempVarAssignment = ASTBuilderUtil.createAssignmentStmt(pos, indexAccessExpr,
                 selectClause.expression);
-        buildWhereClauseBlock(whereClauseList, letClauseList, elseBlock, tempVarAssignment, selectClause.pos);
+        buildWhereClauseBlock(whereClauseList, letClauseList, leafElseBlock, tempVarAssignment, selectClause.pos);
 
         BLangTypeTestExpr typeNullExpr = ASTBuilderUtil
                 .createTypeTestExpr(fromClause.pos, outputVarRef, desugar.getNillTypeNode());
@@ -258,9 +258,9 @@ public class QueryDesugar extends BLangNodeVisitor {
     if (outputList is ()) {
         outputList = tempList;
     }*/
-    private BLangBlockStmt buildFromClauseBlockStmt(List<BLangFromClause> fromClauseList, BLangSimpleVarRef outputVarRef) {
-        BLangWhile leafWhile = null;
-        BLangBlockStmt elseBody = null;
+    private BLangBlockStmt buildFromClauseBlockStmt(List<BLangFromClause> fromClauseList,
+                                                    BLangSimpleVarRef outputVarRef) {
+        BLangBlockStmt leafElseBody = null;
         for (BLangFromClause fromClause : fromClauseList) {
 //            int[] $data$ = data;
             BVarSymbol dataSymbol = new BVarSymbol(0, names.fromString("$data$"), env.scope.owner.pkgID,
@@ -328,7 +328,7 @@ public class QueryDesugar extends BLangNodeVisitor {
                 var value = $result$.value;
                 $tempDataArray$[$tempDataArray$.length()] = value;
             }*/
-            elseBody = ASTBuilderUtil.createBlockStmt(fromClause.pos);
+            BLangBlockStmt elseBody = ASTBuilderUtil.createBlockStmt(fromClause.pos);
             // Note - $result$ = $iterator$.next(); < this should go after initial assignment of `item`
             BLangAssignment resultAssignment = desugar.getIteratorNextAssignment(fromClause.pos, iteratorSymbol, resultSymbol);
             VariableDefinitionNode variableDefinitionNode = fromClause.variableDefinitionNode;
@@ -346,12 +346,23 @@ public class QueryDesugar extends BLangNodeVisitor {
             whileBody.addStatement(resultAssignment);
 
             whileNode.body = whileBody;
-            parentBlock.addStatement(dataVarDef);
-            parentBlock.addStatement(iteratorVarDef);
-            parentBlock.addStatement(resultVariableDefinition);
-            parentBlock.addStatement(whileNode);
+
+            if (leafElseBody != null) {
+                BLangBlockStmt childBlock = ASTBuilderUtil.createBlockStmt(fromClause.pos);
+                childBlock.addStatement(dataVarDef);
+                childBlock.addStatement(iteratorVarDef);
+                childBlock.addStatement(resultVariableDefinition);
+                childBlock.addStatement(whileNode);
+                leafElseBody.addStatement(childBlock);
+            } else {
+                parentBlock.addStatement(dataVarDef);
+                parentBlock.addStatement(iteratorVarDef);
+                parentBlock.addStatement(resultVariableDefinition);
+                parentBlock.addStatement(whileNode);
+            }
+            leafElseBody = elseBody;
         }
-        return elseBody;
+        return leafElseBody;
     }
 
     private BLangSimpleVariableDef getIteratorNextVariableDefinition(BLangFromClause fromClause,
