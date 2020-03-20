@@ -99,10 +99,14 @@ public enum ParserRuleContext {
     ASTERISK("*"),
     CLOSED_RECORD_BODY_START("{|"),
     CLOSED_RECORD_BODY_END("|}"),
+    DOT("."),
+    OPEN_BRACKET("["),
+    CLOSE_BRACKET("]"),
+    FIELD_OR_FUNC_NAME("variable"),
 
     // expressions
     EXPRESSION("expression"),
-    BINARY_EXPR_RHS("expression-rhs"),
+    EXPRESSION_RHS("expression-rhs"),
     FUNC_CALL("func-call"),
     EXPRESSION_END("expr-end"),
     ;

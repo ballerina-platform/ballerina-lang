@@ -26,9 +26,12 @@ import io.ballerinalang.compiler.internal.parser.tree.STBlockStatement;
 import io.ballerinalang.compiler.internal.parser.tree.STBracedExpression;
 import io.ballerinalang.compiler.internal.parser.tree.STDefaultableParameter;
 import io.ballerinalang.compiler.internal.parser.tree.STEmptyNode;
+import io.ballerinalang.compiler.internal.parser.tree.STExpression;
 import io.ballerinalang.compiler.internal.parser.tree.STExternalFuncBody;
+import io.ballerinalang.compiler.internal.parser.tree.STFieldAccessExpression;
 import io.ballerinalang.compiler.internal.parser.tree.STFunctionCallExpression;
 import io.ballerinalang.compiler.internal.parser.tree.STFunctionDefinition;
+import io.ballerinalang.compiler.internal.parser.tree.STMethodCallExpression;
 import io.ballerinalang.compiler.internal.parser.tree.STMissingToken;
 import io.ballerinalang.compiler.internal.parser.tree.STModulePart;
 import io.ballerinalang.compiler.internal.parser.tree.STModuleTypeDefinition;
@@ -38,6 +41,7 @@ import io.ballerinalang.compiler.internal.parser.tree.STNodeList;
 import io.ballerinalang.compiler.internal.parser.tree.STObjectField;
 import io.ballerinalang.compiler.internal.parser.tree.STObjectTypeDescriptor;
 import io.ballerinalang.compiler.internal.parser.tree.STPositionalArg;
+import io.ballerinalang.compiler.internal.parser.tree.STQualifiedIdentifier;
 import io.ballerinalang.compiler.internal.parser.tree.STRecordField;
 import io.ballerinalang.compiler.internal.parser.tree.STRecordFieldWithDefaultValue;
 import io.ballerinalang.compiler.internal.parser.tree.STRecordRestDescriptor;
@@ -138,8 +142,8 @@ public class BallerinaParser {
                 return parseVariableDeclStmt();
             case ASSIGNMENT_STMT:
                 return parseAssignmentStmt();
-            case BINARY_EXPR_RHS:
-                return parseBinaryExprRhs(parsedNodes[0]);
+            case EXPRESSION_RHS:
+                return parseExpressionRhs(parsedNodes[0]);
             case AFTER_PARAMETER_TYPE:
                 return parseAfterParamType(parsedNodes[0], parsedNodes[1]);
             case PARAMETER_RHS:
@@ -945,7 +949,7 @@ public class BallerinaParser {
         return isEndOfBlockNode(nextTokenKind) || isEndOfBlockNode(nexNextToken.kind);
     }
 
-    private boolean isEndOfObjectTypeNode(SyntaxKind tokenKind) {
+    private boolean isEndOfObjectTypeNode(SyntaxKind tokenKind, SyntaxKind nextNextTokenKind) {
         switch (tokenKind) {
             case CLOSE_BRACE_TOKEN:
             case EOF_TOKEN:
@@ -953,8 +957,7 @@ public class BallerinaParser {
             case TYPE_KEYWORD:
                 return true;
             default:
-                STToken nextNextToken = peek(2);
-                switch (nextNextToken.kind) {
+                switch (nextNextTokenKind) {
                     case CLOSE_BRACE_TOKEN:
                     case EOF_TOKEN:
                     case CLOSE_BRACE_PIPE_TOKEN:
@@ -1162,6 +1165,9 @@ public class BallerinaParser {
             case GT_TOKEN:
             case LT_TOKEN:
                 return OperatorPrecedence.BINARY_COMPARE;
+            case DOT_TOKEN:
+            case OPEN_BRACKET_TOKEN:
+                return OperatorPrecedence.MEMBER_ACCESS;
             default:
                 throw new UnsupportedOperationException("Unsupported binary operator '" + binaryOpKind + "'");
         }
@@ -1827,7 +1833,7 @@ public class BallerinaParser {
      */
     private STNode parseExpression(OperatorPrecedence precedenceLevel) {
         STNode expr = parseTerminalExpression();
-        return parseBinaryExprRhs(precedenceLevel, expr);
+        return parseExpressionRhs(precedenceLevel, expr);
     }
 
     /**
@@ -1848,7 +1854,7 @@ public class BallerinaParser {
             case NUMERIC_LITERAL_TOKEN:
                 return parseLiteral();
             case IDENTIFIER_TOKEN:
-                return parseVarRefOrFuncRefExpressions();
+                return parseVarRefOrFuncCall();
             case OPEN_PAREN_TOKEN:
                 return parseBracedExpression();
             default:
@@ -1866,44 +1872,48 @@ public class BallerinaParser {
     }
 
     /**
-     * Parse the right-hand-side of a binary expression.
+     * Parse the right-hand-side of an expression.
      * 
      * @return Parsed node
      */
-    private STNode parseBinaryExprRhs(STNode lhsExpr) {
-        return parseBinaryExprRhs(OperatorPrecedence.BINARY_COMPARE, lhsExpr);
+    private STNode parseExpressionRhs(STNode lhsExpr) {
+        return parseExpressionRhs(OperatorPrecedence.BINARY_COMPARE, lhsExpr);
     }
 
     /**
      * <p>
-     * Parse the right-hand-side of a binary expression.
+     * Parse the right-hand-side of an expression.
      * </p>
-     * <code>binary-expr-rhs := (binary-op expression)*</code>
+     * <code>expr-rhs := (binary-op expression 
+     *                              | dot identifier 
+     *                              | open-bracket expression close-bracket
+     *                          )*</code>
      * 
      * @param precedenceLevel Precedence level of the expression that is being parsed currently
-     * @param lhsExpr LHS expression of the binary expression
+     * @param lhsExpr LHS expression of the expression
      * @return Parsed node
      */
-    private STNode parseBinaryExprRhs(OperatorPrecedence precedenceLevel, STNode lhsExpr) {
+    private STNode parseExpressionRhs(OperatorPrecedence precedenceLevel, STNode lhsExpr) {
         STToken token = peek();
-        return parseBinaryExprRhs(precedenceLevel, token.kind, lhsExpr);
+        return parseExpressionRhs(precedenceLevel, token.kind, lhsExpr);
     }
 
     /**
-     * Parse the right hand side of a binary expression given the next token kind.
+     * Parse the right hand side of an expression given the next token kind.
      * 
      * @param currentPrecedenceLevel Precedence level of the expression that is being parsed currently
      * @param tokenKind Next token kind
      * @return Parsed node
      */
-    private STNode parseBinaryExprRhs(OperatorPrecedence currentPrecedenceLevel, SyntaxKind tokenKind, STNode lhsExpr) {
+    private STNode parseExpressionRhs(OperatorPrecedence currentPrecedenceLevel, SyntaxKind tokenKind, STNode lhsExpr) {
         if (isEndOfExpression(tokenKind)) {
             return lhsExpr;
         }
 
-        if (!isBinaryOperator(tokenKind)) {
+        if (!isBinaryOperator(tokenKind) && tokenKind != SyntaxKind.DOT_TOKEN &&
+                tokenKind != SyntaxKind.OPEN_BRACKET_TOKEN) {
             STToken token = peek();
-            Solution solution = recover(token, ParserRuleContext.BINARY_EXPR_RHS, lhsExpr);
+            Solution solution = recover(token, ParserRuleContext.EXPRESSION_RHS, lhsExpr);
 
             // If the current rule was recovered by removing a token,
             // then this entire rule is already parsed while recovering.
@@ -1920,9 +1930,9 @@ public class BallerinaParser {
                 // We come here if the operator is missing. Treat this as injecting an operator
                 // that matches to the current operator precedence level, and continue.
                 SyntaxKind binaryOpKind = getOperatorKindToInsert(currentPrecedenceLevel);
-                return parseBinaryExprRhs(currentPrecedenceLevel, binaryOpKind, lhsExpr);
+                return parseExpressionRhs(currentPrecedenceLevel, binaryOpKind, lhsExpr);
             } else {
-                return parseBinaryExprRhs(currentPrecedenceLevel, solution.tokenKind, lhsExpr);
+                return parseExpressionRhs(currentPrecedenceLevel, solution.tokenKind, lhsExpr);
             }
         }
 
@@ -1934,21 +1944,56 @@ public class BallerinaParser {
             return lhsExpr;
         }
 
-        STNode operator = parseBinaryOperator();
+        STNode newLhsExpr;
+        switch (tokenKind) {
+            case OPEN_BRACKET_TOKEN:
+                throw new UnsupportedOperationException("member access is not supported yet");
+            case DOT_TOKEN:
+                if (peek(2).kind == SyntaxKind.IDENTIFIER_TOKEN) {
+                    newLhsExpr = parseFieldAccessOrMethodCall(lhsExpr);
+                    break;
+                }
 
-        // Parse the expression that follows the binary operator, until a operator
-        // with different precedence is encountered. If an operator with a lower
-        // precedence is reached, then come back here and finish the current
-        // binary expr. If a an operator with higher precedence level is reached,
-        // then complete that binary-expr, come back here and finish the current
-        // expr.
-        STNode rhsExpr = parseExpression(nextOperatorPrecedence);
+                // else fall through
+            default:
+                STNode operator = parseBinaryOperator();
 
-        STBinaryExpression binaryExpr =
-                new STBinaryExpression(SyntaxKind.BINARY_EXPRESSION, lhsExpr, operator, rhsExpr);
+                // Parse the expression that follows the binary operator, until a operator
+                // with different precedence is encountered. If an operator with a lower
+                // precedence is reached, then come back here and finish the current
+                // binary expr. If a an operator with higher precedence level is reached,
+                // then complete that binary-expr, come back here and finish the current expr.
+                STNode rhsExpr = parseExpression(nextOperatorPrecedence);
+                newLhsExpr = new STBinaryExpression(SyntaxKind.BINARY_EXPRESSION, lhsExpr, operator, rhsExpr);
+                break;
+        }
 
         // Then continue the operators with the same precedence level.
-        return parseBinaryExprRhs(currentPrecedenceLevel, binaryExpr);
+        return parseExpressionRhs(currentPrecedenceLevel, newLhsExpr);
+    }
+
+    /**
+     * Parse field access expression and method call expression.
+     * 
+     * @return One of <code>field-access-expression</code> or <code>method-call-expression</code>.
+     */
+    private STNode parseFieldAccessOrMethodCall(STNode lhsExpr) {
+        // Below two tokens are already validated before coming here.
+        // Hence just consume.
+        STNode dotToken = consume();
+        STNode fieldOrMethodName = consume();
+
+        STToken nextToken = peek();
+        if (nextToken.kind == SyntaxKind.OPEN_PAREN_TOKEN) {
+            // function invocation
+            STNode openParen = parseOpenParenthesis();
+            STNode args = parseArgsList();
+            STNode closeParen = parseCloseParenthesis();
+            return new STMethodCallExpression(lhsExpr, dotToken, fieldOrMethodName, openParen, args, closeParen);
+        }
+
+        // Everything else is field-access
+        return new STFieldAccessExpression(lhsExpr, dotToken, fieldOrMethodName);
     }
 
     /**
@@ -2002,24 +2047,44 @@ public class BallerinaParser {
      * 
      * @return Parsed expression
      */
-    private STNode parseVarRefOrFuncRefExpressions() {
-        STNode varOrFuncName = parseVariableName();
-        STToken token = peek();
-        switch (token.kind) {
-            case DOT_TOKEN:
-                throw new UnsupportedOperationException("field based access is not supported yet");
-            case OPEN_BRACKET_TOKEN:
-                throw new UnsupportedOperationException("index based access is not supported yet");
-            case OPEN_PAREN_TOKEN:
-                // function invocation
-                STNode openParen = parseOpenParenthesis();
-                STNode args = parseArgsList();
-                STNode closeParen = parseCloseParenthesis();
-                return new STFunctionCallExpression(varOrFuncName, openParen, args, closeParen);
-            default:
-                return varOrFuncName;
+    private STNode parseVarRefOrFuncCall() {
+        STNode identifier = parseVariableName();
+        return parseVarRefOrFuncCall(identifier);
+    }
 
+    private STNode parseVarRefOrFuncCall(STNode identifier) {
+        STToken nextToken = peek(1);
+        if (nextToken.kind == SyntaxKind.COLON_TOKEN) {
+            STToken nextNextToken = peek(2);
+            if (nextNextToken.kind == SyntaxKind.IDENTIFIER_TOKEN) {
+                STToken colon = consume();
+                STToken varOrFuncName = consume();
+                identifier = new STQualifiedIdentifier(identifier, colon, varOrFuncName);
+                nextToken = peek();
+            } else {
+                this.errorHandler.removeInvalidToken();
+                return parseVarRefOrFuncCall(identifier);
+            }
         }
+
+        return parseUnqualifiedVarRefOrFuncCall(identifier, nextToken.kind);
+    }
+
+    /**
+     * @param identifier
+     * @param nextToken
+     * @return
+     */
+    private STNode parseUnqualifiedVarRefOrFuncCall(STNode identifier, SyntaxKind nextTokenKind) {
+        if (nextTokenKind != SyntaxKind.OPEN_PAREN_TOKEN) {
+            return identifier;
+        }
+
+        // function invocation
+        STNode openParen = parseOpenParenthesis();
+        STNode args = parseArgsList();
+        STNode closeParen = parseCloseParenthesis();
+        return new STFunctionCallExpression(identifier, openParen, args, closeParen);
     }
 
     /**
@@ -2323,15 +2388,18 @@ public class BallerinaParser {
      */
     private STNode parseObjectMembers() {
         ArrayList<STNode> objectMembers = new ArrayList<>();
-        STToken token = peek();
-
-        while (!isEndOfObjectTypeNode(token.kind)) {
+        STToken nextToken = peek(1);
+        STToken nextNextToken = peek(2);
+        while (!isEndOfObjectTypeNode(nextToken.kind, nextNextToken.kind)) {
             startContext(ParserRuleContext.OBJECT_MEMBER);
-            STNode field = parseObjectMember(token.kind);
+            STNode field = parseObjectMember(nextToken.kind);
             endContext();
 
+            if (field == null) {
+                break;
+            }
             objectMembers.add(field);
-            token = peek();
+            nextToken = peek();
         }
 
         return new STNodeList(objectMembers);
@@ -2385,8 +2453,10 @@ public class BallerinaParser {
                     return solution.recoveredNode;
                 }
 
+                if (isEndOfObjectTypeNode(solution.tokenKind, kind)) {
+                    return null;
+                }
                 return parseObjectMember(solution.tokenKind);
-
         }
 
         return member;
