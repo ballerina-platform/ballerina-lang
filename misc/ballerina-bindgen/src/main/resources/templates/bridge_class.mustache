@@ -17,6 +17,11 @@ public type {{shortClassName}} object {
     {{/each}}
     public function __init(handle obj) {
         self.jObj = obj;
+    }
+
+    public function toString() returns string {
+
+        return jObjToString(self.jObj);
     }{{#methodList}}{{#isInstance}}
 
     public function {{#reservedWord}}{{#controlChars methodName ""}}{{/controlChars}}{{/reservedWord}}{{#noReservedWord}}{{methodName}}{{/noReservedWord}}({{#parameters}}{{#if isPrimitiveArray}}{{#getType type ""}}{{/getType}}{{else}}{{shortTypeName}}{{/if}} {{fieldName}}{{#notLast}}, {{/notLast}}{{/parameters}}) {{#hasReturn}}returns {{returnType}}{{#if isStringReturn}}?{{/if}}{{#if exceptionTypes}}|error{{/if}} {{/hasReturn}}{{#noReturn}}{{#if exceptionTypes}}returns error? {{else if hasPrimitiveParam}}returns error? {{/if}}{{/noReturn}}{
@@ -34,7 +39,7 @@ public type {{shortClassName}} object {
     }{{/isInstance}}{{/methodList}}
 };
 {{#initFunctionList}}
-public function {{shortClassName}}{{constructorName}}({{#parameters}}{{shortTypeName}} {{fieldName}}{{#notLast}}, {{/notLast}}{{/parameters}}) returns {{shortClassName}}{{#exceptionTypes}}|error{{/exceptionTypes}} {
+public function new{{shortClassName}}{{constructorName}}({{#parameters}}{{shortTypeName}} {{fieldName}}{{#notLast}}, {{/notLast}}{{/parameters}}) returns {{shortClassName}}{{#exceptionTypes}}|error{{/exceptionTypes}} {
     handle{{#exceptionTypes}}|error{{/exceptionTypes}} obj = {{prefix}}_{{externalFunctionName}}({{#parameters}}{{#if isPrimitiveArray}}check getHandleFromArray({{fieldName}}, "{{componentType}}"){{#notLast}}, {{/notLast}}{{else if isString}}java:fromString({{fieldName}}){{#notLast}}, {{/notLast}}{{else}}{{fieldName}}{{#isObj}}.jObj{{/isObj}}{{#notLast}}, {{/notLast}}{{/if}}{{/parameters}});
     {{#exceptionTypes}}if (obj is handle) {
         {{/exceptionTypes}}{{shortClassName}} {{initObjectName}} = new(obj);

@@ -16,13 +16,13 @@
 package org.ballerinalang.langserver.util.definition;
 
 import org.apache.commons.lang3.tuple.Pair;
-import org.ballerinalang.langserver.common.constants.NodeContextKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.exception.CompilationFailedException;
 import org.ballerinalang.langserver.exception.LSStdlibCacheException;
+import org.ballerinalang.langserver.util.references.ReferencesKeys;
 import org.ballerinalang.langserver.util.references.ReferencesUtil;
 import org.ballerinalang.langserver.util.references.SymbolReferenceFindingVisitor;
 import org.ballerinalang.langserver.util.references.SymbolReferencesModel;
@@ -66,8 +66,8 @@ public class DefinitionUtil {
     public static List<Location> getDefinition(LSContext context) throws WorkspaceDocumentException,
             CompilationFailedException, LSStdlibCacheException {
         List<BLangPackage> modules = ReferencesUtil.findCursorTokenAndCompileModules(context, false);
-        ReferencesUtil.fillReferences(modules, context);
-        SymbolReferencesModel referencesModel = context.get(NodeContextKeys.REFERENCES_KEY);
+        ReferencesUtil.findReferences(modules, context);
+        SymbolReferencesModel referencesModel = context.get(ReferencesKeys.REFERENCES_KEY);
         // If the definition list contains an item after the prepare reference mode, then return it.
         // In this case, definition is in the current compilation unit it self
         if (!referencesModel.getDefinitions().isEmpty()) {
