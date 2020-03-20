@@ -27,7 +27,7 @@
 
 @iconFont          : "font-ballerina";
 @fontName          : -apple-system, BlinkMacSystemFont, Segoe WPC, Segoe UI, HelveticaNeue-Light, Ubuntu, Droid Sans, sans-serif, @iconFont;
-@googleFontName    : 'Lato';
+@googleFontName    : 'DM Sans';
 @monospaceFont     : monospace, monospace, @iconFont;
 
 
@@ -59,3 +59,4 @@
 @black            : #464646;
 @green            : #6a9955;
 @light-gray       : #b3b3b3;
+@gray             : #464646;
