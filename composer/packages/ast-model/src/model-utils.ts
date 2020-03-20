@@ -36,7 +36,7 @@ export function traversNode(node: ASTNode, visitor: Visitor, parent?: ASTNode) {
             return;
         }
 
-        if (!childNode.kind) {
+        if (!childNode || !childNode.kind) {
             return;
         }
 

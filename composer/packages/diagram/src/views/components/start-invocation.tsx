@@ -1,4 +1,6 @@
 
+import { ASTNode } from "@ballerina/ast-model";
+import _ from "lodash";
 import * as React from "react";
 import { DiagramConfig } from "../../config/default";
 import { DiagramUtils } from "../../diagram/diagram-utils";
@@ -8,9 +10,9 @@ import { ArrowHead } from "./arrow-head";
 const config: DiagramConfig = DiagramUtils.getConfig();
 
 export const StartInvocation: React.StatelessComponent<{
-    client: ViewState, worker: ViewState, y: number, label?: string
+    client: ViewState, worker: ViewState, y: number, label?: string, model: ASTNode
 }> = ({
-    client, worker, y, label
+    client, worker, y, label, model
 }) => {
         const startLine = { x1: 0, y1: 0, x2: 0, y2: 0 };
         const labelProps = {x: 0, y: 0};
@@ -35,12 +37,32 @@ export const StartInvocation: React.StatelessComponent<{
         errorText.x = succesText.x + config.statement.expanded.rightMargin - 5;
         msText.y = errorText.y ;
         msText.x = errorText.x + (config.statement.expanded.leftMargin * 3);
+
+        const metrics = _.get(model, "variable.inititalExpression.metrics");
+
+        const renderMetrics = () => {
+            if (!metrics) {
+                return (<g/>);
+            } else {
+                const { meanExecSuccessCount = 0, meanExecFailCount = 0, meanExecTime = 0 } = metrics;
+                const totalCount = meanExecSuccessCount + meanExecFailCount;
+                const successRate = (meanExecSuccessCount / totalCount) * 100;
+                const errorRate = (meanExecFailCount / totalCount) * 100;
+                const meanTimeMS = (meanExecTime * 1000).toFixed(2);
+                return (
+                   <React.Fragment>
+                        <rect className = {"action-status"} {...statusRect} />
+                        <text className= {"action-status-text-sucess"} {...succesText}>${successRate}%</text>
+                        <text className= {"action-status-text-error"}  {...errorText}>${errorRate}%</text>
+                        <text className= {"action-status-text-ms"}  {...msText}>${meanTimeMS}ms</text>
+                   </React.Fragment>
+                );
+            }
+        };
+
         return (
             <g className="start-invocation">
-                <rect className = {"action-status"} {...statusRect} />
-                <text className= {"action-status-text-sucess"} {...succesText}>75%</text>
-                <text className= {"action-status-text-error"}  {...errorText}>25%</text>
-                <text className= {"action-status-text-ms"}  {...msText}>20ms</text>
+                {metrics && renderMetrics()}
                 <line {...startLine} />
                 <ArrowHead direction="right" x={startLine.x2} y={startLine.y2} />
                 <text {...labelProps}>{label}</text>
