@@ -36,9 +36,9 @@ export const LifeLine: React.StatelessComponent<{
         // Position the labels
         topLabel.x = topIcon.x = bottomLabel.x = model.x + (model.w / 2);
         topLabel.y = topIcon.y = model.y + (config.lifeLine.topbox.height / 4)
-        - (config.lifeLine.line.margin.top / 2 );
+        - (config.lifeLine.line.margin.top / 2);
         bottomLabel.y = model.y + model.h - (config.lifeLine.footer.height / 4)
-        - (config.lifeLine.line.margin.bottom / 2 );
+        - (config.lifeLine.line.margin.bottom / 2);
         // Position the Boxes
         topBox.x = bottomBox.x = model.x ;
         topBox.y = model.y - (config.lifeLine.footer.height / 2) ;
