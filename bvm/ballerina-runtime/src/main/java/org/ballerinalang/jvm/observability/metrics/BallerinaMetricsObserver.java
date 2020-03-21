@@ -116,7 +116,9 @@ public class BallerinaMetricsObserver implements BallerinaObserver {
         Set<Tag> allTagsForCounts = new HashSet<>(allTags.size() + 1);
         Tags.tags(allTagsForCounts, allTags);
         Boolean error = (Boolean) observerContext.getProperty(PROPERTY_ERROR);
-        Tags.tag(allTagsForCounts, "error", String.valueOf(error != null && error));
+        if (error != null && error) {
+            Tags.tag(allTagsForCounts, "error", "true");
+        }
         try {
             Long startTime = (Long) observerContext.getProperty(PROPERTY_START_TIME);
             long duration = System.nanoTime() - startTime;
