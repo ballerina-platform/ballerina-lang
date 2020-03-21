@@ -1,4 +1,4 @@
-package dataMapperCodeAction;
+package datamapper;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -58,10 +58,11 @@ import static org.ballerinalang.langserver.util.references.ReferencesUtil.getRef
 @JavaSPIService("org.ballerinalang.langserver.commons.codeaction.spi.LSCodeActionProvider")
 public class AIDataMapperCodeAction extends AbstractCodeActionProvider {
 
-    private final static String REMOTE_URL = "https://ai-data-mapper.development.choreo.dev/uploader";
-    private final static String REMOTE_AI_SERVICE_URL_ENV = "REMOTE_AI_SERVICE_URL";
+    private static final String REMOTE_URL = "https://ai-data-mapper.development.choreo.dev/uploader";
+    private static final String REMOTE_AI_SERVICE_URL_ENV = "REMOTE_AI_SERVICE_URL";
     private static final String CUSTOM_URL = System.getenv(REMOTE_AI_SERVICE_URL_ENV);
-    private static String AI_SERVICE_URL = (CUSTOM_URL == null || CUSTOM_URL.length() == 0) ? REMOTE_URL : CUSTOM_URL;
+    private static final String AI_SERVICE_URL = (CUSTOM_URL == null || CUSTOM_URL.length() == 0) ? REMOTE_URL :
+            CUSTOM_URL;
 
 
     public static CodeAction getAIDataMapperCommand(LSDocumentIdentifier document, Diagnostic diagnostic,
