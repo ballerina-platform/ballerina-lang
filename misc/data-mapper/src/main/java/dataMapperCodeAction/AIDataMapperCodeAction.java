@@ -1,3 +1,5 @@
+package dataMapperCodeAction;
+
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -58,14 +60,9 @@ public class AIDataMapperCodeAction extends AbstractCodeActionProvider {
 
     private final static String REMOTE_URL = "https://ai-data-mapper.development.choreo.dev/uploader";
     private final static String REMOTE_AI_SERVICE_URL_ENV = "REMOTE_AI_SERVICE_URL";
-    private static String AI_SERVICE_URL;
+    private static final String CUSTOM_URL = System.getenv(REMOTE_AI_SERVICE_URL_ENV);
+    private static String AI_SERVICE_URL = (CUSTOM_URL == null || CUSTOM_URL.length() == 0) ? REMOTE_URL : CUSTOM_URL;
 
-    public AIDataMapperCodeAction() {
-
-        super();
-        String customURL = System.getenv(REMOTE_AI_SERVICE_URL_ENV);
-        AI_SERVICE_URL = (customURL == null || customURL.length() == 0) ? REMOTE_URL : customURL;
-    }
 
     public static CodeAction getAIDataMapperCommand(LSDocumentIdentifier document, Diagnostic diagnostic,
                                                     LSContext context) {
@@ -166,25 +163,32 @@ public class AIDataMapperCodeAction extends AbstractCodeActionProvider {
                                                             BSymbol symbolAtCursor, WorkspaceDocumentManager docManager,
                                                             String foundTypeLeft, String foundTypeRight)
             throws IOException {
+        JsonObject rightRecordJSON = new JsonObject();
+        JsonObject leftRecordJSON = new JsonObject();
+
         // Schema 1
         BType variableTypeMappingFrom = symbolAtCursor.type;
-        List<BField> rightSchemaFields = ((BRecordType) variableTypeMappingFrom).fields;
-        JsonObject rightSchema = (JsonObject) recordToJSON(rightSchemaFields);
-        JsonObject rightRecordJSON = new JsonObject();
-        rightRecordJSON.addProperty("schema", foundTypeRight);
-        rightRecordJSON.addProperty("id", "dummy_id");
-        rightRecordJSON.addProperty("type", "object");
-        rightRecordJSON.add("properties", rightSchema);
+        if (variableTypeMappingFrom instanceof BRecordType) {
+            List<BField> rightSchemaFields = ((BRecordType) variableTypeMappingFrom).fields;
+            JsonObject rightSchema = (JsonObject) recordToJSON(rightSchemaFields);
+
+            rightRecordJSON.addProperty("schema", foundTypeRight);
+            rightRecordJSON.addProperty("id", "dummy_id");
+            rightRecordJSON.addProperty("type", "object");
+            rightRecordJSON.add("properties", rightSchema);
+        }
         // Schema 2
 
-        List<BField> leftSchemaFields = ((BRecordType) ((BLangSimpleVarRef) bLangNode).expectedType).fields;
-        JsonObject leftSchema = (JsonObject) recordToJSON(leftSchemaFields);
+        BType variableTypeMappingTo = ((BLangSimpleVarRef) bLangNode).expectedType;
+        if (variableTypeMappingTo instanceof BRecordType) {
+            List<BField> leftSchemaFields = ((BRecordType) variableTypeMappingTo).fields;
+            JsonObject leftSchema = (JsonObject) recordToJSON(leftSchemaFields);
 
-        JsonObject leftRecordJSON = new JsonObject();
-        leftRecordJSON.addProperty("schema", foundTypeLeft);
-        leftRecordJSON.addProperty("id", "dummy_id");
-        leftRecordJSON.addProperty("type", "object");
-        leftRecordJSON.add("properties", leftSchema);
+            leftRecordJSON.addProperty("schema", foundTypeLeft);
+            leftRecordJSON.addProperty("id", "dummy_id");
+            leftRecordJSON.addProperty("type", "object");
+            leftRecordJSON.add("properties", leftSchema);
+        }
 
         JsonArray schemas = new JsonArray();
         schemas.add(leftRecordJSON);
@@ -213,11 +217,13 @@ public class AIDataMapperCodeAction extends AbstractCodeActionProvider {
             JsonObject fieldDetails = new JsonObject();
             fieldDetails.addProperty("id", "dummy_id");
             /* TODO: Do we need to go to lower levels? */
-            if (attribute.type.tag == 12) {
-                fieldDetails.addProperty("type", "ballerina_type");
-                fieldDetails.add("properties", recordToJSON(((BRecordType) attribute.type).fields));
-            } else {
-                fieldDetails.addProperty("type", String.valueOf(attribute.type));
+            if (attribute.type instanceof BRecordType) {
+                if (attribute.type.tag == 12) {
+                    fieldDetails.addProperty("type", "ballerina_type");
+                    fieldDetails.add("properties", recordToJSON(((BRecordType) attribute.type).fields));
+                } else {
+                    fieldDetails.addProperty("type", String.valueOf(attribute.type));
+                }
             }
             properties.add(String.valueOf(attribute.name), fieldDetails);
         }
