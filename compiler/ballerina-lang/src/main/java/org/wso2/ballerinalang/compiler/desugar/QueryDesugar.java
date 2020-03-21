@@ -218,7 +218,7 @@ public class QueryDesugar extends BLangNodeVisitor {
         List<BLangWhereClause> whereClauseList = queryAction.whereClauseList;
         DiagnosticPos pos = fromClause.pos;
 
-        BLangForeach leafForeach = buildFromClauseBlock(fromClauseList);
+//        BLangBlockStmt leafElseBlock = buildFromClauseBlockStmt(fromClauseList, outputVarRef);
         BLangBlockStmt foreachBody = ASTBuilderUtil.createBlockStmt(pos);
         buildWhereClauseBlock(whereClauseList, letClauseList, null, null, doClause.pos);
         foreachBody.addStatement(doClause.body);
@@ -341,8 +341,22 @@ public class QueryDesugar extends BLangNodeVisitor {
             elseBody.stmts.add(0, (BLangStatement) variableDefinitionNode);
             erroCheckIf.elseStmt = elseBody;
 
+//            if($outputDataArray$ is error) {
+//                break;
+//            }
+            BLangBlockStmt outputErrorCheckIfBody = ASTBuilderUtil.createBlockStmt(fromClause.pos);
+            BLangTypeTestExpr isOutputErrorTest =
+                    ASTBuilderUtil.createTypeTestExpr(fromClause.pos, outputVarRef, desugar.getErrorTypeNode());
+            isErrorTest.type = symTable.booleanType;
+            outputErrorCheckIfBody.addStatement(TreeBuilder.createBreakNode());
+            BLangIf outputErrorCheckIf = (BLangIf) TreeBuilder.createIfElseStatementNode();
+            outputErrorCheckIf.pos = fromClause.pos;
+            outputErrorCheckIf.expr = isOutputErrorTest;
+            outputErrorCheckIf.body = outputErrorCheckIfBody;
+
             BLangBlockStmt whileBody = ASTBuilderUtil.createBlockStmt(fromClause.pos);
             whileBody.addStatement(nullCheckIf);
+            whileBody.addStatement(outputErrorCheckIf);
             whileBody.addStatement(resultAssignment);
 
             whileNode.body = whileBody;
