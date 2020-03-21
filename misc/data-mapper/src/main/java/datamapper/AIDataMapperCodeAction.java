@@ -86,7 +86,7 @@ public class AIDataMapperCodeAction extends AbstractCodeActionProvider {
                 return null;
             } else {
                 if (symbolAtCursorTag == 12) { // tag 12 is user defined records or non-primitive types (?)
-                    String commandTitle = "AI Data Mapper";
+                    String commandTitle = "Generate mapping function";
                     CodeAction action = new CodeAction(commandTitle);
                     action.setKind(CodeActionKind.QuickFix);
 
