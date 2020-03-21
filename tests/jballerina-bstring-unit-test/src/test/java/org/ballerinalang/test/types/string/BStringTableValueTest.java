@@ -25,25 +25,20 @@ import org.testng.annotations.Test;
 /**
  * Test BString support in Object.
  */
-public class BStringObjectTest extends BStringTestCommons {
+public class BStringTableValueTest extends BStringTestCommons {
 
     @BeforeClass
     public void setup() {
-        result = BCompileUtil.compile("test-src/types/string/bstring-object-test.bal");
+        result = BCompileUtil.compile("test-src/types/string/bstring-table-test.bal");
     }
 
     @Test
-    public void testObjectAccess() {
-        testAndAssert("testObjectAccess", 12);
+    public void testTableGeneration() {
+        testAndAssert("testTableGeneration", 84);
     }
 
     @Test
-    public void testObjectInitialization() {
-        testAndAssert("testObjectInitialization", 11);
-    }
-
-    @Test
-    public void testObjectSet() {
-        testAndAssert("testObjectSet", 8);
+    public void testTableWithArrayGeneration() {
+        testAndAssert("testTableWithArrayGeneration", 37);
     }
 }

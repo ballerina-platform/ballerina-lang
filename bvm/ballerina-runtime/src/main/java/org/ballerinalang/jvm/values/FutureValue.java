@@ -17,6 +17,7 @@
   */
 package org.ballerinalang.jvm.values;
 
+import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BFutureType;
 import org.ballerinalang.jvm.types.BType;
@@ -73,7 +74,7 @@ import java.util.StringJoiner;
 
     @Override
     public BString bStringValue() {
-        return null;
+        return StringUtils.fromString(stringValue());
     }
 
     @Override

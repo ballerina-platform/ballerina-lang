@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -20,42 +20,19 @@ package org.ballerinalang.test.types.string;
 
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
-import org.testng.annotations.BeforeClass;
-import org.testng.annotations.Test;
 
 /**
- * Test StringValue impl of ballerina string.
+ * Has utility functions related to the tests.
  */
-public class StringValueRecordTest {
-    private CompileResult result;
+public class BStringTestCommons {
+    protected CompileResult result;
 
-    @BeforeClass
-    public void setup() {
-        result = BCompileUtil.compile("test-src/types/string/string-value-record-test.bal");
-    }
-
-    @Test
-    public void testRecordStringValue() {
-        testAndAssert("testRecordStringValue", 5);
-    }
-
-    @Test
-    public void testRecordGetKeys() {
-        testAndAssert("testRecordGetKeys", 21);
-    }
-
-    @Test
-    public void testMapToKeys() {
-        testAndAssert("testMapToKeys", 28);
-    }
-
-    private void testAndAssert(String funcName, int i) {
+    protected void testAndAssert(String funcName, int length) {
         BValue[] returns = BRunUtil.invoke(result, funcName);
         Assert.assertEquals(returns[0].getClass(), BInteger.class);
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), i);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), length);
     }
 }
