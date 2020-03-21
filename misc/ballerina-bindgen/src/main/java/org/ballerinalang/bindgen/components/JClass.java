@@ -93,9 +93,6 @@ public class JClass {
             populateConstructors(c.getConstructors());
             populateInitFunctions();
             populateMethods(getMethods(c));
-            for (Class superClass : superClassObjects) {
-                populateMethods(getMethods(superClass));
-            }
             handleOverloadedMethods(methodList);
             populateFields(c.getFields());
         }
@@ -106,7 +103,7 @@ public class JClass {
         Method[] declaredMethods = classObject.getDeclaredMethods();
         List<Method> classMethods = new ArrayList<>();
         for (Method m : declaredMethods) {
-            if (!m.isSynthetic()) {
+            if (!m.isSynthetic() && (!m.getName().equals("toString"))) {
                 classMethods.add(m);
             }
         }

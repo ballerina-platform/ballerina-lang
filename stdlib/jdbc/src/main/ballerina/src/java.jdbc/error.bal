@@ -16,12 +16,18 @@
 
 public const DATABASE_ERROR_REASON = "{ballerinax/java.jdbc}DatabaseError";
 
-# Represents the properties belonging to a `DatabaseError`
+# Represents the properties belonging to a `DatabaseError`.
 #
 # + message - Error message
 # + sqlErrorCode - SQL error code
 # + sqlState - SQL state
 # + cause - Cause of the error
+#
+# # Deprecated
+# A new experimental JDBC2 module is introduced in the Ballerina 1.2 release and
+# it will be fully supported by the 1.3 release.
+# This record type will be removed later in the 1.3 release.
+@deprecated
 public type DatabaseErrorData record {|
     string message?;
     int sqlErrorCode;
@@ -33,6 +39,12 @@ public type DatabaseErrorData record {|
 #
 # + message - Error message
 # + cause - Cause of the error
+#
+# # Deprecated
+# A new experimental JDBC2 module is introduced in the Ballerina 1.2 release and
+# it will be fully supported by the  1.3 release.
+# This record type will be removed later in the 1.3 release.
+@deprecated
 public type ApplicationErrorData record {|
     string message?;
     error cause?;
@@ -40,12 +52,30 @@ public type ApplicationErrorData record {|
 
 # Represents an error caused by an issue related to database accessibility, erroneous queries, constraint violations,
 # database resource clean-up, and other similar scenarios.
+#
+# # Deprecated
+# A new experimental JDBC2 module is introduced in the Ballerina 1.2 release and
+# it will be fully supported by the 1.3 release.
+# This type will be removed later in the 1.3 release.
+@deprecated
 public type DatabaseError error<DATABASE_ERROR_REASON, DatabaseErrorData>;
 
 public const APPLICATION_ERROR_REASON = "{ballerinax/java.jdbc}ApplicationError";
 
 # Represents an error originating from application-level causes.
+#
+# # Deprecated
+# A new experimental JDBC2 module is introduced in the Ballerina 1.2 release and
+# it will be fully supported by the 1.3 release.
+# This type will be removed later in the 1.3 release.
+@deprecated
 public type ApplicationError error<APPLICATION_ERROR_REASON, ApplicationErrorData>;
 
 # Represents a database or application level error returned from JDBC client remote functions.
+#
+# # Deprecated
+# A new experimental JDBC2 module is introduced in the Ballerina 1.2 release and
+# it will be fully supported by the 1.3 release.
+# This type will be removed later in the 1.3 release.
+@deprecated
 public type Error DatabaseError|ApplicationError;

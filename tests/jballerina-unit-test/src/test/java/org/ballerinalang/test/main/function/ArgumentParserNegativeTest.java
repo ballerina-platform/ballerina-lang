@@ -54,7 +54,7 @@ public class ArgumentParserNegativeTest {
         Assert.fail("too many arguments not identified");
     }
 
-    @Test (groups = "brokenOnXMLLangLibChange")
+    @Test
     public void testInsufficientArgs() {
         try {
             CompileResult compileResult = BCompileUtil.compile(MAIN_FUNCTION_TEST_SRC_DIR
@@ -84,7 +84,7 @@ public class ArgumentParserNegativeTest {
         Assert.fail("invalid int argument not identified");
     }
 
-    @Test (groups = "brokenOnXMLLangLibChange")
+    @Test
     public void testInvalidFloatArg() {
         String argument = "5.5s";
         try {
@@ -116,7 +116,7 @@ public class ArgumentParserNegativeTest {
         Assert.fail("invalid JSON object not identified");
     }
 
-    @Test (groups = "brokenOnXMLLangLibChange")
+    @Test
     public void testInvalidXmlArg() {
         String argument = "<book>Harry Potter";
         try {
@@ -133,7 +133,7 @@ public class ArgumentParserNegativeTest {
         Assert.fail("invalid XML value not identified");
     }
 
-    @Test(dataProvider = "invalidByteValues", groups = "brokenOnXMLLangLibChange")
+    @Test(dataProvider = "invalidByteValues")
     public void testInvalidByteArg(String arg) {
         try {
             CompileResult compileResult = BCompileUtil.compile(MAIN_FUNCTION_TEST_SRC_DIR
@@ -148,7 +148,7 @@ public class ArgumentParserNegativeTest {
         Assert.fail("invalid byte value not identified");
     }
 
-    @Test(dataProvider = "invalidIntByteValues", groups = "brokenOnXMLLangLibChange")
+    @Test(dataProvider = "invalidIntByteValues")
     public void testInvalidIntByteArg(String arg) {
         try {
             CompileResult compileResult = BCompileUtil.compile(MAIN_FUNCTION_TEST_SRC_DIR
@@ -163,7 +163,7 @@ public class ArgumentParserNegativeTest {
         Assert.fail("int as byte not identified");
     }
 
-    @Test (groups = "brokenOnXMLLangLibChange")
+    @Test
     public void testInvalidBooleanArg() {
         String argument = "truer";
         try {

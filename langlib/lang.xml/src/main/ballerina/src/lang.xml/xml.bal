@@ -14,8 +14,17 @@
 // specific language governing permissions and limitations
 // under the License.
 
-const string XML_NAMESPACE_URI = "http://www.w3.org/XML/1998/namespace";
-const string XMLNS_NAMESPACE_URI = "http://www.w3.org/2000/xmlns/";
+# The namespace URI bound to the `xml` prefix.
+public const string XML_NAMESPACE_URI = "http://www.w3.org/XML/1998/namespace";
+# The namespace URI bound to the `xmlns` prefix.
+public const string XMLNS_NAMESPACE_URI = "http://www.w3.org/2000/xmlns/";
+
+# The expanded name of the `xml:space` attribute.
+public const string space = "{http://www.w3.org/XML/1998/namespace}space";
+# The expanded name of the `xml:lang` attribute.
+public const string lang = "{http://www.w3.org/XML/1998/namespace}lang";
+# The expanded name of the `xml:base` attribute.
+public const string base = "{http://www.w3.org/XML/1998/namespace}base";
 
 # Type for singleton elements.
 # Built-in subtype of xml.
@@ -59,16 +68,24 @@ type XmlType xml;
 
 # Returns an iterator over the xml items of `x`
 #
-# + x - xml item to iterate
+# + x - xml sequence to iterate over
 # + return - iterator object
-# A character item is represented by a string of length 1.
-# Other items are represented by xml singletons.
+# Each item is represented by an xml singleton.
 public function iterator(xml<ItemType> x) returns abstract object {
     public function next() returns record {| (xml|string) value; |}?;
 } {
     XMLIterator xmlIterator = new(x);
     return xmlIterator;
 }
+
+# Returns the item of `x` with index `i`.
+# This differs from `x[i]` in that it panics if
+# `x` does not have an item with index `i`.
+#
+# + x - the xml sequence
+# + i - the index
+# + return - the item with index `i` in `x`
+public function get(xml<ItemType> x, int i) returns xml = external;
 
 # Concatenates xml and string values.
 #
@@ -153,7 +170,7 @@ public function createComment(string content) returns Comment = external;
 # + startIndex - start index, inclusive
 # + endIndex - end index, exclusive
 # + return - a subsequence of `x` consisting of items with index >= startIndex and < endIndex
-public function slice(xml<ItemType> x, int startIndex, int endIndex)
+public function slice(xml<ItemType> x, int startIndex, int endIndex = x.length())
     returns xml<ItemType> = external;
 
 # Strips the insignificant parts of the an xml value.

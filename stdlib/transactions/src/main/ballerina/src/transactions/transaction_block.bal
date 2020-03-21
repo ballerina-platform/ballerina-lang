@@ -15,7 +15,7 @@
 // under the License.
 
 import ballerina/log;
-import ballerinax/java;
+import ballerina/java;
 
 # Handles the transaction initiator block.
 # Transaction initiator block will be desugared to following method.

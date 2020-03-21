@@ -33,6 +33,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.jacoco.core.analysis.ICounter.FULLY_COVERED;
+import static org.jacoco.core.analysis.ICounter.NOT_COVERED;
 import static org.jacoco.core.analysis.ICounter.PARTLY_COVERED;
 
 /**
@@ -97,8 +98,9 @@ public class CoverageReport {
                         if (line.getInstructionCounter().getTotalCount() == 0
                                 && line.getBranchCounter().getTotalCount() == 0) {
                             // do nothing. This is to capture the empty lines
-                        } else if (line.getBranchCounter().getCoveredCount() == 0
-                                && line.getBranchCounter().getMissedCount() > 0) {
+                        } else if ((line.getBranchCounter().getCoveredCount() == 0
+                                && line.getBranchCounter().getMissedCount() > 0)
+                                || line.getStatus() == NOT_COVERED) {
                             missedLines.add(i);
                         } else if (line.getStatus() == PARTLY_COVERED || line.getStatus() == FULLY_COVERED) {
                             coveredLines.add(i);

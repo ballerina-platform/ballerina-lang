@@ -1,4 +1,10 @@
-# To start the service, navigate to the directory that contains the
-# `.bal` file and use the `ballerina run` command.
-$ ballerina run secured_client_with_basic_auth.bal
+# To test the client, first start the sample service by executing the below
+# command by specifying the configuration file name and passing Ballerina home
+# path as a system property.
+$ ballerina run secured_service_with_basic_auth.bal --b7a.config.file=sample-users.toml --b7a.home=<ballerina_home_path>
+[ballerina/http] started HTTPS/WSS listener 0.0.0.0:9090
+
+# Then start the client by executing the below command by passing Ballerina home
+# path as a system property.
+$ ballerina run secured_client_with_basic_auth.bal --b7a.home=<ballerina_home_path>
 INFO  [ballerina/log] - Hello, World!!!

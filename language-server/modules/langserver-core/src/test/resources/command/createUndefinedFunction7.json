@@ -20,7 +20,7 @@
                     "character": 0
                   }
                 },
-                "newText": "\n\nfunction partition(string recs, string a, function (string) returns (boolean) spliter) returns string[][][] {\n    return [[[\"\"]]];\n}\n"
+                "newText": "\n\nfunction partition(string recs, string a, function (string a) returns boolean spliter) returns string[][][] {\n    return [[[\"\"]]];\n}\n"
               }
             ]
           }

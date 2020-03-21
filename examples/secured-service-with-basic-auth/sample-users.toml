@@ -1,9 +1,9 @@
 [b7a.users]
 
-[b7a.users.generalUser1]
-password="password"
+[b7a.users.alice]
+password="password1"
 scopes="scope1"
 
-[b7a.users.generalUser2]
-password="password"
-scopes="scope2"
+[b7a.users.bob]
+password="password2"
+scopes="scope2,scope3"

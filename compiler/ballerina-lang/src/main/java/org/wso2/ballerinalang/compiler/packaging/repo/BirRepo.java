@@ -22,6 +22,7 @@ import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.packaging.Patten;
 import org.wso2.ballerinalang.compiler.packaging.converters.Converter;
 import org.wso2.ballerinalang.compiler.packaging.converters.PathConverter;
+import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 
 import java.nio.file.Path;
 
@@ -35,7 +36,7 @@ public class BirRepo implements Repo<Path> {
     PathConverter pathConverter;
     
     public BirRepo(Path repo) {
-        this.pathConverter = new PathConverter(repo.resolve("bir-cache"));
+        this.pathConverter = new PathConverter(repo.resolve(ProjectDirConstants.DIST_BIR_CACHE_DIR_NAME));
     }
     
     @Override

@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerinax/java;
+import ballerina/java;
 
 # Represents an SMTP Client, which interacts with an SMTP Server.
 public type SmtpClient client object {

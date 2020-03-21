@@ -225,7 +225,7 @@ import javax.xml.namespace.QName;
       * @return function pointer
       */
      public static BFunctionPointer createFPValue(Function function, BFunctionType type) {
-         return new FPValue(function, type);
+         return new FPValue(function, type, false);
      }
 
      /**

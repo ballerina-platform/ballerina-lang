@@ -101,7 +101,7 @@
 
     extends("(FunctionInvocation|SimpleVariable|MapArrayVariable|FieldVariable|XmlAttribVariable|XmlElementFilter|XmlStepExpression|Invocation|AnnotationAccess|TypeDescExprInvocation|StringFunctionInvocation|Group(FieldVariable|Invocation|MapArrayVariable|StringFunctionInvocation))Reference") =VariableReference
 
-    extends("((Simple|Record|Xml|StringTemplate)Literal|(ValueType|BuiltInReferenceType)Type|VariableReference|Type(Init|Conversion|Desc|Test)|Group|Wait|WorkerSendSync|WorkerReceive|FlushWorker|Checked|CheckPanic|TableLiteral|Elvis|ActionInvocation|IntegerRange|ArrowFunction|ServiceConstructor|ListConstructor|BinaryRefEqual|Trap|AnnotationAction|StreamConstructor|Query|AnonymousFunction|Let)Expression") = Expression
+    extends("((Simple|Record|Xml|StringTemplate)Literal|(ValueType|BuiltInReferenceType)Type|VariableReference|Type(Init|Conversion|Desc|Test)|Group|Wait|WorkerSendSync|WorkerReceive|FlushWorker|Checked|CheckPanic|TableLiteral|Elvis|ActionInvocation|IntegerRange|ArrowFunction|ServiceConstructor|ListConstructor|BinaryRefEqual|Trap|AnnotationAction|StreamConstructor|Query|QueryAction|AnonymousFunction|Let)Expression") = Expression
     extends("(Unary|Binary|Ternary|Bitwise|BitwiseShift)Expression") = Expression
 
     extends("Binary(DivMulMod|AddSub|Compare|Equal|And|Or)Expression") = BinaryExpression
@@ -363,7 +363,6 @@ Statement ::=
     |   CompoundAssignmentStatement
     |   ExpressionStmt
     |   ErrorDestructuringStatement
-    |   QueryActionStatement
 {recoverWhile = StatementRecover}
 
 // Todo - Add more tokens (for record destructuring and panic)
@@ -696,6 +695,7 @@ Expression
     |   TypeDescExpression
     |   AnnotationActionExpression
     |   QueryExpression
+    |   QueryActionExpression
     |   LetExpression
     {recoverWhile=ExpressionRecover}
 
@@ -756,17 +756,15 @@ ShiftExpression ::= GT <<shiftExprPredicate>> GT
     | LT <<shiftExprPredicate>> LT
     | GT <<shiftExprPredicate>> GT <<shiftExprPredicate>> GT
 
-SelectClause ::= SELECT Expression {pin=1}
-WhereClause ::= WHERE Expression{pin=1}
-FromClause ::= FROM (TypeName | var) BindingPattern IN Expression {pin=1}
-DoClause ::= DO LEFT_BRACE Statement* RIGHT_BRACE {pin=1}
+SelectClause ::= select Expression {pin=1}
+WhereClause ::= where Expression{pin=1}
+FromClause ::= from (TypeName | var) BindingPattern IN Expression {pin=1}
+DoClause ::= do LEFT_BRACE Statement* RIGHT_BRACE {pin=1}
 LetClause ::= let LetVarDecl (COMMA LetVarDecl)* {pin=1}
-
-
 
 QueryPipeline ::= FromClause (FromClause | LetClause | WhereClause)*
 QueryExpr ::= QueryPipeline SelectClause
-QueryActionStatement ::= QueryPipeline DoClause
+QueryActionExpression ::= QueryPipeline DoClause
 
 NameReference ::= <<isPackageExpected>> PackageReference identifier | identifier
 
@@ -841,7 +839,7 @@ ReservedWord ::= foreach | map | start | continue | OBJECT_INIT | error
 
 // Markdown Documentation parsing
 
-documentationString ::= documentationLine+ parameterDocumentationLine* returnParameterDocumentationLine?
+documentationString ::= documentationLine+ parameterDocumentationLine* returnParameterDocumentationLine? deprecatedAnnotationDocumentationLine?
 
 documentationLine ::= MARKDOWN_DOCUMENTATION_LINE_START documentationContent {pin=1}
 
@@ -849,11 +847,15 @@ parameterDocumentationLine ::= parameterDocumentation parameterDescription*
 
 returnParameterDocumentationLine ::= returnParameterDocumentation returnParameterDescription*
 
+deprecatedAnnotationDocumentationLine ::= deprecatedAnnotationDocumentation deprecateAnnotationDescriptionLine*
+
 documentationContent ::= documentationText?
 
 parameterDescription ::= MARKDOWN_DOCUMENTATION_LINE_START documentationText?
 
 returnParameterDescription ::= MARKDOWN_DOCUMENTATION_LINE_START documentationText?
+
+deprecateAnnotationDescriptionLin ::= MARKDOWN_DOCUMENTATION_LINE_START documentationText?
 
 //TODO: Fix documentation reference capturing.
 documentationText ::= (documentationReference | referenceType | backtickedBlock | documentationTextContent)+
@@ -873,6 +875,9 @@ referenceType ::= DOCTYPE
 parameterDocumentation ::= PARAMETER_DOCUMENTATION_START PARAMETER_NAME DESCRIPTION_SEPARATOR documentationText? {pin=3}
 
 returnParameterDocumentation ::= RETURN_PARAMETER_DOCUMENTATION_START docParameterDescription
+
+
+deprecatedAnnotationDocumentation ::= DEPRECATED_DOCUMENTATION
 
 docParameterDescription ::= documentationText?
 
