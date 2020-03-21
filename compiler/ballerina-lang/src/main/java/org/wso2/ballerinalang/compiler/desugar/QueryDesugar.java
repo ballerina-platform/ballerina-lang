@@ -37,21 +37,21 @@ import org.wso2.ballerinalang.compiler.tree.clauses.BLangFromClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangLetClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWhereClause;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangGroupExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryAction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStatementExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeTestExpr;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangQueryAction;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangSimpleVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
@@ -82,7 +82,6 @@ public class QueryDesugar extends BLangNodeVisitor {
     private final SymbolResolver symResolver;
     private final Names names;
     private final Types types;
-    private BLangForeach parentForeach = null;
     private BLangBlockStmt parentBlock = null;
     private SymbolEnv env;
 
@@ -175,7 +174,9 @@ public class QueryDesugar extends BLangNodeVisitor {
         // Set the indexed based access expression statement as foreach body
         BLangAssignment tempVarAssignment = ASTBuilderUtil.createAssignmentStmt(pos, indexAccessExpr,
                 selectClause.expression);
-        buildWhereClauseBlock(whereClauseList, letClauseList, leafElseBlock, tempVarAssignment, selectClause.pos);
+        BLangBlockStmt bodyBlock = ASTBuilderUtil.createBlockStmt(pos);
+        bodyBlock.addStatement(tempVarAssignment);
+        buildWhereClauseBlock(whereClauseList, letClauseList, leafElseBlock, bodyBlock, selectClause.pos);
 
         BLangTypeTestExpr typeNullExpr = ASTBuilderUtil
                 .createTypeTestExpr(fromClause.pos, outputVarRef, desugar.getNillTypeNode());
@@ -208,22 +209,33 @@ public class QueryDesugar extends BLangNodeVisitor {
         return fieldBasedAccessExpression;
     }
 
-    BLangBlockStmt desugarQueryAction(BLangQueryAction queryAction, SymbolEnv env) {
+    BLangStatementExpression desugarQueryAction(BLangQueryAction queryAction, SymbolEnv env) {
         this.env = env;
-        BLangBlockStmt blockNode = ASTBuilderUtil.createBlockStmt(queryAction.pos);
         List<BLangFromClause> fromClauseList = queryAction.fromClauseList;
         List<BLangLetClause> letClauseList = queryAction.letClauseList;
         BLangFromClause fromClause = fromClauseList.get(0);
         BLangDoClause doClause = queryAction.doClause;
         List<BLangWhereClause> whereClauseList = queryAction.whereClauseList;
         DiagnosticPos pos = fromClause.pos;
+        parentBlock =  ASTBuilderUtil.createBlockStmt(fromClause.pos);
 
-//        BLangBlockStmt leafElseBlock = buildFromClauseBlockStmt(fromClauseList, outputVarRef);
-        BLangBlockStmt foreachBody = ASTBuilderUtil.createBlockStmt(pos);
-        buildWhereClauseBlock(whereClauseList, letClauseList, null, null, doClause.pos);
-        foreachBody.addStatement(doClause.body);
-        blockNode.stmts.add(parentForeach);
-        return blockNode;
+        BLangExpression nilExpression = ASTBuilderUtil.createLiteral(pos, symTable.nilType, Names.NIL_VALUE);
+        BVarSymbol outputVarSymbol = new BVarSymbol(0, new Name("$outputVar$"),
+                env.scope.owner.pkgID, symTable.errorOrNilType, env.scope.owner);
+        BLangSimpleVariable outputVariable =
+                ASTBuilderUtil.createVariable(pos, "$outputVar$", symTable.errorOrNilType,
+                        nilExpression, outputVarSymbol);
+        BLangSimpleVariableDef outputVariableDef =
+                ASTBuilderUtil.createVariableDef(pos, outputVariable);
+        BLangSimpleVarRef outputVarRef = ASTBuilderUtil.createVariableRef(pos, outputVariable.symbol);
+        parentBlock.addStatement(outputVariableDef);
+
+        BLangBlockStmt leafElseBlock = buildFromClauseBlockStmt(fromClauseList, outputVarRef);
+        buildWhereClauseBlock(whereClauseList, letClauseList, leafElseBlock, doClause.body, doClause.pos);
+
+        BLangStatementExpression stmtExpr = ASTBuilderUtil.createStatementExpression(parentBlock, outputVarRef);
+        stmtExpr.type = symTable.errorOrNilType;
+        return stmtExpr;
     }
 
     private void buildLetClauseBlock(List<BLangLetClause> letClauseList, BLangBlockStmt bLangBlockStmt) {
@@ -388,33 +400,8 @@ public class QueryDesugar extends BLangNodeVisitor {
         return ASTBuilderUtil.createVariableDef(fromClause.pos, resultVariable);
     }
 
-    private BLangForeach buildFromClauseBlock(List<BLangFromClause> fromClauseList) {
-        BLangForeach leafForeach = null;
-        for (BLangFromClause fromClause : fromClauseList) {
-            BLangForeach foreach = (BLangForeach) TreeBuilder.createForeachNode();
-            foreach.pos = fromClause.pos;
-            foreach.collection = fromClause.collection;
-            types.setForeachTypedBindingPatternType(foreach);
-
-            foreach.variableDefinitionNode = fromClause.variableDefinitionNode;
-            foreach.isDeclaredWithVar = fromClause.isDeclaredWithVar;
-
-            if (leafForeach != null) {
-                BLangBlockStmt foreachBody = ASTBuilderUtil.createBlockStmt(fromClause.pos);
-                foreachBody.addStatement(foreach);
-                leafForeach.setBody(foreachBody);
-            } else {
-                parentForeach = foreach;
-            }
-
-            leafForeach = foreach;
-        }
-
-        return leafForeach;
-    }
-
     private void buildWhereClauseBlock(List<BLangWhereClause> whereClauseList, List<BLangLetClause> letClauseList,
-                                       BLangBlockStmt elseBlock, BLangAssignment selectAssignment, DiagnosticPos pos) {
+                                       BLangBlockStmt elseBlock, BLangBlockStmt bodyBlock, DiagnosticPos pos) {
         BLangBlockStmt stmtBlock = ASTBuilderUtil.createBlockStmt(pos);
         if (whereClauseList.size() > 0) {
             // Create If Statement with Where expression and foreach body
@@ -433,15 +420,13 @@ public class QueryDesugar extends BLangNodeVisitor {
                 }
                 innerIf = bLangIf;
             }
-            BLangBlockStmt innerIfBlock = ASTBuilderUtil.createBlockStmt(pos);
-            innerIfBlock.addStatement(selectAssignment);
-            innerIf.setBody(innerIfBlock);
+            innerIf.setBody(bodyBlock);
 
             buildLetClauseBlock(letClauseList, stmtBlock);
             stmtBlock.addStatement(outerIf);
         } else {
             buildLetClauseBlock(letClauseList, stmtBlock);
-            stmtBlock.addStatement(selectAssignment);
+            stmtBlock.stmts.addAll(bodyBlock.getStatements());
         }
         elseBlock.getStatements().addAll(stmtBlock.getStatements());
     }
