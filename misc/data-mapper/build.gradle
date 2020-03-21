@@ -32,12 +32,12 @@ allprojects {
 
     dependencies {
         testCompile group: 'junit', name: 'junit', version: '4.12'
-        implementation('org.ballerinalang:language-server-core:1.2.0-SNAPSHOT')
-        implementation('org.ballerinalang:language-server-commons:1.2.0-SNAPSHOT')
-        implementation('org.ballerinalang:language-server-compiler:1.2.0-SNAPSHOT')
-        implementation('org.ballerinalang:language-server-cli:1.2.0-SNAPSHOT')
-        implementation('org.ballerinalang:ballerina-lang:1.2.0-SNAPSHOT')
-        implementation('org.ballerinalang:ballerina-runtime:1.2.0-SNAPSHOT')
+        implementation('org.ballerinalang:language-server-core:1.2.0')
+        implementation('org.ballerinalang:language-server-commons:1.2.0')
+        implementation('org.ballerinalang:language-server-compiler:1.2.0')
+        implementation('org.ballerinalang:language-server-cli:1.2.0')
+        implementation('org.ballerinalang:ballerina-lang:1.2.0')
+        implementation('org.ballerinalang:ballerina-runtime:1.2.0')
         implementation 'org.apache.commons:commons-lang3:3.6'
         implementation(group: 'org.eclipse.lsp4j', name: 'org.eclipse.lsp4j', version: '0.8.1')
         compile 'org.apache.directory.studio:org.apache.commons.io:2.4'
@@ -62,6 +62,6 @@ spotbugsMain {
 apply plugin: 'checkstyle'
 
 checkstyle {
-    toolVersion '7.8.2'
-    configFile rootProject.file("build-config/checkstyle/build/checkstyle.xml")
+    toolVersion '8.18'
+    configFile rootProject.file("build-config/checkstyle/checkstyle.xml")
 }
