@@ -29,7 +29,7 @@ function initializeClients() returns sql:Error? {
     // Connection pool is used to share and use the connections
     // to the database efficiently. In the above samples, the global
     // connection pool is created and shared
-    // among all database clients since the `connectionPool` property
+    // among all the database clients since the `connectionPool` property
     // is not set.
     sql:ConnectionPool connPool = {
         // Default max number of open connections in the connection pool is 15.
@@ -68,7 +68,7 @@ function initializeClients() returns sql:Error? {
     check jdbcClient6.close();
 }
 
-//Initializes JDBC clients with different options.
+//Initialize JDBC clients with different options.
 public function main() {
     sql:Error? err = initializeClients();
     if (err is sql:Error) {

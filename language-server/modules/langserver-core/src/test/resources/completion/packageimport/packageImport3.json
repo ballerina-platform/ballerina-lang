@@ -338,6 +338,24 @@
       }
     },
     {
+      "label": "toCodePointInt(Char ch)(int)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.string_  \n  \nConverts a single character string to a code point.\n  \n**Params**  \n- `Char` ch: a single character string  \n  \n**Returns** `int`   \n- the code point of `ch`  \n  \n"
+        }
+      },
+      "sortText": "120",
+      "insertText": "toCodePointInt(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
       "label": "fromCodePointInts(int[] codePoints)((string|error))",
       "kind": "Function",
       "detail": "Function",

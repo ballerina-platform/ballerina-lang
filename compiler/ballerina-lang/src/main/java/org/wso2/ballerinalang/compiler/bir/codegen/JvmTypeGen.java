@@ -1018,6 +1018,14 @@ class JvmTypeGen {
             typeFieldName = "typeJSON";
         } else if (bType.tag == TypeTags.XML) {
             typeFieldName = "typeXML";
+        } else if (bType.tag == TypeTags.XML_ELEMENT) {
+            typeFieldName = "typeElement";
+        } else if (bType.tag == TypeTags.XML_PI) {
+            typeFieldName = "typeProcessingInstruction";
+        } else if (bType.tag == TypeTags.XML_COMMENT) {
+            typeFieldName = "typeComment";
+        } else if (bType.tag == TypeTags.XML_TEXT) {
+            typeFieldName = "typeText";
         } else if (bType.tag == TypeTags.TYPEDESC) {
             loadTypedescType(mv, (BTypedescType) bType);
             return;
@@ -1379,7 +1387,7 @@ class JvmTypeGen {
             return String.format("L%s;", DECIMAL_VALUE);
         } else if (bType.tag == TypeTags.OBJECT) {
             return String.format("L%s;", OBJECT_VALUE);
-        } else if (bType.tag == TypeTags.XML) {
+        } else if (TypeTags.isXMLTypeTag(bType.tag)) {
             return String.format("L%s;", XML_VALUE);
         } else if (bType.tag == TypeTags.HANDLE) {
             return String.format("L%s;", HANDLE_VALUE);

@@ -952,6 +952,10 @@ public class BRunUtil {
                 }
                 return bvmObject;
             case org.ballerinalang.jvm.types.TypeTags.XML_TAG:
+            case org.ballerinalang.jvm.types.TypeTags.XML_ELEMENT_TAG:
+            case org.ballerinalang.jvm.types.TypeTags.XML_COMMENT_TAG:
+            case org.ballerinalang.jvm.types.TypeTags.XML_PI_TAG:
+            case org.ballerinalang.jvm.types.TypeTags.XML_TEXT_TAG:
                 if (value instanceof XMLValue) {
                     if (((XMLValue) value).getNodeType() != XMLNodeType.SEQUENCE) {
                         BXMLItem bxmlItem = new BXMLItem((OMNode) ((XMLValue) value).value());

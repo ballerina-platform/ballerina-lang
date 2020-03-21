@@ -171,6 +171,7 @@ def copyBaloSpec = {
     path -> copySpec {
         from configurations.distBal
         into(path + 'lib')
+        fileMode 0644
     }
 }
 

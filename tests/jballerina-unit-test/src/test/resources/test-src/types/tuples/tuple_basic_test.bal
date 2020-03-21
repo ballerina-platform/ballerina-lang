@@ -241,6 +241,14 @@ function testUnionRestDescriptor() {
     assertEquality(true, x[6]);
 }
 
+function testAnonRecordsInTupleTypeDescriptor() {
+    [string, record {| string name; |}[]...] tup = ["foo", [{name: "Pubudu"}]];
+
+    assertEquality(2, tup.length());
+    assertEquality("foo", tup[0]);
+    assertEquality(<record {| string name; |}[]>[{name: "Pubudu"}], tup[1]);
+}
+
 const ASSERTION_ERROR_REASON = "AssertionError";
 
 function assertEquality(any|error expected, any|error actual) {

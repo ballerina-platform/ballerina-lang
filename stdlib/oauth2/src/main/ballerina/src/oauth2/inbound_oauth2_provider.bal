@@ -118,7 +118,7 @@ function addToAuthenticationCache(cache:Cache oauth2Cache, string token, string?
     InboundOAuth2CacheEntry oauth2CacheEntry = {username: username ?: "", scopes: scopes ?: ""};
     cache:Error? result = oauth2Cache.put(token, oauth2CacheEntry, exp);
     if (result is cache:Error) {
-        log:printError(function() returns string {
+        log:printDebug(function() returns string {
             return "Failed to add JWT to the cache";
         });
         return;

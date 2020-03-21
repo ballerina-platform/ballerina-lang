@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerinax/java;
+import ballerina/java;
 
 # Provides the HTTP actions for interacting with an HTTP server. Apart from the standard HTTP methods,
 # `HttpClient.forward()` and `HttpClient.execute()` functions are provided. More complex and specific endpoint types
