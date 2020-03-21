@@ -1,5 +1,19 @@
+buildscript {
+    repositories {
+        maven {
+            url "https://plugins.gradle.org/m2/"
+        }
+    }
+    dependencies {
+        classpath "gradle.plugin.com.github.spotbugs:spotbugs-gradle-plugin:1.6.10"
+    }
+}
+
 plugins {
     id 'java'
+    id "com.github.spotbugs" version "1.6.10"
+    id "de.undercouch.download" version "3.4.3"
+    id 'base'
 }
 
 group 'DataMapper'
@@ -7,28 +21,47 @@ version '1.0-SNAPSHOT'
 
 sourceCompatibility = 1.8
 
-repositories {
-    mavenCentral()
-    maven{url "https://maven.wso2.org/nexus/content/repositories/snapshots/"}
-    maven{url "http://maven.wso2.org/nexus/content/repositories/releases/"}
-    maven{url "http://maven.wso2.org/nexus/content/groups/wso2-public/"}
-//    maven{url " https://mvnrepository.com/artifact/org.eclipse.lsp4j/org.eclipse.lsp4j"}
+
+allprojects {
+    repositories {
+        mavenCentral()
+        maven { url "https://maven.wso2.org/nexus/content/repositories/snapshots/" }
+        maven { url "http://maven.wso2.org/nexus/content/repositories/releases/" }
+        maven { url "http://maven.wso2.org/nexus/content/groups/wso2-public/" }
+    }
+
+    dependencies {
+        testCompile group: 'junit', name: 'junit', version: '4.12'
+        implementation('org.ballerinalang:language-server-core:1.2.0-SNAPSHOT')
+        implementation('org.ballerinalang:language-server-commons:1.2.0-SNAPSHOT')
+        implementation('org.ballerinalang:language-server-compiler:1.2.0-SNAPSHOT')
+        implementation('org.ballerinalang:language-server-cli:1.2.0-SNAPSHOT')
+        implementation('org.ballerinalang:ballerina-lang:1.2.0-SNAPSHOT')
+        implementation('org.ballerinalang:ballerina-runtime:1.2.0-SNAPSHOT')
+        implementation 'org.apache.commons:commons-lang3:3.6'
+        implementation(group: 'org.eclipse.lsp4j', name: 'org.eclipse.lsp4j', version: '0.8.1')
+        compile 'org.apache.directory.studio:org.apache.commons.io:2.4'
+    }
 }
 
-dependencies {
-    testCompile group: 'junit', name: 'junit', version: '4.12'
-    implementation('org.ballerinalang:language-server-core:1.2.0-SNAPSHOT')
-    implementation('org.ballerinalang:language-server-commons:1.2.0-SNAPSHOT')
-    implementation('org.ballerinalang:language-server-compiler:1.2.0-SNAPSHOT')
-    implementation('org.ballerinalang:language-server-cli:1.2.0-SNAPSHOT')
-    implementation('org.ballerinalang:ballerina-lang:1.2.0-SNAPSHOT')
-    implementation('org.ballerinalang:ballerina-runtime:1.2.0-SNAPSHOT')
-    implementation 'org.apache.commons:commons-lang3:3.6'
-    // https://mvnrepository.com/artifact/org.eclipse.lsp4j/org.eclipse.lsp4j
-    implementation(group: 'org.eclipse.lsp4j', name: 'org.eclipse.lsp4j', version: '0.8.1')
-    compile 'org.apache.directory.studio:org.apache.commons.io:2.4'
+apply plugin: "com.github.spotbugs"
 
+spotbugsMain {
+    it.effort "max"
+    it.reportLevel "low"
+    it.reports {
+        xml.enabled false
+        html.enabled true
+    }
+    def excludeFile = file('spotbugs-exclude.xml')
+    if(excludeFile.exists()) {
+        it.excludeFilter = excludeFile
+    }
+}
 
+apply plugin: 'checkstyle'
 
-
+checkstyle {
+    toolVersion '7.8.2'
+    configFile rootProject.file("build-config/checkstyle/build/checkstyle.xml")
 }
