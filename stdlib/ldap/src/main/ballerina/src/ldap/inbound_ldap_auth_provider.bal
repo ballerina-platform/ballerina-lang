@@ -16,7 +16,7 @@
 
 import ballerina/auth;
 import ballerina/crypto;
-import ballerinax/java;
+import ballerina/java;
 
 # Represents Ballerina configuration for LDAP based auth provider.
 #

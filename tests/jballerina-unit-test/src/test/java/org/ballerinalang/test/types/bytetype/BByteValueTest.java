@@ -528,10 +528,10 @@ public class BByteValueTest {
         BByte bByte1 = (BByte) returns[0];
         BInteger bInteger2 = (BInteger) returns[1];
         BByte bByte2 = (BByte) returns[2];
-        Assert.assertEquals(bByte1.value().intValue(), 255, "Invalid result");
-        Assert.assertEquals(bByte1.intValue(),  255, "Invalid result");
+        Assert.assertEquals(bByte1.value().intValue(), 3, "Invalid result");
+        Assert.assertEquals(bByte1.intValue(),  3, "Invalid result");
         Assert.assertEquals(bInteger2.intValue(), (i >> j), "Invalid result");
-        Assert.assertEquals(bByte2.intValue(), 254, "Invalid result");
+        Assert.assertEquals(bByte2.intValue(), 14, "Invalid result");
 
         BValue[] args2 = {new BByte(a), new BByte(b), new BInteger(i), new BInteger(j)};
         returns = BRunUtil.invoke(result, "testBitwiseRightShiftOperator2", args2);
@@ -539,9 +539,9 @@ public class BByteValueTest {
         BInteger bInteger1 = (BInteger) returns[0];
         bInteger2 = (BInteger) returns[1];
         BInteger bInteger3 = (BInteger) returns[2];
-        Assert.assertEquals(bInteger1.intValue(), 255, "Invalid result");
+        Assert.assertEquals(bInteger1.intValue(), 3, "Invalid result");
         Assert.assertEquals(bInteger2.intValue(), i >> j, "Invalid result");
-        Assert.assertEquals(bInteger3.intValue(), 254, "Invalid result");
+        Assert.assertEquals(bInteger3.intValue(), 14, "Invalid result");
     }
 
     @Test(description = "Test bitwise unsigned right shift operator 1")

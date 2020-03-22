@@ -1,9 +1,6 @@
 # To start the service, navigate to the directory that contains the
-# `.bal` file and use the `ballerina build` command.
-$ ballerina build websocket_chat_application.bal
-
-# Run the sample using the `run` command on the jar file generated:
-$ ballerina run websocket_chat_application-executable.jar
+# `.bal` file and execute the `ballerina run` command.
+$ ballerina run websocket_chat_application.bal
 
 # To check the sample, use the Chrome or Firefox JavaScript console and run the following commands. <br>
 # Run the first 3 lines of the following code in two or more different consoles and see how the messages are received.

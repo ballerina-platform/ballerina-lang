@@ -25,11 +25,12 @@ OPTIONS
            is to be generated for standard Java classes.
 
        (-o|--output) <output>
-           Location of the generated Ballerina bridge code. If this path is not
-           specified, the output will be written onto the same directory from where the command is run.
+           Location of the generated Ballerina bridge code. If this path is not specified,
+           the output will be written onto the same directory from where the command is run.
 
        <class-name>...
-           One or more fully qualified Java class names for which the bridge code is to be generated.
+           One or more space separated fully qualified Java class names for which the bridge
+           code is to be generated.
 
 
 EXAMPLES

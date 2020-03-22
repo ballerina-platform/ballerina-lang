@@ -26,19 +26,23 @@ service kafkaService on consumer {
         var commitResult = kafkaConsumer->commit();
         if (commitResult is error) {
             log:printError("Error occurred while committing the " +
-                    "offsets for the consumer ", commitResult);
+                "offsets for the consumer ", commitResult);
         }
     }
 }
 
 function processKafkaRecord(kafka:ConsumerRecord kafkaRecord) {
-    byte[] serializedMsg = kafkaRecord.value;
-    string|error msg = strings:fromBytes(serializedMsg);
-    if (msg is string) {
-        // Print the retrieved Kafka record.
-        io:println("Topic: ", kafkaRecord.topic, " Partition: ",
-            kafkaRecord.partition.toString(), " Received Message: ", msg);
+    anydata serializedMsg = kafkaRecord.value;
+    if (serializedMsg is byte[]) {
+        string|error msg = strings:fromBytes(serializedMsg);
+        if (msg is string) {
+            // Print the retrieved Kafka record.
+            io:println("Topic: ", kafkaRecord.topic, " Partition: ",
+                kafkaRecord.partition.toString(), " Received Message: ", msg);
+        } else {
+            log:printError("Error occurred while converting message data", msg);
+        }
     } else {
-        log:printError("Error occurred while converting message data", msg);
+        log:printError("Error occurred while retrieving message data; Unexpected type");
     }
 }

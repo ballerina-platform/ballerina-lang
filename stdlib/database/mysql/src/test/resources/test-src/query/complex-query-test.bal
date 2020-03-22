@@ -22,7 +22,7 @@ string database = "TEST_SQL_COMPLEX_QUERY";
 int port = 3305;
 
 
-function testQuery() returns record {}|error? {
+function testQuery() returns @tainted record {}|error? {
     mysql:Client dbClient = check new (host, user, password, database, port);
     stream<record{}, error> streamData = dbClient->query("SELECT INT_TYPE, LONG_TYPE, FLOAT_TYPE, DOUBLE_TYPE,"
         + " BOOLEAN_TYPE, STRING_TYPE from DataTable WHERE row_id = 1");

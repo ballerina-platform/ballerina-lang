@@ -46,6 +46,7 @@ public class BInvokableSymbol extends BVarSymbol implements InvokableSymbol {
     // Only applicable for workers within fork statements.
     public String enclForkName;
     public String source;
+    public SchedulerPolicy schedulerPolicy = SchedulerPolicy.PARENT;
 
     public List<BLangAnnotationAttachment> annAttachments;
 

@@ -134,12 +134,6 @@ public class BallerinaStatementImpl extends ASTWrapperPsiElement implements Ball
 
   @Override
   @Nullable
-  public BallerinaQueryActionStatement getQueryActionStatement() {
-    return findChildByClass(BallerinaQueryActionStatement.class);
-  }
-
-  @Override
-  @Nullable
   public BallerinaRecordDestructuringStatement getRecordDestructuringStatement() {
     return findChildByClass(BallerinaRecordDestructuringStatement.class);
   }

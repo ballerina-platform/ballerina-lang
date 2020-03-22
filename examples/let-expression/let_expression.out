@@ -1,0 +1,10 @@
+# To run this sample, navigate to the directory that contains the
+# `.bal` file, and execute the `ballerina run` command.
+$ ballerina run let_expression.bal
+a: 2
+greeting: Hello Ballerina!
+three: 3
+length: 14
+tuple binding result: 60
+age: 31
+fatal: true
