@@ -2831,11 +2831,8 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         BType expSelectType = expType;
-        BType selectType = null;
         if (expType.tag == TypeTags.ARRAY) {
             expSelectType = ((BArrayType) expType).eType;
-            selectType = checkExpr(selectClause.expression, whereEnv, expSelectType);
-            resultType = selectType == symTable.semanticError ? selectType : new BArrayType(selectType);
         } else if (expType.tag == TypeTags.UNION) {
             Set<BType> memTypes = ((BUnionType) expType).getMemberTypes();
 
@@ -2848,15 +2845,16 @@ public class TypeChecker extends BLangNodeVisitor {
             expSelectType = nilRemovedSet.size() == 1 ? nilRemovedSet.iterator().next() :
                     BUnionType.create(null, nilRemovedSet);
             if(expSelectType.tag == TypeTags.ARRAY ) {
-                selectType = checkExpr(selectClause.expression, whereEnv, ((BArrayType)expSelectType).eType);
-            } else {
-                selectType = checkExpr(selectClause.expression, whereEnv, expSelectType);
+                expSelectType = ((BArrayType)expSelectType).eType;
             }
-            BType actualType = BUnionType.create(null, new BArrayType(selectType), symTable.errorType, symTable.nilType);
-            resultType = types.checkType(queryExpr.pos, actualType, expType,
-                    DiagnosticCode.INCOMPATIBLE_TYPES);
         }
-
+        BType selectType = checkExpr(selectClause.expression, whereEnv, expSelectType);
+        BType actualType = new BArrayType(selectType);
+        if (expType.tag == TypeTags.UNION) {
+            actualType = BUnionType.create(null, new BArrayType(selectType), symTable.errorType,
+                    symTable.nilType);
+        }
+        resultType = selectType == symTable.semanticError ? selectType : actualType;
     }
 
     @Override
