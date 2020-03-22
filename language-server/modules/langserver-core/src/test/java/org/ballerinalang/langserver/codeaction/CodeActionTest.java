@@ -260,6 +260,7 @@ public class CodeActionTest {
                 {"variableAssignmentRequiredCodeAction16.json", "createVariable3.bal"},
                 {"variableAssignmentRequiredCodeAction17.json", "createVariable3.bal"},
                 {"variableAssignmentRequiredCodeAction18.json", "createVariable3.bal"},
+                {"variableAssignmentRequiredCodeAction20.json", "createVariable4.bal"},
                 {"ignoreReturnValueCodeAction.json", "createVariable.bal"},
                 {"typeGuardCodeAction1.json", "typeGuard.bal"},
                 {"typeGuardCodeAction2.json", "typeGuard.bal"},

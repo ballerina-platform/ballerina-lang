@@ -170,8 +170,8 @@ public abstract class AbstractCodeActionProvider implements LSCodeActionProvider
         int pointer = content.length();
         while (loop) {
             pointer--;
-            if (content.length() == 2) {
-                count += 2;
+            if (content.length() == 1) {
+                count += 1;
                 break;
             }
             // Check for stop-conditions
