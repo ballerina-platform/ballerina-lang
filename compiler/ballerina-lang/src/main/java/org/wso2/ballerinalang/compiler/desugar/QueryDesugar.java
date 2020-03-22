@@ -131,7 +131,7 @@ public class QueryDesugar extends BLangNodeVisitor {
         BLangLiteral nillLiteral = ASTBuilderUtil.createLiteral(fromClause.pos, symTable.nilType,
                 null);
         BVarSymbol outputArrayVarSymbol = new BVarSymbol(0, new Name("$outputDataArray$"),
-                env.scope.owner.pkgID, outputArrayType, env.scope.owner);
+                env.scope.owner.pkgID, outputUnionType, env.scope.owner);
         BLangSimpleVariable outputArrayVariable =
                 ASTBuilderUtil.createVariable(pos, "$outputDataArray$", outputUnionType,
                         nillLiteral, outputArrayVarSymbol);
