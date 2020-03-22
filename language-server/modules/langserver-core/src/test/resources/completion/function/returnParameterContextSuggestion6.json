@@ -9,7 +9,7 @@
       "label": "Format",
       "detail": "Union",
       "documentation": {
-        "left": "Format which will be used to represent the CSV.\n\nDEFAULT - Would default to the format specified by CSVChannel. Precedence will be given to field\n          separator and record separator.\n\nCSV - Field separator would be \",\" and the record separator would be new line.\n\nTDF - Field separator will be tab and record separator will be new line."
+        "left": "The format, which will be used to represent the CSV.\n\nDEFAULT - The default value is the format specified by the CSVChannel. Precedence will be given to the field\n          separator and record separator.\n\nCSV - Field separator will be \",\" and the record separator will be a new line.\n\nTDF - Field separator will be a tab and record separator will be a new line."
       },
       "sortText": "110",
       "insertText": "Format",
@@ -20,7 +20,7 @@
       "kind": "Enum",
       "detail": "Union",
       "documentation": {
-        "left": "Field separators which are supported by DelimitedTextRecordChannel.\n\nCOMMA - Delimited text records would be separated using a comma.\n\nTAB - Delimited text records would be separated using a tab.\n\nCOLON - Delimited text records would be separated using a colon(:)."
+        "left": "Field separators, which are supported by the `DelimitedTextRecordChannel`.\n\nCOMMA - Delimited text records will be separated using a comma.\n\nTAB - Delimited text records will be separated using a tab.\n\nCOLON - Delimited text records will be separated using a colon(:)."
       },
       "sortText": "160",
       "insertText": "Separator",
@@ -64,7 +64,7 @@
       "kind": "Interface",
       "detail": "Object",
       "documentation": {
-        "left": "Represents a channel which could be used to read characters through a given ReadableByteChannel."
+        "left": "Represents a channel, which could be used to read characters through a given ReadableByteChannel."
       },
       "sortText": "190",
       "insertText": "ReadableCharacterChannel",
@@ -141,7 +141,7 @@
       "kind": "Interface",
       "detail": "Object",
       "documentation": {
-        "left": "Represents a WritableCSVChannel which could be used to write records from CSV file."
+        "left": "Represents a WritableCSVChannel, which could be used to write records from the CSV file."
       },
       "sortText": "190",
       "insertText": "WritableCSVChannel",
@@ -174,7 +174,7 @@
       "kind": "Interface",
       "detail": "Object",
       "documentation": {
-        "left": "Represents a channel which will allow to write records through a given WritableCharacterChannel."
+        "left": "Represents a channel, which will allow to write records through a given WritableCharacterChannel."
       },
       "sortText": "190",
       "insertText": "WritableTextRecordChannel",

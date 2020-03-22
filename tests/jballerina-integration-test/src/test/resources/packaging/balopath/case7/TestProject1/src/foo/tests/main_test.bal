@@ -1,7 +1,7 @@
 import ballerina/io;
 import ballerina/test;
 import wso2/utils;
-import ballerinax/java;
+import ballerina/java;
 
 function testAcceptNothingButReturnStringTest() returns handle {
     return utils:getString();

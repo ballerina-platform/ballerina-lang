@@ -79,9 +79,9 @@ public class ReferencesUtil {
         context.put(DocumentServiceKeys.FILE_URI_KEY, document.getURIString());
         context.put(DocumentServiceKeys.COMPILE_FULL_PROJECT, true);
         List<BLangPackage> modules = ReferencesUtil.findCursorTokenAndCompileModules(context, false);
-        fillReferences(modules, context);
+        findReferences(modules, context);
         context.put(DocumentServiceKeys.BLANG_PACKAGES_CONTEXT_KEY, modules);
-        SymbolReferencesModel referencesModel = context.get(NodeContextKeys.REFERENCES_KEY);
+        SymbolReferencesModel referencesModel = context.get(ReferencesKeys.REFERENCES_KEY);
         Optional<SymbolReferencesModel.Reference> symbolAtCursor = referencesModel.getReferenceAtCursor();
         return symbolAtCursor.orElse(null);
     }
@@ -98,12 +98,12 @@ public class ReferencesUtil {
     public static WorkspaceEdit getRenameWorkspaceEdits(LSContext context, String newName)
             throws WorkspaceDocumentException, CompilationFailedException {
         List<BLangPackage> modules = findCursorTokenAndCompileModules(context, false);
-        SymbolReferencesModel referencesModel = context.get(NodeContextKeys.REFERENCES_KEY);
+        SymbolReferencesModel referencesModel = context.get(ReferencesKeys.REFERENCES_KEY);
         String nodeName = context.get(NodeContextKeys.NODE_NAME_KEY);
         if (CommonKeys.NEW_KEYWORD_KEY.equals(nodeName)) {
             throw new IllegalStateException("Symbol at cursor '" + nodeName + "' not supported or could not find!");
         }
-        fillReferences(modules, context);
+        findReferences(modules, context);
         fillAllReferences(modules, context);
         return getWorkspaceEdit(referencesModel, context, newName);
     }
@@ -111,8 +111,8 @@ public class ReferencesUtil {
     public static List<Location> getReferences(LSContext context, boolean includeDeclaration)
             throws WorkspaceDocumentException, CompilationFailedException {
         List<BLangPackage> modules = findCursorTokenAndCompileModules(context, false);
-        SymbolReferencesModel referencesModel = context.get(NodeContextKeys.REFERENCES_KEY);
-        fillReferences(modules, context);
+        SymbolReferencesModel referencesModel = context.get(ReferencesKeys.REFERENCES_KEY);
+        findReferences(modules, context);
         fillAllReferences(modules, context);
         List<SymbolReferencesModel.Reference> references = new ArrayList<>();
         if (includeDeclaration) {
@@ -139,8 +139,8 @@ public class ReferencesUtil {
         if (context.get(NodeContextKeys.NODE_NAME_KEY) == null) {
             return HoverUtil.getDefaultHoverObject();
         }
-        SymbolReferencesModel referencesModel = context.get(NodeContextKeys.REFERENCES_KEY);
-        fillReferences(modules, context);
+        SymbolReferencesModel referencesModel = context.get(ReferencesKeys.REFERENCES_KEY);
+        findReferences(modules, context);
         Optional<SymbolReferencesModel.Reference> symbolAtCursor = referencesModel.getReferenceAtCursor();
 
         // Ignore the optional check since it has been handled during prepareReference and throws exception
@@ -165,7 +165,7 @@ public class ReferencesUtil {
         Class<LSCustomErrorStrategy> errStrategy = LSCustomErrorStrategy.class;
         try {
             context.put(DocumentServiceKeys.FILE_URI_KEY, fileUri);
-            context.put(NodeContextKeys.REFERENCES_KEY, new SymbolReferencesModel());
+            context.put(ReferencesKeys.REFERENCES_KEY, new SymbolReferencesModel());
 
             // With the sub-rule parser, find the token
             String documentContent = docManager.getFileContent(compilationPath);
@@ -182,7 +182,7 @@ public class ReferencesUtil {
     }
 
     private static void fillAllReferences(List<BLangPackage> modules, LSContext context) {
-        SymbolReferencesModel referencesModel = context.get(NodeContextKeys.REFERENCES_KEY);
+        SymbolReferencesModel referencesModel = context.get(ReferencesKeys.REFERENCES_KEY);
         Optional<SymbolReferencesModel.Reference> symbolAtCursor = referencesModel.getReferenceAtCursor();
         // Ignore the optional check since it has been handled during prepareReference and throws exception
         String symbolOwnerPkg = symbolAtCursor.get().getSymbol().pkgID.toString();
@@ -204,7 +204,7 @@ public class ReferencesUtil {
         });
     }
 
-    public static void fillReferences(List<BLangPackage> modules, LSContext context) {
+    public static void findReferences(List<BLangPackage> modules, LSContext context) {
         String currentPkgName = context.get(DocumentServiceKeys.CURRENT_PKG_NAME_KEY);
         /*
         In windows platform, relative file path key components are separated with "\" while antlr always uses "/"
@@ -229,7 +229,7 @@ public class ReferencesUtil {
         refVisitor.visit(currentCUnit.get());
 
         // Prune the found symbol references
-        SymbolReferencesModel symbolReferencesModel = context.get(NodeContextKeys.REFERENCES_KEY);
+        SymbolReferencesModel symbolReferencesModel = context.get(ReferencesKeys.REFERENCES_KEY);
         if (!symbolReferencesModel.getReferenceAtCursor().isPresent()) {
             String nodeName = context.get(NodeContextKeys.NODE_NAME_KEY);
             throw new IllegalStateException("Symbol at cursor '" + nodeName + "' not supported or could not find!");

@@ -49,12 +49,6 @@ public class BallerinaDoClauseImpl extends ASTWrapperPsiElement implements Balle
   }
 
   @Override
-  @NotNull
-  public PsiElement getDo() {
-    return findNotNullChildByType(DO);
-  }
-
-  @Override
   @Nullable
   public PsiElement getLeftBrace() {
     return findChildByType(LEFT_BRACE);
@@ -64,6 +58,12 @@ public class BallerinaDoClauseImpl extends ASTWrapperPsiElement implements Balle
   @Nullable
   public PsiElement getRightBrace() {
     return findChildByType(RIGHT_BRACE);
+  }
+
+  @Override
+  @NotNull
+  public PsiElement getDo() {
+    return findNotNullChildByType(DO);
   }
 
 }

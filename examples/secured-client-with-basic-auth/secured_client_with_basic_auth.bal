@@ -1,4 +1,5 @@
 import ballerina/auth;
+import ballerina/config;
 import ballerina/http;
 import ballerina/log;
 
@@ -21,7 +22,8 @@ http:Client httpEndpoint = new ("https://localhost:9090", {
     },
     secureSocket: {
         trustStore: {
-            path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
+            path: config:getAsString("b7a.home") +
+                  "bre/security/ballerinaTruststore.p12",
             password: "ballerina"
         }
     }

@@ -56,7 +56,7 @@ public class TestarinaTestCase extends BaseTest {
         balClient = new BMainInstance(balServer);
     }
 
-    @Test(description = "Test service start and stop during ballerina tests", groups = "brokenOnJBallerina")
+    @Test(description = "Test service start and stop during ballerina tests")
     public void testServiceTesting() throws Exception {
         String firstMsg = "Service 2 completed";
         LogLeecher clientLeecher1 = new LogLeecher(firstMsg);

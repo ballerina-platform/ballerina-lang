@@ -1,6 +1,6 @@
 import ballerina/io;
-import ballerina/lang.'float as floats;
-import ballerina/lang.'int as ints;
+import ballerina/lang.'float;
+import ballerina/lang.'int;
 
 // The types `int`, `float`, `decimal`, `string`, `boolean`, `byte`, and `nil` are called simple basic types
 // because they are basic types with only simple values. Simple values are always immutable.
@@ -11,7 +11,7 @@ public function main() {
 
     // The `ballerina/lang.int` module contains common functions that can be used
     // with `int` values.
-    int|error i2 = ints:fromString("100");
+    int|error i2 = 'int:fromString("100");
     if (i2 is int) {
         io:println(i2);
     }
@@ -21,9 +21,9 @@ public function main() {
     io:println(f);
 
     // The `ballerina/lang.float` module contains common functions that can be used with `float` values.
-    float f1 = floats:fromBitsInt(i);
+    float f1 = 'float:fromBitsInt(i);
     float f2 = 22.0;
-    float max = floats:max(f1, f2);
+    float max = 'float:max(f1, f2);
     io:println("Max float: ", max);
 
     // The `.isNaN()`, `.isInfinite()`, and `.isFinite()` langlib functions are supported by the `float` type.

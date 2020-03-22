@@ -88,6 +88,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangRecordVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangRecordVariable.BLangRecordVariableKeyValue;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
+import org.wso2.ballerinalang.compiler.tree.BLangTestablePackage;
 import org.wso2.ballerinalang.compiler.tree.BLangTupleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
@@ -133,6 +134,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchExpression.BLangMatchExprPatternClause;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryAction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangMapLiteral;
@@ -196,7 +198,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStat
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStructuredBindingPatternClause;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchTypedBindingPatternClause;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangPanic;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangQueryAction;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRetry;
@@ -254,6 +255,7 @@ import java.util.stream.Collectors;
 import javax.xml.XMLConstants;
 
 import static org.wso2.ballerinalang.compiler.desugar.ASTBuilderUtil.createBlockStmt;
+import static org.wso2.ballerinalang.compiler.desugar.ASTBuilderUtil.createLiteral;
 import static org.wso2.ballerinalang.compiler.desugar.ASTBuilderUtil.createStatementExpression;
 import static org.wso2.ballerinalang.compiler.desugar.ASTBuilderUtil.createVariable;
 import static org.wso2.ballerinalang.compiler.util.Constants.DESUGARED_MAPPING_CONSTR_KEY;
@@ -280,6 +282,12 @@ public class Desugar extends BLangNodeVisitor {
     private static final String LENGTH_FUNCTION_NAME = "length";
     private static final String ERROR_REASON_NULL_REFERENCE_ERROR = "NullReferenceException";
     private static final String CONSTRUCT_FROM = "constructFrom";
+    public static final String XML_INTERNAL_SELECT_DESCENDANTS = "selectDescendants";
+    public static final String XML_INTERNAL_CHILDREN = "children";
+    public static final String XML_INTERNAL_GET_FILTERED_CHILDREN_FLAT = "getFilteredChildrenFlat";
+    public static final String XML_INTERNAL_GET_ELEMENT_NAME_NIL_LIFTING = "getElementNameNilLifting";
+    public static final String XML_INTERNAL_GET_ATTRIBUTE = "getAttribute";
+    public static final String XML_INTERNAL_GET_ELEMENTS = "getElements";
 
     private SymbolTable symTable;
     private SymbolResolver symResolver;
@@ -640,8 +648,8 @@ public class Desugar extends BLangNodeVisitor {
 
         pkgNode.functions = rewrite(pkgNode.functions, env);
 
-        serviceDesugar.rewriteListeners(pkgNode.globalVars, env);
-        serviceDesugar.rewriteServiceAttachments(serviceAttachments, env);
+        serviceDesugar.rewriteListeners(pkgNode.globalVars, env, pkgNode.startFunction, pkgNode.stopFunction);
+        ASTBuilderUtil.appendStatements(serviceAttachments, (BLangBlockFunctionBody) pkgNode.initFunction.body);
 
         addNilReturnStatement((BLangBlockFunctionBody) pkgNode.startFunction.body);
         addNilReturnStatement((BLangBlockFunctionBody) pkgNode.stopFunction.body);
@@ -654,7 +662,9 @@ public class Desugar extends BLangNodeVisitor {
         // Invoke closure desugar.
         closureDesugar.visit(pkgNode);
 
-        pkgNode.getTestablePkgs().forEach(testablePackage -> visit((BLangPackage) testablePackage));
+        for (BLangTestablePackage testablePkg : pkgNode.getTestablePkgs()) {
+            rewrite(testablePkg, this.symTable.pkgEnvMap.get(testablePkg.symbol));
+        }
         pkgNode.completedPhases.add(CompilerPhase.DESUGAR);
         initFuncIndex = 0;
         result = pkgNode;
@@ -3511,15 +3521,21 @@ public class Desugar extends BLangNodeVisitor {
 
         // Handle element name access.
         if (fieldName.equals("_")) {
-            return createLanglibXMLInvocation(fieldAccessExpr.pos,  "getElementNameNilLifting", fieldAccessExpr.expr,
-                    new ArrayList<>(), new ArrayList<>());
+            return createLanglibXMLInvocation(fieldAccessExpr.pos, XML_INTERNAL_GET_ELEMENT_NAME_NIL_LIFTING,
+                    fieldAccessExpr.expr, new ArrayList<>(), new ArrayList<>());
         }
 
         BLangLiteral attributeNameLiteral = createStringLiteral(fieldAccessExpr.field.pos, fieldName);
         args.add(attributeNameLiteral);
+        args.add(isOptionalAccessToLiteral(fieldAccessExpr));
 
-        return createLanglibXMLInvocation(fieldAccessExpr.pos, "getAttribute", fieldAccessExpr.expr, args,
+        return createLanglibXMLInvocation(fieldAccessExpr.pos, XML_INTERNAL_GET_ATTRIBUTE, fieldAccessExpr.expr, args,
                 new ArrayList<>());
+    }
+
+    private BLangExpression isOptionalAccessToLiteral(BLangFieldBasedAccess fieldAccessExpr) {
+        return rewrite(
+                createLiteral(fieldAccessExpr.pos, symTable.booleanType, fieldAccessExpr.isOptionalFieldAccess()), env);
     }
 
     private String createExpandedQName(String nsURI, String localName) {
@@ -4382,14 +4398,14 @@ public class Desugar extends BLangNodeVisitor {
 
         ArrayList<BLangExpression> filters = expandFilters(xmlElementAccess.filters);
 
-        BLangInvocation invocationNode = createLanglibXMLInvocation(xmlElementAccess.pos, "getElements",
+        BLangInvocation invocationNode = createLanglibXMLInvocation(xmlElementAccess.pos, XML_INTERNAL_GET_ELEMENTS,
                 xmlElementAccess.expr, new ArrayList<>(), filters);
         result = rewriteExpr(invocationNode);
     }
 
     private ArrayList<BLangExpression> expandFilters(List<BLangXMLElementFilter> filters) {
         Map<Name, BXMLNSSymbol> nameBXMLNSSymbolMap = symResolver.resolveAllNamespaces(env);
-        BXMLNSSymbol defaultNSSymbol = nameBXMLNSSymbolMap.get(XMLConstants.DEFAULT_NS_PREFIX);
+        BXMLNSSymbol defaultNSSymbol = nameBXMLNSSymbolMap.get(names.fromString(XMLConstants.DEFAULT_NS_PREFIX));
         String defaultNS = defaultNSSymbol != null ? defaultNSSymbol.namespaceURI : null;
 
         ArrayList<BLangExpression> args = new ArrayList<>();
@@ -4451,12 +4467,12 @@ public class Desugar extends BLangNodeVisitor {
 
         // xml/**/<elemName>
         if (xmlNavigation.navAccessType == XMLNavigationAccess.NavAccessType.DESCENDANTS) {
-            BLangInvocation invocationNode = createLanglibXMLInvocation(xmlNavigation.pos, "selectDescendants",
-                    xmlNavigation.expr, new ArrayList<>(), filters);
+            BLangInvocation invocationNode = createLanglibXMLInvocation(xmlNavigation.pos,
+                    XML_INTERNAL_SELECT_DESCENDANTS, xmlNavigation.expr, new ArrayList<>(), filters);
             result = rewriteExpr(invocationNode);
         } else if (xmlNavigation.navAccessType == XMLNavigationAccess.NavAccessType.CHILDREN) {
             // xml/*
-            BLangInvocation invocationNode = createLanglibXMLInvocation(xmlNavigation.pos, "children",
+            BLangInvocation invocationNode = createLanglibXMLInvocation(xmlNavigation.pos, XML_INTERNAL_CHILDREN,
                     xmlNavigation.expr, new ArrayList<>(), new ArrayList<>());
             result = rewriteExpr(invocationNode);
         } else {
@@ -4471,8 +4487,8 @@ public class Desugar extends BLangNodeVisitor {
             ArrayList<BLangExpression> args = new ArrayList<>();
             args.add(rewriteExpr(childIndexExpr));
 
-            BLangInvocation invocationNode = createLanglibXMLInvocation(xmlNavigation.pos, "getFilteredChildrenFlat",
-                    xmlNavigation.expr, args, filters);
+            BLangInvocation invocationNode = createLanglibXMLInvocation(xmlNavigation.pos,
+                    XML_INTERNAL_GET_FILTERED_CHILDREN_FLAT, xmlNavigation.expr, args, filters);
             result = rewriteExpr(invocationNode);
         }
     }
@@ -4687,9 +4703,8 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangQueryAction queryAction) {
-        BLangBlockStmt blockStmt = queryDesugar.desugarQueryAction(queryAction, env);
-        rewrite(blockStmt, this.env);
-        result = blockStmt;
+        BLangStatementExpression stmtExpr = queryDesugar.desugarQueryAction(queryAction, env);
+        result = rewrite(stmtExpr, env);
     }
 
     @Override

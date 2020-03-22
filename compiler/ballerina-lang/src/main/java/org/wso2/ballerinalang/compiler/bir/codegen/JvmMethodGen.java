@@ -1634,9 +1634,9 @@ public class JvmMethodGen {
 
         // load null here for type, since these are fp's created for internal usages.
         mv.visitInsn(ACONST_NULL);
-
+        mv.visitInsn(ICONST_0); // mark as not-concurrent ie: 'parent'
         mv.visitMethodInsn(INVOKESPECIAL, FUNCTION_POINTER, "<init>",
-                String.format("(L%s;L%s;)V", FUNCTION, BTYPE), false);
+                String.format("(L%s;L%s;Z)V", FUNCTION, BTYPE), false);
     }
 
     static void generateMainMethod(@Nilable BIRFunction userMainFunc, ClassWriter cw, BIRPackage pkg, String

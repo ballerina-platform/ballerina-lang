@@ -12,4 +12,3 @@
 // simple HTTP client endpoint.
 // The `authHandler` field is defined inside the `auth` field with the value
 // of it being the reference of the created `http:BearerAuthHandler`.
-

@@ -53,12 +53,23 @@
                 "url": "functions-with-rest-parameter"
             },
             {
-                "name": "Documentation",
-                "url": "documentation"
-            },
-            {
                 "name": "Quoted Identifiers",
                 "url": "quoted-identifiers"
+            }
+        ]
+    },
+    {
+        "title": "Documentation",
+        "column": 0,
+        "category": "Language concepts",
+        "samples": [
+            {
+                "name": "Basic documentation",
+                "url": "basic-documentation"
+            },
+            {
+                "name": "Deprecation",
+                "url": "deprecation"
             }
         ]
     },
@@ -139,6 +150,20 @@
         ]
     },
     {
+        "title": "Query",
+        "column": 0,
+        "category": "Language concepts",
+        "samples": [{
+            "name": "Query Expression",
+            "url": "query-expression"
+        },
+            {
+                "name": "Query Action",
+                "url": "query-action"
+            }
+        ]
+    },
+    {
         "title": "Values and Types",
         "column": 1,
         "category": "Language concepts",
@@ -193,6 +218,10 @@
             {
                 "name": "String Template Literal",
                 "url": "string-template"
+            },
+            {
+                "name": "Let Expression",
+                "url": "let-expression"
             }
         ]
     },
@@ -262,6 +291,14 @@
         "category": "Language concepts",
         "samples": [
             {
+                "name": "Shift Expressions",
+                "url": "shift-expressions"
+            },
+            {
+                "name": "Binary Bitwise Expressions",
+                "url": "binary-bitwise-expressions"
+            },
+            {
                 "name": "Compound Assignment Operators",
                 "url": "compound-assignment-operators"
             },
@@ -293,6 +330,16 @@
                 "name": "Type Conversion",
                 "url": "type-conversion"
             }
+        ]
+    },
+     {
+        "title": "Streams",
+        "column": 1,
+        "category": "Language concepts",
+        "samples": [{
+            "name": "Streams",
+            "url": "streams"
+        }
         ]
     },
     {
@@ -432,7 +479,21 @@
             {
                 "name": "Async",
                 "url": "async"
+            },
+            {
+                "name": "Threads and Strands",
+                "url": "threads-and-strands"
             }
+        ]
+    },
+    {
+        "title": "Lock",
+        "column": 2,
+        "category": "Language concepts",
+        "samples": [{
+            "name": "Lock",
+            "url": "locks"
+        }
         ]
     },
     {
@@ -621,6 +682,10 @@
             {
                 "name": "AWS Lambda Deployment",
                 "url": "awslambda-deployment"
+            },
+            {
+                "name": "Knative Deployment",
+                "url": "knative-deployment"
             }
         ]
     },
@@ -1034,8 +1099,8 @@
                 "url": "secured-service-with-basic-auth"
             },
             {
-                "name": "Secured Service with JWT",
-                "url": "secured-service-with-jwt"
+                "name": "Secured Service with JWT Auth",
+                "url": "secured-service-with-jwt-auth"
             },
             {
                 "name": "Secured Service with OAuth2",
@@ -1062,38 +1127,6 @@
         "samples": [{
                 "name": "Send and Receive Emails",
                 "url": "send-and-receive-emails"
-            }
-        ]
-    },
-    {
-        "title": "Lock",
-        "column": 0,
-        "category": "Experimental features",
-        "samples": [{
-            "name": "Lock",
-            "url": "locks"
-        }
-        ]
-    },
-    {
-        "title": "Transactions",
-        "column": 2,
-        "category": "Experimental features",
-        "samples": [{
-                "name": "Local Transactions",
-                "url": "local-transactions"
-            },
-            {
-                "name": "Local Transactions with participants",
-                "url": "local-transactions-with-participants"
-            },
-            {
-                "name": "XA Transactions",
-                "url": "xa-transactions"
-            },
-            {
-                "name": "Distributed Transactions",
-                "url": "transactions-distributed"
             }
         ]
     },
@@ -1140,6 +1173,28 @@
             {
                 "name": "MySQL DDL and DML Operations",
                 "url": "mysql-execute-operation"
+            }
+        ]
+    },
+    {
+        "title": "Transactions",
+        "column": 0,
+        "category": "Experimental features",
+        "samples": [{
+                "name": "Local Transactions",
+                "url": "local-transactions"
+            },
+            {
+                "name": "Local Transactions with participants",
+                "url": "local-transactions-with-participants"
+            },
+            {
+                "name": "XA Transactions",
+                "url": "xa-transactions"
+            },
+            {
+                "name": "Distributed Transactions",
+                "url": "transactions-distributed"
             }
         ]
     }
