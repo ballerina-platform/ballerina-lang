@@ -64,7 +64,7 @@ function getReturnLine(modelVS: ReturnViewState | StmntViewState, callerVS: View
     returnLine.x2 = callerVS.bBox.x + (callerVS.bBox.w / 2);
 
     if (modelVS.isAction) {
-        returnLine.y2 = returnLine.y1 += config.statement.height;
+        returnLine.y2 = returnLine.y1 += (config.statement.height / 2);
     }
 
     return returnLine;
