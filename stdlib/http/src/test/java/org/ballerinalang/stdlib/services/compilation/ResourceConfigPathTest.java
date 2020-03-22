@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.ballerinalang.stdlib.services.configuration;
+package org.ballerinalang.stdlib.services.compilation;
 
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.CompileResult;
@@ -60,15 +60,17 @@ public class ResourceConfigPathTest {
         CompileResult compileResult = BCompileUtil
                 .compile("test-src/services/configuration/resource-arg--pathparam-match.bal");
         Diagnostic[] diag = compileResult.getDiagnostics();
-        Assert.assertEquals(diag.length, 8);
-        assertResponse(diag[0], INVALID_RESOURCE_PARAMETERS, 10);
-        assertResponse(diag[1], INVALID_RESOURCE_PARAMETERS, 18);
-        assertResponse(diag[2], INVALID_RESOURCE_PARAMETERS, 43);
-        assertResponse(diag[3], "Empty data binding param value", 46);
-        assertResponse(diag[4], "Invalid data binding param in the signature : expected 'naMe', but found 'name'", 55);
-        assertResponse(diag[5], INVALID_RESOURCE_PARAMETERS, 61);
-        assertResponse(diag[6], "Invalid data binding param in the signature : expected 'naMe', but found 'name'", 63);
-        assertResponse(diag[7], INVALID_RESOURCE_PARAMETERS, 69);
+        Assert.assertEquals(diag.length, 5);
+        assertResponse(diag[0], "invalid path param: `string age`, missing segment `{age}` in the path config of the " +
+                "resource annotation", 15);
+        assertResponse(diag[1], "invalid path param: `string ag`, missing segment `{ag}` in the path config of the " +
+                "resource annotation", 24);
+        assertResponse(diag[2], "invalid path param: `string go`, missing segment `{go}` in the path config of the " +
+                "resource annotation", 49);
+        assertResponse(diag[3], "invalid path param: `string go`, missing segment `{go}` in the path config of the " +
+                "resource annotation", 65);
+        assertResponse(diag[4], "invalid path param: `string name`, missing segment `{name}` in the path config of " +
+                "the resource annotation", 74);
     }
 
     private void assertResponse(Diagnostic diag, String msg, int line) {

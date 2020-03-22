@@ -12,7 +12,8 @@ service Ecommerce on testEP {
         methods:["GET"],
         path:"/products/{productId}/{regId}"
     }
-    resource function productsInfo1 (http:Caller caller, http:Request req, string productId, string regId) {
+    resource function productsInfo1 (http:Caller caller, http:Request req, @http:PathParam string productId,
+                                     @http:PathParam string regId) {
         string orderId = req.getHeader("X-ORDER-ID");
         io:println("Order ID " + orderId);
         io:println("Product ID " + productId);
@@ -29,7 +30,8 @@ service Ecommerce on testEP {
         methods:["GET"],
         path:"/products2/{productId}/{regId}/item"
     }
-    resource function productsInfo2 (http:Caller caller, http:Request req, string productId, string regId) {
+    resource function productsInfo2 (http:Caller caller, http:Request req, @http:PathParam string productId,
+                                     @http:PathParam string regId) {
         json responseJson;
         io:println("Product ID " + productId);
         io:println("Reg ID " + regId);
@@ -45,7 +47,8 @@ service Ecommerce on testEP {
         methods:["GET"],
         path:"/products3/{productId}/{regId}/*"
     }
-    resource function productsInfo3 (http:Caller caller, http:Request req, string productId, string regId) {
+    resource function productsInfo3 (http:Caller caller, http:Request req, @http:PathParam string productId,
+                                     @http:PathParam string regId) {
         json responseJson;
         io:println("Product ID " + productId);
         io:println("Reg ID " + regId);
@@ -61,7 +64,7 @@ service Ecommerce on testEP {
         methods:["GET"],
         path:"/products/{productId}"
     }
-    resource function productsInfo4 (http:Caller caller, http:Request req, string productId) {
+    resource function productsInfo4 (http:Caller caller, http:Request req, @http:PathParam string productId) {
         json responseJson;
         map<string[]> qParams = req.getQueryParams();
         string[]? rID = qParams["regID"];
@@ -101,7 +104,7 @@ service Ecommerce on testEP {
         methods:["GET"],
         path:"/products5/{productId}/reg"
     }
-    resource function productsInfo5 (http:Caller caller, http:Request req, string productId) {
+    resource function productsInfo5 (http:Caller caller, http:Request req, @http:PathParam string productId) {
         json responseJson;
         map<string[]> params = req.getQueryParams();
         string[]? rID = params["regID"];
@@ -199,7 +202,7 @@ service echo111 on testEP {
         methods:["DELETE"],
         path : "/put/{abc}"
     }
-    resource function productsDELETE (http:Caller caller, http:Request req, string abc) {
+    resource function productsDELETE (http:Caller caller, http:Request req, @http:PathParam string abc) {
         http:Response res = new;
         json responseJson = {"echo":"delete"};
         res.setJsonPayload(responseJson);
@@ -239,7 +242,7 @@ service echo113 on testEP {
         methods:["GET"],
         path:"/ech%5Bo/{foo}"
     }
-    resource function productsInfo (http:Caller caller, http:Request req, string foo) {
+    resource function productsInfo (http:Caller caller, http:Request req, @http:PathParam string foo) {
         http:Response res = new;
         json responseJson = {"echo113": foo};
         res.setJsonPayload(<@untainted json> responseJson);
@@ -256,7 +259,7 @@ service echo114 on testEP {
         methods:["GET"],
         path:"/ech%5Bo14/{foo}"
     }
-    resource function productsInfo (http:Caller caller, http:Request req, string foo) {
+    resource function productsInfo (http:Caller caller, http:Request req, @http:PathParam string foo) {
         http:Response res = new;
         json responseJson = {"echo114": foo};
         res.setJsonPayload(<@untainted json> responseJson);

@@ -44,7 +44,7 @@ under the License.
             <package name="org.ballerinalang.stdlib.entity.*"/>
             <!--<package name="org.ballerinalang.stdlib.services.basics.*"/>-->
             <package name="org.ballerinalang.stdlib.multipart.*"/>
-            <package name="org.ballerinalang.stdlib.services.configuration.*"/>
+            <package name="org.ballerinalang.stdlib.services.compilation.*"/>
             <package name="org.ballerinalang.stdlib.services.cors.*"/>
             <package name="org.ballerinalang.stdlib.services.dispatching.*"/>
             <package name="org.ballerinalang.stdlib.services.nativeimpl.*"/>
@@ -55,7 +55,6 @@ under the License.
             <package name="org.ballerinalang.stdlib.resiliency.*"/>
         </packages>
         <classes>
-            <class name="org.ballerinalang.stdlib.services.basics.SignatureTest"/>
             <class name="org.ballerinalang.stdlib.services.basics.ServiceTest">
                 <methods>
                     <exclude name="testErrorReturn"></exclude>
