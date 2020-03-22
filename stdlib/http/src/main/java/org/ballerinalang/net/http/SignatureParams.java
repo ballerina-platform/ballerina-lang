@@ -50,11 +50,11 @@ public class SignatureParams {
     private Map<String, Integer> queryParamOrder = new HashMap<>();
     private String bodyParamName = null;
     private int bodyParamOrderIndex = -1;
-    private static final String PARAM = "$param$"; //TODO move this
+    private static final String PARAM = "$param$";
 
     SignatureParams(List<BType> paramTypes, AttachedFunction resource) {
         this.signatureParamTypes = paramTypes;
-        List<String> paramAnnotationKeys = resource.getParamAnnotationKeys(); //TODO test with @tainted annotation
+        List<String> paramAnnotationKeys = resource.getParamAnnotationKeys();
         // params annotated
         int paramIndex = COMPULSORY_PARAM_COUNT;
         for (String paramName : paramAnnotationKeys) {

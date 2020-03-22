@@ -210,7 +210,7 @@ public class HttpDispatcher {
                         paramValues[paramIndex++] = argumentValue;
                 }
                 paramValues[paramIndex] = true;
-            } catch (Exception ex) { //todo add casting error test case
+            } catch (Exception ex) {
                 throw new BallerinaConnectorException(
                         "path param value casting failed for '" + argumentValue + "' : " + ex.getMessage());
             }
@@ -235,8 +235,6 @@ public class HttpDispatcher {
                 if (queryValue == null) { //TODO can we set empty value instead responding 400
                     throw new BallerinaConnectorException("no query value found for `" + paramName + "`");
                 }
-
-                //TODO check the correct method - getString(0)
                 paramValues[paramIndex++] = signatureParamType.getTag() == TypeTags.ARRAY_TAG ? queryValue :
                         ((ArrayValueImpl) queryValue).getString(0);
                 paramValues[paramIndex] = true;

@@ -20,7 +20,6 @@ package org.ballerinalang.stdlib.services.dispatching;
 
 import io.netty.handler.codec.http.HttpHeaderNames;
 import org.ballerinalang.jvm.JSONParser;
-import org.ballerinalang.jvm.util.exceptions.BallerinaConnectorException;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.model.util.JsonParser;
 import org.ballerinalang.model.values.BMap;
@@ -254,7 +253,7 @@ public class DataBindingTest {
         Assert.assertNotNull(response, "Response message not found");
         int statusCode = response.getHttpStatusCode();
         Assert.assertEquals(statusCode, 400, "statusCode not found");
-        Assert.assertEquals(ResponseReader.getReturnValue(response),"data binding failed: error {ballerina/lang" +
+        Assert.assertEquals(ResponseReader.getReturnValue(response), "data binding failed: error {ballerina/lang" +
                 ".typedesc}ConversionError message='map<json>' value cannot be converted to 'Person'");
     }
 
@@ -282,7 +281,7 @@ public class DataBindingTest {
         Assert.assertNotNull(response, "Response message not found");
         int statusCode = response.getHttpStatusCode();
         Assert.assertEquals(statusCode, 400, "statusCode not found");
-        Assert.assertEquals(ResponseReader.getReturnValue(response),"data binding failed: error " +
+        Assert.assertEquals(ResponseReader.getReturnValue(response), "data binding failed: error " +
                 "{ballerina/lang.typedesc}ConversionError message='json[]' value cannot be converted to 'Person[]'");
     }
 }

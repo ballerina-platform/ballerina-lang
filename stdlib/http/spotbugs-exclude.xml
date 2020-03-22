@@ -56,4 +56,8 @@
     <Match>
         <Package name="org.ballerinalang.net.http.util"/>
     </Match>
+    <Match>
+        <Class name="org.ballerinalang.net.http.compiler.ResourceValidator"/>
+        <Bug pattern="BC_UNCONFIRMED_CAST"/>
+    </Match>
 </FindBugsFilter>

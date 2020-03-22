@@ -98,6 +98,8 @@ public class ResourceValidator {
                     dlog.logDiagnostic(Diagnostic.Kind.ERROR, param.pos, "invalid multiple `" + HTTP_ANNOTATION +
                             ANN_NAME_BODY_PARAM + "` annotations: cannot specify > 1 entity-body params");
                     break;
+                default:
+                    // do not execute
             }
         }
     }
