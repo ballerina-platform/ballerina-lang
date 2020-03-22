@@ -38,6 +38,7 @@ dependencies {
     implementation project(':ballerina-lang:internal')
     implementation 'org.apache.kafka:kafka-clients'
     implementation 'org.apache.kafka:kafka_2.11'
+    implementation 'org.apache.avro:avro'
 
     baloImplementation project(path: ':ballerina-filepath', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-system', configuration: 'baloImplementation')
@@ -81,6 +82,7 @@ dependencies {
     interopImports project(':ballerina-reflect')
     interopImports project(':ballerina-system')
     interopImports 'org.apache.kafka:kafka-clients'
+    interopImports 'org.apache.avro:avro'
 
     implementation project(':ballerina-auth')
     implementation project(':ballerina-http')

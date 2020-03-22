@@ -28,6 +28,8 @@ import org.ballerinalang.jvm.values.XMLValue;
 @SuppressWarnings("unchecked")
 public class BXMLType extends BType {
 
+    private final int tag;
+
     /**
      * Create a {@code BXMLType} which represents the boolean type.
      *
@@ -35,6 +37,12 @@ public class BXMLType extends BType {
      */
     BXMLType(String typeName, BPackage pkg) {
         super(typeName, pkg, XMLValue.class);
+        this.tag = TypeTags.XML_TAG;
+    }
+
+    BXMLType(String typeName, BPackage pkg, int tag) {
+        super(typeName, pkg, XMLValue.class);
+        this.tag = tag;
     }
 
     @Override
@@ -49,6 +57,11 @@ public class BXMLType extends BType {
 
     @Override
     public int getTag() {
-        return TypeTags.XML_TAG;
+        return this.tag;
+    }
+
+    @Override
+    public boolean isAnydata() {
+        return true;
     }
 }

@@ -15,7 +15,7 @@
 // under the License.
 
 import ballerina/lang.'string as strings;
-import ballerinax/java;
+import ballerina/java;
 
 # Represents a WebSocket connection in Ballerina. This includes all connection-oriented operations.
 type WebSocketConnector object {

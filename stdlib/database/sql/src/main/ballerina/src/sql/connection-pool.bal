@@ -15,7 +15,7 @@
 // under the License.
 
 import ballerina/config;
-import ballerinax/java;
+import ballerina/java;
 
 # Represents the properties which are used to configure DB connection pool.
 # Default values of the fields can be set through the configuration API.

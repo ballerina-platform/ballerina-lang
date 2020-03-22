@@ -33,7 +33,7 @@ function simpleQuery(mysql:Client mysqlClient) {
 
     // In general cases, the stream will be closed automatically
     // when the stream is fully consumed or any error is encountered.
-    // However, in case if the stream is not fully consumed, stream should be
+    // However, in case if the stream is not fully consumed, the stream should be
     // closed specifically.
     e = resultStream.close();
     io:println("------ End Simple Query -------");
@@ -62,7 +62,7 @@ function countRows(mysql:Client mysqlClient) {
     io:println("------ End Count Total Rows -------");
 }
 
-//Define a record to load the query result schema as shown in the below 'typedQuery' function.
+//Define a record to load the query result schema as shown in the 'typedQuery' function.
 //In this example, all columns of the customer table will be loaded.
 //Therefore, a `Customer` record will be created with all the columns. The name of the result column
 //and the defined field name of the record will be matched case insensitively.

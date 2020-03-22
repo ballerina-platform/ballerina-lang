@@ -1,9 +1,9 @@
 import ballerina/io;
-import ballerina/lang.'int as ints;
+import ballerina/lang.'int;
 
 // The `test` function acts as a variable function pointer in the `main` function.
 function test(string s, int... x) returns float {
-    int|error y = ints:fromString(s);
+    int|error y = 'int:fromString(s);
     float f = 0.0;
 
     if (y is int) {

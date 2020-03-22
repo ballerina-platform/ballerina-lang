@@ -103,6 +103,7 @@ public class BindingsGenerator {
             directJavaClass = false;
             while (!classListForLooping.isEmpty()) {
                 Set<String> newSet = new HashSet<>(classListForLooping);
+                newSet.removeAll(classNames);
                 allJavaClasses.addAll(newSet);
                 classListForLooping.clear();
                 generateBindings(newSet, classLoader, dependenciesPath);

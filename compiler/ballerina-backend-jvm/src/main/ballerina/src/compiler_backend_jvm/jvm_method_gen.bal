@@ -18,7 +18,7 @@ import ballerina/bir;
 import ballerina/io;
 import ballerina/jvm;
 import ballerina/stringutils;
-import ballerinax/java;
+import ballerina/java;
 
 string[] generatedInitFuncs = [];
 int nextId = -1;

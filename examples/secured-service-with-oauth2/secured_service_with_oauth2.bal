@@ -1,4 +1,5 @@
 import ballerina/http;
+import ballerina/config;
 import ballerina/log;
 import ballerina/oauth2;
 
@@ -22,7 +23,7 @@ listener http:Listener ep = new (9090, {
     // The secure hello world sample uses HTTPS.
     secureSocket: {
         keyStore: {
-            path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
+            path: config:getAsString("b7a.home") + "bre/security/ballerinaTruststore.p12",
             password: "ballerina"
         }
     }

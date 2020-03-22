@@ -26,6 +26,7 @@ import org.ballerinalang.jvm.XMLFactory;
 import org.ballerinalang.jvm.XMLNodeType;
 import org.ballerinalang.jvm.XMLValidator;
 import org.ballerinalang.jvm.types.BMapType;
+import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
@@ -37,7 +38,6 @@ import org.ballerinalang.jvm.values.freeze.State;
 import org.ballerinalang.jvm.values.freeze.Status;
 
 import java.io.ByteArrayOutputStream;
-import java.io.OutputStream;
 import java.lang.ref.WeakReference;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -458,22 +458,6 @@ public final class XMLItem extends XMLValue {
      * {@inheritDoc}
      */
     @Override
-    public void serialize(OutputStream outputStream) {
-        try {
-            if (outputStream instanceof BallerinaXMLSerializer) {
-                ((BallerinaXMLSerializer) outputStream).write(this);
-            } else {
-                (new BallerinaXMLSerializer(outputStream)).write(this);
-            }
-        } catch (Throwable t) {
-            handleXmlException("error occurred during writing the message to the output stream: ", t);
-        }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     public OMNode value() {
         try {
             String xmlStr = this.stringValue();
@@ -571,7 +555,7 @@ public final class XMLItem extends XMLValue {
     @Override
     public XMLValue getItem(int index) {
         if (index != 0) {
-            throw BallerinaErrors.createError("index out of range: index: " + index + ", size: 1");
+            return new XMLSequence();
         }
 
         return this;
@@ -689,11 +673,6 @@ public final class XMLItem extends XMLValue {
     public IteratorValue getIterator() {
         XMLItem that = this;
         return new IteratorValue() {
-            @Override
-            public BString bStringValue() {
-                return that.bStringValue();
-            }
-
             boolean read = false;
 
             @Override
@@ -734,10 +713,13 @@ public final class XMLItem extends XMLValue {
         }
         if (obj instanceof XMLSequence) {
             XMLSequence other = (XMLSequence) obj;
-            if (other.children.size() == 1 && this.equals(other.children.get(0))) {
-                return true;
-            }
+            return other.children.size() == 1 && this.equals(other.children.get(0));
         }
         return false;
+    }
+
+    @Override
+    public BType getType() {
+        return BTypes.typeElement;
     }
 }

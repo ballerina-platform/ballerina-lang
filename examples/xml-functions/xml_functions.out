@@ -1,16 +1,12 @@
 # To run this sample, navigate to the directory that contains the
 # `.bal` file, and execute the `ballerina run` command.
 $ ballerina run xml_functions.bal
-# Type of XML element.
-comment
+
 name
-Book1
-false
-false
+Hello, World!<name>Book1</name><!--some comment-->
+true
+3
 <!--some comment-->
 <name>Book1</name>
-<name>Book1</name>
 <book>Hello, World!<name>Book1</name><!--some comment--></book>
-<name>Book1</name>
-Hello, World!<name>Book1</name><!--some comment-->
-<name>Book1</name>
+Hello, World!<name>Book1</name>

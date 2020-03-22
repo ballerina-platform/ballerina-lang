@@ -29,7 +29,7 @@ import {
 } from "./messages";
 import * as path from 'path';
 import * as fs from 'fs';
-import { exec, execSync } from 'child_process';
+import { exec, spawnSync } from 'child_process';
 import { LanguageClientOptions, State as LS_STATE, RevealOutputChannelOn, ServerOptions } from "vscode-languageclient";
 import { getServerOptions, getOldServerOptions, getOldCliServerOptions } from '../server/server';
 import { ExtendedLangClient } from './extended-language-client';
@@ -203,6 +203,11 @@ export class BallerinaExtension {
         workspace.onDidChangeConfiguration((params: ConfigurationChangeEvent) => {
             if (params.affectsConfiguration(BALLERINA_HOME) ||
                 params.affectsConfiguration(OVERRIDE_BALLERINA_HOME)) {
+                this.showMsgAndRestart(CONFIG_CHANGED);
+            }
+            // If it is older SDK less than 1.2.0, needs a server restart
+            if ((!ballerinaExtInstance.isNewConfigChangeSupported) && (params.affectsConfiguration(ALLOW_EXPERIMENTAL) 
+                || params.affectsConfiguration(ENABLE_DEBUG_LOG) || params.affectsConfiguration(ENABLE_TRACE_LOG))) {
                 this.showMsgAndRestart(CONFIG_CHANGED);
             }
         });
@@ -456,7 +461,21 @@ export class BallerinaExtension {
             isBallerinaNotFound = false,
             isOldBallerinaDist = false;
         try {
-            balHomeOutput = execSync(this.getBallerinaCmd() + ' home').toString().trim();
+            let response = spawnSync(this.getBallerinaCmd(), ['home']);
+            if (response.stdout.length > 0) {
+                balHomeOutput = response.stdout.toString().trim();
+            } else if (response.stderr.length > 0) {
+                let message = response.stderr.toString();
+                // ballerina is installed, but ballerina home command is not found
+                isOldBallerinaDist = message.includes("ballerina: unknown command 'home'");
+                // ballerina is not installed
+                isBallerinaNotFound = message.includes('command not found')
+                    || message.includes('unknown command')
+                    || message.includes('is not recognized as an internal or external command');
+                log("Error executing `ballerina home`. " + "\n<---- cmd output ---->\n"
+                    + message + "<---- cmd output ---->\n");
+            }
+
             // specially handle unknown ballerina command scenario for windows
             if (balHomeOutput === "" && process.platform === "win32") {
                 isOldBallerinaDist = true;

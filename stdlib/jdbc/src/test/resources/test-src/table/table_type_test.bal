@@ -550,7 +550,7 @@ function testArrayDataInsertAndPrint(string jdbcURL) returns @tainted [int, int,
     int strArrLen = -1;
 
     var updateRet = testDB->update("insert into ArrayTypes(row_id, int_array, long_array, float_array," +
-                                "string_array, boolean_array) values (?,?,?,?,?,?)", false,
+                                "string_array, boolean_array) values (?,?,?,?,?,?)",
     paraID, paraInt, paraLong, paraFloat, paraString, paraBool);
     int updatedCount = -1;
     if (updateRet is jdbc:UpdateResult) {
@@ -599,7 +599,7 @@ function testDateTime(int datein, int timein, int timestampin, string jdbcURL) r
     jdbc:Parameter para4 = {sqlType: jdbc:TYPE_DATETIME, value: timestampin};
 
     _ = checkpanic testDB->update("Insert into DateTimeTypes " +
-        "(row_id, date_type, time_type, timestamp_type, datetime_type) values (?,?,?,?,?)", false,
+        "(row_id, date_type, time_type, timestamp_type, datetime_type) values (?,?,?,?,?)",
     para0, para1, para2, para3, para4);
 
     var selectRet = testDB->select("SELECT date_type, time_type, timestamp_type, datetime_type " +
@@ -653,7 +653,7 @@ function testDateTimeAsTimeStruct(string jdbcURL) returns @tainted [int, int, in
     jdbc:Parameter para4 = {sqlType: jdbc:TYPE_DATETIME, value: datetimeStruct};
 
     _ = checkpanic testDB->update("Insert into DateTimeTypes " +
-        "(row_id, date_type, time_type, timestamp_type, datetime_type) values (?,?,?,?,?)",  false,
+        "(row_id, date_type, time_type, timestamp_type, datetime_type) values (?,?,?,?,?)",
     para0, para1, para2, para3, para4);
 
     var selectRet = testDB->select("SELECT date_type, time_type, timestamp_type, datetime_type " +
@@ -692,7 +692,7 @@ function testDateTimeInt(int datein, int timein, int timestampin, string jdbcURL
     int datetime = -1;
 
     _ = checkpanic testDB->update("Insert into DateTimeTypes " +
-        "(row_id, date_type, time_type, timestamp_type, datetime_type) values (?,?,?,?,?)", false,
+        "(row_id, date_type, time_type, timestamp_type, datetime_type) values (?,?,?,?,?)",
     para0, para1, para2, para3, para4);
 
     var selectRet = testDB->select("SELECT date_type, time_type, timestamp_type, datetime_type " +
@@ -781,8 +781,7 @@ function testBlobInsert(string jdbcURL) returns int {
     }
     jdbc:Parameter para0 = {sqlType: jdbc:TYPE_INTEGER, value: 10};
     jdbc:Parameter para1 = {sqlType: jdbc:TYPE_BLOB, value: blobData};
-    var insertCountRet = testDB->update("Insert into ComplexTypes (row_id, blob_type) values (?,?)", false, para0,
-    para1);
+    var insertCountRet = testDB->update("Insert into ComplexTypes (row_id, blob_type) values (?,?)", para0, para1);
     int insertCount = insertCountRet is jdbc:UpdateResult ? insertCountRet.updatedRowCount : -1;
 
     checkpanic testDB.stop();
@@ -1116,7 +1115,7 @@ function testSignedIntMaxMinValues(string jdbcURL) returns @tainted [int, int, i
     jdbc:Parameter para3 = {sqlType: jdbc:TYPE_SMALLINT, value: 32767};
     jdbc:Parameter para4 = {sqlType: jdbc:TYPE_INTEGER, value: 2147483647};
     jdbc:Parameter para5 = {sqlType: jdbc:TYPE_BIGINT, value: 9223372036854775807};
-    var updateRet1 = testDB->update(insertSQL, false, para1, para2, para3, para4, para5);
+    var updateRet1 = testDB->update(insertSQL, para1, para2, para3, para4, para5);
     maxInsert = updateRet1 is jdbc:UpdateResult ? updateRet1.updatedRowCount : maxInsert;
 
     //Insert signed min
@@ -1125,7 +1124,7 @@ function testSignedIntMaxMinValues(string jdbcURL) returns @tainted [int, int, i
     para3 = {sqlType: jdbc:TYPE_SMALLINT, value: -32768};
     para4 = {sqlType: jdbc:TYPE_INTEGER, value: -2147483648};
     para5 = {sqlType: jdbc:TYPE_BIGINT, value: -9223372036854775808};
-    var updateRet2 = testDB->update(insertSQL, false, para1, para2, para3, para4, para5);
+    var updateRet2 = testDB->update(insertSQL, para1, para2, para3, para4, para5);
     minInsert = updateRet2 is jdbc:UpdateResult ? updateRet2.updatedRowCount : minInsert;
 
     //Insert null
@@ -1134,7 +1133,7 @@ function testSignedIntMaxMinValues(string jdbcURL) returns @tainted [int, int, i
     para3 = {sqlType: jdbc:TYPE_SMALLINT, value: ()};
     para4 = {sqlType: jdbc:TYPE_INTEGER, value: ()};
     para5 = {sqlType: jdbc:TYPE_BIGINT, value: ()};
-    var updateRet3 = testDB->update(insertSQL, false, para1, para2, para3, para4, para5);
+    var updateRet3 = testDB->update(insertSQL, para1, para2, para3, para4, para5);
     nullInsert = updateRet3 is jdbc:UpdateResult ? updateRet3.updatedRowCount : nullInsert;
 
     var dtRet = testDB->select(selectSQL, ());
@@ -1195,14 +1194,14 @@ function testComplexTypeInsertAndRetrieval(string jdbcURL) returns @tainted [int
     jdbc:Parameter para2 = {sqlType: jdbc:TYPE_BLOB, value: content};
     jdbc:Parameter para3 = {sqlType: jdbc:TYPE_CLOB, value: text};
     jdbc:Parameter para4 = {sqlType: jdbc:TYPE_BINARY, value: content};
-    var updateRet1 = testDB->update(insertSQL, false, para1, para2, para3, para4);
+    var updateRet1 = testDB->update(insertSQL, para1, para2, para3, para4);
     retDataInsert = updateRet1 is jdbc:UpdateResult ? updateRet1.updatedRowCount : retDataInsert;
     //Insert null values
     para1 = {sqlType: jdbc:TYPE_INTEGER, value: 200};
     para2 = {sqlType: jdbc:TYPE_BLOB, value: ()};
     para3 = {sqlType: jdbc:TYPE_CLOB, value: ()};
     para4 = {sqlType: jdbc:TYPE_BINARY, value: ()};
-    var updateRet2 = testDB->update(insertSQL, false, para1, para2, para3, para4);
+    var updateRet2 = testDB->update(insertSQL, para1, para2, para3, para4);
     retNullInsert = updateRet2 is jdbc:UpdateResult ? updateRet2.updatedRowCount : retNullInsert;
 
     var selectRet = testDB->select(selectSQL, ());

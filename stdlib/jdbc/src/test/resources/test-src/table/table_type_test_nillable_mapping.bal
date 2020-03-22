@@ -222,7 +222,7 @@ function testMappingDatesToNillableTimeType(string jdbcURL) returns @tainted [in
     jdbc:Parameter para4 = {sqlType: jdbc:TYPE_DATETIME, value: datetimeStruct};
 
     _ = checkpanic testDB->update("Insert into DateTimeTypes " +
-        "(row_id, date_type, time_type, timestamp_type, datetime_type) values (?,?,?,?,?)", false,
+        "(row_id, date_type, time_type, timestamp_type, datetime_type) values (?,?,?,?,?)",
         para0, para1, para2, para3, para4);
     var dt = testDB->select("SELECT date_type, time_type, timestamp_type, datetime_type " +
                 "from DateTimeTypes where row_id = 150", ResultDatesWithNillableTimeType);
@@ -269,7 +269,7 @@ function testMappingDatesToNillableIntType(int datein, int timein, int timestamp
     int datetime = -1;
 
     _ = checkpanic testDB->update("Insert into DateTimeTypes " +
-        "(row_id, date_type, time_type, timestamp_type, datetime_type) values (?,?,?,?,?)", false,
+        "(row_id, date_type, time_type, timestamp_type, datetime_type) values (?,?,?,?,?)",
         para0, para1, para2, para3, para4);
 
     var dt = testDB->select("SELECT date_type, time_type, timestamp_type, " +
@@ -308,7 +308,7 @@ function testMappingDatesToNillableStringType(int datein, int timein, int timest
     jdbc:Parameter para4 = {sqlType: jdbc:TYPE_DATETIME, value: timestampin};
 
     _ = checkpanic testDB->update("Insert into DateTimeTypes " +
-        "(row_id, date_type, time_type, timestamp_type, datetime_type) values (?,?,?,?,?)", false,
+        "(row_id, date_type, time_type, timestamp_type, datetime_type) values (?,?,?,?,?)",
         para0, para1, para2, para3, para4);
 
     var dt = testDB->select("SELECT date_type, time_type, timestamp_type, datetime_type " +

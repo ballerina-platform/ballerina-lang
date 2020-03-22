@@ -126,7 +126,7 @@ public type Cache object {
     public function put(string key, any value, int maxAgeInSeconds = -1) returns Error? {
         lock {
             if (value is ()) {
-                return prepareError("Unsupported cache value '()' for the key: " + key + ".");
+                return prepareErrorWithDebugLog("Unsupported cache value '()' for the key: " + key + ".");
             }
             // If the current cache is full (i.e. size = capacity), evict cache.
             if (self.size() == self.capacity) {
@@ -169,7 +169,7 @@ public type Cache object {
     public function get(string key) returns any|Error {
         lock {
             if (!self.hasKey(key)) {
-                return prepareError("Cache entry from the given key: " + key + ", is not available.");
+                return prepareErrorWithDebugLog("Cache entry from the given key: " + key + ", is not available.");
             }
 
             Node node = self.entries.get(key);
@@ -196,7 +196,7 @@ public type Cache object {
     public function invalidate(string key) returns Error? {
         lock {
             if (!self.hasKey(key)) {
-                return prepareError("Cache entry from the given key: " + key + ", is not available.");
+                return prepareErrorWithDebugLog("Cache entry from the given key: " + key + ", is not available.");
             }
 
             Node node = self.entries.get(key);
@@ -281,13 +281,13 @@ function cleanup(map<Node> entries, LinkedList list, AbstractEvictionPolicy evic
 function removeEntry(map<Node> entries, string key) returns Error? {
     var result = trap entries.remove(key);
     if (result is error) {
-        return prepareError("Error while removing the entry (key: " + key + ") from the map. ", result);
+        return prepareErrorWithDebugLog("Error while removing the entry (key: " + key + ") from the map. ", result);
     }
 }
 
 function removeAllEntries(map<Node> entries) returns Error? {
     var result = trap entries.removeAll();
     if (result is error) {
-        return prepareError("Error while removing all the entries from the map.", result);
+        return prepareErrorWithDebugLog("Error while removing all the entries from the map.", result);
     }
 }

@@ -35,11 +35,11 @@ public class LSClientConfig {
         String balExperimental = System.getenv("BAL_EXPERIMENTAL");
         String balDefStdLibs = System.getenv("BAL_DEF_STD_LIBS");
 
-        this.allowExperimental = (balExperimental != null) && Boolean.getBoolean(balExperimental);
-        this.debugLog = (balDebugLog != null) && Boolean.getBoolean(balDebugLog);
-        this.traceLog = (balTraceLog != null) && Boolean.getBoolean(balTraceLog);
+        this.allowExperimental = Boolean.parseBoolean(balExperimental);
+        this.debugLog = Boolean.parseBoolean(balDebugLog);
+        this.traceLog = Boolean.parseBoolean(balTraceLog);
         this.codeLens = new CodeLensConfig();
-        this.goToDefinition = (balDefStdLibs != null) ? new GoToDefinitionConfig(Boolean.getBoolean(balDefStdLibs)) :
+        this.goToDefinition = (balDefStdLibs != null) ? new GoToDefinitionConfig(Boolean.parseBoolean(balDefStdLibs)) :
                 new GoToDefinitionConfig(true);
     }
 

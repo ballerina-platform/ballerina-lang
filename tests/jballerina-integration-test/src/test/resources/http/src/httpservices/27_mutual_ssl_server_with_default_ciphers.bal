@@ -54,11 +54,11 @@ service strongService on strongCipher {
 http:ListenerConfiguration weakCipherConfig = {
     secureSocket: {
         keyStore: {
-            path: "${ballerina.home}/bre/security/ballerinaKeystore.p12",
+            path: config:getAsString("keystore"),
             password: "ballerina"
         },
         trustStore: {
-            path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
+            path: config:getAsString("truststore"),
             password: "ballerina"
         },
         ciphers: ["TLS_RSA_WITH_AES_128_CBC_SHA"]

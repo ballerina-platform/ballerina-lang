@@ -1,3 +1,4 @@
+import ballerina/config;
 import ballerina/http;
 import ballerina/log;
 
@@ -7,7 +8,7 @@ import ballerina/log;
 http:ListenerConfiguration helloWorldEPConfig = {
     secureSocket: {
         keyStore: {
-            path: "${ballerina.home}/bre/security/ballerinaKeystore.p12",
+            path: config:getAsString("b7a.home") + "bre/security/ballerinaKeystore.p12",
             password: "ballerina"
         }
     }
