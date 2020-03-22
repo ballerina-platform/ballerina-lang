@@ -75,6 +75,7 @@ public class AIDataMapperCodeAction extends AbstractCodeActionProvider {
     private static final String CUSTOM_URL = System.getenv(REMOTE_AI_SERVICE_URL_ENV);
     private static final String AI_SERVICE_URL = (CUSTOM_URL == null || CUSTOM_URL.length() == 0) ? REMOTE_URL :
             CUSTOM_URL;
+    private static final int RECORD_TYPE_TAG = 12;
 
 
     public static CodeAction getAIDataMapperCommand(LSDocumentIdentifier document, Diagnostic diagnostic,
@@ -97,7 +98,7 @@ public class AIDataMapperCodeAction extends AbstractCodeActionProvider {
             if (refAtCursor.getbLangNode().parent instanceof BLangFieldBasedAccess) {
                 return null;
             } else {
-                if (symbolAtCursorTag == 12) { // tag 12 is user defined records or non-primitive types (?)
+                if (symbolAtCursorTag == RECORD_TYPE_TAG) {
                     String commandTitle = "Generate mapping function";
                     CodeAction action = new CodeAction(commandTitle);
                     action.setKind(CodeActionKind.QuickFix);
@@ -231,7 +232,7 @@ public class AIDataMapperCodeAction extends AbstractCodeActionProvider {
             fieldDetails.addProperty("id", "dummy_id");
             /* TODO: Do we need to go to lower levels? */
 
-                if (attribute.type.tag == 12) {
+                if (attribute.type.tag == RECORD_TYPE_TAG) {
                     if (attribute.type instanceof BRecordType) {
                         fieldDetails.addProperty("type", "ballerina_type");
                         fieldDetails.add("properties", recordToJSON(((BRecordType) attribute.type).fields));
