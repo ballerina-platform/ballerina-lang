@@ -167,7 +167,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
-
 import javax.xml.XMLConstants;
 
 import static org.wso2.ballerinalang.compiler.tree.BLangInvokableNode.DEFAULT_WORKER_NAME;
@@ -2832,12 +2831,32 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         BType expSelectType = expType;
+        BType selectType = null;
         if (expType.tag == TypeTags.ARRAY) {
             expSelectType = ((BArrayType) expType).eType;
+            selectType = checkExpr(selectClause.expression, whereEnv, expSelectType);
+            resultType = selectType == symTable.semanticError ? selectType : new BArrayType(selectType);
+        } else if (expType.tag == TypeTags.UNION) {
+            Set<BType> memTypes = ((BUnionType) expType).getMemberTypes();
+
+            LinkedHashSet<BType> nilRemovedSet = new LinkedHashSet<>();
+            for (BType bType : memTypes) {
+                if (bType.tag != symTable.nilType.tag && bType.tag != symTable.errorType.tag) {
+                    nilRemovedSet.add(bType);
+                }
+            }
+            expSelectType = nilRemovedSet.size() == 1 ? nilRemovedSet.iterator().next() :
+                    BUnionType.create(null, nilRemovedSet);
+            if(expSelectType.tag == TypeTags.ARRAY ) {
+                selectType = checkExpr(selectClause.expression, whereEnv, ((BArrayType)expSelectType).eType);
+            } else {
+                selectType = checkExpr(selectClause.expression, whereEnv, expSelectType);
+            }
+            BType actualType = BUnionType.create(null, new BArrayType(selectType), symTable.errorType, symTable.nilType);
+            resultType = types.checkType(queryExpr.pos, actualType, expType,
+                    DiagnosticCode.INCOMPATIBLE_TYPES);
         }
 
-        BType selectType = checkExpr(selectClause.expression, whereEnv, expSelectType);
-        resultType = selectType == symTable.semanticError ? selectType : new BArrayType(selectType);
     }
 
     @Override
