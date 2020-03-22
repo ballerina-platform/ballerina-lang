@@ -49,7 +49,7 @@ export const ActionInvocation: React.StatelessComponent<{
         msText.y = errorText.y + config.statement.height + (config.statement.expanded.topMargin / 2) ;
         msText.x = errorText.x - config.statement.expanded.leftMargin - 5;
 
-        const metrics = _.get(astModel, "variable.inititalExpression.metrics");
+        const metrics = _.get(astModel, "variable.initialExpression.metrics");
 
         const renderMetrics = () => {
             if (!metrics) {
@@ -63,9 +63,9 @@ export const ActionInvocation: React.StatelessComponent<{
                 return (
                    <React.Fragment>
                         <rect className = {"action-status"} {...statusRect} />
-                        <text className= {"action-status-text-sucess"} {...succesText}>${successRate}%</text>
-                        <text className= {"action-status-text-error"}  {...errorText}>${errorRate}%</text>
-                        <text className= {"action-status-text-ms"}  {...msText}>${meanTimeMS}ms</text>
+                        <text className= {"action-status-text-sucess"} {...succesText}>{successRate}%</text>
+                        <text className= {"action-status-text-error"}  {...errorText}>{errorRate}%</text>
+                        <text className= {"action-status-text-ms"}  {...msText}>{meanTimeMS}ms</text>
                    </React.Fragment>
                 );
             }
