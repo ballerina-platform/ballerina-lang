@@ -3589,7 +3589,10 @@ public class Desugar extends BLangNodeVisitor {
 
         // Reorder the arguments to match the original function signature.
         reorderArguments(iExpr);
+
         iExpr.requiredArgs = rewriteExprs(iExpr.requiredArgs);
+        fixNonRestArgTypeCastInTypeParamInvocation(iExpr);
+
         iExpr.restArgs = rewriteExprs(iExpr.restArgs);
 
         annotationDesugar.defineStatementAnnotations(iExpr.annAttachments, iExpr.pos, iExpr.symbol.pkgID,
@@ -3629,6 +3632,21 @@ public class Desugar extends BLangNodeVisitor {
         }
 
         fixTypeCastInTypeParamInvocation(iExpr, genIExpr);
+    }
+
+    private void fixNonRestArgTypeCastInTypeParamInvocation(BLangInvocation iExpr) {
+        if (!iExpr.langLibInvocation) {
+            return;
+        }
+
+        List<BLangExpression> requiredArgs = iExpr.requiredArgs;
+
+        List<BVarSymbol> params = ((BInvokableSymbol) iExpr.symbol).params;
+
+        // Start from index `1`, since for langlib methods index `0` will be the value itself.
+        for (int i = 1; i < requiredArgs.size(); i++) {
+            requiredArgs.set(i, addConversionExprIfRequired(requiredArgs.get(i), params.get(i).type));
+        }
     }
 
     private void fixTypeCastInTypeParamInvocation(BLangInvocation iExpr, BLangInvocation genIExpr) {
@@ -5095,8 +5113,15 @@ public class Desugar extends BLangNodeVisitor {
             return;
         }
         BLangArrayLiteral arrayLiteral = (BLangArrayLiteral) TreeBuilder.createArrayLiteralExpressionNode();
-        arrayLiteral.exprs = iExpr.restArgs;
         arrayLiteral.type = invokableSymbol.restParam.type;
+
+        BType elemType = ((BArrayType) arrayLiteral.type).eType;
+        List<BLangExpression> rewrittenRestArgs = new ArrayList<>();
+        for (BLangExpression restArg : iExpr.restArgs) {
+            rewrittenRestArgs.add(addConversionExprIfRequired(restArg, elemType));
+        }
+        arrayLiteral.exprs = rewrittenRestArgs;
+
         iExpr.restArgs = new ArrayList<>();
         iExpr.restArgs.add(arrayLiteral);
     }

@@ -2500,18 +2500,20 @@ public class TypeChecker extends BLangNodeVisitor {
 
         // Annotation such as <@untainted [T]>, where T is not provided,
         // it's merely a annotation on contextually expected type.
+        BLangExpression expr = conversionExpr.expr;
         if (conversionExpr.typeNode == null && !conversionExpr.annAttachments.isEmpty()) {
-            BType expType = checkExpr(conversionExpr.expr, env, this.expType);
+            BType expType = checkExpr(expr, env, this.expType);
             resultType = expType;
             return;
         }
 
         BType targetType = symResolver.resolveTypeNode(conversionExpr.typeNode, env);
         conversionExpr.targetType = targetType;
-        BType expType = requireTypeInference(conversionExpr.expr) ? targetType : symTable.noType;
-        BType sourceType = checkExpr(conversionExpr.expr, env, expType);
+        BType expType = expr.getKind() != NodeKind.NUMERIC_LITERAL && requireTypeInference(expr) ?
+                targetType : symTable.noType;
+        BType sourceType = checkExpr(expr, env, expType);
 
-        if (types.isTypeCastable(conversionExpr.expr, sourceType, targetType)) {
+        if (types.isTypeCastable(expr, sourceType, targetType)) {
             // We reach this block only if the cast is valid, so we set the target type as the actual type.
             actualType = targetType;
         } else {
@@ -3729,15 +3731,18 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         if (vararg != null) {
-            checkExpr(vararg, this.env, restParam.type);
+            checkTypeParamExpr(vararg, this.env, restParam.type);
             restArgExprs.add(vararg);
             return;
         }
 
+        if (restArgExprs.isEmpty()) {
+            return;
+        }
+
+        BType restType = ((BArrayType) restParam.type).eType;
         for (BLangExpression arg : restArgExprs) {
-            BType restType = ((BArrayType) restParam.type).eType;
-            checkExpr(arg, this.env, restType);
-            typeParamAnalyzer.checkForTypeParamsInArg(arg.type, env, restType);
+            checkTypeParamExpr(arg, this.env, restType);
         }
     }
 
@@ -3766,6 +3771,7 @@ public class TypeChecker extends BLangNodeVisitor {
             case ARROW_EXPR:
             case LIST_CONSTRUCTOR_EXPR:
             case RECORD_LITERAL_EXPR:
+            case NUMERIC_LITERAL:
                 return true;
             default:
                 return false;
