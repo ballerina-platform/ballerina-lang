@@ -4640,7 +4640,10 @@ public class TypeChecker extends BLangNodeVisitor {
                 return actualType;
             }
 
-            checkExpr(indexExpr, this.env);
+            BType type = checkExpr(indexExpr, this.env, symTable.intType);
+            if (type == symTable.semanticError) {
+                return type;
+            }
             actualType = symTable.xmlType;
             indexBasedAccessExpr.originalType = actualType;
         } else if (varRefType == symTable.semanticError) {
