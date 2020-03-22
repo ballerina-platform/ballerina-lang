@@ -260,7 +260,7 @@ public class CreateVariableCodeAction extends AbstractCodeActionProvider {
                                                                              boolean hasCustomInitFunction,
                                                                              BLangNode bLangNode, List<TextEdit> edits,
                                                                              CompilerContext compilerContext) {
-        Set<String> nameEntries = CommonUtil.getAllNameEntries(bLangNode, compilerContext);
+        Set<String> nameEntries = CommonUtil.getAllNameEntries(compilerContext);
         PackageID currentPkgId = bLangNode.pos.src.pkgID;
         BiConsumer<String, String> importsAcceptor = (orgName, alias) -> {
             boolean notFound = CommonUtil.getCurrentModuleImports(context).stream().noneMatch(
@@ -484,7 +484,7 @@ public class CreateVariableCodeAction extends AbstractCodeActionProvider {
             });
         } else {
             CompilerContext compilerContext = context.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY);
-            Set<String> nameEntries = CommonUtil.getAllNameEntries(bLangNode, compilerContext);
+            Set<String> nameEntries = CommonUtil.getAllNameEntries(compilerContext);
             String varName = CommonUtil.generateVariableName(bLangNode, nameEntries);
             String typeDef = CommonUtil.getBTypeName(unionType, context, true);
             boolean addErrorTypeAtEnd;
