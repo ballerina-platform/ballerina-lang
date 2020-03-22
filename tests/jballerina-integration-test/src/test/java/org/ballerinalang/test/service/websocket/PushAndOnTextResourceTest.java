@@ -60,13 +60,13 @@ public class PushAndOnTextResourceTest extends WebSocketTestCommons {
         assertSuccess(msg, msg);
         assertContinuationSuccess(msg, "<note>", "<to>Tove", "</to>", "</note>");
         assertFailure("<note><to>Tove</to>",
-                      "failed to parse xml: ParseError at [row,col]:[1,20]\n" +
-                          "Message: XML document structures must start and end within the same ...");
+                      "failed to parse xml: Unexpected EOF; was expecting a close tag for element <note>\n" +
+                              " at [row,col {unknown-source}]: [1,19]");
         client.shutDown();
         client = new WebSocketTestClient(url);
         client.handshake();
-        assertFailure("hey", "failed to parse xml: ParseError at [row,col]:[1,1]\n" +
-                "Message: Content is not allowed in prolog.");
+        assertFailure("hey", "failed to parse xml: Unexpected character 'h' (code 104) in prolog; expected '<'\n" +
+                " at [row,col {unknown-source}]: [1,1]");
     }
 
     @Test(description = "Tests Record support for pushText and onText")

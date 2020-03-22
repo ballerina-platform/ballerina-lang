@@ -93,10 +93,10 @@ public class OptimizeAllImportsCodeAction extends AbstractCodeActionProvider {
         }
 
         // Find the imports range
-        int importSLine = 0;
-        int importELine = 0;
-        int importSCol = 0;
-        int importECol = 0;
+        int importSLine = fileImports.get(0).pos.sLine - 1;
+        int importELine = fileImports.get(0).pos.eLine - 1;
+        int importSCol = fileImports.get(0).pos.sCol - 1;
+        int importECol = fileImports.get(0).pos.eCol - 1;
         for (int i = 0; i < fileImports.size(); i++) {
             BLangImportPackage importPkg = fileImports.get(i);
             DiagnosticPos pos = importPkg.getPosition();

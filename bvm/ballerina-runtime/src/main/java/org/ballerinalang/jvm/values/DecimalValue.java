@@ -20,6 +20,7 @@ package org.ballerinalang.jvm.values;
 
 import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.DecimalValueKind;
+import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.util.BLangConstants;
@@ -233,7 +234,7 @@ public class DecimalValue implements SimpleValue, BDecimal {
 
     @Override
     public BString bStringValue() {
-        return null;
+        return StringUtils.fromString(stringValue());
     }
 
     /**

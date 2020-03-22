@@ -63,7 +63,7 @@
     Example,
     ```ballerina
     function getAddress(int value,
-        string name) returns (string | ()) {
+        string name) returns (string|()) {
         ...
     }
     ```
@@ -72,7 +72,7 @@
     Example,
     ```ballerina
     function getAddress(int value, string name)
-        returns (string | ()) {
+        returns (string|()) {
         ...
     }    
     ```
@@ -82,7 +82,7 @@
     Example,
     ```ballerina
     function getAddress(int value, string name) returns
-        (string | ()) {
+        (string|()) {
         ...
     }          
     ```

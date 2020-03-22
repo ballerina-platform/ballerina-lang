@@ -24,26 +24,33 @@ import org.wso2.ballerinalang.compiler.packaging.Patten;
 import org.wso2.ballerinalang.compiler.packaging.converters.Converter;
 import org.wso2.ballerinalang.compiler.packaging.converters.URIConverter;
 import org.wso2.ballerinalang.compiler.util.Names;
+import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 
 import java.net.URI;
+import java.nio.file.Path;
 import java.util.Map;
+
+import static org.wso2.ballerinalang.util.RepoUtils.COMPILE_BALLERINA_ORG;
 
 /**
  * Calculate url pattens of package.
  */
 public class RemoteRepo extends NonSysRepo<URI> {
 
-    public RemoteRepo(Converter<URI> converter) {
+    private Path systemBirRepoPath;
+
+    public RemoteRepo(Converter<URI> converter, Path ballerinaHome) {
         super(converter);
+        this.systemBirRepoPath = ballerinaHome.resolve(ProjectDirConstants.DIST_BIR_CACHE_DIR_NAME);
+
     }
 
-    public RemoteRepo(URI base, Map<PackageID, Manifest> dependencyManifests) {
-        this(new URIConverter(base, dependencyManifests));
+    public RemoteRepo(URI base, Map<PackageID, Manifest> dependencyManifests, Path ballerinaHome) {
+        this(new URIConverter(base, dependencyManifests), ballerinaHome);
     }
 
-    public RemoteRepo(URI base, Map<PackageID, Manifest> dependencyManifests,
-                      boolean isBuild) {
-        this(new URIConverter(base, dependencyManifests, isBuild));
+    public RemoteRepo(URI base, Map<PackageID, Manifest> dependencyManifests, boolean isBuild, Path ballerinaHome) {
+        this(new URIConverter(base, dependencyManifests, isBuild), ballerinaHome);
     }
 
     @Override
@@ -61,6 +68,16 @@ public class RemoteRepo extends NonSysRepo<URI> {
         }
 
         return new Patten(Patten.path(orgName, pkgName, pkgVersion));
+    }
+
+    @Override
+    public Patten calculate(PackageID pkgId) {
+        if (!COMPILE_BALLERINA_ORG &&
+                systemBirRepoPath.resolve(pkgId.orgName.value).resolve(pkgId.name.value).toFile().exists()) {
+            return Patten.NULL;
+        } else {
+            return calculateNonSysPkg(pkgId);
+        }
     }
 
 }

@@ -21,33 +21,33 @@ OneofFieldServiceBlockingClient blockingEp = new("http://localhost:9105");
 const string ERROR_MESSAGE = "Expected response value type not received";
 
 // Enable when you need to test locally.
-public function main() {
-    string resp;
-    resp = testOneofFieldValue();
-    io:println(resp);
-    resp = testDoubleFieldValue();
-    io:println(resp);
-    resp = testFloatFieldValue();
-    io:println(resp);
-    resp = testInt64FieldValue();
-    io:println(resp);
-    resp = testUInt64FieldValue();
-    io:println(resp);
-    resp = testInt32FieldValue();
-    io:println(resp);
-    resp = testFixed64FieldValue();
-    io:println(resp);
-    resp = testFixed32FieldValue();
-    io:println(resp);
-    resp = testBolFieldValue();
-    io:println(resp);
-    resp = testStringFieldValue();
-    io:println(resp);
-    resp = testMessageFieldValue();
-    io:println(resp);
-    resp = testBytesFieldValue();
-    io:println(resp);
-}
+//public function main() {
+//    string resp;
+//    resp = testOneofFieldValue();
+//    io:println(resp);
+//    resp = testDoubleFieldValue();
+//    io:println(resp);
+//    resp = testFloatFieldValue();
+//    io:println(resp);
+//    resp = testInt64FieldValue();
+//    io:println(resp);
+//    resp = testUInt64FieldValue();
+//    io:println(resp);
+//    resp = testInt32FieldValue();
+//    io:println(resp);
+//    resp = testFixed64FieldValue();
+//    io:println(resp);
+//    resp = testFixed32FieldValue();
+//    io:println(resp);
+//    resp = testBolFieldValue();
+//    io:println(resp);
+//    resp = testStringFieldValue();
+//    io:println(resp);
+//    resp = testMessageFieldValue();
+//    io:println(resp);
+//    resp = testBytesFieldValue();
+//    io:println(resp);
+//}
 
 public function testOneofFieldValue() returns string {
     Request1 request = {first_name:"Sam", age:31};

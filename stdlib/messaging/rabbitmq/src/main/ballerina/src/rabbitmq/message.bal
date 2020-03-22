@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerinax/java;
+import ballerina/java;
 
 # Provides the functionality to manipulate the messages received by the consumer services.
 public type Message client object {

@@ -1,4 +1,4 @@
-import ballerinax/java;
+import ballerina/java;
 
 function testCreateNullHandle() returns handle {
     handle nullHandle = java:createNull();

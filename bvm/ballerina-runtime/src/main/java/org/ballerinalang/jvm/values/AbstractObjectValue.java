@@ -18,12 +18,14 @@
 package org.ballerinalang.jvm.values;
 
 import org.ballerinalang.jvm.BallerinaErrors;
+import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.types.BField;
 import org.ballerinalang.jvm.types.BObjectType;
 import org.ballerinalang.jvm.types.BStructureType;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.util.Flags;
+import org.ballerinalang.jvm.values.api.BString;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -86,6 +88,11 @@ public abstract class AbstractObjectValue implements ObjectValue {
     @Override
     public String stringValue() {
         return "object " + type.toString();
+    }
+
+    @Override
+    public BString bStringValue() {
+        return StringUtils.fromString(stringValue());
     }
 
     @Override

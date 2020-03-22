@@ -15,7 +15,7 @@
 // under the License.
 
 import ballerina/lang.'object;
-import ballerinax/java;
+import ballerina/java;
 
 # Configuration related to consumer endpoint.
 #
@@ -138,6 +138,11 @@ public type ConsumerRecord record {|
     int timestamp;
     string topic;
 |};
+
+# Represents a generic Avro record. This is the type of the value returned from an Avro deserializer consumer.
+public type AvroGenericRecord record {
+    // Left blank intentionally.
+};
 
 # Kafka in-built deserializer type.
 public type DeserializerType DES_BYTE_ARRAY|DES_STRING|DES_INT|DES_FLOAT|DES_AVRO|DES_CUSTOM;

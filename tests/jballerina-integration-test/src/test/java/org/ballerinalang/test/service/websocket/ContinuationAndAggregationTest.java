@@ -61,8 +61,8 @@ public class ContinuationAndAggregationTest extends WebSocketTestCommons {
         String msg = "<note><to>Tove</to></note>";
         assertSuccess(client, msg, msg);
         assertFailure(client, "<note><to>Tove</to>",
-                      "failed to parse xml: ParseError at [row,col]:[1,20]\n" +
-                              "Message: XML document structures must start and end within the same ...");
+                      "failed to parse xml: Unexpected EOF; was expecting a close tag for element <note>\n" +
+                              " at [row,col {unknown-source}]: [1,19]");
         client.shutDown();
     }
 

@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerinax/java;
+import ballerina/java;
 
 # The ratio of the circumference of a circle to its diameter.
 public const float PI = 3.141592653589793;
