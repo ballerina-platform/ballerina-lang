@@ -42,7 +42,7 @@ import java.util.List;
 import java.util.Map;
 
 import static org.ballerinalang.net.http.HttpConstants.DEFAULT_HOST;
-import static org.ballerinalang.net.http.compiler.ResourceSignatureValidator.COMPULSORY_PARAM_COUNT;
+import static org.ballerinalang.net.http.compiler.ResourceValidator.COMPULSORY_PARAM_COUNT;
 
 /**
  * {@code HttpDispatcher} is responsible for dispatching incoming http requests to the correct resource.
@@ -212,7 +212,7 @@ public class HttpDispatcher {
                 paramValues[paramIndex] = true;
             } catch (Exception ex) { //todo add casting error test case
                 throw new BallerinaConnectorException(
-                        "error while casting path param value '" + argumentValue + "' : " + ex.getMessage());
+                        "path param value casting failed for '" + argumentValue + "' : " + ex.getMessage());
             }
         }
     }
@@ -232,23 +232,23 @@ public class HttpDispatcher {
             BType signatureParamType = signatureParams.getSignatureParamTypes().get(actualQueryParamIndex);
             try {
                 Object queryValue = queryParams.get(paramName);
-                if (queryValue == null) {
-                    throw new BallerinaConnectorException("'" + paramName + "' query param value is null");
+                if (queryValue == null) { //TODO can we set empty value instead responding 400
+                    throw new BallerinaConnectorException("no query value found for `" + paramName + "`");
                 }
 
-                //TODO validate this string[] and check the correct method - getString(0)
+                //TODO check the correct method - getString(0)
                 paramValues[paramIndex++] = signatureParamType.getTag() == TypeTags.ARRAY_TAG ? queryValue :
                         ((ArrayValueImpl) queryValue).getString(0);
                 paramValues[paramIndex] = true;
             } catch (Exception ex) {
-                throw new BallerinaConnectorException("error while retrieving query param : " + ex.getMessage());
+                throw new BallerinaConnectorException("query param retrieval failed : " + ex.getMessage());
             }
         }
     }
 
     private static void populateBodyParam(ObjectValue inRequest, ObjectValue inRequestEntity,
                                           SignatureParams signatureParams, Object[] paramValues) {
-        if (!signatureParams.isBodyParamAvailable()) { //TODO validate only 1 body param
+        if (!signatureParams.isBodyParamAvailable()) {
             return;
         }
         int actualBodyParamIndex = signatureParams.getBodyParamOrderIndex();
@@ -266,7 +266,7 @@ public class HttpDispatcher {
                                                    org.ballerinalang.jvm.types.BType entityBodyType)
             throws IOException {
         HttpUtil.populateEntityBody(inRequest, inRequestEntity, true, true);
-//        try {
+        try {
             switch (entityBodyType.getTag()) {
                 case TypeTags.STRING_TAG:
                     String stringDataSource = EntityBodyHandler.constructStringDataSource(inRequestEntity);
@@ -296,9 +296,9 @@ public class HttpDispatcher {
                 default:
                         //Do nothing
             }
-//        } catch (ErrorValue ex) {
-//            throw new BallerinaConnectorException(ex.toString());
-//        }
+        } catch (ErrorValue ex) {
+            throw new BallerinaConnectorException(ex.toString());
+        }
         return null;
     }
 

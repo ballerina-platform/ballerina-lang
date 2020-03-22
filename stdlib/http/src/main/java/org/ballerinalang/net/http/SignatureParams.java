@@ -23,7 +23,6 @@ import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BMapType;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypes;
-import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.net.uri.URIUtil;
@@ -37,7 +36,7 @@ import static org.ballerinalang.net.http.HttpConstants.ANN_NAME_BODY_PARAM;
 import static org.ballerinalang.net.http.HttpConstants.ANN_NAME_PATH_PARAM;
 import static org.ballerinalang.net.http.HttpConstants.ANN_NAME_QUERY_PARAM;
 import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_PACKAGE_HTTP;
-import static org.ballerinalang.net.http.compiler.ResourceSignatureValidator.COMPULSORY_PARAM_COUNT;
+import static org.ballerinalang.net.http.compiler.ResourceValidator.COMPULSORY_PARAM_COUNT;
 
 /**
  * This class holds the resource signature parameters.
@@ -55,7 +54,7 @@ public class SignatureParams {
 
     SignatureParams(List<BType> paramTypes, AttachedFunction resource) {
         this.signatureParamTypes = paramTypes;
-        List<String> paramAnnotationKeys = resource.getParamAnnotationKeys(); //TODO make sure all
+        List<String> paramAnnotationKeys = resource.getParamAnnotationKeys(); //TODO test with @tainted annotation
         // params annotated
         int paramIndex = COMPULSORY_PARAM_COUNT;
         for (String paramName : paramAnnotationKeys) {
@@ -68,8 +67,7 @@ public class SignatureParams {
                 case PROTOCOL_PACKAGE_HTTP + ":" + ANN_NAME_QUERY_PARAM:
                     queryParamOrder.put(paramName, paramIndex++);
                     break;
-                case PROTOCOL_PACKAGE_HTTP + ":" + ANN_NAME_BODY_PARAM: //TODO validate compile time to have single
-                    // BodyParam annotation
+                case PROTOCOL_PACKAGE_HTTP + ":" + ANN_NAME_BODY_PARAM:
                     this.bodyParamName = paramName;
                     this.bodyParamOrderIndex = paramIndex++;
                     break;
@@ -81,60 +79,23 @@ public class SignatureParams {
     }
 
     /**
-     * Validate path, query and body param types.
+     * Gets the map of query params for given raw query string.
+     *
+     * @return a map of query params
      */
-    void validate() {
-        validatePathParam(pathParamOrder, signatureParamTypes);
-        validateQueryParam(queryParamOrder, signatureParamTypes);
-        validateBodyParam(bodyParamOrderIndex, signatureParamTypes);
-    }
+    MapValue<String, Object> getQueryParams(Object rawQueryString) {
+        BMapType mapType = new BMapType(new BArrayType(BTypes.typeString));
+        MapValue<String, Object> queryParams = new MapValueImpl<>(mapType);
 
-    private void validatePathParam(Map<String, Integer> pathParamOrder, List<BType> signatureParamTypes) {
-        for (Map.Entry<String, Integer> entry : pathParamOrder.entrySet()) {
-            BType paramType = signatureParamTypes.get(entry.getValue());
-            int varTag = paramType.getTag();
-            if (varTag != TypeTags.STRING_TAG && varTag != TypeTags.INT_TAG && varTag != TypeTags.BOOLEAN_TAG &&
-                    varTag != TypeTags.FLOAT_TAG) {
-                throw HttpUtil.createHttpError("incompatible path parameter type : expected `string`, `int`, " +
-                                                       "`boolean`, `float`", HttpErrorType.GENERIC_LISTENER_ERROR);
-            }
-        }
-    }
-
-    private void validateQueryParam(Map<String, Integer> queryParamOrder, List<BType> signatureParamTypes) {
-        for (Map.Entry<String, Integer> entry : queryParamOrder.entrySet()) {
-            BType paramType = signatureParamTypes.get(entry.getValue());
-            int varTag = paramType.getTag();
-            if (varTag != TypeTags.STRING_TAG && (varTag != TypeTags.ARRAY_TAG ||
-                    ((BArrayType) paramType).getElementType().getTag() != TypeTags.STRING_TAG)) {
-                throw HttpUtil.createHttpError("incompatible query parameter type : expected `string`, `string[]`",
+        if (rawQueryString != null) {
+            try {
+                URIUtil.populateQueryParamMap((String) rawQueryString, queryParams);
+            } catch (UnsupportedEncodingException e) {
+                throw HttpUtil.createHttpError("error while retrieving query param from message: " + e.getMessage(),
                                                HttpErrorType.GENERIC_LISTENER_ERROR);
             }
         }
-    }
-
-    private void validateBodyParam(int bodyParamOrderIndex, List<BType> signatureParamTypes) {
-        if (bodyParamOrderIndex == -1) {
-            return;
-        }
-        BType paramType = signatureParamTypes.get(bodyParamOrderIndex);
-        int type = paramType.getTag();
-        if (type != TypeTags.RECORD_TYPE_TAG && type != TypeTags.JSON_TAG && type != TypeTags.XML_TAG &&
-                type != TypeTags.STRING_TAG && (type != TypeTags.ARRAY_TAG || !validArrayType(paramType))) {
-            throw HttpUtil.createHttpError("incompatible entity-body type : " + paramType.getName(),
-                                           HttpErrorType.GENERIC_LISTENER_ERROR);
-        }
-    }
-
-    /**
-     * Check the validity of array type in data binding scenario.
-     *
-     * @param entityBodyParamType Represents resource parameter details
-     * @return a boolean indicating the validity of the array type
-     */
-    private boolean validArrayType(BType entityBodyParamType) {
-        return ((BArrayType) entityBodyParamType).getElementType().getTag() == TypeTags.BYTE_TAG ||
-                ((BArrayType) entityBodyParamType).getElementType().getTag() == TypeTags.RECORD_TYPE_TAG;
+        return queryParams;
     }
 
     /**
@@ -180,25 +141,5 @@ public class SignatureParams {
      */
     int getBodyParamOrderIndex() {
         return this.bodyParamOrderIndex;
-    }
-
-    /**
-     * Gets the map of query params for given raw query string.
-     *
-     * @return a map of query params
-     */
-    MapValue<String, Object> getQueryParams(Object rawQueryString) {
-        BMapType mapType = new BMapType(new BArrayType(BTypes.typeString));
-        MapValue<String, Object> queryParams = new MapValueImpl<>(mapType);
-
-        if (rawQueryString != null) {
-            try {
-                URIUtil.populateQueryParamMap((String) rawQueryString, queryParams);
-            } catch (UnsupportedEncodingException e) {
-                throw HttpUtil.createHttpError("error while retrieving query param from message: " + e.getMessage(),
-                                               HttpErrorType.GENERIC_LISTENER_ERROR);
-            }
-        }
-        return queryParams;
     }
 }

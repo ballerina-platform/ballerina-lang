@@ -46,6 +46,7 @@ public class ResourceValidator {
     private static final String ENDPOINT_TYPE = PROTOCOL_PACKAGE_HTTP + ":" + HTTP_LISTENER_ENDPOINT;
     private static final String CALLER_TYPE = PROTOCOL_PACKAGE_HTTP + ":" + CALLER;
     private static final String HTTP_REQUEST_TYPE = PROTOCOL_PACKAGE_HTTP + ":" + REQUEST;
+    private static final String HTTP_ANNOTATION = "@" + PROTOCOL_HTTP + ":";
 
     static void validateSignature(List<BLangSimpleVariable> signatureParams, DiagnosticLog dlog, DiagnosticPos pos,
                                   List<String> pathSegments) {
@@ -77,8 +78,9 @@ public class ResourceValidator {
             BLangSimpleVariable param = signatureParams.get(index);
             String annotationName = getCompatibleAnnotation(param);
             if (annotationName == null) {
-                dlog.logDiagnostic(Diagnostic.Kind.ERROR, param.pos,
-                                   "missing parameter annotation of " + param.name.value);
+                dlog.logDiagnostic(Diagnostic.Kind.ERROR, param.pos, "missing annotation of parameter `" +
+                        param.name.value + "`: expected `" + HTTP_ANNOTATION + ANN_NAME_PATH_PARAM + "`, `" +
+                        HTTP_ANNOTATION + ANN_NAME_QUERY_PARAM + "`, `" + HTTP_ANNOTATION + ANN_NAME_BODY_PARAM + "`");
                 continue;
             }
             switch (annotationName) {
@@ -93,8 +95,8 @@ public class ResourceValidator {
                         validateBodyParam(param, dlog);
                         continue;
                     }
-                    dlog.logDiagnostic(Diagnostic.Kind.ERROR, param.pos, "invalid multiple `" + ANN_NAME_BODY_PARAM +
-                            "` annotation(s) : cannot specify > 1 entity-body params");
+                    dlog.logDiagnostic(Diagnostic.Kind.ERROR, param.pos, "invalid multiple `" + HTTP_ANNOTATION +
+                            ANN_NAME_BODY_PARAM + "` annotations: cannot specify > 1 entity-body params");
                     break;
             }
         }
@@ -125,12 +127,12 @@ public class ResourceValidator {
 
         if (varTag != TypeTags.STRING && varTag != TypeTags.INT && varTag != TypeTags.BOOLEAN &&
                 varTag != TypeTags.FLOAT) {
-            dlog.logDiagnostic(Diagnostic.Kind.ERROR, param.pos, "incompatible path param type : `" + param.type +
+            dlog.logDiagnostic(Diagnostic.Kind.ERROR, param.pos, "incompatible path param type: `" + param.type +
                     "`, expected `string`, `int`, `boolean`, `float`");
             return;
         }
         if (!pathSegments.contains(param.name.value)) {
-            dlog.logDiagnostic(Diagnostic.Kind.ERROR, param.pos, "invalid path param : `" + param.toString() +
+            dlog.logDiagnostic(Diagnostic.Kind.ERROR, param.pos, "invalid path param: `" + param.toString() +
                     "`, missing segment `{" + param.name.value + "}` in the path config of the resource annotation");
         }
     }
@@ -141,7 +143,7 @@ public class ResourceValidator {
 
         if (varTag != TypeTags.STRING && (varTag != TypeTags.ARRAY ||
                 ((BArrayType) paramType).getElementType().tag != TypeTags.STRING)) {
-            dlog.logDiagnostic(Diagnostic.Kind.ERROR, param.pos, "incompatible query param type : `" + param.type +
+            dlog.logDiagnostic(Diagnostic.Kind.ERROR, param.pos, "incompatible query param type: `" + param.type +
                     "`, expected `string`, `string[]`");
         }
     }
@@ -152,8 +154,8 @@ public class ResourceValidator {
 
         if (type != TypeTags.RECORD && type != TypeTags.JSON && type != TypeTags.XML &&
                 type != TypeTags.STRING && (type != TypeTags.ARRAY || !validArrayType(paramType))) {
-            dlog.logDiagnostic(Diagnostic.Kind.ERROR, param.pos, "incompatible entity-body param type : `" + param.type +
-                    "`, expected `string`, `json`, `xml`, `byte[]`, `{}`, `{}[]`");
+            dlog.logDiagnostic(Diagnostic.Kind.ERROR, param.pos, "incompatible entity-body param type: `"
+                    + param.type + "`, expected `string`, `json`, `xml`, `byte[]`, `{}`, `{}[]`");
         }
     }
 
