@@ -1,3 +1,21 @@
+/*
+ * Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
 package org.ballerinalang.observability.anaylze;
 
 import com.google.gson.JsonElement;
@@ -9,6 +27,7 @@ import org.ballerinalang.langserver.extensions.VisibleEndpointVisitor;
 import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.ballerinalang.util.diagnostic.DiagnosticLog;
 import org.wso2.ballerinalang.compiler.SourceDirectory;
+import org.wso2.ballerinalang.compiler.SourceDirectoryManager;
 import org.wso2.ballerinalang.compiler.spi.ObservabilitySymbolCollector;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
@@ -16,18 +35,26 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLogHelper;
 
+import java.io.IOException;
+import java.io.OutputStream;
 import java.io.PrintStream;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Default implementation of ObserverbilitySymbolCollector.
  */
 public class DefaultObservabilitySymbolCollector implements ObservabilitySymbolCollector {
-    private final PrintStream console = System.out;;
+    private final PrintStream console = System.out;
+    ;
     private static final String NAME = "name";
     private static final String ORG_NAME = "orgName";
     private static final String PKG_VERSION = "pkgVersion";
@@ -35,6 +62,9 @@ public class DefaultObservabilitySymbolCollector implements ObservabilitySymbolC
     private static final String SRC = "src";
     private static final String KEY_URI = "uri";
     private static final String AST = "ast";
+    private static final String JSON = ".json";
+    public static final String PROGRAM_HASH_KEY = "PROGRAM_HASH";
+    public static final String AST_META_FILENAME = "meta.properties";
 
     private CompilerContext compilerContext;
 
@@ -54,6 +84,44 @@ public class DefaultObservabilitySymbolCollector implements ObservabilitySymbolC
         JsonASTHolder.getInstance().addAST(module.packageID.name.getValue(), moduleJson);
     }
 
+    @Override
+    public void writeCollectedSymbols(BLangPackage module, Path destination) {
+        Path targetDirPath = destination.resolve(AST);
+        try {
+            if (Files.notExists(targetDirPath)) {
+                Files.createDirectory(targetDirPath);
+            }
+            Set<String> packages = getUserPackages();
+
+            JsonObject ast = new JsonObject();
+            for (Map.Entry<String, JsonObject> entry : JsonASTHolder.getInstance()
+                    .getASTMap().entrySet()) {
+                if (packages.contains(entry.getKey())) {
+                    ast.add(entry.getKey(), entry.getValue());
+                }
+            }
+
+            String astDataString = JsonCanonicalizer.getEncodedString(ast.toString());
+            Files.write(targetDirPath.resolve(AST + JSON), astDataString.getBytes(StandardCharsets.UTF_8));
+
+            Properties props = new Properties();
+            props.setProperty(PROGRAM_HASH_KEY, String.valueOf(astDataString.hashCode()));
+            try (OutputStream outputStream = Files.newOutputStream(targetDirPath.resolve(AST_META_FILENAME))) {
+                props.store(outputStream, null);
+            }
+        } catch (IOException e) {
+            // TODO handle errors
+            console.println("Error while generating ASTs." + e.getMessage());
+        }
+    }
+
+    private Set<String> getUserPackages() {
+        SourceDirectoryManager sourceDirectoryManager = SourceDirectoryManager.getInstance(compilerContext);
+        return sourceDirectoryManager.listSourceFilesAndPackages()
+                .map(x -> x.getName().getValue())
+                .collect(Collectors.toSet());
+    }
+
     private JsonObject getModuleJson(BLangPackage module) {
         JsonObject moduleJson = new JsonObject();
         moduleJson.addProperty(NAME, module.packageID.name.getValue());
@@ -63,7 +131,7 @@ public class DefaultObservabilitySymbolCollector implements ObservabilitySymbolC
 
         JsonObject jsonCUnits = new JsonObject();
         List<BLangCompilationUnit> compilationUnits = module.getCompilationUnits();
-        for (BLangCompilationUnit cUnit: compilationUnits) {
+        for (BLangCompilationUnit cUnit : compilationUnits) {
             JsonObject jsonCUnit = getCUnitJson(visibleEPsByNode, cUnit);
             jsonCUnits.add(cUnit.name, jsonCUnit);
         }
