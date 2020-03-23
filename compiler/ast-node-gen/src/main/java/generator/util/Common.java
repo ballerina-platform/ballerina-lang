@@ -8,35 +8,30 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class Common {
 
-    public static String buildClassName(Node node, String classString) {
-        if (node.getType() == null) {
-            classString = classString.replace(Constants.ABSTRACT_PLACEHOLDER + Constants.WHITE_SPACE,
-                    "").replace(Constants.CLASSNAME_PLACEHOLDER, node.getName())
-                    .replace(Constants.TYPE_PLACEHOLDER, "");
-        } else {
-            classString = classString.replace(Constants.ABSTRACT_PLACEHOLDER, node.getType())
-                    .replace(Constants.CLASSNAME_PLACEHOLDER, node.getName())
-                    .replace(Constants.TYPE_PLACEHOLDER, "");
+    public static Map<String, String> buildClassName(Node node) throws IOException {
+        Map<String, String > classMap = new HashMap<>();
+        classMap.put(Constants.CLASSNAME_PLACEHOLDER, node.getName());
+        if (node.getType()!= null) {
+            classMap.put(Constants.ABSTRACT_PLACEHOLDER, node.getType());
         }
         // Check for parent classes
-        if (node.getBase() == null) {
-            classString = classString.replace(Constants.RELATIONSHIP_PLACEHOLDER + Constants.WHITE_SPACE,
-                    "").replace(Constants.PARENT_CLASS_PLACEHOLDER, "");
-        } else {
-            classString = classString.replace(Constants.RELATIONSHIP_PLACEHOLDER, Constants.EXTENDS_KEYWORD)
-                    .replace(Constants.PARENT_CLASS_PLACEHOLDER, node.getBase());
+        if (node.getBase() != null) {
+            classMap.put(Constants.RELATIONSHIP_PLACEHOLDER, Constants.EXTENDS_KEYWORD);
+            classMap.put(Constants.PARENT_CLASS_PLACEHOLDER, node.getBase());
         }
-        System.out.println(classString);
-        return classString;
+        return classMap;
     }
 
     public static List<Node> getTreeNodes() throws IOException {
         Gson gson = new Gson();
-        Tree ast = gson.fromJson(new FileReader("compiler/ast-node-gen/newTree.json"), Tree.class);
+        Tree ast = gson.fromJson(new FileReader("compiler/ast-node-gen/src/main/resources/newTree.json"),
+                Tree.class);
         return ast.getNode();
     }
 
@@ -45,5 +40,17 @@ public class Common {
         FileWriter fr = new FileWriter(file);
         fr.write(data);
         fr.close();
+    }
+
+    public static Node getImmediateParentNode(String ext, List<Node> nodes) {
+        for (Node node : nodes) {
+            if (ext == null) {
+                return null;
+            }
+            if (ext.equals(node.getName())) {
+                return node;
+            }
+        }
+        return null;
     }
 }

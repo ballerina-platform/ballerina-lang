@@ -1,144 +1,134 @@
 package generator;
 
+import com.github.mustachejava.DefaultMustacheFactory;
+import com.github.mustachejava.Mustache;
+import com.github.mustachejava.MustacheFactory;
+import exception.GeneratorException;
 import generator.util.Common;
 import generator.util.Constants;
 import model.Field;
 import model.Node;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.io.StringWriter;
+import java.io.Writer;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class InternalGenerator {
+    private static String INTERNAL_PACKAGE = "internal";
 
-    private static List<Node> nodes;
+    private static List<Field> currentFieldList;
+    private static Bucket bucket;
+    private static List<ChildNode> addChildNodeList;
+    private static ToStringFunction toStringFunction;
+    private static FacadeClass facadeFunction;
 
-    public static void generateInternalTree() throws IOException {
-        nodes = Common.getTreeNodes();
+    public static void generateInternalTree(String internalTemplatePath, String classPath) throws IOException, GeneratorException {
+        List<Node> originalNodes = Common.getTreeNodes();
+        if (originalNodes == null) {
+            throw new GeneratorException("Received an empty node list.");
+        }
+        List<Node> nodes = restructureNodes(originalNodes);
         for (Node node : nodes) {
-            String internalClassString = new String(Files.readAllBytes(
-                    Paths.get("compiler/ast-node-gen/InternalTemplateClass.txt")));
-            internalClassString = internalClassString.replace(Constants.PACKAGE_PLACEHOLDER,
-                    Constants.INTERNAL_PACKAGE);
-            internalClassString = internalClassString.replace(Constants.IMPORTS_PLACEHOLDER,
-                    Constants.INTERNAL_IMPORTS);
-            internalClassString = Common.buildClassName(node, internalClassString);
-            internalClassString = internalClassString.replace(Constants.ATTRIBUTES_PLACEHOLDER,
-                    defineInternalAttributes(node.getFields()));
-            internalClassString = buildParameterizedConstructor(internalClassString, node.getFields());
-            internalClassString = internalClassString.replace(Constants.ADD_CHILD_NODE_PLACEHOLDER,
-                    getChildNodeCall(node.getFields()));
+            MustacheFactory mf = new DefaultMustacheFactory();
+            Mustache mustache = mf.compile(internalTemplatePath);
+            Map<String, String> mapScope = new HashMap<>();
+            mapScope.put(Constants.PACKAGE_PLACEHOLDER, Constants.INTERNAL_PACKAGE);
+            mapScope.put(Constants.IMPORTS_PLACEHOLDER, Constants.INTERNAL_IMPORTS);
+            mapScope.put(Constants.CLASSNAME_PLACEHOLDER, node.getName());
+            mapScope.putAll(Common.buildClassName(node));
+            currentFieldList = node.getFields();
+            if (currentFieldList != null ) {
+                bucket = new Bucket(currentFieldList.size());
+                if (!node.getBase().equals(Constants.ST_TOKEN)) {
+                    populateChildNode();
+                }
+            }
+            if (node.getName().equals(Constants.ST_TOKEN) || node.getBase().equals(Constants.ST_TOKEN)) {
+                if (!node.getName().equals(Constants.MISSING_TOKEN)) {
+                    populateToStringFunction(node);
+                }
+            }
+            if (!((node.getType() != null) && (node.getType().equals(Constants.ABSTRACT_KEYWORD)))) {
+                if (!node.getBase().equals(Constants.ST_TOKEN) || node.getName().contains(Constants.ST_TOKEN)) {
+                    facadeFunction = new FacadeClass(node.getName().substring(2));
+                }
+            }
             if (node.getBase() != null) {
-                Node parentNode = getImmediateParentNode(node.getBase());
+                Node parentNode = Common.getImmediateParentNode(node.getBase(), nodes);
                 if (parentNode != null) {
-                    internalClassString = internalClassString.replace(Constants.IMMEDIATE_PARENT_PLACEHOLDER,
+                    mapScope.put(Constants.IMMEDIATE_PARENT_PLACEHOLDER,
                             superConstructorParentValues(parentNode.getFields()));
-                } else {
-                    internalClassString = internalClassString.replace(Constants.IMMEDIATE_PARENT_PLACEHOLDER,
-                            "");
                 }
             }
+
+            Writer writer = new StringWriter();
+            Object[] scopes = new Object[2];
+            scopes[0] = mapScope;
+            scopes[1] = new InternalGenerator();
+            mustache.execute(writer, scopes);
+            writer.flush();
+            Common.writeToFile(writer.toString(), classPath + "/" + INTERNAL_PACKAGE + "/" + node.getName()
+                    + Constants.DOT + Constants.JAVA_EXT);
+            cleanupValues();
+        }
+    }
+
+    private static void cleanupValues() {
+        toStringFunction = null;
+        facadeFunction = null;
+        currentFieldList = null;
+        addChildNodeList = null;
+        bucket = null;
+    }
+
+    private static List<Node> restructureNodes (List<Node> nodeList) {
+        List<Node> modifiedNodeList = new ArrayList<>();
+        nodeList.forEach(node -> {
+            Node modifiedNode = new Node();
+            modifiedNode.setType(node.getType());
+            modifiedNode.setName("ST" + node.getName());
+            modifiedNode.setBase("ST" + node.getBase());
             if (node.getFields() != null) {
-                internalClassString = internalClassString.replace(Constants.BUCKET_COUNT_PLACEHOLDER,
-                        String.valueOf(node.getFields().size()));
-            } else {
-                internalClassString = internalClassString.replace(Constants.BUCKET_CODE_PLACEHOLDER, "");
+                List<Field> modifiedFieldList = new ArrayList<>();
+                node.getFields().forEach(field -> {
+                    Field modifiedField = new Field();
+                    modifiedField.setName(field.getName());
+                    modifiedField.setDefaultValue(field.getDefaultValue());
+                    if (field.getType().equals("SyntaxList")) {
+                        modifiedField.setType(Constants.ST_NODE);
+                    } else if (field.getType().equals(Constants.TOKEN) || field.getType().equals(Constants.NODE)) {
+                        modifiedField.setType("ST" + field.getType());
+                    } else {
+                        modifiedField.setType(field.getType());
+                    }
+                    modifiedFieldList.add(modifiedField);
+                });
+                modifiedNode.setFields(modifiedFieldList);
             }
-            internalClassString = internalClassString.replace(Constants.TO_STRING_FUNCTION_PLACEHOLDER,
-                    createToString(node, node.getFields()));
-            if ((node.getType() != null) && (node.getType().equals(Constants.ABSTRACT_KEYWORD))) {
-                internalClassString = internalClassString.replace(Constants.FACADE_FUNCTION_PLACEHOLDER,
-                        "");
-            } else {
-                internalClassString = internalClassString.replace(Constants.FACADE_FUNCTION_PLACEHOLDER,
-                        getFacadeFunction(node));
-            }
-            Common.writeToFile(internalClassString, "compiler/ast-node-gen/src/main/java/generated/internal/"
-                    + node.getName() + Constants.DOT + Constants.JAVA_EXT);
+            modifiedNodeList.add(modifiedNode);
+        });
+        return modifiedNodeList;
+    }
+
+    private static void populateChildNode() {
+        int index = 0;
+        addChildNodeList = new ArrayList<>();
+        for (Field field : currentFieldList) {
+            addChildNodeList.add(new ChildNode(field.getName(), index));
+            index++;
         }
     }
 
-//    private static String generateImports(String nodeName) {
-//        return Constants.INTERNAL_IMPORTS.replace(Constants.BL_NODE_PLACEHOLDER, Constants.BL + nodeName);
-//    }
-
-    public static String defineInternalAttributes(List<Field> fieldList) {
-        if (fieldList != null) {
-            StringBuilder attributes = new StringBuilder();
-            for (Field field : fieldList) {
-                attributes.append(Constants.INTERNAL_ATTRIBUTE_VISIBILITY).append(Constants.WHITE_SPACE)
-                        .append(Constants.FINAL_KEYWORD).append(Constants.WHITE_SPACE).append(field.getType())
-                        .append(Constants.WHITE_SPACE).append(field.getName());
-                if (field.getDefaultValue() != null) {
-                    attributes.append(Constants.ASSIGNMENT_OPERATOR).append(field.getDefaultValue());
-                }
-                attributes.append(Constants.SEMI_COLON).append(Constants.NEW_LINE);
-            }
-            return attributes.toString();
-        } else {
-            return "";
+    private static void populateToStringFunction(Node node) {
+        if (node.getName().equals(Constants.ST_TOKEN)) {
+            toStringFunction = new ToStringFunction(Constants.KIND_PROPERTY);
+        } else if (node.getBase().equals(Constants.ST_TOKEN)) {
+            toStringFunction = new ToStringFunction(Constants.PROPERTY);
         }
-    }
-
-    private static String buildParameterizedConstructor(String classString, List<Field> fieldList) {
-        if (fieldList == null) {
-            return classString.replace(Constants.PRAM_INIT_PLACEHOLDER, "")
-                    .replace(Constants.PRAM_LIST_PLACEHOLDER, "");
-        }
-        StringBuilder paramList = new StringBuilder();
-        StringBuilder initValues = new StringBuilder();
-        if (fieldList.get(0).getDefaultValue() == null) {
-            paramList.append(Constants.PARAMETER_SEPARATOR);
-        }
-        int i = 0;
-        for (Field field : fieldList) {
-            if (field.getDefaultValue() != null) {
-                continue;
-            }
-            initValues.append(Constants.THIS_KEYWORD).append(Constants.DOT).append(field.getName())
-                    .append(Constants.ASSIGNMENT_OPERATOR).append(field.getName()).append(Constants.SEMI_COLON);
-            paramList.append(field.getType()).append(Constants.WHITE_SPACE).append(field.getName());
-            i++;
-            if (i != fieldList.size()) {
-                paramList.append(Constants.PARAMETER_SEPARATOR);
-                initValues.append(Constants.NEW_LINE);
-            }
-        }
-        return classString.replace(Constants.PRAM_INIT_PLACEHOLDER, initValues)
-                .replace(Constants.PRAM_LIST_PLACEHOLDER, paramList);
-    }
-
-    private static String getChildNodeCall(List<Field> fieldList) {
-        if (fieldList == null) {
-            return "";
-        }
-        StringBuilder childNodeCall = new StringBuilder();
-        int i = 0;
-        for (Field field : fieldList) {
-            if (!(field.getType().equals(TYPES.INT.getTypeCode()) ||
-                    field.getType().equals(TYPES.STRING.getTypeCode()) ||
-                    field.getType().equals(TYPES.LONG.getTypeCode()) ||
-                    field.getType().equals(TYPES.BOOLEAN.getTypeCode())))
-                childNodeCall.append(Constants.THIS_KEYWORD).append(Constants.DOT)
-                        .append(Constants.CHILD_NODE_FUNCTION).append(Constants.OPEN_BRACKETS).append(field.getName())
-                        .append(Constants.PARAMETER_SEPARATOR).append(i).append(Constants.CLOSE_BRACKETS)
-                        .append(Constants.SEMI_COLON).append(Constants.NEW_LINE);
-            i++;
-        }
-        return childNodeCall.toString();
-    }
-
-    private static Node getImmediateParentNode(String ext) {
-        for (Node node : nodes) {
-            if (ext == null) {
-                return null;
-            }
-            if (ext.equals(node.getName())) {
-                return node;
-            }
-        }
-        return null;
     }
 
     private static String superConstructorParentValues(List<Field> fields) {
@@ -150,53 +140,53 @@ public class InternalGenerator {
         return values.toString();
     }
 
-    private static String createToString(Node node, List<Field> fieldList) {
-        String returnStatement;
-        if (node.getName().equals(Constants.MISSING_TOKEN)) {
-            return "";
-        } else if (node.getName().equals(Constants.SYNTAX_TOKEN)) {
-            returnStatement = Constants.RETURN_KEYWORD + Constants.WHITE_SPACE + Constants.LEADING_TRIVIA
-                    + Constants.CONCAT_SYMBOL + Constants.KIND_PROPERTY + Constants.CONCAT_SYMBOL
-                    + Constants.TRAILING_TRIVIA;
-        } else if (node.getBase().equals(Constants.SYNTAX_TOKEN)) {
-            returnStatement = Constants.RETURN_KEYWORD + Constants.WHITE_SPACE + Constants.LEADING_TRIVIA
-                    + Constants.CONCAT_SYMBOL + Constants.PROPERTY + Constants.CONCAT_SYMBOL
-                    + Constants.TRAILING_TRIVIA;
-        } else {
-            return "";
-        }
-        return Constants.PUBLIC_KEYWORD + Constants.WHITE_SPACE + Constants.STRING_KEYWORD + Constants.WHITE_SPACE
-                + Constants.TO_STRING_SIGNATURE + Constants.OPEN_BRACKETS + Constants.CLOSE_BRACKETS
-                + Constants.OPEN_PARENTHESIS + Constants.NEW_LINE + returnStatement + Constants.SEMI_COLON
-                + Constants.NEW_LINE + Constants.CLOSE_PARENTHESIS;
+    public List<Field> attributes() {
+        return currentFieldList;
     }
 
-    private static String getFacadeFunction(Node node) {
-        if (!node.getBase().equals(Constants.SYNTAX_TOKEN) || node.getName().contains(Constants.SYNTAX_TOKEN)) {
-//            public BLNode createFacade(int position, BLNonTerminalNode parent) {
-//                  return new BL$className(this, position, parent);
-//            }
-            return Constants.FACADE_FUNCTION.replace(Constants.FACADE_RETURN_STATEMENT_PLACEHOLDER,
-                    Constants.FACADE_RETURN_STATEMENT).replace(Constants.CLASSNAME_PLACEHOLDER, node.getName());
-        } else {
-            return "";
+    public Bucket bucket() {
+        return bucket;
+    }
+
+    public List<ChildNode> addChildNode() {
+        return addChildNodeList;
+    }
+
+    public ToStringFunction toStringFunction() {
+        return toStringFunction;
+    }
+
+    public FacadeClass facadeFunction() {
+        return facadeFunction;
+    }
+
+    static class Bucket {
+        int bucketCount;
+        Bucket(int bucketCount) {
+            this.bucketCount = bucketCount;
         }
     }
 
-    public enum TYPES {
-        INT("int"),
-        STRING("String"),
-        LONG("long"),
-        BOOLEAN("boolean");
-
-        private final String typeCode;
-
-        TYPES(String levelCode) {
-            this.typeCode = levelCode;
+    static class ChildNode {
+        String name;
+        int index;
+        ChildNode(String name, int index) {
+            this.name = name;
+            this.index = index;
         }
+    }
 
-        public String getTypeCode() {
-            return this.typeCode;
+    static class ToStringFunction {
+        String kind;
+        ToStringFunction(String kind) {
+            this.kind = kind;
+        }
+    }
+
+    static class FacadeClass {
+        String facadeClass;
+        FacadeClass(String facadeClass) {
+            this.facadeClass = facadeClass;
         }
     }
 }

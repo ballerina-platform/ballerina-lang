@@ -15,28 +15,7 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package generated.internal;
+package generated.facade;
 
-import generated.facade.Node;
-import generated.facade.NonTerminalNode;
-
-// TODO find a better replacement for trivia. So C# like... ;-)
-public class SyntaxTrivia extends STNode {
-
-    public final String text;
-
-    public SyntaxTrivia(SyntaxKind kind, String text) {
-        super(kind, text.length());
-        this.text = text;
-    }
-
-    @Override
-    public Node createFacade(int position, NonTerminalNode parent) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public String toString() {
-        return text;
-    }
+public class Module {
 }

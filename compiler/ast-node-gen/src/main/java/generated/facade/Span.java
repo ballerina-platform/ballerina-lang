@@ -15,28 +15,32 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package generated.internal;
+package generated.facade;
 
-import generated.facade.Node;
-import generated.facade.NonTerminalNode;
+public class Span {
+    private final int startOffset;
+    private final int endOffset;
+    private final int width;
 
-// TODO find a better replacement for trivia. So C# like... ;-)
-public class SyntaxTrivia extends STNode {
-
-    public final String text;
-
-    public SyntaxTrivia(SyntaxKind kind, String text) {
-        super(kind, text.length());
-        this.text = text;
+    public Span(int position, int width) {
+        this.startOffset = position;
+        this.width = width;
+        this.endOffset = position + width;
     }
 
-    @Override
-    public Node createFacade(int position, NonTerminalNode parent) {
-        throw new UnsupportedOperationException();
+    public int startOffset() {
+        return startOffset;
     }
 
-    @Override
-    public String toString() {
-        return text;
+    public int endOffset() {
+        return endOffset;
+    }
+
+    public int width() {
+        return width;
+    }
+
+    public boolean contains(int position) {
+        return startOffset <= position && position < endOffset;
     }
 }

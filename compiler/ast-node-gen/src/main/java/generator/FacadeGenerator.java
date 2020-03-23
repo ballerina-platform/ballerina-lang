@@ -1,65 +1,151 @@
 package generator;
 
+import com.github.mustachejava.DefaultMustacheFactory;
+import com.github.mustachejava.Mustache;
+import com.github.mustachejava.MustacheFactory;
+import exception.GeneratorException;
 import generator.util.Common;
 import generator.util.Constants;
 import model.Field;
 import model.Node;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.io.StringWriter;
+import java.io.Writer;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class FacadeGenerator {
+    private static String FACADE_PACKAGE = "facade";
 
-    public static void generateFacade() throws IOException {
-        List<Node> nodes;
-        nodes = Common.getTreeNodes();
+    private static List<Field> currentFieldList;
+    private static List<AttributeFunction> attributeFunctionList;
+    private static SwitchFunction switchFunction;
+
+    static class SwitchFunction {
+        List<Case> caseList;
+        SwitchFunction(List<Case> caseList) {
+            this.caseList = caseList;
+        }
+    }
+
+    static class Case {
+        String name;
+        int index;
+        Case(String name, int index){
+            this.name = name;
+            this.index = index;
+        }
+    }
+
+    static class CreateFacadeCall {
+        int index;
+        CreateFacadeCall(int index) {
+            this.index = index;
+        }
+    }
+
+    static class AttributeFunction {
+        String returnObject;
+        String parentMethod;
+        String name;
+        int index;
+        CreateFacadeCall createFacadeCall;
+        AttributeFunction(String returnObject, String parentMethod, String name, int index) {
+            this.returnObject = returnObject;
+            this.parentMethod = parentMethod;
+            this.name = name;
+            this.index = index;
+        }
+        AttributeFunction(String returnObject, String parentMethod, String name, int index, CreateFacadeCall createFacadeCall) {
+            this.returnObject = returnObject;
+            this.parentMethod = parentMethod;
+            this.name = name;
+            this.index = index;
+            this.createFacadeCall = createFacadeCall;
+        }
+    }
+
+    /**
+     * This is used to represent the attributes block in handlebar template. The attributes block will be
+     * replaced by the returned attributes list.
+     * @return returns the currentFieldList in a node
+     */
+    public List<Field> attributes() {
+        return currentFieldList;
+    }
+
+    /**
+     * attribute function is used to represent the attributeFunction block in handlebar template.
+     * The attributeFunction block will be replaced by the returned attributeFunction list list.
+     * @return returns the attributeFunctionList in a node
+     */
+    public List<AttributeFunction> attributeFunction() {
+        return attributeFunctionList;
+    }
+    public SwitchFunction switchFunction(){
+        return switchFunction;
+    }
+
+    public static void generateFacade(String facadeTemplatePath, String classPath) throws IOException, GeneratorException {
+        List<Node> nodes = Common.getTreeNodes();
         if (nodes != null) {
             List<Node> nodeList = restructureNodes(nodes);
             for (Node node : nodeList) {
-                String facadeClassString = new String(Files.readAllBytes(
-                        Paths.get("compiler/ast-node-gen/FacadeTemplateClass.txt")));
-                facadeClassString = facadeClassString.replace(Constants.PACKAGE_PLACEHOLDER, Constants.FACADE_PACKAGE);
-                facadeClassString = facadeClassString.replace(Constants.IMPORTS_PLACEHOLDER, Constants.FACADE_IMPORTS);
-                facadeClassString = Common.buildClassName(node, facadeClassString);
-                facadeClassString = facadeClassString.replace(Constants.ATTRIBUTES_PLACEHOLDER,
-                        defineFacadeAttributes(node.getFields()));
-                facadeClassString = facadeClassString.replace(Constants.CONSTRUCTOR_PLACEHOLDER,
-                        Constants.FACADE_CONSTRUCTOR.replace(Constants.CLASSNAME_PLACEHOLDER, node.getName()));
-                facadeClassString = facadeClassString.replace(Constants.FACADE_MEMBER_PLACEHOLDER,
-                        generateFacadeMembers(node.getFields()));
-                facadeClassString = facadeClassString.replace(Constants.CHILD_FUNCTION_PLACEHOLDER,
-                        buildSwitchStatements(node.getFields()));
-                Common.writeToFile(facadeClassString, "compiler/ast-node-gen/src/main/java/generated/facade/"
+                MustacheFactory mf = new DefaultMustacheFactory();
+                Mustache mustache = mf.compile(facadeTemplatePath);
+                Map<String, String> mapScope = new HashMap<>();
+                mapScope.put(Constants.PACKAGE_PLACEHOLDER, Constants.FACADE_PACKAGE);
+                mapScope.put(Constants.IMPORTS_PLACEHOLDER, Constants.FACADE_IMPORTS);
+                mapScope.put(Constants.CLASSNAME_PLACEHOLDER, node.getName());
+                mapScope.putAll(Common.buildClassName(node));
+                currentFieldList = node.getFields();
+                populateAttributeFunction(node.getFields());
+                populateSwitchFunction(node.getFields());
+                Writer writer = new StringWriter();
+                Object[] scopes = new Object[2];
+                scopes[0] = mapScope;
+                scopes[1] = new FacadeGenerator();
+                mustache.execute(writer, scopes);
+                writer.flush();
+                Common.writeToFile( writer.toString().replace("&lt;", "<").
+                        replace("&gt;", ">"), classPath + "/" + FACADE_PACKAGE + "/"
                         + node.getName() + Constants.DOT + Constants.JAVA_EXT);
+                cleanupValues();
             }
         } else {
-//            todo throw exception
+            throw new GeneratorException("Received an empty node list.");
         }
+    }
+
+    private static void cleanupValues() {
+        currentFieldList = null;
+        attributeFunctionList = null;
+        switchFunction = null;
     }
 
     private static List<Node> restructureNodes(List<Node> nodeList) {
         List<Node> modifiedNodeList = new ArrayList<>();
         for (Node node : nodeList) {
-            if (!(node.getBase().equals(Constants.SYNTAX_TOKEN)) || node.getName().equals(Constants.SYNTAX_TOKEN)) {
+            if (!(node.getBase().equals(Constants.TOKEN)) || node.getName().equals(Constants.TOKEN)) {
                 Node newNode = new Node();
                 newNode.setBase(Constants.NON_TERMINAL_NODE);
-                newNode.setName(Constants.BL + node.getName());
+                newNode.setName(node.getName());
                 newNode.setType(node.getType());
                 if (node.getFields() != null) {
                     List<Field> fields = new ArrayList<>();
                     for (Field field : node.getFields()) {
                         Field newField = new Field();
                         newField.setName(field.getName());
-                        if (field.getType().contains(Constants.TOKEN)) {
-                            newField.setType(Constants.BL_TOKEN);
-                        } else if (field.getName().contains(Constants.LIST_KEYWORD)) {
-                            newField.setType(Constants.BL_LIST.replace(Constants.NODE_VARIABLE_PLACEHOLDER,
-                                    Constants.BLNode));
+                        Node immediateParent = Common.getImmediateParentNode(field.getType(), nodeList);
+                        if (immediateParent != null && immediateParent.getName().equals(Constants.ST_TOKEN)) {
+                            newField.setType(Constants.TOKEN);
+                        } else if (field.getType().equals(Constants.SYNTAX_LIST)) {
+                            newField.setType(Constants.NODE_LIST);
                         } else {
-                            newField.setType(Constants.BLNode);
+                            newField.setType(field.getType());
                         }
                         fields.add(newField);
                     }
@@ -71,66 +157,35 @@ public class FacadeGenerator {
         return modifiedNodeList;
     }
 
-    public static String defineFacadeAttributes(List<Field> fieldList) {
+    private static void populateAttributeFunction(List<Field> fieldList) {
         if (fieldList != null) {
-            StringBuilder attributes = new StringBuilder();
-            for (Field field : fieldList) {
-                attributes.append(Constants.FACADE_ATTRIBUTE_VISIBILITY).append(Constants.WHITE_SPACE)
-                        .append(Constants.WHITE_SPACE).append(field.getType())
-                        .append(Constants.WHITE_SPACE).append(field.getName());
-                if (field.getDefaultValue() != null) {
-                    attributes.append(Constants.ASSIGNMENT_OPERATOR).append(field.getDefaultValue());
-                }
-                attributes.append(Constants.SEMI_COLON).append(Constants.NEW_LINE);
-            }
-            return attributes.toString();
-        } else {
-            return "";
-        }
-    }
-
-    private static String generateFacadeMembers(List<Field> fieldList) {
-        StringBuilder facadeMembersString = new StringBuilder();
-        if (fieldList == null) {
-            return "";
-        } else {
             int i = 0;
+            attributeFunctionList = new ArrayList<>();
             for (Field field : fieldList) {
-                facadeMembersString.append(Constants.FACADE_MEMBER_FUNCTION.replace(Constants.TYPE_PLACEHOLDER,
-                        field.getType()).replace(Constants.ATTRIBUTE_PLACEHOLDER, field.getName()));
-                if (field.getType().equals(Constants.BLNode)) {
-                    facadeMembersString = new StringBuilder(facadeMembersString.toString()
-                            .replace(Constants.FUNCTION_CALL_PLACEHOLDER, Constants.CALL_CREATE_FACADE));
-                } else if (field.getType().contains(Constants.LIST_KEYWORD)) {
-                    facadeMembersString = new StringBuilder(facadeMembersString.toString()
-                            .replace(Constants.FUNCTION_CALL_PLACEHOLDER, Constants.CALL_CREATE_NODE_LIST));
+                if (field.getType().equals(Constants.NODE)) {
+                    attributeFunctionList.add(new AttributeFunction(Constants.NODE, "node.childInBucket",
+                            field.getName(), i, new CreateFacadeCall(i)));
+                } else if (field.getType().equals("NodeList<Node>")) {
+                    attributeFunctionList.add(new AttributeFunction(field.getType(), "createListNode",
+                            field.getName(), i));
                 } else {
-                    facadeMembersString = new StringBuilder(facadeMembersString.toString()
-                            .replace(Constants.FUNCTION_CALL_PLACEHOLDER, Constants.CALL_CREATE_TOKEN));
+                    attributeFunctionList.add(new AttributeFunction(Constants.TOKEN, "createToken",
+                            field.getName(), i));
                 }
-                facadeMembersString = new StringBuilder(facadeMembersString.toString()
-                        .replace(Constants.INDEX_PLACEHOLDER, String.valueOf(i)));
-                facadeMembersString.append(Constants.NEW_LINE);
                 i++;
             }
-            return facadeMembersString.toString();
         }
     }
 
-    private static String buildSwitchStatements(List<Field> fieldList) {
-        if (fieldList == null) {
-            return "";
+    private static void populateSwitchFunction(List<Field> fieldList) {
+        if (fieldList != null) {
+            int i = 0;
+            List<Case> caseList = new ArrayList<>();
+            for (Field field : fieldList) {
+                caseList.add(new Case(field.getName(), i));
+                i++;
+            }
+            switchFunction = new SwitchFunction(caseList);
         }
-        StringBuilder caseStatements = new StringBuilder();
-        int i = 0;
-        for (Field field : fieldList) {
-            caseStatements.append(Constants.CASE_KEYWORD).append(Constants.WHITE_SPACE).append(i)
-                    .append(Constants.COLON).append(Constants.NEW_LINE).append(Constants.RETURN_KEYWORD)
-                    .append(Constants.WHITE_SPACE).append(field.getName()).append(Constants.OPEN_BRACKETS)
-                    .append(Constants.CLOSE_BRACKETS).append(Constants.SEMI_COLON).append(Constants.NEW_LINE);
-            i++;
-        }
-        return Constants.CHILD_FUNCTION.replace(Constants.FACADE_SWITCH_PLACEHOLDER,
-                Constants.FACADE_SWITCH.replace(Constants.CASE_STATEMENTS_PLACEHOLDER, caseStatements.toString()));
     }
 }
