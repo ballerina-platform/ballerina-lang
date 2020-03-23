@@ -17,9 +17,9 @@
  */
 package org.ballerinalang.jvm.types;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * {@code {@link BFunctionType }} represents a function type in ballerina.
@@ -123,7 +123,12 @@ public class BFunctionType extends AnnotatableType {
     }
 
     public List<String> getParamAnnotationKeys() {
-        return Arrays.stream(this.annotations.getKeys()).filter(key -> key.startsWith("$param$")).collect(
-                Collectors.toList());
+        List<String> list = new ArrayList<>();
+        for (String key : this.annotations.getKeys()) {
+            if (key.startsWith("$param$")) {
+                list.add(key);
+            }
+        }
+        return list;
     }
 }

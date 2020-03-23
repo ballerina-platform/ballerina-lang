@@ -32,7 +32,11 @@ For more information, see [Client Endpoint Example](https://ballerina.io/learn/b
 
 ### Listener endpoints
 
-A `Service` represents a collection of network-accessible entry points and can be exposed via a `Listener` endpoint. A resource represents one such entry point and can have its own path, HTTP methods, body format, 'consumes' and 'produces' content types, CORS headers, etc. In resources, `http:caller` and `http:Request` are mandatory parameters while `path` and `body` are optional.
+A `Service` represents a collection of network-accessible entry points and can be exposed via a `Listener` endpoint. 
+A resource represents one such entry point and can have its own path, HTTP methods, body format, 'consumes' and 
+'produces' content types, CORS headers, etc. In resources, `http:caller` and `http:Request` are mandatory parameters. 
+Additionally annotated parameters such `string`, `int`, `float`, `boolean` typed `path` parameter, `string`, `string[]` 
+typed `query` parameter and `string`, `json`, `xml`, `byte[]`, `{}`, `{}[]` typed `body` parameter are supported.
 
 When a `Service` receives a request, it is dispatched to the best-matched resource.
 
@@ -53,10 +57,10 @@ service helloWorld on helloWorldEP {
    // All resource functions are invoked with arguments of server connector and request.
    @http:ResourceConfig {
        methods: ["POST"],
-       path: "/{name}",
-       body: "message"
+       path: "/{name}"
    }
-   resource function sayHello(http:Caller caller, http:Request req, string name, string message) {
+   resource function sayHello(http:Caller caller, http:Request req, @http:PathParam string name, 
+                              @http:BodyParam string message) {
        http:Response res = new;
        // A util method that can be used to set string payload.
        res.setPayload("Hello, World! I’m " + <@untainted> name + ". " + <@untainted> message);
@@ -93,7 +97,7 @@ There are two types of services for WebSockets. The service of the server has th
         upgradeService: chatApp
     }
 }
-resource function upgrader(http:Caller caller, http:Request req, string name) {
+resource function upgrader(http:Caller caller, http:Request req, @http:PathParam string name) {
 }
 ```
 The `upgradeService` is a server callback service.

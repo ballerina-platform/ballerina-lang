@@ -46,22 +46,24 @@ public class SignatureTest {
         Diagnostic[] diagnostics = compileResult.getDiagnostics().clone();
 
         assertError(diagnostics[0], 9, 5, "resource signature parameter count should be >= 2");
-        assertError(diagnostics[1], 13, 5, "first parameter should be of type `ballerina/http:Caller`");
-        assertError(diagnostics[2], 17, 5, "second parameter should be of type `ballerina/http:Request`");
-        assertError(diagnostics[3], 21, 5, "second parameter should be of type `ballerina/http:Request`");
-        assertError(diagnostics[4], 25, 75, "missing annotation of parameter `key`: expected `@http:PathParam`, " +
-                "`@http:QueryParam`, `@http:BodyParam`");
-        assertError(diagnostics[5], 29, 86, "invalid path param: `boolean key`, missing segment `{key}` in the " +
+        assertError(diagnostics[1], 13, 5, "first parameter should be of type 'ballerina/http:Caller'");
+        assertError(diagnostics[2], 17, 5, "second parameter should be of type 'ballerina/http:Request'");
+        assertError(diagnostics[3], 21, 5, "second parameter should be of type 'ballerina/http:Request'");
+        assertError(diagnostics[4], 25, 75, "missing annotation of parameter 'key': expected '@http:PathParam', " +
+                "'@http:QueryParam', '@http:BodyParam'");
+        assertError(diagnostics[5], 29, 86, "invalid path parameter: 'boolean key', missing segment '{key}' in the " +
                 "path config of the resource annotation");
-        assertError(diagnostics[6], 33, 83, "incompatible entity-body param type: `int`, expected `string`, `json`, " +
-                "`xml`, `byte[]`, `{}`, `{}[]`");
-        assertError(diagnostics[7], 44, 78, "missing annotation of parameter `p`: expected `@http:PathParam`, " +
-                "`@http:QueryParam`, `@http:BodyParam`");
-        assertError(diagnostics[8], 51, 82, "incompatible path param type: `json`, expected `string`, `int`, " +
-                "`boolean`, `float`");
-        assertError(diagnostics[9], 55, 83, "incompatible query param type: `json`, expected `string`, `string[]`");
-        assertError(diagnostics[10], 59, 84, "incompatible query param type: `int[]`, expected `string`, `string[]`");
-        assertError(diagnostics[11], 63, 90, "invalid multiple `@http:BodyParam` annotations: cannot specify > 1 " +
+        assertError(diagnostics[6], 33, 83, "incompatible entity-body parameter type: expected 'string', 'json', " +
+                "'xml', 'byte[]', '{}', '{}[]', found 'int'");
+        assertError(diagnostics[7], 44, 78, "missing annotation of parameter 'p': expected '@http:PathParam', " +
+                "'@http:QueryParam', '@http:BodyParam'");
+        assertError(diagnostics[8], 51, 82, "incompatible path parameter type: expected 'string', 'int', 'boolean', " +
+                "'float', found 'json'");
+        assertError(diagnostics[9], 55, 83, "incompatible query parameter type: expected 'string', 'string[]', " +
+                "found 'json'");
+        assertError(diagnostics[10], 59, 84, "incompatible query parameter type: expected 'string', 'string[]'," +
+                " found 'int[]'");
+        assertError(diagnostics[11], 63, 90, "invalid multiple '@http:BodyParam' annotations: cannot specify > 1 " +
                 "entity-body params");
     }
 

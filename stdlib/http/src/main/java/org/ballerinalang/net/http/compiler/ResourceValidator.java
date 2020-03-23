@@ -58,13 +58,13 @@ public class ResourceValidator {
         }
 
         if (isInvalidResourceParam(signatureParams.get(0), CALLER_TYPE)) {
-            dlog.logDiagnostic(Diagnostic.Kind.ERROR, pos, "first parameter should be of type `" + CALLER_TYPE + "`");
+            dlog.logDiagnostic(Diagnostic.Kind.ERROR, pos, "first parameter should be of type '" + CALLER_TYPE + "'");
             return;
         }
 
         if (isInvalidResourceParam(signatureParams.get(1), HTTP_REQUEST_TYPE)) {
-            dlog.logDiagnostic(Diagnostic.Kind.ERROR, pos, "second parameter should be of type `" +
-                    HTTP_REQUEST_TYPE + "`");
+            dlog.logDiagnostic(Diagnostic.Kind.ERROR, pos, "second parameter should be of type '" +
+                    HTTP_REQUEST_TYPE + "'");
             return;
         }
 
@@ -78,9 +78,9 @@ public class ResourceValidator {
             BLangSimpleVariable param = signatureParams.get(index);
             String annotationName = getCompatibleAnnotation(param);
             if (annotationName == null) {
-                dlog.logDiagnostic(Diagnostic.Kind.ERROR, param.pos, "missing annotation of parameter `" +
-                        param.name.value + "`: expected `" + HTTP_ANNOTATION + ANN_NAME_PATH_PARAM + "`, `" +
-                        HTTP_ANNOTATION + ANN_NAME_QUERY_PARAM + "`, `" + HTTP_ANNOTATION + ANN_NAME_BODY_PARAM + "`");
+                dlog.logDiagnostic(Diagnostic.Kind.ERROR, param.pos, "missing annotation of parameter '" +
+                        param.name.value + "': expected '" + HTTP_ANNOTATION + ANN_NAME_PATH_PARAM + "', '" +
+                        HTTP_ANNOTATION + ANN_NAME_QUERY_PARAM + "', '" + HTTP_ANNOTATION + ANN_NAME_BODY_PARAM + "'");
                 continue;
             }
             switch (annotationName) {
@@ -95,8 +95,8 @@ public class ResourceValidator {
                         validateBodyParam(param, dlog);
                         continue;
                     }
-                    dlog.logDiagnostic(Diagnostic.Kind.ERROR, param.pos, "invalid multiple `" + HTTP_ANNOTATION +
-                            ANN_NAME_BODY_PARAM + "` annotations: cannot specify > 1 entity-body params");
+                    dlog.logDiagnostic(Diagnostic.Kind.ERROR, param.pos, "invalid multiple '" + HTTP_ANNOTATION +
+                            ANN_NAME_BODY_PARAM + "' annotations: cannot specify > 1 entity-body params");
                     break;
                 default:
                     // do not execute
@@ -129,13 +129,13 @@ public class ResourceValidator {
 
         if (varTag != TypeTags.STRING && varTag != TypeTags.INT && varTag != TypeTags.BOOLEAN &&
                 varTag != TypeTags.FLOAT) {
-            dlog.logDiagnostic(Diagnostic.Kind.ERROR, param.pos, "incompatible path param type: `" + param.type +
-                    "`, expected `string`, `int`, `boolean`, `float`");
+            dlog.logDiagnostic(Diagnostic.Kind.ERROR, param.pos, "incompatible path parameter type: expected " +
+                    "'string', 'int', 'boolean', 'float', found '" + param.type + "'");
             return;
         }
         if (!pathSegments.contains(param.name.value)) {
-            dlog.logDiagnostic(Diagnostic.Kind.ERROR, param.pos, "invalid path param: `" + param.toString() +
-                    "`, missing segment `{" + param.name.value + "}` in the path config of the resource annotation");
+            dlog.logDiagnostic(Diagnostic.Kind.ERROR, param.pos, "invalid path parameter: '" + param.toString() +
+                    "', missing segment '{" + param.name.value + "}' in the path config of the resource annotation");
         }
     }
 
@@ -145,8 +145,8 @@ public class ResourceValidator {
 
         if (varTag != TypeTags.STRING && (varTag != TypeTags.ARRAY ||
                 ((BArrayType) paramType).getElementType().tag != TypeTags.STRING)) {
-            dlog.logDiagnostic(Diagnostic.Kind.ERROR, param.pos, "incompatible query param type: `" + param.type +
-                    "`, expected `string`, `string[]`");
+            dlog.logDiagnostic(Diagnostic.Kind.ERROR, param.pos, "incompatible query parameter type: expected " +
+                    "'string', 'string[]', found '" + param.type + "'");
         }
     }
 
@@ -156,8 +156,8 @@ public class ResourceValidator {
 
         if (type != TypeTags.RECORD && type != TypeTags.JSON && type != TypeTags.XML &&
                 type != TypeTags.STRING && (type != TypeTags.ARRAY || !validArrayType(paramType))) {
-            dlog.logDiagnostic(Diagnostic.Kind.ERROR, param.pos, "incompatible entity-body param type: `"
-                    + param.type + "`, expected `string`, `json`, `xml`, `byte[]`, `{}`, `{}[]`");
+            dlog.logDiagnostic(Diagnostic.Kind.ERROR, param.pos, "incompatible entity-body parameter type: expected " +
+                    "'string', 'json', 'xml', 'byte[]', '{}', '{}[]', found '" + param.type + "'");
         }
     }
 
@@ -267,7 +267,7 @@ public class ResourceValidator {
                     }
                     if (pointerIndex + 1 >= maxIndex) {
                         dlog.logDiagnostic(Diagnostic.Kind.ERROR, pos,
-                                           "Invalid param expression in resource path config");
+                                           "Invalid parameter expression in resource path config");
                     }
                     if (pointerIndex != startIndex) {
                         dlog.logDiagnostic(Diagnostic.Kind.ERROR, pos, "Illegal expression in resource path config");
@@ -292,7 +292,7 @@ public class ResourceValidator {
                 default:
                     if (pointerIndex == maxIndex) {
                         if (expression) {
-                            dlog.logDiagnostic(Diagnostic.Kind.ERROR, pos, "Incomplete path param expression");
+                            dlog.logDiagnostic(Diagnostic.Kind.ERROR, pos, "Incomplete path parameter expression");
                             break;
                         }
                         if (startIndex != 0 && pointerIndex == startIndex) {

@@ -31,10 +31,6 @@ import org.testng.annotations.Test;
  */
 public class ResourceConfigPathTest {
 
-    private static final String INVALID_RESOURCE_PARAMETERS =
-            "invalid resource parameter(s): cannot specify > 2 parameters without specifying path config and/or body " +
-                    "config in the resource annotation";
-
     @Test
     public void testResourceConfigPathAnnotationsNegativeCases() {
         CompileResult compileResult = BCompileUtil
@@ -43,11 +39,11 @@ public class ResourceConfigPathTest {
         Assert.assertEquals(diag.length, 12);
         assertResponse(diag[0], "Illegal closing brace detected in resource path config", 12);
         assertResponse(diag[1], "Illegal closing brace detected in resource path config", 19);
-        assertResponse(diag[2], "Incomplete path param expression", 26);
-        assertResponse(diag[3], "Incomplete path param expression", 34);
-        assertResponse(diag[4], "Invalid param expression in resource path config", 42);
+        assertResponse(diag[2], "Incomplete path parameter expression", 26);
+        assertResponse(diag[3], "Incomplete path parameter expression", 34);
+        assertResponse(diag[4], "Invalid parameter expression in resource path config", 42);
         assertResponse(diag[5], "Illegal empty expression in resource path config", 50);
-        assertResponse(diag[6], "Invalid param expression in resource path config", 50);
+        assertResponse(diag[6], "Invalid parameter expression in resource path config", 50);
         assertResponse(diag[7], "Illegal expression in resource path config", 58);
         assertResponse(diag[8], "Illegal closing brace detected in resource path config", 66);
         assertResponse(diag[9], "Illegal closing brace detected in resource path config", 74);
@@ -61,16 +57,16 @@ public class ResourceConfigPathTest {
                 .compile("test-src/services/configuration/resource-arg--pathparam-match.bal");
         Diagnostic[] diag = compileResult.getDiagnostics();
         Assert.assertEquals(diag.length, 5);
-        assertResponse(diag[0], "invalid path param: `string age`, missing segment `{age}` in the path config of the " +
-                "resource annotation", 15);
-        assertResponse(diag[1], "invalid path param: `string ag`, missing segment `{ag}` in the path config of the " +
-                "resource annotation", 24);
-        assertResponse(diag[2], "invalid path param: `string go`, missing segment `{go}` in the path config of the " +
-                "resource annotation", 49);
-        assertResponse(diag[3], "invalid path param: `string go`, missing segment `{go}` in the path config of the " +
-                "resource annotation", 65);
-        assertResponse(diag[4], "invalid path param: `string name`, missing segment `{name}` in the path config of " +
-                "the resource annotation", 74);
+        assertResponse(diag[0], "invalid path parameter: 'string age', missing segment '{age}' in the path config of" +
+                " the resource annotation", 15);
+        assertResponse(diag[1], "invalid path parameter: 'string ag', missing segment '{ag}' in the path config of " +
+                "the resource annotation", 24);
+        assertResponse(diag[2], "invalid path parameter: 'string go', missing segment '{go}' in the path config of " +
+                "the resource annotation", 49);
+        assertResponse(diag[3], "invalid path parameter: 'string go', missing segment '{go}' in the path config of " +
+                "the resource annotation", 65);
+        assertResponse(diag[4], "invalid path parameter: 'string name', missing segment '{name}' in the path config " +
+                "of the resource annotation", 74);
     }
 
     private void assertResponse(Diagnostic diag, String msg, int line) {
