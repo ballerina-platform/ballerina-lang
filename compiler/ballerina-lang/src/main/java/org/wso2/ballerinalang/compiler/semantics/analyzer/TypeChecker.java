@@ -3742,17 +3742,18 @@ public class TypeChecker extends BLangNodeVisitor {
 
         BType restType = ((BArrayType) restParam.type).eType;
         for (BLangExpression arg : restArgExprs) {
-            checkTypeParamExpr(arg, this.env, restType, langlibInvocation);
+            checkTypeParamExpr(arg, this.env, restType, true);
         }
     }
 
-    private void checkTypeParamExpr(BLangExpression arg, SymbolEnv env, BType expectedType, boolean langlibInvocation) {
+    private void checkTypeParamExpr(BLangExpression arg, SymbolEnv env, BType expectedType,
+                                    boolean inferTypeForNumericLiteral) {
 
         if (typeParamAnalyzer.notRequireTypeParams(env)) {
             checkExpr(arg, env, expectedType);
             return;
         }
-        if (requireTypeInference(arg, langlibInvocation)) {
+        if (requireTypeInference(arg, inferTypeForNumericLiteral)) {
             // Need to infer the type. Calculate matching bound type, with no type.
             BType expType = typeParamAnalyzer.getMatchingBoundType(expectedType, env);
             BType inferredType = checkExpr(arg, env, expType);
@@ -3763,17 +3764,17 @@ public class TypeChecker extends BLangNodeVisitor {
         typeParamAnalyzer.checkForTypeParamsInArg(arg.type, this.env, expectedType);
     }
 
-    private boolean requireTypeInference(BLangExpression expr, boolean langlibInvocation) {
+    private boolean requireTypeInference(BLangExpression expr, boolean inferTypeForNumericLiteral) {
 
         switch (expr.getKind()) {
             case GROUP_EXPR:
-                return requireTypeInference(((BLangGroupExpr) expr).expression, langlibInvocation);
+                return requireTypeInference(((BLangGroupExpr) expr).expression, inferTypeForNumericLiteral);
             case ARROW_EXPR:
             case LIST_CONSTRUCTOR_EXPR:
             case RECORD_LITERAL_EXPR:
                 return true;
             case NUMERIC_LITERAL:
-                return langlibInvocation;
+                return inferTypeForNumericLiteral;
             default:
                 return false;
         }

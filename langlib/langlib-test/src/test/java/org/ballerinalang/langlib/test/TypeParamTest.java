@@ -66,6 +66,17 @@ public class TypeParamTest {
         BRunUtil.invoke(result, "testMapFunctionInfer");
     }
 
+    @Test(description = "Tests for the bound type as the contextually expected type for arguments")
+    public void testBoundTypeAsCET() {
+
+        CompileResult result = BCompileUtil.compile("test-src/type-param/type_param_bound_type_as_cet.bal");
+        Assert.assertEquals(result.getErrorCount(), 0);
+        BRunUtil.invoke(result, "testBoundRestParamAsCET");
+        BRunUtil.invoke(result, "testIntLiteralAsByte");
+        BRunUtil.invoke(result, "testIntAndFloatLiteralAsDecimal");
+        BRunUtil.invoke(result, "testBroadTypeAsCET");
+    }
+
     @Test
     public void testLangLibImports() {
 
