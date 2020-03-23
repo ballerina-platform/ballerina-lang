@@ -733,6 +733,11 @@ public class XMLFactory {
     }
 
 
+    /**
+     * Replace xml text escape sequences with appropriate character.
+     *
+     * @since 1.2
+     */
     public static class XMLTextUnescape {
         public static String unescape(String str) {
             return unescape(str.getBytes(StandardCharsets.UTF_8));
