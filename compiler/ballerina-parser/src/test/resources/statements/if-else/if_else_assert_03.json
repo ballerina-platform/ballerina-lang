@@ -1,0 +1,83 @@
+{
+    "kind": "FUNCTION_DEFINITION",
+    "children": [
+        {
+            "kind": "PUBLIC_KEYWORD"
+        },
+        {
+            "kind": "FUNCTION_KEYWORD"
+        },
+        {
+            "kind": "IDENTIFIER_TOKEN",
+            "value": "foo"
+        },
+        {
+            "kind": "OPEN_PAREN_TOKEN"
+        },
+        {
+            "kind": "LIST",
+            "children": [
+            ]
+        },
+        {
+            "kind": "CLOSE_PAREN_TOKEN"
+        },
+        {
+            "kind": "BLOCK_STATEMENT",
+            "children": [
+                {
+                    "kind": "OPEN_BRACE_TOKEN"
+                },
+                {
+                    "kind": "LIST",
+                    "children": [
+                        {
+                            "kind": "IF_ELSE_STATEMENT",
+                            "children": [
+                                {
+                                    "kind": "IF_KEYWORD"
+                                },
+                                {
+                                    "kind": "BRACED_EXPRESSION",
+                                    "children": [
+                                        {
+                                            "kind": "OPEN_PAREN_TOKEN"
+                                        },
+                                        {
+                                            "kind": "IDENTIFIER_TOKEN",
+                                            "value": "a"
+                                        },
+                                        {
+                                            "kind": "CLOSE_PAREN_TOKEN"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "kind": "BLOCK_STATEMENT",
+                                    "children": [
+                                        {
+                                            "kind": "OPEN_BRACE_TOKEN",
+                                            "isMissing": true
+                                        },
+                                        {
+                                            "kind": "LIST",
+                                            "children": [
+                                            ]
+                                        },
+                                        {
+                                            "kind": "CLOSE_BRACE_TOKEN"
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "kind": "CLOSE_BRACE_TOKEN",
+                    "isMissing": true
+                }
+            ]
+        }
+    ]
+}

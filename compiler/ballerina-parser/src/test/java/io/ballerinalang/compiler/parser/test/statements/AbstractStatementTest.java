@@ -30,4 +30,9 @@ public class AbstractStatementTest {
     void test(String source, String filePath) {
         ParserTestUtils.test(source, ParserRuleContext.STATEMENT, Paths.get("statements/", filePath));
     }
+
+    void testFile(String path, String filePath) {
+        ParserTestUtils.test(Paths.get("statements/", path), ParserRuleContext.TOP_LEVEL_NODE_WITH_MODIFIER,
+                Paths.get("statements/", filePath));
+    }
 }

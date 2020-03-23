@@ -209,6 +209,12 @@ public class ParserTestUtils {
                 return SyntaxKind.CLIENT_KEYWORD;
             case "ABSTRACT_KEYWORD":
                 return SyntaxKind.ABSTRACT_KEYWORD;
+            case "IF_KEYWORD":
+                return SyntaxKind.IF_KEYWORD;
+            case "ELSE_KEYWORD":
+                return SyntaxKind.ELSE_KEYWORD;
+            case "WHILE_KEYWORD":
+                return SyntaxKind.WHILE_KEYWORD;
 
             // Operators
             case "PLUS_TOKEN":
@@ -301,6 +307,10 @@ public class ParserTestUtils {
                 return SyntaxKind.LOCAL_VARIABLE_DECL;
             case "ASSIGNMENT_STATEMENT":
                 return SyntaxKind.ASSIGNMENT_STATEMENT;
+            case "IF_ELSE_STATEMENT":
+                return SyntaxKind.IF_ELSE_STATEMENT;
+            case "ELSE_BLOCK":
+                return SyntaxKind.ELSE_BLOCK;
 
             // Others
             case "SIMPLE_TYPE":
