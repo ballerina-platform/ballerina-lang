@@ -300,7 +300,7 @@ public class ArrayValueImpl extends AbstractArrayValue {
         if (byteValues != null) {
             return byteValues[(int) index];
         }
-        return (Byte) refValues[(int) index];
+        return ((Integer) refValues[(int) index]).byteValue();
     }
 
     /**
@@ -1069,9 +1069,8 @@ public class ArrayValueImpl extends AbstractArrayValue {
 
     private void addToByteArray(ArrayValue vals, int startIndex) {
         int endIndex = startIndex + vals.size();
-        byte[] bytes = vals.getBytes();
         for (int i = startIndex, j = 0; i < endIndex; i++, j++) {
-            this.byteValues[i] = bytes[j];
+            add(i, vals.getByte(j));
         }
     }
 
