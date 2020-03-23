@@ -38,7 +38,7 @@ export const Return: React.StatelessComponent<{
                 target: model,
                 text: viewState.bBox.label,
                 x: returnLine.x2 + config.statement.padding.left,
-                y: viewState.bBox.y + (viewState.bBox.h / 2) + (config.statement.height / 2) + 2
+                y: viewState.bBox.y + (viewState.bBox.h / 2)
             };
 
             const direction = returnLine.x1 > returnLine.x2 ? "left" : "right";
@@ -59,8 +59,7 @@ export const Return: React.StatelessComponent<{
 function getReturnLine(modelVS: ReturnViewState | StmntViewState, callerVS: ViewState) {
     const returnLine = { x1: 1, y1: 0, x2: 0, y2: 0 };
     returnLine.x1 = modelVS.bBox.x;
-    returnLine.y1 = returnLine.y2 = modelVS.bBox.y + config.statement.height
-    + (config.statement.height / 2) + 2;
+    returnLine.y1 = returnLine.y2 = modelVS.bBox.y + config.statement.height;
     returnLine.x2 = callerVS.bBox.x + (callerVS.bBox.w / 2);
 
     if (modelVS.isAction) {
