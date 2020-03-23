@@ -251,7 +251,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.Stack;
 import java.util.stream.Collectors;
-
 import javax.xml.XMLConstants;
 
 import static org.wso2.ballerinalang.compiler.desugar.ASTBuilderUtil.createBlockStmt;
@@ -2853,8 +2852,8 @@ public class Desugar extends BLangNodeVisitor {
                 foreach.nillableResultType, this.env.scope.owner);
 
         // Note - map<T>? $result$ = $iterator$.next();
-        BLangSimpleVariableDef resultVariableDefinition = getIteratorNextVariableDefinition(foreach, iteratorSymbol,
-                resultSymbol);
+        BLangSimpleVariableDef resultVariableDefinition = getIteratorNextVariableDefinition(foreach.pos,
+                foreach.nillableResultType, iteratorSymbol, resultSymbol);
 
         // Note - $result$ != ()
         BLangType userDefineType = getUserDefineTypeNode(foreach.resultType);
@@ -2874,7 +2873,7 @@ public class Desugar extends BLangNodeVisitor {
         // Generate $result$.value
         // However, we are within the while loop. hence the $result$ can never be nil nor error.
         // Therefore cast $result$ to non-nilable type. i.e `int item = <>$result$.value;`
-        BLangFieldBasedAccess valueAccessExpr = getValueAccessExpression(foreach, resultSymbol);
+        BLangFieldBasedAccess valueAccessExpr = getValueAccessExpression(foreach.pos, foreach.varType, resultSymbol);
         valueAccessExpr.expr = addConversionExprIfRequired(valueAccessExpr.expr,
                 types.getSafeType(valueAccessExpr.expr.type, true, false));
         variableDefinitionNode.getVariable()
@@ -4786,13 +4785,13 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     // Foreach desugar helper method.
-    private BLangSimpleVariableDef getIteratorNextVariableDefinition(BLangForeach foreach,
+    BLangSimpleVariableDef getIteratorNextVariableDefinition(DiagnosticPos pos, BType nillableResultType,
                                                                      BVarSymbol iteratorSymbol,
                                                                      BVarSymbol resultSymbol) {
-        BLangInvocation nextInvocation = createIteratorNextInvocation(foreach.pos, iteratorSymbol);
-        BLangSimpleVariable resultVariable = ASTBuilderUtil.createVariable(foreach.pos, "$result$",
-                foreach.nillableResultType, nextInvocation, resultSymbol);
-        return ASTBuilderUtil.createVariableDef(foreach.pos, resultVariable);
+        BLangInvocation nextInvocation = createIteratorNextInvocation(pos, iteratorSymbol);
+        BLangSimpleVariable resultVariable = ASTBuilderUtil.createVariable(pos, "$result$",
+                nillableResultType, nextInvocation, resultSymbol);
+        return ASTBuilderUtil.createVariableDef(pos, resultVariable);
     }
 
     // Foreach desugar helper method.
@@ -4835,14 +4834,14 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     // Foreach desugar helper method.
-    private BLangFieldBasedAccess getValueAccessExpression(BLangForeach foreach, BVarSymbol resultSymbol) {
-        BLangSimpleVarRef resultReferenceInVariableDef = ASTBuilderUtil.createVariableRef(foreach.pos, resultSymbol);
-        BLangIdentifier valueIdentifier = ASTBuilderUtil.createIdentifier(foreach.pos, "value");
+    BLangFieldBasedAccess getValueAccessExpression(DiagnosticPos pos, BType varType, BVarSymbol resultSymbol) {
+        BLangSimpleVarRef resultReferenceInVariableDef = ASTBuilderUtil.createVariableRef(pos, resultSymbol);
+        BLangIdentifier valueIdentifier = ASTBuilderUtil.createIdentifier(pos, "value");
 
         BLangFieldBasedAccess fieldBasedAccessExpression =
                 ASTBuilderUtil.createFieldAccessExpr(resultReferenceInVariableDef, valueIdentifier);
-        fieldBasedAccessExpression.pos = foreach.pos;
-        fieldBasedAccessExpression.type = foreach.varType;
+        fieldBasedAccessExpression.pos = pos;
+        fieldBasedAccessExpression.type = varType;
         fieldBasedAccessExpression.originalType = fieldBasedAccessExpression.type;
         return fieldBasedAccessExpression;
     }

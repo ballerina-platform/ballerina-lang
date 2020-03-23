@@ -2854,7 +2854,8 @@ public class TypeChecker extends BLangNodeVisitor {
                 actualType = BUnionType.create(null, actualType, errorType);
             }
         }
-        resultType = types.checkType(queryExpr.pos, actualType, expType, DiagnosticCode.INCOMPATIBLE_TYPES);
+        resultType = selectType == symTable.semanticError ? selectType :
+                types.checkType(queryExpr.pos, actualType, expType, DiagnosticCode.INCOMPATIBLE_TYPES);
     }
 
     @Override
