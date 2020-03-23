@@ -27,6 +27,7 @@ import org.ballerinalang.model.elements.TableColumnFlag;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
+import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.expressions.NamedArgNode;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
 import org.ballerinalang.model.types.TypeKind;
@@ -2817,7 +2818,9 @@ public class TypeChecker extends BLangNodeVisitor {
         List<? extends FromClauseNode> fromClauseList = queryExpr.fromClauseList;
         List<? extends WhereClauseNode> whereClauseList = queryExpr.whereClauseList;
         List<? extends LetClauseNode> letClauseList = queryExpr.letClausesList;
+        ExpressionNode collectionNode = fromClauseList.get(0).getCollection();
         SymbolEnv parentEnv = env;
+        BErrorType errorType = null;
         for (FromClauseNode fromClause : fromClauseList) {
             parentEnv = typeCheckFromClause((BLangFromClause) fromClause, parentEnv);
         }
@@ -2844,17 +2847,20 @@ public class TypeChecker extends BLangNodeVisitor {
             }
             expSelectType = nilRemovedSet.size() == 1 ? nilRemovedSet.iterator().next() :
                     BUnionType.create(null, nilRemovedSet);
-            if(expSelectType.tag == TypeTags.ARRAY ) {
-                expSelectType = ((BArrayType)expSelectType).eType;
+            if (expSelectType.tag == TypeTags.ARRAY) {
+                expSelectType = ((BArrayType) expSelectType).eType;
             }
         }
         BType selectType = checkExpr(selectClause.expression, whereEnv, expSelectType);
         BType actualType = new BArrayType(selectType);
-        if (expType.tag == TypeTags.UNION) {
-            actualType = BUnionType.create(null, new BArrayType(selectType), symTable.errorType,
-                    symTable.nilType);
+        if ((collectionNode instanceof BLangSimpleVarRef) &&
+                (((BLangSimpleVarRef) collectionNode).type instanceof BStreamType)) {
+            errorType = (BErrorType) ((BStreamType) ((BLangSimpleVarRef) collectionNode).type).error;
+            if (errorType != null) {
+                actualType = BUnionType.create(null, actualType, errorType);
+            }
         }
-        resultType = selectType == symTable.semanticError ? selectType : actualType;
+        resultType = types.checkType(queryExpr.pos, actualType, expType, DiagnosticCode.INCOMPATIBLE_TYPES);
     }
 
     @Override
