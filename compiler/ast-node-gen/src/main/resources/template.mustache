@@ -1,0 +1,23 @@
+{{package}}
+{{imports}}
+public {{abstract}} class {{className}}{{type}} {{relationship}} {{parentClass}}{
+{{#attributes}}public final {{type}} {name}}{{/attributes}}
+public {{className}}(SyntaxKind kind {{#paramList}}, name{{/paramList}}){
+super(kind {{immediateParent}});
+{{#paramInit}}this.name=name;
+{{/paramInit}}
+this.bucketCount = {{bucketCount}};
+this.childBuckets = new SyntaxNode[{{bucketCount}}];
+{{#addChildNode}}this.addChildNode({{name}}, {{index}}){{/addChildNode}};
+}
+public {{className}}(SyntaxKind kind, int width {{#paramList}}, name{{/paramList}}) {
+super(kind, width {{immediateParent}});
+{{#paramInit}}this.name=name;
+{{/paramInit}}
+this.bucketCount = {{bucketCount}};
+this.childBuckets = new SyntaxNode[{{bucketCount}}];
+{{#addChildNode}}this.addChildNode({{name}}, {{index}}){{/addChildNode}};
+}
+$toStringFunction
+$facadeFunction
+}

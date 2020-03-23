@@ -1,8 +1,0 @@
-$package
-$imports
-public $abstract class $className$type $relationship $parentClass{
-$attributes
-$constructors
-$facadeMember
-$childFunction
-}
