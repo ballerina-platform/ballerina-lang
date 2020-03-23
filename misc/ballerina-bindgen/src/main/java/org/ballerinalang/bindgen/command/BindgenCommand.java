@@ -19,8 +19,6 @@ package org.ballerinalang.bindgen.command;
 
 import org.ballerinalang.bindgen.exceptions.BindgenException;
 import org.ballerinalang.tool.BLauncherCmd;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import picocli.CommandLine;
 
 import java.io.PrintStream;
@@ -38,7 +36,6 @@ import static org.ballerinalang.bindgen.utils.BindgenConstants.COMPONENT_IDENTIF
         description = "A CLI tool for generating Ballerina bindings for Java APIs.")
 public class BindgenCommand implements BLauncherCmd {
 
-    private static final Logger LOG = LoggerFactory.getLogger(BindgenCommand.class);
     private static final PrintStream outStream = System.out;
     private static final PrintStream outError = System.err;
 
@@ -61,12 +58,13 @@ public class BindgenCommand implements BLauncherCmd {
     private List<String> classNames;
 
     private static final String BINDGEN_CMD = "ballerina bindgen [(-cp|--classpath) <classpath>...]\n" +
-            "                         [(-o|--output) <output>]\n" +
-            "                         (<class-name>...|<package-name>...)";
+            "                  [(-o|--output) <output>]\n" +
+            "                  (<class-name>...)";
 
     @Override
     public void execute() {
 
+        outStream.println("\nNote: This is an experimental tool.\n");
         //Help flag check
         if (helpFlag) {
             String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(getName());
@@ -77,6 +75,7 @@ public class BindgenCommand implements BLauncherCmd {
         if (classNames == null) {
             outError.println("One or more class names for bindings generation should be specified.");
             outStream.println(BINDGEN_CMD);
+            outStream.println("\nUse 'ballerina bindgen --help' for more information on the command.");
             return;
         }
 

@@ -1,9 +1,6 @@
 # To start the service, navigate to the directory that contains the
-# `.bal` file and use the `ballerina build` command.
-$ ballerina build websocket_basic_sample.bal
-
-# Run the sample using the `run` command on the jar file generated:
-$ ballerina run  websocket_basic_sample-executable.jar
+# `.bal` file and execute the `ballerina run` command.
+$ ballerina run websocket_basic_sample.bal
 
 # To check the sample, use a Chrome or Firefox JavaScript console and run the following commands. <br>
 # Change `xml` to another sub protocol to observe the behavior of the WebSocket server.

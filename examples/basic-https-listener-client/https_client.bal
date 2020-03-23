@@ -1,3 +1,4 @@
+import ballerina/config;
 import ballerina/http;
 import ballerina/log;
 
@@ -7,7 +8,7 @@ import ballerina/log;
 http:ClientConfiguration clientEPConfig = {
     secureSocket: {
         trustStore: {
-            path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
+            path: config:getAsString("b7a.home") +  "bre/security/ballerinaTruststore.p12",
             password: "ballerina"
         }
     }

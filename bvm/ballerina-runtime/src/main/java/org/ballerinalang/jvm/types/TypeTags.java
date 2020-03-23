@@ -70,6 +70,10 @@ public class TypeTags {
     public static final int UNSIGNED16_INT_TAG = UNSIGNED32_INT_TAG + 1;
     public static final int UNSIGNED8_INT_TAG = UNSIGNED16_INT_TAG + 1;
     public static final int CHAR_STRING_TAG = UNSIGNED8_INT_TAG + 1;
+    public static final int XML_ELEMENT_TAG = CHAR_STRING_TAG + 1;
+    public static final int XML_PI_TAG = XML_ELEMENT_TAG + 1;
+    public static final int XML_COMMENT_TAG = XML_PI_TAG + 1;
+    public static final int XML_TEXT_TAG = XML_COMMENT_TAG + 1;
 
     public static boolean isIntegerTypeTag(int tag) {
 
@@ -82,6 +86,19 @@ public class TypeTags {
             case UNSIGNED32_INT_TAG:
             case UNSIGNED16_INT_TAG:
             case UNSIGNED8_INT_TAG:
+                return true;
+        }
+        return false;
+    }
+
+    public static boolean isXMLTypeTag(int tag) {
+
+        switch (tag) {
+            case XML_TAG:
+            case XML_ELEMENT_TAG:
+            case XML_COMMENT_TAG:
+            case XML_PI_TAG:
+            case XML_TEXT_TAG:
                 return true;
         }
         return false;

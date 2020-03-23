@@ -244,11 +244,11 @@ function startWebSubHub() returns websub:Hub {
                 },
                 secureSocket: {
                     keyStore: {
-                        path: "${ballerina.home}/bre/security/ballerinaKeystore.p12",
+                        path: config:getAsString("keystore"),
                         password: "ballerina"
                     },
                     trustStore: {
-                        path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
+                        path: config:getAsString("truststore"),
                         password: "ballerina"
                     }
                 }

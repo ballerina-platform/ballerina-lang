@@ -127,8 +127,8 @@ public function removeAll((any|error)[] arr) returns () = external;
 public function setLength((any|error)[] arr, int length) returns () = external;
 
 # Returns the index of first member of `arr` that is equal to `val` if there is one.
-# Returns `()` if not found
-# Equality is tested using `==`
+# Returns `()` if not found.
+# Equality is tested using `==`.
 #
 # + arr - the array
 # + val - member to search for

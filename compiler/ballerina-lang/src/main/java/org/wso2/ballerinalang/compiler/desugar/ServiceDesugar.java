@@ -86,14 +86,16 @@ public class ServiceDesugar {
         this.httpFiltersDesugar = HttpFiltersDesugar.getInstance(context);
     }
 
-    void rewriteListeners(List<BLangSimpleVariable> variables, SymbolEnv env) {
+    void rewriteListeners(List<BLangSimpleVariable> variables, SymbolEnv env, BLangFunction startFunction,
+                          BLangFunction stopFunction) {
         variables.stream().filter(varNode -> Symbols.isFlagOn(varNode.symbol.flags, Flags.LISTENER))
-                .forEach(varNode -> rewriteListener(varNode, env));
+                .forEach(varNode -> rewriteListener(varNode, env, startFunction, stopFunction));
     }
 
-    private void rewriteListener(BLangSimpleVariable variable, SymbolEnv env) {
-        rewriteListenerLifeCycleFunction(env.enclPkg.startFunction, variable, env, START_METHOD);
-        rewriteListenerLifeCycleFunction(env.enclPkg.stopFunction, variable, env, GRACEFUL_STOP);
+    private void rewriteListener(BLangSimpleVariable variable, SymbolEnv env, BLangFunction startFunction,
+                                 BLangFunction stopFunction) {
+        rewriteListenerLifeCycleFunction(startFunction, variable, env, START_METHOD);
+        rewriteListenerLifeCycleFunction(stopFunction, variable, env, GRACEFUL_STOP);
     }
 
     private void rewriteListenerLifeCycleFunction(BLangFunction lifeCycleFunction, BLangSimpleVariable variable,
@@ -117,10 +119,6 @@ public class ServiceDesugar {
         // Create method invocation
         addMethodInvocation(pos, varRef, methodInvocationSymbol, Collections.emptyList(), Collections.emptyList(),
                             (BLangBlockFunctionBody) lifeCycleFunction.body);
-    }
-
-    void rewriteServiceAttachments(BLangBlockStmt serviceAttachments, SymbolEnv env) {
-        ASTBuilderUtil.appendStatements(serviceAttachments, (BLangBlockFunctionBody) env.enclPkg.initFunction.body);
     }
 
     BLangBlockStmt rewriteServiceVariables(List<BLangService> services, SymbolEnv env) {

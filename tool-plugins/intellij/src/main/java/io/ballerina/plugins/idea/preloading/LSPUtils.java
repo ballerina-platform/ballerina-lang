@@ -30,6 +30,7 @@ import io.ballerina.plugins.idea.sdk.BallerinaSdkUtils;
 import io.ballerina.plugins.idea.settings.autodetect.BallerinaAutoDetectionSettings;
 import io.ballerina.plugins.idea.settings.experimental.BallerinaExperimentalFeatureSettings;
 import io.ballerina.plugins.idea.settings.langserverlogs.LangServerLogsSettings;
+import io.ballerina.plugins.idea.settings.soucenavigation.BallerinaSourceNavigationSettings;
 import org.eclipse.lsp4j.DidChangeConfigurationParams;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -78,7 +79,7 @@ public class LSPUtils {
 
         Pair<String, Boolean> balSdk;
         try {
-            balSdk = getOrDetectBalSdkHome(project);
+            balSdk = getOrDetectBalSdkHome(project, false);
         } catch (BallerinaCmdException e) {
             LOG.warn("unexpected error occurred when notifying plugin config changes to language server.", e);
             return false;
@@ -96,19 +97,13 @@ public class LSPUtils {
             return false;
         }
 
+        // Checks user-configurable settings and sets flags accordingly.
         LSClientConfig clientConfig = new LSClientConfig();
-        if (BallerinaExperimentalFeatureSettings.getInstance(project).isAllowedExperimental()) {
-            clientConfig.setAllowExperimental(true);
-            clientConfig.setGoToDefStdLibs(true);
-        }
-        // Checks user-configurable setting for allowing language server debug logs and sets the flag accordingly.
-        if (LangServerLogsSettings.getInstance(project).isLangServerDebugLogsEnabled()) {
-            clientConfig.setDebugLog(true);
-        }
-        // Checks user-configurable setting for allowing language server trace logs and sets the flag accordingly.
-        if (LangServerLogsSettings.getInstance(project).isLangServerTraceLogsEnabled()) {
-            clientConfig.setTraceLog(true);
-        }
+        clientConfig.setAllowExperimental(BallerinaExperimentalFeatureSettings.getInstance(project)
+                .isAllowedExperimental());
+        clientConfig.setDebugLog(LangServerLogsSettings.getInstance(project).isLangServerDebugLogsEnabled());
+        clientConfig.setTraceLog(LangServerLogsSettings.getInstance(project).isLangServerTraceLogsEnabled());
+        clientConfig.setGoToDefStdLibs(BallerinaSourceNavigationSettings.getInstance(project).isEnableStdlibGotoDef());
 
         IntellijLanguageClient.didChangeConfiguration(new DidChangeConfigurationParams(clientConfig), project);
         return true;
@@ -128,7 +123,7 @@ public class LSPUtils {
 
         Pair<String, Boolean> balSdk;
         try {
-            balSdk = getOrDetectBalSdkHome(project);
+            balSdk = getOrDetectBalSdkHome(project, true);
 
             String balSdkPath = balSdk.first;
             boolean autoDetected = balSdk.second;
@@ -176,7 +171,7 @@ public class LSPUtils {
      * @param project Project instance.
      * @return SDK location path string and a flag which indicates whether the location is auto detected.
      */
-    public static Pair<String, Boolean> getOrDetectBalSdkHome(Project project) throws BallerinaCmdException {
+    public static Pair<String, Boolean> getOrDetectBalSdkHome(Project project, boolean verboseMode) throws BallerinaCmdException {
 
         //If the project does not have a ballerina SDK attached, ballerinaSdkPath will be null.
         BallerinaSdk balSdk = BallerinaSdkUtils.getBallerinaSdkFor(project);
@@ -185,8 +180,10 @@ public class LSPUtils {
         if (balSdkPath != null) {
             return new Pair<>(balSdkPath, false);
         } else if (BallerinaAutoDetectionSettings.getInstance(project).isAutoDetectionEnabled()) {
-            showInIdeaEventLog(project, String.format("No ballerina SDK is found for project: %s\n " +
-                    "Trying to Auto detect Ballerina Home...", project.getBasePath()));
+            if (verboseMode) {
+                showInIdeaEventLog(project, String.format("No ballerina SDK is found for project: %s\n " +
+                        "Trying to Auto detect Ballerina Home...", project.getBasePath()));
+            }
             // If a ballerina SDK is not configured for the project, Plugin tries to auto detect the ballerina SDK.
             balSdkPath = BallerinaSdkUtils.autoDetectSdk(project);
             return new Pair<>(balSdkPath, true);
@@ -267,7 +264,6 @@ public class LSPUtils {
         // Checks user-configurable setting for allowing ballerina experimental features and sets the flag accordingly.
         if (BallerinaExperimentalFeatureSettings.getInstance(project).isAllowedExperimental()) {
             cmdProcessBuilder.environment().put(ENV_EXPERIMENTAL, "true");
-            cmdProcessBuilder.environment().put(ENV_DEF_STDLIBS, "true");
         }
 
         // Checks user-configurable setting for allowing language server debug logs and sets the flag accordingly.
@@ -278,6 +274,10 @@ public class LSPUtils {
         // Checks user-configurable setting for allowing language server trace logs and sets the flag accordingly.
         if (LangServerLogsSettings.getInstance(project).isLangServerTraceLogsEnabled()) {
             cmdProcessBuilder.environment().put(ENV_TRACE_LOG, "true");
+        }
+
+        if (BallerinaSourceNavigationSettings.getInstance(project).isEnableStdlibGotoDef()) {
+            cmdProcessBuilder.environment().put(ENV_DEF_STDLIBS, "true");
         }
 
         return cmdProcessBuilder;

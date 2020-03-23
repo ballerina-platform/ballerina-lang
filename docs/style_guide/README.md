@@ -155,7 +155,7 @@ Separate both statements and top level definitions by zero or one blank lines.
   
   Example,
   ```ballerina
-  int | () result = getResult();
+  int|() result = getResult();
   ```
   
 ### Line breaks
@@ -233,7 +233,7 @@ Separate both statements and top level definitions by zero or one blank lines.
       
       Example,
       ```ballerina
-      map<int | string> registry = {
+      map<int|string> registry = {
           name: "marcus"
       };
       

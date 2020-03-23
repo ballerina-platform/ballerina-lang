@@ -132,7 +132,7 @@ Now that you have added a service, you need a connector to connect to the extern
 
     ![alt text](../images/JSONName.png)
 1. Add a variable from the tool palette to the main function in the canvas.
-    ![alt text](../images/JSONVariable.gif)
+    ![alt text](../images/JsonVariable.gif)
 1. Modify the variable so that you can get the data under list. In this example, `.list` is a JSON path. 
      ```
      json bookList = j.items

@@ -37,6 +37,7 @@ import java.io.IOException;
  *
  * @since 0.955.0
  */
+@Test
 public class XMLTest {
 
     private CompileResult compileResult;
@@ -62,10 +63,6 @@ public class XMLTest {
         Assert.assertEquals(result[2].stringValue(), "active");
         Assert.assertEquals(result[3].stringValue(),
                 "<ns1:bar1 xmlns:ns1=\"http://ballerinalang.org/\">hello1</ns1:bar1><bar2>hello2</bar2>");
-        Assert.assertEquals(result[4].stringValue(),
-                "<ns1:bar1 xmlns:ns1=\"http://ballerinalang.org/\">hello1</ns1:bar1>");
-        Assert.assertEquals(result[5].stringValue(),
-                "<ns1:bar1 xmlns:ns1=\"http://ballerinalang.org/\">hello1</ns1:bar1>");
     }
 
     @Test
@@ -101,7 +98,7 @@ public class XMLTest {
 
         Assert.assertTrue(returns[2] instanceof BXML);
         Assert.assertEquals(returns[2].stringValue(),
-                "<ns1:root xmlns:ns1=\"http://ballerina.com/b\" xmlns=\"http://ballerina.com/\">hello</ns1:root>");
+                "<ns1:root xmlns:ns1=\"http://ballerina.com/b\">hello</ns1:root>");
     }
 
     @Test
