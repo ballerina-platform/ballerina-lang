@@ -25,5 +25,9 @@ function localVarRefTest() {
     record {
         string name;
         int age = x;
-    } person = {name: "Jane Doe"};
+    } person2 = {name: "Jane Doe"};
+
+    record {
+        int marks = let int e = 3, int z = 5 in z * e + x;
+    } student = {};
 }
