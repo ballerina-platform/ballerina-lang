@@ -23,52 +23,27 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 /**
- * Tests for the generateNewXML* functions for StringValue.
+ * Test BString support in Object.
  */
-public class StringValueXmlTest extends BStringTestCommons {
+public class BStringObjectTest extends BStringTestCommons {
 
     @BeforeClass
     public void setup() {
-        result = BCompileUtil.compile("test-src/types/string/string-value-xml-test.bal");
+        result = BCompileUtil.compile("test-src/types/string/bstring-object-test.bal");
     }
 
     @Test
-    public void testXmlComment() {
-        testAndAssert("testXmlComment", 12);
+    public void testObjectAccess() {
+        testAndAssert("testObjectAccess", 12);
     }
 
     @Test
-    public void testXmlQName() {
-        testAndAssert("testXmlQName", 13);
+    public void testObjectInitialization() {
+        testAndAssert("testObjectInitialization", 11);
     }
 
     @Test
-    public void testXmlText() {
-        testAndAssert("testXmlText", 19);
-    }
-
-    @Test
-    public void testXmlProcessingIns() {
-        testAndAssert("testXmlProcessingIns", 12);
-    }
-
-    @Test
-    public void testXmlStr() {
-        testAndAssert("testXmlStr", 8);
-    }
-
-    @Test
-    public void testComplexXml() {
-        testAndAssert("testComplexXml", 202);
-    }
-
-    @Test
-    public void testXmlNamespace() {
-        testAndAssert("testXmlNamespace", 364);
-    }
-
-    @Test
-    public void testXmlInterpolation() {
-        testAndAssert("testXmlInterpolation", 249);
+    public void testObjectSet() {
+        testAndAssert("testObjectSet", 8);
     }
 }
