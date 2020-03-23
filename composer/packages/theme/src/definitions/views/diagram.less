@@ -267,7 +267,7 @@
                 .frame-border {
                     fill: none;
                     stroke-width: 1px;
-                    stroke: ~"@{@{color}-diagram-expanded-func-frame-color}";
+                    stroke: @gray;
                 }
                 .statement {
                     pointer-events: all;
@@ -477,8 +477,9 @@
                     }
                     .expanded-func {
                         .frame {
-                            stroke: ~"@{@{color}-diagram-expanded-func-frame-color}";
+                            stroke: ~"@{@{color}-diagram-expanded-hidden-block-frame-color}";
                             fill: none;
+                            stroke-width: 1.5;
                         }
                         .func-name {
                             font-weight: bold;
@@ -489,8 +490,18 @@
                             font-size: 12px;
                         }
                         .life-line {
-                            stroke: ~"@{@{color}-diagram-condition-line-stroke-color}";
-                            stroke-width: @diagram-life-line-stroke-width;
+                            
+                            &.life-line-worker {
+                                stroke:  ~"@{@{color}-diagram-life-line-worker-stroke-color}";
+                                color: ~"@{@{color}-diagram-life-line-worker-stroke-color}";
+                                stroke-width: 2px;
+                            }
+
+                            &.life-line-endpoint {
+                                    stroke: ~"@{@{color}-diagram-life-line-endpoint-stroke-color}";
+                                    color: ~"@{@{color}-diagram-life-line-endpoint-stroke-color}";
+                                    stroke-width: 2px;
+                            }
                         }
                     }
                     .expanded-hidden-block {
