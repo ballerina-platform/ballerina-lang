@@ -115,6 +115,7 @@ public class TokensUtil {
         }
         boolean defaultChannel = nextToken.getChannel() == Token.DEFAULT_CHANNEL;
         boolean isARecordStart = nextToken.getType() == BallerinaParser.LEFT_BRACE;
+        boolean isACastStart = nextToken.getType() == BallerinaParser.LT;
         boolean isAnArrayStart = nextToken.getType() == BallerinaParser.LEFT_BRACKET;
         boolean isAFunction = nextToken.getType() == BallerinaParser.FUNCTION;
         boolean isALiteral = nextToken.getType() == BallerinaParser.DecimalIntegerLiteral ||
@@ -130,7 +131,7 @@ public class TokensUtil {
                 nextToken.getType() == BallerinaParser.XMLLiteralStart ||
                 nextToken.getType() == BallerinaParser.StringTemplateLiteralStart;
         return defaultChannel &&
-                ((findLiterals && (isARecordStart || isAnArrayStart || isAFunction || isALiteral)) ||
+                ((findLiterals && (isACastStart || isARecordStart || isAnArrayStart || isAFunction || isALiteral)) ||
                         nextToken.getType() == BallerinaParser.Identifier);
     }
 
