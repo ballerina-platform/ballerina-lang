@@ -16,7 +16,7 @@
 package org.ballerinalang.observe.trace.extension.choreo;
 
 import io.jaegertracing.internal.JaegerTracer;
-import io.jaegertracing.internal.samplers.ConstSampler;
+import io.jaegertracing.internal.samplers.GuaranteedThroughputSampler;
 import io.opentracing.Tracer;
 import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.observability.tracer.OpenTracer;
@@ -58,7 +58,7 @@ public class OpenTracerExtension implements OpenTracer {
         }
 
         return new JaegerTracer.Builder(serviceName)
-                .withSampler(new ConstSampler(true))
+                .withSampler(new GuaranteedThroughputSampler(0.01, 0.1))
                 .withReporter(new ChoreoJaegerReporter(2000))
                 .build();
     }
