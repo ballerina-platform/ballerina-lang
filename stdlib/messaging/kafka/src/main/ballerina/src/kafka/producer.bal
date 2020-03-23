@@ -152,13 +152,6 @@ public type Producer client object {
                             "provide 'schemaRegistryUrl' configuration in 'kafka:ProducerConfiguration'.");
             }
         }
-        if (self.valueSerializerType == SER_AVRO) {
-            var schemaRegistryUrl = config?.schemaRegistryUrl;
-            if (schemaRegistryUrl is ()) {
-                panic error(PRODUCER_ERROR, message = "Missing schema registry URL for the Avro serializer. Please " +
-                            "provide 'schemaRegistryUrl' configuration in 'kafka:ProducerConfiguration'.");
-            }
-        }
         if (self.valueSerializerType == SER_CUSTOM) {
             var valueSerializerObject = config?.valueSerializer;
             if (valueSerializerObject is ()) {
@@ -166,6 +159,13 @@ public type Producer client object {
                             "valid custom serializer for the valueSerializer");
             } else {
                 self.valueSerializer = valueSerializerObject;
+            }
+        }
+        if (self.valueSerializerType == SER_AVRO) {
+            var schemaRegistryUrl = config?.schemaRegistryUrl;
+            if (schemaRegistryUrl is ()) {
+                panic error(PRODUCER_ERROR, message = "Missing schema registry URL for the Avro serializer. Please " +
+                            "provide 'schemaRegistryUrl' configuration in 'kafka:ProducerConfiguration'.");
             }
         }
         checkpanic producerInit(self);
