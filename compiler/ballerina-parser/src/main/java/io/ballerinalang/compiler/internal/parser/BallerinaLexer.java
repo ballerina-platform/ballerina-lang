@@ -458,6 +458,13 @@ public class BallerinaLexer {
             case LexerTerminals.FLOAT:
             case LexerTerminals.STRING:
             case LexerTerminals.BOOLEAN:
+            case LexerTerminals.DECIMAL:
+            case LexerTerminals.XML:
+            case LexerTerminals.JSON:
+            case LexerTerminals.HANDLE:
+            case LexerTerminals.ANY:
+            case LexerTerminals.ANYDATA:
+            case LexerTerminals.SERVICE:
                 return getTypeToken(tokenText);
             case LexerTerminals.RETURN:
                 return getSyntaxToken(SyntaxKind.RETURNS_KEYWORD);

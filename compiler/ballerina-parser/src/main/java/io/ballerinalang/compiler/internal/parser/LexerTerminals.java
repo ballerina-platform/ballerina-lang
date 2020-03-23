@@ -43,6 +43,14 @@ public class LexerTerminals {
     public static final String FLOAT = "float";
     public static final String STRING = "string";
     public static final String BOOLEAN = "boolean";
+    public static final String DECIMAL = "decimal";
+    public static final String XML = "xml";
+    public static final String JSON = "json";
+    public static final String HANDLE = "handle";
+    public static final String ANY = "any";
+    public static final String ANYDATA = "anydata";
+    public static final String SERVICE = "service";
+    public static final String NIL = "()";
 
     // Separators
     public static final char SEMICOLON = ';';
