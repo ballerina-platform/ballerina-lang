@@ -2509,8 +2509,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
         BType targetType = symResolver.resolveTypeNode(conversionExpr.typeNode, env);
         conversionExpr.targetType = targetType;
-        BType expType = expr.getKind() != NodeKind.NUMERIC_LITERAL && requireTypeInference(expr) ?
-                targetType : symTable.noType;
+        BType expType = requireTypeInference(expr, false) ? targetType : symTable.noType;
         BType sourceType = checkExpr(expr, env, expType);
 
         if (types.isTypeCastable(expr, sourceType, targetType)) {
@@ -3647,7 +3646,7 @@ public class TypeChecker extends BLangNodeVisitor {
             return actualType;
         }
 
-        checkRestArgs(iExpr.restArgs, vararg, invokableTypeSymbol.restParam);
+        checkRestArgs(iExpr.restArgs, vararg, invokableTypeSymbol.restParam, iExpr.langLibInvocation);
         BType retType = typeParamAnalyzer.getReturnTypeParams(env, bInvokableType.getReturnType());
 
         if (iExpr.async) {
@@ -3687,7 +3686,7 @@ public class TypeChecker extends BLangNodeVisitor {
                 // if arg is positional, corresponding parameter in the same position should be of same type.
                 if (i < nonRestParams.size()) {
                     BVarSymbol param = nonRestParams.get(i);
-                    checkTypeParamExpr(arg, this.env, param.type);
+                    checkTypeParamExpr(arg, this.env, param.type, iExpr.langLibInvocation);
                     valueProvidedParams.add(param);
                     requiredParams.remove(param);
                     continue;
@@ -3713,7 +3712,7 @@ public class TypeChecker extends BLangNodeVisitor {
                     dlog.error(arg.pos, DiagnosticCode.DUPLICATE_NAMED_ARGS, varSym.name.value);
                     continue;
                 }
-                checkTypeParamExpr(arg, this.env, varSym.type);
+                checkTypeParamExpr(arg, this.env, varSym.type, iExpr.langLibInvocation);
                 valueProvidedParams.add(varSym);
             }
         }
@@ -3724,14 +3723,15 @@ public class TypeChecker extends BLangNodeVisitor {
         }
     }
 
-    private void checkRestArgs(List<BLangExpression> restArgExprs, BLangExpression vararg, BVarSymbol restParam) {
+    private void checkRestArgs(List<BLangExpression> restArgExprs, BLangExpression vararg, BVarSymbol restParam,
+                               boolean langlibInvocation) {
         if (vararg != null && !restArgExprs.isEmpty()) {
             dlog.error(vararg.pos, DiagnosticCode.INVALID_REST_ARGS);
             return;
         }
 
         if (vararg != null) {
-            checkTypeParamExpr(vararg, this.env, restParam.type);
+            checkTypeParamExpr(vararg, this.env, restParam.type, langlibInvocation);
             restArgExprs.add(vararg);
             return;
         }
@@ -3742,17 +3742,17 @@ public class TypeChecker extends BLangNodeVisitor {
 
         BType restType = ((BArrayType) restParam.type).eType;
         for (BLangExpression arg : restArgExprs) {
-            checkTypeParamExpr(arg, this.env, restType);
+            checkTypeParamExpr(arg, this.env, restType, langlibInvocation);
         }
     }
 
-    private void checkTypeParamExpr(BLangExpression arg, SymbolEnv env, BType expectedType) {
+    private void checkTypeParamExpr(BLangExpression arg, SymbolEnv env, BType expectedType, boolean langlibInvocation) {
 
         if (typeParamAnalyzer.notRequireTypeParams(env)) {
             checkExpr(arg, env, expectedType);
             return;
         }
-        if (requireTypeInference(arg)) {
+        if (requireTypeInference(arg, langlibInvocation)) {
             // Need to infer the type. Calculate matching bound type, with no type.
             BType expType = typeParamAnalyzer.getMatchingBoundType(expectedType, env);
             BType inferredType = checkExpr(arg, env, expType);
@@ -3763,16 +3763,17 @@ public class TypeChecker extends BLangNodeVisitor {
         typeParamAnalyzer.checkForTypeParamsInArg(arg.type, this.env, expectedType);
     }
 
-    private boolean requireTypeInference(BLangExpression expr) {
+    private boolean requireTypeInference(BLangExpression expr, boolean langlibInvocation) {
 
         switch (expr.getKind()) {
             case GROUP_EXPR:
-                return requireTypeInference(((BLangGroupExpr) expr).expression);
+                return requireTypeInference(((BLangGroupExpr) expr).expression, langlibInvocation);
             case ARROW_EXPR:
             case LIST_CONSTRUCTOR_EXPR:
             case RECORD_LITERAL_EXPR:
-            case NUMERIC_LITERAL:
                 return true;
+            case NUMERIC_LITERAL:
+                return langlibInvocation;
             default:
                 return false;
         }
