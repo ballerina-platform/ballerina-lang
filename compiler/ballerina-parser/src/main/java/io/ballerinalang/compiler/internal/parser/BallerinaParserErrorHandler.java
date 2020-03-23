@@ -63,7 +63,8 @@ public class BallerinaParserErrorHandler {
             { ParserRuleContext.FUNC_BODY_BLOCK, ParserRuleContext.EXTERNAL_FUNC_BODY };
 
     private static final ParserRuleContext[] STATEMENTS =
-            { ParserRuleContext.ASSIGNMENT_STMT, ParserRuleContext.VAR_DECL_STMT, ParserRuleContext.CLOSE_BRACE };
+            { ParserRuleContext.ASSIGNMENT_STMT, ParserRuleContext.VAR_DECL_STMT, ParserRuleContext.IF_BLOCK,
+                    ParserRuleContext.WHILE_BLOCK, ParserRuleContext.CLOSE_BRACE };
 
     private static final ParserRuleContext[] VAR_DECL_RHS =
             { ParserRuleContext.SEMICOLON, ParserRuleContext.ASSIGN_OP };
@@ -287,6 +288,7 @@ public class BallerinaParserErrorHandler {
             case OBJECT_MEMBER:
             case OBJECT_TYPE_FIRST_QUALIFIER:
             case OBJECT_TYPE_SECOND_QUALIFIER:
+            case ELSE_BODY:
                 return true;
             default:
                 return false;
@@ -556,7 +558,7 @@ public class BallerinaParserErrorHandler {
                     ParserRuleContext exprEndCtx;
                     if (isParameter(parentCtx) || parentCtx == ParserRuleContext.ARG) {
                         exprEndCtx = ParserRuleContext.COMMA;
-                    } else if (parentCtx == ParserRuleContext.IF_BLOCK) {
+                    } else if (parentCtx == ParserRuleContext.IF_BLOCK || parentCtx == ParserRuleContext.WHILE_BLOCK) {
                         exprEndCtx = ParserRuleContext.BLOCK_STMT;
                     } else {
                         exprEndCtx = ParserRuleContext.SEMICOLON;
@@ -681,6 +683,9 @@ public class BallerinaParserErrorHandler {
                     return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount, ELSE_BLOCK);
                 case ELSE_BODY:
                     return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount, ELSE_BODY);
+                case WHILE_KEYWORD:
+                    hasMatch = nextToken.kind == SyntaxKind.WHILE_KEYWORD;
+                    break;
 
                 // productions
                 case COMP_UNIT:
@@ -781,6 +786,8 @@ public class BallerinaParserErrorHandler {
         ParserRuleContext nextContext;
         switch (nextToken.kind) {
             case NUMERIC_LITERAL_TOKEN:
+            case TRUE_KEYWORD:
+            case FALSE_KEYWORD:
                 nextContext = ParserRuleContext.EXPRESSION_END;
                 break;
             // case OPEN_PAREN_TOKEN:
@@ -831,7 +838,9 @@ public class BallerinaParserErrorHandler {
                 return seekInAlternativesPaths(lookahead, currentDepth, currentMatches, next);
             }
 
-            if (isStatement(parentCtx) || parentCtx == ParserRuleContext.RECORD_FIELD ||
+            if (parentCtx == ParserRuleContext.IF_BLOCK || parentCtx == ParserRuleContext.WHILE_BLOCK ) {
+                nextContext = ParserRuleContext.BLOCK_STMT;
+            } else if (isStatement(parentCtx) || parentCtx == ParserRuleContext.RECORD_FIELD ||
                     parentCtx == ParserRuleContext.OBJECT_MEMBER) {
                 nextContext = ParserRuleContext.SEMICOLON;
             } else {
@@ -1039,6 +1048,7 @@ public class BallerinaParserErrorHandler {
             case OBJECT_FUNC_OR_FIELD:
             case IF_BLOCK:
             case BLOCK_STMT:
+            case WHILE_BLOCK:
                 // case EXPRESSION:
                 startContext(currentCtx);
                 break;
@@ -1096,6 +1106,10 @@ public class BallerinaParserErrorHandler {
                 switch (parentCtx) {
                     case FUNC_BODY_BLOCK:
                         endContext(); // end body block
+                        nextToken = this.tokenReader.peek(nextLookahead);
+                        if (nextToken.kind == SyntaxKind.EOF_TOKEN) {
+                            return ParserRuleContext.EOF;
+                        }
                         return ParserRuleContext.TOP_LEVEL_NODE;
                     case OBJECT_MEMBER:
                         endContext(); // end object member
@@ -1114,6 +1128,9 @@ public class BallerinaParserErrorHandler {
                         if (parentCtx == ParserRuleContext.IF_BLOCK) {
                             endContext(); // end if-block
                             return ParserRuleContext.ELSE_BLOCK;
+                        } else if (parentCtx == ParserRuleContext.WHILE_BLOCK) {
+                            endContext(); // end while-block
+                            return ParserRuleContext.STATEMENT;
                         }
                         return ParserRuleContext.STATEMENT;
                     default:
@@ -1161,7 +1178,11 @@ public class BallerinaParserErrorHandler {
                 parentCtx = getParentContext();
                 if (parentCtx == ParserRuleContext.EXTERNAL_FUNC_BODY) {
                     endContext(); // end external func
-                    return ParserRuleContext.TOP_LEVEL_NODE;
+                    nextToken = this.tokenReader.peek(nextLookahead);
+                    if (nextToken.kind == SyntaxKind.EOF_TOKEN) {
+                        return ParserRuleContext.EOF;
+                    }
+                    return ParserRuleContext.TOP_LEVEL_NODE_WITH_MODIFIER;
                 } else if (isExpression(parentCtx)) {
                     // A semicolon after an expression also means its an end of a statement/field, Hence pop the ctx.
                     endContext(); // end statement
@@ -1182,7 +1203,11 @@ public class BallerinaParserErrorHandler {
                     }
                     return ParserRuleContext.RECORD_FIELD;
                 } else if (parentCtx == ParserRuleContext.MODULE_TYPE_DEFINITION) {
-                    return ParserRuleContext.TOP_LEVEL_NODE;
+                    nextToken = this.tokenReader.peek(nextLookahead);
+                    if (nextToken.kind == SyntaxKind.EOF_TOKEN) {
+                        return ParserRuleContext.EOF;
+                    }
+                    return ParserRuleContext.TOP_LEVEL_NODE_WITH_MODIFIER;
                 } else if (parentCtx == ParserRuleContext.OBJECT_MEMBER) {
                     if (isEndOfObjectTypeNode(nextLookahead)) {
                         endContext(); // end object member
@@ -1288,6 +1313,10 @@ public class BallerinaParserErrorHandler {
             case MODULE_TYPE_DEFINITION:
                 return ParserRuleContext.TYPE_KEYWORD;
             case CLOSED_RECORD_BODY_END:
+                nextToken = this.tokenReader.peek(nextLookahead);
+                if (nextToken.kind == SyntaxKind.EOF_TOKEN) {
+                    return ParserRuleContext.EOF;
+                }
                 return ParserRuleContext.TOP_LEVEL_NODE_WITH_MODIFIER;
             case CLOSED_RECORD_BODY_START:
                 startContext(ParserRuleContext.RECORD_FIELD);
@@ -1335,6 +1364,11 @@ public class BallerinaParserErrorHandler {
                 return ParserRuleContext.OPEN_BRACE;
             case IF_BLOCK:
                 return ParserRuleContext.IF_KEYWORD;
+            case WHILE_BLOCK:
+                return ParserRuleContext.WHILE_KEYWORD;
+            case WHILE_KEYWORD:
+                return ParserRuleContext.EXPRESSION;
+
             case OBJECT_FUNC_OR_FIELD:
             case OBJECT_METHOD_START:
             case OBJECT_FUNC_OR_FIELD_WITHOUT_VISIBILITY:
@@ -1360,6 +1394,7 @@ public class BallerinaParserErrorHandler {
             case ASSIGNMENT_OR_VAR_DECL_STMT_RHS:
             case IF_BLOCK:
             case BLOCK_STMT:
+            case WHILE_BLOCK:
                 return true;
             default:
                 return false;
@@ -1529,6 +1564,8 @@ public class BallerinaParserErrorHandler {
                 return SyntaxKind.IF_KEYWORD;
             case ELSE_KEYWORD:
                 return SyntaxKind.ELSE_KEYWORD;
+            case WHILE_KEYWORD:
+                return SyntaxKind.WHILE_KEYWORD;
 
             // TODO:
             case COMP_UNIT:

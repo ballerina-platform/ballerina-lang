@@ -99,6 +99,7 @@ public enum SyntaxKind {
     ASSIGNMENT_STATEMENT(1202),
     IF_ELSE_STATEMENT(1203),
     ELSE_BLOCK(1204),
+    WHILE_STATEMENT(1205),
 
     // Expressions
     BINARY_EXPRESSION(1300),

@@ -27,8 +27,7 @@
                             "kind": "COMMA_TOKEN"
                         },
                         {
-                            "kind": "IDENTIFIER_TOKEN",
-                            "value": "true"
+                            "kind": "TRUE_KEYWORD"
                         }
                     ]
                 }

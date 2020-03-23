@@ -137,18 +137,31 @@
                                                                                     "kind": "ELSE_KEYWORD"
                                                                                 },
                                                                                 {
-                                                                                    "kind": "BLOCK_STATEMENT",
+                                                                                    "kind": "IF_ELSE_STATEMENT",
                                                                                     "children": [
                                                                                         {
-                                                                                            "kind": "OPEN_BRACE_TOKEN"
+                                                                                            "kind": "IF_KEYWORD",
+                                                                                            "isMissing": true
                                                                                         },
                                                                                         {
-                                                                                            "kind": "LIST",
+                                                                                            "kind": "IDENTIFIER_TOKEN",
+                                                                                            "value": "y"
+                                                                                        },
+                                                                                        {
+                                                                                            "kind": "BLOCK_STATEMENT",
                                                                                             "children": [
+                                                                                                {
+                                                                                                    "kind": "OPEN_BRACE_TOKEN"
+                                                                                                },
+                                                                                                {
+                                                                                                    "kind": "LIST",
+                                                                                                    "children": [
+                                                                                                    ]
+                                                                                                },
+                                                                                                {
+                                                                                                    "kind": "CLOSE_BRACE_TOKEN"
+                                                                                                }
                                                                                             ]
-                                                                                        },
-                                                                                        {
-                                                                                            "kind": "CLOSE_BRACE_TOKEN"
                                                                                         }
                                                                                     ]
                                                                                 }

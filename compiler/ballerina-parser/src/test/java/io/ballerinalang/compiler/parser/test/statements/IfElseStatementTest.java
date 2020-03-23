@@ -67,4 +67,9 @@ public class IfElseStatementTest extends AbstractStatementTest {
     public void testMissingBracesInNestedIf() {
         testFile("if-else/if_else_source_08.bal", "if-else/if_else_assert_08.json");
     }
+
+    @Test
+    public void testMissingIfKeyword() {
+        testFile("if-else/if_else_source_09.bal", "if-else/if_else_assert_09.json");
+    }
 }

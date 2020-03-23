@@ -215,6 +215,10 @@ public class ParserTestUtils {
                 return SyntaxKind.ELSE_KEYWORD;
             case "WHILE_KEYWORD":
                 return SyntaxKind.WHILE_KEYWORD;
+            case "TRUE_KEYWORD":
+                return SyntaxKind.TRUE_KEYWORD;
+            case "FALSE_KEYWORD":
+                return SyntaxKind.FALSE_KEYWORD;
 
             // Operators
             case "PLUS_TOKEN":
@@ -311,6 +315,8 @@ public class ParserTestUtils {
                 return SyntaxKind.IF_ELSE_STATEMENT;
             case "ELSE_BLOCK":
                 return SyntaxKind.ELSE_BLOCK;
+            case "WHILE_STATEMENT":
+                return SyntaxKind.WHILE_STATEMENT;
 
             // Others
             case "SIMPLE_TYPE":

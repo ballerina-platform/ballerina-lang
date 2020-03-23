@@ -55,6 +55,7 @@ import io.ballerinalang.compiler.internal.parser.tree.STReturnTypeDescriptor;
 import io.ballerinalang.compiler.internal.parser.tree.STToken;
 import io.ballerinalang.compiler.internal.parser.tree.STTypeReference;
 import io.ballerinalang.compiler.internal.parser.tree.STVariableDeclaration;
+import io.ballerinalang.compiler.internal.parser.tree.STWhileStatement;
 import io.ballerinalang.compiler.internal.parser.tree.SyntaxKind;
 
 import java.util.ArrayList;
@@ -192,6 +193,10 @@ public class BallerinaParser {
                 return parseElseKeyword();
             case ELSE_BODY:
                 return parseElseBody();
+            case WHILE_KEYWORD:
+                return parseWhileKeyword();
+            case BOOLEAN_LITERAL:
+                return parseBooleanLiteral();
             case FUNC_DEFINITION:
             case REQUIRED_PARAM:
             default:
@@ -1636,6 +1641,8 @@ public class BallerinaParser {
                 return parseAssignmentOrVarDecl();
             case IF_KEYWORD:
                 return parseIfElseBlock();
+            case WHILE_KEYWORD:
+                return parseWhileStatement();
             default:
                 // If the next token in the token stream does not match to any of the statements and
                 // if it is not the end of statement, then try to fix it and continue.
@@ -1869,6 +1876,9 @@ public class BallerinaParser {
                 return parseVarRefOrFuncCall();
             case OPEN_PAREN_TOKEN:
                 return parseBracedExpression();
+            case TRUE_KEYWORD:
+            case FALSE_KEYWORD:
+                return parseBooleanLiteral();
             default:
                 Solution solution = recover(peek(), ParserRuleContext.EXPRESSION);
 
@@ -2264,6 +2274,8 @@ public class BallerinaParser {
             // Any other expression goes here
             case NUMERIC_LITERAL_TOKEN:
             case OPEN_PAREN_TOKEN:
+            case TRUE_KEYWORD:
+            case FALSE_KEYWORD:
             default:
                 expr = parseExpression();
                 arg = new STPositionalArg(leadingComma, expr);
@@ -2298,6 +2310,8 @@ public class BallerinaParser {
             case NUMERIC_LITERAL_TOKEN:
             case IDENTIFIER_TOKEN:
             case OPEN_PAREN_TOKEN:
+            case TRUE_KEYWORD:
+            case FALSE_KEYWORD:
             default:
                 expr = parseExpression();
                 return new STPositionalArg(leadingComma, expr);
@@ -2666,7 +2680,7 @@ public class BallerinaParser {
      * if-else-stmt := if expression block-stmt [else-block]
      * </code>
      * 
-     * @return
+     * @return If-else block
      */
     private STNode parseIfElseBlock() {
         startContext(ParserRuleContext.IF_BLOCK);
@@ -2731,7 +2745,7 @@ public class BallerinaParser {
      * Parse else block.
      * <code>else-block := else (if-else-stmt | block-stmt)</code>
      * 
-     * @return
+     * @return Else block
      */
     private STNode parseElseBlock() {
         STToken nextToken = peek();
@@ -2744,6 +2758,12 @@ public class BallerinaParser {
         return new STElseBlock(elseKeyword, elseBody);
     }
 
+    /**
+     * Parse else node body.
+     * <code>else-body := if-else-stmt | block-stmt</code>
+     * 
+     * @return Else node body
+     */
     private STNode parseElseBody() {
         STToken nextToken = peek();
         return parseElseBody(nextToken.kind);
@@ -2767,6 +2787,53 @@ public class BallerinaParser {
                 }
 
                 return parseElseBody(solution.tokenKind);
+        }
+    }
+
+    /**
+     * Parse while statement.
+     * <code>while-stmt := while expression block-stmt</code>
+     * 
+     * @return While statement
+     */
+    private STNode parseWhileStatement() {
+        startContext(ParserRuleContext.WHILE_BLOCK);
+        STNode whileKeyword = parseWhileKeyword();
+        STNode condition = parseExpression();
+        STNode whileBody = parseBlockNode();
+        endContext();
+        return new STWhileStatement(whileKeyword, condition, whileBody);
+    }
+
+    /**
+     * Parse while-keyword.
+     * 
+     * @return While-keyword node
+     */
+    private STNode parseWhileKeyword() {
+        STToken token = peek();
+        if (token.kind == SyntaxKind.WHILE_KEYWORD) {
+            return consume();
+        } else {
+            Solution sol = recover(token, ParserRuleContext.WHILE_KEYWORD);
+            return sol.recoveredNode;
+        }
+    }
+
+    /**
+     * Parse boolean literal.
+     * 
+     * @return Parsed node
+     */
+    private STNode parseBooleanLiteral() {
+        STToken token = peek();
+        switch (token.kind) {
+            case TRUE_KEYWORD:
+            case FALSE_KEYWORD:
+                return consume();
+            default:
+                Solution sol = recover(token, ParserRuleContext.BOOLEAN_LITERAL);
+                return sol.recoveredNode;
         }
     }
 }

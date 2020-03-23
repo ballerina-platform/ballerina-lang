@@ -73,6 +73,7 @@ public enum ParserRuleContext {
     BLOCK_STMT("block-stmt"),
     ELSE_BLOCK("else-block"),
     ELSE_BODY("else-body"),
+    WHILE_BLOCK("while-block"),
 
     // terminals
     PUBLIC_KEYWORD("public"),
@@ -109,6 +110,8 @@ public enum ParserRuleContext {
     FIELD_OR_FUNC_NAME("field-or-func-name"),
     IF_KEYWORD("if"),
     ELSE_KEYWORD("else"),
+    WHILE_KEYWORD("while"),
+    BOOLEAN_LITERAL("boolean-literal"),
 
     // expressions
     EXPRESSION("expression"),
