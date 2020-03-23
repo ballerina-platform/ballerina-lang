@@ -18,13 +18,14 @@
 
 package org.ballerinalang.messaging.kafka.nativeimpl.producer;
 
+import org.apache.avro.generic.GenericRecord;
 import org.apache.kafka.clients.producer.ProducerRecord;
+import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.api.BArray;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static org.ballerinalang.messaging.kafka.nativeimpl.producer.Send.sendKafkaRecord;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.ALIAS_PARTITION;
 import static org.ballerinalang.messaging.kafka.utils.KafkaUtils.getIntValue;
 import static org.ballerinalang.messaging.kafka.utils.KafkaUtils.getLongValue;
@@ -33,7 +34,7 @@ import static org.ballerinalang.messaging.kafka.utils.KafkaUtils.getLongValue;
  * Native methods to send {@code any} values and with different types of keys to Kafka broker from ballerina kafka
  * producer.
  */
-public class SendAnyValues {
+public class SendAnyValues extends Send {
     // TODO: This class should be merged with "Send" when #20918 is fixed.
     private static final Logger logger = LoggerFactory.getLogger(SendAnyValues.class);
 
@@ -87,6 +88,17 @@ public class SendAnyValues {
         Long timestampValue = getLongValue(timestamp);
         ProducerRecord<byte[], Object> kafkaRecord = new ProducerRecord<>(topic, partitionValue, timestampValue,
                                                                           key.getBytes(), value);
+        return sendKafkaRecord(kafkaRecord, producer);
+    }
+
+    // ballerina any and AvroRecord
+    public static Object sendAnyAvro(ObjectValue producer, Object value, String topic, MapValue<String, Object> key,
+                                     Object partition, Object timestamp) {
+        GenericRecord genericRecord = createGenericRecord(key);
+        Integer partitionValue = getIntValue(partition, ALIAS_PARTITION, logger);
+        Long timestampValue = getLongValue(timestamp);
+        ProducerRecord<GenericRecord, Object> kafkaRecord = new ProducerRecord<>(topic, partitionValue, timestampValue,
+                                                                                 genericRecord, value);
         return sendKafkaRecord(kafkaRecord, producer);
     }
 

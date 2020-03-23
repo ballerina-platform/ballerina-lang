@@ -18,13 +18,14 @@
 
 package org.ballerinalang.messaging.kafka.nativeimpl.producer;
 
+import org.apache.avro.generic.GenericRecord;
 import org.apache.kafka.clients.producer.ProducerRecord;
+import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.api.BArray;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static org.ballerinalang.messaging.kafka.nativeimpl.producer.Send.sendKafkaRecord;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.ALIAS_PARTITION;
 import static org.ballerinalang.messaging.kafka.utils.KafkaUtils.getIntValue;
 import static org.ballerinalang.messaging.kafka.utils.KafkaUtils.getLongValue;
@@ -33,7 +34,7 @@ import static org.ballerinalang.messaging.kafka.utils.KafkaUtils.getLongValue;
  * Native methods to send {@code string} values and with different types of keys to Kafka broker from ballerina kafka
  * producer.
  */
-public class SendStringValues {
+public class SendStringValues extends Send {
 
     private static final Logger logger = LoggerFactory.getLogger(SendStringValues.class);
     /* *********************************************************************** *
@@ -43,7 +44,7 @@ public class SendStringValues {
 
     // String and ()
     public static Object sendString(ObjectValue producer, String value, String topic, Object partition,
-                                  Object timestamp) {
+                                    Object timestamp) {
         Integer partitionValue = getIntValue(partition, ALIAS_PARTITION, logger);
         Long timestampValue = getLongValue(timestamp);
         ProducerRecord<?, String> kafkaRecord = new ProducerRecord<>(topic, partitionValue, timestampValue, null,
@@ -88,6 +89,17 @@ public class SendStringValues {
         Long timestampValue = getLongValue(timestamp);
         ProducerRecord<byte[], String> kafkaRecord = new ProducerRecord<>(topic, partitionValue, timestampValue,
                                                                           key.getBytes(), value);
+        return sendKafkaRecord(kafkaRecord, producer);
+    }
+
+    // String and AvroRecord
+    public static Object sendStringAvro(ObjectValue producer, String value, String topic, MapValue<String, Object> key,
+                                        Object partition, Object timestamp) {
+        GenericRecord genericRecord = createGenericRecord(key);
+        Integer partitionValue = getIntValue(partition, ALIAS_PARTITION, logger);
+        Long timestampValue = getLongValue(timestamp);
+        ProducerRecord<GenericRecord, String> kafkaRecord = new ProducerRecord<>(topic, partitionValue, timestampValue,
+                                                                                 genericRecord, value);
         return sendKafkaRecord(kafkaRecord, producer);
     }
 

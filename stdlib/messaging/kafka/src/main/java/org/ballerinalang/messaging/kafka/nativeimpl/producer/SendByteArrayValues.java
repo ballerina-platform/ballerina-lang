@@ -18,13 +18,14 @@
 
 package org.ballerinalang.messaging.kafka.nativeimpl.producer;
 
+import org.apache.avro.generic.GenericRecord;
 import org.apache.kafka.clients.producer.ProducerRecord;
+import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.api.BArray;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static org.ballerinalang.messaging.kafka.nativeimpl.producer.Send.sendKafkaRecord;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.ALIAS_PARTITION;
 import static org.ballerinalang.messaging.kafka.utils.KafkaUtils.getIntValue;
 import static org.ballerinalang.messaging.kafka.utils.KafkaUtils.getLongValue;
@@ -33,7 +34,7 @@ import static org.ballerinalang.messaging.kafka.utils.KafkaUtils.getLongValue;
  * Native methods to send {@code byte[]} values and with different types of keys to Kafka broker from ballerina kafka
  * producer.
  */
-public class SendByteArrayValues {
+public class SendByteArrayValues extends Send {
 
     private static final Logger logger = LoggerFactory.getLogger(SendByteArrayValues.class);
 
@@ -88,6 +89,17 @@ public class SendByteArrayValues {
         Long timestampValue = getLongValue(timestamp);
         ProducerRecord<byte[], byte[]> kafkaRecord = new ProducerRecord<>(topic, partitionValue, timestampValue,
                                                                           key.getBytes(), value.getBytes());
+        return sendKafkaRecord(kafkaRecord, producer);
+    }
+
+    // ballerina byte[] and AvroRecord
+    public static Object sendByteArrayAvro(ObjectValue producer, BArray value, String topic,
+                                           MapValue<String, Object> key, Object partition, Object timestamp) {
+        GenericRecord genericRecord = createGenericRecord(key);
+        Integer partitionValue = getIntValue(partition, ALIAS_PARTITION, logger);
+        Long timestampValue = getLongValue(timestamp);
+        ProducerRecord<GenericRecord, byte[]> kafkaRecord = new ProducerRecord<>(topic, partitionValue, timestampValue,
+                                                                                 genericRecord, value.getBytes());
         return sendKafkaRecord(kafkaRecord, producer);
     }
 

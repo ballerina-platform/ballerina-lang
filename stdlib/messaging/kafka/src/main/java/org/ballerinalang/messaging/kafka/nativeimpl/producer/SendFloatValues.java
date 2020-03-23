@@ -18,7 +18,9 @@
 
 package org.ballerinalang.messaging.kafka.nativeimpl.producer;
 
+import org.apache.avro.generic.GenericRecord;
 import org.apache.kafka.clients.producer.ProducerRecord;
+import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.api.BArray;
 import org.slf4j.Logger;
@@ -33,7 +35,7 @@ import static org.ballerinalang.messaging.kafka.utils.KafkaUtils.getLongValue;
  * Native methods to send {@code float} values and with different types of keys to Kafka broker from ballerina kafka
  * producer.
  */
-public class SendFloatValues {
+public class SendFloatValues extends Send {
 
     private static final Logger logger = LoggerFactory.getLogger(SendFloatValues.class);
 
@@ -91,9 +93,20 @@ public class SendFloatValues {
         return sendKafkaRecord(kafkaRecord, producer);
     }
 
+    // ballerina float and AvroRecord
+    public static Object sendFloatAvro(ObjectValue producer, double value, String topic, MapValue<String, Object> key,
+                                     Object partition, Object timestamp) {
+        GenericRecord genericRecord = createGenericRecord(key);
+        Integer partitionValue = getIntValue(partition, ALIAS_PARTITION, logger);
+        Long timestampValue = getLongValue(timestamp);
+        ProducerRecord<GenericRecord, Double> kafkaRecord = new ProducerRecord<>(topic, partitionValue, timestampValue,
+                                                                                 genericRecord, value);
+        return sendKafkaRecord(kafkaRecord, producer);
+    }
+
     // ballerina float and ballerina any
     public static Object sendFloatAny(ObjectValue producer, double value, String topic, Object key, Object partition,
-                              Object timestamp) {
+                                      Object timestamp) {
         Integer partitionValue = getIntValue(partition, ALIAS_PARTITION, logger);
         Long timestampValue = getLongValue(timestamp);
         ProducerRecord<Object, Double> kafkaRecord = new ProducerRecord<>(topic, partitionValue, timestampValue,
