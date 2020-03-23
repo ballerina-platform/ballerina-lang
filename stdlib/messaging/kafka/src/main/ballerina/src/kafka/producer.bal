@@ -146,21 +146,10 @@ public type Producer client object {
             }
         }
         if (self.keySerializerType == SER_AVRO) {
-            panic error(PRODUCER_ERROR, message = "Key serialization using Avro is not yet supported.");
-            //var schemaRegistryUrl = config.schemaRegistryUrl;
-            //if (schemaRegistryUrl is ()) {
-            //    panic error(PRODUCER_ERROR, message = "Missing schema registry URL for the Avro serializer. Please " +
-            //                "provide 'schemaRegistryUrl' configuration in 'kafka:ProducerConfiguration'.");
-            //}
-        }
-
-        if (self.valueSerializerType == SER_CUSTOM) {
-            var valueSerializerObject = config?.valueSerializer;
-            if (valueSerializerObject is ()) {
-                panic error(PRODUCER_ERROR, message = "Invalid valueSerializer config: Please Provide a " +
-                            "valid custom serializer for the valueSerializer");
-            } else {
-                self.valueSerializer = valueSerializerObject;
+            var schemaRegistryUrl = config?.schemaRegistryUrl;
+            if (schemaRegistryUrl is ()) {
+                panic error(PRODUCER_ERROR, message = "Missing schema registry URL for the Avro serializer. Please " +
+                            "provide 'schemaRegistryUrl' configuration in 'kafka:ProducerConfiguration'.");
             }
         }
         if (self.valueSerializerType == SER_AVRO) {
@@ -168,6 +157,15 @@ public type Producer client object {
             if (schemaRegistryUrl is ()) {
                 panic error(PRODUCER_ERROR, message = "Missing schema registry URL for the Avro serializer. Please " +
                             "provide 'schemaRegistryUrl' configuration in 'kafka:ProducerConfiguration'.");
+            }
+        }
+        if (self.valueSerializerType == SER_CUSTOM) {
+            var valueSerializerObject = config?.valueSerializer;
+            if (valueSerializerObject is ()) {
+                panic error(PRODUCER_ERROR, message = "Invalid valueSerializer config: Please Provide a " +
+                            "valid custom serializer for the valueSerializer");
+            } else {
+                self.valueSerializer = valueSerializerObject;
             }
         }
         checkpanic producerInit(self);
@@ -300,6 +298,12 @@ function sendStringValues(Producer producer, handle value, handle topic, anydata
         }
         panic getKeyTypeMismatchError(BYTE_ARRAY);
     }
+    if (keySerializerType == SER_AVRO) {
+        if (key is AvroRecord) {
+            return sendStringAvro(producer, value, topic, key, partition, timestamp);
+        }
+        panic getKeyTypeMismatchError(AVRO_RECORD);
+    }
     if (keySerializerType == SER_CUSTOM) {
         return sendStringAny(producer, value, topic, key, partition, timestamp);
     }
@@ -334,6 +338,12 @@ function sendIntValues(Producer producer, int value, handle topic, anydata? key,
             return sendIntByteArray(producer, value, topic, key, partition, timestamp);
         }
         panic getKeyTypeMismatchError(BYTE_ARRAY);
+    }
+    if (keySerializerType == SER_AVRO) {
+        if (key is AvroRecord) {
+            return sendIntAvro(producer, value, topic, key, partition, timestamp);
+        }
+        panic getKeyTypeMismatchError(AVRO_RECORD);
     }
     if (keySerializerType == SER_CUSTOM) {
         return sendIntAny(producer, value, topic, key, partition, timestamp);
@@ -370,6 +380,12 @@ function sendFloatValues(Producer producer, float value, handle topic, anydata? 
         }
         panic getKeyTypeMismatchError(BYTE_ARRAY);
     }
+    if (keySerializerType == SER_AVRO) {
+        if (key is AvroRecord) {
+            return sendFloatAvro(producer, value, topic, key, partition, timestamp);
+        }
+        panic getKeyTypeMismatchError(AVRO_RECORD);
+    }
     if (keySerializerType == SER_CUSTOM) {
         return sendFloatAny(producer, value, topic, key, partition, timestamp);
     }
@@ -404,6 +420,12 @@ function sendByteArrayValues(Producer producer, byte[] value, handle topic, anyd
             return sendByteArrayByteArray(producer, value, topic, key, partition, timestamp);
         }
         panic getKeyTypeMismatchError(BYTE_ARRAY);
+    }
+    if (keySerializerType == SER_AVRO) {
+        if (key is AvroRecord) {
+            return sendByteArrayAvro(producer, value, topic, key, partition, timestamp);
+        }
+        panic getKeyTypeMismatchError(AVRO_RECORD);
     }
     if (keySerializerType == SER_CUSTOM) {
         return sendByteArrayAny(producer, value, topic, key, partition, timestamp);
@@ -440,6 +462,12 @@ function sendAvroValues(Producer producer, AvroRecord value, handle topic, anyda
         }
         panic getKeyTypeMismatchError(BYTE_ARRAY);
     }
+    if (keySerializerType == SER_AVRO) {
+        if (key is AvroRecord) {
+            return sendAvroAvro(producer, value, topic, key, partition, timestamp);
+        }
+        panic getKeyTypeMismatchError(AVRO_RECORD);
+    }
     if (keySerializerType == SER_CUSTOM) {
         return sendAvroAny(producer, value, topic, key, partition, timestamp);
     }
@@ -474,6 +502,12 @@ function sendCustomValues(Producer producer, anydata value, handle topic, anydat
             return sendAnyByteArray(producer, value, topic, key, partition, timestamp);
         }
         panic getKeyTypeMismatchError(BYTE_ARRAY);
+    }
+    if (keySerializerType == SER_AVRO) {
+        if (key is AvroRecord) {
+            return sendAnyAvro(producer, value, topic, key, partition, timestamp);
+        }
+        panic getKeyTypeMismatchError(AVRO_RECORD);
     }
     if (keySerializerType == SER_CUSTOM) {
         return sendAnyAny(producer, value, topic, key, partition, timestamp);
@@ -519,7 +553,7 @@ function producerGetTopicPartitions(Producer producer, handle topic) returns Top
 
 //////////////////////////////////////////////////////////////////////////////////////
 //              Different send functions to send different types of data            //
-//                  Naming convention: send<ValueType><KeyType>             //
+//                  Naming convention: send<ValueType><KeyType>                     //
 //   Reason for this naming convention is that the key can be nil but value cannot  //
 //////////////////////////////////////////////////////////////////////////////////////
 
@@ -562,6 +596,14 @@ function sendStringByteArray(Producer producer, handle value, handle topic, byte
     class: "org.ballerinalang.messaging.kafka.nativeimpl.producer.SendStringValues",
     paramTypes: ["org.ballerinalang.jvm.values.ObjectValue", "java.lang.String", "java.lang.String",
                 "org.ballerinalang.jvm.values.ArrayValue", "java.lang.Object", "java.lang.Object"]
+} external;
+
+function sendStringAvro(Producer producer, handle value, handle topic, AvroRecord key, int? partition = (),
+    int? timestamp = ()) returns ProducerError? =
+@java:Method {
+    class: "org.ballerinalang.messaging.kafka.nativeimpl.producer.SendStringValues",
+    paramTypes: ["org.ballerinalang.jvm.values.ObjectValue", "java.lang.String", "java.lang.String",
+                 "org.ballerinalang.jvm.values.MapValue", "java.lang.Object", "java.lang.Object"]
 } external;
 
 function sendStringAny(Producer producer, handle value, handle topic, anydata key, int? partition = (),
@@ -613,6 +655,14 @@ function sendIntByteArray(Producer producer, int value, handle topic, byte[] key
                 "org.ballerinalang.jvm.values.ArrayValue", "java.lang.Object", "java.lang.Object"]
 } external;
 
+function sendIntAvro(Producer producer, int value, handle topic, AvroRecord key, int? partition = (),
+    int? timestamp = ()) returns ProducerError? =
+@java:Method {
+    class: "org.ballerinalang.messaging.kafka.nativeimpl.producer.SendIntValues",
+    paramTypes: ["org.ballerinalang.jvm.values.ObjectValue", "long", "java.lang.String",
+                 "org.ballerinalang.jvm.values.MapValue", "java.lang.Object", "java.lang.Object"]
+} external;
+
 function sendIntAny(Producer producer, int value, handle topic, anydata key, int? partition = (),
     int? timestamp = ()) returns ProducerError? =
 @java:Method {
@@ -660,6 +710,14 @@ function sendFloatByteArray(Producer producer, float value, handle topic, byte[]
     class: "org.ballerinalang.messaging.kafka.nativeimpl.producer.SendFloatValues",
     paramTypes: ["org.ballerinalang.jvm.values.ObjectValue", "double", "java.lang.String",
                 "org.ballerinalang.jvm.values.ArrayValue", "java.lang.Object", "java.lang.Object"]
+} external;
+
+function sendFloatAvro(Producer producer, float value, handle topic, AvroRecord key, int? partition = (),
+    int? timestamp = ()) returns ProducerError? =
+@java:Method {
+    class: "org.ballerinalang.messaging.kafka.nativeimpl.producer.SendFloatValues",
+    paramTypes: ["org.ballerinalang.jvm.values.ObjectValue", "double", "java.lang.String",
+                 "org.ballerinalang.jvm.values.MapValue", "java.lang.Object", "java.lang.Object"]
 } external;
 
 function sendFloatAny(Producer producer, float value, handle topic, anydata key, int? partition = (),
@@ -711,6 +769,14 @@ function sendByteArrayByteArray(Producer producer, byte[] value, handle topic, b
                 "java.lang.String", "org.ballerinalang.jvm.values.ArrayValue", "java.lang.Object", "java.lang.Object"]
 } external;
 
+function sendByteArrayAvro(Producer producer, byte[] value, handle topic, AvroRecord key, int? partition = (),
+    int? timestamp = ()) returns ProducerError? =
+@java:Method {
+    class: "org.ballerinalang.messaging.kafka.nativeimpl.producer.SendByteArrayValues",
+    paramTypes: ["org.ballerinalang.jvm.values.ObjectValue", "org.ballerinalang.jvm.values.ArrayValue",
+                "java.lang.String", "org.ballerinalang.jvm.values.MapValue", "java.lang.Object", "java.lang.Object"]
+} external;
+
 function sendByteArrayAny(Producer producer, byte[] value, handle topic, anydata key, int? partition = (),
     int? timestamp = ()) returns ProducerError? =
 @java:Method {
@@ -760,6 +826,14 @@ function sendAvroByteArray(Producer producer, AvroRecord value, handle topic, by
                  "java.lang.String", "org.ballerinalang.jvm.values.ArrayValue", "java.lang.Object", "java.lang.Object"]
 } external;
 
+function sendAvroAvro(Producer producer, AvroRecord value, handle topic, AvroRecord key, int? partition = (),
+    int? timestamp = ()) returns ProducerError? =
+@java:Method {
+    class: "org.ballerinalang.messaging.kafka.nativeimpl.producer.SendAvroValues",
+    paramTypes: ["org.ballerinalang.jvm.values.ObjectValue", "org.ballerinalang.jvm.values.MapValue",
+                 "java.lang.String", "org.ballerinalang.jvm.values.MapValue", "java.lang.Object", "java.lang.Object"]
+} external;
+
 function sendAvroAny(Producer producer, AvroRecord value, handle topic, any key, int? partition = (),
     int? timestamp = ()) returns ProducerError? =
 @java:Method {
@@ -807,6 +881,14 @@ function sendAnyByteArray(Producer producer, anydata value, handle topic, byte[]
     class: "org.ballerinalang.messaging.kafka.nativeimpl.producer.SendAnyValues",
     paramTypes: ["org.ballerinalang.jvm.values.ObjectValue", "java.lang.Object", "java.lang.String",
                  "org.ballerinalang.jvm.values.ArrayValue", "java.lang.Object", "java.lang.Object"]
+} external;
+
+function sendAnyAvro(Producer producer, anydata value, handle topic, AvroRecord key, int? partition = (),
+    int? timestamp = ()) returns ProducerError? =
+@java:Method {
+    class: "org.ballerinalang.messaging.kafka.nativeimpl.producer.SendAnyValues",
+    paramTypes: ["org.ballerinalang.jvm.values.ObjectValue", "java.lang.Object", "java.lang.String",
+                 "org.ballerinalang.jvm.values.MapValue", "java.lang.Object", "java.lang.Object"]
 } external;
 
 function sendAnyAny(Producer producer, anydata value, handle topic, any key, int? partition = (),
