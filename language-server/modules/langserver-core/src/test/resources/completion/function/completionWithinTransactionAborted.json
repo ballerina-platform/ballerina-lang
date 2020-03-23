@@ -1,6 +1,6 @@
 {
   "position": {
-    "line": 72,
+    "line": 87,
     "character": 8
   },
   "source": "function/source/commonCompletionBlocks.bal",
@@ -78,14 +78,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "abort",
-      "kind": "Snippet",
-      "detail": "Statement",
-      "sortText": "240",
-      "insertText": "abort;",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "foreach",
       "kind": "Snippet",
       "detail": "Statement",
@@ -134,14 +126,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "retry",
-      "kind": "Snippet",
-      "detail": "Statement",
-      "sortText": "240",
-      "insertText": "retry;",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "return",
       "kind": "Snippet",
       "detail": "Statement",
@@ -163,6 +147,14 @@
       "detail": "Statement",
       "sortText": "240",
       "insertText": "while (${1:true}) {\n\t${2}\n}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "abortedVar",
+      "kind": "Variable",
+      "detail": "int",
+      "sortText": "130",
+      "insertText": "abortedVar",
       "insertTextFormat": "Snippet"
     },
     {
@@ -285,14 +277,6 @@
       },
       "sortText": "200",
       "insertText": "error",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "transactionVar",
-      "kind": "Variable",
-      "detail": "int",
-      "sortText": "130",
-      "insertText": "transactionVar",
       "insertTextFormat": "Snippet"
     },
     {
