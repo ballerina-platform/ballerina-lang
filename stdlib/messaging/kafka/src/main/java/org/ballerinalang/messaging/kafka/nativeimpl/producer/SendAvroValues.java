@@ -44,8 +44,8 @@ public class SendAvroValues {
 
     // ballerina avro
     @SuppressWarnings(UNCHECKED)
-    public static Object send(ObjectValue producer, MapValue value, String topic, Object partition,
-                              Object timestamp) {
+    public static Object sendAvro(ObjectValue producer, MapValue value, String topic, Object partition,
+                                  Object timestamp) {
         GenericRecord genericRecord = createGenericRecord(value);
         Integer partitionValue = getIntValue(partition, ALIAS_PARTITION, logger);
         Long timestampValue = getLongValue(timestamp);
@@ -55,8 +55,8 @@ public class SendAvroValues {
     }
 
     // ballerina avro and String
-    public static Object send(ObjectValue producer, MapValue value, String topic, String key, Object partition,
-                              Object timestamp) {
+    public static Object sendAvroString(ObjectValue producer, MapValue value, String topic, String key,
+                                        Object partition, Object timestamp) {
         GenericRecord genericRecord = createGenericRecord(value);
         Integer partitionValue = getIntValue(partition, ALIAS_PARTITION, logger);
         Long timestampValue = getLongValue(timestamp);
@@ -66,8 +66,8 @@ public class SendAvroValues {
     }
 
     // ballerina avro and ballerina int
-    public static Object send(ObjectValue producer, MapValue value, String topic, long key, Object partition,
-                              Object timestamp) {
+    public static Object sendAvroInt(ObjectValue producer, MapValue value, String topic, long key, Object partition,
+                                     Object timestamp) {
         GenericRecord genericRecord = createGenericRecord(value);
         Integer partitionValue = getIntValue(partition, ALIAS_PARTITION, logger);
         Long timestampValue = getLongValue(timestamp);
@@ -77,8 +77,8 @@ public class SendAvroValues {
     }
 
     // ballerina avro and ballerina float
-    public static Object send(ObjectValue producer, MapValue value, String topic, double key, Object partition,
-                              Object timestamp) {
+    public static Object sendAvroFloat(ObjectValue producer, MapValue value, String topic, double key, Object partition,
+                                       Object timestamp) {
         GenericRecord genericRecord = createGenericRecord(value);
         Integer partitionValue = getIntValue(partition, ALIAS_PARTITION, logger);
         Long timestampValue = getLongValue(timestamp);
@@ -88,8 +88,8 @@ public class SendAvroValues {
     }
 
     // ballerina avro and ballerina byte[]
-    public static Object send(ObjectValue producer, MapValue value, String topic, BArray key, Object partition,
-                              Object timestamp) {
+    public static Object sendAvroByteArray(ObjectValue producer, MapValue value, String topic, BArray key,
+                                           Object partition, Object timestamp) {
         GenericRecord genericRecord = createGenericRecord(value);
         Integer partitionValue = getIntValue(partition, ALIAS_PARTITION, logger);
         Long timestampValue = getLongValue(timestamp);
