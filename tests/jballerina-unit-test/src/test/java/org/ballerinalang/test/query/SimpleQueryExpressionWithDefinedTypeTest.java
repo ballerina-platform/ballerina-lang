@@ -29,7 +29,6 @@ import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
 
 /**
  * This contains methods to test simple query expression with from, where and select clauses.
@@ -45,7 +44,7 @@ public class SimpleQueryExpressionWithDefinedTypeTest {
         result = BCompileUtil.compile("test-src/query/simple-query-with-defined-type.bal");
     }
 
-//    @Test(description = "Test simple select clause - simple variable definition statement ")
+    @Test(description = "Test simple select clause - simple variable definition statement ")
     public void testSimpleSelectQueryWithSimpleVariable() {
         BValue[] returnValues = BRunUtil.invoke(result, "testSimpleSelectQueryWithSimpleVariable");
         Assert.assertNotNull(returnValues);
@@ -61,7 +60,7 @@ public class SimpleQueryExpressionWithDefinedTypeTest {
         Assert.assertEquals(((BInteger) person3.get("age")).intValue(), 33);
     }
 
-//    @Test(description = "Test simple select clause - record variable definition statement ")
+    @Test(description = "Test simple select clause - record variable definition statement ")
     public void testSimpleSelectQueryWithRecordVariable() {
         BValue[] returnValues = BRunUtil.invoke(result, "testSimpleSelectQueryWithRecordVariable");
         Assert.assertNotNull(returnValues);
@@ -77,7 +76,7 @@ public class SimpleQueryExpressionWithDefinedTypeTest {
         Assert.assertEquals(((BInteger) person3.get("age")).intValue(), 33);
     }
 
-//    @Test(description = "Test simple select clause - record variable definition statement v2 ")
+    @Test(description = "Test simple select clause - record variable definition statement v2 ")
     public void testSimpleSelectQueryWithRecordVariableV2() {
         BValue[] returnValues = BRunUtil.invoke(result, "testSimpleSelectQueryWithRecordVariableV2");
         Assert.assertNotNull(returnValues);
@@ -93,7 +92,7 @@ public class SimpleQueryExpressionWithDefinedTypeTest {
         Assert.assertEquals(((BInteger) person3.get("age")).intValue(), 33);
     }
 
-//    @Test(description = "Test simple select clause - record variable definition statement v3 ")
+    @Test(description = "Test simple select clause - record variable definition statement v3 ")
     public void testSimpleSelectQueryWithRecordVariableV3() {
         BValue[] returnValues = BRunUtil.invoke(result, "testSimpleSelectQueryWithRecordVariableV3");
         Assert.assertNotNull(returnValues);
@@ -108,7 +107,7 @@ public class SimpleQueryExpressionWithDefinedTypeTest {
         Assert.assertEquals(person2.get("lastName").stringValue(), "Fonseka");
     }
 
-//    @Test(description = "Test simple select clause with a where clause")
+    @Test(description = "Test simple select clause with a where clause")
     public void testSimpleSelectQueryWithWhereClause() {
         BValue[] returnValues = BRunUtil.invoke(result, "testSimpleSelectQueryWithWhereClause");
         Assert.assertNotNull(returnValues);
@@ -124,7 +123,7 @@ public class SimpleQueryExpressionWithDefinedTypeTest {
         Assert.assertEquals(((BInteger) person2.get("age")).intValue(), 33);
     }
 
-//    @Test(description = "Test Query expression for primitive types ")
+    @Test(description = "Test Query expression for primitive types ")
     public void testQueryExpressionForPrimitiveType() {
         BValue[] returnValues = BRunUtil.invoke(result, "testQueryExpressionForPrimitiveType");
         Assert.assertNotNull(returnValues);
@@ -136,7 +135,7 @@ public class SimpleQueryExpressionWithDefinedTypeTest {
         Assert.assertEquals(((BValueArray) returnValues[0]).getInt(1), 25);
     }
 
-//    @Test(description = "Test Query expression with select expression ")
+    @Test(description = "Test Query expression with select expression ")
     public void testQueryExpressionWithSelectExpression() {
         BValue[] returnValues = BRunUtil.invoke(result, "testQueryExpressionWithSelectExpression");
         Assert.assertNotNull(returnValues);
@@ -149,7 +148,7 @@ public class SimpleQueryExpressionWithDefinedTypeTest {
         Assert.assertEquals(((BValueArray) returnValues[0]).getString(2), "3");
     }
 
-//    @Test(description = "Test filtering null values from query expression")
+    @Test(description = "Test filtering null values from query expression")
     public void testFilteringNullElements() {
         BValue[] returnValues = BRunUtil.invoke(result, "testFilteringNullElements");
         Assert.assertNotNull(returnValues);
@@ -165,7 +164,7 @@ public class SimpleQueryExpressionWithDefinedTypeTest {
         Assert.assertEquals(((BInteger) person2.get("age")).intValue(), 30);
     }
 
-//    @Test(description = "Test filtering map with from query expression")
+    @Test(description = "Test filtering map with from query expression")
     public void testMapWithArity() {
         BValue[] returnValues = BRunUtil.invoke(result, "testMapWithArity");
         Assert.assertNotNull(returnValues);
@@ -173,7 +172,7 @@ public class SimpleQueryExpressionWithDefinedTypeTest {
         Assert.assertEquals(((BValueArray) returnValues[0]).getString(0), "1A");
     }
 
-//    @Test(description = "Test selecting values in a JSON array from query expression")
+    @Test(description = "Test selecting values in a JSON array from query expression")
     public void testJSONArrayWithArity() {
         BValue[] returnValues = BRunUtil.invoke(result, "testJSONArrayWithArity");
         Assert.assertNotNull(returnValues);
@@ -182,7 +181,7 @@ public class SimpleQueryExpressionWithDefinedTypeTest {
         Assert.assertEquals(((BValueArray) returnValues[0]).getString(1), "tom");
     }
 
-//    @Test(description = "Test filtering values in a tuple from query expression")
+    @Test(description = "Test filtering values in a tuple from query expression")
     public void testArrayWithTuple() {
         BValue[] returnValues = BRunUtil.invoke(result, "testArrayWithTuple");
         Assert.assertNotNull(returnValues);
@@ -190,7 +189,7 @@ public class SimpleQueryExpressionWithDefinedTypeTest {
         Assert.assertEquals(returnValues[0].stringValue(), "[\"C\"]");
     }
 
-//    @Test(description = "Test from clause with a stream")
+    @Test(description = "Test from clause with a stream")
     public void testFromClauseWithStream() {
         BValue[] returnValues = BRunUtil.invoke(result, "testFromClauseWithStream");
         Assert.assertNotNull(returnValues);
@@ -202,7 +201,7 @@ public class SimpleQueryExpressionWithDefinedTypeTest {
         Assert.assertEquals(((BInteger) person.get("age")).intValue(), 40);
     }
 
-//    @Test(description = "Test let clause with a stream")
+    @Test(description = "Test let clause with a stream")
     public void testSimpleSelectQueryWithLetClause() {
         BValue[] returnValues = BRunUtil.invoke(result, "testSimpleSelectQueryWithLetClause");
         Assert.assertNotNull(returnValues);
@@ -220,7 +219,7 @@ public class SimpleQueryExpressionWithDefinedTypeTest {
         Assert.assertEquals(employee2.get("company").stringValue(), "WSO2");
     }
 
-//    @Test(description = "Use function return value in let clause")
+    @Test(description = "Use function return value in let clause")
     public void testFunctionCallInVarDeclLetClause() {
         BValue[] returnValues = BRunUtil.invoke(result, "testFunctionCallInVarDeclLetClause");
         Assert.assertNotNull(returnValues);
@@ -238,7 +237,7 @@ public class SimpleQueryExpressionWithDefinedTypeTest {
         Assert.assertEquals(employee2.get("age").stringValue(), "60");
     }
 
-//    @Test(description = "Use value set in let with where clause")
+    @Test(description = "Use value set in let with where clause")
     public void testUseOfLetInWhereClause() {
         BValue[] returnValues = BRunUtil.invoke(result, "testUseOfLetInWhereClause");
         Assert.assertNotNull(returnValues);
