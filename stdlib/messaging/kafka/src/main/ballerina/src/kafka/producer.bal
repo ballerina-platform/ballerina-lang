@@ -99,6 +99,9 @@ public type ProducerConfiguration record {|
     SecureSocket secureSocket?;
 |};
 
+# Defines a records to send data using Avro serialization.
+# + schemaString - The string which defines the Avro schema.
+# + dataRecord - Records which should be serialized using Avro.
 public type AvroRecord record {|
     string schemaString;
     anydata dataRecord;
