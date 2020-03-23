@@ -37,6 +37,11 @@ public class LexerTerminals {
     public static final String REMOTE = "remote";
     public static final String ABSTRACT = "abstract";
     public static final String CLIENT = "client";
+    public static final String IF = "if";
+    public static final String ELSE = "else";
+    public static final String WHILE = "while";
+    public static final String TRUE = "true";
+    public static final String FALSE = "false";
 
     // Types
     public static final String INT = "int";

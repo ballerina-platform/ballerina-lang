@@ -25,12 +25,13 @@ import io.ballerinalang.compiler.internal.parser.tree.STBinaryExpression;
 import io.ballerinalang.compiler.internal.parser.tree.STBlockStatement;
 import io.ballerinalang.compiler.internal.parser.tree.STBracedExpression;
 import io.ballerinalang.compiler.internal.parser.tree.STDefaultableParameter;
+import io.ballerinalang.compiler.internal.parser.tree.STElseBlock;
 import io.ballerinalang.compiler.internal.parser.tree.STEmptyNode;
-import io.ballerinalang.compiler.internal.parser.tree.STExpression;
 import io.ballerinalang.compiler.internal.parser.tree.STExternalFuncBody;
 import io.ballerinalang.compiler.internal.parser.tree.STFieldAccessExpression;
 import io.ballerinalang.compiler.internal.parser.tree.STFunctionCallExpression;
 import io.ballerinalang.compiler.internal.parser.tree.STFunctionDefinition;
+import io.ballerinalang.compiler.internal.parser.tree.STIfElseStatement;
 import io.ballerinalang.compiler.internal.parser.tree.STMemberAccessExpression;
 import io.ballerinalang.compiler.internal.parser.tree.STMethodCallExpression;
 import io.ballerinalang.compiler.internal.parser.tree.STMissingToken;
@@ -54,6 +55,7 @@ import io.ballerinalang.compiler.internal.parser.tree.STReturnTypeDescriptor;
 import io.ballerinalang.compiler.internal.parser.tree.STToken;
 import io.ballerinalang.compiler.internal.parser.tree.STTypeReference;
 import io.ballerinalang.compiler.internal.parser.tree.STVariableDeclaration;
+import io.ballerinalang.compiler.internal.parser.tree.STWhileStatement;
 import io.ballerinalang.compiler.internal.parser.tree.SyntaxKind;
 
 import java.util.ArrayList;
@@ -185,6 +187,16 @@ public class BallerinaParser {
                 return parseObjectKeyword();
             case TYPE_NAME:
                 return parseTypeName();
+            case IF_KEYWORD:
+                return parseIfKeyword();
+            case ELSE_KEYWORD:
+                return parseElseKeyword();
+            case ELSE_BODY:
+                return parseElseBody();
+            case WHILE_KEYWORD:
+                return parseWhileKeyword();
+            case BOOLEAN_LITERAL:
+                return parseBooleanLiteral();
             case FUNC_DEFINITION:
             case REQUIRED_PARAM:
             default:
@@ -925,7 +937,7 @@ public class BallerinaParser {
         STNode stmts = parseStatements(); // TODO: allow workers
         STNode closeBrace = parseCloseBrace();
         endContext();
-        return new STBlockStatement(SyntaxKind.BLOCK_STATEMENT, openBrace, stmts, closeBrace);
+        return new STBlockStatement(openBrace, stmts, closeBrace);
     }
 
     /**
@@ -941,6 +953,7 @@ public class BallerinaParser {
             case CLOSE_BRACE_PIPE_TOKEN:
             case PUBLIC_KEYWORD:
             case FUNCTION_KEYWORD:
+            case ELSE_KEYWORD:
                 return true;
             default:
                 return false;
@@ -1583,7 +1596,6 @@ public class BallerinaParser {
      * @return Parsed node
      */
     private STNode parseStatements() {
-        // TODO: parse statements/worker declrs
         STToken token = peek();
 
         ArrayList<STNode> stmts = new ArrayList<>();
@@ -1627,6 +1639,10 @@ public class BallerinaParser {
                 // If the statement starts with an identifier, it could be either an assignment
                 // statement or a var-decl-stmt with a user defined type.
                 return parseAssignmentOrVarDecl();
+            case IF_KEYWORD:
+                return parseIfElseBlock();
+            case WHILE_KEYWORD:
+                return parseWhileStatement();
             default:
                 // If the next token in the token stream does not match to any of the statements and
                 // if it is not the end of statement, then try to fix it and continue.
@@ -1860,6 +1876,9 @@ public class BallerinaParser {
                 return parseVarRefOrFuncCall();
             case OPEN_PAREN_TOKEN:
                 return parseBracedExpression();
+            case TRUE_KEYWORD:
+            case FALSE_KEYWORD:
+                return parseBooleanLiteral();
             default:
                 Solution solution = recover(peek(), ParserRuleContext.EXPRESSION);
 
@@ -2061,6 +2080,7 @@ public class BallerinaParser {
     private boolean isEndOfExpression(SyntaxKind tokenKind) {
         switch (tokenKind) {
             case CLOSE_BRACE_TOKEN:
+            case OPEN_BRACE_TOKEN:
             case CLOSE_PAREN_TOKEN:
             case CLOSE_BRACKET_TOKEN:
             case SEMICOLON_TOKEN:
@@ -2254,6 +2274,8 @@ public class BallerinaParser {
             // Any other expression goes here
             case NUMERIC_LITERAL_TOKEN:
             case OPEN_PAREN_TOKEN:
+            case TRUE_KEYWORD:
+            case FALSE_KEYWORD:
             default:
                 expr = parseExpression();
                 arg = new STPositionalArg(leadingComma, expr);
@@ -2288,6 +2310,8 @@ public class BallerinaParser {
             case NUMERIC_LITERAL_TOKEN:
             case IDENTIFIER_TOKEN:
             case OPEN_PAREN_TOKEN:
+            case TRUE_KEYWORD:
+            case FALSE_KEYWORD:
             default:
                 expr = parseExpression();
                 return new STPositionalArg(leadingComma, expr);
@@ -2648,5 +2672,168 @@ public class BallerinaParser {
 
     private STNode parseObjectMethod(STNode methodQualifiers) {
         return parseFunctionDefinition(methodQualifiers);
+    }
+
+    /**
+     * Parse if-else statement.
+     * <code>
+     * if-else-stmt := if expression block-stmt [else-block]
+     * </code>
+     * 
+     * @return If-else block
+     */
+    private STNode parseIfElseBlock() {
+        startContext(ParserRuleContext.IF_BLOCK);
+        STNode ifKeyword = parseIfKeyword();
+        STNode condition = parseExpression();
+        STNode ifBody = parseBlockNode();
+        endContext();
+
+        STNode elseBody = parseElseBlock();
+        return new STIfElseStatement(ifKeyword, condition, ifBody, elseBody);
+    }
+
+    /**
+     * Parse if-keyword.
+     * 
+     * @return Parsed if-keyword node
+     */
+    private STNode parseIfKeyword() {
+        STToken token = peek();
+        if (token.kind == SyntaxKind.IF_KEYWORD) {
+            return consume();
+        } else {
+            Solution sol = recover(token, ParserRuleContext.IF_KEYWORD);
+            return sol.recoveredNode;
+        }
+    }
+
+    /**
+     * Parse else-keyword.
+     * 
+     * @return Parsed else keyword node
+     */
+    private STNode parseElseKeyword() {
+        STToken token = peek();
+        if (token.kind == SyntaxKind.ELSE_KEYWORD) {
+            return consume();
+        } else {
+            Solution sol = recover(token, ParserRuleContext.ELSE_KEYWORD);
+            return sol.recoveredNode;
+        }
+    }
+
+    /**
+     * Parse block node.
+     * <code>
+     * block-stmt := { sequence-stmt }
+     * sequence-stmt := statement*
+     * </code>
+     * 
+     * @return Parse block node
+     */
+    private STNode parseBlockNode() {
+        startContext(ParserRuleContext.BLOCK_STMT);
+        STNode openBrace = parseOpenBrace();
+        STNode stmts = parseStatements();
+        STNode closeBrace = parseCloseBrace();
+        endContext();
+        return new STBlockStatement(openBrace, stmts, closeBrace);
+    }
+
+    /**
+     * Parse else block.
+     * <code>else-block := else (if-else-stmt | block-stmt)</code>
+     * 
+     * @return Else block
+     */
+    private STNode parseElseBlock() {
+        STToken nextToken = peek();
+        if (nextToken.kind != SyntaxKind.ELSE_KEYWORD) {
+            return new STEmptyNode();
+        }
+
+        STNode elseKeyword = parseElseKeyword();
+        STNode elseBody = parseElseBody();
+        return new STElseBlock(elseKeyword, elseBody);
+    }
+
+    /**
+     * Parse else node body.
+     * <code>else-body := if-else-stmt | block-stmt</code>
+     * 
+     * @return Else node body
+     */
+    private STNode parseElseBody() {
+        STToken nextToken = peek();
+        return parseElseBody(nextToken.kind);
+    }
+
+    private STNode parseElseBody(SyntaxKind nextTokenKind) {
+        switch (nextTokenKind) {
+            case IF_KEYWORD:
+                return parseIfElseBlock();
+            case OPEN_BRACE_TOKEN:
+                return parseBlockNode();
+            default:
+                STToken token = peek();
+                Solution solution = recover(token, ParserRuleContext.ELSE_BODY);
+
+                // If the parser recovered by inserting a token, then try to re-parse the same
+                // rule with the inserted token. This is done to pick the correct branch
+                // to continue the parsing.
+                if (solution.action == Action.REMOVE) {
+                    return solution.recoveredNode;
+                }
+
+                return parseElseBody(solution.tokenKind);
+        }
+    }
+
+    /**
+     * Parse while statement.
+     * <code>while-stmt := while expression block-stmt</code>
+     * 
+     * @return While statement
+     */
+    private STNode parseWhileStatement() {
+        startContext(ParserRuleContext.WHILE_BLOCK);
+        STNode whileKeyword = parseWhileKeyword();
+        STNode condition = parseExpression();
+        STNode whileBody = parseBlockNode();
+        endContext();
+        return new STWhileStatement(whileKeyword, condition, whileBody);
+    }
+
+    /**
+     * Parse while-keyword.
+     * 
+     * @return While-keyword node
+     */
+    private STNode parseWhileKeyword() {
+        STToken token = peek();
+        if (token.kind == SyntaxKind.WHILE_KEYWORD) {
+            return consume();
+        } else {
+            Solution sol = recover(token, ParserRuleContext.WHILE_KEYWORD);
+            return sol.recoveredNode;
+        }
+    }
+
+    /**
+     * Parse boolean literal.
+     * 
+     * @return Parsed node
+     */
+    private STNode parseBooleanLiteral() {
+        STToken token = peek();
+        switch (token.kind) {
+            case TRUE_KEYWORD:
+            case FALSE_KEYWORD:
+                return consume();
+            default:
+                Solution sol = recover(token, ParserRuleContext.BOOLEAN_LITERAL);
+                return sol.recoveredNode;
+        }
     }
 }

@@ -69,6 +69,11 @@ public enum ParserRuleContext {
     OBJECT_TYPE_FIRST_QUALIFIER("object-type-qualifier"),
     OBJECT_TYPE_SECOND_QUALIFIER("object-type-second-qualifier"),
     OBJECT_TYPE_DESCRIPTOR_START("object-type-desc-start"),
+    IF_BLOCK("if-block"),
+    BLOCK_STMT("block-stmt"),
+    ELSE_BLOCK("else-block"),
+    ELSE_BODY("else-body"),
+    WHILE_BLOCK("while-block"),
 
     // terminals
     PUBLIC_KEYWORD("public"),
@@ -102,7 +107,11 @@ public enum ParserRuleContext {
     DOT("."),
     OPEN_BRACKET("["),
     CLOSE_BRACKET("]"),
-    FIELD_OR_FUNC_NAME("variable"),
+    FIELD_OR_FUNC_NAME("field-or-func-name"),
+    IF_KEYWORD("if"),
+    ELSE_KEYWORD("else"),
+    WHILE_KEYWORD("while"),
+    BOOLEAN_LITERAL("boolean-literal"),
 
     // expressions
     EXPRESSION("expression"),

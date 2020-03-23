@@ -19,6 +19,8 @@ package io.ballerinalang.compiler.internal.parser.tree;
 
 public enum SyntaxKind {
 
+    // Keywords
+
     PUBLIC_KEYWORD(50, "public"),
     PRIVATE_KEYWORD(51, "private"),
     REMOTE_KEYWORD(52, "remote"),
@@ -41,6 +43,9 @@ public enum SyntaxKind {
     EXTERNAL_KEYWORD(202, "external"),
     TRUE_KEYWORD(203, "true"),
     FALSE_KEYWORD(204, "false"),
+    IF_KEYWORD(205, "if"),
+    ELSE_KEYWORD(206, "else"),
+    WHILE_KEYWORD(207, "while"),
 
     // Separators
     OPEN_BRACE_TOKEN(500, "{"),
@@ -92,6 +97,9 @@ public enum SyntaxKind {
     BLOCK_STATEMENT(1200),
     LOCAL_VARIABLE_DECL(1201),
     ASSIGNMENT_STATEMENT(1202),
+    IF_ELSE_STATEMENT(1203),
+    ELSE_BLOCK(1204),
+    WHILE_STATEMENT(1205),
 
     // Expressions
     BINARY_EXPRESSION(1300),

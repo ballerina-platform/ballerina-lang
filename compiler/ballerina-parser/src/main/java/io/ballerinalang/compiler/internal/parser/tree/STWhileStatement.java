@@ -19,31 +19,30 @@ package io.ballerinalang.compiler.internal.parser.tree;
 
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
-import io.ballerinalang.compiler.syntax.tree.BlockStatement;
 
-public class STBlockStatement extends STStatement {
+public class STWhileStatement extends STStatement {
 
-    public final STNode openBraceToken;
-    public final STNode statements;
-    public final STNode closeBraceToken;
+    public final STNode whileKeyword;
+    public final STNode condition;
+    public final STNode whileBody;
 
-    public STBlockStatement(STNode openBraceToken,
-                            STNode statements,
-                            STNode closeBraceToken) {
-        super(SyntaxKind.BLOCK_STATEMENT);
-        this.openBraceToken = openBraceToken;
-        this.statements = statements;
-        this.closeBraceToken = closeBraceToken;
+    public STWhileStatement(STNode whileKeyword,
+                             STNode condition,
+                             STNode whileBody) {
+        super(SyntaxKind.WHILE_STATEMENT);
+        this.whileKeyword = whileKeyword;
+        this.condition = condition;
+        this.whileBody = whileBody;
 
         this.bucketCount = 3;
         this.childBuckets = new STNode[this.bucketCount];
-        this.addChildNode(openBraceToken, 0);
-        this.addChildNode(statements, 1);
-        this.addChildNode(closeBraceToken, 2);
+        this.addChildNode(whileKeyword, 0);
+        this.addChildNode(condition, 1);
+        this.addChildNode(whileBody, 2);
     }
 
     @Override
     public Node createFacade(int position, NonTerminalNode parent) {
-        return new BlockStatement(this, position, parent);
+        return null;
     }
 }
