@@ -19,6 +19,9 @@ import ballerina/java;
 # WritableByteChannel represents an output resource (i.e file). which could be used to sink bytes.
 public type WritableByteChannel object {
 
+    # Adding default __init function to prevent object getting initialized from the user code.
+    function __init() {}
+
     # Sink bytes from a given input/output resource.
     #
     # This operation will be asynchronous, write might return without writing all the content.
