@@ -512,17 +512,17 @@ function invalidateResponses(HttpCache httpCache, Response inboundResponse, stri
     if (isCacheableStatusCode(inboundResponse.statusCode) &&
         inboundResponse.statusCode >= 200 && inboundResponse.statusCode < 400) {
         cache:Error? result = httpCache.cache.invalidate(getCacheKey(GET, path));
-        if (result is cache:Error) {
-            log:printDebug(function() returns string {
-                return "Failed to remove the key: " + getCacheKey(GET, path) + " from the cache.";
-            });
-        }
+        //if (result is cache:Error) {
+        //    log:printDebug(function() returns string {
+        //        return "Failed to remove the key: " + getCacheKey(GET, path) + " from the cache.";
+        //    });
+        //}
         result = httpCache.cache.invalidate(getCacheKey(HEAD, path));
-        if (result is cache:Error) {
-            log:printDebug(function() returns string {
-                return "Failed to remove the key: " + getCacheKey(GET, path) + " from the cache.";
-            });
-        }
+        //if (result is cache:Error) {
+        //    log:printDebug(function() returns string {
+        //        return "Failed to remove the key: " + getCacheKey(GET, path) + " from the cache.";
+        //    });
+        //}
     }
 }
 
