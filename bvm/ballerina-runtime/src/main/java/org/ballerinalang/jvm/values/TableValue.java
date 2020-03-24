@@ -21,7 +21,6 @@ import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.ColumnDefinition;
 import org.ballerinalang.jvm.DataIterator;
 import org.ballerinalang.jvm.IteratorUtils;
-import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.TableProvider;
 import org.ballerinalang.jvm.TableUtils;
 import org.ballerinalang.jvm.scheduling.Strand;
@@ -158,11 +157,6 @@ public class TableValue implements RefValue, BTable {
      */
     public String stringValue() {
         return createStringValueDataEntry();
-    }
-
-    @Override
-    public BString bStringValue() {
-        return StringUtils.fromString(stringValue());
     }
 
     private String createStringValueDataEntry() {

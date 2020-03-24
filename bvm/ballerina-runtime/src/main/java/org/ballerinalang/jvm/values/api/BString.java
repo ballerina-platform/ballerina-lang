@@ -32,4 +32,7 @@ public interface BString {
 
     BString concat(BString str);
 
+    Long indexOf(BString str, int fromIndex);
+
+    BString substring(int beginIndex, int endIndex);
 }

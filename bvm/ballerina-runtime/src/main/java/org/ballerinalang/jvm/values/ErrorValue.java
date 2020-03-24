@@ -96,15 +96,6 @@ public class ErrorValue extends BError implements RefValue {
     }
 
     @Override
-    public BString bStringValue() {
-        if (isEmptyDetail()) {
-            return StringUtils.fromString("error ").concat(reason);
-        }
-        return StringUtils.fromString("error ").concat(reason).concat(StringUtils.fromString(" ")).concat(
-                org.ballerinalang.jvm.values.utils.StringUtils.getBStringValue(details));
-    }
-
-    @Override
     public BType getType() {
         return type;
     }
@@ -258,10 +249,7 @@ public class ErrorValue extends BError implements RefValue {
         if (details == null) {
             return true;
         }
-        if ((details instanceof MapValue) && ((MapValue) details).isEmpty()) {
-            return true;
-        }
-        return false;
+        return (details instanceof MapValue) && ((MapValue) details).isEmpty();
     }
 
     /**

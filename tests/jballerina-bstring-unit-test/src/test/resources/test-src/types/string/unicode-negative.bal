@@ -1,4 +1,4 @@
-// Copyright (c) 2019 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+// Copyright (c) 2020 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 //
 // WSO2 Inc. licenses this file to you under the Apache License,
 // Version 2.0 (the "License"); you may not use this file except
@@ -14,9 +14,13 @@
 // specific language governing permissions and limitations
 // under the License.
 
-# Default error type.
-# The first type parameter describe reason type which must be a subtype of string,
-# and the second type parameter is for the error detail.
-# The error detail record type may contain an optional message, optional cause,
-# and any other pure constrained mapping values.
-public type 'error error<string, record {| string message?; error cause?; (anydata|error)...; |}>;
+function testUnicodeNegative() {
+    string s1 = "\u{D800}";
+    string s2 = "\u{D8FF}";
+    string s3 = "\u{DFFF}";
+    string s4 = "\u{11FFFF}";
+    string s5 = "\u{12FFFF}";
+    string s6 = "\u{DFFF}\u{DAFF}";
+    string s7 = "\u{12FFFF} ABC \u{DFFF} DEF \u{DAFF}";
+    string s7 = "\u{12FFFF} ABC \u{DFFFAAA} DEF \u{FFFFFFF}";
+}
