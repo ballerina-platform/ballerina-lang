@@ -15,6 +15,7 @@
   *  specific language governing permissions and limitations
   *  under the License.
   */
+
 package org.ballerinalang.jvm.values;
 
  import org.ballerinalang.jvm.values.api.BString;
@@ -51,6 +52,8 @@ public class BmpStringValue implements StringValue {
      public BString concat(BString str) {
          if (str instanceof BmpStringValue) {
              return new BmpStringValue(this.value + ((BmpStringValue) str).value);
+         } else if (str instanceof NonBmpStringValue) {
+             return new NonBmpStringValue(this.value + str.getValue(), ((NonBmpStringValue) str).getSurrogates());
          } else {
              throw new RuntimeException("not impl yet");
          }
@@ -63,11 +66,16 @@ public class BmpStringValue implements StringValue {
 
     @Override
     public BString bStringValue() {
-        return null;
+        return this;
     }
 
     @Override
     public int hashCode() {
         return value.hashCode();
     }
+
+     @Override
+     public String toString() {
+         return value;
+     }
 }

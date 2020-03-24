@@ -88,11 +88,20 @@ public class NonBmpStringValue implements StringValue {
 
     @Override
     public BString bStringValue() {
-        return null;
+        return this;
     }
 
     @Override
     public int hashCode() {
         return value.hashCode();
+    }
+
+    public int[] getSurrogates() {
+        return surrogates.clone();
+    }
+
+    @Override
+    public String toString() {
+        return value;
     }
 }

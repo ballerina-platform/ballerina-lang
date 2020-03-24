@@ -103,6 +103,9 @@ public class JMethod {
             if (parameter.isObjArrayParam()) {
                 this.exceptionTypes = true;
             }
+            if (parameter.isObjArrayParam()) {
+                this.exceptionTypes = true;
+            }
         }
         if (m.getExceptionTypes().length > 0) {
             this.exceptionTypes = true;

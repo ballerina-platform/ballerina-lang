@@ -372,7 +372,7 @@ public class TupleValueImpl extends AbstractArrayValue {
 
     @Override
     public BString bStringValue() {
-        return null;
+        return org.ballerinalang.jvm.StringUtils.fromString(stringValue());
     }
 
     @Override

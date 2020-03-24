@@ -69,6 +69,8 @@ dependencies {
         implementation 'org.apache.ws.commons.axiom:axiom-impl:1.2.22'
         implementation 'org.apache.ws.commons.axiom:axiom-dom:1.2.22'
         implementation 'org.apache.ws.commons.axiom:axiom-c14n:1.2.22'
+        implementation 'org.codehaus.woodstox:woodstox-core-asl:4.4.1'
+        implementation 'org.codehaus.woodstox:stax2-api:4.2'
         implementation 'org.awaitility:awaitility:3.1.6'
         implementation 'org.apache.thrift:libthrift:0.12.0'
         implementation 'org.bouncycastle:bcprov-jdk15on:1.61'
