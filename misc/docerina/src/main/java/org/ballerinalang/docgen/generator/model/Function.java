@@ -24,14 +24,16 @@ import java.util.List;
 public class Function extends Construct {
     public boolean isRemote;
     public boolean isExtern;
+    public boolean isDeprecated;
     public List<DefaultableVarible> parameters = new ArrayList<>();
     public List<Variable> returnParameters = new ArrayList<>();
 
-    public Function(String name, String description, boolean isRemote, boolean isExtern,
+    public Function(String name, String description, boolean isRemote, boolean isExtern, boolean isDeprecated,
                     List<DefaultableVarible> parameters, List<Variable> returnParameters) {
         super(name, description);
         this.isRemote = isRemote;
         this.isExtern = isExtern;
+        this.isDeprecated = isDeprecated;
         this.parameters = parameters;
         this.returnParameters = returnParameters;
     }

@@ -38,6 +38,7 @@ import org.ballerinalang.model.tree.DocumentableNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.SimpleVariableNode;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
+import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangMarkdownDocumentation;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
@@ -233,10 +234,22 @@ public class Generator {
 
         }
 
+        // functionNode.getAnnotationAttachments().get(0).annotationName.value.equals("deprecated")
+        // deprecated annotation
+        boolean isDeprecated = false;
+        if (functionNode.getAnnotationAttachments() != null) {
+            List<BLangAnnotationAttachment> annotationAttachments = functionNode.getAnnotationAttachments();
+            for (BLangAnnotationAttachment attachment:annotationAttachments) {
+                if (attachment.getAnnotationName().getValue().equals("deprecated")) {
+                    isDeprecated = true;
+                }
+            }
+        }
+
         return new Function(functionName, description(functionNode),
                         functionNode.getFlags().contains(Flag.REMOTE),
                         functionNode.getFlags().contains(Flag.NATIVE),
-                        parameters, returnParams);
+                        isDeprecated, parameters, returnParams);
     }
 
     private static DefaultableVarible getVariable(BLangFunction functionNode, BLangSimpleVariable param, Module mod) {
