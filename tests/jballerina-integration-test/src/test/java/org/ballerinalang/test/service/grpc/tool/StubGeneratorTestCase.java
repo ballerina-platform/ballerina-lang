@@ -344,6 +344,25 @@ public class StubGeneratorTestCase {
                 "Expected imports not found in compile results.");
     }
 
+    @Test(description = "Test case for protobuf any type generation")
+    public void testAnyTypeGeneration() throws IllegalAccessException, ClassNotFoundException,
+            InstantiationException {
+        CompileResult compileResult = getStubCompileResult("anydata.proto",
+                "anydata_pb.bal");
+        assertEquals(compileResult.getDiagnostics().length, 0);
+        assertEquals(((BLangPackage) compileResult.getAST()).typeDefinitions.size(), 5,
+                "Expected type definitions not found in compile results.");
+        assertEquals(((BLangPackage) compileResult.getAST()).functions.size(), 9,
+                "Expected functions not found in compile results.");
+        validatePublicAttachedFunctions(compileResult);
+        assertEquals(((BLangPackage) compileResult.getAST()).globalVars.size(), 1,
+                "Expected global variables not found in compile results.");
+        assertEquals(((BLangPackage) compileResult.getAST()).constants.size(), 1,
+                "Expected constants not found in compile results.");
+        assertEquals(((BLangPackage) compileResult.getAST()).imports.size(), 1,
+                "Expected imports not found in compile results.");
+    }
+
     @Test(description = "Test case checks creation of only the service file, in the service mode, with single service")
     public void testServiceFileGenWithoutStub() throws IllegalAccessException, ClassNotFoundException,
             InstantiationException {
