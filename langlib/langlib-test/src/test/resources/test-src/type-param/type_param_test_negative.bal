@@ -124,3 +124,9 @@ function testInvalidArgForBoundRequiredParam() {
     int i = -1;
     index = barr.indexOf(i);
 }
+
+function testInvalidArgOnUnionTypedValue() {
+    int[]|string[] arr = [1, 2];
+    arr.push(true);
+    array:unshift(arr, 13.2);
+}
