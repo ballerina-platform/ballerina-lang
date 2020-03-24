@@ -2371,7 +2371,9 @@ public class BallerinaParser {
     }
 
     /**
-     * @return
+     * Parse object type descriptor.
+     * 
+     * @return Parsed node
      */
     private STNode parseObjectTypeDescriptor() {
         startContext(ParserRuleContext.OBJECT_TYPE_DESCRIPTOR);
@@ -2386,7 +2388,9 @@ public class BallerinaParser {
     }
 
     /**
-     * @return
+     * Parse object type qualifiers.
+     * 
+     * @return Parsed node
      */
     private STNode parseObjectTypeQualifiers() {
         STToken nextToken = peek();
@@ -2462,6 +2466,8 @@ public class BallerinaParser {
     }
 
     /**
+     * Parse client keyword.
+     * 
      * @return Parsed node
      */
     private STNode parseClientKeyword() {
@@ -2475,6 +2481,8 @@ public class BallerinaParser {
     }
 
     /**
+     * Parse abstract keyword.
+     * 
      * @return Parsed node
      */
     private STNode parseAbstractKeyword() {
@@ -2488,6 +2496,8 @@ public class BallerinaParser {
     }
 
     /**
+     * Parse object keyword.
+     * 
      * @return Parsed node
      */
     private STNode parseObjectKeyword() {
@@ -2501,6 +2511,8 @@ public class BallerinaParser {
     }
 
     /**
+     * Parse object members.
+     * 
      * @return Parsed node
      */
     private STNode parseObjectMembers() {
