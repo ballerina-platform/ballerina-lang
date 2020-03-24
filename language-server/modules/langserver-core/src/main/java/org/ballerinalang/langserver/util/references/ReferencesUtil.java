@@ -40,7 +40,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
-import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import java.nio.file.Path;
@@ -239,14 +238,10 @@ public class ReferencesUtil {
         BSymbol cursorSymbol = symbolAtCursor.getSymbol();
         symbolReferencesModel.getDefinitions()
                 .removeIf(reference -> reference.getSymbol() != cursorSymbol
-                        && (reference.getSymbol().type.tsymbol != cursorSymbol)
-                        && !(cursorSymbol.type.tag == TypeTags.ERROR
-                        && reference.getSymbol().type.tsymbol == cursorSymbol.type.tsymbol));
+                        && (reference.getSymbol().type.tsymbol != cursorSymbol));
         symbolReferencesModel.getReferences()
                 .removeIf(reference -> reference.getSymbol() != cursorSymbol
-                        && (reference.getSymbol().type.tsymbol != cursorSymbol
-                        && !(cursorSymbol.type.tag == TypeTags.ERROR
-                        && reference.getSymbol().type.tsymbol == cursorSymbol.type.tsymbol)));
+                        && (reference.getSymbol().type.tsymbol != cursorSymbol));
     }
 
     public static List<Location> getLocations(List<SymbolReferencesModel.Reference> references, String sourceRoot) {

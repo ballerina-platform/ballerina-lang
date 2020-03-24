@@ -591,17 +591,28 @@ public class TreeVisitor extends LSNodeVisitor {
 
     @Override
     public void visit(BLangTransaction transactionNode) {
-        this.blockOwnerStack.push(transactionNode);
+        SymbolEnv transactionEnv = SymbolEnv.createTransactionEnv(transactionNode, symbolEnv);
+        this.blockOwnerStack.push(transactionNode.transactionBody);
         this.isCurrentNodeTransactionStack.push(true);
         this.transactionCount++;
-        this.acceptNode(transactionNode.transactionBody, symbolEnv);
+        this.acceptNode(transactionNode.transactionBody, transactionEnv);
         this.blockOwnerStack.pop();
         this.isCurrentNodeTransactionStack.pop();
         this.transactionCount--;
 
         if (transactionNode.onRetryBody != null) {
-            this.blockOwnerStack.push(transactionNode);
-            this.acceptNode(transactionNode.onRetryBody, symbolEnv);
+            this.blockOwnerStack.push(transactionNode.onRetryBody);
+            this.acceptNode(transactionNode.onRetryBody, transactionEnv);
+            this.blockOwnerStack.pop();
+        }
+        if (transactionNode.committedBody != null) {
+            this.blockOwnerStack.push(transactionNode.committedBody);
+            this.acceptNode(transactionNode.committedBody, transactionEnv);
+            this.blockOwnerStack.pop();
+        }
+        if (transactionNode.abortedBody != null) {
+            this.blockOwnerStack.push(transactionNode.abortedBody);
+            this.acceptNode(transactionNode.abortedBody, transactionEnv);
             this.blockOwnerStack.pop();
         }
     }
