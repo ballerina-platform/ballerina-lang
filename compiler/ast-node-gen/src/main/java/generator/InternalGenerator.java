@@ -26,8 +26,9 @@ public class InternalGenerator {
     private static ToStringFunction toStringFunction;
     private static FacadeClass facadeFunction;
 
-    public static void generateInternalTree(String internalTemplatePath, String classPath) throws IOException, GeneratorException {
-        List<Node> originalNodes = Common.getTreeNodes();
+    public static void generateInternalTree(String internalTemplatePath, String classPath,
+                                            String nodeJsonPath) throws IOException, GeneratorException {
+        List<Node> originalNodes = Common.getTreeNodes(nodeJsonPath);
         if (originalNodes == null) {
             throw new GeneratorException("Received an empty node list.");
         }

@@ -28,9 +28,9 @@ public class Common {
         return classMap;
     }
 
-    public static List<Node> getTreeNodes() throws IOException {
+    public static List<Node> getTreeNodes(String nodeJsonPath) throws IOException {
         Gson gson = new Gson();
-        Tree ast = gson.fromJson(new FileReader("compiler/ast-node-gen/src/main/resources/newTree.json"),
+        Tree ast = gson.fromJson(new FileReader(nodeJsonPath),
                 Tree.class);
         return ast.getNode();
     }

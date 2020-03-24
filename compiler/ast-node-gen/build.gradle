@@ -1,11 +1,17 @@
 plugins {
-    id 'java'
+    id "application"
+}
+apply plugin : "java"
+ext {
+    javaMainClass = "generator.Generator"
+}
+application {
+    mainClassName = javaMainClass
 }
 
-group 'org.ballerinalang'
-version '1.2.0-SNAPSHOT'
+apply from: "$rootDir/gradle/javaProject.gradle"
 
-sourceCompatibility = 1.8
+description = 'Ballerina - AST node generator'
 
 repositories {
     mavenCentral()

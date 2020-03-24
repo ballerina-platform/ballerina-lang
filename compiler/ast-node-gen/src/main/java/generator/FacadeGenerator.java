@@ -89,8 +89,9 @@ public class FacadeGenerator {
         return switchFunction;
     }
 
-    public static void generateFacade(String facadeTemplatePath, String classPath) throws IOException, GeneratorException {
-        List<Node> nodes = Common.getTreeNodes();
+    public static void generateFacade(String facadeTemplatePath, String classPath,
+                                      String nodeJsonPath) throws IOException, GeneratorException {
+        List<Node> nodes = Common.getTreeNodes(nodeJsonPath);
         if (nodes != null) {
             List<Node> nodeList = restructureNodes(nodes);
             for (Node node : nodeList) {
