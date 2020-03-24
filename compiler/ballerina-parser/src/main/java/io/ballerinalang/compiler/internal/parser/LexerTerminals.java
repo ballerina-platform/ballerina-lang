@@ -42,6 +42,8 @@ public class LexerTerminals {
     public static final String WHILE = "while";
     public static final String TRUE = "true";
     public static final String FALSE = "false";
+    public static final String CHECK = "check";
+    public static final String CHECKPANIC = "checkpanic";
 
     // Types
     public static final String INT = "int";

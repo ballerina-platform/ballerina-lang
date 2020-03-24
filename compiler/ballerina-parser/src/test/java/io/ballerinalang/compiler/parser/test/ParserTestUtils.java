@@ -219,6 +219,10 @@ public class ParserTestUtils {
                 return SyntaxKind.TRUE_KEYWORD;
             case "FALSE_KEYWORD":
                 return SyntaxKind.FALSE_KEYWORD;
+            case "CHECK_KEYWORD":
+                return SyntaxKind.CHECK_KEYWORD;
+            case "CHECKPANIC_KEYWORD":
+                return SyntaxKind.CHECKPANIC_KEYWORD;
 
             // Operators
             case "PLUS_TOKEN":
@@ -303,6 +307,8 @@ public class ParserTestUtils {
                 return SyntaxKind.METHOD_CALL;
             case "MEMBER_ACCESS":
                 return SyntaxKind.MEMBER_ACCESS;
+            case "CHECK_EXPRESSION":
+                return SyntaxKind.CHECK_EXPRESSION;
 
             // Statements
             case "BLOCK_STATEMENT":
@@ -317,6 +323,8 @@ public class ParserTestUtils {
                 return SyntaxKind.ELSE_BLOCK;
             case "WHILE_STATEMENT":
                 return SyntaxKind.WHILE_STATEMENT;
+            case "CALL_STATEMENT":
+                return SyntaxKind.CALL_STATEMENT;
 
             // Others
             case "SIMPLE_TYPE":

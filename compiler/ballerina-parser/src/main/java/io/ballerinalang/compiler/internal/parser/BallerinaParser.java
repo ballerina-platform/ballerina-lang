@@ -27,6 +27,7 @@ import io.ballerinalang.compiler.internal.parser.tree.STBracedExpression;
 import io.ballerinalang.compiler.internal.parser.tree.STDefaultableParameter;
 import io.ballerinalang.compiler.internal.parser.tree.STElseBlock;
 import io.ballerinalang.compiler.internal.parser.tree.STEmptyNode;
+import io.ballerinalang.compiler.internal.parser.tree.STCallStatement;
 import io.ballerinalang.compiler.internal.parser.tree.STExternalFuncBody;
 import io.ballerinalang.compiler.internal.parser.tree.STFieldAccessExpression;
 import io.ballerinalang.compiler.internal.parser.tree.STFunctionCallExpression;
@@ -54,6 +55,7 @@ import io.ballerinalang.compiler.internal.parser.tree.STRestParameter;
 import io.ballerinalang.compiler.internal.parser.tree.STReturnTypeDescriptor;
 import io.ballerinalang.compiler.internal.parser.tree.STToken;
 import io.ballerinalang.compiler.internal.parser.tree.STTypeReference;
+import io.ballerinalang.compiler.internal.parser.tree.STCheckExpression;
 import io.ballerinalang.compiler.internal.parser.tree.STVariableDeclaration;
 import io.ballerinalang.compiler.internal.parser.tree.STWhileStatement;
 import io.ballerinalang.compiler.internal.parser.tree.SyntaxKind;
@@ -158,10 +160,12 @@ public class BallerinaParser {
                 return parseTopLevelNode(parsedNodes[0]);
             case TOP_LEVEL_NODE_WITH_MODIFIER:
                 return parseTopLevelNodeWithModifier();
-            case TYPE_REF_OR_VAR_REF:
-                return parseTypeRefOrVarRef();
+            case STATEMENT_START_IDENTIFIER:
+                return parseStatementStartIdentifier();
             case VAR_DECL_STMT_RHS:
                 return parseVarDeclRhs(parsedNodes[0], parsedNodes[1]);
+            case ASSIGNMENT_OR_VAR_DECL_STMT:
+                return parseAssignmentOrVarDecl();
             case ASSIGNMENT_OR_VAR_DECL_STMT_RHS:
                 return parseAssignmentOrVarDeclRhs(parsedNodes[0]);
             case TYPE_REFERENCE:
@@ -993,8 +997,8 @@ public class BallerinaParser {
      * 
      * @return Parsed node
      */
-    private STNode parseTypeRefOrVarRef() {
-        return parseQualifiedIdentifier(ParserRuleContext.TYPE_REF_OR_VAR_REF);
+    private STNode parseStatementStartIdentifier() {
+        return parseQualifiedIdentifier(ParserRuleContext.STATEMENT_START_IDENTIFIER);
     }
 
     /**
@@ -1180,6 +1184,7 @@ public class BallerinaParser {
                 return OperatorPrecedence.BINARY_COMPARE;
             case DOT_TOKEN:
             case OPEN_BRACKET_TOKEN:
+            case OPEN_PAREN_TOKEN:
                 return OperatorPrecedence.MEMBER_ACCESS;
             default:
                 throw new UnsupportedOperationException("Unsupported binary operator '" + binaryOpKind + "'");
@@ -1677,6 +1682,9 @@ public class BallerinaParser {
                 return parseIfElseBlock();
             case WHILE_KEYWORD:
                 return parseWhileStatement();
+            case CHECK_KEYWORD:
+            case CHECKPANIC_KEYWORD:
+                return parseCallStatementWithCheck();
             default:
                 // If the next token in the token stream does not match to any of the statements and
                 // if it is not the end of statement, then try to fix it and continue.
@@ -1785,9 +1793,9 @@ public class BallerinaParser {
      * @return Parsed node
      */
     private STNode parseAssignmentOrVarDecl() {
-        startContext(ParserRuleContext.ASSIGNMENT_OR_VAR_DECL_STMT_RHS);
-        STNode typeOrVarName = parseTypeRefOrVarRef();
-        STNode assignmentOrVarDecl = parseAssignmentOrVarDeclRhs(typeOrVarName);
+        startContext(ParserRuleContext.ASSIGNMENT_OR_VAR_DECL_STMT);
+        STNode identifier = parseStatementStartIdentifier();
+        STNode assignmentOrVarDecl = parseAssignmentOrVarDeclRhs(identifier);
         endContext();
         return assignmentOrVarDecl;
     }
@@ -1807,20 +1815,37 @@ public class BallerinaParser {
      * Parse the second portion of an assignment statement or a var-decl statement when ambiguous,
      * given the next token kind.
      * 
-     * @param tokenKind Next token kind
-     * @param typeOrVarName Type name or variable name
+     * @param nextTokenKind Next token kind
+     * @param identifier Identifier at the start of the statement
      * @return Parsed node
      */
-    private STNode parseAssignmentOrVarDeclRhs(SyntaxKind tokenKind, STNode typeOrVarName) {
-        switch (tokenKind) {
+    private STNode parseAssignmentOrVarDeclRhs(SyntaxKind nextTokenKind, STNode identifier) {
+        switch (nextTokenKind) {
             case IDENTIFIER_TOKEN:
                 STNode varName = parseVariableName();
-                return parseVarDeclRhs(typeOrVarName, varName);
+                return parseVarDeclRhs(identifier, varName);
             case EQUAL_TOKEN:
-                return parseAssignmentStmtRhs(typeOrVarName);
+                return parseAssignmentStmtRhs(identifier);
+            case OPEN_PAREN_TOKEN:
+            case DOT_TOKEN:
+            case OPEN_BRACKET_TOKEN:
+                STNode expr = parseExpressionRhs(identifier, true);
+                switch (expr.kind) {
+                    case METHOD_CALL:
+                    case FUNCTION_CALL:
+                        return parseCallStatement(expr);
+                    case FIELD_ACCESS:
+                    case MEMBER_ACCESS:
+                        return parseAssignmentStmtRhs(expr);
+                    default:
+                        // TODO: Add proper error reporting
+                        this.errorHandler.reportInvalidNode(null,
+                                "left hand side of an assignment must be a variable reference");
+                        return parseCallStatement(expr);
+                }
             default:
                 STToken token = peek();
-                Solution solution = recover(token, ParserRuleContext.ASSIGNMENT_OR_VAR_DECL_STMT_RHS, typeOrVarName);
+                Solution solution = recover(token, ParserRuleContext.ASSIGNMENT_OR_VAR_DECL_STMT_RHS, identifier);
 
                 // If the parser recovered by inserting a token, then try to re-parse the same
                 // rule with the inserted token. This is done to pick the correct branch
@@ -1829,7 +1854,7 @@ public class BallerinaParser {
                     return solution.recoveredNode;
                 }
 
-                return parseAssignmentOrVarDeclRhs(solution.tokenKind, typeOrVarName);
+                return parseAssignmentOrVarDeclRhs(solution.tokenKind, identifier);
         }
     }
 
@@ -1855,14 +1880,14 @@ public class BallerinaParser {
      * </p>
      * <code>assignment-stmt-rhs := = action-or-expr ;</code>
      * 
-     * @param varName Var ref name
+     * @param expression LHS expression
      * @return Parsed node
      */
-    private STNode parseAssignmentStmtRhs(STNode varName) {
+    private STNode parseAssignmentStmtRhs(STNode expression) {
         STNode assign = parseAssignOp();
         STNode expr = parseExpression();
         STNode semicolon = parseSemicolon();
-        return new STAssignmentStatement(SyntaxKind.ASSIGNMENT_STATEMENT, varName, assign, expr, semicolon);
+        return new STAssignmentStatement(SyntaxKind.ASSIGNMENT_STATEMENT, expression, assign, expr, semicolon);
     }
 
     /*
@@ -1875,7 +1900,7 @@ public class BallerinaParser {
      * @return Parsed node
      */
     private STNode parseExpression() {
-        return parseExpression(OperatorPrecedence.BINARY_COMPARE);
+        return parseExpression(OperatorPrecedence.BINARY_COMPARE, false);
     }
 
     /**
@@ -1884,9 +1909,9 @@ public class BallerinaParser {
      * @param precedenceLevel Precedence level of expression to be parsed
      * @return Parsed node
      */
-    private STNode parseExpression(OperatorPrecedence precedenceLevel) {
+    private STNode parseExpression(OperatorPrecedence precedenceLevel, boolean isAssignmentLhs) {
         STNode expr = parseTerminalExpression();
-        return parseExpressionRhs(precedenceLevel, expr);
+        return parseExpressionRhs(precedenceLevel, expr, isAssignmentLhs);
     }
 
     /**
@@ -1907,12 +1932,15 @@ public class BallerinaParser {
             case NUMERIC_LITERAL_TOKEN:
                 return parseLiteral();
             case IDENTIFIER_TOKEN:
-                return parseVarRefOrFuncCall();
+                return parseQualifiedIdentifier(ParserRuleContext.VARIABLE_NAME);
             case OPEN_PAREN_TOKEN:
                 return parseBracedExpression();
             case TRUE_KEYWORD:
             case FALSE_KEYWORD:
                 return parseBooleanLiteral();
+            case CHECK_KEYWORD:
+            case CHECKPANIC_KEYWORD:
+                return parseCheckExpression();
             default:
                 Solution solution = recover(peek(), ParserRuleContext.EXPRESSION);
 
@@ -1927,13 +1955,17 @@ public class BallerinaParser {
         }
     }
 
+    private STNode parseExpressionRhs(STNode lhsExpr) {
+        return parseExpressionRhs(OperatorPrecedence.BINARY_COMPARE, lhsExpr, false);
+    }
+
     /**
      * Parse the right-hand-side of an expression.
      * 
      * @return Parsed node
      */
-    private STNode parseExpressionRhs(STNode lhsExpr) {
-        return parseExpressionRhs(OperatorPrecedence.BINARY_COMPARE, lhsExpr);
+    private STNode parseExpressionRhs(STNode lhsExpr, boolean isAssignmentLhs) {
+        return parseExpressionRhs(OperatorPrecedence.BINARY_COMPARE, lhsExpr, isAssignmentLhs);
     }
 
     /**
@@ -1949,9 +1981,9 @@ public class BallerinaParser {
      * @param lhsExpr LHS expression of the expression
      * @return Parsed node
      */
-    private STNode parseExpressionRhs(OperatorPrecedence precedenceLevel, STNode lhsExpr) {
+    private STNode parseExpressionRhs(OperatorPrecedence precedenceLevel, STNode lhsExpr, boolean isAssignmentLhs) {
         STToken token = peek();
-        return parseExpressionRhs(precedenceLevel, token.kind, lhsExpr);
+        return parseExpressionRhs(precedenceLevel, token.kind, lhsExpr, isAssignmentLhs);
     }
 
     /**
@@ -1961,13 +1993,13 @@ public class BallerinaParser {
      * @param tokenKind Next token kind
      * @return Parsed node
      */
-    private STNode parseExpressionRhs(OperatorPrecedence currentPrecedenceLevel, SyntaxKind tokenKind, STNode lhsExpr) {
-        if (isEndOfExpression(tokenKind)) {
+    private STNode parseExpressionRhs(OperatorPrecedence currentPrecedenceLevel, SyntaxKind tokenKind, STNode lhsExpr,
+                                      boolean isAssignmentLhs) {
+        if (isEndOfExpression(tokenKind, isAssignmentLhs)) {
             return lhsExpr;
         }
 
-        if (!isBinaryOperator(tokenKind) && tokenKind != SyntaxKind.DOT_TOKEN &&
-                tokenKind != SyntaxKind.OPEN_BRACKET_TOKEN) {
+        if (!isValidExprRhsStart(tokenKind)) {
             STToken token = peek();
             Solution solution = recover(token, ParserRuleContext.EXPRESSION_RHS, lhsExpr);
 
@@ -1986,9 +2018,9 @@ public class BallerinaParser {
                 // We come here if the operator is missing. Treat this as injecting an operator
                 // that matches to the current operator precedence level, and continue.
                 SyntaxKind binaryOpKind = getOperatorKindToInsert(currentPrecedenceLevel);
-                return parseExpressionRhs(currentPrecedenceLevel, binaryOpKind, lhsExpr);
+                return parseExpressionRhs(currentPrecedenceLevel, binaryOpKind, lhsExpr, isAssignmentLhs);
             } else {
-                return parseExpressionRhs(currentPrecedenceLevel, solution.tokenKind, lhsExpr);
+                return parseExpressionRhs(currentPrecedenceLevel, solution.tokenKind, lhsExpr, isAssignmentLhs);
             }
         }
 
@@ -2002,6 +2034,9 @@ public class BallerinaParser {
 
         STNode newLhsExpr;
         switch (tokenKind) {
+            case OPEN_PAREN_TOKEN:
+                newLhsExpr = parseFuncCall(lhsExpr);
+                break;
             case OPEN_BRACKET_TOKEN:
                 newLhsExpr = parseMemberAccessExpr(lhsExpr);
                 break;
@@ -2010,7 +2045,6 @@ public class BallerinaParser {
                     newLhsExpr = parseFieldAccessOrMethodCall(lhsExpr);
                     break;
                 }
-
                 // else fall through
             default:
                 STNode operator = parseBinaryOperator();
@@ -2020,13 +2054,24 @@ public class BallerinaParser {
                 // precedence is reached, then come back here and finish the current
                 // binary expr. If a an operator with higher precedence level is reached,
                 // then complete that binary-expr, come back here and finish the current expr.
-                STNode rhsExpr = parseExpression(nextOperatorPrecedence);
+                STNode rhsExpr = parseExpression(nextOperatorPrecedence, isAssignmentLhs);
                 newLhsExpr = new STBinaryExpression(SyntaxKind.BINARY_EXPRESSION, lhsExpr, operator, rhsExpr);
                 break;
         }
 
         // Then continue the operators with the same precedence level.
-        return parseExpressionRhs(currentPrecedenceLevel, newLhsExpr);
+        return parseExpressionRhs(currentPrecedenceLevel, newLhsExpr, isAssignmentLhs);
+    }
+
+    private boolean isValidExprRhsStart(SyntaxKind tokenKind) {
+        switch (tokenKind) {
+            case OPEN_PAREN_TOKEN:
+            case DOT_TOKEN:
+            case OPEN_BRACKET_TOKEN:
+                return true;
+            default:
+                return isBinaryOperator(tokenKind);
+        }
     }
 
     /**
@@ -2111,7 +2156,7 @@ public class BallerinaParser {
      * @param tokenKind Token to check
      * @return <code>true</code> if the token represents an end of a block. <code>false</code> otherwise
      */
-    private boolean isEndOfExpression(SyntaxKind tokenKind) {
+    private boolean isEndOfExpression(SyntaxKind tokenKind, boolean isAssignmentLhs) {
         switch (tokenKind) {
             case CLOSE_BRACE_TOKEN:
             case OPEN_BRACE_TOKEN:
@@ -2124,6 +2169,9 @@ public class BallerinaParser {
             case EOF_TOKEN:
                 return true;
             default:
+                if (isAssignmentLhs) {
+                    return isBinaryOperator(tokenKind);
+                }
                 return false;
         }
     }
@@ -2138,19 +2186,14 @@ public class BallerinaParser {
     }
 
     /**
-     * Parse expressions that starts with a variable reference or function reference.
+     * Parse function call expression.
+     * <code>function-call-expr := function-reference ( arg-list )
+     * function-reference := variable-reference</code>
      * 
-     * @return Parsed expression
+     * @param identifier Function name
+     * @return Function call expression
      */
-    private STNode parseVarRefOrFuncCall() {
-        STNode identifier = parseVariableName();
-        identifier = parseQualifiedIdentifier(identifier);
-        STToken nextToken = peek();
-        if (nextToken.kind != SyntaxKind.OPEN_PAREN_TOKEN) {
-            return identifier;
-        }
-
-        // function invocation
+    private STNode parseFuncCall(STNode identifier) {
         STNode openParen = parseOpenParenthesis();
         STNode args = parseArgsList();
         STNode closeParen = parseCloseParenthesis();
@@ -2843,6 +2886,111 @@ public class BallerinaParser {
             default:
                 Solution sol = recover(token, ParserRuleContext.BOOLEAN_LITERAL);
                 return sol.recoveredNode;
+        }
+    }
+
+    /**
+     * <p>
+     * Parse call statement, given the call expression.
+     * <p>
+     * <code>
+     * call-stmt := call-expr ;
+     * <br/>
+     * call-expr := function-call-expr | method-call-expr | checking-keyword call-expr
+     * </code>
+     * 
+     * @param expression Call expression associated with the call statement
+     * @return Call statement node
+     */
+    private STNode parseCallStatement(STNode expression) {
+        STNode semicolon = parseSemicolon();
+        return new STCallStatement(expression, semicolon);
+    }
+
+    private STNode parseCallStatementWithCheck() {
+        startContext(ParserRuleContext.CALL_STMT);
+        STNode checkingKeyword = parseCheckingKeyword();
+        STNode expr = parseExpression();
+        validateExprInCallStatement(checkingKeyword, expr);
+
+        STCheckExpression checkExpr = new STCheckExpression(checkingKeyword, expr);
+        STNode checkStmt = parseCallStatement(checkExpr);
+        endContext();
+        return checkStmt;
+    }
+
+    /**
+     * Validate the call-expression in the call statement. Call expression takes the following structure.
+     * <p>
+     * <code>call-expr := function-call-expr | method-call-expr | checking-keyword call-expr</code>
+     * 
+     * @param checkingKeyword Checking keyword observed before the expression.
+     * @param expr Expression followed by the checking keyword
+     */
+    private void validateExprInCallStatement(STNode checkingKeyword, STNode expr) {
+        switch (expr.kind) {
+            case FUNCTION_CALL:
+            case METHOD_CALL:
+                break;
+            case CHECK_EXPRESSION:
+                // Recursively validate
+                STCheckExpression checkExpr = (STCheckExpression) expr;
+                validateExprInCallStatement(checkExpr.checkingKeyword, checkExpr.rhsExpr);
+                break;
+            default:
+                if (isMissingNode(expr)) {
+                    break;
+                }
+
+                // TODO:
+                this.errorHandler.reportInvalidNode(null,
+                        "expression followed by the '" + checkingKeyword.toString().trim() +
+                                "' keyword must be a func-call, a method-call or a check-expr");
+                break;
+        }
+    }
+
+    /**
+     * Check whether a node is a missing node.
+     * 
+     * @param node Node to check
+     * @return <code>true</code> if the node is a missing node. <code>false</code> otherwise
+     */
+    private boolean isMissingNode(STNode node) {
+        return node instanceof STMissingToken;
+    }
+
+    /**
+     * Parse check expression.
+     * <p>
+     * <code>
+     * checking-expr := checking-keyword expression
+     * </code>
+     * 
+     * @return Check expression node
+     */
+    private STNode parseCheckExpression() {
+        STNode checkingKeyword = parseCheckingKeyword();
+        STNode expr = parseExpression(OperatorPrecedence.UNARY, false);
+        return new STCheckExpression(checkingKeyword, expr);
+    }
+
+    /**
+     * Parse checking keyword.
+     * <p>
+     * <code>
+     * checking-keyword := check | checkpanic
+     * </code>
+     * 
+     * @return Parsed node
+     */
+    private STNode parseCheckingKeyword() {
+        STToken token = peek();
+        if (token.kind == SyntaxKind.CHECK_KEYWORD || token.kind == SyntaxKind.CHECKPANIC_KEYWORD) {
+            return consume();
+        } else {
+            Solution sol = recover(token, ParserRuleContext.CHECKING_KEYWORD);
+            return sol.recoveredNode;
         }
     }
 }

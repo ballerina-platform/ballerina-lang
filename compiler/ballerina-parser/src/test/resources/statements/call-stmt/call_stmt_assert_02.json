@@ -1,0 +1,125 @@
+{
+    "kind": "FUNCTION_DEFINITION",
+    "children": [
+        {
+            "kind": "PUBLIC_KEYWORD"
+        },
+        {
+            "kind": "FUNCTION_KEYWORD"
+        },
+        {
+            "kind": "IDENTIFIER_TOKEN",
+            "value": "foo"
+        },
+        {
+            "kind": "OPEN_PAREN_TOKEN"
+        },
+        {
+            "kind": "LIST",
+            "children": [
+            ]
+        },
+        {
+            "kind": "CLOSE_PAREN_TOKEN"
+        },
+        {
+            "kind": "BLOCK_STATEMENT",
+            "children": [
+                {
+                    "kind": "OPEN_BRACE_TOKEN"
+                },
+                {
+                    "kind": "LIST",
+                    "children": [
+                        {
+                            "kind": "CALL_STATEMENT",
+                            "children": [
+                                {
+                                    "kind": "FUNCTION_CALL",
+                                    "children": [
+                                        {
+                                            "kind": "QUALIFIED_IDENTIFIER",
+                                            "children": [
+                                                {
+                                                    "kind": "IDENTIFIER_TOKEN",
+                                                    "value": "io"
+                                                },
+                                                {
+                                                    "kind": "COLON_TOKEN"
+                                                },
+                                                {
+                                                    "kind": "IDENTIFIER_TOKEN",
+                                                    "value": "bar"
+                                                }
+                                            ]
+                                        },
+                                        {
+                                            "kind": "OPEN_PAREN_TOKEN"
+                                        },
+                                        {
+                                            "kind": "LIST",
+                                            "children": [
+                                                {
+                                                    "kind": "POSITIONAL_ARG",
+                                                    "children": [
+                                                        {
+                                                            "kind": "IDENTIFIER_TOKEN",
+                                                            "value": "a"
+                                                        }
+                                                    ]
+                                                },
+                                                {
+                                                    "kind": "NAMED_ARG",
+                                                    "children": [
+                                                        {
+                                                            "kind": "COMMA_TOKEN"
+                                                        },
+                                                        {
+                                                            "kind": "IDENTIFIER_TOKEN",
+                                                            "value": "b"
+                                                        },
+                                                        {
+                                                            "kind": "EQUAL_TOKEN"
+                                                        },
+                                                        {
+                                                            "kind": "NUMERIC_LITERAL_TOKEN",
+                                                            "value": "4"
+                                                        }
+                                                    ]
+                                                },
+                                                {
+                                                    "kind": "REST_ARG",
+                                                    "children": [
+                                                        {
+                                                            "kind": "COMMA_TOKEN"
+                                                        },
+                                                        {
+                                                            "kind": "ELLIPSIS_TOKEN"
+                                                        },
+                                                        {
+                                                            "kind": "IDENTIFIER_TOKEN",
+                                                            "value": "c"
+                                                        }
+                                                    ]
+                                                }
+                                            ]
+                                        },
+                                        {
+                                            "kind": "CLOSE_PAREN_TOKEN"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "kind": "SEMICOLON_TOKEN"
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "kind": "CLOSE_BRACE_TOKEN"
+                }
+            ]
+        }
+    ]
+}

@@ -64,7 +64,7 @@ public class BallerinaParserErrorHandler {
 
     private static final ParserRuleContext[] STATEMENTS =
             { ParserRuleContext.ASSIGNMENT_STMT, ParserRuleContext.VAR_DECL_STMT, ParserRuleContext.IF_BLOCK,
-                    ParserRuleContext.WHILE_BLOCK, ParserRuleContext.CLOSE_BRACE };
+                    ParserRuleContext.WHILE_BLOCK, ParserRuleContext.CALL_STMT, ParserRuleContext.CLOSE_BRACE };
 
     private static final ParserRuleContext[] VAR_DECL_RHS =
             { ParserRuleContext.SEMICOLON, ParserRuleContext.ASSIGN_OP };
@@ -133,6 +133,9 @@ public class BallerinaParserErrorHandler {
 
     private static final ParserRuleContext[] ELSE_BLOCK =
             { ParserRuleContext.ELSE_KEYWORD, ParserRuleContext.STATEMENT };
+
+    private static final ParserRuleContext[] CALL_STATEMENT =
+            { ParserRuleContext.CHECKING_KEYWORD, ParserRuleContext.VARIABLE_NAME };
 
     /**
      * Limit for the distance to travel, to determine a successful lookahead.
@@ -276,7 +279,7 @@ public class BallerinaParserErrorHandler {
             case VAR_DECL_STMT_RHS:
             case EXPRESSION_RHS:
             case PARAMETER_RHS:
-            case ASSIGNMENT_OR_VAR_DECL_STMT_RHS:
+            case ASSIGNMENT_OR_VAR_DECL_STMT:
             case AFTER_PARAMETER_TYPE:
             case FIELD_DESCRIPTOR_RHS:
             case RECORD_BODY_START:
@@ -585,7 +588,7 @@ public class BallerinaParserErrorHandler {
                             throw new IllegalStateException();
                     }
                     break;
-                case TYPE_REF_OR_VAR_REF:
+                case STATEMENT_START_IDENTIFIER:
                     return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount, TYPE_OR_VAR_NAME);
                 case ASSIGNMENT_OR_VAR_DECL_STMT_RHS:
                     return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount,
@@ -687,6 +690,12 @@ public class BallerinaParserErrorHandler {
                 case WHILE_KEYWORD:
                     hasMatch = nextToken.kind == SyntaxKind.WHILE_KEYWORD;
                     break;
+                case CHECKING_KEYWORD:
+                    hasMatch = nextToken.kind == SyntaxKind.CHECK_KEYWORD ||
+                            nextToken.kind == SyntaxKind.CHECKPANIC_KEYWORD;
+                    break;
+                case CALL_STMT_START:
+                    return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount, CALL_STATEMENT);
 
                 // productions
                 case COMP_UNIT:
@@ -839,7 +848,7 @@ public class BallerinaParserErrorHandler {
                 return seekInAlternativesPaths(lookahead, currentDepth, currentMatches, next);
             }
 
-            if (parentCtx == ParserRuleContext.IF_BLOCK || parentCtx == ParserRuleContext.WHILE_BLOCK ) {
+            if (parentCtx == ParserRuleContext.IF_BLOCK || parentCtx == ParserRuleContext.WHILE_BLOCK) {
                 nextContext = ParserRuleContext.BLOCK_STMT;
             } else if (isStatement(parentCtx) || parentCtx == ParserRuleContext.RECORD_FIELD ||
                     parentCtx == ParserRuleContext.OBJECT_MEMBER) {
@@ -1050,6 +1059,7 @@ public class BallerinaParserErrorHandler {
             case IF_BLOCK:
             case BLOCK_STMT:
             case WHILE_BLOCK:
+            case CALL_STMT:
                 // case EXPRESSION:
                 startContext(currentCtx);
                 break;
@@ -1369,7 +1379,10 @@ public class BallerinaParserErrorHandler {
                 return ParserRuleContext.WHILE_KEYWORD;
             case WHILE_KEYWORD:
                 return ParserRuleContext.EXPRESSION;
-
+            case CHECKING_KEYWORD:
+                return ParserRuleContext.EXPRESSION;
+            case CALL_STMT:
+                return ParserRuleContext.CALL_STMT_START;
             case OBJECT_FUNC_OR_FIELD:
             case OBJECT_METHOD_START:
             case OBJECT_FUNC_OR_FIELD_WITHOUT_VISIBILITY:
@@ -1392,10 +1405,11 @@ public class BallerinaParserErrorHandler {
             case STATEMENT:
             case VAR_DECL_STMT:
             case ASSIGNMENT_STMT:
-            case ASSIGNMENT_OR_VAR_DECL_STMT_RHS:
+            case ASSIGNMENT_OR_VAR_DECL_STMT:
             case IF_BLOCK:
             case BLOCK_STMT:
             case WHILE_BLOCK:
+            case CALL_STMT:
                 return true;
             default:
                 return false;
@@ -1482,7 +1496,7 @@ public class BallerinaParserErrorHandler {
             case SEMICOLON:
                 return SyntaxKind.SEMICOLON_TOKEN;
             case VARIABLE_NAME:
-            case TYPE_REF_OR_VAR_REF:
+            case STATEMENT_START_IDENTIFIER:
                 return SyntaxKind.IDENTIFIER_TOKEN;
             case PUBLIC_KEYWORD:
                 return SyntaxKind.PUBLIC_KEYWORD;
@@ -1509,7 +1523,7 @@ public class BallerinaParserErrorHandler {
                 return SyntaxKind.SIMPLE_TYPE;
             case VAR_DECL_STMT_RHS:
                 return SyntaxKind.SEMICOLON_TOKEN;
-            case ASSIGNMENT_OR_VAR_DECL_STMT_RHS:
+            case ASSIGNMENT_OR_VAR_DECL_STMT:
                 return SyntaxKind.SIMPLE_TYPE;
             case DEFAULTABLE_PARAM:
                 return SyntaxKind.SIMPLE_TYPE;
@@ -1567,7 +1581,8 @@ public class BallerinaParserErrorHandler {
                 return SyntaxKind.ELSE_KEYWORD;
             case WHILE_KEYWORD:
                 return SyntaxKind.WHILE_KEYWORD;
-
+            case CHECKING_KEYWORD:
+                return SyntaxKind.CHECK_KEYWORD;
             // TODO:
             case COMP_UNIT:
             case TOP_LEVEL_NODE_WITH_MODIFIER:

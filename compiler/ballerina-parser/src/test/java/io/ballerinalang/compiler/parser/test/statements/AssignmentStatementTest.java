@@ -41,6 +41,11 @@ public class AssignmentStatementTest extends AbstractStatementTest {
         test("pkg:a = b;", "assignment-stmt/assignment_stmt_assert_8.json");
     }
 
+    @Test
+    public void testExpressionsInLHS() {
+        testFile("assignment-stmt/assignment_stmt_source_10.bal", "assignment-stmt/assignment_stmt_assert_10.json");
+    }
+
     // Recovery tests
 
     @Test
@@ -71,5 +76,10 @@ public class AssignmentStatementTest extends AbstractStatementTest {
     @Test
     public void testQualifiedVarRefWithAdditionalColons() {
         test("pkg::a = b;", "assignment-stmt/assignment_stmt_assert_9.json");
+    }
+
+    @Test
+    public void testExpressionsInLHSWithMissingEqual() {
+        testFile("assignment-stmt/assignment_stmt_source_11.bal", "assignment-stmt/assignment_stmt_assert_11.json");
     }
 }

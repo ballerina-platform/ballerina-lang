@@ -17,38 +17,27 @@
  */
 package io.ballerinalang.compiler.internal.parser.tree;
 
-import io.ballerinalang.compiler.syntax.tree.LocalVariableDeclaration;
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 
-public class STAssignmentStatement extends STStatement {
+public class STCallStatement extends STStatement {
 
-    public final STNode lhsExpression;
-    public final STNode equalsToken;
-    public final STNode expr;
+    public final STNode expression;
     public final STNode semicolonToken;
 
-    public STAssignmentStatement(SyntaxKind kind,
-                                 STNode lhsExpression,
-                                 STNode equalsToken,
-                                 STNode expr,
-                                 STNode semicolonToken) {
-        super(kind);
-        this.lhsExpression = lhsExpression;
-        this.equalsToken = equalsToken;
-        this.expr = expr;
+    public STCallStatement(STNode expression, STNode semicolonToken) {
+        super(SyntaxKind.CALL_STATEMENT);
+        this.expression = expression;
         this.semicolonToken = semicolonToken;
 
-        this.bucketCount = 4;
+        this.bucketCount = 2;
         this.childBuckets = new STNode[this.bucketCount];
-        this.addChildNode(lhsExpression, 0);
-        this.addChildNode(equalsToken, 1);
-        this.addChildNode(expr, 2);
-        this.addChildNode(semicolonToken, 3);
+        this.addChildNode(expression, 0);
+        this.addChildNode(semicolonToken, 1);
     }
 
     @Override
     public Node createFacade(int position, NonTerminalNode parent) {
-        return new LocalVariableDeclaration(this, position, parent);
+        return null;
     }
 }

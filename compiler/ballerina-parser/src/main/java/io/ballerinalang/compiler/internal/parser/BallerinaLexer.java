@@ -494,6 +494,10 @@ public class BallerinaLexer {
                 return getSyntaxToken(SyntaxKind.TRUE_KEYWORD);
             case LexerTerminals.FALSE:
                 return getSyntaxToken(SyntaxKind.FALSE_KEYWORD);
+            case LexerTerminals.CHECK:
+                return getSyntaxToken(SyntaxKind.CHECK_KEYWORD);
+            case LexerTerminals.CHECKPANIC:
+                return getSyntaxToken(SyntaxKind.CHECKPANIC_KEYWORD);
             default:
                 return getIdentifierToken(tokenText);
         }
