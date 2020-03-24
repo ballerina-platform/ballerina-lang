@@ -3731,7 +3731,9 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         if (vararg != null) {
-            checkTypeParamExpr(vararg, this.env, restParam.type, langlibInvocation);
+            checkTypeParamExpr(vararg.getKind() == NodeKind.REST_ARGS_EXPR ?
+                                       ((BLangRestArgsExpression) vararg).expr.pos : vararg.pos,
+                               vararg, this.env, restParam.type, langlibInvocation);
             restArgExprs.add(vararg);
             return;
         }
@@ -3748,6 +3750,11 @@ public class TypeChecker extends BLangNodeVisitor {
 
     private void checkTypeParamExpr(BLangExpression arg, SymbolEnv env, BType expectedType,
                                     boolean inferTypeForNumericLiteral) {
+        checkTypeParamExpr(arg.pos, arg, env, expectedType, inferTypeForNumericLiteral);
+    }
+
+    private void checkTypeParamExpr(DiagnosticPos pos, BLangExpression arg, SymbolEnv env, BType expectedType,
+                                    boolean inferTypeForNumericLiteral) {
 
         if (typeParamAnalyzer.notRequireTypeParams(env)) {
             checkExpr(arg, env, expectedType);
@@ -3757,11 +3764,11 @@ public class TypeChecker extends BLangNodeVisitor {
             // Need to infer the type. Calculate matching bound type, with no type.
             BType expType = typeParamAnalyzer.getMatchingBoundType(expectedType, env);
             BType inferredType = checkExpr(arg, env, expType);
-            typeParamAnalyzer.checkForTypeParamsInArg(inferredType, this.env, expectedType);
+            typeParamAnalyzer.checkForTypeParamsInArg(pos, inferredType, this.env, expectedType);
             return;
         }
         checkExpr(arg, env, expectedType);
-        typeParamAnalyzer.checkForTypeParamsInArg(arg.type, this.env, expectedType);
+        typeParamAnalyzer.checkForTypeParamsInArg(pos, arg.type, this.env, expectedType);
     }
 
     private boolean requireTypeInference(BLangExpression expr, boolean inferTypeForNumericLiteral) {

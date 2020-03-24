@@ -39,21 +39,34 @@ public class TypeParamTest {
 
         CompileResult result = BCompileUtil.compile("test-src/type-param/type_param_test_negative.bal");
         int err = 0;
-        BAssertUtil.validateError(result, err++, "incompatible types: expected 'boolean[]', found 'int[]'", 20, 20);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected 'boolean[]', found 'int[]'", 21, 20);
         BAssertUtil.validateError(result, err++, "incompatible types: expected 'anydata', found 'function (string) " +
-                "returns ()[]'", 24, 18);
+                "returns ()[]'", 25, 18);
         BAssertUtil.validateError(result, err++, "incompatible types: expected 'float[]', found 'function (string) " +
-                "returns ()[]'", 24, 18);
-        BAssertUtil.validateError(result, err++, "incompatible types: expected 'float', found 'string'", 30, 16);
+                "returns ()[]'", 25, 18);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected 'float', found 'string'", 31, 16);
         BAssertUtil.validateError(result, err++, "incompatible types: expected 'object { public function next () " +
                 "returns (record {| string value; |}?); }', found 'object { public function next () returns " +
-                "(record {| record {| string x; anydata...; |} value; |}?); }'", 37, 12);
-        BAssertUtil.validateError(result, err++, "incompatible types: expected 'boolean', found 'Foo'", 47, 18);
-        BAssertUtil.validateError(result, err++, "incompatible types: expected 'Bar', found 'Foo'", 50, 14);
-        BAssertUtil.validateError(result, err++, "incompatible types: expected 'boolean', found 'BarDetail'", 64, 18);
-        BAssertUtil.validateError(result, err++, "incompatible types: expected 'string', found 'int'", 69, 16);
+                "(record {| record {| string x; anydata...; |} value; |}?); }'", 38, 12);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected 'boolean', found 'Foo'", 48, 18);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected 'Bar', found 'Foo'", 51, 14);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected 'boolean', found 'BarDetail'", 65, 18);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected 'string', found 'int'", 72, 15);
         BAssertUtil.validateError(result, err++, "incompatible types: expected 'string', found '(Person|error)'",
-                88, 16);
+                89, 16);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected 'byte', found 'int'", 94, 15);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected 'byte', found 'int'", 95, 22);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected 'byte', found 'int'", 97, 25);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected 'byte', found 'int'", 99, 18);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected 'byte', found 'int'", 100, 18);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected 'byte', found 'int'", 100, 22);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected 'byte', found 'int'", 101, 28);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected 'byte', found 'int'", 110, 22);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected 'int', found 'float'", 113, 21);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected 'byte', found 'int'", 116, 21);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected 'int', found 'float'", 119, 21);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected 'byte', found 'int'", 122, 31);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected 'byte', found 'int'", 125, 26);
         Assert.assertEquals(result.getErrorCount(), err);
     }
 
