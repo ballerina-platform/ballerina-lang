@@ -35,12 +35,12 @@ import static org.ballerinalang.messaging.kafka.utils.KafkaUtils.getLongValue;
  * producer.
  */
 public class SendStringValues extends Send {
-
-    private static final Logger logger = LoggerFactory.getLogger(SendStringValues.class);
-    /* *********************************************************************** *
+    /* ************************************************************************ *
      *              Send records with value of type String                      *
      *       The value is considered first since key can be null                *
      ************************************************************************** */
+
+    private static final Logger logger = LoggerFactory.getLogger(SendStringValues.class);
 
     // String and ()
     public static Object sendString(ObjectValue producer, String value, String topic, Object partition,

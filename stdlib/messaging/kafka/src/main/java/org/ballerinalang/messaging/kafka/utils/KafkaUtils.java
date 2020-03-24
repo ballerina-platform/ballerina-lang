@@ -521,10 +521,6 @@ public class KafkaUtils {
 
     public static MapValue<String, Object> populateConsumerRecord(ConsumerRecord record, String keyType,
                                                                   String valueType) {
-        if (Objects.isNull(record)) {
-            return null;
-        }
-
         Object key = null;
         if (Objects.nonNull(record.key())) {
             key = getBValues(record.key(), keyType);
@@ -567,6 +563,8 @@ public class KafkaUtils {
                 MapValue<String, Object> genericAvroRecord = getAvroGenericRecord();
                 populateBallerinaGenericAvroRecord(genericAvroRecord, (GenericRecord) value);
                 return genericAvroRecord;
+            } else {
+                throw new BLangRuntimeException("Invalid type - expected: AvroGenericRecord");
             }
         } else if (SERDES_CUSTOM.equals(type)) {
             return value;
@@ -574,7 +572,8 @@ public class KafkaUtils {
         throw createKafkaError("Unexpected type found for consumer record", CONSUMER_ERROR);
     }
 
-    private static void populateBallerinaGenericAvroRecord(MapValue genericAvroRecord, GenericRecord record) {
+    private static void populateBallerinaGenericAvroRecord(MapValue<String, Object> genericAvroRecord,
+                                                           GenericRecord record) {
         List<Schema.Field> fields = record.getSchema().getFields();
         for (Schema.Field field : fields) {
             if (record.get(field.name()) instanceof Utf8) {

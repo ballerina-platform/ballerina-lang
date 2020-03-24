@@ -35,13 +35,13 @@ import static org.ballerinalang.messaging.kafka.utils.KafkaUtils.getLongValue;
  * producer.
  */
 public class SendIntValues extends Send {
+    /* ************************************************************************ *
+     *              Send records with value of type int                         *
+     *       The value is considered first since key can be null                *
+     ************************************************************************** */
 
     private static final Logger logger = LoggerFactory.getLogger(SendIntValues.class);
 
-    /* *********************************************************************** *
-     *              Send records with value of type int                      *
-     *       The value is considered first since key can be null                *
-     ************************************************************************** */
     // ballerina int and ()
     public static Object sendInt(ObjectValue producer, long value, String topic, Object partition, Object timestamp) {
         Integer partitionValue = getIntValue(partition, ALIAS_PARTITION, logger);

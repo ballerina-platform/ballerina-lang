@@ -36,13 +36,13 @@ import static org.ballerinalang.messaging.kafka.utils.KafkaUtils.getLongValue;
  * producer.
  */
 public class SendFloatValues extends Send {
+    /* ************************************************************************ *
+     *              Send records with value of type float                       *
+     *       The value is considered first since key can be null                *
+     ************************************************************************** */
 
     private static final Logger logger = LoggerFactory.getLogger(SendFloatValues.class);
 
-    /* *********************************************************************** *
-     *              Send records with value of type float                      *
-     *       The value is considered first since key can be null                *
-     ************************************************************************** */
     // ballerina float and ()
     public static Object sendFloat(ObjectValue producer, double value, String topic, Object partition,
                                    Object timestamp) {
