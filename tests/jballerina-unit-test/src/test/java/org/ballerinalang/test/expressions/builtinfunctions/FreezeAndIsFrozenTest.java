@@ -437,6 +437,16 @@ public class FreezeAndIsFrozenTest {
     }
 
     @Test
+    public void testXMLItemsCloneReadOnly() {
+        BValue[] returns = BRunUtil.invoke(result, "testXMLItemsCloneReadOnly", new BValue[0]);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        Assert.assertTrue(((BBoolean) returns[1]).booleanValue());
+        Assert.assertTrue(((BBoolean) returns[2]).booleanValue());
+        Assert.assertTrue(((BBoolean) returns[3]).booleanValue());
+        Assert.assertTrue(((BBoolean) returns[4]).booleanValue());
+    }
+
+    @Test
     public void testFreezeAndIsFrozenSemanticsNegativeCases() {
         Assert.assertEquals(semanticsNegativeResult.getErrorCount(), 24);
         int index = 0;

@@ -251,6 +251,20 @@ function testFrozenXmlSetChildrenDeep() {
     authorEm.setChildren(x2);
 }
 
+function testXMLItemsCloneReadOnly() returns [boolean, boolean, boolean, boolean, boolean] {
+    xml x0 = xmllib:concat(xml `<hello>world</hello>`,
+                        xml `<!-- comment text -->`,
+                        xml `<?PIT data?>`,
+                        xml `<item><child>String Content <sub></sub>More Str</child><child></child></item>`);
+
+    xml x1 = x0.cloneReadOnly();
+    return [(x1.<hello>).isReadOnly(),
+            (x1.<hello>/*).isReadOnly(),
+            x1[1].isReadOnly(),
+            x1[2].isReadOnly(),
+            (x1/**/<child>/*)[0].isReadOnly()];
+}
+
 function testFrozenMapUpdate() {
     map<anydata> m1 = { one: "1", two: 2 };
     map<anydata> m2 = { one: "21", two: 22, mapVal: m1 };
