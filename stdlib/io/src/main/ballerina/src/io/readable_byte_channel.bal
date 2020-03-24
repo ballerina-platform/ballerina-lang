@@ -60,7 +60,7 @@ public type ReadableByteChannel object {
     }
 };
 
-function byteReadExtern(ReadableByteChannel byteChannel,@untainted int nBytes) returns @tainted byte[]|Error = @java:Method {
+function byteReadExtern(ReadableByteChannel byteChannel, @untainted int nBytes) returns @tainted byte[]|Error = @java:Method {
     name: "read",
     class: "org.ballerinalang.stdlib.io.nativeimpl.ByteChannelUtils"
 } external;
