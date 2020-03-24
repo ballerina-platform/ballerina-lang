@@ -298,7 +298,7 @@ public class TypeChecker extends BLangNodeVisitor {
     public void visit(BLangXMLElementAccess xmlElementAccess) {
         // check for undeclared namespaces.
         checkXMLNamespacePrefixes(xmlElementAccess.filters);
-        resultType = checkExpr(xmlElementAccess.expr, env, expType);
+        resultType = checkExpr(xmlElementAccess.expr, env, symTable.xmlType);
         // todo: we may need to add some logic to constrain result type to xml @namedSubType type.
     }
 
