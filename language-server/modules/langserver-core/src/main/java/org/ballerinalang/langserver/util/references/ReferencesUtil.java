@@ -239,14 +239,10 @@ public class ReferencesUtil {
         BSymbol cursorSymbol = symbolAtCursor.getSymbol();
         symbolReferencesModel.getDefinitions()
                 .removeIf(reference -> reference.getSymbol() != cursorSymbol
-                        && (reference.getSymbol().type.tsymbol != cursorSymbol)
-                        && !(cursorSymbol.type.tag == TypeTags.ERROR
-                        && reference.getSymbol().type.tsymbol == cursorSymbol.type.tsymbol));
+                        && (reference.getSymbol().type.tsymbol != cursorSymbol));
         symbolReferencesModel.getReferences()
                 .removeIf(reference -> reference.getSymbol() != cursorSymbol
-                        && (reference.getSymbol().type.tsymbol != cursorSymbol
-                        && !(cursorSymbol.type.tag == TypeTags.ERROR
-                        && reference.getSymbol().type.tsymbol == cursorSymbol.type.tsymbol)));
+                        && (reference.getSymbol().type.tsymbol != cursorSymbol));
     }
 
     public static List<Location> getLocations(List<SymbolReferencesModel.Reference> references, String sourceRoot) {
