@@ -508,4 +508,4 @@ service specificSubscriber on new WebhookListener(8080) {
 }
 ```
 
-For a step-by-step guide on introducing custom subscriber services, see the ["Create Webhook Callback Services"](https://ballerina.io/learn/how-to-extend-ballerina/#create-webhook-callback-services) section of "How to Extend Ballerina". 
+For a step-by-step guide on introducing custom subscriber services, see the ["Create Webhook Callback Services"](https://ballerina.io/v1-2/learn/how-to-extend-ballerina/#create-webhook-callback-services) section of "How to Extend Ballerina". 
