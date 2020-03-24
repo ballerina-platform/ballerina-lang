@@ -361,4 +361,10 @@
             <class name="org.ballerinalang.test.testarina.TestarinaTestCase" />
         </classes>
     </test>
+    <test name="ballerina-docerina-tests" parallel="false">
+        <parameter name="enableJBallerinaTests" value="true" />
+        <classes>
+            <class name="org.ballerinalang.test.docerina.DirectoryTestCase" />
+        </classes>
+    </test>
 </suite>
