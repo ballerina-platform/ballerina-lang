@@ -21,20 +21,19 @@ import com.google.gson.Gson;
 import model.Node;
 import model.Tree;
 
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public class Common {
 
-    public static Map<String, String> buildClassName(Node node) throws IOException {
-        Map<String, String > classMap = new HashMap<>();
+    public static Map<String, String> buildClassName(Node node) {
+        Map<String, String> classMap = new HashMap<>();
         classMap.put(Constants.CLASSNAME_PLACEHOLDER, node.getName());
-        if (node.getType()!= null) {
+        if (node.getType() != null) {
             classMap.put(Constants.ABSTRACT_PLACEHOLDER, node.getType());
         }
         // Check for parent classes
@@ -47,16 +46,20 @@ public class Common {
 
     public static List<Node> getTreeNodes(String nodeJsonPath) throws IOException {
         Gson gson = new Gson();
-        Tree ast = gson.fromJson(new FileReader(nodeJsonPath),
-                Tree.class);
-        return ast.getNode();
+        try (InputStream in = new FileInputStream(nodeJsonPath);
+             Reader reader = new InputStreamReader(in, StandardCharsets.UTF_8);
+             BufferedReader br = new BufferedReader(reader)) {
+            Tree ast = gson.fromJson(br, Tree.class);
+            return ast.getNode();
+        }
     }
 
     public static void writeToFile(String data, String filePath) throws IOException {
         File file = new File(filePath);
-        FileWriter fr = new FileWriter(file);
-        fr.write(data);
-        fr.close();
+        try (Writer w = new OutputStreamWriter(new FileOutputStream(file), StandardCharsets.UTF_8);
+             PrintWriter pw = new PrintWriter(w)) {
+            pw.write(data);
+        }
     }
 
     public static Node getImmediateParentNode(String ext, List<Node> nodes) {

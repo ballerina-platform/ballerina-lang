@@ -40,14 +40,14 @@ public class FacadeGenerator {
     private static List<AttributeFunction> attributeFunctionList;
     private static SwitchFunction switchFunction;
 
-    static class SwitchFunction {
+    public static class SwitchFunction {
         List<Case> caseList;
         SwitchFunction(List<Case> caseList) {
             this.caseList = caseList;
         }
     }
 
-    static class Case {
+    public static class Case {
         String name;
         int index;
         Case(String name, int index){
@@ -56,14 +56,14 @@ public class FacadeGenerator {
         }
     }
 
-    static class CreateFacadeCall {
+    public static class CreateFacadeCall {
         int index;
         CreateFacadeCall(int index) {
             this.index = index;
         }
     }
 
-    static class AttributeFunction {
+    public static class AttributeFunction {
         String returnObject;
         String parentMethod;
         String name;

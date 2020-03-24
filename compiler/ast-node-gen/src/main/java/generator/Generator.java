@@ -30,7 +30,7 @@ public class Generator {
         try {
             generateInternalTree("src/main/resources/internalTemplate.mustache",
                     "src/main/java/generated", "src/main/resources/newTree.json");
-            generateFacade("src/main/resources/internalTemplate.mustache",
+            generateFacade("src/main/resources/facadeTemplate.mustache",
                     "src/main/java/generated", "src/main/resources/newTree.json");
         } catch (IOException | GeneratorException e) {
             e.printStackTrace();

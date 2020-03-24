@@ -41,14 +41,14 @@ public class InternalGenerator {
     private static ToStringFunction toStringFunction;
     private static FacadeClass facadeFunction;
 
-    static class Bucket {
+    public static class Bucket {
         int bucketCount;
         Bucket(int bucketCount) {
             this.bucketCount = bucketCount;
         }
     }
 
-    static class ChildNode {
+    public static class ChildNode {
         String name;
         int index;
         ChildNode(String name, int index) {
@@ -57,14 +57,14 @@ public class InternalGenerator {
         }
     }
 
-    static class ToStringFunction {
+    public static class ToStringFunction {
         String kind;
         ToStringFunction(String kind) {
             this.kind = kind;
         }
     }
 
-    static class FacadeClass {
+    public static class FacadeClass {
         String facadeClass;
         FacadeClass(String facadeClass) {
             this.facadeClass = facadeClass;
