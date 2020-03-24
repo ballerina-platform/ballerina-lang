@@ -282,8 +282,7 @@ public class CreateVariableCodeAction extends AbstractCodeActionProvider {
             while (bLangNode.parent instanceof IndexBasedAccessNode) {
                 bLangNode = bLangNode.parent;
             }
-            String variableType = FunctionGenerator.generateTypeDefinition(importsAcceptor, currentPkgId,
-                                                                           bLangNode.type);
+            String variableType = FunctionGenerator.generateTypeDefinition(importsAcceptor, currentPkgId, bLangNode);
             if (bLangNode instanceof BLangInvocation) {
                 BSymbol symbol = ((BLangInvocation) bLangNode).symbol;
                 if (symbol instanceof BInvokableSymbol) {

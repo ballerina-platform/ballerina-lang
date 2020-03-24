@@ -35,6 +35,8 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
@@ -152,7 +154,8 @@ public class FunctionGenerator {
         } else if (bLangNode instanceof BLangFunctionTypeNode) {
             BLangFunctionTypeNode funcType = (BLangFunctionTypeNode) bLangNode;
             TestGenerator.TestFunctionGenerator generator = new TestGenerator.TestFunctionGenerator(importsAcceptor,
-                    currentPkgId, funcType);
+                                                                                                    currentPkgId,
+                                                                                                    funcType);
             String[] typeSpace = generator.getTypeSpace();
             String[] nameSpace = generator.getNamesSpace();
             StringJoiner params = new StringJoiner(", ");
@@ -227,6 +230,14 @@ public class FunctionGenerator {
             return "()";
         } else if (bType instanceof BTableType) {
             return "table<record {}>";
+        } else if (bType instanceof BStreamType) {
+            BStreamType streamType = (BStreamType) bType;
+            String constraint = generateTypeDefinition(importsAcceptor, currentPkgId, streamType.constraint);
+            String error = generateTypeDefinition(importsAcceptor, currentPkgId, streamType.error);
+            return "stream<" + constraint + ", " + error + ">";
+        } else if (bType instanceof BRecordType) {
+            BRecordType recordType = (BRecordType) bType;
+            return recordType.toString();
         }
         return (bType.tsymbol != null) ? generateTypeDefinition(importsAcceptor, currentPkgId, bType.tsymbol) :
                 "any";
