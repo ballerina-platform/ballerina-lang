@@ -46,6 +46,8 @@ public enum SyntaxKind {
     IF_KEYWORD(205, "if"),
     ELSE_KEYWORD(206, "else"),
     WHILE_KEYWORD(207, "while"),
+    CHECK_KEYWORD(208, "check"),
+    CHECKPANIC_KEYWORD(209, "checkpanic"),
 
     // Separators
     OPEN_BRACE_TOKEN(500, "{"),
@@ -100,6 +102,7 @@ public enum SyntaxKind {
     IF_ELSE_STATEMENT(1203),
     ELSE_BLOCK(1204),
     WHILE_STATEMENT(1205),
+    CALL_STATEMENT(1206),
 
     // Expressions
     BINARY_EXPRESSION(1300),
@@ -109,6 +112,7 @@ public enum SyntaxKind {
     MEMBER_ACCESS(1304),
     FIELD_ACCESS(1305),
     METHOD_CALL(1306),
+    CHECK_EXPRESSION(1307),
 
     // Type descriptors
     RECORD_TYPE_DESCRIPTOR(2000),

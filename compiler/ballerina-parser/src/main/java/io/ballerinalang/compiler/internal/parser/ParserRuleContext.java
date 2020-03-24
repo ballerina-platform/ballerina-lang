@@ -46,7 +46,8 @@ public enum ParserRuleContext {
     ASSIGNMENT_STMT("assignment-stmt"),
     VAR_DECL_STMT("var-decl-stmt"),
     VAR_DECL_STMT_RHS("var-decl-rhs"),
-    TYPE_OR_VAR_NAME("type-or-var-name"),
+    STATEMENT_START_IDENTIFIER("type-or-var-name"),
+    ASSIGNMENT_OR_VAR_DECL_STMT("assign-or-var-decl"),
     ASSIGNMENT_OR_VAR_DECL_STMT_RHS("assign-or-var-decl-rhs"),
     MODULE_TYPE_DEFINITION("type-definition"),
     FIELD_OR_REST_DESCIPTOR_RHS("field-or-rest-descriptor-rhs"),
@@ -74,6 +75,8 @@ public enum ParserRuleContext {
     ELSE_BLOCK("else-block"),
     ELSE_BODY("else-body"),
     WHILE_BLOCK("while-block"),
+    CALL_STMT("call-statement"),
+    CALL_STMT_START("call-statement-start"),
 
     // terminals
     PUBLIC_KEYWORD("public"),
@@ -112,6 +115,7 @@ public enum ParserRuleContext {
     ELSE_KEYWORD("else"),
     WHILE_KEYWORD("while"),
     BOOLEAN_LITERAL("boolean-literal"),
+    CHECKING_KEYWORD("checking-keyword"),
 
     // expressions
     EXPRESSION("expression"),
