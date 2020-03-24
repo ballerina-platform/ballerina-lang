@@ -89,6 +89,8 @@ public class BallerinaParser {
 
     /**
      * Start parsing the given input.
+     * 
+     * @return Parsed node
      */
     public STNode parse() {
         STNode node = parseCompUnit();
@@ -100,6 +102,7 @@ public class BallerinaParser {
      * Resume the parsing from the given context.
      * 
      * @param context Context to resume parsing
+     * @param parsedNodes Parsed that requires to continue parsing the given parser context
      * @return Parsed node
      */
     public STNode resumeParsing(ParserRuleContext context, STNode... parsedNodes) {
@@ -155,8 +158,8 @@ public class BallerinaParser {
                 return parseTopLevelNode(parsedNodes[0]);
             case TOP_LEVEL_NODE_WITH_MODIFIER:
                 return parseTopLevelNodeWithModifier();
-            case TYPE_OR_VAR_NAME:
-                return parseUserDefinedTypeOrVarName();
+            case TYPE_REF_OR_VAR_REF:
+                return parseTypeRefOrVarRef();
             case VAR_DECL_STMT_RHS:
                 return parseVarDeclRhs(parsedNodes[0], parsedNodes[1]);
             case ASSIGNMENT_OR_VAR_DECL_STMT_RHS:
@@ -809,9 +812,10 @@ public class BallerinaParser {
     private STNode parseTypeDescriptor(SyntaxKind tokenKind) {
         switch (tokenKind) {
             case SIMPLE_TYPE:
-            case IDENTIFIER_TOKEN:
                 // simple type descriptor
                 return parseSimpleTypeDescriptor();
+            case IDENTIFIER_TOKEN:
+                return parseTypeReference();
             case RECORD_KEYWORD:
                 // Record type descriptor
                 return parseRecordTypeDescriptor();
@@ -846,7 +850,6 @@ public class BallerinaParser {
         STToken node = peek();
         switch (node.kind) {
             case SIMPLE_TYPE:
-            case IDENTIFIER_TOKEN:
                 return consume();
             default:
                 Solution sol = recover(peek(), ParserRuleContext.SIMPLE_TYPE_DESCRIPTOR);
@@ -986,18 +989,12 @@ public class BallerinaParser {
     }
 
     /**
-     * Parse user defined type or variable name.
+     * Parse type reference or variable reference.
      * 
      * @return Parsed node
      */
-    private STNode parseUserDefinedTypeOrVarName() {
-        STToken token = peek();
-        if (token.kind == SyntaxKind.IDENTIFIER_TOKEN) {
-            return consume();
-        } else {
-            Solution sol = recover(token, ParserRuleContext.TYPE_OR_VAR_NAME);
-            return sol.recoveredNode;
-        }
+    private STNode parseTypeRefOrVarRef() {
+        return parseQualifiedIdentifier(ParserRuleContext.TYPE_REF_OR_VAR_REF);
     }
 
     /**
@@ -1471,13 +1468,50 @@ public class BallerinaParser {
         return fieldOrRestDesc;
     }
 
+    /**
+     * Parse type reference.
+     * <code>type-reference := identifier | qualified-identifier</code>
+     * 
+     * @return Type reference node
+     */
     private STNode parseTypeReference() {
+        return parseQualifiedIdentifier(ParserRuleContext.TYPE_REFERENCE);
+    }
+
+    /**
+     * Parse identifier or qualified identifier.
+     * 
+     * @return Identifier node
+     */
+    private STNode parseQualifiedIdentifier(ParserRuleContext currentCtx) {
         STToken token = peek();
         if (token.kind == SyntaxKind.IDENTIFIER_TOKEN) {
-            return consume();
+            STNode typeRefOrPkgRef = consume();
+            return parseQualifiedIdentifier(typeRefOrPkgRef);
         } else {
-            Solution sol = recover(token, ParserRuleContext.TYPE_REFERENCE);
+            Solution sol = recover(token, currentCtx);
             return sol.recoveredNode;
+        }
+    }
+
+    /**
+     * @param identifier
+     * @return
+     */
+    private STNode parseQualifiedIdentifier(STNode identifier) {
+        STToken nextToken = peek(1);
+        if (nextToken.kind != SyntaxKind.COLON_TOKEN) {
+            return identifier;
+        }
+
+        STToken nextNextToken = peek(2);
+        if (nextNextToken.kind == SyntaxKind.IDENTIFIER_TOKEN) {
+            STToken colon = consume();
+            STToken varOrFuncName = consume();
+            return new STQualifiedIdentifier(identifier, colon, varOrFuncName);
+        } else {
+            this.errorHandler.removeInvalidToken();
+            return parseQualifiedIdentifier(identifier);
         }
     }
 
@@ -1752,7 +1786,7 @@ public class BallerinaParser {
      */
     private STNode parseAssignmentOrVarDecl() {
         startContext(ParserRuleContext.ASSIGNMENT_OR_VAR_DECL_STMT_RHS);
-        STNode typeOrVarName = parseUserDefinedTypeOrVarName();
+        STNode typeOrVarName = parseTypeRefOrVarRef();
         STNode assignmentOrVarDecl = parseAssignmentOrVarDeclRhs(typeOrVarName);
         endContext();
         return assignmentOrVarDecl;
@@ -2110,34 +2144,9 @@ public class BallerinaParser {
      */
     private STNode parseVarRefOrFuncCall() {
         STNode identifier = parseVariableName();
-        return parseVarRefOrFuncCall(identifier);
-    }
-
-    private STNode parseVarRefOrFuncCall(STNode identifier) {
-        STToken nextToken = peek(1);
-        if (nextToken.kind == SyntaxKind.COLON_TOKEN) {
-            STToken nextNextToken = peek(2);
-            if (nextNextToken.kind == SyntaxKind.IDENTIFIER_TOKEN) {
-                STToken colon = consume();
-                STToken varOrFuncName = consume();
-                identifier = new STQualifiedIdentifier(identifier, colon, varOrFuncName);
-                nextToken = peek();
-            } else {
-                this.errorHandler.removeInvalidToken();
-                return parseVarRefOrFuncCall(identifier);
-            }
-        }
-
-        return parseUnqualifiedVarRefOrFuncCall(identifier, nextToken.kind);
-    }
-
-    /**
-     * @param identifier
-     * @param nextToken
-     * @return
-     */
-    private STNode parseUnqualifiedVarRefOrFuncCall(STNode identifier, SyntaxKind nextTokenKind) {
-        if (nextTokenKind != SyntaxKind.OPEN_PAREN_TOKEN) {
+        identifier = parseQualifiedIdentifier(identifier);
+        STToken nextToken = peek();
+        if (nextToken.kind != SyntaxKind.OPEN_PAREN_TOKEN) {
             return identifier;
         }
 

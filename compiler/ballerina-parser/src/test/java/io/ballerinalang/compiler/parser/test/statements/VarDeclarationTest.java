@@ -46,6 +46,11 @@ public class VarDeclarationTest extends AbstractStatementTest {
         test("Foo a = 5;", "var-decl-stmt/local_var_decl_assert_4.json");
     }
 
+    @Test
+    public void testLocalVarDeclWithTypeRef() {
+        test("pkg:Person p;", "var-decl-stmt/local_var_decl_assert_10.json");
+    }
+
     // Recovery tests
 
     @Test
@@ -71,5 +76,10 @@ public class VarDeclarationTest extends AbstractStatementTest {
     @Test
     public void testLocalVarDeclWithUserdefinedTypeAndMissingIdentifier() {
         test("Foo ;", "var-decl-stmt/local_var_decl_assert_9.json");
+    }
+
+    @Test
+    public void testLocalVarDeclWithTypeRefWithAdditionalColons() {
+        test("pkg:::Person p;", "var-decl-stmt/local_var_decl_assert_11.json");
     }
 }

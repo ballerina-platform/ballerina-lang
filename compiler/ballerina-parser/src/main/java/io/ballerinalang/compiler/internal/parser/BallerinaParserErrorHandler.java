@@ -182,6 +182,7 @@ public class BallerinaParserErrorHandler {
      * 
      * @param nextToken Next token of the input where the error occurred
      * @param currentCtx Current parser context
+     * @param parsedNodes Parsed that requires to continue parsing the given parser context
      * @return The action needs to be taken for the next token, in order to recover
      */
     public Solution recover(ParserRuleContext currentCtx, STToken nextToken, STNode... parsedNodes) {
@@ -584,7 +585,7 @@ public class BallerinaParserErrorHandler {
                             throw new IllegalStateException();
                     }
                     break;
-                case TYPE_OR_VAR_NAME:
+                case TYPE_REF_OR_VAR_REF:
                     return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount, TYPE_OR_VAR_NAME);
                 case ASSIGNMENT_OR_VAR_DECL_STMT_RHS:
                     return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount,
@@ -1481,7 +1482,7 @@ public class BallerinaParserErrorHandler {
             case SEMICOLON:
                 return SyntaxKind.SEMICOLON_TOKEN;
             case VARIABLE_NAME:
-            case TYPE_OR_VAR_NAME:
+            case TYPE_REF_OR_VAR_REF:
                 return SyntaxKind.IDENTIFIER_TOKEN;
             case PUBLIC_KEYWORD:
                 return SyntaxKind.PUBLIC_KEYWORD;

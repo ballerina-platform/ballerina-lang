@@ -46,7 +46,7 @@ public enum ParserRuleContext {
     ASSIGNMENT_STMT("assignment-stmt"),
     VAR_DECL_STMT("var-decl-stmt"),
     VAR_DECL_STMT_RHS("var-decl-rhs"),
-    TYPE_OR_VAR_NAME("type-or-var-name"),
+    TYPE_REF_OR_VAR_REF("type-or-var-name"),
     ASSIGNMENT_OR_VAR_DECL_STMT_RHS("assign-or-var-decl-rhs"),
     MODULE_TYPE_DEFINITION("type-definition"),
     FIELD_OR_REST_DESCIPTOR_RHS("field-or-rest-descriptor-rhs"),
