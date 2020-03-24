@@ -1,7 +1,7 @@
 {
   "arguments": {
-    "node.line": 12,
-    "node.column": 21
+    "node.line": 16,
+    "node.column": 4
   },
   "expected": {
     "result": {
@@ -20,7 +20,7 @@
                     "character": 0
                   }
                 },
-                "newText": "\n\nfunction partition(string recs, string a, function (string a) returns boolean spliter) returns string[][][] {\n    return [[[\"\"]]];\n}\n"
+                "newText": "\n\nfunction addAndPrintTwoIntegers(int a, int b){\n\n}\n"
               }
             ]
           }
