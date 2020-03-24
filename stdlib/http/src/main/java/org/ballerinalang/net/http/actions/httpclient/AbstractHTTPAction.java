@@ -498,8 +498,11 @@ public abstract class AbstractHTTPAction {
         private void addHttpStatusCode(int statusCode) {
             Optional<ObserverContext> observerContext =
                     ObserveUtils.getObserverContextOfCurrentFrame(context.getStrand());
-            observerContext.ifPresent(ctx -> ctx.addTag(ObservabilityConstants.TAG_KEY_HTTP_STATUS_CODE_GROUP,
-                    statusCode / 100 + STATUS_CODE_GROUP_SUFFIX));
+            observerContext.ifPresent(ctx -> {
+                ctx.addProperty(ObservabilityConstants.PROPERTY_KEY_HTTP_STATUS_CODE, statusCode);
+                ctx.addTag(ObservabilityConstants.TAG_KEY_HTTP_STATUS_CODE_GROUP,
+                        statusCode / 100 + STATUS_CODE_GROUP_SUFFIX);
+            });
         }
     }
 }

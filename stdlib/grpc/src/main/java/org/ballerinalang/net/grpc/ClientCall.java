@@ -35,6 +35,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CancellationException;
 
+import static org.ballerinalang.jvm.observability.ObservabilityConstants.PROPERTY_KEY_HTTP_STATUS_CODE;
+import static org.ballerinalang.jvm.observability.ObservabilityConstants.STATUS_CODE_GROUP_SUFFIX;
 import static org.ballerinalang.jvm.observability.ObservabilityConstants.TAG_KEY_HTTP_METHOD;
 import static org.ballerinalang.jvm.observability.ObservabilityConstants.TAG_KEY_HTTP_STATUS_CODE_GROUP;
 import static org.ballerinalang.jvm.observability.ObservabilityConstants.TAG_KEY_HTTP_URL;
@@ -116,7 +118,8 @@ public final class ClientCall {
             // some value to HTTP Status Code to make sure that tags will not change depending on various
             // circumstances.
             // HTTP Status code must be a number.
-            ctx.addTag(TAG_KEY_HTTP_STATUS_CODE_GROUP, Integer.toString(0));
+            ctx.addProperty(PROPERTY_KEY_HTTP_STATUS_CODE, 0);
+            ctx.addTag(TAG_KEY_HTTP_STATUS_CODE_GROUP, 0 + STATUS_CODE_GROUP_SUFFIX);
         });
     }
 

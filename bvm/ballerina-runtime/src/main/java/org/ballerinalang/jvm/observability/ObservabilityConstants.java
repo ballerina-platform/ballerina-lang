@@ -56,12 +56,12 @@ public class ObservabilityConstants {
     public static final String TAG_DB_TYPE_SQL = "sql";
 
     public static final String PROPERTY_TRACE_PROPERTIES = "trace_properties";
+    public static final String PROPERTY_KEY_HTTP_STATUS_CODE = "http.status_code";
     public static final String PROPERTY_ERROR = "error";
     public static final String PROPERTY_ERROR_MESSAGE = "error_message";
     public static final String PROPERTY_BSTRUCT_ERROR = "bstruct_error";
 
     public static final String STATUS_CODE_GROUP_SUFFIX = "xx";
-    public static final String INTERNAL_SERVER_ERROR_STATUS_CODE_GROUP = "5xx";
 
     // TOML Configs
     public static final String CONFIG_TABLE_OBSERVABILITY = "b7a.observability";
