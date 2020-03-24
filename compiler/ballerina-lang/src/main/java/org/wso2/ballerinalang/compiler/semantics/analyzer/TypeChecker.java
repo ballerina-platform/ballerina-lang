@@ -168,7 +168,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
-
 import javax.xml.XMLConstants;
 
 import static org.wso2.ballerinalang.compiler.tree.BLangInvokableNode.DEFAULT_WORKER_NAME;
@@ -2821,7 +2820,6 @@ public class TypeChecker extends BLangNodeVisitor {
         List<? extends LetClauseNode> letClauseList = queryExpr.letClausesList;
         ExpressionNode collectionNode = fromClauseList.get(0).getCollection();
         SymbolEnv parentEnv = env;
-        BErrorType errorType = null;
         for (FromClauseNode fromClause : fromClauseList) {
             parentEnv = typeCheckFromClause((BLangFromClause) fromClause, parentEnv);
         }
@@ -2856,7 +2854,7 @@ public class TypeChecker extends BLangNodeVisitor {
         BType actualType = new BArrayType(selectType);
         if ((collectionNode instanceof BLangSimpleVarRef) &&
                 (((BLangSimpleVarRef) collectionNode).type instanceof BStreamType)) {
-            errorType = (BErrorType) ((BStreamType) ((BLangSimpleVarRef) collectionNode).type).error;
+            BErrorType errorType = (BErrorType) ((BStreamType) ((BLangSimpleVarRef) collectionNode).type).error;
             if (errorType != null) {
                 actualType = BUnionType.create(null, actualType, errorType);
             }
