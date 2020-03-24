@@ -134,18 +134,13 @@ public class StackTrace {
         }
 
         @Override
-        public void set(StringValue fieldName, Object value) {
+        public void set(BString fieldName, Object value) {
             throw new BLangRuntimeException("No such field or method: callStack");
         }
 
         @Override
         public boolean isFrozen() {
             return true;
-        }
-
-        @Override
-        public BString bStringValue() {
-            return null;
         }
     }
 }

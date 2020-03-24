@@ -50,12 +50,14 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
@@ -133,13 +135,15 @@ public class CreateVariableCodeAction extends AbstractCodeActionProvider {
         try {
             context.put(ReferencesKeys.OFFSET_CURSOR_N_TRY_NEXT_BEST, true);
             context.put(ReferencesKeys.ENABLE_FIND_LITERALS, true);
+            context.put(ReferencesKeys.DO_NOT_SKIP_NULL_SYMBOLS, true);
             Position afterAliasPos = offsetInvocation(diagnosedContent, position);
             Reference refAtCursor = getSymbolAtCursor(context, document, afterAliasPos);
 
             BSymbol symbolAtCursor = refAtCursor.getSymbol();
 
             boolean isInvocation = symbolAtCursor instanceof BInvokableSymbol;
-            boolean isRemoteInvocation = (symbolAtCursor.flags & Flags.REMOTE) == Flags.REMOTE;
+            boolean isRemoteInvocation =
+                    symbolAtCursor != null && (symbolAtCursor.flags & Flags.REMOTE) == Flags.REMOTE;
 
             boolean hasDefaultInitFunction = false;
             boolean hasCustomInitFunction = false;
@@ -225,7 +229,9 @@ public class CreateVariableCodeAction extends AbstractCodeActionProvider {
             String name = names.get(i);
             String title = CommandConstants.CREATE_VARIABLE_TITLE;
             if (types.size() > 1) {
-                title = String.format(CommandConstants.CREATE_VARIABLE_TITLE + " with '%s'", type);
+                String typeLabel = (type.startsWith("[") && type.endsWith("]") && !type.endsWith("[]") &&
+                        type.length() > 10) ? "Tuple" : type;
+                title = String.format(CommandConstants.CREATE_VARIABLE_TITLE + " with '%s'", typeLabel);
             }
             CodeAction action = new CodeAction(title);
             Position insertPos = new Position(position.getLine(), position.getCharacter());
@@ -276,9 +282,13 @@ public class CreateVariableCodeAction extends AbstractCodeActionProvider {
             while (bLangNode.parent instanceof IndexBasedAccessNode) {
                 bLangNode = bLangNode.parent;
             }
-            String variableType = FunctionGenerator.generateTypeDefinition(importsAcceptor, currentPkgId,
-                                                                           bLangNode.type);
+            String variableType = FunctionGenerator.generateTypeDefinition(importsAcceptor, currentPkgId, bLangNode);
             if (bLangNode instanceof BLangInvocation) {
+                BSymbol symbol = ((BLangInvocation) bLangNode).symbol;
+                if (symbol instanceof BInvokableSymbol) {
+                    variableType = FunctionGenerator.generateTypeDefinition(importsAcceptor, currentPkgId,
+                                                                            ((BInvokableSymbol) symbol).retType);
+                }
                 String variableName = CommonUtil.generateVariableName(bLangNode, nameEntries);
                 types.add(variableType);
                 names.add(variableName);
@@ -324,6 +334,52 @@ public class CreateVariableCodeAction extends AbstractCodeActionProvider {
                     names.add(variableName);
                 } else {
                     types.add("map<any>");
+                    names.add(variableName);
+                }
+            } else if (bLangNode instanceof BLangListConstructorExpr) {
+                String variableName = CommonUtil.generateName(1, nameEntries);
+                BLangListConstructorExpr listExpr = (BLangListConstructorExpr) bLangNode;
+                if (listExpr.expectedType instanceof BTupleType) {
+                    BTupleType tupleType = (BTupleType) listExpr.expectedType;
+                    String arrayType = null;
+                    String prevType = null;
+                    String prevInnerType = null;
+                    boolean isArrayCandidate = !tupleType.tupleTypes.isEmpty();
+                    StringJoiner tupleJoiner = new StringJoiner(", ");
+                    for (BType type : tupleType.tupleTypes) {
+                        String newType = FunctionGenerator.generateTypeDefinition(importsAcceptor, currentPkgId, type);
+                        if (prevType != null && !prevType.equals(newType)) {
+                            isArrayCandidate = false;
+                        }
+                        if (type instanceof BTupleType && prevInnerType == null) {
+                            // Checks inner element's type equality
+                            BTupleType nType = (BTupleType) type;
+                            boolean isSameInnerType = true;
+                            for (BType innerType : nType.tupleTypes) {
+                                String newInnerType = FunctionGenerator.generateTypeDefinition(importsAcceptor,
+                                                                                               currentPkgId, innerType);
+                                if (prevInnerType != null && !prevInnerType.equals(newInnerType)) {
+                                    isSameInnerType = false;
+                                }
+                                prevInnerType = newInnerType;
+                            }
+                            if (isSameInnerType) {
+                                arrayType = prevInnerType + "[]";
+                            }
+                        }
+                        tupleJoiner.add(newType);
+                        prevType = newType;
+                        if (arrayType == null) {
+                            arrayType = newType;
+                        }
+                    }
+                    // Array
+                    if (isArrayCandidate) {
+                        types.add(arrayType + "[]");
+                        names.add(variableName);
+                    }
+                    // Tuple
+                    types.add("[" + tupleJoiner.toString() + "]");
                     names.add(variableName);
                 }
             } else {

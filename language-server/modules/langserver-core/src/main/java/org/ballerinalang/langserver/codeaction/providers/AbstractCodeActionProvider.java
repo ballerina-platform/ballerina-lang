@@ -156,11 +156,15 @@ public abstract class AbstractCodeActionProvider implements LSCodeActionProvider
 //            String Params: lorry.get_color("test.invoke(\"")
 //            Record literal: {a: 1, b: ""}
 //            Lambda Functions: function() returns int { return 1; };
-        String content = diagnosedContent;
+        String content = diagnosedContent.trim();
         int len = content.length();
         len--;
         // In-line record literal
         if (content.charAt(0) == '{' && content.charAt(len) == ';' && content.charAt(--len) == '}') {
+            return position;
+        }
+        // Type Casting
+        if (content.charAt(0) == '<' && content.charAt(len) == ';') {
             return position;
         }
         int pendingLParenthesis = 0;
@@ -170,8 +174,8 @@ public abstract class AbstractCodeActionProvider implements LSCodeActionProvider
         int pointer = content.length();
         while (loop) {
             pointer--;
-            if (content.length() == 2) {
-                count += 2;
+            if (content.length() == 1) {
+                count += 1;
                 break;
             }
             // Check for stop-conditions

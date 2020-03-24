@@ -69,5 +69,5 @@ public interface BObject extends BRefValue {
     @Deprecated
     void set(String fieldName, Object value);
 
-    void set(StringValue fieldName, Object value);
+    void set(BString fieldName, Object value);
 }
