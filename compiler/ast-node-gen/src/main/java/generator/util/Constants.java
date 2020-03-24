@@ -19,31 +19,12 @@ package generator.util;
 
 public class Constants {
     public static final String ABSTRACT_KEYWORD = "abstract";
-    public static final String PUBLIC_KEYWORD = "public";
     public static final String EXTENDS_KEYWORD = "extends";
-    public static final String OPEN_BRACKETS = "(";
-    public static final String CLOSE_BRACKETS = ")";
-    public static final String OPEN_PARENTHESIS = "{";
-    public static final String NEW_LINE = "\n";
     public static final String DOT = ".";
-    public static final String SEMI_COLON = ";";
-    public static final String CLOSE_PARENTHESIS = "}";
-    public static final String LESS_THAN_SYMBOL = "<";
-    public static final String GREATER_THAN_SYMBOL = ">";
-    public static final String ASSIGNMENT_OPERATOR = "=";
-    public static final String WHITE_SPACE = " ";
     public static final String PARAMETER_SEPARATOR = ",";
     public static final String NULL_KEYWORD = "null";
     public static final String JAVA_EXT = "java";
-    public static final String TO_STRING_SIGNATURE = "toString";
-    public static final String RETURN_KEYWORD = "return";
-    public static final String STRING_KEYWORD = "String";
-    public static final String CONCAT_SYMBOL = "+";
-    public static final String LIST_KEYWORD = "List";
     public static final String MISSING_TOKEN = "STMissingToken";
-    public static final String LEADING_TRIVIA = "leadingTrivia";
-    public static final String TRAILING_TRIVIA = "trailingTrivia";
-    public static final String SYNTAX_TRIVIA = "SyntaxTrivia";
     public static final String ST_TOKEN = "STToken";
     public static final String NON_TERMINAL_NODE = "NonTerminalNode";
     public static final String PROPERTY = "text";
@@ -64,6 +45,5 @@ public class Constants {
     public static final String ABSTRACT_PLACEHOLDER = "abstract";
     public static final String PARENT_CLASS_PLACEHOLDER = "parentClass";
     public static final String IMMEDIATE_PARENT_PLACEHOLDER = "immediateParent";
-    public static final String NODE_VARIABLE_PLACEHOLDER = "$variable";
     public static final String PACKAGE_PLACEHOLDER = "package";
 }
