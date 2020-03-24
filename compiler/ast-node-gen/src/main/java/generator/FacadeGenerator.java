@@ -35,7 +35,6 @@ import java.util.List;
 import java.util.Map;
 
 public class FacadeGenerator {
-    private static String FACADE_PACKAGE = "facade";
 
     private static List<Field> currentFieldList;
     private static List<AttributeFunction> attributeFunctionList;
@@ -86,7 +85,7 @@ public class FacadeGenerator {
     }
 
     /**
-     * This is used to represent the attributes block in handlebar template. The attributes block will be
+     * attributes is used to represent the attributes block in handlebar template. The attributes block will be
      * replaced by the returned attributes list.
      * @return returns the currentFieldList in a node
      */
@@ -95,17 +94,31 @@ public class FacadeGenerator {
     }
 
     /**
-     * attribute function is used to represent the attributeFunction block in handlebar template.
+     * attributeFunction is used to represent the attributeFunction block in handlebar template.
      * The attributeFunction block will be replaced by the returned attributeFunction list list.
      * @return returns the attributeFunctionList in a node
      */
     public List<AttributeFunction> attributeFunction() {
         return attributeFunctionList;
     }
+
+    /**
+     * switchFunction is to represent the switchFunction block in handlebar template. The switchFunction block will be
+     * replaced by the returned switchFunction.
+     * @return returns the switchFunction to generated switch case statement
+     */
     public SwitchFunction switchFunction(){
         return switchFunction;
     }
 
+    /**
+     * generateFacade is used to generate facade classes in the AST
+     * @param facadeTemplatePath path of the templated file
+     * @param classPath path of the to which the classes to be generated
+     * @param nodeJsonPath path of the JSON file which contain the syntax
+     * @throws IOException throws as {@link IOException} if these in an error in IO operation
+     * @throws GeneratorException throws an {@link GeneratorException} if the tree could not be parsed to java classes
+     */
     public static void generateFacade(String facadeTemplatePath, String classPath,
                                       String nodeJsonPath) throws IOException, GeneratorException {
         List<Node> nodes = Common.getTreeNodes(nodeJsonPath);
@@ -128,8 +141,9 @@ public class FacadeGenerator {
                 scopes[1] = new FacadeGenerator();
                 mustache.execute(writer, scopes);
                 writer.flush();
+                String facadePackage = "facade";
                 Common.writeToFile( writer.toString().replace("&lt;", "<").
-                        replace("&gt;", ">"), classPath + "/" + FACADE_PACKAGE + "/"
+                        replace("&gt;", ">"), classPath + "/" + facadePackage + "/"
                         + node.getName() + Constants.DOT + Constants.JAVA_EXT);
                 cleanupValues();
             }
@@ -138,12 +152,20 @@ public class FacadeGenerator {
         }
     }
 
+    /**
+     * cleanup values is used to reinitialize the attributes in the class
+     */
     private static void cleanupValues() {
         currentFieldList = null;
         attributeFunctionList = null;
         switchFunction = null;
     }
 
+    /**
+     * restructureNodes is used to restructure the nodes
+     * @param nodeList original list of nodes
+     * @return returns the restructured nodes
+     */
     private static List<Node> restructureNodes(List<Node> nodeList) {
         List<Node> modifiedNodeList = new ArrayList<>();
         for (Node node : nodeList) {
@@ -175,6 +197,11 @@ public class FacadeGenerator {
         return modifiedNodeList;
     }
 
+    /**
+     * populateAttributeFunction is used to populate the values that should go into the attributeFunction block in the
+     * handlebar template
+     * @param fieldList list of attributes
+     */
     private static void populateAttributeFunction(List<Field> fieldList) {
         if (fieldList != null) {
             int i = 0;
@@ -195,6 +222,11 @@ public class FacadeGenerator {
         }
     }
 
+    /**
+     * populateSwitchFunction is used to populate with values that should go into the switch case statements of the
+     * generated classes
+     * @param fieldList list of attributes
+     */
     private static void populateSwitchFunction(List<Field> fieldList) {
         if (fieldList != null) {
             int i = 0;

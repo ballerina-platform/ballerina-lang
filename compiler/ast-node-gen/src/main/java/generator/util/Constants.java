@@ -33,6 +33,7 @@ public class Constants {
     public static final String NODE_LIST = "NodeList<Node>";
     public static final String NODE = "Node";
     public static final String ST_NODE = "STNode";
+    public static final String ST = "ST";
     public static final String SYNTAX_LIST = "SyntaxList";
     public static final String FACADE_PACKAGE = "package generated.facade;";
     public static final String INTERNAL_PACKAGE = "package generated.internal;";

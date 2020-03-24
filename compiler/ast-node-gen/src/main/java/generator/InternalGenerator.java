@@ -35,14 +35,50 @@ import java.util.List;
 import java.util.Map;
 
 public class InternalGenerator {
-    private static String INTERNAL_PACKAGE = "internal";
-
     private static List<Field> currentFieldList;
     private static Bucket bucket;
     private static List<ChildNode> addChildNodeList;
     private static ToStringFunction toStringFunction;
     private static FacadeClass facadeFunction;
 
+    static class Bucket {
+        int bucketCount;
+        Bucket(int bucketCount) {
+            this.bucketCount = bucketCount;
+        }
+    }
+
+    static class ChildNode {
+        String name;
+        int index;
+        ChildNode(String name, int index) {
+            this.name = name;
+            this.index = index;
+        }
+    }
+
+    static class ToStringFunction {
+        String kind;
+        ToStringFunction(String kind) {
+            this.kind = kind;
+        }
+    }
+
+    static class FacadeClass {
+        String facadeClass;
+        FacadeClass(String facadeClass) {
+            this.facadeClass = facadeClass;
+        }
+    }
+
+    /**
+     * generateInternalTree is used to generate internal classes in the AST
+     * @param internalTemplatePath path of the templated file
+     * @param classPath path of the to which the classes to be generated
+     * @param nodeJsonPath path of the JSON file which contain the syntax
+     * @throws IOException throws as {@link IOException} if these in an error in IO operation
+     * @throws GeneratorException throws an {@link GeneratorException} if the tree could not be parsed to java classes
+     */
     public static void generateInternalTree(String internalTemplatePath, String classPath,
                                             String nodeJsonPath) throws IOException, GeneratorException {
         List<Node> originalNodes = Common.getTreeNodes(nodeJsonPath);
@@ -89,12 +125,16 @@ public class InternalGenerator {
             scopes[1] = new InternalGenerator();
             mustache.execute(writer, scopes);
             writer.flush();
-            Common.writeToFile(writer.toString(), classPath + "/" + INTERNAL_PACKAGE + "/" + node.getName()
+            String internalPackage = "internal";
+            Common.writeToFile(writer.toString(), classPath + "/" + internalPackage + "/" + node.getName()
                     + Constants.DOT + Constants.JAVA_EXT);
             cleanupValues();
         }
     }
 
+    /**
+     * cleanup values is used to reinitialize the attributes in the class
+     */
     private static void cleanupValues() {
         toStringFunction = null;
         facadeFunction = null;
@@ -103,23 +143,28 @@ public class InternalGenerator {
         bucket = null;
     }
 
+    /**
+     * restructureNodes is used to restructure the nodes
+     * @param nodeList original list of nodes
+     * @return returns the restructured nodes
+     */
     private static List<Node> restructureNodes (List<Node> nodeList) {
         List<Node> modifiedNodeList = new ArrayList<>();
         nodeList.forEach(node -> {
             Node modifiedNode = new Node();
             modifiedNode.setType(node.getType());
-            modifiedNode.setName("ST" + node.getName());
-            modifiedNode.setBase("ST" + node.getBase());
+            modifiedNode.setName(Constants.ST + node.getName());
+            modifiedNode.setBase(Constants.ST + node.getBase());
             if (node.getFields() != null) {
                 List<Field> modifiedFieldList = new ArrayList<>();
                 node.getFields().forEach(field -> {
                     Field modifiedField = new Field();
                     modifiedField.setName(field.getName());
                     modifiedField.setDefaultValue(field.getDefaultValue());
-                    if (field.getType().equals("SyntaxList")) {
+                    if (field.getType().equals(Constants.SYNTAX_LIST)) {
                         modifiedField.setType(Constants.ST_NODE);
                     } else if (field.getType().equals(Constants.TOKEN) || field.getType().equals(Constants.NODE)) {
-                        modifiedField.setType("ST" + field.getType());
+                        modifiedField.setType(Constants.ST + field.getType());
                     } else {
                         modifiedField.setType(field.getType());
                     }
@@ -132,6 +177,10 @@ public class InternalGenerator {
         return modifiedNodeList;
     }
 
+    /**
+     * populateChildNode is used to populate with values that should go into the addChildNode block of the
+     * generated classes
+     */
     private static void populateChildNode() {
         int index = 0;
         addChildNodeList = new ArrayList<>();
@@ -141,6 +190,11 @@ public class InternalGenerator {
         }
     }
 
+    /**
+     * populateToStringFunction is used to populate with values that should go into the toString block of the
+     * generated classes
+     * @param node node that is used to populate toString function
+     */
     private static void populateToStringFunction(Node node) {
         if (node.getName().equals(Constants.ST_TOKEN)) {
             toStringFunction = new ToStringFunction(Constants.KIND_PROPERTY);
@@ -149,6 +203,12 @@ public class InternalGenerator {
         }
     }
 
+    /**
+     * superConstructorParentValues fills the constructor with null values for the number of attributes \
+     * in the superclass
+     * @param fields list of superclass attributes
+     * @return
+     */
     private static String superConstructorParentValues(List<Field> fields) {
         if (fields == null) {
             return "";
@@ -158,53 +218,48 @@ public class InternalGenerator {
         return values.toString();
     }
 
+    /**
+     * attributes is used to represent the attributes block in handlebar template. The attributes block will be
+     * replaced by the returned attributes list.
+     * @return returns the currentFieldList in a node
+     */
     public List<Field> attributes() {
         return currentFieldList;
     }
 
+    /**
+     * bucket is used to represent the bucket block in handlebar template. The bucket block will be
+     * replaced by the returned bucket.
+     * @return returns the bucket object
+     */
     public Bucket bucket() {
         return bucket;
     }
 
+    /**
+     * addChildNode is used to represent the addChildNode block in handlebar template. The attributes block will be
+     * replaced by the returned attributes list.
+     * @return returns the addChildNodeList
+     */
     public List<ChildNode> addChildNode() {
         return addChildNodeList;
     }
 
+    /**
+     * toStringFunction is used to represent the toStringFunction block in handlebar template.
+     * The toStringFunction block will be replaced by the returned toStringFunction.
+     * @return returns the toStringFunction
+     */
     public ToStringFunction toStringFunction() {
         return toStringFunction;
     }
 
+    /**
+     * facadeFunction is used to represent the facadeFunction block in handlebar template.
+     * The facadeFunction block will be replaced by the returned facadeFunction.
+     * @return returns the facadeFunction
+     */
     public FacadeClass facadeFunction() {
         return facadeFunction;
-    }
-
-    static class Bucket {
-        int bucketCount;
-        Bucket(int bucketCount) {
-            this.bucketCount = bucketCount;
-        }
-    }
-
-    static class ChildNode {
-        String name;
-        int index;
-        ChildNode(String name, int index) {
-            this.name = name;
-            this.index = index;
-        }
-    }
-
-    static class ToStringFunction {
-        String kind;
-        ToStringFunction(String kind) {
-            this.kind = kind;
-        }
-    }
-
-    static class FacadeClass {
-        String facadeClass;
-        FacadeClass(String facadeClass) {
-            this.facadeClass = facadeClass;
-        }
     }
 }
