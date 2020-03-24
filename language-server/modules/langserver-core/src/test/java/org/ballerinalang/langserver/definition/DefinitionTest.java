@@ -444,6 +444,8 @@ public class DefinitionTest {
                 {"defStreams4.json", "streams"},
                 {"defStreams5.json", "streams"},
                 {"defStreams6.json", "streams"},
+                // Covers the negative test cases
+                {"defNegative1.json", "negative"},
         };
     }
     
