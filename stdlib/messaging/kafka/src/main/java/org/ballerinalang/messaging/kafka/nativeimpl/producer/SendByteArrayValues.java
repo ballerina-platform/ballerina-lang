@@ -35,13 +35,13 @@ import static org.ballerinalang.messaging.kafka.utils.KafkaUtils.getLongValue;
  * producer.
  */
 public class SendByteArrayValues extends Send {
-
-    private static final Logger logger = LoggerFactory.getLogger(SendByteArrayValues.class);
-
-    /* *********************************************************************** *
+    /* ************************************************************************ *
      *              Send records with value of type byte[]                      *
      *       The value is considered first since key can be null                *
      ************************************************************************** */
+
+    private static final Logger logger = LoggerFactory.getLogger(SendByteArrayValues.class);
+
     // ballerina byte[]
     public static Object sendByteArray(ObjectValue producer, BArray value, String topic, Object partition,
                                        Object timestamp) {

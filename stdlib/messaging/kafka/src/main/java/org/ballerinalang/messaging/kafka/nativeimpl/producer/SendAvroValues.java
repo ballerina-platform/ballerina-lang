@@ -35,6 +35,11 @@ import static org.ballerinalang.messaging.kafka.utils.KafkaUtils.getLongValue;
  * Sends Avro values from Ballerina Kafka producers.
  */
 public class SendAvroValues extends Send {
+    /* ************************************************************************ *
+     *              Send records with value of type AvroRecord                  *
+     *       The value is considered first since key can be null                *
+     ************************************************************************** */
+
     private static final Logger logger = LoggerFactory.getLogger(SendAvroValues.class);
 
     // ballerina AvroRecord

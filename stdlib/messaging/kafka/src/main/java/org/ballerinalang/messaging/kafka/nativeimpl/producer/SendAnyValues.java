@@ -35,13 +35,13 @@ import static org.ballerinalang.messaging.kafka.utils.KafkaUtils.getLongValue;
  * producer.
  */
 public class SendAnyValues extends Send {
-    // TODO: This class should be merged with "Send" when #20918 is fixed.
-    private static final Logger logger = LoggerFactory.getLogger(SendAnyValues.class);
-
     /* *********************************************************************** *
      *          Send records with value of type any (custom)                   *
      *       The value is considered first since key can be null               *
      ************************************************************************* */
+
+    private static final Logger logger = LoggerFactory.getLogger(SendAnyValues.class);
+
     // ballerina any
     public static Object sendAny(ObjectValue producer, Object value, String topic, Object partition, Object timestamp) {
         Integer partitionValue = getIntValue(partition, ALIAS_PARTITION, logger);
