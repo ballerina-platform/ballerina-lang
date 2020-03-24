@@ -326,9 +326,7 @@ public class FunctionGenerator {
                     list.add(argType + " " + varName);
                     argNames.add(varName);
                 } else if (bLangExpression instanceof BLangInvocation) {
-                    BLangInvocation invocation = (BLangInvocation) bLangExpression;
-                    String functionName = invocation.name.value;
-                    String argType = lookupFunctionReturnType(functionName, parent);
+                    String argType = generateTypeDefinition(importsAcceptor, currentPkgId, bLangExpression);
                     String argName = CommonUtil.generateVariableName(bLangExpression, argNames);
                     list.add(argType + " " + argName);
                     argNames.add(argName);
