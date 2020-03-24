@@ -1,6 +1,6 @@
 {
   "position": {
-    "line": 96,
+    "line": 77,
     "character": 8
   },
   "source": "function/source/commonCompletionBlocks.bal",
@@ -398,6 +398,14 @@
       "detail": "Service",
       "sortText": "230",
       "insertText": "service",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "onRetryVar",
+      "kind": "Variable",
+      "detail": "int",
+      "sortText": "130",
+      "insertText": "onRetryVar",
       "insertTextFormat": "Snippet"
     },
     {
