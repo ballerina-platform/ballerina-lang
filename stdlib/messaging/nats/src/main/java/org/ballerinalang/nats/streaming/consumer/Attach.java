@@ -17,11 +17,12 @@
  */
 package org.ballerinalang.nats.streaming.consumer;
 
+import io.nats.streaming.StreamingConnection;
 import org.ballerinalang.jvm.BRuntime;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.nats.Constants;
-import org.ballerinalang.nats.Utils;
+import org.ballerinalang.nats.observability.NatsMetricsUtil;
 
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
@@ -36,16 +37,19 @@ import static org.ballerinalang.nats.Constants.STREAMING_DISPATCHER_LIST;
 public class Attach {
 
     public static void streamingAttach(ObjectValue streamingListener, ObjectValue service,
-                                       Object connection) {
-        List<ObjectValue> serviceList = (List<ObjectValue>) ((ObjectValue) connection)
-                .getNativeData(Constants.SERVICE_LIST);
+                                       ObjectValue connectionObject) {
+        List<ObjectValue> serviceList = (List<ObjectValue>) connectionObject.getNativeData(Constants.SERVICE_LIST);
         serviceList.add(service);
         ConcurrentHashMap<ObjectValue, StreamingListener> serviceListenerMap =
                 (ConcurrentHashMap<ObjectValue, StreamingListener>) streamingListener
                         .getNativeData(STREAMING_DISPATCHER_LIST);
         boolean manualAck = getAckMode(service);
-        String url = Utils.getCommaSeparatedUrl(streamingListener.getObjectValue("connection"));
-        serviceListenerMap.put(service, new StreamingListener(service, manualAck, BRuntime.getCurrentRuntime(), url));
+        StreamingConnection streamingConnection = (StreamingConnection) streamingListener
+                .getNativeData(Constants.NATS_STREAMING_CONNECTION);
+        NatsMetricsUtil natsMetricsUtil = (NatsMetricsUtil) connectionObject.getNativeData(Constants.NATS_METRIC_UTIL);
+        serviceListenerMap.put(service, new StreamingListener(service, manualAck, BRuntime.getCurrentRuntime(),
+                                                              streamingConnection.getNatsConnection().getConnectedUrl(),
+                                                              natsMetricsUtil));
     }
 
     private static boolean getAckMode(ObjectValue service) {

@@ -95,6 +95,7 @@ public class Init {
             opts.inboxPrefix(connectionConfig.getStringValue(INBOX_PREFIX));
 
             List<ObjectValue> serviceList = Collections.synchronizedList(new ArrayList<>());
+
             // Add NATS connection listener.
             opts.connectionListener(new DefaultConnectionListener());
 
@@ -116,6 +117,7 @@ public class Init {
             }
 
             Connection natsConnection = Nats.connect(opts.build());
+            connectionObject.addNativeData(Constants.NATS_METRIC_UTIL, new NatsMetricsUtil(natsConnection));
             connectionObject.addNativeData(Constants.NATS_CONNECTION, natsConnection);
             connectionObject.addNativeData(Constants.CONNECTED_CLIENTS, new AtomicInteger(0));
             connectionObject.addNativeData(Constants.SERVICE_LIST, serviceList);

@@ -58,6 +58,7 @@ public class ImmediateStop {
         }
         Connection natsConnection =
                 (Connection) connectionObject.getNativeData(Constants.NATS_CONNECTION);
+        NatsMetricsUtil natsMetricsUtil = (NatsMetricsUtil) connectionObject.getNativeData(Constants.NATS_METRIC_UTIL);
         if (natsConnection == null) {
             NatsMetricsUtil.reportConsumerError(NatsObservabilityConstants.ERROR_TYPE_CLOSE);
             LOG.debug("NATS connection does not exist. Possibly the connection is already closed.");
@@ -72,10 +73,11 @@ public class ImmediateStop {
             natsConnection.closeDispatcher((Dispatcher) pair.getValue());
             dispatchers.remove(); // avoids a ConcurrentModificationException
         }
+        @SuppressWarnings("unchecked")
         ArrayList<String> subscriptionsList =
                 (ArrayList<String>) listenerObject
                         .getNativeData(BASIC_SUBSCRIPTION_LIST);
-        NatsMetricsUtil.reportBulkUnsubscription(natsConnection.getConnectedUrl(), subscriptionsList);
+        natsMetricsUtil.reportBulkUnsubscription(subscriptionsList);
 
         int clientsCount =
                 ((AtomicInteger) connectionObject.getNativeData(Constants.CONNECTED_CLIENTS)).decrementAndGet();
@@ -86,8 +88,7 @@ public class ImmediateStop {
                 natsConnection.close();
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
-                NatsMetricsUtil.reportConsumerError(natsConnection.getConnectedUrl(),
-                                                    NatsObservabilityConstants.UNKNOWN,
+                natsMetricsUtil.reportConsumerError(NatsObservabilityConstants.UNKNOWN,
                                                     NatsObservabilityConstants.ERROR_TYPE_CLOSE);
                 throw Utils.createNatsError("Listener interrupted while closing NATS connection");
             }
