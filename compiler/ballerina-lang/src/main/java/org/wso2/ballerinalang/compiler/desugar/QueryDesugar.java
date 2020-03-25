@@ -113,8 +113,8 @@ public class QueryDesugar extends BLangNodeVisitor {
     //                                        select person;
     //
     // changes as,
-    //    Employee[]|error? outputDataArray = ();
-    //    Employee[] $tempDataArray$ = [];
+    //    Person[]|error? outputDataArray = ();
+    //    Person[] $tempDataArray$ = [];
     //
     //    Person[] $data$ = personList;
     //    abstract object {public function next() returns record {|Person value;|}? $iterator$ = $data$.iterator();
@@ -195,8 +195,8 @@ public class QueryDesugar extends BLangNodeVisitor {
         bodyBlock.addStatement(tempVarAssignment);
         buildWhereClauseBlock(whereClauseList, letClauseList, leafElseBlock, bodyBlock, selectClause.pos);
 
-        // if ($result$ is()){
-        //    break;
+        // if (outputDataArray is ()) {
+        //     outputDataArray = tempDataArray;
         // }
         BLangBlockStmt nullCheckIfBody = ASTBuilderUtil.createBlockStmt(fromClause.pos);
         BLangAssignment outputAssignment = ASTBuilderUtil
