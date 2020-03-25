@@ -132,7 +132,7 @@ public class ObserveUtils {
         }
         ObserverContext observerContext = strand.observerContext;
         observers.forEach(observer -> {
-            observerContext.addProperty(ObservabilityConstants.PROPERTY_ERROR, Boolean.TRUE);
+            observerContext.addTag(ObservabilityConstants.TAG_KEY_ERROR, ObservabilityConstants.TAG_ERROR_TRUE_VALUE);
             observerContext.addProperty(ObservabilityConstants.PROPERTY_BSTRUCT_ERROR, errorValue);
         });
     }

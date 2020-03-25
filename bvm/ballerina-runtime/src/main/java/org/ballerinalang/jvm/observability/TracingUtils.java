@@ -28,10 +28,11 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import static org.ballerinalang.jvm.observability.ObservabilityConstants.PROPERTY_BSTRUCT_ERROR;
-import static org.ballerinalang.jvm.observability.ObservabilityConstants.PROPERTY_ERROR;
 import static org.ballerinalang.jvm.observability.ObservabilityConstants.PROPERTY_ERROR_MESSAGE;
 import static org.ballerinalang.jvm.observability.ObservabilityConstants.PROPERTY_KEY_HTTP_STATUS_CODE;
 import static org.ballerinalang.jvm.observability.ObservabilityConstants.PROPERTY_TRACE_PROPERTIES;
+import static org.ballerinalang.jvm.observability.ObservabilityConstants.TAG_ERROR_TRUE_VALUE;
+import static org.ballerinalang.jvm.observability.ObservabilityConstants.TAG_KEY_ERROR;
 import static org.ballerinalang.jvm.observability.tracer.TraceConstants.KEY_SPAN;
 import static org.ballerinalang.jvm.observability.tracer.TraceConstants.LOG_ERROR_KIND_EXCEPTION;
 import static org.ballerinalang.jvm.observability.tracer.TraceConstants.LOG_EVENT_TYPE_ERROR;
@@ -89,8 +90,8 @@ public class TracingUtils {
     public static void stopObservation(ObserverContext observerContext) {
         BSpan span = (BSpan) observerContext.getProperty(KEY_SPAN);
         if (span != null) {
-            Boolean error = (Boolean) observerContext.getProperty(PROPERTY_ERROR);
-            if (error != null && error) {
+            Tag errorTag = observerContext.getTag(TAG_KEY_ERROR);
+            if (errorTag != null && TAG_ERROR_TRUE_VALUE.equals(errorTag.getValue())) {
                 StringBuilder errorMessageBuilder = new StringBuilder();
                 String errorMessage = (String) observerContext.getProperty(PROPERTY_ERROR_MESSAGE);
                 if (errorMessage != null) {

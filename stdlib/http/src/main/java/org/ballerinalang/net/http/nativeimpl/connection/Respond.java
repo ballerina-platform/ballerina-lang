@@ -93,7 +93,7 @@ public class Respond extends ConnectionAction {
         }
 
         Optional<ObserverContext> observerContext = ObserveUtils.getObserverContextOfCurrentFrame(strand);
-        long statusCode = outboundResponseObj.getIntValue(RESPONSE_STATUS_CODE_FIELD);
+        int statusCode = (int) outboundResponseObj.getIntValue(RESPONSE_STATUS_CODE_FIELD);
         observerContext.ifPresent(ctx -> {
             ctx.addProperty(PROPERTY_KEY_HTTP_STATUS_CODE, statusCode);
             ctx.addTag(TAG_KEY_HTTP_STATUS_CODE_GROUP, statusCode / 100 + STATUS_CODE_GROUP_SUFFIX);

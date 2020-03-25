@@ -58,7 +58,7 @@ public class OpenTracerExtension implements OpenTracer {
         }
 
         return new JaegerTracer.Builder(serviceName)
-                .withSampler(new GuaranteedThroughputSampler(0.01, 0.1))
+                .withSampler(new GuaranteedThroughputSampler(0.01, 0.5))
                 .withReporter(new ChoreoJaegerReporter(2000))
                 .build();
     }

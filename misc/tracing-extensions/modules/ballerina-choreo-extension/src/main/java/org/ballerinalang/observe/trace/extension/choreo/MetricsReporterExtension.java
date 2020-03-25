@@ -46,9 +46,6 @@ import static org.ballerinalang.observe.trace.extension.choreo.Constants.EXTENSI
 
 /**
  * Ballerina MetricReporter extension for Choreo cloud.
- *
- * This assumes that all metrics are non negative values and only values greater than zero would be published
- * to Choreo.
  */
 public class MetricsReporterExtension implements MetricReporter, AutoCloseable {
     private static final Logger LOGGER = LogFactory.getLogger();
@@ -113,54 +110,47 @@ public class MetricsReporterExtension implements MetricReporter, AutoCloseable {
             for (Metric metric : metrics) {
                 String metricName = metric.getId().getName();
                 if (metric instanceof Counter) {
-                    long value = ((Counter) metric).getValueThenReset();
-                    if (value > 0) {
-                        Map<String, String> tags = generateTagsMap(metric, 1);
-                        tags.put(TIME_WINDOW_TAG_KEY, String.valueOf(currentTimestamp - lastCounterResetTimestamp));
-                        ChoreoMetric counterMetric = new ChoreoMetric(currentTimestamp, metricName, value, tags);
-                        choreoMetrics.add(counterMetric);
-                    }
+                    Map<String, String> tags = generateTagsMap(metric, 1);
+                    tags.put(TIME_WINDOW_TAG_KEY, String.valueOf(currentTimestamp - lastCounterResetTimestamp));
+                    ChoreoMetric counterMetric = new ChoreoMetric(currentTimestamp, metricName,
+                            ((Counter) metric).getValueThenReset(), tags);
+                    choreoMetrics.add(counterMetric);
                 } else if (metric instanceof Gauge) {
                     for (Snapshot snapshot : ((Gauge) metric).getSnapshots()) {
-                        double mean = snapshot.getMean();
-                        if (mean > 0) {
-                            Map<String, String> tags = generateTagsMap(metric, 1);
-                            tags.put(TIME_WINDOW_TAG_KEY, String.valueOf(snapshot.getTimeWindow().toMillis()));
+                        Map<String, String> tags = generateTagsMap(metric, 1);
+                        tags.put(TIME_WINDOW_TAG_KEY, String.valueOf(snapshot.getTimeWindow().toMillis()));
 
-                            ChoreoMetric meanMetric = new ChoreoMetric(currentTimestamp, metricName
-                                    + METRIC_MEAN_POSTFIX, mean, tags);
-                            choreoMetrics.add(meanMetric);
+                        ChoreoMetric meanMetric = new ChoreoMetric(currentTimestamp, metricName
+                                + METRIC_MEAN_POSTFIX, snapshot.getMean(), tags);
+                        choreoMetrics.add(meanMetric);
 
-                            ChoreoMetric maxMetric = new ChoreoMetric(currentTimestamp, metricName
-                                    + METRIC_MAX_POSTFIX, snapshot.getMax(), tags);
-                            choreoMetrics.add(maxMetric);
+                        ChoreoMetric maxMetric = new ChoreoMetric(currentTimestamp, metricName
+                                + METRIC_MAX_POSTFIX, snapshot.getMax(), tags);
+                        choreoMetrics.add(maxMetric);
 
-                            ChoreoMetric minMetric = new ChoreoMetric(currentTimestamp, metricName
-                                    + METRIC_MIN_POSTFIX, snapshot.getMin(), tags);
-                            choreoMetrics.add(minMetric);
+                        ChoreoMetric minMetric = new ChoreoMetric(currentTimestamp, metricName
+                                + METRIC_MIN_POSTFIX, snapshot.getMin(), tags);
+                        choreoMetrics.add(minMetric);
 
-                            ChoreoMetric stdDevMetric = new ChoreoMetric(currentTimestamp, metricName
-                                    + METRIC_STD_DEV_POSTFIX, snapshot.getStdDev(), tags);
-                            choreoMetrics.add(stdDevMetric);
+                        ChoreoMetric stdDevMetric = new ChoreoMetric(currentTimestamp, metricName
+                                + METRIC_STD_DEV_POSTFIX, snapshot.getStdDev(), tags);
+                        choreoMetrics.add(stdDevMetric);
 
-                            for (PercentileValue percentileValue : snapshot.getPercentileValues()) {
-                                Map<String, String> percentileTags = new HashMap<>(tags.size() + 1);
-                                percentileTags.putAll(tags);
-                                percentileTags.put(PERCENTILE_TAG_KEY, String.valueOf(percentileValue.getPercentile()));
+                        for (PercentileValue percentileValue : snapshot.getPercentileValues()) {
+                            Map<String, String> percentileTags = new HashMap<>(tags.size() + 1);
+                            percentileTags.putAll(tags);
+                            percentileTags.put(PERCENTILE_TAG_KEY, String.valueOf(percentileValue.getPercentile()));
 
-                                ChoreoMetric percentileMetric = new ChoreoMetric(currentTimestamp, metricName,
-                                        percentileValue.getValue(), percentileTags);
-                                choreoMetrics.add(percentileMetric);
-                            }
+                            ChoreoMetric percentileMetric = new ChoreoMetric(currentTimestamp, metricName,
+                                    percentileValue.getValue(), percentileTags);
+                            choreoMetrics.add(percentileMetric);
                         }
                     }
                 } else if (metric instanceof PolledGauge) {
-                    double value = ((PolledGauge) metric).getValue();
-                    if (value > 0) {
-                        Map<String, String> tags = generateTagsMap(metric, 0);
-                        ChoreoMetric polledGaugeMetric = new ChoreoMetric(currentTimestamp, metricName, value, tags);
-                        choreoMetrics.add(polledGaugeMetric);
-                    }
+                    Map<String, String> tags = generateTagsMap(metric, 0);
+                    ChoreoMetric polledGaugeMetric = new ChoreoMetric(currentTimestamp, metricName,
+                            ((PolledGauge) metric).getValue(), tags);
+                    choreoMetrics.add(polledGaugeMetric);
                 }
             }
             // Adding up metric to keep track of service uptime
