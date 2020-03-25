@@ -38,7 +38,11 @@
                     {{#each constants}}
                         <div class="params-listing">
                             <ul>
-                                <li id="{{ name }}"> <b>{{ name }}</b><span class="type">  {{{ typeName type }}}</span> {{ value }}</li>
+                                {{#if isDeprecated}}
+                                    <li id="{{ name }}">@deprecated <b>{{ name }}</b><span class="type"> {{{ typeName type }}}</span> {{ value }}</li>
+                                {{else}}
+                                    <li id="{{ name }}"> <b>{{ name }}</b><span class="type">  {{{ typeName type }}}</span> {{ value }}</li>
+                                {{/if}}
                                 <li>
                                     {{{ description }}}
                                 </li>

@@ -191,7 +191,19 @@ public class Generator {
         java.lang.Object value = constant.symbol.value;
         String desc = description(constant);
         BLangType typeNode = constant.typeNode != null ? constant.typeNode : constant.associatedTypeDefinition.typeNode;
-        return new Constant(constantName, desc, Type.fromTypeNode(typeNode, module.id), value.toString());
+
+        // deprecated annotation
+        boolean isDeprecated = false;
+        if (constant.getAnnotationAttachments() != null) {
+            List<BLangAnnotationAttachment> annotationAttachments = constant.getAnnotationAttachments();
+            for (BLangAnnotationAttachment attachment:annotationAttachments) {
+                if (attachment.getAnnotationName().getValue().equals("deprecated")) {
+                    isDeprecated = true;
+                }
+            }
+        }
+
+        return new Constant(constantName, desc, isDeprecated, Type.fromTypeNode(typeNode, module.id), value.toString());
     }
 
     /**
@@ -234,7 +246,6 @@ public class Generator {
 
         }
 
-        // functionNode.getAnnotationAttachments().get(0).annotationName.value.equals("deprecated")
         // deprecated annotation
         boolean isDeprecated = false;
         if (functionNode.getAnnotationAttachments() != null) {
