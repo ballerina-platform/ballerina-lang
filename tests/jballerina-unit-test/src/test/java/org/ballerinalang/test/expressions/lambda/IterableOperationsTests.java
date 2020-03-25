@@ -53,7 +53,7 @@ public class IterableOperationsTests {
     public void testNegative() {
         Assert.assertEquals(negative.getErrorCount(), 34);
         int index = 0;
-        BAssertUtil.validateError(negative, index++, "undefined function 'map' in type 'string'", 6, 7);
+        BAssertUtil.validateError(negative, index++, "undefined function 'forEach' in type 'int'", 6, 7);
         BAssertUtil.validateError(negative, index++, "undefined function 'map' in type 'string'", 8, 7);
         BAssertUtil.validateError(negative, index++, "variable assignment is required", 14, 5);
         BAssertUtil.validateError(negative, index++, "incompatible types: expected 'function ((any|error)) returns" +
