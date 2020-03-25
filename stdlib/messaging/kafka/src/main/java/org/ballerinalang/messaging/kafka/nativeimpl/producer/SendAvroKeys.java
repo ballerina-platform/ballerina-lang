@@ -45,11 +45,11 @@ public class SendAvroKeys {
      *         since we don't pack avro dependencies with the distribution      *
      ************************************************************************** */
 
-    private static final Logger logger = LoggerFactory.getLogger(SendAnyValues.class);
+    private static final Logger logger = LoggerFactory.getLogger(SendAvroKeys.class);
 
     // String and AvroRecord
-    public static Object sendStringAvro(ObjectValue producer, String value, String topic, MapValue<String, Object> key,
-                                        Object partition, Object timestamp) {
+    public static Object sendStringValuesAvroKeys(ObjectValue producer, String value, String topic,
+                                                  MapValue<String, Object> key, Object partition, Object timestamp) {
         GenericRecord genericRecord = createGenericRecord(key);
         Integer partitionValue = getIntValue(partition, ALIAS_PARTITION, logger);
         Long timestampValue = getLongValue(timestamp);
@@ -59,8 +59,8 @@ public class SendAvroKeys {
     }
 
     // ballerina int and AvroRecord
-    public static Object sendIntAvro(ObjectValue producer, long value, String topic, MapValue<String, Object> key,
-                                     Object partition, Object timestamp) {
+    public static Object sendIntValuesAvroKeys(ObjectValue producer, long value, String topic,
+                                               MapValue<String, Object> key, Object partition, Object timestamp) {
         GenericRecord genericRecord = createGenericRecord(key);
         Integer partitionValue = getIntValue(partition, ALIAS_PARTITION, logger);
         Long timestampValue = getLongValue(timestamp);
@@ -70,8 +70,8 @@ public class SendAvroKeys {
     }
 
     // ballerina float and AvroRecord
-    public static Object sendFloatAvro(ObjectValue producer, double value, String topic, MapValue<String, Object> key,
-                                       Object partition, Object timestamp) {
+    public static Object sendFloatValuesAvroKeys(ObjectValue producer, double value, String topic,
+                                                 MapValue<String, Object> key, Object partition, Object timestamp) {
         GenericRecord genericRecord = createGenericRecord(key);
         Integer partitionValue = getIntValue(partition, ALIAS_PARTITION, logger);
         Long timestampValue = getLongValue(timestamp);
@@ -81,8 +81,8 @@ public class SendAvroKeys {
     }
 
     // ballerina byte[] and AvroRecord
-    public static Object sendByteArrayAvro(ObjectValue producer, BArray value, String topic,
-                                           MapValue<String, Object> key, Object partition, Object timestamp) {
+    public static Object sendByteArrayValuesAvroKeys(ObjectValue producer, BArray value, String topic,
+                                                     MapValue<String, Object> key, Object partition, Object timestamp) {
         GenericRecord genericRecord = createGenericRecord(key);
         Integer partitionValue = getIntValue(partition, ALIAS_PARTITION, logger);
         Long timestampValue = getLongValue(timestamp);
@@ -92,8 +92,8 @@ public class SendAvroKeys {
     }
 
     // ballerina AvroRecord and AvroRecord
-    public static Object sendAvroAvro(ObjectValue producer, MapValue<String, Object> value, String topic,
-                                      MapValue<String, Object> key, Object partition, Object timestamp) {
+    public static Object sendAvroValuesAvroKeys(ObjectValue producer, MapValue<String, Object> value, String topic,
+                                                MapValue<String, Object> key, Object partition, Object timestamp) {
         GenericRecord valueRecord = createGenericRecord(value);
         GenericRecord keyRecord = createGenericRecord(key);
         Integer partitionValue = getIntValue(partition, ALIAS_PARTITION, logger);
@@ -104,9 +104,9 @@ public class SendAvroKeys {
         return sendKafkaRecord(kafkaRecord, producer);
     }
 
-    // ballerina any and AvroRecord
-    public static Object sendAnyAvro(ObjectValue producer, Object value, String topic, MapValue<String, Object> key,
-                                     Object partition, Object timestamp) {
+    // ballerina anydata and AvroRecord
+    public static Object sendCustomValuesAvroKeys(ObjectValue producer, Object value, String topic,
+                                                  MapValue<String, Object> key, Object partition, Object timestamp) {
         GenericRecord genericRecord = createGenericRecord(key);
         Integer partitionValue = getIntValue(partition, ALIAS_PARTITION, logger);
         Long timestampValue = getLongValue(timestamp);
