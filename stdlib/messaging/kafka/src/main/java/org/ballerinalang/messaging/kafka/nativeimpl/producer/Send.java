@@ -18,25 +18,16 @@
 
 package org.ballerinalang.messaging.kafka.nativeimpl.producer;
 
-import org.apache.avro.Schema;
-import org.apache.avro.generic.GenericData;
-import org.apache.avro.generic.GenericRecord;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.KafkaException;
 import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.jvm.values.api.BArray;
 import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
 import org.ballerinalang.messaging.kafka.observability.KafkaMetricsUtil;
 import org.ballerinalang.messaging.kafka.observability.KafkaObservabilityConstants;
 import org.ballerinalang.messaging.kafka.observability.KafkaTracingUtil;
-import org.ballerinalang.messaging.kafka.utils.KafkaConstants;
-import org.ballerinalang.messaging.kafka.utils.KafkaUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.Objects;
 
@@ -50,8 +41,6 @@ import static org.ballerinalang.messaging.kafka.utils.TransactionUtils.handleTra
  * Native method to send different types of keys and values to kafka broker from ballerina kafka producer.
  */
 public class Send {
-
-    private static final Logger logger = LoggerFactory.getLogger(Send.class);
 
     @SuppressWarnings(UNCHECKED)
     protected static Object sendKafkaRecord(ProducerRecord record, ObjectValue producerObject) {
@@ -84,47 +73,5 @@ public class Send {
 
         }
         return null;
-    }
-
-    protected static GenericRecord createGenericRecord(MapValue<String, Object> value) {
-        GenericRecord genericRecord = createRecord(value);
-        MapValue data = value.getMapValue(KafkaConstants.AVRO_DATA_RECORD_NAME);
-        populateAvroRecord(genericRecord, data);
-        return genericRecord;
-    }
-
-    protected static void populateAvroRecord(GenericRecord record, MapValue<String, Object> data) {
-        String[] keys = data.getKeys();
-        for (String key : keys) {
-            Object value = data.get(key);
-            if (value instanceof String || value instanceof Number || value == null) {
-                record.put(key, value);
-            } else if (value instanceof MapValue) {
-                Schema childSchema = record.getSchema().getField(key).schema();
-                GenericRecord subRecord = new GenericData.Record(childSchema);
-                populateAvroRecord(subRecord, (MapValue<String, Object>) value);
-                record.put(key, subRecord);
-            } else if (value instanceof BArray) {
-                Schema childSchema = record.getSchema().getField(key).schema().getElementType();
-                GenericRecord subRecord = new GenericData.Record(childSchema);
-                populateAvroRecordArray(subRecord, (BArray) value);
-                record.put(key, subRecord);
-            } else {
-                throw KafkaUtils.createKafkaError("Invalid data type received for avro data",
-                                                  KafkaConstants.AVRO_ERROR);
-            }
-        }
-    }
-
-    protected static void populateAvroRecordArray(GenericRecord record, BArray bArray) {
-        for (int i = 0; i < bArray.size(); i++) {
-            record.put(i, bArray.get(i));
-        }
-    }
-
-    protected static GenericRecord createRecord(MapValue value) {
-        String schemaString = value.getStringValue(KafkaConstants.AVRO_SCHEMA_STRING_NAME);
-        Schema avroSchema = new Schema.Parser().parse(schemaString);
-        return new GenericData.Record(avroSchema);
     }
 }
