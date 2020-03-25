@@ -236,17 +236,16 @@ public class BallerinaFileBuilder {
                     writeOutputFile(new ClientFile(serviceDescriptor.getName(), isUnaryContains),
                             DEFAULT_SAMPLE_DIR,
                             SAMPLE_CLIENT_TEMPLATE_NAME, clientFilePath);
-                }
-                stubFileObject.setEnumList(enumList);
-                stubFileObject.setDescriptors(descriptors);
-                if (!stubRootDescriptor.isEmpty()) {
-                    stubFileObject.setRootDescriptor(stubRootDescriptor);
-                }
-                if (GRPC_PROXY.equals(mode)) {
+                } else if (GRPC_PROXY.equals(mode)) {
                     String proxyPath = generateOutputFile(this.balOutPath, filename +
                             SAMPLE_PROXY_FILE_PREFIX);
                     writeOutputFile(stubFileObject, DEFAULT_SAMPLE_DIR, SAMPLE_PROXY_TEMPLATE_NAME, proxyPath);
                 }
+            }
+            stubFileObject.setEnumList(enumList);
+            stubFileObject.setDescriptors(descriptors);
+            if (!stubRootDescriptor.isEmpty()) {
+                stubFileObject.setRootDescriptor(stubRootDescriptor);
             }
             if (!GRPC_SERVICE.equals(mode)) {
                 String stubFilePath = generateOutputFile(this.balOutPath, filename + STUB_FILE_PREFIX);
