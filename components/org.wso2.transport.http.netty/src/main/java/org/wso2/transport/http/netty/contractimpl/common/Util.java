@@ -83,6 +83,7 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.channels.ClosedChannelException;
 import java.security.cert.Certificate;
+import java.security.cert.CertificateEncodingException;
 import java.security.cert.CertificateExpiredException;
 import java.security.cert.CertificateNotYetValidException;
 import java.security.cert.X509Certificate;
@@ -100,6 +101,7 @@ import javax.net.ssl.SSLParameters;
 import javax.net.ssl.SSLPeerUnverifiedException;
 
 import static io.netty.handler.codec.http.HttpHeaderNames.TRAILER;
+import static org.wso2.transport.http.netty.contract.Constants.BASE_64_ENCODED_CERT;
 import static org.wso2.transport.http.netty.contract.Constants.COLON;
 import static org.wso2.transport.http.netty.contract.Constants.HEADER_VAL_100_CONTINUE;
 import static org.wso2.transport.http.netty.contract.Constants.HTTP_HOST;
@@ -791,6 +793,8 @@ public class Util {
         inboundRequestMsg.setProperty(Constants.TO, httpRequestHeaders.uri());
         inboundRequestMsg.setProperty(MUTUAL_SSL_HANDSHAKE_RESULT,
                 ctx.channel().attr(Constants.MUTUAL_SSL_RESULT_ATTRIBUTE).get());
+        inboundRequestMsg.setProperty(BASE_64_ENCODED_CERT,
+                ctx.channel().attr(Constants.BASE_64_ENCODED_CERT_ATTRIBUTE).get());
 
         return inboundRequestMsg;
     }
@@ -1064,8 +1068,11 @@ public class Util {
                 Certificate[] certs = sslEngine.getSession().getPeerCertificates();
                 X509Certificate endUserCert = (X509Certificate) certs[0];
                 endUserCert.checkValidity(new Date());
+                String base64EncodedCert = java.util.Base64.getEncoder().encodeToString(endUserCert.getEncoded());
                 ctx.channel().attr(Constants.MUTUAL_SSL_RESULT_ATTRIBUTE).set(MUTUAL_SSL_PASSED);
-            } catch (SSLPeerUnverifiedException | CertificateExpiredException | CertificateNotYetValidException e) {
+                ctx.channel().attr(Constants.BASE_64_ENCODED_CERT_ATTRIBUTE).set(base64EncodedCert);
+            } catch (SSLPeerUnverifiedException | CertificateExpiredException | CertificateNotYetValidException
+                        | CertificateEncodingException e) {
                 ctx.channel().attr(Constants.MUTUAL_SSL_RESULT_ATTRIBUTE).set(MUTUAL_SSL_FAILED);
             }
         } else {
