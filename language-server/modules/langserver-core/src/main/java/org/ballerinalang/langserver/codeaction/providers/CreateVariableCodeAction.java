@@ -304,30 +304,26 @@ public class CreateVariableCodeAction extends AbstractCodeActionProvider {
                 names.add(variableName);
 
                 // Record
+                String rType = FunctionGenerator.generateTypeDefinition(importsAcceptor, currentPkgId, bLangNode.type);
+                BLangRecordLiteral recordLiteral = (BLangRecordLiteral) bLangNode;
+                types.add((recordLiteral.fields.size() > 0) ? rType : "record {}");
+                names.add(variableName);
+
+                // Map
                 BType prevType = null;
                 boolean isConstrainedMap = true;
-                StringJoiner joiner = new StringJoiner(" ");
-                BLangRecordLiteral recordLiteral = (BLangRecordLiteral) bLangNode;
                 for (RecordLiteralNode.RecordField recordField : recordLiteral.fields) {
                     if (recordField instanceof BLangRecordLiteral.BLangRecordKeyValueField) {
                         BLangRecordLiteral.BLangRecordKeyValueField kvField =
                                 (BLangRecordLiteral.BLangRecordKeyValueField) recordField;
                         BType type = kvField.valueExpr.type;
-                        if (prevType != null && !prevType.tsymbol.name.getValue().equals(
-                                type.tsymbol.name.getValue())) {
+                        if (prevType != null &&
+                                !prevType.tsymbol.name.getValue().equals(type.tsymbol.name.getValue())) {
                             isConstrainedMap = false;
                         }
                         prevType = type;
-                        String rcKey = FunctionGenerator.generateTypeDefinition(importsAcceptor, currentPkgId, type);
-                        String rcVal = kvField.key.toString();
-                        joiner.add(rcKey + " " + rcVal + ";");
                     }
                 }
-
-                types.add((recordLiteral.fields.size() > 0) ? "record {| " + joiner.toString() + " |}" : "record {}");
-                names.add(variableName);
-
-                // Map
                 if (isConstrainedMap && prevType != null) {
                     String type = FunctionGenerator.generateTypeDefinition(importsAcceptor, currentPkgId, prevType);
                     types.add("map<" + type + ">");

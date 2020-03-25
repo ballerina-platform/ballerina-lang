@@ -28,8 +28,10 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
@@ -237,7 +239,23 @@ public class FunctionGenerator {
             return "stream<" + constraint + ", " + error + ">";
         } else if (bType instanceof BRecordType) {
             BRecordType recordType = (BRecordType) bType;
-            return recordType.toString();
+            if (recordType.tsymbol != null && recordType.tsymbol.name != null &&
+                    (recordType.tsymbol.name.value.isEmpty() || recordType.tsymbol.name.value.startsWith("$"))) {
+                StringBuilder sb = new StringBuilder();
+                sb.append("record").append(" ").append("{|");
+                for (BField field : recordType.fields) {
+                    sb.append(" ").append(field.type).append(" ").append(field.name)
+                            .append(Symbols.isOptional(field.symbol) ? "?" : "")
+                            .append(";");
+                }
+                if (recordType.sealed) {
+                    sb.append(" ").append("|}");
+                    return sb.toString();
+                }
+                sb.append(" ").append(recordType.restFieldType).append("...").append(";").append(" ").append("|}");
+                return sb.toString();
+            }
+            return recordType.tsymbol.toString();
         }
         return (bType.tsymbol != null) ? generateTypeDefinition(importsAcceptor, currentPkgId, bType.tsymbol) :
                 "any";
@@ -326,9 +344,7 @@ public class FunctionGenerator {
                     list.add(argType + " " + varName);
                     argNames.add(varName);
                 } else if (bLangExpression instanceof BLangInvocation) {
-                    BLangInvocation invocation = (BLangInvocation) bLangExpression;
-                    String functionName = invocation.name.value;
-                    String argType = lookupFunctionReturnType(functionName, parent);
+                    String argType = generateTypeDefinition(importsAcceptor, currentPkgId, bLangExpression);
                     String argName = CommonUtil.generateVariableName(bLangExpression, argNames);
                     list.add(argType + " " + argName);
                     argNames.add(argName);
