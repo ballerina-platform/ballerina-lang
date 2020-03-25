@@ -23,7 +23,7 @@ public type AuthnFilter object {
 
     # Initializes the `AuthnFilter` object.
     #
-    # + authHandlers - An array of authentication handlers
+    # + authHandlers - An array of inbound authentication handlers
     public function __init(InboundAuthHandlers authHandlers) {
         self.authHandlers = authHandlers;
     }
