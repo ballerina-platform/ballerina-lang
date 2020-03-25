@@ -51,6 +51,7 @@ import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstantSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
@@ -975,6 +976,8 @@ public class TreeVisitor extends LSNodeVisitor {
             lsContext.put(CompletionKeys.NEXT_NODE_KEY, AnnotationNodeKind.TYPE);
         } else if (symbol instanceof AnnotationSymbol) {
             lsContext.put(CompletionKeys.NEXT_NODE_KEY, AnnotationNodeKind.ANNOTATION);
+        } else if (symbol instanceof BConstantSymbol) {
+            lsContext.put(CompletionKeys.NEXT_NODE_KEY, AnnotationNodeKind.CONSTANT);
         }
     }
 
