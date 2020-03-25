@@ -15,24 +15,17 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package io.ballerinalang.compiler.parser.test.statements;
+package io.ballerinalang.compiler.parser.test.syntax.types;
 
-import io.ballerinalang.compiler.internal.parser.ParserRuleContext;
-import io.ballerinalang.compiler.parser.test.ParserTestUtils;
-
-import java.nio.file.Paths;
+import org.testng.annotations.Test;
 
 /**
- * Test parsing expressions.
+ * Test parsing simple types.
  */
-public class AbstractStatementTest {
+public class SimpleTypesTest extends AbstractTypesTest {
 
-    void test(String source, String filePath) {
-        ParserTestUtils.test(source, ParserRuleContext.STATEMENT, Paths.get("statements/", filePath));
-    }
-
-    void testFile(String path, String filePath) {
-        ParserTestUtils.test(Paths.get("statements/", path), ParserRuleContext.TOP_LEVEL_NODE_WITH_MODIFIER,
-                Paths.get("statements/", filePath));
+    @Test
+    public void testSimpleBinaryExpression() {
+        test("simple-types/simple_types_source_01.bal", "simple-types/simple_types_assert_01.json");
     }
 }
