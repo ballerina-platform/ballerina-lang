@@ -251,6 +251,7 @@ public type ListenerHttp1Settings record {|
 # + negativeAuthzCache - The caching configurations for negative authorizations
 # + mandateSecureSocket - Specify whether secure socket configurations are mandatory or not
 # + position - The authn/authz filter position of the filter array. The position values starts from 0 and it is set to 0 implicitly
+# + enableAuthzFilter - Specify whether authz filter engagement is needed or not
 public type ListenerAuth record {|
     InboundAuthHandler[]|InboundAuthHandler[][] authHandlers;
     string[]|string[][] scopes?;
@@ -258,6 +259,7 @@ public type ListenerAuth record {|
     AuthzCacheConfig negativeAuthzCache = {};
     boolean mandateSecureSocket = true;
     int position = 0;
+    boolean enableAuthzFilter = true;
 |};
 
 # Configures the SSL/TLS options to be used for HTTP service.
@@ -342,24 +344,31 @@ function addAuthFilters(ListenerConfiguration config) {
         InboundAuthHandler[]|InboundAuthHandler[][] authHandlers = auth.authHandlers;
         AuthnFilter authnFilter = new(authHandlers);
 
-        cache:Cache? positiveAuthzCache = ();
-        cache:Cache? negativeAuthzCache = ();
-        if (auth.positiveAuthzCache.enabled) {
-            positiveAuthzCache = new cache:Cache(auth.positiveAuthzCache.expiryTimeInMillis,
-                                     auth.positiveAuthzCache.capacity,
-                                     auth.positiveAuthzCache.evictionFactor);
+        AuthzFilter? authzFilter = ();
+
+        if (auth.enableAuthzFilter) {
+            cache:Cache? positiveAuthzCache = ();
+            cache:Cache? negativeAuthzCache = ();
+            if (auth.positiveAuthzCache.enabled) {
+                positiveAuthzCache = new cache:Cache(auth.positiveAuthzCache.expiryTimeInMillis,
+                                         auth.positiveAuthzCache.capacity,
+                                         auth.positiveAuthzCache.evictionFactor);
+            }
+            if (auth.negativeAuthzCache.enabled) {
+                negativeAuthzCache = new cache:Cache(auth.negativeAuthzCache.expiryTimeInMillis,
+                                         auth.negativeAuthzCache.capacity,
+                                         auth.negativeAuthzCache.evictionFactor);
+            }
+            AuthzHandler authzHandler = new(positiveAuthzCache, negativeAuthzCache);
+            var scopes = auth["scopes"];
+            authzFilter = new(authzHandler, scopes);
         }
-        if (auth.negativeAuthzCache.enabled) {
-            negativeAuthzCache = new cache:Cache(auth.negativeAuthzCache.expiryTimeInMillis,
-                                     auth.negativeAuthzCache.capacity,
-                                     auth.negativeAuthzCache.evictionFactor);
-        }
-        AuthzHandler authzHandler = new(positiveAuthzCache, negativeAuthzCache);
-        var scopes = auth["scopes"];
-        AuthzFilter authzFilter = new(authzHandler, scopes);
 
         if (auth.position == 0) {
-            config.filters.unshift(authnFilter, authzFilter);
+            if (auth.enableAuthzFilter) {
+                config.filters.unshift(<AuthzFilter>authzFilter);
+            }
+            config.filters.unshift(authnFilter);
         } else {
             if (auth.position < 0 || auth.position > config.filters.length()) {
                 error err = error("Position of the auth filters should be beteween 0 and length of the filter array.");
@@ -370,7 +379,10 @@ function addAuthFilters(ListenerConfiguration config) {
                 config.filters.push(config.filters.shift());
                 count += 1;
             }
-            config.filters.unshift(authnFilter, authzFilter);
+            if (auth.enableAuthzFilter) {
+                config.filters.unshift(<AuthzFilter>authzFilter);
+            }
+            config.filters.unshift(authnFilter);
             while (count > 0) {
                 config.filters.unshift(config.filters.pop());
                 count -= 1;
