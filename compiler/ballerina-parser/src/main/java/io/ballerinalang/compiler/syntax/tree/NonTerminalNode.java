@@ -18,6 +18,7 @@
 package io.ballerinalang.compiler.syntax.tree;
 
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
+import io.ballerinalang.compiler.internal.parser.tree.SyntaxKind;
 import io.ballerinalang.compiler.internal.parser.tree.SyntaxUtils;
 
 /**
@@ -85,12 +86,13 @@ public abstract class NonTerminalNode extends Node {
 
     // Create a Token for the TextChange token in the given bucket
     protected Token createToken(int bucket) {
-        STNode internaltoken = this.node.childInBucket(bucket);
-        if (internaltoken == null) {
-            return null;
+        STNode internalToken = this.node.childInBucket(bucket);
+        if (internalToken == null || internalToken.kind == SyntaxKind.NONE) {
+            // TODO Verify this change
+            return new EmptyToken(internalToken, 0, this);
         }
 
-        Token token = new Token(internaltoken, this.getChildPosition(bucket), this);
+        Token token = new Token(internalToken, this.getChildPosition(bucket), this);
         this.childBuckets[bucket] = token;
         return token;
     }
