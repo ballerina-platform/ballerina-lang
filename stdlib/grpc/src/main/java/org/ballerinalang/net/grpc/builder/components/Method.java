@@ -72,8 +72,8 @@ public class Method {
         this.paramSet = paramSet;
     }
 
-    public static Method.Builder newBuilder(String methodId, Map<String, Message> messageMap) {
-        return new Method.Builder(methodId, messageMap);
+    public static Method.Builder newBuilder(String methodId) {
+        return new Method.Builder(methodId);
     }
 
     public String getMethodName() {
@@ -128,13 +128,17 @@ public class Method {
         DescriptorProtos.MethodDescriptorProto methodDescriptor;
         Map<String, Message> messageMap;
 
-        private Builder(String methodId, Map<String, Message> messageMap) {
+        private Builder(String methodId) {
             this.methodId = methodId;
-            this.messageMap = messageMap;
         }
 
         public Builder setMethodDescriptor(DescriptorProtos.MethodDescriptorProto methodDescriptor) {
             this.methodDescriptor = methodDescriptor;
+            return this;
+        }
+
+        public Builder setMessageMap(Map<String, Message> messageMap) {
+            this.messageMap = messageMap;
             return this;
         }
 

@@ -82,11 +82,7 @@ public abstract class AbstractStub {
         return descriptors;
     }
 
-    public void setMessageMap(List<Message> messageList) {
-        Map<String, Message> messageMap = new HashMap<>();
-        for (Message message : messageList) {
-            messageMap.put(message.getMessageName(), message);
-        }
+    public void setMessageMap(Map<String, Message>  messageMap) {
         this.messageMap = messageMap;
     }
 

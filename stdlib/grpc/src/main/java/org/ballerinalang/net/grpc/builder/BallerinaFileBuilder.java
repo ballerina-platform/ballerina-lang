@@ -62,6 +62,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.stream.Collectors;
 
 import static org.ballerinalang.net.grpc.builder.utils.BalGenConstants.DEFAULT_SAMPLE_DIR;
 import static org.ballerinalang.net.grpc.builder.utils.BalGenConstants.DEFAULT_SKELETON_DIR;
@@ -181,7 +182,8 @@ public class BallerinaFileBuilder {
                 ServiceFile.Builder sampleServiceBuilder = ServiceFile.newBuilder(serviceDescriptor.getName());
                 List<DescriptorProtos.MethodDescriptorProto> methodList = serviceDescriptor.getMethodList();
                 boolean isUnaryContains = false;
-                stubFileObject.setMessageMap(messageList);
+                stubFileObject.setMessageMap(messageList.stream().collect(Collectors.toMap(Message::getMessageName,
+                        message -> message)));
                 for (DescriptorProtos.MethodDescriptorProto methodDescriptorProto : methodList) {
                     String methodID;
                     if (filePackage != null && !filePackage.isEmpty()) {
@@ -191,8 +193,8 @@ public class BallerinaFileBuilder {
                         methodID = serviceDescriptor.getName() + "/" + methodDescriptorProto.getName();
                     }
 
-                    Method method = Method.newBuilder(methodID, stubFileObject.getMessageMap())
-                            .setMethodDescriptor(methodDescriptorProto).build();
+                    Method method = Method.newBuilder(methodID).setMethodDescriptor(methodDescriptorProto).
+                            setMessageMap(stubFileObject.getMessageMap()).build();
                     serviceStubBuilder.addMethod(method);
                     sampleServiceBuilder.addMethod(method);
                     if (MethodDescriptor.MethodType.UNARY.equals(method.getMethodType())) {
@@ -214,7 +216,8 @@ public class BallerinaFileBuilder {
                 if (GRPC_SERVICE.equals(mode)) {
                     serviceFile = sampleServiceBuilder.build();
                     if (!needStubFile) {
-                        serviceFile.setMessageMap(messageList);
+                        serviceFile.setMessageMap(messageList.stream().collect(Collectors.toMap(Message::getMessageName,
+                                message -> message)));
                         serviceFile.setEnumList(enumList);
                         serviceFile.setDescriptors(descriptors);
                         if (!stubRootDescriptor.isEmpty()) {
@@ -233,33 +236,22 @@ public class BallerinaFileBuilder {
                     writeOutputFile(new ClientFile(serviceDescriptor.getName(), isUnaryContains),
                             DEFAULT_SAMPLE_DIR,
                             SAMPLE_CLIENT_TEMPLATE_NAME, clientFilePath);
-                } else if (GRPC_PROXY.equals(mode)) {
-                    stubFileObject.setEnumList(enumList);
-                    stubFileObject.setDescriptors(descriptors);
-                    if (!stubRootDescriptor.isEmpty()) {
-                        stubFileObject.setRootDescriptor(stubRootDescriptor);
-                    }
-                    String proxyPath = generateOutputFile(
-                            this.balOutPath, filename + SAMPLE_PROXY_FILE_PREFIX);
-                    writeOutputFile(stubFileObject, DEFAULT_SAMPLE_DIR, SAMPLE_PROXY_TEMPLATE_NAME,
-                            proxyPath);
                 }
-            }
-
-            if (!GRPC_SERVICE.equals(mode)) {
                 stubFileObject.setEnumList(enumList);
                 stubFileObject.setDescriptors(descriptors);
                 if (!stubRootDescriptor.isEmpty()) {
                     stubFileObject.setRootDescriptor(stubRootDescriptor);
                 }
+                if (GRPC_PROXY.equals(mode)) {
+                    String proxyPath = generateOutputFile(this.balOutPath, filename +
+                            SAMPLE_PROXY_FILE_PREFIX);
+                    writeOutputFile(stubFileObject, DEFAULT_SAMPLE_DIR, SAMPLE_PROXY_TEMPLATE_NAME, proxyPath);
+                }
+            }
+            if (!GRPC_SERVICE.equals(mode)) {
                 String stubFilePath = generateOutputFile(this.balOutPath, filename + STUB_FILE_PREFIX);
                 writeOutputFile(stubFileObject, DEFAULT_SKELETON_DIR, SKELETON_TEMPLATE_NAME, stubFilePath);
             } else if (needStubFile) {
-                stubFileObject.setEnumList(enumList);
-                stubFileObject.setDescriptors(descriptors);
-                if (!stubRootDescriptor.isEmpty()) {
-                    stubFileObject.setRootDescriptor(stubRootDescriptor);
-                }
                 String stubFilePath = generateOutputFile(this.balOutPath, filename + STUB_FILE_PREFIX);
                 writeOutputFile(stubFileObject, DEFAULT_SKELETON_DIR, SERVICE_SKELETON_TEMPLATE_NAME, stubFilePath);
             }

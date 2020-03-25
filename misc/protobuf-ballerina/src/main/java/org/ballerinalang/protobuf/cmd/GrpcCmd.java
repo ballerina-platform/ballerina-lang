@@ -220,7 +220,6 @@ public class GrpcCmd implements BLauncherCmd {
         File compilerHome = new File(protobufHome, TEMP_COMPILER_DIRECTORY);
         createTempDirectory(compilerHome);
         File apiHome = new File(googleHome, TEMP_API_DIRECTORY);
-        createTempDirectory(protobufHome);
         createTempDirectory(apiHome);
         return new File(metadataHome, getProtoFileName() + "-descriptor.desc");
     }
