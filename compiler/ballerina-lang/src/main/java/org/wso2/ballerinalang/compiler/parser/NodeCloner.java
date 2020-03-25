@@ -1430,6 +1430,7 @@ public class NodeCloner extends BLangNodeVisitor {
         source.cloneRef = clone;
         clone.sealed = source.sealed;
         clone.restFieldType = clone(source.restFieldType);
+        clone.analyzed = source.analyzed;
         cloneBLangStructureTypeNode(source, clone);
         cloneBLangType(source, clone);
     }
