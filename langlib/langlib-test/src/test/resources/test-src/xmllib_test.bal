@@ -14,8 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/lang.'xml as xmllib;
-
+import ballerina/lang.'xml;
 xml catalog = xml `<CATALOG>
                        <CD>
                            <TITLE>Empire Burlesque</TITLE>
@@ -48,151 +47,120 @@ function getXML() returns xml[] {
 
 function testFromString() returns xml|error {
     string s = catalog.toString();
-    xml x = <xml> xmllib:fromString(s);
+    xml x = <xml> 'xml:fromString(s);
     return x["CD"]["TITLE"];
 }
 
 function emptyConcatCall() returns xml {
-    return xmllib:concat();
+    return 'xml:concat();
 }
 
 function testConcat() returns xml {
     xml x = xml `<hello>xml content</hello>`;
-    return xmllib:concat(x, <xml> testFromString(), "hello from String");
+    return 'xml:concat(x, <xml> testFromString(), "hello from String");
 }
 
 function testIsElement() returns [boolean, boolean, boolean] {
-    return [xmllib:concat().isElement(), catalog.isElement(), testConcat().isElement()];
+    xml x1 = 'xml:concat();
+    boolean b1 = x1 is 'xml:Element;
+
+    boolean b2 = false;
+    xml x2 = catalog;
+    if(x2 is 'xml:Element) {
+        if(x2.getName() == "CATALOG") {
+            b2 = true;
+        }
+    }
+
+    boolean b3 = testConcat() is 'xml:Element;
+    return [b1, b2, b3];
 }
 
-function testXmlPI() returns [boolean, boolean, boolean] {
+function testXmlPI() returns [boolean, boolean] {
     xml pi = xml `<?xml-stylesheet type="text/xsl" href="style.xsl"?>`;
-    return [pi.isProcessingInstruction(),
-        xmllib:isProcessingInstruction(pi),
-        emptyConcatCall().isProcessingInstruction()];
+    return [pi is 'xml:ProcessingInstruction,
+        emptyConcatCall() is 'xml:ProcessingInstruction];
 }
 
-function testXmlIsComment() returns [boolean, boolean, boolean] {
+function testXmlIsComment() returns [boolean, boolean] {
     xml cmnt = xml `<!-- hello from comment -->`;
-    return [cmnt.isComment(),
-        xmllib:isComment(cmnt),
-        emptyConcatCall().isComment()];
+    return [cmnt is 'xml:Comment,
+        emptyConcatCall() is 'xml:Comment];
 }
 
-function testXmlIsText() returns [boolean, boolean, boolean] {
+function testXmlIsText() returns [boolean, boolean] {
     xml text = xml `hello text`;
-    return [text.isText(),
-        xmllib:isText(text),
-        emptyConcatCall().isComment()];
+    return [text is 'xml:Text,
+        emptyConcatCall() is 'xml:Text];
 }
 
 function getNameOfElement() returns string {
-    xml elem = xml `<elem>elem</elem>`;
-    return elem.getName();
-}
-
-function getNameOfElementNegative() returns string {
-    xml seq = xmllib:concat(xml `<elem>a</elem>`, xml `<elem>a</elem>`);
-    return seq.getName();
+    'xml:Element element = <'xml:Element> xml `<elem>elem</elem>`;
+    return element.getName();
 }
 
 function testSetElementName() returns xml {
-    xml elem = xml `<elem attr="attr1">content</elem>`;
-    elem.setName("el2");
-    return elem;
-}
-
-function testSetElementNameNegative() returns xml {
-    xml elem = xml `<elem attr="attr1">content</elem>`;
-    xml elemN = xml `<elemN></elemN>`;
-    xml seq = xmllib:concat(elem, elemN);
-    seq.setName("el2");
-    return seq;
+    'xml:Element element = <'xml:Element> xml `<elem attr="attr1">content</elem>`;
+    element.setName("el2");
+    return element;
 }
 
 function testGetChildren() returns xml {
-    return catalog.getChildren().strip()[0].getChildren().strip();
-}
-
-function testGetChildrenNegative() returns xml {
-    return catalog.getChildren().strip().getChildren();
+    'xml:Element cat = <'xml:Element> catalog;
+    xml ch1  = cat.getChildren().strip()[0];
+    'xml:Element ch1e = <'xml:Element> ch1;
+    return ch1e.getChildren().strip();
 }
 
 function testSetChildren() returns xml {
     xml child = xml `<e>child</e>`;
-    catalog.getChildren().strip()[0].setChildren(child);
-    return catalog.getChildren().strip()[0];
-}
-
-function testSetChildrenNegative() {
-    xml child = xml `<e>child</e>`;
-    catalog.getChildren().strip().setChildren(child);
+    'xml:Element catElm = <'xml:Element> catalog;
+    xml ch1 = catElm.getChildren().strip()[0];
+    'xml:Element ch1em = <'xml:Element> ch1;
+    ch1em.setChildren(child);
+    return catElm.getChildren().strip()[0];
 }
 
 function testGetAttributes() returns map<string> {
-    xml elem = xml `<elem attr="attr1" attr2="attr2">content</elem>`;
+    'xml:Element elem = <'xml:Element> xml `<elem attr="attr1" attr2="attr2">content</elem>`;
     return elem.getAttributes();
 }
 
-function testGetAttributesNegative() returns map<string> {
-    xml elem = xml `<elem attr="attr1">content</elem>`;
-    xml elemN = xml `<elemN></elemN>`;
-    xml seq = xmllib:concat(elem, elemN);
-    return seq.getAttributes();
-}
-
 function testGetTarget() returns string {
-    xml pi = xml `<?xml-stylesheet type="text/xsl" href="style.xsl"?>`;
+    xml x = xml `<?xml-stylesheet type="text/xsl" href="style.xsl"?>`;
+    'xml:ProcessingInstruction pi = <'xml:ProcessingInstruction> x;
     return pi.getTarget();
 }
 
-function testGetTargetNegative() {
-   xml elm = xml `<elm>e</elm>`;
-   _ = elm.getTarget();
-}
-
 function testGetContent() returns [string, string, string] {
-    xml t = xml `hello world`;
-    xml pi = xml `<?pi-node type="cont"?>`;
-    xml comment = xml `<!-- this is a comment text -->`;
+    'xml:Text t = <'xml:Text> xml `hello world`;
+    'xml:ProcessingInstruction pi = <'xml:ProcessingInstruction> xml `<?pi-node type="cont"?>`;
+    'xml:Comment comment = <'xml:Comment> xml `<!-- this is a comment text -->`;
     return [t.getContent(), pi.getContent(), comment.getContent()];
-}
-
-function testGetContentNegative() returns string {
-    xml t = xml `<elm>cont</elm>`;
-    return t.getContent();
 }
 
 function testCreateElement() returns [xml, xml, xml] {
     xml t = xml `hello world`;
-    xml r1 = xmllib:createElement("elem", t);
-    xml r2 = xmllib:createElement("elem");
+    'xml:Element r1 = 'xml:createElement("elem", t);
+    'xml:Element r2 = 'xml:createElement("elem");
 
     return [r1, r1.getChildren(), r2.getChildren()];
 }
 
 function testCreateProcessingInstruction() returns xml {
-    return xmllib:createProcessingInstruction("xml-stylesheet", "type=\"text/xsl\" href=\"style.xsl\"");
+    return 'xml:createProcessingInstruction("xml-stylesheet", "type=\"text/xsl\" href=\"style.xsl\"");
 }
 
 function testCreateComment() returns xml {
-    return xmllib:createComment("This text should be wraped in xml comment");
-}
-
-function testCopingComment() returns xml {
-    xml bookComment = xml `<!--some comment-->`;
-
-    // Makes a copy of an XML element.
-    xml x = bookComment.copy();
-    return x;
+    return 'xml:createComment("This text should be wraped in xml comment");
 }
 
 function testForEach() returns xml {
-    xml r = xmllib:concat();
+    xml r = 'xml:concat();
     foreach var x in catalog/* {
         if (x is xml) {
-            if (x.isElement()) {
-                r += x;
+            if (x is 'xml:Element) {
+                r = 'xml:concat(r, x);
             }
         }
     }
@@ -200,11 +168,11 @@ function testForEach() returns xml {
 }
 
 function testSlice() returns [xml, xml, xml] {
-    xml elemL = xml `<elemL>content</elemL>`;
-    xml elemN = xml `<elemN>content</elemN>`;
-    xml elemM = xml `<elemM>content</elemM>`;
-    xml elem = elemL + elemN + elemM;
-    return [elem.slice(0, 2), elem.slice(1), xmllib:slice(elem, 1)];
+    'xml:Element elemL = <'xml:Element> xml `<elemL>content</elemL>`;
+    'xml:Element elemN = <'xml:Element> xml `<elemN>content</elemN>`;
+    'xml:Element elemM = <'xml:Element> xml `<elemM>content</elemM>`;
+    xml elem = 'xml:concat(elemL, elemN, elemM);
+    return [elem.slice(0, 2), elem.slice(1), 'xml:slice(elem, 1)];
 }
 
 function testXMLCycleError() returns [error|xml, error|xml] {
@@ -212,24 +180,43 @@ function testXMLCycleError() returns [error|xml, error|xml] {
 }
 
 function testXMLCycleErrorInner() returns xml {
-    xml cat = catalog.clone();
-    cat.getChildren().strip()[0].setChildren(cat);
+    'xml:Element cat = <'xml:Element> catalog.clone();
+    'xml:Element fc = <'xml:Element> cat.getChildren().strip()[0];
+    fc.setChildren(cat);
     return cat;
 }
 
 function testXMLCycleInnerNonError() returns xml {
-    xml cat = catalog.clone();
+    'xml:Element cat = <'xml:Element> catalog.clone();
     var cds = cat.getChildren().strip();
-    cds[0].setChildren(cds[1]);
+    'xml:Element fc = <'xml:Element> cds[0];
+    fc.setChildren(cds[1]);
     return cat;
 }
 
 function testXMLCycleDueToChildrenOfChildren() returns xml|error {
-    xml cat = catalog.clone();
-    xml subRoot = xml `<subRoot></subRoot>`;
+    'xml:Element cat = <'xml:Element> catalog.clone();
+    'xml:Element subRoot = <'xml:Element> xml `<subRoot></subRoot>`;
     subRoot.setChildren(cat);
     var cds = cat.getChildren().strip();
-    error? er = trap cds[0].setChildren(subRoot);
-    check trap cds[0].setChildren(subRoot);
+    'xml:Element fc = <'xml:Element> cds[0];
+    error? er = trap fc.setChildren(subRoot);
+    check trap fc.setChildren(subRoot);
     return cat;
+}
+
+function testGet() returns [xml|error, xml|error, xml|error, xml|error, xml|error] {
+    var e = 'xml:createElement("elem");
+    xml|error e1 = trap e.get(0);
+    xml|error e2 = trap e.get(3);
+
+    var c = 'xml:createComment("Comment content");
+    xml|error c1 = trap c.get(0);
+
+    var p = 'xml:createProcessingInstruction("PITarget", "VAL-0");
+    var s = 'xml:concat(e, c, p);
+    xml|error item = trap s.get(2);
+    xml|error item2 = trap s.get(-1);
+
+    return [e1, e2, c1, item, item2];
 }

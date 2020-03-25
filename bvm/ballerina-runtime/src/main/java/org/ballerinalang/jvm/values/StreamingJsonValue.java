@@ -24,7 +24,6 @@ import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BMapType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.values.api.BStreamingJson;
-import org.ballerinalang.jvm.values.api.BString;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -226,11 +225,6 @@ public class StreamingJsonValue extends ArrayValueImpl implements BStreamingJson
             }
 
             return array.datasource.hasNext();
-        }
-
-        @Override
-        public BString bStringValue() {
-            return null;
         }
     }
 }

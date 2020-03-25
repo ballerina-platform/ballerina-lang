@@ -1,6 +1,6 @@
 {
   "position": {
-    "line": 71,
+    "line": 72,
     "character": 8
   },
   "source": "function/source/commonCompletionBlocks.bal",
@@ -166,14 +166,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "resp - typeguard resp",
-      "kind": "Snippet",
-      "detail": "Destructure the variable resp with typeguard",
-      "sortText": "240",
-      "insertText": "if (resp is error) {\n\t${1}\n} else {\n\t${21}\n}",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "initiateNestedTransactionInRemote(string nestingMethod)(string)",
       "kind": "Function",
       "detail": "Function",
@@ -296,6 +288,14 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "transactionVar",
+      "kind": "Variable",
+      "detail": "int",
+      "sortText": "130",
+      "insertText": "transactionVar",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "stream",
       "kind": "Unit",
       "detail": "Stream",
@@ -326,6 +326,17 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "StrandData",
+      "kind": "Struct",
+      "detail": "Record",
+      "documentation": {
+        "left": "Describes Strand execution details for the runtime.\n"
+      },
+      "sortText": "180",
+      "insertText": "StrandData",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "map",
       "kind": "Unit",
       "detail": "Map",
@@ -350,14 +361,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "resp",
-      "kind": "Variable",
-      "detail": "(http:Response|http:FailoverAllEndpointsFailedError|http:FailoverActionFailedError|http:UpstreamServiceUnavailableError|http:AllLoadBalanceEndpointsFailedError|http:AllRetryAttemptsFailed|http:IdleTimeoutError|http:AuthenticationError|http:AuthorizationError|http:InitializingOutboundRequestError|http:WritingOutboundRequestHeadersError|http:WritingOutboundRequestBodyError|http:InitializingInboundResponseError|http:ReadingInboundResponseHeadersError|http:ReadingInboundResponseBodyError|http:UnsupportedActionError|http:Http2ClientError|http:MaximumWaitTimeExceededError|http:SslError|http:GenericClientError|http:CookieHandlingError)",
-      "sortText": "130",
-      "insertText": "resp",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "any",
       "kind": "Unit",
       "detail": "Any",
@@ -371,6 +374,14 @@
       "detail": "Int",
       "sortText": "230",
       "insertText": "int",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Thread",
+      "kind": "TypeParameter",
+      "detail": "Finite",
+      "sortText": "170",
+      "insertText": "Thread",
       "insertTextFormat": "Snippet"
     },
     {
@@ -473,29 +484,6 @@
             }
           },
           "newText": "import ballerinax/java.jdbc;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerinax/java",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "140",
-      "insertText": "java",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 3,
-              "character": 0
-            },
-            "end": {
-              "line": 3,
-              "character": 0
-            }
-          },
-          "newText": "import ballerinax/java;\n"
         }
       ]
     },
@@ -1006,6 +994,29 @@
       ]
     },
     {
+      "label": "ballerina/java",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "140",
+      "insertText": "java",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 3,
+              "character": 0
+            },
+            "end": {
+              "line": 3,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/java;\n"
+        }
+      ]
+    },
+    {
       "label": "ballerina/rabbitmq",
       "kind": "Module",
       "detail": "Module",
@@ -1282,6 +1293,29 @@
       ]
     },
     {
+      "label": "ballerina/mysql",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "140",
+      "insertText": "mysql",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 3,
+              "character": 0
+            },
+            "end": {
+              "line": 3,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/mysql;\n"
+        }
+      ]
+    },
+    {
       "label": "ballerina/task",
       "kind": "Module",
       "detail": "Module",
@@ -1508,6 +1542,29 @@
             }
           },
           "newText": "import ballerina/socket;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/sql",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "140",
+      "insertText": "sql",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 3,
+              "character": 0
+            },
+            "end": {
+              "line": 3,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/sql;\n"
         }
       ]
     }

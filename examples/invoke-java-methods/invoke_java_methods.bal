@@ -1,5 +1,5 @@
 import ballerina/io;
-import ballerinax/java;
+import ballerina/java;
 
 // Let's create a Ballerina function to call the static method `randomUUID` in `java.util.UUID` class.
 // Here the `name` field is optional if the Ballerina function name is equal to the Java counterpart.
@@ -35,7 +35,7 @@ public function main() {
     // Create a new `java.util.ArrayDeque` instance.
     var arrayDeque = newArrayDeque();
 
-    // Ballerina strings are different from Java strings. The `fromString` function in `ballerinax/java` module converts
+    // Ballerina strings are different from Java strings. The `fromString` function in `ballerina/java` module converts
     // a Ballerina string value to a Java String representation. Java String is a reference type; hence,
     // this method returns a handle value referring to the created to Java string.
     _ = offer(arrayDeque, java:fromString("John"));
@@ -43,7 +43,7 @@ public function main() {
     _ = offer(arrayDeque, java:fromString("Peter"));
 
     var nextInLineHandle = poll(arrayDeque);
-    // The `toString` function in `ballerinax/java` module creates a Ballerina string
+    // The `toString` function in `ballerina/java` module creates a Ballerina string
     // representation of the Java reference value.
     string? nextInLine = java:toString(nextInLineHandle);
     io:println(nextInLine);

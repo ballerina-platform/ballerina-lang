@@ -18,11 +18,13 @@
 
 package org.ballerinalang.test.service.http2;
 
+import org.apache.commons.text.StringEscapeUtils;
 import org.ballerinalang.test.context.BMainInstance;
 import org.ballerinalang.test.context.LogLeecher;
 import org.testng.annotations.Test;
 
 import java.io.File;
+import java.nio.file.Paths;
 
 /**
  * Testing Mutual SSL.
@@ -35,11 +37,19 @@ public class Http2MutualSslTestCase extends Http2BaseTest {
         String serverResponse = "Passed";
 
         String balFile = new File("src" + File.separator + "test" + File.separator + "resources"
-                + File.separator + "mutualSSL" + File.separator + "http2_mutual_ssl_client.bal").getAbsolutePath();
+                + File.separator + "ssl" + File.separator + "http2_mutual_ssl_client.bal").getAbsolutePath();
+
+        String keyStore = StringEscapeUtils.escapeJava(
+                Paths.get("src", "test", "resources", "certsAndKeys", "ballerinaKeystore.p12").toAbsolutePath()
+                        .toString());
+        String trustStore = StringEscapeUtils.escapeJava(
+                Paths.get("src", "test", "resources", "certsAndKeys", "ballerinaTruststore.p12").toAbsolutePath()
+                        .toString());
+        String[] flags = new String[]{"--keystore=" + keyStore, "--truststore=" + trustStore};
 
         BMainInstance ballerinaClient = new BMainInstance(balServer);
         LogLeecher clientLeecher = new LogLeecher(serverResponse);
-        ballerinaClient.runMain(balFile, new LogLeecher[]{clientLeecher});
+        ballerinaClient.runMain(balFile, flags, null, new LogLeecher[]{clientLeecher});
         clientLeecher.waitForText(20000);
     }
 }

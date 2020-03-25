@@ -409,6 +409,7 @@ public class BCompileUtil {
         options.put(COMPILER_PHASE, compilerPhase.toString());
         options.put(PRESERVE_WHITESPACE, "false");
         options.put(EXPERIMENTAL_FEATURES_ENABLED, Boolean.toString(enableExpFeatures));
+        options.put(OFFLINE, "true");
 
         return compile(context, packageName, compilerPhase, false);
     }
@@ -431,6 +432,7 @@ public class BCompileUtil {
         options.put(COMPILER_PHASE, compilerPhase.toString());
         options.put(PRESERVE_WHITESPACE, "false");
         options.put(EXPERIMENTAL_FEATURES_ENABLED, Boolean.toString(enableExpFeatures));
+        options.put(OFFLINE, "true");
 
         return compile(context, packageName, compilerPhase, false);
     }
@@ -455,6 +457,7 @@ public class BCompileUtil {
         options.put(COMPILER_PHASE, compilerPhase.toString());
         options.put(PRESERVE_WHITESPACE, "false");
         options.put(EXPERIMENTAL_FEATURES_ENABLED, Boolean.TRUE.toString());
+        options.put(OFFLINE, "true");
         context.put(SourceDirectory.class, sourceDirectory);
 
         CompileResult.CompileResultDiagnosticListener listener = new CompileResult.CompileResultDiagnosticListener();
@@ -506,6 +509,7 @@ public class BCompileUtil {
         options.put(COMPILER_PHASE, compilerPhase.toString());
         options.put(PRESERVE_WHITESPACE, "false");
         options.put(EXPERIMENTAL_FEATURES_ENABLED, Boolean.TRUE.toString());
+        options.put(OFFLINE, "true");
 
         CompileResult.CompileResultDiagnosticListener listener = new CompileResult.CompileResultDiagnosticListener();
         context.put(DiagnosticListener.class, listener);
@@ -590,6 +594,7 @@ public class BCompileUtil {
         options.put(PRESERVE_WHITESPACE, "false");
         options.put(LOCK_ENABLED, Boolean.toString(true));
         options.put(CompilerOptionName.EXPERIMENTAL_FEATURES_ENABLED, Boolean.TRUE.toString());
+        options.put(OFFLINE, "true");
         if (withTests) {
             options.put(CompilerOptionName.SKIP_TESTS, "false");
             options.put(CompilerOptionName.TEST_ENABLED, "true");

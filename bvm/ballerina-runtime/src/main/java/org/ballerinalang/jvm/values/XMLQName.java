@@ -17,6 +17,7 @@
 */
 package org.ballerinalang.jvm.values;
 
+import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.values.api.BString;
@@ -58,7 +59,7 @@ public final class XMLQName implements RefValue, BXMLQName {
     public XMLQName(String qNameStr) {
         int parenEndIndex = qNameStr.indexOf('}');
         if (qNameStr.startsWith("{") && parenEndIndex > 0) {
-            localName = qNameStr.substring(parenEndIndex + 1, qNameStr.length());
+            localName = qNameStr.substring(parenEndIndex + 1);
             uri = qNameStr.substring(1, parenEndIndex);
         } else {
             localName = qNameStr;
@@ -94,7 +95,7 @@ public final class XMLQName implements RefValue, BXMLQName {
 
     @Override
     public BString bStringValue() {
-        return null;
+        return StringUtils.fromString(stringValue());
     }
 
     @Override
@@ -108,7 +109,7 @@ public final class XMLQName implements RefValue, BXMLQName {
             return false;
         }
 
-        return ((XMLQName) obj).toString().equals(localName);
+        return obj.toString().equals(localName);
     }
 
     @Override

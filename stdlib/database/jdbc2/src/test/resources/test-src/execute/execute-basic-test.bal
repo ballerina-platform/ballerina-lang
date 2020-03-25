@@ -62,7 +62,7 @@ type NumericType record {
 };
 
 function testInsertAndSelectTableWithGeneratedKeys(string jdbcURL, string user, string password)
-returns [sql:ExecuteResult?, NumericType?]|error? {
+returns @tainted [sql:ExecuteResult?, NumericType?]|error? {
     jdbc:Client dbClient = check new (url = jdbcURL, user = user, password = password);
     sql:ExecuteResult? result = check dbClient->execute("insert into NumericTypes (int_type) values (31)");
 
@@ -85,7 +85,7 @@ returns [sql:ExecuteResult?, NumericType?]|error? {
 }
 
 function testInsertWithAllNilAndSelectTableWithGeneratedKeys(string jdbcURL, string user, string password)
-returns [sql:ExecuteResult?, NumericType?]|error? {
+returns @tainted [sql:ExecuteResult?, NumericType?]|error? {
     jdbc:Client dbClient = check new (url = jdbcURL, user = user, password = password);
     sql:ExecuteResult? result = check dbClient->execute("Insert into NumericTypes (int_type, bigint_type, "
         + "smallint_type, tinyint_type, bit_type, decimal_type, numeric_type, float_type, real_type) "
@@ -122,7 +122,7 @@ type StringData record {
 };
 
 function testInsertWithStringAndSelectTable(string jdbcURL, string user, string password)
-returns [sql:ExecuteResult?, StringData?]|error? {
+returns @tainted [sql:ExecuteResult?, StringData?]|error? {
     jdbc:Client dbClient = check new (url = jdbcURL, user = user, password = password);
     string intIDVal = "25";
     string insertQuery = "Insert into StringTypes (id, varchar_type, charmax_type, char_type, charactermax_type,"
@@ -143,7 +143,7 @@ returns [sql:ExecuteResult?, StringData?]|error? {
 }
 
 function testInsertWithEmptyStringAndSelectTable(string jdbcURL, string user, string password)
-returns [sql:ExecuteResult?, StringData?]|error? {
+returns @tainted [sql:ExecuteResult?, StringData?]|error? {
     jdbc:Client dbClient = check new (url = jdbcURL, user = user, password = password);
     string intIDVal = "35";
     string insertQuery = "Insert into StringTypes (id, varchar_type, charmax_type, char_type, charactermax_type, "
@@ -176,7 +176,7 @@ type StringNilData record {
 };
 
 function testInsertWithNilStringAndSelectTable(string jdbcURL, string user, string password)
-returns [sql:ExecuteResult?, StringNilData?]|error? {
+returns @tainted [sql:ExecuteResult?, StringNilData?]|error? {
     jdbc:Client dbClient = check new (url = jdbcURL, user = user, password = password);
     string intIDVal = "45";
     string test = "Insert" + intIDVal;
@@ -219,7 +219,7 @@ type ResultCount record {
 };
 
 function testUdateData(string jdbcURL, string user, string password)
-returns [sql:ExecuteResult?, ResultCount?]|error? {
+returns @tainted [sql:ExecuteResult?, ResultCount?]|error? {
     jdbc:Client dbClient = check new (url = jdbcURL, user = user, password = password);
     sql:ExecuteResult? result = check dbClient->execute("Update NumericTypes set int_type = 11 where int_type = 10");
     ResultCount? resultCount = ();

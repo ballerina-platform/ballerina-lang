@@ -1,6 +1,6 @@
 {
   "arguments": {
-    "node.line": 3,
+    "node.line": 12,
     "node.column": 21
   },
   "expected": {
@@ -12,15 +12,15 @@
               {
                 "range": {
                   "start": {
-                    "line": 5,
+                    "line": 27,
                     "character": 0
                   },
                   "end": {
-                    "line": 5,
+                    "line": 27,
                     "character": 0
                   }
                 },
-                "newText": "\n\nfunction partition(string recs, string a, function (string) returns (boolean) spliter) returns string[][][] {\n    return [[[\"\"]]];\n}\n"
+                "newText": "\n\nfunction partition(string recs, string a, function (string a) returns boolean spliter) returns string[][][] {\n    return [[[\"\"]]];\n}\n"
               }
             ]
           }

@@ -15,7 +15,7 @@
 // under the License.
 
 import ballerina/lang.'object as lang;
-import ballerinax/java;
+import ballerina/java;
 
 # Ballerina RabbitMQ Message Listener.
 # Provides a listener to consume messages from the RabbitMQ server.

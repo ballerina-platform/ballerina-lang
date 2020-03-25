@@ -69,9 +69,6 @@ public interface BallerinaStatement extends PsiElement {
   BallerinaPanicStatement getPanicStatement();
 
   @Nullable
-  BallerinaQueryActionStatement getQueryActionStatement();
-
-  @Nullable
   BallerinaRecordDestructuringStatement getRecordDestructuringStatement();
 
   @Nullable

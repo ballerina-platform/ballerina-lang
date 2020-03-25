@@ -35,7 +35,8 @@ public function main() {
         io:println("Status code: " + statusCode.toString());
 
     } else {
-        io:println("Error when calling the backend: ", response.reason());
+        io:println("Error when calling the backend: ",
+                                    response.detail()?.message);
     }
 }
 
@@ -50,6 +51,7 @@ function handleResponse(http:Response|error response) {
             io:println("Invalid payload received:", msg.reason());
         }
     } else {
-        io:println("Error when calling the backend: ", response.reason());
+        io:println("Error when calling the backend: ",
+                                    response.detail()?.message);
     }
 }

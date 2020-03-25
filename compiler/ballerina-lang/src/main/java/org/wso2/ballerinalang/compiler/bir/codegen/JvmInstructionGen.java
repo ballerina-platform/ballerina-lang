@@ -35,6 +35,7 @@ import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.UnaryOP;
 import org.wso2.ballerinalang.compiler.bir.model.BIROperand;
 import org.wso2.ballerinalang.compiler.bir.model.InstructionKind;
 import org.wso2.ballerinalang.compiler.bir.model.VarKind;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.SchedulerPolicy;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BJSONType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
@@ -66,6 +67,7 @@ import static org.objectweb.asm.Opcodes.GETSTATIC;
 import static org.objectweb.asm.Opcodes.GOTO;
 import static org.objectweb.asm.Opcodes.I2B;
 import static org.objectweb.asm.Opcodes.I2L;
+import static org.objectweb.asm.Opcodes.I2S;
 import static org.objectweb.asm.Opcodes.IADD;
 import static org.objectweb.asm.Opcodes.IAND;
 import static org.objectweb.asm.Opcodes.IASTORE;
@@ -126,10 +128,12 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ARRAY_VAL
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ARRAY_VALUE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BTYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BXML_QNAME;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BYTE_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.DECIMAL_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ERROR_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FUNCTION;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FUNCTION_POINTER;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.INT_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JSON_UTILS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LONG_STREAM;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAP_UTILS;
@@ -140,6 +144,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_IN
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT_VALUE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SHORT_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_UTILS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_VALUE;
@@ -218,7 +223,8 @@ public class JvmInstructionGen {
 
         if (jType == null) {
             return;
-        } else if (jType.jTag == JTypeTags.JBYTE) {
+        }
+        if (jType.jTag == JTypeTags.JBYTE) {
             mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "anyToJByte", String.format("(L%s;)B", OBJECT), false);
         } else if (jType.jTag == JTypeTags.JCHAR) {
             mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "anyToJChar", String.format("(L%s;)C", OBJECT), false);
@@ -297,7 +303,7 @@ public class JvmInstructionGen {
                 bType.tag == TypeTags.FUTURE ||
                 bType.tag == TypeTags.OBJECT ||
                 bType.tag == TypeTags.DECIMAL ||
-                bType.tag == TypeTags.XML ||
+                TypeTags.isXMLTypeTag(bType.tag) ||
                 bType.tag == TypeTags.INVOKABLE ||
                 bType.tag == TypeTags.FINITE ||
                 bType.tag == TypeTags.HANDLE ||
@@ -381,7 +387,8 @@ public class JvmInstructionGen {
                 bType.tag == TypeTags.JSON ||
                 bType.tag == TypeTags.FUTURE ||
                 bType.tag == TypeTags.OBJECT ||
-                bType.tag == TypeTags.XML ||
+                bType.tag == TypeTags.SERVICE ||
+                TypeTags.isXMLTypeTag(bType.tag) ||
                 bType.tag == TypeTags.INVOKABLE ||
                 bType.tag == TypeTags.FINITE ||
                 bType.tag == TypeTags.HANDLE ||
@@ -821,7 +828,7 @@ public class JvmInstructionGen {
                         String.format("(L%s;)L%s;", DECIMAL_VALUE, DECIMAL_VALUE), false);
             } else if (bType.tag == TypeTags.FLOAT) {
                 this.mv.visitInsn(DADD);
-            } else if (bType.tag == TypeTags.XML) {
+            } else if (TypeTags.isXMLTypeTag(bType.tag)) {
                 this.mv.visitMethodInsn(INVOKESTATIC, XML_FACTORY, "concatenate",
                         String.format("(L%s;L%s;)L%s;", XML_VALUE, XML_VALUE, XML_VALUE), false);
             } else {
@@ -909,11 +916,10 @@ public class JvmInstructionGen {
             BType opType1 = binaryIns.rhsOp1.variableDcl.type;
             BType opType2 = binaryIns.rhsOp2.variableDcl.type;
 
-            if (TypeTags.isIntegerTypeTag(opType1.tag) && TypeTags.isIntegerTypeTag(opType2.tag)) {
-                this.loadVar(binaryIns.rhsOp1.variableDcl);
-                this.loadVar(binaryIns.rhsOp2.variableDcl);
-                this.mv.visitInsn(LAND);
-            } else {
+            int opType1Tag = opType1.tag;
+            int opType2Tag = opType2.tag;
+
+            if (opType1Tag == TypeTags.BYTE && opType2Tag == TypeTags.BYTE) {
                 this.loadVar(binaryIns.rhsOp1.variableDcl);
                 generateCheckCastToByte(this.mv, opType1);
 
@@ -921,35 +927,83 @@ public class JvmInstructionGen {
                 generateCheckCastToByte(this.mv, opType2);
 
                 this.mv.visitInsn(IAND);
+            } else {
+                boolean byteResult = false;
+
+                this.loadVar(binaryIns.rhsOp1.variableDcl);
+                if (opType1Tag == TypeTags.BYTE) {
+                    this.mv.visitMethodInsn(INVOKESTATIC, INT_VALUE, "toUnsignedLong", "(I)J", false);
+                    byteResult = true;
+                }
+
+                this.loadVar(binaryIns.rhsOp2.variableDcl);
+                if (opType2Tag == TypeTags.BYTE) {
+                    this.mv.visitMethodInsn(INVOKESTATIC, INT_VALUE, "toUnsignedLong", "(I)J", false);
+                    byteResult = true;
+                }
+
+                this.mv.visitInsn(LAND);
+                if (byteResult) {
+                    generateCheckCastToByte(this.mv, symbolTable.intType);
+                }
             }
+
             this.storeToVar(binaryIns.lhsOp.variableDcl);
         }
 
         void generateBitwiseOrIns(BinaryOp binaryIns) {
 
-            this.loadVar(binaryIns.rhsOp1.variableDcl);
-            this.loadVar(binaryIns.rhsOp2.variableDcl);
+            BType opType1 = binaryIns.rhsOp1.variableDcl.type;
+            BType opType2 = binaryIns.rhsOp2.variableDcl.type;
 
-            BType opType = binaryIns.rhsOp1.variableDcl.type;
-            if (TypeTags.isIntegerTypeTag(opType.tag)) {
-                this.mv.visitInsn(LOR);
-            } else {
+            if (opType1.tag == TypeTags.BYTE && opType2.tag == TypeTags.BYTE) {
+                this.loadVar(binaryIns.rhsOp1.variableDcl);
+                this.loadVar(binaryIns.rhsOp2.variableDcl);
                 this.mv.visitInsn(IOR);
+                this.storeToVar(binaryIns.lhsOp.variableDcl);
+                return;
             }
+
+            this.loadVar(binaryIns.rhsOp1.variableDcl);
+            generateCheckCast(this.mv, opType1, symbolTable.intType, this.indexMap);
+
+            this.loadVar(binaryIns.rhsOp2.variableDcl);
+            generateCheckCast(this.mv, opType2, symbolTable.intType, this.indexMap);
+
+            this.mv.visitInsn(LOR);
+
+            if (!TypeTags.isSignedIntegerTypeTag(opType1.tag) && !TypeTags.isSignedIntegerTypeTag(opType2.tag)) {
+                generateIntToUnsignedIntConversion(this.mv, getSmallerUnsignedIntSubType(opType1, opType2));
+            }
+
             this.storeToVar(binaryIns.lhsOp.variableDcl);
         }
 
         void generateBitwiseXorIns(BinaryOp binaryIns) {
 
-            this.loadVar(binaryIns.rhsOp1.variableDcl);
-            this.loadVar(binaryIns.rhsOp2.variableDcl);
+            BType opType1 = binaryIns.rhsOp1.variableDcl.type;
+            BType opType2 = binaryIns.rhsOp2.variableDcl.type;
 
-            BType opType = binaryIns.rhsOp1.variableDcl.type;
-            if (TypeTags.isIntegerTypeTag(opType.tag)) {
-                this.mv.visitInsn(LXOR);
-            } else {
+            if (opType1.tag == TypeTags.BYTE && opType2.tag == TypeTags.BYTE) {
+                this.loadVar(binaryIns.rhsOp1.variableDcl);
+                this.loadVar(binaryIns.rhsOp2.variableDcl);
                 this.mv.visitInsn(IXOR);
+                this.storeToVar(binaryIns.lhsOp.variableDcl);
+                return;
             }
+
+            this.loadVar(binaryIns.rhsOp1.variableDcl);
+            generateCheckCast(this.mv, opType1, symbolTable.intType, this.indexMap);
+
+            this.loadVar(binaryIns.rhsOp2.variableDcl);
+            generateCheckCast(this.mv, opType2, symbolTable.intType, this.indexMap);
+
+            this.mv.visitInsn(LXOR);
+
+            if (!TypeTags.isSignedIntegerTypeTag(opType1.tag) && !TypeTags.isSignedIntegerTypeTag(opType2.tag)) {
+                generateIntToUnsignedIntConversion(this.mv, getSmallerUnsignedIntSubType(opType1, opType2));
+            }
+
             this.storeToVar(binaryIns.lhsOp.variableDcl);
         }
 
@@ -979,13 +1033,11 @@ public class JvmInstructionGen {
             this.loadVar(binaryIns.rhsOp1.variableDcl);
             this.loadVar(binaryIns.rhsOp2.variableDcl);
 
-            BType secondOpType = binaryIns.rhsOp2.variableDcl.type;
-            if (TypeTags.isIntegerTypeTag(secondOpType.tag)) {
+            if (TypeTags.isIntegerTypeTag(binaryIns.rhsOp2.variableDcl.type.tag)) {
                 this.mv.visitInsn(L2I);
             }
 
-            BType firstOpType = binaryIns.rhsOp1.variableDcl.type;
-            if (TypeTags.isIntegerTypeTag(firstOpType.tag)) {
+            if (TypeTags.isIntegerTypeTag(binaryIns.rhsOp1.variableDcl.type.tag)) {
                 this.mv.visitInsn(LSHR);
             } else {
                 this.mv.visitInsn(ISHR);
@@ -999,13 +1051,11 @@ public class JvmInstructionGen {
             this.loadVar(binaryIns.rhsOp1.variableDcl);
             this.loadVar(binaryIns.rhsOp2.variableDcl);
 
-            BType secondOpType = binaryIns.rhsOp2.variableDcl.type;
-            if (TypeTags.isIntegerTypeTag(secondOpType.tag)) {
+            if (TypeTags.isIntegerTypeTag(binaryIns.rhsOp2.variableDcl.type.tag)) {
                 this.mv.visitInsn(L2I);
             }
 
-            BType firstOpType = binaryIns.rhsOp1.variableDcl.type;
-            if (TypeTags.isIntegerTypeTag(firstOpType.tag)) {
+            if (TypeTags.isIntegerTypeTag(binaryIns.rhsOp1.variableDcl.type.tag)) {
                 this.mv.visitInsn(LUSHR);
             } else {
                 this.mv.visitInsn(IUSHR);
@@ -1062,8 +1112,14 @@ public class JvmInstructionGen {
             loadType(this.mv, tableNewIns.type);
             this.loadVar(tableNewIns.keyColOp.variableDcl);
             this.loadVar(tableNewIns.dataOp.variableDcl);
-            this.mv.visitMethodInsn(INVOKESPECIAL, TABLE_VALUE, "<init>", String.format("(L%s;L%s;L%s;)V", BTYPE,
-                    ARRAY_VALUE, ARRAY_VALUE), false);
+            if (isBString) {
+                this.mv.visitInsn(ICONST_1);
+                this.mv.visitMethodInsn(INVOKESPECIAL, TABLE_VALUE, "<init>", String.format("(L%s;L%s;L%s;Z)V", BTYPE,
+                        ARRAY_VALUE, ARRAY_VALUE), false);
+            } else {
+                this.mv.visitMethodInsn(INVOKESPECIAL, TABLE_VALUE, "<init>", String.format("(L%s;L%s;L%s;)V", BTYPE,
+                        ARRAY_VALUE, ARRAY_VALUE), false);
+            }
             this.storeToVar(tableNewIns.lhsOp.variableDcl);
         }
 
@@ -1385,8 +1441,13 @@ public class JvmInstructionGen {
 
             visitInvokeDyn(mv, currentClass, lambdaName, inst.closureMaps.size());
             loadType(this.mv, returnType);
+            if (inst.schedulerPolicy == SchedulerPolicy.ANY) {
+                mv.visitInsn(ICONST_1);
+            } else {
+                mv.visitInsn(ICONST_0);
+            }
             this.mv.visitMethodInsn(INVOKESPECIAL, FUNCTION_POINTER, "<init>",
-                    String.format("(L%s;L%s;)V", FUNCTION, BTYPE), false);
+                                    String.format("(L%s;L%s;Z)V", FUNCTION, BTYPE), false);
 
             // Set annotations if available.
             this.mv.visitInsn(DUP);
@@ -1701,5 +1762,45 @@ public class JvmInstructionGen {
             throw new BLangCompilerException("JVM generation is not supported for type : " +
                     String.format("%s", bType));
         }
+    }
+
+    private static void generateIntToUnsignedIntConversion(MethodVisitor mv, BType targetType) {
+        switch (targetType.tag) {
+            case TypeTags.BYTE: // Wouldn't reach here for int atm.
+            case TypeTags.UNSIGNED8_INT:
+                mv.visitInsn(L2I);
+                mv.visitInsn(I2B);
+                mv.visitMethodInsn(INVOKESTATIC, BYTE_VALUE, "toUnsignedLong", "(B)J", false);
+                return;
+            case TypeTags.UNSIGNED16_INT:
+                mv.visitInsn(L2I);
+                mv.visitInsn(I2S);
+                mv.visitMethodInsn(INVOKESTATIC, SHORT_VALUE, "toUnsignedLong", "(S)J", false);
+                return;
+            case TypeTags.UNSIGNED32_INT:
+                mv.visitInsn(L2I);
+                mv.visitMethodInsn(INVOKESTATIC, INT_VALUE, "toUnsignedLong", "(I)J", false);
+        }
+    }
+
+    private static BType getSmallerUnsignedIntSubType(BType lhsType, BType rhsType) {
+        if (TypeTags.isSignedIntegerTypeTag(lhsType.tag) || TypeTags.isSignedIntegerTypeTag(rhsType.tag)) {
+            throw new BLangCompilerException("expected two unsigned int subtypes, found '" + lhsType + "' and '" +
+                                                     rhsType + "'");
+        }
+
+        if (lhsType.tag == TypeTags.BYTE || rhsType.tag == TypeTags.BYTE) {
+            return symbolTable.unsigned8IntType;
+        }
+
+        if (lhsType.tag == TypeTags.UNSIGNED8_INT || rhsType.tag == TypeTags.UNSIGNED8_INT) {
+            return symbolTable.unsigned8IntType;
+        }
+
+        if (lhsType.tag == TypeTags.UNSIGNED16_INT || rhsType.tag == TypeTags.UNSIGNED16_INT) {
+            return symbolTable.unsigned16IntType;
+        }
+
+        return symbolTable.unsigned32IntType;
     }
 }

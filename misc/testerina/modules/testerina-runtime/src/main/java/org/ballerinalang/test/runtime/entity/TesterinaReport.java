@@ -92,14 +92,14 @@ public class TesterinaReport {
         ModuleStatus.Status status;
         if (result.isSkipped()) {
             failure = true;
-            status = ModuleStatus.Status.FAILURE;
+            status = ModuleStatus.Status.SKIPPED;
             testSummary.skippedTests.add(result);
         } else if (result.isPassed()) {
             status = ModuleStatus.Status.PASSED;
             testSummary.passedTests.add(result);
         } else {
-            status = ModuleStatus.Status.SKIPPED;
             failure = true;
+            status = ModuleStatus.Status.FAILURE;
             testSummary.failedTests.add(result);
         }
 

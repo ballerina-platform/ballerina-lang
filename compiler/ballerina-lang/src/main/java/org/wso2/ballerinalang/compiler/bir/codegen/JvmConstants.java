@@ -40,6 +40,8 @@ public class JvmConstants {
     public static final String STRING_VALUE = "java/lang/String";
     public static final String BMP_STRING_VALUE = "org/ballerinalang/jvm/values/BmpStringValue";
     public static final String LONG_VALUE = "java/lang/Long";
+    public static final String BYTE_VALUE = "java/lang/Byte";
+    public static final String SHORT_VALUE = "java/lang/Short";
     public static final String BOOLEAN_VALUE = "java/lang/Boolean";
     public static final String DOUBLE_VALUE = "java/lang/Double";
     public static final String DECIMAL_VALUE = "org/ballerinalang/jvm/values/DecimalValue";
@@ -170,7 +172,15 @@ public class JvmConstants {
 
     // scheduler related constants
     public static final String SCHEDULE_FUNCTION_METHOD = "scheduleFunction";
+    public static final String SCHEDULE_LOCAL_METHOD = "scheduleLocal";
     public static final String SCHEDULER_START_METHOD = "start";
+
+    // strand data related constants
+    public static final String STRAND_ANNOTATION = "strand";
+    public static final String STRAND_THREAD = "thread";
+    public static final String STRAND_DATA_NAME = "name";
+    public static final String STRAND_VALUE_ANY = "any";
+    public static final String DEFAULT_STRAND_DISPATCHER = "DEFAULT";
 
     // observability related constants
     public static final String OBSERVER_CONTEXT = "org/ballerinalang/jvm/observability/ObserverContext";

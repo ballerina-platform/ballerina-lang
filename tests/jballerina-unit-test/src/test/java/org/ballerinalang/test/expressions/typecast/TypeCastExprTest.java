@@ -701,4 +701,10 @@ public class TypeCastExprTest {
         Assert.assertEquals(returns[2].stringValue(), "4.2");
         Assert.assertEquals(returns[3].stringValue(), "true");
     }
+
+    @Test
+    public void testAnonRecordInCast() {
+        BValue[] returns = BRunUtil.invoke(result, "testAnonRecordInCast");
+        Assert.assertEquals(returns[0].stringValue(), "{name:\"Pubudu\"}");
+    }
 }

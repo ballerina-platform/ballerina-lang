@@ -20,12 +20,12 @@
 
 <!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >
 
-<suite name="ballerina-test-suite" time-out="1200">
+<suite name="ballerina-test-suite" time-out="120000">
 
     <listeners>
         <listener class-name="org.ballerinalang.test.utils.BLogInitializer"/>
+        <listener class-name="org.ballerinalang.test.utils.BStringTestInitializer"/>
         <listener class-name="org.ballerinalang.test.listener.JBallerinaTestInitializer"/>
-        <!--<listener class-name="org.ballerinalang.test.utils.TestNGListener"/>-->
     </listeners>
     <test name="jballerina-test" parallel="false">
         <parameter name="enableJBallerinaTests" value="true"/>

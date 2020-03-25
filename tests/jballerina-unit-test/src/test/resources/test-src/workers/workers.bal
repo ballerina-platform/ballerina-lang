@@ -2,6 +2,7 @@ import ballerina/io;
 import ballerina/runtime;
 
 function workerReturnTest() returns int{
+    @strand{thread:"any"}
     worker wx returns int {
 	    int x = 50;
 	    return x + 1;
@@ -12,6 +13,7 @@ function workerReturnTest() returns int{
 
 int updateMultiple = 0;
 function waitOnSameFutureByMultiple() returns int {
+    @strand{thread:"any"}
     worker w1 returns int {
         return 9;
     }
@@ -24,12 +26,14 @@ function waitOnSameFutureByMultiple() returns int {
 
 function waitOnSameFutureWorkers(future<int> aa) {
 
+    @strand{thread:"any"}
     worker w1 {
         int result = wait aa;
         lock {
         updateMultiple = updateMultiple + result;
         }
     }
+    @strand{thread:"any"}
     worker w2 {
         int result = wait aa;
         lock {
@@ -40,11 +44,13 @@ function waitOnSameFutureWorkers(future<int> aa) {
 }
 
 public function workerSendToWorker() returns int {
+    @strand{thread:"any"}
     worker w1 {
       int i = 40;
       i -> w2;
     }
 
+    @strand{thread:"any"}
     worker w2 returns int {
       int j = 25;
       j = <- w1;
@@ -58,6 +64,7 @@ public function workerSendToWorker() returns int {
 }
 
 function workerSendToDefault() returns int{
+    @strand{thread:"any"}
     worker w1 {
         int x = 50;
         x -> default;
@@ -67,6 +74,7 @@ function workerSendToDefault() returns int{
 }
 
 function workerSendFromDefault() returns int{
+    @strand{thread:"any"}
     worker w1 returns int {
         int y = <- default;
         return y;
@@ -78,6 +86,7 @@ function workerSendFromDefault() returns int{
 }
 
 public function receiveWithTrap() returns error|int {
+   @strand{thread:"any"}
    worker w1 {
      int i = 2;
      if(true) {
@@ -87,6 +96,7 @@ public function receiveWithTrap() returns error|int {
      i -> w2;
    }
 
+   @strand{thread:"any"}
    worker w2 returns error|int {
      error|int  j = trap <- w1;
      return j;
@@ -98,6 +108,7 @@ public function receiveWithTrap() returns error|int {
 }
 
 public function syncSendReceiveWithTrap() returns int|error {
+    @strand{thread:"any"}
     worker w1 {
         int i = 2;
         if true {
@@ -106,6 +117,7 @@ public function syncSendReceiveWithTrap() returns int|error {
         i ->> w2;
    }
 
+    @strand{thread:"any"}
     worker w2 returns error|int {
         int|error  j = trap <- w1;
         return j;
@@ -116,6 +128,7 @@ public function syncSendReceiveWithTrap() returns int|error {
 }
 
 public function receiveWithCheck() returns error|int {
+    @strand{thread:"any"}
     worker w1 returns boolean|error{
       int i = 2;
       if(true){
@@ -127,6 +140,7 @@ public function receiveWithCheck() returns error|int {
       return false;
     }
 
+    @strand{thread:"any"}
     worker w2 returns error?{
       int j = check <- w1;
       return;
@@ -136,6 +150,7 @@ public function receiveWithCheck() returns error|int {
 }
 
 public function syncSendReceiveWithCheck() returns int|error {
+    @strand{thread:"any"}
     worker w1 returns boolean|error {
         int i = 2;
         if (true) {
@@ -145,6 +160,7 @@ public function syncSendReceiveWithCheck() returns int|error {
         return false;
     }
 
+    @strand{thread:"any"}
     worker w2 returns error? {
         int j = check <- w1;
     }
@@ -153,6 +169,7 @@ public function syncSendReceiveWithCheck() returns int|error {
 }
 
 public function receiveWithCheckpanic() {
+    @strand{thread:"any"}
     worker w1 returns boolean|error {
         int i = 2;
         if (true) {
@@ -163,6 +180,7 @@ public function receiveWithCheckpanic() {
         return false;
     }
 
+    @strand{thread:"any"}
     worker w2 {
         int j = checkpanic <- w1;
     }
@@ -171,6 +189,7 @@ public function receiveWithCheckpanic() {
 }
 
 public function syncSendReceiveWithCheckpanic() {
+    @strand{thread:"any"}
     worker w1 returns boolean|error {
         int i = 2;
         if (true) {
@@ -181,6 +200,7 @@ public function syncSendReceiveWithCheckpanic() {
         return false;
     }
 
+    @strand{thread:"any"}
     worker w2 {
         int j = checkpanic <- w1;
     }
@@ -189,6 +209,7 @@ public function syncSendReceiveWithCheckpanic() {
 }
 
 public function sendToDefaultWithPanicBeforeSendInWorker() returns int {
+    @strand{thread:"any"}
     worker w1 {
         int i = 2;
         if(true) {
@@ -203,6 +224,7 @@ public function sendToDefaultWithPanicBeforeSendInWorker() returns int {
 }
 
 public function sendToDefaultWithPanicBeforeSendInDefault() returns int {
+    @strand{thread:"any"}
     worker w1 {
         int i = 2;
         i -> default;
@@ -217,6 +239,7 @@ public function sendToDefaultWithPanicBeforeSendInDefault() returns int {
 }
 
 public function sendToDefaultWithPanicAfterSendInWorker() returns int {
+    @strand{thread:"any"}
     worker w1 {
         int i = 2;
         i -> default;
@@ -231,6 +254,7 @@ public function sendToDefaultWithPanicAfterSendInWorker() returns int {
 }
 
 public function sendToDefaultWithPanicAfterSendInDefault() returns int {
+    @strand{thread:"any"}
     worker w1 {
         int i = 2;
         i -> default;
@@ -244,6 +268,7 @@ public function sendToDefaultWithPanicAfterSendInDefault() returns int {
 }
 
 public function receiveFromDefaultWithPanicAfterSendInDefault() {
+    @strand{thread:"any"}
     worker w1 {
         int i = 2;
         i = <- default;
@@ -257,6 +282,7 @@ public function receiveFromDefaultWithPanicAfterSendInDefault() {
 }
 
 public function receiveFromDefaultWithPanicBeforeSendInDefault() {
+    @strand{thread:"any"}
     worker w1 {
         int i = 2;
         i = <- default;
@@ -270,6 +296,7 @@ public function receiveFromDefaultWithPanicBeforeSendInDefault() {
 }
 
 public function receiveFromDefaultWithPanicBeforeReceiveInWorker() {
+    @strand{thread:"any"}
     worker w1 {
         int i = 2;
         if(true) {
@@ -284,6 +311,7 @@ public function receiveFromDefaultWithPanicBeforeReceiveInWorker() {
 }
 
 public function receiveFromDefaultWithPanicAfterReceiveInWorker() {
+    @strand{thread:"any"}
     worker w1 {
         int i = 2;
         i = <- default;
@@ -298,6 +326,7 @@ public function receiveFromDefaultWithPanicAfterReceiveInWorker() {
 }
 
 public function receiveWithCheckAndTrap() returns error|int {
+   @strand{thread:"any"}
    worker w1 {
        int i = 2;
        if(true) {
@@ -307,6 +336,7 @@ public function receiveWithCheckAndTrap() returns error|int {
        i -> w2;
    }
 
+   @strand{thread:"any"}
    worker w2 returns error|int {
        error|int  j = check trap <- w1;
        return j;
@@ -316,6 +346,7 @@ public function receiveWithCheckAndTrap() returns error|int {
 }
 
 public function receiveWithCheckForDefault() returns boolean|error {
+    @strand{thread:"any"}
     worker w1 returns boolean|error {
         int i = 2;
         if(true){
@@ -330,6 +361,7 @@ public function receiveWithCheckForDefault() returns boolean|error {
     return wait w1;
 }
 public function receiveWithTrapForDefault() returns error|int {
+   @strand{thread:"any"}
    worker w1 returns int {
        int i = 2;
        if(true) {
@@ -345,6 +377,7 @@ public function receiveWithTrapForDefault() returns error|int {
 }
 
 public function receiveDefaultWithCheckAndTrap() returns error|int {
+   @strand{thread:"any"}
    worker w1 {
        int i = 2;
        if(true) {
@@ -370,6 +403,7 @@ public function sameStrandMultipleInvocation() {
 }
 
 function test(int c) {
+    @strand{thread:"any"}
     worker w1 {
         int a = c;
         io:println("w1 begin ", c);
@@ -380,6 +414,7 @@ function test(int c) {
         io:println("w1 send data ", c);
         a -> w2;
     }
+    @strand{thread:"any"}
     worker w2 {
         io:println("w2 begin ", c);
         if (c == 12) {
@@ -401,6 +436,7 @@ function workerTestWithLambda() returns int {
 (function () returns (int)) fa = function () returns (int) { return 88; };
 
 function invokeTestFunc(int c) {
+    @strand{thread:"any"}
     worker w1 returns int {
         int a = <- default;
         return a;
@@ -414,6 +450,7 @@ public type Rec record {
 };
 
 public function testComplexType() returns Rec {
+    @strand{thread:"any"}
     worker w1 {
       Rec rec = {};
       rec.k = 10;
@@ -423,6 +460,7 @@ public function testComplexType() returns Rec {
       5 -> w2;
     }
 
+    @strand{thread:"any"}
     worker w2 returns Rec {
       int l = 25;
       Rec j = {};
@@ -436,12 +474,14 @@ public function testComplexType() returns Rec {
 
 // First cancel the future and then wait
 public function workerWithFutureTest1() returns int {
-    future<int> f1 = start add2(5, 5);
+    future<int> f1 = @strand{thread:"any"} start add2(5, 5);
+    @strand{thread:"any"}
     worker w1 {
       int i = 40;
       f1.cancel();
     }
 
+    @strand{thread:"any"}
     worker w2 returns int {
       // Delay the execution of worker w2
       runtime:sleep(200);
@@ -454,7 +494,8 @@ public function workerWithFutureTest1() returns int {
 
 // First wait on the future and then cancel
 public function workerWithFutureTest2() returns int {
-    future<int> f1 = start add(6, 6);
+    future<int> f1 = @strand{thread:"any"} start add(6, 6);
+    @strand{thread:"any"}
     worker w1 {
       int i = 40;
       // Delay the execution of worker w1
@@ -462,6 +503,7 @@ public function workerWithFutureTest2() returns int {
       f1.cancel();
     }
 
+    @strand{thread:"any"}
     worker w2 returns int {
       int i = wait f1;
       return i;
@@ -472,11 +514,13 @@ public function workerWithFutureTest2() returns int {
 // Concurrently run cancel in worker w1 and wait in worker w2
 public function workerWithFutureTest3() returns int {
     future<int> f1 = start add(10, 8);
+    @strand{thread:"any"}
     worker w1 {
       int i = 40;
       f1.cancel();
     }
 
+    @strand{thread:"any"}
     worker w2 returns int {
       // Delay the execution of worker w1
       runtime:sleep(5);
@@ -511,6 +555,7 @@ function singleAdd(int num) returns int{
 }
 
 function innerWorkerPanicTest() {
+   @strand{thread:"any"}
    worker w1 {
        int k = <- default;
    }
@@ -521,6 +566,7 @@ function innerWorkerPanicTest() {
 }
 
 function panicFunc() {
+    @strand{thread:"any"}
     worker w5 {
        if (true) {
            error e = error("worker w5 panic");
@@ -532,10 +578,12 @@ function panicFunc() {
 }
 
 function waitInReturn() returns any {
+    @strand{thread:"any"}
     worker w1 returns string {
         return "w1";
     }
 
+    @strand{thread:"any"}
     worker w2 returns string {
         return "w2";
     }

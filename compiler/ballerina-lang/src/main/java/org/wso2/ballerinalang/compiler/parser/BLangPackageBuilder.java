@@ -110,6 +110,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownParameterDo
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownReturnParameterDocumentation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNumericLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryAction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordKey;
@@ -164,7 +165,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStaticBindingPatternClause;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStructuredBindingPatternClause;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangPanic;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangQueryAction;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRetry;
@@ -2006,7 +2006,7 @@ public class BLangPackageBuilder {
         whereClauseNodeStack.push(whereClause);
     }
 
-    void startDoActionStatement() {
+    void startDoActionBlock() {
         startBlock();
     }
 
@@ -2021,8 +2021,8 @@ public class BLangPackageBuilder {
         doClauseNodeStack.push(doClause);
     }
 
-    void createQueryActionStatement(DiagnosticPos pos, Set<Whitespace> ws) {
-        BLangQueryAction queryAction = (BLangQueryAction) TreeBuilder.createQueryActionStatementNode();
+    void createQueryActionExpr(DiagnosticPos pos, Set<Whitespace> ws) {
+        BLangQueryAction queryAction = (BLangQueryAction) TreeBuilder.createQueryActionNode();
         queryAction.pos = pos;
         queryAction.addWS(ws);
 
@@ -2040,7 +2040,7 @@ public class BLangPackageBuilder {
         }
 
         queryAction.setDoClauseNode(doClauseNodeStack.pop());
-        addStmtToCurrentBlock(queryAction);
+        addExpressionNode(queryAction);
     }
 
     void endFunctionDefinition(DiagnosticPos pos, Set<Whitespace> ws, String funcName, DiagnosticPos funcNamePos,
@@ -3696,7 +3696,18 @@ public class BLangPackageBuilder {
 
     public void addXMLElementAccessFilter(DiagnosticPos pos, Set<Whitespace> ws, String ns,
                                           DiagnosticPos nsPos, String elementName, DiagnosticPos elemNamePos) {
+        // Escape names starting with '.
+        if (stringStartsWithSingleQuote(ns)) {
+            ns = ns.substring(1);
+        }
+        if (stringStartsWithSingleQuote(elementName)) {
+            elementName = elementName.substring(1);
+        }
         elementFilterStack.push(new BLangXMLElementFilter(pos, ws, ns, nsPos, elementName, elemNamePos));
+    }
+
+    private boolean stringStartsWithSingleQuote(String ns) {
+        return ns != null && ns.length() > 0 && ns.charAt(0) == '\'';
     }
 
     public void createXMLElementAccessNode(DiagnosticPos pos, Set<Whitespace> ws, int filterCount) {

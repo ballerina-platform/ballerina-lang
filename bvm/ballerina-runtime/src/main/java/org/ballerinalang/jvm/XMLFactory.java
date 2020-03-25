@@ -88,7 +88,6 @@ public class XMLFactory {
      */
     public static XMLValue parse(String xmlStr) {
         try {
-
             if (xmlStr.isEmpty()) {
                 return new XMLSequence();
             }

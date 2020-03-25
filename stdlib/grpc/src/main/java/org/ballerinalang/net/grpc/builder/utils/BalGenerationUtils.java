@@ -70,6 +70,9 @@ public class BalGenerationUtils {
             case ".google.protobuf.BytesValue": {
                 return "byte[]";
             }
+            case ".google.protobuf.Any": {
+                return "anydata";
+            }
             case ".google.protobuf.Empty": {
                 return null;
             }
