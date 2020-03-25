@@ -48,6 +48,7 @@ public final class Constants {
     public static final String MUTUAL_SSL_DISABLED = "disabled";
     public static final String SSL = "ssl";
     public static final String SECURITY = "security";
+    public static final String END_USER_CERT = "base64EncodedCert";
 
     // Server Bootstrap related
     public static final String SERVER_BOOTSTRAP_TCP_NO_DELY = "server.bootstrap.nodelay";
@@ -237,6 +238,7 @@ public final class Constants {
     public static final String PROXY_HANDLER = "proxyServerHandler";
     public static final String SSL_COMPLETION_HANDLER = "sslHandshakeCompletionHandler";
     public static final String MUTUAL_SSL_HANDSHAKE_RESULT = "MUTUAL_SSL_HANDSHAKE_RESULT";
+    public static final String BASE_64_ENCODED_CERT = "BASE_64_ENCODED_CERT";
     public static final String HTTP_CERT_VALIDATION_HANDLER = "certificateValidation";
     public static final String CONNECTION_HANDLER = "connectionHandler";
     public static final String HTTP2_TARGET_HANDLER = "http2TargetHandler";
@@ -278,6 +280,8 @@ public final class Constants {
 
     public static final AttributeKey<String> MUTUAL_SSL_RESULT_ATTRIBUTE = AttributeKey
             .valueOf(MUTUAL_SSL_HANDSHAKE_RESULT);
+    public static final AttributeKey<String> BASE_64_ENCODED_CERT_ATTRIBUTE = AttributeKey
+            .valueOf(END_USER_CERT);
 
     public static final long EXPECTED_SEQUENCE_NUMBER = 1L;
     public static final int NUMBER_OF_INITIAL_EVENTS_HELD = 3;

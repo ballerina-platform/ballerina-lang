@@ -62,6 +62,7 @@ import org.wso2.transport.http.netty.message.PooledDataStreamerFactory;
 
 import java.net.InetSocketAddress;
 
+import static org.wso2.transport.http.netty.contract.Constants.BASE_64_ENCODED_CERT;
 import static org.wso2.transport.http.netty.contract.Constants.CHNL_HNDLR_CTX;
 import static org.wso2.transport.http.netty.contract.Constants.HTTP_SCHEME;
 import static org.wso2.transport.http.netty.contract.Constants.IDLE_TIMEOUT_TRIGGERED_WHILE_READING_INBOUND_REQUEST_BODY;
@@ -147,6 +148,8 @@ public class Http2StateUtil {
         sourceReqCMsg.setProperty(PROTOCOL, HTTP_SCHEME);
         sourceReqCMsg.setProperty(MUTUAL_SSL_HANDSHAKE_RESULT,
                 ctx.channel().attr(Constants.MUTUAL_SSL_RESULT_ATTRIBUTE).get());
+        sourceReqCMsg.setProperty(BASE_64_ENCODED_CERT,
+                ctx.channel().attr(Constants.BASE_64_ENCODED_CERT_ATTRIBUTE).get());
         String uri = httpRequest.uri();
         sourceReqCMsg.setRequestUrl(uri);
         sourceReqCMsg.setProperty(TO, uri);
