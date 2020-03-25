@@ -38,10 +38,10 @@ import com.intellij.util.messages.MessageBusConnection;
 import icons.BallerinaIcons;
 import io.ballerina.plugins.idea.BallerinaFileType;
 import io.ballerina.plugins.idea.BallerinaLanguage;
+import io.ballerina.plugins.idea.configuration.BallerinaProjectSettingsConfigurable;
 import io.ballerina.plugins.idea.project.BallerinaLibrariesService;
 import io.ballerina.plugins.idea.sdk.BallerinaSdkService;
 import io.ballerina.plugins.idea.sdk.BallerinaSdkUtils;
-import io.ballerina.plugins.idea.settings.autodetect.BallerinaAutoDetectionConfigurable;
 import io.ballerina.plugins.idea.settings.autodetect.BallerinaAutoDetectionSettings;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -137,7 +137,7 @@ public class WrongSdkConfigurationNotificationProvider extends EditorNotificatio
             panel.createActionLabel("Enable ballerina home auto detection",
                     () -> {
                         ShowSettingsUtil.getInstance().editConfigurable(project,
-                                new BallerinaAutoDetectionConfigurable(project, true));
+                                new BallerinaProjectSettingsConfigurable(project));
                         BallerinaSdkUtils.showRestartDialog(project);
                     });
         }

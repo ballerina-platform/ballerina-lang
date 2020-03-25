@@ -182,9 +182,15 @@
                 serviceImplementation="io.ballerina.plugins.idea.webview.diagram.settings.DiagramApplicationSettings"/>
         <projectService
                 serviceImplementation="io.ballerina.plugins.idea.project.BallerinaProjectLibrariesService"/>
-        <projectConfigurable id="Ballerina" groupId="language"
+
+        <projectConfigurable id="ballerina" groupId="language"
                              provider="io.ballerina.plugins.idea.configuration.BallerinaConfigurableProvider"
                              dynamic="true"/>
+
+        <projectConfigurable id="ballerina.libraries" groupId="ballerina"
+                             provider="io.ballerina.plugins.idea.configuration.BallerinaLibrariesConfigurableProvider"
+                             dynamic="true"/>
+
         <projectExtension implementation="io.ballerina.plugins.idea.project.BallerinaProjectExtension"/>
         <projectStructureDetector
                 implementation="io.ballerina.plugins.idea.project.BallerinaProjectStructureDetector"/>
@@ -198,6 +204,8 @@
                 serviceImplementation="io.ballerina.plugins.idea.settings.langserverlogs.LangServerLogsSettings"/>
         <projectService
                 serviceImplementation="io.ballerina.plugins.idea.settings.soucenavigation.BallerinaSourceNavigationSettings"/>
+        <projectService
+                serviceImplementation="io.ballerina.plugins.idea.configuration.BallerinaProjectSettingsComponent"/>
         <preloadingActivity
                 implementation="io.ballerina.plugins.idea.preloading.BallerinaPreloadingActivity"
                 id="io.ballerina.plugins.idea.preloading.BallerinaPreloadingActivity"/>
