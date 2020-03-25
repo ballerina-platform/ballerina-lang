@@ -19,6 +19,7 @@ package io.ballerinalang.compiler.internal.parser;
 
 import io.ballerinalang.compiler.internal.parser.incremental.HybridNodeStorage;
 import io.ballerinalang.compiler.internal.parser.incremental.HybridTokenReader;
+import io.ballerinalang.compiler.internal.parser.incremental.IncrementalParser;
 import io.ballerinalang.compiler.internal.parser.incremental.UnmodifiedSubtreeSupplier;
 import io.ballerinalang.compiler.syntax.tree.SyntaxTree;
 import io.ballerinalang.compiler.text.TextDocument;
@@ -76,7 +77,7 @@ public class ParserFactory {
                 getLexer(newTextDocument), textDocumentChange);
         AbstractTokenReader tokeReader = new HybridTokenReader(hybridNodeStorage);
         UnmodifiedSubtreeSupplier subtreeReader = new UnmodifiedSubtreeSupplier(hybridNodeStorage);
-        return new BallerinaParser(tokeReader, subtreeReader);
+        return new IncrementalParser(tokeReader, subtreeReader);
     }
 
     private static BallerinaLexer getLexer(TextDocument textDocument) {

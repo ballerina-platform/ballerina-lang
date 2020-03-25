@@ -19,7 +19,6 @@ package io.ballerinalang.compiler.internal.parser;
 
 import io.ballerinalang.compiler.internal.parser.BallerinaParserErrorHandler.Action;
 import io.ballerinalang.compiler.internal.parser.BallerinaParserErrorHandler.Solution;
-import io.ballerinalang.compiler.internal.parser.incremental.UnmodifiedSubtreeSupplier;
 import io.ballerinalang.compiler.internal.parser.tree.STAssignmentStatement;
 import io.ballerinalang.compiler.internal.parser.tree.STBinaryExpression;
 import io.ballerinalang.compiler.internal.parser.tree.STBlockStatement;
@@ -72,21 +71,13 @@ public class BallerinaParser {
 
     private final BallerinaParserErrorHandler errorHandler;
     private final AbstractTokenReader tokenReader;
-    private final UnmodifiedSubtreeSupplier subtreeReader;
-    private final boolean isIncremental;
 
     // TODO: Remove this.
     private ParserRuleContext currentParamKind = ParserRuleContext.REQUIRED_PARAM;
 
-    BallerinaParser(AbstractTokenReader tokenReader, UnmodifiedSubtreeSupplier subtreeReader) {
+    protected BallerinaParser(AbstractTokenReader tokenReader) {
         this.tokenReader = tokenReader;
         this.errorHandler = new BallerinaParserErrorHandler(tokenReader, this);
-        this.subtreeReader = subtreeReader;
-        this.isIncremental = this.subtreeReader != null;
-    }
-
-    BallerinaParser(AbstractTokenReader tokenReader) {
-        this(tokenReader, null);
     }
 
     /**
@@ -95,9 +86,7 @@ public class BallerinaParser {
      * @return Parsed node
      */
     public STNode parse() {
-        STNode node = parseCompUnit();
-        System.out.println(node);
-        return node;
+        return parseCompUnit();
     }
 
     /**
@@ -303,8 +292,7 @@ public class BallerinaParser {
         endContext();
 
         STNode importDecls = new STNodeList(new ArrayList<>());
-        STModulePart modulePart = new STModulePart(importDecls, new STNodeList(otherDecls), eof);
-        return modulePart;
+        return new STModulePart(importDecls, new STNodeList(otherDecls), eof);
     }
 
     /**
@@ -323,7 +311,7 @@ public class BallerinaParser {
      * @param tokenKind Next token kind
      * @return Parsed node
      */
-    private STNode parseTopLevelNodeWithModifier(SyntaxKind tokenKind) {
+    protected STNode parseTopLevelNodeWithModifier(SyntaxKind tokenKind) {
         STNode modifier;
         switch (tokenKind) {
             case PUBLIC_KEYWORD:
@@ -894,7 +882,7 @@ public class BallerinaParser {
      * @param tokenKind Next token kind
      * @return Parsed node
      */
-    private STNode parseFunctionBody(SyntaxKind tokenKind) {
+    protected STNode parseFunctionBody(SyntaxKind tokenKind) {
         switch (tokenKind) {
             case EQUAL_TOKEN:
                 return parseExternalFunctionBody();
@@ -1651,7 +1639,7 @@ public class BallerinaParser {
      * 
      * @return Parsed node
      */
-    private STNode parseStatement() {
+    protected STNode parseStatement() {
         STToken token = peek();
         return parseStatement(token.kind);
     }
@@ -2291,7 +2279,7 @@ public class BallerinaParser {
      * 
      * @param token Staring token of the arg.
      * @param lastArgKind Kind of the previously processed arg
-     * @param arg Current arg
+     * @param argKind Current arg
      */
     private void reportInvalidOrderOfArgs(STToken token, SyntaxKind lastArgKind, SyntaxKind argKind) {
         this.errorHandler.reportInvalidNode(token, "cannot have a " + argKind + " after the " + lastArgKind);
