@@ -21,12 +21,10 @@ package org.ballerinalang.docgen.generator.model;
 public class Constant extends Construct {
     public Type type;
     public String value;
-    public boolean isDeprecated;
 
     public Constant(String name, String description, boolean isDeprecated, Type type, String value) {
-        super(name, description);
+        super(name, description, isDeprecated);
         this.type = type;
         this.value = value;
-        this.isDeprecated = isDeprecated;
     }
 }
