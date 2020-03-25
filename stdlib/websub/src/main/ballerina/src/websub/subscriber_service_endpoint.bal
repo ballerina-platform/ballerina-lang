@@ -35,6 +35,10 @@ public type Listener object {
 
     private http:Listener? serviceEndpoint = ();
 
+    # The initialization method for the Listener.
+    #
+    # + port - The port to start listening on
+    # + config - The configuration for the listener
     public function __init(int port, SubscriberListenerConfiguration? config = ()) {
         self.init(port, config);
     }
