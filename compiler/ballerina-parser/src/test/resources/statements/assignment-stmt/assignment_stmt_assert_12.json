@@ -1,0 +1,106 @@
+{
+    "kind": "FUNCTION_DEFINITION",
+    "children": [
+        {
+            "kind": "FUNCTION_KEYWORD"
+        },
+        {
+            "kind": "IDENTIFIER_TOKEN",
+            "value": "foo"
+        },
+        {
+            "kind": "OPEN_PAREN_TOKEN"
+        },
+        {
+            "kind": "LIST",
+            "children": [
+            ]
+        },
+        {
+            "kind": "CLOSE_PAREN_TOKEN"
+        },
+        {
+            "kind": "BLOCK_STATEMENT",
+            "children": [
+                {
+                    "kind": "OPEN_BRACE_TOKEN"
+                },
+                {
+                    "kind": "LIST",
+                    "children": [
+                        {
+                            "kind": "ASSIGNMENT_STATEMENT",
+                            "children": [
+                                {
+                                    "kind": "IDENTIFIER_TOKEN",
+                                    "value": "a"
+                                },
+                                {
+                                    "kind": "EQUAL_TOKEN"
+                                },
+                                {
+                                    "kind": "IDENTIFIER_TOKEN",
+                                    "isMissing": true
+                                },
+                                {
+                                    "kind": "SEMICOLON_TOKEN",
+                                    "isMissing": true
+                                }
+                            ]
+                        },
+                        {
+                            "kind": "LOCAL_VARIABLE_DECL",
+                            "children": [
+                                {
+                                    "kind": "SIMPLE_TYPE",
+                                    "value": "int"
+                                },
+                                {
+                                    "kind": "IDENTIFIER_TOKEN",
+                                    "value": "b"
+                                },
+                                {
+                                    "kind": "EQUAL_TOKEN"
+                                },
+                                {
+                                    "kind": "IDENTIFIER_TOKEN",
+                                    "isMissing": true
+                                },
+                                {
+                                    "kind": "SEMICOLON_TOKEN",
+                                    "isMissing": true
+                                }
+                            ]
+                        },
+                        {
+                            "kind": "LOCAL_VARIABLE_DECL",
+                            "children": [
+                                {
+                                    "kind": "SIMPLE_TYPE",
+                                    "value": "int"
+                                },
+                                {
+                                    "kind": "IDENTIFIER_TOKEN",
+                                    "value": "a"
+                                },
+                                {
+                                    "kind": "EQUAL_TOKEN"
+                                },
+                                {
+                                    "kind": "NUMERIC_LITERAL_TOKEN",
+                                    "value": "6"
+                                },
+                                {
+                                    "kind": "SEMICOLON_TOKEN"
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "kind": "CLOSE_BRACE_TOKEN"
+                }
+            ]
+        }
+    ]
+}

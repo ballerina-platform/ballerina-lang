@@ -82,4 +82,9 @@ public class AssignmentStatementTest extends AbstractStatementTest {
     public void testExpressionsInLHSWithMissingEqual() {
         testFile("assignment-stmt/assignment_stmt_source_11.bal", "assignment-stmt/assignment_stmt_assert_11.json");
     }
+    
+    @Test
+    public void testMissingRHS() {
+        testFile("assignment-stmt/assignment_stmt_source_12.bal", "assignment-stmt/assignment_stmt_assert_12.json");
+    }
 }

@@ -286,7 +286,6 @@ public class BallerinaParserErrorHandler {
             case RECORD_BODY_END:
             case TYPE_DESCRIPTOR:
             case NAMED_OR_POSITIONAL_ARG_RHS:
-            case EXPRESSION:
             case OBJECT_FIELD_RHS:
             case OBJECT_FUNC_OR_FIELD_WITHOUT_VISIBILITY:
             case OBJECT_MEMBER:
