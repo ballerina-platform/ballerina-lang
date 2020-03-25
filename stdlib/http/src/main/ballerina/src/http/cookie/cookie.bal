@@ -45,12 +45,18 @@ public type Cookie object {
     public time:Time lastAccessedTime = time:currentTime();
     public boolean hostOnly = false;
 
+    # Initializes the `Cookie` object.
+    #
+    # + name - Name of the `Cookie`
+    # + value - Value of the `Cookie`
     public function __init(string name, string value) {
         self.name = name;
         self.value = value;
     }
 
-    // Returns false if the cookie will be discarded at the end of the "session"; true otherwise.
+    # Checks the persistance of the cookie.
+    #
+    # + return  - `false` if the cookie will be discarded at the end of the "session". Else, returns `true`
     public function isPersistent() returns boolean {
         if (self.expires is () && self.maxAge == 0) {
             return false;
@@ -58,7 +64,9 @@ public type Cookie object {
         return true;
     }
 
-    // Returns true if the attributes of the cookie are in the correct format or else error is returned.
+    # Checks the validity of attributes of cookie.
+    #
+    # + return  - `true` if the attributes of the cookie are in the correct format, otherwise an `error`
     public function isValid() returns boolean|InvalidCookieError {
         var name = self.name;
         if (name is string) {
