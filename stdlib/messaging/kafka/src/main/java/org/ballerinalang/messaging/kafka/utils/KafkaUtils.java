@@ -32,7 +32,6 @@ import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BTypes;
-import org.ballerinalang.jvm.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.api.BArray;
@@ -534,7 +533,7 @@ public class KafkaUtils {
             if (value instanceof byte[]) {
                 return BValueCreator.createArrayValue((byte[]) value);
             } else {
-                throw new BLangRuntimeException("Invalid type - expected: byte[]");
+                throw createKafkaError(CONSUMER_ERROR, "Invalid type - expected: byte[]");
             }
         } else if (KafkaConstants.SERDES_STRING.equals(type)) {
             if (value instanceof String) {
@@ -542,19 +541,19 @@ public class KafkaUtils {
                 return value;
                 // return StringUtils.fromString((String) value);
             } else {
-                throw new BLangRuntimeException("Invalid type - expected: string");
+                throw createKafkaError(CONSUMER_ERROR, "Invalid type - expected: string");
             }
         } else if (KafkaConstants.SERDES_INT.equals(type)) {
             if (value instanceof Long) {
                 return value;
             } else {
-                throw new BLangRuntimeException("Invalid type - expected: int");
+                throw createKafkaError(CONSUMER_ERROR, "Invalid type - expected: int");
             }
         } else if (KafkaConstants.SERDES_FLOAT.equals(type)) {
             if (value instanceof Double) {
                 return value;
             } else {
-                throw new BLangRuntimeException("Invalid type - expected: float");
+                throw createKafkaError(CONSUMER_ERROR, "Invalid type - expected: float");
             }
         } else if (SERDES_AVRO.equals(type)) {
             return handleAvroConsumer(value);
