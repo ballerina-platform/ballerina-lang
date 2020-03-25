@@ -1932,15 +1932,7 @@ public class BallerinaParser {
                 return parseCheckExpression();
             default:
                 Solution solution = recover(peek(), ParserRuleContext.EXPRESSION);
-
-                // If the parser recovered by inserting a token, then try to re-parse the same
-                // rule with the inserted token. This is done to pick the correct branch
-                // to continue the parsing.
-                if (solution.action == Action.REMOVE) {
-                    return solution.recoveredNode;
-                }
-
-                return parseTerminalExpression(solution.tokenKind);
+                return solution.recoveredNode;
         }
     }
 
