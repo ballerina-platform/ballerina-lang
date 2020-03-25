@@ -2751,6 +2751,49 @@ public class Types {
         boolean test(BType source, BType target, Set<TypePair> unresolvedTypes);
     }
 
+    private BType getRepresentativeBroadType(BFiniteType finiteType) {
+        ArrayList<BType> list = new ArrayList<>();
+        for (BLangExpression expression : finiteType.getValueSpace()) {
+            list.add(expression.type);
+        }
+        return getRepresentativeBroadType(list);
+    }
+
+    public BType getRepresentativeBroadType(List<BType> inferredTypeList) {
+        for (int i = 0; i < inferredTypeList.size(); i++) {
+            BType type = inferredTypeList.get(i);
+            if (type.tag == TypeTags.SEMANTIC_ERROR) {
+                return type;
+            }
+
+            for (int j = i + 1; j < inferredTypeList.size(); j++) {
+                BType otherType = inferredTypeList.get(j);
+
+                if (otherType.tag == TypeTags.SEMANTIC_ERROR) {
+                    return otherType;
+                }
+
+                if (isAssignable(otherType, type)) {
+                    inferredTypeList.remove(j);
+                    j -= 1;
+                    continue;
+                }
+
+                if (isAssignable(type, otherType)) {
+                    inferredTypeList.remove(i);
+                    i -= 1;
+                    break;
+                }
+            }
+        }
+
+        if (inferredTypeList.size() == 1) {
+            return inferredTypeList.get(0);
+        }
+
+        return BUnionType.create(null, inferredTypeList.toArray(new BType[0]));
+    }
+
     public boolean hasFillerValue(BType type) {
         switch (type.tag) {
             case TypeTags.INT:
@@ -2845,6 +2888,13 @@ public class Types {
         }
         Iterator<BType> iterator = type.getMemberTypes().iterator();
         BType firstMember = iterator.next();
+
+        for (BType member : type.getMemberTypes()) {
+            if (member.tag == TypeTags.FINITE) {
+                return checkFillerValueForUnionWithFinite(type);
+            }
+        }
+
         while (iterator.hasNext()) {
             if (!isSameType(firstMember, iterator.next())) {
                 return false;
@@ -2852,6 +2902,40 @@ public class Types {
         }
         return isValueType(firstMember) && hasFillerValue(firstMember);
     }
+
+    private boolean checkFillerValueForUnionWithFinite(BUnionType type) {
+        Iterator<BType> iterator = type.getMemberTypes().iterator();
+        BType firstMember = iterator.next();
+        if (firstMember.tag != TypeTags.FINITE) {
+            return false;
+        }
+
+        BFiniteType firstFinite = (BFiniteType) firstMember;
+        BType firstBroadType = getRepresentativeBroadType(firstFinite);
+
+        if (firstBroadType.tag == TypeTags.UNION) {
+            return false;
+        }
+
+        while (iterator.hasNext()) {
+            BType currentType = iterator.next();
+            if (currentType.tag != TypeTags.FINITE) {
+                return false;
+            }
+            BFiniteType finiteCurrentType = (BFiniteType) currentType;
+
+            BType currentBroadType = getRepresentativeBroadType(finiteCurrentType);
+            if (currentBroadType.tag == TypeTags.UNION) {
+                return false;
+            }
+
+            if (!isSameType(firstBroadType, currentBroadType)) {
+                return false;
+            }
+        }
+        return hasFillerValue(firstMember);
+    }
+
 
     private boolean isImplicitDefaultValue(BLangExpression expression) {
         if ((expression.getKind() == NodeKind.LITERAL) || (expression.getKind() == NodeKind.NUMERIC_LITERAL)) {

@@ -3829,18 +3829,18 @@ public class TypeChecker extends BLangNodeVisitor {
 
                     switch (spreadOpType.tag) {
                         case TypeTags.RECORD:
-                            List<BType> types = new ArrayList<>();
+                            List<BType> typeList = new ArrayList<>();
                             BRecordType recordType = (BRecordType) spreadOpType;
 
                             for (BField recField : recordType.fields) {
-                                types.add(recField.type);
+                                typeList.add(recField.type);
                             }
 
                             if (!recordType.sealed) {
-                                types.add(recordType.restFieldType);
+                                typeList.add(recordType.restFieldType);
                             }
 
-                            spreadOpMemberType = getRepresentativeBroadType(types);
+                            spreadOpMemberType = types.getRepresentativeBroadType(typeList);
                             break;
                         case TypeTags.MAP:
                             spreadOpMemberType = ((BMapType) spreadOpType).constraint;
@@ -5140,42 +5140,7 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     private BType getRepresentativeBroadTypeForExprs(List<BLangExpression> exprs) {
-        return getRepresentativeBroadType(new ArrayList<>(Arrays.asList(getExprListUniqueTypes(exprs, env))));
-    }
-
-    private BType getRepresentativeBroadType(List<BType> inferredTypeList) {
-        for (int i = 0; i < inferredTypeList.size(); i++) {
-            BType type = inferredTypeList.get(i);
-            if (type.tag == TypeTags.SEMANTIC_ERROR) {
-                return type;
-            }
-
-            for (int j = i + 1; j < inferredTypeList.size(); j++) {
-                BType otherType = inferredTypeList.get(j);
-
-                if (otherType.tag == TypeTags.SEMANTIC_ERROR) {
-                    return otherType;
-                }
-
-                if (types.isAssignable(otherType, type)) {
-                    inferredTypeList.remove(j);
-                    j -= 1;
-                    continue;
-                }
-
-                if (types.isAssignable(type, otherType)) {
-                    inferredTypeList.remove(i);
-                    i -= 1;
-                    break;
-                }
-            }
-        }
-
-        if (inferredTypeList.size() == 1) {
-            return inferredTypeList.get(0);
-        }
-
-        return BUnionType.create(null, inferredTypeList.toArray(new BType[0]));
+        return types.getRepresentativeBroadType(new ArrayList<>(Arrays.asList(getExprListUniqueTypes(exprs, env))));
     }
 
     private BRecordType defineInferredRecordType(BLangRecordLiteral recordLiteral) {

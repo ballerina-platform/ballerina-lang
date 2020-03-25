@@ -400,4 +400,9 @@ public class SealedArrayTest {
     public void testCreateXMLSealedArray() {
         BRunUtil.invoke(compileResult, "createXMLAutoFilledSealedArray");
     }
+
+    @Test
+    public void createConstLiteralAutoFilledSealedArray() {
+        BRunUtil.invoke(compileResult, "createConstLiteralAutoFilledSealedArray");
+    }
 }
