@@ -238,4 +238,48 @@ public class ObjectInitializerTest {
         BValue[] returns = BRunUtil.invoke(compileResult, "testInitInvocationWithCheckAndRestParams2");
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue(), "Expected booleans to be identified as equal");
     }
+
+    @Test(description = "Test invoking '__init' function with args with default values.")
+    public void testInitInvocationWithDefaultParams1() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testInitInvocationWithDefaultParams1");
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue(), "Expected booleans to be identified as equal");
+    }
+
+    @Test(description = "Test invoking '__init' function with args with default values.")
+    public void testInitInvocationWithDefaultParams2() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testInitInvocationWithDefaultParams2");
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue(), "Expected booleans to be identified as equal");
+    }
+
+    @Test(description = "Test invoking '__init' function with args with finite type.")
+    public void testInitInvocationWithFiniteType() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testInitInvocationWithFiniteType");
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue(), "Expected booleans to be identified as equal");
+    }
+
+    @Test(description = "Test invoking '__init' function with args with error as a default value.")
+    public void testInitInvocationWithDefaultError() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testInitInvocationWithDefaultError");
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue(), "Expected booleans to be identified as equal");
+    }
+
+    @Test(description = "Test invoking '__init' function with args with default values and some of them are " +
+            "referenced by params.")
+    public void testInitInvocationWithReferenceToDefaultValue1() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testInitInvocationWithReferenceToDefaultValue1");
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue(), "Expected booleans to be identified as equal");
+    }
+
+    @Test(description = "Test invoking '__init' function with args with default values and some of them are " +
+            "referenced by params.")
+    public void testInitInvocationWithReferenceToDefaultValue2() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testInitInvocationWithReferenceToDefaultValue2");
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue(), "Expected booleans to be identified as equal");
+    }
+
+    @Test(description = "Test invoking '__init' function with args with default values and returns error.")
+    public void testErrorReturnWithInitialization() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testErrorReturnWithInitialization");
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue(), "Expected booleans to be identified as equal");
+    }
 }
