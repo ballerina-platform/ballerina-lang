@@ -15,37 +15,27 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package io.ballerinalang.compiler.text;
+package io.ballerinalang.compiler.parser.test.incremental;
+
+import io.ballerinalang.compiler.syntax.tree.Node;
+import io.ballerinalang.compiler.syntax.tree.SyntaxTree;
+import org.testng.Assert;
+import org.testng.annotations.Test;
 
 /**
- * Describes a contiguous sequence of unicode code points in the {@code TextDocument}.
+ * Contains
  *
  * @since 1.3.0
  */
-public class TextRange {
-    private final int startOffset;
-    private final int endOffset;
-    private final int length;
+public class ModuleLevelDeclarationTest {
 
-    public TextRange(int startOffset, int endOffset) {
-        this.startOffset = startOffset;
-        this.endOffset = endOffset;
-        this.length = endOffset - startOffset;
-    }
+    @Test
+    public void testVariableNameChange() {
+        SyntaxTree oldTree = TestUtils.parse("module_declarations/function_name_old.bal");
+        SyntaxTree newTree = TestUtils.parse(oldTree, "module_declarations/function_name_new.bal");
+        Node[] newNodes = TestUtils.populateNewNodes(oldTree, newTree);
 
-    public int startOffset() {
-        return startOffset;
-    }
-
-    public int endOffset() {
-        return endOffset;
-    }
-
-    public int length() {
-        return length;
-    }
-
-    public String toString() {
-        return "(" + startOffset + "," + endOffset + ")";
+        // TODO This is fragile way to test. Improve
+        Assert.assertEquals(newNodes.length, 6);
     }
 }

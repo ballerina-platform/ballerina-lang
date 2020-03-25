@@ -15,27 +15,20 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package io.ballerinalang.compiler.parser.test.statements;
+package io.ballerinalang.compiler.parser.test.syntax.declarations;
 
-import org.testng.annotations.Test;
+import io.ballerinalang.compiler.internal.parser.ParserRuleContext;
+import io.ballerinalang.compiler.parser.test.ParserTestUtils;
+
+import java.nio.file.Paths;
 
 /**
- * Test parsing while-statements.
+ * Test parsing expressions.
  */
-public class WhileStatementTest extends AbstractStatementTest {
+public class AbstractDeclarationTest {
 
-    // Valid source tests
-
-    @Test
-    public void testEmptyWhile() {
-        testFile("while-stmt/while_stmt_source_01.bal", "while-stmt/while_stmt_assert_01.json");
+    void test(String sourceFilePath, String filePath) {
+        ParserTestUtils.test(Paths.get("declarations/", sourceFilePath), ParserRuleContext.TOP_LEVEL_NODE_WITH_MODIFIER,
+                Paths.get("declarations/", filePath));
     }
-
-    @Test
-    public void testWHileWithBody() {
-        testFile("while-stmt/while_stmt_source_02.bal", "while-stmt/while_stmt_assert_02.json");
-    }
-
-    // Recovery tests
-
 }

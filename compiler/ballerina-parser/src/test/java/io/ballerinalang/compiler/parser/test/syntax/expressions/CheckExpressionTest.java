@@ -15,24 +15,29 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package io.ballerinalang.compiler.parser.test.expressions;
+package io.ballerinalang.compiler.parser.test.syntax.expressions;
 
-import io.ballerinalang.compiler.internal.parser.ParserRuleContext;
-import io.ballerinalang.compiler.parser.test.ParserTestUtils;
-
-import java.nio.file.Paths;
+import org.testng.annotations.Test;
 
 /**
- * Test parsing expressions.
+ * Test parsing check expression.
  */
-public class AbstractExpressionsTest {
+public class CheckExpressionTest extends AbstractExpressionsTest {
 
-    void test(String source, String filePath) {
-        ParserTestUtils.test(source, ParserRuleContext.EXPRESSION, Paths.get("expressions", filePath));
+    @Test
+    public void testSimpleCheckExpr() {
+        testFile("check-expr/check_expr_source_01.bal", "check-expr/check_expr_assert_01.json");
     }
 
-    void testFile(String path, String filePath) {
-        ParserTestUtils.test(Paths.get("expressions/", path), ParserRuleContext.TOP_LEVEL_NODE_WITH_MODIFIER,
-                Paths.get("expressions/", filePath));
+    @Test
+    public void testCheckExprPrecedence() {
+        testFile("check-expr/check_expr_source_02.bal", "check-expr/check_expr_assert_02.json");
+    }
+
+    // Recovery test
+
+    @Test
+    public void testCheckWithMissingExpr() {
+        testFile("check-expr/check_expr_source_03.bal", "check-expr/check_expr_assert_03.json");
     }
 }

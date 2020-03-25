@@ -19,6 +19,7 @@ package io.ballerinalang.compiler.internal.parser.tree;
 
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
+import io.ballerinalang.compiler.syntax.tree.RequiredParameter;
 
 public class STRequiredParameter extends STParameter {
 
@@ -48,7 +49,6 @@ public class STRequiredParameter extends STParameter {
 
     @Override
     public Node createFacade(int position, NonTerminalNode parent) {
-        // TODO
-        return null;
+        return new RequiredParameter(this, position, parent);
     }
 }

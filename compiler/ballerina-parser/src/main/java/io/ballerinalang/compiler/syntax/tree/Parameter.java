@@ -19,8 +19,8 @@ package io.ballerinalang.compiler.syntax.tree;
 
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
-public class EmptyNode extends NonTerminalNode {
-    public EmptyNode(STNode node, int position, NonTerminalNode parent) {
+public class Parameter extends NonTerminalNode {
+    public Parameter(STNode node, int position, NonTerminalNode parent) {
         super(node, position, parent);
     }
 }
