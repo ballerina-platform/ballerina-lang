@@ -18,7 +18,13 @@
 package io.ballerinalang.compiler.text;
 
 import java.util.Arrays;
+import java.util.StringJoiner;
 
+/**
+ * Represents a textual changes on a single {@code TextDocument}.
+ *
+ * @since 1.3.0
+ */
 public class TextDocumentChange {
     // TODO abstraction for textEdit[]
 
@@ -34,5 +40,13 @@ public class TextDocumentChange {
 
     public TextEdit getTextEdit(int index) {
         return textEdits[index];
+    }
+
+    public String toString() {
+        StringJoiner sj = new StringJoiner(",");
+        for (TextEdit textEdit : textEdits) {
+            sj.add(textEdit.toString());
+        }
+        return sj.toString();
     }
 }

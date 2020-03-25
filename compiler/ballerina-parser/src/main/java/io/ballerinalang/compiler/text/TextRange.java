@@ -19,6 +19,8 @@ package io.ballerinalang.compiler.text;
 
 /**
  * Describes a contiguous sequence of unicode code points in the {@code TextDocument}.
+ *
+ * @since 1.3.0
  */
 public class TextRange {
     private final int startOffset;
@@ -41,5 +43,9 @@ public class TextRange {
 
     public int length() {
         return length;
+    }
+
+    public String toString() {
+        return "(" + startOffset + "," + endOffset + ")";
     }
 }
