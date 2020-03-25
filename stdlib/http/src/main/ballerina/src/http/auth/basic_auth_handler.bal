@@ -28,7 +28,7 @@ public type BasicAuthHandler object {
 
     # Initializes the `BasicAuthHandler` object.
     #
-    # + authProvider - The AuthProvider instance
+    # + authProvider - The `InboundAuthProvider` instance or the `OutboundAuthProvider` instance
     public function __init(auth:InboundAuthProvider|auth:OutboundAuthProvider authProvider) {
         self.authProvider = authProvider;
     }
