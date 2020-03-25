@@ -3348,6 +3348,10 @@ public class Desugar extends BLangNodeVisitor {
             // Package variable | service variable.
             // We consider both of them as package level variables.
             genVarRefExpr = new BLangPackageVarRef((BVarSymbol) varRefExpr.symbol);
+
+            if (!enclLocks.isEmpty()) {
+                enclLocks.peek().addLockVariable((BVarSymbol) varRefExpr.symbol);
+            }
         }
 
         genVarRefExpr.type = varRefExpr.type;
