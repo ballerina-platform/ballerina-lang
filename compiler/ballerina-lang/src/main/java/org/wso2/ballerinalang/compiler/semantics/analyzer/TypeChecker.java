@@ -1734,10 +1734,7 @@ public class TypeChecker extends BLangNodeVisitor {
                 checkObjectFunctionInvocationExpr(iExpr, (BObjectType) varRefType);
                 break;
             case TypeTags.RECORD:
-                boolean methodFound = checkFieldFunctionPointer(iExpr);
-                if (!methodFound) {
-                    checkInLangLib(iExpr, varRefType);
-                }
+                checkFieldFunctionPointer(iExpr);
                 break;
             case TypeTags.NONE:
                 dlog.error(iExpr.pos, DiagnosticCode.UNDEFINED_FUNCTION, iExpr.name);
@@ -1764,18 +1761,28 @@ public class TypeChecker extends BLangNodeVisitor {
     private void checkInLangLib(BLangInvocation iExpr, BType varRefType) {
         boolean langLibMethodExists = checkLangLibMethodInvocationExpr(iExpr, varRefType);
         if (!langLibMethodExists) {
-            dlog.error(iExpr.name.pos, DiagnosticCode.UNDEFINED_FUNCTION, iExpr.name.value);
+            dlog.error(iExpr.name.pos, DiagnosticCode.UNDEFINED_FUNCTION_IN_TYPE, iExpr.name.value, iExpr.expr.type);
             resultType = symTable.semanticError;
         }
     }
 
     private boolean checkFieldFunctionPointer(BLangInvocation iExpr) {
-        BType type = checkExpr(iExpr.expr, this.env);
+        BLangExpression invocationExpr = iExpr.expr;
+        BType invocationExprType = invocationExpr.type;
+        BLangIdentifier invocationIdentifier = iExpr.name;
+
+        BType type = checkExpr(invocationExpr, this.env);
         if (type == symTable.semanticError) {
             return false;
         }
-        BSymbol funcSymbol = symResolver.resolveStructField(iExpr.pos, env, names.fromIdNode(iExpr.name), type.tsymbol);
+        BSymbol funcSymbol = symResolver.resolveStructField(iExpr.pos, env, names.fromIdNode(invocationIdentifier),
+                type.tsymbol);
         if (funcSymbol == symTable.notFoundSymbol) {
+            if (!checkLangLibMethodInvocationExpr(iExpr, invocationExprType)) {
+                dlog.error(iExpr.name.pos, DiagnosticCode.UNDEFINED_FUNCTION_IN_RECORD, invocationIdentifier,
+                        invocationExprType);
+                resultType = symTable.semanticError;
+            }
             return false;
         }
         iExpr.symbol = funcSymbol;
