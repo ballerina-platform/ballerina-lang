@@ -31,7 +31,6 @@ import io.ballerinalang.compiler.internal.parser.tree.STEmptyNode;
 import io.ballerinalang.compiler.internal.parser.tree.STExternalFuncBody;
 import io.ballerinalang.compiler.internal.parser.tree.STFieldAccessExpression;
 import io.ballerinalang.compiler.internal.parser.tree.STFunctionCallExpression;
-import io.ballerinalang.compiler.internal.parser.tree.STFunctionDefinition;
 import io.ballerinalang.compiler.internal.parser.tree.STIfElseStatement;
 import io.ballerinalang.compiler.internal.parser.tree.STMemberAccessExpression;
 import io.ballerinalang.compiler.internal.parser.tree.STMethodCallExpression;
@@ -40,6 +39,7 @@ import io.ballerinalang.compiler.internal.parser.tree.STModulePart;
 import io.ballerinalang.compiler.internal.parser.tree.STModuleTypeDefinition;
 import io.ballerinalang.compiler.internal.parser.tree.STNamedArg;
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
+import io.ballerinalang.compiler.internal.parser.tree.STNodeFactory;
 import io.ballerinalang.compiler.internal.parser.tree.STNodeList;
 import io.ballerinalang.compiler.internal.parser.tree.STObjectField;
 import io.ballerinalang.compiler.internal.parser.tree.STObjectTypeDescriptor;
@@ -403,7 +403,7 @@ public class BallerinaParser {
      * 
      * @return Parsed node
      */
-    private STNode parseFunctionDefinition(STNode modifier) {
+    private STNode parseFunctionDefinition(STNode visibilityQualifier) {
         startContext(ParserRuleContext.FUNC_DEFINITION);
 
         STNode functionKeyword = parseFunctionKeyword();
@@ -414,11 +414,11 @@ public class BallerinaParser {
         STNode returnTypeDesc = parseReturnTypeDescriptor();
         STNode body = parseFunctionBody();
 
-        STFunctionDefinition func = new STFunctionDefinition(modifier, functionKeyword, name, openParenthesis,
-                parameters, closeParenthesis, returnTypeDesc, body);
+        STNode funcDefNode = STNodeFactory.makeFunctionDefinition(visibilityQualifier, functionKeyword,
+                name, openParenthesis, parameters, closeParenthesis, returnTypeDesc, body);
 
         endContext();
-        return func;
+        return funcDefNode;
     }
 
     /**
