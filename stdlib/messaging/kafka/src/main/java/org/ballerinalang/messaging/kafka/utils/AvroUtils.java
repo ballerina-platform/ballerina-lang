@@ -21,11 +21,12 @@ package org.ballerinalang.messaging.kafka.utils;
 import org.apache.avro.Schema;
 import org.apache.avro.generic.GenericRecord;
 import org.apache.avro.util.Utf8;
-import org.ballerinalang.jvm.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.jvm.values.MapValue;
 
 import java.util.List;
 
+import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.AVRO_ERROR;
+import static org.ballerinalang.messaging.kafka.utils.KafkaUtils.createKafkaError;
 import static org.ballerinalang.messaging.kafka.utils.KafkaUtils.getAvroGenericRecord;
 
 /**
@@ -57,7 +58,7 @@ public class AvroUtils {
             populateBallerinaGenericAvroRecord(genericAvroRecord, (GenericRecord) value);
             return genericAvroRecord;
         } else {
-            throw new BLangRuntimeException("Invalid type - expected: AvroGenericRecord");
+            throw createKafkaError(AVRO_ERROR, "Invalid type - expected: AvroGenericRecord");
         }
     }
 }
