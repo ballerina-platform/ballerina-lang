@@ -37,7 +37,7 @@ public type Listener object {
 
     # The initialization method for the Listener.
     #
-    # + port - The port to start listening on
+    # + port - The port to listen on
     # + config - The configuration for the listener
     public function __init(int port, SubscriberListenerConfiguration? config = ()) {
         self.init(port, config);

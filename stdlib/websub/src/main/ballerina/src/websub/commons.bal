@@ -541,15 +541,15 @@ public type Hub object {
     private http:Listener hubHttpListener;
 
     # The initialization method for the Hub. Users of the `ballerina/websub` module must use the
-    # function `websub:startHub()` to initialize a `websub:Hub` object.
+    # function `startHub()` to initialize a `websub:Hub` object.
     #
     # + subscriptionUrl - The URL for subscription changes
     # + publishUrl - The URL for publishing and topic registration
     # + hubHttpListener - The `http:Listener` to which the hub service should be attached
     #
     # # Deprecated
-    # Users of the `ballerina/websub` module must use the function `websub:startHub()` to initialize a `websub:Hub`
-    # object, instead of directly calling the initializer method.
+    # Users of the `ballerina/websub` module must use the function `startHub()` to initialize a `websub:Hub`
+    # object instead of directly calling the initializer method.
     @deprecated
     public function __init(string subscriptionUrl, string publishUrl, http:Listener hubHttpListener) {
          self.subscriptionUrl = subscriptionUrl;
