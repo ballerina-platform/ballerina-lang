@@ -26,13 +26,15 @@ import org.ballerinalang.jvm.values.api.BArray;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static org.ballerinalang.messaging.kafka.nativeimpl.producer.SendAvroKeys.createGenericRecord;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.ALIAS_PARTITION;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.UNCHECKED;
 import static org.ballerinalang.messaging.kafka.utils.KafkaUtils.getIntValue;
 import static org.ballerinalang.messaging.kafka.utils.KafkaUtils.getLongValue;
 
 /**
- * Sends Avro values from Ballerina Kafka producers.
+ * Native methods to send `kafka:AvroRecord` values and with different types of keys to Kafka broker from
+ * ballerina kafka producer.
  */
 public class SendAvroValues extends Send {
     /* ************************************************************************ *
@@ -95,19 +97,6 @@ public class SendAvroValues extends Send {
         Long timestampValue = getLongValue(timestamp);
         ProducerRecord<byte[], GenericRecord> kafkaRecord = new ProducerRecord<>(topic, partitionValue, timestampValue,
                                                                                  key.getBytes(), genericRecord);
-        return sendKafkaRecord(kafkaRecord, producer);
-    }
-
-    // ballerina AvroRecord and AvroRecord
-    public static Object sendAvroAvro(ObjectValue producer, MapValue<String, Object> value, String topic,
-                                      MapValue<String, Object> key, Object partition, Object timestamp) {
-        GenericRecord valueRecord = createGenericRecord(value);
-        GenericRecord keyRecord = createGenericRecord(value);
-        Integer partitionValue = getIntValue(partition, ALIAS_PARTITION, logger);
-        Long timestampValue = getLongValue(timestamp);
-        ProducerRecord<GenericRecord, GenericRecord> kafkaRecord = new ProducerRecord<>(topic, partitionValue,
-                                                                                        timestampValue,
-                                                                                        keyRecord, valueRecord);
         return sendKafkaRecord(kafkaRecord, producer);
     }
 

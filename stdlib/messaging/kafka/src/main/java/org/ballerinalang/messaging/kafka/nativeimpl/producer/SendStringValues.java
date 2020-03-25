@@ -18,9 +18,7 @@
 
 package org.ballerinalang.messaging.kafka.nativeimpl.producer;
 
-import org.apache.avro.generic.GenericRecord;
 import org.apache.kafka.clients.producer.ProducerRecord;
-import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.api.BArray;
 import org.slf4j.Logger;
@@ -89,17 +87,6 @@ public class SendStringValues extends Send {
         Long timestampValue = getLongValue(timestamp);
         ProducerRecord<byte[], String> kafkaRecord = new ProducerRecord<>(topic, partitionValue, timestampValue,
                                                                           key.getBytes(), value);
-        return sendKafkaRecord(kafkaRecord, producer);
-    }
-
-    // String and AvroRecord
-    public static Object sendStringAvro(ObjectValue producer, String value, String topic, MapValue<String, Object> key,
-                                        Object partition, Object timestamp) {
-        GenericRecord genericRecord = createGenericRecord(key);
-        Integer partitionValue = getIntValue(partition, ALIAS_PARTITION, logger);
-        Long timestampValue = getLongValue(timestamp);
-        ProducerRecord<GenericRecord, String> kafkaRecord = new ProducerRecord<>(topic, partitionValue, timestampValue,
-                                                                                 genericRecord, value);
         return sendKafkaRecord(kafkaRecord, producer);
     }
 
