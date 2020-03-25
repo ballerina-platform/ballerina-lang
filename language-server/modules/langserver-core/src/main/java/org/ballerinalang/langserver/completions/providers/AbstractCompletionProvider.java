@@ -315,7 +315,8 @@ public abstract class AbstractCompletionProvider implements LSCompletionProvider
             boolean pkgAlreadyImported = currentModuleImports.stream()
                     .anyMatch(importPkg -> importPkg.orgName.value.equals(orgName)
                             && importPkg.alias.value.equals(name));
-            if (!pkgAlreadyImported && !populatedList.contains(orgName + "/" + name)) {
+            if (!pkgAlreadyImported && !populatedList.contains(orgName + "/" + name) &&
+                    !("ballerina".equals(orgName) && name.startsWith("lang.annotations"))) {
                 CompletionItem item = new CompletionItem();
                 item.setLabel(pkg.getFullPackageNameAlias());
                 String[] pkgNameComps = name.split("\\.");
