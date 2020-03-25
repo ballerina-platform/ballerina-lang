@@ -32,7 +32,7 @@ public class AbstractStatementTest {
     }
 
     void testFile(String path, String filePath) {
-        ParserTestUtils.test(Paths.get("statements/", path), ParserRuleContext.TOP_LEVEL_NODE_WITH_MODIFIER,
+        ParserTestUtils.test(Paths.get("statements/", path), ParserRuleContext.TOP_LEVEL_NODE,
                 Paths.get("statements/", filePath));
     }
 }

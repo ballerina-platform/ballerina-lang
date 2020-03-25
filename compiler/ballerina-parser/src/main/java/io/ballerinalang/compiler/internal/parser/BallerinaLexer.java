@@ -467,7 +467,7 @@ public class BallerinaLexer {
             case LexerTerminals.SERVICE:
                 return getTypeToken(tokenText);
             case LexerTerminals.RETURN:
-                return getSyntaxToken(SyntaxKind.RETURNS_KEYWORD);
+                return getSyntaxToken(SyntaxKind.RETURN_KEYWORD);
             case LexerTerminals.RETURNS:
                 return getSyntaxToken(SyntaxKind.RETURNS_KEYWORD);
             case LexerTerminals.EXTERNAL:
@@ -667,15 +667,6 @@ public class BallerinaLexer {
      */
     private int peek() {
         return this.reader.peek();
-    }
-
-    /**
-     * Returns the next k-th character from the reader, without consuming the stream.
-     * 
-     * @return Next k-th character
-     */
-    private int peek(int k) {
-        return this.reader.peek(k);
     }
 
     /**

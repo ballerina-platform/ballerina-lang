@@ -23,10 +23,11 @@ import io.ballerinalang.compiler.internal.parser.tree.STAssignmentStatement;
 import io.ballerinalang.compiler.internal.parser.tree.STBinaryExpression;
 import io.ballerinalang.compiler.internal.parser.tree.STBlockStatement;
 import io.ballerinalang.compiler.internal.parser.tree.STBracedExpression;
+import io.ballerinalang.compiler.internal.parser.tree.STCallStatement;
+import io.ballerinalang.compiler.internal.parser.tree.STCheckExpression;
 import io.ballerinalang.compiler.internal.parser.tree.STDefaultableParameter;
 import io.ballerinalang.compiler.internal.parser.tree.STElseBlock;
 import io.ballerinalang.compiler.internal.parser.tree.STEmptyNode;
-import io.ballerinalang.compiler.internal.parser.tree.STCallStatement;
 import io.ballerinalang.compiler.internal.parser.tree.STExternalFuncBody;
 import io.ballerinalang.compiler.internal.parser.tree.STFieldAccessExpression;
 import io.ballerinalang.compiler.internal.parser.tree.STFunctionCallExpression;
@@ -54,7 +55,6 @@ import io.ballerinalang.compiler.internal.parser.tree.STRestParameter;
 import io.ballerinalang.compiler.internal.parser.tree.STReturnTypeDescriptor;
 import io.ballerinalang.compiler.internal.parser.tree.STToken;
 import io.ballerinalang.compiler.internal.parser.tree.STTypeReference;
-import io.ballerinalang.compiler.internal.parser.tree.STCheckExpression;
 import io.ballerinalang.compiler.internal.parser.tree.STVariableDeclaration;
 import io.ballerinalang.compiler.internal.parser.tree.STWhileStatement;
 import io.ballerinalang.compiler.internal.parser.tree.SyntaxKind;
@@ -145,10 +145,10 @@ public class BallerinaParser {
                 return parseAfterParamType(parsedNodes[0], parsedNodes[1]);
             case PARAMETER_RHS:
                 return parseParameterRhs(parsedNodes[0], parsedNodes[1], parsedNodes[2]);
-            case TOP_LEVEL_NODE:
+            case TOP_LEVEL_NODE_WITHOUT_MODIFIER:
                 return parseTopLevelNode(parsedNodes[0]);
-            case TOP_LEVEL_NODE_WITH_MODIFIER:
-                return parseTopLevelNodeWithModifier();
+            case TOP_LEVEL_NODE:
+                return parseTopLevel();
             case STATEMENT_START_IDENTIFIER:
                 return parseStatementStartIdentifier();
             case VAR_DECL_STMT_RHS:
@@ -216,10 +216,9 @@ public class BallerinaParser {
         switch (context) {
             case COMP_UNIT:
                 return parseCompUnit();
-            case TOP_LEVEL_NODE_WITH_MODIFIER:
             case TOP_LEVEL_NODE:
                 startContext(ParserRuleContext.COMP_UNIT);
-                return parseTopLevelNodeWithModifier();
+                return parseTopLevel();
             case STATEMENT:
                 startContext(ParserRuleContext.COMP_UNIT);
                 startContext(ParserRuleContext.FUNC_DEFINITION);
@@ -284,7 +283,7 @@ public class BallerinaParser {
         STToken token = peek();
         List<STNode> otherDecls = new ArrayList<>();
         while (token.kind != SyntaxKind.EOF_TOKEN) {
-            otherDecls.add(parseTopLevelNodeWithModifier(token.kind));
+            otherDecls.add(parseTopLevelNode(token.kind));
             token = peek();
         }
 
@@ -300,9 +299,9 @@ public class BallerinaParser {
      * 
      * @return Parsed node
      */
-    private STNode parseTopLevelNodeWithModifier() {
+    private STNode parseTopLevel() {
         STToken token = peek();
-        return parseTopLevelNodeWithModifier(token.kind);
+        return parseTopLevelNode(token.kind);
     }
 
     /**
@@ -311,7 +310,7 @@ public class BallerinaParser {
      * @param tokenKind Next token kind
      * @return Parsed node
      */
-    protected STNode parseTopLevelNodeWithModifier(SyntaxKind tokenKind) {
+    protected STNode parseTopLevelNode(SyntaxKind tokenKind) {
         STNode modifier;
         switch (tokenKind) {
             case PUBLIC_KEYWORD:
@@ -325,7 +324,7 @@ public class BallerinaParser {
                 return consume();
             default:
                 STToken token = peek();
-                Solution solution = recover(token, ParserRuleContext.TOP_LEVEL_NODE_WITH_MODIFIER);
+                Solution solution = recover(token, ParserRuleContext.TOP_LEVEL_NODE);
 
                 // If the parser recovered by inserting a token, then try to re-parse the same
                 // rule with the inserted token. This is done to pick the correct branch
@@ -334,15 +333,16 @@ public class BallerinaParser {
                     return solution.recoveredNode;
                 }
 
-                return parseTopLevelNodeWithModifier(solution.tokenKind);
+                return parseTopLevelNode(solution.tokenKind);
         }
 
         return parseTopLevelNode(modifier);
     }
 
     /**
-     * Parse top level node.
+     * Parse top level node, given the modifier that precedes it.
      * 
+     * @param modifier Modifier that precedes the top level node
      * @return Parsed node
      */
     private STNode parseTopLevelNode(STNode modifier) {
@@ -351,9 +351,10 @@ public class BallerinaParser {
     }
 
     /**
-     * Parse top level node given the next token kind.
+     * Parse top level node given the next token kind and the modifier that precedes it.
      * 
      * @param tokenKind Next token kind
+     * @param modifier Modifier that precedes the top level node
      * @return Parsed top-level node
      */
     private STNode parseTopLevelNode(SyntaxKind tokenKind, STNode modifier) {
@@ -364,7 +365,7 @@ public class BallerinaParser {
                 return parseModuleTypeDefinition(modifier);
             default:
                 STToken token = peek();
-                Solution solution = recover(token, ParserRuleContext.TOP_LEVEL_NODE, modifier);
+                Solution solution = recover(token, ParserRuleContext.TOP_LEVEL_NODE_WITHOUT_MODIFIER, modifier);
 
                 // If the parser recovered by inserting a token, then try to re-parse the same
                 // rule with the inserted token. This is done to pick the correct branch

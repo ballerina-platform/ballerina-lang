@@ -84,7 +84,7 @@ public class CharReader {
 
     /**
      *
-     * @return
+     * @return {@link String} consist of the marked chars
      */
     public String getMarkedChars() {
         return new String(Arrays.copyOfRange(charBuffer, lexemeStartPos, offset));

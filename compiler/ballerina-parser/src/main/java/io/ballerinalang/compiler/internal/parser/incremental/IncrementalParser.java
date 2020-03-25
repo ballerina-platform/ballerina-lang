@@ -39,9 +39,9 @@ public class IncrementalParser extends BallerinaParser {
         this.subtreeSupplier = subtreeSupplier;
     }
 
-    protected STNode parseTopLevelNodeWithModifier(SyntaxKind tokenKind) {
+    protected STNode parseTopLevelNode(SyntaxKind tokenKind) {
         STNode modelLevelDecl = getIfReusable(subtreeSupplier.peek(), isModelLevelDeclaration);
-        return modelLevelDecl != null ? modelLevelDecl : super.parseTopLevelNodeWithModifier(tokenKind);
+        return modelLevelDecl != null ? modelLevelDecl : super.parseTopLevelNode(tokenKind);
     }
 
     protected STNode parseFunctionBody(SyntaxKind tokenKind) {

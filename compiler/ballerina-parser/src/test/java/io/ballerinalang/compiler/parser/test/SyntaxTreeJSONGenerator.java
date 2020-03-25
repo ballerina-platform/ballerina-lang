@@ -62,7 +62,7 @@ public class SyntaxTreeJSONGenerator {
     private static void generateJSON(Path sourceFilePath) throws IOException {
         byte[] bytes = Files.readAllBytes(RESOURCE_DIRECTORY.resolve(sourceFilePath));
         String content = new String(bytes, StandardCharsets.UTF_8);
-        generateJSON(content, ParserRuleContext.TOP_LEVEL_NODE_WITH_MODIFIER);
+        generateJSON(content, ParserRuleContext.TOP_LEVEL_NODE);
     }
 
     private static void generateJSON(String source, ParserRuleContext context) {

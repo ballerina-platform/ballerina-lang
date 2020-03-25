@@ -33,7 +33,7 @@ class NodePointer {
 
     private Node current;
     /**
-     * Current node's bucket index in it's parent
+     * Current node's bucket index in it's parent.
      */
     private int childBucketIndex;
 

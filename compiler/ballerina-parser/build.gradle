@@ -26,7 +26,9 @@ dependencies {
 description = 'Ballerina - Parser'
 
 checkstyleMain {
-    exclude 'org/ballerinalang/compiler/parser/tree/**'
+    exclude 'io/ballerinalang/compiler/internal/parser/tree/**'
+    exclude 'io/ballerinalang/compiler/syntax/tree/**'
+    exclude 'io/ballerinalang/compiler/text/**'
 }
 
 test {

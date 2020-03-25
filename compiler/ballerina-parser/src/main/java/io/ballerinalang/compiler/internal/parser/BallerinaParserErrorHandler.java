@@ -272,8 +272,8 @@ public class BallerinaParserErrorHandler {
 
     private boolean isProductionWithAlternatives(ParserRuleContext currentCtx) {
         switch (currentCtx) {
+            case TOP_LEVEL_NODE_WITHOUT_MODIFIER:
             case TOP_LEVEL_NODE:
-            case TOP_LEVEL_NODE_WITH_MODIFIER:
             case STATEMENT:
             case FUNC_BODY:
             case VAR_DECL_STMT_RHS:
@@ -489,9 +489,9 @@ public class BallerinaParserErrorHandler {
                 case REMOTE_KEYWORD:
                     hasMatch = nextToken.kind == SyntaxKind.REMOTE_KEYWORD;
                     break;
-                case TOP_LEVEL_NODE:
+                case TOP_LEVEL_NODE_WITHOUT_MODIFIER:
                     return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount, TOP_LEVEL_NODES);
-                case TOP_LEVEL_NODE_WITH_MODIFIER:
+                case TOP_LEVEL_NODE:
                     return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount,
                             TOP_LEVEL_NODES_WITH_MODIFIERS);
                 case FUNCTION_KEYWORD:
@@ -1073,14 +1073,14 @@ public class BallerinaParserErrorHandler {
             case EOF:
                 return ParserRuleContext.EOF;
             case COMP_UNIT:
-                return ParserRuleContext.TOP_LEVEL_NODE_WITH_MODIFIER;
+                return ParserRuleContext.TOP_LEVEL_NODE;
             case PUBLIC_KEYWORD:
                 parentCtx = getParentContext();
                 if (parentCtx == ParserRuleContext.OBJECT_TYPE_DESCRIPTOR) {
                     return ParserRuleContext.OBJECT_FUNC_OR_FIELD;
                 }
 
-                return ParserRuleContext.TOP_LEVEL_NODE;
+                return ParserRuleContext.TOP_LEVEL_NODE_WITHOUT_MODIFIER;
             case PRIVATE_KEYWORD:
                 return ParserRuleContext.OBJECT_FUNC_OR_FIELD;
             case FUNC_DEFINITION:
@@ -1096,57 +1096,9 @@ public class BallerinaParserErrorHandler {
                 endContext(); // end statement
                 return ParserRuleContext.CLOSE_BRACE;
             case ASSIGN_OP:
-                parentCtx = getParentContext();
-                switch (parentCtx) {
-                    case EXTERNAL_FUNC_BODY:
-                        return ParserRuleContext.EXTERNAL_KEYWORD;
-                    case REQUIRED_PARAM:
-                    case DEFAULTABLE_PARAM:
-                    case RECORD_FIELD:
-                    case ARG:
-                    case OBJECT_MEMBER:
-                        return ParserRuleContext.EXPRESSION;
-                    default:
-                        if (isStatement(parentCtx)) {
-                            return ParserRuleContext.EXPRESSION;
-                        }
-                        throw new IllegalStateException();
-                }
+                return getNextRuleForEqualOp();
             case CLOSE_BRACE:
-                parentCtx = getParentContext();
-                switch (parentCtx) {
-                    case FUNC_BODY_BLOCK:
-                        endContext(); // end body block
-                        nextToken = this.tokenReader.peek(nextLookahead);
-                        if (nextToken.kind == SyntaxKind.EOF_TOKEN) {
-                            return ParserRuleContext.EOF;
-                        }
-                        return ParserRuleContext.TOP_LEVEL_NODE;
-                    case OBJECT_MEMBER:
-                        endContext(); // end object member
-                        // fall through
-                    case RECORD_TYPE_DESCRIPTOR:
-                    case OBJECT_TYPE_DESCRIPTOR:
-                        endContext(); // end record/object type def
-                        parentCtx = getParentContext();
-                        if (parentCtx == ParserRuleContext.MODULE_TYPE_DEFINITION) {
-                            return ParserRuleContext.SEMICOLON;
-                        }
-                        return ParserRuleContext.TOP_LEVEL_NODE;
-                    case BLOCK_STMT:
-                        endContext(); // end block stmt
-                        parentCtx = getParentContext();
-                        if (parentCtx == ParserRuleContext.IF_BLOCK) {
-                            endContext(); // end if-block
-                            return ParserRuleContext.ELSE_BLOCK;
-                        } else if (parentCtx == ParserRuleContext.WHILE_BLOCK) {
-                            endContext(); // end while-block
-                            return ParserRuleContext.STATEMENT;
-                        }
-                        return ParserRuleContext.STATEMENT;
-                    default:
-                        throw new IllegalStateException();
-                }
+                return getNextRuleForCloseBrace(nextLookahead);
             case CLOSE_PARENTHESIS:
                 parentCtx = getParentContext();
                 if (isParameter(parentCtx)) {
@@ -1186,101 +1138,16 @@ public class BallerinaParserErrorHandler {
                 }
                 return ParserRuleContext.SIMPLE_TYPE_DESCRIPTOR;
             case SEMICOLON:
-                parentCtx = getParentContext();
-                if (parentCtx == ParserRuleContext.EXTERNAL_FUNC_BODY) {
-                    endContext(); // end external func
-                    nextToken = this.tokenReader.peek(nextLookahead);
-                    if (nextToken.kind == SyntaxKind.EOF_TOKEN) {
-                        return ParserRuleContext.EOF;
-                    }
-                    return ParserRuleContext.TOP_LEVEL_NODE_WITH_MODIFIER;
-                } else if (isExpression(parentCtx)) {
-                    // A semicolon after an expression also means its an end of a statement/field, Hence pop the ctx.
-                    endContext(); // end statement
-                    if (isEndOfBlock(this.tokenReader.peek(nextLookahead))) {
-                        return ParserRuleContext.CLOSE_BRACE;
-                    }
-                    return ParserRuleContext.STATEMENT;
-                } else if (isStatement(parentCtx)) {
-                    endContext(); // end statement
-                    if (isEndOfBlock(this.tokenReader.peek(nextLookahead))) {
-                        return ParserRuleContext.CLOSE_BRACE;
-                    }
-                    return ParserRuleContext.STATEMENT;
-                } else if (parentCtx == ParserRuleContext.RECORD_FIELD) {
-                    if (isEndOfBlock(this.tokenReader.peek(nextLookahead))) {
-                        endContext(); // end record field
-                        return ParserRuleContext.RECORD_BODY_END;
-                    }
-                    return ParserRuleContext.RECORD_FIELD;
-                } else if (parentCtx == ParserRuleContext.MODULE_TYPE_DEFINITION) {
-                    nextToken = this.tokenReader.peek(nextLookahead);
-                    if (nextToken.kind == SyntaxKind.EOF_TOKEN) {
-                        return ParserRuleContext.EOF;
-                    }
-                    return ParserRuleContext.TOP_LEVEL_NODE_WITH_MODIFIER;
-                } else if (parentCtx == ParserRuleContext.OBJECT_MEMBER) {
-                    if (isEndOfObjectTypeNode(nextLookahead)) {
-                        endContext(); // end object member
-                        return ParserRuleContext.CLOSE_BRACE;
-                    }
-                    return ParserRuleContext.OBJECT_MEMBER;
-                } else {
-                    throw new IllegalStateException();
-                }
+                return getNextRuleForSemicolon(nextLookahead);
             case SIMPLE_TYPE_DESCRIPTOR:
-                parentCtx = getParentContext();
-                if (isStatement(parentCtx) || isParameter(parentCtx) || parentCtx == ParserRuleContext.RECORD_FIELD) {
-                    return ParserRuleContext.VARIABLE_NAME;
-                } else if (parentCtx == ParserRuleContext.RETURN_TYPE_DESCRIPTOR) {
-                    return ParserRuleContext.FUNC_BODY;
-                } else if (parentCtx == ParserRuleContext.MODULE_TYPE_DEFINITION) {
-                    return ParserRuleContext.SEMICOLON;
-                } else if (parentCtx == ParserRuleContext.OBJECT_MEMBER) {
-                    return ParserRuleContext.VARIABLE_NAME;
-                } {
-                throw new IllegalStateException();
-            }
+                return getNextRuleForSimpleTypeDesc();
             case VARIABLE_NAME:
             case PARAMETER_RHS:
-                nextToken = this.tokenReader.peek(nextLookahead);
-                parentCtx = getParentContext();
-                if (parentCtx == ParserRuleContext.REQUIRED_PARAM) {
-                    if (isEndOfParametersList(nextToken)) {
-                        return ParserRuleContext.CLOSE_PARENTHESIS;
-                    } else if (isEndOfParameter(nextToken)) {
-                        return ParserRuleContext.COMMA;
-                    } else {
-                        // Currently processing a required param, but now switch
-                        // to a defaultable param
-                        switchContext(ParserRuleContext.DEFAULTABLE_PARAM);
-                        return ParserRuleContext.ASSIGN_OP;
-                    }
-                } else if (parentCtx == ParserRuleContext.DEFAULTABLE_PARAM) {
-                    if (isEndOfParametersList(nextToken)) {
-                        return ParserRuleContext.CLOSE_PARENTHESIS;
-                    } else {
-                        return ParserRuleContext.ASSIGN_OP;
-                    }
-                } else if (isStatement(parentCtx)) {
-                    if (isEndOfExpression(nextToken)) { // end of expression can be treated as end of a statement too
-                        return ParserRuleContext.SEMICOLON;
-                    } else {
-                        return ParserRuleContext.ASSIGN_OP;
-                    }
-                } else if (parentCtx == ParserRuleContext.RECORD_FIELD) {
-                    return ParserRuleContext.FIELD_DESCRIPTOR_RHS;
-                } else if (parentCtx == ParserRuleContext.ARG) {
-                    return ParserRuleContext.NAMED_OR_POSITIONAL_ARG_RHS;
-                } else if (parentCtx == ParserRuleContext.OBJECT_MEMBER) {
-                    return ParserRuleContext.OBJECT_FIELD_RHS;
-                } else {
-                    throw new IllegalStateException();
-                }
-            case TOP_LEVEL_NODE:
+                return getNextRuleForVarName(nextLookahead);
+            case TOP_LEVEL_NODE_WITHOUT_MODIFIER:
                 return ParserRuleContext.FUNC_DEFINITION;
             case FUNC_BODY:
-                return ParserRuleContext.TOP_LEVEL_NODE;
+                return ParserRuleContext.TOP_LEVEL_NODE_WITHOUT_MODIFIER;
             case REQUIRED_PARAM:
             case DEFAULTABLE_PARAM:
             case REST_PARAM:
@@ -1299,28 +1166,9 @@ public class BallerinaParserErrorHandler {
             case BINARY_OPERATOR:
                 return ParserRuleContext.EXPRESSION;
             case COMMA:
-                parentCtx = getParentContext();
-                switch (parentCtx) {
-                    case PARAM_LIST:
-                    case REQUIRED_PARAM:
-                    case DEFAULTABLE_PARAM:
-                    case REST_PARAM:
-                        endContext();
-                        return parentCtx;
-                    case ARG:
-                        return parentCtx;
-                    default:
-                        throw new IllegalStateException();
-                }
+                return getNextRuleForComma();
             case AFTER_PARAMETER_TYPE:
-                parentCtx = getParentContext();
-                if (parentCtx == ParserRuleContext.REQUIRED_PARAM || parentCtx == ParserRuleContext.DEFAULTABLE_PARAM) {
-                    return ParserRuleContext.VARIABLE_NAME;
-                } else if (parentCtx == ParserRuleContext.REST_PARAM) {
-                    return ParserRuleContext.ELLIPSIS;
-                } else {
-                    throw new IllegalStateException();
-                }
+                return getNextRuleForParamType();
             case MODULE_TYPE_DEFINITION:
                 return ParserRuleContext.TYPE_KEYWORD;
             case CLOSED_RECORD_BODY_END:
@@ -1328,7 +1176,7 @@ public class BallerinaParserErrorHandler {
                 if (nextToken.kind == SyntaxKind.EOF_TOKEN) {
                     return ParserRuleContext.EOF;
                 }
-                return ParserRuleContext.TOP_LEVEL_NODE_WITH_MODIFIER;
+                return ParserRuleContext.TOP_LEVEL_NODE;
             case CLOSED_RECORD_BODY_START:
                 startContext(ParserRuleContext.RECORD_FIELD);
                 return ParserRuleContext.RECORD_FIELD;
@@ -1391,6 +1239,233 @@ public class BallerinaParserErrorHandler {
             case ANNOTATION_ATTACHMENT:
             default:
                 throw new IllegalStateException("cannot find the next rule for: " + currentCtx);
+        }
+    }
+
+    /**
+     * Get the next parser context to visit after a {@link ParserRuleContext#AFTER_PARAMETER_TYPE}.
+     * 
+     * @return Next parser context
+     */
+    private ParserRuleContext getNextRuleForParamType() {
+        ParserRuleContext parentCtx;
+        parentCtx = getParentContext();
+        if (parentCtx == ParserRuleContext.REQUIRED_PARAM || parentCtx == ParserRuleContext.DEFAULTABLE_PARAM) {
+            return ParserRuleContext.VARIABLE_NAME;
+        } else if (parentCtx == ParserRuleContext.REST_PARAM) {
+            return ParserRuleContext.ELLIPSIS;
+        } else {
+            throw new IllegalStateException();
+        }
+    }
+
+    /**
+     * Get the next parser context to visit after a {@link ParserRuleContext#COMMA}.
+     * 
+     * @return Next parser context
+     */
+    private ParserRuleContext getNextRuleForComma() {
+        ParserRuleContext parentCtx;
+        parentCtx = getParentContext();
+        switch (parentCtx) {
+            case PARAM_LIST:
+            case REQUIRED_PARAM:
+            case DEFAULTABLE_PARAM:
+            case REST_PARAM:
+                endContext();
+                return parentCtx;
+            case ARG:
+                return parentCtx;
+            default:
+                throw new IllegalStateException();
+        }
+    }
+
+    /**
+     * Get the next parser context to visit after a {@link ParserRuleContext#SIMPLE_TYPE_DESCRIPTOR}.
+     * 
+     * @return Next parser context
+     */
+    private ParserRuleContext getNextRuleForSimpleTypeDesc() {
+        ParserRuleContext parentCtx;
+        parentCtx = getParentContext();
+        if (isStatement(parentCtx) || isParameter(parentCtx) || parentCtx == ParserRuleContext.RECORD_FIELD) {
+            return ParserRuleContext.VARIABLE_NAME;
+        } else if (parentCtx == ParserRuleContext.RETURN_TYPE_DESCRIPTOR) {
+            return ParserRuleContext.FUNC_BODY;
+        } else if (parentCtx == ParserRuleContext.MODULE_TYPE_DEFINITION) {
+            return ParserRuleContext.SEMICOLON;
+        } else if (parentCtx == ParserRuleContext.OBJECT_MEMBER) {
+            return ParserRuleContext.VARIABLE_NAME;
+        }
+        throw new IllegalStateException();
+    }
+
+    /**
+     * Get the next parser context to visit after a {@link ParserRuleContext#ASSIGN_OP}.
+     * 
+     * @return Next parser context
+     */
+    private ParserRuleContext getNextRuleForEqualOp() {
+        ParserRuleContext parentCtx;
+        parentCtx = getParentContext();
+        switch (parentCtx) {
+            case EXTERNAL_FUNC_BODY:
+                return ParserRuleContext.EXTERNAL_KEYWORD;
+            case REQUIRED_PARAM:
+            case DEFAULTABLE_PARAM:
+            case RECORD_FIELD:
+            case ARG:
+            case OBJECT_MEMBER:
+                return ParserRuleContext.EXPRESSION;
+            default:
+                if (isStatement(parentCtx)) {
+                    return ParserRuleContext.EXPRESSION;
+                }
+                throw new IllegalStateException();
+        }
+    }
+
+    /**
+     * Get the next parser context to visit after a {@link ParserRuleContext#CLOSE_BRACE}.
+     * 
+     * @param nextLookahead Position of the next token to consider, relative to the position of the original error
+     * @return Next parser context
+     */
+    private ParserRuleContext getNextRuleForCloseBrace(int nextLookahead) {
+        ParserRuleContext parentCtx;
+        STToken nextToken;
+        parentCtx = getParentContext();
+        switch (parentCtx) {
+            case FUNC_BODY_BLOCK:
+                endContext(); // end body block
+                nextToken = this.tokenReader.peek(nextLookahead);
+                if (nextToken.kind == SyntaxKind.EOF_TOKEN) {
+                    return ParserRuleContext.EOF;
+                }
+                return ParserRuleContext.TOP_LEVEL_NODE_WITHOUT_MODIFIER;
+            case OBJECT_MEMBER:
+                endContext(); // end object member
+                // fall through
+            case RECORD_TYPE_DESCRIPTOR:
+            case OBJECT_TYPE_DESCRIPTOR:
+                endContext(); // end record/object type def
+                parentCtx = getParentContext();
+                if (parentCtx == ParserRuleContext.MODULE_TYPE_DEFINITION) {
+                    return ParserRuleContext.SEMICOLON;
+                }
+                return ParserRuleContext.TOP_LEVEL_NODE_WITHOUT_MODIFIER;
+            case BLOCK_STMT:
+                endContext(); // end block stmt
+                parentCtx = getParentContext();
+                if (parentCtx == ParserRuleContext.IF_BLOCK) {
+                    endContext(); // end if-block
+                    return ParserRuleContext.ELSE_BLOCK;
+                } else if (parentCtx == ParserRuleContext.WHILE_BLOCK) {
+                    endContext(); // end while-block
+                    return ParserRuleContext.STATEMENT;
+                }
+                return ParserRuleContext.STATEMENT;
+            default:
+                throw new IllegalStateException();
+        }
+    }
+
+    /**
+     * Get the next parser context to visit after a variable/parameter name.
+     * 
+     * @param nextLookahead Position of the next token to consider, relative to the position of the original error
+     * @return Next parser context
+     */
+    private ParserRuleContext getNextRuleForVarName(int nextLookahead) {
+        ParserRuleContext parentCtx;
+        STToken nextToken;
+        nextToken = this.tokenReader.peek(nextLookahead);
+        parentCtx = getParentContext();
+        if (parentCtx == ParserRuleContext.REQUIRED_PARAM) {
+            if (isEndOfParametersList(nextToken)) {
+                return ParserRuleContext.CLOSE_PARENTHESIS;
+            } else if (isEndOfParameter(nextToken)) {
+                return ParserRuleContext.COMMA;
+            } else {
+                // Currently processing a required param, but now switch
+                // to a defaultable param
+                switchContext(ParserRuleContext.DEFAULTABLE_PARAM);
+                return ParserRuleContext.ASSIGN_OP;
+            }
+        } else if (parentCtx == ParserRuleContext.DEFAULTABLE_PARAM) {
+            if (isEndOfParametersList(nextToken)) {
+                return ParserRuleContext.CLOSE_PARENTHESIS;
+            } else {
+                return ParserRuleContext.ASSIGN_OP;
+            }
+        } else if (isStatement(parentCtx)) {
+            if (isEndOfExpression(nextToken)) { // end of expression can be treated as end of a statement too
+                return ParserRuleContext.SEMICOLON;
+            } else {
+                return ParserRuleContext.ASSIGN_OP;
+            }
+        } else if (parentCtx == ParserRuleContext.RECORD_FIELD) {
+            return ParserRuleContext.FIELD_DESCRIPTOR_RHS;
+        } else if (parentCtx == ParserRuleContext.ARG) {
+            return ParserRuleContext.NAMED_OR_POSITIONAL_ARG_RHS;
+        } else if (parentCtx == ParserRuleContext.OBJECT_MEMBER) {
+            return ParserRuleContext.OBJECT_FIELD_RHS;
+        } else {
+            throw new IllegalStateException();
+        }
+    }
+
+    /**
+     * Get the next parser context to visit after a {@link ParserRuleContext#SEMICOLON}.
+     * 
+     * @param nextLookahead Position of the next token to consider, relative to the position of the original error
+     * @return Next parser context
+     */
+    private ParserRuleContext getNextRuleForSemicolon(int nextLookahead) {
+        ParserRuleContext parentCtx;
+        STToken nextToken;
+        parentCtx = getParentContext();
+        if (parentCtx == ParserRuleContext.EXTERNAL_FUNC_BODY) {
+            endContext(); // end external func
+            nextToken = this.tokenReader.peek(nextLookahead);
+            if (nextToken.kind == SyntaxKind.EOF_TOKEN) {
+                return ParserRuleContext.EOF;
+            }
+            return ParserRuleContext.TOP_LEVEL_NODE;
+        } else if (isExpression(parentCtx)) {
+            // A semicolon after an expression also means its an end of a statement/field, Hence pop the ctx.
+            endContext(); // end statement
+            if (isEndOfBlock(this.tokenReader.peek(nextLookahead))) {
+                return ParserRuleContext.CLOSE_BRACE;
+            }
+            return ParserRuleContext.STATEMENT;
+        } else if (isStatement(parentCtx)) {
+            endContext(); // end statement
+            if (isEndOfBlock(this.tokenReader.peek(nextLookahead))) {
+                return ParserRuleContext.CLOSE_BRACE;
+            }
+            return ParserRuleContext.STATEMENT;
+        } else if (parentCtx == ParserRuleContext.RECORD_FIELD) {
+            if (isEndOfBlock(this.tokenReader.peek(nextLookahead))) {
+                endContext(); // end record field
+                return ParserRuleContext.RECORD_BODY_END;
+            }
+            return ParserRuleContext.RECORD_FIELD;
+        } else if (parentCtx == ParserRuleContext.MODULE_TYPE_DEFINITION) {
+            nextToken = this.tokenReader.peek(nextLookahead);
+            if (nextToken.kind == SyntaxKind.EOF_TOKEN) {
+                return ParserRuleContext.EOF;
+            }
+            return ParserRuleContext.TOP_LEVEL_NODE;
+        } else if (parentCtx == ParserRuleContext.OBJECT_MEMBER) {
+            if (isEndOfObjectTypeNode(nextLookahead)) {
+                endContext(); // end object member
+                return ParserRuleContext.CLOSE_BRACE;
+            }
+            return ParserRuleContext.OBJECT_MEMBER;
+        } else {
+            throw new IllegalStateException();
         }
     }
 
@@ -1585,8 +1660,8 @@ public class BallerinaParserErrorHandler {
                 return SyntaxKind.CHECK_KEYWORD;
             // TODO:
             case COMP_UNIT:
-            case TOP_LEVEL_NODE_WITH_MODIFIER:
             case TOP_LEVEL_NODE:
+            case TOP_LEVEL_NODE_WITHOUT_MODIFIER:
             case ANNOTATION_ATTACHMENT:
             case PARAM_LIST:
             case PARAMETER_RHS:
