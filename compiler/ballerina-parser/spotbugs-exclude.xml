@@ -17,6 +17,17 @@
   -->
 <FindBugsFilter>
     <Match>
-        <Package name="org.ballerinalang.compiler.parser.tree" />
+        <Package name="io.ballerinalang.compiler.internal.parser.tree" />
+    </Match>
+    <Match>
+        <Package name="io.ballerinalang.compiler.syntax.tree" />
+    </Match>
+    <Match>
+        <Package name="io.ballerinalang.compiler.text" />
+    </Match>
+    <Match>
+        <Class name="io.ballerinalang.compiler.internal.parser.BallerinaParserErrorHandler" />
+        <Method name="getNextRuleForCloseBrace" />
+        <Bug pattern="SF_SWITCH_FALLTHROUGH" />
     </Match>
 </FindBugsFilter>

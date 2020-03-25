@@ -17,6 +17,11 @@
  */
 package io.ballerinalang.compiler.parser.test;
 
+/**
+ * Constants related to the parser.
+ * 
+ * @since 1.2.0
+ */
 public class ParserTestConstants {
 
     public static final String KIND_FIELD = "kind";

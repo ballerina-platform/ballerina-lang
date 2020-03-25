@@ -28,7 +28,7 @@ import java.nio.file.Paths;
 public class AbstractDeclarationTest {
 
     void test(String sourceFilePath, String filePath) {
-        ParserTestUtils.test(Paths.get("declarations/", sourceFilePath), ParserRuleContext.TOP_LEVEL_NODE_WITH_MODIFIER,
+        ParserTestUtils.test(Paths.get("declarations/", sourceFilePath), ParserRuleContext.TOP_LEVEL_NODE,
                 Paths.get("declarations/", filePath));
     }
 }

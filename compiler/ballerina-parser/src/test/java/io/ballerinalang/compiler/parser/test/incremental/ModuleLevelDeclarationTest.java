@@ -23,13 +23,13 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 /**
- * Contains
+ * Contains module level declarations incremental parsing tests.
  *
  * @since 1.3.0
  */
 public class ModuleLevelDeclarationTest {
 
-    @Test
+    @Test(enabled = false)
     public void testVariableNameChange() {
         SyntaxTree oldTree = TestUtils.parse("module_declarations/function_name_old.bal");
         SyntaxTree newTree = TestUtils.parse(oldTree, "module_declarations/function_name_new.bal");

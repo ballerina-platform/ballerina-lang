@@ -25,7 +25,7 @@ package io.ballerinalang.compiler.internal.parser.utils;
  */
 public class PersistentStack<T> {
 
-    private final static PersistentStack<?> EMPTY = new PersistentStack<>(null, null);
+    private static final PersistentStack<?> EMPTY = new PersistentStack<>(null, null);
     private final T head;
     private final PersistentStack<T> tail;
 

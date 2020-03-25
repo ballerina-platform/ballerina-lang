@@ -32,7 +32,7 @@ public class AbstractExpressionsTest {
     }
 
     void testFile(String path, String filePath) {
-        ParserTestUtils.test(Paths.get("expressions/", path), ParserRuleContext.TOP_LEVEL_NODE_WITH_MODIFIER,
+        ParserTestUtils.test(Paths.get("expressions/", path), ParserRuleContext.TOP_LEVEL_NODE,
                 Paths.get("expressions/", filePath));
     }
 }
