@@ -26,7 +26,7 @@ public type AuthzFilter object {
     # Initializes the `AuthzFilter` object.
     #
     # + authzHandler - `AuthzHandler` instance for handling authorization
-    # + scopes - Array of scopes
+    # + scopes - Array of scopes or Array of arrays of scopes
     public function __init(AuthzHandler authzHandler, Scopes? scopes) {
         self.authzHandler = authzHandler;
         self.scopes = scopes;
