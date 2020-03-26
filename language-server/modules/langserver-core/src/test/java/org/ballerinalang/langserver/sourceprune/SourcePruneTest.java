@@ -172,6 +172,7 @@ public class SourcePruneTest {
                 {"src_prune_config37.json"},
                 {"src_prune_config80.json"},
                 {"src_prune_config81.json"},
+                {"src_prune_config89.json"},
                 // Compound assignment statement
                 {"src_prune_config38.json"},
                 // If else statement conditions
