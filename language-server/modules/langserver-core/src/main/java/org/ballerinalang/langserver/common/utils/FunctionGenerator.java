@@ -255,7 +255,7 @@ public class FunctionGenerator {
                 sb.append(" ").append(recordType.restFieldType).append("...").append(";").append(" ").append("|}");
                 return sb.toString();
             }
-            return recordType.tsymbol.toString();
+            return generateTypeDefinition(importsAcceptor, currentPkgId, bType.tsymbol);
         }
         return (bType.tsymbol != null) ? generateTypeDefinition(importsAcceptor, currentPkgId, bType.tsymbol) :
                 "any";
