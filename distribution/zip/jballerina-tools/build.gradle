@@ -55,6 +55,7 @@ configurations {
     bir
     birJar
     balSource
+    balDoc
     balxSource
     balxBir {
         transitive false
@@ -124,6 +125,8 @@ dependencies {
     debugAdapterDistribution project(':debug-adapter:debug-adapter-cli')
 
     balSource project(path: ':jballerina', configuration: 'source')
+    balDoc project(path: ':jballerina', configuration: 'doc')
+
     balxSource project(path: ':jballerina', configuration: 'sourceBalx')
     distBal project(path: ':jballerina', configuration: 'balo')
     dist project(path: ':jballerina', configuration: 'jar')
@@ -313,15 +316,9 @@ def apiDocsSpec = {
     }
 }
 
-task extractLibs(type: Copy) {
-    def path = "$buildDir/ballerina";
-    from configurations.balSource.files
-    into path
-}
-
-task extractBalxLibs(type: Copy) {
-    def path = "$buildDir/ballerinax"
-    from configurations.balxSource.files
+task extractDocs(type: Copy) {
+    def path = "$buildDir/api-docs";
+    from configurations.balDoc.files
     into path
 }
 
@@ -345,22 +342,14 @@ task pathingJar(type: Jar) {
 
 task generateDocs(type: JavaExec) {
     dependsOn pathingJar
-    dependsOn extractLibs
-    dependsOn extractBalxBirs
+    dependsOn extractDocs
     dependsOn ':docerina-gradle-plugin:build'
-    inputs.dir("$buildDir/ballerina/");
     outputs.dir("$buildDir/api-docs")
     outputs.cacheIf { true }
-
-    systemProperty("BALLERINA_DEV_COMPILE_BALLERINA_ORG", true)
-    systemProperty("version", project.version)
-    def basePath = '/' + project.name + '-' + project.version + '/'
     systemProperty("ballerina.home", "$buildDir")
-    
     classpath = files(pathingJar.archivePath)
     main = 'org.ballerinalang.plugin.gradle.doc.DocerinaGen'
-    def libs = "$buildDir/ballerina/"
-    args("$libs", "$buildDir/api-docs", "lang.__internal,lang.annotations,bir,jvm,utils,ldap")
+    args("$buildDir/api-docs")
 }
 
 task createApiDocsZip(type: Zip) {
