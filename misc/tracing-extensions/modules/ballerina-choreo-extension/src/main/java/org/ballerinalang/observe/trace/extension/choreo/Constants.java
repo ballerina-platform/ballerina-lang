@@ -28,7 +28,7 @@ public class Constants {
     public static final String EXTENSION_NAME = "choreo";
 
     public static final String REPORTER_HOST_NAME_CONFIG = "reporter.hostname";
-    public static final String DEFAULT_REPORTER_HOSTNAME = "periscope.development.choreo.dev";
+    public static final String DEFAULT_REPORTER_HOSTNAME = "periscope.choreo.dev";
 
     public static final String REPORTER_PORT_CONFIG = "reporter.port";
     public static final int DEFAULT_REPORTER_PORT = 443;
