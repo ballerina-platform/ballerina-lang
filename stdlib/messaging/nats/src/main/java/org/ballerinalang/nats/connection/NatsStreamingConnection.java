@@ -39,9 +39,8 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class NatsStreamingConnection {
 
-    public static void createConnection(ObjectValue streamingClientObject, Object conn,
+    public static void createConnection(ObjectValue streamingClientObject, ObjectValue connectionObject,
                                         String clusterId, Object clientIdNillable, Object streamingConfig) {
-        ObjectValue connectionObject = (ObjectValue) conn;
         Connection natsConnection = (Connection) connectionObject.getNativeData(Constants.NATS_CONNECTION);
         String clientId = clientIdNillable == null ? UUID.randomUUID().toString() : (String) clientIdNillable;
         BallerinaNatsStreamingConnectionFactory streamingConnectionFactory =
@@ -62,27 +61,26 @@ public class NatsStreamingConnection {
         }
     }
 
-    public static Object closeConnection(ObjectValue streamingClientObject, Object natsConnection) {
+    public static Object closeConnection(ObjectValue streamingClientObject, ObjectValue natsConnection) {
         StreamingConnection streamingConnection = (StreamingConnection) streamingClientObject
                 .getNativeData(Constants.NATS_STREAMING_CONNECTION);
         NatsTracingUtil.traceResourceInvocation(Scheduler.getStrand(),
                                                 streamingConnection.getNatsConnection().getConnectedUrl());
         try {
             streamingConnection.close();
-            ObjectValue basicNatsConnection = (ObjectValue) natsConnection;
-            ((AtomicInteger) basicNatsConnection.getNativeData(Constants.CONNECTED_CLIENTS)).decrementAndGet();
+            ((AtomicInteger) natsConnection.getNativeData(Constants.CONNECTED_CLIENTS)).decrementAndGet();
             return null;
         } catch (IOException | TimeoutException e) {
-            NatsMetricsUtil.reportError(streamingConnection.getNatsConnection().getConnectedUrl(),
-                                        NatsObservabilityConstants.UNKNOWN,
-                                        NatsObservabilityConstants.CONTEXT_STREAMING_CONNNECTION,
-                                        NatsObservabilityConstants.ERROR_TYPE_CLOSE);
+            NatsMetricsUtil.reportStremingError(streamingConnection.getNatsConnection().getConnectedUrl(),
+                                                NatsObservabilityConstants.UNKNOWN,
+                                                NatsObservabilityConstants.CONTEXT_STREAMING_CONNNECTION,
+                                                NatsObservabilityConstants.ERROR_TYPE_CLOSE);
             return Utils.createNatsError(e.getMessage());
         } catch (InterruptedException e) {
-            NatsMetricsUtil.reportError(streamingConnection.getNatsConnection().getConnectedUrl(),
-                                        NatsObservabilityConstants.UNKNOWN,
-                                        NatsObservabilityConstants.CONTEXT_STREAMING_CONNNECTION,
-                                        NatsObservabilityConstants.ERROR_TYPE_CLOSE);
+            NatsMetricsUtil.reportStremingError(streamingConnection.getNatsConnection().getConnectedUrl(),
+                                                NatsObservabilityConstants.UNKNOWN,
+                                                NatsObservabilityConstants.CONTEXT_STREAMING_CONNNECTION,
+                                                NatsObservabilityConstants.ERROR_TYPE_CLOSE);
             return Utils.createNatsError("Internal error while closing producer");
         }
     }

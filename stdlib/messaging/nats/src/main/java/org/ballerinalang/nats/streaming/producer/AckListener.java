@@ -29,13 +29,13 @@ import org.ballerinalang.nats.observability.NatsObservabilityConstants;
  */
 public class AckListener implements AckHandler {
     private NonBlockingCallback nonBlockingCallback;
-    private String url;
     private String subject;
+    private NatsMetricsUtil natsMetricsUtil;
 
-    public AckListener(NonBlockingCallback nonBlockingCallback, String url, String subject) {
+    AckListener(NonBlockingCallback nonBlockingCallback, String subject, NatsMetricsUtil natsMetricsUtil) {
         this.nonBlockingCallback = nonBlockingCallback;
-        this.url = url;
         this.subject = subject;
+        this.natsMetricsUtil = natsMetricsUtil;
     }
 
     /**
@@ -43,14 +43,14 @@ public class AckListener implements AckHandler {
      */
     @Override
     public void onAck(String nuid, Exception ex) {
-      if (ex == null) {
-          NatsMetricsUtil.reportAcknowledgement(url, subject);
-          nonBlockingCallback.setReturnValues(nuid);
-      } else {
-          NatsMetricsUtil.reportProducerError(url, subject, NatsObservabilityConstants.ERROR_TYPE_ACKNOWLEDGEMENT);
-          ErrorValue error = Utils.createNatsError(nuid, ex.getMessage());
-          nonBlockingCallback.setReturnValues(error);
-      }
-      nonBlockingCallback.notifySuccess();
+        if (ex == null) {
+            natsMetricsUtil.reportAcknowledgement(subject);
+            nonBlockingCallback.setReturnValues(nuid);
+        } else {
+            natsMetricsUtil.reportProducerError(subject, NatsObservabilityConstants.ERROR_TYPE_ACKNOWLEDGEMENT);
+            ErrorValue error = Utils.createNatsError(nuid, ex.getMessage());
+            nonBlockingCallback.setReturnValues(error);
+        }
+        nonBlockingCallback.notifySuccess();
     }
 }
