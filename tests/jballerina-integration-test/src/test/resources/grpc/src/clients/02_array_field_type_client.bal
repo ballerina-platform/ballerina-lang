@@ -226,7 +226,11 @@ public type HelloWorldBlockingClient client object {
         checkpanic self.grpcClient.initStub(self, "blocking", ROOT_DESCRIPTOR, getDescriptorMap());
     }
 
-    public remote function testIntArrayInput(TestInt req, grpc:Headers? headers = ()) returns ([int, grpc:Headers]|grpc:Error) {
+    public remote function testIntArrayInput(TestInt req, grpc:ClientContext? context = ()) returns ([int, grpc:Headers]|grpc:Error) {
+        grpc:Headers? headers = ();
+        if context is grpc:ClientContext {
+            headers = context.getContextHeaders();
+        }
         [anydata, grpc:Headers] payload = check self.grpcClient->blockingExecute("grpcservices.HelloWorld3/testIntArrayInput", req, headers);
         anydata result = ();
         grpc:Headers resHeaders = new;
@@ -239,7 +243,11 @@ public type HelloWorldBlockingClient client object {
         }
     }
 
-    public remote function testStringArrayInput(TestString req, grpc:Headers? headers = ()) returns ([string, grpc:Headers]|grpc:Error) {
+    public remote function testStringArrayInput(TestString req, grpc:ClientContext? context = ()) returns ([string, grpc:Headers]|grpc:Error) {
+        grpc:Headers? headers = ();
+        if context is grpc:ClientContext {
+            headers = context.getContextHeaders();
+        }
         [anydata, grpc:Headers] payload = check self.grpcClient->blockingExecute("grpcservices.HelloWorld3/testStringArrayInput", req, headers);
         anydata result = ();
         grpc:Headers resHeaders = new;
@@ -247,7 +255,11 @@ public type HelloWorldBlockingClient client object {
         return [result.toString(), resHeaders];
     }
 
-    public remote function testFloatArrayInput(TestFloat req, grpc:Headers? headers = ()) returns ([float, grpc:Headers]|grpc:Error) {
+    public remote function testFloatArrayInput(TestFloat req, grpc:ClientContext? context = ()) returns ([float, grpc:Headers]|grpc:Error) {
+        grpc:Headers? headers = ();
+        if context is grpc:ClientContext {
+            headers = context.getContextHeaders();
+        }
         [anydata, grpc:Headers] payload = check self.grpcClient->blockingExecute("grpcservices.HelloWorld3/testFloatArrayInput", req, headers);
         anydata result = ();
         grpc:Headers resHeaders = new;
@@ -260,7 +272,11 @@ public type HelloWorldBlockingClient client object {
         }
     }
 
-    public remote function testBooleanArrayInput(TestBoolean req, grpc:Headers? headers = ()) returns ([boolean, grpc:Headers]|grpc:Error) {
+    public remote function testBooleanArrayInput(TestBoolean req, grpc:ClientContext? context = ()) returns ([boolean, grpc:Headers]|grpc:Error) {
+        grpc:Headers? headers = ();
+        if context is grpc:ClientContext {
+            headers = context.getContextHeaders();
+        }
         [anydata, grpc:Headers] payload = check self.grpcClient->blockingExecute("grpcservices.HelloWorld3/testBooleanArrayInput", req, headers);
         anydata result = ();
         grpc:Headers resHeaders = new;
@@ -273,7 +289,11 @@ public type HelloWorldBlockingClient client object {
         }
     }
 
-    public remote function testStructArrayInput(TestStruct req, grpc:Headers? headers = ()) returns ([string, grpc:Headers]|grpc:Error) {
+    public remote function testStructArrayInput(TestStruct req, grpc:ClientContext? context = ()) returns ([string, grpc:Headers]|grpc:Error) {
+        grpc:Headers? headers = ();
+        if context is grpc:ClientContext {
+            headers = context.getContextHeaders();
+        }
         [anydata, grpc:Headers] payload = check self.grpcClient->blockingExecute("grpcservices.HelloWorld3/testStructArrayInput", req, headers);
         anydata result = ();
         grpc:Headers resHeaders = new;
@@ -281,8 +301,12 @@ public type HelloWorldBlockingClient client object {
         return [result.toString(), resHeaders];
     }
 
-    public remote function testIntArrayOutput(grpc:Headers? headers = ()) returns ([TestInt, grpc:Headers]|grpc:Error) {
+    public remote function testIntArrayOutput(grpc:ClientContext? context = ()) returns ([TestInt, grpc:Headers]|grpc:Error) {
         Empty req = {};
+        grpc:Headers? headers = ();
+        if context is grpc:ClientContext {
+            headers = context.getContextHeaders();
+        }
         [anydata, grpc:Headers] payload = check self.grpcClient->blockingExecute("grpcservices.HelloWorld3/testIntArrayOutput", req, headers);
         anydata result =();
         grpc:Headers resHeaders = new;
@@ -295,8 +319,12 @@ public type HelloWorldBlockingClient client object {
         }
     }
 
-    public remote function testStringArrayOutput(grpc:Headers? headers = ()) returns ([TestString, grpc:Headers]|grpc:Error) {
+    public remote function testStringArrayOutput(grpc:ClientContext? context = ()) returns ([TestString, grpc:Headers]|grpc:Error) {
         Empty req = {};
+        grpc:Headers? headers = ();
+        if context is grpc:ClientContext {
+            headers = context.getContextHeaders();
+        }
         [anydata, grpc:Headers] payload = check self.grpcClient->blockingExecute("grpcservices.HelloWorld3/testStringArrayOutput", req, headers);
         anydata result = ();
         grpc:Headers resHeaders = new;
@@ -309,8 +337,12 @@ public type HelloWorldBlockingClient client object {
         }
     }
 
-    public remote function testFloatArrayOutput(grpc:Headers? headers = ()) returns ([TestFloat, grpc:Headers]|grpc:Error) {
+    public remote function testFloatArrayOutput(grpc:ClientContext? context = ()) returns ([TestFloat, grpc:Headers]|grpc:Error) {
         Empty req = {};
+        grpc:Headers? headers = ();
+        if context is grpc:ClientContext {
+            headers = context.getContextHeaders();
+        }
         [anydata, grpc:Headers] payload = check self.grpcClient->blockingExecute("grpcservices.HelloWorld3/testFloatArrayOutput", req, headers);
         anydata result = ();
         grpc:Headers resHeaders = new;
@@ -323,8 +355,12 @@ public type HelloWorldBlockingClient client object {
         }
     }
 
-    public remote function testBooleanArrayOutput(grpc:Headers? headers = ()) returns ([TestBoolean, grpc:Headers]|grpc:Error) {
+    public remote function testBooleanArrayOutput(grpc:ClientContext? context = ()) returns ([TestBoolean, grpc:Headers]|grpc:Error) {
         Empty req = {};
+        grpc:Headers? headers = ();
+        if context is grpc:ClientContext {
+            headers = context.getContextHeaders();
+        }
         [anydata, grpc:Headers] payload = check self.grpcClient->blockingExecute("grpcservices.HelloWorld3/testBooleanArrayOutput", req, headers);
         anydata result = ();
         grpc:Headers resHeaders = new;
@@ -337,8 +373,12 @@ public type HelloWorldBlockingClient client object {
         }
     }
 
-    public remote function testStructArrayOutput(grpc:Headers? headers = ()) returns ([TestStruct, grpc:Headers]|grpc:Error) {
+    public remote function testStructArrayOutput(grpc:ClientContext? context = ()) returns ([TestStruct, grpc:Headers]|grpc:Error) {
         Empty req = {};
+        grpc:Headers? headers = ();
+        if context is grpc:ClientContext {
+            headers = context.getContextHeaders();
+        }
         [anydata, grpc:Headers] payload = check self.grpcClient->blockingExecute("grpcservices.HelloWorld3/testStructArrayOutput", req, headers);
         anydata result = ();
         grpc:Headers resHeaders = new;
@@ -364,48 +404,88 @@ public type HelloWorldClient client object {
         checkpanic self.grpcClient.initStub(self, "non-blocking", ROOT_DESCRIPTOR, getDescriptorMap());
     }
 
-    public remote function testIntArrayInput(TestInt req, service msgListener, grpc:Headers? headers = ()) returns (grpc:Error?) {
+    public remote function testIntArrayInput(TestInt req, service msgListener, grpc:ClientContext? context = ()) returns (grpc:Error?) {
+        grpc:Headers? headers = ();
+        if context is grpc:ClientContext {
+            headers = context.getContextHeaders();
+        }
         return self.grpcClient->nonBlockingExecute("grpcservices.HelloWorld3/testIntArrayInput", req, msgListener, headers);
     }
 
-    public remote function testStringArrayInput(TestString req, service msgListener, grpc:Headers? headers = ()) returns (grpc:Error?) {
+    public remote function testStringArrayInput(TestString req, service msgListener, grpc:ClientContext? context = ()) returns (grpc:Error?) {
+        grpc:Headers? headers = ();
+        if context is grpc:ClientContext {
+            headers = context.getContextHeaders();
+        }
         return self.grpcClient->nonBlockingExecute("grpcservices.HelloWorld3/testStringArrayInput", req, msgListener, headers);
     }
 
-    public remote function testFloatArrayInput(TestFloat req, service msgListener, grpc:Headers? headers = ()) returns (grpc:Error?) {
+    public remote function testFloatArrayInput(TestFloat req, service msgListener, grpc:ClientContext? context = ()) returns (grpc:Error?) {
+        grpc:Headers? headers = ();
+        if context is grpc:ClientContext {
+            headers = context.getContextHeaders();
+        }
         return self.grpcClient->nonBlockingExecute("grpcservices.HelloWorld3/testFloatArrayInput", req, msgListener, headers);
     }
 
-    public remote function testBooleanArrayInput(TestBoolean req, service msgListener, grpc:Headers? headers = ()) returns (grpc:Error?) {
+    public remote function testBooleanArrayInput(TestBoolean req, service msgListener, grpc:ClientContext? context = ()) returns (grpc:Error?) {
+        grpc:Headers? headers = ();
+        if context is grpc:ClientContext {
+            headers = context.getContextHeaders();
+        }
         return self.grpcClient->nonBlockingExecute("grpcservices.HelloWorld3/testBooleanArrayInput", req, msgListener, headers);
     }
 
-    public remote function testStructArrayInput(TestStruct req, service msgListener, grpc:Headers? headers = ()) returns (grpc:Error?) {
+    public remote function testStructArrayInput(TestStruct req, service msgListener, grpc:ClientContext? context = ()) returns (grpc:Error?) {
+        grpc:Headers? headers = ();
+        if context is grpc:ClientContext {
+            headers = context.getContextHeaders();
+        }
         return self.grpcClient->nonBlockingExecute("grpcservices.HelloWorld3/testStructArrayInput", req, msgListener, headers);
     }
 
-    public remote function testIntArrayOutput(service msgListener, grpc:Headers? headers = ()) returns (grpc:Error?) {
+    public remote function testIntArrayOutput(service msgListener, grpc:ClientContext? context = ()) returns (grpc:Error?) {
         Empty req = {};
+        grpc:Headers? headers = ();
+        if context is grpc:ClientContext {
+            headers = context.getContextHeaders();
+        }
         return self.grpcClient->nonBlockingExecute("grpcservices.HelloWorld3/testIntArrayOutput", req, msgListener, headers);
     }
 
-    public remote function testStringArrayOutput(service msgListener, grpc:Headers? headers = ()) returns (grpc:Error?) {
+    public remote function testStringArrayOutput(service msgListener, grpc:ClientContext? context = ()) returns (grpc:Error?) {
         Empty req = {};
+        grpc:Headers? headers = ();
+        if context is grpc:ClientContext {
+            headers = context.getContextHeaders();
+        }
         return self.grpcClient->nonBlockingExecute("grpcservices.HelloWorld3/testStringArrayOutput", req, msgListener, headers);
     }
 
-    public remote function testFloatArrayOutput(service msgListener, grpc:Headers? headers = ()) returns (grpc:Error?) {
+    public remote function testFloatArrayOutput(service msgListener, grpc:ClientContext? context = ()) returns (grpc:Error?) {
         Empty req = {};
+        grpc:Headers? headers = ();
+        if context is grpc:ClientContext {
+            headers = context.getContextHeaders();
+        }
         return self.grpcClient->nonBlockingExecute("grpcservices.HelloWorld3/testFloatArrayOutput", req, msgListener, headers);
     }
 
-    public remote function testBooleanArrayOutput(service msgListener, grpc:Headers? headers = ()) returns (grpc:Error?) {
+    public remote function testBooleanArrayOutput(service msgListener, grpc:ClientContext? context = ()) returns (grpc:Error?) {
         Empty req = {};
+        grpc:Headers? headers = ();
+        if context is grpc:ClientContext {
+            headers = context.getContextHeaders();
+        }
         return self.grpcClient->nonBlockingExecute("grpcservices.HelloWorld3/testBooleanArrayOutput", req, msgListener, headers);
     }
 
-    public remote function testStructArrayOutput(service msgListener, grpc:Headers? headers = ()) returns (grpc:Error?) {
+    public remote function testStructArrayOutput(service msgListener, grpc:ClientContext? context = ()) returns (grpc:Error?) {
         Empty req = {};
+        grpc:Headers? headers = ();
+        if context is grpc:ClientContext {
+            headers = context.getContextHeaders();
+        }
         return self.grpcClient->nonBlockingExecute("grpcservices.HelloWorld3/testStructArrayOutput", req, msgListener, headers);
     }
 };

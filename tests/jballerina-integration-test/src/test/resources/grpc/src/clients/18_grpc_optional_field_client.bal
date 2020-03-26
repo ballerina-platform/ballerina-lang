@@ -58,8 +58,12 @@ public type CheckoutServiceBlockingClient client object {
         checkpanic self.grpcClient.initStub(self, "blocking", ROOT_DESCRIPTOR, getDescriptorMap());
     }
 
-    public remote function PlaceOrder(PlaceOrderRequest req, grpc:Headers? headers = ()) returns
+    public remote function PlaceOrder(PlaceOrderRequest req, grpc:ClientContext? context = ()) returns
                                                                     ([PlaceOrderResponse, grpc:Headers]|grpc:Error) {
+        grpc:Headers? headers = ();
+        if context is grpc:ClientContext {
+            headers = context.getContextHeaders();
+        }
         var payload = check self.grpcClient->blockingExecute("grpcservices.CheckoutService/PlaceOrder", req, headers);
         grpc:Headers resHeaders = new;
         anydata result = ();
@@ -81,7 +85,11 @@ public type CheckoutServiceClient client object {
         checkpanic self.grpcClient.initStub(self, "non-blocking", ROOT_DESCRIPTOR, getDescriptorMap());
     }
 
-    public remote function PlaceOrder(PlaceOrderRequest req, service msgListener, grpc:Headers? headers = ()) returns (grpc:Error?) {
+    public remote function PlaceOrder(PlaceOrderRequest req, service msgListener, grpc:ClientContext? context = ()) returns (grpc:Error?) {
+        grpc:Headers? headers = ();
+        if context is grpc:ClientContext {
+            headers = context.getContextHeaders();
+        }
         return self.grpcClient->nonBlockingExecute("grpcservices.CheckoutService/PlaceOrder", req, msgListener, headers);
     }
 

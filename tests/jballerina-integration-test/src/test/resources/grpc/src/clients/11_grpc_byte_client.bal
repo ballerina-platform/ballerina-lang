@@ -78,7 +78,11 @@ public type byteServiceBlockingClient client object {
         checkpanic self.grpcClient.initStub(self, "blocking", ROOT_DESCRIPTOR, getDescriptorMap());
     }
 
-    public remote function checkBytes (byte[] req, grpc:Headers? headers = ()) returns ([byte[], grpc:Headers]|grpc:Error) {
+    public remote function checkBytes (byte[] req, grpc:ClientContext? context = ()) returns ([byte[], grpc:Headers]|grpc:Error) {
+        grpc:Headers? headers = ();
+        if context is grpc:ClientContext {
+            headers = context.getContextHeaders();
+        }
         var unionResp = check self.grpcClient->blockingExecute("grpcservices.byteService/checkBytes", req, headers);
         grpc:Headers resHeaders = new;
         anydata result = ();
@@ -104,7 +108,11 @@ public type byteServiceClient client object {
         checkpanic self.grpcClient.initStub(self, "non-blocking", ROOT_DESCRIPTOR, getDescriptorMap());
     }
 
-    public remote function checkBytes (byte[] req, service msgListener, grpc:Headers? headers = ()) returns (grpc:Error?) {
+    public remote function checkBytes (byte[] req, service msgListener, grpc:ClientContext? context = ()) returns (grpc:Error?) {
+        grpc:Headers? headers = ();
+        if context is grpc:ClientContext {
+            headers = context.getContextHeaders();
+        }
         return self.grpcClient->nonBlockingExecute("grpcservices.byteService/checkBytes", req, msgListener, headers);
     }
 };

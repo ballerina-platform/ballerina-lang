@@ -89,7 +89,11 @@ public type HelloWorldClient client object {
         grpc:Error? result = self.grpcClient.initStub(self, "non-blocking", ROOT_DESCRIPTOR, getDescriptorMap());
     }
 
-    public remote function lotsOfReplies(string req, service msgListener, grpc:Headers? headers = ()) returns (grpc:Error?) {
+    public remote function lotsOfReplies(string req, service msgListener, grpc:ClientContext? context = ()) returns (grpc:Error?) {
+        grpc:Headers? headers = ();
+        if context is grpc:ClientContext {
+            headers = context.getContextHeaders();
+        }
         return self.grpcClient->nonBlockingExecute("grpcservices.HelloWorld45/lotsOfReplies", req, msgListener, headers);
     }
 };

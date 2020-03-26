@@ -110,7 +110,11 @@ public type ChatClient client object {
     }
 
 
-    public remote function chat(service msgListener, grpc:Headers? headers = ()) returns (grpc:StreamingClient|grpc:Error) {
+    public remote function chat(service msgListener, grpc:ClientContext? context = ()) returns (grpc:StreamingClient|grpc:Error) {
+        grpc:Headers? headers = ();
+        if context is grpc:ClientContext {
+            headers = context.getContextHeaders();
+        }
         return self.grpcClient->streamingExecute("Chat/chat", msgListener, headers);
     }
 };

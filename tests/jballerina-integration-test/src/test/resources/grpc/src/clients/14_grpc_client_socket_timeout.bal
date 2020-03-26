@@ -52,7 +52,11 @@ public type HelloWorld14BlockingClient client object {
         checkpanic self.grpcClient.initStub(self, "blocking", ROOT_DESCRIPTOR, getDescriptorMap());
     }
 
-    public remote function hello(string req, grpc:Headers? headers = ()) returns ([string, grpc:Headers]|grpc:Error) {
+    public remote function hello(string req, grpc:ClientContext? context = ()) returns ([string, grpc:Headers]|grpc:Error) {
+        grpc:Headers? headers = ();
+        if context is grpc:ClientContext {
+            headers = context.getContextHeaders();
+        }
         var payload = check self.grpcClient->blockingExecute("HelloWorld14/hello", req, headers);
         grpc:Headers resHeaders = new;
         any result = ();
@@ -74,7 +78,11 @@ public type HelloWorld14Client client object {
         checkpanic self.grpcClient.initStub(self, "non-blocking", ROOT_DESCRIPTOR, getDescriptorMap());
     }
 
-    public remote function hello(string req, service msgListener, grpc:Headers? headers = ()) returns (grpc:Error?) {
+    public remote function hello(string req, service msgListener, grpc:ClientContext? context = ()) returns (grpc:Error?) {
+        grpc:Headers? headers = ();
+        if context is grpc:ClientContext {
+            headers = context.getContextHeaders();
+        }
         return self.grpcClient->nonBlockingExecute("HelloWorld14/hello", req, msgListener, headers);
     }
 

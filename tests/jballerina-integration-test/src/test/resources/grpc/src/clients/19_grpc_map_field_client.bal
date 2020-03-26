@@ -68,8 +68,12 @@ public type NegotiatorBlockingClient client object {
         checkpanic self.grpcClient.initStub(self, "blocking", ROOT_DESCRIPTOR, getDescriptorMap());
     }
 
-    public remote function handshake(HandshakeRequest req, grpc:Headers? headers = ())
+    public remote function handshake(HandshakeRequest req, grpc:ClientContext? context = ())
                                                 returns ([HandshakeResponse, grpc:Headers] | grpc:Error) {
+        grpc:Headers? headers = ();
+        if context is grpc:ClientContext {
+            headers = context.getContextHeaders();
+        }
         var payload = check self.grpcClient->blockingExecute("Negotiator/handshake", req, headers);
         grpc:Headers resHeaders = new;
         anydata result = ();
@@ -77,16 +81,24 @@ public type NegotiatorBlockingClient client object {
         return [<HandshakeResponse>result, resHeaders];
     }
 
-    public remote function publishMetrics(MetricsPublishRequest req, grpc:Headers? headers = ())
+    public remote function publishMetrics(MetricsPublishRequest req, grpc:ClientContext? context = ())
                                                 returns (grpc:Headers | grpc:Error) {
+        grpc:Headers? headers = ();
+        if context is grpc:ClientContext {
+            headers = context.getContextHeaders();
+        }
         var payload = check self.grpcClient->blockingExecute("Negotiator/publishMetrics", req, headers);
         grpc:Headers resHeaders = new;
         [_, resHeaders] = payload;
         return resHeaders;
     }
 
-    public remote function publishTraces(TracesPublishRequest req, grpc:Headers? headers = ())
+    public remote function publishTraces(TracesPublishRequest req, grpc:ClientContext? context = ())
                                                 returns (grpc:Headers | grpc:Error) {
+        grpc:Headers? headers = ();
+        if context is grpc:ClientContext {
+            headers = context.getContextHeaders();
+        }
         var payload = check self.grpcClient->blockingExecute("Negotiator/publishTraces", req, headers);
         grpc:Headers resHeaders = new;
         [_, resHeaders] = payload;
@@ -106,18 +118,30 @@ public type NegotiatorClient client object {
         checkpanic self.grpcClient.initStub(self, "non-blocking", ROOT_DESCRIPTOR, getDescriptorMap());
     }
 
-    public remote function handshake(HandshakeRequest req, service msgListener, grpc:Headers? headers = ())
+    public remote function handshake(HandshakeRequest req, service msgListener, grpc:ClientContext? context = ())
                                                                                         returns (grpc:Error?) {
+        grpc:Headers? headers = ();
+        if context is grpc:ClientContext {
+            headers = context.getContextHeaders();
+        }
         return self.grpcClient->nonBlockingExecute("Negotiator/handshake", req, msgListener, headers);
     }
 
-    public remote function publishMetrics(MetricsPublishRequest req, service msgListener, grpc:Headers? headers = ())
+    public remote function publishMetrics(MetricsPublishRequest req, service msgListener, grpc:ClientContext? context = ())
                                                                                         returns (grpc:Error?) {
+        grpc:Headers? headers = ();
+        if context is grpc:ClientContext {
+            headers = context.getContextHeaders();
+        }
         return self.grpcClient->nonBlockingExecute("Negotiator/publishMetrics", req, msgListener, headers);
     }
 
-    public remote function publishTraces(TracesPublishRequest req, service msgListener, grpc:Headers? headers = ())
+    public remote function publishTraces(TracesPublishRequest req, service msgListener, grpc:ClientContext? context = ())
                                                                                         returns (grpc:Error?) {
+        grpc:Headers? headers = ();
+        if context is grpc:ClientContext {
+            headers = context.getContextHeaders();
+        }
         return self.grpcClient->nonBlockingExecute("Negotiator/publishTraces", req, msgListener, headers);
     }
 };

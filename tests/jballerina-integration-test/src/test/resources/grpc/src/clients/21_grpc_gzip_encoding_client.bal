@@ -24,9 +24,9 @@ public function main() {
 }
 public function testGzipEncoding() returns string {
     Order 'order = {id: "101", items: ["xyz", "abc"], destination: "LK", price:2300.00};
-    grpc:Headers headers = new;
-    headers.setEntry("grpc-encoding", "gzip");
-    [string, grpc:Headers]|error result = blockingEp->addOrder('order, headers);
+    grpc:ClientContext context = new;
+    context.setHeader("grpc-encoding", "gzip");
+    [string, grpc:Headers]|error result = blockingEp->addOrder('order, context);
     if (result is error) {
         return io:sprintf("gzip encoding failed: %s - %s", result.reason(), <string>result.detail()
     	 ["message"]);
@@ -49,7 +49,11 @@ public type OrderManagementBlockingClient client object {
         checkpanic self.grpcClient.initStub(self, "blocking", ROOT_DESCRIPTOR, getDescriptorMap());
     }
 
-    public remote function addOrder(Order req, grpc:Headers? headers = ()) returns ([string, grpc:Headers]|grpc:Error) {
+    public remote function addOrder(Order req, grpc:ClientContext? context = ()) returns ([string, grpc:Headers]|grpc:Error) {
+        grpc:Headers? headers = ();
+        if context is grpc:ClientContext {
+            headers = context.getContextHeaders();
+        }
         var payload = check self.grpcClient->blockingExecute("ecommerce.OrderManagement/addOrder", req, headers);
         grpc:Headers resHeaders = new;
         anydata result = ();
@@ -57,7 +61,11 @@ public type OrderManagementBlockingClient client object {
         return [result.toString(), resHeaders];
     }
 
-    public remote function getOrder(string req, grpc:Headers? headers = ()) returns ([Order, grpc:Headers]|grpc:Error) {
+    public remote function getOrder(string req, grpc:ClientContext? context = ()) returns ([Order, grpc:Headers]|grpc:Error) {
+        grpc:Headers? headers = ();
+        if context is grpc:ClientContext {
+            headers = context.getContextHeaders();
+        }
         var payload = check self.grpcClient->blockingExecute("ecommerce.OrderManagement/getOrder", req, headers);
         grpc:Headers resHeaders = new;
         anydata result = ();
@@ -79,11 +87,19 @@ public type OrderManagementClient client object {
         checkpanic self.grpcClient.initStub(self, "non-blocking", ROOT_DESCRIPTOR, getDescriptorMap());
     }
 
-    public remote function addOrder(Order req, service msgListener, grpc:Headers? headers = ()) returns (grpc:Error?) {
+    public remote function addOrder(Order req, service msgListener, grpc:ClientContext? context = ()) returns (grpc:Error?) {
+        grpc:Headers? headers = ();
+        if context is grpc:ClientContext {
+            headers = context.getContextHeaders();
+        }
         return self.grpcClient->nonBlockingExecute("ecommerce.OrderManagement/addOrder", req, msgListener, headers);
     }
 
-    public remote function getOrder(string req, service msgListener, grpc:Headers? headers = ()) returns (grpc:Error?) {
+    public remote function getOrder(string req, service msgListener, grpc:ClientContext? context = ()) returns (grpc:Error?) {
+        grpc:Headers? headers = ();
+        if context is grpc:ClientContext {
+            headers = context.getContextHeaders();
+        }
         return self.grpcClient->nonBlockingExecute("ecommerce.OrderManagement/getOrder", req, msgListener, headers);
     }
 };

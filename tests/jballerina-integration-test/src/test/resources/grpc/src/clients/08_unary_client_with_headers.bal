@@ -32,10 +32,11 @@ const string ERROR_MSG_FORMAT = "Error from Connector: %s - %s";
 function testUnaryBlockingClient(string name) returns (string) {
 
     //Working with custom headers
-    grpc:Headers headers = new;
-    headers.setEntry("x-id", "0987654321");
+    grpc:ClientContext context = new;
+    context.setHeader("x-id", "0987654321");
+
     // Executing unary blocking call
-    [string, grpc:Headers]|grpc:Error unionResp = helloWorldBlockingEp->hello("WSO2", headers);
+    [string, grpc:Headers]|grpc:Error unionResp = helloWorldBlockingEp->hello("WSO2", context);
     if (unionResp is grpc:Error) {
         return io:sprintf(ERROR_MSG_FORMAT, unionResp.reason(), <string> unionResp.detail()["message"]);
     } else {
@@ -53,10 +54,10 @@ function testUnaryBlockingClient(string name) returns (string) {
 
 function testBlockingHeader(string name) returns (string) {
 
-    grpc:Headers headers = new;
-    headers.setEntry("x-id", "0987654321");
+    grpc:ClientContext context = new;
+    context.setHeader("x-id", "0987654321");
     // Executing unary blocking call
-    [string, grpc:Headers]|grpc:Error unionResp = helloWorldBlockingEp->hello("WSO2", headers);
+    [string, grpc:Headers]|grpc:Error unionResp = helloWorldBlockingEp->hello("WSO2", context);
     if (unionResp is grpc:Error) {
         return io:sprintf(ERROR_MSG_FORMAT, unionResp.reason(), <string> unionResp.detail()["message"]);
     } else {
@@ -83,7 +84,11 @@ public type HelloWorldBlockingClient client object {
         checkpanic self.grpcClient.initStub(self, "blocking", ROOT_DESCRIPTOR, getDescriptorMap());
     }
 
-    public remote function hello(string req, grpc:Headers? headers = ()) returns ([string, grpc:Headers]|grpc:Error) {
+    public remote function hello(string req, grpc:ClientContext? context = ()) returns ([string, grpc:Headers]|grpc:Error) {
+        grpc:Headers? headers = ();
+        if context is grpc:ClientContext {
+            headers = context.getContextHeaders();
+        }
         var unionResp = check self.grpcClient->blockingExecute("grpcservices.HelloWorld101/hello", req, headers);
         anydata result = ();
         grpc:Headers resHeaders = new;
@@ -105,7 +110,11 @@ public type HelloWorldClient client object {
         checkpanic self.grpcClient.initStub(self, "non-blocking", ROOT_DESCRIPTOR, getDescriptorMap());
     }
 
-    public remote function hello(string req, service msgListener, grpc:Headers? headers = ()) returns (grpc:Error?) {
+    public remote function hello(string req, service msgListener, grpc:ClientContext? context = ()) returns (grpc:Error?) {
+        grpc:Headers? headers = ();
+        if context is grpc:ClientContext {
+            headers = context.getContextHeaders();
+        }
         return self.grpcClient->nonBlockingExecute("grpcservices.HelloWorld101/hello", req, msgListener, headers);
     }
 };
