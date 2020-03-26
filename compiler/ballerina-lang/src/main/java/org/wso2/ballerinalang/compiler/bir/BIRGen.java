@@ -1989,6 +1989,7 @@ public class BIRGen extends BLangNodeVisitor {
         for (BVarSymbol globalVar : lockStmt.lockVariables) {
             BIRGlobalVariableDcl birGlobalVar = globalVarMap.get(globalVar);
             if (birGlobalVar == null) {
+                // TODO: 3/26/20 Validate the error message 
                 throw new RuntimeException("invalid global variable defined inside lock statment");
             }
             ((BIRTerminator.Lock) this.env.enclBB.terminator).lockVariables.add(birGlobalVar);
