@@ -71,7 +71,7 @@ public type FilterContext object {
         return self.serviceRef;
     }
 
-    # Gets the service name that the `FilerContext` is applied.
+    # Gets the service name to which the `FilerContext` is applied.
     #
     # + return  - name of the `service`
     public function getServiceName() returns string {
