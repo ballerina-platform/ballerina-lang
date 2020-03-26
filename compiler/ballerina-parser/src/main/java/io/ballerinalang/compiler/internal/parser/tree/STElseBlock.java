@@ -25,7 +25,7 @@ public class STElseBlock extends STStatement {
     public final STNode elseKeyword;
     public final STNode elseBody;
 
-    public STElseBlock(STNode elseKeyword, STNode elseBody) {
+    STElseBlock(STNode elseKeyword, STNode elseBody) {
         super(SyntaxKind.ELSE_BLOCK);
         this.elseKeyword = elseKeyword;
         this.elseBody = elseBody;

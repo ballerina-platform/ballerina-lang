@@ -23,14 +23,14 @@ import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 
 public class STBinaryExpression extends STExpression {
     
-    STNode lhsExpr;
-    STNode operator;
-    STNode rhsExpr;
-    
-    public STBinaryExpression(SyntaxKind kind,
-                              STNode lhsExpr,
-                              STNode operator,
-                              STNode rhsExpr) {
+    final STNode lhsExpr;
+    final STNode operator;
+    final STNode rhsExpr;
+
+    STBinaryExpression(SyntaxKind kind,
+                       STNode lhsExpr,
+                       STNode operator,
+                       STNode rhsExpr) {
         super(kind);
         this.lhsExpr = lhsExpr;
         this.operator = operator;

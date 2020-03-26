@@ -31,7 +31,7 @@ public class STToken extends STNode {
     // Number of characters read beyond lexeme
     public final int lookahead = 1; // TODO These is a default number
 
-    public STToken(SyntaxKind kind, STNode leadingTrivia, STNode trailingTrivia) {
+    STToken(SyntaxKind kind, STNode leadingTrivia, STNode trailingTrivia) {
         super(kind);
         this.width = kind.strValue.length();
         this.leadingTrivia = leadingTrivia;
@@ -40,7 +40,7 @@ public class STToken extends STNode {
         this.addTrivia(trailingTrivia);
     }
 
-    public STToken(SyntaxKind kind, int width, STNode leadingTrivia, STNode trailingTrivia) {
+    STToken(SyntaxKind kind, int width, STNode leadingTrivia, STNode trailingTrivia) {
         super(kind, width);
         this.leadingTrivia = leadingTrivia;
         this.trailingTrivia = trailingTrivia;

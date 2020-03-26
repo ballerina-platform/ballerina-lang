@@ -21,7 +21,7 @@ public class STIdentifier extends STToken {
 
     public final String text;
 
-    public STIdentifier(String text, STNode leadingTrivia, STNode trailingTrivia) {
+    STIdentifier(String text, STNode leadingTrivia, STNode trailingTrivia) {
         super(SyntaxKind.IDENTIFIER_TOKEN, text.length(), leadingTrivia, trailingTrivia);
         this.text = text;
     }

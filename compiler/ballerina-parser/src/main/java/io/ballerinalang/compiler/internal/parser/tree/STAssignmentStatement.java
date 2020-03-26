@@ -28,11 +28,11 @@ public class STAssignmentStatement extends STStatement {
     public final STNode expr;
     public final STNode semicolonToken;
 
-    public STAssignmentStatement(SyntaxKind kind,
-                                 STNode lhsExpression,
-                                 STNode equalsToken,
-                                 STNode expr,
-                                 STNode semicolonToken) {
+    STAssignmentStatement(SyntaxKind kind,
+                          STNode lhsExpression,
+                          STNode equalsToken,
+                          STNode expr,
+                          STNode semicolonToken) {
         super(kind);
         this.lhsExpression = lhsExpression;
         this.equalsToken = equalsToken;

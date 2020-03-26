@@ -25,7 +25,7 @@ public class STCheckExpression extends STExpression {
     public final STNode checkingKeyword;
     public final STNode rhsExpr;
 
-    public STCheckExpression(STNode checkingKeyword, STNode rhsExpr) {
+    STCheckExpression(STNode checkingKeyword, STNode rhsExpr) {
         super(SyntaxKind.CHECK_EXPRESSION);
         this.checkingKeyword = checkingKeyword;
         this.rhsExpr = rhsExpr;

@@ -26,9 +26,9 @@ public class STWhileStatement extends STStatement {
     public final STNode condition;
     public final STNode whileBody;
 
-    public STWhileStatement(STNode whileKeyword,
-                             STNode condition,
-                             STNode whileBody) {
+    STWhileStatement(STNode whileKeyword,
+                     STNode condition,
+                     STNode whileBody) {
         super(SyntaxKind.WHILE_STATEMENT);
         this.whileKeyword = whileKeyword;
         this.condition = condition;

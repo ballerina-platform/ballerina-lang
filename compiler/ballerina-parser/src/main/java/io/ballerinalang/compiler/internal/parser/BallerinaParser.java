@@ -19,44 +19,11 @@ package io.ballerinalang.compiler.internal.parser;
 
 import io.ballerinalang.compiler.internal.parser.BallerinaParserErrorHandler.Action;
 import io.ballerinalang.compiler.internal.parser.BallerinaParserErrorHandler.Solution;
-import io.ballerinalang.compiler.internal.parser.tree.STAssignmentStatement;
-import io.ballerinalang.compiler.internal.parser.tree.STBinaryExpression;
-import io.ballerinalang.compiler.internal.parser.tree.STBlockStatement;
-import io.ballerinalang.compiler.internal.parser.tree.STBracedExpression;
-import io.ballerinalang.compiler.internal.parser.tree.STCallStatement;
 import io.ballerinalang.compiler.internal.parser.tree.STCheckExpression;
-import io.ballerinalang.compiler.internal.parser.tree.STDefaultableParameter;
-import io.ballerinalang.compiler.internal.parser.tree.STElseBlock;
-import io.ballerinalang.compiler.internal.parser.tree.STEmptyNode;
-import io.ballerinalang.compiler.internal.parser.tree.STExternalFuncBody;
-import io.ballerinalang.compiler.internal.parser.tree.STFieldAccessExpression;
-import io.ballerinalang.compiler.internal.parser.tree.STFunctionCallExpression;
-import io.ballerinalang.compiler.internal.parser.tree.STFunctionDefinition;
-import io.ballerinalang.compiler.internal.parser.tree.STIfElseStatement;
-import io.ballerinalang.compiler.internal.parser.tree.STMemberAccessExpression;
-import io.ballerinalang.compiler.internal.parser.tree.STMethodCallExpression;
 import io.ballerinalang.compiler.internal.parser.tree.STMissingToken;
-import io.ballerinalang.compiler.internal.parser.tree.STModulePart;
-import io.ballerinalang.compiler.internal.parser.tree.STModuleTypeDefinition;
-import io.ballerinalang.compiler.internal.parser.tree.STNamedArg;
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
-import io.ballerinalang.compiler.internal.parser.tree.STNodeList;
-import io.ballerinalang.compiler.internal.parser.tree.STObjectField;
-import io.ballerinalang.compiler.internal.parser.tree.STObjectTypeDescriptor;
-import io.ballerinalang.compiler.internal.parser.tree.STPositionalArg;
-import io.ballerinalang.compiler.internal.parser.tree.STQualifiedIdentifier;
-import io.ballerinalang.compiler.internal.parser.tree.STRecordField;
-import io.ballerinalang.compiler.internal.parser.tree.STRecordFieldWithDefaultValue;
-import io.ballerinalang.compiler.internal.parser.tree.STRecordRestDescriptor;
-import io.ballerinalang.compiler.internal.parser.tree.STRecordTypeDescriptor;
-import io.ballerinalang.compiler.internal.parser.tree.STRequiredParameter;
-import io.ballerinalang.compiler.internal.parser.tree.STRestArg;
-import io.ballerinalang.compiler.internal.parser.tree.STRestParameter;
-import io.ballerinalang.compiler.internal.parser.tree.STReturnTypeDescriptor;
+import io.ballerinalang.compiler.internal.parser.tree.STNodeFactory;
 import io.ballerinalang.compiler.internal.parser.tree.STToken;
-import io.ballerinalang.compiler.internal.parser.tree.STTypeReference;
-import io.ballerinalang.compiler.internal.parser.tree.STVariableDeclaration;
-import io.ballerinalang.compiler.internal.parser.tree.STWhileStatement;
 import io.ballerinalang.compiler.internal.parser.tree.SyntaxKind;
 
 import java.util.ArrayList;
@@ -290,8 +257,8 @@ public class BallerinaParser {
         STToken eof = consume();
         endContext();
 
-        STNode importDecls = new STNodeList(new ArrayList<>());
-        return new STModulePart(importDecls, new STNodeList(otherDecls), eof);
+        STNode importDecls = STNodeFactory.createNodeList(new ArrayList<>());
+        return STNodeFactory.createModulePart(importDecls, STNodeFactory.createNodeList(otherDecls), eof);
     }
 
     /**
@@ -318,7 +285,7 @@ public class BallerinaParser {
                 break;
             case FUNCTION_KEYWORD:
             case TYPE_KEYWORD:
-                modifier = new STEmptyNode();
+                modifier = STNodeFactory.createEmptyNode();
                 break;
             case EOF_TOKEN:
                 return consume();
@@ -403,7 +370,7 @@ public class BallerinaParser {
      * 
      * @return Parsed node
      */
-    private STNode parseFunctionDefinition(STNode modifier) {
+    private STNode parseFunctionDefinition(STNode visibilityQualifier) {
         startContext(ParserRuleContext.FUNC_DEFINITION);
 
         STNode functionKeyword = parseFunctionKeyword();
@@ -414,11 +381,9 @@ public class BallerinaParser {
         STNode returnTypeDesc = parseReturnTypeDescriptor();
         STNode body = parseFunctionBody();
 
-        STFunctionDefinition func = new STFunctionDefinition(modifier, functionKeyword, name, openParenthesis,
-                parameters, closeParenthesis, returnTypeDesc, body);
-
         endContext();
-        return func;
+        return STNodeFactory.createFunctionDefinition(visibilityQualifier, functionKeyword,
+                name, openParenthesis, parameters, closeParenthesis, returnTypeDesc, body);
     }
 
     /**
@@ -512,13 +477,13 @@ public class BallerinaParser {
 
         STToken token = peek();
         if (isEndOfParametersList(token.kind)) {
-            STNode params = new STNodeList(paramsList);
+            STNode params = STNodeFactory.createNodeList(paramsList);
             endContext();
             return params;
         }
 
         // Parse the first parameter. Comma precedes the first parameter doesn't exist.
-        STEmptyNode startingComma = new STEmptyNode();
+        STNode startingComma = STNodeFactory.createEmptyNode();
         this.currentParamKind = ParserRuleContext.REQUIRED_PARAM;
         paramsList.add(parseParameter(startingComma));
 
@@ -531,7 +496,7 @@ public class BallerinaParser {
             token = peek();
         }
 
-        STNode params = new STNodeList(paramsList);
+        STNode params = STNodeFactory.createNodeList(paramsList);
         endContext();
         return params;
     }
@@ -580,7 +545,7 @@ public class BallerinaParser {
                 switchContext(ParserRuleContext.REST_PARAM);
                 STNode ellipsis = parseEllipsis();
                 STNode paramName = parseVariableName();
-                return new STRestParameter(SyntaxKind.PARAMETER, leadingComma, type, ellipsis, paramName);
+                return STNodeFactory.createRestParameter(SyntaxKind.PARAMETER, leadingComma, type, ellipsis, paramName);
             case IDENTIFIER_TOKEN:
                 paramName = parseVariableName();
                 return parseParameterRhs(leadingComma, type, paramName);
@@ -647,8 +612,9 @@ public class BallerinaParser {
             }
 
             // TODO: add access modifier
-            STNode accessModifier = new STEmptyNode();
-            return new STRequiredParameter(SyntaxKind.PARAMETER, leadingComma, accessModifier, type, paramName);
+            STNode visibilityQualifier = STNodeFactory.createEmptyNode();
+            return STNodeFactory.createRequiredParameter(SyntaxKind.PARAMETER, leadingComma,
+                    visibilityQualifier, type, paramName);
         } else if (tokenKind == SyntaxKind.EQUAL_TOKEN) {
 
             // If we were processing required params so far and found a defualtable
@@ -661,11 +627,9 @@ public class BallerinaParser {
             // Defaultable parameters
             STNode equal = parseAssignOp();
             STNode expr = parseExpression();
-            // this.listner.exitDefaultableParameter();
-            STNode accessModifier = new STEmptyNode();
-            STDefaultableParameter param = new STDefaultableParameter(SyntaxKind.PARAMETER, leadingComma,
-                    accessModifier, type, paramName, equal, expr);
-            return param;
+            STNode visibilityQualifier = STNodeFactory.createEmptyNode();
+            return STNodeFactory.createDefaultableParameter(SyntaxKind.PARAMETER, leadingComma,
+                    visibilityQualifier, type, paramName, equal, expr);
         } else {
             STToken token = peek();
             Solution solution = recover(token, ParserRuleContext.PARAMETER_RHS, leadingComma, type, paramName);
@@ -756,7 +720,7 @@ public class BallerinaParser {
         STToken token = peek();
         if (token.kind != SyntaxKind.RETURNS_KEYWORD) {
             endContext();
-            return new STEmptyNode();
+            return STNodeFactory.createEmptyNode();
         }
 
         STNode returnsKeyword = consume();
@@ -764,7 +728,7 @@ public class BallerinaParser {
         STNode type = parseTypeDescriptor();
 
         endContext();
-        return new STReturnTypeDescriptor(returnsKeyword, annot, type);
+        return STNodeFactory.createReturnTypeDescriptor(returnsKeyword, annot, type);
     }
 
     /**
@@ -857,7 +821,7 @@ public class BallerinaParser {
      */
     private STNode parseAnnotations() {
         // TODO
-        return new STEmptyNode();
+        return STNodeFactory.createEmptyNode();
     }
 
     /**
@@ -905,7 +869,7 @@ public class BallerinaParser {
                 // then don't try to re-parse the same rule.
                 if (solution.tokenKind == SyntaxKind.NONE) {
                     // TODO: check this again
-                    return new STMissingToken(solution.tokenKind);
+                    return STNodeFactory.createMissingToken(solution.tokenKind);
                 }
 
                 return parseFunctionBody(solution.tokenKind);
@@ -933,7 +897,7 @@ public class BallerinaParser {
         STNode stmts = parseStatements(); // TODO: allow workers
         STNode closeBrace = parseCloseBrace();
         endContext();
-        return new STBlockStatement(openBrace, stmts, closeBrace);
+        return STNodeFactory.createBlockStatement(openBrace, stmts, closeBrace);
     }
 
     /**
@@ -1062,9 +1026,8 @@ public class BallerinaParser {
         STNode semicolon = parseSemicolon();
 
         endContext();
-        STExternalFuncBody externFunc = new STExternalFuncBody(SyntaxKind.EXTERNAL_FUNCTION_BODY, assign, annotation,
+        return STNodeFactory.createExternalFunctionBody(SyntaxKind.EXTERNAL_FUNCTION_BODY, assign, annotation,
                 externalKeyword, semicolon);
-        return externFunc;
     }
 
     /**
@@ -1219,9 +1182,7 @@ public class BallerinaParser {
         STNode comma = parseSemicolon();
 
         endContext();
-        STModuleTypeDefinition typeDef =
-                new STModuleTypeDefinition(modifier, typeKeyword, typeName, typeDescriptor, comma);
-        return typeDef;
+        return STNodeFactory.createModuleTypeDefinition(modifier, typeKeyword, typeName, typeDescriptor, comma);
     }
 
     /**
@@ -1277,7 +1238,7 @@ public class BallerinaParser {
         STNode bodyEndDelimiter = parseRecordBodyCloseDelimiter();
         endContext();
 
-        return new STRecordTypeDescriptor(recordKeyword, bodyStartDelimiter, fields, bodyEndDelimiter);
+        return STNodeFactory.createRecordTypeDescriptor(recordKeyword, bodyStartDelimiter, fields, bodyEndDelimiter);
     }
 
     /**
@@ -1416,7 +1377,7 @@ public class BallerinaParser {
             token = peek();
         }
 
-        return new STNodeList(recordFields);
+        return STNodeFactory.createNodeList(recordFields);
     }
 
     /**
@@ -1445,7 +1406,7 @@ public class BallerinaParser {
             STNode type = parseTypeReference();
             STNode semicolonToken = parseSemicolon();
             endContext();
-            return new STTypeReference(asterisk, type, semicolonToken);
+            return STNodeFactory.createTypeReference(asterisk, type, semicolonToken);
         }
 
         // individual-field-descriptor
@@ -1502,7 +1463,7 @@ public class BallerinaParser {
         if (nextNextToken.kind == SyntaxKind.IDENTIFIER_TOKEN) {
             STToken colon = consume();
             STToken varOrFuncName = consume();
-            return new STQualifiedIdentifier(identifier, colon, varOrFuncName);
+            return STNodeFactory.createQualifiedIdentifier(identifier, colon, varOrFuncName);
         } else {
             this.errorHandler.removeInvalidToken();
             return parseQualifiedIdentifier(identifier);
@@ -1524,7 +1485,7 @@ public class BallerinaParser {
             case ELLIPSIS_TOKEN:
                 STNode ellipsis = parseEllipsis();
                 STNode semicolonToken = parseSemicolon();
-                return new STRecordRestDescriptor(type, ellipsis, semicolonToken);
+                return STNodeFactory.createRecordRestDescriptor(type, ellipsis, semicolonToken);
             case IDENTIFIER_TOKEN:
                 STNode fieldName = parseVariableName();
                 return parseFieldDescriptorRhs(type, fieldName);
@@ -1571,19 +1532,20 @@ public class BallerinaParser {
     private STNode parseFieldDescriptorRhs(SyntaxKind kind, STNode type, STNode fieldName) {
         switch (kind) {
             case SEMICOLON_TOKEN:
-                STNode questionMarkToken = new STEmptyNode();
+                STNode questionMarkToken = STNodeFactory.createEmptyNode();
                 STNode semicolonToken = parseSemicolon();
-                return new STRecordField(type, fieldName, questionMarkToken, semicolonToken);
+                return STNodeFactory.createRecordField(type, fieldName, questionMarkToken, semicolonToken);
             case QUESTION_MARK_TOKEN:
                 questionMarkToken = parseQuestionMark();
                 semicolonToken = parseSemicolon();
-                return new STRecordField(type, fieldName, questionMarkToken, semicolonToken);
+                return STNodeFactory.createRecordField(type, fieldName, questionMarkToken, semicolonToken);
             case EQUAL_TOKEN:
                 // parseRecordDefaultValue();
                 STNode equalsToken = parseAssignOp();
                 STNode expression = parseExpression();
                 semicolonToken = parseSemicolon();
-                return new STRecordFieldWithDefaultValue(type, fieldName, equalsToken, expression, semicolonToken);
+                return STNodeFactory.createRecordFieldWithDefaultValue(type, fieldName, equalsToken,
+                        expression, semicolonToken);
             default:
                 STToken token = peek();
                 Solution solution = recover(token, ParserRuleContext.FIELD_DESCRIPTOR_RHS, type, fieldName);
@@ -1632,7 +1594,7 @@ public class BallerinaParser {
             token = peek();
         }
 
-        return new STNodeList(stmts);
+        return STNodeFactory.createNodeList(stmts);
     }
 
     /**
@@ -1679,7 +1641,7 @@ public class BallerinaParser {
                 // if it is not the end of statement, then try to fix it and continue.
                 if (isEndOfBlockNode(tokenKind)) {
                     // TODO: revisit this
-                    return new STEmptyNode();
+                    return STNodeFactory.createEmptyNode();
                 }
 
                 STToken token = peek();
@@ -1754,8 +1716,8 @@ public class BallerinaParser {
                 semicolon = parseSemicolon();
                 break;
             case SEMICOLON_TOKEN:
-                assign = new STEmptyNode();
-                expr = new STEmptyNode();
+                assign = STNodeFactory.createEmptyNode();
+                expr = STNodeFactory.createEmptyNode();
                 semicolon = parseSemicolon();
                 break;
             default:
@@ -1772,7 +1734,8 @@ public class BallerinaParser {
                 return parseVarDeclRhs(solution.tokenKind, type, varName);
         }
 
-        return new STVariableDeclaration(SyntaxKind.LOCAL_VARIABLE_DECL, type, varName, assign, expr, semicolon);
+        return STNodeFactory.createVariableDeclaration(SyntaxKind.LOCAL_VARIABLE_DECL, type,
+                varName, assign, expr, semicolon);
     }
 
     /**
@@ -1876,7 +1839,8 @@ public class BallerinaParser {
         STNode assign = parseAssignOp();
         STNode expr = parseExpression();
         STNode semicolon = parseSemicolon();
-        return new STAssignmentStatement(SyntaxKind.ASSIGNMENT_STATEMENT, expression, assign, expr, semicolon);
+        return STNodeFactory.createAssignmentStatement(SyntaxKind.ASSIGNMENT_STATEMENT,
+                expression, assign, expr, semicolon);
     }
 
     /*
@@ -2036,7 +2000,8 @@ public class BallerinaParser {
                 // binary expr. If a an operator with higher precedence level is reached,
                 // then complete that binary-expr, come back here and finish the current expr.
                 STNode rhsExpr = parseExpression(nextOperatorPrecedence, isAssignmentLhs);
-                newLhsExpr = new STBinaryExpression(SyntaxKind.BINARY_EXPRESSION, lhsExpr, operator, rhsExpr);
+                newLhsExpr = STNodeFactory.createBinaryExpression(SyntaxKind.BINARY_EXPRESSION,
+                        lhsExpr, operator, rhsExpr);
                 break;
         }
 
@@ -2068,12 +2033,12 @@ public class BallerinaParser {
         STNode keyExpr;
         if (peek().kind == SyntaxKind.CLOSE_BRACKET_TOKEN) {
             this.errorHandler.reportMissingTokenError("missing expression");
-            keyExpr = new STMissingToken(SyntaxKind.IDENTIFIER_TOKEN);
+            keyExpr = STNodeFactory.createMissingToken(SyntaxKind.IDENTIFIER_TOKEN);
         } else {
             keyExpr = parseExpression();
         }
         STNode closeBracket = parseCloseBracket();
-        return new STMemberAccessExpression(lhsExpr, openBracket, keyExpr, closeBracket);
+        return STNodeFactory.createMemberAccessExpression(lhsExpr, openBracket, keyExpr, closeBracket);
     }
 
     /**
@@ -2109,11 +2074,12 @@ public class BallerinaParser {
             STNode openParen = parseOpenParenthesis();
             STNode args = parseArgsList();
             STNode closeParen = parseCloseParenthesis();
-            return new STMethodCallExpression(lhsExpr, dotToken, fieldOrMethodName, openParen, args, closeParen);
+            return STNodeFactory.createMethodCallExpression(lhsExpr, dotToken, fieldOrMethodName,
+                    openParen, args, closeParen);
         }
 
         // Everything else is field-access
-        return new STFieldAccessExpression(lhsExpr, dotToken, fieldOrMethodName);
+        return STNodeFactory.createFieldAccessExpression(lhsExpr, dotToken, fieldOrMethodName);
     }
 
     /**
@@ -2128,7 +2094,7 @@ public class BallerinaParser {
         STNode openParen = parseOpenParenthesis();
         STNode expr = parseExpression();
         STNode closeParen = parseCloseParenthesis();
-        return new STBracedExpression(SyntaxKind.BRACED_EXPRESSION, openParen, expr, closeParen);
+        return STNodeFactory.createBracedExpression(SyntaxKind.BRACED_EXPRESSION, openParen, expr, closeParen);
     }
 
     /**
@@ -2178,7 +2144,7 @@ public class BallerinaParser {
         STNode openParen = parseOpenParenthesis();
         STNode args = parseArgsList();
         STNode closeParen = parseCloseParenthesis();
-        return new STFunctionCallExpression(identifier, openParen, args, closeParen);
+        return STNodeFactory.createFunctionCallExpression(identifier, openParen, args, closeParen);
     }
 
     /**
@@ -2192,7 +2158,7 @@ public class BallerinaParser {
 
         STToken token = peek();
         if (isEndOfParametersList(token.kind)) {
-            STNode args = new STNodeList(argsList);
+            STNode args = STNodeFactory.createNodeList(argsList);
             endContext();
             return args;
         }
@@ -2200,7 +2166,7 @@ public class BallerinaParser {
         SyntaxKind lastProcessedArgKind = parseFirstArg(argsList);
         parseFollowUpArg(argsList, lastProcessedArgKind);
 
-        STNode args = new STNodeList(argsList);
+        STNode args = STNodeFactory.createNodeList(argsList);
         endContext();
         return args;
     }
@@ -2215,7 +2181,7 @@ public class BallerinaParser {
         startContext(ParserRuleContext.ARG);
 
         // Comma precedes the first argument is an empty node, since it doesn't exist.
-        STNode leadingComma = new STEmptyNode();
+        STNode leadingComma = STNodeFactory.createEmptyNode();
         STNode arg = parseArg(leadingComma);
         endContext();
 
@@ -2295,7 +2261,7 @@ public class BallerinaParser {
             case ELLIPSIS_TOKEN:
                 STToken ellipsis = consume();
                 STNode expr = parseExpression();
-                arg = new STRestArg(leadingComma, ellipsis, expr);
+                arg = STNodeFactory.createRestArg(leadingComma, ellipsis, expr);
                 break;
 
             // Identifier can means two things: either its a named-arg, or just an expression.
@@ -2311,7 +2277,7 @@ public class BallerinaParser {
             case FALSE_KEYWORD:
             default:
                 expr = parseExpression();
-                arg = new STPositionalArg(leadingComma, expr);
+                arg = STNodeFactory.createPositionalArg(leadingComma, expr);
                 break;
         }
 
@@ -2332,11 +2298,11 @@ public class BallerinaParser {
                 STNode argNameOrVarRef = consume();
                 STNode equal = parseAssignOp();
                 STNode expr = parseExpression();
-                return new STNamedArg(leadingComma, argNameOrVarRef, equal, expr);
+                return STNodeFactory.createNamedArg(leadingComma, argNameOrVarRef, equal, expr);
             case COMMA_TOKEN:
             case CLOSE_PAREN_TOKEN:
                 argNameOrVarRef = consume();
-                return new STPositionalArg(leadingComma, argNameOrVarRef);
+                return STNodeFactory.createPositionalArg(leadingComma, argNameOrVarRef);
 
             // Treat everything else as a single expression. If something is missing,
             // expression-parsing will recover it.
@@ -2347,7 +2313,7 @@ public class BallerinaParser {
             case FALSE_KEYWORD:
             default:
                 expr = parseExpression();
-                return new STPositionalArg(leadingComma, expr);
+                return STNodeFactory.createPositionalArg(leadingComma, expr);
         }
     }
 
@@ -2365,7 +2331,8 @@ public class BallerinaParser {
         STNode closeBrace = parseCloseBrace();
         endContext();
 
-        return new STObjectTypeDescriptor(objectTypeQualifiers, objectKeyword, openBrace, objectMembers, closeBrace);
+        return STNodeFactory.createObjectTypeDescriptor(objectTypeQualifiers, objectKeyword,
+                openBrace, objectMembers, closeBrace);
     }
 
     /**
@@ -2391,7 +2358,7 @@ public class BallerinaParser {
                 firstQualifier = abstractKeyword;
                 break;
             case OBJECT_KEYWORD:
-                return new STNodeList(qualifiers);
+                return STNodeFactory.createNodeList(qualifiers);
             default:
                 Solution solution = recover(peek(), ParserRuleContext.OBJECT_TYPE_FIRST_QUALIFIER);
 
@@ -2412,7 +2379,7 @@ public class BallerinaParser {
         if (secondQualifier != null) {
             qualifiers.add(secondQualifier);
         }
-        return new STNodeList(qualifiers);
+        return STNodeFactory.createNodeList(qualifiers);
     }
 
     private STNode parseObjectTypeSecondQualifier(STNode firstQualifier) {
@@ -2512,7 +2479,7 @@ public class BallerinaParser {
             nextToken = peek();
         }
 
-        return new STNodeList(objectMembers);
+        return STNodeFactory.createNodeList(objectMembers);
     }
 
     private STNode parseObjectMember() {
@@ -2530,7 +2497,7 @@ public class BallerinaParser {
                 STNode asterisk = consume();
                 STNode type = parseTypeReference();
                 STNode semicolonToken = parseSemicolon();
-                member = new STTypeReference(asterisk, type, semicolonToken);
+                member = STNodeFactory.createTypeReference(asterisk, type, semicolonToken);
                 break;
             case PUBLIC_KEYWORD:
             case PRIVATE_KEYWORD:
@@ -2538,10 +2505,10 @@ public class BallerinaParser {
                 member = parseObjectMethodOrField(visibilityQualifier);
                 break;
             case REMOTE_KEYWORD:
-                member = parseObjectMethodOrField(new STEmptyNode());
+                member = parseObjectMethodOrField(STNodeFactory.createEmptyNode());
                 break;
             case FUNCTION_KEYWORD:
-                member = parseObjectMethod(new STEmptyNode());
+                member = parseObjectMethod(STNodeFactory.createEmptyNode());
                 break;
 
             // All 'type starting tokens' here. should be same as 'parseTypeDescriptor(...)'
@@ -2551,7 +2518,7 @@ public class BallerinaParser {
             case OBJECT_KEYWORD:
             case ABSTRACT_KEYWORD:
             case CLIENT_KEYWORD:
-                member = parseObjectField(new STEmptyNode());
+                member = parseObjectField(STNodeFactory.createEmptyNode());
                 break;
             default:
                 Solution solution = recover(peek(), ParserRuleContext.OBJECT_MEMBER);
@@ -2599,7 +2566,7 @@ public class BallerinaParser {
                     methodQualifiers.add(visibilityQualifiers);
                 }
                 methodQualifiers.add(remoteKeyword);
-                return parseObjectMethod(new STNodeList(methodQualifiers));
+                return parseObjectMethod(STNodeFactory.createNodeList(methodQualifiers));
             case FUNCTION_KEYWORD:
                 return parseObjectMethod(visibilityQualifiers);
 
@@ -2688,8 +2655,8 @@ public class BallerinaParser {
         STNode semicolonToken;
         switch (nextTokenKind) {
             case SEMICOLON_TOKEN:
-                equalsToken = new STEmptyNode();
-                expression = new STEmptyNode();
+                equalsToken = STNodeFactory.createEmptyNode();
+                expression = STNodeFactory.createEmptyNode();
                 semicolonToken = parseSemicolon();
                 break;
             case EQUAL_TOKEN:
@@ -2712,7 +2679,8 @@ public class BallerinaParser {
                 return parseObjectFieldRhs(solution.tokenKind, visibilityQualifier, type, fieldName);
         }
 
-        return new STObjectField(visibilityQualifier, type, fieldName, equalsToken, expression, semicolonToken);
+        return STNodeFactory.createObjectField(visibilityQualifier, type, fieldName,
+                equalsToken, expression, semicolonToken);
     }
 
     private STNode parseObjectMethod(STNode methodQualifiers) {
@@ -2735,7 +2703,7 @@ public class BallerinaParser {
         endContext();
 
         STNode elseBody = parseElseBlock();
-        return new STIfElseStatement(ifKeyword, condition, ifBody, elseBody);
+        return STNodeFactory.createIfElseStatement(ifKeyword, condition, ifBody, elseBody);
     }
 
     /**
@@ -2783,7 +2751,7 @@ public class BallerinaParser {
         STNode stmts = parseStatements();
         STNode closeBrace = parseCloseBrace();
         endContext();
-        return new STBlockStatement(openBrace, stmts, closeBrace);
+        return STNodeFactory.createBlockStatement(openBrace, stmts, closeBrace);
     }
 
     /**
@@ -2795,12 +2763,12 @@ public class BallerinaParser {
     private STNode parseElseBlock() {
         STToken nextToken = peek();
         if (nextToken.kind != SyntaxKind.ELSE_KEYWORD) {
-            return new STEmptyNode();
+            return STNodeFactory.createEmptyNode();
         }
 
         STNode elseKeyword = parseElseKeyword();
         STNode elseBody = parseElseBody();
-        return new STElseBlock(elseKeyword, elseBody);
+        return STNodeFactory.createElseBlock(elseKeyword, elseBody);
     }
 
     /**
@@ -2847,7 +2815,7 @@ public class BallerinaParser {
         STNode condition = parseExpression();
         STNode whileBody = parseBlockNode();
         endContext();
-        return new STWhileStatement(whileKeyword, condition, whileBody);
+        return STNodeFactory.createWhileStatement(whileKeyword, condition, whileBody);
     }
 
     /**
@@ -2897,7 +2865,7 @@ public class BallerinaParser {
      */
     private STNode parseCallStatement(STNode expression) {
         STNode semicolon = parseSemicolon();
-        return new STCallStatement(expression, semicolon);
+        return STNodeFactory.createCallStatement(expression, semicolon);
     }
 
     private STNode parseCallStatementWithCheck() {
@@ -2906,7 +2874,7 @@ public class BallerinaParser {
         STNode expr = parseExpression();
         validateExprInCallStatement(checkingKeyword, expr);
 
-        STCheckExpression checkExpr = new STCheckExpression(checkingKeyword, expr);
+        STNode checkExpr = STNodeFactory.createCheckExpression(checkingKeyword, expr);
         STNode checkStmt = parseCallStatement(checkExpr);
         endContext();
         return checkStmt;
@@ -2965,7 +2933,7 @@ public class BallerinaParser {
     private STNode parseCheckExpression() {
         STNode checkingKeyword = parseCheckingKeyword();
         STNode expr = parseExpression(OperatorPrecedence.UNARY, false);
-        return new STCheckExpression(checkingKeyword, expr);
+        return STNodeFactory.createCheckExpression(checkingKeyword, expr);
     }
 
     /**

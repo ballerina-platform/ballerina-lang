@@ -27,9 +27,9 @@ public class STReturnTypeDescriptor extends STNode {
     public final STNode annotation;
     public final STNode type;
 
-    public STReturnTypeDescriptor(STNode returnsKeyword,
-                                  STNode annotation,
-                                  STNode type) {
+    STReturnTypeDescriptor(STNode returnsKeyword,
+                           STNode annotation,
+                           STNode type) {
         super(SyntaxKind.RETURN_TYPE_DESCRIPTOR);
         this.returnsKeyword = returnsKeyword;
         this.annotation = annotation;

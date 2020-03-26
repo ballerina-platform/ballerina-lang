@@ -20,7 +20,7 @@ package io.ballerinalang.compiler.internal.parser.tree;
 public class STTypeToken extends STToken {
     public final String text;
 
-    public STTypeToken(SyntaxKind kind, String text, STNode leadingTrivia, STNode trailingTrivia) {
+    STTypeToken(SyntaxKind kind, String text, STNode leadingTrivia, STNode trailingTrivia) {
         super(kind, text.length(), leadingTrivia, trailingTrivia);
         this.text = text;
     }

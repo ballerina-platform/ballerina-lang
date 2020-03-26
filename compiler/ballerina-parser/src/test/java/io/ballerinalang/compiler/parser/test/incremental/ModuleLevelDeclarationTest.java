@@ -29,13 +29,13 @@ import org.testng.annotations.Test;
  */
 public class ModuleLevelDeclarationTest {
 
-    @Test(enabled = false)
+    @Test
     public void testVariableNameChange() {
         SyntaxTree oldTree = TestUtils.parse("module_declarations/function_name_old.bal");
         SyntaxTree newTree = TestUtils.parse(oldTree, "module_declarations/function_name_new.bal");
         Node[] newNodes = TestUtils.populateNewNodes(oldTree, newTree);
 
         // TODO This is fragile way to test. Improve
-        Assert.assertEquals(newNodes.length, 6);
+        Assert.assertEquals(newNodes.length, 7);
     }
 }

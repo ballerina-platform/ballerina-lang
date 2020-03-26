@@ -27,9 +27,9 @@ public class STRestArg extends STNode {
     public final STNode ellipsis;
     public final STNode expression;
 
-    public STRestArg(STNode leadingComma,
-                     STNode ellipsis,
-                     STNode expression) {
+    STRestArg(STNode leadingComma,
+              STNode ellipsis,
+              STNode expression) {
         super(SyntaxKind.REST_ARG);
         this.leadingComma = leadingComma;
         this.ellipsis = ellipsis;
