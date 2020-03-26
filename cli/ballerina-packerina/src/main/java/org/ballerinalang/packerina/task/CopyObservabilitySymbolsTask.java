@@ -61,7 +61,6 @@ public class CopyObservabilitySymbolsTask implements Task {
                 URI uberJarUri = URI.create("jar:" + moduleJarPath.toUri().toString());
 
                 try (FileSystem toFs = FileSystems.newFileSystem(uberJarUri, Collections.emptyMap())) {
-                    buildContext.out().println("Generating observability symbols for " + packageID);
                     Path jarRoot = toFs.getRootDirectories().iterator().next();
                     observabilitySymbolCollector.writeCollectedSymbols(module, jarRoot);
                 } catch (IOException e) {

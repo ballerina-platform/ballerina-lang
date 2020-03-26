@@ -54,7 +54,7 @@ import java.util.stream.Collectors;
  */
 public class DefaultObservabilitySymbolCollector implements ObservabilitySymbolCollector {
     private final PrintStream console = System.out;
-    ;
+
     private static final String NAME = "name";
     private static final String ORG_NAME = "orgName";
     private static final String PKG_VERSION = "pkgVersion";
@@ -74,12 +74,10 @@ public class DefaultObservabilitySymbolCollector implements ObservabilitySymbolC
     public void init(CompilerContext context) {
         compilerContext = context;
         diagnosticLog = BLangDiagnosticLogHelper.getInstance(context);
-        console.println("DefaultObservabilitySymbolCollector initialized");
     }
 
     @Override
     public void process(BLangPackage module) {
-        console.println("DefaultObservabilitySymbolCollector process called");
         JsonObject moduleJson = getModuleJson(module);
         JsonASTHolder.getInstance().addAST(module.packageID.name.getValue(), moduleJson);
     }
