@@ -218,7 +218,7 @@ public class BallerinaXMLSerializer extends OutputStream {
                     generateAndAddRandomNSPrefix(curNSSet, uri);
                 }
                 String localName = key.substring(closingCurlyPos + 1);
-                if (uri.equals(defaultNS)) {
+                if (uri.isEmpty() || uri.equals(defaultNS)) {
                     xmlStreamWriter.writeAttribute(localName, attributeEntry.getValue());
                 } else {
                     xmlStreamWriter.writeAttribute(uri, localName, attributeEntry.getValue());
@@ -265,6 +265,9 @@ public class BallerinaXMLSerializer extends OutputStream {
     }
 
     private void generateAndAddRandomNSPrefix(HashSet<String> curNSSet, String uri) throws XMLStreamException {
+        if (uri.isEmpty()) {
+            return;
+        }
         String randomNSPrefix = generateRandomPrefix(curNSSet, uri);
         String nsKey = concatNsPrefixURI(randomNSPrefix, uri);
         xmlStreamWriter.writeNamespace(randomNSPrefix, uri);

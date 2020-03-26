@@ -85,6 +85,7 @@ public abstract class XMLValue implements RefValue, BXML, CollectionValue {
      * @param attributeName Qualified name of the attribute
      * @param value Value of the attribute
      */
+    @Deprecated
     public void setAttribute(BXMLQName attributeName, BString value) {
         setAttribute(attributeName.getLocalName(), attributeName.getUri(), attributeName.getPrefix(), value.getValue());
     }

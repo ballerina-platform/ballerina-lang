@@ -2586,6 +2586,12 @@ public class TypeChecker extends BLangNodeVisitor {
             return;
         }
 
+        // XML attributes without a namespace prefix does not inherit default namespace
+        // https://www.w3.org/TR/xml-names/#defaulting
+        if (bLangXMLQName.prefix.value.isEmpty()) {
+            return;
+        }
+
         BSymbol xmlnsSymbol = symResolver.lookupSymbolInPrefixSpace(env, names.fromIdNode(bLangXMLQName.prefix));
         if (prefix.isEmpty() && xmlnsSymbol == symTable.notFoundSymbol) {
             return;
