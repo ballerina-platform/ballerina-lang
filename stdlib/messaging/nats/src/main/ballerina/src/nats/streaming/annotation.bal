@@ -38,26 +38,26 @@ public type StreamingSubscriptionConfigData record {|
 # Streaming subscription configuration annotation.
 public annotation StreamingSubscriptionConfigData StreamingSubscriptionConfig on service;
 
-# Specifies that message delivery should start with the messages, which are published after the subscription is created
+# Specifies that message delivery should start with the messages, which are published after the subscription is created.
 public const NEW_ONLY = "NEW_ONLY";
 
-# Specifies that message delivery should start with the last (most recent) message stored for this subject
+# Specifies that message delivery should start with the last (most recent) message stored for this subject.
 public const LAST_RECEIVED = "LAST_RECEIVED";
 
-# Specifies that message delivery should begin at the oldest available message for this subject
+# Specifies that message delivery should begin at the oldest available message for this subject.
 public const FIRST = "FIRST";
 
-# The constant string value for the type `TimeDeltaStart`
+# The constant string value for the `TimeDeltaStart` type. 
 public const TIME_DELTA_START = "TIME_DELTA_START";
 
-# The constant string value for the type `SequenceNumber`
+# The constant string value for the `SequenceNumber` type. 
 public const SEQUENCE_NUMBER = "SEQUENCE_NUMBER";
 
-# Specifies that message delivery should start with a given historical time delta (from now)
+# Specifies that message delivery should start with a given historical time delta (from now).
 public type TimeDeltaStart [TIME_DELTA_START, int];
 
-# Specifies that message delivery should start at the given sequence number
+# Specifies that message delivery should start at the given sequence number.
 public type SequenceNumber [SEQUENCE_NUMBER, int];
 
-# The position to start receiving messages
+# The position to start receiving messages.
 public type StartPosition NEW_ONLY | LAST_RECEIVED | TimeDeltaStart | SequenceNumber | FIRST;
