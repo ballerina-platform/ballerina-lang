@@ -18,7 +18,7 @@ package org.ballerinalang.observe.trace.extension.choreo.client;
 
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
-import org.ballerinalang.observe.trace.extension.choreo.gen.NegotiatorGrpc;
+import org.ballerinalang.observe.trace.extension.choreo.gen.HandshakeGrpc;
 import org.ballerinalang.observe.trace.extension.choreo.gen.NegotiatorOuterClass.HandshakeRequest;
 import org.ballerinalang.observe.trace.extension.choreo.gen.NegotiatorOuterClass.HandshakeResponse;
 import org.ballerinalang.observe.trace.extension.choreo.gen.NegotiatorOuterClass.PublishProgramRequest;
@@ -37,7 +37,7 @@ public class ChoreoClient implements AutoCloseable {
     private String id;      // ID received from the handshake
     private String instanceId;
     private ManagedChannel channel;
-    private NegotiatorGrpc.NegotiatorBlockingStub negotiator;
+    private HandshakeGrpc.HandshakeBlockingStub handshakeClient;
     private TelemetryGrpc.TelemetryBlockingStub telemetryClient;
     private Thread uploadingThread;
 
@@ -47,7 +47,7 @@ public class ChoreoClient implements AutoCloseable {
             channelBuilder.usePlaintext();
         }
         channel = channelBuilder.build();
-        negotiator = NegotiatorGrpc.newBlockingStub(channel);
+        handshakeClient = HandshakeGrpc.newBlockingStub(channel);
         telemetryClient = TelemetryGrpc.newBlockingStub(channel);
     }
 
@@ -57,7 +57,7 @@ public class ChoreoClient implements AutoCloseable {
                 .setUserId(instanceId)
                 .setApplicationId(appId)
                 .build();
-        HandshakeResponse handshakeResponse = negotiator.handshake(handshakeRequest);
+        HandshakeResponse handshakeResponse = handshakeClient.handshake(handshakeRequest);
         this.id = handshakeResponse.getObservabilityId();
         boolean sendProgramJson = handshakeResponse.getSendProgramJson();
 
@@ -67,7 +67,7 @@ public class ChoreoClient implements AutoCloseable {
                         .setProgramJson(metadataReader.getAstData())
                         .setObservabilityId(id)
                         .build();
-                negotiator.withCompression("gzip").publishProgram(programRequest);
+                handshakeClient.withCompression("gzip").publishProgram(programRequest);
                 // TODO add debug log to indicate success
             }, "AST Uploading Thread");
             uploadingThread.start();
