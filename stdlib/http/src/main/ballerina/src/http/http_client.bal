@@ -27,7 +27,7 @@ public type HttpClient client object {
     public ClientConfiguration config = {};
     public string url;
 
-    # Gets invoked to initialize the native `client`. During initialization, the configurations provided through the
+    # Gets invoked to initialize the native `client`. During initialization, the configurations are provided through the
     # `config`. `HttpClient` lies inside every type of clients in the chain holding the native client connector.
     #
     # + url - URL of the target service
