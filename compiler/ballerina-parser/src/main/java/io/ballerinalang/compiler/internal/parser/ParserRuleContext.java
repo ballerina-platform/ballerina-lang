@@ -96,6 +96,7 @@ public enum ParserRuleContext {
     IF_KEYWORD("if"),
     ELSE_KEYWORD("else"),
     WHILE_KEYWORD("while"),
+    PANIC_KEYWORD("panic"),
 
     // Syntax tokens
     OPEN_PARENTHESIS("("),

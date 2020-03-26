@@ -48,6 +48,7 @@ public enum SyntaxKind {
     WHILE_KEYWORD(207, "while"),
     CHECK_KEYWORD(208, "check"),
     CHECKPANIC_KEYWORD(209, "checkpanic"),
+    PANIC_KEYWORD(210, "panic"),
 
     // Separators
     OPEN_BRACE_TOKEN(500, "{"),

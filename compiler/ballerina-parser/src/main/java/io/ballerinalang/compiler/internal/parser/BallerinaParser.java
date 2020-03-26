@@ -158,6 +158,8 @@ public class BallerinaParser {
                 return parseElseBody();
             case WHILE_KEYWORD:
                 return parseWhileKeyword();
+            case PANIC_KEYWORD:
+                return parsePanicKeyword();
             case BOOLEAN_LITERAL:
                 return parseBooleanLiteral();
             case FUNC_DEFINITION:
@@ -1633,6 +1635,8 @@ public class BallerinaParser {
                 return parseIfElseBlock();
             case WHILE_KEYWORD:
                 return parseWhileStatement();
+            case PANIC_KEYWORD:
+                return parsePanicStatement();
             case CHECK_KEYWORD:
             case CHECKPANIC_KEYWORD:
                 return parseCallStatementWithCheck();
@@ -2833,6 +2837,35 @@ public class BallerinaParser {
         }
     }
 
+    /**
+     * Parse panic statement.
+     * <code>panic-stmt := panic expression ;</code>
+     * 
+     * @return Panic statement
+     */
+    private STNode parsePanicStatement() {
+        startContext(ParserRuleContext.PANIC_KEYWORD);
+        STNode panicKeyword = parsePanicKeyword();
+        STNode expression = parseExpression();
+        STNode semicolon = parseSemicolon();
+        endContext();
+        return STNodeFactory.createPanicStatement(panicKeyword, expression, semicolon);
+    }
+
+    /**
+     * Parse while-keyword.
+     * 
+     * @return While-keyword node
+     */
+    private STNode parsePanicKeyword() {
+        STToken token = peek();
+        if (token.kind == SyntaxKind.PANIC_KEYWORD) {
+            return consume();
+        } else {
+            Solution sol = recover(token, ParserRuleContext.PANIC_KEYWORD);
+            return sol.recoveredNode;
+        }
+    }
     /**
      * Parse boolean literal.
      * 
