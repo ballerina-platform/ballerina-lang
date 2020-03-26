@@ -82,7 +82,7 @@ public class JParameter {
                     }
 
                 } else {
-                    String paramType = parameterClass.getCanonicalName();
+                    String paramType = parameterClass.getName();
                     if (!allJavaClasses.contains(paramType)) {
                         classListForLooping.add(paramType);
                     }
