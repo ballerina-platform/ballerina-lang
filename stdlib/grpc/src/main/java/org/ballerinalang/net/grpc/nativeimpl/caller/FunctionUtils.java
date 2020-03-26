@@ -85,6 +85,7 @@ public class FunctionUtils {
     /**
      * Extern function to check deadline exceeded or not.
      *
+     * @param endpointClient caller instance.
      * @param headerValues header values.
      * @return True if caller has terminated the connection, false otherwise.
      */
