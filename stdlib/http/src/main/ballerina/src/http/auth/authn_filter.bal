@@ -48,7 +48,7 @@ public type AuthnFilter object {
     }
 
     # The `Filter` function implementation, which tries to authenticate the response, which is defined to achieve 
-    # structural equility.
+    # object-structural equality.
     #
     # + response - `Response` instance
     # + context - `FilterContext` instance
