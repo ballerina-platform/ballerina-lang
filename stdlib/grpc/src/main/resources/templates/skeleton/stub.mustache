@@ -40,6 +40,6 @@ public type {{serviceName}}{{#equals stubType "blocking"}}Blocking{{/equals}}Cli
         if context is grpc:ClientContext {
             headers = context.getContextHeaders();
         }
-        return self.grpcClient->streamingExecute("{{methodId}}", msgListener, context.getContextHeaders());
+        return self.grpcClient->streamingExecute("{{methodId}}", msgListener, headers);
     }{{/streamingFunctions}}
 };
