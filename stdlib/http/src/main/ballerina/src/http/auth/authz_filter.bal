@@ -65,7 +65,7 @@ public type AuthzFilter object {
     #
     # + response - `Response` instance
     # + context - `FilterContext` instance
-    # + return - `true` as the functionality is not implemented
+    # + return - Set to`true` as the functionality is not implemented
     public function filterResponse(Response response, FilterContext context) returns boolean {
         return true;
     }
