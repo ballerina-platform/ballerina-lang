@@ -28,10 +28,10 @@ public class STNamedArg extends STNode {
     public final STNode equalsToken;
     public final STNode expression;
 
-    public STNamedArg(STNode leadingComma,
-                      STNode variableName,
-                      STNode equalsToken,
-                      STNode expression) {
+    STNamedArg(STNode leadingComma,
+               STNode variableName,
+               STNode equalsToken,
+               STNode expression) {
         super(SyntaxKind.NAMED_ARG);
         this.leadingComma = leadingComma;
         this.argName = variableName;

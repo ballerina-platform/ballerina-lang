@@ -29,12 +29,12 @@ public class STVariableDeclaration extends STStatement {
     public final STNode initializer;
     public final STNode semicolonToken;
 
-    public STVariableDeclaration(SyntaxKind kind,
-                                 STNode typeName,
-                                 STNode variableName,
-                                 STNode equalsToken,
-                                 STNode initializer,
-                                 STNode semicolonToken) {
+    STVariableDeclaration(SyntaxKind kind,
+                          STNode typeName,
+                          STNode variableName,
+                          STNode equalsToken,
+                          STNode initializer,
+                          STNode semicolonToken) {
         super(kind);
         this.typeName = typeName;
         this.variableName = variableName;

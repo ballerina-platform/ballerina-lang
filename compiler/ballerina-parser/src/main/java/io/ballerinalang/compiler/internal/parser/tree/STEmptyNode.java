@@ -23,7 +23,7 @@ import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 
 public class STEmptyNode extends STNode {
 
-    public STEmptyNode() {
+    STEmptyNode() {
         super(SyntaxKind.NONE);
     }
 

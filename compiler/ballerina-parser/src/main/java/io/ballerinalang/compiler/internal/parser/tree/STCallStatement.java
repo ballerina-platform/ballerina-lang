@@ -25,7 +25,7 @@ public class STCallStatement extends STStatement {
     public final STNode expression;
     public final STNode semicolonToken;
 
-    public STCallStatement(STNode expression, STNode semicolonToken) {
+    STCallStatement(STNode expression, STNode semicolonToken) {
         super(SyntaxKind.CALL_STATEMENT);
         this.expression = expression;
         this.semicolonToken = semicolonToken;

@@ -25,7 +25,7 @@ public class STModulePart extends STNode {
     public final STNode members;
     public final STNode eofToken;
 
-    public STModulePart(STNode imports, STNode members, STNode eofToken) {
+    STModulePart(STNode imports, STNode members, STNode eofToken) {
         super(SyntaxKind.MODULE_PART);
         this.imports = imports;
         this.members = members;

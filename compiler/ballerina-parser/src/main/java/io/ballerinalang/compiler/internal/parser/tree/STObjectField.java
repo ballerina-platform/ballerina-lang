@@ -30,12 +30,12 @@ public class STObjectField extends STNode {
     public final STNode expression;
     public final STNode semicolonToken;
 
-    public STObjectField(STNode visibilityQualifier,
-                         STNode type,
-                         STNode fieldName,
-                         STNode equalsToken,
-                         STNode expression,
-                         STNode semicolonToken) {
+    STObjectField(STNode visibilityQualifier,
+                  STNode type,
+                  STNode fieldName,
+                  STNode equalsToken,
+                  STNode expression,
+                  STNode semicolonToken) {
         super(SyntaxKind.OBJECT_FIELD);
         this.visibilityQualifier = visibilityQualifier;
         this.type = type;

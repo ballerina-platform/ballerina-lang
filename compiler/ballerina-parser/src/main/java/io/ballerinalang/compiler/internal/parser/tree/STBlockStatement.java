@@ -27,9 +27,9 @@ public class STBlockStatement extends STStatement {
     public final STNode statements;
     public final STNode closeBraceToken;
 
-    public STBlockStatement(STNode openBraceToken,
-                            STNode statements,
-                            STNode closeBraceToken) {
+    STBlockStatement(STNode openBraceToken,
+                     STNode statements,
+                     STNode closeBraceToken) {
         super(SyntaxKind.BLOCK_STATEMENT);
         this.openBraceToken = openBraceToken;
         this.statements = statements;

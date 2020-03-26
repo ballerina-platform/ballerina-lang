@@ -27,11 +27,11 @@ public class STRestParameter extends STParameter {
     public final STNode ellipsis;
     public final STNode paramName;
 
-    public STRestParameter(SyntaxKind kind,
-                           STNode leadingComma,
-                           STNode type,
-                           STNode ellipsis,
-                           STNode paramName) {
+    STRestParameter(SyntaxKind kind,
+                    STNode leadingComma,
+                    STNode type,
+                    STNode ellipsis,
+                    STNode paramName) {
         super(kind);
         this.leadingComma = leadingComma;
         this.type = type;

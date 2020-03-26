@@ -28,11 +28,11 @@ public class STRequiredParameter extends STParameter {
     public final STNode type;
     public final STNode paramName;
 
-    public STRequiredParameter(SyntaxKind kind,
-                               STNode leadingComma,
-                               STNode accessModifier,
-                               STNode type,
-                               STNode paramName) {
+    STRequiredParameter(SyntaxKind kind,
+                        STNode leadingComma,
+                        STNode accessModifier,
+                        STNode type,
+                        STNode paramName) {
         super(kind);
         this.leadingComma = leadingComma;
         this.accessModifier = accessModifier;

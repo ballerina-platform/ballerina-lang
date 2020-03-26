@@ -29,11 +29,11 @@ public class STRecordFieldWithDefaultValue extends STNode {
     public final STNode expression;
     public final STNode semicolonToken;
 
-    public STRecordFieldWithDefaultValue(STNode type,
-                                         STNode fieldName,
-                                         STNode equalsToken,
-                                         STNode expression,
-                                         STNode semicolonToken) {
+    STRecordFieldWithDefaultValue(STNode type,
+                                  STNode fieldName,
+                                  STNode equalsToken,
+                                  STNode expression,
+                                  STNode semicolonToken) {
         super(SyntaxKind.RECORD_FIELD_WITH_DEFAULT_VALUE);
         this.type = type;
         this.fieldName = fieldName;

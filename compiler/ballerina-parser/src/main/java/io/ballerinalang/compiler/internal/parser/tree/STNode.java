@@ -30,11 +30,11 @@ public abstract class STNode {
     protected STNode[] childBuckets = EMPTY_BUCKET;
     protected int bucketCount;
 
-    public STNode(SyntaxKind kind) {
+    STNode(SyntaxKind kind) {
         this.kind = kind;
     }
 
-    public STNode(SyntaxKind kind, int width) {
+    STNode(SyntaxKind kind, int width) {
         this.kind = kind;
         this.width = width;
     }

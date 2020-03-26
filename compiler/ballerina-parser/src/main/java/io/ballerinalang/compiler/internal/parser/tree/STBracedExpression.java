@@ -25,11 +25,11 @@ public class STBracedExpression extends STExpression {
     STNode openParen;
     STNode expr;
     STNode closeParen;
-    
-    public STBracedExpression(SyntaxKind kind,
-                              STNode openParen,
-                              STNode expr,
-                              STNode closeParen) {
+
+    STBracedExpression(SyntaxKind kind,
+                       STNode openParen,
+                       STNode expr,
+                       STNode closeParen) {
         super(kind);
         this.openParen = openParen;
         this.expr = expr;

@@ -19,7 +19,7 @@ package io.ballerinalang.compiler.internal.parser.tree;
 
 public abstract class STParameter extends STNode {
 
-    public STParameter(SyntaxKind kind) {
+    STParameter(SyntaxKind kind) {
         super(kind);
     }
 }
