@@ -56,7 +56,7 @@ public type Cookie object {
 
     # Checks the persistance of the cookie.
     #
-    # + return  - `false` if the cookie will be discarded at the end of the "session". Else, returns `true`
+    # + return  - set to `false` if the cookie will be discarded at the end of the "session". Else, returns `true`.
     public function isPersistent() returns boolean {
         if (self.expires is () && self.maxAge == 0) {
             return false;
