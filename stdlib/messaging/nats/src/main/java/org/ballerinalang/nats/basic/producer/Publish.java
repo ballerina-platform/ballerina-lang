@@ -46,9 +46,10 @@ public class Publish {
         if (TypeChecker.getType(connection).getTag() == TypeTags.OBJECT_TYPE_TAG) {
             ObjectValue connectionObject = (ObjectValue) connection;
             Connection natsConnection = (Connection) connectionObject.getNativeData(Constants.NATS_CONNECTION);
-            String url = Utils.getCommaSeparatedUrl(connectionObject);
+            NatsMetricsUtil natsMetricsUtil =
+                    (NatsMetricsUtil) connectionObject.getNativeData(Constants.NATS_METRIC_UTIL);
             if (natsConnection == null) {
-                NatsMetricsUtil.reportProducerError(url, subject, NatsObservabilityConstants.ERROR_TYPE_PUBLISH);
+                natsMetricsUtil.reportProducerError(subject, NatsObservabilityConstants.ERROR_TYPE_PUBLISH);
                 return BallerinaErrors.createError(Constants.NATS_ERROR_CODE, Constants.PRODUCER_ERROR + subject +
                         ". NATS connection doesn't exist.");
             }
@@ -61,7 +62,7 @@ public class Publish {
                             getSubscriptionConfig(((ObjectValue) replyTo).getType().getAnnotation(
                                     Constants.NATS_PACKAGE, Constants.SUBSCRIPTION_CONFIG));
                     if (subscriptionConfig == null) {
-                        NatsMetricsUtil.reportProducerError(url, subject,
+                        natsMetricsUtil.reportProducerError(subject,
                                                             NatsObservabilityConstants.ERROR_TYPE_PUBLISH);
                         return Utils.createNatsError("Cannot find subscription configuration");
                     }
@@ -70,9 +71,9 @@ public class Publish {
                 } else {
                     natsConnection.publish(subject, byteContent);
                 }
-                NatsMetricsUtil.reportPublish(natsConnection.getConnectedUrl(), subject, byteContent.length);
+                natsMetricsUtil.reportPublish(subject, byteContent.length);
             } catch (IllegalArgumentException | IllegalStateException ex) {
-                NatsMetricsUtil.reportProducerError(url, subject, NatsObservabilityConstants.ERROR_TYPE_PUBLISH);
+                natsMetricsUtil.reportProducerError(subject, NatsObservabilityConstants.ERROR_TYPE_PUBLISH);
                 return BallerinaErrors.createError(Constants.NATS_ERROR_CODE, Constants.PRODUCER_ERROR + subject +
                         ". " + ex.getMessage());
             }
