@@ -262,15 +262,15 @@ public class BallerinaLexer {
     }
 
     private STToken getSyntaxToken(SyntaxKind kind) {
-        STNode leadingTrivia = STNodeFactory.makeNodeList(this.leadingTriviaList);
-        STNode trailingTrivia = STNodeFactory.makeNodeList(new ArrayList<>(0));
-        return STNodeFactory.makeToken(kind, leadingTrivia, trailingTrivia);
+        STNode leadingTrivia = STNodeFactory.createNodeList(this.leadingTriviaList);
+        STNode trailingTrivia = STNodeFactory.createNodeList(new ArrayList<>(0));
+        return STNodeFactory.createToken(kind, leadingTrivia, trailingTrivia);
     }
 
     private STToken getIdentifierToken(String tokenText) {
-        STNode leadingTrivia = STNodeFactory.makeNodeList(this.leadingTriviaList);
-        STNode trailingTrivia = STNodeFactory.makeNodeList(new ArrayList<>(0));
-        return STNodeFactory.makeIdentifier(tokenText, leadingTrivia, trailingTrivia);
+        STNode leadingTrivia = STNodeFactory.createNodeList(this.leadingTriviaList);
+        STNode trailingTrivia = STNodeFactory.createNodeList(new ArrayList<>(0));
+        return STNodeFactory.createIdentifier(tokenText, leadingTrivia, trailingTrivia);
     }
 
     private void addTrivia(SyntaxKind kind) {
@@ -279,15 +279,15 @@ public class BallerinaLexer {
     }
 
     private STToken getLiteral(SyntaxKind kind) {
-        STNode leadingTrivia = STNodeFactory.makeNodeList(this.leadingTriviaList);
-        STNode trailingTrivia = STNodeFactory.makeNodeList(new ArrayList<>(0));
-        return STNodeFactory.makeLiteralValueToken(kind, getLexeme(), -1, leadingTrivia, trailingTrivia);
+        STNode leadingTrivia = STNodeFactory.createNodeList(this.leadingTriviaList);
+        STNode trailingTrivia = STNodeFactory.createNodeList(new ArrayList<>(0));
+        return STNodeFactory.createLiteralValueToken(kind, getLexeme(), -1, leadingTrivia, trailingTrivia);
     }
 
     private STToken getTypeToken(String tokenText) {
-        STNode leadingTrivia = STNodeFactory.makeNodeList(this.leadingTriviaList);
-        STNode trailingTrivia = STNodeFactory.makeNodeList(new ArrayList<>(0));
-        return STNodeFactory.makeTypeToken(SyntaxKind.SIMPLE_TYPE, tokenText, leadingTrivia, trailingTrivia);
+        STNode leadingTrivia = STNodeFactory.createNodeList(this.leadingTriviaList);
+        STNode trailingTrivia = STNodeFactory.createNodeList(new ArrayList<>(0));
+        return STNodeFactory.createTypeToken(SyntaxKind.SIMPLE_TYPE, tokenText, leadingTrivia, trailingTrivia);
     }
 
     /**

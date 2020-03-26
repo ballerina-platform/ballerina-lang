@@ -254,7 +254,7 @@ public class BallerinaParserErrorHandler {
             reportMissingTokenError("missing " + fix.ctx);
         }
 
-        return STNodeFactory.makeMissingToken(fix.tokenKind);
+        return STNodeFactory.createMissingToken(fix.tokenKind);
     }
 
     /**
