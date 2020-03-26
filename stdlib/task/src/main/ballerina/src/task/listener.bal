@@ -27,7 +27,7 @@ public type Listener object {
     # Initializes the `task:Listener` object. This may panic if the initialization is failed due to a configuration
     # error.
     #
-    # + configurations - The `task:TimerConfiguration` or a `task:AppointmentConfiguration` record to define the
+    # + configurations - A `task:TimerConfiguration` or `task:AppointmentConfiguration` record to define the
     # `task:Listener` behavior
     public function __init(TimerConfiguration|AppointmentConfiguration configurations) {
         if (configurations is TimerConfiguration) {
@@ -42,11 +42,11 @@ public type Listener object {
         }
     }
 
-    # Attaches the given `service` to the `task:Listener`. This may panic if the service attachment is failed.
+    # Attaches the given `service` to the `task:Listener`. This may panic if the service attachment is fails.
     #
     # + s - Service to attach to the listener
     # + name - Name of the service
-    # + return - Returns nil, if the attaching the service is successfull
+    # + return - Returns nil if attaching the service is successful
     public function __attach(service s, string? name = ()) returns error? {
         // ignore param 'name'
         var result = attachExternal(self, s);
@@ -58,7 +58,7 @@ public type Listener object {
     # Detaches the given `service` from the `task:Listener`.
     #
     # + s - Service to be detached from the listener
-    # + return - Return nil, if the detaching the service is successfull
+    # + return - Returns nil if detaching the service is successful
     public function __detach(service s) returns error? {
         return detachExternal(self, s);
     }
@@ -66,7 +66,7 @@ public type Listener object {
     # Starts dispatching the services attached to the `task:Listener`. This may panic if the service dispatching causes
     # any error.
     #
-    # + return - Returns nil, if the strating the services successfull
+    # + return - Returns nil if strating the services is successful
     public function __start() returns error? {
         var result = startExternal(self);
         if (result is error) {
@@ -80,7 +80,7 @@ public type Listener object {
     # Gracefully stops the `task:Listener` and the attached services. It will wait if there are any tasks still to be
     # completed. This may panic if the stopping causes any error.
     #
-    # + return - Returns nil, if the stopping the listener successfull
+    # + return - Returns nil if stopping the listener is successful
     public function __gracefulStop() returns error? {
         var result = stopExternal(self);
         if (result is error) {
@@ -91,10 +91,10 @@ public type Listener object {
         }
     }
 
-    # Immediately stops the `task:Listener` and the attached services. This will cancel any ongoing tasks. This may
+    # Stops the `task:Listener` and the attached services immediately. This will cancel any ongoing tasks. This may
     # panic if the stopping causes any error.
     #
-    # + return - Returns nil, if the stopping the listener successfull
+    # + return - Returns nil if the stopping the listener is successful
     public function __immediateStop() returns error? {
         var result = stopExternal(self);
         if (result is error) {
@@ -111,14 +111,14 @@ public type Listener object {
 
     # Pauses the `task:Listener` and the attached services.
     #
-    # + return - Returns `task:ListenerError` if an error is occurred while resuming, nil Otherwise
+    # + return - Returns `task:ListenerError` if an error is occurred while resuming or nil Otherwise
     public function pause() returns ListenerError? {
         return pauseExternal(self);
     }
 
-    # Resumes a paused `task:Listener`. Calling this on already running `task:Listener` will not cause any error.
+    # Resumes a paused `task:Listener`. Calling this on an already running `task:Listener` will not cause any error.
     #
-    # + return - Returns `task:ListenerError` when an error occurred while pausing, nil Otherwise
+    # + return - Returns `task:ListenerError` when an error occurred while pausing or nil Otherwise
     public function resume() returns ListenerError? {
         return resumeExternal(self);
     }

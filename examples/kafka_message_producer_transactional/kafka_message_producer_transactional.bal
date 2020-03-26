@@ -2,16 +2,16 @@ import ballerina/io;
 import ballerina/kafka;
 
 kafka:ProducerConfiguration producerConfigs = {
-    // `bootstrapServers` is the list of remote server endpoints of the Kafka
-    // brokers.
+    // The `bootstrapServers` is the list of remote server endpoints of the
+    // Kafka brokers.
     bootstrapServers: "localhost:9092",
     clientId: "basic-producer",
     acks: "all",
     retryCount: 3,
-    // `enableIdempotence` should set to `true` to make a producer
+    // The `enableIdempotence` should set to `true` to make a producer
     // transactional.
     enableIdempotence: true,
-    // a `transactionalId` must be provided to make a producer transactional.
+    // A `transactionalId` must be provided to make a producer transactional.
     transactionalId: "test-transactional-id"
 };
 
