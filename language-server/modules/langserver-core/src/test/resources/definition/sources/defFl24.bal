@@ -76,4 +76,12 @@ function testTyeDescriptors() {
 
 
 
+type Person record {
+    string fname = "";
+    string lname = "";
+};
 
+type Employee record {
+    *Person;
+    string name;
+};

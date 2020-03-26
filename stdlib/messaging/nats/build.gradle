@@ -59,6 +59,7 @@ dependencies {
 
     interopImports project(':ballerina-log-api')
     interopImports project(':ballerina-time')
+    interopImports 'io.nats:java-nats-streaming:2.2.1'
 
     testCompile 'org.testng:testng'
     testCompile project(path: ':ballerina-test-utils', configuration: 'shadow')

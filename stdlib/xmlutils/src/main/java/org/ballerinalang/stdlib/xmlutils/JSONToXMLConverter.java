@@ -132,7 +132,7 @@ public class JSONToXMLConverter {
             XMLValidator.validateXMLName(nodeName);
 
             XMLQName tagName = new XMLQName(nodeName);
-            currentRoot = (XMLItem) XMLFactory.createXMLElement(tagName, tagName, (BString) null);
+            currentRoot = (XMLItem) XMLFactory.createXMLElement(tagName, (BString) null);
         }
 
         if (json == null) {

@@ -39,7 +39,7 @@ service {{serviceName}} on ep {
     }{{/unaryFunctions}}
 }
 
-{{#each messageList}}{{> message}}{{/each}}
+{{#each messageMap}}{{> message}}{{/each}}
 {{#enumList}}{{> enum}}{{/enumList}}{{#if rootDescriptor}}
 const string ROOT_DESCRIPTOR = "{{rootDescriptor}}";
 function getDescriptorMap() returns map<string> {

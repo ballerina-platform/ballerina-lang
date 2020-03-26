@@ -22,7 +22,7 @@ function name3() {
 function name4() {
     int b = 0;
     while
-    (b > 0)
+        (b > 0)
     {
     }
 }

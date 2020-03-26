@@ -38,6 +38,7 @@ public class FunctionPointersTest {
 
     @BeforeClass
     public void setup() {
+        BaloCreator.cleanCacheDirectories();
         BaloCreator.createAndSetupBalo("test-src/balo/test_projects/test_project", "testorg", "foo");
         result = BCompileUtil.compile("test-src/balo/test_balo/functions/test_global_function_pointers.bal");
     }

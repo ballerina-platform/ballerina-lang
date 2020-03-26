@@ -6,10 +6,18 @@
   "source": "function/source/completionWithinRecord.bal",
   "items": [
     {
+      "label": "...rec",
+      "kind": "Variable",
+      "detail": "OuterRec",
+      "sortText": "130",
+      "insertText": "...rec",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "outerRecField1",
       "kind": "Field",
       "detail": "Field",
-      "sortText": "180",
+      "sortText": "210",
       "insertText": "outerRecField1: ${1:0}",
       "insertTextFormat": "Snippet"
     },
@@ -17,7 +25,7 @@
       "label": "outerRecField2",
       "kind": "Field",
       "detail": "Field",
-      "sortText": "180",
+      "sortText": "210",
       "insertText": "outerRecField2: \"${1}\"",
       "insertTextFormat": "Snippet"
     },
@@ -25,7 +33,7 @@
       "label": "innerRec",
       "kind": "Field",
       "detail": "Field",
-      "sortText": "180",
+      "sortText": "210",
       "insertText": "innerRec: {\n\tinner2Rec: {${1}}\n}",
       "insertTextFormat": "Snippet"
     },
@@ -33,7 +41,7 @@
       "label": "Add All Attributes",
       "kind": "Property",
       "detail": "none",
-      "sortText": "220",
+      "sortText": "110",
       "insertText": "outerRecField1: 0,\nouterRecField2: \"\",\ninnerRec: {}",
       "insertTextFormat": "Snippet"
     }

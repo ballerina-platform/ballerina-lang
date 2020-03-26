@@ -18,14 +18,14 @@ import ballerina/http;
 import ballerina/kafka;
 import ballerina/log;
 
-kafka:ProducerConfig producerConfigs1 = {
+kafka:ProducerConfiguration producerConfigs1 = {
     bootstrapServers: "localhost:14110",
     clientId: "producer_1",
     acks: "all",
     retryCount: 3
 };
 
-kafka:ProducerConfig producerConfigs2 = {
+kafka:ProducerConfiguration producerConfigs2 = {
     bootstrapServers: "localhost:14110",
     clientId: "producer_2",
     acks: "all",

@@ -66,6 +66,14 @@ public class LaunchUtils {
             return args;
         }
         Map<String, String> configArgs = new HashMap<>();
+        String[] userProgramArgs = getUserArgs(args, configArgs);
+
+        // load configurations
+        loadConfigurations(configArgs, configArgs.get(CONFIG_FILE_PROPERTY));
+        return userProgramArgs;
+    }
+
+    public static String[] getUserArgs(String[] args, Map<String, String> configArgs) {
         List<String> userProgramArgs = new ArrayList<>();
         for (int i = 0; i < args.length; i++) {
             if (args[i].equals(BALLERINA_ARGS_INIT_PREFIX)) {
@@ -82,9 +90,6 @@ public class LaunchUtils {
             }
             userProgramArgs.add(args[i]);
         }
-
-        // load configurations
-        loadConfigurations(configArgs, configArgs.get(CONFIG_FILE_PROPERTY));
         return userProgramArgs.toArray(new String[0]);
     }
 

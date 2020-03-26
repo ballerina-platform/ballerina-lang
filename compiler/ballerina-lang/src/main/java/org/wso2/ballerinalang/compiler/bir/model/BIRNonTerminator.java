@@ -17,9 +17,10 @@
  */
 package org.wso2.ballerinalang.compiler.bir.model;
 
-import org.ballerinalang.model.Name;
 import org.ballerinalang.model.elements.PackageID;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.SchedulerPolicy;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import java.util.List;
@@ -33,7 +34,7 @@ import java.util.List;
  */
 public abstract class BIRNonTerminator extends BIRAbstractInstruction implements BIRInstruction {
 
-    BIRNonTerminator(DiagnosticPos pos, InstructionKind kind) {
+    public BIRNonTerminator(DiagnosticPos pos, InstructionKind kind) {
         super(pos, kind);
     }
 
@@ -408,15 +409,12 @@ public abstract class BIRNonTerminator extends BIRAbstractInstruction implements
      */
     public static class NewXMLElement extends BIRNonTerminator {
         public BIROperand startTagOp;
-        public BIROperand endTagOp;
         public BIROperand defaultNsURIOp;
 
-        public NewXMLElement(DiagnosticPos pos, BIROperand lhsOp, BIROperand startTagOp, BIROperand endTagOp,
-                BIROperand defaultNsURIOp) {
+        public NewXMLElement(DiagnosticPos pos, BIROperand lhsOp, BIROperand startTagOp, BIROperand defaultNsURIOp) {
             super(pos, InstructionKind.NEW_XML_ELEMENT);
             this.lhsOp = lhsOp;
             this.startTagOp = startTagOp;
-            this.endTagOp = endTagOp;
             this.defaultNsURIOp = defaultNsURIOp;
         }
 
@@ -569,6 +567,7 @@ public abstract class BIRNonTerminator extends BIRAbstractInstruction implements
      * @since 0.995.0
      */
     public static class FPLoad extends BIRNonTerminator {
+        public SchedulerPolicy schedulerPolicy;
         public Name funcName;
         public PackageID pkgId;
         public List<BIRVariableDcl> params;
@@ -576,8 +575,10 @@ public abstract class BIRNonTerminator extends BIRAbstractInstruction implements
         public BType retType;
 
         public FPLoad(DiagnosticPos pos, PackageID pkgId, Name funcName, BIROperand lhsOp,
-                      List<BIRVariableDcl> params, List<BIROperand> closureMaps, BType retType) {
+                      List<BIRVariableDcl> params, List<BIROperand> closureMaps, BType retType,
+                      SchedulerPolicy schedulerPolicy) {
             super(pos, InstructionKind.FP_LOAD);
+            this.schedulerPolicy = schedulerPolicy;
             this.lhsOp = lhsOp;
             this.funcName = funcName;
             this.pkgId = pkgId;

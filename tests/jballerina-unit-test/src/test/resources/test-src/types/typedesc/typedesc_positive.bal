@@ -92,4 +92,13 @@ function testMethodLevelTypeDesc() returns typedesc<any> {
     return methodLocalTypeDesc;
 }
 
+const FOO_REASON = "FooError";
 
+type FooError error<FOO_REASON>;
+
+function testCustomErrorTypeDesc() {
+    typedesc<error> te = FooError;
+    if (!(te is typedesc<FooError>)) {
+        panic error("AssertionError", message = "expected typedesc<FooError> but found: " + te.toString());
+    }
+}

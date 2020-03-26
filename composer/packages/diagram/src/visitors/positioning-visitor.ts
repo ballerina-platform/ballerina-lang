@@ -1,8 +1,8 @@
 import {
-    ASTKindChecker, ASTUtil, Block, CompilationUnit, Foreach,
-    Function as BalFunction, Function as FunctionNode, If, Lambda, Match, MatchStaticPatternClause,
-    MatchStructuredPatternClause, ObjectType, Service, TypeDefinition, Variable, VariableDef, VisibleEndpoint,
-    Visitor, While
+    ASTKindChecker, ASTUtil, Block, BlockFunctionBody, CompilationUnit,
+    Foreach, Function as BalFunction, Function as FunctionNode, If, Lambda, Match,
+    MatchStaticPatternClause, MatchStructuredPatternClause, ObjectType, Service, TypeDefinition, Variable, VariableDef,
+    VisibleEndpoint, Visitor, While
 } from "@ballerina/ast-model";
 import { DiagramConfig } from "../config/default";
 import { DiagramUtils } from "../diagram/diagram-utils";
@@ -79,7 +79,9 @@ class PositioningVisitor implements Visitor {
         let workerX: number;
         let workerY: number;
 
-        const workers = node.body.statements.filter((element: any) => ASTUtil.isWorker(element));
+        const workers = ASTKindChecker.isBlockFunctionBody(node.body)
+            ? (node.body as BlockFunctionBody).statements.filter((element: any) => ASTUtil.isWorker(element))
+            : [];
 
         // They way we position function components depends on whether this is an expanded function
         // or a regular functions
@@ -149,6 +151,10 @@ class PositioningVisitor implements Visitor {
         // Update the width of children
         viewState.body.w = viewState.bBox.w;
         viewState.header.w = viewState.bBox.w;
+    }
+
+    public beginVisitBlockFunctionBody(node: BlockFunctionBody) {
+        this.beginVisitBlock(node);
     }
 
     public beginVisitBlock(node: Block) {

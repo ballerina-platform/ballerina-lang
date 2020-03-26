@@ -30,11 +30,14 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangDoClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangFromClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangLetClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWhereClause;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryAction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStatementExpression;
@@ -42,12 +45,12 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangQueryAction;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangSimpleVariableDef;
+import org.wso2.ballerinalang.compiler.tree.types.BLangLetVariable;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
-import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
+import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLogHelper;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.util.Lists;
 
@@ -66,7 +69,7 @@ public class QueryDesugar extends BLangNodeVisitor {
     private final Desugar desugar;
     private final SymbolTable symTable;
     private final BLangAnonymousModelHelper anonymousModelHelper;
-    private BLangDiagnosticLog dlog;
+    private BLangDiagnosticLogHelper dlog;
     private final SymbolResolver symResolver;
     private final Names names;
     private final Types types;
@@ -79,7 +82,7 @@ public class QueryDesugar extends BLangNodeVisitor {
         this.symbolEnter = SymbolEnter.getInstance(context);
         this.names = Names.getInstance(context);
         this.types = Types.getInstance(context);
-        this.dlog = BLangDiagnosticLog.getInstance(context);
+        this.dlog = BLangDiagnosticLogHelper.getInstance(context);
         this.desugar = Desugar.getInstance(context);
         this.anonymousModelHelper = BLangAnonymousModelHelper.getInstance(context);
     }
@@ -98,6 +101,7 @@ public class QueryDesugar extends BLangNodeVisitor {
         BLangFromClause fromClause = fromClauseList.get(0);
         BLangSelectClause selectClause = queryExpr.selectClause;
         List<BLangWhereClause> whereClauseList = queryExpr.whereClauseList;
+        List<BLangLetClause> letClauseList = queryExpr.letClausesList;
         DiagnosticPos pos = fromClause.pos;
 
         // Create Foreach statement
@@ -139,11 +143,12 @@ public class QueryDesugar extends BLangNodeVisitor {
         BLangIndexBasedAccess indexAccessExpr = ASTBuilderUtil.createIndexAccessExpr(outputVarRef, lengthInvocation);
         indexAccessExpr.type = selectClause.expression.type;
 
+        buildWhereClauseBlock(whereClauseList, letClauseList, leafForeach, foreachBody, selectClause.pos);
+
+        // Set the indexed based access expression statement as foreach body
         BLangAssignment outputVarAssignment = ASTBuilderUtil.createAssignmentStmt(pos, indexAccessExpr,
                 selectClause.expression);
-        // Set the indexed based access expression statement as foreach body
         foreachBody.addStatement(outputVarAssignment);
-        buildWhereClauseBlock(whereClauseList, leafForeach, foreachBody, selectClause.pos);
 
         // Create block statement with temp variable definition statement & foreach statement
         BLangBlockStmt blockStmt = ASTBuilderUtil.createBlockStmt(pos);
@@ -155,21 +160,46 @@ public class QueryDesugar extends BLangNodeVisitor {
         return stmtExpr;
     }
 
-    BLangBlockStmt desugarQueryAction(BLangQueryAction queryAction, SymbolEnv env) {
+    BLangStatementExpression desugarQueryAction(BLangQueryAction queryAction, SymbolEnv env) {
         BLangBlockStmt blockNode = ASTBuilderUtil.createBlockStmt(queryAction.pos);
         List<BLangFromClause> fromClauseList = queryAction.fromClauseList;
+        List<BLangLetClause> letClauseList = queryAction.letClauseList;
         BLangFromClause fromClause = fromClauseList.get(0);
         BLangDoClause doClause = queryAction.doClause;
         List<BLangWhereClause> whereClauseList = queryAction.whereClauseList;
         DiagnosticPos pos = fromClause.pos;
 
+        BLangExpression nilExpression = ASTBuilderUtil.createLiteral(pos, symTable.nilType, Names.NIL_VALUE);
+        BVarSymbol outputVarSymbol = new BVarSymbol(0, new Name("$outputVar$"),
+                env.scope.owner.pkgID, symTable.errorOrNilType, env.scope.owner);
+        BLangSimpleVariable outputVariable =
+                ASTBuilderUtil.createVariable(pos, "$outputVar$", symTable.errorOrNilType,
+                        nilExpression, outputVarSymbol);
+        BLangSimpleVariableDef outputVariableDef =
+                ASTBuilderUtil.createVariableDef(pos, outputVariable);
+        BLangSimpleVarRef outputVarRef = ASTBuilderUtil.createVariableRef(pos, outputVariable.symbol);
+
         BLangForeach leafForeach = buildFromClauseBlock(fromClauseList);
         BLangBlockStmt foreachBody = ASTBuilderUtil.createBlockStmt(pos);
-        buildWhereClauseBlock(whereClauseList, leafForeach, foreachBody, doClause.pos);
-
-        leafForeach.setBody(doClause.body);
+        buildWhereClauseBlock(whereClauseList, letClauseList, leafForeach, foreachBody, doClause.pos);
+        foreachBody.addStatement(doClause.body);
+        blockNode.stmts.add(outputVariableDef);
         blockNode.stmts.add(parentForeach);
-        return blockNode;
+
+        BLangStatementExpression stmtExpr = ASTBuilderUtil.createStatementExpression(blockNode, outputVarRef);
+        stmtExpr.type = symTable.errorOrNilType;
+        return stmtExpr;
+    }
+
+    private void buildLetClauseBlock(List<BLangLetClause> letClauseList, BLangBlockStmt bLangBlockStmt) {
+        // Create variable definitions for the let variable declarations
+        if (letClauseList != null) {
+            for (BLangLetClause letClause : letClauseList) {
+                for (BLangLetVariable letVariable  : letClause.letVarDeclarations) {
+                    bLangBlockStmt.addStatement(letVariable.definitionNode);
+                }
+            }
+        }
     }
 
     private BLangForeach buildFromClauseBlock(List<BLangFromClause> fromClauseList) {
@@ -197,8 +227,8 @@ public class QueryDesugar extends BLangNodeVisitor {
         return leafForeach;
     }
 
-    private void buildWhereClauseBlock(List<BLangWhereClause> whereClauseList, BLangForeach leafForEach,
-                                       BLangBlockStmt foreachBody, DiagnosticPos pos) {
+    private void buildWhereClauseBlock(List<BLangWhereClause> whereClauseList, List<BLangLetClause> letClauseList,
+                                       BLangForeach leafForEach, BLangBlockStmt foreachBody, DiagnosticPos pos) {
         if (whereClauseList.size() > 0) {
             // Create If Statement with Where expression and foreach body
             BLangIf outerIf = null;
@@ -218,9 +248,11 @@ public class QueryDesugar extends BLangNodeVisitor {
             }
             innerIf.setBody(foreachBody);
             BLangBlockStmt bLangBlockStmt = ASTBuilderUtil.createBlockStmt(pos);
+            buildLetClauseBlock(letClauseList, bLangBlockStmt);
             bLangBlockStmt.addStatement(outerIf);
             leafForEach.setBody(bLangBlockStmt);
         } else {
+            buildLetClauseBlock(letClauseList, foreachBody);
             leafForEach.setBody(foreachBody);
         }
     }

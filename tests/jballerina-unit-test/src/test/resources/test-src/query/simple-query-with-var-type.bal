@@ -185,3 +185,37 @@ function testQueryExpressionWithVarType() returns Teacher[]{
 
     return  outputPersonList;
 }
+
+function testSimpleSelectQueryWithSpreadOperator() returns Person[]{
+    Person p1 = {firstName: "Alex", lastName: "George", age: 23};
+    Person p2 = {firstName: "Ranjan", lastName: "Fonseka", age: 30};
+    Person p3 = {firstName: "John", lastName: "David", age: 33};
+
+    Person[] personList = [p1, p2, p3];
+
+    Person[] outputPersonList =
+            from var person in personList
+            select {
+                   ...person
+            };
+
+    return  outputPersonList;
+}
+
+function testQueryExpressionWithSpreadOperatorV2() returns Teacher[]{
+
+    Person p1 = {firstName: "Alex", lastName: "George", age: 23};
+    Person p2 = {firstName: "Ranjan", lastName: "Fonseka", age: 30};
+    Person p3 = {firstName: "John", lastName: "David", age: 33};
+
+    Person[] personList = [p1, p2, p3];
+
+    var outputPersonList =
+            from var person in personList
+            select {
+                   ...person,
+                   teacherId: "TER1200"
+            };
+
+    return  outputPersonList;
+}

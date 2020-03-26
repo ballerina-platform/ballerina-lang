@@ -27,7 +27,7 @@ function testNegative2() {
 
 function testNegative3() {
     [string, int, float] [s1, i1, f1] = ["D", 4, 6.7, 45];
-    [int, byte, boolean] [s2, i2, r2] = [4, 6];
+    [int, byte, NoFillerObject] [s2, i2, r2] = [4, 6];
     [string, int, float] [s3, i3, f3] = [4, 5.6, "3"];
 }
 
@@ -109,3 +109,6 @@ function testIgnoredVariables() {
 function testInvalidTupleVarDef3() {
     string|int [p, q] = [0, 0];
 }
+
+type NoFillerObject abstract object {
+};

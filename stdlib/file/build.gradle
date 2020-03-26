@@ -42,6 +42,7 @@ dependencies {
     baloImplementation project(path: ':ballerina-io', configuration: 'baloImplementation')
 
     interopImports project(':ballerina-time')
+    interopImports 'org.wso2.transport.file:org.wso2.transport.local-file-system:6.0.55'
 
     testCompile project(':ballerina-test-utils')
     testCompile project(':ballerina-reflect')

@@ -21,6 +21,7 @@ import org.ballerinalang.jvm.BRuntime;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.nats.Constants;
+import org.ballerinalang.nats.Utils;
 
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
@@ -43,9 +44,8 @@ public class Attach {
                 (ConcurrentHashMap<ObjectValue, StreamingListener>) streamingListener
                         .getNativeData(STREAMING_DISPATCHER_LIST);
         boolean manualAck = getAckMode(service);
-        serviceListenerMap.put(service, new StreamingListener(service, manualAck, BRuntime.getCurrentRuntime(),
-                                                              streamingListener.getObjectValue("connection")
-                                                                      .getStringValue(Constants.URL)));
+        String url = Utils.getCommaSeparatedUrl(streamingListener.getObjectValue("connection"));
+        serviceListenerMap.put(service, new StreamingListener(service, manualAck, BRuntime.getCurrentRuntime(), url));
     }
 
     private static boolean getAckMode(ObjectValue service) {

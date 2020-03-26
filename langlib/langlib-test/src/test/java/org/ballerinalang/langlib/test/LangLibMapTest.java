@@ -102,6 +102,11 @@ public class LangLibMapTest {
         assertEquals(map.get("us").stringValue(), "USA");
     }
 
+    @Test
+    public void testRemoveIfHasKey() {
+        BRunUtil.invoke(compileResult, "testRemoveIfHasKey");
+    }
+
     @Test(expectedExceptions = BLangRuntimeException.class,
           expectedExceptionsMessageRegExp =
                   ".*error: \\{ballerina/lang.map\\}KeyNotFound message=cannot find key 'NonExistent'.*")
@@ -173,6 +178,36 @@ public class LangLibMapTest {
     public void testReduce() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testReduce");
         assertEquals(((BFloat) returns[0]).floatValue(), 80.5);
+    }
+
+    @Test
+    public void testBasicToArray() {
+        BRunUtil.invoke(compileResult, "testBasicToArray");
+    }
+
+    @Test
+    public void testLargeMapToArray() {
+        BRunUtil.invoke(compileResult, "testLargeMapToArray");
+    }
+
+    @Test
+    public void testRecordToArray() {
+        BRunUtil.invoke(compileResult, "testRecordToArray");
+    }
+
+    @Test
+    public void testOpenRecordToArray() {
+        BRunUtil.invoke(compileResult, "testOpenRecordToArray");
+    }
+
+    @Test
+    public void testMapOfUnionToArray() {
+        BRunUtil.invoke(compileResult, "testMapOfUnionToArray");
+    }
+
+    @Test
+    public void testRecordWithSameTypeFieldsToArray() {
+        BRunUtil.invoke(compileResult, "testRecordWithSameTypeFieldsToArray");
     }
 
     @DataProvider(name = "mapKeyProvider")

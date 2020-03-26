@@ -9,7 +9,7 @@ function test2() {
 
 function test3() {
     test1("value",
-    ...
-    names
+        ...
+        names
     );
 }

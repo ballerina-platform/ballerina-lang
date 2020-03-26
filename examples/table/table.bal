@@ -56,13 +56,13 @@ public function main() {
     io:println("Table Information: ", tb);
 
     // Access the rows using the `foreach` loop.
-    io:println("Using foreach: ");
+    io:println("Using foreach:");
     foreach var x in tb {
         io:println("Name: ", x.name);
     }
 
     // Access rows using the `while` loop.
-    io:println("Using while loop: ");
+    io:println("Using while loop:");
     while (tb.hasNext()) {
         var ret = tb.getNext();
         io:println("Name: ", ret.name);

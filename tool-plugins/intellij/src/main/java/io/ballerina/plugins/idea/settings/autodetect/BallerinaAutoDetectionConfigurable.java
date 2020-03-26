@@ -71,7 +71,6 @@ public class BallerinaAutoDetectionConfigurable implements SearchableConfigurabl
     @Override
     public void apply() {
         myBalHomeAutoDetectionSettings.setIsAutoDetectionEnabled(myAutoDetectionCb.isSelected());
-        // Todo - Remove after adding support to apply SDK changes on-the-fly.
         BallerinaSdkUtils.showRestartDialog(project);
     }
 

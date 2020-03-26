@@ -19,8 +19,7 @@
     "coverage": "composer pkg:test:coverage",
     "watch": "composer pkg:watch",
     "watch:test": "composer pkg:test:watch",
-    "gen-ast-utils": "npm run build && node lib/tools/generate",
-    "gen-default-nodes": "npm run build && node lib/tools/gen-default-nodes"
+    "gen-ast-utils": "npm run build && node lib/tools/generate"
   },
   "dependencies": {
     "@ballerina/lang-service": "^1.2.0-SNAPSHOT",

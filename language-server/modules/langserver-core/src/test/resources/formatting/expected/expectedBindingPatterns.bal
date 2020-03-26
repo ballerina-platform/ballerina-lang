@@ -145,7 +145,7 @@ function getAgeRecord() returns Age {
     return a;
 }
 
-function testRestParameter() returns map<anydata | error> {
+function testRestParameter() returns map<anydata|error> {
     PersonWithAge p = {
         name: "John",
         age: {age: 30, format: "YY"},
@@ -157,7 +157,7 @@ function testRestParameter() returns map<anydata | error> {
     return rest;
 }
 
-function testNestedRestParameter() returns [map<anydata | error>, map<anydata | error>] {
+function testNestedRestParameter() returns [map<anydata|error>, map<anydata|error>] {
     PersonWithAge p = {
         name: "John",
         age: {
@@ -172,7 +172,7 @@ function testNestedRestParameter() returns [map<anydata | error>, map<anydata | 
     return [rest1, rest2];
 }
 
-function testVariableAssignment() returns [string, int, string, boolean, map<anydata | error>] {
+function testVariableAssignment() returns [string, int, string, boolean, map<anydata|error>] {
     PersonWithAge person = {
         name: "Peter",
         age: {age: 29, format: "Y"},
@@ -183,7 +183,7 @@ function testVariableAssignment() returns [string, int, string, boolean, map<any
     return [fName, age, format, married, rest];
 }
 
-function testVariableAssignment2() returns [string, int, string, boolean, map<anydata | error>] {
+function testVariableAssignment2() returns [string, int, string, boolean, map<anydata|error>] {
     PersonWithAge person = {
         name: "Peter",
         age: {age: 29, format: "Y"},
@@ -225,7 +225,7 @@ type Child record {
     [int, Age] yearAndAge;
 };
 
-function testRecordInsideTupleInsideRecord() returns [string[], string, map<anydata | error>] {
+function testRecordInsideTupleInsideRecord() returns [string[], string, map<anydata|error>] {
     [int, Age] yearAndAge1 = [1992, {age: 26, format: "Y"}];
     [int, Age] yearAndAge2 = [1994, {age: 24, format: "X"}];
     [int, Age] yearAndAge3 = [1996, {age: 22, format: "Z"}];
@@ -259,7 +259,7 @@ function testRecordInsideTupleInsideRecord2() returns [string, int, int, string]
     return [name, yearInt, age, format];
 }
 
-function testRecordInsideTupleInsideRecordWithVar() returns [string[], string, map<anydata | error>] {
+function testRecordInsideTupleInsideRecordWithVar() returns [string[], string, map<anydata|error>] {
     [int, Age] yearAndAge1 = [1992, {age: 26, format: "Y"}];
     [int, Age] yearAndAge2 = [1994, {age: 24, format: "X"}];
     [int, Age] yearAndAge3 = [1996, {age: 22, format: "Z"}];
@@ -307,10 +307,10 @@ type UnionTwo record {
 type UnionThree record {
     int var1;
     float var2;
-    UnionOne | UnionTwo var3;
+    UnionOne|UnionTwo var3;
 };
 
-function testRecordVarWithUnionType() returns [int, float, (UnionOne | UnionTwo)] {
+function testRecordVarWithUnionType() returns [int, float, (UnionOne|UnionTwo)] {
     UnionOne u1 = {var1: false, var2: 12, restP1: "stringP1", restP2: true};
     UnionThree u3 = {var1: 50, var2: 51.1, var3: u1};
     UnionThree {var1, var2, var3, ...rest} = u3;
@@ -331,9 +331,9 @@ type UnionRec2 record {|
     float...;
 |};
 
-function testUnionRecordVariable() returns [string | boolean, string | boolean, string | boolean?, int | float?] {
+function testUnionRecordVariable() returns [string|boolean, string|boolean, string|boolean?, int|float?] {
     UnionRec1 rec = {var1: "A", var2: "B"};
-    UnionRec1 | UnionRec2 {var1, var2, var3, var4} = rec;
+    UnionRec1|UnionRec2 {var1, var2, var3, var4} = rec;
 
     return [var1, var2, var3, var4];
 }

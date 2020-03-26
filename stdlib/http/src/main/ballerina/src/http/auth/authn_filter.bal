@@ -19,9 +19,9 @@
 # + authHandlers - An array of authentication handlers
 public type AuthnFilter object {
 
-    public InboundAuthHandler[]|InboundAuthHandler[][] authHandlers;
+    public InboundAuthHandlers authHandlers;
 
-    public function __init(InboundAuthHandler[]|InboundAuthHandler[][] authHandlers) {
+    public function __init(InboundAuthHandlers authHandlers) {
         self.authHandlers = authHandlers;
     }
 
@@ -32,15 +32,13 @@ public type AuthnFilter object {
     # + context - A filter context
     # + return - Returns `true` if the filter succeeds. Else, returns `false`.
     public function filterRequest(Caller caller, Request request, FilterContext context) returns boolean {
-        boolean|AuthenticationError authenticated;
-        var authHandlers = getAuthHandlers(context);
-        if (authHandlers is InboundAuthHandler[]|InboundAuthHandler[][]) {
+        boolean|AuthenticationError authenticated = true;
+        InboundAuthHandlers|boolean authHandlers = getAuthHandlers(context);
+        if (authHandlers is InboundAuthHandlers) {
             authenticated = handleAuthRequest(authHandlers, request);
         } else {
             if (authHandlers) {
                 authenticated = handleAuthRequest(self.authHandlers, request);
-            } else {
-                authenticated = true;
             }
         }
         return isAuthnSuccessful(caller, authenticated);
@@ -51,13 +49,12 @@ public type AuthnFilter object {
     }
 };
 
-function handleAuthRequest(InboundAuthHandler[]|InboundAuthHandler[][] authHandlers, Request request)
-                           returns boolean|AuthenticationError {
+function handleAuthRequest(InboundAuthHandlers authHandlers, Request request) returns boolean|AuthenticationError {
     if (authHandlers is InboundAuthHandler[]) {
         return checkForAuthHandlers(authHandlers, request);
     } else {
         foreach InboundAuthHandler[] authHandler in authHandlers {
-            var response = checkForAuthHandlers(authHandler, request);
+            boolean|AuthenticationError response = checkForAuthHandlers(authHandler, request);
             if (response is boolean) {
                 if (!response) {
                     return response;
@@ -75,7 +72,7 @@ function checkForAuthHandlers(InboundAuthHandler[] authHandlers, Request request
     foreach InboundAuthHandler authHandler in authHandlers {
         boolean canProcessResponse = authHandler.canProcess(request);
         if (canProcessResponse) {
-            var handleResponse = authHandler.process(request);
+            boolean|AuthenticationError handleResponse = authHandler.process(request);
             if (handleResponse is boolean) {
                 if (handleResponse) {
                     // If one of the authenticators from the chain could successfully authenticate the user,
@@ -106,7 +103,7 @@ function isAuthnSuccessful(Caller caller, boolean|AuthenticationError authentica
         return authenticated;
     }
     response.setTextPayload("Authentication failure.");
-    var err = caller->respond(response);
+    error? err = caller->respond(response);
     if (err is error) {
         panic <error> err;
     }

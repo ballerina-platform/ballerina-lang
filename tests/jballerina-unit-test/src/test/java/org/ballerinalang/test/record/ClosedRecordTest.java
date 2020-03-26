@@ -223,7 +223,7 @@ public class ClosedRecordTest {
                                           "'abstract', 'client', 'int', 'byte', 'float', 'decimal', 'boolean', " +
                                           "'string', 'error', 'map', 'json', 'xml', 'table', 'stream', 'any', " +
                                           "'typedesc', 'future', 'anydata', " +
-                                          "'handle', '(', '[', '|}', '*', '@', Identifier}",
+                                          "'handle', '(', '[', '|}', '*', '@', Identifier, DocumentationLineStart}",
                                   19, 25);
         BAssertUtil.validateError(result, 5,
                                   "mismatched input '}'. expecting {'service', 'function', 'object', 'record', " +
@@ -242,7 +242,7 @@ public class ClosedRecordTest {
                                           "'abstract', 'client', 'int', 'byte', 'float', 'decimal', 'boolean', " +
                                           "'string', 'error', 'map', 'json', 'xml', 'table', 'stream', 'any', " +
                                           "'typedesc', 'future', 'anydata', " +
-                                          "'handle', '}', '(', '[', '*', '@', Identifier}",
+                                          "'handle', '}', '(', '[', '*', '@', Identifier, DocumentationLineStart}",
                                   25, 25);
         BAssertUtil.validateError(result, 9,
                                   "mismatched input '|'. expecting {'service', 'function', 'object', 'record', " +
@@ -322,5 +322,25 @@ public class ClosedRecordTest {
         BAssertUtil.validateError(result, index++, "undefined field 'y' in record 'Foo'", 46, 36);
         BAssertUtil.validateError(result, index++, "undefined field 'z' in record 'Foo'", 46, 48);
         Assert.assertEquals(result.getErrorCount(), index);
+    }
+
+    @Test
+    public void testOptionalRecordRemove() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "removeOptional");
+    }
+
+    @Test
+    public void testRestRecordRemove() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "removeRest");
+    }
+
+    @Test
+    public void removeIfHasKeyOptional() {
+        BRunUtil.invoke(compileResult, "removeIfHasKeyOptional");
+    }
+
+    @Test
+    public void removeIfHasKeyRest() {
+        BRunUtil.invoke(compileResult, "removeIfHasKeyRest");
     }
 }
