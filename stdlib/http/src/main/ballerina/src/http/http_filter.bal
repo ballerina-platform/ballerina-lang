@@ -78,7 +78,7 @@ public type FilterContext object {
         return self.serviceName;
     }
 
-    # Gets the resource function name that the `FilerContext` is applied.
+    # Gets the resource function name to which the `FilerContext` is applied.
     #
     # + return  - name of the resource function
     public function getResourceName() returns string {
