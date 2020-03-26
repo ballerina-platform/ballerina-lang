@@ -64,7 +64,7 @@ public type Cookie object {
         return true;
     }
 
-    # Checks the validity of attributes of cookie.
+    # Checks the validity of the attributes of the cookie.
     #
     # + return  - `true` if the attributes of the cookie are in the correct format, otherwise an `error`
     public function isValid() returns boolean|InvalidCookieError {
