@@ -259,5 +259,4 @@
             <implementation-class>org.wso2.lsp4intellij.IntellijLanguageClient</implementation-class>
         </component>
     </application-components>
-
 </idea-plugin>
