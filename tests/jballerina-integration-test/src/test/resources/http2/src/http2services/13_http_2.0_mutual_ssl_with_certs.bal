@@ -1,4 +1,4 @@
-// Copyright (c) 2018 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+// Copyright (c) 2020 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 //
 // WSO2 Inc. licenses this file to you under the Apache License,
 // Version 2.0 (the "License"); you may not use this file except
@@ -17,16 +17,17 @@
 import ballerina/config;
 import ballerina/http;
 
-http:ListenerConfiguration mutualSslCertServiceConf = {
+http:ListenerConfiguration sslConf = {
     secureSocket: {
         keyFile: config:getAsString("certificate.key"),
         certFile: config:getAsString("public.cert"),
         trustedCertFile: config:getAsString("public.cert"),
         sslVerifyClient: "require"
-    }
+    },
+    httpVersion: "2.0"
 };
 
-listener http:Listener mutualSSLListener = new(9217, mutualSslCertServiceConf);
+listener http:Listener mutualSSLListener = new(9110, sslConf);
 
 @http:ServiceConfig {
     basePath:"/echo"
@@ -54,7 +55,7 @@ service mutualSSLService on mutualSSLListener {
                     + "D3WwdzAO8kZheemiZM5FZYhaXkBymNNe7qvL/aC6CuwyC3n+4GOtV+xabmH4T/p7HEcvq2SY0YGTpJ0OcUlvJ3UqzhTieK67"
                     + "dSFKmDN3hOBrxacFV9ybzub67erPkQpV4GpJUW9HShp0qXr6WuX1hg7WA6RgneWkq3y2h6sts/c5S/dAP8KlqghvEdv8lnAc"
                     + "SqjN3kSTim/JMMe4kChtjUE7C1Ag==";
-        if (req.mutualSslHandshake["status"] == "passed") {
+	    if (req.mutualSslHandshake["status"] == "passed") {
             string? cert = req.mutualSslHandshake["base64EncodedCert"];
             if (cert is string) {
                 if (cert == expectedCert) {
@@ -69,4 +70,3 @@ service mutualSSLService on mutualSSLListener {
         checkpanic caller->respond( res);
     }
 }
-
