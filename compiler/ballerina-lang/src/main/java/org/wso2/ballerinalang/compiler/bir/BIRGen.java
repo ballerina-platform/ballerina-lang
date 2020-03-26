@@ -141,6 +141,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangContinue;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangLock.BLangLockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangLock.BLangUnLockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangPanic;
@@ -1978,9 +1979,20 @@ public class BIRGen extends BLangNodeVisitor {
         addToTrapStack(lockedBB);
         this.env.enclBasicBlocks.add(lockedBB);
         this.env.enclBB.terminator = new BIRTerminator.Lock(null, lockedBB);
+        populateBirLockWithGlobalVars(lockStmt);
         this.env.enclBB = lockedBB;
 
         this.env.unlockVars.peek().numLocks++;
+    }
+
+    private void populateBirLockWithGlobalVars(BLangLockStmt lockStmt) {
+        for (BVarSymbol globalVar : lockStmt.lockVariables) {
+            BIRGlobalVariableDcl birGlobalVar = globalVarMap.get(globalVar);
+            if (birGlobalVar == null) {
+                throw new RuntimeException("invalid global variable defined inside lock statment");
+            }
+            ((BIRTerminator.Lock) this.env.enclBB.terminator).lockVariables.add(birGlobalVar);
+        }
     }
 
     @Override

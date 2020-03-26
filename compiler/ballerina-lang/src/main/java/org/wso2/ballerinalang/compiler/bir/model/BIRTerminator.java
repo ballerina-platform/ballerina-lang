@@ -21,7 +21,9 @@ import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Terminators connects basic blocks together.
@@ -229,6 +231,8 @@ public abstract class BIRTerminator extends BIRAbstractInstruction implements BI
      */
     public static class Lock extends BIRTerminator {
         public final BIRBasicBlock lockedBB;
+
+        public Set<BIRGlobalVariableDcl> lockVariables = new HashSet<>();
 
         public Lock(DiagnosticPos pos, BIRBasicBlock lockedBB) {
             super(pos, InstructionKind.LOCK);

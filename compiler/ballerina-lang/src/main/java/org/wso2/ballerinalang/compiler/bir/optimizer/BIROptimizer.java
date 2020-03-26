@@ -73,6 +73,8 @@ public class BIROptimizer {
 
         // LHS temp var optimization
         this.lhsTempVarOptimizer.optimizeNode(pkg, null);
+
+        // Optimize lock statements
     }
 
     /**
