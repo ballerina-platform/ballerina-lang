@@ -94,7 +94,7 @@ public class BindgenCommand implements BLauncherCmd {
         try {
             bindingsGenerator.generateJavaBindings();
         } catch (BindgenException e) {
-            outError.println("Error while generating Ballerina bindings: " + e);
+            outError.println("\nError while generating Ballerina bindings:\n" + e.getMessage());
         }
     }
 

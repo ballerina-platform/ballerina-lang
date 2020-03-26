@@ -102,7 +102,7 @@ public class BindgenUtils {
             writer.println(template.apply(context));
             fileWriter.close();
         } catch (IOException e) {
-            throw new BindgenException("IOException while writing to the Ballerina file. " + e.getMessage(), e);
+            throw new BindgenException("Unable to create the Ballerina file: " + e.getMessage(), e);
         } finally {
             if (writer != null) {
                 writer.close();
@@ -223,9 +223,9 @@ public class BindgenUtils {
         File directory = new File(path);
         if (!directory.exists()) {
             try {
-                final boolean mkdirResult = directory.mkdir();
+                final boolean mkdirResult = directory.mkdirs();
                 if (!mkdirResult) {
-                    errStream.println("directory " + path + " could not be created");
+                    throw new BindgenException("Unable to create the directory: " + path);
                 }
             } catch (SecurityException e) {
                 throw new BindgenException("Unable to create the directory: " + path, e);

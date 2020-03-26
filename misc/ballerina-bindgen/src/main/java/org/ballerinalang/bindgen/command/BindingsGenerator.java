@@ -38,10 +38,11 @@ import static org.ballerinalang.bindgen.utils.BindgenConstants.BBGEN_CLASS_TEMPL
 import static org.ballerinalang.bindgen.utils.BindgenConstants.CONSTANTS_FILE_NAME;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.CONSTANTS_TEMPLATE_NAME;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.DEFAULT_TEMPLATE_DIR;
-import static org.ballerinalang.bindgen.utils.BindgenConstants.DEPENDENCIES_DIR_NAME;
+import static org.ballerinalang.bindgen.utils.BindgenConstants.DEPENDENCIES_DIR;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.EMPTY_OBJECT_TEMPLATE_NAME;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.JOBJECT_FILE_NAME;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.JOBJECT_TEMPLATE_NAME;
+import static org.ballerinalang.bindgen.utils.BindgenConstants.BINDINGS_DIR;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.USER_DIR;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.UTILS_DIR;
 import static org.ballerinalang.bindgen.utils.BindgenUtils.createDirectory;
@@ -59,6 +60,7 @@ public class BindingsGenerator {
     private String outputPath;
     private Path modulePath;
     private Path dependenciesPath;
+    private Path utilsDirPath;
     private Set<String> classPaths = new HashSet<>();
     private Set<String> classNames = new HashSet<>();
     private static final PrintStream errStream = System.err;
@@ -85,21 +87,21 @@ public class BindingsGenerator {
         }
         if (classLoader != null) {
             if (this.outputPath == null) {
-                this.modulePath = Paths.get(userDir.toString(), BALLERINA_BINDINGS_DIR);
-                this.dependenciesPath = Paths.get(userDir.toString(), BALLERINA_BINDINGS_DIR, DEPENDENCIES_DIR_NAME);
+                modulePath = Paths.get(userDir.toString(), BALLERINA_BINDINGS_DIR, BINDINGS_DIR);
+                dependenciesPath = Paths.get(userDir.toString(), BALLERINA_BINDINGS_DIR, DEPENDENCIES_DIR);
+                utilsDirPath = Paths.get(userDir.toString(), BALLERINA_BINDINGS_DIR, UTILS_DIR);
             } else {
-                this.modulePath = Paths.get(outputPath, BALLERINA_BINDINGS_DIR);
-                this.dependenciesPath = Paths.get(outputPath, BALLERINA_BINDINGS_DIR, DEPENDENCIES_DIR_NAME);
+                modulePath = Paths.get(outputPath, BALLERINA_BINDINGS_DIR, BINDINGS_DIR);
+                dependenciesPath = Paths.get(outputPath, BALLERINA_BINDINGS_DIR, DEPENDENCIES_DIR);
+                utilsDirPath = Paths.get(outputPath, BALLERINA_BINDINGS_DIR, UTILS_DIR);
             }
             outStream.println("Generating bindings for: ");
             String modulePathString = modulePath.toString();
-            String utilsDirPath = Paths.get(modulePathString, DEPENDENCIES_DIR_NAME, UTILS_DIR).toString();
             generateBindings(classNames, classLoader, modulePath);
 
             if (!classListForLooping.isEmpty()) {
                 outStream.println("\nGenerating dependency bindings for: ");
             }
-            createDirectory(dependenciesPath.toString());
             directJavaClass = false;
             while (!classListForLooping.isEmpty()) {
                 Set<String> newSet = new HashSet<>(classListForLooping);
@@ -108,13 +110,13 @@ public class BindingsGenerator {
                 classListForLooping.clear();
                 generateBindings(newSet, classLoader, dependenciesPath);
             }
-            createDirectory(utilsDirPath);
+            createDirectory(utilsDirPath.toString());
             writeOutputFile(null, DEFAULT_TEMPLATE_DIR, JOBJECT_TEMPLATE_NAME,
-                    Paths.get(utilsDirPath, JOBJECT_FILE_NAME).toString(), false);
+                    Paths.get(utilsDirPath.toString(), JOBJECT_FILE_NAME).toString(), false);
             writeOutputFile(null, DEFAULT_TEMPLATE_DIR, ARRAY_UTILS_TEMPLATE_NAME,
-                    Paths.get(utilsDirPath, ARRAY_UTILS_FILE_NAME).toString(), false);
+                    Paths.get(utilsDirPath.toString(), ARRAY_UTILS_FILE_NAME).toString(), false);
 
-            Path constantsPath = Paths.get(utilsDirPath, CONSTANTS_FILE_NAME);
+            Path constantsPath = Paths.get(utilsDirPath.toString(), CONSTANTS_FILE_NAME);
             Set<String> names = new HashSet<>(allClasses);
             if (constantsPath.toFile().exists()) {
                 getUpdatedConstantsList(constantsPath, names);
@@ -130,7 +132,7 @@ public class BindingsGenerator {
                     }
                     String simpleClassName = className.substring(className.lastIndexOf('.') + 1);
                     writeOutputFile(className, DEFAULT_TEMPLATE_DIR, EMPTY_OBJECT_TEMPLATE_NAME,
-                            Paths.get(modulePathString, DEPENDENCIES_DIR_NAME,
+                            Paths.get(modulePathString, DEPENDENCIES_DIR,
                                     simpleClassName + BAL_EXTENSION).toString(), false);
                 }
             }
