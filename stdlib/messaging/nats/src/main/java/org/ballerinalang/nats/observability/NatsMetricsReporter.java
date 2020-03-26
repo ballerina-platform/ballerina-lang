@@ -31,12 +31,12 @@ import java.util.ArrayList;
  *
  * @since 1.1.0
  */
-public class NatsMetricsUtil {
+public class NatsMetricsReporter {
 
     private static final MetricRegistry metricRegistry = DefaultMetricRegistry.getInstance();
     private Connection connection;
 
-    public NatsMetricsUtil(Connection connection) {
+    public NatsMetricsReporter(Connection connection) {
         this.connection = connection;
     }
 
