@@ -60,7 +60,7 @@ public class BallerinaProjectSettingsConfigurable extends WithProject implements
 
     @Override
     public void reset() {
-        settingsPanel.setData(BallerinaProjectSettings.getDefaultSettings());
+        settingsPanel.setData(BallerinaProjectSettings.getStoredSettings(project));
     }
 
     @Nls

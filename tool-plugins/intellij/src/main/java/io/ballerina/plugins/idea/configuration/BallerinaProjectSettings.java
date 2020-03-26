@@ -32,10 +32,6 @@ public class BallerinaProjectSettings implements Serializable {
     private boolean lsTraceLogs = false;
     private boolean stdlibGotoDef = true;
 
-    public static BallerinaProjectSettings getDefaultSettings() {
-        return new BallerinaProjectSettings();
-    }
-
     public static BallerinaProjectSettings getStoredSettings(@NotNull Project project) {
         BallerinaProjectSettingsComponent component = project.getComponent(BallerinaProjectSettingsComponent.class);
         if (component == null) {

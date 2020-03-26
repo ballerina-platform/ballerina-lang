@@ -18,6 +18,7 @@ package io.ballerina.plugins.idea.configuration;
 
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.project.Project;
+import com.intellij.util.ui.UIUtil;
 
 import javax.swing.JCheckBox;
 import javax.swing.JPanel;
@@ -65,16 +66,27 @@ public class BallerinaProjectSettingsPanel extends WithProject implements Dispos
         return settingsPane;
     }
 
-    public boolean isModified() {
-        return false;
-    }
-
     @SuppressWarnings("BoundFieldAssignment")
     public void dispose() {
-        this.settingsPane = null;
-        this.autodetect = null;
-        this.lsDebugLogs = null;
-        this.lsTraceLogs = null;
-        this.stdlibGotoDef = null;
+        UIUtil.dispose(settingsPane);
+        settingsPane = null;
+        autodetect = null;
+        lsDebugLogs = null;
+        lsTraceLogs = null;
+        stdlibGotoDef = null;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        } else if (obj == null || this.getClass() != obj.getClass()) {
+            return false;
+        }
+
+        BallerinaProjectSettingsPanel panel = (BallerinaProjectSettingsPanel) obj;
+        return this.lsTraceLogs.equals(panel.lsTraceLogs) && this.lsDebugLogs.equals(panel.lsDebugLogs)
+                && this.autodetect.equals(panel.autodetect) && this.allowExperimental.equals(panel.allowExperimental)
+                && this.settingsPane.equals(panel.settingsPane);
     }
 }

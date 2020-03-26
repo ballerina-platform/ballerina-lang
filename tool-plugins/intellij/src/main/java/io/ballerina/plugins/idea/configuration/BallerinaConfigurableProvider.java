@@ -29,6 +29,7 @@ public class BallerinaConfigurableProvider extends ConfigurableProvider {
 
     @NotNull
     private final Project myProject;
+    private Configurable projectsSettingsConfigurable;
 
     public BallerinaConfigurableProvider(@NotNull Project project) {
         myProject = project;
@@ -37,6 +38,9 @@ public class BallerinaConfigurableProvider extends ConfigurableProvider {
     @Nullable
     @Override
     public Configurable createConfigurable() {
-        return new BallerinaProjectSettingsConfigurable(myProject);
+        if (projectsSettingsConfigurable == null) {
+            projectsSettingsConfigurable = new BallerinaProjectSettingsConfigurable(myProject);
+        }
+        return projectsSettingsConfigurable;
     }
 }
