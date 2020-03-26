@@ -293,7 +293,7 @@ public class BallerinaDocGenerator {
                     Writer.writeHtmlDocument(errorsPageContext, errorsTemplateName, errorsFile);
                 }
                 // Create module json
-                GenModuleJson(module, modDir + File.separator + module.id + JSON);
+                genModuleJson(module, modDir + File.separator + module.id + JSON);
 
                 if (BallerinaDocUtils.isDebugEnabled()) {
                     out.println("docerina: generated docs for module: " + module.id);
@@ -306,7 +306,7 @@ public class BallerinaDocGenerator {
         }
 
         // Generate index.html for the project
-        GenIndexHtml(output,project);
+        genIndexHtml(output, project);
 
         // Copy template resources to output dir
         if (BallerinaDocUtils.isDebugEnabled()) {
@@ -366,7 +366,7 @@ public class BallerinaDocGenerator {
         }
     }
 
-    private static void GenIndexHtml(String output, Project project) {
+    private static void genIndexHtml(String output, Project project) {
         String projectTemplateName = System.getProperty(BallerinaDocConstants.PROJECT_TEMPLATE_NAME_KEY, "index");
         String indexHtmlPath = output + File.separator  + projectTemplateName + HTML;
         ProjectPageContext projectPageContext = new ProjectPageContext(project, "API Documentation", "");
@@ -379,7 +379,7 @@ public class BallerinaDocGenerator {
         }
     }
 
-    private static void GenModuleJson(Module module, String moduleJsonPath) {
+    private static void genModuleJson(Module module, String moduleJsonPath) {
         File jsonFile = new File(moduleJsonPath);
         try (java.io.Writer writer = new OutputStreamWriter(new FileOutputStream(jsonFile), StandardCharsets.UTF_8)) {
             String json = gson.toJson(module);
@@ -393,7 +393,7 @@ public class BallerinaDocGenerator {
     public static Map<String, ModuleDoc> generateModuleDocs(String sourceRoot,
                                                             List<BLangPackage> modules) throws IOException {
         Map<String, ModuleDoc> moduleDocMap = new HashMap<>();
-        for (BLangPackage bLangPackage : modules) {;
+        for (BLangPackage bLangPackage : modules) {
             moduleDocMap.put(bLangPackage.packageID.name.toString(), generateModuleDoc(sourceRoot, bLangPackage));
         }
         return moduleDocMap;
