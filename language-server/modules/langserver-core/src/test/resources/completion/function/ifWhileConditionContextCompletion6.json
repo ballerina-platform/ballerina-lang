@@ -1,0 +1,147 @@
+{
+  "position": {
+    "line": 6,
+    "character": 21
+  },
+  "source": "function/source/ifWhileConditionContextCompletion6.bal",
+  "items": [
+    {
+      "label": "Client",
+      "kind": "Interface",
+      "detail": "Object",
+      "documentation": {
+        "left": "Represents a JDBC client endpoint.\n"
+      },
+      "sortText": "190",
+      "insertText": "Client",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "DatabaseErrorData",
+      "kind": "Struct",
+      "detail": "Record",
+      "documentation": {
+        "left": "Represents the properties belonging to a `DatabaseError`.\n"
+      },
+      "sortText": "180",
+      "insertText": "DatabaseErrorData",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ApplicationErrorData",
+      "kind": "Struct",
+      "detail": "Record",
+      "documentation": {
+        "left": "Represents the properties belonging to an `ApplicationError`\n"
+      },
+      "sortText": "180",
+      "insertText": "ApplicationErrorData",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Error",
+      "kind": "Event",
+      "detail": "Union",
+      "documentation": {
+        "left": "Represents a database or application level error returned from JDBC client remote functions.\n"
+      },
+      "sortText": "200",
+      "insertText": "Error",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ClientConfiguration",
+      "kind": "Struct",
+      "detail": "Record",
+      "documentation": {
+        "left": "Provides a set of configurations for the JDBC Client.\n"
+      },
+      "sortText": "180",
+      "insertText": "ClientConfiguration",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "PoolOptions",
+      "kind": "Struct",
+      "detail": "Record",
+      "documentation": {
+        "left": "Represents the properties which are used to configure DB connection pool.\nDefault values of the fields can be set through the configuration API.\n"
+      },
+      "sortText": "180",
+      "insertText": "PoolOptions",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "GlobalPoolConfigContainer",
+      "kind": "Interface",
+      "detail": "Object",
+      "sortText": "190",
+      "insertText": "GlobalPoolConfigContainer",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "SQLType",
+      "detail": "Union",
+      "documentation": {
+        "left": "The SQL Datatype of the parameter.\n\n`VARCHAR` - Small, variable-length character string\n`CHAR` - Small, fixed-length character string\n`LONGVARCHAR` - Large, variable-length character string\n`NCHAR` - Small, fixed-length character string with unicode support\n`LONGNVARCHAR` - Large, variable-length character string with Unicode support\n\n`BIT` - Single bit value that can be zero or one, or nil\n`BOOLEAN` - Boolean value either True or false\n`TINYINT` - 8-bit integer value which may be unsigned or signed\n`SMALLINT` - 16-bit signed integer value which may be unsigned or signed\n`INTEGER` - 32-bit signed integer value which may be unsigned or signed\n`BIGINT` - 64-bit signed integer value which may be unsigned or signed\n\n`NUMERIC` - Fixed-precision and scaled decimal values\n`DECIMAL` - Fixed-precision and scaled decimal values\n`REAL` - Single precision floating point number\n`FLOAT` - Double precision floating point number\n`DOUBLE` - Double precision floating point number\n\n`BINARY` - Small, fixed-length binary value\n`BLOB` - Binary Large Object\n`LONGVARBINARY` - Large, variable-length binary value\n`VARBINARY` - Small, variable-length binary value\n\n`CLOB` - Character Large Object.\n`NCLOB` - Character large objects in multibyte national character set\n\n`DATE` - Date consisting of day, month, and year\n`TIME` - Time consisting of hours, minutes, and seconds\n`DATETIME` - Both DATE and TIME with additional a nanosecond field\n`TIMESTAMP` - Both DATE and TIME with additional a nanosecond field\n\n`ARRAY` - Composite data value that consists of zero or more elements of a specified data type\n`STRUCT` - User-defined structured type, consists of one or more attributes\n`REFCURSOR` - Cursor value\n"
+      },
+      "sortText": "110",
+      "insertText": "SQLType",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Direction",
+      "detail": "Union",
+      "documentation": {
+        "left": "The direction of the parameter.\n\n`IN` - IN parameters are used to send values to stored procedures\n`OUT` - OUT parameters are used to get values from stored procedures\n`INOUT` - INOUT parameters are used to send values and get values from stored procedures\n"
+      },
+      "sortText": "110",
+      "insertText": "Direction",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Parameter",
+      "kind": "Struct",
+      "detail": "Record",
+      "documentation": {
+        "left": "Represents a parameter for the JDBC Client remote functions when a variable needs to be passed\nto the remote function.\n"
+      },
+      "sortText": "180",
+      "insertText": "Parameter",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "UpdateResult",
+      "kind": "Struct",
+      "detail": "Record",
+      "documentation": {
+        "left": "Represents the output of the `update` remote function.\n"
+      },
+      "sortText": "180",
+      "insertText": "UpdateResult",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "BatchUpdateResult",
+      "kind": "Struct",
+      "detail": "Record",
+      "documentation": {
+        "left": "Represents the output of the `batchUpdate` remote function.\n"
+      },
+      "sortText": "180",
+      "insertText": "BatchUpdateResult",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Param",
+      "kind": "Enum",
+      "detail": "Union",
+      "documentation": {
+        "left": "The parameter passed into the operations.\n"
+      },
+      "sortText": "160",
+      "insertText": "Param",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}
