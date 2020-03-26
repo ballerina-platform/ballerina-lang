@@ -15,9 +15,8 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.ballerinalang.jdbc.execute;
+package org.ballerinalang.sql.execute;
 
-import org.ballerinalang.jdbc.utils.SQLDBUtils;
 import org.ballerinalang.model.values.BByte;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BInteger;
@@ -27,6 +26,7 @@ import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.sql.Constants;
+import org.ballerinalang.sql.utils.SQLDBUtils;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
@@ -34,28 +34,25 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import java.io.File;
+import java.sql.SQLException;
 import java.util.LinkedHashMap;
 
 /**
- * This test class includes the basic test cases related to the execute operation of jdbc client.
+ * This test class includes the basic test cases related to the execute operation of sql client.
  *
- * @since 1.2.0
+ * @since 1.3.0
  */
 public class ExecuteTest {
     private CompileResult result;
     private static final String DB_NAME = "TEST_SQL_EXCUTE_QUERY";
-    private static final String JDBC_URL = "jdbc:h2:file:" + SQLDBUtils.DB_DIR + DB_NAME;
-    private BValue[] args = {new BString(JDBC_URL), new BString(SQLDBUtils.DB_USER),
-            new BString(SQLDBUtils.DB_PASSWORD)};
+    private static final String URL = SQLDBUtils.URL_PREFIX + DB_NAME;
+    private BValue[] args = {new BString(URL), new BString(SQLDBUtils.DB_USER), new BString(SQLDBUtils.DB_PASSWORD)};
 
     @BeforeClass
-    public void setup() {
-        result = BCompileUtil.compileOffline(SQLDBUtils.getBalFilesDir("execute",
-                "execute-basic-test.bal"));
-        SQLDBUtils.deleteFiles(new File(SQLDBUtils.DB_DIR), DB_NAME);
-        SQLDBUtils.initH2Database(SQLDBUtils.DB_DIR, DB_NAME,
-                SQLDBUtils.getSQLResourceDir("execute", "execute-test-data.sql"));
+    public void setup() throws SQLException {
+        result = BCompileUtil.compile(SQLDBUtils.getMockModuleDir(), "execute");
+        SQLDBUtils.initHsqlDatabase(DB_NAME, SQLDBUtils.getSQLResourceDir("execute",
+                "execute-test-data.sql"));
     }
 
     @Test
@@ -164,7 +161,8 @@ public class ExecuteTest {
         numericRecord.getMap().forEach(((k, v) -> {
             String key = (String) k;
             if (!key.equalsIgnoreCase("id")) {
-                Assert.assertTrue(((BString) v).stringValue().startsWith("str"));
+                String value = ((BString) v).stringValue();
+                Assert.assertTrue((value.startsWith("str") || value.startsWith("s")));
             }
         }));
     }
@@ -187,7 +185,7 @@ public class ExecuteTest {
         numericRecord.getMap().forEach(((k, v) -> {
             String key = (String) k;
             if (!key.equalsIgnoreCase("id")) {
-                Assert.assertTrue(((BString) v).stringValue().isEmpty());
+                Assert.assertTrue(((BString) v).stringValue().trim().isEmpty());
             }
         }));
     }
@@ -224,10 +222,10 @@ public class ExecuteTest {
         Assert.assertTrue(error.getDetails() instanceof BMap);
         BMap<String, BValue> errorDetails = (BMap<String, BValue>) error.getDetails();
         Assert.assertTrue(errorDetails.get(Constants.ErrorRecordFields.MESSAGE).stringValue()
-                .contains("Table \"NUMERICTYPESNONEXISTTABLE\" not found"));
+                .contains("object not found: NUMERICTYPESNONEXISTTABLE"));
         Assert.assertEquals(((BInteger) errorDetails.get(Constants.ErrorRecordFields.ERROR_CODE)).intValue(),
-                42102);
-        Assert.assertEquals(errorDetails.get(Constants.ErrorRecordFields.SQL_STATE).stringValue(), "42S02");
+                -5501);
+        Assert.assertEquals(errorDetails.get(Constants.ErrorRecordFields.SQL_STATE).stringValue(), "42501");
     }
 
     @Test
@@ -239,9 +237,9 @@ public class ExecuteTest {
         Assert.assertTrue(error.getDetails() instanceof BMap);
         BMap<String, BValue> errorDetails = (BMap<String, BValue>) error.getDetails();
         Assert.assertTrue(errorDetails.get(Constants.ErrorRecordFields.MESSAGE).stringValue()
-                .contains("Data conversion error converting \"'This is wrong type' " +
-                        "(NUMERICTYPES: \"\"INT_TYPE\"\" INT)\""));
-        Assert.assertEquals(((BInteger) errorDetails.get(Constants.ErrorRecordFields.ERROR_CODE)).intValue(), 22018);
+                .contains("Insert into NumericTypes (int_type) values ('This is wrong type'). " +
+                        "data exception: invalid character value for cast."));
+        Assert.assertEquals(((BInteger) errorDetails.get(Constants.ErrorRecordFields.ERROR_CODE)).intValue(), -3438);
         Assert.assertEquals(errorDetails.get(Constants.ErrorRecordFields.SQL_STATE).stringValue(), "22018");
     }
 

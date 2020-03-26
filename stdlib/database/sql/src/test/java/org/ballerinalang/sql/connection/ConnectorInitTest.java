@@ -14,41 +14,40 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.jdbc.connection;
+package org.ballerinalang.sql.connection;
 
-import org.ballerinalang.jdbc.utils.SQLDBUtils;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.sql.Constants;
+import org.ballerinalang.sql.utils.SQLDBUtils;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
-import org.testng.annotations.AfterSuite;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import java.io.File;
+import java.sql.SQLException;
 
 /**
- * Test JDBC Client Initialization.
+ * Test SQL sample client initialization.
+ *
+ * @since 1.3.0
  */
 public class ConnectorInitTest {
 
     private CompileResult result;
     private static final String DB_NAME = "TEST_SQL_CONNECTOR_INIT";
-    private static final String JDBC_URL = "jdbc:h2:file:" + SQLDBUtils.DB_DIR + DB_NAME;
-    private BValue[] args = {new BString(JDBC_URL), new BString(SQLDBUtils.DB_USER),
-            new BString(SQLDBUtils.DB_PASSWORD)};
+    private static final String URL = SQLDBUtils.URL_PREFIX + DB_NAME;
+    private BValue[] args = {new BString(URL), new BString(SQLDBUtils.DB_USER), new BString(SQLDBUtils.DB_PASSWORD)};
 
     @BeforeClass
-    public void setup() {
-        result = BCompileUtil.compileOffline(SQLDBUtils.getBalFilesDir("connection", "connector-init-test.bal"));
-        SQLDBUtils.deleteFiles(new File(SQLDBUtils.DB_DIR), DB_NAME);
-        SQLDBUtils.initH2Database(SQLDBUtils.DB_DIR, DB_NAME,
-                SQLDBUtils.getSQLResourceDir("connection", "connector-init-test-data.sql"));
+    public void setup() throws SQLException {
+        result = BCompileUtil.compile(SQLDBUtils.getMockModuleDir(), "connection");
+        SQLDBUtils.initHsqlDatabase(DB_NAME, SQLDBUtils.getSQLResourceDir("connection",
+                "connector-init-test-data.sql"));
     }
 
     @Test
@@ -65,7 +64,7 @@ public class ConnectorInitTest {
 
     @Test
     public void testConnectionNoUserPassword() {
-        BValue[] args = {new BString(JDBC_URL)};
+        BValue[] args = {new BString(URL)};
         BValue[] returnVal = BRunUtil.invokeFunction(result, "testConnectionNoUserPassword", args);
         Assert.assertTrue(returnVal[0] instanceof BError);
     }
@@ -119,10 +118,5 @@ public class ConnectorInitTest {
     public void testWithAllParams() {
         BValue[] returnVal = BRunUtil.invokeFunction(result, "testWithAllParams", args);
         Assert.assertNull(returnVal[0]);
-    }
-
-    @AfterSuite
-    public void cleanup() {
-        SQLDBUtils.deleteDirectory(new File(SQLDBUtils.DB_DIR));
     }
 }
