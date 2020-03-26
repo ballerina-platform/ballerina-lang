@@ -5,24 +5,12 @@ option java_package = "org.ballerinalang.observe.trace.extension.choreo.gen";
 import "google/protobuf/empty.proto";
 import "google/protobuf/wrappers.proto";
 
-service Negotiator {
-	rpc handshake (HandshakeRequest)
-			returns (HandshakeResponse);
+service Handshake {
+    rpc handshake (HandshakeRequest)
+    returns (HandshakeResponse);
 
     rpc publishProgram (PublishProgramRequest)
-            returns (google.protobuf.Empty);
-
-    rpc getObservabilityUrl(GetObservabilityUrlRequest)
-            returns (GetObservabilityUrlResponse);
-
-    rpc getApplicationId(GetAppIdRequest)
-            returns (GetAppIdResponse);
-
-    rpc getObservabilityIDs(GetObservabilityIDsRequest)
-            returns (GetObservabilityIDsResponse);
-
-    rpc linkApplication (LinkApplicationRequest)
-            returns (google.protobuf.Empty);
+    returns (google.protobuf.Empty);
 }
 
 message HandshakeRequest {
@@ -40,6 +28,20 @@ message HandshakeResponse {
 message PublishProgramRequest {
     string observabilityId = 1;
     string programJson = 2;
+}
+
+service Negotiator {
+    rpc getObservabilityUrl(GetObservabilityUrlRequest)
+            returns (GetObservabilityUrlResponse);
+
+    rpc getApplicationId(GetAppIdRequest)
+            returns (GetAppIdResponse);
+
+    rpc getObservabilityIDs(GetObservabilityIDsRequest)
+            returns (GetObservabilityIDsResponse);
+
+    rpc linkApplication (LinkApplicationRequest)
+            returns (google.protobuf.Empty);
 }
 
 message GetObservabilityUrlRequest {
