@@ -66,7 +66,7 @@ public type Cookie object {
 
     # Checks the validity of the attributes of the cookie.
     #
-    # + return  - `true` if the attributes of the cookie are in the correct format, otherwise an `error`
+    # + return  - set to `true` if the attributes of the cookie are in the correct format. Otherwise, returns an `error`.
     public function isValid() returns boolean|InvalidCookieError {
         var name = self.name;
         if (name is string) {
