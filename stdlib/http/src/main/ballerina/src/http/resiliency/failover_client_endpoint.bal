@@ -27,7 +27,7 @@ public type FailoverConfig record {|
 |};
 
 // TODO: This can be made package private
-# Represents inferred failover configurations passed into the failover client.
+# Represents the inferred failover configurations passed into the failover client.
 #
 # + failoverClientsArray - Array of HTTP Clients that needs to be Failover
 # + failoverCodesIndex - An indexed array of HTTP response status codes for which the failover mechanism triggers
