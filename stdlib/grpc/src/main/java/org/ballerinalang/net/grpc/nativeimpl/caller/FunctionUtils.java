@@ -31,10 +31,11 @@ import org.ballerinalang.net.grpc.MessageUtils;
 import org.ballerinalang.net.grpc.Status;
 import org.ballerinalang.net.grpc.StreamObserver;
 import org.ballerinalang.net.grpc.exception.StatusRuntimeException;
-import org.ballerinalang.net.grpc.listener.ServerCallHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Optional;
 
 import static org.ballerinalang.jvm.observability.ObservabilityConstants.TAG_KEY_HTTP_STATUS_CODE;
@@ -82,21 +83,24 @@ public class FunctionUtils {
     }
 
     /**
-     * Extern function to check whether caller has terminated the connection in between.
+     * Extern function to check deadline exceeded or not.
      *
-     * @param endpointClient caller instance.
+     * @param headerValues header values.
      * @return True if caller has terminated the connection, false otherwise.
      */
-    public static boolean externIsCancelled(ObjectValue endpointClient) {
-        StreamObserver responseObserver = MessageUtils.getResponseObserver(endpointClient);
-
-        if (responseObserver instanceof ServerCallHandler.ServerCallStreamObserver) {
-            ServerCallHandler.ServerCallStreamObserver serverCallStreamObserver = (ServerCallHandler
-                    .ServerCallStreamObserver) responseObserver;
-            return serverCallStreamObserver.isCancelled();
-        } else {
-            return Boolean.FALSE;
+    public static boolean externIsCancelled(ObjectValue endpointClient, ObjectValue headerValues) {
+        HttpHeaders headers = null;
+        if (headerValues != null) {
+            headers = (HttpHeaders) ((ObjectValue) headerValues).getNativeData(MESSAGE_HEADERS);
+            if (!headers.get("DEADLINE").isEmpty()) {
+                DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ISO_OFFSET_DATE_TIME;
+                LocalDateTime localDateTime = LocalDateTime.parse(headers.get("DEADLINE"), dateTimeFormatter);
+                if (localDateTime.isBefore(LocalDateTime.now())) {
+                    return Boolean.TRUE;
+                }
+            }
         }
+        return Boolean.FALSE;
     }
 
     /**

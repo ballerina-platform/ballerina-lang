@@ -66,8 +66,8 @@ public type Caller client object {
 # ```
 #
 # + return - True if the caller has already closed the connection or else false
-    public function isCancelled() returns boolean {
-        return externIsCancelled(self);
+    public remote function isCancelled(Headers headers) returns boolean {
+            return externIsCancelled(self, headers);
     }
 
 # Sends a server error to the caller.
@@ -94,7 +94,7 @@ function externComplete(Caller endpointClient) returns Error? =
     class: "org.ballerinalang.net.grpc.nativeimpl.caller.FunctionUtils"
 } external;
 
-function externIsCancelled(Caller endpointClient) returns boolean =
+function externIsCancelled(Caller endpointClient, Headers headers) returns boolean =
 @java:Method {
     class: "org.ballerinalang.net.grpc.nativeimpl.caller.FunctionUtils"
 } external;
