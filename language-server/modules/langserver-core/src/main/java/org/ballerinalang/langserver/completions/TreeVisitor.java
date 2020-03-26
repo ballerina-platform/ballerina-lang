@@ -62,6 +62,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
+import org.wso2.ballerinalang.compiler.tree.BLangExprFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangExternalFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
@@ -439,6 +440,12 @@ public class TreeVisitor extends LSNodeVisitor {
     }
 
     @Override
+    public void visit(BLangExprFunctionBody exprFuncBody) {
+        SymbolEnv exprBodyEnv = SymbolEnv.createFuncBodyEnv(exprFuncBody, symbolEnv);
+        this.acceptNode(exprFuncBody.expr, exprBodyEnv);
+    }
+
+    @Override
     public void visit(BLangSimpleVariableDef varDefNode) {
         boolean isFuture = varDefNode.getVariable().expr != null
                 && varDefNode.getVariable().expr.type instanceof BFutureType;
@@ -584,17 +591,28 @@ public class TreeVisitor extends LSNodeVisitor {
 
     @Override
     public void visit(BLangTransaction transactionNode) {
-        this.blockOwnerStack.push(transactionNode);
+        SymbolEnv transactionEnv = SymbolEnv.createTransactionEnv(transactionNode, symbolEnv);
+        this.blockOwnerStack.push(transactionNode.transactionBody);
         this.isCurrentNodeTransactionStack.push(true);
         this.transactionCount++;
-        this.acceptNode(transactionNode.transactionBody, symbolEnv);
+        this.acceptNode(transactionNode.transactionBody, transactionEnv);
         this.blockOwnerStack.pop();
         this.isCurrentNodeTransactionStack.pop();
         this.transactionCount--;
 
         if (transactionNode.onRetryBody != null) {
-            this.blockOwnerStack.push(transactionNode);
-            this.acceptNode(transactionNode.onRetryBody, symbolEnv);
+            this.blockOwnerStack.push(transactionNode.onRetryBody);
+            this.acceptNode(transactionNode.onRetryBody, transactionEnv);
+            this.blockOwnerStack.pop();
+        }
+        if (transactionNode.committedBody != null) {
+            this.blockOwnerStack.push(transactionNode.committedBody);
+            this.acceptNode(transactionNode.committedBody, transactionEnv);
+            this.blockOwnerStack.pop();
+        }
+        if (transactionNode.abortedBody != null) {
+            this.blockOwnerStack.push(transactionNode.abortedBody);
+            this.acceptNode(transactionNode.abortedBody, transactionEnv);
             this.blockOwnerStack.pop();
         }
     }

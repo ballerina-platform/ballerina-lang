@@ -26,20 +26,6 @@ configurations {
     balRuntime
 }
 
-// Copied from balNativeLibProject, may have to update as required.
-if (project.name != "ballerina-jvm" && project.name != "ballerina-backend-jvm" && project.name != "ballerina-bir") {
-
-    dependencies {
-        testRuntime project(':ballerina-jvm')
-        testRuntime project(':ballerina-bir')
-        testRuntime project(':ballerina-backend-jvm')
-
-        testRuntime project(path: ':ballerina-backend-jvm', configuration: 'birJar')
-        testRuntime project(path: ':ballerina-jvm', configuration: 'birJar')
-        testRuntime project(path: ':ballerina-bir', configuration: 'birJar')
-    }
-}
-
 dependencies {
     implementation project(':ballerina-core')
     implementation project(':ballerina-lang')
@@ -66,6 +52,7 @@ dependencies {
     testRuntime project(':ballerina-lang:typedesc')
     testRuntime project(':ballerina-lang:value')
     testRuntime project(':ballerina-lang:xml')
+    testRuntime project(':ballerina-lang:bool')
     testRuntime project(':ballerina-runtime')
     testRuntime project(':ballerina-lang:internal')
     testRuntime 'org.slf4j:slf4j-jdk14'
@@ -85,6 +72,7 @@ dependencies {
     baloTestImplementation project(path: ':ballerina-lang:typedesc', configuration: 'baloImplementation')
     baloTestImplementation project(path: ':ballerina-lang:value', configuration: 'baloImplementation')
     baloTestImplementation project(path: ':ballerina-lang:xml', configuration: 'baloImplementation')
+    baloTestImplementation project(path: ':ballerina-lang:bool', configuration: 'baloImplementation')
     baloTestImplementation project(path: ':ballerina-lang:internal', configuration: 'baloImplementation')
 }
 

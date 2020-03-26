@@ -22,6 +22,7 @@ import org.ballerinalang.model.elements.MarkdownDocAttachment;
 import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.NamedNode;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
@@ -81,7 +82,7 @@ public abstract class BIRNode {
         public void accept(BIRVisitor visitor) {
             visitor.visit(this);
         }
-        
+
         public Name getSourceFileName() {
             return sourceFileName;
         }
@@ -165,7 +166,7 @@ public abstract class BIRNode {
         public int hashCode() {
             return this.name.value.hashCode();
         }
-        
+
         @Override
         public String toString() {
             return name.toString();
@@ -243,7 +244,7 @@ public abstract class BIRNode {
      *
      * @since 0.980.0
      */
-    public static class BIRFunction extends BIRDocumentableNode {
+    public static class BIRFunction extends BIRDocumentableNode implements NamedNode {
 
         /**
          * Name of the function.
@@ -344,6 +345,24 @@ public abstract class BIRNode {
         public void accept(BIRVisitor visitor) {
             visitor.visit(this);
         }
+
+        public BIRFunction duplicate() {
+            BIRFunction f = new BIRFunction(pos, name, flags, type, workerName, 0, taintTable);
+            f.localVars = localVars;
+            f.parameters = parameters;
+            f.requiredParams = requiredParams;
+            f.basicBlocks = basicBlocks;
+            f.errorTable = errorTable;
+            f.workerChannels = workerChannels;
+            f.annotAttachments = annotAttachments;
+            return f;
+
+        }
+
+        @Override
+        public Name getName() {
+            return name;
+        }
     }
 
     /**
@@ -379,7 +398,7 @@ public abstract class BIRNode {
      *
      * @since 0.995.0
      */
-    public static class BIRTypeDefinition extends BIRDocumentableNode {
+    public static class BIRTypeDefinition extends BIRDocumentableNode implements NamedNode {
 
         /**
          * Name of the type definition.
@@ -394,6 +413,8 @@ public abstract class BIRNode {
 
         public boolean isLabel;
 
+        public boolean isBuiltin;
+
         public List<BType> referencedTypes;
 
         /**
@@ -402,12 +423,14 @@ public abstract class BIRNode {
          */
         public int index;
 
-        public BIRTypeDefinition(DiagnosticPos pos, Name name, int flags, boolean isLabel,
+        public BIRTypeDefinition(DiagnosticPos pos, Name name, int flags, boolean isLabel, boolean isBuiltin,
                                  BType type, List<BIRFunction> attachedFuncs) {
+
             super(pos);
             this.name = name;
             this.flags = flags;
             this.isLabel = isLabel;
+            this.isBuiltin = isBuiltin;
             this.type = type;
             this.attachedFuncs = attachedFuncs;
             this.referencedTypes = new ArrayList<>();
@@ -421,6 +444,11 @@ public abstract class BIRNode {
         @Override
         public String toString() {
             return String.valueOf(type) + " " + String.valueOf(name);
+        }
+
+        @Override
+        public Name getName() {
+            return name;
         }
     }
 

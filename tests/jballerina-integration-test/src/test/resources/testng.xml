@@ -41,7 +41,7 @@
             <class name="org.ballerinalang.test.service.http.sample.RedirectTestCase"/>
             <class name="org.ballerinalang.test.service.http.sample.RoutingServiceSampleTestCase"/>
             <class name="org.ballerinalang.test.service.http.sample.MutualSSLTestCase"/>
-            <class name="org.ballerinalang.test.service.http.sample.MutualSSLWithCerts"/>
+            <class name="org.ballerinalang.test.service.http.sample.MutualSSLWithCertsTestCase"/>
             <class name="org.ballerinalang.test.service.http.sample.DisableSslTestCase"/>
             <class name="org.ballerinalang.test.service.http.sample.HTTPVerbsPassthruTestCases"/>
             <class name="org.ballerinalang.test.service.http.sample.HTTPClientActionsTestCase"/>
@@ -221,6 +221,7 @@
             <class name="org.ballerinalang.test.service.grpc.sample.Http2GatewayTestCase"/>
             <class name="org.ballerinalang.test.service.grpc.sample.UnaryAnonymousServiceTestCase"/>
             <class name="org.ballerinalang.test.service.grpc.sample.UnaryGZipEncodingTestCase"/>
+            <class name="org.ballerinalang.test.service.grpc.sample.UnaryBlockingRetryTestCase" />
             <class name="org.ballerinalang.test.service.grpc.tool.InvalidServiceContractTestCase"/>
             <class name="org.ballerinalang.test.service.grpc.tool.StubGeneratorTestCase"/>
             <class name="org.ballerinalang.test.service.grpc.tool.ProtoMessageTestCase"/>
@@ -299,9 +300,14 @@
 
     <test name="ballerina-packerina-tests" parallel="false">
         <parameter name="enableJBallerinaTests" value="true"/>
+        <groups>
+            <run>
+                <exclude name="brokenOnJBallerina"/>
+            </run>
+        </groups>
         <classes>
             <class name="org.ballerinalang.test.packaging.ModulePushTestCase"/>
-            <!--            <class name="org.ballerinalang.test.packaging.PackagingNegativeTestCase"/>-->
+            <class name="org.ballerinalang.test.packaging.PackagingNegativeTestCase"/>
             <class name="org.ballerinalang.test.packaging.PackagingTestCase"/>
             <class name="org.ballerinalang.test.packaging.LockFileTestCase"/>
             <!--            <class name="org.ballerinalang.test.packaging.NativePackagingTestCase"/>-->
@@ -318,16 +324,10 @@
             <class name="org.ballerinalang.test.task.TaskBaseTest"/>
             <class name="org.ballerinalang.test.task.TimerWithHttpClientTestCase"/>
             <class name="org.ballerinalang.test.task.AppointmentTest"/>
+            <class name="org.ballerinalang.test.task.MultipleAttachmentTest"/>
             <class name="org.ballerinalang.test.task.TimerTest"/>
             <class name="org.ballerinalang.test.task.TimerPauseResumeTestCase"/>
             <class name="org.ballerinalang.test.task.TimerStopTestCase"/>
-        </classes>
-    </test>
-
-    <test name="ballerina-cache-tests" parallel="false">
-        <parameter name="enableJBallerinaTests" value="true"/>
-        <classes>
-            <class name="org.ballerinalang.test.cache.CacheBaseTest"/>
         </classes>
     </test>
 
@@ -352,8 +352,19 @@
 <!--    </test>-->
     <test name="ballerina-testerina-tests" parallel="false">
         <parameter name="enableJBallerinaTests" value="true" />
+        <groups>
+            <run>
+                <exclude name="brokenOnJBallerina"/>
+            </run>
+        </groups>
         <classes>
             <class name="org.ballerinalang.test.testarina.TestarinaTestCase" />
+        </classes>
+    </test>
+    <test name="ballerina-docerina-tests" parallel="false">
+        <parameter name="enableJBallerinaTests" value="true" />
+        <classes>
+            <class name="org.ballerinalang.test.docerina.BallerinaApiDocsTestCase" />
         </classes>
     </test>
 </suite>

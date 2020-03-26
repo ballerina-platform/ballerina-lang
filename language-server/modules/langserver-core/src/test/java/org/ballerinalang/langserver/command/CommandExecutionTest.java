@@ -155,7 +155,7 @@ public class CommandExecutionTest {
         Assert.assertEquals(responseJson, expected, "Test Failed for: " + config);
     }
 
-    @Test(dataProvider = "change-abstract-type-data-provider")
+    @Test(dataProvider = "change-abstract-type-data-provider", enabled = false)
     public void testChangeAbstractTypeObj(String config, String source) throws IOException {
         LSContextManager.getInstance().clearAllContexts();
         String configJsonPath = "command" + File.separator + config;
@@ -345,6 +345,11 @@ public class CommandExecutionTest {
                 {"createUndefinedFunction5.json", "createUndefinedFunction3.bal"},
                 {"createUndefinedFunction6.json", "createUndefinedFunction4.bal"},
                 {"createUndefinedFunction7.json", "createUndefinedFunction5.bal"},
+                {"createUndefinedFunction8.json", "createUndefinedFunction5.bal"},
+                {"createUndefinedFunction9.json", "createUndefinedFunction5.bal"},
+                {"createUndefinedFunction10.json", "createUndefinedFunction5.bal"},
+                {"createUndefinedFunction11.json", "createUndefinedFunction5.bal"},
+                {"createUndefinedFunction12.json", "createUndefinedFunction5.bal"},
         };
     }
 

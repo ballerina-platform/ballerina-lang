@@ -37,7 +37,7 @@ public type OutboundBasicAuthProvider object {
     #
     # + return - The generated token or the `Error` if an error occurred during validation.
     public function generateToken() returns string|Error {
-        var credential = self.credential;
+        Credential? credential = self.credential;
         if (credential is ()) {
             runtime:AuthenticationContext? authContext = runtime:getInvocationContext()?.authenticationContext;
             if (authContext is runtime:AuthenticationContext) {

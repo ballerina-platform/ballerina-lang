@@ -28,7 +28,6 @@ import org.ballerinalang.stdlib.task.objects.Task;
 
 import static org.ballerinalang.stdlib.task.utils.TaskConstants.MEMBER_LISTENER_CONFIGURATION;
 import static org.ballerinalang.stdlib.task.utils.TaskConstants.NATIVE_DATA_TASK_OBJECT;
-import static org.ballerinalang.stdlib.task.utils.TaskConstants.PARAMETER_ATTACHMENT;
 import static org.ballerinalang.stdlib.task.utils.TaskConstants.RECORD_TIMER_CONFIGURATION;
 import static org.ballerinalang.stdlib.task.utils.TaskConstants.SCHEDULER_ERROR_REASON;
 import static org.ballerinalang.stdlib.task.utils.Utils.createTaskError;
@@ -96,8 +95,7 @@ public class TaskActions {
         return null;
     }
 
-    public static Object attach(ObjectValue taskListener, ObjectValue service, MapValue<String, Object> config) {
-        Object attachments = config.get(PARAMETER_ATTACHMENT);
+    public static Object attach(ObjectValue taskListener, ObjectValue service, Object... attachments) {
         ServiceInformation serviceInformation;
         if (attachments == null) {
             serviceInformation = new ServiceInformation(BRuntime.getCurrentRuntime(), service);
@@ -121,8 +119,7 @@ public class TaskActions {
 
     @SuppressWarnings("unchecked")
     public static Object init(ObjectValue taskListener) {
-        MapValue<String, Object> configurations = (MapValue<String, Object>) taskListener.get(
-                MEMBER_LISTENER_CONFIGURATION);
+        MapValue<String, Object> configurations = taskListener.getMapValue(MEMBER_LISTENER_CONFIGURATION);
         String configurationTypeName = configurations.getType().getName();
         Task task;
         try {

@@ -21,7 +21,7 @@ string topic1 = "rebalance-topic-1";
 string topic2 = "rebalance-topic-2";
 string[] topics = [topic1, topic2];
 
-kafka:ConsumerConfig consumerConfigs = {
+kafka:ConsumerConfiguration consumerConfigs = {
     bootstrapServers: "localhost:14105",
     groupId: "test-group",
     clientId: "seek-consumer",

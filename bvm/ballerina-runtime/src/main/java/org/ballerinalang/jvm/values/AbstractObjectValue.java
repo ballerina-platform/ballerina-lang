@@ -18,8 +18,8 @@
 package org.ballerinalang.jvm.values;
 
 import org.ballerinalang.jvm.BallerinaErrors;
+import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.TypeChecker;
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BField;
 import org.ballerinalang.jvm.types.BObjectType;
 import org.ballerinalang.jvm.types.BStructureType;
@@ -56,24 +56,6 @@ public abstract class AbstractObjectValue implements ObjectValue {
     }
 
     @Override
-    public abstract Object call(Strand strand, String funcName, Object... args);
-
-    @Override
-    public abstract Object get(String fieldName);
-
-    @Override
-    public abstract Object get(StringValue fieldName);
-
-    @Override
-    public abstract Object get(BString fieldName);
-
-    @Override
-    public abstract void set(String fieldName, Object value);
-
-    @Override
-    public abstract void set(StringValue fieldName, Object value);
-
-    @Override
     public void addNativeData(String key, Object data) {
         this.nativeData.put(key, data);
     }
@@ -106,6 +88,11 @@ public abstract class AbstractObjectValue implements ObjectValue {
     @Override
     public String stringValue() {
         return "object " + type.toString();
+    }
+
+    @Override
+    public BString bStringValue() {
+        return StringUtils.fromString(stringValue());
     }
 
     @Override

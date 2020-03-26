@@ -42,3 +42,7 @@ public function testFromTable() returns string {
 
     return jsonutils:fromTable(personTable).toJsonString();
 }
+
+function testFromXML2() returns json|error {
+    return jsonutils:fromXML(xml `foo`);
+}

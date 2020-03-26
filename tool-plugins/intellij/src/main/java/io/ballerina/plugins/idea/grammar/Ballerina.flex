@@ -20,11 +20,7 @@ import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
     private boolean inStringTemplate = false;
     private boolean inStringTemplateExpression = false;
 
-    private boolean inStreams = false;
-    private boolean inTableSqlQuery = false;
-    private boolean inStreamsInsertQuery = false;
-    private boolean inStreamsTimeScaleQuery = false;
-    private boolean inStreamsOutputRateLimit = false;
+   private boolean inQueryExpression = false;
 
     public BallerinaLexer() {
         this((java.io.Reader)null);
@@ -79,7 +75,7 @@ BOOLEAN_LITERAL = "true" | "false"
 // This is done becuase otherwise the string wont be identified correctly.
 // Also the strings can either be enclosed in single or double quotes or no quotes at all.
 ESCAPE_SEQUENCE = \\ [btnfr\"'\\] | {UnicodeEscape}
-STRING_CHARACTER =  [^\\\"] | {ESCAPE_SEQUENCE}
+STRING_CHARACTER =  [^\\\u000A\u000D] | {ESCAPE_SEQUENCE}
 STRING_CHARACTERS = {STRING_CHARACTER}+
 QUOTED_STRING_LITERAL = {DOUBLE_QUOTE} {STRING_CHARACTERS}? {DOUBLE_QUOTE}
 
@@ -115,7 +111,7 @@ IdentifierFollowingChar = {IdentifierInitialChar} | {DIGIT}
 // UnicodePatternWhiteSpaceChar := 0x200E | 0x200F | 0x2028 | 0x2029
 QuotedIdentifierEscape = \\ [^a-zA-Z\u0009\u000A\u000D\u200E\u200F\u2028\u2029]
 StringNumericEscape = \\ [|\"\\/] | \\\\ [btnfr] | {UnicodeEscape}
-UnicodeEscape = \\u {HexDigit} {HexDigit} {HexDigit} {HexDigit}
+UnicodeEscape = \\u "{" {HexDigit} "}"
 
 WHITE_SPACE=\s+
 
@@ -141,13 +137,25 @@ DOUBLE_QUOTE = "\""
 MARKDOWN_DOCUMENTATION_LINE_START =  {HASH} {DOCUMENTATION_SPACE}?
 PARAMETER_DOCUMENTATION_START = {HASH} {DOCUMENTATION_SPACE}? {ADD} {DOCUMENTATION_SPACE}*
 RETURN_PARAMETER_DOCUMENTATION_START = {HASH} {DOCUMENTATION_SPACE}? {ADD} {DOCUMENTATION_SPACE}* {RETURN} {DOCUMENTATION_SPACE}* {SUB} {DOCUMENTATION_SPACE}*
+DEPRECATED_DOCUMENTATION = {HASH} {DOCUMENTATION_SPACE} {HASH} {DOCUMENTATION_SPACE} {DEPRECATED} {DOCUMENTATION_SPACE}*
+DEPRECATED = "Deprecated"
+
 DOCUMENTATION_SPACE = [ ]
 
 // MARKDOWN_DOCUMENTATION_MODE
-MARKDOWN_DOCUMENTATION_TEXT = ({DOCUMENTATION_TEXT_CHARACTER} | {DOCUMENTATION_ESCAPED_CHARACTERS})+
-DOCUMENTATION_TEXT_CHARACTER =  [^`\n] | '\\' {BACKTICK}
+DOCTYPE = "type" {DOCUMENTATION_ESCAPED_CHARACTERS}+ {SINGLE_BACKTICK_MARKDOWN_START}
+DOCSERVICE = "service" {DOCUMENTATION_ESCAPED_CHARACTERS}+ {SINGLE_BACKTICK_MARKDOWN_START}
+DOCVARIABLE = "variable" {DOCUMENTATION_ESCAPED_CHARACTERS}+ {SINGLE_BACKTICK_MARKDOWN_START}
+DOCVAR = "var" {DOCUMENTATION_ESCAPED_CHARACTERS}+ {SINGLE_BACKTICK_MARKDOWN_START}
+DOCANNOTATION = "annotation" {DOCUMENTATION_ESCAPED_CHARACTERS}+ {SINGLE_BACKTICK_MARKDOWN_START}
+DOCMODULE = "module" {DOCUMENTATION_ESCAPED_CHARACTERS}+ {SINGLE_BACKTICK_MARKDOWN_START}
+DOCFUNCTION = "function" {DOCUMENTATION_ESCAPED_CHARACTERS}+ {SINGLE_BACKTICK_MARKDOWN_START}
+DOCPARAMETER = "parameter" {DOCUMENTATION_ESCAPED_CHARACTERS}+ {SINGLE_BACKTICK_MARKDOWN_START}
+DOCCONST = "const" {DOCUMENTATION_ESCAPED_CHARACTERS}+ {SINGLE_BACKTICK_MARKDOWN_START}
+MARKDOWN_DOCUMENTATION_TEXT = {DOCUMENTATION_TEXT_CHARACTER}+
+DOCUMENTATION_TEXT_CHARACTER =  [^`\n\r] | '\\' {BACKTICK}
 DOCUMENTATION_ESCAPED_CHARACTERS = {DOCUMENTATION_SPACE}
-MARKDOWN_DOCUMENTATION_LINE_END = [\n]
+MARKDOWN_DOCUMENTATION_LINE_END = [\n\r]
 HASH = "#"
 ADD = "+"
 SUB = "-"
@@ -208,12 +216,10 @@ DOLLAR = \$
     "abort"                                     { return ABORT; }
     "aborted"                                   { return ABORTED; }
     "abstract"                                  { return ABSTRACT; }
-    "all"                                       { return ALL; }
     "annotation"                                { return ANNOTATION; }
     "any"                                       { return ANY; }
     "anydata"                                   { return ANYDATA; }
     "as"                                        { return AS; }
-    "ascending"                                 { return ASCENDING; }
 
     "boolean"                                   { return BOOLEAN; }
     "break"                                     { return BREAK; }
@@ -230,12 +236,12 @@ DOLLAR = \$
 
     "decimal"                                   { return DECIMAL; }
     "default"                                   { return DEFAULT; }
-    "descending"                                { return DESCENDING; }
 
     "else"                                      { return ELSE; }
     "error"                                     { return ERROR; }
     "external"                                  { return EXTERNAL; }
 
+    "field"                                     { return TYPE_FIELD; }
     "final"                                     { return FINAL; }
     "finally"                                   { return FINALLY; }
     "float"                                     { return FLOAT; }
@@ -253,10 +259,9 @@ DOLLAR = \$
     "int"                                       { return INT; }
     "is"                                        { return IS; }
 
-    "join"                                      { return JOIN; }
     "json"                                      { return JSON; }
 
-    "limit"                                     { return LIMIT; }
+    "let"                                       { return LET; }
     "listener"                                  { return LISTENER; }
     "lock"                                      { return LOCK; }
 
@@ -392,43 +397,11 @@ DOLLAR = \$
     ".@"                                        { return ANNOTATION_ACCESS; }
     "?."                                        { return OPTIONAL_FIELD_ACCESS; }
 
-    "from"                                      { inTableSqlQuery = true; inStreamsInsertQuery = true; inStreamsOutputRateLimit = true; return FROM; }
     "on"                                        { return ON; }
-    "select"                                    { if(inTableSqlQuery) { inTableSqlQuery = false; return SELECT; } return IDENTIFIER; }
-    "group"                                     { return GROUP; }
-    "by"                                        { return BY; }
-    "having"                                    { return HAVING; }
-    "order"                                     { return ORDER; }
-    "where"                                     { return WHERE; }
-    "followed"                                  { return FOLLOWED; }
-    "for"                                       { inStreamsTimeScaleQuery = true; return FOR; }
-    "window"                                    { return WINDOW; }
-    "events"                                    { if(inStreamsInsertQuery) { inStreamsInsertQuery = false; return EVENTS; } return IDENTIFIER; }
-    "every"                                     { return EVERY; }
-    "within"                                    { inStreamsTimeScaleQuery = true; return WITHIN; }
-    "last"                                      { if(inStreamsOutputRateLimit) { inStreamsOutputRateLimit = false; return LAST; } return IDENTIFIER; }
-    "first"                                     { if(inStreamsOutputRateLimit) { inStreamsOutputRateLimit = false; return FIRST; } return IDENTIFIER; }
-    "snapshot"                                  { return SNAPSHOT; }
-    "output"                                    { if(inStreamsOutputRateLimit) { inStreamsTimeScaleQuery = true; return OUTPUT; } return IDENTIFIER; }
-    "inner"                                     { return INNER; }
-    "outer"                                     { return OUTER; }
-    "right"                                     { return RIGHT; }
-    "left"                                      { return LEFT; }
-    "full"                                      { return FULL; }
-    "unidirectional"                            { return UNIDIRECTIONAL; }
-    "second"                                    { if(inStreamsTimeScaleQuery) { inStreamsTimeScaleQuery = false; return SECOND; } return IDENTIFIER; }
-    "minute"                                    { if(inStreamsTimeScaleQuery) { inStreamsTimeScaleQuery = false; return MINUTE; } return IDENTIFIER; }
-    "hour"                                      { if(inStreamsTimeScaleQuery) { inStreamsTimeScaleQuery = false; return HOUR; } return IDENTIFIER; }
-    "day"                                       { if(inStreamsTimeScaleQuery) { inStreamsTimeScaleQuery = false; return DAY; } return IDENTIFIER; }
-    "month"                                     { if(inStreamsTimeScaleQuery) { inStreamsTimeScaleQuery = false; return MONTH; } return IDENTIFIER; }
-    "year"                                      { if(inStreamsTimeScaleQuery) { inStreamsTimeScaleQuery = false; return YEAR; } return IDENTIFIER; }
-    "seconds"                                   { if(inStreamsTimeScaleQuery) { inStreamsTimeScaleQuery = false; return SECONDS; } return IDENTIFIER; }
-    "minutes"                                   { if(inStreamsTimeScaleQuery) { inStreamsTimeScaleQuery = false; return MINUTES; } return IDENTIFIER; }
-    "hours"                                     { if(inStreamsTimeScaleQuery) { inStreamsTimeScaleQuery = false; return HOURS; } return IDENTIFIER; }
-    "days"                                      { if(inStreamsTimeScaleQuery) { inStreamsTimeScaleQuery = false; return DAYS; } return IDENTIFIER; }
-    "months"                                    { if(inStreamsTimeScaleQuery) { inStreamsTimeScaleQuery = false; return MONTHS; } return IDENTIFIER; }
-    "years"                                     { if(inStreamsTimeScaleQuery) { inStreamsTimeScaleQuery = false; return YEARS; } return IDENTIFIER; }
-    "forever"                                   { return FOREVER; }
+    "from"                                      { inQueryExpression=true; return FROM; }
+    "select"                                    { if(inQueryExpression){ inQueryExpression = false; return SELECT; } return IDENTIFIER; }
+    "do"                                        { if(inQueryExpression){ inQueryExpression = false; return DO; } return IDENTIFIER; }
+    "where"                                     { if(inQueryExpression){ return WHERE; } return IDENTIFIER; }
 
     {WHITE_SPACE}                               { return WHITE_SPACE; }
 
@@ -452,6 +425,7 @@ DOLLAR = \$
     {XML_LITERAL_START}                         { yybegin(XML_MODE); return XML_LITERAL_START; }
     {STRING_TEMPLATE_LITERAL_START}             { inStringTemplate = true; yybegin(STRING_TEMPLATE_MODE); return STRING_TEMPLATE_LITERAL_START; }
 
+    {DEPRECATED_DOCUMENTATION}                   { yybegin(MARKDOWN_DOCUMENTATION_MODE); return DEPRECATED_DOCUMENTATION; }
     {RETURN_PARAMETER_DOCUMENTATION_START}      { yybegin(MARKDOWN_DOCUMENTATION_MODE); return RETURN_PARAMETER_DOCUMENTATION_START; }
     {PARAMETER_DOCUMENTATION_START}             { yybegin(MARKDOWN_PARAMETER_DOCUMENTATION_MODE); return PARAMETER_DOCUMENTATION_START; }
     {MARKDOWN_DOCUMENTATION_LINE_START}         { yybegin(MARKDOWN_DOCUMENTATION_MODE); return MARKDOWN_DOCUMENTATION_LINE_START; }
@@ -474,6 +448,15 @@ DOLLAR = \$
 
 <MARKDOWN_DOCUMENTATION_MODE>{
     {MARKDOWN_DOCUMENTATION_LINE_END}           { yybegin(YYINITIAL); }
+    {DOCTYPE}                                   { yybegin(SINGLE_BACKTICKED_MARKDOWN_MODE); return DOCTYPE; }
+    {DOCSERVICE}                                { yybegin(SINGLE_BACKTICKED_MARKDOWN_MODE); return DOCSERVICE; }
+    {DOCVARIABLE}                               { yybegin(SINGLE_BACKTICKED_MARKDOWN_MODE); return DOCVARIABLE; }
+    {DOCVAR}                                    { yybegin(SINGLE_BACKTICKED_MARKDOWN_MODE); return DOCVAR; }
+    {DOCANNOTATION}                             { yybegin(SINGLE_BACKTICKED_MARKDOWN_MODE); return DOCANNOTATION; }
+    {DOCMODULE}                                 { yybegin(SINGLE_BACKTICKED_MARKDOWN_MODE); return DOCMODULE; }
+    {DOCFUNCTION}                               { yybegin(SINGLE_BACKTICKED_MARKDOWN_MODE); return DOCFUNCTION; }
+    {DOCPARAMETER}                              { yybegin(SINGLE_BACKTICKED_MARKDOWN_MODE); return DOCPARAMETER; }
+    {DOCCONST}                                  { yybegin(SINGLE_BACKTICKED_MARKDOWN_MODE); return DOCCONST; }
     {SINGLE_BACKTICK_MARKDOWN_START}            { yybegin(SINGLE_BACKTICKED_MARKDOWN_MODE); return SINGLE_BACKTICK_MARKDOWN_START; }
     {DOUBLE_BACKTICK_MARKDOWN_START}            { yybegin(DOUBLE_BACKTICKED_MARKDOWN_MODE); return DOUBLE_BACKTICK_MARKDOWN_START; }
     {TRIPLE_BACKTICK_MARKDOWN_START}            { yybegin(TRIPLE_BACKTICKED_MARKDOWN_MODE); return TRIPLE_BACKTICK_MARKDOWN_START; }

@@ -20,6 +20,7 @@ import com.intellij.openapi.options.SearchableConfigurable;
 import com.intellij.openapi.project.Project;
 import com.intellij.util.ui.FormBuilder;
 import com.intellij.util.ui.UIUtil;
+import io.ballerina.plugins.idea.preloading.LSPUtils;
 import io.ballerina.plugins.idea.sdk.BallerinaSdkUtils;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
@@ -76,8 +77,11 @@ public class LangServerLogsConfigurable implements SearchableConfigurable {
     public void apply() {
         myLangServerLogsSettings.setIsLangServerDebugLogsEnabled(myEnableDebugLogsCb.isSelected());
         myLangServerLogsSettings.setIsLangServerTraceLogsEnabled(myEnableTraceLogsCb.isSelected());
-        // Todo - Remove after adding support to send language server related configuration changes on-the-fly.
-        BallerinaSdkUtils.showRestartDialog(project);
+        // Tries to notify the setting changes to the language server and if failed, requests to reload the project.
+        boolean success = LSPUtils.notifyConfigChanges(project);
+        if (!success) {
+            BallerinaSdkUtils.showRestartDialog(project);
+        }
     }
 
     @Override

@@ -23,7 +23,6 @@ import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.expressions.TypeConversionNode;
 import org.ballerinalang.model.tree.types.TypeNode;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
@@ -43,7 +42,6 @@ public class BLangTypeConversionExpr extends BLangExpression implements TypeConv
     public BLangExpression expr;
     public BLangType typeNode;
     public BType targetType;
-    public BOperatorSymbol conversionSymbol;
     public List<BLangAnnotationAttachment> annAttachments = new ArrayList<>();
     public Set<Flag> flagSet = EnumSet.noneOf(Flag.class);
     public boolean checkTypes = true;

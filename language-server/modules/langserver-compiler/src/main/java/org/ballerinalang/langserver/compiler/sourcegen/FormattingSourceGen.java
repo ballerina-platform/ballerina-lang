@@ -841,9 +841,7 @@ public class FormattingSourceGen {
         }
 
         if ("Function".equals(kind)) {
-            if (node.has("returnTypeNode")
-                    && node.getAsJsonObject("returnTypeNode").has("ws")
-                    && node.getAsJsonObject("returnTypeNode").getAsJsonArray("ws").size() > 0) {
+            if (node.has("returnTypeNode")) {
                 node.addProperty("hasReturns", true);
             }
 
@@ -1155,7 +1153,6 @@ public class FormattingSourceGen {
                 JsonObject anonType = anonTypes.get(node.getAsJsonObject("typeName").get("value").getAsString());
                 anonType.addProperty("isAnonType", true);
                 node.add("anonType", anonType);
-                anonTypes.remove(node.getAsJsonObject("typeName").get("value").getAsString());
             }
         }
 

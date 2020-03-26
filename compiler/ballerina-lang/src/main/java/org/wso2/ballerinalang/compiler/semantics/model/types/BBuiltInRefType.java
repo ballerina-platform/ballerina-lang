@@ -20,7 +20,6 @@ package org.wso2.ballerinalang.compiler.semantics.model.types;
 import org.ballerinalang.model.types.ReferenceType;
 import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
-import org.wso2.ballerinalang.compiler.util.TypeDescriptor;
 
 import static org.wso2.ballerinalang.compiler.util.TypeTags.ANY;
 import static org.wso2.ballerinalang.compiler.util.TypeTags.ANYDATA;
@@ -39,25 +38,6 @@ public class BBuiltInRefType extends BType implements ReferenceType {
 
     public BBuiltInRefType(int tag, BTypeSymbol tsymbol) {
         super(tag, tsymbol);
-    }
-
-    @Override
-    public String getDesc() {
-        switch (tag) {
-            case JSON:
-            case XML:
-            case TABLE:
-            case STREAM:
-            case MAP:
-            case FUTURE:
-                return TypeDescriptor.SIG_REFTYPE + getKind().typeName() + ";";
-            case ANY:
-                return TypeDescriptor.SIG_ANY;
-            case ANYDATA:
-                return TypeDescriptor.SIG_ANYDATA;
-            default:
-                return null;
-        }
     }
 
     @Override

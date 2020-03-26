@@ -69,6 +69,7 @@ dependencies {
     baloTestImplementation project(path: ':ballerina-jdbc', configuration: 'baloImplementation')
     baloTestImplementation project(path: ':ballerina-config-api', configuration: 'baloImplementation')
     baloTestImplementation project(path: ':ballerina-log-api', configuration: 'baloImplementation')
+    baloTestImplementation project(path: ':ballerina-email', configuration: 'baloImplementation')
     baloTestImplementation project(path: ':ballerina-file', configuration: 'baloImplementation')
     baloTestImplementation project(path: ':ballerina-auth', configuration: 'baloImplementation')
     baloTestImplementation project(path: ':ballerina-mime', configuration: 'baloImplementation')

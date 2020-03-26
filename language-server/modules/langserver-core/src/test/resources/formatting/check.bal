@@ -1,17 +1,17 @@
 import ballerina/http;
 
-function parse(string num) returns int|error {
+function parse(string num) returns int | error {
     return int.convert(num);
 }
 
-function scale1(string num) returns int|error {
+function scale1(string num) returns int| error  {
     int x =check   parse(num);
     int y = 0;
     y =check parse(num);
     return x * 10;
 }
 
-function scale2(string num) returns int|error {
+function scale2(string num) returns  int | error  {
     int x =
         check   parse(num);
     return x * 10;
@@ -42,7 +42,7 @@ service myService2 on new http:Listener(9090) {
     }
 }
 
-function scale3(string num) returns int | error {
+function scale3(string num) returns  int  |error  {
     int x =check    start   parse(num);
     int y = 0;
     y=check    parse(num) ;

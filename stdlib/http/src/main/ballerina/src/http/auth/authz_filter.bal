@@ -21,9 +21,9 @@
 public type AuthzFilter object {
 
     public AuthzHandler authzHandler;
-    public string[]|string[][]? scopes;
+    public Scopes? scopes;
 
-    public function __init(AuthzHandler authzHandler, string[]|string[][]? scopes) {
+    public function __init(AuthzHandler authzHandler, Scopes? scopes) {
         self.authzHandler = authzHandler;
         self.scopes = scopes;
     }
@@ -36,8 +36,8 @@ public type AuthzFilter object {
     # + return - A flag to indicate if the request flow should be continued(true) or aborted(false), a code and a message
     public function filterRequest(Caller caller, Request request, FilterContext context) returns boolean {
         boolean|AuthorizationError authorized = true;
-        var scopes = getScopes(context);
-        if (scopes is string[]|string[][]) {
+        Scopes|boolean scopes = getScopes(context);
+        if (scopes is Scopes) {
             authorized = self.authzHandler.canProcess(request);
             if (authorized is boolean && authorized) {
                 authorized = self.authzHandler.process(scopes);
@@ -45,16 +45,12 @@ public type AuthzFilter object {
         } else {
             if (scopes) {
                 var selfScopes = self.scopes;
-                if (selfScopes is string[]|string[][]) {
+                if (selfScopes is Scopes) {
                     authorized = self.authzHandler.canProcess(request);
                     if (authorized is boolean && authorized) {
                         authorized = self.authzHandler.process(selfScopes);
                     }
-                } else {
-                    authorized = true;
                 }
-            } else {
-                authorized = true;
             }
         }
         return isAuthzSuccessful(caller, authorized);
@@ -77,7 +73,7 @@ function isAuthzSuccessful(Caller caller, boolean|AuthorizationError authorized)
         return authorized;
     }
     response.setTextPayload("Authorization failure.");
-    var err = caller->respond(response);
+    error? err = caller->respond(response);
     if (err is error) {
         panic <error> err;
     }

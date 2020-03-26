@@ -24,6 +24,11 @@ import org.ballerinalang.jvm.util.Flags;
 import java.util.Arrays;
 import java.util.HashMap;
 
+import static org.ballerinalang.jvm.util.BLangConstants.BALLERINA_BUILTIN_PKG_PREFIX;
+import static org.ballerinalang.jvm.util.BLangConstants.INT_LANG_LIB;
+import static org.ballerinalang.jvm.util.BLangConstants.STRING_LANG_LIB;
+import static org.ballerinalang.jvm.util.BLangConstants.XML_LANG_LIB;
+
 /**
  * This class contains various methods manipulate {@link BType}s in Ballerina.
  *
@@ -31,10 +36,32 @@ import java.util.HashMap;
  */
 public class BTypes {
     public static BType typeInt = new BIntegerType(TypeConstants.INT_TNAME, new BPackage(null, null, null));
+    public static BType typeIntSigned32 = new BIntegerType(TypeConstants.SIGNED32,
+            new BPackage(BALLERINA_BUILTIN_PKG_PREFIX, INT_LANG_LIB, null), TypeTags.SIGNED32_INT_TAG);
+    public static BType typeIntSigned16 = new BIntegerType(TypeConstants.SIGNED16,
+            new BPackage(BALLERINA_BUILTIN_PKG_PREFIX, INT_LANG_LIB, null), TypeTags.SIGNED16_INT_TAG);
+    public static BType typeIntSigned8 = new BIntegerType(TypeConstants.SIGNED8,
+            new BPackage(BALLERINA_BUILTIN_PKG_PREFIX, INT_LANG_LIB, null), TypeTags.SIGNED8_INT_TAG);
+    public static BType typeIntUnsigned32 = new BIntegerType(TypeConstants.UNSIGNED32,
+            new BPackage(BALLERINA_BUILTIN_PKG_PREFIX, INT_LANG_LIB, null), TypeTags.UNSIGNED32_INT_TAG);
+    public static BType typeIntUnsigned16 = new BIntegerType(TypeConstants.UNSIGNED16,
+            new BPackage(BALLERINA_BUILTIN_PKG_PREFIX, INT_LANG_LIB, null), TypeTags.UNSIGNED16_INT_TAG);
+    public static BType typeIntUnsigned8 = new BIntegerType(TypeConstants.UNSIGNED8,
+            new BPackage(BALLERINA_BUILTIN_PKG_PREFIX, INT_LANG_LIB, null), TypeTags.UNSIGNED8_INT_TAG);
+    public static BType typeElement = new BXMLType(TypeConstants.XML_ELEMENT,
+            new BPackage(BALLERINA_BUILTIN_PKG_PREFIX, XML_LANG_LIB, null), TypeTags.XML_ELEMENT_TAG);
+    public static BType typeProcessingInstruction = new BXMLType(TypeConstants.XML_PI,
+            new BPackage(BALLERINA_BUILTIN_PKG_PREFIX, XML_LANG_LIB, null), TypeTags.XML_PI_TAG);
+    public static BType typeComment = new BXMLType(TypeConstants.XML_COMMENT,
+            new BPackage(BALLERINA_BUILTIN_PKG_PREFIX, XML_LANG_LIB, null), TypeTags.XML_COMMENT_TAG);
+    public static BType typeText = new BXMLType(TypeConstants.XML_TEXT,
+            new BPackage(BALLERINA_BUILTIN_PKG_PREFIX, XML_LANG_LIB, null), TypeTags.XML_TEXT_TAG);
     public static BType typeByte = new BByteType(TypeConstants.BYTE_TNAME, new BPackage(null, null, null));
     public static BType typeFloat = new BFloatType(TypeConstants.FLOAT_TNAME, new BPackage(null, null, null));
     public static BType typeDecimal = new BDecimalType(TypeConstants.DECIMAL_TNAME, new BPackage(null, null, null));
     public static BType typeString = new BStringType(TypeConstants.STRING_TNAME, new BPackage(null, null, null));
+    public static BType typeStringChar = new BStringType(TypeConstants.CHAR,
+            new BPackage(BALLERINA_BUILTIN_PKG_PREFIX, STRING_LANG_LIB, null), TypeTags.CHAR_STRING_TAG);
     public static BType typeBoolean = new BBooleanType(TypeConstants.BOOLEAN_TNAME, new BPackage(null, null, null));
     public static BType typeXML = new BXMLType(TypeConstants.XML_TNAME, new BPackage(null, null, null));
     public static BType typeJSON = new BJSONType(TypeConstants.JSON_TNAME, new BPackage(null, null, null));

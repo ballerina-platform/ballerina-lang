@@ -32,6 +32,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
@@ -47,13 +48,13 @@ public class LSStdLibCacheUtil {
     private static final String DIR_VALIDATION_PATTERN = ProjectDirConstants.SOURCE_DIR_NAME
             + ZIPENTRY_FILE_SEPARATOR + ProjectDirConstants.SOURCE_DIR_NAME + ZIPENTRY_FILE_SEPARATOR;
     private static final String TOML_CONTENT = "[project]\norg-name= \"lsbalorg\"\nversion=\"1.1.0\"\n\n[dependencies]";
-
     private static final Logger logger = LoggerFactory.getLogger(LSStdLibCacheUtil.class);
+    private static final Path STD_LIB_SOURCE_ROOT = Paths.get(CommonUtil.BALLERINA_HOME).resolve("lib").resolve("repo");
 
     private LSStdLibCacheUtil() {
     }
 
-    protected static void extractSourceFromBalo(Path sourceRoot, BLangImportPackage module)
+    protected static void extractSourceForImportModule(String orgName, BLangImportPackage module)
             throws LSStdlibCacheException {
         String moduleName = module.getPackageName().stream()
                 .map(BLangIdentifier::getValue)
@@ -61,27 +62,49 @@ public class LSStdLibCacheUtil {
         String version = module.getPackageVersion().getValue().isEmpty()
                 ? ProjectDirConstants.BLANG_PKG_DEFAULT_VERSION
                 : module.getPackageVersion().getValue();
-        String projectDirForModule = getCacheableKey(module);
-        Path baloPath = sourceRoot.resolve(moduleName).resolve(version).resolve(moduleName
+        String cacheableKey = getCacheableKey(module);
+        Path baloPath = STD_LIB_SOURCE_ROOT.resolve(orgName).resolve(moduleName).resolve(version).resolve(moduleName
                 + ProjectDirConstants.BLANG_COMPILED_PKG_EXT);
-        FileInputStream baloFileInputStream;
-        Path destinationRoot = CommonUtil.LS_STDLIB_CACHE_DIR.resolve(projectDirForModule)
+        Path destinationRoot = CommonUtil.LS_STDLIB_CACHE_DIR.resolve(cacheableKey)
                 .resolve(ProjectDirConstants.SOURCE_DIR_NAME);
+        extract(baloPath, destinationRoot, moduleName, cacheableKey);
+    }
 
+    protected static void extractSourceForCacheableKey(String cacheableKey) throws LSStdlibCacheException {
+        /*
+        Cacheable key format is as follows
+        Eg: orgName_moduleName_dot.separated.version
+         */
+        int versionSeparator = cacheableKey.lastIndexOf("_");
+        int modNameSeparator = cacheableKey.indexOf("_");
+        String version = cacheableKey.substring(versionSeparator + 1);
+        String moduleName = cacheableKey.substring(modNameSeparator + 1, versionSeparator);
+        String orgName = cacheableKey.substring(0, modNameSeparator);
+
+        Path baloPath = STD_LIB_SOURCE_ROOT.resolve(orgName).resolve(moduleName).resolve(version).resolve(moduleName
+                + ProjectDirConstants.BLANG_COMPILED_PKG_EXT);
+        Path destinationRoot = CommonUtil.LS_STDLIB_CACHE_DIR.resolve(cacheableKey)
+                .resolve(ProjectDirConstants.SOURCE_DIR_NAME);
+        extract(baloPath, destinationRoot, moduleName, cacheableKey);
+    }
+    
+    private static void extract(Path baloPath, Path destinationRoot, String moduleName, String cacheableKey)
+            throws LSStdlibCacheException {
+        FileInputStream baloFileInputStream;
         if (Files.exists(destinationRoot)) {
             // Already extracted
             return;
         }
         if (!Files.exists(baloPath)) {
             throw new LSStdlibCacheException("Invalid module source root provided for module: ["
-                    + projectDirForModule + "]");
+                    + cacheableKey + "]");
         }
 
         // Create the new extract root
         Path destinationPath;
         try {
-            createProjectForModule(module);
-            destinationPath = Files.createDirectories(destinationRoot.resolve(projectDirForModule));
+            createProjectForModule(cacheableKey);
+            destinationPath = Files.createDirectories(destinationRoot.resolve(cacheableKey));
         } catch (IOException e) {
             throw new LSStdlibCacheException(e.getMessage(), e);
         }
@@ -106,7 +129,8 @@ public class LSStdLibCacheUtil {
                     zipEntry = zis.getNextEntry();
                     continue;
                 }
-                if (!fileName.endsWith(ProjectDirConstants.BLANG_COMPILED_PKG_BIR_EXT)) {
+                if (!fileName.endsWith(ProjectDirConstants.BLANG_COMPILED_PKG_BIR_EXT)
+                        && !fileName.endsWith(ProjectDirConstants.MODULE_MD_FILE_NAME)) {
                     File newFile = destinationPath.resolve(fileName).toFile();
                     int length;
                     try (FileOutputStream fos = new FileOutputStream(newFile)) {
@@ -143,8 +167,9 @@ public class LSStdLibCacheUtil {
                 .map(BLangIdentifier::getValue)
                 .collect(Collectors.joining("."));
         String version = module.getPackageVersion().getValue();
+        String orgName = module.orgName.value;
 
-        return getCacheableKey(moduleName, version);
+        return getCacheableKey(orgName, moduleName, version);
     }
 
     /**
@@ -158,16 +183,23 @@ public class LSStdLibCacheUtil {
                 .map(Name::getValue)
                 .collect(Collectors.joining("."));
         String version = packageID.getPackageVersion().getValue();
+        String orgName = packageID.orgName.value;
 
-        return getCacheableKey(moduleName, version);
+        return getCacheableKey(orgName, moduleName, version);
     }
 
-    private static String getCacheableKey(String moduleName, String version) {
-        return moduleName + "_" + (version.isEmpty() ? ProjectDirConstants.BLANG_PKG_DEFAULT_VERSION : version);
+    private static String getCacheableKey(String orgName, String moduleName, String version) {
+        return orgName + "_" + moduleName + "_" +
+                (version.isEmpty() ? ProjectDirConstants.BLANG_PKG_DEFAULT_VERSION : version);
     }
-    
-    private static void createProjectForModule(BLangImportPackage module) throws IOException {
-        String projectDir = getCacheableKey(module);
+
+    /**
+     * Create the project for the given module.
+     *
+     * @param projectDir this is the cacheable key
+     * @throws IOException error while creating the project module
+     */
+    private static void createProjectForModule(String projectDir) throws IOException {
         Path cachedProjectPath = CommonUtil.LS_STDLIB_CACHE_DIR.resolve(projectDir);
         Path projectPath = Files.createDirectories(cachedProjectPath);
         Path manifestPath = projectPath.resolve(ProjectDirConstants.MANIFEST_FILE_NAME);

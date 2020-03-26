@@ -63,11 +63,10 @@ public class ForeachXMLTest {
 
     @Test
     public void testXMLWithArityChildren() {
-        String payload = "0:<p:name xmlns:p=\"foo\" xmlns:q=\"bar\">bob</p:name> 1:<p:address xmlns:p=\"foo\" " +
-                "xmlns:q=\"bar\">\n" +
+        String payload = "0:<p:name xmlns:p=\"foo\">bob</p:name> 1:<p:address xmlns:p=\"foo\">\n" +
                 "            <p:city>NY</p:city>\n" +
-                "            <q:country>US</q:country>\n" +
-                "        </p:address> 2:<q:ID xmlns:p=\"foo\" xmlns:q=\"bar\">1131313</q:ID> ";
+                "            <q:country xmlns:q=\"bar\">US</q:country>\n" +
+                "        </p:address> 2:<q:ID xmlns:q=\"bar\">1131313</q:ID> ";
         BValue[] returns = BRunUtil.invoke(program, "testXMLWithArityChildren");
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(returns[0].stringValue(), payload);

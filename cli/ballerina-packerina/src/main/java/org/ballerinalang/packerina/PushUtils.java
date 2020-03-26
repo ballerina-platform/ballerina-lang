@@ -17,13 +17,14 @@
  */
 package org.ballerinalang.packerina;
 
-import org.ballerinalang.spi.EmbeddedExecutor;
+import org.ballerinalang.cli.module.Push;
+import org.ballerinalang.cli.module.TokenUpdater;
+import org.ballerinalang.cli.module.exeptions.CommandException;
 import org.ballerinalang.toml.model.Dependency;
 import org.ballerinalang.toml.model.DependencyMetadata;
 import org.ballerinalang.toml.model.Manifest;
 import org.ballerinalang.toml.model.Proxy;
 import org.ballerinalang.toml.model.Settings;
-import org.ballerinalang.util.EmbeddedExecutorProvider;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 import org.wso2.ballerinalang.compiler.util.ProjectDirs;
 import org.wso2.ballerinalang.util.RepoUtils;
@@ -80,11 +81,9 @@ public class PushUtils {
     private static final Path SETTINGS_TOML_FILE_PATH = BALLERINA_HOME_PATH.resolve(
             ProjectDirConstants.SETTINGS_FILE_NAME);
 
-    private static EmbeddedExecutor executor = EmbeddedExecutorProvider.getInstance().getExecutor();
     private static Settings settings;
 
     private static final PrintStream SYS_ERR = System.err;
-    private static final PrintStream SYS_OUT = System.out;
     private static List<String> supportedPlatforms = Arrays.stream(SUPPORTED_PLATFORMS).collect(Collectors.toList());
     private static java.net.Proxy proxy;
     
@@ -147,29 +146,25 @@ public class PushUtils {
             // Get access token
             String accessToken = checkAccessToken();
             Proxy proxy = settings.getProxy();
-            String proxyPortAsString = proxy.getPort() == 0 ? "" : Integer.toString(proxy.getPort());
-        
             // Push module to central
             String urlWithModulePath = RepoUtils.getRemoteRepoURL() + "/modules/";
-            String outputLogMessage = orgName + "/" + moduleName + ":" + version + " [project repo -> central]";
-        
-            Optional<RuntimeException> exception = executor.executeMainFunction("module_push",
-                    urlWithModulePath, proxy.getHost(), proxyPortAsString, proxy.getUserName(),
-                    proxy.getPassword(), accessToken, orgName, baloPath.toAbsolutePath().toString(),
-                    outputLogMessage);
-            if (exception.isPresent()) {
-                String errorMessage = exception.get().getMessage();
+
+            try {
+                Push.execute(urlWithModulePath, proxy.getHost(), proxy.getPort(), proxy.getUserName(),
+                        proxy.getPassword(), accessToken, orgName, moduleName, version, baloPath.toAbsolutePath());
+            } catch (CommandException e) {
+                String errorMessage = e.getMessage();
                 if (null != errorMessage && !"".equals(errorMessage.trim())) {
                     // removing the error stack
                     if (errorMessage.contains("\n\tat")) {
                         errorMessage = errorMessage.substring(0, errorMessage.indexOf("\n\tat"));
                     }
-    
+
                     errorMessage = errorMessage.replaceAll("error: ", "");
-    
-                    throw createLauncherException("unexpected error occurred while pushing module '" + moduleName +
-                                                  "' to remote repository(" + getRemoteRepoURL() + "): " +
-                                                  errorMessage);
+
+                    throw createLauncherException(
+                            "unexpected error occurred while pushing module '" + moduleName + "' to remote repository("
+                                    + getRemoteRepoURL() + "): " + errorMessage);
                 }
             }
         }
@@ -421,7 +416,7 @@ public class PushUtils {
                                                  "\nAuto update failed. Please visit https://central.ballerina.io");
             }
             long modifiedTimeOfFileAtStart = getLastModifiedTimeOfFile(SETTINGS_TOML_FILE_PATH);
-            executor.executeService("module_cli_token_updater");
+            TokenUpdater.execute(SETTINGS_TOML_FILE_PATH.toString());
 
             boolean waitForToken = true;
             while (waitForToken) {

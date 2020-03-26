@@ -48,6 +48,7 @@ import java.io.IOException;
  *
  * @since 0.94
  */
+@Test
 public class XMLLiteralTest {
 
     private CompileResult result;
@@ -87,29 +88,22 @@ public class XMLLiteralTest {
         // namespace conflict with package import
         BAssertUtil.validateError(negativeResult, index++, "redeclared symbol 'x'", 42, 5);
 
-        // get attributes from non-xml
-        BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected 'xml', found 'map'", 47, 17);
-
-        // update attributes map
-        BAssertUtil.validateError(negativeResult, index++,
-                "xml attributes cannot be updated as a collection. update attributes one at a time", 52, 5);
-
         // update qname
-        BAssertUtil.validateError(negativeResult, index++, "cannot assign values to an xml qualified name", 57, 5);
+        BAssertUtil.validateError(negativeResult, index++, "cannot assign values to an xml qualified name", 47, 5);
 
         // use of undefined namespace for qname
-        BAssertUtil.validateError(negativeResult, index++, "undefined module 'ns0'", 65, 20);
+        BAssertUtil.validateError(negativeResult, index++, "cannot find xml namespace prefix 'ns0'", 55, 24);
 
         // define namespace with empty URI
         BAssertUtil.validateError(negativeResult, index++, "cannot bind prefix 'ns0' to the empty namespace name",
-                69, 5);
+                59, 5);
 
         // XML elements with mismatching start and end tags
         BAssertUtil.validateError(negativeResult, index++, "mismatching start and end tags found in xml element",
-                                  73, 18);
+                                  63, 18);
         // XML interpolation is not allowed to interpolate XML namespace attributes
-        BAssertUtil.validateError(negativeResult, index++, "xml namespaces cannot be interpolated", 82, 29);
-        BAssertUtil.validateError(negativeResult, index++, "xml namespaces cannot be interpolated", 82, 47);
+        BAssertUtil.validateError(negativeResult, index++, "xml namespaces cannot be interpolated", 72, 29);
+        BAssertUtil.validateError(negativeResult, index++, "xml namespaces cannot be interpolated", 72, 47);
         Assert.assertEquals(index, negativeResult.getErrorCount());
     }
 
@@ -255,17 +249,18 @@ public class XMLLiteralTest {
                 BRunUtil.invoke(literalWithNamespacesResult, "testElementLiteralWithNamespaces");
         Assert.assertTrue(returns[0] instanceof BXML);
         Assert.assertEquals(returns[0].stringValue(),
-                "<root xmlns=\"http://ballerina.com/\" xmlns:ns0=\"http://ballerina.com/a\" "
-                        + "xmlns:ns1=\"http://ballerina.com/c\" ns0:id=\"456\"><foo>123</foo>"
-                        + "<bar ns1:status=\"complete\"></bar></root>");
+                "<root xmlns=\"http://ballerina.com/\" " +
+                        "xmlns:ns0=\"http://ballerina.com/a\" " +
+                        "ns0:id=\"456\"><foo>123</foo><bar " +
+                        "xmlns:ns1=\"http://ballerina.com/c\" ns1:status=\"complete\"></bar></root>");
 
         Assert.assertTrue(returns[1] instanceof BXML);
         BXMLSequence seq = (BXMLSequence) returns[1];
         Assert.assertEquals(seq.stringValue(),
-                "<foo xmlns=\"http://ballerina.com/\" "
-                        + "xmlns:ns0=\"http://ballerina.com/a\" xmlns:ns1=\"http://ballerina.com/c\">123</foo>"
-                        + "<bar xmlns=\"http://ballerina.com/\" xmlns:ns0=\"http://ballerina.com/a\" "
-                        + "xmlns:ns1=\"http://ballerina.com/c\" ns1:status=\"complete\"></bar>");
+                "<foo xmlns=\"http://ballerina.com/\">123</foo><bar " +
+                        "xmlns=\"http://ballerina.com/\" " +
+                        "xmlns:ns1=\"http://ballerina.com/c\" " +
+                        "ns1:status=\"complete\"></bar>");
 
         BValueArray items = seq.value();
         Assert.assertEquals(items.size(), 2);
@@ -275,23 +270,23 @@ public class XMLLiteralTest {
     public void testElementWithQualifiedName() {
         BValue[] returns = BRunUtil.invoke(literalWithNamespacesResult, "testElementWithQualifiedName");
         Assert.assertTrue(returns[0] instanceof BXML);
-        Assert.assertEquals(returns[0].stringValue(), "<root xmlns:ns1=\"http://ballerina.com/b\">hello</root>");
+        Assert.assertEquals(returns[0].stringValue(), "<root>hello</root>");
 
         Assert.assertTrue(returns[1] instanceof BXML);
         Assert.assertEquals(returns[1].stringValue(),
-                "<root xmlns=\"http://ballerina.com/\" xmlns:ns1=\"http://ballerina.com/b\">hello</root>");
+                "<root xmlns=\"http://ballerina.com/\">hello</root>");
 
         Assert.assertTrue(returns[2] instanceof BXML);
         Assert.assertEquals(returns[2].stringValue(),
-                "<ns1:root xmlns:ns1=\"http://ballerina.com/b\" xmlns=\"http://ballerina.com/\">hello</ns1:root>");
+                "<ns1:root xmlns:ns1=\"http://ballerina.com/b\">hello</ns1:root>");
     }
 
     @Test
     public void testDefineInlineNamespace() {
         BValue[] returns = BRunUtil.invoke(literalWithNamespacesResult, "testDefineInlineNamespace");
         Assert.assertTrue(returns[0] instanceof BXML);
-        Assert.assertEquals(returns[0].stringValue(), "<nsx:foo xmlns:nsx=\"http://wso2.com\" "
-                + "xmlns:ns1=\"http://ballerina.com/b\" nsx:id=\"123\">hello</nsx:foo>");
+        Assert.assertEquals(returns[0].stringValue(),
+                "<nsx:foo xmlns:nsx=\"http://wso2.com\" nsx:id=\"123\">hello</nsx:foo>");
     }
 
     @Test
@@ -299,13 +294,12 @@ public class XMLLiteralTest {
         BValue[] returns =
                 BRunUtil.invoke(literalWithNamespacesResult, "testDefineInlineDefaultNamespace");
         Assert.assertTrue(returns[0] instanceof BXML);
-        Assert.assertEquals(returns[0].stringValue(), "<foo xmlns=\"http://ballerina.com/default/namespace\" "
-                + "xmlns:nsx=\"http://wso2.com/aaa\" xmlns:ns1=\"http://ballerina.com/b\">hello</foo>");
+        Assert.assertEquals(returns[0].stringValue(),
+                "<foo xmlns=\"http://ballerina.com/default/namespace\" xmlns:nsx=\"http://wso2.com/aaa\">hello</foo>");
 
         Assert.assertTrue(returns[1] instanceof BXML);
         Assert.assertEquals(returns[1].stringValue(),
-                "<foo xmlns=\"http://wso2.com\" xmlns:nsx=\"http://wso2.com/aaa\" "
-                        + "xmlns:ns1=\"http://ballerina.com/b\">hello</foo>");
+                "<foo xmlns=\"http://wso2.com\" xmlns:nsx=\"http://wso2.com/aaa\">hello</foo>");
     }
 
     @Test
@@ -337,8 +331,8 @@ public class XMLLiteralTest {
         BValue[] returns = BRunUtil.invoke(literalWithNamespacesResult, "testUsingNamespcesOfParent");
         Assert.assertTrue(returns[0] instanceof BXMLItem);
 
-        Assert.assertEquals(returns[0].stringValue(), "<root xmlns:ns0=\"http://ballerinalang.com/\" "
-                + "xmlns:ns1=\"http://ballerina.com/b\"><ns0:foo>hello</ns0:foo></root>");
+        Assert.assertEquals(returns[0].stringValue(),
+                "<root xmlns:ns0=\"http://ballerinalang.com/\"><ns0:foo>hello</ns0:foo></root>");
     }
 
     @Test(enabled = false)
@@ -381,7 +375,7 @@ public class XMLLiteralTest {
         BValue[] returns = BRunUtil.invoke(result, "testPackageLevelXML");
         Assert.assertTrue(returns[0] instanceof BXML);
         Assert.assertEquals(returns[0].stringValue(),
-                "<p:person xmlns:p=\"foo\" xmlns:q=\"bar\" xmlns:ns1=\"http://ballerina.com/b\">hello</p:person>");
+                "<p:person xmlns:p=\"foo\" xmlns:q=\"bar\">hello</p:person>");
 
         Assert.assertTrue(returns[1] instanceof BXML);
         Assert.assertEquals(returns[1].stringValue(),
@@ -404,10 +398,10 @@ public class XMLLiteralTest {
         BValue[] returns = BRunUtil.invoke(literalWithNamespacesResult, "testObjectLevelXML");
         Assert.assertTrue(returns[0] instanceof BXML);
         Assert.assertEquals(returns[0].stringValue(),
-                "<p:person xmlns:p=\"foo\" xmlns:q=\"bar\" xmlns:ns1=\"http://ballerina.com/b\">hello</p:person>");
+                "<p:person xmlns:p=\"foo\" xmlns:q=\"bar\">hello</p:person>");
     }
 
-    @Test(description = "Test sequence of brackets in content of XML")
+    @Test (description = "Test sequence of brackets in content of XML")
     public void testBracketSequenceInXMLLiteral() {
         BValue[] returns = BRunUtil.invoke(result, "testBracketSequenceInXMLLiteral");
         Assert.assertTrue(returns[0] instanceof BXML);
@@ -415,7 +409,7 @@ public class XMLLiteralTest {
                 "{}{{ {{{ { } }} }}} - extra }<elem>{}{{</elem>");
     }
 
-    @Test(description = "Test interpolating xml using different types")
+    @Test (description = "Test interpolating xml using different types")
     public void testXMLLiteralInterpolation() {
         BValue[] returns = BRunUtil.invoke(result, "testInterpolatingVariousTypes");
         Assert.assertTrue(returns[0] instanceof BXML);
@@ -423,7 +417,7 @@ public class XMLLiteralTest {
                 "<elem>42|3.14|31.4444|this-is-a-string|<abc></abc></elem>");
     }
 
-    @Test(description = "Test interpolating xml when there are extra dollar signs")
+    @Test (description = "Test interpolating xml when there are extra dollar signs")
     public void testXMLLiteralWithExtraDollarSigns() {
         BValue[] returns = BRunUtil.invoke(result, "testDollarSignOnXMLLiteralTemplate");
         Assert.assertTrue(returns[0] instanceof BXML);
@@ -441,7 +435,7 @@ public class XMLLiteralTest {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         xmlItem.serialize(baos);
         Assert.assertEquals(new String(baos.toByteArray()),
-                "<foo xmlns=\"http://wso2.com/\" xmlns:ns1=\"http://ballerina.com/b\">hello</foo>");
+                "<foo xmlns=\"http://wso2.com/\">hello</foo>");
     }
 
     @Test

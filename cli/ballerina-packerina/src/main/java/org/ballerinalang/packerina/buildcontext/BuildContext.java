@@ -44,17 +44,20 @@ import java.io.PrintStream;
 import java.io.UnsupportedEncodingException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.PathMatcher;
 import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BALLERINA_HOME;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_COMPILED_JAR_EXT;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_COMPILED_PKG_BINARY_EXT;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_COMPILED_PKG_BIR_EXT;
+import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.DIST_BIR_CACHE_DIR_NAME;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.TARGET_DIR_NAME;
 import static org.wso2.ballerinalang.util.RepoUtils.BALLERINA_INSTALL_DIR_PROP;
 
@@ -67,6 +70,7 @@ public class BuildContext extends HashMap<BuildContextField, Object> {
     private transient Path executableDir;
     private transient Path targetJarCacheDir;
     private transient Path targetBirCacheDir;
+    private transient Path targetTestJsonCacheDir;
     private transient Path baloCacheDir;
     private SourceType srcType;
     private transient PrintStream out;
@@ -115,6 +119,11 @@ public class BuildContext extends HashMap<BuildContextField, Object> {
                 this.targetJarCacheDir = targetPath
                         .resolve(ProjectDirConstants.CACHES_DIR_NAME)
                         .resolve(ProjectDirConstants.JAR_CACHE_DIR_NAME);
+
+                // save '<target>/cache/json_cache' dir for jar files
+                this.targetTestJsonCacheDir = targetPath
+                        .resolve(ProjectDirConstants.CACHES_DIR_NAME)
+                        .resolve(ProjectDirConstants.JSON_CACHE_DIR_NAME);
                 
                 // save '<target>/bin' dir for executables
                 this.executableDir = targetPath.resolve(ProjectDirConstants.BIN_DIR_NAME);
@@ -266,7 +275,7 @@ public class BuildContext extends HashMap<BuildContextField, Object> {
     }
     
     public Path getSystemRepoBirCache() {
-        return Paths.get(System.getProperty(BALLERINA_INSTALL_DIR_PROP)).resolve("bir-cache");
+        return Paths.get(System.getProperty(BALLERINA_INSTALL_DIR_PROP)).resolve(DIST_BIR_CACHE_DIR_NAME);
     }
     
     public Path getHomeRepoDir() {
@@ -344,7 +353,21 @@ public class BuildContext extends HashMap<BuildContextField, Object> {
                                   + platform + "-"
                                   + moduleID.version.value
                                   + BLANG_COMPILED_PKG_BINARY_EXT;
-            return moduleBaloCacheDir.resolve(baloFileName);
+            Path baloPath = moduleBaloCacheDir.resolve(baloFileName);
+            // check if file exists
+            // if not try to load other spec versions
+            if (!Files.exists(baloPath) && Files.exists(moduleBaloCacheDir)) {
+                Stream<Path> list = Files.list(moduleBaloCacheDir);
+                PathMatcher pathMatcher = moduleBaloCacheDir.getFileSystem()
+                        .getPathMatcher("glob:**/" + moduleID.name.value + "-*-" +
+                                platform + "-" + moduleID.version.value + ".balo");
+                for (Path file : (Iterable<Path>) list::iterator) {
+                    if (pathMatcher.matches(file)) {
+                        return file;
+                    }
+                }
+            }
+            return baloPath;
         } catch (IOException e) {
             throw new BLangCompilerException("error resolving balo_cache dir for module: " + moduleID);
         }
@@ -507,6 +530,25 @@ public class BuildContext extends HashMap<BuildContextField, Object> {
             
         } catch (IOException e) {
             throw new BLangCompilerException("error creating bir_cache dir for module(s): " + this.executableDir);
+        }
+    }
+
+    public Path getTestJsonPathTargetCache(PackageID moduleID) {
+        try {
+            Files.createDirectories(targetTestJsonCacheDir);
+            switch (this.getSourceType()) {
+                case SINGLE_MODULE:
+                case ALL_MODULES:
+                    return Files.createDirectories(targetTestJsonCacheDir.resolve(moduleID.orgName.value)
+                                                           .resolve(moduleID.name.value)
+                                                           .resolve(moduleID.version.value));
+                default:
+                    return targetTestJsonCacheDir;
+            }
+
+        } catch (IOException e) {
+            throw new BLangCompilerException("error creating test_json_cache " +
+                                                     "dir for module(s): " + targetTestJsonCacheDir);
         }
     }
     

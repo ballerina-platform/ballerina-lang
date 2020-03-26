@@ -1,0 +1,22 @@
+{
+    "line": 14,
+    "character": 4,
+    "expected": {
+        "title": "Create Local Variable",
+        "edits": [
+            {
+                "range": {
+                    "start": {
+                        "line": 14,
+                        "character": 4
+                    },
+                    "end": {
+                        "line": 14,
+                        "character": 4
+                    }
+                },
+                "newText": "stream<record {| anydata...; |}, error> query = "
+            }
+        ]
+    }
+}

@@ -33,7 +33,7 @@ public type EmbeddedModeConfig record {
 };
 
 function testAmbiguityResolution() returns [string, string, string] {
-    string s1 = init({});
+    string s1 = init({});   // not ambiguous, only `InMemoryModeConfig` can be created without any fields
     string s2 = init({host:"localhost", port:9090});
     string s3 = init({path:"localhost:9090"});
     return [s1, s2, s3];
@@ -67,7 +67,8 @@ public type C record {
 };
 
 function testAmbiguityResolution2() returns [string, string, string, string] {
-    string s1 = resolve({a:"", b:"", c:""});
+    string s1 = resolve({a:"", b:"", c:""}); // not ambiguous, only `InMemoryModeConfig` can be
+                                             // created by specifying only a, b, and c.
     string s2 = resolve({a:"", b:"", c:"", f:""});
     string s3 = resolve({a:"", b:"", c:"", f:"", g:0});
     string s4 = resolve({a:"", b:"", c:"", i:""});

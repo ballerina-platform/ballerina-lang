@@ -14,17 +14,18 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/config;
 import ballerina/http;
 import ballerina/io;
 
 http:ListenerConfiguration mutualSslServiceConf = {
     secureSocket: {
         keyStore: {
-            path: "${ballerina.home}/bre/security/ballerinaKeystore.p12",
+            path: config:getAsString("keystore"),
             password: "ballerina"
         },
         trustStore: {
-            path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
+            path: config:getAsString("truststore"),
             password: "ballerina"
         },
         protocol: {
@@ -49,7 +50,11 @@ service http2Service on http2Listener {
     }
     resource function sayHello(http:Caller caller, http:Request req) {
         http:Response res = new;
-        res.setTextPayload("hello world");
+        if (req.mutualSslHandshake["status"] == "passed") {
+            res.setTextPayload("Passed");
+        } else {
+            res.setTextPayload("Failed");
+        }
         checkpanic caller->respond(res);
         io:println("successful");
     }

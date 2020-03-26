@@ -23,7 +23,6 @@ import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
-import org.wso2.ballerinalang.compiler.util.TypeDescriptor;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 
 import java.util.Collections;
@@ -86,11 +85,6 @@ public class BFiniteType extends BType implements FiniteType {
             }
         }
         return joiner.toString();
-    }
-
-    @Override
-    public String getDesc() {
-        return TypeDescriptor.SIG_FINITE + getQualifiedTypeName() + ";";
     }
 
     @Override

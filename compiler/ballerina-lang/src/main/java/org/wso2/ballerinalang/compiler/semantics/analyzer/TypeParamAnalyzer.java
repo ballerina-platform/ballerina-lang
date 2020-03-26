@@ -49,7 +49,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
-import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
+import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLogHelper;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
@@ -82,7 +82,7 @@ public class TypeParamAnalyzer {
     private SymbolTable symTable;
     private Types types;
     private Names names;
-    private BLangDiagnosticLog dlog;
+    private BLangDiagnosticLogHelper dlog;
 
     public static TypeParamAnalyzer getInstance(CompilerContext context) {
 
@@ -101,7 +101,7 @@ public class TypeParamAnalyzer {
         this.symTable = SymbolTable.getInstance(context);
         this.types = Types.getInstance(context);
         this.names = Names.getInstance(context);
-        this.dlog = BLangDiagnosticLog.getInstance(context);
+        this.dlog = BLangDiagnosticLogHelper.getInstance(context);
     }
 
     static boolean isTypeParam(BType expType) {
@@ -317,8 +317,8 @@ public class TypeParamAnalyzer {
                 return;
             case TypeTags.STREAM:
                 if (actualType.tag == TypeTags.STREAM) {
-                    findTypeParam(((BStreamType) expType).constraint, ((BStreamType) actualType).constraint, env,
-                                  resolvedTypes, result);
+                    findTypeParamInStream(((BStreamType) expType), ((BStreamType) actualType), env, resolvedTypes,
+                            result);
                 }
                 return;
             case TypeTags.TUPLE:
@@ -384,6 +384,13 @@ public class TypeParamAnalyzer {
         for (int i = 0; i < expType.tupleTypes.size() && i < actualType.tupleTypes.size(); i++) {
             findTypeParam(expType.tupleTypes.get(i), actualType.tupleTypes.get(i), env, resolvedTypes, result);
         }
+    }
+
+    private void findTypeParamInStream(BStreamType expType, BStreamType actualType, SymbolEnv env,
+                                       HashSet<BType> resolvedTypes, FindTypeParamResult result) {
+        findTypeParam(expType.constraint, actualType.constraint, env, resolvedTypes, result);
+        findTypeParam(expType.error, (actualType.error != null) ? actualType.error : symTable.nilType,
+                env, resolvedTypes, result);
     }
 
     private void findTypeParamInTupleForArray(BArrayType expType, BTupleType actualType, SymbolEnv env,
@@ -531,9 +538,10 @@ public class TypeParamAnalyzer {
                 return new BMapType(TypeTags.MAP, getMatchingBoundType(constraint, env, resolvedTypes),
                         symTable.mapType.tsymbol);
             case TypeTags.STREAM:
-                BType streamConstraint = ((BStreamType) expType).constraint;
-                return new BStreamType(TypeTags.STREAM, getMatchingBoundType(streamConstraint, env, resolvedTypes),
-                                       symTable.streamType.tsymbol);
+                BType streamConstraint = getMatchingBoundType(((BStreamType) expType).constraint, env, resolvedTypes);
+                BType streamError = (((BStreamType) expType).error != null) ? getMatchingOptionalBoundType((BUnionType)
+                        ((BStreamType) expType).error, env, resolvedTypes) : null;
+                return new BStreamType(TypeTags.STREAM, streamConstraint, streamError, symTable.streamType.tsymbol);
             case TypeTags.TUPLE:
                 return getMatchingTupleBoundType((BTupleType) expType, env, resolvedTypes);
             case TypeTags.RECORD:
@@ -641,10 +649,6 @@ public class TypeParamAnalyzer {
     }
 
     private BType getMatchingOptionalBoundType(BUnionType expType, SymbolEnv env, HashSet<BType> resolvedTypes) {
-
-        if (!expType.isNullable() || expType.getMemberTypes().size() != 2) {
-            return expType;
-        }
         LinkedHashSet<BType> members = new LinkedHashSet<>();
         expType.getMemberTypes()
                 .forEach(type -> members.add(getMatchingBoundType(type, env, resolvedTypes)));

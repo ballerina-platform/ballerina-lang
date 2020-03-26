@@ -84,6 +84,7 @@ public class StandardLibraryDefinitionTest extends DefinitionTest {
                 {"defObjectTypeDef1.json", "stdlib"},
                 {"defStdLibFunctionInvocation1.json", "stdlib"},
                 {"defStdLibActionInvocation1.json", "stdlib"},
+                {"defLangLibFunction1.json", "stdlib"},
         };
     }
 
