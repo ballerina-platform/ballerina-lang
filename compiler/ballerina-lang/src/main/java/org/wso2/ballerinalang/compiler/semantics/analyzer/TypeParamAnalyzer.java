@@ -278,6 +278,7 @@ public class TypeParamAnalyzer {
             updateTypeParamAndBoundType(pos, env, expType, actualType);
 
             // If type param discovered before, now type check with actual type. It has to be matched.
+
             if (checkContravariance) {
                 types.checkType(pos, getMatchingBoundType(expType, env, new HashSet<>()), actualType,
                                 DiagnosticCode.INCOMPATIBLE_TYPES);
@@ -311,10 +312,6 @@ public class TypeParamAnalyzer {
                 if (actualType.tag == TypeTags.RECORD) {
                     findTypeParamInMapForRecord(pos, (BMapType) expType, (BRecordType) actualType, env, resolvedTypes,
                                                 result);
-                }
-                if (actualType.tag == TypeTags.UNION) {
-                    findTypeParamInUnion(pos, ((BMapType) expType).constraint, (BUnionType) actualType, env, resolvedTypes,
-                                               result);
                 }
                 return;
             case TypeTags.STREAM:
@@ -422,6 +419,35 @@ public class TypeParamAnalyzer {
         BUnionType tupleElementType = BUnionType.create(null, members);
         findTypeParam(pos, expType, tupleElementType, env, resolvedTypes, result);
     }
+
+    private void findTypeParamInUnionForArray(DiagnosticPos pos, BArrayType expType, BUnionType actualType,
+    SymbolEnv env, HashSet<BType> resolvedTypes, FindTypeParamResult result) {
+        LinkedHashSet<BType> tupleTypes = new LinkedHashSet<>();
+        for (BType type : actualType.getMemberTypes()) {
+            if (type.tag == TypeTags.ARRAY) {
+                tupleTypes.add(((BArrayType) type).eType);
+            } else {
+                tupleTypes.add(type);
+            }
+        }
+        BUnionType tupleElementType = BUnionType.create(null, tupleTypes);
+        findTypeParam(pos, expType.eType, tupleElementType, env, resolvedTypes, result);
+    }
+
+    private void findTypeParamInUnionForMap(DiagnosticPos pos, BMapType expType, BUnionType actualType,
+                                            SymbolEnv env, HashSet<BType> resolvedTypes, FindTypeParamResult result) {
+        LinkedHashSet<BType> tupleTypes = new LinkedHashSet<>();
+        for (BType type : actualType.getMemberTypes()) {
+            if (type.tag == TypeTags.MAP) {
+                tupleTypes.add(((BMapType) type).constraint);
+            } else {
+                tupleTypes.add(type);
+            }
+        }
+        BUnionType tupleElementType = BUnionType.create(null, tupleTypes);
+        findTypeParam(pos, expType.constraint, tupleElementType, env, resolvedTypes, result);
+    }
+
 
     private void findTypeParamInRecord(DiagnosticPos pos, BRecordType expType, BRecordType actualType, SymbolEnv env,
                                        HashSet<BType> resolvedTypes, FindTypeParamResult result) {
