@@ -67,13 +67,9 @@ public class TypeParamTest {
         BAssertUtil.validateError(result, err++, "incompatible types: expected 'int', found 'float'", 119, 21);
         BAssertUtil.validateError(result, err++, "incompatible types: expected 'byte', found 'int'", 122, 31);
         BAssertUtil.validateError(result, err++, "incompatible types: expected 'byte', found 'int'", 125, 26);
-
-        // Disabled due to https://github.com/ballerina-platform/ballerina-lang/issues/22137
-        // BAssertUtil.validateError(result, err++, "incompatible types: expected '(int|string)', found 'int'", 130,
-        // 14);
-        // BAssertUtil.validateError(result, err++, "incompatible types: expected '(int|string)', found 'float'", 131,
-        //                           24);
-
+        BAssertUtil.validateError(result, err++, "incompatible types: expected '(int|string)', found 'boolean'", 130,
+                                  14);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected '(int|string)', found 'float'", 131, 24);
         Assert.assertEquals(result.getErrorCount(), err);
     }
 
@@ -111,4 +107,11 @@ public class TypeParamTest {
         Assert.assertEquals(ret2[0].stringValue(), "100");
     }
 
+    @Test(description = "Tests for type narrowing for union return parameters")
+    public void testTypeNarrowingForUnionReturnParameters() {
+        CompileResult result = BCompileUtil.compile("test-src/type-param/type_param_narrowing_for_union_return.bal");
+        BRunUtil.invoke(result, "testSimpleUnionReturnParameterNarrowing");
+        BRunUtil.invoke(result, "testUnionOfMapsReturnParameterNarrowing");
+        Assert.assertEquals(result.getErrorCount(), 0);
+    }
 }
