@@ -16,7 +16,7 @@ Or provide it as a command line argument:
 
 # The secret needs to be provided if a configuration contains an encrypted value. The secret can be provided
 # via a `secret.txt` file or via the CLI. In this example, the CLI is used.
-$ ballerina run config_api.bal
+$ ballerina run config_api.bal --b7a.home=<ballerina_home_path>
 ballerina: enter secret for config value decryption:
 
 
@@ -31,14 +31,14 @@ ballerina: enter secret for config value decryption:
 #  password="@encrypted:{69P5VGO+hOomLWhoY28gJiGPmBzWvzlmGGWA9X3uWZM=}"
 #
 # ```
-$ ballerina run config_api.bal --b7a.config.file=path/to/conf/file/custom-config-file-name.conf
+$ ballerina run config_api.bal --b7a.config.file=path/to/conf/file/custom-config-file-name.conf --b7a.home=<ballerina_home_path>
 ballerina: enter secret for config value decryption:
 
 ballerina: started HTTPS/WSS listener 0.0.0.0:8085
 
 # The same configurations given via a configuration file can also be given via CLI parameters. <br>
 # e.g., hello.http.port
-$ ballerina run config_api.bal --hello.http.port=8085 --hello.keystore.password=@encrypted:{69P5VGO+hOomLWhoY28gJiGPmBzWvzlmGGWA9X3uWZM=}
+$ ballerina run config_api.bal --hello.http.port=8085 --hello.keystore.password=@encrypted:{69P5VGO+hOomLWhoY28gJiGPmBzWvzlmGGWA9X3uWZM=} --b7a.home=<ballerina_home_path>
 ballerina: enter secret for config value decryption:
 
 ballerina: started HTTPS/WSS listener 0.0.0.0:8085

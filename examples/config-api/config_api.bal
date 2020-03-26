@@ -32,7 +32,7 @@ listener http:Listener helloWorldEP
     = new (config:getAsInt("hello.http.port", 9095), config = {
         secureSocket: {
             keyStore: {
-                path: "${ballerina.home}/bre/security/ballerinaKeystore.p12",
+                path: config:getAsString("b7a.home") + "bre/security/ballerinaKeystore.p12",
                 password: config:getAsString("hello.keystore.password")
             }
         }
