@@ -69,4 +69,9 @@ public class BinaryExpression extends ExpressionTree {
         }
         return null;
     }
+
+    @Override
+    public void accept(SyntaxNodeVisitor visitor) {
+        visitor.visit(this);
+    }
 }

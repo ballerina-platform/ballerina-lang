@@ -72,4 +72,9 @@ public class ModulePart extends NonTerminalNode {
         }
         return null;
     }
+
+    @Override
+    public void accept(SyntaxNodeVisitor visitor) {
+        visitor.visit(this);
+    }
 }

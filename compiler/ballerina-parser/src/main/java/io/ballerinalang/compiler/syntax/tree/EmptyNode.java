@@ -23,4 +23,9 @@ public class EmptyNode extends NonTerminalNode {
     public EmptyNode(STNode node, int position, NonTerminalNode parent) {
         super(node, position, parent);
     }
+
+    @Override
+    public void accept(SyntaxNodeVisitor visitor) {
+        visitor.visit(this);
+    }
 }
