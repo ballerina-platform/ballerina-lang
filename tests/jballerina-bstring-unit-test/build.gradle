@@ -37,6 +37,7 @@ dependencies {
     testCompile project(':ballerina-lang:internal')
     testCompile project(':ballerina-lang:xml')
     testCompile project(':ballerina-lang:error')
+    testCompile project(':ballerina-lang:table')
     testCompile project(':ballerina-lang:object')
     testCompile project(':ballerina-lang:annotations')
 
@@ -56,6 +57,7 @@ dependencies {
     birJar project(path: ':ballerina-lang:internal', configuration: 'bStringBirJar')
     birJar project(path: ':ballerina-lang:xml', configuration: 'bStringBirJar')
     birJar project(path: ':ballerina-lang:error', configuration: 'bStringBirJar')
+    birJar project(path: ':ballerina-lang:table', configuration: 'bStringBirJar')
     birJar project(path: ':ballerina-lang:object', configuration: 'bStringBirJar')
 
     baloImplementation project(path: ':ballerina-lang:decimal', configuration: 'baloImplementation')
@@ -63,11 +65,11 @@ dependencies {
     baloImplementation project(path: ':ballerina-lang:future', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-lang:integer', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-lang:stream', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-lang:table', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-lang:typedesc', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-lang:bool', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-http', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-math', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-io', configuration: 'baloImplementation')
 
     balHome project(path: ':ballerina-lang:string', configuration: 'baloImplementation')
     balHome project(path: ':ballerina-lang:value', configuration: 'baloImplementation')
@@ -77,6 +79,7 @@ dependencies {
     balHome project(path: ':ballerina-lang:xml', configuration: 'baloImplementation')
     balHome project(path: ':ballerina-lang:error', configuration: 'baloImplementation')
     balHome project(path: ':ballerina-lang:object', configuration: 'baloImplementation')
+    balHome project(path: ':ballerina-lang:table', configuration: 'baloImplementation')
     balHome project(path: ':ballerina-lang:annotations', configuration: 'baloImplementation')
 }
 

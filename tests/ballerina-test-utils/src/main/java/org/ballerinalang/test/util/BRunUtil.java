@@ -1081,7 +1081,11 @@ public class BRunUtil {
                     StringValue stringValue = (StringValue) value;
                     bvmValue = new BString(stringValue.getValue());
                 } else {
-                    bvmValue = new BString((String) value);
+                    if (value instanceof org.ballerinalang.jvm.values.api.BString) {
+                        bvmValue = new BString(((org.ballerinalang.jvm.values.api.BString) value).getValue());
+                    } else {
+                        bvmValue = new BString((String) value);
+                    }
                 }
                 break;
             case org.ballerinalang.jvm.types.TypeTags.DECIMAL_TAG:

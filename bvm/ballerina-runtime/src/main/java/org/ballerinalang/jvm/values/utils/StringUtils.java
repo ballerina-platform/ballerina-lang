@@ -43,7 +43,6 @@ public class StringUtils {
      * @param value The value on which the function is invoked
      * @return String value of the value
      */
-    @Deprecated
     public static String getStringValue(Object value) {
         if (value == null) {
             return "";
@@ -119,5 +118,8 @@ public class StringUtils {
 
         RefValue refValue = (RefValue) value;
         return refValue.stringValue();
+    }
+
+    private StringUtils() {
     }
 }

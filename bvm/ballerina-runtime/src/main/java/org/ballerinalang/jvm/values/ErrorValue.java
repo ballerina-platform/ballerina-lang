@@ -86,7 +86,6 @@ public class ErrorValue extends BError implements RefValue {
     }
 
     @Override
-    @Deprecated
     public String stringValue() {
         if (isEmptyDetail()) {
             return "error " + reason.getValue();

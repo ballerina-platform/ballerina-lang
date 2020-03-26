@@ -274,6 +274,23 @@ public class TableValue implements RefValue, BTable {
         }
     }
 
+    public Object performAddOperation_bstring(MapValueImpl<BString, Object> data) {
+        synchronized (this) {
+            if (freezeStatus.getState() != State.UNFROZEN) {
+                FreezeUtils.handleInvalidUpdate(freezeStatus.getState(), TABLE_LANG_LIB);
+            }
+        }
+
+        try {
+            this.addData_bstring(data);
+            return null;
+        } catch (ErrorValue e) {
+            return e;
+        } catch (Throwable e) {
+            return TableUtils.createTableOperationError(e);
+        }
+    }
+
     /**
      * Performs addition of a record to the database.
      *
