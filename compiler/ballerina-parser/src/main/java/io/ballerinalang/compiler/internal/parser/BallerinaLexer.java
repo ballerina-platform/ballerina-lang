@@ -17,12 +17,9 @@
  */
 package io.ballerinalang.compiler.internal.parser;
 
-import io.ballerinalang.compiler.internal.parser.tree.STIdentifier;
-import io.ballerinalang.compiler.internal.parser.tree.STLiteralValueToken;
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
-import io.ballerinalang.compiler.internal.parser.tree.STNodeList;
+import io.ballerinalang.compiler.internal.parser.tree.STNodeFactory;
 import io.ballerinalang.compiler.internal.parser.tree.STToken;
-import io.ballerinalang.compiler.internal.parser.tree.STTypeToken;
 import io.ballerinalang.compiler.internal.parser.tree.SyntaxKind;
 import io.ballerinalang.compiler.internal.parser.tree.SyntaxTrivia;
 
@@ -37,12 +34,7 @@ import java.util.List;
 public class BallerinaLexer {
 
     private CharReader reader;
-    private List<STNode> leadingTriviaList;
-
-    public BallerinaLexer(String source) {
-        // TODO remove this method
-        this.reader = CharReader.fromString(source);
-    }
+    private List<STNode> leadingTriviaList = new ArrayList<>(10);
 
     public BallerinaLexer(CharReader charReader) {
         this.reader = charReader;
@@ -270,15 +262,15 @@ public class BallerinaLexer {
     }
 
     private STToken getSyntaxToken(SyntaxKind kind) {
-        STNodeList leadingTrivia = new STNodeList(this.leadingTriviaList);
-        STNodeList trailingTrivia = new STNodeList(new ArrayList<>(0));
-        return new STToken(kind, leadingTrivia, trailingTrivia);
+        STNode leadingTrivia = STNodeFactory.makeNodeList(this.leadingTriviaList);
+        STNode trailingTrivia = STNodeFactory.makeNodeList(new ArrayList<>(0));
+        return STNodeFactory.makeToken(kind, leadingTrivia, trailingTrivia);
     }
 
     private STToken getIdentifierToken(String tokenText) {
-        STNodeList leadingTrivia = new STNodeList(this.leadingTriviaList);
-        STNodeList trailingTrivia = new STNodeList(new ArrayList<>(0));
-        return new STIdentifier(tokenText, leadingTrivia, trailingTrivia);
+        STNode leadingTrivia = STNodeFactory.makeNodeList(this.leadingTriviaList);
+        STNode trailingTrivia = STNodeFactory.makeNodeList(new ArrayList<>(0));
+        return STNodeFactory.makeIdentifier(tokenText, leadingTrivia, trailingTrivia);
     }
 
     private void addTrivia(SyntaxKind kind) {
@@ -286,16 +278,16 @@ public class BallerinaLexer {
         this.leadingTriviaList.add(trivia);
     }
 
-    private STLiteralValueToken getLiteral(SyntaxKind kind) {
-        STNodeList leadingTrivia = new STNodeList(this.leadingTriviaList);
-        STNodeList trailingTrivia = new STNodeList(new ArrayList<>(0));
-        return new STLiteralValueToken(kind, getLexeme(), -1, leadingTrivia, trailingTrivia);
+    private STToken getLiteral(SyntaxKind kind) {
+        STNode leadingTrivia = STNodeFactory.makeNodeList(this.leadingTriviaList);
+        STNode trailingTrivia = STNodeFactory.makeNodeList(new ArrayList<>(0));
+        return STNodeFactory.makeLiteralValueToken(kind, getLexeme(), -1, leadingTrivia, trailingTrivia);
     }
 
-    private STTypeToken getTypeToken(String tokenText) {
-        STNodeList leadingTrivia = new STNodeList(this.leadingTriviaList);
-        STNodeList trailingTrivia = new STNodeList(new ArrayList<>(0));
-        return new STTypeToken(SyntaxKind.SIMPLE_TYPE, tokenText, leadingTrivia, trailingTrivia);
+    private STToken getTypeToken(String tokenText) {
+        STNode leadingTrivia = STNodeFactory.makeNodeList(this.leadingTriviaList);
+        STNode trailingTrivia = STNodeFactory.makeNodeList(new ArrayList<>(0));
+        return STNodeFactory.makeTypeToken(SyntaxKind.SIMPLE_TYPE, tokenText, leadingTrivia, trailingTrivia);
     }
 
     /**
