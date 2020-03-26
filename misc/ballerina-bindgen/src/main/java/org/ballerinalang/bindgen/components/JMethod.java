@@ -122,9 +122,9 @@ public class JMethod {
         }
         if (objectReturn && !allJavaClasses.contains(m.getReturnType().getName())) {
             if (isArrayReturn) {
-                classListForLooping.add(m.getReturnType().getComponentType().getCanonicalName());
+                classListForLooping.add(m.getReturnType().getComponentType().getName());
             } else {
-                classListForLooping.add(m.getReturnType().getCanonicalName());
+                classListForLooping.add(m.getReturnType().getName());
             }
         }
     }
