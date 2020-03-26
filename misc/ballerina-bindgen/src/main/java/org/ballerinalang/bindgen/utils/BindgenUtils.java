@@ -48,6 +48,7 @@ import java.nio.file.Paths;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.ArrayList;
+import java.util.ConcurrentModificationException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -201,16 +202,18 @@ public class BindgenUtils {
 
         try {
             List<String> allLines = Files.readAllLines(Paths.get(existingPath.toString()));
+            List<String> removeList = new ArrayList<>();
             for (String className : classList) {
                 for (String line : allLines) {
                     if (line.contains("\"" + className + "\"")) {
-                        classList.remove(className);
+                        removeList.add(className);
                         break;
                     }
                 }
             }
-        } catch (IOException e) {
-            errStream.println("Error while accessing the existing constants file. " + e);
+            classList.removeAll(removeList);
+        } catch (IOException | ConcurrentModificationException e) {
+            errStream.println("\nError while reading the existing constants file: " + e);
         }
         return classList;
     }
