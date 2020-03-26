@@ -1,22 +1,23 @@
 {
-    "line": 26,
+    "line": 53,
     "character": 4,
     "expected": {
-        "title": "Create Local Variable",
+        "title": "Create Local Variable with 'json'",
         "edits": [
             {
                 "range": {
                     "start": {
-                        "line": 26,
+                        "line": 53,
                         "character": 4
                     },
                     "end": {
-                        "line": 26,
+                        "line": 53,
                         "character": 4
                     }
                 },
-                "newText": "stream<Foo, error> streamResult = "
+                "newText": "json a = "
             }
         ]
     }
 }
+

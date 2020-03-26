@@ -1,5 +1,5 @@
 {
-    "line": 17,
+    "line": 29,
     "character": 4,
     "expected": {
         "title": "Create Local Variable with 'record {| string name; int age; record {| int maths; int physics; int chemistry; |} grades; string city; string country; |}'",
@@ -7,11 +7,11 @@
             {
                 "range": {
                     "start": {
-                        "line": 17,
+                        "line": 29,
                         "character": 4
                     },
                     "end": {
-                        "line": 17,
+                        "line": 29,
                         "character": 4
                     }
                 },
