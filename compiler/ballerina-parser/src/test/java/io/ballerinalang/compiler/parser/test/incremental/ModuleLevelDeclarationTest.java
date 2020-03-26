@@ -36,6 +36,6 @@ public class ModuleLevelDeclarationTest {
         Node[] newNodes = TestUtils.populateNewNodes(oldTree, newTree);
 
         // TODO This is fragile way to test. Improve
-        Assert.assertEquals(newNodes.length, 7);
+        Assert.assertEquals(newNodes.length, 6);
     }
 }

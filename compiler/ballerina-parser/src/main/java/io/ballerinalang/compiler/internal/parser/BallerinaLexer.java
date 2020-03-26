@@ -21,7 +21,6 @@ import io.ballerinalang.compiler.internal.parser.tree.STNode;
 import io.ballerinalang.compiler.internal.parser.tree.STNodeFactory;
 import io.ballerinalang.compiler.internal.parser.tree.STToken;
 import io.ballerinalang.compiler.internal.parser.tree.SyntaxKind;
-import io.ballerinalang.compiler.internal.parser.tree.SyntaxTrivia;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,7 +33,7 @@ import java.util.List;
 public class BallerinaLexer {
 
     private CharReader reader;
-    private List<STNode> leadingTriviaList = new ArrayList<>(10);
+    private List<STNode> leadingTriviaList;
 
     public BallerinaLexer(CharReader charReader) {
         this.reader = charReader;
@@ -46,7 +45,7 @@ public class BallerinaLexer {
      * @return Next lexical token.
      */
     public STToken nextToken() {
-        this.leadingTriviaList = new ArrayList<>(10);
+        processLeadingTrivia();
         return readToken();
     }
 
@@ -55,37 +54,35 @@ public class BallerinaLexer {
     }
 
     private STToken readToken() {
-        STToken token;
         reader.mark();
+        if (reader.isEOF()) {
+            return getSyntaxToken(SyntaxKind.EOF_TOKEN);
+        }
+
         int c = reader.peek();
+        reader.advance();
+        STToken token;
         switch (c) {
             // Separators
             case LexerTerminals.COLON:
-                reader.advance();
                 token = getSyntaxToken(SyntaxKind.COLON_TOKEN);
                 break;
             case LexerTerminals.SEMICOLON:
-                reader.advance();
                 token = getSyntaxToken(SyntaxKind.SEMICOLON_TOKEN);
                 break;
             case LexerTerminals.DOT:
-                reader.advance();
                 token = parseDotOrEllipsis();
                 break;
             case LexerTerminals.COMMA:
-                reader.advance();
                 token = getSyntaxToken(SyntaxKind.COMMA_TOKEN);
                 break;
             case LexerTerminals.OPEN_PARANTHESIS:
-                reader.advance();
                 token = getSyntaxToken(SyntaxKind.OPEN_PAREN_TOKEN);
                 break;
             case LexerTerminals.CLOSE_PARANTHESIS:
-                reader.advance();
                 token = getSyntaxToken(SyntaxKind.CLOSE_PAREN_TOKEN);
                 break;
             case LexerTerminals.OPEN_BRACE:
-                reader.advance();
                 if (peek() == LexerTerminals.PIPE) {
                     reader.advance();
                     token = getSyntaxToken(SyntaxKind.OPEN_BRACE_PIPE_TOKEN);
@@ -94,19 +91,15 @@ public class BallerinaLexer {
                 }
                 break;
             case LexerTerminals.CLOSE_BRACE:
-                reader.advance();
                 token = getSyntaxToken(SyntaxKind.CLOSE_BRACE_TOKEN);
                 break;
             case LexerTerminals.OPEN_BRACKET:
-                reader.advance();
                 token = getSyntaxToken(SyntaxKind.OPEN_BRACKET_TOKEN);
                 break;
             case LexerTerminals.CLOSE_BRACKET:
-                reader.advance();
                 token = getSyntaxToken(SyntaxKind.CLOSE_BRACKET_TOKEN);
                 break;
             case LexerTerminals.PIPE:
-                reader.advance();
                 if (peek() == LexerTerminals.CLOSE_BRACE) {
                     reader.advance();
                     token = getSyntaxToken(SyntaxKind.CLOSE_BRACE_PIPE_TOKEN);
@@ -115,46 +108,32 @@ public class BallerinaLexer {
                 }
                 break;
             case LexerTerminals.QUESTION_MARK:
-                reader.advance();
                 token = getSyntaxToken(SyntaxKind.QUESTION_MARK_TOKEN);
                 break;
 
             // Arithmetic operators
             case LexerTerminals.EQUAL:
-                reader.advance();
                 token = processEqualOperator();
                 break;
             case LexerTerminals.ADD:
-                reader.advance();
                 token = getSyntaxToken(SyntaxKind.PLUS_TOKEN);
                 break;
             case LexerTerminals.SUB:
-                reader.advance();
                 token = getSyntaxToken(SyntaxKind.MINUS_TOKEN);
                 break;
             case LexerTerminals.MUL:
-                reader.advance();
                 token = getSyntaxToken(SyntaxKind.ASTERISK_TOKEN);
                 break;
             case LexerTerminals.DIV:
-                reader.advance();
-                if (peek() == LexerTerminals.DIV) {
-                    // Process comments as trivia, and continue to next token
-                    reader.advance();
-                    processComment();
-                    token = readToken();
-                } else {
-                    token = getSyntaxToken(SyntaxKind.SLASH_TOKEN);
-                }
+                token = getSyntaxToken(SyntaxKind.SLASH_TOKEN);
                 break;
             case LexerTerminals.MOD:
-                reader.advance();
                 token = getSyntaxToken(SyntaxKind.PERCENT_TOKEN);
                 break;
             case LexerTerminals.LT:
-                reader.advance();
                 token = getSyntaxToken(SyntaxKind.LT_TOKEN);
                 break;
+
             // Numbers
             case '0':
             case '1':
@@ -166,7 +145,6 @@ public class BallerinaLexer {
             case '7':
             case '8':
             case '9':
-                reader.advance();
                 token = processNumericLiteral(c);
                 break;
 
@@ -223,36 +201,12 @@ public class BallerinaLexer {
             case 'y':
             case 'z':
             case '_':
-                reader.advance();
                 token = processIdentifierOrKeyword();
                 break;
 
             // Other
-            case 0x9:
-            case 0xD:
-            case 0x20:
-                // Process whitespace as trivia, and continue to next token
-                reader.advance();
-                processWhiteSpace();
-                token = readToken();
-                break;
-            case LexerTerminals.NEWLINE:
-                // TODO Revisit this case block
-                // Process newline as trivia, and continue to next token
-                reader.advance();
-                processNewLine();
-                token = readToken();
-                break;
-
-            // Identifiers and keywords
             default:
-                if (reader.isEOF()) {
-                    token = getSyntaxToken(SyntaxKind.EOF_TOKEN);
-                    break;
-                }
-
                 // Process invalid token as trivia, and continue to next token
-                reader.advance();
                 processInvalidToken();
                 token = readToken();
                 break;
@@ -263,31 +217,138 @@ public class BallerinaLexer {
 
     private STToken getSyntaxToken(SyntaxKind kind) {
         STNode leadingTrivia = STNodeFactory.createNodeList(this.leadingTriviaList);
-        STNode trailingTrivia = STNodeFactory.createNodeList(new ArrayList<>(0));
+        STNode trailingTrivia = processTrailingTrivia();
         return STNodeFactory.createToken(kind, leadingTrivia, trailingTrivia);
     }
 
     private STToken getIdentifierToken(String tokenText) {
         STNode leadingTrivia = STNodeFactory.createNodeList(this.leadingTriviaList);
-        STNode trailingTrivia = STNodeFactory.createNodeList(new ArrayList<>(0));
-        return STNodeFactory.createIdentifier(tokenText, leadingTrivia, trailingTrivia);
-    }
-
-    private void addTrivia(SyntaxKind kind) {
-        SyntaxTrivia trivia = new SyntaxTrivia(kind, getLexeme());
-        this.leadingTriviaList.add(trivia);
+        String lexeme = getLexeme();
+        STNode trailingTrivia = processTrailingTrivia();
+        return STNodeFactory.createIdentifier(lexeme, leadingTrivia, trailingTrivia);
     }
 
     private STToken getLiteral(SyntaxKind kind) {
         STNode leadingTrivia = STNodeFactory.createNodeList(this.leadingTriviaList);
-        STNode trailingTrivia = STNodeFactory.createNodeList(new ArrayList<>(0));
-        return STNodeFactory.createLiteralValueToken(kind, getLexeme(), -1, leadingTrivia, trailingTrivia);
+        String lexeme = getLexeme();
+        STNode trailingTrivia = processTrailingTrivia();
+        return STNodeFactory.createLiteralValueToken(kind, lexeme, -1, leadingTrivia, trailingTrivia);
     }
 
     private STToken getTypeToken(String tokenText) {
         STNode leadingTrivia = STNodeFactory.createNodeList(this.leadingTriviaList);
-        STNode trailingTrivia = STNodeFactory.createNodeList(new ArrayList<>(0));
-        return STNodeFactory.createTypeToken(SyntaxKind.SIMPLE_TYPE, tokenText, leadingTrivia, trailingTrivia);
+        String lexeme = getLexeme();
+        STNode trailingTrivia = processTrailingTrivia();
+        return STNodeFactory.createTypeToken(SyntaxKind.SIMPLE_TYPE, lexeme, leadingTrivia, trailingTrivia);
+    }
+
+    /**
+     * Process leading trivia.
+     */
+    private void processLeadingTrivia() {
+        this.leadingTriviaList = new ArrayList<>(10);
+        processSyntaxTrivia(this.leadingTriviaList, true);
+    }
+
+    /**
+     * Process and return trailing trivia.
+     * 
+     * @return Trailing trivia
+     */
+    private STNode processTrailingTrivia() {
+        List<STNode> triviaList = new ArrayList<>(10);
+        processSyntaxTrivia(triviaList, true);
+        return STNodeFactory.createNodeList(triviaList);
+    }
+
+    /**
+     * Process syntax trivia and add it to the provided list.
+     * <p>
+     * <code>syntax-trivia := whitespace | end-of-line | comments</code>
+     * 
+     * @param triviaList List of trivia
+     * @param isLeading Flag indicating whether the currently processing leading trivia or not
+     */
+    private void processSyntaxTrivia(List<STNode> triviaList, boolean isLeading) {
+        while (true) {
+            reader.mark();
+            char c = reader.peek();
+            switch (c) {
+                case LexerTerminals.SPACE:
+                case LexerTerminals.TAB:
+                case LexerTerminals.FORM_FEED:
+                    triviaList.add(processWhitespaces());
+                    break;
+                case LexerTerminals.CARRIAGE_RETURN:
+                case LexerTerminals.NEWLINE:
+                    triviaList.add(processEndOfLine());
+                    if (isLeading) {
+                        break;
+                    }
+                    return;
+                case LexerTerminals.DIV:
+                    if (reader.peek(2) == LexerTerminals.DIV) {
+                        triviaList.add(processComment());
+                    }
+                    return;
+                default:
+                    return;
+            }
+        }
+    }
+
+    /**
+     * Process whitespace up to an end of line.
+     * <p>
+     * <code>whitespace := 0x9 | 0xC | 0x20</code>
+     * 
+     * @return
+     */
+    private STNode processWhitespaces() {
+        while (true) {
+            boolean done = false;
+            char c = reader.peek();
+            switch (c) {
+                case LexerTerminals.SPACE:
+                case LexerTerminals.TAB:
+                case LexerTerminals.FORM_FEED:
+                    reader.advance();
+                    break;
+                case LexerTerminals.CARRIAGE_RETURN:
+                case LexerTerminals.NEWLINE:
+                    done = true;
+                    break;
+                default:
+                    done = true;
+            }
+            if (done) {
+                return STNodeFactory.createSyntaxTrivia(SyntaxKind.WHITESPACE_TRIVIA, getLexeme());
+            }
+        }
+    }
+
+    /**
+     * Process end of line.
+     * <p>
+     * <code>end-of-line := 0xA | 0xD</code>
+     * 
+     * @return End of line trivia
+     */
+    private STNode processEndOfLine() {
+        char c = reader.peek();
+        switch (c) {
+            case LexerTerminals.NEWLINE:
+                reader.advance();
+                return STNodeFactory.createSyntaxTrivia(SyntaxKind.END_OF_LINE_TRIVIA, getLexeme());
+            case LexerTerminals.CARRIAGE_RETURN:
+                reader.advance();
+                if (reader.peek() == LexerTerminals.NEWLINE) {
+                    reader.advance();
+                }
+                return STNodeFactory.createSyntaxTrivia(SyntaxKind.END_OF_LINE_TRIVIA, getLexeme());
+            default:
+                throw new IllegalStateException();
+        }
     }
 
     /**
@@ -310,12 +371,15 @@ public class BallerinaLexer {
      * <code>Comment := // AnyCharButNewline*
      * <br/><br/>AnyCharButNewline := ^ 0xA</code>
      */
-    private void processComment() {
-        while (peek() != LexerTerminals.NEWLINE) {
+    private STNode processComment() {
+        // We reach here after verifying up to peek(2). Hence advance(2).
+        reader.advance(2);
+        int nextToken = peek();
+        while (nextToken != LexerTerminals.NEWLINE && nextToken != LexerTerminals.CARRIAGE_RETURN) {
             reader.advance();
         }
 
-        addTrivia(SyntaxKind.COMMENT);
+        return STNodeFactory.createSyntaxTrivia(SyntaxKind.COMMENT, getLexeme());
     }
 
     /**
@@ -506,26 +570,8 @@ public class BallerinaLexer {
             reader.advance();
         }
 
-        addTrivia(SyntaxKind.INVALID);
-    }
-
-    /**
-     * Process whitespace.
-     * <code>WhiteSpaceChar := 0x9 | 0xA | 0xD | 0x20</code>
-     */
-    private void processWhiteSpace() {
-        while (isWhiteSpace(peek())) {
-            reader.advance();
-        }
-
-        addTrivia(SyntaxKind.WHITESPACE_TRIVIA);
-    }
-
-    /**
-     * Process new line.
-     */
-    private void processNewLine() {
-        addTrivia(SyntaxKind.END_OF_LINE_TRIVIA);
+        STNode trivia = STNodeFactory.createSyntaxTrivia(SyntaxKind.INVALID, getLexeme());
+        this.leadingTriviaList.add(trivia);
     }
 
     /**
@@ -543,12 +589,15 @@ public class BallerinaLexer {
         int currentChar = peek();
         switch (currentChar) {
             case LexerTerminals.NEWLINE:
+            case LexerTerminals.CARRIAGE_RETURN:
+            case LexerTerminals.SPACE:
+            case LexerTerminals.TAB:
             case LexerTerminals.SEMICOLON:
                 // TODO: add all separators (braces, parentheses, etc)
                 // TODO: add all operators (arithmetic, binary, etc)
                 return true;
             default:
-                return isWhiteSpace(currentChar);
+                return false;
         }
     }
 
@@ -622,19 +671,6 @@ public class BallerinaLexer {
             return true;
         }
         return isDigit(c);
-    }
-
-    /**
-     * <p>
-     * Check whether a given char is a whitespace.
-     * </p>
-     * <code>WhiteSpaceChar := 0x9 | 0xD | 0x20</code>
-     * 
-     * @param c character to check
-     * @return <code>true</code>, if the character represents a whitespace. <code>false</code> otherwise.
-     */
-    private boolean isWhiteSpace(int c) {
-        return c == 0x9 || c == 0xD || c == 0x20;
     }
 
     /**

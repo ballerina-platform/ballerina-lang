@@ -85,4 +85,9 @@ public class LexerTerminals {
 
     // Other
     public static final char NEWLINE = '\n'; // equivalent to 0xA
+    public static final char CARRIAGE_RETURN = '\r'; // equivalent to 0xD
+
+    public static final char TAB = 0x9;
+    public static final char SPACE = 0x20;
+    public static final char FORM_FEED = 0xC;
 }
