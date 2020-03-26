@@ -129,4 +129,9 @@ public class FunctionDefinitionNode extends ModuleMemberDeclaration {
         }
         return null;
     }
+
+    @Override
+    public void accept(SyntaxNodeVisitor visitor) {
+        visitor.visit(this);
+    }
 }

@@ -92,4 +92,9 @@ public class LocalVariableDeclaration extends Statement {
         }
         return null;
     }
+
+    @Override
+    public void accept(SyntaxNodeVisitor visitor) {
+        visitor.visit(this);
+    }
 }

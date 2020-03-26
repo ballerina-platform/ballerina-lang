@@ -68,4 +68,9 @@ public class PositionalArgumentNode extends FunctionArgumentNode {
         }
         return null;
     }
+
+    @Override
+    public void accept(SyntaxNodeVisitor visitor) {
+        visitor.visit(this);
+    }
 }

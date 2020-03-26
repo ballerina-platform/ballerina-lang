@@ -64,6 +64,8 @@ public abstract class Node {
         return node.kind;
     }
 
+    public abstract void accept(SyntaxNodeVisitor visitor);
+
     // TODO Temp method. We need to find a way to get the green node from a red node.
     public STNode getInternalNode() {
         return node;

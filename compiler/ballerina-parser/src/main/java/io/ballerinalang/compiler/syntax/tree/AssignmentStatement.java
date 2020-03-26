@@ -79,4 +79,9 @@ public class AssignmentStatement extends Statement {
         }
         return null;
     }
+
+    @Override
+    public void accept(SyntaxNodeVisitor visitor) {
+        visitor.visit(this);
+    }
 }
