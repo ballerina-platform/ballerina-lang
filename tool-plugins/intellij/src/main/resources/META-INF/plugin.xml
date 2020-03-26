@@ -195,15 +195,8 @@
         <projectStructureDetector
                 implementation="io.ballerina.plugins.idea.project.BallerinaProjectStructureDetector"/>
         <directoryProjectGenerator
-                implementation="io.ballerina.plugins.idea.BallerinaProjectGenerator"/> <!-- for small IDEs-->
-        <projectService
-                serviceImplementation="io.ballerina.plugins.idea.settings.experimental.BallerinaExperimentalFeatureSettings"/>
-        <projectService
-                serviceImplementation="io.ballerina.plugins.idea.settings.autodetect.BallerinaAutoDetectionSettings"/>
-        <projectService
-                serviceImplementation="io.ballerina.plugins.idea.settings.langserverlogs.LangServerLogsSettings"/>
-        <projectService
-                serviceImplementation="io.ballerina.plugins.idea.settings.soucenavigation.BallerinaSourceNavigationSettings"/>
+                implementation="io.ballerina.plugins.idea.BallerinaProjectGenerator"/>
+
         <projectService
                 serviceImplementation="io.ballerina.plugins.idea.configuration.BallerinaProjectSettingsComponent"/>
         <preloadingActivity
