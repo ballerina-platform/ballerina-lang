@@ -60,7 +60,7 @@ public type AuthzFilter object {
         return isAuthzSuccessful(caller, authorized);
     }
 
-    # Filter function implementation which tries to authorize the response which is defined to achieve object
+    # Filter function implementation, which tries to authorize the response, which is defined to achieve 
     # structural equility.
     #
     # + response - `Response` instance
