@@ -24,9 +24,17 @@ import com.intellij.openapi.ui.LabeledComponent;
 import com.intellij.openapi.ui.TextFieldWithBrowseButton;
 import com.intellij.ui.EditorTextField;
 import com.intellij.ui.RawCommandLineEditor;
+import com.intellij.uiDesigner.core.GridConstraints;
+import com.intellij.uiDesigner.core.GridLayoutManager;
+import com.intellij.uiDesigner.core.Spacer;
 import io.ballerina.plugins.idea.runconfig.remote.BallerinaRemoteConfiguration;
 import org.jetbrains.annotations.NotNull;
 
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Insets;
+
+import javax.swing.BorderFactory;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 
@@ -99,4 +107,5 @@ public class BallerinaRemoteSettingsEditor extends SettingsEditor<BallerinaRemot
         myPortField.setPreferredWidth(100);
         myPort.setComponent(myPortField);
     }
+
 }
