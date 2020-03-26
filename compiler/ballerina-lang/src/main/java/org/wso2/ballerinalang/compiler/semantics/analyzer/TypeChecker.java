@@ -66,6 +66,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangInvokableNode;
@@ -2292,8 +2293,21 @@ public class TypeChecker extends BLangNodeVisitor {
         // Set error type as the actual type.
         BType actualType = symTable.semanticError;
 
-        // Look up operator symbol if both rhs and lhs types are error types
-        if (lhsType != symTable.semanticError && rhsType != symTable.semanticError) {
+        // Do not lookup operator symbol for xml sequence additions
+        if (binaryExpr.opKind == OperatorKind.ADD &&
+                (lhsType.tag == TypeTags.XML && TypeTags.isXMLNonSequenceType(rhsType.tag))) {
+            actualType = new BXMLType(TypeTags.XML, BUnionType.create(null, ((BXMLType) lhsType).constraint, rhsType),
+                    null);
+        } else if (binaryExpr.opKind == OperatorKind.ADD &&
+                (rhsType.tag == TypeTags.XML && TypeTags.isXMLNonSequenceType(lhsType.tag))) {
+            actualType = new BXMLType(TypeTags.XML, BUnionType.create(null, ((BXMLType) rhsType).constraint, lhsType),
+                    null);
+        } else if (binaryExpr.opKind == OperatorKind.ADD &&
+                rhsType.tag == TypeTags.XML && lhsType.tag == TypeTags.XML) {
+            actualType = new BXMLType(TypeTags.XML, BUnionType.create(null, ((BXMLType) lhsType).constraint,
+                    ((BXMLType) rhsType).constraint), null);
+        } else if (lhsType != symTable.semanticError && rhsType != symTable.semanticError) {
+            // Look up operator symbol if both rhs and lhs types aren't error or xml types
             BSymbol opSymbol = symResolver.resolveBinaryOperator(binaryExpr.opKind, lhsType, rhsType);
 
             if (opSymbol == symTable.notFoundSymbol) {
@@ -2641,7 +2655,7 @@ public class TypeChecker extends BLangNodeVisitor {
         // Visit the children
         bLangXMLElementLiteral.modifiedChildren =
                 concatSimilarKindXMLNodes(bLangXMLElementLiteral.children, xmlElementEnv);
-        resultType = types.checkType(bLangXMLElementLiteral, symTable.xmlType, expType);
+        resultType = types.checkType(bLangXMLElementLiteral, symTable.xmlElementType, expType);
     }
 
     private boolean isXmlNamespaceAttribute(BLangXMLAttribute attribute) {
@@ -2653,18 +2667,18 @@ public class TypeChecker extends BLangNodeVisitor {
 
     public void visit(BLangXMLTextLiteral bLangXMLTextLiteral) {
         checkStringTemplateExprs(bLangXMLTextLiteral.textFragments, false);
-        resultType = types.checkType(bLangXMLTextLiteral, symTable.xmlType, expType);
+        resultType = types.checkType(bLangXMLTextLiteral, symTable.xmlTextType, expType);
     }
 
     public void visit(BLangXMLCommentLiteral bLangXMLCommentLiteral) {
         checkStringTemplateExprs(bLangXMLCommentLiteral.textFragments, false);
-        resultType = types.checkType(bLangXMLCommentLiteral, symTable.xmlType, expType);
+        resultType = types.checkType(bLangXMLCommentLiteral, symTable.xmlCommentType, expType);
     }
 
     public void visit(BLangXMLProcInsLiteral bLangXMLProcInsLiteral) {
         checkExpr(bLangXMLProcInsLiteral.target, env, symTable.stringType);
         checkStringTemplateExprs(bLangXMLProcInsLiteral.dataFragments, false);
-        resultType = types.checkType(bLangXMLProcInsLiteral, symTable.xmlType, expType);
+        resultType = types.checkType(bLangXMLProcInsLiteral, symTable.xmlPIType, expType);
     }
 
     public void visit(BLangXMLQuotedString bLangXMLQuotedString) {
