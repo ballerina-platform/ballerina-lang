@@ -14,8 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/lang.'object as lang;
 import ballerina/java;
+import ballerina/lang.'object as lang;
 
 # Represents service endpoint where socket server service registered and start.
 #
@@ -23,6 +23,10 @@ public type Listener object {
 
     *lang:Listener;
 
+    # Initialize the TCP socket listener with a port and optional listener configuration.
+    #
+    # + port - The port number to which this listener is attached and listen
+    # + config - This optional listener configuration is used to provide properties like bind interface and read timeout
     public function __init(int port, ListenerConfig? config = ()) {
         var result = initServer(self, port, config ?: {});
         if (result is error) {
@@ -30,25 +34,43 @@ public type Listener object {
         }
     }
 
+    # Starts the registered service.
+    #
+    # + return - Returns an error if encounters an error while starting the server, returns nil otherwise.
     public function __start() returns error? {
         return startService(self);
     }
 
+    # Stops the registered service. Both behaviour of this and __immediateStop() function is similar.
+    #
+    # + return - Returns an error if encounters an error while stopping the server, returns nil otherwise.
     public function __gracefulStop() returns error? {
         return externStop(self, true);
     }
 
+    # Stops the registered service. Both behaviour of this and __gracefulStop() function is similar.
+    #
+    # + return - Returns an error if encounters an error while stopping the server, returns nil otherwise
     public function __immediateStop() returns error? {
         return externStop(self, false);
     }
 
+    # Gets called every time a service attaches itself to this listener - also happens at module init time.
+    #
+    # + s - The type of the service to be registered
+    # + name - Name of the service
+    # + return - Returns an error if encounters an error while attaching the service, returns nil otherwise
     public function __attach(service s, string? name = ()) returns error? {
         return externRegister(self, s);
     }
 
+    # Gets called every time a service detach itself to this listener
+    #
+    # + s - The type of the service to be detached
+    # + return - Returns an error if encounters an error while detaching the service, returns nil otherwise
     public function __detach(service s) returns error? {
-        // Socket listener operations are strictly bound to the attached service. In fact, listener doesn't support
-        // for multiple services. So not removing already attached service during the detach.
+    // Socket listener operations are strictly bound to the attached service. In fact, listener doesn't support
+    // for multiple services. So not removing already attached service during the detach.
     }
 };
 
