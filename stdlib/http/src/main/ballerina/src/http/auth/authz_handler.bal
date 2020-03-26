@@ -30,8 +30,8 @@ public type AuthzHandler object {
 
     # Initializes the `AuthzHandler` object.
     #
-    # + positiveAuthzCache - `Cache` instance, which is cache positive authorizations
-    # + negativeAuthzCache - `Cache` instance, which is cache negative authorizations
+    # + positiveAuthzCache - `Cache` instance, which keeps positive authorizations
+    # + negativeAuthzCache - `Cache` instance, which keeps negative authorizations
     public function __init(cache:Cache? positiveAuthzCache, cache:Cache? negativeAuthzCache) {
         self.positiveAuthzCache = positiveAuthzCache;
         self.negativeAuthzCache = negativeAuthzCache;
