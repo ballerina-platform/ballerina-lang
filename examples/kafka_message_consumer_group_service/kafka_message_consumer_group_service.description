@@ -1,2 +1,4 @@
-// Here is an example in which we create a Kafka consumer group/group
-// of concurrent consumers within a service.
+// Here is an example of kafka consumer used as a listener to listen to a given
+// topic / topics. The listener uses group of concurrent consumers within the
+// service. This consumer uses the builtin `string` deserializer for the
+// values.
