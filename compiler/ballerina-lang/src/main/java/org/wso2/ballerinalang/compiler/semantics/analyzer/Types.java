@@ -585,14 +585,6 @@ public class Types {
             return isAssignable(((BMapType) source).constraint, ((BMapType) target).constraint, unresolvedTypes);
         }
 
-        if (targetTag == TypeTags.MAP && sourceTag == TypeTags.RECORD) {
-            BType mapConstraint = ((BMapType) target).constraint;
-            BRecordType srcRec = (BRecordType) source;
-            boolean hasIncompatibleType = srcRec.fields
-                    .stream().anyMatch(field -> !isAssignable(field.type, mapConstraint));
-            return !hasIncompatibleType && isAssignable(srcRec.restFieldType, mapConstraint);
-        }
-
         if ((sourceTag == TypeTags.OBJECT || sourceTag == TypeTags.RECORD)
                 && (targetTag == TypeTags.OBJECT || targetTag == TypeTags.RECORD)) {
             return checkStructEquivalency(source, target, unresolvedTypes);
