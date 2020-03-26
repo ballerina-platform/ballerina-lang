@@ -47,7 +47,7 @@ public type AuthnFilter object {
         return isAuthnSuccessful(caller, authenticated);
     }
 
-    # Filter function implementation which tries to authenticate the response which is defined to achieve object
+    # The `Filter` function implementation, which tries to authenticate the response, which is defined to achieve 
     # structural equility.
     #
     # + response - `Response` instance
