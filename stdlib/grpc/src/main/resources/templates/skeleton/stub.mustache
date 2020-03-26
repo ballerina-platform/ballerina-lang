@@ -10,24 +10,35 @@ public type {{serviceName}}{{#equals stubType "blocking"}}Blocking{{/equals}}Cli
         checkpanic self.grpcClient.initStub(self, "{{stubType}}", ROOT_DESCRIPTOR, getDescriptorMap());
     }
 {{#blockingFunctions}}
-    public remote function {{methodName}}({{#if inputType}}{{inputType}} req, {{/if}}grpc:Headers? headers = ()) returns ({{#if outputType}}[{{outputType}}, grpc:Headers]{{else}}grpc:Headers{{/if}}|grpc:Error) {
+    public remote function {{methodName}}({{#if inputType}}{{inputType}} req, {{/if}}grpc:ClientContext? context = ()) returns ({{#if outputType}}[{{outputType}}, grpc:Headers]{{else}}grpc:Headers{{/if}}|grpc:Error) {
         {{#unless inputType}}Empty req = {};{{/unless}}
-        var payload = check self.grpcClient->blockingExecute("{{methodId}}", req, headers);
-        grpc:Headers resHeaders = new;
-        {{#if outputType}}anydata result = ();
-        [result, resHeaders] = payload;
-        {{#not_equal outputType "string"}}
-        return [<{{outputType}}>result, resHeaders];
-        {{/not_equal}}{{#equals outputType "string"}}return [result.toString(), resHeaders];{{/equals}}{{else}}[_, resHeaders] = payload;
-        return resHeaders;{{/if}}
+        [anydata, grpc:Headers]|error payload;
+        if context is grpc:ClientContext {
+            payload = check self.grpcClient->blockingExecute("{{methodId}}", req, context.getContextHeaders());
+        } else {
+            payload = check self.grpcClient->blockingExecute("{{methodId}}", req, ());
+        }
+        {{#if outputType}}
+        if payload is [anydata, grpc:Headers] { {{#not_equal outputType "string" }}
+            return [<{{outputType}}>(payload[0]), payload[1]];
+        {{/not_equal}}{{#equals outputType "string"}}return [payload[0].toString(), payload[1]];{{/equals}}{{else}}return [_, payload[1]];{{/if ~}}
+        } else {
+            return <grpc:Error>payload;
+        }
     }
 {{/blockingFunctions}}{{#nonBlockingFunctions}}
-    public remote function {{methodName}}({{#if inputType}}{{inputType}} req, {{/if}}service msgListener, grpc:Headers? headers = ()) returns (grpc:Error?) {
+    public remote function {{methodName}}({{#if inputType}}{{inputType}} req, {{/if}}service msgListener, grpc:ClientContext? context = ()) returns (grpc:Error?) {
         {{#unless inputType}}Empty req = {};{{/unless}}
-        return self.grpcClient->nonBlockingExecute("{{methodId}}", req, msgListener, headers);
+        if context is grpc:ClientContext {
+            return self.grpcClient->nonBlockingExecute("{{methodId}}", req, msgListener, context.getContextHeaders());
+        }
+        return self.grpcClient->nonBlockingExecute("{{methodId}}", req, msgListener, ());
     }
 {{/nonBlockingFunctions}}{{#streamingFunctions}}
-    public remote function {{methodName}}(service msgListener, grpc:Headers? headers = ()) returns (grpc:StreamingClient|grpc:Error) {
-        return self.grpcClient->streamingExecute("{{methodId}}", msgListener, headers);
+    public remote function {{methodName}}(service msgListener, grpc:ClientContext? context = ()) returns (grpc:StreamingClient|grpc:Error) {
+        if context is grpc:ClientContext {
+            return self.grpcClient->streamingExecute("{{methodId}}", msgListener, context.getContextHeaders());
+        }
+        return self.grpcClient->streamingExecute("{{methodId}}", msgListener, ());
     }{{/streamingFunctions}}
 };
