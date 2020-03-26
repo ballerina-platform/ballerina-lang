@@ -18,6 +18,7 @@
 
 package org.ballerinalang.nats.observability;
 
+import io.nats.client.Connection;
 import org.ballerinalang.jvm.observability.ObserveUtils;
 import org.ballerinalang.jvm.observability.metrics.DefaultMetricRegistry;
 import org.ballerinalang.jvm.observability.metrics.MetricId;
@@ -30,24 +31,14 @@ import java.util.ArrayList;
  *
  * @since 1.1.0
  */
-public class NatsMetricsUtil {
+public class NatsMetricsReporter {
 
     private static final MetricRegistry metricRegistry = DefaultMetricRegistry.getInstance();
+    private Connection connection;
 
-    /**
-     * Reports a new producer connection.
-     *
-     * @param url URL of the NATS server that the producer is connecting to.
-     */
-    public static void reportNewProducer(String url) {
-        if (!ObserveUtils.isMetricsEnabled()) {
-            return;
-        }
-        NatsObserverContext observerContext = new NatsObserverContext(NatsObservabilityConstants.CONTEXT_PRODUCER, url);
-        incrementGauge(observerContext, NatsObservabilityConstants.METRIC_PUBLISHERS[0],
-                       NatsObservabilityConstants.METRIC_PUBLISHERS[1]);
+    public NatsMetricsReporter(Connection connection) {
+        this.connection = connection;
     }
-
 
     /**
      * Reports a new consumer connection.
@@ -58,24 +49,8 @@ public class NatsMetricsUtil {
         if (!ObserveUtils.isMetricsEnabled()) {
             return;
         }
-        NatsObserverContext observerContext = new NatsObserverContext(url);
-        incrementGauge(observerContext, NatsObservabilityConstants.METRIC_CONNECTIONS[0],
+        incrementGauge(new NatsObserverContext(url), NatsObservabilityConstants.METRIC_CONNECTIONS[0],
                        NatsObservabilityConstants.METRIC_CONNECTIONS[1]);
-    }
-
-
-    /**
-     * Reports a producer disconnection.
-     *
-     * @param url URL of the NATS server that the producer is disconnecting from.
-     */
-    public static void reportProducerClose(String url) {
-        if (!ObserveUtils.isMetricsEnabled()) {
-            return;
-        }
-        NatsObserverContext observerContext = new NatsObserverContext(NatsObservabilityConstants.CONTEXT_PRODUCER, url);
-        decrementGauge(observerContext, NatsObservabilityConstants.METRIC_PUBLISHERS[0],
-                       NatsObservabilityConstants.METRIC_PUBLISHERS[1]);
     }
 
     /**
@@ -87,42 +62,67 @@ public class NatsMetricsUtil {
         if (!ObserveUtils.isMetricsEnabled()) {
             return;
         }
-        NatsObserverContext observerContext = new NatsObserverContext(url);
-        decrementGauge(observerContext, NatsObservabilityConstants.METRIC_CONNECTIONS[0],
+        decrementGauge(new NatsObserverContext(url), NatsObservabilityConstants.METRIC_CONNECTIONS[0],
                        NatsObservabilityConstants.METRIC_CONNECTIONS[1]);
+    }
+
+    /**
+     * Reports a new producer connection.
+     */
+    public void reportNewProducer() {
+        if (!ObserveUtils.isMetricsEnabled()) {
+            return;
+        }
+        incrementGauge(
+                new NatsObserverContext(NatsObservabilityConstants.CONTEXT_PRODUCER, connection.getConnectedUrl()),
+                NatsObservabilityConstants.METRIC_PUBLISHERS[0],
+                NatsObservabilityConstants.METRIC_PUBLISHERS[1]);
+
+    }
+
+    /**
+     * Reports a producer disconnection.
+     */
+    public void reportProducerClose() {
+        if (!ObserveUtils.isMetricsEnabled()) {
+            return;
+        }
+        decrementGauge(
+                new NatsObserverContext(NatsObservabilityConstants.CONTEXT_PRODUCER, connection.getConnectedUrl()),
+                NatsObservabilityConstants.METRIC_PUBLISHERS[0],
+                NatsObservabilityConstants.METRIC_PUBLISHERS[1]);
+
     }
 
     /**
      * Reports a message being published by a NATS producer.
      *
-     * @param url     URL of the NATS server that the producer is publishing to.
      * @param subject Subject the message is published to.
      * @param size    Size in bytes of the message.
      */
-    public static void reportPublish(String url, String subject, int size) {
+    public void reportPublish(String subject, int size) {
         if (!ObserveUtils.isMetricsEnabled()) {
             return;
         }
-        NatsObserverContext observerContext = new NatsObserverContext(
-                NatsObservabilityConstants.CONTEXT_PRODUCER, url, subject);
-        reportPublish(observerContext, size);
+        reportPublish(new NatsObserverContext(NatsObservabilityConstants.CONTEXT_PRODUCER, connection.getConnectedUrl(),
+                                              subject), size);
     }
 
 
     /**
      * Reports a message being successfully received and handled.
      *
-     * @param url     URL of the NATS server that the message was received from.
      * @param subject Subject the message is received to.
      */
-    public static void reportDelivery(String url, String subject) {
+    public void reportDelivery(String subject) {
         if (!ObserveUtils.isMetricsEnabled()) {
             return;
         }
-        NatsObserverContext observerContext = new NatsObserverContext(
-                NatsObservabilityConstants.CONTEXT_PRODUCER, url, subject);
-        incrementCounter(observerContext, NatsObservabilityConstants.METRIC_DELIVERED[0],
-                         NatsObservabilityConstants.METRIC_DELIVERED[1]);
+        incrementCounter(
+                new NatsObserverContext(NatsObservabilityConstants.CONTEXT_PRODUCER, connection.getConnectedUrl(),
+                                        subject),
+                NatsObservabilityConstants.METRIC_DELIVERED[0],
+                NatsObservabilityConstants.METRIC_DELIVERED[1]);
 
     }
 
@@ -130,17 +130,17 @@ public class NatsMetricsUtil {
     /**
      * Reports a request by a NATS producer.
      *
-     * @param url     URL of the NATS server that the producer is publishing the request to.
      * @param subject Subject the request message is published to.
      * @param size    Size in bytes of the request message.
      */
-    public static void reportRequest(String url, String subject, int size) {
+    public void reportRequest(String subject, int size) {
         if (!ObserveUtils.isMetricsEnabled()) {
             return;
         }
         NatsObserverContext observerContext = new NatsObserverContext(
-                NatsObservabilityConstants.CONTEXT_PRODUCER, url, subject);
-        incrementCounter(observerContext, NatsObservabilityConstants.METRIC_REQUEST[0],
+                NatsObservabilityConstants.CONTEXT_PRODUCER, connection.getConnectedUrl(), subject);
+        incrementCounter(observerContext,
+                         NatsObservabilityConstants.METRIC_REQUEST[0],
                          NatsObservabilityConstants.METRIC_REQUEST[1]);
         //Since a request also includes a message being published, that metric must be reported as well.
         reportPublish(observerContext, size);
@@ -149,18 +149,17 @@ public class NatsMetricsUtil {
     /**
      * Reports a response received by a NATS producer after a request is published.
      *
-     * @param url     URL of the NATS server that the producer received the response from.
      * @param subject Subject of the request message from which the response was derived.
-     * @param size    Size in bytes of the response message.
      */
-    public static void reportResponse(String url, String subject, int size) {
+    public void reportResponse(String subject) {
         if (!ObserveUtils.isMetricsEnabled()) {
             return;
         }
-        NatsObserverContext observerContext = new NatsObserverContext(
-                NatsObservabilityConstants.CONTEXT_PRODUCER, url, subject);
-        incrementCounter(observerContext, NatsObservabilityConstants.METRIC_RESPONSE[0],
-                         NatsObservabilityConstants.METRIC_RESPONSE[1]);
+        incrementCounter(
+                new NatsObserverContext(NatsObservabilityConstants.CONTEXT_PRODUCER, connection.getConnectedUrl(),
+                                        subject),
+                NatsObservabilityConstants.METRIC_RESPONSE[0],
+                NatsObservabilityConstants.METRIC_RESPONSE[1]);
     }
 
     /**
@@ -182,66 +181,77 @@ public class NatsMetricsUtil {
     /**
      * Reports a consumer unsubscribing from a subject.
      *
-     * @param url     URL of the NATS server that the consumer is connected to.
      * @param subject Subject that the consumer unsubscribes from.
      */
-    public static void reportUnsubscription(String url, String subject) {
+    public void reportUnsubscription(String subject) {
         if (!ObserveUtils.isMetricsEnabled()) {
             return;
         }
-        NatsObserverContext observerContext = new NatsObserverContext(
-                NatsObservabilityConstants.CONTEXT_PRODUCER, url, subject);
-        decrementGauge(observerContext, NatsObservabilityConstants.METRIC_SUBSCRIPTION[0],
-                       NatsObservabilityConstants.METRIC_SUBSCRIPTION[1]);
+        decrementGauge(
+                new NatsObserverContext(NatsObservabilityConstants.CONTEXT_PRODUCER, connection.getConnectedUrl(),
+                                        subject),
+                NatsObservabilityConstants.METRIC_SUBSCRIPTION[0],
+                NatsObservabilityConstants.METRIC_SUBSCRIPTION[1]);
+    }
+
+    /**
+     * Reports a consumer unsubscribing from a subject.
+     *
+     * @param url     URL of the NATS server that the consumer is connected to.
+     * @param subject Subject that the consumer unsubscribes from.
+     */
+    public static void reportStreamingUnsubscription(String url, String subject) {
+        if (!ObserveUtils.isMetricsEnabled()) {
+            return;
+        }
+        decrementGauge(
+                new NatsObserverContext(NatsObservabilityConstants.CONTEXT_PRODUCER, url, subject),
+                NatsObservabilityConstants.METRIC_SUBSCRIPTION[0],
+                NatsObservabilityConstants.METRIC_SUBSCRIPTION[1]);
     }
 
     /**
      * Reports a consumer unsubscribing from multiple subjects.
      *
-     * @param url     URL of the NATS server that the consumer is connected to.
      * @param subjects Subjects that the consumer unsubscribes from.
      */
-    public static void reportBulkUnsubscription(String url, ArrayList<String> subjects) {
+    public void reportBulkUnsubscription(ArrayList<String> subjects) {
         if (!ObserveUtils.isMetricsEnabled()) {
             return;
         }
-        for (String subject: subjects) {
-            NatsMetricsUtil.reportUnsubscription(url, subject);
+        for (String subject : subjects) {
+            this.reportUnsubscription(subject);
         }
 
     }
 
-
     /**
      * Reports an acknowledgement.
      *
-     * @param url     URL of the NATS server that the consumer is connected to.
      * @param subject Subject that the consumer subscribes to.
      */
-    public static void reportAcknowledgement(String url, String subject) {
+    public void reportAcknowledgement(String subject) {
         if (!ObserveUtils.isMetricsEnabled()) {
             return;
         }
-        NatsObserverContext observerContext = new NatsObserverContext(
-                NatsObservabilityConstants.CONTEXT_PRODUCER, url, subject);
-        incrementCounter(observerContext, NatsObservabilityConstants.METRIC_ACK[0],
+        incrementCounter(new NatsObserverContext(NatsObservabilityConstants.CONTEXT_PRODUCER,
+                                                 connection.getConnectedUrl(), subject),
+                         NatsObservabilityConstants.METRIC_ACK[0],
                          NatsObservabilityConstants.METRIC_ACK[1]);
     }
 
     /**
      * Reports a consumer consuming a message.
      *
-     * @param url     URL of the NATS server that the consumer is connected to.
      * @param subject Subject that the consumer receives the message from.
      * @param size    Size of the message in bytes.
      */
-    public static void reportConsume(String url, String subject, int size) {
+    public void reportConsume(String subject, int size) {
         if (!ObserveUtils.isMetricsEnabled()) {
             return;
         }
-        NatsObserverContext observerContext = new NatsObserverContext(
-                NatsObservabilityConstants.CONTEXT_CONSUMER, url, subject);
-        reportConsume(observerContext, size);
+        reportConsume(new NatsObserverContext(NatsObservabilityConstants.CONTEXT_CONSUMER, connection.getConnectedUrl(),
+                                              subject), size);
     }
 
     /**
@@ -260,15 +270,14 @@ public class NatsMetricsUtil {
     /**
      * Reports an error generated by a producer.
      *
-     * @param url       URL of the NATS server the producer is connected to.
      * @param subject   Subject that the producer is subscribed to.
      * @param errorType type of the error.
      */
-    public static void reportProducerError(String url, String subject, String errorType) {
+    public void reportProducerError(String subject, String errorType) {
         if (!ObserveUtils.isMetricsEnabled()) {
             return;
         }
-        reportError(url, subject, NatsObservabilityConstants.CONTEXT_PRODUCER, errorType);
+        reportError(subject, NatsObservabilityConstants.CONTEXT_PRODUCER, errorType);
     }
 
     /**
@@ -287,15 +296,14 @@ public class NatsMetricsUtil {
     /**
      * Reports an error generated by a consumer.
      *
-     * @param url       URL of the NATS server the consumer is connected to.
      * @param subject   Subject that the consumer is subscribed to.
      * @param errorType type of the error.
      */
-    public static void reportConsumerError(String url, String subject, String errorType) {
+    public void reportConsumerError(String subject, String errorType) {
         if (!ObserveUtils.isMetricsEnabled()) {
             return;
         }
-        reportError(url, subject, NatsObservabilityConstants.CONTEXT_CONSUMER, errorType);
+        this.reportError(subject, NatsObservabilityConstants.CONTEXT_CONSUMER, errorType);
     }
 
     private static void reportPublish(NatsObserverContext observerContext, int size) {
@@ -319,7 +327,14 @@ public class NatsMetricsUtil {
                          NatsObservabilityConstants.METRIC_ERRORS[1]);
     }
 
-    public static void reportError(String url, String subject, String context, String errorType) {
+    public void reportError(String subject, String context, String errorType) {
+        NatsObserverContext observerContext = new NatsObserverContext(context, connection.getConnectedUrl(), subject);
+        observerContext.addTag(NatsObservabilityConstants.TAG_ERROR_TYPE, errorType);
+        incrementCounter(observerContext, NatsObservabilityConstants.METRIC_ERRORS[0],
+                         NatsObservabilityConstants.METRIC_ERRORS[1]);
+    }
+
+    public static void reportStremingError(String url, String subject, String context, String errorType) {
         NatsObserverContext observerContext = new NatsObserverContext(context, url, subject);
         observerContext.addTag(NatsObservabilityConstants.TAG_ERROR_TYPE, errorType);
         incrementCounter(observerContext, NatsObservabilityConstants.METRIC_ERRORS[0],
@@ -364,8 +379,4 @@ public class NatsMetricsUtil {
                 NatsObservabilityConstants.CONNECTOR_NAME + "_" + name, desc, observerContext.getAllTags()))
                 .decrement();
     }
-
-    private NatsMetricsUtil() {
-    }
-
 }

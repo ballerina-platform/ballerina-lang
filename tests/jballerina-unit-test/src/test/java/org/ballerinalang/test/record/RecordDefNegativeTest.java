@@ -38,4 +38,12 @@ public class RecordDefNegativeTest {
         BAssertUtil.validateError(compileResult, errorIndex, "invalid usage of record literal: duplicate key 'name'",
                 43, 10);
     }
+
+    @Test
+    public void testLocalVarRefInLocalRecordDef() {
+        CompileResult compileResult = BCompileUtil.compile("test-src/record/negative/local_var_ref_in_record.bal");
+        BAssertUtil.validateError(compileResult, 0, "undefined symbol 'x'", 22, 19);
+        BAssertUtil.validateError(compileResult, 1, "undefined symbol 'x'", 27, 19);
+        BAssertUtil.validateError(compileResult, 2, "undefined symbol 'x'", 31, 57);
+    }
 }
