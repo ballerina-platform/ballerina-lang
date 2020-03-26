@@ -51,7 +51,7 @@ public type FailoverClient client object {
 
     # Failover caller actions which provides failover capabilities to an HTTP client endpoint.
     #
-    # + failoverClientConfig - The configurations of the client endpoint associated with this `Failover` instance
+    # + failoverClientConfig - The configurations of the client endpoint associated with this `Failover` instance.
     public function __init(FailoverClientConfiguration failoverClientConfig) {
         self.failoverClientConfig = failoverClientConfig;
         self.succeededEndpointIndex = 0;
