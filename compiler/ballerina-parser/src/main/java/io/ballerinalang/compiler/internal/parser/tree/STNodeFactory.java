@@ -297,7 +297,10 @@ public class STNodeFactory {
                                                   long value,
                                                   STNode leadingTrivia,
                                                   STNode trailingTrivia) {
-        return new STLiteralValueToken(kind, text, value, leadingTrivia, trailingTrivia
-        );
+        return new STLiteralValueToken(kind, text, value, leadingTrivia, trailingTrivia);
+    }
+
+    public static STNode createSyntaxTrivia(SyntaxKind kind, String text) {
+        return new SyntaxTrivia(kind, text);
     }
 }
