@@ -18,10 +18,10 @@
 public type Scheduler object {
     private Listener taskListener;
 
-    # Initializes a `task:Scheduler` object. This may panic if the initialization causes any error, due to
-    # configuration error.
+    # Initializes a `task:Scheduler` object. This may panic if the initialization causes any error due to
+    # a configuration error.
     #
-    # + configurations - The `task:TimerConfiguration` or a `task:AppointmentConfiguration` record to define the
+    # + configurations - A `task:TimerConfiguration` or `task:AppointmentConfiguration` record to define the
     # `task:Sceduler` behavior
     public function __init(TimerConfiguration|AppointmentConfiguration configurations) {
         self.taskListener = new(configurations);

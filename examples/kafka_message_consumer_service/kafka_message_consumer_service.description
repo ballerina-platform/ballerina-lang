@@ -1,4 +1,4 @@
-// Here is an example in which we create a Kafka consumer used as a listener
-// to a service, with manual offset commits.
-// This consumer uses the builtin `int` deserializer for the keys, and the
+// Here, is an example in which we create a Kafka consumer used as a listener
+// to a service with manual offset commits.
+// This consumer uses the builtin `int` deserializer for the keys and the
 // builtin `string` deserializer for the values.

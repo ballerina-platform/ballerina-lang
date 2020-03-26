@@ -4,12 +4,12 @@ import ballerina/lang.'string;
 import ballerina/log;
 
 kafka:ConsumerConfiguration consumerConfiguration = {
-    // `bootstrapServers` is the list of remote server endpoints of the Kafka
-    // brokers.
+    // The `bootstrapServers` is the list of remote server endpoints of the
+    // Kafka brokers.
     bootstrapServers: "localhost:9092",
     groupId: "group-id",
     offsetReset: "earliest",
-    // Subscribes to the topic "test-kafka-topic.
+    // Subscribes to the topic `test-kafka-topic`.
     topics: ["test-kafka-topic"]
 };
 
@@ -25,10 +25,10 @@ public function main() {
     foreach var kafkaRecord in records {
         anydata serializedMessage = kafkaRecord.value;
         if (serializedMessage is byte[]) {
-            // Convert byte[] to string.
+            // Converts byte[] to string.
             string|error message = 'string:fromBytes(serializedMessage);
             if (message is string) {
-                // Print the retrieved Kafka record.
+                // Prints the retrieved Kafka record.
                 io:println("Topic: ", kafkaRecord.topic, " Received Message: ",
                     message);
             } else {
