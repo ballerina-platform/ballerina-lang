@@ -64,7 +64,7 @@ public type FilterContext object {
         self.resourceName = resourceName;
     }
 
-    # Gets the service that the `FilerContext` is applied.
+    # Gets the service to which the `FilerContext` is applied.
     #
     # + return  - `service` of the context
     public function getService() returns service {
