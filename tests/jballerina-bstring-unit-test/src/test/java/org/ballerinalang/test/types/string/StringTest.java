@@ -231,7 +231,7 @@ public class StringTest {
         CompileResult multilineLiterals = BCompileUtil.compile("test-src/types/string/string_negative.bal");
         int indx = 0;
 
-        validateError(multilineLiterals, indx++, "token recognition error at: '\"Hello\n'", 17, 23);
+        validateError(multilineLiterals, indx++, "token recognition error at: '\"Hello\\n'", 17, 23);
         validateError(multilineLiterals, indx++,
                 "mismatched input '!'. expecting {'is', ';', '.', '[', '?', '?.', '+', '-', '*', '/', '%', " +
                         "'==', '!=', '>', '<', '>=', '<=', '&&', '||', '===', '!==', '&', '^', '@', '...', '|'," +
