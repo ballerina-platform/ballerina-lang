@@ -71,8 +71,9 @@ class CreateBaloTask extends JavaExec {
         def args = []
         args << isBuiltin
         args << "src/main/ballerina/"
-        args << "${project.buildDir}/generated-balo/repo/" + project.ext.orgName
-        args << "${project.buildDir}/ballerina-home/main"
+        args << "${project.buildDir}"
+        args << "/generated-balo/repo/" + project.ext.orgName
+        args << "/ballerina-home/main"
         args << skipWarnings
         args << jvmTarget
         args << "lang.__internal,lang.annotations,bir,jvm,utils,ldap"

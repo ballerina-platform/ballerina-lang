@@ -71,11 +71,12 @@ public class GenerateBalo {
     public static void main(String[] args) throws IOException {
         String isBuiltinFlag = args[0];
         String sourceDir = args[1];
-        String targetDir = args[2];
-        String libDir = args[3];
-        boolean skipReportingWarnings = args.length > 4 && Boolean.parseBoolean(args[4]);
-        String jvmTarget = args[5]; //TODO temp fix, remove this - rajith
-        String moduleFilter = args[6];
+        String buildDir = args[2];
+        String targetDir = buildDir + args[3];
+        String libDir = buildDir + args[4];
+        boolean skipReportingWarnings = args.length > 5 && Boolean.parseBoolean(args[5]);
+        String jvmTarget = args[6]; //TODO temp fix, remove this - rajith
+        String moduleFilter = args[7];
 
         String originalShouldCompileBalOrg = System.getProperty(COMPILE_BALLERINA_ORG_PROP);
         String originalIsBuiltin = System.getProperty(LOAD_BUILTIN_FROM_SOURCE_PROP);
