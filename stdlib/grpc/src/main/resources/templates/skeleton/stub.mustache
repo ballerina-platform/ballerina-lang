@@ -12,33 +12,34 @@ public type {{serviceName}}{{#equals stubType "blocking"}}Blocking{{/equals}}Cli
 {{#blockingFunctions}}
     public remote function {{methodName}}({{#if inputType}}{{inputType}} req, {{/if}}grpc:ClientContext? context = ()) returns ({{#if outputType}}[{{outputType}}, grpc:Headers]{{else}}grpc:Headers{{/if}}|grpc:Error) {
         {{#unless inputType}}Empty req = {};{{/unless}}
-        [anydata, grpc:Headers]|error payload;
+        grpc:Headers? headers = ();
         if context is grpc:ClientContext {
-            payload = check self.grpcClient->blockingExecute("{{methodId}}", req, context.getContextHeaders());
-        } else {
-            payload = check self.grpcClient->blockingExecute("{{methodId}}", req, ());
+            headers = context.getContextHeaders();
         }
-        {{#if outputType}}
-        if payload is [anydata, grpc:Headers] { {{#not_equal outputType "string" }}
-            return [<{{outputType}}>(payload[0]), payload[1]];
-        {{/not_equal}}{{#equals outputType "string"}}return [payload[0].toString(), payload[1]];{{/equals}}{{else}}return [_, payload[1]];{{/if ~}}
-        } else {
-            return <grpc:Error>payload;
-        }
+        var payload = check self.grpcClient->blockingExecute("{{methodId}}", req, headers);
+        grpc:Headers resHeaders = new;
+        {{#if outputType}}anydata result = ();
+        [result, resHeaders] = payload;
+        {{#not_equal outputType "string"}}
+        return [<{{outputType}}>result, resHeaders];
+        {{/not_equal}}{{#equals outputType "string"}}return [result.toString(), resHeaders];{{/equals}}{{else}}[_, resHeaders] = payload;
+        return resHeaders;{{/if}}
     }
 {{/blockingFunctions}}{{#nonBlockingFunctions}}
     public remote function {{methodName}}({{#if inputType}}{{inputType}} req, {{/if}}service msgListener, grpc:ClientContext? context = ()) returns (grpc:Error?) {
         {{#unless inputType}}Empty req = {};{{/unless}}
+        grpc:Headers? headers = ();
         if context is grpc:ClientContext {
-            return self.grpcClient->nonBlockingExecute("{{methodId}}", req, msgListener, context.getContextHeaders());
+            headers = context.getContextHeaders();
         }
-        return self.grpcClient->nonBlockingExecute("{{methodId}}", req, msgListener, ());
+        return self.grpcClient->nonBlockingExecute("{{methodId}}", req, msgListener, headers);
     }
 {{/nonBlockingFunctions}}{{#streamingFunctions}}
     public remote function {{methodName}}(service msgListener, grpc:ClientContext? context = ()) returns (grpc:StreamingClient|grpc:Error) {
+        grpc:Headers? headers = ();
         if context is grpc:ClientContext {
-            return self.grpcClient->streamingExecute("{{methodId}}", msgListener, context.getContextHeaders());
+            headers = context.getContextHeaders();
         }
-        return self.grpcClient->streamingExecute("{{methodId}}", msgListener, ());
+        return self.grpcClient->streamingExecute("{{methodId}}", msgListener, context.getContextHeaders());
     }{{/streamingFunctions}}
 };
