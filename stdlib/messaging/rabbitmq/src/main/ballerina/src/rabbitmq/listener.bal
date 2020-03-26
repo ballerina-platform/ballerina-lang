@@ -67,6 +67,9 @@ public type Listener object {
         return detach(self, s);
     }
 
+    # Stops consuming messages through all consumer services by terminating the connection and all its channels.
+    #
+    # + return - Nil or error upon failure to close ChannelListener
     public function __gracefulStop() returns error? {
         return stop(self);
     }
