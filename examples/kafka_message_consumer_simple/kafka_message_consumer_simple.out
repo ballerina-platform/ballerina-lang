@@ -1,3 +1,9 @@
+# To these example to work properly, an active kafka broker should be present.
 # To run this sample, navigate to the directory that contains the
 # `.bal` file, and execute the `ballerina run` command.
 $ ballerina run kafka_message_consumer_simple.bal
+
+# Then it will print the following lines to the console, and prints the
+# received messages, if there's any.
+[ballerina/kafka] kafka servers: localhost:9092
+[ballerina/kafka] subscribed topics: test-kafka-topic
