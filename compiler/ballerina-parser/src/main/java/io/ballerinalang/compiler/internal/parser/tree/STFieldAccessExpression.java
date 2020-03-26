@@ -25,10 +25,10 @@ public class STFieldAccessExpression extends STExpression {
     STNode expression;
     STNode dotToken;
     STNode fieldName;
-    
-    public STFieldAccessExpression(STNode expression,
-                                    STNode dotToken,
-                                    STNode fieldName) {
+
+    STFieldAccessExpression(STNode expression,
+                            STNode dotToken,
+                            STNode fieldName) {
         super(SyntaxKind.FIELD_ACCESS);
         this.expression = expression;
         this.dotToken = dotToken;

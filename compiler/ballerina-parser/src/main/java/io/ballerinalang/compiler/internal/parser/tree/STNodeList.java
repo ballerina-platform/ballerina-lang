@@ -31,7 +31,7 @@ public class STNodeList extends STNode {
     // TODO is unmodifiable list slow??????
     public static final STNode emptyNodeList = new STNodeList(Collections.unmodifiableList(new ArrayList<>(0)));
 
-    public STNodeList(List<STNode> children) {
+    STNodeList(List<STNode> children) {
         super(SyntaxKind.LIST);
         this.children = Collections.unmodifiableList(children);
 

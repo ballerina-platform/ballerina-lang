@@ -29,11 +29,11 @@ public class STObjectTypeDescriptor extends STNode {
     public final STNode members;
     public final STNode closeBrace;
 
-    public STObjectTypeDescriptor(STNode objectTypeQualifiers,
-                                  STNode objectKeyword,
-                                  STNode openBrace,
-                                  STNode members,
-                                  STNode closeBrace) {
+    STObjectTypeDescriptor(STNode objectTypeQualifiers,
+                           STNode objectKeyword,
+                           STNode openBrace,
+                           STNode members,
+                           STNode closeBrace) {
         super(SyntaxKind.OBJECT_TYPE_DESCRIPTOR);
         this.objectTypeQualifiers = objectTypeQualifiers;
         this.objectKeyword = objectKeyword;

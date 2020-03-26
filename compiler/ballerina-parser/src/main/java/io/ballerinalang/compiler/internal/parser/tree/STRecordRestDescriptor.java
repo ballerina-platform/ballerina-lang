@@ -27,9 +27,9 @@ public class STRecordRestDescriptor extends STNode {
     public final STNode ellipsis;
     public final STNode semicolonToken;
 
-    public STRecordRestDescriptor(STNode type,
-                                  STNode ellipsis,
-                                  STNode semicolonToken) {
+    STRecordRestDescriptor(STNode type,
+                           STNode ellipsis,
+                           STNode semicolonToken) {
         super(SyntaxKind.RECORD_REST_TYPE);
         this.type = type;
         this.ellipsis = ellipsis;

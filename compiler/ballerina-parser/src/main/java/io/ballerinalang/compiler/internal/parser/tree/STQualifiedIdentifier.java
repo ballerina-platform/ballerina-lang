@@ -21,14 +21,14 @@ import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 
 public class STQualifiedIdentifier extends STExpression {
-    
-    STNode modulePrefix;
-    STNode colon;
-    STNode identifier;
-    
-    public STQualifiedIdentifier(STNode modulePrefix,
-                                    STNode colon,
-                                    STNode identifier) {
+
+    final STNode modulePrefix;
+    final STNode colon;
+    final STNode identifier;
+
+    STQualifiedIdentifier(STNode modulePrefix,
+                          STNode colon,
+                          STNode identifier) {
         super(SyntaxKind.QUALIFIED_IDENTIFIER);
         this.modulePrefix = modulePrefix;
         this.colon = colon;

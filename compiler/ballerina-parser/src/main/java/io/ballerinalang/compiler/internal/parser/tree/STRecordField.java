@@ -28,10 +28,10 @@ public class STRecordField extends STNode {
     public final STNode questionMarkToken;
     public final STNode semicolonToken;
 
-    public STRecordField(STNode type,
-                         STNode fieldName,
-                         STNode questionMarkToken,
-                         STNode semicolonToken) {
+    STRecordField(STNode type,
+                  STNode fieldName,
+                  STNode questionMarkToken,
+                  STNode semicolonToken) {
         super(SyntaxKind.RECORD_FIELD);
         this.type = type;
         this.fieldName = fieldName;

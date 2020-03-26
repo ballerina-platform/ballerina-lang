@@ -23,15 +23,15 @@ import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 
 public class STFunctionCallExpression extends STExpression {
     
-    STNode functionName;
-    STNode openParen;
-    STNode arguments;
-    STNode closeParen;
-    
-    public STFunctionCallExpression(STNode functionName,
-                                    STNode openParen,
-                                    STNode arguments,
-                                    STNode closeParen) {
+    final STNode functionName;
+    final STNode openParen;
+    final STNode arguments;
+    final STNode closeParen;
+
+    STFunctionCallExpression(STNode functionName,
+                             STNode openParen,
+                             STNode arguments,
+                             STNode closeParen) {
         super(SyntaxKind.FUNCTION_CALL);
         this.functionName = functionName;
         this.openParen = openParen;

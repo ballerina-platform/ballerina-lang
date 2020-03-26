@@ -26,8 +26,8 @@ public class STPositionalArg extends STNode {
     public final STNode leadingComma;
     public final STNode expression;
 
-    public STPositionalArg(STNode leadingComma,
-                           STNode expression) {
+    STPositionalArg(STNode leadingComma,
+                    STNode expression) {
         super(SyntaxKind.POSITIONAL_ARG);
         this.leadingComma = leadingComma;
         this.expression = expression;

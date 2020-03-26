@@ -27,9 +27,9 @@ public class STTypeReference extends STNode {
     public final STNode type;
     public final STNode semicolonToken;
 
-    public STTypeReference(STNode asterisk,
-                                  STNode type,
-                                  STNode semicolonToken) {
+    STTypeReference(STNode asterisk,
+                    STNode type,
+                    STNode semicolonToken) {
         super(SyntaxKind.TYPE_REFERENCE);
         this.asterisk = asterisk;
         this.type = type;

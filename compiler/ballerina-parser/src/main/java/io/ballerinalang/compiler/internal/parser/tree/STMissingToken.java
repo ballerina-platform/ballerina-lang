@@ -24,7 +24,7 @@ public class STMissingToken extends STToken {
     // TODO consider using a flags here. Node flags
     public static final boolean IS_MISSING = true;
 
-    public STMissingToken(SyntaxKind kind) {
+    STMissingToken(SyntaxKind kind) {
         super(kind, 0, new STNodeList(new ArrayList<>(0)), new STNodeList(new ArrayList<>(0)));
     }
     

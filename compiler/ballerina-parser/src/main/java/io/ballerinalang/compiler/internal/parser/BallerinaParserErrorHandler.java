@@ -17,8 +17,8 @@
  */
 package io.ballerinalang.compiler.internal.parser;
 
-import io.ballerinalang.compiler.internal.parser.tree.STMissingToken;
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
+import io.ballerinalang.compiler.internal.parser.tree.STNodeFactory;
 import io.ballerinalang.compiler.internal.parser.tree.STToken;
 import io.ballerinalang.compiler.internal.parser.tree.SyntaxKind;
 
@@ -254,7 +254,7 @@ public class BallerinaParserErrorHandler {
             reportMissingTokenError("missing " + fix.ctx);
         }
 
-        return new STMissingToken(fix.tokenKind);
+        return STNodeFactory.createMissingToken(fix.tokenKind);
     }
 
     /**
