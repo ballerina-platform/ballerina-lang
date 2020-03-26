@@ -61,7 +61,7 @@ public type AuthzFilter object {
     }
 
     # Filter function implementation, which tries to authorize the response, which is defined to achieve 
-    # structural equility.
+    # object-structural equality.
     #
     # + response - `Response` instance
     # + context - `FilterContext` instance
