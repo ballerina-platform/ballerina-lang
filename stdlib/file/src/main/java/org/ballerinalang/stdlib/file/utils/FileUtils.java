@@ -30,6 +30,7 @@ import java.nio.file.attribute.FileTime;
 import java.time.ZonedDateTime;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.zip.ZipEntry;
 
 import static org.ballerinalang.stdlib.file.utils.FileConstants.FILE_INFO_TYPE;
 import static org.ballerinalang.stdlib.file.utils.FileConstants.FILE_PACKAGE_ID;
@@ -92,6 +93,15 @@ public class FileUtils {
                 inputFile.length(), lastModifiedInstance, inputFile.isDirectory(), inputFile.getAbsolutePath());
     }
 
+    public static ObjectValue getFileInfo(ZipEntry entry) {
+        MapValue<String, Object> lastModifiedInstance;
+        FileTime lastModified = entry.getLastModifiedTime();
+        ZonedDateTime zonedDateTime = ZonedDateTime.parse(lastModified.toString());
+        lastModifiedInstance = createTimeRecord(getTimeZoneRecord(), getTimeRecord(),
+                lastModified.toMillis(), zonedDateTime.getZone().toString());
+        return BallerinaValues.createObjectValue(FILE_PACKAGE_ID, FILE_INFO_TYPE, entry.getName(),
+                entry.getSize(), lastModifiedInstance, entry.isDirectory(), entry.getName());
+    }
 
     /**
      * Returns the system property which corresponds to the given key.

@@ -39,7 +39,11 @@ import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.stream.Stream;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 
 import static java.nio.file.FileVisitResult.CONTINUE;
 import static java.nio.file.FileVisitResult.SKIP_SUBTREE;
@@ -53,6 +57,12 @@ public class Utils {
     private static final Logger log = LoggerFactory.getLogger(Utils.class);
     private static final String CURRENT_DIR_PROPERTY_KEY = "user.dir";
     private static final String TEMP_DIR_PROPERTY_KEY = "java.io.tmpdir";
+    private static final String RESOURCE_PREFIX = "b7a:";
+    private static final String RESOURCES = "resources";
+    private static final String TARGET = "target";
+    private static final String BIN = "bin";
+    private static final String JAR = ".jar";
+    private static final String SRC = "src";
     private static BType fileInfoType;
 
     public static String getCurrentDirectory() {
@@ -144,6 +154,10 @@ public class Utils {
     }
 
     public static Object getFileInfo(String path) {
+        if (path.startsWith(RESOURCE_PREFIX)) {
+            String resourcePath = path.replace(RESOURCE_PREFIX, "");
+            return getResourceFileInfo(resourcePath);
+        }
         File inputFile = Paths.get(path).toAbsolutePath().toFile();
         if (!inputFile.exists()) {
             return FileUtils.getBallerinaError(FileConstants.FILE_NOT_FOUND_ERROR, "File not found: " + path);
@@ -152,6 +166,29 @@ public class Utils {
             return FileUtils.getFileInfo(inputFile);
         } catch (IOException e) {
             log.error("IO error while creating the file " + path, e);
+            return FileUtils.getBallerinaError(FileConstants.FILE_SYSTEM_ERROR, e);
+        }
+    }
+
+    public static Object getResourceFileInfo(String resourceFile) {
+        String[] className = Thread.currentThread().getStackTrace()[5].getClassName().split("\\.");
+        String executablePath = TARGET + File.separator + BIN + File.separator + className[1] + JAR;
+        String resourcePath = RESOURCES + File.separator + className[0] + File.separator + className[1] + File.separator
+                + resourceFile;
+        String path = SRC + File.separator + className[1] + File.separator + RESOURCES + File.separator + resourceFile;
+
+        try {
+            ZipFile zipFile = new ZipFile(executablePath);
+            Enumeration<? extends ZipEntry> entries = zipFile.entries();
+            while (entries.hasMoreElements()) {
+                ZipEntry entry = entries.nextElement();
+                if (entry.getName().equals(resourcePath)) {
+                    return FileUtils.getFileInfo(entry);
+                }
+            }
+            return FileUtils.getBallerinaError(FileConstants.FILE_NOT_FOUND_ERROR, "File not found: " + path);
+        } catch (IOException e) {
+            log.error("IO error while creating the resource file " + path, e);
             return FileUtils.getBallerinaError(FileConstants.FILE_SYSTEM_ERROR, e);
         }
     }
@@ -204,6 +241,10 @@ public class Utils {
     }
 
     public static Object readDir(String path, long maxDepth) {
+        if (path.startsWith(RESOURCE_PREFIX)) {
+            String resourcePath = path.replace(RESOURCE_PREFIX, "");
+            return readResourceDir(resourcePath, maxDepth);
+        }
         File inputFile = Paths.get(path).toAbsolutePath().toFile();
 
         if (!inputFile.exists()) {
@@ -225,6 +266,39 @@ public class Utils {
         } else {
             return FileUtils.getBallerinaError(FileConstants.INVALID_OPERATION_ERROR,
                     "Invalid maxDepth value " + maxDepth);
+        }
+    }
+
+    public static Object readResourceDir(String resourceFile, long maxDepth) {
+        ArrayList<ObjectValue> list = new ArrayList<>();
+        String[] className = Thread.currentThread().getStackTrace()[5].getClassName().split("\\.");
+        String executablePath = TARGET + File.separator + BIN + File.separator + className[1] + JAR;
+        String resourcePath = RESOURCES + File.separator + className[0] + File.separator + className[1] + File.separator
+                + resourceFile;
+        String path = SRC + File.separator + className[1] + File.separator + RESOURCES + File.separator + resourceFile;
+
+        try {
+            ZipFile zipFile = new ZipFile(executablePath);
+            Enumeration<? extends ZipEntry> entries = zipFile.entries();
+            while (entries.hasMoreElements()) {
+                ZipEntry entry = entries.nextElement();
+                if (entry.getName().startsWith(resourcePath)) {
+                    fileInfoType = FileUtils.getFileInfo(entry).getType();
+                    list.add(FileUtils.getFileInfo(entry));
+                }
+            }
+            if (list.size() == 0) {
+                return FileUtils.getBallerinaError(FileConstants.INVALID_OPERATION_ERROR,
+                        "File in path " + path + " is not a directory");
+            }
+            ObjectValue[] results = new ObjectValue[list.size()];
+            for (int i = 0; i < list.size(); i++) {
+                results[i] = list.get(i);
+            }
+            return new ArrayValueImpl(results, new BArrayType(fileInfoType));
+        } catch (IOException e) {
+            log.error("IO error while creating the resource file " + path, e);
+            return FileUtils.getBallerinaError(FileConstants.FILE_SYSTEM_ERROR, e);
         }
     }
 

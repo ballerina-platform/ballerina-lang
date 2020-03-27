@@ -36,7 +36,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.channels.Channels;
 import java.nio.channels.ClosedChannelException;
@@ -59,6 +61,8 @@ public class ByteChannelUtils extends AbstractNativeChannel {
     private static final String READ_ACCESS_MODE = "r";
     private static final String WRITE_ACCESS_MODE = "w";
     private static final String APPEND_ACCESS_MODE = "a";
+    private static final String RESOURCE_PREFIX = "b7a:";
+    private static final String RESOURCES = "resources";
 
     private ByteChannelUtils() {
     }
@@ -126,6 +130,10 @@ public class ByteChannelUtils extends AbstractNativeChannel {
 
     public static Object openReadableFile(String pathUrl) {
         Object channel;
+        if (pathUrl.startsWith(RESOURCE_PREFIX)) {
+            String resourcePath = pathUrl.replace(RESOURCE_PREFIX, "");
+            return openReadableResourceFile(resourcePath);
+        }
         try {
             channel = createChannel(inFlow(pathUrl));
         } catch (BallerinaIOException e) {
@@ -134,6 +142,16 @@ public class ByteChannelUtils extends AbstractNativeChannel {
             return e;
         }
         return channel;
+    }
+
+    public static Object openReadableResourceFile(String pathUrl) {
+        String[] className = Thread.currentThread().getStackTrace()[5].getClassName().split("\\.");
+        String resourcePath = RESOURCES + File.separator + className[0] + File.separator + className[1] + File.separator
+                + pathUrl;
+        InputStream resourceAsStream = ByteChannelUtils.class.getClassLoader().getResourceAsStream(resourcePath);
+        ReadableByteChannel readableByteChannel = Channels.newChannel(resourceAsStream);
+        Channel channel = new BlobIOChannel(new BlobChannel(readableByteChannel));
+        return createChannel(channel);
     }
 
     public static Object openWritableFile(String pathUrl, boolean accessMode) {
