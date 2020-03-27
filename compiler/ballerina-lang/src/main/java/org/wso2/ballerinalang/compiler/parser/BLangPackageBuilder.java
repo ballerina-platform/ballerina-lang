@@ -103,6 +103,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLetExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkDownDeprecatedParametersDocumentation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkDownDeprecationDocumentation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownDocumentationLine;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownParameterDocumentation;
@@ -2648,13 +2649,24 @@ public class BLangPackageBuilder {
         parameterDocumentationNode.pos = pos;
         parameterDocumentationNode.addWS(ws);
         parameterDocumentationNode.addParameterDocumentationLine(description);
-        markdownDocumentationNode.addParameter(parameterDocumentationNode);
+        BLangMarkDownDeprecatedParametersDocumentation deprecatedParametersDocumentation = markdownDocumentationNode.getDeprecatedParametersDocumentation();
+        if (deprecatedParametersDocumentation != null) {
+            deprecatedParametersDocumentation.addParameter(parameterDocumentationNode);
+        } else {
+            markdownDocumentationNode.addParameter(parameterDocumentationNode);
+        }
     }
 
     void endParameterDocumentationDescription(Set<Whitespace> ws, String description) {
         MarkdownDocumentationNode markdownDocumentationNode = markdownDocumentationStack.peek();
-        BLangMarkdownParameterDocumentation parameterDocumentation =
-                markdownDocumentationNode.getParameters().getLast();
+        BLangMarkdownParameterDocumentation parameterDocumentation;
+        BLangMarkDownDeprecatedParametersDocumentation deprecatedParametersDocumentation =
+                markdownDocumentationNode.getDeprecatedParametersDocumentation();
+        if (deprecatedParametersDocumentation != null) {
+            parameterDocumentation = deprecatedParametersDocumentation.getParameters().getLast();
+        } else {
+            parameterDocumentation = markdownDocumentationNode.getParameters().getLast();
+        }
         parameterDocumentation.addWS(ws);
         parameterDocumentation.addParameterDocumentationLine(description);
     }
@@ -2693,6 +2705,16 @@ public class BLangPackageBuilder {
                 markdownDocumentationNode.getDeprecationDocumentation();
         deprecationAnnotationDocumentation.addWS(ws);
         deprecationAnnotationDocumentation.addDeprecationDocumentationLine(description);
+    }
+
+    void endDeprecatedParametersDocumentation(DiagnosticPos pos, Set<Whitespace> ws, String description) {
+        MarkdownDocumentationNode markdownDocumentationNode = markdownDocumentationStack.peek();
+        BLangMarkDownDeprecatedParametersDocumentation deprecatedParametersDocumentation =
+                (BLangMarkDownDeprecatedParametersDocumentation) TreeBuilder.createMarkDeprecatedParametersAttributeNode();
+        deprecatedParametersDocumentation.pos = pos;
+        deprecatedParametersDocumentation.addWS(ws);
+        deprecatedParametersDocumentation.addDeprecatedParametersLine(description);
+        markdownDocumentationNode.setDeprecatedParametersDocumentation(deprecatedParametersDocumentation);
     }
 
     void startAnnotationAttachment(DiagnosticPos currentPos) {
