@@ -2649,7 +2649,8 @@ public class BLangPackageBuilder {
         parameterDocumentationNode.pos = pos;
         parameterDocumentationNode.addWS(ws);
         parameterDocumentationNode.addParameterDocumentationLine(description);
-        BLangMarkDownDeprecatedParametersDocumentation deprecatedParametersDocumentation = markdownDocumentationNode.getDeprecatedParametersDocumentation();
+        BLangMarkDownDeprecatedParametersDocumentation deprecatedParametersDocumentation =
+                markdownDocumentationNode.getDeprecatedParametersDocumentation();
         if (deprecatedParametersDocumentation != null) {
             deprecatedParametersDocumentation.addParameter(parameterDocumentationNode);
         } else {
@@ -2710,7 +2711,8 @@ public class BLangPackageBuilder {
     void endDeprecatedParametersDocumentation(DiagnosticPos pos, Set<Whitespace> ws, String description) {
         MarkdownDocumentationNode markdownDocumentationNode = markdownDocumentationStack.peek();
         BLangMarkDownDeprecatedParametersDocumentation deprecatedParametersDocumentation =
-                (BLangMarkDownDeprecatedParametersDocumentation) TreeBuilder.createMarkDeprecatedParametersAttributeNode();
+                (BLangMarkDownDeprecatedParametersDocumentation)
+                        TreeBuilder.createMarkDeprecatedParametersAttributeNode();
         deprecatedParametersDocumentation.pos = pos;
         deprecatedParametersDocumentation.addWS(ws);
         deprecatedParametersDocumentation.addDeprecatedParametersLine(description);
