@@ -269,8 +269,7 @@ public class RunTestsTask implements Task {
 
         try (InputStream in = getClass().getClassLoader().getResourceAsStream(HTML_RESOURCE_FILE)) {
                 content = readFromInputStream(in);
-                content = content.replaceAll("__data__", "'" + json + "'");
-                content = content.replace("\"'", "'").replace("'\"", "'");
+                content = content.replaceAll("__data__", json.replace("\\", "\\\\"));
         } catch (IOException e) {
             throw LauncherUtils.createLauncherException("couldn't read content from the html file : " + e.toString());
         }
