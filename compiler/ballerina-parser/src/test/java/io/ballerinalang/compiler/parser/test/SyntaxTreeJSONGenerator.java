@@ -20,7 +20,6 @@ package io.ballerinalang.compiler.parser.test;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-
 import io.ballerinalang.compiler.internal.parser.BallerinaParser;
 import io.ballerinalang.compiler.internal.parser.ParserFactory;
 import io.ballerinalang.compiler.internal.parser.ParserRuleContext;
@@ -51,10 +50,14 @@ import static io.ballerinalang.compiler.parser.test.ParserTestConstants.VALUE_FI
  */
 public class SyntaxTreeJSONGenerator {
 
+    /*
+     * Change the below two constants as required, depending on the type of test.
+     */
+    private static final boolean INCLUDE_TRIVIA = true;
+    private static final ParserRuleContext PARSER_CONTEXT = ParserRuleContext.COMP_UNIT;
+
     private static final PrintStream STANDARD_OUT = System.out;
     private static final Path RESOURCE_DIRECTORY = Paths.get("src/test/resources/");
-
-    private static final boolean INCLUDE_TRIVIA = true;
 
     public static void main(String[] args) throws IOException {
         // Using a string source as input
@@ -68,7 +71,7 @@ public class SyntaxTreeJSONGenerator {
     private static void generateJSON(Path sourceFilePath) throws IOException {
         byte[] bytes = Files.readAllBytes(RESOURCE_DIRECTORY.resolve(sourceFilePath));
         String content = new String(bytes, StandardCharsets.UTF_8);
-        generateJSON(content, ParserRuleContext.COMP_UNIT);
+        generateJSON(content, PARSER_CONTEXT);
     }
 
     private static void generateJSON(String source, ParserRuleContext context) {
