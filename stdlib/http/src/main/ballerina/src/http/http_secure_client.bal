@@ -29,6 +29,11 @@ public type HttpSecureClient client object {
     public ClientConfiguration config = {};
     public HttpClient httpClient;
 
+    # Gets invoked to initialize the secure `client`. Due to the secure client releated configurations provided
+    # through the `config` record, the `HttpSecureClient` is initialized.
+    #
+    # + url - URL of the target service
+    # + config - The configurations to be used when initializing the `client`
     public function __init(string url, ClientConfiguration config) {
         self.url = url;
         self.config = config;

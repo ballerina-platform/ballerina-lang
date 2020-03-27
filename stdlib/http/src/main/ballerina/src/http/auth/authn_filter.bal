@@ -21,6 +21,9 @@ public type AuthnFilter object {
 
     public InboundAuthHandlers authHandlers;
 
+    # Initializes the `AuthnFilter` object.
+    #
+    # + authHandlers - An array of inbound authentication handlers
     public function __init(InboundAuthHandlers authHandlers) {
         self.authHandlers = authHandlers;
     }
@@ -44,6 +47,12 @@ public type AuthnFilter object {
         return isAuthnSuccessful(caller, authenticated);
     }
 
+    # The `Filter` function implementation, which tries to authenticate the response, which is defined to achieve 
+    # object-structural equality.
+    #
+    # + response - `Response` instance
+    # + context - `FilterContext` instance
+    # + return - `true` as the functionality is not implemented
     public function filterResponse(Response response, FilterContext context) returns boolean {
         return true;
     }
