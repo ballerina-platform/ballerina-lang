@@ -23,7 +23,9 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import static org.ballerinalang.bindgen.command.BindingsGenerator.allClasses;
 import static org.ballerinalang.bindgen.command.BindingsGenerator.directJavaClass;
@@ -54,7 +56,7 @@ public class JClass {
 
     private List<JField> fieldList = new ArrayList<>();
     private List<JMethod> methodList = new ArrayList<>();
-    private List<String> superClasses = new ArrayList<>();
+    private Set<String> superClasses = new HashSet<>();
     private List<JConstructor> constructorList = new ArrayList<>();
     private List<JConstructor> initFunctionList = new ArrayList<>();
 
@@ -69,7 +71,9 @@ public class JClass {
 
         Class sClass = c.getSuperclass();
         allClasses.add(shortClassName);
+        populateImplementedInterfaces(c.getInterfaces());
         while (sClass != null) {
+            populateImplementedInterfaces(sClass.getInterfaces());
             String simpleClassName = sClass.getSimpleName().replace("$", "");
             superClasses.add(simpleClassName);
             allClasses.add(simpleClassName);
@@ -151,6 +155,17 @@ public class JClass {
             this.fieldList.add(new JField(field, ACCESS_FIELD));
             if (!isFinalField(field) && isPublicField(field)) {
                 this.fieldList.add(new JField(field, MUTATE_FIELD));
+            }
+        }
+    }
+
+    private void populateImplementedInterfaces(Class[] interfaces) {
+
+        for (Class interfaceClass : interfaces) {
+            allClasses.add(interfaceClass.getSimpleName());
+            superClasses.add(interfaceClass.getSimpleName());
+            if (interfaceClass.getInterfaces() != null) {
+                populateImplementedInterfaces(interfaceClass.getInterfaces());
             }
         }
     }
