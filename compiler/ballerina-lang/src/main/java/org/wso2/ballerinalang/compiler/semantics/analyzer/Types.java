@@ -521,6 +521,10 @@ public class Types {
             return isAssignableRecordType(recordType, (BMapType) target);
         }
 
+        if (targetTag == TypeTags.RECORD && sourceTag == TypeTags.MAP) {
+            return isAssignableMapType((BMapType) source, (BRecordType) target);
+        }
+
         if (target.getKind() == TypeKind.SERVICE && source.getKind() == TypeKind.SERVICE) {
             // Special casing services, until we figure out service type concept.
             return true;
@@ -621,6 +625,21 @@ public class Types {
 
     private boolean recordFieldsAssignableToMap(BRecordType recordType, BMapType targetMapType) {
         return recordType.fields.stream().allMatch(field -> isAssignable(field.type, targetMapType.constraint));
+    }
+
+    private boolean isAssignableMapType(BMapType sourceMapType, BRecordType targetRecType) {
+        if (targetRecType.sealed) {
+            return false;
+        }
+
+        for (BField field : targetRecType.fields) {
+            if (!Symbols.isFlagOn(field.symbol.flags, Flags.OPTIONAL) ||
+                    !isAssignable(targetRecType.restFieldType, field.type)) {
+                return false;
+            }
+        }
+
+        return isAssignable(sourceMapType.constraint, targetRecType.restFieldType);
     }
 
     private boolean isErrorTypeAssignable(BErrorType source, BErrorType target, Set<TypePair> unresolvedTypes) {
