@@ -1,5 +1,5 @@
-import ballerina/sql;
 import ballerina/java;
+import ballerina/sql;
 
 # Represents a Mock database client.
 public type Client client object {
@@ -7,10 +7,10 @@ public type Client client object {
     private boolean clientActive = true;
 
     public function __init(public string url, public string? user = (), public string? password = (),
-    public string? datasourceName = (), public map<anydata>? options = (),
-    public sql:ConnectionPool? connectionPool = (), public map<anydata>? connectionPoolOptions = ()) returns sql:Error? {
+        public string? datasourceName = (), public map<anydata>? options = (),
+        public sql:ConnectionPool? connectionPool = (), public map<anydata>? connectionPoolOptions = ()) returns sql:Error? {
         SQLParams sqlParams = {
-            url : url,
+            url: url,
             user: user,
             password: password,
             datasourceName: datasourceName,
@@ -46,7 +46,7 @@ public type Client client object {
         if (self.clientActive) {
             return nativeExecute(self, java:fromString(sqlQuery));
         } else {
-            return sql:ApplicationError(message = "JDBC Client is already closed,"
+            return sql:ApplicationError( message = "JDBC Client is already closed,"
                 + " hence further operations are not allowed");
         }
     }

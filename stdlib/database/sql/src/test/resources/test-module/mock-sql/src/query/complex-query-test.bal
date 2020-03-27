@@ -55,7 +55,7 @@ type TestTypeData record {
     boolean[] boolean_array;
 };
 
-function testGetPrimitiveTypes(string url, string user, string password) returns @tainted record{}|error? {
+function testGetPrimitiveTypes(string url, string user, string password) returns @tainted record {}|error? {
     mockclient:Client dbClient = check new (url = url, user = user, password = password);
     stream<record{}, error> streamData = dbClient->query("SELECT int_type, long_type, float_type, double_type,"
         + "boolean_type, string_type from DataTable WHERE row_id = 1");
@@ -144,15 +144,15 @@ returns @tainted ResultMap[]|error? {
     return recordMap;
 }
 
-function testDateTime(string url, string user, string password) returns @tainted record{}|error? {
+function testDateTime(string url, string user, string password) returns @tainted record {}|error? {
     mockclient:Client dbClient = check new (url = url, user = user, password = password);
     string insertQuery = string `Insert into DateTimeTypes (row_id, date_type, time_type, timestamp_type, datetime_type)
      values (1,'2017-05-23','14:15:23','2017-01-25 16:33:55','2017-01-25 16:33:55')`;
     sql:ExecuteResult? result = check dbClient->execute(insertQuery);
     stream<record{}, error> queryResult = dbClient->query("SELECT date_type, time_type, timestamp_type, datetime_type"
-       + " from DateTimeTypes where row_id = 1", ResultDates);
-    record{| record{} value; |}? data =  check queryResult.next();
-    record{}? value = data?.value;
+        + " from DateTimeTypes where row_id = 1", ResultDates);
+    record {|record {} value;|}? data = check queryResult.next();
+    record {}? value = data?.value;
     check dbClient.close();
     return value;
 }
@@ -160,17 +160,17 @@ function testDateTime(string url, string user, string password) returns @tainted
 function testColumnAlias(string url, string user, string password) returns @tainted ResultSetTestAlias[]|error? {
     mockclient:Client dbClient = check new (url = url, user = user, password = password);
     stream<record{}, error> queryResult = dbClient->query("SELECT dt1.int_type, dt1.long_type, dt1.float_type," +
-           "dt1.double_type,dt1.boolean_type, dt1.string_type,dt2.int_type as dt2int_type from DataTable dt1 " +
-           "left join DataTableRep dt2 on dt1.row_id = dt2.row_id WHERE dt1.row_id = 1;", ResultSetTestAlias);
+        "dt1.double_type,dt1.boolean_type, dt1.string_type,dt2.int_type as dt2int_type from DataTable dt1 " +
+        "left join DataTableRep dt2 on dt1.row_id = dt2.row_id WHERE dt1.row_id = 1;", ResultSetTestAlias);
     ResultSetTestAlias[] recordMap = [];
-    error? e = queryResult.forEach(function (record{} value) {
+    error? e = queryResult.forEach(function (record {} value) {
         if (value is ResultSetTestAlias) {
             recordMap[recordMap.length()] = value;
-            }
-        });
-    if(e is error) {
-        return e;
         }
+    });
+    if (e is error) {
+        return e;
+    }
     check dbClient.close();
     return recordMap;
 }
