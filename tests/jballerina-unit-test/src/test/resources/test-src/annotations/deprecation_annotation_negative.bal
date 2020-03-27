@@ -117,7 +117,7 @@ public type Object1 object {
 # + t - third field
 # # Deprecated parameters
 # + fieldOne - deprecated
-# + t - deprecated          // Compiler error
+# + t - deprecated          // Compile error
 public type Object2 object {
 
     @deprecated
@@ -132,8 +132,25 @@ public type Object2 object {
 # + fieldTwo - This is the description of the `DummyObject`'s `fieldTwo` field.
 public type Object3 object {
 
-    @deprecated             // Compiler error
+    @deprecated             // Compile error
     public string fieldOne = "Foo";
     T1 t = CONST3;
     public string fieldTwo = "";
 };
+
+# Test function doc
+# + x - first integer
+# + y - second integer
+# + z - third integer
+function add4(public int x, public int y, @deprecated int... z) {       // Compiler error
+}
+
+# Test function doc
+# + x - first integer
+# + y - second integer
+# + z - third integer
+# # Deprecated parameters
+# + z - deprecated rest parameter       // Compile error
+function add5(public int x, public int y, int... z) {
+    int n = z[0];
+}

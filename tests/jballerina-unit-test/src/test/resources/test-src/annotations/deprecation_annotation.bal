@@ -180,3 +180,13 @@ public function func5() {
     Object1 obj1 = new;
     Object2 obj2 = new;
 }
+
+# Test function doc
+# + x - first integer
+# + y - second integer
+# + z - third integer
+# # Deprecated parameters
+# + z - deprecated rest parameter
+function add3(public int x, public int y, @deprecated int... z) {
+    int n = z[0];
+}
