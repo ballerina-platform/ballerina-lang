@@ -54,6 +54,7 @@ public class JMethod {
     private Boolean handleException = false;
     private Boolean isStringReturn = false;
     private Boolean hasPrimitiveParam = false;
+    private Boolean isStringArrayReturn = false;
 
     private String methodPrefix;
     private String returnType;
@@ -88,6 +89,8 @@ public class JMethod {
                 this.isStringReturn = true;
                 this.externalType = HANDLE;
             } else if (this.returnType.equals(BALLERINA_STRING_ARRAY)) {
+                objectReturn = true;
+                isStringArrayReturn = true;
                 this.isArrayReturn = true;
                 this.externalType = HANDLE;
             }
