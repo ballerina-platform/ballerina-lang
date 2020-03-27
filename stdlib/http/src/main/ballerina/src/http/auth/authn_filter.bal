@@ -19,6 +19,8 @@
 # + authHandlers - An array of authentication handlers
 public type AuthnFilter object {
 
+    *RequestFilter;
+
     public InboundAuthHandlers authHandlers;
 
     # Initializes the `AuthnFilter` object.
@@ -45,16 +47,6 @@ public type AuthnFilter object {
             }
         }
         return isAuthnSuccessful(caller, authenticated);
-    }
-
-    # The `Filter` function implementation, which tries to authenticate the response, which is defined to achieve 
-    # object-structural equality.
-    #
-    # + response - `Response` instance
-    # + context - `FilterContext` instance
-    # + return - `true` as the functionality is not implemented
-    public function filterResponse(Response response, FilterContext context) returns boolean {
-        return true;
     }
 };
 

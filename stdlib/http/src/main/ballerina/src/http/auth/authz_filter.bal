@@ -20,6 +20,8 @@
 # + scopes - Array of scopes
 public type AuthzFilter object {
 
+    *RequestFilter;
+
     public AuthzHandler authzHandler;
     public Scopes? scopes;
 
@@ -58,16 +60,6 @@ public type AuthzFilter object {
             }
         }
         return isAuthzSuccessful(caller, authorized);
-    }
-
-    # Filter function implementation, which tries to authorize the response, which is defined to achieve 
-    # object-structural equality.
-    #
-    # + response - `Response` instance
-    # + context - `FilterContext` instance
-    # + return - Set to`true` as the functionality is not implemented
-    public function filterResponse(Response response, FilterContext context) returns boolean {
-        return true;
     }
 };
 
