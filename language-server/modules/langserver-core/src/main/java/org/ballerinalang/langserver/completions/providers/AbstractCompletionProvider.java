@@ -223,7 +223,8 @@ public abstract class AbstractCompletionProvider implements LSCompletionProvider
         Optional<Scope.ScopeEntry> pkgSymbolInfo = visibleSymbols.stream()
                 .filter(scopeEntry -> {
                     BSymbol symbol = scopeEntry.symbol;
-                    return symbol instanceof BPackageSymbol && scopeEntry.symbol.name.getValue().equals(pkgName);
+                    return symbol instanceof BPackageSymbol
+                            && CommonUtil.getSymbolName(scopeEntry.symbol).equals(pkgName);
                 })
                 .findAny();
         pkgSymbolInfo.ifPresent(pkgEntry -> {
