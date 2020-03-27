@@ -708,7 +708,7 @@ class JvmValueGen {
                 i += 1;
             }
 
-            this.createRecordGetDefaultCase(mv, defaultCaseLabel, strKeyVarIndex);
+            this.createRecordGetDefaultCase(mv, defaultCaseLabel, fieldNameRegIndex);
             mv.visitMaxs(0, 0);
             mv.visitEnd();
         }

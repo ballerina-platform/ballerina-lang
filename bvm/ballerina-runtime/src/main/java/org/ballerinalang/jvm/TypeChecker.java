@@ -345,7 +345,7 @@ public class TypeChecker {
             } else if (value instanceof Integer || value instanceof Byte) {
                 return BTypes.typeByte;
             }
-        } else if (value instanceof String) {
+        } else if (value instanceof String || value instanceof BString) {
             return BTypes.typeString;
         } else if (value instanceof Boolean) {
             return BTypes.typeBoolean;
