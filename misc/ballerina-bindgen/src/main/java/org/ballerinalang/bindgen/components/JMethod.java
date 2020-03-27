@@ -62,6 +62,7 @@ public class JMethod {
     private String javaMethodName;
 
     private List<JParameter> parameters = new ArrayList<>();
+    private StringBuilder paramTypes = new StringBuilder();
 
     JMethod(Method m) {
 
@@ -94,6 +95,7 @@ public class JMethod {
         this.isInstance = !isStaticMethod(m);
         this.isStatic = isStaticMethod(m);
         for (Parameter param : m.getParameters()) {
+            paramTypes.append(param.getType().getSimpleName().toLowerCase());
             JParameter parameter = new JParameter(param);
             this.parameters.add(parameter);
             if (parameter.isPrimitiveArray) {
@@ -130,5 +132,15 @@ public class JMethod {
                 classListForLooping.add(m.getReturnType().getName());
             }
         }
+    }
+
+    public String getJavaMethodName() {
+
+        return javaMethodName;
+    }
+
+    public String getParamTypes() {
+
+        return paramTypes.toString();
     }
 }
