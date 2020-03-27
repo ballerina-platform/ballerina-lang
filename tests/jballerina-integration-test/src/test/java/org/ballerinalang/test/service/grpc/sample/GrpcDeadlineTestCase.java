@@ -34,8 +34,6 @@ import java.nio.file.Paths;
 
 /**
  * Test class for gRPC deadline support.
- *
- * @since 1.1.4
  */
 @Test(groups = "grpc-test")
 public class GrpcDeadlineTestCase {
