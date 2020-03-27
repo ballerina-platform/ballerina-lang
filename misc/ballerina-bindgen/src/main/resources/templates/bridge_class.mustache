@@ -28,10 +28,10 @@ public type {{shortClassName}} object {
     public function {{#reservedWord}}{{#controlChars methodName ""}}{{/controlChars}}{{/reservedWord}}{{#noReservedWord}}{{methodName}}{{/noReservedWord}}({{#parameters}}{{shortTypeName}} {{fieldName}}{{#notLast}}, {{/notLast}}{{/parameters}}) {{#hasReturn}}returns {{returnType}}{{#if isStringReturn}}?{{/if}}{{#if exceptionTypes}}|error{{/if}} {{/hasReturn}}{{#noReturn}}{{#if exceptionTypes}}returns error? {{else if hasPrimitiveParam}}returns error? {{/if}}{{/noReturn}}{
     {{#if objectReturn}}{{#if isArrayReturn}}
         {{returnType}} obj = [];
-        handle[] handleObj = <handle[]>getArrayFromHandle({{#exceptionTypes}}check {{/exceptionTypes}}{{prefix}}_{{methodName}}(self.jObj{{#noParams}}, {{/noParams}}{{#parameters}}{{#if isObjArray}}check getHandleFromObjectArray({{fieldName}}, "{{componentType}}"){{else if isPrimitiveArray}}check getHandleFromArray({{fieldName}}, "{{componentType}}"){{else if isString}}java:fromString({{fieldName}}){{else}}{{fieldName}}{{#isObj}}.jObj{{/isObj}}{{/if}}{{#notLast}}, {{/notLast}}{{/parameters}}));
-        int count = handleObj.length();
+        {{#if isStringArrayReturn}}any[] anyObj = {{else}}handle[] anyObj = <handle[]>{{/if}}getArrayFromHandle({{#exceptionTypes}}check {{/exceptionTypes}}{{prefix}}_{{methodName}}(self.jObj{{#noParams}}, {{/noParams}}{{#parameters}}{{#if isObjArray}}check getHandleFromObjectArray({{fieldName}}, "{{componentType}}"){{else if isPrimitiveArray}}check getHandleFromArray({{fieldName}}, "{{componentType}}"){{else if isString}}java:fromString({{fieldName}}){{else}}{{fieldName}}{{#isObj}}.jObj{{/isObj}}{{/if}}{{#notLast}}, {{/notLast}}{{/parameters}}));
+        int count = anyObj.length();
         foreach int i in 0 ... count-1 {
-            obj[i].jObj = handleObj[i];
+            obj[i]{{#unless isStringArrayReturn}}.jObj{{/unless}} = {{#if isStringArrayReturn}}<string>{{/if}}anyObj[i];
         }
         return obj;{{else}}
         {{returnType}} obj = new({{#if exceptionTypes}}check {{/if}}{{#if isStringReturn}}java:toString({{/if}}{{prefix}}_{{methodName}}(self.jObj{{#noParams}}, {{/noParams}}{{#parameters}}{{#if isObjArray}}check getHandleFromObjectArray({{fieldName}}, "{{componentType}}"){{else if isPrimitiveArray}}check getHandleFromArray({{fieldName}}, "{{componentType}}"){{else if isString}}java:fromString({{fieldName}}){{else}}{{fieldName}}{{#isObj}}.jObj{{/isObj}}{{/if}}{{#notLast}}, {{/notLast}}{{/parameters}}){{#if isStringReturn}}){{/if}});
@@ -54,10 +54,10 @@ public function new{{shortClassName}}{{constructorName}}({{#parameters}}{{shortT
 public function {{methodPrefix}}_{{methodName}}({{#parameters}}{{shortTypeName}} {{fieldName}}{{#notLast}}, {{/notLast}}{{/parameters}}) {{#hasReturn}}returns {{returnType}}{{#if isStringReturn}}?{{/if}}{{#exceptionTypes}}|error{{/exceptionTypes}} {{/hasReturn}}{{#noReturn}}{{#if exceptionTypes}}returns error? {{else if hasPrimitiveParam}}returns error? {{/if}}{{/noReturn}}{
 {{#if objectReturn}}{{#if isArrayReturn}}
     {{returnType}} obj = [];
-    handle[] handleObj = <handle[]>getArrayFromHandle({{#if exceptionTypes}}check {{/if}}{{prefix}}_{{methodName}}({{#parameters}}{{#if isObjArray}}check getHandleFromObjectArray({{fieldName}}, "{{componentType}}"){{else if isPrimitiveArray}}check getHandleFromArray({{fieldName}}, "{{componentType}}"){{else if isString}}java:fromString({{fieldName}}){{else}}{{fieldName}}{{#isObj}}.jObj{{/isObj}}{{/if}}{{#notLast}}, {{/notLast}}{{/parameters}}));
-    int count = handleObj.length();
+    {{#if isStringArrayReturn}}any[] anyObj = {{else}}handle[] anyObj = <handle[]>{{/if}}getArrayFromHandle({{#if exceptionTypes}}check {{/if}}{{prefix}}_{{methodName}}({{#parameters}}{{#if isObjArray}}check getHandleFromObjectArray({{fieldName}}, "{{componentType}}"){{else if isPrimitiveArray}}check getHandleFromArray({{fieldName}}, "{{componentType}}"){{else if isString}}java:fromString({{fieldName}}){{else}}{{fieldName}}{{#isObj}}.jObj{{/isObj}}{{/if}}{{#notLast}}, {{/notLast}}{{/parameters}}));
+    int count = anyObj.length();
     foreach int i in 0 ... count-1 {
-        obj[i].jObj = handleObj[i];
+        obj[i]{{#unless isStringArrayReturn}}.jObj{{/unless}} = {{#if isStringArrayReturn}}<string>{{/if}}anyObj[i];
     }
     return obj;{{else}}
     {{returnType}} obj = new({{#if exceptionTypes}}check {{/if}}{{#if isStringReturn}}java:toString({{/if}}{{prefix}}_{{methodName}}({{#parameters}}{{#if isObjArray}}check getHandleFromObjectArray({{fieldName}}, "{{componentType}}"){{else if isPrimitiveArray}}check getHandleFromArray({{fieldName}}, "{{componentType}}"){{else if isString}}java:fromString({{fieldName}}){{else}}{{fieldName}}{{#isObj}}.jObj{{/isObj}}{{/if}}{{#notLast}}, {{/notLast}}{{/parameters}}){{#if isStringReturn}}){{/if}});
