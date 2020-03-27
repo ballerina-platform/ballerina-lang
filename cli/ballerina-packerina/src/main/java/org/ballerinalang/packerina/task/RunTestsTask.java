@@ -73,6 +73,7 @@ import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_COM
  */
 public class RunTestsTask implements Task {
     private final String[] args;
+    private boolean report;
     private boolean coverage;
     private Path testJarPath;
     TestReport testReport;
@@ -83,8 +84,10 @@ public class RunTestsTask implements Task {
         testReport = new TestReport();
     }
 
-    public RunTestsTask(boolean coverage, String[] args, List<String> groupList, List<String> disableGroupList) {
+    public RunTestsTask(boolean report, boolean coverage, String[] args, List<String> groupList,
+                        List<String> disableGroupList) {
         this.args = args;
+        this.report = report;
         this.coverage = coverage;
         TesterinaRegistry testerinaRegistry = TesterinaRegistry.getInstance();
         if (disableGroupList != null) {
@@ -140,6 +143,7 @@ public class RunTestsTask implements Task {
                 buildContext.out().println();
                 continue;
             }
+            suite.setReportRequired(report || coverage);
             HashSet<Path> testDependencies = getTestDependencies(buildContext, bLangPackage);
             Path jsonPath = buildContext.getTestJsonPathTargetCache(bLangPackage.packageID);
             createTestJson(bLangPackage, suite, sourceRootPath, jsonPath);
@@ -148,12 +152,14 @@ public class RunTestsTask implements Task {
                 result = testResult;
             }
 
-            Path statusJsonPath = jsonPath.resolve(TesterinaConstants.STATUS_FILE);
-            try {
-                ModuleStatus moduleStatus = loadModuleStatusFromFile(statusJsonPath);
-                testReport.addModuleStatus(String.valueOf(bLangPackage.packageID.name), moduleStatus);
-            } catch (IOException e) {
-                throw createLauncherException("error while generating test report", e);
+            if (report || coverage) {
+                Path statusJsonPath = jsonPath.resolve(TesterinaConstants.STATUS_FILE);
+                try {
+                    ModuleStatus moduleStatus = loadModuleStatusFromFile(statusJsonPath);
+                    testReport.addModuleStatus(String.valueOf(bLangPackage.packageID.name), moduleStatus);
+                } catch (IOException e) {
+                    throw createLauncherException("error while generating test report", e);
+                }
             }
 
             if (coverage) {
@@ -170,8 +176,10 @@ public class RunTestsTask implements Task {
                 }
             }
         }
-        testReport.finalizeTestResults(coverage);
-        generateHtmlReport(buildContext.out(), testReport, targetDir);
+        if (report || coverage) {
+            testReport.finalizeTestResults(coverage);
+            generateHtmlReport(buildContext.out(), testReport, targetDir);
+        }
         if (result != 0) {
             throw createLauncherException("there are test failures");
         }
