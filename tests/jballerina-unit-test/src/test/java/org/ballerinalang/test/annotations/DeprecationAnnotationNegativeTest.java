@@ -35,7 +35,7 @@ public class DeprecationAnnotationNegativeTest {
     public void testDeprecationAnnotation() {
 
         CompileResult compileResult = BCompileUtil.compile("test-src/annotations/deprecation_annotation_negative.bal");
-        Assert.assertEquals(compileResult.getErrorCount(), 5);
+        Assert.assertEquals(compileResult.getErrorCount(), 13);
         int i = 0;
         BAssertUtil.validateError(compileResult, i++, "constructs annotated as '@deprecated' must have 'Deprecated' " +
                 "documentation", 4, 1);
@@ -45,7 +45,23 @@ public class DeprecationAnnotationNegativeTest {
                 "documentation", 18, 1);
         BAssertUtil.validateError(compileResult, i++, "invalid documentation: 'Deprecated' documentation is only " +
                 "allowed on constructs annotated as '@deprecated'", 23, 5);
-        BAssertUtil.validateError(compileResult, i, "constructs annotated as '@deprecated' must have 'Deprecated' " +
+        BAssertUtil.validateError(compileResult, i++, "constructs annotated as '@deprecated' must have 'Deprecated' " +
                 "documentation", 36, 1);
+        BAssertUtil.validateError(compileResult, i++, "constructs annotated as '@deprecated' must have 'Deprecated' " +
+                "documentation", 50, 60);
+        BAssertUtil.validateError(compileResult, i++, "constructs annotated as '@deprecated' must have 'Deprecated' " +
+                "documentation", 59, 15);
+        BAssertUtil.validateError(compileResult, i++, "constructs annotated as '@deprecated' must have 'Deprecated' " +
+                "documentation", 59, 41);
+        BAssertUtil.validateError(compileResult, i++, "constructs annotated as '@deprecated' must have 'Deprecated' " +
+                "documentation", 59, 60);
+        BAssertUtil.validateError(compileResult, i++, "invalid documentation: 'Deprecated' documentation is only " +
+                "allowed on constructs annotated as '@deprecated'", 71, 5);
+        BAssertUtil.validateError(compileResult, i++, "constructs annotated as '@deprecated' must have 'Deprecated' " +
+                "documentation", 108, 5);
+        BAssertUtil.validateError(compileResult, i++, "invalid documentation: 'Deprecated' documentation is only " +
+                "allowed on constructs annotated as '@deprecated'", 120, 5);
+        BAssertUtil.validateError(compileResult, i, "constructs annotated as '@deprecated' must have 'Deprecated' " +
+                "documentation", 135, 5);
     }
 }

@@ -34,7 +34,7 @@ public class DeprecationAnnotationTest {
     @Test(description = "Test the deprecation annotation")
     public void testDeprecationAnnotation() {
         CompileResult compileResult = BCompileUtil.compile("test-src/annotations/deprecation_annotation.bal");
-        Assert.assertEquals(compileResult.getWarnCount(), 8);
+        Assert.assertEquals(compileResult.getWarnCount(), 29);
 
         int i = 0;
         BAssertUtil.validateWarning(compileResult, i++, "usage of construct 'Foo' is deprecated", 24, 5);
@@ -43,8 +43,29 @@ public class DeprecationAnnotationTest {
         BAssertUtil.validateWarning(compileResult, i++, "usage of construct 'DummyObject' is deprecated", 45, 23);
         BAssertUtil.validateWarning(compileResult, i++, "usage of construct 'Foo' is deprecated", 45, 40);
         BAssertUtil.validateWarning(compileResult, i++, "usage of construct 'CONST1' is deprecated", 45, 62);
-        BAssertUtil.validateWarning(compileResult, i++, "usage of construct 'func1' is deprecated", 46, 5);
-        BAssertUtil.validateWarning(compileResult, i, "usage of construct 'func3' is deprecated", 54, 5);
+        BAssertUtil.validateWarning(compileResult, i++, "usage of construct 'func1()' is deprecated", 46, 5);
+        BAssertUtil.validateWarning(compileResult, i++, "usage of construct 'func3()' is deprecated", 54, 5);
+        BAssertUtil.validateWarning(compileResult, i++, "usage of construct 'v1' is deprecated", 74, 1);
+        BAssertUtil.validateWarning(compileResult, i++, "usage of construct 'v1' is deprecated", 86, 21);
+        BAssertUtil.validateWarning(compileResult, i++, "usage of construct 'v2' is deprecated", 87, 23);
+        BAssertUtil.validateWarning(compileResult, i++, "usage of construct 'v1' is deprecated", 90, 1);
+        BAssertUtil.validateWarning(compileResult, i++, "usage of construct 'v2' is deprecated", 93, 1);
+        BAssertUtil.validateWarning(compileResult, i++, "usage of construct 'v2' is deprecated", 96, 1);
+        BAssertUtil.validateWarning(compileResult, i++, "usage of construct 'v4' is deprecated", 102, 5);
+        BAssertUtil.validateWarning(compileResult, i++, "usage of construct 'v4' is deprecated", 109, 1);
+        BAssertUtil.validateWarning(compileResult, i++, "usage of construct 'x' is deprecated", 128, 12);
+        BAssertUtil.validateWarning(compileResult, i++, "usage of construct 'y' is deprecated", 128, 16);
+        BAssertUtil.validateWarning(compileResult, i++, "usage of construct 'z' is deprecated", 128, 20);
+        BAssertUtil.validateWarning(compileResult, i++, "usage of construct 'x' is deprecated", 133, 12);
+        BAssertUtil.validateWarning(compileResult, i++, "usage of construct 'y' is deprecated", 133, 16);
+        BAssertUtil.validateWarning(compileResult, i++, "usage of construct 'z' is deprecated", 133, 20);
+        BAssertUtil.validateWarning(compileResult, i++, "usage of construct 'self.fieldOne' is deprecated", 151, 9);
+        BAssertUtil.validateWarning(compileResult, i++, "usage of construct 'self.t' is deprecated", 152, 9);
+        BAssertUtil.validateWarning(compileResult, i++, "usage of construct 'self.fieldOne' is deprecated", 172, 9);
+        BAssertUtil.validateWarning(compileResult, i++, "usage of construct 'self.t' is deprecated", 173, 9);
+        BAssertUtil.validateWarning(compileResult, i++, "usage of construct 'add1(2, 3, 3)' is deprecated", 178, 14);
+        BAssertUtil.validateWarning(compileResult, i++, "usage of construct 'add2(2, 4, 5)' is deprecated", 179, 14);
+        BAssertUtil.validateWarning(compileResult, i, "usage of construct 'Object1' is deprecated", 180, 5);
     }
 
     @Test(description = "Test the deprecation annotation")
