@@ -510,6 +510,7 @@ public class ArrayValueImpl extends AbstractArrayValue {
      * 
      * @return the value that was the first member of the array
      */
+    @Override
     public Object shift() {
         return shift(0);
     }
@@ -568,11 +569,6 @@ public class ArrayValueImpl extends AbstractArrayValue {
                 break;
         }
         return sj.toString();
-    }
-
-    @Override
-    public BString bStringValue() {
-        return org.ballerinalang.jvm.StringUtils.fromString(stringValue());
     }
 
     @Override
@@ -926,7 +922,8 @@ public class ArrayValueImpl extends AbstractArrayValue {
         // to the array, then an exception will be thrown.
         if (arrayType.hasFillerValue()) {
             return;
-        } else if (index > size) {
+        }
+        if (index > size) {
             throw BLangExceptionHelper.getRuntimeException(BallerinaErrorReasons.ILLEGAL_LIST_INSERTION_ERROR,
                                                            RuntimeErrors.ILLEGAL_ARRAY_INSERTION, size, index + 1);
         }
