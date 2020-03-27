@@ -24,6 +24,8 @@ import org.ballerinalang.observe.trace.extension.choreo.gen.NegotiatorOuterClass
 import org.ballerinalang.observe.trace.extension.choreo.gen.NegotiatorOuterClass.PublishProgramRequest;
 import org.ballerinalang.observe.trace.extension.choreo.gen.TelemetryGrpc;
 import org.ballerinalang.observe.trace.extension.choreo.gen.TelemetryOuterClass;
+import org.ballerinalang.observe.trace.extension.choreo.logging.LogFactory;
+import org.ballerinalang.observe.trace.extension.choreo.logging.Logger;
 import org.ballerinalang.observe.trace.extension.choreo.model.ChoreoMetric;
 import org.ballerinalang.observe.trace.extension.choreo.model.ChoreoTraceSpan;
 
@@ -34,6 +36,8 @@ import java.util.concurrent.TimeUnit;
  * Manages the communication with Choreo cloud.
  */
 public class ChoreoClient implements AutoCloseable {
+    private static final Logger LOGGER = LogFactory.getLogger();
+
     private String id;      // ID received from the handshake
     private String instanceId;
     private ManagedChannel channel;
@@ -42,6 +46,8 @@ public class ChoreoClient implements AutoCloseable {
     private Thread uploadingThread;
 
     public ChoreoClient(String hostname, int port, boolean useSSL) {
+        LOGGER.info("initializing connection with observability backend " + hostname + ":" + port);
+
         ManagedChannelBuilder<?> channelBuilder = ManagedChannelBuilder.forAddress(hostname, port);
         if (!useSSL) {
             channelBuilder.usePlaintext();
