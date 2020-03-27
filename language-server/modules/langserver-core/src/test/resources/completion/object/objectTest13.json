@@ -257,17 +257,6 @@
             "insertTextFormat": "Snippet"
         },
         {
-            "label": "ClientConfiguration",
-            "kind": "Struct",
-            "detail": "Record",
-            "documentation": {
-                "left": "Provides a set of configurations for controlling the behaviours when communicating with a remote HTTP endpoint.\n"
-            },
-            "sortText": "221",
-            "insertText": "ClientConfiguration",
-            "insertTextFormat": "Snippet"
-        },
-        {
             "label": "ClientHttp1Settings",
             "kind": "Struct",
             "detail": "Record",
@@ -316,7 +305,7 @@
             "kind": "Struct",
             "detail": "Record",
             "documentation": {
-                "left": "Provides configurations for controlling the endpoint\u0027s behaviour in response to HTTP redirect related responses.\n"
+                "left": "Provides configurations for controlling the endpoint's behaviour in response to HTTP redirect related responses.\n"
             },
             "sortText": "221",
             "insertText": "FollowRedirects",
@@ -393,7 +382,7 @@
             "kind": "Interface",
             "detail": "Object",
             "documentation": {
-                "left": "Represents a \u0027future\u0027 that returns as a result of an asynchronous HTTP request submission.\nThis can be used as a reference to fetch the results of the submission."
+                "left": "Represents a 'future' that returns as a result of an asynchronous HTTP request submission.\nThis can be used as a reference to fetch the results of the submission."
             },
             "sortText": "221",
             "insertText": "HttpFuture",
@@ -541,6 +530,17 @@
             "detail": "Record",
             "sortText": "221",
             "insertText": "HTTPError",
+            "insertTextFormat": "Snippet"
+        },
+        {
+            "label": "CommonClientConfiguration",
+            "kind": "Struct",
+            "detail": "Record",
+            "documentation": {
+                "left": "Common client configurations for the next level clients.\n"
+            },
+            "sortText": "221",
+            "insertText": "CommonClientConfiguration",
             "insertTextFormat": "Snippet"
         },
         {
@@ -811,7 +811,7 @@
             "kind": "Struct",
             "detail": "Record",
             "documentation": {
-                "left": "Provides a set of HTTP related configurations and failover related configurations.\n"
+                "left": "Provides a set of HTTP related configurations and failover related configurations.\n\nhttpVersion - Copied from CommonClientConfiguration\nhttp1Settings - Copied from CommonClientConfiguration\nhttp2Settings - Copied from CommonClientConfiguration\ntimeoutInMillis - Copied from CommonClientConfiguration\nforwarded - Copied from CommonClientConfiguration\nfollowRedirects - Copied from CommonClientConfiguration\npoolConfig - Copied from CommonClientConfiguration\ncache - Copied from CommonClientConfiguration\ncompression - Copied from CommonClientConfiguration\nauth - Copied from CommonClientConfiguration\ncircuitBreaker - Copied from CommonClientConfiguration\nretryConfig - Copied from CommonClientConfiguration\ncookieConfig - Copied from CommonClientConfiguration"
             },
             "sortText": "221",
             "insertText": "FailoverClientConfiguration",
@@ -964,7 +964,7 @@
             "kind": "Struct",
             "detail": "Record",
             "documentation": {
-                "left": "The configurations related to the load balance client endpoint.\n"
+                "left": "The configurations related to the load balance client endpoint.\n\nhttpVersion - Copied from CommonClientConfiguration\nhttp1Settings - Copied from CommonClientConfiguration\nhttp2Settings - Copied from CommonClientConfiguration\ntimeoutInMillis - Copied from CommonClientConfiguration\nforwarded - Copied from CommonClientConfiguration\nfollowRedirects - Copied from CommonClientConfiguration\npoolConfig - Copied from CommonClientConfiguration\ncache - Copied from CommonClientConfiguration\ncompression - Copied from CommonClientConfiguration\nauth - Copied from CommonClientConfiguration\ncircuitBreaker - Copied from CommonClientConfiguration\nretryConfig - Copied from CommonClientConfiguration\ncookieConfig - Copied from CommonClientConfiguration"
             },
             "sortText": "221",
             "insertText": "LoadBalanceClientConfiguration",
@@ -1151,6 +1151,17 @@
             },
             "sortText": "221",
             "insertText": "BearerAuthHandler",
+            "insertTextFormat": "Snippet"
+        },
+        {
+            "label": "ClientConfiguration",
+            "kind": "Struct",
+            "detail": "Record",
+            "documentation": {
+                "left": "Provides a set of configurations for controlling the behaviours when communicating with a remote HTTP endpoint.\n\nhttpVersion - Copied from CommonClientConfiguration\nhttp1Settings - Copied from CommonClientConfiguration\nhttp2Settings - Copied from CommonClientConfiguration\ntimeoutInMillis - Copied from CommonClientConfiguration\nforwarded - Copied from CommonClientConfiguration\nfollowRedirects - Copied from CommonClientConfiguration\npoolConfig - Copied from CommonClientConfiguration\ncache - Copied from CommonClientConfiguration\ncompression - Copied from CommonClientConfiguration\nauth - Copied from CommonClientConfiguration\ncircuitBreaker - Copied from CommonClientConfiguration\nretryConfig - Copied from CommonClientConfiguration\ncookieConfig - Copied from CommonClientConfiguration"
+            },
+            "sortText": "221",
+            "insertText": "ClientConfiguration",
             "insertTextFormat": "Snippet"
         },
         {

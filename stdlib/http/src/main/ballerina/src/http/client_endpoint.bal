@@ -233,35 +233,23 @@ public type TargetService record {|
 
 # Provides a set of configurations for controlling the behaviours when communicating with a remote HTTP endpoint.
 #
-# + httpVersion - The HTTP version understood by the client
-# + http1Settings - Configurations related to HTTP/1.x protocol
-# + http2Settings - Configurations related to HTTP/2 protocol
-# + timeoutInMillis - The maximum time to wait (in milliseconds) for a response before closing the connection
-# + forwarded - The choice of setting `forwarded`/`x-forwarded` header
-# + followRedirects - Configurations associated with Redirection
-# + poolConfig - Configurations associated with request pooling
+# httpVersion - Copied from CommonClientConfiguration
+# http1Settings - Copied from CommonClientConfiguration
+# http2Settings - Copied from CommonClientConfiguration
+# timeoutInMillis - Copied from CommonClientConfiguration
+# forwarded - Copied from CommonClientConfiguration
+# followRedirects - Copied from CommonClientConfiguration
+# poolConfig - Copied from CommonClientConfiguration
+# cache - Copied from CommonClientConfiguration
+# compression - Copied from CommonClientConfiguration
+# auth - Copied from CommonClientConfiguration
+# circuitBreaker - Copied from CommonClientConfiguration
+# retryConfig - Copied from CommonClientConfiguration
+# cookieConfig - Copied from CommonClientConfiguration
 # + secureSocket - SSL/TLS related options
-# + cache - HTTP caching related configurations
-# + compression - Specifies the way of handling compression (`accept-encoding`) header
-# + auth - HTTP authentication-related configurations
-# + circuitBreaker - Configurations associated with the behaviour of the Circuit Breaker
-# + retryConfig - Configurations associated with retrying
-# + cookieConfig - Configurations associated with cookies
 public type ClientConfiguration record {|
-    string httpVersion = HTTP_1_1;
-    ClientHttp1Settings http1Settings = {};
-    ClientHttp2Settings http2Settings = {};
-    int timeoutInMillis = 60000;
-    string forwarded = "disable";
-    FollowRedirects? followRedirects = ();
-    PoolConfiguration? poolConfig = ();
+    *CommonClientConfiguration;
     ClientSecureSocket? secureSocket = ();
-    CacheConfig cache = {};
-    Compression compression = COMPRESSION_AUTO;
-    OutboundAuthConfig? auth = ();
-    CircuitBreakerConfig? circuitBreaker = ();
-    RetryConfig? retryConfig = ();
-    CookieConfig? cookieConfig = ();
 |};
 
 # Provides settings related to HTTP/1.x protocol.

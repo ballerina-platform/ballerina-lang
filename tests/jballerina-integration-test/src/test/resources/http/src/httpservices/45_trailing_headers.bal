@@ -21,11 +21,10 @@ http:Client clientEp = new ("http://localhost:9257");
 
 service initiator on new http:Listener(9256) {
     @http:ResourceConfig {
-        path: "{isChunking}"
+        path: "{svc}/{rsc}"
     }
-    resource function echoResponse(http:Caller caller, http:Request request, boolean isChunking) {
-        string path = isChunking ? "/chunkingBackend/echo" : "/nonChunkingBackend/echo";
-        var responseFromBackend = clientEp->forward(path, request);
+    resource function echoResponse(http:Caller caller, http:Request request, string svc, string rsc) {
+        var responseFromBackend = clientEp->forward("/" + <@untainted> svc + "/" + <@untainted> rsc, request);
         if (responseFromBackend is http:Response) {
             var textPayload = responseFromBackend.getTextPayload();
 
@@ -63,6 +62,14 @@ service chunkingBackend on epBackend {
         response.setTextPayload(<@untainted> inPayload);
         response.setHeader("foo", "Trailer for chunked payload", position = "trailing");
         response.setHeader("baz", "The second trailer", position = "trailing");
+        var result = caller->respond(response);
+    }
+
+    resource function empty(http:Caller caller, http:Request request) {
+        http:Response response = new;
+        response.setTextPayload("");
+        response.setHeader("foo", "Trailer for empty payload", position = "trailing");
+        response.setHeader("baz", "The second trailer for empty payload", position = "trailing");
         var result = caller->respond(response);
     }
 }

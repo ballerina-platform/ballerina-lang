@@ -39,7 +39,8 @@ public class TrailingHeadersTestCase extends HttpBaseTest {
     @Test(description = "Test inbound chunked response trailers with a payload lesser than 8K")
     public void testSmallPayloadResponseTrailers() throws IOException {
         HttpResponse response = HttpClientRequest.doPost(
-                serverInstance.getServiceURLHttp(servicePort, "initiator/true"), "Small payload", new HashMap<>());
+                serverInstance.getServiceURLHttp(servicePort, "initiator/chunkingBackend/echo"), "Small payload",
+                new HashMap<>());
         Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
         Assert.assertEquals(response.getData(), "{\"foo\":\"Trailer for chunked payload\", \"baz\":\"The second " +
                 "trailer\"}");
@@ -49,7 +50,7 @@ public class TrailingHeadersTestCase extends HttpBaseTest {
     @Test(description = "Test inbound chunked response trailers with a payload greater than 8K")
     public void testLargePayloadResponseTrailers() throws IOException {
         HttpResponse response = HttpClientRequest.doPost(
-                serverInstance.getServiceURLHttp(servicePort, "initiator/true"), TestUtils.LARGE_ENTITY,
+                serverInstance.getServiceURLHttp(servicePort, "initiator/chunkingBackend/echo"), TestUtils.LARGE_ENTITY,
                 new HashMap<>());
         Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
         Assert.assertEquals(response.getData(), "{\"foo\":\"Trailer for chunked payload\", \"baz\":\"The second " +
@@ -57,10 +58,21 @@ public class TrailingHeadersTestCase extends HttpBaseTest {
         Assert.assertEquals(response.getHeaders().get("response-trailer"), "foo, baz");
     }
 
+    @Test(description = "Test inbound chunked response trailers with an empty payload")
+    public void testEmptyPayloadResponseTrailers() throws IOException {
+        HttpResponse response = HttpClientRequest.doGet(
+                serverInstance.getServiceURLHttp(servicePort, "initiator/chunkingBackend/empty"));
+        Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
+        Assert.assertEquals(response.getData(), "{\"foo\":\"Trailer for empty payload\", \"baz\":\"The second " +
+                "trailer for empty payload\"}");
+        Assert.assertEquals(response.getHeaders().get("response-trailer"), "foo, baz");
+    }
+
     @Test(description = "Negative test for inbound response trailers with <8K payload")
     public void testSmallPayloadForNonChunkedResponse() throws IOException {
         HttpResponse response = HttpClientRequest.doPost(
-                serverInstance.getServiceURLHttp(servicePort, "initiator/false"), "Small payload", new HashMap<>());
+                serverInstance.getServiceURLHttp(servicePort, "initiator/nonChunkingBackend/echo"), "Small payload",
+                new HashMap<>());
         Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
         Assert.assertEquals(response.getData(),
                             "{\"foo\":\"No trailer header foo\", \"baz\":\"No trailer header baz\"}");
@@ -70,8 +82,8 @@ public class TrailingHeadersTestCase extends HttpBaseTest {
     @Test(description = "Negative test for inbound response trailers with a payload greater than 8K")
     public void testLargePayloadForNonChunkedResponse() throws IOException {
         HttpResponse response = HttpClientRequest.doPost(
-                serverInstance.getServiceURLHttp(servicePort, "initiator/false"), TestUtils.LARGE_ENTITY,
-                new HashMap<>());
+                serverInstance.getServiceURLHttp(servicePort, "initiator/nonChunkingBackend/echo"),
+                TestUtils.LARGE_ENTITY, new HashMap<>());
         Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
         Assert.assertEquals(response.getData(),
                             "{\"foo\":\"No trailer header foo\", \"baz\":\"No trailer header baz\"}");

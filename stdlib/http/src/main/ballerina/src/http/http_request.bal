@@ -617,8 +617,10 @@ function externCheckReqEntityBodyAvailability(Request request) returns boolean =
 # A record for providing mutual SSL handshake results.
 #
 # + status - Status of the handshake.
+# + base64EncodedCert - Base64 encoded certificate.
 public type MutualSslHandshake record {|
     MutualSslStatus status = ();
+    string? base64EncodedCert = ();
 |};
 
 # Defines the possible values for the mutual ssl status.

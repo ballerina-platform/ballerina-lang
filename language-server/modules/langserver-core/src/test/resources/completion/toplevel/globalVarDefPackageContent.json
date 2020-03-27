@@ -152,7 +152,7 @@
             "documentation": {
                 "right": {
                     "kind": "markdown",
-                    "value": "Indicates that the client is only accepting responses whose freshness lifetime \u003e\u003d current age + min-fresh."
+                    "value": "Indicates that the client is only accepting responses whose freshness lifetime >= current age + min-fresh."
                 }
             },
             "sortText": "130",
@@ -2444,17 +2444,6 @@
             "insertTextFormat": "Snippet"
         },
         {
-            "label": "ClientConfiguration",
-            "kind": "Struct",
-            "detail": "Record",
-            "documentation": {
-                "left": "Provides a set of configurations for controlling the behaviours when communicating with a remote HTTP endpoint.\n"
-            },
-            "sortText": "180",
-            "insertText": "ClientConfiguration",
-            "insertTextFormat": "Snippet"
-        },
-        {
             "label": "ClientHttp1Settings",
             "kind": "Struct",
             "detail": "Record",
@@ -2503,7 +2492,7 @@
             "kind": "Struct",
             "detail": "Record",
             "documentation": {
-                "left": "Provides configurations for controlling the endpoint\u0027s behaviour in response to HTTP redirect related responses.\n"
+                "left": "Provides configurations for controlling the endpoint's behaviour in response to HTTP redirect related responses.\n"
             },
             "sortText": "180",
             "insertText": "FollowRedirects",
@@ -2580,7 +2569,7 @@
             "kind": "Interface",
             "detail": "Object",
             "documentation": {
-                "left": "Represents a \u0027future\u0027 that returns as a result of an asynchronous HTTP request submission.\nThis can be used as a reference to fetch the results of the submission."
+                "left": "Represents a 'future' that returns as a result of an asynchronous HTTP request submission.\nThis can be used as a reference to fetch the results of the submission."
             },
             "sortText": "190",
             "insertText": "HttpFuture",
@@ -2712,6 +2701,17 @@
             },
             "sortText": "180",
             "insertText": "CompressionConfig",
+            "insertTextFormat": "Snippet"
+        },
+        {
+            "label": "CommonClientConfiguration",
+            "kind": "Struct",
+            "detail": "Record",
+            "documentation": {
+                "left": "Common client configurations for the next level clients.\n"
+            },
+            "sortText": "180",
+            "insertText": "CommonClientConfiguration",
             "insertTextFormat": "Snippet"
         },
         {
@@ -3290,7 +3290,7 @@
             "kind": "Struct",
             "detail": "Record",
             "documentation": {
-                "left": "Provides a set of HTTP related configurations and failover related configurations.\n"
+                "left": "Provides a set of HTTP related configurations and failover related configurations.\n\nhttpVersion - Copied from CommonClientConfiguration\nhttp1Settings - Copied from CommonClientConfiguration\nhttp2Settings - Copied from CommonClientConfiguration\ntimeoutInMillis - Copied from CommonClientConfiguration\nforwarded - Copied from CommonClientConfiguration\nfollowRedirects - Copied from CommonClientConfiguration\npoolConfig - Copied from CommonClientConfiguration\ncache - Copied from CommonClientConfiguration\ncompression - Copied from CommonClientConfiguration\nauth - Copied from CommonClientConfiguration\ncircuitBreaker - Copied from CommonClientConfiguration\nretryConfig - Copied from CommonClientConfiguration\ncookieConfig - Copied from CommonClientConfiguration"
             },
             "sortText": "180",
             "insertText": "FailoverClientConfiguration",
@@ -3451,7 +3451,7 @@
             "kind": "Struct",
             "detail": "Record",
             "documentation": {
-                "left": "The configurations related to the load balance client endpoint.\n"
+                "left": "The configurations related to the load balance client endpoint.\n\nhttpVersion - Copied from CommonClientConfiguration\nhttp1Settings - Copied from CommonClientConfiguration\nhttp2Settings - Copied from CommonClientConfiguration\ntimeoutInMillis - Copied from CommonClientConfiguration\nforwarded - Copied from CommonClientConfiguration\nfollowRedirects - Copied from CommonClientConfiguration\npoolConfig - Copied from CommonClientConfiguration\ncache - Copied from CommonClientConfiguration\ncompression - Copied from CommonClientConfiguration\nauth - Copied from CommonClientConfiguration\ncircuitBreaker - Copied from CommonClientConfiguration\nretryConfig - Copied from CommonClientConfiguration\ncookieConfig - Copied from CommonClientConfiguration"
             },
             "sortText": "180",
             "insertText": "LoadBalanceClientConfiguration",
@@ -3699,6 +3699,17 @@
             "insertTextFormat": "Snippet"
         },
         {
+            "label": "ClientConfiguration",
+            "kind": "Struct",
+            "detail": "Record",
+            "documentation": {
+                "left": "Provides a set of configurations for controlling the behaviours when communicating with a remote HTTP endpoint.\n\nhttpVersion - Copied from CommonClientConfiguration\nhttp1Settings - Copied from CommonClientConfiguration\nhttp2Settings - Copied from CommonClientConfiguration\ntimeoutInMillis - Copied from CommonClientConfiguration\nforwarded - Copied from CommonClientConfiguration\nfollowRedirects - Copied from CommonClientConfiguration\npoolConfig - Copied from CommonClientConfiguration\ncache - Copied from CommonClientConfiguration\ncompression - Copied from CommonClientConfiguration\nauth - Copied from CommonClientConfiguration\ncircuitBreaker - Copied from CommonClientConfiguration\nretryConfig - Copied from CommonClientConfiguration\ncookieConfig - Copied from CommonClientConfiguration"
+            },
+            "sortText": "180",
+            "insertText": "ClientConfiguration",
+            "insertTextFormat": "Snippet"
+        },
+        {
             "label": "RequestMessage",
             "kind": "Enum",
             "detail": "Union",
@@ -3757,13 +3768,13 @@
             }
         },
         {
-            "label": "parseHeader(string headerValue)(([string,map\u003cany\u003e]|http:FailoverAllEndpointsFailedError|http:FailoverActionFailedError|http:UpstreamServiceUnavailableError|http:AllLoadBalanceEndpointsFailedError|http:AllRetryAttemptsFailed|http:IdleTimeoutError|http:AuthenticationError|http:AuthorizationError|http:InitializingOutboundRequestError|http:WritingOutboundRequestHeadersError|http:WritingOutboundRequestBodyError|http:InitializingInboundResponseError|http:ReadingInboundResponseHeadersError|http:ReadingInboundResponseBodyError|http:UnsupportedActionError|http:Http2ClientError|http:MaximumWaitTimeExceededError|http:SslError|http:GenericClientError))",
+            "label": "parseHeader(string headerValue)(([string,map<any>]|http:FailoverAllEndpointsFailedError|http:FailoverActionFailedError|http:UpstreamServiceUnavailableError|http:AllLoadBalanceEndpointsFailedError|http:AllRetryAttemptsFailed|http:IdleTimeoutError|http:AuthenticationError|http:AuthorizationError|http:InitializingOutboundRequestError|http:WritingOutboundRequestHeadersError|http:WritingOutboundRequestBodyError|http:InitializingInboundResponseError|http:ReadingInboundResponseHeadersError|http:ReadingInboundResponseBodyError|http:UnsupportedActionError|http:Http2ClientError|http:MaximumWaitTimeExceededError|http:SslError|http:GenericClientError))",
             "kind": "Function",
             "detail": "Function",
             "documentation": {
                 "right": {
                     "kind": "markdown",
-                    "value": "**Package:** _ballerina/http_  \n  \nParses the given header value to extract its value and parameter map.\n  \n**Params**  \n- `string` headerValue: The header value  \n  \n**Returns** `([string,map\u003cany\u003e]|http:FailoverAllEndpointsFailedError|http:FailoverActionFailedError|http:UpstreamServiceUnavailableError|http:AllLoadBalanceEndpointsFailedError|http:AllRetryAttemptsFailed|http:IdleTimeoutError|http:AuthenticationError|http:AuthorizationError|http:InitializingOutboundRequestError|http:WritingOutboundRequestHeadersError|http:WritingOutboundRequestBodyError|http:InitializingInboundResponseError|http:ReadingInboundResponseHeadersError|http:ReadingInboundResponseBodyError|http:UnsupportedActionError|http:Http2ClientError|http:MaximumWaitTimeExceededError|http:SslError|http:GenericClientError)`   \n- Returns a tuple containing the value and its parameter map  \n  \n"
+                    "value": "**Package:** _ballerina/http_  \n  \nParses the given header value to extract its value and parameter map.\n  \n**Params**  \n- `string` headerValue: The header value  \n  \n**Returns** `([string,map<any>]|http:FailoverAllEndpointsFailedError|http:FailoverActionFailedError|http:UpstreamServiceUnavailableError|http:AllLoadBalanceEndpointsFailedError|http:AllRetryAttemptsFailed|http:IdleTimeoutError|http:AuthenticationError|http:AuthorizationError|http:InitializingOutboundRequestError|http:WritingOutboundRequestHeadersError|http:WritingOutboundRequestBodyError|http:InitializingInboundResponseError|http:ReadingInboundResponseHeadersError|http:ReadingInboundResponseBodyError|http:UnsupportedActionError|http:Http2ClientError|http:MaximumWaitTimeExceededError|http:SslError|http:GenericClientError)`   \n- Returns a tuple containing the value and its parameter map  \n  \n"
                 }
             },
             "sortText": "120",

@@ -353,7 +353,7 @@ public function decodePublicKey(KeyStore|TrustStore keyStore, string keyAlias) r
     return externDecodePublicKey(keyStore, java:fromString(keyAlias));
 }
 
-public function externDecodePublicKey(KeyStore|TrustStore keyStore, handle keyAlias)
+function externDecodePublicKey(KeyStore|TrustStore keyStore, handle keyAlias)
                                       returns PublicKey|Error = @java:Method {
     name: "decodePublicKey",
     class: "org.ballerinalang.stdlib.crypto.nativeimpl.Decode"

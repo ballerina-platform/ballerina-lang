@@ -20,8 +20,12 @@ http:Client clientEp = new ("http://localhost:9109", { httpVersion: "2.0", http2
     http2PriorKnowledge: true }});
 
 service initiator on new http:Listener(9108) {
-    resource function echoResponse(http:Caller caller, http:Request request) {
-        var responseFromBackend = clientEp->forward("/backend/echoResponseWithTrailer", request);
+
+    @http:ResourceConfig {
+        path: "{path}"
+    }
+    resource function echoResponse(http:Caller caller, http:Request request, string path) {
+        var responseFromBackend = clientEp->forward("/backend/" + <@untainted> path, request);
         if (responseFromBackend is http:Response) {
             string trailerHeaderValue = responseFromBackend.getHeader("trailer");
             var textPayload = responseFromBackend.getTextPayload();
@@ -44,9 +48,16 @@ service backend on new http:Listener(9109, {httpVersion: "2.0"}) {
         var textPayload = request.getTextPayload();
         string inPayload = textPayload is string ? textPayload : "error in accessing payload";
         response.setTextPayload(<@untainted> inPayload);
-        response.setHeader("trailer", "foo, baz");
         response.setHeader("foo", "Trailer for echo payload", position = "trailing");
         response.setHeader("baz", "The second trailer", position = "trailing");
+        var result = caller->respond(response);
+    }
+
+    resource function responseEmptyPayloadWithTrailer(http:Caller caller, http:Request request) {
+        http:Response response = new;
+        response.setTextPayload("");
+        response.setHeader("foo", "Trailer for empty payload", position = "trailing");
+        response.setHeader("baz", "The second trailer for empty payload", position = "trailing");
         var result = caller->respond(response);
     }
 }
