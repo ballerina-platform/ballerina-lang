@@ -17,7 +17,7 @@
 import ballerina/grpc;
 import ballerina/time;
 
-HealthServerBlockingClient blockingEp = new ("http://localhost:9113");
+HealthServerBlockingClient healthServicelockingEp = new ("http://localhost:9113");
 
 // Uncomment when you need to run this locally
 // public function main(string... args) {
@@ -37,7 +37,7 @@ public function testRegisterPatient() returns boolean|grpc:Error {
         disease: "Migraine"
     };
 
-    var registerResponse = blockingEp->registerPatient(patient, registerContext);
+    var registerResponse = healthServicelockingEp->registerPatient(patient, registerContext);
     if (registerResponse is grpc:Error) {
         return registerResponse;
     } else {
@@ -55,7 +55,7 @@ public function testGetPatientInfo() returns boolean|grpc:Error {
     grpc:ClientContext getInfoContext = new;
     getInfoContext.setDeadline(getInfoDealine);
 
-    var infoResponse = blockingEp->getPatientInfo(patientId, getInfoContext);
+    var infoResponse = healthServicelockingEp->getPatientInfo(patientId, getInfoContext);
     if (infoResponse is grpc:Error) {
         return infoResponse;
     }

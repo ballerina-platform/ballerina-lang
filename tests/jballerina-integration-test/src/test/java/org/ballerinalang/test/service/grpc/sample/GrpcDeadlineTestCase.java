@@ -33,7 +33,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 /**
- * Test class for gzip communication between client and server.
+ * Test class for gRPC deadline support.
  *
  * @since 1.1.4
  */
@@ -50,20 +50,16 @@ public class GrpcDeadlineTestCase {
         result = BCompileUtil.compile(balFilePath.toAbsolutePath().toString());
     }
 
-    @Test(description = "Test gzip encoding between Ballerina gRPC client and server")
+    @Test(description = "Test data extraction successful when deadline not exceeded")
     public void testRegisterPatient() {
-        final String serverMsg = "gzip encoding succeeded: Order is added 101";
-
         BValue[] responses = BRunUtil.invoke(result, "testRegisterPatient", new Object[]{});
         Assert.assertEquals(responses.length, 1);
         Assert.assertTrue(responses[0] instanceof BBoolean);
     }
 
-    @Test(description = "Test gzip encoding between Ballerina gRPC client and server")
+    @Test(description = "Test data extraction failed when deadline exceeded")
     public void testGetPatientInfo() {
-        final String serverMsg = "gzip encoding succeeded: Order is added 101";
-
-        BValue[] responses = BRunUtil.invoke(result, "testRegisterPatient", new Object[]{});
+        BValue[] responses = BRunUtil.invoke(result, "testGetPatientInfo", new Object[]{});
         Assert.assertEquals(responses.length, 1);
         Assert.assertTrue(responses[0] instanceof BError);
     }
